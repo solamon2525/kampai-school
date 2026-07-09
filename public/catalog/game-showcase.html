@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คลังเกมและสื่อการเรียนรู้ — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f2744;
+      --navy-2: #1a365d;
+      --gold: #c9a227;
+      --gold-light: #f0d878;
+      --bg: #f8f6f1;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(15, 39, 68, 0.08);
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+      color: #fff;
+      box-shadow: 0 2px 20px rgba(0,0,0,.15);
+    }
+    .topbar-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 52px; height: 52px; border-radius: 50%;
+      object-fit: contain; background: rgba(255,255,255,.95);
+      padding: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.2); flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .brand h1 { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+    .brand .school-name { font-size: .82rem; font-weight: 600; color: var(--gold-light); }
+    .brand p { font-size: .78rem; opacity: .75; }
+    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; font-family: inherit;
+      font-size: .85rem; font-weight: 600; cursor: pointer; border: none;
+      text-decoration: none; transition: .2s;
+    }
+    .btn-gold { background: var(--gold); color: var(--navy); }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .btn-ghost:hover { background: rgba(255,255,255,.2); }
+    .btn-ghost.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+
+    /* ── Hero stats ── */
+    .hero {
+      background: linear-gradient(180deg, var(--navy-2) 0%, #243f6b 60%, var(--bg) 100%);
+      padding: 32px 24px 48px;
+      text-align: center; color: #fff;
+    }
+    .hero h2 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .hero .subtitle { font-size: .95rem; opacity: .8; margin-bottom: 10px; }
+    .hero-logo {
+      width: 88px; height: 88px; border-radius: 50%;
+      object-fit: contain; background: rgba(255,255,255,.95);
+      padding: 6px; margin: 0 auto 14px; display: block;
+      box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    }
+    .hero-school { font-size: 1rem; font-weight: 600; color: var(--gold-light); margin-bottom: 4px; }
+    .hero-teacher {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px; padding: 6px 16px; font-size: .85rem;
+      margin-bottom: 24px;
+    }
+    .hero-teacher strong { color: var(--gold-light); font-weight: 700; }
+    .stats {
+      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+      max-width: 800px; margin: 0 auto;
+    }
+    .stat {
+      background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
+      padding: 14px 24px; min-width: 120px;
+    }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--gold-light); }
+    .stat-label { font-size: .75rem; opacity: .75; }
+
+    /* ── Filters ── */
+    .filters {
+      max-width: 1400px; margin: -24px auto 0; padding: 0 24px;
+      position: relative; z-index: 10;
+    }
+    .filter-bar {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .filter-label { font-size: .8rem; font-weight: 600; color: var(--muted); margin-right: 4px; }
+    .chip {
+      padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 600;
+      border: 2px solid var(--border); background: transparent; cursor: pointer;
+      font-family: inherit; color: var(--text); transition: .2s;
+    }
+    .chip:hover { border-color: var(--navy); }
+    .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .chip .count { opacity: .7; font-weight: 400; margin-left: 4px; }
+
+    /* ── Main grid ── */
+    .main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 60px; }
+    .subject-section { margin-bottom: 40px; }
+    .subject-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 3px solid var(--subject-color, var(--gold));
+    }
+    .subject-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--subject-color, var(--gold));
+    }
+    .subject-header h3 { font-size: 1.15rem; font-weight: 700; }
+    .subject-header .cnt { font-size: .8rem; color: var(--muted); font-weight: 500; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    body.present .grid {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform .25s, box-shadow .25s;
+      display: flex; flex-direction: column;
+      animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,39,68,.12); }
+
+    .card-thumb {
+      position: relative; aspect-ratio: 16/9;
+      background: #e2e8f0; overflow: hidden;
+    }
+    .card-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .3s;
+    }
+    .card:hover .card-thumb img { transform: scale(1.04); }
+    .card-thumb .placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    }
+    .type-badge {
+      position: absolute; top: 8px; left: 8px;
+      padding: 3px 10px; border-radius: 6px;
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      backdrop-filter: blur(8px);
+    }
+    .type-game { background: rgba(30,64,175,.85); color: #fff; }
+    .type-media { background: rgba(5,150,105,.85); color: #fff; }
+    .type-hub { background: rgba(124,58,237,.85); color: #fff; }
+
+    .card-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .card-title { font-size: .92rem; font-weight: 700; line-height: 1.35; }
+    .card-grades { display: flex; gap: 4px; flex-wrap: wrap; }
+    .grade-tag {
+      font-size: .65rem; padding: 2px 7px; border-radius: 4px;
+      background: #f1f5f9; color: var(--muted); font-weight: 600;
+    }
+    .grade-tag.p4 { background: #fef3c7; color: #92400e; }
+    .indicators { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+    .ind {
+      font-size: .62rem; padding: 2px 6px; border-radius: 4px;
+      background: #eff6ff; color: #1e40af; font-weight: 600;
+      border: 1px solid #bfdbfe;
+    }
+    .ind.p4 { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .card-actions { margin-top: auto; padding-top: 8px; }
+    .card-link {
+      display: block; text-align: center; padding: 7px;
+      border-radius: 8px; font-size: .78rem; font-weight: 700;
+      text-decoration: none; color: var(--navy);
+      background: #f1f5f9; border: 1px solid var(--border);
+      transition: .2s;
+    }
+    .card-link:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .loading, .error-box {
+      text-align: center; padding: 80px 20px; color: var(--muted);
+    }
+    .error-box { color: #dc2626; }
+
+    footer {
+      text-align: center; padding: 24px; font-size: .8rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--navy); font-weight: 600; }
+    .footer-school { font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .footer-teacher { color: var(--muted); }
+
+    .print-credit { display: none; }
+
+    /* ── Print / Presentation ── */
+    @media print {
+      .topbar, .top-actions, .filter-bar, .card-actions, footer { display: none !important; }
+      .print-credit { display: block; text-align: center; padding: 16px; color: #fff; background: var(--navy); margin-bottom: 16px; }
+      .print-credit img { width: 56px; height: 56px; border-radius: 50%; object-fit: contain; background: #fff; padding: 4px; margin: 0 auto 8px; display: block; }
+      .hero { background: var(--navy); padding: 20px; }
+      .card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    body.present .topbar { position: relative; }
+    body.present .hero { padding: 24px; }
+    body.present .filters { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="print-credit">
+    <img src="https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp" alt="โลโก้โรงเรียนบ้านคำไผ่" />
+    <div>โรงเรียนบ้านคำไผ่</div>
+    <div>ครูณัฐพงศ์ สิงห์ชมภู · ครูผู้ช่วย</div>
+  </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img
+          class="brand-logo"
+          src="https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp"
+          alt="โลโก้โรงเรียนบ้านคำไผ่"
+        />
+        <div>
+          <div class="school-name">โรงเรียนบ้านคำไผ่</div>
+          <h1>คลังเกมและสื่อการเรียนรู้</h1>
+          <p>ครูณัฐพงศ์ สิงห์ชมภู · ครูผู้ช่วย · kampai-school</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-ghost" id="btn-present" type="button">🖥️ โหมดนำเสนอ</button>
+        <button class="btn btn-ghost" id="btn-print" type="button">🖨️ พิมพ์</button>
+        <a class="btn btn-gold" href="/">← กลับหน้าหลัก</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img
+      class="hero-logo"
+      src="https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp"
+      alt="โลโก้โรงเรียนบ้านคำไผ่"
+    />
+    <div class="hero-school">โรงเรียนบ้านคำไผ่</div>
+    <h2>สรุปเกมและสื่อตามตัวชี้วัด</h2>
+    <p class="subtitle">จัดกลุ่มตามวิชา · แสดงปก · ตัวชี้วัดหลักสูตร · ลิงก์เล่นได้ทันที</p>
+    <div class="hero-teacher">
+      จัดทำโดย <strong>ครูณัฐพงศ์ สิงห์ชมภู</strong> · ครูผู้ช่วย · โฟกัส ป.4
+    </div>
+    <div class="stats" id="stats">
+      <div class="stat"><div class="stat-num" id="s-total">—</div><div class="stat-label">รายการ</div></div>
+      <div class="stat"><div class="stat-num" id="s-subjects">—</div><div class="stat-label">วิชา</div></div>
+      <div class="stat"><div class="stat-num" id="s-indicators">—</div><div class="stat-label">มีตัวชี้วัด</div></div>
+      <div class="stat"><div class="stat-num" id="s-p4">—</div><div class="stat-label">เกี่ยวข้อง ป.4</div></div>
+    </div>
+  </section>
+
+  <div class="filters">
+    <div class="filter-bar" id="filter-bar">
+      <span class="filter-label">วิชา:</span>
+      <button class="chip active" data-subject="all">ทั้งหมด</button>
+    </div>
+  </div>
+
+  <main class="main" id="main">
+    <div class="loading" id="loading">กำลังโหลดคลังเกมและสื่อ…</div>
+  </main>
+
+  <footer>
+    <div class="footer-school">โรงเรียนบ้านคำไผ่</div>
+    <div class="footer-teacher">ครูณัฐพงศ์ สิงห์ชมภู · ครูผู้ช่วย</div>
+    <div style="margin-top:8px">
+      อัปเดต: <span id="gen-date">—</span> ·
+      <a href="https://kampai-school.vercel.app">kampai-school.vercel.app</a>
+    </div>
+  </footer>
+
+  <script>
+    const TYPE_LABEL = { game: 'เกม', media: 'สื่อ', hub: 'Hub' };
+    const TYPE_CLASS = { game: 'type-game', media: 'type-media', hub: 'type-hub' };
+    const SUBJECT_ORDER = [
+      'คณิตศาสตร์', 'ภาษาไทย', 'วิทยาศาสตร์', 'วิทยาศาสตร์และเทคโนโลยี',
+      'สังคมศึกษา', 'สังคมศึกษา ศาสนา และวัฒนธรรม',
+      'สุขศึกษาและพลศึกษา', 'สุขศึกษา', 'ศิลปะ', 'การงานอาชีพ', 'ภาษาอังกฤษ', 'อื่นๆ',
+    ];
+
+    let data = null;
+    let activeSubject = 'all';
+    let p4Only = false;
+
+    async function load() {
+      try {
+        const res = await fetch('./showcase-data.json?v=' + Date.now());
+        if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
+        data = await res.json();
+        renderStats();
+        renderFilters();
+        renderGrid();
+        document.getElementById('gen-date').textContent =
+          new Date(data.generatedAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (e) {
+        document.getElementById('main').innerHTML =
+          '<div class="error-box">ไม่สามารถโหลดข้อมูลได้ — ' + e.message + '</div>';
+      }
+    }
+
+    function renderStats() {
+      document.getElementById('s-total').textContent = data.totalShowcase;
+      document.getElementById('s-subjects').textContent = data.subjects.length;
+      document.getElementById('s-indicators').textContent = data.totalWithIndicators;
+      document.getElementById('s-p4').textContent = data.items.filter(i => i.hasP4).length;
+    }
+
+    function renderFilters() {
+      const bar = document.getElementById('filter-bar');
+      const counts = {};
+      data.items.forEach(i => { counts[i.subject] = (counts[i.subject] || 0) + 1; });
+      const sorted = [...new Set(data.items.map(i => i.subject))].sort(
+        (a, b) => SUBJECT_ORDER.indexOf(a) - SUBJECT_ORDER.indexOf(b)
+      );
+      sorted.forEach(sub => {
+        const btn = document.createElement('button');
+        btn.className = 'chip';
+        btn.dataset.subject = sub;
+        btn.innerHTML = (data.items.find(i => i.subject === sub)?.subjectShort || sub) +
+          '<span class="count">(' + counts[sub] + ')</span>';
+        btn.addEventListener('click', () => setSubject(sub));
+        bar.appendChild(btn);
+      });
+      const p4btn = document.createElement('button');
+      p4btn.className = 'chip';
+      p4btn.id = 'btn-p4';
+      p4btn.textContent = '⭐ เฉพาะ ป.4';
+      p4btn.addEventListener('click', () => { p4Only = !p4Only; p4btn.classList.toggle('active', p4Only); renderGrid(); });
+      bar.appendChild(p4btn);
+      bar.querySelector('[data-subject="all"]').addEventListener('click', () => setSubject('all'));
+    }
+
+    function setSubject(sub) {
+      activeSubject = sub;
+      document.querySelectorAll('.chip[data-subject]').forEach(c => {
+        c.classList.toggle('active', c.dataset.subject === sub);
+      });
+      renderGrid();
+    }
+
+    function filtered() {
+      return data.items.filter(i => {
+        if (activeSubject !== 'all' && i.subject !== activeSubject) return false;
+        if (p4Only && !i.hasP4) return false;
+        return true;
+      });
+    }
+
+    function renderGrid() {
+      const main = document.getElementById('main');
+      const items = filtered();
+      if (!items.length) {
+        main.innerHTML = '<div class="loading">ไม่พบรายการในตัวกรองนี้</div>';
+        return;
+      }
+      const grouped = {};
+      items.forEach(i => { (grouped[i.subject] = grouped[i.subject] || []).push(i); });
+      const subjects = Object.keys(grouped).sort(
+        (a, b) => SUBJECT_ORDER.indexOf(a) - SUBJECT_ORDER.indexOf(b)
+      );
+      let html = '';
+      subjects.forEach(sub => {
+        const color = grouped[sub][0]?.subjectColor || '#c9a227';
+        html += '<section class="subject-section" style="--subject-color:' + color + '">';
+        html += '<div class="subject-header"><span class="subject-dot"></span>';
+        html += '<h3>' + esc(sub) + '</h3>';
+        html += '<span class="cnt">' + grouped[sub].length + ' รายการ</span></div>';
+        html += '<div class="grid">';
+        grouped[sub].forEach((item, idx) => { html += cardHtml(item, idx); });
+        html += '</div></section>';
+      });
+      main.innerHTML = html;
+    }
+
+    function cardHtml(item, idx) {
+      const inds = (item.p4Indicators.length ? item.p4Indicators : item.indicators).slice(0, 4);
+      const more = (item.p4Indicators.length || item.indicators.length) - inds.length;
+      const grades = (item.grades || []).slice(0, 4);
+      const thumb = item.thumbnail
+        ? '<img src="' + esc(item.thumbnail) + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=placeholder>📚</div>\'" />'
+        : '<div class="placeholder">📚</div>';
+      const href = item.playUrl.startsWith('/') ? item.playUrl : '/' + item.playUrl;
+      return '<article class="card" style="animation-delay:' + (idx * 0.03) + 's">' +
+        '<div class="card-thumb">' + thumb +
+        '<span class="type-badge ' + (TYPE_CLASS[item.type] || 'type-media') + '">' + (TYPE_LABEL[item.type] || item.type) + '</span></div>' +
+        '<div class="card-body">' +
+        '<div class="card-title">' + esc(item.title) + '</div>' +
+        (grades.length ? '<div class="card-grades">' + grades.map(g =>
+          '<span class="grade-tag' + (g === 'ป.4' ? ' p4' : '') + '">' + esc(g) + '</span>'
+        ).join('') + '</div>' : '') +
+        (inds.length ? '<div class="indicators">' + inds.map(c =>
+          '<span class="ind' + (c.includes('ป.4') ? ' p4' : '') + '">' + esc(c) + '</span>'
+        ).join('') + (more > 0 ? '<span class="ind">+' + more + '</span>' : '') + '</div>' : '') +
+        '<div class="card-actions"><a class="card-link" href="' + esc(href) + '" target="_blank" rel="noopener">▶ เปิดดู</a></div>' +
+        '</div></article>';
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    }
+
+    document.getElementById('btn-present').addEventListener('click', () => {
+      document.body.classList.toggle('present');
+      document.getElementById('btn-present').classList.toggle('active');
+    });
+    document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+    load();
+  </script>
+</body>
+</html>

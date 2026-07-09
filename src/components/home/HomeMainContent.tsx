@@ -20,6 +20,7 @@ import FacebookFeedSection from '@/components/home/sections/FacebookFeedSection'
 import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
 import { FeaturedGameDialog } from '@/components/home/FeaturedGameDialog';
 import ResearchPlaySection from '@/components/home/sections/ResearchPlaySection';
+import GameShowcaseSection from '@/components/home/sections/GameShowcaseSection';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
 
@@ -714,7 +715,7 @@ export const useHomeMainBlocks = () => {
         }
       } catch { /* fallback */ }
     }
-    return ['hero', 'featured_hero', 'featured_games', 'research_play', 'news', 'about'];
+    return ['hero', 'featured_hero', 'featured_games', 'game_showcase', 'research_play', 'news', 'about'];
   };
   const sectionOrder = getSectionOrder();
 
@@ -1565,6 +1566,7 @@ export const useHomeMainBlocks = () => {
     hero: heroSection,
     featured_hero: featuredHeroSection,
     featured_games: featuredGamesSection,
+    game_showcase: <GameShowcaseSection key="game_showcase" />,
     research_play: <ResearchPlaySection key="research_play" />,
     news: newsSection,
     facebook_feed: <FacebookFeedSection key="facebook_feed" />,

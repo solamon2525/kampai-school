@@ -1,0 +1,4543 @@
+{
+  "generatedAt": "2026-07-09T11:25:58.319Z",
+  "totalAll": 104,
+  "totalShowcase": 94,
+  "totalWithCover": 92,
+  "totalWithIndicators": 87,
+  "subjects": [
+    "สุขศึกษา",
+    "อื่นๆ",
+    "สังคมศึกษา ศาสนา และวัฒนธรรม",
+    "คณิตศาสตร์",
+    "ภาษาไทย",
+    "วิทยาศาสตร์",
+    "สังคมศึกษา",
+    "ศิลปะ",
+    "การงานอาชีพ",
+    "ภาษาอังกฤษ"
+  ],
+  "bySubject": {
+    "สุขศึกษา": [
+      {
+        "title": "ล้างมือ 7 ขั้นตอน",
+        "description": "สื่อการสอนสุขศึกษา ป.1–3 — เรียงขั้นตอนล้างมือถูกวิธี · สุขบัญญัติ · คู่เกม handwash-order",
+        "subject": "สุขศึกษา",
+        "subjectShort": "สุขศึกษา",
+        "subjectColor": "#475569",
+        "grades": [
+          "ป.1",
+          "ป.2",
+          "ป.3"
+        ],
+        "type": "media",
+        "thumbnail": "/games/health/handwash-media-cover.png",
+        "externalUrl": "/games/health/handwash-media.html",
+        "playUrl": "/games/health/handwash-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "พ 4.1 ป.1/1",
+          "ว 1.2 ป.1/2"
+        ],
+        "p4Indicators": [],
+        "hasP4": false
+      },
+      {
+        "title": "อ่านฉลากอาหาร",
+        "description": "สื่อการสอนสุขศึกษา ป.4 — สารอาหาร · วันหมดอายุ · โหมดฝึกอ่านฉลาก",
+        "subject": "สุขศึกษา",
+        "subjectShort": "สุขศึกษา",
+        "subjectColor": "#475569",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/health/food-label-media-cover.png",
+        "externalUrl": "/games/health/food-label-media.html",
+        "playUrl": "/games/health/food-label-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "พ 4.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "พ 4.1 ป.4/3"
+        ],
+        "hasP4": true
+      }
+    ],
+    "อื่นๆ": [
+      {
+        "title": "fishing",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/thai/fishing/cover.png",
+        "externalUrl": "/games/thai/fishing.html",
+        "playUrl": "/play/fishing",
+        "gameSlug": "fishing",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "kingdom",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/thai/kingdom.html",
+        "externalUrl": "/games/thai/kingdom.html",
+        "playUrl": "/play/kingdom",
+        "gameSlug": "kingdom",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-24",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/math/24.html",
+        "externalUrl": "/games/math/24.html",
+        "playUrl": "/play/math-24",
+        "gameSlug": "math-24",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/12"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/12"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-jumper",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/math/math-jumper.html",
+        "externalUrl": "/games/math/math-jumper.html",
+        "playUrl": "/play/math-jumper",
+        "gameSlug": "math-jumper",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-pizza",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/math/pizza.html",
+        "externalUrl": "/games/math/pizza.html",
+        "playUrl": "/play/math-pizza",
+        "gameSlug": "math-pizza",
+        "indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-rally",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "",
+        "externalUrl": "/games/math/multiply-rally/index.html",
+        "playUrl": "/play/math-rally",
+        "gameSlug": "math-rally",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "pizza-master-chef",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/thai/pizza-master-chef.html",
+        "externalUrl": "/games/thai/pizza-master-chef.html",
+        "playUrl": "/play/pizza-master-chef",
+        "gameSlug": "pizza-master-chef",
+        "indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "wipod",
+        "description": "",
+        "subject": "อื่นๆ",
+        "subjectShort": "อื่นๆ",
+        "subjectColor": "#475569",
+        "grades": [],
+        "type": "game",
+        "thumbnail": "/games/thai/wipod-cover.png",
+        "externalUrl": "/games/thai/wipod.html",
+        "playUrl": "/play/wipod",
+        "gameSlug": "wipod",
+        "indicators": [
+          "ท 1.1 ป.4/2",
+          "ท 4.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ท 1.1 ป.4/2",
+          "ท 4.1 ป.4/1"
+        ],
+        "hasP4": true
+      }
+    ],
+    "สังคมศึกษา ศาสนา และวัฒนธรรม": [
+      {
+        "title": "social-thailand-hub",
+        "description": "",
+        "subject": "สังคมศึกษา ศาสนา และวัฒนธรรม",
+        "subjectShort": "สังคม",
+        "subjectColor": "#7c3aed",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/social/social-thailand-hub/cover.png",
+        "externalUrl": "/games/social/social-thailand-hub/index.html",
+        "playUrl": "/games/social/social-thailand-hub/index.html",
+        "gameSlug": "social-thailand-hub",
+        "indicators": [
+          "ส 2.1 ป.4/1",
+          "ส 4.3 ป.4/1",
+          "ส 5.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ส 2.1 ป.4/1",
+          "ส 4.3 ป.4/1",
+          "ส 5.1 ป.4/1"
+        ],
+        "hasP4": true
+      }
+    ],
+    "คณิตศาสตร์": [
+      {
+        "title": "🌾 Farm Adventure: ภารกิจวัดความยาวในฟาร์มมหาสนุก",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/farm-adventure/cover.png",
+        "externalUrl": "/games/math/farm-adventure/index.html",
+        "playUrl": "/play/farm-adventure",
+        "gameSlug": "farm-adventure",
+        "indicators": [
+          "ค 2.1 ป.3/3",
+          "ค 2.1 ป.3/5"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "เกมคณิตคิดไว ยกมือทายถูกผิด!",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-hand-raising/cover.png",
+        "externalUrl": "/games/math/math-hand-raising/index.html",
+        "playUrl": "/play/math-hand-raising",
+        "gameSlug": "math-hand-raising",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "ทศนิยม — อ่าน · เปรียบเทียบ · บวกลบ",
+        "description": "สื่อการสอนคณิตศาสตร์ ป.4 — แผ่นหลักสิบ อ่านทศนิยม เปรียบเทียบ บวกลบทศนิยม · โหมดฝึก · คู่เกม rounding",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/math/decimal-media-cover.png",
+        "externalUrl": "/games/math/decimal-media.html",
+        "playUrl": "/games/math/decimal-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ค 1.1 ป.4/5",
+          "ค 1.1 ป.4/6"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/5",
+          "ค 1.1 ป.4/6"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "แผนภูมิแท่ง — อ่านและเปรียบเทียบ",
+        "description": "สื่อการสอนคณิตศาสตร์ ป.4 — กรอกข้อมูลวาดกราฟแท่ง · อ่านค่าสูงสุด/ต่ำสุด · โหมดฝึกอ่านกราฟ",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/math/bar-chart-media-cover.png",
+        "externalUrl": "/games/math/bar-chart-media.html",
+        "playUrl": "/games/math/bar-chart-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ค 3.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ค 3.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "มุม — แหลม · ฉาก · ป้าน",
+        "description": "สื่อการสอนคณิตศาสตร์ ป.4 — จำแนกชนิดมุม · โพรแทรกเตอร์ · โหมดฝึก · สร้างมุม",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/math/angle-media-cover.png",
+        "externalUrl": "/games/math/angle-media.html",
+        "playUrl": "/games/math/angle-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ค 2.2 ป.4/1",
+          "ค 2.2 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ค 2.2 ป.4/1",
+          "ค 2.2 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "เส้นจำนวน — เปรียบเทียบ · เรียงลำดับ",
+        "description": "สื่อการสอนคณิตศาสตร์ ป.1–3 — ลากจุดบนเส้นจำนวน · เปรียบเทียบ · เรียงลำดับ · ไม่เก็บคะแนน (fork จาก number-line)",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.1",
+          "ป.2",
+          "ป.3"
+        ],
+        "type": "media",
+        "thumbnail": "/games/math/number-line-media-cover.png",
+        "externalUrl": "/games/math/number-line-media.html",
+        "playUrl": "/games/math/number-line-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ค 1.1 ป.1/2",
+          "ค 1.1 ป.2/1",
+          "ค 1.1 ป.3/1"
+        ],
+        "p4Indicators": [],
+        "hasP4": false
+      },
+      {
+        "title": "catch-numbers",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/catch-numbers/cover.png",
+        "externalUrl": "/games/math/catch-numbers/index.html",
+        "playUrl": "/play/catch-numbers",
+        "gameSlug": "catch-numbers",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "coin-exchange",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/coin-exchange/cover.png",
+        "externalUrl": "/games/math/coin-exchange/index.html",
+        "playUrl": "/play/coin-exchange",
+        "gameSlug": "coin-exchange",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 2.1 ป.3/1"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "fraction-tank",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/fraction-tank/cover.png",
+        "externalUrl": "/games/math/fraction-tank/index.html",
+        "playUrl": "/play/fraction-tank",
+        "gameSlug": "fraction-tank",
+        "indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "jump-even-odd",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/jump-even-odd/cover.png",
+        "externalUrl": "/games/math/jump-even-odd/index.html",
+        "playUrl": "/play/jump-even-odd",
+        "gameSlug": "jump-even-odd",
+        "indicators": [
+          "ค 1.1 ป.2/1",
+          "ค 1.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-data-hub",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/math/math-data-hub/cover.png",
+        "externalUrl": "/games/math/math-data-hub/index.html",
+        "playUrl": "/games/math/math-data-hub/index.html",
+        "gameSlug": "math-data-hub",
+        "indicators": [
+          "ค 3.1 ป.4/1",
+          "ค 3.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ค 3.1 ป.4/1",
+          "ค 3.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-decimal-hub",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/math/math-decimal-hub/cover.png",
+        "externalUrl": "/games/math/math-decimal-hub/index.html",
+        "playUrl": "/games/math/math-decimal-hub/index.html",
+        "gameSlug": "math-decimal-hub",
+        "indicators": [
+          "ค 1.1 ป.4/5",
+          "ค 1.1 ป.4/6"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/5",
+          "ค 1.1 ป.4/6"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-fraction-hub",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/math/math-fraction-hub/cover.png",
+        "externalUrl": "/games/math/math-fraction-hub/index.html",
+        "playUrl": "/games/math/math-fraction-hub/index.html",
+        "gameSlug": "math-fraction-hub",
+        "indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/13",
+          "ค 1.1 ป.4/14"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-geometry-hub",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/math/math-geometry-hub/cover.png",
+        "externalUrl": "/games/math/math-geometry-hub/index.html",
+        "playUrl": "/games/math/math-geometry-hub/index.html",
+        "gameSlug": "math-geometry-hub",
+        "indicators": [
+          "ค 2.2 ป.4/1",
+          "ค 2.2 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ค 2.2 ป.4/1",
+          "ค 2.2 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-man-coop",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-man-coop/cover.png",
+        "externalUrl": "/games/math/math-man-coop/index.html",
+        "playUrl": "/play/math-man-coop",
+        "gameSlug": "math-man-coop",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-move-quiz",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-move-quiz/cover.png",
+        "externalUrl": "/games/math/math-move-quiz/index.html",
+        "playUrl": "/play/math-move-quiz",
+        "gameSlug": "math-move-quiz",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/7"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/7"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-quest-3d",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "",
+        "externalUrl": "/games/math/math-quest-3d/index.html",
+        "playUrl": "/play/math-quest-3d",
+        "gameSlug": "math-quest-3d",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "math-racer",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-racer/cover.png",
+        "externalUrl": "/games/math/math-racer/index.html",
+        "playUrl": "/play/math-racer",
+        "gameSlug": "math-racer",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-rally",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-rally/cover.png",
+        "externalUrl": "/games/math/math-rally/index.html",
+        "playUrl": "/play/math-rally",
+        "gameSlug": "math-rally",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-runner",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-runner/cover.png",
+        "externalUrl": "/games/math/math-runner/index.html",
+        "playUrl": "/play/math-runner",
+        "gameSlug": "math-runner",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "math-word-problem-hub",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/math/math-word-problem-hub/cover.png",
+        "externalUrl": "/games/math/math-word-problem-hub/index.html",
+        "playUrl": "/games/math/math-word-problem-hub/index.html",
+        "gameSlug": "math-word-problem-hub",
+        "indicators": [
+          "ค 1.1 ป.4/11",
+          "ค 1.1 ป.4/12",
+          "ค 1.2 ป.4/1",
+          "ค 1.2 ป.5/1"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/11",
+          "ค 1.1 ป.4/12",
+          "ค 1.2 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "measure-up",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/measure-up/cover.png",
+        "externalUrl": "/games/math/measure-up/index.html",
+        "playUrl": "/play/measure-up",
+        "gameSlug": "measure-up",
+        "indicators": [
+          "ค 2.1 ป.3/3",
+          "ค 2.1 ป.3/5"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "Mini Farm Island 🌴",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/mini-farm-island/cover.png",
+        "externalUrl": "/games/math/mini-farm-island/index.html",
+        "playUrl": "/play/mini-farm-island",
+        "gameSlug": "mini-farm-island",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "multiplication-kingdom",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/multiplication-kingdom/cover.png",
+        "externalUrl": "/games/math/multiplication-kingdom/index.html",
+        "playUrl": "/play/multiplication-kingdom",
+        "gameSlug": "multiplication-kingdom",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "multiplication-rpg",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/multiplication-rpg/cover.png",
+        "externalUrl": "/games/math/multiplication-rpg/index.html",
+        "playUrl": "/play/multiplication-rpg",
+        "gameSlug": "multiplication-rpg",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "multiply-burst",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/multiply-burst/cover.png",
+        "externalUrl": "/games/math/multiply-burst/index.html",
+        "playUrl": "/play/multiply-burst",
+        "gameSlug": "multiply-burst",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "probability-zoo-board",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/probability-zoo-board/cover.png",
+        "externalUrl": "/games/math/probability-zoo-board/index.html",
+        "playUrl": "/play/probability-zoo-board",
+        "gameSlug": "probability-zoo-board",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/7"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/7"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "Super Math-Blaster: Galactic Duel",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/math-blaster/cover.png",
+        "externalUrl": "/games/math/math-blaster/index.html",
+        "playUrl": "/play/math-blaster",
+        "gameSlug": "math-blaster",
+        "indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/10",
+          "ค 1.1 ป.4/11"
+        ],
+        "hasP4": true
+      }
+    ],
+    "ภาษาไทย": [
+      {
+        "title": "ข้อเท็จจริง vs ความคิดเห็น",
+        "description": "สื่อการสอนภาษาไทย ป.4 — เรียนรู้แยกข้อเท็จจริงกับความคิดเห็น · โหมดฝึกจำแนก · คู่เกม reading-game",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/thai/fact-opinion-cover.png",
+        "externalUrl": "/games/thai/fact-opinion.html",
+        "playUrl": "/games/thai/fact-opinion.html",
+        "gameSlug": null,
+        "indicators": [
+          "ท 1.1 ป.4/4",
+          "ท 3.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ท 1.1 ป.4/4",
+          "ท 3.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "โครงสร้างประโยค — ประธาน กริยา กรรม",
+        "description": "สื่อการสอนภาษาไทย ป.3–5 — เรียนรู้โครงสร้างประโยค · เรียงคำให้ถูก · คู่เกม sentence-craft · ไม่เก็บคะแนน",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.3",
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/thai/sentence-structure-cover.png",
+        "externalUrl": "/games/thai/sentence-structure.html",
+        "playUrl": "/games/thai/sentence-structure.html",
+        "gameSlug": null,
+        "indicators": [
+          "ท 4.1 ป.3/4",
+          "ท 4.1 ป.5/2"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "ชนิดของคำ — นาม · กริยา · คุณศัพท์",
+        "description": "สื่อการสอนภาษาไทย ป.3-4 — เรียนรู้คำนาม คำกริยา คำคุณศัพท์ · โหมดฝึก · จัดคำใส่กล่อง · คู่เกม Attack on Noun",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.3",
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/thai/thai-word-types-cover.png",
+        "externalUrl": "/games/thai/thai-word-types.html",
+        "playUrl": "/games/thai/thai-word-types.html",
+        "gameSlug": null,
+        "indicators": [
+          "ท 4.1 ป.4/2",
+          "ท 4.1 ป.4/6"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/2",
+          "ท 4.1 ป.4/6"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "ตัดคำนามนินจา",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/word-ninja-noun/cover.png",
+        "externalUrl": "/games/thai/word-ninja-noun/index.html",
+        "playUrl": "/play/word-ninja-noun",
+        "gameSlug": "word-ninja-noun",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "ผู้พิทักษ์ลักษณะนาม",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/attack-on-noun/cover.png",
+        "externalUrl": "/games/thai/attack-on-noun/index.html",
+        "playUrl": "/play/attack-on-noun",
+        "gameSlug": "attack-on-noun",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "balloon-burst",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/balloon-burst/cover.png",
+        "externalUrl": "/games/thai/balloon-burst/index.html",
+        "playUrl": "/play/balloon-burst",
+        "gameSlug": "balloon-burst",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "balloon-fighter",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/balloon-fighter/cover.png",
+        "externalUrl": "/games/thai/balloon-fighter/index.html",
+        "playUrl": "/play/balloon-fighter",
+        "gameSlug": "balloon-fighter",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "battle-city",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/battle-city/cover.png",
+        "externalUrl": "/games/thai/battle-city/index.html",
+        "playUrl": "/play/battle-city",
+        "gameSlug": "battle-city",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "fishing",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/fishing/cover.png",
+        "externalUrl": "/games/thai/fishing/index.html",
+        "playUrl": "/play/fishing",
+        "gameSlug": "fishing",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "reading-game",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/reading-game/cover.png",
+        "externalUrl": "/games/thai/reading-game/index.html",
+        "playUrl": "/play/reading-game",
+        "gameSlug": "reading-game",
+        "indicators": [
+          "ท 1.1 ป.4/4",
+          "ท 3.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ท 1.1 ป.4/4",
+          "ท 3.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "sentence-craft",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/sentence-craft/cover.png",
+        "externalUrl": "/games/thai/sentence-craft/index.html",
+        "playUrl": "/play/sentence-craft",
+        "gameSlug": "sentence-craft",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "thai-grammar-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-grammar-hub/cover.png",
+        "externalUrl": "/games/thai/thai-grammar-hub/index.html",
+        "playUrl": "/games/thai/thai-grammar-hub/index.html",
+        "gameSlug": "thai-grammar-hub",
+        "indicators": [
+          "ท 4.1 ป.4/2",
+          "ท 4.1 ป.5/1"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-idiom-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-idiom-hub/cover.png",
+        "externalUrl": "/games/thai/thai-idiom-hub/index.html",
+        "playUrl": "/games/thai/thai-idiom-hub/index.html",
+        "gameSlug": "thai-idiom-hub",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.5/1"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-literature-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-literature-hub/cover.png",
+        "externalUrl": "/games/thai/thai-literature-hub/index.html",
+        "playUrl": "/games/thai/thai-literature-hub/index.html",
+        "gameSlug": "thai-literature-hub",
+        "indicators": [
+          "ท 5.1 ป.4/1",
+          "ท 5.1 ป.4/2",
+          "ท 5.1 ป.5/2"
+        ],
+        "p4Indicators": [
+          "ท 5.1 ป.4/1",
+          "ท 5.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-poetry-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-poetry-hub/cover.png",
+        "externalUrl": "/games/thai/thai-poetry-hub/index.html",
+        "playUrl": "/games/thai/thai-poetry-hub/index.html",
+        "gameSlug": "thai-poetry-hub",
+        "indicators": [
+          "ท 4.1 ป.4/5",
+          "ท 4.1 ป.5/2",
+          "ท 5.1 ป.4/4",
+          "ท 5.1 ป.5/1"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/5",
+          "ท 5.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-punctuation-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-punctuation-hub/cover.png",
+        "externalUrl": "/games/thai/thai-punctuation-hub/index.html",
+        "playUrl": "/games/thai/thai-punctuation-hub/index.html",
+        "gameSlug": "thai-punctuation-hub",
+        "indicators": [
+          "ท 4.1 ป.4/3",
+          "ท 4.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/3",
+          "ท 4.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-reading-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-reading-hub/cover.png",
+        "externalUrl": "/games/thai/thai-reading-hub/index.html",
+        "playUrl": "/games/thai/thai-reading-hub/index.html",
+        "gameSlug": "thai-reading-hub",
+        "indicators": [
+          "ท 1.1 ป.5/2",
+          "ท 1.1 ป.5/3"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "thai-script-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-script-hub/cover.png",
+        "externalUrl": "/games/thai/thai-script-hub/index.html",
+        "playUrl": "/games/thai/thai-script-hub/index.html",
+        "gameSlug": "thai-script-hub",
+        "indicators": [
+          "ท 4.1 ป.1/1",
+          "ท 4.1 ป.2/1"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "thai-sentence-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-sentence-hub/cover.png",
+        "externalUrl": "/games/thai/thai-sentence-hub/index.html",
+        "playUrl": "/games/thai/thai-sentence-hub/index.html",
+        "gameSlug": "thai-sentence-hub",
+        "indicators": [
+          "ท 4.1 ป.5/2"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "thai-story",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/thai-story/cover.png",
+        "externalUrl": "/games/thai/thai-story/index.html",
+        "playUrl": "/play/thai-story",
+        "gameSlug": "thai-story",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "thai-vocab-arena",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/thai-vocab-arena/cover.png",
+        "externalUrl": "/games/thai/thai-vocab-arena/index.html",
+        "playUrl": "/play/thai-vocab-arena",
+        "gameSlug": "thai-vocab-arena",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-vocab-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-vocab-hub/cover.png",
+        "externalUrl": "/games/thai/thai-vocab-hub/index.html",
+        "playUrl": "/games/thai/thai-vocab-hub/index.html",
+        "gameSlug": "thai-vocab-hub",
+        "indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/6"
+        ],
+        "p4Indicators": [
+          "ท 4.1 ป.4/1",
+          "ท 4.1 ป.4/6"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-writing-hub",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/thai/thai-writing-hub/cover.png",
+        "externalUrl": "/games/thai/thai-writing-hub/index.html",
+        "playUrl": "/games/thai/thai-writing-hub/index.html",
+        "gameSlug": "thai-writing-hub",
+        "indicators": [
+          "ท 2.1 ป.4/1",
+          "ท 4.1 ป.5/3"
+        ],
+        "p4Indicators": [
+          "ท 2.1 ป.4/1"
+        ],
+        "hasP4": true
+      }
+    ],
+    "วิทยาศาสตร์": [
+      {
+        "title": "🧬 Digestive System AR Explorer",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/digestive-ar/cover.png",
+        "externalUrl": "/games/science/digestive-ar/index.html",
+        "playUrl": "/play/digestive-ar",
+        "gameSlug": "digestive-ar",
+        "indicators": [
+          "พ 1.1 ป.5/1",
+          "ว 1.2 ป.6/4"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "🧬 Genetic Treasure Quest",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/genetic-quest/cover.png",
+        "externalUrl": "/games/science/genetic-quest/index.html",
+        "playUrl": "/play/genetic-quest",
+        "gameSlug": "genetic-quest",
+        "indicators": [
+          "ว 1.3 ป.5/1"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "ระบบย่อยอาหาร — แผนภาพคลิกได้",
+        "description": "สื่อการสอนวิทยาศาสตร์ ป.4–6 — แตะอวัยวะระบบย่อย · เรียงลำดับการย่อย · คู่เกม digestive-ar",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5",
+          "ป.6"
+        ],
+        "type": "media",
+        "thumbnail": "/games/science/digestive-system-media-cover.png",
+        "externalUrl": "/games/science/digestive-system-media.html",
+        "playUrl": "/games/science/digestive-system-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "พ 1.1 ป.5/1",
+          "ว 1.2 ป.6/4",
+          "ว 1.2 ป.6/5"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "สสาร 3 สถานะ — แข็ง · ของเหลว · ก๊าซ",
+        "description": "สื่อการสอนวิทยาศาสตร์ ป.4 — สไลเดอร์อุณหภูมิ น้ำแข็ง↔น้ำ↔ไอ · โหมดทดสอบ · คู่เกม sci-sort",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.3",
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/science/states-of-matter-cover.png",
+        "externalUrl": "/games/science/states-of-matter.html",
+        "playUrl": "/games/science/states-of-matter.html",
+        "gameSlug": null,
+        "indicators": [
+          "ว 2.1 ป.4/3",
+          "ว 2.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ว 2.1 ป.4/3",
+          "ว 2.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "สัตว์มี/ไม่มีกระดูกสันหลัง",
+        "description": "สื่อการสอนวิทยาศาสตร์ ป.4 — เรียนรู้สัตว์มีกระดูกสันหลัง vs ไม่มี · โหมดจัดกลุ่ม · ทดสอบ · คู่เกม blocky-safari",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.3",
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/science/vertebrate-sort-cover.png",
+        "externalUrl": "/games/science/vertebrate-sort.html",
+        "playUrl": "/games/science/vertebrate-sort.html",
+        "gameSlug": null,
+        "indicators": [
+          "ว 1.3 ป.4/3",
+          "ว 1.3 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ว 1.3 ป.4/3",
+          "ว 1.3 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "ห่วงโซ่อาหาร — ผู้ผลิตถึงผู้ล่า",
+        "description": "สื่อการสอนวิทยาศาสตร์ ป.4–5 — เรียนรู้บทบาทในโซ่อาหาร · เรียงตามการไหลของพลังงาน · คู่เกม food-chain",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/science/food-chain-media-cover.png",
+        "externalUrl": "/games/science/food-chain-media.html",
+        "playUrl": "/games/science/food-chain-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ว 1.1 ป.5/2",
+          "ว 1.1 ป.5/3"
+        ],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "animal-habitat-3d",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/animal-habitat-3d/cover.png",
+        "externalUrl": "/games/science/animal-habitat-3d/index.html",
+        "playUrl": "/play/animal-habitat-3d",
+        "gameSlug": "animal-habitat-3d",
+        "indicators": [
+          "ว 1.3 ป.4/1",
+          "ว 1.3 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ว 1.3 ป.4/1",
+          "ว 1.3 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "blocky-safari",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/blocky-safari/cover.png",
+        "externalUrl": "/games/science/blocky-safari/index.html",
+        "playUrl": "/play/blocky-safari",
+        "gameSlug": "blocky-safari",
+        "indicators": [
+          "ว 1.3 ป.4/3",
+          "ว 1.3 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ว 1.3 ป.4/3",
+          "ว 1.3 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "energy-rocket",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/energy-rocket/cover.png",
+        "externalUrl": "/games/science/energy-rocket/index.html",
+        "playUrl": "/play/energy-rocket",
+        "gameSlug": "energy-rocket",
+        "indicators": [
+          "ว 2.1 ป.4/3",
+          "ว 2.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ว 2.1 ป.4/3",
+          "ว 2.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "science-p45-hub",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/science/science-p45-hub/cover.png",
+        "externalUrl": "/games/science/science-p45-hub/index.html",
+        "playUrl": "/games/science/science-p45-hub/index.html",
+        "gameSlug": "science-p45-hub",
+        "indicators": [
+          "ว 1.2 ป.6/4",
+          "ว 1.3 ป.4/3",
+          "ว 2.1 ป.4/3",
+          "ว 3.2 ป.5/3"
+        ],
+        "p4Indicators": [
+          "ว 1.3 ป.4/3",
+          "ว 2.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "sink-float",
+        "description": "",
+        "subject": "วิทยาศาสตร์",
+        "subjectShort": "วิทย์",
+        "subjectColor": "#047857",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/science/sink-float/cover.png",
+        "externalUrl": "/games/science/sink-float/index.html",
+        "playUrl": "/play/sink-float",
+        "gameSlug": "sink-float",
+        "indicators": [
+          "ว 2.1 ป.4/1",
+          "ว 2.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ว 2.1 ป.4/1",
+          "ว 2.1 ป.4/3"
+        ],
+        "hasP4": true
+      }
+    ],
+    "สังคมศึกษา": [
+      {
+        "title": "️ แผนที่ประเทศไทย — ภาคและจังหวัด",
+        "description": "สื่อการสอนสังคมศึกษา ป.4 — แตะภาคดูจังหวัดตัวอย่าง ลักษณะทางกายภาพ · ฝึกทายภาค · คู่เกม globe-3d",
+        "subject": "สังคมศึกษา",
+        "subjectShort": "สังคม",
+        "subjectColor": "#7c3aed",
+        "grades": [
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/social/thailand-map-cover.png",
+        "externalUrl": "/games/social/thailand-map.html",
+        "playUrl": "/games/social/thailand-map.html",
+        "gameSlug": null,
+        "indicators": [
+          "ส 5.1 ป.4/1",
+          "ส 5.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ส 5.1 ป.4/1",
+          "ส 5.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "พลเมืองดี — หน้าที่และจริยธรรม",
+        "description": "สื่อการสอนสังคมศึกษา ป.4 — คุณลักษณะพลเมืองดี · สถานการณ์เลือกพฤติกรรม · คู่เกม good-citizen",
+        "subject": "สังคมศึกษา",
+        "subjectShort": "สังคม",
+        "subjectColor": "#7c3aed",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/social/good-citizen-media-cover.png",
+        "externalUrl": "/games/social/good-citizen-media.html",
+        "playUrl": "/games/social/good-citizen-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ส 2.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ส 2.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "️ สมัยสุโขทัย — ไทม์ไลน์",
+        "description": "สื่อการสอนสังคมศึกษา ป.4 — ไทม์ไลน์เหตุการณ์สำคัญ · บุคคลสำคัญ · โหมดทดสอบ · คู่เกม social-quiz",
+        "subject": "สังคมศึกษา",
+        "subjectShort": "สังคม",
+        "subjectColor": "#7c3aed",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "media",
+        "thumbnail": "/games/social/sukhothai-timeline-cover.png",
+        "externalUrl": "/games/social/sukhothai-timeline.html",
+        "playUrl": "/games/social/sukhothai-timeline.html",
+        "gameSlug": null,
+        "indicators": [
+          "ส 4.3 ป.4/1",
+          "ส 4.3 ป.4/2",
+          "ส 4.3 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ส 4.3 ป.4/1",
+          "ส 4.3 ป.4/2",
+          "ส 4.3 ป.4/3"
+        ],
+        "hasP4": true
+      }
+    ],
+    "ศิลปะ": [
+      {
+        "title": "color-wheel",
+        "description": "",
+        "subject": "ศิลปะ",
+        "subjectShort": "ศิลปะ",
+        "subjectColor": "#db2777",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/arts/color-wheel/cover.png",
+        "externalUrl": "/games/arts/color-wheel/index.html",
+        "playUrl": "/play/color-wheel",
+        "gameSlug": "color-wheel",
+        "indicators": [
+          "ศ 1.1 ป.4/2",
+          "ศ 1.1 ป.4/7"
+        ],
+        "p4Indicators": [
+          "ศ 1.1 ป.4/2",
+          "ศ 1.1 ป.4/7"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "line-trace",
+        "description": "",
+        "subject": "ศิลปะ",
+        "subjectShort": "ศิลปะ",
+        "subjectColor": "#db2777",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/arts/line-trace/cover.png",
+        "externalUrl": "/games/arts/line-trace/index.html",
+        "playUrl": "/play/line-trace",
+        "gameSlug": "line-trace",
+        "indicators": [
+          "ศ 1.1 ป.4/3",
+          "ศ 1.1 ป.4/5"
+        ],
+        "p4Indicators": [
+          "ศ 1.1 ป.4/3",
+          "ศ 1.1 ป.4/5"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "rhythm-master",
+        "description": "",
+        "subject": "ศิลปะ",
+        "subjectShort": "ศิลปะ",
+        "subjectColor": "#db2777",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/arts/rhythm-master/cover.png",
+        "externalUrl": "/games/arts/rhythm-master/index.html",
+        "playUrl": "/play/rhythm-master",
+        "gameSlug": "rhythm-master",
+        "indicators": [
+          "ศ 2.1 ป.4/3",
+          "ศ 2.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ศ 2.1 ป.4/3",
+          "ศ 2.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "thai-instruments",
+        "description": "",
+        "subject": "ศิลปะ",
+        "subjectShort": "ศิลปะ",
+        "subjectColor": "#db2777",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/arts/thai-instruments/cover.png",
+        "externalUrl": "/games/arts/thai-instruments/index.html",
+        "playUrl": "/play/thai-instruments",
+        "gameSlug": "thai-instruments",
+        "indicators": [
+          "ศ 2.1 ป.4/2",
+          "ศ 2.2 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ศ 2.1 ป.4/2",
+          "ศ 2.2 ป.4/1"
+        ],
+        "hasP4": true
+      }
+    ],
+    "การงานอาชีพ": [
+      {
+        "title": "️ คัดแยกขยะ 4 ถัง",
+        "description": "สื่อการสอนการงานอาชีพ ป.1–4 — เรียนรู้ถังขยะมาตรฐานไทย · ฝึกแยกขยะ · คู่เกม waste-sort · ไม่เก็บคะแนน",
+        "subject": "การงานอาชีพ",
+        "subjectShort": "การงาน",
+        "subjectColor": "#a16207",
+        "grades": [
+          "ป.1",
+          "ป.2",
+          "ป.3",
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/career/waste-sort-media-cover.png",
+        "externalUrl": "/games/career/waste-sort-media.html",
+        "playUrl": "/games/career/waste-sort-media.html",
+        "gameSlug": null,
+        "indicators": [
+          "ง 1.1 ป.3/3",
+          "ง 1.1 ป.4/4"
+        ],
+        "p4Indicators": [
+          "ง 1.1 ป.4/4"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "veggie-garden",
+        "description": "",
+        "subject": "การงานอาชีพ",
+        "subjectShort": "การงาน",
+        "subjectColor": "#a16207",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/career/veggie-garden/cover.png",
+        "externalUrl": "/games/career/veggie-garden/index.html",
+        "playUrl": "/play/veggie-garden",
+        "gameSlug": "veggie-garden",
+        "indicators": [
+          "ง 1.1 ป.4/4",
+          "ส 3.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ง 1.1 ป.4/4",
+          "ส 3.1 ป.4/3"
+        ],
+        "hasP4": true
+      }
+    ],
+    "ภาษาอังกฤษ": [
+      {
+        "title": "english-ar-quiz",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/english-ar-quiz/cover.png",
+        "externalUrl": "/games/english/english-ar-quiz/index.html",
+        "playUrl": "/play/english-ar-quiz",
+        "gameSlug": "english-ar-quiz",
+        "indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "english-grammar-p45-hub",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "hub",
+        "thumbnail": "/games/english/english-grammar-p45-hub/cover.png",
+        "externalUrl": "/games/english/english-grammar-p45-hub/index.html",
+        "playUrl": "/games/english/english-grammar-p45-hub/index.html",
+        "gameSlug": "english-grammar-p45-hub",
+        "indicators": [
+          "ต 1.1 ป.4/1",
+          "ต 1.1 ป.4/2",
+          "ต 2.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/1",
+          "ต 1.1 ป.4/2",
+          "ต 2.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "Follow Instructions",
+        "description": "สื่อการสอนภาษาอังกฤษ ป.4 — ฟัง/อ่านคำสั่งแล้วเลือกภาพ · โหมดฝึก · คู่เกม sentence-builder",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/english/follow-instructions-cover.png",
+        "externalUrl": "/games/english/follow-instructions.html",
+        "playUrl": "/games/english/follow-instructions.html",
+        "gameSlug": null,
+        "indicators": [
+          "ต 1.1 ป.4/1",
+          "ต 1.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/1",
+          "ต 1.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "Grammar Mini — is/are · a/an",
+        "description": "สื่อการสอนภาษาอังกฤษ ป.3-4 — กฎ is/are และ a/an พร้อมตัวอย่าง · โหมดฝึกเลือกคำตอบ (ไม่จับเวลา)",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.3",
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/english/grammar-mini-cover.png",
+        "externalUrl": "/games/english/grammar-mini.html",
+        "playUrl": "/games/english/grammar-mini.html",
+        "gameSlug": null,
+        "indicators": [
+          "ต 2.1 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ต 2.1 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "hands-up-quiz",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/hands-up-quiz/cover.png",
+        "externalUrl": "/games/english/hands-up-quiz/index.html",
+        "playUrl": "/play/hands-up-quiz",
+        "gameSlug": "hands-up-quiz",
+        "indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "listen-spell",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/listen-spell/cover.png",
+        "externalUrl": "/games/english/listen-spell/index.html",
+        "playUrl": "/play/listen-spell",
+        "gameSlug": "listen-spell",
+        "indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 2.2 ป.4/1"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 2.2 ป.4/1"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "phonics-pop",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/phonics-pop/cover.png",
+        "externalUrl": "/games/english/phonics-pop/index.html",
+        "playUrl": "/play/phonics-pop",
+        "gameSlug": "phonics-pop",
+        "indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "reading-quest",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/reading-quest/cover.png",
+        "externalUrl": "/games/english/reading-quest/index.html",
+        "playUrl": "/play/reading-quest",
+        "gameSlug": "reading-quest",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "sentence-builder",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/sentence-builder/cover.png",
+        "externalUrl": "/games/english/sentence-builder/index.html",
+        "playUrl": "/play/sentence-builder",
+        "gameSlug": "sentence-builder",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "️ Sight Words — คำอ่านจำ ป.4",
+        "description": "สื่อการสอนภาษาอังกฤษ ป.4 — การ์ดพลิกคำอ่านจำ 24 คำ พร้อมประโยคตัวอย่าง · โหมดฝึกความหมาย · คู่เกม reading-quest",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4"
+        ],
+        "type": "media",
+        "thumbnail": "/games/english/sight-words-p4-cover.png",
+        "externalUrl": "/games/english/sight-words-p4.html",
+        "playUrl": "/games/english/sight-words-p4.html",
+        "gameSlug": null,
+        "indicators": [
+          "ต 1.1 ป.4/2"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "snake-3d",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/snake-3d/cover.png",
+        "externalUrl": "/games/english/snake-3d/index.html",
+        "playUrl": "/play/snake-3d",
+        "gameSlug": "snake-3d",
+        "indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "p4Indicators": [
+          "ต 1.1 ป.4/2",
+          "ต 1.1 ป.4/3"
+        ],
+        "hasP4": true
+      },
+      {
+        "title": "voxel-quiz-adventure",
+        "description": "",
+        "subject": "ภาษาอังกฤษ",
+        "subjectShort": "อังกฤษ",
+        "subjectColor": "#0369a1",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/english/voxel-quiz-adventure/cover.png",
+        "externalUrl": "/games/english/voxel-quiz-adventure/index.html",
+        "playUrl": "/play/voxel-quiz-adventure",
+        "gameSlug": "voxel-quiz-adventure",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      }
+    ]
+  },
+  "items": [
+    {
+      "title": "ล้างมือ 7 ขั้นตอน",
+      "description": "สื่อการสอนสุขศึกษา ป.1–3 — เรียงขั้นตอนล้างมือถูกวิธี · สุขบัญญัติ · คู่เกม handwash-order",
+      "subject": "สุขศึกษา",
+      "subjectShort": "สุขศึกษา",
+      "subjectColor": "#475569",
+      "grades": [
+        "ป.1",
+        "ป.2",
+        "ป.3"
+      ],
+      "type": "media",
+      "thumbnail": "/games/health/handwash-media-cover.png",
+      "externalUrl": "/games/health/handwash-media.html",
+      "playUrl": "/games/health/handwash-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "พ 4.1 ป.1/1",
+        "ว 1.2 ป.1/2"
+      ],
+      "p4Indicators": [],
+      "hasP4": false
+    },
+    {
+      "title": "อ่านฉลากอาหาร",
+      "description": "สื่อการสอนสุขศึกษา ป.4 — สารอาหาร · วันหมดอายุ · โหมดฝึกอ่านฉลาก",
+      "subject": "สุขศึกษา",
+      "subjectShort": "สุขศึกษา",
+      "subjectColor": "#475569",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/health/food-label-media-cover.png",
+      "externalUrl": "/games/health/food-label-media.html",
+      "playUrl": "/games/health/food-label-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "พ 4.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "พ 4.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "fishing",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/thai/fishing/cover.png",
+      "externalUrl": "/games/thai/fishing.html",
+      "playUrl": "/play/fishing",
+      "gameSlug": "fishing",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "kingdom",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/thai/kingdom.html",
+      "externalUrl": "/games/thai/kingdom.html",
+      "playUrl": "/play/kingdom",
+      "gameSlug": "kingdom",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-24",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/math/24.html",
+      "externalUrl": "/games/math/24.html",
+      "playUrl": "/play/math-24",
+      "gameSlug": "math-24",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/12"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/12"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-jumper",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/math/math-jumper.html",
+      "externalUrl": "/games/math/math-jumper.html",
+      "playUrl": "/play/math-jumper",
+      "gameSlug": "math-jumper",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-pizza",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/math/pizza.html",
+      "externalUrl": "/games/math/pizza.html",
+      "playUrl": "/play/math-pizza",
+      "gameSlug": "math-pizza",
+      "indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-rally",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "",
+      "externalUrl": "/games/math/multiply-rally/index.html",
+      "playUrl": "/play/math-rally",
+      "gameSlug": "math-rally",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "pizza-master-chef",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/thai/pizza-master-chef.html",
+      "externalUrl": "/games/thai/pizza-master-chef.html",
+      "playUrl": "/play/pizza-master-chef",
+      "gameSlug": "pizza-master-chef",
+      "indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "social-thailand-hub",
+      "description": "",
+      "subject": "สังคมศึกษา ศาสนา และวัฒนธรรม",
+      "subjectShort": "สังคม",
+      "subjectColor": "#7c3aed",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/social/social-thailand-hub/cover.png",
+      "externalUrl": "/games/social/social-thailand-hub/index.html",
+      "playUrl": "/games/social/social-thailand-hub/index.html",
+      "gameSlug": "social-thailand-hub",
+      "indicators": [
+        "ส 2.1 ป.4/1",
+        "ส 4.3 ป.4/1",
+        "ส 5.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ส 2.1 ป.4/1",
+        "ส 4.3 ป.4/1",
+        "ส 5.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "wipod",
+      "description": "",
+      "subject": "อื่นๆ",
+      "subjectShort": "อื่นๆ",
+      "subjectColor": "#475569",
+      "grades": [],
+      "type": "game",
+      "thumbnail": "/games/thai/wipod-cover.png",
+      "externalUrl": "/games/thai/wipod.html",
+      "playUrl": "/play/wipod",
+      "gameSlug": "wipod",
+      "indicators": [
+        "ท 1.1 ป.4/2",
+        "ท 4.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ท 1.1 ป.4/2",
+        "ท 4.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "🌾 Farm Adventure: ภารกิจวัดความยาวในฟาร์มมหาสนุก",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/farm-adventure/cover.png",
+      "externalUrl": "/games/math/farm-adventure/index.html",
+      "playUrl": "/play/farm-adventure",
+      "gameSlug": "farm-adventure",
+      "indicators": [
+        "ค 2.1 ป.3/3",
+        "ค 2.1 ป.3/5"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "เกมคณิตคิดไว ยกมือทายถูกผิด!",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-hand-raising/cover.png",
+      "externalUrl": "/games/math/math-hand-raising/index.html",
+      "playUrl": "/play/math-hand-raising",
+      "gameSlug": "math-hand-raising",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "ทศนิยม — อ่าน · เปรียบเทียบ · บวกลบ",
+      "description": "สื่อการสอนคณิตศาสตร์ ป.4 — แผ่นหลักสิบ อ่านทศนิยม เปรียบเทียบ บวกลบทศนิยม · โหมดฝึก · คู่เกม rounding",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/math/decimal-media-cover.png",
+      "externalUrl": "/games/math/decimal-media.html",
+      "playUrl": "/games/math/decimal-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ค 1.1 ป.4/5",
+        "ค 1.1 ป.4/6"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/5",
+        "ค 1.1 ป.4/6"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "แผนภูมิแท่ง — อ่านและเปรียบเทียบ",
+      "description": "สื่อการสอนคณิตศาสตร์ ป.4 — กรอกข้อมูลวาดกราฟแท่ง · อ่านค่าสูงสุด/ต่ำสุด · โหมดฝึกอ่านกราฟ",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/math/bar-chart-media-cover.png",
+      "externalUrl": "/games/math/bar-chart-media.html",
+      "playUrl": "/games/math/bar-chart-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ค 3.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ค 3.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "มุม — แหลม · ฉาก · ป้าน",
+      "description": "สื่อการสอนคณิตศาสตร์ ป.4 — จำแนกชนิดมุม · โพรแทรกเตอร์ · โหมดฝึก · สร้างมุม",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/math/angle-media-cover.png",
+      "externalUrl": "/games/math/angle-media.html",
+      "playUrl": "/games/math/angle-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ค 2.2 ป.4/1",
+        "ค 2.2 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ค 2.2 ป.4/1",
+        "ค 2.2 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "เส้นจำนวน — เปรียบเทียบ · เรียงลำดับ",
+      "description": "สื่อการสอนคณิตศาสตร์ ป.1–3 — ลากจุดบนเส้นจำนวน · เปรียบเทียบ · เรียงลำดับ · ไม่เก็บคะแนน (fork จาก number-line)",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.1",
+        "ป.2",
+        "ป.3"
+      ],
+      "type": "media",
+      "thumbnail": "/games/math/number-line-media-cover.png",
+      "externalUrl": "/games/math/number-line-media.html",
+      "playUrl": "/games/math/number-line-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ค 1.1 ป.1/2",
+        "ค 1.1 ป.2/1",
+        "ค 1.1 ป.3/1"
+      ],
+      "p4Indicators": [],
+      "hasP4": false
+    },
+    {
+      "title": "catch-numbers",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/catch-numbers/cover.png",
+      "externalUrl": "/games/math/catch-numbers/index.html",
+      "playUrl": "/play/catch-numbers",
+      "gameSlug": "catch-numbers",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "coin-exchange",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/coin-exchange/cover.png",
+      "externalUrl": "/games/math/coin-exchange/index.html",
+      "playUrl": "/play/coin-exchange",
+      "gameSlug": "coin-exchange",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 2.1 ป.3/1"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "fraction-tank",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/fraction-tank/cover.png",
+      "externalUrl": "/games/math/fraction-tank/index.html",
+      "playUrl": "/play/fraction-tank",
+      "gameSlug": "fraction-tank",
+      "indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "jump-even-odd",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/jump-even-odd/cover.png",
+      "externalUrl": "/games/math/jump-even-odd/index.html",
+      "playUrl": "/play/jump-even-odd",
+      "gameSlug": "jump-even-odd",
+      "indicators": [
+        "ค 1.1 ป.2/1",
+        "ค 1.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-data-hub",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/math/math-data-hub/cover.png",
+      "externalUrl": "/games/math/math-data-hub/index.html",
+      "playUrl": "/games/math/math-data-hub/index.html",
+      "gameSlug": "math-data-hub",
+      "indicators": [
+        "ค 3.1 ป.4/1",
+        "ค 3.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ค 3.1 ป.4/1",
+        "ค 3.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-decimal-hub",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/math/math-decimal-hub/cover.png",
+      "externalUrl": "/games/math/math-decimal-hub/index.html",
+      "playUrl": "/games/math/math-decimal-hub/index.html",
+      "gameSlug": "math-decimal-hub",
+      "indicators": [
+        "ค 1.1 ป.4/5",
+        "ค 1.1 ป.4/6"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/5",
+        "ค 1.1 ป.4/6"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-fraction-hub",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/math/math-fraction-hub/cover.png",
+      "externalUrl": "/games/math/math-fraction-hub/index.html",
+      "playUrl": "/games/math/math-fraction-hub/index.html",
+      "gameSlug": "math-fraction-hub",
+      "indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/13",
+        "ค 1.1 ป.4/14"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-geometry-hub",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/math/math-geometry-hub/cover.png",
+      "externalUrl": "/games/math/math-geometry-hub/index.html",
+      "playUrl": "/games/math/math-geometry-hub/index.html",
+      "gameSlug": "math-geometry-hub",
+      "indicators": [
+        "ค 2.2 ป.4/1",
+        "ค 2.2 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ค 2.2 ป.4/1",
+        "ค 2.2 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-man-coop",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-man-coop/cover.png",
+      "externalUrl": "/games/math/math-man-coop/index.html",
+      "playUrl": "/play/math-man-coop",
+      "gameSlug": "math-man-coop",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-move-quiz",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-move-quiz/cover.png",
+      "externalUrl": "/games/math/math-move-quiz/index.html",
+      "playUrl": "/play/math-move-quiz",
+      "gameSlug": "math-move-quiz",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/7"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/7"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-quest-3d",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "",
+      "externalUrl": "/games/math/math-quest-3d/index.html",
+      "playUrl": "/play/math-quest-3d",
+      "gameSlug": "math-quest-3d",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "math-racer",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-racer/cover.png",
+      "externalUrl": "/games/math/math-racer/index.html",
+      "playUrl": "/play/math-racer",
+      "gameSlug": "math-racer",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-rally",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-rally/cover.png",
+      "externalUrl": "/games/math/math-rally/index.html",
+      "playUrl": "/play/math-rally",
+      "gameSlug": "math-rally",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-runner",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-runner/cover.png",
+      "externalUrl": "/games/math/math-runner/index.html",
+      "playUrl": "/play/math-runner",
+      "gameSlug": "math-runner",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "math-word-problem-hub",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/math/math-word-problem-hub/cover.png",
+      "externalUrl": "/games/math/math-word-problem-hub/index.html",
+      "playUrl": "/games/math/math-word-problem-hub/index.html",
+      "gameSlug": "math-word-problem-hub",
+      "indicators": [
+        "ค 1.1 ป.4/11",
+        "ค 1.1 ป.4/12",
+        "ค 1.2 ป.4/1",
+        "ค 1.2 ป.5/1"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/11",
+        "ค 1.1 ป.4/12",
+        "ค 1.2 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "measure-up",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/measure-up/cover.png",
+      "externalUrl": "/games/math/measure-up/index.html",
+      "playUrl": "/play/measure-up",
+      "gameSlug": "measure-up",
+      "indicators": [
+        "ค 2.1 ป.3/3",
+        "ค 2.1 ป.3/5"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "Mini Farm Island 🌴",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/mini-farm-island/cover.png",
+      "externalUrl": "/games/math/mini-farm-island/index.html",
+      "playUrl": "/play/mini-farm-island",
+      "gameSlug": "mini-farm-island",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "multiplication-kingdom",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/multiplication-kingdom/cover.png",
+      "externalUrl": "/games/math/multiplication-kingdom/index.html",
+      "playUrl": "/play/multiplication-kingdom",
+      "gameSlug": "multiplication-kingdom",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "multiplication-rpg",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/multiplication-rpg/cover.png",
+      "externalUrl": "/games/math/multiplication-rpg/index.html",
+      "playUrl": "/play/multiplication-rpg",
+      "gameSlug": "multiplication-rpg",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "multiply-burst",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/multiply-burst/cover.png",
+      "externalUrl": "/games/math/multiply-burst/index.html",
+      "playUrl": "/play/multiply-burst",
+      "gameSlug": "multiply-burst",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "probability-zoo-board",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/probability-zoo-board/cover.png",
+      "externalUrl": "/games/math/probability-zoo-board/index.html",
+      "playUrl": "/play/probability-zoo-board",
+      "gameSlug": "probability-zoo-board",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/7"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/7"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "Super Math-Blaster: Galactic Duel",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/math-blaster/cover.png",
+      "externalUrl": "/games/math/math-blaster/index.html",
+      "playUrl": "/play/math-blaster",
+      "gameSlug": "math-blaster",
+      "indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/10",
+        "ค 1.1 ป.4/11"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "ข้อเท็จจริง vs ความคิดเห็น",
+      "description": "สื่อการสอนภาษาไทย ป.4 — เรียนรู้แยกข้อเท็จจริงกับความคิดเห็น · โหมดฝึกจำแนก · คู่เกม reading-game",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/thai/fact-opinion-cover.png",
+      "externalUrl": "/games/thai/fact-opinion.html",
+      "playUrl": "/games/thai/fact-opinion.html",
+      "gameSlug": null,
+      "indicators": [
+        "ท 1.1 ป.4/4",
+        "ท 3.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ท 1.1 ป.4/4",
+        "ท 3.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "โครงสร้างประโยค — ประธาน กริยา กรรม",
+      "description": "สื่อการสอนภาษาไทย ป.3–5 — เรียนรู้โครงสร้างประโยค · เรียงคำให้ถูก · คู่เกม sentence-craft · ไม่เก็บคะแนน",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.3",
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/thai/sentence-structure-cover.png",
+      "externalUrl": "/games/thai/sentence-structure.html",
+      "playUrl": "/games/thai/sentence-structure.html",
+      "gameSlug": null,
+      "indicators": [
+        "ท 4.1 ป.3/4",
+        "ท 4.1 ป.5/2"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "ชนิดของคำ — นาม · กริยา · คุณศัพท์",
+      "description": "สื่อการสอนภาษาไทย ป.3-4 — เรียนรู้คำนาม คำกริยา คำคุณศัพท์ · โหมดฝึก · จัดคำใส่กล่อง · คู่เกม Attack on Noun",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.3",
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/thai/thai-word-types-cover.png",
+      "externalUrl": "/games/thai/thai-word-types.html",
+      "playUrl": "/games/thai/thai-word-types.html",
+      "gameSlug": null,
+      "indicators": [
+        "ท 4.1 ป.4/2",
+        "ท 4.1 ป.4/6"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/2",
+        "ท 4.1 ป.4/6"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "ตัดคำนามนินจา",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/word-ninja-noun/cover.png",
+      "externalUrl": "/games/thai/word-ninja-noun/index.html",
+      "playUrl": "/play/word-ninja-noun",
+      "gameSlug": "word-ninja-noun",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "ผู้พิทักษ์ลักษณะนาม",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/attack-on-noun/cover.png",
+      "externalUrl": "/games/thai/attack-on-noun/index.html",
+      "playUrl": "/play/attack-on-noun",
+      "gameSlug": "attack-on-noun",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "balloon-burst",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/balloon-burst/cover.png",
+      "externalUrl": "/games/thai/balloon-burst/index.html",
+      "playUrl": "/play/balloon-burst",
+      "gameSlug": "balloon-burst",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "balloon-fighter",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/balloon-fighter/cover.png",
+      "externalUrl": "/games/thai/balloon-fighter/index.html",
+      "playUrl": "/play/balloon-fighter",
+      "gameSlug": "balloon-fighter",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "battle-city",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/battle-city/cover.png",
+      "externalUrl": "/games/thai/battle-city/index.html",
+      "playUrl": "/play/battle-city",
+      "gameSlug": "battle-city",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "fishing",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/fishing/cover.png",
+      "externalUrl": "/games/thai/fishing/index.html",
+      "playUrl": "/play/fishing",
+      "gameSlug": "fishing",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "reading-game",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/reading-game/cover.png",
+      "externalUrl": "/games/thai/reading-game/index.html",
+      "playUrl": "/play/reading-game",
+      "gameSlug": "reading-game",
+      "indicators": [
+        "ท 1.1 ป.4/4",
+        "ท 3.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ท 1.1 ป.4/4",
+        "ท 3.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "sentence-craft",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/sentence-craft/cover.png",
+      "externalUrl": "/games/thai/sentence-craft/index.html",
+      "playUrl": "/play/sentence-craft",
+      "gameSlug": "sentence-craft",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "thai-grammar-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-grammar-hub/cover.png",
+      "externalUrl": "/games/thai/thai-grammar-hub/index.html",
+      "playUrl": "/games/thai/thai-grammar-hub/index.html",
+      "gameSlug": "thai-grammar-hub",
+      "indicators": [
+        "ท 4.1 ป.4/2",
+        "ท 4.1 ป.5/1"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-idiom-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-idiom-hub/cover.png",
+      "externalUrl": "/games/thai/thai-idiom-hub/index.html",
+      "playUrl": "/games/thai/thai-idiom-hub/index.html",
+      "gameSlug": "thai-idiom-hub",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.5/1"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-literature-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-literature-hub/cover.png",
+      "externalUrl": "/games/thai/thai-literature-hub/index.html",
+      "playUrl": "/games/thai/thai-literature-hub/index.html",
+      "gameSlug": "thai-literature-hub",
+      "indicators": [
+        "ท 5.1 ป.4/1",
+        "ท 5.1 ป.4/2",
+        "ท 5.1 ป.5/2"
+      ],
+      "p4Indicators": [
+        "ท 5.1 ป.4/1",
+        "ท 5.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-poetry-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-poetry-hub/cover.png",
+      "externalUrl": "/games/thai/thai-poetry-hub/index.html",
+      "playUrl": "/games/thai/thai-poetry-hub/index.html",
+      "gameSlug": "thai-poetry-hub",
+      "indicators": [
+        "ท 4.1 ป.4/5",
+        "ท 4.1 ป.5/2",
+        "ท 5.1 ป.4/4",
+        "ท 5.1 ป.5/1"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/5",
+        "ท 5.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-punctuation-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-punctuation-hub/cover.png",
+      "externalUrl": "/games/thai/thai-punctuation-hub/index.html",
+      "playUrl": "/games/thai/thai-punctuation-hub/index.html",
+      "gameSlug": "thai-punctuation-hub",
+      "indicators": [
+        "ท 4.1 ป.4/3",
+        "ท 4.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/3",
+        "ท 4.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-reading-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-reading-hub/cover.png",
+      "externalUrl": "/games/thai/thai-reading-hub/index.html",
+      "playUrl": "/games/thai/thai-reading-hub/index.html",
+      "gameSlug": "thai-reading-hub",
+      "indicators": [
+        "ท 1.1 ป.5/2",
+        "ท 1.1 ป.5/3"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "thai-script-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-script-hub/cover.png",
+      "externalUrl": "/games/thai/thai-script-hub/index.html",
+      "playUrl": "/games/thai/thai-script-hub/index.html",
+      "gameSlug": "thai-script-hub",
+      "indicators": [
+        "ท 4.1 ป.1/1",
+        "ท 4.1 ป.2/1"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "thai-sentence-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-sentence-hub/cover.png",
+      "externalUrl": "/games/thai/thai-sentence-hub/index.html",
+      "playUrl": "/games/thai/thai-sentence-hub/index.html",
+      "gameSlug": "thai-sentence-hub",
+      "indicators": [
+        "ท 4.1 ป.5/2"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "thai-story",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/thai-story/cover.png",
+      "externalUrl": "/games/thai/thai-story/index.html",
+      "playUrl": "/play/thai-story",
+      "gameSlug": "thai-story",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "thai-vocab-arena",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/thai-vocab-arena/cover.png",
+      "externalUrl": "/games/thai/thai-vocab-arena/index.html",
+      "playUrl": "/play/thai-vocab-arena",
+      "gameSlug": "thai-vocab-arena",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-vocab-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-vocab-hub/cover.png",
+      "externalUrl": "/games/thai/thai-vocab-hub/index.html",
+      "playUrl": "/games/thai/thai-vocab-hub/index.html",
+      "gameSlug": "thai-vocab-hub",
+      "indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/6"
+      ],
+      "p4Indicators": [
+        "ท 4.1 ป.4/1",
+        "ท 4.1 ป.4/6"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-writing-hub",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/thai/thai-writing-hub/cover.png",
+      "externalUrl": "/games/thai/thai-writing-hub/index.html",
+      "playUrl": "/games/thai/thai-writing-hub/index.html",
+      "gameSlug": "thai-writing-hub",
+      "indicators": [
+        "ท 2.1 ป.4/1",
+        "ท 4.1 ป.5/3"
+      ],
+      "p4Indicators": [
+        "ท 2.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "🧬 Digestive System AR Explorer",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/digestive-ar/cover.png",
+      "externalUrl": "/games/science/digestive-ar/index.html",
+      "playUrl": "/play/digestive-ar",
+      "gameSlug": "digestive-ar",
+      "indicators": [
+        "พ 1.1 ป.5/1",
+        "ว 1.2 ป.6/4"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "🧬 Genetic Treasure Quest",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/genetic-quest/cover.png",
+      "externalUrl": "/games/science/genetic-quest/index.html",
+      "playUrl": "/play/genetic-quest",
+      "gameSlug": "genetic-quest",
+      "indicators": [
+        "ว 1.3 ป.5/1"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "ระบบย่อยอาหาร — แผนภาพคลิกได้",
+      "description": "สื่อการสอนวิทยาศาสตร์ ป.4–6 — แตะอวัยวะระบบย่อย · เรียงลำดับการย่อย · คู่เกม digestive-ar",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5",
+        "ป.6"
+      ],
+      "type": "media",
+      "thumbnail": "/games/science/digestive-system-media-cover.png",
+      "externalUrl": "/games/science/digestive-system-media.html",
+      "playUrl": "/games/science/digestive-system-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "พ 1.1 ป.5/1",
+        "ว 1.2 ป.6/4",
+        "ว 1.2 ป.6/5"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "สสาร 3 สถานะ — แข็ง · ของเหลว · ก๊าซ",
+      "description": "สื่อการสอนวิทยาศาสตร์ ป.4 — สไลเดอร์อุณหภูมิ น้ำแข็ง↔น้ำ↔ไอ · โหมดทดสอบ · คู่เกม sci-sort",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.3",
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/science/states-of-matter-cover.png",
+      "externalUrl": "/games/science/states-of-matter.html",
+      "playUrl": "/games/science/states-of-matter.html",
+      "gameSlug": null,
+      "indicators": [
+        "ว 2.1 ป.4/3",
+        "ว 2.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ว 2.1 ป.4/3",
+        "ว 2.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "สัตว์มี/ไม่มีกระดูกสันหลัง",
+      "description": "สื่อการสอนวิทยาศาสตร์ ป.4 — เรียนรู้สัตว์มีกระดูกสันหลัง vs ไม่มี · โหมดจัดกลุ่ม · ทดสอบ · คู่เกม blocky-safari",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.3",
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/science/vertebrate-sort-cover.png",
+      "externalUrl": "/games/science/vertebrate-sort.html",
+      "playUrl": "/games/science/vertebrate-sort.html",
+      "gameSlug": null,
+      "indicators": [
+        "ว 1.3 ป.4/3",
+        "ว 1.3 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ว 1.3 ป.4/3",
+        "ว 1.3 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "ห่วงโซ่อาหาร — ผู้ผลิตถึงผู้ล่า",
+      "description": "สื่อการสอนวิทยาศาสตร์ ป.4–5 — เรียนรู้บทบาทในโซ่อาหาร · เรียงตามการไหลของพลังงาน · คู่เกม food-chain",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/science/food-chain-media-cover.png",
+      "externalUrl": "/games/science/food-chain-media.html",
+      "playUrl": "/games/science/food-chain-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ว 1.1 ป.5/2",
+        "ว 1.1 ป.5/3"
+      ],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "animal-habitat-3d",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/animal-habitat-3d/cover.png",
+      "externalUrl": "/games/science/animal-habitat-3d/index.html",
+      "playUrl": "/play/animal-habitat-3d",
+      "gameSlug": "animal-habitat-3d",
+      "indicators": [
+        "ว 1.3 ป.4/1",
+        "ว 1.3 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ว 1.3 ป.4/1",
+        "ว 1.3 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "blocky-safari",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/blocky-safari/cover.png",
+      "externalUrl": "/games/science/blocky-safari/index.html",
+      "playUrl": "/play/blocky-safari",
+      "gameSlug": "blocky-safari",
+      "indicators": [
+        "ว 1.3 ป.4/3",
+        "ว 1.3 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ว 1.3 ป.4/3",
+        "ว 1.3 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "energy-rocket",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/energy-rocket/cover.png",
+      "externalUrl": "/games/science/energy-rocket/index.html",
+      "playUrl": "/play/energy-rocket",
+      "gameSlug": "energy-rocket",
+      "indicators": [
+        "ว 2.1 ป.4/3",
+        "ว 2.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ว 2.1 ป.4/3",
+        "ว 2.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "science-p45-hub",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/science/science-p45-hub/cover.png",
+      "externalUrl": "/games/science/science-p45-hub/index.html",
+      "playUrl": "/games/science/science-p45-hub/index.html",
+      "gameSlug": "science-p45-hub",
+      "indicators": [
+        "ว 1.2 ป.6/4",
+        "ว 1.3 ป.4/3",
+        "ว 2.1 ป.4/3",
+        "ว 3.2 ป.5/3"
+      ],
+      "p4Indicators": [
+        "ว 1.3 ป.4/3",
+        "ว 2.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "sink-float",
+      "description": "",
+      "subject": "วิทยาศาสตร์",
+      "subjectShort": "วิทย์",
+      "subjectColor": "#047857",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/science/sink-float/cover.png",
+      "externalUrl": "/games/science/sink-float/index.html",
+      "playUrl": "/play/sink-float",
+      "gameSlug": "sink-float",
+      "indicators": [
+        "ว 2.1 ป.4/1",
+        "ว 2.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ว 2.1 ป.4/1",
+        "ว 2.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "️ แผนที่ประเทศไทย — ภาคและจังหวัด",
+      "description": "สื่อการสอนสังคมศึกษา ป.4 — แตะภาคดูจังหวัดตัวอย่าง ลักษณะทางกายภาพ · ฝึกทายภาค · คู่เกม globe-3d",
+      "subject": "สังคมศึกษา",
+      "subjectShort": "สังคม",
+      "subjectColor": "#7c3aed",
+      "grades": [
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/social/thailand-map-cover.png",
+      "externalUrl": "/games/social/thailand-map.html",
+      "playUrl": "/games/social/thailand-map.html",
+      "gameSlug": null,
+      "indicators": [
+        "ส 5.1 ป.4/1",
+        "ส 5.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ส 5.1 ป.4/1",
+        "ส 5.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "พลเมืองดี — หน้าที่และจริยธรรม",
+      "description": "สื่อการสอนสังคมศึกษา ป.4 — คุณลักษณะพลเมืองดี · สถานการณ์เลือกพฤติกรรม · คู่เกม good-citizen",
+      "subject": "สังคมศึกษา",
+      "subjectShort": "สังคม",
+      "subjectColor": "#7c3aed",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/social/good-citizen-media-cover.png",
+      "externalUrl": "/games/social/good-citizen-media.html",
+      "playUrl": "/games/social/good-citizen-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ส 2.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ส 2.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "️ สมัยสุโขทัย — ไทม์ไลน์",
+      "description": "สื่อการสอนสังคมศึกษา ป.4 — ไทม์ไลน์เหตุการณ์สำคัญ · บุคคลสำคัญ · โหมดทดสอบ · คู่เกม social-quiz",
+      "subject": "สังคมศึกษา",
+      "subjectShort": "สังคม",
+      "subjectColor": "#7c3aed",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "media",
+      "thumbnail": "/games/social/sukhothai-timeline-cover.png",
+      "externalUrl": "/games/social/sukhothai-timeline.html",
+      "playUrl": "/games/social/sukhothai-timeline.html",
+      "gameSlug": null,
+      "indicators": [
+        "ส 4.3 ป.4/1",
+        "ส 4.3 ป.4/2",
+        "ส 4.3 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ส 4.3 ป.4/1",
+        "ส 4.3 ป.4/2",
+        "ส 4.3 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "color-wheel",
+      "description": "",
+      "subject": "ศิลปะ",
+      "subjectShort": "ศิลปะ",
+      "subjectColor": "#db2777",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/arts/color-wheel/cover.png",
+      "externalUrl": "/games/arts/color-wheel/index.html",
+      "playUrl": "/play/color-wheel",
+      "gameSlug": "color-wheel",
+      "indicators": [
+        "ศ 1.1 ป.4/2",
+        "ศ 1.1 ป.4/7"
+      ],
+      "p4Indicators": [
+        "ศ 1.1 ป.4/2",
+        "ศ 1.1 ป.4/7"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "line-trace",
+      "description": "",
+      "subject": "ศิลปะ",
+      "subjectShort": "ศิลปะ",
+      "subjectColor": "#db2777",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/arts/line-trace/cover.png",
+      "externalUrl": "/games/arts/line-trace/index.html",
+      "playUrl": "/play/line-trace",
+      "gameSlug": "line-trace",
+      "indicators": [
+        "ศ 1.1 ป.4/3",
+        "ศ 1.1 ป.4/5"
+      ],
+      "p4Indicators": [
+        "ศ 1.1 ป.4/3",
+        "ศ 1.1 ป.4/5"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "rhythm-master",
+      "description": "",
+      "subject": "ศิลปะ",
+      "subjectShort": "ศิลปะ",
+      "subjectColor": "#db2777",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/arts/rhythm-master/cover.png",
+      "externalUrl": "/games/arts/rhythm-master/index.html",
+      "playUrl": "/play/rhythm-master",
+      "gameSlug": "rhythm-master",
+      "indicators": [
+        "ศ 2.1 ป.4/3",
+        "ศ 2.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ศ 2.1 ป.4/3",
+        "ศ 2.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "thai-instruments",
+      "description": "",
+      "subject": "ศิลปะ",
+      "subjectShort": "ศิลปะ",
+      "subjectColor": "#db2777",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/arts/thai-instruments/cover.png",
+      "externalUrl": "/games/arts/thai-instruments/index.html",
+      "playUrl": "/play/thai-instruments",
+      "gameSlug": "thai-instruments",
+      "indicators": [
+        "ศ 2.1 ป.4/2",
+        "ศ 2.2 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ศ 2.1 ป.4/2",
+        "ศ 2.2 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "️ คัดแยกขยะ 4 ถัง",
+      "description": "สื่อการสอนการงานอาชีพ ป.1–4 — เรียนรู้ถังขยะมาตรฐานไทย · ฝึกแยกขยะ · คู่เกม waste-sort · ไม่เก็บคะแนน",
+      "subject": "การงานอาชีพ",
+      "subjectShort": "การงาน",
+      "subjectColor": "#a16207",
+      "grades": [
+        "ป.1",
+        "ป.2",
+        "ป.3",
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/career/waste-sort-media-cover.png",
+      "externalUrl": "/games/career/waste-sort-media.html",
+      "playUrl": "/games/career/waste-sort-media.html",
+      "gameSlug": null,
+      "indicators": [
+        "ง 1.1 ป.3/3",
+        "ง 1.1 ป.4/4"
+      ],
+      "p4Indicators": [
+        "ง 1.1 ป.4/4"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "veggie-garden",
+      "description": "",
+      "subject": "การงานอาชีพ",
+      "subjectShort": "การงาน",
+      "subjectColor": "#a16207",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/career/veggie-garden/cover.png",
+      "externalUrl": "/games/career/veggie-garden/index.html",
+      "playUrl": "/play/veggie-garden",
+      "gameSlug": "veggie-garden",
+      "indicators": [
+        "ง 1.1 ป.4/4",
+        "ส 3.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ง 1.1 ป.4/4",
+        "ส 3.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "english-ar-quiz",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/english-ar-quiz/cover.png",
+      "externalUrl": "/games/english/english-ar-quiz/index.html",
+      "playUrl": "/play/english-ar-quiz",
+      "gameSlug": "english-ar-quiz",
+      "indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "english-grammar-p45-hub",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "hub",
+      "thumbnail": "/games/english/english-grammar-p45-hub/cover.png",
+      "externalUrl": "/games/english/english-grammar-p45-hub/index.html",
+      "playUrl": "/games/english/english-grammar-p45-hub/index.html",
+      "gameSlug": "english-grammar-p45-hub",
+      "indicators": [
+        "ต 1.1 ป.4/1",
+        "ต 1.1 ป.4/2",
+        "ต 2.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/1",
+        "ต 1.1 ป.4/2",
+        "ต 2.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "Follow Instructions",
+      "description": "สื่อการสอนภาษาอังกฤษ ป.4 — ฟัง/อ่านคำสั่งแล้วเลือกภาพ · โหมดฝึก · คู่เกม sentence-builder",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/english/follow-instructions-cover.png",
+      "externalUrl": "/games/english/follow-instructions.html",
+      "playUrl": "/games/english/follow-instructions.html",
+      "gameSlug": null,
+      "indicators": [
+        "ต 1.1 ป.4/1",
+        "ต 1.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/1",
+        "ต 1.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "Grammar Mini — is/are · a/an",
+      "description": "สื่อการสอนภาษาอังกฤษ ป.3-4 — กฎ is/are และ a/an พร้อมตัวอย่าง · โหมดฝึกเลือกคำตอบ (ไม่จับเวลา)",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.3",
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/english/grammar-mini-cover.png",
+      "externalUrl": "/games/english/grammar-mini.html",
+      "playUrl": "/games/english/grammar-mini.html",
+      "gameSlug": null,
+      "indicators": [
+        "ต 2.1 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ต 2.1 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "hands-up-quiz",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/hands-up-quiz/cover.png",
+      "externalUrl": "/games/english/hands-up-quiz/index.html",
+      "playUrl": "/play/hands-up-quiz",
+      "gameSlug": "hands-up-quiz",
+      "indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "listen-spell",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/listen-spell/cover.png",
+      "externalUrl": "/games/english/listen-spell/index.html",
+      "playUrl": "/play/listen-spell",
+      "gameSlug": "listen-spell",
+      "indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 2.2 ป.4/1"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 2.2 ป.4/1"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "phonics-pop",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/phonics-pop/cover.png",
+      "externalUrl": "/games/english/phonics-pop/index.html",
+      "playUrl": "/play/phonics-pop",
+      "gameSlug": "phonics-pop",
+      "indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "reading-quest",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/reading-quest/cover.png",
+      "externalUrl": "/games/english/reading-quest/index.html",
+      "playUrl": "/play/reading-quest",
+      "gameSlug": "reading-quest",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "sentence-builder",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/sentence-builder/cover.png",
+      "externalUrl": "/games/english/sentence-builder/index.html",
+      "playUrl": "/play/sentence-builder",
+      "gameSlug": "sentence-builder",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "️ Sight Words — คำอ่านจำ ป.4",
+      "description": "สื่อการสอนภาษาอังกฤษ ป.4 — การ์ดพลิกคำอ่านจำ 24 คำ พร้อมประโยคตัวอย่าง · โหมดฝึกความหมาย · คู่เกม reading-quest",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4"
+      ],
+      "type": "media",
+      "thumbnail": "/games/english/sight-words-p4-cover.png",
+      "externalUrl": "/games/english/sight-words-p4.html",
+      "playUrl": "/games/english/sight-words-p4.html",
+      "gameSlug": null,
+      "indicators": [
+        "ต 1.1 ป.4/2"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "snake-3d",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/snake-3d/cover.png",
+      "externalUrl": "/games/english/snake-3d/index.html",
+      "playUrl": "/play/snake-3d",
+      "gameSlug": "snake-3d",
+      "indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "p4Indicators": [
+        "ต 1.1 ป.4/2",
+        "ต 1.1 ป.4/3"
+      ],
+      "hasP4": true
+    },
+    {
+      "title": "voxel-quiz-adventure",
+      "description": "",
+      "subject": "ภาษาอังกฤษ",
+      "subjectShort": "อังกฤษ",
+      "subjectColor": "#0369a1",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/english/voxel-quiz-adventure/cover.png",
+      "externalUrl": "/games/english/voxel-quiz-adventure/index.html",
+      "playUrl": "/play/voxel-quiz-adventure",
+      "gameSlug": "voxel-quiz-adventure",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    }
+  ]
+}

@@ -18,6 +18,7 @@
     "supabase:reset": "supabase db reset",
     "lint:design": "design.md lint DESIGN.md",
     "generate:og": "node scripts/generate-og-image.mjs",
+    "generate:showcase": "node scripts/generate-game-showcase.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
     "audit:game-scores": "node scripts/audit-game-score-submit.mjs",
