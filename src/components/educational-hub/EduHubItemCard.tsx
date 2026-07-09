@@ -285,7 +285,7 @@ export const EduHubItemCard = ({
 
                 {/* Media preview */}
                 <div className="shrink-0">
-                    <ItemThumbnail item={item} />
+                    <ItemThumbnail item={item} showArBadge={!!item.game_slug && AR_GAME_SLUGS.has(item.game_slug)} />
                 </div>
 
                 {/* Body — ชื่อ/แท็กสูงคงที่ แถบตัวชี้วัดอยู่ footer ล่างการ์ดเสมอ */}
@@ -366,6 +366,76 @@ export const EduHubItemCard = ({
         </>
     );
 };
+
+// ─── AR game slugs ─────────────────────────────────────────────────────────
+// เกมที่ใช้กล้อง/AR ในการเล่น — แสดง badge "AR" บนมุมการ์ด
+const AR_GAME_SLUGS = new Set([
+    'ar-zone-quiz',
+    'english-ar-quiz',
+    'hands-up-quiz',
+    'jump-even-odd',
+    'energy-rocket',
+    'catch-numbers',
+    'digestive-ar',
+    'math-move-quiz',
+    'balloon-burst',
+    'multiply-burst',
+    'ar-calibration',
+    'math-hand-raising',
+    'fraction-garden-ar',
+    'fraction-adventure',
+]);
+
+const ArBadge = () => (
+    <div
+        aria-label="ใช้กล้อง AR"
+        title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
+        style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: 64,
+            height: 64,
+            overflow: 'hidden',
+            zIndex: 10,
+            pointerEvents: 'none',
+        }}
+    >
+        {/* Triangle ribbon cut at top-left corner */}
+        <div
+            style={{
+                position: 'absolute',
+                top: -2,
+                left: -2,
+                width: 0,
+                height: 0,
+                borderStyle: 'solid',
+                borderWidth: '60px 60px 0 0',
+                borderColor: 'rgba(6,182,212,0.92) transparent transparent transparent',
+                filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.35))',
+            }}
+        />
+        {/* AR text */}
+        <span
+            style={{
+                position: 'absolute',
+                top: 6,
+                left: 2,
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: 11,
+                letterSpacing: '0.04em',
+                lineHeight: 1,
+                transform: 'rotate(-45deg)',
+                transformOrigin: 'center center',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                userSelect: 'none',
+            }}
+        >
+            AR
+        </span>
+    </div>
+);
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
@@ -468,25 +538,31 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
     return <div className="h-10 w-14 bg-muted rounded shrink-0" />;
 };
 
-const ItemThumbnail = ({ item }: { item: EduHubItem }) => {
+const ItemThumbnail = ({ item, showArBadge }: { item: EduHubItem; showArBadge?: boolean }) => {
     const { coverMs, videoMs, coverRound2MinMs, coverRound2MaxMs } = useGamePreviewTiming();
     if (item.thumbnail_url) {
         // กริดวิดีโอ: มีรูปปก + คลิปเดโม → สลับปก ↔ วิดีโอวนซ้ำ (จังหวะจากหลังบ้าน)
         if (item.preview_video_url) {
             return (
-                <GameDemoPreview
-                    cover={item.thumbnail_url}
-                    video={item.preview_video_url}
-                    title={item.title}
-                    coverMs={coverMs}
-                    videoMs={videoMs}
-                    coverRound2MinMs={coverRound2MinMs}
-                    coverRound2MaxMs={coverRound2MaxMs}
-                />
+                <div className="relative">
+                    <GameDemoPreview
+                        cover={item.thumbnail_url}
+                        video={item.preview_video_url}
+                        title={item.title}
+                        coverMs={coverMs}
+                        videoMs={videoMs}
+                        coverRound2MinMs={coverRound2MinMs}
+                        coverRound2MaxMs={coverRound2MaxMs}
+                    />
+                    {showArBadge && <ArBadge />}
+                </div>
             );
         }
         return (
-            <GameCoverThumb src={item.thumbnail_url!} alt={item.title} />
+            <div className="relative">
+                <GameCoverThumb src={item.thumbnail_url!} alt={item.title} />
+                {showArBadge && <ArBadge />}
+            </div>
         );
     }
 
