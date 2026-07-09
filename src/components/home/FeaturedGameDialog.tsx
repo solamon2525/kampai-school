@@ -28,10 +28,10 @@ const AR_GAME_SLUGS = new Set([
     'fraction-garden-ar', 'fraction-adventure',
 ]);
 
-const ArBadge = () => (
+const ArBadge = ({ text }: { text: string }) => (
     <div
-        aria-label="ใช้กล้อง AR"
-        title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
+        aria-label={`ป้าย ${text}`}
+        title={`รายการนี้มีป้าย ${text}`}
         style={{
             position: 'absolute', top: 0, left: 0,
             width: 96, height: 96, overflow: 'hidden',
@@ -46,12 +46,16 @@ const ArBadge = () => (
             filter: 'drop-shadow(2px 2px 5px rgba(0,0,0,0.55))',
         }} />
         <span style={{
-            position: 'absolute', top: 10, left: 3,
-            color: '#fff', fontWeight: 900, fontSize: 28,
+            position: 'absolute',
+            top: text.length > 3 ? 14 : 10,
+            left: text.length > 3 ? 3 : 3,
+            color: '#fff',
+            fontWeight: 900,
+            fontSize: text.length > 3 ? 18 : text.length > 2 ? 24 : 28,
             letterSpacing: '0.06em', lineHeight: 1,
             transform: 'rotate(-45deg)', transformOrigin: 'center center',
             textShadow: '0 2px 5px rgba(0,0,0,0.8)', userSelect: 'none',
-        }}>AR</span>
+        }}>{text}</span>
     </div>
 );
 
@@ -113,7 +117,10 @@ export const FeaturedGameDialog = ({
                     ) : (
                         <div className="aspect-video w-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-4xl">🎮</div>
                     )}
-                    {!!game.game_slug && AR_GAME_SLUGS.has(game.game_slug) && <ArBadge />}
+                    {(() => {
+                        const badgeText = game.corner_badge || (!!game.game_slug && AR_GAME_SLUGS.has(game.game_slug) ? 'AR' : null);
+                        return badgeText ? <ArBadge text={badgeText} /> : null;
+                    })()}
                 </div>
 
                 {/* Badge วิชา/ระดับ/แท็ก */}

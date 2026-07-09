@@ -285,7 +285,7 @@ export const EduHubItemCard = ({
 
                 {/* Media preview */}
                 <div className="shrink-0">
-                    <ItemThumbnail item={item} showArBadge={!!item.game_slug && AR_GAME_SLUGS.has(item.game_slug)} />
+                    <ItemThumbnail item={item} cornerBadge={item.corner_badge} />
                 </div>
 
                 {/* Body — ชื่อ/แท็กสูงคงที่ แถบตัวชี้วัดอยู่ footer ล่างการ์ดเสมอ */}
@@ -386,10 +386,10 @@ const AR_GAME_SLUGS = new Set([
     'fraction-adventure',
 ]);
 
-const ArBadge = () => (
+const ArBadge = ({ text }: { text: string }) => (
     <div
-        aria-label="ใช้กล้อง AR"
-        title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
+        aria-label={`ป้าย ${text}`}
+        title={`รายการนี้มีป้าย ${text}`}
         style={{
             position: 'absolute',
             top: 0,
@@ -417,11 +417,11 @@ const ArBadge = () => (
         <span
             style={{
                 position: 'absolute',
-                top: 9,
-                left: 3,
+                top: text.length > 3 ? 12 : 9,
+                left: text.length > 3 ? 2 : 3,
                 color: '#ffffff',
                 fontWeight: 900,
-                fontSize: 24,
+                fontSize: text.length > 3 ? 16 : text.length > 2 ? 20 : 24,
                 letterSpacing: '0.06em',
                 lineHeight: 1,
                 transform: 'rotate(-45deg)',
@@ -430,7 +430,7 @@ const ArBadge = () => (
                 userSelect: 'none',
             }}
         >
-            AR
+            {text}
         </span>
     </div>
 );
@@ -536,8 +536,9 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
     return <div className="h-10 w-14 bg-muted rounded shrink-0" />;
 };
 
-const ItemThumbnail = ({ item, showArBadge }: { item: EduHubItem; showArBadge?: boolean }) => {
+const ItemThumbnail = ({ item, cornerBadge }: { item: EduHubItem; cornerBadge?: string | null }) => {
     const { coverMs, videoMs, coverRound2MinMs, coverRound2MaxMs } = useGamePreviewTiming();
+    const badgeText = cornerBadge || (!!item.game_slug && AR_GAME_SLUGS.has(item.game_slug) ? 'AR' : null);
     if (item.thumbnail_url) {
         // กริดวิดีโอ: มีรูปปก + คลิปเดโม → สลับปก ↔ วิดีโอวนซ้ำ (จังหวะจากหลังบ้าน)
         if (item.preview_video_url) {
@@ -552,14 +553,14 @@ const ItemThumbnail = ({ item, showArBadge }: { item: EduHubItem; showArBadge?: 
                         coverRound2MinMs={coverRound2MinMs}
                         coverRound2MaxMs={coverRound2MaxMs}
                     />
-                    {showArBadge && <ArBadge />}
+                    {badgeText && <ArBadge text={badgeText} />}
                 </div>
             );
         }
         return (
             <div className="relative">
                 <GameCoverThumb src={item.thumbnail_url!} alt={item.title} />
-                {showArBadge && <ArBadge />}
+                {badgeText && <ArBadge text={badgeText} />}
             </div>
         );
     }

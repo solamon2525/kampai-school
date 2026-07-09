@@ -56,6 +56,7 @@ const schema = z.object({
     is_published: z.boolean().default(true),
     game_slug: z.string().optional().nullable(),
     tracked_game: z.boolean().default(false),
+    corner_badge: z.string().optional().nullable(),
 }).superRefine((val, ctx) => {
     if (val.item_type === 'file' && !val.file_url) {
         ctx.addIssue({ code: 'custom', path: ['file_url'], message: 'กรุณาอัปโหลดไฟล์' });
@@ -112,6 +113,7 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
             is_published: initial?.is_published ?? true,
             game_slug: initial?.game_slug ?? '',
             tracked_game: initial?.tracked_game ?? false,
+            corner_badge: initial?.corner_badge ?? '',
         },
     });
 
@@ -180,6 +182,7 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                 is_published: values.is_published,
                 game_slug: values.game_slug?.trim() || null,
                 tracked_game: values.tracked_game ?? false,
+                corner_badge: values.corner_badge || null,
             };
 
             const res = initial
@@ -601,6 +604,32 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                                     );
                                 })}
                             </div>
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="corner_badge"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>🏷️ ป้ายมุมการ์ด (Corner Badge)</FormLabel>
+                            <Select value={field.value ?? ''} onValueChange={field.onChange}>
+                                <FormControl>
+                                    <SelectTrigger><SelectValue placeholder="ไม่แสดงป้าย" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="">ไม่แสดงป้าย</SelectItem>
+                                    <SelectItem value="AR">🔴 AR (ใช้กล้อง/AR)</SelectItem>
+                                    <SelectItem value="NEW">🔴 NEW (เกมใหม่)</SelectItem>
+                                    <SelectItem value="HOT">🔴 HOT (ยอดนิยม)</SelectItem>
+                                    <SelectItem value="BETA">🔴 BETA (รุ่นทดสอบ)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormDescription>
+                                แสดงป้ายริบบิ้นสีแดงที่มุมซ้ายบนของการ์ดเกมในคลังเกมและหน้าแรก
+                            </FormDescription>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />

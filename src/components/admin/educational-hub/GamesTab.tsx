@@ -1147,6 +1147,7 @@ const GameSettingsDialog = ({
     const [gameSlug, setGameSlug] = useState(item.game_slug ?? '');
     const [tracked, setTracked] = useState(item.tracked_game);
     const [published, setPublished] = useState(item.is_published);
+    const [cornerBadge, setCornerBadge] = useState(item.corner_badge ?? '');
     // value-encoded: '__default__' | 'preset:<key>' | 'track:<url>'
     const [bgmSel, setBgmSel] = useState(
         item.bgm_url ? `track:${item.bgm_url}` : item.bgm_preset ? `preset:${item.bgm_preset}` : '__default__',
@@ -1157,7 +1158,7 @@ const GameSettingsDialog = ({
     const [playStyle, setPlayStyle] = useState(item.game_play_style ?? '__unset__');
     const [previewVideoUrl, setPreviewVideoUrl] = useState(item.preview_video_url ?? '');
     const [saving, setSaving] = useState(false);
-
+ 
     const { data: tracks } = useQuery({
         queryKey: ['bgm-tracks'],
         queryFn: async () => {
@@ -1165,7 +1166,7 @@ const GameSettingsDialog = ({
             return (data ?? []) as BgmTrack[];
         },
     });
-
+ 
     const { data: characters } = useQuery({
         queryKey: ['character-sheets'],
         queryFn: async () => {
@@ -1173,7 +1174,7 @@ const GameSettingsDialog = ({
             return (data ?? []) as CharacterSheet[];
         },
     });
-
+ 
     const handleSave = async () => {
         setSaving(true);
         try {
@@ -1191,6 +1192,7 @@ const GameSettingsDialog = ({
                 is_published: published,
                 preview_video_url: previewVideoUrl.trim() || null,
                 game_play_style: playStyle === '__unset__' ? null : playStyle,
+                corner_badge: cornerBadge || null,
                 ...bgm,
                 ...charFields,
             });
@@ -1206,7 +1208,7 @@ const GameSettingsDialog = ({
             setSaving(false);
         }
     };
-
+ 
     return (
         <>
             <DialogHeader>
@@ -1215,7 +1217,7 @@ const GameSettingsDialog = ({
                     กำหนด game_slug สำหรับเชื่อมกับระบบ XP/Leaderboard และสถานะการเผยแพร่
                 </DialogDescription>
             </DialogHeader>
-
+ 
             <div className="space-y-4">
                 <div className="space-y-1.5">
                     <label className="text-sm font-medium">Game Slug (ว่างได้ = ยังไม่ track)</label>
@@ -1228,7 +1230,7 @@ const GameSettingsDialog = ({
                         ต้องตรงกับค่า gameSlug ใน HTML ไฟล์ เพื่อให้ระบบ XP/Leaderboard ทำงาน
                     </p>
                 </div>
-
+ 
                 <div className="flex items-center justify-between rounded-md border border-border p-3">
                     <div>
                         <p className="text-sm font-medium">ติดตามคะแนน (Tracked)</p>
@@ -1236,7 +1238,7 @@ const GameSettingsDialog = ({
                     </div>
                     <Switch checked={tracked} onCheckedChange={setTracked} />
                 </div>
-
+ 
                 <div className="flex items-center justify-between rounded-md border border-border p-3">
                     <div>
                         <p className="text-sm font-medium">เผยแพร่ (Published)</p>
@@ -1245,6 +1247,23 @@ const GameSettingsDialog = ({
                     <Switch checked={published} onCheckedChange={setPublished} />
                 </div>
 
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium">🏷️ ป้ายมุมการ์ด (Corner Badge)</label>
+                    <Select value={cornerBadge} onValueChange={setCornerBadge}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">ไม่แสดงป้าย</SelectItem>
+                            <SelectItem value="AR">🔴 AR (ใช้กล้อง/AR)</SelectItem>
+                            <SelectItem value="NEW">🔴 NEW (เกมใหม่)</SelectItem>
+                            <SelectItem value="HOT">🔴 HOT (ยอดนิยม)</SelectItem>
+                            <SelectItem value="BETA">🔴 BETA (รุ่นทดสอบ)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                        แสดงป้ายริบบิ้นสีแดงที่มุมซ้ายบนของการ์ดเกมในคลังเกมและหน้าแรก
+                    </p>
+                </div>
+ 
                 <div className="space-y-1.5">
                     <label className="text-sm font-medium">🎮 แนวเกม</label>
                     <Select value={playStyle} onValueChange={setPlayStyle}>

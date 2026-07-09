@@ -31,10 +31,10 @@ const AR_GAME_SLUGS = new Set([
   'fraction-garden-ar', 'fraction-adventure',
 ]);
 
-const ArBadge = () => (
+const ArBadge = ({ text }: { text: string }) => (
   <div
-    aria-label="ใช้กล้อง AR"
-    title="เกมนี้ใช้กล้องหรือ AR ในการเล่น"
+    aria-label={`ป้าย ${text}`}
+    title={`รายการนี้มีป้าย ${text}`}
     style={{
       position: 'absolute', top: 0, left: 0,
       width: 76, height: 76, overflow: 'hidden',
@@ -49,12 +49,16 @@ const ArBadge = () => (
       filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))',
     }} />
     <span style={{
-      position: 'absolute', top: 8, left: 2,
-      color: '#fff', fontWeight: 900, fontSize: 22,
+      position: 'absolute',
+      top: text.length > 3 ? 11 : 8,
+      left: text.length > 3 ? 2 : 2,
+      color: '#fff',
+      fontWeight: 900,
+      fontSize: text.length > 3 ? 14 : text.length > 2 ? 18 : 22,
       letterSpacing: '0.06em', lineHeight: 1,
       transform: 'rotate(-45deg)', transformOrigin: 'center center',
       textShadow: '0 2px 4px rgba(0,0,0,0.7)', userSelect: 'none',
-    }}>AR</span>
+    }}>{text}</span>
   </div>
 );
 
@@ -1079,47 +1083,50 @@ export const useHomeMainBlocks = () => {
     visible: { opacity: 1, y: 0, transition: { duration: fgFadeDur } },
   };
 
-  const isArGame = (game: EduHubItem) => !!game.game_slug && AR_GAME_SLUGS.has(game.game_slug);
+  const getBadgeText = (game: EduHubItem) => game.corner_badge || (!!game.game_slug && AR_GAME_SLUGS.has(game.game_slug) ? 'AR' : null);
 
-  const renderGameCard = (game: EduHubItem, keyPrefix = '') => (
-    <motion.button
-      key={`${keyPrefix}${game.id}`}
-      type="button"
-      variants={fgMode === 'marquee' ? undefined : fgItemVariants}
-      onClick={() => setSelectedGame(game)}
-      className={cn(
-        'group text-left',
-        fgMode === 'grid' ? 'w-full' : 'flex-shrink-0 w-44 sm:w-52 snap-start'
-      )}
-    >
-      <div className="relative">
-        {game.thumbnail_url && game.preview_video_url ? (
-          <GameDemoPreview
-            cover={game.thumbnail_url}
-            video={game.preview_video_url}
-            title={game.title}
-            coverMs={previewCoverMs}
-            videoMs={previewVideoMs}
-            coverRound2MinMs={previewRound2MinMs}
-            coverRound2MaxMs={previewRound2MaxMs}
-          />
-        ) : game.thumbnail_url ? (
-          <GameCoverThumb
-            src={game.thumbnail_url}
-            alt={game.title}
-            className="rounded-lg border border-border"
-          />
-        ) : (
-          <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border flex items-center justify-center">
-            <span className="text-2xl">🎮</span>
-          </div>
+  const renderGameCard = (game: EduHubItem, keyPrefix = '') => {
+    const badgeText = getBadgeText(game);
+    return (
+      <motion.button
+        key={`${keyPrefix}${game.id}`}
+        type="button"
+        variants={fgMode === 'marquee' ? undefined : fgItemVariants}
+        onClick={() => setSelectedGame(game)}
+        className={cn(
+          'group text-left',
+          fgMode === 'grid' ? 'w-full' : 'flex-shrink-0 w-44 sm:w-52 snap-start'
         )}
-        {isArGame(game) && <ArBadge />}
-      </div>
-      <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
-      {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
-    </motion.button>
-  );
+      >
+        <div className="relative">
+          {game.thumbnail_url && game.preview_video_url ? (
+            <GameDemoPreview
+              cover={game.thumbnail_url}
+              video={game.preview_video_url}
+              title={game.title}
+              coverMs={previewCoverMs}
+              videoMs={previewVideoMs}
+              coverRound2MinMs={previewRound2MinMs}
+              coverRound2MaxMs={previewRound2MaxMs}
+            />
+          ) : game.thumbnail_url ? (
+            <GameCoverThumb
+              src={game.thumbnail_url}
+              alt={game.title}
+              className="rounded-lg border border-border"
+            />
+          ) : (
+            <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border flex items-center justify-center">
+              <span className="text-2xl">🎮</span>
+            </div>
+          )}
+          {badgeText && <ArBadge text={badgeText} />}
+        </div>
+        <h4 className="text-xs font-semibold mt-2 line-clamp-2 group-hover:text-primary transition-colors">{game.title}</h4>
+        {game.subject && <p className="text-[10px] text-muted-foreground mt-0.5">{game.subject}</p>}
+      </motion.button>
+    );
+  };
 
   // เลย์เอาต์ภายในตามจำนวนแถว: 2 แถว = วางลง grid 2 row แล้วไหลแนวนอน
   const fgInnerClass = fgRows === 2 ? 'grid grid-rows-2 grid-flow-col gap-4' : 'flex gap-4';
