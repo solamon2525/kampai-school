@@ -267,6 +267,7 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
         <button class="btn btn-blue" onclick="openVersus()">👥 2 คน (จอเดียว)</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-blue" id="btn-daily" onclick="startDaily()">📅 ชาเลนจ์วันนี้</button>
+        <button class="btn btn-blue" id="btn-research" onclick="startResearch()" style="display:none">🔬 วิจัย</button>
         <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
@@ -438,9 +439,9 @@ function renderLeaderboard(listId) {
         </li>`;
     }).join('');
 }
-KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); loadMastery(); loadDaily(); });
+KAMPAI.onReady(function () { renderPlayer(); renderLeaderboard('score-list'); loadMastery(); loadDaily(); loadResearch(); });
 // gameData อาจมาหลัง onReady ครั้งแรก (wrapper init มาช้า) — รับ init ซ้ำ refresh badges/weights/daily
-window.addEventListener('message', function (e) { if (e.data && e.data.type === 'init') setTimeout(function(){ loadMastery(); loadDaily(); }, 50); });
+window.addEventListener('message', function (e) { if (e.data && e.data.type === 'init') setTimeout(function(){ loadMastery(); loadDaily(); loadResearch(); }, 50); });
 
 /* ═══ Phase 2 · Mastery / Adaptive ═══ */
 function loadMastery() {
@@ -533,6 +534,55 @@ function startDaily() {
     dailyQIndex = 0;
     startGame(null);
 }
+
+/* ═══ Classroom Research shortcut ═══ */
+function loadResearch() {
+    const btn = $('btn-research');
+    if (!btn) return;
+    const g = KAMPAI.gameData || {};
+    const list = g.research && Array.isArray(g.research.studies) ? g.research.studies : [];
+    researchStudies = list.filter(function (s) {
+        return s && s.id && s.game_slug === GAME_SLUG;
+    });
+    if (!researchStudies.length) {
+        btn.style.display = 'none';
+        btn.textContent = '🔬 วิจัย';
+        return;
+    }
+    const first = researchStudies[0];
+    const remaining = first.rounds && typeof first.rounds.remaining === 'number'
+        ? first.rounds.remaining
+        : null;
+    btn.style.display = '';
+    btn.textContent = remaining === null
+        ? '🔬 วิจัย'
+        : (remaining > 0 ? `🔬 วิจัย (${remaining})` : '✓ วิจัยครบแล้ว');
+    btn.classList.toggle('done', remaining !== null && remaining <= 0);
+}
+function startResearch() {
+    audioCtx();
+    if (started) return;
+    const study = researchStudies && researchStudies[0];
+    if (!study || !study.id) {
+        flash2('ยังไม่มีงานวิจัยสำหรับชั้นนี้');
+        return;
+    }
+    const remaining = study.rounds && typeof study.rounds.remaining === 'number'
+        ? study.rounds.remaining
+        : null;
+    if (remaining !== null && remaining <= 0) {
+        flash2('วันนี้เล่นครบจำนวนรอบวิจัยแล้ว');
+        return;
+    }
+    const modeMap = { normal: 'race', endless: 'endless', daily: 'daily' };
+    const urlMode = modeMap[study.game_mode] || study.game_mode || 'race';
+    const path = `/play/${GAME_SLUG}?study=${encodeURIComponent(study.id)}&mode=${encodeURIComponent(urlMode)}&autostart=1`;
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'navigate', to: path }, '*');
+    } else {
+        window.location.href = path;
+    }
+}
 function flash2(msg) {
     // ใช้ toast-like แบบเร็ว ๆ — แสดงบน start screen
     const f = document.createElement('div');
@@ -584,6 +634,7 @@ let qStartedAt = 0;                                   // ms timestamp ของ�
 let dailyStatus = null;                               // { challenge_date, played, score, correct_count }
 let dailyLeaderboard = [];
 let dailyQIndex = 0;                                  // 0..9 — ข้อปัจจุบันใน daily
+let researchStudies = [];                             // งานวิจัย active ที่ wrapper ส่งมาให้ชั้นนี้
 
 // seeded PRNG (mulberry32) — ใช้ในโหมดออนไลน์ให้โจทย์เหมือนกันทุกเครื่อง; default = Math.random
 let qrand = Math.random;

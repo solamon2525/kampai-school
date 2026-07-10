@@ -564,6 +564,9 @@ const PlayGame = () => {
             }
           : gameSlug === 'multiply-race' ? {
           mastery: masteryQuery.data ?? [],
+          research: {
+            studies: researchEntryQuery.data ?? [],
+          },
           daily: {
             status: dailyStatusQuery.data ?? null,
             leaderboard: dailyLeaderboardQuery.data ?? [],
@@ -575,7 +578,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
+  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -594,6 +597,11 @@ const PlayGame = () => {
     sessionSubmittedRef.current = false;
     postInitToIframe();
   }, [student, resolvedSlug, postParentViewport, postInitToIframe]);
+
+  useEffect(() => {
+    if (phase !== 'playing' || !student || !iframeRef.current?.contentWindow) return;
+    postInitToIframe();
+  }, [phase, student, postInitToIframe]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps

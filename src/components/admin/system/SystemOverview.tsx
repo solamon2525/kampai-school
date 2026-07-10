@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.3 (Math Jumper — score lifecycle fix)',
+        version: 'v1.162.5 (multiply-race research menu)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            '**multiply-race** เพิ่มปุ่ม **วิจัย** ในเมนูเริ่มของเกม เมื่อมีโครงการวิจัย active ที่ตรงกับเกมและชั้นเรียน',
+            'wrapper ส่ง `gameData.research.studies` เข้า iframe และปุ่มวิจัยนำทางด้วย `study` + `autostart` เพื่อแยกคะแนนเข้า `/teacher/game-research`',
+            'migration **390** bump `game_docs` เป็น v1.1.2 สำหรับ research menu integration',
+        ],
+    },
+    {
+        version: 'v1.162.3 (Math Jumper — score lifecycle fix)',
+        date: '',
         badge: 'bg-amber-600',
         items: [
             '**math-jumper** แก้บักโจทย์รอบแรก/แพลตฟอร์มคำตอบไม่ตรงกัน โดยสุ่มโจทย์ก่อนสร้าง row เกม',
