@@ -413,6 +413,8 @@ export default function TeacherGameResearch() {
         pretestMean: r.pretestMean,
         posttestMean: r.posttestMean,
         gain: r.gain,
+        preRounds: r.preRounds,
+        postRounds: r.postRounds,
       })),
       stats: {
         n: researchResult.n,

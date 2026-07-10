@@ -7,6 +7,8 @@ interface ResearchStudentRow {
     pretestMean: number | null;
     posttestMean: number | null;
     gain: number | null;
+    preRounds?: number;
+    postRounds?: number;
 }
 
 interface ResearchStats {
@@ -51,6 +53,13 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
     const today = formatThaiDateFull(new Date().toISOString().split('T')[0]);
     const pretestLabel = formatThaiDateRange(input.pretestRange.start, input.pretestRange.end);
     const posttestLabel = formatThaiDateRange(input.posttestRange.start, input.posttestRange.end);
+    const isOneDayResearch =
+        input.pretestRange.start === input.pretestRange.end &&
+        input.posttestRange.start === input.posttestRange.end &&
+        input.pretestRange.start === input.posttestRange.start;
+    const methodSummary = isOneDayResearch
+        ? 'การทดสอบก่อนเรียนและหลังเรียนดำเนินการภายในวันเดียว โดยนักเรียนกดปุ่ม "ก่อนเรียน" เพื่อทำแบบทดสอบก่อนเรียน และกดปุ่ม "หลังเรียน" เพื่อทำแบบทดสอบหลังเรียน ระบบบันทึกช่วงการทดสอบแยกด้วย metadata.research_phase'
+        : 'การทดสอบก่อนเรียนและหลังเรียนดำเนินการตามช่วงวันที่ที่กำหนด ระบบบันทึกคะแนนการเล่นเกมและนำคะแนนเฉลี่ยรายบุคคลมาเปรียบเทียบ';
 
     const objectivesHtml = input.objectives
         .map((o, i) => `<li>${o}</li>`)
@@ -67,7 +76,9 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
                 <td class="num">${i + 1}</td>
                 <td class="ctr">${r.classNumber ?? '-'}</td>
                 <td>${r.name}</td>
+                <td class="ctr num">${r.preRounds ?? '-'}</td>
                 <td class="ctr num">${r.pretestMean !== null ? r.pretestMean.toFixed(1) : '—'}</td>
+                <td class="ctr num">${r.postRounds ?? '-'}</td>
                 <td class="ctr num">${r.posttestMean !== null ? r.posttestMean.toFixed(1) : '—'}</td>
                 <td class="ctr num">${gainText}</td>
             </tr>`;
@@ -107,6 +118,7 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
       .meta-box .row{display:flex;gap:8px;margin-bottom:3px;}
       .meta-box .row .label{color:#64748b;min-width:130px;}
       .meta-box .row .value{color:#0f172a;font-weight:600;}
+      .method-note{background:#ecfeff;border:1px solid #bae6fd;color:#0f172a;border-radius:6px;padding:9px 12px;margin:10px 0 14px;font-size:11px;}
 
       .summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
       .summary .box{border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;text-align:center;}
@@ -156,10 +168,12 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
             <div class="meta-box">
                 <div class="row"><span class="label">เครื่องมือที่ใช้ในการวิจัย</span><span class="value">เกมการศึกษา "${input.gameTitle}" (Kampai SDK)</span></div>
                 <div class="row"><span class="label">กลุ่มเป้าหมาย</span><span class="value">นักเรียนชั้น ${input.className} จำนวน ${input.stats.n} คน (ที่มีข้อมูลครบทั้งก่อนและหลัง)</span></div>
+                <div class="row"><span class="label">รูปแบบการทดสอบ</span><span class="value">${isOneDayResearch ? 'ก่อนเรียนและหลังเรียนภายในวันเดียว' : 'ก่อนเรียนและหลังเรียนตามช่วงวันที่'}</span></div>
                 <div class="row"><span class="label">ช่วงเวลาเก็บข้อมูลก่อนเรียน</span><span class="value">${pretestLabel}</span></div>
                 <div class="row"><span class="label">ช่วงเวลาเก็บข้อมูลหลังเรียน</span><span class="value">${posttestLabel}</span></div>
-                <div class="row"><span class="label">วิธีเก็บข้อมูล</span><span class="value">ระบบบันทึกคะแนนการเล่นเกมอัตโนมัติของ Kampai School (เฉลี่ยคะแนนรายบุคคลในแต่ละช่วง)</span></div>
+                <div class="row"><span class="label">วิธีเก็บข้อมูล</span><span class="value">ระบบบันทึกคะแนนการเล่นเกมอัตโนมัติของ Kampai School (เฉลี่ยคะแนนรายบุคคลในแต่ละช่วงการทดสอบ)</span></div>
             </div>
+            <div class="method-note">${methodSummary}</div>
         </div>
 
         <div class="page-break"></div>
@@ -178,13 +192,15 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
                         <th class="ctr" style="width:26px;">#</th>
                         <th class="ctr" style="width:40px;">เลขที่</th>
                         <th>ชื่อ-สกุล</th>
+                        <th class="ctr num" style="width:54px;">รอบก่อน</th>
                         <th class="ctr num" style="width:90px;">ก่อนเรียน</th>
+                        <th class="ctr num" style="width:54px;">รอบหลัง</th>
                         <th class="ctr num" style="width:90px;">หลังเรียน</th>
                         <th class="ctr num" style="width:80px;">ผลต่าง</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${rowsHtml || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">ไม่มีข้อมูล</td></tr>'}
+                    ${rowsHtml || '<tr><td colspan="8" style="text-align:center;padding:20px;color:#94a3b8;">ไม่มีข้อมูล</td></tr>'}
                 </tbody>
             </table>
             <p style="font-size:11px;color:#64748b;">ส่วนเบี่ยงเบนมาตรฐาน: ก่อนเรียน ${input.stats.sdPretest.toFixed(1)} · หลังเรียน ${input.stats.sdPosttest.toFixed(1)} (n=${input.stats.n})</p>
