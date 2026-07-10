@@ -19,6 +19,7 @@ import {
   CalendarRange,
   Users,
   TrendingUp,
+  RotateCcw,
 } from 'lucide-react';
 import {
   BarChart,
@@ -325,6 +326,33 @@ export default function TeacherGameResearch() {
     },
   });
 
+  const resetStudentScoresMutation = useMutation({
+    mutationFn: async ({ studentId }: { studentId: string; name: string }) => {
+      if (!activeStudy) throw new Error('ไม่พบโครงการวิจัย');
+      return gameResearchService.resetStudentScores(activeStudy.id, studentId);
+    },
+    onSuccess: (result, variables) => {
+      qc.invalidateQueries({ queryKey: ['research-sessions', activeStudy?.id, activeStudy?.class_name] });
+      qc.invalidateQueries({ queryKey: ['research-rounds'] });
+      toast({
+        title: 'รีเซ็ตคะแนนสอบแล้ว',
+        description: `${variables.name} · ลบ ${result.sessions_deleted} รอบจากงานวิจัยนี้`,
+      });
+    },
+    onError: (e: Error) => {
+      toast({ title: 'รีเซ็ตไม่สำเร็จ', description: e.message, variant: 'destructive' });
+    },
+  });
+
+  const handleResetStudentScores = (studentId: string, name: string, roundsCount: number) => {
+    if (!activeStudy || roundsCount <= 0) return;
+    const ok = window.confirm(
+      `รีเซ็ตคะแนนสอบของ ${name} ในโครงการนี้?\n\nระบบจะลบคะแนนวิจัย ${roundsCount} รอบที่บันทึกไว้ เพื่อให้นักเรียนเริ่มสอบ 4 รอบใหม่ได้`,
+    );
+    if (!ok) return;
+    resetStudentScoresMutation.mutate({ studentId, name });
+  };
+
   const researchResult = useMemo(() => {
     if (!activeStudy) return null;
     const sessions = sessionsQuery.data ?? [];
@@ -626,12 +654,16 @@ export default function TeacherGameResearch() {
                           {Array.from({ length: Math.min(activeStudy.max_rounds_per_day, 8) }, (_, i) => (
                             <TableHead key={i} className="text-center">รอบ {i + 1}</TableHead>
                           ))}
+                          <TableHead className="w-28 text-right">รีเซ็ต</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {(studentsQuery.data ?? []).map((st) => {
                           const rounds = (researchResult?.todayByStudent.get(st.id) ?? [])
                             .sort((a, b) => a.created_at.localeCompare(b.created_at));
+                          const isResetting =
+                            resetStudentScoresMutation.isPending &&
+                            resetStudentScoresMutation.variables?.studentId === st.id;
                           return (
                             <TableRow key={st.id}>
                               <TableCell>
@@ -654,6 +686,22 @@ export default function TeacherGameResearch() {
                                   </TableCell>
                                 );
                               })}
+                              <TableCell className="text-right">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 gap-1.5 text-xs"
+                                  disabled={rounds.length === 0 || isResetting}
+                                  onClick={() => handleResetStudentScores(st.id, st.name, rounds.length)}
+                                >
+                                  {isResetting ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <RotateCcw className="h-3.5 w-3.5" />
+                                  )}
+                                  รีเซ็ต
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           );
                         })}

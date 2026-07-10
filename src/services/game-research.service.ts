@@ -226,4 +226,13 @@ export const gameResearchService = {
     if (error) return { data: [], error };
     return { data: (data as unknown as ResearchStudyForGame[]) ?? [], error: null };
   },
+
+  resetStudentScores: async (studyId: string, studentId: string) => {
+    const { data, error } = await supabase.rpc('reset_research_student_scores' as never, {
+      p_study_id: studyId,
+      p_student_id: studentId,
+    } as never);
+    if (error) throw error;
+    return data as unknown as { ok: boolean; sessions_deleted: number; student_id: string };
+  },
 };

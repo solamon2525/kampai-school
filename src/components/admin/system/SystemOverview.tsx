@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.7 (research document phase alignment)',
+        version: 'v1.162.8 (research per-student score reset)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้า `/teacher/game-research` เพิ่มปุ่ม **รีเซ็ต** รายบุคคลในตารางรอบวันนี้ สำหรับลบคะแนนสอบวิจัย 4 รอบของนักเรียนคนนั้น',
+            'เพิ่ม RPC `reset_research_student_scores` จำกัดสิทธิ์เฉพาะครูเจ้าของโครงการวิจัยหรือแอดมิน',
+            'หลังรีเซ็ต ระบบ refresh ตารางรอบวันนี้และผลก่อน/หลังเรียนทันที พร้อม confirm ก่อนลบคะแนน',
+        ],
+    },
+    {
+        version: 'v1.162.7 (research document phase alignment)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เอกสารวิจัยในชั้นเรียน 5 บทระบุรูปแบบการทดสอบ **ก่อนเรียน/หลังเรียนภายในวันเดียว** เมื่อช่วงวันที่เป็นวันเดียวกัน',
