@@ -134,6 +134,13 @@ export type ResearchStudyPublicListItem = {
   max_rounds_per_day: number;
 };
 
+export type ResearchStudyForGame = ResearchStudyPublicListItem & {
+  pretest_start: string;
+  pretest_end: string;
+  posttest_start: string;
+  posttest_end: string;
+};
+
 export const gameResearchService = {
   listByOwner: (staffId: string) =>
     supabase
@@ -195,5 +202,14 @@ export const gameResearchService = {
     const { data, error } = await supabase.rpc('list_research_studies_public' as never);
     if (error) throw error;
     return { data: (data as unknown as ResearchStudyPublicListItem[]) ?? [] };
+  },
+
+  listForGame: async (gameSlug: string, className?: string | null) => {
+    const { data, error } = await supabase.rpc('list_research_studies_for_game' as never, {
+      p_game_slug: gameSlug,
+      p_class_name: className ?? null,
+    } as never);
+    if (error) return { data: [], error };
+    return { data: (data as unknown as ResearchStudyForGame[]) ?? [], error: null };
   },
 };

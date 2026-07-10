@@ -51,6 +51,7 @@ export type ClassOverviewRow = {
   student_id: string;
   student_code: string;
   display_name: string;
+  photo_url: string | null;
   class_label: string | null;
   total_correct: number;
   total_wrong: number;

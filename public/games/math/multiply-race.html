@@ -292,6 +292,7 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <h1>จบเกม!</h1>
     <div id="final-score">0</div>
     <div id="final-detail"></div>
+    <div id="kampai-result"></div>
     <!-- ที่ควรฝึก: โจทย์ที่พลาด/หมดเวลาในรอบนี้ -->
     <div class="review-box" id="review-wrap" style="display:none">
         <h3>📝 ที่ควรฝึกซ้ำ</h3>
@@ -516,6 +517,10 @@ function renderDailyBox() {
 function startDaily() {
     audioCtx();
     if (started) return;
+    if (!KAMPAI.gameData || !KAMPAI.gameData.daily) {
+        flash2('กำลังโหลดชาเลนจ์วันนี้...');
+        return;
+    }
     if (dailyStatus && dailyStatus.played) {
         flash2(`เล่นชาเลนจ์วันนี้แล้ว · คะแนน ${dailyStatus.score} · ตอบถูก ${dailyStatus.correct_count}/10`);
         return;
@@ -626,6 +631,7 @@ function practiceWrong() {
 /* ── เริ่มเกม ── */
 function startGame(tbl) {
     if (started) return;
+    if (mode !== 'practice') KAMPAI.beginRound();
     started = true;
     selectedTable = tbl;
     score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
@@ -970,6 +976,7 @@ function startOnlineQuiz(rng, opts) {
     stopSpeak();
     isSpectatorMode = !!(opts && opts.role === 'spectator');
     mode = 'online'; qrand = rng; onlineEnded = false;
+    if (!isSpectatorMode) KAMPAI.beginRound();
     score = 0; streak = 0; maxStreak = 0; correctCount = 0;
     started = true; locked = isSpectatorMode;   // ผู้ชม: lock ตอบทันที
     $('start').classList.remove('on');
@@ -1422,10 +1429,16 @@ window.addEventListener('message', function(e) {
         if (!m) return;
         var allowed = { race: 1, endless: 1, daily: 1 };
         if (!allowed[m]) return;
-        requestAnimationFrame(function() {
+        function startWhenReady(tries) {
             if (typeof started !== 'undefined' && started) return;
-            if (typeof chooseMode === 'function') chooseMode(m);
-        });
+            if (m === 'daily' && (!window.KAMPAI || !KAMPAI.gameData || !KAMPAI.gameData.daily) && tries < 40) {
+                setTimeout(function(){ startWhenReady(tries + 1); }, 50);
+                return;
+            }
+            if (m === 'daily' && typeof startDaily === 'function') startDaily();
+            else if (typeof chooseMode === 'function') chooseMode(m);
+        }
+        requestAnimationFrame(function() { startWhenReady(0); });
     } catch (_) {}
 })();
 </script>

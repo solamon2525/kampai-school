@@ -4,7 +4,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as LucideIcons from 'lucide-react';
 import {
   ArrowLeft,
+  CalendarRange,
+  FlaskConical,
   Gamepad2,
+  Link2,
   Loader2,
   Sparkles,
   Trophy,
@@ -50,7 +53,13 @@ import {
   type LevelInfo,
 } from '@/services/game-play.service';
 import { multiplyRaceService, type PerTableStats } from '@/services/multiply-race.service';
-import { gameResearchService } from '@/services/game-research.service';
+import {
+  gameResearchService,
+  modeLabel,
+  researchUrlMode,
+  type ResearchRoundsToday,
+  type ResearchStudyForGame,
+} from '@/services/game-research.service';
 import { thaiVocabService } from '@/services/thai-vocab.service';
 import { HonorWall } from '@/components/games/HonorWall';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
@@ -67,6 +76,7 @@ const ICON = (name: string | null | undefined) =>
 
 // ─── Page state ──────────────────────────────────────────────────────────────
 type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
+type GameResearchEntry = ResearchStudyForGame & { rounds: ResearchRoundsToday | null };
 
 /** ตรวจ landscape จาก top window — innerWidth/height ก่อน (สลับจริงเมื่อหมุน) */
 function getParentLandscape(): boolean {
@@ -162,6 +172,26 @@ const PlayGame = () => {
     queryFn: () => gameResearchService.countRoundsToday(researchStudyId!, codeInput.trim()),
     enabled: !!researchStudyId && codeInput.trim().length > 0,
     refetchInterval: phase === 'playing' ? 30_000 : false,
+  });
+
+  const researchEntryQuery = useQuery({
+    queryKey: ['research-game-entry-links', resolvedSlug, student?.class_label, codeInput],
+    queryFn: async (): Promise<GameResearchEntry[]> => {
+      const { data, error } = await gameResearchService.listForGame(resolvedSlug, student?.class_label);
+      if (error) throw error;
+      return await Promise.all(
+        (data ?? []).map(async (study) => {
+          try {
+            const rounds = await gameResearchService.countRoundsToday(study.id, codeInput.trim());
+            return { ...study, rounds };
+          } catch {
+            return { ...study, rounds: null };
+          }
+        }),
+      );
+    },
+    enabled: !!student && !!resolvedSlug && !!codeInput.trim() && !researchStudyId,
+    staleTime: 30_000,
   });
 
   const isMathRunnerMobilePlay =
@@ -361,6 +391,16 @@ const PlayGame = () => {
     setGameSessionStarted(false);
     setPhase('playing');
   }, [levelInfo, questQuery.data, researchStudyId, researchRoundsQuery.data, toast]);
+
+  const handleStartResearch = useCallback((study: ResearchStudyForGame) => {
+    localStorage.setItem('kampai_student_code', codeInput.trim());
+    const qs = new URLSearchParams({
+      study: study.id,
+      mode: researchUrlMode(study.game_slug, study.game_mode),
+      autostart: '1',
+    });
+    navigate(`/play/${study.game_slug}?${qs.toString()}`);
+  }, [codeInput, navigate]);
 
   const postParentViewport = useCallback(() => {
     if (!iframeRef.current?.contentWindow || resolvedSlug !== 'math-runner') return;
@@ -834,13 +874,15 @@ const PlayGame = () => {
         const p2 = d.p2 ?? {};
         const base = { room: d.room, format: d.format };
         try {
+          const p1PerTable = Array.isArray(p1.perTable) ? (p1.perTable as PerTableStats[]) : [];
+          const p2PerTable = Array.isArray(p2.perTable) ? (p2.perTable as PerTableStats[]) : [];
           await Promise.all([
             gamePlayService.recordSession({
               studentCode: codeInput.trim(),
               gameSlug: resolvedSlug,
               score: p1.score ?? 0,
               mode: 'versus',
-              metadata: { ...base, correct: p1.correct ?? 0, roundsWon: p1.roundsWon ?? 0, opponent: d.opponentId, perTable: p1.perTable ?? [] },
+              metadata: { ...base, correct: p1.correct ?? 0, roundsWon: p1.roundsWon ?? 0, opponent: d.opponentId, perTable: p1PerTable },
             }),
             d.opponentCode
               ? gamePlayService.recordSession({
@@ -848,10 +890,17 @@ const PlayGame = () => {
                   gameSlug: resolvedSlug,
                   score: p2.score ?? 0,
                   mode: 'versus',
-                  metadata: { ...base, correct: p2.correct ?? 0, roundsWon: p2.roundsWon ?? 0, opponent: student.id, perTable: p2.perTable ?? [] },
+                  metadata: { ...base, correct: p2.correct ?? 0, roundsWon: p2.roundsWon ?? 0, opponent: student.id, perTable: p2PerTable },
                 })
               : Promise.resolve(null),
           ]);
+          await Promise.all([
+            p1PerTable.length ? multiplyRaceService.updateMastery(codeInput.trim(), p1PerTable) : Promise.resolve(),
+            d.opponentCode && p2PerTable.length
+              ? multiplyRaceService.updateMastery(String(d.opponentCode), p2PerTable)
+              : Promise.resolve(),
+          ]);
+          masteryQuery.refetch();
         } catch (err) {
           console.warn('versus record failed', err);
         }
@@ -862,7 +911,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug]);
+  }, [phase, student, codeInput, resolvedSlug, masteryQuery]);
 
   // ─── realtime relay: ห้องออนไลน์ของเกม (broadcast + presence) ──────────────
   // เกมใน iframe ไม่มี anon key → wrapper เปิด channel ให้ แล้วรีเลย์ผ่าน postMessage
@@ -1123,6 +1172,9 @@ const PlayGame = () => {
               catalog={catalogQuery.data ?? []}
               unlockedIds={unlockedIds}
               onStart={handleStart}
+              researchStudies={researchEntryQuery.data ?? []}
+              researchLoading={researchEntryQuery.isLoading}
+              onStartResearch={handleStartResearch}
               leaderboard={leaderboardQuery.data}
               leaderboardLoading={leaderboardQuery.isLoading}
             />
@@ -1507,6 +1559,9 @@ const PreGamePanel = ({
   catalog,
   unlockedIds,
   onStart,
+  researchStudies,
+  researchLoading,
+  onStartResearch,
   leaderboard,
   leaderboardLoading,
 }: {
@@ -1516,6 +1571,9 @@ const PreGamePanel = ({
   catalog: Array<{ id: string; code: string; title_th: string; description_th: string | null; icon: string | null; threshold_kind: string }>;
   unlockedIds: Set<string>;
   onStart: () => void;
+  researchStudies: GameResearchEntry[];
+  researchLoading: boolean;
+  onStartResearch: (study: ResearchStudyForGame) => void;
   leaderboard: any[] | undefined;
   leaderboardLoading: boolean;
 }) => (
@@ -1557,6 +1615,12 @@ const PreGamePanel = ({
 
       <BadgeGrid catalog={catalog} unlockedIds={unlockedIds} />
 
+      <ResearchEntryCard
+        studies={researchStudies}
+        loading={researchLoading}
+        onStartResearch={onStartResearch}
+      />
+
       <Button className="h-14 w-full text-lg" onClick={onStart}>
         <Gamepad2 className="mr-2 h-5 w-5" />
         เริ่มเล่นเกม
@@ -1572,6 +1636,79 @@ const PreGamePanel = ({
     </div>
   </div>
 );
+
+const ResearchEntryCard = ({
+  studies,
+  loading,
+  onStartResearch,
+}: {
+  studies: GameResearchEntry[];
+  loading: boolean;
+  onStartResearch: (study: ResearchStudyForGame) => void;
+}) => {
+  if (!loading && studies.length === 0) return null;
+
+  return (
+    <Card className="border-primary/30 bg-primary/5">
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <FlaskConical className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-semibold text-foreground">งานวิจัยในชั้นเรียน</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              คะแนนรอบวิจัยจะแยกเข้ารายงานครู
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-3 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            กำลังตรวจงานวิจัยของชั้นเรียน...
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {studies.map((study) => {
+              const remaining = study.rounds?.remaining ?? null;
+              const isFull = study.rounds?.ok && remaining !== null && remaining <= 0;
+              return (
+                <div
+                  key={study.id}
+                  className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0 space-y-2">
+                    <p className="truncate text-sm font-semibold text-foreground">{study.title}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary">{study.class_name}</Badge>
+                      <Badge variant="outline">{modeLabel(study.game_slug, study.game_mode)}</Badge>
+                      <Badge variant={isFull ? 'destructive' : 'outline'} className="gap-1">
+                        <CalendarRange className="h-3 w-3" />
+                        {remaining === null
+                          ? `${study.max_rounds_per_day} รอบ/วัน`
+                          : `เหลือ ${remaining}/${study.max_rounds_per_day} รอบ`}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="shrink-0 gap-1.5"
+                    disabled={!!isFull}
+                    onClick={() => onStartResearch(study)}
+                  >
+                    <Link2 className="h-4 w-4" />
+                    เข้าโหมดวิจัย
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const Stat = ({ label, value }: { label: string; value: string }) => (
   <div>

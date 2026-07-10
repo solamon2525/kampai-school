@@ -293,6 +293,26 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.162.4 (game research entry link)',
+        date: '',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้า `/play/:gameSlug` แสดงการ์ด **งานวิจัยในชั้นเรียน** หลังนักเรียนยืนยันตัวตน เมื่อมีโครงการ active ที่ตรงกับเกมและชั้นเรียน',
+            'กดเข้าโหมดวิจัยแล้วเปิดเกมด้วย `study` + `autostart` ทันที ทำให้คะแนนรอบนั้นแยกเข้ารายงาน `/teacher/game-research`',
+            'migration **389** เพิ่ม RPC `list_research_studies_for_game` สำหรับลิงก์งานวิจัยจากหน้าเกมโดยไม่เปิดอ่านตารางตรง',
+        ],
+    },
+    {
+        version: 'v1.162.1 (multiply-race stability sync)',
+        date: '',
+        badge: 'bg-blue-600',
+        items: [
+            '**multiply-race** แก้ Daily Challenge ผ่าน URL ให้รอ wrapper data/กันเล่นซ้ำ, เพิ่ม `KAMPAI.beginRound()` + `#kampai-result` ตาม SDK ใหม่',
+            'Local versus sync mastery รายแม่ให้ทั้ง P1/P2 · dashboard คืน `photo_url` และใช้ `PersonAvatar` คู่ชื่อนักเรียน',
+            'migration **386** อัปเดต RPC `get_multiply_race_class_overview` + bump `game_docs` เป็น v1.1.1',
+        ],
+    },
+    {
         version: 'v1.162.0 (Batch X — สื่อเต็มมิติ 10 ชิ้น)',
         date: '',
         badge: 'bg-emerald-600',

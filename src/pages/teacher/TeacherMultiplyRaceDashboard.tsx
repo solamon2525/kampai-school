@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { multiplyRaceService } from '@/services/multiply-race.service';
 
 const CLASS_OPTIONS = ['ทั้งหมด', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -147,8 +148,13 @@ const TeacherMultiplyRaceDashboard = () => {
                   {(overviewQuery.data ?? []).map((s) => (
                     <TableRow key={s.student_id}>
                       <TableCell>
-                        <div className="font-medium">{s.display_name}</div>
-                        <div className="text-xs text-muted-foreground">{s.class_label || '—'} · {s.student_code}</div>
+                        <div className="flex items-center gap-2">
+                          <PersonAvatar name={s.display_name} photoUrl={s.photo_url} size="sm" />
+                          <div>
+                            <div className="font-medium">{s.display_name}</div>
+                            <div className="text-xs text-muted-foreground">{s.class_label || '—'} · {s.student_code}</div>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex justify-center gap-1 text-sm">
