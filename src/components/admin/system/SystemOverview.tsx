@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.162.11 (research 5-chapter export pack)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้าวิจัยในชั้นเรียน `/teacher/game-research` เพิ่มปุ่มดาวน์โหลด DOCX ควบคู่ PDF/พิมพ์รายงาน สำหรับชุดรายงานฉบับสมบูรณ์แบบ 5 บท',
+            'เพิ่มตัวสร้างไฟล์ DOCX แบบออฟไลน์จากข้อมูลวิจัยเดียวกันกับหน้าพิมพ์ เพื่อให้ export ออก Word ได้ทันทีโดยไม่ต้องคัดลอกมือ',
+            'คงสรุปผล 7 วัน + ตารางรายบุคคล + บทที่ 1-5 + อ้างอิง/ภาคผนวก ให้พร้อมใช้งานเป็นรายงานวิจัยในชั้นเรียน',
+        ],
+    },
+    {
         version: 'v1.162.10 (research complete report pack)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',

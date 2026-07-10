@@ -13,6 +13,7 @@ import {
   Gamepad2,
   Copy,
   FileText,
+  FileDown,
   Download,
   Loader2,
   Link2,
@@ -78,6 +79,7 @@ import {
   type ResearchPhase,
 } from '@/services/game-research.service';
 import { printClassroomResearchDoc } from '@/components/teacher/game-analytics/printClassroomResearchDoc';
+import { downloadClassroomResearchDocx } from '@/components/teacher/game-analytics/classroomResearchDocx';
 import { ResearchStudyQR } from '@/components/teacher/game-research/ResearchStudyQR';
 
 const MENU = [
@@ -502,7 +504,54 @@ export default function TeacherGameResearch() {
       toast({ title: 'ยังไม่มีข้อมูลเพียงพอ', description: 'ต้องมีนักเรียนที่เล่นทั้งช่วงก่อนและหลังเรียน', variant: 'destructive' });
       return;
     }
-    printClassroomResearchDoc({
+    const researchDocInput = {
+      title: docTitle || activeStudy.title,
+      problemStatement: docProblem,
+      objectives: docObjectives.split('\n').map((o) => o.trim()).filter(Boolean),
+      conclusion: docConclusion,
+      teacherName: staffQuery.data?.name ?? 'ครูผู้สอน',
+      className: activeStudy.class_name,
+      gameTitle,
+      pretestRange: { start: activeStudy.pretest_start, end: activeStudy.pretest_end },
+      posttestRange: { start: activeStudy.posttest_start, end: activeStudy.posttest_end },
+      rows: researchResult.rows.map((r) => ({
+        name: r.student.name,
+        studentCode: r.student.student_code,
+        classNumber: r.student.class_number,
+        pretestMean: r.pretestMean,
+        posttestMean: r.posttestMean,
+        gain: r.gain,
+        preRounds: r.preRounds,
+        postRounds: r.postRounds,
+      })),
+      dailySummaries: researchResult.dailyRows,
+      coverage: researchResult.coverage,
+      stats: {
+        n: researchResult.n,
+        meanPretest: researchResult.meanPretest,
+        meanPosttest: researchResult.meanPosttest,
+        meanGain: researchResult.meanGain,
+        sdPretest: researchResult.sdPretest,
+        sdPosttest: researchResult.sdPosttest,
+        percentImproved: researchResult.percentImproved,
+      },
+      school: {
+        name: schoolSettings.school_name,
+        logoUrl: schoolSettings.school_logo_url,
+        academicYear: schoolSettings.academic_year,
+      },
+    };
+
+    printClassroomResearchDoc(researchDocInput);
+  };
+
+  const handleDownloadDocx = () => {
+    if (!activeStudy || !researchResult || researchResult.n === 0) {
+      toast({ title: 'ยังไม่มีข้อมูลเพียงพอ', description: 'ต้องมีนักเรียนที่เล่นทั้งช่วงก่อนและหลังเรียน', variant: 'destructive' });
+      return;
+    }
+
+    downloadClassroomResearchDocx({
       title: docTitle || activeStudy.title,
       problemStatement: docProblem,
       objectives: docObjectives.split('\n').map((o) => o.trim()).filter(Boolean),
@@ -825,6 +874,9 @@ export default function TeacherGameResearch() {
                       </Button>
                       <Button size="sm" onClick={handlePrintDoc} disabled={!researchResult?.n}>
                         <Download className="h-4 w-4 mr-1" /> ดาวน์โหลด PDF
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={handleDownloadDocx} disabled={!researchResult?.n}>
+                        <FileDown className="h-4 w-4 mr-1" /> ดาวน์โหลด DOCX
                       </Button>
                       <Button variant="outline" size="sm" onClick={handlePrintDoc} disabled={!researchResult?.n}>
                         <FileText className="h-4 w-4 mr-1" /> พิมพ์รายงาน
