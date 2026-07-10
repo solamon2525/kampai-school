@@ -587,7 +587,7 @@ function buildDocumentXml(input: ClassroomResearchDocInput) {
   );
 
   const bodyParts = [
-    titleParagraph(input.title || 'วิจัยในชั้นเรียน'),
+    titleParagraph(input.title || 'รายงานวิจัยในชั้นเรียนฉบับสมบูรณ์'),
     centeredMeta(input.school.name, 12.5),
     centeredMeta(`ผู้วิจัย: ${input.teacherName}`, 12.5),
     centeredMeta(`ชั้นเรียน: ${input.className} · เครื่องมือที่ใช้: ${input.gameTitle}`, 12.5),
@@ -597,7 +597,7 @@ function buildDocumentXml(input: ClassroomResearchDocInput) {
     normalParagraph(abstractText),
     kvTable(
       [
-        ['ชื่อเรื่อง', input.title || '(ยังไม่ได้กรอกชื่อเรื่องวิจัย)'],
+        ['ชื่อเรื่อง', input.title || 'รายงานวิจัยในชั้นเรียนฉบับสมบูรณ์'],
         ['กลุ่มตัวอย่าง', `${input.className} จำนวน ${input.stats.n} คน`],
         ['ช่วงก่อนเรียน', pretestLabel],
         ['ช่วงหลังเรียน', posttestLabel],

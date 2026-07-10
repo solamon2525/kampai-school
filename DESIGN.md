@@ -674,6 +674,7 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Hyphenation:** ปิด React-PDF hyphenation สำหรับไทยด้วย `Font.registerHyphenationCallback((w) => [w])` — ป้องกัน "การเรียน" ถูกตัดเป็น "การ-เรียน"
 - **Bulk download:** ต้องมี `setTimeout(150)` ระหว่างไฟล์เพื่อกัน browser block (Chrome จำกัด <= 10 downloads/sec)
 - **Data source:** ดึงจาก score_records + attendance_records + conduct_scores เท่านั้น — **ห้าม** Mock หรือ hardcode ตัวอย่าง
+- **Research reports:** ปุ่ม “ดาวน์โหลด PDF จริง” ต้องสร้างไฟล์ด้วย `@react-pdf/renderer` (`pdf().toBlob()`) แยกจากปุ่ม “พิมพ์รายงาน” ที่ใช้ `window.print()` และหน้าปก/ถ้อยคำควรใช้สำนวนทางวิชาการให้สอดคล้องกัน
 - **Disclaimer:** ปุ่ม download ต้องมีข้อความเตือน "กรุณาตรวจสอบก่อนส่ง" — ระบบไม่รับผิดชอบความถูกต้องของข้อมูลก่อนส่งราชการ
 
 ### Rule 14.34 — i18n (TH default + EN)

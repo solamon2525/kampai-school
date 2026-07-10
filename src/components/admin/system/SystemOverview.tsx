@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.162.12 (research real PDF download)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้าวิจัยในชั้นเรียน `/teacher/game-research` แยกปุ่ม “ดาวน์โหลด PDF จริง” ออกจาก “พิมพ์รายงาน” เพื่อให้ผู้ใช้เลือก workflow ได้ชัดเจน',
+            'PDF export ใหม่ใช้ React-PDF สร้างไฟล์จริงสำหรับดาวน์โหลด โดยยังคงรายงาน 5 บท + หน้า cover + ตารางสรุปให้สำนวนทางวิชาการมากขึ้น',
+            'DOCX export เดิมยังคงใช้งานได้ และใช้ข้อมูลชุดเดียวกันเพื่อให้เนื้อหาในไฟล์ทั้งสามแบบสอดคล้องกัน',
+        ],
+    },
+    {
         version: 'v1.162.11 (research 5-chapter export pack)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',

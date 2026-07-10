@@ -80,6 +80,7 @@ import {
 } from '@/services/game-research.service';
 import { printClassroomResearchDoc } from '@/components/teacher/game-analytics/printClassroomResearchDoc';
 import { downloadClassroomResearchDocx } from '@/components/teacher/game-analytics/classroomResearchDocx';
+import { downloadClassroomResearchPdf } from '@/lib/pdf/research/ClassroomResearchReportPdf';
 import { ResearchStudyQR } from '@/components/teacher/game-research/ResearchStudyQR';
 
 const MENU = [
@@ -230,6 +231,7 @@ export default function TeacherGameResearch() {
   const [docProblem, setDocProblem] = useState('');
   const [docObjectives, setDocObjectives] = useState('');
   const [docConclusion, setDocConclusion] = useState('');
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const myGamesQuery = useQuery({
     queryKey: ['edu-hub', 'items', 'mine', 'tracked', staffId],
@@ -499,50 +501,80 @@ export default function TeacherGameResearch() {
     }
   };
 
+  const buildResearchDocInput = () => ({
+    title: docTitle || activeStudy?.title || 'รายงานวิจัยในชั้นเรียน',
+    problemStatement: docProblem,
+    objectives: docObjectives.split('\n').map((o) => o.trim()).filter(Boolean),
+    conclusion: docConclusion,
+    teacherName: staffQuery.data?.name ?? 'ครูผู้สอน',
+    className: activeStudy?.class_name ?? '',
+    gameTitle,
+    pretestRange: activeStudy ? { start: activeStudy.pretest_start, end: activeStudy.pretest_end } : { start: '', end: '' },
+    posttestRange: activeStudy ? { start: activeStudy.posttest_start, end: activeStudy.posttest_end } : { start: '', end: '' },
+    rows: (researchResult?.rows ?? []).map((r) => ({
+      name: r.student.name,
+      studentCode: r.student.student_code,
+      classNumber: r.student.class_number,
+      pretestMean: r.pretestMean,
+      posttestMean: r.posttestMean,
+      gain: r.gain,
+      preRounds: r.preRounds,
+      postRounds: r.postRounds,
+    })),
+    dailySummaries: researchResult?.dailyRows,
+    coverage: researchResult?.coverage,
+    stats: researchResult
+      ? {
+          n: researchResult.n,
+          meanPretest: researchResult.meanPretest,
+          meanPosttest: researchResult.meanPosttest,
+          meanGain: researchResult.meanGain,
+          sdPretest: researchResult.sdPretest,
+          sdPosttest: researchResult.sdPosttest,
+          percentImproved: researchResult.percentImproved,
+        }
+      : {
+          n: 0,
+          meanPretest: 0,
+          meanPosttest: 0,
+          meanGain: 0,
+          sdPretest: 0,
+          sdPosttest: 0,
+          percentImproved: 0,
+        },
+    school: {
+      name: schoolSettings.school_name,
+      logoUrl: schoolSettings.school_logo_url,
+      academicYear: schoolSettings.academic_year,
+    },
+  });
+
   const handlePrintDoc = () => {
     if (!activeStudy || !researchResult || researchResult.n === 0) {
       toast({ title: 'ยังไม่มีข้อมูลเพียงพอ', description: 'ต้องมีนักเรียนที่เล่นทั้งช่วงก่อนและหลังเรียน', variant: 'destructive' });
       return;
     }
-    const researchDocInput = {
-      title: docTitle || activeStudy.title,
-      problemStatement: docProblem,
-      objectives: docObjectives.split('\n').map((o) => o.trim()).filter(Boolean),
-      conclusion: docConclusion,
-      teacherName: staffQuery.data?.name ?? 'ครูผู้สอน',
-      className: activeStudy.class_name,
-      gameTitle,
-      pretestRange: { start: activeStudy.pretest_start, end: activeStudy.pretest_end },
-      posttestRange: { start: activeStudy.posttest_start, end: activeStudy.posttest_end },
-      rows: researchResult.rows.map((r) => ({
-        name: r.student.name,
-        studentCode: r.student.student_code,
-        classNumber: r.student.class_number,
-        pretestMean: r.pretestMean,
-        posttestMean: r.posttestMean,
-        gain: r.gain,
-        preRounds: r.preRounds,
-        postRounds: r.postRounds,
-      })),
-      dailySummaries: researchResult.dailyRows,
-      coverage: researchResult.coverage,
-      stats: {
-        n: researchResult.n,
-        meanPretest: researchResult.meanPretest,
-        meanPosttest: researchResult.meanPosttest,
-        meanGain: researchResult.meanGain,
-        sdPretest: researchResult.sdPretest,
-        sdPosttest: researchResult.sdPosttest,
-        percentImproved: researchResult.percentImproved,
-      },
-      school: {
-        name: schoolSettings.school_name,
-        logoUrl: schoolSettings.school_logo_url,
-        academicYear: schoolSettings.academic_year,
-      },
-    };
+    printClassroomResearchDoc(buildResearchDocInput());
+  };
 
-    printClassroomResearchDoc(researchDocInput);
+  const handleDownloadPdf = async () => {
+    if (!activeStudy || !researchResult || researchResult.n === 0) {
+      toast({ title: 'ยังไม่มีข้อมูลเพียงพอ', description: 'ต้องมีนักเรียนที่เล่นทั้งช่วงก่อนและหลังเรียน', variant: 'destructive' });
+      return;
+    }
+
+    setPdfBusy(true);
+    try {
+      await downloadClassroomResearchPdf(buildResearchDocInput());
+    } catch (error) {
+      toast({
+        title: 'ดาวน์โหลด PDF ไม่สำเร็จ',
+        description: error instanceof Error ? error.message : 'ไม่สามารถสร้างไฟล์ PDF ได้',
+        variant: 'destructive',
+      });
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   const handleDownloadDocx = () => {
@@ -551,43 +583,7 @@ export default function TeacherGameResearch() {
       return;
     }
 
-    downloadClassroomResearchDocx({
-      title: docTitle || activeStudy.title,
-      problemStatement: docProblem,
-      objectives: docObjectives.split('\n').map((o) => o.trim()).filter(Boolean),
-      conclusion: docConclusion,
-      teacherName: staffQuery.data?.name ?? 'ครูผู้สอน',
-      className: activeStudy.class_name,
-      gameTitle,
-      pretestRange: { start: activeStudy.pretest_start, end: activeStudy.pretest_end },
-      posttestRange: { start: activeStudy.posttest_start, end: activeStudy.posttest_end },
-      rows: researchResult.rows.map((r) => ({
-        name: r.student.name,
-        studentCode: r.student.student_code,
-        classNumber: r.student.class_number,
-        pretestMean: r.pretestMean,
-        posttestMean: r.posttestMean,
-        gain: r.gain,
-        preRounds: r.preRounds,
-        postRounds: r.postRounds,
-      })),
-      dailySummaries: researchResult.dailyRows,
-      coverage: researchResult.coverage,
-      stats: {
-        n: researchResult.n,
-        meanPretest: researchResult.meanPretest,
-        meanPosttest: researchResult.meanPosttest,
-        meanGain: researchResult.meanGain,
-        sdPretest: researchResult.sdPretest,
-        sdPosttest: researchResult.sdPosttest,
-        percentImproved: researchResult.percentImproved,
-      },
-      school: {
-        name: schoolSettings.school_name,
-        logoUrl: schoolSettings.school_logo_url,
-        academicYear: schoolSettings.academic_year,
-      },
-    });
+    downloadClassroomResearchDocx(buildResearchDocInput());
   };
 
   return (
@@ -872,8 +868,8 @@ export default function TeacherGameResearch() {
                       <Button variant="outline" size="sm" onClick={() => exportSessionsCsv(activeStudy, sessionsQuery.data)}>
                         <Download className="h-4 w-4 mr-1" /> Export CSV รายรอบ
                       </Button>
-                      <Button size="sm" onClick={handlePrintDoc} disabled={!researchResult?.n}>
-                        <Download className="h-4 w-4 mr-1" /> ดาวน์โหลด PDF
+                      <Button size="sm" onClick={handleDownloadPdf} disabled={!researchResult?.n || pdfBusy}>
+                        {pdfBusy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />} ดาวน์โหลด PDF จริง
                       </Button>
                       <Button variant="outline" size="sm" onClick={handleDownloadDocx} disabled={!researchResult?.n}>
                         <FileDown className="h-4 w-4 mr-1" /> ดาวน์โหลด DOCX

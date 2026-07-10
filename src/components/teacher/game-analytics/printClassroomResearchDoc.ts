@@ -93,11 +93,11 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
             `เพื่อศึกษาการเปลี่ยนแปลงของคะแนนเฉลี่ยและแนวโน้มการพัฒนาของผู้เรียนหลังใช้เกมการศึกษา`,
           ];
 
-    const abstractText = input.abstract?.trim() || `การวิจัยในชั้นเรียนครั้งนี้มีวัตถุประสงค์เพื่อศึกษาผลของการใช้เกมการศึกษา "${input.gameTitle}" กับนักเรียนชั้น ${input.className} จำนวน ${input.stats.n} คน โดยเปรียบเทียบคะแนนก่อนเรียนและหลังเรียนในช่วง ${pretestLabel} และ ${posttestLabel} ผลการวิจัยพบว่าคะแนนเฉลี่ยหลังเรียนสูงกว่าก่อนเรียน ${input.stats.meanGain.toFixed(1)} คะแนน และมีนักเรียน ${input.stats.percentImproved.toFixed(0)}% ที่มีพัฒนาการดีขึ้น`;
+    const abstractText = input.abstract?.trim() || `รายงานวิจัยในชั้นเรียนฉบับนี้มีวัตถุประสงค์เพื่อศึกษาผลของการใช้เกมการศึกษา "${input.gameTitle}" กับนักเรียนชั้น ${input.className} จำนวน ${input.stats.n} คน โดยเปรียบเทียบผลสัมฤทธิ์ก่อนเรียนและหลังเรียนในช่วง ${pretestLabel} และ ${posttestLabel} ผลการวิจัยแสดงให้เห็นว่าคะแนนเฉลี่ยหลังเรียนสูงกว่าก่อนเรียน ${input.stats.meanGain.toFixed(1)} คะแนน และมีนักเรียน ${input.stats.percentImproved.toFixed(0)}% ที่มีพัฒนาการเพิ่มขึ้นอย่างชัดเจน`;
 
     const conclusionText = input.conclusion.trim() || `ผลการวิจัยแสดงให้เห็นว่าการจัดการเรียนรู้ด้วยเกม "${input.gameTitle}" ช่วยให้นักเรียนชั้น ${input.className} มีผลสัมฤทธิ์หลังเรียนสูงขึ้นอย่างชัดเจน จึงควรนำรูปแบบกิจกรรมนี้ไปใช้ต่อเนื่อง`;
 
-    const recommendationsText = input.recommendations?.trim() || `1. ควรนำเกม "${input.gameTitle}" ไปใช้ซ้ำหรือประยุกต์กับเนื้อหาเดียวกันในชั้นอื่นเพื่อสร้างความต่อเนื่องของการเรียนรู้\n2. ควรติดตามนักเรียนที่ยังมีคะแนนก่อนเรียนต่ำ เพื่อจัดกิจกรรมเสริมและแบบฝึกเพิ่มเติม\n3. ควรเก็บข้อมูลรายวันอย่างสม่ำเสมอเพื่อให้วิเคราะห์แนวโน้มและจัดทำรายงานวิจัยได้ชัดเจนยิ่งขึ้น`;
+    const recommendationsText = input.recommendations?.trim() || `1. ควรนำเกม "${input.gameTitle}" ไปใช้ซ้ำหรือประยุกต์กับเนื้อหาใกล้เคียงในชั้นเรียนอื่น เพื่อสร้างความต่อเนื่องของการเรียนรู้\n2. ควรติดตามนักเรียนที่ยังมีคะแนนก่อนเรียนต่ำ เพื่อจัดกิจกรรมเสริมและแบบฝึกเพิ่มเติมอย่างเหมาะสม\n3. ควรเก็บข้อมูลรายวันอย่างสม่ำเสมอ เพื่อให้การวิเคราะห์แนวโน้มและการจัดทำรายงานวิจัยมีความครบถ้วนและตรวจสอบได้`;
 
     const referencesText = input.references?.trim() || `1. ข้อมูลผลการเล่นเกมในระบบ Kampai School ของโรงเรียน ${input.school.name}\n2. เอกสารประกอบการสอนและบันทึกการจัดการเรียนรู้ของครูผู้วิจัย\n3. คู่มือการใช้เกมการศึกษา "${input.gameTitle}" สำหรับการจัดการเรียนรู้ในชั้นเรียน`;
 
@@ -193,7 +193,7 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
         : '';
 
     win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/>
-    <title>วิจัยในชั้นเรียน — ${input.title || 'ไม่มีชื่อเรื่อง'}</title>
+    <title>รายงานวิจัยในชั้นเรียนฉบับสมบูรณ์ — ${input.title || 'ไม่มีชื่อเรื่อง'}</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       *{margin:0;padding:0;box-sizing:border-box;}
@@ -243,8 +243,8 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
 
         <div class="cover">
             ${input.school.logoUrl ? `<img src="${input.school.logoUrl}" alt="logo" style="width:72px;height:72px;object-fit:contain;margin-bottom:14px;"/>` : ''}
-            <div class="school">${input.school.name} · ปีการศึกษา ${input.school.academicYear}</div>
-            <h1>${input.title || '(ยังไม่ได้กรอกชื่อเรื่องวิจัย)'}</h1>
+            <div class="school">รายงานวิจัยในชั้นเรียนฉบับสมบูรณ์ · ${input.school.name} · ปีการศึกษา ${input.school.academicYear}</div>
+            <h1>${input.title || 'รายงานวิจัยในชั้นเรียนฉบับสมบูรณ์'}</h1>
             <div class="meta">ผู้วิจัย <b>${input.teacherName}</b></div>
             <div class="meta">ชั้นเรียน <b>${input.className}</b> · เครื่องมือที่ใช้ <b>${input.gameTitle}</b></div>
             <div class="meta" style="margin-top:30px;color:#94a3b8;">จัดทำเมื่อ ${today}</div>
