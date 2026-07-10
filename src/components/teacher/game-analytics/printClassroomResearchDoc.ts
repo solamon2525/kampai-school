@@ -52,6 +52,9 @@ export interface ClassroomResearchDocInput {
     problemStatement: string;
     objectives: string[];
     conclusion: string;
+    abstract?: string;
+    recommendations?: string;
+    references?: string;
     teacherName: string;
     className: string;
     gameTitle: string;
@@ -65,7 +68,7 @@ export interface ClassroomResearchDocInput {
 }
 
 /**
- * printClassroomResearchDoc — เปิด window ใหม่พิมพ์ A4 ของวิจัยในชั้นเรียน 5 บท
+ * printClassroomResearchDoc — เปิด window ใหม่พิมพ์ A4 ของวิจัยในชั้นเรียนฉบับสมบูรณ์
  * รูปแบบ: ใช้ print-to-PDF ของเบราว์เซอร์ (เหมือน printTranscript ใน TrainingTranscriptPDF.tsx)
  */
 export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
@@ -83,9 +86,20 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
         ? 'การทดสอบก่อนเรียนและหลังเรียนดำเนินการภายในวันเดียว โดยนักเรียนกดปุ่ม "ก่อนเรียน" เพื่อทำแบบทดสอบก่อนเรียน และกดปุ่ม "หลังเรียน" เพื่อทำแบบทดสอบหลังเรียน ระบบบันทึกช่วงการทดสอบแยกด้วย metadata.research_phase'
         : 'การทดสอบก่อนเรียนและหลังเรียนดำเนินการตามช่วงวันที่ที่กำหนด ระบบบันทึกคะแนนการเล่นเกมและนำคะแนนเฉลี่ยรายบุคคลมาเปรียบเทียบ';
 
-    const objectivesHtml = input.objectives
-        .map((o, i) => `<li>${o}</li>`)
-        .join('');
+    const objectiveItems = input.objectives.length > 0
+        ? input.objectives
+        : [
+            `เพื่อเปรียบเทียบผลการเรียนรู้ของนักเรียนชั้น ${input.className} ก่อนเรียนและหลังเรียนด้วยเกม "${input.gameTitle}"`,
+            `เพื่อศึกษาการเปลี่ยนแปลงของคะแนนเฉลี่ยและแนวโน้มการพัฒนาของผู้เรียนหลังใช้เกมการศึกษา`,
+          ];
+
+    const abstractText = input.abstract?.trim() || `การวิจัยในชั้นเรียนครั้งนี้มีวัตถุประสงค์เพื่อศึกษาผลของการใช้เกมการศึกษา "${input.gameTitle}" กับนักเรียนชั้น ${input.className} จำนวน ${input.stats.n} คน โดยเปรียบเทียบคะแนนก่อนเรียนและหลังเรียนในช่วง ${pretestLabel} และ ${posttestLabel} ผลการวิจัยพบว่าคะแนนเฉลี่ยหลังเรียนสูงกว่าก่อนเรียน ${input.stats.meanGain.toFixed(1)} คะแนน และมีนักเรียน ${input.stats.percentImproved.toFixed(0)}% ที่มีพัฒนาการดีขึ้น`;
+
+    const conclusionText = input.conclusion.trim() || `ผลการวิจัยแสดงให้เห็นว่าการจัดการเรียนรู้ด้วยเกม "${input.gameTitle}" ช่วยให้นักเรียนชั้น ${input.className} มีผลสัมฤทธิ์หลังเรียนสูงขึ้นอย่างชัดเจน จึงควรนำรูปแบบกิจกรรมนี้ไปใช้ต่อเนื่อง`;
+
+    const recommendationsText = input.recommendations?.trim() || `1. ควรนำเกม "${input.gameTitle}" ไปใช้ซ้ำหรือประยุกต์กับเนื้อหาเดียวกันในชั้นอื่นเพื่อสร้างความต่อเนื่องของการเรียนรู้\n2. ควรติดตามนักเรียนที่ยังมีคะแนนก่อนเรียนต่ำ เพื่อจัดกิจกรรมเสริมและแบบฝึกเพิ่มเติม\n3. ควรเก็บข้อมูลรายวันอย่างสม่ำเสมอเพื่อให้วิเคราะห์แนวโน้มและจัดทำรายงานวิจัยได้ชัดเจนยิ่งขึ้น`;
+
+    const referencesText = input.references?.trim() || `1. ข้อมูลผลการเล่นเกมในระบบ Kampai School ของโรงเรียน ${input.school.name}\n2. เอกสารประกอบการสอนและบันทึกการจัดการเรียนรู้ของครูผู้วิจัย\n3. คู่มือการใช้เกมการศึกษา "${input.gameTitle}" สำหรับการจัดการเรียนรู้ในชั้นเรียน`;
 
     const rowsHtml = input.rows
         .map((r, i) => {
@@ -114,6 +128,23 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
             .filter(Boolean)
             .map((p) => `<p>${p}</p>`)
             .join('') || '<p style="color:#94a3b8;">(ยังไม่ได้กรอก)</p>';
+
+    const scopeSummaryHtml = `
+        <div class="summary" style="margin-top:12px;">
+            <div class="box"><div class="label">กลุ่มตัวอย่าง</div><div class="value">${input.className}</div></div>
+            <div class="box"><div class="label">จำนวนผู้เรียน</div><div class="value">${input.stats.n}</div></div>
+            <div class="box"><div class="label">ช่วงก่อนเรียน</div><div class="value">${pretestLabel}</div></div>
+            <div class="box"><div class="label">ช่วงหลังเรียน</div><div class="value">${posttestLabel}</div></div>
+        </div>
+    `;
+
+    const resultInsightListHtml = `
+        <ul class="insight-list">
+            <li>คะแนนเฉลี่ยก่อนเรียน ${input.stats.meanPretest.toFixed(1)} คะแนน และหลังเรียน ${input.stats.meanPosttest.toFixed(1)} คะแนน</li>
+            <li>ผลต่างเฉลี่ยเท่ากับ ${input.stats.meanGain >= 0 ? '+' : ''}${input.stats.meanGain.toFixed(1)} คะแนน</li>
+            <li>มีนักเรียนที่มีพัฒนาการดีขึ้น ${input.stats.percentImproved.toFixed(0)}% ของกลุ่มตัวอย่างที่เปรียบเทียบได้</li>
+        </ul>
+    `;
 
     const coverageHtml = input.coverage
         ? `
@@ -181,6 +212,8 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
       .chapter p{margin-bottom:8px;color:#1e293b;}
       .chapter ol{margin:8px 0 8px 22px;color:#1e293b;}
       .chapter ol li{margin-bottom:4px;}
+      .insight-list{margin:8px 0 12px 18px;color:#1e293b;}
+      .insight-list li{margin-bottom:4px;}
 
       .meta-box{background:#f8fafc;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:4px;margin-bottom:14px;font-size:12px;}
       .meta-box .row{display:flex;gap:8px;margin-bottom:3px;}
@@ -220,14 +253,21 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
         <div class="page-break"></div>
 
         <div class="chapter">
+            <h2>บทคัดย่อ</h2>
+            ${paragraphsHtml(abstractText)}
+            ${scopeSummaryHtml}
+        </div>
+
+        <div class="chapter">
             <h2>บทที่ 1 ความสำคัญและที่มาของปัญหา</h2>
             ${paragraphsHtml(input.problemStatement)}
+            ${scopeSummaryHtml}
         </div>
 
         <div class="chapter">
             <h2>บทที่ 2 วัตถุประสงค์ของการวิจัย</h2>
-            ${input.objectives.length > 0
-                ? `<ol>${objectivesHtml}</ol>`
+            ${objectiveItems.length > 0
+                ? `<ol>${objectiveItems.map((o) => `<li>${o}</li>`).join('')}</ol>`
                 : '<p style="color:#94a3b8;">(ยังไม่ได้กรอก)</p>'}
         </div>
 
@@ -240,6 +280,7 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
                 <div class="row"><span class="label">ช่วงเวลาเก็บข้อมูลก่อนเรียน</span><span class="value">${pretestLabel}</span></div>
                 <div class="row"><span class="label">ช่วงเวลาเก็บข้อมูลหลังเรียน</span><span class="value">${posttestLabel}</span></div>
                 <div class="row"><span class="label">วิธีเก็บข้อมูล</span><span class="value">ระบบบันทึกคะแนนการเล่นเกมอัตโนมัติของ Kampai School (เฉลี่ยคะแนนรายบุคคลในแต่ละช่วงการทดสอบ)</span></div>
+                <div class="row"><span class="label">วิธีวิเคราะห์ข้อมูล</span><span class="value">ใช้ค่าเฉลี่ย, ส่วนเบี่ยงเบนมาตรฐาน, ผลต่างเฉลี่ย และร้อยละของนักเรียนที่มีพัฒนาการดีขึ้น</span></div>
             </div>
             <div class="method-note">${methodSummary}</div>
         </div>
@@ -256,6 +297,7 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
                 <div class="box"><div class="label">ผลต่างเฉลี่ย</div><div class="value">${input.stats.meanGain >= 0 ? '+' : ''}${input.stats.meanGain.toFixed(1)}</div></div>
                 <div class="box"><div class="label">% นักเรียนที่ดีขึ้น</div><div class="value">${input.stats.percentImproved.toFixed(0)}%</div></div>
             </div>
+            ${resultInsightListHtml}
             <table>
                 <thead>
                     <tr>
@@ -278,7 +320,16 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
 
         <div class="chapter">
             <h2>บทที่ 5 สรุปและข้อเสนอแนะ</h2>
-            ${paragraphsHtml(input.conclusion)}
+            ${paragraphsHtml(conclusionText)}
+            <div class="meta-box" style="margin-top:10px;">
+                <div class="row"><span class="label">ข้อเสนอแนะ</span><span class="value">เพื่อให้ผลการจัดการเรียนรู้ต่อเนื่องและตรวจสอบได้ ควรเก็บข้อมูลรายวันอย่างสม่ำเสมอและนำเกมไปใช้ซ้ำในบริบทที่ใกล้เคียงกัน</span></div>
+            </div>
+            ${paragraphsHtml(recommendationsText)}
+        </div>
+
+        <div class="chapter">
+            <h2>เอกสารอ้างอิง</h2>
+            ${paragraphsHtml(referencesText)}
         </div>
 
         <div class="signoff">

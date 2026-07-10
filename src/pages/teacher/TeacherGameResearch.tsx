@@ -824,7 +824,7 @@ export default function TeacherGameResearch() {
                         <Download className="h-4 w-4 mr-1" /> Export CSV รายรอบ
                       </Button>
                       <Button size="sm" onClick={handlePrintDoc} disabled={!researchResult?.n}>
-                        <FileText className="h-4 w-4 mr-1" /> พิมพ์รายงาน 5 บท
+                        <FileText className="h-4 w-4 mr-1" /> พิมพ์รายงานฉบับสมบูรณ์
                       </Button>
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">

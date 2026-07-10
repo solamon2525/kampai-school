@@ -360,7 +360,7 @@ export default function ClassroomResearchTab({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              สร้างเอกสารวิจัยในชั้นเรียน (5 บท)
+              สร้างเอกสารวิจัยในชั้นเรียนฉบับสมบูรณ์
             </DialogTitle>
             <DialogDescription>
               บทที่ 3 และ 4 จะถูกเติมข้อมูลอัตโนมัติจากผลการวิเคราะห์ — กรุณากรอกส่วนที่เหลือ
