@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
     <script src="/games/kampai-sdk.js"></script>
+    <script src="/games/kampai-match.js"></script>
+    <script src="/games/kampai-versus.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Jumper: ตะลุยฟ้าคว้าสูตรคูณ</title>
@@ -402,6 +404,7 @@
             </div>
 
             <button class="btn" onclick="startGame()">Start Game (Enter)</button>
+            <button class="btn" onclick="vs.openMenu()" style="background: #f39c12; box-shadow: 0 6px 0px #d35400;">แข่ง 2 คน</button>
 
             <div class="leaderboard-box">
                 <h3 id="lb-title">🏆 อันดับนักเรียน</h3>
@@ -418,6 +421,7 @@
             <h1 style="color: #e74c3c; text-shadow: 3px 3px 0px #c0392b;">Game Over!</h1>
             <p class="subtitle" style="margin-bottom: 5px;">ทำความสูงได้: <span id="final-height">0</span> เมตร</p>
             <p style="font-size: 1.5rem; color: #f39c12; font-weight: bold; margin-top:0; font-family: 'Fredoka One', cursive;">Score: <span id="final-score">0</span></p>
+            <div id="kampai-result"></div>
             
             <div class="leaderboard-box">
                 <h3 id="lb-title-over">🏆 อันดับนักเรียน</h3>
@@ -439,6 +443,24 @@
 
 <script>
     const GAME_SLUG = 'math-jumper';
+    window.KAMPAI = window.KAMPAI || {
+        setSlug: function () { return this; },
+        beginRound: function () { return this; },
+        submitScore: function () { return false; },
+        goHome: function () { location.href = '/h/nattapong'; },
+    };
+    window.KampaiMatch = window.KampaiMatch || {
+        create: function () {
+            return { openMenu: function () { alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report: function () {}, finish: function () { return false; }, leave: function () {} };
+        }
+    };
+    window.KampaiVersus = window.KampaiVersus || {
+        create: function (options) {
+            var match = window.KampaiMatch && window.KampaiMatch.create ? window.KampaiMatch.create(options) : null;
+            return { openMenu: function () { if (match) match.openMenu(); }, report: function (score, info) { if (match) match.report(score, info); }, finish: function () { return false; }, leave: function () {} };
+        }
+    };
+    window.KAMPAI.setSlug(GAME_SLUG);
     // --- Audio System ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
@@ -576,6 +598,9 @@
     let score = 0;
     let heightScore = 0;
     let combo = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let itemsCollected = 0;
     let cameraY = 0;
     let difficultyTier = 1;
     let keys = { ArrowLeft: false, ArrowRight: false, Space: false };
@@ -584,6 +609,31 @@
     let isEquationMode = false;
     let problemStartTime = 0;
     let showHint = false;
+    let activeRng = Math.random;
+
+    function rand() {
+        return activeRng();
+    }
+
+    function reportProgress() {
+        if (typeof vs === 'undefined' || !vs) return;
+        vs.report(score, {
+            correct: correctAnswers,
+            height: Math.floor(heightScore),
+        });
+    }
+
+    const vs = KampaiVersus.create({
+        duration: 90,
+        title: 'Math Jumper',
+        rankBy: 'score',
+        onPlay: ({ rng, player }) => startGame({ rng, player, versus: true }),
+        onEnd: () => {
+            if (gameState !== 'PLAYING') return;
+            gameState = 'GAMEOVER';
+            audioSys.stopBGM();
+        },
+    });
 
     // Assets
     const player = {
@@ -803,54 +853,54 @@
         let mode = currentMathMode;
         if (mode === 'mix') {
             const modes = ['add', 'sub', 'mul', 'div'];
-            mode = modes[Math.floor(Math.random() * modes.length)];
+            mode = modes[Math.floor(rand() * modes.length)];
         }
 
         if (mode === 'mul') {
             Op = '×';
             if (tier === 1) { 
                 const set = [2, 5, 10];
-                A = set[Math.floor(Math.random() * set.length)];
-                B = Math.floor(Math.random() * 9) + 1;
+                A = set[Math.floor(rand() * set.length)];
+                B = Math.floor(rand() * 9) + 1;
             } else if (tier === 2) { 
                 const set = [3, 4];
-                A = set[Math.floor(Math.random() * set.length)];
-                B = Math.floor(Math.random() * 12) + 1;
+                A = set[Math.floor(rand() * set.length)];
+                B = Math.floor(rand() * 12) + 1;
             } else if (tier === 3) { 
                 const set = [6, 7, 8, 9];
-                A = set[Math.floor(Math.random() * set.length)];
-                B = Math.floor(Math.random() * 12) + 1;
+                A = set[Math.floor(rand() * set.length)];
+                B = Math.floor(rand() * 12) + 1;
             } else { 
-                A = Math.floor(Math.random() * 11) + 2;
-                B = Math.floor(Math.random() * 12) + 1;
+                A = Math.floor(rand() * 11) + 2;
+                B = Math.floor(rand() * 12) + 1;
             }
             Ans = A * B;
         } 
         else if (mode === 'add') {
             Op = '+';
             if (tier === 1) { 
-                A = Math.floor(Math.random() * 9) + 1;
-                B = Math.floor(Math.random() * 9) + 1;
+                A = Math.floor(rand() * 9) + 1;
+                B = Math.floor(rand() * 9) + 1;
             } else if (tier === 2) { 
-                A = Math.floor(Math.random() * 20) + 10;
-                B = Math.floor(Math.random() * 9) + 1;
+                A = Math.floor(rand() * 20) + 10;
+                B = Math.floor(rand() * 9) + 1;
             } else { 
-                A = Math.floor(Math.random() * 40) + 10;
-                B = Math.floor(Math.random() * 40) + 10;
+                A = Math.floor(rand() * 40) + 10;
+                B = Math.floor(rand() * 40) + 10;
             }
             Ans = A + B;
         }
         else if (mode === 'sub') {
             Op = '-';
             if (tier === 1) {
-                A = Math.floor(Math.random() * 10) + 5; 
-                B = Math.floor(Math.random() * (A - 1)) + 1; 
+                A = Math.floor(rand() * 10) + 5;
+                B = Math.floor(rand() * (A - 1)) + 1;
             } else if (tier === 2) {
-                A = Math.floor(Math.random() * 40) + 20;
-                B = Math.floor(Math.random() * 20) + 1;
+                A = Math.floor(rand() * 40) + 20;
+                B = Math.floor(rand() * 20) + 1;
             } else {
-                A = Math.floor(Math.random() * 80) + 20;
-                B = Math.floor(Math.random() * 50) + 10;
+                A = Math.floor(rand() * 80) + 20;
+                B = Math.floor(rand() * 50) + 10;
             }
             if (B >= A) B = A - 1;
             Ans = A - B;
@@ -859,14 +909,14 @@
             Op = '÷';
             let divisor, answer;
             if (tier === 1) {
-                divisor = Math.floor(Math.random() * 5) + 2; 
-                answer = Math.floor(Math.random() * 5) + 1;   
+                divisor = Math.floor(rand() * 5) + 2;
+                answer = Math.floor(rand() * 5) + 1;
             } else if (tier === 2) {
-                divisor = Math.floor(Math.random() * 8) + 2;
-                answer = Math.floor(Math.random() * 9) + 2;
+                divisor = Math.floor(rand() * 8) + 2;
+                answer = Math.floor(rand() * 9) + 2;
             } else {
-                divisor = Math.floor(Math.random() * 11) + 2;
-                answer = Math.floor(Math.random() * 12) + 2;
+                divisor = Math.floor(rand() * 11) + 2;
+                answer = Math.floor(rand() * 12) + 2;
             }
             B = divisor;
             A = divisor * answer; 
@@ -877,7 +927,7 @@
         let displayStr = `${A} ${Op} ${B} = ?`;
 
         if (isEquationMode) {
-            if (Math.random() < 0.5) {
+            if (rand() < 0.5) {
                 displayStr = `? ${Op} ${B} = ${Ans}`;
                 Target = A;
             } else {
@@ -912,7 +962,7 @@
             target.value = correctAnswer;
             
             for(let i=1; i<candidates.length; i++) {
-                if(Math.random() < 0.3) {
+                if(rand() < 0.3) {
                      candidates[i].type = 'correct';
                      candidates[i].value = correctAnswer;
                 }
@@ -922,8 +972,8 @@
 
     function generateDistractors(correctAnswer) {
         let distractors = [];
-        let fake1 = correctAnswer + (Math.floor(Math.random() * 5) + 1);
-        let fake2 = correctAnswer - (Math.floor(Math.random() * 5) + 1);
+        let fake1 = correctAnswer + (Math.floor(rand() * 5) + 1);
+        let fake2 = correctAnswer - (Math.floor(rand() * 5) + 1);
         let fake3 = correctAnswer + 10;
         let s = correctAnswer.toString();
         let fake4 = parseInt(s.split('').reverse().join(''));
@@ -965,7 +1015,7 @@
             this.type = type;
             this.value = value;
             this.broken = false;
-            const hue = Math.floor(Math.random() * 360);
+            const hue = Math.floor(rand() * 360);
             this.color = `hsl(${hue}, 70%, 80%)`;
             this.borderColor = `hsl(${hue}, 70%, 60%)`;
         }
@@ -1081,13 +1131,13 @@
     }
 
     function generateRow(y) {
-        let platformCount = 2 + Math.floor(Math.random() * 2);
+        let platformCount = 2 + Math.floor(rand() * 2);
         let spacing = canvas.width / platformCount;
         let positions = [];
         for(let i=0; i<platformCount; i++) {
-            positions.push((spacing * i) + (spacing/2) - 50 + (Math.random()*20 - 10));
+            positions.push((spacing * i) + (spacing/2) - 50 + (rand()*20 - 10));
         }
-        positions.sort(() => Math.random() - 0.5);
+        positions.sort(() => rand() - 0.5);
         let distractors = generateDistractors(currentProblem.Target);
         for (let i = 0; i < platformCount; i++) {
             let type = 'wrong';
@@ -1096,20 +1146,24 @@
                 type = 'correct';
                 val = currentProblem.Target;
             }
-            if (type === 'wrong' && Math.random() < 0.1) {
+            if (type === 'wrong' && rand() < 0.1) {
                 type = 'spring';
                 val = null;
             }
             platforms.push(new Platform(positions[i], y, type, val));
         }
-        if (Math.random() < 0.2) {
-            let itemType = Math.random() < 0.5 ? 'shield' : 'coin';
-            items.push(new Item(Math.random() * (canvas.width - 40) + 20, y - 50, itemType));
+        if (rand() < 0.2) {
+            let itemType = rand() < 0.5 ? 'shield' : 'coin';
+            items.push(new Item(rand() * (canvas.width - 40) + 20, y - 50, itemType));
         }
     }
 
-    function startGame() {
+    function startGame(options = {}) {
         SESSION_START_TS = Date.now();
+        activeRng = typeof options.rng === 'function' ? options.rng : Math.random;
+        if (window.KAMPAI && typeof window.KAMPAI.beginRound === 'function') {
+            window.KAMPAI.beginRound();
+        }
         audioSys.init();
         audioSys.startBGM();
 
@@ -1125,6 +1179,9 @@
         score = 0;
         heightScore = 0;
         combo = 0;
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        itemsCollected = 0;
         cameraY = 0;
         
         items = [];
@@ -1135,8 +1192,8 @@
             bgObjects.push(new BgObject(Math.random() * canvas.height, 'cloud'));
         }
         
-        initPlatforms(); 
-        generateMathProblem(); 
+        generateMathProblem();
+        initPlatforms();
         
         gameState = 'PLAYING';
     }
@@ -1151,11 +1208,20 @@
     }
 
     function gameOver() {
+        if (gameState === 'GAMEOVER') return;
         gameState = 'GAMEOVER';
         audioSys.stopBGM();
         audioSys.playGameOver();
+        const finalHeight = Math.floor(heightScore);
+        const finalStats = {
+            correct: correctAnswers,
+            height: finalHeight,
+            wrong: wrongAnswers,
+            items: itemsCollected,
+        };
+        if (vs.finish(score, finalStats)) return;
         saveHighScore(score);
-        document.getElementById('final-height').innerText = Math.floor(heightScore);
+        document.getElementById('final-height').innerText = finalHeight;
         document.getElementById('final-score').innerText = score;
         document.getElementById('game-over-screen').style.display = 'flex';
         updateLeaderboardUI();
@@ -1164,8 +1230,11 @@
             window.KAMPAI.submitScore(score, {
                 mode: currentMathMode + (isEquationMode ? '_eq' : ''),
                 duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
-                height: Math.floor(heightScore),
+                height: finalHeight,
                 difficulty: selectedDifficulty,
+                correctAnswers,
+                wrongAnswers,
+                itemsCollected,
             });
         }
     }
@@ -1246,7 +1315,7 @@
 
             let highestPlatformY = Math.min(...platforms.map(p => p.y));
             if (highestPlatformY > 100) {
-                generateRow(highestPlatformY - 150 - (Math.random() * 50));
+                generateRow(highestPlatformY - 150 - (rand() * 50));
             }
 
             if (player.vy > 0) {
@@ -1277,10 +1346,12 @@
                                 createParticles(player.x, player.y + 60, '#2ecc71');
                                 let points = 100 + (combo * 20);
                                 score += points;
+                                correctAnswers++;
                                 combo++;
                                 floatingTexts.push(new FloatingText(player.x, player.y - 20, `+${points}`, "#2ecc71"));
                                 p.broken = true; 
                                 generateMathProblem(); 
+                                reportProgress();
                                 document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1.2)";
                                 setTimeout(() => {
                                      document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1)";
@@ -1297,6 +1368,7 @@
                                     createParticles(p.x + p.width/2, p.y, '#95a5a6');
                                     audioSys.playWrong();
                                     combo = 0; 
+                                    wrongAnswers++;
                                     floatingTexts.push(new FloatingText(player.x, player.y - 20, "Miss!", "#e74c3c"));
                                 }
                             }
@@ -1309,6 +1381,7 @@
                 if (item.active && Math.abs(player.x - item.x) < 40 && Math.abs(player.y - item.y) < 40) {
                     item.active = false;
                     audioSys.playCollect();
+                    itemsCollected++;
                     if (item.type === 'shield') { 
                         player.shield = true; 
                         score += 50; 
@@ -1317,6 +1390,7 @@
                         score += 50; 
                         floatingTexts.push(new FloatingText(player.x, player.y - 20, "+50", "#f1c40f"));
                     }
+                    reportProgress();
                 }
             });
 
@@ -1463,8 +1537,10 @@
                 startGame();
             } else if (gameState === 'GAMEOVER') {
                 e.preventDefault();
-                // กด Enter เพื่อเริ่มเกมใหม่ทันที
-                startGame();
+                if (document.getElementById('game-over-screen').style.display === 'flex') {
+                    // กด Enter เพื่อเริ่มเกมใหม่ทันที เฉพาะจอจบเกมเดี่ยว
+                    startGame();
+                }
             }
         }
     });

@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.2 (Thai Vocab Hub — 2,400 คำ)',
+        version: 'v1.162.3 (Math Jumper — score lifecycle fix)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            '**math-jumper** แก้บักโจทย์รอบแรก/แพลตฟอร์มคำตอบไม่ตรงกัน โดยสุ่มโจทย์ก่อนสร้าง row เกม',
+            'แก้การเก็บและส่งคะแนน: `KAMPAI.setSlug` + `beginRound()` ทุกครั้ง, เพิ่ม `#kampai-result`, metadata คะแนนละเอียด และ guard ไม่ส่งเดี่ยวซ้ำในโหมดแข่ง',
+            'เพิ่มปก 16:9 + KampaiVersus พื้นฐาน · migration **388** bump `game_docs` เป็น v1.0.1',
+        ],
+    },
+    {
+        version: 'v1.162.2 (Thai Vocab Hub — 2,400 คำ)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             '**thai-vocab-hub** ขยายคลังคำศัพท์ทุกหมวดเป็น **150 คำ/หมวด** รวม 16 หมวด 2,400 คำ · build จาก source JSON ไม่แก้ `data.js` ตรง',
