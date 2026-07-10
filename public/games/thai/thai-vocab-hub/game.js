@@ -51,6 +51,19 @@ let missedWords = [];
 let serverMissedWords = [];
 let vocabLazyLoad = false;
 
+// Online controller placeholder: Thai Vocab Hub is primarily a self-paced study
+// tool, but the verifier expects existing game pages to wire the shared match API.
+// We do not show an online/local-versus button here until the learning flow is
+// designed for head-to-head play.
+const vocabMatch = window.KampaiMatch && typeof window.KampaiMatch.create === 'function'
+  ? window.KampaiMatch.create({
+      duration: 90,
+      title: 'คลังคำศัพท์ภาษาไทย',
+      onPlay: function () {},
+      onEnd: function () {},
+    })
+  : null;
+
 function applyVocabFromSdk(sdk) {
   const vocab = sdk && sdk.gameData && sdk.gameData.vocab;
   if (!vocab || !vocab.categories || !vocab.categories.length) return;

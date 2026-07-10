@@ -798,5 +798,455 @@
     "emoji": "👩",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1"
+  },
+  {
+    "word": "กด",
+    "reading": "กด",
+    "meaning": "ทำให้ต่ำลงหรือบังคับลง",
+    "emoji": "👇",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กฎ",
+    "reading": "กด",
+    "meaning": "ข้อบังคับหรือระเบียบ",
+    "emoji": "📜",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กบ",
+    "reading": "กบ",
+    "meaning": "สัตว์ครึ่งบกครึ่งน้ำ",
+    "emoji": "🐸",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กลบ",
+    "reading": "กบ",
+    "meaning": "ถมปิดให้มิด",
+    "emoji": "🕳️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กาน",
+    "reading": "กาน",
+    "meaning": "ตัดหรือบากต้นไม้",
+    "emoji": "🪓",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กานท์",
+    "reading": "กาน",
+    "meaning": "บทประพันธ์หรือถ้อยคำไพเราะ",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขัณฑ์",
+    "reading": "ขัน",
+    "meaning": "ส่วนหรือแดนที่แบ่งไว้",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขันธ์",
+    "reading": "ขัน",
+    "meaning": "กองหรือหมวดตามหลักธรรม",
+    "emoji": "🪷",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "คูณ",
+    "reading": "คูน",
+    "meaning": "เพิ่มจำนวนตามวิธีเลข",
+    "emoji": "✖️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "คูน",
+    "reading": "คูน",
+    "meaning": "ชื่อต้นไม้ดอกสีเหลือง",
+    "emoji": "🌼",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "โจทย์",
+    "reading": "โจด",
+    "meaning": "คำถามหรือปัญหาให้แก้",
+    "emoji": "❓",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "โจทก์",
+    "reading": "โจด",
+    "meaning": "ผู้ฟ้องคดี",
+    "emoji": "⚖️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชาด",
+    "reading": "ชาด",
+    "meaning": "สีแดงชนิดหนึ่ง",
+    "emoji": "🔴",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชาติ",
+    "reading": "ชาด",
+    "meaning": "ประเทศหรือกำเนิด",
+    "emoji": "🇹🇭",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เซ็น",
+    "reading": "เซ็น",
+    "meaning": "ลงลายมือชื่อ",
+    "emoji": "✍️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เซน",
+    "reading": "เซน",
+    "meaning": "นิกายหนึ่งในพุทธศาสนา",
+    "emoji": "🧘",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ทศกัณฐ์",
+    "reading": "ทด-สะ-กัน",
+    "meaning": "ชื่อตัวละครในรามเกียรติ์",
+    "emoji": "👹",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ทศกันต์",
+    "reading": "ทด-สะ-กัน",
+    "meaning": "รูปสะกดที่ใช้เป็นชื่อเฉพาะบางแห่ง",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เทศน์",
+    "reading": "เทด",
+    "meaning": "แสดงธรรม",
+    "emoji": "🪷",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เทศ",
+    "reading": "เทด",
+    "meaning": "ต่างถิ่นหรือต่างประเทศ",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2
+  },
+  {
+    "word": "นิตย์",
+    "reading": "นิด",
+    "meaning": "เสมอ เป็นประจำ",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "นิด",
+    "reading": "นิด",
+    "meaning": "เล็กน้อย",
+    "emoji": "🤏",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "บรรณ",
+    "reading": "บัน",
+    "meaning": "หนังสือหรือใบลาน",
+    "emoji": "📚",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "บัน",
+    "reading": "บัน",
+    "meaning": "คำขึ้นต้นในคำบางคำ เช่น บันได",
+    "emoji": "🪜",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ปาน",
+    "reading": "ปาน",
+    "meaning": "รอยสีบนผิวหนัง",
+    "emoji": "🔘",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ป่าน",
+    "reading": "ปาน",
+    "meaning": "พืชเส้นใยชนิดหนึ่ง",
+    "emoji": "🧵",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "พาล",
+    "reading": "พาน",
+    "meaning": "เกเรหรือชั่วร้าย",
+    "emoji": "😠",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "พาน",
+    "reading": "พาน",
+    "meaning": "ภาชนะมีเชิงสำหรับวางของ",
+    "emoji": "🏺",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ภาค",
+    "reading": "พาก",
+    "meaning": "ส่วนหรือบริเวณ",
+    "emoji": "🗺️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "พากย์",
+    "reading": "พาก",
+    "meaning": "บรรยายเสียงประกอบ",
+    "emoji": "🎙️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "มรรค",
+    "reading": "มัก",
+    "meaning": "ทางหรือข้อปฏิบัติ",
+    "emoji": "🛤️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "มัก",
+    "reading": "มัก",
+    "meaning": "ชอบทำอยู่เสมอ",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ยศ",
+    "reading": "ยด",
+    "meaning": "ตำแหน่งหรือเกียรติ",
+    "emoji": "🏅",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "รัตน์",
+    "reading": "รัด",
+    "meaning": "แก้วหรือของมีค่า",
+    "emoji": "💎",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "รัด",
+    "reading": "รัด",
+    "meaning": "ทำให้แน่น",
+    "emoji": "🪢",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ลักษณ์",
+    "reading": "ลัก",
+    "meaning": "เครื่องหมายหรือรูปร่าง",
+    "emoji": "🔎",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ลัก",
+    "reading": "ลัก",
+    "meaning": "ขโมย",
+    "emoji": "🕵️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ศร",
+    "reading": "สอน",
+    "meaning": "ลูกธนู",
+    "emoji": "🏹",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ศักดิ์",
+    "reading": "สัก",
+    "meaning": "อำนาจหรือฐานะ",
+    "emoji": "👑",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สัก",
+    "reading": "สัก",
+    "meaning": "ทำลายลงบนผิวหรือปลูกต้นสัก",
+    "emoji": "🌳",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สรรพ์",
+    "reading": "สับ",
+    "meaning": "ทั้งหมด ทุกสิ่ง",
+    "emoji": "🌏",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สับ",
+    "reading": "สับ",
+    "meaning": "ฟันให้เป็นชิ้นๆ",
+    "emoji": "🔪",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เหต",
+    "reading": "เหด",
+    "meaning": "รูปคำที่ใช้ประกอบในบางคำ",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เหตุ",
+    "reading": "เหด",
+    "meaning": "ต้นเรื่องหรือสาเหตุ",
+    "emoji": "💡",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "อรรถ",
+    "reading": "อัด",
+    "meaning": "เนื้อความหรือความหมาย",
+    "emoji": "📘",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "อัด",
+    "reading": "อัด",
+    "meaning": "กดหรือยัดให้แน่น",
+    "emoji": "📦",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "กราบ",
+    "reading": "กราบ",
+    "meaning": "แสดงความเคารพด้วยการหมอบลง",
+    "emoji": "🙏",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "กราฟ",
+    "reading": "กราบ",
+    "meaning": "แผนภาพแสดงข้อมูล",
+    "emoji": "📈",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "คราม",
+    "reading": "คราม",
+    "meaning": "สีน้ำเงินเข้มชนิดหนึ่ง",
+    "emoji": "🔵",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
+  },
+  {
+    "word": "คราว",
+    "reading": "คราว",
+    "meaning": "ครั้งหรือเวลา",
+    "emoji": "⏱️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3
   }
 ]

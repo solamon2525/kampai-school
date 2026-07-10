@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.0 (Batch X — สื่อเต็มมิติ 10 ชิ้น)',
+        version: 'v1.162.2 (Thai Vocab Hub — 2,400 คำ)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            '**thai-vocab-hub** ขยายคลังคำศัพท์ทุกหมวดเป็น **150 คำ/หมวด** รวม 16 หมวด 2,400 คำ · build จาก source JSON ไม่แก้ `data.js` ตรง',
+            'ปรับ tooling vocab target 150 + validator ให้ warning คำซ้ำข้ามหมวดไม่ทำให้ `--strict` fail เพราะคำเดียวกันอยู่ได้หลายบริบท',
+            'เพิ่ม `scripts/expand-thai-vocab-to-150.mjs` แบบ idempotent + เติม metadata `difficulty` สำหรับคำชุดใหม่เพื่อรองรับ adaptive review ระยะยาว',
+            'migration **387** bump `game_docs` เป็น v1.8.0',
+        ],
+    },
+    {
+        version: 'v1.162.0 (Batch X — สื่อเต็มมิติ 10 ชิ้น)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             '**Batch X1–X3** สื่อ interactive 10 ชิ้น (`category_key=media` · ไม่เก็บคะแนน): อาหาร 5 หมู่ · วงล้อสีวรรณะ · ไวพจน์ · ส่วนพืช · ดวงจันทร์ 8 ข้าง · พื้นที่สี่เหลี่ยม · กระดูก/กล้ามเนื้อ/ข้อ · อาชีพชุมชน · เศรษฐกิจพอเพียง · พจนานุกรมดิจิทัล',

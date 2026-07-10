@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DATA_DIR = join(ROOT, 'public/games/thai/thai-vocab-hub/data');
-const TARGET = 100;
+const TARGET = 150;
 const strict = process.argv.includes('--strict');
 
 function loadJson(path) {
@@ -100,5 +100,7 @@ const total = slugs.reduce((sum, slug) => {
 }, 0);
 
 console.log(`\n✅ ผ่าน — ${categories.length} หมวด · ${total} คำ`);
-if (warnings.length) process.exit(strict ? 1 : 0);
+if (warnings.length) {
+  console.log('ℹ️  คำซ้ำข้ามหมวดยังเป็น warning เพื่อให้คำเดียวกันอยู่ได้หลายบริบทการเรียน');
+}
 process.exit(0);

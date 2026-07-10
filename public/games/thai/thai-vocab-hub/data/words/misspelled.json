@@ -798,5 +798,455 @@
     "emoji": "📄",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1"
+  },
+  {
+    "word": "กะทันหัน",
+    "reading": "กะ-ทัน-หัน",
+    "meaning": "ทันทีทันใด (ไม่ใช่ กระทันหัน)",
+    "emoji": "⚡",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "กะทัดรัด",
+    "reading": "กะ-ทัด-รัด",
+    "meaning": "พอดี ไม่รุงรัง (ไม่ใช่ กระทัดรัด)",
+    "emoji": "📦",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "กะปริบ",
+    "reading": "กะ-ปริบ",
+    "meaning": "หลับตาแล้วลืมตาเร็วๆ (ไม่ใช่ กระพริบ ในรูปคำนี้)",
+    "emoji": "👁️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "กระตือรือร้น",
+    "reading": "กระ-ตือ-รือ-ร้น",
+    "meaning": "ขยันขันแข็ง ตั้งใจทำ (มี รือ)",
+    "emoji": "💪",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กระแส",
+    "reading": "กระ-แส",
+    "meaning": "แนวโน้มหรือการไหลของสิ่งต่างๆ",
+    "emoji": "🌊",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "กังขา",
+    "reading": "กัง-ขา",
+    "meaning": "สงสัย ไม่แน่ใจ (ใช้ ข ไข่)",
+    "emoji": "❔",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "กิตติศัพท์",
+    "reading": "กิด-ติ-สับ",
+    "meaning": "ชื่อเสียงที่เล่าลือกัน (มี ศัพท์)",
+    "emoji": "📣",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เกษียณ",
+    "reading": "กะ-เสียน",
+    "meaning": "ออกจากงานเมื่อครบอายุราชการ (ใช้ ษ)",
+    "emoji": "🏖️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เกสร",
+    "reading": "เก-สอน",
+    "meaning": "ส่วนของดอกไม้ (ใช้ ส เสือ)",
+    "emoji": "🌼",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เกียรติ",
+    "reading": "เกียด",
+    "meaning": "ชื่อเสียง ความนับถือ (มี ติ ท้าย)",
+    "emoji": "🏅",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขบวน",
+    "reading": "ขะ-บวน",
+    "meaning": "หมู่คนหรือรถที่เรียงกันไป (ไม่ใช่ ขบวณ)",
+    "emoji": "🚶",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "คฤหาสน์",
+    "reading": "คะ-รึ-หาด",
+    "meaning": "บ้านหลังใหญ่ (มี สน์)",
+    "emoji": "🏰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ฆราวาส",
+    "reading": "คะ-รา-วาด",
+    "meaning": "ผู้ครองเรือน ไม่ใช่นักบวช (ใช้ ฆ)",
+    "emoji": "🏠",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "จรรยาบรรณ",
+    "reading": "จัน-ยา-บัน",
+    "meaning": "หลักความประพฤติของอาชีพ (มี รร)",
+    "emoji": "📜",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "จลาจล",
+    "reading": "จะ-ลา-จน",
+    "meaning": "ความวุ่นวายแตกตื่น (ใช้ จลาจล)",
+    "emoji": "🚨",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เจตนา",
+    "reading": "เจด-ตะ-นา",
+    "meaning": "ความตั้งใจ (ใช้ ต นา)",
+    "emoji": "🎯",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ฉบับ",
+    "reading": "ฉะ-บับ",
+    "meaning": "เล่มหรือชุดของเอกสาร (ใช้ บ สะกด)",
+    "emoji": "📄",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ชะลอ",
+    "reading": "ชะ-ลอ",
+    "meaning": "ทำให้ช้าลง (ไม่ใช่ ชลอ)",
+    "emoji": "🐢",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ซาบซึ้ง",
+    "reading": "ซาบ-ซึ้ง",
+    "meaning": "รู้สึกประทับใจอย่างลึกซึ้ง",
+    "emoji": "💗",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ณรงค์",
+    "reading": "นะ-รง",
+    "meaning": "ต่อสู้หรือรณรงค์ในความหมายทางภาษา (ใช้ ณ)",
+    "emoji": "🛡️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ดุลยภาพ",
+    "reading": "ดุน-ยะ-พาบ",
+    "meaning": "ความสมดุล (ใช้ ลย)",
+    "emoji": "⚖️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ทัศนคติ",
+    "reading": "ทัด-สะ-นะ-คะ-ติ",
+    "meaning": "ความคิดเห็นหรือมุมมอง (ใช้ ศ)",
+    "emoji": "💭",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เทิดทูน",
+    "reading": "เทิด-ทูน",
+    "meaning": "ยกย่องไว้สูง (ใช้ เทิด)",
+    "emoji": "🙏",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ธำรง",
+    "reading": "ทำ-รง",
+    "meaning": "รักษาไว้ให้คงอยู่ (ใช้ ธ)",
+    "emoji": "🧭",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "นมัสการ",
+    "reading": "นะ-มัด-สะ-กาน",
+    "meaning": "แสดงความเคารพพระภิกษุ (ใช้ สการ)",
+    "emoji": "🙏",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "บรรจง",
+    "reading": "บัน-จง",
+    "meaning": "ทำอย่างประณีต (ใช้ บรร)",
+    "emoji": "✍️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "บรรเทา",
+    "reading": "บัน-เทา",
+    "meaning": "ทำให้เบาบางลง (ใช้ บรร)",
+    "emoji": "🩹",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "บรรลุ",
+    "reading": "บัน-ลุ",
+    "meaning": "สำเร็จถึงเป้าหมาย (ใช้ บรร)",
+    "emoji": "🎯",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "บิณฑบาต",
+    "reading": "บิน-ทะ-บาด",
+    "meaning": "พระรับอาหารจากผู้ถวาย (มี ฑ)",
+    "emoji": "🍚",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ปฏิกิริยา",
+    "reading": "ปะ-ติ-กิ-ริ-ยา",
+    "meaning": "การตอบสนองต่อสิ่งกระตุ้น (ใช้ ฏ)",
+    "emoji": "⚗️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ปฏิบัติ",
+    "reading": "ปะ-ติ-บัด",
+    "meaning": "ทำตามหรือดำเนินการ (ใช้ ฏ)",
+    "emoji": "✅",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ปฏิเสธ",
+    "reading": "ปะ-ติ-เสด",
+    "meaning": "ไม่ยอมรับ (ใช้ ฏิเสธ)",
+    "emoji": "🙅",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ประณีต",
+    "reading": "ประ-นีด",
+    "meaning": "ละเอียดเรียบร้อยงดงาม (ใช้ ณ)",
+    "emoji": "🎨",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ประนีประนอม",
+    "reading": "ประ-นี-ประ-นอม",
+    "meaning": "ผ่อนหนักผ่อนเบาหาทางตกลงกัน",
+    "emoji": "🤝",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ประมาท",
+    "reading": "ประ-มาด",
+    "meaning": "ขาดความระมัดระวัง (ใช้ ท ทหาร)",
+    "emoji": "⚠️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ประโยชน์",
+    "reading": "ประ-โยด",
+    "meaning": "ผลดีหรือสิ่งที่เป็นคุณ (มี ชน์)",
+    "emoji": "🌟",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ผาสุก",
+    "reading": "ผา-สุก",
+    "meaning": "มีความสุขสงบ (ใช้ ผา)",
+    "emoji": "😊",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "พยากรณ์",
+    "reading": "พะ-ยา-กอน",
+    "meaning": "คาดการณ์ล่วงหน้า (มี รณ์)",
+    "emoji": "🌦️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "พรรณนา",
+    "reading": "พัน-นะ-นา",
+    "meaning": "เล่าให้เห็นภาพอย่างละเอียด (ใช้ รรณ)",
+    "emoji": "🖼️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "พิสูจน์",
+    "reading": "พิ-สูด",
+    "meaning": "แสดงให้เห็นว่าเป็นจริง (มี จน์)",
+    "emoji": "🔎",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ภาคภูมิใจ",
+    "reading": "พาก-พูม-ใจ",
+    "meaning": "รู้สึกภูมิใจ (ใช้ ภูมิ)",
+    "emoji": "🏆",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "มรรยาท",
+    "reading": "มัน-ยาด",
+    "meaning": "ความประพฤติเรียบร้อย (รูปคำแบบ มรรยาท)",
+    "emoji": "🙇",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "มุ่งมั่น",
+    "reading": "มุ่ง-มั่น",
+    "meaning": "ตั้งใจจริงไม่ย่อท้อ",
+    "emoji": "🚀",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "รณรงค์",
+    "reading": "รน-นะ-รง",
+    "meaning": "เชิญชวนให้ร่วมทำสิ่งใดสิ่งหนึ่ง (ใช้ ณรงค์)",
+    "emoji": "📢",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ลายลักษณ์อักษร",
+    "reading": "ลาย-ลัก-อัก-สอน",
+    "meaning": "ข้อความที่เขียนเป็นหลักฐาน (ใช้ ลักษณ์)",
+    "emoji": "📝",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "วิพากษ์",
+    "reading": "วิ-พาก",
+    "meaning": "พิจารณาตัดสินหรือแสดงความคิดเห็น (มี ษ์)",
+    "emoji": "🗣️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ศักดิ์ศรี",
+    "reading": "สัก-สี",
+    "meaning": "เกียรติและคุณค่าของตน (มี ดิ์)",
+    "emoji": "👑",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สถิต",
+    "reading": "สะ-ถิด",
+    "meaning": "ดำรงอยู่หรืออยู่กับที่ (ใช้ ถิต)",
+    "emoji": "📍",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สาธารณประโยชน์",
+    "reading": "สา-ทา-ระ-นะ-ประ-โยด",
+    "meaning": "ประโยชน์ส่วนรวม (ใช้ ณ)",
+    "emoji": "🏫",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "อัปยศ",
+    "reading": "อับ-ปะ-ยด",
+    "meaning": "เสื่อมเสียชื่อเสียง (ใช้ อัป)",
+    "emoji": "⚫",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
   }
 ]

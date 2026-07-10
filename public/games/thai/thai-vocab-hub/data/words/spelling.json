@@ -798,5 +798,455 @@
     "emoji": "📄",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2"
+  },
+  {
+    "word": "จำ",
+    "reading": "จำ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ดำ",
+    "reading": "ดำ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ดี",
+    "reading": "ดี",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ดู",
+    "reading": "ดู",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "แพ",
+    "reading": "แพ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "แรง",
+    "reading": "แรง",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กง",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "แสง",
+    "reading": "แสง",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กง",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ฝั่ง",
+    "reading": "ฝั่ง",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กง",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "โค้ง",
+    "reading": "โค้ง",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กง",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "พัง",
+    "reading": "พัง",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กง",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เงา",
+    "reading": "เงา",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สาว",
+    "reading": "สาว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "แถว",
+    "reading": "แถว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เปลว",
+    "reading": "เปลว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ชาย",
+    "reading": "ชาย",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกย",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ถอย",
+    "reading": "ถอย",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกย",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เนย",
+    "reading": "เนย",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกย",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ท้าย",
+    "reading": "ท้าย",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกย",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เปียก",
+    "reading": "เปียก",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กก",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เลข",
+    "reading": "เลก",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กก",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "โชค",
+    "reading": "โชก",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กก",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สมัคร",
+    "reading": "สะ-หมัก",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กก",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ครก",
+    "reading": "ครก",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กก",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "บาท",
+    "reading": "บาด",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กด",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชาติ",
+    "reading": "ชาด",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กด",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "โกรธ",
+    "reading": "โกรด",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กด",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "พืช",
+    "reading": "พืด",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กด",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "อิฐ",
+    "reading": "อิด",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กด",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "กาญจน์",
+    "reading": "กาน",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กน",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "บุญ",
+    "reading": "บุน",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กน",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เพลิน",
+    "reading": "เพลิน",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กน",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "หาญ",
+    "reading": "หาน",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กน",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สัญญาณ",
+    "reading": "สัน-ยาน",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กน",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ทรัพย์",
+    "reading": "ซับ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กบ",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "รูป",
+    "reading": "รูป",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กบ",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สาม",
+    "reading": "สาม",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กม",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ยาม",
+    "reading": "ยาม",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กม",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ชม",
+    "reading": "ชม",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กม",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เทียม",
+    "reading": "เทียม",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กม",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ธรรม",
+    "reading": "ทำ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่กม",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "แก้ว",
+    "reading": "แก้ว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "แล้ว",
+    "reading": "แล้ว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เที่ยว",
+    "reading": "เที่ยว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เดียว",
+    "reading": "เดียว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เปรี้ยว",
+    "reading": "เปรี้ยว",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่เกอว",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ครู",
+    "reading": "ครู",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ยา",
+    "reading": "ยา",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "นารี",
+    "reading": "นา-รี",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สี",
+    "reading": "สี",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เรือ",
+    "reading": "เรือ",
+    "meaning": "คำตัวอย่างสำหรับฝึกมาตราตัวสะกด แม่ ก กา",
+    "emoji": "🔤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
   }
 ]

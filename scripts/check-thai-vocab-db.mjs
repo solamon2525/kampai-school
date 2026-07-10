@@ -154,18 +154,18 @@ async function main() {
 
   // Seed
   console.log('');
-  if (itemCount >= 1500) {
-    console.log('✅ Seed — ครบ ~1,500 คำ');
+  if (itemCount >= 2400) {
+    console.log('✅ Seed — ครบ ~2,400 คำ');
   } else if (itemCount > 0) {
-    console.log(`⚠️  Seed — มีแค่ ${itemCount} คำ (ยังไม่ครบ 1,500)`);
+    console.log(`⚠️  Seed — มีแค่ ${itemCount} คำ (ยังไม่ครบ 2,400)`);
   } else if (catalogOk || catCount > 0) {
     console.log('❌ Seed — ยังไม่ได้รัน');
     console.log('   → pnpm seed:thai-vocab');
   }
 
-  // game_docs v1.6.0 (281) — ใช้ service role ถ้ามี (RLS บล็อก anon)
+  // game_docs v1.8.0 (387) — ใช้ service role ถ้ามี (RLS บล็อก anon)
   console.log('');
-  const expectedVersion = 'v1.6.0';
+  const expectedVersion = 'v1.8.0';
   try {
     const res = await fetch(
       `${url}/rest/v1/educational_hub_items?external_url=eq./games/thai/thai-vocab-hub/index.html&select=id,title`,

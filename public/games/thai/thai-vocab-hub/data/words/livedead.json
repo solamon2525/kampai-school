@@ -798,5 +798,455 @@
     "emoji": "✂️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3"
+  },
+  {
+    "word": "ปี",
+    "reading": "ปี",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาวไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "แม่",
+    "reading": "แม่",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาวไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "หาว",
+    "reading": "หาว",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่เกอว",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เรือง",
+    "reading": "เรือง",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กง",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เรียน",
+    "reading": "เรียน",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กน",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชิม",
+    "reading": "ชิม",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กม",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "กาง",
+    "reading": "กาง",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กง",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เขียน",
+    "reading": "เขียน",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กน",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "โคม",
+    "reading": "โคม",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กม",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ชาย",
+    "reading": "ชาย",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่เกย",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เงา",
+    "reading": "เงา",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาว",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ภู",
+    "reading": "พู",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาว",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ปิ",
+    "reading": "ปิ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ดุ",
+    "reading": "ดุ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "และ",
+    "reading": "และ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เกะ",
+    "reading": "เกะ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "โปะ",
+    "reading": "โปะ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เตะ",
+    "reading": "เตะ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "แคะ",
+    "reading": "แคะ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะสระเสียงสั้นไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "บวก",
+    "reading": "บวก",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กก",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เลข",
+    "reading": "เลก",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กก",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สุข",
+    "reading": "สุก",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กก",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เมฆ",
+    "reading": "เมก",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กก",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "บท",
+    "reading": "บด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชาติ",
+    "reading": "ชาด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ครุฑ",
+    "reading": "ครุด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "พืช",
+    "reading": "พืด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "รูป",
+    "reading": "รูป",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ทรัพย์",
+    "reading": "ซับ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ภาพ",
+    "reading": "พาบ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "คิด",
+    "reading": "คิด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "เจ็บ",
+    "reading": "เจ็บ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ขอบ",
+    "reading": "ขอบ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ดาบ",
+    "reading": "ดาบ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "โลภ",
+    "reading": "โลบ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ปราบ",
+    "reading": "ปราบ",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กบ",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "วาด",
+    "reading": "วาด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "โกรธ",
+    "reading": "โกรด",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำตาย เพราะอยู่แม่กด",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ชา",
+    "reading": "ชา",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาวไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สีดา",
+    "reading": "สี-ดา",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะสระเสียงยาวไม่มีตัวสะกด",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ภูเขา",
+    "reading": "พู-เขา",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะพยางค์ท้ายสระเสียงยาว",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สำเภา",
+    "reading": "สำ-เพา",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะพยางค์ท้ายสระเสียงยาว",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ทอง",
+    "reading": "ทอง",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กง",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "คลอง",
+    "reading": "คลอง",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กง",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เกรง",
+    "reading": "เกรง",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กง",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "แหวน",
+    "reading": "แหวน",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กน",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เพื่อน",
+    "reading": "เพื่อน",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กน",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "เดือน",
+    "reading": "เดือน",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กน",
+    "emoji": "〰️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สนาม",
+    "reading": "สะ-หนาม",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กม",
+    "emoji": "〰️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "เตรียม",
+    "reading": "เตรียม",
+    "meaning": "ฝึกจำแนกคำเป็น-คำตาย: คำเป็น เพราะอยู่แม่กม",
+    "emoji": "〰️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
   }
 ]

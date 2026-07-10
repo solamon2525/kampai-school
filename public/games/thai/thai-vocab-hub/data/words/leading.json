@@ -798,5 +798,455 @@
     "emoji": "🌓",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3"
+  },
+  {
+    "word": "ขนาน",
+    "reading": "ขะ-หนาน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข น",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ขนาบ",
+    "reading": "ขะ-หนาบ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข น",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขนุน",
+    "reading": "ขะ-หนุน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข น",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ขมวด",
+    "reading": "ขะ-หมวด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ม",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ขมุบขมิบ",
+    "reading": "ขะ-หมุบ-ขะ-หมิบ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ม",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขยับ",
+    "reading": "ขะ-หยับ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ย",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ขยาด",
+    "reading": "ขะ-หยาด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ย",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ขยำ",
+    "reading": "ขะ-หยำ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ย",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ขยุกขยิก",
+    "reading": "ขะ-หยุก-ขะ-หยิก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ข ย",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ฉมวก",
+    "reading": "ฉะ-หมวก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ม",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ฉมัง",
+    "reading": "ฉะ-หมัง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ม",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ฉลาม",
+    "reading": "ฉะ-หลาม",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ล",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ฉลุ",
+    "reading": "ฉะ-หลุ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ล",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ฉลอง",
+    "reading": "ฉะ-หลอง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ล",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ฉวัดเฉวียน",
+    "reading": "ฉะ-หวัด-ฉะ-เหวียน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ฉ ว",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ถล่ม",
+    "reading": "ถะ-หล่ม",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ถ ล",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ถลอก",
+    "reading": "ถะ-หลอก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ถ ล",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ถลำ",
+    "reading": "ถะ-หลำ",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ถ ล",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ถวิล",
+    "reading": "ถะ-หวิน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ถ ว",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ผงาด",
+    "reading": "ผะ-หงาด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ผ ง",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ผนวก",
+    "reading": "ผะ-หนวก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ผ น",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ผนึก",
+    "reading": "ผะ-หนึก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ผ น",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ผยอง",
+    "reading": "ผะ-หยอง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ผ ย",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "ผวา",
+    "reading": "ผะ-หวา",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ผ ว",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "ฝนตก",
+    "reading": "ฝน-ตก",
+    "meaning": "คำฝึกอักษรนำ: ตัวอย่างเทียบคำไม่ใช่อักษรนำ",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "ฝักใฝ่",
+    "reading": "ฝัก-ใฝ่",
+    "meaning": "คำฝึกอักษรนำ: ฝ ควบความหมาย",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สกัด",
+    "reading": "สะ-กัด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ก",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สกปรก",
+    "reading": "สก-กะ-ปรก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ก",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สคราญ",
+    "reading": "สะ-คราน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ค",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สงัด",
+    "reading": "สะ-หงัด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ง",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สงวน",
+    "reading": "สะ-หงวน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ง",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สนอง",
+    "reading": "สะ-หนอง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส น",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สนิท",
+    "reading": "สะ-หนิด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส น",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สนุกสนาน",
+    "reading": "สะ-หนุก-สะ-หนาน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส น",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สบาย",
+    "reading": "สะ-บาย",
+    "meaning": "คำฝึกอักษรนำ: ส นำ บ อ่านตามพยางค์",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สมาน",
+    "reading": "สะ-หมาน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ม",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สมิง",
+    "reading": "สะ-หมิง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ม",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สมุดพก",
+    "reading": "สะ-หมุด-พก",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ม",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สยาย",
+    "reading": "สะ-หยาย",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ย",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "สลอน",
+    "reading": "สะ-หลอน",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ล",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สลัว",
+    "reading": "สะ-หลัว",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ล",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สวัสดี",
+    "reading": "สะ-หวัด-ดี",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ว",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "สวาท",
+    "reading": "สะ-หวาด",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ว",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "สวิง",
+    "reading": "สะ-หวิ่ง",
+    "meaning": "คำฝึกอักษรนำ: มีอักษรนำ ส ว",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "หงอย",
+    "reading": "หงอย",
+    "meaning": "คำฝึกอักษรนำ: ห นำ ง",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "หญ้า",
+    "reading": "หญ้า",
+    "meaning": "คำฝึกอักษรนำ: ห นำ ญ",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "หน่าย",
+    "reading": "หน่าย",
+    "meaning": "คำฝึกอักษรนำ: ห นำ น",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
+  },
+  {
+    "word": "หม่น",
+    "reading": "หม่น",
+    "meaning": "คำฝึกอักษรนำ: ห นำ ม",
+    "emoji": "🔰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 2
+  },
+  {
+    "word": "หยอก",
+    "reading": "หยอก",
+    "meaning": "คำฝึกอักษรนำ: ห นำ ย",
+    "emoji": "🔰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 3
+  },
+  {
+    "word": "หวั่น",
+    "reading": "หวั่น",
+    "meaning": "คำฝึกอักษรนำ: ห นำ ว",
+    "emoji": "🔰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/1",
+    "difficulty": 1
   }
 ]

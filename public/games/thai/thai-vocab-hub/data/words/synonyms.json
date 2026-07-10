@@ -898,5 +898,505 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
     "synonym_group": "syn-50"
+  },
+  {
+    "word": "อรุณ",
+    "reading": "อะ-รุน",
+    "meaning": "คำไวพจน์ของเวลาเช้า",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-51"
+  },
+  {
+    "word": "รุ่งอรุณ",
+    "reading": "รุ่ง-อะ-รุน",
+    "meaning": "คำไวพจน์ของเวลาเช้า",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-51"
+  },
+  {
+    "word": "อาทิตย์",
+    "reading": "อา-ทิด",
+    "meaning": "คำไวพจน์ของดวงตะวัน",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-52"
+  },
+  {
+    "word": "สุริยัน",
+    "reading": "สุ-ริ-ยัน",
+    "meaning": "คำไวพจน์ของดวงตะวัน",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-52"
+  },
+  {
+    "word": "จันทร",
+    "reading": "จัน-ทอน",
+    "meaning": "คำไวพจน์ของดวงจันทร์",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-53"
+  },
+  {
+    "word": "แข",
+    "reading": "แข",
+    "meaning": "คำไวพจน์ของดวงจันทร์",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-53"
+  },
+  {
+    "word": "ธารา",
+    "reading": "ทา-รา",
+    "meaning": "คำไวพจน์ของน้ำ",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-54"
+  },
+  {
+    "word": "ชลาลัย",
+    "reading": "ชะ-ลา-ไล",
+    "meaning": "คำไวพจน์ของน้ำ",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-54"
+  },
+  {
+    "word": "มหรรณพ",
+    "reading": "มะ-หัน-นบ",
+    "meaning": "คำไวพจน์ของทะเล",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-55"
+  },
+  {
+    "word": "ชโลธร",
+    "reading": "ชะ-โล-ทอน",
+    "meaning": "คำไวพจน์ของทะเล/น้ำ",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-55"
+  },
+  {
+    "word": "เมฆา",
+    "reading": "เม-คา",
+    "meaning": "คำไวพจน์ของเมฆ",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-56"
+  },
+  {
+    "word": "ฆน",
+    "reading": "คะ-นะ",
+    "meaning": "คำไวพจน์ของเมฆ",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-56"
+  },
+  {
+    "word": "วายุ",
+    "reading": "วา-ยุ",
+    "meaning": "คำไวพจน์ของลม",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-57"
+  },
+  {
+    "word": "ปवन",
+    "reading": "ปะ-วน",
+    "meaning": "คำไวพจน์ของลม",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-57"
+  },
+  {
+    "word": "อัคนี",
+    "reading": "อัก-คะ-นี",
+    "meaning": "คำไวพจน์ของไฟ",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-58"
+  },
+  {
+    "word": "เพลิง",
+    "reading": "เพลิง",
+    "meaning": "คำไวพจน์ของไฟ",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-58"
+  },
+  {
+    "word": "ป่า",
+    "reading": "ป่า",
+    "meaning": "คำไวพจน์ของไพร",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-59"
+  },
+  {
+    "word": "พนา",
+    "reading": "พะ-นา",
+    "meaning": "คำไวพจน์ของป่า",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-59"
+  },
+  {
+    "word": "ภูผา",
+    "reading": "พู-ผา",
+    "meaning": "คำไวพจน์ของภูเขา",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-60"
+  },
+  {
+    "word": "ศิขริน",
+    "reading": "สิ-ขะ-ริน",
+    "meaning": "คำไวพจน์ของภูเขา",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-60"
+  },
+  {
+    "word": "ปทุม",
+    "reading": "ปะ-ทุม",
+    "meaning": "คำไวพจน์ของบัว",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-61"
+  },
+  {
+    "word": "อุบล",
+    "reading": "อุ-บน",
+    "meaning": "คำไวพจน์ของบัว",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-61"
+  },
+  {
+    "word": "โกมล",
+    "reading": "โก-มน",
+    "meaning": "คำไวพจน์ของบัว",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-62"
+  },
+  {
+    "word": "มาลา",
+    "reading": "มา-ลา",
+    "meaning": "คำไวพจน์ของดอกไม้",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-62"
+  },
+  {
+    "word": "กุสุม",
+    "reading": "กุ-สุม",
+    "meaning": "คำไวพจน์ของดอกไม้",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-63"
+  },
+  {
+    "word": "บุหงา",
+    "reading": "บุ-หงา",
+    "meaning": "คำไวพจน์ของดอกไม้",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-63"
+  },
+  {
+    "word": "แมกไม้",
+    "reading": "แมก-ไม้",
+    "meaning": "คำไวพจน์ของต้นไม้",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-64"
+  },
+  {
+    "word": "รุกข์",
+    "reading": "รุก",
+    "meaning": "คำไวพจน์ของต้นไม้",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-64"
+  },
+  {
+    "word": "กุมาร",
+    "reading": "กุ-มาน",
+    "meaning": "คำไวพจน์ของเด็กชาย",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-65"
+  },
+  {
+    "word": "กุมารี",
+    "reading": "กุ-มา-รี",
+    "meaning": "คำไวพจน์ของเด็กหญิง",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-65"
+  },
+  {
+    "word": "เยาวชน",
+    "reading": "เยา-วะ-ชน",
+    "meaning": "คำไวพจน์ของคนวัยเยาว์",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-66"
+  },
+  {
+    "word": "ชนก",
+    "reading": "ชะ-นก",
+    "meaning": "คำไวพจน์ของพ่อ",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-66"
+  },
+  {
+    "word": "ชนนี",
+    "reading": "ชน-นะ-นี",
+    "meaning": "คำไวพจน์ของแม่",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-67"
+  },
+  {
+    "word": "มาตุ",
+    "reading": "มา-ตุ",
+    "meaning": "คำไวพจน์ของแม่",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-67"
+  },
+  {
+    "word": "ปิตุ",
+    "reading": "ปิ-ตุ",
+    "meaning": "คำไวพจน์ของพ่อ",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-68"
+  },
+  {
+    "word": "เคหา",
+    "reading": "เค-หา",
+    "meaning": "คำไวพจน์ของบ้าน",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-68"
+  },
+  {
+    "word": "นิเวศน์",
+    "reading": "นิ-เวด",
+    "meaning": "คำไวพจน์ของบ้าน",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-69"
+  },
+  {
+    "word": "คฤหะ",
+    "reading": "คะ-รึ-หะ",
+    "meaning": "คำไวพจน์ของบ้าน",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-69"
+  },
+  {
+    "word": "มรรคา",
+    "reading": "มัก-คา",
+    "meaning": "คำไวพจน์ของทาง",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-70"
+  },
+  {
+    "word": "วิถี",
+    "reading": "วิ-ถี",
+    "meaning": "คำไวพจน์ของทาง",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-70"
+  },
+  {
+    "word": "ภูวดล",
+    "reading": "พู-วะ-ดน",
+    "meaning": "คำไวพจน์ของแผ่นดิน",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-71"
+  },
+  {
+    "word": "ราชา",
+    "reading": "รา-ชา",
+    "meaning": "คำไวพจน์ของกษัตริย์",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-71"
+  },
+  {
+    "word": "นฤบดี",
+    "reading": "นะ-รึ-บอ-ดี",
+    "meaning": "คำไวพจน์ของกษัตริย์",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-72"
+  },
+  {
+    "word": "กวี",
+    "reading": "กะ-วี",
+    "meaning": "คำไวพจน์ของผู้แต่งคำประพันธ์",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-72"
+  },
+  {
+    "word": "นักปราชญ์",
+    "reading": "นัก-ปราด",
+    "meaning": "คำไวพจน์ของผู้รู้",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-73"
+  },
+  {
+    "word": "เมธี",
+    "reading": "เม-ที",
+    "meaning": "คำไวพจน์ของผู้มีปัญญา",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-73"
+  },
+  {
+    "word": "บัณฑิต",
+    "reading": "บัน-ดิด",
+    "meaning": "คำไวพจน์ของผู้รู้",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-74"
+  },
+  {
+    "word": "นรินทร์",
+    "reading": "นะ-ริน",
+    "meaning": "คำไวพจน์ของกษัตริย์",
+    "emoji": "🟰",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 1,
+    "synonym_group": "syn-74"
+  },
+  {
+    "word": "ภูบาล",
+    "reading": "พู-บาน",
+    "meaning": "คำไวพจน์ของกษัตริย์",
+    "emoji": "🟰",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 2,
+    "synonym_group": "syn-75"
+  },
+  {
+    "word": "อัมพุ",
+    "reading": "อำ-พุ",
+    "meaning": "คำไวพจน์ของน้ำ",
+    "emoji": "🟰",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/1",
+    "difficulty": 3,
+    "synonym_group": "syn-75"
   }
 ]

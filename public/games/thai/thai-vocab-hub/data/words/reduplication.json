@@ -798,5 +798,455 @@
     "emoji": "🗼",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3"
+  },
+  {
+    "word": "ครูๆ",
+    "reading": "ครู-ครู",
+    "meaning": "คำซ้ำ ใช้เรียกหรือกล่าวถึงครูหลายคน",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เพื่อนๆ",
+    "reading": "เพื่อน-เพื่อน",
+    "meaning": "คำซ้ำ หมายถึงเพื่อนหลายคน",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "น้องๆ",
+    "reading": "น้อง-น้อง",
+    "meaning": "คำซ้ำ หมายถึงน้องหลายคน",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "พี่ๆ",
+    "reading": "พี่-พี่",
+    "meaning": "คำซ้ำ หมายถึงพี่หลายคน",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เดินๆ",
+    "reading": "เดิน-เดิน",
+    "meaning": "คำซ้ำ บอกการทำอย่างไม่จริงจังหรือทำต่อเนื่อง",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ดูๆ",
+    "reading": "ดู-ดู",
+    "meaning": "คำซ้ำ บอกให้ลองพิจารณา",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ฟังๆ",
+    "reading": "ฟัง-ฟัง",
+    "meaning": "คำซ้ำ บอกให้ลองฟังหรือฟังต่อเนื่อง",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "คิดๆ",
+    "reading": "คิด-คิด",
+    "meaning": "คำซ้ำ บอกการคิดทบทวน",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "อ่านๆ",
+    "reading": "อ่าน-อ่าน",
+    "meaning": "คำซ้ำ บอกการอ่านไปเรื่อยๆ",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เขียนๆ",
+    "reading": "เขียน-เขียน",
+    "meaning": "คำซ้ำ บอกการเขียนไปเรื่อยๆ",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ถามๆ",
+    "reading": "ถาม-ถาม",
+    "meaning": "คำซ้ำ บอกการถามหลายครั้ง",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ตอบๆ",
+    "reading": "ตอบ-ตอบ",
+    "meaning": "คำซ้ำ บอกการตอบหลายครั้ง",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "กลมๆ",
+    "reading": "กลม-กลม",
+    "meaning": "คำซ้ำ บอกลักษณะค่อนข้างกลม",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "แบนๆ",
+    "reading": "แบน-แบน",
+    "meaning": "คำซ้ำ บอกลักษณะค่อนข้างแบน",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ยาวๆ",
+    "reading": "ยาว-ยาว",
+    "meaning": "คำซ้ำ บอกลักษณะค่อนข้างยาว",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "สั้นๆ",
+    "reading": "สั้น-สั้น",
+    "meaning": "คำซ้ำ บอกลักษณะค่อนข้างสั้น",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ลึกๆ",
+    "reading": "ลึก-ลึก",
+    "meaning": "คำซ้ำ บอกลักษณะลึกหรือคิดในใจ",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ตื้นๆ",
+    "reading": "ตื้น-ตื้น",
+    "meaning": "คำซ้ำ บอกลักษณะไม่ลึก",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เย็นๆ",
+    "reading": "เย็น-เย็น",
+    "meaning": "คำซ้ำ บอกอากาศค่อนข้างเย็น",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "อุ่นๆ",
+    "reading": "อุ่น-อุ่น",
+    "meaning": "คำซ้ำ บอกอุณหภูมิพออุ่น",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "สุกๆ",
+    "reading": "สุก-สุก",
+    "meaning": "คำซ้ำ บอกว่าสุกพอประมาณ",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ดิบๆ",
+    "reading": "ดิบ-ดิบ",
+    "meaning": "คำซ้ำ บอกว่ายังไม่สุกดี",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "หอมๆ",
+    "reading": "หอม-หอม",
+    "meaning": "คำซ้ำ บอกกลิ่นหอมอ่อนๆ",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "เหม็นๆ",
+    "reading": "เหม็น-เหม็น",
+    "meaning": "คำซ้ำ บอกกลิ่นไม่ดี",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เผ็ดๆ",
+    "reading": "เผ็ด-เผ็ด",
+    "meaning": "คำซ้ำ บอกรสเผ็ดพอประมาณ",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เปรี้ยวๆ",
+    "reading": "เปรี้ยว-เปรี้ยว",
+    "meaning": "คำซ้ำ บอกรสเปรี้ยวพอประมาณ",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "เค็มๆ",
+    "reading": "เค็ม-เค็ม",
+    "meaning": "คำซ้ำ บอกรสเค็มพอประมาณ",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "จืดๆ",
+    "reading": "จืด-จืด",
+    "meaning": "คำซ้ำ บอกรสไม่เข้ม",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "นุ่มๆ",
+    "reading": "นุ่ม-นุ่ม",
+    "meaning": "คำซ้ำ บอกสัมผัสค่อนข้างนุ่ม",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "แข็งๆ",
+    "reading": "แข็ง-แข็ง",
+    "meaning": "คำซ้ำ บอกสัมผัสค่อนข้างแข็ง",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ลื่นๆ",
+    "reading": "ลื่น-ลื่น",
+    "meaning": "คำซ้ำ บอกสัมผัสค่อนข้างลื่น",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ฝืดๆ",
+    "reading": "ฝืด-ฝืด",
+    "meaning": "คำซ้ำ บอกสัมผัสไม่ลื่น",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "กว้างขวาง",
+    "reading": "กว้าง-ขวาง",
+    "meaning": "คำซ้อน หมายถึงมีพื้นที่มาก",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "คับแคบ",
+    "reading": "คับ-แคบ",
+    "meaning": "คำซ้อน หมายถึงพื้นที่น้อย",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เงียบสงัด",
+    "reading": "เงียบ-สะ-หงัด",
+    "meaning": "คำซ้อน หมายถึงเงียบมาก",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "อึกทึก",
+    "reading": "อึก-กะ-ทึก",
+    "meaning": "คำซ้อน หมายถึงเสียงดังวุ่นวาย",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ว่องไว",
+    "reading": "ว่อง-ไว",
+    "meaning": "คำซ้อน หมายถึงเคลื่อนไหวเร็ว",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เชื่องช้า",
+    "reading": "เชื่อง-ช้า",
+    "meaning": "คำซ้อน หมายถึงเคลื่อนไหวช้า",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ชัดเจน",
+    "reading": "ชัด-เจน",
+    "meaning": "คำซ้อน หมายถึงเข้าใจได้ชัด",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "คลุมเครือ",
+    "reading": "คลุม-เครือ",
+    "meaning": "คำซ้อน หมายถึงไม่ชัดเจน",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "อบอุ่น",
+    "reading": "อบ-อุ่น",
+    "meaning": "คำซ้อน หมายถึงอุ่นกายหรืออุ่นใจ",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "หนาวเหน็บ",
+    "reading": "หนาว-เหน็บ",
+    "meaning": "คำซ้อน หมายถึงหนาวมาก",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เรียบง่าย",
+    "reading": "เรียบ-ง่าย",
+    "meaning": "คำซ้อน หมายถึงไม่ซับซ้อน",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ซับซ้อน",
+    "reading": "ซับ-ซ้อน",
+    "meaning": "คำซ้อน หมายถึงมีหลายชั้นหลายขั้น",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "จริงจัง",
+    "reading": "จิง-จัง",
+    "meaning": "คำซ้อน หมายถึงตั้งใจจริง",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เล่นๆ",
+    "reading": "เล่น-เล่น",
+    "meaning": "คำซ้ำ หมายถึงไม่จริงจัง",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "พราวๆ",
+    "reading": "พราว-พราว",
+    "meaning": "คำซ้ำ บอกลักษณะสว่างระยิบระยับ",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
+  },
+  {
+    "word": "เนียนๆ",
+    "reading": "เนียน-เนียน",
+    "meaning": "คำซ้ำ บอกลักษณะเรียบละเอียด",
+    "emoji": "🔁",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ไหวๆ",
+    "reading": "ไหว-ไหว",
+    "meaning": "คำซ้ำ บอกว่ายังพอทำได้",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1
+  },
+  {
+    "word": "หลวมๆ",
+    "reading": "หลวม-หลวม",
+    "meaning": "คำซ้ำ บอกลักษณะไม่แน่น",
+    "emoji": "🔁",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2
   }
 ]

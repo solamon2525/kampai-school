@@ -898,5 +898,505 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
     "classifier_for": "หมากพับ"
+  },
+  {
+    "word": "กระจุก",
+    "reading": "กระ-จุก",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับผมหรือสิ่งที่รวมเป็นก้อนเล็กๆ",
+    "emoji": "🧶",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "กำ",
+    "reading": "กำ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งที่รวบไว้ในมือ เช่น ดอกไม้หนึ่งกำ",
+    "emoji": "✊",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "กิ่ง",
+    "reading": "กิ่ง",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับกิ่งไม้หรือส่วนแยกจากลำต้น",
+    "emoji": "🌿",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "เข่ง",
+    "reading": "เข่ง",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับภาชนะสานหรือของที่บรรจุในเข่ง",
+    "emoji": "🧺",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "ที่บรรจุในเข่ง"
+  },
+  {
+    "word": "คดี",
+    "reading": "คะ-ดี",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับเรื่องฟ้องร้องหรือกรณีทางกฎหมาย",
+    "emoji": "⚖️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "คำสั่ง",
+    "reading": "คำ-สั่ง",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับคำสั่งหรือประกาศเป็นรายการ",
+    "emoji": "📌",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "งวด",
+    "reading": "งวด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับช่วงเวลาหรือรอบของการจ่าย/ส่งงาน",
+    "emoji": "📅",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "การจ่าย/ส่งงาน"
+  },
+  {
+    "word": "จังหวะ",
+    "reading": "จัง-หวะ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับช่วงทำนองหรือช่วงการเคลื่อนไหว",
+    "emoji": "🎵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "จุก",
+    "reading": "จุก",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งอุดปากขวดหรือกลุ่มเล็กๆ",
+    "emoji": "🧴",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ซุ้ม",
+    "reading": "ซุ้ม",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งปลูกเป็นซุ้ม เช่น ซุ้มประตู",
+    "emoji": "⛩️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ดุ้น",
+    "reading": "ดุ้น",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับของเป็นท่อนสั้นๆ",
+    "emoji": "🪵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "เป็นท่อนสั้นๆ"
+  },
+  {
+    "word": "ตับ",
+    "reading": "ตับ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งที่เรียงติดกันเป็นชุด เช่น พลุหนึ่งตับ",
+    "emoji": "🎆",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ตอนกิ่ง",
+    "reading": "ตอน-กิ่ง",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับกิ่งไม้ที่ตอนเพื่อปลูก",
+    "emoji": "🌱",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ถาด",
+    "reading": "ถาด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับของที่จัดวางบนถาด",
+    "emoji": "🍽️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "ที่จัดวางบนถาด"
+  },
+  {
+    "word": "ท่อน",
+    "reading": "ท่อน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับของที่ถูกแบ่งเป็นช่วง เช่น ไม้หนึ่งท่อน",
+    "emoji": "🪵",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "ที่ถูกแบ่งเป็นช่วง"
+  },
+  {
+    "word": "นัด",
+    "reading": "นัด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับลูกกระสุนหรือการยิงครั้งหนึ่ง",
+    "emoji": "🎯",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "แนว",
+    "reading": "แนว",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งที่เรียงเป็นเส้นหรือทิศทาง",
+    "emoji": "📏",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "บรรทัด",
+    "reading": "บัน-ทัด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับบรรทัดข้อความในหนังสือ",
+    "emoji": "📄",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ใบงาน",
+    "reading": "ใบ-งาน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับแผ่นงานหรือกิจกรรมหนึ่งใบงาน",
+    "emoji": "📝",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ประเด็น",
+    "reading": "ประ-เด็น",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับหัวข้อหรือข้อสำคัญ",
+    "emoji": "💬",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ปิ่นโต",
+    "reading": "ปิ่น-โต",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับอาหารที่บรรจุเป็นชั้นในปิ่นโต",
+    "emoji": "🍱",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "เปลาะ",
+    "reading": "เปลาะ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับส่วนที่แบ่งเป็นช่วงๆ เช่น อ้อยหนึ่งเปลาะ",
+    "emoji": "🎋",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ฝัก",
+    "reading": "ฝัก",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับผลที่เป็นฝัก เช่น ถั่วหนึ่งฝัก",
+    "emoji": "🫘",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "พุ่ม",
+    "reading": "พุ่ม",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับต้นไม้หรือดอกไม้ที่รวมเป็นพุ่ม",
+    "emoji": "🌳",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ฟ่อน",
+    "reading": "ฟ่อน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับหญ้าหรือข้าวที่มัดรวมกัน",
+    "emoji": "🌾",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "มัด",
+    "reading": "มัด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสิ่งที่ผูกรวมกัน",
+    "emoji": "🪢",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "มื้อ",
+    "reading": "มื้อ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับเวลารับประทานอาหารครั้งหนึ่ง",
+    "emoji": "🍛",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "เมนู",
+    "reading": "เม-นู",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับรายการอาหารหนึ่งรายการ",
+    "emoji": "📋",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ยอด",
+    "reading": "ยอด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับส่วนปลายหรือยอดของพืช",
+    "emoji": "🌱",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "พืช"
+  },
+  {
+    "word": "ระดับ",
+    "reading": "ระ-ดับ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับขั้นหรือชั้นของคุณภาพ/ความสูง",
+    "emoji": "📶",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "คุณภาพ/ความสูง"
+  },
+  {
+    "word": "ราย",
+    "reading": "ราย",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับคนหรือเรื่องเป็นรายๆ",
+    "emoji": "👤",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ฤดู",
+    "reading": "รึ-ดู",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับช่วงฤดูกาลหนึ่ง",
+    "emoji": "🌦️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ลอน",
+    "reading": "ลอน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับส่วนที่เป็นคลื่นหรือเป็นม้วน เช่น ผมหนึ่งลอน",
+    "emoji": "💇",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ลูกบาศก์",
+    "reading": "ลูก-บาด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับหน่วยรูปทรงลูกบาศก์",
+    "emoji": "🧊",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "วาระ",
+    "reading": "วา-ระ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับโอกาสหรือเรื่องตามลำดับประชุม",
+    "emoji": "🗓️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "วงรอบ",
+    "reading": "วง-รอบ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับรอบการทำงานหรือรอบการหมุน",
+    "emoji": "🔄",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "ศอก",
+    "reading": "สอก",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับระยะวัดแบบโบราณหนึ่งศอก",
+    "emoji": "📐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "สำนวน",
+    "reading": "สำ-นวน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับถ้อยคำหรือสำนวนหนึ่งสำนวน",
+    "emoji": "💬",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "เสี้ยว",
+    "reading": "เสี้ยว",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับส่วนเล็กๆ ของสิ่งหนึ่ง",
+    "emoji": "🌙",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "สิ่งหนึ่ง"
+  },
+  {
+    "word": "โหล",
+    "reading": "โหล",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับจำนวนสิบสองหน่วย",
+    "emoji": "🔢",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "อก",
+    "reading": "อก",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับส่วนของเสื้อหรือเครื่องแต่งกายบางชนิด",
+    "emoji": "👕",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "เสื้อหรือเครื่องแต่งกายบางชนิด"
+  },
+  {
+    "word": "อนุเฉท",
+    "reading": "อะ-นุ-เฉด",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับย่อหน้าหรือข้อความตอนหนึ่ง",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "อัตรา",
+    "reading": "อัด-ตรา",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสัดส่วนหรือราคาเป็นอัตรา",
+    "emoji": "📊",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "อำเภอ",
+    "reading": "อำ-เพอ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับพื้นที่การปกครองระดับอำเภอ",
+    "emoji": "🏘️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "เอกสาร",
+    "reading": "เอก-กะ-สาน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับชุดเอกสารหนึ่งรายการ",
+    "emoji": "📁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "แถวตอน",
+    "reading": "แถว-ตอน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับกลุ่มที่เรียงเป็นแถวตอน",
+    "emoji": "🚶",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "แหล่ง",
+    "reading": "แหล่ง",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับสถานที่หรือที่มาของสิ่งใดสิ่งหนึ่ง",
+    "emoji": "📍",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": "สิ่งใดสิ่งหนึ่ง"
+  },
+  {
+    "word": "โครงการ",
+    "reading": "โครง-กาน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับงานที่วางแผนเป็นโครงการ",
+    "emoji": "🏗️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "หัวข้อ",
+    "reading": "หัว-ข้อ",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับประเด็นหรือชื่อเรื่องหนึ่งหัวข้อ",
+    "emoji": "🏷️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
+  },
+  {
+    "word": "หน",
+    "reading": "หน",
+    "meaning": "ลักษณนามหรือคำบอกจำนวนสำหรับครั้งหรือคราวหนึ่ง",
+    "emoji": "🔁",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "classifier_for": null
   }
 ]

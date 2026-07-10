@@ -14,7 +14,7 @@ const DATA_DIR = join(HUB, 'data');
 const CATEGORIES_FILE = join(DATA_DIR, 'categories.json');
 const WORDS_DIR = join(DATA_DIR, 'words');
 const OUT_FILE = join(HUB, 'data.js');
-const TARGET_PER_CATEGORY = 100;
+const TARGET_PER_CATEGORY = 150;
 
 const checkOnly = process.argv.includes('--check');
 

@@ -898,5 +898,505 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
     "origin_lang": "other"
+  },
+  {
+    "word": "กิโลกรัม",
+    "reading": "กิ-โล-กรัม",
+    "meaning": "คำยืม/คำทับศัพท์: หน่วยน้ำหนักจากภาษาต่างประเทศ",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "เซนติเมตร",
+    "reading": "เซน-ติ-เมด",
+    "meaning": "คำยืม/คำทับศัพท์: หน่วยวัดความยาว",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ลิตร",
+    "reading": "ลิด",
+    "meaning": "คำยืม/คำทับศัพท์: หน่วยวัดปริมาตร",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "เมตร",
+    "reading": "เมด",
+    "meaning": "คำยืม/คำทับศัพท์: หน่วยวัดความยาว",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "โปรแกรม",
+    "reading": "โปร-แกรม",
+    "meaning": "คำยืม/คำทับศัพท์: ชุดคำสั่งคอมพิวเตอร์",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "คีย์บอร์ด",
+    "reading": "คี-บอด",
+    "meaning": "คำยืม/คำทับศัพท์: แป้นพิมพ์คอมพิวเตอร์",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "เมาส์",
+    "reading": "เม้า",
+    "meaning": "คำยืม/คำทับศัพท์: อุปกรณ์ชี้ตำแหน่ง",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "จอภาพ",
+    "reading": "จอ-พาบ",
+    "meaning": "คำยืม/คำทับศัพท์: หน้าจอแสดงผล",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ไฟล์",
+    "reading": "ไฟ",
+    "meaning": "คำยืม/คำทับศัพท์: แฟ้มข้อมูล",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "โฟลเดอร์",
+    "reading": "โฟน-เด้อ",
+    "meaning": "คำยืม/คำทับศัพท์: ที่เก็บแฟ้มข้อมูล",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "วิดีโอ",
+    "reading": "วิ-ดี-โอ",
+    "meaning": "คำยืม/คำทับศัพท์: ภาพเคลื่อนไหว",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "แอนิเมชัน",
+    "reading": "แอ-นิ-เม-ชัน",
+    "meaning": "คำยืม/คำทับศัพท์: ภาพเคลื่อนไหวจากการสร้างภาพต่อเนื่อง",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "กราฟิก",
+    "reading": "กรา-ฟิก",
+    "meaning": "คำยืม/คำทับศัพท์: ภาพหรือเส้นที่ออกแบบด้วยคอมพิวเตอร์",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ดีไซน์",
+    "reading": "ดี-ไซ",
+    "meaning": "คำยืม/คำทับศัพท์: การออกแบบ",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "โปสเตอร์",
+    "reading": "โปด-สะ-เตอ",
+    "meaning": "คำยืม/คำทับศัพท์: ป้ายภาพโฆษณาหรือประชาสัมพันธ์",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "โบรชัวร์",
+    "reading": "โบ-ชัว",
+    "meaning": "คำยืม/คำทับศัพท์: เอกสารแนะนำสินค้า/กิจกรรม",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "สแกน",
+    "reading": "สะ-แกน",
+    "meaning": "คำยืม/คำทับศัพท์: อ่านภาพหรือข้อมูลด้วยเครื่อง",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ปริ้นต์",
+    "reading": "ปริน",
+    "meaning": "คำยืม/คำทับศัพท์: พิมพ์ออกทางเครื่องพิมพ์",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "คลิป",
+    "reading": "คลิบ",
+    "meaning": "คำยืม/คำทับศัพท์: วิดีโอสั้นหรือที่หนีบ",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ไลฟ์",
+    "reading": "ไล",
+    "meaning": "คำยืม/คำทับศัพท์: ถ่ายทอดสด",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "แชต",
+    "reading": "แช็ด",
+    "meaning": "คำยืม/คำทับศัพท์: สนทนาผ่านระบบออนไลน์",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "คอมเมนต์",
+    "reading": "คอม-เมน",
+    "meaning": "คำยืม/คำทับศัพท์: ความคิดเห็นในสื่อออนไลน์",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "en"
+  },
+  {
+    "word": "โพสต์",
+    "reading": "โพด",
+    "meaning": "คำยืม/คำทับศัพท์: ข้อความหรือภาพที่เผยแพร่ในสื่อออนไลน์",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "แชร์",
+    "reading": "แช",
+    "meaning": "คำยืม/คำทับศัพท์: ส่งต่อหรือแบ่งปัน",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "กีฬาเทนนิส",
+    "reading": "กี-ลา-เทน-นิด",
+    "meaning": "คำยืม/คำทับศัพท์: กีฬาที่ใช้ไม้ตีลูกข้ามตาข่าย",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "วอลเลย์บอล",
+    "reading": "วอน-เล่-บอน",
+    "meaning": "คำยืม/คำทับศัพท์: กีฬาตีลูกข้ามตาข่ายด้วยมือ",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "บาสเกตบอล",
+    "reading": "บาด-เกด-บอน",
+    "meaning": "คำยืม/คำทับศัพท์: กีฬาชู้ตลูกลงห่วง",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "แบดมินตัน",
+    "reading": "แบด-มิน-ตัน",
+    "meaning": "คำยืม/คำทับศัพท์: กีฬาตีลูกขนไก่",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "เปียโน",
+    "reading": "เปีย-โน",
+    "meaning": "คำยืม/คำทับศัพท์: เครื่องดนตรีตะวันตก",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "กีตาร์",
+    "reading": "กี-ตา",
+    "meaning": "คำยืม/คำทับศัพท์: เครื่องดนตรีมีสาย",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ไวโอลิน",
+    "reading": "ไว-โอ-ลิน",
+    "meaning": "คำยืม/คำทับศัพท์: เครื่องดนตรีสีด้วยคันชัก",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ทรัมเป็ต",
+    "reading": "ทรัม-เป็ด",
+    "meaning": "คำยืม/คำทับศัพท์: เครื่องดนตรีเป่า",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ซูชิ",
+    "reading": "ซู-ชิ",
+    "meaning": "คำยืม/คำทับศัพท์: อาหารญี่ปุ่น",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ราเมง",
+    "reading": "รา-เมง",
+    "meaning": "คำยืม/คำทับศัพท์: บะหมี่ญี่ปุ่น",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "กิมจิ",
+    "reading": "กิม-จิ",
+    "meaning": "คำยืม/คำทับศัพท์: อาหารหมักเกาหลี",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "บาร์บีคิว",
+    "reading": "บา-บี-คิว",
+    "meaning": "คำยืม/คำทับศัพท์: อาหารย่าง",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "สลัด",
+    "reading": "สะ-หลัด",
+    "meaning": "คำยืม/คำทับศัพท์: อาหารผักคลุกน้ำปรุง",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ซอส",
+    "reading": "ซอด",
+    "meaning": "คำยืม/คำทับศัพท์: น้ำปรุงรส",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "มายองเนส",
+    "reading": "มา-ยอง-เนด",
+    "meaning": "คำยืม/คำทับศัพท์: ซอสชนิดหนึ่ง",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ซีเรียล",
+    "reading": "ซี-เรียว",
+    "meaning": "คำยืม/คำทับศัพท์: อาหารธัญพืชอบกรอบ",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "พลาสติก",
+    "reading": "พลาด-สะ-ติก",
+    "meaning": "คำยืม/คำทับศัพท์: วัสดุสังเคราะห์",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "อะลูมิเนียม",
+    "reading": "อะ-ลู-มิ-เนียม",
+    "meaning": "คำยืม/คำทับศัพท์: โลหะชนิดหนึ่ง",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ซีเมนต์",
+    "reading": "ซี-เมน",
+    "meaning": "คำยืม/คำทับศัพท์: วัสดุก่อสร้าง",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "คอนกรีต",
+    "reading": "คอน-กรีด",
+    "meaning": "คำยืม/คำทับศัพท์: วัสดุก่อสร้างผสมปูน หิน ทราย",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "ลิฟต์",
+    "reading": "ลิบ",
+    "meaning": "คำยืม/คำทับศัพท์: เครื่องยกขึ้นลงในอาคาร",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "อพาร์ตเมนต์",
+    "reading": "อะ-พาด-เมน",
+    "meaning": "คำยืม/คำทับศัพท์: อาคารพักอาศัยหลายห้อง",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "โรงแรม",
+    "reading": "โรง-แรม",
+    "meaning": "คำยืม/คำทับศัพท์: สถานที่พักค้างคืน",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
+  },
+  {
+    "word": "รีสอร์ต",
+    "reading": "รี-สอด",
+    "meaning": "คำยืม/คำทับศัพท์: สถานที่พักผ่อน",
+    "emoji": "🌐",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 3,
+    "origin_lang": "other"
+  },
+  {
+    "word": "มอเตอร์ไซค์",
+    "reading": "มอ-เตอ-ไซ",
+    "meaning": "คำยืม/คำทับศัพท์: รถจักรยานยนต์",
+    "emoji": "🌐",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 1,
+    "origin_lang": "other"
+  },
+  {
+    "word": "เฮลิคอปเตอร์",
+    "reading": "เฮ-ลิ-คอบ-เตอ",
+    "meaning": "คำยืม/คำทับศัพท์: อากาศยานปีกหมุน",
+    "emoji": "🌐",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.5/1",
+    "difficulty": 2,
+    "origin_lang": "other"
   }
 ]

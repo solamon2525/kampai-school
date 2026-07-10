@@ -798,5 +798,455 @@
     "emoji": "📄",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/3"
+  },
+  {
+    "word": "กตเวทิตา",
+    "reading": "กะ-ตะ-เว-ทิ-ตา",
+    "meaning": "ความรู้คุณของผู้มีพระคุณ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "กัลปพฤกษ์",
+    "reading": "กัน-ละ-ปะ-พฤก",
+    "meaning": "ต้นไม้สารพัดนึกในคติวรรณคดี",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "กุศโลบาย",
+    "reading": "กุ-สะ-โล-บาย",
+    "meaning": "วิธีอันแยบคายเพื่อให้เกิดผลดี",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ขัตติยะ",
+    "reading": "ขัด-ติ-ยะ",
+    "meaning": "เกี่ยวกับกษัตริย์",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "คณานุกรม",
+    "reading": "คะ-นา-นุ-กรม",
+    "meaning": "รายการคำหรือชื่อที่จัดเป็นหมวด",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "จตุรัส",
+    "reading": "จะ-ตุ-รัด",
+    "meaning": "รูปสี่เหลี่ยมด้านเท่า",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "จริยวัตร",
+    "reading": "จะ-ริ-ยะ-วัด",
+    "meaning": "ความประพฤติที่ปฏิบัติเป็นประจำ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ฉันทลักษณ์",
+    "reading": "ฉัน-ทะ-ลัก",
+    "meaning": "แบบแผนของคำประพันธ์",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ดุษฎี",
+    "reading": "ดุด-สะ-ดี",
+    "meaning": "ความยินดีหรือการสรรเสริญ",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ทศวรรษ",
+    "reading": "ทด-สะ-วัด",
+    "meaning": "ระยะเวลาสิบปี",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ทัศนียภาพ",
+    "reading": "ทัด-สะ-นี-ยะ-พาบ",
+    "meaning": "ภาพที่มองเห็นงดงาม",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "นฤมิต",
+    "reading": "นะ-รึ-มิด",
+    "meaning": "สร้างหรือบันดาลให้เกิดขึ้น",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "นามธรรม",
+    "reading": "นาม-มะ-ทำ",
+    "meaning": "สิ่งที่รับรู้ด้วยความคิด ไม่เห็นเป็นรูป",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "บูรณาการ",
+    "reading": "บู-ระ-นา-กาน",
+    "meaning": "รวมส่วนต่างๆ ให้เป็นระบบ",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ปฏิภาณ",
+    "reading": "ปะ-ติ-พาน",
+    "meaning": "ไหวพริบในการตอบหรือแก้ปัญหา",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ปณิธาน",
+    "reading": "ปะ-นิ-ทาน",
+    "meaning": "ความตั้งใจอันแน่วแน่",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ปริทรรศน์",
+    "reading": "ปะ-ริ-ทัด",
+    "meaning": "การสำรวจหรือพิจารณาโดยรวม",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ปัจเจกบุคคล",
+    "reading": "ปัด-เจก-บุค-คน",
+    "meaning": "บุคคลแต่ละคน",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "พหูพจน์",
+    "reading": "พะ-หู-พด",
+    "meaning": "คำที่มีความหมายมากกว่าหนึ่ง",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "พินิจพิเคราะห์",
+    "reading": "พิ-นิด-พิ-เคราะ",
+    "meaning": "พิจารณาอย่างละเอียด",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ภราดรภาพ",
+    "reading": "พะ-รา-ดอน-พาบ",
+    "meaning": "ความเป็นพี่น้องกัน",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "มโนทัศน์",
+    "reading": "มะ-โน-ทัด",
+    "meaning": "ความคิดรวบยอด",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "มโนธรรม",
+    "reading": "มะ-โน-ทำ",
+    "meaning": "ความรู้สึกผิดชอบชั่วดี",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "มานุษยวิทยา",
+    "reading": "มา-นุด-สะ-ยะ-วิด-ทะ-ยา",
+    "meaning": "วิชาว่าด้วยมนุษย์",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ยุทธศาสตร์",
+    "reading": "ยุด-ทะ-สาด",
+    "meaning": "แผนการสำคัญเพื่อบรรลุเป้าหมาย",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "รโหฐาน",
+    "reading": "ระ-โห-ถาน",
+    "meaning": "ที่ลับหรือที่ส่วนตัว",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "วรรณศิลป์",
+    "reading": "วัน-นะ-สิน",
+    "meaning": "ศิลปะการใช้ภาษาในวรรณคดี",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "วาทศิลป์",
+    "reading": "วา-ทะ-สิน",
+    "meaning": "ศิลปะการพูด",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "วิจักษณ์",
+    "reading": "วิ-จัก",
+    "meaning": "เข้าใจและเห็นคุณค่า",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "วิปัสสนา",
+    "reading": "วิ-ปัด-สะ-นา",
+    "meaning": "การพิจารณาเห็นตามความเป็นจริง",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ศิลาจารึก",
+    "reading": "สิ-ลา-จา-รึก",
+    "meaning": "ตัวอักษรที่จารบนหิน",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "สุนทรียภาพ",
+    "reading": "สุน-ทะ-รียะ-พาบ",
+    "meaning": "ความงามที่รับรู้ได้",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "สัญชาตญาณ",
+    "reading": "สัน-ชาด-ตะ-ยาน",
+    "meaning": "ความรู้สึกหรือพฤติกรรมที่มีมาแต่กำเนิด",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "สัมฤทธิผล",
+    "reading": "สำ-ริด-ทิ-ผน",
+    "meaning": "ผลสำเร็จ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "สารัตถะ",
+    "reading": "สา-รัด-ถะ",
+    "meaning": "แก่นสารหรือสาระสำคัญ",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "สาธิต",
+    "reading": "สา-ทิด",
+    "meaning": "แสดงให้ดูเป็นตัวอย่าง",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "อนุกรม",
+    "reading": "อะ-นุ-กรม",
+    "meaning": "ลำดับสิ่งที่เรียงต่อกัน",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "อภิธาน",
+    "reading": "อะ-พิ-ทาน",
+    "meaning": "พจนานุกรมหรือคำอธิบายศัพท์",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "อัตลักษณ์",
+    "reading": "อัด-ตะ-ลัก",
+    "meaning": "ลักษณะเฉพาะตัว",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "อุดมการณ์",
+    "reading": "อุ-ดม-กาน",
+    "meaning": "หลักความคิดที่ยึดถือ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "อุปโลกน์",
+    "reading": "อุบ-ปะ-โลก",
+    "meaning": "สมมติหรือแต่งตั้งขึ้น",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "เอกฉันท์",
+    "reading": "เอก-กะ-ฉัน",
+    "meaning": "เห็นพร้อมกันทั้งหมด",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "เอกสารสิทธิ์",
+    "reading": "เอก-กะ-สาน-สิด",
+    "meaning": "เอกสารแสดงสิทธิ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "โบราณคดี",
+    "reading": "โบ-ราน-คะ-ดี",
+    "meaning": "วิชาศึกษาสิ่งเก่าแก่",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ไตรลักษณ์",
+    "reading": "ไตร-ลัก",
+    "meaning": "ลักษณะสามประการตามหลักธรรม",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ไวยากรณ์",
+    "reading": "ไว-ยา-กอน",
+    "meaning": "หลักเกณฑ์ของภาษา",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "อภิวัฒน์",
+    "reading": "อะ-พิ-วัด",
+    "meaning": "ความเปลี่ยนแปลงอย่างยิ่งใหญ่",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ปฏิรูป",
+    "reading": "ปะ-ติ-รูป",
+    "meaning": "ปรับปรุงให้เหมาะสมขึ้น",
+    "emoji": "🧩",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ปฏิญาณ",
+    "reading": "ปะ-ติ-ยาน",
+    "meaning": "คำมั่นสัญญาที่กล่าวอย่างเป็นทางการ",
+    "emoji": "🧩",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ปฏิสังขรณ์",
+    "reading": "ปะ-ติ-สัง-ขอน",
+    "meaning": "ซ่อมแซมหรือบูรณะให้ดีขึ้น",
+    "emoji": "🧩",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.6/2",
+    "difficulty": 2
   }
 ]

@@ -898,5 +898,505 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
     "pair_id": "pair-50"
+  },
+  {
+    "word": "สุข",
+    "reading": "สุก",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับทุกข์",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-51"
+  },
+  {
+    "word": "ทุกข์",
+    "reading": "ทุก",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับสุข",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-51"
+  },
+  {
+    "word": "ยุติธรรม",
+    "reading": "ยุ-ติ-ทำ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับอยุติธรรม",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-52"
+  },
+  {
+    "word": "อยุติธรรม",
+    "reading": "อะ-ยุ-ติ-ทำ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับยุติธรรม",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-52"
+  },
+  {
+    "word": "สุภาพ",
+    "reading": "สุ-พาบ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับหยาบคาย",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-53"
+  },
+  {
+    "word": "หยาบคาย",
+    "reading": "หยาบ-คาย",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับสุภาพ",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-53"
+  },
+  {
+    "word": "ประหยัด",
+    "reading": "ประ-หยัด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับฟุ่มเฟือย",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-54"
+  },
+  {
+    "word": "ฟุ่มเฟือย",
+    "reading": "ฟุ่ม-เฟือย",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับประหยัด",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-54"
+  },
+  {
+    "word": "กลม",
+    "reading": "กลม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเหลี่ยม",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-55"
+  },
+  {
+    "word": "เหลี่ยม",
+    "reading": "เหลี่ยม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับกลม",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-55"
+  },
+  {
+    "word": "ตรง",
+    "reading": "ตรง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับคด",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-56"
+  },
+  {
+    "word": "คด",
+    "reading": "คด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับตรง",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-56"
+  },
+  {
+    "word": "ราบ",
+    "reading": "ราบ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับชัน",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-57"
+  },
+  {
+    "word": "ชัน",
+    "reading": "ชัน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับราบ",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-57"
+  },
+  {
+    "word": "เปราะ",
+    "reading": "เปราะ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเหนียว",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-58"
+  },
+  {
+    "word": "เหนียว",
+    "reading": "เหนียว",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเปราะ",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-58"
+  },
+  {
+    "word": "หนุ่ม",
+    "reading": "หนุ่ม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับแก่",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-59"
+  },
+  {
+    "word": "แก่",
+    "reading": "แก่",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับหนุ่ม",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-59"
+  },
+  {
+    "word": "ใหม่เอี่ยม",
+    "reading": "ใหม่-เอี่ยม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเก่าคร่ำ",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-60"
+  },
+  {
+    "word": "เก่าคร่ำ",
+    "reading": "เก่า-คร่ำ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับใหม่เอี่ยม",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-60"
+  },
+  {
+    "word": "อ่อนโยน",
+    "reading": "อ่อน-โยน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับแข็งกร้าว",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-61"
+  },
+  {
+    "word": "แข็งกร้าว",
+    "reading": "แข็ง-กร้าว",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับอ่อนโยน",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-61"
+  },
+  {
+    "word": "เรียบร้อย",
+    "reading": "เรียบ-ร้อย",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับรกรุงรัง",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-62"
+  },
+  {
+    "word": "รกรุงรัง",
+    "reading": "รก-รุง-รัง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเรียบร้อย",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-62"
+  },
+  {
+    "word": "เปิดเผย",
+    "reading": "เปิด-เผย",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับปกปิด",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-63"
+  },
+  {
+    "word": "ปกปิด",
+    "reading": "ปก-ปิด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเปิดเผย",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-63"
+  },
+  {
+    "word": "มั่นคง",
+    "reading": "มั่น-คง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับสั่นคลอน",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-64"
+  },
+  {
+    "word": "สั่นคลอน",
+    "reading": "สั่น-คลอน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับมั่นคง",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-64"
+  },
+  {
+    "word": "เจริญ",
+    "reading": "จะ-เริน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเสื่อม",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-65"
+  },
+  {
+    "word": "เสื่อม",
+    "reading": "เสื่อม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเจริญ",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-65"
+  },
+  {
+    "word": "รุ่งเรือง",
+    "reading": "รุ่ง-เรือง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับตกต่ำ",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-66"
+  },
+  {
+    "word": "ตกต่ำ",
+    "reading": "ตก-ต่ำ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับรุ่งเรือง",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-66"
+  },
+  {
+    "word": "ยอมรับ",
+    "reading": "ยอม-รับ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับปฏิเสธ",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-67"
+  },
+  {
+    "word": "ปฏิเสธ",
+    "reading": "ปะ-ติ-เสด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับยอมรับ",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-67"
+  },
+  {
+    "word": "รวม",
+    "reading": "รวม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับแยก",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-68"
+  },
+  {
+    "word": "แยก",
+    "reading": "แยก",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับรวม",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-68"
+  },
+  {
+    "word": "ซื่อสัตย์",
+    "reading": "ซื่อ-สัด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับคดโกง",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-69"
+  },
+  {
+    "word": "คดโกง",
+    "reading": "คด-โกง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับซื่อสัตย์",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-69"
+  },
+  {
+    "word": "กลมกลืน",
+    "reading": "กลม-กลืน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับขัดแย้ง",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-70"
+  },
+  {
+    "word": "ขัดแย้ง",
+    "reading": "ขัด-แย้ง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับกลมกลืน",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-70"
+  },
+  {
+    "word": "อุดมสมบูรณ์",
+    "reading": "อุ-ดม-สม-บูน",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับแห้งแล้ง",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-71"
+  },
+  {
+    "word": "แห้งแล้ง",
+    "reading": "แห้ง-แล้ง",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับอุดมสมบูรณ์",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-71"
+  },
+  {
+    "word": "เหมาะสม",
+    "reading": "เหมาะ-สม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับไม่เหมาะสม",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-72"
+  },
+  {
+    "word": "ไม่เหมาะสม",
+    "reading": "ไม่-เหมาะ-สม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับเหมาะสม",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-72"
+  },
+  {
+    "word": "สง่างาม",
+    "reading": "สะ-หง่า-งาม",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับซอมซ่อ",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-73"
+  },
+  {
+    "word": "ซอมซ่อ",
+    "reading": "ซอม-ซ่อ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับสง่างาม",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-73"
+  },
+  {
+    "word": "น่าเชื่อถือ",
+    "reading": "น่า-เชื่อ-ถือ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับไม่น่าเชื่อถือ",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-74"
+  },
+  {
+    "word": "ไม่น่าเชื่อถือ",
+    "reading": "ไม่-น่า-เชื่อ-ถือ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับน่าเชื่อถือ",
+    "emoji": "↔️",
+    "grade": "ป.6",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 3,
+    "pair_id": "pair-74"
+  },
+  {
+    "word": "ละเอียด",
+    "reading": "ละ-เอียด",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับหยาบ",
+    "emoji": "↔️",
+    "grade": "ป.4",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 1,
+    "pair_id": "pair-75"
+  },
+  {
+    "word": "หยาบ",
+    "reading": "หยาบ",
+    "meaning": "คำตรงข้าม: คู่ตรงข้ามกับละเอียด",
+    "emoji": "↔️",
+    "grade": "ป.5",
+    "indicator_code": "ท 4.1 ป.4/2",
+    "difficulty": 2,
+    "pair_id": "pair-75"
   }
 ]

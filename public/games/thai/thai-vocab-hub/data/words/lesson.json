@@ -798,5 +798,455 @@
     "emoji": "💡",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/3"
+  },
+  {
+    "word": "การรู้เท่าทันสื่อ",
+    "reading": "กาน-รู้-เท่า-ทัน-สื่อ",
+    "meaning": "อ่านข้อมูลอย่างระมัดระวัง",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ข่าวลวง",
+    "reading": "ข่าว-ลวง",
+    "meaning": "ข้อมูลเท็จที่ทำให้เข้าใจผิด",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "หลักฐาน",
+    "reading": "หลัก-ถาน",
+    "meaning": "สิ่งที่ใช้ยืนยันความจริง",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ข้อเท็จจริง",
+    "reading": "ข้อ-เท็ด-จิง",
+    "meaning": "ข้อความที่พิสูจน์ได้",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ความคิดเห็น",
+    "reading": "ความ-คิด-เห็น",
+    "meaning": "ความรู้สึกหรือมุมมองส่วนตัว",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "เหตุผล",
+    "reading": "เหด-ผน",
+    "meaning": "ข้ออธิบายที่สนับสนุนความคิด",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "สรุปใจความ",
+    "reading": "สะ-หรุบ-ใจ-ความ",
+    "meaning": "บอกสาระสำคัญอย่างย่อ",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "จับประเด็น",
+    "reading": "จับ-ประ-เด็น",
+    "meaning": "หาข้อสำคัญของเรื่อง",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "มุมมอง",
+    "reading": "มุม-มอง",
+    "meaning": "วิธีคิดหรือวิธีพิจารณา",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "อ้างอิง",
+    "reading": "อ้าง-อิง",
+    "meaning": "บอกแหล่งที่มาของข้อมูล",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "บทความ",
+    "reading": "บด-ความ",
+    "meaning": "งานเขียนที่เสนอความรู้หรือความเห็น",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "สารคดี",
+    "reading": "สา-ระ-คะ-ดี",
+    "meaning": "เรื่องจริงที่ให้ความรู้",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "บันทึกความรู้",
+    "reading": "บัน-ทึก-ความ-รู้",
+    "meaning": "จดสิ่งที่ได้เรียนรู้",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "แผนผังความคิด",
+    "reading": "แผน-ผัง-ความ-คิด",
+    "meaning": "ภาพแสดงความสัมพันธ์ของความคิด",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "คำสำคัญ",
+    "reading": "คำ-สำ-คัน",
+    "meaning": "คำหลักที่บอกใจความ",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "บริบท",
+    "reading": "บอ-ริ-บด",
+    "meaning": "ข้อความหรือสถานการณ์แวดล้อม",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "สารสนเทศ",
+    "reading": "สา-ระ-สน-เทศ",
+    "meaning": "ข้อมูลที่จัดให้ใช้ประโยชน์ได้",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ภูมิอากาศ",
+    "reading": "พูม-อา-กาด",
+    "meaning": "ลักษณะอากาศของพื้นที่",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ภูมิประเทศ",
+    "reading": "พูม-ประ-เทด",
+    "meaning": "ลักษณะพื้นผิวของแผ่นดิน",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ภัยธรรมชาติ",
+    "reading": "ไพ-ทำ-มะ-ชาด",
+    "meaning": "อันตรายที่เกิดจากธรรมชาติ",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การเตรียมพร้อม",
+    "reading": "กาน-เตรียม-พร้อม",
+    "meaning": "การจัดให้พร้อมก่อนเหตุการณ์",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ความปลอดภัยทางถนน",
+    "reading": "ความ-ปอด-ภัย-ทาง-ถนน",
+    "meaning": "การใช้ถนนอย่างระมัดระวัง",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "วินัยจราจร",
+    "reading": "วิ-ไน-จะ-รา-จอน",
+    "meaning": "กฎระเบียบในการใช้ถนน",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การปฐมพยาบาล",
+    "reading": "กาน-ปะ-ถม-พะ-ยา-บาน",
+    "meaning": "การช่วยเหลือเบื้องต้นเมื่อบาดเจ็บ",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "จิตอาสา",
+    "reading": "จิด-อา-สา",
+    "meaning": "การช่วยเหลือผู้อื่นด้วยความสมัครใจ",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "สาธารณสมบัติ",
+    "reading": "สา-ทา-ระ-นะ-สม-บัด",
+    "meaning": "ทรัพย์สินของส่วนรวม",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การแบ่งปัน",
+    "reading": "กาน-แบ่ง-ปัน",
+    "meaning": "ให้ผู้อื่นร่วมใช้หรือได้รับประโยชน์",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ความเห็นอกเห็นใจ",
+    "reading": "ความ-เห็น-อก-เห็น-ใจ",
+    "meaning": "เข้าใจความรู้สึกผู้อื่น",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "การประนีประนอม",
+    "reading": "กาน-ประ-นี-ประ-นอม",
+    "meaning": "การหาทางตกลงกัน",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การสื่อสารเชิงบวก",
+    "reading": "กาน-สื่อ-สาร-เชิง-บวก",
+    "meaning": "พูดคุยอย่างสร้างสรรค์",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "การตั้งคำถาม",
+    "reading": "กาน-ตั้ง-คำ-ถาม",
+    "meaning": "ถามเพื่อค้นหาความรู้",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "การสังเกต",
+    "reading": "กาน-สัง-เกด",
+    "meaning": "ดูอย่างตั้งใจเพื่อหาข้อมูล",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การทดลอง",
+    "reading": "กาน-ทด-ลอง",
+    "meaning": "ลงมือทำเพื่อพิสูจน์",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "การเปรียบเทียบ",
+    "reading": "กาน-เปรียบ-เทียบ",
+    "meaning": "ดูความเหมือนและต่าง",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "การจำแนก",
+    "reading": "กาน-จำ-แนก",
+    "meaning": "แยกออกเป็นกลุ่ม",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การประเมิน",
+    "reading": "กาน-ประ-เมิน",
+    "meaning": "พิจารณาคุณค่าหรือผลลัพธ์",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ความน่าเชื่อถือ",
+    "reading": "ความ-น่า-เชื่อ-ถือ",
+    "meaning": "คุณสมบัติที่ทำให้เชื่อได้",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "แหล่งเรียนรู้",
+    "reading": "แหล่ง-เรียน-รู้",
+    "meaning": "สถานที่หรือสื่อที่ให้ความรู้",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "งานกลุ่ม",
+    "reading": "งาน-กลุ่ม",
+    "meaning": "งานที่ทำร่วมกันหลายคน",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "บทบาทหน้าที่",
+    "reading": "บด-บาด-หน้า-ที่",
+    "meaning": "สิ่งที่แต่ละคนต้องรับผิดชอบ",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "เป้าหมายร่วม",
+    "reading": "เป้า-หมาย-ร่วม",
+    "meaning": "จุดหมายที่ทุกคนเห็นพ้อง",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "ข้อตกลง",
+    "reading": "ข้อ-ตก-ลง",
+    "meaning": "สิ่งที่ตกลงร่วมกัน",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ความเพียรพยายาม",
+    "reading": "ความ-เพียน-พะ-ยา-ยาม",
+    "meaning": "ความตั้งใจไม่ย่อท้อ",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "ความรอบคอบ",
+    "reading": "ความ-รอบ-คอบ",
+    "meaning": "คิดและทำอย่างระมัดระวัง",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "แรงบันดาลใจ",
+    "reading": "แรง-บัน-ดาน-ใจ",
+    "meaning": "สิ่งที่กระตุ้นให้มีกำลังใจ",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "ความคิดริเริ่ม",
+    "reading": "ความ-คิด-ริ-เริ่ม",
+    "meaning": "ความคิดใหม่ในการเริ่มทำ",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "การแก้ไขปรับปรุง",
+    "reading": "กาน-แก้-ไข-ปรับ-ปรุง",
+    "meaning": "ทำให้ดีขึ้นจากเดิม",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
+  },
+  {
+    "word": "การนำไปใช้",
+    "reading": "กาน-นำ-ไป-ใช้",
+    "meaning": "ใช้ความรู้ในสถานการณ์จริง",
+    "emoji": "📖",
+    "grade": "ป.6",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 3
+  },
+  {
+    "word": "การสะท้อนผล",
+    "reading": "กาน-สะ-ท้อน-ผล",
+    "meaning": "ทบทวนสิ่งที่ทำและผลที่เกิด",
+    "emoji": "📖",
+    "grade": "ป.4",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 1
+  },
+  {
+    "word": "บทเรียนชีวิต",
+    "reading": "บด-เรียน-ชี-วิด",
+    "meaning": "ข้อคิดที่ได้จากประสบการณ์",
+    "emoji": "📖",
+    "grade": "ป.5",
+    "indicator_code": "ท 1.1 ป.5/2",
+    "difficulty": 2
   }
 ]
