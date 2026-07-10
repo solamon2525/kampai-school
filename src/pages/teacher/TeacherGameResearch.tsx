@@ -71,7 +71,9 @@ import {
   DEFAULT_GAME_MODES,
   buildResearchEntryUrl,
   modeLabel,
+  researchPhaseLabel,
   type GameResearchStudy,
+  type ResearchPhase,
 } from '@/services/game-research.service';
 import { printClassroomResearchDoc } from '@/components/teacher/game-analytics/printClassroomResearchDoc';
 import { ResearchStudyQR } from '@/components/teacher/game-research/ResearchStudyQR';
@@ -121,12 +123,34 @@ const stddev = (arr: number[]) => {
   return Math.sqrt(avg(arr.map((x) => (x - m) ** 2)));
 };
 
+type SessionPhaseInput = {
+  created_at: string;
+  metadata?: Record<string, unknown> | null;
+};
+
+function getSessionResearchPhase(s: SessionPhaseInput, study: GameResearchStudy): ResearchPhase | null {
+  const phase = s.metadata?.research_phase;
+  if (phase === 'pretest' || phase === 'posttest') return phase;
+
+  const t = new Date(s.created_at).getTime();
+  const preStart = new Date(`${study.pretest_start}T00:00:00`).getTime();
+  const preEnd = new Date(`${study.pretest_end}T23:59:59`).getTime();
+  const postStart = new Date(`${study.posttest_start}T00:00:00`).getTime();
+  const postEnd = new Date(`${study.posttest_end}T23:59:59`).getTime();
+  const inPretest = t >= preStart && t <= preEnd;
+  const inPosttest = t >= postStart && t <= postEnd;
+
+  if (inPretest && !inPosttest) return 'pretest';
+  if (inPosttest && !inPretest) return 'posttest';
+  return null;
+}
+
 function exportSessionsCsv(
   study: GameResearchStudy,
   sessions: Awaited<ReturnType<typeof gameResearchService.getSessions>>['data'],
 ) {
   const rows = sessions ?? [];
-  const header = ['วันที่', 'เวลา', 'รหัสนักเรียน', 'ชื่อ', 'เลขที่', 'คะแนน', 'โหมด', 'ระยะเวลา(วิ)', 'รอบในวัน'];
+  const header = ['วันที่', 'เวลา', 'ช่วงวิจัย', 'รหัสนักเรียน', 'ชื่อ', 'เลขที่', 'คะแนน', 'โหมด', 'ระยะเวลา(วิ)', 'รอบในวัน'];
   const byStudentDay = new Map<string, number>();
 
   const lines = rows.map((s) => {
@@ -135,9 +159,11 @@ function exportSessionsCsv(
     const key = `${s.student_id}|${day}`;
     const round = (byStudentDay.get(key) ?? 0) + 1;
     byStudentDay.set(key, round);
+    const phase = getSessionResearchPhase(s, study);
     return [
       day,
       new Date(s.created_at).toLocaleTimeString('th-TH'),
+      phase ? researchPhaseLabel(phase) : '',
       st.student_code ?? '',
       st.name,
       String(st.class_number ?? ''),
@@ -238,10 +264,10 @@ export default function TeacherGameResearch() {
       game_mode: 'normal',
       class_name: 'ป.4',
       pretest_start: todayIso(),
-      pretest_end: addDays(todayIso(), 6),
-      posttest_start: addDays(todayIso(), 7),
-      posttest_end: addDays(todayIso(), 13),
-      max_rounds_per_day: 3,
+      pretest_end: todayIso(),
+      posttest_start: todayIso(),
+      posttest_end: todayIso(),
+      max_rounds_per_day: 4,
       consent_confirmed: true,
       show_on_homepage: true,
     },
@@ -304,17 +330,13 @@ export default function TeacherGameResearch() {
     const sessions = sessionsQuery.data ?? [];
     const students = studentsQuery.data ?? [];
 
-    const preStart = new Date(`${activeStudy.pretest_start}T00:00:00`).getTime();
-    const preEnd = new Date(`${activeStudy.pretest_end}T23:59:59`).getTime();
-    const postStart = new Date(`${activeStudy.posttest_start}T00:00:00`).getTime();
-    const postEnd = new Date(`${activeStudy.posttest_end}T23:59:59`).getTime();
-
     const byStudent = new Map<string, { pre: number[]; post: number[] }>();
     sessions.forEach((s) => {
-      const t = new Date(s.created_at).getTime();
+      const phase = getSessionResearchPhase(s, activeStudy);
+      if (!phase) return;
       const entry = byStudent.get(s.student_id) ?? { pre: [], post: [] };
-      if (t >= preStart && t <= preEnd) entry.pre.push(s.score);
-      if (t >= postStart && t <= postEnd) entry.post.push(s.score);
+      if (phase === 'pretest') entry.pre.push(s.score);
+      if (phase === 'posttest') entry.post.push(s.score);
       byStudent.set(s.student_id, entry);
     });
 
@@ -418,7 +440,7 @@ export default function TeacherGameResearch() {
             วิจัยการเล่นเกมในชั้นเรียน
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            กำหนดเกม · โหมด · ชั้นเรียน · ช่วงก่อน–หลังเรียน · จำกัด 3 รอบ/วัน · รายงานมาตรฐานวิจัย
+            กำหนดเกม · โหมด · ชั้นเรียน · ทำก่อนเรียนและหลังเรียนได้ในวันเดียว · รายงานมาตรฐานวิจัย
           </p>
         </div>
 
@@ -599,9 +621,9 @@ export default function TeacherGameResearch() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>นักเรียน</TableHead>
-                          <TableHead className="text-center">รอบ 1</TableHead>
-                          <TableHead className="text-center">รอบ 2</TableHead>
-                          <TableHead className="text-center">รอบ 3</TableHead>
+                          {Array.from({ length: Math.min(activeStudy.max_rounds_per_day, 8) }, (_, i) => (
+                            <TableHead key={i} className="text-center">รอบ {i + 1}</TableHead>
+                          ))}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -616,11 +638,20 @@ export default function TeacherGameResearch() {
                                   <span className="text-sm">{st.name}</span>
                                 </div>
                               </TableCell>
-                              {[0, 1, 2].map((i) => (
-                                <TableCell key={i} className="text-center text-sm">
-                                  {rounds[i] ? rounds[i].score.toLocaleString() : '—'}
-                                </TableCell>
-                              ))}
+                              {Array.from({ length: Math.min(activeStudy.max_rounds_per_day, 8) }, (_, i) => {
+                                const round = rounds[i];
+                                const phase = round ? getSessionResearchPhase(round, activeStudy) : null;
+                                return (
+                                  <TableCell key={i} className="text-center text-sm">
+                                    {round ? (
+                                      <div className="space-y-0.5">
+                                        <div className="font-medium">{round.score.toLocaleString()}</div>
+                                        {phase && <div className="text-[11px] text-muted-foreground">{researchPhaseLabel(phase)}</div>}
+                                      </div>
+                                    ) : '—'}
+                                  </TableCell>
+                                );
+                              })}
                             </TableRow>
                           );
                         })}
@@ -653,7 +684,7 @@ export default function TeacherGameResearch() {
                   <CardHeader>
                     <CardTitle className="text-base">ตารางผลวิจัยรายบุคคล</CardTitle>
                     <CardDescription>
-                      คะแนนเฉลี่ยจากทุกรอบในช่วง · ก่อน {activeStudy.pretest_start}–{activeStudy.pretest_end} · หลัง {activeStudy.posttest_start}–{activeStudy.posttest_end}
+                      คะแนนเฉลี่ยแยกจากปุ่มก่อนเรียน/หลังเรียน · fallback ตามวันที่สำหรับข้อมูลเก่า · ก่อน {activeStudy.pretest_start}–{activeStudy.pretest_end} · หลัง {activeStudy.posttest_start}–{activeStudy.posttest_end}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -727,7 +758,7 @@ export default function TeacherGameResearch() {
                     <CardDescription>
                       ส่งลิงก์นี้ให้นักเรียนชั้น {activeStudy.class_name} — กรอกรหัสยืนยันตัวเอง · โหมด{' '}
                       <strong>{modeLabel(activeStudy.game_slug, activeStudy.game_mode)}</strong> ถูกกำหนดให้แล้ว ·{' '}
-                      {activeStudy.max_rounds_per_day} รอบ/วัน
+                      {activeStudy.max_rounds_per_day} รอบ/วัน · เลือกปุ่มก่อนเรียน/หลังเรียนได้ในวันเดียว
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">

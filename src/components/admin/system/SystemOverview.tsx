@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.5 (multiply-race research menu)',
+        version: 'v1.162.6 (one-day research phases)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            '**multiply-race** เพิ่มปุ่มวิจัยแยก **ก่อนเรียน** และ **หลังเรียน** ทั้งในเมนูเกมและ wrapper เพื่อทำแผนวิจัยได้ในวันเดียว',
+            'บันทึกคะแนนวิจัยพร้อม `metadata.research_phase` และหน้าครู `/teacher/game-research` รวมผลก่อน/หลังจาก phase โดยตรง พร้อม fallback ข้อมูลเก่าตามวันที่',
+            'migration **391** ผ่อน constraint วันที่วิจัยให้ posttest อยู่วันเดียวกับ pretest ได้ และ bump `game_docs` เป็น v1.1.3',
+        ],
+    },
+    {
+        version: 'v1.162.5 (multiply-race research menu)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             '**multiply-race** เพิ่มปุ่ม **วิจัย** ในเมนูเริ่มของเกม เมื่อมีโครงการวิจัย active ที่ตรงกับเกมและชั้นเรียน',

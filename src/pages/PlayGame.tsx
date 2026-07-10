@@ -56,7 +56,9 @@ import { multiplyRaceService, type PerTableStats } from '@/services/multiply-rac
 import {
   gameResearchService,
   modeLabel,
+  researchPhaseLabel,
   researchUrlMode,
+  type ResearchPhase,
   type ResearchRoundsToday,
   type ResearchStudyForGame,
 } from '@/services/game-research.service';
@@ -77,6 +79,8 @@ const ICON = (name: string | null | undefined) =>
 // ─── Page state ──────────────────────────────────────────────────────────────
 type Phase = 'lookup' | 'confirm' | 'pre-game' | 'playing';
 type GameResearchEntry = ResearchStudyForGame & { rounds: ResearchRoundsToday | null };
+const isResearchPhase = (value: string | null): value is ResearchPhase =>
+  value === 'pretest' || value === 'posttest';
 
 /** ตรวจ landscape จาก top window — innerWidth/height ก่อน (สลับจริงเมื่อหมุน) */
 function getParentLandscape(): boolean {
@@ -101,6 +105,8 @@ const PlayGame = () => {
   const gameSlug = originalSlug === 'multiply-rally' ? 'math-rally' : originalSlug;
   const [searchParams] = useSearchParams();
   const researchStudyId = searchParams.get('study') || null;
+  const researchPhaseParam = searchParams.get('phase');
+  const researchPhase = isResearchPhase(researchPhaseParam) ? researchPhaseParam : null;
   const autostart = searchParams.get('autostart') === '1';
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -392,12 +398,13 @@ const PlayGame = () => {
     setPhase('playing');
   }, [levelInfo, questQuery.data, researchStudyId, researchRoundsQuery.data, toast]);
 
-  const handleStartResearch = useCallback((study: ResearchStudyForGame) => {
+  const handleStartResearch = useCallback((study: ResearchStudyForGame, phase: ResearchPhase) => {
     localStorage.setItem('kampai_student_code', codeInput.trim());
     const qs = new URLSearchParams({
       study: study.id,
       mode: researchUrlMode(study.game_slug, study.game_mode),
       autostart: '1',
+      phase,
     });
     navigate(`/play/${study.game_slug}?${qs.toString()}`);
   }, [codeInput, navigate]);
@@ -700,7 +707,10 @@ const PlayGame = () => {
             typeof data.metadata?.duration === 'number'
               ? (data.metadata.duration as number)
               : null,
-          metadata: data.metadata ?? {},
+          metadata: {
+            ...(data.metadata ?? {}),
+            ...(researchStudyId && researchPhase ? { research_phase: researchPhase } : {}),
+          },
           researchStudyId: researchStudyId,
         });
         if (researchStudyId) researchRoundsQuery.refetch();
@@ -831,7 +841,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport, postInitToIframe, prevLevel]);
+  }, [phase, student, codeInput, resolvedSlug, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport, postInitToIframe, prevLevel, researchStudyId, researchPhase, researchRoundsQuery, masteryQuery, dailyStatusQuery, dailyLeaderboardQuery, thaiVocabMissedQuery]);
 
   // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
   useEffect(() => {
@@ -1652,7 +1662,7 @@ const ResearchEntryCard = ({
 }: {
   studies: GameResearchEntry[];
   loading: boolean;
-  onStartResearch: (study: ResearchStudyForGame) => void;
+  onStartResearch: (study: ResearchStudyForGame, phase: ResearchPhase) => void;
 }) => {
   if (!loading && studies.length === 0) return null;
 
@@ -1699,15 +1709,21 @@ const ResearchEntryCard = ({
                       </Badge>
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    className="shrink-0 gap-1.5"
-                    disabled={!!isFull}
-                    onClick={() => onStartResearch(study)}
-                  >
-                    <Link2 className="h-4 w-4" />
-                    เข้าโหมดวิจัย
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2 sm:w-auto">
+                    {(['pretest', 'posttest'] as ResearchPhase[]).map((phase) => (
+                      <Button
+                        key={phase}
+                        size="sm"
+                        variant={phase === 'pretest' ? 'default' : 'outline'}
+                        className="shrink-0 gap-1.5"
+                        disabled={!!isFull}
+                        onClick={() => onStartResearch(study, phase)}
+                      >
+                        <Link2 className="h-4 w-4" />
+                        {researchPhaseLabel(phase)}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               );
             })}

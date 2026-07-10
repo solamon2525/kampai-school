@@ -24,6 +24,17 @@ export type GameResearchStudy = {
   updated_at: string;
 };
 
+export type ResearchPhase = 'pretest' | 'posttest';
+
+export const RESEARCH_PHASE_OPTIONS: { value: ResearchPhase; label: string }[] = [
+  { value: 'pretest', label: 'ก่อนเรียน' },
+  { value: 'posttest', label: 'หลังเรียน' },
+];
+
+export function researchPhaseLabel(phase: ResearchPhase): string {
+  return RESEARCH_PHASE_OPTIONS.find((o) => o.value === phase)?.label ?? phase;
+}
+
 export type GameResearchStudyInsert = Omit<GameResearchStudy, 'id' | 'created_at' | 'updated_at'> & {
   id?: string;
 };
@@ -34,6 +45,7 @@ export type ResearchSessionRow = {
   score: number;
   mode: string | null;
   duration_sec: number | null;
+  metadata: Record<string, unknown> | null;
   created_at: string;
   research_study_id: string | null;
   students: {
@@ -97,6 +109,7 @@ export function buildResearchEntryUrl(studyId: string, origin?: string): string 
 export function buildResearchPlayUrl(
   study: Pick<GameResearchStudy, 'id' | 'game_slug' | 'game_mode'>,
   origin?: string,
+  phase?: ResearchPhase,
 ): string {
   const base = origin ?? (typeof window !== 'undefined' ? window.location.origin : '');
   const urlMode = researchUrlMode(study.game_slug, study.game_mode);
@@ -105,6 +118,7 @@ export function buildResearchPlayUrl(
     mode: urlMode,
     autostart: '1',
   });
+  if (phase) qs.set('phase', phase);
   return `${base}/play/${study.game_slug}?${qs.toString()}`;
 }
 
@@ -175,7 +189,7 @@ export const gameResearchService = {
     supabase
       .from('game_sessions')
       .select(
-        'id, student_id, score, mode, duration_sec, created_at, research_study_id, students!inner(id, name, student_code, class, class_number, photo_url)',
+        'id, student_id, score, mode, duration_sec, metadata, created_at, research_study_id, students!inner(id, name, student_code, class, class_number, photo_url)',
       )
       .eq('research_study_id', studyId)
       .eq('students.class', className)

@@ -4,7 +4,7 @@
  * นักเรียนกรอกรหัสยืนยันตัวเอง → เข้าเล่นเกมโหมดที่ครูกำหนดทันที
  */
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FlaskConical, Gamepad2, Loader2, LogIn } from 'lucide-react';
 
@@ -18,11 +18,19 @@ import { gamePlayService } from '@/services/game-play.service';
 import {
   gameResearchService,
   modeLabel,
+  researchPhaseLabel,
   researchUrlMode,
+  type ResearchPhase,
 } from '@/services/game-research.service';
+
+const isResearchPhase = (value: string | null): value is ResearchPhase =>
+  value === 'pretest' || value === 'posttest';
 
 export default function ResearchPlay() {
   const { studyId = '' } = useParams<{ studyId: string }>();
+  const [searchParams] = useSearchParams();
+  const phaseParam = searchParams.get('phase');
+  const urlPhase = isResearchPhase(phaseParam) ? phaseParam : null;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [code, setCode] = useState('');
@@ -89,13 +97,14 @@ export default function ResearchPlay() {
     }
   };
 
-  const startPlay = () => {
+  const startPlay = (phase: ResearchPhase) => {
     if (!study?.id || !study.game_slug || !study.game_mode || !code.trim()) return;
     localStorage.setItem('kampai_student_code', code.trim());
     const qs = new URLSearchParams({
       study: study.id,
       mode: researchUrlMode(study.game_slug, study.game_mode),
       autostart: '1',
+      phase,
     });
     navigate(`/play/${study.game_slug}?${qs.toString()}`);
   };
@@ -183,14 +192,23 @@ export default function ResearchPlay() {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                โหมด <strong className="text-foreground">{modeText}</strong> — กดเริ่มแล้วเข้าเกมทันที
+                โหมด <strong className="text-foreground">{modeText}</strong> — เลือกช่วงวิจัยแล้วเข้าเกมทันที
               </p>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                {(urlPhase ? [urlPhase] : ['pretest', 'posttest'] as ResearchPhase[]).map((phase) => (
+                  <Button
+                    key={phase}
+                    className="h-11"
+                    variant={phase === 'pretest' ? 'default' : 'outline'}
+                    onClick={() => startPlay(phase)}
+                  >
+                    {researchPhaseLabel(phase)}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex">
                 <Button variant="outline" className="flex-1" onClick={() => setPreview(null)}>
                   เปลี่ยนรหัส
-                </Button>
-                <Button className="flex-1" size="lg" onClick={startPlay}>
-                  เริ่มเล่น
                 </Button>
               </div>
             </div>

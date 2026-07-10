@@ -267,7 +267,8 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
         <button class="btn btn-blue" onclick="openVersus()">👥 2 คน (จอเดียว)</button>
         <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
         <button class="btn btn-blue" id="btn-daily" onclick="startDaily()">📅 ชาเลนจ์วันนี้</button>
-        <button class="btn btn-blue" id="btn-research" onclick="startResearch()" style="display:none">🔬 วิจัย</button>
+        <button class="btn btn-blue" id="btn-research-pre" onclick="startResearch('pretest')" style="display:none">🧪 ก่อนเรียน</button>
+        <button class="btn btn-blue" id="btn-research-post" onclick="startResearch('posttest')" style="display:none">📈 หลังเรียน</button>
         <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกแม่</button>
     </div>
@@ -537,29 +538,37 @@ function startDaily() {
 
 /* ═══ Classroom Research shortcut ═══ */
 function loadResearch() {
-    const btn = $('btn-research');
-    if (!btn) return;
+    const preBtn = $('btn-research-pre');
+    const postBtn = $('btn-research-post');
+    if (!preBtn || !postBtn) return;
     const g = KAMPAI.gameData || {};
     const list = g.research && Array.isArray(g.research.studies) ? g.research.studies : [];
     researchStudies = list.filter(function (s) {
         return s && s.id && s.game_slug === GAME_SLUG;
     });
     if (!researchStudies.length) {
-        btn.style.display = 'none';
-        btn.textContent = '🔬 วิจัย';
+        preBtn.style.display = 'none';
+        postBtn.style.display = 'none';
+        preBtn.textContent = '🧪 ก่อนเรียน';
+        postBtn.textContent = '📈 หลังเรียน';
         return;
     }
     const first = researchStudies[0];
     const remaining = first.rounds && typeof first.rounds.remaining === 'number'
         ? first.rounds.remaining
         : null;
-    btn.style.display = '';
-    btn.textContent = remaining === null
-        ? '🔬 วิจัย'
-        : (remaining > 0 ? `🔬 วิจัย (${remaining})` : '✓ วิจัยครบแล้ว');
-    btn.classList.toggle('done', remaining !== null && remaining <= 0);
+    preBtn.style.display = '';
+    postBtn.style.display = '';
+    preBtn.textContent = remaining === null
+        ? '🧪 ก่อนเรียน'
+        : (remaining > 0 ? `🧪 ก่อนเรียน (${remaining})` : '✓ ก่อนเรียนครบ');
+    postBtn.textContent = remaining === null
+        ? '📈 หลังเรียน'
+        : (remaining > 0 ? `📈 หลังเรียน (${remaining})` : '✓ หลังเรียนครบ');
+    preBtn.classList.toggle('done', remaining !== null && remaining <= 0);
+    postBtn.classList.toggle('done', remaining !== null && remaining <= 0);
 }
-function startResearch() {
+function startResearch(phase) {
     audioCtx();
     if (started) return;
     const study = researchStudies && researchStudies[0];
@@ -576,7 +585,8 @@ function startResearch() {
     }
     const modeMap = { normal: 'race', endless: 'endless', daily: 'daily' };
     const urlMode = modeMap[study.game_mode] || study.game_mode || 'race';
-    const path = `/play/${GAME_SLUG}?study=${encodeURIComponent(study.id)}&mode=${encodeURIComponent(urlMode)}&autostart=1`;
+    const phaseParam = phase === 'posttest' ? 'posttest' : 'pretest';
+    const path = `/play/${GAME_SLUG}?study=${encodeURIComponent(study.id)}&mode=${encodeURIComponent(urlMode)}&autostart=1&phase=${encodeURIComponent(phaseParam)}`;
     if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'navigate', to: path }, '*');
     } else {
