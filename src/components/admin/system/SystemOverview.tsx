@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.162.9 (research 7-day completeness)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้า `/teacher/game-research` เพิ่มหลักฐานรายวันก่อน/หลังเรียนแบบ 7 วัน พร้อมสรุปความครบถ้วนของข้อมูลทั้งชุด',
+            'รายงานพิมพ์วิจัยเพิ่มตารางรายวัน + coverage box เพื่อยืนยันจำนวนรอบ/จำนวนนักเรียน/ค่าเฉลี่ยของแต่ละวัน',
+            'สรุปแดชบอร์ดเพิ่มตัวชี้วัดวันมีข้อมูล เพื่อให้ตรวจความครบของชุดวิจัยได้ในหน้าเดียว',
+        ],
+    },
+    {
         version: 'v1.162.8 (research per-student score reset)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',

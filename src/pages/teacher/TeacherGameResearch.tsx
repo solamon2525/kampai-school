@@ -63,6 +63,7 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
 import { useToast } from '@/hooks/use-toast';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { educationalHubService, type EduHubItem } from '@/services/educational-hub.service';
 import { studentsService } from '@/services/students.service';
 import { staffService } from '@/services/staff.service';
@@ -124,9 +125,38 @@ const stddev = (arr: number[]) => {
   return Math.sqrt(avg(arr.map((x) => (x - m) ** 2)));
 };
 
+type ResearchDailySummary = {
+  date: string;
+  phase: ResearchPhase;
+  sessions: number;
+  uniqueStudents: number;
+  meanScore: number | null;
+};
+
+type ResearchCoverageStats = {
+  preDaysExpected: number;
+  preDaysWithData: number;
+  postDaysExpected: number;
+  postDaysWithData: number;
+  totalDaysExpected: number;
+  totalDaysWithData: number;
+  totalSessions: number;
+};
+
 type SessionPhaseInput = {
   created_at: string;
   metadata?: Record<string, unknown> | null;
+};
+
+const enumerateIsoDates = (startIso: string, endIso: string) => {
+  const dates: string[] = [];
+  const cursor = new Date(`${startIso}T00:00:00Z`);
+  const end = new Date(`${endIso}T00:00:00Z`);
+  while (cursor.getTime() <= end.getTime()) {
+    dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return dates;
 };
 
 function getSessionResearchPhase(s: SessionPhaseInput, study: GameResearchStudy): ResearchPhase | null {
@@ -358,9 +388,18 @@ export default function TeacherGameResearch() {
     const sessions = sessionsQuery.data ?? [];
     const students = studentsQuery.data ?? [];
 
+    const dailyBuckets = new Map<string, { scores: number[]; studentIds: Set<string> }>();
     const byStudent = new Map<string, { pre: number[]; post: number[] }>();
     sessions.forEach((s) => {
       const phase = getSessionResearchPhase(s, activeStudy);
+      if (phase) {
+        const dateKey = s.created_at.slice(0, 10);
+        const dailyKey = `${phase}|${dateKey}`;
+        const dailyEntry = dailyBuckets.get(dailyKey) ?? { scores: [], studentIds: new Set<string>() };
+        dailyEntry.scores.push(s.score);
+        dailyEntry.studentIds.add(s.student_id);
+        dailyBuckets.set(dailyKey, dailyEntry);
+      }
       if (!phase) return;
       const entry = byStudent.get(s.student_id) ?? { pre: [], post: [] };
       if (phase === 'pretest') entry.pre.push(s.score);
@@ -392,6 +431,31 @@ export default function TeacherGameResearch() {
       { name: 'หลังเรียน', mean: meanPosttest, sd: sdPosttest },
     ];
 
+    const buildDailyRows = (phase: ResearchPhase, start: string, end: string): ResearchDailySummary[] =>
+      enumerateIsoDates(start, end).map((date) => {
+        const bucket = dailyBuckets.get(`${phase}|${date}`);
+        return {
+          date,
+          phase,
+          sessions: bucket?.scores.length ?? 0,
+          uniqueStudents: bucket?.studentIds.size ?? 0,
+          meanScore: bucket && bucket.scores.length > 0 ? avg(bucket.scores) : null,
+        };
+      });
+
+    const preDailyRows = buildDailyRows('pretest', activeStudy.pretest_start, activeStudy.pretest_end);
+    const postDailyRows = buildDailyRows('posttest', activeStudy.posttest_start, activeStudy.posttest_end);
+    const dailyRows = [...preDailyRows, ...postDailyRows];
+    const coverage: ResearchCoverageStats = {
+      preDaysExpected: preDailyRows.length,
+      preDaysWithData: preDailyRows.filter((row) => row.sessions > 0).length,
+      postDaysExpected: postDailyRows.length,
+      postDaysWithData: postDailyRows.filter((row) => row.sessions > 0).length,
+      totalDaysExpected: dailyRows.length,
+      totalDaysWithData: dailyRows.filter((row) => row.sessions > 0).length,
+      totalSessions: sessions.length,
+    };
+
     const todayStr = todayIso();
     const todaySessions = sessions.filter((s) => s.created_at.startsWith(todayStr));
     const todayByStudent = new Map<string, typeof sessions>();
@@ -401,7 +465,21 @@ export default function TeacherGameResearch() {
       todayByStudent.set(s.student_id, arr);
     });
 
-    return { rows, n, meanPretest, meanPosttest, meanGain, sdPretest, sdPosttest, percentImproved, chartData, todayByStudent, totalSessions: sessions.length };
+    return {
+      rows,
+      n,
+      meanPretest,
+      meanPosttest,
+      meanGain,
+      sdPretest,
+      sdPosttest,
+      percentImproved,
+      chartData,
+      dailyRows,
+      coverage,
+      todayByStudent,
+      totalSessions: sessions.length,
+    };
   }, [activeStudy, sessionsQuery.data, studentsQuery.data]);
 
   const gameTitle = useMemo(() => {
@@ -444,6 +522,8 @@ export default function TeacherGameResearch() {
         preRounds: r.preRounds,
         postRounds: r.postRounds,
       })),
+      dailySummaries: researchResult.dailyRows,
+      coverage: researchResult.coverage,
       stats: {
         n: researchResult.n,
         meanPretest: researchResult.meanPretest,
@@ -635,10 +715,11 @@ export default function TeacherGameResearch() {
               </TabsList>
 
               <TabsContent value="dashboard" className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <SummaryCard icon={<Users className="h-4 w-4" />} label="นักเรียนในชั้น" value={String(studentsQuery.data?.length ?? 0)} />
                   <SummaryCard icon={<Gamepad2 className="h-4 w-4" />} label="รอบที่บันทึกแล้ว" value={String(researchResult?.totalSessions ?? 0)} />
                   <SummaryCard icon={<CalendarRange className="h-4 w-4" />} label="รอบวันนี้รวม" value={String(researchResult?.todayByStudent ? [...researchResult.todayByStudent.values()].flat().length : 0)} />
+                  <SummaryCard icon={<FileText className="h-4 w-4" />} label="วันมีข้อมูล" value={researchResult ? `${researchResult.coverage.totalDaysWithData}/${researchResult.coverage.totalDaysExpected}` : '0/0'} />
                   <SummaryCard icon={<TrendingUp className="h-4 w-4" />} label="n เปรียบเทียบได้" value={String(researchResult?.n ?? 0)} />
                 </div>
 
@@ -760,6 +841,12 @@ export default function TeacherGameResearch() {
                           <StatBox label="ค่าเฉลี่ยหลัง" value={researchResult.meanPosttest.toFixed(1)} />
                           <StatBox label="% ดีขึ้น" value={`${researchResult.percentImproved.toFixed(0)}%`} />
                         </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                          <StatBox label="ก่อนครบ" value={`${researchResult.coverage.preDaysWithData}/${researchResult.coverage.preDaysExpected}`} />
+                          <StatBox label="หลังครบ" value={`${researchResult.coverage.postDaysWithData}/${researchResult.coverage.postDaysExpected}`} />
+                          <StatBox label="วันมีข้อมูล" value={`${researchResult.coverage.totalDaysWithData}/${researchResult.coverage.totalDaysExpected}`} />
+                          <StatBox label="รอบทั้งหมด" value={researchResult.coverage.totalSessions} />
+                        </div>
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -793,6 +880,36 @@ export default function TeacherGameResearch() {
                             ))}
                           </TableBody>
                         </Table>
+                        <div className="space-y-3 pt-2">
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground">หลักฐานรายวัน 7 วันก่อน + 7 วันหลัง</h3>
+                            <p className="text-xs text-muted-foreground">
+                              ตารางนี้แสดงจำนวนรอบ, จำนวนนักเรียน และคะแนนเฉลี่ยรายวันของแต่ละช่วง เพื่อยืนยันความครบถ้วนของชุดวิจัย
+                            </p>
+                          </div>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>วันที่</TableHead>
+                                <TableHead>ช่วง</TableHead>
+                                <TableHead className="text-center">รอบ</TableHead>
+                                <TableHead className="text-center">นักเรียน</TableHead>
+                                <TableHead className="text-center">เฉลี่ย</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {researchResult.dailyRows.map((row) => (
+                                <TableRow key={`${row.phase}-${row.date}`}>
+                                  <TableCell>{formatThaiDateMedium(row.date)}</TableCell>
+                                  <TableCell>{researchPhaseLabel(row.phase)}</TableCell>
+                                  <TableCell className="text-center">{row.sessions}</TableCell>
+                                  <TableCell className="text-center">{row.uniqueStudents}</TableCell>
+                                  <TableCell className="text-center">{row.meanScore !== null ? row.meanScore.toFixed(1) : '—'}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </>
                     )}
                   </CardContent>

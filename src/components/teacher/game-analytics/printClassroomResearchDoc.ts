@@ -1,4 +1,6 @@
-import { formatThaiDateFull, formatThaiDateRange } from '@/lib/thaiDate';
+import { formatThaiDateFull, formatThaiDateMedium, formatThaiDateRange } from '@/lib/thaiDate';
+
+type ResearchPhase = 'pretest' | 'posttest';
 
 interface ResearchStudentRow {
     name: string;
@@ -21,6 +23,24 @@ interface ResearchStats {
     percentImproved: number;
 }
 
+interface ResearchDailySummary {
+    date: string;
+    phase: ResearchPhase;
+    sessions: number;
+    uniqueStudents: number;
+    meanScore: number | null;
+}
+
+interface ResearchCoverage {
+    preDaysExpected: number;
+    preDaysWithData: number;
+    postDaysExpected: number;
+    postDaysWithData: number;
+    totalDaysExpected: number;
+    totalDaysWithData: number;
+    totalSessions: number;
+}
+
 interface SchoolInfo {
     name: string;
     logoUrl?: string | null;
@@ -38,6 +58,8 @@ export interface ClassroomResearchDocInput {
     pretestRange: { start: string; end: string };
     posttestRange: { start: string; end: string };
     rows: ResearchStudentRow[];
+    dailySummaries?: ResearchDailySummary[];
+    coverage?: ResearchCoverage;
     stats: ResearchStats;
     school: SchoolInfo;
 }
@@ -92,6 +114,52 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
             .filter(Boolean)
             .map((p) => `<p>${p}</p>`)
             .join('') || '<p style="color:#94a3b8;">(ยังไม่ได้กรอก)</p>';
+
+    const coverageHtml = input.coverage
+        ? `
+            <div class="summary" style="margin-top:12px;">
+                <div class="box"><div class="label">ก่อนครบ</div><div class="value">${input.coverage.preDaysWithData}/${input.coverage.preDaysExpected}</div></div>
+                <div class="box"><div class="label">หลังครบ</div><div class="value">${input.coverage.postDaysWithData}/${input.coverage.postDaysExpected}</div></div>
+                <div class="box"><div class="label">วันมีข้อมูล</div><div class="value">${input.coverage.totalDaysWithData}/${input.coverage.totalDaysExpected}</div></div>
+                <div class="box"><div class="label">รอบทั้งหมด</div><div class="value">${input.coverage.totalSessions}</div></div>
+            </div>
+        `
+        : '';
+
+    const dailySummaryRowsHtml = (input.dailySummaries ?? [])
+        .map((row) => `
+            <tr>
+                <td class="ctr">${formatThaiDateMedium(row.date)}</td>
+                <td class="ctr">${row.phase === 'pretest' ? 'ก่อนเรียน' : 'หลังเรียน'}</td>
+                <td class="ctr num">${row.sessions}</td>
+                <td class="ctr num">${row.uniqueStudents}</td>
+                <td class="ctr num">${row.meanScore !== null ? row.meanScore.toFixed(1) : '—'}</td>
+            </tr>`)
+        .join('');
+
+    const dailySummarySectionHtml = input.dailySummaries?.length
+        ? `
+        <div class="chapter">
+            <h2>ตารางข้อมูลรายวัน 7 วันก่อน + 7 วันหลัง</h2>
+            <p>ส่วนนี้แสดงหลักฐานการเก็บข้อมูลรายวันครบตามแผน แยกช่วงก่อนเรียนและหลังเรียนอย่างชัดเจน</p>
+            ${coverageHtml}
+            <table>
+                <thead>
+                    <tr>
+                        <th class="ctr" style="width:120px;">วันที่</th>
+                        <th class="ctr" style="width:84px;">ช่วง</th>
+                        <th class="ctr num" style="width:60px;">รอบ</th>
+                        <th class="ctr num" style="width:70px;">นักเรียน</th>
+                        <th class="ctr num" style="width:80px;">เฉลี่ย</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${dailySummaryRowsHtml || '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8;">ไม่มีข้อมูลรายวัน</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+        `
+        : '';
 
     win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/>
     <title>วิจัยในชั้นเรียน — ${input.title || 'ไม่มีชื่อเรื่อง'}</title>
@@ -175,6 +243,8 @@ export function printClassroomResearchDoc(input: ClassroomResearchDocInput) {
             </div>
             <div class="method-note">${methodSummary}</div>
         </div>
+
+        ${dailySummarySectionHtml}
 
         <div class="page-break"></div>
 
