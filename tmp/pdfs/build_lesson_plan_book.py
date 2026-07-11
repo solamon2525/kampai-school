@@ -2,6 +2,11 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 sys.path.insert(0, str(Path(r"D:\School คำไผ่\kampai-school\tmp\pdfs\pymupdf")))
 
 import pymupdf
@@ -101,8 +106,20 @@ def detect_plans(doc):
         plan["standard"] = extract_between(
             text,
             [r"1\.\s*มาตรฐานการเรียนรู้/ตัวชี้วัด", r"มาตรฐานการเรียนรู้/ตัวชี้วัด"],
-            [r"2\.\s*สาระสำคัญ", r"สาระสำคัญ/ความคิดรวบยอด"],
+            [r"ตัวชี้วัด\s*ป", r"2\.\s*สาระสำคัญ", r"สาระสำคัญ/ความคิดรวบยอด"],
             260,
+        )
+        plan["indicator"] = extract_between(
+            text,
+            [r"ตัวชี้วัด\s*(?=ป\s*\.?\s*[๔4])", r"ตัวชี้วัด\s*"],
+            [r"2\.\s*สาระสำคัญ", r"สาระสำคัญ/ความคิดรวบยอด"],
+            220,
+        )
+        plan["content"] = extract_between(
+            text,
+            [r"3\.\s*สาระการเรียนรู้"],
+            [r"4\.\s*จุดประสงค์", r"จุดประสงค์การเรียนรู้"],
+            240,
         )
         plan["concept"] = extract_between(
             text,
@@ -118,6 +135,10 @@ def detect_plans(doc):
         )
         if not plan["standard"]:
             plan["standard"] = "มาตรฐาน ค 1.1 ใช้ความรู้และทักษะกระบวนการทางคณิตศาสตร์ในการแก้ปัญหา"
+        if not plan["indicator"]:
+            plan["indicator"] = f"อธิบายและแสดงวิธีหาคำตอบเรื่อง {plan['title']} ได้อย่างถูกต้อง"
+        if not plan["content"]:
+            plan["content"] = plan["title"]
         if not plan["concept"]:
             plan["concept"] = f"เรียนรู้และประยุกต์ใช้เรื่อง {plan['title']} อย่างเป็นขั้นตอนและสมเหตุสมผล"
         if not plan["objectives"]:
@@ -366,6 +387,53 @@ def activity_text(plan):
     return intro, teach, close
 
 
+def add_body_text(doc, text, size=8.7, after=3, bullet=False):
+    p = doc.add_paragraph()
+    set_para(p, after=after, line=1.05)
+    if bullet:
+        p.paragraph_format.left_indent = Cm(0.35)
+        p.paragraph_format.first_line_indent = Cm(-0.28)
+        set_run(p.add_run("• "), size, True, GOLD)
+    else:
+        p.paragraph_format.left_indent = Cm(0.18)
+    set_run(p.add_run(text), size)
+    return p
+
+
+def add_assessment_table(doc):
+    """Standard measurement matrix: what / method / instrument / criterion."""
+    rows = [
+        ("ด้านความรู้ (K)", "ตรวจผลงาน / แบบฝึกหัด", "แบบประเมินผลงาน", "ผ่านระดับพอใช้ขึ้นไป"),
+        ("ด้านทักษะ/กระบวนการ (P)", "สังเกตพฤติกรรมการเรียนรู้", "แบบประเมินทักษะและกระบวนการทางคณิตศาสตร์", "ผ่านระดับพอใช้ขึ้นไป"),
+        ("ด้านคุณลักษณะ (A)", "สังเกตพฤติกรรมการเรียนรู้", "แบบประเมินคุณลักษณะอันพึงประสงค์", "ผ่านระดับพอใช้ขึ้นไป"),
+    ]
+    headers = ["รายการประเมิน", "วิธีวัด", "เครื่องมือ", "เกณฑ์"]
+    widths = [3.2, 3.7, 7.0, 4.0]
+    table = doc.add_table(rows=len(rows) + 1, cols=4)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+    for c, h in enumerate(headers):
+        cell = table.cell(0, c)
+        set_fixed_width(cell, widths[c])
+        set_cell_shading(cell, NAVY)
+        p = cell.paragraphs[0]
+        clear_para(p)
+        set_para(p, after=0, line=1.0)
+        set_run(p.add_run(h), 8.3, True, WHITE)
+        finish_header_cell(cell)
+    for r, row in enumerate(rows, start=1):
+        for c, value in enumerate(row):
+            cell = table.cell(r, c)
+            set_fixed_width(cell, widths[c])
+            set_cell_margins(cell, top=70, bottom=70, start=110, end=110)
+            p = cell.paragraphs[0]
+            clear_para(p)
+            set_para(p, after=0, line=1.0)
+            set_run(p.add_run(value), 8.2, bold=(c == 0), color=(NAVY if c == 0 else INK))
+    set_table_geometry(table, widths)
+    set_table_borders(table)
+
+
 def add_plan_page(doc, plan):
     unit_name = "จำนวนนับ และการบวก การลบ การคูณ การหาร" if plan["unit"] == 1 else "การวัด"
 
@@ -393,6 +461,7 @@ def add_plan_page(doc, plan):
     meta_rows = [
         ("รายวิชา", "คณิตศาสตร์ ค14101", "ชั้น / เวลา", "ป.4 / 50 นาที"),
         ("หน่วยการเรียนรู้", unit_name, "ภาคเรียน / ปีการศึกษา", "1 / 2569"),
+        ("ผู้สอน", "..................................................", "วันที่สอน", "......... / ......... / ............"),
     ]
     for i, (l1, v1, l2, v2) in enumerate(meta_rows):
         p = meta.paragraphs[0] if i == 0 else meta.add_paragraph()
@@ -407,51 +476,47 @@ def add_plan_page(doc, plan):
     set_table_borders(card, color=NAVY, size="6")
     doc.add_paragraph().paragraph_format.space_after = Pt(3)
 
-    add_section_label(doc, "มาตรฐานการเรียนรู้และตัวชี้วัด")
-    p = doc.add_paragraph()
-    set_para(p, after=2, line=1.0)
-    set_run(p.add_run(shorten(plan["standard"], 250)), 8.6)
+    add_section_label(doc, "มาตรฐานการเรียนรู้")
+    add_body_text(doc, shorten(plan["standard"], 250))
 
-    add_section_label(doc, "สาระสำคัญ")
-    p = doc.add_paragraph()
-    set_para(p, after=2, line=1.0)
-    set_run(p.add_run(shorten(plan["concept"], 245)), 8.6)
+    add_section_label(doc, "ตัวชี้วัด")
+    add_body_text(doc, shorten(plan["indicator"], 220))
 
-    add_section_label(doc, "จุดประสงค์การเรียนรู้")
-    p = doc.add_paragraph()
-    set_para(p, after=1.5, line=1.0)
-    p.paragraph_format.left_indent = Cm(0.35)
-    p.paragraph_format.first_line_indent = Cm(-0.28)
-    set_run(p.add_run("• "), 8.6, True, GOLD)
-    set_run(p.add_run(shorten(plan["objectives"], 330)), 8.6)
-    p = doc.add_paragraph()
-    set_para(p, after=2, line=1.0)
-    p.paragraph_format.left_indent = Cm(0.35)
-    p.paragraph_format.first_line_indent = Cm(-0.28)
-    set_run(p.add_run("• "), 8.6, True, GOLD)
-    set_run(p.add_run("สมรรถนะ: การคิด การแก้ปัญหา และการสื่อสารทางคณิตศาสตร์  |  คุณลักษณะ: ใฝ่เรียนรู้ ซื่อสัตย์สุจริต และมุ่งมั่นในการทำงาน"), 8.6)
+    add_section_label(doc, "สาระสำคัญ / ความคิดรวบยอด")
+    add_body_text(doc, shorten(plan["concept"], 245))
+
+    add_section_label(doc, "สาระการเรียนรู้")
+    add_body_text(doc, shorten(plan["content"], 240))
+
+    add_section_label(doc, "จุดประสงค์การเรียนรู้ (K / P / A)")
+    add_body_text(doc, shorten(plan["objectives"], 330), bullet=True, after=1.5)
+    add_body_text(
+        doc,
+        "สมรรถนะสำคัญ: การคิด การแก้ปัญหา และการสื่อสารทางคณิตศาสตร์  |  คุณลักษณะอันพึงประสงค์: ใฝ่เรียนรู้ ซื่อสัตย์สุจริต และมุ่งมั่นในการทำงาน",
+        bullet=True,
+    )
+
+    # ---------- page 2 ----------
+    doc.add_page_break()
 
     add_section_label(doc, "กระบวนการจัดการเรียนรู้")
     intro, teach, close = activity_text(plan)
     stages = [("ขั้นนำ 5 นาที", intro), ("ขั้นสอน 35 นาที", teach), ("ขั้นสรุป 10 นาที", close)]
     for stage, detail in stages:
         p = doc.add_paragraph()
-        set_para(p, after=1.4, line=1.0)
+        set_para(p, after=1.6, line=1.05)
         p.paragraph_format.left_indent = Cm(0.25)
-        set_run(p.add_run(stage + ": "), 8.6, True, NAVY)
-        set_run(p.add_run(detail), 8.45)
+        set_run(p.add_run(stage + ": "), 8.7, True, NAVY)
+        set_run(p.add_run(detail), 8.6)
 
-    add_section_label(doc, "สื่อ ภาระงาน และการวัดประเมินผล")
-    p = doc.add_paragraph()
-    set_para(p, after=1.2, line=1.0)
-    p.paragraph_format.left_indent = Cm(0.25)
-    set_run(p.add_run("สื่อ/ภาระงาน: "), 8.6, True, NAVY)
-    set_run(p.add_run("สื่อประกอบบทเรียน แบบฝึกหัดหรือใบกิจกรรมตามแผน และสมุดบันทึก"), 8.45)
-    p = doc.add_paragraph()
-    set_para(p, after=1.2, line=1.0)
-    p.paragraph_format.left_indent = Cm(0.25)
-    set_run(p.add_run("การประเมิน: "), 8.6, True, NAVY)
-    set_run(p.add_run("ตรวจชิ้นงาน สังเกตกระบวนการคิดและการสื่อสาร ผ่านระดับคุณภาพ “พอใช้” ขึ้นไป"), 8.45)
+    add_section_label(doc, "สื่อ / แหล่งเรียนรู้")
+    add_body_text(doc, "สื่อการสอน (PowerPoint / บทเรียน DLTV), ใบกิจกรรมและแบบฝึกหัดตามแผน, อุปกรณ์ประกอบการสอน และแหล่งเรียนรู้ในห้องเรียน", after=3)
+
+    add_section_label(doc, "ภาระงาน / ชิ้นงาน")
+    add_body_text(doc, f"แบบฝึกหัด / ใบกิจกรรมเรื่อง {shorten(plan['title'], 90)} และการบันทึกผลงานลงในสมุด", after=3)
+
+    add_section_label(doc, "การวัดและประเมินผล")
+    add_assessment_table(doc)
 
     # --- record card: bordered box with navy section strips + writing lines ---
     doc.add_paragraph().paragraph_format.space_after = Pt(3)
@@ -575,8 +640,9 @@ def add_cover(doc):
     set_run(p.add_run("เรียบเรียงจากชุดกิจกรรมการเรียนรู้ DLTV มูลนิธิการศึกษาทางไกลผ่านดาวเทียม ในพระบรมราชูปถัมภ์"), 9, color=MUTED)
 
 
-def add_front_matter(doc, plans):
-    doc.add_page_break()
+def add_front_matter(doc, plans, lead_break=True):
+    if lead_break:
+        doc.add_page_break()
     p = doc.add_paragraph()
     set_para(p, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
     set_run(p.add_run("คำนำ"), 20, True, NAVY)
@@ -634,9 +700,10 @@ def add_front_matter(doc, plans):
             set_run(p.add_run("\t" + shorten(plan["title"], 80)), 8.6, color=INK)
 
 
-def add_unit_divider(doc, unit):
+def add_unit_divider(doc, unit, lead_break=True):
     center = WD_ALIGN_PARAGRAPH.CENTER
-    doc.add_page_break()
+    if lead_break:
+        doc.add_page_break()
     for _ in range(8):
         set_para(doc.add_paragraph(), after=0)
     p = doc.add_paragraph()
@@ -658,8 +725,9 @@ def add_unit_divider(doc, unit):
     set_run(p.add_run(f"จำนวน {count} แผน   •   แผนละ 50 นาที"), 12, color=MUTED)
 
 
-def add_appendices(doc):
-    doc.add_page_break()
+def add_appendices(doc, lead_break=True):
+    if lead_break:
+        doc.add_page_break()
     add_heading(doc, "แบบบันทึกหลังการจัดการเรียนรู้", size=18)
     fields = [
         "แผนการจัดการเรียนรู้ที่ .......... เรื่อง ................................................................................................",
@@ -701,7 +769,17 @@ def add_appendices(doc):
     p=doc.add_paragraph(); set_para(p,before=7,line=1.15); set_run(p.add_run("เกณฑ์: 3 = แสดงพฤติกรรมสม่ำเสมอ  |  2 = แสดงพฤติกรรมบางครั้ง  |  1 = ควรส่งเสริมเพิ่มเติม"),9,color=MUTED)
 
 
-def configure_doc(doc):
+def set_page_start(doc, start):
+    """Force the section's page numbering to begin at `start` (for chunked export)."""
+    sec_pr = doc.sections[0]._sectPr
+    pg = sec_pr.find(qn("w:pgNumType"))
+    if pg is None:
+        pg = OxmlElement("w:pgNumType")
+        sec_pr.append(pg)
+    pg.set(qn("w:start"), str(start))
+
+
+def configure_doc(doc, first_page_special=True, page_start=None):
     sec = doc.sections[0]
     sec.page_width = Cm(21.0); sec.page_height = Cm(29.7)
     sec.top_margin = Cm(1.35); sec.bottom_margin = Cm(1.35); sec.left_margin = Cm(1.55); sec.right_margin = Cm(1.55)
@@ -710,13 +788,24 @@ def configure_doc(doc):
     normal = styles["Normal"]
     normal.font.name = FONT; normal.font.size = Pt(9)
     normal._element.rPr.rFonts.set(qn("w:ascii"), FONT); normal._element.rPr.rFonts.set(qn("w:hAnsi"), FONT); normal._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-    header = sec.header
-    p = header.paragraphs[0]
-    p.alignment = WD_ALIGN_PARAGRAPH.LEFT; set_para(p, after=0)
-    set_run(p.add_run("แผนการจัดการเรียนรู้ คณิตศาสตร์ ป.4 • ภาคเรียนที่ 1 ปีการศึกษา 2569"), 7.5, color=MUTED)
-    footer = sec.footer
-    p = footer.paragraphs[0]; set_para(p, after=0); add_page_number(p)
-    sec.different_first_page_header_footer = True
+
+    def fill_header_footer(target):
+        p = target.header.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        set_para(p, after=0)
+        set_run(p.add_run("แผนการจัดการเรียนรู้ คณิตศาสตร์ ป.4 • ภาคเรียนที่ 1 ปีการศึกษา 2569"), 7.5, color=MUTED)
+        fp = target.footer.paragraphs[0]
+        set_para(fp, after=0)
+        add_page_number(fp)
+
+    fill_header_footer(sec)
+    sec.different_first_page_header_footer = first_page_special
+    if not first_page_special:
+        # ensure the first physical page of a plan chunk also shows the running header/number
+        sec.first_page_header.is_linked_to_previous = True
+        sec.first_page_footer.is_linked_to_previous = True
+    if page_start is not None:
+        set_page_start(doc, page_start)
 
 
 def main():
