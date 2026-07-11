@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.162.15 (research plan A school identity correction)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'แก้ข้อมูลสถานศึกษาใน DOCX ชุด A ทุกหน้าจากข้อมูลโรงเรียนเดิมที่ไม่ตรง เป็นโรงเรียนบ้านคำไผ่ กลุ่มเครือข่ายโรงเรียนกุมภวาปี 1',
+            'ปรับที่อยู่เป็นเลขที่ 159 หมู่ 9 ตำบลเวียงคำ อำเภอกุมภวาปี จังหวัดอุดรธานี 41110 และสังกัด สพป.อุดรธานี เขต 2',
+            'แก้ผู้ลงนามผู้อำนวยการเป็นนายสมพิศ แรงน้อย พร้อมตรวจ XML, Word render และ accessibility ก่อนเผยแพร่ทับไฟล์ดาวน์โหลดเดิม',
+        ],
+    },
+    {
         version: 'v1.162.14 (research plan A DOCX download)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',
