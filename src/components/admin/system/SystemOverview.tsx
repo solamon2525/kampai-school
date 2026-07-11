@@ -283,17 +283,27 @@ const versionHistory = [
     },
     {
         version: 'v1.162.14 (research plan A DOCX download)',
-        date: 'ล่าสุด',
+        date: '',
         badge: 'bg-blue-600',
         items: [
-            'หน้าหลังบ้านงานวิจัย `/teacher/game-research` เพิ่มปุ่ม “ชุด A แผน + รับรอง (DOCX)” สำหรับโครงการเกมแข่งสูตรคูณ ชั้น ป.4',
-            'ไฟล์ DOCX ผ่านการเปิด–บันทึก–เปิดซ้ำด้วย Microsoft Word, ตรวจ OOXML/a11y และเรนเดอร์ครบ 23 หน้า ก่อนนำขึ้นระบบ',
+            'หน้าหลังบ้านงานวิจัย `/teacher/game-research` เพิ่มปุ่ม "ชุด A แผน + รับรอง (DOCX)" สำหรับโครงการเกมแข่งสูตรคูณ ชั้น ป.4',
+            'ไฟล์ DOCX ผ่านการเปิด\u2013บันทึก\u2013เปิดซ้ำด้วย Microsoft Word, ตรวจ OOXML/a11y และเรนเดอร์ครบ 23 หน้า ก่อนนำขึ้นระบบ',
             'ดาวน์โหลดจากไฟล์สาธารณะ `/docs/classroom-research/p4-multiply-race-research-plan-a.docx` โดยไม่ต้องสร้างเอกสารซ้ำในเบราว์เซอร์',
         ],
     },
     {
+        version: 'v1.162.13 (archery-verb game integration)',
+        date: '',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกม AR ยิงธนูสู้คำกริยา (/games/thai/archery-verb) ที่ใช้กล้องและ Hand Tracking (KampaiHands)',
+            'สปอนเป้าผลไม้คำศัพท์ 15 ข้อแบบสุ่มคำกริยาและคำนามหลอก ยิงกริยา +10 ยิงนาม -5 กริยาตกพื้น -5',
+            'ระบบดึงคันธนูด้วยมือซ้ายและลากสายธนูด้วยมือขวาพร้อมแถบพาวเวอร์เกจและแรงโน้มถ่วงลูกธนู 2D',
+        ],
+    },
+    {
         version: 'v1.162.12 (research real PDF download)',
-        date: 'ล่าสุด',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'หน้าวิจัยในชั้นเรียน `/teacher/game-research` แยกปุ่ม “ดาวน์โหลด PDF จริง” ออกจาก “พิมพ์รายงาน” เพื่อให้ผู้ใช้เลือก workflow ได้ชัดเจน',
