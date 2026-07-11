@@ -83,6 +83,9 @@ import { downloadClassroomResearchDocx } from '@/components/teacher/game-analyti
 import { downloadClassroomResearchPdf } from '@/lib/pdf/research/ClassroomResearchReportPdf';
 import { ResearchStudyQR } from '@/components/teacher/game-research/ResearchStudyQR';
 
+const MULTIPLY_RACE_PLAN_A_DOCX_URL =
+  '/docs/classroom-research/p4-multiply-race-research-plan-a.docx';
+
 const MENU = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: FlaskConical, path: '/teacher' },
   { id: 'game-research', label: 'วิจัยเกม', icon: FlaskConical, path: '/teacher/game-research' },
@@ -874,6 +877,13 @@ export default function TeacherGameResearch() {
                       <Button variant="outline" size="sm" onClick={handleDownloadDocx} disabled={!researchResult?.n}>
                         <FileDown className="h-4 w-4 mr-1" /> ดาวน์โหลด DOCX
                       </Button>
+                      {activeStudy.game_slug === 'multiply-race' && activeStudy.class_name === 'ป.4' && (
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={MULTIPLY_RACE_PLAN_A_DOCX_URL} download>
+                            <FileDown className="h-4 w-4 mr-1" /> ชุด A แผน + รับรอง (DOCX)
+                          </a>
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" onClick={handlePrintDoc} disabled={!researchResult?.n}>
                         <FileText className="h-4 w-4 mr-1" /> พิมพ์รายงาน
                       </Button>

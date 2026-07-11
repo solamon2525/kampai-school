@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.162.14 (research plan A DOCX download)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้าหลังบ้านงานวิจัย `/teacher/game-research` เพิ่มปุ่ม “ชุด A แผน + รับรอง (DOCX)” สำหรับโครงการเกมแข่งสูตรคูณ ชั้น ป.4',
+            'ไฟล์ DOCX ผ่านการเปิด–บันทึก–เปิดซ้ำด้วย Microsoft Word, ตรวจ OOXML/a11y และเรนเดอร์ครบ 23 หน้า ก่อนนำขึ้นระบบ',
+            'ดาวน์โหลดจากไฟล์สาธารณะ `/docs/classroom-research/p4-multiply-race-research-plan-a.docx` โดยไม่ต้องสร้างเอกสารซ้ำในเบราว์เซอร์',
+        ],
+    },
+    {
         version: 'v1.162.12 (research real PDF download)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',
