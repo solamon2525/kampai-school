@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.17 (research plan A school-day schedule)',
+        version: 'v1.162.18 (research plan A page numbers)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'ปรับ footer ของ DOCX ชุด A ให้แสดงเลขหน้าแบบชัดเจนเป็น "โรงเรียนบ้านคำไผ่ | หน้า X"',
+            'ผูก footer เลขหน้าให้ครอบคลุมหน้าปก หน้าคู่ และหน้าปกติ เพื่อให้เปิดใน Microsoft Word แล้วเลขหน้าไม่หายบางหน้า',
+            'ตรวจซ้ำว่าไฟล์ยังใช้ลิงก์ดาวน์โหลดเดิม `/docs/classroom-research/p4-multiply-race-research-plan-a.docx` สำหรับเผยแพร่ฉบับล่าสุด',
+        ],
+    },
+    {
+        version: 'v1.162.17 (research plan A school-day schedule)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'ปรับตารางกำหนดการ DOCX ชุด A ให้เก็บข้อมูลเฉพาะวันเรียนจันทร์-ศุกร์ ไม่กินวันเสาร์-อาทิตย์',
