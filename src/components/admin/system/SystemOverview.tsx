@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.22 (research plan A observation appendix)',
+        version: 'v1.162.23 (research lesson plan download)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มไฟล์ดาวน์โหลดแผนการจัดการเรียนรู้ ป.4 เกมแข่งสูตรคูณ แยกจากเล่มวิจัยที่ `/docs/classroom-research/p4-multiply-race-lesson-plan.docx`',
+            'จัดทำแผนเต็มรูปแบบพร้อมข้อมูลรายวิชา จุดประสงค์ สื่อ กิจกรรม 10 คาบ รูปแบบรายคาบ 50 นาที และการวัดผลที่อิงคะแนนเกม',
+            'ใส่ตารางรหัส/ชื่อนักเรียน 8 คน และแบบสังเกตพฤติกรรมการมีส่วนร่วม 4 รายการ พร้อมตรวจเปิดไฟล์ด้วย Microsoft Word แล้ว',
+        ],
+    },
+    {
+        version: 'v1.162.22 (research plan A observation appendix)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เพิ่มภาคผนวกแผน จ แบบสังเกตพฤติกรรมการมีส่วนร่วมรายบุคคลใน DOCX ชุด A',
