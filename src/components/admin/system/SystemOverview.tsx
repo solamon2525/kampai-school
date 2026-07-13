@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.21 (research plan A TOC page numbers)',
+        version: 'v1.162.22 (research plan A observation appendix)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มภาคผนวกแผน จ แบบสังเกตพฤติกรรมการมีส่วนร่วมรายบุคคลใน DOCX ชุด A',
+            'ใส่ตารางเกณฑ์คะแนน 3/2/1 และตารางรายชื่อนักเรียน 8 คนพร้อมเลขที่ รหัส ชื่อ ช่องสังเกต 4 รายการ รวมคะแนน และหมายเหตุ',
+            'อัปเดตสารบัญเป็นภาคผนวกแผน ก-จ พร้อมเลขหน้าใหม่ และตรวจ R1 ให้กลับเป็นหัวเรื่องระดับ 1 หลังแทรกภาคผนวก',
+        ],
+    },
+    {
+        version: 'v1.162.21 (research plan A TOC page numbers)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เติมเลขหน้าจริงในสารบัญ DOCX ชุด A ด้วย Microsoft Word หลังคำนวณ pagination ของเอกสาร',
