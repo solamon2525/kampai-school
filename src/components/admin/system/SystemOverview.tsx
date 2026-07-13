@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.20 (research plan A DOCX openability fix)',
+        version: 'v1.162.21 (research plan A TOC page numbers)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เติมเลขหน้าจริงในสารบัญ DOCX ชุด A ด้วย Microsoft Word หลังคำนวณ pagination ของเอกสาร',
+            'เพิ่มรายการบทที่ 5 สรุปผล อภิปรายผล และข้อเสนอแนะ ลงในสารบัญ หน้า 15 ก่อนภาคผนวก',
+            'ตรวจสารบัญกลับครบ 24 แถว และยืนยันว่าโครง `word/document.xml` ไม่มี paragraph ผิด parent',
+        ],
+    },
+    {
+        version: 'v1.162.20 (research plan A DOCX openability fix)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'แก้ DOCX ชุด A ที่เปิดไม่ได้หลังเพิ่มบทที่ 5 โดยย้ายเนื้อหาใหม่ออกจากโครง `w:pPr` ให้เป็นย่อหน้าระดับ body ที่ถูกต้อง',
