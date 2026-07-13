@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.15 (research plan A school identity correction)',
+        version: 'v1.162.16 (research plan A dummy dataset)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มส่วน "ข้อมูลดัมมี่ประกอบเล่ม" ใน DOCX ชุด A สำหรับจำลองผลวิจัยเกมแข่งสูตรคูณ ป.4 ก่อนใช้ข้อมูลจริง',
+            'ใส่ตารางนักเรียน 8 คนพร้อมคะแนนก่อนเรียน หลังเรียน ผลต่าง และรอบการเล่น ให้สอดคล้องกับสมมติฐาน One-Group Pretest–Posttest',
+            'สรุปค่าเฉลี่ยจำลองก่อนเรียน 278.7 หลังเรียน 396.0 ผลต่าง +117.3 และระบุชัดว่าเป็นข้อมูลดัมมี่เพื่อจัดรูปเล่ม/ตรวจรูปแบบ',
+        ],
+    },
+    {
+        version: 'v1.162.15 (research plan A school identity correction)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'แก้ข้อมูลสถานศึกษาใน DOCX ชุด A ทุกหน้าจากข้อมูลโรงเรียนเดิมที่ไม่ตรง เป็นโรงเรียนบ้านคำไผ่ กลุ่มเครือข่ายโรงเรียนกุมภวาปี 1',
