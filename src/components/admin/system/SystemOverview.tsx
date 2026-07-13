@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.19 (research plan A chapter 5 dummy summary)',
+        version: 'v1.162.20 (research plan A DOCX openability fix)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'แก้ DOCX ชุด A ที่เปิดไม่ได้หลังเพิ่มบทที่ 5 โดยย้ายเนื้อหาใหม่ออกจากโครง `w:pPr` ให้เป็นย่อหน้าระดับ body ที่ถูกต้อง',
+            'ตรวจซ้ำว่าไม่มี paragraph ผิด parent ใน `word/document.xml` และหัวข้อบทที่ 5 อยู่ใต้ `body` โดยตรง',
+            'เปิดและบันทึกไฟล์จริงด้วย Microsoft Word สำเร็จ เพื่อยืนยันว่าไฟล์ดาวน์โหลดล่าสุดเปิดได้',
+        ],
+    },
+    {
+        version: 'v1.162.19 (research plan A chapter 5 dummy summary)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เพิ่มบทที่ 5 สรุปผล อภิปรายผล และข้อเสนอแนะ ลงใน DOCX ชุด A โดยใช้ข้อมูลดัมมี่ประกอบเล่ม',
