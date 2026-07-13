@@ -272,8 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.18 (research plan A page numbers)',
+        version: 'v1.162.19 (research plan A chapter 5 dummy summary)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มบทที่ 5 สรุปผล อภิปรายผล และข้อเสนอแนะ ลงใน DOCX ชุด A โดยใช้ข้อมูลดัมมี่ประกอบเล่ม',
+            'สรุปผลจากคะแนนก่อนเรียน 278.7 หลังเรียน 396.0 ผลต่างเฉลี่ย +117.3 และนักเรียน 8/8 คนมีคะแนนเพิ่มขึ้น',
+            'ระบุชัดในบทที่ 5 ว่าข้อมูลชุดนี้เป็นข้อมูลดัมมี่สำหรับตรวจรูปแบบ ก่อนแทนที่ด้วยข้อมูลจริงจาก `/teacher/game-research`',
+        ],
+    },
+    {
+        version: 'v1.162.18 (research plan A page numbers)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'ปรับ footer ของ DOCX ชุด A ให้แสดงเลขหน้าแบบชัดเจนเป็น "โรงเรียนบ้านคำไผ่ | หน้า X"',
