@@ -1,0 +1,565 @@
+/* style.css — สไตล์ของเกม Code Craft */
+
+:root {
+  --background: #f8fafc;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #b58920; /* ทอง */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --border: #e2e8f0;
+  --radius: 0.75rem;
+
+  /* ธีมวิทยาการคำนวณ */
+  --color-navy: #0f172a;
+  --color-navy-light: #1e293b;
+  --color-gold: #d97706;
+  --color-gold-light: #fef3c7;
+
+  /* สีหมวดหมู่บล็อก */
+  --color-block-action: #f97316; /* สีส้ม */
+  --color-block-loop: #22c55e;   /* สีเขียว */
+  --color-block-cond: #a855f7;   /* สีม่วง */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Sarabun', -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--card-foreground);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* ──────── HUD ──────── */
+#score-container {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--card);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  font-weight: bold;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+#timer-container {
+  position: absolute;
+  top: 16px;
+  left: 160px;
+  background: var(--card);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  font-weight: bold;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+#life-container {
+  position: absolute;
+  top: 16px;
+  left: 310px;
+  background: var(--card);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  font-size: 1.1rem;
+  z-index: 10;
+  letter-spacing: 2px;
+}
+
+#level-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--color-navy);
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-weight: bold;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+#toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* ──────── โครงสร้างหน้าต่างหลัก ──────── */
+.game-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  padding-top: 80px;
+  box-sizing: border-box;
+}
+
+/* ฝั่งซ้าย: Canvas โรงงานจำลอง */
+.canvas-area {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background-color: #f1f5f9;
+}
+
+#game-canvas {
+  background-color: #ffffff;
+  border: 3px solid var(--color-navy);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  max-width: 95%;
+  max-height: 95%;
+  aspect-ratio: 1 / 1;
+}
+
+/* ฝั่งขวา: แผงควบคุม Blockly จิ๋ว */
+.control-sidebar {
+  flex: 1;
+  min-width: 380px;
+  background-color: var(--card);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 15px -3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden; /* ล็อกสกรอลล์หลัก ใช้แผงย่อยสกรอลล์แทน */
+}
+
+.sidebar-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--color-navy);
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--color-gold);
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-instruction {
+  background-color: var(--color-gold-light);
+  border-left: 4px solid var(--color-gold);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.section-label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--muted-foreground);
+  margin: 10px 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ──────── กล่องเครื่องมือ (Toolbox) ──────── */
+.toolbox {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* บล็อกคำสั่งการเขียนโค้ด */
+.code-block {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.1s, opacity 0.2s;
+  border: 1px solid rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.code-block:active {
+  transform: scale(0.97);
+}
+
+.block-action { background-color: var(--color-block-action); }
+.block-loop { background-color: var(--color-block-loop); }
+.block-cond { background-color: var(--color-block-cond); }
+
+.block-plus {
+  background: rgba(255, 255, 255, 0.2);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* ──────── พื้นที่ต่อโค้ด (Workspace) ──────── */
+.workspace-container {
+  flex: 1;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background-color: #fafafa;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.workspace-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  text-align: center;
+  gap: 8px;
+}
+
+/* บล็อกที่ต่อใน Workspace */
+.placed-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.placed-block .code-block {
+  flex: 1;
+  cursor: default;
+}
+
+/* คอนโทรลควบคุมแถวของบล็อก (ย้ายขึ้น ย้ายลง ลบ) */
+.placed-block-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.action-minibtn {
+  border: 1px solid var(--border);
+  background: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.action-minibtn:hover {
+  background: #f1f5f9;
+  border-color: var(--color-gold);
+}
+
+.delete-minibtn {
+  color: var(--destructive);
+  font-weight: bold;
+}
+
+.delete-minibtn:hover {
+  background: #fee2e2;
+}
+
+/* ค่าตัวเลือกข้างในบล็อก (เช่น สไลด์ค่า Loop หรือ If) */
+.block-select {
+  background: white;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  font-weight: bold;
+  outline: none;
+}
+
+/* ──────── ปุ่มแอคชั่นด้านล่าง ──────── */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+  background-color: var(--color-gold);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #b45309;
+}
+
+.btn-blue {
+  background-color: var(--color-navy);
+  color: white;
+}
+
+.btn-blue:hover {
+  background-color: var(--color-navy-light);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  border: 2px solid var(--border);
+  color: var(--card-foreground);
+}
+
+.btn-ghost:hover {
+  background-color: var(--secondary);
+}
+
+/* ──────── บล็อกเกอร์หน้าจอแรก/จบเกม ──────── */
+#blocker, #gameover-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(248, 250, 252, 0.98);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  text-align: center;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+#blocker h1, #gameover-screen h1 {
+  font-size: 2.5rem;
+  color: var(--color-navy);
+  margin-bottom: 8px;
+}
+
+#blocker p, #gameover-screen p {
+  font-size: 1.05rem;
+  max-width: 520px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+#my-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ms-cell {
+  background: white;
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.ms-val {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--color-gold);
+}
+
+.ms-label {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+
+.leaderboard-box {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.lb-title {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  color: var(--color-navy);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  text-align: left;
+}
+
+.leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.leaderboard-item:nth-child(even) {
+  background-color: var(--secondary);
+}
+
+.lb-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lb-rank {
+  font-weight: bold;
+  color: var(--muted-foreground);
+  width: 20px;
+}
+
+.lb-rank-1 { color: #d97706; }
+.lb-rank-2 { color: #475569; }
+.lb-rank-3 { color: #b45309; }
+
+.lb-name {
+  font-weight: 500;
+}
+
+.lb-score {
+  font-weight: bold;
+  color: var(--color-navy);
+}
+
+.lb-loading {
+  color: var(--muted-foreground);
+  font-style: italic;
+  padding: 12px 0;
+}
+
+.mode-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#go-stars {
+  font-size: 3rem;
+  color: #fbbf24;
+  margin-bottom: 8px;
+  letter-spacing: 4px;
+}
+
+#final-score {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: var(--color-gold);
+  margin-bottom: 8px;
+}
+
+#go-summary {
+  font-weight: bold;
+}
+
+/* ──────── Avatar Profile ──────── */
+.person-avatar-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.person-avatar-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-gold);
+}
+
+/* ──────── Responsive ──────── */
+@media (max-width: 800px) {
+  .game-container {
+    flex-direction: column;
+    padding-top: 110px;
+  }
+  .canvas-area {
+    padding: 8px;
+    height: 45vh;
+  }
+  #game-canvas {
+    max-height: 100%;
+  }
+  .control-sidebar {
+    width: 100%;
+    height: 55vh;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    min-width: 0;
+    padding: 12px;
+  }
+  #score-container, #timer-container, #life-container {
+    top: 60px;
+  }
+  #score-container { left: 16px; }
+  #timer-container { left: 140px; }
+  #life-container { left: 260px; }
+}

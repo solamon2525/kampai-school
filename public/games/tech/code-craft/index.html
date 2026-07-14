@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Code Craft — วิศวกรโค้ดดิ้งหุ่นยนต์</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HUD -->
+  <div id="score-container">⭐ <span id="score-value">0</span></div>
+  <div id="timer-container">⏱️ <span id="timer-value">90</span></div>
+  <div id="life-container">❤️❤️❤️</div>
+  <div id="level-badge">เลเวล 1</div>
+  <div id="combo-badge">คอมโบ 🔥</div>
+  <div id="player-chip"></div>
+  <div id="toast"></div>
+
+  <!-- Main Game Layout -->
+  <div class="game-container">
+    <!-- Area 1: Interactive Canvas Grid -->
+    <div class="canvas-area">
+      <canvas id="game-canvas"></canvas>
+    </div>
+
+    <!-- Area 2: Control Panel Sidebar -->
+    <div class="control-sidebar">
+      <div class="sidebar-title">
+        <span>🤖 กล่องโค้ดดิ้งหุ่นยนต์</span>
+      </div>
+      <div class="level-instruction" id="level-instruction-text">
+        โหลดคำใบ้ประจำด่าน...
+      </div>
+
+      <!-- บล็อกที่สามารถกดใช้ได้ -->
+      <div class="section-label">บล็อกคำสั่ง (Toolbox)</div>
+      <div class="toolbox">
+        <div class="code-block block-action" onclick="addBlock('move')">
+          <span>🚶 เดินหน้า</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-action" onclick="addBlock('left')">
+          <span>↩️ เลี้ยวซ้าย</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-action" onclick="addBlock('right')">
+          <span>↪️ เลี้ยวขวา</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-action" onclick="addBlock('pick')">
+          <span>🦾 คีบกล่อง</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-action" onclick="addBlock('drop')">
+          <span>📦 วางกล่อง</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-loop" onclick="addBlock('repeat')">
+          <span>🔁 วนลูป</span><span class="block-plus">+</span>
+        </div>
+        <div class="code-block block-cond" onclick="addBlock('ifelse')">
+          <span>❓ เงื่อนไขสี</span><span class="block-plus">+</span>
+        </div>
+      </div>
+
+      <!-- บอร์ดวางโค้ด -->
+      <div class="section-label">
+        <span>กระดานวางโค้ด (Workspace)</span>
+        <span id="block-limit-text" style="color: var(--color-gold);">ใช้ไป 0/0 บล็อก</span>
+      </div>
+      <div class="workspace-container" id="workspace-blocks">
+        <div class="workspace-empty">
+          <span>กดบล็อกด้านบนเพื่อประกอบคำสั่งควบคุมหุ่นยนต์</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="run-btn" onclick="runProgram()">
+          ▶ รันโค้ด (Run)
+        </button>
+        <button class="btn btn-ghost" id="clear-btn" onclick="clearWorkspace()">
+          🗑️ เคลียร์โค้ดทั้งหมด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Screen (Blocker) -->
+  <div id="blocker">
+    <h1>🤖 Code Craft</h1>
+    <p style="font-weight: bold; color: var(--color-navy-light);">วิศวกรโค้ดดิ้งหุ่นยนต์</p>
+    <p>
+      ช่วยหุ่นยนต์ขนส่งอัจฉริยะคัดแยกกล่องพัสดุในคลังสินค้า! 
+      ต่อ **บล็อกคำสั่ง (Actions, Loops, If-Else)** ให้หุ่นยนต์ทำงานตามโจทย์ 
+      โดยระวังโควตา **จำกัดจำนวนบล็อกคำสั่ง** ในแต่ละด่าน!
+    </p>
+    
+    <div id="my-stats">
+      <div class="ms-cell">
+        <div class="ms-val" id="ms-best">0</div>
+        <div class="ms-label">คะแนนสูงสุด</div>
+      </div>
+      <div class="ms-cell">
+        <div class="ms-val" id="ms-plays">0</div>
+        <div class="ms-label">เล่นไปแล้ว (ครั้ง)</div>
+      </div>
+    </div>
+
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list" class="leaderboard-list">
+        <li class="lb-loading">กำลังโหลดอันดับ...</li>
+      </ul>
+    </div>
+
+    <div class="mode-row">
+      <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ โหมดผจญภัย (8 ด่าน)</button>
+      <button class="btn btn-blue" onclick="startGame('time')">⏱️ โหมดแข่งเวลา (90 วินาที)</button>
+      <button class="btn btn-versus" style="background: linear-gradient(45deg,#f59e0b,#f97316); color: white;" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameover-screen" style="display: none;">
+    <h1 id="go-title">จบเกม!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary">ผ่านไปได้ 0 ด่าน</p>
+    <div id="kampai-result"></div>
+
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list">
+        <li class="lb-loading">—</li>
+      </ul>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+      <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+      <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 คลังเกมการศึกษา</button>
+    </div>
+  </div>
+
+  <!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+  <script src="/games/kampai-sdk.js"></script>
+  <script>
+    window.KAMPAI = window.KAMPAI || {
+      isEmbed: false, isTouch: false, ready: true, student: null, stats: null, leaderboard: [], classmates: [],
+      onReady: function(cb) { cb(this); },
+      setSlug: function() { return this; },
+      submitScore: function() { return false; },
+      goHome: function() { location.href = '/h/nattapong'; },
+      sound: {
+        correct: function() {}, wrong: function() {}, timeUp: function() {}, gameOver: function() {},
+        speak: function() {}, stopSpeak: function() {}, fxFlash: function() {}, bgmStart: function() {},
+        bgmStop: function() {}, defaultBgm: function() {}, unlock: function() {}, mountToggles: function() {}
+      }
+    };
+  </script>
+  <script src="/games/kampai-match.js"></script>
+  <script>
+    window.KampaiMatch = window.KampaiMatch || {
+      create: function() {
+        return {
+          available: false,
+          openMenu: function() { alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น'); },
+          report: function() {}, finish: function() {}, leave: function() {}
+        };
+      }
+    };
+  </script>
+  <script src="/games/kampai-versus.js"></script>
+  <script>
+    window.KampaiVersus = window.KampaiVersus || {
+      create: function(o) {
+        var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+        return {
+          available: false,
+          openMenu: function() { if (m) m.openMenu(); },
+          report: function(s, i) { if (m) m.report(s, i); },
+          finish: function(s, i) { if (m) { m.finish(s, i); return true; } return false; },
+          leave: function() {}, mode: null
+        };
+      }
+    };
+  </script>
+
+  <!-- ═══ Scripts ═══ -->
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

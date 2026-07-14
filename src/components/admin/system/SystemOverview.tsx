@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.163.00 (laser reflect game)',
+        version: 'v1.163.01 (code craft game)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมวิทยาการคำนวณตัวใหม่: Code Craft (วิศวกรโค้ดดิ้งหุ่นยนต์) สำหรับฝึกฝนลำดับขั้นตอน (Sequence), เงื่อนไข (If-Else), และการวนลูป (Loop) ป.4-6',
+            'พัฒนา Visual block coding Workspace ปรับพารามิเตอร์คำสั่งแบบ Inline อำนวยความสะดวกบนอุปกรณ์หน้าจอสัมผัสของโรงเรียน',
+            'ติดตั้งโปรแกรมแปลคำสั่งและทดสอบการทำงานทีละขั้น (Step-by-step Visual Interpreter) พร้อมไฮไลต์โค้ดจำลองความตื่นเต้นในการทำงาน',
+            'ลงทะเบียนข้อมูลเกมและระบบจำลองโรงงานในตาราง educational_hub_items และ game_docs ผ่าน migration และ seed script สำเร็จ',
+        ],
+    },
+    {
+        version: 'v1.163.00 (laser reflect game)',
+        date: '',
         badge: 'bg-emerald-600',
         items: [
             'เพิ่มเกมการศึกษาคณิตศาสตร์ตัวใหม่: Laser Reflect (ลำแสงสะท้อนเรขาคณิต) สำหรับฝึกทักษะพิกัด X/Y และมุมสะท้อน ป.4-6',
