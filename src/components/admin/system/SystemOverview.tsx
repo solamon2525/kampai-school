@@ -272,8 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.162.23 (research lesson plan download)',
+        version: 'v1.163.00 (laser reflect game)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมการศึกษาคณิตศาสตร์ตัวใหม่: Laser Reflect (ลำแสงสะท้อนเรขาคณิต) สำหรับฝึกทักษะพิกัด X/Y และมุมสะท้อน ป.4-6',
+            'พัฒนาด้วยรูปแบบ 5-File Architecture รองรับ Canvas Grid สแน็ปกระจก พลอยเส้นทางแสงเลเซอร์ (Raycasting) ชนสิ่งกีดขวาง/เป้าหมาย',
+            'เชื่อมโยงเข้ากับระบบ KAMPAI SDK และ KampaiVersus สำหรับประลองความรู้ 2 ผู้เล่น (แข่งเครื่องเดียวกันสลับตา หรือ แข่งสดออนไลน์ต่างเครื่อง)',
+            'ลงทะเบียนข้อมูลเกมและโครงสร้างระบบในตาราง educational_hub_items และ game_docs ผ่าน migration และ seed script สำเร็จ',
+        ],
+    },
+    {
+        version: 'v1.162.23 (research lesson plan download)',
+        date: '',
         badge: 'bg-blue-600',
         items: [
             'เพิ่มไฟล์ดาวน์โหลดแผนการจัดการเรียนรู้ ป.4 เกมแข่งสูตรคูณ แยกจากเล่มวิจัยที่ `/docs/classroom-research/p4-multiply-race-lesson-plan.docx`',
