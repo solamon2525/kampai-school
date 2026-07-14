@@ -10,8 +10,23 @@
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm(CFG.BGM || 'cheerful');
 
-    var ST = { score: 0, round: 0, rounds: [], timer: null, sec: 0, charge: 0, charging: false, started: false };
+    var ST = { score: 0, round: 0, rounds: [], timer: null, sec: 0, charge: 0, charging: false, started: false, correct: 0 };
     var ar = null;
+    var qrand = Math.random;
+
+    var vs = KampaiVersus.create({
+        duration: CFG.ROUND_SEC * CFG.ROUNDS,
+        title: 'จรวดพลังงาน',
+        rankBy: 'score',
+        onPlay: function (info) {
+            startGame(info.player, info.rng);
+        },
+        onEnd: function () {
+            ST.charging = false;
+        }
+    });
+    window.vs = vs;
+
 
     function renderPlayer() {
         var s = KAMPAI.student, stt = KAMPAI.stats, chip = $('player-chip');
@@ -47,6 +62,47 @@
         var pct = Math.round(ST.charge * 100);
         $('meterFill').style.height = pct + '%';
         $('meterPct').textContent = pct + '%';
+
+        // Thruster and shake visual effects
+        if (ST.charge > 0) {
+            var maxShake = 12; // pixels
+            var shake = ST.charge * maxShake;
+            var dx = (Math.random() - 0.5) * shake;
+            var dy = (Math.random() - 0.5) * shake;
+            $('rocket').style.transform = 'translateX(-50%) translate(' + dx + 'px, ' + dy + 'px)';
+
+            var baseScale = 0.5 + ST.charge * 1.0;
+            var flicker = 0.8 + Math.random() * 0.4;
+            var finalScale = baseScale * flicker;
+            $('thruster').style.display = 'block';
+            $('thruster').style.transform = 'scale(' + finalScale + ')';
+        } else {
+            $('rocket').style.transform = 'translateX(-50%) translate(0, 0)';
+            $('thruster').style.display = 'none';
+        }
+
+        // HUD alerts state management
+        var alertEl = $('charge-alert');
+        if (alertEl) {
+            var text = '🏃 เริ่มวิ่ง/แตะเลย!';
+            var stateClass = 'state-idle';
+            if (ST.charge > 0 && ST.charge < 0.35) {
+                text = '⚡ ชาร์จพลังงาน ขยับอีก!';
+                stateClass = 'state-low';
+            } else if (ST.charge >= 0.35 && ST.charge < 0.7) {
+                text = '🚀 จรวดเริ่มร้อนแล้ว! สู้ ๆ!';
+                stateClass = 'state-mid';
+            } else if (ST.charge >= 0.7 && ST.charge < 1.0) {
+                text = '🔥 อีกนิดเดียว จะเต็มแล้ว!';
+                stateClass = 'state-high';
+            } else if (ST.charge >= 1.0) {
+                text = '💥 พลังเต็มร้อย! จรวดทะยานฟ้า!';
+                stateClass = 'state-max';
+            }
+            alertEl.textContent = text;
+            alertEl.className = stateClass;
+        }
+
         // จรวดลอยตามพลัง (0→ล่าง, 1→บนสุด)
         $('rocket').style.bottom = (8 + ST.charge * 70) + '%';
     }
@@ -73,7 +129,11 @@
         });
     }
 
-    async function startGame() {
+    async function startGame(player, rng) {
+        if (player && (player instanceof Event || typeof player.preventDefault === 'function')) {
+            player = null;
+        }
+        qrand = rng || Math.random;
         showScreen('gameScreen');
         $('loading').classList.add('on');
         KAMPAI.sound.unlock();
@@ -81,8 +141,14 @@
         await ar.start();
         $('loading').classList.remove('on');
         KAMPAI.sound.bgmStart();
-        ST.score = 0; ST.round = 0; ST.started = true;
-        ST.rounds = DATA.rounds.slice(0, CFG.ROUNDS);
+        ST.score = 0; ST.correct = 0; ST.round = 0; ST.started = true;
+        var pool = DATA.rounds.slice();
+        var shuffled = [];
+        while (pool.length > 0) {
+            var idx = Math.floor(qrand() * pool.length);
+            shuffled.push(pool.splice(idx, 1)[0]);
+        }
+        ST.rounds = shuffled.slice(0, CFG.ROUNDS);
         $('scorePill').textContent = '⭐ 0';
         loadRound();
     }
@@ -111,6 +177,7 @@
         if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
         var full = ST.charge >= 1;
         if (full) {
+            ST.correct++;
             ST.charge = 1; updateMeter();
             $('rocket').classList.add('launch');
             ST.score += 100 + Math.max(0, ST.sec) * 8;   // โบนัสเวลาที่เหลือ
@@ -121,6 +188,9 @@
         }
         $('scorePill').textContent = '⭐ ' + ST.score;
         ST.sec = 0; setStatus();
+        
+        vs.report(ST.score, { correct: ST.correct });
+
         setTimeout(function () {
             ST.round++;
             if (ST.round < ST.rounds.length) loadRound(); else finishGame();
@@ -132,10 +202,11 @@
         ST.started = false;
         if (ar) ar.stop();
         KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
+        if (vs.finish(ST.score, { correct: ST.correct })) return;
         showScreen('resultScreen');
         $('final-score').textContent = ST.score;
         $('final-detail').textContent = 'ปล่อยจรวด ' + ST.rounds.length + ' ลูก';
-        KAMPAI.submitScore(ST.score, { mode: 'normal' });
+        KAMPAI.submitScore(ST.score, { mode: 'normal', correct: ST.correct });
     }
 
     function cleanup() {
@@ -145,10 +216,11 @@
     }
 
     // ── ปุ่ม / fallback แตะออกแรง / exit ──
-    $('startBtn').addEventListener('click', startGame);
-    $('restartBtn').addEventListener('click', startGame);
+    $('startBtn').addEventListener('click', function () { startGame(null); });
+    $('restartBtn').addEventListener('click', function () { startGame(null); });
     $('pushBtn').addEventListener('click', function () { addCharge(CFG.TAP_K); });
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('homeBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
+    $('vsBtn').addEventListener('click', function () { vs.openMenu(); });
     window.addEventListener('beforeunload', cleanup);
 })();
