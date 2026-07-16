@@ -2053,6 +2053,8 @@ export type Database = {
           bgm_preset: string | null
           bgm_url: string | null
           body_html: string | null
+          build_updated_at: string | null
+          build_version: string | null
           category_id: string
           character_frame_count: number | null
           character_animation_config: Json | null
@@ -2094,6 +2096,8 @@ export type Database = {
           bgm_preset?: string | null
           bgm_url?: string | null
           body_html?: string | null
+          build_updated_at?: string | null
+          build_version?: string | null
           category_id: string
           character_frame_count?: number | null
           character_animation_config?: Json | null
@@ -2135,6 +2139,8 @@ export type Database = {
           bgm_preset?: string | null
           bgm_url?: string | null
           body_html?: string | null
+          build_updated_at?: string | null
+          build_version?: string | null
           category_id?: string
           character_frame_count?: number | null
           character_animation_config?: Json | null

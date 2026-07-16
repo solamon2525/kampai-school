@@ -534,14 +534,17 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 **Visibility model (สำคัญ):**
 - เห็นเฉพาะ **เจ้าของเกม (`owner_staff_id`) + ผู้ดูแลระบบ (`is_admin()`)** ผ่าน RLS — **ไม่มี public read**
 - ไม่ล็อกอิน / ไม่ใช่เจ้าของ / ไม่ใช่ admin → query คืน 0 แถว
-- **ห้ามย้ายฟิลด์เหล่านี้ไปเป็นคอลัมน์ใน `educational_hub_items`** — ตารางนั้นมี policy `public_read_ehi`
-  เปิดอ่านทั้งแถวต่อสาธารณะสำหรับเกม published (RLS คุมระดับคอลัมน์ไม่ได้) = รายละเอียดจะหลุด
+- **ห้ามย้ายรายละเอียดภายใน** (`game_format`, `features`, `notes`, `updated_by`) ไปเป็นคอลัมน์ใน
+  `educational_hub_items` — ตารางนั้นมี policy `public_read_ehi` เปิดอ่านทั้งแถวต่อสาธารณะสำหรับเกม published.
+- ข้อยกเว้นที่ตั้งใจให้ public เห็น: `build_version` + `build_updated_at` สำหรับป้าย Build บนปกหน้ารวมเกมเท่านั้น;
+  trigger กลาง sync จาก `game_docs` และห้ามใส่ changelog/ข้อมูลภายในลงสองช่องนี้.
 
 **UI:** ปุ่ม "รายละเอียด" ในการ์ดเกมที่ `GamesTab.tsx` → `GameDocsDialog` (ดู/แก้). service = `gameDocsService`.
 
 **กฎบันทึก (Documentation Discipline — ผูกกับ Rule 14.9):** ทุกครั้งที่ seed เกมใหม่หรือแก้เกม
 ต้อง upsert `game_docs` (`ON CONFLICT (item_id) DO UPDATE`) **ใน migration เดียวกัน** + เด้งเวอร์ชัน
-(เทมเพลตใน `GAME.md` → "DB Migration Pattern").
++ `updated_at = now()` (เทมเพลตใน `GAME.md` → "DB Migration Pattern"). เมื่อ version เปลี่ยน ระบบจะประทับ
+เวลา server และ sync ป้าย `Build {version} · วันเวลา` ไปมุมล่างซ้ายของปกโดยอัตโนมัติ.
 
 ### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
 

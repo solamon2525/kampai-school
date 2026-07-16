@@ -18,6 +18,10 @@
 > 🔖 **บังคับทุกเกม:** ทุกครั้งที่สร้าง/แก้เกม ต้องเขียน/อัปเดต `game_docs` (รูปแบบ + ฟีเจอร์ + เวอร์ชัน)
 > ใน migration เดียวกัน + เด้งเวอร์ชัน — ดูเทมเพลตใน "🗄️ DB Migration Pattern". เห็นในหลังบ้านที่ปุ่ม
 > "รายละเอียด" ในการ์ดเกม GamesTab (เฉพาะเจ้าของ+admin)
+>
+> 🕒 **Build metadata บังคับ:** ทุกครั้งที่แก้เกมต้อง bump `game_docs.version` และให้ `updated_at = now()` ใน upsert เดียวกัน
+> trigger กลางจะ sync ไป `educational_hub_items.build_version` + `build_updated_at` เพื่อแสดงบนมุมล่างซ้ายของปกในหน้ารวมเกม
+> ห้ามแก้เกมโดยคง version เดิม และห้ามกรอกวันเวลาด้วยมือ; PostgreSQL เป็นแหล่งเวลามาตรฐาน
 
 มีแล้ว: kampai postMessage + Supabase leaderboard + Score HUD + Lives HUD + ระบบเสียงรวม (SFX/TTS/BGM)
 ห้ามทำ: input ชื่อผู้เล่น, Firebase SDK, `window.location.href` ตรง ๆ
@@ -538,7 +542,7 @@ BEGIN
         features    = EXCLUDED.features,
         version     = EXCLUDED.version,
         notes       = EXCLUDED.notes,
-        updated_at  = now();
+        updated_at  = now(); -- บังคับ: sync วันเวลา Build ล่าสุดขึ้นปกหน้ารวมเกม
 END $$;
 ```
 

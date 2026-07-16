@@ -76,6 +76,8 @@ export type EduHubItem = {
     blueprint_id: string | null;
     blueprint_json: Record<string, unknown> | null;
     corner_badge: string | null;
+    build_version: string | null;
+    build_updated_at: string | null;
     created_at: string;
     updated_at: string;
 };

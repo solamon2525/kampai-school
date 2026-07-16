@@ -272,6 +272,26 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.163.04 (game build metadata)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'หน้ารวมเกมแสดง Build version และวันเวลาแก้ไขล่าสุดที่มุมล่างซ้ายของภาพปก โดยไม่เพิ่มความสูงหรือเปลี่ยนโครงสร้างการ์ดเดิม',
+            'migration 398 เพิ่ม build_version/build_updated_at และ trigger sync อัตโนมัติจาก game_docs ทุกครั้งที่สร้างหรืออัปเดตเวอร์ชันเกม',
+            'GAME.md บังคับทุกการแก้เกมให้ bump game_docs.version และ updated_at = now() เพื่อให้ข้อมูลบนปกเป็นปัจจุบัน',
+        ],
+    },
+    {
+        version: 'v1.163.03 (Vocab Hub Math Question)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มโหมด Math Question ในหมวด Numbers ของสื่อ Vocab Hub: โจทย์ภาษาอังกฤษ What is ...? พร้อมเฉลยประโยค The answer is ... และเสียงอ่าน en-US',
+            'รองรับระดับง่าย 1–20, กลาง 1–100, ยากบวก-ลบ-คูณ-หาร และรูปแบบคิดแล้วเฉลยหรือเลือกตอบ 4 ตัวเลือก',
+            'เพิ่มคะแนน streak, metadata รายรอบ และเรียก KAMPAI.beginRound() เพื่อให้เล่นซ้ำแล้วส่งคะแนนได้ถูกต้อง',
+        ],
+    },
+    {
         version: 'v1.163.02 (energy rocket tuning)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

@@ -539,6 +539,11 @@ const CompactThumb = ({ item }: { item: EduHubItem }) => {
 const ItemThumbnail = ({ item, cornerBadge }: { item: EduHubItem; cornerBadge?: string | null }) => {
     const { coverMs, videoMs, coverRound2MinMs, coverRound2MaxMs } = useGamePreviewTiming();
     const badgeText = cornerBadge || (!!item.game_slug && AR_GAME_SLUGS.has(item.game_slug) ? 'AR' : null);
+    const buildBadge = item.build_version && item.build_updated_at
+        ? `Build ${item.build_version} · ${new Intl.DateTimeFormat('th-TH', {
+            day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit',
+        }).format(new Date(item.build_updated_at))}`
+        : null;
     if (item.thumbnail_url) {
         // กริดวิดีโอ: มีรูปปก + คลิปเดโม → สลับปก ↔ วิดีโอวนซ้ำ (จังหวะจากหลังบ้าน)
         if (item.preview_video_url) {
@@ -554,6 +559,7 @@ const ItemThumbnail = ({ item, cornerBadge }: { item: EduHubItem; cornerBadge?: 
                         coverRound2MaxMs={coverRound2MaxMs}
                     />
                     {badgeText && <ArBadge text={badgeText} />}
+                    {buildBadge && <BuildBadge text={buildBadge} />}
                 </div>
             );
         }
@@ -561,6 +567,7 @@ const ItemThumbnail = ({ item, cornerBadge }: { item: EduHubItem; cornerBadge?: 
             <div className="relative">
                 <GameCoverThumb src={item.thumbnail_url!} alt={item.title} />
                 {badgeText && <ArBadge text={badgeText} />}
+                {buildBadge && <BuildBadge text={buildBadge} />}
             </div>
         );
     }
@@ -598,6 +605,12 @@ const ItemThumbnail = ({ item, cornerBadge }: { item: EduHubItem; cornerBadge?: 
         </div>
     );
 };
+
+const BuildBadge = ({ text }: { text: string }) => (
+    <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md border border-border/70 bg-background/90 px-2 py-1 text-[10px] font-semibold leading-none text-foreground shadow-sm backdrop-blur-sm">
+        {text}
+    </span>
+);
 
 const TypeIcon = ({ item }: { item: EduHubItem }) => {
     const cls = 'h-3.5 w-3.5 flex-shrink-0 text-muted-foreground';
