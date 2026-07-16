@@ -124,11 +124,12 @@
               <select class="lab-select" id="gradeSelect"><option value="all">ทุกระดับ</option><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select>
             </label>
             <div class="controls" id="shapeControls"></div>
-            <p class="result" id="shapeResult"></p>
-            <div class="steps on" id="shapeSteps"></div>
+            <p class="result" id="shapeResult">🔒 คำตอบถูกซ่อนไว้</p>
+            <div class="steps" id="shapeSteps"></div>
             <div class="answer-row">
               <input type="number" id="shapeAnswer" placeholder="พื้นที่?" step="0.01" />
-              <button type="button" class="btn btn-primary" id="btnShapeCheck">ตรวจ</button>
+              <button type="button" class="btn btn-primary" id="btnShapeCheck">✅ ตรวจคำตอบ</button>
+              <button type="button" class="btn btn-accent" id="btnShapeReveal">👁️ ดูเฉลย</button>
             </div>
             <p class="fb" id="shapeFb"></p>
             <button type="button" class="btn btn-accent" id="btnShapeRandom">🎲 สุ่มรูปและขนาด</button>
@@ -287,7 +288,7 @@
       else if (s.id === 'semicircle') body = '<path class="shape-fill" d="M70 285 A170 170 0 0 1 410 285 Z"/><line class="measure" x1="240" y1="285" x2="410" y2="285"/>';
       else if (s.id === 'quarter') body = '<path class="shape-fill" d="M95 300 L95 55 A245 245 0 0 1 340 300 Z"/><line class="measure" x1="95" y1="300" x2="340" y2="300"/>';
       else body = '<path class="shape-fill" d="M55 45 H425 V310 H270 V205 H55 Z"/><rect class="shape-cut" x="270" y="205" width="155" height="105"/>';
-      measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">' + s.name + ' · พื้นที่ ' + rounded(s.calc(p)) + (s.pi ? ' (ใช้ π≈3.14)' : '') + ' ตร.หน่วย</text>';
+      measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">' + s.name + (s.pi ? ' · ใช้ π≈3.14' : '') + '</text>';
       return '<svg viewBox="0 0 480 370" role="img" aria-label="' + s.name + '">' + body + measures + '</svg>';
     }
 
@@ -320,12 +321,12 @@
       updateShapeView();
     }
     function updateShapeView() {
-      const answer=rounded(currentShape.calc(shapeValues));
       document.getElementById('shapeStage').style.setProperty('--visual-scale',visualScale);
       document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues);
       document.getElementById('mainFormula').textContent='พื้นที่'+currentShape.name+' = '+currentShape.formula;
-      document.getElementById('shapeResult').textContent='พื้นที่ = '+answer+' ตารางหน่วย';
-      document.getElementById('shapeSteps').textContent='สูตร: '+currentShape.formula+' · แทนค่าจากภาพ แล้วคำนวณตามลำดับ';
+      document.getElementById('shapeResult').textContent='🔒 คำตอบถูกซ่อนไว้ — ลองคำนวณก่อน';
+      document.getElementById('shapeSteps').classList.remove('on');
+      document.getElementById('shapeSteps').textContent='';
       document.getElementById('shapeAnswer').value=''; document.getElementById('shapeFb').textContent='';
     }
 
@@ -380,6 +381,14 @@
       const fb=document.getElementById('shapeFb'); fb.className='fb '+(ok?'ok':'no');
       fb.textContent=ok?'ถูกต้อง! พื้นที่ = '+expected+' ตารางหน่วย':'ลองอีกครั้ง — ใช้สูตร '+currentShape.formula;
       ding(ok);
+    };
+    document.getElementById('btnShapeReveal').onclick = () => {
+      const expected=rounded(currentShape.calc(shapeValues));
+      const values=currentShape.params.map(([key,label])=>label+' = '+shapeValues[key]).join(', ');
+      document.getElementById('shapeResult').textContent='พื้นที่ = '+expected+' ตารางหน่วย';
+      const steps=document.getElementById('shapeSteps');
+      steps.textContent='สูตร: '+currentShape.formula+' · แทนค่า '+values+' · คำตอบ = '+expected+' ตารางหน่วย';
+      steps.classList.add('on');
     };
     function setVisualScale(next) {
       visualScale=Math.max(.75,Math.min(2,Math.round(next*100)/100));

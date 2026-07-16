@@ -1,0 +1,22 @@
+-- Migration 405: Area Lab hides numeric answers until check/reveal (v2.0.1)
+DO $$
+DECLARE
+  v_item_id UUID;
+BEGIN
+  SELECT id INTO v_item_id
+  FROM public.educational_hub_items
+  WHERE external_url = '/games/math/rect-area-media.html'
+  ORDER BY updated_at DESC
+  LIMIT 1;
+
+  IF v_item_id IS NULL THEN RAISE EXCEPTION 'item rect-area-media not found'; END IF;
+
+  UPDATE public.game_docs
+  SET version = 'v2.0.1',
+      features = array_append(features, 'ซ่อนคำตอบตัวเลขและแยกปุ่มตรวจคำตอบกับดูเฉลย'),
+      notes = 'v2.0.1: ไม่แสดงค่าพื้นที่ก่อนผู้เรียนตอบ ปรับค่าใหม่แล้วปิดเฉลยอัตโนมัติ',
+      updated_at = now()
+  WHERE item_id = v_item_id;
+
+  IF NOT FOUND THEN RAISE EXCEPTION 'game_docs rect-area-media not found'; END IF;
+END $$;
