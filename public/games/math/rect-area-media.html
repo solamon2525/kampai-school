@@ -80,6 +80,14 @@
     .projector .stage { padding:8px; }
     .projector .visual-viewport { min-height:calc(100vh - 100px); }
     .projector .shape-label { font-size:24px; }
+    .step-coach { display:none; background:#fffbeb; border:2px solid #fbbf24; border-radius:16px; padding:14px; gap:10px; }
+    .step-coach.on { display:grid; }
+    .step-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .step-title { color:#92400e; font-size:1.05rem; font-weight:800; }
+    .step-count { color:#78350f; background:#fef3c7; border-radius:999px; padding:4px 10px; font-weight:800; white-space:nowrap; }
+    .step-text { color:#78350f; font-weight:700; line-height:1.55; }
+    .step-nav { display:flex; gap:8px; }
+    .step-nav .btn { flex:1; min-height:46px; }
   </style>
 </head>
 <body>
@@ -125,11 +133,18 @@
             </label>
             <div class="controls" id="shapeControls"></div>
             <p class="result" id="shapeResult">🔒 คำตอบถูกซ่อนไว้</p>
-            <div class="steps" id="shapeSteps"></div>
+            <div class="step-coach" id="shapeSteps">
+              <div class="step-head"><strong class="step-title" id="stepTitle"></strong><span class="step-count" id="stepCount"></span></div>
+              <p class="step-text" id="stepText"></p>
+              <div class="step-nav">
+                <button type="button" class="btn btn-ghost" id="btnStepPrev">← ขั้นก่อนหน้า</button>
+                <button type="button" class="btn btn-primary" id="btnStepNext">ขั้นถัดไป →</button>
+              </div>
+            </div>
             <div class="answer-row">
               <input type="number" id="shapeAnswer" placeholder="พื้นที่?" step="0.01" />
               <button type="button" class="btn btn-primary" id="btnShapeCheck">✅ ตรวจคำตอบ</button>
-              <button type="button" class="btn btn-accent" id="btnShapeReveal">👁️ ดูเฉลย</button>
+              <button type="button" class="btn btn-accent" id="btnShapeReveal">🧑‍🏫 เฉลยทีละขั้น</button>
             </div>
             <p class="fb" id="shapeFb"></p>
             <button type="button" class="btn btn-accent" id="btnShapeRandom">🎲 สุ่มรูปและขนาด</button>
@@ -272,10 +287,10 @@
       { id:'quarter', grade:6, icon:'◔', name:'¼ วงกลม', params:[['radius','รัศมี',6]], formula:'¼ × π × รัศมี²', calc:p=>3.14*p.radius*p.radius/4, pi:true },
       { id:'composite', grade:6, icon:'🧩', name:'รูปประกอบ', params:[['width','กว้างรวม',10],['height','สูงรวม',8],['cutW','ส่วนตัดกว้าง',4],['cutH','ส่วนตัดสูง',3]], formula:'รูปใหญ่ − ส่วนที่ตัดออก', calc:p=>p.width*p.height-p.cutW*p.cutH },
     ];
-    let currentShape = SHAPES[0], shapeValues = {}, visualScale = Number(localStorage.getItem('area-visual-scale')) || 1;
+    let currentShape = SHAPES[0], shapeValues = {}, visualScale = Number(localStorage.getItem('area-visual-scale')) || 1, shapeStepIndex = -1;
 
     function rounded(n) { return Math.round(n * 100) / 100; }
-    function shapeSvg(s, p) {
+    function shapeSvg(s, p, step) {
       let body = '', measures = '';
       if (s.id === 'square') body = '<rect class="shape-fill" x="100" y="45" width="260" height="260"/>';
       else if (s.id === 'rectangle') body = '<rect class="shape-fill" x="65" y="75" width="350" height="220"/>';
@@ -288,7 +303,11 @@
       else if (s.id === 'semicircle') body = '<path class="shape-fill" d="M70 285 A170 170 0 0 1 410 285 Z"/><line class="measure" x1="240" y1="285" x2="410" y2="285"/>';
       else if (s.id === 'quarter') body = '<path class="shape-fill" d="M95 300 L95 55 A245 245 0 0 1 340 300 Z"/><line class="measure" x1="95" y1="300" x2="340" y2="300"/>';
       else body = '<path class="shape-fill" d="M55 45 H425 V310 H270 V205 H55 Z"/><rect class="shape-cut" x="270" y="205" width="155" height="105"/>';
-      measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">' + s.name + (s.pi ? ' · ใช้ π≈3.14' : '') + '</text>';
+      const values=s.params.map(([key,label])=>label+' '+p[key]).join(' · ');
+      if (step === 0) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 1: อ่านค่าจากรูป — '+values+'</text>';
+      else if (step === 1) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 2: '+s.formula+'</text>';
+      else if (step === 2) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 3: พื้นที่ = '+rounded(s.calc(p))+' ตารางหน่วย ✓</text>';
+      else measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">' + s.name + (s.pi ? ' · ใช้ π≈3.14' : '') + '</text>';
       return '<svg viewBox="0 0 480 370" role="img" aria-label="' + s.name + '">' + body + measures + '</svg>';
     }
 
@@ -325,8 +344,9 @@
       document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues);
       document.getElementById('mainFormula').textContent='พื้นที่'+currentShape.name+' = '+currentShape.formula;
       document.getElementById('shapeResult').textContent='🔒 คำตอบถูกซ่อนไว้ — ลองคำนวณก่อน';
+      shapeStepIndex=-1;
       document.getElementById('shapeSteps').classList.remove('on');
-      document.getElementById('shapeSteps').textContent='';
+      document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues,-1);
       document.getElementById('shapeAnswer').value=''; document.getElementById('shapeFb').textContent='';
     }
 
@@ -382,13 +402,30 @@
       fb.textContent=ok?'ถูกต้อง! พื้นที่ = '+expected+' ตารางหน่วย':'ลองอีกครั้ง — ใช้สูตร '+currentShape.formula;
       ding(ok);
     };
-    document.getElementById('btnShapeReveal').onclick = () => {
+    function renderShapeStep() {
       const expected=rounded(currentShape.calc(shapeValues));
       const values=currentShape.params.map(([key,label])=>label+' = '+shapeValues[key]).join(', ');
-      document.getElementById('shapeResult').textContent='พื้นที่ = '+expected+' ตารางหน่วย';
-      const steps=document.getElementById('shapeSteps');
-      steps.textContent='สูตร: '+currentShape.formula+' · แทนค่า '+values+' · คำตอบ = '+expected+' ตารางหน่วย';
-      steps.classList.add('on');
+      const titles=['1. อ่านข้อมูลจากรูป','2. เลือกสูตรและแทนค่า','3. คำนวณและใส่หน่วย'];
+      const texts=[
+        'ดูรูป '+currentShape.name+' แล้วจดค่าที่โจทย์กำหนด: '+values,
+        'ใช้สูตร “'+currentShape.formula+'” แล้วแทนค่าตัวเลขจากขั้นที่ 1'+(currentShape.pi?' โดยใช้ π ≈ 3.14':''),
+        'คำนวณตามลำดับ จะได้พื้นที่ '+expected+' ตารางหน่วย อย่าลืมเขียนหน่วยกำลังสอง',
+      ];
+      document.getElementById('stepTitle').textContent=titles[shapeStepIndex];
+      document.getElementById('stepCount').textContent='ขั้น '+(shapeStepIndex+1)+' / 3';
+      document.getElementById('stepText').textContent=texts[shapeStepIndex];
+      document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues,shapeStepIndex);
+      document.getElementById('btnStepPrev').disabled=shapeStepIndex===0;
+      document.getElementById('btnStepNext').textContent=shapeStepIndex===2?'✓ จบการเฉลย':'ขั้นถัดไป →';
+      document.getElementById('shapeResult').textContent=shapeStepIndex===2?'พื้นที่ = '+expected+' ตารางหน่วย':'🔒 คำตอบยังถูกซ่อนไว้';
+    }
+    document.getElementById('btnShapeReveal').onclick = () => {
+      shapeStepIndex=0; document.getElementById('shapeSteps').classList.add('on'); renderShapeStep();
+    };
+    document.getElementById('btnStepPrev').onclick=()=>{ if(shapeStepIndex>0){ shapeStepIndex--; renderShapeStep(); } };
+    document.getElementById('btnStepNext').onclick=()=>{
+      if(shapeStepIndex<2){ shapeStepIndex++; renderShapeStep(); }
+      else { shapeStepIndex=-1; document.getElementById('shapeSteps').classList.remove('on'); updateShapeView(); }
     };
     function setVisualScale(next) {
       visualScale=Math.max(.75,Math.min(2,Math.round(next*100)/100));
