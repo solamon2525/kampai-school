@@ -63,7 +63,7 @@
       border-radius: 12px;
       padding: 12px;
       font-family: inherit;
-      font-size: 1.35rem;
+      font-size: 1.8rem;
       font-weight: 800;
       color: #fff;
       text-align: center;
@@ -117,18 +117,22 @@
       gap: 12px;
     }
     .num-card {
-      width: 72px;
-      height: 88px;
-      border-radius: 14px;
+      width: clamp(82px, 12vw, 112px);
+      height: clamp(100px, 15vw, 136px);
+      border-radius: 18px;
       background: linear-gradient(145deg, #fff, #fef3c7);
       border: 3px solid #f59e0b;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: clamp(3rem, 7vw, 4.75rem);
       font-weight: 800;
       color: #b45309;
       box-shadow: 0 6px 16px rgba(245, 158, 11, 0.2);
+    }
+    @media (max-width: 420px) {
+      .cards-row { gap: 8px; }
+      .num-card { width: calc(25% - 8px); min-width: 68px; height: 92px; font-size: 2.75rem; }
     }
     .placeholder {
       text-align: center;
@@ -212,7 +216,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มชุดที่ทำได้</button>
+      <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
       <button type="button" class="btn btn-primary" id="btnReveal">✅ แสดงวิธีคิด</button>
       <button type="button" class="btn btn-ghost" id="btnHide">ซ่อนเฉลย</button>
       <button type="button" class="btn btn-ghost" id="btnSpeak">🔊 ฟังอธิบาย</button>
@@ -267,7 +271,10 @@
         '+': function (a, b) { return a + b; },
         '-': function (a, b) { return a - b; },
         '*': function (a, b) { return a * b; },
-        '/': function (a, b) { return b !== 0 ? a / b : null; },
+        '/': function (a, b) {
+          if (b === 0 || !Number.isInteger(a) || !Number.isInteger(b) || a % b !== 0) return null;
+          return a / b;
+        },
       };
       var opSyms = ['+', '-', '*', '/'];
       var EPS = 0.0001;
@@ -431,16 +438,22 @@
       }
 
       function generateSolvableSet() {
-        var nums, sol, attempt = 0;
+        var nums, sol, signature, attempt = 0;
+        var previous = '';
+        try { previous = localStorage.getItem('kampai-math24-last-set') || ''; } catch (e) {}
         while (attempt < 500) {
           nums = [
-            Math.floor(Math.random() * 9) + 1,
-            Math.floor(Math.random() * 9) + 1,
-            Math.floor(Math.random() * 9) + 1,
-            Math.floor(Math.random() * 9) + 1,
+            Math.floor(Math.random() * 13) + 1,
+            Math.floor(Math.random() * 13) + 1,
+            Math.floor(Math.random() * 13) + 1,
+            Math.floor(Math.random() * 13) + 1,
           ];
+          signature = nums.slice().sort(function (a, b) { return a - b; }).join('-');
           sol = solve24WithSteps(nums);
-          if (sol) return { nums: nums, sol: sol };
+          if (sol && signature !== previous) {
+            try { localStorage.setItem('kampai-math24-last-set', signature); } catch (e) {}
+            return { nums: nums, sol: sol };
+          }
           attempt++;
         }
         return { nums: [3, 8, 3, 3], sol: solve24WithSteps([3, 8, 3, 3]) };
@@ -555,7 +568,7 @@
       document.getElementById('btnSpeak').onclick = speakSteps;
       inputs.forEach(function (inp) { inp.addEventListener('input', syncCards); });
 
-      syncCards();
+      randomize();
     })();
   </script>
 </body>
