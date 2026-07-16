@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.163.05 (Thai Vocab Hub grid 10×10)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'Thai Vocab Hub ขยายตัวเลือกกริดทบทวนจากสูงสุด 7×7 เป็น 8×8, 9×9 และ 10×10',
+            'ปรับ gap, padding, ปุ่มเสียง และขนาดอักษรตามความหนาแน่น พร้อมให้คำยาวขยายได้ถึง 4 ช่องเพื่อไม่ตัดตัวอักษร',
+            'migration 401 bump game_docs เป็น v1.9.0 และใช้ระบบ Build timestamp บนปกหน้ารวมเกม',
+        ],
+    },
+    {
         version: 'v1.163.04 (game build metadata)',
         date: 'ล่าสุด',
         badge: 'bg-blue-600',

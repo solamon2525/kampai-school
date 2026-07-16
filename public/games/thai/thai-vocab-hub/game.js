@@ -226,6 +226,9 @@ const GRID_COLS_OPTIONS = [
   { value: '5', label: '5×5' },
   { value: '6', label: '6×6' },
   { value: '7', label: '7×7' },
+  { value: '8', label: '8×8' },
+  { value: '9', label: '9×9' },
+  { value: '10', label: '10×10' },
 ];
 let gridCols = 'auto';
 
@@ -290,13 +293,13 @@ function fitGridWordSpans(force) {
 
   gridSpanFitting = true;
   cards.forEach((card) => {
-    card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3');
+    card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
     card.dataset.spanLevel = '1';
   });
 
   const maxSpan = gridCols === 'auto'
     ? 3
-    : Math.min(3, parseInt(gridCols, 10) || 3);
+    : Math.min(parseInt(gridCols, 10) >= 8 ? 4 : 3, parseInt(gridCols, 10) || 3);
 
   if (maxSpan < 2) {
     lastGridFitWidth = w;
@@ -326,9 +329,10 @@ function fitGridWordSpans(force) {
       if (textEl.scrollWidth > textEl.clientWidth + 1) {
         const next = level + 1;
         card.dataset.spanLevel = String(next);
-        card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3');
+        card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
         if (next === 2) card.classList.add('grid-flip-card--span2');
         else if (next === 3) card.classList.add('grid-flip-card--span3');
+        else if (next === 4) card.classList.add('grid-flip-card--span4');
         changed = true;
       }
     });

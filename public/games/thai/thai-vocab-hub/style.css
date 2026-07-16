@@ -559,6 +559,32 @@ body {
   grid-template-columns: repeat(7, 1fr);
 }
 
+.words-grid[data-grid-cols="8"] {
+  --grid-gap: 6px;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.words-grid[data-grid-cols="9"] {
+  --grid-gap: 5px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.words-grid[data-grid-cols="10"] {
+  --grid-gap: 4px;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) {
+  --grid-word-ratio: 0.22;
+  --grid-word-max: 44px;
+  --grid-emoji-ratio: 0.16;
+  --grid-emoji-max: 36px;
+  --grid-reading-ratio: 0.13;
+  --grid-reading-max: 28px;
+  --grid-meaning-ratio: 0.10;
+  --grid-meaning-max: 22px;
+}
+
 .grid-cat-header {
   grid-column: 1 / -1;
   display: flex;
@@ -717,6 +743,11 @@ body {
   aspect-ratio: 3 / 1;
 }
 
+.grid-flip-card--span4 {
+  grid-column: span 4;
+  aspect-ratio: 4 / 1;
+}
+
 /* พลิกหลัง — ความหมายยาวขยายความสูงชั่วคราว แทน scrollbar */
 .grid-flip-card--expand-back {
   aspect-ratio: unset;
@@ -835,7 +866,7 @@ body {
 
 .grid-word-text {
   font-size: clamp(
-    calc(13px * var(--font-scale)),
+    calc(var(--grid-word-min, 13px) * var(--font-scale)),
     calc(var(--grid-word-ratio, 0.24) * 100cqh * var(--font-scale)),
     calc(var(--grid-word-max, 72px) * var(--font-scale))
   );
@@ -854,6 +885,30 @@ body {
   min-height: 0;
   padding: 0 clamp(2px, 3cqmin, 6px);
   overflow: hidden;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .grid-flip-face {
+  padding: clamp(2px, 4cqmin, 6px);
+  gap: clamp(1px, 2cqmin, 3px);
+  border-width: 1px;
+  border-radius: 8px;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .grid-flip-inner {
+  border-radius: 8px;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .grid-word-text {
+  --grid-word-min: 8px;
+  padding-inline: 1px;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .grid-say-btn {
+  top: 2px;
+  right: 2px;
+  width: clamp(16px, 12cqmin, 24px);
+  height: clamp(16px, 12cqmin, 24px);
+  font-size: clamp(8px, 8cqmin, 12px);
 }
 
 .grid-reading {
