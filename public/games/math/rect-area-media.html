@@ -4,7 +4,7 @@
   <script src="/games/kampai-sdk.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>พื้นที่สี่เหลี่ยมมุมฉาก — สื่อการสอน — บ้านคำไผ่</title>
+  <title>ห้องทดลองพื้นที่รูปเรขาคณิต — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,9 +33,9 @@
     .formula.blue { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
     .grid-wrap { overflow: auto; display: flex; justify-content: center; padding: 8px; background: #f0f9ff; border-radius: 16px; border: 2px solid var(--line); }
     .grid { display: grid; gap: 2px; background: #0284c7; padding: 2px; border-radius: 8px; }
-    .cell { width: 36px; height: 36px; background: #fef9c3; border-radius: 2px; }
+    .cell { width: var(--grid-cell,36px); height: var(--grid-cell,36px); background: #fef9c3; border-radius: 2px; }
     .cell.hi { background: #38bdf8; }
-    @media (min-width: 700px) { .cell { width: 44px; height: 44px; } }
+    @media (min-width: 700px) { .shell:not([style*="--grid-cell"]) .cell { width:44px; height:44px; } }
     .controls { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; }
     .ctrl { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--deep); }
     .ctrl input[type=range] { width: 120px; }
@@ -59,33 +59,84 @@
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
     .shake { animation: shake .35s; }
+    .shape-picker { display:flex; gap:8px; overflow-x:auto; padding:4px 2px 8px; scrollbar-width:thin; }
+    .shape-btn { flex:0 0 auto; min-height:46px; border:2px solid var(--line); background:#fff; color:var(--deep); border-radius:12px; padding:8px 12px; font:700 .9rem inherit; cursor:pointer; }
+    .shape-btn.on { color:#fff; background:var(--deep); border-color:var(--deep); }
+    .lab-layout { display:grid; gap:14px; align-items:start; }
+    @media (min-width:800px) { .lab-layout { grid-template-columns:minmax(0,1.45fr) minmax(270px,.75fr); } }
+    .visual-viewport { min-height:360px; overflow:auto; display:grid; place-items:center; padding:16px; background:#f0f9ff; border:2px solid var(--line); border-radius:16px; }
+    .shape-stage { width:min(100%,620px); transform:scale(var(--visual-scale,1)); transform-origin:center; transition:transform .18s ease; }
+    .shape-stage svg { display:block; width:100%; height:auto; max-height:520px; }
+    .shape-fill { fill:#bae6fd; stroke:#0369a1; stroke-width:4; stroke-linejoin:round; }
+    .shape-cut { fill:#f0f9ff; stroke:#0369a1; stroke-width:3; stroke-dasharray:7 6; }
+    .measure { stroke:#dc2626; stroke-width:3; stroke-dasharray:7 5; }
+    .shape-label { fill:#0c4a6e; font:700 18px Sarabun,sans-serif; }
+    .lab-card { background:#fff; border:2px solid #bae6fd; border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:12px; }
+    .lab-select { min-height:46px; border:2px solid var(--line); border-radius:12px; padding:8px 10px; font:700 1rem inherit; color:var(--deep); background:#fff; }
+    .zoom-tools { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    .zoom-tools .btn { min-width:48px; min-height:48px; padding:8px 12px; }
+    .projector .toolbar, .projector .footer { display:none; }
+    .projector header { padding:8px 14px; }
+    .projector .stage { padding:8px; }
+    .projector .visual-viewport { min-height:calc(100vh - 100px); }
+    .projector .shape-label { font-size:24px; }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
       <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
-      <h1>🟦 พื้นที่สี่เหลี่ยมมุมฉาก</h1>
-      <span class="badge">ป.4 · คณิตศาสตร์</span>
+      <h1>📐 ห้องทดลองพื้นที่รูปเรขาคณิต</h1>
+      <span class="badge">ป.4–ป.6 · คณิตศาสตร์</span>
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้กริด</button>
+        <button type="button" data-mode="shapes" class="on">🔷 รูปทรงและสูตร</button>
+        <button type="button" data-mode="learn">📖 เรียนรู้กริด</button>
         <button type="button" data-mode="count">🔢 นับช่อง</button>
         <button type="button" data-mode="formula">✖️ สูตร</button>
         <button type="button" data-mode="story">📝 โจทย์เรื่อง</button>
         <button type="button" data-mode="vs">⚖️ พื้นที่ vs เส้นรอบรูป</button>
       </span>
-      <p class="hint" id="hintText">ลากปรับกว้าง×ยาว แล้วนับช่อง — พื้นที่ = ก × ย</p>
+      <p class="hint" id="hintText">เลือกรูป ปรับขนาด และเรียนรู้สูตรพื้นที่ ป.4–ป.6</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
     <div class="stage">
       <div class="formula-bar">
-        <div class="formula blue">พื้นที่ = กว้าง × ยาว</div>
-        <div class="formula">เส้นรอบรูป = 2 × (กว้าง + ยาว)</div>
+        <div class="formula blue" id="mainFormula">พื้นที่ = กว้าง × ยาว</div>
+        <div class="formula" id="mainPerimeter">เลือก “พื้นที่ vs เส้นรอบรูป” เพื่อเปรียบเทียบ</div>
       </div>
 
-      <div class="panel on" id="panel-learn">
+      <div class="panel on" id="panel-shapes">
+        <div class="shape-picker" id="shapePicker"></div>
+        <div class="lab-layout">
+          <div>
+            <div class="visual-viewport" id="visualViewport"><div class="shape-stage" id="shapeStage"></div></div>
+            <div class="zoom-tools">
+              <button type="button" class="btn btn-ghost" id="btnZoomOut" aria-label="ย่อภาพ">−</button>
+              <button type="button" class="btn btn-ghost" id="btnZoomFit">↺ พอดี</button>
+              <button type="button" class="btn btn-ghost" id="btnZoomIn" aria-label="ขยายภาพ">＋</button>
+              <button type="button" class="btn btn-accent" id="btnProjector">📽️ โปรเจกเตอร์</button>
+            </div>
+          </div>
+          <div class="lab-card">
+            <label class="ctrl">ระดับชั้น
+              <select class="lab-select" id="gradeSelect"><option value="all">ทุกระดับ</option><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select>
+            </label>
+            <div class="controls" id="shapeControls"></div>
+            <p class="result" id="shapeResult"></p>
+            <div class="steps on" id="shapeSteps"></div>
+            <div class="answer-row">
+              <input type="number" id="shapeAnswer" placeholder="พื้นที่?" step="0.01" />
+              <button type="button" class="btn btn-primary" id="btnShapeCheck">ตรวจ</button>
+            </div>
+            <p class="fb" id="shapeFb"></p>
+            <button type="button" class="btn btn-accent" id="btnShapeRandom">🎲 สุ่มรูปและขนาด</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-learn">
         <div class="controls">
           <label class="ctrl">กว้าง <input type="range" id="wRange" min="1" max="10" value="4" /> <span id="wVal">4</span></label>
           <label class="ctrl">ยาว <input type="range" id="hRange" min="1" max="10" value="3" /> <span id="hVal">3</span></label>
@@ -152,7 +203,7 @@
         </div>
       </div>
     </div>
-    <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.4/3</strong> · คู่เกม <a href="/play/mini-farm-island">เกาะฟาร์มจิ๋ว</a></footer>
+    <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.4/3 · ป.5/4 · ป.6/2–3</strong> · คู่เกม <a href="/play/mini-farm-island">เกาะฟาร์มจิ๋ว</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'rect-area-media';
@@ -185,6 +236,7 @@
     ];
 
     const HINTS = {
+      shapes: 'เลือกรูป ปรับขนาด ขยายภาพ และทดลองคำนวณพื้นที่ ป.4–ป.6',
       learn: 'ลากปรับกว้าง×ยาว แล้วนับช่อง — พื้นที่ = ก × ย',
       count: 'นับช่องบนกริด แล้วกรอกพื้นที่ — ไม่มีคะแนน',
       formula: 'ใส่ ก และ ย → คำนวณพื้นที่ = ก×ย',
@@ -206,6 +258,77 @@
       if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
     }
 
+    const SHAPES = [
+      { id:'square', grade:4, icon:'⬜', name:'จัตุรัส', params:[['side','ด้าน',6]], formula:'ด้าน × ด้าน', calc:p=>p.side*p.side },
+      { id:'rectangle', grade:4, icon:'▭', name:'ผืนผ้า', params:[['width','กว้าง',8],['height','ยาว',5]], formula:'กว้าง × ยาว', calc:p=>p.width*p.height },
+      { id:'triangle', grade:5, icon:'🔺', name:'สามเหลี่ยม', params:[['base','ฐาน',8],['height','สูง',5]], formula:'½ × ฐาน × สูง', calc:p=>p.base*p.height/2 },
+      { id:'parallelogram', grade:5, icon:'▱', name:'ด้านขนาน', params:[['base','ฐาน',8],['height','สูง',5]], formula:'ฐาน × สูง', calc:p=>p.base*p.height },
+      { id:'rhombus', grade:5, icon:'◇', name:'ขนมเปียกปูน', params:[['d1','ทแยงมุม 1',8],['d2','ทแยงมุม 2',6]], formula:'½ × ทแยงมุม 1 × ทแยงมุม 2', calc:p=>p.d1*p.d2/2 },
+      { id:'trapezoid', grade:6, icon:'⏢', name:'คางหมู', params:[['top','คู่ขนาน 1',5],['bottom','คู่ขนาน 2',9],['height','สูง',4]], formula:'½ × (คู่ขนาน 1 + คู่ขนาน 2) × สูง', calc:p=>(p.top+p.bottom)*p.height/2 },
+      { id:'kite', grade:6, icon:'🪁', name:'รูปว่าว', params:[['d1','ทแยงมุม 1',10],['d2','ทแยงมุม 2',6]], formula:'½ × ทแยงมุม 1 × ทแยงมุม 2', calc:p=>p.d1*p.d2/2 },
+      { id:'circle', grade:6, icon:'⚪', name:'วงกลม', params:[['radius','รัศมี',7]], formula:'π × รัศมี²', calc:p=>3.14*p.radius*p.radius, pi:true },
+      { id:'semicircle', grade:6, icon:'◒', name:'ครึ่งวงกลม', params:[['radius','รัศมี',6]], formula:'½ × π × รัศมี²', calc:p=>3.14*p.radius*p.radius/2, pi:true },
+      { id:'quarter', grade:6, icon:'◔', name:'¼ วงกลม', params:[['radius','รัศมี',6]], formula:'¼ × π × รัศมี²', calc:p=>3.14*p.radius*p.radius/4, pi:true },
+      { id:'composite', grade:6, icon:'🧩', name:'รูปประกอบ', params:[['width','กว้างรวม',10],['height','สูงรวม',8],['cutW','ส่วนตัดกว้าง',4],['cutH','ส่วนตัดสูง',3]], formula:'รูปใหญ่ − ส่วนที่ตัดออก', calc:p=>p.width*p.height-p.cutW*p.cutH },
+    ];
+    let currentShape = SHAPES[0], shapeValues = {}, visualScale = Number(localStorage.getItem('area-visual-scale')) || 1;
+
+    function rounded(n) { return Math.round(n * 100) / 100; }
+    function shapeSvg(s, p) {
+      let body = '', measures = '';
+      if (s.id === 'square') body = '<rect class="shape-fill" x="100" y="45" width="260" height="260"/>';
+      else if (s.id === 'rectangle') body = '<rect class="shape-fill" x="65" y="75" width="350" height="220"/>';
+      else if (s.id === 'triangle') body = '<polygon class="shape-fill" points="55,310 425,310 310,55"/><line class="measure" x1="310" y1="55" x2="310" y2="310"/>';
+      else if (s.id === 'parallelogram') body = '<polygon class="shape-fill" points="120,65 425,65 355,300 50,300"/><line class="measure" x1="120" y1="65" x2="120" y2="300"/>';
+      else if (s.id === 'rhombus') body = '<polygon class="shape-fill" points="240,35 425,180 240,325 55,180"/><line class="measure" x1="55" y1="180" x2="425" y2="180"/><line class="measure" x1="240" y1="35" x2="240" y2="325"/>';
+      else if (s.id === 'trapezoid') body = '<polygon class="shape-fill" points="145,65 345,65 425,300 55,300"/><line class="measure" x1="145" y1="65" x2="145" y2="300"/>';
+      else if (s.id === 'kite') body = '<polygon class="shape-fill" points="240,25 390,155 240,330 90,155"/><line class="measure" x1="90" y1="155" x2="390" y2="155"/><line class="measure" x1="240" y1="25" x2="240" y2="330"/>';
+      else if (s.id === 'circle') body = '<circle class="shape-fill" cx="240" cy="180" r="145"/><line class="measure" x1="240" y1="180" x2="385" y2="180"/>';
+      else if (s.id === 'semicircle') body = '<path class="shape-fill" d="M70 285 A170 170 0 0 1 410 285 Z"/><line class="measure" x1="240" y1="285" x2="410" y2="285"/>';
+      else if (s.id === 'quarter') body = '<path class="shape-fill" d="M95 300 L95 55 A245 245 0 0 1 340 300 Z"/><line class="measure" x1="95" y1="300" x2="340" y2="300"/>';
+      else body = '<path class="shape-fill" d="M55 45 H425 V310 H270 V205 H55 Z"/><rect class="shape-cut" x="270" y="205" width="155" height="105"/>';
+      measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">' + s.name + ' · พื้นที่ ' + rounded(s.calc(p)) + (s.pi ? ' (ใช้ π≈3.14)' : '') + ' ตร.หน่วย</text>';
+      return '<svg viewBox="0 0 480 370" role="img" aria-label="' + s.name + '">' + body + measures + '</svg>';
+    }
+
+    function renderShapePicker() {
+      const grade = document.getElementById('gradeSelect').value;
+      const list = grade === 'all' ? SHAPES : SHAPES.filter(s => s.grade === Number(grade));
+      if (!list.includes(currentShape)) currentShape = list[0];
+      const picker = document.getElementById('shapePicker');
+      picker.innerHTML = '';
+      list.forEach(s => {
+        const b = document.createElement('button'); b.type='button'; b.className='shape-btn'+(s===currentShape?' on':'');
+        b.textContent=s.icon+' '+s.name; b.onclick=()=>{ currentShape=s; initShapeValues(); renderShapeLab(); };
+        picker.appendChild(b);
+      });
+    }
+    function initShapeValues(random) {
+      shapeValues = {};
+      currentShape.params.forEach(([key,,value]) => shapeValues[key] = random ? ((Math.random()*8)|0)+2 : value);
+      if (shapeValues.cutW) shapeValues.cutW=Math.min(shapeValues.cutW,shapeValues.width-1);
+      if (shapeValues.cutH) shapeValues.cutH=Math.min(shapeValues.cutH,shapeValues.height-1);
+    }
+    function renderShapeLab() {
+      renderShapePicker();
+      const controls=document.getElementById('shapeControls'); controls.innerHTML='';
+      currentShape.params.forEach(([key,label])=>{
+        const wrap=document.createElement('label'); wrap.className='ctrl'; wrap.textContent=label+' ';
+        const input=document.createElement('input'); input.type='number'; input.min='1'; input.max='20'; input.value=shapeValues[key];
+        input.oninput=()=>{ shapeValues[key]=Math.max(1,Number(input.value)||1); updateShapeView(); }; wrap.appendChild(input); controls.appendChild(wrap);
+      });
+      updateShapeView();
+    }
+    function updateShapeView() {
+      const answer=rounded(currentShape.calc(shapeValues));
+      document.getElementById('shapeStage').style.setProperty('--visual-scale',visualScale);
+      document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues);
+      document.getElementById('mainFormula').textContent='พื้นที่'+currentShape.name+' = '+currentShape.formula;
+      document.getElementById('shapeResult').textContent='พื้นที่ = '+answer+' ตารางหน่วย';
+      document.getElementById('shapeSteps').textContent='สูตร: '+currentShape.formula+' · แทนค่าจากภาพ แล้วคำนวณตามลำดับ';
+      document.getElementById('shapeAnswer').value=''; document.getElementById('shapeFb').textContent='';
+    }
+
     function renderGrid(el, w, h, highlight) {
       el.style.gridTemplateColumns = `repeat(${w}, 1fr)`;
       el.innerHTML = '';
@@ -218,13 +341,18 @@
       }
     }
 
-    let mode = 'learn', countP = null, storyP = null, vsP = null;
+    let mode = 'shapes', countP = null, storyP = null, vsP = null;
 
     function setMode(m) {
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
       document.getElementById('hintText').textContent = HINTS[m];
+      if (m === 'shapes') updateShapeView();
+      else {
+        document.getElementById('mainFormula').textContent = 'พื้นที่สี่เหลี่ยม = กว้าง × ยาว';
+        document.getElementById('mainPerimeter').textContent = 'เส้นรอบรูป = 2 × (กว้าง + ยาว)';
+      }
       if (m === 'count') newCount();
       if (m === 'formula') updateF();
       if (m === 'story') newStory();
@@ -239,6 +367,36 @@
       if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
       else document.exitFullscreen?.();
     };
+    document.getElementById('gradeSelect').onchange = () => { renderShapePicker(); initShapeValues(); renderShapeLab(); };
+    document.getElementById('btnShapeRandom').onclick = () => {
+      const grade=document.getElementById('gradeSelect').value;
+      const list=grade==='all'?SHAPES:SHAPES.filter(s=>s.grade===Number(grade));
+      currentShape=list[(Math.random()*list.length)|0]; initShapeValues(true); renderShapeLab();
+    };
+    document.getElementById('btnShapeCheck').onclick = () => {
+      const expected=rounded(currentShape.calc(shapeValues));
+      const answer=Number(document.getElementById('shapeAnswer').value);
+      const ok=Math.abs(answer-expected)<0.011;
+      const fb=document.getElementById('shapeFb'); fb.className='fb '+(ok?'ok':'no');
+      fb.textContent=ok?'ถูกต้อง! พื้นที่ = '+expected+' ตารางหน่วย':'ลองอีกครั้ง — ใช้สูตร '+currentShape.formula;
+      ding(ok);
+    };
+    function setVisualScale(next) {
+      visualScale=Math.max(.75,Math.min(2,Math.round(next*100)/100));
+      try { localStorage.setItem('area-visual-scale',String(visualScale)); } catch(e) {}
+      document.getElementById('shapeStage').style.setProperty('--visual-scale',visualScale);
+      document.querySelector('.shell').style.setProperty('--grid-cell',Math.round(40*visualScale)+'px');
+    }
+    document.getElementById('btnZoomOut').onclick=()=>setVisualScale(visualScale-.25);
+    document.getElementById('btnZoomIn').onclick=()=>setVisualScale(visualScale+.25);
+    document.getElementById('btnZoomFit').onclick=()=>setVisualScale(1);
+    document.getElementById('btnProjector').onclick=()=>{
+      document.querySelector('.shell').classList.toggle('projector');
+      setVisualScale(document.querySelector('.shell').classList.contains('projector')?1.5:1);
+    };
+    initShapeValues();
+    setVisualScale(visualScale);
+    renderShapeLab();
 
     /* ---- learn ---- */
     function updateLearn() {
