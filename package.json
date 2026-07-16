@@ -26,6 +26,7 @@
     "audit:covers": "node scripts/audit-cover-safe-top.mjs",
     "fix:covers-safe-top": "node scripts/reframe-cover-safe-top.mjs --all-risky",
     "build:vocab": "node scripts/build-vocab-data.mjs",
+    "expand:vocab-p4": "node scripts/expand-thai-vocab-p4-to-200.mjs && node scripts/build-vocab-data.mjs",
     "build:script": "node scripts/seed-thai-script-data.mjs && node scripts/build-script-data.mjs",
     "build:grammar": "node scripts/seed-thai-grammar-data.mjs && node scripts/build-grammar-data.mjs",
     "build:punctuation": "node scripts/seed-thai-punctuation-data.mjs && node scripts/build-punctuation-data.mjs",

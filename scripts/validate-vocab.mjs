@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DATA_DIR = join(ROOT, 'public/games/thai/thai-vocab-hub/data');
-const TARGET = 150;
+const TARGET = 200;
 const strict = process.argv.includes('--strict');
 
 function loadJson(path) {

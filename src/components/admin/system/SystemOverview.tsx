@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.163.06 (Thai Vocab Hub — ป.4 รวม 3,200 คำ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'Thai Vocab Hub เพิ่มชุดทบทวนระดับ ป.4 อีก 800 รายการ ครบ 16 หมวด จากหมวดละ 150 เป็น 200 รายการ รวม 3,200 รายการ',
+            'เปลี่ยนชื่อหน้าจอ “คำศัพท์ ป.5 เน้นหน่วย” เป็น “คำศัพท์ตามหน่วยการเรียน” โดยคง slug เดิมเพื่อไม่กระทบลิงก์และข้อมูลเดิม',
+            'เพิ่มคำสั่ง expand:vocab-p4, ปรับ strict validator เป็น 200 รายการต่อหมวด และ migration 402 bump game_docs เป็น v2.0.0 พร้อม Build timestamp',
+        ],
+    },
+    {
         version: 'v1.163.05 (Thai Vocab Hub grid 10×10)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
