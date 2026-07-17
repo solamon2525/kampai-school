@@ -12,6 +12,7 @@ import {
   Database,
   UserCheck,
   LayoutGrid,
+  RefreshCw,
 } from 'lucide-react';
 import { QuickStudentPicker } from '@/components/admin/waste-bank/QuickStudentPicker';
 import { cn } from '@/lib/utils';
@@ -105,6 +106,9 @@ export const SavingsBankManagement = () => {
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
 
   const [historyTypeFilter, setHistoryTypeFilter] = useState<'all' | SavingsTransactionType>('all');
+  const [historyClassFilter, setHistoryClassFilter] = useState('all');
+  const [historySearch, setHistorySearch] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
@@ -138,7 +142,7 @@ export const SavingsBankManagement = () => {
   }, [form.student_class]);
 
   const fetchTransactions = async () => {
-    const { data, error } = await savingsTransactionsService.getRecent(100);
+    const { data, error } = await savingsTransactionsService.getAll();
     if (error) {
       toast({ title: 'โหลดรายการไม่สำเร็จ', description: error.message, variant: 'destructive' });
       return;
@@ -153,6 +157,12 @@ export const SavingsBankManagement = () => {
       return;
     }
     setSummaries((data ?? []) as unknown as SavingsStudentSummary[]);
+  };
+
+  const refreshAll = async () => {
+    setIsRefreshing(true);
+    await Promise.all([fetchTransactions(), fetchSummaries()]);
+    setIsRefreshing(false);
   };
 
   const handleQRScanned = async (studentId: string) => {
@@ -278,11 +288,14 @@ export const SavingsBankManagement = () => {
 
   // Derived data
   const filteredTransactions = useMemo(() => {
+    const normalizedSearch = historySearch.trim().toLocaleLowerCase('th-TH');
     return transactions.filter((t) => {
       if (historyTypeFilter !== 'all' && t.transaction_type !== historyTypeFilter) return false;
+      if (historyClassFilter !== 'all' && t.student_class !== historyClassFilter) return false;
+      if (normalizedSearch && !t.student_name.toLocaleLowerCase('th-TH').includes(normalizedSearch)) return false;
       return true;
     });
-  }, [transactions, historyTypeFilter]);
+  }, [transactions, historyTypeFilter, historyClassFilter, historySearch]);
 
   const schoolTotals = useMemo(() => {
     return summaries.reduce(
@@ -605,9 +618,28 @@ export const SavingsBankManagement = () => {
       {/* ─── Tab 3: History ────────────────────────────────────────────── */}
       {activeTab === 'history' && (
         <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
-          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex items-center gap-3 justify-between">
-            <h3 className="text-base font-extrabold text-slate-900">ประวัติธุรกรรมล่าสุด</h3>
-            <div className="flex items-center gap-2">
+          <div className="px-5 md:px-6 py-4 border-b border-border flex items-center gap-3 justify-between flex-wrap">
+            <div>
+              <h3 className="text-base font-extrabold text-foreground">ประวัติธุรกรรมทั้งหมด</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                แสดง {filteredTransactions.length.toLocaleString('th-TH')} จาก {transactions.length.toLocaleString('th-TH')} รายการ
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={refreshAll}
+              disabled={isRefreshing}
+              className="gap-2"
+            >
+              <RefreshCw className={cn('w-4 h-4', isRefreshing && 'animate-spin')} />
+              {isRefreshing ? 'กำลังอัปเดต' : 'อัปเดตข้อมูล'}
+            </Button>
+          </div>
+
+          <div className="px-5 md:px-6 pt-5 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
               <FilterChip
                 active={historyTypeFilter === 'all'}
                 onClick={() => setHistoryTypeFilter('all')}
@@ -628,6 +660,25 @@ export const SavingsBankManagement = () => {
               >
                 ถอน
               </FilterChip>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 sm:min-w-[360px]">
+              <Select value={historyClassFilter} onValueChange={setHistoryClassFilter}>
+                <SelectTrigger className="sm:w-32">
+                  <SelectValue placeholder="ทุกชั้น" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทุกชั้น</SelectItem>
+                  {CLASSES.map((className) => (
+                    <SelectItem key={className} value={className}>{className}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                value={historySearch}
+                onChange={(event) => setHistorySearch(event.target.value)}
+                placeholder="ค้นหาชื่อนักเรียน"
+                className="sm:flex-1"
+              />
             </div>
           </div>
 

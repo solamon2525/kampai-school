@@ -92,6 +92,32 @@ export const savingsTransactionsService = {
       .order('created_at', { ascending: false })
       .limit(limit),
 
+  /**
+   * Admin history must not silently stop at the most recent rows. Supabase's
+   * API has a per-request row limit, so fetch the complete ledger in pages.
+   */
+  getAll: async () => {
+    const pageSize = 1000;
+    const rows: SavingsTransaction[] = [];
+
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase
+        .from('savings_transactions')
+        .select('*, students(photo_url)')
+        .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (error) return { data: null, error };
+
+      const page = (data ?? []) as unknown as SavingsTransaction[];
+      rows.push(...page);
+      if (page.length < pageSize) break;
+    }
+
+    return { data: rows, error: null };
+  },
+
   getByStudent: (studentId: string) =>
     supabase
       .from('savings_transactions')
