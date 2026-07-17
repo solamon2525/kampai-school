@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>ฮีโร่จิ๋วผจญป่า</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game-canvas" aria-label="เกมแอ็กชันผจญภัยในป่าพิกเซลอาร์ต"></canvas>
+
+  <div id="hud" class="hud is-hidden">
+    <div class="hero-status">
+      <div class="level-orb">LV <b id="player-level">1</b></div>
+      <div class="bars">
+        <div class="bar hp"><i id="hp-fill"></i><span id="hp-text">48 / 48</span></div>
+        <div class="bar xp"><i id="xp-fill"></i><span id="xp-text">XP 0 / 40</span></div>
+      </div>
+      <button id="skill-button" onclick="toggleSkills()">✦ สกิล <b id="skill-points">0</b></button>
+      <button id="camp-button" onclick="toggleCamp()">🎒 ค่าย</button>
+    </div>
+    <div class="hud-card score"><span>🏆 คะแนน</span><strong id="score-value">0</strong></div>
+    <div class="hud-card currency"><span>🪙 <b id="gold-value">150</b> · 💎 <b id="gem-value">0</b></span><strong id="zone-name">หมู่บ้าน</strong></div>
+    <div id="timer-card" class="hud-card"><span>⏱ เวลา</span><strong id="timer-value">60</strong></div>
+    <div class="hud-card hint"><span>โจมตี / สกิล</span><strong>J · Q</strong></div>
+    <div id="quest-tracker"><b id="quest-title">บทที่ 1</b><span id="quest-progress">เลือกอาชีพเพื่อเริ่มต้น</span></div>
+  </div>
+
+  <div id="start-screen" class="screen">
+    <div class="panel">
+      <div class="pixel-leaf">♣</div>
+      <p class="eyebrow">PIXEL FOREST RPG</p>
+      <h1>ฮีโร่จิ๋วผจญป่า</h1>
+      <p>แคมเปญ RPG 4 บท · 3 อาชีพ · 4 โซน · 4 บอส · คราฟ ตีบวก และรูน<br><b>WASD/ลูกศร</b> เดิน · <b>SPACE/J</b> โจมตี · <b>Q</b> สกิลอาชีพ</p>
+      <div id="my-stats" class="stats is-hidden">
+        <span>สถิติสูงสุด <b id="best-score">0</b></span>
+        <span>เล่นแล้ว <b id="play-count">0</b> ครั้ง</span>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="startExplore()">⚔️ ผจญภัยในพงไพร</button>
+        <button class="btn amber" onclick="startChallenge()">🏆 ล่ามอนสเตอร์ 60 วินาที</button>
+        <button class="btn secondary" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+      </div>
+      <ol id="leaderboard" class="leaderboard"><li>กำลังโหลดอันดับ…</li></ol>
+    </div>
+  </div>
+
+  <div id="class-screen" class="screen is-hidden">
+    <div class="panel">
+      <p class="eyebrow">CHOOSE YOUR PATH</p>
+      <h2>เลือกอาชีพฮีโร่</h2>
+      <p>แต่ละอาชีพมีอาวุธ ระยะโจมตี และสกิลเฉพาะตัว เปลี่ยนไม่ได้ระหว่างแคมเปญ</p>
+      <div id="class-grid" class="class-grid"></div>
+      <button class="btn secondary" onclick="cancelClassSelect()">ย้อนกลับ</button>
+    </div>
+  </div>
+
+  <div id="gameover-screen" class="screen is-hidden">
+    <div class="panel compact">
+      <p class="eyebrow">FOREST QUEST COMPLETE</p>
+      <h2 id="result-title">จบการผจญภัย!</h2>
+      <div class="final-score"><span>🏆</span><b id="final-score">0</b></div>
+      <p id="result-summary">คุณต่อสู้อย่างกล้าหาญ</p>
+      <div id="kampai-result"></div>
+      <div class="actions">
+        <button class="btn primary" onclick="startExplore()">เริ่มใหม่</button>
+        <button class="btn secondary" onclick="KAMPAI.goHome()">เลือกเกมอื่น</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="skill-screen" class="screen is-hidden">
+    <div class="panel compact skill-panel">
+      <p class="eyebrow">HERO SKILLS</p>
+      <h2>อัปเกรดฮีโร่</h2>
+      <p>แต้มสกิลคงเหลือ <b id="skill-modal-points">0</b></p>
+      <div id="skill-grid" class="skill-grid"></div>
+      <button class="btn secondary" onclick="toggleSkills(false)">กลับสู่การผจญภัย</button>
+    </div>
+  </div>
+
+  <div id="camp-screen" class="screen is-hidden">
+    <div class="panel camp-panel">
+      <p class="eyebrow">FOREST CAMP</p>
+      <h2>ค่ายนักผจญภัย</h2>
+      <div class="camp-summary"><span id="camp-class">—</span><span>🪙 <b id="camp-gold">0</b></span><span>💎 <b id="camp-gems">0</b></span></div>
+      <div class="camp-tabs">
+        <button onclick="setCampTab('inventory')">กระเป๋า</button>
+        <button onclick="setCampTab('craft')">คราฟ</button>
+        <button onclick="setCampTab('smith')">ตีบวก</button>
+        <button onclick="setCampTab('rune')">รูน</button>
+        <button onclick="setCampTab('story')">เนื้อเรื่อง</button>
+      </div>
+      <div id="camp-content" class="camp-content"></div>
+      <button class="btn secondary" onclick="toggleCamp(false)">กลับสู่แผนที่</button>
+    </div>
+  </div>
+
+  <div id="combat-toast"></div>
+  <div id="touch-controls" aria-label="ปุ่มควบคุมทิศทาง">
+    <button data-key="up" aria-label="ขึ้น">▲</button>
+    <button data-key="left" aria-label="ซ้าย">◀</button>
+    <button data-key="down" aria-label="ลง">▼</button>
+    <button data-key="right" aria-label="ขวา">▶</button>
+  </div>
+  <button id="attack-button" class="is-hidden" aria-label="โจมตี">⚔️<small>โจมตี</small></button>
+  <button id="active-skill-button" class="is-hidden" aria-label="ใช้สกิลอาชีพ">✦<small id="active-skill-label">สกิล</small></button>
+
+  <script src="/games/kampai-sdk.js"></script>
+  <script>window.KAMPAI=window.KAMPAI||{ready:true,student:null,stats:null,leaderboard:[],input:{},rpg:{state:null,onSaved:function(){return this},save:function(){return false}},onReady:function(f){f(this)},setSlug:function(){return this},submitScore:function(){return false},goHome:function(){history.back()},sound:{mountToggles:function(){},defaultBgm:function(){},correct:function(){},wrong:function(){},gameOver:function(){},bgmStop:function(){}}};</script>
+  <script src="/games/kampai-match.js"></script>
+  <script src="/games/kampai-versus.js"></script>
+  <script>window.KampaiVersus=window.KampaiVersus||{create:function(){return{openMenu:function(){},report:function(){},finish:function(){return false},mode:null}}};</script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

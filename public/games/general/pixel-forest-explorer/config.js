@@ -1,0 +1,19 @@
+window.GAME_CONFIG = {
+  SLUG: 'pixel-forest-explorer',
+  TITLE: 'ฮีโร่จิ๋วผจญป่า',
+  MAP_WIDTH: 112,
+  MAP_HEIGHT: 96,
+  TILE_SIZE: 16,
+  PLAYER_SPEED: 58,
+  PLAYER_MAX_HP: 48,
+  PLAYER_DAMAGE: 12,
+  PLAYER_CRIT: 0.08,
+  SWORD_RANGE: 28,
+  SWORD_COOLDOWN: 0.32,
+  CHALLENGE_SECONDS: 60,
+  LIGHT_COUNT: 22,
+  MONSTER_COUNT: 30,
+  CHEST_COUNT: 8,
+  LIGHT_POINTS: 10,
+  BGM: 'calm'
+};

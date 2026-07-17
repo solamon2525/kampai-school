@@ -39,6 +39,7 @@
     leaderboard: [],  // [{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]
     classmates: [],   // [{id, studentCode, displayName, photoUrl, classNumber}]
     gameData: null,   // per-game data จาก wrapper (เช่น multiply-race.mastery)
+    rpg: { state: null, _saveCbs: [] }, // persistent game state bridge (wrapper owns Supabase)
     character: null,  // sprite sheet จากคลังหลังบ้าน {sheetUrl, sheetUrlP2, fw, fh, frames}
     input: { up: false, down: false, left: false, right: false, a: false, b: false },
     _slug: null,
@@ -65,7 +66,45 @@
   };
 
   /** ตั้ง game slug (ต้องตรงกับ educational_hub_items.game_slug) */
-  K.setSlug = function (slug) { K._slug = slug; return K; };
+  K.setSlug = function (slug) {
+    K._slug = slug;
+    if (!IS_EMBED) {
+      try {
+        var localRpg = localStorage.getItem('kampai_rpg_' + K._slug);
+        if (localRpg) K.rpg.state = JSON.parse(localRpg);
+      } catch (_) { /* */ }
+    }
+    return K;
+  };
+
+  /** Persistent RPG bridge: iframe sends state to wrapper; standalone uses local save only. */
+  K.rpg.onSaved = function (cb) {
+    if (typeof cb === 'function') K.rpg._saveCbs.push(cb);
+    return K.rpg;
+  };
+  K.rpg.save = function (saveState, expectedVersion, idempotencyKey, events) {
+    var payload = {
+      state_version: Math.max(1, expectedVersion | 0) + (IS_EMBED ? 0 : 1),
+      save_state: saveState,
+      saved_at: new Date().toISOString(),
+    };
+    if (!IS_EMBED) {
+      try { localStorage.setItem('kampai_rpg_' + (K._slug || 'game'), JSON.stringify(payload)); } catch (_) { /* */ }
+      K.rpg.state = payload;
+      K.rpg._saveCbs.forEach(function (cb) { try { cb(true, payload); } catch (_) { /* */ } });
+      return true;
+    }
+    try {
+      window.parent.postMessage({
+        type: 'rpgSave',
+        expectedVersion: Math.max(1, expectedVersion | 0),
+        idempotencyKey: String(idempotencyKey || ''),
+        state: saveState,
+        events: Array.isArray(events) ? events.slice(0, 30) : [],
+      }, '*');
+      return true;
+    } catch (_) { return false; }
+  };
 
   /** ส่ง gameEnd postMessage จริง (internal — เรียกจาก submitScore เมื่อ K.student พร้อมแล้ว) */
   K._doSubmit = function (score, opts) {
@@ -434,7 +473,14 @@
       };
       if (Array.isArray(d.leaderboard)) K.leaderboard = d.leaderboard;
       if (Array.isArray(d.classmates)) K.classmates = d.classmates;
-      if (d.gameData && typeof d.gameData === 'object') K.gameData = d.gameData;
+      if (d.pet === null || (d.pet && typeof d.pet === 'object')) K.pet = d.pet;
+      if (d.wallet && typeof d.wallet === 'object') {
+        K.wallet = { starCoins: Math.max(0, d.wallet.starCoins | 0) };
+      }
+      if (d.gameData && typeof d.gameData === 'object') {
+        K.gameData = d.gameData;
+        if (d.gameData.rpg && typeof d.gameData.rpg === 'object') K.rpg.state = d.gameData.rpg;
+      }
       if (d.blueprint && typeof d.blueprint === 'object') K.blueprint = d.blueprint;
       else if (d.gameData && d.gameData.blueprint) K.blueprint = d.gameData.blueprint;
       if (d.character && typeof d.character === 'object' && d.character.sheetUrl) {
@@ -462,6 +508,10 @@
         K._submitted = false;   // บันทึกรอบนี้เสร็จแล้ว → พร้อม submitScore รอบถัดไป (เกมที่ไม่ยิง gameStart)
         if (K._onResult) { try { K._onResult(d.result, d); } catch (x) { /* */ } }
         else { try { K.showResult(d); } catch (x) { /* */ } }
+      }
+      else if (d.type === 'rpgSaveResult') {
+        if (d.rpg && typeof d.rpg === 'object') K.rpg.state = d.rpg;
+        K.rpg._saveCbs.forEach(function (cb) { try { cb(!!d.ok, d.rpg || null); } catch (x) { /* */ } });
       }
     });
     // anchor target="_top" → navigate ผ่าน wrapper (iframe sandbox ห้าม top-nav)
