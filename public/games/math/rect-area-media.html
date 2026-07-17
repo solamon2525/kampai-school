@@ -95,6 +95,22 @@
     .step-text { color:#78350f; font-weight:700; line-height:1.55; }
     .step-nav { display:flex; gap:8px; }
     .step-nav .btn { flex:1; min-height:46px; }
+    .solution-page { position:fixed; inset:0; z-index:120; display:none; background:#f8fafc; overflow:auto; padding:12px; }
+    .solution-page.on { display:block; }
+    .solution-board { width:min(1180px,100%); min-height:calc(100vh - 24px); margin:auto; background:#fff; border:3px solid #38bdf8; border-radius:22px; box-shadow:0 24px 70px rgba(15,23,42,.2); overflow:hidden; display:flex; flex-direction:column; }
+    .solution-header { display:flex; align-items:center; gap:12px; padding:12px 18px; background:linear-gradient(90deg,#0c4a6e,#0284c7); color:#fff; }
+    .solution-header h2 { flex:1; font-size:clamp(1.15rem,3vw,1.75rem); }
+    .solution-body { flex:1; display:grid; gap:16px; padding:16px; align-items:center; }
+    @media (min-width:850px) { .solution-body { grid-template-columns:minmax(320px,.85fr) minmax(420px,1.15fr); } }
+    .solution-picture { background:#f0f9ff; border:2px solid #7dd3fc; border-radius:18px; padding:12px; min-height:330px; display:grid; place-items:center; }
+    .solution-picture svg { width:100%; max-height:500px; }
+    .work-board { align-self:stretch; background:#fffbeb; border:3px solid #fbbf24; border-radius:18px; padding:clamp(16px,3vw,28px); display:flex; flex-direction:column; justify-content:center; gap:16px; }
+    .work-label { font-size:clamp(1rem,2.2vw,1.35rem); color:#92400e; font-weight:800; }
+    .work-equation { color:#0c4a6e; font:800 clamp(1.65rem,5vw,3.4rem)/1.35 Sarabun,sans-serif; text-align:center; padding:18px 10px; background:#fff; border:2px solid #bae6fd; border-radius:16px; overflow-wrap:anywhere; }
+    .work-explain { font-size:clamp(1rem,2.4vw,1.35rem); color:#78350f; font-weight:700; line-height:1.55; text-align:center; }
+    .solution-nav { display:flex; gap:10px; padding:12px 16px 16px; }
+    .solution-nav .btn { min-height:52px; flex:1; font-size:1.05rem; }
+    .sub-value { display:inline-block; color:#dc2626; background:#fee2e2; border-radius:.25em; padding:0 .15em; }
   </style>
 </head>
 <body>
@@ -229,6 +245,27 @@
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.4/3 · ป.5/4 · ป.6/2–3</strong> · คู่เกม <a href="/play/mini-farm-island">เกาะฟาร์มจิ๋ว</a></footer>
   </div>
+  <section class="solution-page" id="solutionPage" aria-hidden="true">
+    <div class="solution-board">
+      <div class="solution-header">
+        <h2 id="solutionHeading">🧑‍🏫 กระดานเฉลยทีละขั้น</h2>
+        <span class="badge" id="solutionCounter"></span>
+        <button type="button" class="btn btn-back" id="btnSolutionClose">✕ ปิด</button>
+      </div>
+      <div class="solution-body">
+        <div class="solution-picture" id="solutionPicture"></div>
+        <div class="work-board">
+          <div class="work-label" id="workLabel"></div>
+          <div class="work-equation" id="workEquation"></div>
+          <div class="work-explain" id="workExplain"></div>
+        </div>
+      </div>
+      <div class="solution-nav">
+        <button type="button" class="btn btn-ghost" id="btnSolutionPrev">← ขั้นก่อนหน้า</button>
+        <button type="button" class="btn btn-primary" id="btnSolutionNext">ขั้นถัดไป →</button>
+      </div>
+    </div>
+  </section>
   <script>
     const MEDIA_SLUG = 'rect-area-media';
     if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
@@ -428,31 +465,75 @@
       fb.textContent=ok?'ถูกต้อง! พื้นที่ = '+expected+' ตารางหน่วย':'ลองอีกครั้ง — ใช้สูตร '+currentShape.formula;
       ding(ok);
     };
-    function renderShapeStep() {
-      const expected=rounded(currentShape.calc(shapeValues));
-      const values=currentShape.params.map(([key,label])=>label+' = '+shapeValues[key]).join(', ');
-      const titles=['1. อ่านข้อมูลจากรูป','2. เลือกสูตรและแทนค่า','3. คำนวณและใส่หน่วย'];
-      const texts=[
-        'ดูรูป '+currentShape.name+' แล้วจดค่าที่โจทย์กำหนด: '+values,
-        'ใช้สูตร “'+currentShape.formula+'” แล้วแทนค่าตัวเลขจากขั้นที่ 1'+(currentShape.pi?' โดยใช้ π ≈ 3.14':''),
-        'คำนวณตามลำดับ จะได้พื้นที่ '+expected+' ตารางหน่วย อย่าลืมเขียนหน่วยกำลังสอง',
-      ];
-      document.getElementById('stepTitle').textContent=titles[shapeStepIndex];
-      document.getElementById('stepCount').textContent='ขั้น '+(shapeStepIndex+1)+' / 3';
-      document.getElementById('stepText').textContent=texts[shapeStepIndex];
-      document.getElementById('shapeStage').innerHTML=shapeSvg(currentShape,shapeValues,shapeStepIndex);
-      document.getElementById('btnStepPrev').disabled=shapeStepIndex===0;
-      document.getElementById('btnStepNext').textContent=shapeStepIndex===2?'✓ จบการเฉลย':'ขั้นถัดไป →';
-      document.getElementById('shapeResult').textContent=shapeStepIndex===2?'พื้นที่ = '+expected+' ตารางหน่วย':'🔒 คำตอบยังถูกซ่อนไว้';
+    let solutionSteps=[], solutionIndex=0;
+    function equationHtml(text) {
+      return text.replaceAll('½','<span class="math-frac"><span class="top">1</span><span class="bottom">2</span></span>')
+        .replaceAll('¼','<span class="math-frac"><span class="top">1</span><span class="bottom">4</span></span>')
+        .replaceAll('²','<sup class="math-squared">2</sup>');
     }
-    document.getElementById('btnShapeReveal').onclick = () => {
-      shapeStepIndex=0; document.getElementById('shapeSteps').classList.add('on'); renderShapeStep();
+    function buildSolutionSteps(s,p) {
+      const answer=rounded(s.calc(p));
+      const specs={
+        square:'{side} × {side}', rectangle:'{width} × {height}', triangle:'½ × {base} × {height}',
+        parallelogram:'{base} × {height}', rhombus:'½ × {d1} × {d2}', trapezoid:'½ × ({top} + {bottom}) × {height}',
+        kite:'½ × {d1} × {d2}', circle:'3.14 × {radius} × {radius}', semicircle:'½ × 3.14 × {radius} × {radius}',
+        quarter:'¼ × 3.14 × {radius} × {radius}', composite:'({width} × {height}) − ({cutW} × {cutH})'
+      };
+      const steps=[
+        {label:'อ่านค่าที่กำหนดจากรูป',eq:s.params.map(([key,label])=>label+' = '+p[key]).join('   ·   '),explain:'เริ่มจากอ่านค่าทีละตัวและตรวจว่าแต่ละค่าชี้อยู่ส่วนใดของรูป',pic:0},
+        {label:'เขียนสูตรก่อนแทนค่า',eq:'พื้นที่ = '+s.formula,explain:'เขียนสูตรด้วยสัญลักษณ์ก่อน เพื่อไม่ให้สลับค่าหรือใช้สูตรผิด',pic:1},
+      ];
+      let expression=specs[s.id];
+      s.params.forEach(([key,label])=>{
+        expression=expression.replaceAll('{'+key+'}','<span class="sub-value">'+p[key]+'</span>');
+        let displayExpression=expression;
+        s.params.forEach(([pendingKey,pendingLabel])=>{ displayExpression=displayExpression.replaceAll('{'+pendingKey+'}',pendingLabel); });
+        steps.push({label:'แทนค่า “'+label+'” ลงในสูตร',eq:'พื้นที่ = '+displayExpression,explain:'แทนเฉพาะ '+label+' ด้วย '+p[key]+' แล้วคงส่วนอื่นของสูตรไว้ก่อน',pic:1});
+      });
+      const add=(label,eq,explain)=>steps.push({label,eq:'พื้นที่ = '+eq,explain,pic:1});
+      if(['square','rectangle','parallelogram'].includes(s.id)) add('คูณค่าทั้งสอง',''+answer,'คูณตามสูตร จะได้ผลลัพธ์ของพื้นที่');
+      else if(['triangle','rhombus','kite'].includes(s.id)) {
+        const a=s.id==='triangle'?p.base:p.d1, b=s.id==='triangle'?p.height:p.d2, product=a*b;
+        add('คูณค่าหลักก่อน','½ × '+product,'คำนวณ '+a+' × '+b+' = '+product);
+        add('หารด้วย 2',product+' ÷ 2 = '+answer,'เพราะ ½ หมายถึงนำผลคูณมาแบ่งเป็น 2 ส่วนเท่า ๆ กัน');
+      } else if(s.id==='trapezoid') {
+        const sum=p.top+p.bottom, product=sum*p.height;
+        add('คำนวณในวงเล็บก่อน','½ × '+sum+' × '+p.height,'คู่ขนาน 1 + คู่ขนาน 2 = '+p.top+' + '+p.bottom+' = '+sum);
+        add('คูณด้วยความสูง','½ × '+product,'คำนวณ '+sum+' × '+p.height+' = '+product);
+        add('หารด้วย 2',product+' ÷ 2 = '+answer,'แบ่งผลคูณเป็น 2 ส่วนตามเศษส่วน ½');
+      } else if(['circle','semicircle','quarter'].includes(s.id)) {
+        const square=p.radius*p.radius, circle=rounded(3.14*square);
+        add('คูณรัศมีกับรัศมี',''+(s.id==='circle'?'3.14 × ':'')+square+(s.id==='circle'?'': ' × 3.14'),'รัศมี² = '+p.radius+' × '+p.radius+' = '+square);
+        add('คูณด้วย π ≈ 3.14',''+circle,'พื้นที่วงกลมเต็ม = 3.14 × '+square+' = '+circle);
+        if(s.id!=='circle') add(s.id==='semicircle'?'แบ่งครึ่งวงกลม':'แบ่งวงกลมเป็น 4 ส่วน',circle+' ÷ '+(s.id==='semicircle'?2:4)+' = '+answer,'หารพื้นที่วงกลมเต็มด้วย '+(s.id==='semicircle'?2:4));
+      } else {
+        const big=p.width*p.height, cut=p.cutW*p.cutH;
+        add('หาพื้นที่รูปใหญ่และส่วนตัด',''+big+' − '+cut,'รูปใหญ่: '+p.width+' × '+p.height+' = '+big+' · ส่วนตัด: '+p.cutW+' × '+p.cutH+' = '+cut);
+        add('ลบพื้นที่ส่วนที่ตัดออก',big+' − '+cut+' = '+answer,'นำพื้นที่รูปใหญ่ลบส่วนที่เว้าออก');
+      }
+      steps.push({label:'ตอบพร้อมหน่วยกำลังสอง',eq:'พื้นที่ = '+answer+' ตารางหน่วย',explain:'ตรวจคำตอบและเขียนหน่วยเป็นตารางหน่วยหรือหน่วย² เสมอ',pic:2,final:true});
+      return steps;
+    }
+    function renderSolutionPage() {
+      const step=solutionSteps[solutionIndex];
+      document.getElementById('solutionHeading').textContent='🧑‍🏫 วิธีหาพื้นที่'+currentShape.name;
+      document.getElementById('solutionCounter').textContent='ขั้น '+(solutionIndex+1)+' / '+solutionSteps.length;
+      document.getElementById('workLabel').textContent=step.label;
+      document.getElementById('workEquation').innerHTML=equationHtml(step.eq);
+      document.getElementById('workExplain').textContent=step.explain;
+      document.getElementById('solutionPicture').innerHTML=shapeSvg(currentShape,shapeValues,step.pic);
+      document.getElementById('btnSolutionPrev').disabled=solutionIndex===0;
+      document.getElementById('btnSolutionNext').textContent=solutionIndex===solutionSteps.length-1?'✓ กลับไปทำโจทย์':'ขั้นถัดไป →';
+      document.getElementById('shapeResult').textContent=step.final?'พื้นที่ = '+rounded(currentShape.calc(shapeValues))+' ตารางหน่วย':'🔒 คำตอบยังถูกซ่อนไว้';
+    }
+    function closeSolutionPage(){ const page=document.getElementById('solutionPage'); page.classList.remove('on'); page.setAttribute('aria-hidden','true'); }
+    document.getElementById('btnShapeReveal').onclick=()=>{
+      solutionSteps=buildSolutionSteps(currentShape,shapeValues); solutionIndex=0;
+      const page=document.getElementById('solutionPage'); page.classList.add('on'); page.setAttribute('aria-hidden','false'); renderSolutionPage();
     };
-    document.getElementById('btnStepPrev').onclick=()=>{ if(shapeStepIndex>0){ shapeStepIndex--; renderShapeStep(); } };
-    document.getElementById('btnStepNext').onclick=()=>{
-      if(shapeStepIndex<2){ shapeStepIndex++; renderShapeStep(); }
-      else { shapeStepIndex=-1; document.getElementById('shapeSteps').classList.remove('on'); updateShapeView(); }
-    };
+    document.getElementById('btnSolutionPrev').onclick=()=>{ if(solutionIndex>0){solutionIndex--;renderSolutionPage();} };
+    document.getElementById('btnSolutionNext').onclick=()=>{ if(solutionIndex<solutionSteps.length-1){solutionIndex++;renderSolutionPage();}else closeSolutionPage(); };
+    document.getElementById('btnSolutionClose').onclick=closeSolutionPage;
     function setVisualScale(next) {
       visualScale=Math.max(.75,Math.min(2,Math.round(next*100)/100));
       try { localStorage.setItem('area-visual-scale',String(visualScale)); } catch(e) {}
