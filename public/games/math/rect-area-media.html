@@ -31,6 +31,7 @@
     .formula-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
     .formula { background: var(--cream); border: 2px solid #fcd34d; border-radius: 14px; padding: 10px 16px; font-weight: 800; color: #92400e; font-size: 1.05rem; }
     .formula.blue { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
+    #mainFormula { width:100%; font-size:clamp(1.55rem,4vw,2.5rem); line-height:1.3; text-align:center; padding:16px 20px; box-shadow:0 5px 14px rgba(3,105,161,.12); }
     .grid-wrap { overflow: auto; display: flex; justify-content: center; padding: 8px; background: #f0f9ff; border-radius: 16px; border: 2px solid var(--line); }
     .grid { display: grid; gap: 2px; background: #0284c7; padding: 2px; border-radius: 8px; }
     .cell { width: var(--grid-cell,36px); height: var(--grid-cell,36px); background: #fef9c3; border-radius: 2px; }
@@ -147,7 +148,8 @@
               <button type="button" class="btn btn-accent" id="btnShapeReveal">🧑‍🏫 เฉลยทีละขั้น</button>
             </div>
             <p class="fb" id="shapeFb"></p>
-            <button type="button" class="btn btn-accent" id="btnShapeRandom">🎲 สุ่มรูปและขนาด</button>
+            <button type="button" class="btn btn-primary" id="btnRandomValues">🎲 สุ่มขนาดใหม่ — รูปร่างเดิม</button>
+            <button type="button" class="btn btn-accent" id="btnShapeRandom">🔀 สุ่มรูปและสูตรใหม่</button>
           </div>
         </div>
       </div>
@@ -393,6 +395,16 @@
       const grade=document.getElementById('gradeSelect').value;
       const list=grade==='all'?SHAPES:SHAPES.filter(s=>s.grade===Number(grade));
       currentShape=list[(Math.random()*list.length)|0]; initShapeValues(true); renderShapeLab();
+    };
+    document.getElementById('btnRandomValues').onclick = () => {
+      const before=currentShape.params.map(([key])=>shapeValues[key]).join('-');
+      for(let attempt=0;attempt<100;attempt++) {
+        initShapeValues(true);
+        const after=currentShape.params.map(([key])=>shapeValues[key]).join('-');
+        const answer=rounded(currentShape.calc(shapeValues));
+        if(after!==before && (currentShape.pi || Number.isInteger(answer))) break;
+      }
+      renderShapeLab();
     };
     document.getElementById('btnShapeCheck').onclick = () => {
       const expected=rounded(currentShape.calc(shapeValues));
