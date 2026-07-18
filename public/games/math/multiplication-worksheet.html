@@ -22,7 +22,8 @@
     /* ── Header with 28mm right padding for QR code isolation ── */
     .sheet-head{border-bottom:2px solid #047857;padding-bottom:3mm;padding-right:28mm;position:relative;min-height:28mm}
     .sheet-title{display:flex;align-items:center;gap:8px}.sheet-title h2{margin:0;flex:1;color:#065f46;font-size:15.5pt}.level{border:1.5px solid #6ee7b7;border-radius:999px;padding:2px 9px;font-weight:800;color:#065f46;font-size:8.5pt}
-    .school-name{font-size:9.5pt;font-weight:700;color:#047857;margin-top:1mm}
+    .school-name{font-size:9.5pt;font-weight:700;color:#047857;margin-top:1mm;display:flex;align-items:center;gap:6px}
+    .school-logo-mini{width:20px;height:20px;object-fit:contain}
     
     /* ── Student Profile Header (Clean 1-line: Name + Number only) ── */
     .student{display:flex;flex-wrap:nowrap;gap:8mm;align-items:center;margin-top:2.5mm;font-size:11pt;font-weight:700;color:#1e293b}
@@ -83,9 +84,9 @@
     .code-boxes{display:flex;gap:4px;justify-content:center;margin-top:2mm}
     .code-box{width:22px;height:26px;border:1.5px solid #047857;border-radius:4px;display:grid;place-items:center;font-weight:800;font-size:11pt;color:#047857;background:#f0fdf4}
 
-    /* ── Booklet Cover Page ── */
+    /* ── Official Booklet Cover Page with Kampai School Logo ── */
     .cover-sheet{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:4px double #047857;padding:12mm}
-    .cover-logo{width:80px;height:80px;margin-bottom:6mm}
+    .cover-logo-img{width:100px;height:100px;object-fit:contain;margin-bottom:4mm;filter:drop-shadow(0 4px 12px rgba(4,120,87,.2))}
     .cover-title{font-size:24pt;font-weight:800;color:#065f46;margin:0 0 2mm}
     .cover-sub{font-size:14pt;font-weight:700;color:#047857;margin-bottom:8mm}
     .cover-box{border:2px solid #a7f3d0;background:#ecfdf5;border-radius:12px;padding:6mm;width:80%;margin-bottom:8mm}
@@ -150,6 +151,8 @@
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const RF=(a,b,dec=1)=>Math.round((a+Math.random()*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
+
+const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 
 const ALL_LEVELS=[
   {id:'p4_2x1',grade:4,name:'2 หลัก × 1 หลัก',icon:'⭐',dc:3,indicator:'ค 1.1 ป.4/9',gen:()=>[R(10,99),R(2,9)]},
@@ -256,7 +259,7 @@ function renderBookletCover(schoolName, teacherName){
     +'<img class="qr-img" src="'+QR_API+'" alt="QR Code สื่อ" />'
     +'<span class="qr-label">สแกนดูวิธีคิด</span>'
     +'</div>'
-    +'<svg class="cover-logo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ecfdf5" stroke="#047857" stroke-width="4"/><text x="50" y="58" font-size="34" text-anchor="middle">🏫</text></svg>'
+    +'<img class="cover-logo-img" src="'+SCHOOL_LOGO_URL+'" alt="ตราโรงเรียนบ้านคำไผ่" />'
     +'<h1 class="cover-title">'+(schoolName||'โรงเรียนบ้านคำไผ่')+'</h1>'
     +'<div class="cover-sub">แบบฝึกหัดทักษะการคูณแนวตั้ง ป.4–ป.6 (ชุดเรียนรู้สมบูรณ์แบบ)</div>'
     +'<div class="cover-box">'
@@ -292,7 +295,7 @@ function renderSingleSheet(lv, pageIdx, totalPages, batchCode, style, count, sch
   const isProgressive = style === 'progressive';
   for(let i=1; i<=count; i++) qs += question(lv, i, isProgressive);
   
-  const schoolHtml = schoolName ? `<div class="school-name">🏫 ${schoolName}</div>` : '';
+  const schoolHtml = schoolName ? `<div class="school-name"><img src="${SCHOOL_LOGO_URL}" class="school-logo-mini" alt="ตราโรงเรียน" /> ${schoolName}</div>` : '';
   
   let specialSection = '';
   if(style === 'pixel'){
