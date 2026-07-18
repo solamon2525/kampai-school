@@ -70,13 +70,6 @@ import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
 import { studentsService } from '@/services/students.service';
 import { versusMatchService } from '@/services/online-match.service';
 import {
-  studentPetQueryKey,
-  studentPetService,
-  type EquippedStudentPet,
-  type StudentPetState,
-} from '@/services/student-pet.service';
-import { PetVisual } from '@/components/games/PetVisual';
-import {
   pixelForestRpgQueryKey,
   pixelForestRpgService,
   type PixelForestBalanceEvent,
@@ -289,12 +282,6 @@ const PlayGame = () => {
   const questQuery = useQuery({
     queryKey: dailyQuestQueryKey(trimmedCode),
     queryFn: () => dailyQuestService.getStatus(trimmedCode),
-    enabled: !!student && !!trimmedCode,
-  });
-
-  const petQuery = useQuery({
-    queryKey: studentPetQueryKey(trimmedCode),
-    queryFn: () => studentPetService.getState(trimmedCode),
     enabled: !!student && !!trimmedCode,
   });
 
@@ -534,12 +521,10 @@ const PlayGame = () => {
   const postInitToIframe = useCallback((
     statsOverride?: Awaited<ReturnType<typeof gameStatsService.getForStudent>>['data'],
     leaderboardOverride?: Awaited<ReturnType<typeof gamePlayService.getLeaderboard>>,
-    petOverride?: StudentPetState | null,
   ) => {
     if (!student || !iframeRef.current?.contentWindow) return;
     const s = statsOverride ?? statsQuery.data;
     const lb = leaderboardOverride ?? leaderboardQuery.data ?? [];
-    const petState = petOverride ?? petQuery.data ?? null;
     const lvl = levelFromXp(s?.total_xp ?? 0).level;
     iframeRef.current.contentWindow.postMessage(
       {
@@ -573,18 +558,6 @@ const PlayGame = () => {
           photoUrl: c.photo_url,
           classNumber: c.class_number,
         })),
-        pet: petState?.equipped
-          ? {
-              code: petState.equipped.code,
-              name: petState.equipped.name_th,
-              species: petState.equipped.species_th,
-              visualKey: petState.equipped.visual_key,
-              rarity: petState.equipped.rarity,
-              nickname: petState.equipped.nickname,
-              bondXp: petState.equipped.bond_xp,
-            }
-          : null,
-        wallet: { starCoins: petState?.balance ?? 0 },
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
         character: gameQuery.data?.character_sheet_url
           ? {
@@ -627,7 +600,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, petQuery.data, pixelForestRpgQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
+  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, pixelForestRpgQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -805,14 +778,12 @@ const PlayGame = () => {
             '*',
           );
         } catch { /* */ }
-        await queryClient.invalidateQueries({ queryKey: studentPetQueryKey(codeInput.trim()) });
-        const [statsRes, lbRes, , petRes] = await Promise.all([
+        const [statsRes, lbRes] = await Promise.all([
           statsQuery.refetch(),
           leaderboardQuery.refetch(),
           unlockedQuery.refetch(),
-          petQuery.refetch(),
         ]);
-        postInitToIframe(statsRes.data, lbRes.data ?? [], petRes.data ?? null);
+        postInitToIframe(statsRes.data, lbRes.data ?? []);
         sessionSubmittedRef.current = false;
         // Phase 2: บันทึก per-table mastery (multiply-race)
         if (gameSlug === 'multiply-race' && Array.isArray(data.metadata?.perTable)) {
@@ -925,7 +896,7 @@ const PlayGame = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [phase, student, codeInput, resolvedSlug, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, petQuery, queryClient, postParentViewport, postInitToIframe, prevLevel, researchStudyId, researchPhase, researchRoundsQuery, masteryQuery, dailyStatusQuery, dailyLeaderboardQuery, thaiVocabMissedQuery]);
+  }, [phase, student, codeInput, resolvedSlug, gameSlug, toast, statsQuery, unlockedQuery, leaderboardQuery, queryClient, postParentViewport, postInitToIframe, prevLevel, researchStudyId, researchPhase, researchRoundsQuery, masteryQuery, dailyStatusQuery, dailyLeaderboardQuery, thaiVocabMissedQuery]);
 
   // ─── โหมด 2 คน (Versus) — บันทึก 2 session + ส่ง head-to-head/แชมป์ห้องกลับเข้าเกม ──
   useEffect(() => {
@@ -1406,7 +1377,6 @@ const PlayGame = () => {
                 student={student}
                 result={result}
                 prevLevel={prevLevel}
-                pet={petQuery.data?.equipped ?? null}
                 onPlayAgain={() => { setShowReward(false); handlePlayAgain(); }}
                 onExit={handleSwitchStudent}
                 onClose={() => setShowReward(false)}
@@ -1956,7 +1926,6 @@ const RewardPopup = ({
   student,
   result,
   prevLevel,
-  pet,
   onPlayAgain,
   onExit,
   onClose,
@@ -1964,7 +1933,6 @@ const RewardPopup = ({
   student: StudentLookup;
   result: RecordSessionResult;
   prevLevel: LevelInfo | null;
-  pet: EquippedStudentPet | null;
   onPlayAgain: () => void;
   onExit: () => void;
   onClose: () => void;
@@ -2000,7 +1968,6 @@ const RewardPopup = ({
               size="sm"
               className="h-11 w-11 ring-2 ring-primary/20"
             />
-            {pet && <PetVisual visualKey={pet.visual_key} label={pet.name_th} className="h-11 w-11 shrink-0" />}
             <div className="text-left">
               <p className="text-2xl font-bold leading-none text-primary">
                 +{result.xp_earned.toLocaleString('th-TH')} XP

@@ -18,10 +18,8 @@ import { dailyQuestService } from '@/services/daily-quest.service';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
 import { GameRankings } from '@/components/games/GameRankings';
 import { HonorWall, LevelRing } from '@/components/games/HonorWall';
-import { StudentPetHub } from '@/components/games/StudentPetHub';
-import { studentPetQueryKey, studentPetService } from '@/services/student-pet.service';
 
-type Tab = 'rank' | 'medals' | 'quest' | 'pet';
+type Tab = 'rank' | 'medals' | 'quest';
 
 const TabPill = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) => (
   <button
@@ -53,12 +51,6 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
     queryFn: () => dailyQuestService.getStatus(code!),
     enabled: !!code,
   });
-  const petQuery = useQuery({
-    queryKey: studentPetQueryKey(code ?? ''),
-    queryFn: () => studentPetService.getState(code!),
-    enabled: !!code,
-  });
-
   const profile = profileQuery.data ?? null;
   const quest = questQuery.data ?? null;
   const hasQuest = !!quest && quest.required_count > 0;
@@ -100,9 +92,6 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
                 {hasQuest && (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">🎯 {quest!.completed_count}/{quest!.required_count}</span>
                 )}
-                {petQuery.data?.equipped && (
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">🐾 {petQuery.data.equipped.name_th}</span>
-                )}
               </div>
             </div>
           ) : (
@@ -131,11 +120,6 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
                 🎯 ภารกิจ {quest!.completed_count}/{quest!.required_count}
               </TabPill>
             )}
-            {code && (
-              <TabPill active={openTab === 'pet'} onClick={() => toggle('pet')}>
-                🐾 คู่หู · {petQuery.data?.balance?.toLocaleString('th-TH') ?? '—'} ดาว
-              </TabPill>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -150,7 +134,6 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
         </Card>
       )}
       {openTab === 'quest' && code && <DailyQuestPanel studentCode={code} variant="full" />}
-      {openTab === 'pet' && code && <StudentPetHub studentCode={code} />}
     </div>
   );
 };
