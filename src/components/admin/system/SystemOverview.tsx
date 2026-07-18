@@ -272,6 +272,29 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.171.2 (attack-on-noun cover & seed)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'สร้างภาพปกใหม่ 16:9 (1280×720) สำหรับเกม "ผู้พิทักษ์ลักษณะนาม: ปะทะ 3 ขุนพลไททัน" (Attack on Noun)',
+            'ผ่านการทดสอบ pnpm verify:game 11/11 หัวข้อ และรันสคริปต์ seed-attack-on-noun-game.mjs อัปเดตข้อมูลเข้าคลังเกมเรียบร้อยแล้ว',
+        ],
+    },
+    {
+        version: 'v1.171.2 (worksheet quality contract)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เพิ่มโหมดใช้สอนร่วมสำหรับใบงานอัจฉริยะ: แยกระดับ A–B–C, ตรวจเร็วท้ายคาบ, วินิจฉัยก่อนเรียน และซ่อมเสริมเฉพาะจุด',
+            'รวมตรรกะและรูปแบบของโหมดไว้ที่ worksheet-modes.js / worksheet-modes.css เพื่อให้ใบงานทุกวิชาและแม่แบบใหม่ใช้มาตรฐานเดียวกัน',
+            'อัปเกรดใบงานพื้นที่รูปเรขาคณิตให้เลือกหัวข้อ/จำนวนหน้าและใช้โหมดกลาง พร้อมข้อความวินิจฉัยและขั้นตอนซ่อมเสริมเฉพาะทั้ง 7 วิชา',
+            'ปรับใบงานการหารจากโจทย์เครื่องหมายหารเป็นกระดานตั้งหารยาวจริง พร้อมช่องผลหาร ตัวตั้ง ตัวหาร และบรรทัดเติมวิธีทำทีละขั้น',
+            'รวมการโหลดรายชื่อครูไว้ที่ worksheet-runtime.js จุดเดียวแบบ read-only เพื่อลดโค้ดซ้ำและคงเงื่อนไข RLS / publishable key',
+            'เพิ่มกฎ Worksheet Contract, Process Scaffold และคำสั่ง verify:worksheet เพื่อตรวจโครงสร้าง โหมดกลาง A4 และการไม่ฝัง data access ซ้ำโดยอัตโนมัติ',
+            'ระบุข้อยกเว้น print-only แบบแคบสำหรับชื่อครูและ CSS โดยไม่ลดความเข้มของกฎ PersonAvatar และ service ในหน้า React',
+        ],
+    },
+    {
         version: 'v1.170.0 (teacher-led teaching-media covers)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
