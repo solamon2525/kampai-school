@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ระบบใบงานการหารยาวอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.172.2" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -40,52 +40,36 @@
     .qr-img{width:22mm;height:22mm;border:1px solid #047857;border-radius:4px;padding:1px;background:#fff}
     .qr-label{font-size:6.5pt;font-weight:700;color:#047857;margin-top:1px;line-height:1.1}
 
-    .questions{display:grid;gap:1.5mm;flex:1}
-    .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
-    .questions.count-10 .q{padding:1.5mm 1mm 2mm;min-height:36.5mm}
-    .questions.count-5{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
-    .questions.count-5 .q{padding:4mm 3mm;min-height:44mm}
+    .questions{display:grid;grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:2mm;flex:1}
     
-    .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5mm;position:relative;break-inside:avoid}
+    .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1.5mm 3mm;display:grid;grid-template-columns:1fr 34mm;align-items:center;gap:5mm;position:relative;break-inside:avoid;min-height:43mm}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:9pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
     /* Long-division writing scaffold */
-    .long-division{--ld-cell:7mm;display:flex;flex-direction:column;align-items:flex-start;margin:1mm auto 0;color:#065f46;font-weight:800}
-    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:13mm;position:relative}
+    .long-division{--ld-cell:10mm;--ld-divisor-width:15mm;display:flex;flex-direction:column;align-items:flex-start;margin:0 auto;color:#065f46;font-weight:800}
+    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
-    .ld-quotient-cell{height:5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
-    .ld-quotient-answer{display:none;color:#b91c1c;font-size:11pt;font-weight:800;line-height:1}
+    .ld-quotient-cell{height:5.5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
+    .ld-quotient-answer{visibility:hidden;color:#b91c1c;font-size:13pt;font-weight:800;line-height:1}
     .ld-main{display:flex;align-items:flex-start}
-    .ld-divisor{width:12mm;height:7mm;display:grid;place-items:center;font-size:12pt}
+    .ld-divisor{width:var(--ld-divisor-width);height:7.5mm;display:grid;place-items:center;font-size:14pt}
     .ld-dividend{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));border-top:2px solid #047857;border-left:2px solid #047857;border-top-left-radius:4px}
-    .ld-digit{height:7mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:12pt}
+    .ld-digit{height:7.5mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:14pt}
     .ld-digit:last-child{border-right:0}
-    .ld-work{width:66mm;margin:1mm 0 0;display:grid;gap:.4mm}
-    .ld-step{height:4.2mm;display:grid;grid-template-columns:9mm 1fr;align-items:end;font-size:6.3pt;color:#64748b}
-    .ld-write{height:3.8mm;border-bottom:1px dotted #64748b;display:flex;align-items:flex-end;padding:0 .7mm;min-width:0}
-    .ld-teacher-value{display:none;color:#b91c1c;font-size:5.6pt;font-weight:800;white-space:nowrap;line-height:1.1;width:100%;grid-template-columns:auto auto 1fr;align-items:center}
-    .ld-phase{padding:0 1mm;border-right:1px solid #fecaca;text-align:center}.ld-phase:first-child{padding-left:0}.ld-phase:last-child{border-right:0;text-align:left}
-    .ld-answer-fill{display:none;color:#b91c1c;font-weight:800}
-    .show-answers .ld-quotient-answer,.show-answers .ld-answer-fill{display:inline}.show-answers .ld-teacher-value{display:grid}
-    .show-answers .ld-quotient-cell,.show-answers .ld-write{background:#fef2f2;border-color:#f87171}
-    .questions.count-10 .long-division{--ld-cell:7.5mm}
-    .questions.count-10 .ld-quotient-cell{height:4mm}
-    .questions.count-10 .ld-main .ld-divisor,.questions.count-10 .ld-digit{height:6mm;font-size:10.5pt}
-    .questions.count-10 .ld-step{height:3.2mm}
-    .questions.count-5 .long-division{--ld-cell:14mm}
-    .questions.count-5 .ld-quotient{margin-left:17mm}
-    .questions.count-5 .ld-work{width:92mm;margin-top:1.3mm}
-    .questions.count-5 .ld-divisor{width:16mm}
-    .questions.count-5 .q{padding:2mm 3mm}
-    .questions.count-5 .ld-quotient-cell{height:5mm}
-    .questions.count-5 .ld-main .ld-divisor,.questions.count-5 .ld-digit{height:7mm;font-size:15pt}
-    .questions.count-5 .ld-step{height:4.8mm;font-size:7pt;grid-template-columns:11mm 1fr}
-    .questions.count-5 .ld-teacher-value{font-size:7.2pt}
-    .questions.count-5 .ans{margin-top:1mm}
+    .ld-work{display:flex;flex-direction:column;width:calc(var(--digits) * var(--ld-cell));margin-left:var(--ld-divisor-width)}
+    .ld-calc-row{height:3.6mm;display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));position:relative}
+    .ld-placed{display:grid;grid-template-columns:repeat(var(--span),var(--ld-cell));align-items:end;height:100%;position:relative}
+    .ld-product{border-bottom:1.4px solid #334155}
+    .ld-product::before{content:'−';position:absolute;right:100%;bottom:-.5mm;color:#334155;font-size:11pt;font-weight:800}
+    .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:10.5pt;color:#b91c1c;line-height:1}
+    .ld-teacher-value{visibility:hidden}
+    .ld-answer-fill{visibility:hidden;color:#b91c1c;font-weight:800}
+    .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill{visibility:visible}
+    .show-answers .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
 
-    .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:3mm}
-    .blank-sm{display:inline-block;min-width:20mm;border-bottom:1px solid #334155;height:4.5mm}
+    .ans{font:700 10pt Sarabun,sans-serif;color:#065f46}
+    .blank-sm{display:inline-block;min-width:26mm;border-bottom:1px solid #334155;height:5mm;text-align:center}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
     .show-answers .ta{display:inline}
 
@@ -131,9 +115,8 @@
         <option value="5">ชั้น: ป.5 (หารมีเศษ/ตัวหาร 2 หลัก)</option>
         <option value="6">ชั้น: ป.6 (หารทศนิยม)</option>
       </select>
-      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า">
-        <option value="10" selected>10 ข้อ/หน้า (โจทย์ใหญ่)</option>
-        <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่พิเศษ)</option>
+      <select id="selCount" data-fixed-count="5" aria-label="จำนวนข้อต่อหน้า" hidden>
+        <option value="5" selected>5 ข้อ/หน้า</option>
       </select>
       <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
@@ -144,7 +127,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.171.3"></script>
+<script src="/games/worksheet-runtime.js?v=1.172.2"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
@@ -174,18 +157,26 @@ function question(qi, grade, showRating=false){
     const product = quotientDigit * divisor;
     const remainderAfter = partial - product;
     const nextDigit = dividendDigits[digitIndex + 1];
-    const bringDown = nextDigit === undefined ? '' : ' ↓'+nextDigit+'→'+(remainderAfter * 10 + Number(nextDigit));
-    workSteps.push({ partial, quotientDigit, product, remainderAfter, bringDown });
+    workSteps.push({ partial, quotientDigit, product, remainderAfter, nextDigit, digitIndex });
     runningRemainder = remainderAfter;
     return String(quotientDigit);
   });
   const quotientCells = quotientByColumn.map(digit => '<span class="ld-quotient-cell"><span class="ld-quotient-answer">'+digit+'</span></span>').join('');
   const dividendCells = dividendDigits.map(digit => '<span class="ld-digit">'+digit+'</span>').join('');
-  const workRows = workSteps.map((step, index) => '<div class="ld-step"><span>ขั้น '+(index+1)+'</span><span class="ld-write"><span class="ld-teacher-value">'
-    +'<span class="ld-phase">'+step.partial+'÷'+divisor+'='+step.quotientDigit+'</span>'
-    +'<span class="ld-phase">'+step.quotientDigit+'×'+divisor+'='+step.product+'</span>'
-    +'<span class="ld-phase">'+step.partial+'−'+step.product+'='+step.remainderAfter+step.bringDown+'</span>'
-    +'</span></span></div>').join('');
+  const placedValue = (value, endIndex, className, spanLength=String(value).length) => {
+    const text = String(value);
+    const start = endIndex - spanLength + 2;
+    const pad = spanLength - text.length;
+    const cells = Array.from({ length: spanLength }, (_, index) => '<span class="ld-pos-digit ld-teacher-value">'+(index < pad ? '' : text[index-pad])+'</span>').join('');
+    return '<span class="ld-placed '+className+'" style="--span:'+spanLength+';grid-column:'+start+' / span '+spanLength+'">'+cells+'</span>';
+  };
+  const workRows = workSteps.map((step) => {
+    const productSpan = Math.max(String(step.partial).length, String(step.product).length);
+    const nextPartial = step.nextDigit === undefined ? step.remainderAfter : step.remainderAfter * 10 + Number(step.nextDigit);
+    const nextEndIndex = step.nextDigit === undefined ? step.digitIndex : step.digitIndex + 1;
+    return '<div class="ld-calc-row">'+placedValue(step.product, step.digitIndex, 'ld-product', productSpan)+'</div>'
+      +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
+  }).join('');
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
     +'<div class="long-division" style="--digits:'+dividendDigits.length+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
@@ -223,14 +214,14 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
     +'<div class="sheet-title"><h2>➗ ใบงานการหารยาว — ชั้น ป.'+grade+'</h2><span class="level">ค 1.1 ป.'+grade+'/4</span></div>'
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div><div class="student-no">เลขที่: <span class="blank short"></span></div></div>'
-    +'<div class="directions"><span>คำชี้แจง: เติมผลหาร ผลคูณ ผลลบ และเศษลงในแบบตั้งหารยาวทีละขั้น</span><span class="indicator">ค 1.1 ป.'+grade+'/4</span></div>'
-    +'</header><div class="questions count-'+count+'">'+qs+'</div>'+renderParentSlip(teacherName)
+    +'<div class="directions"><span>คำชี้แจง: ตั้งหารให้ตรงหลัก เขียนผลคูณใต้จำนวนที่หาร ขีดเส้น ลบ แล้วดึงเลขหลักถัดไปลงมา</span><span class="indicator">ค 1.1 ป.'+grade+'/4</span></div>'
+    +'</header><div class="questions count-5">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>หน้า '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">ครูผู้สอน: ${teacherName}</span>`:'')+'</footer></section>';
 }
 
 function render(){
   const style = document.getElementById('selStyle').value;
-  const count = parseInt(document.getElementById('selCount').value, 10);
+  const count = 5;
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const grade = document.getElementById('selGrade').value;
   const schoolName = document.getElementById('inpSchool').value.trim();
@@ -257,6 +248,6 @@ document.getElementById('btnPrint').onclick = () => window.print();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.171.3"></script>
+<script src="/games/worksheet-modes.js?v=1.172.2"></script>
 </body>
 </html>

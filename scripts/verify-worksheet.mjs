@@ -132,10 +132,12 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill'].every((token) => source.includes(token))
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="5"'].every((token) => source.includes(token))
                 && !/class=["'][^"']*div-box/.test(source)
-                && !/<span class=["']ta["']>เฉลย/.test(source),
-            'โจทย์หารต้องเป็นกระดานตั้งหารยาวและเฉลยต้องเติมผลหาร/ตัวคูณ/ผลลบ/เศษลงในช่องจริง ไม่ใช้ป้ายคำตอบแยก',
+                && !/<span class=["']ta["']>เฉลย/.test(source)
+                && !source.includes('ld-step')
+                && !source.includes('ld-phase'),
+            'โจทย์หารต้องมี 5 ข้อ ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
         );
     }
     if (relative.endsWith('/multiplication-worksheet.html')) {

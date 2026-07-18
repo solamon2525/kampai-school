@@ -110,7 +110,7 @@
     if (forced) {
       styleSelect.value = 'standard';
       pageCountSelect.value = mode === 'differentiated' ? '3' : '1';
-      if (countSelect) countSelect.value = '10';
+      if (countSelect) countSelect.value = countSelect.dataset.fixedCount || '10';
     }
     pageCountSelect.disabled = forced;
     styleSelect.disabled = forced;
@@ -167,15 +167,21 @@
     const markers = ['①', '②', '③', '④', '⑤'];
     const box = document.createElement('div');
     box.className = 'worksheet-mode-guide';
-    box.innerHTML = '<strong>ตัวช่วยทีละขั้น:</strong> ' + guide.steps.map((step, index) => markers[index] + ' ' + step).join(' ');
+    box.innerHTML = guide.match === 'division-worksheet'
+      ? '<strong>จำวิธีตั้งหาร:</strong> ' + guide.steps.join(' → ')
+      : '<strong>ตัวช่วยทีละขั้น:</strong> ' + guide.steps.map((step, index) => markers[index] + ' ' + step).join(' ');
     sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
   }
 
   function decorateDifferentiated(sheets) {
+    const fixedCount = Number(countSelect?.dataset.fixedCount || 0);
+    const reviewNote = fixedCount
+      ? '<strong>ตัวช่วย:</strong> ทำตามแนวตั้งหารให้ตรงหลัก แล้วตรวจจากตัวอย่างในบทเรียน'
+      : '<strong>ตัวช่วย:</strong> ทำทีละขั้น ขีดเส้นใต้คำสำคัญ และตรวจตัวอย่างจากบทเรียน';
     const levels = [
-      { badge: 'ชุด A · ทบทวน', note: '<strong>ตัวช่วย:</strong> ทำทีละขั้น ขีดเส้นใต้คำสำคัญ และตรวจตัวอย่างจากบทเรียน', count: 5 },
-      { badge: 'ชุด B · มาตรฐาน', note: '<strong>เป้าหมาย:</strong> ทำด้วยตนเองให้ครบ แล้วตรวจคำตอบอีกครั้ง', count: 10 },
-      { badge: 'ชุด C · ท้าทาย', note: '<strong>ท้าทาย:</strong> ตอบให้ถูกต้องและเขียนเหตุผลหรือวิธีคิดประกอบทุกข้อ', count: 5 }
+      { badge: 'ชุด A · ทบทวน', note: reviewNote, count: fixedCount || 5 },
+      { badge: 'ชุด B · มาตรฐาน', note: '<strong>เป้าหมาย:</strong> ทำด้วยตนเองให้ครบ แล้วตรวจคำตอบอีกครั้ง', count: fixedCount || 10 },
+      { badge: 'ชุด C · ท้าทาย', note: '<strong>ท้าทาย:</strong> ตอบให้ถูกต้องและเขียนเหตุผลหรือวิธีคิดประกอบทุกข้อ', count: fixedCount || 5 }
     ];
     sheets.slice(0, 3).forEach((sheet, index) => {
       const level = levels[index];

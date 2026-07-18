@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.2 (positional long division)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ปรับใบงานหารยาวเป็น 5 ข้อต่อหน้าทุกโหมด เพื่อขยายพื้นที่ตั้งหารและรองรับลายมือนักเรียนจริง',
+            'ออกแบบพื้นที่ทำใหม่ให้ผลหาร ผลคูณ เส้นลบ เศษ และเลขที่ดึงลงตรงคอลัมน์ค่าประจำหลัก โดยยกเลิกป้ายขั้นและสมการข้อความ',
+            'เพิ่ม fixed-count contract และกฎ verify:worksheet ป้องกันใบงานหารย้อนกลับไปเป็น 10 ข้อหรือเฉลยผิดตำแหน่ง',
+        ],
+    },
+    {
         version: 'v1.172.1 (worked long-division answers)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
