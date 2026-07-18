@@ -106,6 +106,18 @@
         <option value="code">รูปแบบ: ถอดรหัสลับคำปริศนา (Puzzle)</option>
         <option value="booklet">รูปแบบ: รวมเล่มแบบฝึกหัด (พร้อมปก & Skill Tree)</option>
       </select>
+      <select class="t-select" id="selPageCount">
+        <option value="1">สร้าง 1 หน้า</option>
+        <option value="2">สร้าง 2 หน้าพร้อมกัน</option>
+        <option value="3">สร้าง 3 หน้าพร้อมกัน</option>
+        <option value="5">สร้าง 5 หน้าพร้อมกัน (ชุดเต็ม)</option>
+        <option value="10">สร้าง 10 หน้าพร้อมกัน (ตลับชุดใหญ่)</option>
+      </select>
+      <select class="t-select" id="selMultiStrategy">
+        <option value="random">จัดหลายหน้า: สุ่มโจทย์ใหม่แยกทุกหน้า</option>
+        <option value="flow">จัดหลายหน้า: ไต่ระดับ ป.4 ➔ ป.5 ➔ ป.6</option>
+        <option value="sets">จัดหลายหน้า: สุ่มชุดนักเรียน (Batch A, B, C...)</option>
+      </select>
       <select class="t-select" id="selGrade">
         <option value="4" selected>ชั้น: ป.4</option>
         <option value="5">ชั้น: ป.5</option>
@@ -124,9 +136,9 @@
         <option value="">-- เลือกครูผู้สอน --</option>
       </select>
       <button class="btn" id="btnBack">← สื่อ</button>
-      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มโจทย์ทั้งหมด</button>
       <button class="btn" id="btnAnswers">👁️ เฉลยครู</button>
-      <button class="btn green" id="btnPrint">🖨️ พิมพ์ A4</button>
+      <button class="btn green" id="btnPrint">🖨️ พิมพ์ A4 ทั้งหมด</button>
     </div>
   </div>
   <main class="pages" id="pages"></main>
@@ -269,11 +281,66 @@ function renderParentSlip(teacherName){
     +'</div>';
 }
 
+function renderSingleSheet(lv, pageIdx, totalPages, batchCode, style, count, schoolName, teacherName){
+  let qs = ''; 
+  const isProgressive = style === 'progressive';
+  for(let i=1; i<=count; i++) qs += question(lv, i, isProgressive);
+  
+  const teacherHtml = teacherName ? `<div class="student-teacher">ครูผู้สอน: <span class="blank short">${teacherName}</span></div>` : '';
+  const schoolHtml = schoolName ? `<div class="school-name">🏫 ${schoolName}</div>` : '';
+  
+  let specialSection = '';
+  if(style === 'pixel'){
+    specialSection = '<div style="text-align:center;font-weight:800;color:#047857;margin-top:2mm">🎨 ภารกิจ Pixel Art: นำตัวเลขหลักหน่วยของคำตอบมาเทียบระบายสีรูปภาพ</div>'
+      +'<div class="pixel-grid">'
+      + Array.from({length:100}, (_,idx)=> `<div class="pixel-cell">${(idx*7+pageIdx)%10}</div>`).join('')
+      +'</div>'
+      +'<div class="color-legend">'
+      +'<span><span class="color-chip" style="background:#ef4444"></span> 0,1=แดง</span>'
+      +'<span><span class="color-chip" style="background:#3b82f6"></span> 2,3=ฟ้า</span>'
+      +'<span><span class="color-chip" style="background:#10b981"></span> 4,5=เขียว</span>'
+      +'<span><span class="color-chip" style="background:#eab308"></span> 6,7=เหลือง</span>'
+      +'<span><span class="color-chip" style="background:#8b5cf6"></span> 8,9=ม่วง</span>'
+      +'</div>';
+  } else if(style === 'code'){
+    specialSection = '<div style="text-align:center;font-weight:800;color:#047857;margin-top:2mm">🧩 ภารกิจถอดรหัสลับ: นำอักษรประจำข้อคำตอบมาเรียงเป็นคำปริศนา</div>'
+      +'<div class="code-boxes">'
+      + ['K','A','M','P','A','I','S','C','H','O','O','L'].slice(0, 6).map(ch=>`<div class="code-box">${ch}</div>`).join('')
+      +'</div>';
+  }
+
+  return '<section class="sheet"><header class="sheet-head">'
+    +'<div class="qr-box">'
+    +'<img class="qr-img" src="'+QR_API+'" alt="QR Code สื่อการสอน" />'
+    +'<span class="qr-label">สแกนดูวิธีคิด</span>'
+    +'</div>'
+    +'<div class="sheet-title"><h2>✏️ ใบงานการคูณแนวตั้ง — '+lv.name+'</h2>'
+    +'<span class="level">'+lv.icon+' ป.'+lv.grade+'</span></div>'
+    +schoolHtml
+    +'<div class="student">'
+    +'<div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div>'
+    +'<div class="student-no">เลขที่: <span class="blank short"></span></div>'
+    +teacherHtml
+    +'</div>'
+    +'<div class="directions">'
+    +'<span>คำชี้แจง: ตั้งคูณแนวตั้ง แสดงวิธีทำ เขียนตัวทดและผลคูณย่อยให้ครบถ้วน</span>'
+    +'<span class="indicator">ตัวชี้วัด '+lv.indicator+'</span>'
+    +'</div>'
+    +'</header><div class="questions count-'+count+'">'+qs+'</div>'
+    + specialSection
+    + renderParentSlip(teacherName)
+    +'<footer class="sheet-foot">หน้า '+pageIdx+' / '+totalPages
+    +(batchCode?` · [ชุดโจทย์ #${batchCode}]`:'')
+    +' · ใบงานการคูณ ป.'+lv.grade+' ('+lv.indicator+')</footer></section>';
+}
+
 function render(){
   const style = document.getElementById('selStyle').value;
   const grade = document.getElementById('selGrade').value;
   const mode = document.getElementById('selMode').value;
   const count = parseInt(document.getElementById('selCount').value, 10);
+  const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
+  const multiStrategy = document.getElementById('selMultiStrategy').value;
   const schoolName = document.getElementById('inpSchool').value.trim();
   const teacherName = document.getElementById('selTeacher').value;
 
@@ -291,57 +358,20 @@ function render(){
     html += renderBookletCover(schoolName, teacherName);
   }
 
-  html += targetLevels.map((lv, li) => {
-    let qs = ''; 
-    const isProgressive = style === 'progressive';
-    for(let i=1; i<=count; i++) qs += question(lv, i, isProgressive);
+  const batchCode = Math.random().toString(36).substring(2,6).toUpperCase();
+
+  for(let p=1; p<=pageCount; p++){
+    let currentLv = targetLevels[(p-1) % targetLevels.length];
     
-    const teacherHtml = teacherName ? `<div class="student-teacher">ครูผู้สอน: <span class="blank short">${teacherName}</span></div>` : '';
-    const schoolHtml = schoolName ? `<div class="school-name">🏫 ${schoolName}</div>` : '';
-    
-    let specialSection = '';
-    if(style === 'pixel'){
-      specialSection = '<div style="text-align:center;font-weight:800;color:#047857;margin-top:2mm">🎨 ภารกิจ Pixel Art: นำตัวเลขหลักหน่วยของคำตอบมาเทียบระบายสีรูปภาพ</div>'
-        +'<div class="pixel-grid">'
-        + Array.from({length:100}, (_,idx)=> `<div class="pixel-cell">${(idx*7)%10}</div>`).join('')
-        +'</div>'
-        +'<div class="color-legend">'
-        +'<span><span class="color-chip" style="background:#ef4444"></span> 0,1=แดง</span>'
-        +'<span><span class="color-chip" style="background:#3b82f6"></span> 2,3=ฟ้า</span>'
-        +'<span><span class="color-chip" style="background:#10b981"></span> 4,5=เขียว</span>'
-        +'<span><span class="color-chip" style="background:#eab308"></span> 6,7=เหลือง</span>'
-        +'<span><span class="color-chip" style="background:#8b5cf6"></span> 8,9=ม่วง</span>'
-        +'</div>';
-    } else if(style === 'code'){
-      specialSection = '<div style="text-align:center;font-weight:800;color:#047857;margin-top:2mm">🧩 ภารกิจถอดรหัสลับ: นำอักษรประจำข้อคำตอบมาเรียงเป็นคำปริศนา</div>'
-        +'<div class="code-boxes">'
-        + ['K','A','M','P','A','I'].map(ch=>`<div class="code-box">${ch}</div>`).join('')
-        +'</div>';
+    if(multiStrategy === 'flow'){
+      if(p % 3 === 1) currentLv = ALL_LEVELS.find(l=>l.grade===4) || currentLv;
+      else if(p % 3 === 2) currentLv = ALL_LEVELS.find(l=>l.grade===5) || currentLv;
+      else currentLv = ALL_LEVELS.find(l=>l.grade===6) || currentLv;
     }
 
-    return '<section class="sheet"><header class="sheet-head">'
-      +'<div class="qr-box">'
-      +'<img class="qr-img" src="'+QR_API+'" alt="QR Code สื่อการสอน" />'
-      +'<span class="qr-label">สแกนดูวิธีคิด</span>'
-      +'</div>'
-      +'<div class="sheet-title"><h2>✏️ ใบงานการคูณแนวตั้ง — '+lv.name+'</h2>'
-      +'<span class="level">'+lv.icon+' ป.'+lv.grade+'</span></div>'
-      +schoolHtml
-      +'<div class="student">'
-      +'<div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div>'
-      +'<div class="student-no">เลขที่: <span class="blank short"></span></div>'
-      +teacherHtml
-      +'</div>'
-      +'<div class="directions">'
-      +'<span>คำชี้แจง: ตั้งคูณแนวตั้ง แสดงวิธีทำ เขียนตัวทดและผลคูณย่อยให้ครบถ้วน</span>'
-      +'<span class="indicator">ตัวชี้วัด '+lv.indicator+'</span>'
-      +'</div>'
-      +'</header><div class="questions count-'+count+'">'+qs+'</div>'
-      + specialSection
-      + renderParentSlip(teacherName)
-      +'<footer class="sheet-foot">หน้า '+(li+1)+'/'+targetLevels.length
-      +' · ใบงานการคูณ ป.'+lv.grade+' ('+lv.indicator+') · คู่สื่อวิธีคูณทีละขั้น</footer></section>';
-  }).join('');
+    const currentBatch = multiStrategy === 'sets' ? `${batchCode}-${String.fromCharCode(64+p)}` : batchCode;
+    html += renderSingleSheet(currentLv, p, pageCount, currentBatch, style, count, schoolName, teacherName);
+  }
 
   document.getElementById('pages').innerHTML = html;
 }
@@ -349,6 +379,8 @@ function render(){
 document.getElementById('btnBack').onclick = () => location.href = '/games/math/multiplication-thinking-media.html';
 document.getElementById('btnRandom').onclick = render;
 document.getElementById('selStyle').onchange = render;
+document.getElementById('selPageCount').onchange = render;
+document.getElementById('selMultiStrategy').onchange = render;
 document.getElementById('selGrade').onchange = () => { updateModeOptions(); render(); };
 document.getElementById('selMode').onchange = render;
 document.getElementById('selCount').onchange = render;
