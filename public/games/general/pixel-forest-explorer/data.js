@@ -11,7 +11,10 @@ window.GAME_DATA = {
   monsters: {
     slime: { name: 'สไลม์มอส', color: '#63c74d', dark: '#327345', hp: 18, damage: 4, speed: 20, xp: 14 },
     boar: { name: 'หมูป่าหนาม', color: '#9a6846', dark: '#54352b', hp: 32, damage: 7, speed: 24, xp: 22 },
-    shaman: { name: 'ชาแมนเห็ด', color: '#b66bd3', dark: '#61347a', hp: 24, damage: 6, speed: 15, xp: 28 }
+    shaman: { name: 'ชาแมนเห็ด', color: '#b66bd3', dark: '#61347a', hp: 24, damage: 6, speed: 15, xp: 28 },
+    thornling: { name: 'ภูตรากหนาม', color: '#76b852', dark: '#315f32', hp: 28, damage: 7, speed: 18, xp: 30 },
+    mireling: { name: 'คางคกหมอกพิษ', color: '#91a957', dark: '#4b6038', hp: 38, damage: 9, speed: 16, xp: 38 },
+    sentinel: { name: 'อัศวินศิลารูน', color: '#8d91a1', dark: '#4d5263', hp: 52, damage: 11, speed: 14, xp: 52 }
   },
   skills: [
     { id: 'blade', icon: '⚔️', name: 'คมดาบ', desc: 'พลังโจมตี +3 ต่อระดับ' },
@@ -37,10 +40,22 @@ window.GAME_DATA = {
     { id: 4, zone: 'ruins', title: 'บทที่ 4 — ประตูรูนสุดท้าย', story: 'รวบรวมเศษรูน เปิดผนึกวิหาร และโค่นรูนวาร์เดนเพื่อคืนแสงให้ป่า', quota: 7, boss: 'rune-warden', unlock: null }
   ],
   bosses: {
-    'training-golem': { name: 'โกเลมฝึกหัด', color: '#b98b56', dark: '#624b39', hp: 150, damage: 8, skill: 'คลื่นกระแทก', rune: 'guardian' },
-    'moss-ancient': { name: 'พฤกษาโบราณ', color: '#3f8d4f', dark: '#174f2c', hp: 240, damage: 10, skill: 'รากไม้ผุด', rune: 'fury' },
-    'mire-hydra': { name: 'ไฮดร้าหมอกพิษ', color: '#789d55', dark: '#425b38', hp: 330, damage: 12, skill: 'พิษแปดทิศ', rune: 'fortune' },
-    'rune-warden': { name: 'รูนวาร์เดน', color: '#8e6ac8', dark: '#443267', hp: 430, damage: 15, skill: 'วาร์ปรูนสามสาย', rune: 'arcane' }
+    'training-golem': { name: 'โกเลมฝึกหัด', color: '#b98b56', dark: '#624b39', hp: 150, damage: 8, skill: 'คลื่นกระแทก', phaseSkill: 'กำปั้นศิลาคู่', rune: 'guardian' },
+    'moss-ancient': { name: 'พฤกษาโบราณ', color: '#3f8d4f', dark: '#174f2c', hp: 240, damage: 10, skill: 'รากไม้ผุด', phaseSkill: 'วงกตรากหนาม', rune: 'fury' },
+    'mire-hydra': { name: 'ไฮดร้าหมอกพิษ', color: '#789d55', dark: '#425b38', hp: 330, damage: 12, skill: 'พิษแปดทิศ', phaseSkill: 'ฝนพิษไล่ล่า', rune: 'fortune' },
+    'rune-warden': { name: 'รูนวาร์เดน', color: '#8e6ac8', dark: '#443267', hp: 430, damage: 15, skill: 'วาร์ปรูนสามสาย', phaseSkill: 'ผนึกดาราห้าสาย', rune: 'arcane' },
+    'root-devourer': { name: 'ผู้กลืนกินราก', color: '#607f45', dark: '#2b4a31', hp: 360, damage: 13, skill: 'เขาวงกตราก', phaseSkill: 'เมล็ดมรณะ', rune: null }
+  },
+  dungeons: {
+    root_cavern: {
+      name: 'ถ้ำรากโบราณ', zone: 'mosswood', unlockBoss: 'training-golem', seconds: 100,
+      waves: [
+        { name: 'ห้องโถงมอส', count: 4, types: ['slime', 'thornling'] },
+        { name: 'รังหนามตื่น', count: 6, types: ['boar', 'thornling'] },
+        { name: 'แก่นรากต้องสาป', boss: 'root-devourer' }
+      ],
+      rewards: { gold: 240, gems: 6, moss: 12, wood: 8 }
+    }
   },
   runes: {
     guardian: { name: 'รูนผู้พิทักษ์', desc: 'HP สูงสุด +18', color: '#6bb6d9' },

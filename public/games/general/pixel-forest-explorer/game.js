@@ -27,6 +27,7 @@
       inventory: { moss: 0, wood: 0, slime_core: 0, swamp_ore: 0, ancient_shard: 0 },
       runes: [],
       bosses: {},
+      dungeons: { root_cavern: { clears: 0, best_time: null } },
       play_seconds: 0,
       campaign_complete: false
     };
@@ -40,7 +41,7 @@
     keys: { up: false, down: false, left: false, right: false }, camera: { x: 0, y: 0 },
     player: {}, progress: defaultProgress(), saveVersion: 1, savePending: false,
     saveQueued: false, saveSeq: 0, eventQueue: [], saveInFlightEvents: [],
-    boss: null, zone: 'village', lockedToastAt: 0, playStartedAt: 0
+    boss: null, dungeon: null, dungeonClock: 0, zone: 'village', lockedToastAt: 0, playStartedAt: 0
   };
 
   function sanitizeProgress(raw) {
@@ -70,6 +71,12 @@
       inventory,
       runes: Array.isArray(raw.runes) ? raw.runes.filter((r) => DATA.runes[r]) : [],
       bosses: raw.bosses && typeof raw.bosses === 'object' ? raw.bosses : {},
+      dungeons: {
+        root_cavern: {
+          clears: clamp(Number(raw.dungeons?.root_cavern?.clears) || 0, 0, 9999),
+          best_time: raw.dungeons?.root_cavern?.best_time == null ? null : clamp(Number(raw.dungeons.root_cavern.best_time) || 0, 1, 9999)
+        }
+      },
       play_seconds: clamp(Number(raw.play_seconds) || 0, 0, 100000000),
       campaign_complete: !!raw.campaign_complete
     };
@@ -155,20 +162,20 @@
   function monsterTypeForZone(zone) {
     const roll = state.rng();
     if (zone === 'village') return roll < .75 ? 'slime' : 'boar';
-    if (zone === 'mosswood') return roll < .55 ? 'slime' : 'boar';
-    if (zone === 'swamp') return roll < .4 ? 'slime' : 'shaman';
-    return roll < .45 ? 'boar' : 'shaman';
+    if (zone === 'mosswood') return roll < .38 ? 'slime' : roll < .72 ? 'boar' : 'thornling';
+    if (zone === 'swamp') return roll < .28 ? 'slime' : roll < .58 ? 'shaman' : 'mireling';
+    return roll < .3 ? 'boar' : roll < .6 ? 'shaman' : 'sentinel';
   }
-  function spawnMonster(existing, requestedZone) {
+  function spawnMonster(existing, requestedZone, requestedType) {
     const zone = requestedZone || ZONE_KEYS[Math.floor(state.rng() * ZONE_KEYS.length)];
     const p = randomOpenTile(zone, 70), zoneLevel = DATA.zones[zone].chapter;
     const level = clamp(zoneLevel + Math.floor((state.player.level - 1) / 2) + Math.floor(state.rng() * 2), 1, 15);
-    const type = monsterTypeForZone(zone), base = DATA.monsters[type], monster = existing || {};
+    const type = requestedType || monsterTypeForZone(zone), base = DATA.monsters[type], monster = existing || {};
     Object.assign(monster, {
       x: p.x, y: p.y, zone, type, level, maxHp: base.hp + level * 8, hp: base.hp + level * 8,
       damage: base.damage + Math.floor(level * 1.5), speed: base.speed + level * .7,
       xp: base.xp + level * 4, cooldown: state.rng() * 1.5, charge: 0, vx: 0, vy: 0,
-      invuln: 0, hitAttack: -1, dead: false, respawn: 0, flash: 0, boss: false
+      invuln: 0, hitAttack: -1, dead: false, respawn: 0, flash: 0, boss: false, dungeon: false
     });
     if (!existing) state.monsters.push(monster);
   }
@@ -176,7 +183,7 @@
   function spawnChest() { const zone = ZONE_KEYS[Math.floor(state.rng() * ZONE_KEYS.length)], p = randomOpenTile(zone, 80); state.chests.push({ x: p.x, y: p.y, zone, open: false }); }
   function resetWorld(rng) {
     state.rng = rng || Math.random; state.score = 0; state.time = CFG.CHALLENGE_SECONDS;
-    state.lights = []; state.monsters = []; state.projectiles = []; state.drops = []; state.particles = []; state.chests = []; state.boss = null;
+    state.lights = []; state.monsters = []; state.projectiles = []; state.drops = []; state.particles = []; state.chests = []; state.boss = null; state.dungeon = null;
     resetPlayer();
     for (let i = 0; i < CFG.LIGHT_COUNT; i++) spawnLight();
     for (let i = 0; i < CFG.MONSTER_COUNT; i++) spawnMonster(null, ZONE_KEYS[i % ZONE_KEYS.length]);
@@ -231,6 +238,9 @@
     ctx.fillStyle = '#173d2e66'; ctx.fillRect(-7, 6, 14, 3);
     if (m.type === 'slime') { const bounce = ((state.anim / 180 + m.x) | 0) % 2; ctx.fillStyle = d.dark; ctx.fillRect(-7, -3 + bounce, 14, 10 - bounce); ctx.fillStyle = d.color; ctx.fillRect(-5, -6 + bounce, 10, 9); ctx.fillStyle = '#fff'; ctx.fillRect(-4, -2 + bounce, 3, 3); ctx.fillRect(2, -2 + bounce, 3, 3); ctx.fillStyle = '#18231b'; ctx.fillRect(-3, -1 + bounce, 1, 1); ctx.fillRect(3, -1 + bounce, 1, 1); }
     else if (m.type === 'boar') { ctx.fillStyle = d.dark; ctx.fillRect(-8, -5, 16, 12); ctx.fillStyle = d.color; ctx.fillRect(-7, -7, 12, 12); ctx.fillStyle = '#f0d2a0'; ctx.fillRect(4, -2, 6, 5); ctx.fillStyle = '#fff5bd'; ctx.fillRect(7, 2, 3, 3); ctx.fillStyle = '#251c19'; ctx.fillRect(1, -4, 2, 2); }
+    else if (m.type === 'thornling') { ctx.fillStyle = d.dark; ctx.fillRect(-6, -5, 12, 13); ctx.fillStyle = d.color; ctx.fillRect(-9, -9, 6, 8); ctx.fillRect(3, -9, 6, 8); ctx.fillRect(-5, -12, 10, 8); ctx.fillStyle = '#f4f0b3'; ctx.fillRect(-3, -5, 2, 2); ctx.fillRect(2, -5, 2, 2); ctx.fillStyle = '#315f32'; ctx.fillRect(-10, -12, 3, 3); ctx.fillRect(7, -12, 3, 3); }
+    else if (m.type === 'mireling') { ctx.fillStyle = d.dark; ctx.fillRect(-9, 0, 18, 8); ctx.fillStyle = d.color; ctx.fillRect(-7, -7, 14, 10); ctx.fillRect(-10, 3, 5, 5); ctx.fillRect(5, 3, 5, 5); ctx.fillStyle = '#fff'; ctx.fillRect(-5, -6, 4, 4); ctx.fillRect(2, -6, 4, 4); ctx.fillStyle = '#26331f'; ctx.fillRect(-4, -5, 2, 2); ctx.fillRect(3, -5, 2, 2); }
+    else if (m.type === 'sentinel') { ctx.fillStyle = d.dark; ctx.fillRect(-8, -8, 16, 16); ctx.fillStyle = d.color; ctx.fillRect(-6, -12, 12, 19); ctx.fillStyle = '#b9a5ff'; ctx.fillRect(-2, -8, 4, 8); ctx.fillStyle = '#fff'; ctx.fillRect(-4, -9, 2, 2); ctx.fillRect(3, -9, 2, 2); ctx.fillStyle = '#4d5263'; ctx.fillRect(-10, -4, 4, 12); ctx.fillRect(6, -4, 4, 12); }
     else { ctx.fillStyle = d.dark; ctx.fillRect(-6, -3, 12, 11); ctx.fillStyle = '#e6c996'; ctx.fillRect(-4, -7, 8, 7); ctx.fillStyle = d.color; ctx.fillRect(-8, -11, 16, 5); ctx.fillRect(-5, -14, 10, 5); ctx.fillStyle = '#fff'; ctx.fillRect(-3, -5, 2, 2); ctx.fillRect(2, -5, 2, 2); ctx.fillStyle = '#6e412d'; ctx.fillRect(7, -4, 2, 13); }
     ctx.restore(); drawHealthBar(m, x, y, 18);
   }
@@ -264,6 +274,7 @@
     if (canMove(entity.x, ny, 5) && (!isPlayer || zoneAllowed(zoneAt(entity.x, ny)))) entity.y = ny;
   }
   function zoneAllowed(zone) {
+    if (state.dungeon) return zone === DATA.dungeons[state.dungeon.code].zone;
     if (state.progress.unlocked_zones.includes(zone)) return true;
     if (Date.now() - state.lockedToastAt > 1800) { state.lockedToastAt = Date.now(); toast('🔒 ผ่านบทก่อนหน้าเพื่อปลดล็อก ' + DATA.zones[zone].short); }
     return false;
@@ -279,24 +290,31 @@
   function updateMonsters(dt) {
     const p = state.player;
     state.monsters.forEach((m) => {
-      if (m.dead) { if (m.boss) return; m.respawn -= dt; if (m.respawn <= 0) spawnMonster(m, m.zone); return; }
+      if (m.dead) { if (m.boss || m.dungeon) return; m.respawn -= dt; if (m.respawn <= 0) spawnMonster(m, m.zone); return; }
       m.cooldown -= dt; m.invuln = Math.max(0, m.invuln - dt); m.flash = Math.max(0, m.flash - dt); let dx = p.x - m.x, dy = p.y - m.y, dist = Math.hypot(dx, dy) || 1; dx /= dist; dy /= dist;
       if (m.boss) { updateBoss(m, dx, dy, dist, dt); return; }
       if (!state.progress.unlocked_zones.includes(m.zone) && m.zone !== 'village') return;
       if (m.type === 'slime' && dist < 150) moveEntity(m, dx, dy, dt, m.speed, false);
       if (m.type === 'boar') { if (m.charge > 0) { m.charge -= dt; moveEntity(m, m.vx, m.vy, dt, m.speed * 3.1, false); } else if (dist < 125 && m.cooldown <= 0) { m.charge = .48; m.vx = dx; m.vy = dy; m.cooldown = 2.6; } else if (dist < 155) moveEntity(m, dx, dy, dt, m.speed * .65, false); }
       if (m.type === 'shaman') { if (dist < 58) moveEntity(m, -dx, -dy, dt, m.speed, false); else if (dist > 95 && dist < 175) moveEntity(m, dx, dy, dt, m.speed * .55, false); if (dist < 170 && m.cooldown <= 0) { hostileShot(m.x, m.y - 4, dx, dy, m.damage, 'magic'); m.cooldown = Math.max(1.2, 2.4 - m.level * .05); } }
+      if (m.type === 'thornling') { if (dist < 68) moveEntity(m, -dx, -dy, dt, m.speed, false); else if (dist > 105 && dist < 175) moveEntity(m, dx, dy, dt, m.speed * .5, false); if (dist < 165 && m.cooldown <= 0) { state.projectiles.push({ x: state.player.x, y: state.player.y, vx: 0, vy: 0, damage: m.damage, life: 1.15, warmup: .52, kind: 'root', friendly: false }); m.cooldown = 2.2; } }
+      if (m.type === 'mireling') { if (m.charge > 0) { m.charge -= dt; moveEntity(m, m.vx, m.vy, dt, m.speed * 3.4, false); } else if (dist < 145 && m.cooldown <= 0) { m.charge = .36; m.vx = dx; m.vy = dy; m.cooldown = 2.8; radialShots(m, 4, 34, 'poison'); } else if (dist < 150) moveEntity(m, dx, dy, dt, m.speed * .55, false); }
+      if (m.type === 'sentinel') { if (dist < 165) moveEntity(m, dx, dy, dt, m.speed * .7, false); if (dist < 120 && m.cooldown <= 0) { radialShots(m, 6, 42, 'rune'); m.cooldown = 2.6; } }
       if (dist < 13) damagePlayer(m.damage, dx, dy);
     });
   }
   function updateBoss(m, dx, dy, dist, dt) {
-    if (dist < 180) moveEntity(m, dx, dy, dt, m.speed, false); if (dist < 19) damagePlayer(m.damage, dx, dy);
+    const bossData = DATA.bosses[m.bossCode], enraged = m.hp <= m.maxHp * .5;
+    if (enraged && !m.enraged) { m.enraged = true; m.speed *= 1.22; burst(m.x, m.y, bossData.color, 28); toast('🔥 ' + bossData.phaseSkill); }
+    if (m.charge > 0) { m.charge -= dt; moveEntity(m, m.vx, m.vy, dt, m.speed * 3.2, false); }
+    else if (dist < 180) moveEntity(m, dx, dy, dt, m.speed, false); if (dist < 19) damagePlayer(m.damage, dx, dy);
     if (m.cooldown > 0 || dist > 210) return; const code = m.bossCode;
-    if (code === 'training-golem') radialShots(m, 8, 34, 'shock');
-    if (code === 'moss-ancient') for (let i = 0; i < 7; i++) state.projectiles.push({ x: state.player.x + (Math.random() - .5) * 90, y: state.player.y + (Math.random() - .5) * 90, vx: 0, vy: 0, damage: m.damage, life: 1.2, warmup: .55, kind: 'root', friendly: false });
-    if (code === 'mire-hydra') radialShots(m, 12, 48, 'poison');
-    if (code === 'rune-warden') { const p = randomOpenNearPlayer(m.zone, 65); m.x = p.x; m.y = p.y; const angle = Math.atan2(state.player.y - m.y, state.player.x - m.x); [-.28, 0, .28].forEach((offset) => hostileShot(m.x, m.y, Math.cos(angle + offset), Math.sin(angle + offset), m.damage, 'rune')); }
-    toast(DATA.bosses[code].skill + '!'); m.cooldown = code === 'rune-warden' ? 1.7 : 2.5;
+    if (code === 'training-golem') { radialShots(m, enraged ? 12 : 8, enraged ? 45 : 34, 'shock'); if (enraged) { m.charge = .3; m.vx = dx; m.vy = dy; } }
+    if (code === 'moss-ancient') for (let i = 0; i < (enraged ? 11 : 7); i++) state.projectiles.push({ x: state.player.x + (Math.random() - .5) * (enraged ? 120 : 90), y: state.player.y + (Math.random() - .5) * (enraged ? 120 : 90), vx: 0, vy: 0, damage: m.damage, life: 1.2, warmup: .55, kind: 'root', friendly: false });
+    if (code === 'mire-hydra') { radialShots(m, enraged ? 16 : 12, enraged ? 58 : 48, 'poison'); if (enraged) [-.18, 0, .18].forEach((offset) => hostileShot(m.x, m.y, Math.cos(Math.atan2(dy, dx) + offset), Math.sin(Math.atan2(dy, dx) + offset), m.damage, 'poison', 70)); }
+    if (code === 'rune-warden') { const p = randomOpenNearPlayer(m.zone, 65); m.x = p.x; m.y = p.y; const angle = Math.atan2(state.player.y - m.y, state.player.x - m.x); (enraged ? [-.5, -.25, 0, .25, .5] : [-.28, 0, .28]).forEach((offset) => hostileShot(m.x, m.y, Math.cos(angle + offset), Math.sin(angle + offset), m.damage, 'rune')); }
+    if (code === 'root-devourer') { for (let i = 0; i < (enraged ? 10 : 6); i++) state.projectiles.push({ x: state.player.x + (Math.random() - .5) * 115, y: state.player.y + (Math.random() - .5) * 115, vx: 0, vy: 0, damage: m.damage, life: 1.25, warmup: .48, kind: 'root', friendly: false }); if (enraged) radialShots(m, 8, 48, 'poison'); }
+    toast((enraged ? bossData.phaseSkill : bossData.skill) + '!'); m.cooldown = enraged ? 1.45 : (code === 'rune-warden' ? 1.7 : 2.5);
   }
   function randomOpenNearPlayer(zone, radius) {
     for (let i = 0; i < 80; i++) { const angle = Math.random() * Math.PI * 2, r = 35 + Math.random() * radius, x = state.player.x + Math.cos(angle) * r, y = state.player.y + Math.sin(angle) * r; if (zoneAt(x, y) === zone && canMove(x, y, 10)) return { x, y }; }
@@ -322,7 +340,7 @@
     for (let i = state.drops.length - 1; i >= 0; i--) if (Math.hypot(state.player.x - state.drops[i].x, state.player.y - state.drops[i].y) < 14) { state.player.hp = Math.min(state.player.maxHp, state.player.hp + 14); state.drops.splice(i, 1); toast('+14 HP'); updateHud(); }
   }
   function updateParticles(dt) { state.shake = Math.max(0, state.shake - dt); for (let i = state.particles.length - 1; i >= 0; i--) { const p = state.particles[i]; p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.life <= 0) state.particles.splice(i, 1); } }
-  function update(dt) { if (!state.running || state.skillOpen || state.campOpen) return; updatePlayer(dt); updateMonsters(dt); updateProjectiles(dt); updateCollectibles(); updateParticles(dt); state.progress.play_seconds += dt; }
+  function update(dt) { if (!state.running || state.skillOpen || state.campOpen) return; updatePlayer(dt); updateMonsters(dt); updateProjectiles(dt); updateCollectibles(); updateParticles(dt); state.progress.play_seconds += dt; if (state.dungeon) { state.dungeonClock = Math.max(0, state.dungeonClock - dt); updateQuestHud(); if (state.dungeonClock <= 0) leaveDungeon(false); } }
   function loop(now) { const dt = Math.min(.033, (now - (state.last || now)) / 1000); state.last = now; update(dt); render(now); requestAnimationFrame(loop); }
 
   function burst(x, y, color, count) { for (let i = 0; i < count; i++) state.particles.push({ x, y, vx: (Math.random() - .5) * 45, vy: (Math.random() - .5) * 45, life: .25 + Math.random() * .25, color, size: 1 + Math.floor(Math.random() * 3) }); }
@@ -342,7 +360,7 @@
     state.activeCooldown = hasRune('arcane') ? 5.25 : 7; toast(currentClass().active + '!');
   }
   function hitMonster(m, fixedDamage, splash) {
-    const p = state.player, crit = !fixedDamage && Math.random() < p.crit, damage = fixedDamage || Math.round(p.damage * (crit ? 1.75 : 1)); m.hp -= damage; m.hitAttack = p.attackId; m.invuln = .15; m.flash = .16;
+    const p = state.player, crit = !fixedDamage && Math.random() < p.crit, rawDamage = fixedDamage || Math.round(p.damage * (crit ? 1.75 : 1)), damage = m.type === 'sentinel' && !splash ? Math.max(1, Math.round(rawDamage * .72)) : rawDamage; m.hp -= damage; m.hitAttack = p.attackId; m.invuln = .15; m.flash = .16;
     if (!m.boss) { const dir = directionVector(); if (canMove(m.x + dir[0] * 7, m.y + dir[1] * 7, 5)) { m.x += dir[0] * 7; m.y += dir[1] * 7; } }
     burst(m.x, m.y, crit ? '#fff07a' : (splash ? '#b9a5ff' : '#ffffff'), crit ? 9 : 5); if (crit) toast('คริติคอล ' + damage + '!'); queueEvent('damage_dealt', damage, { target: m.boss ? m.bossCode : m.type }); if (m.hp <= 0) defeatMonster(m);
   }
@@ -352,7 +370,7 @@
     const gold = Math.round((5 + m.level * 2) * (hasRune('fortune') ? 1.25 : 1)); state.progress.gold += gold;
     const material = DATA.zones[m.zone].material; state.progress.inventory[material] = (state.progress.inventory[material] || 0) + 1; if (m.type === 'slime' && Math.random() < .65) state.progress.inventory.slime_core++;
     addScore(18 + m.level * 5); gainXp(m.xp); burst(m.x, m.y, base.color, 14); if (Math.random() < .25) state.drops.push({ x: m.x, y: m.y }); KAMPAI.sound.correct();
-    queueEvent('monster_kill', m.level, { monster: m.type, zone: m.zone, gold }); updateQuestAfterKill(m.zone); vs.report(state.score, { correct: state.player.kills }); updateHud();
+    queueEvent('monster_kill', m.level, { monster: m.type, zone: m.zone, gold, dungeon: m.dungeon ? state.dungeon?.code : null }); if (m.dungeon) advanceDungeonWave(); else updateQuestAfterKill(m.zone); vs.report(state.score, { correct: state.player.kills }); updateHud();
   }
   function updateQuestAfterKill(zone) {
     const chapter = currentChapter(), quest = state.progress.quest; if (zone !== chapter.zone || quest.boss_defeated) return; quest.kills = Math.min(chapter.quota, (quest.kills || 0) + 1); updateQuestHud(); if (quest.kills >= chapter.quota && !state.boss) spawnBoss();
@@ -363,6 +381,7 @@
     state.monsters.push(boss); state.boss = boss; queueEvent('boss_start', null, { boss: chapter.boss }); toast('⚠️ บอสปรากฏ: ' + d.name); saveProgress('boss-start');
   }
   function defeatBoss(m) {
+    if (m.dungeonBoss) { defeatDungeonBoss(m); return; }
     const chapter = currentChapter(), bossData = DATA.bosses[m.bossCode]; m.dead = true; state.boss = null; state.progress.bosses[m.bossCode] = true; state.progress.quest.boss_defeated = true;
     if (!state.progress.runes.includes(bossData.rune)) state.progress.runes.push(bossData.rune); state.progress.gold += 100 * chapter.id; state.progress.gems += 3 + chapter.id * 2; gainXp(m.xp); addScore(250 * chapter.id); burst(m.x, m.y, bossData.color, 40);
     queueEvent('boss_clear', chapter.id, { boss: m.bossCode, skill: bossData.skill }); queueEvent('chapter_complete', chapter.id, {}); toast('🏆 ได้รับ ' + DATA.runes[bossData.rune].name);
@@ -372,8 +391,36 @@
     } else { state.progress.campaign_complete = true; setTimeout(() => toast('✨ จบแคมเปญรุ่น 1!'), 1200); }
     updateHud(); saveProgress('boss-clear');
   }
+  function spawnDungeonWave() {
+    if (!state.dungeon) return; const dungeon = DATA.dungeons[state.dungeon.code], wave = dungeon.waves[state.dungeon.wave - 1]; state.dungeon.kills = 0; state.dungeon.advancing = false; state.monsters = []; state.projectiles = [];
+    if (wave.boss) {
+      const data = DATA.bosses[wave.boss], point = randomOpenNearPlayer(dungeon.zone, 82), boss = { x: point.x, y: point.y, zone: dungeon.zone, boss: true, dungeon: true, dungeonBoss: true, bossCode: wave.boss, type: 'boss', level: Math.max(6, state.player.level + 2), maxHp: data.hp + state.player.level * 10, hp: data.hp + state.player.level * 10, damage: data.damage + Math.floor(state.player.level / 3), speed: 14, xp: 180, cooldown: 1.4, charge: 0, invuln: 0, hitAttack: -1, dead: false, respawn: 0, flash: 0, enraged: false };
+      state.monsters.push(boss); state.boss = boss; queueEvent('boss_start', null, { boss: wave.boss, dungeon: state.dungeon.code }); toast('⚠️ ห้องสุดท้าย: ' + data.name); updateQuestHud(); return;
+    }
+    state.dungeon.needed = wave.count;
+    for (let i = 0; i < wave.count; i++) { const type = wave.types[i % wave.types.length]; spawnMonster(null, dungeon.zone, type); const monster = state.monsters[state.monsters.length - 1], point = randomOpenNearPlayer(dungeon.zone, 60 + i * 8); monster.x = point.x; monster.y = point.y; monster.dungeon = true; monster.respawn = 9999; }
+    toast('🚪 ห้อง ' + state.dungeon.wave + ': ' + wave.name); updateQuestHud();
+  }
+  function advanceDungeonWave() {
+    if (!state.dungeon || state.dungeon.advancing) return; state.dungeon.kills++;
+    if (state.dungeon.kills < state.dungeon.needed) { updateQuestHud(); return; }
+    state.dungeon.advancing = true; state.dungeon.wave++; toast('✨ เปิดประตูห้องถัดไป'); setTimeout(spawnDungeonWave, 850);
+  }
+  function defeatDungeonBoss(m) {
+    if (!state.dungeon) return; const dungeon = DATA.dungeons[state.dungeon.code], record = state.progress.dungeons[state.dungeon.code], elapsed = Math.max(1, Math.round(dungeon.seconds - state.dungeonClock)); m.dead = true; state.boss = null;
+    record.clears++; record.best_time = record.best_time == null ? elapsed : Math.min(record.best_time, elapsed); state.progress.gold += dungeon.rewards.gold; state.progress.gems += dungeon.rewards.gems; state.progress.inventory.moss += dungeon.rewards.moss; state.progress.inventory.wood += dungeon.rewards.wood; gainXp(m.xp); addScore(600); burst(m.x, m.y, DATA.bosses[m.bossCode].color, 48);
+    queueEvent('boss_clear', elapsed, { boss: m.bossCode, dungeon: state.dungeon.code, clear: record.clears }); toast('🏆 พิชิตถ้ำ! ' + elapsed + ' วินาที · ทอง +' + dungeon.rewards.gold); saveProgress('dungeon-clear'); setTimeout(() => leaveDungeon(true), 1300);
+  }
+  function leaveDungeon(cleared) {
+    if (!state.dungeon) return; const name = DATA.dungeons[state.dungeon.code].name; queueEvent('session_end', state.score, { mode: 'dungeon', dungeon: state.dungeon.code, cleared: !!cleared }); state.dungeon = null; state.dungeonClock = 0; resetWorld(state.rng); state.running = true; toast(cleared ? 'กลับจาก ' + name + ' พร้อมสมบัติ' : 'ถอนตัวจาก ' + name); updateHud();
+  }
+  window.startDungeon = (code) => {
+    const dungeon = DATA.dungeons[code]; if (!state.running || !dungeon || state.timed || state.dungeon) return; if (!state.progress.bosses[dungeon.unlockBoss]) { toast('🔒 ปราบโกเลมฝึกหัดก่อน'); return; }
+    state.campOpen = false; $('camp-screen').classList.add('is-hidden'); state.dungeon = { code, wave: 1, kills: 0, needed: 0, advancing: false }; state.dungeonClock = dungeon.seconds; state.monsters = []; state.projectiles = []; state.lights = []; state.chests = []; state.drops = []; state.boss = null;
+    const entrance = randomOpenTile(dungeon.zone, 0); state.player.x = entrance.x; state.player.y = entrance.y; state.player.hp = state.player.maxHp; state.zone = dungeon.zone; state.progress.zone = dungeon.zone; queueEvent('session_start', null, { mode: 'dungeon', dungeon: code }); saveProgress('dungeon-start'); spawnDungeonWave(); updateHud();
+  };
   function damagePlayer(amount, dx, dy) {
-    const p = state.player; if (p.invuln > 0 || !state.running) return; p.hp = Math.max(0, p.hp - amount); p.invuln = .85; state.shake = .22; burst(p.x, p.y, '#ff6b6b', 10); KAMPAI.sound.wrong(); const len = Math.hypot(dx, dy) || 1, nx = p.x + dx / len * 9, ny = p.y + dy / len * 9; if (canMove(nx, ny, 5)) { p.x = nx; p.y = ny; } queueEvent('damage_taken', amount, {}); updateHud(); if (p.hp <= 0) { queueEvent('player_death', state.progress.chapter, { zone: state.zone }); endRun(true); }
+    const p = state.player; if (p.invuln > 0 || !state.running) return; p.hp = Math.max(0, p.hp - amount); p.invuln = .85; state.shake = .22; burst(p.x, p.y, '#ff6b6b', 10); KAMPAI.sound.wrong(); const len = Math.hypot(dx, dy) || 1, nx = p.x + dx / len * 9, ny = p.y + dy / len * 9; if (canMove(nx, ny, 5)) { p.x = nx; p.y = ny; } queueEvent('damage_taken', amount, {}); updateHud(); if (p.hp <= 0) { queueEvent('player_death', state.progress.chapter, { zone: state.zone, dungeon: state.dungeon?.code || null }); if (state.dungeon) leaveDungeon(false); else endRun(true); }
   }
   function gainXp(amount) {
     const p = state.player; p.xp += amount; while (p.xp >= p.nextXp && p.level < 50) { p.xp -= p.nextXp; p.level++; p.nextXp = xpNeeded(p.level); p.maxHp += 4; p.hp = p.maxHp; p.damage += 2; p.skillPoints++; toast('LEVEL UP!  LV ' + p.level); burst(p.x, p.y, '#fff07a', 24); }
@@ -387,6 +434,7 @@
     const p = state.player; if (!p || !p.maxHp) return; $('player-level').textContent = p.level; $('hp-text').textContent = Math.round(p.hp) + ' / ' + p.maxHp; $('xp-text').textContent = 'XP ' + p.xp + ' / ' + p.nextXp; $('hp-fill').style.width = (p.hp / p.maxHp * 100) + '%'; $('xp-fill').style.width = (p.xp / p.nextXp * 100) + '%'; $('skill-points').textContent = p.skillPoints; $('skill-modal-points').textContent = p.skillPoints; $('score-value').textContent = state.score; $('gold-value').textContent = state.progress.gold; $('gem-value').textContent = state.progress.gems; $('zone-name').textContent = DATA.zones[state.zone]?.short || 'หมู่บ้าน'; updateQuestHud();
   }
   function updateQuestHud() {
+    if (state.dungeon) { const dungeon = DATA.dungeons[state.dungeon.code], wave = dungeon.waves[state.dungeon.wave - 1]; $('quest-title').textContent = '🕳️ ' + dungeon.name + ' · ' + Math.ceil(state.dungeonClock) + ' วิ'; $('quest-progress').textContent = wave?.boss ? 'บอส: ' + DATA.bosses[wave.boss].name : 'ห้อง ' + state.dungeon.wave + '/3 · ' + (wave?.name || 'กำลังเปิดประตู') + ' ' + state.dungeon.kills + '/' + state.dungeon.needed; return; }
     const chapter = currentChapter(), quest = state.progress.quest; $('quest-title').textContent = chapter.title; $('quest-progress').textContent = state.progress.campaign_complete ? 'จบแคมเปญรุ่น 1 แล้ว' : quest.boss_defeated ? 'ภารกิจสำเร็จ' : (quest.kills >= chapter.quota ? 'บอส: ' + DATA.bosses[chapter.boss].name : 'กำจัดศัตรูใน' + DATA.zones[chapter.zone].short + ' ' + quest.kills + '/' + chapter.quota);
   }
   function renderSkills() { const p = state.player; $('skill-modal-points').textContent = p.skillPoints; $('skill-grid').innerHTML = DATA.skills.map((skill) => '<button class="skill-card" onclick="upgradeSkill(\'' + skill.id + '\')" ' + (p.skillPoints < 1 ? 'disabled' : '') + '><em>LV ' + p.skills[skill.id] + '</em><span class="icon">' + skill.icon + '</span><strong>' + skill.name + '</strong><span>' + skill.desc + '</span></button>').join(''); }
@@ -408,6 +456,7 @@
     if (state.campTab === 'craft') { content.innerHTML = '<div class="camp-list">' + DATA.recipes.map((r) => { const can = canCraft(r); return '<div class="camp-item"><button ' + (can ? '' : 'disabled') + ' onclick="craftWeapon(\'' + r.code + '\')">คราฟ</button><strong>' + r.name + '</strong><small>ATK +' + r.damage + ' · 🪙 ' + r.cost + '</small><small>' + Object.keys(r.materials).map((k) => DATA.materials[k] + ' ' + p.inventory[k] + '/' + r.materials[k]).join(' · ') + '</small></div>'; }).join('') + '</div>'; }
     if (state.campTab === 'smith') { const level = p.equipment.weapon.enhance, cost = 60 * (level + 1); content.innerHTML = '<div class="camp-item"><button ' + (p.gold >= cost && level < 10 ? '' : 'disabled') + ' onclick="enhanceWeapon()">ตีบวก</button><strong>' + weaponName() + ' +' + level + '</strong><small>เพิ่ม ATK +2 ต่อระดับ · สูงสุด +10</small><small>ค่าใช้จ่าย 🪙 ' + cost + '</small></div>'; }
     if (state.campTab === 'rune') { content.innerHTML = p.runes.length ? '<div class="camp-list">' + p.runes.map((code) => '<div class="camp-item"><button onclick="equipRune(\'' + code + '\')">' + (p.equipment.weapon.rune === code ? 'ติดตั้งแล้ว' : 'ติดตั้ง') + '</button><strong>' + DATA.runes[code].name + '</strong><small>' + DATA.runes[code].desc + '</small></div>').join('') + '</div>' : '<p>ปราบบอสแต่ละบทเพื่อรับรูนเฉพาะตัว</p>'; }
+    if (state.campTab === 'dungeon') { const dungeon = DATA.dungeons.root_cavern, record = p.dungeons.root_cavern, unlocked = !!p.bosses[dungeon.unlockBoss]; content.innerHTML = '<div class="dungeon-card"><span class="dungeon-icon">🕳️</span><div><strong>' + dungeon.name + '</strong><small>3 ห้อง · 100 วินาที · บอสผู้กลืนกินราก</small><small>รางวัล: 🪙 ' + dungeon.rewards.gold + ' · 💎 ' + dungeon.rewards.gems + ' · มอส ' + dungeon.rewards.moss + '</small><small>ผ่านแล้ว ' + record.clears + ' ครั้ง' + (record.best_time ? ' · ดีที่สุด ' + record.best_time + ' วินาที' : '') + '</small></div><button ' + (unlocked && !state.timed ? '' : 'disabled') + ' onclick="startDungeon(\'root_cavern\')">' + (unlocked ? (state.timed ? 'ออกจากโหมดจับเวลาก่อน' : 'เข้าดันเจี้ยน') : '🔒 ปราบโกเลมก่อน') + '</button></div>'; }
     if (state.campTab === 'story') { content.innerHTML = DATA.chapters.map((chapter) => '<div class="story-row ' + (p.bosses[chapter.boss] ? 'done' : chapter.id === p.chapter ? 'current' : '') + '"><strong>' + chapter.title + '</strong><small>' + chapter.story + '</small></div>').join(''); }
   }
   function weaponName() { if (state.progress.equipment.weapon.code === 'training-weapon') return 'อาวุธฝึกหัด'; return weaponRecipe()?.name || 'อาวุธฝึกหัด'; }
