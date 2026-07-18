@@ -69,6 +69,8 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
 - `#pages > .sheet`, ภายในมี `.questions > .q`
 - ประกาศ `function render()` ที่เรียกซ้ำได้โดยไม่สะสม DOM/event เก่า
 - โหลด `worksheet-runtime.js`, `worksheet-modes.css` และ `worksheet-modes.js` พร้อม query version เดียวกัน
+- ใบงานที่จับคู่สื่อเฉพาะเรื่องต้องมี `<meta name="worksheet-source-media">` และ `<meta name="curriculum-indicators">`; ค่า source ต้องตรงกับ `sourceMediaUrl` ใน config และชี้ไปยังไฟล์ที่มีอยู่จริง
+- ใบงานเฉพาะเรื่องใช้ `worksheet-topic.css` + `worksheet-topic.js` เป็น shell กลางสำหรับ A4, QR สื่อ, ส่วนหัวนักเรียน, เฉลย และ footer ห้ามคัดลอก shell ไปไว้รายไฟล์
 - control ที่ครูต้องเลือกต้องมี `<label>` หรือ `aria-label` ชัดเจน
 - ห้ามสร้าง mode logic, teacher fetch หรือ print CSS ซ้ำในไฟล์รายวิชา ถ้ามีพฤติกรรมร่วมให้แก้ที่ runtime/modes กลาง
 
@@ -76,7 +78,7 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
 
 ถ้าตัวชี้วัดประเมิน “กระบวนการ” ห้ามแสดงเพียงโจทย์และสั่งกว้าง ๆ ว่า *แสดงวิธีทำ* ต้องเตรียม scaffold ที่ตรงกับทักษะ:
 
-- หารยาว → ตัวหารซ้าย ตัวตั้งใต้เส้น ช่องผลหารบน และบรรทัดคูณ/ลบ/ดึงลง/เศษ
+- หารยาว → ตัวหารซ้าย ตัวตั้งใต้เส้น ช่องผลหารบน และบรรทัดคูณ/ลบ/ดึงลง/เศษ; เมื่อเปิดเฉลยต้องเติมตัวเลขลงช่องผลหารและทุกขั้นโดยตรง ห้ามแสดงเพียงป้าย `เฉลย ...` ท้ายข้อ
 - คูณแนวตั้ง → ช่องตรงหลัก ช่องทด และผลคูณย่อย
 - พื้นที่ → ภาพกำกับ สูตร ช่องแทนค่า วิธีคำนวณ และหน่วย²
 - ภาษา → ช่องจำแนกคำ/ส่วนประกอบประโยคตามสิ่งที่วัด
@@ -111,3 +113,15 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
 pnpm verify:worksheet
 pnpm verify:worksheet public/games/math/division-worksheet.html
 ```
+
+## 8. Paired Media Batch Rule
+
+สร้างใบงานครั้งละ 5 เรื่อง โดยเลือกจากสื่อที่เผยแพร่และมี indicator mapping แล้ว กระจายรายวิชาและไม่ซ้ำใบงานเดิม ในแต่ละ batch ต้องทำครบพร้อมกัน:
+
+- QR และชื่อสื่อคู่บนใบงาน
+- ระดับชั้น/ตัวชี้วัด/คำศัพท์ตรงกับสื่อหลัก
+- เปลี่ยนกิจกรรม interactive ให้เป็น process scaffold สำหรับเขียนบนกระดาษ ไม่ลอกปุ่มหรือ quiz UI มาตรง ๆ
+- ลงทะเบียนหมวด `worksheets` และเชื่อม `indicator_games` ใน migration เดียวกัน
+- ตรวจไฟล์สื่อหลัก, metadata, shared asset version, scaffold และ A4 ผ่าน `verify:worksheet`
+
+Batch 1: ข้อมูลและแผนภูมิ · ข้อเท็จจริง–ความคิดเห็น · Phonics · วัฏจักรน้ำ · อ่านฉลากโภชนาการ

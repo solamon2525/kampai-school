@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/fact-opinion.html"><meta name="curriculum-indicators" content="ท 1.1 ป.4/4,ท 3.1 ป.4/1">
+  <title>ใบงานข้อเท็จจริงและความคิดเห็น ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📰 ใบงานข้อเท็จจริง–ความคิดเห็น</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="หัวข้อ"><option value="mixed">ผสม</option><option value="fact">ข้อเท็จจริง</option><option value="opinion">ความคิดเห็น</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script><script>
+const READING_ITEMS=[
+ {type:'fact',text:'ประเทศไทยมี 77 จังหวัด',clue:'ตรวจสอบได้จากข้อมูลทางราชการ',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'จังหวัดของฉันน่าอยู่ที่สุดในประเทศไทย',clue:'มีคำว่า “ที่สุด” และขึ้นกับความรู้สึก',answer:'ความคิดเห็น'},
+ {type:'fact',text:'น้ำแข็งเปลี่ยนเป็นน้ำเมื่อได้รับความร้อน',clue:'ทดลองและตรวจสอบได้',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'ไอศกรีมรสช็อกโกแลตอร่อยกว่าทุกรส',clue:'คำว่า “อร่อยกว่า” เป็นความชอบ',answer:'ความคิดเห็น'},
+ {type:'fact',text:'โรงเรียนเปิดเรียนวันจันทร์ถึงวันศุกร์ตามตารางเรียน',clue:'ตรวจจากตารางเรียนได้',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'การอ่านหนังสือเป็นกิจกรรมที่สนุกที่สุด',clue:'เป็นความรู้สึกของผู้พูด',answer:'ความคิดเห็น'},
+ {type:'fact',text:'พืชใช้แสงในการสร้างอาหาร',clue:'เป็นความรู้ทางวิทยาศาสตร์ที่พิสูจน์ได้',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'ต้นไม้ใหญ่ดูสง่างามกว่าต้นไม้เล็ก',clue:'คำว่า “สง่างามกว่า” เป็นการประเมิน',answer:'ความคิดเห็น'},
+ {type:'fact',text:'หนึ่งสัปดาห์มีเจ็ดวัน',clue:'นับและตรวจสอบได้',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'วันหยุดเป็นวันที่ดีที่สุดของสัปดาห์',clue:'ขึ้นอยู่กับความชอบของแต่ละคน',answer:'ความคิดเห็น'},
+ {type:'fact',text:'จังหวัดขอนแก่นอยู่ในภาคตะวันออกเฉียงเหนือ',clue:'ตรวจสอบได้จากแผนที่',answer:'ข้อเท็จจริง'},
+ {type:'opinion',text:'อาหารไทยมีกลิ่นหอมน่ารับประทานที่สุด',clue:'เป็นความรู้สึกและการเปรียบเทียบ',answer:'ความคิดเห็น'}
+];
+window.WORKSHEET_CONFIG={icon:'📰',title:'ใบงานข้อเท็จจริง–ความคิดเห็น',subject:'ภาษาไทย',gradeLabel:'ป.4',mediaLabel:'ข้อเท็จจริง vs ความคิดเห็น',sourceMediaUrl:'/games/thai/fact-opinion.html',indicators:['ท 1.1 ป.4/4','ท 3.1 ป.4/1'],directions:'อ่าน ขีดคำบอกเหตุ จำแนก และเขียนหลักฐานสนับสนุน',getItems(topic){return topic==='mixed'?READING_ITEMS:READING_ITEMS.filter(item=>item.type===topic);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="q-context">“'+e(item.text)+'”</div><div class="classify-grid"><div class="classify-box">[ ] ข้อเท็จจริง</div><div class="classify-box">[ ] ความคิดเห็น</div></div><div>คำ/หลักฐานที่ใช้ตัดสิน</div><div class="evidence-line"></div><div>เหตุผล</div><div class="reason-line"></div><span class="teacher-answer">'+e(item.answer)+' · '+e(item.clue)+'</span>';}};
+</script><script src="/games/worksheet-topic.js?v=1.172.0"></script><script>
+function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();
+</script><script src="/games/worksheet-modes.js?v=1.172.0"></script></body></html>

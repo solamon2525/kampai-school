@@ -31,8 +31,18 @@ function extractVersion(source, assetName) {
     return match ? (match[1] ?? '') : null;
 }
 
+function readLinkedLocalAsset(source, assetName) {
+    const match = source.match(new RegExp(`["'](/games/[^"']*${assetName.replace('.', '\\.')}(?:\\?[^"']*)?)["']`));
+    if (!match) return '';
+    const assetPath = match[1].split('?')[0].replace(/^\//, '');
+    const file = path.join(repoRoot, 'public', assetPath.replace(/^games[\\/]/, 'games/'));
+    return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+}
+
 function verifyFile(file) {
     const source = fs.readFileSync(file, 'utf8');
+    const sharedTopicSource = readLinkedLocalAsset(source, 'worksheet-topic.css') + readLinkedLocalAsset(source, 'worksheet-topic.js');
+    const effectiveSource = source + sharedTopicSource;
     const relative = path.relative(repoRoot, file).replaceAll('\\', '/');
     const failures = [];
     const checks = [];
@@ -57,18 +67,18 @@ function verifyFile(file) {
     );
     check(
         'render contract',
-        /function\s+render\s*\(/.test(source)
-            && /class=["'][^"']*sheet/.test(source)
-            && /class=["'][^"']*questions/.test(source)
-            && /class=["'][^"']*q(?:\s|["'])/.test(source),
+        /function\s+render\s*\(/.test(effectiveSource)
+            && /class=["'][^"']*sheet/.test(effectiveSource)
+            && /class=["'][^"']*questions/.test(effectiveSource)
+            && /class=["'][^"']*q(?:\s|["'])/.test(effectiveSource),
         'ต้องมี render() และโครง #pages > .sheet > .questions > .q',
     );
     check(
         'A4 print',
-        /@media\s+print/i.test(source)
-            && /@page/i.test(source)
-            && /size\s*:\s*A4\s+portrait/i.test(source)
-            && /window\.print\s*\(/.test(source),
+        /@media\s+print/i.test(effectiveSource)
+            && /@page/i.test(effectiveSource)
+            && /size\s*:\s*A4\s+portrait/i.test(effectiveSource)
+            && /window\.print\s*\(/.test(effectiveSource),
         'ต้องมี @media print, @page A4 portrait และปุ่มเรียก window.print()',
     );
 
@@ -79,6 +89,29 @@ function verifyFile(file) {
         Boolean(cssVersion) && Boolean(jsVersion) && cssVersion === jsVersion,
         'ต้องโหลด worksheet-modes.css/js พร้อม query version เดียวกัน',
     );
+
+    const topicCssVersion = extractVersion(source, 'worksheet-topic.css');
+    const topicJsVersion = extractVersion(source, 'worksheet-topic.js');
+    if (topicCssVersion !== null || topicJsVersion !== null) {
+        check(
+            'paired media metadata',
+            /<meta\s+name=["']worksheet-source-media["']\s+content=["']\/games\//i.test(source)
+                && /<meta\s+name=["']curriculum-indicators["']\s+content=["'][^"']+["']/i.test(source),
+            'ใบงานแบบ topic ต้องระบุ source media และตัวชี้วัด',
+        );
+        const sourceMedia = source.match(/<meta\s+name=["']worksheet-source-media["']\s+content=["']([^"']+)["']/i)?.[1];
+        const sourceMediaFile = sourceMedia ? path.join(repoRoot, 'public', sourceMedia.replace(/^\//, '')) : '';
+        check(
+            'paired media exists',
+            Boolean(sourceMediaFile) && fs.existsSync(sourceMediaFile) && source.includes(`sourceMediaUrl:'${sourceMedia}'`),
+            'ไฟล์สื่อหลักต้องมีอยู่จริงและตรงกับ sourceMediaUrl ใน config',
+        );
+        check(
+            'shared topic engine',
+            Boolean(topicCssVersion) && Boolean(topicJsVersion) && topicCssVersion === jsVersion && topicJsVersion === jsVersion,
+            'worksheet-topic.css/js และ shared modes ต้องใช้ query version เดียวกัน',
+        );
+    }
 
     if (/id=["']selTeacher["']/.test(source)) {
         const runtimeVersion = extractVersion(source, 'worksheet-runtime.js');
@@ -99,9 +132,10 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work'].every((token) => source.includes(token))
-                && !/class=["'][^"']*div-box/.test(source),
-            'โจทย์หารต้องเป็นกระดานตั้งหารยาวพร้อมพื้นที่ลงวิธีทำ ไม่ใช่กล่องโจทย์หารสำเร็จรูป',
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill'].every((token) => source.includes(token))
+                && !/class=["'][^"']*div-box/.test(source)
+                && !/<span class=["']ta["']>เฉลย/.test(source),
+            'โจทย์หารต้องเป็นกระดานตั้งหารยาวและเฉลยต้องเติมผลหาร/ตัวคูณ/ผลลบ/เศษลงในช่องจริง ไม่ใช้ป้ายคำตอบแยก',
         );
     }
     if (relative.endsWith('/multiplication-worksheet.html')) {
@@ -117,6 +151,18 @@ function verifyFile(file) {
             source.includes('formula') && source.includes('work-line'),
             'โจทย์พื้นที่ต้องมีสูตรและบรรทัดลงวิธีคำนวณ',
         );
+    }
+    const scaffoldRules = [
+        ['data-chart-worksheet.html', ['mini-table', 'chart-grid', 'scale-box'], 'ข้อมูลต้องมีตาราง พื้นที่กราฟ และช่องกำหนดสเกล'],
+        ['fact-opinion-worksheet.html', ['classify-grid', 'evidence-line', 'reason-line'], 'ต้องมีช่องจำแนก หลักฐาน และเหตุผล'],
+        ['phonics-worksheet.html', ['sound-row', 'sound-box', 'word-bank'], 'ต้องมีธนาคารคำและกล่องแยกเสียง'],
+        ['water-cycle-worksheet.html', ['cycle-flow', 'cycle-step', 'reason-line'], 'ต้องมีลำดับวัฏจักรและช่องอธิบายเหตุผล'],
+        ['food-label-worksheet.html', ['nutrition-label', 'calc-line', 'decision-box'], 'ต้องมีฉลาก ช่องคำนวณ และการตัดสินใจ'],
+    ];
+    for (const [suffix, tokens, detail] of scaffoldRules) {
+        if (relative.endsWith('/' + suffix)) {
+            check('topic scaffold', tokens.every((token) => effectiveSource.includes(token)), detail);
+        }
     }
 
     return { relative, checks, failures };

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/math-data-hub/index.html">
+  <meta name="curriculum-indicators" content="ค 3.1 ป.4/1,ค 3.1 ป.4/2">
+  <title>ใบงานข้อมูลและแผนภูมิ ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head>
+<body>
+<header class="toolbar"><h1>📊 ใบงานข้อมูลและแผนภูมิ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="หัวข้อ"><option value="mixed">ผสมทุกทักษะ</option><option value="bar">แผนภูมิแท่ง</option><option value="picto">แผนภาพรูปภาพ</option><option value="table">ตารางข้อมูล</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script>
+const DATA_ITEMS = [
+  {type:'bar',labels:['มะม่วง','กล้วย','ส้ม'],values:[6,9,4],ask:'ผลไม้ชนิดใดมีจำนวนมากที่สุด',answer:'กล้วย 9 ผล'},
+  {type:'bar',labels:['แดง','ฟ้า','เขียว'],values:[8,5,7],ask:'สีที่มากที่สุดต่างจากสีที่น้อยที่สุดเท่าไร',answer:'3 คน'},
+  {type:'bar',labels:['จันทร์','อังคาร','พุธ'],values:[5,8,6],ask:'วันอังคารมากกว่าวันจันทร์เท่าไร',answer:'3 เล่ม'},
+  {type:'bar',labels:['ป.4/1','ป.4/2','ป.4/3'],values:[12,10,14],ask:'รวมทั้งสามห้องได้เท่าไร',answer:'36 คน'},
+  {type:'picto',labels:['แมว','สุนัข','ปลา'],values:[4,6,3],ask:'กำหนด ● แทน 2 ตัว จงหาจำนวนสุนัข',answer:'12 ตัว'},
+  {type:'picto',labels:['ฟุตบอล','ว่ายน้ำ','วิ่ง'],values:[5,3,4],ask:'กำหนด ★ แทน 2 คน กีฬาสองชนิดใดรวมกันได้ 14 คน',answer:'ฟุตบอลและว่ายน้ำ'},
+  {type:'picto',labels:['นิทาน','วิทย์','การ์ตูน'],values:[3,5,4],ask:'กำหนด ■ แทน 3 เล่ม หนังสือวิทย์มีกี่เล่ม',answer:'15 เล่ม'},
+  {type:'table',labels:['ดินสอ','ปากกา','ยางลบ'],values:[12,7,9],ask:'ของชนิดใดน้อยกว่าดินสอ 3 ชิ้น',answer:'ยางลบ'},
+  {type:'table',labels:['เช้า','กลางวัน','เย็น'],values:[24,31,27],ask:'ช่วงใดมีค่ามากที่สุด และมากกว่าช่วงเช้าเท่าไร',answer:'กลางวัน มากกว่า 7'},
+  {type:'table',labels:['ก','ข','ค'],values:[18,15,20],ask:'หาผลรวมของกลุ่ม ก และ ข',answer:'33'},
+  {type:'bar',labels:['ข้าว','นม','ไข่'],values:[10,6,8],ask:'วาดแท่งตามข้อมูลและกำหนดสเกลครั้งละ 2 หน่วย',answer:'แท่งสูง 10, 6, 8'},
+  {type:'table',labels:['เหนือ','กลาง','ใต้'],values:[7,11,8],ask:'เรียงข้อมูลจากน้อยไปมาก',answer:'เหนือ 7, ใต้ 8, กลาง 11'}
+];
+window.WORKSHEET_CONFIG = {
+  icon:'📊',title:'ใบงานข้อมูลและแผนภูมิ',subject:'คณิตศาสตร์',gradeLabel:'ป.4',mediaLabel:'คลังข้อมูลและกราฟ ป.4–5',
+  sourceMediaUrl:'/games/math/math-data-hub/index.html',indicators:['ค 3.1 ป.4/1','ค 3.1 ป.4/2'],directions:'อ่านตาราง กำหนดสเกล วาดหรืออ่านกราฟ แล้วแสดงเหตุผล',
+  getItems(topic){return topic==='mixed'?DATA_ITEMS:DATA_ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const heads=item.labels.map(label=>'<th>'+e(label)+'</th>').join('');
+    const cells=item.values.map(value=>'<td>'+value+'</td>').join('');
+    const bars=item.values.map(value=>'<i style="height:'+Math.min(100,value*6)+'%"></i>').join('');
+    const visual=item.type==='bar'?'<div class="bar-preview" aria-label="แผนภูมิแท่งตัวอย่าง">'+bars+'</div>':'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>';
+    return '<div class="q-prompt">'+e(item.ask)+'</div><div class="chart-task"><table class="mini-table"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'+visual+'</div>'
+      +'<div class="scale-box">สเกล/สัญลักษณ์: ____________________</div><div class="calc-line"></div><span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+  }
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+</body></html>

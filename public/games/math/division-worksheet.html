@@ -54,29 +54,35 @@
     .long-division{--ld-cell:7mm;display:flex;flex-direction:column;align-items:flex-start;margin:1mm auto 0;color:#065f46;font-weight:800}
     .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:13mm;position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
-    .ld-quotient-cell{height:5mm;border-bottom:1px dashed #047857;display:grid;place-items:center}
+    .ld-quotient-cell{height:5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
+    .ld-quotient-answer{display:none;color:#b91c1c;font-size:11pt;font-weight:800;line-height:1}
     .ld-main{display:flex;align-items:flex-start}
     .ld-divisor{width:12mm;height:7mm;display:grid;place-items:center;font-size:12pt}
     .ld-dividend{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));border-top:2px solid #047857;border-left:2px solid #047857;border-top-left-radius:4px}
     .ld-digit{height:7mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:12pt}
     .ld-digit:last-child{border-right:0}
-    .ld-work{width:calc(var(--digits) * var(--ld-cell));margin-left:13mm;display:grid;gap:0.5mm}
-    .ld-step{height:4mm;display:grid;grid-template-columns:12mm 1fr;align-items:end;font-size:6.5pt;color:#64748b}
-    .ld-write{height:3.5mm;border-bottom:1px dotted #64748b}
-    .questions.count-10 .ld-step:nth-child(n+4){display:none}
+    .ld-work{width:66mm;margin:1mm 0 0;display:grid;gap:.4mm}
+    .ld-step{height:4.2mm;display:grid;grid-template-columns:9mm 1fr;align-items:end;font-size:6.3pt;color:#64748b}
+    .ld-write{height:3.8mm;border-bottom:1px dotted #64748b;display:flex;align-items:flex-end;padding:0 .7mm;min-width:0}
+    .ld-teacher-value{display:none;color:#b91c1c;font-size:5.6pt;font-weight:800;white-space:nowrap;line-height:1.1;width:100%;grid-template-columns:auto auto 1fr;align-items:center}
+    .ld-phase{padding:0 1mm;border-right:1px solid #fecaca;text-align:center}.ld-phase:first-child{padding-left:0}.ld-phase:last-child{border-right:0;text-align:left}
+    .ld-answer-fill{display:none;color:#b91c1c;font-weight:800}
+    .show-answers .ld-quotient-answer,.show-answers .ld-answer-fill{display:inline}.show-answers .ld-teacher-value{display:grid}
+    .show-answers .ld-quotient-cell,.show-answers .ld-write{background:#fef2f2;border-color:#f87171}
     .questions.count-10 .long-division{--ld-cell:7.5mm}
     .questions.count-10 .ld-quotient-cell{height:4mm}
     .questions.count-10 .ld-main .ld-divisor,.questions.count-10 .ld-digit{height:6mm;font-size:10.5pt}
     .questions.count-10 .ld-step{height:3.2mm}
     .questions.count-5 .long-division{--ld-cell:14mm}
-    .questions.count-5 .ld-quotient,.questions.count-5 .ld-work{margin-left:17mm}
+    .questions.count-5 .ld-quotient{margin-left:17mm}
+    .questions.count-5 .ld-work{width:92mm;margin-top:1.3mm}
     .questions.count-5 .ld-divisor{width:16mm}
     .questions.count-5 .q{padding:2mm 3mm}
     .questions.count-5 .ld-quotient-cell{height:5mm}
     .questions.count-5 .ld-main .ld-divisor,.questions.count-5 .ld-digit{height:7mm;font-size:15pt}
-    .questions.count-5 .ld-step{height:3.8mm;font-size:7pt}
+    .questions.count-5 .ld-step{height:4.8mm;font-size:7pt;grid-template-columns:11mm 1fr}
+    .questions.count-5 .ld-teacher-value{font-size:7.2pt}
     .questions.count-5 .ans{margin-top:1mm}
-    .questions.count-10.worksheet-mode-five .ld-step:nth-child(n+4){display:grid}
 
     .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:3mm}
     .blank-sm{display:inline-block;min-width:20mm;border-bottom:1px solid #334155;height:4.5mm}
@@ -154,22 +160,39 @@ function question(qi, grade, showRating=false){
   const ansText = remainder > 0 ? `${quotient} เศษ ${remainder}` : `${quotient}`;
   const ratingHtml = showRating ? '<span class="q-rating">ประเมินตนเอง: [ ] ⭐3  [ ] ⭐2  [ ] ⭐1</span>' : '';
   const dividendDigits = String(dividend).split('');
-  const quotientCells = dividendDigits.map(() => '<span class="ld-quotient-cell"></span>').join('');
+  const workSteps = [];
+  let runningRemainder = 0;
+  let quotientStarted = false;
+  const quotientByColumn = dividendDigits.map((digit, digitIndex) => {
+    const partial = runningRemainder * 10 + Number(digit);
+    if (!quotientStarted && partial < divisor && digitIndex < dividendDigits.length - 1) {
+      runningRemainder = partial;
+      return '';
+    }
+    quotientStarted = true;
+    const quotientDigit = Math.floor(partial / divisor);
+    const product = quotientDigit * divisor;
+    const remainderAfter = partial - product;
+    const nextDigit = dividendDigits[digitIndex + 1];
+    const bringDown = nextDigit === undefined ? '' : ' ↓'+nextDigit+'→'+(remainderAfter * 10 + Number(nextDigit));
+    workSteps.push({ partial, quotientDigit, product, remainderAfter, bringDown });
+    runningRemainder = remainderAfter;
+    return String(quotientDigit);
+  });
+  const quotientCells = quotientByColumn.map(digit => '<span class="ld-quotient-cell"><span class="ld-quotient-answer">'+digit+'</span></span>').join('');
   const dividendCells = dividendDigits.map(digit => '<span class="ld-digit">'+digit+'</span>').join('');
-  const workRows = [
-    ['คูณ', ''],
-    ['ลบ / ดึงลง', ''],
-    ['คูณ', ''],
-    ['ลบ / เศษ', '']
-  ].map(row => '<div class="ld-step"><span>'+row[0]+'</span><span class="ld-write"></span></div>').join('');
+  const workRows = workSteps.map((step, index) => '<div class="ld-step"><span>ขั้น '+(index+1)+'</span><span class="ld-write"><span class="ld-teacher-value">'
+    +'<span class="ld-phase">'+step.partial+'÷'+divisor+'='+step.quotientDigit+'</span>'
+    +'<span class="ld-phase">'+step.quotientDigit+'×'+divisor+'='+step.product+'</span>'
+    +'<span class="ld-phase">'+step.partial+'−'+step.product+'='+step.remainderAfter+step.bringDown+'</span>'
+    +'</span></span></div>').join('');
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
     +'<div class="long-division" style="--digits:'+dividendDigits.length+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
     +'<div class="ld-quotient">'+quotientCells+'</div>'
     +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
     +'<div class="ld-work">'+workRows+'</div></div>'
-    +'<div class="ans">ตอบ <span class="blank-sm"></span>'
-    +'<span class="ta">เฉลย '+ansText+'</span></div></article>';
+    +'<div class="ans">ตอบ <span class="blank-sm"><span class="ld-answer-fill">'+ansText+'</span></span></div></article>';
 }
 
 function renderBookletCover(schoolName, teacherName){

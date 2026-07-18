@@ -272,6 +272,27 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.1 (worked long-division answers)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ออกแบบเฉลยใบงานการหารใหม่ให้เติมผลหารลงช่องด้านบนและเติมตัวเลขจริงครบทุกขั้น: หาร คูณ ลบ ดึงลง และเศษ',
+            'ย้ายคำตอบสุดท้ายเข้าเส้นตอบและยกเลิกป้ายเฉลยแยกด้านข้าง พร้อมคงความพอดี A4 ทั้งโหมด 5 และ 10 ข้อ',
+            'เพิ่มกฎ verify:worksheet ป้องกันใบหารย้อนกลับไปใช้เฉลยแบบแสดงคำตอบอย่างเดียว',
+        ],
+    },
+    {
+        version: 'v1.172.0 (paired worksheet batch 1)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เพิ่มใบงานคู่สื่อ 5 วิชา: ข้อมูลและแผนภูมิ, ข้อเท็จจริง–ความคิดเห็น, Phonics, วัฏจักรน้ำ และอ่านฉลากโภชนาการ',
+            'เพิ่ม worksheet-topic.css / worksheet-topic.js เป็น A4 engine กลาง พร้อม QR กลับสื่อหลักและ process scaffold เฉพาะทักษะ',
+            'เพิ่ม metadata contract สำหรับ source media / curriculum indicators และขยาย verify:worksheet ให้ตรวจไฟล์คู่สื่อกับ scaffold อัตโนมัติ',
+            'ลงทะเบียนใบงานทั้ง 5 ในคลังใบงานและเชื่อมตัวชี้วัดผ่าน migration 411',
+        ],
+    },
+    {
         version: 'v1.171.2 (attack-on-noun cover & seed)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
