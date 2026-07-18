@@ -345,7 +345,7 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 
 ### GamificationHub (games — Educational Hub)
 
-รวม **อันดับ + เหรียญ + ภารกิจ** เป็นการ์ดเดียวบนหน้า hub เพื่อให้ "เปิดมาเห็นภาพปกเกมทันที" — แทนการวาง `DailyQuestPanel` + `GameRankings` + `HonorWall` ซ้อนแนวตั้ง (เคยกินพื้นที่ ~1,000px ดันปกเกมตกใต้ fold)
+รวม **อันดับ + เหรียญ + ภารกิจ + คู่หู** เป็นการ์ดเดียวบนหน้า hub เพื่อให้ "เปิดมาเห็นภาพปกเกมทันที" — แทนการวาง panel ซ้อนแนวตั้ง (เคยกินพื้นที่ ~1,000px ดันปกเกมตกใต้ fold)
 
 ```tsx
 import { GamificationHub } from '@/components/games/GamificationHub';
@@ -353,11 +353,19 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 ```
 
 - **แถบสรุป (เห็นเสมอ ~143px เดสก์ท็อป):** `LevelRing size={44}` + ชื่อ/ชั้น (PersonAvatar) + XP bar + chips `🎮 เกม · 🏅 เหรียญ · 🔥 streak · 🎯 ภารกิจ` — match สไตล์ chip เดิม (`rounded-full bg-muted px-2 py-0.5`)
-- **ปุ่มแท็บ 3 อัน collapsed by default** — state `openTab: 'rank'|'medals'|'quest'|null`; กดซ้ำ = ปิด, กดอื่น = สลับ. active = `border-amber-500 bg-amber-100 text-amber-800` (เหมือน chip strip GameRankings)
-- พาเนลขยาย **reuse component เดิม** เป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด): `rank → <GameRankings>` · `medals → <HonorWall variant="medals">` (ในการ์ด wrap) · `quest → <DailyQuestPanel variant="full">`
+- **ปุ่มแท็บ 4 อัน collapsed by default** — state `openTab: 'rank'|'medals'|'quest'|'pet'|null`; กดซ้ำ = ปิด, กดอื่น = สลับ. ร้านคู่หูจึงไม่ดันกริดเกมลงใต้ fold
+- พาเนลขยาย **reuse component เดิม** เป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด): `rank → <GameRankings>` · `medals → <HonorWall variant="medals">` · `quest → <DailyQuestPanel variant="full">` · `pet → <StudentPetHub>`
 - ใช้ `queryKey` เดียวกับ HonorWall/DailyQuestPanel (`['honor-profile', code]` / `dailyQuestQueryKey`) → react-query แชร์ cache **ไม่ยิงซ้ำ**
 - ไม่มี `studentCode` = แถบสรุปโชว์หัวข้อ "🏆 อันดับ & เหรียญเกียรติยศ" + โชว์เฉพาะปุ่ม "อันดับ" (leaderboard ดูได้แบบ anon)
 - คู่กับ **HonorWall variant="medals"** (ใหม่): render เฉพาะ `MedalsSection` (เหรียญสากล + รายเกม + ใกล้ปลดล็อก) ไม่มี Card/หัวโปรไฟล์ เพราะแถบสรุปแสดงโปรไฟล์ให้แล้ว · `LevelRing` ถูก export เพื่อใช้ร่วม
+
+### StudentPetHub + PetVisual (games — Student companion)
+
+- `StudentPetHub.tsx` แสดงคู่หูที่ใช้, ยอดเหรียญดาว และ catalog 6 ตัวใน grid `2/3/6` คอลัมน์ เพื่อคง layout แบบ compact
+- ใช้ TanStack Query ผ่าน `studentPetService` เท่านั้น; ซื้อ/สวมใส่เป็น mutation และ invalidate `studentPetQueryKey(code)` ทุกครั้ง
+- `PetVisual.tsx` เป็น inline SVG ใช้ `currentColor` + semantic Tailwind classes ไม่มีรูปคน/PNG และไม่มีสี hex hardcode
+- สัตว์เริ่มต้นฟรี 1 ตัว; ตัวอื่นราคาคงที่และเห็นล่วงหน้า ไม่มี loot box; สัตว์ทุกตัว cosmetic-only
+- `PlayGame` แสดงคู่หูบน RewardPopup และส่งข้อมูลเดียวกันเข้า `window.KAMPAI.pet`; เกมเดิมไม่กระทบหากไม่อ่าน field นี้
 
 ---
 

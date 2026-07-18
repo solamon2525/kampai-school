@@ -546,6 +546,18 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 + `updated_at = now()` (เทมเพลตใน `GAME.md` → "DB Migration Pattern"). เมื่อ version เปลี่ยน ระบบจะประทับ
 เวลา server และ sync ป้าย `Build {version} · วันเวลา` ไปมุมล่างซ้ายของปกโดยอัตโนมัติ.
 
+### Rule 14.44 — Student Pet Economy (คู่หูนักเรียน)
+
+ระบบสัตว์เลี้ยงเป็น **ของสะสมและการแสดงตัวตน** ที่ต่อยอดจาก gamification เดิม โดยต้องไม่กระทบความยุติธรรมของคะแนนหรืออันดับ:
+
+- **XP เป็นค่าประสบการณ์ตลอดชีวิต ห้ามหักซื้อของ** — ใช้เลเวล/เหรียญ/อันดับเหมือนเดิม
+- เงินที่ใช้ซื้อคือ **เหรียญดาว (`Star Coins`)** แยกจาก XP และคะแนนดิบรายเกม
+- รับเหรียญจาก 3 session แรกต่อวัน (จำกัดการปั๊ม) + `daily_quest_days.bonus_points`; ราคาเห็นชัด ไม่มีสุ่ม/กาชา
+- สัตว์เลี้ยงและของตกแต่ง **ห้ามเพิ่มคะแนน, พลัง, เวลา หรือสิทธิ์ชนะ** (cosmetic-only)
+- ตารางกระเป๋า/ธุรกรรม/คลังสัตว์เปิด RLS และ client ห้ามเขียนตรง; ซื้อ/สวมใส่ผ่าน RPC แบบ atomic เท่านั้น
+- ตัวตนนักเรียนในเฟส MVP ใช้ `student_code` ตาม boundary เดียวกับ `record_game_session`; ก่อนเพิ่มของที่มีมูลค่าสูง/เงินจริง ต้องย้ายธุรกรรมไปใช้ student auth/PIN ที่ตรวจสอบฝั่ง server
+- `PlayGame` ส่ง `init.pet` + `init.wallet.starCoins` ให้ KAMPAI SDK กลาง เพื่อให้เกมเลือกแสดงคู่หูได้โดยไม่ query Supabase เอง
+
 ### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
 
 **บังคับ:** ก่อนเขียน component ใหม่หรือเปลี่ยนสีใดๆ ต้องทำ **Contrast Pre-Check** ทุกครั้ง

@@ -38,6 +38,8 @@
     stats: null,      // {playsCount, personalBest, totalXp, level}
     leaderboard: [],  // [{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]
     classmates: [],   // [{id, studentCode, displayName, photoUrl, classNumber}]
+    pet: null,        // equipped student companion {code, name, species, visualKey, rarity, nickname, bondXp}
+    wallet: { starCoins: 0 },
     gameData: null,   // per-game data จาก wrapper (เช่น multiply-race.mastery)
     rpg: { state: null, _saveCbs: [] }, // persistent game state bridge (wrapper owns Supabase)
     character: null,  // sprite sheet จากคลังหลังบ้าน {sheetUrl, sheetUrlP2, fw, fh, frames}
