@@ -45,13 +45,13 @@
     .questions{display:grid;gap:2mm;flex:1}
     .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr)}
     .questions.count-5{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:4mm}
-    .questions.count-5 .q{padding:4mm;min-height:42mm}
+    .questions.count-5 .q{padding:5mm 4mm;min-height:44mm}
     
     .q{border:1.4px solid #a7f3d0;border-radius:3mm;padding:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1mm;position:relative;break-inside:avoid}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6mm;height:6mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:8pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
-    /* ── Multiplication Grid ── */
+    /* ── Multiplication Grid (Default 10-question) ── */
     .mg{display:inline-grid;gap:0}
     .gs{display:grid;place-items:center;font:800 11pt Sarabun,sans-serif;color:#065f46;height:var(--ch);width:var(--sw)}
     .gs.cr{height:var(--rh);font-size:7pt;color:#94a3b8}
@@ -69,6 +69,17 @@
     .blank-sm{display:inline-block;min-width:18mm;border-bottom:1px solid #334155;height:4mm}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8pt}
     .show-answers .ta{display:inline}
+
+    /* ── Large 5-question mode styles (Big Font & Grid for easy writing) ── */
+    .questions.count-5 .q-num{width:8mm;height:8mm;font-size:11pt}
+    .questions.count-5 .q-rating{font-size:8.5pt;top:2mm;right:3mm}
+    .questions.count-5 .mg{--sw:24px;--cw:36px;--ch:36px;--rh:20px}
+    .questions.count-5 .gd{font-size:16pt}
+    .questions.count-5 .gs{font-size:14pt}
+    .questions.count-5 .gc{font-size:9.5pt}
+    .questions.count-5 .ans{font-size:11pt;margin-top:2mm}
+    .questions.count-5 .blank-sm{min-width:26mm;height:5.5mm}
+    .questions.count-5 .ta{font-size:10pt}
 
     /* ── Parent Slip & Bottom Teacher Info ── */
     .parent-slip{border-top:2px dashed #047857;margin-top:auto;padding-top:2mm;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
@@ -97,7 +108,23 @@
     .sheet-foot-teacher{font-weight:700;color:#047857}
     
     @media(max-width:980px){.pages{padding:6px;overflow:auto}.toolbar h1{flex-basis:100%}}
-    @media print{@page{size:A4 portrait;margin:0}:root{--sw:5mm;--cw:6.5mm;--ch:6.5mm;--rh:4mm}body{background:#fff}.toolbar{display:none!important}.pages{padding:0}.sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:8mm;overflow:hidden}.gd{font-size:10pt}.gs{font-size:9pt}.gc{font-size:5pt}.q{min-height:0}}
+    @media print{
+      @page{size:A4 portrait;margin:0}:root{--sw:5mm;--cw:6.5mm;--ch:6.5mm;--rh:4mm}
+      body{background:#fff}
+      .toolbar{display:none!important}
+      .pages{padding:0}
+      .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:8mm;overflow:hidden}
+      .gd{font-size:10pt}.gs{font-size:9pt}.gc{font-size:5pt}.q{min-height:0}
+      
+      /* Print scaling for 5-question mode */
+      .questions.count-5 .mg{--sw:7mm;--cw:10mm;--ch:9.5mm;--rh:5.5mm}
+      .questions.count-5 .gd{font-size:15pt}
+      .questions.count-5 .gs{font-size:13pt}
+      .questions.count-5 .gc{font-size:8.5pt}
+      .questions.count-5 .ans{font-size:11pt}
+      .questions.count-5 .q-num{width:8mm;height:8mm;font-size:11pt}
+      .questions.count-5 .blank-sm{min-width:25mm;height:5mm}
+    }
   </style>
 </head>
 <body>
@@ -133,8 +160,8 @@
         <option value="mixed">ความยาก: ทุกระดับในชั้น</option>
       </select>
       <select class="t-select" id="selCount">
-        <option value="10">10 ข้อ/หน้า</option>
-        <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่)</option>
+        <option value="10">10 ข้อ/หน้า (มาตรฐาน)</option>
+        <option value="5" selected>5 ข้อ/หน้า (โจทย์ใหญ่ เขียนง่าย)</option>
       </select>
       <input class="t-input" type="text" id="inpSchool" placeholder="ชื่อโรงเรียน..." value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher">
