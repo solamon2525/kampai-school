@@ -272,6 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.167.0 (pixel forest persistent RPG)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เชื่อม KAMPAI RPG bridge เข้ากับ PlayGame เพื่อโหลดและเซฟอาชีพ เลเวล แคมเปญ อุปกรณ์ ทอง วัตถุดิบ และรูนข้ามเครื่อง',
+            'เพิ่ม optimistic version + idempotency ป้องกันเซฟเก่าทับเซฟใหม่ พร้อมคืน state ล่าสุดให้เกมลองบันทึกซ้ำเมื่อชนกัน',
+            'Migration 398–399 ตรวจรูปทรงและขนาด JSON อย่างเข้มงวด จำกัด economy delta/telemetry payload และเพิ่ม index สำหรับ audit รายผู้เล่น',
+            'เพิ่ม pixel_forest_balance_summary สำหรับแอดมินวิเคราะห์จำนวนผู้เล่น เหตุการณ์ และค่าเฉลี่ยรายวัน แยกตามอาชีพ บท และโซน',
+        ],
+    },
+    {
         version: 'v1.166.0 (pixel forest RPG vertical slice)',
         date: 'ล่าสุด',
         badge: 'bg-primary',

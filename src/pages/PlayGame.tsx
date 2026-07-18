@@ -67,6 +67,12 @@ import { HonorWall } from '@/components/games/HonorWall';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
 import { dailyQuestService, type DailyQuestStatus } from '@/services/daily-quest.service';
 import { TIER_STYLES, type MedalTier } from '@/services/gamification.service';
+import {
+  pixelForestRpgQueryKey,
+  pixelForestRpgService,
+  type PixelForestBalanceEvent,
+  type PixelForestSaveState,
+} from '@/services/pixel-forest-rpg.service';
 import { studentsService } from '@/services/students.service';
 import { versusMatchService } from '@/services/online-match.service';
 
@@ -278,6 +284,13 @@ const PlayGame = () => {
     queryFn: () => dailyQuestService.getStatus(trimmedCode),
     enabled: !!student && !!trimmedCode,
   });
+  const pixelForestRpgQuery = useQuery({
+    queryKey: pixelForestRpgQueryKey(trimmedCode),
+    queryFn: () => pixelForestRpgService.getState(trimmedCode),
+    enabled: !!student && resolvedSlug === 'pixel-forest-explorer' && trimmedCode.length > 0,
+    staleTime: 15_000,
+  });
+
 
   // Phase 2: per-table mastery สำหรับ multiply-race (adaptive + badges)
   const masteryQuery = useQuery({
@@ -564,7 +577,9 @@ const PlayGame = () => {
               ),
             }
           : null,
-        gameData: resolvedSlug === 'thai-vocab-hub'
+        gameData: resolvedSlug === 'pixel-forest-explorer'
+          ? { rpg: pixelForestRpgQuery.data ?? null }
+          : resolvedSlug === 'thai-vocab-hub'
           ? {
               vocab: thaiVocabCatalogQuery.data ?? null,
               missed: thaiVocabMissedQuery.data ?? [],
@@ -585,7 +600,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
+  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, pixelForestRpgQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -661,6 +676,46 @@ const PlayGame = () => {
   }, [phase, resolvedSlug]);
 
   // ─── receive gameEnd from iframe ───────────────────────────────────────────
+  // Pixel Forest RPG — validated persistence lives in the wrapper/service, never in the iframe.
+  useEffect(() => {
+    if (phase !== 'playing' || resolvedSlug !== 'pixel-forest-explorer' || !student) return;
+    const handler = async (e: MessageEvent) => {
+      const cw = iframeRef.current?.contentWindow;
+      if (cw && e.source !== cw) return;
+      const d = e.data as {
+        type?: string;
+        expectedVersion?: number;
+        idempotencyKey?: string;
+        state?: PixelForestSaveState;
+        events?: PixelForestBalanceEvent[];
+      } | undefined;
+      if (d?.type !== 'rpgSave') return;
+      if (
+        typeof d.expectedVersion !== 'number'
+        || typeof d.idempotencyKey !== 'string'
+        || !d.state
+      ) return;
+      try {
+        const saved = await pixelForestRpgService.saveState({
+          studentCode: codeInput.trim(),
+          expectedVersion: d.expectedVersion,
+          idempotencyKey: d.idempotencyKey,
+          state: d.state,
+          events: Array.isArray(d.events) ? d.events : [],
+        });
+        queryClient.setQueryData(pixelForestRpgQueryKey(codeInput.trim()), saved);
+        (e.source as Window | null)?.postMessage({ type: 'rpgSaveResult', ok: true, rpg: saved }, '*');
+      } catch (error) {
+        console.warn('[PlayGame] pixel forest save failed', error);
+        const latest = await pixelForestRpgService.getState(codeInput.trim()).catch(() => null);
+        if (latest) queryClient.setQueryData(pixelForestRpgQueryKey(codeInput.trim()), latest);
+        (e.source as Window | null)?.postMessage({ type: 'rpgSaveResult', ok: false, rpg: latest }, '*');
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [phase, resolvedSlug, student, codeInput, queryClient]);
+
   useEffect(() => {
     if (phase !== 'playing') return;
     const handler = async (e: MessageEvent) => {

@@ -4486,6 +4486,156 @@ export type Database = {
           },
         ]
       }
+      pixel_forest_balance_events: {
+        Row: {
+          chapter: number | null
+          created_at: string
+          event_type: string
+          hero_class: string | null
+          hero_level: number | null
+          id: number
+          metadata: Json
+          student_id: string
+          value: number | null
+          zone: string | null
+        }
+        Insert: {
+          chapter?: number | null
+          created_at?: string
+          event_type: string
+          hero_class?: string | null
+          hero_level?: number | null
+          id?: number
+          metadata?: Json
+          student_id: string
+          value?: number | null
+          zone?: string | null
+        }
+        Update: {
+          chapter?: number | null
+          created_at?: string
+          event_type?: string
+          hero_class?: string | null
+          hero_level?: number | null
+          id?: number
+          metadata?: Json
+          student_id?: string
+          value?: number | null
+          zone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_forest_balance_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_forest_economy_ledger: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency: string
+          id: string
+          idempotency_key: string
+          metadata: Json
+          reason: string
+          student_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          currency: string
+          id?: string
+          idempotency_key: string
+          metadata?: Json
+          reason: string
+          student_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key?: string
+          metadata?: Json
+          reason?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_forest_economy_ledger_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_forest_rpg_profiles: {
+        Row: {
+          created_at: string
+          current_chapter: number
+          current_zone: string
+          gems: number
+          gold: number
+          hero_class: string | null
+          hero_level: number
+          hero_xp: number
+          last_played_at: string
+          last_save_key: string | null
+          save_state: Json
+          state_version: number
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_chapter?: number
+          current_zone?: string
+          gems?: number
+          gold?: number
+          hero_class?: string | null
+          hero_level?: number
+          hero_xp?: number
+          last_played_at?: string
+          last_save_key?: string | null
+          save_state?: Json
+          state_version?: number
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_chapter?: number
+          current_zone?: string
+          gems?: number
+          gold?: number
+          hero_class?: string | null
+          hero_level?: number
+          hero_xp?: number
+          last_played_at?: string
+          last_save_key?: string | null
+          save_state?: Json
+          state_version?: number
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_forest_rpg_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth_key: string
@@ -6781,6 +6931,19 @@ export type Database = {
           },
         ]
       }
+      pixel_forest_balance_summary: {
+        Row: {
+          average_value: number | null
+          chapter: number | null
+          event_count: number | null
+          event_type: string | null
+          hero_class: string | null
+          play_day: string | null
+          player_count: number | null
+          zone: string | null
+        }
+        Relationships: []
+      }
       savings_student_summary: {
         Row: {
           class_name: string | null
@@ -7179,6 +7342,10 @@ export type Database = {
         Args: { p_student_code: string }
         Returns: Json
       }
+      get_pixel_forest_rpg_state: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
       get_daily_quest_streak_leaderboard: {
         Args: { p_limit?: number }
         Returns: {
@@ -7543,6 +7710,16 @@ export type Database = {
           score: number
           was_first: boolean
         }[]
+      }
+      save_pixel_forest_rpg_state: {
+        Args: {
+          p_events?: Json
+          p_expected_version: number
+          p_idempotency_key: string
+          p_state: Json
+          p_student_code: string
+        }
+        Returns: Json
       }
       update_multiply_race_mastery: {
         Args: { p_per_table: Json; p_student_code: string }

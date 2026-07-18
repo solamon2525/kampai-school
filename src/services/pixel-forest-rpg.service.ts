@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 export type PixelForestHeroClass = 'swordsman' | 'ranger' | 'mage';
 export type PixelForestZone = 'village' | 'mosswood' | 'swamp' | 'ruins';
@@ -43,9 +44,9 @@ export const pixelForestRpgQueryKey = (studentCode: string) => [
 
 export const pixelForestRpgService = {
   async getState(studentCode: string): Promise<PixelForestRpgState> {
-    const { data, error } = await supabase.rpc('get_pixel_forest_rpg_state' as never, {
+    const { data, error } = await supabase.rpc('get_pixel_forest_rpg_state', {
       p_student_code: studentCode.trim(),
-    } as never);
+    });
     if (error) throw error;
     return data as unknown as PixelForestRpgState;
   },
@@ -57,13 +58,13 @@ export const pixelForestRpgService = {
     state: PixelForestSaveState;
     events?: PixelForestBalanceEvent[];
   }): Promise<PixelForestRpgState> {
-    const { data, error } = await supabase.rpc('save_pixel_forest_rpg_state' as never, {
+    const { data, error } = await supabase.rpc('save_pixel_forest_rpg_state', {
       p_student_code: params.studentCode.trim(),
       p_expected_version: params.expectedVersion,
       p_idempotency_key: params.idempotencyKey,
-      p_state: params.state,
-      p_events: params.events ?? [],
-    } as never);
+      p_state: params.state as unknown as Json,
+      p_events: (params.events ?? []) as unknown as Json,
+    });
     if (error) throw error;
     return data as unknown as PixelForestRpgState;
   },
