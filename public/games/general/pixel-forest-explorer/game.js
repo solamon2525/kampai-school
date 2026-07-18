@@ -23,11 +23,14 @@
       zone: 'village',
       unlocked_zones: ['village'],
       quest: { chapter: 1, kills: 0, boss_defeated: false },
-      equipment: { weapon: { code: 'training-weapon', enhance: 0, rune: null } },
-      inventory: { moss: 0, wood: 0, slime_core: 0, swamp_ore: 0, ancient_shard: 0 },
+      equipment: { weapon: { code: 'training-weapon', enhance: 0, rune: null, runes: [] } },
+      inventory: { moss: 0, wood: 0, slime_core: 0, swamp_ore: 0, ancient_shard: 0, rune_dust: 0, heal_potion: 0 },
+      rare_items: [],
       runes: [],
+      companions: [],
+      active_companion: null,
       bosses: {},
-      dungeons: { root_cavern: { clears: 0, best_time: null } },
+      dungeons: { root_cavern: { clears: 0, best_time: null }, mist_labyrinth: { clears: 0, best_time: null } },
       play_seconds: 0,
       campaign_complete: false
     };
@@ -41,7 +44,7 @@
     keys: { up: false, down: false, left: false, right: false }, camera: { x: 0, y: 0 },
     player: {}, progress: defaultProgress(), saveVersion: 1, savePending: false,
     saveQueued: false, saveSeq: 0, eventQueue: [], saveInFlightEvents: [],
-    boss: null, dungeon: null, dungeonClock: 0, zone: 'village', lockedToastAt: 0, playStartedAt: 0
+    boss: null, dungeon: null, dungeonClock: 0, companionClock: 0, vitalityClock: 0, zone: 'village', lockedToastAt: 0, playStartedAt: 0
   };
 
   function sanitizeProgress(raw) {
@@ -56,6 +59,18 @@
     if (!unlocked.includes('village')) unlocked.unshift('village');
     const inventory = { ...base.inventory };
     Object.keys(inventory).forEach((key) => { inventory[key] = clamp(Number(raw.inventory?.[key]) || 0, 0, 9999); });
+    const legacyRune = DATA.runes[raw.equipment?.weapon?.rune] ? raw.equipment.weapon.rune : null;
+    const equippedRunes = Array.isArray(raw.equipment?.weapon?.runes)
+      ? raw.equipment.weapon.runes.filter((r) => DATA.runes[r]).slice(0, 2)
+      : (legacyRune ? [legacyRune] : []);
+    const dungeons = {};
+    Object.keys(DATA.dungeons).forEach((code) => {
+      dungeons[code] = {
+        clears: clamp(Number(raw.dungeons?.[code]?.clears) || 0, 0, 9999),
+        best_time: raw.dungeons?.[code]?.best_time == null ? null : clamp(Number(raw.dungeons[code].best_time) || 0, 1, 9999)
+      };
+    });
+    const companions = Array.isArray(raw.companions) ? raw.companions.filter((code) => DATA.companions[code]) : [];
     return {
       ...base,
       hero_class: heroClass,
@@ -67,16 +82,14 @@
       gems: clamp(Number(raw.gems) || 0, 0, 1000000),
       chapter, zone, unlocked_zones: unlocked,
       quest: { chapter, kills: clamp(Number(raw.quest?.kills) || 0, 0, 999), boss_defeated: !!raw.quest?.boss_defeated },
-      equipment: { weapon: { ...base.equipment.weapon, ...(raw.equipment?.weapon || {}) } },
+      equipment: { weapon: { ...base.equipment.weapon, ...(raw.equipment?.weapon || {}), rune: equippedRunes[0] || null, runes: equippedRunes } },
       inventory,
+      rare_items: Array.isArray(raw.rare_items) ? raw.rare_items.filter((code) => DATA.rareItems[code]) : [],
       runes: Array.isArray(raw.runes) ? raw.runes.filter((r) => DATA.runes[r]) : [],
+      companions,
+      active_companion: companions.includes(raw.active_companion) ? raw.active_companion : null,
       bosses: raw.bosses && typeof raw.bosses === 'object' ? raw.bosses : {},
-      dungeons: {
-        root_cavern: {
-          clears: clamp(Number(raw.dungeons?.root_cavern?.clears) || 0, 0, 9999),
-          best_time: raw.dungeons?.root_cavern?.best_time == null ? null : clamp(Number(raw.dungeons.root_cavern.best_time) || 0, 1, 9999)
-        }
-      },
+      dungeons,
       play_seconds: clamp(Number(raw.play_seconds) || 0, 0, 100000000),
       campaign_complete: !!raw.campaign_complete
     };
@@ -85,9 +98,11 @@
   function currentClass() { return DATA.classes[state.progress.hero_class] || DATA.classes.swordsman; }
   function currentChapter() { return DATA.chapters[state.progress.chapter - 1]; }
   function directionVector() { return DIRS[state.player.dir] || DIRS.down; }
-  function weaponRecipe() { return DATA.recipes.find((r) => r.code === state.progress.equipment.weapon.code); }
-  function hasRune(code) { return state.progress.equipment.weapon.rune === code; }
-  function weaponBonus() { return (weaponRecipe()?.damage || 0) + state.progress.equipment.weapon.enhance * 2 + (hasRune('fury') ? 5 : 0); }
+  function weaponRecipe() { return DATA.recipes.find((r) => r.code === state.progress.equipment.weapon.code) || DATA.rareItems[state.progress.equipment.weapon.code]; }
+  function equippedRunes() { const w = state.progress.equipment.weapon; return Array.isArray(w.runes) ? w.runes : (w.rune ? [w.rune] : []); }
+  function hasRune(code) { return equippedRunes().includes(code); }
+  function enhanceBonus() { const level = state.progress.equipment.weapon.enhance; return Math.min(level, 5) * 2 + Math.max(0, level - 5) * 3; }
+  function weaponBonus() { return (weaponRecipe()?.damage || 0) + enhanceBonus() + (hasRune('fury') ? 5 : 0); }
 
   function resetPlayer() {
     const cls = currentClass();
@@ -104,7 +119,7 @@
       skillPoints: state.progress.skill_points,
       damage: cls.damage + (state.progress.hero_level - 1) * 2 + skills.blade * 3 + weaponBonus(),
       speed: cls.speed + skills.boots * 6,
-      crit: CFG.PLAYER_CRIT + skills.crit * .05,
+      crit: CFG.PLAYER_CRIT + skills.crit * .05 + (hasRune('hunter') ? .08 : 0),
       attackTimer: 0, attackCooldown: 0, attackId: 0, invuln: 0, kills: 0,
       skills: { ...skills }
     };
@@ -257,6 +272,11 @@
   function drawProjectile(p) { const x = p.x - state.camera.x, y = p.y - state.camera.y; ctx.fillStyle = p.friendly ? (p.kind === 'arrow' ? '#fff4a8' : '#b9a5ff') : (p.kind === 'root' ? '#85ce5d' : '#f1a7ff'); ctx.fillRect(x - 3, y - 3, 7, 7); ctx.fillStyle = '#fff'; ctx.fillRect(x - 1, y - 1, 3, 3); }
   function drawDrop(d) { const x = d.x - state.camera.x, y = d.y - state.camera.y; ctx.fillStyle = '#ff6b6b'; ctx.fillRect(x - 4, y - 3, 8, 6); ctx.fillRect(x - 2, y - 5, 4, 10); }
   function drawParticle(p) { ctx.globalAlpha = clamp(p.life * 4, 0, 1); ctx.fillStyle = p.color; ctx.fillRect(p.x - state.camera.x, p.y - state.camera.y, p.size, p.size); ctx.globalAlpha = 1; }
+  function drawCompanion(now) {
+    const code = state.progress.active_companion, data = DATA.companions[code]; if (!data) return;
+    const side = state.player.dir === 'left' ? 1 : -1, x = state.player.x - state.camera.x + side * 13, y = state.player.y - state.camera.y + 3 + Math.sin(now / 220) * 2;
+    ctx.fillStyle = data.color; ctx.fillRect(Math.round(x) - 4, Math.round(y) - 4, 9, 8); ctx.fillStyle = '#fff'; ctx.fillRect(Math.round(x) - 2, Math.round(y) - 2, 2, 2); ctx.fillStyle = '#173d2e'; ctx.fillRect(Math.round(x) + 1, Math.round(y) - 2, 2, 2);
+  }
 
   function render(now) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.save(); if (state.shake > 0) ctx.translate((Math.random() - .5) * 4, (Math.random() - .5) * 4);
@@ -265,7 +285,7 @@
     state.lights.forEach((l) => drawLight(l, now)); state.projectiles.forEach(drawProjectile); state.drops.forEach(drawDrop);
     state.chests.forEach((c) => { if (Math.abs(c.x - state.player.x) < canvas.width && Math.abs(c.y - state.player.y) < canvas.height) drawables.push({ depth: c.y + 7, draw: () => drawChest(c, c.x - state.camera.x, c.y - state.camera.y) }); });
     state.monsters.forEach((m) => { if (!m.dead && Math.abs(m.x - state.player.x) < canvas.width && Math.abs(m.y - state.player.y) < canvas.height) drawables.push({ depth: m.y + (m.boss ? 14 : 7), draw: () => drawMonster(m, m.x - state.camera.x, m.y - state.camera.y) }); });
-    drawables.push({ depth: state.player.y + 7, draw: () => drawHero(state.player.x - state.camera.x, state.player.y - state.camera.y) }); drawables.sort((a, b) => a.depth - b.depth).forEach((item) => item.draw()); state.particles.forEach(drawParticle); ctx.restore();
+    drawables.push({ depth: state.player.y + 6, draw: () => drawCompanion(now) }); drawables.push({ depth: state.player.y + 7, draw: () => drawHero(state.player.x - state.camera.x, state.player.y - state.camera.y) }); drawables.sort((a, b) => a.depth - b.depth).forEach((item) => item.draw()); state.particles.forEach(drawParticle); ctx.restore();
   }
 
   function moveEntity(entity, dx, dy, dt, speed, isPlayer) {
@@ -314,6 +334,7 @@
     if (code === 'mire-hydra') { radialShots(m, enraged ? 16 : 12, enraged ? 58 : 48, 'poison'); if (enraged) [-.18, 0, .18].forEach((offset) => hostileShot(m.x, m.y, Math.cos(Math.atan2(dy, dx) + offset), Math.sin(Math.atan2(dy, dx) + offset), m.damage, 'poison', 70)); }
     if (code === 'rune-warden') { const p = randomOpenNearPlayer(m.zone, 65); m.x = p.x; m.y = p.y; const angle = Math.atan2(state.player.y - m.y, state.player.x - m.x); (enraged ? [-.5, -.25, 0, .25, .5] : [-.28, 0, .28]).forEach((offset) => hostileShot(m.x, m.y, Math.cos(angle + offset), Math.sin(angle + offset), m.damage, 'rune')); }
     if (code === 'root-devourer') { for (let i = 0; i < (enraged ? 10 : 6); i++) state.projectiles.push({ x: state.player.x + (Math.random() - .5) * 115, y: state.player.y + (Math.random() - .5) * 115, vx: 0, vy: 0, damage: m.damage, life: 1.25, warmup: .48, kind: 'root', friendly: false }); if (enraged) radialShots(m, 8, 48, 'poison'); }
+    if (code === 'mist-matriarch') { radialShots(m, enraged ? 18 : 10, enraged ? 62 : 48, 'poison'); if (enraged) for (let i = 0; i < 6; i++) state.projectiles.push({ x: state.player.x + (Math.random() - .5) * 105, y: state.player.y + (Math.random() - .5) * 105, vx: 0, vy: 0, damage: m.damage, life: 1.1, warmup: .42, kind: 'root', friendly: false }); }
     toast((enraged ? bossData.phaseSkill : bossData.skill) + '!'); m.cooldown = enraged ? 1.45 : (code === 'rune-warden' ? 1.7 : 2.5);
   }
   function randomOpenNearPlayer(zone, radius) {
@@ -340,7 +361,17 @@
     for (let i = state.drops.length - 1; i >= 0; i--) if (Math.hypot(state.player.x - state.drops[i].x, state.player.y - state.drops[i].y) < 14) { state.player.hp = Math.min(state.player.maxHp, state.player.hp + 14); state.drops.splice(i, 1); toast('+14 HP'); updateHud(); }
   }
   function updateParticles(dt) { state.shake = Math.max(0, state.shake - dt); for (let i = state.particles.length - 1; i >= 0; i--) { const p = state.particles[i]; p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.life <= 0) state.particles.splice(i, 1); } }
-  function update(dt) { if (!state.running || state.skillOpen || state.campOpen) return; updatePlayer(dt); updateMonsters(dt); updateProjectiles(dt); updateCollectibles(); updateParticles(dt); state.progress.play_seconds += dt; if (state.dungeon) { state.dungeonClock = Math.max(0, state.dungeonClock - dt); updateQuestHud(); if (state.dungeonClock <= 0) leaveDungeon(false); } }
+  function updateCompanion(dt) {
+    if (hasRune('vitality')) { state.vitalityClock -= dt; if (state.vitalityClock <= 0) { state.vitalityClock = 5; state.player.hp = Math.min(state.player.maxHp, state.player.hp + 2); updateHud(); } }
+    const data = DATA.companions[state.progress.active_companion]; if (!data) return; state.companionClock -= dt;
+    if (state.companionClock > 0) return;
+    if (data.kind === 'heal') { state.player.hp = Math.min(state.player.maxHp, state.player.hp + 5); state.companionClock = 7; toast(data.icon + ' ฟื้น HP +5'); updateHud(); return; }
+    const living = state.monsters.filter((m) => !m.dead && Math.hypot(m.x - state.player.x, m.y - state.player.y) < 150).sort((a, b) => Math.hypot(a.x - state.player.x, a.y - state.player.y) - Math.hypot(b.x - state.player.x, b.y - state.player.y));
+    if (!living.length) { state.companionClock = 1; return; }
+    const targets = data.kind === 'burst' ? living.filter((m) => Math.hypot(m.x - state.player.x, m.y - state.player.y) < 72) : living.slice(0, 1), damage = Math.max(5, Math.round(state.player.damage * (data.kind === 'burst' ? .25 : .4)));
+    targets.forEach((m) => { m.hp -= damage; burst(m.x, m.y, data.color, 8); queueEvent('damage_dealt', damage, { target: m.boss ? m.bossCode : m.type, companion: state.progress.active_companion }); if (m.hp <= 0) defeatMonster(m); }); state.companionClock = data.kind === 'burst' ? 4 : 2.4;
+  }
+  function update(dt) { if (!state.running || state.skillOpen || state.campOpen) return; updatePlayer(dt); updateMonsters(dt); updateProjectiles(dt); updateCollectibles(); updateCompanion(dt); updateParticles(dt); state.progress.play_seconds += dt; if (state.dungeon) { state.dungeonClock = Math.max(0, state.dungeonClock - dt); updateQuestHud(); if (state.dungeonClock <= 0) leaveDungeon(false); } }
   function loop(now) { const dt = Math.min(.033, (now - (state.last || now)) / 1000); state.last = now; update(dt); render(now); requestAnimationFrame(loop); }
 
   function burst(x, y, color, count) { for (let i = 0; i < count; i++) state.particles.push({ x, y, vx: (Math.random() - .5) * 45, vy: (Math.random() - .5) * 45, life: .25 + Math.random() * .25, color, size: 1 + Math.floor(Math.random() * 3) }); }
@@ -367,10 +398,18 @@
   function defeatMonster(m) {
     if (m.boss) { defeatBoss(m); return; }
     const base = DATA.monsters[m.type]; m.dead = true; m.respawn = 5 + Math.random() * 4; state.player.kills++;
-    const gold = Math.round((5 + m.level * 2) * (hasRune('fortune') ? 1.25 : 1)); state.progress.gold += gold;
-    const material = DATA.zones[m.zone].material; state.progress.inventory[material] = (state.progress.inventory[material] || 0) + 1; if (m.type === 'slime' && Math.random() < .65) state.progress.inventory.slime_core++;
+    const gold = Math.round((4 + m.level * 1.6) * (hasRune('fortune') ? 1.2 : 1)); state.progress.gold += gold;
+    const material = DATA.zones[m.zone].material; if (Math.random() < .68) state.progress.inventory[material] = (state.progress.inventory[material] || 0) + 1;
+    const table = DATA.dropTables[m.type] || {}; Object.keys(table).forEach((key) => { if (Math.random() < table[key]) state.progress.inventory[key] = (state.progress.inventory[key] || 0) + 1; });
+    rollRareDrop(m);
     addScore(18 + m.level * 5); gainXp(m.xp); burst(m.x, m.y, base.color, 14); if (Math.random() < .25) state.drops.push({ x: m.x, y: m.y }); KAMPAI.sound.correct();
     queueEvent('monster_kill', m.level, { monster: m.type, zone: m.zone, gold, dungeon: m.dungeon ? state.dungeon?.code : null }); if (m.dungeon) advanceDungeonWave(); else updateQuestAfterKill(m.zone); vs.report(state.score, { correct: state.player.kills }); updateHud();
+  }
+  function rollRareDrop(monster) {
+    Object.keys(DATA.rareItems).forEach((code) => {
+      const item = DATA.rareItems[code]; if (item.zone !== monster.zone || state.progress.rare_items.includes(code) || Math.random() >= item.chance) return;
+      state.progress.rare_items.push(code); toast('🌟 ดรอป' + DATA.rarities[item.rarity].name + ': ' + item.name); queueEvent('item_craft', item.damage, { item: code, source: 'rare_drop', rarity: item.rarity }); saveProgress('rare-drop');
+    });
   }
   function updateQuestAfterKill(zone) {
     const chapter = currentChapter(), quest = state.progress.quest; if (zone !== chapter.zone || quest.boss_defeated) return; quest.kills = Math.min(chapter.quota, (quest.kills || 0) + 1); updateQuestHud(); if (quest.kills >= chapter.quota && !state.boss) spawnBoss();
@@ -389,7 +428,7 @@
       if (!state.progress.unlocked_zones.includes(chapter.unlock)) state.progress.unlocked_zones.push(chapter.unlock);
       state.progress.chapter++; state.progress.quest = { chapter: state.progress.chapter, kills: 0, boss_defeated: false }; setTimeout(() => toast('ปลดล็อก ' + DATA.zones[chapter.unlock].name), 1200);
     } else { state.progress.campaign_complete = true; setTimeout(() => toast('✨ จบแคมเปญรุ่น 1!'), 1200); }
-    updateHud(); saveProgress('boss-clear');
+    refreshCompanionUnlocks(); updateHud(); saveProgress('boss-clear');
   }
   function spawnDungeonWave() {
     if (!state.dungeon) return; const dungeon = DATA.dungeons[state.dungeon.code], wave = dungeon.waves[state.dungeon.wave - 1]; state.dungeon.kills = 0; state.dungeon.advancing = false; state.monsters = []; state.projectiles = [];
@@ -408,14 +447,14 @@
   }
   function defeatDungeonBoss(m) {
     if (!state.dungeon) return; const dungeon = DATA.dungeons[state.dungeon.code], record = state.progress.dungeons[state.dungeon.code], elapsed = Math.max(1, Math.round(dungeon.seconds - state.dungeonClock)); m.dead = true; state.boss = null;
-    record.clears++; record.best_time = record.best_time == null ? elapsed : Math.min(record.best_time, elapsed); state.progress.gold += dungeon.rewards.gold; state.progress.gems += dungeon.rewards.gems; state.progress.inventory.moss += dungeon.rewards.moss; state.progress.inventory.wood += dungeon.rewards.wood; gainXp(m.xp); addScore(600); burst(m.x, m.y, DATA.bosses[m.bossCode].color, 48);
+    record.clears++; record.best_time = record.best_time == null ? elapsed : Math.min(record.best_time, elapsed); state.progress.gold += dungeon.rewards.gold; state.progress.gems += dungeon.rewards.gems; Object.keys(dungeon.rewards).filter((key) => key !== 'gold' && key !== 'gems').forEach((key) => { state.progress.inventory[key] = (state.progress.inventory[key] || 0) + dungeon.rewards[key]; }); gainXp(m.xp); addScore(600); burst(m.x, m.y, DATA.bosses[m.bossCode].color, 48); refreshCompanionUnlocks();
     queueEvent('boss_clear', elapsed, { boss: m.bossCode, dungeon: state.dungeon.code, clear: record.clears }); toast('🏆 พิชิตถ้ำ! ' + elapsed + ' วินาที · ทอง +' + dungeon.rewards.gold); saveProgress('dungeon-clear'); setTimeout(() => leaveDungeon(true), 1300);
   }
   function leaveDungeon(cleared) {
     if (!state.dungeon) return; const name = DATA.dungeons[state.dungeon.code].name; queueEvent('session_end', state.score, { mode: 'dungeon', dungeon: state.dungeon.code, cleared: !!cleared }); state.dungeon = null; state.dungeonClock = 0; resetWorld(state.rng); state.running = true; toast(cleared ? 'กลับจาก ' + name + ' พร้อมสมบัติ' : 'ถอนตัวจาก ' + name); updateHud();
   }
   window.startDungeon = (code) => {
-    const dungeon = DATA.dungeons[code]; if (!state.running || !dungeon || state.timed || state.dungeon) return; if (!state.progress.bosses[dungeon.unlockBoss]) { toast('🔒 ปราบโกเลมฝึกหัดก่อน'); return; }
+    const dungeon = DATA.dungeons[code]; if (!state.running || !dungeon || state.timed || state.dungeon) return; if (!state.progress.bosses[dungeon.unlockBoss]) { toast('🔒 ปราบ' + DATA.bosses[dungeon.unlockBoss].name + 'ก่อน'); return; }
     state.campOpen = false; $('camp-screen').classList.add('is-hidden'); state.dungeon = { code, wave: 1, kills: 0, needed: 0, advancing: false }; state.dungeonClock = dungeon.seconds; state.monsters = []; state.projectiles = []; state.lights = []; state.chests = []; state.drops = []; state.boss = null;
     const entrance = randomOpenTile(dungeon.zone, 0); state.player.x = entrance.x; state.player.y = entrance.y; state.player.hp = state.player.maxHp; state.zone = dungeon.zone; state.progress.zone = dungeon.zone; queueEvent('session_start', null, { mode: 'dungeon', dungeon: code }); saveProgress('dungeon-start'); spawnDungeonWave(); updateHud();
   };
@@ -434,7 +473,7 @@
     const p = state.player; if (!p || !p.maxHp) return; $('player-level').textContent = p.level; $('hp-text').textContent = Math.round(p.hp) + ' / ' + p.maxHp; $('xp-text').textContent = 'XP ' + p.xp + ' / ' + p.nextXp; $('hp-fill').style.width = (p.hp / p.maxHp * 100) + '%'; $('xp-fill').style.width = (p.xp / p.nextXp * 100) + '%'; $('skill-points').textContent = p.skillPoints; $('skill-modal-points').textContent = p.skillPoints; $('score-value').textContent = state.score; $('gold-value').textContent = state.progress.gold; $('gem-value').textContent = state.progress.gems; $('zone-name').textContent = DATA.zones[state.zone]?.short || 'หมู่บ้าน'; updateQuestHud();
   }
   function updateQuestHud() {
-    if (state.dungeon) { const dungeon = DATA.dungeons[state.dungeon.code], wave = dungeon.waves[state.dungeon.wave - 1]; $('quest-title').textContent = '🕳️ ' + dungeon.name + ' · ' + Math.ceil(state.dungeonClock) + ' วิ'; $('quest-progress').textContent = wave?.boss ? 'บอส: ' + DATA.bosses[wave.boss].name : 'ห้อง ' + state.dungeon.wave + '/3 · ' + (wave?.name || 'กำลังเปิดประตู') + ' ' + state.dungeon.kills + '/' + state.dungeon.needed; return; }
+    if (state.dungeon) { const dungeon = DATA.dungeons[state.dungeon.code], wave = dungeon.waves[state.dungeon.wave - 1]; $('quest-title').textContent = '🕳️ ' + dungeon.name + ' · ' + Math.ceil(state.dungeonClock) + ' วิ'; $('quest-progress').textContent = wave?.boss ? 'บอส: ' + DATA.bosses[wave.boss].name : 'ห้อง ' + state.dungeon.wave + '/' + dungeon.waves.length + ' · ' + (wave?.name || 'กำลังเปิดประตู') + ' ' + state.dungeon.kills + '/' + state.dungeon.needed; return; }
     const chapter = currentChapter(), quest = state.progress.quest; $('quest-title').textContent = chapter.title; $('quest-progress').textContent = state.progress.campaign_complete ? 'จบแคมเปญรุ่น 1 แล้ว' : quest.boss_defeated ? 'ภารกิจสำเร็จ' : (quest.kills >= chapter.quota ? 'บอส: ' + DATA.bosses[chapter.boss].name : 'กำจัดศัตรูใน' + DATA.zones[chapter.zone].short + ' ' + quest.kills + '/' + chapter.quota);
   }
   function renderSkills() { const p = state.player; $('skill-modal-points').textContent = p.skillPoints; $('skill-grid').innerHTML = DATA.skills.map((skill) => '<button class="skill-card" onclick="upgradeSkill(\'' + skill.id + '\')" ' + (p.skillPoints < 1 ? 'disabled' : '') + '><em>LV ' + p.skills[skill.id] + '</em><span class="icon">' + skill.icon + '</span><strong>' + skill.name + '</strong><span>' + skill.desc + '</span></button>').join(''); }
@@ -452,19 +491,38 @@
   window.setCampTab = (tab) => { state.campTab = tab; renderCamp(); };
   function renderCamp() {
     const p = state.progress, cls = currentClass(); $('camp-class').textContent = cls.icon + ' ' + cls.name + ' LV ' + p.hero_level; $('camp-gold').textContent = p.gold; $('camp-gems').textContent = p.gems; const content = $('camp-content');
-    if (state.campTab === 'inventory') { content.innerHTML = '<div class="camp-list">' + Object.keys(DATA.materials).map((key) => '<div class="camp-item"><strong>' + DATA.materials[key] + '</strong><span> × ' + p.inventory[key] + '</span></div>').join('') + '</div><p>อาวุธ: <b>' + weaponName() + '</b> +' + p.equipment.weapon.enhance + ' · ATK โบนัส ' + weaponBonus() + '</p>'; }
-    if (state.campTab === 'craft') { content.innerHTML = '<div class="camp-list">' + DATA.recipes.map((r) => { const can = canCraft(r); return '<div class="camp-item"><button ' + (can ? '' : 'disabled') + ' onclick="craftWeapon(\'' + r.code + '\')">คราฟ</button><strong>' + r.name + '</strong><small>ATK +' + r.damage + ' · 🪙 ' + r.cost + '</small><small>' + Object.keys(r.materials).map((k) => DATA.materials[k] + ' ' + p.inventory[k] + '/' + r.materials[k]).join(' · ') + '</small></div>'; }).join('') + '</div>'; }
-    if (state.campTab === 'smith') { const level = p.equipment.weapon.enhance, cost = 60 * (level + 1); content.innerHTML = '<div class="camp-item"><button ' + (p.gold >= cost && level < 10 ? '' : 'disabled') + ' onclick="enhanceWeapon()">ตีบวก</button><strong>' + weaponName() + ' +' + level + '</strong><small>เพิ่ม ATK +2 ต่อระดับ · สูงสุด +10</small><small>ค่าใช้จ่าย 🪙 ' + cost + '</small></div>'; }
-    if (state.campTab === 'rune') { content.innerHTML = p.runes.length ? '<div class="camp-list">' + p.runes.map((code) => '<div class="camp-item"><button onclick="equipRune(\'' + code + '\')">' + (p.equipment.weapon.rune === code ? 'ติดตั้งแล้ว' : 'ติดตั้ง') + '</button><strong>' + DATA.runes[code].name + '</strong><small>' + DATA.runes[code].desc + '</small></div>').join('') + '</div>' : '<p>ปราบบอสแต่ละบทเพื่อรับรูนเฉพาะตัว</p>'; }
-    if (state.campTab === 'dungeon') { const dungeon = DATA.dungeons.root_cavern, record = p.dungeons.root_cavern, unlocked = !!p.bosses[dungeon.unlockBoss]; content.innerHTML = '<div class="dungeon-card"><span class="dungeon-icon">🕳️</span><div><strong>' + dungeon.name + '</strong><small>3 ห้อง · 100 วินาที · บอสผู้กลืนกินราก</small><small>รางวัล: 🪙 ' + dungeon.rewards.gold + ' · 💎 ' + dungeon.rewards.gems + ' · มอส ' + dungeon.rewards.moss + '</small><small>ผ่านแล้ว ' + record.clears + ' ครั้ง' + (record.best_time ? ' · ดีที่สุด ' + record.best_time + ' วินาที' : '') + '</small></div><button ' + (unlocked && !state.timed ? '' : 'disabled') + ' onclick="startDungeon(\'root_cavern\')">' + (unlocked ? (state.timed ? 'ออกจากโหมดจับเวลาก่อน' : 'เข้าดันเจี้ยน') : '🔒 ปราบโกเลมก่อน') + '</button></div>'; }
+    if (state.campTab === 'inventory') {
+      const rare = p.rare_items.length ? '<h3>คลังอาวุธหายาก</h3><div class="camp-list">' + p.rare_items.map((code) => { const item = DATA.rareItems[code], rarity = DATA.rarities[item.rarity]; return '<div class="camp-item rarity-' + item.rarity + '"><button onclick="equipRareWeapon(\'' + code + '\')">' + (p.equipment.weapon.code === code ? 'ใช้อยู่' : 'สวมใส่') + '</button><strong style="color:' + rarity.color + '">' + item.name + '</strong><small>' + rarity.name + ' · ATK +' + item.damage + '</small></div>'; }).join('') + '</div>' : '<p class="empty-note">อาวุธหายากดรอปจากมอนสเตอร์ประจำโซน</p>';
+      content.innerHTML = '<div class="camp-list">' + Object.keys(DATA.materials).map((key) => '<div class="camp-item"><strong>' + DATA.materials[key] + '</strong><span> × ' + (p.inventory[key] || 0) + '</span>' + (key === 'heal_potion' ? '<button ' + (p.inventory[key] ? '' : 'disabled') + ' onclick="usePotion()">ใช้</button>' : '') + '</div>').join('') + '</div><p>อาวุธ: <b>' + weaponName() + '</b> +' + p.equipment.weapon.enhance + ' · ATK โบนัส ' + weaponBonus() + '</p>' + rare;
+    }
+    if (state.campTab === 'shop') { content.innerHTML = '<div class="camp-list">' + DATA.shop.map((item) => '<div class="camp-item"><button ' + (p.gold >= item.cost ? '' : 'disabled') + ' onclick="buyShopItem(\'' + item.code + '\')">ซื้อ</button><strong>' + item.name + '</strong><small>' + item.desc + '</small><small>ราคา 🪙 ' + item.cost + '</small></div>').join('') + '</div>'; }
+    if (state.campTab === 'craft') {
+      const weapons = DATA.recipes.map((r) => { const can = canCraft(r), rarity = DATA.rarities[r.rarity]; return '<div class="camp-item rarity-' + r.rarity + '"><button ' + (can ? '' : 'disabled') + ' onclick="craftWeapon(\'' + r.code + '\')">คราฟ</button><strong style="color:' + rarity.color + '">' + r.name + '</strong><small>' + rarity.name + ' · ATK +' + r.damage + ' · 🪙 ' + r.cost + '</small><small>' + materialCostText(r.materials) + '</small></div>'; }).join('');
+      const runes = Object.keys(DATA.runes).filter((code) => DATA.runes[code].craft).map((code) => { const rune = DATA.runes[code], can = !p.runes.includes(code) && hasMaterials(rune.craft); return '<div class="camp-item"><button ' + (can ? '' : 'disabled') + ' onclick="craftRune(\'' + code + '\')">คราฟรูน</button><strong>' + rune.name + '</strong><small>' + rune.desc + '</small><small>' + materialCostText(rune.craft) + '</small></div>'; }).join('');
+      content.innerHTML = '<h3>อาวุธ</h3><div class="camp-list">' + weapons + '</div><h3>รูน</h3><div class="camp-list">' + runes + '</div>';
+    }
+    if (state.campTab === 'smith') { const level = p.equipment.weapon.enhance, cost = DATA.enhanceCosts[level] || 0; content.innerHTML = '<div class="camp-item smith-card"><button ' + (p.gold >= cost && level < 10 ? '' : 'disabled') + ' onclick="enhanceWeapon()">ตีบวก</button><strong>' + weaponName() + ' +' + level + '</strong><small>ATK จากตีบวก +' + enhanceBonus() + ' · ระดับ 6–10 ได้ +3 ต่อระดับ</small><small>' + (level < 10 ? 'ค่าใช้จ่าย 🪙 ' + cost + ' · สำเร็จแน่นอน' : 'ถึงระดับสูงสุดแล้ว') + '</small></div>'; }
+    if (state.campTab === 'rune') { content.innerHTML = p.runes.length ? '<p>ช่องรูน 1: <b>' + runeSlotName(0) + '</b> · ช่องรูน 2: <b>' + runeSlotName(1) + '</b></p><div class="camp-list">' + p.runes.map((code) => '<div class="camp-item"><strong>' + DATA.runes[code].name + '</strong><small>' + DATA.runes[code].desc + '</small><div class="slot-actions"><button onclick="equipRune(\'' + code + '\',0)">ช่อง 1</button><button onclick="equipRune(\'' + code + '\',1)">ช่อง 2</button></div></div>').join('') + '</div>' : '<p>ปราบบอสหรือคราฟรูนเพื่อเริ่มสร้างบิลด์</p>'; }
+    if (state.campTab === 'dungeon') { content.innerHTML = Object.keys(DATA.dungeons).map((code) => { const dungeon = DATA.dungeons[code], record = p.dungeons[code], unlocked = !!p.bosses[dungeon.unlockBoss], boss = DATA.bosses[dungeon.waves[dungeon.waves.length - 1].boss]; return '<div class="dungeon-card"><span class="dungeon-icon">🕳️</span><div><strong>' + dungeon.name + '</strong><small>' + dungeon.waves.length + ' ห้อง · ' + dungeon.seconds + ' วินาที · บอส' + boss.name + '</small><small>รางวัล: 🪙 ' + dungeon.rewards.gold + ' · 💎 ' + dungeon.rewards.gems + '</small><small>ผ่านแล้ว ' + record.clears + ' ครั้ง' + (record.best_time ? ' · ดีที่สุด ' + record.best_time + ' วินาที' : '') + '</small></div><button ' + (unlocked && !state.timed ? '' : 'disabled') + ' onclick="startDungeon(\'' + code + '\')">' + (unlocked ? (state.timed ? 'ออกจากโหมดจับเวลาก่อน' : 'เข้าดันเจี้ยน') : '🔒 ปราบ' + DATA.bosses[dungeon.unlockBoss].name) + '</button></div>'; }).join(''); }
+    if (state.campTab === 'companion') { refreshCompanionUnlocks(); content.innerHTML = '<div class="camp-list">' + Object.keys(DATA.companions).map((code) => { const pet = DATA.companions[code], owned = p.companions.includes(code); return '<div class="camp-item companion-card"><span class="companion-icon">' + pet.icon + '</span><button ' + (owned ? '' : 'disabled') + ' onclick="equipCompanion(\'' + code + '\')">' + (p.active_companion === code ? 'ติดตามอยู่' : owned ? 'เลือกคู่หู' : 'ยังไม่ปลดล็อก') + '</button><strong>' + pet.name + '</strong><small>' + pet.desc + '</small></div>'; }).join('') + '</div>'; }
     if (state.campTab === 'story') { content.innerHTML = DATA.chapters.map((chapter) => '<div class="story-row ' + (p.bosses[chapter.boss] ? 'done' : chapter.id === p.chapter ? 'current' : '') + '"><strong>' + chapter.title + '</strong><small>' + chapter.story + '</small></div>').join(''); }
   }
   function weaponName() { if (state.progress.equipment.weapon.code === 'training-weapon') return 'อาวุธฝึกหัด'; return weaponRecipe()?.name || 'อาวุธฝึกหัด'; }
+  function materialCostText(materials) { return Object.keys(materials).map((key) => DATA.materials[key] + ' ' + (state.progress.inventory[key] || 0) + '/' + materials[key]).join(' · '); }
+  function hasMaterials(materials) { return Object.keys(materials).every((key) => (state.progress.inventory[key] || 0) >= materials[key]); }
+  function spendMaterials(materials) { Object.keys(materials).forEach((key) => { state.progress.inventory[key] -= materials[key]; }); }
   function canCraft(recipe) { return state.progress.gold >= recipe.cost && Object.keys(recipe.materials).every((key) => state.progress.inventory[key] >= recipe.materials[key]); }
-  window.craftWeapon = (code) => { const r = DATA.recipes.find((x) => x.code === code); if (!r || !canCraft(r)) return; state.progress.gold -= r.cost; Object.keys(r.materials).forEach((key) => { state.progress.inventory[key] -= r.materials[key]; }); state.progress.equipment.weapon.code = r.code; applyEquipmentStats(); queueEvent('item_craft', r.damage, { item: r.code, cost: r.cost }); toast('คราฟ ' + r.name + ' สำเร็จ'); renderCamp(); updateHud(); saveProgress('craft'); };
-  window.enhanceWeapon = () => { const w = state.progress.equipment.weapon, cost = 60 * (w.enhance + 1); if (w.enhance >= 10 || state.progress.gold < cost) return; state.progress.gold -= cost; w.enhance++; applyEquipmentStats(); queueEvent('weapon_enhance', w.enhance, { cost }); toast('ตีบวกสำเร็จ +' + w.enhance); renderCamp(); updateHud(); saveProgress('enhance'); };
-  window.equipRune = (code) => { if (!state.progress.runes.includes(code) || !DATA.runes[code]) return; state.progress.equipment.weapon.rune = code; applyEquipmentStats(); queueEvent('rune_equip', null, { rune: code }); toast('ติดตั้ง ' + DATA.runes[code].name); renderCamp(); updateHud(); saveProgress('rune'); };
-  function applyEquipmentStats() { const cls = currentClass(), p = state.player, skills = state.progress.skill_levels; p.maxHp = cls.hp + (p.level - 1) * 4 + skills.heart * 12 + (hasRune('guardian') ? 18 : 0); p.hp = Math.min(p.hp, p.maxHp); p.damage = cls.damage + (p.level - 1) * 2 + skills.blade * 3 + weaponBonus(); }
+  window.craftWeapon = (code) => { const r = DATA.recipes.find((x) => x.code === code); if (!r || !canCraft(r)) return; state.progress.gold -= r.cost; spendMaterials(r.materials); state.progress.equipment.weapon.code = r.code; applyEquipmentStats(); queueEvent('item_craft', r.damage, { item: r.code, cost: r.cost, rarity: r.rarity }); toast('คราฟ ' + r.name + ' สำเร็จ'); renderCamp(); updateHud(); saveProgress('craft'); };
+  window.craftRune = (code) => { const rune = DATA.runes[code]; if (!rune?.craft || state.progress.runes.includes(code) || !hasMaterials(rune.craft)) return; spendMaterials(rune.craft); state.progress.runes.push(code); queueEvent('item_craft', null, { item: code, kind: 'rune' }); toast('คราฟ ' + rune.name + ' สำเร็จ'); renderCamp(); saveProgress('craft-rune'); };
+  window.buyShopItem = (code) => { const item = DATA.shop.find((x) => x.code === code); if (!item || state.progress.gold < item.cost) return; state.progress.gold -= item.cost; if (item.kind === 'potion') state.progress.inventory.heal_potion++; else Object.keys(item.items).forEach((key) => { state.progress.inventory[key] = (state.progress.inventory[key] || 0) + item.items[key]; }); queueEvent('item_craft', null, { item: code, kind: 'shop', cost: item.cost }); toast('ซื้อ ' + item.name); renderCamp(); updateHud(); saveProgress('shop'); };
+  window.usePotion = () => { if (!state.progress.inventory.heal_potion || state.player.hp >= state.player.maxHp) return; state.progress.inventory.heal_potion--; state.player.hp = Math.min(state.player.maxHp, state.player.hp + 35); toast('ฟื้น HP +35'); renderCamp(); updateHud(); saveProgress('potion'); };
+  window.equipRareWeapon = (code) => { if (!state.progress.rare_items.includes(code) || !DATA.rareItems[code]) return; state.progress.equipment.weapon.code = code; applyEquipmentStats(); toast('สวมใส่ ' + DATA.rareItems[code].name); renderCamp(); updateHud(); saveProgress('rare-equip'); };
+  window.enhanceWeapon = () => { const w = state.progress.equipment.weapon, cost = DATA.enhanceCosts[w.enhance] || 0; if (w.enhance >= 10 || state.progress.gold < cost) return; state.progress.gold -= cost; w.enhance++; applyEquipmentStats(); queueEvent('weapon_enhance', w.enhance, { cost, bonus: enhanceBonus() }); toast('ตีบวกสำเร็จ +' + w.enhance); renderCamp(); updateHud(); saveProgress('enhance'); };
+  function runeSlotName(slot) { const code = equippedRunes()[slot]; return code ? DATA.runes[code].name : 'ว่าง'; }
+  window.equipRune = (code, slot) => { if (!state.progress.runes.includes(code) || !DATA.runes[code] || slot < 0 || slot > 1) return; const slots = equippedRunes().slice(0, 2); const oldIndex = slots.indexOf(code); if (oldIndex >= 0) slots[oldIndex] = null; slots[slot] = code; state.progress.equipment.weapon.runes = slots.filter(Boolean); state.progress.equipment.weapon.rune = state.progress.equipment.weapon.runes[0] || null; applyEquipmentStats(); queueEvent('rune_equip', slot, { rune: code }); toast('ติดตั้ง ' + DATA.runes[code].name + ' ช่อง ' + (slot + 1)); renderCamp(); updateHud(); saveProgress('rune'); };
+  function refreshCompanionUnlocks() { Object.keys(DATA.companions).forEach((code) => { const pet = DATA.companions[code], unlocked = (pet.unlock && state.progress.dungeons[pet.unlock]?.clears > 0) || (pet.unlockBoss && state.progress.bosses[pet.unlockBoss]); if (unlocked && !state.progress.companions.includes(code)) state.progress.companions.push(code); }); if (!state.progress.active_companion && state.progress.companions.length) state.progress.active_companion = state.progress.companions[0]; }
+  window.equipCompanion = (code) => { if (!state.progress.companions.includes(code)) return; state.progress.active_companion = code; state.companionClock = 0; toast(DATA.companions[code].icon + ' ' + DATA.companions[code].name + ' ร่วมทีม'); renderCamp(); saveProgress('companion'); };
+  function applyEquipmentStats() { const cls = currentClass(), p = state.player, skills = state.progress.skill_levels; p.maxHp = cls.hp + (p.level - 1) * 4 + skills.heart * 12 + (hasRune('guardian') ? 18 : 0); p.hp = Math.min(p.hp, p.maxHp); p.damage = cls.damage + (p.level - 1) * 2 + skills.blade * 3 + weaponBonus(); p.crit = Math.min(.63, CFG.PLAYER_CRIT + skills.crit * .05 + (hasRune('hunter') ? .08 : 0)); }
 
   function queueEvent(type, value, metadata) { state.eventQueue.push({ type, value: value == null ? undefined : value, metadata: metadata || {} }); if (state.eventQueue.length > 30) state.eventQueue.shift(); }
   function snapshotProgress() { state.progress.hero_level = state.player.level ?? state.progress.hero_level; state.progress.hero_xp = state.player.xp ?? state.progress.hero_xp; state.progress.skill_points = state.player.skillPoints ?? state.progress.skill_points; state.progress.zone = state.zone; return JSON.parse(JSON.stringify(state.progress)); }
@@ -482,7 +540,7 @@
   });
 
   function showGame(timed, rng, versus) {
-    resetWorld(rng); state.running = true; state.timed = timed; state.versus = versus; state.skillOpen = false; state.campOpen = false; state.last = 0; state.playStartedAt = Date.now();
+    refreshCompanionUnlocks(); resetWorld(rng); state.running = true; state.timed = timed; state.versus = versus; state.skillOpen = false; state.campOpen = false; state.companionClock = 0; state.vitalityClock = 0; state.last = 0; state.playStartedAt = Date.now();
     $('start-screen').classList.add('is-hidden'); $('class-screen').classList.add('is-hidden'); $('gameover-screen').classList.add('is-hidden'); $('skill-screen').classList.add('is-hidden'); $('camp-screen').classList.add('is-hidden'); $('hud').classList.remove('is-hidden'); $('attack-button').classList.remove('is-hidden'); $('active-skill-button').classList.remove('is-hidden'); $('timer-card').classList.toggle('is-hidden', !timed); KAMPAI.sound.defaultBgm(CFG.BGM); clearInterval(state.timerId); queueEvent('session_start', null, { mode: timed ? 'challenge' : 'campaign' });
     if (timed) state.timerId = setInterval(() => { state.time--; $('timer-value').textContent = state.time; if (state.time <= 0) endRun(false); }, 1000);
     clearInterval(state.autoSaveId); state.autoSaveId = setInterval(() => saveProgress('auto'), 20000);
@@ -502,7 +560,7 @@
   KAMPAI.setSlug(CFG.SLUG).onReady((k) => {
     KAMPAI.sound.mountToggles();
     const saved = k.rpg?.state; if (saved?.save_state) { state.progress = sanitizeProgress(saved.save_state); state.saveVersion = Math.max(1, Number(saved.state_version) || 1); }
-    resetPlayer(); state.zone = state.progress.zone || 'village'; updateHud(); renderClassGrid();
+    refreshCompanionUnlocks(); resetPlayer(); state.zone = state.progress.zone || 'village'; updateHud(); renderClassGrid();
     if (k.stats) { $('my-stats').classList.remove('is-hidden'); $('best-score').textContent = k.stats.personalBest || 0; $('play-count').textContent = k.stats.playsCount || 0; }
     const list = Array.isArray(k.leaderboard) ? k.leaderboard.slice(0, 5) : []; $('leaderboard').innerHTML = list.length ? list.map((row, i) => '<li class="' + (row.isMe ? 'me' : '') + '">' + (i + 1) + '. ' + (row.displayName || 'นักผจญภัย') + ' — ' + (row.score || 0) + '</li>').join('') : '<li>ยังไม่มีคะแนน — มาเป็นฮีโร่คนแรก!</li>';
   });

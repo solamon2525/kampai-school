@@ -272,6 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.169.0 (pixel forest progression & companion)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 4 เพิ่มร้านค้า ยาฟื้นพลัง ชุดวัตถุดิบ คราฟอาวุธตาม rarity ตีบวกแบบต้นทุนไล่ระดับ และรูน 2 ช่อง',
+            'เพิ่ม drop table เฉพาะมอนสเตอร์และอาวุธ Rare / Epic / Legendary เฉพาะโซน พร้อมปรับรายรับทองและพลังตีบวกใหม่',
+            'Phase 5 เพิ่มเขาวงกตหมอกคราม 3 ห้อง บอสราชินีหมอกครามสองเฟส รางวัลและสถิติถาวร',
+            'เพิ่มคู่หูช่วยต่อสู้ 3 แบบ—ฮีล ยิงเป้าหมาย และเวทวงกว้าง—พร้อม migration 401 และ game_docs v6.0.0',
+        ],
+    },
+    {
         version: 'v1.168.0 (pixel forest phase 3 content)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
