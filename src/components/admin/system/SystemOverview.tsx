@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.169.1 (pixel forest production cover)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เปลี่ยนปกฮีโร่จิ๋วผจญป่าเป็น PNG พิกเซลอาร์ต 1280×720 แบบเต็ม 16:9 พร้อม title safe zone ภาษาไทย',
+            'ภาพปกสรุปฟีเจอร์ Phase 4–5 ทั้งฮีโร่ มอนสเตอร์ บอส ดันเจี้ยน ไอเทมหายาก ตกปลา และคู่หู พร้อม migration 410 และ game_docs v6.0.1',
+        ],
+    },
+    {
         version: 'v1.169.0 (pixel forest progression & companion)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
