@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ใบงานการคูณแนวตั้ง ป.4 — ปรับแต่ง & พิมพ์ A4</title>
+  <title>ใบงานการคูณแนวตั้ง ป.4–ป.6 — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:18px;--cw:26px;--ch:26px;--rh:15px}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#065f46;color:#fff;box-shadow:0 3px 12px rgba(6,95,70,.35)}
-    .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:180px}
+    .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:170px}
     .toolbar-ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .t-select,.t-input{font:700 .85rem Sarabun;padding:6px 10px;border-radius:8px;border:1px solid #6ee7b7;background:#fff;color:#065f46}
     .t-input{width:140px}
@@ -17,9 +17,20 @@
     .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}
     .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:8mm;box-shadow:0 5px 24px rgba(6,95,70,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:3mm}
     .sheet:last-child{page-break-after:auto}.sheet-head{border-bottom:2px solid #047857;padding-bottom:3mm;position:relative}
-    .sheet-title{display:flex;align-items:center;gap:8px;padding-right:26mm}.sheet-title h2{margin:0;flex:1;color:#065f46;font-size:16pt}.level{border:1.5px solid #6ee7b7;border-radius:999px;padding:2px 9px;font-weight:800;color:#065f46;font-size:9pt}
+    .sheet-title{display:flex;align-items:center;gap:8px;padding-right:26mm}.sheet-title h2{margin:0;flex:1;color:#065f46;font-size:15.5pt}.level{border:1.5px solid #6ee7b7;border-radius:999px;padding:2px 9px;font-weight:800;color:#065f46;font-size:8.5pt}
     .school-name{font-size:9.5pt;font-weight:700;color:#047857;margin-top:1mm}
-    .student{display:grid;grid-template-columns:1.4fr .8fr .6fr 1fr;gap:4mm;margin-top:2.5mm;font-size:10.5pt}.blank{display:inline-block;min-width:26mm;border-bottom:1px solid #334155;height:5mm}.directions{font-size:9.5pt;font-weight:700;color:#334155;margin-top:2mm}
+    
+    /* ── Student Row: Extended Name, No Class, No-wrap Number ── */
+    .student{display:flex;flex-wrap:wrap;gap:6mm;align-items:center;margin-top:2.5mm;font-size:11pt;font-weight:700;color:#1e293b}
+    .student-name{flex:1;min-width:90mm;display:flex;align-items:center;gap:4px}
+    .student-no{display:flex;align-items:center;gap:4px;white-space:nowrap}
+    .student-teacher{display:flex;align-items:center;gap:4px;white-space:nowrap}
+    .blank{display:inline-block;border-bottom:1px solid #334155;height:5mm}
+    .blank.long{flex:1;min-width:60mm}
+    .blank.short{width:22mm}
+    
+    .directions{display:flex;justify-content:space-between;gap:8px;font-size:9.5pt;font-weight:700;color:#334155;margin-top:2.5mm}
+    .indicator{color:#047857;font-weight:800;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:1px 7px}
     
     /* ── QR Code Box ── */
     .qr-box{position:absolute;right:0;top:0;display:flex;flex-direction:column;align-items:center;text-align:center;width:24mm}
@@ -61,20 +72,25 @@
 </head>
 <body>
   <div class="toolbar">
-    <h1>✏️ ใบงานการคูณ ป.4</h1>
+    <h1>✏️ ใบงานการคูณแนวตั้ง ป.4–ป.6</h1>
     <div class="toolbar-ctrls">
+      <select class="t-select" id="selGrade">
+        <option value="4" selected>ระดับชั้น: ประถมศึกษาปีที่ 4</option>
+        <option value="5">ระดับชั้น: ประถมศึกษาปีที่ 5</option>
+        <option value="6">ระดับชั้น: ประถมศึกษาปีที่ 6</option>
+        <option value="all">ระดับชั้น: รวม ป.4–ป.6 ทุกระดับ</option>
+      </select>
       <select class="t-select" id="selMode">
-        <option value="mixed">ความยาก: 3 ระดับผสม</option>
-        <option value="2x1">ความยาก: 2 หลัก × 1 หลัก</option>
-        <option value="2x2">ความยาก: 2 หลัก × 2 หลัก</option>
-        <option value="3x2">ความยาก: 3 หลัก × 2 หลัก</option>
+        <option value="mixed">รูปแบบโจทย์: ทุกความยากในชั้น</option>
       </select>
       <select class="t-select" id="selCount">
         <option value="10">จำนวน: 10 ข้อ/หน้า</option>
         <option value="5">จำนวน: 5 ข้อ/หน้า (โจทย์ใหญ่)</option>
       </select>
       <input class="t-input" type="text" id="inpSchool" placeholder="ชื่อโรงเรียน..." value="โรงเรียนบ้านคำไผ่" />
-      <input class="t-input" type="text" id="inpTeacher" placeholder="ชื่อครูผู้สอน..." value="" />
+      <select class="t-select" id="selTeacher">
+        <option value="">-- เลือกครูผู้สอน --</option>
+      </select>
       <button class="btn" id="btnBack">← กลับสื่อ</button>
       <button class="btn primary" id="btnRandom">🎲 สุ่มชุดใหม่</button>
       <button class="btn" id="btnAnswers">👁️ เฉลยครู</button>
@@ -85,77 +101,141 @@
 
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const RF=(a,b,dec=1)=>Math.round((a+Math.random()*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
+
 const ALL_LEVELS=[
-  {id:'2x1',name:'2 หลัก × 1 หลัก',icon:'⭐',dc:3,gen:()=>[R(10,99),R(2,9)]},
-  {id:'2x2',name:'2 หลัก × 2 หลัก',icon:'⭐⭐',dc:4,gen:()=>[R(10,99),R(10,99)]},
-  {id:'3x2',name:'3 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:5,gen:()=>[R(100,999),R(10,99)]},
+  // ── ป.4 ──
+  {id:'p4_2x1',grade:4,name:'2 หลัก × 1 หลัก',icon:'⭐',dc:3,indicator:'ค 1.1 ป.4/9',gen:()=>[R(10,99),R(2,9)]},
+  {id:'p4_2x2',grade:4,name:'2 หลัก × 2 หลัก',icon:'⭐⭐',dc:4,indicator:'ค 1.1 ป.4/10',gen:()=>[R(10,99),R(10,99)]},
+  {id:'p4_3x2',grade:4,name:'3 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:5,indicator:'ค 1.1 ป.4/11',gen:()=>[R(100,999),R(10,99)]},
+  
+  // ── ป.5 ──
+  {id:'p5_3x3',grade:5,name:'3 หลัก × 3 หลัก',icon:'⭐⭐⭐',dc:6,indicator:'ค 1.1 ป.5/6',gen:()=>[R(100,999),R(100,999)]},
+  {id:'p5_4x2',grade:5,name:'4 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:6,indicator:'ค 1.1 ป.5/6',gen:()=>[R(1000,9999),R(10,99)]},
+  {id:'p5_dec1',grade:5,name:'ทศนิยม 1 ตำแหน่ง × 1 หลัก',icon:'🔹',dc:4,indicator:'ค 1.1 ป.5/7',isDec:true,decPlaces:1,gen:()=>[RF(1.1,9.9,1),R(2,9)]},
+
+  // ── ป.6 ──
+  {id:'p6_4x3',grade:6,name:'4 หลัก × 3 หลัก',icon:'⭐⭐⭐⭐',dc:7,indicator:'ค 1.1 ป.6/1',gen:()=>[R(1000,9999),R(100,999)]},
+  {id:'p6_dec2',grade:6,name:'ทศนิยม 1 ตำแหน่ง × ทศนิยม 1 ตำแหน่ง',icon:'🔷',dc:5,indicator:'ค 1.1 ป.6/2',isDec:true,decPlaces:2,gen:()=>[RF(1.1,9.9,1),RF(1.1,9.9,1)]},
+  {id:'p6_dec3',grade:6,name:'ทศนิยม 2 ตำแหน่ง × 2 หลัก',icon:'🔷🔷',dc:6,indicator:'ค 1.1 ป.6/3',isDec:true,decPlaces:2,gen:()=>[RF(1.01,9.99,2),R(10,99)]},
 ];
 
 // QR Code URL Generator via QuickChart QR API
 const MEDIA_URL=window.location.origin+'/games/math/multiplication-thinking-media.html';
 const QR_API='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent(MEDIA_URL);
 
-function mulGrid(a,b,dc){
-  const result=a*b, aS=String(a), bS=String(b), rS=String(result);
-  const bD=bS.split('').reverse().map(Number);
-  const multi=bD.length>1;
-  const P=s=>s.padStart(dc);
-  const gs=(t,c)=>'<div class="gs'+(c?' '+c:'')+'">'+(t||'')+'</div>';
-  const gd=(t,c)=>'<div class="gd '+c+'">'+(t||'')+'</div>';
-  let h='';
+// Supabase REST endpoint to fetch teaching staff
+const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+
+async function fetchTeachers() {
+  const sel = document.getElementById('selTeacher');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/staff?select=name,position,staff_type&order=order_position.asc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option>' + 
+          data.map(t => `<option value="${t.name}">${t.name} ${t.position?`(${t.position})`:''}</option>`).join('');
+        return;
+      }
+    }
+  } catch (e) {}
+  // Fallback list
+  const fallback = ['ครูวิไลวรรณ', 'ครูสมคิด', 'ครูอภิสิทธิ์', 'ครูพิมลวรรณ', 'ครูวิทยา'];
+  sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option>' +
+    fallback.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+function mulGrid(a,b,dc,isDec){
+  const rawA = isDec ? String(a).replace('.','') : String(a);
+  const rawB = isDec ? String(b).replace('.','') : String(b);
+  const result = Math.round(a*b * 1000) / 1000;
+  const aS = String(a), bS = String(b), rS = String(result);
+  
+  const bD = rawB.split('').reverse().map(Number);
+  const multi = bD.length > 1;
+  const P = s => s.padStart(dc);
+  const gs = (t,c) => '<div class="gs'+(c?' '+c:'')+'">'+(t||'')+'</div>';
+  const gd = (t,c) => '<div class="gd '+c+'">'+(t||'')+'</div>';
+  let h = '';
+
   // ── carry row ──
-  h+=gs('ท','cr');
-  for(let i=0;i<dc;i++) h+='<div class="gc"></div>';
+  h += gs('ท','cr');
+  for(let i=0; i<dc; i++) h += '<div class="gc"></div>';
+  
   // ── multiplicand ──
-  const ap=P(aS); h+=gs('');
-  for(let i=0;i<dc;i++) h+=gd(ap[i]!==' '?ap[i]:'', ap[i]!==' '?'gv':'bl');
+  const ap = P(aS); h += gs('');
+  for(let i=0; i<dc; i++) h += gd(ap[i]!==' '?ap[i]:'', ap[i]!==' '?'gv':'bl');
+  
   // ── multiplier with × ──
-  const bp=P(bS); h+=gs('×','bt');
-  for(let i=0;i<dc;i++) h+=gd(bp[i]!==' '?bp[i]:'', (bp[i]!==' '?'gv':'bl')+' bt');
+  const bp = P(bS); h += gs('×','bt');
+  for(let i=0; i<dc; i++) h += gd(bp[i]!==' '?bp[i]:'', (bp[i]!==' '?'gv':'bl')+' bt');
+  
   if(!multi){
     // single answer row
-    const rp=P(rS); h+=gs('');
-    for(let i=0;i<dc;i++) h+=gd(rp[i]!==' '?rp[i]:'', rp[i]!==' '?'wk':'bl');
+    const rp = P(rS); h += gs('');
+    for(let i=0; i<dc; i++) h += gd(rp[i]!==' '?rp[i]:'', rp[i]!==' '?'wk':'bl');
   } else {
-    // partial products
-    for(let p=0;p<bD.length;p++){
-      const pv=a*bD[p], ps=String(pv)+'0'.repeat(p), pp=P(ps);
-      const last=p===bD.length-1, cls=last?' bt':'';
-      h+=gs(p>0?'+':'', last?'bt':'');
-      for(let i=0;i<dc;i++){
-        if(p>0 && i>=dc-p) h+=gd('0','gz'+cls);
-        else h+=gd(pp[i]!==' '?pp[i]:'', (pp[i]!==' '?'wk':'bl')+cls);
+    // partial products (calculated from raw digits)
+    const rawValA = parseInt(rawA, 10);
+    for(let p=0; p<bD.length; p++){
+      const pv = rawValA * bD[p], ps = String(pv) + '0'.repeat(p), pp = P(ps);
+      const last = p === bD.length - 1, cls = last ? ' bt' : '';
+      h += gs(p > 0 ? '+' : '', last ? 'bt' : '');
+      for(let i=0; i<dc; i++){
+        if(p > 0 && i >= dc - p) h += gd('0', 'gz' + cls);
+        else h += gd(pp[i] !== ' ' ? pp[i] : '', (pp[i] !== ' ' ? 'wk' : 'bl') + cls);
       }
     }
     // final answer
-    const rp=P(rS); h+=gs('');
-    for(let i=0;i<dc;i++) h+=gd(rp[i]!==' '?rp[i]:'', rp[i]!==' '?'wk':'bl');
+    const rp = P(rS); h += gs('');
+    for(let i=0; i<dc; i++) h += gd(rp[i] !== ' ' ? rp[i] : '', rp[i] !== ' ' ? 'wk' : 'bl');
   }
   return '<div class="mg" style="grid-template-columns:var(--sw) repeat('+dc+',var(--cw))">'+h+'</div>';
 }
 
 function question(lv,qi){
-  const[a,b]=lv.gen(), result=a*b;
+  const [a,b] = lv.gen(), result = Math.round(a*b * 1000) / 1000;
   return '<article class="q"><span class="q-num">'+qi+'</span>'
-    +mulGrid(a,b,lv.dc)
+    +mulGrid(a,b,lv.dc,lv.isDec)
     +'<div class="ans">ตอบ <span class="blank-sm"></span>'
     +'<span class="ta">เฉลย '+result.toLocaleString()+'</span></div></article>';
 }
 
+function updateModeOptions(){
+  const grade = document.getElementById('selGrade').value;
+  const selMode = document.getElementById('selMode');
+  let filtered = ALL_LEVELS;
+  if(grade !== 'all') {
+    filtered = ALL_LEVELS.filter(l => l.grade === parseInt(grade,10));
+  }
+  selMode.innerHTML = '<option value="mixed">รูปแบบโจทย์: ทุกความยากในชั้น (' + (grade==='all'?'รวม ป.4–ป.6':`ป.${grade}`) + ')</option>'
+    + filtered.map(l => `<option value="${l.id}">ความยาก: ${l.name} (${l.indicator})</option>`).join('');
+}
+
 function render(){
-  const mode=document.getElementById('selMode').value;
-  const count=parseInt(document.getElementById('selCount').value,10);
-  const schoolName=document.getElementById('inpSchool').value.trim();
-  const teacherName=document.getElementById('inpTeacher').value.trim();
+  const grade = document.getElementById('selGrade').value;
+  const mode = document.getElementById('selMode').value;
+  const count = parseInt(document.getElementById('selCount').value, 10);
+  const schoolName = document.getElementById('inpSchool').value.trim();
+  const teacherName = document.getElementById('selTeacher').value;
 
-  let targetLevels=[];
-  if(mode==='mixed') targetLevels=ALL_LEVELS;
-  else targetLevels=[ALL_LEVELS.find(l=>l.id===mode)];
+  let targetLevels = ALL_LEVELS;
+  if(grade !== 'all') {
+    targetLevels = ALL_LEVELS.filter(l => l.grade === parseInt(grade,10));
+  }
+  if(mode !== 'mixed') {
+    const single = ALL_LEVELS.find(l => l.id === mode);
+    if(single) targetLevels = [single];
+  }
 
-  document.getElementById('pages').innerHTML=targetLevels.map((lv,li)=>{
-    let qs=''; for(let i=1;i<=count;i++) qs+=question(lv,i);
-    const teacherHtml=teacherName?'<div>ครูผู้สอน <span class="blank">'+teacherName+'</span></div>':'';
-    const schoolHtml=schoolName?'<div class="school-name">🏫 '+schoolName+'</div>':'';
+  document.getElementById('pages').innerHTML = targetLevels.map((lv, li) => {
+    let qs = ''; for(let i=1; i<=count; i++) qs += question(lv, i);
+    const teacherHtml = teacherName ? `<div class="student-teacher">ครูผู้สอน: <span class="blank short">${teacherName}</span></div>` : '';
+    const schoolHtml = schoolName ? `<div class="school-name">🏫 ${schoolName}</div>` : '';
     
     return '<section class="sheet"><header class="sheet-head">'
       +'<div class="qr-box">'
@@ -163,31 +243,38 @@ function render(){
       +'<span class="qr-label">สแกนดูวิธีคิด</span>'
       +'</div>'
       +'<div class="sheet-title"><h2>✏️ ใบงานการคูณแนวตั้ง — '+lv.name+'</h2>'
-      +'<span class="level">'+lv.icon+' ป.4</span></div>'
+      +'<span class="level">'+lv.icon+' ป.'+lv.grade+'</span></div>'
       +schoolHtml
-      +'<div class="student"><div>ชื่อ <span class="blank"></span></div>'
-      +'<div>ชั้น <span class="blank"></span></div>'
-      +'<div>เลขที่ <span class="blank"></span></div>'
+      +'<div class="student">'
+      +'<div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div>'
+      +'<div class="student-no">เลขที่: <span class="blank short"></span></div>'
       +teacherHtml
       +'</div>'
-      +'<div class="directions">คำชี้แจง: ตั้งคูณแนวตั้ง แสดงวิธีทำ เขียนตัวทดและผลคูณย่อยให้ครบถ้วน</div>'
+      +'<div class="directions">'
+      +'<span>คำชี้แจง: ตั้งคูณแนวตั้ง แสดงวิธีทำ เขียนตัวทดและผลคูณย่อยให้ครบถ้วน</span>'
+      +'<span class="indicator">ตัวชี้วัด '+lv.indicator+'</span>'
+      +'</div>'
       +'</header><div class="questions count-'+count+'">'+qs+'</div>'
       +'<footer class="sheet-foot">หน้า '+(li+1)+'/'+targetLevels.length
-      +' · ใบงานการคูณ ป.4 · คู่สื่อวิธีคูณทีละขั้น</footer></section>';
+      +' · ใบงานการคูณ ป.'+lv.grade+' ('+lv.indicator+') · คู่สื่อวิธีคูณทีละขั้น</footer></section>';
   }).join('');
 }
 
-document.getElementById('btnBack').onclick=()=>location.href='/games/math/multiplication-thinking-media.html';
-document.getElementById('btnRandom').onclick=render;
-document.getElementById('selMode').onchange=render;
-document.getElementById('selCount').onchange=render;
-document.getElementById('inpSchool').oninput=render;
-document.getElementById('inpTeacher').oninput=render;
-document.getElementById('btnAnswers').onclick=function(){
+document.getElementById('btnBack').onclick = () => location.href = '/games/math/multiplication-thinking-media.html';
+document.getElementById('btnRandom').onclick = render;
+document.getElementById('selGrade').onchange = () => { updateModeOptions(); render(); };
+document.getElementById('selMode').onchange = render;
+document.getElementById('selCount').onchange = render;
+document.getElementById('inpSchool').oninput = render;
+document.getElementById('selTeacher').onchange = render;
+document.getElementById('btnAnswers').onclick = function(){
   document.body.classList.toggle('show-answers');
-  this.textContent=document.body.classList.contains('show-answers')?'🙈 ซ่อนเฉลยครู':'👁️ เฉลยครู';
+  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
 };
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick = () => window.print();
+
+updateModeOptions();
+fetchTeachers();
 render();
 </script>
 </body>
