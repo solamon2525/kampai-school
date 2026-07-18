@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
-    :root{--sw:20px;--cw:31px;--ch:30px;--rh:17px}
+    :root{--sw:22px;--cw:34px;--ch:32px;--rh:18px}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#065f46;color:#fff;box-shadow:0 3px 12px rgba(6,95,70,.35)}
     .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:170px}
     .toolbar-ctrls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -45,14 +45,14 @@
     /* ── Question Grid Layouts ── */
     .questions{display:grid;gap:1.5mm;flex:1}
     
-    /* ── 10-Question Mode: Maximized Grid & Fonts, Reduced Gap ── */
+    /* ── 10-Question Mode: Extra Large Grid & Fonts, Snug Answer Line ── */
     .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
-    .questions.count-10 .q{padding:2mm 1.5mm 2.5mm;min-height:36mm}
-    .questions.count-10 .mg{--sw:21px;--cw:31px;--ch:30px;--rh:17px}
-    .questions.count-10 .gd{font-size:15.5pt;font-weight:800}
-    .questions.count-10 .gs{font-size:13.5pt;font-weight:800}
-    .questions.count-10 .gc{font-size:8.5pt}
-    .questions.count-10 .ans{font-size:9.5pt;margin-top:3.5mm}
+    .questions.count-10 .q{padding:1.5mm 1mm 1mm;min-height:36mm}
+    .questions.count-10 .mg{--sw:22px;--cw:34px;--ch:32px;--rh:18px}
+    .questions.count-10 .gd{font-size:18pt;font-weight:800}
+    .questions.count-10 .gs{font-size:15.5pt;font-weight:800}
+    .questions.count-10 .gc{font-size:9.5pt}
+    .questions.count-10 .ans{font-size:10pt;margin-top:1mm}
     .questions.count-10 .q-num{width:6.5mm;height:6.5mm;font-size:9pt;left:1.5mm;top:1mm}
     
     /* ── 5-Question Mode: Extra Large ── */
@@ -86,7 +86,7 @@
     .show-answers .wk{color:#dc2626;background:#fef2f2}
     
     /* ── Answer line ── */
-    .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:3.5mm}
+    .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:1.5mm}
     .blank-sm{display:inline-block;min-width:20mm;border-bottom:1px solid #334155;height:4.5mm}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
     .show-answers .ta{display:inline}
@@ -126,13 +126,13 @@
       .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm;overflow:hidden}
       .q{min-height:0}
       
-      /* Print scaling for 10-question mode: Large Numbers, Full Cell */
-      .questions.count-10 .mg{--sw:5.5mm;--cw:8.2mm;--ch:7.8mm;--rh:4.5mm}
-      .questions.count-10 .gd{font-size:14pt}
-      .questions.count-10 .gs{font-size:12.5pt}
-      .questions.count-10 .gc{font-size:7.5pt}
-      .questions.count-10 .ans{font-size:9.5pt;margin-top:3mm}
-      .questions.count-10 .q-num{width:6mm;height:6mm;font-size:9pt}
+      /* Print scaling for 10-question mode: Extra Large Numbers, Snug Answer Line */
+      .questions.count-10 .mg{--sw:6mm;--cw:8.8mm;--ch:8.3mm;--rh:4.8mm}
+      .questions.count-10 .gd{font-size:16.5pt}
+      .questions.count-10 .gs{font-size:14.5pt}
+      .questions.count-10 .gc{font-size:8.5pt}
+      .questions.count-10 .ans{font-size:10pt;margin-top:1mm}
+      .questions.count-10 .q-num{width:6.5mm;height:6.5mm;font-size:9.5pt}
 
       /* Print scaling for 5-question mode */
       .questions.count-5 .mg{--sw:7mm;--cw:10mm;--ch:9.5mm;--rh:5.5mm}
