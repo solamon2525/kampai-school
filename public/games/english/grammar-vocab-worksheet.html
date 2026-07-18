@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ระบบใบงานภาษาอังกฤษอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box} body{margin:0;background:#f0f9ff;color:#0f172a;font-family:Sarabun,sans-serif}
+    .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0284c7;color:#fff;box-shadow:0 3px 12px rgba(2,132,199,.35)}
+    .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:170px}
+    .toolbar-ctrls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+    .t-select,.t-input{font:700 .85rem Sarabun;padding:6px 10px;border-radius:8px;border:1px solid #bae6fd;background:#fff;color:#0284c7}
+    .t-input{width:130px}
+    .btn{border:0;border-radius:8px;padding:7px 11px;font:700 .88rem Sarabun;cursor:pointer;background:#fff;color:#0284c7;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+    .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}
+    
+    .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(2,132,199,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
+    .sheet:last-child{page-break-after:auto}
+    
+    .sheet-head{border-bottom:2px solid #0284c7;padding-bottom:2mm;padding-right:28mm;position:relative;min-height:26mm}
+    .sheet-title{display:flex;align-items:center;gap:8px}.sheet-title h2{margin:0;flex:1;color:#0284c7;font-size:15pt}.level{border:1.5px solid #bae6fd;border-radius:999px;padding:2px 9px;font-weight:800;color:#0284c7;font-size:8.5pt}
+    .school-name{font-size:9pt;font-weight:700;color:#0369a1;margin-top:0.5mm;display:flex;align-items:center;gap:6px}
+    .school-logo-mini{width:18px;height:18px;object-fit:contain}
+    
+    .student{display:flex;flex-wrap:nowrap;gap:8mm;align-items:center;margin-top:2mm;font-size:10.5pt;font-weight:700;color:#1e293b}
+    .student-name{flex:1;display:flex;align-items:center;gap:6px}
+    .student-no{display:flex;align-items:center;gap:6px;white-space:nowrap}
+    .blank{display:inline-block;border-bottom:1px solid #334155;height:5mm}
+    .blank.long{flex:1;min-width:60mm}
+    .blank.short{width:22mm}
+    
+    .directions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:9pt;font-weight:700;color:#334155;margin-top:2mm}
+    .indicator{color:#0284c7;font-weight:800;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:1px 7px;white-space:nowrap}
+    
+    .qr-box{position:absolute;right:0;top:0;display:flex;flex-direction:column;align-items:center;text-align:center;width:25mm}
+    .qr-img{width:22mm;height:22mm;border:1px solid #0284c7;border-radius:4px;padding:1px;background:#fff}
+    .qr-label{font-size:6.5pt;font-weight:700;color:#0284c7;margin-top:1px;line-height:1.1}
+
+    .questions{display:grid;gap:1.5mm;flex:1}
+    .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
+    .questions.count-10 .q{padding:2mm 2.5mm;min-height:36.5mm}
+    
+    .q{border:1.4px solid #bae6fd;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1mm;position:relative;break-inside:avoid;background:#f8fafc}
+    .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#0284c7;color:#fff;font-weight:800;font-size:9pt}
+    .eng-word{font-size:14.5pt;font-weight:800;color:#0369a1;margin-left:7mm}
+
+    .ans{font:700 9.5pt Sarabun,sans-serif;color:#0284c7;margin-top:2mm;margin-left:7mm}
+    .blank-sm{display:inline-block;min-width:24mm;border-bottom:1px solid #334155;height:4.5mm}
+    .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
+    .show-answers .ta{display:inline}
+
+    .parent-slip{border-top:2px dashed #0284c7;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
+    .parent-slip .cut-label{font-weight:800;color:#0284c7}
+    .parent-slip .teacher-label{font-weight:700;color:#0284c7;background:#f0f9ff;padding:1px 6px;border-radius:4px;border:1px solid #bae6fd}
+
+    .cover-sheet{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:4px double #0284c7;padding:12mm}
+    .cover-logo-img{width:100px;height:100px;object-fit:contain;margin-bottom:4mm}
+    .cover-title{font-size:24pt;font-weight:800;color:#0284c7;margin:0 0 2mm}
+    .cover-sub{font-size:14pt;font-weight:700;color:#0369a1;margin-bottom:8mm}
+    .cover-box{border:2px solid #bae6fd;background:#f0f9ff;border-radius:12px;padding:6mm;width:80%;margin-bottom:8mm}
+
+    .sheet-foot{display:flex;justify-content:space-between;align-items:center;color:#64748b;font-size:7.5pt;margin-top:0.5mm}
+    .sheet-foot-teacher{font-weight:700;color:#0284c7}
+    
+    @media print{
+      @page{size:A4 portrait;margin:0}
+      body{background:#fff}.toolbar{display:none!important}.pages{padding:0}
+      .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm;overflow:hidden}.q{min-height:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>🔤 ระบบใบงานภาษาอังกฤษอัจฉริยะ (English Quest)</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle">
+        <option value="standard">รูปแบบ: ใบงานมาตรฐาน (Grammar & Vocab)</option>
+        <option value="booklet">รูปแบบ: รวมเล่มแบบฝึกหัดภาษาอังกฤษ</option>
+      </select>
+      <select class="t-select" id="selPageCount">
+        <option value="1">สร้าง 1 หน้า</option>
+        <option value="2">สร้าง 2 หน้าพร้อมกัน</option>
+        <option value="3">สร้าง 3 หน้าพร้อมกัน</option>
+      </select>
+      <select class="t-select" id="selTopic">
+        <option value="verb3">หัวข้อ: กริยา 3 ช่อง (Past Tense)</option>
+        <option value="vocab">หัวข้อ: หมวดคำศัพท์อาชีพ & สถานที่</option>
+        <option value="opposite">หัวข้อ: คำตรงข้าม (Opposites)</option>
+      </select>
+      <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
+      <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
+      <button class="btn" id="btnAnswers">👁️ เฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨️ พิมพ์ A4</button>
+    </div>
+  </div>
+  <main class="pages" id="pages"></main>
+
+<script>
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
+const MEDIA_URL = window.location.origin;
+const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
+const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
+
+const ENG_DATA = {
+  verb3: [
+    {q:'go', ans:'went / gone'}, {q:'eat', ans:'ate / eaten'}, {q:'see', ans:'saw / seen'},
+    {q:'write', ans:'wrote / written'}, {q:'take', ans:'took / taken'}, {q:'run', ans:'ran / run'},
+    {q:'make', ans:'made / made'}, {q:'buy', ans:'bought / bought'}, {q:'drink', ans:'drank / drunk'}
+  ],
+  vocab: [
+    {q:'Doctor', ans:'หมอ / แพทย์'}, {q:'Teacher', ans:'ครู'}, {q:'Hospital', ans:'โรงพยาบาล'},
+    {q:'Library', ans:'ห้องสมุด'}, {q:'Engineer', ans:'วิศวกร'}, {q:'Police station', ans:'สถานีตำรวจ'}
+  ],
+  opposite: [
+    {q:'Hot', ans:'Cold'}, {q:'Big', ans:'Small'}, {q:'Fast', ans:'Slow'},
+    {q:'Happy', ans:'Sad'}, {q:'Clean', ans:'Dirty'}, {q:'Strong', ans:'Weak'}
+  ]
+};
+
+async function fetchTeachers() {
+  const sel = document.getElementById('selTeacher');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/staff?select=name,position,staff_type&order=order_position.asc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option>' + 
+          data.map(t => `<option value="${t.name}">${t.name} ${t.position?`(${t.position})`:''}</option>`).join('');
+        return;
+      }
+    }
+  } catch (e) {}
+  sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option><option value="ครูอภิสิทธิ์">ครูอภิสิทธิ์</option>';
+}
+
+function question(qi, topicItem){
+  return '<article class="q"><span class="q-num">'+qi+'</span>'
+    +'<div class="eng-word">Word: "'+topicItem.q+'"</div>'
+    +'<div class="ans">Answer: <span class="blank-sm"></span>'
+    +'<span class="ta">Key: '+topicItem.ans+'</span></div></article>';
+}
+
+function renderBookletCover(schoolName, teacherName){
+  return '<section class="sheet cover-sheet">'
+    +'<img class="cover-logo-img" src="'+SCHOOL_LOGO_URL+'" alt="ตราโรงเรียน" />'
+    +'<h1 class="cover-title">'+(schoolName||'โรงเรียนบ้านคำไผ่')+'</h1>'
+    +'<div class="cover-sub">English Grammar & Vocabulary Quest (Grade 4–6)</div>'
+    +'<div class="cover-box"><div style="font-size:12pt;font-weight:800;color:#0284c7">Student Profile</div>'
+    +'<div style="text-align:left;font-size:11pt;font-weight:700;margin-top:3mm;display:grid;gap:2mm">'
+    +'<div>Name: <span class="blank" style="min-width:100mm"></span></div>'
+    +'<div>No: <span class="blank" style="min-width:30mm"></span></div>'
+    +'<div>Teacher: <span class="blank" style="min-width:80mm">'+(teacherName||'....................................')+'</span></div>'
+    +'</div></div>'
+    +'<footer class="sheet-foot" style="position:absolute;bottom:8mm;right:8mm">English Department · Kampai School</footer></section>';
+}
+
+function renderParentSlip(teacherName){
+  return '<div class="parent-slip"><span class="cut-label">✂️ Parent Slip</span>'
+    +(teacherName?`<span class="teacher-label">Teacher: ${teacherName}</span>`:'')
+    +'<span>Result: [  ] Passed   [  ] Needs Improvement</span>'
+    +'<span>Parent Signature: .......................................</span></div>';
+}
+
+function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, teacherName){
+  const list = ENG_DATA[topicKey] || ENG_DATA.verb3;
+  let qs = ''; for(let i=1; i<=10; i++){
+    const item = list[(i-1+pageIdx*2) % list.length];
+    qs += question(i, item);
+  }
+  return '<section class="sheet"><header class="sheet-head">'
+    +'<div class="qr-box"><img class="qr-img" src="'+QR_API+'" alt="QR" /><span class="qr-label">Scan Media</span></div>'
+    +'<div class="sheet-title"><h2>🔤 English Quest — Grammar & Vocab</h2><span class="level">ต 1.1 ป.4–6</span></div>'
+    +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
+    +'<div class="student"><div class="student-name">Name: <span class="blank long"></span></div><div class="student-no">No: <span class="blank short"></span></div></div>'
+    +'<div class="directions"><span>Directions: Fill in the correct English grammar or vocabulary answer.</span><span class="indicator">ต 1.1 ป.4-6</span></div>'
+    +'</header><div class="questions count-10">'+qs+'</div>'+renderParentSlip(teacherName)
+    +'<footer class="sheet-foot"><span>Page '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">Teacher: ${teacherName}</span>`:'')+'</footer></section>';
+}
+
+function render(){
+  const style = document.getElementById('selStyle').value;
+  const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
+  const topicKey = document.getElementById('selTopic').value;
+  const schoolName = document.getElementById('inpSchool').value.trim();
+  const teacherName = document.getElementById('selTeacher').value;
+
+  let html = style==='booklet' ? renderBookletCover(schoolName, teacherName) : '';
+  for(let p=1; p<=pageCount; p++) html += renderSingleSheet(p, pageCount, style, topicKey, schoolName, teacherName);
+  document.getElementById('pages').innerHTML = html;
+}
+
+document.getElementById('btnRandom').onclick = render;
+document.getElementById('selStyle').onchange = render;
+document.getElementById('selPageCount').onchange = render;
+document.getElementById('selTopic').onchange = render;
+document.getElementById('inpSchool').oninput = render;
+document.getElementById('selTeacher').onchange = render;
+document.getElementById('btnAnswers').onclick = function(){
+  document.body.classList.toggle('show-answers');
+  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
+};
+document.getElementById('btnPrint').onclick = () => window.print();
+
+fetchTeachers();
+render();
+</script>
+</body>
+</html>
