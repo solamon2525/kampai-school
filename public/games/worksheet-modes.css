@@ -1,0 +1,99 @@
+.worksheet-mode-badge,
+.worksheet-mode-note,
+.worksheet-mode-summary,
+.worksheet-mode-reflection,
+.worksheet-mode-guide {
+  border: 1.5px solid currentColor;
+  border-radius: 2mm;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.worksheet-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 2mm;
+  padding: 1mm 2.5mm;
+  font-size: 8pt;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.worksheet-mode-note {
+  width: 100%;
+  margin-top: 1mm;
+  padding: 1.5mm 2mm;
+  font-size: 8.5pt;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.worksheet-mode-guide,
+.worksheet-mode-summary,
+.worksheet-mode-reflection {
+  margin-top: 1.5mm;
+  padding: 2mm 2.5mm;
+  font-size: 8.5pt;
+  line-height: 1.45;
+}
+
+.worksheet-mode-guide strong,
+.worksheet-mode-summary strong,
+.worksheet-mode-reflection strong {
+  font-weight: 800;
+}
+
+.worksheet-mode-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5mm;
+  margin-top: 1.5mm;
+}
+
+.worksheet-mode-summary-item {
+  border: 1px solid currentColor;
+  border-radius: 1.5mm;
+  padding: 1mm;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sheet .questions.worksheet-mode-five {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  gap: 2mm;
+}
+
+.sheet .questions.worksheet-mode-five .q {
+  min-height: 0;
+  padding-block: 2mm;
+}
+
+.sheet.worksheet-level-3 .questions.worksheet-mode-five {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.worksheet-mode-exit .qr-box,
+.worksheet-mode-exit .parent-slip,
+.worksheet-mode-diagnostic .parent-slip,
+.worksheet-mode-remedial .parent-slip {
+  display: none;
+}
+
+.worksheet-mode-exit .sheet-head,
+.worksheet-mode-diagnostic .sheet-head,
+.worksheet-mode-remedial .sheet-head {
+  padding-right: 0;
+  min-height: auto;
+}
+
+@media print {
+  .worksheet-mode-badge,
+  .worksheet-mode-note,
+  .worksheet-mode-summary,
+  .worksheet-mode-reflection,
+  .worksheet-mode-guide {
+    background: transparent;
+  }
+}

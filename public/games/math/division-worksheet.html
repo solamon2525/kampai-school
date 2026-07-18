@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ระบบใบงานการหารยาวอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -49,11 +50,33 @@
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:9pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
-    /* Division Grid Layout */
-    .div-box{display:flex;align-items:center;justify-content:center;gap:6px;margin:2mm 0;font:800 16pt Sarabun,sans-serif;color:#065f46}
-    .div-symbol{font-size:20pt;color:#047857;margin:0 4px}
-    .div-grid{display:inline-grid;border-top:3px solid #047857;border-left:3px solid #047857;border-top-left-radius:6px;padding:2px 4px;background:#f0fdf4}
-    .div-cell{width:28px;height:30px;border:1px dashed #a7f3d0;display:grid;place-items:center;font-size:14pt;font-weight:800;background:#fff}
+    /* Long-division writing scaffold */
+    .long-division{--ld-cell:7mm;display:flex;flex-direction:column;align-items:flex-start;margin:1mm auto 0;color:#065f46;font-weight:800}
+    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:13mm;position:relative}
+    .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
+    .ld-quotient-cell{height:5mm;border-bottom:1px dashed #047857;display:grid;place-items:center}
+    .ld-main{display:flex;align-items:flex-start}
+    .ld-divisor{width:12mm;height:7mm;display:grid;place-items:center;font-size:12pt}
+    .ld-dividend{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));border-top:2px solid #047857;border-left:2px solid #047857;border-top-left-radius:4px}
+    .ld-digit{height:7mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:12pt}
+    .ld-digit:last-child{border-right:0}
+    .ld-work{width:calc(var(--digits) * var(--ld-cell));margin-left:13mm;display:grid;gap:0.5mm}
+    .ld-step{height:4mm;display:grid;grid-template-columns:12mm 1fr;align-items:end;font-size:6.5pt;color:#64748b}
+    .ld-write{height:3.5mm;border-bottom:1px dotted #64748b}
+    .questions.count-10 .ld-step:nth-child(n+4){display:none}
+    .questions.count-10 .long-division{--ld-cell:7.5mm}
+    .questions.count-10 .ld-quotient-cell{height:4mm}
+    .questions.count-10 .ld-main .ld-divisor,.questions.count-10 .ld-digit{height:6mm;font-size:10.5pt}
+    .questions.count-10 .ld-step{height:3.2mm}
+    .questions.count-5 .long-division{--ld-cell:14mm}
+    .questions.count-5 .ld-quotient,.questions.count-5 .ld-work{margin-left:17mm}
+    .questions.count-5 .ld-divisor{width:16mm}
+    .questions.count-5 .q{padding:2mm 3mm}
+    .questions.count-5 .ld-quotient-cell{height:5mm}
+    .questions.count-5 .ld-main .ld-divisor,.questions.count-5 .ld-digit{height:7mm;font-size:15pt}
+    .questions.count-5 .ld-step{height:3.8mm;font-size:7pt}
+    .questions.count-5 .ans{margin-top:1mm}
+    .questions.count-10.worksheet-mode-five .ld-step:nth-child(n+4){display:grid}
 
     .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:3mm}
     .blank-sm{display:inline-block;min-width:20mm;border-bottom:1px solid #334155;height:4.5mm}
@@ -97,12 +120,12 @@
         <option value="3">สร้าง 3 หน้าพร้อมกัน</option>
         <option value="5">สร้าง 5 หน้าพร้อมกัน</option>
       </select>
-      <select class="t-select" id="selGrade">
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้นของใบงาน">
         <option value="4" selected>ชั้น: ป.4 (หารไม่เกิน 3 หลัก)</option>
         <option value="5">ชั้น: ป.5 (หารมีเศษ/ตัวหาร 2 หลัก)</option>
         <option value="6">ชั้น: ป.6 (หารทศนิยม)</option>
       </select>
-      <select class="t-select" id="selCount">
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า">
         <option value="10" selected>10 ข้อ/หน้า (โจทย์ใหญ่)</option>
         <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่พิเศษ)</option>
       </select>
@@ -115,32 +138,12 @@
   </div>
   <main class="pages" id="pages"></main>
 
+<script src="/games/worksheet-runtime.js?v=1.171.3"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin;
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
-const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
-
-async function fetchTeachers() {
-  const sel = document.getElementById('selTeacher');
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/staff?select=name,position,staff_type&order=order_position.asc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option>' + 
-          data.map(t => `<option value="${t.name}">${t.name} ${t.position?`(${t.position})`:''}</option>`).join('');
-        return;
-      }
-    }
-  } catch (e) {}
-  sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option><option value="ครูวิไลวรรณ">ครูวิไลวรรณ</option>';
-}
-
 function question(qi, grade, showRating=false){
   let divisor = R(2,9), dividend = R(100,999);
   if(grade === '5') { divisor = R(10,25); dividend = R(1000,9999); }
@@ -150,9 +153,21 @@ function question(qi, grade, showRating=false){
   const remainder = dividend % divisor;
   const ansText = remainder > 0 ? `${quotient} เศษ ${remainder}` : `${quotient}`;
   const ratingHtml = showRating ? '<span class="q-rating">ประเมินตนเอง: [ ] ⭐3  [ ] ⭐2  [ ] ⭐1</span>' : '';
+  const dividendDigits = String(dividend).split('');
+  const quotientCells = dividendDigits.map(() => '<span class="ld-quotient-cell"></span>').join('');
+  const dividendCells = dividendDigits.map(digit => '<span class="ld-digit">'+digit+'</span>').join('');
+  const workRows = [
+    ['คูณ', ''],
+    ['ลบ / ดึงลง', ''],
+    ['คูณ', ''],
+    ['ลบ / เศษ', '']
+  ].map(row => '<div class="ld-step"><span>'+row[0]+'</span><span class="ld-write"></span></div>').join('');
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
-    +'<div class="div-box"><span>'+dividend+'</span><span class="div-symbol">÷</span><span>'+divisor+'</span></div>'
+    +'<div class="long-division" style="--digits:'+dividendDigits.length+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
+    +'<div class="ld-quotient">'+quotientCells+'</div>'
+    +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
+    +'<div class="ld-work">'+workRows+'</div></div>'
     +'<div class="ans">ตอบ <span class="blank-sm"></span>'
     +'<span class="ta">เฉลย '+ansText+'</span></div></article>';
 }
@@ -185,7 +200,7 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
     +'<div class="sheet-title"><h2>➗ ใบงานการหารยาว — ชั้น ป.'+grade+'</h2><span class="level">ค 1.1 ป.'+grade+'/4</span></div>'
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div><div class="student-no">เลขที่: <span class="blank short"></span></div></div>'
-    +'<div class="directions"><span>คำชี้แจง: แสดงขั้นตอนการหารยาวเพื่อหาผลหารและเศษให้ถูกต้อง</span><span class="indicator">ค 1.1 ป.'+grade+'/4</span></div>'
+    +'<div class="directions"><span>คำชี้แจง: เติมผลหาร ผลคูณ ผลลบ และเศษลงในแบบตั้งหารยาวทีละขั้น</span><span class="indicator">ค 1.1 ป.'+grade+'/4</span></div>'
     +'</header><div class="questions count-'+count+'">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>หน้า '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">ครูผู้สอน: ${teacherName}</span>`:'')+'</footer></section>';
 }
@@ -216,8 +231,9 @@ document.getElementById('btnAnswers').onclick = function(){
 };
 document.getElementById('btnPrint').onclick = () => window.print();
 
-fetchTeachers();
+window.KampaiWorksheet.loadTeachers();
 render();
 </script>
+<script src="/games/worksheet-modes.js?v=1.171.3"></script>
 </body>
 </html>

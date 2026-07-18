@@ -1,0 +1,206 @@
+(function enhanceWorksheetModes() {
+  const baseRender = window.render;
+  const controls = document.querySelector('.toolbar-ctrls');
+  const pageCountSelect = document.getElementById('selPageCount');
+  const styleSelect = document.getElementById('selStyle');
+  const countSelect = document.getElementById('selCount');
+
+  if (typeof baseRender !== 'function' || !controls || !pageCountSelect || !styleSelect) return;
+
+  const modeSelect = document.createElement('select');
+  modeSelect.className = 't-select';
+  modeSelect.id = 'selUseMode';
+  modeSelect.setAttribute('aria-label', 'วัตถุประสงค์การใช้ใบงาน');
+  modeSelect.innerHTML = [
+    '<option value="standard">ใช้สอน: ใบงานปกติ</option>',
+    '<option value="differentiated">ใช้สอน: แยกระดับ A–B–C</option>',
+    '<option value="exit">ใช้สอน: ตรวจเร็วท้ายคาบ</option>',
+    '<option value="diagnostic">ใช้สอน: วินิจฉัยก่อนเรียน</option>',
+    '<option value="remedial">ใช้สอน: ซ่อมเสริมเฉพาะจุด</option>'
+  ].join('');
+  styleSelect.insertAdjacentElement('afterend', modeSelect);
+
+  let savedPageCount = pageCountSelect.value;
+  let savedStyle = styleSelect.value;
+  let savedCount = countSelect?.value || '';
+  let previousMode = 'standard';
+
+  const subjectGuides = [
+    {
+      match: 'rect-area-worksheet',
+      skills: ['เลือกสูตร', 'อ่านค่าจากรูป', 'แทนค่า', 'คำนวณ', 'เขียนหน่วย²'],
+      steps: ['ระบุชนิดรูป', 'วงค่าที่โจทย์ให้', 'เลือกสูตรพื้นที่', 'แทนค่าและคำนวณ', 'เติมตารางหน่วย']
+    },
+    {
+      match: 'multiplication-worksheet',
+      skills: ['ค่าประจำหลัก', 'ตั้งคูณ', 'คูณทีละหลัก', 'ทดเลข', 'ตรวจผลคูณ'],
+      steps: ['จัดตัวเลขให้ตรงหลัก', 'คูณจากหลักหน่วย', 'เขียนตัวทด', 'รวมผลคูณย่อย', 'ประมาณค่าเพื่อตรวจ']
+    },
+    {
+      match: 'division-worksheet',
+      skills: ['ตั้งหาร', 'เลือกจำนวนคูณ', 'ลบระหว่างขั้น', 'จัดการเศษ', 'ตรวจผลหาร'],
+      steps: ['เขียนตัวตั้งและตัวหาร', 'หารทีละหลัก', 'คูณกลับ', 'ลบแล้วดึงหลักถัดไป', 'ตรวจด้วยผลหาร × ตัวหาร']
+    },
+    {
+      match: 'vocab-grammar-worksheet',
+      skills: ['อ่านคำ', 'จำแนกหลักภาษา', 'เลือกคำตอบ', 'เขียนสะกด', 'ตรวจความหมาย'],
+      steps: ['อ่านคำให้ครบพยางค์', 'สังเกตตัวสะกดหรือหน้าที่คำ', 'นึกถึงกฎที่เกี่ยวข้อง', 'เขียนคำตอบให้ครบ', 'อ่านทวนความหมาย']
+    },
+    {
+      match: 'grammar-vocab-worksheet',
+      skills: ['อ่านคำสั่ง', 'รู้คำศัพท์', 'เลือกกฎไวยากรณ์', 'ผันคำ', 'ตรวจประโยค'],
+      steps: ['อ่านประโยคทั้งหมด', 'หาคำสำคัญ', 'เลือกกฎไวยากรณ์', 'เติมหรือผันคำ', 'อ่านประโยคซ้ำอีกครั้ง']
+    },
+    {
+      match: 'science-explorer-worksheet',
+      skills: ['สังเกตข้อมูล', 'จำแนก', 'เชื่อมเหตุผล', 'ใช้คำวิทยาศาสตร์', 'สรุปผล'],
+      steps: ['อ่านข้อมูลหรือภาพ', 'ระบุสิ่งที่โจทย์ถาม', 'เชื่อมกับหลักวิทยาศาสตร์', 'ตัดตัวเลือกที่ไม่เกี่ยว', 'สรุปด้วยคำของตนเอง']
+    },
+    {
+      match: 'coding-social-worksheet',
+      skills: ['อ่านคำสั่ง', 'เรียงขั้นตอน', 'แปลสัญลักษณ์', 'เลือกอย่างปลอดภัย', 'อธิบายเหตุผล'],
+      steps: ['หาเป้าหมายของภารกิจ', 'แยกเป็นขั้นตอนสั้น ๆ', 'อ่านสัญลักษณ์ทีละตัว', 'ตรวจความปลอดภัยและมารยาท', 'อธิบายเหตุผลของคำตอบ']
+    }
+  ];
+
+  function getSubjectGuide() {
+    return subjectGuides.find((guide) => window.location.pathname.includes(guide.match)) || {
+      skills: ['อ่านโจทย์', 'เลือกหลัก', 'ลงมือทำ', 'เขียนคำตอบ', 'ตรวจคำตอบ'],
+      steps: ['อ่านโจทย์ช้า ๆ', 'ขีดเส้นใต้คำสำคัญ', 'เลือกหลักหรือวิธีคิด', 'ลงมือทำ', 'ตรวจคำตอบอีกครั้ง']
+    };
+  }
+
+  function setForcedControls(mode) {
+    const forced = mode !== 'standard';
+    if (previousMode === 'standard' && forced) {
+      savedPageCount = pageCountSelect.value;
+      savedStyle = styleSelect.value;
+      if (countSelect) savedCount = countSelect.value;
+    }
+    if (!forced && previousMode !== 'standard') {
+      pageCountSelect.value = savedPageCount;
+      styleSelect.value = savedStyle;
+      if (countSelect && savedCount) countSelect.value = savedCount;
+    }
+    if (forced) {
+      styleSelect.value = 'standard';
+      pageCountSelect.value = mode === 'differentiated' ? '3' : '1';
+      if (countSelect) countSelect.value = '10';
+    }
+    pageCountSelect.disabled = forced;
+    styleSelect.disabled = forced;
+    if (countSelect) countSelect.disabled = forced;
+    previousMode = mode;
+  }
+
+  function addBadge(sheet, text) {
+    const titleRow = sheet.querySelector('.sheet-title');
+    if (!titleRow) return;
+    const badge = document.createElement('span');
+    badge.className = 'worksheet-mode-badge';
+    badge.textContent = text;
+    titleRow.appendChild(badge);
+  }
+
+  function addNote(sheet, html) {
+    const directions = sheet.querySelector('.directions');
+    if (!directions) return;
+    const note = document.createElement('div');
+    note.className = 'worksheet-mode-note';
+    note.innerHTML = html;
+    directions.appendChild(note);
+  }
+
+  function trimToFive(sheet) {
+    const questions = sheet.querySelector('.questions');
+    if (!questions) return [];
+    const items = Array.from(questions.querySelectorAll('.q'));
+    items.slice(5).forEach((item) => item.remove());
+    questions.classList.add('worksheet-mode-five');
+    return items.slice(0, 5);
+  }
+
+  function addExitReflection(sheet) {
+    const box = document.createElement('div');
+    box.className = 'worksheet-mode-reflection';
+    box.innerHTML = '<strong>สะท้อนการเรียนรู้:</strong> วันนี้ฉันเข้าใจ ________________________________ &nbsp; สิ่งที่ยังสงสัย ________________________________';
+    sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
+  }
+
+  function addDiagnosticSummary(sheet) {
+    const guide = getSubjectGuide();
+    const box = document.createElement('div');
+    box.className = 'worksheet-mode-summary';
+    box.innerHTML = '<strong>บันทึกวินิจฉัยสำหรับครู</strong><div class="worksheet-mode-summary-grid">'
+      + guide.skills.map((skill, index) => '<div class="worksheet-mode-summary-item">ข้อ ' + (index + 1) + ' · ' + skill + '<br>[ ] ผ่าน &nbsp; [ ] ซ่อม</div>').join('')
+      + '</div>';
+    sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
+  }
+
+  function addRemedialGuide(sheet) {
+    const guide = getSubjectGuide();
+    const markers = ['①', '②', '③', '④', '⑤'];
+    const box = document.createElement('div');
+    box.className = 'worksheet-mode-guide';
+    box.innerHTML = '<strong>ตัวช่วยทีละขั้น:</strong> ' + guide.steps.map((step, index) => markers[index] + ' ' + step).join(' ');
+    sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
+  }
+
+  function decorateDifferentiated(sheets) {
+    const levels = [
+      { badge: 'ชุด A · ทบทวน', note: '<strong>ตัวช่วย:</strong> ทำทีละขั้น ขีดเส้นใต้คำสำคัญ และตรวจตัวอย่างจากบทเรียน', count: 5 },
+      { badge: 'ชุด B · มาตรฐาน', note: '<strong>เป้าหมาย:</strong> ทำด้วยตนเองให้ครบ แล้วตรวจคำตอบอีกครั้ง', count: 10 },
+      { badge: 'ชุด C · ท้าทาย', note: '<strong>ท้าทาย:</strong> ตอบให้ถูกต้องและเขียนเหตุผลหรือวิธีคิดประกอบทุกข้อ', count: 5 }
+    ];
+    sheets.slice(0, 3).forEach((sheet, index) => {
+      const level = levels[index];
+      sheet.classList.add('worksheet-mode-differentiated', 'worksheet-level-' + (index + 1));
+      addBadge(sheet, level.badge);
+      addNote(sheet, level.note);
+      if (level.count === 5) trimToFive(sheet);
+    });
+  }
+
+  function enhancedRender() {
+    const mode = modeSelect.value;
+    setForcedControls(mode);
+    baseRender();
+
+    document.body.classList.remove('worksheet-mode-exit', 'worksheet-mode-diagnostic', 'worksheet-mode-remedial');
+    const sheets = Array.from(document.querySelectorAll('#pages > .sheet:not(.cover-sheet)'));
+
+    if (mode === 'differentiated') {
+      decorateDifferentiated(sheets);
+      return;
+    }
+
+    const sheet = sheets[0];
+    if (!sheet || mode === 'standard') return;
+    document.body.classList.add('worksheet-mode-' + mode);
+    trimToFive(sheet);
+
+    if (mode === 'exit') {
+      addBadge(sheet, 'ตรวจเร็วท้ายคาบ · 5 ข้อ');
+      addNote(sheet, '<strong>เวลาแนะนำ:</strong> 5 นาที · ทำด้วยตนเองโดยไม่เปิดหนังสือ');
+      addExitReflection(sheet);
+    } else if (mode === 'diagnostic') {
+      addBadge(sheet, 'วินิจฉัยก่อนเรียน');
+      addNote(sheet, '<strong>สำหรับครู:</strong> ใช้ผลแต่ละข้อระบุทักษะที่ผ่านและจุดที่ควรซ่อมเสริม');
+      addDiagnosticSummary(sheet);
+    } else if (mode === 'remedial') {
+      addBadge(sheet, 'ซ่อมเสริมเฉพาะจุด');
+      addNote(sheet, '<strong>เป้าหมาย:</strong> เน้นความเข้าใจทีละขั้น ไม่เน้นความเร็ว');
+      addRemedialGuide(sheet);
+    }
+  }
+
+  modeSelect.onchange = enhancedRender;
+  document.getElementById('btnRandom').onclick = enhancedRender;
+  document.querySelectorAll('#selStyle, #selPageCount, #selGrade, #selCount, #selTopic, #selTeacher').forEach((control) => {
+    control.onchange = enhancedRender;
+  });
+  const schoolInput = document.getElementById('inpSchool');
+  if (schoolInput) schoolInput.oninput = enhancedRender;
+
+  enhancedRender();
+})();

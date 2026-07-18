@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
-    .toolbar h1{font-size:1rem;flex:1;margin:0}.btn{border:0;border-radius:10px;padding:10px 14px;font:700 .95rem Sarabun;cursor:pointer;background:#fff;color:#075985}.btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#16a34a;color:#fff}
+    .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:210px}.toolbar-ctrls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.t-select{font:700 .85rem Sarabun;padding:7px 10px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit}.t-select option{color:initial}.btn{border:0;border-radius:10px;padding:10px 14px;font:700 .95rem Sarabun;cursor:pointer;background:#fff;color:#075985}.btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#16a34a;color:#fff}
     .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:8mm;box-shadow:0 5px 24px #0f172a26;page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:4mm}
     .sheet:last-child{page-break-after:auto}.sheet-head{border-bottom:2px solid #0369a1;padding-bottom:3mm}.sheet-title{display:flex;align-items:center;gap:8px}.sheet-title h2{margin:0;flex:1;color:#075985;font-size:18pt}.level{border:1.5px solid #38bdf8;border-radius:999px;padding:2px 9px;font-weight:800;color:#075985}
     .student{display:grid;grid-template-columns:1.5fr 1fr .7fr;gap:6mm;margin-top:3mm;font-size:11pt}.blank{display:inline-block;min-width:34mm;border-bottom:1px solid #334155;height:5mm}.directions{display:flex;justify-content:space-between;gap:8px;font-size:10pt;font-weight:700;color:#334155;margin-top:2mm}.formula{color:#075985;font-weight:800}
@@ -19,11 +20,34 @@
 </head>
 <body>
   <div class="toolbar">
-    <h1>📝 ใบงานพื้นที่ทุกแบบ · 10 ข้อต่อหน้า</h1>
-    <button class="btn" id="btnBack">← กลับสื่อ</button>
-    <button class="btn primary" id="btnRandom">🎲 สุ่มชุดใหม่</button>
-    <button class="btn" id="btnAnswers">👁️ แสดงเฉลยครู</button>
-    <button class="btn green" id="btnPrint">🖨️ พิมพ์ / บันทึก PDF</button>
+    <h1>📝 ระบบใบงานพื้นที่รูปเรขาคณิต</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" hidden><option value="standard">รูปแบบมาตรฐาน</option></select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้าใบงาน">
+        <option value="1">สร้าง 1 หน้า</option>
+        <option value="3">สร้าง 3 หน้า</option>
+        <option value="5">สร้าง 5 หน้า</option>
+        <option value="11" selected>สร้างครบ 11 รูปทรง</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="หัวข้อรูปทรง">
+        <option value="all" selected>หัวข้อ: รวมรูปทรงทั้งหมด</option>
+        <option value="square">สี่เหลี่ยมจัตุรัส</option>
+        <option value="rectangle">สี่เหลี่ยมผืนผ้า</option>
+        <option value="triangle">สามเหลี่ยม</option>
+        <option value="parallelogram">สี่เหลี่ยมด้านขนาน</option>
+        <option value="rhombus">สี่เหลี่ยมขนมเปียกปูน</option>
+        <option value="trapezoid">สี่เหลี่ยมคางหมู</option>
+        <option value="kite">รูปว่าว</option>
+        <option value="circle">วงกลม</option>
+        <option value="semicircle">ครึ่งวงกลม</option>
+        <option value="quarter">หนึ่งในสี่วงกลม</option>
+        <option value="composite">รูปประกอบแบบตัดออก</option>
+      </select>
+      <button class="btn" id="btnBack">← กลับสื่อ</button>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มชุดใหม่</button>
+      <button class="btn" id="btnAnswers">👁️ แสดงเฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨️ พิมพ์ / บันทึก PDF</button>
+    </div>
   </div>
   <main class="pages" id="pages"></main>
   <script>
@@ -72,16 +96,26 @@
       return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)+'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div><div class="work-line"></div><div class="work-line"></div><div class="answer-line">ตอบ __________ ตารางหน่วย</div><span class="teacher-answer">เฉลย '+answer+'</span></div></article>';
     }
     function render(){
-      document.getElementById('pages').innerHTML=SHAPES.map((s,page)=>{
+      const pageCount=parseInt(document.getElementById('selPageCount').value,10);
+      const topic=document.getElementById('selTopic').value;
+      const mode=document.getElementById('selUseMode')?.value||'standard';
+      const selected=topic==='all'?SHAPES:SHAPES.filter(s=>s.id===topic);
+      const source=selected.length?selected:SHAPES;
+      const repeatOne=mode!=='standard'&&topic==='all';
+      const pageShapes=Array.from({length:pageCount},(_,index)=>repeatOne?source[0]:source[index%source.length]);
+      document.getElementById('pages').innerHTML=pageShapes.map((s,page)=>{
         let qs='';for(let i=1;i<=10;i++)qs+=question(s,values(s),i);
-        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+'</span></div><div class="student"><div>ชื่อ <span class="blank"></span></div><div>ชั้น <span class="blank"></span></div><div>เลขที่ <span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions">'+qs+'</div><footer class="sheet-foot">หน้า '+(page+1)+' / '+SHAPES.length+' · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
+        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+'</span></div><div class="student"><div>ชื่อ <span class="blank"></span></div><div>ชั้น <span class="blank"></span></div><div>เลขที่ <span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions">'+qs+'</div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
       }).join('');
     }
     document.getElementById('btnBack').onclick=()=>location.href='/games/math/rect-area-media.html';
     document.getElementById('btnRandom').onclick=render;
+    document.getElementById('selPageCount').onchange=render;
+    document.getElementById('selTopic').onchange=render;
     document.getElementById('btnAnswers').onclick=()=>{document.body.classList.toggle('show-answers');document.getElementById('btnAnswers').textContent=document.body.classList.contains('show-answers')?'🙈 ซ่อนเฉลยครู':'👁️ แสดงเฉลยครู'};
     document.getElementById('btnPrint').onclick=()=>window.print();
     render();
   </script>
+<script src="/games/worksheet-modes.js?v=1.171.3"></script>
 </body>
 </html>

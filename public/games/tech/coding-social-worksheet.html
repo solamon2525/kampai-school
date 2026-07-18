@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ระบบใบงานวิทยาการคำนวณ & สังคมศึกษาอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#faf5ff;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#7e22ce;color:#fff;box-shadow:0 3px 12px rgba(126,34,206,.35)}
@@ -97,13 +98,12 @@
   </div>
   <main class="pages" id="pages"></main>
 
+<script src="/games/worksheet-runtime.js?v=1.171.3"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin;
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
-const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
 
 const TECH_DATA = {
   unplugged: [
@@ -123,24 +123,6 @@ const TECH_DATA = {
     {q:'ก่อนแชร์ข่าวสารควรทำสิ่งใดเป็นอันดับแรก?', ans:'ตรวจสอบความถูกต้อง (Fact Check)'}
   ]
 };
-
-async function fetchTeachers() {
-  const sel = document.getElementById('selTeacher');
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/staff?select=name,position,staff_type&order=order_position.asc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option>' + 
-          data.map(t => `<option value="${t.name}">${t.name} ${t.position?`(${t.position})`:''}</option>`).join('');
-        return;
-      }
-    }
-  } catch (e) {}
-  sel.innerHTML = '<option value="">-- เลือกครูผู้สอน --</option><option value="ครูวิทยา">ครูวิทยา</option>';
-}
 
 function question(qi, topicItem){
   return '<article class="q"><span class="q-num">'+qi+'</span>'
@@ -210,8 +192,9 @@ document.getElementById('btnAnswers').onclick = function(){
 };
 document.getElementById('btnPrint').onclick = () => window.print();
 
-fetchTeachers();
+window.KampaiWorksheet.loadTeachers();
 render();
 </script>
+<script src="/games/worksheet-modes.js?v=1.171.3"></script>
 </body>
 </html>

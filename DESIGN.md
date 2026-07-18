@@ -463,6 +463,8 @@ overrides defaults from src/index.css → all Tailwind tokens reflect
 - Card / Profile header — parent portal "ยอดของ &lt;ชื่อนักเรียน&gt;", widget สรุป
 - Comment / Author / Recorder mention — บันทึกโดย, แสดงความเห็น
 
+**ข้อยกเว้น print-only (แคบ):** standalone worksheet ใต้ `public/games/**/*-worksheet.html` สามารถแสดงชื่อครูแบบ name-only ได้เฉพาะ native `<select>`, footer กระดาษ และช่องลงชื่อในเอกสารพิมพ์ เพราะ `<option>`/กระดาษไม่รองรับ `PersonAvatar`; ถ้าเปลี่ยนเป็น React UI, custom dropdown, card หรือตาราง ให้กลับมาใช้ `PersonAvatar` ตามกฎปกติ และ runtime ที่อ่าน staff ยังต้อง select `photo_url` ไว้เสมอ
+
 **วิธีใช้:**
 ```tsx
 import { PersonAvatar } from '@/components/shared/PersonAvatar';

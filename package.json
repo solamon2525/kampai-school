@@ -21,6 +21,7 @@
     "generate:showcase": "node scripts/generate-game-showcase.mjs",
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
+    "verify:worksheet": "node scripts/verify-worksheet.mjs",
     "audit:game-scores": "node scripts/audit-game-score-submit.mjs",
     "verify:media": "node scripts/verify-media.mjs",
     "audit:covers": "node scripts/audit-cover-safe-top.mjs",
