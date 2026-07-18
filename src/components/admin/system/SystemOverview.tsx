@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.170.0 (teacher-led teaching-media covers)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'สร้าง/รีเฟรชปกสื่อการสอน 10 รายการเป็นภาพโปสเตอร์ห้องเรียน 16:9 (1280×720) โดยให้ครูผู้ชายภาพจริงเป็นตัวละครหลัก',
+            'เพิ่มข้อยกเว้นใน GAME.md และ COVER-PROMPT.md: ปก *-media ใช้ครูภาพจริงได้ ไม่บังคับ chibi หรือนักเรียนเป็นตัวเอก; ปกเกมทั่วไปยังใช้กฎเดิม',
+        ],
+    },
+    {
         version: 'v1.169.1 (pixel forest production cover)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
@@ -343,6 +352,17 @@ const versionHistory = [
             'เพิ่มเกม “ฮีโร่จิ๋วผจญป่า” แบบ Canvas 2D พิกเซลอาร์ตมุมมองบนลงล่าง พร้อมแมพป่าขนาดใหญ่ ต้นไม้ แม่น้ำ สะพาน ทางเดิน และดอกไม้',
             'ตัวละครฮีโร่เดิน 4 ทิศด้วย WASD/ลูกศร/ปุ่มสัมผัส มี walk cycle และกล้องเลื่อนตามแบบนุ่มนวล',
             'รองรับโหมดเดินเล่น โหมดเก็บแสง 60 วินาที และ KampaiVersus สำหรับ local hot-seat + online พร้อมบันทึก game_docs v1.0.0 ใน Migration 395',
+        ],
+    },
+    {
+        version: 'v1.163.0 (student pet companion MVP)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เพิ่มระบบคู่หูนักเรียน: ร้านสัตว์ 6 ตัว · กระเป๋าเหรียญดาว · คลังสัตว์ · เลือกตัวใช้งาน ผ่าน GamificationHub แบบพับได้',
+            'Migration 394: pet_catalog / student_pet_wallets / pet_coin_transactions / student_pets พร้อม RLS และ RPC ซื้อ/สวมใส่แบบ atomic',
+            'รับเหรียญจาก 3 รอบแรกต่อวัน + โบนัส Daily Quest; XP ไม่ถูกหักและสัตว์ไม่เพิ่มพลังหรือคะแนน',
+            'PlayGame ส่ง pet/wallet เข้า KAMPAI SDK กลาง และแสดงคู่หูบน RewardPopup โดยเกมเดิมยังทำงานได้เหมือนเดิม',
         ],
     },
     {
