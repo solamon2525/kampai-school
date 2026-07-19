@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.5 (kawaii worksheet cover refresh)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ปรับปกใบงานตัวอย่างเป็นสไตล์จิบิสีพาสเทล ใช้ดินสอ ยางลบ ไม้บรรทัด เครื่องคิดเลข และคลิปหนีบกระดาษแทนภาพคนทั้งหมด',
+            'คงโครงสร้างปกใบงาน A4 พร้อมช่องข้อมูล คำชี้แจง เป้าหมายการเรียนรู้ และตารางคะแนนสำหรับงานพิมพ์',
+        ],
+    },
+    {
         version: 'v1.174.0 (attack-on-noun story & adaptive learning)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
