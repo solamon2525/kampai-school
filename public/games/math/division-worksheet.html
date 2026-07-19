@@ -50,7 +50,7 @@
     
     /* Long-division writing scaffold */
     .long-division{--ld-cell:12mm;--ld-divisor-width:16mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800}
-    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);position:relative}
+    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);margin-bottom:1.8mm;position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
     .ld-quotient-cell{height:6mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
     .ld-quotient-answer{visibility:hidden;color:#b91c1c;font-size:13pt;font-weight:800;line-height:1}

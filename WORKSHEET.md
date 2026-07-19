@@ -117,6 +117,14 @@ pnpm verify:worksheet public/games/math/division-worksheet.html
 pnpm verify:worksheet:production
 ```
 
+### Automatic Publish Gate (ใบงาน)
+
+หลังแก้หรือสร้างใบงานและผ่าน Verification Gate แล้ว ให้ commit/push อัตโนมัติตามกฎ `Automatic Commit & Push` ใน `AGENTS.md` โดย stage เฉพาะใบงาน, shared runtime/style, test, migration และเอกสารที่เกี่ยวข้องกับงานนั้นเท่านั้น
+
+- ถ้าแก้เฉพาะ HTML/CSS/JS ของใบงาน: ต้องผ่าน `verify:worksheet` รายไฟล์และตรวจผ่าน HTTP/browser จริงก่อนเผยแพร่
+- ถ้าเพิ่มหรือแก้รายการคลังใบงานใน migration: ต้อง apply migration และผ่าน `verify:worksheet:production` ก่อนสรุปว่าแสดงบนเว็บแล้ว
+- ถ้าตรวจ browser, A4 หรือ production parity ไม่ครบตามสิ่งที่เปลี่ยน: ห้าม auto push และต้องรายงานจุดที่ยังตรวจไม่ได้
+
 ## 8. Paired Media Batch Rule
 
 สร้างใบงานครั้งละ 5 เรื่อง โดยเลือกจากสื่อที่เผยแพร่และมี indicator mapping แล้ว กระจายรายวิชาและไม่ซ้ำใบงานเดิม ในแต่ละ batch ต้องทำครบพร้อมกัน:
