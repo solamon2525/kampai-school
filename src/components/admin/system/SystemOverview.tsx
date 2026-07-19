@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.4 (printable worksheet cover prototype)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เพิ่มตัวอย่างปกใบงาน A4 แนวตั้งที่มองออกเป็นใบงานทันที: ชื่อเรื่อง ช่องชื่อ–ชั้น–เลขที่ คำชี้แจง เป้าหมายการเรียนรู้ และช่องคะแนน',
+            'ลดการพึ่งพาภาพครู/นักเรียน ใช้กรอบกระดาษและไอคอนเครื่องเขียนเพื่อคุมลำดับสายตาให้เหมาะกับงานพิมพ์',
+        ],
+    },
+    {
         version: 'v1.172.3 (worksheet catalog recovery)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
