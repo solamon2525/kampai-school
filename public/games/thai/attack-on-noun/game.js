@@ -34,8 +34,27 @@
     const waveDisplay = document.getElementById('wave-display');
     const feverOverlay = document.getElementById('fever-overlay');
 
-    const diffBtns = document.querySelectorAll('#difficulty-select button');
     const categorySelect = document.getElementById('category-select');
+    
+    function initCategorySelect() {
+        if (!categorySelect) return;
+        categorySelect.innerHTML = '';
+        const cats = RAW_DATA.categories || {};
+        Object.keys(cats).forEach(catName => {
+            const catInfo = cats[catName];
+            const label = document.createElement('label');
+            label.className = 'cat-item';
+            label.style.cssText = 'display:inline-flex; align-items:center; gap:4px; margin:4px; padding:4px 8px; background:rgba(255,255,255,0.1); border-radius:12px; cursor:pointer; font-size:14px; user-select:none;';
+            label.innerHTML = `
+                <input type="checkbox" value="${catName}" checked style="accent-color:#FFD700; cursor:pointer;">
+                <span>${catInfo.emoji || '📌'} ${catName}</span>
+            `;
+            categorySelect.appendChild(label);
+        });
+    }
+    initCategorySelect();
+
+    const diffBtns = document.querySelectorAll('#difficulty-select button');
     const practiceBtn = document.getElementById('practice-btn');
     const minimapCanvas = document.getElementById('minimap-canvas');
 
@@ -977,48 +996,184 @@
         }
     }
 
-    function onMouseMove(e) {
-        if (!isLocked || isGameOver || state !== 'playing') return;
-        const sensitivity = isZoomed ? 0.0005 : 0.002;
-        yaw -= e.movementX * sensitivity;
-        pitch -= e.movementY * sensitivity;
-        pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 6, pitch));
-        player.rotation.y = yaw;
-        cameraBoom.rotation.x = pitch;
-    }
+    let isMouseDown = false;
+    let lastMouseX = 0, lastMouseY = 0;
 
     function bindControls() {
         window.addEventListener('keydown', (e) => {
             keys[e.code] = true;
-            if (e.code === 'Space' && isLocked && state === 'playing') handleJump();
+            if (e.code === 'Space' && state === 'playing') {
+                e.preventDefault();
+                handleJump();
+            }
         });
         window.addEventListener('keyup', e => keys[e.code] = false);
-        window.addEventListener('mousemove', onMouseMove);
+
+        // Mouse aiming (Supports both PointerLock & Drag/Move fallback)
         window.addEventListener('mousedown', (e) => {
-            if (e.button === 0) shoot();
-            if (e.button === 2 && isLocked && state === 'playing') {
-                isZoomed = true;
-                document.getElementById('crosshair').classList.add('zoomed');
+            if (state !== 'playing' || isGameOver) return;
+            if (e.button === 0) {
+                isMouseDown = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                shoot();
             }
-        });
-        window.addEventListener('mouseup', (e) => {
             if (e.button === 2) {
-                isZoomed = false;
-                document.getElementById('crosshair').classList.remove('zoomed');
-            }
-        });
-        document.addEventListener('pointerlockchange', () => {
-            isLocked = document.pointerLockElement !== null;
-            if (state === 'playing') {
-                blocker.style.display = isLocked ? 'none' : 'flex';
+                isZoomed = true;
+                const ch = document.getElementById('crosshair');
+                if (ch) ch.classList.add('zoomed');
             }
         });
 
-        // Mobile touch bindings
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0) isMouseDown = false;
+            if (e.button === 2) {
+                isZoomed = false;
+                const ch = document.getElementById('crosshair');
+                if (ch) ch.classList.remove('zoomed');
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (state !== 'playing' || isGameOver) return;
+            if (document.pointerLockElement !== null) {
+                const sensitivity = isZoomed ? 0.0008 : 0.0025;
+                yaw -= e.movementX * sensitivity;
+                pitch -= e.movementY * sensitivity;
+            } else if (isMouseDown) {
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                const sensitivity = isZoomed ? 0.001 : 0.003;
+                yaw -= dx * sensitivity;
+                pitch -= dy * sensitivity;
+            }
+            pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 6, pitch));
+            if (player) player.rotation.y = yaw;
+            if (cameraBoom) cameraBoom.rotation.x = pitch;
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = document.pointerLockElement !== null;
+            // Prevent pointerlock exit from locking out the player in embedded iframe contexts
+        });
+
+        // Mobile touch controls setup
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls && (IS_TOUCH || 'ontouchstart' in window)) {
+            mobileControls.style.display = 'block';
+        }
+
         const btnFire = document.getElementById('btn-fire');
         const btnJump = document.getElementById('btn-jump');
-        if(btnFire) btnFire.addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); }, {passive:false});
-        if(btnJump) btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); if(isLocked) handleJump(); }, {passive:false});
+        const btnZoom = document.getElementById('btn-zoom');
+        const lookPad = document.getElementById('look-pad');
+        const joystickBase = document.getElementById('joystick-base');
+        const joystickKnob = document.getElementById('joystick-knob');
+
+        if (btnFire) {
+            btnFire.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                shoot();
+            }, { passive: false });
+        }
+
+        if (btnJump) {
+            btnJump.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (state === 'playing') handleJump();
+            }, { passive: false });
+        }
+
+        if (btnZoom) {
+            btnZoom.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isZoomed = !isZoomed;
+                const ch = document.getElementById('crosshair');
+                if (ch) ch.classList.toggle('zoomed', isZoomed);
+                btnZoom.classList.toggle('active', isZoomed);
+            }, { passive: false });
+        }
+
+        // Look Pad Touch Aiming
+        if (lookPad) {
+            let touchX = 0, touchY = 0;
+            lookPad.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    touchX = e.touches[0].clientX;
+                    touchY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            lookPad.addEventListener('touchmove', (e) => {
+                if (state !== 'playing' || e.touches.length === 0) return;
+                const dx = e.touches[0].clientX - touchX;
+                const dy = e.touches[0].clientY - touchY;
+                touchX = e.touches[0].clientX;
+                touchY = e.touches[0].clientY;
+                
+                const sensitivity = isZoomed ? 0.002 : 0.005;
+                yaw -= dx * sensitivity;
+                pitch -= dy * sensitivity;
+                pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 6, pitch));
+                if (player) player.rotation.y = yaw;
+                if (cameraBoom) cameraBoom.rotation.x = pitch;
+            }, { passive: true });
+        }
+
+        // Joystick Movement
+        if (joystickBase && joystickKnob) {
+            let joyTouchId = null;
+            let joyCenterX = 0, joyCenterY = 0;
+
+            joystickBase.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.changedTouches[0];
+                joyTouchId = touch.identifier;
+                const rect = joystickBase.getBoundingClientRect();
+                joyCenterX = rect.left + rect.width / 2;
+                joyCenterY = rect.top + rect.height / 2;
+            }, { passive: false });
+
+            window.addEventListener('touchmove', (e) => {
+                if (joyTouchId === null) return;
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    if (touch.identifier === joyTouchId) {
+                        const dx = touch.clientX - joyCenterX;
+                        const dy = touch.clientY - joyCenterY;
+                        const dist = Math.min(40, Math.hypot(dx, dy));
+                        const angle = Math.atan2(dy, dx);
+                        
+                        const kx = Math.cos(angle) * dist;
+                        const ky = Math.sin(angle) * dist;
+                        joystickKnob.style.transform = `translate(${kx}px, ${ky}px)`;
+
+                        // Map to WASD keys
+                        keys['KeyW'] = dy < -10;
+                        keys['KeyS'] = dy > 10;
+                        keys['KeyA'] = dx < -10;
+                        keys['KeyD'] = dx > 10;
+                    }
+                }
+            }, { passive: true });
+
+            const endJoy = (e) => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    if (e.changedTouches[i].identifier === joyTouchId) {
+                        joyTouchId = null;
+                        joystickKnob.style.transform = 'translate(0px, 0px)';
+                        keys['KeyW'] = false;
+                        keys['KeyS'] = false;
+                        keys['KeyA'] = false;
+                        keys['KeyD'] = false;
+                    }
+                }
+            };
+            window.addEventListener('touchend', endJoy, { passive: true });
+            window.addEventListener('touchcancel', endJoy, { passive: true });
+        }
     }
 
     // ═══════ GAME LOOP ═══════
@@ -1202,19 +1357,31 @@
 
     function startGame(isPractice) {
         practiceMode = isPractice;
+        state = 'playing';
+        isGameOver = false;
+        isLocked = true;
+        
+        // Hide all menu screens
+        if (blocker) blocker.style.display = 'none';
+        if (gameOverScreen) gameOverScreen.style.display = 'none';
+        if (leaderboardScreen) leaderboardScreen.style.display = 'none';
+        const campScr = document.getElementById('campaign-screen');
+        if (campScr) campScr.style.display = 'none';
         
         // Read categories
         activeCategories = [];
-        if(categorySelect) {
+        if (categorySelect) {
             categorySelect.querySelectorAll('input:checked').forEach(cb => {
                 activeCategories.push(cb.value);
             });
         }
         
-        // Read diff
-        if(diffBtns) {
+        // Read difficulty (supports both .active and .selected classes)
+        if (diffBtns) {
             diffBtns.forEach(btn => {
-                if (btn.classList.contains('active')) difficulty = btn.dataset.diff;
+                if (btn.classList.contains('active') || btn.classList.contains('selected')) {
+                    difficulty = btn.dataset.diff || 'medium';
+                }
             });
         }
 
@@ -1222,26 +1389,20 @@
         resetGame();
         updateUI();
         
-        gameDuration = (CFG.DIFFICULTY && CFG.DIFFICULTY[difficulty]) ? CFG.DIFFICULTY[difficulty].duration : CFG.GAME_DURATION;
+        gameDuration = (CFG.DIFFICULTY && CFG.DIFFICULTY[difficulty]) ? CFG.DIFFICULTY[difficulty].duration : (CFG.GAME_DURATION || 120);
         gameStartTime = performance.now() / 1000;
         
         startWave();
 
-        if (IS_TOUCH) {
-            isLocked = true;
-            if(blocker) blocker.style.display = 'none';
-        } else {
+        if (!IS_TOUCH) {
             try { document.body.requestPointerLock(); } catch (e) {}
         }
 
-        if(uiLayer) uiLayer.classList.remove('hidden');
-        if(blocker) blocker.style.display = 'none';
+        if (uiLayer) uiLayer.classList.remove('hidden');
 
         if (ksdk && ksdk.sound && ksdk.sound.bgmStart) {
             ksdk.sound.bgmStart();
         }
-
-        state = 'playing';
     }
 
     function endGame(win = false) {
