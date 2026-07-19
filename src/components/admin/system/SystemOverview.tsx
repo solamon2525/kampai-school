@@ -272,6 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.174.1 (attack-on-noun playability & controls fix)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไขปัญหากดเริ่มเกมไม่ได้บน Vercel/Iframe due to PointerLock permission rejection loop',
+            'เพิ่มระบบควบคุมการมองและยิงด้วย Mouse Drag Fallback เมื่อไม่ได้ล็อคเมาส์',
+            'เปิดใช้งานปุ่มควบคุมบนมือถือ/แท็บเล็ต (#mobile-controls, #look-pad, #joystick-base, #btn-fire, #btn-jump, #btn-zoom)',
+            'แสดงตัวเลือกหมวดหมู่คำศัพท์ (#category-select) บนหน้าแรกของเกมให้ผู้เรียนเลือกเล่นได้ตามต้องการ',
+        ],
+    },
+    {
         version: 'v1.172.6 (worksheet thumbnail simplification)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
