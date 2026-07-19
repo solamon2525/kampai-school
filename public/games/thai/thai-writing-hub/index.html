@@ -142,6 +142,9 @@
       document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
       btn.classList.add('on');
       document.getElementById('panel-' + btn.dataset.tab).classList.add('on');
+      if (window.KAMPAI && typeof window.KAMPAI.submitScore === 'function') {
+        window.KAMPAI.submitScore(100, { mode: 'practice' });
+      }
     });
   </script>
 </body>

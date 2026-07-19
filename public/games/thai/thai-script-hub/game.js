@@ -1904,8 +1904,9 @@ function endGame() {
     starDisplay.style.display = 'block';
   }
 
-  // สื่อ media (tracked_game=false) — ไม่ส่งคะแนน
-  // if (total > 0 && KAMPAI.submitScore) { ... }
+  if (total > 0 && window.KAMPAI && typeof window.KAMPAI.submitScore === 'function') {
+    window.KAMPAI.submitScore(Math.round((correct / total) * 100), { mode: 'practice' });
+  }
 
   const titleEl = document.getElementById('go-title');
   if (titleEl) titleEl.textContent = (currentLives <= 0) ? 'พยายามอีกครั้ง!' : 'ทบทวนสำเร็จ!';
