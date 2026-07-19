@@ -272,6 +272,19 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.173.0 (attack-on-noun major upgrade)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'อัพเกรดเกม ผู้พิทักษ์ลักษณะนาม ครบ 6 เฟส: แก้บัก Timer + เปลี่ยนเสียงเป็น KAMPAI SDK + fix memory leak + อัพ Three.js r170',
+            'เพิ่มระบบ Performance: CanvasTexture cache, Bullet pool, Shadow optimization, Distance-based update skip',
+            'เพิ่ม Visual: Gradient sky, Particle effects, Combo counter, Kill feed, Camera shake, Mini-map, Game over stats',
+            'เพิ่ม Educational: 3 ระดับความยาก, โหมดฝึกซ้อม, Wave/Stage system, เลือกหมวดหมู่คำ, สมุดสะสมลักษณะนาม 132 คำ',
+            'เพิ่ม Gameplay: Power-ups (โล่/แช่แข็ง/กระสุนเพลิง), Fever Mode ×2, Boss Armored Titan (+500), คำอธิบายเมื่อตอบผิด',
+            'เพิ่ม Mobile: Landscape warning, Touch aim assist, ปรับ UI scaling',
+        ],
+    },
+    {
         version: 'v1.172.4 (printable worksheet cover prototype)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
