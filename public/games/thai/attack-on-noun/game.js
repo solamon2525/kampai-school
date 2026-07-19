@@ -63,68 +63,6 @@
     // ═══════ GAME STATE ═══════
     let state = 'idle'; // idle | playing | over | practice
     
-    // --- INJECTED UI ELEMENTS ---
-    const extraUI = document.createElement('div');
-    extraUI.innerHTML = `
-        <div id="campaign-screen" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.9); z-index:100; color:white; overflow-y:auto; padding:20px;">
-            <h2>Story Campaign</h2>
-            <div id="stage-grid" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
-            <button id="campaign-close" style="margin-top:20px; padding:10px;">Back to Menu</button>
-        </div>
-        <div id="dialogue-overlay" style="display:none; position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:80%; max-width:600px; background:rgba(0,0,0,0.8); border:2px solid white; border-radius:10px; padding:20px; z-index:110; color:white;">
-            <p id="dialogue-text" style="font-size:20px; margin:0;"></p>
-            <button id="dialogue-next" style="margin-top:15px; padding:10px 20px;">Next</button>
-        </div>
-        <div id="word-report-screen" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.95); z-index:100; color:white; padding:20px; overflow-y:auto;">
-            <h2>Word Report</h2>
-            <div id="word-report-list" style="margin-bottom:20px;"></div>
-            <button id="word-report-close" style="padding:10px;">Close Report</button>
-        </div>
-        <div id="analytics-screen" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.95); z-index:100; color:white; padding:20px; overflow-y:auto;">
-            <h2>Analytics & Mastery</h2>
-            <div id="analytics-content"></div>
-            <button id="analytics-close" style="padding:10px;">Close Analytics</button>
-        </div>
-        <div id="skins-screen" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.95); z-index:100; color:white; padding:20px; overflow-y:auto;">
-            <h2>Skins & Leveling</h2>
-            <div id="skins-content"></div>
-            <button id="skins-close" style="padding:10px;">Close Skins</button>
-        </div>
-        <div style="position:absolute; top:10px; right:10px; z-index:90; display:flex; gap:5px;">
-            <button id="analytics-btn" style="display:none; padding:5px 10px; background:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;">Analytics</button>
-            <button id="skins-btn" style="display:none; padding:5px 10px; background:#FF9800; color:white; border:none; border-radius:5px; cursor:pointer;">Skins</button>
-        </div>
-    `;
-    document.body.appendChild(extraUI);
-    
-    // Add Campaign button to start screen if it exists
-    const startBtnEl = document.getElementById('start-btn');
-    if (startBtnEl && startBtnEl.parentNode) {
-        const cBtn = document.createElement('button');
-        cBtn.id = 'campaign-btn-main';
-        cBtn.className = startBtnEl.className;
-        cBtn.innerText = 'Story Campaign';
-        cBtn.style.background = '#9c27b0';
-        cBtn.style.marginBottom = '10px';
-        startBtnEl.parentNode.insertBefore(cBtn, startBtnEl);
-        
-        document.getElementById('analytics-btn').style.display = 'block';
-        document.getElementById('skins-btn').style.display = 'block';
-    }
-    
-    // Add Word Report button to game over screen
-    const restartBtn = document.getElementById('restart-btn');
-    if (restartBtn && restartBtn.parentNode) {
-        const wrBtn = document.createElement('button');
-        wrBtn.id = 'show-word-report-btn';
-        wrBtn.className = restartBtn.className;
-        wrBtn.innerText = 'Word Report';
-        wrBtn.style.background = '#2196F3';
-        wrBtn.style.marginRight = '10px';
-        restartBtn.parentNode.insertBefore(wrBtn, restartBtn);
-    }
-    // --- END INJECTED UI ---
-
     let score = 0, hearts = 5, ammo = 20;
     let isGameOver = false, isLocked = false;
     let pitch = 0, yaw = 0;
@@ -210,7 +148,7 @@
     let qrand = Math.random;
 
     if (window.KAMPAI) {
-        window.KAMPAI.setSlug('attack-on-noun');
+        if (typeof window.KAMPAI.setSlug === 'function') window.KAMPAI.setSlug('attack-on-noun');
         window.KAMPAI.onReady((k) => {
             ksdk = k;
             renderPlayer();
@@ -1416,7 +1354,7 @@
 
     // ═══════ UI LISTENERS ═══════
     
-    const campBtn = document.getElementById('campaign-btn-main');
+    const campBtn = document.getElementById('campaign-btn');
     if (campBtn) campBtn.addEventListener('click', () => {
         const grid = document.getElementById('stage-grid');
         grid.innerHTML = '';
@@ -1425,21 +1363,21 @@
             const sd = cData.stages[st.id] || { stars: 0 };
             const locked = st.id !== 1 && (!cData.stages[st.id - 1] || !cData.stages[st.id - 1].completed);
             const card = document.createElement('div');
-            card.style = `border:1px solid #fff; padding:10px; width:120px; text-align:center; cursor:${locked ? 'not-allowed' : 'pointer'}; opacity:${locked ? 0.5 : 1}`;
-            card.innerHTML = `<h3>Stage ${st.id}</h3><div>${'⭐'.repeat(sd.stars)}</div>`;
+            card.className = `stage-card ${locked ? 'locked' : ''}`;
+            card.innerHTML = `<div class="stage-num">Stage ${st.id}</div><div class="stage-title">${st.name}</div><div class="stage-desc">${st.desc}</div><div class="stage-stars">${'⭐'.repeat(sd.stars)}</div>`;
             if (!locked) {
                 card.onclick = () => {
                     currentStageId = st.id;
                     isCampaignMode = true;
                     document.getElementById('campaign-screen').style.display = 'none';
                     campaignDialogueStep = 0;
-                    document.getElementById('dialogue-overlay').style.display = 'block';
+                    document.getElementById('dialogue-overlay').style.display = 'flex';
                     document.getElementById('dialogue-text').innerText = CFG_STAGES[st.id - 1].dialogue[0];
                 };
             }
             grid.appendChild(card);
         });
-        document.getElementById('campaign-screen').style.display = 'block';
+        document.getElementById('campaign-screen').style.display = 'flex';
     });
     
     document.getElementById('campaign-close')?.addEventListener('click', () => {
@@ -1462,16 +1400,17 @@
         list.innerHTML = '';
         roundWordsTracked.forEach(w => {
             const div = document.createElement('div');
-            div.style = 'margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:10px;';
+            div.className = `word-report-item ${w.userCorrect ? 'correct' : 'wrong'}`;
             div.innerHTML = `
-                <strong>${w.noun}</strong> - Classifier: ${w.correctClassifier}
-                <span style="color:${w.userCorrect ? '#4CAF50' : '#F44336'}">(${w.userCorrect ? 'Correct' : 'Incorrect'})</span>
-                ${w.tip ? `<br><small>${w.tip}</small>` : ''}
-                <button onclick="if(window.KAMPAI && KAMPAI.sound) KAMPAI.sound.speak('${w.noun} ${w.correctClassifier}', 'th')" style="margin-left:10px; padding:2px 5px;">🔊</button>
+                <div>
+                    <div><span class="word-report-noun">${w.noun}</span> <span class="word-report-class">→ ${w.correctClassifier}</span></div>
+                    ${w.tip ? `<div class="word-report-tip">${w.tip}</div>` : ''}
+                </div>
+                <button class="word-speak-btn" onclick="if(window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak('${w.noun} ${w.correctClassifier}', 'th')">🔊</button>
             `;
             list.appendChild(div);
         });
-        document.getElementById('word-report-screen').style.display = 'block';
+        document.getElementById('word-report-screen').style.display = 'flex';
     });
     
     document.getElementById('word-report-close')?.addEventListener('click', () => {
@@ -1488,16 +1427,20 @@
         });
         missed.sort((a,b) => b.w - a.w);
         
-        const content = document.getElementById('analytics-content');
-        content.innerHTML = `
-            <p>Mastered Words (Box 4-5): ${mastered}</p>
-            <p>Learning Words (Box 1-3): ${learning}</p>
-            <h3>Top 5 Missed Words:</h3>
-            <ul>
-                ${missed.slice(0, 5).map(m => `<li>${m.n} (${m.w} misses)</li>`).join('')}
-            </ul>
-        `;
-        document.getElementById('analytics-screen').style.display = 'block';
+        const content = document.getElementById('analytics-box');
+        if (content) {
+            content.innerHTML = `
+                <div class="analytics-metrics">
+                    <div class="analytic-card"><div class="val">${mastered}</div><div class="lbl">เชี่ยวชาญแล้ว (กล่อง 4-5)</div></div>
+                    <div class="analytic-card"><div class="val">${learning}</div><div class="lbl">กำลังเรียนรู้ (กล่อง 1-3)</div></div>
+                </div>
+                <h3 style="color:#FFD700; margin: 15px 0 10px;">Top 5 คำที่ตอบผิดบ่อยที่สุด:</h3>
+                <ul style="list-style:none; padding:0; text-align:left;">
+                    ${missed.length > 0 ? missed.slice(0, 5).map(m => `<li style="background:rgba(255,255,255,0.08); padding:8px 12px; margin-bottom:6px; border-radius:8px;">❌ <b>${m.n}</b> (ตอบผิด ${m.w} ครั้ง)</li>`).join('') : '<li style="color:#aaa;">ยังไม่มีประวัติคำที่ตอบผิด</li>'}
+                </ul>
+            `;
+        }
+        document.getElementById('analytics-screen').style.display = 'flex';
     });
     
     document.getElementById('analytics-close')?.addEventListener('click', () => {
@@ -1506,26 +1449,31 @@
     
     document.getElementById('skins-btn')?.addEventListener('click', () => {
         const p = getProgression();
-        const content = document.getElementById('skins-content');
-        content.innerHTML = `<p>Level: ${p.level} (XP: ${p.xp} / ${p.level * 100})</p>`;
-        
-        CFG_SKINS.forEach(sk => {
-            const btn = document.createElement('button');
-            const unlocked = p.unlockedSkins.includes(sk.id);
-            btn.innerText = `${sk.name} ${p.equippedSkin === sk.id ? '(Equipped)' : (unlocked ? '' : '(Locked)')}`;
-            btn.style = `display:block; margin:10px 0; padding:10px; background:${unlocked ? '#' + sk.color.toString(16).padStart(6, '0') : '#555'}; color:white;`;
-            if (unlocked) {
-                btn.onclick = () => {
-                    p.equippedSkin = sk.id;
-                    saveProgression(p);
-                    playerMesh.material.color.setHex(sk.color);
-                    document.getElementById('skins-close').click();
-                };
-            }
-            content.appendChild(btn);
-        });
-        
-        document.getElementById('skins-screen').style.display = 'block';
+        const content = document.getElementById('skins-grid');
+        if (content) {
+            content.innerHTML = '';
+            CFG_SKINS.forEach(sk => {
+                const unlocked = p.unlockedSkins.includes(sk.id);
+                const isEquipped = p.equippedSkin === sk.id;
+                const card = document.createElement('div');
+                card.className = `skin-card ${isEquipped ? 'equipped' : ''} ${unlocked ? '' : 'locked'}`;
+                card.innerHTML = `
+                    <div class="skin-color-dot" style="background:${sk.color};"></div>
+                    <div class="skin-title">${sk.name}</div>
+                    <div class="skin-req">${isEquipped ? '✓ สวมใส่อยู่' : (unlocked ? 'ปลดล็อกแล้ว' : sk.req)}</div>
+                `;
+                if (unlocked) {
+                    card.onclick = () => {
+                        p.equippedSkin = sk.id;
+                        saveProgression(p);
+                        if (playerMesh && playerMesh.material) playerMesh.material.color.set(sk.color);
+                        document.getElementById('skins-close').click();
+                    };
+                }
+                content.appendChild(card);
+            });
+        }
+        document.getElementById('skins-screen').style.display = 'flex';
     });
     
     document.getElementById('skins-close')?.addEventListener('click', () => {
