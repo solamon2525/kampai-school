@@ -272,6 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.3 (worksheet catalog recovery)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ลงทะเบียนใบงานตกค้าง 6 รายการให้แสดงในคลัง พร้อมเชื่อมเจ้าของ สื่อคู่ และตัวชี้วัดผ่าน migration 412',
+            'แก้ QR และตัวชี้วัดของใบงานหารยาว การคูณ พื้นที่ แผนภูมิ ภาษาไทย อังกฤษ วิทยาศาสตร์ และวิทยาการคำนวณให้ตรงกับสื่อจริง',
+            'เพิ่ม verify:worksheet ตรวจ URL ใบงานกับ migration และบังคับ metadata สื่อคู่/ตัวชี้วัด เพื่อป้องกันไฟล์ตกค้างซ้ำ',
+            'เพิ่ม verify:worksheet:production เทียบ URL ใบงานใน repo กับรายการ published จริง และล้มเหลวเมื่อ migration ยังไม่ถูก apply',
+            'ขยายช่องค่าประจำหลักของกระดานหารยาวและจัดคำตอบให้อยู่ใกล้กระดาน ลดพื้นที่กันชนที่บีบตัวเลข',
+        ],
+    },
+    {
         version: 'v1.172.2 (positional long division)',
         date: 'ล่าสุด',
         badge: 'bg-primary',

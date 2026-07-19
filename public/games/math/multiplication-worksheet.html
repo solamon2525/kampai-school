@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="worksheet-source-media" content="/games/math/multiplication-thinking-media.html" />
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/9,ค 1.1 ป.5/6" />
   <title>ระบบใบงานการคูณอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
@@ -203,14 +205,14 @@ const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/obj
 
 const ALL_LEVELS=[
   {id:'p4_2x1',grade:4,name:'2 หลัก × 1 หลัก',icon:'⭐',dc:3,indicator:'ค 1.1 ป.4/9',gen:()=>[R(10,99),R(2,9)]},
-  {id:'p4_2x2',grade:4,name:'2 หลัก × 2 หลัก',icon:'⭐⭐',dc:4,indicator:'ค 1.1 ป.4/10',gen:()=>[R(10,99),R(10,99)]},
-  {id:'p4_3x2',grade:4,name:'3 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:5,indicator:'ค 1.1 ป.4/11',gen:()=>[R(100,999),R(10,99)]},
-  {id:'p5_3x3',grade:5,name:'3 หลัก × 3 หลัก',icon:'⭐⭐⭐',dc:6,indicator:'ค 1.1 ป.5/6',gen:()=>[R(100,999),R(100,999)]},
-  {id:'p5_4x2',grade:5,name:'4 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:6,indicator:'ค 1.1 ป.5/6',gen:()=>[R(1000,9999),R(10,99)]},
-  {id:'p5_dec1',grade:5,name:'ทศนิยม 1 ตำแหน่ง × 1 หลัก',icon:'🔹',dc:4,indicator:'ค 1.1 ป.5/7',isDec:true,decPlaces:1,gen:()=>[RF(1.1,9.9,1),R(2,9)]},
-  {id:'p6_4x3',grade:6,name:'4 หลัก × 3 หลัก',icon:'⭐⭐⭐⭐',dc:7,indicator:'ค 1.1 ป.6/1',gen:()=>[R(1000,9999),R(100,999)]},
-  {id:'p6_dec2',grade:6,name:'ทศนิยม 1 ตำแหน่ง × ทศนิยม 1 ตำแหน่ง',icon:'🔷',dc:5,indicator:'ค 1.1 ป.6/2',isDec:true,decPlaces:2,gen:()=>[RF(1.1,9.9,1),RF(1.1,9.9,1)]},
-  {id:'p6_dec3',grade:6,name:'ทศนิยม 2 ตำแหน่ง × 2 หลัก',icon:'🔷🔷',dc:6,indicator:'ค 1.1 ป.6/3',isDec:true,decPlaces:2,gen:()=>[RF(1.01,9.99,2),R(10,99)]},
+  {id:'p4_2x2',grade:4,name:'2 หลัก × 2 หลัก',icon:'⭐⭐',dc:4,indicator:'ค 1.1 ป.4/9',gen:()=>[R(10,99),R(10,99)]},
+  {id:'p4_3x2',grade:4,name:'3 หลัก × 2 หลัก',icon:'⭐⭐⭐',dc:5,indicator:'ค 1.1 ป.4/9',gen:()=>[R(100,999),R(10,99)]},
+  {id:'p5_3x3',grade:5,name:'3 หลัก × 3 หลัก (ทบทวน)',icon:'⭐⭐⭐',dc:6,indicator:'ทบทวน ค 1.1 ป.4/9',gen:()=>[R(100,999),R(100,999)]},
+  {id:'p5_4x2',grade:5,name:'4 หลัก × 2 หลัก (ทบทวน)',icon:'⭐⭐⭐',dc:6,indicator:'ทบทวน ค 1.1 ป.4/9',gen:()=>[R(1000,9999),R(10,99)]},
+  {id:'p5_dec1',grade:5,name:'ทศนิยม 1 ตำแหน่ง × 1 หลัก',icon:'🔹',dc:4,indicator:'ค 1.1 ป.5/6',isDec:true,decPlaces:1,gen:()=>[RF(1.1,9.9,1),R(2,9)]},
+  {id:'p6_4x3',grade:6,name:'4 หลัก × 3 หลัก (ทบทวน)',icon:'⭐⭐⭐⭐',dc:7,indicator:'ทบทวน ค 1.1 ป.4/9',gen:()=>[R(1000,9999),R(100,999)]},
+  {id:'p6_dec2',grade:6,name:'ทศนิยม 1 ตำแหน่ง × ทศนิยม 1 ตำแหน่ง (ทบทวน)',icon:'🔷',dc:5,indicator:'ทบทวน ค 1.1 ป.5/6',isDec:true,decPlaces:2,gen:()=>[RF(1.1,9.9,1),RF(1.1,9.9,1)]},
+  {id:'p6_dec3',grade:6,name:'ทศนิยม 2 ตำแหน่ง × 2 หลัก (ทบทวน)',icon:'🔷🔷',dc:6,indicator:'ทบทวน ค 1.1 ป.5/6',isDec:true,decPlaces:2,gen:()=>[RF(1.01,9.99,2),R(10,99)]},
 ];
 
 const MEDIA_URL=window.location.origin+'/games/math/multiplication-thinking-media.html';

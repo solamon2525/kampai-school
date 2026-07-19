@@ -106,12 +106,15 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
 3. เปิด browser จริงและทดสอบอย่างน้อย: ปกติ 10 ข้อ, ปกติ 5 ข้อ, A–B–C, วินิจฉัย, ซ่อมเสริม และระดับที่เนื้อหายาวที่สุด
 4. ทุก `.sheet` ต้องพอดี A4 210×297 มม.; ห้ามอาศัย `overflow:hidden` ซ่อนส่วนที่เกิน
 5. ตรวจเฉลยครู, สุ่มใหม่, รายชื่อครู และ Print Preview/PDF อย่างน้อย 1 หน้า
+6. ตัวตรวจต้องยืนยันว่าไฟล์ใบงานทุกไฟล์ (ยกเว้น template) มี URL อยู่ใน migration ของคลังใบงาน เพื่อป้องกันกรณีมีไฟล์แต่ production ไม่แสดง
+7. หลัง apply migration ต้องรัน `pnpm verify:worksheet:production` ให้จำนวนและ URL ของไฟล์ `*-worksheet.html` ตรงกับรายการ published ในหมวด `worksheets` ทุกครั้ง ห้ามสรุปว่างานขึ้นเว็บแล้วจากการ push หรือ static verification เพียงอย่างเดียว
 
 คำสั่งแนะนำ:
 
 ```bash
 pnpm verify:worksheet
 pnpm verify:worksheet public/games/math/division-worksheet.html
+pnpm verify:worksheet:production
 ```
 
 ## 8. Paired Media Batch Rule

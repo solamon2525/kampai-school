@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const gamesRoot = path.join(repoRoot, 'public', 'games');
+const migrationsRoot = path.join(repoRoot, 'supabase', 'migrations');
+const migrationSource = fs.readdirSync(migrationsRoot)
+    .filter((name) => name.endsWith('.sql'))
+    .map((name) => fs.readFileSync(path.join(migrationsRoot, name), 'utf8'))
+    .join('\n');
 
 function findWorksheets(directory) {
     return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -89,6 +94,24 @@ function verifyFile(file) {
         Boolean(cssVersion) && Boolean(jsVersion) && cssVersion === jsVersion,
         'ต้องโหลด worksheet-modes.css/js พร้อม query version เดียวกัน',
     );
+
+    if (!relative.endsWith('/_template-worksheet.html')) {
+        const sourceMedia = source.match(/<meta\s+name=["']worksheet-source-media["']\s+content=["']([^"']+)["']/i)?.[1];
+        const sourceMediaFile = sourceMedia ? path.join(repoRoot, 'public', sourceMedia.replace(/^\//, '')) : '';
+        const publicUrl = '/' + relative.replace(/^public\//, '');
+        check(
+            'worksheet catalog registration',
+            migrationSource.includes(publicUrl),
+            `ต้องลงทะเบียน ${publicUrl} ใน migration ของคลังใบงาน`,
+        );
+        check(
+            'source media contract',
+            Boolean(sourceMediaFile)
+                && fs.existsSync(sourceMediaFile)
+                && /<meta\s+name=["']curriculum-indicators["']\s+content=["'][^"']+["']/i.test(source),
+            'ต้องระบุสื่อคู่ที่มีอยู่จริงและตัวชี้วัดใน metadata',
+        );
+    }
 
     const topicCssVersion = extractVersion(source, 'worksheet-topic.css');
     const topicJsVersion = extractVersion(source, 'worksheet-topic.js');
