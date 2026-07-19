@@ -38,6 +38,14 @@
             <h1 style="margin-top:0;">ผู้พิทักษ์ลักษณะนาม</h1>
             <p style="font-size: 16px; margin: 5px 0 15px;">กำจัดไททันขุนพลด้วยการเล็งยิงป้ายคำตอบลักษณะนามที่ถูกต้อง!</p>
             
+            <div id="level-badge">
+                <div class="level-icon">⭐ <span id="level-num">1</span></div>
+                <div id="xp-container">
+                    <div id="xp-bar"></div>
+                    <div id="xp-text">XP 0/100</div>
+                </div>
+            </div>
+            
             <div class="instructions-box">
                 <div>🎮 <b>W, A, S, D</b> : เคลื่อนที่ | 💨 <b>Space</b> : กระโดด (2 ครั้งซ้อนได้)</div>
                 <div>👹 <b>ยิงลักษณะนามที่ถูกต้อง:</b> ยิงโดนคำตอบถูกทำลายไททัน (+100 คะแนน)</div>
@@ -58,11 +66,17 @@
             <div id="player-chip"></div>
             
             <div class="row">
+                <button class="btn-start" id="campaign-btn" style="background: linear-gradient(45deg, #9C27B0, #7B1FA2);">🗺️ โหมดเนื้อเรื่อง</button>
+                <button class="secondary" id="analytics-btn">📊 สถิติการเรียนรู้</button>
+                <button class="secondary" id="skins-btn">👕 สกินตัวละคร</button>
+            </div>
+            
+            <div class="row" style="margin-top: 10px;">
                 <button class="btn-start" id="startBtn">⚔️ เริ่มภารกิจ</button>
                 <button class="btn-start vs-btn" id="vsBtn" style="background: linear-gradient(45deg, #FF9800, #F57C00);">🏁 แข่ง 2 คน</button>
                 <button class="btn-start" id="practice-btn" style="background: linear-gradient(45deg, #2196F3, #1976D2);">โหมดฝึกซ้อม</button>
             </div>
-            <div class="row">
+            <div class="row" style="margin-top: 10px;">
                 <button class="secondary" id="collection-btn">📖 สมุดสะสม</button>
                 <button class="secondary" id="showLbFromStart">🏆 กระดานผู้นำ</button>
             </div>
@@ -87,12 +101,53 @@
         
         <div class="row">
             <button class="btn-start" id="nextPlayerBtn">👤 ผู้เล่นคนต่อไป</button>
+            <button class="secondary" id="show-word-report-btn">📋 รายงานคำศัพท์</button>
             <button class="secondary" id="showLbFromEnd">🏆 กระดานผู้นำ</button>
         </div>
     </div>
 
+    <!-- Campaign Screen -->
+    <div id="campaign-screen" class="modal-screen">
+        <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">โหมดเนื้อเรื่อง: การผจญภัยพิทักษ์เมือง</h1>
+        <div id="stage-grid" class="stage-grid"></div>
+        <button class="secondary" style="margin-top:20px;" id="campaign-close">ปิด</button>
+    </div>
+
+    <!-- Dialogue Overlay -->
+    <div id="dialogue-overlay">
+        <div id="dialogue-box">
+            <div id="dialogue-avatar">👨‍✈️</div>
+            <div class="dialogue-content">
+                <div id="dialogue-speaker">ผู้บังคับการ</div>
+                <div id="dialogue-text"></div>
+            </div>
+            <button class="btn-start" id="dialogue-next">ถัดไป</button>
+        </div>
+    </div>
+
+    <!-- Word Report Screen -->
+    <div id="word-report-screen" class="modal-screen">
+        <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">📋 สรุปผลการเรียนรู้ลักษณะนาม</h1>
+        <div id="word-report-list" class="word-report-list"></div>
+        <button class="secondary" style="margin-top:20px;" id="word-report-close">ปิด</button>
+    </div>
+
+    <!-- Analytics Screen -->
+    <div id="analytics-screen" class="modal-screen">
+        <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">📊 สถิติความเชี่ยวชาญการเรียนรู้</h1>
+        <div id="analytics-box" class="analytics-box"></div>
+        <button class="secondary" style="margin-top:20px;" id="analytics-close">ปิด</button>
+    </div>
+
+    <!-- Skins Screen -->
+    <div id="skins-screen" class="modal-screen">
+        <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">👕 คลังสกินตัวละคร</h1>
+        <div id="skins-grid" class="skins-grid"></div>
+        <button class="secondary" style="margin-top:20px;" id="skins-close">ปิด</button>
+    </div>
+
     <!-- Leaderboard Screen -->
-    <div id="leaderboardScreen">
+    <div id="leaderboardScreen" class="modal-screen">
         <h1 style="color: #FFD700; margin: 0 0 15px 0; font-size: 32px;">กระดานผู้นำ</h1>
         <div class="lb-panel">
             <ul class="lb-list" id="lbList"></ul>
@@ -101,7 +156,7 @@
     </div>
     
     <!-- Collection Screen -->
-    <div id="collection-screen">
+    <div id="collection-screen" class="modal-screen">
         <h1 style="color: #FFD700; margin: 0 0 5px 0; font-size: 32px;">สมุดสะสมลักษณะนาม</h1>
         <div id="collection-progress" style="color:white; margin-bottom: 15px;">ความคืบหน้า: 0%</div>
         <div id="collection-grid" class="collection-grid"></div>

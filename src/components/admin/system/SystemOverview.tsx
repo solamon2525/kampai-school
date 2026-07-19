@@ -272,6 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.174.0 (attack-on-noun story & adaptive learning)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เพิ่ม Phase 7 โหมดเนื้อเรื่อง (Story Campaign): แผนที่ 10 ด่าน, บทสนทนา Chibi, Boss พิเศษ และศึกราชาไททัน King Titan (+1000)',
+            'เพิ่ม Phase 8 ระบบ Progression: Level 1-50, XP bar, ดาว ⭐⭐⭐ ประจำด่าน, สกินตัวละคร 5 ชุด (นักรบกำแพง, เกราะ, วีรบุรุษ, ตำนาน)',
+            'เพิ่ม Phase 10 Adaptive Learning (Leitner 5-Box): อัลกอริทึมสุ่มคำสอดคล้องกับความเชี่ยวชาญ, เน้นย้ำคำที่ผิดบ่อย',
+            'เพิ่ม หน้าสรุปผลหลังเกม (Word Report): รายงานคำศัพท์ประจำรอบพร้อมปุ่ม 🔊 อ่านออกเสียงลักษณะนาม',
+            'เพิ่ม หน้าสถิติความเชี่ยวชาญ (Analytics): กราฟแสดงผลแยกตาม 11 หมวดหมู่คำลักษณะนาม',
+        ],
+    },
+    {
         version: 'v1.173.0 (attack-on-noun major upgrade)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
