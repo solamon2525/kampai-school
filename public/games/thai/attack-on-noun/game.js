@@ -210,6 +210,7 @@
     let qrand = Math.random;
 
     if (window.KAMPAI) {
+        window.KAMPAI.setSlug('attack-on-noun');
         window.KAMPAI.onReady((k) => {
             ksdk = k;
             renderPlayer();
