@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.172.6 (worksheet thumbnail simplification)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ลดปกใบงานให้เหลือเฉพาะชื่อวิชาและชื่อเรื่องบนภาพ 16:9 สำหรับใช้เป็นปกสื่อ ไม่ใส่คำชี้แจง ช่องกรอก หรือข้อมูลสำหรับการพิมพ์',
+            'คงสไตล์จิบิอุปกรณ์การเรียนโดยไม่มีตัวละครมนุษย์ เพื่อให้หัวข้ออ่านชัดในภาพตัวอย่าง',
+        ],
+    },
+    {
         version: 'v1.172.5 (kawaii worksheet cover refresh)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
