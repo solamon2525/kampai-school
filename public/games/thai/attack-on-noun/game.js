@@ -737,13 +737,14 @@
     }
 
     function shoot() {
-        if (!isLocked || isGameOver || state !== 'playing') return;
+        if (state !== 'playing' || isGameOver) return;
         if (ammo <= 0 && !isFever) { playTone('warning'); return; }
         
         if(!isFever) ammo--;
         shotsFired++;
         playTone('shoot');
         updateUI();
+
         
         const recoilAmt = isZoomed ? 0.05 : 0.2;
         cameraBoom.position.z += recoilAmt; 
@@ -1052,11 +1053,13 @@
             pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 6, pitch));
             if (player) player.rotation.y = yaw;
             if (cameraBoom) cameraBoom.rotation.x = pitch;
+
         });
 
         document.addEventListener('pointerlockchange', () => {
             isLocked = document.pointerLockElement !== null;
             // Prevent pointerlock exit from locking out the player in embedded iframe contexts
+
         });
 
         // Mobile touch controls setup
@@ -1212,7 +1215,8 @@
             updateUI();
         }
 
-        if (isLocked && state === 'playing') {
+        if (state === 'playing' && !isGameOver) {
+
             const targetFOV = isZoomed ? 30 : 70;
             camera.fov = THREE.MathUtils.lerp(camera.fov, targetFOV, 0.1);
             camera.updateProjectionMatrix();
@@ -1396,6 +1400,7 @@
 
         if (!IS_TOUCH) {
             try { document.body.requestPointerLock(); } catch (e) {}
+
         }
 
         if (uiLayer) uiLayer.classList.remove('hidden');

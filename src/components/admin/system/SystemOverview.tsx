@@ -272,6 +272,7 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+<<<<<<< HEAD
         version: 'v1.174.1 (attack-on-noun playability & controls fix)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
@@ -492,6 +493,7 @@ const versionHistory = [
             'Migration 394: pet_catalog / student_pet_wallets / pet_coin_transactions / student_pets พร้อม RLS และ RPC ซื้อ/สวมใส่แบบ atomic',
             'รับเหรียญจาก 3 รอบแรกต่อวัน + โบนัส Daily Quest; XP ไม่ถูกหักและสัตว์ไม่เพิ่มพลังหรือคะแนน',
             'PlayGame ส่ง pet/wallet เข้า KAMPAI SDK กลาง และแสดงคู่หูบน RewardPopup โดยเกมเดิมยังทำงานได้เหมือนเดิม',
+
         ],
     },
     {
