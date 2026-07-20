@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <base href="/games/thai/attack-on-noun/">
     <title>ผู้พิทักษ์ลักษณะนาม: ปะทะ 3 ขุนพลไททัน</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
@@ -90,6 +91,7 @@
         <div style="font-size: 20px; color: #fff; margin-bottom: 25px;">
             คะแนนสุดท้าย: <span id="final-score" style="color: #FFD700; font-weight: bold; font-size: 28px;">0</span>
         </div>
+        <div id="kampai-result"></div>
         
         <div id="stats-panel">
             <div class="stat-item">กำจัด: <span id="stats-kills">0</span></div>
@@ -233,8 +235,8 @@
       };
     </script>
 
-    <!-- Three.js (non-ESM Global) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+    <!-- Three.js UMD global (0.170+ dropped three.min.js from npm — use 0.160) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <!-- Main Game Script -->
     <script src="game.js"></script>
 </body>

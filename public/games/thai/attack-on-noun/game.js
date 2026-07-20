@@ -114,19 +114,38 @@
     const CAMPAIGN_KEY = 'attack_on_noun_campaign';
     const XP_KEY = 'attack_on_noun_player_progression';
     
-    const CFG_STAGES = Array.from({length: 10}, (_, i) => ({
-        id: i + 1,
-        waves: 2 + i,
-        dialogue: [`Welcome to Stage ${i+1}!`, i === 9 ? 'A Boss is approaching! Prepare for King Titan!' : `Get ready to defend the wall!`]
-    }));
-    
-    const CFG_SKINS = [
-        { id: 'default', name: 'Default', color: 0x2196F3 },
-        { id: 'wall_guard', name: 'Wall Guard', color: 0x4CAF50 },
-        { id: 'armor_guard', name: 'Armor Guard', color: 0x9E9E9E },
-        { id: 'hero', name: 'Hero', color: 0xFFD700 },
-        { id: 'legend', name: 'Legend', color: 0xFF5722 }
-    ];
+    const CFG_STAGES = (CFG.STAGES && CFG.STAGES.length)
+        ? CFG.STAGES
+        : Array.from({ length: 10 }, (_, i) => ({
+            id: i + 1,
+            name: `ด่านที่ ${i + 1}`,
+            desc: '',
+            waves: 2 + i,
+            dialogue: [
+                `ยินดีต้อนรับสู่ด่านที่ ${i + 1}!`,
+                i === 9 ? 'ราชาไททันกำลังมา! เตรียมตัวให้พร้อม!' : 'เตรียมป้องกันกำแพง!'
+            ]
+        }));
+
+    const CFG_SKINS = (CFG.SKINS && CFG.SKINS.length)
+        ? CFG.SKINS
+        : [
+            { id: 'default', name: 'นักเรียนพื้นฐาน', color: '#2196F3', req: 'ปลดล็อกเริ่มต้น' },
+            { id: 'wall_guard', name: 'นักรบกำแพง', color: '#4CAF50', req: 'ผ่านด่านที่ 3' },
+            { id: 'armor_guard', name: 'นักรบเกราะ', color: '#9E9E9E', req: 'ผ่านด่านที่ 5' },
+            { id: 'hero', name: 'วีรบุรุษ', color: '#FFD700', req: 'ผ่านด่านที่ 10' },
+            { id: 'legend', name: 'ผู้พิทักษ์ในตำนาน', color: '#FF5722', req: 'สะสมลักษณะนามครบ 100%' }
+        ];
+
+    function skinColorToHex(color) {
+        if (typeof color === 'number') return color;
+        if (typeof color === 'string') {
+            const cleaned = color.trim().replace('#', '');
+            const n = parseInt(cleaned, 16);
+            return Number.isFinite(n) ? n : 0x2196F3;
+        }
+        return 0x2196F3;
+    }
 
     let kills = 0;
     let shotsFired = 0;
@@ -484,7 +503,10 @@
     function createPlayerMesh() {
         playerMesh = new THREE.Group();
         player.add(playerMesh);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x2196F3 });
+        const equipped = getProgression().equippedSkin || 'default';
+        const skinCfg = CFG_SKINS.find(s => s.id === equipped) || CFG_SKINS[0];
+        const mat = new THREE.MeshStandardMaterial({ color: skinColorToHex(skinCfg.color) });
+        playerMesh.suitMat = mat;
         const skin = new THREE.MeshStandardMaterial({ color: 0xffdbac });
         const pantsMat = new THREE.MeshStandardMaterial({color:0x1a237e});
         
@@ -1392,15 +1414,24 @@
         initAudio();
         resetGame();
         updateUI();
+
+        if (window.KAMPAI && typeof window.KAMPAI.beginRound === 'function') {
+            window.KAMPAI.beginRound();
+        }
         
         gameDuration = (CFG.DIFFICULTY && CFG.DIFFICULTY[difficulty]) ? CFG.DIFFICULTY[difficulty].duration : (CFG.GAME_DURATION || 120);
         gameStartTime = performance.now() / 1000;
         
         startWave();
 
+        // Pointer lock is optional — mouse-drag / touch aim still works if browser rejects it (iframe / permissions)
         if (!IS_TOUCH) {
-            try { document.body.requestPointerLock(); } catch (e) {}
-
+            try {
+                const lockPromise = document.body.requestPointerLock && document.body.requestPointerLock();
+                if (lockPromise && typeof lockPromise.catch === 'function') {
+                    lockPromise.catch(function () { /* keep playing without lock */ });
+                }
+            } catch (e) { /* ignore */ }
         }
 
         if (uiLayer) uiLayer.classList.remove('hidden');
@@ -1505,6 +1536,16 @@
     }
 
     // ═══════ INITIAL LOAD ═══════
+    if (typeof THREE === 'undefined') {
+        console.error('[attack-on-noun] THREE.js failed to load');
+        if (blocker) {
+            blocker.style.display = 'flex';
+            const box = document.getElementById('instructions') || blocker;
+            box.innerHTML = '<h1 style="margin:0 0 12px;">โหลดเกมไม่สำเร็จ</h1><p style="font-size:16px;line-height:1.5;">ไลบรารี 3D (Three.js) โหลดไม่ครบ กรุณารีเฟรชหน้า หรือเปิดผ่าน /play/attack-on-noun อีกครั้ง</p><button class="btn-start" type="button" onclick="location.reload()">รีเฟรช</button>';
+        }
+        return;
+    }
+
     initThree();
     player = new THREE.Group();
     scene.add(player);
@@ -1632,7 +1673,9 @@
                     card.onclick = () => {
                         p.equippedSkin = sk.id;
                         saveProgression(p);
-                        if (playerMesh && playerMesh.material) playerMesh.material.color.set(sk.color);
+                        if (playerMesh && playerMesh.suitMat) {
+                            playerMesh.suitMat.color.setHex(skinColorToHex(sk.color));
+                        }
                         document.getElementById('skins-close').click();
                     };
                 }
@@ -1651,7 +1694,11 @@
     
     if(diffBtns) {
         diffBtns.forEach(btn => btn.addEventListener('click', () => {
-            diffBtns.forEach(b => b.classList.remove('active'));
+            diffBtns.forEach(b => {
+                b.classList.remove('active');
+                b.classList.remove('selected');
+            });
+            btn.classList.add('selected');
             btn.classList.add('active');
         }));
     }

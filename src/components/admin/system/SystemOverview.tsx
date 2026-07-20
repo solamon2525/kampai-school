@@ -273,6 +273,16 @@ const sprintPlan = [
 const versionHistory = [
     {
 <<<<<<< HEAD
+        version: 'v1.174.2 (attack-on-noun Three.js CDN fix)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'แก้บักเกม attack-on-noun เข้าเล่นไม่ได้: three@0.170.0/build/three.min.js คืน 404 ทำให้ THREE ไม่โหลดและสคริปต์พังตอน init',
+            'เปลี่ยน CDN เป็น three@0.160.0 (UMD ที่ยังมี three.min.js) + แสดงข้อความเมื่อโหลด 3D ล้มเหลว + ใส่ <base href> กัน asset path หลุด',
+            'เรียก KAMPAI.beginRound() ตอนเริ่มรอบ, เพิ่ม #kampai-result จอจบ, ผูก STAGES/SKINS จาก config.js',
+        ],
+    },
+    {
         version: 'v1.174.1 (attack-on-noun playability & controls fix)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
