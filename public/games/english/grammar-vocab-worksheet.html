@@ -44,13 +44,13 @@
     .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
     .questions.count-10 .q{padding:2mm 2.5mm;min-height:36.5mm}
     
-    .q{border:1.4px solid #bae6fd;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1mm;position:relative;break-inside:avoid;background:#f8fafc}
+    .q{border:1.4px solid #bae6fd;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:0;position:relative;break-inside:avoid;background:#f8fafc}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#0284c7;color:#fff;font-weight:800;font-size:9pt}
-    .eng-word{font-size:14.5pt;font-weight:800;color:#0369a1;margin-left:7mm}
-
-    .ans{font:700 9.5pt Sarabun,sans-serif;color:#0284c7;margin-top:2mm;margin-left:7mm}
-    .blank-sm{display:inline-block;min-width:24mm;border-bottom:1px solid #334155;height:4.5mm}
-    .work-line{margin-left:7mm;min-height:5mm;border-bottom:1px dotted #94a3b8;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.4mm}
+    .eng-word{font-size:14.5pt;font-weight:800;color:#0369a1;margin-left:7mm;flex-shrink:0;line-height:1.35}
+    .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
+    .ans{font:700 9.5pt Sarabun,sans-serif;color:#0284c7;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
+    .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
+    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #94a3b8;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
     .work-fill{color:transparent;font-weight:800}
     .show-answers .work-fill{color:#b91c1c}
     .ta{display:none}
@@ -134,8 +134,7 @@ function question(qi, topicItem, topicKey){
   const work=buildEngWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="eng-word">Word: "'+topicItem.q+'"</div>'
-    +'<div class="work-line"><span class="work-fill">'+work.line1+'</span></div>'
-    +'<div class="work-line"><span class="work-fill">'+work.line2+'</span></div>'
+    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
     +'<div class="ans">Answer: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 

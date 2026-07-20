@@ -6,7 +6,7 @@
   <meta name="curriculum-indicators" content="ค 3.1 ป.4/1">
   <title>ใบงานข้อมูลและแผนภูมิ ป.4 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.173.0" rel="stylesheet">
   <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
 </head>
 <body>
@@ -75,8 +75,8 @@ window.WORKSHEET_CONFIG = {
     const cells=item.values.map(value=>'<td>'+value+'</td>').join('');
     const bars=item.values.map(value=>'<i style="height:'+Math.min(100,value*6)+'%"></i>').join('');
     const visual=item.type==='bar'?'<div class="bar-preview" aria-label="แผนภูมิแท่งตัวอย่าง">'+bars+'</div>':'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>';
-    return '<div class="q-prompt">'+e(item.ask)+'</div><div class="chart-task"><table class="mini-table"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'+visual+'</div>'
-      +'<div class="scale-box">สเกล/สัญลักษณ์: ____________________</div><div class="calc-line"><span class="work-fill">'+e(work.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(work.line2)+'</span></div><div class="calc-line"><span class="work-fill">ตอบ: '+e(item.answer)+'</span></div>';
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.ask)+'</div><div class="chart-task"><table class="mini-table"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'+visual+'</div><div class="scale-box">สเกล/สัญลักษณ์: ____________________</div></div>'
+      +'<div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(work.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(work.line2)+'</span></div><div class="calc-line"><span class="work-fill">ตอบ: '+e(item.answer)+'</span></div></div>';
   }
 };
 </script>
