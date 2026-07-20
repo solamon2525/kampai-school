@@ -50,8 +50,10 @@
 
     .ans{font:700 9.5pt Sarabun,sans-serif;color:#0284c7;margin-top:2mm;margin-left:7mm}
     .blank-sm{display:inline-block;min-width:24mm;border-bottom:1px solid #334155;height:4.5mm}
-    .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
-    .show-answers .ta{display:inline}
+    .work-line{margin-left:7mm;min-height:5mm;border-bottom:1px dotted #94a3b8;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.4mm}
+    .work-fill{color:transparent;font-weight:800}
+    .show-answers .work-fill{color:#b91c1c}
+    .ta{display:none}
 
     .parent-slip{border-top:2px dashed #0284c7;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
     .parent-slip .cut-label{font-weight:800;color:#0284c7}
@@ -123,11 +125,18 @@ const ENG_DATA = {
   ]
 };
 
-function question(qi, topicItem){
+function buildEngWork(item, topicKey){
+  if(topicKey==='verb3') return {line1:'V1: '+item.q+' → แปลงเป็น V2 / V3', line2:'→ '+item.ans};
+  if(topicKey==='opposite') return {line1:'หาคำตรงข้ามของ "'+item.q+'"', line2:'→ '+item.ans};
+  return {line1:'แปล/จำคู่: '+item.q, line2:'→ '+item.ans};
+}
+function question(qi, topicItem, topicKey){
+  const work=buildEngWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="eng-word">Word: "'+topicItem.q+'"</div>'
-    +'<div class="ans">Answer: <span class="blank-sm"></span>'
-    +'<span class="ta">Key: '+topicItem.ans+'</span></div></article>';
+    +'<div class="work-line"><span class="work-fill">'+work.line1+'</span></div>'
+    +'<div class="work-line"><span class="work-fill">'+work.line2+'</span></div>'
+    +'<div class="ans">Answer: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 
 function renderBookletCover(schoolName, teacherName){
@@ -155,7 +164,7 @@ function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, tea
   const list = ENG_DATA[topicKey] || ENG_DATA.verb3;
   let qs = ''; for(let i=1; i<=10; i++){
     const item = list[(i-1+pageIdx*2) % list.length];
-    qs += question(i, item);
+    qs += question(i, item, topicKey);
   }
   return '<section class="sheet"><header class="sheet-head">'
     +'<div class="qr-box"><img class="qr-img" src="'+QR_API+'" alt="QR" /><span class="qr-label">Scan Media</span></div>'

@@ -41,14 +41,42 @@ window.WORKSHEET_CONFIG = {
   icon:'📊',title:'ใบงานข้อมูลและแผนภูมิ',subject:'คณิตศาสตร์',gradeLabel:'ป.4',mediaLabel:'คลังข้อมูลและกราฟ ป.4–5',
   sourceMediaUrl:'/games/math/math-data-hub/index.html',indicators:['ค 3.1 ป.4/1','ค 3.1 ป.4/2'],directions:'อ่านตาราง กำหนดสเกล วาดหรืออ่านกราฟ แล้วแสดงเหตุผล',
   getItems(topic){return topic==='mixed'?DATA_ITEMS:DATA_ITEMS.filter(item=>item.type===topic);},
+  buildChartSteps(item){
+    const pairs=item.labels.map((l,i)=>l+'='+item.values[i]).join(', ');
+    const maxI=item.values.indexOf(Math.max(...item.values));
+    const minI=item.values.indexOf(Math.min(...item.values));
+    const sum=item.values.reduce((a,b)=>a+b,0);
+    const ask=item.ask;
+    if(/มากที่สุด|น้อยที่สุด|ชนิดใด|ช่วงใด/.test(ask)){
+      return{line1:'เปรียบเทียบ: '+pairs,line2:'มากที่สุด = '+item.labels[maxI]+' ('+item.values[maxI]+')'};
+    }
+    if(/มากกว่า|ต่าง|น้อยกว่า/.test(ask)){
+      const diff=Math.abs(item.values[1]-item.values[0]);
+      return{line1:'อ่านค่า: '+pairs,line2:'ผลต่าง = '+Math.max(item.values[0],item.values[1])+' − '+Math.min(item.values[0],item.values[1])+' = '+diff};
+    }
+    if(/รวม|ผลรวม/.test(ask)){
+      return{line1:item.values.join(' + ')+' = '+sum,line2:'ตอบ: '+item.answer};
+    }
+    if(item.type==='picto'){
+      const scale=ask.includes('●')?2:ask.includes('★')?2:3;
+      const target=ask.includes('สุนัข')?1:ask.includes('วิทย์')?1:0;
+      return{line1:'สเกล ×'+scale+' → '+item.labels[target]+' '+item.values[target]+'×'+scale,line2:'= '+(item.values[target]*scale)+' · '+item.answer};
+    }
+    if(/เรียง/.test(ask)){
+      const sorted=[...item.labels].sort((a,b)=>item.values[item.labels.indexOf(a)]-item.values[item.labels.indexOf(b)]);
+      return{line1:'เรียงจากน้อยไปมาก: '+sorted.map(l=>l+' '+item.values[item.labels.indexOf(l)]).join(', '),line2:'ตอบ: '+item.answer};
+    }
+    return{line1:'ข้อมูล: '+pairs,line2:'ตอบ: '+item.answer};
+  },
   renderQuestion(item){
     const e=window.KampaiTopicWorksheet.escapeHtml;
+    const work=this.buildChartSteps(item);
     const heads=item.labels.map(label=>'<th>'+e(label)+'</th>').join('');
     const cells=item.values.map(value=>'<td>'+value+'</td>').join('');
     const bars=item.values.map(value=>'<i style="height:'+Math.min(100,value*6)+'%"></i>').join('');
     const visual=item.type==='bar'?'<div class="bar-preview" aria-label="แผนภูมิแท่งตัวอย่าง">'+bars+'</div>':'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>';
     return '<div class="q-prompt">'+e(item.ask)+'</div><div class="chart-task"><table class="mini-table"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'+visual+'</div>'
-      +'<div class="scale-box">สเกล/สัญลักษณ์: ____________________</div><div class="calc-line"></div><span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+      +'<div class="scale-box">สเกล/สัญลักษณ์: ____________________</div><div class="calc-line"><span class="work-fill">'+e(work.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(work.line2)+'</span></div><div class="calc-line"><span class="work-fill">ตอบ: '+e(item.answer)+'</span></div>';
   }
 };
 </script>
