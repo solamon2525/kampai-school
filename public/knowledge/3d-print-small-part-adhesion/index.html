@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="คู่มือแก้ปัญหาชิ้นงานเล็กไม่ติดฐานสำหรับ Bambu Lab A1 Mini และเครื่องพิมพ์ FDM">
+  <title>ชิ้นงาน 3D ขนาดเล็กไม่ติดฐาน — คู่มือแก้ทีละขั้น</title>
+  <style>
+    :root {
+      --brand: #087f5b;
+      --brand-dark: #055e46;
+      --brand-soft: #dff7ee;
+      --ink: #172126;
+      --muted: #59666d;
+      --surface: #ffffff;
+      --canvas: #f3f7f6;
+      --line: #cfdad6;
+      --warning: #8a5400;
+      --warning-soft: #fff5d6;
+      --danger: #9e2f2f;
+      --danger-soft: #fff0f0;
+      --shadow: 0 12px 34px rgba(16, 61, 47, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+      line-height: 1.7;
+    }
+    a { color: var(--brand-dark); }
+    .hero {
+      color: var(--surface);
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+      padding: 54px 20px 44px;
+    }
+    .wrap { width: min(960px, 100%); margin: 0 auto; }
+    .eyebrow { margin: 0 0 8px; font-weight: 800; letter-spacing: .04em; opacity: .86; }
+    h1 { max-width: 760px; margin: 0; font-size: clamp(2rem, 5vw, 3.35rem); line-height: 1.15; }
+    .lead { max-width: 760px; margin: 18px 0 0; font-size: 1.08rem; opacity: .94; }
+    .quick-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+    .quick-nav a {
+      color: var(--surface); text-decoration: none; border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px; padding: 7px 13px; font-weight: 700;
+    }
+    main { padding: 28px 20px 64px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    h2 { margin: 0 0 16px; font-size: clamp(1.35rem, 3vw, 1.75rem); line-height: 1.3; }
+    h3 { margin: 0 0 6px; font-size: 1.08rem; color: var(--brand-dark); }
+    p { margin: 0 0 12px; }
+    .diagnosis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .diagnosis div, .step { border: 1px solid var(--line); border-radius: 13px; padding: 16px; }
+    .diagnosis p, .step p { color: var(--muted); margin: 0; }
+    .steps { display: grid; gap: 13px; counter-reset: step; }
+    .step { position: relative; padding-left: 66px; }
+    .step::before {
+      counter-increment: step; content: counter(step); position: absolute; left: 16px; top: 16px;
+      display: grid; place-items: center; width: 34px; height: 34px; color: var(--surface);
+      background: var(--brand); border-radius: 50%; font-weight: 900;
+    }
+    .settings { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .settings th, .settings td { border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; padding: 12px 10px; }
+    .settings th { color: var(--brand-dark); background: var(--brand-soft); }
+    .callout { border-left: 5px solid var(--warning); border-radius: 10px; background: var(--warning-soft); color: var(--warning); padding: 15px 17px; margin-top: 16px; }
+    .danger { border-left-color: var(--danger); background: var(--danger-soft); color: var(--danger); }
+    .checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 0; list-style: none; }
+    .checklist li { background: var(--brand-soft); border-radius: 10px; padding: 11px 13px; font-weight: 700; }
+    .checklist li::before { content: "✓ "; color: var(--brand); }
+    footer { color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; font-size: .92rem; }
+    @media (max-width: 640px) {
+      .hero { padding-top: 38px; }
+      main { padding-inline: 12px; }
+      .card { padding: 20px 16px; }
+      .diagnosis, .checklist { grid-template-columns: 1fr; }
+      .settings { display: block; overflow-x: auto; }
+    }
+    @media print {
+      .hero { background: var(--surface); color: var(--ink); padding: 12px 0; }
+      .quick-nav { display: none; }
+      main { padding: 0; }
+      .card { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">คลังความรู้ทั่วไป · การพิมพ์ 3D</p>
+      <h1>ชิ้นงานขนาดเล็กไม่ติดฐาน แก้อย่างเป็นระบบ</h1>
+      <p class="lead">แนวทางสำหรับ Bambu Lab A1 Mini และเครื่องพิมพ์ FDM: เริ่มจากตรวจสาเหตุที่เลเยอร์แรก แล้วปรับทีละตัวแปรเพื่อให้ยึดเกาะดีโดยไม่เพิ่มเวลาพิมพ์เกินจำเป็น</p>
+      <nav class="quick-nav" aria-label="สารบัญย่อ">
+        <a href="#diagnose">ดูอาการ</a><a href="#workflow">แก้ทีละขั้น</a><a href="#settings">ค่าตั้งต้น</a><a href="#checklist">เช็กลิสต์</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" id="diagnose">
+      <h2>1. ดูอาการก่อนปรับค่า</h2>
+      <div class="diagnosis">
+        <div><h3>เส้นไม่แตะหรือเป็นเส้นกลม</h3><p>มักเกี่ยวกับเพลทไม่เสมอ ระยะหัวฉีด หรือไม่ได้ทำ Bed Leveling</p></div>
+        <div><h3>ติดช่วงแรกแล้วมุมยก</h3><p>พื้นที่สัมผัสน้อย อุณหภูมิ/ลมไม่เหมาะ หรือชิ้นงานหดตัว</p></div>
+        <div><h3>หลุดตอนหัวพิมพ์เดินทาง</h3><p>หัวฉีดอาจครูดชิ้นงาน มีเส้นส่วนเกิน หรือความเร็วเดินทางสูงเกินสภาพชิ้นงาน</p></div>
+        <div><h3>บางชิ้นติด บางชิ้นไม่ติด</h3><p>เพลทมีคราบเฉพาะจุด ชิ้นงานวางชิดขอบ หรือหลายชิ้นมีเวลาพิมพ์เลเยอร์ต่างกันมาก</p></div>
+      </div>
+    </section>
+
+    <section class="card" id="workflow">
+      <h2>2. ลำดับแก้ปัญหาที่คุ้มเวลาที่สุด</h2>
+      <div class="steps">
+        <article class="step"><h3>ยืนยันชนิดเพลท หัวฉีด และเส้นใน Bambu Studio</h3><p>เลือกโปรไฟล์ให้ตรงของจริงก่อน เพราะโปรไฟล์ควบคุมอุณหภูมิ การชดเชย และค่าพื้นฐานหลายรายการ หากเลือกผิด การเพิ่ม Brim อย่างเดียวอาจไม่ช่วย</p></article>
+        <article class="step"><h3>ล้างเพลทเมื่อสงสัยคราบมัน</h3><p>ใช้น้ำอุ่นกับน้ำยาล้างจานธรรมดา ล้างออกให้หมดและจับเฉพาะขอบ ปล่อยให้แห้งสนิท หลีกเลี่ยงน้ำยาที่มีสารบำรุงผิวหรือทิ้งฟิล์ม</p></article>
+        <article class="step"><h3>เปิด Bed Leveling และเฝ้าดูเลเยอร์แรก</h3><p>เส้นควรต่อกันสม่ำเสมอ ไม่กลมจนแยกจากกันและไม่แบนจนหัวฉีดครูด หากผิดปกติหลายตำแหน่ง ให้ตรวจการติดตั้งเพลทและหัวฉีดก่อนปรับความเร็ว</p></article>
+        <article class="step"><h3>จัดวางใหม่ก่อนเพิ่มวัสดุ</h3><p>หมุนชิ้นงานให้ด้านแบนที่สุดแตะฐาน เพิ่มจำนวนชิ้นอย่างพอดี และเว้นระยะไม่ให้ Brim ชนกัน สำหรับชิ้นสูงฐานเล็ก ให้ลดความสูงด้วยการเปลี่ยนแนววางถ้ารูปทรงอนุญาต</p></article>
+        <article class="step"><h3>เพิ่ม Brim แบบ Outer brim only</h3><p>เริ่มที่ 3–5 มม. และเพิ่มเป็น 5–10 มม. เฉพาะฐานเล็กมากหรือชิ้นสูง ตั้ง Brim-object gap ต่ำพอให้ยึดเกาะแต่ยังแกะออกได้ ทดลองกับชิ้นเล็กก่อนพิมพ์ชุดใหญ่</p></article>
+        <article class="step"><h3>ลดความเร็วเลเยอร์แรกอย่างมีเหตุผล</h3><p>เริ่มราว 20–30 มม./วินาที หรือใช้โปรไฟล์มาตรฐานของวัสดุก่อน ลดเฉพาะเมื่อเส้นยังวางไม่ทัน/ไม่สม่ำเสมอ และอย่าปรับหลายค่าพร้อมกัน</p></article>
+        <article class="step"><h3>ปรับอุณหภูมิทีละน้อย</h3><p>ยึดช่วงที่ผู้ผลิตเส้นและเพลทระบุ แล้วทดลองเพิ่มฐานทีละ 5°C เมื่อจำเป็น หยุดหากฐานชิ้นงานนิ่ม บวม หรือเกิด elephant foot; ไม่ควรกำหนด 70°C เป็นสูตรตายตัวสำหรับ PLA ทุกยี่ห้อ</p></article>
+        <article class="step"><h3>แก้การชนเป็นขั้นสุดท้าย</h3><p>ตรวจเส้นใยเกิน การไหลมากเกิน และผิวชิ้นงานก่อน หากพบว่าหัวฉีดชนระหว่างเดินทางจริง จึงทดลอง Z-hop ค่าต่ำที่สุดที่ช่วยได้ เพราะ Z-hop มากเกินไปเพิ่มเวลาและอาจเพิ่มเส้นใยเยิ้ม</p></article>
+      </div>
+      <div class="callout"><strong>หลักสำคัญ:</strong> เปลี่ยนครั้งละ 1 ค่า พิมพ์ชิ้นทดสอบสั้น ๆ และจดผล จะหาค่าที่เหมาะกับเส้น/เพลทของโรงเรียนได้เร็วกว่าการเพิ่มทุกค่าพร้อมกัน</div>
+    </section>
+
+    <section class="card" id="settings">
+      <h2>3. ค่าตั้งต้นสำหรับชิ้นงานเล็ก</h2>
+      <table class="settings">
+        <thead><tr><th>รายการ</th><th>ค่าเริ่มทดลอง</th><th>เมื่อใดควรเพิ่ม/ลด</th></tr></thead>
+        <tbody>
+          <tr><td>Brim type</td><td>Outer brim only</td><td>ใช้เมื่อฐานสัมผัสเล็กหรือชิ้นสูง</td></tr>
+          <tr><td>Brim width</td><td>3–5 มม.</td><td>เพิ่มถึง 5–10 มม. เมื่อยังยกหรือหลุด</td></tr>
+          <tr><td>First layer speed</td><td>20–30 มม./วินาที</td><td>ลดเมื่อเส้นแรกไม่ต่อเนื่อง; ถ้าดีอยู่ไม่ต้องลด</td></tr>
+          <tr><td>Bed temperature</td><td>ตามโปรไฟล์เพลทและเส้น</td><td>ทดลองเพิ่มทีละ 5°C โดยไม่เกินช่วงผู้ผลิต</td></tr>
+          <tr><td>Part cooling</td><td>ใช้โปรไฟล์วัสดุ</td><td>หลีกเลี่ยงลมแรงทันทีในเลเยอร์แรก หากโปรไฟล์อนุญาตให้ปรับ</td></tr>
+          <tr><td>Z-hop</td><td>ปิด/ค่าโปรไฟล์เดิม</td><td>เปิดค่าต่ำเมื่อยืนยันว่าหัวฉีดชนจริง</td></tr>
+        </tbody>
+      </table>
+      <div class="callout danger"><strong>เรื่องกาว:</strong> กาวไม่ใช่คำตอบแรกสำหรับ Textured PEI ที่สะอาดและใช้ PLA ตามโปรไฟล์ กาวบางกรณีทำหน้าที่เป็นชั้นช่วยปล่อยชิ้นงานมากกว่าช่วยยึดเกาะ โปรดดูคำแนะนำของเพลทและวัสดุนั้นโดยเฉพาะก่อนใช้</div>
+    </section>
+
+    <section class="card" id="checklist">
+      <h2>4. เช็กลิสต์ก่อนกดพิมพ์</h2>
+      <ul class="checklist">
+        <li>เลือกเครื่อง หัวฉีด เพลท และเส้นตรงของจริง</li>
+        <li>เพลทสะอาด แห้ง และวางเข้าตำแหน่ง</li>
+        <li>เปิด Bed Leveling เมื่อสภาพฐานเปลี่ยน</li>
+        <li>ตรวจ Preview ว่าเลเยอร์แรกและ Brim ต่อเนื่อง</li>
+        <li>เฝ้าดูเลเยอร์แรกก่อนปล่อยพิมพ์ยาว</li>
+        <li>จดค่าที่ผ่านไว้เป็นโปรไฟล์ของโรงเรียน</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p><strong>ขอบเขต:</strong> ค่าข้างต้นเป็นจุดเริ่มทดลองสำหรับเครื่อง FDM โดยเฉพาะ A1 Mini ผลจริงขึ้นกับชนิดเพลท วัสดุ ยี่ห้อเส้น รูปทรง และสภาพแวดล้อม ควรตรวจคำแนะนำของผู้ผลิตทุกครั้ง</p>
+      <p>ปรับปรุงเนื้อหา: 20 กรกฎาคม 2569 · คลังความรู้ทั่วไป โรงเรียนกำแพงเพชรพิทยาคม</p>
+    </footer>
+  </main>
+</body>
+</html>
