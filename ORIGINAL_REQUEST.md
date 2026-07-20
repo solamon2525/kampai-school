@@ -74,3 +74,32 @@ The user has manually edited `public/games/kampai-ar.js` to implement:
 - Filtering of coordinates in both framediff and pose detectors using OneEuroFilter when `filterType === 'oneeuro'`
 
 Please review these changes, make sure the JSDOM/headless compatibility fallback mechanism is robust, proceed with building the calibration tool in `public/games/ar-calibration/`, crop the cover art to 1280x720 (using scripts if available), and run the verification checks.
+
+## Follow-up — 2026-07-14T18:08:30+07:00
+
+ปรับปรุงและพัฒนาเกม AR "จรวดพลังงาน" (energy-rocket) ในวิชาวิทยาศาสตร์ เพื่อเพิ่มความท้าทายในการเล่น โดยปรับความสมดุลของการชาร์จพลังงาน (ไม่ให้พลังงานขึ้นเร็วเกินไป) และเพิ่มลูกเล่น Visual/Audio เอฟเฟกต์กระตุ้นการออกแรง
+
+Working directory: `public/games/science/energy-rocket/`
+Integrity mode: development
+
+## Requirements
+
+### R1. การปรับสมดุลระดับพลังงานและการชาร์จ (Energy Balance Tuning)
+- ลดอัตราสัมประสิทธิ์การเติมพลังงานจากทั้งการขยับร่างกาย (onEnergy ใน game.js และ CHARGE_K ใน config.js) และการแตะปุ่มกดออกแรง (TAP_K ใน config.js) เพื่อไม่ให้ชาร์จจรวดเต็มเร็วเกินไป
+- ปรับจูนค่าพารามิเตอร์ต่างๆ (เช่น CHARGE_K, TAP_K, DRAIN) ให้สมดุล โดยอ้างอิงจากการจำลองการเคลื่อนไหวที่สมจริง (เช่น ขยับตัวต่อเนื่องควรใช้เวลาประมาณ 6-10 วินาทีจึงจะเต็ม และการกดปุ่มรัวควรใช้การกดประมาณ 35-50 ครั้ง)
+- เพิ่มอัตราการลดของพลังงานชาร์จเมื่อหยุดนิ่ง (DRAIN) เพื่อกดดันและบังคับให้ผู้เล่นขยับตัวต่อเนื่อง
+
+### R2. การเพิ่มเอฟเฟกต์กระตุ้นเชิงการเคลื่อนไหว (Visual & Shake Effects)
+- เพิ่มเอฟเฟกต์สั่นสะเทือน (Shake Animation) ให้กับกราฟิกตัวจรวด โดยความแรงของการสั่นจะต้องแปรผันตามระดับพลังงานชาร์จในปัจจุบัน (ยิ่งพลังงานใกล้เต็ม จรวดจะสั่นไหวและมีแรงขับไอพ่นเรืองแสงมากขึ้น)
+- ปรับเปลี่ยนสไตล์หรือข้อความ HUD เพื่อบ่งบอกสถานะการควิกชาร์จหรือการเตือนความหน่วงให้สนุกยิ่งขึ้น
+
+## Acceptance Criteria
+
+### ความสมดุลของพลังงานชาร์จ
+- [ ] สปริงตัวเลขพลังงานชาร์จเพิ่มขึ้นอย่างสมดุล ไม่พุ่งเต็ม 100% ภายใน 1-2 วินาที
+- [ ] ปุ่มแตะออกแรง (fallback) ต้องแตะมากกว่า 30 ครั้งเพื่อชาร์จเต็ม
+- [ ] หากผู้เล่นหยุดขยับตัว พลังงานสะสมจะค่อยๆ ไหลลงอย่างต่อเนื่อง ป้องกันการค้างชาร์จ
+
+### การแสดงผลและการตรวจสอบ
+- [ ] ตัวจรวดมีวิชวลเอฟเฟกต์สั่นและเร่งเครื่องสัมพันธ์กับค่าพลังชาร์จอย่างชัดเจน
+- [ ] ผ่านเกณฑ์การรัน `verify:game public/games/science/energy-rocket` ครบ 11/11 Checks

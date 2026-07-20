@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>พาทประกอบหุ่นยนต์เลี้ยงแกะ — Isometric Canvas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+
+:root {
+  --navy: #1a2b4a;
+  --navy-deep: #0f1c33;
+  --gold: #d4a017;
+  --muted: #5a6a7a;
+  --line: #d8e0e8;
+  --card: #fffef8;
+  --warn: #e67700;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  font-family: 'Sarabun', sans-serif;
+  color: var(--navy);
+  background:
+    radial-gradient(ellipse at 15% 0%, #fff6dc 0%, transparent 42%),
+    radial-gradient(ellipse at 90% 8%, #e7f3ff 0%, transparent 40%),
+    linear-gradient(180deg, #f2f6fa 0%, #e6efe3 100%);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 14px 36px;
+  gap: 14px;
+}
+
+.header {
+  width: min(980px, 100%);
+  text-align: center;
+}
+.header .eyebrow {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.header h1 {
+  font-size: clamp(1.45rem, 3.8vw, 2rem);
+  font-weight: 800;
+  margin-top: 2px;
+}
+.header p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.stage-wrap {
+  width: min(980px, 100%);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(26, 43, 74, 0.1);
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #8ec8e6;
+  touch-action: none;
+}
+
+.step-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  background: rgba(15, 28, 51, 0.78);
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.controls {
+  width: min(980px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.progress {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--line);
+  border: none;
+  cursor: pointer;
+}
+.dot.done { background: #8ecf7a; }
+.dot.active {
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.28);
+}
+
+.info-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 18px rgba(26, 43, 74, 0.06);
+}
+.info-card .step-num {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.info-card h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 2px 0 4px;
+}
+.info-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 11px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s, opacity 0.2s;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-nav {
+  background: var(--navy);
+  color: #fff;
+  min-width: 118px;
+}
+.btn-play {
+  background: linear-gradient(135deg, var(--gold), #e0b12a);
+  color: var(--navy-deep);
+  min-width: 168px;
+}
+.btn-play.playing {
+  background: linear-gradient(135deg, var(--warn), #f08c00);
+  color: #fff;
+}
+.btn-ghost {
+  background: #eef3f8;
+  color: var(--navy);
+}
+
+.hint {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .btn { flex: 1 1 40%; }
+  .btn-play { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="eyebrow">ISOMETRIC · ASSEMBLY PATH</div>
+  <h1>พาทประกอบหุ่นยนต์เลี้ยงแกะ</h1>
+  <p>ชิ้นส่วนวิ่งตามเส้นทาง isometric เข้าตำแหน่งประกอบ</p>
+</header>
+
+<div class="stage-wrap">
+  <div class="step-badge" id="stepBadge">ขั้น 1 / 8</div>
+  <canvas id="c" width="980" height="560" aria-label="Isometric assembly canvas"></canvas>
+</div>
+
+<section class="controls">
+  <div class="progress" id="progress"></div>
+  <div class="info-card">
+    <div class="step-num" id="stepNum">ขั้นที่ 1</div>
+    <h2 id="stepTitle">โครงฐาน</h2>
+    <p id="stepDesc">ชิ้นส่วนเลื่อนตามพาทเข้าตำแหน่งประกอบ</p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-nav" id="btnPrev" type="button">← ย้อนกลับ</button>
+    <button class="btn btn-play" id="btnPlay" type="button">▶ เล่นแอนิเมชัน</button>
+    <button class="btn btn-nav" id="btnNext" type="button">ถัดไป →</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" id="btnReset" type="button">รีเซ็ต</button>
+  </div>
+  <p class="hint" id="hint">ใช้ปุ่มเลื่อนทีละขั้น หรือกดเล่นแอนิเมชัน</p>
+</section>
+
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+
+  const TW = 54;   // isometric tile width
+  const TH = 27;   // isometric tile height
+  const ORIGIN = { x: 490, y: 300 };
+
+  const STEPS = [
+    { title: 'โครงฐาน (Chassis)', desc: 'ฐานโลหะเลื่อนตามพาทเข้าจุดศูนย์กลาง เป็นจุดยึดล้อและมอเตอร์' },
+    { title: 'ล้อขับเคลื่อน', desc: 'ล้อซ้าย-ขวาวิ่งตามพาทเข้าใต้ฐาน ให้หุ่นเคลื่อนที่บนทุ่งได้' },
+    { title: 'มอเตอร์ไฟฟ้า', desc: 'มอเตอร์สองตัวเลื่อนเข้ายึดกับฐาน ขับล้อและควบคุมความเร็ว' },
+    { title: 'ตัวเครื่องหุ่นยนต์', desc: 'ตัวเครื่องสีกรมท่าตามพาทลงบนฐาน ใส่ไฟสถานะและเกราะ' },
+    { title: 'เซ็นเซอร์ตรวจจับแกะ', desc: 'หัวเซ็นเซอร์เลื่อนขึ้นยอดเครื่อง สแกนตำแหน่งฝูงแกะ' },
+    { title: 'อุปกรณ์ไล่ต้อน', desc: 'ลำโพงและแถบไฟวิ่งตามพาทติดด้านข้าง ใช้ส่งสัญญาณนำทาง' },
+    { title: 'แผงควบคุม AI', desc: 'สมองกล AI เลื่อนเข้าช่องกลาง ประสานมอเตอร์กับเซ็นเซอร์' },
+    { title: 'หุ่นสมบูรณ์ — พร้อมเลี้ยงแกะ!', desc: 'ประกอบครบแล้ว! หุ่นเริ่มทำงานและไล่ต้อนฝูงแกะตามพาททุ่ง' },
+  ];
+
+  // World-space assembly path (grid units) — parts travel along this
+  const PATH = [
+    { x: -6, y: 4, z: 0 },
+    { x: -3, y: 2, z: 0 },
+    { x: 0, y: 0, z: 0 },
+    { x: 2, y: -1, z: 0 },
+    { x: 0, y: 0, z: 0 },
+  ];
+
+  // Final mount pose for each part (grid) + draw order
+  const PARTS = [
+    { id: 'chassis', color: ['#5a6578', '#3d4656', '#717b8e'], size: [2.4, 1.4, 0.45], pos: { x: 0, y: 0, z: 0.45 } },
+    { id: 'wheels', color: ['#1a202c', '#2d3748', '#4a5568'], size: [0.55, 0.55, 0.55], pos: { x: 0, y: 0, z: 0.3 }, special: 'wheels' },
+    { id: 'motors', color: ['#2b6cb0', '#1a4f8a', '#63b3ed'], size: [0.7, 0.5, 0.4], pos: { x: 0, y: 0, z: 0.95 }, special: 'motors' },
+    { id: 'body', color: ['#1a2b4a', '#0f1c33', '#2a4068'], size: [1.8, 1.1, 1.35], pos: { x: 0, y: 0, z: 1.85 } },
+    { id: 'sensor', color: ['#2d3748', '#1a202c', '#63b3ed'], size: [0.7, 0.7, 0.55], pos: { x: 0, y: 0, z: 2.85 }, special: 'sensor' },
+    { id: 'tools', color: ['#d69e2e', '#b7791f', '#f6e05e'], size: [0.4, 0.4, 0.7], pos: { x: 0, y: 0, z: 1.7 }, special: 'tools' },
+    { id: 'brain', color: ['#38a169', '#276749', '#9ae6b4'], size: [1.0, 0.55, 0.35], pos: { x: 0, y: 0.05, z: 1.55 } },
+    { id: 'head', color: ['#1a2b4a', '#0f1c33', '#d4a017'], size: [1.2, 0.7, 0.4], pos: { x: 0, y: 0, z: 3.35 }, special: 'head' },
+  ];
+
+  let step = 0;
+  let playing = false;
+  let timer = null;
+  let animT = 1;          // 0..1 progress of current part along path
+  let animFrom = 0;
+  let raf = 0;
+  let t0 = performance.now();
+  let sheepPhase = 0;
+
+  // ── isometric helpers ──────────────────────────────────────────
+  function iso(x, y, z = 0) {
+    return {
+      x: ORIGIN.x + (x - y) * (TW / 2),
+      y: ORIGIN.y + (x + y) * (TH / 2) - z * TH,
+    };
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function lerp3(a, b, t) {
+    return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), z: lerp(a.z || 0, b.z || 0, t) };
+  }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function pathPoint(t) {
+    // t in [0,1] along PATH polyline
+    const segs = PATH.length - 1;
+    const f = t * segs;
+    const i = Math.min(segs - 1, Math.floor(f));
+    const u = f - i;
+    return lerp3(PATH[i], PATH[i + 1], u);
+  }
+
+  // ── drawing primitives ─────────────────────────────────────────
+  function drawPrism(cx, cy, czBottom, w, d, h, colors) {
+    const [topC, leftC, rightC] = colors;
+    const x0 = cx - w / 2, x1 = cx + w / 2;
+    const y0 = cy - d / 2, y1 = cy + d / 2;
+    const zb = czBottom, zt = czBottom + h;
+
+    const A = iso(x0, y0, zt); // top face
+    const B = iso(x1, y0, zt);
+    const C = iso(x1, y1, zt);
+    const D = iso(x0, y1, zt);
+    const E = iso(x0, y0, zb);
+    const F = iso(x1, y0, zb);
+    const G = iso(x1, y1, zb);
+    const H = iso(x0, y1, zb);
+
+    // right face (x1)
+    ctx.beginPath();
+    ctx.moveTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(G.x, G.y); ctx.lineTo(F.x, F.y);
+    ctx.closePath();
+    ctx.fillStyle = rightC;
+    ctx.fill();
+
+    // left face (y1 side - darker)
+    ctx.beginPath();
+    ctx.moveTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.lineTo(H.x, H.y); ctx.lineTo(G.x, G.y);
+    ctx.closePath();
+    ctx.fillStyle = leftC;
+    ctx.fill();
+
+    // top face
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y);
+    ctx.closePath();
+    ctx.fillStyle = topC;
+    ctx.fill();
+
+    // subtle edges
+    ctx.strokeStyle = 'rgba(15,28,51,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(B.x, B.y); ctx.lineTo(F.x, F.y);
+    ctx.moveTo(C.x, C.y); ctx.lineTo(G.x, G.y);
+    ctx.moveTo(D.x, D.y); ctx.lineTo(H.x, H.y);
+    ctx.stroke();
+  }
+
+  function drawCylinderApprox(cx, cy, cz, r, h, colors) {
+    // simple isometric "wheel" as flattened prism stack
+    drawPrism(cx, cy, cz, r * 2, r * 0.7, h, colors);
+  }
+
+  function drawGround() {
+    // sky already on canvas bg — paint soft gradient over
+    const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    g.addColorStop(0, '#7ec4e4');
+    g.addColorStop(0.45, '#b7dff0');
+    g.addColorStop(0.55, '#9bcf72');
+    g.addColorStop(1, '#5fa04a');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // isometric field tiles
+    for (let x = -8; x <= 8; x++) {
+      for (let y = -6; y <= 7; y++) {
+        const p0 = iso(x, y, 0);
+        const p1 = iso(x + 1, y, 0);
+        const p2 = iso(x + 1, y + 1, 0);
+        const p3 = iso(x, y + 1, 0);
+        const shade = ((x + y) & 1) ? '#6aad55' : '#74b85f';
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.closePath();
+        ctx.fillStyle = shade;
+        ctx.fill();
+      }
+    }
+
+    // workbench pad
+    drawPrism(0, 0, 0, 4.2, 3.2, 0.12, ['#d9e2ec', '#b8c4d0', '#c5d0dc']);
+  }
+
+  function drawAssemblyPath(active) {
+    // dashed isometric path
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.strokeStyle = active ? 'rgba(212,160,23,0.95)' : 'rgba(26,43,74,0.28)';
+    ctx.beginPath();
+    PATH.forEach((pt, i) => {
+      const p = iso(pt.x, pt.y, 0.15);
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // waypoints
+    PATH.forEach((pt, i) => {
+      const p = iso(pt.x, pt.y, 0.15);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, i === PATH.length - 1 ? 6 : 4, 0, Math.PI * 2);
+      ctx.fillStyle = i === PATH.length - 1 ? '#d4a017' : 'rgba(26,43,74,0.45)';
+      ctx.fill();
+    });
+
+    // arrow near end
+    const a = PATH[PATH.length - 2];
+    const b = PATH[PATH.length - 1];
+    const pa = iso(a.x, a.y, 0.2);
+    const pb = iso(b.x, b.y, 0.2);
+    const ang = Math.atan2(pb.y - pa.y, pb.x - pa.x);
+    ctx.fillStyle = '#d4a017';
+    ctx.beginPath();
+    ctx.moveTo(pb.x, pb.y);
+    ctx.lineTo(pb.x - 12 * Math.cos(ang - 0.4), pb.y - 12 * Math.sin(ang - 0.4));
+    ctx.lineTo(pb.x - 12 * Math.cos(ang + 0.4), pb.y - 12 * Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGhostSlot(partIndex) {
+    const p = PARTS[partIndex];
+    if (p.special === 'wheels' || p.special === 'motors' || p.special === 'tools') return;
+    const { x, y, z } = p.pos;
+    const [w, d, h] = p.size;
+    ctx.globalAlpha = 0.22;
+    drawPrism(x, y, z - h, w, d, h, ['#ffffff', '#d0d7e0', '#e8edf3']);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawSheep(ox, oy, scale, phase) {
+    const bob = Math.sin(phase) * 0.05;
+    const x = ox + Math.sin(phase * 0.7) * 0.15;
+    const y = oy;
+    drawPrism(x, y, 0.05 + bob, 0.7 * scale, 0.45 * scale, 0.4 * scale, ['#f4efe6', '#d9d2c5', '#ebe4d8']);
+    drawPrism(x - 0.28 * scale, y - 0.05 * scale, 0.25 + bob, 0.28 * scale, 0.28 * scale, 0.28 * scale, ['#3d3429', '#2a241c', '#5a4a3a']);
+  }
+
+  function drawPartAt(part, pos, alpha = 1) {
+    ctx.globalAlpha = alpha;
+    const { special, size, color } = part;
+    const [w, d, h] = size;
+
+    if (special === 'wheels') {
+      const spin = sheepPhase * 2;
+      // left / right wheels
+      [[-1.0, 0.55], [1.0, 0.55], [-1.0, -0.55], [1.0, -0.55]].forEach(([dx, dy], i) => {
+        drawCylinderApprox(pos.x + dx, pos.y + dy, 0.02, 0.35, 0.55, color);
+        // hub
+        drawPrism(pos.x + dx, pos.y + dy, 0.22, 0.12, 0.12, 0.12, ['#d4a017', '#b7791f', '#ecc94b']);
+      });
+    } else if (special === 'motors') {
+      drawPrism(pos.x - 0.95, pos.y, pos.z - h, 0.65, 0.5, h, color);
+      drawPrism(pos.x + 0.95, pos.y, pos.z - h, 0.65, 0.5, h, color);
+    } else if (special === 'sensor') {
+      drawPrism(pos.x, pos.y, pos.z - h, w, d, h, color);
+      // lens
+      drawPrism(pos.x, pos.y, pos.z - 0.15, 0.35, 0.35, 0.2, ['#90cdf4', '#2b6cb0', '#63b3ed']);
+      // scan cone hint
+      if (step >= 4 && animT > 0.85) {
+        ctx.globalAlpha = 0.2 + 0.1 * Math.sin(sheepPhase * 3);
+        const tip = iso(pos.x, pos.y, pos.z);
+        const L = iso(pos.x + 1.8, pos.y + 1.2, 0.2);
+        const R = iso(pos.x + 1.8, pos.y - 1.2, 0.2);
+        ctx.beginPath();
+        ctx.moveTo(tip.x, tip.y);
+        ctx.lineTo(L.x, L.y);
+        ctx.lineTo(R.x, R.y);
+        ctx.closePath();
+        ctx.fillStyle = '#63b3ed';
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+      }
+    } else if (special === 'tools') {
+      drawPrism(pos.x - 1.35, pos.y, pos.z - 0.55, 0.35, 0.35, 0.7, ['#d69e2e', '#b7791f', '#f6e05e']);
+      drawPrism(pos.x + 1.4, pos.y - 0.1, pos.z - 0.35, 0.7, 0.25, 0.2, ['#ed8936', '#c05621', '#f6ad55']);
+      drawPrism(pos.x + 1.4, pos.y - 0.1, pos.z - 0.55, 0.7, 0.25, 0.2, ['#68d391', '#2f855a', '#9ae6b4']);
+    } else if (special === 'head') {
+      drawPrism(pos.x, pos.y, pos.z - h, w, d, h, color);
+      // eyes
+      drawPrism(pos.x - 0.28, pos.y - 0.15, pos.z - 0.08, 0.16, 0.12, 0.1, ['#f6e05e', '#d69e2e', '#faf089']);
+      drawPrism(pos.x + 0.28, pos.y - 0.15, pos.z - 0.08, 0.16, 0.12, 0.1, ['#f6e05e', '#d69e2e', '#faf089']);
+      // label
+      const lab = iso(pos.x, pos.y - 0.55, pos.z + 0.15);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#1a2b4a';
+      ctx.font = 'bold 13px Sarabun, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('SHEEP-BOT', lab.x, lab.y);
+    } else {
+      drawPrism(pos.x, pos.y, pos.z - h, w, d, h, color);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function partWorldPos(partIndex, tAlong) {
+    const part = PARTS[partIndex];
+    const start = PATH[0];
+    const mid = pathPoint(Math.min(1, tAlong));
+    if (tAlong < 0.85) {
+      // travel along path, float up a bit
+      return { x: mid.x, y: mid.y, z: 0.8 + Math.sin(tAlong * Math.PI) * 1.2 };
+    }
+    // settle into final pose
+    const u = (tAlong - 0.85) / 0.15;
+    return lerp3(
+      { x: mid.x, y: mid.y, z: 0.8 },
+      { x: part.pos.x, y: part.pos.y, z: part.pos.z },
+      easeOut(u)
+    );
+  }
+
+  function render() {
+    const now = performance.now();
+    sheepPhase = (now - t0) / 400;
+
+    drawGround();
+    drawAssemblyPath(animT < 1 || playing);
+
+    // ghost of next/current slot
+    if (step < PARTS.length) drawGhostSlot(step);
+
+    // already assembled parts (fully seated)
+    for (let i = 0; i < step; i++) {
+      drawPartAt(PARTS[i], {
+        x: PARTS[i].pos.x,
+        y: PARTS[i].pos.y,
+        z: PARTS[i].pos.z,
+      }, 1);
+    }
+
+    // current part animating along path
+    if (step < PARTS.length) {
+      const t = easeOut(Math.min(1, animT));
+      const pos = partWorldPos(step, t);
+      drawPartAt(PARTS[step], pos, 0.55 + 0.45 * t);
+
+      // moving highlight on path
+      const trail = pathPoint(t * 0.85);
+      const tp = iso(trail.x, trail.y, 0.2 + Math.sin(t * Math.PI) * 0.8);
+      ctx.beginPath();
+      ctx.arc(tp.x, tp.y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(212,160,23,0.85)';
+      ctx.fill();
+    }
+
+    // sheep when complete
+    if (step >= PARTS.length - 1 && animT >= 1) {
+      drawSheep(3.2, -1.5, 1, sheepPhase);
+      drawSheep(4.0, -0.4, 0.9, sheepPhase + 1.2);
+      drawSheep(4.6, -1.1, 0.85, sheepPhase + 2.1);
+
+      // soft bob of whole robot
+      // (already static — sheep move enough)
+    }
+
+    // path label
+    const label = iso(-5.2, 4.2, 0.3);
+    ctx.fillStyle = 'rgba(26,43,74,0.7)';
+    ctx.font = 'bold 14px Sarabun, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ASSEMBLY PATH', label.x, label.y);
+
+    raf = requestAnimationFrame(render);
+  }
+
+  // ── UI / step control ──────────────────────────────────────────
+  const els = {
+    badge: document.getElementById('stepBadge'),
+    num: document.getElementById('stepNum'),
+    title: document.getElementById('stepTitle'),
+    desc: document.getElementById('stepDesc'),
+    hint: document.getElementById('hint'),
+    progress: document.getElementById('progress'),
+    prev: document.getElementById('btnPrev'),
+    next: document.getElementById('btnNext'),
+    play: document.getElementById('btnPlay'),
+    reset: document.getElementById('btnReset'),
+  };
+
+  function buildDots() {
+    els.progress.innerHTML = '';
+    STEPS.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dot';
+      b.title = `ขั้น ${i + 1}`;
+      b.addEventListener('click', () => { stopPlay(); jumpTo(i); });
+      els.progress.appendChild(b);
+    });
+  }
+
+  function updateUI() {
+    const s = STEPS[step];
+    els.badge.textContent = `ขั้น ${step + 1} / ${STEPS.length}`;
+    els.num.textContent = `ขั้นที่ ${step + 1}`;
+    els.title.textContent = s.title;
+    els.desc.textContent = s.desc;
+    const done = step === STEPS.length - 1 && animT >= 1;
+    els.hint.textContent = done
+      ? 'ประกอบครบแล้ว — กดรีเซ็ตหรือเล่นแอนิเมชันซ้ำ'
+      : 'ชิ้นส่วนวิ่งตามพาท isometric เข้าตำแหน่งประกอบ';
+    els.prev.disabled = (step === 0 && animT >= 1) || playing;
+    els.next.disabled = (step === STEPS.length - 1 && animT >= 1) || playing;
+    [...els.progress.children].forEach((dot, i) => {
+      dot.classList.toggle('active', i === step);
+      dot.classList.toggle('done', i < step || (i === step && animT >= 1 && step === STEPS.length - 1));
+    });
+  }
+
+  function animatePartIn(onDone) {
+    animT = 0;
+    const start = performance.now();
+    const dur = 900;
+    function tick(now) {
+      animT = Math.min(1, (now - start) / dur);
+      updateUI();
+      if (animT < 1) requestAnimationFrame(tick);
+      else if (onDone) onDone();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function jumpTo(n) {
+    step = Math.max(0, Math.min(STEPS.length - 1, n));
+    animT = 1;
+    updateUI();
+  }
+
+  function goNext() {
+    if (step >= STEPS.length - 1 && animT >= 1) return;
+    if (animT < 1) {
+      animT = 1;
+      updateUI();
+      return;
+    }
+    if (step < STEPS.length - 1) {
+      step += 1;
+      animatePartIn();
+    }
+  }
+
+  function goPrev() {
+    if (step <= 0) {
+      animT = 1;
+      updateUI();
+      return;
+    }
+    step -= 1;
+    animT = 1;
+    updateUI();
+  }
+
+  function stopPlay() {
+    playing = false;
+    clearInterval(timer);
+    timer = null;
+    els.play.classList.remove('playing');
+    els.play.textContent = '▶ เล่นแอนิเมชัน';
+    updateUI();
+  }
+
+  function startPlay() {
+    if (playing) { stopPlay(); return; }
+
+    if (step === STEPS.length - 1 && animT >= 1) {
+      step = 0;
+      animT = 0;
+    }
+
+    playing = true;
+    els.play.classList.add('playing');
+    els.play.textContent = '❚❚ หยุด';
+    els.prev.disabled = true;
+    els.next.disabled = true;
+
+    const runStep = () => {
+      animatePartIn(() => {
+        if (!playing) return;
+        if (step >= STEPS.length - 1) {
+          stopPlay();
+          return;
+        }
+        setTimeout(() => {
+          if (!playing) return;
+          step += 1;
+          runStep();
+        }, 350);
+      });
+    };
+
+    if (animT >= 1 && step < STEPS.length - 1) {
+      step += 1;
+    }
+    runStep();
+  }
+
+  els.prev.addEventListener('click', () => { stopPlay(); goPrev(); });
+  els.next.addEventListener('click', () => { stopPlay(); goNext(); });
+  els.play.addEventListener('click', startPlay);
+  els.reset.addEventListener('click', () => {
+    stopPlay();
+    step = 0;
+    animT = 0;
+    animatePartIn();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { stopPlay(); goNext(); }
+    if (e.key === 'ArrowLeft') { stopPlay(); goPrev(); }
+    if (e.key === ' ') { e.preventDefault(); startPlay(); }
+  });
+
+  // responsive canvas sharpness
+  function fitCanvas() {
+    const wrap = canvas.parentElement;
+    const cssW = wrap.clientWidth;
+    const ratio = 560 / 980;
+    const cssH = cssW * ratio;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr * (cssW / 980), 0, 0, dpr * (cssW / 980), 0, 0);
+  }
+  window.addEventListener('resize', fitCanvas);
+  fitCanvas();
+
+  buildDots();
+  animatePartIn();
+  updateUI();
+  render();
+})();
+</script>
+</body>
+</html>

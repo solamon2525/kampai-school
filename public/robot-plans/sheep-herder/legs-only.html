@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบเพลนขา 6 ขา — หุ่นยนต์เลี้ยงแกะ สพฐ.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  color: #1a2b4a;
+  background: #f2f5f8;
+  padding: 18px;
+  line-height: 1.5;
+}
+.wrap { max-width: 1060px; margin: 0 auto; }
+h1 { font-size: 1.55rem; font-weight: 800; }
+.sub { color: #5a6a7a; margin: 4px 0 14px; font-size: 0.94rem; }
+.note {
+  background: #fff8e6;
+  border: 1px solid #f0d78c;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+.spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.spec div {
+  background: #fff;
+  border: 1px solid #dde4ec;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+}
+.spec strong { display: block; color: #d4a017; font-size: 0.78rem; margin-bottom: 2px; }
+.sheet {
+  background: #fff;
+  border: 1px solid #d0d8e0;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+.sheet-hd {
+  background: #1a2b4a;
+  color: #fff;
+  padding: 9px 14px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+.sheet-hd span { font-weight: 400; opacity: 0.85; font-size: 0.82rem; }
+svg { display: block; width: 100%; height: auto; }
+.legend {
+  padding: 9px 14px 12px;
+  font-size: 0.82rem;
+  color: #5a6a7a;
+  border-top: 1px dashed #e0e6ec;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin-bottom: 18px;
+}
+th, td {
+  border: 1px solid #dde4ec;
+  padding: 8px 10px;
+  text-align: left;
+}
+th { background: #1a2b4a; color: #fff; font-weight: 700; }
+tr:nth-child(even) { background: #f8fafc; }
+.btn {
+  display: inline-block;
+  background: #1a2b4a;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 16px;
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+@media print { .no-print { display: none; } body { background: #fff; padding: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>แบบเพลนขา 6 ขา — หุ่นยนต์เลี้ยงแกะ</h1>
+  <p class="sub">ออกแบบเฉพาะชุดขาเดิน · อะคริลิก 3 มม. + ฮับพิมพ์ 3D · อ้างอิงวิดีโอ <a href="https://youtu.be/P5dfi6EzAWo">P5dfi6EzAWo</a></p>
+
+  <button class="btn no-print" onclick="window.print()">🖨 พิมพ์แบบขา</button>
+  <a class="btn no-print" href="index.html" style="background:#5a6a7a;margin-left:8px">← แบบเต็มตัว</a>
+  <a class="btn no-print" href="assembly-3d.html" style="background:#2b6cb0;margin-left:8px">🎬 ประกอบ 3D</a>
+
+  <div class="note">
+  <strong>กลไก:</strong> มอเตอร์เกียร์ 2 ตัว (ซ้าย/ขวา) หมุนคันโยก L1 → ลิงก์ L2 → เท้า L3
+  ขา 3 คู่ (หน้า·กลาง·หลัง) ขากลางติดยางซิลิโคนเพื่อยึดเกาะและเดินเร็ว
+  </div>
+
+  <div class="spec">
+    <div><strong>จำนวนขา</strong>6 ขา (3 ซ้าย + 3 ขวา)</div>
+    <div><strong>รัศมีคันโยก</strong>20 มม.</div>
+    <div><strong>ความยาวลิงก์</strong>55 มม.</div>
+    <div><strong>ช่วงยกเท้า</strong>~22 มม.</div>
+    <div><strong>วัสดุตัด</strong>อะคริลิก 3 มม.</div>
+    <div><strong>ชิ้น 3D</strong>ฮับ P-L1 ×6</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>รหัส</th><th>ชื่อ</th><th>วัสดุ</th><th>จำนวน</th><th>ขนาด (มม.)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>L1</td><td>แผ่นคันโยก (Crank)</td><td>อะคริลิก 3 มม.</td><td>6</td><td>38 × 48</td></tr>
+      <tr><td>L2</td><td>ลิงก์ขา (Connecting rod)</td><td>อะคริลิก 3 มม.</td><td>6</td><td>12 × 55</td></tr>
+      <tr><td>L3</td><td>เท้าขา (Foot)</td><td>อะคริลิก 3 มม.</td><td>6</td><td>28 × 18</td></tr>
+      <tr><td>L4</td><td>แผ่นยึดเพลา (Axle bracket)</td><td>อะคริลิก 3 มม.</td><td>2</td><td>55 × 22 (ซ้าย+ขวา)</td></tr>
+      <tr><td>P-L1</td><td>ฮับล็อกเพลา + คันโยก</td><td>พิมพ์ 3D</td><td>6</td><td>Ø12 × 14 สูง</td></tr>
+      <tr><td>R1</td><td>ยางซิลิโคนเท้า</td><td>ยาง 5 มม.</td><td>2</td><td>Ø15 (ขากลาง ML·MR)</td></tr>
+      <tr><td>HW</td><td>สกรู M3 + น็อต + แหวน</td><td>สแตนเลส</td><td>~30</td><td>ยึดคันโยก–ลิงก์–เท้า</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 1 TOP VIEW leg layout -->
+  <div class="sheet">
+    <div class="sheet-hd">แผนที่ 1 — ตำแหน่งขา 6 จุด (มุมบน) <span>มองจากด้านบน</span></div>
+    <svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg">
+      <rect width="720" height="400" fill="#f8fafc"/>
+      <text x="16" y="24" font-size="13" font-weight="700">ฐานหุ่น 180×260 มม. — จุดยึดเพลาขา (Ø6)</text>
+
+      <!-- body outline -->
+      <rect x="130" y="60" width="460" height="280" fill="#e8f0f8" stroke="#1a2b4a" stroke-width="1.5" rx="6"/>
+      <text x="140" y="82" font-size="11" fill="#5a6a7a">ฐาน A1 (อ้างอิง)</text>
+
+      <!-- center line -->
+      <line x1="360" y1="60" x2="360" y2="340" stroke="#ccc" stroke-dasharray="6 4"/>
+      <text x="365" y="200" font-size="10" fill="#aaa">แกนกลาง</text>
+
+      <!-- axle brackets L4 -->
+      <rect x="155" y="175" width="22" height="55" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <text x="158" y="210" font-size="8" fill="#2b6cb0">L4</text>
+      <rect x="543" y="175" width="22" height="55" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <text x="546" y="210" font-size="8" fill="#2b6cb0">L4</text>
+
+      <!-- motor symbols -->
+      <rect x="140" y="185" width="40" height="35" fill="#2b6cb0" fill-opacity="0.25" stroke="#2b6cb0"/>
+      <text x="148" y="207" font-size="9">M-L</text>
+      <rect x="540" y="185" width="40" height="35" fill="#2b6cb0" fill-opacity="0.25" stroke="#2b6cb0"/>
+      <text x="548" y="207" font-size="9">M-R</text>
+
+      <!-- 6 leg pivots -->
+      <g>
+        <!-- left FL ML RL -->
+        <circle cx="200" cy="100" r="10" fill="#4a5568" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="188" y="130" font-size="11" font-weight="700">FL</text>
+        <text x="175" y="143" font-size="9" fill="#5a6a7a">หน้าซ้าย</text>
+
+        <circle cx="200" cy="200" r="10" fill="#38a169" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="188" y="230" font-size="11" font-weight="700" fill="#276749">ML★</text>
+        <text x="168" y="243" font-size="9" fill="#38a169">กลางซ้าย+ยาง</text>
+
+        <circle cx="200" cy="300" r="10" fill="#4a5568" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="188" y="330" font-size="11" font-weight="700">RL</text>
+        <text x="175" y="343" font-size="9" fill="#5a6a7a">หลังซ้าย</text>
+
+        <!-- right FR MR RR -->
+        <circle cx="520" cy="100" r="10" fill="#4a5568" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="508" y="130" font-size="11" font-weight="700">FR</text>
+
+        <circle cx="520" cy="200" r="10" fill="#38a169" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="508" y="230" font-size="11" font-weight="700" fill="#276749">MR★</text>
+        <text x="488" y="243" font-size="9" fill="#38a169">กลางขวา+ยาง</text>
+
+        <circle cx="520" cy="300" r="10" fill="#4a5568" stroke="#1a2b4a" stroke-width="1.5"/>
+        <text x="508" y="330" font-size="11" font-weight="700">RR</text>
+      </g>
+
+      <!-- spacing dims -->
+      <line x1="200" y1="370" x2="520" y2="370" stroke="#c00" stroke-width="1"/>
+      <text x="340" y="388" font-size="11" text-anchor="middle" fill="#c00">ระยะซ้าย–ขวา 130 มม. (จากขอบฐาน)</text>
+      <line x1="100" y1="100" x2="100" y2="300" stroke="#c00" stroke-width="1"/>
+      <text x="70" y="205" font-size="10" fill="#c00" transform="rotate(-90 70 205)">ระยะหน้า–หลัง 100 มม.</text>
+
+      <!-- phase note -->
+      <rect x="16" y="320" width="280" height="60" fill="#fff8e6" stroke="#d4a017" rx="6"/>
+      <text x="26" y="342" font-size="10" font-weight="700" fill="#b7791f">เฟสขา (สำคัญ!)</text>
+      <text x="26" y="358" font-size="9" fill="#5a6a7a">FL+RR เฟสเดียวกัน · FR+RL เฟสเดียวกัน</text>
+      <text x="26" y="372" font-size="9" fill="#5a6a7a">ML+MR นำหน้า 60° → เดินเร็วและไม่ลื่น</text>
+    </svg>
+    <div class="legend">★ ขากลางติดยางซิลิโคน R1 · เว้นระยะเพลาขาแต่ละข้าง 50 มม. (หน้า→กลาง→หลัง)</div>
+  </div>
+
+  <!-- 2 MECHANISM SIDE VIEW -->
+  <div class="sheet">
+    <div class="sheet-hd">แผนที่ 2 — กลไกขา 1 ข้าง (มุมด้านข้าง) <span>Crank–Linkage</span></div>
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+      <rect width="720" height="320" fill="#f8fafc"/>
+      <text x="16" y="24" font-size="13" font-weight="700">หลักการ: มอเตอร์หมุน → คันโยก L1 → ลิงก์ L2 → เท้า L3 ก้าว</text>
+
+      <!-- ground -->
+      <line x1="40" y1="260" x2="680" y2="260" stroke="#5a9e4b" stroke-width="3"/>
+      <text x="40" y="280" font-size="10" fill="#5a6a7a">พื้น</text>
+
+      <!-- body -->
+      <rect x="200" y="120" width="200" height="40" fill="#e8f0f8" stroke="#1a2b4a" stroke-width="1.5"/>
+      <text x="210" y="145" font-size="10">ตัวหุ่น</text>
+
+      <!-- motor -->
+      <rect x="210" y="155" width="45" height="30" fill="#2b6cb0" fill-opacity="0.3" stroke="#2b6cb0"/>
+      <text x="220" y="175" font-size="9">M</text>
+
+      <!-- crank circle -->
+      <circle cx="232" cy="210" r="40" fill="none" stroke="#ccc" stroke-dasharray="4 3"/>
+      <text x="278" y="215" font-size="9" fill="#888">R20</text>
+
+      <!-- position 1: foot down -->
+      <g opacity="0.45">
+        <line x1="232" y1="210" x2="272" y2="210" stroke="#c00" stroke-width="2.5"/>
+        <circle cx="272" cy="210" r="5" fill="#c00"/>
+        <line x1="272" y1="210" x2="290" y2="252" stroke="#1a2b4a" stroke-width="3"/>
+        <rect x="275" y="248" width="30" height="12" fill="#4a5568" rx="2"/>
+        <text x="310" y="258" font-size="9">ตำแหน่ง 1: ลงพื้น</text>
+      </g>
+
+      <!-- position 2: foot up -->
+      <g>
+        <line x1="232" y1="210" x2="232" y2="170" stroke="#c00" stroke-width="2.5"/>
+        <circle cx="232" cy="170" r="5" fill="#c00"/>
+        <line x1="232" y1="170" x2="250" y2="200" stroke="#1a2b4a" stroke-width="3"/>
+        <rect x="243" y="196" width="30" height="12" fill="#38a169" rx="2"/>
+        <text x="290" y="200" font-size="9" font-weight="700">ตำแหน่ง 2: ยกขา</text>
+      </g>
+
+      <!-- dims -->
+      <line x1="232" y1="170" x2="232" y2="260" stroke="#06c" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="238" y="220" font-size="10" fill="#06c">stroke ~22mm</text>
+      <line x1="232" y1="210" x2="272" y2="210" stroke="#c00" stroke-width="1"/>
+      <text x="240" y="225" font-size="9" fill="#c00">20mm</text>
+
+      <!-- parts labels right -->
+      <g transform="translate(420,60)">
+        <rect width="280" height="200" fill="#fff" stroke="#dde4ec" rx="8"/>
+        <text x="14" y="24" font-size="12" font-weight="700">ชิ้นส่วนต่อขา 1 ชุด</text>
+        <text x="14" y="48" font-size="10" fill="#c00">L1 คันโยก — แผ่นอะคริลิก 38×48</text>
+        <text x="14" y="66" font-size="10" fill="#c00">L2 ลิงก์ — แท่ง 12×55</text>
+        <text x="14" y="84" font-size="10" fill="#c00">L3 เท้า — แผ่น 28×18</text>
+        <text x="14" y="102" font-size="10" fill="#b7791f">P-L1 ฮับเพลา — พิมพ์ 3D</text>
+        <text x="14" y="128" font-size="10" fill="#5a6a7a">รูหมุน: แบริ่ง Ø6×3 หรือ</text>
+        <text x="14" y="144" font-size="10" fill="#5a6a7a">เพลาสแตนเลส Ø6 ใส่น้ำมัน</text>
+        <text x="14" y="168" font-size="10" fill="#38a169">ขากลาง: ติดยาง R1 Ø15</text>
+        <text x="14" y="186" font-size="10" fill="#5a6a7a">หมุนเข้ากัน: M3×12 + แหวน</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- 3 FLAT PATTERN L1 -->
+  <div class="sheet">
+    <div class="sheet-hd">แบบตัด L1 — คันโยก (Crank) <span>38 × 48 มม. × 6 ชิ้น</span></div>
+    <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg">
+      <rect width="500" height="280" fill="#fafbfc"/>
+      <!-- 3 cranks laid out -->
+      <g transform="translate(40,40)">
+        <rect width="76" height="96" fill="#e3edf7" stroke="#c00" stroke-width="2"/>
+        <circle cx="38" cy="18" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="28" y="22" font-size="8" fill="#06c">A</text>
+        <circle cx="58" cy="48" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="52" y="52" font-size="8" fill="#06c">B</text>
+        <line x1="38" y1="18" x2="58" y2="48" stroke="#888" stroke-dasharray="3 2"/>
+        <text x="0" y="-8" font-size="11" font-weight="700" fill="#c00">L1</text>
+      </g>
+      <g transform="translate(140,40)">
+        <rect width="76" height="96" fill="#e3edf7" stroke="#c00" stroke-width="2"/>
+        <circle cx="38" cy="18" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <circle cx="58" cy="48" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+      </g>
+      <g transform="translate(240,40)">
+        <rect width="76" height="96" fill="#e3edf7" stroke="#c00" stroke-width="2"/>
+        <circle cx="38" cy="18" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <circle cx="58" cy="48" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="0" y="115" font-size="10" fill="#5a6a7a">×6 ชิ้น (3 ซ้าย + 3 ขวา)</text>
+      </g>
+
+      <!-- dims -->
+      <line x1="40" y1="160" x2="116" y2="160" stroke="#1a2b4a"/>
+      <text x="60" y="175" font-size="11">38</text>
+      <line x1="20" y1="40" x2="20" y2="136" stroke="#1a2b4a"/>
+      <text x="4" y="95" font-size="11" transform="rotate(-90 4 95)">48</text>
+      <line x1="78" y1="58" x2="98" y2="88" stroke="#c00"/>
+      <text x="100" y="80" font-size="10" fill="#c00">20 มม.</text>
+
+      <text x="40" y="210" font-size="10" fill="#06c">รู A: Ø6 (เพลาหลัก) · รู B: Ø3 (ยึดลิงก์ L2) · ระยะ A→B = 20 มม.</text>
+      <text x="40" y="228" font-size="10" fill="#5a6a7a">ขากลาง ML/MR: ติดคันโยกเฟสนำ 60° (หมุน P-L1 ก่อนประกอบ)</text>
+
+      <!-- phase diagram -->
+      <g transform="translate(340,50)">
+        <circle cx="60" cy="60" r="40" fill="none" stroke="#ccc"/>
+        <line x1="60" y1="60" x2="100" y2="60" stroke="#4a5568" stroke-width="2"/>
+        <line x1="60" y1="60" x2="80" y2="25" stroke="#38a169" stroke-width="2"/>
+        <text x="105" y="64" font-size="9">0° FL/RR</text>
+        <text x="82" y="20" font-size="9" fill="#38a169">60° ML/MR</text>
+        <text x="10" y="130" font-size="10" font-weight="700">เฟสคันโยก</text>
+      </g>
+    </svg>
+    <div class="legend">รู A อยู่กึ่งกลางด้านบน · รู B offset 20 มม. ไปทางขวา</div>
+  </div>
+
+  <!-- 4 FLAT PATTERN L2 L3 -->
+  <div class="sheet">
+    <div class="sheet-hd">แบบตัด L2 + L3 — ลิงก์และเท้า <span>×6 ชุด</span></div>
+    <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+      <rect width="720" height="260" fill="#fafbfc"/>
+
+      <!-- L2 -->
+      <g transform="translate(60,50)">
+        <rect width="24" height="110" fill="#e3edf7" stroke="#c00" stroke-width="2"/>
+        <circle cx="12" cy="10" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <circle cx="12" cy="100" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="0" y="-10" font-size="12" font-weight="700" fill="#c00">L2 ลิงก์ 12×55</text>
+        <line x1="-15" y1="10" x2="-15" y2="100" stroke="#1a2b4a"/>
+        <text x="-35" y="58" font-size="10" transform="rotate(-90 -20 58)">55</text>
+        <text x="35" y="58" font-size="9" fill="#06c">รู Ø3 ทั้ง 2 ปลาย</text>
+      </g>
+
+      <!-- L3 -->
+      <g transform="translate(200,55)">
+        <rect width="56" height="36" fill="#e3edf7" stroke="#c00" stroke-width="2" rx="3"/>
+        <circle cx="28" cy="8" r="5" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <rect x="14" y="28" width="28" height="6" fill="#38a169" fill-opacity="0.5" stroke="#38a169"/>
+        <text x="0" y="-10" font-size="12" font-weight="700" fill="#c00">L3 เท้า 28×18</text>
+        <text x="0" y="55" font-size="9" fill="#38a169">แถบเขียว = ช่องติดยาง (ML/MR เท่านั้น)</text>
+        <text x="0" y="70" font-size="9" fill="#5a6a7a">มุมเท้าโค้ง R3 ด้านล่าง</text>
+      </g>
+
+      <!-- L4 axle bracket -->
+      <g transform="translate(360,45)">
+        <rect width="110" height="44" fill="#dbeafe" stroke="#c00" stroke-width="2"/>
+        <circle cx="15" cy="22" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <circle cx="55" cy="22" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <circle cx="95" cy="22" r="6" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="0" y="-8" font-size="12" font-weight="700" fill="#c00">L4 แผ่นยึดเพลา 55×22 ×2</text>
+        <text x="0" y="65" font-size="9" fill="#06c">รู 3 จุด Ø6 ห่าง 40 มม. (ยึด 3 คันโยกต่อข้าง)</text>
+        <text x="0" y="80" font-size="9" fill="#5a6a7a">รูยึดมอเตอร์ 2 จุด ด้านล่าง</text>
+      </g>
+
+      <!-- assembly mini -->
+      <g transform="translate(520,40)">
+        <text x="0" y="0" font-size="11" font-weight="700">ประกอบ 1 ขา</text>
+        <line x1="30" y1="30" x2="50" y2="50" stroke="#c00" stroke-width="3"/>
+        <line x1="50" y1="50" x2="55" y2="100" stroke="#1a2b4a" stroke-width="3"/>
+        <rect x="40" y="98" width="30" height="10" fill="#4a5568" rx="2"/>
+        <text x="0" y="130" font-size="9">L1→L2→L3</text>
+        <text x="0" y="148" font-size="9" fill="#5a6a7a">หมุนได้ที่รู A,B</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- 5 3D HUB + NESTING -->
+  <div class="sheet">
+    <div class="sheet-hd">P-L1 ฮับพิมพ์ 3D + แผนจัดวางตัดขา <span>แผ่น 300×200 มม.</span></div>
+    <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="720" height="300" fill="#fafbfc"/>
+
+      <!-- 3D hub side view -->
+      <g transform="translate(40,40)">
+        <rect x="20" y="30" width="40" height="28" fill="#fff3cd" stroke="#b7791f" stroke-width="1.5" rx="4"/>
+        <rect x="28" y="10" width="24" height="22" fill="#fde68a" stroke="#b7791f" stroke-width="1"/>
+        <circle cx="40" cy="21" r="8" fill="none" stroke="#06c" stroke-width="1.5"/>
+        <text x="0" y="0" font-size="12" font-weight="700" fill="#b7791f">P-L1 ฮับ ×6</text>
+        <text x="0" y="80" font-size="9" fill="#5a6a7a">เจาะ D-flat สำหรับเพลามอเตอร์</text>
+        <text x="0" y="94" font-size="9" fill="#5a6a7a">ด้านล่างมีคลีกยึด L1</text>
+        <text x="0" y="108" font-size="9" fill="#5a6a7a">พิมพ์ PETG · 0.2mm · 20% infill</text>
+      </g>
+
+      <!-- nesting sheet -->
+      <g transform="translate(220,30)">
+        <rect width="300" height="200" fill="#f0f4f8" stroke="#999" stroke-width="1.5"/>
+        <text x="4" y="16" font-size="10" font-weight="700">อะคริลิก 300×200 มม. (1 แผ่นพอ)</text>
+        <!-- 6 L1 -->
+        <g transform="translate(8,24)">
+          <rect width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="42" width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="84" width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="126" width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="168" width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="210" width="38" height="48" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <text x="0" y="-4" font-size="8" fill="#c00">L1 ×6</text>
+        </g>
+        <!-- 6 L2 -->
+        <g transform="translate(8,80)">
+          <rect width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="16" width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="32" width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="48" width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="64" width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="80" width="12" height="55" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <text x="100" y="30" font-size="8" fill="#c00">L2 ×6</text>
+        </g>
+        <!-- 6 L3 -->
+        <g transform="translate(8,145)">
+          <rect width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="32" width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="64" width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="96" width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="128" width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <rect x="160" width="28" height="18" fill="#e3edf7" stroke="#c00" stroke-width="0.8"/>
+          <text x="200" y="12" font-size="8" fill="#c00">L3 ×6</text>
+        </g>
+        <!-- 2 L4 -->
+        <rect x="200" y="80" width="55" height="22" fill="#dbeafe" stroke="#c00" stroke-width="0.8"/>
+        <rect x="200" y="108" width="55" height="22" fill="#dbeafe" stroke="#c00" stroke-width="0.8"/>
+        <text x="200" y="74" font-size="8" fill="#06c">L4 ×2</text>
+      </g>
+
+      <!-- assembly order -->
+      <g transform="translate(540,40)">
+        <text x="0" y="0" font-size="12" font-weight="700">ลำดับประกอบขา</text>
+        <text x="0" y="22" font-size="10">1. ติด L4 บนฐาน + มอเตอร์</text>
+        <text x="0" y="40" font-size="10">2. สอบเพลา Ø6 ผ่าน L4</text>
+        <text x="0" y="58" font-size="10">3. ใส่ P-L1 + L1 (เฟสถูกต้อง)</text>
+        <text x="0" y="76" font-size="10">4. ยึด L2 ที่รู B ของ L1</text>
+        <text x="0" y="94" font-size="10">5. ยึด L3 ปลายลิงก์</text>
+        <text x="0" y="112" font-size="10">6. ติดยาง R1 ที่ ML/MR</text>
+        <text x="0" y="130" font-size="10">7. ทำซ้ำ 6 ขา</text>
+        <text x="0" y="148" font-size="10">8. ทดสอบเดิน ไม่ลากเท้า</text>
+        <rect x="0" y="165" width="160" height="50" fill="#fff8e6" stroke="#d4a017" rx="6"/>
+        <text x="8" y="185" font-size="9" font-weight="700" fill="#b7791f">ทิป: ถ้าเดินเซ</text>
+        <text x="8" y="200" font-size="9" fill="#5a6a7a">สลับเฟสขาหน้า-หลัง 180°</text>
+      </g>
+    </svg>
+    <div class="legend">ตัดขาทั้งหมดบนอะคริลิก 1 แผ่น 300×200 มม. ได้ · ฮับ P-L1 พิมพ์ 3D แยก</div>
+  </div>
+
+</div>
+</body>
+</html>
