@@ -272,7 +272,6 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-<<<<<<< HEAD
         version: 'v1.174.2 (attack-on-noun Three.js CDN fix)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
