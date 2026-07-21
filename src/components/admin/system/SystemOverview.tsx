@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.2 (แก้ปุ่มสุ่มโจทย์ใบงาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'worksheet-modes.js ไม่ทับ btnRandom ด้วย render ซ้ำ seed — เรียก randomize() / KampaiTopicWorksheet.randomize() ก่อนตกแต่งโหมด',
+            'กระทบทุกใบงานที่โหลด worksheet-modes (rect-area, topic hub, คูณ/หาร ฯลฯ) — bump cache worksheet-modes.js?v=1.175.2',
+        ],
+    },
+    {
         version: 'v1.175.1 (แถวชื่อนักเรียนใบงาน — layout กลาง)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',

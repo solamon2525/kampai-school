@@ -192,11 +192,8 @@
     });
   }
 
-  function enhancedRender() {
+  function applyModeDecorations() {
     const mode = modeSelect.value;
-    setForcedControls(mode);
-    baseRender();
-
     document.body.classList.remove('worksheet-mode-exit', 'worksheet-mode-diagnostic', 'worksheet-mode-remedial');
     const sheets = Array.from(document.querySelectorAll('#pages > .sheet:not(.cover-sheet)'));
 
@@ -225,8 +222,34 @@
     }
   }
 
+  function triggerRandomize() {
+    if (typeof window.randomize === 'function') {
+      window.randomize();
+      return true;
+    }
+    if (window.KampaiTopicWorksheet && typeof window.KampaiTopicWorksheet.randomize === 'function') {
+      window.KampaiTopicWorksheet.randomize();
+      return true;
+    }
+    return false;
+  }
+
+  function enhancedRender() {
+    const mode = modeSelect.value;
+    setForcedControls(mode);
+    baseRender();
+    applyModeDecorations();
+  }
+
+  function enhancedRandomize() {
+    const mode = modeSelect.value;
+    setForcedControls(mode);
+    if (!triggerRandomize()) baseRender();
+    applyModeDecorations();
+  }
+
   modeSelect.onchange = enhancedRender;
-  document.getElementById('btnRandom').onclick = enhancedRender;
+  document.getElementById('btnRandom').onclick = enhancedRandomize;
   document.querySelectorAll('#selStyle, #selPageCount, #selGrade, #selCount, #selTopic, #selTeacher').forEach((control) => {
     control.onchange = enhancedRender;
   });
