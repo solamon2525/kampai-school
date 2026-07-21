@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9" />
   <title>ระบบใบงานการหารยาวอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.172.2" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.1" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -130,7 +130,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.172.2"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.1"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
@@ -217,7 +217,7 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
     +'<div class="qr-box"><img class="qr-img" src="'+QR_API+'" alt="QR" /><span class="qr-label">สแกนดูวิธีคิด</span></div>'
     +'<div class="sheet-title"><h2>➗ ใบงานการหารยาว — ชั้น ป.'+grade+'</h2><span class="level">'+indicatorLabel+'</span></div>'
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
-    +'<div class="student"><div class="student-name">ชื่อ - นามสกุล: <span class="blank long"></span></div><div class="student-no">เลขที่: <span class="blank short"></span></div></div>'
+    +'<div class="student"><div class="student-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="student-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
     +'<div class="directions"><span>คำชี้แจง: ตั้งหารให้ตรงหลัก เขียนผลคูณใต้จำนวนที่หาร ขีดเส้น ลบ แล้วดึงเลขหลักถัดไปลงมา</span><span class="indicator">'+indicatorLabel+'</span></div>'
     +'</header><div class="questions count-5">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>หน้า '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">ครูผู้สอน: ${teacherName}</span>`:'')+'</footer></section>';
@@ -252,6 +252,6 @@ document.getElementById('btnPrint').onclick = () => window.print();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.2"></script>
+<script src="/games/worksheet-modes.js?v=1.175.1"></script>
 </body>
 </html>

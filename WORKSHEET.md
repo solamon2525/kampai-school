@@ -27,7 +27,9 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
    - ย้ายชื่อครูผู้สอนไปแสดงที่ด้านล่างกระดาษในแถบส่งผู้ปกครอง (`.parent-slip`) และแถบท้ายกระดาษ (`.sheet-foot`) เพื่อไม่ให้ทับซ้อนกับ QR Code บนส่วนหัว
 
 3. **ส่วนหัวนักเรียนที่สะอาด อ่านง่าย (Clean 1-Line Profile Header):**
-   - แสดงเพียง 2 ฟิลด์: `ชื่อ - นามสกุล: [_________________________]` (ขยายกว้างเต็มที่) และ `เลขที่: [_____]` บนบรรทัดเดียวกัน (ตัดฟิลด์ชั้นออกเพราะแต่ละชั้นมีห้องเดียว)
+   - แถวเดียวไม่ตัดบรรทัด: `ชื่อ–นามสกุล` (เส้นยาว) + `เลขที่` (สั้น) — หรือแบบมี `ชั้น` กลางด้วย (เช่น rect-area)
+   - Layout กลางอยู่ที่ `worksheet-modes.css` (`.sheet .student`) + `worksheet-topic.css` / `worksheet-topic.js` สำหรับใบงาน topic — ห้ามคัดลอก flex/grid แยกในไฟล์รายวิชาจนทำให้เลขที่ตกบรรทัด
+   - โครง markup: `.student > .field|.student-name|.student-no` มี `<span class="lbl">` + `<span class="blank">` คู่กันเสมอ
 
 4. **การจัดวางพื้นที่แบบ Edge-to-Edge & Isolated QR Code Header:**
    - ส่วนหัวกระดาษ `.sheet-head` ถูกล็อกด้วย `padding-right: 28mm` เพื่อกันพื้นที่ฝั่งขวาบนสำหรับ QR Code นำทางไปยังสื่อดิจิทัลโดยเฉพาะ

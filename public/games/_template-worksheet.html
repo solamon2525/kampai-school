@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>แม่แบบใบงานพิมพ์อัจฉริยะ — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.1" rel="stylesheet" />
   <style>
     /* ── Kampai School Worksheet Template System CSS ── */
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
@@ -30,13 +30,9 @@
     .school-name{font-size:9pt;font-weight:700;color:#047857;margin-top:0.5mm;display:flex;align-items:center;gap:6px}
     .school-logo-mini{width:18px;height:18px;object-fit:contain}
     
-    /* Student Profile Header (1-line: Name + Number only) */
-    .student{display:flex;flex-wrap:nowrap;gap:8mm;align-items:center;margin-top:2mm;font-size:10.5pt;font-weight:700;color:#1e293b}
-    .student-name{flex:1;display:flex;align-items:center;gap:6px}
-    .student-no{display:flex;align-items:center;gap:6px;white-space:nowrap}
-    .blank{display:inline-block;border-bottom:1px solid #334155;height:5mm}
-    .blank.long{flex:1;min-width:60mm}
-    .blank.short{width:22mm}
+    /* Student row: shared layout from worksheet-modes.css (.sheet .student) */
+    .student{font-size:10.5pt;color:#1e293b}
+    .blank{border-bottom-color:#334155}
     
     .directions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:9pt;font-weight:700;color:#334155;margin-top:2mm}
     .indicator{color:#047857;font-weight:800;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:1px 7px;white-space:nowrap}
@@ -174,7 +170,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.171.3"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.1"></script>
 <script>
 /* ── Kampai School Worksheet Template Engine ── */
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
@@ -292,6 +288,6 @@ document.getElementById('btnPrint').onclick = () => window.print();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.171.3"></script>
+<script src="/games/worksheet-modes.js?v=1.175.1"></script>
 </body>
 </html>

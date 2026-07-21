@@ -1,3 +1,46 @@
+/* Student fill-in row — one line; name stretches; เลขที่ never wraps alone */
+.sheet .student {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30mm;
+  column-gap: 5mm;
+  align-items: end;
+  margin-top: 2mm;
+  font-weight: 700;
+}
+
+.sheet .student:has(> :nth-child(3)) {
+  grid-template-columns: minmax(0, 1fr) 36mm 30mm;
+}
+
+.sheet .student > div,
+.sheet .student .field,
+.sheet .student .student-name,
+.sheet .student .student-no {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 2mm;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.sheet .student .lbl {
+  flex: 0 0 auto;
+  line-height: 1.2;
+}
+
+.sheet .student .blank,
+.sheet .student .blank.long,
+.sheet .student .blank.short {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 1.2em;
+  border-bottom: 1.25px solid currentColor;
+  box-sizing: border-box;
+}
+
 .worksheet-mode-badge,
 .worksheet-mode-note,
 .worksheet-mode-summary,

@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.1 (แถวชื่อนักเรียนใบงาน — layout กลาง)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'ย้าย layout ช่องชื่อ/ชั้น/เลขที่ไป worksheet-modes.css + worksheet-topic — แถวเดียว เส้นชื่อยาว เลขที่ไม่ตกบรรทัด ใช้ร่วมทุกใบงานที่โหลด modes/topic',
+            'อัปเดตแม่แบบและใบงาน standalone (คูณ/หาร ฯลฯ) ให้ใช้ markup lbl+blank เดียวกัน',
+        ],
+    },
+    {
         version: 'v1.175.0 (บันทึกชุดใบงานบนคลาวด์)',
         date: 'ล่าสุด',
         badge: 'bg-sky-700',

@@ -102,7 +102,7 @@
     const teacher = teacherName ? '<span class="sheet-foot-teacher">ครูผู้สอน: ' + escapeHtml(teacherName) + '</span>' : '<span></span>';
     return '<section class="sheet"><header class="sheet-head"><div class="qr-box"><img class="qr-img" src="' + qrUrl() + '" alt="QR Code สื่อหลัก"><span class="qr-label">สแกนเรียนจากสื่อก่อนทำ</span></div>'
       + '<div class="sheet-title"><h2>' + escapeHtml(config.icon + ' ' + config.title) + '</h2><span class="level">' + escapeHtml(config.gradeLabel) + '</span></div>'
-      + '<div class="school-name">🏫 ' + escapeHtml(schoolName) + '</div><div class="student"><div>ชื่อ–นามสกุล <span class="blank long"></span></div><div>เลขที่ <span class="blank short"></span></div></div>'
+      + '<div class="school-name">🏫 ' + escapeHtml(schoolName) + '</div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
       + '<div class="directions"><span>' + escapeHtml(config.directions) + '</span><span class="indicator">' + escapeHtml(config.indicators.join(' · ')) + '</span></div></header>'
       + '<div class="questions count-' + count + '">' + questions + '</div>'
       + '<div class="parent-slip"><span>✂ ผล: [ ] ผ่าน [ ] ควรทบทวน</span><span>ผู้ปกครองลงชื่อ ____________________</span></div>'
