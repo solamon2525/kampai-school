@@ -33,6 +33,7 @@ import { ThaiVocabManageDialog } from '@/components/admin/educational-hub/ThaiVo
 import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMissedReport';
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
+import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
@@ -65,6 +66,7 @@ export default function TeacherEduHubManager() {
                     <Tabs defaultValue="items" className="w-full">
                         <TabsList>
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
+                            <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                             <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
                             <TabsTrigger value="analytics">วิเคราะห์คะแนนเกม</TabsTrigger>
                             <TabsTrigger value="vocab-review">
@@ -73,6 +75,9 @@ export default function TeacherEduHubManager() {
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
+                        <TabsContent value="worksheet-sets">
+                            <WorksheetSetsPanel staffId={staffId} mode="mine" />
+                        </TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
                         <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
                         <TabsContent value="vocab-review"><ThaiVocabMissedReportClass /></TabsContent>

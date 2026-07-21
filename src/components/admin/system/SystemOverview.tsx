@@ -272,6 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.0 (บันทึกชุดใบงานบนคลาวด์)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            'ตาราง worksheet_sets (migration 419) + RLS: เจ้าของ/แอดมินเขียนได้ · access=link อ่านด้วย anon เพื่อเปิด ?set= บนจอ',
+            'Engine กลาง public/games/worksheet-sets.js — seed RNG (mulberry32), บันทึก/โหลด/รายการชุด, คัดลอกลิงก์; worksheet-runtime โหลดโมดูลให้ใบงาน',
+            'ต่อ rect-area + worksheet-topic: toolbar บันทึกชุด / เลือกชุดของฉัน / ?set= โหลดโจทย์เดิมสำหรับเฉลยวันหลัง',
+            'พอร์ทัลครู/แอดมิน: แท็บ «ชุดใบงาน» ทางลัดเปิดใบงานพร้อม ?set= (WorksheetSetsPanel + worksheet-sets.service)',
+        ],
+    },
+    {
         version: 'v1.174.3 (คลังความรู้ทั่วไป — เทคนิค 3D Print)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

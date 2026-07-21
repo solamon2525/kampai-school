@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.171.3" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.0" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
@@ -55,8 +55,10 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
+  <script src="/games/worksheet-runtime.js?v=1.175.0"></script>
   <script>
     const PI=3.14;
+    const WORKSHEET_KEY='rect-area';
     const SHAPES=[
       {id:'square',icon:'⬜',name:'สี่เหลี่ยมจัตุรัส',grade:'ป.4',formula:'ด้าน × ด้าน',keys:['side'],calc:p=>p.side*p.side},
       {id:'rectangle',icon:'▭',name:'สี่เหลี่ยมผืนผ้า',grade:'ป.4',formula:'กว้าง × ยาว',keys:['width','height'],calc:p=>p.width*p.height},
@@ -71,7 +73,14 @@
       {id:'composite',icon:'🧩',name:'รูปประกอบแบบตัดออก',grade:'ป.6',formula:'พื้นที่รูปใหญ่ − พื้นที่ส่วนที่ตัด',keys:['width','height','cutW','cutH'],calc:p=>p.width*p.height-p.cutW*p.cutH},
     ];
     const label={side:'ด้าน',width:'กว้าง',height:'สูง',base:'ฐาน',d1:'ทแยงมุม 1',d2:'ทแยงมุม 2',top:'คู่ขนาน 1',bottom:'คู่ขนาน 2',radius:'รัศมี',cutW:'ส่วนตัดกว้าง',cutH:'ส่วนตัดสูง'};
-    const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+    let renderSeed=Date.now();
+    let rng=null;
+    let setsUi=null;
+    function ensureRng(){
+      if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
+      else rng=null;
+    }
+    const r=(a,b)=>rng?rng.randomInt(a,b):(a+Math.floor(Math.random()*(b-a+1)));
     const fmt=n=>Math.round(n*100)/100;
     function values(s){
       let p={}; s.keys.forEach(k=>p[k]=r(2,12));
@@ -80,6 +89,21 @@
       if(s.id==='trapezoid' && ((p.top+p.bottom)*p.height)%2)p.height++;
       if(s.id==='composite'){p.width=r(7,14);p.height=r(6,12);p.cutW=r(2,p.width-2);p.cutH=r(2,p.height-2)}
       return p;
+    }
+    function currentConfig(){
+      return{
+        pageCount:document.getElementById('selPageCount').value,
+        topic:document.getElementById('selTopic').value,
+        style:document.getElementById('selStyle')?.value||'standard',
+        useMode:document.getElementById('selUseMode')?.value||'standard',
+      };
+    }
+    function applyConfig(cfg){
+      if(!cfg)return;
+      if(cfg.pageCount!=null)document.getElementById('selPageCount').value=String(cfg.pageCount);
+      if(cfg.topic!=null)document.getElementById('selTopic').value=String(cfg.topic);
+      if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
+      if(cfg.useMode!=null&&document.getElementById('selUseMode'))document.getElementById('selUseMode').value=String(cfg.useMode);
     }
     function svg(s,p){
       let body='';
@@ -144,6 +168,7 @@
       syncAnswerReveal();
     }
     function render(){
+      ensureRng();
       const pageCount=parseInt(document.getElementById('selPageCount').value,10);
       const topic=document.getElementById('selTopic').value;
       const mode=document.getElementById('selUseMode')?.value||'standard';
@@ -157,9 +182,63 @@
       }).join('');
       revealCount=0;
       syncAnswerReveal();
+      if(window.KampaiWorksheetSets){
+        window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
+      }
+    }
+    function randomize(){
+      if(window.KampaiWorksheetSets){
+        renderSeed=window.KampaiWorksheetSets.newSeed();
+        window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
+      }else{
+        renderSeed=Date.now()+Math.floor(Math.random()*100000);
+      }
+      if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
+      render();
+    }
+    function applySetState(state){
+      if(state?.config)applyConfig(state.config);
+      if(state?.seed!=null)renderSeed=Number(state.seed);
+      if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
+      render();
+    }
+    async function bootSets(){
+      try{
+        const Sets=await window.KampaiWorksheet.loadSetsModule();
+        const fromUrl=Sets.getConfigFromUrl();
+        if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
+        else renderSeed=Sets.newSeed();
+        setsUi=Sets.mountToolbar({
+          worksheetKey:WORKSHEET_KEY,
+          initialSetId:fromUrl.setId||'',
+          getState:()=>({
+            seed:renderSeed,
+            config:currentConfig(),
+            title:document.getElementById('kampaiSetTitle')?.value||'พื้นที่รูปเรขาคณิต',
+          }),
+          applyState:applySetState,
+        });
+        if(fromUrl.setId){
+          const row=await Sets.load(fromUrl.setId);
+          if(row){
+            applyConfig(row.config||{});
+            renderSeed=Number(row.seed);
+            const titleInput=document.getElementById('kampaiSetTitle');
+            if(titleInput&&row.title)titleInput.value=row.title;
+            if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
+            render();
+            if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
+            return;
+          }
+        }
+        render();
+      }catch(error){
+        console.warn('worksheet sets unavailable',error);
+        render();
+      }
     }
     document.getElementById('btnBack').onclick=()=>location.href='/games/math/rect-area-media.html';
-    document.getElementById('btnRandom').onclick=render;
+    document.getElementById('btnRandom').onclick=randomize;
     document.getElementById('selPageCount').onchange=render;
     document.getElementById('selTopic').onchange=render;
     document.getElementById('btnAnswerNext').onclick=revealNext;
@@ -171,8 +250,8 @@
       if(event.key==='ArrowRight'||event.key==='n'||event.key==='N'){event.preventDefault();revealNext()}
       if(event.key==='ArrowLeft'||event.key==='b'||event.key==='B'){event.preventDefault();revealPrev()}
     });
-    render();
+    bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.171.3"></script>
+<script src="/games/worksheet-modes.js?v=1.175.0"></script>
 </body>
 </html>

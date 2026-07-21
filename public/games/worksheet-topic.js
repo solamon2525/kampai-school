@@ -3,18 +3,35 @@
   if (!config) throw new Error('WORKSHEET_CONFIG is required');
 
   const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
+  const worksheetKey = config.worksheetKey
+    || (config.sourceMediaUrl || '').replace(/^\/games\//, '').replace(/-media\.html$/, '')
+    || 'topic-worksheet';
+
   let renderSeed = Date.now();
+  let rng = null;
+  let setsUi = null;
 
   function escapeHtml(value) {
     return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
   }
 
+  function ensureRng() {
+    if (window.KampaiWorksheetSets) {
+      rng = window.KampaiWorksheetSets.createRng(renderSeed);
+    } else {
+      rng = null;
+    }
+  }
+
+  function nextRandom() {
+    if (rng) return rng.random();
+    return Math.random();
+  }
+
   function shuffle(items) {
     const result = [...items];
-    let seed = renderSeed;
     for (let index = result.length - 1; index > 0; index -= 1) {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      const pick = seed % (index + 1);
+      const pick = Math.floor(nextRandom() * (index + 1));
       [result[index], result[pick]] = [result[pick], result[index]];
     }
     return result;
@@ -29,6 +46,40 @@
   function qrUrl() {
     const mediaUrl = new URL(config.sourceMediaUrl, window.location.origin).href;
     return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(mediaUrl);
+  }
+
+  function readControls() {
+    return {
+      style: document.getElementById('selStyle')?.value || 'standard',
+      pageCount: Number(document.getElementById('selPageCount')?.value || 1),
+      count: Number(document.getElementById('selCount')?.value || 10),
+      topic: document.getElementById('selTopic')?.value || 'mixed',
+      grade: document.getElementById('selGrade')?.value || '',
+      schoolName: (document.getElementById('inpSchool')?.value || '').trim() || 'โรงเรียนบ้านคำไผ่',
+      teacherName: document.getElementById('selTeacher')?.value || '',
+    };
+  }
+
+  function applyControls(cfg) {
+    if (!cfg || typeof cfg !== 'object') return;
+    const map = {
+      style: 'selStyle',
+      pageCount: 'selPageCount',
+      count: 'selCount',
+      topic: 'selTopic',
+      grade: 'selGrade',
+      schoolName: 'inpSchool',
+      teacherName: 'selTeacher',
+    };
+    Object.entries(map).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (!el || cfg[key] == null || cfg[key] === '') return;
+      el.value = String(cfg[key]);
+    });
+  }
+
+  function currentConfig() {
+    return readControls();
   }
 
   function renderCover(schoolName, teacherName) {
@@ -59,22 +110,90 @@
   }
 
   function render() {
-    renderSeed += 1;
-    const style = document.getElementById('selStyle').value;
-    const pageCount = Number(document.getElementById('selPageCount').value);
-    const count = Number(document.getElementById('selCount').value);
-    const topic = document.getElementById('selTopic').value;
-    const schoolName = document.getElementById('inpSchool').value.trim() || 'โรงเรียนบ้านคำไผ่';
-    const teacherName = document.getElementById('selTeacher').value;
-    let html = style === 'booklet' ? renderCover(schoolName, teacherName) : '';
-    for (let page = 0; page < pageCount; page += 1) html += renderSheet(page, pageCount, count, style, schoolName, teacherName, topic);
+    ensureRng();
+    const controls = readControls();
+    let html = controls.style === 'booklet' ? renderCover(controls.schoolName, controls.teacherName) : '';
+    for (let page = 0; page < controls.pageCount; page += 1) {
+      html += renderSheet(page, controls.pageCount, controls.count, controls.style, controls.schoolName, controls.teacherName, controls.topic);
+    }
     document.getElementById('pages').innerHTML = html;
+    if (window.KampaiWorksheetSets) {
+      window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, setId: setsUi?.getCurrentSetId?.() || undefined });
+    }
   }
 
   function randomize() {
-    renderSeed = Date.now() + Math.floor(Math.random() * 100000);
+    if (window.KampaiWorksheetSets) {
+      renderSeed = window.KampaiWorksheetSets.newSeed();
+    } else {
+      renderSeed = Date.now() + Math.floor(Math.random() * 100000);
+    }
+    if (setsUi?.setCurrentSetId) setsUi.setCurrentSetId('');
+    if (window.KampaiWorksheetSets) {
+      window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, clearSet: true });
+    }
     render();
   }
 
-  window.KampaiTopicWorksheet = Object.freeze({ escapeHtml, randomize, render });
+  function applySetState(state) {
+    if (state?.config) applyControls(state.config);
+    if (state?.seed != null) renderSeed = Number(state.seed);
+    if (state?.setId && setsUi?.setCurrentSetId) setsUi.setCurrentSetId(state.setId);
+    render();
+  }
+
+  async function bootSets() {
+    const loader = window.KampaiWorksheet?.loadSetsModule;
+    if (!loader) return;
+    try {
+      const Sets = await loader();
+      if (!Sets) return;
+      const fromUrl = Sets.getConfigFromUrl();
+      if (fromUrl.seed != null) renderSeed = Number(fromUrl.seed);
+      // else keep renderSeed from initial Date.now() so first paint matches boot
+
+      setsUi = Sets.mountToolbar({
+        worksheetKey,
+        initialSetId: fromUrl.setId || '',
+        getState: () => ({
+          seed: renderSeed,
+          config: currentConfig(),
+          title: document.getElementById('kampaiSetTitle')?.value || config.title,
+        }),
+        applyState: applySetState,
+      });
+
+      if (fromUrl.setId) {
+        const row = await Sets.load(fromUrl.setId);
+        if (row) {
+          applyControls(row.config || {});
+          renderSeed = Number(row.seed);
+          const titleInput = document.getElementById('kampaiSetTitle');
+          if (titleInput && row.title) titleInput.value = row.title;
+          if (setsUi?.setCurrentSetId) setsUi.setCurrentSetId(row.id);
+          render();
+          if (setsUi?.setMessage) setsUi.setMessage('โหลดชุด: ' + (row.title || row.id.slice(0, 8)));
+          return;
+        }
+      }
+      render();
+    } catch (error) {
+      console.warn('worksheet sets unavailable', error);
+      render();
+    }
+  }
+
+  window.KampaiTopicWorksheet = Object.freeze({
+    escapeHtml,
+    randomize,
+    render,
+    getSeed: () => renderSeed,
+    worksheetKey,
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootSets);
+  } else {
+    bootSets();
+  }
 })();

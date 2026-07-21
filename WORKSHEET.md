@@ -74,6 +74,32 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
 - control ที่ครูต้องเลือกต้องมี `<label>` หรือ `aria-label` ชัดเจน
 - ห้ามสร้าง mode logic, teacher fetch หรือ print CSS ซ้ำในไฟล์รายวิชา ถ้ามีพฤติกรรมร่วมให้แก้ที่ runtime/modes กลาง
 
+## 3.1 บันทึกชุดใบงาน (Worksheet Sets Cloud)
+
+ปัญหา: ใบงานสุ่มด้วย RNG ทุกครั้งที่เปิด จึงไม่มีชุดเดิมให้กลับมาเฉลยบนจอหลังให้นักเรียนไปแล้ว
+
+แนวทาง:
+
+| ส่วน | ไฟล์ / ตาราง |
+|---|---|
+| DB | `worksheet_sets` (migration 419) — `seed` + `config` jsonb + `access` (`private`\|`link`) |
+| Engine | `public/games/worksheet-sets.js` — `KampaiWorksheetSets` (mulberry32, save/load/list, mountToolbar) |
+| Runtime | `public/games/worksheet-runtime.js` → `loadSetsModule()` (ห้ามฝัง URL/key ซ้ำในไฟล์ใบงาน) |
+| Topic shell | `public/games/worksheet-topic.js` ผูก seed + toolbar ชุดอัตโนมัติ |
+| React | `src/services/worksheet-sets.service.ts` + `WorksheetSetsPanel` ในพอร์ทัลครู/แอดมิน |
+
+Workflow ครู:
+
+1. สร้าง/สุ่มชุด → กด **บันทึกชุด** (ต้องล็อกอินพอร์ทัลครูบนโดเมนเดียวกัน — ใช้ session ใน `localStorage`)
+2. พิมพ์ให้นักเรียน / **คัดลอกลิงก์** (`?set=<uuid>`)
+3. วันหลังเปิดลิงก์เดิมบนจอ → โจทย์ตรงเดิม → ใช้เฉลยทีละข้อ (เช่น rect-area)
+
+กฎ:
+
+- สุ่มใหม่ = seed ใหม่ (ไม่ทับชุดที่บันทึกจนกดบันทึก)
+- ยังไม่ล็อกอิน: โหลดชุด `access=link` ได้ แต่ปุ่มบันทึกจะบอกให้เข้าพอร์ทัลก่อน
+- verify:worksheet ตรวจ contract ชุดสำหรับ rect-area และใบงานที่ใช้ topic/runtime กลาง
+
 ## 4. Process Scaffold Rule (โจทย์ต้องมีพื้นที่ทำวิธี)
 
 ถ้าตัวชี้วัดประเมิน “กระบวนการ” ห้ามแสดงเพียงโจทย์และสั่งกว้าง ๆ ว่า *แสดงวิธีทำ* ต้องเตรียม scaffold ที่ตรงกับทักษะ:

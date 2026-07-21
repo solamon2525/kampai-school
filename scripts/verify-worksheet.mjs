@@ -176,6 +176,30 @@ function verifyFile(file) {
             source.includes('formula') && source.includes('work-line'),
             'โจทย์พื้นที่ต้องมีสูตรและบรรทัดลงวิธีคำนวณ',
         );
+        check(
+            'saved sets contract',
+            /KampaiWorksheet\.loadSetsModule|KampaiWorksheetSets/.test(source)
+                && /worksheet-runtime\.js/.test(source)
+                && (/kampaiBtnSaveSet|mountToolbar/.test(source) || /WORKSHEET_KEY\s*=\s*['"]rect-area['"]/.test(source))
+                && /[?&]set=|getConfigFromUrl|searchParams\.get\(['"]set['"]\)/.test(source),
+            'rect-area ต้องโหลด worksheet sets และรองรับ ?set= / บันทึกชุด',
+        );
+    }
+
+    const linkedSetsSource = readLinkedLocalAsset(source, 'worksheet-sets.js')
+        + readLinkedLocalAsset(source, 'worksheet-runtime.js')
+        + readLinkedLocalAsset(source, 'worksheet-topic.js');
+    const setsEngineFile = path.join(gamesRoot, 'worksheet-sets.js');
+    const setsEngineSource = fs.existsSync(setsEngineFile) ? fs.readFileSync(setsEngineFile, 'utf8') : '';
+    if (/worksheet-topic\.js/.test(source) || /KampaiWorksheetSets|loadSetsModule/.test(source + linkedSetsSource)) {
+        check(
+            'worksheet sets engine',
+            /KampaiWorksheetSets/.test(linkedSetsSource + source)
+                && /mountToolbar/.test(linkedSetsSource + setsEngineSource + source)
+                && /mulberry32|createRng/.test(setsEngineSource + linkedSetsSource + source)
+                && /loadSetsModule/.test(linkedSetsSource + source),
+            'ต้องมี engine ชุดใบงานกลาง (seed RNG + mountToolbar + save/load ผ่าน runtime)',
+        );
     }
     const scaffoldRules = [
         ['data-chart-worksheet.html', ['mini-table', 'chart-grid', 'scale-box'], 'ข้อมูลต้องมีตาราง พื้นที่กราฟ และช่องกำหนดสเกล'],

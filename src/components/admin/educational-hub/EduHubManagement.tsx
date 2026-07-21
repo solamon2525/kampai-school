@@ -30,6 +30,7 @@ import { EduHubItemForm } from './EduHubItemForm';
 import { GamesTab } from './GamesTab';
 import { SortableCategoriesGrid } from './SortableCategoriesGrid';
 import { HubLayoutDefaultsTab } from './HubLayoutDefaultsTab';
+import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
 
 type Teacher = {
     id: string;
@@ -82,6 +83,7 @@ export const EduHubManagement = () => {
                 <TabsList>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>
+                    <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                     <TabsTrigger value="categories">หมวดหมู่</TabsTrigger>
                     <TabsTrigger value="teachers">ครู</TabsTrigger>
                     <TabsTrigger value="layout-defaults">ค่าเริ่มต้นหน้าคลัง</TabsTrigger>
@@ -89,6 +91,7 @@ export const EduHubManagement = () => {
 
                 <TabsContent value="items"><AllItemsTab /></TabsContent>
                 <TabsContent value="games"><GamesTab /></TabsContent>
+                <TabsContent value="worksheet-sets"><WorksheetSetsPanel mode="recent" limit={40} /></TabsContent>
                 <TabsContent value="categories"><CategoriesTab /></TabsContent>
                 <TabsContent value="teachers"><TeachersTab /></TabsContent>
                 <TabsContent value="layout-defaults"><HubLayoutDefaultsTab /></TabsContent>
