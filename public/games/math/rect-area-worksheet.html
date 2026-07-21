@@ -82,12 +82,72 @@
     }
     const r=(a,b)=>rng?rng.randomInt(a,b):(a+Math.floor(Math.random()*(b-a+1)));
     const fmt=n=>Math.round(n*100)/100;
-    function values(s){
-      let p={}; s.keys.forEach(k=>p[k]=r(2,12));
-      if(s.id==='square')p.side=r(2,12);
-      if(['triangle','rhombus','kite'].includes(s.id) && (p[s.keys[0]]*p[s.keys[1]])%2)p[s.keys[1]]++;
-      if(s.id==='trapezoid' && ((p.top+p.bottom)*p.height)%2)p.height++;
-      if(s.id==='composite'){p.width=r(7,14);p.height=r(6,12);p.cutW=r(2,p.width-2);p.cutH=r(2,p.height-2)}
+    /** ค่าลายนิ้วมือของโจทย์ — ใช้กันซ้ำในหน้าเดียวกัน */
+    function fingerprint(s,p){
+      return s.id+':'+s.keys.map((k)=>k+'='+p[k]).join('|');
+    }
+    /**
+     * สุ่มค่าโจทย์แบบประถม: จำนวนเต็มเท่านั้น
+     * (ไม่ใช้รัศมีทศนิยม — π×r² ด้วย .5 ทำให้ได้ทศนิยมยาวเกินระดับ ป.4–6)
+     * ขยายช่วงเลขให้พอสำหรับ 10 ข้อไม่ซ้ำ
+     */
+    function rawValues(s){
+      let p={};
+      if(s.id==='square'){
+        p.side=r(3,18);
+      }else if(s.id==='rectangle'){
+        p.width=r(3,16);
+        p.height=r(2,14);
+        if(p.height===p.width)p.height=p.width===14?p.width-1:p.width+1;
+      }else if(s.id==='triangle'||s.id==='parallelogram'){
+        p.base=r(3,16);
+        p.height=r(2,14);
+        if(s.id==='triangle'&&(p.base*p.height)%2)p.height+=1;
+      }else if(s.id==='rhombus'||s.id==='kite'){
+        p.d1=r(4,16);
+        p.d2=r(3,14);
+        if(p.d1===p.d2)p.d2=p.d1===14?p.d1-1:p.d1+1;
+        if((p.d1*p.d2)%2)p.d2+=1;
+      }else if(s.id==='trapezoid'){
+        p.top=r(2,10);
+        p.bottom=r(p.top+1,16);
+        p.height=r(2,12);
+        if(((p.top+p.bottom)*p.height)%2)p.height+=1;
+      }else if(s.id==='circle'||s.id==='semicircle'||s.id==='quarter'){
+        // รัศมีจำนวนเต็ม 2–15 (14 ค่า) พอสำหรับ 10 ข้อไม่ซ้ำ โดยไม่ต้องใช้ทศนิยม
+        p.radius=r(2,15);
+      }else if(s.id==='composite'){
+        p.width=r(8,16);
+        p.height=r(7,14);
+        p.cutW=r(2,p.width-3);
+        p.cutH=r(2,p.height-3);
+      }else{
+        s.keys.forEach((k)=>{p[k]=r(2,14);});
+      }
+      return p;
+    }
+    function values(s,used){
+      const seen=used||new Set();
+      for(let attempt=0;attempt<48;attempt+=1){
+        const p=rawValues(s);
+        const fp=fingerprint(s,p);
+        if(!seen.has(fp)){
+          seen.add(fp);
+          return p;
+        }
+      }
+      // สำรอง: ดันค่าหลักให้ต่างจากที่เคยใช้ (กรณีชุดเกือบเต็ม)
+      const p=rawValues(s);
+      const key=s.keys[0];
+      for(let bump=1;bump<=20;bump+=1){
+        p[key]=(Number(p[key])||2)+bump;
+        const fp=fingerprint(s,p);
+        if(!seen.has(fp)){
+          seen.add(fp);
+          return p;
+        }
+      }
+      seen.add(fingerprint(s,p));
       return p;
     }
     function currentConfig(){
@@ -177,7 +237,8 @@
       const repeatOne=mode!=='standard'&&topic==='all';
       const pageShapes=Array.from({length:pageCount},(_,index)=>repeatOne?source[0]:source[index%source.length]);
       document.getElementById('pages').innerHTML=pageShapes.map((s,page)=>{
-        let qs='';for(let i=1;i<=10;i++)qs+=question(s,values(s),i);
+        const used=new Set();
+        let qs='';for(let i=1;i<=10;i++)qs+=question(s,values(s,used),i);
         return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+'</span></div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ</span><span class="blank"></span></div><div class="field field-class"><span class="lbl">ชั้น</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions">'+qs+'</div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
       }).join('');
       revealCount=0;
