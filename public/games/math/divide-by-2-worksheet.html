@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/divide-by-2-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.2/5, ค 1.1 ป.3/6, ค 1.1 ป.4/9"><title>ใบงานหาร 2 ในใจ ป.2–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.2" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.2" rel="stylesheet">
+<style>
+.eq-big{font-size:15pt;font-weight:800;color:var(--ws-accent);text-align:center;margin:.5mm 0 1mm}
+.eq-big .op{color:var(--ws-accent-2)}
+.half-row{display:flex;align-items:center;justify-content:center;gap:2mm;font-weight:700;font-size:8.5pt;color:var(--ws-muted)}
+.half-box{min-width:10mm;height:7mm;border-bottom:1px dotted var(--ws-muted);display:inline-block}
+.count-5 .eq-big{font-size:17pt}
+.count-5 .half-row{font-size:9pt}
+</style>
+</head><body>
+<header class="toolbar"><h1>➗ ใบงานหาร 2 ในใจ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="2">ป.2</option><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสม</option><option value="half">แบ่งครึ่ง</option><option value="check">ตรวจด้วย ×2</option><option value="split">แยกหลัก</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.175.2"></script><script>
+(function(){
+  function randEven(min,max){var lo=Math.ceil(min/2)*2,hi=Math.floor(max/2)*2;if(lo>hi)lo=hi;return lo+Math.floor(Math.random()*(Math.floor((hi-lo)/2)+1))*2;}
+  function buildPool(grade){
+    var ranges={2:[4,20],3:[10,40],4:[20,100]};
+    var r=ranges[grade]||ranges[3];
+    var pool=[],seen={};
+    for(var i=0;i<40;i++){
+      var n=randEven(r[0],r[1]);
+      if(seen[n])continue; seen[n]=1;
+      var ans=n/2;
+      var tens=Math.floor(n/10)*10,ones=n%10;
+      var splitHint=(n>=20&&ones)?(tens/2)+' + '+(ones/2)+' = '+ans:'';
+      pool.push({
+        type: splitHint?'split':'half',
+        dividend:n, answer:ans,
+        prompt:n+' ÷ 2 = ?',
+        halfA:ans, halfB:ans,
+        check:ans+' × 2 = '+n,
+        split:splitHint||('? + ? = '+n),
+        step1:'แบ่งครึ่ง: ? + ? = '+n,
+        step2:splitHint||('คิดว่า '+ans+' + '+ans+' = '+n),
+        step3:'ตรวจ: '+ans+' × 2 = '+n
+      });
+    }
+    return pool;
+  }
+  var POOL2=buildPool(2), POOL3=buildPool(3), POOL4=buildPool(4);
+  var ALL=POOL2.concat(POOL3,POOL4);
+  window.WORKSHEET_CONFIG={
+    icon:'➗', title:'ใบงานหาร 2 ในใจ', subject:'คณิตศาสตร์', gradeLabel:'ป.2–4',
+    mediaLabel:'หาร 2 ในใจ',
+    sourceMediaUrl:'/games/math/divide-by-2-thinking-media.html',
+    indicators:['ค 1.1 ป.2/5','ค 1.1 ป.3/6','ค 1.1 ป.4/9'],
+    directions:'หาร 2 ในใจ = แบ่งครึ่ง · คิด ? + ? = ตัวตั้ง · ตรวจด้วยคำตอบ × 2',
+    getItems:function(topic){
+      var g=document.getElementById('selGrade')?.value||'3';
+      var base=g==='2'?POOL2:g==='4'?POOL4:POOL3;
+      var src=topic==='mixed'?base:base.filter(function(i){return i.type===topic;});
+      return src.length?src:base;
+    },
+    renderQuestion:function(item){
+      var e=window.KampaiTopicWorksheet.escapeHtml;
+      return '<div class="q-stem"><div class="eq-big">'+e(String(item.dividend))+' <span class="op">÷ 2</span> = ?</div>'
+        +'<div class="half-row"><span class="half-box"></span> + <span class="half-box"></span> = '+e(String(item.dividend))+'</div></div>'
+        +'<div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(item.step1)+'</span></div>'
+        +'<div class="calc-line"><span class="work-fill">'+e(item.step2)+'</span></div>'
+        +'<div class="calc-line"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+        +'<div class="q-foot"><div class="answer-line">คำตอบ <span class="answer-fill">'+e(String(item.answer))+'</span></div></div>';
+    }
+  };
+})();
+</script><script src="/games/worksheet-topic.js?v=1.175.2"></script><script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=function(){document.body.classList.toggle('show-answers');};
+document.getElementById('btnPrint').onclick=function(){window.print();};
+window.KampaiWorksheet.loadTeachers();
+render();
+</script><script src="/games/worksheet-modes.js?v=1.175.2"></script></body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>หารเร็วในใจ — Divide by 2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="combo-badge">🔥 x1</div>
+    <div id="round-badge">ข้อ 0</div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <button type="button" class="btn-quit" id="btn-quit" title="ออกจากเกม">✕</button>
+  </div>
+
+  <div id="play">
+    <div id="question-label">หาร 2 ในใจ</div>
+    <div id="question">24 <span class="divisor">÷ 2</span> = ?</div>
+    <div id="feedback"></div>
+    <div id="answers"></div>
+  </div>
+</div>
+
+<!-- Start -->
+<div id="start" class="screen on">
+  <h1 id="game-title">➗ หารเร็วในใจ</h1>
+  <p id="game-subtitle">ฝึกหาร 2 ในใจให้คล่อง — ตอบเร็วได้โบนัส!</p>
+  <div id="player-chip"></div>
+  <div id="my-stats">
+    <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+    <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว (ครั้ง)</div></div>
+  </div>
+  <div class="tip-box" id="tip-box"></div>
+  <p style="font-size:13px;color:#94a3b8;margin-bottom:6px">เลือกระดับความยาก</p>
+  <div class="level-row" id="level-row"></div>
+  <div class="leaderboard-box">
+    <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+    <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0;">
+    <a class="btn btn-ghost" href="/games/math/divide-by-2-thinking-media.html" target="_blank" rel="noopener" style="text-decoration:none;font-size:15px;padding:10px 18px;">🧠 สื่อสอนหาร 2</a>
+    <a class="btn btn-ghost" href="/games/math/divide-by-2-worksheet.html" target="_blank" rel="noopener" style="text-decoration:none;font-size:15px;padding:10px 18px;">📝 ใบงานพิมพ์</a>
+  </div>
+  <button class="btn btn-primary" id="btn-start">▶ เริ่มแข่ง (60 วิ)</button>
+  <button class="btn btn-blue" id="btn-practice">📚 ฝึกไม่จับเวลา</button>
+  <button class="btn btn-versus" id="btn-versus">🏁 แข่ง 2 คน</button>
+</div>
+
+<!-- Game Over -->
+<div id="over" class="screen">
+  <div id="go-stars">☆☆☆</div>
+  <h1>จบเกม!</h1>
+  <div id="final-score">0</div>
+  <div id="final-detail"></div>
+  <div class="stats-row">
+    <div class="stat-chip"><div class="num" id="stat-correct" style="color:#4ade80">0</div><div class="lbl">ตอบถูก</div></div>
+    <div class="stat-chip"><div class="num" id="stat-wrong" style="color:#f87171">0</div><div class="lbl">ตอบผิด</div></div>
+    <div class="stat-chip"><div class="num" id="stat-accuracy">0%</div><div class="lbl">ความแม่นยำ</div></div>
+  </div>
+  <div id="kampai-result"></div>
+  <div class="leaderboard-box">
+    <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+    <ul id="score-list-go" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+  </div>
+  <button class="btn btn-primary" id="btn-replay">🔄 เล่นใหม่</button>
+  <button class="btn btn-blue" id="btn-home">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
