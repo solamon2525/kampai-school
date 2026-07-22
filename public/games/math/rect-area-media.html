@@ -357,7 +357,7 @@
       else if (s.id === 'semicircle') body = '<path class="shape-fill" d="M70 285 A170 170 0 0 1 410 285 Z"/><line class="measure" x1="240" y1="285" x2="410" y2="285"/>';
       else if (s.id === 'quarter') body = '<path class="shape-fill" d="M95 300 L95 55 A245 245 0 0 1 340 300 Z"/><line class="measure" x1="95" y1="300" x2="340" y2="300"/>';
       else body = '<path class="shape-fill" d="M55 45 H425 V310 H270 V205 H55 Z"/><rect class="shape-cut" x="270" y="205" width="155" height="105"/>';
-      const values=s.params.map(([key,label])=>label+' '+p[key]).join(' · ');
+      const values=s.params.map(([key,label])=>label+' = '+p[key]).join(' · ');
       if (step === 0) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 1: อ่านค่าจากรูป — '+values+'</text>';
       else if (step === 1) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 2: '+s.formula+'</text>';
       else if (step === 2) measures = '<text class="shape-label" x="240" y="350" text-anchor="middle">ขั้น 3: พื้นที่ = '+rounded(s.calc(p))+' ตารางหน่วย ✓</text>';
