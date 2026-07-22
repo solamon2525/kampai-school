@@ -4,10 +4,12 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.2';
+  const VERSION = '1.175.3';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
+  const LOGIN_PATH = '/admin';
+  const EXPIRY_SKEW_SEC = 60;
 
   function mulberry32(seed) {
     let t = (Number(seed) >>> 0) || 1;
@@ -63,19 +65,119 @@
     return next;
   }
 
-  function readStoredSession() {
+  function readAuthBlob() {
     try {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY);
       if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      const session = parsed?.currentSession || parsed;
-      const accessToken = session?.access_token;
-      const user = session?.user;
-      if (!accessToken || !user?.id) return null;
-      return { accessToken, userId: user.id, user };
+      return JSON.parse(raw);
     } catch {
       return null;
     }
+  }
+
+  function sessionFromBlob(blob) {
+    if (!blob) return null;
+    const session = blob.currentSession || blob;
+    const accessToken = session?.access_token;
+    const user = session?.user;
+    if (!accessToken || !user?.id) return null;
+    return {
+      accessToken,
+      refreshToken: session.refresh_token || '',
+      expiresAt: Number(session.expires_at || blob.expiresAt || 0) || 0,
+      userId: user.id,
+      user,
+      raw: session,
+      blob,
+    };
+  }
+
+  function readStoredSession() {
+    return sessionFromBlob(readAuthBlob());
+  }
+
+  function writeStoredSession(tokenPayload) {
+    if (!tokenPayload?.access_token || !tokenPayload?.user) return null;
+    const expiresAt = Number(tokenPayload.expires_at)
+      || (Math.floor(Date.now() / 1000) + Number(tokenPayload.expires_in || 3600));
+    const nextSession = {
+      access_token: tokenPayload.access_token,
+      refresh_token: tokenPayload.refresh_token || '',
+      expires_in: tokenPayload.expires_in,
+      expires_at: expiresAt,
+      token_type: tokenPayload.token_type || 'bearer',
+      user: tokenPayload.user,
+    };
+    const prev = readAuthBlob();
+    let nextBlob;
+    if (prev && prev.currentSession) {
+      nextBlob = { ...prev, currentSession: nextSession, expiresAt };
+    } else {
+      nextBlob = nextSession;
+    }
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextBlob));
+    } catch {
+      /* ignore quota */
+    }
+    return sessionFromBlob(nextBlob);
+  }
+
+  function isSessionExpired(session) {
+    if (!session?.accessToken) return true;
+    if (!session.expiresAt) return false;
+    return session.expiresAt <= Math.floor(Date.now() / 1000) + EXPIRY_SKEW_SEC;
+  }
+
+  function isJwtExpiredError(error) {
+    const msg = String(error?.message || error?.data?.message || error || '').toLowerCase();
+    const code = String(error?.data?.code || error?.code || '').toLowerCase();
+    return msg.includes('jwt expired')
+      || msg.includes('invalid jwt')
+      || code === 'pgrst301'
+      || error?.status === 401;
+  }
+
+  let refreshPromise = null;
+
+  async function refreshSession() {
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = (async () => {
+      const current = readStoredSession();
+      if (!current?.refreshToken) return null;
+      const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh_token: current.refreshToken }),
+      });
+      const text = await response.text();
+      let data = null;
+      if (text) {
+        try { data = JSON.parse(text); } catch { data = null; }
+      }
+      if (!response.ok || !data?.access_token) {
+        return null;
+      }
+      return writeStoredSession(data);
+    })().finally(() => {
+      refreshPromise = null;
+    });
+    return refreshPromise;
+  }
+
+  async function getValidSession(forceRefresh) {
+    let session = readStoredSession();
+    if (!session) return null;
+    if (forceRefresh || isSessionExpired(session)) {
+      const refreshed = await refreshSession();
+      if (refreshed) return refreshed;
+      if (isSessionExpired(session)) return null;
+    }
+    return session;
   }
 
   function headers(accessToken) {
@@ -105,16 +207,45 @@
     return data;
   }
 
+  async function restWithAuth(path, options, accessToken) {
+    try {
+      return await rest(path, {
+        ...(options || {}),
+        headers: headers(accessToken),
+      });
+    } catch (error) {
+      if (!isJwtExpiredError(error)) throw error;
+      const refreshed = await refreshSession();
+      if (!refreshed?.accessToken) {
+        const err = new Error('login_required');
+        err.code = 'login_required';
+        err.cause = error;
+        throw err;
+      }
+      return rest(path, {
+        ...(options || {}),
+        headers: headers(refreshed.accessToken),
+      });
+    }
+  }
+
   async function getSessionStaff() {
-    const session = readStoredSession();
+    const session = await getValidSession(false);
     if (!session) return null;
-    const rows = await rest(
-      `user_roles?select=staff_id,role&user_id=eq.${encodeURIComponent(session.userId)}&staff_id=not.is.null&limit=1`,
-      { headers: headers(session.accessToken) },
-    );
-    const staffId = Array.isArray(rows) && rows[0]?.staff_id ? rows[0].staff_id : null;
-    if (!staffId) return { userId: session.userId, staffId: null, accessToken: session.accessToken };
-    return { userId: session.userId, staffId, accessToken: session.accessToken };
+    try {
+      const rows = await restWithAuth(
+        `user_roles?select=staff_id,role&user_id=eq.${encodeURIComponent(session.userId)}&staff_id=not.is.null&limit=1`,
+        { method: 'GET' },
+        session.accessToken,
+      );
+      const staffId = Array.isArray(rows) && rows[0]?.staff_id ? rows[0].staff_id : null;
+      const latest = readStoredSession() || session;
+      if (!staffId) return { userId: latest.userId, staffId: null, accessToken: latest.accessToken };
+      return { userId: latest.userId, staffId, accessToken: latest.accessToken };
+    } catch (error) {
+      if (error.code === 'login_required' || isJwtExpiredError(error)) return null;
+      throw error;
+    }
   }
 
   async function listMine(worksheetKey) {
@@ -122,16 +253,17 @@
     if (!session?.staffId) return [];
     let path = `worksheet_sets?select=id,title,worksheet_key,seed,config,access,created_at,updated_at&owner_staff_id=eq.${encodeURIComponent(session.staffId)}&order=created_at.desc`;
     if (worksheetKey) path += `&worksheet_key=eq.${encodeURIComponent(worksheetKey)}`;
-    const rows = await rest(path, { headers: headers(session.accessToken) });
+    const rows = await restWithAuth(path, { method: 'GET' }, session.accessToken);
     return Array.isArray(rows) ? rows : [];
   }
 
   async function load(setId) {
     if (!setId) return null;
-    const session = readStoredSession();
-    const rows = await rest(
+    const session = await getValidSession(false);
+    const rows = await restWithAuth(
       `worksheet_sets?select=id,owner_staff_id,worksheet_key,title,seed,config,access,created_at,updated_at&id=eq.${encodeURIComponent(setId)}&limit=1`,
-      { headers: headers(session?.accessToken) },
+      { method: 'GET' },
+      session?.accessToken,
     );
     return Array.isArray(rows) && rows[0] ? rows[0] : null;
   }
@@ -153,21 +285,20 @@
       updated_at: new Date().toISOString(),
     };
     if (payload.id) {
-      const rows = await rest(
+      const rows = await restWithAuth(
         `worksheet_sets?id=eq.${encodeURIComponent(payload.id)}`,
         {
           method: 'PATCH',
-          headers: headers(session.accessToken),
           body: JSON.stringify(body),
         },
+        session.accessToken,
       );
       return Array.isArray(rows) ? rows[0] : rows;
     }
-    const rows = await rest('worksheet_sets', {
+    const rows = await restWithAuth('worksheet_sets', {
       method: 'POST',
-      headers: headers(session.accessToken),
       body: JSON.stringify(body),
-    });
+    }, session.accessToken);
     return Array.isArray(rows) ? rows[0] : rows;
   }
 
@@ -178,11 +309,16 @@
       err.code = 'login_required';
       throw err;
     }
-    await rest(`worksheet_sets?id=eq.${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      headers: headers(session.accessToken),
-    });
+    await restWithAuth(
+      `worksheet_sets?id=eq.${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+      session.accessToken,
+    );
     return true;
+  }
+
+  function loginHintMessage() {
+    return 'เซสชันหมดอายุ — เข้าพอร์ทัลครูใหม่ที่ /admin แล้วกลับมาบันทึก';
   }
 
   function ensureSetToolbarStyles() {
@@ -192,10 +328,11 @@
     style.textContent = [
       '.kampai-set-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}',
       '.kampai-set-bar .t-select,.kampai-set-bar .t-input{font:700 .82rem Sarabun,sans-serif;padding:6px 8px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;max-width:11rem}',
-      '.kampai-set-bar .t-input{min-width:10rem;max-width:22rem}',
+      '.kampai-set-bar .t-input{min-width:14rem;max-width:min(36rem,55vw)}',
       '.kampai-set-bar .t-input[readonly]{opacity:.95;cursor:default;background:rgba(255,255,255,.12)}',
       '.kampai-set-bar .kampai-set-id{font:700 .75rem Sarabun,sans-serif;opacity:.9;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-      '.kampai-set-bar .kampai-set-msg{font:600 .75rem Sarabun,sans-serif;opacity:.95}',
+      '.kampai-set-bar .kampai-set-msg{font:600 .75rem Sarabun,sans-serif;opacity:.95;max-width:28rem}',
+      '.kampai-set-bar .kampai-set-msg a{color:#fde68a;font-weight:800;text-decoration:underline}',
     ].join('');
     document.head.appendChild(style);
   }
@@ -248,8 +385,18 @@
     let titleTouched = false;
 
     function setMessage(text, isError) {
-      msg.textContent = text || '';
+      if (!msg) return;
+      const html = String(text || '');
+      if (html.includes('<a ')) {
+        msg.innerHTML = html;
+      } else {
+        msg.textContent = html;
+      }
       msg.style.color = isError ? '#fecaca' : '';
+    }
+
+    function authErrorMessage() {
+      return loginHintMessage() + ' <a href="' + LOGIN_PATH + '" target="_blank" rel="noopener">เปิดหน้าเข้าสู่ระบบ</a>';
     }
 
     function syncIdLabel() {
@@ -348,8 +495,8 @@
         await refreshMine();
         setMessage('บันทึกแล้ว — เปิดลิงก์นี้วันหลังได้ชุดเดิม');
       } catch (error) {
-        if (error.code === 'login_required' || error.message === 'login_required') {
-          setMessage('เข้าพอร์ทัลครูบนโดเมนนี้ก่อน แล้วค่อยบันทึก', true);
+        if (error.code === 'login_required' || error.message === 'login_required' || isJwtExpiredError(error)) {
+          setMessage(authErrorMessage(), true);
         } else {
           setMessage(error.message || 'บันทึกไม่สำเร็จ', true);
         }
