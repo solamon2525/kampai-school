@@ -4,7 +4,7 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.4';
+  const VERSION = '1.175.5';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
@@ -58,6 +58,13 @@
     return Math.max(1, Number(document.getElementById('selPageCount')?.value || 1) || 1);
   }
 
+  function readQuestionCount() {
+    const el = document.getElementById('selCount');
+    if (!el) return null;
+    const n = Number(el.value);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
   function topicLabelFromDom(opts) {
     const options = opts || {};
     const topic = document.getElementById('selTopic')?.value || '';
@@ -71,12 +78,13 @@
   }
 
   /**
-   * ชื่อชุดอัตโนมัติร่วมทุกใบงาน: "{prefix} - {หัวข้อ} · {N} หน้า · ชุด {k}"
+   * ชื่อชุดอัตโนมัติร่วมทุกใบงาน: "{prefix} - {หัวข้อ} · {M} ข้อ · {N} หน้า · ชุด {k}"
    * opts.titlePrefix / opts.topicLabels ปรับได้รายใบงาน
    */
   function buildDefaultSetTitle(ctx, opts) {
     const topicKey = readTopicKey();
     const pages = readPageCount();
+    const qCount = readQuestionCount();
     const labelText = topicLabelFromDom(opts);
     const prefix = defaultTitlePrefix(opts);
     const rows = ctx?.rows || [];
@@ -89,12 +97,14 @@
         : String(cfg.grade ?? 'default');
       if (rowTopic !== String(topicKey)) return;
       if (Number(cfg.pageCount || 0) !== pages) return;
+      if (qCount != null && Number(cfg.count || 0) !== qCount) return;
       count += 1;
       const match = String(row.title || '').match(/ชุด\s*(\d+)/);
       if (match) maxN = Math.max(maxN, Number(match[1]) || 0);
     });
     const n = Math.max(maxN, count) + 1;
-    return prefix + ' - ' + labelText + ' · ' + pages + ' หน้า · ชุด ' + n;
+    const countPart = qCount != null ? (' · ' + qCount + ' ข้อ') : '';
+    return prefix + ' - ' + labelText + countPart + ' · ' + pages + ' หน้า · ชุด ' + n;
   }
 
   function mulberry32(seed) {

@@ -193,6 +193,16 @@ function verifyFile(file) {
               && /selPageCount/.test(source),
             'rect-area ต้องตั้งชื่อชุดอัตโนมัติจากหัวข้อ + จำนวนหน้า เช่น พื้นที่เรขาคณิต - คางหมู · 2 หน้า · ชุด N',
         );
+        check(
+            '5/10 question layouts',
+            /id=["']selCount["']/.test(source)
+              && /count-5/.test(source)
+              && /count-10/.test(source)
+              && /perPage|selCount/.test(source)
+              && /value=["']5["']/.test(source)
+              && /value=["']10["']/.test(source),
+            'rect-area ต้องเลือกได้ 5 ข้อ/หน้า (พื้นที่วิธีทำ) และ 10 ข้อ/หน้า (ฝึกเร็ว)',
+        );
     }
 
     const linkedSetsSource = readLinkedLocalAsset(source, 'worksheet-sets.js')
