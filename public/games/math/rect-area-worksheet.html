@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.2" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
@@ -55,7 +55,7 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
-  <script src="/games/worksheet-runtime.js?v=1.175.3"></script>
+  <script src="/games/worksheet-runtime.js?v=1.175.4"></script>
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
@@ -91,28 +91,6 @@
     let renderSeed=Date.now();
     let rng=null;
     let setsUi=null;
-    function topicShortLabel(topicId){
-      if(TOPIC_SHORT[topicId])return TOPIC_SHORT[topicId];
-      const shape=SHAPES.find((s)=>s.id===topicId);
-      return shape?shape.name:'ทุกรูป';
-    }
-    function suggestSetTitle(ctx){
-      const topic=document.getElementById('selTopic')?.value||'all';
-      const pages=Math.max(1,Number(document.getElementById('selPageCount')?.value||1)||1);
-      const labelText=topicShortLabel(topic);
-      const rows=ctx?.rows||[];
-      let maxN=0;
-      let count=0;
-      rows.forEach((row)=>{
-        if(String(row?.config?.topic??'')!==topic)return;
-        if(Number(row?.config?.pageCount||0)!==pages)return;
-        count+=1;
-        const match=String(row.title||'').match(/ชุด\s*(\d+)/);
-        if(match)maxN=Math.max(maxN,Number(match[1])||0);
-      });
-      const n=Math.max(maxN,count)+1;
-      return SET_TITLE_PREFIX+' - '+labelText+' · '+pages+' หน้า · ชุด '+n;
-    }
     function ensureRng(){
       if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
       else rng=null;
@@ -309,12 +287,13 @@
         else renderSeed=Sets.newSeed();
         setsUi=Sets.mountToolbar({
           worksheetKey:WORKSHEET_KEY,
+          titlePrefix:SET_TITLE_PREFIX,
+          topicLabels:TOPIC_SHORT,
           initialSetId:fromUrl.setId||'',
-          suggestTitle:suggestSetTitle,
           getState:()=>({
             seed:renderSeed,
             config:currentConfig(),
-            title:document.getElementById('kampaiSetTitle')?.value||suggestSetTitle({rows:[]}),
+            title:document.getElementById('kampaiSetTitle')?.value||'',
           }),
           applyState:applySetState,
         });
@@ -362,6 +341,6 @@
     });
     bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.175.2"></script>
+<script src="/games/worksheet-modes.js?v=1.175.4"></script>
 </body>
 </html>

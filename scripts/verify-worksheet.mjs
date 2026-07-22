@@ -186,9 +186,9 @@ function verifyFile(file) {
         );
         check(
             'set title suggestion',
-            /suggestTitle\s*:/.test(source)
+            /titlePrefix\s*:|suggestTitle\s*:/.test(source)
               && /พื้นที่เรขาคณิต/.test(source)
-              && /TOPIC_SHORT|คางหมู/.test(source)
+              && /TOPIC_SHORT|topicLabels|คางหมู/.test(source)
               && /หน้า/.test(source)
               && /selPageCount/.test(source),
             'rect-area ต้องตั้งชื่อชุดอัตโนมัติจากหัวข้อ + จำนวนหน้า เช่น พื้นที่เรขาคณิต - คางหมู · 2 หน้า · ชุด N',
@@ -208,6 +208,13 @@ function verifyFile(file) {
                 && /mulberry32|createRng/.test(setsEngineSource + linkedSetsSource + source)
                 && /loadSetsModule/.test(linkedSetsSource + source),
             'ต้องมี engine ชุดใบงานกลาง (seed RNG + mountToolbar + save/load ผ่าน runtime)',
+        );
+        check(
+            'auto set title default',
+            /buildDefaultSetTitle/.test(setsEngineSource)
+                && /autoTitle\s*!==\s*false/.test(setsEngineSource)
+                && /หน้า · ชุด/.test(setsEngineSource),
+            'engine ต้องตั้งชื่อชุดอัตโนมัติทุกใบงาน (หัวข้อ + จำนวนหน้า + ชุด N) โดยไม่ต้องพิมพ์',
         );
     }
     const scaffoldRules = [

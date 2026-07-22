@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.4 (ชื่อชุดใบงานอัตโนมัติทุกใบงาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'worksheet-sets.js: buildDefaultSetTitle เป็นค่าเริ่มต้นของ mountToolbar — {ชื่อ} - {หัวข้อ} · N หน้า · ชุด k ไม่ต้องพิมพ์',
+            'worksheet-topic.js ส่ง titlePrefix จาก WORKSHEET_CONFIG.title + รีเฟรชชื่อตอนสุ่ม/เปลี่ยนหัวข้อ; rect-area ใช้ titlePrefix + topicLabels',
+        ],
+    },
+    {
         version: 'v1.175.2 (แก้ปุ่มสุ่มโจทย์ใบงาน)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',

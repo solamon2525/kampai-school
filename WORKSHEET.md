@@ -98,9 +98,10 @@ Workflow ครู:
 
 กฎ:
 
+- ชื่อชุดตั้งอัตโนมัติทุกใบงานที่ `mountToolbar` (รูปแบบ `{ชื่อใบงาน} - {หัวข้อ} · {N} หน้า · ชุด {k}`) — ช่องชื่อเป็น readonly ไม่ต้องพิมพ์; ปรับด้วย `titlePrefix` / `topicLabels` / `suggestTitle` ได้
 - สุ่มใหม่ = seed ใหม่ (ไม่ทับชุดที่บันทึกจนกดบันทึก)
 - ยังไม่ล็อกอิน: โหลดชุด `access=link` ได้ แต่ปุ่มบันทึกจะบอกให้เข้าพอร์ทัลก่อน
-- verify:worksheet ตรวจ contract ชุดสำหรับ rect-area และใบงานที่ใช้ topic/runtime กลาง
+- verify:worksheet ตรวจ contract ชุดสำหรับ rect-area และใบงานที่ใช้ topic/runtime กลาง + auto title ใน engine กลาง
 
 ## 4. Process Scaffold Rule (โจทย์ต้องมีพื้นที่ทำวิธี)
 

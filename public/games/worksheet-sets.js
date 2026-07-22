@@ -4,12 +4,98 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.3';
+  const VERSION = '1.175.4';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
   const LOGIN_PATH = '/admin';
   const EXPIRY_SKEW_SEC = 60;
+  const TITLE_CONTROL_IDS = ['selTopic', 'selPageCount', 'selGrade', 'selCount', 'selStyle'];
+
+  function cleanOptionLabel(text) {
+    return String(text || '')
+      .replace(/^หัวข้อ:\s*/u, '')
+      .replace(/^ทักษะ:\s*/u, '')
+      .replace(/^รูปแบบใบงาน:\s*/u, '')
+      .replace(/^สร้าง\s*/u, '')
+      .replace(/^ระดับชั้น:\s*/u, '')
+      .replace(/\s*หน้า$/u, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function selectedOptionLabel(selectId) {
+    const el = document.getElementById(selectId);
+    if (!el || el.tagName !== 'SELECT') return '';
+    const opt = el.options[el.selectedIndex];
+    return cleanOptionLabel(opt ? opt.textContent : '');
+  }
+
+  function defaultTitlePrefix(opts) {
+    const options = opts || {};
+    if (options.titlePrefix) return String(options.titlePrefix).trim();
+    const h1 = document.querySelector('.toolbar h1');
+    if (h1) {
+      const raw = String(h1.textContent || '').replace(/\s+/g, ' ').trim();
+      const stripped = raw
+        .replace(/^[^\p{L}\p{N}]+/u, '')
+        .replace(/^ใบงาน\s*/u, '')
+        .trim();
+      return stripped || raw || 'ชุดใบงาน';
+    }
+    return 'ชุดใบงาน';
+  }
+
+  function readTopicKey() {
+    const topicEl = document.getElementById('selTopic');
+    if (topicEl) return String(topicEl.value || 'all');
+    const gradeEl = document.getElementById('selGrade');
+    if (gradeEl) return String(gradeEl.value || 'default');
+    return 'default';
+  }
+
+  function readPageCount() {
+    return Math.max(1, Number(document.getElementById('selPageCount')?.value || 1) || 1);
+  }
+
+  function topicLabelFromDom(opts) {
+    const options = opts || {};
+    const topic = document.getElementById('selTopic')?.value || '';
+    const map = options.topicLabels || {};
+    if (topic && map[topic]) return map[topic];
+    const fromTopic = selectedOptionLabel('selTopic');
+    if (fromTopic) return fromTopic;
+    const fromGrade = selectedOptionLabel('selGrade');
+    if (fromGrade) return fromGrade;
+    return 'รวม';
+  }
+
+  /**
+   * ชื่อชุดอัตโนมัติร่วมทุกใบงาน: "{prefix} - {หัวข้อ} · {N} หน้า · ชุด {k}"
+   * opts.titlePrefix / opts.topicLabels ปรับได้รายใบงาน
+   */
+  function buildDefaultSetTitle(ctx, opts) {
+    const topicKey = readTopicKey();
+    const pages = readPageCount();
+    const labelText = topicLabelFromDom(opts);
+    const prefix = defaultTitlePrefix(opts);
+    const rows = ctx?.rows || [];
+    let maxN = 0;
+    let count = 0;
+    rows.forEach((row) => {
+      const cfg = row?.config || {};
+      const rowTopic = cfg.topic != null && String(cfg.topic) !== ''
+        ? String(cfg.topic)
+        : String(cfg.grade ?? 'default');
+      if (rowTopic !== String(topicKey)) return;
+      if (Number(cfg.pageCount || 0) !== pages) return;
+      count += 1;
+      const match = String(row.title || '').match(/ชุด\s*(\d+)/);
+      if (match) maxN = Math.max(maxN, Number(match[1]) || 0);
+    });
+    const n = Math.max(maxN, count) + 1;
+    return prefix + ' - ' + labelText + ' · ' + pages + ' หน้า · ชุด ' + n;
+  }
 
   function mulberry32(seed) {
     let t = (Number(seed) >>> 0) || 1;
@@ -361,10 +447,15 @@
       host.appendChild(bar);
     }
 
-    const autoTitle = typeof opts.suggestTitle === 'function';
+    // ทุกใบงาน: ชื่อชุดอัตโนมัติเป็นค่าเริ่มต้น (ยกเว้น autoTitle:false)
+    const autoTitle = opts.autoTitle !== false;
+    const resolveSuggestTitle = typeof opts.suggestTitle === 'function'
+      ? opts.suggestTitle
+      : (autoTitle ? (ctx) => buildDefaultSetTitle(ctx, opts) : null);
+    const hasSuggest = typeof resolveSuggestTitle === 'function';
     bar.innerHTML = [
       '<input class="t-input" id="kampaiSetTitle" type="text" '
-        + (autoTitle
+        + (hasSuggest
           ? 'readonly placeholder="ชื่อชุดตั้งอัตโนมัติตามประเภท/จำนวนหน้า" title="ตั้งชื่ออัตโนมัติจากประเภทใบงานและจำนวนหน้า — ไม่ต้องพิมพ์"'
           : 'placeholder="ชื่อชุด เช่น สัปดาห์ที่ 3"')
         + ' aria-label="ชื่อชุดใบงาน" />',
@@ -410,9 +501,9 @@
     }
 
     function buildSuggestedTitle() {
-      if (typeof opts.suggestTitle !== 'function') return '';
+      if (!hasSuggest) return '';
       try {
-        return String(opts.suggestTitle({
+        return String(resolveSuggestTitle({
           rows: lastRows,
           state: (typeof getState === 'function' ? getState() : null) || {},
           currentSetId,
@@ -423,7 +514,7 @@
     }
 
     function applySuggestedTitle(force) {
-      if (!titleInput || typeof opts.suggestTitle !== 'function') return '';
+      if (!titleInput || !hasSuggest) return '';
       const current = (titleInput.value || '').trim();
       if (!force) {
         if (titleTouched && current) return current;
@@ -441,6 +532,14 @@
       titleInput.addEventListener('input', () => {
         const current = (titleInput.value || '').trim();
         titleTouched = current !== lastSuggested;
+      });
+    }
+
+    if (hasSuggest) {
+      TITLE_CONTROL_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('change', () => applySuggestedTitle(true));
       });
     }
 
@@ -472,8 +571,8 @@
       setMessage('กำลังบันทึก…');
       try {
         const state = getState() || {};
-        // มี suggestTitle = ชื่อชุดตั้งอัตโนมัติเสมอ (ตามประเภท/จำนวนหน้า) ไม่ต้องพิมพ์เอง
-        let title = autoTitle
+        // มี suggest = ชื่อชุดตั้งอัตโนมัติเสมอ (ตามประเภท/จำนวนหน้า) ไม่ต้องพิมพ์เอง
+        let title = hasSuggest
           ? (applySuggestedTitle(true) || (state.title || '').trim())
           : ((titleInput.value || '').trim() || applySuggestedTitle(true) || (state.title || '').trim());
         const saved = await save({
@@ -583,6 +682,7 @@
     save,
     load,
     remove,
+    buildDefaultSetTitle,
     mountToolbar,
   });
 })();

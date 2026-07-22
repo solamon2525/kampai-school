@@ -133,6 +133,7 @@
       window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, clearSet: true });
     }
     render();
+    if (setsUi?.refreshSuggestedTitle) setsUi.refreshSuggestedTitle(true);
   }
 
   function applySetState(state) {
@@ -154,11 +155,13 @@
 
       setsUi = Sets.mountToolbar({
         worksheetKey,
+        titlePrefix: config.title || config.mediaLabel || '',
+        topicLabels: config.topicLabels || undefined,
         initialSetId: fromUrl.setId || '',
         getState: () => ({
           seed: renderSeed,
           config: currentConfig(),
-          title: document.getElementById('kampaiSetTitle')?.value || config.title,
+          title: document.getElementById('kampaiSetTitle')?.value || '',
         }),
         applyState: applySetState,
       });
@@ -168,8 +171,11 @@
         if (row) {
           applyControls(row.config || {});
           renderSeed = Number(row.seed);
-          const titleInput = document.getElementById('kampaiSetTitle');
-          if (titleInput && row.title) titleInput.value = row.title;
+          if (setsUi?.markTitleLoaded) setsUi.markTitleLoaded(row.title || '');
+          else {
+            const titleInput = document.getElementById('kampaiSetTitle');
+            if (titleInput && row.title) titleInput.value = row.title;
+          }
           if (setsUi?.setCurrentSetId) setsUi.setCurrentSetId(row.id);
           render();
           if (setsUi?.setMessage) setsUi.setMessage('โหลดชุด: ' + (row.title || row.id.slice(0, 8)));
@@ -177,6 +183,7 @@
         }
       }
       render();
+      if (setsUi?.refreshSuggestedTitle) setsUi.refreshSuggestedTitle(false);
     } catch (error) {
       console.warn('worksheet sets unavailable', error);
       render();
