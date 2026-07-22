@@ -198,7 +198,7 @@
     }
     function question(s,p,i){
       const work=buildWorkSolution(s,p);
-      const data=s.keys.map(k=>label[k]+' '+p[k]).join(', ');
+      const data=s.keys.map(k=>label[k]+' = '+p[k]).join(', ');
       return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)+'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div><div class="work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div><div class="answer-line"><span class="answer-label">ตอบ</span><span class="answer-fill">'+work.answer+'</span><span class="answer-unit">ตารางหน่วย</span></div></div></article>';
     }
     let revealCount=0;
