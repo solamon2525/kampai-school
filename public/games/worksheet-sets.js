@@ -4,7 +4,7 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.0';
+  const VERSION = '1.175.1';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
@@ -237,6 +237,9 @@
     const idLabel = bar.querySelector('#kampaiSetIdLabel');
     const msg = bar.querySelector('#kampaiSetMsg');
     let currentSetId = opts.initialSetId || getConfigFromUrl().setId || '';
+    let lastRows = [];
+    let lastSuggested = '';
+    let titleTouched = false;
 
     function setMessage(text, isError) {
       msg.textContent = text || '';
@@ -253,20 +256,59 @@
       idLabel.title = currentSetId;
     }
 
+    function buildSuggestedTitle() {
+      if (typeof opts.suggestTitle !== 'function') return '';
+      try {
+        return String(opts.suggestTitle({
+          rows: lastRows,
+          state: (typeof getState === 'function' ? getState() : null) || {},
+          currentSetId,
+        }) || '').trim();
+      } catch {
+        return '';
+      }
+    }
+
+    function applySuggestedTitle(force) {
+      if (!titleInput || typeof opts.suggestTitle !== 'function') return '';
+      const current = (titleInput.value || '').trim();
+      if (!force) {
+        if (titleTouched && current) return current;
+        if (currentSetId && current) return current;
+      }
+      const suggested = buildSuggestedTitle();
+      if (!suggested) return current;
+      lastSuggested = suggested;
+      titleInput.value = suggested;
+      titleTouched = false;
+      return suggested;
+    }
+
+    if (titleInput) {
+      titleInput.addEventListener('input', () => {
+        const current = (titleInput.value || '').trim();
+        titleTouched = current !== lastSuggested;
+      });
+    }
+
     async function refreshMine() {
       const session = await getSessionStaff();
       if (!session?.staffId) {
         selMine.innerHTML = '<option value="">— เข้าพอร์ทัลครูก่อน —</option>';
+        lastRows = [];
+        applySuggestedTitle(false);
         return;
       }
       try {
         const rows = await listMine(worksheetKey);
+        lastRows = rows;
         selMine.innerHTML = '<option value="">— ชุดของฉัน (' + rows.length + ') —</option>'
           + rows.map((row) => {
             const label = (row.title || 'ไม่มีชื่อ') + ' · ' + String(row.id).slice(0, 8);
             return '<option value="' + row.id + '">' + label.replace(/</g, '&lt;') + '</option>';
           }).join('');
         if (currentSetId) selMine.value = currentSetId;
+        applySuggestedTitle(false);
       } catch (error) {
         selMine.innerHTML = '<option value="">— โหลดชุดไม่สำเร็จ —</option>';
         setMessage(error.message || 'โหลดชุดไม่สำเร็จ', true);
@@ -277,16 +319,22 @@
       setMessage('กำลังบันทึก…');
       try {
         const state = getState() || {};
+        let title = (titleInput.value || '').trim();
+        if (!title) title = applySuggestedTitle(true) || (state.title || '').trim();
         const saved = await save({
           id: currentSetId || undefined,
           worksheetKey,
-          title: (titleInput.value || '').trim() || state.title || 'ชุดใบงาน',
+          title: title || 'ชุดใบงาน',
           seed: state.seed,
           config: state.config || {},
           access: 'link',
         });
         currentSetId = saved.id;
-        if (titleInput && saved.title) titleInput.value = saved.title;
+        if (titleInput && saved.title) {
+          titleInput.value = saved.title;
+          lastSuggested = saved.title;
+          titleTouched = false;
+        }
         writeUrl({ setId: currentSetId, seed: saved.seed });
         syncIdLabel();
         await refreshMine();
@@ -311,7 +359,11 @@
           return;
         }
         currentSetId = row.id;
-        if (titleInput) titleInput.value = row.title || '';
+        if (titleInput) {
+          titleInput.value = row.title || '';
+          lastSuggested = '';
+          titleTouched = true;
+        }
         writeUrl({ setId: row.id, seed: row.seed });
         applyState({ seed: Number(row.seed), config: row.config || {}, title: row.title, setId: row.id });
         syncIdLabel();
@@ -339,15 +391,27 @@
     bar.querySelector('#kampaiBtnCopyLink').onclick = handleCopyLink;
     selMine.onchange = handleLoadSelected;
     syncIdLabel();
+    applySuggestedTitle(false);
     refreshMine();
 
     return {
       getCurrentSetId: () => currentSetId,
       setCurrentSetId(id) {
+        const prev = currentSetId;
         currentSetId = id || '';
         syncIdLabel();
+        if (prev && !currentSetId) applySuggestedTitle(false);
       },
       refreshMine,
+      refreshSuggestedTitle(force) {
+        return applySuggestedTitle(!!force);
+      },
+      markTitleLoaded(title) {
+        if (!titleInput) return;
+        if (title != null) titleInput.value = String(title);
+        lastSuggested = '';
+        titleTouched = true;
+      },
       setMessage,
     };
   }

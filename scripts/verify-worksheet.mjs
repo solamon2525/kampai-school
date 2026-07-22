@@ -184,6 +184,11 @@ function verifyFile(file) {
                 && /[?&]set=|getConfigFromUrl|searchParams\.get\(['"]set['"]\)/.test(source),
             'rect-area ต้องโหลด worksheet sets และรองรับ ?set= / บันทึกชุด',
         );
+        check(
+            'set title suggestion',
+            /suggestTitle\s*:/.test(source) && /พื้นที่เรขาคณิต/.test(source) && /TOPIC_SHORT|คางหมู/.test(source),
+            'rect-area ต้องแนะนำชื่อชุดจากหัวข้อ เช่น พื้นที่เรขาคณิต - คางหมู ชุด N',
+        );
     }
 
     const linkedSetsSource = readLinkedLocalAsset(source, 'worksheet-sets.js')

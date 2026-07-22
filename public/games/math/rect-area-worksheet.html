@@ -59,6 +59,21 @@
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
+    const SET_TITLE_PREFIX='พื้นที่เรขาคณิต';
+    const TOPIC_SHORT={
+      all:'ทุกรูป',
+      square:'จัตุรัส',
+      rectangle:'ผืนผ้า',
+      triangle:'สามเหลี่ยม',
+      parallelogram:'ด้านขนาน',
+      rhombus:'ขนมเปียกปูน',
+      trapezoid:'คางหมู',
+      kite:'รูปว่าว',
+      circle:'วงกลม',
+      semicircle:'ครึ่งวงกลม',
+      quarter:'¼ วงกลม',
+      composite:'รูปประกอบ',
+    };
     const SHAPES=[
       {id:'square',icon:'⬜',name:'สี่เหลี่ยมจัตุรัส',grade:'ป.4',formula:'ด้าน × ด้าน',keys:['side'],calc:p=>p.side*p.side},
       {id:'rectangle',icon:'▭',name:'สี่เหลี่ยมผืนผ้า',grade:'ป.4',formula:'กว้าง × ยาว',keys:['width','height'],calc:p=>p.width*p.height},
@@ -76,6 +91,26 @@
     let renderSeed=Date.now();
     let rng=null;
     let setsUi=null;
+    function topicShortLabel(topicId){
+      if(TOPIC_SHORT[topicId])return TOPIC_SHORT[topicId];
+      const shape=SHAPES.find((s)=>s.id===topicId);
+      return shape?shape.name:'ทุกรูป';
+    }
+    function suggestSetTitle(ctx){
+      const topic=document.getElementById('selTopic')?.value||'all';
+      const labelText=topicShortLabel(topic);
+      const rows=ctx?.rows||[];
+      let maxN=0;
+      let count=0;
+      rows.forEach((row)=>{
+        if(String(row?.config?.topic??'')!==topic)return;
+        count+=1;
+        const match=String(row.title||'').match(/ชุด\s*(\d+)/);
+        if(match)maxN=Math.max(maxN,Number(match[1])||0);
+      });
+      const n=Math.max(maxN,count)+1;
+      return SET_TITLE_PREFIX+' - '+labelText+' ชุด '+n;
+    }
     function ensureRng(){
       if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
       else rng=null;
@@ -256,6 +291,7 @@
       }
       if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
       render();
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
     }
     function applySetState(state){
       if(state?.config)applyConfig(state.config);
@@ -272,10 +308,11 @@
         setsUi=Sets.mountToolbar({
           worksheetKey:WORKSHEET_KEY,
           initialSetId:fromUrl.setId||'',
+          suggestTitle:suggestSetTitle,
           getState:()=>({
             seed:renderSeed,
             config:currentConfig(),
-            title:document.getElementById('kampaiSetTitle')?.value||'พื้นที่รูปเรขาคณิต',
+            title:document.getElementById('kampaiSetTitle')?.value||suggestSetTitle({rows:[]}),
           }),
           applyState:applySetState,
         });
@@ -284,8 +321,11 @@
           if(row){
             applyConfig(row.config||{});
             renderSeed=Number(row.seed);
-            const titleInput=document.getElementById('kampaiSetTitle');
-            if(titleInput&&row.title)titleInput.value=row.title;
+            if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
+            else{
+              const titleInput=document.getElementById('kampaiSetTitle');
+              if(titleInput&&row.title)titleInput.value=row.title;
+            }
             if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
             render();
             if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
@@ -293,6 +333,7 @@
           }
         }
         render();
+        if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
       }catch(error){
         console.warn('worksheet sets unavailable',error);
         render();
@@ -301,7 +342,10 @@
     document.getElementById('btnBack').onclick=()=>location.href='/games/math/rect-area-media.html';
     document.getElementById('btnRandom').onclick=randomize;
     document.getElementById('selPageCount').onchange=render;
-    document.getElementById('selTopic').onchange=render;
+    document.getElementById('selTopic').onchange=()=>{
+      render();
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+    };
     document.getElementById('btnAnswerNext').onclick=revealNext;
     document.getElementById('btnAnswerPrev').onclick=revealPrev;
     document.getElementById('btnAnswers').onclick=toggleAllAnswers;
