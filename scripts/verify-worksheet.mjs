@@ -186,8 +186,12 @@ function verifyFile(file) {
         );
         check(
             'set title suggestion',
-            /suggestTitle\s*:/.test(source) && /พื้นที่เรขาคณิต/.test(source) && /TOPIC_SHORT|คางหมู/.test(source),
-            'rect-area ต้องแนะนำชื่อชุดจากหัวข้อ เช่น พื้นที่เรขาคณิต - คางหมู ชุด N',
+            /suggestTitle\s*:/.test(source)
+              && /พื้นที่เรขาคณิต/.test(source)
+              && /TOPIC_SHORT|คางหมู/.test(source)
+              && /หน้า/.test(source)
+              && /selPageCount/.test(source),
+            'rect-area ต้องตั้งชื่อชุดอัตโนมัติจากหัวข้อ + จำนวนหน้า เช่น พื้นที่เรขาคณิต - คางหมู · 2 หน้า · ชุด N',
         );
     }
 

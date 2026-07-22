@@ -4,7 +4,7 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.1';
+  const VERSION = '1.175.2';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
@@ -192,7 +192,8 @@
     style.textContent = [
       '.kampai-set-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}',
       '.kampai-set-bar .t-select,.kampai-set-bar .t-input{font:700 .82rem Sarabun,sans-serif;padding:6px 8px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;max-width:11rem}',
-      '.kampai-set-bar .t-input{min-width:8rem;max-width:14rem}',
+      '.kampai-set-bar .t-input{min-width:10rem;max-width:22rem}',
+      '.kampai-set-bar .t-input[readonly]{opacity:.95;cursor:default;background:rgba(255,255,255,.12)}',
       '.kampai-set-bar .kampai-set-id{font:700 .75rem Sarabun,sans-serif;opacity:.9;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '.kampai-set-bar .kampai-set-msg{font:600 .75rem Sarabun,sans-serif;opacity:.95}',
     ].join('');
@@ -223,8 +224,13 @@
       host.appendChild(bar);
     }
 
+    const autoTitle = typeof opts.suggestTitle === 'function';
     bar.innerHTML = [
-      '<input class="t-input" id="kampaiSetTitle" type="text" placeholder="ชื่อชุด เช่น สัปดาห์ที่ 3" aria-label="ชื่อชุดใบงาน" />',
+      '<input class="t-input" id="kampaiSetTitle" type="text" '
+        + (autoTitle
+          ? 'readonly placeholder="ชื่อชุดตั้งอัตโนมัติตามประเภท/จำนวนหน้า" title="ตั้งชื่ออัตโนมัติจากประเภทใบงานและจำนวนหน้า — ไม่ต้องพิมพ์"'
+          : 'placeholder="ชื่อชุด เช่น สัปดาห์ที่ 3"')
+        + ' aria-label="ชื่อชุดใบงาน" />',
       '<button type="button" class="btn primary" id="kampaiBtnSaveSet">💾 บันทึกชุด</button>',
       '<select class="t-select" id="kampaiSelMine" aria-label="ชุดของฉัน"><option value="">— ชุดของฉัน —</option></select>',
       '<button type="button" class="btn" id="kampaiBtnCopyLink">🔗 คัดลอกลิงก์</button>',
@@ -319,8 +325,10 @@
       setMessage('กำลังบันทึก…');
       try {
         const state = getState() || {};
-        let title = (titleInput.value || '').trim();
-        if (!title) title = applySuggestedTitle(true) || (state.title || '').trim();
+        // มี suggestTitle = ชื่อชุดตั้งอัตโนมัติเสมอ (ตามประเภท/จำนวนหน้า) ไม่ต้องพิมพ์เอง
+        let title = autoTitle
+          ? (applySuggestedTitle(true) || (state.title || '').trim())
+          : ((titleInput.value || '').trim() || applySuggestedTitle(true) || (state.title || '').trim());
         const saved = await save({
           id: currentSetId || undefined,
           worksheetKey,

@@ -55,7 +55,7 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
-  <script src="/games/worksheet-runtime.js?v=1.175.1"></script>
+  <script src="/games/worksheet-runtime.js?v=1.175.2"></script>
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
@@ -98,18 +98,20 @@
     }
     function suggestSetTitle(ctx){
       const topic=document.getElementById('selTopic')?.value||'all';
+      const pages=Math.max(1,Number(document.getElementById('selPageCount')?.value||1)||1);
       const labelText=topicShortLabel(topic);
       const rows=ctx?.rows||[];
       let maxN=0;
       let count=0;
       rows.forEach((row)=>{
         if(String(row?.config?.topic??'')!==topic)return;
+        if(Number(row?.config?.pageCount||0)!==pages)return;
         count+=1;
         const match=String(row.title||'').match(/ชุด\s*(\d+)/);
         if(match)maxN=Math.max(maxN,Number(match[1])||0);
       });
       const n=Math.max(maxN,count)+1;
-      return SET_TITLE_PREFIX+' - '+labelText+' ชุด '+n;
+      return SET_TITLE_PREFIX+' - '+labelText+' · '+pages+' หน้า · ชุด '+n;
     }
     function ensureRng(){
       if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
@@ -291,7 +293,7 @@
       }
       if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
       render();
-      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
     }
     function applySetState(state){
       if(state?.config)applyConfig(state.config);
@@ -341,10 +343,13 @@
     }
     document.getElementById('btnBack').onclick=()=>location.href='/games/math/rect-area-media.html';
     document.getElementById('btnRandom').onclick=randomize;
-    document.getElementById('selPageCount').onchange=render;
+    document.getElementById('selPageCount').onchange=()=>{
+      render();
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+    };
     document.getElementById('selTopic').onchange=()=>{
       render();
-      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
     };
     document.getElementById('btnAnswerNext').onclick=revealNext;
     document.getElementById('btnAnswerPrev').onclick=revealPrev;

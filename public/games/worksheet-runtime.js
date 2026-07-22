@@ -1,7 +1,7 @@
 (function createWorksheetRuntime() {
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
-  const SETS_SCRIPT = '/games/worksheet-sets.js?v=1.175.1';
+  const SETS_SCRIPT = '/games/worksheet-sets.js?v=1.175.2';
   let teacherPromise = null;
   let setsPromise = null;
 
