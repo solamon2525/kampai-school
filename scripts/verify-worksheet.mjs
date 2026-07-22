@@ -173,8 +173,10 @@ function verifyFile(file) {
     if (relative.endsWith('/rect-area-worksheet.html')) {
         check(
             'area scaffold',
-            source.includes('formula') && source.includes('work-line'),
-            'โจทย์พื้นที่ต้องมีสูตรและบรรทัดลงวิธีคำนวณ',
+            source.includes('formula') && source.includes('work-line')
+              && /line3/.test(source)
+              && (source.match(/class="work-line"/g) || []).length >= 3,
+            'โจทย์พื้นที่ต้องมีสูตรและบรรทัดวิธีทำ 3 แถว (1 ขั้นต่อแถว)',
         );
         check(
             'saved sets contract',

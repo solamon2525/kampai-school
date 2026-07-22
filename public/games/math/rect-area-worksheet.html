@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 5 หรือ 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.5" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.6" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
@@ -33,18 +33,17 @@
     .count-5 .q-body,.worksheet-mode-five .q-body{min-height:38mm;font-size:11pt;gap:1.5mm;padding:1.5mm 0}
     .q-text{font-weight:700;line-height:1.35;flex-shrink:0}
     .count-5 .q-text,.worksheet-mode-five .q-text{font-size:11.5pt;line-height:1.4}
-    .work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:16mm;padding:1.5mm 0;gap:1.5mm}
-    .count-5 .work-block,.worksheet-mode-five .work-block{min-height:22mm;padding:2mm 0;gap:2.5mm}
-    .work-line{border-bottom:1px dotted #64748b;min-height:7mm;height:7mm;font-size:8.5pt;line-height:1.3;display:flex;align-items:flex-end;padding-bottom:.6mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:10mm;height:10mm;font-size:10pt;line-height:1.35}
+    .work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:20mm;padding:1mm 0;gap:1.2mm}
+    .count-5 .work-block,.worksheet-mode-five .work-block{min-height:28mm;padding:2mm 0;gap:2mm}
+    .work-line{border-bottom:1px dotted #64748b;min-height:6.2mm;height:6.2mm;font-size:8pt;line-height:1.25;display:flex;align-items:flex-end;padding-bottom:.5mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:9mm;height:9mm;font-size:10pt;line-height:1.35}
     .work-fill,.answer-fill{color:transparent}
-    .show-answers .work-fill,.q.reveal-answer .work-fill{color:#b91c1c;font-weight:800;font-size:15pt;line-height:1.2}
-    .count-5 .show-answers .work-fill,.count-5 .q.reveal-answer .work-fill,
-    .worksheet-mode-five .show-answers .work-fill,.worksheet-mode-five .q.reveal-answer .work-fill,
-    .show-answers .count-5 .work-fill,.count-5 .q.reveal-answer .work-fill{font-size:16pt}
-    .show-answers .work-line,.q.reveal-answer .work-line{min-height:10mm;height:auto;overflow:visible;white-space:normal}
+    .show-answers .work-fill,.q.reveal-answer .work-fill{color:#b91c1c;font-weight:800;font-size:13pt;line-height:1.2}
+    .show-answers .count-5 .work-fill,.count-5 .q.reveal-answer .work-fill,
+    .show-answers .worksheet-mode-five .work-fill,.worksheet-mode-five .q.reveal-answer .work-fill{font-size:15pt}
+    .show-answers .work-line,.q.reveal-answer .work-line{min-height:8mm;height:auto;overflow:visible;white-space:normal}
     .show-answers .count-5 .work-line,.count-5 .q.reveal-answer .work-line,
-    .show-answers .worksheet-mode-five .work-line,.worksheet-mode-five .q.reveal-answer .work-line{min-height:12mm;margin-bottom:1mm}
+    .show-answers .worksheet-mode-five .work-line,.worksheet-mode-five .q.reveal-answer .work-line{min-height:11mm;margin-bottom:.8mm}
     .answer-line{display:grid;grid-template-columns:auto 1fr auto;gap:3mm;align-items:end;min-height:7mm;font-weight:700;color:#075985;white-space:nowrap;flex-shrink:0}
     .count-5 .answer-line,.worksheet-mode-five .answer-line{min-height:9mm;gap:4mm;font-size:11.5pt}
     .answer-fill{border-bottom:1px dotted #64748b;min-height:6mm;text-align:center;padding:0 2mm}
@@ -97,7 +96,7 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
-  <script src="/games/worksheet-runtime.js?v=1.175.5"></script>
+  <script src="/games/worksheet-runtime.js?v=1.175.6"></script>
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
@@ -243,25 +242,69 @@
     }
     function buildWorkSolution(s,p){
       const answer=fmt(s.calc(p));
+      // 3 แถว = 1 ขั้นต่อแถว — ห้ามโยงหลาย = ในบรรทัดเดียว
       switch(s.id){
-        case 'square':return{line1:s.formula+' = '+p.side+' × '+p.side,line2:'= '+answer,answer};
-        case 'rectangle':return{line1:s.formula+' = '+p.width+' × '+p.height,line2:'= '+answer,answer};
-        case 'triangle':{const prod=p.base*p.height;return{line1:'½ × '+p.base+' × '+p.height+' = ½ × '+prod,line2:'= '+prod+' ÷ 2 = '+answer,answer};}
-        case 'parallelogram':return{line1:s.formula+' = '+p.base+' × '+p.height,line2:'= '+answer,answer};
+        case 'square':
+          return{line1:'ด้าน × ด้าน',line2:'= '+p.side+' × '+p.side,line3:'= '+answer,answer};
+        case 'rectangle':
+          return{line1:'กว้าง × ยาว',line2:'= '+p.width+' × '+p.height,line3:'= '+answer,answer};
+        case 'triangle':{
+          const prod=p.base*p.height;
+          return{line1:'½ × '+p.base+' × '+p.height,line2:'= ½ × '+prod,line3:'= '+answer,answer};
+        }
+        case 'parallelogram':
+          return{line1:'ฐาน × สูง',line2:'= '+p.base+' × '+p.height,line3:'= '+answer,answer};
         case 'rhombus':
-        case 'kite':{const prod=p.d1*p.d2;return{line1:'½ × '+p.d1+' × '+p.d2+' = ½ × '+prod,line2:'= '+prod+' ÷ 2 = '+answer,answer};}
-        case 'trapezoid':{const sum=p.top+p.bottom,prod=sum*p.height;return{line1:'½ × ('+p.top+' + '+p.bottom+') × '+p.height+' = ½ × '+sum+' × '+p.height,line2:'= ½ × '+prod+' = '+prod+' ÷ 2 = '+answer,answer};}
-        case 'circle':{const sq=p.radius*p.radius;return{line1:'3.14 × '+p.radius+' × '+p.radius+' = 3.14 × '+sq,line2:'= '+answer,answer};}
-        case 'semicircle':{const full=fmt(PI*p.radius*p.radius);return{line1:'½ × 3.14 × '+p.radius+'² = ½ × '+full,line2:'= '+full+' ÷ 2 = '+answer,answer};}
-        case 'quarter':{const full=fmt(PI*p.radius*p.radius);return{line1:'¼ × 3.14 × '+p.radius+'² = ¼ × '+full,line2:'= '+full+' ÷ 4 = '+answer,answer};}
-        case 'composite':{const big=p.width*p.height,cut=p.cutW*p.cutH;return{line1:'('+p.width+'×'+p.height+') − ('+p.cutW+'×'+p.cutH+') = '+big+' − '+cut,line2:'= '+answer,answer};}
-        default:return{line1:s.formula,line2:'= '+answer,answer};
+        case 'kite':{
+          const prod=p.d1*p.d2;
+          return{line1:'½ × '+p.d1+' × '+p.d2,line2:'= ½ × '+prod,line3:'= '+answer,answer};
+        }
+        case 'trapezoid':{
+          const sum=p.top+p.bottom;
+          return{
+            line1:'½ × ('+p.top+' + '+p.bottom+') × '+p.height,
+            line2:'= ½ × '+sum+' × '+p.height,
+            line3:'= '+answer,
+            answer,
+          };
+        }
+        case 'circle':{
+          const sq=p.radius*p.radius;
+          return{line1:'3.14 × '+p.radius+' × '+p.radius,line2:'= 3.14 × '+sq,line3:'= '+answer,answer};
+        }
+        case 'semicircle':{
+          const full=fmt(PI*p.radius*p.radius);
+          return{line1:'½ × 3.14 × '+p.radius+'²',line2:'= ½ × '+full,line3:'= '+answer,answer};
+        }
+        case 'quarter':{
+          const full=fmt(PI*p.radius*p.radius);
+          return{line1:'¼ × 3.14 × '+p.radius+'²',line2:'= ¼ × '+full,line3:'= '+answer,answer};
+        }
+        case 'composite':{
+          const big=p.width*p.height,cut=p.cutW*p.cutH;
+          return{
+            line1:'('+p.width+' × '+p.height+') − ('+p.cutW+' × '+p.cutH+')',
+            line2:'= '+big+' − '+cut,
+            line3:'= '+answer,
+            answer,
+          };
+        }
+        default:
+          return{line1:s.formula,line2:'แทนค่าตามรูป',line3:'= '+answer,answer};
       }
     }
     function question(s,p,i){
       const work=buildWorkSolution(s,p);
       const data=s.keys.map(k=>label[k]+' = '+p[k]).join(', ');
-      return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)+'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div><div class="work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div><div class="answer-line"><span class="answer-label">ตอบ</span><span class="answer-fill">'+work.answer+'</span><span class="answer-unit">ตารางหน่วย</span></div></div></article>';
+      return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)
+        +'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div>'
+        +'<div class="work-block">'
+        +'<div class="work-line"><span class="work-fill">'+work.line1+'</span></div>'
+        +'<div class="work-line"><span class="work-fill">'+work.line2+'</span></div>'
+        +'<div class="work-line"><span class="work-fill">'+work.line3+'</span></div>'
+        +'</div>'
+        +'<div class="answer-line"><span class="answer-label">ตอบ</span><span class="answer-fill">'+work.answer+'</span><span class="answer-unit">ตารางหน่วย</span></div>'
+        +'</div></article>';
     }
     let revealCount=0;
     function getQuestions(){return Array.from(document.querySelectorAll('#pages .q'))}
@@ -395,6 +438,6 @@
     window.randomize=randomize;
     bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.175.5"></script>
+<script src="/games/worksheet-modes.js?v=1.175.6"></script>
 </body>
 </html>
