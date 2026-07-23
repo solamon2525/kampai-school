@@ -1,6 +1,6 @@
 /**
  * Mario Math Run — Auto-Scrolling Platformer Game Logic Module
- * Single-player & 2-Player Same-Screen auto-runner with pits, enemies, and headbutt question blocks
+ * Single-player & 2-Player Same-Screen auto-runner with wider camera view, elevated platforms, and smart enemy edge patrolling
  */
 (function () {
   'use strict';
@@ -49,8 +49,8 @@
   // Auto-scroll World State
   var scrollX = 0;
   var nextPlatWorldX = 0;
-  var platforms = []; // { worldX, y, width, height }
-  var enemies = [];   // { worldX, y, width, height, vx, alive, animTimer }
+  var platforms = []; // { worldX, y, width, height, isHigh }
+  var enemies = [];   // { worldX, y, width, height, vx, alive, animTimer, platLeft, platRight }
   var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounce }
   var particles = [];
 
@@ -68,7 +68,7 @@
     this.id = id;
     this.name = name;
     this.color = color; // '#ef4444' (Red Mario) or '#3b82f6' (Blue Luigi)
-    this.x = startScreenX; // Screen-relative X position
+    this.x = startScreenX; // Screen-relative X position (positioned left for wider forward view)
     this.y = 280;
     this.vx = 0;
     this.vy = 0;
@@ -113,16 +113,15 @@
     this.vy += gravity;
 
     // Apply relative velocity + auto-scroll push back
-    this.x += this.vx - scrollSpeed * 0.15; // Slow push to keep momentum exciting
+    this.x += this.vx - scrollSpeed * 0.15;
     this.y += this.vy;
 
-    // Screen Bounds Safety
+    // Screen Bounds Safety (Keep player on left-side for wider forward sight)
     if (this.x < 10) this.x = 10;
-    if (this.x > 760) this.x = 760;
+    if (this.x > 750) this.x = 750;
 
     // Platform collision (Convert worldX to screenX = worldX - scrollX)
     this.isGrounded = false;
-    var worldPx = scrollX + this.x;
 
     for (var i = 0; i < plats.length; i++) {
       var plat = plats[i];
@@ -158,9 +157,9 @@
     }
 
     // Respawn at safe height on screen
-    this.y = 200;
+    this.y = 180;
     this.vy = -4;
-    this.x = Math.max(100, this.x - 60);
+    this.x = Math.max(100, this.x - 40);
 
     if (gameMode === 'solo') {
       lives--;
@@ -330,13 +329,13 @@
     // Initial platforms setup
     generateInitialStage();
 
-    // Create Players
-    player1 = new Player(1, 'P1 มาริโอ้', '#ef4444', 160, {
+    // Create Players (Positioned towards left for ~650px wider forward sight)
+    player1 = new Player(1, 'P1 มาริโอ้', '#ef4444', 120, {
       left: 'KeyA', right: 'KeyD', jump: 'KeyW'
     });
 
     if (mode === 'same-screen') {
-      player2 = new Player(2, 'P2 ลุยจิ', '#3b82f6', 260, {
+      player2 = new Player(2, 'P2 ลุยจิ', '#3b82f6', 200, {
         left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp'
       });
       if (touchControls) touchControls.style.display = 'none';
@@ -367,9 +366,9 @@
   }
 
   function generateInitialStage() {
-    // Starting solid ground (wide)
-    platforms.push({ worldX: 0, y: 360, width: 900, height: 90 });
-    nextPlatWorldX = 900;
+    // Starting main ground
+    platforms.push({ worldX: 0, y: 360, width: 950, height: 90, isHigh: false });
+    nextPlatWorldX = 950;
 
     for (var i = 0; i < 6; i++) {
       spawnNextPlatformSegment();
@@ -378,24 +377,42 @@
 
   function spawnNextPlatformSegment() {
     // Random pit gap
-    var pitGap = Math.floor(qRand() * 50) + 80; // 80..130px pit
-    var platWidth = Math.floor(qRand() * 250) + 300; // 300..550px ground
+    var pitGap = Math.floor(qRand() * 60) + 80; // 80..140px pit
+    var platWidth = Math.floor(qRand() * 250) + 350; // 350..600px ground
 
     var platWorldX = nextPlatWorldX + pitGap;
     var platY = 360;
 
-    platforms.push({ worldX: platWorldX, y: platY, width: platWidth, height: 90 });
+    // Ground platform
+    platforms.push({ worldX: platWorldX, y: platY, width: platWidth, height: 90, isHigh: false });
 
-    // Random enemy spawn on this platform
-    if (qRand() < 0.6) {
+    // Elevated Platform (ที่เหยียบขึ้นที่สูง y: 240)
+    if (qRand() < 0.7) {
+      var highPlatWidth = Math.floor(qRand() * 100) + 140; // 140..240px
+      var highPlatWorldX = platWorldX + 80 + qRand() * (platWidth - highPlatWidth - 100);
+      platforms.push({
+        worldX: highPlatWorldX,
+        y: 240,
+        width: highPlatWidth,
+        height: 20,
+        isHigh: true
+      });
+    }
+
+    // Random enemy spawn with Smart Patrol Bounds (เดินไม่ตกหลุม)
+    if (qRand() < 0.65) {
+      var enemyW = 32;
+      var enemyX = platWorldX + 100 + qRand() * (platWidth - 200);
       enemies.push({
-        worldX: platWorldX + 150 + qRand() * (platWidth - 200),
+        worldX: enemyX,
         y: platY - 32,
-        width: 32,
+        width: enemyW,
         height: 32,
         vx: -1.2,
         alive: true,
-        animTimer: 0
+        animTimer: 0,
+        platLeft: platWorldX, // Left edge of platform
+        platRight: platWorldX + platWidth // Right edge of platform
       });
     }
 
@@ -410,14 +427,17 @@
 
     // Spawn 3 Question Blocks ahead of current scrollX position
     choiceBlocks = [];
-    var baseWorldX = scrollX + 750;
-    var spacing = 180;
+    var baseWorldX = scrollX + 700;
+    var spacing = 190;
 
     for (var i = 0; i < 3; i++) {
       var val = currentQuestion.choices[i];
+      // Vary block heights: middle or high above ledges
+      var blockY = (i % 2 === 0) ? 200 : 150;
+
       choiceBlocks.push({
         worldX: baseWorldX + i * spacing,
-        y: 210,
+        y: blockY,
         width: 54,
         height: 54,
         value: val,
@@ -581,34 +601,50 @@
       }
     }
 
-    // Draw Platforms (Grounds & Pits)
+    // Draw Platforms (Grounds & Elevated Ledges)
     for (var i = 0; i < platforms.length; i++) {
       var plat = platforms[i];
       var screenX = plat.worldX - scrollX;
 
       if (screenX + plat.width > -50 && screenX < 850) {
-        // Grass top
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(screenX, plat.y, plat.width, 10);
-        // Dirt body
-        ctx.fillStyle = '#854d0e';
-        ctx.fillRect(screenX, plat.y + 10, plat.width, plat.height - 10);
-
-        // Brick pattern
-        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(screenX, plat.y + 10, plat.width, plat.height - 10);
+        if (plat.isHigh) {
+          // Elevated Floating Ledge (ที่เหยียบขึ้นที่สูง)
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(screenX, plat.y, plat.width, 4);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(screenX, plat.y + 4, plat.width, plat.height - 4);
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(screenX, plat.y, plat.width, plat.height);
+        } else {
+          // Main Ground Platform
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(screenX, plat.y, plat.width, 10);
+          ctx.fillStyle = '#854d0e';
+          ctx.fillRect(screenX, plat.y + 10, plat.width, plat.height - 10);
+          ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(screenX, plat.y + 10, plat.width, plat.height - 10);
+        }
       }
     }
 
     if (gameState === 'playing') {
-      // Update & Draw Enemies (Goombas)
+      // Update & Draw Enemies (Goombas with Smart Patrol — เดินไม่ตกหลุม)
       for (var e = enemies.length - 1; e >= 0; e--) {
         var enemy = enemies[e];
         if (!enemy.alive) continue;
 
+        // Move enemy
         enemy.worldX += enemy.vx;
         enemy.animTimer++;
+
+        // Edge Patrol Logic: Turn around when reaching platform edge! (เดินไม่ตกหลุม)
+        if (enemy.worldX <= enemy.platLeft && enemy.vx < 0) {
+          enemy.vx = Math.abs(enemy.vx);
+        } else if (enemy.worldX + enemy.width >= enemy.platRight && enemy.vx > 0) {
+          enemy.vx = -Math.abs(enemy.vx);
+        }
 
         var screenEnaX = enemy.worldX - scrollX;
         if (screenEnaX + enemy.width < -100) continue;
