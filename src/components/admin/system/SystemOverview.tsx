@@ -272,6 +272,14 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.9 (vocab-hub — TTS ฟังง่ายขึ้น)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'Math Question: อ่านเลขเป็นคำอังกฤษ (nine ไม่ใช่ 9) · ช้าลง · เว้นจังหวะทีละช่วง What is / เลข / plus / เลข',
+        ],
+    },
+    {
         version: 'v1.175.8 (vocab-hub — เสียงชาย/หญิง)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',
