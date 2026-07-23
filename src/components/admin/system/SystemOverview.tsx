@@ -272,8 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.175.9 (vocab-hub — TTS ฟังง่ายขึ้น)',
+        version: 'v1.176.0 (Mario Math Run — เกมใหม่)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมใหม่ Mario Math Run (มาริโอ้ลุยโจทย์คณิต): 2D Platformer เลือกตอบ + − × ÷ หรือผสม รองรับ 1 คน และ 2 คนแข่งในหน้าจอเดียว (Same-Screen) + KampaiVersus online',
+        ],
+    },
+    {
+        version: 'v1.175.9 (vocab-hub — TTS ฟังง่ายขึ้น)',
+        date: '23 ก.ค. 2569',
         badge: 'bg-sky-600',
         items: [
             'Math Question: อ่านเลขเป็นคำอังกฤษ (nine ไม่ใช่ 9) · ช้าลง · เว้นจังหวะทีละช่วง What is / เลข / plus / เลข',

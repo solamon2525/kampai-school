@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mario Math Run — มาริโอ้ลุยโจทย์คณิต</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="game-canvas" width="800" height="450"></canvas>
+
+  <!-- HUD -->
+  <div id="hud-overlay" style="display: none;">
+    <div style="display: flex; gap: 8px;">
+      <div class="hud-pill" id="score-container">⭐ <span id="score-val">0</span></div>
+      <div class="hud-pill" id="life-container"><span id="lives-val">❤️❤️❤️</span></div>
+    </div>
+    <div class="hud-pill" id="timer-container">⏱️ <span id="timer-val">60</span></div>
+  </div>
+
+  <div id="question-banner">
+    <span class="q-text" id="q-text-display">12 + 8 = ?</span>
+  </div>
+
+  <div id="player-chip"></div>
+
+  <!-- Start Screen -->
+  <div id="blocker" class="screen-overlay">
+    <div class="screen-card">
+      <h1 class="game-title">🍄 Mario Math Run</h1>
+      <p class="game-subtitle">มาริโอ้ลุยโจทย์คณิต — วิ่ง+กระโดดชนบล็อกคำตอบที่ถูกต้อง!</p>
+
+      <div class="op-select-box">
+        <div class="op-label">🎯 เลือกบทเรียนคณิตศาสตร์:</div>
+        <div class="op-buttons" id="op-buttons-container">
+          <button class="op-btn active" data-op="add" onclick="selectOp('add', this)">➕ บวก (1-20)</button>
+          <button class="op-btn" data-op="sub" onclick="selectOp('sub', this)">➖ ลบ (1-20)</button>
+          <button class="op-btn" data-op="mul" onclick="selectOp('mul', this)">✖️ คูณ (แม่ 2-12)</button>
+          <button class="op-btn" data-op="div" onclick="selectOp('div', this)">➗ หาร (ลงตัว)</button>
+          <button class="op-btn" data-op="mixed" onclick="selectOp('mixed', this)">🎲 ผสม (+ - × ÷)</button>
+        </div>
+      </div>
+
+      <div id="my-stats">
+        <div class="ms-cell">
+          <div class="ms-val" id="ms-best">0</div>
+          <div class="ms-label">คะแนนสูงสุด</div>
+        </div>
+        <div class="ms-cell">
+          <div class="ms-val" id="ms-plays">0</div>
+          <div class="ms-label">เล่นไปแล้ว (ครั้ง)</div>
+        </div>
+      </div>
+
+      <div class="leaderboard-box">
+        <div class="lb-title">🏆 ตารางอันดับ Top 5</div>
+        <ul id="score-list" class="leaderboard-list">
+          <li class="lb-loading">กำลังโหลด...</li>
+        </ul>
+      </div>
+
+      <div class="mode-grid">
+        <button class="btn btn-primary" onclick="startGame('solo')">👤 เล่นคนเดียว (Solo)</button>
+        <button class="btn btn-versus" onclick="startGame('same-screen')">👫 แข่ง 2 คน (จอเดียว)</button>
+      </div>
+      <div style="margin-top: 6px;">
+        <button class="btn btn-ghost" onclick="vs.openMenu()" style="width: 100%; font-size: 14px;">🌐 เมนูแข่ง 2 คน / ออนไลน์ (KampaiVersus)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameover-screen" class="screen-overlay" style="display: none;">
+    <div class="screen-card">
+      <h1 class="game-title" style="font-size: 32px;">🏁 จบการแข่งขัน!</h1>
+      <p class="game-subtitle" id="go-mode-label">คะแนนสะสมรวม</p>
+
+      <div style="font-size: 48px; font-weight: 800; color: #FFD700; margin: 10px 0;" id="final-score">0</div>
+      <p id="go-summary" style="font-size: 15px; color: #cbd5e1; margin-bottom: 12px;"></p>
+
+      <div id="kampai-result"></div>
+
+      <div class="leaderboard-box">
+        <div class="lb-title">🏆 ตารางอันดับ Top 5</div>
+        <ul id="score-list-gameover" class="leaderboard-list">
+          <li class="lb-loading">—</li>
+        </ul>
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <button class="btn btn-primary" onclick="resetToMenu()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมอื่น</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Controls for 1 Player -->
+  <div id="touch-controls">
+    <div class="touch-group">
+      <div class="t-btn" id="btn-left">◀</div>
+      <div class="t-btn" id="btn-right">▶</div>
+    </div>
+    <div class="touch-group">
+      <div class="t-btn t-jump" id="btn-jump">▲</div>
+    </div>
+  </div>
+
+  <!-- Touch Controls for 2 Player Same Screen -->
+  <div id="p2-touch-controls">
+    <div class="p-touch-lane">
+      <div class="t-btn" id="p1-t-left">◀</div>
+      <div class="t-btn" id="p1-t-right">▶</div>
+      <div class="t-btn t-jump" id="p1-t-jump" style="width:50px;height:50px;">▲</div>
+    </div>
+    <div class="p-touch-lane">
+      <div class="t-btn" id="p2-t-left">◀</div>
+      <div class="t-btn" id="p2-t-right">▶</div>
+      <div class="t-btn t-jump" id="p2-t-jump" style="width:50px;height:50px;background:rgba(59,130,246,0.4);border-color:#3b82f6;">▲</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ KAMPAI SDK & Versus Framework ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || {
+  isEmbed: false, isTouch: false, ready: true, student: null, stats: null, leaderboard: [], classmates: [],
+  input: { up: false, down: false, left: false, right: false, a: false, b: false },
+  onReady: function(cb) { cb(this); },
+  setSlug: function() { return this; },
+  submitScore: function() { return false; },
+  beginRound: function() {},
+  goHome: function() { location.href = '/h/nattapong'; },
+  exit: function() { location.href = '/h/nattapong'; },
+  controls: { mount: function() { return this; } },
+  sound: {
+    correct: function(){}, wrong: function(){}, timeUp: function(){}, gameOver: function(){},
+    speak: function(){}, stopSpeak: function(){}, fxFlash: function(){}, mountToggles: function(){},
+    defaultBgm: function(){}, bgmStart: function(){}, bgmStop: function(){}, unlock: function(){}
+  },
+  online: { available: false }
+};
+</script>
+
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || {
+  create: function() {
+    return {
+      available: false,
+      openMenu: function() { alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
+      report: function(){}, finish: function(){}, leave: function(){}
+    };
+  }
+};
+</script>
+
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || {
+  create: function(o) {
+    var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+    return {
+      available: false,
+      openMenu: function() { if (m) m.openMenu(); },
+      report: function(s, i) { if (m) m.report(s, i); },
+      finish: function(s, i) { if (m) { m.finish(s, i); return true; } return false; },
+      leave: function(){}, mode: null
+    };
+  }
+};
+</script>
+
+<!-- Game Scripts -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>
