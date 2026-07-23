@@ -51,10 +51,11 @@
   var nextPlatWorldX = 0;
   var platforms = []; // { worldX, y, width, height, isHigh }
   var enemies = [];   // { worldX, y, width, height, vx, alive, animTimer, platLeft, platRight }
-  var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounceY }
+  var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounceY, questionId }
   var particles = [];
 
   var currentQuestion = null;
+  var questionCounter = 0;
 
   // Key tracking
   var keys = {};
@@ -330,6 +331,7 @@
 
     scrollX = 0;
     nextPlatWorldX = 0;
+    questionCounter = 0;
     platforms = [];
     enemies = [];
     choiceBlocks = [];
@@ -440,13 +442,13 @@
   }
 
   function spawnQuestion() {
+    questionCounter++;
     currentQuestion = window.GAME_DATA.generateQuestion(currentOp, qRand);
     if (qTextDisplay) {
       qTextDisplay.textContent = currentQuestion.text;
     }
 
     // Spawn 3 Question Blocks ahead of current scrollX position
-    choiceBlocks = [];
     var baseWorldX = scrollX + 700;
     var spacing = 190;
 
@@ -462,7 +464,8 @@
         value: val,
         isCorrect: val === currentQuestion.answer,
         hit: false,
-        bounceY: 0
+        bounceY: 0,
+        questionId: questionCounter
       });
     }
   }
@@ -619,12 +622,20 @@
         }
       }
 
-      // Check if all choice blocks scrolled offscreen without being answered -> Auto-spawn new question!
-      if (choiceBlocks.length > 0) {
-        var allOffscreen = choiceBlocks.every(function (b) {
-          return b.worldX + b.width < scrollX;
-        });
-        if (allOffscreen) {
+      // Prune old offscreen blocks
+      for (var bIdx = choiceBlocks.length - 1; bIdx >= 0; bIdx--) {
+        if (choiceBlocks[bIdx].worldX + choiceBlocks[bIdx].width < scrollX - 200) {
+          choiceBlocks.splice(bIdx, 1);
+        }
+      }
+
+      // Check if all blocks of current active question scrolled offscreen without any being hit -> Auto-spawn new question!
+      var currentBlocks = choiceBlocks.filter(function (b) { return b.questionId === questionCounter; });
+      if (currentBlocks.length > 0) {
+        var noneHit = currentBlocks.every(function (b) { return !b.hit; });
+        var allOffscreen = currentBlocks.every(function (b) { return b.worldX + b.width < scrollX; });
+
+        if (noneHit && allOffscreen) {
           spawnQuestion();
         }
       }
