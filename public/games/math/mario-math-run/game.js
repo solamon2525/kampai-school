@@ -1,6 +1,6 @@
 /**
  * Mario Math Run — Auto-Scrolling Platformer Game Logic Module
- * Single-player & 2-Player Same-Screen auto-runner with wider camera view, elevated platforms, and smart enemy edge patrolling
+ * Single-player & 2-Player Same-Screen auto-runner with 5 lives, offscreen question respawn, and walkable hit stone blocks
  */
 (function () {
   'use strict';
@@ -43,7 +43,7 @@
   var timerInterval = null;
   var currentScore = 0;
   var currentCorrect = 0;
-  var lives = 3;
+  var lives = 5;
   var qRand = Math.random;
 
   // Auto-scroll World State
@@ -51,7 +51,7 @@
   var nextPlatWorldX = 0;
   var platforms = []; // { worldX, y, width, height, isHigh }
   var enemies = [];   // { worldX, y, width, height, vx, alive, animTimer, platLeft, platRight }
-  var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounce }
+  var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounceY }
   var particles = [];
 
   var currentQuestion = null;
@@ -68,7 +68,7 @@
     this.id = id;
     this.name = name;
     this.color = color; // '#ef4444' (Red Mario) or '#3b82f6' (Blue Luigi)
-    this.x = startScreenX; // Screen-relative X position (positioned left for wider forward view)
+    this.x = startScreenX; // Screen-relative X position
     this.y = 280;
     this.vx = 0;
     this.vy = 0;
@@ -83,7 +83,7 @@
     this.hitTimer = 0;
   }
 
-  Player.prototype.update = function (plats, scrollSpeed) {
+  Player.prototype.update = function (plats, blocks, scrollSpeed) {
     var speed = window.GAME_CONFIG.MOVE_SPEED || 4.5;
     var gravity = window.GAME_CONFIG.GRAVITY || 0.55;
     var jumpForce = window.GAME_CONFIG.JUMP_FORCE || -11.5;
@@ -116,13 +116,14 @@
     this.x += this.vx - scrollSpeed * 0.15;
     this.y += this.vy;
 
-    // Screen Bounds Safety (Keep player on left-side for wider forward sight)
+    // Screen Bounds Safety
     if (this.x < 10) this.x = 10;
     if (this.x > 750) this.x = 750;
 
-    // Platform collision (Convert worldX to screenX = worldX - scrollX)
+    // Platform & Hit Block Standing Collision
     this.isGrounded = false;
 
+    // 1. Ground and Elevated Platforms
     for (var i = 0; i < plats.length; i++) {
       var plat = plats[i];
       var screenPlatX = plat.worldX - scrollX;
@@ -137,6 +138,25 @@
         this.y = plat.y - this.height;
         this.vy = 0;
         this.isGrounded = true;
+      }
+    }
+
+    // 2. Hit Choice Blocks (Become Walkable Solid Stone Bricks)
+    for (var b = 0; b < blocks.length; b++) {
+      var blk = blocks[b];
+      if (blk.hit) {
+        var screenBlkX = blk.worldX - scrollX;
+        if (
+          this.x + this.width > screenBlkX &&
+          this.x < screenBlkX + blk.width &&
+          this.y + this.height >= blk.y &&
+          this.y + this.height <= blk.y + 18 &&
+          this.vy >= 0
+        ) {
+          this.y = blk.y - this.height;
+          this.vy = 0;
+          this.isGrounded = true;
+        }
       }
     }
 
@@ -304,7 +324,7 @@
     qRand = rng || Math.random;
     currentScore = 0;
     currentCorrect = 0;
-    lives = window.GAME_CONFIG.INITIAL_LIVES || 3;
+    lives = window.GAME_CONFIG.INITIAL_LIVES || 5;
     timer = window.GAME_CONFIG.DURATION || 60;
     gameState = 'playing';
 
@@ -329,7 +349,7 @@
     // Initial platforms setup
     generateInitialStage();
 
-    // Create Players (Positioned towards left for ~650px wider forward sight)
+    // Create Players
     player1 = new Player(1, 'P1 มาริโอ้', '#ef4444', 120, {
       left: 'KeyA', right: 'KeyD', jump: 'KeyW'
     });
@@ -377,8 +397,8 @@
 
   function spawnNextPlatformSegment() {
     // Random pit gap
-    var pitGap = Math.floor(qRand() * 60) + 80; // 80..140px pit
-    var platWidth = Math.floor(qRand() * 250) + 350; // 350..600px ground
+    var pitGap = Math.floor(qRand() * 60) + 80;
+    var platWidth = Math.floor(qRand() * 250) + 350;
 
     var platWorldX = nextPlatWorldX + pitGap;
     var platY = 360;
@@ -386,9 +406,9 @@
     // Ground platform
     platforms.push({ worldX: platWorldX, y: platY, width: platWidth, height: 90, isHigh: false });
 
-    // Elevated Platform (ที่เหยียบขึ้นที่สูง y: 240)
+    // Elevated Platform (ที่เหยียบขึ้นที่สูง)
     if (qRand() < 0.7) {
-      var highPlatWidth = Math.floor(qRand() * 100) + 140; // 140..240px
+      var highPlatWidth = Math.floor(qRand() * 100) + 140;
       var highPlatWorldX = platWorldX + 80 + qRand() * (platWidth - highPlatWidth - 100);
       platforms.push({
         worldX: highPlatWorldX,
@@ -399,7 +419,7 @@
       });
     }
 
-    // Random enemy spawn with Smart Patrol Bounds (เดินไม่ตกหลุม)
+    // Random enemy spawn with Smart Patrol Bounds
     if (qRand() < 0.65) {
       var enemyW = 32;
       var enemyX = platWorldX + 100 + qRand() * (platWidth - 200);
@@ -411,8 +431,8 @@
         vx: -1.2,
         alive: true,
         animTimer: 0,
-        platLeft: platWorldX, // Left edge of platform
-        platRight: platWorldX + platWidth // Right edge of platform
+        platLeft: platWorldX,
+        platRight: platWorldX + platWidth
       });
     }
 
@@ -432,7 +452,6 @@
 
     for (var i = 0; i < 3; i++) {
       var val = currentQuestion.choices[i];
-      // Vary block heights: middle or high above ledges
       var blockY = (i % 2 === 0) ? 200 : 150;
 
       choiceBlocks.push({
@@ -464,7 +483,7 @@
 
   function handleHeadbuttBlock(player, block) {
     if (block.hit) return;
-    block.hit = true;
+    block.hit = true; // Converts into solid walkable stone brick!
     block.bounceY = -12; // Bounce animation
 
     var screenBlockX = block.worldX - scrollX;
@@ -570,7 +589,7 @@
     ctx.fillStyle = '#5c94fc';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Parallax Clouds (Scrolling)
+    // Parallax Clouds
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     var cloudScroll1 = (scrollX * 0.2) % 900;
     ctx.beginPath();
@@ -599,6 +618,16 @@
           platforms.splice(pIdx, 1);
         }
       }
+
+      // Check if all choice blocks scrolled offscreen without being answered -> Auto-spawn new question!
+      if (choiceBlocks.length > 0) {
+        var allOffscreen = choiceBlocks.every(function (b) {
+          return b.worldX + b.width < scrollX;
+        });
+        if (allOffscreen) {
+          spawnQuestion();
+        }
+      }
     }
 
     // Draw Platforms (Grounds & Elevated Ledges)
@@ -608,7 +637,7 @@
 
       if (screenX + plat.width > -50 && screenX < 850) {
         if (plat.isHigh) {
-          // Elevated Floating Ledge (ที่เหยียบขึ้นที่สูง)
+          // Elevated Floating Ledge
           ctx.fillStyle = '#fbbf24';
           ctx.fillRect(screenX, plat.y, plat.width, 4);
           ctx.fillStyle = '#b45309';
@@ -630,7 +659,7 @@
     }
 
     if (gameState === 'playing') {
-      // Update & Draw Enemies (Goombas with Smart Patrol — เดินไม่ตกหลุม)
+      // Update & Draw Enemies (Goombas with Smart Patrol)
       for (var e = enemies.length - 1; e >= 0; e--) {
         var enemy = enemies[e];
         if (!enemy.alive) continue;
@@ -639,7 +668,7 @@
         enemy.worldX += enemy.vx;
         enemy.animTimer++;
 
-        // Edge Patrol Logic: Turn around when reaching platform edge! (เดินไม่ตกหลุม)
+        // Edge Patrol Logic: Turn around when reaching platform edge
         if (enemy.worldX <= enemy.platLeft && enemy.vx < 0) {
           enemy.vx = Math.abs(enemy.vx);
         } else if (enemy.worldX + enemy.width >= enemy.platRight && enemy.vx > 0) {
@@ -651,7 +680,7 @@
 
         // Draw Goomba Monster
         ctx.save();
-        ctx.fillStyle = '#78350f'; // Brown body
+        ctx.fillStyle = '#78350f';
         ctx.beginPath();
         ctx.arc(screenEnaX + 16, enemy.y + 16, 16, Math.PI, 0, false);
         ctx.fillRect(screenEnaX + 4, enemy.y + 16, 24, 12);
@@ -672,12 +701,12 @@
         ctx.fillRect(screenEnaX + 20 - footShift, enemy.y + 26, 10, 6);
         ctx.restore();
 
-        // Check Stomp / Collision with P1
+        // Check Stomp / Collision
         checkEnemyPlayerCollision(player1, enemy);
         if (player2) checkEnemyPlayerCollision(player2, enemy);
       }
 
-      // Update & Draw Question Blocks (`?` blocks)
+      // Update & Draw Question / Stone Blocks
       for (var b = 0; b < choiceBlocks.length; b++) {
         var block = choiceBlocks[b];
         var screenBlockX = block.worldX - scrollX;
@@ -687,39 +716,60 @@
         if (screenBlockX + block.width > -50 && screenBlockX < 850) {
           ctx.save();
           var blockDrawY = block.y + block.bounceY;
-          ctx.fillStyle = block.hit ? '#94a3b8' : '#f59e0b';
-          ctx.fillRect(screenBlockX, blockDrawY, block.width, block.height);
 
-          ctx.strokeStyle = '#fbbf24';
-          ctx.lineWidth = 4;
-          ctx.strokeRect(screenBlockX + 2, blockDrawY + 2, block.width - 4, block.height - 4);
+          if (block.hit) {
+            // Render as Solid Walkable Empty Stone Brick Block (ก้อนหินเหยียบได้)
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(screenBlockX, blockDrawY, block.width, block.height);
 
-          // Corner Dots
-          ctx.fillStyle = '#78350f';
-          ctx.fillRect(screenBlockX + 4, blockDrawY + 4, 4, 4);
-          ctx.fillRect(screenBlockX + block.width - 8, blockDrawY + 4, 4, 4);
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(screenBlockX + 1, blockDrawY + 1, block.width - 2, block.height - 2);
 
-          // Value Label
-          ctx.fillStyle = '#0f172a';
-          ctx.font = 'bold 24px Kanit, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(block.value, screenBlockX + block.width / 2, blockDrawY + block.height / 2);
+            // Brick texture lines
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.moveTo(screenBlockX, blockDrawY + block.height / 2);
+            ctx.lineTo(screenBlockX + block.width, blockDrawY + block.height / 2);
+            ctx.stroke();
+          } else {
+            // Render as Interactive Question ? Block
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(screenBlockX, blockDrawY, block.width, block.height);
+
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(screenBlockX + 2, blockDrawY + 2, block.width - 4, block.height - 4);
+
+            // Corner Dots
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(screenBlockX + 4, blockDrawY + 4, 4, 4);
+            ctx.fillRect(screenBlockX + block.width - 8, blockDrawY + 4, 4, 4);
+
+            // Value Label
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 24px Kanit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(block.value, screenBlockX + block.width / 2, blockDrawY + block.height / 2);
+          }
           ctx.restore();
 
-          // Check Headbutt Collision with P1
-          checkBlockHeadbutt(player1, block);
-          if (player2) checkBlockHeadbutt(player2, block);
+          // Check Headbutt Collision for active unhit blocks
+          if (!block.hit) {
+            checkBlockHeadbutt(player1, block);
+            if (player2) checkBlockHeadbutt(player2, block);
+          }
         }
       }
 
       // Update & Draw Players
       if (player1) {
-        player1.update(platforms, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
+        player1.update(platforms, choiceBlocks, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
         player1.draw(ctx);
       }
       if (player2) {
-        player2.update(platforms, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
+        player2.update(platforms, choiceBlocks, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
         player2.draw(ctx);
       }
 
@@ -754,7 +804,7 @@
       player.y + player.height > enemy.y &&
       player.y < enemy.y + enemy.height
     ) {
-      // Stomp check: Player moving downward and landing on enemy top
+      // Stomp check
       if (player.vy > 0 && player.y + player.height - player.vy <= enemy.y + 12) {
         enemy.alive = false;
         player.vy = -8.5; // Bounce off monster
