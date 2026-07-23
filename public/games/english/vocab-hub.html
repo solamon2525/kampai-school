@@ -1548,6 +1548,12 @@ let wsStartTime = 0, wsTimer = null, wsScore = 0;
 
 // Math Question state (Numbers only)
 let mathDifficulty = 'easy', mathFormat = 'reveal', mathOps = ['+','-'], mathQuestion = null;
+let mathVoiceGender = (function(){
+  try{
+    const v = localStorage.getItem('kvh_math_voice');
+    return v === 'male' ? 'male' : 'female';
+  }catch(_){ return 'female'; }
+})();
 let mathPos = 0, mathTotal = 10, mathCorrect = 0, mathScore = 0, mathStreak = 0;
 let mathLocked = false, mathStartTime = 0;
 
@@ -1796,7 +1802,7 @@ function showWin(emoji,text,scoreHtml,stars){
       mode: (typeof mode !== 'undefined' ? mode : 'normal')
     };
     if (mode === 'math') Object.assign(scoreMeta, {
-      difficulty: mathDifficulty, ops: mathOps.slice(), format: mathFormat, correct: mathCorrect,
+      difficulty: mathDifficulty, ops: mathOps.slice(), voice: mathVoiceGender, format: mathFormat, correct: mathCorrect,
       total: mathTotal, timeMs: Date.now() - mathStartTime
     });
     window.KAMPAI.submitScore(finalScore, scoreMeta);
@@ -2141,9 +2147,63 @@ function makeMathQuestion(){
   }
   return {a,b,op,answer};
 }
+function pickEnVoiceByGender(gender){
+  const wantMale = gender === 'male';
+  const vs = ((window.speechSynthesis && speechSynthesis.getVoices()) || [])
+    .filter(v => v.lang && /^en/i.test(v.lang));
+  if(!vs.length) return null;
+  const femaleRe = /female|woman|girl|zira|samantha|karen|susan|hazel|jenny|aria|emma|amy|salli|joanna|ivy|kendra|kimberly|michelle|raveena|olivia|sonia|linda|heather|catherine|moira|fiona|tessa|veena|allison|ava|serena|natalie|google us english$/i;
+  const maleRe = /male|man|boy|david|mark|george|guy|ryan|brian|matthew|justin|joey|daniel|thomas|arthur|ravi|aaron|eric|james|fred|noah|oliver|tom|google uk english male|microsoft david|microsoft mark|microsoft george/i;
+  const scored = vs.map(v => {
+    const n = String(v.name || '');
+    let score = 0;
+    if(wantMale){
+      if(maleRe.test(n)) score += 12;
+      if(femaleRe.test(n)) score -= 12;
+    }else{
+      if(femaleRe.test(n)) score += 12;
+      if(maleRe.test(n)) score -= 12;
+    }
+    if(/en[-_]US/i.test(v.lang)) score += 3;
+    else if(/en[-_]GB/i.test(v.lang)) score += 2;
+    else if(/en[-_]AU/i.test(v.lang)) score += 1;
+    if(v.localService) score += 1;
+    return { v, score };
+  }).sort((a, b) => b.score - a.score);
+  // ถ้าไม่เจอสัญญาณเพศชัด ใช้ตัวแรกของเพศที่ต้องการจากคะแนนสูงสุด
+  return scored[0].v;
+}
+function mathQuestionSpeakText(q){
+  if(!q) return '';
+  const opWord = q.op === '×' ? 'times' : q.op === '÷' ? 'divided by' : q.op;
+  return `What is ${q.a} ${opWord} ${q.b}?`;
+}
 function mathSpeak(text){
-  try{ KAMPAI.sound.speak(text,'en-US'); }
-  catch(_){ if(window.speechSynthesis){ const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; speechSynthesis.speak(u); } }
+  if(!window.speechSynthesis || !text) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.9;
+    const voice = pickEnVoiceByGender(mathVoiceGender);
+    if(voice){
+      u.voice = voice;
+      if(voice.lang) u.lang = voice.lang;
+    }
+    speechSynthesis.speak(u);
+  }catch(_){
+    try{ KAMPAI.sound.speak(text, 'en-US'); }catch(__){}
+  }
+}
+function setMathVoiceGender(gender){
+  mathVoiceGender = gender === 'male' ? 'male' : 'female';
+  try{ localStorage.setItem('kvh_math_voice', mathVoiceGender); }catch(_){}
+  document.querySelectorAll('[data-math-voice]').forEach(btn=>{
+    const on = btn.dataset.mathVoice === mathVoiceGender;
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if(mathQuestion) mathSpeak(mathQuestionSpeakText(mathQuestion));
 }
 function startMathQuestion(){
   try{KAMPAI.beginRound();}catch(_){}
@@ -2162,6 +2222,7 @@ function renderMathQuestion(){
   const options=[...answers].sort(()=>Math.random()-.5);
   const opLabel={'+':'บวก','-':'ลบ','×':'คูณ','÷':'หาร'};
   const opHint=mathOps.map(o=>opLabel[o]||o).join(' · ');
+  const voiceHint=mathVoiceGender==='male'?'เสียงชาย':'เสียงหญิง';
   playEl.innerHTML=`<div class="math-shell">
     <div class="math-settings" aria-label="ช่วงตัวเลข">
       <button type="button" class="math-chip${mathDifficulty==='easy'?' on':''}" data-math-level="easy">ง่าย 1–20</button>
@@ -2173,11 +2234,15 @@ function renderMathQuestion(){
       <button type="button" class="math-chip math-op${mathOps.includes('×')?' on':''}" data-math-op="×" title="คูณ" aria-pressed="${mathOps.includes('×')}">×</button>
       <button type="button" class="math-chip math-op${mathOps.includes('÷')?' on':''}" data-math-op="÷" title="หาร" aria-pressed="${mathOps.includes('÷')}">÷</button>
     </div>
+    <div class="math-settings" aria-label="เลือกเสียงอ่าน ผู้ชายหรือผู้หญิง">
+      <button type="button" class="math-chip${mathVoiceGender==='female'?' on':''}" data-math-voice="female" aria-pressed="${mathVoiceGender==='female'}">👩 หญิง</button>
+      <button type="button" class="math-chip${mathVoiceGender==='male'?' on':''}" data-math-voice="male" aria-pressed="${mathVoiceGender==='male'}">👨 ชาย</button>
+    </div>
     <div class="math-settings" aria-label="รูปแบบคำตอบ">
       <button type="button" class="math-chip${mathFormat==='reveal'?' on':''}" data-math-format="reveal">คิดแล้วเฉลย</button>
       <button type="button" class="math-chip${mathFormat==='choice'?' on':''}" data-math-format="choice">เลือกตอบ</button>
     </div>
-    <div class="math-hint">ข้อ ${mathPos+1}/${mathTotal} · คะแนน ${mathScore} · ตอบต่อเนื่อง ${mathStreak} · ${opHint}</div>
+    <div class="math-hint">ข้อ ${mathPos+1}/${mathTotal} · คะแนน ${mathScore} · ตอบต่อเนื่อง ${mathStreak} · ${opHint} · ${voiceHint}</div>
     <div class="math-question">What is ${q.a} ${q.op} ${q.b}?</div>
     <button type="button" class="math-secondary" id="math-speak-question">🔊 ฟังโจทย์</button>
     ${mathFormat==='choice'?`<div class="math-options">${options.map(n=>`<button type="button" class="math-option" data-math-answer="${n}">${numberWord(n)}</button>`).join('')}</div>`:''}
@@ -2185,14 +2250,15 @@ function renderMathQuestion(){
     <div class="math-actions"><button type="button" class="math-primary" id="math-reveal">${mathFormat==='choice'?'ดูเฉลย':'เฉลย'}</button><button type="button" class="math-secondary" id="math-next" style="display:none">ข้อต่อไป ›</button></div>
   </div>`;
   setScore(`Math Question · <b>${mathScore}</b> คะแนน`);
-  document.getElementById('math-speak-question').onclick=()=>mathSpeak(`What is ${q.a} ${q.op==='×'?'times':q.op==='÷'?'divided by':q.op} ${q.b}?`);
+  document.getElementById('math-speak-question').onclick=()=>mathSpeak(mathQuestionSpeakText(q));
   document.querySelectorAll('[data-math-level]').forEach(btn=>btn.onclick=()=>{mathDifficulty=btn.dataset.mathLevel==='easy'?'easy':'medium';startMathQuestion();});
   document.querySelectorAll('[data-math-op]').forEach(btn=>btn.onclick=()=>toggleMathOp(btn.dataset.mathOp));
+  document.querySelectorAll('[data-math-voice]').forEach(btn=>btn.onclick=()=>setMathVoiceGender(btn.dataset.mathVoice));
   document.querySelectorAll('[data-math-format]').forEach(btn=>btn.onclick=()=>{mathFormat=btn.dataset.mathFormat;startMathQuestion();});
   document.querySelectorAll('[data-math-answer]').forEach(btn=>btn.onclick=()=>checkMathAnswer(Number(btn.dataset.mathAnswer),btn));
   document.getElementById('math-reveal').onclick=()=>revealMathAnswer(false);
   document.getElementById('math-next').onclick=nextMathQuestion;
-  mathSpeak(`What is ${q.a} ${q.op==='×'?'times':q.op==='÷'?'divided by':q.op} ${q.b}?`);
+  mathSpeak(mathQuestionSpeakText(q));
 }
 function checkMathAnswer(value,btn){
   if(mathLocked) return;

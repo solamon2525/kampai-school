@@ -272,6 +272,14 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.8 (vocab-hub — เสียงชาย/หญิง)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'vocab-hub Math Question: ปุ่มเลือกเสียงอ่านอังกฤษ 👩 หญิง / 👨 ชาย · จำค่าในเครื่อง · กดแล้วลองฟังโจทย์ทันที',
+        ],
+    },
+    {
         version: 'v1.175.7 (vocab-hub — ปุ่ม +−×÷ แยก)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',
