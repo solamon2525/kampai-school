@@ -272,6 +272,14 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.175.7 (vocab-hub — ปุ่ม +−×÷ แยก)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'vocab-hub Math Question (Numbers): แยกเครื่องหมายเป็นปุ่ม + − × ÷ เลือกได้ทีละชนิดหรือผสม · ช่วงตัวเลขยังเป็น ง่าย 1–20 / กลาง 1–100',
+        ],
+    },
+    {
         version: 'v1.175.6 (พื้นที่ — วิธีทำ 3 แถว)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',

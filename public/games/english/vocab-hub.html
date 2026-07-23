@@ -572,8 +572,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 /* Math Question — English arithmetic speaking practice */
 .math-shell{width:min(920px,94vw);margin:auto;display:flex;flex-direction:column;align-items:center;gap:2vh;padding:2vh}
 .math-settings,.math-actions{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.math-settings-ops{gap:12px}
 .math-chip{min-height:44px;padding:9px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font:700 2vh Sarabun,sans-serif;cursor:pointer}
 .math-chip.on{background:#FFD54F;color:#172554;border-color:#FFF3B0}
+.math-chip.math-op{min-width:56px;min-height:52px;padding:8px 14px;border-radius:14px;font-size:clamp(26px,4vh,36px);font-weight:900;line-height:1}
 .math-question{font-size:clamp(30px,6vh,64px);font-weight:900;text-align:center;color:#fff;line-height:1.25}
 .math-hint{font-size:clamp(15px,2.2vh,24px);color:rgba(255,255,255,.7);text-align:center}
 .math-options{width:min(720px,92vw);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -584,7 +586,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 .math-answer.show{display:block}.math-answer-en{font-size:clamp(24px,4.2vh,46px);font-weight:900;color:#FFD54F}.math-answer-th{margin-top:7px;font-size:clamp(16px,2.2vh,23px);color:#fff}
 .math-primary{min-height:48px;padding:10px 24px;border:0;border-radius:14px;background:#FFD54F;color:#172554;font-size:clamp(17px,2.4vh,24px);font-weight:900;cursor:pointer}
 .math-secondary{min-height:48px;padding:10px 20px;border:2px solid rgba(255,255,255,.24);border-radius:14px;background:rgba(255,255,255,.09);color:#fff;font-size:clamp(16px,2.2vh,22px);font-weight:800;cursor:pointer}
-@media (max-width:560px){.math-options{grid-template-columns:1fr}.math-shell{padding:1vh}.math-chip{font-size:16px;padding:8px 11px}}
+@media (max-width:560px){.math-options{grid-template-columns:1fr}.math-shell{padding:1vh}.math-chip{font-size:16px;padding:8px 11px}.math-chip.math-op{min-width:48px;font-size:28px}}
 .qbtn:hover{background:rgba(0,0,0,0.6);transform:scale(1.05)}
 #btn-reveal{border-color:#FFD700;color:#FFE082}
 #btn-reveal:hover{background:rgba(255,215,0,0.3)}
@@ -1545,7 +1547,7 @@ let wsWords = [], wsGridSize = 10, wsGrid = [], wsFoundCount = 0;
 let wsStartTime = 0, wsTimer = null, wsScore = 0;
 
 // Math Question state (Numbers only)
-let mathDifficulty = 'easy', mathFormat = 'reveal', mathQuestion = null;
+let mathDifficulty = 'easy', mathFormat = 'reveal', mathOps = ['+','-'], mathQuestion = null;
 let mathPos = 0, mathTotal = 10, mathCorrect = 0, mathScore = 0, mathStreak = 0;
 let mathLocked = false, mathStartTime = 0;
 
@@ -1794,7 +1796,7 @@ function showWin(emoji,text,scoreHtml,stars){
       mode: (typeof mode !== 'undefined' ? mode : 'normal')
     };
     if (mode === 'math') Object.assign(scoreMeta, {
-      difficulty: mathDifficulty, format: mathFormat, correct: mathCorrect,
+      difficulty: mathDifficulty, ops: mathOps.slice(), format: mathFormat, correct: mathCorrect,
       total: mathTotal, timeMs: Date.now() - mathStartTime
     });
     window.KAMPAI.submitScore(finalScore, scoreMeta);
@@ -2105,9 +2107,23 @@ function mathThaiReading(word){
   return item ? item.th : word;
 }
 function mathRange(){
-  if(mathDifficulty==='easy') return {max:20, ops:['+','-']};
-  if(mathDifficulty==='medium') return {max:100, ops:['+','-']};
-  return {max:100, ops:['+','-','×','÷']};
+  // easy/medium = ช่วงตัวเลข · เครื่องหมายเลือกแยกปุ่ม + − × ÷
+  if(mathDifficulty==='hard') mathDifficulty='medium';
+  const max = mathDifficulty==='easy' ? 20 : 100;
+  const ops = (Array.isArray(mathOps) && mathOps.length) ? mathOps.slice() : ['+','-'];
+  return {max, ops};
+}
+function toggleMathOp(op){
+  const allowed = ['+','-','×','÷'];
+  if(!allowed.includes(op)) return;
+  const on = mathOps.includes(op);
+  if(on){
+    if(mathOps.length<=1) return; // ต้องเหลืออย่างน้อย 1 เครื่องหมาย
+    mathOps = mathOps.filter(o=>o!==op);
+  }else{
+    mathOps = allowed.filter(o=>mathOps.includes(o) || o===op);
+  }
+  startMathQuestion();
 }
 function makeMathQuestion(){
   const cfg=mathRange(), op=cfg.ops[Math.floor(Math.random()*cfg.ops.length)];
@@ -2144,24 +2160,34 @@ function renderMathQuestion(){
     if(candidate>=1&&candidate<=100) answers.add(candidate);
   }
   const options=[...answers].sort(()=>Math.random()-.5);
+  const opLabel={'+':'บวก','-':'ลบ','×':'คูณ','÷':'หาร'};
+  const opHint=mathOps.map(o=>opLabel[o]||o).join(' · ');
   playEl.innerHTML=`<div class="math-shell">
-    <div class="math-settings" aria-label="ตั้งค่าโจทย์">
-      <button class="math-chip${mathDifficulty==='easy'?' on':''}" data-math-level="easy">ง่าย 1–20</button>
-      <button class="math-chip${mathDifficulty==='medium'?' on':''}" data-math-level="medium">กลาง 1–100</button>
-      <button class="math-chip${mathDifficulty==='hard'?' on':''}" data-math-level="hard">ยาก + − × ÷</button>
-      <button class="math-chip${mathFormat==='reveal'?' on':''}" data-math-format="reveal">คิดแล้วเฉลย</button>
-      <button class="math-chip${mathFormat==='choice'?' on':''}" data-math-format="choice">เลือกตอบ</button>
+    <div class="math-settings" aria-label="ช่วงตัวเลข">
+      <button type="button" class="math-chip${mathDifficulty==='easy'?' on':''}" data-math-level="easy">ง่าย 1–20</button>
+      <button type="button" class="math-chip${mathDifficulty==='medium'?' on':''}" data-math-level="medium">กลาง 1–100</button>
     </div>
-    <div class="math-hint">ข้อ ${mathPos+1}/${mathTotal} · คะแนน ${mathScore} · ตอบต่อเนื่อง ${mathStreak}</div>
+    <div class="math-settings math-settings-ops" aria-label="เลือกเครื่องหมาย + ลบ คูณ หาร">
+      <button type="button" class="math-chip math-op${mathOps.includes('+')?' on':''}" data-math-op="+" title="บวก" aria-pressed="${mathOps.includes('+')}">+</button>
+      <button type="button" class="math-chip math-op${mathOps.includes('-')?' on':''}" data-math-op="-" title="ลบ" aria-pressed="${mathOps.includes('-')}">−</button>
+      <button type="button" class="math-chip math-op${mathOps.includes('×')?' on':''}" data-math-op="×" title="คูณ" aria-pressed="${mathOps.includes('×')}">×</button>
+      <button type="button" class="math-chip math-op${mathOps.includes('÷')?' on':''}" data-math-op="÷" title="หาร" aria-pressed="${mathOps.includes('÷')}">÷</button>
+    </div>
+    <div class="math-settings" aria-label="รูปแบบคำตอบ">
+      <button type="button" class="math-chip${mathFormat==='reveal'?' on':''}" data-math-format="reveal">คิดแล้วเฉลย</button>
+      <button type="button" class="math-chip${mathFormat==='choice'?' on':''}" data-math-format="choice">เลือกตอบ</button>
+    </div>
+    <div class="math-hint">ข้อ ${mathPos+1}/${mathTotal} · คะแนน ${mathScore} · ตอบต่อเนื่อง ${mathStreak} · ${opHint}</div>
     <div class="math-question">What is ${q.a} ${q.op} ${q.b}?</div>
-    <button class="math-secondary" id="math-speak-question">🔊 ฟังโจทย์</button>
-    ${mathFormat==='choice'?`<div class="math-options">${options.map(n=>`<button class="math-option" data-math-answer="${n}">${numberWord(n)}</button>`).join('')}</div>`:''}
+    <button type="button" class="math-secondary" id="math-speak-question">🔊 ฟังโจทย์</button>
+    ${mathFormat==='choice'?`<div class="math-options">${options.map(n=>`<button type="button" class="math-option" data-math-answer="${n}">${numberWord(n)}</button>`).join('')}</div>`:''}
     <div class="math-answer" id="math-answer"><div class="math-answer-en">The answer is ${answerWord}.</div><div class="math-answer-th">ดิ แอนเซอร์ อิส ${mathThaiReading(answerWord)} · คำตอบคือ ${q.answer}</div></div>
-    <div class="math-actions"><button class="math-primary" id="math-reveal">${mathFormat==='choice'?'ดูเฉลย':'เฉลย'}</button><button class="math-secondary" id="math-next" style="display:none">ข้อต่อไป ›</button></div>
+    <div class="math-actions"><button type="button" class="math-primary" id="math-reveal">${mathFormat==='choice'?'ดูเฉลย':'เฉลย'}</button><button type="button" class="math-secondary" id="math-next" style="display:none">ข้อต่อไป ›</button></div>
   </div>`;
   setScore(`Math Question · <b>${mathScore}</b> คะแนน`);
   document.getElementById('math-speak-question').onclick=()=>mathSpeak(`What is ${q.a} ${q.op==='×'?'times':q.op==='÷'?'divided by':q.op} ${q.b}?`);
-  document.querySelectorAll('[data-math-level]').forEach(btn=>btn.onclick=()=>{mathDifficulty=btn.dataset.mathLevel;startMathQuestion();});
+  document.querySelectorAll('[data-math-level]').forEach(btn=>btn.onclick=()=>{mathDifficulty=btn.dataset.mathLevel==='easy'?'easy':'medium';startMathQuestion();});
+  document.querySelectorAll('[data-math-op]').forEach(btn=>btn.onclick=()=>toggleMathOp(btn.dataset.mathOp));
   document.querySelectorAll('[data-math-format]').forEach(btn=>btn.onclick=()=>{mathFormat=btn.dataset.mathFormat;startMathQuestion();});
   document.querySelectorAll('[data-math-answer]').forEach(btn=>btn.onclick=()=>checkMathAnswer(Number(btn.dataset.mathAnswer),btn));
   document.getElementById('math-reveal').onclick=()=>revealMathAnswer(false);
