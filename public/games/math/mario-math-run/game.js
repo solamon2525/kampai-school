@@ -1,6 +1,6 @@
 /**
- * Mario Math Run — Game Logic Module
- * Single-player and 2-player same-screen Mario platformer math runner
+ * Mario Math Run — Auto-Scrolling Platformer Game Logic Module
+ * Single-player & 2-Player Same-Screen auto-runner with pits, enemies, and headbutt question blocks
  */
 (function () {
   'use strict';
@@ -38,7 +38,6 @@
   // Game state
   var gameState = 'menu'; // 'menu' | 'playing' | 'gameover'
   var gameMode = 'solo';  // 'solo' | 'same-screen' | 'versus'
-  var isSingleMode = true;
 
   var timer = 60;
   var timerInterval = null;
@@ -47,9 +46,15 @@
   var lives = 3;
   var qRand = Math.random;
 
-  var currentQuestion = null;
-  var choiceBlocks = []; // { x, y, width, height, value, isCorrect, hit }
+  // Auto-scroll World State
+  var scrollX = 0;
+  var nextPlatWorldX = 0;
+  var platforms = []; // { worldX, y, width, height }
+  var enemies = [];   // { worldX, y, width, height, vx, alive, animTimer }
+  var choiceBlocks = []; // { worldX, y, width, height, value, isCorrect, hit, bounce }
   var particles = [];
+
+  var currentQuestion = null;
 
   // Key tracking
   var keys = {};
@@ -59,12 +64,12 @@
   var player2 = null;
 
   // Player Constructor
-  function Player(id, name, color, startX, controls) {
+  function Player(id, name, color, startScreenX, controls) {
     this.id = id;
     this.name = name;
     this.color = color; // '#ef4444' (Red Mario) or '#3b82f6' (Blue Luigi)
-    this.x = startX;
-    this.y = 300;
+    this.x = startScreenX; // Screen-relative X position
+    this.y = 280;
     this.vx = 0;
     this.vy = 0;
     this.width = 36;
@@ -78,12 +83,12 @@
     this.hitTimer = 0;
   }
 
-  Player.prototype.update = function (platforms) {
+  Player.prototype.update = function (plats, scrollSpeed) {
     var speed = window.GAME_CONFIG.MOVE_SPEED || 4.5;
     var gravity = window.GAME_CONFIG.GRAVITY || 0.55;
     var jumpForce = window.GAME_CONFIG.JUMP_FORCE || -11.5;
 
-    // Movement
+    // Relative movement control
     if (keys[this.controls.left] || (this.id === 1 && touchInput.p1Left) || (this.id === 2 && touchInput.p2Left)) {
       this.vx = -speed;
       this.facing = 'left';
@@ -107,23 +112,27 @@
     // Gravity
     this.vy += gravity;
 
-    // Apply movement
-    this.x += this.vx;
+    // Apply relative velocity + auto-scroll push back
+    this.x += this.vx - scrollSpeed * 0.15; // Slow push to keep momentum exciting
     this.y += this.vy;
 
-    // Screen Bounds
+    // Screen Bounds Safety
     if (this.x < 10) this.x = 10;
-    if (this.x > 790 - this.width) this.x = 790 - this.width;
+    if (this.x > 760) this.x = 760;
 
-    // Platform collision
+    // Platform collision (Convert worldX to screenX = worldX - scrollX)
     this.isGrounded = false;
-    for (var i = 0; i < platforms.length; i++) {
-      var plat = platforms[i];
+    var worldPx = scrollX + this.x;
+
+    for (var i = 0; i < plats.length; i++) {
+      var plat = plats[i];
+      var screenPlatX = plat.worldX - scrollX;
+
       if (
-        this.x + this.width > plat.x &&
-        this.x < plat.x + plat.width &&
+        this.x + this.width > screenPlatX &&
+        this.x < screenPlatX + plat.width &&
         this.y + this.height >= plat.y &&
-        this.y + this.height <= plat.y + 16 &&
+        this.y + this.height <= plat.y + 18 &&
         this.vy >= 0
       ) {
         this.y = plat.y - this.height;
@@ -132,15 +141,34 @@
       }
     }
 
-    // Bottom Ground fall safe
-    if (this.y > 330) {
-      this.y = 330;
-      this.vy = 0;
-      this.isGrounded = true;
+    // Pit fall check (fell off bottom of screen)
+    if (this.y > 450) {
+      this.handlePitFall();
     }
 
     if (this.hitTimer > 0) this.hitTimer--;
-    this.animTimer += Math.abs(this.vx) > 0.5 ? 1 : 0;
+    this.animTimer += Math.abs(this.vx) > 0.5 || !this.isGrounded ? 1 : 0;
+  };
+
+  Player.prototype.handlePitFall = function () {
+    if (this.hitTimer > 0) return;
+    this.hitTimer = 40;
+    if (window.KAMPAI && window.KAMPAI.sound) {
+      window.KAMPAI.sound.wrong();
+    }
+
+    // Respawn at safe height on screen
+    this.y = 200;
+    this.vy = -4;
+    this.x = Math.max(100, this.x - 60);
+
+    if (gameMode === 'solo') {
+      lives--;
+      updateHUD();
+      if (lives <= 0) {
+        endGame(false);
+      }
+    }
   };
 
   Player.prototype.draw = function (c) {
@@ -164,7 +192,7 @@
     c.fillStyle = '#ffdbac';
     c.fillRect(px + 6, py + 12, w - 12, 12);
 
-    // Eyes & Mustache
+    // Eye & Mustache
     c.fillStyle = '#0f172a';
     var eyeX = this.facing === 'right' ? px + w - 14 : px + 8;
     c.fillRect(eyeX, py + 14, 4, 4);
@@ -190,7 +218,7 @@
     c.fillRect(px + 4, py + 40 + legOffset, 12, 8);
     c.fillRect(px + w - 16, py + 40 - legOffset, 12, 8);
 
-    // Player Label Tag
+    // Player Tag
     c.fillStyle = '#ffffff';
     c.font = 'bold 12px Kanit, sans-serif';
     c.textAlign = 'center';
@@ -199,21 +227,13 @@
     c.restore();
   };
 
-  // Platforms
-  var mainPlatforms = [
-    { x: 0, y: 378, width: 800, height: 72 }, // Main Ground
-    { x: 100, y: 260, width: 160, height: 20 },
-    { x: 320, y: 220, width: 160, height: 20 },
-    { x: 540, y: 260, width: 160, height: 20 }
-  ];
-
   // Touch Input State
   var touchInput = {
     p1Left: false, p1Right: false, p1Jump: false,
     p2Left: false, p2Right: false, p2Jump: false
   };
 
-  // Setup Event Listeners
+  // Event Listeners
   window.addEventListener('keydown', function (e) {
     keys[e.code] = true;
   });
@@ -221,7 +241,6 @@
     keys[e.code] = false;
   });
 
-  // Touch button wiring helper
   function wireTouchBtn(id, targetKey) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -257,7 +276,6 @@
   wireTouchBtn('p2-t-right', 'p2Right');
   wireTouchBtn('p2-t-jump', 'p2Jump');
 
-  // Operation selection
   window.selectOp = function (op, btn) {
     currentOp = op;
     var btns = document.querySelectorAll('.op-btn');
@@ -265,7 +283,7 @@
     if (btn) btn.classList.add('active');
   };
 
-  // Initialize KampaiVersus
+  // KampaiVersus Integration
   var vs = window.KampaiVersus.create({
     duration: window.GAME_CONFIG.DURATION || 60,
     title: 'Mario Math Run',
@@ -278,7 +296,6 @@
     }
   });
 
-  // Start Game
   window.startGame = function (mode) {
     gameMode = mode;
     startRound(Math.random, mode);
@@ -292,11 +309,17 @@
     timer = window.GAME_CONFIG.DURATION || 60;
     gameState = 'playing';
 
+    scrollX = 0;
+    nextPlatWorldX = 0;
+    platforms = [];
+    enemies = [];
+    choiceBlocks = [];
+    particles = [];
+
     if (window.KAMPAI && window.KAMPAI.beginRound) {
       window.KAMPAI.beginRound();
     }
 
-    // Hide menus, show HUD
     if (blocker) blocker.style.display = 'none';
     if (gameoverScreen) gameoverScreen.style.display = 'none';
     if (hudOverlay) hudOverlay.style.display = 'flex';
@@ -304,13 +327,16 @@
 
     updateHUD();
 
-    // Create Players based on mode
-    player1 = new Player(1, 'P1 มาริโอ้', '#ef4444', 180, {
+    // Initial platforms setup
+    generateInitialStage();
+
+    // Create Players
+    player1 = new Player(1, 'P1 มาริโอ้', '#ef4444', 160, {
       left: 'KeyA', right: 'KeyD', jump: 'KeyW'
     });
 
     if (mode === 'same-screen') {
-      player2 = new Player(2, 'P2 ลุยจิ', '#3b82f6', 580, {
+      player2 = new Player(2, 'P2 ลุยจิ', '#3b82f6', 260, {
         left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp'
       });
       if (touchControls) touchControls.style.display = 'none';
@@ -333,12 +359,47 @@
       }
     }, 1000);
 
-    // Audio BGM
     if (window.KAMPAI && window.KAMPAI.sound) {
       window.KAMPAI.sound.bgmStart();
     }
 
     spawnQuestion();
+  }
+
+  function generateInitialStage() {
+    // Starting solid ground (wide)
+    platforms.push({ worldX: 0, y: 360, width: 900, height: 90 });
+    nextPlatWorldX = 900;
+
+    for (var i = 0; i < 6; i++) {
+      spawnNextPlatformSegment();
+    }
+  }
+
+  function spawnNextPlatformSegment() {
+    // Random pit gap
+    var pitGap = Math.floor(qRand() * 50) + 80; // 80..130px pit
+    var platWidth = Math.floor(qRand() * 250) + 300; // 300..550px ground
+
+    var platWorldX = nextPlatWorldX + pitGap;
+    var platY = 360;
+
+    platforms.push({ worldX: platWorldX, y: platY, width: platWidth, height: 90 });
+
+    // Random enemy spawn on this platform
+    if (qRand() < 0.6) {
+      enemies.push({
+        worldX: platWorldX + 150 + qRand() * (platWidth - 200),
+        y: platY - 32,
+        width: 32,
+        height: 32,
+        vx: -1.2,
+        alive: true,
+        animTimer: 0
+      });
+    }
+
+    nextPlatWorldX = platWorldX + platWidth;
   }
 
   function spawnQuestion() {
@@ -347,33 +408,31 @@
       qTextDisplay.textContent = currentQuestion.text;
     }
 
-    // Create 3 Choice Blocks
+    // Spawn 3 Question Blocks ahead of current scrollX position
     choiceBlocks = [];
-    var blockPositions = [
-      { x: 150, y: 190 },
-      { x: 370, y: 150 },
-      { x: 590, y: 190 }
-    ];
+    var baseWorldX = scrollX + 750;
+    var spacing = 180;
 
     for (var i = 0; i < 3; i++) {
       var val = currentQuestion.choices[i];
       choiceBlocks.push({
-        x: blockPositions[i].x,
-        y: blockPositions[i].y,
-        width: 60,
-        height: 60,
+        worldX: baseWorldX + i * spacing,
+        y: 210,
+        width: 54,
+        height: 54,
         value: val,
         isCorrect: val === currentQuestion.answer,
-        hit: false
+        hit: false,
+        bounceY: 0
       });
     }
   }
 
-  function spawnParticles(x, y, color) {
+  function spawnParticles(screenX, screenY, color) {
     for (var i = 0; i < 16; i++) {
       particles.push({
-        x: x,
-        y: y,
+        x: screenX,
+        y: screenY,
         vx: (Math.random() - 0.5) * 8,
         vy: (Math.random() - 0.5) * 8 - 2,
         color: color,
@@ -383,18 +442,21 @@
     }
   }
 
-  function handleBlockHit(player, block) {
+  function handleHeadbuttBlock(player, block) {
     if (block.hit) return;
     block.hit = true;
+    block.bounceY = -12; // Bounce animation
+
+    var screenBlockX = block.worldX - scrollX;
 
     if (block.isCorrect) {
-      // Correct answer!
+      // Correct Headbutt!
       player.score += 10;
       player.correct += 1;
       currentScore += 10;
       currentCorrect += 1;
 
-      spawnParticles(block.x + 30, block.y + 30, '#FFD700');
+      spawnParticles(screenBlockX + 27, block.y + 27, '#FFD700');
       if (window.KAMPAI && window.KAMPAI.sound) {
         window.KAMPAI.sound.correct();
       }
@@ -403,11 +465,11 @@
 
       setTimeout(function () {
         if (gameState === 'playing') spawnQuestion();
-      }, 400);
+      }, 500);
     } else {
-      // Wrong answer!
+      // Wrong Headbutt!
       player.hitTimer = 30;
-      spawnParticles(block.x + 30, block.y + 30, '#ef4444');
+      spawnParticles(screenBlockX + 27, block.y + 27, '#ef4444');
 
       if (window.KAMPAI && window.KAMPAI.sound) {
         window.KAMPAI.sound.wrong();
@@ -444,12 +506,10 @@
       window.KAMPAI.sound.gameOver();
     }
 
-    // Check Versus finish guard
     if (!isVsFinished && vs.finish(currentScore, { correct: currentCorrect })) {
       return;
     }
 
-    // Submit score in Solo / Non-versus mode
     if (window.KAMPAI && window.KAMPAI.submitScore) {
       window.KAMPAI.submitScore(currentScore, { mode: currentOp, correct: currentCorrect });
     }
@@ -481,7 +541,7 @@
     if (blocker) blocker.style.display = 'flex';
   };
 
-  // Main Render Loop
+  // Main Render & Update Loop
   function gameLoop() {
     requestAnimationFrame(gameLoop);
     if (!ctx || !canvas) return;
@@ -490,108 +550,144 @@
     ctx.fillStyle = '#5c94fc';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Parallax Clouds
+    // Parallax Clouds (Scrolling)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    var cloudTime = Date.now() * 0.02;
+    var cloudScroll1 = (scrollX * 0.2) % 900;
     ctx.beginPath();
-    ctx.arc((100 + cloudTime) % 900 - 50, 80, 30, 0, Math.PI * 2);
-    ctx.arc((140 + cloudTime) % 900 - 50, 75, 40, 0, Math.PI * 2);
-    ctx.arc((180 + cloudTime) % 900 - 50, 80, 30, 0, Math.PI * 2);
+    ctx.arc(200 - cloudScroll1, 70, 30, 0, Math.PI * 2);
+    ctx.arc(240 - cloudScroll1, 65, 40, 0, Math.PI * 2);
+    ctx.arc(280 - cloudScroll1, 70, 30, 0, Math.PI * 2);
+
+    ctx.arc(800 - cloudScroll1, 70, 30, 0, Math.PI * 2);
+    ctx.arc(840 - cloudScroll1, 65, 40, 0, Math.PI * 2);
+    ctx.arc(880 - cloudScroll1, 70, 30, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.beginPath();
-    ctx.arc((500 + cloudTime * 0.7) % 900 - 50, 110, 24, 0, Math.PI * 2);
-    ctx.arc((530 + cloudTime * 0.7) % 900 - 50, 105, 32, 0, Math.PI * 2);
-    ctx.arc((560 + cloudTime * 0.7) % 900 - 50, 110, 24, 0, Math.PI * 2);
-    ctx.fill();
+    // Update Auto-scroll
+    if (gameState === 'playing') {
+      var autoScrollSpeed = window.GAME_CONFIG.AUTO_SCROLL_SPEED || 2.0;
+      scrollX += autoScrollSpeed;
 
-    // Draw Hills
-    ctx.fillStyle = '#22c55e';
-    ctx.beginPath();
-    ctx.ellipse(200, 378, 140, 70, 0, Math.PI, 0);
-    ctx.ellipse(650, 378, 160, 80, 0, Math.PI, 0);
-    ctx.fill();
+      // Spawn next platform segments as player advances
+      if (nextPlatWorldX - scrollX < 1200) {
+        spawnNextPlatformSegment();
+      }
 
-    // Draw Platforms
-    for (var i = 0; i < mainPlatforms.length; i++) {
-      var plat = mainPlatforms[i];
-      // Brick texture top
-      ctx.fillStyle = '#15803d';
-      ctx.fillRect(plat.x, plat.y, plat.width, 8);
-      ctx.fillStyle = '#854d0e';
-      ctx.fillRect(plat.x, plat.y + 8, plat.width, plat.height - 8);
+      // Prune old offscreen platforms
+      for (var pIdx = platforms.length - 1; pIdx >= 0; pIdx--) {
+        if (platforms[pIdx].worldX + platforms[pIdx].width < scrollX - 200) {
+          platforms.splice(pIdx, 1);
+        }
+      }
+    }
 
-      // Brick grid lines
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(plat.x, plat.y + 8, plat.width, plat.height - 8);
+    // Draw Platforms (Grounds & Pits)
+    for (var i = 0; i < platforms.length; i++) {
+      var plat = platforms[i];
+      var screenX = plat.worldX - scrollX;
+
+      if (screenX + plat.width > -50 && screenX < 850) {
+        // Grass top
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(screenX, plat.y, plat.width, 10);
+        // Dirt body
+        ctx.fillStyle = '#854d0e';
+        ctx.fillRect(screenX, plat.y + 10, plat.width, plat.height - 10);
+
+        // Brick pattern
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(screenX, plat.y + 10, plat.width, plat.height - 10);
+      }
     }
 
     if (gameState === 'playing') {
-      // Update and Draw Choice Blocks
-      for (var b = 0; b < choiceBlocks.length; b++) {
-        var block = choiceBlocks[b];
+      // Update & Draw Enemies (Goombas)
+      for (var e = enemies.length - 1; e >= 0; e--) {
+        var enemy = enemies[e];
+        if (!enemy.alive) continue;
 
-        // Draw ? Block / Answer Box
+        enemy.worldX += enemy.vx;
+        enemy.animTimer++;
+
+        var screenEnaX = enemy.worldX - scrollX;
+        if (screenEnaX + enemy.width < -100) continue;
+
+        // Draw Goomba Monster
         ctx.save();
-        ctx.fillStyle = block.hit ? '#94a3b8' : '#f59e0b';
-        ctx.fillRect(block.x, block.y, block.width, block.height);
+        ctx.fillStyle = '#78350f'; // Brown body
+        ctx.beginPath();
+        ctx.arc(screenEnaX + 16, enemy.y + 16, 16, Math.PI, 0, false);
+        ctx.fillRect(screenEnaX + 4, enemy.y + 16, 24, 12);
+        ctx.fill();
 
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(block.x + 2, block.y + 2, block.width - 4, block.height - 4);
-
-        // Draw Corner Dots
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(block.x + 4, block.y + 4, 4, 4);
-        ctx.fillRect(block.x + block.width - 8, block.y + 4, 4, 4);
-        ctx.fillRect(block.x + 4, block.y + block.height - 8, 4, 4);
-        ctx.fillRect(block.x + block.width - 8, block.y + block.height - 8, 4, 4);
-
-        // Choice Value Text
+        // Eyes
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(screenEnaX + 8, enemy.y + 12, 5, 8);
+        ctx.fillRect(screenEnaX + 19, enemy.y + 12, 5, 8);
         ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 24px Kanit, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(block.value, block.x + block.width / 2, block.y + block.height / 2);
+        ctx.fillRect(screenEnaX + 10, enemy.y + 14, 3, 4);
+        ctx.fillRect(screenEnaX + 19, enemy.y + 14, 3, 4);
+
+        // Feet (animated)
+        ctx.fillStyle = '#451a03';
+        var footShift = Math.sin(enemy.animTimer * 0.2) * 3;
+        ctx.fillRect(screenEnaX + 2 + footShift, enemy.y + 26, 10, 6);
+        ctx.fillRect(screenEnaX + 20 - footShift, enemy.y + 26, 10, 6);
         ctx.restore();
 
-        // Check collision with P1
-        if (player1 && !block.hit) {
-          if (
-            player1.x + player1.width > block.x &&
-            player1.x < block.x + block.width &&
-            player1.y + player1.height > block.y &&
-            player1.y < block.y + block.height
-          ) {
-            handleBlockHit(player1, block);
-          }
-        }
+        // Check Stomp / Collision with P1
+        checkEnemyPlayerCollision(player1, enemy);
+        if (player2) checkEnemyPlayerCollision(player2, enemy);
+      }
 
-        // Check collision with P2
-        if (player2 && !block.hit) {
-          if (
-            player2.x + player2.width > block.x &&
-            player2.x < block.x + block.width &&
-            player2.y + player2.height > block.y &&
-            player2.y < block.y + block.height
-          ) {
-            handleBlockHit(player2, block);
-          }
+      // Update & Draw Question Blocks (`?` blocks)
+      for (var b = 0; b < choiceBlocks.length; b++) {
+        var block = choiceBlocks[b];
+        var screenBlockX = block.worldX - scrollX;
+
+        if (block.bounceY < 0) block.bounceY += 1;
+
+        if (screenBlockX + block.width > -50 && screenBlockX < 850) {
+          ctx.save();
+          var blockDrawY = block.y + block.bounceY;
+          ctx.fillStyle = block.hit ? '#94a3b8' : '#f59e0b';
+          ctx.fillRect(screenBlockX, blockDrawY, block.width, block.height);
+
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 4;
+          ctx.strokeRect(screenBlockX + 2, blockDrawY + 2, block.width - 4, block.height - 4);
+
+          // Corner Dots
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(screenBlockX + 4, blockDrawY + 4, 4, 4);
+          ctx.fillRect(screenBlockX + block.width - 8, blockDrawY + 4, 4, 4);
+
+          // Value Label
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 24px Kanit, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(block.value, screenBlockX + block.width / 2, blockDrawY + block.height / 2);
+          ctx.restore();
+
+          // Check Headbutt Collision with P1
+          checkBlockHeadbutt(player1, block);
+          if (player2) checkBlockHeadbutt(player2, block);
         }
       }
 
       // Update & Draw Players
       if (player1) {
-        player1.update(mainPlatforms);
+        player1.update(platforms, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
         player1.draw(ctx);
       }
       if (player2) {
-        player2.update(mainPlatforms);
+        player2.update(platforms, window.GAME_CONFIG.AUTO_SCROLL_SPEED);
         player2.draw(ctx);
       }
 
-      // Update & Draw Particles
+      // Particles
       for (var p = particles.length - 1; p >= 0; p--) {
         var pt = particles[p];
         pt.x += pt.vx;
@@ -612,10 +708,60 @@
     }
   }
 
+  function checkEnemyPlayerCollision(player, enemy) {
+    if (!player || !enemy.alive) return;
+    var screenEnaX = enemy.worldX - scrollX;
+
+    if (
+      player.x + player.width > screenEnaX &&
+      player.x < screenEnaX + enemy.width &&
+      player.y + player.height > enemy.y &&
+      player.y < enemy.y + enemy.height
+    ) {
+      // Stomp check: Player moving downward and landing on enemy top
+      if (player.vy > 0 && player.y + player.height - player.vy <= enemy.y + 12) {
+        enemy.alive = false;
+        player.vy = -8.5; // Bounce off monster
+        spawnParticles(screenEnaX + 16, enemy.y + 16, '#78350f');
+        if (window.KAMPAI && window.KAMPAI.sound) {
+          window.KAMPAI.sound.correct();
+        }
+      } else if (player.hitTimer <= 0) {
+        // Player hit from side
+        player.hitTimer = 35;
+        spawnParticles(player.x + 18, player.y + 24, '#ef4444');
+        if (window.KAMPAI && window.KAMPAI.sound) {
+          window.KAMPAI.sound.wrong();
+        }
+        if (gameMode === 'solo') {
+          lives--;
+          updateHUD();
+          if (lives <= 0) endGame(false);
+        }
+      }
+    }
+  }
+
+  function checkBlockHeadbutt(player, block) {
+    if (!player || block.hit) return;
+    var screenBlockX = block.worldX - scrollX;
+
+    // Headbutt condition: Player moving UPWARD (vy < 0) and top of player hits bottom of block
+    if (
+      player.x + player.width > screenBlockX + 4 &&
+      player.x < screenBlockX + block.width - 4 &&
+      player.y <= block.y + block.height &&
+      player.y + player.height >= block.y &&
+      player.vy < 0
+    ) {
+      handleHeadbuttBlock(player, block);
+    }
+  }
+
   // Start Loop
   gameLoop();
 
-  // KAMPAI SDK Integration & Leaderboard setup
+  // KAMPAI SDK Setup
   if (window.KAMPAI && window.KAMPAI.onReady) {
     window.KAMPAI.onReady(function (k) {
       if (window.KAMPAI.sound) {
@@ -623,13 +769,11 @@
         window.KAMPAI.sound.mountToggles();
       }
 
-      // Update Student Profile & Stats if available
       if (k && k.stats) {
         if (msBestEl) msBestEl.textContent = k.stats.personalBest || 0;
         if (msPlaysEl) msPlaysEl.textContent = k.stats.playsCount || 0;
       }
 
-      // Update Leaderboards
       if (k && k.leaderboard && k.leaderboard.length > 0) {
         var lbHtml = k.leaderboard.slice(0, 5).map(function (item, idx) {
           var meClass = item.isMe ? 'me' : '';

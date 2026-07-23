@@ -272,11 +272,11 @@ const sprintPlan = [
 
 const versionHistory = [
     {
-        version: 'v1.176.0 (Mario Math Run — เกมใหม่)',
+        version: 'v1.176.0 (Mario Math Run — ฉากไหล + หลุม + มอนสเตอร์ + โหม่งบล็อก)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
         items: [
-            'เพิ่มเกมใหม่ Mario Math Run (มาริโอ้ลุยโจทย์คณิต): 2D Platformer เลือกตอบ + − × ÷ หรือผสม รองรับ 1 คน และ 2 คนแข่งในหน้าจอเดียว (Same-Screen) + KampaiVersus online',
+            'อัปเกรด Mario Math Run (มาริโอ้ลุยโจทย์คณิต): ระบบฉากไหลอัตโนมัติ (Auto-scroller) กระโดดข้ามหลุม (Pits) หลบ/เหยียบมอนสเตอร์ (Goombas) และกระโดดโหม่งบล็อก 4 เหลี่ยมลอยฟ้าเพื่อเลือกตอบ (+ − × ÷ หรือผสม) รองรับ 1 คน และ 2 คนในหน้าจอเดียว + KampaiVersus online',
         ],
     },
     {

@@ -141,6 +141,7 @@ async function main() {
   // 5. Seed game docs
   const features = [
     'เลือกหมวดคณิตศาสตร์: บวกเลข (1-20), ลบเลข (1-20), สูตรคูณ (แม่ 2-12), หารเลข (ลงตัว), ผสม',
+    'ฉากไหลอัตโนมัติจากขวาไปซ้าย มีหลุมข้าม (Pits) มอนสเตอร์ (Goombas) และบล็อกลอยโหม่งเลือกตอบ',
     'โหมดเล่น 1 คน (Solo) และโหมดแข่ง 2 คนในหน้าจอเดียว (Same-Screen Race P1 vs P2)',
     'เชื่อมต่อระบบ KampaiVersus รองรับทั้งแข่ง local hot-seat และแข่งออนไลน์ต่างเครื่อง',
     'รองรับการเล่นบนมือถือ/แท็บเล็ตด้วย Touch D-Pad & Jump Button ปุ่มควบคุมแยก P1/P2',
@@ -152,10 +153,10 @@ async function main() {
     .upsert({
       item_id: itemId,
       owner_staff_id: staffId,
-      game_format: '2D Side-Scroller Platformer (Mario style) — วิ่ง/กระโดดชนบล็อกคำตอบที่ถูกต้อง',
+      game_format: '2D Auto-Scrolling Platformer (Mario style) — ฉากไหลอัตโนมัติ กระโดดข้ามหลุม/หลบมอนสเตอร์ และโหม่งบล็อกคำตอบ',
       features: features,
-      version: 'v1.0.0',
-      notes: 'เกมใหม่ มาริโอ้ลุยโจทย์คณิต (บวก ลบ คูณ หาร) รองรับ 1 คน และ 2 คนในหน้าจอเดียว',
+      version: 'v1.1.0',
+      notes: 'อัปเกรดเป็นระบบฉากไหลอัตโนมัติ กระโดดข้ามหลุม หลบมอนสเตอร์ และโหม่งบล็อก 4 เหลี่ยมเพื่อเลือกตอบ',
       updated_at: new Date().toISOString()
     }, { onConflict: 'item_id' });
 
