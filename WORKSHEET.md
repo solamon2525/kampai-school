@@ -63,6 +63,9 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
    - ใบงานหาร 2 ในใจ (`divide-by-2-worksheet.html`): ติดป้ายขั้นตามสื่อ — 1 แบ่งครึ่ง · 2 คิด/แยกหลัก · 3 ตรวจ ×2
    - ใบงานเกม 24 (`math-24-worksheet.html`): กระเบื้องเลข 4 ตัว + ป้ายขั้น วางแผน/คำนวณ/ตรวจ + เช็คลิสต์ใช้ครบ 4 ตัว
    - ใบงานพื้นที่ (`rect-area-worksheet.html`) ต้องมีแถบส่งผู้ปกครอง (`.parent-slip`) ก่อน footer
+   - ใบงานมุม (`angle-worksheet.html`): มีรูปมุม + ช่องจำแนกแหลม/ฉาก/ป้าน/ตรง + ขั้นเทียบ/จำแนก/เหตุผล — ห้ามเหลือแค่ reason×3
+   - ใบงานทศนิยม (`decimal-worksheet.html`): ตารางค่าประจำหลักหรือตั้งบวกลบจัดจุดทศนิยม + ขั้นชัด
+   - ใบงานเส้นจำนวน (`number-line-worksheet.html`): มีเส้นขีดจริงให้นักเรียนทำเครื่องหมาย ไม่ใช่แค่ classify ลอย ๆ
 
 ---
 
