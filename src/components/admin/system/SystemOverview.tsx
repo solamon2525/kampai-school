@@ -272,6 +272,15 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.183.0 (dual-track คู่เกม 10 ชิ้น — สื่อ+ใบงาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-cyan-700',
+        items: [
+            'สร้างคู่ใหม่: clock · light-sort · first-aid (สื่อ+ใบงาน) migration 435',
+            'ลิงก์เกม↔สื่อ↔ใบงานครบ 10 ชิ้น (ดวงจันทร์ · กระดูก · พอเพียง · อาชีพ · Past Tense · Follow · ข้อเท็จจริง ฯลฯ)',
+        ],
+    },
+    {
         version: 'v1.182.0 (เกมใหม่ 10 ชิ้น — ปิดช่องว่างเนื้อหา)',
         date: 'ล่าสุด',
         badge: 'bg-indigo-700',

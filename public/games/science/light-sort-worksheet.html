@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/light-sort-media.html"><meta name="curriculum-indicators" content="ว 2.3 ป.4/1"><title>ใบงานแสงผ่านวัสดุ ป.4–5 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.item-box{border:1px solid var(--ws-line);border-radius:3px;padding:1mm;margin:.8mm 0;font-size:8pt;font-weight:800;color:var(--ws-accent);text-align:center}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>💡 ใบงานแสงผ่านวัสดุ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="opaque">ทึบแสง</option><option value="translucent">โปร่งแสง</option><option value="transparent">โปร่งใส</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+const ITEMS=[
+ {type:'opaque',prompt:'ไม้จัดอยู่ในกลุ่มใด เพราะอะไร',item:'🪵 ไม้',answer:'ทึบแสง — แสงผ่านไม่ได้',step1:'แสงผ่านไหม?',step2:'ผ่านไม่ได้',step3:'ทึบแสง'},
+ {type:'opaque',prompt:'เหล็กและอิฐจัดอยู่ในกลุ่มใด',item:'⚙️ เหล็ก / 🧱 อิฐ',answer:'ทึบแสง',step1:'มองทะลุไม่ได้',step2:'แสงถูกกั้น',step3:'ทึบแสง'},
+ {type:'opaque',prompt:'หนังสือเป็นวัสดุทึบแสงหรือไม่',item:'📕 หนังสือ',answer:'ใช่ — ทึบแสง',step1:'มองทะลุไม่ได้',step2:'แสงผ่านไม่ได้',step3:'ทึบแสง'},
+ {type:'translucent',prompt:'กระจกฝ้าจัดอยู่ในกลุ่มใด',item:'🪟 กระจกฝ้า',answer:'โปร่งแสง — แสงผ่านบางส่วน',step1:'แสงผ่านได้ไหม?',step2:'ผ่านแต่ไม่ชัด',step3:'โปร่งแสง'},
+ {type:'translucent',prompt:'กระดาษไขและผ้าบางจัดอยู่ในกลุ่มใด',item:'📄 กระดาษไข / 🧣 ผ้าบาง',answer:'โปร่งแสง',step1:'เห็นเงาไม่ชัด',step2:'แสงผ่านบางส่วน',step3:'โปร่งแสง'},
+ {type:'translucent',prompt:'พลาสติกขุ่นต่างจากพลาสติกใสอย่างไร',item:'🧴 พลาสติกขุ่น',answer:'โปร่งแสง (ขุ่น) vs โปร่งใส (ใส)',step1:'เปรียบเทียบความชัด',step2:'ขุ่น = ไม่ชัด',step3:'โปร่งแสง'},
+ {type:'transparent',prompt:'กระจกใสจัดอยู่ในกลุ่มใด',item:'🪞 กระจกใส',answer:'โปร่งใส — มองทะลุเห็นภาพชัด',step1:'แสงผ่านไหม?',step2:'ผ่านชัด',step3:'โปร่งใส'},
+ {type:'transparent',prompt:'น้ำใสและอากาศจัดอยู่ในกลุ่มใด',item:'💧 น้ำใส / 💨 อากาศ',answer:'โปร่งใส',step1:'มองทะลุได้',step2:'ภาพชัด',step3:'โปร่งใส'},
+ {type:'transparent',prompt:'แว่นตาใสช่วยให้มองเห็นได้เพราะ…',item:'👓 แว่นตาใส',answer:'เป็นวัสดุโปร่งใส แสงผ่านชัด',step1:'เลนส์ใส',step2:'แสงผ่าน',step3:'โปร่งใส'},
+ {type:'opaque',prompt:'วัสดุทึบแสงหมายถึงอะไร',item:'นิยาม',answer:'แสงผ่านไม่ได้ มองทะลุไม่ได้',step1:'คำว่าทึบ',step2:'แสงไม่ผ่าน',step3:'ทึบแสง'},
+ {type:'translucent',prompt:'วัสดุโปร่งแสงหมายถึงอะไร',item:'นิยาม',answer:'แสงผ่านได้บางส่วน มองเห็นไม่ชัด',step1:'ผ่านบางส่วน',step2:'ภาพไม่ชัด',step3:'โปร่งแสง'},
+ {type:'transparent',prompt:'วัสดุโปร่งใสหมายถึงอะไร',item:'นิยาม',answer:'แสงผ่านได้ชัด มองทะลุเห็นภาพ',step1:'ผ่านชัด',step2:'มองทะลุได้',step3:'โปร่งใส'}
+];
+const SKILL={opaque:'ทึบแสง',translucent:'โปร่งแสง',transparent:'โปร่งใส'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'light-sort',
+  icon:'💡',title:'ใบงานแสงผ่านวัสดุ',subject:'วิทยาศาสตร์',gradeLabel:'ป.4–5',mediaLabel:'แสงผ่านวัสดุ',
+  sourceMediaUrl:'/games/science/light-sort-media.html',indicators:['ว 2.3 ป.4/1'],
+  directions:'ดูวัสดุ → ติ๊ก ทึบแสง/โปร่งแสง/โปร่งใส → อธิบายเหตุผลทีละขั้น',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="item-box">'+e(item.item)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ ทึบแสง</div><div class="tick-box">□ โปร่งแสง</div><div class="tick-box">□ โปร่งใส</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 แสงผ่าน</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 จัดกลุ่ม</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>

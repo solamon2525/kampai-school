@@ -32,6 +32,9 @@ h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#fde6
 .btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
 .btn-blue { background: linear-gradient(45deg,#6366f1,#4f46e5); }
 .meta { color: #94a3b8; font-size: 14px; }
+.res-links { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+.res-links a { color: #93c5fd; font-weight: 600; text-decoration: none; }
+.res-links a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -53,6 +56,7 @@ h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#fde6
   <p class="meta">⏱ 55 วินาที · ตอบถูก +10</p>
   <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
   <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+  <p class="res-links"><a href="/games/science/moon-phases-media.html" target="_blank" rel="noopener">ดูสื่อสอน</a> · <a href="/games/science/moon-phases-worksheet.html" target="_blank" rel="noopener">ใบงาน</a></p>
 </div>
 
 <div id="over" class="screen off">
@@ -62,6 +66,7 @@ h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#fde6
   <div id="kampai-result"></div>
   <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
   <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+  <p class="res-links"><a href="/games/science/moon-phases-media.html" target="_blank" rel="noopener">ดูสื่อสอน</a> · <a href="/games/science/moon-phases-worksheet.html" target="_blank" rel="noopener">ใบงาน</a></p>
 </div>
 
 <script src="/games/kampai-sdk.js"></script>

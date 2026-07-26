@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/clock-media.html"><meta name="curriculum-indicators" content="ค 2.1 ป.2/1, ค 2.1 ป.3/1"><title>ใบงานอ่านนาฬิกาเข็ม ป.2–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.clock-box{border:1px solid var(--ws-line);border-radius:3px;padding:1mm;margin:.8mm 0;font-size:8pt;font-weight:800;color:var(--ws-accent);text-align:center}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:22mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}.count-5 .clock-box{font-size:10pt;padding:1.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🕐 ใบงานอ่านนาฬิกาเข็ม</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="2">ป.2</option><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านเวลา</option><option value="elapsed">เวลาผ่านไป</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+const ITEMS=[
+ {type:'read',prompt:'เข็มสั้นบอกอะไร',hint:'เข็มสั้น / เข็มยาว',answer:'ชั่วโมง',step1:'ดูเข็มสั้น',step2:'ชี้เลขชั่วโมง',step3:'ชั่วโมง'},
+ {type:'read',prompt:'เข็มยาวบอกอะไร',hint:'เข็มสั้น / เข็มยาว',answer:'นาที',step1:'ดูเข็มยาว',step2:'แต่ละขีด = 5 นาที',step3:'นาที'},
+ {type:'read',prompt:'เข็มยาวยืนที่เลข 6 หมายถึงกี่นาที',hint:'3:30',answer:'30 นาที (ครึ่งชั่วโมง)',step1:'เข็มยาวที่ 6',step2:'6 × 5',step3:'30 นาที'},
+ {type:'read',prompt:'เข็มยาวยืนที่เลข 3 หมายถึงกี่นาที',hint:'เศษสี่',answer:'15 นาที',step1:'เข็มยาวที่ 3',step2:'3 × 5',step3:'15 นาที'},
+ {type:'read',prompt:'เข็มยาวยืนที่เลข 9 หมายถึงกี่นาที',hint:'สามเศษสี่',answer:'45 นาที',step1:'เข็มยาวที่ 9',step2:'9 × 5',step3:'45 นาที'},
+ {type:'read',prompt:'ครึ่งชั่วโมงเท่ากับกี่นาที',hint:'½ ชั่วโมง',answer:'30 นาที',step1:'ครึ่งชั่วโมง',step2:'60 ÷ 2',step3:'30'},
+ {type:'elapsed',prompt:'จาก 2:00 ไปอีก 30 นาที เป็นกี่โมง',hint:'2:00 → ?',answer:'2:30',step1:'เริ่ม 2:00',step2:'บวก 30 นาที',step3:'2:30'},
+ {type:'elapsed',prompt:'จาก 4:15 ไปอีก 15 นาที เป็นกี่โมง',hint:'4:15 → ?',answer:'4:30',step1:'เริ่ม 4:15',step2:'บวก 15 นาที',step3:'4:30'},
+ {type:'elapsed',prompt:'จาก 1:00 ไปอีก 1 ชั่วโมง เป็นกี่โมง',hint:'1:00 → ?',answer:'2:00',step1:'เริ่ม 1:00',step2:'บวก 1 ชั่วโมง',step3:'2:00'},
+ {type:'elapsed',prompt:'จาก 3:30 ไปอีกครึ่งชั่วโมง เป็นกี่โมง',hint:'3:30 → ?',answer:'4:00',step1:'เริ่ม 3:30',step2:'บวก 30 นาที',step3:'4:00'},
+ {type:'elapsed',prompt:'จาก 9:00 ถึง 9:45 ผ่านไปกี่นาที',hint:'9:00 → 9:45',answer:'45 นาที',step1:'เริ่ม 9:00',step2:'ถึง 9:45',step3:'45 นาที'},
+ {type:'read',prompt:'เศษสี่ชั่วโมง (¼) เท่ากับกี่นาที',hint:'¼',answer:'15 นาที',step1:'เศษสี่',step2:'60 ÷ 4',step3:'15'}
+];
+const SKILL={read:'อ่านเวลา',elapsed:'เวลาผ่านไป'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'clock',
+  icon:'🕐',title:'ใบงานอ่านนาฬิกาเข็ม',subject:'คณิตศาสตร์',gradeLabel:'ป.2–4',mediaLabel:'อ่านนาฬิกาเข็ม',
+  sourceMediaUrl:'/games/math/clock-media.html',indicators:['ค 2.1 ป.2/1','ค 2.1 ป.3/1'],
+  directions:'ดูเข็มสั้น/ยาว → คิดชั่วโมงและนาที → หาเวลาที่ผ่านไปทีละขั้น',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="clock-box">'+e(item.hint)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ ชั่วโมง</div><div class="tick-box">□ นาที</div><div class="tick-box">□ ครึ่งชม.</div><div class="tick-box">□ เศษสี่</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 คำนวณ</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 คำตอบ</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>

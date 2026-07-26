@@ -36,6 +36,9 @@ h1 { font-size: 30px; background: linear-gradient(135deg,#FFD700,#FFA500); -webk
 .btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
 .btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
 p.sub { color: #cbd5e1; max-width: 440px; line-height: 1.45; }
+.res-links { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+.res-links a { color: #93c5fd; font-weight: 600; text-decoration: none; }
+.res-links a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -55,6 +58,7 @@ p.sub { color: #cbd5e1; max-width: 440px; line-height: 1.45; }
     <p class="sub">อ่านสถานการณ์ แล้วเลือกวิธีช่วยที่ถูกต้อง (เคล็ด ข้อเลือดออก ไฟไหม้ เรียกผู้ใหญ่) — 50 วินาที</p>
     <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
     <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+    <p class="res-links"><a href="/games/health/first-aid-media.html" target="_blank" rel="noopener">ดูสื่อสอน</a> · <a href="/games/health/first-aid-worksheet.html" target="_blank" rel="noopener">ใบงาน</a></p>
 </div>
 
 <div id="over" class="screen off">
@@ -62,6 +66,7 @@ p.sub { color: #cbd5e1; max-width: 440px; line-height: 1.45; }
     <div id="kampai-result"></div>
     <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
     <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    <p class="res-links"><a href="/games/health/first-aid-media.html" target="_blank" rel="noopener">ดูสื่อสอน</a> · <a href="/games/health/first-aid-worksheet.html" target="_blank" rel="noopener">ใบงาน</a></p>
 </div>
 
 <script src="/games/kampai-sdk.js"></script>

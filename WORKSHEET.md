@@ -210,6 +210,7 @@ pnpm verify:worksheet:production
 - **8E** วินิจฉัย → ปุ่ม «เปิดโหมดซ่อมเสริมชุดนี้» + `sessionStorage` topic hint
 - **8F** ดาวใช้ในคาบนี้ (`lesson_favorites`) · พิมพ์แสดงชื่อชุด · ใบงานบ้านใน Parent
 - **8G** `verify:media` media contract · cache `1.181.0`
+- **Phase 9 dual-track คู่เกม:** สื่อ+ใบงานใหม่ `clock` · `light-sort` · `first-aid` (435) · ลิงก์เกม↔สื่อ↔ใบงานครบ 10 ชิ้น
 
 ### Automatic Publish Gate (ใบงาน)
 

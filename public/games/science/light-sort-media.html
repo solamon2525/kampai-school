@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แสงผ่านวัสดุ — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#0f766e;--line:#99f6e4;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#ccfbf1,#e0f2fe);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#0f766e,#14b8a6);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f0fdfa;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #2dd4bf}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#0f766e;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:720px;margin:0 auto}
+    .panel.on{display:flex}
+    .grid{display:grid;gap:10px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr}}
+    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#f0fdfa}
+    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px;font-size:1.05rem}
+    .card p{font-weight:600;line-height:1.5;font-size:.92rem}
+    .ex{margin-top:8px;font-size:.85rem;font-weight:700;color:#115e59;background:#fff;border-radius:10px;padding:8px;border:1px dashed #5eead4}
+    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#ecfeff;font-weight:700;line-height:1.55}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>💡 แสงผ่านวัสดุ — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.4–5 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">ทึบแสง · โปร่งแสง · โปร่งใส — แสงผ่านได้แค่ไหน</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="grid">
+          <div class="card">
+            <h3>⬛ ทึบแสง</h3>
+            <p>แสงผ่านไม่ได้ · มองทะลุไม่ได้ · มักทำให้เกิดเงาชัด</p>
+            <div class="ex">เช่น ไม้ · เหล็ก · อิฐ · หนังสือ · กระดาษลัง</div>
+          </div>
+          <div class="card">
+            <h3>🌫️ โปร่งแสง</h3>
+            <p>แสงผ่านได้บางส่วน · มองเห็นเงา/ภาพไม่ชัด</p>
+            <div class="ex">เช่น กระจกฝ้า · กระดาษไข · ผ้าบาง · พลาสติกขุ่น</div>
+          </div>
+          <div class="card">
+            <h3>💎 โปร่งใส</h3>
+            <p>แสงผ่านได้ชัด · มองทะลุเห็นภาพชัดเจน</p>
+            <div class="ex">เช่น กระจกใส · น้ำใส · อากาศ · แว่นตาใส</div>
+          </div>
+        </div>
+        <div class="mix-card">
+          <p>ถามตัวเอง: <strong>แสงผ่านได้ไหม?</strong> → ไม่ได้ = ทึบ · ผ่านแต่ไม่ชัด = โปร่งแสง · ผ่านชัด = โปร่งใส</p>
+          <p style="margin-top:8px;color:var(--muted)">วัสดุบางชนิดเปลี่ยนได้ตามความหนา เช่น น้ำลึกมากอาจมองไม่ค่อยชัด — ในชั้น ป.4–5 ใช้ตัวอย่างชัดเจนก่อน</p>
+        </div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ว 2.3 ป.4/1</strong> · คู่ใบงาน <a href="/games/science/light-sort-worksheet.html">light-sort</a> · เกมแข่งคะแนน <a href="/games/science/light-sort.html">light-sort (game)</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'light-sort-media';
+    if (window.KAMPAI) window.KAMPAI.setSlug(MEDIA_SLUG);
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'วัสดุทึบแสงหมายถึงอะไร?', opts: ['แสงผ่านไม่ได้', 'แสงผ่านชัดเจน', 'แสงผ่านบางส่วน', 'ไม่มีเงาเลย'], a: 'แสงผ่านไม่ได้' },
+      { q: 'กระจกใสจัดอยู่ในกลุ่มใด?', opts: ['โปร่งใส', 'ทึบแสง', 'โปร่งแสง', 'ไม่เกี่ยวข้องกับแสง'], a: 'โปร่งใส' },
+      { q: 'ไม้และเหล็กจัดอยู่ในกลุ่มใด?', opts: ['ทึบแสง', 'โปร่งใส', 'โปร่งแสง', 'โปร่งใสบางส่วน'], a: 'ทึบแสง' },
+      { q: 'กระจกฝ้า / กระดาษไข จัดอยู่ในกลุ่มใด?', opts: ['โปร่งแสง', 'ทึบแสง', 'โปร่งใส', 'ไม่ผ่านแสงเลย'], a: 'โปร่งแสง' },
+      { q: 'วัสดุโปร่งใสมีคุณสมบัติอย่างไร?', opts: ['แสงผ่านได้ชัด มองทะลุเห็นภาพ', 'แสงผ่านไม่ได้', 'มองเห็นแค่เงา', 'ดูดกลืนแสงทั้งหมด'], a: 'แสงผ่านได้ชัด มองทะลุเห็นภาพ' },
+      { q: 'น้ำใสและอากาศจัดอยู่ในกลุ่มใด?', opts: ['โปร่งใส', 'ทึบแสง', 'โปร่งแสง', 'ทึบและโปร่งแสง'], a: 'โปร่งใส' },
+      { q: 'ผ้าบางที่มองเห็นเงาไม่ชัด มักเป็น…', opts: ['โปร่งแสง', 'ทึบแสง', 'โปร่งใส', 'โลหะ'], a: 'โปร่งแสง' },
+      { q: 'ทำไมหนังสือถึงทึบแสง?', opts: ['แสงผ่านไม่ได้ มองทะลุไม่ได้', 'แสงผ่านชัด', 'มองเห็นตัวอักษรด้านหลังชัด', 'เป็นโปร่งใส'], a: 'แสงผ่านไม่ได้ มองทะลุไม่ได้' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'ทึบแสง · โปร่งแสง · โปร่งใส — แสงผ่านได้แค่ไหน' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

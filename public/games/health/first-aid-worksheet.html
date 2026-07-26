@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/health/first-aid-media.html"><meta name="curriculum-indicators" content="พ 5.1 ป.4/1"><title>ใบงานปฐมพยาบาลเบื้องต้น ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🩹 ใบงานปฐมพยาบาลเบื้องต้น</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="rice">RICE ข้อเคล็ด</option><option value="bleed">ห้ามเลือด</option><option value="burn">แผลไหม้</option><option value="call">เรียกผู้ใหญ่</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+const ITEMS=[
+ {type:'rice',prompt:'ตัวอักษร R ใน RICE หมายถึงอะไร',focus:'R',answer:'Rest — พักส่วนที่เจ็บ',step1:'ข้อเคล็ด/บวม',step2:'R = Rest',step3:'พัก'},
+ {type:'rice',prompt:'ตัวอักษร I ใน RICE หมายถึงอะไร',focus:'I',answer:'Ice — ประคบเย็น',step1:'บวม',step2:'I = Ice',step3:'ประคบเย็น'},
+ {type:'rice',prompt:'ตัวอักษร C ใน RICE หมายถึงอะไร',focus:'C',answer:'Compression — พันผ้ายืดพอดี',step1:'ลดบวม',step2:'C = Compression',step3:'พันผ้า'},
+ {type:'rice',prompt:'ตัวอักษร E ใน RICE หมายถึงอะไร',focus:'E',answer:'Elevation — ยกสูงกว่าหัวใจ',step1:'ลดบวม',step2:'E = Elevation',step3:'ยกสูง'},
+ {type:'rice',prompt:'เพื่อนข้อเท้าเคล็ด บวมเล็กน้อย ควรทำอย่างไร',focus:'เคล็ด',answer:'ใช้หลัก RICE (พัก·เย็น·พัน·ยก)',step1:'สถานการณ์: เคล็ด',step2:'ทำ RICE',step3:'อย่าวิ่งต่อ'},
+ {type:'bleed',prompt:'มีบาดแผลเลือดซึม ควรทำอะไรก่อน',focus:'เลือด',answer:'กดแน่นด้วยผ้าสะอาดตรงจุดเลือดออก',step1:'เลือดซึม',step2:'ผ้าสะอาดกดแน่น',step3:'ห้ามเลือด'},
+ {type:'bleed',prompt:'ขณะกดห้ามเลือด ผ้าเปียกเลือดแล้วควร…',focus:'ผ้าเปียก',answer:'วางผ้าใหม่ทับแล้วกดต่อ อย่ารื้อผ้าเก่า',step1:'ผ้าเปียกเลือด',step2:'ทับผ้าใหม่',step3:'กดต่อ'},
+ {type:'burn',prompt:'ผิวไหม้เล็กน้อยจากน้ำร้อน ควร…',focus:'ไหม้',answer:'ใช้น้ำเย็นไหลผ่านหลายนาที',step1:'ไหม้เล็กน้อย',step2:'น้ำเย็นไหล',step3:'หลายนาที'},
+ {type:'burn',prompt:'ข้อใดห้ามทำเมื่อผิวไหม้',focus:'ห้าม',answer:'ทาเนย / น้ำมัน / ยาสีฟัน',step1:'แผลไหม้',step2:'ห้ามทาเนยฯ',step3:'ใช้น้ำเย็น'},
+ {type:'call',prompt:'เมื่อไรควรเรียกผู้ใหญ่ทันที',focus:'ฉุกเฉิน',answer:'เลือดออกมาก · หมดสติ · หายใจลำบาก · กระดูกอาจหัก',step1:'อาการรุนแรง',step2:'อย่าทำเอง',step3:'เรียกผู้ใหญ่'},
+ {type:'call',prompt:'ก่อนช่วยเหลือบาดแผล ควร…',focus:'สะอาด',answer:'ล้างมือหรือใส่ถุงมือ แล้วใช้ผ้าสะอาด',step1:'ก่อนช่วย',step2:'ล้างมือ/ถุงมือ',step3:'ผ้าสะอาด'},
+ {type:'call',prompt:'เพื่อนล้มหัวกระแทกแล้วง่วงมาก ควร…',focus:'หัวกระแทก',answer:'เรียกครู/ผู้ปกครองทันที อย่าปล่อยให้นอนคนเดียว',step1:'หัวกระแทก+ง่วง',step2:'อันตราย',step3:'เรียกผู้ใหญ่'}
+];
+const SKILL={rice:'RICE',bleed:'ห้ามเลือด',burn:'แผลไหม้',call:'เรียกผู้ใหญ่'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'first-aid',
+  icon:'🩹',title:'ใบงานปฐมพยาบาลเบื้องต้น',subject:'สุขศึกษา',gradeLabel:'ป.4–6',mediaLabel:'ปฐมพยาบาลเบื้องต้น',
+  sourceMediaUrl:'/games/health/first-aid-media.html',indicators:['พ 5.1 ป.4/1'],
+  directions:'ติ๊ก R/I/C/E หรือประเภทการช่วย → ลงขั้นตอนปฐมพยาบาลทีละขั้น',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context">โฟกัส: '+e(item.focus)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ R พัก</div><div class="tick-box">□ I เย็น</div><div class="tick-box">□ C พัน</div><div class="tick-box">□ E ยก</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สถานการณ์</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 ทำอย่างไร</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>
