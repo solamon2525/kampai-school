@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 5 หรือ 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.11" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
@@ -53,6 +53,8 @@
     .q.reveal-current{border-color:#dc2626;box-shadow:0 0 0 1.5px #dc262680}
     .answer-step-label{font:700 .82rem Sarabun,sans-serif;padding:6px 8px;border-radius:8px;background:#0369a1;color:#fff;min-width:7.5rem;text-align:center}
     .sheet-foot{text-align:right;color:#64748b;font-size:8pt}
+    .parent-slip{border-top:1.5px dashed #0369a1;margin-top:auto;padding-top:1.2mm;display:flex;flex-wrap:wrap;gap:4mm;justify-content:space-between;align-items:center;font-size:7.5pt;color:#334155;font-weight:700}
+    .parent-slip .cut{color:#0369a1;font-weight:800}
     @media(max-width:900px){.pages{padding:6px;overflow:auto}.sheet{transform-origin:top left}.toolbar h1{flex-basis:100%}}
     @media print{@page{size:A4 portrait;margin:0}body{background:#fff}.toolbar{display:none!important}.pages{padding:0}.sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:8mm;overflow:hidden}.q{min-height:0}}
   </style>
@@ -96,7 +98,7 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
-  <script src="/games/worksheet-runtime.js?v=1.175.10"></script>
+  <script src="/games/worksheet-runtime.js?v=1.175.11"></script>
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
@@ -345,7 +347,7 @@
       document.getElementById('pages').innerHTML=pageShapes.map((s,page)=>{
         const used=new Set();
         let qs='';for(let i=1;i<=perPage;i++)qs+=question(s,values(s,used),i);
-        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+' · '+perPage+' ข้อ</span></div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ</span><span class="blank"></span></div><div class="field field-class"><span class="lbl">ชั้น</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions count-'+perPage+'">'+qs+'</div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · '+perPage+' ข้อ/หน้า · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
+        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+' · '+perPage+' ข้อ</span></div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ</span><span class="blank"></span></div><div class="field field-class"><span class="lbl">ชั้น</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions count-'+perPage+'">'+qs+'</div><div class="parent-slip"><span class="cut">✂ แถบส่งผู้ปกครอง</span><span>ผล: [ ] ผ่าน [ ] ควรทบทวน</span><span>ผู้ปกครองลงชื่อ ____________________</span></div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · '+perPage+' ข้อ/หน้า · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
       }).join('');
       revealCount=0;
       syncAnswerReveal();
@@ -438,6 +440,6 @@
     window.randomize=randomize;
     bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.175.10"></script>
+<script src="/games/worksheet-modes.js?v=1.175.11"></script>
 </body>
 </html>

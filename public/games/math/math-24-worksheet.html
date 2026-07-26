@@ -1,24 +1,73 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-24-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/10, ค 1.1 ป.4/12"><title>ใบงานเกม 24 วิธีคิดทีละขั้น ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.10" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-24-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/10, ค 1.1 ป.4/12"><title>ใบงานเกม 24 วิธีคิดทีละขั้น ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.11" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.11" rel="stylesheet">
+<style>
+.m24-tiles{display:flex;gap:2mm;justify-content:center;flex-wrap:wrap;margin:1mm 0 1.5mm}
+.m24-tile{width:11mm;height:11mm;border:1.6px solid var(--ws-accent);border-radius:2.5mm;display:grid;place-items:center;font-size:14pt;font-weight:800;color:var(--ws-accent);background:var(--ws-soft)}
+.m24-target{font-size:9pt;font-weight:800;color:var(--ws-accent-2);text-align:center}
+.step-block{display:flex;flex-direction:column;gap:1.5mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:2mm;align-items:end;min-height:8mm}
+.step-tag{font-size:7.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:4px;padding:1.2mm 1mm;text-align:center;line-height:1.15}
+.step-body{min-height:7mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;padding-bottom:.5mm;font-weight:700;font-size:9pt}
+.work-fill{color:transparent;font-weight:800}
+.show-answers .work-fill{color:var(--ws-danger)}
+.m24-check{display:flex;gap:3mm;flex-wrap:wrap;font-size:7.5pt;font-weight:700;color:var(--ws-muted);margin-top:1mm}
+.m24-check span{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm 1.5mm}
+.count-5 .m24-tile{width:12mm;height:12mm;font-size:15pt}
+.count-5 .step-row{min-height:9.5mm}
+.count-10 .m24-tile{width:9mm;height:9mm;font-size:11pt}
+.count-10 .m24-check{display:none}
+</style>
+</head><body>
 <header class="toolbar"><h1>🧮 ใบงานเกม 24 วิธีคิดทีละขั้น</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="plan">วางแผนหา 24</option><option value="compute">คำนวณทีละขั้น</option><option value="check">ตรวจคำตอบ</option><option value="strategy">กลยุทธ์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.175.10"></script><script>
+<script src="/games/worksheet-runtime.js?v=1.175.11"></script><script>
 const MATH24_ITEMS=[
- {type:'plan',prompt:'วางแผนให้ได้ 24 จาก 8, 3, 3, 1',nums:'8 3 3 1',answer:'8×3×(3÷3)=24',step1:'เป้า=24 · เลข 8,3,3,1',step2:'8×3=24',step3:'3÷3=1 แล้ว 24×1=24'},
- {type:'compute',prompt:'หา 24 จาก 6, 4, 2, 1',nums:'6 4 2 1',answer:'6×4×(2÷2)=24',step1:'6×4=24',step2:'2÷2=1',step3:'24×1=24 · ใช้ครบ'},
- {type:'compute',prompt:'หา 24 จาก 5, 5, 5, 1',nums:'5 5 5 1',answer:'(5−1÷5)×5=24',step1:'1÷5=0.2',step2:'5−0.2=4.8',step3:'4.8×5=24'},
- {type:'compute',prompt:'หา 24 จาก 8, 8, 3, 3',nums:'8 8 3 3',answer:'8÷(3−8÷3)=24',step1:'8÷3=8/3',step2:'3−8/3=1/3',step3:'8÷(1/3)=24'},
- {type:'compute',prompt:'หา 24 จาก 4, 4, 4, 4',nums:'4 4 4 4',answer:'4×4+4+4=24',step1:'4×4=16',step2:'16+4=20',step3:'20+4=24'},
- {type:'compute',prompt:'หา 24 จาก 1, 2, 3, 8',nums:'1 2 3 8',answer:'8×3×(2−1)=24',step1:'2−1=1',step2:'8×3=24',step3:'24×1=24'},
- {type:'compute',prompt:'หา 24 จาก 2, 2, 4, 6',nums:'2 2 4 6',answer:'6×4×(2÷2)=24',step1:'6×4=24',step2:'2÷2=1',step3:'24×1=24'},
- {type:'compute',prompt:'หา 24 จาก 3, 3, 4, 6',nums:'3 3 4 6',answer:'6×4×(3÷3)=24',step1:'6×4=24',step2:'3÷3=1',step3:'24×1=24'},
- {type:'check',prompt:'ตรวจวิธี: (8−2)×4 = 24 ใช้เลข 8,2,4,? ขาดอะไร',nums:'8 2 4 ?',answer:'ยังใช้ไม่ครบ 4 ตัว ต้องมีตัวที่ 4 และใช้ให้ครบ',step1:'นับเลขที่ใช้: 8,2,4 = 3 ตัว',step2:'เกม 24 ต้องใช้ครบ 4 ตัวพอดี',step3:'วิธีนี้ยังไม่ครบเงื่อนไข'},
+ {type:'plan',prompt:'วางแผนให้ได้ 24 จากเลข 4 ตัวนี้',nums:'8 3 3 1',answer:'8×3×(3÷3)=24',step1:'เป้า=24 · หาคู่คูณใกล้ 24',step2:'8×3=24',step3:'3÷3=1 แล้ว 24×1=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'6 4 2 1',answer:'6×4×(2÷2)=24',step1:'6×4=24',step2:'2÷2=1',step3:'24×1=24 · ใช้ครบ'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'5 5 5 1',answer:'(5−1÷5)×5=24',step1:'1÷5=0.2',step2:'5−0.2=4.8',step3:'4.8×5=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'8 8 3 3',answer:'8÷(3−8÷3)=24',step1:'8÷3=8/3',step2:'3−8/3=1/3',step3:'8÷(1/3)=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'4 4 4 4',answer:'4×4+4+4=24',step1:'4×4=16',step2:'16+4=20',step3:'20+4=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'1 2 3 8',answer:'8×3×(2−1)=24',step1:'2−1=1',step2:'8×3=24',step3:'24×1=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'2 2 4 6',answer:'6×4×(2÷2)=24',step1:'6×4=24',step2:'2÷2=1',step3:'24×1=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'3 3 4 6',answer:'6×4×(3÷3)=24',step1:'6×4=24',step2:'3÷3=1',step3:'24×1=24'},
+ {type:'check',prompt:'ตรวจวิธี: (8−2)×4 = 24 — ใช้เลขครบ 4 ตัวหรือยัง',nums:'8 2 4 ?',answer:'ยังใช้ไม่ครบ 4 ตัว ต้องมีตัวที่ 4 และใช้ให้ครบ',step1:'นับเลขที่ใช้: 8,2,4 = 3 ตัว',step2:'เกม 24 ต้องใช้ครบ 4 ตัวพอดี',step3:'วิธีนี้ยังไม่ครบเงื่อนไข'},
  {type:'check',prompt:'ตรวจ: 6×3 + 4 + 2 = 24 ใช้ 6,3,4,2 ถูกต้องหรือไม่',nums:'6 3 4 2',answer:'ถูกต้อง ได้ 18+4+2=24 และใช้ครบ',step1:'6×3 = 18',step2:'18+4 = 22 · 22+2 = 24',step3:'ใช้ครบ 4 ตัว → ผ่าน'},
  {type:'check',prompt:'ทำไม 24÷1 = 24 อย่างเดียวจึงยังไม่พอ',nums:'24 1',answer:'เพราะต้องเริ่มจากเลข 4 ตัวที่กำหนด ไม่ใช่มี 24 อยู่แล้ว',step1:'เงื่อนไข: ใช้เลขที่ให้มาเท่านั้น',step2:'ห้ามสร้าง 24 มาก่อนแล้วหาร 1',step3:'ต้องประกอบจาก 4 ตัวครบ'},
  {type:'plan',prompt:'กลยุทธ์: เห็นเลข 8 และ 3 ควรคิดอะไรก่อน',nums:'8 3 ? ?',answer:'ลอง 8×3 = 24 แล้วจัดการอีก 2 ตัวให้ได้ตัวคูณ 1 หรือบวกลบศูนย์',step1:'หาคู่ที่คูณ/บวกได้ใกล้ 24',step2:'8×3 = 24 เป็นทางลัดดี',step3:'ทำอีกสองตัวให้เป็น ×1 หรือ +0'},
- {type:'strategy',prompt:'กลยุทธ์ทำ 24 เมื่อมีเลขซ้ำ เช่น 4,4,4,4',nums:'4 4 4 4',answer:'สร้างตัวประกอบของ 24 เช่น 4×6 แต่สร้าง 6 จาก 4+4÷2… หรือ 4×4+4+4',step1:'24 = 4×6 = 8×3 = 12×2',step2:'ลองสร้างตัวประกอบจากเลขที่มี',step3:'ตรวจใช้ครบทุกตัว'},
- {type:'strategy',prompt:'ถ้าติดขัด ควรลองดำเนินการใดก่อน',nums:'ทั่วไป',answer:'ลองคูณคู่ที่ให้ผลใกล้ 24 ก่อน แล้วค่อยบวกลบ/หารจัดส่วนที่เหลือ',step1:'เขียนเป้า 24',step2:'ลิสต์คู่คูณที่เป็นไปได้',step3:'ทดลองทีละคู่และจดขั้น'},
- {type:'plan',prompt:'วางแผนจาก 9, 3, 2, 2',nums:'9 3 2 2',answer:'(9+3)×2×(2÷2)=24',step1:'9+3=12',step2:'12×2=24',step3:'2÷2=1 แล้ว 24×1=24'},
- {type:'compute',prompt:'หา 24 จาก 7, 7, 3, 3',nums:'7 7 3 3',answer:'(7×3+3)×(7÷7)=24',step1:'7×3=21',step2:'21+3=24',step3:'7÷7=1 แล้ว 24×1=24'}
+ {type:'strategy',prompt:'กลยุทธ์ทำ 24 เมื่อมีเลขซ้ำ เช่น 4,4,4,4',nums:'4 4 4 4',answer:'สร้างตัวประกอบของ 24 เช่น 4×6 หรือ 4×4+4+4',step1:'24 = 4×6 = 8×3 = 12×2',step2:'ลองสร้างตัวประกอบจากเลขที่มี',step3:'ตรวจใช้ครบทุกตัว'},
+ {type:'strategy',prompt:'ถ้าติดขัด ควรลองดำเนินการใดก่อน',nums:'? ? ? ?',answer:'ลองคูณคู่ที่ให้ผลใกล้ 24 ก่อน แล้วค่อยบวกลบ/หารจัดส่วนที่เหลือ',step1:'เขียนเป้า 24',step2:'ลิสต์คู่คูณที่เป็นไปได้',step3:'ทดลองทีละคู่และจดขั้น'},
+ {type:'plan',prompt:'วางแผนจากเลข 4 ตัวนี้',nums:'9 3 2 2',answer:'(9+3)×2×(2÷2)=24',step1:'9+3=12',step2:'12×2=24',step3:'2÷2=1 แล้ว 24×1=24'},
+ {type:'compute',prompt:'หา 24 จากเลข 4 ตัว — คำนวณทีละขั้น',nums:'7 7 3 3',answer:'(7×3+3)×(7÷7)=24',step1:'7×3=21',step2:'21+3=24',step3:'7÷7=1 แล้ว 24×1=24'}
 ];
-window.WORKSHEET_CONFIG={icon:'🧮',title:'ใบงานเกม 24 วิธีคิดทีละขั้น',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'เกม 24 วิธีคิด',sourceMediaUrl:'/games/math/math-24-thinking-media.html',indicators:['ค 1.1 ป.4/10','ค 1.1 ป.4/12'],directions:'ใช้เลข 4 ตัวให้ครบ วางแผน คำนวณทีละขั้น และตรวจว่าได้ 24',getItems(topic){return topic==='mixed'?MATH24_ITEMS:MATH24_ITEMS.filter(i=>i.type===topic);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><table class="mini-table"><tr><th>เลขที่ใช้</th><th>เป้า</th></tr><tr><td>'+e(item.nums)+'</td><td>24</td></tr></table><div>ลงวิธีคิดทีละขั้น (ใช้ครบ 4 ตัว)</div></div><div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.175.10"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.10"></script></body></html>
+
+function tilesHtml(nums, e){
+  return String(nums).split(/\s+/).filter(Boolean).map(function(n){
+    return '<span class="m24-tile">'+e(n)+'</span>';
+  }).join('');
+}
+
+window.WORKSHEET_CONFIG={
+  worksheetKey:'math-24',
+  icon:'🧮',
+  title:'ใบงานเกม 24 วิธีคิดทีละขั้น',
+  subject:'คณิตศาสตร์',
+  gradeLabel:'ป.4–6',
+  mediaLabel:'เกม 24 วิธีคิด',
+  sourceMediaUrl:'/games/math/math-24-thinking-media.html',
+  indicators:['ค 1.1 ป.4/10','ค 1.1 ป.4/12'],
+  directions:'ใช้เลข 4 ตัวให้ครบ · วางแผน · คำนวณทีละขั้น · ตรวจได้ 24',
+  getItems(topic){return topic==='mixed'?MATH24_ITEMS:MATH24_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="m24-tiles">'+tilesHtml(item.nums,e)+'</div>'
+      +'<div class="m24-target">เป้า = 24</div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 วางแผน</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 คำนวณ</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 ตรวจ</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div>'
+      +'<div class="m24-check"><span>□ ใช้ครบ 4 ตัว</span><span>□ ได้ผล 24</span><span>□ ไม่สร้างเลขนอกชุด</span></div>'
+      +'<div class="q-foot"><div class="answer-line">สรุปวิธี <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.175.11"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.11"></script></body></html>

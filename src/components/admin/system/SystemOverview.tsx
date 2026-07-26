@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.2 (ใบงาน — ÷2/24 ขั้นชัด + parent-slip พื้นที่)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'หาร 2 ในใจ + เกม 24: scaffold ติดป้ายขั้น (แบ่งครึ่ง/คิด/ตรวจ · วางแผน/คำนวณ/ตรวจ) + กระเบื้องเลข 24',
+            'rect-area: เพิ่มแถบส่งผู้ปกครอง · subjectGuides โหมดวินิจฉัยสำหรับ short-division / divide-by-2 / math-24',
+            'bump cache ใบงาน `1.175.11`',
+        ],
+    },
+    {
         version: 'v1.176.1 (ใบงาน — เลย์เอาต์ 5 + sets คูณ/หาร/C + กระดานหารสั้น)',
         date: 'ล่าสุด',
         badge: 'bg-sky-600',

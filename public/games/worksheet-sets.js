@@ -4,7 +4,7 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.10';
+  const VERSION = '1.175.11';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
