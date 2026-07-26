@@ -1,20 +1,53 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/thai/thai-sentence-hub/index.html"><meta name="curriculum-indicators" content="ท 4.1 ป.5/2"><title>ใบงานประโยคไทย Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/thai/thai-sentence-hub/index.html"><meta name="curriculum-indicators" content="ท 4.1 ป.5/2"><title>ใบงานประโยคไทย Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet">
+<style>
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm;margin:1mm 0}
+.type-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.7mm;font-size:7pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.word-bank-mini{display:flex;flex-wrap:wrap;gap:1mm;margin:.8mm 0}
+.word-bank-mini span{border:1px dashed var(--ws-accent);border-radius:3px;padding:.4mm 1.2mm;font-size:7pt;font-weight:700;color:var(--ws-accent)}
+.svo-row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:1mm;align-items:center;margin:1mm 0}
+.svo-slot{border:1px dashed var(--ws-accent);border-radius:3px;min-height:8mm;font-size:7pt;font-weight:700;text-align:center;padding:.5mm;color:var(--ws-accent)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>📝 ใบงานประโยคไทย Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="type">ชนิดประโยค</option><option value="part">ส่วนประโยค</option><option value="expand">ขยายประโยค</option><option value="combine">รวมประโยค</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.12"></script><script>
 const SENT_ITEMS=[
-{type:'type',prompt:'"วันนี้อากาศดี" ประโยคประเภท',context:'บอกเล่า',choices:['บอกเล่า','คำถาม'],answer:'ประโยคบอกเล่า',step1:'ไม่ถาม',step2:'บอกข้อมูล',step3:'บอกเล่า'},
-{type:'type',prompt:'"คุณชื่ออะไร" ประเภท',context:'?',choices:['คำถาม','คำสั่ง'],answer:'ประโยคคำถาม',step1:'ถาม',step2:'?',step3:'คำถาม'},
-{type:'type',prompt:'"ตั้งใจเรียน" ประเภท',context:'สั่ง',choices:['คำสั่ง/แนะนำ','บอกเล่า'],answer:'ประโยคคำสั่ง/แนะนำ',step1:'ชักชวน/สั่ง',step2:'ตั้งใจเรียน',step3:'คำสั่ง'},
-{type:'part',prompt:'"เด็กๆ เล่นฟุตบอล" ประธาน',context:'เด็กๆ',choices:['เด็กๆ','เล่นฟุตบอล'],answer:'เด็กๆ',step1:'ทำกริยา',step2:'เด็กๆ เล่น',step3:'เด็กๆ'},
-{type:'part',prompt:'"แมวนอนบนหลังคา" กริยา',context:'นอน',choices:['นอน','แมว'],answer:'นอน',step1:'แมว=ประธาน',step2:'นอน=กริยา',step3:'นอน'},
-{type:'expand',prompt:'ขยาย: "ฝนตก"',context:'ขยาย',choices:['เช้านี้ฝนตกหนักมาก','ฝนตกแล้วฝนตก'],answer:'เช้านี้ฝนตกหนักมาก',step1:'เติมเวลา',step2:'เติมคำขยาย',step3:'ประโยคสมบูรณ์'},
-{type:'expand',prompt:'ขยาย: "นกบิน"',context:'ขยาย',choices:['นกสีฟ้าบินบนท้องฟ้า','นกบินบิน'],answer:'นกสีฟ้าบินบนท้องฟ้า',step1:'เติมคำนาม',step2:'เติมสถานที่',step3:'สมบูรณ์'},
-{type:'combine',prompt:'รวม: "ฝนตก" + "ฉันไม่ไป"',context:'เพราะ',choices:['เพราะฝนตก ฉันจึงไม่ไป','ฝนตก ฉันไม่ไป'],answer:'เพราะฝนตก ฉันจึงไม่ไป',step1:'เหตุ–ผล',step2:'เพราะ...จึง',step3:'เชื่อม'},
-{type:'combine',prompt:'รวม: "เรียนหนังสือ" + "ฟังเพลง"',context:'และ',choices:['เรียนหนังสือและฟังเพลง','เรียนหนังสือฟังเพลง'],answer:'เรียนหนังสือและฟังเพลง',step1:'ทำทั้งสอง',step2:'และ',step3:'เชื่อมด้วยและ'},
-{type:'type',prompt:'"อย่าวิ่งในห้อง" ประเภท',context:'ห้าม',choices:['คำสั่ง/ห้าม','คำถาม'],answer:'ประโยคคำสั่ง/ห้าม',step1:'อย่า=ห้าม',step2:'สั่ง',step3:'คำสั่ง'},
-{type:'part',prompt:'"ครูสอนหนังสือ" กรรม',context:'หนังสือ',choices:['หนังสือ','ครู'],answer:'หนังสือ (สอนอะไร)',step1:'สอน+กรรม',step2:'หนังสือ',step3:'กรรม'},
-{type:'expand',prompt:'แยกประโยคยาว: "เช้านี้ฉันไปโรงเรียน"',context:'ส่วน',choices:['เวลา+ประธาน+กริยา+สถานที่','ประโยคเดียวไม่แยก'],answer:'เช้านี้(เวลา) ฉัน(ประธาน) ไป(กริยา) โรงเรียน(สถานที่)',step1:'เช้านี้',step2:'ฉันไป',step3:'โรงเรียน'}
+{type:'type',prompt:'"วันนี้อากาศดี" ประโยคประเภท',context:'วันนี้อากาศดี',choices:['บอกเล่า','คำถาม'],answer:'ประโยคบอกเล่า',s1:'ไม่ถาม',s2:'บอกข้อมูล',s3:'บอกเล่า'},
+{type:'type',prompt:'"คุณชื่ออะไร" ประเภท',context:'คุณชื่ออะไร',choices:['คำถาม','คำสั่ง'],answer:'ประโยคคำถาม',s1:'มีคำถาม',s2:'?',s3:'คำถาม'},
+{type:'type',prompt:'"ตั้งใจเรียน" ประเภท',context:'ตั้งใจเรียน',choices:['คำสั่ง/แนะนำ','บอกเล่า'],answer:'ประโยคคำสั่ง/แนะนำ',s1:'ชักชวน/สั่ง',s2:'ตั้งใจเรียน',s3:'คำสั่ง'},
+{type:'part',prompt:'"เด็กๆ เล่นฟุตบอล" ประธาน',context:'เด็กๆ เล่นฟุตบอล',choices:['เด็กๆ','เล่นฟุตบอล'],answer:'เด็กๆ',s1:'ใครทำกริยา',s2:'เด็กๆ เล่น',s3:'เด็กๆ'},
+{type:'part',prompt:'"แมวนอนบนหลังคา" กริยา',context:'แมวนอนบนหลังคา',choices:['นอน','แมว'],answer:'นอน',s1:'แมว = ประธาน',s2:'นอน = กริยา',s3:'นอน'},
+{type:'expand',prompt:'ขยาย: "ฝนตก"',context:'ฝนตก',choices:['เช้านี้ฝนตกหนักมาก','ฝนตกแล้วฝนตก'],answer:'เช้านี้ฝนตกหนักมาก',s1:'เติมเวลา',s2:'เติมคำขยาย',s3:'ประโยคสมบูรณ์'},
+{type:'expand',prompt:'ขยาย: "นกบิน"',context:'นกบิน',choices:['นกสีฟ้าบินบนท้องฟ้า','นกบินบิน'],answer:'นกสีฟ้าบินบนท้องฟ้า',s1:'เติมคำนาม',s2:'เติมสถานที่',s3:'สมบูรณ์'},
+{type:'combine',prompt:'รวม: "ฝนตก" + "ฉันไม่ไป"',context:'ฝนตก · ฉันไม่ไป',choices:['เพราะฝนตก ฉันจึงไม่ไป','ฝนตก ฉันไม่ไป'],answer:'เพราะฝนตก ฉันจึงไม่ไป',bank:['เพราะ','จึง','และ','แต่'],s1:'เหตุ–ผล',s2:'เพราะ…จึง',s3:'เชื่อม'},
+{type:'combine',prompt:'รวม: "เรียนหนังสือ" + "ฟังเพลง"',context:'เรียนหนังสือ · ฟังเพลง',choices:['เรียนหนังสือและฟังเพลง','เรียนหนังสือฟังเพลง'],answer:'เรียนหนังสือและฟังเพลง',bank:['และ','กับ','หรือ','แล้ว'],s1:'ทำทั้งสอง',s2:'และ',s3:'เชื่อมด้วยและ'},
+{type:'type',prompt:'"อย่าวิ่งในห้อง" ประเภท',context:'อย่าวิ่งในห้อง',choices:['คำสั่ง/ห้าม','คำถาม'],answer:'ประโยคคำสั่ง/ห้าม',s1:'อย่า = ห้าม',s2:'สั่ง',s3:'คำสั่ง'},
+{type:'part',prompt:'"ครูสอนหนังสือ" กรรม',context:'ครูสอนหนังสือ',choices:['หนังสือ','ครู'],answer:'หนังสือ (สอนอะไร)',s1:'สอน + กรรม',s2:'หนังสือ',s3:'กรรม'},
+{type:'expand',prompt:'แยกประโยคยาว: "เช้านี้ฉันไปโรงเรียน"',context:'เช้านี้ฉันไปโรงเรียน',choices:['เวลา+ประธาน+กริยา+สถานที่','ประโยคเดียวไม่แยก'],answer:'เช้านี้(เวลา) ฉัน(ประธาน) ไป(กริยา) โรงเรียน(สถานที่)',s1:'เช้านี้ = เวลา',s2:'ฉันไป',s3:'โรงเรียน = สถานที่'}
 ];
-window.WORKSHEET_CONFIG={icon:'📝',title:'ใบงานประโยคไทย Hub',subject:'ภาษาไทย',gradeLabel:'ป.4–6',mediaLabel:'ประโยค Hub',sourceMediaUrl:'/games/thai/thai-sentence-hub/index.html',indicators:['ท 4.1 ป.5/2'],directions:'ชนิดประโยค ส่วนประโยค ขยาย และรวมประโยค',getItems(t){return t==='mixed'?SENT_ITEMS:SENT_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.context)stem+='<div class="q-context">'+e(item.context)+'</div>';if(item.choices)stem+='<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>';stem+='<div>ลงวิธีคิด 3 ขั้น</div></div>';return stem+'<div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'thai-sentence-hub',icon:'📝',title:'ใบงานประโยคไทย Hub',subject:'ภาษาไทย',gradeLabel:'ป.4–6',mediaLabel:'ประโยค Hub',
+  sourceMediaUrl:'/games/thai/thai-sentence-hub/index.html',indicators:['ท 4.1 ป.5/2'],
+  directions:'ชนิดประโยค □ · ส่วน S/V/O · คำเชื่อมขยาย/รวมประโยค',
+  getItems(t){return t==='mixed'?SENT_ITEMS:SENT_ITEMS.filter(i=>i.type===t);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let mid='<div class="type-grid"><div class="type-box">□ บอกเล่า</div><div class="type-box">□ คำถาม</div><div class="type-box">□ คำสั่ง</div></div>';
+    if(item.type==='part')mid='<div class="svo-row"><div class="svo-slot">ประธาน</div><span>→</span><div class="svo-slot">กริยา</div><span>→</span><div class="svo-slot">กรรม</div></div>';
+    if(item.bank)mid='<div class="word-bank-mini">'+item.bank.map(w=>'<span>'+e(w)+'</span>').join('')+'</div>';
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">“'+e(item.context)+'”</div>'
+      +(item.choices?'<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>':'')
+      +mid+'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 ดูประโยค</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 จัดส่วน</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.12"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.12"></script></body></html>

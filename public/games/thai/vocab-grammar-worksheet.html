@@ -46,7 +46,7 @@
     .questions.count-5,.questions.worksheet-mode-five{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
     .questions.count-5 .q,.questions.worksheet-mode-five .q{padding:3.5mm 3mm;min-height:44mm}
     .count-5 .q-work-block,.worksheet-mode-five .q-work-block{min-height:20mm;gap:2mm}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:10mm;height:10mm;font-size:9.5pt}
+    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:9mm}
     .count-5 .eng-word,.count-5 .sci-word,.count-5 .thai-word,.count-5 .code-word{font-size:16pt}
     .count-5 .ans,.worksheet-mode-five .ans{margin-top:3mm;font-size:10.5pt}
     
@@ -56,7 +56,9 @@
     .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
     .ans{font:700 9.5pt Sarabun,sans-serif;color:#c2410c;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
     .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
-    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #94a3b8;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
+    .step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;margin-left:7mm;width:calc(100% - 7mm);min-height:7mm}
+    .step-tag{font-size:6.5pt;font-weight:800;color:#fff;background:#c2410c;border-radius:3px;padding:.6mm;text-align:center}
+    .step-body{min-height:6mm;border-bottom:1px dotted #94a3b8;display:flex;align-items:flex-end;font-weight:700;font-size:8.5pt}
     .work-fill{color:transparent;font-weight:800}
     .show-answers .work-fill{color:#b91c1c}
     .ta{display:none}
@@ -148,15 +150,19 @@ const THAI_DATA = {
 };
 
 function buildThaiWork(item, topicKey){
-  if(topicKey==='matra') return {line1:'ดูตัวสะกดท้ายคำ "'+item.word+'"', line2:'→ มาตรา: '+item.ans};
-  if(topicKey==='noun') return {line1:'จำคู่คำ: '+item.word, line2:'→ ลักษณนาม: '+item.ans};
-  return {line1:'หาคำที่มีความหมายใกล้เคียง', line2:'→ '+item.ans};
+  if(topicKey==='matra') return {s1:'ดูตัวสะกดท้ายคำ "'+item.word+'"', s2:'นึกกฎมาตราตัวสะกด', s3:'มาตรา: '+item.ans};
+  if(topicKey==='noun') return {s1:'จำคู่คำ: '+item.word, s2:'เลือกลักษณนามที่ใช้คู่กัน', s3:'ลักษณนาม: '+item.ans};
+  return {s1:'หาคำที่มีความหมายใกล้เคียง', s2:'เทียบความหมายกับ "'+item.word+'"', s3:item.ans};
 }
 function question(qi, topicItem, topicKey){
   const work=buildThaiWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="thai-word">คำว่า: "'+topicItem.word+'"</div>'
-    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
+    +'<div class="q-work-block">'
+    +'<div class="step-row"><span class="step-tag">1 ดูคำ</span><div class="step-body"><span class="work-fill">'+work.s1+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">2 คิด</span><div class="step-body"><span class="work-fill">'+work.s2+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">3 ตอบ</span><div class="step-body"><span class="work-fill">'+work.s3+'</span></div></div>'
+    +'</div>'
     +'<div class="ans">คำตอบ: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 

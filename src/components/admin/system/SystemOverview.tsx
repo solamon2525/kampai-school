@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.5 (ใบงานเฟส 4 — ไทย/อังกฤษ scaffold)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ไทย hub: อ่าน (หลักฐาน+ติ๊กใจความ) · เขียน (แผน เริ่ม|เหตุการณ์|จบ) · ไวยากรณ์ (S→V→O) · ประโยค (ชนิด+word-bank)',
+            'อังกฤษ: Grammar Mini · Sight Words · Follow Instructions — evidence/verb-cmd + ขั้นติดป้าย',
+            'vocab-grammar / grammar-vocab: ขั้น ดูคำ→คิด→ตอบ · subjectGuides วินิจฉัย Phase 4',
+        ],
+    },
+    {
         version: 'v1.176.4 (ใบงานเฟส 3 — วิทย์ สุขศึกษา สังคม อาชีพ)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
