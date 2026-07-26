@@ -1,20 +1,49 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/career/waste-sort-media.html"><meta name="curriculum-indicators" content="ง 1.1 ป.3/3, ง 1.1 ป.4/4"><title>ใบงานแยกขยะ ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/career/waste-sort-media.html"><meta name="curriculum-indicators" content="ง 1.1 ป.3/3, ง 1.1 ป.4/4"><title>ใบงานแยกขยะ ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet">
+<style>
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin:1mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.8mm;font-size:7.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.crit-row{display:flex;flex-wrap:wrap;gap:1mm;font-size:6.5pt;font-weight:700;color:var(--ws-accent);margin-top:.5mm}
+.crit-row span{border:1px solid var(--ws-line);border-radius:3px;padding:.3mm 1mm}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>♻️ ใบงานแยกขยะ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="sort">จำแนกประเภท</option><option value="reason">เหตุผล</option><option value="action">แนวปฏิบัติ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.12"></script><script>
 const WASTE_ITEMS=[
- {type:'sort',prompt:'ขวดพลาสติกเปล่าจัดเป็นขยะประเภทใด',item:'ขวดพลาสติก',answer:'ขยะรีไซเคิล'},
- {type:'sort',prompt:'เปลือกผลไม้จัดเป็นขยะประเภทใด',item:'เปลือกผลไม้',answer:'ขยะเปียก/ย่อยสลายได้'},
- {type:'sort',prompt:'ถ่านไฟฉายหมดอายุจัดเป็นขยะประเภทใด',item:'ถ่านไฟฉาย',answer:'ขยะอันตราย'},
- {type:'sort',prompt:'ถุงพลาสติกสกปรกที่ใช้แล้วจัดอย่างไร',item:'ถุงสกปรก',answer:'ขยะทั่วไป (ถ้าสกปรกรีไซเคิลไม่ได้)'},
- {type:'reason',prompt:'ทำไมต้องแยกขยะรีไซเคิล',item:'รีไซเคิล',answer:'เพื่อนำกลับมาใช้ใหม่ ลดขยะและประหยัดทรัพยากร'},
- {type:'reason',prompt:'ทำไมขยะอันตรายต้องแยกต่างหาก',item:'อันตราย',answer:'สารเคมีอาจปนเปื้อนและทำร้ายคน/สิ่งแวดล้อม'},
- {type:'reason',prompt:'ขยะเปียกนำไปทำอะไรได้',item:'ขยะเปียก',answer:'ทำปุ๋ยหมัก'},
- {type:'action',prompt:'ที่โรงเรียนควรทิ้งกระดาษใช้แล้วที่ใด',item:'กระดาษ',answer:'ถังขยะรีไซเคิล/ถังกระดาษ'},
- {type:'action',prompt:'ก่อนทิ้งขวดน้ำควรทำอะไร',item:'ขวดน้ำ',answer:'เทน้ำออก ล้าง/บีบให้เล็กลง'},
- {type:'action',prompt:'ลดขยะพลาสติกได้อย่างไร 1 วิธี',item:'ลดใช้',answer:'ใช้ถุงผ้า/กระติกน้ำส่วนตัว'},
- {type:'action',prompt:'ถ้าเห็นถ่านไฟฉายทิ้งปนขยะทั่วไป ควรทำอย่างไร',item:'ถ่าน',answer:'แยกไปจุดรับขยะอันตราย/แจ้งครู'},
- {type:'sort',prompt:'เศษอาหารกลางวันจัดประเภทใด',item:'เศษอาหาร',answer:'ขยะเปียก'}
+ {type:'sort',prompt:'ขวดพลาสติกเปล่าจัดเป็นขยะประเภทใด',item:'ขวดพลาสติก',answer:'ขยะรีไซเคิล',s1:'พลาสติกสะอาด',s2:'รีไซเคิลได้',s3:'ถังรีไซเคิล'},
+ {type:'sort',prompt:'เปลือกผลไม้จัดเป็นขยะประเภทใด',item:'เปลือกผลไม้',answer:'ขยะเปียก/ย่อยสลายได้',s1:'เป็นอินทรีย์',s2:'ย่อยได้',s3:'ถังเปียก'},
+ {type:'sort',prompt:'ถ่านไฟฉายหมดอายุจัดเป็นขยะประเภทใด',item:'ถ่านไฟฉาย',answer:'ขยะอันตราย',s1:'มีสารเคมี',s2:'อันตราย',s3:'ถังอันตราย'},
+ {type:'sort',prompt:'ถุงพลาสติกสกปรกที่ใช้แล้วจัดอย่างไร',item:'ถุงสกปรก',answer:'ขยะทั่วไป (ถ้าสกปรกรีไซเคิลไม่ได้)',s1:'สกปรก',s2:'รีไซเคิลยาก',s3:'ถังทั่วไป'},
+ {type:'reason',prompt:'ทำไมต้องแยกขยะรีไซเคิล',item:'รีไซเคิล',answer:'เพื่อนำกลับมาใช้ใหม่ ลดขยะและประหยัดทรัพยากร',s1:'แยกออกจากทั่วไป',s2:'นำกลับใช้ใหม่',s3:'ลดขยะ'},
+ {type:'reason',prompt:'ทำไมขยะอันตรายต้องแยกต่างหาก',item:'อันตราย',answer:'สารเคมีอาจปนเปื้อนและทำร้ายคน/สิ่งแวดล้อม',s1:'มีสารพิษ',s2:'ปนเปื้อนได้',s3:'แยกพิเศษ'},
+ {type:'reason',prompt:'ขยะเปียกนำไปทำอะไรได้',item:'ขยะเปียก',answer:'ทำปุ๋ยหมัก',s1:'ย่อยสลายได้',s2:'หมัก',s3:'ปุ๋ย'},
+ {type:'action',prompt:'ที่โรงเรียนควรทิ้งกระดาษใช้แล้วที่ใด',item:'กระดาษ',answer:'ถังขยะรีไซเคิล/ถังกระดาษ',s1:'กระดาษสะอาด',s2:'รีไซเคิลได้',s3:'ถังกระดาษ'},
+ {type:'action',prompt:'ก่อนทิ้งขวดน้ำควรทำอะไร',item:'ขวดน้ำ',answer:'เทน้ำออก ล้าง/บีบให้เล็กลง',s1:'เทน้ำ',s2:'ล้าง/บีบ',s3:'ทิ้งถังรีไซเคิล'},
+ {type:'action',prompt:'ลดขยะพลาสติกได้อย่างไร 1 วิธี',item:'ลดใช้',answer:'ใช้ถุงผ้า/กระติกน้ำส่วนตัว',s1:'ลดใช้ครั้งเดียว',s2:'เลือกของใช้ซ้ำ',s3:'ถุงผ้า/กระติก'},
+ {type:'action',prompt:'ถ้าเห็นถ่านไฟฉายทิ้งปนขยะทั่วไป ควรทำอย่างไร',item:'ถ่าน',answer:'แยกไปจุดรับขยะอันตราย/แจ้งครู',s1:'อันตรายปนทั่วไป',s2:'แยกออก',s3:'แจ้งครู/จุดรับ'},
+ {type:'sort',prompt:'เศษอาหารกลางวันจัดประเภทใด',item:'เศษอาหาร',answer:'ขยะเปียก',s1:'เศษอาหาร',s2:'ย่อยได้',s3:'ถังเปียก'}
 ];
-window.WORKSHEET_CONFIG={icon:'♻️',title:'ใบงานแยกขยะ',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'แยกขยะ',sourceMediaUrl:'/games/career/waste-sort-media.html',indicators:['ง 1.1 ป.3/3','ง 1.1 ป.4/4'],directions:'จำแนกประเภทขยะ อธิบายเหตุผล และเสนอแนวปฏิบัติในโรงเรียน',getItems(topic){return topic==='mixed'?WASTE_ITEMS:WASTE_ITEMS.filter(i=>i.type===topic);},buildWasteWork(item){if(item.type==='sort')return{line1:'พิจารณาลักษณะของ '+item.item,line2:'ตอบ: '+item.answer};if(item.type==='reason')return{line1:'เหตุผลด้านสิ่งแวดล้อม/ความปลอดภัย',line2:item.answer};return{line1:'แนวปฏิบัติ: '+item.item,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildWasteWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">ทั่วไป</div><div class="classify-box">รีไซเคิล</div><div class="classify-box">เปียก</div><div class="classify-box">อันตราย</div></div><div class="q-context">'+e(item.item)+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'waste-sort',icon:'♻️',title:'ใบงานแยกขยะ',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'แยกขยะ',
+  sourceMediaUrl:'/games/career/waste-sort-media.html',indicators:['ง 1.1 ป.3/3','ง 1.1 ป.4/4'],
+  directions:'สังเกตขยะ → เลือกถังด้วยเกณฑ์ → อธิบายเหตุผล',
+  getItems(t){return t==='mixed'?WASTE_ITEMS:WASTE_ITEMS.filter(i=>i.type===t);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.item)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ ทั่วไป</div><div class="tick-box">□ รีไซเคิล</div><div class="tick-box">□ เปียก</div><div class="tick-box">□ อันตราย</div></div>'
+      +'<div class="crit-row"><span>ย่อยได้?</span><span>รีไซเคิลได้?</span><span>อันตราย?</span><span>ทั่วไป?</span></div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 เลือกถัง</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 เหตุผล</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.12"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.12"></script></body></html>

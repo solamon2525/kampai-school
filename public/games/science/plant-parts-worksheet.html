@@ -1,20 +1,52 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/plant-parts-media.html"><meta name="curriculum-indicators" content="ว 1.2 ป.4/1"><title>ใบงานส่วนต่าง ๆ ของพืช ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/plant-parts-media.html"><meta name="curriculum-indicators" content="ว 1.2 ป.4/1"><title>ใบงานส่วนต่าง ๆ ของพืช ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet">
+<style>
+.plant-layout{display:grid;grid-template-columns:24mm 1fr;gap:2mm;align-items:center}
+.plant-svg{width:22mm;height:28mm;color:var(--ws-accent)}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.7mm 1mm;font-size:7pt;font-weight:700;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>🌱 ใบงานส่วนต่าง ๆ ของพืช</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="label">ระบุส่วน</option><option value="function">หน้าที่</option><option value="apply">ประยุกต์ใช้</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.12"></script><script>
 const PLANT_ITEMS=[
- {type:'label',prompt:'ส่วนที่ดูดน้ำและแร่ธาตุจากดิน',part:'ราก',answer:'ราก'},
- {type:'label',prompt:'ส่วนที่ลำเลียงน้ำและยึดใบ',part:'ลำต้น',answer:'ลำต้น'},
- {type:'label',prompt:'ส่วนที่สร้างอาหารด้วยแสง',part:'ใบ',answer:'ใบ'},
- {type:'label',prompt:'ส่วนที่ช่วยสืบพันธุ์ของพืชดอก',part:'ดอก',answer:'ดอก'},
- {type:'function',prompt:'รากมีหน้าที่สำคัญอย่างไร',part:'ราก',answer:'ดูดน้ำ–แร่ธาตุ และยึดพืชให้อยู่กับที่'},
- {type:'function',prompt:'ใบสร้างอาหารได้อย่างไร',part:'ใบ',answer:'สังเคราะห์ด้วยแสง ใช้แสง คาร์บอนไดออกไซด์ และน้ำ'},
- {type:'function',prompt:'ดอกมีบทบาทต่อการสืบพันธุ์อย่างไร',part:'ดอก',answer:'ผลิตเกสรและออวุล เพื่อสร้างเมล็ด'},
- {type:'apply',prompt:'กินส่วนใดของแครอท',part:'แครอท',answer:'ราก'},
- {type:'apply',prompt:'กินส่วนใดของกะหล่ำปลี',part:'กะหล่ำปลี',answer:'ใบ'},
- {type:'apply',prompt:'ถ้าตัดรากออก พืชจะได้รับผลอย่างไร',part:'รากถูกตัด',answer:'ดูดน้ำไม่ได้ เหี่ยวและตายได้'},
- {type:'apply',prompt:'เรียงลำดับการเติบโต: เมล็ด → ? → ต้นอ่อน',part:'การเติบโต',answer:'งอก'},
- {type:'apply',prompt:'ทำไมใบจึงมักแผ่กว้าง',part:'ใบ',answer:'เพื่อรับแสงได้มากในการสังเคราะห์ด้วยแสง'}
+ {type:'label',prompt:'ส่วนที่ดูดน้ำและแร่ธาตุจากดิน',part:'ราก',answer:'ราก',s1:'ดูดน้ำจากดิน',s2:'ส่วนล่างใต้ดิน',s3:'ราก'},
+ {type:'label',prompt:'ส่วนที่ลำเลียงน้ำและยึดใบ',part:'ลำต้น',answer:'ลำต้น',s1:'ลำเลียง + ยึดใบ',s2:'อยู่ระหว่างรากกับใบ',s3:'ลำต้น'},
+ {type:'label',prompt:'ส่วนที่สร้างอาหารด้วยแสง',part:'ใบ',answer:'ใบ',s1:'รับแสง',s2:'สังเคราะห์ด้วยแสง',s3:'ใบ'},
+ {type:'label',prompt:'ส่วนที่ช่วยสืบพันธุ์ของพืชดอก',part:'ดอก',answer:'ดอก',s1:'เกี่ยวข้องกับการสืบพันธุ์',s2:'ผลิตเกสร/ออวุล',s3:'ดอก'},
+ {type:'function',prompt:'รากมีหน้าที่สำคัญอย่างไร',part:'ราก',answer:'ดูดน้ำ–แร่ธาตุ และยึดพืชให้อยู่กับที่',s1:'ระบุส่วน: ราก',s2:'ดูดน้ำ–แร่ธาตุ',s3:'ยึดพืชให้อยู่กับที่'},
+ {type:'function',prompt:'ใบสร้างอาหารได้อย่างไร',part:'ใบ',answer:'สังเคราะห์ด้วยแสง ใช้แสง คาร์บอนไดออกไซด์ และน้ำ',s1:'ระบุส่วน: ใบ',s2:'ใช้แสง + CO₂ + น้ำ',s3:'ได้เป็นอาหารของพืช'},
+ {type:'function',prompt:'ดอกมีบทบาทต่อการสืบพันธุ์อย่างไร',part:'ดอก',answer:'ผลิตเกสรและออวุล เพื่อสร้างเมล็ด',s1:'ระบุส่วน: ดอก',s2:'เกสร + ออวุล',s3:'สร้างเมล็ด/ผล'},
+ {type:'apply',prompt:'กินส่วนใดของแครอท',part:'แครอท',answer:'ราก',s1:'แครอทอยู่ใต้ดิน',s2:'เป็นส่วนที่ดูดน้ำ',s3:'ราก'},
+ {type:'apply',prompt:'กินส่วนใดของกะหล่ำปลี',part:'กะหล่ำปลี',answer:'ใบ',s1:'ส่วนที่กินเป็นใบซ้อน',s2:'รับแสงได้',s3:'ใบ'},
+ {type:'apply',prompt:'ถ้าตัดรากออก พืชจะได้รับผลอย่างไร',part:'รากถูกตัด',answer:'ดูดน้ำไม่ได้ เหี่ยวและตายได้',s1:'รากถูกตัด',s2:'ดูดน้ำไม่ได้',s3:'เหี่ยว/ตายได้'},
+ {type:'apply',prompt:'เรียงลำดับการเติบโต: เมล็ด → ? → ต้นอ่อน',part:'การเติบโต',answer:'งอก',flow:['เมล็ด','?','ต้นอ่อน'],s1:'เริ่มจากเมล็ด',s2:'ขั้นกลางคืองอก',s3:'ได้ต้นอ่อน'},
+ {type:'apply',prompt:'ทำไมใบจึงมักแผ่กว้าง',part:'ใบ',answer:'เพื่อรับแสงได้มากในการสังเคราะห์ด้วยแสง',s1:'ใบต้องรับแสง',s2:'พื้นที่กว้างรับแสงมาก',s3:'สังเคราะห์ด้วยแสงดีขึ้น'}
 ];
-window.WORKSHEET_CONFIG={icon:'🌱',title:'ใบงานส่วนต่าง ๆ ของพืช',subject:'วิทยาศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ส่วนพืชดอก',sourceMediaUrl:'/games/science/plant-parts-media.html',indicators:['ว 1.2 ป.4/1'],directions:'ระบุส่วนพืช อธิบายหน้าที่ และเชื่อมกับอาหาร/ชีวิตประจำวัน',getItems(topic){return topic==='mixed'?PLANT_ITEMS:PLANT_ITEMS.filter(i=>i.type===topic);},buildPlantWork(item){if(item.type==='label')return{line1:'พิจารณาหน้าที่ → ส่วนที่เกี่ยวข้อง',line2:'ตอบ: '+item.answer};if(item.type==='function')return{line1:'หน้าที่ของ '+item.part,line2:item.answer};return{line1:'เชื่อมความรู้กับ '+item.part,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildPlantWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">ราก</div><div class="classify-box">ลำต้น</div><div class="classify-box">ใบ</div><div class="classify-box">ดอก/ผล</div></div><div class="q-context">โฟกัส: '+e(item.part)+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+function plantSvg(){
+  return '<svg class="plant-svg" viewBox="0 0 80 110" aria-hidden="true"><ellipse cx="40" cy="22" rx="16" ry="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M40 32 v42" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M40 48 c-18-6-22 8-18 16 M40 55 c18-6 22 8 18 16" fill="none" stroke="currentColor" stroke-width="2"/><path d="M40 74 c-12 8-14 20-8 28 M40 74 c12 8 14 20 8 28" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="40" cy="18" r="3" fill="currentColor"/></svg>';
+}
+window.WORKSHEET_CONFIG={
+  worksheetKey:'plant-parts',icon:'🌱',title:'ใบงานส่วนต่าง ๆ ของพืช',subject:'วิทยาศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ส่วนพืชดอก',
+  sourceMediaUrl:'/games/science/plant-parts-media.html',indicators:['ว 1.2 ป.4/1'],
+  directions:'ดูรูปพืช → เลือกส่วน (ราก/ลำต้น/ใบ/ดอก) → อธิบายหน้าที่หรือเชื่อมชีวิตประจำวัน',
+  getItems(topic){return topic==='mixed'?PLANT_ITEMS:PLANT_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let mid='<div class="plant-layout">'+plantSvg()+'<div class="tick-grid"><div class="tick-box">□ ราก</div><div class="tick-box">□ ลำต้น</div><div class="tick-box">□ ใบ</div><div class="tick-box">□ ดอก/ผล</div></div></div>';
+    if(item.flow)mid='<div class="cycle-flow">'+item.flow.map((s,i)=>'<div class="cycle-step">'+e(s)+'</div>'+(i<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div>';
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'+mid+'</div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 เลือกส่วน</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 เหตุผล</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.12"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.12"></script></body></html>

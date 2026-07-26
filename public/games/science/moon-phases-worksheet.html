@@ -1,20 +1,54 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/moon-phases-media.html"><meta name="curriculum-indicators" content="ว 3.1 ป.4/1, ว 3.1 ป.4/2"><title>ใบงานดวงจันทร์และข้างขึ้น ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/moon-phases-media.html"><meta name="curriculum-indicators" content="ว 3.1 ป.4/1, ว 3.1 ป.4/2"><title>ใบงานดวงจันทร์และข้างขึ้น ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet">
+<style>
+.moon-row{display:flex;gap:1.5mm;justify-content:center;flex-wrap:wrap;margin:1mm 0}
+.moon{width:8mm;height:8mm;border-radius:50%;border:1.4px solid var(--ws-ink);background:var(--ws-paper);position:relative;box-sizing:border-box}
+.moon.half::after{content:'';position:absolute;inset:0;left:50%;background:var(--ws-ink);border-radius:0 50% 50% 0}
+.moon.full{background:var(--ws-ink)}
+.moon.new{background:var(--ws-muted);opacity:.35}
+.moon.ask{outline:1.5px dashed var(--ws-accent-2);outline-offset:1px}
+.moon.ask::before{content:'?';position:absolute;inset:0;display:grid;place-items:center;font-size:7pt;font-weight:800;color:var(--ws-accent)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .moon{width:9.5mm;height:9.5mm}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>🌙 ใบงานดวงจันทร์และข้างขึ้น</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="order">เรียงลำดับ</option><option value="name">เรียกชื่อ</option><option value="cause">อธิบายเหตุ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.12"></script><script>
 const MOON_ITEMS=[
- {type:'order',prompt:'เรียงลำดับหลังข้างขึ้น: ขึ้น → ? → ขึ้นเต็มดวง',flow:['ขึ้น','?','ขึ้นเต็มดวง'],answer:'ขึ้น 7 คืน / ขึ้น 8 คืน'},
- {type:'order',prompt:'เรียงหลังขึ้นเต็มดวง',flow:['ขึ้นเต็มดวง','?','?','ดับ'],answer:'แรม → แรม 8 คืน → ดับ'},
- {type:'order',prompt:'ลำดับใกล้เคียง: ดับ → ? → ขึ้น',flow:['ดับ','?','ขึ้น'],answer:'เสี้ยว (ขึ้น)'},
- {type:'name',prompt:'เรียกชื่อข้างขึ้นเมื่อเห็นครึ่งซีกขวา',flow:['ขึ้น','ครึ่ง','?'],answer:'ขึ้น 7 คืน (ครึ่งซีก)'},
- {type:'name',prompt:'คืนที่ไม่เห็นดวงจันทร์เรียกว่า',flow:['ดับ'],answer:'ดับ / จันทร์ดับ'},
- {type:'name',prompt:'คืนที่เห็นดวงจันทร์เต็มวงเรียกว่า',flow:['ขึ้นเต็มดวง'],answer:'ขึ้น 15 คืน / ขึ้นเต็มดวง'},
- {type:'cause',prompt:'ทำไมดวงจันทร์จึงมีข้างขึ้นต่างกัน',flow:['แสง','ดวงจันทร์','โลก'],answer:'เพราะรับแสงจากดวงอาทิตย์และเห็นส่วนสว่างต่างกัน'},
- {type:'cause',prompt:'ดวงจันทร์โคจรรอบโลกใช้เวลาประมาณ',flow:['29-30','วัน'],answer:'29–30 วัน'},
- {type:'cause',prompt:'ทำไมขึ้นเต็มดวงจึงเห็นทั้งดวง',flow:['โลก','ดวงจันทร์','ดวงอาทิตย์'],answer:'โลกอยู่ระหว่างดวงอาทิตย์กับดวงจันทร์ เห็นด้านสว่างเต็ม'},
- {type:'cause',prompt:'ถ้าวันนี้ขึ้น คืนพรุ่งนี้น่าจะเป็นข้างขึ้นใด',flow:['ขึ้น','→','?'],answer:'ขึ้น 2 คืน (ใหญ่ขึ้น)'},
- {type:'cause',prompt:'ยกตัวอย่างกิจกรรมที่ใช้ความรู้ข้างขึ้น',flow:['ปลูก','ประมง','ปฏิทิน'],answer:'ปฏิทินจันทรคติ/วางแผนเก็บเกี่ยว'},
- {type:'cause',prompt:'ดวงจันทร์ส่องแสงเองหรือไม่',flow:['ดวงอาทิตย์','สะท้อน'],answer:'ไม่ สะท้อนแสงจากดวงอาทิตย์'}
+ {type:'order',prompt:'เรียงลำดับหลังข้างขึ้น: ขึ้น → ? → ขึ้นเต็มดวง',flow:['ขึ้น','?','ขึ้นเต็มดวง'],moons:['new','half','ask','full'],answer:'ขึ้น 7 คืน / ขึ้น 8 คืน',s1:'เริ่มจากเสี้ยวขึ้น',s2:'ครึ่งซีกอยู่กลาง',s3:'จบที่ขึ้นเต็มดวง'},
+ {type:'order',prompt:'เรียงหลังขึ้นเต็มดวง',flow:['ขึ้นเต็มดวง','?','?','ดับ'],moons:['full','ask','half','new'],answer:'แรม → แรม 8 คืน → ดับ',s1:'หลังเต็มดวงแสงลด',s2:'แรมแล้วครึ่งซีก',s3:'จบที่ดับ'},
+ {type:'order',prompt:'ลำดับใกล้เคียง: ดับ → ? → ขึ้น',flow:['ดับ','?','ขึ้น'],moons:['new','ask','half'],answer:'เสี้ยว (ขึ้น)',s1:'ดับ = มืด',s2:'ขั้นถัดไปเห็นเสี้ยว',s3:'แล้วโตเป็นขึ้น'},
+ {type:'name',prompt:'เรียกชื่อข้างขึ้นเมื่อเห็นครึ่งซีกขวา',flow:['ขึ้น','ครึ่ง','?'],moons:['half','ask'],answer:'ขึ้น 7 คืน (ครึ่งซีก)',s1:'เห็นครึ่งซีก',s2:'ช่วงขึ้น',s3:'ขึ้น 7 คืน'},
+ {type:'name',prompt:'คืนที่ไม่เห็นดวงจันทร์เรียกว่า',flow:['ดับ'],moons:['new','ask'],answer:'ดับ / จันทร์ดับ',s1:'ไม่เห็นส่วนสว่าง',s2:'มืดทั้งดวง',s3:'ดับ'},
+ {type:'name',prompt:'คืนที่เห็นดวงจันทร์เต็มวงเรียกว่า',flow:['ขึ้นเต็มดวง'],moons:['full','ask'],answer:'ขึ้น 15 คืน / ขึ้นเต็มดวง',s1:'สว่างทั้งวง',s2:'ช่วงขึ้นสูงสุด',s3:'ขึ้นเต็มดวง'},
+ {type:'cause',prompt:'ทำไมดวงจันทร์จึงมีข้างขึ้นต่างกัน',flow:['แสง','ดวงจันทร์','โลก'],moons:['new','half','full'],answer:'เพราะรับแสงจากดวงอาทิตย์และเห็นส่วนสว่างต่างกัน',s1:'แสงมาจากดวงอาทิตย์',s2:'โลก–จันทร์ตำแหน่งเปลี่ยน',s3:'เห็นส่วนสว่างต่างกัน'},
+ {type:'cause',prompt:'ดวงจันทร์โคจรรอบโลกใช้เวลาประมาณ',flow:['29-30','วัน'],moons:['new','half','full','new'],answer:'29–30 วัน',s1:'ครบรอบข้างขึ้น',s2:'ประมาณหนึ่งเดือน',s3:'29–30 วัน'},
+ {type:'cause',prompt:'ทำไมขึ้นเต็มดวงจึงเห็นทั้งดวง',flow:['โลก','ดวงจันทร์','ดวงอาทิตย์'],moons:['full','ask'],answer:'โลกอยู่ระหว่างดวงอาทิตย์กับดวงจันทร์ เห็นด้านสว่างเต็ม',s1:'ดวงอาทิตย์ส่องจันทร์',s2:'ด้านสว่างหันเข้าหาเรา',s3:'เห็นเต็มดวง'},
+ {type:'cause',prompt:'ถ้าวันนี้ขึ้น คืนพรุ่งนี้น่าจะเป็นข้างขึ้นใด',flow:['ขึ้น','→','?'],moons:['half','ask'],answer:'ขึ้น 2 คืน (ใหญ่ขึ้น)',s1:'อยู่ช่วงขึ้น',s2:'แต่ละคืนใหญ่ขึ้น',s3:'ขึ้น 2 คืน'},
+ {type:'cause',prompt:'ยกตัวอย่างกิจกรรมที่ใช้ความรู้ข้างขึ้น',flow:['ปลูก','ประมง','ปฏิทิน'],moons:['half','full'],answer:'ปฏิทินจันทรคติ/วางแผนเก็บเกี่ยว',s1:'คนใช้ข้างขึ้นวางแผน',s2:'เช่น ปฏิทิน/ประมง',s3:'เลือกตัวอย่างได้'},
+ {type:'cause',prompt:'ดวงจันทร์ส่องแสงเองหรือไม่',flow:['ดวงอาทิตย์','สะท้อน'],moons:['full','ask'],answer:'ไม่ สะท้อนแสงจากดวงอาทิตย์',s1:'จันทร์ไม่มีแสงเอง',s2:'รับแสงอาทิตย์',s3:'สะท้อนให้เราเห็น'}
 ];
-window.WORKSHEET_CONFIG={icon:'🌙',title:'ใบงานดวงจันทร์และข้างขึ้น',subject:'วิทยาศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ดวงจันทร์',sourceMediaUrl:'/games/science/moon-phases-media.html',indicators:['ว 3.1 ป.4/1','ว 3.1 ป.4/2'],directions:'เรียงลำดับข้างขึ้น เรียกชื่อ และอธิบายเหตุผลทางดาราศาสตร์',getItems(topic){return topic==='mixed'?MOON_ITEMS:MOON_ITEMS.filter(i=>i.type===topic);},buildMoonWork(item){if(item.type==='order'){const missing=item.flow.indexOf('?');if(missing>=0)return{line1:'ขั้นที่ขาด: '+item.answer.split(' / ')[0],line2:'ลำดับ: '+item.answer};return{line1:'เรียง: '+item.answer,line2:item.flow.join(' → ')};}if(item.type==='name')return{line1:'สังเกตรูปร่างที่สว่าง',line2:'ตอบ: '+item.answer};return{line1:'เชื่อมเหตุ–ผล',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildMoonWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="cycle-flow">'+item.flow.map((step,i)=>'<div class="cycle-step">'+e(step)+'</div>'+(i<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'moon-phases',icon:'🌙',title:'ใบงานดวงจันทร์และข้างขึ้น',subject:'วิทยาศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ดวงจันทร์',
+  sourceMediaUrl:'/games/science/moon-phases-media.html',indicators:['ว 3.1 ป.4/1','ว 3.1 ป.4/2'],
+  directions:'ดูวงจันทร์ · เรียงข้างขึ้น · เรียกชื่อ · อธิบายเหตุผล',
+  getItems(topic){return topic==='mixed'?MOON_ITEMS:MOON_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const moons=(item.moons||['new','half','full']).map(c=>'<i class="moon '+c+'"></i>').join('');
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="moon-row">'+moons+'</div>'
+      +'<div class="cycle-flow">'+item.flow.map((s,i)=>'<div class="cycle-step">'+e(s)+'</div>'+(i<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 ตำแหน่ง</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 รูปร่าง</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.12"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.12"></script></body></html>

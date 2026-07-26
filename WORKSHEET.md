@@ -66,6 +66,7 @@ cp public/games/_template-worksheet.html public/games/{subject}/{slug}-worksheet
    - ใบงานมุม (`angle-worksheet.html`): มีรูปมุม + ช่องจำแนกแหลม/ฉาก/ป้าน/ตรง + ขั้นเทียบ/จำแนก/เหตุผล — ห้ามเหลือแค่ reason×3
    - ใบงานทศนิยม (`decimal-worksheet.html`): ตารางค่าประจำหลักหรือตั้งบวกลบจัดจุดทศนิยม + ขั้นชัด
    - ใบงานเส้นจำนวน (`number-line-worksheet.html`): มีเส้นขีดจริงให้นักเรียนทำเครื่องหมาย ไม่ใช่แค่ classify ลอย ๆ
+   - เฟส 3 วิทย์/สุขศึกษา/สังคม/อาชีพ: ใช้ classify/cycle/แผนภาพตามทักษะ + ขั้นติดป้าย (ห้ามเหลือแค่ reason×3 / calc-line ผิดทักษะ) — ตัวอย่างต้นแบบ: plant-parts, handwash 7 ขั้น, sufficiency 3 ห่วง, waste-sort เกณฑ์ถัง
 
 ---
 

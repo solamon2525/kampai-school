@@ -1,20 +1,49 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/career/community-jobs-media.html"><meta name="curriculum-indicators" content="ง 2.1 ป.4/1"><title>ใบงานอาชีพในชุมชน ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/career/community-jobs-media.html"><meta name="curriculum-indicators" content="ง 2.1 ป.4/1"><title>ใบงานอาชีพในชุมชน ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.12" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet">
+<style>
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm;margin:1mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.8mm;font-size:7.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.proc-row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:1mm;align-items:center;margin:1mm 0;font-size:7pt;font-weight:700}
+.proc-slot{border:1px dashed var(--ws-accent);border-radius:3px;min-height:8mm;padding:.5mm;text-align:center;color:var(--ws-accent)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>👷 ใบงานอาชีพในชุมชน</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="identify">ระบุอาชีพ</option><option value="role">บทบาทต่อชุมชน</option><option value="reflect">สำรวจตัวเอง</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.12"></script><script>
 const JOB_ITEMS=[
- {type:'identify',prompt:'ใครรักษาคนไข้ในชุมชน',job:'หมอ/พยาบาล',answer:'แพทย์ พยาบาล หรือบุคลากรสาธารณสุข'},
- {type:'identify',prompt:'ใครสอนนักเรียน',job:'ครู',answer:'ครู'},
- {type:'identify',prompt:'ใครปลูกพืชเพื่อเป็นอาหาร',job:'เกษตรกร',answer:'เกษตรกร'},
- {type:'identify',prompt:'ใครช่วยจับผู้กระทำผิดและรักษาความสงบ',job:'ตำรวจ',answer:'ตำรวจ'},
- {type:'role',prompt:'ทำไมชุมชนต้องมีพ่อค้าแม่ค้า',job:'ค้าขาย',answer:'กระจายสินค้าและบริการให้คนในชุมชน'},
- {type:'role',prompt:'อาชีพช่างซ่อมช่วยชุมชนอย่างไร',job:'ช่าง',answer:'ซ่อมสิ่งของ/บ้านเรือนให้ใช้ได้ต่อ'},
- {type:'role',prompt:'อาชีพเก็บขยะสำคัญอย่างไร',job:'เก็บขยะ',answer:'รักษาความสะอาดและสุขภาพชุมชน'},
- {type:'role',prompt:'จัดกลุ่มอาชีพ: หมอ ครู ตำรวจ',job:'บริการสาธารณะ',answer:'อาชีพบริการสาธารณะ'},
- {type:'reflect',prompt:'อาชีพใดใกล้ตัวในหมู่บ้านคำไผ่',job:'ใกล้ตัว',answer:'เช่น ครู เกษตรกร ค้าขาย (ตอบตามชุมชนจริง)'},
- {type:'reflect',prompt:'ทักษะใดจำเป็นต่ออาชีพครู',job:'ครู',answer:'สื่อสาร อธิบาย ใจเย็น รักการเรียนรู้'},
- {type:'reflect',prompt:'ถ้าอยากเป็นเกษตรกรควรฝึกอะไร',job:'เกษตร',answer:'ปลูกพืช ดูแลดิน วางแผนการผลิต'},
- {type:'reflect',prompt:'เขียนเหตุผลว่าทำไมอาชีพทุกชนิดจึงมีคุณค่า',job:'คุณค่า',answer:'แต่ละอาชีพช่วยให้ชุมชนอยู่ได้และพึ่งพากัน'}
+ {type:'identify',prompt:'ใครรักษาคนไข้ในชุมชน',job:'หมอ/พยาบาล',answer:'แพทย์ พยาบาล หรือบุคลากรสาธารณสุข',s1:'รักษาคนไข้',s2:'บริการสาธารณสุข',s3:'แพทย์/พยาบาล'},
+ {type:'identify',prompt:'ใครสอนนักเรียน',job:'ครู',answer:'ครู',s1:'สอนนักเรียน',s2:'บริการการศึกษา',s3:'ครู'},
+ {type:'identify',prompt:'ใครปลูกพืชเพื่อเป็นอาหาร',job:'เกษตรกร',answer:'เกษตรกร',s1:'ปลูกพืช',s2:'ผลิตอาหาร',s3:'เกษตรกร'},
+ {type:'identify',prompt:'ใครช่วยจับผู้กระทำผิดและรักษาความสงบ',job:'ตำรวจ',answer:'ตำรวจ',s1:'รักษาความสงบ',s2:'บริการสาธารณะ',s3:'ตำรวจ'},
+ {type:'role',prompt:'ทำไมชุมชนต้องมีพ่อค้าแม่ค้า',job:'ค้าขาย',answer:'กระจายสินค้าและบริการให้คนในชุมชน',s1:'ค้าขาย',s2:'กระจายสินค้า',s3:'ชุมชนได้ของใช้'},
+ {type:'role',prompt:'อาชีพช่างซ่อมช่วยชุมชนอย่างไร',job:'ช่าง',answer:'ซ่อมสิ่งของ/บ้านเรือนให้ใช้ได้ต่อ',s1:'ช่างซ่อม',s2:'ซ่อมของใช้',s3:'ใช้ต่อได้'},
+ {type:'role',prompt:'อาชีพเก็บขยะสำคัญอย่างไร',job:'เก็บขยะ',answer:'รักษาความสะอาดและสุขภาพชุมชน',s1:'เก็บขยะ',s2:'ความสะอาด',s3:'สุขภาพชุมชน'},
+ {type:'role',prompt:'จัดกลุ่มอาชีพ: หมอ ครู ตำรวจ',job:'บริการสาธารณะ',answer:'อาชีพบริการสาธารณะ',s1:'หมอ ครู ตำรวจ',s2:'บริการสาธารณะ',s3:'กลุ่มบริการ'},
+ {type:'reflect',prompt:'อาชีพใดใกล้ตัวในหมู่บ้านคำไผ่',job:'ใกล้ตัว',answer:'เช่น ครู เกษตรกร ค้าขาย (ตอบตามชุมชนจริง)',s1:'ดูรอบหมู่บ้าน',s2:'เลือกอาชีพใกล้ตัว',s3:'เขียนตัวอย่าง'},
+ {type:'reflect',prompt:'ทักษะใดจำเป็นต่ออาชีพครู',job:'ครู',answer:'สื่อสาร อธิบาย ใจเย็น รักการเรียนรู้',s1:'อาชีพครู',s2:'ทักษะสื่อสาร',s3:'ใจเย็น/รักเรียน'},
+ {type:'reflect',prompt:'ถ้าอยากเป็นเกษตรกรควรฝึกอะไร',job:'เกษตร',answer:'ปลูกพืช ดูแลดิน วางแผนการผลิต',s1:'สนใจเกษตร',s2:'ฝึกปลูก/ดูแลดิน',s3:'วางแผนผลิต'},
+ {type:'reflect',prompt:'เขียนเหตุผลว่าทำไมอาชีพทุกชนิดจึงมีคุณค่า',job:'คุณค่า',answer:'แต่ละอาชีพช่วยให้ชุมชนอยู่ได้และพึ่งพากัน',s1:'อาชีพหลากหลาย',s2:'พึ่งพากัน',s3:'ทุกอาชีพมีคุณค่า'}
 ];
-window.WORKSHEET_CONFIG={icon:'👷',title:'ใบงานอาชีพในชุมชน',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'อาชีพในชุมชน',sourceMediaUrl:'/games/career/community-jobs-media.html',indicators:['ง 2.1 ป.4/1'],directions:'ระบุอาชีพ อธิบายบทบาทต่อชุมชน และเชื่อมกับความสนใจของตนเอง',getItems(topic){return topic==='mixed'?JOB_ITEMS:JOB_ITEMS.filter(i=>i.type===topic);},buildJobWork(item){if(item.type==='identify')return{line1:'ดูหน้าที่งาน → อาชีพ',line2:'ตอบ: '+item.answer};if(item.type==='role')return{line1:'บทบาทของ '+item.job+' ต่อชุมชน',line2:item.answer};return{line1:'เชื่อมอาชีพกับตัวเอง/ชุมชน',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildJobWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">โฟกัส: '+e(item.job)+'</div><div class="classify-grid"><div class="classify-box">บริการ</div><div class="classify-box">ผลิต</div><div class="classify-box">ค้าขาย</div></div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'community-jobs',icon:'👷',title:'ใบงานอาชีพในชุมชน',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'อาชีพในชุมชน',
+  sourceMediaUrl:'/games/career/community-jobs-media.html',indicators:['ง 2.1 ป.4/1'],
+  directions:'ระบุอาชีพ → หน้าที่ → ประโยชน์ชุมชน · จัดกลุ่มบริการ/ผลิต/ค้าขาย',
+  getItems(t){return t==='mixed'?JOB_ITEMS:JOB_ITEMS.filter(i=>i.type===t);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">โฟกัส: '+e(item.job)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ บริการ</div><div class="tick-box">□ ผลิต</div><div class="tick-box">□ ค้าขาย</div></div>'
+      +'<div class="proc-row"><div class="proc-slot">อาชีพ</div><span>→</span><div class="proc-slot">หน้าที่</div><span>→</span><div class="proc-slot">ประโยชน์</div></div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 อาชีพ</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 หน้าที่</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 ประโยชน์</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.12"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.12"></script></body></html>
