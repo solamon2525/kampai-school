@@ -21,7 +21,7 @@ DECLARE
 BEGIN
   SELECT id INTO v_cat_id
   FROM public.educational_hub_categories
-  WHERE key = 'media'
+  WHERE category_key = 'media'
   LIMIT 1;
 
   SELECT owner_staff_id INTO v_staff_id

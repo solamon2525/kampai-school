@@ -17,8 +17,8 @@ DECLARE
   v_cat_media uuid;
   v_cat_ws uuid;
 BEGIN
-  SELECT id INTO v_cat_media FROM public.educational_hub_categories WHERE key = 'media' LIMIT 1;
-  SELECT id INTO v_cat_ws FROM public.educational_hub_categories WHERE key = 'worksheets' LIMIT 1;
+  SELECT id INTO v_cat_media FROM public.educational_hub_categories WHERE category_key = 'media' LIMIT 1;
+  SELECT id INTO v_cat_ws FROM public.educational_hub_categories WHERE category_key = 'worksheets' LIMIT 1;
 
   SELECT owner_staff_id INTO v_staff_id
   FROM public.educational_hub_items
