@@ -446,5 +446,33 @@
   const schoolInput = document.getElementById('inpSchool');
   if (schoolInput) schoolInput.oninput = enhancedRender;
 
+  // Present / projector mode (?present=1)
+  const presentBtn = document.createElement('button');
+  presentBtn.type = 'button';
+  presentBtn.className = 'btn';
+  presentBtn.id = 'btnPresent';
+  presentBtn.title = 'โหมดโปรเจคเตอร์ — ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์';
+  presentBtn.textContent = '📽 โปรเจคเตอร์';
+  const printBtn = document.getElementById('btnPrint');
+  if (printBtn) printBtn.insertAdjacentElement('beforebegin', presentBtn);
+  else controls.appendChild(presentBtn);
+
+  function setPresentMode(on) {
+    document.body.classList.toggle('present-mode', on);
+    presentBtn.textContent = on ? '📄 โหมดปกติ' : '📽 โปรเจคเตอร์';
+    presentBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    try {
+      const url = new URL(window.location.href);
+      if (on) url.searchParams.set('present', '1');
+      else url.searchParams.delete('present');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* ignore */ }
+  }
+
+  presentBtn.onclick = () => setPresentMode(!document.body.classList.contains('present-mode'));
+  try {
+    if (new URLSearchParams(window.location.search).get('present') === '1') setPresentMode(true);
+  } catch (_) { /* ignore */ }
+
   enhancedRender();
 })();

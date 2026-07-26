@@ -47,6 +47,30 @@ body{margin:0;background:var(--ws-soft);color:var(--ws-ink);font-family:Sarabun,
 .classify-grid{display:grid;grid-template-columns:1fr 1fr;gap:2mm}.classify-box{border:1px dashed var(--ws-line);border-radius:4px;padding:1mm 2mm;min-height:6mm}.sound-row{display:flex;gap:1.5mm;align-items:center}.sound-box{width:7mm;height:7mm;border:1px solid var(--ws-accent);display:grid;place-items:center;border-radius:3px;font-weight:800}.word-bank{display:flex;gap:4mm;flex-wrap:wrap;font-weight:700}
 .cycle-flow{display:flex;gap:1mm;align-items:center}.cycle-step{border:1px solid var(--ws-line);border-radius:4px;min-height:8mm;padding:1mm;text-align:center;font-size:7pt;flex:1}.cycle-arrow{text-align:center;color:var(--ws-accent);font-weight:800}.decision-box{border:1px dashed var(--ws-accent);border-radius:5px;padding:1.2mm 2mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0}.sheet-foot{display:flex;justify-content:space-between;color:var(--ws-muted);font-size:7pt}.sheet-foot-teacher{color:var(--ws-accent);font-weight:700}
 .parent-slip{border-top:1.5px dashed var(--ws-accent);padding-top:1mm;display:flex;justify-content:space-between;gap:5mm;font-size:7pt;color:var(--ws-muted)}
+/* Present / projector mode for classroom display */
+body.present-mode{background:var(--ws-paper)}
+body.present-mode .toolbar{position:sticky;box-shadow:0 2px 10px rgba(15,23,42,.12)}
+body.present-mode .toolbar h1{font-size:1.05rem}
+body.present-mode #selStyle,
+body.present-mode #selPageCount,
+body.present-mode #selGrade,
+body.present-mode #selTopic,
+body.present-mode #selCount,
+body.present-mode #selUseMode,
+body.present-mode #inpSchool,
+body.present-mode #selTeacher,
+body.present-mode #kampaiSetTitle,
+body.present-mode [data-kampai-sets],
+body.present-mode .kampai-sets-bar{display:none!important}
+body.present-mode .pages{padding:10px;max-width:100%}
+body.present-mode .sheet{box-shadow:none;margin:0 auto 10px;transform-origin:top center}
+body.present-mode .q-prompt{font-size:13pt;line-height:1.45}
+body.present-mode .q-context,body.present-mode .directions{font-size:10pt}
+body.present-mode .work-line,body.present-mode .reason-line,body.present-mode .calc-line,
+body.present-mode .step-body,body.present-mode .answer-line{font-size:11pt;min-height:9mm}
+body.present-mode .q-num{width:8mm;height:8mm;font-size:11pt}
+body.present-mode #btnPresent{background:var(--ws-accent);color:var(--ws-paper)}
+@media print{body.present-mode .toolbar{display:none!important}}
 .cover-sheet{align-items:center;justify-content:center;text-align:center;border:4px double var(--ws-accent);padding:12mm}.cover-title{font-size:23pt;color:var(--ws-accent);margin:0}.cover-sub{font-size:13pt;font-weight:700;margin:3mm 0 9mm}.cover-box{width:82%;border:2px solid var(--ws-accent);border-radius:10px;background:var(--ws-soft);padding:7mm;font-size:11pt;text-align:left}.cover-media{margin-top:12mm;border:1px dashed var(--ws-accent);padding:4mm 8mm;border-radius:8px;color:var(--ws-accent);font-weight:800}
 @media(max-width:980px){.toolbar{align-items:flex-start;flex-wrap:wrap}.toolbar h1{flex-basis:100%}.pages{padding:6px;overflow:auto}}
 @media print{@page{size:A4 portrait;margin:0}body{background:var(--ws-paper)}.toolbar{display:none!important}.pages{padding:0}.sheet{margin:0;box-shadow:none;width:210mm;height:297mm;padding:5mm 6mm;overflow:hidden}.q{min-height:0}}

@@ -162,6 +162,9 @@ pnpm verify:worksheet:production
 - พอร์ทัล: เปิดแท็บชุดด้วย `?tab=worksheet-sets` (แอดมิน/ครู) · แผงชุดแสดงจำนวนรวมและนับตาม `worksheet_key`
 - เมทริกซ์คุณภาพ: `pnpm verify:worksheet:matrix` (เพิ่ม `--strict` เพื่อ fail เมื่อยังมี hub3 เปล่า)
 - หลังเฟส 5B: hub3/shallow ในคลัง = 0 (แท่งแผนภูมิ · ตารางทศนิยม · รูปเรขา · แถบเศษส่วน · hub ไทย/สังคม/สี ใช้ขั้นติดป้ายแล้ว)
+- โหมดโปรเจคเตอร์: ปุ่ม 📽 ในแถบใบงาน หรือ `?present=1` — ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์/ชื่อชุด (คงปุ่มเฉลย/พิมพ์)
+- สื่อ thinking คณิตหลัก (คูณ · หารสั้น · หารยาว): สลับ **สอน | ฝึกสั้น** เป็น MCQ หลังสอน
+- analytics ชุด: `worksheetSetsService.countByKey()` นับจาก DB จริง แสดงบน WorksheetSetsPanel
 
 ### Automatic Publish Gate (ใบงาน)
 

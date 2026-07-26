@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.8 (ใบงานเฟส 5C — โปรเจคเตอร์ · ฝึกสั้น · analytics ชุด)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'โหมดโปรเจคเตอร์ใบงาน: ปุ่ม 📽 + `?present=1` · ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์',
+            'ฝึกสั้นในสื่อ thinking: คูณ · หารสั้น · หารยาว (สลับ สอน|ฝึก MCQ)',
+            'พอร์ทัล: นับชุดใบงานจริงตาม worksheet_key จาก DB · bump cache `1.175.14`',
+        ],
+    },
+    {
         version: 'v1.176.7 (ใบงานเฟส 5B — เคลียร์ hub3/shallow ที่เหลือ)',
         date: 'ล่าสุด',
         badge: 'bg-violet-600',

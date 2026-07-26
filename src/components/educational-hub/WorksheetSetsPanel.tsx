@@ -40,13 +40,23 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
     },
   });
 
+  const countsQueryKey = ['worksheet-sets-counts', mode, staffId ?? 'all'] as const;
+  const { data: countStats } = useQuery({
+    queryKey: countsQueryKey,
+    enabled: mode === 'recent' || Boolean(staffId),
+    queryFn: async () => {
+      const { data, error, total } = await worksheetSetsService.countByKey(
+        mode === 'mine' ? staffId : null,
+      );
+      if (error) throw error;
+      return { counts: data ?? {}, total };
+    },
+  });
+
   const countsByKey = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const row of rows) {
-      map.set(row.worksheet_key, (map.get(row.worksheet_key) ?? 0) + 1);
-    }
-    return [...map.entries()].sort((a, b) => b[1] - a[1]);
-  }, [rows]);
+    const entries = Object.entries(countStats?.counts ?? {});
+    return entries.sort((a, b) => b[1] - a[1]);
+  }, [countStats]);
 
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -55,6 +65,7 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['worksheet-sets'] });
+      queryClient.invalidateQueries({ queryKey: ['worksheet-sets-counts'] });
       toast({ title: 'ลบชุดใบงานแล้ว' });
     },
     onError: (error: Error) => {
@@ -67,7 +78,11 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
       <CardHeader className="pb-3">
         <CardTitle className="text-base text-foreground">
           ชุดใบงานที่บันทึก {mode === 'mine' ? 'ของฉัน' : 'ล่าสุด'}
-          {!isLoading && rows.length > 0 ? (
+          {typeof countStats?.total === 'number' && countStats.total > 0 ? (
+            <Badge variant="secondary" className="ml-2 align-middle text-[10px]">
+              {countStats.total} ชุดทั้งหมด
+            </Badge>
+          ) : !isLoading && rows.length > 0 ? (
             <Badge variant="secondary" className="ml-2 align-middle text-[10px]">
               {rows.length} ชุด
             </Badge>
@@ -75,10 +90,11 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           เปิดลิงก์เดิมบนจอเพื่อเฉลยโจทย์ชุดเดียวกับที่พิมพ์ให้นักเรียน — บันทึกชุดได้จากตัวใบงานเมื่อล็อกอินพอร์ทัล
+          {mode === 'recent' ? ' · สรุปด้านล่างนับจากฐานข้อมูลจริง' : ''}
         </p>
         {countsByKey.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 pt-1">
-            {countsByKey.slice(0, 8).map(([key, count]) => (
+            {countsByKey.slice(0, 10).map(([key, count]) => (
               <Badge key={key} variant="outline" className="text-[10px] font-normal">
                 {key}: {count}
               </Badge>

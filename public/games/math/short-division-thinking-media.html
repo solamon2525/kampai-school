@@ -307,6 +307,19 @@
       border-radius: 4px;
       font-weight: 800;
     }
+    .mode-seg{display:flex;gap:8px;margin:4px 0 8px}
+    .mode-seg .btn{width:auto;flex:1}
+    .mode-seg .btn.on{outline:2px solid #fff;outline-offset:1px}
+    .shell.practice-on .intro-banner,
+    .shell.practice-on .workspace{display:none!important}
+    .practice-panel{display:none;flex-direction:column;gap:14px;padding:8px 4px;max-width:560px;margin:0 auto;width:100%}
+    .shell.practice-on .practice-panel{display:flex}
+    .practice-panel .pq{font-size:1.25rem;font-weight:800;line-height:1.4;color:#0f172a}
+    .practice-panel .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .practice-panel .opt{font:inherit;font-weight:700;padding:12px;border-radius:12px;border:2px solid #cbd5e1;background:#fff;cursor:pointer}
+    .practice-panel .opt.ok{border-color:#16a34a;background:#dcfce7}
+    .practice-panel .opt.no{border-color:#dc2626;background:#fee2e2}
+    .practice-panel .pfb{font-weight:800;min-height:1.4em}
   </style>
 </head>
 <body>
@@ -315,6 +328,10 @@
       <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h2>🧠 สอนวิธีหารสั้น</h2>
       <p class="hint">เลือกโจทย์แนะนำ หรือระบุตัวเลขเอง เพื่อแสดงวิธีหารสั้นทีละขั้นตอนพร้อมตัวทด</p>
+      <div class="mode-seg" id="modeSeg">
+        <button type="button" class="btn btn-ghost on" data-mode="learn">📖 สอน</button>
+        <button type="button" class="btn btn-ghost" data-mode="practice">✏️ ฝึกสั้น</button>
+      </div>
       
       <div>
         <label class="field-label">รูปแบบโจทย์แนะนำ</label>
@@ -346,6 +363,13 @@
       <div class="content">
         <div class="intro-banner">
           💡 <strong>เรียนรู้การหารสั้นทีละสเตป:</strong> การหารสั้นเป็นวิธีที่กระชับและรวดเร็ว โดยคำนวณหักลบเศษในใจ แล้วนำเศษที่ได้ไปเขียนเป็นตัวทดขนาดเล็กไว้ด้านบนขวา/ซ้ายของหลักถัดไปโดยตรง
+        </div>
+
+        <div class="practice-panel" id="practicePanel">
+          <p class="pq" id="pq"></p>
+          <div class="opts" id="popts"></div>
+          <p class="pfb" id="pfb"></p>
+          <button type="button" class="btn btn-primary" id="btnPracticeNext" style="width:auto;align-self:flex-start">ข้อถัดไป</button>
         </div>
         
         <div class="workspace">
@@ -722,6 +746,97 @@
       });
       inputDivisor.addEventListener('input', function() {
         if (playInterval) clearInterval(playInterval);
+      });
+
+      function shuffleArr(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      function uniquePositiveOpts(correct, candidates) {
+        var seen = {};
+        seen[correct] = true;
+        var opts = [correct];
+        for (var i = 0; i < candidates.length && opts.length < 4; i++) {
+          var v = candidates[i];
+          if (v > 0 && !seen[v]) {
+            seen[v] = true;
+            opts.push(v);
+          }
+        }
+        var n = 1;
+        while (opts.length < 4) {
+          var fill = correct + n;
+          if (fill > 0 && !seen[fill]) {
+            seen[fill] = true;
+            opts.push(fill);
+          }
+          n++;
+          if (n > 200) break;
+        }
+        return shuffleArr(opts);
+      }
+
+      function nextPractice() {
+        var d = getRandomInRange(2, 12);
+        var q = getRandomInRange(11, 48);
+        var dividend = d * q;
+        var type = Math.floor(Math.random() * 2);
+        var ans, question, candidates;
+        if (type === 0) {
+          ans = q;
+          question = dividend + ' ÷ ' + d + ' = ?';
+          candidates = [q + 1, q - 1, q + d, q - d, dividend - d, d + q];
+        } else {
+          ans = dividend;
+          question = 'ตรวจ: ' + d + ' × ' + q + ' = ?';
+          candidates = [dividend + d, dividend - d, dividend + q, dividend - q, d + q, d * (q + 1)];
+        }
+        var opts = uniquePositiveOpts(ans, candidates);
+        var pq = document.getElementById('pq');
+        var popts = document.getElementById('popts');
+        var pfb = document.getElementById('pfb');
+        pq.textContent = question;
+        pfb.textContent = '';
+        pfb.style.color = '';
+        popts.innerHTML = opts.map(function (o) {
+          return '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>';
+        }).join('');
+        popts.querySelectorAll('.opt').forEach(function (btn) {
+          btn.onclick = function () {
+            var ok = Number(btn.dataset.a) === ans;
+            btn.classList.add(ok ? 'ok' : 'no');
+            popts.querySelectorAll('.opt').forEach(function (b) {
+              b.disabled = true;
+              if (Number(b.dataset.a) === ans) b.classList.add('ok');
+            });
+            pfb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + ans;
+            pfb.style.color = ok ? '#16a34a' : '#dc2626';
+          };
+        });
+      }
+
+      document.getElementById('btnPracticeNext').onclick = nextPractice;
+      document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+        btn.onclick = function () {
+          var practice = btn.dataset.mode === 'practice';
+          document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+            b.classList.toggle('on', b === btn);
+          });
+          document.querySelector('.shell').classList.toggle('practice-on', practice);
+          if (practice) {
+            if (playInterval) {
+              clearInterval(playInterval);
+              playInterval = null;
+              btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+              btnPlay.style.background = '#d97706';
+            }
+            nextPractice();
+          }
+        };
       });
 
       // Initial run
