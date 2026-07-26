@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ข้อเท็จจริง vs ความคิดเห็น</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #0f766e, #0f172a); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; gap: 10px; padding: 52px 14px 8px; }
+#hud.on { display: flex; }
+#score { font-size: 24px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 4px 16px; border-radius: 999px; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 16px; }
+#play.on { display: flex; }
+#prompt { font-size: 15px; color: #99f6e4; font-weight: 600; }
+#q {
+    font-size: clamp(20px, 5.2vw, 30px); font-weight: 700; text-align: center; line-height: 1.45;
+    max-width: 520px; background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.18);
+    border-radius: 20px; padding: 22px 18px;
+}
+#ans { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; max-width: 420px; }
+.a {
+    font-family: inherit; font-size: clamp(22px, 5.5vw, 28px); font-weight: 700;
+    padding: 20px 12px; min-height: 64px; border: none; border-radius: 18px; cursor: pointer;
+    color: #0f172a; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1;
+}
+.a.fact { background: linear-gradient(135deg,#e0f2fe,#7dd3fc); }
+.a.opinion { background: linear-gradient(135deg,#fce7f3,#f9a8d4); }
+.a:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e) !important; color: #052e16; }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444) !important; color: #450a0a; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); }
+.screen.off { display: none; }
+h1 { font-size: 28px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#final { color: #FFD700; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+.hint { color: #cbd5e1; max-width: 380px; line-height: 1.45; font-size: 15px; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud"><div id="score">⭐ <span id="score-v">0</span></div></div>
+    <div id="play">
+        <div id="prompt">ประโยคนี้คืออะไร?</div>
+        <div id="q">ดวงอาทิตย์ขึ้นทางทิศตะวันออก</div>
+        <div id="ans"></div>
+    </div>
+</div>
+
+<div id="start" class="screen">
+    <h1>⚖️ ข้อเท็จจริง vs ความคิดเห็น</h1>
+    <p class="hint">อ่านประโยค แล้วเลือกว่าเป็น <b style="color:#7dd3fc">ข้อเท็จจริง</b> หรือ <b style="color:#f9a8d4">ความคิดเห็น</b> — 50 วินาที</p>
+    <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+    <h1>จบเกม!</h1><p>คะแนนของคุณ</p><div id="final">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'fact-opinion-duel';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const BANK = [
+    { text: 'ดวงอาทิตย์ขึ้นทางทิศตะวันออก', ans: 'fact' },
+    { text: 'น้ำแข็งละลายเมื่อได้รับความร้อน', ans: 'fact' },
+    { text: 'กรุงเทพฯ เป็นเมืองหลวงของประเทศไทย', ans: 'fact' },
+    { text: 'แมวมีสี่ขา', ans: 'fact' },
+    { text: 'หนึ่งปีมีสิบสองเดือน', ans: 'fact' },
+    { text: 'ปลาหายใจด้วยเหงือก', ans: 'fact' },
+    { text: 'น้ำเดือดที่อุณหภูมิ 100 องศาเซลเซียสที่ระดับน้ำทะเล', ans: 'fact' },
+    { text: 'คนเราต้องการออกซิเจนในการหายใจ', ans: 'fact' },
+    { text: 'มะม่วงเป็นผลไม้ที่อร่อยที่สุด', ans: 'opinion' },
+    { text: 'สีชมพูสวยกว่าสีเขียว', ans: 'opinion' },
+    { text: 'วิชาคณิตศาสตร์สนุกที่สุดในโรงเรียน', ans: 'opinion' },
+    { text: 'แมวน่ารักกว่าสุนัข', ans: 'opinion' },
+    { text: 'วันหยุดเสาร์–อาทิตย์สั้นเกินไป', ans: 'opinion' },
+    { text: 'หนังสือเล่มนี้น่าเบื่อมาก', ans: 'opinion' },
+    { text: 'อากาศวันนี้สบายที่สุดในรอบปี', ans: 'opinion' },
+    { text: 'ควรใส่เสื้อสีสดใสไปโรงเรียนทุกวัน', ans: 'opinion' },
+];
+
+const vs = KampaiVersus.create({
+    duration: DURATION,
+    title: 'ข้อเท็จจริง vs ความคิดเห็น',
+    rankBy: 'score',
+    onPlay: ({ rng, player }) => startRound(rng, player),
+    onEnd:  () => { locked = true; },
+});
+
+let qrand = Math.random, score = 0, correct = 0, locked = false;
+let singleMode = false, singleTimer = 0, cur = null, used = [];
+
+function startSingle() {
+    singleMode = true;
+    startRound(Math.random, null);
+    clearTimeout(singleTimer);
+    singleTimer = setTimeout(() => { locked = true; endGame(); }, DURATION * 1000);
+}
+
+function startRound(rng, player) {
+    qrand = rng || Math.random;
+    score = 0; correct = 0; locked = false; used = [];
+    if (player !== null) singleMode = false;
+    KAMPAI.beginRound();
+    $('start').classList.add('off'); $('over').classList.add('off');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('score-v').textContent = 0;
+    nextQ();
+}
+
+function pickQ() {
+    if (used.length >= BANK.length) used = [];
+    let i, guard = 0;
+    do { i = (qrand() * BANK.length) | 0; guard++; } while (used.includes(i) && guard < 40);
+    used.push(i);
+    return BANK[i];
+}
+
+function nextQ() {
+    locked = false;
+    cur = pickQ();
+    $('q').textContent = cur.text;
+    $('ans').innerHTML =
+        `<button type="button" class="a fact" onclick="answer('fact',this)">📘 ข้อเท็จจริง</button>` +
+        `<button type="button" class="a opinion" onclick="answer('opinion',this)">💬 ความคิดเห็น</button>`;
+}
+
+function answer(v, btn) {
+    if (locked) return; locked = true;
+    if (v === cur.ans) {
+        btn.classList.add('correct'); correct++; score += 10;
+        $('score-v').textContent = score;
+        KAMPAI.sound.correct();
+        vs.report(score, { correct });
+        setTimeout(nextQ, 320);
+    } else {
+        btn.classList.add('wrong');
+        KAMPAI.sound.wrong();
+        Array.from($('ans').children).forEach((b) => {
+            const isFact = b.classList.contains('fact');
+            if ((cur.ans === 'fact' && isFact) || (cur.ans === 'opinion' && !isFact)) b.classList.add('correct');
+        });
+        setTimeout(nextQ, 700);
+    }
+}
+
+function endGame() {
+    if (vs.finish(score, { correct })) return;
+    clearTimeout(singleTimer);
+    KAMPAI.sound.gameOver();
+    KAMPAI.submitScore(score, { mode: 'normal', correct });
+    $('hud').classList.remove('on'); $('play').classList.remove('on');
+    $('final').textContent = score; $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () { KAMPAI.sound.mountToggles(); });
+</script>
+</body>
+</html>

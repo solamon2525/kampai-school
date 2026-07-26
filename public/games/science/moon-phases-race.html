@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แข่งเฟสดวงจันทร์ — Moon Phases Race</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #0b1026 0%, #1e1b4b 50%, #312e81 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
+#hud.on { display: flex; }
+#score, #timer { font-size: 22px; font-weight: 700; color: #fde68a; background: rgba(0,0,0,.4); padding: 6px 16px; border-radius: 999px; min-height: 44px; display: flex; align-items: center; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 12px 16px 20px; overflow: auto; }
+#play.on { display: flex; }
+#prompt { font-size: clamp(18px, 4.5vw, 26px); font-weight: 600; text-align: center; color: #e0e7ff; max-width: 520px; line-height: 1.35; }
+#moon-stage { width: min(180px, 46vw); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: clamp(72px, 22vw, 110px); line-height: 1; filter: drop-shadow(0 8px 20px rgba(253,224,71,.35)); }
+#ans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 460px; }
+.a { font-family: inherit; font-size: clamp(15px, 3.8vw, 20px); font-weight: 700; padding: 14px 10px; min-height: 52px; border: none; border-radius: 16px; cursor: pointer; color: #1e1b4b; background: #eef2ff; box-shadow: 0 5px 0 #a5b4fc; }
+.a:active { transform: translateY(4px); box-shadow: 0 1px 0 #a5b4fc; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #14532d; }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #7f1d1d; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px; background: rgba(15,23,42,.93); overflow: auto; }
+.screen.off { display: none; }
+h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#fde68a,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sub { color: #c7d2fe; font-size: 16px; max-width: 380px; line-height: 1.4; }
+#final { color: #fde68a; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; min-width: 200px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#6366f1,#4f46e5); }
+.meta { color: #94a3b8; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="score">⭐ <span id="score-v">0</span></div>
+    <div id="timer">⏱️ <span id="timer-v">55</span>s</div>
+  </div>
+  <div id="play">
+    <div id="prompt">ข้างนี้ชื่อว่าอะไร?</div>
+    <div id="moon-stage" aria-hidden="true">🌕</div>
+    <div id="ans"></div>
+  </div>
+</div>
+
+<div id="start" class="screen">
+  <h1>🌙 แข่งเฟสดวงจันทร์</h1>
+  <p class="sub">จำชื่อข้างขึ้น–แรม 8 เฟส หรือทายเฟสถัดไป — วิทยาศาสตร์</p>
+  <p class="meta">⏱ 55 วินาที · ตอบถูก +10</p>
+  <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+  <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+  <h1>จบเกม!</h1>
+  <p class="sub">คะแนนของคุณ</p>
+  <div id="final">0</div>
+  <div id="kampai-result"></div>
+  <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+  <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'moon-phases-race';
+const DURATION = 55;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+/* 8 เฟสตามปฏิทินจันทรคติไทย (ป้ายหลักชัด) */
+const PHASES = [
+  { id: 0, name: 'ขึ้น 1 ค่ำ (ดับ)', emoji: '🌑' },
+  { id: 1, name: 'ขึ้นเสี้ยว', emoji: '🌒' },
+  { id: 2, name: 'ขึ้น 8 ค่ำ', emoji: '🌓' },
+  { id: 3, name: 'ขึ้นเกือบเต็ม', emoji: '🌔' },
+  { id: 4, name: 'ขึ้น 15 / เต็มดวง', emoji: '🌕' },
+  { id: 5, name: 'แรมเกือบเต็ม', emoji: '🌖' },
+  { id: 6, name: 'แรม 8 ค่ำ', emoji: '🌗' },
+  { id: 7, name: 'แรมเสี้ยว (ใกล้ดับ)', emoji: '🌘' },
+];
+
+const vs = KampaiVersus.create({
+  duration: DURATION,
+  title: 'แข่งเฟสดวงจันทร์',
+  rankBy: 'score',
+  onPlay: ({ rng, player }) => startRound(rng, player),
+  onEnd: () => { locked = true; stopSoloTimer(); KAMPAI.sound.bgmStop(); },
+});
+
+let qrand = Math.random, score = 0, correct = 0, locked = false;
+let singleMode = false, soloTick = 0, soloLeft = DURATION;
+let curAns = '';
+
+function ri(n) { return (qrand() * n) | 0; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = ri(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startSingle() {
+  singleMode = true;
+  KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStart();
+  startRound(Math.random, null);
+  soloLeft = DURATION;
+  $('timer-v').textContent = soloLeft;
+  clearInterval(soloTick);
+  soloTick = setInterval(() => {
+    soloLeft--;
+    $('timer-v').textContent = Math.max(0, soloLeft);
+    if (soloLeft <= 0) { stopSoloTimer(); locked = true; endGame(); }
+  }, 1000);
+}
+
+function stopSoloTimer() { clearInterval(soloTick); }
+
+function startRound(rng, player) {
+  qrand = rng || Math.random;
+  score = 0; correct = 0; locked = false;
+  if (player !== null) singleMode = false;
+  KAMPAI.beginRound();
+  $('start').classList.add('off');
+  $('over').classList.add('off');
+  $('hud').classList.add('on');
+  $('play').classList.add('on');
+  $('score-v').textContent = 0;
+  if (!singleMode) $('timer-v').textContent = DURATION;
+  KAMPAI.sound.bgmStart();
+  nextQ();
+}
+
+function nextQ() {
+  locked = false;
+  const i = ri(PHASES.length);
+  const cur = PHASES[i];
+  const mode = ri(2); // 0 = name this phase, 1 = next phase
+
+  let prompt, answer, distractors;
+  if (mode === 0) {
+    prompt = 'ข้างนี้ชื่อว่าอะไร?';
+    $('moon-stage').textContent = cur.emoji;
+    answer = cur.name;
+    distractors = PHASES.filter((p) => p.id !== cur.id).map((p) => p.name);
+  } else {
+    const next = PHASES[(i + 1) % PHASES.length];
+    prompt = `ถัดจาก ${cur.name} คือข้างใด?`;
+    $('moon-stage').textContent = cur.emoji;
+    answer = next.name;
+    distractors = PHASES.filter((p) => p.id !== next.id).map((p) => p.name);
+  }
+
+  curAns = answer;
+  $('prompt').textContent = prompt;
+  const opts = [answer, ...shuffle(distractors).slice(0, 3)];
+  $('ans').innerHTML = shuffle(opts).map((v) => {
+    const esc = v.replace(/'/g, "\\'");
+    return `<button type="button" class="a" onclick="answer('${esc}',this)">${v}</button>`;
+  }).join('');
+}
+
+function answer(v, btn) {
+  if (locked) return;
+  locked = true;
+  if (v === curAns) {
+    btn.classList.add('correct');
+    correct++;
+    score += 10;
+    $('score-v').textContent = score;
+    KAMPAI.sound.correct();
+    vs.report(score, { correct });
+    setTimeout(nextQ, 320);
+  } else {
+    btn.classList.add('wrong');
+    KAMPAI.sound.wrong();
+    [...$('ans').children].forEach((b) => {
+      if (b.textContent === curAns) b.classList.add('correct');
+    });
+    setTimeout(nextQ, 700);
+  }
+}
+
+function endGame() {
+  if (vs.finish(score, { correct })) return;
+  stopSoloTimer();
+  KAMPAI.sound.gameOver();
+  KAMPAI.sound.bgmStop();
+  KAMPAI.submitScore(score, { mode: 'normal', correct });
+  $('hud').classList.remove('on');
+  $('play').classList.remove('on');
+  $('final').textContent = score;
+  $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () {
+  KAMPAI.sound.mountToggles();
+  KAMPAI.sound.defaultBgm('calm');
+});
+</script>
+</body>
+</html>

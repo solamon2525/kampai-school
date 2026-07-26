@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>นาฬิกาแสนสนุก — Clock Quest</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(165deg, #0c4a6e 0%, #1e3a8a 45%, #312e81 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
+#hud.on { display: flex; }
+#score, #timer { font-size: 22px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 6px 16px; border-radius: 999px; min-height: 44px; display: flex; align-items: center; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 12px 16px 20px; overflow: auto; }
+#play.on { display: flex; }
+#prompt { font-size: clamp(18px, 4.5vw, 26px); font-weight: 600; text-align: center; color: #e0f2fe; max-width: 520px; line-height: 1.35; }
+#clock-wrap { width: min(220px, 55vw); aspect-ratio: 1; }
+#digital { font-size: clamp(36px, 10vw, 56px); font-weight: 700; letter-spacing: 0.06em; color: #fef08a; background: rgba(15,23,42,.55); padding: 12px 28px; border-radius: 18px; border: 2px solid rgba(253,224,71,.45); }
+#ans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 440px; }
+.a { font-family: inherit; font-size: clamp(18px, 4.5vw, 24px); font-weight: 700; padding: 14px 10px; min-height: 52px; border: none; border-radius: 16px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; }
+.a:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #14532d; }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #7f1d1d; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); overflow: auto; }
+.screen.off { display: none; }
+h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sub { color: #cbd5e1; font-size: 16px; max-width: 360px; line-height: 1.4; }
+#final { color: #FFD700; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; min-width: 200px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+.meta { color: #94a3b8; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="score">⭐ <span id="score-v">0</span></div>
+    <div id="timer">⏱️ <span id="timer-v">50</span>s</div>
+  </div>
+  <div id="play">
+    <div id="prompt">ตอนนี้กี่โมง?</div>
+    <div id="clock-wrap"></div>
+    <div id="digital" style="display:none"></div>
+    <div id="ans"></div>
+  </div>
+</div>
+
+<div id="start" class="screen">
+  <h1>🕐 นาฬิกาแสนสนุก</h1>
+  <p class="sub">อ่านเวลาจากนาฬิกาเข็ม หรือคิดเวลาข้างหน้า — คณิตศาสตร์ ป.2–4</p>
+  <p class="meta">⏱ 50 วินาที · ตอบถูก +10</p>
+  <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+  <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+  <h1>จบเกม!</h1>
+  <p class="sub">คะแนนของคุณ</p>
+  <div id="final">0</div>
+  <div id="kampai-result"></div>
+  <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+  <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'clock-quest';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const vs = KampaiVersus.create({
+  duration: DURATION,
+  title: 'นาฬิกาแสนสนุก',
+  rankBy: 'score',
+  onPlay: ({ rng, player }) => startRound(rng, player),
+  onEnd: () => { locked = true; stopSoloTimer(); KAMPAI.sound.bgmStop(); },
+});
+
+let qrand = Math.random, score = 0, correct = 0, locked = false;
+let singleMode = false, singleTimer = 0, soloTick = 0, soloLeft = DURATION;
+let curAns = '';
+
+function ri(n) { return (qrand() * n) | 0; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = ri(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmt(h, m) { return `${pad(h)}:${pad(m)}`; }
+function addMin(h, m, add) {
+  let t = h * 60 + m + add;
+  t = ((t % 1440) + 1440) % 1440;
+  return { h: (t / 60) | 0, m: t % 60 };
+}
+function nearTimes(h, m) {
+  const base = new Set([fmt(h, m)]);
+  const deltas = [-30, -15, -10, -5, 5, 10, 15, 20, 25, 30, 45, 60, -45, -60];
+  const out = [];
+  for (const d of deltas) {
+    const t = addMin(h, m, d);
+    const s = fmt(t.h, t.m);
+    if (!base.has(s)) out.push(s);
+  }
+  return out;
+}
+
+function clockSvg(h, m) {
+  const ha = ((h % 12) + m / 60) * 30;
+  const ma = m * 6;
+  const hx = 100 + 42 * Math.sin(ha * Math.PI / 180);
+  const hy = 100 - 42 * Math.cos(ha * Math.PI / 180);
+  const mx = 100 + 62 * Math.sin(ma * Math.PI / 180);
+  const my = 100 - 62 * Math.cos(ma * Math.PI / 180);
+  let ticks = '';
+  for (let i = 0; i < 12; i++) {
+    const a = i * 30 * Math.PI / 180;
+    const x1 = 100 + 78 * Math.sin(a), y1 = 100 - 78 * Math.cos(a);
+    const x2 = 100 + 88 * Math.sin(a), y2 = 100 - 88 * Math.cos(a);
+    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  return `<svg viewBox="0 0 200 200" width="100%" height="100%" aria-hidden="true">
+    <circle cx="100" cy="100" r="96" fill="#fefce8" stroke="#f59e0b" stroke-width="6"/>
+    <circle cx="100" cy="100" r="88" fill="#fffbeb" stroke="#fde68a" stroke-width="2"/>
+    ${ticks}
+    <line x1="100" y1="100" x2="${hx}" y2="${hy}" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round"/>
+    <line x1="100" y1="100" x2="${mx}" y2="${my}" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="100" cy="100" r="6" fill="#0f172a"/>
+  </svg>`;
+}
+
+function startSingle() {
+  singleMode = true;
+  KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStart();
+  startRound(Math.random, null);
+  soloLeft = DURATION;
+  $('timer-v').textContent = soloLeft;
+  clearTimeout(singleTimer);
+  clearInterval(soloTick);
+  soloTick = setInterval(() => {
+    soloLeft--;
+    $('timer-v').textContent = Math.max(0, soloLeft);
+    if (soloLeft <= 0) { stopSoloTimer(); locked = true; endGame(); }
+  }, 1000);
+}
+
+function stopSoloTimer() {
+  clearTimeout(singleTimer);
+  clearInterval(soloTick);
+}
+
+function startRound(rng, player) {
+  qrand = rng || Math.random;
+  score = 0; correct = 0; locked = false;
+  if (player !== null) singleMode = false;
+  KAMPAI.beginRound();
+  $('start').classList.add('off');
+  $('over').classList.add('off');
+  $('hud').classList.add('on');
+  $('play').classList.add('on');
+  $('score-v').textContent = 0;
+  if (!singleMode) $('timer-v').textContent = DURATION;
+  KAMPAI.sound.bgmStart();
+  nextQ();
+}
+
+function nextQ() {
+  locked = false;
+  const h = ri(12) + 1;
+  const m = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55][ri(12)];
+  const mode = ri(2); // 0 = read now, 1 = +minutes
+  let prompt, ansH, ansM, showH, showM, useDigital;
+
+  if (mode === 0) {
+    useDigital = ri(2) === 0;
+    showH = h; showM = m;
+    ansH = h; ansM = m;
+    prompt = useDigital ? 'หน้าจอนี้แสดงกี่โมง?' : 'นาฬิกาเข็มชี้กี่โมง?';
+  } else {
+    useDigital = false;
+    showH = h; showM = m;
+    const add = [10, 15, 20, 25, 30, 45, 60][ri(7)];
+    const t = addMin(h, m, add);
+    ansH = t.h === 0 ? 12 : (t.h > 12 ? t.h - 12 : t.h);
+    // keep 24h-style display 01–12 for kids: use 1–12
+    const displayAns = addMin(h, m, add);
+    let dh = displayAns.h % 12; if (dh === 0) dh = 12;
+    ansH = dh; ansM = displayAns.m;
+    prompt = `อีก ${add} นาที จะเป็นกี่โมง?`;
+  }
+
+  curAns = fmt(ansH % 12 === 0 ? 12 : ansH % 12, ansM);
+  // normalize shown analog to 1–12
+  let sh = showH % 12; if (sh === 0) sh = 12;
+
+  $('prompt').textContent = prompt;
+  if (useDigital) {
+    $('clock-wrap').style.display = 'none';
+    $('clock-wrap').innerHTML = '';
+    $('digital').style.display = 'block';
+    $('digital').textContent = fmt(sh, showM);
+  } else {
+    $('digital').style.display = 'none';
+    $('clock-wrap').style.display = 'block';
+    $('clock-wrap').innerHTML = clockSvg(sh, showM);
+  }
+
+  const opts = new Set([curAns]);
+  const cands = shuffle(nearTimes(ansH % 12 === 0 ? 12 : ansH % 12, ansM));
+  for (const c of cands) { if (opts.size >= 4) break; opts.add(c); }
+  while (opts.size < 4) {
+    const th = ri(12) + 1, tm = [0, 15, 30, 45][ri(4)];
+    opts.add(fmt(th, tm));
+  }
+
+  $('ans').innerHTML = shuffle([...opts]).map((v) =>
+    `<button type="button" class="a" onclick="answer('${v}',this)">${v} น.</button>`
+  ).join('');
+}
+
+function answer(v, btn) {
+  if (locked) return;
+  locked = true;
+  if (v === curAns) {
+    btn.classList.add('correct');
+    correct++;
+    score += 10;
+    $('score-v').textContent = score;
+    KAMPAI.sound.correct();
+    vs.report(score, { correct });
+    setTimeout(nextQ, 320);
+  } else {
+    btn.classList.add('wrong');
+    KAMPAI.sound.wrong();
+    [...$('ans').children].forEach((b) => {
+      if (b.textContent.startsWith(curAns)) b.classList.add('correct');
+    });
+    setTimeout(nextQ, 700);
+  }
+}
+
+function endGame() {
+  if (vs.finish(score, { correct })) return;
+  stopSoloTimer();
+  KAMPAI.sound.gameOver();
+  KAMPAI.sound.bgmStop();
+  KAMPAI.submitScore(score, { mode: 'normal', correct });
+  $('hud').classList.remove('on');
+  $('play').classList.remove('on');
+  $('final').textContent = score;
+  $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () {
+  KAMPAI.sound.mountToggles();
+  KAMPAI.sound.defaultBgm('cheerful');
+});
+</script>
+</body>
+</html>

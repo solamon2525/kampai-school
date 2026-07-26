@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Follow Instructions Lab — ห้องทดลองทำตามคำสั่ง</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #5b21b6, #0f172a); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; gap: 10px; padding: 52px 14px 8px; }
+#hud.on { display: flex; }
+#score { font-size: 24px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 4px 16px; border-radius: 999px; }
+#step { font-size: 13px; font-weight: 600; color: #e9d5ff; background: rgba(255,255,255,.12); padding: 4px 12px; border-radius: 999px; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 14px; }
+#play.on { display: flex; }
+#prompt { font-size: 14px; color: #c4b5fd; font-weight: 600; }
+#instr { font-size: clamp(18px, 4.8vw, 28px); font-weight: 700; text-align: center; line-height: 1.35; max-width: 520px; color: #fde68a; }
+#instr-th { font-size: 14px; color: #cbd5e1; text-align: center; }
+#speak-btn { width: 48px; height: 48px; border: none; border-radius: 50%; background: rgba(139,92,246,.5); color: #fff; font-size: 22px; cursor: pointer; }
+#board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 360px; }
+.shape {
+    aspect-ratio: 1; border: none; border-radius: 18px; cursor: pointer; min-height: 72px;
+    box-shadow: 0 5px 0 rgba(0,0,0,.25); font-size: 0; position: relative;
+}
+.shape:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.shape.done { outline: 3px solid #4ade80; opacity: .85; }
+.shape.wrong-flash { outline: 3px solid #ef4444; }
+.shape.circle { border-radius: 50%; }
+.shape.square { border-radius: 14px; }
+.shape.triangle {
+    background: transparent !important; box-shadow: none;
+    clip-path: polygon(50% 8%, 92% 88%, 8% 88%);
+}
+.shape[data-color="red"] { background: #ef4444; }
+.shape[data-color="blue"] { background: #3b82f6; }
+.shape[data-color="green"] { background: #22c55e; }
+.shape[data-color="yellow"] { background: #eab308; }
+.shape.triangle[data-color="red"] { background: #ef4444 !important; }
+.shape.triangle[data-color="blue"] { background: #3b82f6 !important; }
+.shape.triangle[data-color="green"] { background: #22c55e !important; }
+.shape.triangle[data-color="yellow"] { background: #eab308 !important; }
+#progress { font-size: 15px; color: #ddd6fe; min-height: 22px; font-weight: 600; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); }
+.screen.off { display: none; }
+h1 { font-size: 28px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#final { color: #FFD700; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud"><div id="score">⭐ <span id="score-v">0</span></div><div id="step">ลำดับ 0/0</div></div>
+    <div id="play">
+        <div id="prompt">ทำตามคำสั่งตามลำดับ</div>
+        <div id="instr">Touch the red circle</div>
+        <div id="instr-th">แตะวงกลมสีแดง</div>
+        <button type="button" id="speak-btn" onclick="speakInstr()" title="ฟังเสียง">🔊</button>
+        <div id="board"></div>
+        <div id="progress"></div>
+    </div>
+</div>
+
+<div id="start" class="screen">
+    <h1>🧪 Follow Instructions Lab</h1>
+    <p style="color:#cbd5e1;max-width:380px;line-height:1.45">อ่านคำสั่งภาษาอังกฤษ แล้วแตะรูปทรงตามลำดับที่ถูกต้อง — 50 วินาที</p>
+    <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+    <h1>จบเกม!</h1><p>คะแนนของคุณ</p><div id="final">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'follow-instructions-lab';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const COLORS = ['red', 'blue', 'green', 'yellow'];
+const SHAPES = ['circle', 'square', 'triangle'];
+const COLOR_TH = { red: 'แดง', blue: 'น้ำเงิน', green: 'เขียว', yellow: 'เหลือง' };
+const SHAPE_TH = { circle: 'วงกลม', square: 'สี่เหลี่ยม', triangle: 'สามเหลี่ยม' };
+
+const TASKS = [
+    { seq: [['red','circle'], ['blue','square']], en: 'Touch the red circle then the blue square', th: 'แตะวงกลมแดง แล้วสี่เหลี่ยมน้ำเงิน' },
+    { seq: [['green','triangle'], ['yellow','circle']], en: 'Touch the green triangle then the yellow circle', th: 'แตะสามเหลี่ยมเขียว แล้ววงกลมเหลือง' },
+    { seq: [['blue','circle'], ['red','triangle']], en: 'Touch the blue circle then the red triangle', th: 'แตะวงกลมน้ำเงิน แล้วสามเหลี่ยมแดง' },
+    { seq: [['yellow','square'], ['green','circle']], en: 'Touch the yellow square then the green circle', th: 'แตะสี่เหลี่ยมเหลือง แล้ววงกลมเขียว' },
+    { seq: [['red','square'], ['blue','circle'], ['green','triangle']], en: 'Touch red square, blue circle, then green triangle', th: 'แตะสี่เหลี่ยมแดง วงกลมน้ำเงิน แล้วสามเหลี่ยมเขียว' },
+    { seq: [['blue','square'], ['yellow','triangle']], en: 'Touch the blue square then the yellow triangle', th: 'แตะสี่เหลี่ยมน้ำเงิน แล้วสามเหลี่ยมเหลือง' },
+    { seq: [['green','circle'], ['red','square']], en: 'Touch the green circle then the red square', th: 'แตะวงกลมเขียว แล้วสี่เหลี่ยมแดง' },
+    { seq: [['yellow','circle'], ['blue','triangle'], ['red','circle']], en: 'Touch yellow circle, blue triangle, then red circle', th: 'แตะวงกลมเหลือง สามเหลี่ยมน้ำเงิน แล้ววงกลมแดง' },
+    { seq: [['red','triangle'], ['green','square']], en: 'Touch the red triangle then the green square', th: 'แตะสามเหลี่ยมแดง แล้วสี่เหลี่ยมเขียว' },
+    { seq: [['blue','triangle'], ['yellow','square'], ['green','circle']], en: 'Touch blue triangle, yellow square, then green circle', th: 'แตะสามเหลี่ยมน้ำเงิน สี่เหลี่ยมเหลือง แล้ววงกลมเขียว' },
+];
+
+const vs = KampaiVersus.create({
+    duration: DURATION,
+    title: 'Follow Instructions Lab',
+    rankBy: 'score',
+    onPlay: ({ rng, player }) => startRound(rng, player),
+    onEnd:  () => { locked = true; },
+});
+
+let qrand = Math.random, score = 0, correct = 0, locked = false;
+let singleMode = false, singleTimer = 0, cur = null, stepIdx = 0, used = [];
+
+function startSingle() {
+    singleMode = true;
+    startRound(Math.random, null);
+    clearTimeout(singleTimer);
+    singleTimer = setTimeout(() => { locked = true; endGame(); }, DURATION * 1000);
+}
+
+function startRound(rng, player) {
+    qrand = rng || Math.random;
+    score = 0; correct = 0; locked = false; used = [];
+    if (player !== null) singleMode = false;
+    KAMPAI.beginRound();
+    $('start').classList.add('off'); $('over').classList.add('off');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('score-v').textContent = 0;
+    nextTask();
+}
+
+function pickTask() {
+    if (used.length >= TASKS.length) used = [];
+    let i, guard = 0;
+    do { i = (qrand() * TASKS.length) | 0; guard++; } while (used.includes(i) && guard < 40);
+    used.push(i);
+    return TASKS[i];
+}
+
+function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = (qrand() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function keyOf(color, shape) { return color + ':' + shape; }
+
+function nextTask() {
+    locked = false;
+    cur = pickTask();
+    stepIdx = 0;
+    $('instr').textContent = cur.en;
+    $('instr-th').textContent = cur.th;
+    $('step').textContent = 'ลำดับ 0/' + cur.seq.length;
+    $('progress').textContent = 'เริ่มแตะตามลำดับ…';
+    const needed = new Set(cur.seq.map(([c, s]) => keyOf(c, s)));
+    const pool = [];
+    cur.seq.forEach(([c, s]) => pool.push({ color: c, shape: s }));
+    while (pool.length < 6) {
+        const c = COLORS[(qrand() * COLORS.length) | 0];
+        const s = SHAPES[(qrand() * SHAPES.length) | 0];
+        const k = keyOf(c, s);
+        if ([...pool].some((p) => keyOf(p.color, p.shape) === k)) continue;
+        if (needed.has(k) && pool.filter((p) => keyOf(p.color, p.shape) === k).length) continue;
+        pool.push({ color: c, shape: s });
+    }
+    const shown = shuffle(pool).slice(0, 6);
+    // ensure all sequence targets present
+    cur.seq.forEach(([c, s]) => {
+        if (!shown.some((p) => p.color === c && p.shape === s)) {
+            shown[(qrand() * shown.length) | 0] = { color: c, shape: s };
+        }
+    });
+    $('board').innerHTML = shown.map((p) =>
+        `<button type="button" class="shape ${p.shape}" data-color="${p.color}" data-shape="${p.shape}" aria-label="${p.color} ${p.shape}" onclick="tapShape(this)"></button>`
+    ).join('');
+    speakInstr();
+}
+
+function speakInstr() {
+    if (!cur) return;
+    try { KAMPAI.sound.speak(cur.en, 'en-US', true); } catch (_) {}
+}
+
+function tapShape(btn) {
+    if (locked || !cur) return;
+    const expect = cur.seq[stepIdx];
+    const ok = btn.dataset.color === expect[0] && btn.dataset.shape === expect[1];
+    if (!ok) {
+        locked = true;
+        btn.classList.add('wrong-flash');
+        KAMPAI.sound.wrong();
+        $('progress').textContent = 'ลำดับผิด — ลองชุดใหม่';
+        setTimeout(nextTask, 700);
+        return;
+    }
+    btn.classList.add('done');
+    btn.disabled = true;
+    stepIdx++;
+    $('step').textContent = 'ลำดับ ' + stepIdx + '/' + cur.seq.length;
+    $('progress').textContent = stepIdx < cur.seq.length
+        ? 'ถูก! ต่อไป: ' + COLOR_TH[cur.seq[stepIdx][0]] + ' ' + SHAPE_TH[cur.seq[stepIdx][1]]
+        : 'ครบลำดับ!';
+    if (stepIdx >= cur.seq.length) {
+        locked = true;
+        correct++;
+        score += 10 + (cur.seq.length > 2 ? 5 : 0);
+        $('score-v').textContent = score;
+        KAMPAI.sound.correct();
+        vs.report(score, { correct });
+        setTimeout(nextTask, 450);
+    }
+}
+
+function endGame() {
+    if (vs.finish(score, { correct })) return;
+    clearTimeout(singleTimer);
+    KAMPAI.sound.gameOver();
+    KAMPAI.submitScore(score, { mode: 'normal', correct });
+    $('hud').classList.remove('on'); $('play').classList.remove('on');
+    $('final').textContent = score; $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () { KAMPAI.sound.mountToggles(); });
+</script>
+</body>
+</html>

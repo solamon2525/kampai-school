@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แสงผ่านได้ไหม? — Light Sort</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(160deg, #164e63 0%, #0e7490 40%, #155e75 100%); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
+#hud.on { display: flex; }
+#score, #timer { font-size: 22px; font-weight: 700; color: #fef08a; background: rgba(0,0,0,.35); padding: 6px 16px; border-radius: 999px; min-height: 44px; display: flex; align-items: center; }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 12px 16px 20px; overflow: auto; }
+#play.on { display: flex; }
+#prompt { font-size: clamp(18px, 4.5vw, 24px); font-weight: 600; text-align: center; color: #ecfeff; max-width: 480px; line-height: 1.35; }
+#obj-card { display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(15,23,42,.4); border: 2px solid rgba(253,224,71,.4); border-radius: 22px; padding: 18px 28px; min-width: min(280px, 86vw); }
+#obj-emoji { font-size: clamp(56px, 16vw, 80px); line-height: 1; }
+#obj-name { font-size: clamp(22px, 5.5vw, 30px); font-weight: 700; color: #fef9c3; }
+#hint { font-size: 14px; color: #a5f3fc; opacity: 0.9; }
+#ans { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; }
+.a { font-family: inherit; font-size: clamp(18px, 4.5vw, 22px); font-weight: 700; padding: 16px 14px; min-height: 56px; border: none; border-radius: 16px; cursor: pointer; color: #164e63; background: #f0fdfa; box-shadow: 0 5px 0 #99f6e4; text-align: left; display: flex; align-items: center; gap: 10px; }
+.a:active { transform: translateY(4px); box-shadow: 0 1px 0 #99f6e4; }
+.a .tag { font-size: 13px; font-weight: 600; opacity: 0.75; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #14532d; box-shadow: 0 5px 0 #16a34a; }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #7f1d1d; box-shadow: 0 5px 0 #dc2626; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); overflow: auto; }
+.screen.off { display: none; }
+h1 { font-size: clamp(26px, 7vw, 34px); background: linear-gradient(135deg,#fef08a,#facc15); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sub { color: #cffafe; font-size: 16px; max-width: 380px; line-height: 1.4; }
+#final { color: #fef08a; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; min-width: 200px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#06b6d4,#0891b2); }
+.meta { color: #94a3b8; font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; font-size: 13px; color: #a5f3fc; }
+.legend span { background: rgba(0,0,0,.25); padding: 4px 10px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="score">⭐ <span id="score-v">0</span></div>
+    <div id="timer">⏱️ <span id="timer-v">50</span>s</div>
+  </div>
+  <div id="play">
+    <div id="prompt">วัสดุนี้จัดอยู่ในกลุ่มใด?</div>
+    <div id="obj-card">
+      <div id="obj-emoji">🪵</div>
+      <div id="obj-name">ไม้</div>
+      <div id="hint">แสงผ่านได้ไหม?</div>
+    </div>
+    <div id="ans"></div>
+  </div>
+</div>
+
+<div id="start" class="screen">
+  <h1>💡 แสงผ่านได้ไหม?</h1>
+  <p class="sub">จัดวัสดุเป็น ทึบแสง / โปร่งแสง / โปร่งใส — วิทยาศาสตร์</p>
+  <div class="legend">
+    <span>⬛ ทึบแสง</span>
+    <span>🌫️ โปร่งแสง</span>
+    <span>💎 โปร่งใส</span>
+  </div>
+  <p class="meta">⏱ 50 วินาที · ตอบถูก +10</p>
+  <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+  <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+  <h1>จบเกม!</h1>
+  <p class="sub">คะแนนของคุณ</p>
+  <div id="final">0</div>
+  <div id="kampai-result"></div>
+  <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+  <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'light-sort';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const CATS = [
+  { id: 'opaque', label: 'ทึบแสง', emoji: '⬛', desc: 'แสงผ่านไม่ได้' },
+  { id: 'translucent', label: 'โปร่งแสง', emoji: '🌫️', desc: 'แสงผ่านได้บางส่วน' },
+  { id: 'transparent', label: 'โปร่งใส', emoji: '💎', desc: 'แสงผ่านได้ชัดเจน' },
+];
+
+const ITEMS = [
+  { name: 'ไม้', emoji: '🪵', cat: 'opaque' },
+  { name: 'เหล็ก', emoji: '⚙️', cat: 'opaque' },
+  { name: 'อิฐ', emoji: '🧱', cat: 'opaque' },
+  { name: 'กระดาษลัง', emoji: '📦', cat: 'opaque' },
+  { name: 'หนังสือ', emoji: '📕', cat: 'opaque' },
+  { name: 'กระจกฝ้า', emoji: '🪟', cat: 'translucent' },
+  { name: 'กระดาษไข', emoji: '📄', cat: 'translucent' },
+  { name: 'ผ้าบาง', emoji: '🧣', cat: 'translucent' },
+  { name: 'พลาสติกขุ่น', emoji: '🧴', cat: 'translucent' },
+  { name: 'น้ำแข็งขุ่น', emoji: '🧊', cat: 'translucent' },
+  { name: 'กระจกใส', emoji: '🪞', cat: 'transparent' },
+  { name: 'น้ำใส', emoji: '💧', cat: 'transparent' },
+  { name: 'อากาศ', emoji: '💨', cat: 'transparent' },
+  { name: 'พลาสติกใส', emoji: '🥽', cat: 'transparent' },
+  { name: 'แว่นตาใส', emoji: '👓', cat: 'transparent' },
+];
+
+const vs = KampaiVersus.create({
+  duration: DURATION,
+  title: 'แสงผ่านได้ไหม?',
+  rankBy: 'score',
+  onPlay: ({ rng, player }) => startRound(rng, player),
+  onEnd: () => { locked = true; stopSoloTimer(); KAMPAI.sound.bgmStop(); },
+});
+
+let qrand = Math.random, score = 0, correct = 0, locked = false;
+let singleMode = false, soloTick = 0, soloLeft = DURATION;
+let curCat = '';
+let recent = [];
+
+function ri(n) { return (qrand() * n) | 0; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = ri(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startSingle() {
+  singleMode = true;
+  KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStart();
+  startRound(Math.random, null);
+  soloLeft = DURATION;
+  $('timer-v').textContent = soloLeft;
+  clearInterval(soloTick);
+  soloTick = setInterval(() => {
+    soloLeft--;
+    $('timer-v').textContent = Math.max(0, soloLeft);
+    if (soloLeft <= 0) { stopSoloTimer(); locked = true; endGame(); }
+  }, 1000);
+}
+
+function stopSoloTimer() { clearInterval(soloTick); }
+
+function startRound(rng, player) {
+  qrand = rng || Math.random;
+  score = 0; correct = 0; locked = false; recent = [];
+  if (player !== null) singleMode = false;
+  KAMPAI.beginRound();
+  $('start').classList.add('off');
+  $('over').classList.add('off');
+  $('hud').classList.add('on');
+  $('play').classList.add('on');
+  $('score-v').textContent = 0;
+  if (!singleMode) $('timer-v').textContent = DURATION;
+  KAMPAI.sound.bgmStart();
+  nextQ();
+}
+
+function nextQ() {
+  locked = false;
+  let pool = ITEMS.filter((it) => !recent.includes(it.name));
+  if (pool.length < 3) { recent = []; pool = ITEMS.slice(); }
+  const item = pool[ri(pool.length)];
+  recent.push(item.name);
+  if (recent.length > 5) recent.shift();
+
+  curCat = item.cat;
+  $('obj-emoji').textContent = item.emoji;
+  $('obj-name').textContent = item.name;
+  $('prompt').textContent = 'วัสดุนี้จัดอยู่ในกลุ่มใด?';
+
+  $('ans').innerHTML = CATS.map((c) =>
+    `<button type="button" class="a" onclick="answer('${c.id}',this)">
+      <span>${c.emoji}</span><span>${c.label}</span><span class="tag">· ${c.desc}</span>
+    </button>`
+  ).join('');
+}
+
+function answer(v, btn) {
+  if (locked) return;
+  locked = true;
+  if (v === curCat) {
+    btn.classList.add('correct');
+    correct++;
+    score += 10;
+    $('score-v').textContent = score;
+    KAMPAI.sound.correct();
+    vs.report(score, { correct });
+    setTimeout(nextQ, 320);
+  } else {
+    btn.classList.add('wrong');
+    KAMPAI.sound.wrong();
+    [...$('ans').children].forEach((b, i) => {
+      if (CATS[i].id === curCat) b.classList.add('correct');
+    });
+    setTimeout(nextQ, 700);
+  }
+}
+
+function endGame() {
+  if (vs.finish(score, { correct })) return;
+  stopSoloTimer();
+  KAMPAI.sound.gameOver();
+  KAMPAI.sound.bgmStop();
+  KAMPAI.submitScore(score, { mode: 'normal', correct });
+  $('hud').classList.remove('on');
+  $('play').classList.remove('on');
+  $('final').textContent = score;
+  $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () {
+  KAMPAI.sound.mountToggles();
+  KAMPAI.sound.defaultBgm('bright');
+});
+</script>
+</body>
+</html>

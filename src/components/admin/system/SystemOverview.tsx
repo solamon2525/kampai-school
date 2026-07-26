@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.182.0 (เกมใหม่ 10 ชิ้น — ปิดช่องว่างเนื้อหา)',
+        date: 'ล่าสุด',
+        badge: 'bg-indigo-700',
+        items: [
+            'นาฬิกา · เฟสดวงจันทร์ · แสงทึบ/โปร่ง · กระดูก–กล้ามเนื้อ · ปฐมพยาบาล',
+            'พอเพียง · อาชีพชุมชน · Past Tense · Follow Instructions · ข้อเท็จจริง/ความคิดเห็น',
+            'ทุกเกม KampaiVersus (เดี่ยว/2 คน/ออนไลน์) · migration 434 + game_docs v1.0.0',
+        ],
+    },
+    {
         version: 'v1.181.0 (เฟส 8 — ชุดคาบ · dual-track · วิเคราะห์ · ซ่อมเสริม · UX)',
         date: 'ล่าสุด',
         badge: 'bg-violet-700',

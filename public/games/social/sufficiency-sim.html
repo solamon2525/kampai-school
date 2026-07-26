@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>เศรษฐกิจพอเพียง — Sufficiency Sim (kampai)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #166534, #0f172a); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; padding: 14px 18px; }
+#hud.on { display: flex; }
+#score { font-size: 26px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 4px 16px; border-radius: 999px; }
+#timer-wrap { height: 8px; background: rgba(255,255,255,.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width .1s linear; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; }
+#play.on { display: flex; }
+#q-emoji { font-size: clamp(48px, 13vw, 80px); line-height: 1; }
+#pillar { font-size: 13px; font-weight: 600; color: #bbf7d0; background: rgba(255,255,255,.1); padding: 4px 12px; border-radius: 999px; }
+#q { font-size: clamp(17px, 4.6vw, 23px); font-weight: 700; text-align: center; max-width: 460px; line-height: 1.4; }
+#ans { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 460px; }
+.a { font-size: clamp(15px, 4vw, 18px); font-weight: 600; padding: 14px 12px; min-height: 48px; border: none; border-radius: 14px; cursor: pointer; color: #0f172a; background: #f8fafc; box-shadow: 0 4px 0 #cbd5e1; text-align: left; }
+.a:active { transform: translateY(3px); box-shadow: 0 1px 0 #cbd5e1; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); }
+.screen.off { display: none; }
+h1 { font-size: 28px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#final { color: #FFD700; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+p.sub { color: #cbd5e1; max-width: 440px; line-height: 1.45; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud"><div id="score">⭐ <span id="score-v">0</span></div></div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="pillar">มัธยัสถ์</div>
+        <div id="q-emoji">🌿</div>
+        <div id="q">สถานการณ์</div>
+        <div id="ans"></div>
+    </div>
+</div>
+
+<div id="start" class="screen">
+    <h1>🌿 เศรษฐกิจพอเพียง</h1>
+    <p class="sub">เลือกการกระทำที่ดีตามหลัก <b>มัธยัสถ์ · มีเหตุผล · มีภูมิคุ้มกัน</b> (ออม ไม่ฟุ่มเฟือย แบ่งปัน พึ่งตนเอง) — 50 วินาที</p>
+    <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+    <h1>จบเกม!</h1><p>คะแนนของคุณ</p><div id="final">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'sufficiency-sim';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const BANK = [
+    { pillar: '⚖️ มัธยัสถ์', emoji: '🪙', q: 'ได้เงินค่าขนมเพิ่ม อยากได้ของเล่นแพง ควรเลือกอย่างไร?',
+      opts: ['แบ่งออมส่วนหนึ่ง ซื้อของชิ้นเล็กหรือรอสะสม', 'ซื้อหมดเลย ไม่เก็บเหลือ', 'ยืมเงินเพื่อนมาซื้อทันที', 'ขอให้พ่อแม่ซื้ออีกชิ้นใหญ่กว่า'], ans: 0 },
+    { pillar: '⚖️ มัธยัสถ์', emoji: '🍱', q: 'กินข้าวในโรงอาหาร อาหารเหลือเยอะ ควร…',
+      opts: ['ตักพอประมาณ กินให้หมด', 'ตักเยอะทิ้งเหลือ', 'ซื้อขนมแทนข้าวทุกมื้อ', 'แย่งอาหารเพื่อน'], ans: 0 },
+    { pillar: '⚖️ มัธยัสถ์', emoji: '💧', q: 'ล้างมือที่อ่างน้ำ หลักมัธยัสถ์คือ…',
+      opts: ['เปิดน้ำพอใช้ ปิดเมื่อถูสบู่', 'เปิดน้ำแรงตลอดเวลา', 'ใช้น้ำทั้งแก๊งพร้อมกันเล่น', 'ทิ้งก๊อกเปิดไว้ทั้งวัน'], ans: 0 },
+    { pillar: '🧠 มีเหตุผล', emoji: '📱', q: 'เพื่อนชวนซื้อเกมในมือถือทั้งที่การบ้านยังไม่เสร็จ ควร…',
+      opts: ['ทำการบ้านให้เสร็จก่อน แล้วค่อยเล่น/ซื้อพอดี', 'ซื้อทันทีเพราะกลัวพลาดโปร', 'ขอยืมเงินพี่เพื่อซื้อ', 'โกหกครูว่าทำการบ้านแล้ว'], ans: 0 },
+    { pillar: '🧠 มีเหตุผล', emoji: '🌧️', q: 'พยากรณ์อากาศบอกฝนตก ก่อนออกจากบ้านควร…',
+      opts: ['พกร่มหรือเสื้อกันฝน เพราะมีเหตุผลจากข้อมูล', 'ไม่พกอะไรเลย เพราะไม่อยากหนัก', 'ใส่รองเท้าแตะไปลุยน้ำลึก', 'วิ่งแข่งกับฝนโดยไม่คิด'], ans: 0 },
+    { pillar: '🧠 มีเหตุผล', emoji: '🤝', q: 'เพื่อนขอเงินก้อนใหญ่โดยไม่บอกเหตุผล ควร…',
+      opts: ['ถามเหตุผลอย่างสุภาพ หรือให้เท่าที่เสียได้', 'ให้ทั้งหมดโดยไม่คิด', 'ตะโกนด่าเพื่อนต่อหน้าคนอื่น', 'ขโมยเงินมาให้เพื่อน'], ans: 0 },
+    { pillar: '🛡️ มีภูมิคุ้มกัน', emoji: '🐷', q: 'อยากมีเงินสำรองยามฉุกเฉิน ควร…',
+      opts: ['เก็บออมสม่ำเสมอแม้ได้น้อย', 'ใช้หมดทุกวันไม่เก็บ', 'ยืมเงินใหม่มาใช้ทุกสัปดาห์', 'พนันหวังรวยเร็ว'], ans: 0 },
+    { pillar: '🛡️ มีภูมิคุ้มกัน', emoji: '📚', q: 'อยากพึ่งตนเองมากขึ้นในโรงเรียน ควร…',
+      opts: ['ฝึกทักษะใหม่ เช่น อ่านหนังสือ / ช่วยงานบ้าน', 'รอให้คนอื่นทำให้ทุกอย่าง', 'ไม่เรียนรู้เพราะกลัวผิด', 'ทิ้งของใช้ส่วนตัวให้เพื่อนดูแล'], ans: 0 },
+    { pillar: '🛡️ มีภูมิคุ้มกัน', emoji: '🌱', q: 'ปลูกผักในกระถางที่บ้าน ช่วยหลักใดมากที่สุด?',
+      opts: ['พึ่งตนเอง + มีภูมิคุ้มกันด้านอาหารเล็กน้อย', 'ฟุ่มเฟือยซื้อของแพง', 'ไม่เกี่ยวกับพอเพียง', 'ทำให้ต้องซื้อผักมากขึ้น'], ans: 0 },
+    { pillar: '💚 คุณธรรม', emoji: '🎁', q: 'มีของเล่นเหลือใช้ เห็นเพื่อนไม่มี ควร…',
+      opts: ['แบ่งปันอย่างพอดี ด้วยความสมัครใจ', 'อวดแล้วไม่ให้ใครยืม', 'บังคับเพื่อนต้องรับของเก่า', 'ทิ้งถังขยะทั้งที่ยังใช้ได้'], ans: 0 },
+    { pillar: '💚 คุณธรรม', emoji: '🛒', q: 'ไปตลาดกับผู้ปกครอง หลักพอเพียงคือ…',
+      opts: ['ซื้อของจำเป็นและของที่วางแผนไว้', 'ซื้อของทุกอย่างที่เห็นเพราะลดราคา', 'ขอของเล่นแพงทุกแผง', 'ทิ้งขยะลงพื้นตลาด'], ans: 0 },
+    { pillar: '⚖️ มัธยัสถ์', emoji: '⚡', q: 'ใช้ไฟฟ้าที่บ้านตามหลักพอเพียง ควร…',
+      opts: ['ปิดไฟพัดลมเมื่อไม่ใช้', 'เปิดไฟทุกห้องทั้งวัน', 'เปิดแอร์ทั้งที่อากาศเย็น', 'ใช้เครื่องใช้ไฟฟ้าเล่นน้ำ'], ans: 0 },
+];
+
+const vs = KampaiVersus.create({
+    duration: DURATION,
+    title: 'เศรษฐกิจพอเพียง',
+    rankBy: 'score',
+    onPlay: ({ rng, player }) => startRound(rng, player),
+    onEnd:  () => { locked = true; },
+});
+
+let qrand = Math.random, score = 0, correct = 0, cur = null, locked = false;
+let singleMode = false, singleTimer = 0, tickId = 0, timeLeft = DURATION;
+let queue = [], qi = 0;
+
+function startSingle() {
+    singleMode = true;
+    startRound(Math.random, null);
+    clearTimeout(singleTimer); clearInterval(tickId);
+    timeLeft = DURATION; $('timer-wrap').classList.add('on'); updateBar();
+    tickId = setInterval(() => {
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) { timeLeft = 0; updateBar(); locked = true; endGame(); return; }
+        updateBar();
+    }, 100);
+    singleTimer = setTimeout(() => { locked = true; endGame(); }, DURATION * 1000);
+}
+
+function updateBar() {
+    const bar = $('timer-bar');
+    bar.style.width = ((timeLeft / DURATION) * 100) + '%';
+    bar.classList.toggle('warn', timeLeft <= 10);
+}
+
+function startRound(rng, player) {
+    qrand = rng || Math.random; score = 0; correct = 0; locked = false; qi = 0;
+    if (player !== null) { singleMode = false; $('timer-wrap').classList.remove('on'); }
+    KAMPAI.beginRound();
+    KAMPAI.sound.unlock();
+    $('start').classList.add('off'); $('over').classList.add('off');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('score-v').textContent = 0;
+    queue = BANK.slice().sort(() => qrand() - 0.5);
+    nextQ();
+}
+
+function shuffleIdx(n) {
+    const a = [...Array(n).keys()];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = (qrand() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function nextQ() {
+    locked = false;
+    if (qi >= queue.length) { queue = BANK.slice().sort(() => qrand() - 0.5); qi = 0; }
+    cur = queue[qi++];
+    const order = shuffleIdx(cur.opts.length);
+    $('pillar').textContent = cur.pillar;
+    $('q-emoji').textContent = cur.emoji;
+    $('q').textContent = cur.q;
+    $('ans').innerHTML = order.map((oi, displayI) =>
+        `<button class="a" onclick="answer(${oi},this)">${displayI + 1}. ${cur.opts[oi]}</button>`
+    ).join('');
+}
+
+function answer(optIdx, btn) {
+    if (locked || !cur) return; locked = true;
+    const buttons = [...$('ans').querySelectorAll('.a')];
+    if (optIdx === cur.ans) {
+        btn.classList.add('correct'); correct++; score += 10;
+        $('score-v').textContent = score;
+        KAMPAI.sound.correct();
+        vs.report(score, { correct });
+        setTimeout(nextQ, 380);
+    } else {
+        btn.classList.add('wrong');
+        buttons.forEach((b) => {
+            const m = b.getAttribute('onclick').match(/answer\((\d+)/);
+            if (m && +m[1] === cur.ans) b.classList.add('correct');
+        });
+        KAMPAI.sound.wrong();
+        setTimeout(nextQ, 900);
+    }
+}
+
+function endGame() {
+    if (vs.finish(score, { correct })) return;
+    clearTimeout(singleTimer); clearInterval(tickId);
+    KAMPAI.sound.gameOver();
+    KAMPAI.submitScore(score, { mode: 'normal', correct });
+    $('hud').classList.remove('on'); $('play').classList.remove('on'); $('timer-wrap').classList.remove('on');
+    $('final').textContent = score; $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () { KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('warm'); });
+</script>
+</body>
+</html>

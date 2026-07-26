@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ปฐมพยาบาลด่วน — First Aid Rush (kampai)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; }
+body { background: linear-gradient(180deg, #be123c, #0f172a); }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#hud { display: none; align-items: center; justify-content: center; padding: 14px 18px; }
+#hud.on { display: flex; }
+#score { font-size: 26px; font-weight: 700; color: #FFD700; background: rgba(0,0,0,.35); padding: 4px 16px; border-radius: 999px; }
+#timer-wrap { height: 8px; background: rgba(255,255,255,.12); margin: 0 18px; border-radius: 999px; overflow: hidden; display: none; }
+#timer-wrap.on { display: block; }
+#timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#4ade80,#22c55e); border-radius: 999px; transition: width .1s linear; }
+#timer-bar.warn { background: linear-gradient(90deg,#f87171,#ef4444); }
+#play { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; }
+#play.on { display: flex; }
+#q-emoji { font-size: clamp(48px, 13vw, 80px); line-height: 1; }
+#tag { font-size: 13px; font-weight: 600; color: #fecdd3; background: rgba(255,255,255,.1); padding: 4px 12px; border-radius: 999px; }
+#q { font-size: clamp(17px, 4.6vw, 23px); font-weight: 700; text-align: center; max-width: 460px; line-height: 1.4; }
+#ans { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 460px; }
+.a { font-size: clamp(15px, 4vw, 18px); font-weight: 600; padding: 14px 12px; min-height: 48px; border: none; border-radius: 14px; cursor: pointer; color: #0f172a; background: #f8fafc; box-shadow: 0 4px 0 #cbd5e1; text-align: left; }
+.a:active { transform: translateY(3px); box-shadow: 0 1px 0 #cbd5e1; }
+.a.correct { background: linear-gradient(135deg,#86efac,#22c55e); }
+.a.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; background: rgba(15,23,42,.92); }
+.screen.off { display: none; }
+h1 { font-size: 30px; background: linear-gradient(135deg,#FFD700,#FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#final { color: #FFD700; font-size: 46px; font-weight: 700; }
+.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border: none; border-radius: 999px; color: #fff; cursor: pointer; min-height: 48px; }
+.btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
+.btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
+.btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+p.sub { color: #cbd5e1; max-width: 440px; line-height: 1.45; }
+</style>
+</head>
+<body>
+<div id="app">
+    <div id="hud"><div id="score">⭐ <span id="score-v">0</span></div></div>
+    <div id="timer-wrap"><div id="timer-bar"></div></div>
+    <div id="play">
+        <div id="tag">ปฐมพยาบาล</div>
+        <div id="q-emoji">🩹</div>
+        <div id="q">สถานการณ์</div>
+        <div id="ans"></div>
+    </div>
+</div>
+
+<div id="start" class="screen">
+    <h1>🩹 ปฐมพยาบาลด่วน</h1>
+    <p class="sub">อ่านสถานการณ์ แล้วเลือกวิธีช่วยที่ถูกต้อง (เคล็ด ข้อเลือดออก ไฟไหม้ เรียกผู้ใหญ่) — 50 วินาที</p>
+    <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+    <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
+</div>
+
+<div id="over" class="screen off">
+    <h1>จบเกม!</h1><p>คะแนนของคุณ</p><div id="final">0</div>
+    <div id="kampai-result"></div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+    <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script src="/games/kampai-match.js"></script>
+<script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+
+<script>
+const GAME_SLUG = 'first-aid-rush';
+const DURATION = 50;
+KAMPAI.setSlug(GAME_SLUG);
+const $ = (id) => document.getElementById(id);
+
+const BANK = [
+    { tag: 'ข้อเคล็ด', emoji: '🦵', q: 'เพื่อนข้อเท้าเคล็ด บวมแดง ควรทำตามหลัก RICE อย่างไร?',
+      opts: ['Rest พัก · Ice ประคบเย็น · Compression พัน · Elevation ยกสูง', 'วิ่งต่อทันทีเพื่อไม่ให้ข้อแข็ง', 'นวดแรง ๆ ด้วยน้ำมันร้อน', 'ดัดข้อกลับให้ตรงทันที'], ans: 0 },
+    { tag: 'ข้อเคล็ด', emoji: '🧊', q: 'ขั้น “I” ใน RICE หมายถึงอะไร?',
+      opts: ['Ice — ประคบเย็น', 'Inject — ฉีดยาเอง', 'Ignore — ไม่สนใจอาการ', 'Inflate — เป่าลมใส่ข้อ'], ans: 0 },
+    { tag: 'เลือดออก', emoji: '🩸', q: 'มีบาดแผลเลือดซึมออก ควรทำอะไรก่อน?',
+      opts: ['กดแน่นด้วยผ้าสะอาดตรงจุดเลือดออก', 'ล้างด้วยน้ำอัดลม', 'ใช้ดินสอดูดเลือด', 'เปิดแผลให้แห้งโดยไม่กด'], ans: 0 },
+    { tag: 'เลือดออก', emoji: '🧻', q: 'ขณะกดห้ามเลือด ผ้าเปียกเลือดแล้วควร…',
+      opts: ['วางผ้าใหม่ทับแล้วกดต่อ อย่ารื้อผ้าเก่าออก', 'ดึงผ้าเก่าออกดูทุกนาที', 'เทน้ำร้อนล้างแล้วกดใหม่', 'หยุดกดเพื่อให้เลือดไหลออกหมด'], ans: 0 },
+    { tag: 'ไฟไหม้', emoji: '🔥', q: 'ผิวไหม้เล็กน้อยจากน้ำร้อน ควรทำอย่างไร?',
+      opts: ['ใช้น้ำเย็นไหลผ่านบริเวณไหม้หลายนาที', 'ทาเนยหรือน้ำมันพืชทันที', 'ทายาสีแดงหนา ๆ แล้วปิดแน่น', 'เจาะตุ่มน้ำให้แตก'], ans: 0 },
+    { tag: 'ไฟไหม้', emoji: '🚫', q: 'ข้อใด “ห้าม” ทำเมื่อผิวไหม้?',
+      opts: ['ทาเนย / น้ำมัน / ยาสีฟันลงแผลไหม้', 'ใช้น้ำเย็นล้าง', 'บอกผู้ใหญ่', 'ถอดเครื่องประดับใกล้แผลถ้าทำได้'], ans: 0 },
+    { tag: 'เรียกผู้ใหญ่', emoji: '📞', q: 'เมื่อไรควรเรียกผู้ใหญ่/ครูทันที?',
+      opts: ['เลือดออกมาก · หมดสติ · หายใจลำบาก · กระดูกอาจหัก', 'มีรอยขีดเล็ก ๆ ที่หายแล้ว', 'เพื่อนหิวข้าว', 'เพื่อนทำดินสอหล่น'], ans: 0 },
+    { tag: 'เรียกผู้ใหญ่', emoji: '😵', q: 'เพื่อนล้มหัวกระแทกแล้วง่วงมาก ควร…',
+      opts: ['เรียกครู/ผู้ปกครองทันที อย่าปล่อยให้นอนคนเดียว', 'ให้เล่นต่อตามปกติ', 'เขย่าแรง ๆ ให้ตื่น', 'ให้ดื่มน้ำอัดลมเยอะ ๆ'], ans: 0 },
+    { tag: 'จมูกเลือด', emoji: '👃', q: 'เลือดกำเดาไหล ควรทำอย่างไร?',
+      opts: ['นั่งตัวตรง ก้มหน้าเล็กน้อย บีบปีกจมูก 5–10 นาที', 'แหงนหน้าขึ้นแรง ๆ', 'นอนหงายทันที', 'ใส่น้ำแข็งเข้าในรูจมูก'], ans: 0 },
+    { tag: 'แมลงกัด', emoji: '🐝', q: 'ถูกผึ้งต่อย มีเหล็กค้าง ควร…',
+      opts: ['เอาเหล็กออกอย่างระมัดระวัง แล้วล้างด้วยน้ำสะอาด', 'บีบแรง ๆ ให้พิษออก', 'ทาเนยหนา ๆ', 'วิ่งหนีโดยไม่ทำอะไร'], ans: 0 },
+    { tag: 'สำลัก', emoji: '😮', q: 'เพื่อนสำลักอาหาร ไอแรง พูดได้ ควร…',
+      opts: ['ให้ไอต่อ อย่าตบหลังแรงถ้ายังหายใจได้ เรียกผู้ใหญ่', 'เทน้ำเข้าปากทันที', 'จับนอนหงายห้ามขยับ', 'ดึงอาหารด้วยมือในคอ'], ans: 0 },
+    { tag: 'ความปลอดภัย', emoji: '🧼', q: 'ก่อนช่วยเหลือบาดแผล ควร…',
+      opts: ['ล้างมือหรือใส่ถุงมือถ้ามี แล้วใช้ผ้าสะอาด', 'ใช้มือเปื้อนดินกดแผล', 'แชร์ผ้าพันแผลกับเพื่อนหลายคน', 'เป่าลมใส่แผลแรง ๆ'], ans: 0 },
+];
+
+const vs = KampaiVersus.create({
+    duration: DURATION,
+    title: 'ปฐมพยาบาลด่วน',
+    rankBy: 'score',
+    onPlay: ({ rng, player }) => startRound(rng, player),
+    onEnd:  () => { locked = true; },
+});
+
+let qrand = Math.random, score = 0, correct = 0, cur = null, locked = false;
+let singleMode = false, singleTimer = 0, tickId = 0, timeLeft = DURATION;
+let queue = [], qi = 0, order = [];
+
+function startSingle() {
+    singleMode = true;
+    startRound(Math.random, null);
+    clearTimeout(singleTimer); clearInterval(tickId);
+    timeLeft = DURATION; $('timer-wrap').classList.add('on'); updateBar();
+    tickId = setInterval(() => {
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) { timeLeft = 0; updateBar(); locked = true; endGame(); return; }
+        updateBar();
+    }, 100);
+    singleTimer = setTimeout(() => { locked = true; endGame(); }, DURATION * 1000);
+}
+
+function updateBar() {
+    const bar = $('timer-bar');
+    bar.style.width = ((timeLeft / DURATION) * 100) + '%';
+    bar.classList.toggle('warn', timeLeft <= 10);
+}
+
+function startRound(rng, player) {
+    qrand = rng || Math.random; score = 0; correct = 0; locked = false; qi = 0;
+    if (player !== null) { singleMode = false; $('timer-wrap').classList.remove('on'); }
+    KAMPAI.beginRound();
+    KAMPAI.sound.unlock();
+    $('start').classList.add('off'); $('over').classList.add('off');
+    $('hud').classList.add('on'); $('play').classList.add('on');
+    $('score-v').textContent = 0;
+    queue = BANK.slice().sort(() => qrand() - 0.5);
+    nextQ();
+}
+
+function shuffleIdx(n) {
+    const a = [...Array(n).keys()];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = (qrand() * (i + 1)) | 0;
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function nextQ() {
+    locked = false;
+    if (qi >= queue.length) { queue = BANK.slice().sort(() => qrand() - 0.5); qi = 0; }
+    cur = queue[qi++];
+    order = shuffleIdx(cur.opts.length);
+    $('tag').textContent = cur.tag;
+    $('q-emoji').textContent = cur.emoji;
+    $('q').textContent = cur.q;
+    $('ans').innerHTML = order.map((oi, displayI) =>
+        `<button class="a" onclick="answer(${oi},this)">${displayI + 1}. ${cur.opts[oi]}</button>`
+    ).join('');
+}
+
+function answer(optIdx, btn) {
+    if (locked || !cur) return; locked = true;
+    const buttons = [...$('ans').querySelectorAll('.a')];
+    if (optIdx === cur.ans) {
+        btn.classList.add('correct'); correct++; score += 10;
+        $('score-v').textContent = score;
+        KAMPAI.sound.correct();
+        vs.report(score, { correct });
+        setTimeout(nextQ, 380);
+    } else {
+        btn.classList.add('wrong');
+        buttons.forEach((b) => {
+            const m = b.getAttribute('onclick').match(/answer\((\d+)/);
+            if (m && +m[1] === cur.ans) b.classList.add('correct');
+        });
+        KAMPAI.sound.wrong();
+        setTimeout(nextQ, 900);
+    }
+}
+
+function endGame() {
+    if (vs.finish(score, { correct })) return;
+    clearTimeout(singleTimer); clearInterval(tickId);
+    KAMPAI.sound.gameOver();
+    KAMPAI.submitScore(score, { mode: 'normal', correct });
+    $('hud').classList.remove('on'); $('play').classList.remove('on'); $('timer-wrap').classList.remove('on');
+    $('final').textContent = score; $('over').classList.remove('off');
+}
+
+KAMPAI.onReady(function () { KAMPAI.sound.mountToggles(); KAMPAI.sound.defaultBgm('calm'); });
+</script>
+</body>
+</html>
