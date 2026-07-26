@@ -104,17 +104,17 @@
 .sheet .questions.worksheet-mode-five {
   grid-template-columns: 1fr;
   grid-template-rows: repeat(5, minmax(0, 1fr));
-  gap: 2mm;
+  gap: 3mm;
 }
 
 .sheet .questions.worksheet-mode-five .q {
   min-height: 0;
-  padding-block: 2mm;
+  padding-block: 2.8mm;
 }
 
 .sheet.worksheet-level-3 .questions.worksheet-mode-five {
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
 }
 
 .worksheet-mode-exit .qr-box,

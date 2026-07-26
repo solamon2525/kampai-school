@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.1 (ใบงาน — เลย์เอาต์ 5 + sets คูณ/หาร/C + กระดานหารสั้น)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'ฐานใบงาน: ค่าเริ่มต้น 5 ข้อ/หน้า (`.count-5` แถวสูง) ทั้ง fleet + bump cache `1.175.10`',
+            'บันทึกชุด (KampaiWorksheetSets): ผูกคูณ · หารยาว · grammar-vocab · vocab-grammar · science-explorer · coding-social',
+            'หารสั้น: กระดานตั้งหารสั้นจับคู่สื่อ (ตัวหาร ) ตัวตั้ง · ช่องผลหาร · ทดเศษ) แทน calc-line ตื้น',
+        ],
+    },
+    {
         version: 'v1.176.0 (Mario Math Run — 5 หัวใจ + โจทย์ใหม่พ้นจอ + บล็อกโหม่งเป็นก้อนหิน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

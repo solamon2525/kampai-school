@@ -52,7 +52,7 @@
     return {
       style: document.getElementById('selStyle')?.value || 'standard',
       pageCount: Number(document.getElementById('selPageCount')?.value || 1),
-      count: Number(document.getElementById('selCount')?.value || 10),
+      count: Number(document.getElementById('selCount')?.value || 5),
       topic: document.getElementById('selTopic')?.value || 'mixed',
       grade: document.getElementById('selGrade')?.value || '',
       schoolName: (document.getElementById('inpSchool')?.value || '').trim() || 'โรงเรียนบ้านคำไผ่',

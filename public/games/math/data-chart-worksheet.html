@@ -6,8 +6,8 @@
   <meta name="curriculum-indicators" content="ค 3.1 ป.4/1">
   <title>ใบงานข้อมูลและแผนภูมิ ป.4 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.175.4" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.175.10" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet">
 </head>
 <body>
 <header class="toolbar"><h1>📊 ใบงานข้อมูลและแผนภูมิ</h1><div class="toolbar-ctrls">
@@ -15,13 +15,13 @@
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
   <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
   <select class="t-select" id="selTopic" aria-label="หัวข้อ"><option value="mixed">ผสมทุกทักษะ</option><option value="bar">แผนภูมิแท่ง</option><option value="picto">แผนภาพรูปภาพ</option><option value="table">ตารางข้อมูล</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select>
   <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
   <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
   <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.175.4"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.10"></script>
 <script>
 const DATA_ITEMS = [
   {type:'bar',labels:['มะม่วง','กล้วย','ส้ม'],values:[6,9,4],ask:'ผลไม้ชนิดใดมีจำนวนมากที่สุด',answer:'กล้วย 9 ผล'},
@@ -80,7 +80,7 @@ window.WORKSHEET_CONFIG = {
   }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.175.4"></script>
+<script src="/games/worksheet-topic.js?v=1.175.10"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
@@ -88,5 +88,5 @@ document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle
 document.getElementById('btnPrint').onclick=()=>window.print();
 window.KampaiWorksheet.loadTeachers();render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.4"></script>
+<script src="/games/worksheet-modes.js?v=1.175.10"></script>
 </body></html>

@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9,ค 1.1 ป.5/6" />
   <title>ระบบใบงานการคูณอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -177,10 +177,7 @@
       <select class="t-select" id="selMode">
         <option value="mixed">ความยาก: ทุกระดับในชั้น</option>
       </select>
-      <select class="t-select" id="selCount">
-        <option value="10" selected>10 ข้อ/หน้า (โจทย์ใหญ่ ตัวเต็มช่อง)</option>
-        <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่พิเศษ)</option>
-      </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า" title="5 ข้อ = แถวสูง มีที่เขียนวิธีทำ · 10 ข้อ = ฝึกเร็ว 2 คอลัมน์"><option value="5" selected>5 ข้อ / หน้า (มีที่เขียนวิธีทำ)</option><option value="10">10 ข้อ / หน้า (ฝึกเร็ว)</option></select>
       <input class="t-input" type="text" id="inpSchool" placeholder="ชื่อโรงเรียน..." value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher">
         <option value="">-- เลือกครูผู้สอน --</option>
@@ -193,10 +190,28 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.175.4"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.10"></script>
 <script>
-const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-const RF=(a,b,dec=1)=>Math.round((a+Math.random()*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
+const WORKSHEET_KEY='multiplication';
+const SET_TITLE_PREFIX='ใบงานการคูณ';
+let renderSeed=Date.now();
+let rng=null;
+let setsUi=null;
+function ensureRng(){
+  if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
+  else rng=null;
+}
+function R(a,b){
+  if(rng) return rng.randomInt(a,b);
+  return a+Math.floor(Math.random()*(b-a+1));
+}
+function RF(a,b,dec=1){
+  const u=rng?rng.random():Math.random();
+  return Math.round((a+u*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
+}
+function batchCodeFromSeed(seed){
+  return ((Number(seed)>>>0).toString(36).toUpperCase()+'XXXX').slice(0,4);
+}
 
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 
@@ -274,6 +289,34 @@ function updateModeOptions(){
   }
   selMode.innerHTML = '<option value="mixed">ความยาก: ทุกระดับในชั้น (' + (grade==='all'?'รวม ป.4–ป.6':`ป.${grade}`) + ')</option>'
     + filtered.map(l => `<option value="${l.id}">ความยาก: ${l.name} (${l.indicator})</option>`).join('');
+}
+
+function currentConfig(){
+  return{
+    style:document.getElementById('selStyle')?.value||'standard',
+    pageCount:document.getElementById('selPageCount')?.value||'1',
+    multiStrategy:document.getElementById('selMultiStrategy')?.value||'random',
+    grade:document.getElementById('selGrade')?.value||'4',
+    mode:document.getElementById('selMode')?.value||'mixed',
+    count:Number(document.getElementById('selCount')?.value||5)||5,
+    schoolName:document.getElementById('inpSchool')?.value||'',
+    teacherName:document.getElementById('selTeacher')?.value||'',
+  };
+}
+function applyConfig(cfg){
+  if(!cfg)return;
+  if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
+  if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
+  if(cfg.multiStrategy!=null&&document.getElementById('selMultiStrategy'))document.getElementById('selMultiStrategy').value=String(cfg.multiStrategy);
+  if(cfg.grade!=null&&document.getElementById('selGrade'))document.getElementById('selGrade').value=String(cfg.grade);
+  updateModeOptions();
+  if(cfg.mode!=null&&document.getElementById('selMode'))document.getElementById('selMode').value=String(cfg.mode);
+  if(cfg.count!=null&&document.getElementById('selCount')){
+    const n=Number(cfg.count)===10?10:5;
+    document.getElementById('selCount').value=String(n);
+  }
+  if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
+  if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
 }
 
 function renderBookletCover(schoolName, teacherName){
@@ -368,10 +411,11 @@ function renderSingleSheet(lv, pageIdx, totalPages, batchCode, style, count, sch
 }
 
 function render(){
+  ensureRng();
   const style = document.getElementById('selStyle').value;
   const grade = document.getElementById('selGrade').value;
   const mode = document.getElementById('selMode').value;
-  const count = parseInt(document.getElementById('selCount').value, 10);
+  const count = Number(document.getElementById('selCount')?.value)===10?10:5;
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const multiStrategy = document.getElementById('selMultiStrategy').value;
   const schoolName = document.getElementById('inpSchool').value.trim();
@@ -391,7 +435,7 @@ function render(){
     html += renderBookletCover(schoolName, teacherName);
   }
 
-  const batchCode = Math.random().toString(36).substring(2,6).toUpperCase();
+  const batchCode = batchCodeFromSeed(renderSeed);
 
   for(let p=1; p<=pageCount; p++){
     let currentLv = targetLevels[(p-1) % targetLevels.length];
@@ -407,16 +451,80 @@ function render(){
   }
 
   document.getElementById('pages').innerHTML = html;
+  if(window.KampaiWorksheetSets){
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
+  }
+}
+function randomize(){
+  if(window.KampaiWorksheetSets){
+    renderSeed=window.KampaiWorksheetSets.newSeed();
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
+  }else{
+    renderSeed=Date.now()+Math.floor(Math.random()*100000);
+  }
+  if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+}
+function applySetState(state){
+  if(state?.config)applyConfig(state.config);
+  if(state?.seed!=null)renderSeed=Number(state.seed);
+  if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
+  render();
+}
+async function bootSets(){
+  try{
+    const Sets=await window.KampaiWorksheet.loadSetsModule();
+    const fromUrl=Sets.getConfigFromUrl();
+    if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
+    else renderSeed=Sets.newSeed();
+    setsUi=Sets.mountToolbar({
+      worksheetKey:WORKSHEET_KEY,
+      titlePrefix:SET_TITLE_PREFIX,
+      initialSetId:fromUrl.setId||'',
+      getState:()=>({
+        seed:renderSeed,
+        config:currentConfig(),
+        title:document.getElementById('kampaiSetTitle')?.value||'',
+      }),
+      applyState:applySetState,
+    });
+    if(fromUrl.setId){
+      const row=await Sets.load(fromUrl.setId);
+      if(row){
+        applyConfig(row.config||{});
+        renderSeed=Number(row.seed);
+        if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
+        else{
+          const titleInput=document.getElementById('kampaiSetTitle');
+          if(titleInput&&row.title)titleInput.value=row.title;
+        }
+        if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
+        render();
+        if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
+        return;
+      }
+    }
+    render();
+    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+  }catch(error){
+    console.warn('worksheet sets unavailable',error);
+    render();
+  }
 }
 
 document.getElementById('btnBack').onclick = () => location.href = '/games/math/multiplication-thinking-media.html';
-document.getElementById('btnRandom').onclick = render;
-document.getElementById('selStyle').onchange = render;
-document.getElementById('selPageCount').onchange = render;
-document.getElementById('selMultiStrategy').onchange = render;
-document.getElementById('selGrade').onchange = () => { updateModeOptions(); render(); };
-document.getElementById('selMode').onchange = render;
-document.getElementById('selCount').onchange = render;
+document.getElementById('btnRandom').onclick = randomize;
+function onCtrlChange(){
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+}
+document.getElementById('selStyle').onchange = onCtrlChange;
+document.getElementById('selPageCount').onchange = onCtrlChange;
+document.getElementById('selMultiStrategy').onchange = onCtrlChange;
+document.getElementById('selGrade').onchange = () => { updateModeOptions(); onCtrlChange(); };
+document.getElementById('selMode').onchange = onCtrlChange;
+document.getElementById('selCount').onchange = onCtrlChange;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
 document.getElementById('btnAnswers').onclick = function(){
@@ -427,8 +535,10 @@ document.getElementById('btnPrint').onclick = () => window.print();
 
 updateModeOptions();
 window.KampaiWorksheet.loadTeachers();
-render();
+window.render=render;
+window.randomize=randomize;
+bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.4"></script>
+<script src="/games/worksheet-modes.js?v=1.175.10"></script>
 </body>
 </html>

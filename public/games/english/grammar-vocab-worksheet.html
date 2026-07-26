@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ต 2.2 ป.5/1,ต 3.1 ป.5/1" />
   <title>ระบบใบงานภาษาอังกฤษอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f0f9ff;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0284c7;color:#fff;box-shadow:0 3px 12px rgba(2,132,199,.35)}
@@ -43,6 +43,12 @@
     .questions{display:grid;gap:1.5mm;flex:1}
     .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
     .questions.count-10 .q{padding:2mm 2.5mm;min-height:36.5mm}
+    .questions.count-5,.questions.worksheet-mode-five{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
+    .questions.count-5 .q,.questions.worksheet-mode-five .q{padding:3.5mm 3mm;min-height:44mm}
+    .count-5 .q-work-block,.worksheet-mode-five .q-work-block{min-height:20mm;gap:2mm}
+    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:10mm;height:10mm;font-size:9.5pt}
+    .count-5 .eng-word,.count-5 .sci-word,.count-5 .thai-word,.count-5 .code-word{font-size:16pt}
+    .count-5 .ans,.worksheet-mode-five .ans{margin-top:3mm;font-size:10.5pt}
     
     .q{border:1.4px solid #bae6fd;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:0;position:relative;break-inside:avoid;background:#f8fafc}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#0284c7;color:#fff;font-weight:800;font-size:9pt}
@@ -93,6 +99,7 @@
         <option value="vocab">หัวข้อ: หมวดคำศัพท์อาชีพ & สถานที่</option>
         <option value="opposite">หัวข้อ: คำตรงข้าม (Opposites)</option>
       </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า" title="5 ข้อ = แถวสูง มีที่เขียนวิธีทำ · 10 ข้อ = ฝึกเร็ว 2 คอลัมน์"><option value="5" selected>5 ข้อ / หน้า (มีที่เขียนวิธีทำ)</option><option value="10">10 ข้อ / หน้า (ฝึกเร็ว)</option></select>
       <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
       <button class="btn primary" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
@@ -102,9 +109,22 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.175.4"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.10"></script>
 <script>
-const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const WORKSHEET_KEY='grammar-vocab';
+const SET_TITLE_PREFIX='ระบบใบงานภาษาอังกฤษอัจฉริยะ (English Quest)';
+const TOPIC_SHORT={verb3:'กริยา 3 ช่อง',vocab:'คำศัพท์',opposite:'คำตรงข้าม'};
+let renderSeed=Date.now();
+let rng=null;
+let setsUi=null;
+function ensureRng(){
+  if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
+  else rng=null;
+}
+function R(a,b){
+  if(rng) return rng.randomInt(a,b);
+  return a+Math.floor(Math.random()*(b-a+1));
+}
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin + '/games/english/english-grammar-p45-hub/index.html';
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
@@ -138,6 +158,29 @@ function question(qi, topicItem, topicKey){
     +'<div class="ans">Answer: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 
+function currentConfig(){
+  return{
+    style:document.getElementById('selStyle')?.value||'standard',
+    pageCount:document.getElementById('selPageCount')?.value||'1',
+    topic:document.getElementById('selTopic')?.value||'verb3',
+    count:Number(document.getElementById('selCount')?.value||5)||5,
+    schoolName:document.getElementById('inpSchool')?.value||'',
+    teacherName:document.getElementById('selTeacher')?.value||'',
+  };
+}
+function applyConfig(cfg){
+  if(!cfg)return;
+  if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
+  if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
+  if(cfg.topic!=null&&document.getElementById('selTopic'))document.getElementById('selTopic').value=String(cfg.topic);
+  if(cfg.count!=null&&document.getElementById('selCount')){
+    const n=Number(cfg.count)===10?10:5;
+    document.getElementById('selCount').value=String(n);
+  }
+  if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
+  if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
+}
+
 function renderBookletCover(schoolName, teacherName){
   return '<section class="sheet cover-sheet">'
     +'<img class="cover-logo-img" src="'+SCHOOL_LOGO_URL+'" alt="ตราโรงเรียน" />'
@@ -160,9 +203,11 @@ function renderParentSlip(teacherName){
 }
 
 function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, teacherName){
+  const count = Number(document.getElementById('selCount')?.value) === 10 ? 10 : 5;
   const list = ENG_DATA[topicKey] || ENG_DATA.verb3;
-  let qs = ''; for(let i=1; i<=10; i++){
-    const item = list[(i-1+pageIdx*2) % list.length];
+  const offset = (Number(renderSeed)>>>0) % Math.max(list.length,1);
+  let qs = ''; for(let i=1; i<=count; i++){
+    const item = list[(i-1+pageIdx*2+offset) % list.length];
     qs += question(i, item, topicKey);
   }
   return '<section class="sheet"><header class="sheet-head">'
@@ -171,11 +216,12 @@ function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, tea
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name"><span class="lbl">Name</span><span class="blank"></span></div><div class="student-no"><span class="lbl">No</span><span class="blank"></span></div></div>'
     +'<div class="directions"><span>Directions: Fill in the correct English grammar or vocabulary answer.</span><span class="indicator">ต 1.1 ป.4-6</span></div>'
-    +'</header><div class="questions count-10">'+qs+'</div>'+renderParentSlip(teacherName)
+    +'</header><div class="questions count-'+count+'">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>Page '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">Teacher: ${teacherName}</span>`:'')+'</footer></section>';
 }
 
 function render(){
+  ensureRng();
   const style = document.getElementById('selStyle').value;
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const topicKey = document.getElementById('selTopic').value;
@@ -185,12 +231,78 @@ function render(){
   let html = style==='booklet' ? renderBookletCover(schoolName, teacherName) : '';
   for(let p=1; p<=pageCount; p++) html += renderSingleSheet(p, pageCount, style, topicKey, schoolName, teacherName);
   document.getElementById('pages').innerHTML = html;
+  if(window.KampaiWorksheetSets){
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
+  }
+}
+function randomize(){
+  if(window.KampaiWorksheetSets){
+    renderSeed=window.KampaiWorksheetSets.newSeed();
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
+  }else{
+    renderSeed=Date.now()+Math.floor(Math.random()*100000);
+  }
+  if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+}
+function applySetState(state){
+  if(state?.config)applyConfig(state.config);
+  if(state?.seed!=null)renderSeed=Number(state.seed);
+  if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
+  render();
+}
+async function bootSets(){
+  try{
+    const Sets=await window.KampaiWorksheet.loadSetsModule();
+    const fromUrl=Sets.getConfigFromUrl();
+    if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
+    else renderSeed=Sets.newSeed();
+    setsUi=Sets.mountToolbar({
+      worksheetKey:WORKSHEET_KEY,
+      titlePrefix:SET_TITLE_PREFIX,
+      topicLabels:TOPIC_SHORT,
+      initialSetId:fromUrl.setId||'',
+      getState:()=>({
+        seed:renderSeed,
+        config:currentConfig(),
+        title:document.getElementById('kampaiSetTitle')?.value||'',
+      }),
+      applyState:applySetState,
+    });
+    if(fromUrl.setId){
+      const row=await Sets.load(fromUrl.setId);
+      if(row){
+        applyConfig(row.config||{});
+        renderSeed=Number(row.seed);
+        if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
+        else{
+          const titleInput=document.getElementById('kampaiSetTitle');
+          if(titleInput&&row.title)titleInput.value=row.title;
+        }
+        if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
+        render();
+        if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
+        return;
+      }
+    }
+    render();
+    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+  }catch(error){
+    console.warn('worksheet sets unavailable',error);
+    render();
+  }
 }
 
-document.getElementById('btnRandom').onclick = render;
-document.getElementById('selStyle').onchange = render;
-document.getElementById('selPageCount').onchange = render;
-document.getElementById('selTopic').onchange = render;
+document.getElementById('btnRandom').onclick = randomize;
+function onCtrlChange(){
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+}
+document.getElementById('selStyle').onchange = onCtrlChange;
+document.getElementById('selPageCount').onchange = onCtrlChange;
+document.getElementById('selCount').onchange = onCtrlChange;
+document.getElementById('selTopic').onchange = onCtrlChange;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
 document.getElementById('btnAnswers').onclick = function(){
@@ -200,8 +312,10 @@ document.getElementById('btnAnswers').onclick = function(){
 document.getElementById('btnPrint').onclick = () => window.print();
 
 window.KampaiWorksheet.loadTeachers();
-render();
+window.render=render;
+window.randomize=randomize;
+bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.4"></script>
+<script src="/games/worksheet-modes.js?v=1.175.10"></script>
 </body>
 </html>

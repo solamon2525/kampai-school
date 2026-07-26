@@ -1,20 +1,159 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/short-division-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.4/10, ค 1.1 ป.4/11"><title>ใบงานหารสั้นวิธีคิด ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.4" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet"></head><body>
-<header class="toolbar"><h1>➗ ใบงานหารสั้นวิธีคิด</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="divide">หาร</option><option value="check">ตรวจคำตอบ</option><option value="word">โจทย์ปัญหา</option><option value="strategy">กลยุทธ์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.175.4"></script><script>
-const SD_ITEMS=[
-{type:'divide',prompt:'84 ÷ 4 = ?',nums:'84÷4',answer:'21',step1:'8÷4=2',step2:'4×2=8 ลบ · 4÷4=1',step3:'=21'},
-{type:'divide',prompt:'96 ÷ 3 = ?',nums:'96÷3',answer:'32',step1:'9÷3=3',step2:'6÷3=2',step3:'=32'},
-{type:'divide',prompt:'75 ÷ 5 = ?',nums:'75÷5',answer:'15',step1:'75÷5',step2:'5×15=75',step3:'=15'},
-{type:'divide',prompt:'63 ÷ 7 = ?',nums:'63÷7',answer:'9',step1:'7×9=63',step2:'สูตรคูณ',step3:'=9'},
-{type:'divide',prompt:'58 ÷ 2 = ?',nums:'58÷2',answer:'29',step1:'58÷2',step2:'2×29=58',step3:'=29'},
-{type:'check',prompt:'48÷6=7 ถูกไหม',nums:'48÷6',answer:'ผิด · =8',step1:'6×7=42',step2:'6×8=48',step3:'=8'},
-{type:'check',prompt:'56÷8=7 ตรวจ',nums:'56÷8',answer:'ถูก · 8×7=56',step1:'คูณย้อน',step2:'8×7=56',step3:'ถูก'},
-{type:'word',prompt:'72 ชิ้น แจก 8 คน',nums:'72÷8',answer:'9/คน',step1:'แบ่งเท่า=หาร',step2:'72÷8',step3:'9'},
-{type:'word',prompt:'45 แท่ง 5/กล่อง',nums:'45÷5',answer:'9 กล่อง',step1:'45÷5',step2:'5×9=45',step3:'9'},
-{type:'strategy',prompt:'84÷4 แยก 80÷4+4÷4',nums:'84÷4',answer:'21',step1:'80÷4=20',step2:'4÷4=1',step3:'21'},
-{type:'strategy',prompt:'หาร 9 ใช้วิธี',nums:'÷9',answer:'หา ×9 ได้เลขถูกหาร',step1:'คูณ 9 ย้อน',step2:'63÷9→7',step3:'สูตรคูณ'},
-{type:'word',prompt:'96 คน 4 คัน',nums:'96÷4',answer:'24/คัน',step1:'96÷4',step2:'4×24=96',step3:'24'}
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/short-division-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.4/10, ค 1.1 ป.4/11"><title>ใบงานหารสั้นวิธีคิด ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.10" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.10" rel="stylesheet">
+<style>
+  /* Short-division board — aligned with short-division-thinking-media grid */
+  .sd-board{--sd-cell:9mm;display:inline-grid;grid-auto-rows:minmax(8mm,auto);gap:0 0;align-items:center;justify-items:center;color:var(--ws-ink);font-weight:800;margin:1mm auto 0;width:max-content}
+  .sd-cell{width:var(--sd-cell);height:8.5mm;display:grid;place-items:center;position:relative;font-size:13pt;line-height:1}
+  .sd-divisor{color:var(--ws-accent)}
+  .sd-bracket{color:var(--ws-accent);font-weight:300;font-size:18pt;width:6mm}
+  .sd-dividend{border-bottom:2.2px solid var(--ws-accent)}
+  .sd-quotient{border-bottom:2.5px double var(--ws-accent);min-height:8mm}
+  .sd-qblank{display:block;width:7mm;height:6.5mm;border-bottom:1.4px dashed var(--ws-line);margin:0 auto}
+  .sd-carry{position:absolute;top:-1.2mm;left:0.6mm;font-size:7.5pt;font-weight:800;color:var(--ws-danger);line-height:1;visibility:hidden}
+  .sd-carry.is-blank{width:4.5mm;height:3.8mm;border:1px dashed var(--ws-danger);border-radius:2px;background:var(--ws-soft);visibility:visible;color:transparent}
+  .show-answers .sd-carry{visibility:visible;color:var(--ws-danger)}
+  .show-answers .sd-carry.is-blank{color:var(--ws-danger);background:var(--ws-soft);border-color:var(--ws-danger)}
+  .sd-qfill{visibility:hidden;color:var(--ws-danger);font-size:13pt}
+  .show-answers .sd-qfill{visibility:visible}
+  .show-answers .sd-qblank{display:none}
+  .sd-rem{font-size:9pt;color:var(--ws-danger);visibility:hidden;white-space:nowrap;width:auto;padding:0 2mm}
+  .show-answers .sd-rem{visibility:visible}
+  .sd-prompt-row{display:flex;flex-wrap:wrap;gap:2mm 4mm;align-items:baseline;margin-bottom:1mm}
+  .sd-hint{font-size:8pt;font-weight:700;color:var(--ws-muted)}
+  .count-5 .sd-board,.worksheet-mode-five .sd-board{--sd-cell:10mm}
+  .count-5 .sd-cell,.worksheet-mode-five .sd-cell{height:9.5mm;font-size:14pt}
+  .count-10 .sd-board{--sd-cell:7.5mm}
+  .count-10 .sd-cell{height:7mm;font-size:11pt}
+  .count-10 .sd-hint{display:none}
+</style>
+</head><body>
+<header class="toolbar"><h1>➗ ใบงานหารสั้นวิธีคิด</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="divide">หารสั้น</option><option value="check">ตรวจคำตอบ</option><option value="word">โจทย์ปัญหา</option><option value="strategy">กลยุทธ์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.175.10"></script><script>
+/** Build short-division digit/carry/quotient columns (media-aligned algorithm). */
+function shortDivisionTrace(dividend, divisor) {
+  const dividendDigits = String(dividend).split('').map(Number);
+  const N = dividendDigits.length;
+  const D = String(divisor).length;
+  const quotientDigits = [];
+  const carryOnDigit = Array(N).fill(null); // carry shown on dividend digit i (from previous rem)
+  let tempRem = 0;
+  let hasStarted = false;
+  for (let i = 0; i < N; i++) {
+    const digit = dividendDigits[i];
+    const currentNumber = tempRem * 10 + digit;
+    if (currentNumber < divisor && i < N - 1 && !hasStarted) {
+      if (i + 1 < N) carryOnDigit[i + 1] = currentNumber;
+      quotientDigits.push(null); // leading skip — no quotient digit yet (media skips writing 0 until start)
+      tempRem = currentNumber;
+      continue;
+    }
+    hasStarted = true;
+    const q = Math.floor(currentNumber / divisor);
+    const rem = currentNumber % divisor;
+    quotientDigits.push(q);
+    if (rem > 0 && i < N - 1) carryOnDigit[i + 1] = rem;
+    tempRem = rem;
+  }
+  // Align quotient under dividend: skipped leading slots stay empty; pad left if media style wrote only after start
+  // Media writes quotient only when hasStarted — leading nulls become blank cells (student may write 0 or leave blank).
+  const finalQuotient = Math.floor(dividend / divisor);
+  const finalRemainder = dividend % divisor;
+  return {
+    dividendDigits,
+    divisorDigits: String(divisor).split(''),
+    D, N,
+    quotientDigits,
+    carryOnDigit,
+    finalQuotient,
+    finalRemainder,
+    ansText: finalRemainder > 0 ? (finalQuotient + ' เศษ ' + finalRemainder) : String(finalQuotient),
+  };
+}
+
+function buildShortDivisionBoard(item) {
+  const e = window.KampaiTopicWorksheet.escapeHtml;
+  const t = shortDivisionTrace(item.dividend, item.divisor);
+  const W = t.D + 1 + t.N + (t.finalRemainder > 0 ? 1 : 0);
+  const cells = [];
+  // Row 0: divisor + ) + dividend (+ carry blanks on digits that receive carry)
+  for (let c = 0; c < t.D; c++) {
+    cells.push({ r: 0, c, html: '<span class="sd-cell sd-divisor">' + e(t.divisorDigits[c]) + '</span>' });
+  }
+  cells.push({ r: 0, c: t.D, html: '<span class="sd-cell sd-bracket">)</span>' });
+  for (let i = 0; i < t.N; i++) {
+    const carry = t.carryOnDigit[i];
+    let carryHtml = '';
+    if (carry != null) {
+      carryHtml = '<span class="sd-carry is-blank">' + e(String(carry)) + '</span>';
+    }
+    cells.push({
+      r: 0,
+      c: t.D + 1 + i,
+      html: '<span class="sd-cell sd-dividend">' + carryHtml + e(String(t.dividendDigits[i])) + '</span>',
+    });
+  }
+  // Row 1: quotient blanks under dividend columns
+  for (let i = 0; i < t.N; i++) {
+    const q = t.quotientDigits[i];
+    const fill = q == null ? '' : String(q);
+    cells.push({
+      r: 1,
+      c: t.D + 1 + i,
+      html: '<span class="sd-cell sd-quotient"><span class="sd-qblank" aria-hidden="true"></span><span class="sd-qfill">' + e(fill) + '</span></span>',
+    });
+  }
+  if (t.finalRemainder > 0) {
+    cells.push({
+      r: 1,
+      c: t.D + 1 + t.N,
+      html: '<span class="sd-cell sd-rem">เศษ ' + e(String(t.finalRemainder)) + '</span>',
+    });
+  }
+  const grid = cells.map(function (cell) {
+    return '<span style="grid-row:' + (cell.r + 1) + ';grid-column:' + (cell.c + 1) + '">' + cell.html + '</span>';
+  }).join('');
+  return '<div class="sd-board" style="grid-template-columns:repeat(' + W + ',var(--sd-cell))" role="img" aria-label="ตั้งหารสั้น ' + e(String(item.dividend)) + ' หารด้วย ' + e(String(item.divisor)) + '">' + grid + '</div>';
+}
+
+const SD_ITEMS = [
+  { type: 'divide', prompt: 'ตั้งหารสั้น แล้วเขียนผลหารทีละหลัก', dividend: 84, divisor: 4, answer: '21' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น ทดเศษไว้หน้าหลักถัดไป', dividend: 96, divisor: 3, answer: '32' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — ตัวตั้ง 2 หลัก', dividend: 75, divisor: 5, answer: '15' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — ใช้สูตรคูณย้อนตรวจ', dividend: 63, divisor: 7, answer: '9' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — ลงตัวพอดี', dividend: 58, divisor: 2, answer: '29' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — มีตัวทดข้ามหลัก', dividend: 156, divisor: 4, answer: '39' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — 3 หลัก ÷ 1 หลัก', dividend: 248, divisor: 8, answer: '31' },
+  { type: 'divide', prompt: 'ตั้งหารสั้น — มีเศษท้าย', dividend: 85, divisor: 4, answer: '21 เศษ 1' },
+  { type: 'check', prompt: 'ตรวจ: ถ้าตอบ 7 สำหรับ 48÷6 ถูกไหม? ตั้งหารสั้นแล้วหาคำตอบจริง', dividend: 48, divisor: 6, answer: '8 (ผิด · ไม่ใช่ 7)' },
+  { type: 'check', prompt: 'ตรวจ: 56÷8 = 7 ถูกไหม? ตั้งกระดานยืนยัน', dividend: 56, divisor: 8, answer: 'ถูก · 7' },
+  { type: 'word', prompt: 'มีดินสอ 72 แท่ง แจกเด็ก 8 คนเท่า ๆ กัน คนละกี่แท่ง?', dividend: 72, divisor: 8, answer: '9' },
+  { type: 'word', prompt: 'มีชอล์ก 45 แท่ง ใส่กล่องละ 5 แท่ง ได้กี่กล่อง?', dividend: 45, divisor: 5, answer: '9' },
+  { type: 'word', prompt: 'นักเรียน 96 คน ขึ้นรถ 4 คันเท่า ๆ กัน คันละกี่คน?', dividend: 96, divisor: 4, answer: '24' },
+  { type: 'strategy', prompt: 'ใช้หารสั้น: แยกคิด 80÷4 แล้ว 4÷4 รวมผล', dividend: 84, divisor: 4, answer: '21' },
+  { type: 'strategy', prompt: 'หารสั้น 135÷5 — ทดเศษทีละหลัก', dividend: 135, divisor: 5, answer: '27' },
+  { type: 'strategy', prompt: 'หารสั้น 207÷9 — ระวังหลักที่ยังหารไม่ได้', dividend: 207, divisor: 9, answer: '23' },
 ];
-window.WORKSHEET_CONFIG={icon:'➗',title:'ใบงานหารสั้นวิธีคิด',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'หารสั้น',sourceMediaUrl:'/games/math/short-division-thinking-media.html',indicators:['ค 1.1 ป.4/9','ค 1.1 ป.4/10','ค 1.1 ป.4/11'],directions:'หารสั้นทีละขั้น ตรวจด้วยคูณย้อน แก้โจทย์ปัญหา',getItems(t){return t==='mixed'?SD_ITEMS:SD_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.nums)stem+='<table class="mini-table"><tr><th>โจทย์</th><th>ข้อมูล</th></tr><tr><td>'+e(item.prompt.split(' ')[0])+'</td><td>'+e(item.nums)+'</td></tr></table>';stem+='<div>ลงวิธีคิดทีละขั้น</div></div>';return stem+'<div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.175.4"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.4"></script></body></html>
+
+window.WORKSHEET_CONFIG = {
+  worksheetKey: 'short-division',
+  icon: '➗',
+  title: 'ใบงานหารสั้นวิธีคิด',
+  subject: 'คณิตศาสตร์',
+  gradeLabel: 'ป.4–6',
+  mediaLabel: 'หารสั้น',
+  sourceMediaUrl:'/games/math/short-division-thinking-media.html',
+  indicators: ['ค 1.1 ป.4/9', 'ค 1.1 ป.4/10', 'ค 1.1 ป.4/11'],
+  directions: 'ตั้งหารสั้นเหมือนสื่อ: ตัวหาร ) ตัวตั้ง · เขียนผลหารใต้เส้น · ทดเศษตัวเล็กหน้าหลักถัดไป · ตรวจด้วยคูณย้อน',
+  getItems(t) { return t === 'mixed' ? SD_ITEMS : SD_ITEMS.filter(i => i.type === t); },
+  renderQuestion(item) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    const board = buildShortDivisionBoard(item);
+    const stem = '<div class="q-stem"><div class="sd-prompt-row"><div class="q-prompt">' + e(item.prompt) + '</div>'
+      + '<span class="sd-hint">' + e(String(item.dividend)) + ' ÷ ' + e(String(item.divisor)) + '</span></div>'
+      + board
+      + '<div class="sd-hint" style="margin-top:1.5mm">เขียนตัวทด (เศษ) ตัวเล็กหน้าหลักถัดไป · เขียนผลหารใต้เส้นทีละหลัก</div></div>';
+    return stem
+      + '<div class="q-foot"><div class="answer-line">สรุปคำตอบ <span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+  },
+};
+</script><script src="/games/worksheet-topic.js?v=1.175.10"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.10"></script></body></html>
