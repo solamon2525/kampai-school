@@ -275,6 +275,51 @@
       match: 'coding-social-worksheet',
       skills: ['อ่านคำสั่ง', 'เรียงขั้นตอน', 'แปลสัญลักษณ์', 'เลือกอย่างปลอดภัย', 'อธิบายเหตุผล'],
       steps: ['หาเป้าหมายของภารกิจ', 'แยกเป็นขั้นตอนสั้น ๆ', 'อ่านสัญลักษณ์ทีละตัว', 'ตรวจความปลอดภัยและมารยาท', 'อธิบายเหตุผลของคำตอบ']
+    },
+    {
+      match: 'states-of-matter-worksheet',
+      skills: ['จำแนกสถานะ', 'อธิบายสมบัติ', 'เปลี่ยนสถานะ', 'ยกตัวอย่าง', 'สรุป'],
+      steps: ['ดูตัวอย่าง', 'เลือกสถานะ', 'อธิบายสมบัติ', 'เชื่อมการเปลี่ยนสถานะ', 'สรุป']
+    },
+    {
+      match: 'vertebrate-sort-worksheet',
+      skills: ['จำแนกสัตว์มีกระดูกสันหลัง', 'ใช้เกณฑ์', 'ยกตัวอย่าง', 'เปรียบเทียบ', 'สรุป'],
+      steps: ['ดูลักษณะ', 'ใช้เกณฑ์กลุ่ม', 'จัดกลุ่ม', 'ยกตัวอย่าง', 'สรุป']
+    },
+    {
+      match: 'thailand-map-worksheet',
+      skills: ['อ่านแผนที่', 'ระบุภูมิภาค', 'หาจังหวัด', 'เปรียบเทียบ', 'สรุป'],
+      steps: ['ดูแผนที่', 'หาภูมิภาค', 'ระบุตำแหน่ง', 'เชื่อมความรู้', 'สรุป']
+    },
+    {
+      match: 'sukhothai-timeline-worksheet',
+      skills: ['เรียงเหตุการณ์', 'อ่านเส้นเวลา', 'เชื่อมประวัติ', 'ให้เหตุผล', 'สรุป'],
+      steps: ['ดูเส้นเวลา', 'เรียงเหตุการณ์', 'เชื่อมบุคคล/สถานที่', 'อธิบายความสำคัญ', 'สรุป']
+    },
+    {
+      match: 'dictionary-worksheet',
+      skills: ['หาคำในพจนานุกรม', 'อ่านคำจำกัดความ', 'ใช้ในประโยค', 'เลือกความหมาย', 'สรุป'],
+      steps: ['หาคำ', 'อ่านความหมาย', 'เลือกความหมายที่ตรงบริบท', 'สร้างประโยค', 'ตรวจ']
+    },
+    {
+      match: 'synonym-worksheet',
+      skills: ['หาคำพ้อง', 'เปรียบเทียบความหมาย', 'ใช้แทนกัน', 'เลือกคำเหมาะบริบท', 'สรุป'],
+      steps: ['อ่านคำ', 'นึกคำพ้อง', 'เทียบความหมาย', 'ใช้ในประโยค', 'ตรวจ']
+    },
+    {
+      match: 'implied-meaning-worksheet',
+      skills: ['อ่านนัย', 'หาเจตนา', 'แยกความหมายตรง/อ้อม', 'ให้เหตุผล', 'สรุป'],
+      steps: ['อ่านข้อความ', 'หาคำใบ้', 'ตีความนัย', 'เลือกคำตอบ', 'อธิบาย']
+    },
+    {
+      match: 'narration-style-worksheet',
+      skills: ['จำแนกการเล่า', 'มุมมองผู้เล่า', 'น้ำเสียง', 'เชื่อมตัวอย่าง', 'สรุป'],
+      steps: ['อ่านข้อความ', 'ดูมุมมอง', 'จำแนกสไตล์', 'ยกหลักฐาน', 'สรุป']
+    },
+    {
+      match: 'sentence-structure-worksheet',
+      skills: ['วิเคราะห์โครงสร้าง', 'หาประธานกริยา', 'จัดเรียง', 'ตรวจความหมาย', 'สรุป'],
+      steps: ['อ่านประโยค', 'หาส่วนประกอบ', 'จัดโครงสร้าง', 'ตรวจ', 'สรุป']
     }
   ];
 
@@ -363,6 +408,15 @@
     sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
   }
 
+  function addRemedialSample(sheet) {
+    const box = document.createElement('div');
+    box.className = 'worksheet-mode-sample';
+    box.innerHTML = '<strong>ตัวอย่างก่อนทำ (1 ข้อ):</strong> ครูสาธิตข้อแรกบนจอ/กระดาน → นักเรียนพูดตามขั้น → แล้วค่อยทำข้อที่เหลือเอง · อย่ารีบข้ามตัวอย่าง';
+    const guide = sheet.querySelector('.worksheet-mode-guide');
+    if (guide) guide.insertAdjacentElement('afterend', box);
+    else sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
+  }
+
   function decorateDifferentiated(sheets) {
     const fixedCount = Number(countSelect?.dataset.fixedCount || 0);
     const reviewNote = fixedCount
@@ -409,6 +463,7 @@
       addBadge(sheet, 'ซ่อมเสริมเฉพาะจุด');
       addNote(sheet, '<strong>เป้าหมาย:</strong> เน้นความเข้าใจทีละขั้น ไม่เน้นความเร็ว');
       addRemedialGuide(sheet);
+      addRemedialSample(sheet);
     }
   }
 

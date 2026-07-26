@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/short-division-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.4/10, ค 1.1 ป.4/11"><title>ใบงานหารสั้นวิธีคิด ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.14" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.14" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/short-division-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.4/10, ค 1.1 ป.4/11"><title>ใบงานหารสั้นวิธีคิด ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.15" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.15" rel="stylesheet">
 <style>
   /* Short-division board — aligned with short-division-thinking-media grid */
   .sd-board{--sd-cell:9mm;display:inline-grid;grid-auto-rows:minmax(8mm,auto);gap:0 0;align-items:center;justify-items:center;color:var(--ws-ink);font-weight:800;margin:1mm auto 0;width:max-content}
@@ -11,13 +11,13 @@
   .sd-qblank{display:block;width:7mm;height:6.5mm;border-bottom:1.4px dashed var(--ws-line);margin:0 auto}
   .sd-carry{position:absolute;top:-1.2mm;left:0.6mm;font-size:7.5pt;font-weight:800;color:var(--ws-danger);line-height:1;visibility:hidden}
   .sd-carry.is-blank{width:4.5mm;height:3.8mm;border:1px dashed var(--ws-danger);border-radius:2px;background:var(--ws-soft);visibility:visible;color:transparent}
-  .show-answers .sd-carry{visibility:visible;color:var(--ws-danger)}
-  .show-answers .sd-carry.is-blank{color:var(--ws-danger);background:var(--ws-soft);border-color:var(--ws-danger)}
+  .show-answers .sd-carry,.q.reveal-answer .sd-carry{visibility:visible;color:var(--ws-danger)}
+  .show-answers .sd-carry.is-blank,.q.reveal-answer .sd-carry.is-blank{color:var(--ws-danger);background:var(--ws-soft);border-color:var(--ws-danger)}
   .sd-qfill{visibility:hidden;color:var(--ws-danger);font-size:13pt}
-  .show-answers .sd-qfill{visibility:visible}
-  .show-answers .sd-qblank{display:none}
+  .show-answers .sd-qfill,.q.reveal-answer .sd-qfill{visibility:visible}
+  .show-answers .sd-qblank,.q.reveal-answer .sd-qblank{display:none}
   .sd-rem{font-size:9pt;color:var(--ws-danger);visibility:hidden;white-space:nowrap;width:auto;padding:0 2mm}
-  .show-answers .sd-rem{visibility:visible}
+  .show-answers .sd-rem,.q.reveal-answer .sd-rem{visibility:visible}
   .sd-prompt-row{display:flex;flex-wrap:wrap;gap:2mm 4mm;align-items:baseline;margin-bottom:1mm}
   .sd-hint{font-size:8pt;font-weight:700;color:var(--ws-muted)}
   .count-5 .sd-board,.worksheet-mode-five .sd-board{--sd-cell:10mm}
@@ -28,7 +28,7 @@
 </style>
 </head><body>
 <header class="toolbar"><h1>➗ ใบงานหารสั้นวิธีคิด</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="divide">หารสั้น</option><option value="check">ตรวจคำตอบ</option><option value="word">โจทย์ปัญหา</option><option value="strategy">กลยุทธ์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.175.14"></script><script>
+<script src="/games/worksheet-runtime.js?v=1.175.15"></script><script>
 /** Build short-division digit/carry/quotient columns (media-aligned algorithm). */
 function shortDivisionTrace(dividend, divisor) {
   const dividendDigits = String(dividend).split('').map(Number);
@@ -156,4 +156,4 @@ window.WORKSHEET_CONFIG = {
       + '<div class="q-foot"><div class="answer-line">สรุปคำตอบ <span class="answer-fill">' + e(item.answer) + '</span></div></div>';
   },
 };
-</script><script src="/games/worksheet-topic.js?v=1.175.14"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.14"></script></body></html>
+</script><script src="/games/worksheet-topic.js?v=1.175.15"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.15"></script></body></html>

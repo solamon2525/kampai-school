@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { ExternalLink, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ExternalLink, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ import {
 } from '@/services/worksheet-sets.service';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 type Props = {
   staffId?: string | null;
@@ -23,18 +25,38 @@ type Props = {
 export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const queryKey = ['worksheet-sets', mode, staffId ?? 'all', limit] as const;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterKey = searchParams.get('key')?.trim() || '';
+
+  const setFilterKey = (key: string) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (!key) next.delete('key');
+      else next.set('key', key);
+      if (!next.get('tab')) next.set('tab', 'worksheet-sets');
+      return next;
+    }, { replace: true });
+  };
+
+  const queryKey = ['worksheet-sets', mode, staffId ?? 'all', limit, filterKey || 'all'] as const;
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey,
     enabled: mode === 'recent' || Boolean(staffId),
     queryFn: async () => {
       if (mode === 'recent') {
-        const { data, error } = await worksheetSetsService.listRecent(limit);
+        const { data, error } = await worksheetSetsService.listRecent(Math.max(limit, 80));
         if (error) throw error;
-        return (data ?? []) as WorksheetSet[];
+        const all = (data ?? []) as WorksheetSet[];
+        const filtered = filterKey
+          ? all.filter((r) => r.worksheet_key === filterKey)
+          : all;
+        return filtered.slice(0, limit);
       }
-      const { data, error } = await worksheetSetsService.listMine(staffId!);
+      const { data, error } = await worksheetSetsService.listMine(
+        staffId!,
+        filterKey || undefined,
+      );
       if (error) throw error;
       return ((data ?? []) as WorksheetSet[]).slice(0, limit);
     },
@@ -91,13 +113,45 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
         <p className="text-xs text-muted-foreground">
           เปิดลิงก์เดิมบนจอเพื่อเฉลยโจทย์ชุดเดียวกับที่พิมพ์ให้นักเรียน — บันทึกชุดได้จากตัวใบงานเมื่อล็อกอินพอร์ทัล
           {mode === 'recent' ? ' · สรุปด้านล่างนับจากฐานข้อมูลจริง' : ''}
+          {' · Deep-link: '}
+          <code className="rounded bg-muted px-1 text-[10px]">?tab=worksheet-sets&amp;key=…</code>
         </p>
+        {filterKey ? (
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Badge variant="default" className="text-[10px]">
+              กรอง: {filterKey}
+            </Badge>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setFilterKey('')}
+            >
+              <X className="mr-1 h-3 w-3" />
+              ล้างกรอง
+            </Button>
+          </div>
+        ) : null}
         {countsByKey.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 pt-1">
-            {countsByKey.slice(0, 10).map(([key, count]) => (
-              <Badge key={key} variant="outline" className="text-[10px] font-normal">
-                {key}: {count}
-              </Badge>
+            {countsByKey.slice(0, 12).map(([key, count]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setFilterKey(filterKey === key ? '' : key)}
+                className="inline-flex"
+              >
+                <Badge
+                  variant={filterKey === key ? 'default' : 'outline'}
+                  className={cn(
+                    'cursor-pointer text-[10px] font-normal',
+                    filterKey === key && 'ring-1 ring-ring',
+                  )}
+                >
+                  {key}: {count}
+                </Badge>
+              </button>
             ))}
           </div>
         ) : null}
@@ -107,7 +161,9 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
           <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            ยังไม่มีชุดที่บันทึก — เปิดใบงาน แล้วกด «บันทึกชุด» ในแถบเครื่องมือ
+            {filterKey
+              ? `ยังไม่มีชุดสำหรับ «${filterKey}» — เปิดใบงานนั้นแล้วกด «บันทึกชุด»`
+              : 'ยังไม่มีชุดที่บันทึก — เปิดใบงาน แล้วกด «บันทึกชุด» ในแถบเครื่องมือ'}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -119,7 +175,13 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-foreground">{row.title}</div>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span>{row.worksheet_key}</span>
+                    <button
+                      type="button"
+                      className="underline-offset-2 hover:underline"
+                      onClick={() => setFilterKey(row.worksheet_key)}
+                    >
+                      {row.worksheet_key}
+                    </button>
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                       {row.access}
                     </Badge>

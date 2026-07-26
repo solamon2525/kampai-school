@@ -52,6 +52,18 @@
     .cmp-card .num { font-size: 1.8rem; font-weight: 800; color: var(--deep); }
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); text-align: center; }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    .mode-seg{display:flex;gap:8px;margin:0}
+    .mode-seg .btn{width:auto;flex:1;min-width:100px}
+    .mode-seg .btn.on{outline:2px solid #1e3a8a;outline-offset:1px;background:#dbeafe}
+    .shell.practice-on .body{display:none!important}
+    .practice-panel{display:none;flex-direction:column;gap:14px;padding:16px;max-width:560px;margin:0 auto;width:100%;flex:1}
+    .shell.practice-on .practice-panel{display:flex}
+    .practice-panel .pq{font-size:1.25rem;font-weight:800;line-height:1.4;color:#0f172a}
+    .practice-panel .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .practice-panel .opt{font:inherit;font-weight:700;padding:12px;border-radius:12px;border:2px solid #cbd5e1;background:#fff;cursor:pointer}
+    .practice-panel .opt.ok{border-color:#16a34a;background:#dcfce7}
+    .practice-panel .opt.no{border-color:#dc2626;background:#fee2e2}
+    .practice-panel .pfb{font-weight:800;min-height:1.4em}
   </style>
 </head>
 <body>
@@ -62,8 +74,18 @@
       <span class="badge">ป.1–3 · คณิตศาสตร์</span>
     </header>
     <div class="toolbar">
+      <div class="mode-seg" id="modeSeg">
+        <button type="button" class="btn btn-ghost on" data-mode="learn">📖 สอน</button>
+        <button type="button" class="btn btn-ghost" data-mode="practice">✏️ ฝึกสั้น</button>
+      </div>
       <p class="hint" id="hint">แตะบนเส้นจำนวนเพื่อวางจุด · เปรียบเทียบกับตัวเลขเป้า</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="practice-panel" id="practicePanel">
+      <p class="pq" id="pq"></p>
+      <div class="opts" id="popts"></div>
+      <p class="pfb" id="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="width:auto;align-self:flex-start">ข้อถัดไป</button>
     </div>
     <div class="body">
       <aside class="side">
@@ -232,6 +254,108 @@
 
     buildTicks();
     syncTarget();
+
+    function shuffleArr(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    }
+
+    function uniqueOpts(correct, candidates) {
+      var seen = {};
+      seen[String(correct)] = true;
+      var opts = [correct];
+      for (var i = 0; i < candidates.length && opts.length < 4; i++) {
+        var v = candidates[i];
+        if (!seen[String(v)]) {
+          seen[String(v)] = true;
+          opts.push(v);
+        }
+      }
+      var n = 1;
+      while (opts.length < 4) {
+        var fill = correct + n;
+        if (!seen[String(fill)]) {
+          seen[String(fill)] = true;
+          opts.push(fill);
+        }
+        n++;
+        if (n > 50) break;
+      }
+      return shuffleArr(opts);
+    }
+
+    function randInt(lo, hi) {
+      return lo + Math.floor(Math.random() * (hi - lo + 1));
+    }
+
+    function nextPractice() {
+      var pq = document.getElementById('pq');
+      var popts = document.getElementById('popts');
+      var pfb = document.getElementById('pfb');
+      pfb.textContent = '';
+      pfb.style.color = '';
+      var type = Math.floor(Math.random() * 3);
+      var ans, question, candidates;
+
+      if (type === 0) {
+        ans = randInt(0, 10);
+        question = 'บนเส้นจำนวน 0–10 ตัวเลข ' + ans + ' อยู่ที่ตำแหน่งเลขอะไร?';
+        candidates = [ans + 1, ans - 1, ans + 2, 10 - ans, Math.min(10, ans + 3)];
+      } else if (type === 1) {
+        var a = randInt(0, 20);
+        var b = randInt(0, 20);
+        while (b === a) b = randInt(0, 20);
+        ans = Math.max(a, b);
+        question = 'บนเส้น 0–20 ข้อใดมากกว่ากันระหว่าง ' + a + ' กับ ' + b + '?';
+        candidates = [Math.min(a, b), a + b, Math.abs(a - b), Math.floor((a + b) / 2)];
+      } else {
+        var start = randInt(0, 12);
+        var jumps = randInt(1, 5);
+        var step = Math.random() < 0.5 ? 1 : 2;
+        ans = start + jumps * step;
+        if (ans > 20) {
+          start = randInt(0, 8);
+          jumps = randInt(1, 4);
+          step = 1;
+          ans = start + jumps * step;
+        }
+        question = 'จาก ' + start + ' กระโดดทีละ ' + step + ' จำนวน ' + jumps + ' ครั้ง ถึงเลขใด?';
+        candidates = [start + jumps, start + jumps * (step === 1 ? 2 : 1), start - jumps * step, ans + 1, ans - 1];
+      }
+
+      var opts = uniqueOpts(ans, candidates);
+      pq.textContent = question;
+      popts.innerHTML = opts.map(function (o) {
+        return '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>';
+      }).join('');
+      popts.querySelectorAll('.opt').forEach(function (btn) {
+        btn.onclick = function () {
+          var ok = Number(btn.dataset.a) === ans;
+          btn.classList.add(ok ? 'ok' : 'no');
+          popts.querySelectorAll('.opt').forEach(function (b) {
+            b.disabled = true;
+            if (Number(b.dataset.a) === ans) b.classList.add('ok');
+          });
+          pfb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + ans;
+          pfb.style.color = ok ? '#16a34a' : '#dc2626';
+        };
+      });
+    }
+
+    document.getElementById('btnPracticeNext').onclick = nextPractice;
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+      btn.onclick = function () {
+        var practice = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('on', b === btn);
+        });
+        document.querySelector('.shell').classList.toggle('practice-on', practice);
+        if (practice) nextPractice();
+      };
+    });
   </script>
 </body>
 </html>

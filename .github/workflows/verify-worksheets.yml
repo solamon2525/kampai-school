@@ -1,0 +1,34 @@
+name: Verify worksheets
+
+on:
+  push:
+    paths:
+      - 'public/games/**/*worksheet*'
+      - 'public/games/worksheet-*.js'
+      - 'public/games/worksheet-*.css'
+      - 'scripts/verify-worksheet*.mjs'
+      - 'package.json'
+  pull_request:
+    paths:
+      - 'public/games/**/*worksheet*'
+      - 'public/games/worksheet-*.js'
+      - 'public/games/worksheet-*.css'
+      - 'scripts/verify-worksheet*.mjs'
+      - 'package.json'
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Worksheet quality matrix (strict — no bare hub3)
+        run: node scripts/verify-worksheet-matrix.mjs --strict
+      - name: Verify sample worksheets
+        run: |
+          node scripts/verify-worksheet.mjs public/games/math/multiplication-worksheet.html
+          node scripts/verify-worksheet.mjs public/games/math/division-worksheet.html
+          node scripts/verify-worksheet.mjs public/games/math/short-division-worksheet.html
+          node scripts/verify-worksheet.mjs public/games/math/rect-area-worksheet.html

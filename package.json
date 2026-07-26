@@ -23,6 +23,7 @@
     "verify:game": "node scripts/verify-game.mjs",
     "verify:worksheet": "node scripts/verify-worksheet.mjs",
     "verify:worksheet:matrix": "node scripts/verify-worksheet-matrix.mjs",
+    "verify:worksheet:matrix:strict": "node scripts/verify-worksheet-matrix.mjs --strict",
     "verify:worksheet:production": "node scripts/verify-worksheet-production.mjs",
     "audit:game-scores": "node scripts/audit-game-score-submit.mjs",
     "verify:media": "node scripts/verify-media.mjs",

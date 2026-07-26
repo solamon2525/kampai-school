@@ -153,18 +153,37 @@ Workflow ครู:
 pnpm verify:worksheet
 pnpm verify:worksheet public/games/math/division-worksheet.html
 pnpm verify:worksheet:matrix
+pnpm verify:worksheet:matrix -- --strict
 pnpm verify:worksheet:production
 ```
+
+### Dual-track naming (สื่อ ↔ ใบงาน)
+
+| สื่อ (media) | ใบงาน (worksheet) | worksheet_key |
+|---|---|---|
+| `*-media.html` / `*-thinking-media.html` | `*-worksheet.html` | ค่าใน `WORKSHEET_CONFIG.worksheetKey` |
+| ตัวอย่าง `divide-by-2-thinking-media.html` | `divide-by-2-worksheet.html` | `divide-by-2` |
+| ตัวอย่าง `food-chain-media.html` | `food-chain-worksheet.html` | `food-chain` |
+| ตัวอย่าง `multiplication-thinking-media.html` | `multiplication-worksheet.html` | ตาม `WORKSHEET_KEY` ในไฟล์ |
+
+กฎ: สื่อสอนบนจอ + ใบงานกระดาษคู่กัน · QR/meta `worksheet-source-media` ชี้กลับสื่อ · ชุดบันทึกใช้ `worksheet_key` เดียวกัน · พอร์ทัลกรองด้วย `?tab=worksheet-sets&key=<worksheet_key>`
 
 ### Phase 5 notes
 
 - เฉลยทีละข้อ: `KampaiWorksheet.createAnswerReveal()` ใน `worksheet-runtime.js` — ใช้ใน topic engine อัตโนมัติ และผูกคูณ/หารยาว; ปุ่ม ◀/▶ + คีย์ลูกศร
-- พอร์ทัล: เปิดแท็บชุดด้วย `?tab=worksheet-sets` (แอดมิน/ครู) · แผงชุดแสดงจำนวนรวมและนับตาม `worksheet_key`
-- เมทริกซ์คุณภาพ: `pnpm verify:worksheet:matrix` (เพิ่ม `--strict` เพื่อ fail เมื่อยังมี hub3 เปล่า)
+- พอร์ทัล: เปิดแท็บชุดด้วย `?tab=worksheet-sets` (แอดมิน/ครู) · แผงชุดแสดงจำนวนรวมและนับตาม `worksheet_key` · กรองด้วย `&key=`
+- เมทริกซ์คุณภาพ: `pnpm verify:worksheet:matrix` (เพิ่ม `--strict` เพื่อ fail เมื่อยังมี hub3 เปล่า) · CI workflow `.github/workflows/verify-worksheets.yml`
 - หลังเฟส 5B: hub3/shallow ในคลัง = 0 (แท่งแผนภูมิ · ตารางทศนิยม · รูปเรขา · แถบเศษส่วน · hub ไทย/สังคม/สี ใช้ขั้นติดป้ายแล้ว)
 - โหมดโปรเจคเตอร์: ปุ่ม 📽 ในแถบใบงาน หรือ `?present=1` — ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์/ชื่อชุด (คงปุ่มเฉลย/พิมพ์)
-- สื่อ thinking คณิตหลัก (คูณ · หารสั้น · หารยาว): สลับ **สอน | ฝึกสั้น** เป็น MCQ หลังสอน
+- สื่อ thinking คณิตหลัก (คูณ · หารสั้น · หารยาว · ÷2 · เกม 24 · เส้นจำนวน): สลับ **สอน | ฝึกสั้น** เป็น MCQ หลังสอน
 - analytics ชุด: `worksheetSetsService.countByKey()` นับจาก DB จริง แสดงบน WorksheetSetsPanel
+
+### Phase 6 notes
+
+- สื่อวิทย์/สุข: ห่วงโซ่ · ระบบย่อย · ล้างมือ — โหมดฝึกสั้น MCQ + `game_docs` v1.1.0 (migration 426)
+- Reveal CSS: `.q.reveal-answer` คู่กับ `.show-answers` ในใบงานคณิตที่ยังเหลือ (หารสั้น · ÷2 · 24 · มุม · ทศนิยม · เส้นจำนวน)
+- ซ่อมเสริม: กล่อง `.worksheet-mode-sample` «ตัวอย่างก่อนทำ (1 ข้อ)»
+- Production gate: หลัง migrate รายการคลัง ต้อง `pnpm verify:worksheet:production` ก่อนสรุปว่าขึ้นเว็บ
 
 ### Automatic Publish Gate (ใบงาน)
 

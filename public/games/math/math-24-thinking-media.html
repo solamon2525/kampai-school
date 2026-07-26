@@ -188,6 +188,22 @@
       gap: 6px;
     }
     .footer a { color: #1d4ed8; font-weight: 700; }
+    .mode-seg{display:flex;gap:8px;margin:4px 0 8px}
+    .mode-seg .btn{width:auto;flex:1}
+    .mode-seg .btn.on{outline:2px solid #fff;outline-offset:1px}
+    .shell.practice-on .goal-box,
+    .shell.practice-on .cards-row,
+    .shell.practice-on .placeholder,
+    .shell.practice-on .error-box,
+    .shell.practice-on .answer-wrap{display:none!important}
+    .practice-panel{display:none;flex-direction:column;gap:14px;padding:8px 4px;max-width:560px;margin:0 auto;width:100%}
+    .shell.practice-on .practice-panel{display:flex}
+    .practice-panel .pq{font-size:1.25rem;font-weight:800;line-height:1.4;color:#0f172a}
+    .practice-panel .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .practice-panel .opt{font:inherit;font-weight:700;padding:12px;border-radius:12px;border:2px solid #cbd5e1;background:#fff;cursor:pointer;word-break:break-word}
+    .practice-panel .opt.ok{border-color:#16a34a;background:#dcfce7}
+    .practice-panel .opt.no{border-color:#dc2626;background:#fee2e2}
+    .practice-panel .pfb{font-weight:800;min-height:1.4em}
   </style>
 </head>
 <body>
@@ -196,6 +212,10 @@
       <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h2>🧠 เกม 24 — วิธีคิด</h2>
       <p class="hint">กรอกตัวเลข 4 ตัว (1–13) แล้วกดแสดงวิธีคิดทีละขั้น</p>
+      <div class="mode-seg" id="modeSeg">
+        <button type="button" class="btn btn-ghost on" data-mode="learn">📖 สอน</button>
+        <button type="button" class="btn btn-ghost" data-mode="practice">✏️ ฝึกสั้น</button>
+      </div>
 
       <div class="num-grid">
         <div>
@@ -225,6 +245,12 @@
 
     <main class="main">
       <div class="content">
+        <div class="practice-panel" id="practicePanel">
+          <p class="pq" id="pq"></p>
+          <div class="opts" id="popts"></div>
+          <p class="pfb" id="pfb"></p>
+          <button type="button" class="btn btn-primary" id="btnPracticeNext" style="width:auto;align-self:flex-start">ข้อถัดไป</button>
+        </div>
         <div class="goal-box">
           ใช้เครื่องหมาย <span class="keyword">+ − × ÷</span> กับตัวเลขทั้ง 4 ตัว
           <strong>อย่างละครั้ง</strong> จนเหลือตัวเลขเดียว = <strong>24</strong>
@@ -567,6 +593,122 @@
       document.getElementById('btnRandom').onclick = randomize;
       document.getElementById('btnSpeak').onclick = speakSteps;
       inputs.forEach(function (inp) { inp.addEventListener('input', syncCards); });
+
+      function shuffleArr(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      function uniquePositiveOpts(correct, candidates) {
+        var seen = {};
+        seen[correct] = true;
+        var opts = [correct];
+        for (var i = 0; i < candidates.length && opts.length < 4; i++) {
+          var v = candidates[i];
+          if (v > 0 && !seen[v]) {
+            seen[v] = true;
+            opts.push(v);
+          }
+        }
+        var n = 1;
+        while (opts.length < 4) {
+          var fill = correct + n;
+          if (fill > 0 && !seen[fill]) {
+            seen[fill] = true;
+            opts.push(fill);
+          }
+          n++;
+          if (n > 200) break;
+        }
+        return shuffleArr(opts);
+      }
+
+      function randRange(lo, hi) {
+        return lo + Math.floor(Math.random() * (hi - lo + 1));
+      }
+
+      function nextPractice() {
+        var pq = document.getElementById('pq');
+        var popts = document.getElementById('popts');
+        var pfb = document.getElementById('pfb');
+        pfb.textContent = '';
+        pfb.style.color = '';
+        var type = Math.floor(Math.random() * 2);
+
+        if (type === 0) {
+          var a = randRange(2, 8);
+          var b = randRange(2, 8);
+          var c = randRange(2, 6);
+          var variants = [
+            { q: a + ' + ' + b + ' × ' + c + ' = ?', ans: a + b * c, cand: [a * b + c, (a + b) * c, a + b + c, a * b * c] },
+            { q: a + ' × ' + b + ' − ' + c + ' = ?', ans: a * b - c, cand: [a * (b - c), a + b - c, a * b + c, a + b * c] },
+            { q: '(' + a + ' + ' + b + ') × ' + c + ' = ?', ans: (a + b) * c, cand: [a + b * c, a * b * c, a + b + c, a * c + b] },
+            { q: a + ' × ' + b + ' + ' + c + ' = ?', ans: a * b + c, cand: [a * (b + c), (a + b) * c, a + b + c, a * b - c] },
+          ];
+          var pick = variants[Math.floor(Math.random() * variants.length)];
+          if (pick.ans <= 0) pick = variants[0];
+          var numOpts = uniquePositiveOpts(pick.ans, pick.cand);
+          pq.textContent = pick.q;
+          popts.innerHTML = numOpts.map(function (o) {
+            return '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>';
+          }).join('');
+          popts.querySelectorAll('.opt').forEach(function (btn) {
+            btn.onclick = function () {
+              var ok = Number(btn.dataset.a) === pick.ans;
+              btn.classList.add(ok ? 'ok' : 'no');
+              popts.querySelectorAll('.opt').forEach(function (b) {
+                b.disabled = true;
+                if (Number(b.dataset.a) === pick.ans) b.classList.add('ok');
+              });
+              pfb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + pick.ans;
+              pfb.style.color = ok ? '#16a34a' : '#dc2626';
+            };
+          });
+          return;
+        }
+
+        var puzzles = [
+          { nums: '8, 3, 1, 1', correct: '8 × 3 × 1 × 1', wrong: ['8 + 3 + 1 + 1', '8 × 3 + 1 − 1', '(8 + 3) × 1 + 1'] },
+          { nums: '6, 4, 2, 2', correct: '6 × 4 × 2 ÷ 2', wrong: ['6 + 4 + 2 + 2', '6 × 4 − 2 × 2', '(6 + 4) × 2 ÷ 2'] },
+          { nums: '6, 4, 1, 1', correct: '6 × 4 × 1 × 1', wrong: ['6 + 4 + 1 + 1', '6 × 4 − 1 − 1', '(6 + 4) × 1 + 1'] },
+          { nums: '8, 6, 1, 3', correct: '8 × 6 ÷ (3 − 1)', wrong: ['8 + 6 + 1 + 3', '8 × 6 − 3 × 1', '(8 + 6) × 1 + 3'] },
+          { nums: '9, 3, 2, 1', correct: '9 × 3 − 2 − 1', wrong: ['9 + 3 + 2 + 1', '9 × 3 ÷ 2 × 1', '(9 + 3) × 2 − 1'] },
+          { nums: '4, 3, 2, 1', correct: '4 × 3 × 2 × 1', wrong: ['4 + 3 + 2 + 1', '4 × 3 + 2 × 1', '(4 + 3) × 2 + 1'] },
+        ];
+        var pz = puzzles[Math.floor(Math.random() * puzzles.length)];
+        var exprOpts = shuffleArr([pz.correct].concat(pz.wrong));
+        pq.textContent = 'ตัวเลข ' + pz.nums + ' — ข้อใดใช้ครบ 4 ตัวแล้วได้ 24?';
+        popts.innerHTML = exprOpts.map(function (o, i) {
+          return '<button type="button" class="opt" data-i="' + i + '" data-ok="' + (o === pz.correct ? '1' : '0') + '">' + o + '</button>';
+        }).join('');
+        popts.querySelectorAll('.opt').forEach(function (btn) {
+          btn.onclick = function () {
+            var ok = btn.dataset.ok === '1';
+            btn.classList.add(ok ? 'ok' : 'no');
+            popts.querySelectorAll('.opt').forEach(function (b) {
+              b.disabled = true;
+              if (b.dataset.ok === '1') b.classList.add('ok');
+            });
+            pfb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + pz.correct;
+            pfb.style.color = ok ? '#16a34a' : '#dc2626';
+          };
+        });
+      }
+
+      document.getElementById('btnPracticeNext').onclick = nextPractice;
+      document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+        btn.onclick = function () {
+          var practice = btn.dataset.mode === 'practice';
+          document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+            b.classList.toggle('on', b === btn);
+          });
+          document.querySelector('.shell').classList.toggle('practice-on', practice);
+          if (practice) nextPractice();
+        };
+      });
 
       randomize();
     })();

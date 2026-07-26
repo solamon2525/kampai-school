@@ -43,10 +43,21 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .actions .btn { flex: 1; min-width: 120px; }
     .learn-panel { display: contents; }
-    .shell.mode-order .learn-panel { display: none; }
+    .shell.mode-order .learn-panel,
+    .shell.mode-practice .learn-panel { display: none; }
     .order-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; }
     .shell.mode-order .order-wrap { display: flex; }
-    .shell.mode-order .stage { display: none; }
+    .shell.mode-order .stage,
+    .shell.mode-practice .stage { display: none; }
+    .practice-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 12px; }
+    .shell.mode-practice .practice-wrap { display: flex; }
+    .shell.mode-practice .order-wrap { display: none; }
+    .pq { font-weight: 800; color: var(--deep); text-align: center; line-height: 1.45; font-size: 1.15rem; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #134e4a; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .pfb { font-weight: 800; text-align: center; min-height: 24px; }
     .order-prompt { font-weight: 800; color: var(--deep); text-align: center; background: #fff; border: 2px dashed #67e8f9; border-radius: 14px; padding: 12px; line-height: 1.45; }
     .order-track { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
     .order-slot { width: 40px; height: 40px; border-radius: 12px; border: 2px dashed #67e8f9; background: #ecfeff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; color: #67e8f9; }
@@ -74,8 +85,9 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="order">✏️ เรียงลำดับ</button>
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="order">🔗 เรียงลำดับ</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">เรียน 7 ขั้นตอนล้างมือให้สะอาด — ใช้สบู่และน้ำ</p>
       <button type="button" class="btn btn-accent learn-panel" id="btnPlay">▶ เล่นวน</button>
@@ -103,6 +115,12 @@
       <p class="order-fb" id="orderFb"></p>
       <div class="order-pool" id="orderPool"></div>
       <button type="button" class="btn btn-primary" id="btnOrderReset" style="align-self:center">🔄 เริ่มใหม่</button>
+    </div>
+    <div class="practice-wrap" id="practiceWrap">
+      <p class="pq" id="pq"></p>
+      <div class="opts" id="popts"></div>
+      <p class="pfb" id="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center">ข้อถัดไป</button>
     </div>
     <footer>ตัวชี้วัด <strong>พ 4.1 ป.3/1</strong> · <strong>ว 1.2 ป.3/2</strong> · คู่เกม <a href="/games/health/handwash-order.html">ล้างมือ 7 ขั้น (เกม)</a></footer>
   </div>
@@ -220,18 +238,57 @@
 
     document.getElementById('btnOrderReset').onclick = initOrder;
 
+    const PRACTICE_Q = [
+      { q: 'หลังฝ่ามือถูฝ่ามือ ขั้นถัดไปคืออะไร?', opts: ['ฝ่ามือถูหลังมือ', 'ประสานนิ้ว', 'ข้อมือ', 'ปลายนิ้ว'], a: 'ฝ่ามือถูหลังมือ' },
+      { q: 'หลังฝ่ามือถูหลังมือ ขั้นถัดไปคืออะไร?', opts: ['นิ้วหัวแม่มือ', 'ประสานนิ้ว', 'ข้อมือ', 'ฝ่ามือถูฝ่ามือ'], a: 'ประสานนิ้ว' },
+      { q: 'ขั้นที่ 5 ของการล้างมือ 7 ขั้นคืออะไร?', opts: ['ฝ่ามือถูฝ่ามือ', 'หลังนิ้ว', 'นิ้วหัวแม่มือ', 'ข้อมือ'], a: 'นิ้วหัวแม่มือ' },
+      { q: 'ขั้นสุดท้าย (ขั้นที่ 7) คืออะไร?', opts: ['ประสานนิ้ว', 'ปลายนิ้ว', 'ข้อมือ', 'ฝ่ามือถูหลังมือ'], a: 'ข้อมือ' },
+      { q: 'ทำไมต้องใช้สบู่เวลาล้างมือ?', opts: ['ให้มือมีกลิ่นหอมเท่านั้น', 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า', 'ทำให้มือแห้งเร็วขึ้น', 'ไม่จำเป็น น้ำเปล่าก็พอ'], a: 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า' },
+      { q: 'ควรล้างมือด้วยสบู่และน้ำอย่างน้อยกี่วินาที?', opts: ['5 วินาที', '10 วินาที', '20 วินาที', '2 วินาที'], a: '20 วินาที' },
+      { q: 'ลำดับที่ถูกต้องของ 3 ขั้นแรกคือข้อใด?', opts: ['ฝ่ามือ→หลังมือ→ประสานนิ้ว', 'ข้อมือ→ปลายนิ้ว→หลังนิ้ว', 'หัวแม่มือ→ปลายนิ้ว→ข้อมือ', 'ประสานนิ้ว→ฝ่ามือ→หลังมือ'], a: 'ฝ่ามือ→หลังมือ→ประสานนิ้ว' },
+      { q: 'ทำไมต้องถูซอกนิ้วและหัวแม่มือด้วย?', opts: ['เพื่อให้มือสวย', 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย', 'ไม่ต้องถูก็ได้', 'เพื่อให้สบู่หมดเร็ว'], a: 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย' },
+    ];
+
+    function nextPractice() {
+      var item = PRACTICE_Q[Math.floor(Math.random() * PRACTICE_Q.length)];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      document.getElementById('pfb').style.color = '';
+      document.getElementById('popts').innerHTML = item.opts.map(function (o) {
+        return '<button type="button" class="opt" data-a="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>';
+      }).join('');
+      document.querySelectorAll('#popts .opt').forEach(function (btn) {
+        btn.onclick = function () {
+          var ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach(function (b) {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? '#16a34a' : '#dc2626';
+          if (window.KAMPAI && KAMPAI.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext').onclick = nextPractice;
+
     document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
       btn.onclick = function () {
         stopPlay();
-        var isOrder = btn.dataset.mode === 'order';
-        document.getElementById('shell').classList.toggle('mode-order', isOrder);
+        var mode = btn.dataset.mode;
+        var shell = document.getElementById('shell');
+        shell.classList.toggle('mode-order', mode === 'order');
+        shell.classList.toggle('mode-practice', mode === 'practice');
         document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
           b.classList.toggle('on', b === btn);
         });
-        document.getElementById('hintText').textContent = isOrder
-          ? 'แตะการ์ดให้ถูกลำดับ 1 → 7'
+        document.getElementById('hintText').textContent =
+          mode === 'order' ? 'แตะการ์ดให้ถูกลำดับ 1 → 7'
+          : mode === 'practice' ? 'เลือกคำตอบ — ขั้นถัดไปและเหตุผลใช้สบู่'
           : 'เรียน 7 ขั้นตอนล้างมือให้สะอาด — ใช้สบู่และน้ำ';
-        if (isOrder) initOrder();
+        if (mode === 'order') initOrder();
+        if (mode === 'practice') nextPractice();
       };
     });
 

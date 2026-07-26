@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/divide-by-2-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.2/5, ค 1.1 ป.3/6, ค 1.1 ป.4/9"><title>ใบงานหาร 2 ในใจ ป.2–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.14" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.14" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/divide-by-2-thinking-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.2/5, ค 1.1 ป.3/6, ค 1.1 ป.4/9"><title>ใบงานหาร 2 ในใจ ป.2–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.15" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.15" rel="stylesheet">
 <style>
 .eq-big{font-size:15pt;font-weight:800;color:var(--ws-accent);text-align:center;margin:.5mm 0 1.2mm}
 .eq-big .op{color:var(--ws-accent-2)}
@@ -8,9 +8,9 @@
 .step-tag{font-size:7.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:4px;padding:1.2mm 1.5mm;text-align:center;line-height:1.2}
 .step-body{min-height:7mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;gap:1.5mm;padding-bottom:.5mm;font-weight:700;font-size:9pt;color:var(--ws-ink)}
 .half-box{min-width:12mm;height:6.5mm;border-bottom:1.4px solid var(--ws-ink);display:inline-block;text-align:center;color:transparent;font-weight:800}
-.show-answers .half-box{color:var(--ws-danger);border-bottom-style:dashed}
+.show-answers .half-box,.q.reveal-answer .half-box{color:var(--ws-danger);border-bottom-style:dashed}
 .work-fill{color:transparent;font-weight:800}
-.show-answers .work-fill{color:var(--ws-danger)}
+.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
 .tech-hint{font-size:7.5pt;font-weight:700;color:var(--ws-muted);text-align:center}
 .count-5 .eq-big{font-size:17pt}
 .count-5 .step-row{min-height:9.5mm}
@@ -20,7 +20,7 @@
 </style>
 </head><body>
 <header class="toolbar"><h1>➗ ใบงานหาร 2 ในใจ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="2">ป.2</option><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสม</option><option value="half">แบ่งครึ่ง</option><option value="check">ตรวจด้วย ×2</option><option value="split">แยกหลัก</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.175.14"></script><script>
+<script src="/games/worksheet-runtime.js?v=1.175.15"></script><script>
 (function(){
   function randEven(min,max){var lo=Math.ceil(min/2)*2,hi=Math.floor(max/2)*2;if(lo>hi)lo=hi;return lo+Math.floor(Math.random()*(Math.floor((hi-lo)/2)+1))*2;}
   function buildPool(grade){
@@ -77,11 +77,11 @@
     }
   };
 })();
-</script><script src="/games/worksheet-topic.js?v=1.175.14"></script><script>
+</script><script src="/games/worksheet-topic.js?v=1.175.15"></script><script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=function(){document.body.classList.toggle('show-answers');};
 document.getElementById('btnPrint').onclick=function(){window.print();};
 window.KampaiWorksheet.loadTeachers();
 render();
-</script><script src="/games/worksheet-modes.js?v=1.175.14"></script></body></html>
+</script><script src="/games/worksheet-modes.js?v=1.175.15"></script></body></html>

@@ -51,10 +51,21 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .actions .btn { flex: 1; min-width: 120px; }
     .learn-panel { display: contents; }
-    .shell.mode-path .learn-panel { display: none; }
+    .shell.mode-path .learn-panel,
+    .shell.mode-practice .learn-panel { display: none; }
     .path-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; }
     .shell.mode-path .path-wrap { display: flex; }
-    .shell.mode-path .stage { display: none; }
+    .shell.mode-path .stage,
+    .shell.mode-practice .stage { display: none; }
+    .practice-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 12px; }
+    .shell.mode-practice .practice-wrap { display: flex; }
+    .shell.mode-practice .path-wrap { display: none; }
+    .pq { font-weight: 800; color: var(--deep); text-align: center; line-height: 1.45; font-size: 1.15rem; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #431407; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .pfb { font-weight: 800; text-align: center; min-height: 24px; }
     .path-prompt { font-weight: 800; color: var(--deep); text-align: center; background: #fff; border: 2px dashed #fdba74; border-radius: 14px; padding: 12px; line-height: 1.45; }
     .path-track { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
     .path-slot { width: 44px; height: 44px; border-radius: 12px; border: 2px dashed #fdba74; background: #fff7ed; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: #fdba74; }
@@ -81,8 +92,9 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
         <button type="button" data-mode="path">🔗 เรียงเส้นทาง</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">แตะอวัยวะตามลำดับ ปาก → หลอดอาหาร → กระเพาะ → ลำไส้</p>
       <button type="button" class="btn btn-accent learn-panel" id="btnPlay">▶ เล่นวน</button>
@@ -148,6 +160,12 @@
       <p class="path-fb" id="pathFb"></p>
       <div class="path-pool" id="pathPool"></div>
       <button type="button" class="btn btn-primary" id="btnPathReset" style="align-self:center">🔄 เริ่มใหม่</button>
+    </div>
+    <div class="practice-wrap" id="practiceWrap">
+      <p class="pq" id="pq"></p>
+      <div class="opts" id="popts"></div>
+      <p class="pfb" id="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center">ข้อถัดไป</button>
     </div>
     <footer>ตัวชี้วัด <strong>ว 1.2 ป.6/4</strong> · อธิบายการย่อยอาหาร · คู่เกม <a href="/games/science/digestive-ar/index.html">ระบบย่อย AR</a></footer>
   </div>
@@ -281,18 +299,57 @@
 
     document.getElementById('btnPathReset').onclick = initPath;
 
+    const PRACTICE_Q = [
+      { q: 'อาหารเดินทางลำดับใดถูกต้อง?', opts: ['ปาก → หลอดอาหาร → กระเพาะ → ลำไส้', 'กระเพาะ → ปาก → ลำไส้ → หลอดอาหาร', 'ปาก → กระเพาะ → หลอดอาหาร → ลำไส้', 'ลำไส้ → กระเพาะ → ปาก → หลอดอาหาร'], a: 'ปาก → หลอดอาหาร → กระเพาะ → ลำไส้' },
+      { q: 'หลังเคี้ยวในปาก อาหารไปที่ใดถัดไป?', opts: ['กระเพาะ', 'หลอดอาหาร', 'ลำไส้ใหญ่', 'ตับ'], a: 'หลอดอาหาร' },
+      { q: 'อวัยวะใดใช้กรดและเอนไซม์ย่อยโปรตีน?', opts: ['ปาก', 'หลอดอาหาร', 'กระเพาะอาหาร', 'ลำไส้ใหญ่'], a: 'กระเพาะอาหาร' },
+      { q: 'ลำไส้เล็กมีหน้าที่หลักอะไร?', opts: ['เคี้ยวอาหาร', 'ส่งอาหารลงกระเพาะ', 'ดูดซึมสารอาหารเข้าเลือด', 'สร้างน้ำลาย'], a: 'ดูดซึมสารอาหารเข้าเลือด' },
+      { q: 'น้ำลายในปากช่วยเริ่มย่อยสารใด?', opts: ['แป้ง', 'ไขมันเท่านั้น', 'วิตามินซี', 'น้ำ'], a: 'แป้ง' },
+      { q: 'อวัยวะใดเป็นท่อบีบรัดส่งอาหารจากปากสู่กระเพาะ?', opts: ['ลำไส้', 'หลอดอาหาร', 'กระเพาะ', 'ฟัน'], a: 'หลอดอาหาร' },
+      { q: 'ลำดับที่ 3 ของเส้นทางย่อยคืออวัยวะใด?', opts: ['ปาก', 'หลอดอาหาร', 'กระเพาะ', 'ลำไส้'], a: 'กระเพาะ' },
+      { q: 'ลำไส้ใหญ่ช่วยทำอะไรเป็นหลัก?', opts: ['เคี้ยวอาหาร', 'ดูดซึมน้ำและขับของเสีย', 'สร้างกรดย่อยโปรตีน', 'กลืนอาหาร'], a: 'ดูดซึมน้ำและขับของเสีย' },
+    ];
+
+    function nextPractice() {
+      var item = PRACTICE_Q[Math.floor(Math.random() * PRACTICE_Q.length)];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      document.getElementById('pfb').style.color = '';
+      document.getElementById('popts').innerHTML = item.opts.map(function (o) {
+        return '<button type="button" class="opt" data-a="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>';
+      }).join('');
+      document.querySelectorAll('#popts .opt').forEach(function (btn) {
+        btn.onclick = function () {
+          var ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach(function (b) {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? '#16a34a' : '#dc2626';
+          if (window.KAMPAI && KAMPAI.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext').onclick = nextPractice;
+
     document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
       btn.onclick = function () {
         stopPlay();
-        var isPath = btn.dataset.mode === 'path';
-        document.getElementById('shell').classList.toggle('mode-path', isPath);
+        var mode = btn.dataset.mode;
+        var shell = document.getElementById('shell');
+        shell.classList.toggle('mode-path', mode === 'path');
+        shell.classList.toggle('mode-practice', mode === 'practice');
         document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
           b.classList.toggle('on', b === btn);
         });
-        document.getElementById('hintText').textContent = isPath
-          ? 'แตะอวัยวะให้ถูกลำดับ 1 → 4'
+        document.getElementById('hintText').textContent =
+          mode === 'path' ? 'แตะอวัยวะให้ถูกลำดับ 1 → 4'
+          : mode === 'practice' ? 'เลือกคำตอบ — ลำดับอวัยวะและหน้าที่'
           : 'แตะอวัยวะตามลำดับ ปาก → หลอดอาหาร → กระเพาะ → ลำไส้';
-        if (isPath) initPath();
+        if (mode === 'path') initPath();
+        if (mode === 'practice') nextPractice();
       };
     });
 

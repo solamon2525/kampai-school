@@ -83,6 +83,7 @@ export const EduHubManagement = () => {
             const next = new URLSearchParams(prev);
             if (value === 'items') next.delete('tab');
             else next.set('tab', value);
+            if (value !== 'worksheet-sets') next.delete('key');
             return next;
         }, { replace: true });
     };

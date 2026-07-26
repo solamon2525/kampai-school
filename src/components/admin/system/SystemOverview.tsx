@@ -272,6 +272,26 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.177.0 (ใบงานเฟส 6 — จัดเต็ม practice · reveal · CI · dual-track)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'สื่อ leftover ฝึกสั้น: ÷2 · เกม 24 · เส้นจำนวน + ห่วงโซ่/ระบบย่อย/ล้างมือ MCQ (migration 426)',
+            'เฉลยทีละข้อ CSS: หารสั้น · ÷2 · 24 · มุม · ทศนิยม · เส้นจำนวน · deep-link `?tab=worksheet-sets&key=` + ปุ่มชุดจากรายการใบงาน',
+            'โหมดซ่อมเสริม: กล่อง «ตัวอย่างก่อนทำ 1 ข้อ» · subjectGuides เพิ่มวิชาที่ขาด · CI `verify-worksheets.yml` (matrix --strict)',
+            'เอกสาร dual-track สื่อ↔ใบงานใน WORKSHEET.md · bump cache `1.175.15`',
+        ],
+    },
+    {
+        version: 'v1.176.9 (สื่อวิทยาศาสตร์/สุขศึกษา — ฝึกสั้น MCQ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ห่วงโซ่อาหาร · ระบบย่อย · ล้างมือ 7 ขั้น: เพิ่มโหมด ✏️ ฝึกสั้น (MCQ 4 ตัวเลือก) คู่กับสอน/เรียง',
+            'game_docs bump v1.1.0 (migration 426)',
+        ],
+    },
+    {
         version: 'v1.176.8 (ใบงานเฟส 5C — โปรเจคเตอร์ · ฝึกสั้น · analytics ชุด)',
         date: 'ล่าสุด',
         badge: 'bg-violet-600',

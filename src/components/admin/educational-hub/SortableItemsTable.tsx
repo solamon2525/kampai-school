@@ -25,9 +25,10 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Link } from 'react-router-dom';
 import {
     GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen,
-    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2,
+    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Layers,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,14 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
     youtube: 'YouTube',
     text: 'ข้อความ',
 };
+
+/** Derive worksheet_key from hub item URL for deep-link to sets tab */
+function worksheetKeyFromItemUrl(url: string | null | undefined): string | null {
+    if (!url || !url.includes('-worksheet.html')) return null;
+    const base = url.split('?')[0].split('/').pop() || '';
+    const key = base.replace(/-worksheet\.html$/i, '');
+    return key || null;
+}
 
 interface Props {
     items: EduHubItem[];
@@ -255,6 +264,20 @@ const SortableRow = ({
                     <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                         <Edit className="h-4 w-4" />
                     </Button>
+                    {(() => {
+                        const wsKey = worksheetKeyFromItemUrl(item.external_url);
+                        if (!wsKey) return null;
+                        return (
+                            <Button variant="ghost" size="sm" className="text-sky-700" asChild>
+                                <Link
+                                    to={`?tab=worksheet-sets&key=${encodeURIComponent(wsKey)}`}
+                                    title={`ชุดใบงาน: ${wsKey}`}
+                                >
+                                    <Layers className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        );
+                    })()}
                     {onDocs && isGameItem(item) && (
                         <Button
                             variant="ghost"

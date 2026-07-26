@@ -50,7 +50,15 @@
     .arr { color: #ca8a04; font-size: 1.3rem; font-weight: 800; }
     .order { display: none; flex-direction: column; gap: 14px; max-width: 560px; margin: 0 auto; }
     .order.on { display: flex; }
+    .practice { display: none; flex-direction: column; gap: 12px; max-width: 520px; margin: 0 auto; padding: 4px 0; }
+    .practice.on { display: flex; }
     .learn.hide { display: none; }
+    .pq { font-weight: 800; color: var(--deep); text-align: center; line-height: 1.45; font-size: 1.15rem; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid #86efac; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #14532d; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .pfb { font-weight: 800; text-align: center; min-height: 24px; }
     .eco-tag { text-align: center; font-weight: 800; color: var(--deep); font-size: 1.1rem; }
     .track { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; }
     .slot { width: 56px; height: 70px; border-radius: 12px; border: 2px dashed #86efac; background: #ecfdf5; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
@@ -82,8 +90,9 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="order">✏️ เรียงโซ่</button>
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="order">🔗 เรียงโซ่</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">พลังงานไหลจากผู้ผลิต → ผู้บริโภค → ผู้ล่าสูงสุด</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
@@ -110,6 +119,12 @@
           <button type="button" class="btn btn-accent" id="btnReveal">ดูเฉลย</button>
           <button type="button" class="btn btn-primary" id="btnNext">สุ่มโซ่ใหม่</button>
         </div>
+      </div>
+      <div class="practice" id="practice">
+        <p class="pq" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="pfb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center">ข้อถัดไป</button>
       </div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ว 1.1 ป.5/3</strong> · คู่เกม <a href="/play/food-chain">ห่วงโซ่อาหาร</a></footer>
@@ -175,17 +190,55 @@
       });
     }
 
+    const PRACTICE_Q = [
+      { q: 'ใครเป็นผู้ผลิตในห่วงโซ่ 🌾ต้นข้าว → 🦗ตั๊กแตน → 🐸กบ?', opts: ['ต้นข้าว', 'ตั๊กแตน', 'กบ', 'งู'], a: 'ต้นข้าว' },
+      { q: 'ผู้บริโภคคือสิ่งมีชีวิตที่…', opts: ['สร้างอาหารเองด้วยแสง', 'รับพลังงานจากสิ่งมีชีวิตอื่น', 'ย่อยซากสิ่งมีชีวิตเท่านั้น', 'ไม่ต้องการพลังงาน'], a: 'รับพลังงานจากสิ่งมีชีวิตอื่น' },
+      { q: 'ผู้ย่อยสลาย (เช่น เห็ด แบคทีเรีย) ทำหน้าที่อะไร?', opts: ['สร้างอาหารด้วยแสง', 'ล่าสัตว์ใหญ่', 'ย่อยซากให้เป็นสารอาหารกลับสู่ดิน', 'อยู่ปลายโซ่เสมอ'], a: 'ย่อยซากให้เป็นสารอาหารกลับสู่ดิน' },
+      { q: 'ลูกศรในห่วงโซ่อาหารชี้ทิศทางใด?', opts: ['ทิศทางไหลของพลังงาน', 'ทิศทางที่สัตว์วิ่งหนี', 'จากผู้ล่าไปหาพืช', 'จากดินไปหาดวงอาทิตย์'], a: 'ทิศทางไหลของพลังงาน' },
+      { q: 'ในโซ่ 🌿หญ้า → 🐰กระต่าย → 🦊จิ้งจอก พลังงานไหลไปทางใด?', opts: ['หญ้า → กระต่าย → จิ้งจอก', 'จิ้งจอก → กระต่าย → หญ้า', 'กระต่าย → หญ้า → จิ้งจอก', 'หญ้า ← กระต่าย ← จิ้งจอก'], a: 'หญ้า → กระต่าย → จิ้งจอก' },
+      { q: 'ใครเป็นผู้ล่าสูงสุดในโซ่ 🥬ผัก → 🐌หอยทาก → 🐔ไก่ → 🦊จิ้งจอก?', opts: ['ผักกาด', 'หอยทาก', 'ไก่', 'จิ้งจอก'], a: 'จิ้งจอก' },
+      { q: 'พืชและสาหร่ายจัดเป็นบทบาทใด?', opts: ['ผู้ผลิต', 'ผู้บริโภค', 'ผู้ย่อยสลาย', 'ผู้ล่าสูงสุด'], a: 'ผู้ผลิต' },
+      { q: 'ถ้าลูกศรชี้ผิดจากผู้ล่าไปหาพืช หมายความว่า…', opts: ['ทิศพลังงานผิด', 'ถูกต้องแล้ว', 'แสดงผู้ย่อยสลาย', 'แสดงแสงอาทิตย์'], a: 'ทิศพลังงานผิด' },
+    ];
+
+    function nextPractice() {
+      const item = PRACTICE_Q[(Math.random() * PRACTICE_Q.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      document.getElementById('pfb').style.color = '';
+      document.getElementById('popts').innerHTML = item.opts.map((o) =>
+        `<button type="button" class="opt" data-a="${o}">${o}</button>`
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? '#16a34a' : '#dc2626';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext').onclick = nextPractice;
+
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
       if (!b) return;
       mode = b.dataset.mode;
       document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('hide', mode === 'order');
+      document.getElementById('learn').classList.toggle('hide', mode !== 'learn');
       document.getElementById('order').classList.toggle('on', mode === 'order');
-      document.getElementById('hintText').textContent = mode === 'learn'
-        ? 'พลังงานไหลจากผู้ผลิต → ผู้บริโภค → ผู้ล่าสูงสุด'
-        : 'เรียงสิ่งมีชีวิตตามการไหลของพลังงาน — ไม่มีคะแนน';
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'พลังงานไหลจากผู้ผลิต → ผู้บริโภค → ผู้ล่าสูงสุด'
+        : mode === 'order' ? 'เรียงสิ่งมีชีวิตตามการไหลของพลังงาน — ไม่มีคะแนน'
+        : 'เลือกคำตอบ 4 ตัวเลือก — บทบาทและทิศพลังงาน';
       if (mode === 'order') newRound();
+      if (mode === 'practice') nextPractice();
     };
 
     document.getElementById('btnFs').onclick = () => {
