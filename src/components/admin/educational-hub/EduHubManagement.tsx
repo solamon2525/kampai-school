@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Plus, Edit, Trash2, FileText, Link as LinkIcon, Youtube, Type, Eye, EyeOff,
@@ -69,7 +70,23 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
     text: 'ข้อความ',
 };
 
+const HUB_TABS = ['items', 'games', 'worksheet-sets', 'categories', 'teachers', 'layout-defaults'] as const;
+type HubTab = (typeof HUB_TABS)[number];
+
 export const EduHubManagement = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const tab: HubTab = HUB_TABS.includes(tabParam as HubTab) ? (tabParam as HubTab) : 'items';
+
+    const setTab = (value: string) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (value === 'items') next.delete('tab');
+            else next.set('tab', value);
+            return next;
+        }, { replace: true });
+    };
+
     return (
         <div className="p-4 sm:p-6 space-y-6">
             <div>
@@ -79,7 +96,7 @@ export const EduHubManagement = () => {
                 </p>
             </div>
 
-            <Tabs defaultValue="items" className="w-full">
+            <Tabs value={tab} onValueChange={setTab} className="w-full">
                 <TabsList>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>

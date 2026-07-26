@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.6 (ใบงานเฟส 5 — เฉลยทีละข้อ · พอร์ทัล · matrix)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'เฉลยทีละข้อกลาง (`createAnswerReveal`) ทุก topic sheet + คูณ/หารยาว · คีย์ ←/→',
+            'พอร์ทัล: `?tab=worksheet-sets` + สรุปจำนวนชุดตาม worksheet_key · `verify:worksheet:matrix`',
+            'ยกระดับ fraction-hub (แถบเศษส่วน) + word-problem-hub (อ่าน→วางแผน→คำนวณ) · cache `1.175.13`',
+        ],
+    },
+    {
         version: 'v1.176.5 (ใบงานเฟส 4 — ไทย/อังกฤษ scaffold)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

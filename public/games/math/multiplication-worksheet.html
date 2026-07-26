@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9,ค 1.1 ป.5/6" />
   <title>ระบบใบงานการคูณอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.13" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -83,13 +83,13 @@
     .gz{color:#94a3b8;background:#f8fafc;font-size:10pt}
     .bl{background:#fafaf9;border-color:#e2e8f0}
     .gd.bt,.gs.bt{border-bottom:2.5px solid #047857}
-    .show-answers .wk{color:#dc2626;background:#fef2f2}
+    .show-answers .wk,.q.reveal-answer .wk{color:#dc2626;background:#fef2f2}
     
     /* ── Answer line ── */
     .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:0;min-height:7mm;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0;width:100%}
     .blank-sm{display:inline-block;min-width:20mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
-    .show-answers .ta{display:inline}
+    .show-answers .ta,.q.reveal-answer .ta{display:inline}
 
     /* ── Parent Slip & Bottom Teacher Info ── */
     .parent-slip{border-top:2px dashed #047857;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
@@ -190,7 +190,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.175.12"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.13"></script>
 <script>
 const WORKSHEET_KEY='multiplication';
 const SET_TITLE_PREFIX='ใบงานการคูณ';
@@ -527,18 +527,27 @@ document.getElementById('selMode').onchange = onCtrlChange;
 document.getElementById('selCount').onchange = onCtrlChange;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
-document.getElementById('btnAnswers').onclick = function(){
-  document.body.classList.toggle('show-answers');
-  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
-};
 document.getElementById('btnPrint').onclick = () => window.print();
 
 updateModeOptions();
 window.KampaiWorksheet.loadTeachers();
 window.render=render;
 window.randomize=randomize;
+const mulAnswerReveal = window.KampaiWorksheet.createAnswerReveal({
+  allLabel: '👁 ทั้งหมด',
+  hideLabel: '🙈 ซ่อนทั้งหมด',
+});
+const _mulRender = render;
+render = function(){
+  _mulRender();
+  mulAnswerReveal.reset();
+};
+window.render = render;
+document.getElementById('inpSchool').oninput = render;
+document.getElementById('selTeacher').onchange = render;
+mulAnswerReveal.install();
 bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.12"></script>
+<script src="/games/worksheet-modes.js?v=1.175.13"></script>
 </body>
 </html>

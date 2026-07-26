@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,6 +40,14 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
     },
   });
 
+  const countsByKey = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of rows) {
+      map.set(row.worksheet_key, (map.get(row.worksheet_key) ?? 0) + 1);
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+  }, [rows]);
+
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await worksheetSetsService.remove(id);
@@ -58,10 +67,24 @@ export function WorksheetSetsPanel({ staffId, mode = 'mine', limit = 20 }: Props
       <CardHeader className="pb-3">
         <CardTitle className="text-base text-foreground">
           ชุดใบงานที่บันทึก {mode === 'mine' ? 'ของฉัน' : 'ล่าสุด'}
+          {!isLoading && rows.length > 0 ? (
+            <Badge variant="secondary" className="ml-2 align-middle text-[10px]">
+              {rows.length} ชุด
+            </Badge>
+          ) : null}
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           เปิดลิงก์เดิมบนจอเพื่อเฉลยโจทย์ชุดเดียวกับที่พิมพ์ให้นักเรียน — บันทึกชุดได้จากตัวใบงานเมื่อล็อกอินพอร์ทัล
         </p>
+        {countsByKey.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {countsByKey.slice(0, 8).map(([key, count]) => (
+              <Badge key={key} variant="outline" className="text-[10px] font-normal">
+                {key}: {count}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
       </CardHeader>
       <CardContent className="space-y-2">
         {isLoading ? (

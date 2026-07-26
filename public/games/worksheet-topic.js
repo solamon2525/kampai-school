@@ -10,6 +10,9 @@
   let renderSeed = Date.now();
   let rng = null;
   let setsUi = null;
+  const answerReveal = window.KampaiWorksheet?.createAnswerReveal
+    ? window.KampaiWorksheet.createAnswerReveal()
+    : null;
 
   function escapeHtml(value) {
     return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -117,6 +120,7 @@
       html += renderSheet(page, controls.pageCount, controls.count, controls.style, controls.schoolName, controls.teacherName, controls.topic);
     }
     document.getElementById('pages').innerHTML = html;
+    if (answerReveal) answerReveal.reset();
     if (window.KampaiWorksheetSets) {
       window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, setId: setsUi?.getCurrentSetId?.() || undefined });
     }
@@ -196,11 +200,17 @@
     render,
     getSeed: () => renderSeed,
     worksheetKey,
+    answerReveal,
   });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootSets);
-  } else {
+  function boot() {
+    if (answerReveal) answerReveal.install();
     bootSets();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })();

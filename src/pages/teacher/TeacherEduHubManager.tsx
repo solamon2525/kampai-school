@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FolderOpen, Plus, BookOpen, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +44,21 @@ const MENU = [
 export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
     const staffId = link?.staff_id ?? null;
+    const [searchParams, setSearchParams] = useSearchParams();
+    const teacherTabs = ['items', 'worksheet-sets', 'profile', 'analytics', 'vocab-review'] as const;
+    type TeacherTab = (typeof teacherTabs)[number];
+    const tabParam = searchParams.get('tab');
+    const tab: TeacherTab = teacherTabs.includes(tabParam as TeacherTab)
+        ? (tabParam as TeacherTab)
+        : 'items';
+    const setTab = (value: string) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (value === 'items') next.delete('tab');
+            else next.set('tab', value);
+            return next;
+        }, { replace: true });
+    };
 
     return (
         <RolePortalLayout title="Portal ครู" subtitle="คลังสื่อ/เกม ของฉัน" menu={MENU} accent="teacher">
@@ -63,7 +79,7 @@ export default function TeacherEduHubManager() {
                         </CardContent>
                     </Card>
                 ) : (
-                    <Tabs defaultValue="items" className="w-full">
+                    <Tabs value={tab} onValueChange={setTab} className="w-full">
                         <TabsList>
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
                             <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>

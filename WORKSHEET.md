@@ -152,8 +152,15 @@ Workflow ครู:
 ```bash
 pnpm verify:worksheet
 pnpm verify:worksheet public/games/math/division-worksheet.html
+pnpm verify:worksheet:matrix
 pnpm verify:worksheet:production
 ```
+
+### Phase 5 notes
+
+- เฉลยทีละข้อ: `KampaiWorksheet.createAnswerReveal()` ใน `worksheet-runtime.js` — ใช้ใน topic engine อัตโนมัติ และผูกคูณ/หารยาว; ปุ่ม ◀/▶ + คีย์ลูกศร
+- พอร์ทัล: เปิดแท็บชุดด้วย `?tab=worksheet-sets` (แอดมิน/ครู) · แผงชุดแสดงจำนวนรวมและนับตาม `worksheet_key`
+- เมทริกซ์คุณภาพ: `pnpm verify:worksheet:matrix` (เพิ่ม `--strict` เพื่อ fail เมื่อยังมี hub3 เปล่า)
 
 ### Automatic Publish Gate (ใบงาน)
 

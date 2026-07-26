@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9" />
   <title>ระบบใบงานการหารยาวอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.12" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.175.13" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -68,13 +68,14 @@
     .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:10.5pt;color:#b91c1c;line-height:1}
     .ld-teacher-value{visibility:hidden}
     .ld-answer-fill{visibility:hidden;color:#b91c1c;font-weight:800}
-    .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill{visibility:visible}
-    .show-answers .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
+    .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill,
+    .q.reveal-answer .ld-quotient-answer,.q.reveal-answer .ld-teacher-value,.q.reveal-answer .ld-answer-fill{visibility:visible}
+    .show-answers .ld-quotient-cell,.q.reveal-answer .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
 
     .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:7mm;display:flex;align-items:flex-end;justify-content:center;width:100%}
     .blank-sm{display:inline-block;min-width:26mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;text-align:center}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
-    .show-answers .ta{display:inline}
+    .show-answers .ta,.q.reveal-answer .ta{display:inline}
 
     .parent-slip{border-top:2px dashed #047857;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
     .parent-slip .cut-label{font-weight:800;color:#047857}
@@ -130,7 +131,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.175.12"></script>
+<script src="/games/worksheet-runtime.js?v=1.175.13"></script>
 <script>
 const WORKSHEET_KEY='division';
 const SET_TITLE_PREFIX='ใบงานหารยาว';
@@ -340,17 +341,25 @@ document.getElementById('selGrade').onchange = onCtrlChange;
 document.getElementById('selCount').onchange = onCtrlChange;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
-document.getElementById('btnAnswers').onclick = function(){
-  document.body.classList.toggle('show-answers');
-  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
-};
 document.getElementById('btnPrint').onclick = () => window.print();
 
 window.KampaiWorksheet.loadTeachers();
+const divAnswerReveal = window.KampaiWorksheet.createAnswerReveal({
+  allLabel: '👁 ทั้งหมด',
+  hideLabel: '🙈 ซ่อนทั้งหมด',
+});
+const _divRender = render;
+render = function(){
+  _divRender();
+  divAnswerReveal.reset();
+};
 window.render=render;
 window.randomize=randomize;
+document.getElementById('inpSchool').oninput = render;
+document.getElementById('selTeacher').onchange = render;
+divAnswerReveal.install();
 bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.12"></script>
+<script src="/games/worksheet-modes.js?v=1.175.13"></script>
 </body>
 </html>
