@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.176.7 (ใบงานเฟส 5B — เคลียร์ hub3/shallow ที่เหลือ)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-600',
+        items: [
+            'คณิต: bar-chart · decimal-hub · geometry-hub · data-chart · fraction-pieces — แท่ง/ตารางหลัก/SVG + ขั้นติดป้าย',
+            'ไทย/สังคม/ศิลปะ: script · idiom · poetry · punctuation · literature · word-types · thailand · color-wheel',
+            'ขยาย subjectGuides ครอบคลุมชุดนี้ · matrix เป้าหมาย hub3→0',
+        ],
+    },
+    {
         version: 'v1.176.6 (ใบงานเฟส 5 — เฉลยทีละข้อ · พอร์ทัล · matrix)',
         date: 'ล่าสุด',
         badge: 'bg-violet-600',

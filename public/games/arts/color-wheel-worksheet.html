@@ -1,20 +1,55 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/arts/color-wheel-media.html"><meta name="curriculum-indicators" content="ศ 1.1 ป.4/2, ศ 1.1 ป.4/7"><title>ใบงานวงล้อสี ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.13" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.13" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/arts/color-wheel-media.html"><meta name="curriculum-indicators" content="ศ 1.1 ป.4/2, ศ 1.1 ป.4/7"><title>ใบงานวงล้อสี ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.13" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.13" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.swatch-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1mm;margin:1mm 0}
+.swatch{border:1px dashed var(--ws-line);border-radius:3px;padding:.7mm;font-size:7pt;font-weight:700;text-align:center;color:var(--ws-muted);min-height:8mm;display:flex;align-items:center;justify-content:center}
+.swatch.focus{border-style:solid;border-color:var(--ws-accent);color:var(--ws-accent);font-weight:800}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}.count-5 .swatch{min-height:10mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>🎨 ใบงานวงล้อสี</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="primary">แม่สี</option><option value="mix">ผสมสี</option><option value="mood">วรรณะ/อารมณ์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.175.13"></script><script>
 const COLOR_ITEMS=[
- {type:'primary',prompt:'แม่สีมีกี่สี อะไรบ้าง',color:'แม่สี',answer:'3 สี: แดง เหลือง น้ำเงิน'},
- {type:'primary',prompt:'สีใดเป็นแม่สี',color:'แดง',answer:'แม่สี'},
- {type:'primary',prompt:'สีเขียวเป็นแม่สีหรือไม่',color:'เขียว',answer:'ไม่ เป็นสีทุติยภูมิ'},
- {type:'mix',prompt:'แดง + เหลือง ได้สีใด',color:'แดง+เหลือง',answer:'ส้ม'},
- {type:'mix',prompt:'เหลือง + น้ำเงิน ได้สีใด',color:'เหลือง+น้ำเงิน',answer:'เขียว'},
- {type:'mix',prompt:'แดง + น้ำเงิน ได้สีใด',color:'แดง+น้ำเงิน',answer:'ม่วง'},
- {type:'mix',prompt:'ถ้าต้องการส้มอ่อน ควรทำอย่างไร',color:'ส้ม',answer:'ผสมแดงกับเหลือง แล้วเพิ่มขาว/ลดความเข้ม'},
- {type:'mood',prompt:'สีวรรณะอุ่นมีตัวอย่างใด',color:'วรรณะอุ่น',answer:'แดง ส้ม เหลือง'},
- {type:'mood',prompt:'สีวรรณะเย็นมีตัวอย่างใด',color:'วรรณะเย็น',answer:'น้ำเงิน เขียว ม่วง'},
- {type:'mood',prompt:'ถ้าอยากสื่อความสงบ ควรใช้วรรณะใด',color:'สงบ',answer:'วรรณะเย็น'},
- {type:'mood',prompt:'ถ้าอยากสื่อความร้อนแรง ควรใช้วรรณะใด',color:'ร้อนแรง',answer:'วรรณะอุ่น'},
- {type:'mood',prompt:'เลือกสีคู่ตัดกันบนวงล้อ: แดงคู่กับ',color:'คู่ตัด',answer:'เขียว'}
+ {type:'primary',prompt:'แม่สีมีกี่สี อะไรบ้าง',color:'แม่สี',answer:'3 สี: แดง เหลือง น้ำเงิน',step1:'แม่สี 3 สี',step2:'ไม่ผสมจากสีอื่น',step3:'แดง·เหลือง·น้ำเงิน'},
+ {type:'primary',prompt:'สีใดเป็นแม่สี',color:'แดง',answer:'แม่สี',step1:'แดง',step2:'เป็นแม่สี',step3:'แม่สี'},
+ {type:'primary',prompt:'สีเขียวเป็นแม่สีหรือไม่',color:'เขียว',answer:'ไม่ เป็นสีทุติยภูมิ',step1:'เขียว',step2:'เหลือง+น้ำเงิน',step3:'ไม่ใช่แม่สี'},
+ {type:'mix',prompt:'แดง + เหลือง ได้สีใด',color:'แดง+เหลือง',answer:'ส้ม',step1:'แดง + เหลือง',step2:'ผสมเท่ากัน',step3:'ส้ม'},
+ {type:'mix',prompt:'เหลือง + น้ำเงิน ได้สีใด',color:'เหลือง+น้ำเงิน',answer:'เขียว',step1:'เหลือง + น้ำเงิน',step2:'ผสมเท่ากัน',step3:'เขียว'},
+ {type:'mix',prompt:'แดง + น้ำเงิน ได้สีใด',color:'แดง+น้ำเงิน',answer:'ม่วง',step1:'แดง + น้ำเงิน',step2:'ผสมเท่ากัน',step3:'ม่วง'},
+ {type:'mix',prompt:'ถ้าต้องการส้มอ่อน ควรทำอย่างไร',color:'ส้ม',answer:'ผสมแดงกับเหลือง แล้วเพิ่มขาว/ลดความเข้ม',step1:'แดง+เหลือง=ส้ม',step2:'เพิ่มขาว',step3:'ส้มอ่อน'},
+ {type:'mood',prompt:'สีวรรณะอุ่นมีตัวอย่างใด',color:'วรรณะอุ่น',answer:'แดง ส้ม เหลือง',step1:'วรรณะอุ่น',step2:'แดง·ส้ม·เหลือง',step3:'ร้อนแรง'},
+ {type:'mood',prompt:'สีวรรณะเย็นมีตัวอย่างใด',color:'วรรณะเย็น',answer:'น้ำเงิน เขียว ม่วง',step1:'วรรณะเย็น',step2:'น้ำเงิน·เขียว·ม่วง',step3:'สงบ'},
+ {type:'mood',prompt:'ถ้าอยากสื่อความสงบ ควรใช้วรรณะใด',color:'สงบ',answer:'วรรณะเย็น',step1:'อารมณ์สงบ',step2:'เลือกวรรณะเย็น',step3:'วรรณะเย็น'},
+ {type:'mood',prompt:'ถ้าอยากสื่อความร้อนแรง ควรใช้วรรณะใด',color:'ร้อนแรง',answer:'วรรณะอุ่น',step1:'อารมณ์ร้อนแรง',step2:'เลือกวรรณะอุ่น',step3:'วรรณะอุ่น'},
+ {type:'mood',prompt:'เลือกสีคู่ตัดกันบนวงล้อ: แดงคู่กับ',color:'คู่ตัด',answer:'เขียว',step1:'แดงตรงข้าม',step2:'บนวงล้อ',step3:'เขียว'}
 ];
-window.WORKSHEET_CONFIG={icon:'🎨',title:'ใบงานวงล้อสี',subject:'ศิลปะ',gradeLabel:'ป.4–6',mediaLabel:'วงล้อสี',sourceMediaUrl:'/games/arts/color-wheel-media.html',indicators:['ศ 1.1 ป.4/2','ศ 1.1 ป.4/7'],directions:'ระบุแม่สี ผสมสี และเลือกวรรณะให้เหมาะกับอารมณ์ภาพ',getItems(topic){return topic==='mixed'?COLOR_ITEMS:COLOR_ITEMS.filter(i=>i.type===topic);},buildColorWork(item){if(item.type==='primary')return{line1:'จำแนกจากวงล้อสี: '+item.color,line2:'ตอบ: '+item.answer};if(item.type==='mix')return{line1:'ผสม: '+item.color,line2:'ตอบ: '+item.answer};return{line1:'เชื่อมสีกับอารมณ์/วรรณะ',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildColorWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">แดง</div><div class="classify-box">เหลือง</div><div class="classify-box">น้ำเงิน</div><div class="classify-box">'+e(item.color)+'</div></div></div><div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+const SKILL={primary:'แม่สี',mix:'ผสมสี',mood:'วรรณะ'};
+window.WORKSHEET_CONFIG={
+  icon:'🎨',title:'ใบงานวงล้อสี',subject:'ศิลปะ',gradeLabel:'ป.4–6',mediaLabel:'วงล้อสี',
+  sourceMediaUrl:'/games/arts/color-wheel-media.html',indicators:['ศ 1.1 ป.4/2','ศ 1.1 ป.4/7'],
+  directions:'ติ๊กแม่สี/ผสม/วรรณะ → ดูสีใน swatch → ลงสูตรผสมทีละขั้น',
+  getItems(topic){return topic==='mixed'?COLOR_ITEMS:COLOR_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const s1=item.step1||item.s1||'',s2=item.step2||item.s2||'',s3=item.step3||item.s3||'';
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="swatch-grid">'
+      +'<div class="swatch">□ แดง</div><div class="swatch">□ เหลือง</div><div class="swatch">□ น้ำเงิน</div>'
+      +'<div class="swatch focus">'+e(item.color)+'</div></div>'
+      +'<div class="tick-grid"><div class="tick-box">□ แม่สี</div><div class="tick-box">□ ผสมสี</div><div class="tick-box">□ วรรณะ</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 แม่สี</span><div class="step-body"><span class="work-fill">'+e(s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 ผสม</span><div class="step-body"><span class="work-fill">'+e(s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 วรรณะ</span><div class="step-body"><span class="work-fill">'+e(s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
 </script><script src="/games/worksheet-topic.js?v=1.175.13"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.13"></script></body></html>

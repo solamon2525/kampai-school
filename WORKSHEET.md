@@ -161,6 +161,7 @@ pnpm verify:worksheet:production
 - เฉลยทีละข้อ: `KampaiWorksheet.createAnswerReveal()` ใน `worksheet-runtime.js` — ใช้ใน topic engine อัตโนมัติ และผูกคูณ/หารยาว; ปุ่ม ◀/▶ + คีย์ลูกศร
 - พอร์ทัล: เปิดแท็บชุดด้วย `?tab=worksheet-sets` (แอดมิน/ครู) · แผงชุดแสดงจำนวนรวมและนับตาม `worksheet_key`
 - เมทริกซ์คุณภาพ: `pnpm verify:worksheet:matrix` (เพิ่ม `--strict` เพื่อ fail เมื่อยังมี hub3 เปล่า)
+- หลังเฟส 5B: hub3/shallow ในคลัง = 0 (แท่งแผนภูมิ · ตารางทศนิยม · รูปเรขา · แถบเศษส่วน · hub ไทย/สังคม/สี ใช้ขั้นติดป้ายแล้ว)
 
 ### Automatic Publish Gate (ใบงาน)
 
