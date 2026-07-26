@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สื่อเศษส่วนวงกลม / แท่ง — บ้านคำไผ่</title>
@@ -143,6 +143,21 @@
       background: #ea580c;
       color: #fff;
     }
+    .mode-panel { display: none; flex-direction: column; flex: 1; }
+    .mode-panel.on { display: flex; flex-direction: column; flex: 1; }
+    .learn-card {
+      margin: 16px;
+      padding: 16px;
+      border: 2px solid #fdba74;
+      border-radius: 16px;
+      background: #fff7ed;
+      font-weight: 700;
+      line-height: 1.55;
+      color: #9a3412;
+      max-width: 720px;
+    }
+    .learn-card h2 { font-size: 1.1rem; margin-bottom: 8px; color: #c2410c; }
+    .learn-card p { margin-bottom: 8px; }
     .hint {
       font-size: 0.85rem;
       color: #9a3412;
@@ -372,6 +387,25 @@
     </header>
 
     <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <p class="hint" id="modeHint">เศษส่วน = ส่วนที่แรเงา ÷ จำนวนชิ้นทั้งหมด</p>
+    </div>
+
+    <div class="mode-panel on" id="learn">
+      <div class="learn-card">
+        <h2>📖 เศษส่วนคืออะไร?</h2>
+        <p>เศษส่วนบอกส่วนของทั้งหมด เช่น <strong>1/2</strong> = แรเงา 1 ชิ้นจากทั้งหมด 2 ชิ้น</p>
+        <p><strong>ตัวเศษ</strong> = จำนวนชิ้นที่แรเงา · <strong>ตัวส่วน</strong> = จำนวนชิ้นทั้งหมด</p>
+        <p>เศษส่วนสมมูล เช่น <strong>1/2 = 2/4 = 3/6</strong> — ค่าเท่ากัน แม้ชิ้นต่างกัน</p>
+        <p>สลับไปโหมด <strong>✏️ ฝึกสั้น</strong> เพื่อแตะชิ้นส่วน เทียบวงกลม/แท่ง และเช็กสมมูล</p>
+      </div>
+    </div>
+
+    <div class="mode-panel" id="practice">
+    <div class="toolbar">
       <label>รูปแบบ
         <span class="seg" id="shapeSeg">
           <button type="button" data-shape="circle" class="on">วงกลม</button>
@@ -384,7 +418,7 @@
       <label>ตัวส่วน B
         <select id="denB"></select>
       </label>
-      <p class="hint">แตะชิ้นส่วนเพื่อระบายสี · หรือลากชิ้นจากถาดด้านล่างไปวางบนโมเดล · กด “เทียบสมมูล” เพื่อเช็กว่าเศษส่วนเท่ากันหรือไม่</p>
+      <p class="hint">ฝึกสั้น: แตะชิ้นส่วนเพื่อระบายสี · หรือลากชิ้นจากถาด · กด “เทียบสมมูล”</p>
     </div>
 
     <div class="stage">
@@ -435,6 +469,7 @@
         <span>🏫 โรงเรียนบ้านคำไผ่</span>
       </div>
     </div>
+    </div>
   </div>
 
   <script>
@@ -442,6 +477,20 @@
       if (window.KAMPAI) {
         try { window.KAMPAI.setSlug('fraction-pieces-media'); } catch (e) {}
       }
+
+      document.getElementById('modeSeg').onclick = function (e) {
+        var b = e.target.closest('button[data-mode]');
+        if (!b) return;
+        var mode = b.getAttribute('data-mode');
+        document.querySelectorAll('#modeSeg button').forEach(function (x) {
+          x.classList.toggle('on', x === b);
+        });
+        document.getElementById('learn').classList.toggle('on', mode === 'learn');
+        document.getElementById('practice').classList.toggle('on', mode === 'practice');
+        document.getElementById('modeHint').textContent = mode === 'learn'
+          ? 'เศษส่วน = ส่วนที่แรเงา ÷ จำนวนชิ้นทั้งหมด'
+          : 'ฝึกสั้น: แตะชิ้น · เทียบสมมูล · ไม่มีคะแนน';
+      };
 
       var DENS = [2, 3, 4, 5, 6, 8, 10, 12];
       var state = {

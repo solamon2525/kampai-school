@@ -1,20 +1,48 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/sukhothai-timeline-media.html"><meta name="curriculum-indicators" content="ส 4.3 ป.4/1, ส 4.3 ป.4/2, ส 4.3 ป.4/3"><title>ใบงานไทยสุโขทัย ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/sukhothai-timeline-media.html"><meta name="curriculum-indicators" content="ส 4.3 ป.4/1, ส 4.3 ป.4/2, ส 4.3 ป.4/3"><title>ใบงานไทยสุโขทัย ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>🏛️ ใบงานไทยสุโขทัย</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="order">เรียงเหตุการณ์</option><option value="person">บุคคลสำคัญ</option><option value="significance">ความสำคัญ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
 const SUK_ITEMS=[
- {type:'order',prompt:'เรียงเหตุการณ์: ก่อตั้งเมือง → ? → มีพระรามาธิบดีที่ 1',flow:['ก่อตั้ง','?','รามาธิบดี I'],answer:'รวมอำนาจ/ขยายเมือง'},
- {type:'order',prompt:'ลำดับการปกครองสุโขทัย',flow:['อิสระ','?','อยุธยา'],answer:'เสื่อม/ถูกรวมเข้ากับอยุธยา'},
- {type:'order',prompt:'เรียง: พ่อขุน → สุโขทัย → ?',flow:['พ่อขุน','สุโขทัย','?'],answer:'อาณาจักรขยาย/ลุ่มน้ำเจ้าพระยา'},
- {type:'person',prompt:'พ่อขุนรามคำแหงมีบทบาทอย่างไร',flow:['พ่อขุน'],answer:'ก่อตั้งและรวมอำนาจเป็นราชอาณาจักรสุโขทัย'},
- {type:'person',prompt:'พระรามาธิบดีที่ 1 มีชื่อเดิมว่า',flow:['รามาธิบดี I'],answer:'พ่อขุนรามคำแหง'},
- {type:'person',prompt:'ใครเป็นผู้ก่อตั้งเมืองสุโขทัย',flow:['ผู้ก่อตั้ง'],answer:'พ่อขุนรามคำแหง (และพ่อขุนศรีอินทร)'},
- {type:'significance',prompt:'อักษรไทยเริ่มใช้ในสมัยใด',flow:['อักษรไทย'],answer:'สมัยสุโขทัย (พ.ศ. 1826)'},
- {type:'significance',prompt:'หลักประชาธิปไตยในศิลาจารึก 1 คือ',flow:['ศิลาจารึก'],answer:'เสรีภาพ/ความสุขของประชาชน (ตามจารึก)'},
- {type:'significance',prompt:'ทำไมสุโขทัยจึงสำคัญต่อประวัติศาสตร์ไทย',flow:['รากเหง้า'],answer:'เป็นราชอาณาจักรไทยรัฐแรก/ต้นกำเนิดอารยธรรมไทย'},
- {type:'significance',prompt:'ลักษณะเมืองสุโขทัยที่เห็นได้',flow:['เมือง'],answer:'มีคูเมือง กำแพง วัดโบราณ เช่น วัดมหาธาตุ'},
- {type:'person',prompt:'พ่อขุนศรีอินทรมีบทบาท',flow:['ศรีอินทร'],answer:'ร่วมก่อตั้งและปกครองช่วงแรก'},
- {type:'order',prompt:'เหตุการณ์ใดแสดงการขยายอำนาจ',flow:['สงคราม','?','รวมเมือง'],answer:'ขยายอำนาจสู่ลุ่มน้ำเจ้าพระยา'}
+ {type:'order',prompt:'เรียงเหตุการณ์: ก่อตั้งเมือง → ? → มีพระรามาธิบดีที่ 1',flow:['ก่อตั้ง','?','รามาธิบดี I'],answer:'รวมอำนาจ/ขยายเมือง',s1:'ดูขั้นก่อน: ก่อตั้ง',s2:'ขั้นกลางที่หายไป',s3:'รวมอำนาจ/ขยายเมือง'},
+ {type:'order',prompt:'ลำดับการปกครองสุโขทัย',flow:['อิสระ','?','อยุธยา'],answer:'เสื่อม/ถูกรวมเข้ากับอยุธยา',s1:'เริ่มจากอิสระ',s2:'ขั้นกลาง: เสื่อม',s3:'ถูกรวมกับอยุธยา'},
+ {type:'order',prompt:'เรียง: พ่อขุน → สุโขทัย → ?',flow:['พ่อขุน','สุโขทัย','?'],answer:'อาณาจักรขยาย/ลุ่มน้ำเจ้าพระยา',s1:'พ่อขุนก่อตั้ง',s2:'อาณาจักรสุโขทัย',s3:'ขยายสู่ลุ่มน้ำเจ้าพระยา'},
+ {type:'person',prompt:'พ่อขุนรามคำแหงมีบทบาทอย่างไร',flow:['พ่อขุน'],answer:'ก่อตั้งและรวมอำนาจเป็นราชอาณาจักรสุโขทัย',s1:'ระบุบุคคล: พ่อขุนรามคำแหง',s2:'บทบาท: ก่อตั้ง/รวมอำนาจ',s3:'ราชอาณาจักรสุโขทัย'},
+ {type:'person',prompt:'พระรามาธิบดีที่ 1 มีชื่อเดิมว่า',flow:['รามาธิบดี I'],answer:'พ่อขุนรามคำแหง',s1:'ดูพระนามรามาธิบดีที่ 1',s2:'เชื่อมกับพ่อขุน',s3:'พ่อขุนรามคำแหง'},
+ {type:'person',prompt:'ใครเป็นผู้ก่อตั้งเมืองสุโขทัย',flow:['ผู้ก่อตั้ง'],answer:'พ่อขุนรามคำแหง (และพ่อขุนศรีอินทร)',s1:'ถามผู้ก่อตั้ง',s2:'เชื่อมบุคคลสำคัญ',s3:'พ่อขุนรามคำแหง/ศรีอินทร'},
+ {type:'significance',prompt:'อักษรไทยเริ่มใช้ในสมัยใด',flow:['อักษรไทย'],answer:'สมัยสุโขทัย (พ.ศ. 1826)',s1:'หัวข้อ: อักษรไทย',s2:'เชื่อมสมัยประวัติศาสตร์',s3:'สมัยสุโขทัย'},
+ {type:'significance',prompt:'หลักประชาธิปไตยในศิลาจารึก 1 คือ',flow:['ศิลาจารึก'],answer:'เสรีภาพ/ความสุขของประชาชน (ตามจารึก)',s1:'อ่านศิลาจารึกหลัก 1',s2:'หาหลักการสำคัญ',s3:'เสรีภาพของประชาชน'},
+ {type:'significance',prompt:'ทำไมสุโขทัยจึงสำคัญต่อประวัติศาสตร์ไทย',flow:['รากเหง้า'],answer:'เป็นราชอาณาจักรไทยรัฐแรก/ต้นกำเนิดอารยธรรมไทย',s1:'ตั้งคำถามความสำคัญ',s2:'ราชอาณาจักรไทยรัฐแรก',s3:'รากเหง้าอารยธรรมไทย'},
+ {type:'significance',prompt:'ลักษณะเมืองสุโขทัยที่เห็นได้',flow:['เมือง'],answer:'มีคูเมือง กำแพง วัดโบราณ เช่น วัดมหาธาตุ',s1:'สังเกตลักษณะเมือง',s2:'คูเมือง กำแพง วัด',s3:'เช่น วัดมหาธาตุ'},
+ {type:'person',prompt:'พ่อขุนศรีอินทรมีบทบาท',flow:['ศรีอินทร'],answer:'ร่วมก่อตั้งและปกครองช่วงแรก',s1:'ระบุบุคคล: ศรีอินทร',s2:'บทบาทช่วงก่อตั้ง',s3:'ร่วมก่อตั้ง/ปกครองแรก'},
+ {type:'order',prompt:'เหตุการณ์ใดแสดงการขยายอำนาจ',flow:['สงคราม','?','รวมเมือง'],answer:'ขยายอำนาจสู่ลุ่มน้ำเจ้าพระยา',s1:'ดูขั้นสงคราม',s2:'ขั้นกลางที่หายไป',s3:'ขยายอำนาจ/รวมเมือง'}
 ];
-window.WORKSHEET_CONFIG={icon:'🏛️',title:'ใบงานไทยสุโขทัย',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'สุโขทัย',sourceMediaUrl:'/games/social/sukhothai-timeline-media.html',indicators:['ส 4.3 ป.4/1','ส 4.3 ป.4/2','ส 4.3 ป.4/3'],directions:'เรียงเหตุการณ์ ระบุบุคคลสำคัญ และอธิบายความสำคัญของสุโขทัย',getItems(topic){return topic==='mixed'?SUK_ITEMS:SUK_ITEMS.filter(i=>i.type===topic);},buildSukWork(item){if(item.type==='order')return{line1:'เชื่อมเหตุการณ์: '+item.flow.join(' → '),line2:'ตอบ: '+item.answer};if(item.type==='person')return{line1:'บุคคล/บทบาท',line2:item.answer};return{line1:'ความสำคัญทางประวัติศาสตร์',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildSukWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="cycle-flow">'+item.flow.map((step,i)=>'<div class="cycle-step">'+e(step)+'</div>'+(i<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>
+window.WORKSHEET_CONFIG={
+  worksheetKey:'sukhothai-timeline',icon:'🏛️',title:'ใบงานไทยสุโขทัย',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'สุโขทัย',
+  sourceMediaUrl:'/games/social/sukhothai-timeline-media.html',indicators:['ส 4.3 ป.4/1','ส 4.3 ป.4/2','ส 4.3 ป.4/3'],
+  directions:'เรียงเหตุการณ์ ระบุบุคคลสำคัญ และอธิบายความสำคัญของสุโขทัย',
+  getItems(topic){return topic==='mixed'?SUK_ITEMS:SUK_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const tags=item.type==='order'
+      ?['1 ก่อน','2 ขั้นกลาง','3 หลัง']
+      :item.type==='person'
+        ?['1 บุคคล','2 บทบาท','3 ผล']
+        :['1 หัวข้อ','2 หลักฐาน','3 ความสำคัญ'];
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="cycle-flow">'+item.flow.map((step,i)=>'<div class="cycle-step">'+e(step)+'</div>'+(i<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">'+tags[0]+'</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[1]+'</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[2]+'</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

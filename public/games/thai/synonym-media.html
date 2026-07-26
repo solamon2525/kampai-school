@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ไวพจน์ / คำพ้องความหมาย — สื่อการสอน — บ้านคำไผ่</title>
@@ -85,7 +85,7 @@
       <span class="seg" id="modeSeg">
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
         <button type="button" data-mode="flash">🃏 แฟลชการ์ด</button>
-        <button type="button" data-mode="pick">❓ เลือกไวพจน์</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
         <button type="button" data-mode="match">🔗 จับคู่กลุ่ม</button>
       </span>
       <p class="hint" id="hintText">เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง</p>
@@ -94,14 +94,14 @@
     <div class="stage">
       <div class="panel on" id="p-learn"></div>
       <div class="panel" id="p-flash"></div>
-      <div class="panel" id="p-pick"></div>
+      <div class="panel" id="p-practice"></div>
       <div class="panel" id="p-match"></div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ท 1.1 ป.4/2</strong> · คู่เกม <a href="/play/waipot">ไวพจน์</a> · ฝึกคลังเพิ่ม <a href="/play/thai-vocab-hub">thai-vocab-hub</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'synonym-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('synonym-media');
 
     const GROUPS = [
       {
@@ -372,7 +372,7 @@
     const hints = {
       learn: 'เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง',
       flash: 'แตะการ์ดเพื่อพลิกหน้า/หลัง · หน้า=คำ หลัง=กลุ่ม+คำคู่',
-      pick: 'เลือกคำที่พ้องความหมายกับคำที่กำหนด',
+      practice: 'ฝึกสั้น: เลือกคำที่พ้องความหมายกับคำที่กำหนด',
       match: 'แตะคำแล้วแตะกล่องธีม — หรือแตะกล่องก่อนแล้วเลือกคำ',
     };
 
@@ -384,7 +384,7 @@
       document.getElementById('hintText').textContent = hints[m];
       if (m === 'learn') renderLearn();
       if (m === 'flash') { flashBack = false; renderFlash(); }
-      if (m === 'pick') { if (!pickQ) nextPick(); else renderPick(); }
+      if (m === 'practice') { if (!pickQ) nextPick(); else renderPick(); }
       if (m === 'match') { if (!matchThemes.length) resetMatch(); else renderMatch(); }
     }
 
@@ -485,7 +485,7 @@
     }
 
     function renderPick() {
-      const el = document.getElementById('p-pick');
+      const el = document.getElementById('p-practice');
       if (!pickQ) return;
       el.innerHTML =
         '<div class="q-box">' +

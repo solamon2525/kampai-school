@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ว 4.2 ป.4/1,ว 4.2 ป.4/2,ว 4.2 ป.4/5" />
   <title>ระบบใบงานวิทยาการคำนวณ & สังคมศึกษาอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#faf5ff;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#7e22ce;color:#fff;box-shadow:0 3px 12px rgba(126,34,206,.35)}
@@ -46,7 +46,6 @@
     .questions.count-5,.questions.worksheet-mode-five{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
     .questions.count-5 .q,.questions.worksheet-mode-five .q{padding:3.5mm 3mm;min-height:44mm}
     .count-5 .q-work-block,.worksheet-mode-five .q-work-block{min-height:20mm;gap:2mm}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:10mm;height:10mm;font-size:9.5pt}
     .count-5 .eng-word,.count-5 .sci-word,.count-5 .thai-word,.count-5 .code-word{font-size:16pt}
     .count-5 .ans,.worksheet-mode-five .ans{margin-top:3mm;font-size:10.5pt}
     
@@ -54,9 +53,13 @@
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#7e22ce;color:#fff;font-weight:800;font-size:9pt}
     .code-question{font-size:11.5pt;font-weight:800;color:#6b21a8;margin-left:7mm;flex-shrink:0;line-height:1.35}
     .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
+    .step-block{display:flex;flex-direction:column;gap:1.2mm;margin-left:7mm;width:calc(100% - 7mm)}
+    .step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+    .step-tag{font-size:6.5pt;font-weight:800;color:#fff;background:#7e22ce;border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+    .step-body{min-height:6mm;border-bottom:1px dotted #d8b4fe;display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:8.5mm}
     .ans{font:700 9.5pt Sarabun,sans-serif;color:#7e22ce;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
     .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
-    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #d8b4fe;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
     .work-fill{color:transparent;font-weight:800}
     .show-answers .work-fill{color:#b91c1c}
     .ta{display:none}
@@ -131,33 +134,37 @@ const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' 
 
 const TECH_DATA = {
   unplugged: [
-    {q:'คำสั่ง ⬆️ หมายถึงอะไร?', ans:'เดินหน้า / ขึ้นบน'},
-    {q:'คำสั่ง ➡️ หมายถึงอะไร?', ans:'เลี้ยวขวา'},
-    {q:'คำสั่ง 🔁 Repeat 3 times หมายถึงอะไร?', ans:'ทำซ้ำ 3 รอบ'},
-    {q:'จุดเริ่มต้นของการทำงานในอัลกอริทึมเรียกว่าอะไร?', ans:'Start / เริ่มต้น'}
+    {q:'คำสั่ง ⬆️ หมายถึงอะไร?', ans:'เดินหน้า / ขึ้นบน', s1:'ดูสัญลักษณ์ลูกศรขึ้น', s2:'แปลเป็นการเคลื่อนที่', s3:'เดินหน้า / ขึ้นบน'},
+    {q:'คำสั่ง ➡️ หมายถึงอะไร?', ans:'เลี้ยวขวา', s1:'ดูสัญลักษณ์ลูกศรขวา', s2:'แปลเป็นทิศทาง', s3:'เลี้ยวขวา'},
+    {q:'คำสั่ง 🔁 Repeat 3 times หมายถึงอะไร?', ans:'ทำซ้ำ 3 รอบ', s1:'ดูคำว่า Repeat', s2:'จำนวนครั้ง = 3', s3:'ทำซ้ำ 3 รอบ'},
+    {q:'จุดเริ่มต้นของการทำงานในอัลกอริทึมเรียกว่าอะไร?', ans:'Start / เริ่มต้น', s1:'หาจุดแรกของลำดับ', s2:'ชื่อมาตรฐาน', s3:'Start / เริ่มต้น'}
   ],
   traffic: [
-    {q:'ป้ายวงกลมสีแดงมีเครื่องหมายห้าม หมายถึงอะไร?', ans:'ป้ายบังคับ (ห้ามผ่าน/ห้ามเลี้ยว)'},
-    {q:'ป้ายสามเหลี่ยมสีเหลือง หมายถึงอะไร?', ans:'ป้ายเตือน (ระวังทางโค้ง/ระวังโรงเรียน)'},
-    {q:'สัญญาณไฟจราจรสีเหลือง หมายถึงอะไร?', ans:'เตรียมหยุดรถ'}
+    {q:'ป้ายวงกลมสีแดงมีเครื่องหมายห้าม หมายถึงอะไร?', ans:'ป้ายบังคับ (ห้ามผ่าน/ห้ามเลี้ยว)', s1:'สังเกตรูปทรง+สี', s2:'วงกลมแดง = บังคับ/ห้าม', s3:'ป้ายบังคับ'},
+    {q:'ป้ายสามเหลี่ยมสีเหลือง หมายถึงอะไร?', ans:'ป้ายเตือน (ระวังทางโค้ง/ระวังโรงเรียน)', s1:'สังเกตรูปทรง+สี', s2:'สามเหลี่ยมเหลือง = เตือน', s3:'ป้ายเตือน'},
+    {q:'สัญญาณไฟจราจรสีเหลือง หมายถึงอะไร?', ans:'เตรียมหยุดรถ', s1:'ลำดับไฟจราจร', s2:'เหลือง = เตรียม', s3:'เตรียมหยุดรถ'}
   ],
   cyber: [
-    {q:'การไม่เปิดเผยรหัสผ่านให้ผู้อื่นเรียกว่าอะไร?', ans:'การรักษาความเป็นส่วนตัว (Privacy)'},
-    {q:'การระแกะระกวนกันทางออนไลน์เรียกว่าอะไร?', ans:'Cyberbullying'},
-    {q:'ก่อนแชร์ข่าวสารควรทำสิ่งใดเป็นอันดับแรก?', ans:'ตรวจสอบความถูกต้อง (Fact Check)'}
+    {q:'การไม่เปิดเผยรหัสผ่านให้ผู้อื่นเรียกว่าอะไร?', ans:'การรักษาความเป็นส่วนตัว (Privacy)', s1:'ข้อมูลส่วนตัว', s2:'ไม่แชร์รหัสผ่าน', s3:'Privacy'},
+    {q:'การระแกะระกวนกันทางออนไลน์เรียกว่าอะไร?', ans:'Cyberbullying', s1:'พฤติกรรมออนไลน์', s2:'รังแก/คุกคาม', s3:'Cyberbullying'},
+    {q:'ก่อนแชร์ข่าวสารควรทำสิ่งใดเป็นอันดับแรก?', ans:'ตรวจสอบความถูกต้อง (Fact Check)', s1:'ก่อนแชร์', s2:'ตรวจแหล่งข่าว', s3:'Fact Check'}
   ]
 };
 
 function buildTechWork(item, topicKey){
-  if(topicKey==='unplugged') return {line1:'แปลสัญลักษณ์/คำสั่งทีละขั้น', line2:'→ '+item.ans};
-  if(topicKey==='traffic') return {line1:'เชื่อมสัญลักษณ์กับพฤติกรรมที่ปลอดภัย', line2:'→ '+item.ans};
-  return {line1:'พิจารณาความปลอดภัยและมารยาทออนไลน์', line2:'→ '+item.ans};
+  if(topicKey==='unplugged') return {t1:'1 อ่าน',t2:'2 แปล',t3:'3 ผล',s1:item.s1,s2:item.s2,s3:item.s3};
+  if(topicKey==='traffic') return {t1:'1 สังเกต',t2:'2 ความหมาย',t3:'3 พฤติกรรม',s1:item.s1,s2:item.s2,s3:item.s3};
+  return {t1:'1 สถานการณ์',t2:'2 หลักการ',t3:'3 ปฏิบัติ',s1:item.s1,s2:item.s2,s3:item.s3};
 }
 function question(qi, topicItem, topicKey){
   const work=buildTechWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="code-question">ภารกิจ: "'+topicItem.q+'"</div>'
-    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
+    +'<div class="q-work-block step-block">'
+    +'<div class="step-row"><span class="step-tag">'+work.t1+'</span><div class="step-body"><span class="work-fill">'+work.s1+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">'+work.t2+'</span><div class="step-body"><span class="work-fill">'+work.s2+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">'+work.t3+'</span><div class="step-body"><span class="work-fill">'+work.s3+'</span></div></div>'
+    +'</div>'
     +'<div class="ans">คำตอบ: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 
@@ -319,6 +326,6 @@ window.render=render;
 window.randomize=randomize;
 bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.181.0"></script>
+<script src="/games/worksheet-modes.js?v=1.184.0"></script>
 </body>
 </html>

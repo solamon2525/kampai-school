@@ -211,6 +211,7 @@ pnpm verify:worksheet:production
 - **8F** ดาวใช้ในคาบนี้ (`lesson_favorites`) · พิมพ์แสดงชื่อชุด · ใบงานบ้านใน Parent
 - **8G** `verify:media` media contract · cache `1.181.0`
 - **Phase 9 dual-track คู่เกม:** สื่อ+ใบงานใหม่ `clock` · `light-sort` · `first-aid` (435) · ลิงก์เกม↔สื่อ↔ใบงานครบ 10 ชิ้น
+- **Phase 10 ยกระดับทั้งหมด:** สื่อ 51/51 verify:media · ใบงาน scaffold/hub shallow=0 · ปกครบ · SDK `?v=1.181.0` · modes `1.184.0` · lesson_packs 15 · CI `verify:media:matrix` · production coverage (fail เฉพาะ missing)
 
 ### Automatic Publish Gate (ใบงาน)
 

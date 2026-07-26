@@ -1,0 +1,26 @@
+name: Verify media
+
+on:
+  push:
+    paths:
+      - 'public/games/**/*media*.html'
+      - 'public/games/kampai-sdk.js'
+      - 'scripts/verify-media*.mjs'
+      - 'package.json'
+  pull_request:
+    paths:
+      - 'public/games/**/*media*.html'
+      - 'public/games/kampai-sdk.js'
+      - 'scripts/verify-media*.mjs'
+      - 'package.json'
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Media verify matrix
+        run: node scripts/verify-media-matrix.mjs

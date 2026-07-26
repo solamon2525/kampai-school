@@ -1,20 +1,48 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/thailand-map-media.html"><meta name="curriculum-indicators" content="ส 5.1 ป.4/1, ส 5.1 ป.4/2"><title>ใบงานแผนที่ประเทศไทย ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/thailand-map-media.html"><meta name="curriculum-indicators" content="ส 5.1 ป.4/1, ส 5.1 ป.4/2"><title>ใบงานแผนที่ประเทศไทย ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>🗺️ ใบงานแผนที่ประเทศไทย</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="region">ภาค</option><option value="direction">ทิศ/ตำแหน่ง</option><option value="apply">อ่านแผนที่</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
 const MAP_ITEMS=[
- {type:'region',prompt:'ภาคเหนือมีจังหวัดตัวอย่างใด',place:'ภาคเหนือ',answer:'เช่น เชียงใหม่ เชียงราย ลำปาง'},
- {type:'region',prompt:'เชียงใหม่ตั้งอยู่ภาคใด',place:'เชียงใหม่',answer:'ภาคเหนือ'},
- {type:'region',prompt:'ขอนแก่นตั้งอยู่ภาคใด',place:'ขอนแก่น',answer:'ภาคตะวันออกเฉียงเหนือ (อีสาน)'},
- {type:'region',prompt:'ภูเก็ตตั้งอยู่ภาคใด',place:'ภูเก็ต',answer:'ภาคใต้'},
- {type:'region',prompt:'กรุงเทพมหานครอยู่ภาคใด',place:'กรุงเทพฯ',answer:'ภาคกลาง'},
- {type:'direction',prompt:'ถ้าหันหน้าไปทิศเหนือ ด้านขวาคือทิศใด',place:'ทิศ',answer:'ทิศตะวันออก'},
- {type:'direction',prompt:'สัญลักษณ์เข็มทิศบนแผนที่บอกอะไร',place:'เข็มทิศ',answer:'ทิศทางหลักบนแผนที่'},
- {type:'direction',prompt:'ภาคใต้ของไทยอยู่ทางทิศใดของกรุงเทพฯ',place:'ภาคใต้',answer:'ทิศใต้'},
- {type:'apply',prompt:'อ่านแผนที่: จังหวัดใกล้บ้านเราอยู่ภาคใด',place:'ชุมชน',answer:'ตอบตามจังหวัดจริงของนักเรียน'},
- {type:'apply',prompt:'ทำไมต้องมีมาตราส่วนบนแผนที่',place:'มาตราส่วน',answer:'เพื่อเทียบระยะบนแผนที่กับระยะจริง'},
- {type:'apply',prompt:'เส้นขอบเขตจังหวัดใช้สังเกตอย่างไร',place:'ขอบเขต',answer:'เส้นแบ่งระหว่างจังหวัดบนแผนที่'},
- {type:'apply',prompt:'ยกตัวอย่างทรัพยากรหรือลักษณะเด่นของภาคอีสาน 1 ข้อ',place:'อีสาน',answer:'เช่น ที่ราบสูง วัฒนธรรมผ้าไหม อาหารอีสาน'}
+ {type:'region',prompt:'ภาคเหนือมีจังหวัดตัวอย่างใด',place:'ภาคเหนือ',answer:'เช่น เชียงใหม่ เชียงราย ลำปาง',s1:'หาภาคเหนือบนแผนที่',s2:'ดูจังหวัดในภาค',s3:'เช่น เชียงใหม่ / เชียงราย'},
+ {type:'region',prompt:'เชียงใหม่ตั้งอยู่ภาคใด',place:'เชียงใหม่',answer:'ภาคเหนือ',s1:'หาเชียงใหม่',s2:'ดูภาคที่ครอบคลุม',s3:'ภาคเหนือ'},
+ {type:'region',prompt:'ขอนแก่นตั้งอยู่ภาคใด',place:'ขอนแก่น',answer:'ภาคตะวันออกเฉียงเหนือ (อีสาน)',s1:'หาขอนแก่น',s2:'อยู่ทางตะวันออกเฉียงเหนือ',s3:'ภาคอีสาน'},
+ {type:'region',prompt:'ภูเก็ตตั้งอยู่ภาคใด',place:'ภูเก็ต',answer:'ภาคใต้',s1:'หาภูเก็ต',s2:'อยู่ทางใต้ของประเทศ',s3:'ภาคใต้'},
+ {type:'region',prompt:'กรุงเทพมหานครอยู่ภาคใด',place:'กรุงเทพฯ',answer:'ภาคกลาง',s1:'หากรุงเทพฯ',s2:'อยู่ตอนกลาง',s3:'ภาคกลาง'},
+ {type:'direction',prompt:'ถ้าหันหน้าไปทิศเหนือ ด้านขวาคือทิศใด',place:'ทิศ',answer:'ทิศตะวันออก',s1:'หันหน้าไปทิศเหนือ',s2:'ด้านขวา = ทิศตะวันออก',s3:'ทิศตะวันออก'},
+ {type:'direction',prompt:'สัญลักษณ์เข็มทิศบนแผนที่บอกอะไร',place:'เข็มทิศ',answer:'ทิศทางหลักบนแผนที่',s1:'หาสัญลักษณ์เข็มทิศ',s2:'ชี้ทิศหลัก N E S W',s3:'บอกทิศทางบนแผนที่'},
+ {type:'direction',prompt:'ภาคใต้ของไทยอยู่ทางทิศใดของกรุงเทพฯ',place:'ภาคใต้',answer:'ทิศใต้',s1:'หาตำแหน่งกรุงเทพฯ',s2:'หาภาคใต้สัมพันธ์กัน',s3:'ทิศใต้'},
+ {type:'apply',prompt:'อ่านแผนที่: จังหวัดใกล้บ้านเราอยู่ภาคใด',place:'ชุมชน',answer:'ตอบตามจังหวัดจริงของนักเรียน',s1:'ระบุจังหวัดบ้านเกิด',s2:'หาบนแผนที่',s3:'ตอบภาคจริง'},
+ {type:'apply',prompt:'ทำไมต้องมีมาตราส่วนบนแผนที่',place:'มาตราส่วน',answer:'เพื่อเทียบระยะบนแผนที่กับระยะจริง',s1:'สังเกตมาตราส่วน',s2:'เทียบระยะแผนที่↔จริง',s3:'ใช้วัด/ประมาณระยะ'},
+ {type:'apply',prompt:'เส้นขอบเขตจังหวัดใช้สังเกตอย่างไร',place:'ขอบเขต',answer:'เส้นแบ่งระหว่างจังหวัดบนแผนที่',s1:'หาเส้นแบ่งจังหวัด',s2:'เส้นขอบเขต',s3:'แยกจังหวัดออกจากกัน'},
+ {type:'apply',prompt:'ยกตัวอย่างทรัพยากรหรือลักษณะเด่นของภาคอีสาน 1 ข้อ',place:'อีสาน',answer:'เช่น ที่ราบสูง วัฒนธรรมผ้าไหม อาหารอีสาน',s1:'ระบุภาคอีสาน',s2:'นึกถึงลักษณะเด่น',s3:'เช่น ที่ราบสูง / ผ้าไหม'}
 ];
-window.WORKSHEET_CONFIG={icon:'🗺️',title:'ใบงานแผนที่ประเทศไทย',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'แผนที่ประเทศไทย',sourceMediaUrl:'/games/social/thailand-map-media.html',indicators:['ส 5.1 ป.4/1','ส 5.1 ป.4/2'],directions:'ระบุภาค อ่านทิศทาง และใช้สัญลักษณ์แผนที่อย่างมีเหตุผล',getItems(topic){return topic==='mixed'?MAP_ITEMS:MAP_ITEMS.filter(i=>i.type===topic);},buildMapWork(item){if(item.type==='region')return{line1:'หาตำแหน่ง: '+item.place,line2:'ตอบ: '+item.answer};if(item.type==='direction')return{line1:'ใช้เข็มทิศ/ทิศหลัก',line2:item.answer};return{line1:'อ่านแผนที่: '+item.place,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildMapWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">เหนือ</div><div class="classify-box">กลาง</div><div class="classify-box">อีสาน</div><div class="classify-box">ใต้</div></div><div class="q-context">'+e(item.place)+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>
+window.WORKSHEET_CONFIG={
+  worksheetKey:'thailand-map',icon:'🗺️',title:'ใบงานแผนที่ประเทศไทย',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'แผนที่ประเทศไทย',
+  sourceMediaUrl:'/games/social/thailand-map-media.html',indicators:['ส 5.1 ป.4/1','ส 5.1 ป.4/2'],
+  directions:'ระบุภาค อ่านทิศทาง และใช้สัญลักษณ์แผนที่อย่างมีเหตุผล',
+  getItems(topic){return topic==='mixed'?MAP_ITEMS:MAP_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const tags=item.type==='region'
+      ?['1 หาตำแหน่ง','2 ดูภาค','3 ตอบ']
+      :item.type==='direction'
+        ?['1 เข็มทิศ','2 ทิศสัมพันธ์','3 สรุป']
+        :['1 อ่านแผนที่','2 ใช้สัญลักษณ์','3 สรุป'];
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">เหนือ</div><div class="classify-box">กลาง</div><div class="classify-box">อีสาน</div><div class="classify-box">ใต้</div></div><div class="q-context">'+e(item.place)+'</div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">'+tags[0]+'</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[1]+'</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[2]+'</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

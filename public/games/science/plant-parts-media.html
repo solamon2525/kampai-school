@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ส่วนของพืชดอก — สื่อการสอน — บ้านคำไผ่</title>
@@ -88,12 +88,12 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="diagram" class="on">📖 แผนภาพ</button>
+        <button type="button" data-mode="diagram" class="on">📖 สอน</button>
         <button type="button" data-mode="match">🔗 จับคู่หน้าที่</button>
         <button type="button" data-mode="edible">🍽️ กินส่วนไหน</button>
         <button type="button" data-mode="grow">🌱 เรียงเติบโต</button>
-              <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-</span>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
       <p class="hint" id="hintText">แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
@@ -194,7 +194,7 @@
   </div>
   <script>
     const MEDIA_SLUG = 'plant-parts-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('plant-parts-media');
 
     const PARTS = [
       { id: 'root', nameTh: 'ราก', emoji: '🪴', functionTh: 'ดูดน้ำและแร่ธาตุจากดิน และยึดลำต้นไว้กับพื้น', funFact: 'รากบางชนิดสะสมอาหาร เช่น แครอท หัวผักกาด', hotspot: { x: 50, y: 88 }, examples: ['แครอท', 'มันสำปะหลัง', 'หัวไชเท้า'] },

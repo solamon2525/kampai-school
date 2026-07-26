@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>อาหารหลัก 5 หมู่ — สื่อการสอน — บ้านคำไผ่</title>
@@ -88,7 +88,7 @@
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้หมู่</button>
         <button type="button" data-mode="explore">🔍 สำรวจอาหาร</button>
         <button type="button" data-mode="plate">🥗 จัดจาน</button>
-        <button type="button" data-mode="quiz">❓ ถูก/ผิด</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
         <button type="button" data-mode="teacher">👩‍🏫 จานครู</button>
       </span>
       <p class="hint" id="hintText">แตะหมู่เพื่อดูบทบาทและตัวอย่าง</p>
@@ -98,14 +98,14 @@
       <div class="panel on" id="p-learn"></div>
       <div class="panel" id="p-explore"></div>
       <div class="panel" id="p-plate"></div>
-      <div class="panel" id="p-quiz"></div>
+      <div class="panel" id="p-practice"></div>
       <div class="panel" id="p-teacher"></div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>พ 4.1 ป.3/2</strong> · <strong>พ 4.1 ป.3/3</strong> · คู่เกม <a href="/play/plate-builder">จัดจานอาหาร</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'food-groups-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('food-groups-media');
 
     const GROUPS = [
       { id: 1, nameTh: 'โปรตีน', shortName: 'โปรตีน', color: '#ef4444', role: 'สร้างกล้ามเนื้อ ซ่อมแซมเนื้อเยื่อ', tip: 'ประมาณ 1 ส่วน / มื้อ', emoji: '🥩' },
@@ -222,7 +222,7 @@
       learn: 'แตะหมู่เพื่อดูบทบาท สัดส่วน และตัวอย่างอาหาร',
       explore: 'แตะอาหาร → ดูว่าอยู่ในหมู่อะไร',
       plate: 'เลือกอาหารให้ครบทั้ง 5 หมู่ในจานเดียว (ไม่มีการให้คะแนน)',
-      quiz: 'เลือกหมู่ที่ถูกต้องจากอาหารที่แสดง',
+      practice: 'ฝึกสั้น: เลือกหมู่ที่ถูกต้องจากอาหารที่แสดง',
       teacher: 'ดูจานตัวอย่าง 3 มื้อที่ครูจัดไว้',
     };
 
@@ -235,7 +235,7 @@
       if (m === 'learn') renderLearn();
       if (m === 'explore') renderExplore();
       if (m === 'plate') { if (!platePool.length) resetPlate(); else renderPlate(); }
-      if (m === 'quiz') { if (!quizQ) nextQuiz(); else renderQuiz(); }
+      if (m === 'practice') { if (!quizQ) nextQuiz(); else renderQuiz(); }
       if (m === 'teacher') renderTeacher();
     }
 
@@ -368,7 +368,7 @@
     }
 
     function renderQuiz() {
-      const el = document.getElementById('p-quiz');
+      const el = document.getElementById('p-practice');
       if (!quizQ) return;
       const f = quizQ.food;
       el.innerHTML =

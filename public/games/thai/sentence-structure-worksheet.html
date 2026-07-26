@@ -1,20 +1,48 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/thai/sentence-structure-media.html"><meta name="curriculum-indicators" content="ท 4.1 ป.3/4, ท 4.1 ป.5/2"><title>ใบงานโครงสร้างประโยค ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/thai/sentence-structure-media.html"><meta name="curriculum-indicators" content="ท 4.1 ป.3/4, ท 4.1 ป.5/2"><title>ใบงานโครงสร้างประโยค ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>✍️ ใบงานโครงสร้างประโยค</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="parts">ประธาน–กริยา–กรรม</option><option value="expand">ขยายประโยค</option><option value="fix">แก้ประโยค</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
 const SENT_ITEMS=[
- {type:'parts',prompt:'หาประธาน: แมวกินปลา',sentence:'แมวกินปลา',answer:'แมว'},
- {type:'parts',prompt:'หากริยา: เด็กอ่านหนังสือ',sentence:'เด็กอ่านหนังสือ',answer:'อ่าน'},
- {type:'parts',prompt:'หากรม: ครูสอนนักเรียน',sentence:'ครูสอนนักเรียน',answer:'นักเรียน'},
- {type:'parts',prompt:'แยกโครงสร้าง: นกบิน',sentence:'นกบิน',answer:'ประธาน=นก · กริยา=บิน'},
- {type:'expand',prompt:'ขยายประโยค "เด็กวิ่ง" ให้สมบูรณ์ขึ้น',sentence:'เด็กวิ่ง',answer:'เช่น เด็กวิ่งเร็วในสนาม'},
- {type:'expand',prompt:'เติมส่วนขยายเวลา: แม่ทำอาหาร',sentence:'แม่ทำอาหาร',answer:'เช่น แม่ทำอาหารตอนเช้า'},
- {type:'expand',prompt:'เติมส่วนขยายสถานที่: น้องเล่น',sentence:'น้องเล่น',answer:'เช่น น้องเล่นที่สวนสาธารณะ'},
- {type:'fix',prompt:'แก้ประโยคไม่สมบูรณ์: กินข้าว',sentence:'กินข้าว',answer:'เติมประธาน เช่น ฉันกินข้าว'},
- {type:'fix',prompt:'แก้ลำดับคำ: หนังสือ อ่าน นักเรียน',sentence:'หนังสือ อ่าน นักเรียน',answer:'นักเรียนอ่านหนังสือ'},
- {type:'fix',prompt:'ทำไมประโยคต้องมีกริยา',sentence:'เหตุผล',answer:'กริยาบอกการกระทำหรือสภาพของประธาน'},
- {type:'parts',prompt:'ในประโยค "พ่อซื้อผลไม้ที่ตลาด" กรรมคืออะไร',sentence:'พ่อซื้อผลไม้ที่ตลาด',answer:'ผลไม้'},
- {type:'expand',prompt:'เขียนประโยคที่มีประธาน กริยา กรรม และส่วนขยาย',sentence:'สร้างเอง',answer:'เช่น น้องเลี้ยงแมวที่บ้านทุกวัน'}
+ {type:'parts',prompt:'หาประธาน: แมวกินปลา',sentence:'แมวกินปลา',answer:'แมว',s1:'S = ผู้ทำ',s2:'แมว',s3:'ประธาน = แมว'},
+ {type:'parts',prompt:'หากริยา: เด็กอ่านหนังสือ',sentence:'เด็กอ่านหนังสือ',answer:'อ่าน',s1:'V = การกระทำ',s2:'อ่าน',s3:'กริยา = อ่าน'},
+ {type:'parts',prompt:'หากรม: ครูสอนนักเรียน',sentence:'ครูสอนนักเรียน',answer:'นักเรียน',s1:'O = ผู้ถูกกระทำ',s2:'นักเรียน',s3:'กรรม = นักเรียน'},
+ {type:'parts',prompt:'แยกโครงสร้าง: นกบิน',sentence:'นกบิน',answer:'ประธาน=นก · กริยา=บิน',s1:'S = นก',s2:'V = บิน',s3:'ไม่มีกรรม'},
+ {type:'expand',prompt:'ขยายประโยค "เด็กวิ่ง" ให้สมบูรณ์ขึ้น',sentence:'เด็กวิ่ง',answer:'เช่น เด็กวิ่งเร็วในสนาม',s1:'ฐาน: เด็กวิ่ง',s2:'เติมวิธี/สถานที่',s3:'เด็กวิ่งเร็วในสนาม'},
+ {type:'expand',prompt:'เติมส่วนขยายเวลา: แม่ทำอาหาร',sentence:'แม่ทำอาหาร',answer:'เช่น แม่ทำอาหารตอนเช้า',s1:'ฐาน: แม่ทำอาหาร',s2:'เติมเวลา',s3:'ตอนเช้า'},
+ {type:'expand',prompt:'เติมส่วนขยายสถานที่: น้องเล่น',sentence:'น้องเล่น',answer:'เช่น น้องเล่นที่สวนสาธารณะ',s1:'ฐาน: น้องเล่น',s2:'เติมสถานที่',s3:'ที่สวนสาธารณะ'},
+ {type:'fix',prompt:'แก้ประโยคไม่สมบูรณ์: กินข้าว',sentence:'กินข้าว',answer:'เติมประธาน เช่น ฉันกินข้าว',s1:'ขาดประธาน',s2:'เติม S',s3:'ฉันกินข้าว'},
+ {type:'fix',prompt:'แก้ลำดับคำ: หนังสือ อ่าน นักเรียน',sentence:'หนังสือ อ่าน นักเรียน',answer:'นักเรียนอ่านหนังสือ',s1:'เรียง S→V→O',s2:'นักเรียน / อ่าน / หนังสือ',s3:'นักเรียนอ่านหนังสือ'},
+ {type:'fix',prompt:'ทำไมประโยคต้องมีกริยา',sentence:'เหตุผล',answer:'กริยาบอกการกระทำหรือสภาพของประธาน',s1:'กริยา = การกระทำ/สภาพ',s2:'เชื่อมกับประธาน',s3:'ไม่มีกริยา = ไม่สมบูรณ์'},
+ {type:'parts',prompt:'ในประโยค "พ่อซื้อผลไม้ที่ตลาด" กรรมคืออะไร',sentence:'พ่อซื้อผลไม้ที่ตลาด',answer:'ผลไม้',s1:'S=พ่อ V=ซื้อ',s2:'สิ่งที่ถูกซื้อ',s3:'กรรม = ผลไม้'},
+ {type:'expand',prompt:'เขียนประโยคที่มีประธาน กริยา กรรม และส่วนขยาย',sentence:'สร้างเอง',answer:'เช่น น้องเลี้ยงแมวที่บ้านทุกวัน',s1:'วาง S V O',s2:'เติมส่วนขยาย',s3:'น้องเลี้ยงแมวที่บ้านทุกวัน'}
 ];
-window.WORKSHEET_CONFIG={icon:'✍️',title:'ใบงานโครงสร้างประโยค',subject:'ภาษาไทย',gradeLabel:'ป.4–6',mediaLabel:'โครงสร้างประโยค',sourceMediaUrl:'/games/thai/sentence-structure-media.html',indicators:['ท 4.1 ป.3/4','ท 4.1 ป.5/2'],directions:'แยกประธาน–กริยา–กรรม ขยายประโยค และแก้ประโยคให้ถูกต้อง',getItems(topic){return topic==='mixed'?SENT_ITEMS:SENT_ITEMS.filter(i=>i.type===topic);},buildSentWork(item){if(item.type==='parts')return{line1:'วิเคราะห์: '+item.sentence,line2:'ตอบ: '+item.answer};if(item.type==='expand')return{line1:'ขยายจาก: '+item.sentence,line2:item.answer};return{line1:'ตรวจและแก้: '+item.sentence,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildSentWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.sentence)+'</div><div class="classify-grid"><div class="classify-box">ประธาน</div><div class="classify-box">กริยา</div><div class="classify-box">กรรม</div><div class="classify-box">ส่วนขยาย</div></div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>
+window.WORKSHEET_CONFIG={
+  worksheetKey:'sentence-structure',icon:'✍️',title:'ใบงานโครงสร้างประโยค',subject:'ภาษาไทย',gradeLabel:'ป.4–6',mediaLabel:'โครงสร้างประโยค',
+  sourceMediaUrl:'/games/thai/sentence-structure-media.html',indicators:['ท 4.1 ป.3/4','ท 4.1 ป.5/2'],
+  directions:'แยกประธาน–กริยา–กรรม ขยายประโยค และแก้ประโยคให้ถูกต้อง',
+  getItems(topic){return topic==='mixed'?SENT_ITEMS:SENT_ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const tags=item.type==='parts'
+      ?['1 ประธาน','2 กริยา','3 กรรม']
+      :item.type==='expand'
+        ?['1 ฐาน','2 ขยาย','3 ประโยคใหม่']
+        :['1 ปัญหา','2 แก้','3 ประโยคถูก'];
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.sentence)+'</div><div class="classify-grid"><div class="classify-box">ประธาน</div><div class="classify-box">กริยา</div><div class="classify-box">กรรม</div><div class="classify-box">ส่วนขยาย</div></div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">'+tags[0]+'</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[1]+'</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[2]+'</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

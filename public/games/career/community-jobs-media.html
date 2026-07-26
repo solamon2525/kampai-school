@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>อาชีพในชุมชน — สื่อการสอน — บ้านคำไผ่</title>
@@ -93,13 +93,13 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="cards" class="on">🃏 การ์ดอาชีพ</button>
+        <button type="button" data-mode="cards" class="on">📖 สอน</button>
         <button type="button" data-mode="sector">📦 จัดกลุ่มภาค</button>
         <button type="button" data-mode="who">🔗 ใครทำอะไร</button>
         <button type="button" data-mode="matter">💚 สำคัญต่อชุมชน</button>
         <button type="button" data-mode="self">🧭 สำรวจตัวเอง</button>
-              <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-</span>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
       <p class="hint" id="hintText">แตะการ์ดเพื่อพลิกดูหน้าที่และเครื่องมือ</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
@@ -122,7 +122,7 @@
   </div>
   <script>
     const MEDIA_SLUG = 'community-jobs-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('community-jobs-media');
 
     const SECTORS = ['เกษตร', 'บริการ', 'ค้าขาย', 'ช่าง', 'สาธารณสุข', 'การศึกษา', 'ความปลอดภัย'];
 

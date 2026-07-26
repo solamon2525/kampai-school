@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ดวงจันทร์ 8 ข้าง — สื่อการสอน — บ้านคำไผ่</title>
@@ -78,9 +78,9 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="orbit" class="on">🪐 วงโคจร</button>
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
         <button type="button" data-mode="timeline">📅 ไทม์ไลน์</button>
-        <button type="button" data-mode="order">✏️ เรียงลำดับ</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
         <button type="button" data-mode="guess">🔍 ทายข้าง</button>
         <button type="button" data-mode="predict">🔮 พยากรณ์</button>
       </span>
@@ -88,7 +88,7 @@
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
     <div class="stage">
-      <div class="panel on" id="panel-orbit">
+      <div class="panel on" id="panel-learn">
         <p class="note">☀️ จันทร์ไม่มีแสงเอง — เราเห็นส่วนที่โดนแสงอาทิตย์สะท้อน</p>
         <div class="orbit-box">
           <svg class="orbit-svg" viewBox="0 0 400 300" id="orbitSvg">
@@ -121,8 +121,8 @@
         <div class="detail" id="tlDetail"><p style="color:var(--muted);text-align:center">เลือกข้างบนไทม์ไลน์</p></div>
       </div>
 
-      <div class="panel" id="panel-order">
-        <p class="prompt">เรียงการ์ด 8 ใบจากจันทร์ใหม่ → เสี้ยวข้างแรม</p>
+      <div class="panel" id="panel-practice">
+        <p class="prompt">ฝึกสั้น: เรียงการ์ด 8 ใบจากจันทร์ใหม่ → เสี้ยวข้างแรม</p>
         <div class="track" id="orderTrack"></div>
         <p class="fb" id="orderFb"></p>
         <div class="pool" id="orderPool"></div>
@@ -158,7 +158,7 @@
   </div>
   <script>
     const MEDIA_SLUG = 'moon-phases-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('moon-phases-media');
 
     const PHASES = [
       { id: 'new', order: 1, nameTh: 'จันทร์ใหม่', nameShort: 'ใหม่', emoji: '🌑', litFraction: 0, waxing: null, dayApprox: '~วันที่ 1 ของจันทรคติ', tip: 'เกือบไม่เห็นจันทร์ เพราะด้านสว่างหันออกจากโลก', observeHint: 'ท้องฟ้ามืด — มองเห็นดาวได้ชัด หาจันทร์ยาก' },
@@ -172,9 +172,9 @@
     ];
 
     const HINTS = {
-      orbit: 'โลก–จันทร์–ดวงอาทิตย์ หมุนช้า — เราเห็นส่วนที่โดนแสง',
+      learn: 'โลก–จันทร์–ดวงอาทิตย์ หมุนช้า — เราเห็นส่วนที่โดนแสง',
       timeline: 'แตะทีละข้างบนไทม์ไลน์ · อ่าน tip + วิธีสังเกต',
-      order: 'เรียง 8 ข้างจากใหม่ → เสี้ยวแรม — ไม่มีคะแนน',
+      practice: 'ฝึกสั้น: เรียง 8 ข้างจากใหม่ → เสี้ยวแรม — ไม่มีคะแนน',
       guess: 'ดูรูปเงาแล้วเลือกชื่อข้าง',
       predict: 'ถัดจากข้างที่โชว์คือข้างใด? (ว 3.1 ป.4/2)',
     };
@@ -255,7 +255,7 @@
         </div>`;
     }
 
-    let mode = 'orbit', orbitIdx = 0, orbitPlaying = true, orderNext = 1;
+    let mode = 'learn', orbitIdx = 0, orbitPlaying = true, orderNext = 1;
     let guessQ = null, predictQ = null, angle = 0;
 
     function setMode(m) {
@@ -263,7 +263,7 @@
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
       document.getElementById('hintText').textContent = HINTS[m];
-      if (m === 'order') resetOrder();
+      if (m === 'practice') resetOrder();
       if (m === 'guess') newGuess();
       if (m === 'predict') newPredict();
       if (m === 'timeline') renderTimeline();
@@ -324,7 +324,7 @@
 
     let last = performance.now();
     function tick(now) {
-      if (orbitPlaying && mode === 'orbit') {
+      if (orbitPlaying && mode === 'learn') {
         const dt = (now - last) / 1000;
         angle = (angle + dt * 18) % 360; // slow
         placeMoon();

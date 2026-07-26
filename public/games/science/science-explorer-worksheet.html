@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ว 1.2 ป.4/1,ว 2.1 ป.4/3,ว 3.1 ป.4/3" />
   <title>ระบบใบงานวิทยาศาสตร์อัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f0fdf4;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#15803d;color:#fff;box-shadow:0 3px 12px rgba(21,128,61,.35)}
@@ -46,7 +46,6 @@
     .questions.count-5,.questions.worksheet-mode-five{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
     .questions.count-5 .q,.questions.worksheet-mode-five .q{padding:3.5mm 3mm;min-height:44mm}
     .count-5 .q-work-block,.worksheet-mode-five .q-work-block{min-height:20mm;gap:2mm}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:10mm;height:10mm;font-size:9.5pt}
     .count-5 .eng-word,.count-5 .sci-word,.count-5 .thai-word,.count-5 .code-word{font-size:16pt}
     .count-5 .ans,.worksheet-mode-five .ans{margin-top:3mm;font-size:10.5pt}
     
@@ -54,9 +53,13 @@
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#15803d;color:#fff;font-weight:800;font-size:9pt}
     .sci-question{font-size:11.5pt;font-weight:800;color:#166534;margin-left:7mm;flex-shrink:0;line-height:1.35}
     .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
+    .step-block{display:flex;flex-direction:column;gap:1.2mm;margin-left:7mm;width:calc(100% - 7mm)}
+    .step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+    .step-tag{font-size:6.5pt;font-weight:800;color:#fff;background:#15803d;border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+    .step-body{min-height:6mm;border-bottom:1px dotted #86efac;display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:8.5mm}
     .ans{font:700 9.5pt Sarabun,sans-serif;color:#15803d;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
     .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
-    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #86efac;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
     .work-fill{color:transparent;font-weight:800}
     .show-answers .work-fill{color:#b91c1c}
     .ta{display:none}
@@ -131,36 +134,40 @@ const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' 
 
 const SCI_DATA = {
   plant: [
-    {q:'ทำหน้าที่ดูดน้ำและแร่ธาตุจากดิน', ans:'ราก (Root)'},
-    {q:'ทำหน้าที่ลำเลียงน้ำและอาหารไปเลี้ยงส่วนต่างๆ', ans:'ลำต้น (Stem)'},
-    {q:'ทำหน้าที่สร้างอาหารและสังเคราะห์ด้วยแสง', ans:'ใบ (Leaf)'},
-    {q:'ทำหน้าที่ล่อแมลงและสืบพันธุ์', ans:'ดอก (Flower)'},
-    {q:'แก๊สที่พืชใช้ในการสังเคราะห์ด้วยแสง', ans:'คาร์บอนไดออกไซด์'}
+    {q:'ทำหน้าที่ดูดน้ำและแร่ธาตุจากดิน', ans:'ราก (Root)', s1:'หน้าที่: ดูดน้ำ–แร่ธาตุ', s2:'อยู่ใต้ดิน', s3:'ราก (Root)'},
+    {q:'ทำหน้าที่ลำเลียงน้ำและอาหารไปเลี้ยงส่วนต่างๆ', ans:'ลำต้น (Stem)', s1:'หน้าที่: ลำเลียง', s2:'เชื่อมรากกับใบ', s3:'ลำต้น (Stem)'},
+    {q:'ทำหน้าที่สร้างอาหารและสังเคราะห์ด้วยแสง', ans:'ใบ (Leaf)', s1:'หน้าที่: สร้างอาหาร', s2:'ใช้แสง', s3:'ใบ (Leaf)'},
+    {q:'ทำหน้าที่ล่อแมลงและสืบพันธุ์', ans:'ดอก (Flower)', s1:'หน้าที่: สืบพันธุ์', s2:'ล่อแมลง', s3:'ดอก (Flower)'},
+    {q:'แก๊สที่พืชใช้ในการสังเคราะห์ด้วยแสง', ans:'คาร์บอนไดออกไซด์', s1:'กระบวนการ: สังเคราะห์ด้วยแสง', s2:'แก๊สที่พืชใช้', s3:'คาร์บอนไดออกไซด์'}
   ],
   state: [
-    {q:'ไอน้ำในอากาศ มีสถานะเป็นอะไร?', ans:'แก๊ส (Gas)'},
-    {q:'น้ำแข็งก้อน มีสถานะเป็นอะไร?', ans:'ของแข็ง (Solid)'},
-    {q:'น้ำมันพืช มีสถานะเป็นอะไร?', ans:'ของเหลว (Liquid)'},
-    {q:'กระบวนการที่ของเหลวเปลี่ยนเป็นแก๊สเรียกว่าอะไร?', ans:'การกลายเป็นไอ / การระเหย'}
+    {q:'ไอน้ำในอากาศ มีสถานะเป็นอะไร?', ans:'แก๊ส (Gas)', s1:'สังเกต: กระจายในอากาศ', s2:'ไม่มีรูปร่างคงที่', s3:'แก๊ส (Gas)'},
+    {q:'น้ำแข็งก้อน มีสถานะเป็นอะไร?', ans:'ของแข็ง (Solid)', s1:'สังเกต: รูปร่างคงที่', s2:'ปริมาตรคงที่', s3:'ของแข็ง (Solid)'},
+    {q:'น้ำมันพืช มีสถานะเป็นอะไร?', ans:'ของเหลว (Liquid)', s1:'สังเกต: รับรูปภาชนะ', s2:'ยังมีปริมาตร', s3:'ของเหลว (Liquid)'},
+    {q:'กระบวนการที่ของเหลวเปลี่ยนเป็นแก๊สเรียกว่าอะไร?', ans:'การกลายเป็นไอ / การระเหย', s1:'เริ่ม: ของเหลว', s2:'ได้: แก๊ส', s3:'ระเหย / กลายเป็นไอ'}
   ],
   solar: [
-    {q:'ดาวเคราะห์ที่อยู่ใกล้ดวงอาทิตย์ที่สุดคือดาวใด?', ans:'ดาวพุธ (Mercury)'},
-    {q:'ดาวเคราะห์ที่ได้ชื่อว่าเป็น "ดาวเคราะห์สีน้ำเงิน"?', ans:'โลก (Earth)'},
-    {q:'ดาวเคราะห์ที่มีวงแหวนขนาดใหญ่เห็นชัดเจนที่สุดคือดาวใด?', ans:'ดาวเสาร์ (Saturn)'},
-    {q:'ดาวเคราะห์แดง คือชื่อเรียกของดาวดวงใด?', ans:'ดาวอังคาร (Mars)'}
+    {q:'ดาวเคราะห์ที่อยู่ใกล้ดวงอาทิตย์ที่สุดคือดาวใด?', ans:'ดาวพุธ (Mercury)', s1:'เรียงระยะจากดวงอาทิตย์', s2:'ดวงแรก', s3:'ดาวพุธ (Mercury)'},
+    {q:'ดาวเคราะห์ที่ได้ชื่อว่าเป็น "ดาวเคราะห์สีน้ำเงิน"?', ans:'โลก (Earth)', s1:'สีที่เห็นจากอวกาศ', s2:'มีน้ำมาก', s3:'โลก (Earth)'},
+    {q:'ดาวเคราะห์ที่มีวงแหวนขนาดใหญ่เห็นชัดเจนที่สุดคือดาวใด?', ans:'ดาวเสาร์ (Saturn)', s1:'ลักษณะเด่น: วงแหวน', s2:'เห็นชัดที่สุด', s3:'ดาวเสาร์ (Saturn)'},
+    {q:'ดาวเคราะห์แดง คือชื่อเรียกของดาวดวงใด?', ans:'ดาวอังคาร (Mars)', s1:'ฉายา: ดาวเคราะห์แดง', s2:'สีแดงจากฝุ่นเหล็ก', s3:'ดาวอังคาร (Mars)'}
   ]
 };
 
 function buildSciWork(item, topicKey){
-  if(topicKey==='plant') return {line1:'เชื่อมหน้าที่กับอวัยวะจากคำถาม', line2:'→ '+item.ans};
-  if(topicKey==='state') return {line1:'พิจารณาสถานะของสาร/กระบวนการ', line2:'→ '+item.ans};
-  return {line1:'อ้างความรู้ระบบสุริยะ', line2:'→ '+item.ans};
+  if(topicKey==='plant') return {t1:'1 หน้าที่',t2:'2 ตำแหน่ง',t3:'3 ส่วน',s1:item.s1,s2:item.s2,s3:item.s3};
+  if(topicKey==='state') return {t1:'1 สังเกต',t2:'2 คุณสมบัติ',t3:'3 สถานะ',s1:item.s1,s2:item.s2,s3:item.s3};
+  return {t1:'1 ลักษณะ',t2:'2 เชื่อมความรู้',t3:'3 ดาว',s1:item.s1,s2:item.s2,s3:item.s3};
 }
 function question(qi, topicItem, topicKey){
   const work=buildSciWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="sci-question">คำถาม: "'+topicItem.q+'"</div>'
-    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
+    +'<div class="q-work-block step-block">'
+    +'<div class="step-row"><span class="step-tag">'+work.t1+'</span><div class="step-body"><span class="work-fill">'+work.s1+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">'+work.t2+'</span><div class="step-body"><span class="work-fill">'+work.s2+'</span></div></div>'
+    +'<div class="step-row"><span class="step-tag">'+work.t3+'</span><div class="step-body"><span class="work-fill">'+work.s3+'</span></div></div>'
+    +'</div>'
     +'<div class="ans">คำตอบ: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
 }
 
@@ -322,6 +329,6 @@ window.render=render;
 window.randomize=randomize;
 bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.181.0"></script>
+<script src="/games/worksheet-modes.js?v=1.184.0"></script>
 </body>
 </html>

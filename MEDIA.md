@@ -55,8 +55,12 @@ pnpm verify:worksheet:matrix -- --strict
 - **8D–8F** Teacher usage panel · diagnostic→remedial · lesson favorites + parent ใบงานบ้าน
 - **8G** `verify:media` เช็กสัญญา: `setSlug`/`MEDIA_SLUG` · โหมดสอน · ฝึกสั้น · ห้าม `submitScore`
 
-## Phase 9 notes (เกม + dual-track)
+## Phase 10 notes (ยกระดับทั้งหมด)
 
-- **เกม 10 ชิ้น** (migration 434): `clock-quest` · `moon-phases-race` · `light-sort` · `bone-muscle-quest` · `first-aid-rush` · `sufficiency-sim` · `community-jobs-match` · `past-tense-run` · `follow-instructions-lab` · `fact-opinion-duel`
-- **สื่อ+ใบงานใหม่** (migration 435): `clock-media` · `light-sort-media` · `first-aid-media` (+ worksheet)
-- คู่ที่มีอยู่แล้วถูกลิงก์กับเกม: moon-phases · bone-muscle · sufficiency · community-jobs · past-tense-mini · follow-instructions · fact-opinion
+- **P0** audit: `scripts/audit-media-worksheets.mjs` · `docs/PHASE10-MEDIA-WORKSHEET-UPGRADE.md`
+- **P1** สื่อ 51/51 ผ่าน `verify:media` (learn + practice)
+- **P2–P3** ใบงาน scaffold ลึก · hub deepen-in-place · shallow=0
+- **P4** ปกครบ · `kampai-sdk.js?v=1.181.0` · `pnpm verify:media:matrix` + CI
+- **P5** subjectGuides · modes `?v=1.184.0`
+- **P6** lesson_packs 15 แพ็ก (migration 437)
+- **P7** docs + SystemOverview v1.184.0

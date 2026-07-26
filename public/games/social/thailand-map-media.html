@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แผนที่ประเทศไทย — บ้านคำไผ่</title>
@@ -17,7 +17,12 @@
     .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 8px 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); font-size: .85rem; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); margin-left: auto; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 16px; background: #fffbeb; border-bottom: 1px solid var(--line); }
+    .seg { display: inline-flex; flex-wrap: wrap; gap: 4px; background: #fef3c7; border-radius: 12px; padding: 4px; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: transparent; padding: 8px 14px; cursor: pointer; border-radius: 10px; color: #92400e; }
+    .seg button.on { background: #fff; color: var(--deep); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
     .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
+    .stage.hidden { display: none; }
     @media (min-width: 860px) { .stage { grid-template-columns: 1.2fr 1fr; } }
     .map-wrap { padding: 16px; background: #fffbeb; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .map-svg { width: 100%; max-width: 420px; height: auto; }
@@ -62,7 +67,13 @@
       <span class="badge">ป.4 · สังคมศึกษา</span>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </header>
-    <div class="stage">
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+    </div>
+    <div class="stage" id="learn">
       <div class="map-wrap">
         <svg class="map-svg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" aria-label="แผนที่ประเทศไทยแบ่งภาค">
           <!-- ภาคเหนือ -->
@@ -102,6 +113,12 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="practice-mcq" id="practiceMcq">
+      <p class="pq"></p>
+      <div class="popts"></div>
+      <p class="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center;background:var(--deep);color:#fff;border:none;padding:10px 18px;border-radius:12px;font-family:inherit;font-weight:800;cursor:pointer">ข้อถัดไป</button>
     </div>
     <footer>ตัวชี้วัด <strong>ส 5.1 ป.4/1–2</strong> · คู่เกม <a href="/play/globe-3d">ลูกโลก 3D</a></footer>
   </div>
@@ -177,69 +194,49 @@
       if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
       else document.exitFullscreen?.();
     };
-  </script>
 
-    <div class="practice-mcq" id="practiceMcq">
-      <p class="pq"></p>
-      <div class="popts"></div>
-      <p class="pfb"></p>
-      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center">ข้อถัดไป</button>
-    </div>
-
-<script>
-(function(){
-  var PRACTICE_Q = [{"q":"ประเทศไทยมีกี่ภูมิภาคหลักที่เรียนกันบ่อย?","opts":["6","2","10","1"],"a":"6"},{"q":"กรุงเทพฯ อยู่ในภาคใด?","opts":["กลาง","เหนือ","ใต้","ตะวันออกเฉียงเหนือ"],"a":"กลาง"},{"q":"ภาคเหนือมักมีลักษณะภูมิประเทศแบบใด?","opts":["ภูเขาและหุบเขา","ทะเลทราย","เกาะปะการังอย่างเดียว","ทุ่งน้ำแข็ง"],"a":"ภูเขาและหุบเขา"},{"q":"อ่านแผนที่ควรดูอะไรก่อน?","opts":["ชื่อแผนที่ ทิศ และสัญลักษณ์","สีที่สวยที่สุด","ขนาดตัวอักษรอย่างเดียว","ปีที่พิมพ์อย่างเดียว"],"a":"ชื่อแผนที่ ทิศ และสัญลักษณ์"},{"q":"ภาคใต้ติดทะเลสำคัญด้านใด?","opts":["อ่าวไทยและอันดามัน","ทะเลสาบแคสเปียน","ทะเลเหนือ","มหาสมุทรอาร์กติก"],"a":"อ่าวไทยและอันดามัน"},{"q":"จังหวัดเชียงใหม่อยู่ภาคใด?","opts":["เหนือ","ใต้","กลาง","ตะวันออก"],"a":"เหนือ"}];
-  function nextPracticeMcq(){
-    var item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
-    var box = document.getElementById('practiceMcq');
-    if(!box) return;
-    box.querySelector('.pq').textContent = item.q;
-    var fb = box.querySelector('.pfb'); fb.textContent=''; fb.style.color='';
-    var opts = item.opts.slice().sort(function(){return Math.random()-0.5;});
-    var popts = box.querySelector('.popts');
-    popts.innerHTML = opts.map(function(o){return '<button type="button" class="popt" data-a="'+o+'">'+o+'</button>';}).join('');
-    popts.querySelectorAll('.popt').forEach(function(btn){
-      btn.onclick=function(){
-        var ok = btn.getAttribute('data-a') === item.a;
-        btn.classList.add(ok?'ok':'no');
-        popts.querySelectorAll('.popt').forEach(function(b){
-          b.disabled=true;
-          if(b.getAttribute('data-a')===item.a) b.classList.add('ok');
-        });
-        fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
-        fb.style.color = ok ? '#16a34a' : '#dc2626';
-        if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
-      };
-    });
-  }
-  function wire(){
-    var seg = document.getElementById('modeSeg') || document.querySelector('.seg') || document.querySelector('.toolbar');
-    if(!seg) return;
-    if(!document.querySelector('[data-mode="practice"]')){
-      var b=document.createElement('button');
-      b.type='button'; b.setAttribute('data-mode','practice'); b.textContent='✏️ ฝึกสั้น';
-      b.style.cssText='font-family:inherit;font-weight:800;border:none;background:#fff;padding:8px 14px;cursor:pointer;border-radius:10px;margin-left:6px';
-      seg.appendChild(b);
-    }
-    document.body.addEventListener('click', function(e){
-      var btn = e.target.closest('[data-mode="practice"]');
-      if(!btn) return;
-      document.querySelectorAll('[data-mode]').forEach(function(x){ x.classList.toggle('on', x===btn); });
-      var pmcq=document.getElementById('practiceMcq');
-      if(pmcq) pmcq.classList.add('on');
-      document.querySelectorAll('.panel,.stage > div,.display-area > div').forEach(function(p){
-        if(p.id==='practiceMcq') return;
-        if(p.classList && p.classList.contains('practice-mcq')) return;
+    var PRACTICE_Q = [{"q":"ประเทศไทยมีกี่ภูมิภาคหลักที่เรียนกันบ่อย?","opts":["6","2","10","1"],"a":"6"},{"q":"กรุงเทพฯ อยู่ในภาคใด?","opts":["กลาง","เหนือ","ใต้","ตะวันออกเฉียงเหนือ"],"a":"กลาง"},{"q":"ภาคเหนือมักมีลักษณะภูมิประเทศแบบใด?","opts":["ภูเขาและหุบเขา","ทะเลทราย","เกาะปะการังอย่างเดียว","ทุ่งน้ำแข็ง"],"a":"ภูเขาและหุบเขา"},{"q":"อ่านแผนที่ควรดูอะไรก่อน?","opts":["ชื่อแผนที่ ทิศ และสัญลักษณ์","สีที่สวยที่สุด","ขนาดตัวอักษรอย่างเดียว","ปีที่พิมพ์อย่างเดียว"],"a":"ชื่อแผนที่ ทิศ และสัญลักษณ์"},{"q":"ภาคใต้ติดทะเลสำคัญด้านใด?","opts":["อ่าวไทยและอันดามัน","ทะเลสาบแคสเปียน","ทะเลเหนือ","มหาสมุทรอาร์กติก"],"a":"อ่าวไทยและอันดามัน"},{"q":"จังหวัดเชียงใหม่อยู่ภาคใด?","opts":["เหนือ","ใต้","กลาง","ตะวันออก"],"a":"เหนือ"}];
+    function nextPracticeMcq(){
+      var item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
+      var box = document.getElementById('practiceMcq');
+      if(!box) return;
+      box.querySelector('.pq').textContent = item.q;
+      var fb = box.querySelector('.pfb'); fb.textContent=''; fb.style.color='';
+      var opts = item.opts.slice().sort(function(){return Math.random()-0.5;});
+      var popts = box.querySelector('.popts');
+      popts.innerHTML = opts.map(function(o){return '<button type="button" class="popt" data-a="'+o+'">'+o+'</button>';}).join('');
+      popts.querySelectorAll('.popt').forEach(function(btn){
+        btn.onclick=function(){
+          var ok = btn.getAttribute('data-a') === item.a;
+          btn.classList.add(ok?'ok':'no');
+          popts.querySelectorAll('.popt').forEach(function(b){
+            b.disabled=true;
+            if(b.getAttribute('data-a')===item.a) b.classList.add('ok');
+          });
+          fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
+          fb.style.color = ok ? '#16a34a' : '#dc2626';
+          if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+        };
       });
-      // hide common learn panels loosely
-      document.querySelectorAll('.panel.on').forEach(function(p){ p.classList.remove('on'); });
-      nextPracticeMcq();
-    }, true);
-    document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', wire); else wire();
-})();
-</script>
+    }
+    function setMode(m) {
+      document.querySelectorAll('#modeSeg button').forEach(function(b){ b.classList.toggle('on', b.dataset.mode === m); });
+      var learn = document.getElementById('learn');
+      var pmcq = document.getElementById('practiceMcq');
+      if (m === 'practice') {
+        if (learn) learn.classList.add('hidden');
+        if (pmcq) { pmcq.classList.add('on'); nextPracticeMcq(); }
+      } else {
+        if (learn) learn.classList.remove('hidden');
+        if (pmcq) pmcq.classList.remove('on');
+      }
+    }
+    document.getElementById('modeSeg').addEventListener('click', function(e){
+      var btn = e.target.closest('button[data-mode]');
+      if (btn) setMode(btn.dataset.mode);
+    });
+    document.getElementById('btnPracticeNext').addEventListener('click', nextPracticeMcq);
+  </script>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>โครงสร้างประโยค — ประธาน กริยา กรรม — บ้านคำไผ่</title>
@@ -76,7 +76,7 @@
     <div class="toolbar">
       <span class="seg" id="modeSeg">
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="build">✏️ เรียงประโยค</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">ประธาน + กริยา (+ กรรม) = ประโยค</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
@@ -100,7 +100,7 @@
           <div class="ex">เช่น หนังสือ · อาหาร · ที่โรงเรียน</div>
         </div>
       </div>
-      <div class="build" id="build">
+      <div class="build" id="practice">
         <p class="sent" id="promptHint">แตะคำตามลำดับให้เป็นประโยค</p>
         <div class="slots" id="slots"></div>
         <div class="pool" id="pool"></div>
@@ -117,7 +117,7 @@
   </div>
   <script>
     const MEDIA_SLUG = 'sentence-structure-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('sentence-structure-media');
 
     const ITEMS = [
       { labels: ['ประธาน', 'กริยา', 'กรรม'], words: [
@@ -162,12 +162,12 @@
       if (!b) return;
       mode = b.dataset.mode;
       document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('hide', mode === 'build');
-      document.getElementById('build').classList.toggle('on', mode === 'build');
+      document.getElementById('learn').classList.toggle('hide', mode === 'practice');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
       document.getElementById('hintText').textContent = mode === 'learn'
         ? 'ประธาน + กริยา (+ กรรม) = ประโยค'
-        : 'แตะคำเรียงให้ถูกโครงสร้าง — ไม่มีคะแนน';
-      if (mode === 'build') newRound();
+        : 'ฝึกสั้น: แตะคำเรียงให้ถูกโครงสร้าง — ไม่มีคะแนน';
+      if (mode === 'practice') newRound();
     };
 
     document.getElementById('btnFs').onclick = () => {

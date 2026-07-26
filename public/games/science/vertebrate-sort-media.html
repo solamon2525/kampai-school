@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จำแนกสัตว์มี/ไม่มีกระดูกสันหลัง — บ้านคำไผ่</title>
@@ -77,7 +77,7 @@
       <span class="seg" id="modeSeg">
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
         <button type="button" data-mode="sort">🎯 จัดกลุ่ม</button>
-        <button type="button" data-mode="quiz">✏️ ทดสอบ</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint">มีกระดูกสันหลัง = เลือดอุ่น มีกระดูกสันหลัง</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
@@ -104,7 +104,7 @@
         </div>
         <button type="button" class="btn btn-primary" id="btnReset">เริ่มใหม่</button>
       </div>
-      <div class="quiz" id="quiz">
+      <div class="quiz" id="practice">
         <p class="q-an" id="qAn">🐘</p>
         <p style="font-weight:800;color:var(--deep)" id="qName">ช้าง</p>
         <div class="opts">
@@ -202,9 +202,9 @@
         document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
         document.getElementById('learn').classList.toggle('hide', m !== 'learn');
         document.getElementById('sortGame').classList.toggle('on', m === 'sort');
-        document.getElementById('quiz').classList.toggle('on', m === 'quiz');
+        document.getElementById('practice').classList.toggle('on', m === 'practice');
         if (m === 'sort') initSort();
-        if (m === 'quiz') nextQuiz();
+        if (m === 'practice') nextQuiz();
       };
     });
 

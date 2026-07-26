@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 5 หรือ 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
@@ -35,8 +35,12 @@
     .count-5 .q-text,.worksheet-mode-five .q-text{font-size:11.5pt;line-height:1.4}
     .work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:20mm;padding:1mm 0;gap:1.2mm}
     .count-5 .work-block,.worksheet-mode-five .work-block{min-height:28mm;padding:2mm 0;gap:2mm}
-    .work-line{border-bottom:1px dotted #64748b;min-height:6.2mm;height:6.2mm;font-size:8pt;line-height:1.25;display:flex;align-items:flex-end;padding-bottom:.5mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:9mm;height:9mm;font-size:10pt;line-height:1.35}
+    .step-row{display:grid;grid-template-columns:16mm 1fr;gap:1.5mm;align-items:end;min-height:6.2mm}
+    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:9mm}
+    .step-tag{font-size:6pt;font-weight:800;color:#fff;background:#0369a1;border-radius:3px;padding:.6mm;text-align:center;line-height:1.15}
+    .count-5 .step-tag,.worksheet-mode-five .step-tag{font-size:7pt}
+    .work-line{border-bottom:1px dotted #64748b;min-height:5.5mm;font-size:8pt;line-height:1.25;display:flex;align-items:flex-end;padding-bottom:.3mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:8mm;font-size:10pt;line-height:1.35}
     .work-fill,.answer-fill{color:transparent}
     .show-answers .work-fill,.q.reveal-answer .work-fill{color:#b91c1c;font-weight:800;font-size:13pt;line-height:1.2}
     .show-answers .count-5 .work-fill,.count-5 .q.reveal-answer .work-fill,
@@ -301,9 +305,9 @@
       return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)
         +'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div>'
         +'<div class="work-block">'
-        +'<div class="work-line"><span class="work-fill">'+work.line1+'</span></div>'
-        +'<div class="work-line"><span class="work-fill">'+work.line2+'</span></div>'
-        +'<div class="work-line"><span class="work-fill">'+work.line3+'</span></div>'
+        +'<div class="step-row"><span class="step-tag">1 สูตร</span><div class="work-line"><span class="work-fill">'+work.line1+'</span></div></div>'
+        +'<div class="step-row"><span class="step-tag">2 แทนค่า</span><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
+        +'<div class="step-row"><span class="step-tag">3 คำนวณ</span><div class="work-line"><span class="work-fill">'+work.line3+'</span></div></div>'
         +'</div>'
         +'<div class="answer-line"><span class="answer-label">ตอบ</span><span class="answer-fill">'+work.answer+'</span><span class="answer-unit">ตารางหน่วย</span></div>'
         +'</div></article>';
@@ -440,6 +444,6 @@
     window.randomize=randomize;
     bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.181.0"></script>
+<script src="/games/worksheet-modes.js?v=1.184.0"></script>
 </body>
 </html>

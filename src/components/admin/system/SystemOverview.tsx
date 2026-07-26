@@ -272,6 +272,18 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.184.0 (Phase 10 — ยกระดับสื่อ+ใบงานทั้งหมด)',
+        date: 'ล่าสุด',
+        badge: 'bg-fuchsia-700',
+        items: [
+            'P1: สื่อ 51/51 ผ่าน verify:media (learn+practice)',
+            'P2–P3: ใบงาน scaffold ลึก · hub 17 deepen-in-place · shallow=0',
+            'P4: ปกครบ · SDK ?v=1.181.0 · CI verify:media:matrix',
+            'P5: subjectGuides เติม · modes cache 1.184.0',
+            'P6: lesson_packs รวม 15 แพ็ก (migration 437)',
+        ],
+    },
+    {
         version: 'v1.183.0 (dual-track คู่เกม 10 ชิ้น — สื่อ+ใบงาน)',
         date: 'ล่าสุด',
         badge: 'bg-cyan-700',

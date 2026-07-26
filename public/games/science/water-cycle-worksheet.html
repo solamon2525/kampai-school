@@ -1,20 +1,48 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/water-cycle-media.html"><meta name="curriculum-indicators" content="ว 3.2 ป.5/3"><title>ใบงานวัฏจักรน้ำ ป.5 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.181.0" rel="stylesheet"></head><body>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/science/water-cycle-media.html"><meta name="curriculum-indicators" content="ว 3.2 ป.5/3"><title>ใบงานวัฏจักรน้ำ ป.5 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
 <header class="toolbar"><h1>💧 ใบงานวัฏจักรน้ำ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="5">ป.5</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="sequence">เรียงลำดับ</option><option value="cause">เหตุและผล</option><option value="apply">ประยุกต์ใช้</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
 const WATER_ITEMS=[
- {type:'sequence',prompt:'เติมชื่อกระบวนการทั้ง 4 ขั้นตามลำดับ',flow:['น้ำได้รับความร้อน','ไอน้ำลอยสูง','เมฆมีหยดน้ำมาก','น้ำกลับสู่แหล่งน้ำ'],answer:'ระเหย → ควบแน่น → หยาดน้ำฟ้า → รวมตัว'},
- {type:'sequence',prompt:'เรียงเหตุการณ์จากทะเลจนกลับลงสู่พื้นดิน',flow:['ทะเล','ไอน้ำ','เมฆ','ฝน'],answer:'ทะเล → ไอน้ำ → เมฆ → ฝน'},
- {type:'sequence',prompt:'เติมขั้นที่หายไป: ระเหย → ______ → หยาดน้ำฟ้า → รวมตัว',flow:['ระเหย','?','หยาดน้ำฟ้า','รวมตัว'],answer:'ควบแน่น'},
- {type:'cause',prompt:'เพราะเหตุใดเสื้อผ้าจึงแห้งเร็วเมื่ออยู่กลางแดด',flow:['แสงอาทิตย์','น้ำในผ้า','ไอน้ำ','อากาศ'],answer:'ความร้อนทำให้น้ำระเหยเร็วขึ้น'},
- {type:'cause',prompt:'เมฆเกิดขึ้นได้อย่างไร',flow:['ไอน้ำ','อากาศเย็น','หยดน้ำเล็ก','เมฆ'],answer:'ไอน้ำเย็นลงและควบแน่นเป็นหยดน้ำเล็ก ๆ'},
- {type:'cause',prompt:'เหตุใดฝนจึงตกเมื่อเมฆมีหยดน้ำจำนวนมาก',flow:['หยดน้ำเล็ก','รวมตัว','หนักขึ้น','ตกลงมา'],answer:'หยดน้ำรวมตัวจนหนักและตกเป็นหยาดน้ำฟ้า'},
- {type:'cause',prompt:'ถ้าอากาศร้อนขึ้น การระเหยจะเปลี่ยนอย่างไร',flow:['อุณหภูมิสูง','พลังงานเพิ่ม','ระเหย','?'],answer:'การระเหยเร็วขึ้น'},
- {type:'apply',prompt:'เช้าวันหนึ่งมีหยดน้ำเกาะด้านนอกแก้วเย็น เกี่ยวกับขั้นใด',flow:['ไอน้ำ','แก้วเย็น','หยดน้ำ','สังเกต'],answer:'การควบแน่น'},
- {type:'apply',prompt:'น้ำฝนไหลลงแม่น้ำและทะเล จัดเป็นขั้นใด',flow:['ฝน','พื้นดิน','แม่น้ำ','ทะเล'],answer:'การรวมตัวหรือการสะสม'},
- {type:'apply',prompt:'เขียนเหตุผลว่าทำไมวัฏจักรน้ำจึงเกิดซ้ำได้',flow:['แสงอาทิตย์','ระเหย','ฝน','แหล่งน้ำ'],answer:'น้ำกลับสู่แหล่งน้ำและได้รับความร้อนให้ระเหยอีกครั้ง'},
- {type:'apply',prompt:'ถ้าไม่มีพลังงานจากดวงอาทิตย์ ขั้นแรกจะได้รับผลอย่างไร',flow:['ดวงอาทิตย์','ความร้อน','ระเหย','วัฏจักร'],answer:'การระเหยลดลง ทำให้วัฏจักรน้ำช้าลง'},
- {type:'apply',prompt:'ยกตัวอย่างการรวมตัวของน้ำที่พบใกล้บ้านหนึ่งอย่าง',flow:['ฝน','รางน้ำ','คลอง','แหล่งน้ำ'],answer:'เช่น น้ำฝนไหลรวมในคลองหรือบ่อ'}
+ {type:'sequence',prompt:'เติมชื่อกระบวนการทั้ง 4 ขั้นตามลำดับ',flow:['น้ำได้รับความร้อน','ไอน้ำลอยสูง','เมฆมีหยดน้ำมาก','น้ำกลับสู่แหล่งน้ำ'],answer:'ระเหย → ควบแน่น → หยาดน้ำฟ้า → รวมตัว',s1:'ความร้อน → ระเหย',s2:'เย็นลง → ควบแน่น → เมฆ',s3:'หยาดน้ำฟ้า → รวมตัว'},
+ {type:'sequence',prompt:'เรียงเหตุการณ์จากทะเลจนกลับลงสู่พื้นดิน',flow:['ทะเล','ไอน้ำ','เมฆ','ฝน'],answer:'ทะเล → ไอน้ำ → เมฆ → ฝน',s1:'ทะเลได้รับความร้อน',s2:'ไอน้ำกลายเป็นเมฆ',s3:'ฝนตกลงพื้นดิน'},
+ {type:'sequence',prompt:'เติมขั้นที่หายไป: ระเหย → ______ → หยาดน้ำฟ้า → รวมตัว',flow:['ระเหย','?','หยาดน้ำฟ้า','รวมตัว'],answer:'ควบแน่น',s1:'ขั้นก่อน = ระเหย',s2:'ขั้นหลัง = หยาดน้ำฟ้า',s3:'ขั้นที่ขาด = ควบแน่น'},
+ {type:'cause',prompt:'เพราะเหตุใดเสื้อผ้าจึงแห้งเร็วเมื่ออยู่กลางแดด',flow:['แสงอาทิตย์','น้ำในผ้า','ไอน้ำ','อากาศ'],answer:'ความร้อนทำให้น้ำระเหยเร็วขึ้น',s1:'แสงอาทิตย์ให้ความร้อน',s2:'น้ำในผ้าได้รับพลังงาน',s3:'ระเหยเร็ว → ผ้าแห้ง'},
+ {type:'cause',prompt:'เมฆเกิดขึ้นได้อย่างไร',flow:['ไอน้ำ','อากาศเย็น','หยดน้ำเล็ก','เมฆ'],answer:'ไอน้ำเย็นลงและควบแน่นเป็นหยดน้ำเล็ก ๆ',s1:'ไอน้ำลอยสูง',s2:'อากาศเย็นลง',s3:'ควบแน่นเป็นเมฆ'},
+ {type:'cause',prompt:'เหตุใดฝนจึงตกเมื่อเมฆมีหยดน้ำจำนวนมาก',flow:['หยดน้ำเล็ก','รวมตัว','หนักขึ้น','ตกลงมา'],answer:'หยดน้ำรวมตัวจนหนักและตกเป็นหยาดน้ำฟ้า',s1:'หยดน้ำในเมฆรวมกัน',s2:'มวลมากขึ้นหนักขึ้น',s3:'ตกเป็นหยาดน้ำฟ้า'},
+ {type:'cause',prompt:'ถ้าอากาศร้อนขึ้น การระเหยจะเปลี่ยนอย่างไร',flow:['อุณหภูมิสูง','พลังงานเพิ่ม','ระเหย','?'],answer:'การระเหยเร็วขึ้น',s1:'อุณหภูมิสูงขึ้น',s2:'พลังงานของน้ำเพิ่ม',s3:'ระเหยเร็วขึ้น'},
+ {type:'apply',prompt:'เช้าวันหนึ่งมีหยดน้ำเกาะด้านนอกแก้วเย็น เกี่ยวกับขั้นใด',flow:['ไอน้ำ','แก้วเย็น','หยดน้ำ','สังเกต'],answer:'การควบแน่น',s1:'ไอน้ำในอากาศ',s2:'แตะผิวแก้วเย็น',s3:'ควบแน่นเป็นหยดน้ำ'},
+ {type:'apply',prompt:'น้ำฝนไหลลงแม่น้ำและทะเล จัดเป็นขั้นใด',flow:['ฝน','พื้นดิน','แม่น้ำ','ทะเล'],answer:'การรวมตัวหรือการสะสม',s1:'ฝนตกลงพื้น',s2:'ไหลรวมเป็นลำธาร/แม่น้ำ',s3:'ขั้นรวมตัว/สะสม'},
+ {type:'apply',prompt:'เขียนเหตุผลว่าทำไมวัฏจักรน้ำจึงเกิดซ้ำได้',flow:['แสงอาทิตย์','ระเหย','ฝน','แหล่งน้ำ'],answer:'น้ำกลับสู่แหล่งน้ำและได้รับความร้อนให้ระเหยอีกครั้ง',s1:'น้ำกลับสู่แหล่งน้ำ',s2:'ดวงอาทิตย์ให้ความร้อนอีก',s3:'ระเหยซ้ำ → วัฏจักรต่อเนื่อง'},
+ {type:'apply',prompt:'ถ้าไม่มีพลังงานจากดวงอาทิตย์ ขั้นแรกจะได้รับผลอย่างไร',flow:['ดวงอาทิตย์','ความร้อน','ระเหย','วัฏจักร'],answer:'การระเหยลดลง ทำให้วัฏจักรน้ำช้าลง',s1:'ไม่มีพลังงานความร้อน',s2:'ระเหยลดลง',s3:'วัฏจักรช้าลง'},
+ {type:'apply',prompt:'ยกตัวอย่างการรวมตัวของน้ำที่พบใกล้บ้านหนึ่งอย่าง',flow:['ฝน','รางน้ำ','คลอง','แหล่งน้ำ'],answer:'เช่น น้ำฝนไหลรวมในคลองหรือบ่อ',s1:'สังเกตน้ำใกล้บ้าน',s2:'น้ำไหลมารวมกัน',s3:'เช่น คลอง / บ่อ / รางน้ำ'}
 ];
-window.WORKSHEET_CONFIG={icon:'💧',title:'ใบงานวัฏจักรน้ำ',subject:'วิทยาศาสตร์',gradeLabel:'ป.5',mediaLabel:'วัฏจักรน้ำ',sourceMediaUrl:'/games/science/water-cycle-media.html',indicators:['ว 3.2 ป.5/3'],directions:'เรียงขั้น เชื่อมเหตุผล และอธิบายวัฏจักรด้วยคำวิทยาศาสตร์',getItems(topic){return topic==='mixed'?WATER_ITEMS:WATER_ITEMS.filter(item=>item.type===topic);},buildWaterWork(item){if(item.type==='sequence'){const missing=item.flow.indexOf('?');if(missing>=0)return{line1:'ขั้นที่ขาด: '+item.answer,line2:'ลำดับ: '+item.flow.map(s=>s==='?'?item.answer.split(' → ')[0]:s).join(' → ')};return{line1:'เรียงลำดับ: '+item.answer,line2:'เชื่อม: '+item.flow.join(' → ')};}return{line1:'เชื่อมเหตุ–ผลจากแผนภาพ',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const work=this.buildWaterWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="cycle-flow">'+item.flow.map((step,index)=>'<div class="cycle-step">'+e(step==='?'?'?':step)+'</div>'+(index<3?'<span class="cycle-arrow">→</span>':'')).join('')+'</div><div>คำอธิบาย/เหตุผล</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(work.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(work.line2)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.181.0"></script></body></html>
+window.WORKSHEET_CONFIG={
+  worksheetKey:'water-cycle',icon:'💧',title:'ใบงานวัฏจักรน้ำ',subject:'วิทยาศาสตร์',gradeLabel:'ป.5',mediaLabel:'วัฏจักรน้ำ',
+  sourceMediaUrl:'/games/science/water-cycle-media.html',indicators:['ว 3.2 ป.5/3'],
+  directions:'เรียงขั้น เชื่อมเหตุผล และอธิบายวัฏจักรด้วยคำวิทยาศาสตร์',
+  getItems(topic){return topic==='mixed'?WATER_ITEMS:WATER_ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const tags=item.type==='sequence'
+      ?['1 สังเกต','2 เรียงขั้น','3 ตั้งชื่อ']
+      :item.type==='cause'
+        ?['1 สาเหตุ','2 กระบวนการ','3 ผล']
+        :['1 สังเกต','2 เชื่อมขั้น','3 สรุป'];
+    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="cycle-flow">'+item.flow.map((step,index)=>'<div class="cycle-step">'+e(step==='?'?'?':step)+'</div>'+(index<item.flow.length-1?'<span class="cycle-arrow">→</span>':'')).join('')+'</div></div>'
+      +'<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">'+tags[0]+'</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[1]+'</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">'+tags[2]+'</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สื่อการสอนการหารสั้น — วิธีคิดทีละขั้น</title>
@@ -412,7 +412,7 @@
     (function () {
       const GAME_SLUG = 'short-division-thinking-media';
       if (window.KAMPAI) {
-        try { window.KAMPAI.setSlug(GAME_SLUG); } catch (e) {}
+        try { window.KAMPAI.setSlug('short-division-thinking-media'); } catch (e) {}
       }
 
       var inputDividend = document.getElementById('dividend');
