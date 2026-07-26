@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/tech/online-safety-media.html"><meta name="curriculum-indicators" content="วท 4.2 ป.4/1, วท 4.2 ป.4/2"><title>ใบงานความปลอดภัยออนไลน์ ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.15" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.15" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🛡️ ใบงานความปลอดภัยออนไลน์</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="password">รหัสผ่าน</option><option value="privacy">ข้อมูลส่วนตัว</option><option value="link">ลิงก์/อนุญาต</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.175.15"></script><script>
+const ITEMS=[
+ {type:'password',prompt:'รหัสผ่านที่ดีควรมีลักษณะใด',focus:'รหัสผ่าน',answer:'ยาว มีตัวพิมพ์ใหญ่–เล็ก ตัวเลข สัญลักษณ์',step1:'ยาว ≥8',step2:'ผสมตัวอักษร/เลข',step3:'ไม่ใช้วันเกิด'},
+ {type:'password',prompt:'ทำไมไม่ควรใช้ชื่อเล่นเป็นรหัสผ่าน',focus:'รหัสผ่าน',answer:'เดาง่าย คนอื่นอาจรู้',step1:'ชื่อเล่นรู้จักกัน',step2:'เดาง่าย',step3:'ไม่ปลอดภัย'},
+ {type:'privacy',prompt:'ข้อมูลใดไม่ควรแชร์ออนไลน์',focus:'ข้อมูลส่วนตัว',answer:'ที่อยู่ เบอร์โทร รหัสผ่าน',step1:'ข้อมูลส่วนตัว',step2:'อย่าโพสต์สาธารณะ',step3:'เก็บเป็นความลับ'},
+ {type:'privacy',prompt:'ถ้าคนแปลกหน้าขอรูปบ้าน ควรทำอย่างไร',focus:'ข้อมูลส่วนตัว',answer:'ไม่ส่ง และบอกผู้ใหญ่',step1:'ไม่รู้จัก',step2:'อย่าส่งรูป',step3:'บอกผู้ใหญ่'},
+ {type:'link',prompt:'ได้รับลิงก์รางวัลฟรีจากคนแปลกหน้า ควร…',focus:'ลิงก์',answer:'ไม่คลิก แล้วบอกผู้ใหญ่',step1:'ลิงก์แปลก',step2:'ไม่คลิก',step3:'บอกผู้ใหญ่'},
+ {type:'link',prompt:'ก่อนสมัครบัญชีเกม ควรทำอะไร',focus:'ขออนุญาต',answer:'ขออนุญาตผู้ปกครอง',step1:'สมัครบัญชี',step2:'ขออนุญาตก่อน',step3:'ผู้ปกครอง'},
+ {type:'password',prompt:'ควรล็อกหน้าจอเมื่อเลิกใช้หรือไม่',focus:'รหัสผ่าน',answer:'ควรล็อกเสมอ',step1:'เลิกใช้',step2:'ล็อกหน้าจอ',step3:'ป้องกันคนอื่น'},
+ {type:'privacy',prompt:'ควรแชร์รหัสผ่านกับเพื่อนสนิทหรือไม่',focus:'ข้อมูลส่วนตัว',answer:'ไม่ควรแชร์กับใคร',step1:'รหัสผ่าน',step2:'เป็นความลับ',step3:'ไม่แชร์'},
+ {type:'link',prompt:'ไฟล์แนบจากคนที่ไม่รู้จัก ควร…',focus:'ลิงก์',answer:'ไม่เปิด/ไม่ดาวน์โหลด',step1:'ไฟล์แปลก',step2:'อย่าเปิด',step3:'บอกผู้ใหญ่'},
+ {type:'link',prompt:'ถ้าสงสัยว่าถูกหลอกลวงออนไลน์ ขั้นแรกคือ',focus:'ขออนุญาต',answer:'หยุดและบอกผู้ใหญ่/ครู',step1:'สงสัย',step2:'หยุดทันที',step3:'บอกผู้ใหญ่'}
+];
+const SKILL={password:'รหัสผ่าน',privacy:'ข้อมูลส่วนตัว',link:'ลิงก์/อนุญาต'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'online-safety',
+  icon:'🛡️',title:'ใบงานความปลอดภัยออนไลน์',subject:'เทคโนโลยี',gradeLabel:'ป.4–6',mediaLabel:'ความปลอดภัยออนไลน์',
+  sourceMediaUrl:'/games/tech/online-safety-media.html',indicators:['วท 4.2 ป.4/1','วท 4.2 ป.4/2'],
+  directions:'ติ๊กหัวข้อ → อ่านสถานการณ์ → ลงเหตุผลทีละขั้นแล้วสรุปคำตอบ',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ รหัสผ่าน</div><div class="tick-box">□ ข้อมูลส่วนตัว</div><div class="tick-box">□ ลิงก์แปลก</div><div class="tick-box">□ ขออนุญาต</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สถานการณ์</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 ทำอย่างไร</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 เหตุผล</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.175.15"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.15"></script></body></html>

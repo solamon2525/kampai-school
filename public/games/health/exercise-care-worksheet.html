@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/health/exercise-care-media.html"><meta name="curriculum-indicators" content="พ 3.1 ป.4/1, พ 4.1 ป.4/1"><title>ใบงานออกกำลังกายและดูแลบาดเจ็บ ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.15" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.15" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🏃 ใบงานออกกำลังกายและดูแลบาดเจ็บ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="warm">อบอุ่น/พัก</option><option value="rice">RICE</option><option value="safe">ความปลอดภัย</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.175.15"></script><script>
+const ITEMS=[
+ {type:'warm',prompt:'ก่อนออกกำลังกายควรทำอะไร',focus:'อบอุ่น',answer:'อบอุ่นร่างกาย 5–10 นาที',step1:'ก่อนเล่นกีฬา',step2:'เดิน/ยืดกล้ามเนื้อ',step3:'อบอุ่นร่างกาย'},
+ {type:'warm',prompt:'ทำไมต้องพักเป็นช่วงขณะออกกำลังกาย',focus:'พัก',answer:'ลดความเหนื่อยและป้องกันบาดเจ็บ',step1:'ออกแรงนาน',step2:'พักเป็นช่วง',step3:'ป้องกันบาดเจ็บ'},
+ {type:'warm',prompt:'หลังออกกำลังกายควรทำอะไร',focus:'คลาย',answer:'ยืดคลายกล้ามเนื้อและพักผ่อน',step1:'หลังเล่น',step2:'ยืดช้า ๆ',step3:'คืนตัว'},
+ {type:'rice',prompt:'ตัวอักษร R ใน RICE หมายถึงอะไร',focus:'R',answer:'Rest — พักส่วนที่เจ็บ',step1:'RICE',step2:'R = Rest',step3:'พัก'},
+ {type:'rice',prompt:'ตัวอักษร I ใน RICE หมายถึงอะไร',focus:'I',answer:'Ice — ประคบเย็น',step1:'RICE',step2:'I = Ice',step3:'ประคบเย็น'},
+ {type:'rice',prompt:'ตัวอักษร C ใน RICE หมายถึงอะไร',focus:'C',answer:'Compression — พันผ้ายืดพอดี',step1:'RICE',step2:'C = Compression',step3:'พันผ้า'},
+ {type:'rice',prompt:'ตัวอักษร E ใน RICE หมายถึงอะไร',focus:'E',answer:'Elevation — ยกสูงกว่าหัวใจ',step1:'RICE',step2:'E = Elevation',step3:'ยกสูง'},
+ {type:'rice',prompt:'ข้อเท้าบวมเล็กน้อย ขั้นแรกควร…',focus:'บวม',answer:'พักและประคบเย็น (RICE)',step1:'บวมเล็กน้อย',step2:'พัก+เย็น',step3:'RICE'},
+ {type:'safe',prompt:'ถ้าเจ็บมากหรือมีแผลเปิด ควร…',focus:'ปลอดภัย',answer:'บอกผู้ใหญ่และพบแพทย์',step1:'เจ็บมาก/แผลเปิด',step2:'อย่าทำเอง',step3:'บอกผู้ใหญ่'},
+ {type:'safe',prompt:'ขณะออกกำลังกายควรดื่มน้ำหรือไม่',focus:'น้ำ',answer:'ควรดื่มน้ำเป็นระยะ',step1:'เหงื่อออก',step2:'ดื่มน้ำ',step3:'ป้องกันขาดน้ำ'}
+];
+const SKILL={warm:'อบอุ่น/พัก',rice:'RICE',safe:'ความปลอดภัย'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'exercise-care',
+  icon:'🏃',title:'ใบงานออกกำลังกายและดูแลบาดเจ็บ',subject:'สุขศึกษา',gradeLabel:'ป.4–6',mediaLabel:'ออกกำลังกายและดูแลบาดเจ็บ',
+  sourceMediaUrl:'/games/health/exercise-care-media.html',indicators:['พ 3.1 ป.4/1','พ 4.1 ป.4/1'],
+  directions:'ติ๊กหัวข้อ R/I/C/E หรืออบอุ่น → ลงขั้นตอนการดูแล',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ R พัก</div><div class="tick-box">□ I เย็น</div><div class="tick-box">□ C พัน</div><div class="tick-box">□ E ยก</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สถานการณ์</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 ทำอย่างไร</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.175.15"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.15"></script></body></html>

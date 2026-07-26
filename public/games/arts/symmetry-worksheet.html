@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/arts/symmetry-media.html"><meta name="curriculum-indicators" content="ศ 1.1 ป.2/1, ศ 1.1 ป.3/1"><title>ใบงานความสมมาตร ป.1–3 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.175.15" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.175.15" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.draw-box{border:1px dashed var(--ws-line);border-radius:3px;min-height:14mm;margin:.8mm 0;display:flex;align-items:center;justify-content:center;font-size:7pt;font-weight:700;color:var(--ws-muted)}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .draw-box{min-height:18mm}.count-5 .step-row{min-height:8.5mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🪞 ใบงานความสมมาตร</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1</option><option value="2">ป.2</option><option value="3">ป.3</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="axis">แกนสมมาตร</option><option value="shape">รูปสมมาตร</option><option value="letter">ตัวอักษร</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.175.15"></script><script>
+const ITEMS=[
+ {type:'axis',prompt:'แกนสมมาตรคืออะไร',focus:'แกน',answer:'เส้นพับแล้วสองข้างทับกันได้',step1:'เส้นพับ',step2:'สองข้างทับกัน',step3:'แกนสมมาตร'},
+ {type:'axis',prompt:'วงกลมมีแกนสมมาตรกี่เส้น',focus:'วงกลม',answer:'หลายเส้นไม่จำกัด',step1:'วงกลม',step2:'พับได้ทุกทิศ',step3:'หลายเส้น'},
+ {type:'shape',prompt:'รูปหัวใจสมมาตรหรือไม่',focus:'หัวใจ',answer:'สมมาตร (แกนแนวตั้ง)',step1:'หัวใจ',step2:'พับกลาง',step3:'สมมาตร'},
+ {type:'shape',prompt:'ผีเสื้อมักมีแกนสมมาตรแบบใด',focus:'ผีเสื้อ',answer:'แนวตั้งกลางลำตัว',step1:'ผีเสื้อ',step2:'ปีกซ้าย-ขวา',step3:'แกนแนวตั้ง'},
+ {type:'shape',prompt:'รูปเมฆไม่สม่ำเสมอสมมาตรหรือไม่',focus:'เมฆ',answer:'โดยทั่วไปไม่สมมาตร',step1:'รูปร่างไม่เท่า',step2:'พับไม่ทับ',step3:'ไม่สมมาตร'},
+ {type:'letter',prompt:'ตัวอักษร A สมมาตรแนวตั้งหรือไม่',focus:'A',answer:'สมมาตร',step1:'ตัว A',step2:'พับกลาง',step3:'ทับกันได้'},
+ {type:'letter',prompt:'ตัวอักษร F สมมาตรหรือไม่',focus:'F',answer:'ไม่สมมาตร',step1:'ตัว F',step2:'ซ้าย-ขวาไม่เท่า',step3:'ไม่สมมาตร'},
+ {type:'letter',prompt:'ตัวอักษร H สมมาตรอย่างไร',focus:'H',answer:'สมมาตรแนวตั้งและแนวนอน',step1:'ตัว H',step2:'พับตั้ง/นอน',step3:'สมมาตร'},
+ {type:'axis',prompt:'ถ้าพับแล้วสองข้างไม่ทับกัน หมายความว่า',focus:'แกน',answer:'ไม่สมมาตรตามเส้นนั้น',step1:'พับตามเส้น',step2:'ไม่ทับกัน',step3:'ไม่สมมาตร'},
+ {type:'shape',prompt:'วาดแกนสมมาตรของสี่เหลี่ยมจัตุรัสได้กี่แบบหลัก',focus:'สี่เหลี่ยม',answer:'อย่างน้อย 4 เส้น (ตั้ง นอน เฉียง 2)',step1:'สี่เหลี่ยมจัตุรัส',step2:'พับหลายทาง',step3:'หลายแกน'}
+];
+const SKILL={axis:'แกนสมมาตร',shape:'รูปสมมาตร',letter:'ตัวอักษร'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'symmetry',
+  icon:'🪞',title:'ใบงานความสมมาตร',subject:'ศิลปะ',gradeLabel:'ป.1–3',mediaLabel:'ความสมมาตร',
+  sourceMediaUrl:'/games/arts/symmetry-media.html',indicators:['ศ 1.1 ป.2/1','ศ 1.1 ป.3/1'],
+  directions:'ติ๊กประเภท → นึกภาพพับรูป → ลงขั้นตอนแล้วสรุป',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="draw-box">□ วาด/ทำเครื่องหมายแกนสมมาตรที่นี่ · โฟกัส: '+e(item.focus)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ สมมาตร</div><div class="tick-box">□ ไม่สมมาตร</div><div class="tick-box">□ มีหลายแกน</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 ดูรูป</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 พับ/เทียบ</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.175.15"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.175.15"></script></body></html>

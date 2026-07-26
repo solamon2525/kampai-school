@@ -46,3 +46,7 @@ pnpm verify:worksheet:matrix -- --strict
 - **7A** English dual-track: `phonics-media` · `sight-words-media` · `grammar-mini-media` · `follow-instructions-media` · `grammar-vocab-media` (+ redirect เก่า)
 - **7B** ฝึกสั้น MCQ: `rect-area` · `community-jobs` · `plant-parts` · `sufficiency` · `bone-muscle`
 - **7C** วิชาบาง: `coding-social-media` · `thailand-map-media` · `sukhothai-timeline-media` · `water-cycle-media` · `color-mix-media`
+
+## Phase 8C notes
+
+- **8C** content fill dual-track (migration 432): `online-safety-media` · `symmetry-media` · `exercise-care-media` · `past-tense-mini-media` · `money-change-media` (+ คู่ `*-worksheet`)

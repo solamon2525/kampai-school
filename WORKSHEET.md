@@ -169,6 +169,11 @@ pnpm verify:worksheet:production
 | ตัวอย่าง `grammar-vocab-media.html` | `grammar-vocab-worksheet.html` | `grammar-vocab` |
 | ตัวอย่าง `coding-social-media.html` | `coding-social-worksheet.html` | ตามไฟล์ |
 | ตัวอย่าง `color-mix-media.html` | `color-mix-worksheet.html` | `color-mix` |
+| `online-safety-media.html` | `online-safety-worksheet.html` | `online-safety` |
+| `symmetry-media.html` | `symmetry-worksheet.html` | `symmetry` |
+| `exercise-care-media.html` | `exercise-care-worksheet.html` | `exercise-care` |
+| `past-tense-mini-media.html` | `past-tense-mini-worksheet.html` | `past-tense-mini` |
+| `money-change-media.html` | `money-change-worksheet.html` | `money-change` |
 
 กฎ: สื่อสอนบนจอ + ใบงานกระดาษคู่กัน · QR/meta `worksheet-source-media` ชี้กลับสื่อ · ชุดบันทึกใช้ `worksheet_key` เดียวกัน · พอร์ทัลกรองด้วย `?tab=worksheet-sets&key=<worksheet_key>` · สัญญาสื่อเต็มใน [`MEDIA.md`](MEDIA.md)
 
@@ -195,6 +200,10 @@ pnpm verify:worksheet:production
 - **7B** ฝึกสั้น MCQ leftovers: พื้นที่ · อาชีพ · ส่วนพืช · พอเพียง · กระดูก–กล้ามเนื้อ (migration 428)
 - **7C** วิชาบาง: coding-social · แผนที่ไทย · สุโขทัย · วัฏจักรน้ำ · ผสมสี (migration 429)
 - สัญญาสื่อ: [`MEDIA.md`](MEDIA.md) · verify: `pnpm verify:media <path>`
+
+### Phase 8C notes (สื่อ+ใบงาน)
+
+- **8C** content fill: ความปลอดภัยออนไลน์ · สมมาตร · ออกกำลัง/RICE · Past Tense Mini · เงินทอน (migration 432)
 
 ### Automatic Publish Gate (ใบงาน)
 

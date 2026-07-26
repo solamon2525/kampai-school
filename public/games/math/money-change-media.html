@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เงินทอน — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#a16207;--line:#fde68a;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#fef9c3,#ffedd5);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#a16207,#eab308);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fffbeb;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #fbbf24}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#a16207;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+    .panel.on{display:flex}
+    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fffbeb;font-weight:700;line-height:1.55}
+    .formula{font-size:1.35rem;font-weight:800;text-align:center;color:var(--deep);padding:12px;border-radius:12px;background:#fef3c7;border:2px dashed #f59e0b}
+    .coins{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .coin{min-width:64px;padding:10px;border-radius:999px;background:#fde68a;border:3px solid #f59e0b;font-weight:800;text-align:center;color:#78350f}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🪙 เงินทอน — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.1–3 · คณิตศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">เงินทอน = เงินที่จ่าย − ราคาสินค้า</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="formula">เงินทอน = เงินที่จ่าย − ราคาของ</div>
+        <div class="mix-card">
+          <p>ตัวอย่าง: ดินสอราคา <strong>7 บาท</strong> จ่าย <strong>10 บาท</strong></p>
+          <p style="margin-top:8px">เงินทอน = 10 − 7 = <strong style="color:#16a34a">3 บาท</strong></p>
+          <p style="margin-top:8px">ตัวอย่าง: ขนมราคา <strong>15 บาท</strong> จ่าย <strong>20 บาท</strong> → ทอน <strong>5 บาท</strong></p>
+          <p style="margin-top:8px;color:var(--muted)">หน่วยเงินไทยที่ใช้บ่อย: 1 · 5 · 10 · 20 · 50 · 100 บาท</p>
+        </div>
+        <div class="coins">
+          <span class="coin">1฿</span><span class="coin">5฿</span><span class="coin">10฿</span>
+          <span class="coin">20฿</span><span class="coin">50฿</span><span class="coin">100฿</span>
+        </div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ค 1.1 ป.2/2</strong> · คู่ใบงาน <a href="/games/math/money-change-worksheet.html">money-change</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('money-change-media');
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'ซื้อของราคา 7 บาท จ่าย 10 บาท ทอนกี่บาท?', opts: ['3 บาท', '7 บาท', '10 บาท', '17 บาท'], a: '3 บาท' },
+      { q: 'ซื้อของราคา 15 บาท จ่าย 20 บาท ทอนกี่บาท?', opts: ['5 บาท', '15 บาท', '20 บาท', '35 บาท'], a: '5 บาท' },
+      { q: 'สูตรเงินทอนคืออะไร?', opts: ['เงินที่จ่าย − ราคาของ', 'ราคาของ − เงินที่จ่าย', 'ราคาของ + เงินที่จ่าย', 'เงินที่จ่าย × ราคาของ'], a: 'เงินที่จ่าย − ราคาของ' },
+      { q: 'ซื้อของราคา 25 บาท จ่าย 50 บาท ทอนกี่บาท?', opts: ['25 บาท', '50 บาท', '75 บาท', '15 บาท'], a: '25 บาท' },
+      { q: 'ซื้อของราคา 8 บาท จ่าย 20 บาท ทอนกี่บาท?', opts: ['12 บาท', '8 บาท', '20 บาท', '28 บาท'], a: '12 บาท' },
+      { q: 'ซื้อของราคา 40 บาท จ่าย 100 บาท ทอนกี่บาท?', opts: ['60 บาท', '40 บาท', '100 บาท', '140 บาท'], a: '60 บาท' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'เงินทอน = เงินที่จ่าย − ราคาสินค้า' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

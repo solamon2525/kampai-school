@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ความสมมาตร — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#be185d;--line:#fbcfe8;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#fce7f3,#fae8ff);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#9d174d,#db2777);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fdf2f8;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #f472b6}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#9d174d;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+    .panel.on{display:flex}
+    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fdf2f8;font-weight:700;line-height:1.55}
+    .demo{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+    .shape{width:100px;height:100px;border-radius:12px;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.12);display:grid;place-items:center;font-weight:800;font-size:.8rem;color:#fff;position:relative;overflow:hidden}
+    .shape .axis{position:absolute;background:rgba(255,255,255,.9);width:3px;height:100%;left:50%;transform:translateX(-50%)}
+    .shape.h .axis{width:100%;height:3px;left:0;top:50%;transform:translateY(-50%)}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🪞 ความสมมาตร — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.1–3 · ศิลปะ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">แกนสมมาตร = เส้นพับแล้วสองข้างซ้อนกันได้</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="demo">
+          <div class="shape" style="background:#db2777">หัวใจ<div class="axis"></div></div>
+          <div class="shape h" style="background:#7c3aed">ผีเสื้อ<div class="axis"></div></div>
+          <div class="shape" style="background:#2563eb;border-radius:50%">วงกลม<div class="axis"></div></div>
+        </div>
+        <div class="mix-card">
+          <p><strong>รูปสมมาตร</strong> — พับตามเส้นแล้วสองข้างทับกันได้พอดี</p>
+          <p style="margin-top:8px"><strong>แกนสมมาตร</strong> — เส้นพับนั้น (อาจมีได้หลายเส้น เช่น วงกลม)</p>
+          <p style="margin-top:8px">ตัวอย่าง: หัวใจ · ผีเสื้อ · หน้ากาก · ตัวอักษร H, A, M</p>
+          <p style="margin-top:8px;color:var(--muted)">ถ้าพับแล้วไม่ทับกัน → ไม่สมมาตร (เช่น ตัวอักษร F, P)</p>
+        </div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ศ 1.1 ป.2/1</strong> · คู่ใบงาน <a href="/games/arts/symmetry-worksheet.html">symmetry</a> · เกมศิลปะ <a href="/games/arts/symmetry-art.html">symmetry-art</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('symmetry-media');
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'แกนสมมาตรคืออะไร?', opts: ['เส้นพับแล้วสองข้างทับกันได้', 'สีของรูป', 'ขนาดของรูป', 'จำนวนมุม'], a: 'เส้นพับแล้วสองข้างทับกันได้' },
+      { q: 'รูปใดสมมาตรได้ง่าย?', opts: ['หัวใจ', 'ตัวอักษร F', 'ตัวอักษร P', 'เมฆรูปไม่สม่ำเสมอ'], a: 'หัวใจ' },
+      { q: 'วงกลมมีแกนสมมาตรกี่เส้น?', opts: ['หลายเส้นไม่จำกัด', '0 เส้น', '1 เส้นเท่านั้น', '2 เส้นเท่านั้น'], a: 'หลายเส้นไม่จำกัด' },
+      { q: 'ตัวอักษรใดสมมาตรแนวตั้ง?', opts: ['A', 'F', 'B', 'R'], a: 'A' },
+      { q: 'ถ้าพับรูปแล้วสองข้างไม่ทับกัน แสดงว่า…', opts: ['ไม่สมมาตรตามเส้นนั้น', 'สมมาตรเสมอ', 'เป็นวงกลม', 'มีสีผิด'], a: 'ไม่สมมาตรตามเส้นนั้น' },
+      { q: 'ผีเสื้อมักมีแกนสมมาตรแบบใด?', opts: ['แนวตั้งกลางลำตัว', 'แนวทแยงเท่านั้น', 'ไม่มีแกน', 'แนวนอนที่ปีก'], a: 'แนวตั้งกลางลำตัว' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'แกนสมมาตร = เส้นพับแล้วสองข้างซ้อนกันได้' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

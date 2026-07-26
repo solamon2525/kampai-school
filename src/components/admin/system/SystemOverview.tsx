@@ -272,6 +272,24 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.180.0 (เฟส 8C — เติม dual-track สื่อ+ใบงาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-teal-700',
+        items: [
+            '5 คู่สื่อ+ใบงาน: ความปลอดภัยออนไลน์ · สมมาตร · ออกกำลัง/RICE · Past Tense Mini · เงินทอน',
+            'โหมด 📖 สอน / ✏️ ฝึกสั้น MCQ · ไม่แข่งคะแนน (migration 432)',
+        ],
+    },
+    {
+        version: 'v1.179.0 (เฟส 8A — ชุดคาบพร้อมใช้)',
+        date: 'ล่าสุด',
+        badge: 'bg-amber-700',
+        items: [
+            'ตาราง `lesson_packs` + RLS · แท็บ «ชุดคาบ» ในพอร์ทัลครู/แอดมิน',
+            'seed 5 แพ็ก: คูณ · หารสั้น · Phonics · ห่วงโซ่ · พอเพียง (migration 430)',
+        ],
+    },
+    {
         version: 'v1.178.0 (สื่อเฟส 7 — English dual-track · ฝึกสั้น · วิชาบาง)',
         date: 'ล่าสุด',
         badge: 'bg-sky-700',
