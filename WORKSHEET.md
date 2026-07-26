@@ -165,8 +165,12 @@ pnpm verify:worksheet:production
 | ตัวอย่าง `divide-by-2-thinking-media.html` | `divide-by-2-worksheet.html` | `divide-by-2` |
 | ตัวอย่าง `food-chain-media.html` | `food-chain-worksheet.html` | `food-chain` |
 | ตัวอย่าง `multiplication-thinking-media.html` | `multiplication-worksheet.html` | ตาม `WORKSHEET_KEY` ในไฟล์ |
+| ตัวอย่าง `phonics-media.html` | `phonics-worksheet.html` | (จาก phonics-chart) |
+| ตัวอย่าง `grammar-vocab-media.html` | `grammar-vocab-worksheet.html` | `grammar-vocab` |
+| ตัวอย่าง `coding-social-media.html` | `coding-social-worksheet.html` | ตามไฟล์ |
+| ตัวอย่าง `color-mix-media.html` | `color-mix-worksheet.html` | `color-mix` |
 
-กฎ: สื่อสอนบนจอ + ใบงานกระดาษคู่กัน · QR/meta `worksheet-source-media` ชี้กลับสื่อ · ชุดบันทึกใช้ `worksheet_key` เดียวกัน · พอร์ทัลกรองด้วย `?tab=worksheet-sets&key=<worksheet_key>`
+กฎ: สื่อสอนบนจอ + ใบงานกระดาษคู่กัน · QR/meta `worksheet-source-media` ชี้กลับสื่อ · ชุดบันทึกใช้ `worksheet_key` เดียวกัน · พอร์ทัลกรองด้วย `?tab=worksheet-sets&key=<worksheet_key>` · สัญญาสื่อเต็มใน [`MEDIA.md`](MEDIA.md)
 
 ### Phase 5 notes
 
@@ -184,6 +188,13 @@ pnpm verify:worksheet:production
 - Reveal CSS: `.q.reveal-answer` คู่กับ `.show-answers` ในใบงานคณิตที่ยังเหลือ (หารสั้น · ÷2 · 24 · มุม · ทศนิยม · เส้นจำนวน)
 - ซ่อมเสริม: กล่อง `.worksheet-mode-sample` «ตัวอย่างก่อนทำ (1 ข้อ)»
 - Production gate: หลัง migrate รายการคลัง ต้อง `pnpm verify:worksheet:production` ก่อนสรุปว่าขึ้นเว็บ
+
+### Phase 7 notes (สื่อ)
+
+- **7A** English dual-track: rename → `*-media.html` + redirect · `grammar-vocab-media` ใหม่ (migration 427)
+- **7B** ฝึกสั้น MCQ leftovers: พื้นที่ · อาชีพ · ส่วนพืช · พอเพียง · กระดูก–กล้ามเนื้อ (migration 428)
+- **7C** วิชาบาง: coding-social · แผนที่ไทย · สุโขทัย · วัฏจักรน้ำ · ผสมสี (migration 429)
+- สัญญาสื่อ: [`MEDIA.md`](MEDIA.md) · verify: `pnpm verify:media <path>`
 
 ### Automatic Publish Gate (ใบงาน)
 

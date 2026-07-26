@@ -111,6 +111,16 @@
     .solution-nav { display:flex; gap:10px; padding:12px 16px 16px; }
     .solution-nav .btn { min-height:52px; flex:1; font-size:1.05rem; }
     .sub-value { display:inline-block; color:#dc2626; background:#fee2e2; border-radius:.25em; padding:0 .15em; }
+  
+    .practice-mcq{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:8px 0;width:100%}
+    .practice-mcq.on{display:flex}
+    .practice-mcq .pq{font-weight:800;font-size:1.15rem;text-align:center;line-height:1.45;color:inherit}
+    .practice-mcq .popts{display:flex;flex-direction:column;gap:8px}
+    .practice-mcq .popt{font-family:inherit;font-weight:700;padding:12px;border:2px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;text-align:left;opacity:.92}
+    .practice-mcq .popt.ok{background:#dcfce7;border-color:#86efac}
+    .practice-mcq .popt.no{background:#fee2e2;border-color:#fca5a5}
+    .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
+
   </style>
 </head>
 <body>
@@ -128,7 +138,8 @@
         <button type="button" data-mode="formula">✖️ สูตร</button>
         <button type="button" data-mode="story">📝 โจทย์เรื่อง</button>
         <button type="button" data-mode="vs">⚖️ พื้นที่ vs เส้นรอบรูป</button>
-      </span>
+              <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+</span>
       <p class="hint" id="hintText">เลือกรูป ปรับขนาด และเรียนรู้สูตรพื้นที่ ป.4–ป.6</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
@@ -243,6 +254,14 @@
           <button type="button" class="btn btn-primary" id="btnVsNext">ข้อถัดไป</button>
         </div>
       </div>
+    
+    <div class="practice-mcq" id="practiceMcq">
+      <p class="pq"></p>
+      <div class="popts"></div>
+      <p class="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
+    </div>
+
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.4/3 · ป.5/4 · ป.6/2–3</strong> · คู่เกม <a href="/play/mini-farm-island">เกาะฟาร์มจิ๋ว</a></footer>
   </div>
@@ -418,10 +437,106 @@
 
     let mode = 'shapes', countP = null, storyP = null, vsP = null;
 
+    
+    const PRACTICE_Q = [
+  {
+    "q": "สี่เหลี่ยมผืนผ้า กว้าง 4 ยาว 6 พื้นที่เท่าไร?",
+    "opts": [
+      "24",
+      "20",
+      "10",
+      "12"
+    ],
+    "a": "24"
+  },
+  {
+    "q": "เส้นรอบรูปสี่เหลี่ยมจัตุรัสด้าน 5 คือ?",
+    "opts": [
+      "20",
+      "25",
+      "10",
+      "15"
+    ],
+    "a": "20"
+  },
+  {
+    "q": "พื้นที่ ≠ เส้นรอบรูป เพราะ…",
+    "opts": [
+      "พื้นที่นับช่องข้างใน เส้นรอบนับขอบ",
+      "เหมือนกันเสมอ",
+      "พื้นที่ต้องเป็นเศษส่วน",
+      "เส้นรอบใช้แค่รูปวงกลม"
+    ],
+    "a": "พื้นที่นับช่องข้างใน เส้นรอบนับขอบ"
+  },
+  {
+    "q": "สามเหลี่ยมฐาน 8 สูง 5 พื้นที่?",
+    "opts": [
+      "20",
+      "40",
+      "13",
+      "25"
+    ],
+    "a": "20"
+  },
+  {
+    "q": "กริด 3×4 มีกี่ช่อง?",
+    "opts": [
+      "12",
+      "7",
+      "16",
+      "9"
+    ],
+    "a": "12"
+  },
+  {
+    "q": "สูตรพื้นที่สี่เหลี่ยมผืนผ้าคือ?",
+    "opts": [
+      "กว้าง × ยาว",
+      "2×(กว้าง+ยาว)",
+      "ฐาน×สูง÷2",
+      "πr²"
+    ],
+    "a": "กว้าง × ยาว"
+  }
+];
+    function nextPracticeMcq(){
+      const item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
+      const box = document.getElementById('practiceMcq');
+      if(!box) return;
+      box.querySelector('.pq').textContent = item.q;
+      const fb = box.querySelector('.pfb');
+      fb.textContent=''; fb.style.color='';
+      const opts = item.opts.slice().sort(()=>Math.random()-0.5);
+      const popts = box.querySelector('.popts');
+      popts.innerHTML = opts.map(o=>'<button type="button" class="popt" data-a="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('');
+      popts.querySelectorAll('.popt').forEach(btn=>{
+        btn.onclick=()=>{
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok?'ok':'no');
+          popts.querySelectorAll('.popt').forEach(b=>{
+            b.disabled=true;
+            if(b.dataset.a===item.a) b.classList.add('ok');
+          });
+          fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
+          fb.style.color = ok ? '#16a34a' : '#dc2626';
+          if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
+
     function setMode(m) {
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
+      const pmcq=document.getElementById('practiceMcq');
+      if(pmcq){ pmcq.classList.toggle('on', m==='practice'); document.querySelectorAll('.panel').forEach(p=>{ if(m==='practice') p.classList.remove('on'); }); }
+      if(m==='practice'){
+        document.getElementById('hintText').textContent = 'เลือกคำตอบ 4 ตัวเลือก — ฝึกสั้น';
+        nextPracticeMcq();
+        return;
+      }
       document.getElementById('hintText').textContent = HINTS[m];
       if (m === 'shapes') updateShapeView();
       else {

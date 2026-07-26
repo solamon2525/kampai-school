@@ -272,6 +272,17 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.178.0 (สื่อเฟส 7 — English dual-track · ฝึกสั้น · วิชาบาง)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            '7A: อังกฤษ → `*-media.html` (phonics · sight-words · grammar-mini · follow-instructions · grammar-vocab) + redirect เก่า (migration 427)',
+            '7B: ฝึกสั้น MCQ — พื้นที่ · อาชีพชุมชน · ส่วนพืช · พอเพียง · กระดูก–กล้ามเนื้อ (migration 428)',
+            '7C: coding-social · แผนที่ไทย · สุโขทัย · วัฏจักรน้ำ · ผสมสี media (migration 429)',
+            'เอกสาร: `MEDIA.md` + dual-track ใน WORKSHEET.md',
+        ],
+    },
+    {
         version: 'v1.177.0 (ใบงานเฟส 6 — จัดเต็ม practice · reveal · CI · dual-track)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-700',

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grammar & Vocab — สื่อฝึกสั้น — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #4338ca; --line: #c7d2fe; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #e0e7ff, #c7d2fe); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #3730a3, #4f46e5); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #eef2ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #a5b4fc; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; font-weight: 600; color: #4338ca; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; }
+    .panel { display: none; flex-direction: column; gap: 12px; max-width: 640px; margin: 0 auto; }
+    .panel.on { display: flex; }
+    .rule { background: #eef2ff; border: 2px dashed #a5b4fc; border-radius: 14px; padding: 14px; font-weight: 600; line-height: 1.55; }
+    .ex { font-weight: 700; line-height: 1.8; }
+    .ex mark { background: #fef08a; padding: 0 4px; border-radius: 4px; }
+    .q { font-weight: 800; font-size: 1.2rem; text-align: center; color: var(--deep); line-height: 1.45; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .fb { font-weight: 800; text-align: center; min-height: 24px; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🇬🇧 Grammar & Vocab — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.4–5 · ภาษาอังกฤษ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">อ่านกฎ → ดูตัวอย่าง → แล้วฝึก MCQ</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="rule" id="ruleBox"></div>
+        <div class="ex" id="exBox"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px" id="topicBtns"></div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ต 2.2 ป.5/1 · ต 3.1 ป.5/1</strong> · คู่ใบงาน <a href="/games/english/grammar-vocab-worksheet.html">grammar-vocab</a> · hub <a href="/games/english/english-grammar-p45-hub/">english-grammar-p45-hub</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('grammar-vocab-media');
+    document.getElementById('btnBack').onclick = () => {
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
+    const TOPICS = {
+      isare: {
+        label: 'is / are / am',
+        rule: '<strong>is</strong> กับ he/she/it · <strong>are</strong> กับ you/we/they · <strong>am</strong> กับ I',
+        ex: ['He <mark>is</mark> happy.', 'They <mark>are</mark> friends.', 'I <mark>am</mark> fine.'],
+        qs: [
+          { q: 'He ___ tall.', opts: ['is', 'are', 'am', 'be'], a: 'is' },
+          { q: 'They ___ students.', opts: ['is', 'are', 'am', 'be'], a: 'are' },
+          { q: 'I ___ fine.', opts: ['is', 'are', 'am', 'be'], a: 'am' },
+        ],
+      },
+      aan: {
+        label: 'a / an',
+        rule: '<strong>a</strong> + พยัญชนะ · <strong>an</strong> + สระ (เสียง)',
+        ex: ['<mark>a</mark> cat', '<mark>an</mark> apple', '<mark>a</mark> book', '<mark>an</mark> egg'],
+        qs: [
+          { q: '___ orange', opts: ['a', 'an', 'the', 'some'], a: 'an' },
+          { q: '___ dog', opts: ['a', 'an', 'the', 'some'], a: 'a' },
+          { q: '___ umbrella', opts: ['a', 'an', 'the', 'some'], a: 'an' },
+        ],
+      },
+      demo: {
+        label: 'this / that / these / those',
+        rule: '<strong>this/these</strong> = ใกล้ · <strong>that/those</strong> = ไกล',
+        ex: ['<mark>This</mark> is my pen.', '<mark>Those</mark> are birds.'],
+        qs: [
+          { q: '___ is my bag. (ใกล้ / หนึ่งชิ้น)', opts: ['This', 'That', 'These', 'Those'], a: 'This' },
+          { q: '___ are birds. (ไกล / หลายตัว)', opts: ['This', 'That', 'These', 'Those'], a: 'Those' },
+          { q: '___ books are mine. (ใกล้ / หลายเล่ม)', opts: ['This', 'That', 'These', 'Those'], a: 'These' },
+        ],
+      },
+    };
+
+    let topicKey = 'isare';
+    let mode = 'learn';
+
+    function renderLearn() {
+      const t = TOPICS[topicKey];
+      document.getElementById('ruleBox').innerHTML = '<strong>' + t.label + '</strong><br>' + t.rule;
+      document.getElementById('exBox').innerHTML = t.ex.map((e) => '<div>' + e + '</div>').join('');
+      document.getElementById('topicBtns').innerHTML = Object.keys(TOPICS).map((k) =>
+        '<button type="button" class="btn ' + (k === topicKey ? 'btn-primary' : '') + '" data-topic="' + k + '" style="background:' + (k === topicKey ? 'var(--deep)' : '#fff') + ';color:' + (k === topicKey ? '#fff' : 'var(--deep)') + ';border:2px solid var(--line)">' + TOPICS[k].label + '</button>'
+      ).join('');
+    }
+
+    function nextPractice() {
+      const pool = TOPICS[topicKey].qs;
+      const item = pool[(Math.random() * pool.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      document.getElementById('pfb').style.color = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ Correct!' : '✗ Answer: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('topicBtns').onclick = (e) => {
+      const b = e.target.closest('[data-topic]');
+      if (!b) return;
+      topicKey = b.dataset.topic;
+      renderLearn();
+    };
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'อ่านกฎ → ดูตัวอย่าง → แล้วฝึก MCQ' : 'เลือกคำตอบที่ถูก · กดข้อถัดไปเมื่อพร้อม';
+      if (mode === 'practice') nextPractice();
+    };
+
+    document.getElementById('btnNext').onclick = nextPractice;
+    renderLearn();
+  </script>
+</body>
+</html>

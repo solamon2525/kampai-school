@@ -67,6 +67,16 @@
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  
+    .practice-mcq{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:8px 0;width:100%}
+    .practice-mcq.on{display:flex}
+    .practice-mcq .pq{font-weight:800;font-size:1.15rem;text-align:center;line-height:1.45;color:inherit}
+    .practice-mcq .popts{display:flex;flex-direction:column;gap:8px}
+    .practice-mcq .popt{font-family:inherit;font-weight:700;padding:12px;border:2px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;text-align:left;opacity:.92}
+    .practice-mcq .popt.ok{background:#dcfce7;border-color:#86efac}
+    .practice-mcq .popt.no{background:#fee2e2;border-color:#fca5a5}
+    .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
+
   </style>
 </head>
 <body>
@@ -82,7 +92,8 @@
         <button type="button" data-mode="match">🔗 จับคู่หน้าที่</button>
         <button type="button" data-mode="edible">🍽️ กินส่วนไหน</button>
         <button type="button" data-mode="grow">🌱 เรียงเติบโต</button>
-      </span>
+              <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+</span>
       <p class="hint" id="hintText">แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
@@ -170,6 +181,14 @@
           <button type="button" class="btn btn-primary" id="btnGrowReset">เริ่มใหม่</button>
         </div>
       </div>
+    
+    <div class="practice-mcq" id="practiceMcq">
+      <p class="pq"></p>
+      <div class="popts"></div>
+      <p class="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
+    </div>
+
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ว 1.2 ป.4/1</strong> · คู่เกม <a href="/play/veggie-garden">สวนผักพอเพียง</a></footer>
   </div>
@@ -236,10 +255,106 @@
     let mode = 'diagram', selectedPart = null;
     let matchQ = null, edibleQ = null, growNext = 1;
 
+    
+    const PRACTICE_Q = [
+  {
+    "q": "รากทำหน้าที่หลักอะไร?",
+    "opts": [
+      "ดูดน้ำและยึดลำต้น",
+      "สังเคราะห์แสง",
+      "ผลิตเมล็ด",
+      "ดึงดูดแมลง"
+    ],
+    "a": "ดูดน้ำและยึดลำต้น"
+  },
+  {
+    "q": "ใบช่วยพืชอย่างไร?",
+    "opts": [
+      "สังเคราะห์แสง",
+      "ดูดน้ำจากดิน",
+      "เก็บไข่",
+      "เดิน"
+    ],
+    "a": "สังเคราะห์แสง"
+  },
+  {
+    "q": "ดอกเกี่ยวข้องกับอะไร?",
+    "opts": [
+      "การสืบพันธุ์",
+      "ดูดน้ำ",
+      "ยึดดิน",
+      "สร้างคลอโรฟิลล์อย่างเดียว"
+    ],
+    "a": "การสืบพันธุ์"
+  },
+  {
+    "q": "ลำต้นทำหน้าที่…",
+    "opts": [
+      "ลำเลียงน้ำ/อาหาร และพยุง",
+      "ดูดน้ำจากอากาศ",
+      "สร้างรากอากาศเท่านั้น",
+      "เป็นเมล็ด"
+    ],
+    "a": "ลำเลียงน้ำ/อาหาร และพยุง"
+  },
+  {
+    "q": "ผลมักเกิดหลัง…",
+    "opts": [
+      "ดอกได้รับการผสมเกสร",
+      "ใบร่วงหมด",
+      "รากสั้นลง",
+      "ลำต้นกลวง"
+    ],
+    "a": "ดอกได้รับการผสมเกสร"
+  },
+  {
+    "q": "เราทานแครอท คือทานส่วนใดของพืช?",
+    "opts": [
+      "ราก",
+      "ใบ",
+      "ดอก",
+      "เมล็ด"
+    ],
+    "a": "ราก"
+  }
+];
+    function nextPracticeMcq(){
+      const item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
+      const box = document.getElementById('practiceMcq');
+      if(!box) return;
+      box.querySelector('.pq').textContent = item.q;
+      const fb = box.querySelector('.pfb');
+      fb.textContent=''; fb.style.color='';
+      const opts = item.opts.slice().sort(()=>Math.random()-0.5);
+      const popts = box.querySelector('.popts');
+      popts.innerHTML = opts.map(o=>'<button type="button" class="popt" data-a="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('');
+      popts.querySelectorAll('.popt').forEach(btn=>{
+        btn.onclick=()=>{
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok?'ok':'no');
+          popts.querySelectorAll('.popt').forEach(b=>{
+            b.disabled=true;
+            if(b.dataset.a===item.a) b.classList.add('ok');
+          });
+          fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
+          fb.style.color = ok ? '#16a34a' : '#dc2626';
+          if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
+
     function setMode(m) {
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
+      const pmcq=document.getElementById('practiceMcq');
+      if(pmcq){ pmcq.classList.toggle('on', m==='practice'); document.querySelectorAll('.panel').forEach(p=>{ if(m==='practice') p.classList.remove('on'); }); }
+      if(m==='practice'){
+        document.getElementById('hintText').textContent = 'เลือกคำตอบ 4 ตัวเลือก — ฝึกสั้น';
+        nextPracticeMcq();
+        return;
+      }
       document.getElementById('hintText').textContent = HINTS[m];
       if (m === 'match') newMatch();
       if (m === 'edible') newEdible();

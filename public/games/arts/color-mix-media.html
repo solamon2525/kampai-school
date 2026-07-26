@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผสมสีแม่สี — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#9a3412;--line:#fdba74;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#ffedd5,#fecaca);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#9a3412,#ea580c);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fff7ed;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #fb923c}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#9a3412;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+    .panel.on{display:flex}
+    .swatch-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .sw{width:72px;height:72px;border-radius:16px;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.15);display:grid;place-items:center;font-weight:800;font-size:.75rem;color:#fff;text-shadow:0 1px 2px #000}
+    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fff7ed;font-weight:700;line-height:1.5}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}
+    .opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🎨 ผสมสีแม่สี — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.4–6 · ศิลปะ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">แม่สี 3 สี → ผสมได้สีทุติยภูมิ</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="swatch-row">
+          <div class="sw" style="background:#dc2626">แดง</div>
+          <div class="sw" style="background:#eab308;color:#422006;text-shadow:none">เหลือง</div>
+          <div class="sw" style="background:#2563eb">น้ำเงิน</div>
+        </div>
+        <div class="mix-card">
+          <p>แม่สี (Primary): แดง · เหลือง · น้ำเงิน — ผสมจากสีอื่นไม่ได้</p>
+          <p style="margin-top:8px">แดง + เหลือง = <strong style="color:#ea580c">ส้ม</strong></p>
+          <p>เหลือง + น้ำเงิน = <strong style="color:#16a34a">เขียว</strong></p>
+          <p>แดง + น้ำเงิน = <strong style="color:#7c3aed">ม่วง</strong></p>
+          <p style="margin-top:8px;color:var(--muted)">วรรณะอุ่น: แดง ส้ม เหลือง · วรรณะเย็น: น้ำเงิน เขียว ม่วง</p>
+        </div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ศ 1.1 ป.4/2</strong> · คู่ใบงาน <a href="/games/arts/color-mix-worksheet.html">color-mix</a> · เกมแข่งคะแนน <a href="/games/arts/color-mix.html">color-mix (game)</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('color-mix-media');
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'แม่สีมีกี่สี?', opts: ['3', '2', '5', '7'], a: '3' },
+      { q: 'แดง + เหลือง ได้สีใด?', opts: ['ส้ม', 'เขียว', 'ม่วง', 'น้ำตาล'], a: 'ส้ม' },
+      { q: 'เหลือง + น้ำเงิน ได้สีใด?', opts: ['เขียว', 'ส้ม', 'ม่วง', 'ชมพู'], a: 'เขียว' },
+      { q: 'แดง + น้ำเงิน ได้สีใด?', opts: ['ม่วง', 'เขียว', 'ส้ม', 'เทา'], a: 'ม่วง' },
+      { q: 'สีใดเป็นแม่สี?', opts: ['น้ำเงิน', 'เขียว', 'ส้ม', 'ม่วง'], a: 'น้ำเงิน' },
+      { q: 'วรรณะเย็น ได้แก่…', opts: ['น้ำเงิน เขียว ม่วง', 'แดง ส้ม เหลือง', 'ดำ ขาว เทา', 'น้ำตาล ทอง'], a: 'น้ำเงิน เขียว ม่วง' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'แม่สี 3 สี → ผสมได้สีทุติยภูมิ' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

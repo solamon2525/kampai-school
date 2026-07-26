@@ -83,6 +83,16 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  
+    .practice-mcq{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto;padding:8px 0;width:100%}
+    .practice-mcq.on{display:flex}
+    .practice-mcq .pq{font-weight:800;font-size:1.15rem;text-align:center;line-height:1.45;color:inherit}
+    .practice-mcq .popts{display:flex;flex-direction:column;gap:8px}
+    .practice-mcq .popt{font-family:inherit;font-weight:700;padding:12px;border:2px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;text-align:left;opacity:.92}
+    .practice-mcq .popt.ok{background:#dcfce7;border-color:#86efac}
+    .practice-mcq .popt.no{background:#fee2e2;border-color:#fca5a5}
+    .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
+
   </style>
 </head>
 <body>
@@ -98,7 +108,8 @@
         <button type="button" data-mode="sort">📦 แยกประเภท</button>
         <button type="button" data-mode="care">💚 ดูแลร่างกาย</button>
         <button type="button" data-mode="guess">🎯 ทายตำแหน่ง</button>
-      </span>
+              <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+</span>
       <p class="hint" id="hintText">แตะจุดบนแผนภาพเพื่อดูชื่อ หน้าที่ และเคล็ดดูแล</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
@@ -107,6 +118,14 @@
       <div class="panel" id="p-sort"></div>
       <div class="panel" id="p-care"></div>
       <div class="panel" id="p-guess"></div>
+    
+    <div class="practice-mcq" id="practiceMcq">
+      <p class="pq"></p>
+      <div class="popts"></div>
+      <p class="pfb"></p>
+      <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
+    </div>
+
     </div>
     <footer class="footer">ตัวชี้วัด <strong>พ 1.1 ป.4/2</strong> · <strong>พ 1.1 ป.4/3</strong> · ระบบร่างกายอื่น <a href="/play/digestive-ar">ระบบย่อย AR</a></footer>
   </div>
@@ -173,10 +192,107 @@
       guess: 'อ่านคำถาม แล้วแตะจุดบนแผนภาพให้ถูกตำแหน่ง',
     };
 
+    
+    const PRACTICE_Q = [
+  {
+    "q": "กระดูกทำหน้าที่หลักอะไร?",
+    "opts": [
+      "ค้ำจุนและป้องกันอวัยวะ",
+      "ย่อยอาหาร",
+      "สูบฉีดเลือด",
+      "กรองอากาศ"
+    ],
+    "a": "ค้ำจุนและป้องกันอวัยวะ"
+  },
+  {
+    "q": "กล้ามเนื้อช่วยให้ร่างกาย…",
+    "opts": [
+      "เคลื่อนไหว",
+      "สร้างเม็ดเลือดแดงอย่างเดียว",
+      "เก็บแคลเซียมในฟัน",
+      "หายใจแทนปอด"
+    ],
+    "a": "เคลื่อนไหว"
+  },
+  {
+    "q": "การดูแลกระดูกดีคือ…",
+    "opts": [
+      "ดื่มนม/อาหารแคลเซียม + ออกกำลัง",
+      "ไม่เคยเดิน",
+      "นั่งหลังคดงอทั้งวัน",
+      "ไม่โดนแสงแดดเลย"
+    ],
+    "a": "ดื่มนม/อาหารแคลเซียม + ออกกำลัง"
+  },
+  {
+    "q": "ยืดเหยียดก่อนออกกำลังช่วย…",
+    "opts": [
+      "ลดการบาดเจ็บของกล้ามเนื้อ",
+      "ทำให้กระดูกหักง่าย",
+      "หยุดการหายใจ",
+      "เพิ่มไขมันทันที"
+    ],
+    "a": "ลดการบาดเจ็บของกล้ามเนื้อ"
+  },
+  {
+    "q": "กะโหลกศีรษะป้องกันอวัยวะใด?",
+    "opts": [
+      "สมอง",
+      "หัวใจ",
+      "ตับ",
+      "ไต"
+    ],
+    "a": "สมอง"
+  },
+  {
+    "q": "ยกของถูกวิธีควร…",
+    "opts": [
+      "งอเข่า หลังตรง",
+      "ก้มหลังอย่างเดียว",
+      "บิดตัวขณะยกหนัก",
+      "กลั้นหายใจนาน ๆ"
+    ],
+    "a": "งอเข่า หลังตรง"
+  }
+];
+    function nextPracticeMcq(){
+      const item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
+      const box = document.getElementById('practiceMcq');
+      if(!box) return;
+      box.querySelector('.pq').textContent = item.q;
+      const fb = box.querySelector('.pfb');
+      fb.textContent=''; fb.style.color='';
+      const opts = item.opts.slice().sort(()=>Math.random()-0.5);
+      const popts = box.querySelector('.popts');
+      popts.innerHTML = opts.map(o=>'<button type="button" class="popt" data-a="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('');
+      popts.querySelectorAll('.popt').forEach(btn=>{
+        btn.onclick=()=>{
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok?'ok':'no');
+          popts.querySelectorAll('.popt').forEach(b=>{
+            b.disabled=true;
+            if(b.dataset.a===item.a) b.classList.add('ok');
+          });
+          fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
+          fb.style.color = ok ? '#16a34a' : '#dc2626';
+          if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+        };
+      });
+    }
+    document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
+
     function setMode(m) {
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      const pmcq = document.getElementById('practiceMcq');
       document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      if (pmcq) pmcq.classList.toggle('on', m === 'practice');
+      if (m === 'practice') {
+        const hint = document.getElementById('hintText');
+        if (hint) hint.textContent = 'เลือกคำตอบ 4 ตัวเลือก — ฝึกสั้น';
+        nextPracticeMcq();
+        return;
+      }
       document.getElementById('p-' + m).classList.add('on');
       document.getElementById('hintText').textContent = hints[m];
       if (m === 'learn') renderLearn();
