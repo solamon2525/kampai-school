@@ -47,6 +47,10 @@ pnpm verify:worksheet:matrix -- --strict
 - **7B** ฝึกสั้น MCQ: `rect-area` · `community-jobs` · `plant-parts` · `sufficiency` · `bone-muscle`
 - **7C** วิชาบาง: `coding-social-media` · `thailand-map-media` · `sukhothai-timeline-media` · `water-cycle-media` · `color-mix-media`
 
-## Phase 8C notes
+## Phase 8 notes
 
+- **8A** Lesson packs: ตาราง `lesson_packs` · แท็บชุดคาบ · seed คูณ/หารสั้น/Phonics/ห่วงโซ่/พอเพียง
+- **8B** Dual-track rename leftovers: `fact-opinion` · `thai-word-types` · `states-of-matter` · `vertebrate-sort` · `fraction-pieces` · `sentence-structure` → `*-media.html`
 - **8C** content fill dual-track (migration 432): `online-safety-media` · `symmetry-media` · `exercise-care-media` · `past-tense-mini-media` · `money-change-media` (+ คู่ `*-worksheet`)
+- **8D–8F** Teacher usage panel · diagnostic→remedial · lesson favorites + parent ใบงานบ้าน
+- **8G** `verify:media` เช็กสัญญา: `setSlug`/`MEDIA_SLUG` · โหมดสอน · ฝึกสั้น · ห้าม `submitScore`

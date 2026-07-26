@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { FolderOpen, Plus, BookOpen, Loader2 } from 'lucide-react';
+import { FolderOpen, Plus, BookOpen, Loader2, Star } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,6 +35,9 @@ import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMis
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
+import { LessonPacksPanel } from '@/components/educational-hub/LessonPacksPanel';
+import { HubUsagePanel } from '@/components/educational-hub/HubUsagePanel';
+import { useTeacherLessonFavorites } from '@/hooks/useTeacherLessonFavorites';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
@@ -45,7 +48,7 @@ export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
     const staffId = link?.staff_id ?? null;
     const [searchParams, setSearchParams] = useSearchParams();
-    const teacherTabs = ['items', 'worksheet-sets', 'profile', 'analytics', 'vocab-review'] as const;
+    const teacherTabs = ['items', 'lesson-packs', 'worksheet-sets', 'profile', 'analytics', 'usage', 'vocab-review'] as const;
     type TeacherTab = (typeof teacherTabs)[number];
     const tabParam = searchParams.get('tab');
     const tab: TeacherTab = teacherTabs.includes(tabParam as TeacherTab)
@@ -83,20 +86,26 @@ export default function TeacherEduHubManager() {
                     <Tabs value={tab} onValueChange={setTab} className="w-full">
                         <TabsList>
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
+                            <TabsTrigger value="lesson-packs">ชุดคาบ</TabsTrigger>
                             <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                             <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
                             <TabsTrigger value="analytics">วิเคราะห์คะแนนเกม</TabsTrigger>
+                            <TabsTrigger value="usage">การใช้งาน</TabsTrigger>
                             <TabsTrigger value="vocab-review">
                                 <BookOpen className="h-3.5 w-3.5 mr-1.5" />
                                 คำศัพท์ที่พลาด
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
+                        <TabsContent value="lesson-packs">
+                            <LessonPacksPanel staffId={staffId} mode="mine" />
+                        </TabsContent>
                         <TabsContent value="worksheet-sets">
                             <WorksheetSetsPanel staffId={staffId} mode="mine" />
                         </TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
                         <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
+                        <TabsContent value="usage"><HubUsagePanel staffId={staffId} /></TabsContent>
                         <TabsContent value="vocab-review"><ThaiVocabMissedReportClass /></TabsContent>
                     </Tabs>
                 )}
@@ -115,6 +124,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
     const [editing, setEditing] = useState<EduHubItem | null>(null);
     const [docsItem, setDocsItem] = useState<EduHubItem | null>(null);
     const [vocabItem, setVocabItem] = useState<EduHubItem | null>(null);
+    const { favorites, isFavorite, toggle: toggleFavorite } = useTeacherLessonFavorites(staffId);
 
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'items', 'mine', staffId],
@@ -157,9 +167,31 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
 
     return (
         <div className="space-y-6">
+            {favorites.length > 0 && items && (
+                <Card>
+                    <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Star className="h-4 w-4 text-amber-600 fill-amber-600" />
+                            ใช้ในคาบนี้
+                        </div>
+                        <ul className="space-y-1">
+                            {items.filter((it) => favorites.includes(it.id)).map((it) => (
+                                <li key={it.id} className="flex items-center gap-2 text-sm">
+                                    <span className="min-w-0 flex-1 truncate font-medium">{it.title}</span>
+                                    {it.external_url ? (
+                                        <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
+                                            <a href={it.external_url} target="_blank" rel="noreferrer">เปิด</a>
+                                        </Button>
+                                    ) : null}
+                                </li>
+                            ))}
+                        </ul>
+                    </CardContent>
+                </Card>
+            )}
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    รวม {items?.length ?? 0} รายการ
+                    รวม {items?.length ?? 0} รายการ · กดดาวเพื่อปัก «ใช้ในคาบนี้»
                 </div>
                 <Button
                     onClick={() => { setEditing(null); setDialogOpen(true); }}
@@ -198,6 +230,8 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
                                         onVocabManage={(item) => setVocabItem(item)}
+                                        isFavorite={isFavorite}
+                                        onToggleFavorite={(item) => toggleFavorite(item.id)}
                                     />
                                 )}
                             </div>

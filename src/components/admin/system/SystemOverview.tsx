@@ -272,6 +272,20 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.181.0 (เฟส 8 — ชุดคาบ · dual-track · วิเคราะห์ · ซ่อมเสริม · UX)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            '8A: `lesson_packs` + แท็บชุดคาบ + seed 5 แพ็ก (migration 430)',
+            '8B: rename 6 สื่อ → `*-media.html` + redirect (migration 431)',
+            '8C: 5 คู่สื่อ+ใบงานใหม่ (migration 432) — ดู v1.180.0',
+            '8D: แท็บการใช้งาน (view_count + worksheet set counts)',
+            '8E: วินิจฉัย → ปุ่มซ่อมเสริม + session topic hint',
+            '8F: ดาว «ใช้ในคาบนี้» (migration 433) + ใบงานบ้านผู้ปกครอง',
+            '8G: `verify:media` เช็กสัญญา slug/learn/practice/ห้าม submitScore',
+        ],
+    },
+    {
         version: 'v1.180.0 (เฟส 8C — เติม dual-track สื่อ+ใบงาน)',
         date: 'ล่าสุด',
         badge: 'bg-teal-700',

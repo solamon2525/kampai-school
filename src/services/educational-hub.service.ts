@@ -30,6 +30,8 @@ export type EduHubProfile = {
     accent_color: string | null;
     external_url: string | null;
     is_hub_active: boolean;
+    /** Item IDs marked "ใช้ในคาบนี้" (migration 433) */
+    lesson_favorites?: string[];
     created_at?: string;
     updated_at?: string;
 };

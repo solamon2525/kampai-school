@@ -201,9 +201,15 @@ pnpm verify:worksheet:production
 - **7C** วิชาบาง: coding-social · แผนที่ไทย · สุโขทัย · วัฏจักรน้ำ · ผสมสี (migration 429)
 - สัญญาสื่อ: [`MEDIA.md`](MEDIA.md) · verify: `pnpm verify:media <path>`
 
-### Phase 8C notes (สื่อ+ใบงาน)
+### Phase 8 notes (ชุดคาบ · วิเคราะห์ · ซ่อมเสริม · UX)
 
+- **8A** `lesson_packs` + แท็บชุดคาบ (migration 430)
+- **8B** rename leftovers → `*-media.html` (migration 431)
 - **8C** content fill: ความปลอดภัยออนไลน์ · สมมาตร · ออกกำลัง/RICE · Past Tense Mini · เงินทอน (migration 432)
+- **8D** แท็บการใช้งาน: `view_count` + `worksheetSetsService.countByKey`
+- **8E** วินิจฉัย → ปุ่ม «เปิดโหมดซ่อมเสริมชุดนี้» + `sessionStorage` topic hint
+- **8F** ดาวใช้ในคาบนี้ (`lesson_favorites`) · พิมพ์แสดงชื่อชุด · ใบงานบ้านใน Parent
+- **8G** `verify:media` media contract · cache `1.181.0`
 
 ### Automatic Publish Gate (ใบงาน)
 

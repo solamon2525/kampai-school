@@ -32,6 +32,7 @@ import { GamesTab } from './GamesTab';
 import { SortableCategoriesGrid } from './SortableCategoriesGrid';
 import { HubLayoutDefaultsTab } from './HubLayoutDefaultsTab';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
+import { LessonPacksPanel } from '@/components/educational-hub/LessonPacksPanel';
 
 type Teacher = {
     id: string;
@@ -70,7 +71,7 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
     text: 'ข้อความ',
 };
 
-const HUB_TABS = ['items', 'games', 'worksheet-sets', 'categories', 'teachers', 'layout-defaults'] as const;
+const HUB_TABS = ['items', 'games', 'lesson-packs', 'worksheet-sets', 'categories', 'teachers', 'layout-defaults'] as const;
 type HubTab = (typeof HUB_TABS)[number];
 
 export const EduHubManagement = () => {
@@ -101,6 +102,7 @@ export const EduHubManagement = () => {
                 <TabsList>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>
+                    <TabsTrigger value="lesson-packs">ชุดคาบ</TabsTrigger>
                     <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                     <TabsTrigger value="categories">หมวดหมู่</TabsTrigger>
                     <TabsTrigger value="teachers">ครู</TabsTrigger>
@@ -109,6 +111,7 @@ export const EduHubManagement = () => {
 
                 <TabsContent value="items"><AllItemsTab /></TabsContent>
                 <TabsContent value="games"><GamesTab /></TabsContent>
+                <TabsContent value="lesson-packs"><LessonPacksPanel mode="recent" /></TabsContent>
                 <TabsContent value="worksheet-sets"><WorksheetSetsPanel mode="recent" limit={40} /></TabsContent>
                 <TabsContent value="categories"><CategoriesTab /></TabsContent>
                 <TabsContent value="teachers"><TeachersTab /></TabsContent>

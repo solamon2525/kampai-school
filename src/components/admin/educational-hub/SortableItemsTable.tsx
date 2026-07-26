@@ -28,7 +28,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Link } from 'react-router-dom';
 import {
     GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen,
-    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Layers,
+    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Layers, Star,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,9 +76,20 @@ interface Props {
     onDocs?: (item: EduHubItem) => void;
     /** จัดการคำศัพท์ Thai Vocab Hub (optional) */
     onVocabManage?: (item: EduHubItem) => void;
+    /** ดาว «ใช้ในคาบนี้» (optional) */
+    isFavorite?: (itemId: string) => boolean;
+    onToggleFavorite?: (item: EduHubItem) => void;
 }
 
-export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs, onVocabManage }: Props) => {
+export const SortableItemsTable = ({
+    items,
+    invalidateKeys,
+    onEdit,
+    onDocs,
+    onVocabManage,
+    isFavorite,
+    onToggleFavorite,
+}: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [orderedItems, setOrderedItems] = useState(items);
@@ -175,6 +186,8 @@ export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs, onVo
                                         onDocs={onDocs}
                                         onVocabManage={onVocabManage}
                                         onDelete={handleDelete}
+                                        isFavorite={isFavorite?.(item.id) ?? false}
+                                        onToggleFavorite={onToggleFavorite}
                                     />
                                 ))}
                             </tbody>
@@ -195,6 +208,8 @@ const SortableRow = ({
     onDocs,
     onVocabManage,
     onDelete,
+    isFavorite,
+    onToggleFavorite,
 }: {
     item: EduHubItem;
     onTogglePublished: (item: EduHubItem) => void;
@@ -202,6 +217,8 @@ const SortableRow = ({
     onDocs?: (item: EduHubItem) => void;
     onVocabManage?: (item: EduHubItem) => void;
     onDelete: (item: EduHubItem) => void;
+    isFavorite?: boolean;
+    onToggleFavorite?: (item: EduHubItem) => void;
 }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
     const Icon = ITEM_TYPE_ICON[item.item_type];
@@ -261,6 +278,17 @@ const SortableRow = ({
             </td>
             <td className="px-3 py-2 w-24">
                 <div className="flex gap-1">
+                    {onToggleFavorite ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            title={isFavorite ? 'เอาออกจากใช้ในคาบนี้' : 'ใช้ในคาบนี้'}
+                            onClick={() => onToggleFavorite(item)}
+                            className={cn(isFavorite && 'text-amber-600')}
+                        >
+                            <Star className={cn('h-4 w-4', isFavorite && 'fill-current')} />
+                        </Button>
+                    ) : null}
                     <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                         <Edit className="h-4 w-4" />
                     </Button>

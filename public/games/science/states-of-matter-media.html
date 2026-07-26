@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สสาร 3 สถานะ — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #7c3aed; --line: #ddd6fe; --ok: #16a34a; --bad: #dc2626; --muted: #64748b; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ede9fe, #c4b5fd); min-height: 100%; padding: 12px; color: #0f172a; }
+    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #5b21b6, #7c3aed); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #f5f3ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #c4b5fd; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .stage { flex: 1; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .stage { grid-template-columns: 1.1fr 1fr; } }
+    .demo { padding: 20px; background: linear-gradient(180deg, #e0e7ff 0%, #f5f3ff 100%); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .beaker { width: 200px; height: 260px; border: 4px solid #6366f1; border-top: none; border-radius: 0 0 24px 24px; position: relative; background: rgba(255,255,255,.5); overflow: hidden; }
+    .matter { position: absolute; left: 8px; right: 8px; bottom: 8px; border-radius: 12px; transition: height .4s, background .4s; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .steam { position: absolute; left: 0; right: 0; top: 0; height: 40%; opacity: 0; transition: opacity .4s; font-size: 2rem; text-align: center; padding-top: 8px; }
+    .steam.on { opacity: 1; }
+    .temp-wrap { width: 100%; max-width: 320px; }
+    .temp-wrap label { font-weight: 800; color: var(--deep); display: block; margin-bottom: 8px; }
+    input[type=range] { width: 100%; accent-color: #7c3aed; }
+    .state-label { font-size: 1.5rem; font-weight: 800; color: var(--deep); }
+    .detail { padding: 16px; background: #faf5ff; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 860px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
+    .card { background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 14px; }
+    .card h3 { color: var(--deep); font-size: 1.1rem; margin-bottom: 6px; }
+    .card p { font-weight: 600; line-height: 1.55; color: #334155; }
+    .practice { display: none; flex-direction: column; gap: 12px; padding: 20px; }
+    .practice.on { display: flex; }
+    .demo.hide { display: none; }
+    .detail.hide { display: none; }
+    .q { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+    .opt.ok { background: #dcfce7; border-color: #86efac; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .fb { font-weight: 800; min-height: 24px; }
+    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🧊 สถานะของสสาร — ของแข็ง · ของเหลว · ของแก๊ส</h1>
+      <span class="badge">ป.4 · วิทยาศาสตร์</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกทำ</button>
+      </span>
+      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+    <div class="stage">
+      <div class="demo" id="demo">
+        <p class="state-label" id="stateLabel">ของเหลว (น้ำ)</p>
+        <div class="beaker">
+          <div class="steam" id="steam">💨💨</div>
+          <div class="matter" id="matter">💧</div>
+        </div>
+        <div class="temp-wrap">
+          <label>อุณหภูมิ: <span id="tempVal">25</span> °C</label>
+          <input type="range" id="temp" min="-20" max="120" value="25" />
+        </div>
+        <p style="font-weight:600;color:#64748b;text-align:center">ลากสไลเดอร์ดูการเปลี่ยนสถานะของน้ำ</p>
+      </div>
+      <div class="detail" id="detail">
+        <div class="card" id="infoCard">
+          <h3>ของเหลว</h3>
+          <p>มีรูปร่างตามภาชนะ · มีปริมาตรคงที่ · อนุภาคเคลื่อนที่ปานกลาง</p>
+        </div>
+        <div class="card">
+          <h3>สมบัติ 3 สถานะ</h3>
+          <p><strong>ของแข็ง</strong> — รูปร่างและปริมาตรคงที่<br>
+          <strong>ของเหลว</strong> — ปริมาตรคงที่ รูปร่างเปลี่ยนตามภาชนะ<br>
+          <strong>ของแก๊ส</strong> — รูปร่างและปริมาตรเปลี่ยนได้</p>
+        </div>
+      </div>
+      <div class="practice" id="practice">
+        <p class="q" id="prQ">น้ำที่ 0°C เป็นสถานะใด?</p>
+        <div class="opts" id="prOpts"></div>
+        <p class="fb" id="prFb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer>ตัวชี้วัด <strong>ว 2.1 ป.4/3–4</strong> · คู่เกม <a href="/play/sci-sort">sci-sort</a></footer>
+  </div>
+  <script>
+    if (window.KAMPAI) window.KAMPAI.setSlug('states-of-matter-media');
+
+    const INFO = {
+      solid: { title: 'ของแข็ง (น้ำแข็ง)', emoji: '🧊', h: '55%', bg: '#bae6fd', text: 'รูปร่างและปริมาตรคงที่ · อนุภาคเรียงตัวแน่น · ต่ำกว่า 0°C' },
+      liquid: { title: 'ของเหลว (น้ำ)', emoji: '💧', h: '70%', bg: '#38bdf8', text: 'รูปร่างตามภาชนะ · ปริมาตรคงที่ · 0–99°C' },
+      gas: { title: 'ของแก๊ส (ไอน้ำ)', emoji: '☁️', h: '25%', bg: '#e2e8f0', text: 'รูปร่างและปริมาตรเปลี่ยนได้ · อนุภาคกระจาย · 100°C ขึ้นไป' },
+    };
+
+    function stateAt(t) {
+      if (t <= 0) return 'solid';
+      if (t >= 100) return 'gas';
+      return 'liquid';
+    }
+
+    function updateTemp(t) {
+      document.getElementById('tempVal').textContent = t;
+      const s = stateAt(t);
+      const i = INFO[s];
+      document.getElementById('stateLabel').textContent = i.title;
+      const m = document.getElementById('matter');
+      m.textContent = i.emoji;
+      m.style.height = i.h;
+      m.style.background = i.bg;
+      document.getElementById('steam').classList.toggle('on', s === 'gas');
+      document.getElementById('infoCard').innerHTML = `<h3>${i.title}</h3><p>${i.text}</p>`;
+    }
+
+    document.getElementById('temp').oninput = e => updateTemp(+e.target.value);
+
+    const QUIZ = [
+      { q: 'น้ำที่ 0°C เป็นสถานะใด?', a: 'ของแข็ง', w: ['ของเหลว', 'ของแก๊ส', 'พลาสมา'] },
+      { q: 'น้ำที่ 50°C เป็นสถานะใด?', a: 'ของเหลว', w: ['ของแข็ง', 'ของแก๊ส', 'โลหะ'] },
+      { q: 'ไอน้ำที่ 110°C เป็นสถานะใด?', a: 'ของแก๊ส', w: ['ของแข็ง', 'ของเหลว', 'เจล'] },
+      { q: 'สสารในสถานะใดมีรูปร่างและปริมาตรคงที่?', a: 'ของแข็ง', w: ['ของเหลว', 'ของแก๊ส', 'ทุกสถานะ'] },
+      { q: 'ของเหลวมีสมบัติใด?', a: 'ปริมาตรคงที่ รูปร่างตามภาชนะ', w: ['รูปร่างคงที่เสมอ', 'ไม่มีปริมาตร', 'อนุภาคนิ่ง'] },
+    ];
+    let qi = 0;
+    function showQuiz() {
+      const item = QUIZ[qi % QUIZ.length];
+      document.getElementById('prQ').textContent = item.q;
+      const opts = [item.a, ...item.w].sort(() => Math.random() - 0.5);
+      document.getElementById('prOpts').innerHTML = opts.map(o =>
+        `<button type="button" class="opt" data-a="${o}">${o}</button>`
+      ).join('');
+      document.getElementById('prFb').textContent = '';
+      document.querySelectorAll('.opt').forEach(b => {
+        b.onclick = () => {
+          const ok = b.dataset.a === item.a;
+          b.classList.add(ok ? 'ok' : 'no');
+          document.getElementById('prFb').textContent = ok ? '✓ ถูกต้อง' : `✗ คำตอบ: ${item.a}`;
+          document.getElementById('prFb').style.color = ok ? '#16a34a' : '#dc2626';
+          document.querySelectorAll('.opt').forEach(x => { x.disabled = true; if (x.dataset.a === item.a) x.classList.add('ok'); });
+        };
+      });
+    }
+    document.getElementById('btnNext').onclick = () => { qi++; showQuiz(); };
+
+    document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const pr = btn.dataset.mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        document.getElementById('demo').classList.toggle('hide', pr);
+        document.getElementById('detail').classList.toggle('hide', pr);
+        document.getElementById('practice').classList.toggle('on', pr);
+        if (pr) showQuiz();
+      };
+    });
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    updateTemp(25);
+  </script>
+</body>
+</html>

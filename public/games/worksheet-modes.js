@@ -392,14 +392,77 @@
     sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
   }
 
+  const DIAG_HINT_KEY = 'kampai_ws_diag_hint';
+
+  function worksheetPathKey() {
+    try {
+      return (window.location.pathname || '').split('/').pop() || 'worksheet';
+    } catch (_) {
+      return 'worksheet';
+    }
+  }
+
+  function saveDiagnosticHint(topic) {
+    try {
+      const payload = {
+        path: worksheetPathKey(),
+        topic: topic || '',
+        at: Date.now(),
+      };
+      sessionStorage.setItem(DIAG_HINT_KEY, JSON.stringify(payload));
+    } catch (_) { /* ignore */ }
+  }
+
+  function readDiagnosticHint() {
+    try {
+      const raw = sessionStorage.getItem(DIAG_HINT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || parsed.path !== worksheetPathKey()) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function applyTopicHintIfAny() {
+    const topicSelect = document.getElementById('selTopic');
+    if (!topicSelect) return;
+    const hint = readDiagnosticHint();
+    if (!hint || !hint.topic || hint.topic === 'mixed') return;
+    const opt = Array.from(topicSelect.options).find((o) => o.value === hint.topic);
+    if (opt) topicSelect.value = hint.topic;
+  }
+
+  function openRemedialFromDiagnostic() {
+    const topicSelect = document.getElementById('selTopic');
+    const topic = topicSelect ? topicSelect.value : '';
+    saveDiagnosticHint(topic);
+    modeSelect.value = 'remedial';
+    applyTopicHintIfAny();
+    enhancedRender();
+    try {
+      const box = document.querySelector('.worksheet-mode-sample, .worksheet-mode-guide');
+      if (box && typeof box.scrollIntoView === 'function') {
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   function addDiagnosticSummary(sheet) {
     const guide = getSubjectGuide();
     const box = document.createElement('div');
     box.className = 'worksheet-mode-summary';
     box.innerHTML = '<strong>บันทึกวินิจฉัยสำหรับครู</strong><div class="worksheet-mode-summary-grid">'
       + guide.skills.map((skill, index) => '<div class="worksheet-mode-summary-item">ข้อ ' + (index + 1) + ' · ' + skill + '<br>[ ] ผ่าน &nbsp; [ ] ซ่อม</div>').join('')
+      + '</div>'
+      + '<div class="worksheet-mode-remedial-actions" style="margin-top:8px">'
+      + '<button type="button" class="btn green" id="btnOpenRemedial">🔧 เปิดโหมดซ่อมเสริมชุดนี้</button>'
+      + '<p style="font-size:7.5pt;margin-top:4px;color:var(--ws-muted,#64748b)">คง seed/จำนวนข้อเดิม · สลับเป็นซ่อมเสริม + กล่องตัวอย่าง · จำทักษะจากตัวเลือกด้านบนไว้ใน session</p>'
       + '</div>';
     sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
+    const btn = box.querySelector('#btnOpenRemedial');
+    if (btn) btn.onclick = openRemedialFromDiagnostic;
   }
 
   function addRemedialGuide(sheet) {
@@ -465,6 +528,7 @@
       addNote(sheet, '<strong>สำหรับครู:</strong> ใช้ผลแต่ละข้อระบุทักษะที่ผ่านและจุดที่ควรซ่อมเสริม');
       addDiagnosticSummary(sheet);
     } else if (mode === 'remedial') {
+      applyTopicHintIfAny();
       addBadge(sheet, 'ซ่อมเสริมเฉพาะจุด');
       addNote(sheet, '<strong>เป้าหมาย:</strong> เน้นความเข้าใจทีละขั้น ไม่เน้นความเร็ว');
       addRemedialGuide(sheet);
@@ -489,6 +553,7 @@
     setForcedControls(mode);
     baseRender();
     applyModeDecorations();
+    syncPrintLabel();
   }
 
   function enhancedRandomize() {
@@ -496,9 +561,21 @@
     setForcedControls(mode);
     if (!triggerRandomize()) baseRender();
     applyModeDecorations();
+    syncPrintLabel();
   }
 
-  modeSelect.onchange = enhancedRender;
+  function syncPrintLabel() {
+    if (!printBtn) return;
+    const titleEl = document.getElementById('kampaiSetTitle');
+    const title = (titleEl && titleEl.value ? titleEl.value : '').trim();
+    printBtn.textContent = title ? ('🖨 พิมพ์: ' + title) : '🖨 พิมพ์ A4';
+    printBtn.title = title ? ('พิมพ์ชุด «' + title + '»') : 'พิมพ์ A4';
+  }
+
+  modeSelect.onchange = () => {
+    if (modeSelect.value === 'remedial') applyTopicHintIfAny();
+    enhancedRender();
+  };
   document.getElementById('btnRandom').onclick = enhancedRandomize;
   document.querySelectorAll('#selStyle, #selPageCount, #selGrade, #selCount, #selTopic, #selTeacher').forEach((control) => {
     control.onchange = enhancedRender;
@@ -533,6 +610,15 @@
   try {
     if (new URLSearchParams(window.location.search).get('present') === '1') setPresentMode(true);
   } catch (_) { /* ignore */ }
+
+  // Set title mounts async via worksheet-sets — listen for later input
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'kampaiSetTitle') syncPrintLabel();
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'kampaiSetTitle') syncPrintLabel();
+  });
+  setTimeout(syncPrintLabel, 800);
 
   enhancedRender();
 })();
