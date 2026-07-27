@@ -52,7 +52,8 @@
     "sync:vocab-db": "node scripts/sync-thai-vocab-db-to-json.mjs",
     "seed:thai-vocab": "node scripts/seed-thai-vocab-db.mjs",
     "process:sprite-bg": "node scripts/process-sprite-background.mjs",
-    "seed:bunny-character": "node scripts/seed-bunny-character.mjs"
+    "seed:bunny-character": "node scripts/seed-bunny-character.mjs",
+    "build:media-covers-svg-png": "node scripts/rasterize-media-covers-svg-to-png.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.184.1 (media PNG covers — 11 SVG-only)',
+        date: 'ล่าสุด',
+        badge: 'bg-fuchsia-600',
+        items: [
+            'Rasterize 11 SVG-only media covers → PNG 1280×720 (sharp)',
+            'thumbnail_url → *-cover.png (migration 440)',
+            'scripts/rasterize-media-covers-svg-to-png.mjs · build:media-covers-svg-png',
+        ],
+    },
+    {
         version: 'v1.184.0 (Phase 10 — ยกระดับสื่อ+ใบงานทั้งหมด)',
         date: 'ล่าสุด',
         badge: 'bg-fuchsia-700',
@@ -4766,3 +4776,4 @@ export const SystemOverview = () => {
         </div>
     );
 };
+

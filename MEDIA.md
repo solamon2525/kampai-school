@@ -64,3 +64,5 @@ pnpm verify:worksheet:matrix -- --strict
 - **P5** subjectGuides · modes `?v=1.184.0`
 - **P6** lesson_packs 15 แพ็ก (migration 437)
 - **P7** docs + SystemOverview v1.184.0
+- **P8** PNG covers for 11 SVG-only media (migration 440 · scripts/rasterize-media-covers-svg-to-png.mjs)
+
