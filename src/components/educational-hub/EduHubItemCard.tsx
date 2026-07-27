@@ -28,6 +28,7 @@ import { LeaderboardMarqueeStrip } from './LeaderboardMarqueeStrip';
 import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
+import { isWorksheetItem, type PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
 
 interface Props {
     item: EduHubItem;
@@ -46,6 +47,8 @@ interface Props {
     linkedIndicators?: GameCardIndicator[];
     /** คลังเกม — เผื่อช่องอันดับเสมอให้แถบตัวชี้วัดอยู่แนวเดียวกัน */
     reserveLeaderboardSlot?: boolean;
+    categoryKey?: string | null;
+    pairedLink?: PairedHubLink | null;
 }
 
 export const EduHubItemCard = ({
@@ -60,6 +63,8 @@ export const EduHubItemCard = ({
     libraryPinLoading = false,
     linkedIndicators,
     reserveLeaderboardSlot = false,
+    categoryKey = null,
+    pairedLink = null,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -328,6 +333,12 @@ export const EduHubItemCard = ({
                     >
                         <div className="flex items-center gap-1.5 flex-wrap">
                             {item.subject && <Badge variant="outline" className="text-[10px]">{item.subject}</Badge>}
+                            {isWorksheetItem(item.external_url, categoryKey) && (
+                                <Badge variant="secondary" className="gap-1 text-[10px]">
+                                    <FileText className="h-3 w-3" />
+                                    พิมพ์ได้ · A4
+                                </Badge>
+                            )}
                             {item.tracked_game && (
                                 <Badge variant="secondary" className="gap-1 text-[10px]">
                                     <Gamepad2 className="h-3 w-3" />
@@ -347,7 +358,28 @@ export const EduHubItemCard = ({
                                 <Badge key={t} variant="secondary" className="text-[10px]">#{t}</Badge>
                             ))}
                         </div>
-                        <ActionStat item={item} />
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            {pairedLink && (
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 px-2 text-[10px] font-semibold"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(pairedLink.href, '_blank', 'noopener,noreferrer');
+                                    }}
+                                >
+                                    {pairedLink.kind === 'worksheet' ? (
+                                        <FileText className="h-3 w-3 mr-1" />
+                                    ) : (
+                                        <ExternalLink className="h-3 w-3 mr-1" />
+                                    )}
+                                    {pairedLink.label}
+                                </Button>
+                            )}
+                            <ActionStat item={item} />
+                        </div>
                     </div>
                 </div>
 

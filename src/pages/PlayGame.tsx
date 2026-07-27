@@ -4,7 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as LucideIcons from 'lucide-react';
 import {
   ArrowLeft,
+  BookOpen,
   CalendarRange,
+  FileText,
   FlaskConical,
   Gamepad2,
   Link2,
@@ -35,6 +37,8 @@ import {
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { resolveGameMediaPair } from '@/lib/edu-hub-game-media-pairs';
+import { guessPairedUrls } from '@/lib/edu-hub-worksheet-pairs';
 import { parseCharacterAnimationConfig, resolveCharacterAnimation } from '@/lib/character-animation';
 import { parseCharacterColorConfig } from '@/lib/character-color';
 import { parsePlatformerBlueprint } from '@/lib/game-blueprint';
@@ -75,6 +79,8 @@ import {
   type PixelForestBalanceEvent,
   type PixelForestSaveState,
 } from '@/services/pixel-forest-rpg.service';
+import { studentPetQueryKey, studentPetService } from '@/services/student-pet.service';
+import { PetVisual } from '@/components/games/PetVisual';
 
 // ─── Lucide icon resolver ────────────────────────────────────────────────────
 type LucideMap = Record<string, React.ComponentType<{ className?: string }>>;
@@ -344,6 +350,13 @@ const PlayGame = () => {
     enabled: resolvedSlug === 'thai-vocab-hub' && !!student && !!codeInput,
   });
 
+  const petQuery = useQuery({
+    queryKey: studentPetQueryKey(codeInput.trim()),
+    queryFn: () => studentPetService.getState(codeInput.trim()),
+    enabled: !!student && !!codeInput.trim(),
+    retry: false,
+  });
+
   // ─── lookup handler ────────────────────────────────────────────────────────
   const handleLookup = useCallback(async (overrideCode?: string) => {
     const code = (overrideCode ?? codeInput).trim();
@@ -559,6 +572,18 @@ const PlayGame = () => {
           classNumber: c.class_number,
         })),
         audio: { bgm: gameQuery.data?.bgm_preset ?? null, bgmUrl: gameQuery.data?.bgm_url ?? null },
+        pet: petQuery.data?.equipped
+          ? {
+              code: petQuery.data.equipped.code,
+              name: petQuery.data.equipped.name_th,
+              species: petQuery.data.equipped.species_th,
+              visualKey: petQuery.data.equipped.visual_key,
+              rarity: petQuery.data.equipped.rarity,
+              nickname: petQuery.data.equipped.nickname,
+              bondXp: petQuery.data.equipped.bond_xp,
+            }
+          : null,
+        wallet: { starCoins: petQuery.data?.balance ?? 0 },
         character: gameQuery.data?.character_sheet_url
           ? {
               sheetUrl: gameQuery.data.character_sheet_url,
@@ -600,7 +625,7 @@ const PlayGame = () => {
       },
       '*',
     );
-  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, pixelForestRpgQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data]);
+  }, [student, codeInput, statsQuery.data, leaderboardQuery.data, classmatesQuery.data, pixelForestRpgQuery.data, gameQuery.data, resolvedSlug, gameSlug, masteryQuery.data, researchEntryQuery.data, dailyStatusQuery.data, dailyLeaderboardQuery.data, thaiVocabCatalogQuery.data, thaiVocabMissedQuery.data, petQuery.data]);
 
   // ─── send init to iframe once loaded ───────────────────────────────────────
   // ส่งทั้ง studentCode (เดิม — เกมเก่าใช้ได้) + student/stats/leaderboard (ใหม่ — KAMPAI SDK
@@ -770,6 +795,7 @@ const PlayGame = () => {
         });
         if (researchStudyId) researchRoundsQuery.refetch();
         setResult(submitted);
+        void queryClient.invalidateQueries({ queryKey: studentPetQueryKey(codeInput.trim()) });
         // ส่งผล XP กลับเข้าเกม → SDK ฝังลงจอจบของเกม (จอเดียว); เกมที่ฝังเองจะ ack กัน RewardPopup ลอยซ้ำ
         try {
           const _nl = levelFromXp(submitted.total_xp);
@@ -1250,6 +1276,7 @@ const PlayGame = () => {
               onStartResearch={handleStartResearch}
               leaderboard={leaderboardQuery.data}
               leaderboardLoading={leaderboardQuery.isLoading}
+              mediaPair={resolveGameMediaPair(resolvedSlug)}
             />
           </div>
         )}
@@ -1377,6 +1404,9 @@ const PlayGame = () => {
                 student={student}
                 result={result}
                 prevLevel={prevLevel}
+                equippedPet={petQuery.data?.equipped
+                  ? { name_th: petQuery.data.equipped.name_th, visual_key: petQuery.data.equipped.visual_key }
+                  : null}
                 onPlayAgain={() => { setShowReward(false); handlePlayAgain(); }}
                 onExit={handleSwitchStudent}
                 onClose={() => setShowReward(false)}
@@ -1637,6 +1667,7 @@ const PreGamePanel = ({
   onStartResearch,
   leaderboard,
   leaderboardLoading,
+  mediaPair,
 }: {
   student: StudentLookup;
   stats: { plays_count: number | null; personal_best: number | null; total_xp: number | null } | null | undefined;
@@ -1649,6 +1680,7 @@ const PreGamePanel = ({
   onStartResearch: (study: ResearchStudyForGame) => void;
   leaderboard: any[] | undefined;
   leaderboardLoading: boolean;
+  mediaPair: { mediaUrl: string; label: string } | null;
 }) => (
   <div className="grid gap-6 md:grid-cols-3 items-start">
     <div className="md:col-span-2 space-y-5">
@@ -1694,10 +1726,34 @@ const PreGamePanel = ({
         onStartResearch={onStartResearch}
       />
 
-      <Button className="h-14 w-full text-lg" onClick={onStart}>
-        <Gamepad2 className="mr-2 h-5 w-5" />
-        เริ่มเล่นเกม
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        {mediaPair && (
+          <Button variant="outline" className="h-14 flex-1 text-lg" asChild>
+            <a href={mediaPair.mediaUrl} target="_blank" rel="noopener noreferrer">
+              <BookOpen className="mr-2 h-5 w-5" />
+              {mediaPair.label}
+            </a>
+          </Button>
+        )}
+        {(() => {
+          const worksheetHref = mediaPair
+            ? guessPairedUrls(mediaPair.mediaUrl).find((u) => u.includes('-worksheet.html'))
+            : undefined;
+          if (!worksheetHref) return null;
+          return (
+            <Button variant="outline" className="h-14 flex-1 text-lg" asChild>
+              <a href={worksheetHref} target="_blank" rel="noopener noreferrer">
+                <FileText className="mr-2 h-5 w-5" />
+                ฝึกบนกระดาษ
+              </a>
+            </Button>
+          );
+        })()}
+        <Button className={cn('h-14 text-lg', mediaPair ? 'flex-1' : 'w-full')} onClick={onStart}>
+          <Gamepad2 className="mr-2 h-5 w-5" />
+          เริ่มเล่นเกม
+        </Button>
+      </div>
     </div>
 
     <div className="md:col-span-1">
@@ -1926,6 +1982,7 @@ const RewardPopup = ({
   student,
   result,
   prevLevel,
+  equippedPet,
   onPlayAgain,
   onExit,
   onClose,
@@ -1933,6 +1990,7 @@ const RewardPopup = ({
   student: StudentLookup;
   result: RecordSessionResult;
   prevLevel: LevelInfo | null;
+  equippedPet: { name_th: string; visual_key: string } | null;
   onPlayAgain: () => void;
   onExit: () => void;
   onClose: () => void;
@@ -1968,12 +2026,20 @@ const RewardPopup = ({
               size="sm"
               className="h-11 w-11 ring-2 ring-primary/20"
             />
+            {equippedPet && (
+              <PetVisual
+                visualKey={equippedPet.visual_key}
+                label={equippedPet.name_th}
+                className="h-11 w-11 shrink-0"
+              />
+            )}
             <div className="text-left">
               <p className="text-2xl font-bold leading-none text-primary">
                 +{result.xp_earned.toLocaleString('th-TH')} XP
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 รวม {result.total_xp.toLocaleString('th-TH')} XP · Lv.{newLevel.level}
+                {equippedPet ? ` · ${equippedPet.name_th}` : ''}
               </p>
             </div>
           </div>

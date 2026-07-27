@@ -318,7 +318,7 @@ const mediaRoadmap = {
         {
             phase: 'Phase 14 — แนะนำสื่อ + ครูอัปโหลดเอง',
             duration: 'เดือน 8–10',
-            status: 'pending',
+            status: 'done',
             badge: 'bg-emerald-600',
             goal: 'นักเรียนเห็นสื่อแนะนำใน /my + ครู non-admin สร้างสื่อเองได้',
             items: [
@@ -345,6 +345,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.197.0 (Phase 14 แนะนำสื่อ + ครูอัปโหลดเอง)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'แนะนำสื่อบน /my (RPC recommend_media · migration 429) + RecommendedMedia',
+            'ปุ่ม「ดูสื่อก่อน」บน PreGamePanel และการ์ดคลังเกม (edu-hub-game-media-pairs)',
+            'ครูอัปสื่อ/ใบงานใน /teacher/edu-hub + W8 คู่มือ 5 นาที · ปิด Phase 14 = done',
+        ],
+    },
     {
         version: 'v1.196.0 (Phase 13 ป.6 + ตัวชี้วัด — 8 media+worksheet pairs)',
         date: 'ล่าสุด',

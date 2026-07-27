@@ -47,11 +47,19 @@ export default function TeacherEduHubManager() {
     return (
         <RolePortalLayout title="Portal ครู" subtitle="คลังสื่อ/เกม ของฉัน" menu={MENU} accent="teacher">
             <div className="p-4 sm:p-6 space-y-4 max-w-5xl mx-auto">
-                <div>
-                    <h1 className="text-2xl font-bold text-foreground">คลังสื่อและเกมการศึกษา</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        จัดการโปรไฟล์คลังและรายการสื่อ/เกม/ใบงานของคุณ
-                    </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-foreground">คลังสื่อและเกมการศึกษา</h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            จัดการโปรไฟล์คลังและรายการสื่อ/เกม/ใบงานของคุณ
+                        </p>
+                    </div>
+                    <Button variant="outline" asChild className="shrink-0">
+                        <a href="/docs/teacher-upload-media-guide.html" target="_blank" rel="noopener noreferrer">
+                            <BookOpen className="mr-2 h-4 w-4" />
+                            คู่มืออัปสื่อ 5 นาที
+                        </a>
+                    </Button>
                 </div>
 
                 {!staffId ? (
@@ -144,13 +152,19 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                 <div className="text-sm text-muted-foreground">
                     รวม {items?.length ?? 0} รายการ
                 </div>
-                <Button
-                    onClick={() => { setEditing(null); setDialogOpen(true); }}
-                    disabled={!categories || categories.length === 0}
-                >
-                    <Plus className="h-4 w-4 mr-2" />เพิ่มรายการ
-                </Button>
-            </div>
+                    <Button
+                        onClick={() => { setEditing(null); setDialogOpen(true); }}
+                        disabled={!categories || categories.length === 0}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />เพิ่มสื่อ / ใบงาน / เกม
+                    </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                    ครูอัปโหลดเองได้ — แนะนำเริ่มที่หมวด <strong>สื่อ</strong> หรือ <strong>ใบงาน</strong> แล้วใส่วิชา·ชั้น·ปกก่อนเผยแพร่ ·{' '}
+                    <a href="/docs/teacher-upload-media-guide.html" target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                        คู่มือ 5 นาที
+                    </a>
+                </p>
 
             {isLoading ? (
                 <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>

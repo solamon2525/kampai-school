@@ -28,6 +28,7 @@ import {
     type EduHubItem,
 } from '@/services/educational-hub.service';
 import type { ViewMode } from '@/hooks/useViewMode';
+import type { PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
 
 interface Props {
     /** Pass null when rendering items outside a category (e.g. Favorites section) */
@@ -43,6 +44,8 @@ interface Props {
      * DndContext) and enable item drag-drop inside the section.
      */
     editable?: boolean;
+    /** Media ↔ worksheet pairs resolved from the teacher catalog */
+    pairedByItemId?: Map<string, PairedHubLink | null>;
 }
 
 const COLOR_TO_TEXT: Record<string, string> = {
@@ -77,6 +80,7 @@ export const CategorySection = ({
     onToggleFavorite,
     hideHeader = false,
     editable = false,
+    pairedByItemId,
 }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -206,6 +210,8 @@ export const CategorySection = ({
             onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
+            categoryKey={category?.category_key}
+            pairedLink={pairedByItemId?.get(item.id) ?? null}
         />
     );
 

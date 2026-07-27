@@ -38,6 +38,8 @@ import {
     type FilterState,
     type SortMode,
 } from '@/components/educational-hub/SectionToolbar';
+import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
+import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -141,6 +143,32 @@ const EducationalHubTeacher = () => {
     };
 
     const allItems = useMemo(() => items ?? [], [items]);
+
+    const publishedUrlSet = useMemo(() => {
+        const set = new Set<string>();
+        for (const it of allItems) {
+            if (it.external_url) set.add(it.external_url);
+        }
+        return set;
+    }, [allItems]);
+
+    const pairedByItemId = useMemo(() => {
+        const map = new Map<string, NonNullable<ReturnType<typeof resolvePairedLink>>>();
+        for (const it of allItems) {
+            const worksheetOrMediaPair = resolvePairedLink(it.external_url, publishedUrlSet);
+            const lookBefore = it.tracked_game
+                ? resolveGameMediaHubLink(it.game_slug)
+                : null;
+            const pair = worksheetOrMediaPair ?? lookBefore;
+            if (pair) map.set(it.id, pair);
+        }
+        return map;
+    }, [allItems, publishedUrlSet]);
+
+    const visibleCategories = useMemo(() => {
+        if (!deepLinkCat) return orderedCategories;
+        return orderedCategories.filter((c) => c.category_key === deepLinkCat);
+    }, [orderedCategories, deepLinkCat]);
 
     const gamesCategoryId = useMemo(
         () => categories?.find((c) => c.category_key === 'games')?.id,
@@ -403,6 +431,7 @@ const EducationalHubTeacher = () => {
                                         isFavorite={isFavorite}
                                         onToggleFavorite={toggleFav}
                                         hideHeader
+                                        pairedByItemId={pairedByItemId}
                                     />
                                 </section>
                             )}
@@ -423,7 +452,12 @@ const EducationalHubTeacher = () => {
                                     disabled={!isAdmin}
                                 >
                                     <div className="space-y-10">
-                                        {orderedCategories.map((cat) =>
+                                        {visibleCategories.length === 0 && deepLinkCat ? (
+                                            <div className="text-center text-muted-foreground py-16 text-sm">
+                                                ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
+                                            </div>
+                                        ) : null}
+                                        {visibleCategories.map((cat) =>
                                             cat.category_key === 'games' ? (
                                                 <GamesCategorySection
                                                     key={cat.id}
@@ -433,6 +467,7 @@ const EducationalHubTeacher = () => {
                                                     isFavorite={isFavorite}
                                                     onToggleFavorite={toggleFav}
                                                     editable={isAdmin}
+                                                    pairedByItemId={pairedByItemId}
                                                 />
                                             ) : (
                                                 <CategorySection
@@ -443,6 +478,7 @@ const EducationalHubTeacher = () => {
                                                     isFavorite={isFavorite}
                                                     onToggleFavorite={toggleFav}
                                                     editable={isAdmin}
+                                                    pairedByItemId={pairedByItemId}
                                                 />
                                             ),
                                         )}
