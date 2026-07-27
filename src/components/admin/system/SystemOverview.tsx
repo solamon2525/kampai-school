@@ -272,6 +272,16 @@ const sprintPlan = [
 
 const versionHistory = [
     {
+        version: 'v1.184.2 (game PNG covers — Phase 9 batch)',
+        date: 'ล่าสุด',
+        badge: 'bg-fuchsia-600',
+        items: [
+            'Rasterize 10 Phase 9 game covers → PNG 1280×720 (sharp)',
+            'thumbnail_url → *-cover.png (migration 441)',
+            'scripts/rasterize-game-covers-svg-to-png.mjs · build:game-covers-svg-png',
+        ],
+    },
+    {
         version: 'v1.184.1 (media PNG covers — 11 SVG-only)',
         date: 'ล่าสุด',
         badge: 'bg-fuchsia-600',
