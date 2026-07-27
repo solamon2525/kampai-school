@@ -270,7 +270,98 @@ const sprintPlan = [
     },
 ];
 
+// Roadmap คลังสื่อ+ใบงาน (Phase 11–15) — อัปสถานะแต่ละเฟสใน commit เดียวกับงานเฟสนั้น
+const MEDIA_ROADMAP_STATUS_LABEL: Record<string, string> = {
+    pending: 'รอเริ่ม',
+    'in-progress': 'กำลังทำ',
+    done: '✅ เสร็จแล้ว',
+};
+
+const mediaRoadmap = {
+    baseline: 'จุดตั้งต้น (หลัง Phase 10): สื่อ 51 · ใบงาน 68 · lesson packs 15 — verify:media 51/51 · verify:worksheet:production 68/68',
+    target: 'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ผูกตัวชี้วัด ≥80% · ทุกวิชา ≥6 คู่ · ครบทุกช่วงชั้น ป.1–6',
+    phases: [
+        {
+            phase: 'Phase 11 — เติมวิชาบาง (+10 คู่)',
+            duration: 'เดือน 1–2',
+            status: 'pending',
+            badge: 'bg-rose-600',
+            goal: 'ปิดวิชาที่สื่อน้อยที่สุด: ศิลปะ +3 · การงาน +3 · เทคโนโลยี +2 · สังคม +2',
+            items: [
+                'ศิลปะ: ทัศนธาตุ · จังหวะ-ดนตรี · นาฏศิลป์พื้นฐาน',
+                'การงาน: งานบ้าน-งานประดิษฐ์ · การเกษตร · อาหาร-โภชนาการ',
+                'เทคโนโลยี: อัลกอริทึม unplugged · ข้อมูล-การนำเสนอ',
+                'สังคม: ภูมิศาสตร์ไทย · หน้าที่พลเมือง ป.ต้น',
+                'ทุกคู่: สื่อ learn+practice + ใบงาน scaffold + ปก PNG + ตัวชี้วัด + migration seed',
+            ],
+        },
+        {
+            phase: 'Phase 12 — ป.ต้น daily-use (+10 คู่)',
+            duration: 'เดือน 3–4',
+            status: 'pending',
+            badge: 'bg-orange-600',
+            goal: 'สื่อ ป.1–2 ใช้สอนได้ทุกวัน + grade coverage matrix ใน audit script',
+            items: [
+                'ไทย: ประสมคำ · อ่านคล่อง-เขียนคล่อง · คำพื้นฐาน',
+                'คณิต: จำนวน 1–100 · บวกลบไม่เกิน 100 · รูปทรงพื้นฐาน',
+                'อังกฤษ: Sight words (E2) · ABC-phonics ต่อยอด',
+                'วิทย์ ป.1–2: สิ่งมีชีวิต-ไม่มีชีวิต · วัสดุรอบตัว',
+                'ใบงาน ป.ต้น: ตัวใหญ่ รอยประ ลากเส้น (scaffold preset ใหม่ถ้าจำเป็น)',
+            ],
+        },
+        {
+            phase: 'Phase 13 — ป.6 + ระบบตัวชี้วัด (+8 คู่)',
+            duration: 'เดือน 5–7',
+            status: 'pending',
+            badge: 'bg-amber-600',
+            goal: 'เติม ป.6 + ผูกตัวชี้วัดสื่อ+เกม ≥80% + publish checklist',
+            items: [
+                'ป.6: ร้อยละ-อัตราส่วน · สมการ · โวหาร-วรรณคดี · ไฟฟ้า · ระบบร่างกาย · tense รวม · reading · เศรษฐศาสตร์',
+                'Seed indicator_games ให้สื่อเก่าที่ยังไม่ผูก → ≥80%',
+                'Coverage สื่อแยกจากเกมใน IndicatorCoverageDialog',
+                'Publish checklist หลังบ้าน (ปก+ตัวชี้วัด+grade ครบก่อน publish)',
+            ],
+        },
+        {
+            phase: 'Phase 14 — แนะนำสื่อ + ครูอัปโหลดเอง',
+            duration: 'เดือน 8–10',
+            status: 'pending',
+            badge: 'bg-emerald-600',
+            goal: 'นักเรียนเห็นสื่อแนะนำใน /my + ครู non-admin สร้างสื่อ/ชุดคาบเองได้',
+            items: [
+                '"สื่อแนะนำ" ใน /my จาก indicator ที่คะแนนเกมต่ำ',
+                'ปุ่ม "ดูสื่อก่อนเล่น" บนการ์ดเกมที่มีสื่อคู่',
+                'ครู non-admin อัปโหลดสื่อ/ใบงาน (RLS + storage policy ทดสอบจริง)',
+                'W8 คู่มือครูใช้สื่อ (หน้าเดียวในหลังบ้าน)',
+            ],
+        },
+        {
+            phase: 'Phase 15 — lesson packs + polish',
+            duration: 'เดือน 11–12',
+            status: 'pending',
+            badge: 'bg-sky-600',
+            goal: 'lesson_packs 15 → ≥30 + เก็บตกคุณภาพทั้งคลัง',
+            items: [
+                'ทุกคู่ใหม่จาก Phase 11–13 มี lesson pack',
+                'หน้า «ใบงานบ้าน» parent กรองตามชั้นลูก',
+                'ปก PNG ครบทุกชิ้น + ล้าง extras ใน production catalog',
+                'อัปเดต แผนพัฒนาคลังสื่อ.md ล้างรายการ stale',
+            ],
+        },
+    ],
+};
+
 const versionHistory = [
+    {
+        version: 'v1.185.0 (Roadmap คลังสื่อ+ใบงาน Phase 11–15 ในหลังบ้าน)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'ฝัง mediaRoadmap 5 เฟส (เติมวิชาบาง → ป.ต้น → ป.6+ตัวชี้วัด → แนะนำสื่อ+ครูอัปโหลด → lesson packs) ใน SystemOverview',
+            'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ตัวชี้วัด ≥80%',
+            'รวมใน export MD/JSON — อัปสถานะเฟสใน commit เดียวกับงานแต่ละเฟส',
+        ],
+    },
     {
         version: 'v1.184.2 (game PNG covers — Phase 9 batch)',
         date: 'ล่าสุด',
@@ -4371,6 +4462,11 @@ const exportData = {
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
     sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
+    mediaRoadmap: {
+        baseline: mediaRoadmap.baseline,
+        target: mediaRoadmap.target,
+        phases: mediaRoadmap.phases.map(p => ({ phase: p.phase, duration: p.duration, status: p.status, goal: p.goal, items: p.items })),
+    },
     versionHistory: versionHistory.map(v => ({ version: v.version, date: v.date, changes: v.items })),
     exportedAt: new Date().toISOString(),
 };
@@ -4415,6 +4511,15 @@ const generateMarkdown = () => {
         lines.push(`\n### ${s.sprint} — ${s.duration}`);
         lines.push(`> 🎯 ${s.goal}`);
         s.items.forEach(i => lines.push(`- ${i.icon} **${i.title}** (${i.effort}) — ${i.stack}`));
+    });
+
+    lines.push('\n## Roadmap คลังสื่อ+ใบงาน (Phase 11–15)');
+    lines.push(`> ${mediaRoadmap.baseline}`);
+    lines.push(`> ${mediaRoadmap.target}`);
+    mediaRoadmap.phases.forEach(p => {
+        lines.push(`\n### ${p.phase} — ${p.duration} [${MEDIA_ROADMAP_STATUS_LABEL[p.status] ?? p.status}]`);
+        lines.push(`> 🎯 ${p.goal}`);
+        p.items.forEach(i => lines.push(`- ${i}`));
     });
 
     lines.push('\n## ประวัติการอัพเดท');
@@ -4735,6 +4840,53 @@ export const SystemOverview = () => {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Section F3: Media & Worksheet Roadmap (Phase 11–15) */}
+            <Card>
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <FileText className="w-5 h-5 text-primary" />
+                        Roadmap คลังสื่อ+ใบงาน (Phase 11–15)
+                    </CardTitle>
+                    <div className="space-y-1 mt-1">
+                        <p className="text-xs text-muted-foreground">{mediaRoadmap.baseline}</p>
+                        <p className="text-xs font-medium text-foreground">{mediaRoadmap.target}</p>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        {mediaRoadmap.phases.map((p, i) => (
+                            <div key={i} className="rounded-xl border border-border bg-secondary/20 hover:bg-secondary/40 transition-colors overflow-hidden">
+                                <div className={`${p.badge} text-white px-4 py-2.5 flex items-center justify-between gap-2`}>
+                                    <p className="text-sm font-bold">{p.phase}</p>
+                                    <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-xs whitespace-nowrap">
+                                        {p.duration}
+                                    </Badge>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-dashed">
+                                            {MEDIA_ROADMAP_STATUS_LABEL[p.status] ?? p.status}
+                                        </Badge>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground italic leading-relaxed">
+                                        🎯 {p.goal}
+                                    </p>
+                                    <Separator />
+                                    <ul className="space-y-1.5">
+                                        {p.items.map((item, j) => (
+                                            <li key={j} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                                                <span className="text-muted-foreground/50 mt-0.5">•</span>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
                         ))}
