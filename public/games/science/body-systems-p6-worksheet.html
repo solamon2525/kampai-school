@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/science/body-systems-p6-media.html">
+  <meta name="curriculum-indicators" content="ว 1.2 ป.6/1,ว 1.2 ป.6/4,ว 1.2 ป.6/5">
+  <title>ใบงานสารอาหาร·ระบบย่อย ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🫀 ใบงานสารอาหาร·ระบบย่อย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="food">สารอาหาร</option><option value="digest">ระบบย่อย</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
+<script src="/games/kampai-qr.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script>
+const ITEMS=[{"type":"food","prompt":"สารอาหารหลักมีอะไรบ้าง","answer":"คาร์โบฯ โปรตีน ไขมัน วิตามิน แร่ธาตุ น้ำ"},{"type":"food","prompt":"โปรตีนมีประโยชน์อย่างไร","answer":"ซ่อมแซม/สร้างกล้ามเนื้อ"},{"type":"digest","prompt":"เรียงลำดับทางเดินอาหารสั้น ๆ","answer":"ปาก→หลอดอาหาร→กระเพาะ→ลำไส้"},{"type":"digest","prompt":"การดูดซึมเกิดที่ใดเป็นหลัก","answer":"ลำไส้เล็ก"},{"type":"digest","prompt":"ลำไส้ใหญ่ทำหน้าที่ใด","answer":"ดูดน้ำ"},{"type":"food","prompt":"เลือกอาหารให้เหมาะเพศวัยหมายความว่า","answer":"สัดส่วนเหมาะสมและปลอดภัย"},{"type":"digest","prompt":"แนวทางดูแลระบบย่อย 2 ข้อ","answer":"เคี้ยวดี กินสะอาด ดื่มน้ำ"},{"type":"food","prompt":"ยกตัวอย่างอาหารให้พลังงาน","answer":"ข้าว/ขนมปัง"},{"type":"digest","prompt":"ทำไมต้องเคี้ยวให้ละเอียด","answer":"ช่วยย่อย"},{"type":"food","prompt":"บันทึกอาหารมื้อกลางวันแล้วระบุสารอาหาร","answer":"ตามนักเรียน"},{"type":"digest","prompt":"วาดแบบจำลองระบบย่อยติดป้าย","answer":"ตามนักเรียน"},{"type":"digest","prompt":"กระเพาะช่วยย่อยสารอาหารประเภทใดเด่น","answer":"โปรตีน"},{"type":"food","prompt":"อันตรายของการกินหวานเค็มมันเกิน","answer":"สุขภาพเสีย"},{"type":"digest","prompt":"ถ้าปวดท้องบ่อยควรทำอย่างไร","answer":"บอกผู้ใหญ่/พบแพทย์"},{"type":"food","prompt":"น้ำมีความสำคัญอย่างไร","answer":"หล่อเลี้ยงร่างกาย"},{"type":"digest","prompt":"สรุปหน้าที่อวัยวะในระบบย่อย 3 อวัยวะ","answer":"ตามสื่อ"}];
+window.WORKSHEET_CONFIG={
+  icon:'🫀',title:'ใบงานสารอาหาร·ระบบย่อย',subject:'วิทยาศาสตร์',gradeLabel:'ป.6',
+  mediaLabel:'สื่อระบบร่างกาย ป.6',sourceMediaUrl:'/games/science/body-systems-p6-media.html',
+  indicators:["ว 1.2 ป.6/1","ว 1.2 ป.6/4","ว 1.2 ป.6/5"],
+  directions:"ระบุสารอาหาร · เรียงอวัยวะระบบย่อย · เสนอแนวทางดูแล",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+</body></html>

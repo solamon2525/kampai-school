@@ -305,8 +305,8 @@ const mediaRoadmap = {
         {
             phase: 'Phase 13 — ป.6 + ระบบตัวชี้วัด (+8 คู่)',
             duration: 'เดือน 5–7',
-            status: 'pending',
-            badge: 'bg-amber-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'เติม ป.6 + ผูกตัวชี้วัดสื่อ+เกม ≥80% + publish checklist',
             items: [
                 'ป.6: ร้อยละ · สมการ · วรรณคดี · ไฟฟ้า · ระบบร่างกาย · tense · เศรษฐศาสตร์',
@@ -345,6 +345,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.196.0 (Phase 13 ป.6 + ตัวชี้วัด — 8 media+worksheet pairs)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 13: คณิต×2 · ไทย×1 · วิทย์×2 · อังกฤษ×2 · สังคม×1 สำหรับ ป.6 (migration 434)',
+            'IndicatorCoverageDialog แยกเกม/สื่อ/ใบงาน + publish checklist ใน EduHubItemForm',
+            'Backfill indicator_games สื่อเก่า + ปิดสถานะ mediaRoadmap Phase 13 = done',
+        ],
+    },
     {
         version: 'v1.195.0 (Phase 12 ป.ต้น daily-use — 10 media+worksheet pairs)',
         date: 'ล่าสุด',

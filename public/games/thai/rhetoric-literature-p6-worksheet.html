@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/rhetoric-literature-p6-media.html">
+  <meta name="curriculum-indicators" content="ท 1.1 ป.6/2,ท 5.1 ป.6/1,ท 5.1 ป.6/3">
+  <title>ใบงานโวหาร·วรรณคดี ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📜 ใบงานโวหาร·วรรณคดี</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="rhetoric">โวหาร</option><option value="lit">วรรณคดี</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
+<script src="/games/kampai-qr.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script>
+const ITEMS=[{"type":"rhetoric","prompt":"โวหารคืออะไร อธิบายสั้น ๆ","answer":"การใช้ภาษาให้สวย/มีพลัง"},{"type":"rhetoric","prompt":"“ใจเย็นเหมือนน้ำแข็ง” เป็นโวหารแบบใด","answer":"อุปมา"},{"type":"rhetoric","prompt":"อธิบายความหมาย “ไฟในอก”","answer":"ความรู้สึกรุนแรง"},{"type":"lit","prompt":"วรรณคดีต่างจากข้อความทั่วไปอย่างไร","answer":"มีคุณค่าทางวรรณศิลป์"},{"type":"lit","prompt":"เล่าข้อคิดจากนิทานที่เคยอ่าน 1 ข้อ","answer":"ตามนักเรียน"},{"type":"rhetoric","prompt":"แต่งประโยคอุปมา 1 ประโยค","answer":"ตามนักเรียน"},{"type":"lit","prompt":"คุณค่าของวรรณกรรมที่อ่านได้แก่อะไร","answer":"คุณธรรม/ความรู้/ภาษา"},{"type":"rhetoric","prompt":"แยกความหมายตรง/แฝงของ “หน้าตาย”","answer":"ไม่แสดงอารมณ์"},{"type":"lit","prompt":"แสดงความคิดเห็นต่อตัวละครในเรื่องที่อ่าน","answer":"ตามนักเรียน"},{"type":"lit","prompt":"นำข้อคิดไปใช้ในชีวิตได้อย่างไร","answer":"ตามนักเรียน"},{"type":"rhetoric","prompt":"หาโวหารจากเพลง/กลอน 1 ตัวอย่าง","answer":"ตามนักเรียน"},{"type":"lit","prompt":"สรุปใจความเรื่องสั้นที่อ่าน","answer":"ตามนักเรียน"},{"type":"rhetoric","prompt":"ทำไมต้องอธิบายข้อความที่เป็นโวหาร","answer":"เข้าใจความหมายแฝง"},{"type":"lit","prompt":"นิทานพื้นบ้านท้องถิ่นสอนอะไร","answer":"ตามท้องถิ่น"},{"type":"rhetoric","prompt":"วงคำที่เป็นโวหารในประโยคที่ครูให้","answer":"ตามข้อสอบ"},{"type":"lit","prompt":"เปรียบเทียบคุณค่า 2 เรื่องสั้น ๆ","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'📜',title:'ใบงานโวหาร·วรรณคดี',subject:'ภาษาไทย',gradeLabel:'ป.6',
+  mediaLabel:'สื่อโวหาร·วรรณคดี',sourceMediaUrl:'/games/thai/rhetoric-literature-p6-media.html',
+  indicators:["ท 1.1 ป.6/2","ท 5.1 ป.6/1","ท 5.1 ป.6/3"],
+  directions:"อธิบายโวหาร · แสดงความคิดเห็นและข้อคิดจากวรรณกรรม",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+</body></html>
