@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/social/citizen-duties-p123-media.html">
+  <meta name="curriculum-indicators" content="ส 2.1 ป.1/1,ส 2.1 ป.2/1,ส 2.2 ป.1/2">
+  <title>ใบงานหน้าที่พลเมือง ป.ต้น ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.194.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.194.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🏛️ ใบงานหน้าที่พลเมือง ป.ต้น</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.1–ป.3</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="school">โรงเรียน</option><option value="home">บ้าน</option><option value="society">สังคม</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.194.0"></script>
+<script>
+const ITEMS=[{"type":"society","prompt":"ตอนเพลงชาติควรทำอย่างไร","answer":"ยืนตรงเคารพ"},{"type":"school","prompt":"เมื่อครูอธิบายควรทำอะไร","answer":"ตั้งใจฟัง"},{"type":"school","prompt":"อยากพูดในห้องควรทำอย่างไร","answer":"ยกมือ"},{"type":"society","prompt":"ขยะควรทิ้งที่ไหน","answer":"ถังขยะ"},{"type":"home","prompt":"หน้าที่ที่บ้านของเด็กตัวอย่าง","answer":"ช่วยงานบ้าน / เก็บของ"},{"type":"school","prompt":"พลเมืองดีทำอย่างไรกับเพื่อน","answer":"ช่วยเหลือ ไม่รังแก"},{"type":"society","prompt":"เข้าคิวแสดงถึงอะไร","answer":"ระเบียบ / ยุติธรรม"},{"type":"home","prompt":"ช่วยพ่อแม่แล้วได้อะไร","answer":"ความรับผิดชอบ / ความอบอุ่น"},{"type":"school","prompt":"ไม่ขีดเขียนโต๊ะเพราะอะไร","answer":"รักษาสมบัติส่วนรวม"},{"type":"society","prompt":"พูดสุภาพสำคัญอย่างไร","answer":"ไม่ทำให้ผู้อื่นเสียใจ"},{"type":"school","prompt":"เห็นเพื่อนล้มควรทำอย่างไร","answer":"ช่วยพยุง / บอกครู"},{"type":"home","prompt":"ตั้งหน้าที่บ้าน 1 ข้อที่จะทำสัปดาห์นี้","answer":"ตามนักเรียน"},{"type":"society","prompt":"ถอดหมวกตอนเคารพธงชาติหรือไม่","answer":"ควร"},{"type":"school","prompt":"ถามครูเมื่อไม่เข้าใจอย่างสุภาพอย่างไร","answer":"ยกมือ / ใช้คำสุภาพ"},{"type":"society","prompt":"แยกขยะช่วยอะไร","answer":"สิ่งแวดล้อม"},{"type":"home","prompt":"สรุปหน้าที่พลเมืองดี 3 ข้อ","answer":"เช่น เคารพ ช่วยเหลือ รักษาความสะอาด"}];
+window.WORKSHEET_CONFIG={
+  icon:'🏛️',title:'ใบงานหน้าที่พลเมือง ป.ต้น',subject:'สังคมศึกษา',gradeLabel:'ป.1–ป.3',
+  mediaLabel:'สื่อหน้าที่พลเมือง',sourceMediaUrl:'/games/social/citizen-duties-p123-media.html',
+  indicators:["ส 2.1 ป.1/1","ส 2.1 ป.2/1","ส 2.2 ป.1/2"],
+  directions:"ตอบหน้าที่พลเมืองดีในโรงเรียน บ้าน และสังคม",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.194.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.194.0"></script>
+</body></html>
