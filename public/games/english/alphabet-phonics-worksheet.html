@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/english/alphabet-phonics-media.html">
+  <meta name="curriculum-indicators" content="ต 1.1 ป.1/2,ต 1.1 ป.2/2">
+  <title>ใบงาน ABC Phonics ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.195.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.195.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🔤 ใบงาน ABC Phonics</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.2</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="letter">ตัวอักษร</option><option value="sound">เสียง</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
+<script src="/games/kampai-qr.js?v=1.195.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.195.0"></script>
+<script>
+const ITEMS=[{"type":"letter","prompt":"Apple ขึ้นต้นด้วย","answer":"A"},{"type":"letter","prompt":"Ball ขึ้นต้นด้วย","answer":"B"},{"type":"letter","prompt":"Cat ขึ้นต้นด้วย","answer":"C"},{"type":"letter","prompt":"Dog ขึ้นต้นด้วย","answer":"D"},{"type":"letter","prompt":"Sun ขึ้นต้นด้วย","answer":"S"},{"type":"letter","prompt":"Tiger ขึ้นต้นด้วย","answer":"T"},{"type":"sound","prompt":"เขียนตัว a–f","answer":"abcdef"},{"type":"sound","prompt":"วงกลมตัวที่เสียง /b/","answer":"B"},{"type":"letter","prompt":"คัด: A a","answer":"A a"},{"type":"letter","prompt":"คัด: B b","answer":"B b"},{"type":"sound","prompt":"คำที่ขึ้นต้นด้วย S","answer":"Sun / ฯลฯ"},{"type":"letter","prompt":"เรียง A C B ให้ถูก","answer":"A B C"},{"type":"sound","prompt":"เลียนเสียงต้นของ Dog","answer":"/d/"},{"type":"letter","prompt":"วาดรูป Apple แล้วเขียน A","answer":"A"},{"type":"letter","prompt":"จับคู่ C–Cat","answer":"C–Cat"},{"type":"sound","prompt":"สรุปตัวอักษรที่จำได้วันนี้","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'🔤',title:'ใบงาน ABC Phonics',subject:'ภาษาอังกฤษ',gradeLabel:'ป.1–ป.2',
+  mediaLabel:'สื่อ ABC Phonics',sourceMediaUrl:'/games/english/alphabet-phonics-media.html',
+  indicators:["ต 1.1 ป.1/2","ต 1.1 ป.2/2"],
+  directions:"จับคู่ตัวอักษร-เสียง-คำ · เขียนตัวใหญ่",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.195.0"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.195.0"></script>
+</body></html>

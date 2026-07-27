@@ -271,7 +271,7 @@ const sprintPlan = [
 ];
 
 const mediaRoadmap = {
-    baseline: 'หลัง Phase 1–10: สื่อ+ใบงานคู่หนาขึ้น · วิชาหลักแน่น · ศิลปะ/การงาน/เทคโนโลยียังบาง',
+    baseline: 'หลัง Phase 11–12: วิชาบางเติมแล้ว · สื่อ ป.1–2 daily-use ครบ 10 คู่ · เหลือ ป.6/ตัวชี้วัด/ครูอัปโหลด/lesson packs',
     target: 'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ผูกตัวชี้วัด ≥80% · ทุกวิชา ≥6 คู่ · ครบทุกช่วงชั้น ป.1–6',
     phases: [
         {
@@ -291,15 +291,15 @@ const mediaRoadmap = {
         {
             phase: 'Phase 12 — ป.ต้น daily-use (+10 คู่)',
             duration: 'เดือน 3–4',
-            status: 'pending',
-            badge: 'bg-orange-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'สื่อ ป.1–2 ใช้สอนได้ทุกวัน + grade coverage matrix ใน audit script',
             items: [
                 'ไทย: ประสมคำ · อ่านคล่อง-เขียนคล่อง · คำพื้นฐาน',
                 'คณิต: จำนวน 1–100 · บวกลบไม่เกิน 100 · รูปทรงพื้นฐาน',
-                'อังกฤษ: Sight words (E2) · ABC-phonics ต่อยอด',
+                'อังกฤษ: Sight words daily · ABC-phonics',
                 'วิทย์ ป.1–2: สิ่งมีชีวิต-ไม่มีชีวิต · วัสดุรอบตัว',
-                'ใบงาน ป.ต้น: ตัวใหญ่ รอยประ ลากเส้น',
+                'ใบงาน ป.ต้น: ตัวใหญ่ รอยประ ลากเส้น · migration 433',
             ],
         },
         {
@@ -345,6 +345,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.195.0 (Phase 12 ป.ต้น daily-use — 10 media+worksheet pairs)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 12: ไทย×3 · คณิต×3 · อังกฤษ×2 · วิทย์×2 สำหรับ ป.1–2 (ตัวใหญ่/รอยประ · migration 433)',
+            'ปิดสถานะ mediaRoadmap Phase 12 = done',
+            'scripts/generate-media-phase12.mjs + apply-migration-433-phase12.mjs',
+        ],
+    },
     {
         version: 'v1.194.0 (Phase 11 thin subjects — 10 media+worksheet pairs)',
         date: 'ล่าสุด',

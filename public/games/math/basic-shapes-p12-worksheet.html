@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/basic-shapes-p12-media.html">
+  <meta name="curriculum-indicators" content="ค 2.2 ป.1/1,ค 2.2 ป.2/1">
+  <title>ใบงานรูปทรงพื้นฐาน ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.195.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.195.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>⬛ ใบงานรูปทรงพื้นฐาน</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.2</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="name">ชื่อรูป</option><option value="find">ของจริง</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
+<script src="/games/kampai-qr.js?v=1.195.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.195.0"></script>
+<script>
+const ITEMS=[{"type":"name","prompt":"รูปไม่มีมุม","answer":"วงกลม"},{"type":"name","prompt":"ด้านเท่าทั้งสี่","answer":"สี่เหลี่ยมจัตุรัส"},{"type":"name","prompt":"ประตูมักเป็นรูป","answer":"สี่เหลี่ยมผืนผ้า"},{"type":"name","prompt":"สามเหลี่ยมมีกี่ด้าน","answer":"3"},{"type":"find","prompt":"ของที่เป็นวงกลมในห้อง","answer":"นาฬิกา/ลูกบอล ฯลฯ"},{"type":"name","prompt":"วาดวงกลม 1 รูป","answer":"ตามที่วาด"},{"type":"name","prompt":"วาดสามเหลี่ยม","answer":"ตามที่วาด"},{"type":"find","prompt":"หนังสือเป็นรูปอะไรโดยประมาณ","answer":"สี่เหลี่ยมผืนผ้า"},{"type":"name","prompt":"มุมฉากพบในรูปใด","answer":"สี่เหลี่ยม"},{"type":"find","prompt":"ทำไมต้องหาของจริง","answer":"เชื่อมโยงชีวิตประจำวัน"},{"type":"name","prompt":"นับมุมสี่เหลี่ยมจัตุรัส","answer":"4"},{"type":"name","prompt":"แยควงกลมกับวงรีสั้น ๆ","answer":"วงกลมกลมเท่า / วงรียาว"},{"type":"find","prompt":"วาดของจริงรูปสี่เหลี่ยม","answer":"ตามนักเรียน"},{"type":"name","prompt":"ก่อนระบายสีควรทำอะไร","answer":"วาดโครงรูปทรง"},{"type":"name","prompt":"รูปที่มี 3 มุม","answer":"สามเหลี่ยม"},{"type":"find","prompt":"สำรวจรูปทรงรอบตัว 2 อย่าง","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'⬛',title:'ใบงานรูปทรงพื้นฐาน',subject:'คณิตศาสตร์',gradeLabel:'ป.1–ป.2',
+  mediaLabel:'สื่อรูปทรง',sourceMediaUrl:'/games/math/basic-shapes-p12-media.html',
+  indicators:["ค 2.2 ป.1/1","ค 2.2 ป.2/1"],
+  directions:"จำแนกรูปทรง · วาดและลากเส้น",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.195.0"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.195.0"></script>
+</body></html>

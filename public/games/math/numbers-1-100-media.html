@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>จำนวน 1–100 — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#1d4ed8;--line:#bfdbfe;--muted:#64748b}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#bfdbfe,#1d4ed822);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#1d4ed8);color:#fff}
+    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
+    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
+     .pick button.on{background:var(--deep);color:#fff}
+     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
+     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
+     .emo{font-size:3.2rem;margin-bottom:8px}
+     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+  </style>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>🔢 จำนวนนับ 1–100</h1>
+    <span class="badge">ป.1–2 · คณิต</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อ ป.ต้น — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    <a class="btn btn-ghost" href="/games/math/numbers-1-100-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+  </div>
+  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
+     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='numbers-1-100-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
+const ITEMS=[{"emoji":"1️⃣","name":"นับ 1–10","body":"นับทีละหนึ่งให้ครบสิบ","tip":"ใช้นิ้วมือช่วย","trace":"1 2 3 4 5 6 7 8 9 10","q":"หลัง 9 คือเลขใด?","a":"10"},{"emoji":"🔟","name":"กลุ่มละสิบ","body":"10, 20, 30 … เป็นกลุ่มสิบ","tip":"มัดไม้ไอติมเป็นมัด","q":"สองมัดละสิบเท่ากับ?","a":"20"},{"emoji":"↕️","name":"เปรียบเทียบ","body":"ใช้เครื่องหมาย > < =","tip":"ปากจระเข้กินตัวใหญ่","q":"35 กับ 53 อันไหนมากกว่า?","a":"53"},{"emoji":"📶","name":"เรียงลำดับ","body":"เรียงจากน้อยไปมาก","tip":"ดูหลักสิบก่อน","q":"เรียง 12, 5, 20 จากน้อยไปมาก","a":"5, 12, 20"},{"emoji":"📍","name":"เส้นจำนวน","body":"จุดเลขบนเส้นตรง","tip":"ก้าวทีละช่อง","q":"บนเส้นจำนวน หลัง 49 คือ?","a":"50"},{"emoji":"💯","name":"ถึง 100","body":"10 กลุ่มของสิบ = 100","tip":"ตาราง 10×10","q":"สิบกลุ่มของสิบเท่ากับ?","a":"100"}];
+let cur=ITEMS[0];
+function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
+function render(){
+  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
+  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
+}
+document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
+function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
+  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
+  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
+  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
+document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]');if(!b)return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+</script>
+</body></html>

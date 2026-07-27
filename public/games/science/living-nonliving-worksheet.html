@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/science/living-nonliving-media.html">
+  <meta name="curriculum-indicators" content="ว 1.1 ป.1/1,ว 1.3 ป.2/1">
+  <title>ใบงานสิ่งมีชีวิต-ไม่มีชีวิต ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.195.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.195.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🌱 ใบงานสิ่งมีชีวิต-ไม่มีชีวิต</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.2</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="live">มีชีวิต</option><option value="non">ไม่มีชีวิต</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
+<script src="/games/kampai-qr.js?v=1.195.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.195.0"></script>
+<script>
+const ITEMS=[{"type":"live","prompt":"แมวเป็นสิ่งใด","answer":"สิ่งมีชีวิต"},{"type":"non","prompt":"หินเป็นสิ่งใด","answer":"สิ่งไม่มีชีวิต"},{"type":"live","prompt":"ต้นไม้ต้องการอะไร","answer":"น้ำและแสง"},{"type":"non","prompt":"น้ำมีชีวิตหรือไม่","answer":"ไม่มีชีวิต"},{"type":"non","prompt":"รถมีชีวิตหรือไม่","answer":"ไม่มีชีวิต"},{"type":"live","prompt":"สิ่งมีชีวิตทำอะไรได้บ้าง","answer":"กิน เติบโต ฯลฯ"},{"type":"non","prompt":"โต๊ะ จัดเป็น","answer":"สิ่งไม่มีชีวิต"},{"type":"live","prompt":"คนเป็นสิ่งมีชีวิตเพราะ","answer":"กิน/เติบโต/หายใจ"},{"type":"non","prompt":"หุ่นยนต์ขยับได้แต่","answer":"ไม่มีชีวิต"},{"type":"live","prompt":"จัดกลุ่ม: นก หิน ปลา","answer":"นก·ปลา = มีชีวิต; หิน = ไม่มี"},{"type":"live","prompt":"วาดสิ่งมีชีวิต 1 อย่าง","answer":"ตามที่วาด"},{"type":"non","prompt":"วาดสิ่งไม่มีชีวิต 1 อย่าง","answer":"ตามที่วาด"},{"type":"live","prompt":"พืชมีชีวิตหรือไม่","answer":"มีชีวิต"},{"type":"non","prompt":"ทำไมของเล่นไม่ใช่สิ่งมีชีวิต","answer":"ไม่กินไม่เติบโตเอง"},{"type":"live","prompt":"สำรวจรอบตัวแล้วบันทึก 2 อย่าง","answer":"ตามนักเรียน"},{"type":"non","prompt":"สรุปความต่างมีชีวิต/ไม่มีชีวิต","answer":"ตามสื่อ"}];
+window.WORKSHEET_CONFIG={
+  icon:'🌱',title:'ใบงานสิ่งมีชีวิต-ไม่มีชีวิต',subject:'วิทยาศาสตร์',gradeLabel:'ป.1–ป.2',
+  mediaLabel:'สื่อสิ่งมีชีวิต',sourceMediaUrl:'/games/science/living-nonliving-media.html',
+  indicators:["ว 1.1 ป.1/1","ว 1.3 ป.2/1"],
+  directions:"จำแนกสิ่งมีชีวิต/ไม่มีชีวิต · อธิบายเหตุผลสั้น",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.195.0"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.195.0"></script>
+</body></html>
