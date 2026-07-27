@@ -1,6 +1,6 @@
 # Phase 10 — Media + Worksheet Upgrade
 
-**Status:** P0–P7 complete (ship pending commit/deploy)  
+**Status:** P0–P7 complete — **shipped** to https://kampai-school.vercel.app  
 **Scope:** all `*-media` / `*-thinking-media` (51) + all `*-worksheet` (68), including hub worksheets  
 **Locked decisions:**
 - **P3 = A — deepen-in-place**
