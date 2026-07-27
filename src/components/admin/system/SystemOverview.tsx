@@ -271,8 +271,8 @@ const sprintPlan = [
 ];
 
 const mediaRoadmap = {
-    baseline: 'หลัง Phase 11–12: วิชาบางเติมแล้ว · สื่อ ป.1–2 daily-use ครบ 10 คู่ · เหลือ ป.6/ตัวชี้วัด/ครูอัปโหลด/lesson packs',
-    target: 'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ผูกตัวชี้วัด ≥80% · ทุกวิชา ≥6 คู่ · ครบทุกช่วงชั้น ป.1–6',
+    baseline: 'หลัง Phase 11–15: สื่อ+ใบงาน ป.1–6 เติมครบช่วง · lesson packs ≥30 · แนะนำสื่อ/ครูอัป/ใบงานบ้าน parent พร้อมใช้',
+    target: 'เป้าถัดไป: ครู non-admin อัปสื่อเป็นกิจวัตร · ผูกตัวชี้วัดต่อเนื่อง ≥80% · polish คลังสาธารณะ',
     phases: [
         {
             phase: 'Phase 11 — เติมวิชาบาง (+10 คู่)',
@@ -331,8 +331,8 @@ const mediaRoadmap = {
         {
             phase: 'Phase 15 — lesson packs + polish',
             duration: 'เดือน 11–12',
-            status: 'pending',
-            badge: 'bg-sky-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'lesson_packs 15 → ≥30 + เก็บตกคุณภาพทั้งคลัง',
             items: [
                 'ทุกคู่ใหม่จาก Phase 11–13 มี lesson pack',
@@ -345,6 +345,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.198.0 (Phase 15 lesson packs + parent worksheets)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ตาราง lesson_packs / lesson_pack_items (migration 435) · seed ≥30 ชุดจาก Phase 11–13 + legacy',
+            'หน้า /parent/worksheets กรองใบงานและชุดเรียนตามชั้นลูก',
+            'อัปเดต แผนพัฒนาคลังสื่อ.md · ปิด mediaRoadmap Phase 15 = done',
+        ],
+    },
     {
         version: 'v1.197.0 (Phase 14 แนะนำสื่อ + ครูอัปโหลดเอง)',
         date: 'ล่าสุด',

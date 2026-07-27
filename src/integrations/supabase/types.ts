@@ -3284,6 +3284,104 @@ export type Database = {
           },
         ]
       }
+      lesson_pack_items: {
+        Row: {
+          created_at: string
+          edu_hub_item_id: string
+          id: string
+          pack_id: string
+          role: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          edu_hub_item_id: string
+          id?: string
+          pack_id: string
+          role: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          edu_hub_item_id?: string
+          id?: string
+          pack_id?: string
+          role?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_pack_items_edu_hub_item_id_fkey"
+            columns: ["edu_hub_item_id"]
+            isOneToOne: false
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_pack_items_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_packs: {
+        Row: {
+          created_at: string
+          description: string | null
+          grade_levels: string[]
+          id: string
+          is_published: boolean
+          owner_staff_id: string | null
+          pack_key: string
+          phase_tag: string | null
+          sort_order: number
+          subject: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          grade_levels?: string[]
+          id?: string
+          is_published?: boolean
+          owner_staff_id?: string | null
+          pack_key: string
+          phase_tag?: string | null
+          sort_order?: number
+          subject?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          grade_levels?: string[]
+          id?: string
+          is_published?: boolean
+          owner_staff_id?: string | null
+          pack_key?: string
+          phase_tag?: string | null
+          sort_order?: number
+          subject?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_packs_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       indicator_lesson_plans: {
         Row: {
           created_at: string
@@ -7308,6 +7406,18 @@ export type Database = {
       claim_reward: {
         Args: { p_code: string; p_quantity?: number; p_reward_id: string }
         Returns: string
+      }
+      get_student_pet_state: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      buy_student_pet: {
+        Args: { p_student_code: string; p_pet_code: string }
+        Returns: Json
+      }
+      equip_student_pet: {
+        Args: { p_student_code: string; p_pet_code: string }
+        Returns: Json
       }
       get_daily_challenge_leaderboard: {
         Args: { p_game_slug: string; p_limit?: number; p_student_code?: string }

@@ -87,6 +87,7 @@ const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboa
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const ParentMastery = lazyWithRetry(() => import("./pages/parent/ParentMastery"));
 const ParentVocabReview = lazyWithRetry(() => import("./pages/parent/ParentVocabReview"));
+const ParentWorksheets = lazyWithRetry(() => import("./pages/parent/ParentWorksheets"));
 const MyLearning = lazyWithRetry(() => import("./pages/student/MyLearning"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
@@ -267,6 +268,9 @@ const App = () => (
             } />
             <Route path="/parent/mastery" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentMastery /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/worksheets" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentWorksheets /></PortalProtectedRoute>
             } />
             <Route path="/parent/vocab-review" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentVocabReview /></PortalProtectedRoute>
