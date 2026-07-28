@@ -2,7 +2,7 @@
  * GamificationHub — รวม "อันดับ + เหรียญ + ภารกิจ" เป็นการ์ดสรุปย่อแถวเดียว
  *
  * แถบสรุป (เห็นเสมอ): วงแหวน level + ชื่อ + XP bar + chips (เกม/เหรียญ/streak/ภารกิจ)
- * ปุ่มแท็บ 3 อัน collapsed by default — กดเพื่อขยายดูเนื้อหาเต็ม (reuse component เดิม)
+ * ปุ่มแท็บ (อันดับ/เหรียญ/ภารกิจ/คู่หู) collapsed by default — กดเพื่อขยายดูเนื้อหาเต็ม (reuse component เดิม)
  *   เป้าหมาย: เปิดหน้า hub มาเห็นภาพปกเกมทันทีโดยไม่ต้องเลื่อนผ่านบล็อกนี้
  *
  * ใช้ queryKey เดียวกับ HonorWall/DailyQuestPanel → react-query แชร์ cache ไม่ยิงซ้ำ
@@ -18,8 +18,10 @@ import { dailyQuestService } from '@/services/daily-quest.service';
 import { DailyQuestPanel, dailyQuestQueryKey } from '@/components/games/DailyQuestPanel';
 import { GameRankings } from '@/components/games/GameRankings';
 import { HonorWall, LevelRing } from '@/components/games/HonorWall';
+import { StudentPetHub } from '@/components/games/StudentPetHub';
+import { studentPetQueryKey, studentPetService } from '@/services/student-pet.service';
 
-type Tab = 'rank' | 'medals' | 'quest';
+type Tab = 'rank' | 'medals' | 'quest' | 'pet';
 
 const TabPill = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) => (
   <button
@@ -50,6 +52,12 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
     queryKey: dailyQuestQueryKey(code ?? ''),
     queryFn: () => dailyQuestService.getStatus(code!),
     enabled: !!code,
+  });
+  const petQuery = useQuery({
+    queryKey: studentPetQueryKey(code ?? ''),
+    queryFn: () => studentPetService.getState(code!),
+    enabled: !!code,
+    retry: false,
   });
   const profile = profileQuery.data ?? null;
   const quest = questQuery.data ?? null;
@@ -92,6 +100,9 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
                 {hasQuest && (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">🎯 {quest!.completed_count}/{quest!.required_count}</span>
                 )}
+                {petQuery.data?.equipped && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">🐾 {petQuery.data.equipped.name_th}</span>
+                )}
               </div>
             </div>
           ) : (
@@ -120,6 +131,11 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
                 🎯 ภารกิจ {quest!.completed_count}/{quest!.required_count}
               </TabPill>
             )}
+            {code && (
+              <TabPill active={openTab === 'pet'} onClick={() => toggle('pet')}>
+                🐾 คู่หู · {petQuery.data?.balance?.toLocaleString('th-TH') ?? '—'} ดาว
+              </TabPill>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -134,6 +150,7 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
         </Card>
       )}
       {openTab === 'quest' && code && <DailyQuestPanel studentCode={code} variant="full" />}
+      {openTab === 'pet' && code && <StudentPetHub studentCode={code} />}
     </div>
   );
 };

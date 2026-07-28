@@ -1,0 +1,319 @@
+#!/usr/bin/env node
+/**
+ * Media Batch Z: M6 geometry-3d-media + W8 teacher guide (+ starter text pages)
+ */
+import sharp from 'sharp';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+async function cover({ out, title, subtitle, emoji, c1, c2, ink }) {
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
+  </linearGradient></defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="640" y="220" text-anchor="middle" font-size="110">${emoji}</text>
+  <text x="640" y="360" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="48" font-weight="800" fill="${ink}">${title}</text>
+  <text x="640" y="430" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="26" font-weight="700" fill="${ink}" opacity=".85">${subtitle}</text>
+  <text x="640" y="620" text-anchor="middle" font-family="Sarabun,sans-serif" font-size="26" font-weight="700" fill="#64748b">📚 สื่อการสอน · โรงเรียนบ้านคำไผ่</text>
+</svg>`;
+  const path = resolve(root, out);
+  mkdirSync(dirname(path), { recursive: true });
+  await sharp(Buffer.from(svg)).png().toFile(path);
+  console.log('cover', out);
+}
+
+function write(rel, html) {
+  const path = resolve(root, rel);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, html, 'utf8');
+  console.log('html', rel);
+}
+
+const geometryHtml = `<!DOCTYPE html>
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>เรขาคณิต 2D/3D — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#0f766e;--line:#99f6e4;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#ccfbf1,#0f766e22);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#115e59,#0f766e);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .btn-accent{background:#fbbf24;color:#78350f}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f0fdfa;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .layout{display:grid;gap:16px}@media(min-width:900px){.layout{grid-template-columns:1.1fr 1fr}}
+    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .pick button{font-family:inherit;font-weight:800;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;color:var(--deep)}
+    .pick button.on{background:var(--deep);color:#fff}
+    .viz{background:#ecfeff;border:2px dashed var(--line);border-radius:16px;padding:16px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+    .viz svg{width:min(280px,80vw);height:auto}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:360px}
+    .stat{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+    .stat b{display:block;font-size:1.4rem;color:var(--deep)}
+    .box{background:#f0fdfa;border:2px solid var(--line);border-radius:14px;padding:14px;font-weight:600;line-height:1.55}
+    .box h3{color:var(--deep);margin-bottom:6px;font-size:1.05rem}
+    .practice{display:none;max-width:520px;margin:0 auto;flex-direction:column;gap:12px}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .choices{display:grid;gap:8px}
+    .choice{font-family:inherit;font-weight:800;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .choice.ok{background:#dcfce7;border-color:#86efac}.choice.no{background:#fee2e2;border-color:#fca5a5}
+  </style>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>🧊 เรขาคณิต 2D/3D — หน้า ขอบ จุดยอด</h1>
+    <span class="badge">ป.4–6 · คณิตศาสตร์</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+  </div>
+  <div class="stage">
+    <div class="learn" id="learn">
+      <div class="pick" id="pick"></div>
+      <div class="layout">
+        <div class="viz" id="viz"></div>
+        <div class="box" id="info"></div>
+      </div>
+    </div>
+    <div class="practice" id="practice">
+      <p style="font-weight:800;color:var(--deep);font-size:1.15rem" id="prQ"></p>
+      <div class="choices" id="prChoices"></div>
+      <p id="prFb" style="font-weight:800;min-height:24px"></p>
+      <button type="button" class="btn btn-primary" id="btnNextPr">ข้อถัดไป</button>
+    </div>
+  </div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · คู่เกม solid-3d / net-3d · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='geometry-3d-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
+
+const SHAPES=[
+  {id:'cube',name:'ลูกบาศก์',emoji:'🧊',faces:6,edges:12,vertices:8,sym:'มีระนาบสมมาตรหลายทิศ · หน้าทุกด้านเป็นสี่เหลี่ยมจัตุรัสเท่ากัน',
+    svg:'<svg viewBox="0 0 200 180"><polygon points="60,50 140,50 170,80 90,80" fill="#99f6e4" stroke="#0f766e" stroke-width="3"/><polygon points="60,50 90,80 90,150 60,120" fill="#5eead4" stroke="#0f766e" stroke-width="3"/><polygon points="90,80 170,80 170,150 90,150" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: กากบาท 6 หน้าจัตุรัส (กางออกเป็นแผ่นแบน)'},
+  {id:'rect',name:'ปริซึมสี่เหลี่ยมมุมฉาก',emoji:'📦',faces:6,edges:12,vertices:8,sym:'หน้าคู่ขนาน · ยาว×กว้าง×สูง ต่างกันได้',
+    svg:'<svg viewBox="0 0 200 180"><polygon points="40,55 150,55 180,85 70,85" fill="#99f6e4" stroke="#0f766e" stroke-width="3"/><polygon points="40,55 70,85 70,145 40,115" fill="#5eead4" stroke="#0f766e" stroke-width="3"/><polygon points="70,85 180,85 180,145 70,145" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: กล่องกาง — หน้า 4 ด้านข้าง + ฝาบน/ล่าง'},
+  {id:'tri',name:'ปริซึมฐานสามเหลี่ยม',emoji:'⛺',faces:5,edges:9,vertices:6,sym:'ฐานสองด้านเป็นสามเหลี่ยม · ด้านข้างเป็นสี่เหลี่ยม',
+    svg:'<svg viewBox="0 0 200 180"><polygon points="100,30 40,90 160,90" fill="#99f6e4" stroke="#0f766e" stroke-width="3"/><polygon points="40,90 70,130 130,130 160,90" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/><polygon points="40,90 70,130 55,150 25,110" fill="#5eead4" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: สามเหลี่ยม 2 + สี่เหลี่ยม 3'},
+  {id:'pyr',name:'พีระมิดฐานสี่เหลี่ยม',emoji:'🔺',faces:5,edges:8,vertices:5,sym:'จุดยอดรวมที่ปลาย · ฐานจัตุรัส + หน้าข้างสามเหลี่ยม 4',
+    svg:'<svg viewBox="0 0 200 180"><polygon points="100,25 40,140 160,140" fill="#5eead4" stroke="#0f766e" stroke-width="3"/><line x1="100" y1="25" x2="100" y2="140" stroke="#0f766e" stroke-width="2" stroke-dasharray="4 3"/><polygon points="100,25 160,140 100,140" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: จัตุรัสกลาง + สามเหลี่ยมรอบ'},
+  {id:'cyl',name:'ทรงกระบอก',emoji:'🥫',faces:3,edges:2,vertices:0,sym:'หน้าตัดวงกลม · ด้านข้างโค้ง (นับเป็นผิวโค้ง 1)',
+    svg:'<svg viewBox="0 0 200 180"><ellipse cx="100" cy="40" rx="55" ry="18" fill="#99f6e4" stroke="#0f766e" stroke-width="3"/><rect x="45" y="40" width="110" height="90" fill="#5eead4" stroke="none"/><line x1="45" y1="40" x2="45" y2="130" stroke="#0f766e" stroke-width="3"/><line x1="155" y1="40" x2="155" y2="130" stroke="#0f766e" stroke-width="3"/><ellipse cx="100" cy="130" rx="55" ry="18" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: สี่เหลี่ยมผืนผ้า + วงกลม 2'},
+  {id:'cone',name:'ทรงกรวย',emoji:'🎉',faces:2,edges:1,vertices:1,sym:'ฐานวงกลม + จุดยอด · ผิวข้างโค้ง',
+    svg:'<svg viewBox="0 0 200 180"><polygon points="100,25 40,130 160,130" fill="#5eead4" stroke="#0f766e" stroke-width="3"/><ellipse cx="100" cy="130" rx="60" ry="18" fill="#2dd4bf" stroke="#0f766e" stroke-width="3"/></svg>',
+    net:'รูปคลี่: พัดวงกลม + วงกลมฐาน'},
+  {id:'sphere',name:'ทรงกลม',emoji:'⚽',faces:1,edges:0,vertices:0,sym:'สมมาตรทุกทิศ · ไม่มีมุม/ขอบตรง',
+    svg:'<svg viewBox="0 0 200 180"><circle cx="100" cy="90" r="60" fill="#5eead4" stroke="#0f766e" stroke-width="3"/><ellipse cx="100" cy="90" rx="60" ry="22" fill="none" stroke="#0f766e" stroke-width="2" stroke-dasharray="5 4"/><ellipse cx="100" cy="90" rx="22" ry="60" fill="none" stroke="#0f766e" stroke-width="2" stroke-dasharray="5 4"/></svg>',
+    net:'ไม่กางเป็นแผ่นแบนง่าย ๆ — เป็นผิวโค้งทั้งหมด'},
+  {id:'sq',name:'สี่เหลี่ยมจัตุรัส (2D)',emoji:'⬜',faces:1,edges:4,vertices:4,sym:'ระนาบแบน · ด้านเท่า มุมฉาก · สมมาตร 4 แกน',
+    svg:'<svg viewBox="0 0 200 180"><rect x="50" y="40" width="100" height="100" fill="#99f6e4" stroke="#0f766e" stroke-width="3"/><line x1="50" y1="40" x2="150" y2="140" stroke="#0f766e" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="150" y1="40" x2="50" y2="140" stroke="#0f766e" stroke-width="1.5" stroke-dasharray="4 3"/></svg>',
+    net:'รูป 2 มิติอยู่บนระนาบแล้ว — ใช้เทียบกับหน้าของทรง 3D'},
+];
+
+let cur=SHAPES[0], mode='learn';
+
+function setMode(m){
+  mode=m;
+  document.getElementById('shell').classList.toggle('mode-practice', m==='practice');
+  document.getElementById('hintText').textContent=m==='learn'?'เลือกทรง ดูหน้า·ขอบ·จุดยอด':'ตอบคำถามจากทรงที่สุ่ม';
+  if(m==='practice') nextPractice();
+}
+
+function renderPick(){
+  const el=document.getElementById('pick');
+  el.innerHTML=SHAPES.map(s=>\`<button type="button" data-id="\${s.id}" class="\${s.id===cur.id?'on':''}">\${s.emoji} \${s.name}</button>\`).join('');
+  el.onclick=e=>{
+    const b=e.target.closest('button[data-id]'); if(!b) return;
+    cur=SHAPES.find(s=>s.id===b.dataset.id); render();
+  };
+}
+
+function render(){
+  renderPick();
+  document.getElementById('viz').innerHTML=\`
+    <div style="font-size:2.5rem">\${cur.emoji}</div>
+    \${cur.svg}
+    <div class="stats">
+      <div class="stat"><b>\${cur.faces}</b>หน้า/ผิว</div>
+      <div class="stat"><b>\${cur.edges}</b>ขอบ</div>
+      <div class="stat"><b>\${cur.vertices}</b>จุดยอด</div>
+    </div>\`;
+  document.getElementById('info').innerHTML=\`
+    <h3>\${cur.emoji} \${cur.name}</h3>
+    <p><strong>สมมาตร / ลักษณะ:</strong> \${cur.sym}</p>
+    <p style="margin-top:8px"><strong>รูปคลี่:</strong> \${cur.net}</p>
+    <p style="margin-top:8px;color:var(--muted);font-size:.9rem">สูตรจำ (ทรงหลายหน้า): หน้า + จุดยอด = ขอบ + 2 (ออยเลอร์) — ลองนับกับลูกบาศก์: 6+8=12+2</p>\`;
+}
+
+function nextPractice(){
+  const s=SHAPES[Math.floor(Math.random()*SHAPES.length)];
+  const kinds=[
+    {q:\`\${s.emoji} \${s.name} มีกี่หน้า/ผิว?\`, ans:s.faces},
+    {q:\`\${s.emoji} \${s.name} มีกี่ขอบ?\`, ans:s.edges},
+    {q:\`\${s.emoji} \${s.name} มีกี่จุดยอด?\`, ans:s.vertices},
+  ];
+  const k=kinds[Math.floor(Math.random()*kinds.length)];
+  document.getElementById('prQ').textContent=k.q;
+  document.getElementById('prFb').textContent='';
+  const opts=new Set([k.ans]);
+  while(opts.size<4){
+    const n=Math.max(0, k.ans + Math.floor(Math.random()*7)-3);
+    opts.add(n);
+  }
+  const box=document.getElementById('prChoices');
+  box.innerHTML=[...opts].sort((a,b)=>a-b).map(o=>\`<button type="button" class="choice" data-v="\${o}">\${o}</button>\`).join('');
+  box.onclick=e=>{
+    const b=e.target.closest('.choice'); if(!b) return;
+    const ok=+b.dataset.v===k.ans;
+    b.classList.add(ok?'ok':'no');
+    document.getElementById('prFb').textContent=ok?'✅ ถูกต้อง!':'เฉลย '+k.ans;
+    if(window.KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+  };
+}
+
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]'); if(!b) return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+document.getElementById('btnNextPr').onclick=nextPractice;
+render(); setMode('learn');
+</script>
+</body></html>`;
+
+const guideHtml = `<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>คู่มือครูอัปสื่อใน 5 นาที — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--navy:#1e3a8a;--gold:#d4a017;--line:#e2e8f0;--muted:#64748b}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Sarabun',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;padding:20px}
+    .page{max-width:800px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px 24px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h1{font-size:1.45rem;color:var(--navy);margin-bottom:4px}
+    .sub{color:var(--muted);font-weight:600;margin-bottom:18px}
+    .steps{display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:14px;border:2px solid var(--line);border-radius:14px;background:#f8fafc}
+    .n{width:48px;height:48px;border-radius:12px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem}
+    .step h2{font-size:1.05rem;color:var(--navy);margin-bottom:4px}
+    .step p{font-weight:600;color:#334155;font-size:.95rem}
+    .tip{margin-top:16px;padding:14px;border-left:4px solid var(--gold);background:#fffbeb;border-radius:0 12px 12px 0;font-weight:600}
+    .tip strong{color:#92400e}
+    .types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    @media(max-width:560px){.types{grid-template-columns:1fr}}
+    .types div{padding:10px;border:1px solid var(--line);border-radius:10px;font-weight:600;font-size:.9rem}
+    .footer{margin-top:18px;font-size:.85rem;color:var(--muted);text-align:center}
+    a{color:var(--navy);font-weight:700}
+    @media print{body{background:#fff;padding:0}.page{box-shadow:none;border:none}}
+  </style>
+</head><body>
+  <article class="page">
+    <h1>📚 คู่มือครู — อัปสื่อในคลังเองภายใน 5 นาที</h1>
+    <p class="sub">โรงเรียนบ้านคำไผ่ · Teacher Portal · ไม่ต้องเขียนโค้ด</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><h2>เข้า Teacher Portal</h2><p>เปิด <a href="/teacher/edu-hub">/teacher/edu-hub</a> แล้วล็อกอินด้วยบัญชีครู → แท็บ <strong>รายการของฉัน</strong></p></div></div>
+      <div class="step"><div class="n">2</div><div><h2>กดเพิ่มรายการ</h2><p>เลือกประเภทสื่อที่ต้องการ แล้วกรอกชื่อเรื่องให้ครู/นักเรียนเข้าใจทันที</p></div></div>
+      <div class="step"><div class="n">3</div><div><h2>แนบเนื้อหา</h2>
+        <div class="types">
+          <div>📄 <strong>ไฟล์</strong> — PDF / ใบงาน</div>
+          <div>🔗 <strong>ลิงก์</strong> — หน้าเว็บ / สื่อ HTML</div>
+          <div>▶️ <strong>YouTube</strong> — วางลิงก์คลิป</div>
+          <div>📝 <strong>ข้อความ</strong> — ความรู้สั้นในห้อง</div>
+        </div>
+      </div></div>
+      <div class="step"><div class="n">4</div><div><h2>ใส่ metadata</h2><p>เลือก <strong>วิชา</strong> · <strong>ชั้น</strong> · <strong>tags</strong> · คำอธิบายสั้น ๆ — ช่วยให้นักเรียนค้นเจอ</p></div></div>
+      <div class="step"><div class="n">5</div><div><h2>เผยแพร่</h2><p>เปิดสถานะเผยแพร่ → ตรวจใน <a href="/educational-hub">คลังสื่อ</a> ว่าการ์ดขึ้นครบ ชื่อ/ปก/วิชา</p></div></div>
+    </div>
+    <div class="tip"><strong>เคล็ดลับ:</strong> สื่อสาธิตจอใหญ่ใช้เทมเพลต HTML ได้ที่แอดมิน (GamesTab → สร้างสื่อจาก AI) · สัญญาเขียนสื่ออยู่ที่ <a href="/MEDIA-PROMPT.md">/MEDIA-PROMPT.md</a> · สื่อ ≠ เกม (ไม่เก็บคะแนน/LB)</div>
+    <p class="footer">W8 · โรงเรียนบ้านคำไผ่ · พิมพ์หน้านี้ได้ (Ctrl+P)</p>
+  </article>
+</body></html>`;
+
+function starterText(title, subject, body) {
+  return `<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>${title} — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body{font-family:'Sarabun',sans-serif;max-width:720px;margin:24px auto;padding:0 16px;line-height:1.6;color:#0f172a}
+    h1{color:#1e3a8a;font-size:1.35rem}
+    .badge{display:inline-block;background:#eff6ff;color:#1e3a8a;font-weight:700;padding:4px 10px;border-radius:999px;font-size:.8rem;margin-bottom:12px}
+    .card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin:12px 0;font-weight:600}
+    .footer{margin-top:24px;font-size:.85rem;color:#64748b;text-align:center}
+  </style>
+</head><body>
+  <span class="badge">${subject}</span>
+  <h1>${title}</h1>
+  <div class="card">${body}</div>
+  <p class="footer">ตัวอย่างสื่อข้อความ · ครูอัปเองได้ที่ /teacher/edu-hub · โรงเรียนบ้านคำไผ่</p>
+</body></html>`;
+}
+
+await cover({
+  out: 'public/games/math/geometry-3d-media-cover.png',
+  title: 'เรขาคณิต 2D/3D',
+  subtitle: 'หน้า · ขอบ · จุดยอด · รูปคลี่',
+  emoji: '🧊',
+  c1: '#ccfbf1',
+  c2: '#5eead4',
+  ink: '#115e59',
+});
+
+write('public/games/math/geometry-3d-media.html', geometryHtml);
+write('public/docs/teacher-upload-media-guide.html', guideHtml);
+write('public/docs/starter-media/math-place-value-note.html', starterText(
+  '📌 ความรู้สั้น: ค่าประจำหลัก',
+  'คณิตศาสตร์ · ป.3–4',
+  'เลข 3,482 = 3 พัน + 4 ร้อย + 8 สิบ + 2 หน่วย<br/>ถามนักเรียน: เลข 5 ใน 5,206 อยู่หลักใด? มีค่าเท่าไร?',
+));
+write('public/docs/starter-media/thai-vowel-note.html', starterText(
+  '📌 ความรู้สั้น: สระสั้น–สระยาว',
+  'ภาษาไทย · ป.1–2',
+  'สระสั้นออกเสียงสั้น · สระยาวดึงเสียงยาว<br/>ตัวอย่าง: อะ–อา, อิ–อี, อุ–อู · ใช้คู่กับแผนภาพสระในคลังสื่อ',
+));
+write('public/docs/starter-media/english-greetings-note.html', starterText(
+  '📌 Classroom English: Greetings',
+  'ภาษาอังกฤษ · ป.1–3',
+  'Hello / Hi · Good morning · How are you? — I am fine, thank you.<br/>Goodbye / See you · Please · Thank you · Excuse me',
+));
+write('public/docs/starter-media/science-water-cycle-note.html', starterText(
+  '📌 ความรู้สั้น: วัฏจักรน้ำ 4 ขั้น',
+  'วิทยาศาสตร์ · ป.3–5',
+  'ระเหย → ควบแน่น → ตกเป็นฝน → ไหลกลับ<br/>ใช้คู่กับสื่อแผนภาพวัฏจักรน้ำในคลัง · ถาม: น้ำค้างเกิดจากขั้นใด?',
+));
+
+console.log('done batch Z assets');

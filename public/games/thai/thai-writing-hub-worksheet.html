@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-writing-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 2.1 ป.4/1,ท 4.1 ป.5/3">
+  <title>ใบงานคลังแต่งข้อความ ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>✍️ ใบงานคลังแต่งข้อความ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="sentence">ประโยค</option><option value="paragraph">ย่อหน้า</option><option value="letter">จดหมาย/ข้อความ</option><option value="fix">ตรวจแก้</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script>
+const ITEMS=[{"type":"sentence","prompt":"แต่งประโยคให้สมบูรณ์จากคำสั่ง","hint":"ใช้คำ: โรงเรียน / สนุก","answer":"เช่น การเรียนที่โรงเรียนสนุกมาก"},{"type":"sentence","prompt":"แต่งประโยคบอกเล่า 1 ประโยค","hint":"เรื่องเพื่อนช่วยเหลือ","answer":"เช่น เพื่อนช่วยฉันเก็บหนังสือ"},{"type":"paragraph","prompt":"เขียนย่อหน้าสั้น 3–4 ประโยค","hint":"หัวข้อ: วันหยุดของฉัน","answer":"มี开头 กลาง จบ ชัดเจน"},{"type":"paragraph","prompt":"เขียนย่อหน้าเชิญชวน","hint":"ชวนเพื่อนมาอ่านหนังสือ","answer":"มีเหตุผลและคำเชิญ"},{"type":"letter","prompt":"เขียนจดหมายสั้นถึงคุณครู","hint":"ขอบคุณที่สอน","answer":"มีคำขึ้นต้น เนื้อความ คำลงท้าย"},{"type":"letter","prompt":"เขียนข้อความถึงผู้ปกครอง","hint":"เล่าผลการเรียนวันนี้","answer":"สุภาพ ชัดเจน มีใจความ"},{"type":"fix","prompt":"แก้ประโยคให้ถูกและลื่น","text":"ฉันไปแล้วตลาดซื้อผลไม้","answer":"ฉันไปตลาดแล้วเพื่อซื้อผลไม้"},{"type":"fix","prompt":"แก้เครื่องหมายและคำซ้ำ","text":"วันนี้ วันนี้ อากาศดีจัง","answer":"วันนี้อากาศดีจัง!"},{"type":"sentence","prompt":"แต่งประโยคคำถาม","hint":"ถามเพื่อนเรื่องการบ้าน","answer":"เช่น เธอทำการบ้านเสร็จหรือยัง"},{"type":"sentence","prompt":"แต่งประโยคแสดงเหตุผล","hint":"ใช้คำว่า เพราะ","answer":"เช่น ฉันตื่นเช้าเพราะต้องไปโรงเรียน"},{"type":"paragraph","prompt":"เขียนเล่าเหตุการณ์ในโรงเรียน","hint":"งานกีฬาสี","answer":"ลำดับเหตุการณ์ชัด"},{"type":"paragraph","prompt":"เขียนอธิบายวิธีทำสิ่งหนึ่ง","hint":"วิธีปลูกต้นไม้","answer":"มีขั้นตอน 1–2–3"},{"type":"letter","prompt":"เขียนการ์ดอวยพรสั้น","hint":"วันเกิดเพื่อน","answer":"มีคำอวยพรและชื่อผู้ส่ง"},{"type":"fix","prompt":"จัดเรียงประโยคให้เป็นย่อหน้า","text":"(1) ฝนหยุด (2) เราออกไปเล่น (3) ท้องฟ้ามืด","answer":"3→1→2"},{"type":"sentence","prompt":"แต่งประโยคเปรียบเทียบ","hint":"ใช้คำว่า กว่า","answer":"เช่น ช้างใหญ่กว่าม้า"},{"type":"paragraph","prompt":"เขียนแสดงความคิดเห็นสั้น","hint":"ควรช่วยงานบ้านหรือไม่","answer":"มีเหตุผลสนับสนุน"},{"type":"fix","prompt":"เติมคำเชื่อมให้ข้อความต่อเนื่อง","text":"อยากเล่น ___ ต้องทำการบ้านก่อน","answer":"แต่ / จึง"},{"type":"letter","prompt":"เขียนขออนุญาตสั้น ๆ","hint":"ขอยืมหนังสือจากห้องสมุด","answer":"มีคำขอและเหตุผล"}];
+window.WORKSHEET_CONFIG={
+  icon:'✍️',title:'ใบงานคลังแต่งข้อความ',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังแต่งข้อความ',sourceMediaUrl:'/games/thai/thai-writing-hub/index.html',
+  indicators:["ท 2.1 ป.4/1","ท 4.1 ป.5/3"],
+  directions:"แต่งประโยค ย่อหน้า จดหมายสั้น และตรวจแก้ข้อความให้ถูกต้อง",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +(item.hint?'<div class="q-context">คำใบ้: '+e(item.hint)+'</div>':'')
+      +(item.text?'<div class="q-context writing-case">'+e(item.text)+'</div>':'')
+      +'<div class="decision-box writing-hub-grid">โครงร่าง: เริ่ม ___ · กลาง ___ · จบ ___</div>'
+      +'<div>เขียนคำตอบ</div><div class="work-line"></div><div class="work-line"></div><div class="work-line"></div>'
+      +'<div>ตรวจภาษา / เหตุผล</div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลยแนว: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+</body></html>

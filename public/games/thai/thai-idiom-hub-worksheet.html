@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-idiom-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 1.1 ป.4/2,ท 1.1 ป.5/2">
+  <title>ใบงานคลังสำนวนไทย ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>💬 ใบงานคลังสำนวนไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="animal">สำนวนสัตว์</option><option value="life">ชีวิตประจำวัน</option><option value="proverb">สุภาษิต</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script>
+const ITEMS=[{"type":"animal","prompt":"อธิบายความหมายและแต่งประโยค","idiom":"เอาหูไปนา เอาตาไปไร่","literal":"เอาหูไปนาและเอาตาไปไร่","answer":"ไม่สนใจ / ไม่ใส่ใจ"},{"type":"life","prompt":"อธิบายและยกสถานการณ์ใช้","idiom":"น้ำขึ้นให้รีบตัก","literal":"ตักน้ำตอนน้ำขึ้น","answer":"ฉวยโอกาสเมื่อสถานการณ์ดี"},{"type":"proverb","prompt":"อธิบายด้วยคำของตนเอง","idiom":"ช้า ๆ ได้พร้าเล่มงาม","literal":"ทำช้าแล้วได้พร้าสวย","answer":"ทำอย่างรอบคอบได้ผลดี"},{"type":"animal","prompt":"จับคู่ความหมาย","idiom":"ปิดทองหลังพระ","literal":"ปิดทองด้านหลังพระ","answer":"ทำดีโดยไม่ต้องการคำชม"},{"type":"life","prompt":"อธิบายสถานการณ์","idiom":"ตกกระไดพลอยโจน","literal":"ตกลงไปกับกระได","answer":"พลอยทำตามโดยไม่ตั้งใจ"},{"type":"proverb","prompt":"บอกบทเรียนจากสำนวน","idiom":"คบคนพาลพาลพาไปหาผิด","literal":"คบคนพาลแล้วพาไปผิด","answer":"คบเพื่อนไม่ดีอาจเสียหาย"},{"type":"animal","prompt":"แต่งประโยคในโรงเรียน","idiom":"นกน้อยทำรังแต่พอตัว","literal":"นกทำรังเล็กพอตัว","answer":"อยู่อย่างพอเพียงตามกำลัง"},{"type":"life","prompt":"เลือกสำนวนที่เหมาะ","idiom":"พยายามทบทวนก่อนสอบ","literal":"—","answer":"เช่น ขยันไขว่คว้า / ขยันไว้ตัว"},{"type":"mixed","prompt":"แยกความหมายตรงกับโดยนัย","idiom":"หัวใจสลาย","literal":"หัวใจพัง","answer":"นัย: เสียใจมาก"},{"type":"proverb","prompt":"อธิบายและให้เหตุผล","idiom":"รักพี่เสียดายน้อง","literal":"รักพี่และเสียดายน้อง","answer":"ลังเลเลือกระหว่างสองทาง"},{"type":"animal","prompt":"อธิบายสำนวน","idiom":"วัวหายล้อมคอก","literal":"ล้อมคอกหลังวัวหาย","answer":"แก้ปัญหาหลังเกิดเหตุแล้ว"},{"type":"life","prompt":"แต่งประโยคใช้สำนวน","idiom":"สู้เพื่ออนาคต","literal":"—","answer":"เช่น ขยันไขว่คว้าเพื่ออนาคต"},{"type":"proverb","prompt":"บอกสถานการณ์ใช้","idiom":"พูดไปสองไพเบี้ย นิ่งเสียตำลึงทอง","literal":"พูดเสียสองไพ นิ่งได้ตำลึง","answer":"บางครั้งนิ่งไว้ดีกว่าพูด"},{"type":"mixed","prompt":"แยกตรง/นัย","idiom":"หน้าดำคร่ำเครียด","literal":"หน้าดำ","answer":"นัย: กังวลหรือเครียดมาก"},{"type":"life","prompt":"อธิบายสำนวน","idiom":"ยื่นแมวให้วัน","literal":"ให้แมวแก่คนชื่อวัน","answer":"มอบสิ่งให้คนที่ไม่เหมาะ"},{"type":"animal","prompt":"อธิบายและยกตัวอย่าง","idiom":"เสือซ่อนเล็บ","literal":"เสือซ่อนเล็บไว้","answer":"คนเก่งแต่ไม่โอ้อวด"},{"type":"proverb","prompt":"สรุปข้อคิด","idiom":"ทำดีได้ดี ทำชั่วได้ชั่ว","literal":"ทำดีได้ผลดี","answer":"ผลลัพธ์ตามการกระทำ"},{"type":"mixed","prompt":"แยกตรง/นัย","idiom":"ไฟไหม้ฟาง","literal":"ไฟไหม้กองฟาง","answer":"นัย: โกรธง่าย/รุนแรงเร็ว"}];
+window.WORKSHEET_CONFIG={
+  icon:'💬',title:'ใบงานคลังสำนวนไทย',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.6',
+  mediaLabel:'คลังสำนวนไทย',sourceMediaUrl:'/games/thai/thai-idiom-hub/index.html',
+  indicators:["ท 1.1 ป.4/2","ท 1.1 ป.5/2"],
+  directions:"แยกความหมายตรงกับโดยนัย ใช้ในประโยค และบอกสถานการณ์",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context idiom-case">สำนวน: “'+e(item.idiom)+'”</div>'
+      +'<div>ความหมายตรง</div><div class="work-line"></div>'
+      +'<div>ความหมายโดยนัย</div><div class="evidence-line"></div>'
+      +'<div>สถานการณ์ใช้ / ประโยคตัวอย่าง</div><div class="reason-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+(item.literal?' · ตรง: '+e(item.literal):'')+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+</body></html>

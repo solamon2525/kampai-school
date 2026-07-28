@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/math-fraction-hub/index.html">
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/13,ค 1.1 ป.4/14">
+  <title>ใบงานคลังเศษส่วน ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🍕 ใบงานคลังเศษส่วน</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="bar">แท่งเศษส่วน</option><option value="compare">เทียบเศษส่วน</option><option value="add">บวก</option><option value="sub">ลบ</option><option value="whole">จำนวนคละ</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script>
+const ITEMS=[{"type":"bar","prompt":"ระบายเศษส่วนบนแท่ง","frac":"3/4","parts":4,"fill":3,"answer":"3/4"},{"type":"bar","prompt":"ระบายเศษส่วนบนแท่ง","frac":"2/5","parts":5,"fill":2,"answer":"2/5"},{"type":"bar","prompt":"ระบายเศษส่วนบนแท่ง","frac":"5/8","parts":8,"fill":5,"answer":"5/8"},{"type":"bar","prompt":"ระบายเศษส่วนบนแท่ง","frac":"1/3","parts":3,"fill":1,"answer":"1/3"},{"type":"compare","prompt":"เปรียบเทียบเศษส่วนตัวส่วนเท่ากัน","left":"2/7","right":"5/7","answer":"2/7 < 5/7"},{"type":"compare","prompt":"เปรียบเทียบเศษส่วนตัวส่วนเท่ากัน","left":"4/5","right":"1/5","answer":"4/5 > 1/5"},{"type":"compare","prompt":"หาเศษส่วนสมมูล","left":"1/2","right":"?/8","answer":"4/8"},{"type":"compare","prompt":"หาเศษส่วนสมมูล","left":"2/3","right":"?/6","answer":"4/6"},{"type":"add","prompt":"บวกเศษส่วนตัวส่วนเท่ากัน","expr":"1/5 + 2/5","answer":"3/5"},{"type":"add","prompt":"บวกเศษส่วนตัวส่วนเท่ากัน","expr":"3/8 + 2/8","answer":"5/8"},{"type":"sub","prompt":"ลบเศษส่วนตัวส่วนเท่ากัน","expr":"5/6 − 1/6","answer":"4/6 หรือ 2/3"},{"type":"sub","prompt":"ลบเศษส่วนตัวส่วนเท่ากัน","expr":"7/10 − 3/10","answer":"4/10 หรือ 2/5"},{"type":"whole","prompt":"เขียนจำนวนคละเป็นเศษเกิน","value":"2 1/4","answer":"9/4"},{"type":"whole","prompt":"เขียนเศษเกินเป็นจำนวนคละ","value":"11/3","answer":"3 2/3"},{"type":"whole","prompt":"บวกจำนวนคละอย่างง่าย","expr":"1 1/4 + 2 1/4","answer":"3 2/4 หรือ 3 1/2"},{"type":"whole","prompt":"ลบจำนวนคละอย่างง่าย","expr":"3 3/5 − 1 1/5","answer":"2 2/5"},{"type":"bar","prompt":"เขียนเศษส่วนจากส่วนที่ระบาย 3 ใน 6","frac":"3/6","parts":6,"fill":3,"answer":"3/6 = 1/2"},{"type":"add","prompt":"แสดงวิธีคิดทีละขั้น","expr":"2/9 + 4/9","answer":"6/9 หรือ 2/3"}];
+window.WORKSHEET_CONFIG={
+  icon:'🍕',title:'ใบงานคลังเศษส่วน',subject:'คณิตศาสตร์',gradeLabel:'ป.4',
+  mediaLabel:'คลังเศษส่วน',sourceMediaUrl:'/games/math/math-fraction-hub/index.html',
+  indicators:["ค 1.1 ป.4/13","ค 1.1 ป.4/14"],
+  directions:"ระบายแท่งเศษส่วน เทียบค่า บวกลบตัวส่วนเท่า และจำนวนคละ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    if(item.type==='bar'){
+      const boxes=Array.from({length:item.parts},()=>'<div class="fraction-cell">[ ]</div>').join('');
+      return '<div class="q-prompt">'+e(item.prompt)+' · '+e(item.frac)+'</div>'
+        +'<div class="fraction-bar fraction-hub-grid">'+boxes+'</div>'
+        +'<div>เศษส่วน = ________</div><div class="work-line"></div><div class="reason-line"></div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    if(item.type==='compare'){
+      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+        +'<div class="q-context">'+e(item.left)+' กับ '+e(item.right)+'</div>'
+        +'<div class="classify-grid fraction-hub-grid"><div class="classify-box">[ ] &lt;</div><div class="classify-box">[ ] =</div><div class="classify-box">[ ] &gt;</div><div class="classify-box">สมมูล: ____</div></div>'
+        +'<div class="work-line"></div><div class="reason-line"></div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    if(item.type==='whole'){
+      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+        +'<div class="q-context">'+e(item.value||item.expr)+'</div>'
+        +'<div class="decision-box fraction-hub-grid">จำนวนคละ / เศษเกิน: ________</div>'
+        +'<div class="calc-line"></div><div class="work-line"></div><div class="reason-line"></div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    return '<div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.expr)+'</div>'
+      +'<div class="fraction-hub-grid"><div class="decision-box">ตัวเศษ ____ · ตัวส่วน ____</div></div>'
+      +'<div class="calc-line"></div><div class="work-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+</body></html>

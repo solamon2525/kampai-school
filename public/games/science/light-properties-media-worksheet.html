@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/science/light-properties-media.html">
+  <meta name="curriculum-indicators" content="ว 2.3 ป.4/1">
+  <title>ใบงานสมบัติของแสง ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>💡 ใบงานสมบัติของแสง</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="classify">จำแนก</option><option value="explain">อธิบาย</option><option value="shadow">เงา</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
+<script src="/games/kampai-qr.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script>
+const ITEMS=[{"type":"classify","prompt":"ไม้บรรทัดเหล็กจัดเป็นประเภทใด","answer":"ทึบแสง"},{"type":"classify","prompt":"กระจกใสหน้าต่าง","answer":"โปร่งใส"},{"type":"classify","prompt":"กระดาษไข / พลาสติกขุ่น","answer":"ผ่านแสงบางส่วน"},{"type":"classify","prompt":"หนังสือเรียน","answer":"ทึบแสง"},{"type":"explain","prompt":"ทำไมมองทะลุน้ำสะอาดในแก้วได้","answer":"น้ำ/แก้วโปร่งใส แสงผ่านได้"},{"type":"explain","prompt":"ทำไมมองไม่ทะลุกำแพง","answer":"ทึบแสง แสงผ่านไม่ได้"},{"type":"shadow","prompt":"เงาเกิดเมื่อใด","answer":"เมื่อวัตถุทึบแสงบังแสง"},{"type":"shadow","prompt":"ถ้าไม่มีแสง จะมีเงาหรือไม่","answer":"ไม่มี"},{"type":"classify","prompt":"ถุงพลาสติกขุ่นใส่ของ","answer":"ผ่านแสงบางส่วน"},{"type":"explain","prompt":"แว่นตาเลนส์ใสช่วยให้เห็นได้อย่างไร","answer":"แสงผ่านเลนส์โปร่งใสเข้าตา"},{"type":"shadow","prompt":"ยิ่งใกล้แหล่งแสง เงามักเป็นอย่างไร","answer":"ใหญ่ขึ้น (โดยทั่วไป)"},{"type":"classify","prompt":"ผ้าม่านหนา","answer":"ทึบแสง (หรือผ่านน้อยมาก)"},{"type":"explain","prompt":"เขียนตัวอย่างวัตถุโปร่งใส 2 อย่าง","answer":"เช่น แก้วใส อากาศ น้ำสะอาด"},{"type":"classify","prompt":"กระจกเงา (สะท้อน) ต่างจากกระจกใสอย่างไร","answer":"เงาสะท้อนแสง / ใสทะลุได้"},{"type":"shadow","prompt":"ทำไมกลางคืนใต้โคมไฟมีเงา","answer":"มีแหล่งแสงและวัตถุบัง"},{"type":"explain","prompt":"กระดาษทิชชูเปียกแล้วยังทึบเท่าเดิมหรือไม่","answer":"อาจผ่านแสงมากขึ้น (สังเกตได้)"},{"type":"classify","prompt":"ขวดพลาสติกน้ำดื่มใส","answer":"โปร่งใส"},{"type":"explain","prompt":"สรุป 3 ประเภทการผ่านแสงสั้น ๆ","answer":"ทึบ / ผ่านบางส่วน / โปร่งใส"}];
+window.WORKSHEET_CONFIG={
+  icon:'💡',title:'ใบงานสมบัติของแสง',subject:'วิทยาศาสตร์',gradeLabel:'ป.4',
+  mediaLabel:'สื่อสมบัติของแสง',sourceMediaUrl:'/games/science/light-properties-media.html',
+  indicators:["ว 2.3 ป.4/1"],
+  directions:"จำแนกวัตถุทึบแสง / ผ่านแสงบางส่วน / โปร่งใส · อธิบายเหตุผล",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="light-ws-grid classify-grid reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+</body></html>

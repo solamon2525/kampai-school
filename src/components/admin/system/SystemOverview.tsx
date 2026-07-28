@@ -346,6 +346,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.199.0 (salvage orphan media/worksheets + student pet)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ดึงไฟล์ orphan เข้า git: Batch 9–13 ใบงาน hub · Media Y/Z/AA · QR ออฟไลน์ · starter-media notes',
+            'Student pet companion (437) + idle GIF · แท็บคู่หูใน GamificationHub · PlayGame ส่ง pet เข้า SDK',
+            'renumber mig ชนเลขบน main → 436–445 · แก้ตัวชี้วัดโจทย์ปัญหา (436)',
+        ],
+    },
+    {
         version: 'v1.198.0 (Phase 15 lesson packs + parent worksheets)',
         date: 'ล่าสุด',
         badge: 'bg-primary',

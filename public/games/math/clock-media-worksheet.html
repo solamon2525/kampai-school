@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/clock-media.html">
+  <meta name="curriculum-indicators" content="ค 2.1 ป.2/1,ค 2.1 ป.3/2,ค 2.1 ป.4/1">
+  <title>ใบงานนาฬิกาบอกเวลา ป.1–ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🕐 ใบงานนาฬิกาบอกเวลา</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.1–ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="read">อ่านเวลา</option><option value="draw">วาดเข็ม</option><option value="word">โจทย์สถานการณ์</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
+<script src="/games/kampai-qr.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script>
+const ITEMS=[{"type":"read","prompt":"เข็มสั้นชี้ 3 เข็มยาวชี้ 12","answer":"3:00"},{"type":"read","prompt":"เข็มสั้นชี้ 9 เข็มยาวชี้ 6","answer":"9:30"},{"type":"read","prompt":"เข็มสั้นใกล้ 2 เข็มยาวชี้ 3","answer":"2:15"},{"type":"read","prompt":"เข็มสั้นใกล้ 7 เข็มยาวชี้ 9","answer":"7:45"},{"type":"draw","prompt":"วาดเข็มให้เป็น 4:00","answer":"สั้นชี้ 4 · ยาวชี้ 12"},{"type":"draw","prompt":"วาดเข็มให้เป็น 10:30","answer":"สั้นระหว่าง 10–11 · ยาวชี้ 6"},{"type":"draw","prompt":"วาดเข็มให้เป็น 1:15","answer":"สั้นเลย 1 นิด · ยาวชี้ 3"},{"type":"word","prompt":"โรงเรียนเริ่ม 8:00 น. มาถึงช้า 15 นาที ถึงกี่โมง","answer":"8:15"},{"type":"word","prompt":"เล่น 30 นาที จาก 3:00 จบเมื่อไร","answer":"3:30"},{"type":"read","prompt":"เขียนคำว่า \"ครึ่ง\" สำหรับ 6:30","answer":"หกโมงครึ่ง / 18:30 (บริบท)"},{"type":"word","prompt":"จาก 2:00 ถึง 2:45 ผ่านไปกี่นาที","answer":"45 นาที"},{"type":"draw","prompt":"วาดเข็ม 12:00","answer":"สั้นและยาวชี้ 12"},{"type":"read","prompt":"เข็มยาวชี้ 12 หมายถึงนาทีเท่าไร","answer":"0 นาที / ตรง"},{"type":"word","prompt":"นอน 9:00 ตื่นหลัง 8 ชม. ตื่นกี่โมง","answer":"5:00"},{"type":"read","prompt":"3:00 เรียกว่าเศษหนึ่งส่วนสี่ของชั่วโมงถัดไปเมื่อไร","answer":"3:15"},{"type":"draw","prompt":"วาดเข็ม 5:45","answer":"สั้นใกล้ 6 · ยาวชี้ 9"},{"type":"word","prompt":"สอบยาว 1 ชม. เริ่ม 9:30 จบเมื่อไร","answer":"10:30"},{"type":"read","prompt":"เข็มสั้นชี้ 11 เข็มยาวชี้ 12","answer":"11:00"}];
+window.WORKSHEET_CONFIG={
+  icon:'🕐',title:'ใบงานนาฬิกาบอกเวลา',subject:'คณิตศาสตร์',gradeLabel:'ป.1–ป.4',
+  mediaLabel:'สื่อนาฬิกา',sourceMediaUrl:'/games/math/clock-media.html',
+  indicators:["ค 2.1 ป.2/1","ค 2.1 ป.3/2","ค 2.1 ป.4/1"],
+  directions:"ดูเข็มนาฬิกาหรือโจทย์ แล้วตอบเวลา / วาดเข็ม · แสดงวิธีคิดสั้น ๆ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="clock-ws-grid work-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">วิธีคิด <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+</body></html>

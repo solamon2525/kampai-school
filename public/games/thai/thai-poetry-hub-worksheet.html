@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-poetry-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 5.1 ป.4/4,ท 4.1 ป.4/5">
+  <title>ใบงานคลังบทร้อยกรอง ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🎭 ใบงานคลังบทร้อยกรอง</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="rhyme">สัมผัส</option><option value="genre">ร้อยแก้ว/ร้อยกรอง</option><option value="compose">แต่งสั้น</option><option value="sound">จังหวะ/เสียง</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script>
+const ITEMS=[{"type":"rhyme","prompt":"หาคำสัมผัสกับคำที่กำหนด","word":"มา","answer":"เช่น กา นา ตา ลา"},{"type":"rhyme","prompt":"หาคำสัมผัสกับคำที่กำหนด","word":"เรียน","answer":"เช่น เพียร เขียน เปลี่ยน"},{"type":"genre","prompt":"ข้อความนี้ใกล้เคียงร้อยแก้วหรือร้อยกรอง","text":"ฝนตกพรำ ๆ บนหลังคาบ้าน","answer":"ร้อยแก้ว (หรือร้อยกรองง่าย ๆ ตามจังหวะ)"},{"type":"genre","prompt":"จำแนกชนิดบทร้อยกรองง่าย ๆ","text":"คำขวัญวันเด็กสั้น ๆ มีสัมผัส","answer":"คำขวัญ / ร้อยกรองสั้น"},{"type":"compose","prompt":"แต่งคำขวัญ 1 บรรทัด","hint":"หัวข้อ: รักการอ่าน","answer":"เช่น อ่านทุกวัน พัฒนาปัญญา"},{"type":"compose","prompt":"แต่งกลอนสั้น 2 วรรคให้มีสัมผัส","hint":"เรื่องโรงเรียน","answer":"มีสัมผัสท้ายวรรค"},{"type":"sound","prompt":"วงคำที่มีเสียงซ้ำพยัญชนะต้น","text":"ฝนฟ้าพร่างพร้อย","answer":"พร่างพร้อย / ฝนฟ้า"},{"type":"sound","prompt":"บอกจังหวะหรือการเว้นวรรคที่เหมาะสม","text":"นกน้อยโบยบินบนท้องฟ้า","answer":"เว้นวรรคตามจังหวะอ่าน"},{"type":"rhyme","prompt":"จับคู่คำสัมผัส","word":"ใจ–?","answer":"เช่น ใคร ไป ไหน"},{"type":"genre","prompt":"ข้อใดเป็นลักษณะร้อยกรอง","text":"มีคำสัมผัสและจังหวะอ่าน","answer":"ร้อยกรอง"},{"type":"compose","prompt":"แต่งคำขวัญรณรงค์ความสะอาด","hint":"โรงเรียนสะอาด","answer":"สั้น จำง่าย มีสัมผัส"},{"type":"sound","prompt":"อ่านออกเสียงแล้วขีดคำเน้นจังหวะ","text":"ยิ้มแย้มแจ่มใสทุกวัน","answer":"เน้นตามจังหวะธรรมชาติ"},{"type":"rhyme","prompt":"เติมคำสัมผัสท้ายบรรทัด","text":"พระอาทิตย์ขึ้นทาบพื้น___","answer":"เช่น ดิน / ถิ่น"},{"type":"compose","prompt":"เขียนบรรยายภาพด้วยภาษาภาพพจน์สั้น ๆ","hint":"พระจันทร์","answer":"เช่น พระจันทร์ยิ้มบนฟ้า"},{"type":"genre","prompt":"แยกร้อยแก้วกับร้อยกรอง","text":"นิทานเด็ก vs คำขวัญวันแม่","answer":"นิทาน=ร้อยแก้ว · คำขวัญ=ร้อยกรองสั้น"},{"type":"sound","prompt":"หาคำเลียนเสียงธรรมชาติ","text":"ฝนตก ___ บนหลังคา","answer":"เช่น แปะ ๆ / กรุ้มกริ่ม"},{"type":"compose","prompt":"แต่ง 2 บรรทัดเชิญชวนรักษาสิ่งแวดล้อม","hint":"สัมผัสท้ายบรรทัด","answer":"มีสาระและสัมผัส"},{"type":"rhyme","prompt":"เลือกคำสัมผัสที่เหมาะที่สุด","word":"นก","choices":"อก / โต๊ะ / ดิน","answer":"อก"}];
+window.WORKSHEET_CONFIG={
+  icon:'🎭',title:'ใบงานคลังบทร้อยกรอง',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังบทร้อยกรอง',sourceMediaUrl:'/games/thai/thai-poetry-hub/index.html',
+  indicators:["ท 5.1 ป.4/4","ท 4.1 ป.4/5"],
+  directions:"ฝึกสัมผัส จำแนกร้อยแก้ว/ร้อยกรอง และแต่งคำขวัญสั้น",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +(item.word?'<div class="q-context">คำหลัก: '+e(item.word)+'</div>':'')
+      +(item.text?'<div class="q-context poetry-case">'+e(item.text)+'</div>':'')
+      +(item.hint?'<div class="q-context">'+e(item.hint)+'</div>':'')
+      +(item.choices?'<div class="q-context">ตัวเลือก: '+e(item.choices)+'</div>':'')
+      +'<div class="classify-grid poetry-hub-grid">'
+      +'<div class="classify-box">สัมผัส/ชนิด: ________</div>'
+      +'<div class="classify-box">ตัวอย่างคำ: ________</div></div>'
+      +'<div class="work-line"></div><div class="work-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.print();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+</body></html>

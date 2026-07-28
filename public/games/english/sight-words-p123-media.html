@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>👁️ Sight Words ป.1–3 — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#0f766e;--line:#99f6e4;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#99f6e4,#0f766e22);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#0f766e);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .btn-accent{background:#fbbf24;color:#78350f}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    
+    .grade-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .grade-tabs button{font-family:inherit;font-weight:800;border:2px solid var(--line);background:#fff;color:var(--deep);border-radius:12px;padding:8px 14px;cursor:pointer}
+    .grade-tabs button.on{background:var(--deep);color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+    .tile{aspect-ratio:1.25;border-radius:14px;border:2px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;font-weight:800;color:var(--deep)}
+    .tile.on{background:var(--deep);color:#fff}
+    .panel{margin-top:14px;background:#f0fdfa;border:2px dashed var(--line);border-radius:16px;padding:16px;text-align:center}
+    .word-big{font-size:2.6rem;font-weight:800;color:var(--deep);text-transform:lowercase}
+    .th{font-weight:700;color:var(--muted);margin-top:6px}
+    .sent{font-weight:600;margin-top:8px;line-height:1.45}
+    .actions{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+    .practice{display:none;max-width:480px;margin:0 auto;flex-direction:column;gap:12px;align-items:center}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .choices{display:flex;flex-direction:column;gap:8px;width:100%}
+    .choice{font-family:inherit;font-weight:800;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .choice.ok{background:#dcfce7;border-color:#86efac}.choice.no{background:#fee2e2;border-color:#fca5a5}
+  
+  </style>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>👁️ Sight Words ป.1–3</h1>
+    <span class="badge">ป.1–3 · ภาษาอังกฤษ</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    <a class="btn btn-ghost" href="/games/english/sight-words-p123-media-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+  </div>
+  <div class="stage" id="stage"><div class="learn" id="learn">
+    <div class="grade-tabs" id="gradeTabs"></div>
+    <div class="grid" id="grid"></div>
+    <div class="panel" id="panel"><p class="th">เลือกคำจากตาราง</p></div>
+  </div>
+  <div class="practice" id="practice">
+    <p class="word-big" id="prWord">the</p>
+    <p style="font-weight:700;color:var(--deep)">ความหมายใดถูกต้อง?</p>
+    <div class="choices" id="prChoices"></div>
+    <p id="prFb" style="font-weight:800;min-height:24px"></p>
+  </div></div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='sight-words-p123-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
+
+const BANK={
+  'ป.1':[{w:'I',th:'ฉัน',s:'I am happy.'},{w:'a',th:'หนึ่ง/ก',s:'I see a cat.'},{w:'the',th:'คำนำหน้านาม',s:'The dog runs.'},{w:'is',th:'เป็น/คือ',s:'She is kind.'},{w:'my',th:'ของฉัน',s:'This is my book.'},{w:'you',th:'คุณ/เธอ',s:'You are my friend.'},{w:'and',th:'และ',s:'Cats and dogs.'},{w:'to',th:'ไป/ถึง',s:'I go to school.'},{w:'it',th:'มัน',s:'It is red.'},{w:'we',th:'เรา',s:'We play.'},{w:'go',th:'ไป',s:'Go home.'},{w:'see',th:'เห็น',s:'I see you.'}],
+  'ป.2':[{w:'he',th:'เขา (ผู้ชาย)',s:'He is tall.'},{w:'she',th:'เขา (ผู้หญิง)',s:'She can read.'},{w:'they',th:'พวกเขา',s:'They are friends.'},{w:'are',th:'เป็น (พหูพจน์)',s:'We are ready.'},{w:'have',th:'มี',s:'I have a pencil.'},{w:'like',th:'ชอบ',s:'I like mangoes.'},{w:'this',th:'นี่ (ใกล้)',s:'This is a pen.'},{w:'that',th:'นั่น (ไกล)',s:'That is a bird.'},{w:'can',th:'สามารถ',s:'I can jump.'},{w:'come',th:'มา',s:'Come here.'},{w:'look',th:'ดู',s:'Look at me.'},{w:'from',th:'จาก',s:'I am from Thailand.'}],
+  'ป.3':[{w:'where',th:'ที่ไหน',s:'Where is my bag?'},{w:'what',th:'อะไร',s:'What is this?'},{w:'when',th:'เมื่อไร',s:'When do we eat?'},{w:'who',th:'ใคร',s:'Who is she?'},{w:'with',th:'กับ',s:'I play with friends.'},{w:'your',th:'ของคุณ',s:'Is this your book?'},{w:'said',th:'พูดว่า',s:'She said hello.'},{w:'was',th:'เคยเป็น',s:'He was happy.'},{w:'were',th:'เคยเป็น (พหูพจน์)',s:'They were here.'},{w:'some',th:'บาง/หลาย',s:'I want some water.'},{w:'many',th:'หลาย',s:'Many birds fly.'},{w:'because',th:'เพราะ',s:'I rest because I am tired.'}]
+};
+let grade='ป.1', cur=null, mode='learn';
+function setMode(m){mode=m;document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'แตะคำ → ฟังเสียง · ดูความหมาย':'เลือกความหมายที่ถูก';if(m==='practice')nextPractice();}
+function renderTabs(){const el=document.getElementById('gradeTabs');el.innerHTML=['ป.1','ป.2','ป.3'].map(g=>'<button type="button" data-g="'+g+'" class="'+(g===grade?'on':'')+'">'+g+'</button>').join('');el.onclick=e=>{const b=e.target.closest('button');if(!b)return;grade=b.dataset.g;renderTabs();renderGrid();};}
+function renderGrid(){const words=BANK[grade];const g=document.getElementById('grid');g.innerHTML=words.map((x,i)=>'<button type="button" class="tile" data-i="'+i+'">'+x.w+'</button>').join('');g.onclick=e=>{const t=e.target.closest('.tile');if(!t)return;[...g.children].forEach(c=>c.classList.toggle('on',c===t));cur=words[+t.dataset.i];showCard();};}
+function showCard(){if(!cur)return;document.getElementById('panel').innerHTML='<div class="word-big">'+cur.w+'</div><div class="th">'+cur.th+'</div><div class="sent">'+cur.s+'</div><div class="actions"><button type="button" class="btn btn-primary" id="btnSpeak">🔊 ฟัง</button></div>';document.getElementById('btnSpeak').onclick=()=>{if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.speak(cur.w,'en-US');else speechSynthesis.speak(new SpeechSynthesisUtterance(cur.w));};}
+function nextPractice(){const words=BANK[grade];cur=words[Math.floor(Math.random()*words.length)];document.getElementById('prWord').textContent=cur.w;document.getElementById('prFb').textContent='';
+  const wrong=words.filter(w=>w.w!==cur.w).sort(()=>Math.random()-0.5).slice(0,2).map(w=>w.th);
+  const opts=[cur.th,...wrong].sort(()=>Math.random()-0.5);
+  const box=document.getElementById('prChoices');box.innerHTML=opts.map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
+  box.onclick=e=>{const b=e.target.closest('.choice');if(!b||b.classList.contains('ok')||b.classList.contains('no'))return;const ok=b.textContent===cur.th;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ ถูกต้อง!':'ลองใหม่';if(ok){if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.correct();setTimeout(nextPractice,700);}else if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.wrong();};}
+renderTabs();renderGrid();setMode('learn');
+
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]');if(!b)return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+</script>
+</body></html>
