@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ต 1.2 ป.6/1,ต 1.2 ป.6/4,ต 2.2 ป.6/1">
   <title>ใบงาน Tenses ป.6 ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>⏱️ ใบงาน Tenses ป.6</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
 <script src="/games/kampai-qr.js?v=1.196.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"form","prompt":"She ___ (play) football every day.","answer":"plays"},{"type":"form","prompt":"I ___ (be) reading now.","answer":"am"},{"type":"form","prompt":"Yesterday I ___ (go) to school.","answer":"went"},{"type":"form","prompt":"I ___ help you tomorrow. (will)","answer":"will"},{"type":"use","prompt":"เขียน Present Simple 1 ประโยคเกี่ยวกับนิสัย","answer":"ตามนักเรียน"},{"type":"use","prompt":"เขียน Past Simple 1 ประโยคเกี่ยวกับเมื่อวาน","answer":"ตามนักเรียน"},{"type":"form","prompt":"They ___ playing now. (is/are)","answer":"are"},{"type":"use","prompt":"วงคำบอกเวลา: yesterday / now / every day","answer":"past / continuous / present"},{"type":"form","prompt":"go ในอดีตคือ","answer":"went"},{"type":"use","prompt":"แต่งประโยค will เกี่ยวกับแผนวันหยุด","answer":"ตามนักเรียน"},{"type":"form","prompt":"He ___ (eat) breakfast every morning.","answer":"eats"},{"type":"use","prompt":"อธิบายความต่าง Present vs Past สั้น ๆ","answer":"ปัจจุบันนิสัย vs อดีตจบแล้ว"},{"type":"form","prompt":"Look! It ___ raining. (is)","answer":"is"},{"type":"use","prompt":"แก้ประโยคผิด: She play football.","answer":"She plays football."},{"type":"form","prompt":"We ___ (watch) TV yesterday.","answer":"watched"},{"type":"use","prompt":"เขียน 3 ประโยค คนละกาล","answer":"ตามนักเรียน"}];
 window.WORKSHEET_CONFIG={
@@ -35,13 +35,13 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

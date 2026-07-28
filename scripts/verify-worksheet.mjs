@@ -83,8 +83,10 @@ function verifyFile(file) {
         /@media\s+print/i.test(effectiveSource)
             && /@page/i.test(effectiveSource)
             && /size\s*:\s*A4\s+portrait/i.test(effectiveSource)
-            && /window\.print\s*\(/.test(effectiveSource),
-        'ต้องมี @media print, @page A4 portrait และปุ่มเรียก window.print()',
+            && (/window\.print\s*\(/.test(effectiveSource)
+                || /KampaiWorksheet\.printA4\s*\(/.test(effectiveSource)
+                || /printA4\s*\(/.test(readLinkedLocalAsset(source, 'worksheet-runtime.js'))),
+        'ต้องมี @media print, @page A4 portrait และปุ่มเรียก window.print() หรือ KampaiWorksheet.printA4()',
     );
 
     const cssVersion = extractVersion(source, 'worksheet-modes.css');

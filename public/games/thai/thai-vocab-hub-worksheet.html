@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ท 4.1 ป.4/1,ท 4.1 ป.4/6">
   <title>ใบงานคลังคำศัพท์ไทย ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>📗 ใบงานคลังคำศัพท์ไทย</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"meaning","word":"กล้าหาญ","prompt":"เขียนความหมายและแต่งประโยค","answer":"ไม่กลัว · เช่น เขากล้าหาญช่วยเพื่อน"},{"type":"meaning","word":"เมตตา","prompt":"เขียนความหมายและแต่งประโยค","answer":"สงสาร/เอ็นดู · เช่น แม่มีเมตตา"},{"type":"meaning","word":"ขยัน","prompt":"เขียนความหมายและแต่งประโยค","answer":"ตั้งใจทำ · เช่น น้องขยันทำการบ้าน"},{"type":"synonym","word":"สวย","prompt":"หาคำพ้อง/ใกล้เคียง 2 คำ","answer":"งาม · สละสลวย"},{"type":"synonym","word":"เร็ว","prompt":"หาคำพ้อง/ใกล้เคียง 2 คำ","answer":"ไว · ฉับพลัน"},{"type":"antonym","word":"ร้อน","prompt":"หาคำตรงข้าม","answer":"เย็น / หนาว"},{"type":"antonym","word":"สูง","prompt":"หาคำตรงข้าม","answer":"ต่ำ"},{"type":"use","word":"รับผิดชอบ","prompt":"แต่งประโยคในโรงเรียน","answer":"เช่น นักเรียนรับผิดชอบงานที่ได้รับ"},{"type":"use","word":"ร่วมมือ","prompt":"แต่งประโยคในโรงเรียน","answer":"เช่น เพื่อนร่วมมือทำความสะอาดห้อง"},{"type":"meaning","word":"สุภาพ","prompt":"อธิบายและยกตัวอย่างพฤติกรรม","answer":"พูดจาอ่อนน้อม · เช่น ทักทายครู"},{"type":"synonym","word":"ดีใจ","prompt":"หาคำใกล้เคียง","answer":"ยินดี · มีความสุข"},{"type":"antonym","word":"เข้า","prompt":"หาคำตรงข้าม","answer":"ออก"},{"type":"use","word":"อดทน","prompt":"เขียนสถานการณ์ใช้คำ","answer":"เช่น อดทนรอคิวโดยไม่แซง"},{"type":"meaning","word":"อนุรักษ์","prompt":"ความหมาย + ประโยค","answer":"รักษาไว้ · เช่น อนุรักษ์ต้นไม้ในโรงเรียน"},{"type":"synonym","word":"พูด","prompt":"คำใกล้เคียง","answer":"กล่าว · เล่า · สนทนา"},{"type":"antonym","word":"กลางวัน","prompt":"คำตรงข้าม","answer":"กลางคืน"},{"type":"use","word":"ใฝ่รู้","prompt":"แต่งประโยค","answer":"เช่น เด็กใฝ่รู้ถามครูบ่อย"},{"type":"meaning","word":"สามัคคี","prompt":"ความหมาย + ข้อคิดสั้น","answer":"พร้อมเพรียง · รวมกันเราอยู่"}];
 window.WORKSHEET_CONFIG={
@@ -40,14 +40,14 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลยแนว: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

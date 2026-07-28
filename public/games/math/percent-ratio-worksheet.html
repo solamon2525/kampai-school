@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.6/2,ค 1.1 ป.6/11,ค 1.1 ป.6/12">
   <title>ใบงานร้อยละ·อัตราส่วน ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>📊 ใบงานร้อยละ·อัตราส่วน</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
 <script src="/games/kampai-qr.js?v=1.196.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"ratio","prompt":"เขียนอัตราส่วน ชาย 12 คน หญิง 8 คน","answer":"12:8 หรือ 3:2"},{"type":"ratio","prompt":"2:5 เท่ากับข้อใดเมื่อคูณ 3","answer":"6:15"},{"type":"ratio","prompt":"น้ำตาล:แป้ง=2:5 น้ำตาล 8 ช้อน แป้งกี่ช้อน","answer":"20"},{"type":"percent","prompt":"25% เท่ากับเศษส่วนอย่างต่ำ","answer":"1/4"},{"type":"percent","prompt":"หา 20% ของ 150","answer":"30"},{"type":"percent","prompt":"ได้ 45 จาก 50 คิดเป็นกี่เปอร์เซ็นต์","answer":"90%"},{"type":"ratio","prompt":"ของผสม A:B=3:4 ถ้า A=9 หา B","answer":"12"},{"type":"percent","prompt":"ลดราคา 10% จาก 280 บาท ลดกี่บาท","answer":"28"},{"type":"percent","prompt":"ราคาหลังลด 10% จาก 200 บาท","answer":"180"},{"type":"ratio","prompt":"อธิบายความหมายอัตราส่วน 4:1","answer":"4 ส่วนต่อ 1 ส่วน"},{"type":"percent","prompt":"โจทย์: นักเรียน 40 คน มา 90% มากี่คน","answer":"36"},{"type":"ratio","prompt":"หาอัตราส่วนเท่ากับ 3:7 โดยคูณ 2","answer":"6:14"},{"type":"percent","prompt":"ส่วนลด 15% ของ 400","answer":"60"},{"type":"ratio","prompt":"แผนที่ 1:1000 ระยะจริง 5 ซม. บนแผนที่กี่ซม. (ถ้าใช้สเกลนี้กลับกันให้อธิบาย)","answer":"ตามวิธี / ตรวจครู"},{"type":"percent","prompt":"สรุปขั้นตอนหา a% ของ N","answer":"(a/100)×N"},{"type":"ratio","prompt":"ตั้งโจทย์อัตราส่วน 1 ข้อแล้วแก้","answer":"ตามนักเรียน"}];
 window.WORKSHEET_CONFIG={
@@ -35,13 +35,13 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

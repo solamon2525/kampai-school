@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="พ 4.1 ป.3/4">
   <title>ใบงานแปรงฟันถูกวิธี ป.3 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🪥 ใบงานแปรงฟันถูกวิธี</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
 <script src="/games/kampai-qr.js?v=1.191.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"order","prompt":"ขั้นแรกก่อนแปรงฟันควรทำอะไร","answer":"ล้างมือ / เตรียมแปรงและยาสีฟัน"},{"type":"order","prompt":"ควรวางยาสีฟันประมาณเท่าไร","answer":"ขนาดเมล็ดถั่ว / ไม่เยอะเกิน"},{"type":"order","prompt":"แปรงซี่ฟันด้านนอกควรทำอย่างไร","answer":"ถูขึ้น–ลง หรือวนเบา ๆ"},{"type":"why","prompt":"ทำไมต้องแปรงลิ้นด้วย","answer":"ลดเชื้อ/กลิ่นปาก"},{"type":"why","prompt":"ทำไมไม่ควรกลืนยาสีฟัน","answer":"มีฟลูออไรด์ กลืนมากไม่ดี"},{"type":"habit","prompt":"ควรแปรงวันละกี่ครั้ง","answer":"อย่างน้อย 2 ครั้ง"},{"type":"habit","prompt":"ควรแปรงนานประมาณกี่นาที","answer":"ประมาณ 2 นาที"},{"type":"order","prompt":"หลังแปรงควรบ้วนน้ำอย่างไร","answer":"บ้วนเบา ๆ ไม่ต้องแรงมาก"},{"type":"why","prompt":"ทำไมต้องเปลี่ยนแปรงสีฟันเป็นระยะ","answer":"ขนแปรงเสื่อม ทำความสะอาดได้น้อยลง"},{"type":"habit","prompt":"กินขนมหวานแล้วควรรีบทำอะไร","answer":"บ้วนปาก / แปรงเมื่อได้"},{"type":"order","prompt":"เรียง 3 ขั้นสุดท้ายของการแปรง","answer":"ตามสื่อ (เช่น ด้านใน→ลิ้น→บ้วน)"},{"type":"why","prompt":"ทำไมแปรงแรง ๆ ไม่ดี","answer":"ทำลายเหงือก/เคลือบฟัน"},{"type":"habit","prompt":"ควรพบทันตแพทย์ประมาณปีละกี่ครั้ง","answer":"อย่างน้อย 1–2 ครั้ง"},{"type":"order","prompt":"ก่อนนอนควรแปรงฟันหรือไม่ เพราะเหตุใด","answer":"ควร · ลดเชื้อตอนนอน"},{"type":"why","prompt":"ใช้ไหมขัดฟันช่วยอะไร","answer":"ทำความสะอาดซอกฟัน"},{"type":"habit","prompt":"เขียนนิสัยดี 1 ข้อที่ตนเองจะทำ","answer":"เช่น แปรงเช้า–ก่อนนอน"},{"type":"order","prompt":"ตรวจลำดับ: ยาสีฟัน → แปรงซี่ → บ้วน ถูกต้องหรือไม่","answer":"ถูกในภาพรวม (มีรายละเอียดเพิ่มได้)"},{"type":"why","prompt":"น้ำลายช่วยปกป้องฟันอย่างไร (สั้น ๆ)","answer":"ชะล้าง/มีแร่ธาตุช่วยปกป้อง"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="brush-ws-grid decision-box reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

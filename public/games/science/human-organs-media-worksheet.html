@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ว 1.2 ป.4/1,ว 1.2 ป.6/1">
   <title>ใบงานอวัยวะสำคัญ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🫀 ใบงานอวัยวะสำคัญ</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
 <script src="/games/kampai-qr.js?v=1.191.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"match","prompt":"หัวใจมีหน้าที่อะไร","answer":"สูบฉีดเลือด"},{"type":"match","prompt":"ปอดมีหน้าที่อะไร","answer":"แลกเปลี่ยนแก๊ส / หายใจ"},{"type":"match","prompt":"สมองมีหน้าที่อะไร","answer":"ควบคุมความคิด การเคลื่อนไหว"},{"type":"match","prompt":"กระเพาะอาหารทำอะไร","answer":"ย่อยอาหาร"},{"type":"match","prompt":"ไตทำอะไร","answer":"กรองของเสียจากเลือด"},{"type":"match","prompt":"ตับช่วยอะไร","answer":"ช่วยย่อยไขมัน/เก็บพลังงาน"},{"type":"name","prompt":"อวัยวะแลกเปลี่ยนออกซิเจน","answer":"ปอด"},{"type":"name","prompt":"อวัยวะสูบฉีดเลือด","answer":"หัวใจ"},{"type":"name","prompt":"อวัยวะควบคุมร่างกาย (ในกะโหลก)","answer":"สมอง"},{"type":"care","prompt":"ออกกำลังกายสม่ำเสมอดีต่ออวัยวะใดเป็นพิเศษ","answer":"หัวใจ / ปอด"},{"type":"care","prompt":"สวมหมวกกันน็อกช่วยปกป้องอะไร","answer":"สมอง"},{"type":"match","prompt":"ลำไส้เล็กมีหน้าที่หลัก","answer":"ดูดซึมสารอาหาร"},{"type":"name","prompt":"อวัยวะค้ำจุนร่างกาย","answer":"กระดูก"},{"type":"care","prompt":"กินอาหารครบหมู่ช่วยระบบใด","answer":"ย่อย / ทั้งร่างกาย"},{"type":"match","prompt":"ปอดมีกี่ข้าง","answer":"2"},{"type":"match","prompt":"ไตมีกี่ข้าง","answer":"2"},{"type":"care","prompt":"นอนหลับพักผ่อนเพียงพอดีต่ออะไร","answer":"สมอง / การฟื้นฟูร่างกาย"},{"type":"name","prompt":"เขียนอวัยวะ 3 อย่างที่เรียนวันนี้","answer":"เช่น หัวใจ ปอด สมอง"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="organs-ws-grid classify-grid reason-line work-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / หน้าที่เพิ่ม <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

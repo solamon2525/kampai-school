@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ศ 2.1 ป.1/2,ศ 2.1 ป.2/3,ศ 2.1 ป.3/2">
   <title>ใบงานจังหวะดนตรี ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.194.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.194.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🥁 ใบงานจังหวะดนตรี</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
 <script src="/games/kampai-qr.js?v=1.194.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"beat","prompt":"จังหวะหมายถึงอะไร","answer":"การเคาะ/ตบเป็นจังหวะเท่ากัน"},{"type":"beat","prompt":"นับ 1-2-3-4 แล้วตบมือ ช่วยเรื่องใด","answer":"ฝึกจังหวะ"},{"type":"feel","prompt":"ทำนองเกี่ยวกับเสียงแบบใด","answer":"สูง-ต่ำ"},{"type":"feel","prompt":"เล่นเบาแล้วดังขึ้นใช้สื่ออะไร","answer":"อารมณ์ / พลวัต"},{"type":"inst","prompt":"กลองจัดเป็นเครื่องประเภทใด","answer":"เครื่องตี"},{"type":"inst","prompt":"ขลุ่ยจัดเป็นเครื่องประเภทใด","answer":"เครื่องเป่า"},{"type":"inst","prompt":"ฉิ่งใช้ทำอะไรในวง","answer":"ให้จังหวะ"},{"type":"beat","prompt":"ทำไมเพลงเด็กเหมาะฝึกจังหวะ","answer":"จังหวะชัด จำง่าย"},{"type":"feel","prompt":"เพลงช้าอาจให้ความรู้สึกใด","answer":"สงบ / เศร้า ฯลฯ"},{"type":"beat","prompt":"เขียนรูปแบบตบมือสั้น ๆ (เช่น × - × -)","answer":"ตามที่ออกแบบ"},{"type":"inst","prompt":"ยกตัวอย่างเครื่องสี 1 อย่าง","answer":"ไวโอลิน / จะเข้ ฯลฯ"},{"type":"feel","prompt":"ทำไมต้องฟังจบประโยคเพลงก่อนปรบมือ","answer":"มารยาท / ไม่รบจังหวะ"},{"type":"beat","prompt":"ทำซ้ำจังหวะเดิม 4 ครั้งเรียกแนวใด","answer":"ทำซ้ำ / แพทเทิร์น"},{"type":"inst","prompt":"แยกเครื่องตีกับเครื่องเป่าให้ถูก","answer":"กลอง≠ขลุ่ย"},{"type":"beat","prompt":"ฝึกเคาะโต๊ะตามจังหวะครู สรุปผล","answer":"ตามประสบการณ์"},{"type":"feel","prompt":"เลือกเพลงไทยเด็ก 1 เพลงที่จำจังหวะได้","answer":"เช่น ช้าง"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.194.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.194.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

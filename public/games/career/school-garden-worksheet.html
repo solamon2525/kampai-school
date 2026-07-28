@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ง 1.1 ป.3/3,ง 1.1 ป.4/4">
   <title>ใบงานการเกษตรในโรงเรียน ป.3–ป.4 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.194.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.194.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🌱 ใบงานการเกษตรในโรงเรียน</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
 <script src="/games/kampai-qr.js?v=1.194.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"grow","prompt":"ทำไมต้องพรวนดิน","answer":"ร่วนซุย รากเดินดี"},{"type":"grow","prompt":"ฝังเมล็ดลึกเกินเกิดอะไร","answer":"งอกยาก"},{"type":"care","prompt":"ควรรดน้ำช่วงใด","answer":"เช้าหรือเย็น"},{"type":"care","prompt":"วัชพืชแย่งอะไรจากพืช","answer":"น้ำ อาหาร แสง"},{"type":"why","prompt":"เต่าทองมีประโยชน์อย่างไร","answer":"กินเพลี้ย"},{"type":"grow","prompt":"ลำดับ: เตรียมดิน → … → รดน้ำ","answer":"เพาะเมล็ด"},{"type":"care","prompt":"ดินแฉะเกินไปเสี่ยงอะไร","answer":"รากเน่า"},{"type":"why","prompt":"ทำไมต้องสังเกตแมลงในแปลง","answer":"แยกศัตรู/มีประโยชน์"},{"type":"grow","prompt":"เก็บเกี่ยวเมื่อใด","answer":"เมื่อโตพอ"},{"type":"care","prompt":"ถอนวัชพืชควรระวังอะไร","answer":"อย่าถอนต้นกล้า"},{"type":"why","prompt":"ปลูกผักในโรงเรียนได้อะไรบ้าง","answer":"อาหาร / ทักษะ / รับผิดชอบ"},{"type":"grow","prompt":"วาดขั้นตอนปลูก 4 ช่อง","answer":"ตามสื่อ"},{"type":"care","prompt":"ถ้าลืมรดน้ำหลายวันพืชเป็นอย่างไร","answer":"เหี่ยว / ตาย"},{"type":"why","prompt":"ปุ๋ยคอกช่วยดินอย่างไร","answer":"เพิ่มอินทรียวัตถุ"},{"type":"grow","prompt":"เลือกพืชที่ปลูกง่ายในโรงเรียน 1 ชนิด","answer":"เช่น ผักบุ้ง มะเขือ"},{"type":"care","prompt":"สรุปหน้าที่นักเรียนเวรแปลงผัก","answer":"รดน้ำ ถอนหญ้า สังเกต"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.194.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.194.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

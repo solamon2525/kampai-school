@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ค 2.2 ป.4/1,ค 2.2 ป.4/2">
   <title>ใบงานคลังเรขาคณิต ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>📐 ใบงานคลังเรขาคณิต</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"angle","prompt":"จำแนกชนิดมุม","degrees":"35°","answer":"มุมแหลม"},{"type":"angle","prompt":"จำแนกชนิดมุม","degrees":"90°","answer":"มุมฉาก"},{"type":"angle","prompt":"จำแนกชนิดมุม","degrees":"135°","answer":"มุมป้าน"},{"type":"angle","prompt":"จำแนกชนิดมุม","degrees":"180°","answer":"มุมตรง"},{"type":"perimeter","prompt":"หาเส้นรอบรูปสี่เหลี่ยมผืนผ้า","w":8,"h":3,"answer":"22 หน่วย"},{"type":"perimeter","prompt":"หาเส้นรอบรูปสี่เหลี่ยมจัตุรัส","w":6,"h":6,"answer":"24 หน่วย"},{"type":"perimeter","prompt":"หาเส้นรอบรูปสี่เหลี่ยมผืนผ้า","w":12,"h":5,"answer":"34 หน่วย"},{"type":"perimeter","prompt":"เขียนสูตรแล้วแทนค่า","w":9,"h":4,"answer":"2(9+4)=26"},{"type":"area","prompt":"หาพื้นที่สี่เหลี่ยมผืนผ้า","w":7,"h":4,"answer":"28 ตารางหน่วย"},{"type":"area","prompt":"หาพื้นที่สี่เหลี่ยมจัตุรัส","w":5,"h":5,"answer":"25 ตารางหน่วย"},{"type":"area","prompt":"หาพื้นที่สี่เหลี่ยมผืนผ้า","w":10,"h":6,"answer":"60 ตารางหน่วย"},{"type":"area","prompt":"เขียนสูตร กว้าง×ยาว","w":11,"h":3,"answer":"11×3=33"},{"type":"shapes","prompt":"บอกจำนวนด้านและมุม","shape":"สามเหลี่ยม","answer":"3 ด้าน 3 มุม"},{"type":"shapes","prompt":"บอกจำนวนด้านและมุม","shape":"สี่เหลี่ยมผืนผ้า","answer":"4 ด้าน 4 มุมฉาก"},{"type":"shapes","prompt":"บอกลักษณะพิเศษ","shape":"สี่เหลี่ยมจัตุรัส","answer":"ด้านเท่า มุมฉากทั้ง 4"},{"type":"shapes","prompt":"บอกลักษณะพิเศษ","shape":"วงกลม","answer":"ไม่มีมุม · มีรัศมี/เส้นผ่านศูนย์กลาง"},{"type":"angle","prompt":"ประมาณชนิดมุมจากคำอธิบาย","degrees":"มุมเปิดประตูเล็กน้อย","answer":"มุมแหลม"},{"type":"area","prompt":"ตรวจด้วยการคูณย้อนกลับ","w":8,"h":2,"answer":"16 · ตรวจ 16÷8=2"}];
 window.WORKSHEET_CONFIG={
@@ -61,14 +61,14 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

@@ -346,6 +346,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.199.1 (worksheet print/screen line parity)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            'แก้บรรทัดเขียนขยับตอนพิมพ์: ล็อก A4 297mm เท่าจอ+พิมพ์ · เลิก space-evenly/space-between ในช่องทำโจทย์',
+            'KampaiWorksheet.printA4() รอ Sarabun โหลดก่อน print · บัมพ์ cache worksheet-topic/runtime v1.199.1',
+            'แก้ clock-media markup ที่ใส่ work-line ครอบทั้งข้อ · อัปเดต WORKSHEET.md §7.1',
+        ],
+    },
+    {
         version: 'v1.199.0 (salvage orphan media/worksheets + student pet)',
         date: 'ล่าสุด',
         badge: 'bg-primary',

@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ว 2.1 ป.4/3,ว 3.2 ป.5/3,ว 1.3 ป.4/3">
   <title>ใบงานคลังวิทย์ ป.4–5 ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🔬 ใบงานคลังวิทย์ ป.4–5</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"matter","prompt":"จำแนกสถานะของสสาร","text":"น้ำแข็ง","answer":"ของแข็ง"},{"type":"matter","prompt":"จำแนกสถานะของสสาร","text":"ไอน้ำ","answer":"แก๊ส"},{"type":"matter","prompt":"เมื่อน้ำเดือดจะเปลี่ยนสถานะเป็นอะไร","text":"ของเหลว → ?","answer":"แก๊ส / ไอน้ำ"},{"type":"matter","prompt":"น้ำแข็งละลายกลายเป็นอะไร","text":"ของแข็ง → ?","answer":"ของเหลว"},{"type":"water","prompt":"เรียงขั้นวัฏจักรน้ำ","text":"ระเหย · ควบแน่น · ตกเป็นฝน · ไหลรวม","answer":"ระเหย→ควบแน่น→ฝน→ไหลรวม"},{"type":"water","prompt":"พลังงานใดทำให้น้ำระเหย","text":"ดวงอาทิตย์","answer":"ความร้อนจากดวงอาทิตย์"},{"type":"water","prompt":"เมฆเกิดจากกระบวนการใด","text":"ไอน้ำในอากาศ","answer":"การควบแน่น"},{"type":"water","prompt":"น้ำฝนไหลลงแม่น้ำเรียกว่าอะไร","text":"ขั้นสุดท้ายอย่างง่าย","answer":"การไหลรวม / การไหลบ่า"},{"type":"animals","prompt":"จัดกลุ่มสัตว์มีกระดูกสันหลัง","text":"ปลา","answer":"มีกระดูกสันหลัง"},{"type":"animals","prompt":"จัดกลุ่ม","text":"แมลงสาบ","answer":"ไม่มีกระดูกสันหลัง"},{"type":"animals","prompt":"นกจัดอยู่ในกลุ่มใด","text":"สัตว์มีกระดูกสันหลัง","answer":"สัตว์มีกระดูกสันหลัง / สัตว์ปีก"},{"type":"animals","prompt":"ข้อแตกต่างสำคัญของสัตว์มีกระดูกสันหลัง","text":"สั้น ๆ","answer":"มีกระดูกสันหลังค้ำลำตัว"},{"type":"body","prompt":"อวัยวะย่อยอาหารลำดับต้น","text":"ปาก → ?","answer":"หลอดอาหาร / คอ"},{"type":"body","prompt":"กระเพาะอาหารทำหน้าที่หลักอะไร","text":"ย่อยอาหาร","answer":"ย่อยอาหารด้วยน้ำย่อย/กล้ามเนื้อ"},{"type":"body","prompt":"ลำไส้เล็กสำคัญอย่างไร","text":"ดูดซึม","answer":"ดูดซึมสารอาหาร"},{"type":"body","prompt":"เรียงอวัยวะอย่างง่าย","text":"ปาก กระเพาะ ลำไส้","answer":"ปาก→หลอดอาหาร→กระเพาะ→ลำไส้"},{"type":"matter","prompt":"อากาศจัดเป็นสถานะใด","text":"หายใจเข้า","answer":"แก๊ส"},{"type":"water","prompt":"วาดลูกศรวัฏจักรน้ำสั้น ๆ","text":"ทะเล→เมฆ→ฝน","answer":"ระเหย→ควบแน่น→ตก"}];
 window.WORKSHEET_CONFIG={
@@ -41,14 +41,14 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

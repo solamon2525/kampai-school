@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ว 4.2 ป.3/4,ว 4.2 ป.4/4">
   <title>ใบงานข้อมูลและการนำเสนอ ป.3–ป.4 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.194.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.194.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>📊 ใบงานข้อมูลและการนำเสนอ</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
 <script src="/games/kampai-qr.js?v=1.194.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"collect","prompt":"เก็บข้อมูลเริ่มจากอะไร","answer":"นับ / บันทึก"},{"type":"collect","prompt":"ตารางช่วยเรื่องใด","answer":"จัดข้อมูลให้อ่านง่าย"},{"type":"chart","prompt":"กราฟแท่งเหมาะกับอะไร","answer":"เปรียบเทียบปริมาณ"},{"type":"chart","prompt":"แผนภาพวงกลมแสดงอะไรได้ดี","answer":"สัดส่วน"},{"type":"tell","prompt":"หลังทำกราฟควรทำอะไร","answer":"สรุปผล"},{"type":"tell","prompt":"ตรวจข้อมูลเพื่ออะไร","answer":"ความถูกต้อง"},{"type":"collect","prompt":"ออกแบบตารางสำรวจผลไม้โปรด (หัวตาราง)","answer":"ชื่อ / จำนวน"},{"type":"chart","prompt":"แกนกราฟควรมีอะไรกำกับ","answer":"หน่วย / ชื่อแกน"},{"type":"chart","prompt":"ถ้าแท่ง A สูงกว่า B แปลว่าอะไร","answer":"A มากกว่า B"},{"type":"tell","prompt":"สรุปผลสำรวจ 2 ประโยค","answer":"ตามข้อมูลสมมติ/จริง"},{"type":"collect","prompt":"ทำไมหัวตารางต้องชัด","answer":"ไม่งง / อ่านถูก"},{"type":"chart","prompt":"วงกลมรวมต้องครบกี่เปอร์เซ็นต์","answer":"100%"},{"type":"tell","prompt":"ถ้าตัวเลขในตารางกับกราฟไม่ตรง ทำไง","answer":"นับใหม่ / แก้กราฟ"},{"type":"collect","prompt":"วิธีเก็บข้อมูลเพื่อนชอบสี","answer":"ถามแล้วติ๊กตาราง"},{"type":"chart","prompt":"เลือกกราฟแท่งหรือวงกลมเมื่อเปรียบเทียบจำนวน","answer":"แท่ง"},{"type":"tell","prompt":"นำเสนอหน้าชั้นควรพูดสั้นหรือยาว","answer":"สั้น ชัด"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.194.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.194.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

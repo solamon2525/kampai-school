@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/5,ค 1.1 ป.4/6">
   <title>ใบงานคลังทศนิยม ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🔢 ใบงานคลังทศนิยม</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"4.56","answer":"สี่จุดห้าหก"},{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"10.08","answer":"สิบจุดศูนย์แปด"},{"type":"read","prompt":"บอกค่าประจำหลักสิบส่วน","value":"7.29","answer":"2 สิบส่วน = 0.2"},{"type":"read","prompt":"เขียนทศนิยมจากคำอ่าน","value":"สามจุดเจ็ดห้า","answer":"3.75"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"2.45","right":"2.5","answer":"2.45 < 2.5"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"6.30","right":"6.3","answer":"6.30 = 6.3"},{"type":"compare","prompt":"เรียงจากน้อยไปมาก","left":"0.9, 0.89, 1.01","right":"","answer":"0.89 < 0.9 < 1.01"},{"type":"compare","prompt":"วงค่าที่มากกว่า","left":"5.08","right":"5.8","answer":"5.8"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"1.25 + 0.47","answer":"1.72"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"3.6 + 0.85","answer":"4.45"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"5.4 − 1.25","answer":"4.15"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"8.03 − 0.7","answer":"7.33"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"12 บาท 50 สตางค์","answer":"12.50 บาท"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"3 บาท 5 สตางค์","answer":"3.05 บาท"},{"type":"money","prompt":"บวกราคาสินค้า","expr":"15.75 + 4.50","answer":"20.25 บาท"},{"type":"money","prompt":"ทอนเงินจาก 50 บาท","expr":"50.00 − 32.75","answer":"17.25 บาท"},{"type":"read","prompt":"เติมหลักร้อยส่วนที่หายไป","value":"9.4_","answer":"เช่น 9.40 หรือตามบริบทโจทย์"},{"type":"addsub","prompt":"ตรวจคำตอบด้วยการลบย้อนกลับ","expr":"2.15 + 1.4 = ?","answer":"3.55 · ตรวจ 3.55−1.4=2.15"}];
 window.WORKSHEET_CONFIG={
@@ -57,14 +57,14 @@ window.WORKSHEET_CONFIG={
       +'<div>คำตอบ ____________</div><span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

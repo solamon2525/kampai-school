@@ -134,10 +134,22 @@ Workflow ครู:
 1. รัน `pnpm verify:worksheet [path]` หรือไม่ใส่ pathเพื่อตรวจทั้งหมด
 2. ทดสอบผ่าน HTTP server/Vite เท่านั้น — **ห้ามใช้ `file://` เป็นผลทดสอบสุดท้าย** เพราะ root assets `/games/...` จะไม่โหลด
 3. เปิด browser จริงและทดสอบอย่างน้อย: ปกติ 10 ข้อ, ปกติ 5 ข้อ, A–B–C, วินิจฉัย, ซ่อมเสริม และระดับที่เนื้อหายาวที่สุด
-4. ทุก `.sheet` ต้องพอดี A4 210×297 มม.; ห้ามอาศัย `overflow:hidden` ซ่อนส่วนที่เกิน
-5. ตรวจเฉลยครู, สุ่มใหม่, รายชื่อครู และ Print Preview/PDF อย่างน้อย 1 หน้า
+4. ทุก `.sheet` ต้องพอดี A4 210×297 มม. ทั้งบนจอและตอนพิมพ์ — ใช้ `height:297mm` (ไม่ใช่แค่ `min-height`) และจัด layout ให้พอดีจริง; ห้ามให้ชีตสูงเกินบนจอแล้วพึ่ง `@media print` บีบกลับ เพราะ flex/`1fr`/`space-evenly` จะ**ขยับบรรทัดเขียน**
+5. ตรวจเฉลยครู, สุ่มใหม่, รายชื่อครู และ Print Preview/PDF อย่างน้อย 1 หน้า — ปุ่มพิมพ์ต้องเรียก `KampaiWorksheet.printA4()` (รอ `document.fonts.ready`) ไม่เรียก `window.print()` ตรง
 6. ตัวตรวจต้องยืนยันว่าไฟล์ใบงานทุกไฟล์ (ยกเว้น template) มี URL อยู่ใน migration ของคลังใบงาน เพื่อป้องกันกรณีมีไฟล์แต่ production ไม่แสดง
 7. หลัง apply migration ต้องรัน `pnpm verify:worksheet:production` ให้จำนวนและ URL ของไฟล์ `*-worksheet.html` ตรงกับรายการ published ในหมวด `worksheets` ทุกครั้ง ห้ามสรุปว่างานขึ้นเว็บแล้วจากการ push หรือ static verification เพียงอย่างเดียว
+8. Print dialog: ขอบกระดาษ **ไม่มี/None**, ขนาด **100%** (ห้าม Fit to page) — `@page{margin:0}` อย่างเดียวไม่พอถ้าครูเลือก Fit
+
+### 7.1 Print/Screen parity (เส้นเขียนไม่ขยับ)
+
+สาเหตุที่พบบ่อย: บนจอชีตสูงกว่า A4 (`min-height` อย่างเดียว) → พิมพ์ล็อก `height:297mm` + `overflow:hidden` → ช่องว่างหด → `justify-content: space-between|space-evenly` กระจายบรรทัดใหม่
+
+กฎกลาง (`worksheet-topic.css` + ใบงาน legacy):
+
+- `.sheet` ล็อก `height/min/max:297mm` + `overflow:hidden` **เหมือนกันทั้งจอและพิมพ์**
+- `.q` / `.q-work-block` / `.work-block` ใช้ `justify-content:flex-start` + `gap` คงที่ — ห้าม `space-evenly`/`space-between` ไล่บรรทัดเขียน
+- บรรทัดเขียน (`.work-line` ฯลฯ) ใช้ความสูง mm คงที่
+- ห้ามใส่ class `.work-line` ครอบทั้งโจทย์ (เคยพัง clock-media)
 
 คำสั่งแนะนำ:
 

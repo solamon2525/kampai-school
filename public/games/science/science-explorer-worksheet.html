@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ว 1.2 ป.4/1,ว 2.1 ป.4/3,ว 3.1 ป.4/3" />
   <title>ระบบใบงานวิทยาศาสตร์อัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.175.4" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f0fdf4;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#15803d;color:#fff;box-shadow:0 3px 12px rgba(21,128,61,.35)}
@@ -18,7 +18,7 @@
     .btn{border:0;border-radius:8px;padding:7px 11px;font:700 .88rem Sarabun;cursor:pointer;background:#fff;color:#15803d;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
     .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}
     
-    .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(21,128,61,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
+    .pages{padding:14px}.sheet{width:210mm;height:297mm;min-height:297mm;max-height:297mm;overflow:hidden;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(21,128,61,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
     .sheet:last-child{page-break-after:auto}
     
     .sheet-head{border-bottom:2px solid #15803d;padding-bottom:2mm;padding-right:28mm;position:relative;min-height:26mm}
@@ -102,7 +102,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.175.4"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
@@ -203,11 +203,11 @@ document.getElementById('btnAnswers').onclick = function(){
   document.body.classList.toggle('show-answers');
   this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
 };
-document.getElementById('btnPrint').onclick = () => window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.175.4"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body>
 </html>

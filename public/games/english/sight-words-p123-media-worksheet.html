@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ต 1.1 ป.1/2,ต 1.1 ป.2/2">
   <title>ใบงาน Sight Words ป.1–3 ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>👁️ ใบงาน Sight Words ป.1–3</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
 <script src="/games/kampai-qr.js?v=1.191.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"read","prompt":"วงคำ: the · I · you","answer":"อ่านออกเสียงได้"},{"type":"read","prompt":"วงคำ: and · is · a","answer":"อ่านออกเสียงได้"},{"type":"mean","prompt":"คำว่า \"go\" แปลว่า","answer":"ไป"},{"type":"mean","prompt":"คำว่า \"see\" แปลว่า","answer":"เห็น"},{"type":"fill","prompt":"___ am a student. (I/You)","answer":"I"},{"type":"fill","prompt":"This ___ a cat. (is/are)","answer":"is"},{"type":"fill","prompt":"I ___ to school. (go/see)","answer":"go"},{"type":"mean","prompt":"\"we\" หมายถึง","answer":"พวกเรา"},{"type":"read","prompt":"เขียนคำ: can / like / have","answer":"สะกดถูก"},{"type":"fill","prompt":"I ___ apples. (like)","answer":"like"},{"type":"mean","prompt":"\"come\" แปลว่า","answer":"มา"},{"type":"fill","prompt":"___ you my friend? (Are/Is)","answer":"Are"},{"type":"read","prompt":"อ่านประโยค: I can see you.","answer":"อ่านคล่อง"},{"type":"mean","prompt":"\"play\" แปลว่า","answer":"เล่น"},{"type":"fill","prompt":"We ___ happy. (are/is)","answer":"are"},{"type":"read","prompt":"จับคู่: me–ฉัน(กรรม) · my–ของฉัน","answer":"ถูก"},{"type":"mean","prompt":"\"look\" แปลว่า","answer":"มอง / ดู"},{"type":"fill","prompt":"___ is my book. (This/These)","answer":"This"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="sight-p123-ws-grid sight-words-grid work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="sight-words-bank">คำที่เกี่ยวข้อง: the I you and is go see we can like</div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">ความหมาย / เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

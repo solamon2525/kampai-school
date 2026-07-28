@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ต 2.1 ป.4/1,ต 1.1 ป.4/1,ต 1.1 ป.4/2">
   <title>ใบงานคลัง English ป.4–5 ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🇬🇧 ใบงานคลัง English ป.4–5</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"grammar","prompt":"Fill in: is / are","text":"She ___ my teacher.","answer":"is"},{"type":"grammar","prompt":"Fill in: a / an","text":"I have ___ egg.","answer":"an"},{"type":"grammar","prompt":"Choose: this / these","text":"___ books are mine. (near)","answer":"These"},{"type":"grammar","prompt":"Rewrite correctly","text":"They is happy.","answer":"They are happy."},{"type":"sight","prompt":"เขียนประโยคใช้คำ sight word","word":"because","answer":"เช่น I like mangoes because they are sweet."},{"type":"sight","prompt":"เขียนประโยคใช้คำ sight word","word":"friend","answer":"เช่น My friend is kind."},{"type":"sight","prompt":"วงคำที่สะกดถูก","word":"school / scool / schol","answer":"school"},{"type":"sight","prompt":"แปลและแต่งประโยค","word":"always","answer":"เสมอ · เช่น I always wash my hands."},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Circle the apple.","answer":"วงผลไม้แอปเปิล"},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Underline the cat.","answer":"ขีดเส้นใต้แมว"},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Tick the big book.","answer":"ติ๊กหนังสือเล่มใหญ่"},{"type":"instr","prompt":"เขียนคำสั่งภาษาอังกฤษสั้น ๆ","text":"สั่งให้เพื่อนวงกลมดวงดาว","answer":"Circle the star."},{"type":"grammar","prompt":"เลือก that / those","text":"___ bird is far away.","answer":"That"},{"type":"grammar","prompt":"แต่งประโยค 1 ประโยคใช้ are","text":"two dogs","answer":"There are two dogs. / The dogs are cute."},{"type":"sight","prompt":"เติมคำในช่องว่าง","text":"I ___ to school every day. (go)","answer":"go"},{"type":"instr","prompt":"เรียงคำสั่งให้ถูก","text":"the / Circle / sun","answer":"Circle the sun."},{"type":"grammar","prompt":"อธิบายกฎสั้น ๆ","text":"ใช้ an เมื่อไร","answer":"ก่อนเสียงสระ (a,e,i,o,u)"},{"type":"sight","prompt":"เขียนคำและประโยค","word":"people","answer":"people · เช่น Many people smile."}];
 window.WORKSHEET_CONFIG={
@@ -40,14 +40,14 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

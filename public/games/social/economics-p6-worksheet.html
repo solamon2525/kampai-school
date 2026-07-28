@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ส 3.1 ป.6/1,ส 3.1 ป.6/2,ส 3.1 ป.6/3,ส 3.2 ป.6/1">
   <title>ใบงานเศรษฐศาสตร์ ป.6 ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>💹 ใบงานเศรษฐศาสตร์ ป.6</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
 <script src="/games/kampai-qr.js?v=1.196.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"role","prompt":"ผู้ผลิตที่รับผิดชอบควรทำอย่างไร","answer":"ผลิตปลอดภัย ไม่หลอกลวง"},{"type":"role","prompt":"ผู้บริโภครู้เท่าทันทำอะไรก่อนซื้อ","answer":"เปรียบเทียบ/อ่านฉลาก"},{"type":"sustain","prompt":"ใช้ทรัพยากรอย่างยั่งยืนหมายถึง","answer":"ใช้พอดี รักษ์โลก"},{"type":"role","prompt":"ธนาคารเกี่ยวข้องกับผู้บริโภคอย่างไร","answer":"ออม/กู้/บริการการเงิน"},{"type":"role","prompt":"ยกตัวอย่างการรวมกลุ่มเศรษฐกิจท้องถิ่น","answer":"วิสาหกิจชุมชน/สหกรณ์"},{"type":"sustain","prompt":"ลด ใช้ซ้ำ รีไซเคิล ช่วยอะไร","answer":"ประหยัดทรัพยากร"},{"type":"role","prompt":"รัฐบาลเกี่ยวข้องอย่างไรในระบบเศรษฐกิจ","answer":"ภาษี/บริการสาธารณะ"},{"type":"sustain","prompt":"ยกพฤติกรรมรักษ์ทรัพยากร 2 ข้อ","answer":"ถุงผ้า ปิดไฟ ฯลฯ"},{"type":"role","prompt":"สิทธิผู้บริโภคข้อหนึ่งคือ","answer":"ได้ข้อมูลถูกต้อง/ปลอดภัย"},{"type":"role","prompt":"วาดแผนภาพผู้ผลิต-ผู้บริโภค-ธนาคาร-รัฐ","answer":"ตามนักเรียน"},{"type":"sustain","prompt":"ทำไมทรัพยากรจึงต้องใช้แบบยั่งยืน","answer":"มีจำกัด"},{"type":"role","prompt":"โฆษณาเกินจริงควรตอบสนองอย่างไร","answer":"ไม่หลงเชื่อ ตรวจสอบ"},{"type":"role","prompt":"เปรียบเทียบร้านค้าซื่อสัตย์กับไม่ซื่อสัตย์","answer":"ตามนักเรียน"},{"type":"sustain","prompt":"โครงการโรงเรียนที่ช่วยใช้ทรัพยากรดี","answer":"ตามบริบทโรงเรียน"},{"type":"role","prompt":"สรุปความสัมพันธ์ 4 ฝ่ายสั้น ๆ","answer":"ผลิต ขาย ซื้อ ออม/ภาษี"},{"type":"sustain","prompt":"ตั้งเป้าหมายส่วนตัวเรื่องการใช้จ่าย 1 ข้อ","answer":"ตามนักเรียน"}];
 window.WORKSHEET_CONFIG={
@@ -35,13 +35,13 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

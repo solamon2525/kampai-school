@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ท 1.1 ป.1/1,ท 1.1 ป.1/2,ท 1.1 ป.2/1">
   <title>ใบงานประสมคำ ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.195.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.195.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🔤 ใบงานประสมคำ</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
 <script src="/games/kampai-qr.js?v=1.195.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.195.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"blend","prompt":"ก + า =","answer":"กา"},{"type":"blend","prompt":"ม + า =","answer":"มา"},{"type":"blend","prompt":"ป + า =","answer":"ปา"},{"type":"blend","prompt":"ด + ี =","answer":"ดี"},{"type":"blend","prompt":"น + ู =","answer":"นู"},{"type":"read","prompt":"อ่านคำ: กา","answer":"กา"},{"type":"read","prompt":"เขียนตามรอย: มา","answer":"มา"},{"type":"blend","prompt":"ร + ู =","answer":"รู"},{"type":"read","prompt":"เลือกคำที่ประสมจาก ม+า","answer":"มา"},{"type":"blend","prompt":"สร้างคำจาก ก กับสระ า","answer":"กา"},{"type":"read","prompt":"คัดลายมือคำว่า ดี สองบรรทัด","answer":"ดี"},{"type":"blend","prompt":"พยัญชนะใด + า = กา","answer":"ก"},{"type":"read","prompt":"วงกลมคำที่อ่านว่า มา","answer":"มา"},{"type":"blend","prompt":"น + สระอะไร = นู","answer":"อู / ู"},{"type":"read","prompt":"แต่งประโยคสั้นมีคำว่า มา","answer":"เช่น หนูมาโรงเรียน"},{"type":"blend","prompt":"สรุปขั้นตอนประสมคำ 2 ขั้น","answer":"ดูพยัญชนะ+สระ แล้วรวมเสียง"}];
 window.WORKSHEET_CONFIG={
@@ -35,13 +35,13 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.195.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.195.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ว 2.3 ป.6/1,ว 2.3 ป.6/2,ว 2.3 ป.6/4">
   <title>ใบงานไฟฟ้า·วงจร ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.196.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.196.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>⚡ ใบงานไฟฟ้า·วงจร</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
 <script src="/games/kampai-qr.js?v=1.196.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"parts","prompt":"ส่วนประกอบวงจรอย่างง่ายมีอะไรบ้าง","answer":"ถ่าน สาย สวิตช์ หลอด"},{"type":"parts","prompt":"วงจรปิดหมายความว่าอย่างไร","answer":"กระแสไหลได้/หลอดติด"},{"type":"wire","prompt":"วาดแผนภาพวงจรอย่างง่าย 1 วง","answer":"ตามแผนภาพนักเรียน"},{"type":"wire","prompt":"ต่อถ่านอนุกรมมีผลอย่างไร","answer":"แรงดันรวมเพิ่ม"},{"type":"wire","prompt":"ข้อดีต่อหลอดแบบขนาน","answer":"ดับดวงหนึ่งอีกดวงยังติด"},{"type":"parts","prompt":"สวิตช์ทำหน้าที่อะไร","answer":"เปิด/ปิดวงจร"},{"type":"wire","prompt":"เปรียบเทียบอนุกรมกับขนานสั้น ๆ","answer":"เส้นทางเดียว vs มีทางแยก"},{"type":"parts","prompt":"โหลดในวงจรหลอดคืออะไร","answer":"หลอดไฟ"},{"type":"wire","prompt":"ยกประโยชน์ความรู้ต่อเซลล์อนุกรม","answer":"ใช้กับอุปกรณ์ที่ต้องการแรงดันสูงขึ้น"},{"type":"parts","prompt":"ทำไมมือเปียกห้ามเล่นปลั๊ก","answer":"อันตราย/ไฟดูด"},{"type":"wire","prompt":"ถ้าสายขาดหนึ่งเส้นหลอดจะเป็นอย่างไร","answer":"ดับ (วงจรเปิด)"},{"type":"parts","prompt":"สัญลักษณ์หลอดในแผนภาพคืออะไร","answer":"วงกลมมีกากบาท"},{"type":"wire","prompt":"ออกแบบวงจรมีสวิตช์และหลอด 2 ดวง","answer":"ตามนักเรียน"},{"type":"parts","prompt":"แหล่งจ่ายพลังงานในวงจรถ่าน","answer":"ถ่าน/เซลล์"},{"type":"wire","prompt":"สรุปความปลอดภัย 2 ข้อ","answer":"มือแห้ง ไม่เล่นปลั๊ก ฯลฯ"},{"type":"parts","prompt":"อธิบายจากหลักฐานเชิงประจักษ์ที่ทดลอง","answer":"ตามการทดลอง"}];
 window.WORKSHEET_CONFIG={
@@ -35,13 +35,13 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.196.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.196.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

@@ -67,10 +67,32 @@
     return teachers;
   }
 
+  async function printA4() {
+    try {
+      if (document.fonts?.ready) await document.fonts.ready;
+    } catch (_) {
+      /* ignore font readiness errors — still print */
+    }
+    window.print();
+  }
+
+  function bindPrintButton(buttonId = 'btnPrint') {
+    const btn = document.getElementById(buttonId);
+    if (!btn) return null;
+    btn.onclick = (event) => {
+      if (event?.preventDefault) event.preventDefault();
+      printA4();
+    };
+    btn.dataset.kampaiPrintBound = '1';
+    return btn;
+  }
+
   window.KampaiWorksheet = Object.freeze({
     getTeachers,
     loadTeachers,
     loadSetsModule,
+    printA4,
+    bindPrintButton,
     get supabaseUrl() { return SUPABASE_URL; },
     get publishableKey() { return SUPABASE_PUBLISHABLE_KEY; },
   });

@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ท 2.1 ป.3/1,ท 2.1 ป.4/1">
   <title>ใบงานเครื่องหมายวรรคตอน ป.3–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.172.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.172.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>✒️ ใบงานเครื่องหมายวรรคตอน</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -21,7 +21,7 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.172.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"question","prompt":"เติมเครื่องหมายและอธิบายหน้าที่","text":"หนูชื่ออะไร","answer":"หนูชื่ออะไร? · ใช้เมื่อถาม"},{"type":"exclaim","prompt":"เติมเครื่องหมายและบอกอารมณ์","text":"สุดยอดมาก","answer":"สุดยอดมาก! · ดีใจ/ทึ่ง"},{"type":"dash","prompt":"ใช้ขีดช่วยความหมาย","text":"เปิด ปิด ประตูให้ถูกวิธี","answer":"เปิด–ปิดประตูให้ถูกวิธี"},{"type":"paren","prompt":"ใส่วงเล็บข้อมูลเสริม","text":"ครูสมชาย ครูประจำชั้นป.4 มาแล้ว","answer":"ครูสมชาย (ครูประจำชั้นป.4) มาแล้ว"},{"type":"quote","prompt":"ใส่เครื่องหมายคำพูด","text":"แม่บอก ให้ทำการบ้านก่อน","answer":"แม่บอก “ให้ทำการบ้านก่อน”"},{"type":"mixed","prompt":"แก้เครื่องหมายทั้งประโยค","text":"ใครไปบ้าง น้องสาว พี่ชาย และฉัน","answer":"ใครไปบ้าง? น้องสาว พี่ชาย และฉัน"},{"type":"question","prompt":"เขียนประโยคคำถาม 2 ประโยค","text":"เกี่ยวกับโรงเรียน","answer":"เช่น โรงเรียนเปิดกี่โมง?"},{"type":"exclaim","prompt":"เขียนประโยคแสดงความประหลาดใจ","text":"เหตุการณ์ในห้องเรียน","answer":"เช่น คะแนนเต็มแล้ว!"},{"type":"paren","prompt":"เพิ่มข้อมูลในวงเล็บ","text":"พรุ่งนี้มีการสอบวิชาคณิตศาสตร์","answer":"พรุ่งนี้มีการสอบ (วิชาคณิตศาสตร์)"},{"type":"dash","prompt":"ใช้ขีดแสดงช่วงเวลา","text":"เรียนเวลา 08.30 ถึง 15.30","answer":"เรียนเวลา 08.30–15.30"},{"type":"quote","prompt":"ใส่คำพูดของตัวละคร","text":"ครูกล่าว ตั้งใจเรียนนะ","answer":"ครูกล่าว “ตั้งใจเรียนนะ”"},{"type":"mixed","prompt":"เติมเครื่องหมายที่หายไป","text":"วันนี้อากาศดีจัง","answer":"วันนี้อากาศดีจัง!"},{"type":"question","prompt":"เปลี่ยนเป็นประโยคคำถาม","text":"หนูชอบวิชาคณิตศาสตร์","answer":"หนูชอบวิชาคณิตศาสตร์ไหม?"},{"type":"exclaim","prompt":"เปลี่ยนเป็นประโยคอุทาน","text":"ของเล่นชิ้นนี้สวย","answer":"ของเล่นชิ้นนี้สวยจัง!"},{"type":"paren","prompt":"ใส่วงเล็บชื่อย่อ","text":"องค์การสหประชาชาติ UN","answer":"องค์การสหประชาชาติ (UN)"},{"type":"dash","prompt":"ใช้ขีดคั่นรายการสั้น","text":"สีที่ใช้ แดง เขียว น้ำเงิน","answer":"สีที่ใช้: แดง–เขียว–น้ำเงิน หรือ แดง เขียว น้ำเงิน"},{"type":"mixed","prompt":"แก้ประโยคให้ถูกวรรคตอน","text":"คุณครูถาม ใครทำการบ้านเสร็จแล้ว","answer":"คุณครูถาม “ใครทำการบ้านเสร็จแล้ว?”"},{"type":"quote","prompt":"แยกคำพูดกับคำเล่า","text":"พี่ชายบอกพรุ่งนี้ไปเที่ยวทะเล","answer":"พี่ชายบอก “พรุ่งนี้ไปเที่ยวทะเล”"}];
 window.WORKSHEET_CONFIG={
@@ -41,14 +41,14 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.172.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.172.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

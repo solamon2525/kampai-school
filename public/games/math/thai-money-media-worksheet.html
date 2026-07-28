@@ -5,8 +5,8 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.3/1">
   <title>ใบงานเงินไทย ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.191.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.191.0" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🪙 ใบงานเงินไทย</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
@@ -23,7 +23,7 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
 <script src="/games/kampai-qr.js?v=1.191.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const ITEMS=[{"type":"count","prompt":"เหรียญ 10 บาท 3 เหรียญ + 5 บาท 2 เหรียญ","answer":"40 บาท"},{"type":"count","prompt":"ธนบัตร 20 + เหรียญ 10 + เหรียญ 1 สองเหรียญ","answer":"32 บาท"},{"type":"count","prompt":"50 บาท สองใบ + 10 บาท หนึ่งเหรียญ","answer":"110 บาท"},{"type":"change","prompt":"ซื้อของ 27 บาท จ่าย 50 ทอนเท่าไร","answer":"23 บาท"},{"type":"change","prompt":"ซื้อของ 45 บาท จ่าย 100 ทอนเท่าไร","answer":"55 บาท"},{"type":"change","prompt":"ซื้อของ 8 บาท จ่าย 20 ทอนเท่าไร","answer":"12 บาท"},{"type":"choose","prompt":"ต้องการ 15 บาท ใช้เหรียญใดได้บ้าง (อย่างน้อย 1 วิธี)","answer":"เช่น 10+5 หรือ 5×3"},{"type":"choose","prompt":"ต้องการ 60 บาท โดยไม่ใช้ธนบัตร 100","answer":"เช่น 50+10 หรือ 20×3"},{"type":"count","prompt":"เหรียญ 5 บาท 6 เหรียญ","answer":"30 บาท"},{"type":"change","prompt":"ซื้อดินสอ 12 บาท จ่าย 20 ทอน","answer":"8 บาท"},{"type":"count","prompt":"100 บาท + 20 บาท + 5 บาท","answer":"125 บาท"},{"type":"choose","prompt":"จ่ายค่าขนม 35 บาท ให้พอดีที่สุดด้วยธนบัตร/เหรียญ","answer":"เช่น 20+10+5"},{"type":"change","prompt":"ซื้อหนังสือ 75 จ่าย 100 ทอน","answer":"25 บาท"},{"type":"count","prompt":"เหรียญ 1 บาท 15 เหรียญ + เหรียญ 10 สองเหรียญ","answer":"35 บาท"},{"type":"choose","prompt":"มีเงิน 40 บาท ซื้อของ 28 เหลือเท่าไร","answer":"12 บาท"},{"type":"count","prompt":"ธนบัตร 20 สามใบ","answer":"60 บาท"},{"type":"change","prompt":"ซื้อนม 18 จ่าย 50 ทอน","answer":"32 บาท"},{"type":"choose","prompt":"อธิบายว่าทำไมควรตรวจเงินทอน","answer":"เพื่อไม่ให้ทอนผิด / ฝึกความรับผิดชอบ"}];
 window.WORKSHEET_CONFIG={
@@ -35,14 +35,14 @@ window.WORKSHEET_CONFIG={
   renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="money-ws-grid work-line calc-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">วิธีคิด / เหรียญที่ใช้ <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.191.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.191.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>
