@@ -293,6 +293,83 @@ export const educationalHubService = {
         supabase.from('educational_hub_items' as never).delete().eq('id', id),
 
     /**
+     * Light studio: fork an existing hub item as unpublished draft for the current owner.
+     */
+    duplicateItem: async (
+        sourceId: string,
+        ownerStaffId: string,
+        overrides?: Partial<EduHubItem>,
+    ): Promise<{ data: EduHubItem | null; error: Error | null }> => {
+        const { data: src, error: getErr } = await educationalHubService.getItem(sourceId);
+        if (getErr) return { data: null, error: getErr as Error };
+        const source = src as EduHubItem | null;
+        if (!source) return { data: null, error: new Error('ไม่พบรายการต้นฉบับ') };
+        const {
+            id: _id,
+            created_at: _c,
+            updated_at: _u,
+            view_count: _v,
+            download_count: _d,
+            library_pinned: _lp,
+            library_pin_order: _lo,
+            homepage_featured: _hf,
+            ...rest
+        } = source as EduHubItem & Record<string, unknown>;
+        const payload: Partial<EduHubItem> = {
+            ...(rest as Partial<EduHubItem>),
+            owner_staff_id: ownerStaffId,
+            title: `${source.title} (สำเนา)`,
+            is_published: false,
+            sort_order: (source.sort_order ?? 0) + 1,
+            ...overrides,
+        };
+        const { data, error } = await educationalHubService.insertItem(payload);
+        return { data: (data as EduHubItem | null) ?? null, error: (error as Error | null) ?? null };
+    },
+
+    /**
+     * Create a draft media item pointed at the shared HTML template (light studio).
+     */
+    createFromMediaTemplate: async (opts: {
+        ownerStaffId: string;
+        categoryId: string;
+        title?: string;
+        subject?: string | null;
+        gradeLevels?: string[] | null;
+    }): Promise<{ data: EduHubItem | null; error: Error | null }> => {
+        return educationalHubService.insertItem({
+            owner_staff_id: opts.ownerStaffId,
+            category_id: opts.categoryId,
+            title: opts.title ?? 'สื่อใหม่จากเทมเพลต',
+            description: 'ร่างจาก _template-media — แทนที่เนื้อหาแล้วเผยแพร่',
+            item_type: 'link',
+            external_url: '/games/_template-media.html',
+            subject: opts.subject ?? null,
+            grade_levels: opts.gradeLevels ?? null,
+            is_published: false,
+            sort_order: 0,
+        } as Partial<EduHubItem>);
+    },
+
+    /**
+     * Teacher/admin usage insights: top viewed items (own or published).
+     */
+    listTopViewedItems: async (
+        opts: { ownerStaffId?: string; limit?: number } = {},
+    ): Promise<EduHubItem[]> => {
+        let q = supabase
+            .from('educational_hub_items' as never)
+            .select('*')
+            .order('view_count', { ascending: false })
+            .limit(opts.limit ?? 20);
+        if (opts.ownerStaffId) q = q.eq('owner_staff_id', opts.ownerStaffId);
+        else q = q.eq('is_published', true);
+        const { data, error } = await q;
+        if (error) throw error;
+        return (data ?? []) as EduHubItem[];
+    },
+
+    /**
      * Batch update sort_order for multiple items in one round-trip.
      * Used by admin drag-drop UI in TeacherEduHubManager + EduHubManagement.
      * Each item is UPDATE'd individually but in parallel (Promise.all).

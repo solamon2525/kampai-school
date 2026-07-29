@@ -664,8 +664,15 @@ export const AttendanceManagement = () => {
                 <span className="text-lg font-bold text-foreground">
                   {checkinStudents.length - Object.keys(attendanceMap).length}
                 </span>
-                <span className="text-xs text-muted-foreground">คน</span>
+                <span className="text-xs text-muted-foreground">คน · ควรครบก่อนออกรายงานปพ.</span>
               </div>
+            </div>
+          )}
+
+          {dataLoaded && checkinStudents.length > 0 && (checkinStudents.length - Object.keys(attendanceMap).length) > 0 && (
+            <div className="rounded-lg border border-amber-300/50 bg-amber-50/50 px-4 py-3 text-sm text-foreground">
+              ข้อมูลยังไม่ครบ {checkinStudents.length - Object.keys(attendanceMap).length} คน —
+              กรอกให้ครบเพื่อให้ปพ./DMC น่าเชื่อถือ
             </div>
           )}
 

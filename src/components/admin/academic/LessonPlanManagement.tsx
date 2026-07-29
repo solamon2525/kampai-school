@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { lessonPlanService } from '@/services/academic.service';
 import { staffService } from '@/services/staff.service';
+import { lessonPacksService } from '@/services/lesson-packs.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Search, FileText, Target } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, FileText, Target, Package } from 'lucide-react';
 import { LessonPlanIndicatorsDialog } from './LessonPlanIndicatorsDialog';
 
 interface LessonPlan {
@@ -28,6 +30,7 @@ interface LessonPlan {
   academic_year: string;
   status: string;
   file_url: string | null;
+  pack_id?: string | null;
   staff?: { name: string } | null;
 }
 
@@ -44,6 +47,7 @@ const emptyForm = {
   staff_id: '', subject: '', grade: 'ป.1', unit_title: '', week_number: '',
   objectives: '', activities: '', materials: '', evaluation: '',
   duration_hours: '1', semester: '1', academic_year: '2568', status: 'ร่าง', file_url: '',
+  pack_id: '',
 };
 
 export const LessonPlanManagement = () => {
@@ -60,6 +64,11 @@ export const LessonPlanManagement = () => {
   const [indicatorPlan, setIndicatorPlan] = useState<LessonPlan | null>(null);
   const [form, setForm] = useState({ ...emptyForm });
   const { toast } = useToast();
+
+  const { data: packs = [] } = useQuery({
+    queryKey: ['lesson-packs', 'published-for-plans'],
+    queryFn: () => lessonPacksService.listPublished({ limit: 100 }),
+  });
 
   const fetchPlans = useCallback(async () => {
     setLoading(true);
@@ -90,6 +99,7 @@ export const LessonPlanManagement = () => {
       materials: p.materials || '', evaluation: p.evaluation || '',
       duration_hours: String(p.duration_hours), semester: String(p.semester),
       academic_year: p.academic_year, status: p.status, file_url: p.file_url || '',
+      pack_id: p.pack_id || '',
     });
     setDialogOpen(true);
   };
@@ -103,6 +113,7 @@ export const LessonPlanManagement = () => {
       materials: form.materials || null, evaluation: form.evaluation || null,
       duration_hours: Number(form.duration_hours), semester: Number(form.semester),
       academic_year: form.academic_year, status: form.status, file_url: form.file_url || null,
+      pack_id: form.pack_id || null,
     };
     const { error } = editing
       ? await lessonPlanService.update(editing.id, payload)
@@ -273,6 +284,21 @@ export const LessonPlanManagement = () => {
             <div>
               <Label className="text-xs">การวัดและประเมินผล</Label>
               <Textarea value={form.evaluation} onChange={e => setForm(f => ({ ...f, evaluation: e.target.value }))} rows={2} className="text-sm" />
+            </div>
+            <div className="col-span-2">
+              <Label className="text-xs flex items-center gap-1"><Package className="w-3 h-3" />ชุดเรียน (lesson pack)</Label>
+              <Select value={form.pack_id || '__none'} onValueChange={v => setForm(f => ({ ...f, pack_id: v === '__none' ? '' : v }))}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="ไม่ผูกชุดเรียน" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">ไม่ผูกชุดเรียน</SelectItem>
+                  {packs.map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.title}{p.subject ? ` · ${p.subject}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">เชื่อมแผนสอนกับหน่วยสื่อ→ใบงาน→เกม ในคลัง</p>
             </div>
             <div className="col-span-2">
               <Label className="text-xs">URL ไฟล์แผนการสอน</Label>

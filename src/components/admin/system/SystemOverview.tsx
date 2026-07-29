@@ -362,6 +362,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.201.0 (roadmap 360: chat attach, conference push, trust, packs↔plans)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'Chat แนบรูป/PDF (bucket chat-attachments · mig 446) + push นัดประชุมเมื่อจอง/ยกเลิก',
+            'การบ้าน: การ์ดงานรอตรวจ · เข้าเรียน/คะแนน: เตือนข้อมูลไม่ครบก่อนปพ. · footer + /privacy PDPA',
+            'แผนสอนผูก lesson pack · สตูดิโอเบาจากเทมเพลตสื่อ · HubUsageInsights ยอดเปิดดู · coverage กรองช่องว่าง',
+        ],
+    },
+    {
         version: 'v1.200.0 (Phase 16 habit + lesson packs in hub)',
         date: 'ล่าสุด',
         badge: 'bg-amber-600',

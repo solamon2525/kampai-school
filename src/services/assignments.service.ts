@@ -126,4 +126,23 @@ export const assignmentsService = {
       .eq('id', submissionId);
     if (error) throw error;
   },
+
+  /** Teacher cadence: submissions awaiting grade across own assignments. */
+  async countPendingGrading(): Promise<{ pending: number; firstAssignmentId: string | null }> {
+    const mine = await assignmentsService.listMine();
+    const active = mine.filter((a) => !a.is_archived);
+    if (!active.length) return { pending: 0, firstAssignmentId: null };
+    const ids = active.map((a) => a.id);
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('id, assignment_id')
+      .in('assignment_id', ids)
+      .is('graded_at', null);
+    if (error) throw error;
+    const rows = (data ?? []) as { id: string; assignment_id: string }[];
+    return {
+      pending: rows.length,
+      firstAssignmentId: rows[0]?.assignment_id ?? null,
+    };
+  },
 };

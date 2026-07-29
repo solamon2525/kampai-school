@@ -55,6 +55,11 @@ export const AssignmentManagement = () => {
     queryFn: () => assignmentsService.listMine(),
   });
 
+  const { data: pendingGrade } = useQuery({
+    queryKey: ['my-assignments-pending-grade'],
+    queryFn: () => assignmentsService.countPendingGrading(),
+  });
+
   const { data: students = [] } = useQuery({
     queryKey: ['students-by-class', activeAssignment?.class, activeAssignment?.room],
     enabled: !!activeAssignment,
@@ -105,6 +110,7 @@ export const AssignmentManagement = () => {
       assignmentsService.grade(id, score, comment),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assignment-submissions', activeAssignment?.id] });
+      qc.invalidateQueries({ queryKey: ['my-assignments-pending-grade'] });
       toast.success('บันทึกคะแนนแล้ว');
     },
   });
@@ -113,6 +119,30 @@ export const AssignmentManagement = () => {
 
   return (
     <div className="p-6 md:p-8 space-y-5 max-w-6xl mx-auto">
+      {(pendingGrade?.pending ?? 0) > 0 && (
+        <Card className="border-amber-300/60 bg-amber-50/40">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                งานรอตรวจ {pendingGrade!.pending} ชิ้น
+              </p>
+              <p className="text-xs text-muted-foreground">
+                จังหวะตรวจการบ้าน — กดเพื่อเปิดรายการแรกที่ค้าง
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                const hit = assignments.find((a) => a.id === pendingGrade!.firstAssignmentId);
+                if (hit) setActiveAssignment(hit);
+              }}
+            >
+              เปิดงานค้าง
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">

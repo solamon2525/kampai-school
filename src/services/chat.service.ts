@@ -80,17 +80,58 @@ export const chatService = {
     return (data ?? []) as ChatMessage[];
   },
 
-  async sendMessage(threadId: string, body: string): Promise<void> {
+  async sendMessage(
+    threadId: string,
+    body: string,
+    opts?: { attachment_url?: string | null; attachment_type?: string | null },
+  ): Promise<void> {
     const { data: userResp } = await supabase.auth.getUser();
     if (!userResp.user) throw new Error('Not authenticated');
+    const text = body.trim();
+    const attachment_url = opts?.attachment_url ?? null;
+    const attachment_type = opts?.attachment_type ?? null;
+    if (!text && !attachment_url) throw new Error('พิมพ์ข้อความหรือแนบไฟล์อย่างน้อยอย่างใดอย่างหนึ่ง');
     const { error } = await supabase
       .from('chat_messages' as any)
       .insert({
         thread_id: threadId,
         sender_user_id: userResp.user.id,
-        body,
+        body: text || null,
+        attachment_url,
+        attachment_type,
       });
     if (error) throw error;
+  },
+
+  /**
+   * Upload an attachment to private bucket chat-attachments (path = {userId}/...).
+   * Returns a signed URL (1 week) suitable for message.attachment_url.
+   */
+  async uploadAttachment(file: File): Promise<{ url: string; type: string; path: string }> {
+    const { data: userResp } = await supabase.auth.getUser();
+    if (!userResp.user) throw new Error('Not authenticated');
+    const cleanName = file.name.replace(/[^\w.\-]+/g, '_');
+    const path = `${userResp.user.id}/${Date.now()}_${crypto.randomUUID().slice(0, 8)}_${cleanName}`;
+    const { error: upErr } = await supabase.storage.from('chat-attachments').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (upErr) throw upErr;
+    const { data: signed, error: signErr } = await supabase.storage
+      .from('chat-attachments')
+      .createSignedUrl(path, 60 * 60 * 24 * 7);
+    if (signErr || !signed?.signedUrl) throw signErr ?? new Error('ไม่สามารถสร้างลิงก์ไฟล์ได้');
+    const type = file.type.startsWith('image/')
+      ? 'image'
+      : file.type === 'application/pdf'
+        ? 'pdf'
+        : file.type.startsWith('audio/')
+          ? 'audio'
+          : file.type.startsWith('video/')
+            ? 'video'
+            : 'file';
+    return { url: signed.signedUrl, type, path };
   },
 
   /** Mark unread messages (from other party) as read in this thread. */
