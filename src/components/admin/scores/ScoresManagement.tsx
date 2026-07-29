@@ -188,9 +188,16 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     };
 
     const filledCount = rows.filter(r => r.score !== '').length;
+    const missingScoreCount = rows.filter(r => r.score === '').length;
 
     return (
         <div className="space-y-4 pt-4">
+            {selectedClass && selectedSubject && selectedType && rows.length > 0 && missingScoreCount > 0 && (
+                <div className="rounded-lg border border-amber-300/50 bg-amber-50/50 px-4 py-3 text-sm text-foreground">
+                    ยังไม่มีคะแนน {missingScoreCount}/{rows.length} คน ในวิชา {selectedSubject} ({selectedType}) —
+                    กรอกให้ครบก่อนออกรายงานปพ./DMC
+                </div>
+            )}
             {/* ตัวเลือกตัวกรอง */}
             <Card>
                 <CardContent className="pt-4">

@@ -760,7 +760,7 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Future-only booking:** RLS policy `parent_book_open_slot` ตรวจ `starts_at > NOW()` — server-side enforcement
 - **Cancellation:** ใช้ status='cancelled' + cancelled_reason — **ห้าม** DELETE booking (audit trail)
 - **No timezone field:** ทุกอย่างใช้ timestamptz + Asia/Bangkok ในการแสดงผล — สมมุติว่าเฉพาะโรงเรียนเดียวเขต TH
-- **Notification (TODO):** ยังไม่ wire push เมื่อ booking สร้าง — ใส่ใน next sprint (เพิ่ม trigger หรือ edge fn)
+- **Notification:** เมื่อ parent จอง / ยกเลิกนัด → best-effort `send-push` หาครู (หรือ parent เมื่อครูยกเลิก) topic=`conference` URL `/teacher/conferences` หรือ `/parent/conferences` (migration flow ใน `conferences.service` book/cancelBooking)
 
 ### Rule 14.30 — Dismissal/Pickup Tracking (M093)
 
@@ -775,7 +775,7 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Realtime subscription:** `chat.service.subscribeToThread()` ส่ง postgres_changes INSERT events เท่านั้น — UPDATE (mark-read) ไม่ broadcast เพื่อลด traffic
 - **Read receipt:** field `read_at` set โดย receiver ผ่าน policy `message_mark_read` — sender แก้ไม่ได้
 - **trigger update_thread_on_new_message:** sync `last_message_at` + `last_message_preview` ให้ทุก INSERT — **ห้าม** sync ใน client (race condition)
-- **Attachments (Phase 2):** ใช้ storage bucket `chat-attachments` (ยังไม่สร้าง — เพิ่มเมื่อต้องการ)
+- **Attachments:** storage bucket `chat-attachments` (migration 446, private, 10MB) · อัปโหลดผ่าน `chatService.uploadAttachment` · ส่งด้วย `sendMessage(threadId, body, { attachment_url, attachment_type })` · UI paperclip ใน `ChatWindow`
 - **Working hours hint:** UI แสดง "ตอบกลับช่วง 08:00–17:00" — ไม่บังคับด้วย code (parent อาจส่งนอกเวลา, teacher เห็นใน working hours จริง)
 
 ### Rule 14.26 — Emergency Alerts (M088)
@@ -792,8 +792,9 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Verification flow:** parent บริจาค → donations.is_verified = false → admin ตรวจสลิปจริง → verify → trigger รวมเข้า raised_amount
 - **PromptPay QR:** ใช้ lib `promptpay-qr@0.5.0` — `generatePayload(id, { amount })` → render ใน `<QRCode>` (lib react-qr-code)
 - **PromptPay ID format:** รองรับเบอร์มือถือ (xxx-xxx-xxxx) และเลขปชช. (x-xxxx-xxxxx-xx-x) — lib parse อัตโนมัติ
-- **Tax receipt (Phase 2):** ปัจจุบันออกใบเสร็จ manual — เชื่อม e-Donation ของกรมสรรพากร = next sprint
+- **Tax receipt (Phase 2):** ใบเสร็จเบา: verify → ออกเลข `KP-{พ.ศ.}-{suffix}` · พิมพ์ที่ `/donate/receipt/:id` — e-Donation กรมสรรพากร = next sprint
 - **Public read:** anyone อ่าน campaigns ที่ is_active = true + verified donations ได้ — สำหรับ transparency
+- **Receipt print:** หน้าใบเสร็จอ่านได้หลัง is_verified (RLS public_read_verified_donations) — ห้ามโชว์สลิปดิบบนหน้าสาธารณะ
 
 ### Rule 14.38 — Cmd-K Registry Icon Import Discipline (post-mortem จาก 2ba6903)
 

@@ -85,17 +85,37 @@ export const donationsService = {
     if (error) throw error;
   },
 
-  async verifyDonation(id: string, notes?: string): Promise<void> {
+  async getDonation(id: string): Promise<Donation | null> {
+    const { data, error } = await supabase
+      .from('donations' as any)
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return (data ?? null) as Donation | null;
+  },
+
+  /** Assign KP-YYYYBE-XXXX if missing, then mark verified (DESIGN 14.27 Phase 2 light). */
+  async verifyDonation(id: string, notes?: string): Promise<{ receiptNumber: string | null }> {
     const { data: userResp } = await supabase.auth.getUser();
+    const existing = await donationsService.getDonation(id);
+    let receiptNumber = existing?.receipt_number ?? null;
+    if (!receiptNumber) {
+      const be = new Date().getFullYear() + 543;
+      const suffix = id.replace(/-/g, '').slice(0, 6).toUpperCase();
+      receiptNumber = `KP-${be}-${suffix}`;
+    }
     const { error } = await supabase
       .from('donations' as any)
       .update({
         is_verified: true,
         verified_at: new Date().toISOString(),
         verified_by: userResp.user?.id,
-        notes: notes ?? null,
+        notes: notes ?? existing?.notes ?? null,
+        receipt_number: receiptNumber,
       })
       .eq('id', id);
     if (error) throw error;
+    return { receiptNumber };
   },
 };

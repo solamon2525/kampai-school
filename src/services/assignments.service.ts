@@ -96,6 +96,30 @@ export const assignmentsService = {
     return (data ?? []) as AssignmentSubmission[];
   },
 
+  /**
+   * Graded submissions + assignment attachment — match pack worksheet URLs on parent worksheets.
+   */
+  async listGradedWithAssignment(studentId: string): Promise<
+    Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >
+  > {
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('*, assignments:assignment_id(id, title, attachment_url, max_score)')
+      .eq('student_id', studentId)
+      .not('graded_at', 'is', null)
+      .order('graded_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >;
+  },
+
   async submit(input: { assignment_id: string; student_id: string; body?: string; attachment_url?: string | null }): Promise<void> {
     const { data: userResp } = await supabase.auth.getUser();
     if (!userResp.user) throw new Error('Not authenticated');
@@ -125,5 +149,24 @@ export const assignmentsService = {
       })
       .eq('id', submissionId);
     if (error) throw error;
+  },
+
+  /** Teacher cadence: submissions awaiting grade across own assignments. */
+  async countPendingGrading(): Promise<{ pending: number; firstAssignmentId: string | null }> {
+    const mine = await assignmentsService.listMine();
+    const active = mine.filter((a) => !a.is_archived);
+    if (!active.length) return { pending: 0, firstAssignmentId: null };
+    const ids = active.map((a) => a.id);
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('id, assignment_id')
+      .in('assignment_id', ids)
+      .is('graded_at', null);
+    if (error) throw error;
+    const rows = (data ?? []) as { id: string; assignment_id: string }[];
+    return {
+      pending: rows.length,
+      firstAssignmentId: rows[0]?.assignment_id ?? null,
+    };
   },
 };

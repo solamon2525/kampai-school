@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { Heart, Plus, Check, Loader2, Trash2 } from 'lucide-react';
+import { Heart, Plus, Check, Loader2, Trash2, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,10 +63,14 @@ export const DonationsManagement = () => {
 
   const verify = useMutation({
     mutationFn: (id: string) => donationsService.verifyDonation(id),
-    onSuccess: () => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ['admin-donations'] });
       qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
-      toast.success('ยืนยันแล้ว — เพิ่มเข้ายอดระดมทุน');
+      toast.success(
+        res.receiptNumber
+          ? `ยืนยันแล้ว · ใบเสร็จ ${res.receiptNumber}`
+          : 'ยืนยันแล้ว — เพิ่มเข้ายอดระดมทุน',
+      );
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -229,9 +233,18 @@ export const DonationsManagement = () => {
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(d.donated_at), 'd MMM yyyy', { locale: th })}
+                    {d.receipt_number && ` · ${d.receipt_number}`}
                   </p>
                 </div>
                 <span className="text-rose-600 font-bold">฿{Number(d.amount).toLocaleString()}</span>
+                {d.is_verified && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={`/donate/receipt/${d.id}`} target="_blank" rel="noopener noreferrer">
+                      <Printer className="w-4 h-4 mr-1.5" />
+                      พิมพ์ใบเสร็จ
+                    </a>
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

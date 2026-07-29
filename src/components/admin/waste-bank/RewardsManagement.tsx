@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Save, X, ImagePlus, Gift, Globe2, User, Pencil, RotateCcw } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, ImagePlus, Gift, Globe2, User, Pencil, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
+import { useQuery } from '@tanstack/react-query';
 import { rewardsService } from '@/services/waste-bank.service';
 import type { Reward } from '@/services/waste-bank.service';
+import { cn } from '@/lib/utils';
 
 export const RewardsManagement = () => {
   const { toast } = useToast();
@@ -51,6 +53,14 @@ export const RewardsManagement = () => {
     (!!administratorId && r.owner_administrator_id === administratorId);
   const isCentral = (r: Reward) => !r.owner_staff_id && !r.owner_administrator_id;
   const canEdit = (r: Reward) => isAdmin || isMine(r);
+
+  const { data: stockReport } = useQuery({
+    queryKey: ['rewards-stock-drift'],
+    enabled: isAdmin,
+    queryFn: () => rewardsService.stockDriftReport(),
+  });
+  const flaggedStock = (stockReport ?? []).filter((r) => r.flagged);
+  const lowStock = (stockReport ?? []).filter((r) => r.stock !== null && r.stock <= 3);
 
   const openAdd = () => {
     setEditing(null);
@@ -175,6 +185,27 @@ export const RewardsManagement = () => {
           <Plus className="w-4 h-4" /> เพิ่มรางวัล
         </Button>
       </div>
+
+      {isAdmin && (flaggedStock.length > 0 || lowStock.length > 0) && (
+        <Card className={cn(flaggedStock.length > 0 ? 'border-destructive/40 bg-destructive/5' : 'border-amber-500/30 bg-amber-500/5')}>
+          <CardContent className="p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <AlertTriangle className="h-4 w-4" />
+              สต็อกรางวัล
+              {flaggedStock.length > 0
+                ? ` · ${flaggedStock.length} รายการผิดปกติ (หมดหรือ pending > stock)`
+                : ` · ${lowStock.length} รายการใกล้หมด (≤3)`}
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              {(flaggedStock.length > 0 ? flaggedStock : lowStock).slice(0, 8).map((r) => (
+                <li key={r.id}>
+                  {r.name}: คงเหลือ {r.stock} · รออนุมัติ {r.pendingQty}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {showForm && (
         <Card className="border-primary/40">

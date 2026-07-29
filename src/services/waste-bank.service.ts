@@ -256,6 +256,43 @@ export const rewardsService = {
       p_new_stock: newStock,
     } as never),
 
+  /**
+   * Inventory health: remaining stock vs pending claims (drift if pending > stock).
+   */
+  stockDriftReport: async (): Promise<
+    Array<{
+      id: string;
+      name: string;
+      stock: number | null;
+      pendingQty: number;
+      flagged: boolean;
+    }>
+  > => {
+    const { data: rewards, error: rErr } = await supabase
+      .from('rewards')
+      .select('id, name, stock')
+      .not('stock', 'is', null)
+      .order('name');
+    if (rErr) throw rErr;
+    const { data: claims, error: cErr } = await supabase
+      .from('reward_claims')
+      .select('reward_id, quantity, status')
+      .eq('status', 'pending');
+    if (cErr) throw cErr;
+    const pendingByReward = new Map<string, number>();
+    for (const c of claims ?? []) {
+      const qty = Number((c as { quantity?: number }).quantity ?? 1);
+      const rid = (c as { reward_id: string }).reward_id;
+      pendingByReward.set(rid, (pendingByReward.get(rid) ?? 0) + qty);
+    }
+    return (rewards ?? []).map((r) => {
+      const stock = r.stock as number | null;
+      const pendingQty = pendingByReward.get(r.id) ?? 0;
+      const flagged = stock !== null && (stock <= 0 || pendingQty > stock);
+      return { id: r.id, name: r.name, stock, pendingQty, flagged };
+    });
+  },
+
   uploadImage: async (file: File): Promise<string> => {
     const ext = file.name.split('.').pop() || 'png';
     const fileName = `${crypto.randomUUID()}.${ext}`;

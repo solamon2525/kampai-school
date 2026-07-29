@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
-import { FolderOpen, Plus, BookOpen, Loader2 } from 'lucide-react';
+import { FolderOpen, Plus, BookOpen, Loader2, Eye, Upload } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { th } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -34,11 +37,52 @@ import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMis
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
+import { HubUsageInsights } from '@/components/educational-hub/HubUsageInsights';
+import { Link } from 'react-router-dom';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
     { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
 ];
+
+function TeacherHabitStrip({ staffId }: { staffId: string }) {
+    const { data: stats } = useQuery({
+        queryKey: ['edu-hub', 'my-upload-stats', staffId],
+        queryFn: () => educationalHubService.getMyUploadStats(staffId),
+    });
+
+    if (!stats) return null;
+
+    const lastLabel = stats.lastCreatedAt
+        ? formatDistanceToNow(new Date(stats.lastCreatedAt), { addSuffix: true, locale: th })
+        : 'ยังไม่เคยอัป';
+
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-2 text-sm">
+                    <Upload className="h-4 w-4 text-primary" />
+                    <span>
+                        ของคุณ <strong>{stats.total}</strong> รายการ · เผยแพร่แล้ว{' '}
+                        <strong>{stats.published}</strong>
+                    </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye className="h-4 w-4" />
+                    ยอดดูรวม {stats.totalViews.toLocaleString('th-TH')} · อัปล่าสุด {lastLabel}
+                </div>
+                <div className="sm:ml-auto flex flex-wrap gap-2">
+                    <Badge variant={stats.published > 0 ? 'default' : 'outline'} className="text-[10px]">
+                        {stats.published > 0 ? 'มีสื่อเผยแพร่แล้ว' : 'ยังไม่มีสื่อเผยแพร่ — เริ่มอัปได้เลย'}
+                    </Badge>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
+                        <Link to="/educational-hub">ดูชุดเรียนในคลัง</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
 
 export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
@@ -61,6 +105,8 @@ export default function TeacherEduHubManager() {
                         </a>
                     </Button>
                 </div>
+
+                {staffId && <TeacherHabitStrip staffId={staffId} />}
 
                 {!staffId ? (
                     <Card>
@@ -87,7 +133,12 @@ export default function TeacherEduHubManager() {
                             <WorksheetSetsPanel staffId={staffId} mode="mine" />
                         </TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
-                        <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
+                        <TabsContent value="analytics">
+                            <div className="space-y-4">
+                                <HubUsageInsights staffId={staffId} />
+                                <TeacherGameAnalytics staffId={staffId} />
+                            </div>
+                        </TabsContent>
                         <TabsContent value="vocab-review"><ThaiVocabMissedReportClass /></TabsContent>
                     </Tabs>
                 )}
@@ -148,10 +199,37 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="text-sm text-muted-foreground">
                     รวม {items?.length ?? 0} รายการ
+                    {items ? ` · เผยแพร่ ${items.filter((i) => i.is_published).length}` : ''}
                 </div>
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={async () => {
+                            const mediaCat = categories?.find((c) => c.category_key === 'media');
+                            if (!mediaCat) {
+                                toast({ title: 'ยังไม่มีหมวดสื่อ', variant: 'destructive' });
+                                return;
+                            }
+                            const { data, error } = await educationalHubService.createFromMediaTemplate({
+                                ownerStaffId: staffId,
+                                categoryId: mediaCat.id,
+                            });
+                            if (error || !data) {
+                                toast({ title: 'สร้างร่างไม่สำเร็จ', description: error?.message, variant: 'destructive' });
+                                return;
+                            }
+                            queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
+                            toast({ title: 'สร้างร่างจากเทมเพลตแล้ว' });
+                            setEditing(data);
+                            setDialogOpen(true);
+                        }}
+                        disabled={!categories || categories.length === 0}
+                    >
+                        <BookOpen className="h-4 w-4 mr-2" />จากเทมเพลตสื่อ
+                    </Button>
                     <Button
                         onClick={() => { setEditing(null); setDialogOpen(true); }}
                         disabled={!categories || categories.length === 0}
@@ -159,10 +237,15 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                         <Plus className="h-4 w-4 mr-2" />เพิ่มสื่อ / ใบงาน / เกม
                     </Button>
                 </div>
+            </div>
                 <p className="text-xs text-muted-foreground">
                     ครูอัปโหลดเองได้ — แนะนำเริ่มที่หมวด <strong>สื่อ</strong> หรือ <strong>ใบงาน</strong> แล้วใส่วิชา·ชั้น·ปกก่อนเผยแพร่ ·{' '}
                     <a href="/docs/teacher-upload-media-guide.html" target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
                         คู่มือ 5 นาที
+                    </a>
+                    {' · '}
+                    <a href="/games/_template-media.html" target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                        เปิดเทมเพลตสื่อ
                     </a>
                 </p>
 
@@ -193,6 +276,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         items={list}
                                         invalidateKeys={invalidateKeys}
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
+                                        onDuplicated={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
                                         onVocabManage={(item) => setVocabItem(item)}
                                     />

@@ -98,13 +98,88 @@ export const conferencesService = {
       topic: topic ?? null,
     });
     if (error) throw error;
+
+    // Best-effort push to teacher (DESIGN 14.29)
+    try {
+      const { data: slot } = await supabase
+        .from('conference_slots' as any)
+        .select('teacher_user_id, starts_at, location')
+        .eq('id', slotId)
+        .maybeSingle();
+const slotRow = slot as { teacher_user_id?: string; starts_at?: string } | null;
+      const teacherId = slotRow?.teacher_user_id;
+      if (teacherId) {
+        const when = slotRow?.starts_at
+          ? new Date(slotRow.starts_at).toLocaleString('th-TH', {
+              timeZone: 'Asia/Bangkok',
+            })
+          : '';
+        await supabase.functions
+          .invoke('send-push', {
+            body: {
+              user_ids: [teacherId],
+              topic: 'conference',
+              title: 'มีการจองประชุมผู้ปกครอง',
+              body: topic ? `${topic}${when ? ` · ${when}` : ''}` : `นัดใหม่${when ? ` · ${when}` : ''}`,
+              url: '/teacher/conferences',
+              tag: `conference-book-${slotId}`,
+            },
+          })
+          .catch(() => {});
+      }
+    } catch {
+      // Non-fatal
+    }
   },
 
   async cancelBooking(bookingId: string, reason?: string): Promise<void> {
+    const { data: before } = await supabase
+      .from('conference_bookings' as any)
+      .select('id, slot_id, parent_user_id, topic')
+      .eq('id', bookingId)
+      .maybeSingle();
+
     const { error } = await supabase
       .from('conference_bookings' as any)
       .update({ status: 'cancelled', cancelled_reason: reason ?? null })
       .eq('id', bookingId);
     if (error) throw error;
+
+    // Notify counterparty best-effort
+    try {
+      const booking = before as {
+        slot_id?: string;
+        parent_user_id?: string;
+        topic?: string | null;
+      } | null;
+      if (!booking?.slot_id) return;
+      const { data: userResp } = await supabase.auth.getUser();
+      const { data: slot } = await supabase
+        .from('conference_slots' as any)
+        .select('teacher_user_id, starts_at')
+        .eq('id', booking.slot_id)
+        .maybeSingle();
+      const teacherId = (slot as { teacher_user_id?: string } | null)?.teacher_user_id;
+      const me = userResp.user?.id;
+      const notifyId =
+        me && teacherId && me === teacherId
+          ? booking.parent_user_id
+          : teacherId;
+      if (!notifyId) return;
+      await supabase.functions
+        .invoke('send-push', {
+          body: {
+            user_ids: [notifyId],
+            topic: 'conference',
+            title: 'ยกเลิกนัดประชุมผู้ปกครอง',
+            body: reason || booking.topic || 'มีการยกเลิกนัดแล้ว',
+            url: me === teacherId ? '/parent/conferences' : '/teacher/conferences',
+            tag: `conference-cancel-${bookingId}`,
+          },
+        })
+        .catch(() => {});
+    } catch {
+      // Non-fatal
+    }
   },
 };

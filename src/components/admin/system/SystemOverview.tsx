@@ -27,6 +27,9 @@ import {
     Rocket,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { educationalHubService } from '@/services/educational-hub.service';
+import { curriculumService } from '@/services/curriculum.service';
 
 const techStack = {
     frontend: [
@@ -271,8 +274,8 @@ const sprintPlan = [
 ];
 
 const mediaRoadmap = {
-    baseline: 'หลัง Phase 11–15: สื่อ+ใบงาน ป.1–6 เติมครบช่วง · lesson packs ≥30 · แนะนำสื่อ/ครูอัป/ใบงานบ้าน parent พร้อมใช้',
-    target: 'เป้าถัดไป: ครู non-admin อัปสื่อเป็นกิจวัตร · ผูกตัวชี้วัดต่อเนื่อง ≥80% · polish คลังสาธารณะ',
+    baseline: 'Phase 16: ครูอัปเป็นกิจวัตร · ชุดเรียนโผล่ในคลัง · ตัวชี้วัดต่อเนื่อง · มอบหมายใบงานบ้าน',
+    target: 'เป้า: ครู non-admin ≥1 อัปจริง · packs เป็นหน่วยสอน · coverage ตัวชี้วัดขยับเข้า ≥80% · parent ส่งงานจากชุดเรียนได้',
     phases: [
         {
             phase: 'Phase 11 — เติมวิชาบาง (+10 คู่)',
@@ -341,10 +344,54 @@ const mediaRoadmap = {
                 'อัปเดต แผนพัฒนาคลังสื่อ.md ล้างรายการ stale',
             ],
         },
+        {
+            phase: 'Phase 16 — habit + pack surface',
+            duration: 'ต่อเนื่อง',
+            status: 'now',
+            badge: 'bg-amber-600',
+            goal: 'ครูใช้คลังจริง · ชุดเรียนเป็นหน่วยสอน · มอบหมายบ้าน + coverage KPI',
+            items: [
+                'KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub',
+                'ชุดเรียนบน /educational-hub และหน้าครู (สื่อ → พิมพ์ → เกม)',
+                'มอบหมายใบงานผ่าน assignments.attachment_url + parent ส่งงาน/ความเห็นครู',
+                'เติมคู่เกม↔สื่อ + รีเฟรช showcase · coverage ตัวชี้วัดต่อเนื่อง',
+            ],
+        },
     ],
 };
 
 const versionHistory = [
+    {
+        version: 'v1.202.0 (360 close: coverage heuristic, receipt, fork, stock)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'mig 447: heuristic map สื่อ/ใบงานที่ยังไม่มีตัวชี้วัด → เร่ง coverage',
+            'ใบเสร็จบริจาค Phase 2 เบา: ออกเลข KP-พ.ศ. + /donate/receipt/:id พิมพ์ได้',
+            'Parent ชุดเรียนโชว์คะแนน/ความเห็นครู · ปุ่มทำสำเนาสื่อ · แถบสต็อกรางวัล drift',
+        ],
+    },
+    {
+        version: 'v1.201.0 (roadmap 360: chat attach, conference push, trust, packs↔plans)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'Chat แนบรูป/PDF (bucket chat-attachments · mig 446) + push นัดประชุมเมื่อจอง/ยกเลิก',
+            'การบ้าน: การ์ดงานรอตรวจ · เข้าเรียน/คะแนน: เตือนข้อมูลไม่ครบก่อนปพ. · footer + /privacy PDPA',
+            'แผนสอนผูก lesson pack · สตูดิโอเบาจากเทมเพลตสื่อ · HubUsageInsights ยอดเปิดดู · coverage กรองช่องว่าง',
+        ],
+    },
+    {
+        version: 'v1.200.0 (Phase 16 habit + lesson packs in hub)',
+        date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'โชว์ชุดเรียน (lesson packs) ใน /educational-hub และหน้าครู — CTA สื่อ→พิมพ์→เกม',
+            'KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub · coverage ตัวชี้วัดใน SystemOverview',
+            'มอบหมายใบงานจาก pack → /teacher/assignments · parent บันทึกฝึกแล้ว + ส่งงาน/ดูความเห็นครู',
+            'ขยายคู่เกม↔สื่อดูก่อนเล่น · รีเฟรช showcase · เปิด mediaRoadmap Phase 16',
+        ],
+    },
     {
         version: 'v1.199.1 (worksheet print/screen line parity)',
         date: 'ล่าสุด',
@@ -4369,7 +4416,7 @@ const generateMarkdown = () => {
     });
 
     const statusLabel: Record<string, string> = { done: 'เสร็จ', pending: 'รอ', 'in-progress': 'กำลังทำ' };
-    lines.push('\n## Roadmap คลังสื่อ+ใบงาน (Phase 11–15)');
+    lines.push('\n## Roadmap คลังสื่อ+ใบงาน (Phase 11–16)');
     lines.push(`> ${mediaRoadmap.baseline}`);
     lines.push(`> ${mediaRoadmap.target}`);
     mediaRoadmap.phases.forEach(p => {
@@ -4399,6 +4446,18 @@ const downloadFile = (content: string, filename: string, mime: string) => {
 
 export const SystemOverview = () => {
     const [copied, setCopied] = useState(false);
+
+    const { data: habit } = useQuery({
+        queryKey: ['edu-hub', 'non-admin-habit', 30],
+        queryFn: () => educationalHubService.getNonAdminUploadHabit(30),
+        staleTime: 60_000,
+    });
+
+    const { data: coverage } = useQuery({
+        queryKey: ['curriculum', 'indicator-coverage-summary'],
+        queryFn: () => curriculumService.indicatorCoverageSummary(),
+        staleTime: 60_000,
+    });
 
     const handleExportJSON = () => {
         downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
@@ -4703,24 +4762,52 @@ export const SystemOverview = () => {
                 </CardContent>
             </Card>
 
-            {/* Section F3: Media Roadmap Phase 11–15 */}
+            {/* Section F3: Media Roadmap Phase 11–16 */}
             <Card>
                 <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Rocket className="w-5 h-5 text-primary" />
-                        Roadmap คลังสื่อ+ใบงาน (Phase 11–15)
+                        Roadmap คลังสื่อ+ใบงาน (Phase 11–16)
                     </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">{mediaRoadmap.baseline}</p>
                     <p className="text-xs text-muted-foreground">{mediaRoadmap.target}</p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {habit ? habit.uploaderCount : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    คน · {habit ? habit.itemCount : '…'} รายการ
+                                </span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                {habit && habit.uploaderCount > 0
+                                    ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
+                                    : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ตัวชี้วัดที่มีสื่อ/เกมผูก</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {coverage ? `${coverage.pctCovered}%` : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
+                                </span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? '…'} ชิ้น · เติมต่อใน IndicatorCoverageDialog
+                            </p>
+                        </div>
+                    </div>
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {mediaRoadmap.phases.map((p) => (
                             <div key={p.phase} className="rounded-xl border border-border bg-secondary/20 overflow-hidden">
                                 <div className={`${p.badge} text-white px-4 py-2.5 flex items-center justify-between gap-2`}>
                                     <p className="text-sm font-bold">{p.phase}</p>
                                     <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-xs shrink-0">
-                                        {p.status === 'done' ? 'เสร็จ' : p.duration}
+                                        {p.status === 'done' ? 'เสร็จ' : p.status === 'now' ? 'กำลังทำ' : p.duration}
                                     </Badge>
                                 </div>
                                 <div className="p-4 space-y-2">

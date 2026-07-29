@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-09T11:25:58.319Z",
-  "totalAll": 104,
-  "totalShowcase": 94,
-  "totalWithCover": 92,
-  "totalWithIndicators": 87,
+  "generatedAt": "2026-07-29T08:36:17.090Z",
+  "totalAll": 109,
+  "totalShowcase": 99,
+  "totalWithCover": 97,
+  "totalWithIndicators": 88,
   "subjects": [
     "สุขศึกษา",
     "อื่นๆ",
@@ -14,7 +14,8 @@
     "สังคมศึกษา",
     "ศิลปะ",
     "การงานอาชีพ",
-    "ภาษาอังกฤษ"
+    "ภาษาอังกฤษ",
+    "วิทยาศาสตร์และเทคโนโลยี"
   ],
   "bySubject": {
     "สุขศึกษา": [
@@ -469,6 +470,31 @@
         "hasP4": true
       },
       {
+        "title": "divide-by-2",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/divide-by-2/cover.png",
+        "externalUrl": "/games/math/divide-by-2/index.html",
+        "playUrl": "/play/divide-by-2",
+        "gameSlug": "divide-by-2",
+        "indicators": [
+          "ค 1.1 ป.2/5",
+          "ค 1.1 ป.3/6",
+          "ค 1.1 ป.4/9"
+        ],
+        "p4Indicators": [
+          "ค 1.1 ป.4/9"
+        ],
+        "hasP4": true
+      },
+      {
         "title": "fraction-tank",
         "description": "",
         "subject": "คณิตศาสตร์",
@@ -515,6 +541,44 @@
         "p4Indicators": [
           "ค 1.1 ป.4/2"
         ],
+        "hasP4": true
+      },
+      {
+        "title": "laser-reflect",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/laser-reflect/cover.png",
+        "externalUrl": "/games/math/laser-reflect/index.html",
+        "playUrl": "/play/laser-reflect",
+        "gameSlug": "laser-reflect",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "Mario Math Run — มาริโอ้ลุยโจทย์คณิต",
+        "description": "",
+        "subject": "คณิตศาสตร์",
+        "subjectShort": "คณิต",
+        "subjectColor": "#1e40af",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/math/mario-math-run/cover.png",
+        "externalUrl": "/games/math/mario-math-run/index.html",
+        "playUrl": "/play/mario-math-run",
+        "gameSlug": "mario-math-run",
+        "indicators": [],
+        "p4Indicators": [],
         "hasP4": true
       },
       {
@@ -777,12 +841,14 @@
         "playUrl": "/games/math/math-word-problem-hub/index.html",
         "gameSlug": "math-word-problem-hub",
         "indicators": [
+          "ค 1.1 ป.4/10",
           "ค 1.1 ป.4/11",
           "ค 1.1 ป.4/12",
           "ค 1.2 ป.4/1",
           "ค 1.2 ป.5/1"
         ],
         "p4Indicators": [
+          "ค 1.1 ป.4/10",
           "ค 1.1 ป.4/11",
           "ค 1.1 ป.4/12",
           "ค 1.2 ป.4/1"
@@ -1075,6 +1141,25 @@
         "externalUrl": "/games/thai/attack-on-noun/index.html",
         "playUrl": "/play/attack-on-noun",
         "gameSlug": "attack-on-noun",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      },
+      {
+        "title": "archery-verb",
+        "description": "",
+        "subject": "ภาษาไทย",
+        "subjectShort": "ไทย",
+        "subjectColor": "#b91c1c",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/thai/archery-verb/cover.png",
+        "externalUrl": "/games/thai/archery-verb/index.html",
+        "playUrl": "/play/archery-verb",
+        "gameSlug": "archery-verb",
         "indicators": [],
         "p4Indicators": [],
         "hasP4": true
@@ -2286,6 +2371,27 @@
         "p4Indicators": [],
         "hasP4": true
       }
+    ],
+    "วิทยาศาสตร์และเทคโนโลยี": [
+      {
+        "title": "code-craft",
+        "description": "",
+        "subject": "วิทยาศาสตร์และเทคโนโลยี",
+        "subjectShort": "วิทย์/เทค",
+        "subjectColor": "#0f766e",
+        "grades": [
+          "ป.4",
+          "ป.5"
+        ],
+        "type": "game",
+        "thumbnail": "/games/tech/code-craft/cover.png",
+        "externalUrl": "/games/tech/code-craft/index.html",
+        "playUrl": "/play/code-craft",
+        "gameSlug": "code-craft",
+        "indicators": [],
+        "p4Indicators": [],
+        "hasP4": true
+      }
     ]
   },
   "items": [
@@ -2734,6 +2840,31 @@
       "hasP4": true
     },
     {
+      "title": "divide-by-2",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/divide-by-2/cover.png",
+      "externalUrl": "/games/math/divide-by-2/index.html",
+      "playUrl": "/play/divide-by-2",
+      "gameSlug": "divide-by-2",
+      "indicators": [
+        "ค 1.1 ป.2/5",
+        "ค 1.1 ป.3/6",
+        "ค 1.1 ป.4/9"
+      ],
+      "p4Indicators": [
+        "ค 1.1 ป.4/9"
+      ],
+      "hasP4": true
+    },
+    {
       "title": "fraction-tank",
       "description": "",
       "subject": "คณิตศาสตร์",
@@ -2780,6 +2911,44 @@
       "p4Indicators": [
         "ค 1.1 ป.4/2"
       ],
+      "hasP4": true
+    },
+    {
+      "title": "laser-reflect",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/laser-reflect/cover.png",
+      "externalUrl": "/games/math/laser-reflect/index.html",
+      "playUrl": "/play/laser-reflect",
+      "gameSlug": "laser-reflect",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "Mario Math Run — มาริโอ้ลุยโจทย์คณิต",
+      "description": "",
+      "subject": "คณิตศาสตร์",
+      "subjectShort": "คณิต",
+      "subjectColor": "#1e40af",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/math/mario-math-run/cover.png",
+      "externalUrl": "/games/math/mario-math-run/index.html",
+      "playUrl": "/play/mario-math-run",
+      "gameSlug": "mario-math-run",
+      "indicators": [],
+      "p4Indicators": [],
       "hasP4": true
     },
     {
@@ -3042,12 +3211,14 @@
       "playUrl": "/games/math/math-word-problem-hub/index.html",
       "gameSlug": "math-word-problem-hub",
       "indicators": [
+        "ค 1.1 ป.4/10",
         "ค 1.1 ป.4/11",
         "ค 1.1 ป.4/12",
         "ค 1.2 ป.4/1",
         "ค 1.2 ป.5/1"
       ],
       "p4Indicators": [
+        "ค 1.1 ป.4/10",
         "ค 1.1 ป.4/11",
         "ค 1.1 ป.4/12",
         "ค 1.2 ป.4/1"
@@ -3338,6 +3509,25 @@
       "externalUrl": "/games/thai/attack-on-noun/index.html",
       "playUrl": "/play/attack-on-noun",
       "gameSlug": "attack-on-noun",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "archery-verb",
+      "description": "",
+      "subject": "ภาษาไทย",
+      "subjectShort": "ไทย",
+      "subjectColor": "#b91c1c",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/thai/archery-verb/cover.png",
+      "externalUrl": "/games/thai/archery-verb/index.html",
+      "playUrl": "/play/archery-verb",
+      "gameSlug": "archery-verb",
       "indicators": [],
       "p4Indicators": [],
       "hasP4": true
@@ -4535,6 +4725,25 @@
       "externalUrl": "/games/english/voxel-quiz-adventure/index.html",
       "playUrl": "/play/voxel-quiz-adventure",
       "gameSlug": "voxel-quiz-adventure",
+      "indicators": [],
+      "p4Indicators": [],
+      "hasP4": true
+    },
+    {
+      "title": "code-craft",
+      "description": "",
+      "subject": "วิทยาศาสตร์และเทคโนโลยี",
+      "subjectShort": "วิทย์/เทค",
+      "subjectColor": "#0f766e",
+      "grades": [
+        "ป.4",
+        "ป.5"
+      ],
+      "type": "game",
+      "thumbnail": "/games/tech/code-craft/cover.png",
+      "externalUrl": "/games/tech/code-craft/index.html",
+      "playUrl": "/play/code-craft",
+      "gameSlug": "code-craft",
       "indicators": [],
       "p4Indicators": [],
       "hasP4": true

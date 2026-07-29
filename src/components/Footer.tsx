@@ -143,6 +143,14 @@ const Footer = () => {
           <div className="px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-primary-foreground/60 text-center md:text-left">
               © {new Date().getFullYear()} {settings.school_name}. สงวนลิขสิทธิ์.
+              {' · '}
+              <Link
+                to="/privacy"
+                onClick={() => window.scrollTo(0, 0)}
+                className="underline-offset-2 hover:underline hover:text-accent"
+              >
+                นโยบายความเป็นส่วนตัว (PDPA)
+              </Link>
             </p>
             <button
               onClick={scrollToTop}

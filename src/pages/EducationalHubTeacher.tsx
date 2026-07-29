@@ -38,6 +38,7 @@ import {
     type FilterState,
     type SortMode,
 } from '@/components/educational-hub/SectionToolbar';
+import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSection';
 import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
 import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
@@ -111,7 +112,7 @@ const EducationalHubTeacher = () => {
     const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
 
     // Admin edit mode — adds drag handles on section headers + item cards
-    const { isAdmin } = useUserRole();
+    const { isAdmin, isTeacher } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const dndSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -388,6 +389,11 @@ const EducationalHubTeacher = () => {
                 {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ย่อเป็นแถบสรุป+แท็บ ให้เห็นปกเกมทันที) */}
                 <section className="px-4 pt-6 max-w-5xl mx-auto">
                     <GamificationHub studentCode={hubStudentCode} />
+                </section>
+
+                {/* ชุดเรียน = หน่วยสอน (Phase 16) */}
+                <section className="px-4 pt-6 max-w-5xl mx-auto">
+                    <LessonPacksSection showAssignLink={isAdmin || isTeacher} limit={9} />
                 </section>
 
                 {/* Category sections */}
