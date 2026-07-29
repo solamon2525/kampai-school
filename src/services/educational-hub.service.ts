@@ -385,6 +385,101 @@ export const educationalHubService = {
                 { onConflict: 'key' },
             ),
 
+    /**
+     * Stats for the teacher habit loop on `/teacher/edu-hub`.
+     * Own items only — no admin comparison.
+     */
+    getMyUploadStats: async (
+        staffId: string,
+    ): Promise<{
+        total: number;
+        published: number;
+        totalViews: number;
+        lastCreatedAt: string | null;
+    }> => {
+        const { data, error } = await educationalHubService.listMyItems(staffId);
+        if (error) throw error;
+        const items = (data ?? []) as EduHubItem[];
+        const published = items.filter((i) => i.is_published).length;
+        const totalViews = items.reduce((sum, i) => sum + (i.view_count ?? 0), 0);
+        const lastCreatedAt =
+            items
+                .map((i) => i.created_at)
+                .filter(Boolean)
+                .sort()
+                .at(-1) ?? null;
+        return { total: items.length, published, totalViews, lastCreatedAt };
+    },
+
+    /**
+     * Admin KPI: non-admin staff who uploaded hub items in the last N days.
+     * Uses user_roles.role = 'admin' staff_id set as exclusion list.
+     */
+    getNonAdminUploadHabit: async (
+        sinceDays = 30,
+    ): Promise<{
+        sinceDays: number;
+        uploaderCount: number;
+        itemCount: number;
+        uploaders: Array<{ staffId: string; count: number; lastAt: string }>;
+    }> => {
+        const since = new Date();
+        since.setDate(since.getDate() - sinceDays);
+        const sinceIso = since.toISOString();
+
+        const [{ data: adminRoles, error: rolesErr }, { data: items, error: itemsErr }] =
+            await Promise.all([
+                supabase
+                    .from('user_roles' as never)
+                    .select('staff_id')
+                    .eq('role', 'admin'),
+                supabase
+                    .from('educational_hub_items' as never)
+                    .select('id, owner_staff_id, created_at')
+                    .gte('created_at', sinceIso)
+                    .not('owner_staff_id', 'is', null)
+                    .order('created_at', { ascending: false })
+                    .limit(500),
+            ]);
+        if (rolesErr) throw rolesErr;
+        if (itemsErr) throw itemsErr;
+
+        const adminStaffIds = new Set(
+            ((adminRoles ?? []) as { staff_id: string | null }[])
+                .map((r) => r.staff_id)
+                .filter((id): id is string => !!id),
+        );
+
+        const byOwner = new Map<string, { count: number; lastAt: string }>();
+        for (const row of (items ?? []) as {
+            id: string;
+            owner_staff_id: string;
+            created_at: string;
+        }[]) {
+            if (adminStaffIds.has(row.owner_staff_id)) continue;
+            const prev = byOwner.get(row.owner_staff_id);
+            if (!prev) {
+                byOwner.set(row.owner_staff_id, { count: 1, lastAt: row.created_at });
+            } else {
+                byOwner.set(row.owner_staff_id, {
+                    count: prev.count + 1,
+                    lastAt: row.created_at > prev.lastAt ? row.created_at : prev.lastAt,
+                });
+            }
+        }
+
+        const uploaders = Array.from(byOwner.entries())
+            .map(([staffId, v]) => ({ staffId, count: v.count, lastAt: v.lastAt }))
+            .sort((a, b) => b.count - a.count);
+
+        return {
+            sinceDays,
+            uploaderCount: uploaders.length,
+            itemCount: uploaders.reduce((s, u) => s + u.count, 0),
+            uploaders,
+        };
+    },
+
     // ─── Counters (anon-safe RPCs) ──────────────────────────────────────
     incrementView: (id: string) =>
         supabase.rpc('increment_ehi_view' as never, { p_id: id } as never),

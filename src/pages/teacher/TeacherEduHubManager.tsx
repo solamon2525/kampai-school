@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
-import { FolderOpen, Plus, BookOpen, Loader2 } from 'lucide-react';
+import { FolderOpen, Plus, BookOpen, Loader2, Eye, Upload } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { th } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -34,11 +37,51 @@ import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMis
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
+import { Link } from 'react-router-dom';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
     { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
 ];
+
+function TeacherHabitStrip({ staffId }: { staffId: string }) {
+    const { data: stats } = useQuery({
+        queryKey: ['edu-hub', 'my-upload-stats', staffId],
+        queryFn: () => educationalHubService.getMyUploadStats(staffId),
+    });
+
+    if (!stats) return null;
+
+    const lastLabel = stats.lastCreatedAt
+        ? formatDistanceToNow(new Date(stats.lastCreatedAt), { addSuffix: true, locale: th })
+        : 'ยังไม่เคยอัป';
+
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-2 text-sm">
+                    <Upload className="h-4 w-4 text-primary" />
+                    <span>
+                        ของคุณ <strong>{stats.total}</strong> รายการ · เผยแพร่แล้ว{' '}
+                        <strong>{stats.published}</strong>
+                    </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye className="h-4 w-4" />
+                    ยอดดูรวม {stats.totalViews.toLocaleString('th-TH')} · อัปล่าสุด {lastLabel}
+                </div>
+                <div className="sm:ml-auto flex flex-wrap gap-2">
+                    <Badge variant={stats.published > 0 ? 'default' : 'outline'} className="text-[10px]">
+                        {stats.published > 0 ? 'มีสื่อเผยแพร่แล้ว' : 'ยังไม่มีสื่อเผยแพร่ — เริ่มอัปได้เลย'}
+                    </Badge>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
+                        <Link to="/educational-hub">ดูชุดเรียนในคลัง</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
 
 export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
@@ -61,6 +104,8 @@ export default function TeacherEduHubManager() {
                         </a>
                     </Button>
                 </div>
+
+                {staffId && <TeacherHabitStrip staffId={staffId} />}
 
                 {!staffId ? (
                     <Card>

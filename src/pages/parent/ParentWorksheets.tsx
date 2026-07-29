@@ -1,27 +1,69 @@
 /**
- * ParentWorksheets.tsx — ใบงานบ้าน กรองตามชั้นลูก (Phase 15)
+ * ParentWorksheets.tsx — ใบงานบ้าน กรองตามชั้นลูก + ฝึกแล้ว + ส่งงาน/feedback (Phase 15–16)
  */
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, ExternalLink, FileText, Loader2, Package } from 'lucide-react';
+import { ExternalLink, FileText, Loader2, Package } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { PARENT_MENU } from '@/pages/parent/ParentDashboard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ChildSwitcher } from '@/components/parent/ChildSwitcher';
 import { useActiveChild } from '@/hooks/useActiveChild';
 import {
     gradeFromClassLabel,
     lessonPacksService,
 } from '@/services/lesson-packs.service';
+import { LessonPackCard } from '@/components/educational-hub/LessonPackCard';
 import { cn } from '@/lib/utils';
+
+function practicedKey(childId: string) {
+    return `kampai_pack_practiced_${childId}`;
+}
+
+function loadPracticed(childId: string): Set<string> {
+    try {
+        const raw = localStorage.getItem(practicedKey(childId));
+        const arr = raw ? (JSON.parse(raw) as string[]) : [];
+        return new Set(arr);
+    } catch {
+        return new Set();
+    }
+}
+
+function savePracticed(childId: string, set: Set<string>) {
+    localStorage.setItem(practicedKey(childId), JSON.stringify([...set]));
+}
 
 export default function ParentWorksheets() {
     const { activeChild, children: kids } = useActiveChild();
     const grade = useMemo(
         () => gradeFromClassLabel(activeChild?.class ?? null),
         [activeChild?.class],
+    );
+
+    const [practiced, setPracticed] = useState<Set<string>>(() =>
+        activeChild?.id ? loadPracticed(activeChild.id) : new Set(),
+    );
+
+    // Reload when child switches
+    useEffect(() => {
+        if (activeChild?.id) setPracticed(loadPracticed(activeChild.id));
+        else setPracticed(new Set());
+    }, [activeChild?.id]);
+
+    const togglePracticed = useCallback(
+        (packId: string) => {
+            if (!activeChild?.id) return;
+            setPracticed((prev) => {
+                const next = new Set(prev);
+                if (next.has(packId)) next.delete(packId);
+                else next.add(packId);
+                savePracticed(activeChild.id, next);
+                return next;
+            });
+        },
+        [activeChild?.id],
     );
 
     const { data: worksheets, isLoading: loadingWs } = useQuery({
@@ -45,7 +87,7 @@ export default function ParentWorksheets() {
                     <div>
                         <h1 className="text-2xl font-bold">ใบงานบ้าน</h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            ใบงานและชุดเรียนที่เหมาะกับชั้นของลูก — พิมพ์ A4 ได้ที่บ้าน
+                            ชุดเรียน: สื่อ → พิมพ์ → ส่งงาน/รับความเห็นครู — กรองตามชั้นของลูก
                         </p>
                     </div>
                     {kids.length > 0 && <ChildSwitcher />}
@@ -95,56 +137,16 @@ export default function ParentWorksheets() {
                                 </p>
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {packs!.map((pack) => {
-                                        const media = pack.items?.find((i) => i.role === 'media');
-                                        const ws = pack.items?.find((i) => i.role === 'worksheet');
-                                        return (
-                                            <Card key={pack.id} className="overflow-hidden">
-                                                <CardContent className="p-0">
-                                                    {pack.thumbnail_url ? (
-                                                        <img
-                                                            src={pack.thumbnail_url}
-                                                            alt=""
-                                                            className="aspect-video w-full object-cover bg-muted"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex aspect-video items-center justify-center bg-muted">
-                                                            <BookOpen className="h-8 w-8 text-muted-foreground" />
-                                                        </div>
-                                                    )}
-                                                    <div className="space-y-2 p-3">
-                                                        <p className="font-semibold line-clamp-2">{pack.title}</p>
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {pack.subject && (
-                                                                <Badge variant="outline" className="text-[10px]">{pack.subject}</Badge>
-                                                            )}
-                                                            {pack.grade_levels?.slice(0, 3).map((g) => (
-                                                                <Badge key={g} variant="secondary" className="text-[10px]">{g}</Badge>
-                                                            ))}
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2 pt-1">
-                                                            {media?.item?.external_url && (
-                                                                <Button size="sm" variant="outline" className="h-8 text-xs" asChild>
-                                                                    <a href={media.item.external_url} target="_blank" rel="noopener noreferrer">
-                                                                        <BookOpen className="mr-1 h-3.5 w-3.5" />
-                                                                        เปิดสื่อ
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                            {ws?.item?.external_url && (
-                                                                <Button size="sm" className="h-8 text-xs" asChild>
-                                                                    <a href={ws.item.external_url} target="_blank" rel="noopener noreferrer">
-                                                                        <FileText className="mr-1 h-3.5 w-3.5" />
-                                                                        เปิดใบงาน
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })}
+                                    {packs!.map((pack) => (
+                                        <LessonPackCard
+                                            key={pack.id}
+                                            pack={pack}
+                                            ritual
+                                            childId={activeChild.id}
+                                            practiced={practiced.has(pack.id)}
+                                            onTogglePracticed={() => togglePracticed(pack.id)}
+                                        />
+                                    ))}
                                 </div>
                             )}
                         </section>
@@ -199,6 +201,10 @@ export default function ParentWorksheets() {
                                 ดูคลังเต็มได้ที่{' '}
                                 <a href="/educational-hub?cat=worksheets" className="text-primary underline-offset-2 hover:underline">
                                     /educational-hub?cat=worksheets
+                                </a>
+                                {' · '}
+                                <a href="/parent/assignments" className="text-primary underline-offset-2 hover:underline">
+                                    การบ้าน / ความเห็นครู
                                 </a>
                             </p>
                         </section>
