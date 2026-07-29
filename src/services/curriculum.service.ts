@@ -283,6 +283,7 @@ export const curriculumService = {
     /**
      * School-wide indicator coverage for media roadmap KPI.
      * "covered" = has ≥1 linked hub item (game / media / worksheet).
+     * Uses RPC — client `.select()` truncates at 1000 rows and under-counts.
      */
     indicatorCoverageSummary: async (): Promise<{
         totalIndicators: number;
@@ -290,33 +291,20 @@ export const curriculumService = {
         pctCovered: number;
         linkedItems: number;
     }> => {
-        const [{ data: inds, error: e1 }, { data: maps, error: e2 }] = await Promise.all([
-            supabase
-                .from('curriculum_indicators' as never)
-                .select('id')
-                .eq('is_active', true),
-            supabase
-                .from('indicator_games' as never)
-                .select('indicator_id, edu_hub_item_id'),
-        ]);
-        if (e1) throw e1;
-        if (e2) throw e2;
-        const totalIndicators = ((inds ?? []) as { id: string }[]).length;
-        const coveredSet = new Set(
-            ((maps ?? []) as { indicator_id: string }[]).map((r) => r.indicator_id),
-        );
-        // Only count indicators that still exist / are active
-        const activeIds = new Set(((inds ?? []) as { id: string }[]).map((i) => i.id));
-        let covered = 0;
-        for (const id of coveredSet) {
-            if (activeIds.has(id)) covered += 1;
-        }
-        const linkedItems = new Set(
-            ((maps ?? []) as { edu_hub_item_id: string }[]).map((r) => r.edu_hub_item_id),
-        ).size;
-        const pctCovered =
-            totalIndicators === 0 ? 0 : Math.round((covered / totalIndicators) * 1000) / 10;
-        return { totalIndicators, covered, pctCovered, linkedItems };
+        const { data, error } = await supabase.rpc('indicator_coverage_summary' as never);
+        if (error) throw error;
+        const row = (data ?? {}) as {
+            totalIndicators?: number;
+            covered?: number;
+            pctCovered?: number;
+            linkedItems?: number;
+        };
+        return {
+            totalIndicators: Number(row.totalIndicators ?? 0),
+            covered: Number(row.covered ?? 0),
+            pctCovered: Number(row.pctCovered ?? 0),
+            linkedItems: Number(row.linkedItems ?? 0),
+        };
     },
 
     /**

@@ -32,4 +32,7 @@ if (!res.ok) {
   console.error(text.slice(0, 1500));
   process.exit(1);
 }
+if (text && text !== '[]' && text !== 'null') {
+  console.log(text.slice(0, 1500));
+}
 console.log('ok');

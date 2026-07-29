@@ -362,7 +362,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.202.0 (360 close: coverage heuristic, receipt, fork, stock)',
+        version: 'v1.202.1 (fix coverage KPI truncation + reverse map)',
+        date: 'ล่าสุด',
+        badge: 'bg-teal-700',
+        items: [
+            'แก้ KPI coverage ที่ PostgREST ตัดที่ 1000 แถว → RPC indicator_coverage_summary (mig 449)',
+            'mig 448 reverse heuristic + สคริปต์เช็ก coverage แบบ paged — จริง ~100% ของตัวชี้วัด active',
+        ],
+    },
+    {
+        version: 'v1.202.0 (360 cont: coverage heuristic, receipt, fork, stock)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-700',
         items: [
