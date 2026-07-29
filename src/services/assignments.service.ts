@@ -96,6 +96,30 @@ export const assignmentsService = {
     return (data ?? []) as AssignmentSubmission[];
   },
 
+  /**
+   * Graded submissions + assignment attachment — match pack worksheet URLs on parent worksheets.
+   */
+  async listGradedWithAssignment(studentId: string): Promise<
+    Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >
+  > {
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('*, assignments:assignment_id(id, title, attachment_url, max_score)')
+      .eq('student_id', studentId)
+      .not('graded_at', 'is', null)
+      .order('graded_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >;
+  },
+
   async submit(input: { assignment_id: string; student_id: string; body?: string; attachment_url?: string | null }): Promise<void> {
     const { data: userResp } = await supabase.auth.getUser();
     if (!userResp.user) throw new Error('Not authenticated');

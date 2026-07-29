@@ -93,6 +93,7 @@ const MyLearning = lazyWithRetry(() => import("./pages/student/MyLearning"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
 const Donate = lazyWithRetry(() => import("./pages/Donate"));
+const DonationReceipt = lazyWithRetry(() => import("./pages/DonationReceipt"));
 const ParentAssignments = lazyWithRetry(() => import("./components/parent/ParentAssignments").then(m => ({ default: m.ParentAssignments })));
 const ConferenceBooking = lazyWithRetry(() => import("./components/parent/ConferenceBooking").then(m => ({ default: m.ConferenceBooking })));
 const AssignmentManagement = lazyWithRetry(() => import("./components/teacher/AssignmentManagement").then(m => ({ default: m.AssignmentManagement })));
@@ -204,6 +205,7 @@ const App = () => (
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
             <Route path="/donate" element={<Donate />} />
+            <Route path="/donate/receipt/:id" element={<DonationReceipt />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/alumni" element={<Alumni />} />
             <Route path="/surveys/:id" element={<SurveyResponse />} />

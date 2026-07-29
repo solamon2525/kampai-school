@@ -10,6 +10,12 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { LessonPack } from '@/services/lesson-packs.service';
 
+export type PackFeedback = {
+    score: number | null;
+    maxScore: number | null;
+    comment: string | null;
+};
+
 export type LessonPackCardProps = {
     pack: LessonPack;
     /** Numbered classroom ritual CTAs (สื่อ → พิมพ์ → เกม) */
@@ -20,6 +26,8 @@ export type LessonPackCardProps = {
     childId?: string | null;
     practiced?: boolean;
     onTogglePracticed?: () => void;
+    /** Graded homework feedback matched by worksheet attachment URL */
+    feedback?: PackFeedback | null;
     className?: string;
 };
 
@@ -37,6 +45,7 @@ export function LessonPackCard({
     childId,
     practiced,
     onTogglePracticed,
+    feedback,
     className,
 }: LessonPackCardProps) {
     const { media, worksheet, game } = packRoles(pack);
@@ -83,7 +92,21 @@ export function LessonPackCard({
                                 {g}
                             </Badge>
                         ))}
+                        {feedback && (
+                            <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                                ครูให้คะแนนแล้ว
+                                {feedback.score != null
+                                    ? ` · ${feedback.score}${feedback.maxScore != null ? `/${feedback.maxScore}` : ''}`
+                                    : ''}
+                            </Badge>
+                        )}
                     </div>
+
+                    {feedback?.comment && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 border-l-2 border-primary/40 pl-2">
+                            “{feedback.comment}”
+                        </p>
+                    )}
 
                     {ritual && (
                         <p className="text-[10px] text-muted-foreground pt-0.5">

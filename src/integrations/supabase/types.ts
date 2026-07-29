@@ -3544,6 +3544,7 @@ export type Database = {
           id: string
           materials: string | null
           objectives: string | null
+          pack_id: string | null
           semester: number | null
           staff_id: string | null
           status: string | null
@@ -3562,6 +3563,7 @@ export type Database = {
           id?: string
           materials?: string | null
           objectives?: string | null
+          pack_id?: string | null
           semester?: number | null
           staff_id?: string | null
           status?: string | null
@@ -3580,6 +3582,7 @@ export type Database = {
           id?: string
           materials?: string | null
           objectives?: string | null
+          pack_id?: string | null
           semester?: number | null
           staff_id?: string | null
           status?: string | null
@@ -3588,6 +3591,13 @@ export type Database = {
           week_number?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "lesson_plans_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_packs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "lesson_plans_staff_id_fkey"
             columns: ["staff_id"]

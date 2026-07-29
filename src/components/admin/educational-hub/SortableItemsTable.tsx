@@ -27,7 +27,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import {
     GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen,
-    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2,
+    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Copy,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,13 +63,15 @@ interface Props {
     /** Query keys to invalidate after publish/delete/reorder */
     invalidateKeys: readonly (readonly unknown[])[];
     onEdit: (item: EduHubItem) => void;
+    /** After fork — open editor on the new draft */
+    onDuplicated?: (item: EduHubItem) => void;
     /** เปิด dialog รายละเอียดเกม — แสดงปุ่มเฉพาะรายการที่เป็นเกม (optional) */
     onDocs?: (item: EduHubItem) => void;
     /** จัดการคำศัพท์ Thai Vocab Hub (optional) */
     onVocabManage?: (item: EduHubItem) => void;
 }
 
-export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs, onVocabManage }: Props) => {
+export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDuplicated, onDocs, onVocabManage }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [orderedItems, setOrderedItems] = useState(items);
@@ -140,6 +142,21 @@ export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs, onVo
         toast({ title: 'ลบรายการสำเร็จ' });
     };
 
+    const handleDuplicate = async (item: EduHubItem) => {
+        if (!item.owner_staff_id) {
+            toast({ title: 'ทำสำเนาไม่ได้', description: 'รายการนี้ไม่มีเจ้าของครู', variant: 'destructive' });
+            return;
+        }
+        const { data, error } = await educationalHubService.duplicateItem(item.id, item.owner_staff_id);
+        if (error || !data) {
+            toast({ title: 'ทำสำเนาไม่สำเร็จ', description: error?.message, variant: 'destructive' });
+            return;
+        }
+        await invalidateAll();
+        toast({ title: 'สร้างสำเนาแล้ว (ยังไม่เผยแพร่)' });
+        onDuplicated?.(data);
+    };
+
     return (
         <Card>
             <CardContent className="p-0 relative">
@@ -163,6 +180,7 @@ export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDocs, onVo
                                         item={item}
                                         onTogglePublished={togglePublished}
                                         onEdit={onEdit}
+                                        onDuplicate={handleDuplicate}
                                         onDocs={onDocs}
                                         onVocabManage={onVocabManage}
                                         onDelete={handleDelete}
@@ -183,6 +201,7 @@ const SortableRow = ({
     item,
     onTogglePublished,
     onEdit,
+    onDuplicate,
     onDocs,
     onVocabManage,
     onDelete,
@@ -190,6 +209,7 @@ const SortableRow = ({
     item: EduHubItem;
     onTogglePublished: (item: EduHubItem) => void;
     onEdit: (item: EduHubItem) => void;
+    onDuplicate: (item: EduHubItem) => void;
     onDocs?: (item: EduHubItem) => void;
     onVocabManage?: (item: EduHubItem) => void;
     onDelete: (item: EduHubItem) => void;
@@ -254,6 +274,14 @@ const SortableRow = ({
                 <div className="flex gap-1">
                     <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                         <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        title="ทำสำเนา"
+                        onClick={() => onDuplicate(item)}
+                    >
+                        <Copy className="h-4 w-4" />
                     </Button>
                     {onDocs && isGameItem(item) && (
                         <Button

@@ -276,6 +276,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         items={list}
                                         invalidateKeys={invalidateKeys}
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
+                                        onDuplicated={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
                                         onVocabManage={(item) => setVocabItem(item)}
                                     />

@@ -792,8 +792,9 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **Verification flow:** parent บริจาค → donations.is_verified = false → admin ตรวจสลิปจริง → verify → trigger รวมเข้า raised_amount
 - **PromptPay QR:** ใช้ lib `promptpay-qr@0.5.0` — `generatePayload(id, { amount })` → render ใน `<QRCode>` (lib react-qr-code)
 - **PromptPay ID format:** รองรับเบอร์มือถือ (xxx-xxx-xxxx) และเลขปชช. (x-xxxx-xxxxx-xx-x) — lib parse อัตโนมัติ
-- **Tax receipt (Phase 2):** ปัจจุบันออกใบเสร็จ manual — เชื่อม e-Donation ของกรมสรรพากร = next sprint
+- **Tax receipt (Phase 2):** ใบเสร็จเบา: verify → ออกเลข `KP-{พ.ศ.}-{suffix}` · พิมพ์ที่ `/donate/receipt/:id` — e-Donation กรมสรรพากร = next sprint
 - **Public read:** anyone อ่าน campaigns ที่ is_active = true + verified donations ได้ — สำหรับ transparency
+- **Receipt print:** หน้าใบเสร็จอ่านได้หลัง is_verified (RLS public_read_verified_donations) — ห้ามโชว์สลิปดิบบนหน้าสาธารณะ
 
 ### Rule 14.38 — Cmd-K Registry Icon Import Discipline (post-mortem จาก 2ba6903)
 

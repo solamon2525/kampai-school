@@ -362,6 +362,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.202.0 (360 close: coverage heuristic, receipt, fork, stock)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'mig 447: heuristic map สื่อ/ใบงานที่ยังไม่มีตัวชี้วัด → เร่ง coverage',
+            'ใบเสร็จบริจาค Phase 2 เบา: ออกเลข KP-พ.ศ. + /donate/receipt/:id พิมพ์ได้',
+            'Parent ชุดเรียนโชว์คะแนน/ความเห็นครู · ปุ่มทำสำเนาสื่อ · แถบสต็อกรางวัล drift',
+        ],
+    },
+    {
         version: 'v1.201.0 (roadmap 360: chat attach, conference push, trust, packs↔plans)',
         date: 'ล่าสุด',
         badge: 'bg-violet-700',

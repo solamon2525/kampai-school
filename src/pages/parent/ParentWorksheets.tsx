@@ -14,7 +14,8 @@ import {
     gradeFromClassLabel,
     lessonPacksService,
 } from '@/services/lesson-packs.service';
-import { LessonPackCard } from '@/components/educational-hub/LessonPackCard';
+import { assignmentsService } from '@/services/assignments.service';
+import { LessonPackCard, type PackFeedback } from '@/components/educational-hub/LessonPackCard';
 import { cn } from '@/lib/utils';
 
 function practicedKey(childId: string) {
@@ -78,6 +79,26 @@ export default function ParentWorksheets() {
         queryFn: () => lessonPacksService.listPublishedWithItems({ grade }),
     });
 
+    const { data: graded } = useQuery({
+        queryKey: ['parent-graded-submissions', activeChild?.id],
+        enabled: !!activeChild?.id,
+        queryFn: () => assignmentsService.listGradedWithAssignment(activeChild!.id),
+    });
+
+    const feedbackByWorksheetUrl = useMemo(() => {
+        const map = new Map<string, PackFeedback>();
+        for (const row of graded ?? []) {
+            const url = row.assignments?.attachment_url;
+            if (!url || map.has(url)) continue;
+            map.set(url, {
+                score: row.score,
+                maxScore: row.assignments?.max_score ?? null,
+                comment: row.teacher_comment,
+            });
+        }
+        return map;
+    }, [graded]);
+
     const isLoading = loadingWs || loadingPacks;
 
     return (
@@ -137,16 +158,22 @@ export default function ParentWorksheets() {
                                 </p>
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {packs!.map((pack) => (
-                                        <LessonPackCard
-                                            key={pack.id}
-                                            pack={pack}
-                                            ritual
-                                            childId={activeChild.id}
-                                            practiced={practiced.has(pack.id)}
-                                            onTogglePracticed={() => togglePracticed(pack.id)}
-                                        />
-                                    ))}
+                                    {packs!.map((pack) => {
+                                        const wsUrl =
+                                            pack.items?.find((i) => i.role === 'worksheet')?.item
+                                                ?.external_url ?? null;
+                                        return (
+                                            <LessonPackCard
+                                                key={pack.id}
+                                                pack={pack}
+                                                ritual
+                                                childId={activeChild.id}
+                                                practiced={practiced.has(pack.id)}
+                                                onTogglePracticed={() => togglePracticed(pack.id)}
+                                                feedback={wsUrl ? feedbackByWorksheetUrl.get(wsUrl) ?? null : null}
+                                            />
+                                        );
+                                    })}
                                 </div>
                             )}
                         </section>
