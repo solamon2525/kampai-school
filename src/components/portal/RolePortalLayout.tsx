@@ -9,6 +9,7 @@ import { Menu, LogOut, Home, UserCheck, SlidersHorizontal, QrCode } from 'lucide
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { ADMIN_QUICK_MENU_CATALOG } from '@/lib/quickMenuCatalog';
 import { ScanFAB } from '@/components/shared/ScanFAB';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 
 export interface PortalMenuItem {
     id: string;
@@ -101,6 +102,9 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                     </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-end">
+                        <LanguageSwitcher className="h-8 px-2" />
+                    </div>
                     {(role === 'admin' || allowedMenus.length > 0) && (
                         <Button
                             variant="default"
@@ -136,6 +140,7 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                     <SheetContent side="left" className="p-0 w-72"><Sidebar /></SheetContent>
                 </Sheet>
                 <h1 className="font-bold text-primary text-sm truncate flex-1">{title}</h1>
+                <LanguageSwitcher className="h-8 px-2 shrink-0" />
             </div>
             <main className="lg:ml-64 min-h-screen">{children}</main>
             {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}

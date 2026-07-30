@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { ClipboardList, Send, Loader2, Check, Calendar, ExternalLink, FileText } from 'lucide-react';
+import { ClipboardList, Send, Loader2, Check, Calendar, ExternalLink, FileText, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,9 @@ export const ParentAssignments = () => {
   const [submitOpen, setSubmitOpen] = useState(false);
   const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
   const [body, setBody] = useState('');
+  const [attachFile, setAttachFile] = useState<File | null>(null);
+  const [attachPreview, setAttachPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['parent-assignments', activeChild?.class, activeChild?.room],
@@ -43,17 +46,29 @@ export const ParentAssignments = () => {
   });
 
   const submitMut = useMutation({
-    mutationFn: () =>
-      assignmentsService.submit({
+    mutationFn: async () => {
+      let attachmentUrl: string | null = attachPreview;
+      if (attachFile) {
+        setUploading(true);
+        try {
+          attachmentUrl = await assignmentsService.uploadAttachment(attachFile);
+        } finally {
+          setUploading(false);
+        }
+      }
+      await assignmentsService.submit({
         assignment_id: activeAssignmentId!,
         student_id: activeChild!.id,
         body,
-        attachment_url: worksheetHint || undefined,
-      }),
+        attachment_url: attachmentUrl,
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['parent-submissions', activeChild?.id] });
       setSubmitOpen(false);
       setBody('');
+      setAttachFile(null);
+      setAttachPreview(null);
       toast.success('ส่งงานแล้ว — รอครูตรวจ');
     },
     onError: (e: Error) => toast.error(e.message),
@@ -88,6 +103,8 @@ export const ParentAssignments = () => {
       .filter((x) => x !== null)
       .join('\n');
     setBody(sub?.body || seed);
+    setAttachFile(null);
+    setAttachPreview(sub?.attachment_url && !sub.attachment_url.includes('-worksheet.html') ? sub.attachment_url : null);
     setSubmitOpen(true);
   }, [matchingByAttach, worksheetHint, packHint, submissionByAssignment]);
 
@@ -242,19 +259,68 @@ export const ParentAssignments = () => {
             <DialogHeader>
               <DialogTitle>ส่งงาน</DialogTitle>
             </DialogHeader>
-            <div>
-              <Label>เนื้อหา / คำตอบ</Label>
-              <Textarea
-                rows={8}
-                placeholder="พิมพ์คำตอบ หรือบรรยายงานที่ทำ — กรณีงานเป็นไฟล์/รูป ให้ส่งครูใน LINE หรือ chat ระบบ"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-              />
+            <div className="space-y-3">
+              <div>
+                <Label>เนื้อหา / คำตอบ</Label>
+                <Textarea
+                  rows={6}
+                  placeholder="พิมพ์คำตอบ หรือสรุปสิ่งที่ลูกทำ"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>แนบรูป/PDF งานของลูก (ถ้ามี)</Label>
+                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                  <Button type="button" variant="outline" size="sm" className="h-8 text-xs" asChild>
+                    <label className="cursor-pointer">
+                      <Paperclip className="w-3.5 h-3.5 mr-1.5" />
+                      เลือกไฟล์
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0] ?? null;
+                          setAttachFile(f);
+                          setAttachPreview(f ? f.name : null);
+                        }}
+                      />
+                    </label>
+                  </Button>
+                  {attachPreview && (
+                    <span className="text-xs text-muted-foreground truncate max-w-[14rem]">
+                      {attachFile ? attachFile.name : 'มีไฟล์แนบแล้ว'}
+                    </span>
+                  )}
+                  {(attachFile || attachPreview) && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => {
+                        setAttachFile(null);
+                        setAttachPreview(null);
+                      }}
+                    >
+                      ลบแนบ
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setSubmitOpen(false)}>ยกเลิก</Button>
-              <Button onClick={() => submitMut.mutate()} disabled={!body.trim() || submitMut.isPending}>
-                {submitMut.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+              <Button
+                onClick={() => submitMut.mutate()}
+                disabled={(!body.trim() && !attachFile && !attachPreview) || submitMut.isPending || uploading}
+              >
+                {(submitMut.isPending || uploading) ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
                 ส่งงาน
               </Button>
             </DialogFooter>

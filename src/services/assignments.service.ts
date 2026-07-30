@@ -135,6 +135,51 @@ export const assignmentsService = {
       { onConflict: 'assignment_id,student_id' },
     );
     if (error) throw error;
+
+    // Best-effort push to assignment creator (teacher)
+    try {
+      const { data: asg } = await supabase
+        .from('assignments' as any)
+        .select('title, created_by')
+        .eq('id', input.assignment_id)
+        .maybeSingle();
+      const row = asg as { title?: string; created_by?: string | null } | null;
+      if (row?.created_by) {
+        await supabase.functions
+          .invoke('send-push', {
+            body: {
+              user_ids: [row.created_by],
+              topic: 'homework',
+              title: 'มีงานส่งใหม่',
+              body: row.title || 'ผู้ปกครองส่งงานแล้ว',
+              url: '/teacher/assignments',
+              tag: `homework-submit-${input.assignment_id}-${input.student_id}`,
+            },
+          })
+          .catch(() => {});
+      }
+    } catch {
+      // Non-fatal
+    }
+  },
+
+  /** Upload student work photo/PDF for parent homework submit. */
+  async uploadAttachment(file: File): Promise<string> {
+    const { data: userResp } = await supabase.auth.getUser();
+    if (!userResp.user) throw new Error('Not authenticated');
+    const cleanName = file.name.replace(/[^\w.\-]+/g, '_');
+    const path = `${userResp.user.id}/${Date.now()}_${crypto.randomUUID().slice(0, 8)}_${cleanName}`;
+    const { error: upErr } = await supabase.storage.from('assignment-attachments').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (upErr) throw upErr;
+    const { data: signed, error: signErr } = await supabase.storage
+      .from('assignment-attachments')
+      .createSignedUrl(path, 60 * 60 * 24 * 14);
+    if (signErr || !signed?.signedUrl) throw signErr ?? new Error('ไม่สามารถสร้างลิงก์ไฟล์ได้');
+    return signed.signedUrl;
   },
 
   async grade(submissionId: string, score: number, comment?: string): Promise<void> {

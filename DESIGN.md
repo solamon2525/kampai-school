@@ -699,7 +699,7 @@ grep -A 20 "table_name_here" src/integrations/supabase/types.ts
 - **TH = default + fallback:** `fallbackLng: 'th'` ใน i18next config — string ที่ยังไม่ translate จะ fall back กลับเป็น TH (ไม่ทำ key string โผล่)
 - **localStorage key:** `kampai_lang` — สำหรับ language persistence + ห้ามใช้ key อื่น
 - **Namespace:** ใช้ `common` เป็น default — namespace ใหม่ต้องเพิ่มทั้ง 2 locale files (`src/i18n/locales/{th,en}/{ns}.json`) พร้อมกัน
-- **Locale switcher mandatory:** ทุก layout ที่ public/admin/parent ต้องมี `<LanguageSwitcher />` ที่มองเห็น
+- **Locale switcher mandatory:** ทุก layout ที่ public/admin/parent ต้องมี `<LanguageSwitcher />` ที่มองเห็น — portal ครู/ผู้ปกครองใส่ใน `RolePortalLayout` (sidebar + mobile header)
 - **No `dark:` prefix:** ยังเหมือนเดิม — Light mode only (Rule 14.8)
 
 ### Rule 14.35 — Activity Heatmap

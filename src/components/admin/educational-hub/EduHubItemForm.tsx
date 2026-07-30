@@ -138,13 +138,24 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
     const watchedExtUrl = form.watch('external_url');
     const isStorageGame = !!(watchedExtUrl && watchedExtUrl.includes(STORAGE_GAME_MARKER));
 
-    // Auto-derive youtube_id from URL input
+    // Auto-derive youtube_id from URL input + fill thumbnail if empty
     const ytInput = form.watch('youtube_url_input');
     useEffect(() => {
         if (itemType !== 'youtube') return;
         const id = ytInput ? extractYoutubeId(ytInput) : null;
         if (id !== form.getValues('youtube_id')) {
             form.setValue('youtube_id', id ?? '', { shouldValidate: true });
+        }
+        if (id) {
+            const currentThumb = (form.getValues('thumbnail_url') ?? '').trim();
+            const autoThumb = youtubeThumbnail(id, 'hq');
+            const isYtThumb =
+                !currentThumb ||
+                /img\.youtube\.com\/vi\//.test(currentThumb) ||
+                /i\.ytimg\.com\/vi\//.test(currentThumb);
+            if (isYtThumb && currentThumb !== autoThumb) {
+                form.setValue('thumbnail_url', autoThumb, { shouldValidate: true });
+            }
         }
     }, [ytInput, itemType, form]);
 

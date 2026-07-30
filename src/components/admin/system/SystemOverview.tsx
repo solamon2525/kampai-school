@@ -362,6 +362,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.203.0 (coverage quality UX + homework attach + portal i18n)',
+        date: 'ล่าสุด',
+        badge: 'bg-indigo-700',
+        items: [
+            'IndicatorCoverageDialog: กรอง soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน) · BatchMapper รวมสื่อ+ใบงาน + เฉพาะยังไม่ map',
+            'Parent ส่งงานแนบรูป/PDF (bucket assignment-attachments · mig 450) + push แจ้งครู · YouTube auto-thumb',
+            'LanguageSwitcher ใน RolePortalLayout (ครู/ผู้ปกครอง) ตาม Rule 14.34',
+        ],
+    },
+    {
         version: 'v1.202.1 (fix coverage KPI truncation + reverse map)',
         date: 'ล่าสุด',
         badge: 'bg-teal-700',

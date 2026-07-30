@@ -31,13 +31,25 @@ import {
     GRADE_OPTIONS, subjectKeyFromFolder,
 } from '@/lib/curriculumSubjects';
 
-type GameItem = {
+type HubMapItem = {
     id: string;
     title: string;
     subject: string | null;
     grade_levels: string[] | null;
     game_slug: string | null;
+    tracked_game: boolean | null;
+    external_url: string | null;
+    item_type: string | null;
 };
+
+function itemKind(item: HubMapItem): 'game' | 'media' | 'worksheet' | 'other' {
+    const url = item.external_url ?? '';
+    if (url.includes('-worksheet.html')) return 'worksheet';
+    if (item.tracked_game || item.game_slug) return 'game';
+    if (url.includes('/games/') && url.includes('-media')) return 'media';
+    if (item.item_type === 'youtube' || item.item_type === 'file' || item.item_type === 'link') return 'media';
+    return 'other';
+}
 
 export const GameIndicatorBatchMapper = ({
     open, onClose,
@@ -49,23 +61,42 @@ export const GameIndicatorBatchMapper = ({
     const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [filterSubject, setFilterSubject] = useState<string>('all');
+    const [unmappedOnly, setUnmappedOnly] = useState(false);
+    const [includeMedia, setIncludeMedia] = useState(true);
     // selections: itemId → Set<indicator_id>
     const [selections, setSelections] = useState<Record<string, Set<string>>>({});
     const [saving, setSaving] = useState(false);
 
-    // 1) เกมที่ต้อง map (tracked + published)
+    // 1) published hub items (games + optional media/worksheet)
     const { data: games, isLoading: loadingGames } = useQuery({
-        queryKey: ['batch-mapper-games'],
+        queryKey: ['batch-mapper-items', includeMedia],
         enabled: open,
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('educational_hub_items' as never)
-                .select('id, title, subject, grade_levels, game_slug')
-                .eq('tracked_game', true)
-                .eq('is_published', true)
-                .order('title');
-            if (error) throw error;
-            return (data as unknown as GameItem[]) ?? [];
+            const page = 1000;
+            const out: HubMapItem[] = [];
+            for (let from = 0; ; from += page) {
+                let q = supabase
+                    .from('educational_hub_items' as never)
+                    .select('id, title, subject, grade_levels, game_slug, tracked_game, external_url, item_type')
+                    .eq('is_published', true)
+                    .order('title')
+                    .range(from, from + page - 1);
+                if (!includeMedia) {
+                    q = q.eq('tracked_game', true);
+                }
+                const { data, error } = await q;
+                if (error) throw error;
+                const rows = (data as unknown as HubMapItem[]) ?? [];
+                out.push(...rows);
+                if (rows.length < page) break;
+            }
+            if (includeMedia) {
+                return out.filter((i) => {
+                    const k = itemKind(i);
+                    return k === 'game' || k === 'media' || k === 'worksheet';
+                });
+            }
+            return out;
         },
     });
 
@@ -74,12 +105,20 @@ export const GameIndicatorBatchMapper = ({
         queryKey: ['batch-mapper-existing'],
         enabled: open,
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('indicator_games' as never)
-                .select('edu_hub_item_id, indicator_id');
-            if (error) throw error;
+            const page = 1000;
+            const rows: { edu_hub_item_id: string; indicator_id: string }[] = [];
+            for (let from = 0; ; from += page) {
+                const { data, error } = await supabase
+                    .from('indicator_games' as never)
+                    .select('edu_hub_item_id, indicator_id')
+                    .range(from, from + page - 1);
+                if (error) throw error;
+                const chunk = (data ?? []) as { edu_hub_item_id: string; indicator_id: string }[];
+                rows.push(...chunk);
+                if (chunk.length < page) break;
+            }
             const m = new Map<string, Set<string>>();
-            ((data ?? []) as { edu_hub_item_id: string; indicator_id: string }[]).forEach((r) => {
+            rows.forEach((r) => {
                 const arr = m.get(r.edu_hub_item_id) ?? new Set<string>();
                 arr.add(r.indicator_id);
                 m.set(r.edu_hub_item_id, arr);
@@ -101,12 +140,19 @@ export const GameIndicatorBatchMapper = ({
         queryKey: ['batch-mapper-all-indicators'],
         enabled: open,
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('curriculum_indicators' as never)
-                .select('*')
-                .eq('is_active', true);
-            if (error) throw error;
-            const arr = (data as unknown as CurriculumIndicator[]) ?? [];
+            const page = 1000;
+            const arr: CurriculumIndicator[] = [];
+            for (let from = 0; ; from += page) {
+                const { data, error } = await supabase
+                    .from('curriculum_indicators' as never)
+                    .select('*')
+                    .eq('is_active', true)
+                    .range(from, from + page - 1);
+                if (error) throw error;
+                const chunk = (data as unknown as CurriculumIndicator[]) ?? [];
+                arr.push(...chunk);
+                if (chunk.length < page) break;
+            }
             const m = new Map<string, CurriculumIndicator>();
             arr.forEach((i) => m.set(i.id, i));
             return { list: arr, map: m };
@@ -121,9 +167,10 @@ export const GameIndicatorBatchMapper = ({
         return games.filter((g) => {
             if (filterSubject !== 'all' && subjectKeyFromFolder(g.subject) !== filterSubject) return false;
             if (search && !g.title.toLowerCase().includes(search.toLowerCase())) return false;
+            if (unmappedOnly && (existingMap?.get(g.id)?.size ?? 0) > 0) return false;
             return true;
         });
-    }, [games, filterSubject, search]);
+    }, [games, filterSubject, search, unmappedOnly, existingMap]);
 
     const stats = useMemo(() => {
         if (!games || !existingMap) return { total: 0, unmapped: 0 };
@@ -132,7 +179,7 @@ export const GameIndicatorBatchMapper = ({
     }, [games, existingMap]);
 
     // เติมอัตโนมัติ: pre-select indicators ที่ตรง subject + grade ของเกม
-    const autoFill = (game: GameItem) => {
+    const autoFill = (game: HubMapItem) => {
         if (!allIndicators) return;
         const subjKey = subjectKeyFromFolder(game.subject);
         const grade = (game.grade_levels ?? [])[0] ?? GRADE_OPTIONS[0];
@@ -144,6 +191,31 @@ export const GameIndicatorBatchMapper = ({
         toast({
             title: `เติมอัตโนมัติแล้ว (${matches.length} ตัว)`,
             description: `โปรดตรวจสอบก่อนบันทึก — ${subjKey} ${grade}`,
+        });
+    };
+
+    const autoFillAllUnmapped = () => {
+        if (!games || !allIndicators || !existingMap) return;
+        let n = 0;
+        setSelections((prev) => {
+            const next = { ...prev };
+            for (const g of games) {
+                if ((existingMap.get(g.id)?.size ?? 0) > 0) continue;
+                if ((next[g.id]?.size ?? 0) > 0) continue;
+                const subjKey = subjectKeyFromFolder(g.subject);
+                const grade = (g.grade_levels ?? [])[0] ?? GRADE_OPTIONS[0];
+                const matches = allIndicators.list
+                    .filter((i) => i.subject_key === subjKey && i.grade === grade)
+                    .slice(0, 6);
+                if (!matches.length) continue;
+                next[g.id] = new Set(matches.map((m) => m.id));
+                n += 1;
+            }
+            return next;
+        });
+        toast({
+            title: n ? `เติมอัตโนมัติ ${n} รายการที่ยังว่าง` : 'ไม่มีรายการว่างให้เติม',
+            description: 'ตรวจก่อนกดบันทึก',
         });
     };
 
@@ -177,7 +249,7 @@ export const GameIndicatorBatchMapper = ({
             if (error) throw error;
             queryClient.invalidateQueries({ queryKey: ['batch-mapper-existing'] });
             queryClient.invalidateQueries({ queryKey: ['game-indicators'] });
-            toast({ title: `บันทึกแล้ว (${changed.length} เกม)` });
+            toast({ title: `บันทึกแล้ว (${changed.length} รายการ)` });
             onClose();
         } catch (err) {
             toast({
@@ -194,21 +266,21 @@ export const GameIndicatorBatchMapper = ({
         <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
             <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>จับคู่เกม ↔ ตัวชี้วัด (แบบรวดเร็ว)</DialogTitle>
+                    <DialogTitle>จับคู่สื่อ/เกม/ใบงาน ↔ ตัวชี้วัด (แบบรวดเร็ว)</DialogTitle>
                     <DialogDescription>
-                        ทั้งหมด {stats.total} เกม • ยังไม่ได้ map {stats.unmapped} เกม —
-                        ใช้ปุ่ม "เติมอัตโนมัติ" เพื่อเร่ง (heuristic จากวิชา+ระดับ) แล้วตรวจทีละเกม
+                        ทั้งหมด {stats.total} รายการ • ยังไม่ได้ map {stats.unmapped} —
+                        ใช้ปุ่ม "เติมอัตโนมัติ" เพื่อเร่ง (heuristic จากวิชา+ระดับ) แล้วตรวจทีละรายการ
                     </DialogDescription>
                 </DialogHeader>
 
                 {/* Filter bar */}
-                <div className="flex gap-2 items-center">
-                    <div className="relative flex-1">
+                <div className="flex flex-wrap gap-2 items-center">
+                    <div className="relative flex-1 min-w-[12rem]">
                         <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" />
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="ค้นหาเกม…"
+                            placeholder="ค้นหา…"
                             className="pl-8"
                         />
                     </div>
@@ -221,6 +293,27 @@ export const GameIndicatorBatchMapper = ({
                             ))}
                         </SelectContent>
                     </Select>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant={unmappedOnly ? 'default' : 'outline'}
+                        className="h-9 text-xs"
+                        onClick={() => setUnmappedOnly((v) => !v)}
+                    >
+                        เฉพาะยังไม่ map
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant={includeMedia ? 'default' : 'outline'}
+                        className="h-9 text-xs"
+                        onClick={() => setIncludeMedia((v) => !v)}
+                    >
+                        รวมสื่อ/ใบงาน
+                    </Button>
+                    <Button type="button" size="sm" variant="secondary" className="h-9 text-xs" onClick={autoFillAllUnmapped}>
+                        <Wand2 className="w-3.5 h-3.5 mr-1" /> เติมทั้งหมดที่ว่าง
+                    </Button>
                 </div>
 
                 {/* Game list */}
@@ -240,7 +333,7 @@ export const GameIndicatorBatchMapper = ({
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-sm line-clamp-1">{game.title}</p>
                                             <p className="text-[11px] text-muted-foreground">
-                                                {game.subject ?? '—'} • {(game.grade_levels ?? []).join(', ') || 'ไม่ระบุชั้น'}
+                                                {itemKind(game)} · {game.subject ?? '—'} • {(game.grade_levels ?? []).join(', ') || 'ไม่ระบุชั้น'}
                                             </p>
                                         </div>
                                         <Badge variant="secondary" className="shrink-0">
@@ -273,7 +366,7 @@ export const GameIndicatorBatchMapper = ({
                             );
                         })}
                         {!loadingGames && filteredGames.length === 0 && (
-                            <div className="p-8 text-center text-sm text-muted-foreground">ไม่พบเกมตามตัวกรอง</div>
+                            <div className="p-8 text-center text-sm text-muted-foreground">ไม่พบรายการตามตัวกรอง</div>
                         )}
                     </div>
                 </ScrollArea>
@@ -294,7 +387,7 @@ export const GameIndicatorBatchMapper = ({
 const GameIndicatorEditor = ({
     game, selected, onToggle, onClear,
 }: {
-    game: GameItem;
+    game: HubMapItem;
     selected: Set<string>;
     onToggle: (id: string) => void;
     onClear: () => void;

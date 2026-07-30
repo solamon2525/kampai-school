@@ -29,6 +29,8 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
     const [subjectKey, setSubjectKey] = useState('thai');
     const [grade, setGrade] = useState('ป.1');
     const [gapsOnly, setGapsOnly] = useState(false);
+    /** soft gap: missing game / media / worksheet (even if other kinds exist) */
+    const [softGap, setSoftGap] = useState<'none' | 'no-game' | 'no-media' | 'no-worksheet'>('none');
 
     const { data: rows, isLoading } = useQuery({
         queryKey: ['indicator-coverage', subjectKey, grade],
@@ -39,6 +41,7 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
         const total = (rows ?? []).length;
         const withGame = (rows ?? []).filter((r) => r.games.length > 0).length;
         const withMedia = (rows ?? []).filter((r) => r.media.length > 0).length;
+        const withWs = (rows ?? []).filter((r) => r.worksheets.length > 0).length;
         const withAny = (rows ?? []).filter(
             (r) => r.games.length > 0 || r.media.length > 0 || r.worksheets.length > 0,
         ).length;
@@ -46,8 +49,12 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
             total,
             withGame,
             withMedia,
+            withWs,
             withAny,
             gaps: total - withAny,
+            noGame: total - withGame,
+            noMedia: total - withMedia,
+            noWs: total - withWs,
             gamePct: total ? Math.round((withGame / total) * 100) : 0,
             mediaPct: total ? Math.round((withMedia / total) * 100) : 0,
             anyPct: total ? Math.round((withAny / total) * 100) : 0,
@@ -55,12 +62,17 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
     }, [rows]);
 
     const visibleRows = useMemo(() => {
-        const list = rows ?? [];
-        if (!gapsOnly) return list;
-        return list.filter(
-            (r) => r.games.length === 0 && r.media.length === 0 && r.worksheets.length === 0,
-        );
-    }, [rows, gapsOnly]);
+        let list = rows ?? [];
+        if (gapsOnly) {
+            list = list.filter(
+                (r) => r.games.length === 0 && r.media.length === 0 && r.worksheets.length === 0,
+            );
+        }
+        if (softGap === 'no-game') list = list.filter((r) => r.games.length === 0);
+        if (softGap === 'no-media') list = list.filter((r) => r.media.length === 0);
+        if (softGap === 'no-worksheet') list = list.filter((r) => r.worksheets.length === 0);
+        return list;
+    }, [rows, gapsOnly, softGap]);
 
     return (
         <>
@@ -93,9 +105,39 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
                     size="sm"
                     variant={gapsOnly ? 'default' : 'outline'}
                     className="h-8 text-xs"
-                    onClick={() => setGapsOnly((v) => !v)}
+                    onClick={() => {
+                        setGapsOnly((v) => !v);
+                        if (!gapsOnly) setSoftGap('none');
+                    }}
                 >
-                    เฉพาะช่องว่าง ({stats.gaps})
+                    ว่างสนิท ({stats.gaps})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-game' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-game' ? 'none' : 'no-game'))}
+                >
+                    ยังไม่มีเกม ({stats.noGame})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-media' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-media' ? 'none' : 'no-media'))}
+                >
+                    ยังไม่มีสื่อ ({stats.noMedia})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-worksheet' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-worksheet' ? 'none' : 'no-worksheet'))}
+                >
+                    ยังไม่มีใบงาน ({stats.noWs})
                 </Button>
                 <div className="ml-auto flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                     <span className={stats.anyPct >= 80 ? 'text-emerald-700 font-semibold' : ''}>
@@ -113,7 +155,9 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
                     </div>
                 ) : visibleRows.length === 0 ? (
                     <p className="py-10 text-center text-sm text-muted-foreground">
-                        {gapsOnly ? 'ชั้นนี้ไม่มีช่องว่างแล้ว — ครบทุกตัวชี้วัด' : 'ยังไม่มีตัวชี้วัดของวิชานี้ในระดับชั้นนี้'}
+                        {gapsOnly || softGap !== 'none'
+                            ? 'ไม่มีรายการตามตัวกรองนี้'
+                            : 'ยังไม่มีตัวชี้วัดของวิชานี้ในระดับชั้นนี้'}
                     </p>
                 ) : (
                     visibleRows.map((r) => {
