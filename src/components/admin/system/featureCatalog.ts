@@ -129,9 +129,10 @@ export const featureCatalog: FeatureDomain[] = [
             },
             {
                 name: 'ตัวชี้วัดหลักสูตร + coverage',
-                purpose: 'ผูกเกม/สื่อ/ใบงานกับตัวชี้วัด สพฐ. และดูช่องว่าง',
+                purpose:
+                    'ผูกเกม/สื่อ/ใบงานกับตัวชี้วัด สพฐ. — map ตัวชี้วัดใช้งาน ≈100% แล้ว (RPC) โฟกัสคุณภาพ soft-gap',
                 canExtend: true,
-                extendNote: 'จำนวน map สูงแล้ว — โฟกัสคุณภาพด้วย soft-gap',
+                extendNote: 'จำนวนครบแล้ว — รีวิวคุณภาพต่อเนื่อง ไม่ใช่เติม map มั่ว',
                 ideas12m: ['รีวิว soft-gap รายวิชาเป็นสปรินต์', 'รายงาน coverage ต่อครูประจำชั้น'],
                 status: 'live',
             },
@@ -258,9 +259,12 @@ export const featureCatalog: FeatureDomain[] = [
             },
             {
                 name: 'ใบงานพิมพ์ + lesson packs',
-                purpose: 'ชุดสอน สื่อ→พิมพ์→เกม และมอบหมายบ้าน',
+                purpose: 'ชุดสอน สื่อ→พิมพ์→เกม และมอบหมายบ้าน (แนบไฟล์ได้)',
                 canExtend: true,
-                ideas12m: ['ปิด Phase 16 ด้วยหลักฐานใช้งานจริง', 'pack แนะนำตามชั้นลูก'],
+                ideas12m: [
+                    'ปิด Phase 16 ด้วยหลักฐานครู non-admin อัปจริง',
+                    'ทำให้ลูป pack → มอบหมาย → ส่ง → ตรวจ เป็นกิจวัตร',
+                ],
                 status: 'live',
             },
             {
@@ -530,8 +534,8 @@ export const longTermPlan: LongTermHorizon[] = [
             {
                 title: 'Learning loop',
                 items: [
-                    'ปิด Phase 16 ด้วยหลักฐานครู non-admin อัปสื่อ',
-                    'รีวิวคุณภาพ map ตัวชี้วัดด้วย soft-gap',
+                    'ปิด Phase 16 ด้วยหลักฐานครู non-admin อัปสื่อ (โค้ด KPI พร้อมแล้ว)',
+                    'รีวิวคุณภาพ map ตัวชี้วัดด้วย soft-gap (coverage จำนวนครบแล้ว)',
                     'ลูป pack → มอบหมาย → ส่งงานบ้าน → ตรวจ ให้เป็นกิจวัตร',
                 ],
             },

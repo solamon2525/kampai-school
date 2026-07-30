@@ -95,106 +95,91 @@ const techStack = {
 };
 
 const dbGroups = [
-    { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories', 'hero_slides', 'testimonials', 'partners'] },
-    { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data', 'score_records', 'conduct_scores'] },
-    { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'savings_transactions', 'savings_summary', 'rewards', 'reward_claims', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
-    { label: 'สารบรรณ + Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'letter_tracking_logs', 'orders_announcements', 'meetings', 'signatures', 'budget_items', 'sar_records', 'ics_records', 'action_plan_items', 'doc_templates', 'student_documents'] },
-    { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
-    { label: 'วิชาการ', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'student_special_needs', 'counseling_records', 'supervision_records'] },
-    { label: 'ศูนย์การศึกษา', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'v_educational_hub_teachers (view)'] },
-    { label: 'เกมการศึกษา', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'game_student_stats (view)'] },
-    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities', 'notifications', 'user_roles', 'user_quick_menu_preferences'] },
+    { label: 'เนื้อหา CMS', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'hero_slides', 'testimonials', 'partners', 'faq', 'ticker_items', 'surveys'] },
+    { label: 'บุคลากร / นักเรียน', tables: ['administrators', 'staff', 'students', 'attendance_records', 'grade_data', 'score_records', 'conduct_scores', 'parent_student_links', 'student_health_records', 'student_documents'] },
+    { label: 'ธนาคาร / รางวัล', tables: ['waste_categories', 'waste_transactions', 'savings_transactions', 'rewards', 'reward_claims', 'daily_quest_config', 'daily_quest_completions'] },
+    { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
+    { label: 'HR', tables: ['leave_requests', 'leave_balances', 'training_records', 'pa_assessments'] },
+    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
+    { label: 'คลังสื่อ / packs', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'lesson_packs', 'lesson_pack_items', 'game_docs', 'game_bgm_tracks'] },
+    { label: 'เกม / quest', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'online_matches', 'english_quest_worlds', 'english_quest_progress', 'pixel_forest_rpg_profiles'] },
+    { label: 'Portal / การบ้าน', tables: ['assignments', 'assignment_submissions', 'conference_slots', 'conference_bookings', 'pickup_persons', 'pickup_log', 'class_photos', 'class_photo_tags'] },
+    { label: 'สื่อสาร', tables: ['chat_threads', 'chat_messages', 'notifications', 'push_subscriptions', 'line_user_links', 'line_message_logs', 'emergency_alerts'] },
+    { label: 'PDPA / บริจาค', tables: ['pdpa_consents', 'pdpa_erasure_requests', 'data_access_logs', 'donation_campaigns', 'donations'] },
+    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'user_roles', 'user_menu_permissions', 'shared_quick_menu', 'user_dashboard_layout', 'ai_assist_log', 'cctv_cameras', 'admissions', 'alumni_profiles'] },
 ];
 
+/** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
-    // 🎨 UX/UI Beautification — เน้นทำให้ระบบสวย น่าใช้
-    { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion — เร็วขึ้น 10x' },
-    { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม/คำสั่ง' },
-    { icon: '🎨', title: 'Homepage Redesign (Motion + Parallax)', desc: 'หน้าแรกระดับ modern: Video Background, Parallax Scroll, Animated Hero' },
-    { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour guide ขึ้นอัตโนมัติสำหรับ admin/teacher/parent คนแรก (react-joyride)' },
-    { icon: '📊', title: 'Customizable Dashboard Widgets', desc: 'ลาก-วาง widgets เลือกข้อมูลที่อยากเห็นบน Dashboard ตามบทบาท' },
-    { icon: '🏆', title: 'Student Gamification + Badges', desc: 'ระบบเหรียญ/ความสำเร็จ: Waste Bank milestones, คะแนนเด่น, ความประพฤติดี' },
-    { icon: '📅', title: 'Activity Heatmap (GitHub-style)', desc: 'แสดงการมีส่วนร่วมนักเรียน/ครู รายปีแบบ heatmap calendar' },
-    { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG interactive — คลิก hover อาคาร/ห้องดูข้อมูลได้' },
-    { icon: '📧', title: 'Visual Newsletter Builder', desc: 'Drag-drop สร้าง email template + ส่งผ่าน Resend อัตโนมัติเมื่อมีข่าวใหม่' },
-
-    // 🔔 Communication & Integration
-    { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', desc: 'แชทภายในเว็บ realtime + typing indicator + read receipts' },
-    { icon: '📲', title: 'PWA + Push Notifications', desc: 'ติดตั้งเป็นแอปบนมือถือ + Browser push notifications เรียบทุกแพลตฟอร์ม' },
-    { icon: '📱', title: 'LINE Messaging API Integration', desc: 'แจ้งผ่าน LINE เมื่อมีข่าว/กิจกรรม/ลูกขาดเรียน (LINE Notify ปิดบริการ เม.ย. 2025 แล้ว — ใช้ Messaging API แทน)' },
-    { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง (ThaiBulkSMS/Twilio) — ไม่ต้อง copy template แล้ว' },
-    { icon: '🔗', title: 'Parent Multi-child Linking', desc: 'ผู้ปกครอง 1 account รองรับลูกหลายคน พร้อม child switcher ด้านบน' },
-    { icon: '🌐', title: 'Multi-language (TH/EN)', desc: 'Toggle ภาษาไทย/อังกฤษ รองรับ i18n ทั้งเว็บ + รองรับผู้ปกครอง expat' },
-    { icon: '📆', title: 'Google Calendar 2-way Sync', desc: 'ซิงค์กิจกรรม/ปฏิทินวิชาการกับ Google Calendar ทั้งสองทาง' },
-    { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานด้วย drag chart + field + date filter ส่งออก PDF/CSV' },
+    { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion' },
+    { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม' },
+    { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour สำหรับ admin/ครู/ผู้ปกครองคนแรก' },
+    { icon: '📅', title: 'Activity Heatmap', desc: 'ความมีส่วนร่วมรายปีแบบ GitHub contribution graph' },
+    { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG — คลิกอาคาร/ห้องดูข้อมูล' },
+    { icon: '📧', title: 'Visual Newsletter Builder', desc: 'ลากวางเทมเพลตอีเมล + ส่งผ่าน Resend เมื่อมีข่าวใหม่' },
+    { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง — ตอนนี้มีแค่เทมเพลตคัดลอก (deferred)' },
+    { icon: '🌐', title: 'i18n ครบทั้งเว็บ', desc: 'LanguageSwitcher ใน portal มีแล้ว — ขยายแอดมิน + หน้าสาธารณะ' },
+    { icon: '📆', title: 'Google Calendar / iCal', desc: 'ซิงค์ปฏิทินภายนอก (เริ่มจาก iCal ก่อน OAuth เต็ม)' },
+    { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานลาก chart + filter ส่งออก PDF/CSV' },
+    { icon: '🧾', title: 'e-Donation กรมสรรพากร', desc: 'ใบเสร็จภาษีทางการ — ตอนนี้มีใบเสร็จเบา + PromptPay (deferred ปี 2)' },
+    { icon: '🏫', title: 'MoE SIS / EMIS sync', desc: 'ซิงค์ทะเบียนสองทาง — คง DMC export จนกว่ามี API ชัด (deferred)' },
 ];
 
 const sprintPlan = [
     {
-        sprint: '✅ Sprint 1 — Quick Wins ชัดตา (เสร็จแล้ว v1.5.0)',
-        duration: '~1 สัปดาห์',
-        goal: 'ทำให้ระบบสวยทันทีด้วยการปรับ visual polish ที่ใช้ effort น้อยแต่ผลลัพธ์ชัด',
+        sprint: '✅ ส่งมอบแล้ว (ถึง v1.204)',
+        duration: 'เสร็จ',
+        goal: 'แกนโรงเรียนครบ: CMS · วิชาการ/ปพ./DMC · ธนาคาร+เกม · คลังสื่อ/เกม/ใบงาน/packs · Chat/LINE/Push · Portal 3 บทบาท · สารบรรณ/HR · PDPA/บริจาค',
         badge: 'bg-emerald-600',
         items: [
-            { icon: '🌓', title: 'Dark Mode + Theme Switcher', effort: '1 วัน', stack: 'next-themes + shadcn CSS variables' },
-            { icon: '🖼️', title: 'Empty State Illustrations', effort: '1 วัน', stack: 'unDraw SVG + EmptyState component' },
-            { icon: '✨', title: 'Skeleton Loaders', effort: '1 วัน', stack: 'shadcn Skeleton + react-loading-skeleton' },
-            { icon: '🎨', title: 'Homepage Motion Polish', effort: '2 วัน', stack: 'Framer Motion + Parallax' },
+            { icon: '💬', title: 'Chat + แนบไฟล์ · Push · LINE OA', effort: 'live', stack: 'mig 446 + push_subscriptions + line_*' },
+            { icon: '📦', title: 'Lesson packs + มอบหมายบ้าน + แนบงาน', effort: 'live', stack: 'lesson_packs · assignments · mig 450' },
+            { icon: '📊', title: 'Coverage KPI + soft-gap + BatchMapper', effort: 'live', stack: 'RPC indicator_coverage_summary · mig 447–449' },
+            { icon: '🧾', title: 'บริจาค PromptPay + ใบเสร็จเบา', effort: 'live', stack: 'donations · printable receipt' },
+            { icon: '📚', title: 'บทสรุปฟีเจอร์ทั้งระบบ (SoT)', effort: 'live', stack: 'featureCatalog.ts · v1.204' },
         ],
     },
     {
-        sprint: 'Sprint 2 — Power User Features',
-        duration: '~1 สัปดาห์',
-        goal: 'เพิ่มความเร็วในการใช้งานสำหรับ admin/ครู ให้รู้สึกเหมือน Linear/Notion',
-        badge: 'bg-blue-500',
+        sprint: 'ตอนนี้ — Phase 16 ops',
+        duration: 'ต่อเนื่อง',
+        goal: 'โค้ด Phase 16 พร้อมแล้ว — ปิดด้วยหลักฐานการใช้งานจริงของครู + คุณภาพ map',
+        badge: 'bg-amber-600',
         items: [
-            { icon: '⌘', title: 'Command Palette (Ctrl+K)', effort: '2 วัน', stack: 'cmdk + shadcn Dialog' },
-            { icon: '🔍', title: 'Global Fuzzy Search', effort: '2 วัน', stack: 'fuse.js + Supabase multi-table query' },
-            { icon: '🎯', title: 'Onboarding Tour', effort: '1 วัน', stack: 'react-joyride + localStorage flag' },
+            { icon: '👩‍🏫', title: 'ครู non-admin อัปสื่อ ≥1 คน', effort: 'ops', stack: 'KPI ใน /teacher/edu-hub + System Overview' },
+            { icon: '🔎', title: 'รีวิว soft-gap รายวิชา', effort: 'ops', stack: 'IndicatorCoverageDialog กรอง soft-gap' },
+            { icon: '🔁', title: 'ลูป pack → มอบหมาย → ส่ง → ตรวจ', effort: 'habit', stack: 'ทำให้เป็นกิจวัตรรายสัปดาห์' },
         ],
     },
     {
-        sprint: 'Sprint 3 — Engagement & Gamification',
-        duration: '~1-2 สัปดาห์',
-        goal: 'ทำให้นักเรียน/ครู/ผู้ปกครอง อยากเข้ามาใช้เว็บบ่อยขึ้น',
-        badge: 'bg-rose-500',
+        sprint: 'คิวถัดไป — ปี 1 harden',
+        duration: '3–6 เดือน',
+        goal: 'ทำให้ของที่มีใช้ครบทุกวัน + สื่อสารพึ่งได้ + PDPA เป็นกิจวัตร',
+        badge: 'bg-blue-600',
         items: [
-            { icon: '🏆', title: 'Student Gamification + Badges', effort: '3 วัน', stack: 'Migration + badges table + achievement engine' },
-            { icon: '📅', title: 'Activity Heatmap', effort: '2 วัน', stack: 'react-calendar-heatmap + aggregate query' },
-            { icon: '📊', title: 'Customizable Dashboard Widgets', effort: '3 วัน', stack: 'dnd-kit + user preferences table' },
+            { icon: '✅', title: 'เช็คชื่อ/คะแนนครบก่อนปิดภาค', effort: 'ops', stack: 'ปพ. completeness drills' },
+            { icon: '🔐', title: 'PDPA ความยินยอม + erasure SLA', effort: 'ops', stack: 'pdpa_* + /privacy' },
+            { icon: '📣', title: 'ซ้อมแจ้งเตือนฉุกเฉิน + Push/LINE', effort: 'ops', stack: 'emergency_alerts' },
+            { icon: '⌘', title: 'Cmd+K / ค้นหาทั่วระบบ', effort: 'dev', stack: 'cmdk (installed) + fuse' },
         ],
     },
     {
-        sprint: 'Sprint 4 — Communication & Integration',
-        duration: '~2 สัปดาห์',
-        goal: 'เชื่อมโยงกับระบบภายนอก + การสื่อสารระหว่างโรงเรียน-ผู้ปกครอง',
-        badge: 'bg-emerald-500',
+        sprint: 'ปี 2 — เชื่อมภายนอก (ตัดสินใจก่อนทำ)',
+        duration: 'ปีถัดไป',
+        goal: 'ขยายเฉพาะเมื่อมีความต้องการจริง — ไม่ทำ SIS/e-Donation ล่วงหน้า',
+        badge: 'bg-violet-700',
         items: [
-            { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', effort: '4 วัน', stack: 'Supabase Realtime + messages table' },
-            { icon: '📲', title: 'PWA + Push Notifications', effort: '2 วัน', stack: 'vite-plugin-pwa + Web Push API' },
-            { icon: '📱', title: 'LINE Messaging API Integration', effort: '2 วัน', stack: 'LINE Messaging API + Edge Function (LINE Notify ปิดแล้ว เม.ย. 2025)' },
-            { icon: '📨', title: 'SMS Gateway (จริง)', effort: '2 วัน', stack: 'ThaiBulkSMS/Twilio + Edge Function' },
-            { icon: '🔗', title: 'Parent Multi-child Linking', effort: '2 วัน', stack: 'user_children junction table + child switcher' },
-        ],
-    },
-    {
-        sprint: 'Sprint 5 — Advanced Features',
-        duration: '~2-3 สัปดาห์',
-        goal: 'ยกระดับระบบสู่ production-grade + รองรับผู้ใช้กว้างขึ้น',
-        badge: 'bg-amber-500',
-        items: [
-            { icon: '🌐', title: 'Multi-language (TH/EN)', effort: '4 วัน', stack: 'react-i18next + locale files' },
-            { icon: '📆', title: 'Google Calendar 2-way Sync', effort: '3 วัน', stack: 'Google OAuth + Calendar API' },
-            { icon: '📧', title: 'Visual Newsletter Builder', effort: '3 วัน', stack: 'Maily.to/unlayer + Resend' },
-            { icon: '🗺️', title: 'Interactive Floor Plan', effort: '3 วัน', stack: 'SVG + Tooltip + facilities table' },
-            { icon: '📑', title: 'Reports Builder (Visual)', effort: '4 วัน', stack: 'dnd-kit + Recharts + jsPDF' },
+            { icon: '🧾', title: 'e-Donation API', effort: 'deferred', stack: 'กรมสรรพากร' },
+            { icon: '🏫', title: 'ตัดสินใจ SIS vs DMC-only', effort: 'deferred', stack: 'รอสเปก MoE' },
+            { icon: '🌐', title: 'i18n ครบ + newsletter/calendar', effort: 'optional', stack: 'ถ้ายังต้องการ' },
         ],
     },
 ];
 
 const mediaRoadmap = {
-    baseline: 'Phase 16: ครูอัปเป็นกิจวัตร · ชุดเรียนโผล่ในคลัง · ตัวชี้วัดต่อเนื่อง · มอบหมายใบงานบ้าน',
-    target: 'เป้า: ครู non-admin ≥1 อัปจริง · packs เป็นหน่วยสอน · coverage ตัวชี้วัดขยับเข้า ≥80% · parent ส่งงานจากชุดเรียนได้',
+    baseline:
+        'Phase 16 โค้ดพร้อม (KPI ครูอัป · packs ในคลัง · มอบหมายบ้าน+แนบไฟล์ · coverage RPC ≈100% ตัวชี้วัดใช้งาน) — เหลือ ops: ครู non-admin อัปจริง + รีวิว soft-gap',
+    target:
+        'เป้าปิด Phase 16: หลักฐานครู non-admin ≥1 อัปใน 30 วัน · packs เป็นหน่วยสอนประจำ · soft-gap รีวิวต่อเนื่อง · parent ส่งงานจากชุดเรียนเป็นกิจวัตร',
     phases: [
         {
             phase: 'Phase 11 — เติมวิชาบาง (+10 คู่)',
@@ -265,15 +250,16 @@ const mediaRoadmap = {
         },
         {
             phase: 'Phase 16 — habit + pack surface',
-            duration: 'ต่อเนื่อง',
+            duration: 'ต่อเนื่อง (ops)',
             status: 'now',
             badge: 'bg-amber-600',
-            goal: 'ครูใช้คลังจริง · ชุดเรียนเป็นหน่วยสอน · มอบหมายบ้าน + coverage KPI',
+            goal: 'โค้ดพร้อมแล้ว — ปิดด้วยหลักฐานครูใช้จริง + คุณภาพ soft-gap',
             items: [
-                'KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub',
-                'ชุดเรียนบน /educational-hub และหน้าครู (สื่อ → พิมพ์ → เกม)',
-                'มอบหมายใบงานผ่าน assignments.attachment_url + parent ส่งงาน/ความเห็นครู',
-                'เติมคู่เกม↔สื่อ + รีเฟรช showcase · coverage ตัวชี้วัดต่อเนื่อง',
+                '✅ KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub',
+                '✅ ชุดเรียนบน /educational-hub และหน้าครู (สื่อ → พิมพ์ → เกม)',
+                '✅ มอบหมายใบงาน + parent ส่งงานแนบไฟล์ (mig 450) + ความเห็นครู',
+                '✅ coverage RPC ≈100% ตัวชี้วัดใช้งาน + soft-gap filter (mig 447–449)',
+                '⏳ ops: ครู non-admin อัปจริง ≥1 · รีวิว soft-gap รายวิชา · ลูป pack เป็นกิจวัตร',
             ],
         },
     ],
@@ -281,8 +267,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.204.0 (บทสรุปฟีเจอร์ทั้งระบบ + แผน 1–2 ปี)',
+        version: 'v1.205.0 (System Overview ข้อมูลปัจจุบัน)',
         date: 'ล่าสุด',
+        badge: 'bg-indigo-700',
+        items: [
+            'รีเฟรช inventory: ตาราง 143 + views 16 · migration ล่าสุด 450 (จากตัวเลขเก่า 84 / 70+)',
+            'dbGroups / roadmap / sprintPlan ให้ตรงของที่ ship แล้ว vs คิวถัดไป · Phase 16 ระบุโค้ดพร้อมเหลือ ops',
+            'export MD/JSON + featureCatalog notes (coverage ≈100% โฟกัส soft-gap)',
+        ],
+    },
+    {
+        version: 'v1.204.0 (บทสรุปฟีเจอร์ทั้งระบบ + แผน 1–2 ปี)',
+        date: 'ก่อนหน้า',
         badge: 'bg-indigo-700',
         items: [
             'System Overview: บทสรุปฟีเจอร์ 8 โดเมน (purpose · พัฒนาต่อได้ไหม · ไอเดีย 1–2 ปี) + ค้นหา',
@@ -291,7 +287,7 @@ const versionHistory = [
     },
     {
         version: 'v1.203.0 (coverage quality UX + homework attach + portal i18n)',
-        date: 'ล่าสุด',
+        date: 'ก่อนหน้า',
         badge: 'bg-indigo-700',
         items: [
             'IndicatorCoverageDialog: กรอง soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน) · BatchMapper รวมสื่อ+ใบงาน + เฉพาะยังไม่ map',
@@ -4296,13 +4292,16 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
+        version: 'v1.205.0',
+        live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
-        database: 'Supabase (PostgreSQL)',
+        database: 'Supabase (PostgreSQL) — 143 tables · 16 views',
         primaryLanguage: 'TypeScript + PLpgSQL',
-        frontend: 'React 18 + Vite',
+        frontend: 'React 18.3 + Vite 5',
         auth: 'Supabase Auth + RLS',
         edgeFunctions: 'Deno (Supabase)',
+        currentFocus: 'Phase 16 ops (teacher adoption + soft-gap review)',
     },
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
@@ -4315,11 +4314,15 @@ const exportData = {
     longTermPlan,
     featureCatalogStats,
     database: {
-        totalTables: '70+',
-        migrations: 84,
+        totalTables: 143,
+        totalViews: 16,
+        migrations: 450,
+        migrationFiles: 463,
+        latestMigration: '450_assignment_attachments_bucket.sql',
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
+        note: 'ตัวเลขตาราง/วิวจาก src/integrations/supabase/types.ts — กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
     sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
@@ -4379,9 +4382,13 @@ const generateMarkdown = () => {
 
     lines.push('\n## ฐานข้อมูล');
     lines.push(`- **Tables**: ${exportData.database.totalTables}`);
-    lines.push(`- **Migrations**: ${exportData.database.migrations}`);
+    lines.push(`- **Views**: ${exportData.database.totalViews}`);
+    lines.push(`- **Migrations (latest #)**: ${exportData.database.migrations}`);
+    lines.push(`- **Migration files**: ${exportData.database.migrationFiles}`);
+    lines.push(`- **Latest**: ${exportData.database.latestMigration}`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
+    lines.push(`- **Note**: ${exportData.database.note}`);
     dbGroups.forEach(g => {
         lines.push(`\n### ${g.label}`);
         g.tables.forEach(t => lines.push(`- \`${t}\``));
@@ -4493,7 +4500,19 @@ export const SystemOverview = () => {
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
-                    <p className="text-muted-foreground">ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมดของเว็บไซต์โรงเรียน</p>
+                    <p className="text-muted-foreground">
+                        ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
+                        <span className="font-medium text-foreground">v1.205.0</span>
+                        {' · '}live{' '}
+                        <a
+                            href="https://kampai-school.vercel.app"
+                            className="text-primary underline-offset-2 hover:underline"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            kampai-school.vercel.app
+                        </a>
+                    </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={handleExportJSON} className="gap-1.5">
@@ -4530,13 +4549,17 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.205.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
-                        { icon: Globe, label: 'Hosting', value: 'Vercel (SPA)' },
-                        { icon: Database, label: 'Database', value: 'Supabase (PostgreSQL)' },
+                        { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
+                        { icon: Database, label: 'Database', value: 'Supabase · 143 tables · 16 views' },
+                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #450 · ไฟล์ 463' },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
-                        { icon: Layers, label: 'Frontend Framework', value: 'React 18 + Vite' },
+                        { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },
                         { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
                         { icon: Zap, label: 'Edge Functions', value: 'Deno (Supabase)' },
+                        { icon: CheckCircle2, label: 'Feature catalog', value: '8 โดเมน · 55 ฟีเจอร์ (SoT)' },
+                        { icon: Lightbulb, label: 'โฟกัสปัจจุบัน', value: 'Phase 16 ops + harden ปี 1' },
                     ].map((item) => (
                         <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
                             <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
@@ -4563,7 +4586,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Globe className="w-4 h-4 text-blue-500" />
-                                <h4 className="font-semibold text-sm text-blue-600 dark:text-blue-400">Frontend</h4>
+                                <h4 className="font-semibold text-sm text-blue-600">Frontend</h4>
                             </div>
                             <div className="space-y-2">
                                 {techStack.frontend.map((t) => (
@@ -4582,7 +4605,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Server className="w-4 h-4 text-green-500" />
-                                <h4 className="font-semibold text-sm text-green-600 dark:text-green-400">Backend & Database</h4>
+                                <h4 className="font-semibold text-sm text-green-600">Backend & Database</h4>
                             </div>
                             <div className="space-y-2">
                                 {techStack.backend.map((t) => (
@@ -4601,7 +4624,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Cloud className="w-4 h-4 text-emerald-500" />
-                                <h4 className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">Deployment & Hosting</h4>
+                                <h4 className="font-semibold text-sm text-emerald-600">Deployment & Hosting</h4>
                             </div>
                             <div className="space-y-2 mb-6">
                                 {techStack.deployment.map((t) => (
@@ -4751,7 +4774,7 @@ export const SystemOverview = () => {
                         แผนพัฒนาระยะยาว 1–2 ปี
                     </CardTitle>
                     <p className="text-sm text-muted-foreground font-normal">
-                        ธีมภาพรวม — รายละเอียดรายฟีเจอร์อยู่ในบทสรุปด้านบน · คลังสื่อ Phase 16 ยังเน้น adoption
+                        ธีมภาพรวม — รายละเอียดรายฟีเจอร์อยู่ในบทสรุปด้านบน · Phase 16 โค้ดพร้อมแล้ว เหลือ adoption/ops
                     </p>
                 </CardHeader>
                 <CardContent className="grid gap-4 md:grid-cols-2">
@@ -4784,11 +4807,14 @@ export const SystemOverview = () => {
                 <CardContent>
                     <div className="flex gap-3 mb-4">
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalTables} Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrations} Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalViews} Views</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Migration #{exportData.database.migrations}</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrationFiles} ไฟล์</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
-                    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <p className="text-xs text-muted-foreground mb-4">{exportData.database.note}</p>
+                    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         {dbGroups.map((group) => (
                             <div key={group.label}>
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
@@ -4810,6 +4836,9 @@ export const SystemOverview = () => {
                         <Lightbulb className="w-5 h-5 text-primary" />
                         สิ่งที่ยังสามารถทำต่อได้ (Roadmap)
                     </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        รายการที่ยังไม่ ship หรือยังไม่ครบ — ของที่ขึ้น production แล้วดูที่บทสรุปฟีเจอร์ / ประวัติเวอร์ชัน
+                    </p>
                 </CardHeader>
                 <CardContent>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
@@ -4834,7 +4863,7 @@ export const SystemOverview = () => {
                         แผนพัฒนาต่อ (Sprint Plan)
                     </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
-                        ลำดับการพัฒนาที่แนะนำ — เริ่มจากงานที่เห็นผลเร็ว (Quick Wins) แล้วค่อยๆ เพิ่มฟีเจอร์เชิงลึก
+                        สถานะปัจจุบันถึง v1.205 — ไม่ใช่แผน Sprint เก่าจากยุค v1.5
                     </p>
                 </CardHeader>
                 <CardContent>
