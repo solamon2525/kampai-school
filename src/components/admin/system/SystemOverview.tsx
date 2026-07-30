@@ -25,11 +25,29 @@ import {
     Copy,
     Check,
     Rocket,
+    Search,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { educationalHubService } from '@/services/educational-hub.service';
 import { curriculumService } from '@/services/curriculum.service';
+import { Input } from '@/components/ui/input';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+    featureCatalog,
+    featureCatalogStats,
+    featureGroupsFromCatalog,
+    longTermPlan,
+    type FeatureStatus,
+} from '@/components/admin/system/featureCatalog';
+import { cn } from '@/lib/utils';
+
+const featureGroups = featureGroupsFromCatalog;
 
 const techStack = {
     frontend: [
@@ -75,105 +93,6 @@ const techStack = {
         { name: 'GitHub', desc: 'Source Code Repository' },
     ],
 };
-
-const featureGroups = [
-    {
-        label: 'เนื้อหาเว็บไซต์',
-        color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก', 'Countdown เปิดเทอม Real-time', 'จัดการหน้าแรก (Homepage Layout Manager — DnD zones + live preview)'],
-    },
-    {
-        label: 'บุคลากรและนักเรียน',
-        color: 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800',
-        features: ['ข้อมูลผู้บริหาร', 'ครูและบุคลากร', 'ฐานข้อมูลนักเรียน', 'ความสำเร็จนักเรียน', 'กิจกรรมชุมนุม', 'สภานักเรียน'],
-    },
-    {
-        label: 'การศึกษา',
-        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
-        features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน (Attendance) ปรับปรุงฟอร์แมตวันที่ภาษาไทยย่อ/เต็มแบบพรีเมียม (พ.ศ.) + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
-    },
-    {
-        label: 'ฝ่ายวิชาการ',
-        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-        features: ['ตารางสอน (Grid 5×8 คาบ)', 'แผนการสอน + Approval', 'ทะเบียนสื่อการสอน', 'ปฏิทินวิชาการ', 'นักเรียนพิเศษ', 'บันทึกการแนะแนว', 'บันทึกการนิเทศ'],
-    },
-    {
-        label: 'งานสารบรรณ',
-        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-        features: ['หนังสือรับ', 'หนังสือส่ง', 'คำสั่ง/ประกาศ', 'บันทึกการประชุม', 'Dashboard ภาพรวม'],
-    },
-    {
-        label: 'งานบุคคล (HR)',
-        color: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800',
-        features: ['ระบบการลา', 'บันทึกการอบรม/พัฒนาตนเอง', 'ประเมินผลงาน PA Assessment', 'ระบบการลาแสดงผลวันที่ พ.ศ. และรูปแบบช่วงวันอัจฉริยะ'],
-    },
-    {
-        label: 'ระบบบริการ',
-        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)', 'อัปเกรดการแสดงผลวันที่ภาษาไทย พ.ศ. (ธนาคารขยะ/ธนาคารพอเพียง)'],
-    },
-    {
-        label: 'ระบบ/เครื่องมือ',
-        color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
-        features: ['Custom Page Builder (About/Contact — text/image/banner/stats/map)', 'Analytics ดูสถิติผู้เข้าชม (Device/Peak Hours/Referrer)', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions (admin/teacher/parent/viewer)', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน', 'Notification Center (Realtime)', 'RLS Hardened (45 tables)'],
-    },
-    {
-        label: 'Portal ครู/ผู้ปกครอง',
-        color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
-        features: [
-            'Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน',
-            'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก',
-            'Protected Routes ตาม role',
-            'Smart Login Redirect (admin/teacher/parent)',
-            'Portal ครูรองรับการดึงเมนูระบบงานหลังบ้านแบบไดนามิกตามสิทธิ์และปุ่มสลับระบบหลังบ้าน',
-            'ปุ่มทางลัดสแกนด่วนบนแดชบอร์ดครูและปุ่มลอยสแกนด่วนบนมือถือ (ScanFAB) ทุกหน้าจอ',
-        ],
-    },
-    {
-        label: 'ศูนย์การศึกษา (Edu Hub)',
-        color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
-        features: [
-            'หน้าครูคลังสื่อรายบุคคล (/educational-hub + short URL /h/<username>)',
-            '4 หมวด: คลังสื่อ / เกม / ใบงาน / วิดีโอ',
-            'Item polymorphic 4 ประเภท: file / link / youtube / text',
-            '4 view modes: Grid 3×3 / Featured / List / Compact + column selector + sort',
-            'Admin lock layout default (school_settings — readonly + 🔒 badge)',
-            'Staff short URL /staff/<username> (Migration 067 ย้าย username → staff)',
-            'Portal ครู: tab "รายการของฉัน" + "โปรไฟล์คลัง"',
-            'View counter + Download counter (anon-safe SECURITY DEFINER RPC)',
-        ],
-    },
-    {
-        label: 'PWA / ติดตั้งบนมือถือ',
-        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
-        features: [
-            'Add to Home Screen — Android (Chrome/Edge/Samsung) + iOS (Safari)',
-            'Service Worker (Workbox autoUpdate) — cache shell + ใช้งานได้ offline เบื้องต้น',
-            'Manifest: name โรงเรียนบ้านคำไผ่ / standalone / theme #157F3C / 4 icons',
-            'InstallBanner: floating bottom banner mobile — Android prompt / iOS instructions',
-            'Dismiss + 14-day TTL — กดปิดแล้วไม่กวนซ้ำ',
-            'Standalone detection — ไม่โชว์ banner ถ้าติดตั้งแล้ว',
-            'Apple PWA meta tags ครบ (capable, status-bar, title, apple-touch-icon)',
-        ],
-    },
-    {
-        label: 'เกมการศึกษา',
-        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-        features: [
-            'Wrapper /play/:gameSlug — student auth + XP/Level + Badges + result modal',
-            'Game session tracking (score, duration, mode, combo, fever, metadata)',
-            'XP curve doubling + 8 badge types (first_play, score_*, plays_10, improvement 1.5x, streak_7)',
-            '18+ games (Pizza Master Chef, Attack-on-Noun, fishing, typing, kingdom, ฯลฯ)',
-            'Single-file Game Template + GAME-TEMPLATE.md (ครูสร้างเกมเองได้)',
-            'Admin upload: file หรือ paste HTML code (size counter)',
-            'Iframe security: sandbox + SAMEORIGIN + postMessage navigation',
-            'Mobile parity: touch controls (virtual joystick + fire/jump/zoom buttons)',
-            'Admin dashboard /admin/dashboard/games (stats + leaderboard + BarChart)',
-            'Student 360° tab "เกมการศึกษา" + manual push to score_records',
-            'Anti-cheat: 20s rate-limit + score sanity (0–1M) + duration ≥ 5s',
-        ],
-    },
-];
 
 const dbGroups = [
     { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories', 'hero_slides', 'testimonials', 'partners'] },
@@ -361,6 +280,15 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.204.0 (บทสรุปฟีเจอร์ทั้งระบบ + แผน 1–2 ปี)',
+        date: 'ล่าสุด',
+        badge: 'bg-indigo-700',
+        items: [
+            'System Overview: บทสรุปฟีเจอร์ 8 โดเมน (purpose · พัฒนาต่อได้ไหม · ไอเดีย 1–2 ปี) + ค้นหา',
+            'แผนพัฒนาระยะยาว 1–2 ปี ในหลังบ้าน · export MD/JSON รวม catalog · SoT ที่ featureCatalog.ts',
+        ],
+    },
     {
         version: 'v1.203.0 (coverage quality UX + homework attach + portal i18n)',
         date: 'ล่าสุด',
@@ -4378,6 +4306,14 @@ const exportData = {
     },
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
+    featureCatalog: featureCatalog.map((d) => ({
+        id: d.id,
+        label: d.label,
+        summary: d.summary,
+        features: d.features,
+    })),
+    longTermPlan,
+    featureCatalogStats,
     database: {
         totalTables: '70+',
         migrations: 84,
@@ -4408,10 +4344,37 @@ const generateMarkdown = () => {
     lines.push('\n### Deployment');
     techStack.deployment.forEach(t => lines.push(`- **${t.name}** — ${t.desc}`));
 
-    lines.push('\n## ฟีเจอร์ที่มีอยู่แล้ว');
-    featureGroups.forEach(g => {
-        lines.push(`\n### ${g.label}`);
-        g.features.forEach(f => lines.push(`- ${f}`));
+    lines.push('\n## บทสรุปฟีเจอร์ทั้งระบบ');
+    lines.push(
+        `> ${featureCatalogStats.domains} โดเมน · ${featureCatalogStats.features} ฟีเจอร์ (live ${featureCatalogStats.live} / partial ${featureCatalogStats.partial} / deferred ${featureCatalogStats.deferred})`,
+    );
+    featureCatalog.forEach((d) => {
+        lines.push(`\n### ${d.label}`);
+        lines.push(d.summary);
+        d.features.forEach((f) => {
+            const st = f.status ?? 'live';
+            const extend = f.canExtend ? 'พัฒนาต่อได้' : 'ยังไม่ขยาย / รอภายนอก';
+            lines.push(`\n#### ${f.name} [${st}]`);
+            lines.push(`- **มีไว้ทำอะไร:** ${f.purpose}`);
+            lines.push(`- **${extend}**${f.extendNote ? ` — ${f.extendNote}` : ''}`);
+            if (f.ideas12m.length) {
+                lines.push('- **ไอเดีย ~1 ปี:**');
+                f.ideas12m.forEach((i) => lines.push(`  - ${i}`));
+            }
+            if (f.ideas24m?.length) {
+                lines.push('- **ไอเดีย ~2 ปี:**');
+                f.ideas24m.forEach((i) => lines.push(`  - ${i}`));
+            }
+        });
+    });
+
+    lines.push('\n## แผนพัฒนาระยะยาว 1–2 ปี');
+    longTermPlan.forEach((y) => {
+        lines.push(`\n### ${y.label}`);
+        y.themes.forEach((t) => {
+            lines.push(`\n#### ${t.title}`);
+            t.items.forEach((i) => lines.push(`- ${i}`));
+        });
     });
 
     lines.push('\n## ฐานข้อมูล');
@@ -4465,6 +4428,31 @@ const downloadFile = (content: string, filename: string, mime: string) => {
 
 export const SystemOverview = () => {
     const [copied, setCopied] = useState(false);
+    const [featureQuery, setFeatureQuery] = useState('');
+
+    const statusLabel: Record<FeatureStatus, string> = {
+        live: 'ใช้งานจริง',
+        partial: 'บางส่วน',
+        deferred: 'เลื่อนไว้',
+    };
+
+    const filteredCatalog = useMemo(() => {
+        const q = featureQuery.trim().toLowerCase();
+        if (!q) return featureCatalog;
+        return featureCatalog
+            .map((d) => ({
+                ...d,
+                features: d.features.filter(
+                    (f) =>
+                        f.name.toLowerCase().includes(q) ||
+                        f.purpose.toLowerCase().includes(q) ||
+                        (f.extendNote ?? '').toLowerCase().includes(q) ||
+                        f.ideas12m.some((i) => i.toLowerCase().includes(q)) ||
+                        (f.ideas24m ?? []).some((i) => i.toLowerCase().includes(q)),
+                ),
+            }))
+            .filter((d) => d.features.length > 0 || d.label.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q));
+    }, [featureQuery]);
 
     const { data: habit } = useQuery({
         queryKey: ['edu-hub', 'non-admin-habit', 30],
@@ -4651,29 +4639,137 @@ export const SystemOverview = () => {
                 </CardContent>
             </Card>
 
-            {/* Section D: Features Inventory */}
+            {/* Section D: Feature catalog summary */}
+            <Card>
+                <CardHeader className="pb-3 space-y-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                        บทสรุปฟีเจอร์ทั้งระบบ
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground font-normal">
+                        Inventory เชิงบริหาร — {featureCatalogStats.domains} โดเมน · {featureCatalogStats.features} ฟีเจอร์
+                        (ใช้งานจริง {featureCatalogStats.live} · บางส่วน {featureCatalogStats.partial} · เลื่อนไว้ {featureCatalogStats.deferred})
+                        · ไม่ใช่คู่มือผู้ใช้ทีละปุ่ม
+                    </p>
+                    <div className="relative max-w-md">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            value={featureQuery}
+                            onChange={(e) => setFeatureQuery(e.target.value)}
+                            placeholder="ค้นหาชื่อฟีเจอร์ / คำอธิบาย / ไอเดีย…"
+                            className="pl-8"
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Accordion type="multiple" className="w-full" defaultValue={filteredCatalog.slice(0, 2).map((d) => d.id)}>
+                        {filteredCatalog.map((domain) => (
+                            <AccordionItem key={domain.id} value={domain.id}>
+                                <AccordionTrigger className="hover:no-underline text-left">
+                                    <div className="flex flex-col gap-1 pr-2">
+                                        <span className="font-semibold text-foreground">{domain.label}</span>
+                                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                                            {domain.summary} · {domain.features.length} รายการ
+                                        </span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <ul className="space-y-4 pt-1">
+                                        {domain.features.map((f) => {
+                                            const st = (f.status ?? 'live') as FeatureStatus;
+                                            return (
+                                                <li
+                                                    key={f.name}
+                                                    className="rounded-lg border border-border bg-card p-3 space-y-2"
+                                                >
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <p className="font-medium text-sm">{f.name}</p>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className={cn(
+                                                                'text-[10px]',
+                                                                st === 'live' && 'border-emerald-300 text-emerald-800 bg-emerald-500/10',
+                                                                st === 'partial' && 'border-amber-300 text-amber-900 bg-amber-500/10',
+                                                                st === 'deferred' && 'border-border text-muted-foreground',
+                                                            )}
+                                                        >
+                                                            {statusLabel[st]}
+                                                        </Badge>
+                                                        <Badge variant="secondary" className="text-[10px]">
+                                                            {f.canExtend ? 'พัฒนาต่อได้' : 'ยังไม่ขยาย / รอภายนอก'}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">{f.purpose}</p>
+                                                    {f.extendNote && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            ขอบเขต: {f.extendNote}
+                                                        </p>
+                                                    )}
+                                                    {f.ideas12m.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[11px] font-semibold text-foreground mb-1">
+                                                                ไอเดีย ~1 ปี
+                                                            </p>
+                                                            <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                                                {f.ideas12m.map((idea) => (
+                                                                    <li key={idea}>{idea}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                    {f.ideas24m && f.ideas24m.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[11px] font-semibold text-foreground mb-1">
+                                                                ไอเดีย ~2 ปี
+                                                            </p>
+                                                            <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                                                {f.ideas24m.map((idea) => (
+                                                                    <li key={idea}>{idea}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                    {filteredCatalog.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-8">ไม่พบฟีเจอร์ตามคำค้น</p>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Section D2: Long-term plan */}
             <Card>
                 <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
-                        <CheckCircle2 className="w-5 h-5 text-primary" />
-                        ฟีเจอร์ที่มีอยู่แล้ว
+                        <Lightbulb className="w-5 h-5 text-primary" />
+                        แผนพัฒนาระยะยาว 1–2 ปี
                     </CardTitle>
+                    <p className="text-sm text-muted-foreground font-normal">
+                        ธีมภาพรวม — รายละเอียดรายฟีเจอร์อยู่ในบทสรุปด้านบน · คลังสื่อ Phase 16 ยังเน้น adoption
+                    </p>
                 </CardHeader>
-                <CardContent>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {featureGroups.map((group) => (
-                            <div key={group.label}>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {group.features.map((f) => (
-                                        <Badge key={f} variant="outline" className={`text-xs ${group.color}`}>
-                                            {f}
-                                        </Badge>
-                                    ))}
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                    {longTermPlan.map((year) => (
+                        <div key={year.id} className="rounded-lg border border-border p-4 space-y-3">
+                            <h3 className="font-semibold text-sm">{year.label}</h3>
+                            {year.themes.map((theme) => (
+                                <div key={theme.title}>
+                                    <p className="text-xs font-semibold text-primary mb-1">{theme.title}</p>
+                                    <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                        {theme.items.map((item) => (
+                                            <li key={item}>{item}</li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ))}
                 </CardContent>
             </Card>
 
