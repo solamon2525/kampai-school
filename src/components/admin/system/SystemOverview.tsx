@@ -4643,7 +4643,7 @@ export const SystemOverview = () => {
                             {/* Infra Details */}
                             <div className="flex items-center gap-2 mb-3">
                                 <HardDrive className="w-4 h-4 text-orange-500" />
-                                <h4 className="font-semibold text-sm text-orange-600 dark:text-orange-400">Infrastructure</h4>
+                                <h4 className="font-semibold text-sm text-orange-600">Infrastructure</h4>
                             </div>
                             <div className="space-y-1.5 text-xs text-muted-foreground">
                                 <p>• Vercel: SPA rewrite <code className="bg-secondary px-1 rounded">{'/((?!api/|games/).*)'}</code> (exclude static games), cron <code className="bg-secondary px-1 rounded">/api/ping</code> ทุก 3 วัน</p>
