@@ -55,6 +55,13 @@ export const AssignmentManagement = () => {
     queryFn: () => assignmentsService.listMine(),
   });
 
+  useEffect(() => {
+    const assignmentId = searchParams.get('assignment');
+    if (!assignmentId || assignments.length === 0) return;
+    const found = assignments.find((a) => a.id === assignmentId);
+    if (found) setActiveAssignment(found);
+  }, [searchParams, assignments]);
+
   const { data: pendingGrade } = useQuery({
     queryKey: ['my-assignments-pending-grade'],
     queryFn: () => assignmentsService.countPendingGrading(),

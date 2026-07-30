@@ -81,7 +81,7 @@ const techStack = {
         { name: 'DOMPurify', desc: 'HTML Sanitization (rich text display)' },
         { name: 'date-fns', desc: 'Date Utilities (Thai locale)' },
         { name: 'embla-carousel-react', desc: 'Carousel (Hero Slides)' },
-        { name: 'cmdk', desc: 'Command Palette (installed — Sprint 2 roadmap)' },
+        { name: 'cmdk + fuse.js', desc: 'Command Palette + fuzzy search — live (Ctrl/Cmd+K)' },
         { name: 'vite-plugin-pwa', desc: 'PWA + Service Worker (Workbox) — Add to Home Screen' },
         { name: 'ThaiDatePicker', desc: 'Custom Buddhist Calendar Date Picker (วัน/เดือน/พ.ศ.)' },
         { name: 'ScanFAB / Mobile Camera Scanner', desc: 'กล้องสแกนด่วนบนมือถือครอบคลุมทุกเมนู Portal ครู' },
@@ -117,8 +117,6 @@ const dbGroups = [
 
 /** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
-    { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion' },
-    { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม' },
     { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour สำหรับ admin/ครู/ผู้ปกครองคนแรก' },
     { icon: '📅', title: 'Activity Heatmap', desc: 'ความมีส่วนร่วมรายปีแบบ GitHub contribution graph' },
     { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG — คลิกอาคาร/ห้องดูข้อมูล' },
@@ -165,7 +163,8 @@ const sprintPlan = [
             { icon: '✅', title: 'เช็คชื่อ/คะแนนครบก่อนปิดภาค', effort: 'ops', stack: 'ปพ. completeness drills' },
             { icon: '🔐', title: 'PDPA ความยินยอม + erasure SLA', effort: 'ops', stack: 'pdpa_* + /privacy' },
             { icon: '📣', title: 'ซ้อมแจ้งเตือนฉุกเฉิน + Push/LINE', effort: 'ops', stack: 'emergency_alerts' },
-            { icon: '⌘', title: 'Cmd+K / ค้นหาทั่วระบบ', effort: 'dev', stack: 'cmdk (installed) + fuse' },
+            { icon: '🎯', title: 'Onboarding tour ครู/แอดมิน', effort: 'dev', stack: 'driver.js หรือ custom' },
+            { icon: '📋', title: 'งานค้างครูบนแดชบอร์ด', effort: 'live', stack: 'TeacherPendingTasksCard · v1.207' },
         ],
     },
     {
@@ -273,8 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.206.0 (Phase 16 Ops dashboard)',
+        version: 'v1.207.0 (Teacher ops UX + coverage deep link)',
         date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'Teacher Dashboard: การ์ดงานค้าง — ตรวจการบ้าน · อนุมัติรางวัล · เตือนอัปสื่อครั้งแรก',
+            'Portal ครู/ผู้ปกครอง: ปุ่มค้นหา Ctrl/Cmd+K บน top bar (เทียบเท่า AdminLayout)',
+            'Deep link Coverage: /admin/dashboard/educational-hub?tab=games&coverage=1 + Cmd+K "Coverage"',
+            'อัปเดต roadmap: Cmd+K/fuzzy search ขึ้น production แล้ว',
+        ],
+    },
+    {
+        version: 'v1.206.0 (Phase 16 Ops dashboard)',
+        date: 'ก่อนหน้า',
         badge: 'bg-amber-600',
         items: [
             'System Overview: แดชบอร์ด Phase 16 Ops — soft-gap RPC (mig 451) · ชุดเรียน · การบ้าน · รายชื่อครู non-admin อัป',
@@ -4308,7 +4318,7 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.206.0',
+        version: 'v1.207.0',
         live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
@@ -4584,7 +4594,7 @@ export const SystemOverview = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.206.0</span>
+                        <span className="font-medium text-foreground">v1.207.0</span>
                         {' · '}live{' '}
                         <a
                             href="https://kampai-school.vercel.app"
@@ -4631,7 +4641,7 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.206.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.207.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
                         { icon: Database, label: 'Database', value: 'Supabase · 143 tables · 16 views' },
@@ -5002,6 +5012,12 @@ export const SystemOverview = () => {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/admin/dashboard/educational-hub?tab=games&coverage=1">
+                                    Soft-gap
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
                             <Button variant="outline" size="sm" asChild>
                                 <Link to="/admin/dashboard/educational-hub">
                                     คลังสื่อ

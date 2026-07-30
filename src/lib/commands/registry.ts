@@ -99,6 +99,8 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-alumni', label: 'ศิษย์เก่า (จัดการ)', group: 'แอดมิน', icon: GraduationCap, roles: ['admin'], keywords: ['alumni', 'verify', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/admin/dashboard/alumni' } },
   { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: ImageIcon, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
+  { id: 'adm-edu-hub', label: 'คลังสื่อ/เกม (admin)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['edu', 'hub', 'games', 'media', 'คลัง'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub' } },
+  { id: 'adm-coverage', label: 'Coverage ตัวชี้วัด (soft-gap)', group: 'แอดมิน', icon: BookOpen, roles: ['admin'], keywords: ['coverage', 'indicator', 'soft', 'gap', 'ตัวชี้วัด', 'map'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub?tab=games&coverage=1' } },
 
   // ── Teacher ──────────────────────────────────────────────
   { id: 't-dashboard', label: 'แดชบอร์ดครู', group: 'พอร์ทัลครู', icon: LayoutDashboard, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher' } },

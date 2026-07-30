@@ -5,11 +5,12 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, LogOut, Home, UserCheck, SlidersHorizontal, QrCode } from 'lucide-react';
+import { Menu, LogOut, Home, UserCheck, SlidersHorizontal, Search } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { ADMIN_QUICK_MENU_CATALOG } from '@/lib/quickMenuCatalog';
 import { ScanFAB } from '@/components/shared/ScanFAB';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { useCommandPalette } from '@/hooks/useCommandPalette';
 
 export interface PortalMenuItem {
     id: string;
@@ -37,6 +38,8 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { setOpen: openPalette } = useCommandPalette();
+    const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -134,13 +137,35 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
             <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r shadow-lg z-40 hidden lg:block">
                 <Sidebar />
             </aside>
-            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-card border-b">
+            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-2 px-4 py-3 bg-card border-b">
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetTrigger asChild><Button variant="ghost" size="icon"><Menu className="w-5 h-5" /></Button></SheetTrigger>
                     <SheetContent side="left" className="p-0 w-72"><Sidebar /></SheetContent>
                 </Sheet>
                 <h1 className="font-bold text-primary text-sm truncate flex-1">{title}</h1>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    onClick={() => openPalette(true)}
+                    aria-label="ค้นหา (Ctrl+K)"
+                >
+                    <Search className="w-4 h-4" />
+                </Button>
                 <LanguageSwitcher className="h-8 px-2 shrink-0" />
+            </div>
+            <div className="hidden lg:flex lg:ml-64 sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/95 backdrop-blur border-b border-border">
+                <button
+                    type="button"
+                    onClick={() => openPalette(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-secondary/40 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors min-w-[220px]"
+                    aria-label="ค้นหา (Ctrl+K)"
+                >
+                    <Search className="w-3.5 h-3.5" />
+                    <span className="flex-1 text-left">ค้นหานักเรียน, ข่าว, คำสั่ง...</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-border/50 text-[10px] font-mono">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+                </button>
+                <LanguageSwitcher />
             </div>
             <main className="lg:ml-64 min-h-screen">{children}</main>
             {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}

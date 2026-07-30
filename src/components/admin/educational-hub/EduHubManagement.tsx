@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Plus, Edit, Trash2, FileText, Link as LinkIcon, Youtube, Type, Eye, EyeOff,
@@ -70,6 +71,18 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
 };
 
 export const EduHubManagement = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') ?? 'items';
+
+    const onTabChange = (value: string) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (value === 'items') next.delete('tab');
+            else next.set('tab', value);
+            return next;
+        }, { replace: true });
+    };
+
     return (
         <div className="p-4 sm:p-6 space-y-6">
             <div>
@@ -79,7 +92,7 @@ export const EduHubManagement = () => {
                 </p>
             </div>
 
-            <Tabs defaultValue="items" className="w-full">
+            <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
                 <TabsList>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>

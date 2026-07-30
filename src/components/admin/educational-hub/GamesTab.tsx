@@ -17,6 +17,7 @@
  */
 
 import { useMemo, useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -522,6 +523,7 @@ type Teacher = {
 export const GamesTab = () => {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [dialog, setDialog] = useState<
         | { mode: 'create' }
         | { mode: 'replace'; item: EduHubItem }
@@ -546,6 +548,16 @@ export const GamesTab = () => {
         | null
     >(null);
     const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('__all__');
+
+    useEffect(() => {
+        if (searchParams.get('coverage') !== '1') return;
+        setDialog({ mode: 'coverage' });
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('coverage');
+            return next;
+        }, { replace: true });
+    }, [searchParams, setSearchParams]);
 
     const handleConfirm = async () => {
         if (!confirmAction) return;

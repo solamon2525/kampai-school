@@ -8,6 +8,7 @@ import { QuickMenu } from '@/components/admin/shared/QuickMenu';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { TeacherPendingTasksCard } from '@/components/teacher/TeacherPendingTasksCard';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/teacher' },
@@ -53,16 +54,18 @@ export default function TeacherDashboard() {
                     </Card>
                 )}
 
+                <TeacherPendingTasksCard staffId={link?.staff_id ?? null} />
+
                 {(role === 'admin' || allowedMenus.length > 0) && (
-                    <Card className="border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20">
+                    <Card className="border-emerald-200 bg-emerald-50/50">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
                                     <SlidersHorizontal className="w-5 h-5" />
                                 </div>
                                 <div className="space-y-0.5 text-left">
-                                    <h4 className="font-bold text-sm text-emerald-950 dark:text-emerald-300">ระบบบริหารหลังบ้าน</h4>
-                                    <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">คุณได้รับสิทธิ์เข้าใช้งานระบบงานเพิ่มเติมจำนวน {allowedMenus.length} ระบบ</p>
+                                    <h4 className="font-bold text-sm text-emerald-950">ระบบบริหารหลังบ้าน</h4>
+                                    <p className="text-xs text-emerald-700/80">คุณได้รับสิทธิ์เข้าใช้งานระบบงานเพิ่มเติมจำนวน {allowedMenus.length} ระบบ</p>
                                 </div>
                             </div>
                             <Button
