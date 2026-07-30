@@ -26,11 +26,17 @@ import {
     Check,
     Rocket,
     Search,
+    ArrowRight,
+    CircleAlert,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { educationalHubService } from '@/services/educational-hub.service';
 import { curriculumService } from '@/services/curriculum.service';
+import { lessonPacksService } from '@/services/lesson-packs.service';
+import { assignmentsService } from '@/services/assignments.service';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Input } from '@/components/ui/input';
 import {
     Accordion,
@@ -267,8 +273,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.205.0 (System Overview ข้อมูลปัจจุบัน)',
+        version: 'v1.206.0 (Phase 16 Ops dashboard)',
         date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'System Overview: แดชบอร์ด Phase 16 Ops — soft-gap RPC (mig 451) · ชุดเรียน · การบ้าน · รายชื่อครู non-admin อัป',
+            'เช็กลิสต์ปิด Phase 16 แบบ live + ลิงก์ไปคลังสื่อ/ครูอัปสื่อ',
+            'getNonAdminUploadHabit แนบชื่อ+รูปครูจาก staff',
+        ],
+    },
+    {
+        version: 'v1.205.0 (System Overview ข้อมูลปัจจุบัน)',
+        date: 'ก่อนหน้า',
         badge: 'bg-indigo-700',
         items: [
             'รีเฟรช inventory: ตาราง 143 + views 16 · migration ล่าสุด 450 (จากตัวเลขเก่า 84 / 70+)',
@@ -4292,7 +4308,7 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.205.0',
+        version: 'v1.206.0',
         live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
@@ -4316,9 +4332,9 @@ const exportData = {
     database: {
         totalTables: 143,
         totalViews: 16,
-        migrations: 450,
-        migrationFiles: 463,
-        latestMigration: '450_assignment_attachments_bucket.sql',
+        migrations: 451,
+        migrationFiles: 464,
+        latestMigration: '451_indicator_soft_gap_summary_rpc.sql',
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -4473,6 +4489,72 @@ export const SystemOverview = () => {
         staleTime: 60_000,
     });
 
+    const { data: softGap } = useQuery({
+        queryKey: ['curriculum', 'indicator-soft-gap-summary'],
+        queryFn: () => curriculumService.indicatorSoftGapSummary(),
+        staleTime: 60_000,
+    });
+
+    const { data: packCount } = useQuery({
+        queryKey: ['lesson-packs', 'published-count'],
+        queryFn: () => lessonPacksService.countPublished(),
+        staleTime: 60_000,
+    });
+
+    const { data: homework } = useQuery({
+        queryKey: ['assignments', 'ops-summary', 30],
+        queryFn: () => assignmentsService.opsSummary(30),
+        staleTime: 60_000,
+    });
+
+    const phase16Checklist = useMemo(() => {
+        const teacherOk = (habit?.uploaderCount ?? 0) > 0;
+        const coverageOk = (coverage?.pctCovered ?? 0) >= 80;
+        const packsOk = (packCount ?? 0) >= 30;
+        const homeworkOk = (homework?.submissions ?? 0) > 0;
+        return [
+            {
+                id: 'teacher-upload',
+                label: 'ครู non-admin อัปสื่อจริง (30 วัน)',
+                done: teacherOk,
+                detail: habit
+                    ? `${habit.uploaderCount} คน · ${habit.itemCount} รายการ`
+                    : 'กำลังโหลด…',
+            },
+            {
+                id: 'coverage',
+                label: 'ตัวชี้วัดมีสื่อ/เกมผูก ≥80%',
+                done: coverageOk,
+                detail: coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+            },
+            {
+                id: 'packs',
+                label: 'ชุดเรียนเผยแพร่ ≥30',
+                done: packsOk,
+                detail: packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+            },
+            {
+                id: 'homework',
+                label: 'ผู้ปกครองส่งงาน (30 วัน)',
+                done: homeworkOk,
+                detail: homework
+                    ? `${homework.submissions} ส่ง · ${homework.withAttachment} แนบไฟล์`
+                    : 'กำลังโหลด…',
+            },
+            {
+                id: 'soft-gap',
+                label: 'รีวิว soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน)',
+                done: false,
+                detail: softGap
+                    ? `ขาดเกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet} · ยังไม่ map ${softGap.unmapped}`
+                    : 'กำลังโหลด…',
+                ongoing: true,
+            },
+        ];
+    }, [habit, coverage, packCount, homework, softGap]);
+
+    const phase16DoneCount = phase16Checklist.filter((c) => c.done).length;
+
     const handleExportJSON = () => {
         downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
     };
@@ -4502,7 +4584,7 @@ export const SystemOverview = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.205.0</span>
+                        <span className="font-medium text-foreground">v1.206.0</span>
                         {' · '}live{' '}
                         <a
                             href="https://kampai-school.vercel.app"
@@ -4549,11 +4631,11 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.205.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.206.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
                         { icon: Database, label: 'Database', value: 'Supabase · 143 tables · 16 views' },
-                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #450 · ไฟล์ 463' },
+                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #451 · ไฟล์ 464' },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
                         { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },
                         { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
@@ -4903,6 +4985,122 @@ export const SystemOverview = () => {
                             </div>
                         ))}
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Section F2b: Phase 16 Ops live dashboard */}
+            <Card className="border-amber-200/80 bg-amber-500/5">
+                <CardHeader className="pb-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <CircleAlert className="w-5 h-5 text-amber-700" />
+                                Phase 16 Ops — สถานะปิดงาน
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                โค้ดพร้อมแล้ว — ติดตาม adoption จริง · เช็กลิสต์ {phase16DoneCount}/{phase16Checklist.length} ผ่าน
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/admin/dashboard/educational-hub">
+                                    คลังสื่อ
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/teacher/edu-hub" target="_blank" rel="noreferrer">
+                                    ครูอัปสื่อ
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                    <ul className="grid sm:grid-cols-2 gap-2">
+                        {phase16Checklist.map((item) => (
+                            <li
+                                key={item.id}
+                                className={cn(
+                                    'flex items-start gap-2 rounded-lg border border-border px-3 py-2 text-sm',
+                                    item.done && 'bg-emerald-500/10',
+                                    item.ongoing && !item.done && 'bg-secondary/40',
+                                )}
+                            >
+                                {item.done ? (
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                ) : item.ongoing ? (
+                                    <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                                ) : (
+                                    <CircleAlert className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                                )}
+                                <div className="min-w-0">
+                                    <p className="font-medium text-foreground">{item.label}</p>
+                                    <p className="text-xs text-muted-foreground">{item.detail}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {habit ? habit.uploaderCount : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    คน · {habit ? habit.itemCount : '…'} รายการ
+                                </span>
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">Coverage ตัวชี้วัด</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {coverage ? `${coverage.pctCovered}%` : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">Soft-gap (ทั้งหลักสูตร)</p>
+                            <p className="text-sm font-medium text-foreground leading-snug">
+                                {softGap
+                                    ? `เกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet}`
+                                    : '…'}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                ยังไม่ map {softGap?.unmapped ?? '…'} ตัวชี้วัด
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">การบ้าน 30 วัน</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {homework ? homework.submissions : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                มอบหมาย {homework?.assignments ?? '…'} · แนบไฟล์ {homework?.withAttachment ?? '…'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {habit && habit.uploaders.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">ครูที่อัปล่าสุด (non-admin)</p>
+                            <ul className="flex flex-wrap gap-3">
+                                {habit.uploaders.slice(0, 8).map((u) => (
+                                    <li key={u.staffId} className="flex items-center gap-2 text-sm">
+                                        <PersonAvatar name={u.name} photoUrl={u.photoUrl} size="sm" />
+                                        <span>
+                                            <span className="font-medium">{u.name}</span>
+                                            <span className="text-muted-foreground text-xs ml-1">({u.count})</span>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

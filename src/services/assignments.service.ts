@@ -214,4 +214,40 @@ export const assignmentsService = {
       firstAssignmentId: rows[0]?.assignment_id ?? null,
     };
   },
+
+  /** Phase 16 ops: homework loop activity in last N days */
+  opsSummary: async (
+    sinceDays = 30,
+  ): Promise<{ sinceDays: number; assignments: number; submissions: number; withAttachment: number }> => {
+    const since = new Date();
+    since.setDate(since.getDate() - sinceDays);
+    const sinceIso = since.toISOString();
+
+    const [assignRes, subRes, attachRes] = await Promise.all([
+      supabase
+        .from('assignments' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', sinceIso)
+        .eq('is_archived', false),
+      supabase
+        .from('assignment_submissions' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('submitted_at', sinceIso),
+      supabase
+        .from('assignment_submissions' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('submitted_at', sinceIso)
+        .not('attachment_url', 'is', null),
+    ]);
+    if (assignRes.error) throw assignRes.error;
+    if (subRes.error) throw subRes.error;
+    if (attachRes.error) throw attachRes.error;
+
+    return {
+      sinceDays,
+      assignments: assignRes.count ?? 0,
+      submissions: subRes.count ?? 0,
+      withAttachment: attachRes.count ?? 0,
+    };
+  },
 };

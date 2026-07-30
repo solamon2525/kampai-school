@@ -136,4 +136,14 @@ export const lessonPacksService = {
             (r) => !r.grade_levels?.length || r.grade_levels.includes(grade),
         );
     },
+
+    /** Phase 16 ops: published pack count */
+    countPublished: async (): Promise<number> => {
+        const { count, error } = await supabase
+            .from('lesson_packs' as never)
+            .select('*', { count: 'exact', head: true })
+            .eq('is_published', true);
+        if (error) throw error;
+        return count ?? 0;
+    },
 };

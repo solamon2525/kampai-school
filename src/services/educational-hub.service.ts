@@ -498,7 +498,13 @@ export const educationalHubService = {
         sinceDays: number;
         uploaderCount: number;
         itemCount: number;
-        uploaders: Array<{ staffId: string; count: number; lastAt: string }>;
+        uploaders: Array<{
+            staffId: string;
+            name: string;
+            photoUrl: string | null;
+            count: number;
+            lastAt: string;
+        }>;
     }> => {
         const since = new Date();
         since.setDate(since.getDate() - sinceDays);
@@ -549,11 +555,47 @@ export const educationalHubService = {
             .map(([staffId, v]) => ({ staffId, count: v.count, lastAt: v.lastAt }))
             .sort((a, b) => b.count - a.count);
 
+        let uploadersWithStaff: Array<{
+            staffId: string;
+            name: string;
+            photoUrl: string | null;
+            count: number;
+            lastAt: string;
+        }> = uploaders.map((u) => ({
+            ...u,
+            name: u.staffId.slice(0, 8),
+            photoUrl: null as string | null,
+        }));
+
+        if (uploaders.length > 0) {
+            const ids = uploaders.map((u) => u.staffId);
+            const { data: staffRows, error: staffErr } = await supabase
+                .from('staff' as never)
+                .select('id, name, photo_url')
+                .in('id', ids);
+            if (!staffErr && staffRows) {
+                const byId = new Map(
+                    (staffRows as { id: string; name: string; photo_url: string | null }[]).map((s) => [
+                        s.id,
+                        s,
+                    ]),
+                );
+                uploadersWithStaff = uploaders.map((u) => {
+                    const s = byId.get(u.staffId);
+                    return {
+                        ...u,
+                        name: s?.name ?? u.staffId.slice(0, 8),
+                        photoUrl: s?.photo_url ?? null,
+                    };
+                });
+            }
+        }
+
         return {
             sinceDays,
             uploaderCount: uploaders.length,
             itemCount: uploaders.reduce((s, u) => s + u.count, 0),
-            uploaders,
+            uploaders: uploadersWithStaff,
         };
     },
 

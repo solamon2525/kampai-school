@@ -307,6 +307,32 @@ export const curriculumService = {
         };
     },
 
+    /** Soft-gap counts — ตัวชี้วัดที่ยังไม่มีเกม/สื่อ/ใบงาน (RPC 451) */
+    indicatorSoftGapSummary: async (): Promise<{
+        totalIndicators: number;
+        unmapped: number;
+        noGame: number;
+        noMedia: number;
+        noWorksheet: number;
+    }> => {
+        const { data, error } = await supabase.rpc('indicator_soft_gap_summary' as never);
+        if (error) throw error;
+        const row = (data ?? {}) as {
+            totalIndicators?: number;
+            unmapped?: number;
+            noGame?: number;
+            noMedia?: number;
+            noWorksheet?: number;
+        };
+        return {
+            totalIndicators: Number(row.totalIndicators ?? 0),
+            unmapped: Number(row.unmapped ?? 0),
+            noGame: Number(row.noGame ?? 0),
+            noMedia: Number(row.noMedia ?? 0),
+            noWorksheet: Number(row.noWorksheet ?? 0),
+        };
+    },
+
     /**
      * ความครอบคลุม: ตัวชี้วัดของวิชา+ชั้น → รายการเกม/สื่อ/ใบงานที่ผูก
      * คืน indicator ทุกตัว (เรียง sort_order) พร้อม items[] แยก kind
