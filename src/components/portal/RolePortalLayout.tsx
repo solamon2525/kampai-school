@@ -11,6 +11,7 @@ import { ADMIN_QUICK_MENU_CATALOG } from '@/lib/quickMenuCatalog';
 import { ScanFAB } from '@/components/shared/ScanFAB';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { useCommandPalette } from '@/hooks/useCommandPalette';
+import { TeacherOnboardingTour } from '@/components/portal/TeacherOnboardingTour';
 
 export interface PortalMenuItem {
     id: string;
@@ -170,6 +171,7 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
             <main className="lg:ml-64 min-h-screen">{children}</main>
             {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}
             <ScanFAB />
+            {accent === 'teacher' && <TeacherOnboardingTour enabled />}
         </div>
     );
 };

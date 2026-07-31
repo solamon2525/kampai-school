@@ -74,6 +74,8 @@ const MENU_GROUPS: MenuGroup[] = [
         category: 'งานวิชาการ & บุคลากร (HR)',
         items: [
             { id: 'leave', label: 'การอนุมัติการลา' },
+            { id: 'supplies', label: 'พัสดุ / วัสดุ' },
+            { id: 'digital-ops', label: 'ลดภาระครู (Digital Ops)' },
             { id: 'training', label: 'บันทึกอบรมสัมมนา' },
             { id: 'pa', label: 'PA Assessment' },
             { id: 'academic', label: 'ฝ่ายวิชาการ' },

@@ -77,6 +77,7 @@ const TeacherAttendance = lazyWithRetry(() => import("./pages/teacher/TeacherAtt
 const TeacherScores = lazyWithRetry(() => import("./pages/teacher/TeacherScores"));
 const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/TeacherRewardsApproval"));
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
+const TeacherSupplies = lazyWithRetry(() => import("./pages/teacher/TeacherSupplies"));
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
 const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherGameResearch"));
@@ -228,6 +229,9 @@ const App = () => (
             } />
             <Route path="/teacher/edu-hub" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherEduHubManager /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/supplies" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherSupplies /></PortalProtectedRoute>
             } />
             <Route path="/teacher/cctv" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherCctv /></PortalProtectedRoute>

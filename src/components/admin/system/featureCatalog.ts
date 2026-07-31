@@ -440,6 +440,21 @@ export const featureCatalog: FeatureDomain[] = [
                 status: 'live',
             },
             {
+                name: 'พัสดุ / วัสดุพื้นฐาน',
+                purpose: 'ทะเบียนวัสดุ คำขอเบิกของครู อนุมัติตัดสต็อก และแจ้งเตือนของใกล้หมด',
+                canExtend: true,
+                ideas12m: ['QR เบิกของ', 'ผูกงบประมาณตอนจัดซื้อ'],
+                ideas24m: ['ครุภัณฑ์ + บาร์โค้ด'],
+                status: 'live',
+            },
+            {
+                name: 'Digital Ops / ลดภาระครู',
+                purpose: 'แดชบอร์ด PDCA ตัวชี้วัดเวลา–กระดาษ Role Model และรายงานนวัตกรรมดิจิทัล',
+                canExtend: true,
+                ideas12m: ['ส่งออกรายงาน DOCX', 'กราฟเปรียบเทียบรายภาค'],
+                status: 'live',
+            },
+            {
                 name: 'CRUD บุคลากร / นักเรียน / สิทธิ์เมนู',
                 purpose: 'บริหารข้อมูลคนและสิทธิ์เข้าเมนูหลังบ้าน',
                 canExtend: true,

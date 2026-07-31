@@ -8,7 +8,7 @@ import {
   Info, Gift,
   // newly added admin routes (educational-hub, docs-hub family, system)
   Sparkles, Folder, DollarSign, FileCheck2, NotebookText, Target, Files, IdCard,
-  Bell, QrCode, FlaskConical,
+  Bell, QrCode, FlaskConical, Package, Gauge,
 } from 'lucide-react';
 
 export type QuickMenuOption = {
@@ -40,6 +40,8 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   // ศูนย์เอกสาร (docs-hub family, v1.19.x — เพิ่งเพิ่ม)
   { id: 'docs-hub', label: 'ศูนย์เอกสาร', icon: Folder, path: '/admin/dashboard/docs-hub', group: 'ศูนย์เอกสาร' },
   { id: 'budget', label: 'งบประมาณ', icon: DollarSign, path: '/admin/dashboard/budget', group: 'ศูนย์เอกสาร' },
+  { id: 'supplies', label: 'พัสดุ / วัสดุ', icon: Package, path: '/admin/dashboard/supplies', group: 'ศูนย์เอกสาร' },
+  { id: 'digital-ops', label: 'ลดภาระครู (Digital Ops)', icon: Gauge, path: '/admin/dashboard/digital-ops', group: 'ศูนย์เอกสาร' },
   { id: 'sar', label: 'SAR (รายงานประจำปี)', icon: FileCheck2, path: '/admin/dashboard/sar', group: 'ศูนย์เอกสาร' },
   { id: 'ics', label: 'ICS (แผนการเรียนรู้)', icon: NotebookText, path: '/admin/dashboard/ics', group: 'ศูนย์เอกสาร' },
   { id: 'action-plan', label: 'แผนปฏิบัติการ', icon: Target, path: '/admin/dashboard/action-plan', group: 'ศูนย์เอกสาร' },

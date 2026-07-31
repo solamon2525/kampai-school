@@ -31,6 +31,8 @@ const HeroSlidesManagement = lazy(() => import('@/components/admin/slides/HeroSl
 const AnalyticsManagement = lazy(() => import('@/components/admin/analytics/AnalyticsManagement').then(m => ({ default: m.AnalyticsManagement })));
 const DocsHubDashboard = lazy(() => import('@/components/admin/docs-hub/DocsHubDashboard').then(m => ({ default: m.DocsHubDashboard })));
 const BudgetManagement = lazy(() => import('@/components/admin/budget/BudgetManagement').then(m => ({ default: m.BudgetManagement })));
+const SuppliesManagement = lazy(() => import('@/components/admin/supplies/SuppliesManagement').then(m => ({ default: m.SuppliesManagement })));
+const DigitalOpsDashboard = lazy(() => import('@/components/admin/digital-ops/DigitalOpsDashboard').then(m => ({ default: m.DigitalOpsDashboard })));
 const SarManagement = lazy(() => import('@/components/admin/sar/SarManagement').then(m => ({ default: m.SarManagement })));
 const IcsManagement = lazy(() => import('@/components/admin/ics/IcsManagement').then(m => ({ default: m.IcsManagement })));
 const ActionPlanManagement = lazy(() => import('@/components/admin/action-plan/ActionPlanManagement').then(m => ({ default: m.ActionPlanManagement })));
@@ -139,6 +141,8 @@ const AdminDashboard = () => {
             {/* ศูนย์เอกสารโรงเรียน */}
             <Route path="docs-hub" element={<PermissionGuard menuId="docs-hub"><DocsHubDashboard /></PermissionGuard>} />
             <Route path="budget" element={<PermissionGuard menuId="budget"><BudgetManagement /></PermissionGuard>} />
+            <Route path="supplies" element={<PermissionGuard menuId="supplies"><SuppliesManagement /></PermissionGuard>} />
+            <Route path="digital-ops" element={<PermissionGuard menuId="digital-ops"><DigitalOpsDashboard /></PermissionGuard>} />
             <Route path="sar" element={<PermissionGuard menuId="sar"><SarManagement /></PermissionGuard>} />
             <Route path="ics" element={<PermissionGuard menuId="ics"><IcsManagement /></PermissionGuard>} />
             <Route path="action-plan" element={<PermissionGuard menuId="action-plan"><ActionPlanManagement /></PermissionGuard>} />

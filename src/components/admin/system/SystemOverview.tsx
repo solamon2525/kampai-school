@@ -104,7 +104,7 @@ const dbGroups = [
     { label: 'เนื้อหา CMS', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'hero_slides', 'testimonials', 'partners', 'faq', 'ticker_items', 'surveys'] },
     { label: 'บุคลากร / นักเรียน', tables: ['administrators', 'staff', 'students', 'attendance_records', 'grade_data', 'score_records', 'conduct_scores', 'parent_student_links', 'student_health_records', 'student_documents'] },
     { label: 'ธนาคาร / รางวัล', tables: ['waste_categories', 'waste_transactions', 'savings_transactions', 'rewards', 'reward_claims', 'daily_quest_config', 'daily_quest_completions'] },
-    { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
+    { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'supply_items', 'supply_requests', 'digital_workload_baselines', 'digital_paper_logs', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
     { label: 'HR', tables: ['leave_requests', 'leave_balances', 'training_records', 'pa_assessments'] },
     { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
     { label: 'คลังสื่อ / packs', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'lesson_packs', 'lesson_pack_items', 'game_docs', 'game_bgm_tracks'] },
@@ -117,7 +117,6 @@ const dbGroups = [
 
 /** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
-    { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour สำหรับ admin/ครู/ผู้ปกครองคนแรก' },
     { icon: '📅', title: 'Activity Heatmap', desc: 'ความมีส่วนร่วมรายปีแบบ GitHub contribution graph' },
     { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG — คลิกอาคาร/ห้องดูข้อมูล' },
     { icon: '📧', title: 'Visual Newsletter Builder', desc: 'ลากวางเทมเพลตอีเมล + ส่งผ่าน Resend เมื่อมีข่าวใหม่' },
@@ -163,7 +162,8 @@ const sprintPlan = [
             { icon: '✅', title: 'เช็คชื่อ/คะแนนครบก่อนปิดภาค', effort: 'ops', stack: 'ปพ. completeness drills' },
             { icon: '🔐', title: 'PDPA ความยินยอม + erasure SLA', effort: 'ops', stack: 'pdpa_* + /privacy' },
             { icon: '📣', title: 'ซ้อมแจ้งเตือนฉุกเฉิน + Push/LINE', effort: 'ops', stack: 'emergency_alerts' },
-            { icon: '🎯', title: 'Onboarding tour ครู/แอดมิน', effort: 'dev', stack: 'driver.js หรือ custom' },
+            { icon: '📦', title: 'พัสดุ + Digital Ops ลดภาระครู', effort: 'live', stack: 'mig 452 · v1.208' },
+            { icon: '🎯', title: 'Onboarding tour ครู', effort: 'live', stack: 'TeacherOnboardingTour · v1.208' },
             { icon: '📋', title: 'งานค้างครูบนแดชบอร์ด', effort: 'live', stack: 'TeacherPendingTasksCard · v1.207' },
         ],
     },
@@ -272,8 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.207.0 (Teacher ops UX + coverage deep link)',
+        version: 'v1.208.0 (BAYAO Smart Office — พัสดุ + Digital Ops)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'ระบบพัสดุ/วัสดุพื้นฐาน: ทะเบียน · ครูขอเบิก · อนุมัติตัดสต็อก (mig 452) + /teacher/supplies',
+            'Digital Ops ลดภาระครู: KPI PDCA · Time/Paper metrics · Role Model · Digital Clinic · ส่งออกรายงาน Markdown',
+            'Onboarding tour ครู 5 สเต็ป + แบบสำรวจความพึงพอใจระบบดิจิทัล (auto-ensure)',
+            'featureCatalog / Cmd+K / สิทธิ์เมนู supplies + digital-ops',
+        ],
+    },
+    {
+        version: 'v1.207.0 (Teacher ops UX + coverage deep link)',
+        date: 'ก่อนหน้า',
         badge: 'bg-blue-600',
         items: [
             'Teacher Dashboard: การ์ดงานค้าง — ตรวจการบ้าน · อนุมัติรางวัล · เตือนอัปสื่อครั้งแรก',
@@ -4318,11 +4329,11 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.207.0',
+        version: 'v1.208.0',
         live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
-        database: 'Supabase (PostgreSQL) — 143 tables · 16 views',
+        database: 'Supabase (PostgreSQL) — 147 tables · 16 views',
         primaryLanguage: 'TypeScript + PLpgSQL',
         frontend: 'React 18.3 + Vite 5',
         auth: 'Supabase Auth + RLS',
@@ -4340,11 +4351,11 @@ const exportData = {
     longTermPlan,
     featureCatalogStats,
     database: {
-        totalTables: 143,
+        totalTables: 147,
         totalViews: 16,
         migrations: 451,
         migrationFiles: 464,
-        latestMigration: '451_indicator_soft_gap_summary_rpc.sql',
+        latestMigration: '452_supplies_and_digital_ops.sql',
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -4594,7 +4605,7 @@ export const SystemOverview = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.207.0</span>
+                        <span className="font-medium text-foreground">v1.208.0</span>
                         {' · '}live{' '}
                         <a
                             href="https://kampai-school.vercel.app"
@@ -4641,10 +4652,10 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.207.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.208.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
-                        { icon: Database, label: 'Database', value: 'Supabase · 143 tables · 16 views' },
+                        { icon: Database, label: 'Database', value: 'Supabase · 147 tables · 16 views' },
                         { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #451 · ไฟล์ 464' },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
                         { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },

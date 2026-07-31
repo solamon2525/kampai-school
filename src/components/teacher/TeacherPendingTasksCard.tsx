@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { ElementType } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardCheck, Gift, Upload, ArrowRight, Loader2 } from 'lucide-react';
+import { ClipboardCheck, Gift, Upload, ArrowRight, Loader2, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,8 +23,9 @@ export function TeacherPendingTasksCard({ staffId }: TeacherPendingTasksCardProp
 
   const pendingGrading = data?.pendingGrading ?? 0;
   const pendingRewards = data?.pendingRewards ?? 0;
+  const pendingSupplies = data?.pendingSupplies ?? 0;
   const needsUpload = data?.needsFirstUpload ?? false;
-  const totalPending = pendingGrading + pendingRewards + (needsUpload ? 1 : 0);
+  const totalPending = pendingGrading + pendingRewards + pendingSupplies + (needsUpload ? 1 : 0);
 
   if (isLoading) {
     return (
@@ -84,6 +85,14 @@ export function TeacherPendingTasksCard({ staffId }: TeacherPendingTasksCardProp
             label={`อนุมัติของรางวัล ${pendingRewards} คำขอ`}
             href="/teacher/rewards-approval"
             accent="text-rose-700"
+          />
+        )}
+        {pendingSupplies > 0 && (
+          <TaskRow
+            icon={Package}
+            label={`คำขอพัสดุรออนุมัติ ${pendingSupplies} รายการ`}
+            href="/teacher/supplies"
+            accent="text-slate-700"
           />
         )}
         {needsUpload && (
