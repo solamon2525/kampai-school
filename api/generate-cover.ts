@@ -18,12 +18,24 @@ const POLLINATIONS_BASE = 'https://image.pollinations.ai/prompt';
 //
 // ส่วน "ครีเอทีฟ" มาจาก checklist ฝั่ง client (parts[] — ดู coverPresets.ts) แต่ invariant
 // (16:9 + ห้ามมีตัวอักษร + เว้นที่ด้านบน) ครอบที่นี่เสมอ กัน preset ผิดพลาดทำกฎหลุด
-function buildPrompt(opts: { subject?: string; parts?: string[]; scene?: string; colors?: string }): string {
+function buildPrompt(opts: { subject?: string; parts?: string[]; scene?: string; colors?: string; titleStyle?: string }): string {
   const HEADER =
     'High-quality illustration for a Thai elementary-school educational game cover, 16:9 wide aspect, full frame.';
   const FOOTER =
-    'STRICT: absolutely no text, no letters, no words, no numbers, no logos anywhere in the image. ' +
-    'Leave the TOP area of the image empty/clear (a title will be added later). Keep main elements in the center-bottom, full 16:9 frame.';
+    'STRICT: absolutely no text, no letters, no words, no numbers, no logos anywhere in the image.';
+
+  if (opts.titleStyle === 'card') {
+    const subj = opts.subject ? `Subject theme: ${opts.subject}.` : '';
+    const scene = opts.parts?.length ? opts.parts.join('. ') + '.' : '';
+    return [
+      HEADER,
+      'Minimal educational icon-card cover, cute but clean, modern flat vector feel, soft gradient background, centered learning symbol or object, lots of negative space, no people, no classroom scene, no chalkboard, no busy props.',
+      subj,
+      scene,
+      'The composition should feel like a simple app card or subject tile: one clear icon/object in the center, balanced spacing, calm but eye-catching, polished thumbnail quality.',
+      FOOTER,
+    ].filter(Boolean).join(' ');
+  }
 
   let middle: string;
   if (opts.parts && opts.parts.length) {
@@ -84,10 +96,10 @@ export default async function handler(req: any, res: any) {
 
   try {
     const { subject = '', scene = '', colors = '', parts } = (req.body ?? {}) as {
-      subject?: string; scene?: string; colors?: string; parts?: string[];
+      subject?: string; scene?: string; colors?: string; parts?: string[]; titleStyle?: string;
     };
     const safeParts = Array.isArray(parts) ? parts.filter((p) => typeof p === 'string' && p.trim()) : undefined;
-    const out = await callPollinations(buildPrompt({ subject, scene, colors, parts: safeParts }));
+    const out = await callPollinations(buildPrompt({ subject, scene, colors, parts: safeParts, titleStyle: (req.body?.titleStyle as string | undefined) }));
     return res.status(200).json(out);
   } catch (err: any) {
     return res.status(502).json({ error: err?.message || 'สร้างภาพไม่สำเร็จ' });

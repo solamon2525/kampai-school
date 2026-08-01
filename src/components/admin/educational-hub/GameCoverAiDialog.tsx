@@ -1,12 +1,12 @@
-/**
- * GameCoverAiDialog.tsx — สร้างปกเกมด้วย AI แบบ "เช็กลิสต์สำเร็จรูป" แล้วเปลี่ยน thumbnail
+﻿/**
+ * GameCoverAiDialog.tsx â€” à¸ªà¸£à¹‰à¸²à¸‡à¸›à¸à¹€à¸à¸¡à¸”à¹‰à¸§à¸¢ AI à¹à¸šà¸š "à¹€à¸Šà¹‡à¸à¸¥à¸´à¸ªà¸•à¹Œà¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸£à¸¹à¸›" à¹à¸¥à¹‰à¸§à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™ thumbnail
  *
- * flow: เลือกชิป (สไตล์/สี/ตัวเอก/ฉาก/เอฟเฟกต์ — ไม่ต้องพิมพ์) → "สร้างภาพ"
- *   (POST /api/generate-cover ด้วย parts[] → Pollinations คืนภาพล้วน)
- * → วาดลง canvas 1280×720 + overlay ชื่อเกม/วิชา (Sarabun ฝั่ง client → ตัวไทยคมชัด)
- *   ตามสไตล์โลโก้ที่เลือก → preview → "ใช้ปกนี้" → อัป storage + update thumbnail_url
+ * flow: à¹€à¸¥à¸·à¸­à¸à¸Šà¸´à¸› (à¸ªà¹„à¸•à¸¥à¹Œ/à¸ªà¸µ/à¸•à¸±à¸§à¹€à¸­à¸/à¸‰à¸²à¸/à¹€à¸­à¸Ÿà¹€à¸Ÿà¸à¸•à¹Œ â€” à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸žà¸´à¸¡à¸žà¹Œ) â†’ "à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸²à¸ž"
+ *   (POST /api/generate-cover à¸”à¹‰à¸§à¸¢ parts[] â†’ Pollinations à¸„à¸·à¸™à¸ à¸²à¸žà¸¥à¹‰à¸§à¸™)
+ * â†’ à¸§à¸²à¸”à¸¥à¸‡ canvas 1280Ã—720 + overlay à¸Šà¸·à¹ˆà¸­à¹€à¸à¸¡/à¸§à¸´à¸Šà¸² (Sarabun à¸à¸±à¹ˆà¸‡ client â†’ à¸•à¸±à¸§à¹„à¸—à¸¢à¸„à¸¡à¸Šà¸±à¸”)
+ *   à¸•à¸²à¸¡à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰à¸—à¸µà¹ˆà¹€à¸¥à¸·à¸­à¸ â†’ preview â†’ "à¹ƒà¸Šà¹‰à¸›à¸à¸™à¸µà¹‰" â†’ à¸­à¸±à¸› storage + update thumbnail_url
  *
- * preset ทั้งหมดอยู่ที่ coverPresets.ts (แก้สไตล์ที่เดียว) · server gen = api/generate-cover.ts
+ * preset à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¸­à¸¢à¸¹à¹ˆà¸—à¸µà¹ˆ coverPresets.ts (à¹à¸à¹‰à¸ªà¹„à¸•à¸¥à¹Œà¸—à¸µà¹ˆà¹€à¸”à¸µà¸¢à¸§) Â· server gen = api/generate-cover.ts
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -28,12 +28,12 @@ import {
 const COVER_W = 1280;
 const COVER_H = 720;
 
-// ตัด emoji/ช่องว่างนำหน้าออกจากชื่อเกม (เช่น "🔤 English..." → "English...") เพื่อ overlay ให้สวย
+// à¸•à¸±à¸” emoji/à¸Šà¹ˆà¸­à¸‡à¸§à¹ˆà¸²à¸‡à¸™à¸³à¸«à¸™à¹‰à¸²à¸­à¸­à¸à¸ˆà¸²à¸à¸Šà¸·à¹ˆà¸­à¹€à¸à¸¡ (à¹€à¸Šà¹ˆà¸™ "ðŸ”¤ English..." â†’ "English...") à¹€à¸žà¸·à¹ˆà¸­ overlay à¹ƒà¸«à¹‰à¸ªà¸§à¸¢
 function cleanTitle(t: string): string {
-    return t.replace(/^[\p{Extended_Pictographic}‍️\s]+/u, '').trim();
+    return t.replace(/^[\p{Extended_Pictographic}â€ï¸\s]+/u, '').trim();
 }
 
-// วาดหัวเรื่อง (Sarabun) ตามสไตล์โลโก้ — center ด้านบน, auto-shrink ให้พอดี
+// à¸§à¸²à¸”à¸«à¸±à¸§à¹€à¸£à¸·à¹ˆà¸­à¸‡ (Sarabun) à¸•à¸²à¸¡à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰ â€” center à¸”à¹‰à¸²à¸™à¸šà¸™, auto-shrink à¹ƒà¸«à¹‰à¸žà¸­à¸”à¸µ
 function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: TitleStyle) {
     let font = 76;
     ctx.textAlign = 'center';
@@ -53,7 +53,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
 
     switch (titleStyle) {
         case 'gold': {
-            // ทองนูน: ไล่เฉดทอง + ขอบเข้ม + เงานูน
+            // à¸—à¸­à¸‡à¸™à¸¹à¸™: à¹„à¸¥à¹ˆà¹€à¸‰à¸”à¸—à¸­à¸‡ + à¸‚à¸­à¸šà¹€à¸‚à¹‰à¸¡ + à¹€à¸‡à¸²à¸™à¸¹à¸™
             ctx.shadowColor = 'rgba(0,0,0,0.45)';
             ctx.shadowBlur = 8;
             ctx.shadowOffsetY = 4;
@@ -70,7 +70,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
             break;
         }
         case 'banner': {
-            // ป้ายแบนเนอร์: แถบกรมท่า-ขอบทอง หลังตัวอักษร แล้วตัวขาว
+            // à¸›à¹‰à¸²à¸¢à¹à¸šà¸™à¹€à¸™à¸­à¸£à¹Œ: à¹à¸–à¸šà¸à¸£à¸¡à¸—à¹ˆà¸²-à¸‚à¸­à¸šà¸—à¸­à¸‡ à¸«à¸¥à¸±à¸‡à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£ à¹à¸¥à¹‰à¸§à¸•à¸±à¸§à¸‚à¸²à¸§
             const padX = 40;
             const bh = font + 28;
             const bw = Math.min(tw + padX * 2, COVER_W - 40);
@@ -94,7 +94,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
             break;
         }
         case 'pop': {
-            // การ์ตูนป๊อป: สีสด + ขอบขาวหนา + เงา drop
+            // à¸à¸²à¸£à¹Œà¸•à¸¹à¸™à¸›à¹Šà¸­à¸›: à¸ªà¸µà¸ªà¸” + à¸‚à¸­à¸šà¸‚à¸²à¸§à¸«à¸™à¸² + à¹€à¸‡à¸² drop
             ctx.shadowColor = 'rgba(0,0,0,0.4)';
             ctx.shadowBlur = 6;
             ctx.shadowOffsetY = 6;
@@ -107,7 +107,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
             break;
         }
         case 'neon': {
-            // นีออน: ตัวขาว + เรืองแสงไซแอน (ซ้อนหลายชั้น)
+            // à¸™à¸µà¸­à¸­à¸™: à¸•à¸±à¸§à¸‚à¸²à¸§ + à¹€à¸£à¸·à¸­à¸‡à¹à¸ªà¸‡à¹„à¸‹à¹à¸­à¸™ (à¸‹à¹‰à¸­à¸™à¸«à¸¥à¸²à¸¢à¸Šà¸±à¹‰à¸™)
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = '#22d3ee';
             for (let i = 0; i < 3; i++) {
@@ -121,9 +121,33 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
             ctx.fillText(heading, cx, top);
             break;
         }
+        case 'card': {
+            const padX = 42;
+            const padY = 18;
+            const bw = Math.min(tw + padX * 2, COVER_W - 120);
+            const bh = font + padY * 2;
+            const bx = cx - bw / 2;
+            const by = 42;
+            ctx.shadowColor = 'rgba(0,0,0,0.22)';
+            ctx.shadowBlur = 16;
+            ctx.shadowOffsetY = 5;
+            ctx.fillStyle = '#243b8f';
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, 28);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, 28);
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(heading, cx, by + 10);
+            break;
+        }
         case 'classic':
         default: {
-            // คลาสสิก: ขาว + ขอบกรมท่า + เงา
+            // à¸„à¸¥à¸²à¸ªà¸ªà¸´à¸: à¸‚à¸²à¸§ + à¸‚à¸­à¸šà¸à¸£à¸¡à¸—à¹ˆà¸² + à¹€à¸‡à¸²
             ctx.shadowColor = 'rgba(0,0,0,0.55)';
             ctx.shadowBlur = 10;
             ctx.shadowOffsetY = 3;
@@ -139,7 +163,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, heading: string, titleStyle: T
     ctx.restore();
 }
 
-// วาดภาพ AI (cover-fit) + หัวเรื่องไทย + ป้ายวิชา ลง canvas
+// à¸§à¸²à¸”à¸ à¸²à¸ž AI (cover-fit) + à¸«à¸±à¸§à¹€à¸£à¸·à¹ˆà¸­à¸‡à¹„à¸—à¸¢ + à¸›à¹‰à¸²à¸¢à¸§à¸´à¸Šà¸² à¸¥à¸‡ canvas
 function drawCover(
     canvas: HTMLCanvasElement,
     img: HTMLImageElement,
@@ -151,19 +175,19 @@ function drawCover(
     if (!ctx) return;
     ctx.clearRect(0, 0, COVER_W, COVER_H);
 
-    // ── ภาพประกอบ cover-fit ──
+    // â”€â”€ à¸ à¸²à¸žà¸›à¸£à¸°à¸à¸­à¸š cover-fit â”€â”€
     const scale = Math.max(COVER_W / img.width, COVER_H / img.height);
     const dw = img.width * scale;
     const dh = img.height * scale;
     ctx.drawImage(img, (COVER_W - dw) / 2, (COVER_H - dh) / 2, dw, dh);
 
-    // ── หัวเรื่อง ──
+    // â”€â”€ à¸«à¸±à¸§à¹€à¸£à¸·à¹ˆà¸­à¸‡ â”€â”€
     const heading = cleanTitle(title) || title;
     drawTitle(ctx, heading, titleStyle);
 
-    // ── ป้ายวิชา มุมล่างซ้าย (ทอง/กรมท่า = brand) ──
+    // â”€â”€ à¸›à¹‰à¸²à¸¢à¸§à¸´à¸Šà¸² à¸¡à¸¸à¸¡à¸¥à¹ˆà¸²à¸‡à¸‹à¹‰à¸²à¸¢ (à¸—à¸­à¸‡/à¸à¸£à¸¡à¸—à¹ˆà¸² = brand) â”€â”€
     const badge = (subject || '').trim();
-    if (badge) {
+    if (badge && titleStyle !== 'card') {
         ctx.font = '700 34px Sarabun, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
@@ -193,14 +217,14 @@ export const GameCoverAiDialog = ({
 }) => {
     const { toast } = useToast();
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const imgRef = useRef<HTMLImageElement | null>(null); // ภาพ AI ล่าสุด (ไว้วาดทับใหม่ตอนเปลี่ยนสไตล์โลโก้)
+    const imgRef = useRef<HTMLImageElement | null>(null); // à¸ à¸²à¸ž AI à¸¥à¹ˆà¸²à¸ªà¸¸à¸” (à¹„à¸§à¹‰à¸§à¸²à¸”à¸—à¸±à¸šà¹ƒà¸«à¸¡à¹ˆà¸•à¸­à¸™à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰)
     const [selection, setSelection] = useState<CoverSelection>({});
     const [titleStyle, setTitleStyle] = useState<TitleStyle>('classic');
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [generating, setGenerating] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    // เปลี่ยนสไตล์โลโก้ → วาดหัวเรื่องใหม่ทับภาพเดิม (ไม่ต้อง gen ภาพใหม่)
+    // à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰ â†’ à¸§à¸²à¸”à¸«à¸±à¸§à¹€à¸£à¸·à¹ˆà¸­à¸‡à¹ƒà¸«à¸¡à¹ˆà¸—à¸±à¸šà¸ à¸²à¸žà¹€à¸”à¸´à¸¡ (à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡ gen à¸ à¸²à¸žà¹ƒà¸«à¸¡à¹ˆ)
     useEffect(() => {
         const canvas = canvasRef.current;
         const img = imgRef.current;
@@ -209,7 +233,10 @@ export const GameCoverAiDialog = ({
         setPreviewUrl(canvas.toDataURL('image/png'));
     }, [titleStyle, item.title, item.subject]);
 
-    const applyPack = (pick: CoverSelection) => setSelection(pick);
+    const applyPack = (packId: string, pick: CoverSelection) => {
+        setSelection(pick);
+        if (packId === 'card') setTitleStyle('card');
+    };
     const randomize = () => setSelection(randomSelection());
 
     const toggle = (groupKey: string, multi: boolean, id: string) => {
@@ -231,13 +258,13 @@ export const GameCoverAiDialog = ({
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
-            if (!token) throw new Error('เซสชันหมดอายุ — เข้าสู่ระบบใหม่');
+            if (!token) throw new Error('à¹€à¸‹à¸ªà¸Šà¸±à¸™à¸«à¸¡à¸”à¸­à¸²à¸¢à¸¸ â€” à¹€à¸‚à¹‰à¸²à¸ªà¸¹à¹ˆà¸£à¸°à¸šà¸šà¹ƒà¸«à¸¡à¹ˆ');
 
             const parts = buildParts(selection);
             const res = await fetch('/api/generate-cover', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ subject: item.subject ?? '', parts }),
+                body: JSON.stringify({ subject: item.subject ?? '', parts, titleStyle }),
             });
             const json = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
@@ -246,16 +273,16 @@ export const GameCoverAiDialog = ({
             const img = new Image();
             img.src = `data:${mimeType};base64,${imageBase64}`;
             await img.decode();
-            await document.fonts.ready; // ให้ Sarabun พร้อมก่อนวาดตัวอักษร
+            await document.fonts.ready; // à¹ƒà¸«à¹‰ Sarabun à¸žà¸£à¹‰à¸­à¸¡à¸à¹ˆà¸­à¸™à¸§à¸²à¸”à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£
             imgRef.current = img;
             const canvas = canvasRef.current;
-            if (!canvas) throw new Error('canvas ไม่พร้อม');
+            if (!canvas) throw new Error('canvas à¹„à¸¡à¹ˆà¸žà¸£à¹‰à¸­à¸¡');
             drawCover(canvas, img, item.title, item.subject ?? '', titleStyle);
             setPreviewUrl(canvas.toDataURL('image/png'));
         } catch (err) {
             toast({
-                title: 'สร้างภาพไม่สำเร็จ',
-                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                title: 'à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸²à¸žà¹„à¸¡à¹ˆà¸ªà¸³à¹€à¸£à¹‡à¸ˆ',
+                description: err instanceof Error ? err.message : 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”',
                 variant: 'destructive',
             });
         } finally {
@@ -269,7 +296,7 @@ export const GameCoverAiDialog = ({
         setSaving(true);
         try {
             const blob: Blob = await new Promise((resolve, reject) =>
-                canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('แปลงภาพไม่สำเร็จ'))), 'image/png'),
+                canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('à¹à¸›à¸¥à¸‡à¸ à¸²à¸žà¹„à¸¡à¹ˆà¸ªà¸³à¹€à¸£à¹‡à¸ˆ'))), 'image/png'),
             );
             const slug = item.game_slug || 'game';
             const file = new File([blob], `${slug}-cover.png`, { type: 'image/png' });
@@ -280,8 +307,8 @@ export const GameCoverAiDialog = ({
             onSaved();
         } catch (err) {
             toast({
-                title: 'บันทึกปกไม่สำเร็จ',
-                description: err instanceof Error ? err.message : 'เกิดข้อผิดพลาด',
+                title: 'à¸šà¸±à¸™à¸—à¸¶à¸à¸›à¸à¹„à¸¡à¹ˆà¸ªà¸³à¹€à¸£à¹‡à¸ˆ',
+                description: err instanceof Error ? err.message : 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”',
                 variant: 'destructive',
             });
         } finally {
@@ -295,23 +322,23 @@ export const GameCoverAiDialog = ({
     return (
         <>
             <DialogHeader>
-                <DialogTitle>สร้างปก AI — {item.title}</DialogTitle>
+                <DialogTitle>à¸ªà¸£à¹‰à¸²à¸‡à¸›à¸ AI â€” {item.title}</DialogTitle>
                 <DialogDescription>
-                    เลือกจากเช็กลิสต์ (ไม่ต้องพิมพ์) — AI วาดภาพประกอบ 16:9 แล้วใส่ชื่อเกม/วิชาทับให้อัตโนมัติ
+                    à¹€à¸¥à¸·à¸­à¸à¸ˆà¸²à¸à¹€à¸Šà¹‡à¸à¸¥à¸´à¸ªà¸•à¹Œ (à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸žà¸´à¸¡à¸žà¹Œ) â€” AI à¸§à¸²à¸”à¸ à¸²à¸žà¸›à¸£à¸°à¸à¸­à¸š 16:9 à¹à¸¥à¹‰à¸§à¹ƒà¸ªà¹ˆà¸Šà¸·à¹ˆà¸­à¹€à¸à¸¡/à¸§à¸´à¸Šà¸²à¸—à¸±à¸šà¹ƒà¸«à¹‰à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´
                 </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-                {/* ชุดสำเร็จรูป — คลิกเดียวเซ็ตทุกแกน */}
+                {/* à¸Šà¸¸à¸”à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸£à¸¹à¸› â€” à¸„à¸¥à¸´à¸à¹€à¸”à¸µà¸¢à¸§à¹€à¸‹à¹‡à¸•à¸—à¸¸à¸à¹à¸à¸™ */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">ชุดสำเร็จรูป (คลิกเดียว)</label>
+                    <label className="text-sm font-medium">à¸Šà¸¸à¸”à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸£à¸¹à¸› (à¸„à¸¥à¸´à¸à¹€à¸”à¸µà¸¢à¸§)</label>
                     <div className="flex flex-wrap gap-1.5">
                         {STYLE_PACKS.map((p) => (
                             <button
                                 key={p.id}
                                 type="button"
                                 disabled={generating || saving}
-                                onClick={() => applyPack(p.pick)}
+                                onClick={() => applyPack(p.id, p.pick)}
                                 className={cn(chipBase, 'bg-card text-foreground border-border hover:bg-accent')}
                             >
                                 {p.label}
@@ -323,17 +350,17 @@ export const GameCoverAiDialog = ({
                             onClick={randomize}
                             className={cn(chipBase, 'bg-card text-foreground border-border hover:bg-accent inline-flex items-center gap-1')}
                         >
-                            <Dice5 className="h-3.5 w-3.5" /> สุ่ม
+                            <Dice5 className="h-3.5 w-3.5" /> à¸ªà¸¸à¹ˆà¸¡
                         </button>
                     </div>
                 </div>
 
-                {/* แกนเลือกทีละด้าน */}
+                {/* à¹à¸à¸™à¹€à¸¥à¸·à¸­à¸à¸—à¸µà¸¥à¸°à¸”à¹‰à¸²à¸™ */}
                 {COVER_GROUPS.map((group) => (
                     <div key={group.key} className="space-y-1.5">
                         <label className="text-sm font-medium">
                             {group.label}
-                            {group.multi && <span className="text-xs text-muted-foreground"> (เลือกได้หลายอย่าง)</span>}
+                            {group.multi && <span className="text-xs text-muted-foreground"> (à¹€à¸¥à¸·à¸­à¸à¹„à¸”à¹‰à¸«à¸¥à¸²à¸¢à¸­à¸¢à¹ˆà¸²à¸‡)</span>}
                         </label>
                         <div className="flex flex-wrap gap-1.5">
                             {group.options.map((opt) => {
@@ -359,9 +386,9 @@ export const GameCoverAiDialog = ({
                     </div>
                 ))}
 
-                {/* สไตล์โลโก้ชื่อเกม (เปลี่ยนได้ทันทีไม่ต้อง gen ใหม่) */}
+                {/* à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰à¸Šà¸·à¹ˆà¸­à¹€à¸à¸¡ (à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¹„à¸”à¹‰à¸—à¸±à¸™à¸—à¸µà¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡ gen à¹ƒà¸«à¸¡à¹ˆ) */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">สไตล์โลโก้ชื่อเกม</label>
+                    <label className="text-sm font-medium">à¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸¥à¹‚à¸à¹‰à¸Šà¸·à¹ˆà¸­à¹€à¸à¸¡</label>
                     <div className="flex flex-wrap gap-1.5">
                         {TITLE_STYLES.map((t) => (
                             <button
@@ -386,28 +413,28 @@ export const GameCoverAiDialog = ({
                 {previewUrl ? (
                     <img
                         src={previewUrl}
-                        alt="ตัวอย่างปก"
+                        alt="à¸•à¸±à¸§à¸­à¸¢à¹ˆà¸²à¸‡à¸›à¸"
                         className="w-full aspect-video object-contain rounded-lg border border-border bg-muted"
                     />
                 ) : (
                     <div className="w-full aspect-video rounded-lg border border-dashed border-border bg-muted flex flex-col items-center justify-center gap-2 text-muted-foreground text-sm">
                         <ImageIcon className="h-6 w-6" />
-                        ยังไม่มีภาพ — เลือกชิปแล้วกด "สร้างภาพ"
+                        à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸ à¸²à¸ž â€” à¹€à¸¥à¸·à¸­à¸à¸Šà¸´à¸›à¹à¸¥à¹‰à¸§à¸à¸” "à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸²à¸ž"
                     </div>
                 )}
                 <canvas ref={canvasRef} width={COVER_W} height={COVER_H} className="hidden" />
 
                 <Button variant="outline" className="w-full" onClick={handleGenerate} disabled={generating || saving}>
                     {generating
-                        ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังสร้างภาพ…</>
-                        : <><Sparkles className="h-4 w-4 mr-1" /> {previewUrl ? 'สร้างใหม่อีกครั้ง' : 'สร้างภาพ'}</>}
+                        ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> à¸à¸³à¸¥à¸±à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸²à¸žâ€¦</>
+                        : <><Sparkles className="h-4 w-4 mr-1" /> {previewUrl ? 'à¸ªà¸£à¹‰à¸²à¸‡à¹ƒà¸«à¸¡à¹ˆà¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡' : 'à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸²à¸ž'}</>}
                 </Button>
             </div>
 
             <DialogFooter>
-                <Button variant="ghost" onClick={onCancel} disabled={saving || generating}>ยกเลิก</Button>
+                <Button variant="ghost" onClick={onCancel} disabled={saving || generating}>à¸¢à¸à¹€à¸¥à¸´à¸</Button>
                 <Button onClick={handleSave} disabled={!previewUrl || saving || generating}>
-                    {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังบันทึก…</> : 'ใช้ปกนี้'}
+                    {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> à¸à¸³à¸¥à¸±à¸‡à¸šà¸±à¸™à¸—à¸¶à¸â€¦</> : 'à¹ƒà¸Šà¹‰à¸›à¸à¸™à¸µà¹‰'}
                 </Button>
             </DialogFooter>
         </>
