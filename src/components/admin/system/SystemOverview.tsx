@@ -393,6 +393,15 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.199.2 (long-division cover chibi refresh)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เปลี่ยนปก `long-division-thinking-media` เป็นภาพจิบิ 16:9 แบบไม่มีคน เน้นแค่คณิตศาสตร์และหัวข้อหารยาวให้ดูเป็นสื่อการสอนชัดเจน',
+            'อัปเดต asset ปกหลักเป็น `public/games/math/long-division-thinking-media-cover.png` เพื่อใช้กับสื่อ long division ตัวนี้โดยตรง',
+        ],
+    },
+    {
         version: 'v1.199.1 (worksheet print/screen line parity)',
         date: 'ล่าสุด',
         badge: 'bg-sky-700',
