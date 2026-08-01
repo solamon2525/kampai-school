@@ -32,8 +32,19 @@ export type LessonPack = {
     thumbnail_url: string | null;
     sort_order: number;
     is_published: boolean;
+    owner_staff_id: string | null;
     phase_tag: string | null;
     items?: LessonPackItem[];
+};
+
+export type LessonPackSummary = {
+    count: number;
+    owner: {
+        id: string;
+        name: string;
+        photo_url: string | null;
+        username: string | null;
+    } | null;
 };
 
 /** Parse ชั้นจาก class label เช่น "ป.4/1" → "ป.4" */
@@ -44,12 +55,17 @@ export function gradeFromClassLabel(cls: string | null | undefined): string | nu
 }
 
 export const lessonPacksService = {
-    listPublished: async (opts?: { grade?: string | null; limit?: number }): Promise<LessonPack[]> => {
+    listPublished: async (opts?: {
+        grade?: string | null;
+        limit?: number;
+        ownerStaffId?: string | null;
+    }): Promise<LessonPack[]> => {
         let q = supabase
             .from('lesson_packs' as never)
             .select('*')
             .eq('is_published', true)
             .order('sort_order', { ascending: true });
+        if (opts?.ownerStaffId) q = q.eq('owner_staff_id', opts.ownerStaffId);
         if (opts?.limit) q = q.limit(opts.limit);
         const { data, error } = await q;
         if (error) throw error;
@@ -60,7 +76,11 @@ export const lessonPacksService = {
         );
     },
 
-    listPublishedWithItems: async (opts?: { grade?: string | null }): Promise<LessonPack[]> => {
+    listPublishedWithItems: async (opts?: {
+        grade?: string | null;
+        limit?: number;
+        ownerStaffId?: string | null;
+    }): Promise<LessonPack[]> => {
         const packs = await lessonPacksService.listPublished(opts);
         if (packs.length === 0) return [];
         const ids = packs.map((p) => p.id);
@@ -137,12 +157,33 @@ export const lessonPacksService = {
         );
     },
 
-    /** Phase 16 ops: published pack count */
-    countPublished: async (): Promise<number> => {
-        const { count, error } = await supabase
+    /** Compact public-hub entry point: total packs + creator identity in one request. */
+    getPublishedSummary: async (): Promise<LessonPackSummary> => {
+        const { data, count, error } = await supabase
+            .from('lesson_packs' as never)
+            .select('owner_staff_id, staff!lesson_packs_owner_staff_id_fkey(id, name, photo_url, username)', {
+                count: 'exact',
+            })
+            .eq('is_published', true)
+            .order('sort_order', { ascending: true })
+            .limit(1);
+        if (error) throw error;
+        type SummaryRow = {
+            owner_staff_id: string | null;
+            staff: LessonPackSummary['owner'];
+        };
+        const row = ((data as unknown as SummaryRow[] | null) ?? [])[0];
+        return { count: count ?? 0, owner: row?.staff ?? null };
+    },
+
+    /** Phase 16 ops + owner-scoped teacher hub count. */
+    countPublished: async (ownerStaffId?: string | null): Promise<number> => {
+        let q = supabase
             .from('lesson_packs' as never)
             .select('*', { count: 'exact', head: true })
             .eq('is_published', true);
+        if (ownerStaffId) q = q.eq('owner_staff_id', ownerStaffId);
+        const { count, error } = await q;
         if (error) throw error;
         return count ?? 0;
     },

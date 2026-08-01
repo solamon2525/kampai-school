@@ -146,6 +146,17 @@ export type EduHubTeacherCard = {
     last_item_at: string | null;
 };
 
+export type EduHubItemPageOptions = {
+    categoryId: string;
+    limit?: number;
+    search?: string;
+    subjects?: string[];
+    grades?: string[];
+    tags?: string[];
+    types?: EduHubItemType[];
+    sort?: 'default' | 'newest' | 'popular' | 'alpha';
+};
+
 const BUCKET = 'educational-hub';
 const GAMES_BUCKET = 'edu-hub-games';
 
@@ -237,6 +248,63 @@ export const educationalHubService = {
         return q
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false });
+    },
+
+    /** Public teacher-library page: fetch only the active category and visible range. */
+    listItemsByTeacherPage: async (
+        staffId: string,
+        opts: EduHubItemPageOptions,
+    ): Promise<{ data: EduHubItem[]; count: number; error: Error | null }> => {
+        const limit = Math.max(1, Math.min(opts.limit ?? 24, 120));
+        let q = supabase
+            .from('educational_hub_items' as never)
+            .select('*', { count: 'exact' })
+            .eq('owner_staff_id', staffId)
+            .eq('category_id', opts.categoryId)
+            .eq('is_published', true);
+
+        const search = opts.search?.replace(/[,%()]/g, ' ').trim();
+        if (search) q = q.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+        if (opts.subjects?.length) q = q.in('subject', opts.subjects);
+        if (opts.grades?.length) q = q.overlaps('grade_levels', opts.grades);
+        if (opts.tags?.length) q = q.overlaps('tags', opts.tags);
+        if (opts.types?.length) q = q.in('item_type', opts.types);
+
+        q = q
+            .order('library_pinned', { ascending: false })
+            .order('library_pin_order', { ascending: true, nullsFirst: false });
+
+        if (opts.sort === 'popular') {
+            q = q.order('view_count', { ascending: false });
+        } else if (opts.sort === 'alpha') {
+            q = q.order('title', { ascending: true });
+        } else if (opts.sort === 'default') {
+            q = q
+                .order('sort_order', { ascending: true })
+                .order('created_at', { ascending: false });
+        } else {
+            q = q.order('created_at', { ascending: false });
+        }
+
+        const { data, count, error } = await q.range(0, limit - 1);
+        return {
+            data: ((data ?? []) as unknown as EduHubItem[]),
+            count: count ?? 0,
+            error: (error as Error | null) ?? null,
+        };
+    },
+
+    /** Lightweight pair-link index; avoids downloading every full card row. */
+    listPublishedItemUrlsByTeacher: async (staffId: string): Promise<string[]> => {
+        const { data, error } = await supabase
+            .from('educational_hub_items' as never)
+            .select('external_url')
+            .eq('owner_staff_id', staffId)
+            .eq('is_published', true)
+            .not('external_url', 'is', null);
+        if (error) throw error;
+        return ((data ?? []) as unknown as Array<{ external_url: string | null }>)
+            .flatMap((row) => row.external_url ? [row.external_url] : []);
     },
 
     // เกมที่ปักหมุดขึ้นหน้าแรก (โซน "เกมแนะนำ") — published เท่านั้น, anon อ่านได้
@@ -615,7 +683,7 @@ export const educationalHubService = {
         subPath: string,
         file: File,
     ): Promise<{ url: string; path: string; error: Error | null }> => {
-        const cleanName = file.name.replace(/[^\w.\-]+/g, '_');
+        const cleanName = file.name.replace(/[^\w.-]+/g, '_');
         const path = `${subPath.replace(/\/+$/, '')}/${Date.now()}_${crypto.randomUUID().slice(0, 8)}_${cleanName}`;
         const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
             cacheControl: '3600',

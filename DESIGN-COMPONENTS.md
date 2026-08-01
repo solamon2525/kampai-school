@@ -359,6 +359,21 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 - ไม่มี `studentCode` = แถบสรุปโชว์หัวข้อ "🏆 อันดับ & เหรียญเกียรติยศ" + โชว์เฉพาะปุ่ม "อันดับ" (leaderboard ดูได้แบบ anon)
 - คู่กับ **HonorWall variant="medals"** (ใหม่): render เฉพาะ `MedalsSection` (เหรียญสากล + รายเกม + ใกล้ปลดล็อก) ไม่มี Card/หัวโปรไฟล์ เพราะแถบสรุปแสดงโปรไฟล์ให้แล้ว · `LevelRing` ถูก export เพื่อใช้ร่วม
 
+### LessonPacksSection (Educational Hub)
+
+ชุดเรียนพร้อมสอนมี 2 รูปแบบเพื่อไม่ให้แทรกเป็นกริดขนาดใหญ่ในทุกคลัง:
+
+```tsx
+<LessonPacksSection variant="summary" />
+<LessonPacksSection variant="grid" ownerStaffId={staffId} initialLimit={24} />
+```
+
+- `summary` ใช้เฉพาะหน้ารวมคลัง: แถบ compact แสดงจำนวนชุด + ผู้สร้างด้วย `PersonAvatar` และลิงก์ไป `/h/:identifier?cat=lesson-packs`
+- `grid` ใช้ในคลังเจ้าของ: query ตาม `owner_staff_id`, โหลด 24 รายการแรก และ “แสดงเพิ่ม” ทีละ 24
+- `CategoryChipStrip` รับ `activeKey`/`onSelect` แบบ controlled ในหน้าคลังผู้สร้าง; เมื่อ controlled ห้ามใช้ scroll observer เปลี่ยนหมวด
+- `EduHubItemCard` ไม่สำรองพื้นที่และไม่ query mini leaderboard ต่อการ์ด; ใช้ `GamificationHub` เป็นจุดโหลดอันดับรวม
+- รายการและตัวกรองทั้งหมดต้องมาจาก service แบบ server-filtered/server-ranged ตาม DESIGN.md Rule 14.45
+
 ### StudentPetHub + PetVisual (games — Student companion)
 
 - `StudentPetHub.tsx` แสดงคู่หูที่ใช้, ยอดเหรียญดาว และ catalog 6 ตัวใน grid `2/3/6` คอลัมน์ เพื่อคง layout แบบ compact

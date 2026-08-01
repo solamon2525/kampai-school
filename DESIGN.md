@@ -560,6 +560,16 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - ตัวตนนักเรียนในเฟส MVP ใช้ `student_code` ตาม boundary เดียวกับ `record_game_session`; ก่อนเพิ่มของที่มีมูลค่าสูง/เงินจริง ต้องย้ายธุรกรรมไปใช้ student auth/PIN ที่ตรวจสอบฝั่ง server
 - `PlayGame` ส่ง `init.pet` + `init.wallet.starCoins` ให้ KAMPAI SDK กลาง เพื่อให้เกมเลือกแสดงคู่หูได้โดยไม่ query Supabase เอง
 
+### Rule 14.45 — Educational Hub Progressive Loading
+
+หน้าคลังสื่อสาธารณะต้องเริ่มด้วยข้อมูลเท่าที่มองเห็น เพื่อไม่ให้คลังของครูที่มีรายการจำนวนมากชะลอทั้งหน้า:
+
+- `ชุดเรียนพร้อมสอน` อยู่ในคลังของผู้สร้างเท่านั้น; หน้ารวมแสดงเพียงแถบสรุปพร้อมชื่อและ `PersonAvatar` ของผู้สร้าง แล้ว deep-link ไปหมวด `lesson-packs`
+- หน้าคลังผู้สร้างแสดงครั้งละหนึ่งหมวดตาม chip ที่เลือก และดึงครั้งแรกไม่เกิน 24 รายการ; ปุ่ม “แสดงเพิ่ม” เพิ่มทีละ 24
+- ค้นหา/ตัวกรอง/เรียงลำดับต้องส่งไป Supabase ผ่าน service พร้อม `range` และ `count` ห้ามโหลดทั้งคลังแล้วกรองใน component
+- การ์ดเกมห้าม query leaderboard แยกรายการตอน render แรก; อันดับรวมอยู่ใน `GamificationHub` หรือโหลดเมื่อผู้ใช้เปิดดูโดยตั้งใจ
+- การเปลี่ยนหมวดต้องควบคุมผ่าน URL `?cat=` เพื่อรองรับ deep link และไม่ใช้ `IntersectionObserver` สลับหมวดเอง
+
 ### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
 
 **บังคับ:** ก่อนเขียน component ใหม่หรือเปลี่ยนสีใดๆ ต้องทำ **Contrast Pre-Check** ทุกครั้ง

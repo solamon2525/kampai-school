@@ -167,7 +167,6 @@ export const GamesCategorySection = ({
             onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
-            reserveLeaderboardSlot={viewMode !== 'compact'}
             categoryKey={category.category_key}
             pairedLink={pairedByItemId?.get(item.id) ?? null}
         />

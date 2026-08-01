@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.210.0 (Educational Hub progressive loading)',
+        date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'ย้ายชุดเรียนพร้อมสอนไปอยู่ในคลังของผู้สร้าง และย่อหน้ารวมเหลือแถบสรุปที่ deep-link เข้าหมวดโดยตรง',
+            'คลังครูแสดงทีละหมวดและโหลด 24 รายการต่อครั้ง พร้อมค้นหา/กรอง/เรียง/range ฝั่ง Supabase',
+            'เลิก query leaderboard แยกทุกการ์ดเกมตอนเปิดหน้าแรก ลด request fan-out ในคลังขนาดใหญ่',
+        ],
+    },
+    {
         version: 'v1.209.0 (BAYAO harden — คืนพัสดุ · กราฟ · DOCX/PDF · tour แอดมิน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-700',

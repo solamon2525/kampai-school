@@ -69,6 +69,8 @@ export function LessonPackCard({
                     <img
                         src={pack.thumbnail_url}
                         alt=""
+                        loading="lazy"
+                        decoding="async"
                         className="aspect-video w-full object-cover bg-muted"
                     />
                 ) : (

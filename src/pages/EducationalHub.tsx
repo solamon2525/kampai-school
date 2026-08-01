@@ -15,7 +15,6 @@ import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSect
 import { useHubLayoutWithDefault } from '@/hooks/useHubLayoutWithDefault';
 import type { HubColumns } from '@/hooks/useHubViewMode';
 import { cn } from '@/lib/utils';
-import { useUserRole } from '@/hooks/useUserRole';
 
 // Pre-defined Tailwind grid classes (JIT requires literal strings to detect)
 const GRID_CLASS_BY_COLS: Record<HubColumns, string> = {
@@ -28,7 +27,6 @@ const GRID_CLASS_BY_COLS: Record<HubColumns, string> = {
 const EducationalHub = () => {
     const [search, setSearch] = useState('');
     const { viewMode, columns, sort, setViewMode, setColumns, setSort, readonly } = useHubLayoutWithDefault();
-    const { isAdmin, isTeacher } = useUserRole();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -128,12 +126,7 @@ const EducationalHub = () => {
 
                 {/* Toolbar + content */}
                 <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 space-y-3">
-                    <LessonPacksSection
-                        limit={6}
-                        showAssignLink={isAdmin || isTeacher}
-                        title="ชุดเรียนพร้อมสอน"
-                        subtitle="ไม่ต้องไล่หาการ์ดแยก — เปิดชุดเดียวแล้วสอนบนโปรเจคเตอร์ได้ทันที"
-                    />
+                    <LessonPacksSection variant="summary" />
 
                     <HubToolbar
                         search={search}

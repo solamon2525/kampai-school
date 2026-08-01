@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
     GripVertical, Gamepad2, Pin, Loader2,
@@ -20,11 +19,9 @@ import {
     youtubeThumbnail,
     type EduHubItem,
 } from '@/services/educational-hub.service';
-import { gamePlayService } from '@/services/game-play.service';
 import { GameDemoPreview } from './GameDemoPreview';
 import { GameCoverThumb } from './GameCoverThumb';
 import { IndicatorMarqueeStrip } from './IndicatorMarqueeStrip';
-import { LeaderboardMarqueeStrip } from './LeaderboardMarqueeStrip';
 import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
@@ -45,8 +42,6 @@ interface Props {
     libraryPinLoading?: boolean;
     /** ตัวชี้วัดที่ผูกกับเกม (จาก batch query ของ parent) */
     linkedIndicators?: GameCardIndicator[];
-    /** คลังเกม — เผื่อช่องอันดับเสมอให้แถบตัวชี้วัดอยู่แนวเดียวกัน */
-    reserveLeaderboardSlot?: boolean;
     categoryKey?: string | null;
     pairedLink?: PairedHubLink | null;
 }
@@ -62,7 +57,6 @@ export const EduHubItemCard = ({
     onToggleLibraryPin,
     libraryPinLoading = false,
     linkedIndicators,
-    reserveLeaderboardSlot = false,
     categoryKey = null,
     pairedLink = null,
 }: Props) => {
@@ -87,19 +81,9 @@ export const EduHubItemCard = ({
         opacity: sortable.isDragging ? 0.5 : 1,
     };
 
-    // Leaderboard strip — only for tracked games in non-compact views
     const isCompact = viewMode === 'compact';
     const isSpotlight = viewMode === 'spotlight';
     const showFooterStrips = !isCompact;
-    const showLeaderboardStrip =
-        showFooterStrips
-        && (reserveLeaderboardSlot || (!!item.tracked_game && !!item.game_slug));
-    const { data: leaders } = useQuery({
-        queryKey: ['game-leaderboard-card', item.game_slug],
-        queryFn: () => gamePlayService.getLeaderboard(item.game_slug!, 10),
-        enabled: !isCompact && !!item.game_slug && item.tracked_game,
-        staleTime: 5 * 60 * 1000,
-    });
 
     const trackView = () => {
         void Promise.resolve(educationalHubService.incrementView(item.id)).catch(() => {});
@@ -386,9 +370,6 @@ export const EduHubItemCard = ({
                 {showFooterStrips && (
                     <div className="shrink-0 px-3 pt-1 pb-2 border-t border-border flex flex-col gap-px">
                         <IndicatorMarqueeStrip indicators={linkedIndicators ?? []} />
-                        {showLeaderboardStrip && (
-                            <LeaderboardMarqueeStrip leaders={leaders ?? []} />
-                        )}
                     </div>
                 )}
             </Card>

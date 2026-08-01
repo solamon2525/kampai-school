@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
@@ -23,11 +23,11 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { SEOHead } from '@/components/SEOHead';
 import {
     educationalHubService,
-    sortGamesLibraryItems,
     type EduHubCategory,
     type EduHubItem,
     type EduHubTeacherCard,
 } from '@/services/educational-hub.service';
+import { lessonPacksService } from '@/services/lesson-packs.service';
 import { CategoryChipStrip } from '@/components/educational-hub/CategoryChipStrip';
 import { CategorySection } from '@/components/educational-hub/CategorySection';
 import { GamesCategorySection } from '@/components/educational-hub/GamesCategorySection';
@@ -48,6 +48,19 @@ import { useToast } from '@/hooks/use-toast';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PAGE_SIZE = 24;
+const LESSON_PACKS_CATEGORY: EduHubCategory = {
+    id: 'lesson-packs',
+    category_key: 'lesson-packs',
+    name: 'ชุดเรียนพร้อมสอน',
+    description: 'สื่อ ใบงาน และเกมที่จัดเป็นชุดพร้อมใช้ในชั้นเรียน',
+    icon_name: 'Package',
+    color_class: 'text-primary',
+    sort_order: -1,
+    is_active: true,
+    created_at: '',
+    updated_at: '',
+};
 
 const EducationalHubTeacher = () => {
     // Page is mounted from 2 routes:
@@ -55,7 +68,7 @@ const EducationalHubTeacher = () => {
     //   /h/:identifier             (short URL — username OR UUID for fallback)
     const params = useParams<{ staffId?: string; identifier?: string }>();
     const rawId = params.staffId ?? params.identifier ?? '';
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const deepLinkCat = searchParams.get('cat');
 
     useEffect(() => {
@@ -85,16 +98,6 @@ const EducationalHubTeacher = () => {
 
     const resolvedStaffId = teacher?.staff_id ?? null;
 
-    const { data: items, isLoading: loadingItems } = useQuery({
-        queryKey: ['edu-hub', 'items', resolvedStaffId, { publishedOnly: true }],
-        enabled: !!resolvedStaffId,
-        queryFn: async () => {
-            const { data, error } = await educationalHubService.listItemsByTeacher(resolvedStaffId!, { publishedOnly: true });
-            if (error) throw error;
-            return (data ?? []) as EduHubItem[];
-        },
-    });
-
     const { data: categories } = useQuery({
         queryKey: ['edu-hub', 'categories'],
         queryFn: async () => {
@@ -104,10 +107,97 @@ const EducationalHubTeacher = () => {
         },
     });
 
-    // ─── Toolbar state: filters, sort, view mode, favorites ─────────────
     const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
-    // ค่าพื้นฐาน: เรียง "ใหม่ล่าสุด" ก่อน (เกมที่เพิ่มล่าสุดขึ้นก่อน) — created_at desc
     const [sort, setSort] = useState<SortMode>('newest');
+    const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE);
+    const deferredSearch = useDeferredValue(filter.search);
+
+    const { data: packCount = 0, isLoading: loadingPackCount } = useQuery({
+        queryKey: ['lesson-packs', 'published-count', resolvedStaffId],
+        queryFn: () => lessonPacksService.countPublished(resolvedStaffId),
+        enabled: !!resolvedStaffId,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const categoryChoices = useMemo(
+        () => packCount > 0
+            ? [LESSON_PACKS_CATEGORY, ...(categories ?? [])]
+            : (categories ?? []),
+        [categories, packCount],
+    );
+
+    const activeCategoryKey = useMemo(() => {
+        if (deepLinkCat && categoryChoices.some((category) => category.category_key === deepLinkCat)) {
+            return deepLinkCat;
+        }
+        return categoryChoices.find((category) => {
+            if (category.category_key === 'lesson-packs') return packCount > 0;
+            return (teacher?.counts_by_category?.[category.id] ?? 0) > 0;
+        })?.category_key ?? categoryChoices[0]?.category_key ?? null;
+    }, [categoryChoices, deepLinkCat, packCount, teacher?.counts_by_category]);
+
+    const activeCategory = useMemo(
+        () => (categories ?? []).find((category) => category.category_key === activeCategoryKey) ?? null,
+        [activeCategoryKey, categories],
+    );
+
+    useEffect(() => {
+        setVisibleLimit(PAGE_SIZE);
+    }, [
+        activeCategoryKey,
+        deferredSearch,
+        filter.subjects,
+        filter.grades,
+        filter.tags,
+        filter.types,
+        sort,
+    ]);
+
+    const { data: itemPage, isLoading: loadingItems, isFetching: fetchingItems } = useQuery({
+        queryKey: [
+            'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, visibleLimit,
+            deferredSearch, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+        ],
+        enabled: !!resolvedStaffId && !!activeCategory && !loadingPackCount,
+        queryFn: async () => {
+            const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
+                categoryId: activeCategory!.id,
+                limit: visibleLimit,
+                search: deferredSearch,
+                subjects: filter.subjects,
+                grades: filter.grades,
+                tags: filter.tags,
+                types: filter.types,
+                sort,
+            });
+            if (result.error) throw result.error;
+            return result;
+        },
+        staleTime: 60 * 1000,
+    });
+
+    const allItems = useMemo(() => itemPage?.data ?? [], [itemPage?.data]);
+    const totalItems = itemPage?.count ?? 0;
+
+    const { data: publishedUrls = [] } = useQuery({
+        queryKey: ['edu-hub', 'published-item-urls', resolvedStaffId],
+        queryFn: () => educationalHubService.listPublishedItemUrlsByTeacher(resolvedStaffId!),
+        enabled: !!resolvedStaffId,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const categoryCounts = useMemo(
+        () => ({ ...(teacher?.counts_by_category ?? {}), 'lesson-packs': packCount }),
+        [packCount, teacher?.counts_by_category],
+    );
+
+    const handleCategorySelect = (categoryKey: string) => {
+        const next = new URLSearchParams(searchParams);
+        next.set('cat', categoryKey);
+        setSearchParams(next, { replace: true });
+    };
+
+    // ─── Toolbar state: view mode, favorites ────────────────────────────
     const { mode: viewMode, setMode: setViewMode } = useViewMode();
     const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
 
@@ -143,15 +233,7 @@ const EducationalHubTeacher = () => {
         toast({ title: 'บันทึกลำดับใหม่' });
     };
 
-    const allItems = useMemo(() => items ?? [], [items]);
-
-    const publishedUrlSet = useMemo(() => {
-        const set = new Set<string>();
-        for (const it of allItems) {
-            if (it.external_url) set.add(it.external_url);
-        }
-        return set;
-    }, [allItems]);
+    const publishedUrlSet = useMemo(() => new Set(publishedUrls), [publishedUrls]);
 
     const pairedByItemId = useMemo(() => {
         const map = new Map<string, NonNullable<ReturnType<typeof resolvePairedLink>>>();
@@ -166,70 +248,20 @@ const EducationalHubTeacher = () => {
         return map;
     }, [allItems, publishedUrlSet]);
 
-    const visibleCategories = useMemo(() => {
-        if (!deepLinkCat) return orderedCategories;
-        return orderedCategories.filter((c) => c.category_key === deepLinkCat);
-    }, [orderedCategories, deepLinkCat]);
-
-    const gamesCategoryId = useMemo(
-        () => categories?.find((c) => c.category_key === 'games')?.id,
-        [categories],
+    const visibleCategories = useMemo(
+        () => activeCategory ? [activeCategory] : [],
+        [activeCategory],
     );
-
-    // Filter only — sort แยกตามหมวด (เกมใช้กฎปักหมุด+ใหม่ล่าสุด)
-    const filteredItems = useMemo(() => {
-        const q = filter.search.trim().toLowerCase();
-        return allItems.filter((it) => {
-            if (q) {
-                const hay = `${it.title} ${it.description ?? ''}`.toLowerCase();
-                if (!hay.includes(q)) return false;
-            }
-            if (filter.subjects.length && (!it.subject || !filter.subjects.includes(it.subject))) return false;
-            if (filter.grades.length && !it.grade_levels?.some((g) => filter.grades.includes(g))) return false;
-            if (filter.tags.length && !it.tags?.some((t) => filter.tags.includes(t))) return false;
-            if (filter.types.length && !filter.types.includes(it.item_type)) return false;
-            return true;
-        });
-    }, [allItems, filter]);
-
-    const sortNonGameItems = (arr: EduHubItem[]) => {
-        const pinned = arr
-            .filter((i) => i.library_pinned)
-            .sort((a, b) => (a.library_pin_order ?? 0) - (b.library_pin_order ?? 0));
-        const unpinned = arr.filter((i) => !i.library_pinned);
-
-        let sortedUnpinned = [...unpinned];
-        if (sort === 'newest') {
-            sortedUnpinned.sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
-        } else if (sort === 'popular') {
-            sortedUnpinned.sort((a, b) => b.view_count - a.view_count);
-        } else if (sort === 'alpha') {
-            sortedUnpinned.sort((a, b) => a.title.localeCompare(b.title, 'th'));
-        } else {
-            sortedUnpinned.sort((a, b) => {
-                if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
-                return b.created_at.localeCompare(a.created_at);
-            });
-        }
-        return [...pinned, ...sortedUnpinned];
-    };
 
     const itemsByCategory = useMemo(() => {
         const m = new Map<string, EduHubItem[]>();
-        filteredItems.forEach((it) => {
+        allItems.forEach((it) => {
             const arr = m.get(it.category_id) ?? [];
             arr.push(it);
             m.set(it.category_id, arr);
         });
-        for (const [catId, arr] of m) {
-            if (catId === gamesCategoryId) {
-                m.set(catId, sortGamesLibraryItems(arr));
-            } else {
-                m.set(catId, sortNonGameItems(arr));
-            }
-        }
         return m;
-    }, [filteredItems, gamesCategoryId, sort]);
+    }, [allItems]);
 
     // Favorites = subset of ALL items (so user can find favorites even if filtered out)
     const favoriteItems = useMemo(
@@ -382,8 +414,10 @@ const EducationalHubTeacher = () => {
 
                 {/* Sticky category nav */}
                 <CategoryChipStrip
-                    categories={categories ?? []}
-                    counts={teacher.counts_by_category ?? {}}
+                    categories={categoryChoices}
+                    counts={categoryCounts}
+                    activeKey={activeCategoryKey}
+                    onSelect={handleCategorySelect}
                 />
 
                 {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ย่อเป็นแถบสรุป+แท็บ ให้เห็นปกเกมทันที) */}
@@ -391,14 +425,16 @@ const EducationalHubTeacher = () => {
                     <GamificationHub studentCode={hubStudentCode} />
                 </section>
 
-                {/* ชุดเรียน = หน่วยสอน (Phase 16) */}
-                <section className="px-4 pt-6 max-w-5xl mx-auto">
-                    <LessonPacksSection showAssignLink={isAdmin || isTeacher} limit={9} />
-                </section>
-
                 {/* Category sections */}
-                <div className="px-4 py-10 space-y-6">
-                    {loadingItems ? (
+                <div className="px-4 py-5 space-y-4">
+                    {activeCategoryKey === 'lesson-packs' ? (
+                        <LessonPacksSection
+                            ownerStaffId={resolvedStaffId}
+                            totalCount={packCount}
+                            showAssignLink={isAdmin || isTeacher}
+                            limit={PAGE_SIZE}
+                        />
+                    ) : loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
                     ) : !categories || categories.length === 0 ? (
                         <div className="text-center text-muted-foreground py-20">
@@ -472,7 +508,7 @@ const EducationalHubTeacher = () => {
                                                     viewMode={viewMode}
                                                     isFavorite={isFavorite}
                                                     onToggleFavorite={toggleFav}
-                                                    editable={isAdmin}
+                                                    editable={isAdmin && allItems.length >= totalItems}
                                                     pairedByItemId={pairedByItemId}
                                                 />
                                             ) : (
@@ -483,7 +519,7 @@ const EducationalHubTeacher = () => {
                                                     viewMode={viewMode}
                                                     isFavorite={isFavorite}
                                                     onToggleFavorite={toggleFav}
-                                                    editable={isAdmin}
+                                                    editable={isAdmin && allItems.length >= totalItems}
                                                     pairedByItemId={pairedByItemId}
                                                 />
                                             ),
@@ -491,6 +527,19 @@ const EducationalHubTeacher = () => {
                                     </div>
                                 </SortableContext>
                             </DndContext>
+                            {allItems.length < totalItems ? (
+                                <div className="flex justify-center pt-2">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        disabled={fetchingItems}
+                                        onClick={() => setVisibleLimit((current) => current + PAGE_SIZE)}
+                                    >
+                                        {fetchingItems ? 'กำลังโหลด…' : `ดูเพิ่มอีก ${Math.min(PAGE_SIZE, totalItems - allItems.length)} รายการ`}
+                                    </Button>
+                                </div>
+                            ) : null}
                         </>
                     )}
                 </div>
