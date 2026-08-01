@@ -17,7 +17,14 @@ export type SupplyItem = {
   updated_at: string;
 };
 
-export type SupplyRequestStatus = 'รออนุมัติ' | 'อนุมัติ' | 'จ่ายแล้ว' | 'ไม่อนุมัติ' | 'ยกเลิก';
+export type SupplyRequestStatus =
+  | 'รออนุมัติ'
+  | 'อนุมัติ'
+  | 'จ่ายแล้ว'
+  | 'ขอคืน'
+  | 'คืนแล้ว'
+  | 'ไม่อนุมัติ'
+  | 'ยกเลิก';
 
 export type SupplyRequest = {
   id: string;
@@ -119,6 +126,15 @@ export const suppliesService = {
     if (error) throw error;
   },
 
+  requestReturn: async (id: string) => {
+    const { error } = await supabase
+      .from('supply_requests' as never)
+      .update({ status: 'ขอคืน' } as never)
+      .eq('id', id)
+      .eq('status', 'จ่ายแล้ว');
+    if (error) throw error;
+  },
+
   approve: async (id: string, review_note?: string) => {
     const { data, error } = await supabase.rpc('approve_supply_request' as never, {
       p_request_id: id,
@@ -135,6 +151,24 @@ export const suppliesService = {
     } as never);
     if (error) throw error;
     return data as SupplyRequest;
+  },
+
+  confirmReturn: async (id: string, review_note?: string) => {
+    const { data, error } = await supabase.rpc('return_supply_request' as never, {
+      p_request_id: id,
+      p_review_note: review_note ?? null,
+    } as never);
+    if (error) throw error;
+    return data as SupplyRequest;
+  },
+
+  countReturnPending: async () => {
+    const { count, error } = await supabase
+      .from('supply_requests' as never)
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'ขอคืน');
+    if (error) throw error;
+    return count ?? 0;
   },
 
   lowStockItems: async () => {

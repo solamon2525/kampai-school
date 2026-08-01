@@ -441,7 +441,7 @@ export const featureCatalog: FeatureDomain[] = [
             },
             {
                 name: 'พัสดุ / วัสดุพื้นฐาน',
-                purpose: 'ทะเบียนวัสดุ คำขอเบิกของครู อนุมัติตัดสต็อก และแจ้งเตือนของใกล้หมด',
+                purpose: 'ทะเบียนวัสดุ คำขอเบิกของครู อนุมัติตัดสต็อก คืนของ และแจ้งเตือนของใกล้หมด',
                 canExtend: true,
                 ideas12m: ['QR เบิกของ', 'ผูกงบประมาณตอนจัดซื้อ'],
                 ideas24m: ['ครุภัณฑ์ + บาร์โค้ด'],
@@ -449,9 +449,9 @@ export const featureCatalog: FeatureDomain[] = [
             },
             {
                 name: 'Digital Ops / ลดภาระครู',
-                purpose: 'แดชบอร์ด PDCA ตัวชี้วัดเวลา–กระดาษ Role Model และรายงานนวัตกรรมดิจิทัล',
+                purpose: 'แดชบอร์ด PDCA ตัวชี้วัดเวลา–กระดาษ Role Model กราฟ และส่งออกรายงาน MD/DOCX/PDF',
                 canExtend: true,
-                ideas12m: ['ส่งออกรายงาน DOCX', 'กราฟเปรียบเทียบรายภาค'],
+                ideas12m: ['กราฟเปรียบเทียบรายภาค', 'ทัวร์ผู้ปกครอง'],
                 status: 'live',
             },
             {

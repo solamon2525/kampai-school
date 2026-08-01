@@ -67,6 +67,7 @@ import { CameraPermissionPrompt } from '@/components/shared/CameraPermissionProm
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { Search } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { AdminOnboardingTour } from '@/components/admin/shared/AdminOnboardingTour';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -396,6 +397,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
             {/* Camera permission pre-request — ขออนุญาตล่วงหน้าตอน login ครั้งแรก */}
             <CameraPermissionPrompt />
+            <AdminOnboardingTour enabled={isAdmin || allowedMenus.length > 0} />
         </div>
     );
 };

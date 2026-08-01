@@ -208,6 +208,12 @@ export const digitalOpsService = {
     const paperDelta =
       latestPaper && prevPaper ? latestPaper.sheets_used - prevPaper.sheets_used : null;
 
+    const staffTotal = staffCountRes.count ?? 0;
+    const adopters = await digitalOpsService.roleModels(500, sinceDays);
+    const activeTeachers = adopters.filter((m) => m.score > 0).length;
+    const adoptionPct =
+      staffTotal > 0 ? Math.round((activeTeachers / staffTotal) * 1000) / 10 : 0;
+
     return {
       sinceDays,
       digitalSystemsInUse: 5, // สารบรรณ · นักเรียน · คลังสื่อ · ลา · พัสดุ
@@ -217,7 +223,9 @@ export const digitalOpsService = {
       homeworkSubmissions: homework.submissions,
       pendingSupplies,
       lowStockCount: lowStock.length,
-      staffTotal: staffCountRes.count ?? 0,
+      staffTotal,
+      activeTeachers,
+      adoptionPct,
       avgTimeSavedPct,
       baselinesCount: baselines.length,
       latestPaper,
@@ -228,7 +236,7 @@ export const digitalOpsService = {
   },
 
   /** Score staff for Digital Role Model board. */
-  roleModels: async (limit = 12): Promise<RoleModelRow[]> => {
+  roleModels: async (limit = 12, sinceDays = 90): Promise<RoleModelRow[]> => {
     const { data: staffRows, error: staffErr } = await supabase
       .from('staff' as never)
       .select('id, name, photo_url')
@@ -238,7 +246,7 @@ export const digitalOpsService = {
     if (!staff.length) return [];
 
     const since = new Date();
-    since.setDate(since.getDate() - 90);
+    since.setDate(since.getDate() - sinceDays);
     const sinceIso = since.toISOString();
 
     const [itemsRes, leaveRes, gradeRes, supplyRes, rolesRes] = await Promise.all([
@@ -333,27 +341,55 @@ export const digitalOpsService = {
       .slice(0, limit);
   },
 
-  buildReportMarkdown: async () => {
+  buildReportPayload: async () => {
     const kpi = await digitalOpsService.kpiSummary(30);
     const baselines = await digitalOpsService.listBaselines();
     const models = await digitalOpsService.roleModels(5);
-    const schoolName = 'โรงเรียนบ้านคำไผ่';
+    const now = new Date();
+    const fiscalYearBe = now.getFullYear() + 543 + (now.getMonth() >= 9 ? 1 : 0);
+    return {
+      schoolName: 'โรงเรียนบ้านคำไผ่',
+      fiscalYearBe,
+      generatedAt: now.toLocaleString('th-TH'),
+      kpi: {
+        digitalSystemsInUse: kpi.digitalSystemsInUse,
+        leaveRequests: kpi.leaveRequests,
+        letters: kpi.letters,
+        teacherUploaders: kpi.teacherUploaders,
+        homeworkSubmissions: kpi.homeworkSubmissions,
+        surveyResponses: kpi.surveyResponses,
+        avgTimeSavedPct: kpi.avgTimeSavedPct,
+        adoptionPct: kpi.adoptionPct,
+        activeTeachers: kpi.activeTeachers,
+        staffTotal: kpi.staffTotal,
+        sinceDays: kpi.sinceDays,
+      },
+      baselines: baselines.map((b) => ({
+        workflow_label: b.workflow_label,
+        minutes_before: Number(b.minutes_before),
+        minutes_after: Number(b.minutes_after),
+      })),
+      models: models.map((m) => ({ name: m.name, badges: m.badges, score: m.score })),
+    };
+  },
 
-    const timeRows = baselines
-      .map(
-        (b) =>
-          `| ${b.workflow_label} | ${b.minutes_before} | ${b.minutes_after} | ${
-            Number(b.minutes_before) > 0
-              ? Math.round((1 - Number(b.minutes_after) / Number(b.minutes_before)) * 100)
-              : 0
-          }% |`,
-      )
+  buildReportMarkdown: async () => {
+    const data = await digitalOpsService.buildReportPayload();
+    const { kpi } = data;
+    const timeRows = data.baselines
+      .map((b) => {
+        const pct =
+          b.minutes_before > 0
+            ? Math.round((1 - b.minutes_after / b.minutes_before) * 100)
+            : 0;
+        return `| ${b.workflow_label} | ${b.minutes_before} | ${b.minutes_after} | ${pct}% |`;
+      })
       .join('\n');
 
     return `# รายงานผลการดำเนินงานลดภาระงานครูของสถานศึกษา
 ด้วยนวัตกรรม และ/หรือ เทคโนโลยีดิจิทัล
-ประจำปีงบประมาณ ${(new Date().getFullYear() + 543 + (new Date().getMonth() >= 9 ? 1 : 0))}
-${schoolName}
+ประจำปีงบประมาณ ${data.fiscalYearBe}
+${data.schoolName}
 
 ชื่อผลงาน Kampai Smart Office — ปรับกระบวนการ พลิกงานเอกสาร สู่ระบบดิจิทัล
 
@@ -370,6 +406,7 @@ ${schoolName}
 - การลาออนไลน์ ${kpi.sinceDays} วัน: ${kpi.leaveRequests} รายการ
 - หนังสือสารบรรณ ${kpi.sinceDays} วัน: ${kpi.letters} ฉบับ
 - ครู non-admin อัปสื่อ: ${kpi.teacherUploaders} คน
+- ครูที่มี adoption อย่างน้อย 1 อย่าง (${kpi.sinceDays} วัน): ${kpi.activeTeachers}/${kpi.staffTotal} คน (${kpi.adoptionPct}%)
 - ส่งงานการบ้าน: ${kpi.homeworkSubmissions} ชิ้น
 - ความพึงพอใจ (แบบสำรวจ): ${kpi.surveyResponses} ตอบกลับ
 - เวลาเฉลี่ยที่ลดได้จาก baseline: ${kpi.avgTimeSavedPct != null ? `${kpi.avgTimeSavedPct}%` : 'ยังไม่บันทึก'}
@@ -386,13 +423,13 @@ ${schoolName}
 ${timeRows || '| — | — | — | — |'}
 
 ## ๖. Digital Role Model (ล่าสุด)
-${models.map((m, i) => `${i + 1}. ${m.name} — ${m.badges.join(', ')} (คะแนน ${m.score})`).join('\n') || '— ยังไม่มีข้อมูล adoption พอ'}
+${data.models.map((m, i) => `${i + 1}. ${m.name} — ${m.badges.join(', ')} (คะแนน ${m.score})`).join('\n') || '— ยังไม่มีข้อมูล adoption พอ'}
 
 ## ๗. การเผยแพร่
 เผยแพร่ผ่านเว็บไซต์โรงเรียน เพจเฟซบุ๊ก และ LINE ผู้ปกครอง พร้อมใช้รายงานนี้เป็นแหล่งเรียนรู้ต้นแบบ
 
 ---
-สร้างอัตโนมัติจากระบบเมื่อ ${new Date().toLocaleString('th-TH')}
+สร้างอัตโนมัติจากระบบเมื่อ ${data.generatedAt}
 `;
   },
 };

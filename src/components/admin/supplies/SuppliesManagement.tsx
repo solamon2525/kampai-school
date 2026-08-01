@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Package, Plus, Check, X, AlertTriangle, Loader2 } from 'lucide-react';
+import { Package, Plus, Check, X, AlertTriangle, Loader2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,11 @@ export const SuppliesManagement = () => {
   const { data: pending = [], isLoading: reqLoading } = useQuery({
     queryKey: ['supply-requests', 'pending'],
     queryFn: () => suppliesService.listRequests({ status: 'รออนุมัติ' }),
+  });
+
+  const { data: returnPending = [] } = useQuery({
+    queryKey: ['supply-requests', 'return-pending'],
+    queryFn: () => suppliesService.listRequests({ status: 'ขอคืน' }),
   });
 
   const { data: recent = [] } = useQuery({
@@ -82,6 +87,16 @@ export const SuppliesManagement = () => {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const confirmReturn = useMutation({
+    mutationFn: (id: string) => suppliesService.confirmReturn(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['supply-requests'] });
+      qc.invalidateQueries({ queryKey: ['supply-items'] });
+      toast.success('รับคืนและเติมสต็อกแล้ว');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const toggleActive = useMutation({
     mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
       suppliesService.setActive(id, is_active),
@@ -120,7 +135,7 @@ export const SuppliesManagement = () => {
             พัสดุ / วัสดุพื้นฐาน
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            ทะเบียนวัสดุ · รับคำขอเบิกจากครู · อนุมัติตัดสต็อก
+            ทะเบียนวัสดุ · เบิก–จ่าย · คืนของ · แจ้งเตือนสต็อกต่ำ
           </p>
         </div>
         <Button onClick={openCreate}>
@@ -128,15 +143,35 @@ export const SuppliesManagement = () => {
         </Button>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-3">
+      {lowStock.length > 0 && (
+        <Card className="border-amber-200 bg-amber-500/5">
+          <CardContent className="p-4 space-y-2">
+            <p className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              สต็อกต่ำ {lowStock.length} รายการ — ควรจัดซื้อเพิ่ม
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {lowStock.map((i) => (
+                <Badge key={i.id} variant="outline" className="text-xs border-amber-300 text-amber-800">
+                  {i.name}: {i.stock}/{i.min_stock} {i.unit}
+                </Badge>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid sm:grid-cols-4 gap-3">
         <Kpi label="รายการวัสดุ" value={items.filter((i) => i.is_active).length} />
         <Kpi label="คำขอรออนุมัติ" value={pending.length} warn={pending.length > 0} />
+        <Kpi label="รอรับคืน" value={returnPending.length} warn={returnPending.length > 0} />
         <Kpi label="สต็อกต่ำ" value={lowStock.length} warn={lowStock.length > 0} />
       </div>
 
       <Tabs defaultValue="requests">
         <TabsList>
           <TabsTrigger value="requests">คำขอเบิก ({pending.length})</TabsTrigger>
+          <TabsTrigger value="returns">รับคืน ({returnPending.length})</TabsTrigger>
           <TabsTrigger value="items">ทะเบียนวัสดุ</TabsTrigger>
           <TabsTrigger value="history">ประวัติ</TabsTrigger>
         </TabsList>
@@ -168,6 +203,35 @@ export const SuppliesManagement = () => {
                       <X className="h-3.5 w-3.5 mr-1" /> ไม่อนุมัติ
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="returns" className="space-y-3 mt-4">
+          {returnPending.length === 0 ? (
+            <Empty text="ไม่มีคำขอคืนรอรับ" />
+          ) : (
+            returnPending.map((r) => (
+              <Card key={r.id}>
+                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <PersonAvatar name={r.staff?.name ?? 'ครู'} photoUrl={r.staff?.photo_url} size="sm" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{r.staff?.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        คืน {r.item?.name} · {r.quantity} {r.item?.unit}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    disabled={confirmReturn.isPending}
+                    onClick={() => confirmReturn.mutate(r.id)}
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 mr-1" /> รับคืน + เติมสต็อก
+                  </Button>
                 </CardContent>
               </Card>
             ))

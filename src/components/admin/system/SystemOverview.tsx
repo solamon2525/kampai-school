@@ -272,8 +272,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.208.0 (BAYAO Smart Office — พัสดุ + Digital Ops)',
+        version: 'v1.209.0 (BAYAO harden — คืนพัสดุ · กราฟ · DOCX/PDF · tour แอดมิน)',
         date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'พัสดุ: โฟลว์คืนของ (จ่ายแล้ว→ขอคืน→คืนแล้ว + เติมสต็อก) · แถบแจ้งเตือนสต็อกต่ำ (mig 453)',
+            'Digital Ops: KPI % ครูใช้งานดิจิทัล · กราฟ Time/Paper (recharts) · ส่งออก MD/DOCX/PDF',
+            'AdminOnboardingTour 6 สเต็ป (สารบรรณ→ลา→พัสดุ→Digital Ops→คลังสื่อ)',
+        ],
+    },
+    {
+        version: 'v1.208.0 (BAYAO Smart Office — พัสดุ + Digital Ops)',
+        date: 'ก่อนหน้า',
         badge: 'bg-emerald-700',
         items: [
             'ระบบพัสดุ/วัสดุพื้นฐาน: ทะเบียน · ครูขอเบิก · อนุมัติตัดสต็อก (mig 452) + /teacher/supplies',
@@ -4329,7 +4339,7 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.208.0',
+        version: 'v1.209.0',
         live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
@@ -4355,7 +4365,7 @@ const exportData = {
         totalViews: 16,
         migrations: 451,
         migrationFiles: 464,
-        latestMigration: '452_supplies_and_digital_ops.sql',
+        latestMigration: '453_supply_returns.sql',
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
@@ -4605,7 +4615,7 @@ export const SystemOverview = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.208.0</span>
+                        <span className="font-medium text-foreground">v1.209.0</span>
                         {' · '}live{' '}
                         <a
                             href="https://kampai-school.vercel.app"
@@ -4652,7 +4662,7 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.208.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.209.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
                         { icon: Database, label: 'Database', value: 'Supabase · 147 tables · 16 views' },

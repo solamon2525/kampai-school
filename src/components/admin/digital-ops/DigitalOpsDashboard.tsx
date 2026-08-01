@@ -6,6 +6,10 @@ import {
   Loader2, ExternalLink, Package, CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, LineChart, Line,
+} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { digitalOpsService } from '@/services/digital-ops.service';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
+import { downloadDigitalOpsReportDocx } from '@/lib/docx/digitalOpsReportDocx';
+import { downloadDigitalOpsReportPdf } from '@/lib/pdf/digital-ops/DigitalOpsReportPdf';
 import { cn } from '@/lib/utils';
 
 const CLINIC_CHECKLIST = [
@@ -100,7 +106,7 @@ export const DigitalOpsDashboard = () => {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const exportReport = useMutation({
+  const exportMd = useMutation({
     mutationFn: () => digitalOpsService.buildReportMarkdown(),
     onSuccess: (md) => {
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
@@ -110,8 +116,26 @@ export const DigitalOpsDashboard = () => {
       a.download = `รายงานลดภาระครู-${new Date().toISOString().slice(0, 10)}.md`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('ดาวน์โหลดรายงานแล้ว');
+      toast.success('ดาวน์โหลด Markdown แล้ว');
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const exportDocx = useMutation({
+    mutationFn: async () => {
+      const data = await digitalOpsService.buildReportPayload();
+      downloadDigitalOpsReportDocx(data);
+    },
+    onSuccess: () => toast.success('ดาวน์โหลด DOCX แล้ว'),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const exportPdf = useMutation({
+    mutationFn: async () => {
+      const data = await digitalOpsService.buildReportPayload();
+      await downloadDigitalOpsReportPdf(data);
+    },
+    onSuccess: () => toast.success('ดาวน์โหลด PDF แล้ว'),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -119,6 +143,31 @@ export const DigitalOpsDashboard = () => {
     () => new Map(baselines.map((b) => [b.workflow_key, b])),
     [baselines],
   );
+
+  const timeChartData = useMemo(
+    () =>
+      baselines.map((b) => ({
+        name: b.workflow_label.length > 12 ? `${b.workflow_label.slice(0, 12)}…` : b.workflow_label,
+        ก่อน: Number(b.minutes_before),
+        หลัง: Number(b.minutes_after),
+      })),
+    [baselines],
+  );
+
+  const currentYearBe = new Date().getFullYear() + 543;
+  const paperChartData = useMemo(
+    () =>
+      [...paperLogs]
+        .filter((p) => p.year_be === currentYearBe || paperLogs.length <= 12)
+        .sort((a, b) => (a.year_be !== b.year_be ? a.year_be - b.year_be : a.month - b.month))
+        .map((p) => ({
+          name: `${p.month}/${String(p.year_be).slice(2)}`,
+          แผ่น: p.sheets_used,
+        })),
+    [paperLogs, currentYearBe],
+  );
+
+  const exporting = exportMd.isPending || exportDocx.isPending || exportPdf.isPending;
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-6xl mx-auto">
@@ -141,7 +190,7 @@ export const DigitalOpsDashboard = () => {
               </Link>
             </Button>
           )}
-          <Button size="sm" disabled={exportReport.isPending} onClick={() => exportReport.mutate()}>
+          <Button size="sm" disabled={exporting} onClick={() => exportMd.mutate()}>
             <Download className="h-3.5 w-3.5 mr-1" />
             ส่งออกรายงาน
           </Button>
@@ -153,12 +202,17 @@ export const DigitalOpsDashboard = () => {
           <Loader2 className="h-4 w-4 animate-spin" /> กำลังโหลด KPI...
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <KpiTile label="ระบบดิจิทัลหลัก" value={`${kpi.digitalSystemsInUse}`} hint="สารบรรณ · นักเรียน · สื่อ · ลา · พัสดุ" />
           <KpiTile
-            label={`เวลาเฉลี่ยที่ลดได้`}
+            label="เวลาเฉลี่ยที่ลดได้"
             value={kpi.avgTimeSavedPct != null ? `${kpi.avgTimeSavedPct}%` : '—'}
             hint={`${kpi.baselinesCount} งานที่บันทึก baseline`}
+          />
+          <KpiTile
+            label="ครูใช้งานดิจิทัล"
+            value={`${kpi.adoptionPct}%`}
+            hint={`${kpi.activeTeachers}/${kpi.staffTotal} คน · 30 วัน`}
           />
           <KpiTile
             label="ครูอัปสื่อ (30 วัน)"
@@ -181,7 +235,53 @@ export const DigitalOpsDashboard = () => {
           <TabsTrigger value="report"><FileText className="h-3.5 w-3.5 mr-1" />รายงาน</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="metrics" className="mt-4 grid lg:grid-cols-2 gap-4">
+        <TabsContent value="metrics" className="mt-4 space-y-4">
+          <div className="grid lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">กราฟ Time-Saving (นาทีก่อน/หลัง)</CardTitle>
+              </CardHeader>
+              <CardContent className="h-56">
+                {timeChartData.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-16">ยังไม่มี baseline</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={timeChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar dataKey="ก่อน" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="หลัง" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">กราฟ Paper-Saving (แผ่น/เดือน)</CardTitle>
+              </CardHeader>
+              <CardContent className="h-56">
+                {paperChartData.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-16">ยังไม่มีบันทึกกระดาษ</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={paperChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="แผ่น" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Time-Saving baseline</CardTitle>
@@ -278,6 +378,7 @@ export const DigitalOpsDashboard = () => {
               </ul>
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="roles" className="mt-4">
@@ -361,13 +462,23 @@ export const DigitalOpsDashboard = () => {
                 สร้างร่างรายงานโครงสร้างคล้ายแนวทาง BAYAO Smart Office (หลักการ → วัตถุประสงค์ → PDCA → ผล → เผยแพร่)
                 โดยดึงตัวเลขจากแดชบอร์ดนี้โดยอัตโนมัติ
               </p>
-              <Button disabled={exportReport.isPending} onClick={() => exportReport.mutate()}>
-                <Download className="h-4 w-4 mr-1" />
-                ดาวน์โหลด Markdown
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button disabled={exporting} onClick={() => exportMd.mutate()}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Markdown
+                </Button>
+                <Button variant="outline" disabled={exporting} onClick={() => exportDocx.mutate()}>
+                  <Download className="h-4 w-4 mr-1" />
+                  DOCX
+                </Button>
+                <Button variant="outline" disabled={exporting} onClick={() => exportPdf.mutate()}>
+                  <Download className="h-4 w-4 mr-1" />
+                  PDF
+                </Button>
+              </div>
               {kpi && (
                 <div className={cn('rounded-lg border border-border bg-secondary/30 p-3 text-xs space-y-1')}>
-                  <p>ระบบหลัก {kpi.digitalSystemsInUse} · ลดเวลาเฉลี่ย {kpi.avgTimeSavedPct ?? '—'}%</p>
+                  <p>ระบบหลัก {kpi.digitalSystemsInUse} · ลดเวลาเฉลี่ย {kpi.avgTimeSavedPct ?? '—'}% · ครูใช้งาน {kpi.adoptionPct}%</p>
                   <p>ครูอัปสื่อ {kpi.teacherUploaders} · ตอบแบบสำรวจ {kpi.surveyResponses}</p>
                   <p>คำขอพัสดุรออนุมัติ {kpi.pendingSupplies} · สต็อกต่ำ {kpi.lowStockCount}</p>
                 </div>

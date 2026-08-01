@@ -73,6 +73,15 @@ export default function TeacherSupplies() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const requestReturn = useMutation({
+    mutationFn: (id: string) => suppliesService.requestReturn(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['supply-requests'] });
+      toast.success('ส่งคำขอคืนแล้ว — รอธุรการรับคืน');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <RolePortalLayout title="Portal ครู" subtitle="เบิกพัสดุ" menu={MENU} accent="teacher">
       <div className="p-4 sm:p-6 space-y-4 max-w-3xl mx-auto">
@@ -122,6 +131,17 @@ export default function TeacherSupplies() {
                   {r.status === 'รออนุมัติ' && (
                     <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => cancel.mutate(r.id)}>
                       ยกเลิก
+                    </Button>
+                  )}
+                  {r.status === 'จ่ายแล้ว' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      disabled={requestReturn.isPending}
+                      onClick={() => requestReturn.mutate(r.id)}
+                    >
+                      ขอคืน
                     </Button>
                   )}
                 </div>
