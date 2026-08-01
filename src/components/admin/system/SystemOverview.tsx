@@ -292,6 +292,16 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.209.0 (Road Blitz Arcade Racer Game)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมใหม่: 🏎️ Road Blitz (Arcade Racing 8-Bit Famicom 2D Pixel Art) — ถนนซิ่งฉากกลางวัน/กลางคืน',
+            'ระบบฟิสิกส์หลบรถคู่แข่ง + ถังน้ำมันเชื้อเพลิง (Fuel Anxiety Loop) + น้ำมันลื่นไถล',
+            'บูรณาการ KAMPAI SDK, Versus Mode แข่ง 2 คน (Hot-seat / Online), migration 454 & seed script',
+        ],
+    },
+    {
         version: 'v1.208.0 (BAYAO Smart Office — พัสดุ + Digital Ops)',
         date: 'ก่อนหน้า',
         badge: 'bg-emerald-700',

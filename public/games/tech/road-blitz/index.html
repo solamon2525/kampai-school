@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Road Blitz — Arcade Highway Racer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Sound Toggle Button -->
+    <button id="btn-sound-toggle" class="sound-toggle-btn">🔊 SOUND</button>
+
+    <!-- HUD Overlay -->
+    <div id="hud-overlay" class="hidden">
+      <div class="hud-panel">
+        <div class="hud-row">
+          <span class="hud-label">STAGE</span>
+          <span id="hud-stage" class="hud-value">1-DAY</span>
+        </div>
+        <div class="hud-row">
+          <span class="hud-label">DIST</span>
+          <span id="hud-distance" class="hud-value">0.0 KM</span>
+        </div>
+        <div class="hud-row">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-value">000000</span>
+        </div>
+      </div>
+
+      <div class="hud-panel" style="align-items: flex-end;">
+        <div class="hud-row">
+          <span class="hud-label">FUEL</span>
+          <div class="fuel-bar-container">
+            <div id="fuel-bar-fill" class="fuel-bar-fill"></div>
+          </div>
+        </div>
+        <div class="hud-row" style="margin-top: 4px;">
+          <span class="hud-label">SPEED</span>
+          <span id="hud-speed" class="hud-value">0 KM/H</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <!-- Rule 1 Boilerplate Guardrail Hidden Elements -->
+    <div id="blocker"></div>
+    <div id="player-chip"></div>
+    <div id="my-stats"></div>
+    <span id="ms-best"></span>
+    <span id="ms-plays"></span>
+
+    <!-- Start Menu Overlay -->
+    <div id="start-screen" class="overlay-screen">
+      <h1 class="game-title">ROAD BLITZ</h1>
+      <p class="subtitle">🏎️ FAMICOM ARCADE HIGHWAY RACER</p>
+      
+      <div class="instructions-panel">
+        <p style="margin-bottom: 8px; color: var(--accent-yellow); font-family: var(--font-arcade); font-size: 11px;">🎮 CONTROLS / วิธีเล่น</p>
+        <p><span class="key">← → / A D</span> : Steer Left / Right (เลี้ยวหลบรถ)</p>
+        <p><span class="key">↑ / W</span> : Boost Speed (เร่งความเร็ว - เปลืองน้ำมัน)</p>
+        <p><span class="key">↓ / S</span> : Slow Down (ชะลอความเร็ว)</p>
+        <p><span class="key">P</span> : Pause Game (หยุดพัก)</p>
+        <p style="margin-top: 8px; color: var(--accent-green);">⛽ เก็บถังน้ำมันสีแดงเพื่อเพิ่มพลังงาน ห้ามให้ถังหมด!</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button id="btn-start-game" class="btn-arcade">▶ START RACE</button>
+        <button id="btn-versus" class="btn-arcade" style="background: linear-gradient(45deg, #f59e0b, #f97316);">🏁 แข่ง 2 คน</button>
+      </div>
+    </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-screen" class="overlay-screen hidden">
+      <h1 class="game-title" style="color: var(--accent-yellow);">PAUSED</h1>
+      <p class="subtitle">กด P เพื่อเล่นต่อ</p>
+      <button id="btn-resume-game" class="btn-arcade">RESUME</button>
+    </div>
+
+    <!-- Stage Clear Overlay -->
+    <div id="stage-clear-screen" class="overlay-screen hidden">
+      <h1 class="game-title" style="color: var(--accent-green);">STAGE CLEAR!</h1>
+      <p class="subtitle" id="stage-clear-msg">ผ่านด่าน 10 KM สำเร็จ!</p>
+      <div class="instructions-panel">
+        <p>ระยะทางที่ทำได้: <span id="clear-dist" style="color: var(--accent-yellow);">10.0 KM</span></p>
+        <p>คะแนนรวม: <span id="clear-score" style="color: var(--accent-yellow);">0</span></p>
+      </div>
+      <button id="btn-next-stage" class="btn-arcade">NEXT STAGE (NIGHT) ▶</button>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="game-over-screen" class="overlay-screen hidden">
+      <h1 class="game-title" style="color: var(--accent-red);">GAME OVER</h1>
+      <p class="subtitle" id="game-over-reason">ชนเข้ากับรถบรรทุก!</p>
+
+      <div class="instructions-panel">
+        <p>ระยะทางรวม: <span id="final-dist" style="color: var(--accent-yellow);">0.0 KM</span></p>
+        <p>คะแนนสุดท้าย: <span id="final-score" style="color: var(--accent-yellow);">0</span></p>
+        <p>สถิติสูงสุด (Best): <span id="best-score" style="color: var(--accent-green);">0</span></p>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button id="btn-retry-game" class="btn-arcade">🔄 TRY AGAIN</button>
+        <button id="btn-back-home" class="btn-arcade" style="background: #29adff;" onclick="KAMPAI.goHome()">🎮 CHOOSE GAME</button>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Controls -->
+    <div id="touch-controls" class="hidden">
+      <div class="touch-group">
+        <div id="btn-touch-left" class="touch-btn">◀</div>
+        <div id="btn-touch-right" class="touch-btn">▶</div>
+      </div>
+      <div class="touch-group">
+        <div id="btn-touch-brake" class="touch-btn" style="background: rgba(255, 236, 39, 0.25);">▼</div>
+        <div id="btn-touch-boost" class="touch-btn" style="background: rgba(255, 0, 77, 0.35);">▲</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Sequence per Rule 3.A -->
+  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-match.js"></script>
+  <script src="/games/kampai-versus.js"></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
