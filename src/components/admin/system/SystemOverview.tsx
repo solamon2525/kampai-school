@@ -272,9 +272,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.212.0 (HEART Model — แทน GPS บนหน้าเกี่ยวกับเรา)',
+        version: 'v1.212.1 (HEART infographic บนหน้าเกี่ยวกับเรา)',
         date: 'ล่าสุด',
         badge: 'bg-rose-600',
+        items: [
+            'แทรกอินโฟกราฟิก HEART Model (`/images/heart-model-infographic.png`) ในหน้า About ใต้หัวข้อนวัตกรรมการบริหาร',
+            'รายงานลดภาระงานครูใช้ภาพ curated เดียวกัน (ไม่ทับด้วยภาพ PIL อัตโนมัติ)',
+        ],
+    },
+    {
+        version: 'v1.212.0 (HEART Model — แทน GPS บนหน้าเกี่ยวกับเรา)',
+        date: '',
+        badge: 'bg-rose-700',
         items: [
             'หน้า About: แทน GPS-Model ด้วย HEART Model (Hub · Ease · Activate · Relate · Track) จากสถาปัตยกรรมเว็บโรงเรียน',
             'อัปเดตคำอธิบาย PDCA ให้ขับเคลื่อน HEART เพื่อคืนเวลาครู — ลบเนื้อหา Good Governance / Participation / System Approach เดิม',

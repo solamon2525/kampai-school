@@ -218,6 +218,22 @@ const About = () => {
                 </p>
               </div>
 
+              {/* อินโฟกราฟิก HEART Model */}
+              <figure className="max-w-5xl mx-auto mb-4 md:mb-5">
+                <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+                  <img
+                    src="/images/heart-model-infographic.png"
+                    alt="อินโฟกราฟิก HEART Model — Hub Ease Activate Relate Track และวงจรคุณภาพ PDCA โรงเรียนบ้านคำไผ่"
+                    className="w-full h-auto object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <figcaption className="mt-2 text-center text-[10px] md:text-xs text-muted-foreground">
+                  อินโฟกราฟิก HEART Model — โรงเรียนบ้านคำไผ่ · KAMPAI Smart School
+                </figcaption>
+              </figure>
+
               {/* H · E · A · R · T cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 mb-4 md:mb-5">
                 {[
