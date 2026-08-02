@@ -272,6 +272,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.212.0 (HEART Model — แทน GPS บนหน้าเกี่ยวกับเรา)',
+        date: 'ล่าสุด',
+        badge: 'bg-rose-600',
+        items: [
+            'หน้า About: แทน GPS-Model ด้วย HEART Model (Hub · Ease · Activate · Relate · Track) จากสถาปัตยกรรมเว็บโรงเรียน',
+            'อัปเดตคำอธิบาย PDCA ให้ขับเคลื่อน HEART เพื่อคืนเวลาครู — ลบเนื้อหา Good Governance / Participation / System Approach เดิม',
+        ],
+    },
+    {
         version: 'v1.211.0 (Universal LPC Character Importer)',
         date: 'ล่าสุด',
         badge: 'bg-primary',
