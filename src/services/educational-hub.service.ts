@@ -72,6 +72,10 @@ export type EduHubItem = {
     character_frame_count: number | null;
     character_animation_config: CharacterAnimationConfig | null;
     character_color_config: CharacterColorConfig | null;
+    character_source_url: string | null;
+    character_credits_text: string | null;
+    character_license_summary: string[] | null;
+    character_attribution_required: boolean;
     game_play_style: string | null;
     blueprint_id: string | null;
     blueprint_json: Record<string, unknown> | null;
@@ -122,6 +126,15 @@ export type CharacterSheet = {
     color_config: CharacterColorConfig | null;
     preview_url: string | null;
     notes: string | null;
+    source_kind: 'upload' | 'template' | 'universal-lpc';
+    source_url: string | null;
+    source_json: Record<string, unknown> | null;
+    source_json_filename: string | null;
+    credits_text: string | null;
+    credits_filename: string | null;
+    license_summary: string[];
+    attribution_required: boolean;
+    imported_at: string | null;
     created_by: string | null;
     created_at: string;
 };
@@ -878,6 +891,14 @@ export const characterSheetsService = {
         animationPreset?: string;
         animationConfig?: CharacterAnimationConfig;
         notes?: string;
+        sourceKind?: CharacterSheet['source_kind'];
+        sourceUrl?: string | null;
+        sourceJson?: Record<string, unknown> | null;
+        sourceJsonFilename?: string | null;
+        creditsText?: string | null;
+        creditsFilename?: string | null;
+        licenseSummary?: string[];
+        attributionRequired?: boolean;
     }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
         const animationConfig = params.animationConfig
             ?? getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
@@ -924,6 +945,15 @@ export const characterSheetsService = {
                 frame_count: params.frameCount,
                 animation_config: animationConfig,
                 notes: params.notes?.trim() || null,
+                source_kind: params.sourceKind ?? 'upload',
+                source_url: params.sourceUrl ?? null,
+                source_json: params.sourceJson ?? null,
+                source_json_filename: params.sourceJsonFilename ?? null,
+                credits_text: params.creditsText?.trim() || null,
+                credits_filename: params.creditsFilename ?? null,
+                license_summary: params.licenseSummary ?? [],
+                attribution_required: params.attributionRequired ?? false,
+                imported_at: params.sourceKind === 'universal-lpc' ? new Date().toISOString() : null,
             } as never)
             .select()
             .single();
@@ -982,6 +1012,11 @@ export const characterSheetsService = {
             .order('title'),
 
     remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
+        const { error: clearError } = await supabase
+            .from('educational_hub_items')
+            .update(characterAssignmentFromSheet(null) as never)
+            .eq('character_sheet_id', sheet.id);
+        if (clearError) return { error: clearError as Error };
         if (!sheet.storage_path.startsWith('git:')) {
             await educationalHubService.removeFile(sheet.storage_path);
         }
@@ -1044,6 +1079,7 @@ export const characterSheetsService = {
                 frame_count: t.frameCount,
                 animation_config: t.animationConfig,
                 color_config: colorConfig,
+                source_kind: 'template',
                 notes: `สร้างจากเทมเพลต ${t.key}`,
             } as never)
             .select()
@@ -1158,6 +1194,15 @@ export const characterSheetsService = {
                 animation_config: src.animation_config,
                 color_config: src.color_config,
                 notes: src.notes,
+                source_kind: src.source_kind,
+                source_url: src.source_url,
+                source_json: src.source_json,
+                source_json_filename: src.source_json_filename,
+                credits_text: src.credits_text,
+                credits_filename: src.credits_filename,
+                license_summary: src.license_summary,
+                attribution_required: src.attribution_required,
+                imported_at: src.imported_at,
             } as never)
             .select()
             .single();
@@ -1185,6 +1230,10 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
             character_frame_count: null,
             character_animation_config: null,
             character_color_config: null,
+            character_source_url: null,
+            character_credits_text: null,
+            character_license_summary: null,
+            character_attribution_required: false,
         };
     }
     return {
@@ -1196,6 +1245,10 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
         character_frame_count: sheet.frame_count,
         character_animation_config: sheet.animation_config,
         character_color_config: sheet.color_config,
+        character_source_url: sheet.source_url,
+        character_credits_text: sheet.credits_text,
+        character_license_summary: sheet.license_summary,
+        character_attribution_required: sheet.attribution_required,
     };
 }
 

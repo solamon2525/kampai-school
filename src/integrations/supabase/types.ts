@@ -1697,6 +1697,99 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_paper_logs: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          note: string | null
+          recorded_by: string | null
+          sheets_used: number
+          year_be: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          note?: string | null
+          recorded_by?: string | null
+          sheets_used?: number
+          year_be: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          note?: string | null
+          recorded_by?: string | null
+          sheets_used?: number
+          year_be?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_paper_logs_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "digital_paper_logs_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      digital_workload_baselines: {
+        Row: {
+          id: string
+          minutes_after: number
+          minutes_before: number
+          note: string | null
+          recorded_at: string
+          recorded_by: string | null
+          workflow_key: string
+          workflow_label: string
+        }
+        Insert: {
+          id?: string
+          minutes_after: number
+          minutes_before: number
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          workflow_key: string
+          workflow_label: string
+        }
+        Update: {
+          id?: string
+          minutes_after?: number
+          minutes_before?: number
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          workflow_key?: string
+          workflow_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_workload_baselines_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "digital_workload_baselines_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       doc_category_meta: {
         Row: {
           color_class: string
@@ -2052,17 +2145,25 @@ export type Database = {
         Row: {
           bgm_preset: string | null
           bgm_url: string | null
+          blueprint_id: string | null
+          blueprint_json: Json | null
           body_html: string | null
           build_updated_at: string | null
           build_version: string | null
           category_id: string
-          character_frame_count: number | null
           character_animation_config: Json | null
+          character_attribution_required: boolean
+          character_color_config: Json | null
+          character_credits_text: string | null
+          character_frame_count: number | null
           character_frame_h: number | null
           character_frame_w: number | null
+          character_license_summary: string[] | null
           character_sheet_id: string | null
           character_sheet_url: string | null
           character_sheet_url_p2: string | null
+          character_source_url: string | null
+          corner_badge: string | null
           created_at: string
           description: string | null
           download_count: number
@@ -2071,6 +2172,7 @@ export type Database = {
           file_name: string | null
           file_size: number | null
           file_url: string | null
+          game_play_style: string | null
           game_slug: string | null
           grade_levels: string[]
           homepage_featured: boolean
@@ -2095,17 +2197,25 @@ export type Database = {
         Insert: {
           bgm_preset?: string | null
           bgm_url?: string | null
+          blueprint_id?: string | null
+          blueprint_json?: Json | null
           body_html?: string | null
           build_updated_at?: string | null
           build_version?: string | null
           category_id: string
-          character_frame_count?: number | null
           character_animation_config?: Json | null
+          character_attribution_required?: boolean
+          character_color_config?: Json | null
+          character_credits_text?: string | null
+          character_frame_count?: number | null
           character_frame_h?: number | null
           character_frame_w?: number | null
+          character_license_summary?: string[] | null
           character_sheet_id?: string | null
           character_sheet_url?: string | null
           character_sheet_url_p2?: string | null
+          character_source_url?: string | null
+          corner_badge?: string | null
           created_at?: string
           description?: string | null
           download_count?: number
@@ -2114,6 +2224,7 @@ export type Database = {
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
+          game_play_style?: string | null
           game_slug?: string | null
           grade_levels?: string[]
           homepage_featured?: boolean
@@ -2138,17 +2249,25 @@ export type Database = {
         Update: {
           bgm_preset?: string | null
           bgm_url?: string | null
+          blueprint_id?: string | null
+          blueprint_json?: Json | null
           body_html?: string | null
           build_updated_at?: string | null
           build_version?: string | null
           category_id?: string
-          character_frame_count?: number | null
           character_animation_config?: Json | null
+          character_attribution_required?: boolean
+          character_color_config?: Json | null
+          character_credits_text?: string | null
+          character_frame_count?: number | null
           character_frame_h?: number | null
           character_frame_w?: number | null
+          character_license_summary?: string[] | null
           character_sheet_id?: string | null
           character_sheet_url?: string | null
           character_sheet_url_p2?: string | null
+          character_source_url?: string | null
+          corner_badge?: string | null
           created_at?: string
           description?: string | null
           download_count?: number
@@ -2157,6 +2276,7 @@ export type Database = {
           file_name?: string | null
           file_size?: number | null
           file_url?: string | null
+          game_play_style?: string | null
           game_slug?: string | null
           grade_levels?: string[]
           homepage_featured?: boolean
@@ -2179,6 +2299,13 @@ export type Database = {
           youtube_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "educational_hub_items_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "game_blueprints"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "educational_hub_items_category_id_fkey"
             columns: ["category_id"]
@@ -2217,6 +2344,7 @@ export type Database = {
           external_url: string | null
           hub_bio: string | null
           is_hub_active: boolean
+          lesson_favorites: Json
           staff_id: string
           updated_at: string
         }
@@ -2227,6 +2355,7 @@ export type Database = {
           external_url?: string | null
           hub_bio?: string | null
           is_hub_active?: boolean
+          lesson_favorites?: Json
           staff_id: string
           updated_at?: string
         }
@@ -2237,6 +2366,7 @@ export type Database = {
           external_url?: string | null
           hub_bio?: string | null
           is_hub_active?: boolean
+          lesson_favorites?: Json
           staff_id?: string
           updated_at?: string
         }
@@ -2323,6 +2453,168 @@ export type Database = {
           title?: string
           total_targets?: number | null
           url?: string | null
+        }
+        Relationships: []
+      }
+      english_quest_lessons: {
+        Row: {
+          id: string
+          lesson_no: number
+          sort_order: number
+          title_th: string
+          world_id: string
+        }
+        Insert: {
+          id?: string
+          lesson_no: number
+          sort_order?: number
+          title_th: string
+          world_id: string
+        }
+        Update: {
+          id?: string
+          lesson_no?: number
+          sort_order?: number
+          title_th?: string
+          world_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "english_quest_lessons_world_id_fkey"
+            columns: ["world_id"]
+            isOneToOne: false
+            referencedRelation: "english_quest_worlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      english_quest_progress: {
+        Row: {
+          current_world_id: string | null
+          lesson_stars: Json
+          mascot_name: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          current_world_id?: string | null
+          lesson_stars?: Json
+          mascot_name?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          current_world_id?: string | null
+          lesson_stars?: Json
+          mascot_name?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "english_quest_progress_current_world_id_fkey"
+            columns: ["current_world_id"]
+            isOneToOne: false
+            referencedRelation: "english_quest_worlds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "english_quest_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "english_quest_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "english_quest_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      english_quest_words: {
+        Row: {
+          emoji: string | null
+          example_en: string | null
+          id: string
+          lesson_id: string
+          meaning_th: string
+          part_of_speech: string | null
+          sort_order: number
+          word_en: string
+        }
+        Insert: {
+          emoji?: string | null
+          example_en?: string | null
+          id?: string
+          lesson_id: string
+          meaning_th: string
+          part_of_speech?: string | null
+          sort_order?: number
+          word_en: string
+        }
+        Update: {
+          emoji?: string | null
+          example_en?: string | null
+          id?: string
+          lesson_id?: string
+          meaning_th?: string
+          part_of_speech?: string | null
+          sort_order?: number
+          word_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "english_quest_words_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "english_quest_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      english_quest_worlds: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon_emoji: string | null
+          id: string
+          sort_order: number
+          theme: string | null
+          title_en: string
+          title_th: string
+          world_key: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon_emoji?: string | null
+          id?: string
+          sort_order?: number
+          theme?: string | null
+          title_en: string
+          title_th: string
+          world_key: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon_emoji?: string | null
+          id?: string
+          sort_order?: number
+          theme?: string | null
+          title_en?: string
+          title_th?: string
+          world_key?: string
         }
         Relationships: []
       }
@@ -2634,60 +2926,6 @@ export type Database = {
         }
         Relationships: []
       }
-      game_character_sheets: {
-        Row: {
-          animation_config: Json | null
-          created_at: string
-          created_by: string | null
-          frame_count: number
-          frame_height: number
-          frame_width: number
-          id: string
-          notes: string | null
-          preview_url: string | null
-          sheet_url: string
-          sheet_url_p2: string | null
-          slug: string | null
-          storage_path: string
-          storage_path_p2: string | null
-          title: string
-        }
-        Insert: {
-          animation_config?: Json | null
-          created_at?: string
-          created_by?: string | null
-          frame_count?: number
-          frame_height?: number
-          frame_width?: number
-          id?: string
-          notes?: string | null
-          preview_url?: string | null
-          sheet_url: string
-          sheet_url_p2?: string | null
-          slug?: string | null
-          storage_path: string
-          storage_path_p2?: string | null
-          title: string
-        }
-        Update: {
-          animation_config?: Json | null
-          created_at?: string
-          created_by?: string | null
-          frame_count?: number
-          frame_height?: number
-          frame_width?: number
-          id?: string
-          notes?: string | null
-          preview_url?: string | null
-          sheet_url?: string
-          sheet_url_p2?: string | null
-          slug?: string | null
-          storage_path?: string
-          storage_path_p2?: string | null
-          title?: string
-        }
-        Relationships: []
-      }
       game_bgm_tracks: {
         Row: {
           created_at: string
@@ -2712,6 +2950,135 @@ export type Database = {
           storage_path?: string
           title?: string
           url?: string
+        }
+        Relationships: []
+      }
+      game_blueprints: {
+        Row: {
+          blueprint: Json
+          created_at: string
+          engine: string
+          id: string
+          owner_staff_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          blueprint: Json
+          created_at?: string
+          engine?: string
+          id?: string
+          owner_staff_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          blueprint?: Json
+          created_at?: string
+          engine?: string
+          id?: string
+          owner_staff_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_blueprints_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_blueprints_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      game_character_sheets: {
+        Row: {
+          animation_config: Json | null
+          attribution_required: boolean
+          color_config: Json | null
+          created_at: string
+          created_by: string | null
+          credits_filename: string | null
+          credits_text: string | null
+          frame_count: number
+          frame_height: number
+          frame_width: number
+          id: string
+          imported_at: string | null
+          license_summary: string[]
+          notes: string | null
+          preview_url: string | null
+          sheet_url: string
+          sheet_url_p2: string | null
+          slug: string | null
+          source_json: Json | null
+          source_json_filename: string | null
+          source_kind: string
+          source_url: string | null
+          storage_path: string
+          storage_path_p2: string | null
+          title: string
+        }
+        Insert: {
+          animation_config?: Json | null
+          attribution_required?: boolean
+          color_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          credits_filename?: string | null
+          credits_text?: string | null
+          frame_count?: number
+          frame_height?: number
+          frame_width?: number
+          id?: string
+          imported_at?: string | null
+          license_summary?: string[]
+          notes?: string | null
+          preview_url?: string | null
+          sheet_url: string
+          sheet_url_p2?: string | null
+          slug?: string | null
+          source_json?: Json | null
+          source_json_filename?: string | null
+          source_kind?: string
+          source_url?: string | null
+          storage_path: string
+          storage_path_p2?: string | null
+          title: string
+        }
+        Update: {
+          animation_config?: Json | null
+          attribution_required?: boolean
+          color_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          credits_filename?: string | null
+          credits_text?: string | null
+          frame_count?: number
+          frame_height?: number
+          frame_width?: number
+          id?: string
+          imported_at?: string | null
+          license_summary?: string[]
+          notes?: string | null
+          preview_url?: string | null
+          sheet_url?: string
+          sheet_url_p2?: string | null
+          slug?: string | null
+          source_json?: Json | null
+          source_json_filename?: string | null
+          source_kind?: string
+          source_url?: string | null
+          storage_path?: string
+          storage_path_p2?: string | null
+          title?: string
         }
         Relationships: []
       }
@@ -2776,138 +3143,87 @@ export type Database = {
           },
         ]
       }
-      english_quest_lessons: {
+      game_research_studies: {
         Row: {
+          class_name: string
+          consent_confirmed: boolean
+          created_at: string
+          edu_hub_item_id: string | null
+          game_mode: string
+          game_slug: string
           id: string
-          lesson_no: number
-          sort_order: number
-          title_th: string
-          world_id: string
-        }
-        Insert: {
-          id?: string
-          lesson_no: number
-          sort_order?: number
-          title_th: string
-          world_id: string
-        }
-        Update: {
-          id?: string
-          lesson_no?: number
-          sort_order?: number
-          title_th?: string
-          world_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "english_quest_lessons_world_id_fkey"
-            columns: ["world_id"]
-            isOneToOne: false
-            referencedRelation: "english_quest_worlds"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      english_quest_progress: {
-        Row: {
-          current_world_id: string | null
-          lesson_stars: Json
-          mascot_name: string | null
-          student_id: string
+          is_active: boolean
+          max_rounds_per_day: number
+          owner_staff_id: string
+          posttest_end: string
+          posttest_start: string
+          pretest_end: string
+          pretest_start: string
+          show_on_homepage: boolean
+          title: string
           updated_at: string
         }
         Insert: {
-          current_world_id?: string | null
-          lesson_stars?: Json
-          mascot_name?: string | null
-          student_id: string
+          class_name: string
+          consent_confirmed?: boolean
+          created_at?: string
+          edu_hub_item_id?: string | null
+          game_mode: string
+          game_slug: string
+          id?: string
+          is_active?: boolean
+          max_rounds_per_day?: number
+          owner_staff_id: string
+          posttest_end: string
+          posttest_start: string
+          pretest_end: string
+          pretest_start: string
+          show_on_homepage?: boolean
+          title: string
           updated_at?: string
         }
         Update: {
-          current_world_id?: string | null
-          lesson_stars?: Json
-          mascot_name?: string | null
-          student_id?: string
+          class_name?: string
+          consent_confirmed?: boolean
+          created_at?: string
+          edu_hub_item_id?: string | null
+          game_mode?: string
+          game_slug?: string
+          id?: string
+          is_active?: boolean
+          max_rounds_per_day?: number
+          owner_staff_id?: string
+          posttest_end?: string
+          posttest_start?: string
+          pretest_end?: string
+          pretest_start?: string
+          show_on_homepage?: boolean
+          title?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      english_quest_words: {
-        Row: {
-          emoji: string | null
-          example_en: string | null
-          id: string
-          lesson_id: string
-          meaning_th: string
-          part_of_speech: string | null
-          sort_order: number
-          word_en: string
-        }
-        Insert: {
-          emoji?: string | null
-          example_en?: string | null
-          id?: string
-          lesson_id: string
-          meaning_th: string
-          part_of_speech?: string | null
-          sort_order?: number
-          word_en: string
-        }
-        Update: {
-          emoji?: string | null
-          example_en?: string | null
-          id?: string
-          lesson_id?: string
-          meaning_th?: string
-          part_of_speech?: string | null
-          sort_order?: number
-          word_en?: string
         }
         Relationships: [
           {
-            foreignKeyName: "english_quest_words_lesson_id_fkey"
-            columns: ["lesson_id"]
+            foreignKeyName: "game_research_studies_edu_hub_item_id_fkey"
+            columns: ["edu_hub_item_id"]
             isOneToOne: false
-            referencedRelation: "english_quest_lessons"
+            referencedRelation: "educational_hub_items"
             referencedColumns: ["id"]
-          }
+          },
+          {
+            foreignKeyName: "game_research_studies_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_research_studies_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
         ]
-      }
-      english_quest_worlds: {
-        Row: {
-          color: string | null
-          created_at: string
-          icon_emoji: string | null
-          id: string
-          sort_order: number
-          theme: string | null
-          title_en: string
-          title_th: string
-          world_key: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          icon_emoji?: string | null
-          id?: string
-          sort_order?: number
-          theme?: string | null
-          title_en: string
-          title_th: string
-          world_key: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          icon_emoji?: string | null
-          id?: string
-          sort_order?: number
-          theme?: string | null
-          title_en?: string
-          title_th?: string
-          world_key?: string
-        }
-        Relationships: []
       }
       game_score_baseline: {
         Row: {
@@ -2947,6 +3263,7 @@ export type Database = {
           metadata: Json
           mode: string | null
           pushed_to_score_record_id: string | null
+          research_study_id: string | null
           score: number
           semester: string | null
           student_id: string
@@ -2962,6 +3279,7 @@ export type Database = {
           metadata?: Json
           mode?: string | null
           pushed_to_score_record_id?: string | null
+          research_study_id?: string | null
           score: number
           semester?: string | null
           student_id: string
@@ -2977,6 +3295,7 @@ export type Database = {
           metadata?: Json
           mode?: string | null
           pushed_to_score_record_id?: string | null
+          research_study_id?: string | null
           score?: number
           semester?: string | null
           student_id?: string
@@ -2995,6 +3314,13 @@ export type Database = {
             columns: ["pushed_to_score_record_id"]
             isOneToOne: false
             referencedRelation: "score_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_research_study_id_fkey"
+            columns: ["research_study_id"]
+            isOneToOne: false
+            referencedRelation: "game_research_studies"
             referencedColumns: ["id"]
           },
           {
@@ -3284,104 +3610,6 @@ export type Database = {
           },
         ]
       }
-      lesson_pack_items: {
-        Row: {
-          created_at: string
-          edu_hub_item_id: string
-          id: string
-          pack_id: string
-          role: string
-          sort_order: number
-        }
-        Insert: {
-          created_at?: string
-          edu_hub_item_id: string
-          id?: string
-          pack_id: string
-          role: string
-          sort_order?: number
-        }
-        Update: {
-          created_at?: string
-          edu_hub_item_id?: string
-          id?: string
-          pack_id?: string
-          role?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_pack_items_edu_hub_item_id_fkey"
-            columns: ["edu_hub_item_id"]
-            isOneToOne: false
-            referencedRelation: "educational_hub_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_pack_items_pack_id_fkey"
-            columns: ["pack_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_packs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lesson_packs: {
-        Row: {
-          created_at: string
-          description: string | null
-          grade_levels: string[]
-          id: string
-          is_published: boolean
-          owner_staff_id: string | null
-          pack_key: string
-          phase_tag: string | null
-          sort_order: number
-          subject: string | null
-          thumbnail_url: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          grade_levels?: string[]
-          id?: string
-          is_published?: boolean
-          owner_staff_id?: string | null
-          pack_key: string
-          phase_tag?: string | null
-          sort_order?: number
-          subject?: string | null
-          thumbnail_url?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          grade_levels?: string[]
-          id?: string
-          is_published?: boolean
-          owner_staff_id?: string | null
-          pack_key?: string
-          phase_tag?: string | null
-          sort_order?: number
-          subject?: string | null
-          thumbnail_url?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_packs_owner_staff_id_fkey"
-            columns: ["owner_staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       indicator_lesson_plans: {
         Row: {
           created_at: string
@@ -3526,6 +3754,111 @@ export type Database = {
           {
             foreignKeyName: "leave_requests_staff_id_fkey"
             columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      lesson_pack_items: {
+        Row: {
+          created_at: string
+          edu_hub_item_id: string
+          id: string
+          pack_id: string
+          role: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          edu_hub_item_id: string
+          id?: string
+          pack_id: string
+          role: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          edu_hub_item_id?: string
+          id?: string
+          pack_id?: string
+          role?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_pack_items_edu_hub_item_id_fkey"
+            columns: ["edu_hub_item_id"]
+            isOneToOne: false
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_pack_items_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_packs: {
+        Row: {
+          created_at: string
+          description: string | null
+          grade_levels: string[]
+          id: string
+          is_published: boolean
+          owner_staff_id: string | null
+          pack_key: string
+          phase_tag: string | null
+          sort_order: number
+          subject: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          grade_levels?: string[]
+          id?: string
+          is_published?: boolean
+          owner_staff_id?: string | null
+          pack_key: string
+          phase_tag?: string | null
+          sort_order?: number
+          subject?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          grade_levels?: string[]
+          id?: string
+          is_published?: boolean
+          owner_staff_id?: string | null
+          pack_key?: string
+          phase_tag?: string | null
+          sort_order?: number
+          subject?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_packs_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_packs_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
@@ -3972,6 +4305,7 @@ export type Database = {
           is_winner: boolean
           match_id: string
           rank: number
+          rounds_won: number | null
           score: number
           session_id: string | null
           student_id: string
@@ -3981,6 +4315,7 @@ export type Database = {
           is_winner?: boolean
           match_id: string
           rank?: number
+          rounds_won?: number | null
           score?: number
           session_id?: string | null
           student_id: string
@@ -3990,6 +4325,7 @@ export type Database = {
           is_winner?: boolean
           match_id?: string
           rank?: number
+          rounds_won?: number | null
           score?: number
           session_id?: string | null
           student_id?: string
@@ -4043,6 +4379,7 @@ export type Database = {
           player_count: number
           room_code: string
           score_spread: number
+          source: string
           started_at: string
           top_score: number
           winner_student_id: string | null
@@ -4057,6 +4394,7 @@ export type Database = {
           player_count?: number
           room_code: string
           score_spread?: number
+          source?: string
           started_at: string
           top_score?: number
           winner_student_id?: string | null
@@ -4071,6 +4409,7 @@ export type Database = {
           player_count?: number
           room_code?: string
           score_spread?: number
+          source?: string
           started_at?: string
           top_score?: number
           winner_student_id?: string | null
@@ -4465,6 +4804,109 @@ export type Database = {
           },
         ]
       }
+      pet_catalog: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          is_starter: boolean
+          name_th: string
+          price: number
+          rarity: string
+          sort_order: number
+          species_th: string
+          updated_at: string
+          visual_key: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          is_starter?: boolean
+          name_th: string
+          price?: number
+          rarity?: string
+          sort_order?: number
+          species_th: string
+          updated_at?: string
+          visual_key: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          is_starter?: boolean
+          name_th?: string
+          price?: number
+          rarity?: string
+          sort_order?: number
+          species_th?: string
+          updated_at?: string
+          visual_key?: string
+        }
+        Relationships: []
+      }
+      pet_coin_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          id: string
+          kind: string
+          metadata: Json
+          source_key: string | null
+          student_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          id?: string
+          kind: string
+          metadata?: Json
+          source_key?: string | null
+          student_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          source_key?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_coin_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "pet_coin_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pet_coin_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       pickup_log: {
         Row: {
           action: string
@@ -4636,8 +5078,22 @@ export type Database = {
             foreignKeyName: "pixel_forest_balance_events_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_balance_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_balance_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -4680,8 +5136,22 @@ export type Database = {
             foreignKeyName: "pixel_forest_economy_ledger_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_economy_ledger_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_economy_ledger_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -4739,8 +5209,22 @@ export type Database = {
             foreignKeyName: "pixel_forest_rpg_profiles_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: true
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_rpg_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
             referencedRelation: "students"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pixel_forest_rpg_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -6034,6 +6518,117 @@ export type Database = {
           },
         ]
       }
+      student_pet_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          lifetime_earned: number
+          lifetime_spent: number
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_pet_wallets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_pet_wallets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_pet_wallets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      student_pets: {
+        Row: {
+          acquired_at: string
+          bond_xp: number
+          id: string
+          is_equipped: boolean
+          nickname: string | null
+          pet_id: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          acquired_at?: string
+          bond_xp?: number
+          id?: string
+          is_equipped?: boolean
+          nickname?: string | null
+          pet_id: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          acquired_at?: string
+          bond_xp?: number
+          id?: string
+          is_equipped?: boolean
+          nickname?: string | null
+          pet_id?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_pets_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pet_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_pets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_pets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_pets_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       student_sdq_responses: {
         Row: {
           academic_year: number
@@ -6439,6 +7034,123 @@ export type Database = {
           },
         ]
       }
+      supply_items: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          location: string | null
+          min_stock: number
+          name: string
+          note: string | null
+          stock: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          min_stock?: number
+          name: string
+          note?: string | null
+          stock?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          min_stock?: number
+          name?: string
+          note?: string | null
+          stock?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      supply_requests: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          purpose: string | null
+          quantity: number
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          staff_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          purpose?: string | null
+          quantity: number
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          staff_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          purpose?: string | null
+          quantity?: number
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          staff_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supply_requests_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "supply_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supply_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supply_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+          {
+            foreignKeyName: "supply_requests_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supply_requests_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       survey_questions: {
         Row: {
           id: string
@@ -6628,6 +7340,162 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      thai_vocab_categories: {
+        Row: {
+          description: string | null
+          icon: string | null
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          description?: string | null
+          icon?: string | null
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          description?: string | null
+          icon?: string | null
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      thai_vocab_items: {
+        Row: {
+          category_slug: string
+          classifier_for: string | null
+          created_at: string
+          difficulty: number | null
+          emoji: string | null
+          grade: string | null
+          id: string
+          indicator_code: string | null
+          meaning: string
+          note: string | null
+          origin_lang: string | null
+          pair_id: string | null
+          reading: string
+          sort_order: number
+          synonym_group: string | null
+          tags: string[]
+          updated_at: string
+          word: string
+        }
+        Insert: {
+          category_slug: string
+          classifier_for?: string | null
+          created_at?: string
+          difficulty?: number | null
+          emoji?: string | null
+          grade?: string | null
+          id?: string
+          indicator_code?: string | null
+          meaning: string
+          note?: string | null
+          origin_lang?: string | null
+          pair_id?: string | null
+          reading: string
+          sort_order?: number
+          synonym_group?: string | null
+          tags?: string[]
+          updated_at?: string
+          word: string
+        }
+        Update: {
+          category_slug?: string
+          classifier_for?: string | null
+          created_at?: string
+          difficulty?: number | null
+          emoji?: string | null
+          grade?: string | null
+          id?: string
+          indicator_code?: string | null
+          meaning?: string
+          note?: string | null
+          origin_lang?: string | null
+          pair_id?: string | null
+          reading?: string
+          sort_order?: number
+          synonym_group?: string | null
+          tags?: string[]
+          updated_at?: string
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thai_vocab_items_category_slug_fkey"
+            columns: ["category_slug"]
+            isOneToOne: false
+            referencedRelation: "thai_vocab_categories"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      thai_vocab_missed: {
+        Row: {
+          category_slug: string
+          created_at: string
+          id: string
+          last_missed_at: string
+          meaning: string | null
+          miss_count: number
+          reading: string | null
+          student_id: string
+          word: string
+        }
+        Insert: {
+          category_slug: string
+          created_at?: string
+          id?: string
+          last_missed_at?: string
+          meaning?: string | null
+          miss_count?: number
+          reading?: string | null
+          student_id: string
+          word: string
+        }
+        Update: {
+          category_slug?: string
+          created_at?: string
+          id?: string
+          last_missed_at?: string
+          meaning?: string | null
+          miss_count?: number
+          reading?: string | null
+          student_id?: string
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thai_vocab_missed_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "thai_vocab_missed_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thai_vocab_missed_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
       }
       ticker_items: {
         Row: {
@@ -6998,6 +7866,57 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "waste_student_summary"
             referencedColumns: ["student_id"]
+          },
+        ]
+      }
+      worksheet_sets: {
+        Row: {
+          access: string
+          config: Json
+          created_at: string
+          id: string
+          owner_staff_id: string
+          seed: number
+          title: string
+          updated_at: string
+          worksheet_key: string
+        }
+        Insert: {
+          access?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          owner_staff_id: string
+          seed: number
+          title: string
+          updated_at?: string
+          worksheet_key: string
+        }
+        Update: {
+          access?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          owner_staff_id?: string
+          seed?: number
+          title?: string
+          updated_at?: string
+          worksheet_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worksheet_sets_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worksheet_sets_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
           },
         ]
       }
@@ -7373,23 +8292,6 @@ export type Database = {
       }
     }
     Functions: {
-      english_quest_complete_lesson: {
-        Args: {
-          p_student_code: string
-          p_lesson_id: string
-          p_correct: number
-          p_total: number
-        }
-        Returns: Json
-      }
-      english_quest_get_state: {
-        Args: { p_student_code: string }
-        Returns: Json
-      }
-      english_quest_set_mascot: {
-        Args: { p_student_code: string; p_name: string }
-        Returns: Json
-      }
       active_term: {
         Args: never
         Returns: {
@@ -7410,23 +8312,61 @@ export type Database = {
         Returns: number
       }
       approve_reward_claim: { Args: { p_claim_id: string }; Returns: undefined }
+      approve_supply_request: {
+        Args: { p_request_id: string; p_review_note?: string }
+        Returns: {
+          created_at: string
+          id: string
+          item_id: string
+          purpose: string | null
+          quantity: number
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          staff_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "supply_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       auth_role: { Args: never; Returns: string }
       bkk_today: { Args: never; Returns: string }
+      buy_student_pet: {
+        Args: { p_pet_code: string; p_student_code: string }
+        Returns: Json
+      }
       can_approve_reward: { Args: { p_reward_id: string }; Returns: boolean }
       claim_reward: {
         Args: { p_code: string; p_quantity?: number; p_reward_id: string }
         Returns: string
       }
-      get_student_pet_state: {
+      count_research_rounds_today: {
+        Args: { p_student_code: string; p_study_id: string }
+        Returns: Json
+      }
+      english_quest_complete_lesson: {
+        Args: {
+          p_correct: number
+          p_lesson_id: string
+          p_student_code: string
+          p_total: number
+        }
+        Returns: Json
+      }
+      english_quest_get_state: {
         Args: { p_student_code: string }
         Returns: Json
       }
-      buy_student_pet: {
-        Args: { p_student_code: string; p_pet_code: string }
+      english_quest_set_mascot: {
+        Args: { p_name: string; p_student_code: string }
         Returns: Json
       }
       equip_student_pet: {
-        Args: { p_student_code: string; p_pet_code: string }
+        Args: { p_pet_code: string; p_student_code: string }
         Returns: Json
       }
       get_daily_challenge_leaderboard: {
@@ -7459,10 +8399,6 @@ export type Database = {
         }[]
       }
       get_daily_quest_status: {
-        Args: { p_student_code: string }
-        Returns: Json
-      }
-      get_pixel_forest_rpg_state: {
         Args: { p_student_code: string }
         Returns: Json
       }
@@ -7537,6 +8473,7 @@ export type Database = {
           daily_score_today: number
           display_name: string
           last_played_at: string
+          photo_url: string
           student_code: string
           student_id: string
           total_correct: number
@@ -7633,6 +8570,11 @@ export type Database = {
           wins: number
         }[]
       }
+      get_pixel_forest_rpg_state: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      get_research_study_public: { Args: { p_study_id: string }; Returns: Json }
       get_savings_history: {
         Args: { p_code: string; p_limit?: number }
         Returns: {
@@ -7675,6 +8617,7 @@ export type Database = {
         Args: { p_student_code: string }
         Returns: Json
       }
+      get_student_pet_state: { Args: { p_student_code: string }; Returns: Json }
       get_subject_leaderboard: {
         Args: {
           p_limit?: number
@@ -7691,7 +8634,58 @@ export type Database = {
           xp: number
         }[]
       }
+      get_thai_vocab_catalog: { Args: never; Returns: Json }
+      get_thai_vocab_categories_only: { Args: never; Returns: Json }
+      get_thai_vocab_class_missed: {
+        Args: { p_class: string; p_limit?: number }
+        Returns: Json
+      }
+      get_thai_vocab_missed: { Args: { p_student_id: string }; Returns: Json }
+      get_thai_vocab_missed_by_code: {
+        Args: { p_student_code: string }
+        Returns: Json
+      }
+      get_thai_vocab_missed_report: {
+        Args: { p_student_id: string }
+        Returns: Json
+      }
+      get_thai_vocab_stats: { Args: never; Returns: Json }
+      get_thai_vocab_words: { Args: { p_category_slug: string }; Returns: Json }
       get_training_public_aggregate: { Args: never; Returns: Json }
+      get_versus_head_to_head: {
+        Args: { p_a: string; p_b: string }
+        Returns: {
+          losses: number
+          matches: number
+          wins: number
+        }[]
+      }
+      get_versus_match_log: {
+        Args: { p_days?: number; p_limit?: number }
+        Returns: {
+          finished_at: string
+          game_slug: string
+          match_id: string
+          player_count: number
+          standings: Json
+          title: string
+        }[]
+      }
+      get_versus_overview: { Args: { p_days?: number }; Returns: Json }
+      get_versus_student_leaderboard: {
+        Args: { p_class?: string; p_days?: number; p_limit?: number }
+        Returns: {
+          class: string
+          last_played: string
+          losses: number
+          matches: number
+          name: string
+          photo_url: string
+          student_id: string
+          win_rate: number
+          wins: number
+        }[]
+      }
       get_weekly_xp_leaderboard: {
         Args: { p_limit?: number; p_student_code?: string }
         Returns: {
@@ -7710,7 +8704,10 @@ export type Database = {
       increment_ehi_download: { Args: { p_id: string }; Returns: undefined }
       increment_ehi_view: { Args: { p_id: string }; Returns: undefined }
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
+      indicator_coverage_summary: { Args: never; Returns: Json }
+      indicator_soft_gap_summary: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      is_my_student: { Args: { student_uuid: string }; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
       line_ids_for_users: {
         Args: { p_user_ids: string[] }
@@ -7719,6 +8716,11 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_research_studies_for_game: {
+        Args: { p_class_name?: string; p_game_slug: string }
+        Returns: Json
+      }
+      list_research_studies_public: { Args: never; Returns: Json }
       log_data_access: {
         Args: {
           p_action: string
@@ -7791,7 +8793,19 @@ export type Database = {
         }
         Returns: string
       }
+      recommend_games: {
+        Args: { p_limit?: number; p_student_code: string }
+        Returns: Json
+      }
+      recommend_media: {
+        Args: { p_limit?: number; p_student_code: string }
+        Returns: Json
+      }
       recompute_online_match: {
+        Args: { p_match_id: string }
+        Returns: undefined
+      }
+      recompute_versus_match: {
         Args: { p_match_id: string }
         Returns: undefined
       }
@@ -7801,10 +8815,19 @@ export type Database = {
           p_game_slug: string
           p_metadata?: Json
           p_mode?: string
+          p_research_study_id?: string
           p_score: number
           p_student_code: string
         }
         Returns: Json
+      }
+      record_vocab_missed_indicators: {
+        Args: { p_indicator_codes: Json; p_student_id: string }
+        Returns: number
+      }
+      record_vocab_missed_indicators_by_code: {
+        Args: { p_indicator_codes: Json; p_student_code: string }
+        Returns: number
       }
       refresh_game_score_baseline: {
         Args: { p_game_slug: string }
@@ -7814,6 +8837,116 @@ export type Database = {
         Args: { p_claim_id: string; p_reason?: string }
         Returns: undefined
       }
+      reject_supply_request: {
+        Args: { p_request_id: string; p_review_note?: string }
+        Returns: {
+          created_at: string
+          id: string
+          item_id: string
+          purpose: string | null
+          quantity: number
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          staff_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "supply_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      reset_research_student_scores: {
+        Args: { p_student_id: string; p_study_id: string }
+        Returns: Json
+      }
+      resolve_student_by_code: {
+        Args: { p_student_code: string }
+        Returns: {
+          birth_date: string | null
+          blood_type: string | null
+          class: string
+          class_number: number | null
+          created_at: string | null
+          current_amphoe: string | null
+          current_house_no: string | null
+          current_moo: string | null
+          current_phone: string | null
+          current_postal_code: string | null
+          current_province: string | null
+          current_road: string | null
+          current_tambon: string | null
+          father_name: string | null
+          first_name: string | null
+          gender: string | null
+          guardian_name: string | null
+          guardian_relation: string | null
+          id: string
+          is_active: boolean | null
+          last_name: string | null
+          mother_name: string | null
+          name: string
+          national_id: string | null
+          nationality: string | null
+          nickname: string | null
+          parent_name: string | null
+          parent_phone: string | null
+          photo_url: string | null
+          registered_amphoe: string | null
+          registered_house_no: string | null
+          registered_moo: string | null
+          registered_phone: string | null
+          registered_postal_code: string | null
+          registered_province: string | null
+          registered_road: string | null
+          registered_tambon: string | null
+          religion: string | null
+          room: string | null
+          student_code: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "students"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      return_supply_request: {
+        Args: { p_request_id: string; p_review_note?: string }
+        Returns: {
+          created_at: string
+          id: string
+          item_id: string
+          purpose: string | null
+          quantity: number
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          staff_id: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "supply_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_pixel_forest_rpg_state: {
+        Args: {
+          p_events?: Json
+          p_expected_version: number
+          p_idempotency_key: string
+          p_state: Json
+          p_student_code: string
+        }
+        Returns: Json
+      }
+      subject_key_from_folder: { Args: { p_subject: string }; Returns: string }
       subject_keys: { Args: { p_subject: string }; Returns: string[] }
       submit_daily_challenge_score: {
         Args: {
@@ -7831,19 +8964,17 @@ export type Database = {
           was_first: boolean
         }[]
       }
-      save_pixel_forest_rpg_state: {
-        Args: {
-          p_events?: Json
-          p_expected_version: number
-          p_idempotency_key: string
-          p_state: Json
-          p_student_code: string
-        }
-        Returns: Json
-      }
       update_multiply_race_mastery: {
         Args: { p_per_table: Json; p_student_code: string }
         Returns: undefined
+      }
+      upsert_thai_vocab_missed: {
+        Args: { p_category_slug: string; p_student_id: string; p_words: Json }
+        Returns: number
+      }
+      upsert_thai_vocab_missed_by_code: {
+        Args: { p_category_slug: string; p_student_code: string; p_words: Json }
+        Returns: number
       }
     }
     Enums: {

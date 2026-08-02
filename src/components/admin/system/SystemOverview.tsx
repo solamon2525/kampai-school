@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.211.0 (Universal LPC Character Importer)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'คลังตัวละครหลังบ้าน: เปิด Universal LPC Generator และนำเข้า PNG + JSON + Credits แบบครบชุด',
+            'ตรวจ Complete sheet 13×21+ · map เดิน 4 ทิศ/ฟัน/แทง/ร่ายเวท/บาดเจ็บอัตโนมัติ · รองรับเฟรม 64/128/192px',
+            'Migration 455 เก็บ source JSON, license และเครดิต พร้อมส่งเครดิตไปยังเกมและแสดงก่อนเริ่มเล่น',
+        ],
+    },
+    {
         version: 'v1.210.0 (Educational Hub progressive loading)',
         date: 'ล่าสุด',
         badge: 'bg-amber-600',

@@ -20,6 +20,7 @@ import {
   Minimize,
   X,
   Smartphone,
+  ExternalLink,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -1277,6 +1278,13 @@ const PlayGame = () => {
               leaderboard={leaderboardQuery.data}
               leaderboardLoading={leaderboardQuery.isLoading}
               mediaPair={resolveGameMediaPair(resolvedSlug)}
+              characterAttribution={gameQuery.data?.character_attribution_required && gameQuery.data.character_credits_text
+                ? {
+                    sourceUrl: gameQuery.data.character_source_url,
+                    creditsText: gameQuery.data.character_credits_text,
+                    licenses: gameQuery.data.character_license_summary ?? [],
+                  }
+                : null}
             />
           </div>
         )}
@@ -1668,6 +1676,7 @@ const PreGamePanel = ({
   leaderboard,
   leaderboardLoading,
   mediaPair,
+  characterAttribution,
 }: {
   student: StudentLookup;
   stats: { plays_count: number | null; personal_best: number | null; total_xp: number | null } | null | undefined;
@@ -1681,6 +1690,11 @@ const PreGamePanel = ({
   leaderboard: any[] | undefined;
   leaderboardLoading: boolean;
   mediaPair: { mediaUrl: string; label: string } | null;
+  characterAttribution: {
+    sourceUrl: string | null;
+    creditsText: string;
+    licenses: string[];
+  } | null;
 }) => (
   <div className="grid gap-6 md:grid-cols-3 items-start">
     <div className="md:col-span-2 space-y-5">
@@ -1725,6 +1739,34 @@ const PreGamePanel = ({
         loading={researchLoading}
         onStartResearch={onStartResearch}
       />
+
+      {characterAttribution && (
+        <details className="rounded-lg border border-border bg-card px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium text-foreground">
+            เครดิตภาพตัวละคร
+            {characterAttribution.licenses.length > 0 && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {characterAttribution.licenses.join(' · ')}
+              </span>
+            )}
+          </summary>
+          <div className="mt-3 space-y-3">
+            <pre className="max-h-56 overflow-auto whitespace-pre-wrap font-sans text-xs leading-relaxed text-muted-foreground">
+              {characterAttribution.creditsText}
+            </pre>
+            {characterAttribution.sourceUrl && (
+              <a
+                href={characterAttribution.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                Universal LPC Spritesheet Generator <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
+        </details>
+      )}
 
       <div className="flex flex-col gap-3 sm:flex-row">
         {mediaPair && (
