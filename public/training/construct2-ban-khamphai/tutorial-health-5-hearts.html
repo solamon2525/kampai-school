@@ -5,13 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>คู่มือ Construct 2 — พลังชีวิต 5 หัวใจ</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:auto;overflow-y:auto}
-body{font-family:"Leelawadee UI","Tahoma",sans-serif;background:#d8f3ff;color:#17243b}
-.page{width:1240px;height:1754px;padding:54px 62px;background:linear-gradient(155deg,#eafaff 0 55%,#fff5dc 55% 100%);position:relative}
-.top{background:#273b70;color:#fff;border-radius:28px;padding:28px 38px 24px;box-shadow:0 10px 0 #17254d}
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#d8f3ff}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243b}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#273b70;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#3b569e}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;background:linear-gradient(155deg,#eafaff 0 55%,#fff5dc 55% 100%);position:relative;border-radius:20px;box-shadow:0 8px 30px #17254d1a}
+.top{background:#273b70;color:#fff;border-radius:28px;padding:28px 38px 24px;box-shadow:0 10px 0 #17254d;position:relative}
 .eyebrow{font-size:23px;font-weight:800;color:#80e3ff}.top h1{font-size:50px;line-height:1.12;margin:5px 0 8px}.top p{font-size:24px;margin:0;color:#eaf6ff}
-.hearts{position:absolute;right:88px;top:76px;font-size:40px;letter-spacing:2px;filter:drop-shadow(0 4px 0 #8e1832)}
-.flow{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px 0 24px}
+.hearts{position:absolute;right:38px;top:28px;font-size:40px;letter-spacing:2px;filter:drop-shadow(0 4px 0 #8e1832)}
+.flow{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px 0 24px;flex-wrap:wrap}
 .pill{background:#fff;border:3px solid #2e65a8;border-radius:16px;padding:11px 20px;font-size:23px;font-weight:800;box-shadow:0 5px 0 #b6d9f5}
 .arrow{font-size:32px;color:#e6465f;font-weight:900}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -23,11 +29,21 @@ h2{display:inline;font-size:28px;color:#233867}p{font-size:21px;line-height:1.42
 .cond{color:#226bad}.act{color:#bb3651}.small{font-size:18px;color:#52627a}.warn{background:#fff1d1;border-color:#f2b52b}.warn .event{border-left-color:#e1485d}
 .tip{margin-top:22px;background:#1d6758;color:white;border-radius:20px;padding:17px 25px;display:flex;gap:18px;align-items:center}
 .tip b{font-size:25px}.tip span{font-size:19px;line-height:1.4}
-.footer{position:absolute;left:62px;right:62px;bottom:42px;display:flex;justify-content:space-between;color:#42516b;font-size:17px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #a8cee9;position:static;display:flex;justify-content:space-between;color:#42516b;font-size:17px;gap:12px;flex-wrap:wrap}
 .heart-red{color:#e6294f}.label{display:inline-block;background:#dcecff;border-radius:8px;padding:2px 9px;font-weight:800}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.card.wide{grid-column:auto}.page{padding:24px 18px}.top h1{font-size:32px}.top p{font-size:18px}.hearts{position:static;margin-top:10px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:54px 62px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:42px!important;left:62px!important;right:62px!important;border:none}}
 </style>
 </head>
 <body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-player-movement-animation.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-checkpoint-respawn.html">บทที่ 4 ถัดไป →</a>
+  </div>
+</nav>
 <main class="page">
   <header class="top">
     <div class="eyebrow">CONSTRUCT 2 • จับมือทำทีละขั้น</div>

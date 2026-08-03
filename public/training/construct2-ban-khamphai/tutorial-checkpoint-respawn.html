@@ -1,15 +1,33 @@
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Construct 2 — Checkpoint และการเกิดใหม่</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:auto;overflow-y:auto}body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
-.page{width:1240px;height:1754px;padding:50px 60px;position:relative;background:linear-gradient(150deg,#eafff4 0 52%,#e9f5ff 52%)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#eefcf8}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#146854;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#249678}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#eafff4 0 52%,#e9f5ff 52%);border-radius:20px;box-shadow:0 8px 30px #0c493b1a}
 .head{background:linear-gradient(125deg,#146854,#249678);color:white;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #0c493b}.tag{color:#a9ffe3;font-size:21px;font-weight:800}.head h1{font-size:48px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#eafff8}
 .map{height:210px;margin:24px 0 20px;border:4px solid #38826d;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#8edcff 0 70%,#74bd4b 70%)}.ground{position:absolute;bottom:0;left:0;right:0;height:48px;background:#855331;border-top:11px solid #409b38}.pit{position:absolute;bottom:0;left:510px;width:180px;height:48px;background:#202b45;border-top:0}.player{position:absolute;bottom:43px;left:75px;font-size:61px}.flag{position:absolute;bottom:43px;left:385px;font-size:67px}.ghost{position:absolute;bottom:43px;left:405px;font-size:56px;opacity:.35}.arrow{position:absolute;left:690px;top:63px;font-size:49px;color:#e34854}.resp{position:absolute;bottom:43px;right:110px;font-size:61px}.lab{position:absolute;top:17px;background:white;border:2px solid #17634e;border-radius:8px;padding:4px 10px;font-weight:800;color:#17634e}.l1{left:51px}.l2{left:330px}.l3{right:55px}
-.flow{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:18px}.flow b{background:#fff;border:3px solid #79b9a7;border-radius:13px;padding:9px 14px;font-size:19px}.flow i{font-style:normal;font-size:25px;color:#e64c58}
+.flow{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #79b9a7;border-radius:13px;padding:9px 14px;font-size:19px}.flow i{font-style:normal;font-size:25px;color:#e64c58}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.card{background:white;border:3px solid #a8d3c7;border-radius:19px;padding:17px 20px;box-shadow:0 6px 0 #c8e4dc;min-height:210px}.wide{grid-column:1/3;min-height:184px}
-.n{display:inline-grid;place-items:center;width:45px;height:45px;border-radius:50%;background:#ffd04a;color:#164739;font-size:25px;font-weight:900;margin-right:7px}h2{display:inline;color:#176650;font-size:26px}p{font-size:19px;line-height:1.4;margin:8px 0}.event{background:#edf8f4;border-left:8px solid #21866a;border-radius:9px;padding:9px 13px;font-size:18px;line-height:1.48;font-weight:700}.cond{color:#18745c}.act{color:#bd394b}.small{font-size:16.5px;color:#566477}.warn{border-color:#edb452;background:#fffbf1}.warn .event{border-color:#df4c58}.tip{margin-top:18px;background:#244f78;color:white;border-radius:18px;padding:15px 23px;font-size:18px;line-height:1.45}.tip b{font-size:22px}.footer{position:absolute;bottom:32px;left:60px;right:60px;display:flex;justify-content:space-between;color:#43536a;font-size:16px}
-</style></head><body><main class="page">
-<header class="head"><div class="tag">บทที่ 3 • ระบบความต่อเนื่องของด่าน</div><h1>Checkpoint และการเกิดใหม่</h1><p>แตะธงเพื่อบันทึกจุดปลอดภัย • ตกฉากแล้วกลับมาจุดล่าสุด • ไม่ต้องเริ่มด่านใหม่</p></header>
+.n{display:inline-grid;place-items:center;width:45px;height:45px;border-radius:50%;background:#ffd04a;color:#164739;font-size:25px;font-weight:900;margin-right:7px}h2{display:inline;color:#176650;font-size:26px}p{font-size:19px;line-height:1.4;margin:8px 0}.event{background:#edf8f4;border-left:8px solid #21866a;border-radius:9px;padding:9px 13px;font-size:18px;line-height:1.48;font-weight:700}.cond{color:#18745c}.act{color:#bd394b}.small{font-size:16.5px;color:#566477}.warn{border-color:#edb452;background:#fffbf1}.warn .event{border-color:#df4c58}.tip{margin-top:18px;background:#244f78;color:white;border-radius:18px;padding:15px 23px;font-size:18px;line-height:1.45}.tip b{font-size:22px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #a8d3c7;position:static;display:flex;justify-content:space-between;color:#43536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:32px!important;left:60px!important;right:60px!important;border:none}}
+</style></head><body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-health-5-hearts.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-damage-knockback-invincible.html">บทที่ 5 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 4 • ระบบความต่อเนื่องของด่าน</div><h1>Checkpoint และการเกิดใหม่</h1><p>แตะธงเพื่อบันทึกจุดปลอดภัย • ตกฉากแล้วกลับมาจุดล่าสุด • ไม่ต้องเริ่มด่านใหม่</p></header>
 <section class="map"><div class="ground"></div><div class="pit"></div><span class="lab l1">จุดเริ่ม</span><span class="lab l2">Checkpoint</span><span class="lab l3">เกิดใหม่</span><div class="player">🧍</div><div class="flag">🚩</div><div class="ghost">🧍</div><div class="arrow">➜</div><div class="resp">🧍</div></section>
 <div class="flow"><b>จำจุดเริ่ม</b><i>→</i><b>แตะธง</b><i>→</i><b>บันทึก X/Y</b><i>→</i><b>ตกแล้วกลับมา</b></div>
 <section class="grid">

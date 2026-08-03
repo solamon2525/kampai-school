@@ -1,12 +1,31 @@
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Construct 2 — Damage Knockback Invincibility</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:auto;overflow-y:auto}body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#1b2438}.page{width:1240px;height:1754px;padding:50px 60px;position:relative;background:linear-gradient(150deg,#fff1f2 0 52%,#edf6ff 52%)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#fef2f2}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#1b2438}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#8c2940;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#d34d5d}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#fff1f2 0 52%,#edf6ff 52%);border-radius:20px;box-shadow:0 8px 30px #621c2d1a}
 .head{background:linear-gradient(125deg,#8c2940,#d34d5d);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #621c2d}.tag{color:#ffd0d6;font-size:21px;font-weight:800}.head h1{font-size:47px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#fff2f4}
 .demo{height:205px;margin:24px 0 20px;border:4px solid #a94657;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#a6e1ff 0 72%,#69b849 72%)}.ground{position:absolute;bottom:0;left:0;right:0;height:46px;background:#80502e;border-top:10px solid #3d9637}.monster{position:absolute;right:190px;bottom:43px;font-size:70px}.player{position:absolute;left:425px;bottom:43px;font-size:68px}.blast{position:absolute;left:570px;bottom:80px;font-size:44px}.arrow{position:absolute;left:260px;bottom:80px;font-size:74px;color:#d72e46;font-weight:900}.hearts{position:absolute;top:18px;left:35px;color:#d92647;font-size:34px;font-weight:900;letter-spacing:5px}.msg{position:absolute;top:20px;right:35px;background:#fff;border:2px solid #9c2d43;border-radius:9px;padding:5px 11px;font-weight:800;color:#9c2d43}
-.flow{display:flex;justify-content:center;align-items:center;gap:9px;margin-bottom:18px}.flow b{background:#fff;border:3px solid #d88c98;border-radius:13px;padding:9px 13px;font-size:18px}.flow i{font-style:normal;font-size:24px;color:#cf334d}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #e1b0b8;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #efd0d5;min-height:205px}.wide{grid-column:1/3;min-height:179px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffcc45;color:#5e2030;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#8b2940;font-size:25px}p{font-size:18.5px;line-height:1.39;margin:8px 0}.event{background:#fff1f3;border-left:8px solid #c44358;border-radius:9px;padding:9px 13px;font-size:17.5px;line-height:1.47;font-weight:700}.cond{color:#a32f45}.act{color:#176aa0}.small{font-size:16px;color:#586477}.warn{border-color:#edb14e;background:#fffaf0}.warn .event{border-color:#e04755}.tip{margin-top:17px;background:#28577e;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.5px;line-height:1.43}.tip b{font-size:22px}.footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;color:#455269;font-size:16px}
-</style></head><body><main class="page">
-<header class="head"><div class="tag">บทที่ 4 • ระบบต่อสู้พื้นฐาน</div><h1>รับความเสียหาย กระเด็น และอมตะชั่วคราว</h1><p>ลดหัวใจครั้งเดียว • กระเด็นออกจากศัตรู • กระพริบ 1.5 วินาที • ไม่โดนซ้ำรัว</p></header>
+.flow{display:flex;justify-content:center;align-items:center;gap:9px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #d88c98;border-radius:13px;padding:9px 13px;font-size:18px}.flow i{font-style:normal;font-size:24px;color:#cf334d}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #e1b0b8;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #efd0d5;min-height:205px}.wide{grid-column:1/3;min-height:179px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffcc45;color:#5e2030;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#8b2940;font-size:25px}p{font-size:18.5px;line-height:1.39;margin:8px 0}.event{background:#fff1f3;border-left:8px solid #c44358;border-radius:9px;padding:9px 13px;font-size:17.5px;line-height:1.47;font-weight:700}.cond{color:#a32f45}.act{color:#176aa0}.small{font-size:16px;color:#586477}.warn{border-color:#edb14e;background:#fffaf0}.warn .event{border-color:#e04755}.tip{margin-top:17px;background:#28577e;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.5px;line-height:1.43}.tip b{font-size:22px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #e1b0b8;position:static;display:flex;justify-content:space-between;color:#455269;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:30px!important;left:60px!important;right:60px!important;border:none}}
+</style></head><body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-checkpoint-respawn.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-monster-patrol-facing.html">บทที่ 6 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 5 • ระบบต่อสู้พื้นฐาน</div><h1>รับความเสียหาย กระเด็น และอมตะชั่วคราว</h1><p>ลดหัวใจครั้งเดียว • กระเด็นออกจากศัตรู • กระพริบ 1.5 วินาที • ไม่โดนซ้ำรัว</p></header>
 <section class="demo"><div class="ground"></div><div class="hearts">♥ ♥ ♥ ♥ ♡</div><div class="msg">อมตะ 1.5 วินาที</div><div class="arrow">←</div><div class="player">🏃</div><div class="blast">💥</div><div class="monster">👾</div></section>
 <div class="flow"><b>ชนศัตรู</b><i>→</i><b>ลดหัวใจ</b><i>→</i><b>กระเด็น</b><i>→</i><b>อมตะ</b><i>→</i><b>กลับปกติ</b></div>
 <section class="grid">
