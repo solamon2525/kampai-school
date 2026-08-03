@@ -45,12 +45,12 @@
     .questions,.questions.count-8,.questions.count-8.worksheet-mode-five{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3mm;flex:1;min-height:0}
     
     .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1mm 1.5mm;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:.5mm;position:relative;break-inside:avoid;min-height:0}
-    .q-board{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
+    .q-board{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;padding-left:12mm}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:9pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
     /* Long-division writing scaffold */
-    .long-division{--ld-cell:16mm;--ld-divisor-width:18mm;--ld-row:5mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:flex-start;min-height:0;flex:1}
+    .long-division{--ld-cell:16mm;--ld-divisor-width:9mm;--ld-row:5.5mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:flex-start;min-height:0;flex:1}
     .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);margin-bottom:.8mm;position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
     .ld-quotient-cell{height:7.5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
@@ -195,9 +195,10 @@ function question(qi, grade, showRating=false){
     return '<div class="ld-calc-row">'+placedValue(step.product, step.digitIndex, 'ld-product', productSpan)+'</div>'
       +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
   }).join('');
+  const rowHeight = dividendDigits.length >= 4 ? '4.8mm' : (workSteps.length <= 2 ? '7mm' : '5.5mm');
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
-    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+(dividendDigits.length>=4?'4.5mm':'5mm')+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
+    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+rowHeight+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
     +'<div class="ld-quotient">'+quotientCells+'</div>'
     +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
     +'<div class="ld-work">'+workRows+'</div></div></div>'
