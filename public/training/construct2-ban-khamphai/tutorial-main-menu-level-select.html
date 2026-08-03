@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#fff7ed}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#431407}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#9a3412;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#c2410c}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#ffedd5 0 52%,#fef3c7 52%);border-radius:20px;box-shadow:0 8px 30px #9a34121a}
+.head{background:linear-gradient(125deg,#7c2d12,#c2410c);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #431407}.tag{color:#ffedd5;font-size:21px;font-weight:800}.head h1{font-size:46px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#ffedd5}
+.demo{height:215px;margin:24px 0 20px;border:4px solid #c2410c;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#9ddfff 0 72%,#72b94b 72%);display:flex;justify-content:center;align-items:center;gap:20px}.card-menu{background:#fff;border:3px solid #9a3412;border-radius:16px;padding:16px 24px;text-align:center;box-shadow:0 6px 0 #7c2d12}.btn-start{background:#ea580c;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:22px;font-weight:900;margin-top:10px}
+.flow{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #fdba74;border-radius:13px;padding:9px 12px;font-size:18px}.flow i{font-style:normal;font-size:23px;color:#d94650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #fed7aa;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #ffedd5;min-height:203px}.wide{grid-column:1/3;min-height:176px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd049;color:#431407;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#9a3412;font-size:25px}p{font-size:18.3px;line-height:1.38;margin:8px 0}.event{background:#fff7ed;border-left:8px solid #c2410c;border-radius:9px;padding:9px 13px;font-size:17.2px;line-height:1.46;font-weight:700}.cond{color:#7c2d12}.act{color:#176b9f}.small{font-size:15.8px;color:#586477}.warn{border-color:#dd9b52;background:#fffaf0}.warn .event{border-color:#dc4653}.tip{margin-top:16px;background:#7c2d12;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.3px;line-height:1.42}.tip b{font-size:21px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #fed7aa;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-level-gate-transition.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-timer-score-hud.html">บทที่ 11 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 10 • โครงสร้างเกม</div><h1>หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน</h1><p>รับชื่อผู้เล่นด้วย Textbox → ตรวจห้ามว่าง → ปุ่มเลือกด่าน 1–3 → ล็อกด่านที่ยังเล่นไม่ถึง</p></header>
+<section class="demo">
+  <div class="card-menu">
+    <div style="font-size:20px;font-weight:800">กรอกชื่อผู้เล่น:</div>
+    <input type="text" value="น้องขำไผ่" style="padding:6px 12px;font-size:18px;border:2px solid #ea580c;border-radius:8px;text-align:center;margin-top:6px" readonly>
+    <div><button class="btn-start">🎮 เริ่มเล่นเกม</button></div>
+  </div>
+</section>
+<div class="flow"><b>สร้างหน้า Title</b><i>→</i><b>วาง Textbox</b><i>→</i><b>รับชื่อผู้เล่น</b><i>→</i><b>ตรวจห้ามว่าง</b><i>→</i><b>หน้าเลือกด่าน</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>สร้าง Layout "Title Menu"</h2><p>สร้าง Layout ใหม่ชื่อ <b>Title Menu</b> พร้อม Event Sheet แยกต่างหาก</p><div class="event"><span class="cond">องค์ประกอบหน้าแรก:</span><br>• Logo / ชื่อเกม<br>• Textbox (สำหรับกรอกชื่อ)<br>• Button "เริ่มเล่น"</div></article>
+<article class="card"><span class="n">2</span><h2>วาง Textbox รับชื่อ</h2><p>แทรก Form Control → Textbox ตั้งชื่อว่า <b>name_input</b></p><div class="event"><span class="cond">Properties:</span><br>Placeholder: "พิมพ์ชื่อผู้เล่น..."<br>Max length: 15<br>Font size: 20 px</div></article>
+<article class="card"><span class="n">3</span><h2>บันทึกชื่อผู้เล่น</h2><p>สร้าง Global Variable ชื่อ <b>ชื่อผู้เล่น</b> (Text) = ""</p><div class="event"><span class="cond">On Button "เริ่มเล่น" Clicked</span><br>name_input.Text ≠ ""<br><span class="act">Set ชื่อผู้เล่น to name_input.Text</span><br><span class="act">System → Go to layout "Level Select"</span></div></article>
+<article class="card"><span class="n">4</span><h2>เตือนเมื่อไม่ได้พิมพ์ชื่อ</h2><p>ถ้าช่องชื่อเป็นว่าง ให้แสดงข้อความเตือนและไม่ให้ผ่าน</p><div class="event"><span class="cond">On Button "เริ่มเล่น" Clicked</span><br>name_input.Text = ""<br><span class="act">alert_text → Set text to "กรุณากรอกชื่อก่อนเล่น!"</span><br><span class="act">Audio → Play "wrong"</span></div></article>
+<article class="card wide"><span class="n">5</span><h2>หน้าเลือกด่าน (Level Select) และระบบล็อกด่าน</h2><p>สร้าง Global Variable <b>ด่านสูงสุด</b> (Number) = 1</p><div class="event"><span class="cond">ปุ่มด่าน 1:</span> กดแล้ว Go to layout "Level 1"<br><span class="cond">ปุ่มด่าน 2:</span> ด่านสูงสุด ≥ 2 → ปลดล็อก | <span class="act">Else → ตั้งเป็นภาพแม่กุญแจ (Locked)</span><br><span class="cond">ปุ่มด่าน 3:</span> ด่านสูงสุด ≥ 3 → ปลดล็อก | <span class="act">Else → ตั้งเป็นภาพแม่กุญแจ (Locked)</span></div></article>
+<article class="card wide warn"><span class="n">6</span><h2>ปลดล็อกด่านเมื่อเล่นผ่าน</h2><div class="event"><span class="cond">เมื่อผ่านด่าน 1 (เข้าประตู):</span><br><span class="act">Set ด่านสูงสุด to max(ด่านสูงสุด, 2)</span><br><span class="cond">เมื่อผ่านด่าน 2:</span><br><span class="act">Set ด่านสูงสุด to max(ด่านสูงสุด, 3)</span></div></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> ไม่พิมพ์ชื่อกดเริ่มเกมไม่ได้ • พิมพ์ชื่อแล้วชื่อบันทึกในตัวแปร • ด่าน 2 และ 3 ล็อกอยู่ในช่วงแรก • เล่นผ่านด่าน 1 แล้วด่าน 2 ปลดล็อกทันที</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Main Menu &amp; Level Select</span><span>งานถัดไป: ระบบเวลานับถอยหลังและคะแนนสะสม</span></footer>
+</main></body></html>

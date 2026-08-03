@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — การ Export และเปิดเล่นบนเว็บ</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#f0f9ff}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#0c4a6e}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#0369a1;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#0284c7}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#e0f2fe 0 52%,#f0fdf4 52%);border-radius:20px;box-shadow:0 8px 30px #0369a11a}
+.head{background:linear-gradient(125deg,#0c4a6e,#0284c7);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #082f49}.tag{color:#e0f2fe;font-size:21px;font-weight:800}.head h1{font-size:46px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#e0f2fe}
+.demo{height:215px;margin:24px 0 20px;border:4px solid #0284c7;border-radius:21px;position:relative;overflow:hidden;background:#fff;display:flex;justify-content:center;align-items:center;gap:20px;padding:20px}.web-card{background:#f0f9ff;border:3px solid #0369a1;border-radius:16px;padding:16px 28px;text-align:center;box-shadow:0 5px 0 #082f49;font-size:20px;font-weight:900;color:#0c4a6e}
+.flow{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #7dd3fc;border-radius:13px;padding:9px 12px;font-size:18px}.flow i{font-style:normal;font-size:23px;color:#d94650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #bae6fd;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #e0f2fe;min-height:203px}.wide{grid-column:1/3;min-height:176px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd049;color:#082f49;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#0369a1;font-size:25px}p{font-size:18.3px;line-height:1.38;margin:8px 0}.event{background:#f0f9ff;border-left:8px solid #0284c7;border-radius:9px;padding:9px 13px;font-size:17.2px;line-height:1.46;font-weight:700}.cond{color:#0c4a6e}.act{color:#176b9f}.small{font-size:15.8px;color:#586477}.warn{border-color:#dd9b52;background:#fffaf0}.warn .event{border-color:#dc4653}.tip{margin-top:16px;background:#0c4a6e;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.3px;line-height:1.42}.tip b{font-size:21px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #bae6fd;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-game-clear-rating.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="index.html">จบหลักสูตร 🎉</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 16 • การเผยแพร่เกม</div><h1>การ Export และเปิดเล่นบนเว็บ</h1><p>Export โปรเจกต์เป็น HTML5 Website → ตรวจโครงสร้างไฟล์ → นำเข้าสู่ระบบ Kampai School → เปิดเล่นได้จริง</p></header>
+<section class="demo">
+  <div class="web-card">📦 Export HTML5 Website (Zip / Folder)</div>
+  <div class="web-card">🌐 Deploy to Kampai School Portal</div>
+</section>
+<div class="flow"><b>File ➔ Export</b><i>→</i><b>เลือก HTML5 Website</b><i>→</i><b>ตรวจไฟล์ Build</b><i>→</i><b>ลงคลังสื่อ Kampai</b><i>→</i><b>เปิดเล่นบนเว็บ</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>ขั้นตอน Export จาก Construct 2</h2><p>ไปที่เมนู <b>File → Export project</b></p><div class="event"><span class="cond">เลือก Target:</span><br><b>HTML5 Website</b> (สำหรับเว็บเบราว์เซอร์ทั่วไป)<br>แล้วกด Next เพื่อเลือกโฟลเดอร์ปลายทาง</div></article>
+<article class="card"><span class="n">2</span><h2>การตั้งค่า Export Options</h2><p>ปรับแต่งเพื่อให้เกมมีขนาดเล็กและโหลดเร็ว</p><div class="event"><span class="act">Minify script: Enabled (Yes)</span><br><span class="act">PNG compression: Brute force</span><br><span class="act">Re-compress images: Yes</span></div></article>
+<article class="card"><span class="n">3</span><h2>ตรวจสอบโครงสร้างไฟล์ Build</h2><p>ในโฟลเดอร์หลัง Export ต้องมีไฟล์ครบดังนี้:</p><div class="event">• `index.html`<br>• `c2runtime.js`<br>• `jquery-3.x.min.js`<br>• โฟลเดอร์ `images/` และ `media/`</div></article>
+<article class="card"><span class="n">4</span><h2>นำเข้าโฟลเดอร์ระบบ Kampai School</h2><p>คัดลอกไฟล์ทั้งหมดไปวางไว้ที่:</p><div class="event">`public/games/{วิชา}/{ชื่อเกม}/`</div><p class="small">เช่น `public/games/math/red-hood-math/`</p></article>
+<article class="card wide warn"><span class="n">5</span><h2>การลงทะเบียนเกมลงในคลังสื่อ (educational_hub_items)</h2><div class="event"><span class="cond">สร้าง SQL Seed Migration:</span> `supabase/migrations/NNN_seed_game.sql`<br><span class="act">INSERT INTO educational_hub_items (title, game_slug, item_type, external_url, ...)</span><br><span class="act">INSERT INTO game_docs (item_id, format, features, build_version, ...)</span><br><p class="small">เพื่อให้เกมปรากฏในคลังสื่อการศึกษาของครูและนักเรียนทันที</p></div></article>
+<article class="card wide"><span class="n">6</span><h2>ทดสอบการเล่นผ่านบราวเซอร์จริง</h2><div class="event"><span class="cond">รันคำสั่งตรวจสอบสเปกเกม:</span><br><span class="act">pnpm verify:game public/games/{subject}/{slug}</span><br><p class="small">ต้องผ่านการตรวจสอบทั้งภาพปก 16:9 สคริปต์ และการเรนเดอร์ในบราวเซอร์</p></div></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> Export สำเร็จไม่มีไฟล์ขาดหาย • เกมเปิดเล่นในเบราว์เซอร์คอมพิวเตอร์และมือถือได้ • ปุ่มและสัมผัสตอบสนองลื่นไหล • โหลดภาพและเสียงครบถ้วน • ผ่าน verify:game 9/9 ข้อ</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • HTML5 Web Export &amp; Deployment</span><span>ยินดีด้วย! คุณสำเร็จหลักสูตรสร้างเกมการศึกษา Construct 2 🎉</span></footer>
+</main></body></html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — การสร้างบอสประจำด่านและท่าโจมตี</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#fef2f2}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#450a0a}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#991b1b;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#dc2626}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#fee2e2 0 52%,#fef3c7 52%);border-radius:20px;box-shadow:0 8px 30px #991b1b1a}
+.head{background:linear-gradient(125deg,#7f1d1d,#dc2626);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #450a0a}.tag{color:#fee2e2;font-size:21px;font-weight:800}.head h1{font-size:46px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#fee2e2}
+.demo{height:215px;margin:24px 0 20px;border:4px solid #dc2626;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#9ddfff 0 72%,#72b94b 72%);display:flex;flex-direction:column;justify-content:space-between;padding:16px 30px}.hp-bar-bg{width:100%;height:22px;background:#7f1d1d;border-radius:10px;border:3px solid #fff;overflow:hidden}.hp-bar-fill{width:65%;height:100%;background:#ef4444;transition:.3s}.boss-char{font-size:80px;align-self:flex-end}
+.flow{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #fca5a5;border-radius:13px;padding:9px 12px;font-size:18px}.flow i{font-style:normal;font-size:23px;color:#d94650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #fca5a5;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #fee2e2;min-height:203px}.wide{grid-column:1/3;min-height:176px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd049;color:#450a0a;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#991b1b;font-size:25px}p{font-size:18.3px;line-height:1.38;margin:8px 0}.event{background:#fef2f2;border-left:8px solid #dc2626;border-radius:9px;padding:9px 13px;font-size:17.2px;line-height:1.46;font-weight:700}.cond{color:#7f1d1d}.act{color:#176b9f}.small{font-size:15.8px;color:#586477}.warn{border-color:#dd9b52;background:#fffaf0}.warn .event{border-color:#dc4653}.tip{margin-top:16px;background:#7f1d1d;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.3px;line-height:1.42}.tip b{font-size:21px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #fca5a5;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-local-storage-save.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-game-clear-rating.html">บทที่ 15 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 14 • ระบบบอส</div><h1>การสร้างบอสประจำด่านและท่าโจมตี</h1><p>หลอดเลือดบอส (Boss HP Bar) → สลับแพตเทิร์นการโจมตี 3 เฟส → เอฟเฟกต์กระเด็น/กระพริบ → สร้างประตูเมื่อชนะ</p></header>
+<section class="demo">
+  <div style="font-weight:800;font-size:18px;color:#7f1d1d">👹 BOSS HP: 20 / 30 (Phase 2)</div>
+  <div class="hp-bar-bg"><div class="hp-bar-fill"></div></div>
+  <div class="boss-char">👹</div>
+</section>
+<div class="flow"><b>วาง Sprite บอส</b><i>→</i><b>สร้างตัวแปร HP</b><i>→</i><b>ทำหลอด HP</b><i>→</i><b>สลับเฟสการโจมตี</b><i>→</i><b>เอฟเฟกต์ชนะ</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>สร้าง Sprite บอส และตัวแปร</h2><p>วาง Sprite บอสขนาดใหญ่ชื่อ <b>boss</b></p><div class="event"><span class="cond">Instance Variable:</span><br>• <b>บอสHP</b> (Number) = 30<br>• <b>เฟส</b> (Number) = 1</div></article>
+<article class="card"><span class="n">2</span><h2>ทำหลอดพลังชีวิต (HP Bar)</h2><p>สร้าง Sprite หลอดเลือดสีแดงชื่อ <b>boss_hp_bar</b> บน Layer HUD</p><div class="event"><span class="cond">System → Every tick</span><br><span class="act">boss_hp_bar → Set width to</span><br>max(0, (boss.บอสHP / 30) × 300)</div><p class="small">ความกว้างหลอดจะลดลงตามสัดส่วน HP ที่เหลืออย่างแม่นยำ</p></article>
+<article class="card"><span class="n">3</span><h2>เฟส 1 (HP 21–30): เดินยิงช้าๆ</h2><p>ยิงกระสุนเดี่ยวหาผู้เล่นทุก 3 วินาที</p><div class="event"><span class="cond">boss.บอสHP &gt; 20</span><br><span class="act">boss → Set เฟส to 1</span><br><span class="act">Every 3.0 seconds → Create boss_bullet</span></div></article>
+<article class="card"><span class="n">4</span><h2>เฟส 2 (HP 11–20): ยิงกระจาย 3 ทิศ</h2><p>เพิ่มความเร็วและยิงเป็นพัด 3 ทิศทาง</p><div class="event"><span class="cond">boss.บอสHP ในช่วง 11..20</span><br><span class="act">boss → Set เฟส to 2</span><br><span class="act">Every 2.0 seconds → Create 3 boss_bullets</span><br>Angles: -15°, 0°, +15°</div></article>
+<article class="card wide"><span class="n">5</span><h2>เฟส 3 (HP 1–10): โหมดคุ้มคลั่ง (Rage Mode)</h2><p>บอสเปลี่ยนเป็นสีแดง กระโดดทุ่มตัว และปล่อยลูกน้องมอนสเตอร์</p><div class="event"><span class="cond">boss.บอสHP ≤ 10</span> → <span class="act">Set เฟส to 3</span><br><span class="act">boss → Set color tint to Red (255, 100, 100)</span><br><span class="act">Every 4.0 seconds → Spawn minion_monster</span></div></article>
+<article class="card wide warn"><span class="n">6</span><h2>เอฟเฟกต์เมื่อชนะบอส</h2><div class="event"><span class="cond">boss.บอสHP ≤ 0</span><br>System → Trigger once<br><span class="act">Audio → Play "explosion_big"</span><br><span class="act">boss → Spawn explosion_effect</span><br><span class="act">boss → Destroy</span><br><span class="act">Create door at boss.X, boss.Y</span></div></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> หลอด HP บอสลดลงสมูท • HP ลดถึง 20 สลับเป็นเฟส 2 (ยิง 3 ทิศ) • HP ลดถึง 10 บอสเปลี่ยนสีแดง • บอส HP 0 ระเบิดหายไปแล้วสร้างประตูชนะ</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Boss Battle &amp; Phases</span><span>งานถัดไป: ฉากสรุปผลและเกียรติบัตรในเกม</span></footer>
+</main></body></html>

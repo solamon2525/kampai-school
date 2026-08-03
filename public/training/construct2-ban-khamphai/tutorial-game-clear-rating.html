@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — ฉากสรุปผลและเกียรติบัตรในเกม</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#eff6ff}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#1e3a8a}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#1e40af;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#2563eb}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#dbeafe 0 52%,#fef9c3 52%);border-radius:20px;box-shadow:0 8px 30px #1e40af1a}
+.head{background:linear-gradient(125deg,#1e3a8a,#2563eb);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #172554}.tag{color:#bfdbfe;font-size:21px;font-weight:800}.head h1{font-size:46px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#dbeafe}
+.demo{height:225px;margin:24px 0 20px;border:4px solid #2563eb;border-radius:21px;position:relative;overflow:hidden;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;box-shadow:0 8px 0 #bfdbfe}.cert-title{font-size:26px;font-weight:900;color:#1e3a8a}.cert-name{font-size:24px;font-weight:800;color:#d97706;margin:6px 0}.stars-row{font-size:40px}
+.flow{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #93c5fd;border-radius:13px;padding:9px 12px;font-size:18px}.flow i{font-style:normal;font-size:23px;color:#d94650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #bfdbfe;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #dbeafe;min-height:203px}.wide{grid-column:1/3;min-height:176px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd049;color:#172554;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#1e40af;font-size:25px}p{font-size:18.3px;line-height:1.38;margin:8px 0}.event{background:#eff6ff;border-left:8px solid #2563eb;border-radius:9px;padding:9px 13px;font-size:17.2px;line-height:1.46;font-weight:700}.cond{color:#1e3a8a}.act{color:#176b9f}.small{font-size:15.8px;color:#586477}.warn{border-color:#dd9b52;background:#fffaf0}.warn .event{border-color:#dc4653}.tip{margin-top:16px;background:#1e3a8a;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.3px;line-height:1.42}.tip b{font-size:21px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #bfdbfe;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-boss-battle-phases.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-web-export-deploy.html">บทที่ 16 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 15 • สรุปผลการเรียนรู้</div><h1>ฉากสรุปผลและเกียรติบัตรในเกม</h1><p>คำนวณดาวประเมิน (1–3 ดาว) → สรุปคะแนนรวมและชื่อนักเรียน → แสดงเกียรติบัตรจำลองในเกม</p></header>
+<section class="demo">
+  <div class="cert-title">🏆 ประกาศนียบัตรผ่านการทดสอบคณิตศาสตร์ 🏆</div>
+  <div class="cert-name">ขอมอบให้แก่: เด็กชาย / เด็กหญิง [ชื่อผู้เล่น]</div>
+  <div class="stars-row">⭐ ⭐ ⭐</div>
+  <div style="font-size:18px;font-weight:700;color:#475569;margin-top:4px">คะแนนรวมสุทธิ: 4,850 คะแนน</div>
+</section>
+<div class="flow"><b>ผ่านด่านทั้งหมด</b><i>→</i><b>คำนวณดาว</b><i>→</i><b>แสดงเกียรติบัตร</b><i>→</i><b>แสดงชื่อ/คะแนน</b><i>→</i><b>ปุ่มเล่นใหม่</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>คำนวณจำนวนดาวประเมิน</h2><p>สร้าง Global Variable <b>ดาวประเมิน</b> (Number) = 1</p><div class="event"><span class="cond">หัวใจ = 5 AND เวลาคงเหลือ &gt; 60</span><br><span class="act">Set ดาวประเมิน to 3</span><br><span class="cond">หัวใจ ในช่วง 3..4</span><br><span class="act">Set ดาวประเมิน to 2</span></div></article>
+<article class="card"><span class="n">2</span><h2>แสดงดาวประเมินบนหน้าจอ</h2><p>สร้าง Sprite รูปดาว 3 ดวง บน Layout "Victory"</p><div class="event"><span class="cond">ดาวประเมิน = 3</span> → แสดงดาวครบ 3 ดวง<br><span class="cond">ดาวประเมิน = 2</span> → แสดงดาว 2 ดวง (ดวงที่ 3 เป็นดาวเทา)<br><span class="cond">ดาวประเมิน = 1</span> → แสดงดาว 1 ดวง</div></article>
+<article class="card"><span class="n">3</span><h2>ดึงชื่อและคะแนนมาจัดวาง</h2><p>นำค่าจาก Global Variables มาใส่ใน Text Objects</p><div class="event"><span class="act">name_label → Set text to "ขอมอบให้แก่: " &amp; ชื่อผู้เล่น</span><br><span class="act">score_label → Set text to "คะแนนรวม: " &amp; คะแนนรวม</span></div></article>
+<article class="card"><span class="n">4</span><h2>ปุ่มเล่นใหม่อีกครั้ง</h2><p>ปุ่ม Replay สำหรับเริ่มเล่นตั้งแต่ด่าน 1 ใหม่</p><div class="event"><span class="cond">On Button "เล่นอีกครั้ง" Clicked</span><br><span class="act">Set หัวใจ to 5 • Set คะแนนรวม to 0</span><br><span class="act">System → Go to layout "Level 1"</span></div></article>
+<article class="card wide warn"><span class="n">5</span><h2>การเปิดพลุกระดาษฉลองชัยชนะ (Confetti FX)</h2><div class="event"><span class="cond">On start of layout "Victory":</span><br><span class="act">Audio → Play "fanfare_win"</span><br><span class="act">System → Repeat 20 times: Spawn confetti_particle at random positions</span><br><p class="small">สร้างบรรยากาศแห่งความสำเร็จและภาคภูมิใจให้แก่นักเรียนเมื่อจบเกม</p></div></article>
+<article class="card wide"><span class="n">6</span><h2>ปุ่มกลับหน้าเลือกด่านและเมนู</h2><div class="event"><span class="cond">On Button "เมนูหลัก" Clicked:</span><br><span class="act">System → Go to layout "Title Menu"</span></div></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> คำนวณดาว 1–3 ดาวถูกต้องตามเกณฑ์ • แสดงชื่อและคะแนนตรงกับที่กรอกไว้ • เสียง Fanfare เล่นครั้งเดียว • ปุ่ม Replay รีเซ็ตค่าหัวใจและคะแนนถูกต้อง</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Game Clear &amp; Rating Certificate</span><span>งานถัดไป: การ Export และเปิดเล่นบนเว็บ</span></footer>
+</main></body></html>
