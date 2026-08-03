@@ -24,6 +24,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ควบคุมเดิน/กระโดด หันซ้ายขวา และสลับแอนิเมชัน walk / Stand / jump ตามสถานะจริง</div>
 <div class="flow"><b>Behavior</b><i>→</i><b>หันตัว</b><i>→</i><b>anim เดิน/ยืน</b><i>→</i><b>anim กระโดด</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>Behavior ของ player</h2>
+      <img src="images/steps/03-ผู้เล่นเดินกระโดด-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Behavior ของ player">
+
 <div class="where">Object player → Properties → Behaviors</div>
 <ol class="ol"><li>Add: <span class="red">Platform</span>, <span class="red">Scroll To</span>, <span class="red">Flash</span></li>
 <li>Platform → Default controls = <span class="red">Yes</span></li>
@@ -31,6 +33,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="box">Animations ต้องมีชื่อตรง: <span class="red">walk</span>, <span class="red">Stand</span>, <span class="red">jump</span></div>
 <p class="small">ชื่อสะกดผิดหนึ่งตัว → Set animation ไม่ทำงาน</p></article>
 <article class="card"><span class="n">2</span><h2>หันซ้าย–ขวา</h2>
+      <img src="images/steps/03-ผู้เล่นเดินกระโดด-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — หันซ้าย–ขวา">
+
 <div class="where">game sheet → กลุ่ม “เดิน+กระโดด”</div>
 <div class="box"><span class="blue">Keyboard → On key pressed → Left (37)</span><br>
 <span class="red">player → Set mirrored → Not mirrored</span></div>
@@ -38,12 +42,16 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">player → Set mirrored → Mirrored</span></div>
 <p class="small">เดินจริงใช้ Default controls ของ Platform แล้ว Event นี้แค่กลับภาพ</p></article>
 <article class="card"><span class="n">3</span><h2>แอนิเมชันเดิน / ยืน</h2>
+      <img src="images/steps/03-ผู้เล่นเดินกระโดด-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — แอนิเมชันเดิน / ยืน">
+
 <div class="where">กลุ่ม เดิน+กระโดด</div>
 <div class="box"><span class="blue">Platform → Is moving</span> + <span class="blue">Is on floor</span><br>
 <span class="red">Set animation "walk" (from beginning)</span></div>
 <div class="box"><span class="blue">Is moving</span> (Invert) + <span class="blue">Is on floor</span><br>
 <span class="red">Set animation "Stand"</span></div></article>
 <article class="card"><span class="n">4</span><h2>กระโดด + เสียง</h2>
+      <img src="images/steps/03-ผู้เล่นเดินกระโดด-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — กระโดด + เสียง">
+
 <div class="where">กลุ่ม เดิน+กระโดด</div>
 <div class="box"><span class="blue">Platform → Is jumping</span><br>
 <span class="blue">System → Trigger once while true</span><br>
@@ -51,6 +59,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">Audio → Play "jump" (not looping)</span></div>
 <p class="small">Trigger once กันเสียงซ้ำทุกเฟรมขณะลอย</p></article>
 <article class="card wide tip"><span class="n">5</span><h2>วิธีเพิ่ม Event ใน C2</h2>
+      <img src="images/steps/03-ผู้เล่นเดินกระโดด-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — วิธีเพิ่ม Event ใน C2">
+
 <ol class="ol"><li>เปิด Event sheet → คลิกขวา → Add event</li>
 <li>เลือก object เงื่อนไข (Keyboard / player / System)</li>
 <li>ดับเบิลคลิกช่อง Actions ด้านขวาเพื่อเพิ่มคำสั่ง</li>

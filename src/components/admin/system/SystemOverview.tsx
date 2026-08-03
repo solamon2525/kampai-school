@@ -272,9 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.214.2 (แก้ไขภาพไอคอน C2 และตรวจสอบลิงก์ภาพประกอบทุกบทเรียน 100%)',
+        version: 'v1.215.0 (เพิ่มภาพประกอบประจำขั้นตอนครบทุกการ์ด 451 ภาพใน 29 บทเรียน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพประกอบประจำขั้นตอน (Step-by-step C2 UI Screenshots) ในทุกการ์ดของ 29 บทเรียน (451 แท็กภาพ 0 missing link)',
+            'แสดงผลหน้าต่าง C2 IDE UI (Event Sheet Group, Properties Inspector, Dialog Boxes, Layout Viewport) แบบตรงตามโปรเจกต์ master_v32.capx',
+            'ผ่านการออดิทความสมบูรณ์และทดสอบการสร้าง Vite bundle 100%',
+        ],
+    },
+    {
+        version: 'v1.214.2 (แก้ไขภาพไอคอน C2 และตรวจสอบลิงก์ภาพประกอบทุกบทเรียน 100%)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
         items: [
             'สร้างภาพไอคอน Construct 2 Objects (Keyboard, System, Sprite, Text, Mouse, Audio) 32px HD PNG และ c2-properties.jpg',
             'ตรวจสอบลิงก์ <img> ทุกบทเรียนผ่านสคริปต์ออดิท (154 แท็กใน 60 ไฟล์ HTML) ไม่พบรูปเสียหรือขาดหายอีกต่อไป (Missing: 0)',

@@ -25,6 +25,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> เมื่อชนลูกแก้ว: ถูกแล้วไปข้อถัดไป · ผิดแล้วเสียหัวใจแต่โจทย์เดิมยังอยู่</div>
 <div class="flow"><b>ชน orb</b><i>→</i><b>เทียบค่า</b><i>→</i><b>ถูก/ผิด</b><i>→</i><b>ข้อใหม่หรือประตู</b></div>
 <section class="grid"><article class="card wide tip"><span class="n">1</span><h2>ตอบถูก (กลุ่ม 3)</h2>
+      <img src="images/steps/12-ตอบถูกผิดข้อถัดไป-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ตอบถูก (กลุ่ม 3)">
+
 <div class="box"><span class="blue">player → On collision with answer_orb</span><br>
 <span class="blue">answer_orb.ค่าคำตอบ = คำตอบถูก</span><br>
 <span class="blue">ล็อกคำตอบ = 0</span></div>
@@ -32,17 +34,23 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="red">ข้อปัจจุบัน = ข้อปัจจุบัน + 1</span><br>
 <span class="red">สร้างข้อใหม่ = 1</span> · ตั้งล็อกชั่วคราว</div></article>
 <article class="card"><span class="n">2</span><h2>ตอบผิด (กลุ่ม 4)</h2>
+      <img src="images/steps/12-ตอบถูกผิดข้อถัดไป-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตอบผิด (กลุ่ม 4)">
+
 <div class="box"><span class="blue">Else</span> (ค่าไม่ตรง)<br>
 <span class="red">Subtract 1 from พลังชีวิต</span><br>
 knockback + Flash<br>
 Destroy เฉพาะ orb ที่ชน (โจทย์เดิมยังอยู่)</div>
 <p class="small">อย่าเพิ่มข้อปัจจุบันเมื่อตอบผิด</p></article>
 <article class="card"><span class="n">3</span><h2>ไปข้อถัดไป (กลุ่ม 5)</h2>
+      <img src="images/steps/12-ตอบถูกผิดข้อถัดไป-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ไปข้อถัดไป (กลุ่ม 5)">
+
 <div class="box"><span class="blue">ข้อปัจจุบัน ≤ จำนวนข้อทั้งหมด</span><br>
 → สร้างโจทย์ใหม่ (บท 10–11)<br>
 <span class="blue">ข้อปัจจุบัน &gt; จำนวนข้อทั้งหมด</span><br>
 → ครบ 5 ข้อ ไปหาประตู (บท 13)</div></article>
 <article class="card wide warn"><span class="n">4</span><h2>ทำไมต้องมี ล็อกคำตอบ?</h2>
+      <img src="images/steps/12-ตอบถูกผิดข้อถัดไป-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ทำไมต้องมี ล็อกคำตอบ?">
+
 <div class="box">กันชนซ้ำในเฟรมเดียวแล้วเพิ่มข้อหลายครั้ง<br>
 หลังตอบถูก: ตั้งล็อก=1 จนสร้างข้อใหม่เสร็จ ค่อยปลดเป็น 0</div>
 <ol class="ol"><li>ทดสอบตอบถูก 5 ครั้ง → ข้อบน HUD เพิ่มทีละ 1</li>

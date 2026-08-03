@@ -24,24 +24,32 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> สร้าง Sprite มีแอนิเมชัน และจัด Layer ให้ภาพไม่บังกันผิดที่</div>
 <div class="flow"><b>Import</b><i>→</i><b>Sprite</b><i>→</i><b>Animations</b><i>→</i><b>Layers</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>สร้าง Sprite</h2>
+      <img src="images/steps/B02-sprite-animation-layer-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้าง Sprite">
+
 <div class="where">Layout → Insert → Sprite (ดับเบิลคลิกพื้นว่าง)</div>
 <ol class="ol"><li>ดับเบิลคลิก Layout ว่าง → เลือก Sprite</li>
 <li>โหลดภาพจากไฟล์ (PNG โปร่งใสดีที่สุด)</li>
 <li>ตั้งชื่อ object ใน Properties เช่น <span class="red">player</span></li></ol>
 <div class="box">Object type ชื่อต้องจำง่าย ห้ามเว้นวรรคแปลกๆ ถ้าไม่จำเป็น</div></article>
 <article class="card"><span class="n">2</span><h2>Animations</h2>
+      <img src="images/steps/B02-sprite-animation-layer-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Animations">
+
 <div class="where">ดับเบิลคลิก Sprite → Animations</div>
 <ol class="ol"><li>สร้างแอนิเมชันชื่อ <span class="red">Default</span> / <span class="red">walk</span> / <span class="red">jump</span></li>
 <li>ลากเฟรมภาพเข้าแต่ละแอนิเมชัน</li>
 <li>ตั้ง Speed (เช่น walk = 8–12)</li></ol>
 <div class="box">ชื่อแอนิเมชันต้องตรงกับที่ Event จะเรียก <span class="red">Set animation</span></div></article>
 <article class="card wide tip"><span class="n">3</span><h2>Layers</h2>
+      <img src="images/steps/B02-sprite-animation-layer-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Layers">
+
 <div class="where">แถบ Layers (มักอยู่ขวาล่างของ Layout)</div>
 <ol class="ol"><li>สร้าง Layer: <span class="red">bg</span> · <span class="red">game</span> · <span class="red">HUD</span></li>
 <li>พื้นหลังอยู่ bg · ตัวละครอยู่ game · UI อยู่ HUD</li>
 <li>HUD ไม่ควรเลื่อนตามโลก (Parallax 100,100 หรือใช้ค่าตามดีไซน์เมนู)</li></ol>
 <p class="small">วางหัวใจบน Layer game → จะเลื่อนหายตามกล้อง</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>Collision polygon</h2>
+      <img src="images/steps/B02-sprite-animation-layer-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — Collision polygon">
+
 <div class="box">ดับเบิลคลิก Sprite → Collision polygon<br>
 วางจุดให้พอดีตัว ไม่ใหญ่เกินภาพ</div>
 <p class="small">กรอบใหญ่เกิน → ยืนลอยหรือชนของที่มองไม่เห็น</p></article></section>

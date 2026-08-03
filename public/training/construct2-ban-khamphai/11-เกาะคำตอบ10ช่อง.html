@@ -25,6 +25,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> สร้างจุดคำตอบ 10 จุดบนเกาะลอย พร้อมตัวเลข และกระจายคำตอบถูก+ลวง</div>
 <div class="flow"><b>วัตถุ</b><i>→</i><b>ค่าช่อง</b><i>→</i><b>Spawn 10</b><i>→</i><b>เกาะลอย</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>วัตถุที่ต้องมี</h2>
+      <img src="images/steps/11-เกาะคำตอบ10ช่อง-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — วัตถุที่ต้องมี">
+
 <div class="where">Object types / Layout</div>
 <div class="box"><span class="red">answer_spawn</span> จุดอ้างอิงวาง<br>
 <span class="red">answer_platform</span> Jump-thru (เกาะลอย)<br>
@@ -32,21 +34,29 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="red">answer_text1 … answer_text10</span> ตัวเลข</div>
 <p>Instance vars: platform/orb มี <span class="red">ช่องคำตอบ</span> · orb มี <span class="red">ค่าคำตอบ</span></p></article>
 <article class="card"><span class="n">2</span><h2>ตัวแปรตำแหน่ง/ค่า</h2>
+      <img src="images/steps/11-เกาะคำตอบ10ช่อง-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตัวแปรตำแหน่ง/ค่า">
+
 <div class="box"><span class="blue">ค่าช่อง1…ค่าช่อง10</span><br>
 <span class="blue">จุดX1…จุดX10</span> · <span class="blue">จุดY1…จุดY10</span><br>
 <span class="blue">ตำแหน่งคำตอบถูก</span> (1–10)</div>
 <p class="small">กลุ่ม: “2 ใส่คำตอบลงดาว 10 ดวง”</p></article>
 <article class="card wide tip"><span class="n">3</span><h2>ขั้นตอนเมื่อ เตรียมคำตอบ=1</h2>
+      <img src="images/steps/11-เกาะคำตอบ10ช่อง-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ขั้นตอนเมื่อ เตรียมคำตอบ=1">
+
 <ol class="ol"><li>สุ่ม <span class="red">ตำแหน่งคำตอบถูก</span> = int(random(1,11))</li>
 <li>ใส่คำตอบถูกในช่องนั้น · ที่เหลือใส่ค่าลวง/ตัวหลอกที่ไม่ซ้ำ</li>
 <li>Create answer_platform + answer_orb + ผูก text ตามช่อง</li>
 <li>Set ล็อกคำตอบ = 0 เมื่อพร้อม</li></ol></article>
 <article class="card wide"><span class="n">4</span><h2>เกาะลอยทุกเฟรม</h2>
+      <img src="images/steps/11-เกาะคำตอบ10ช่อง-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — เกาะลอยทุกเฟรม">
+
 <div class="where">กลุ่ม “2.1 สุ่มการลอยของเกาะคำตอบ”</div>
 <div class="box">Every tick: ขยับ platform ตามรูปแบบการลอย<br>
 ให้ orb และ text ตามตำแหน่ง platform ของช่องเดียวกัน</div>
 <p class="small">platform ต้อง Jump-thru เพื่อยืนเก็บคำตอบได้</p></article>
 <article class="card wide warn"><span class="n">5</span><h2>ผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/11-เกาะคำตอบ10ช่อง-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ผิดพลาดที่พบบ่อย">
+
 <div class="box">ตัวเลขไม่ตามเกาะ → ลืม sync ทุก tick<br>
 กระโดดไม่ถึง → spawn สูงเกิน / ห่างเกิน (ดูกฎเกาะบท 2)<br>
 ชนแล้วค่าผิด → ช่องคำตอบของ orb ไม่ตรง text</div></article></section>

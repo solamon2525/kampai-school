@@ -41,15 +41,23 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#500724}
 <div class="flow"><b>เพิ่ม Audio</b><i>→</i><b>นำเข้าไฟล์ WAV/OGG</b><i>→</i><b>เล่น BGM บน Start</b><i>→</i><b>เล่น FX เมื่อมีแอ็กชัน</b><i>→</i><b>Stop ก่อนย้ายฉาก</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>ระบบ Tag สำหรับเพลง</h2>
+      <img src="images/steps/tutorial-bgm-sound-fx-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ระบบ Tag สำหรับเพลง">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เปิดเพลงโดยใช้ Tag เพื่อง่ายต่อการควบคุม</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Audio → Play "OpeningTheme" (looping)</span><br>Tag: "bgm"</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
 <article class="card"><span class="n">2</span><h2>หยุดเพลงก่อนเปลี่ยนฉาก</h2>
+      <img src="images/steps/tutorial-bgm-sound-fx-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — หยุดเพลงก่อนเปลี่ยนฉาก">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ป้องกันเสียงเพลงซ้อนกัน</p><div class="event"><span class="cond">System → On end of layout</span><br><span class="act">Audio → Stop tag "bgm"</span> (หรือ Stop all)</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
 <article class="card"><span class="n">3</span><h2>เล่นเสียงเอฟเฟกต์ (Sound FX)</h2>
+      <img src="images/steps/tutorial-bgm-sound-fx-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — เล่นเสียงเอฟเฟกต์ (Sound FX)">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>สั่งเล่นเสียงเมื่อผู้เล่นกระโดดหรือเก็บไอเทม</p><div class="event"><span class="cond">player.Platform → On jump</span><br><span class="act">Audio → Play "jump_sfx" (not looping)</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-bgm-sound-fx-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เพลงของด่านเดิมเล่นซ้อนกับด่านใหม่</p><div class="event"><span class="cond">สาเหตุ:</span> ลืมใช้ Audio Stop หรือ Stop tag "bgm" ก่อน Go to layout<br><span class="act">วิธีแก้:</span> ใส่ On end of layout → Stop tag "bgm" เสมอ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
 </section>

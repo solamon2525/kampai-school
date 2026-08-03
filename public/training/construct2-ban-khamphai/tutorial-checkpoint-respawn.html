@@ -31,7 +31,9 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 <section class="map"><div class="ground"></div><div class="pit"></div><span class="lab l1">จุดเริ่ม</span><span class="lab l2">Checkpoint</span><span class="lab l3">เกิดใหม่</span><div class="player">🧍</div><div class="flag">🚩</div><div class="ghost">🧍</div><div class="arrow">➜</div><div class="resp">🧍</div></section>
 <div class="flow"><b>จำจุดเริ่ม</b><i>→</i><b>แตะธง</b><i>→</i><b>บันทึก X/Y</b><i>→</i><b>ตกแล้วกลับมา</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>สร้างตัวแปร 3 ตัว</h2><p>คลิกขวา Event Sheet → Add global variable</p>
+<article class="card"><span class="n">1</span><h2>สร้างตัวแปร 3 ตัว</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้างตัวแปร 3 ตัว">
+<p>คลิกขวา Event Sheet → Add global variable</p>
 <div class="c2-dialog">
   <b>1. ตัวแปรจำตำแหน่งแกน X</b><br>
   Name: <b>จุดเกิดX</b>, Type: Number, Initial value: 0<br><br>
@@ -42,7 +44,9 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 </div>
 <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
 <p class="small">X/Y จำตำแหน่ง ส่วนตัวแปรสุดท้ายใช้ล็อกไม่ให้คำสั่งเกิดซ้ำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → Add global variable</p></article>
-<article class="card"><span class="n">2</span><h2>จำจุดเริ่มต้นของด่าน</h2><p>เมื่อเริ่ม Layout ให้อ่านตำแหน่ง player ที่วางไว้</p>
+<article class="card"><span class="n">2</span><h2>จำจุดเริ่มต้นของด่าน</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — จำจุดเริ่มต้นของด่าน">
+<p>เมื่อเริ่ม Layout ให้อ่านตำแหน่ง player ที่วางไว้</p>
 <div class="c2-eventsheet">
   <div class="c2-es-row">
     <div class="c2-es-num">1</div>
@@ -55,10 +59,14 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
   </div>
 </div>
 <p class="small">ไม่ต้องพิมพ์เลขตำแหน่งเอง เมื่อย้าย player ใน Editor ระบบยังถูกต้อง</p></article>
-<article class="card"><span class="n">3</span><h2>สร้างวัตถุ Checkpoint</h2><p>เพิ่ม Sprite รูปธง ตั้งชื่อ <b>checkpoint</b> และเพิ่ม Instance variable</p>
+<article class="card"><span class="n">3</span><h2>สร้างวัตถุ Checkpoint</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — สร้างวัตถุ Checkpoint">
+<p>เพิ่ม Sprite รูปธง ตั้งชื่อ <b>checkpoint</b> และเพิ่ม Instance variable</p>
 <div class="c2-dialog">คลิกที่ธง &gt; ไปที่ Properties Panel &gt; Instance variables<br>คลิก <b>+ (Add new)</b><br>Name: <b>เปิดใช้งานแล้ว</b><br>Type: <b>Boolean</b><br>Initial value: <b>False</b> (ไม่ต้องติ๊ก)</div>
 <p class="small">ธงแต่ละอันจำสถานะของตัวเองได้ เหมาะกับด่านที่มีหลายจุด</p></article>
 <article class="card"><span class="n">4</span><h2>แตะธงแล้วบันทึกตำแหน่ง</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — แตะธงแล้วบันทึกตำแหน่ง">
+
 <div class="c2-eventsheet">
   <div class="c2-es-row">
     <div class="c2-es-num">2</div>
@@ -75,6 +83,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 </div>
 <p class="small">ลบ Y 60 เพื่อให้ player เกิดเหนือธง ไม่เกิดซ้อนกับ Collision ของธง</p></article>
 <article class="card wide"><span class="n">5</span><h2>แสดงว่าธงทำงานแล้ว</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — แสดงว่าธงทำงานแล้ว">
+
 <div class="c2-eventsheet">
   <div class="c2-es-row">
     <div class="c2-es-num"></div>
@@ -88,6 +98,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 </div>
 <p>สร้าง Animation <b>Inactive</b> และ <b>Active</b> คนละสี ผู้เล่นจะเข้าใจทันทีว่าบันทึกสำเร็จแล้ว</p></article>
 <article class="card wide warn"><span class="n">6</span><h2>ตกฉากแล้วกลับ Checkpoint</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — ตกฉากแล้วกลับ Checkpoint">
+
 <div class="c2-eventsheet">
   <div class="c2-es-group">▼ Group: ตัวครละครออกจากฉาก</div>
   <div class="c2-es-row">
@@ -106,6 +118,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 </div>
 <p class="small">ตั้ง Y เป็น 700 เพื่อให้ผู้เล่นเกิดใหม่ตกลงมาจากกลางอากาศเหนือพื้นดิน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
 <article class="card wide"><span class="n">7</span><h2>ปลดล็อกหลังเกิดใหม่และกระพริบอมตะ</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 7 Screenshot — ปลดล็อกหลังเกิดใหม่และกระพริบอมตะ">
+
 <div class="c2-eventsheet">
   <div class="c2-es-row">
     <div class="c2-es-num"></div>
@@ -119,6 +133,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 </div>
 <p>ต้องไปเพิ่ม Behavior <span class="act">Flash</span> ให้กับ player ก่อน จึงจะใช้คำสั่งนี้ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> player → Behaviors และ game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
 <article class="card wide"><span class="n">8</span><h2>ป้องกันโดนดาเมจซ้ำตอนกระพริบ</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step8.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 8 Screenshot — ป้องกันโดนดาเมจซ้ำตอนกระพริบ">
+
 <div class="c2-eventsheet">
   <div class="c2-es-row">
     <div class="c2-es-num">4</div>
@@ -134,6 +150,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 <p>คลิกขวาที่ Is flashing แล้วเลือก Invert (กากบาทแดง) แปลว่า "ถ้าไม่ได้กระพริบอยู่" ถึงจะโดนดาเมจ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
 <article class="card wide warn">
 <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-checkpoint-respawn-step9.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 9 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
 <div class="event">- ลืมคลิก Invert ที่ Is flashing ทำให้ตอนกระพริบก็ยังเสียเลือดได้<br>- ลืมติด Behavior Flash ให้ผู้เล่น ทำให้รันเกมแล้ว Error หรือหาคำสั่งไม่เจอ</div>
 </article>
 </section>

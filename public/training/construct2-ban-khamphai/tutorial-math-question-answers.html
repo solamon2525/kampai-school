@@ -77,31 +77,49 @@ function simCheckAns(idx) {
 <div class="flow"><b>สุ่มโจทย์</b><i>→</i><b>คำนวณคำตอบ</b><i>→</i><b>สร้างตัวลวง</b><i>→</i><b>สลับตำแหน่ง</b><i>→</i><b>ให้ผู้เล่นเลือก</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>สร้างตัวแปรโจทย์</h2>
+      <img src="images/steps/tutorial-math-question-answers-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้างตัวแปรโจทย์">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เพิ่ม Global variables ใน Event Sheet</p><div class="event"><span class="cond">ตัวตั้ง</span> • Number • 0<br><span class="cond">ตัวคูณ</span> • Number • 0<br><span class="cond">คำตอบถูก</span> • Number • 0<br><span class="cond">ข้อปัจจุบัน</span> • Number • 1<br><span class="cond">จำนวนข้อทั้งหมด</span> • Number • 5</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → พื้นที่ว่างด้านบนสุด (คลิกขวา Add global variable)</p></article>
 <article class="card"><span class="n">2</span><h2>เตรียมวัตถุคำตอบ</h2>
+      <img src="images/steps/tutorial-math-question-answers-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — เตรียมวัตถุคำตอบ">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>สร้าง Sprite ดาวชื่อ <b>answer_star</b> และ Text ชื่อ <b>answer_text</b></p><div class="event"><span class="cond">answer_star → Instance variable</span><br><span class="act">ค่าคำตอบ</span> • Number • 1<br><span class="act">ช่องคำตอบ</span> • Number • 0</div><p class="small">ตัวเลขควรมีสีเข้ม ขอบขาว ขนาดอย่างน้อย 32 px และอยู่เหนือดาว</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object types → Sprite / Text</p></article>
 <article class="card"><span class="n">3</span><h2>สุ่มและคำนวณโจทย์</h2>
+      <img src="images/steps/tutorial-math-question-answers-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — สุ่มและคำนวณโจทย์">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Set ข้อปัจจุบัน to 1</span><br><span class="act">Set ตัวตั้ง to int(random(2, 13))</span><br><span class="act">Set ตัวคูณ to int(random(2, 13))</span><br><span class="act">Set คำตอบถูก to ตัวตั้ง × ตัวคูณ</span></div><p class="small">คำนวณคำตอบจากตัวเลขโจทย์เสมอ ห้ามสุ่มคำตอบถูกแยกเอง (ตั้งค่า random 2-13 คือสุ่มเลข 2-12)</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบคณิตศาสตร์"</p></article>
 <article class="card"><span class="n">4</span><h2>แสดงโจทย์บน HUD</h2>
+      <img src="images/steps/tutorial-math-question-answers-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — แสดงโจทย์บน HUD">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>สร้าง Text ชื่อ <b>question_text</b> บน Layer HUD</p><div class="event"><span class="act">question_text → Set text to</span><br>"ข้อ " &amp; ข้อปัจจุบัน &amp; "/5 : " &amp;<br>ตัวตั้ง &amp; " × " &amp; ตัวคูณ &amp; " = ?"</div><p class="small">ใช้สีกรมท่าหรือดำบนกล่องพื้นหลังสีอ่อน เพื่อไม่กลืนกับฉาก</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบคณิตศาสตร์"</p></article>
 <article class="card wide"><span class="n">5</span><h2>สร้างคำตอบหลอก 2 ค่า</h2>
+      <img src="images/steps/tutorial-math-question-answers-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — สร้างคำตอบหลอก 2 ค่า">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เพิ่มตัวแปร <b>หลอก1</b> และ <b>หลอก2</b> แล้วคำนวณแบบอ่านง่าย</p><div class="event"><span class="act">Set หลอก1 to max(1, คำตอบถูก − int(random(1,6)))</span><br><span class="act">Set หลอก2 to คำตอบถูก + int(random(1,6))</span><br><span class="cond">หลอก1 = คำตอบถูก OR หลอก1 = หลอก2 OR หลอก2 = คำตอบถูก</span> → สุ่มใหม่</div><p class="small">max(1, …) รับประกันว่าไม่มีคำตอบ 0 หรือติดลบ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบคณิตศาสตร์"</p></article>
 <article class="card wide"><span class="n">6</span><h2>สุ่มตำแหน่งคำตอบถูก</h2>
+      <img src="images/steps/tutorial-math-question-answers-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — สุ่มตำแหน่งคำตอบถูก">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ใช้ตัวแปร <b>ตำแหน่งคำตอบถูก</b> เพื่อสุ่มตำแหน่ง 1 ถึง 3</p><div class="event"><span class="act">Set ตำแหน่งคำตอบถูก to int(random(1,4))</span><br><span class="cond">ถ้าตำแหน่ง = 1</span> → ช่อง 1 = คำตอบถูก, ช่อง 2 = หลอก1, ช่อง 3 = หลอก2<br><span class="cond">ถ้าตำแหน่ง = 2</span> → ช่อง 1 = หลอก1, ช่อง 2 = คำตอบถูก, ช่อง 3 = หลอก2<br><span class="cond">ถ้าตำแหน่ง = 3</span> → ช่อง 1 = หลอก1, ช่อง 2 = หลอก2, ช่อง 3 = คำตอบถูก</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบคณิตศาสตร์"</p></article>
 <article class="card"><span class="n">7</span><h2>ผูกตัวเลขกับดาว</h2>
+      <img src="images/steps/tutorial-math-question-answers-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 7 Screenshot — ผูกตัวเลขกับดาว">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ดาวและ Text แต่ละคู่ต้องมี <b>ช่องคำตอบ</b> เลขเดียวกัน (1, 2, 3)</p><div class="event"><span class="cond">System → Every tick</span><br>answer_text.ช่องคำตอบ = answer_star.ช่องคำตอบ<br><span class="act">Set position to answer_star.X, answer_star.Y</span><br><span class="act">Set text to answer_star.ค่าคำตอบ</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบคณิตศาสตร์"</p></article>
 <article class="card"><span class="n">8</span><h2>ตรวจความถูกต้อง</h2>
+      <img src="images/steps/tutorial-math-question-answers-step8.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 8 Screenshot — ตรวจความถูกต้อง">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <div class="event"><span class="cond">player → On collision answer_star</span><br><span class="cond">answer_star.ค่าคำตอบ = คำตอบถูก</span> → <span class="act">ถูกต้อง / ไปข้อถัดไป</span><br><span class="cond">Else</span> → <span class="act">ผิด / ลดพลังชีวิต / ลบดาวนั้น</span></div><p class="small">ล็อกการชน 1 วินาทีหลังตอบถูก ป้องกันเพิ่มข้อซ้ำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เก็บดาวคำตอบ"</p></article>
 <article class="card wide warn">
 <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-math-question-answers-step9.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 9 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 
 <div class="event">- ลืมใช้ฟังก์ชัน `int()` ในการ random ทำให้ได้ตัวเลขทศนิยมเช่น 2.35 × 4.12<br>- ใส่ค่าสุ่มให้คำตอบหลอกตรงกับคำตอบจริง ทำให้มีตัวเลือกถูก 2 ข้อในหน้าจอเดียวกัน<br>- ลืมเงื่อนไขเช็คดาวแต่ละช่อง ทำให้ answer_text ทุกตัวแสดงเลขเดียวกันหมด<br>- ไม่ได้ล็อกการชน 1 วินาที ทำให้การชนดาว 1 ครั้งถูกนับเป็นหลายข้อ</div>

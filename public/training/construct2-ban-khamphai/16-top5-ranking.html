@@ -25,25 +25,35 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> เมื่อจบเกม (แพ้หรือจบรอบ) ให้แทรกคะแนนเข้า Top 5 แล้วแสดงหน้า ranking</div>
 <div class="flow"><b>ตั้งธง</b><i>→</i><b>แทรก Top5</b><i>→</i><b>ไป ranking</b><i>→</i><b>แสดงผล</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>ตัวแปร Top 5</h2>
+      <img src="images/steps/16-top5-ranking-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ตัวแปร Top 5">
+
 <div class="where">game sheet</div>
 <div class="box"><span class="blue">ชื่อ1…ชื่อ5</span> (Text)<br>
 <span class="blue">คะแนน1…คะแนน5</span> (Number)<br>
 <span class="blue">บันทึกอันดับ</span> (Number, ธง)</div></article>
 <article class="card"><span class="n">2</span><h2>ใครตั้งธง = 1?</h2>
+      <img src="images/steps/16-top5-ranking-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ใครตั้งธง = 1?">
+
 <div class="box">เลือดหมด · เวลาหมด · (และเส้นทางจบที่ต้องการบันทึก)<br>
 <span class="red">Set บันทึกอันดับ = 1</span></div>
 <p class="small">กลุ่ม: “บันทึกอันดับ Top5”</p></article>
 <article class="card wide tip"><span class="n">3</span><h2>แทรกคะแนน (แนวคิดทำตาม)</h2>
+      <img src="images/steps/16-top5-ranking-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — แทรกคะแนน (แนวคิดทำตาม)">
+
 <ol class="ol"><li><span class="blue">บันทึกอันดับ = 1</span> + Trigger once</li>
 <li>ถ้า คะแนน &gt; คะแนน1 → เลื่อน 5←4←3←2←1 แล้วใส่ชื่อผู้เล่น/คะแนนที่ช่อง 1</li>
 <li>Else ถ้า &gt; คะแนน2 → เลื่อนจากช่อง 2 ลง… (ทำถึงช่อง 5)</li>
 <li><span class="red">Go to layout "ranking"</span></li></ol></article>
 <article class="card wide"><span class="n">4</span><h2>หน้า ranking</h2>
+      <img src="images/steps/16-top5-ranking-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — หน้า ranking">
+
 <div class="where">ranking sheet</div>
 <div class="box">On start: ตั้งข้อความ <span class="red">rank_line1…5</span><br>
 เช่น ชื่อ1 &amp; " — " &amp; คะแนน1<br>
 btn_back → <span class="red">title</span></div></article>
 <article class="card wide warn"><span class="n">5</span><h2>อย่าลืมรีเซ็ตธง</h2>
+      <img src="images/steps/16-top5-ranking-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — อย่าลืมรีเซ็ตธง">
+
 <div class="box">ตอนเริ่มด่านใหม่: <span class="red">บันทึกอันดับ = 0</span><br>
 กันการบันทึกซ้ำและวนไป ranking ทันที</div>
 <ol class="ol"><li>เล่นให้คะแนนสูง → ขึ้นที่ 1</li>

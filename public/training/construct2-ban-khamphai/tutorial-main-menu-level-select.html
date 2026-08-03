@@ -44,21 +44,33 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#431407}
 <div class="flow"><b>สร้างหน้า Title</b><i>→</i><b>วาง Textbox</b><i>→</i><b>รับชื่อผู้เล่น</b><i>→</i><b>ตรวจห้ามว่าง</b><i>→</i><b>หน้าเลือกด่าน</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>Touch Plugin สำหรับเมนู</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Touch Plugin สำหรับเมนู">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เพิ่ม Touch plugin และตั้ง Event สำหรับปุ่มใน title sheet</p><div class="event"><span class="cond">Touch → On touched object "play"</span> → <span class="act">Go to layout "name"</span><br><span class="cond">Touch → On touched "btn_rank"</span> → <span class="act">Go to layout "ranking"</span><br><span class="cond">Touch → On touched "Sprite5"</span> → <span class="act">Go to layout "Howto"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
 <article class="card"><span class="n">2</span><h2>เล่นเพลง BGM ในหน้าแรก</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — เล่นเพลง BGM ในหน้าแรก">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เล่นเพลง OpeningTheme เมื่อเริ่มเกม</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Audio → Play "OpeningTheme" looping</span><br>Tag: "bgm"</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
 <article class="card"><span class="n">3</span><h2>หยุดเพลงก่อนเปลี่ยนฉาก</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — หยุดเพลงก่อนเปลี่ยนฉาก">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ป้องกันเสียงเพลงซ้อนกัน</p><div class="event"><span class="cond">System → On end of layout</span><br><span class="act">Audio → Stop tag "bgm"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
 <article class="card"><span class="n">4</span><h2>หน้า name: รับชื่อผู้เล่น</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — หน้า name: รับชื่อผู้เล่น">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>รับชื่อด้วย TextBox <b>input_name</b></p><div class="event"><span class="cond">Touch → On touched btn_ok</span> (หรือ <span class="cond">Keyboard → On Key Pressed (Enter 13)</span>)<br><span class="act">Set ชื่อผู้เล่น to input_name.Text</span><br><span class="act">System → Go to layout "select"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> name sheet</p></article>
 <article class="card wide"><span class="n">5</span><h2>หน้า select: เลือกระดับด่าน</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — หน้า select: เลือกระดับด่าน">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ปิดปุ่มด่านที่ยังเล่นไม่ถึงโดยเช็คจากตัวแปร ผ่านด่านN</p><div class="event"><span class="cond">System → Compare ผ่านด่าน1 = 1</span> → เปิดด่าน 2<br><span class="act">Else</span> → <span class="act">ลด Opacity ปุ่มด่าน 2 หรือ Disable ปุ่ม</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> select sheet</p></article>
 <article class="card wide warn"><span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-main-menu-level-select-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ปุ่มกดไม่ติดบนมือถือ</p><div class="event"><span class="cond">สาเหตุ:</span> ใช้ Mouse plugin แทน Touch<br><span class="act">วิธีแก้:</span> ใช้ Touch plugin (On touched object) เสมอ เพื่อรองรับทั้งมือถือและคอม</div><p class="small">📍 <b>ที่ไหนใน C2:</b> ทุก Event Sheet ที่มีปุ่ม</p></article>
 </section>

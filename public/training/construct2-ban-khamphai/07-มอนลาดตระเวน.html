@@ -25,22 +25,30 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ให้มอนเดินซ้าย–ขวาในเขต และหันหน้าตามทิศที่เดิน</div>
 <div class="flow"><b>วาง eminy</b><i>→</i><b>Sine</b><i>→</i><b>ตัวแปร X</b><i>→</i><b>Event หันหน้า</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>วางมอน eminy</h2>
+      <img src="images/steps/07-มอนลาดตระเวน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — วางมอน eminy">
+
 <div class="where">Layout → Layer game</div>
 <ol class="ol"><li>วาง Sprite <span class="red">eminy</span> บนพื้น</li>
 <li>Behaviors → Add <span class="red">Sine</span></li>
 <li>Sine: Movement = Horizontal · ตั้ง Period/Magnitude ตามต้องการ</li></ol>
 <div class="box">Instance variable: <span class="red">ตำแหน่งXก่อนหน้า</span> (Number)</div></article>
 <article class="card"><span class="n">2</span><h2>Event หันหน้า</h2>
+      <img src="images/steps/07-มอนลาดตระเวน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Event หันหน้า">
+
 <div class="where">กลุ่ม “มอนสเตอร์หันหน้าตามทิศเดิน”</div>
 <div class="box">Every tick:<br>
 ถ้า <span class="blue">eminy.X &lt; ตำแหน่งXก่อนหน้า</span> → กำลังเดินซ้าย → <span class="red">Set mirrored</span><br>
 ถ้า X มากกว่า → เดินขวา → <span class="red">Set not mirrored</span><br>
 แล้ว <span class="red">Set ตำแหน่งXก่อนหน้า = eminy.X</span></div></article>
 <article class="card wide tip"><span class="n">3</span><h2>ด่าน 2–3 สุ่มตำแหน่ง</h2>
+      <img src="images/steps/07-มอนลาดตระเวน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ด่าน 2–3 สุ่มตำแหน่ง">
+
 <div class="box">กลุ่ม <span class="blue">สุ่มมอนสเตอร์และประตู (เฉพาะด่าน 2-3)</span><br>
 สุ่มเฉพาะพิกัดที่ตรวจแล้วว่าผู้เล่นเดิน/กระโดดถึง</div>
 <p class="small">อย่าสุ่มมอนบนหลุมหรือสูงเกินกระโดด</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>ทดสอบ</h2>
+      <img src="images/steps/07-มอนลาดตระเวน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ทดสอบ">
+
 <ol class="ol"><li>มอนเดินไปกลับ</li><li>หน้าหันตามทิศ (ไม่กลับหัว)</li><li>ไม่ติดกำแพงแปลกๆ</li></ol></article></section>
 <aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> มอนเดินซ้ายขวา · หน้าตรงทิศ · ด่าน 2–3 สุ่มในช่วงที่ถึงได้</aside>
 <footer class="footer"><span><a href="index.html">← สารบัญ</a> · master_v32 · ทำตามทีละขั้น</span><span>ถัดไป: เหยียบมอน/โดนชน →</span></footer>

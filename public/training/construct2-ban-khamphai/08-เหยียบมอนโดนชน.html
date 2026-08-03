@@ -25,22 +25,30 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> แยกให้ชัด: กระโดดลงหลังมอน = ฆ่าได้ · ชนด้านข้าง = เจ็บ</div>
 <div class="flow"><b>On collision</b><i>→</i><b>Sub: เหยียบ</b><i>→</i><b>Else: เจ็บ</b><i>→</i><b>HP≤0</b></div>
 <section class="grid"><article class="card wide tip"><span class="n">1</span><h2>โครงหลัก If / Else</h2>
+      <img src="images/steps/08-เหยียบมอนโดนชน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — โครงหลัก If / Else">
+
 <div class="where">กลุ่ม “เหยียบมอน / โดนชนลดหัวใจ”</div>
 <div class="box"><span class="blue">player → On collision with eminy</span> (Event แม่ ไม่ต้องมี Action)</div>
 <p>สร้าง Sub-event 2 อันข้างใต้: กรณีเหยียบ · Else กรณีชนข้าง</p></article>
 <article class="card"><span class="n">2</span><h2>กรณีเหยียบ (ฆ่ามอน)</h2>
+      <img src="images/steps/08-เหยียบมอนโดนชน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — กรณีเหยียบ (ฆ่ามอน)">
+
 <div class="box"><span class="blue">Platform → Is falling</span><br>
 <span class="blue">player.Y ≤ eminy.Y − 10</span><br>
 <span class="red">Destroy eminy</span><br>
 <span class="red">Set vector Y = −650</span> (เด้งขึ้น)<br>
 <span class="red">Add 50 to คะแนน</span> · Play coin</div></article>
 <article class="card"><span class="n">3</span><h2>Else ชนข้าง (เจ็บ)</h2>
+      <img src="images/steps/08-เหยียบมอนโดนชน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Else ชนข้าง (เจ็บ)">
+
 <div class="box"><span class="blue">System → Else</span><br>
 <span class="blue">Is flashing</span> (Invert)<br>
 <span class="red">Subtract 1 from พลังชีวิต</span><br>
 <span class="red">vector X = choose(player.X&lt;eminy.X, −500, 500)</span><br>
 <span class="red">vector Y = −350</span> · Play hurt · Flash 3s</div></article>
 <article class="card wide warn"><span class="n">4</span><h2>พลังชีวิต ≤ 0 → Game Over</h2>
+      <img src="images/steps/08-เหยียบมอนโดนชน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — พลังชีวิต ≤ 0 → Game Over">
+
 <div class="box"><span class="blue">พลังชีวิต ≤ 0</span> + Trigger once + กำลังจบด่าน=0<br>
 <span class="red">โชว์ popup</span> · <span class="red">บันทึกอันดับ = 1</span></div>
 <p class="small">อย่า Set position กลับจุดเกิดตอนชนข้าง — ออกแบบให้กระเด็นอย่างเดียว</p></article></section>

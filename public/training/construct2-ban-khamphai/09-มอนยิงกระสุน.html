@@ -25,22 +25,32 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ให้มอนยิงกระสุนหาผู้เล่นเป็นระยะ โดยมุมไม่ก้ม/เงยเกิน 30 องศา</div>
 <div class="flow"><b>สร้าง bullet</b><i>→</i><b>สุ่มเวลารอ</b><i>→</i><b>เล็ง</b><i>→</i><b>Spawn</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>สร้าง object emon_bullet</h2>
+      <img src="images/steps/09-มอนยิงกระสุน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้าง object emon_bullet">
+
 <div class="where">Object types → Sprite ใหม่</div>
 <ol class="ol"><li>ชื่อ <span class="red">emon_bullet</span></li>
 <li>Behaviors: <span class="red">Bullet</span> + <span class="red">Destroy outside layout</span></li>
 <li>ตั้ง Speed ตามต้องการ</li></ol></article>
 <article class="card"><span class="n">2</span><h2>จังหวะยิง</h2>
+      <img src="images/steps/09-มอนยิงกระสุน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — จังหวะยิง">
+
 <div class="where">กลุ่ม “มอนยิงกระสุนสุ่มองศา”</div>
 <div class="box">แต่ละ eminy สุ่มรอ <span class="red">10–20 วินาที</span> แล้วยิง<br>
 คำนวณมุมไปหา player แล้ว clamp ไม่เกิน ±30°</div>
 <p class="small">มุมจำกัดเพื่อไม่ให้ยิงทะลุพื้น/ฟ้าแปลกๆ</p></article>
 <article class="card wide"><span class="n">3</span><h2>Spawn + เล็ง</h2>
+      <img src="images/steps/09-มอนยิงกระสุน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Spawn + เล็ง">
+
 <div class="box"><span class="red">System → Create object emon_bullet</span> ที่ตำแหน่ง eminy<br>
 <span class="red">Set angle of motion</span> ไปทางผู้เล่น (หลังจำกัดมุม)</div></article>
 <article class="card wide tip"><span class="n">4</span><h2>ชนผู้เล่น</h2>
+      <img src="images/steps/09-มอนยิงกระสุน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ชนผู้เล่น">
+
 <div class="box"><span class="blue">player On collision emon_bullet</span> + ไม่ Flash<br>
 → ลดชีวิต · Flash · Destroy bullet (กฎเดียวกับชนมอน)</div></article>
 <article class="card wide warn"><span class="n">5</span><h2>ทดสอบ</h2>
+      <img src="images/steps/09-มอนยิงกระสุน-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ทดสอบ">
+
 <ol class="ol"><li>มอนยิงไม่ถี่เกินไป</li><li>กระสุนหายเมื่อพ้นจอ</li><li>โดนแล้วเจ็บครั้งเดียวต่อรอบ Flash</li></ol></article></section>
 <aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> ยิงเป็นระยะ · มุมไม่แปลก · กระสุนพ้นจอหาย · ชนแล้วเจ็บ+Flash</aside>
 <footer class="footer"><span><a href="index.html">← สารบัญ</a> · master_v32 · ทำตามทีละขั้น</span><span>ถัดไป: สร้างโจทย์คณิต →</span></footer>

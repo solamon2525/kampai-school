@@ -31,25 +31,39 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#19243a}
 <div class="flow"><b>จับเวลา</b><i>→</i><b>เห็นผู้เล่น</b><i>→</i><b>สร้างที่ปาก</b><i>→</i><b>เล็ง</b><i>→</i><b>ยิง</b><i>→</i><b>ลบพ้นจอ</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>เตรียมวัตถุกระสุน</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เตรียมวัตถุกระสุน">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>สร้าง Sprite ชื่อ <b>emon_bullet</b> และเพิ่ม Behavior ให้มัน</p><div class="event"><span class="cond">emon_bullet → Behaviors</span><br>Add <span class="act">Bullet</span> (ตั้ง Speed: 650, Set angle: Yes)<br>Add <span class="act">Destroy outside layout</span></div><p class="small">วางกระสุนต้นแบบไวนอกฉาก 1 ตัว และตั้ง Initial visibility เป็น Invisible เสมอ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object types → Sprite ใหม่</p></article>
 <article class="card"><span class="n">2</span><h2>สร้างจุดปากให้มอนสเตอร์</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — สร้างจุดปากให้มอนสเตอร์">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เปิดหน้าต่างวาดภาพของ <b>eminy</b> เพื่อเพิ่ม Image point</p><div class="event"><span class="cond">เปิด Image editor ของ eminy</span><br>เมนูซ้ายมือ → Set origin and image points<br><span class="act">เพิ่ม Image point 1 ไว้ที่ปากของมอนสเตอร์</span></div><p class="small">ต้องกำหนดจุดปากให้ครบทุกเฟรมของ Animation ถ้ามีหลายเฟรม</p><p class="small">📍 <b>ที่ไหนใน C2:</b> ดับเบิลคลิกที่ตัว eminy</p></article>
 <article class="card"><span class="n">3</span><h2>เพิ่มตัวแปรเวลายิง</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — เพิ่มตัวแปรเวลายิง">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เพิ่ม Instance variable ให้กับ <b>eminy</b></p><div class="event"><span class="cond">เวลายิงถัดไป</span> • Number • 0<br><span class="cond">พร้อมยิง</span> • Number • 0<br><br>eminy → On created<br><span class="act">Set เวลายิงถัดไป to random(10, 20)</span></div><p class="small">เพื่อให้แต่ละตัวสุ่มเวลายิงนัดแรกไม่พร้อมกัน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Properties ของ eminy</p></article>
 <article class="card"><span class="n">4</span><h2>นับเวลาถอยหลัง</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — นับเวลาถอยหลัง">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <div class="event"><span class="cond">System → Every tick</span><br><span class="act">eminy → Subtract dt from เวลายิงถัดไป</span><br><span class="cond">eminy.เวลายิงถัดไป ≤ 0</span><br><span class="act">eminy → Set พร้อมยิง to 1</span></div><p class="small">ใช้ dt ในการลบ เพื่อให้นับถอยหลังเป็นวินาทีจริงๆ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนยิงกระสุนสุ่มองศา"</p></article>
 <article class="card wide"><span class="n">5</span><h2>ตรวจระยะและยิงจากปากในมุมจำกัด</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ตรวจระยะและยิงจากปากในมุมจำกัด">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <div class="event"><span class="cond">eminy.พร้อมยิง = 1</span><br><span class="cond">System → Compare: distance(eminy.X, eminy.Y, player.X, player.Y) ≤ 1200</span><br><span class="act">System → Create emon_bullet on layer "game" at (eminy.ImagePointX(1), eminy.ImagePointY(1))</span><br><span class="act">emon_bullet → Set angle to clamp(angle(eminy.X, eminy.Y, player.X, player.Y), 150, 210)</span> (ตัวอย่างถ้าหันซ้าย)</div><p class="small">ระยะ ≤ 1200 กันการยิงนอกจอ และตั้ง clamp ป้องกันกระสุนยิงย้อนกลับหลังมอนสเตอร์ (มุม ±30 องศา)</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนยิงกระสุนสุ่มองศา"</p></article>
 <article class="card wide"><span class="n">6</span><h2>รีเซ็ตเวลาหลังยิง</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — รีเซ็ตเวลาหลังยิง">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <div class="event"><span class="cond">ต่อจาก Action ด้านบน</span><br><span class="act">eminy → Set พร้อมยิง to 0</span><br><span class="act">eminy → Set เวลายิงถัดไป to random(10, 20)</span><br><span class="act">Audio → Play "shoot"</span></div><p class="small">สุ่มเวลาการยิงนัดถัดไปอีก 10-20 วินาที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนยิงกระสุนสุ่มองศา"</p></article>
 <article class="card wide warn">
 <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-monster-auto-shoot-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 7 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 
 <div class="event">- ลืมใส่ Behavior "Destroy outside layout" ให้กระสุน ทำให้พอยิงไปนานๆ เกมจะค้างเพราะกระสุนค้างในเมมโมรี่<br>- กำหนด Layer ตอน Create object ผิดชื่อ (ต้องดูตัวพิมพ์เล็ก/ใหญ่ของเลเยอร์ใน Layout)<br>- ลืมลบระยะห่างด้วย dt (ทำให้กระสุนยิงรัวแบบปืนกลในพริบตา)</div>

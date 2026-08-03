@@ -25,11 +25,15 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> เมื่อตกฉากหรือโดนศัตรู ให้เสียหัวใจครั้งเดียว แล้วอมตะกระพริบ ไม่โดนซ้ำรัว</div>
 <div class="flow"><b>เงื่อนไขชน/ตก</b><i>→</i><b>ลดชีวิต</b><i>→</i><b>Flash</b><i>→</i><b>กันซ้ำ</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>เตรียม Flash บน player</h2>
+      <img src="images/steps/05-ตกฉากโดนดาเมจ-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เตรียม Flash บน player">
+
 <div class="where">player → Behaviors</div>
 <ol class="ol"><li>ต้องมี Behavior <span class="red">Flash</span> แล้ว (จากบท 3)</li>
 <li>จะใช้เงื่อนไข <span class="blue">Is flashing</span> (Invert) แทนตัวแปรอมตะ</li></ol>
 <div class="box">Flash Duration ในเกมจริง = <span class="red">3.0</span> วินาที · On/Off = 0.1</div></article>
 <article class="card"><span class="n">2</span><h2>ตกนอกฉาก</h2>
+      <img src="images/steps/05-ตกฉากโดนดาเมจ-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตกนอกฉาก">
+
 <div class="where">game sheet → กลุ่ม “ตัวครละครออกจากฉาก”</div>
 <div class="box"><span class="blue">player → Is outside layout</span><br>
 <span class="blue">Flash → Is flashing</span> (Invert)<br>
@@ -39,10 +43,14 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="red">Flash (0.1 / 0.1 / Duration 3.0)</span></div>
 <p class="small">Y=700 ยกขึ้นเหนือพื้น — ปรับถ้าพื้นคนละระดับ</p></article>
 <article class="card wide tip"><span class="n">3</span><h2>ชน eminy ด้านข้าง (สรุป — ละเอียดบท 8)</h2>
+      <img src="images/steps/05-ตกฉากโดนดาเมจ-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ชน eminy ด้านข้าง (สรุป — ละเอียดบท 8)">
+
 <div class="box"><span class="blue">player → On collision with eminy</span><br>
 Sub-event Else + ไม่ Flash → ลดชีวิต · Vector X กระเด็น · Vector Y=-350 · Play hurt · Flash 3s</div>
 <p>เหยียบหลังมอน (กำลังตก + Y สูงกว่า) = ทำลายมอน ไม่ลดหัวใจ — ดูบท 8</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>ทำไมต้อง Invert Is flashing?</h2>
+      <img src="images/steps/05-ตกฉากโดนดาเมจ-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ทำไมต้อง Invert Is flashing?">
+
 <div class="box">ถ้าไม่เช็ค Flash → ยืนชนมอนจะลดหัวใจทุกเฟรมจนตายทันที<br>
 ระหว่างกระพริบ 3 วินาที เงื่อนไข Invert ทำให้ Event ดาเมจไม่ผ่าน</div>
 <ol class="ol"><li>อย่าใช้ Wait ใต้ Every tick เพื่อปลดอมตะ</li>

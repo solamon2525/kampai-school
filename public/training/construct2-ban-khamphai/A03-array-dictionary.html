@@ -24,18 +24,26 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ใช้ Array หรือ Dictionary แทนตัวแปรชื่อ1–5 / ค่าช่อง1–10 เมื่อข้อมูลเยอะขึ้น</div>
 <div class="flow"><b>สร้าง Array</b><i>→</i><b>Set size</b><i>→</i><b>Set/At</b><i>→</i><b>Loop</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>ปัญหาของตัวแปรทีละชื่อ</h2>
+      <img src="images/steps/A03-array-dictionary-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ปัญหาของตัวแปรทีละชื่อ">
+
 <div class="box">ชื่อ1…ชื่อ5 · ค่าช่อง1…10 = ยาวและแก้ยากเมื่อเพิ่มช่อง<br>
 Array เก็บเป็นช่องต่อเนื่อง At(0) At(1) …</div></article>
 <article class="card"><span class="n">2</span><h2>Array พื้นฐาน</h2>
+      <img src="images/steps/A03-array-dictionary-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Array พื้นฐาน">
+
 <div class="where">Insert object → Array</div>
 <ol class="ol"><li>สร้าง Array ชื่อ <span class="red">TopScores</span></li>
 <li>Set size กว้าง 5 สูง 2 (คะแนน / ชื่อ) หรือแยก 2 อาร์เรย์</li>
 <li>Set at X=0 → ค่าคะแนน</li></ol>
 <div class="box">For each element → วาด rank_line</div></article>
 <article class="card wide tip"><span class="n">3</span><h2>Dictionary</h2>
+      <img src="images/steps/A03-array-dictionary-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Dictionary">
+
 <div class="box">เก็บคู่ key→value เช่น "ผ่านด่าน1"→1<br>
 เหมาะกับเซฟสถานะหลายค่าก่อนเขียน WebStorage</div></article>
 <article class="card wide warn"><span class="n">4</span><h2>เมื่อไหร่ยังใช้ตัวแปรธรรมดา</h2>
+      <img src="images/steps/A03-array-dictionary-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — เมื่อไหร่ยังใช้ตัวแปรธรรมดา">
+
 <div class="box">Top5 คงที่ 5 ช่องแบบ v32 ตอนนี้ → ตัวแปรชื่อ1–5 ก็พอ<br>
 Array มีประโยชน์เมื่อจำนวนช่องเปลี่ยนบ่อยหรือโจทย์หลายชุด</div></article></section>
 <aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> สร้าง Array ได้ · Set/At ค่าได้ · อธิบายได้ว่าเมื่อไหร่ควรแทนที่ชื่อ1–5</aside>

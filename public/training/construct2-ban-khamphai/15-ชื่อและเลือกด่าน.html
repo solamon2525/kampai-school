@@ -25,6 +25,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ให้ใส่ชื่อแล้วเลือกด่านได้ และล็อกด่านที่เคลียร์แล้ว</div>
 <div class="flow"><b>TextBox</b><i>→</i><b>บันทึกชื่อ</b><i>→</i><b>select</b><i>→</i><b>เข้าด่าน/ล็อก</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>หน้า name</h2>
+      <img src="images/steps/15-ชื่อและเลือกด่าน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — หน้า name">
+
 <div class="where">Layout name + name sheet</div>
 <ol class="ol"><li>วาง TextBox ชื่อ <span class="red">input_name</span></li>
 <li>ปุ่ม <span class="red">btn_ok</span> · <span class="red">btn_back</span></li>
@@ -34,16 +36,22 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="red">Go to layout "select"</span></div>
 <p class="small">รองรับ Enter (key 13) เป็นทางสำรอง</p></article>
 <article class="card"><span class="n">2</span><h2>หน้า select</h2>
+      <img src="images/steps/15-ชื่อและเลือกด่าน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — หน้า select">
+
 <div class="where">select sheet</div>
 <div class="box">On start: เพลง MapPartnerSelect<br>
 <span class="red">txt_player = "ผู้เล่น : " &amp; ชื่อผู้เล่น</span><br>
 ป้ายด่าน: ง่าย / ปานกลาง / ยาก</div></article>
 <article class="card wide tip"><span class="n">3</span><h2>เข้าด่าน + เงื่อนไขยังไม่ผ่าน</h2>
+      <img src="images/steps/15-ชื่อและเลือกด่าน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — เข้าด่าน + เงื่อนไขยังไม่ผ่าน">
+
 <div class="box"><span class="blue">Touch btn_stage1</span> + <span class="blue">ผ่านด่าน1 = 0</span><br>
 → <span class="red">Go to "game"</span></div>
 <div class="box">stage2 + ผ่านด่าน2=0 → game2<br>
 stage3 + ผ่านด่าน3=0 → game3</div></article>
 <article class="card wide warn"><span class="n">4</span><h2>ล็อกด่านที่ผ่านแล้ว</h2>
+      <img src="images/steps/15-ชื่อและเลือกด่าน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ล็อกด่านที่ผ่านแล้ว">
+
 <div class="box">ถ้า <span class="blue">ผ่านด่าน1 = 1</span> → ลด opacity / ปิดการกด / เปลี่ยนข้อความเป็น “ผ่านแล้ว”<br>
 ทำแบบเดียวกันกับด่าน 2 และ 3</div>
 <p class="small">ค่า ผ่านด่านN ถูกตั้งตอนเคลียร์ในบท 13</p></article></section>

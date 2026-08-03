@@ -96,18 +96,28 @@ function simResetTimer() {
 <div class="flow"><b>ตั้งเวลา 180 วินาที</b><i>→</i><b>ลดทุก 1 วินาที</b><i>→</i><b>แปลง format นาที:วิ</b><i>→</i><b>บวกคะแนน</b><i>→</i><b>หมดเวลา = แพ้</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>ตั้งเวลาและเพลงตามด่าน</h2>
+      <img src="images/steps/tutorial-timer-score-hud-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ตั้งเวลาและเพลงตามด่าน">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>ใช้ LayoutName กำหนดค่าเริ่มต้น</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="cond">+ LayoutName = "game"</span> → <span class="act">เวลา=200, Play "Music2"</span><br><span class="cond">+ LayoutName = "game2"</span> → <span class="act">เวลา=150, Play "PirateShip"</span><br><span class="cond">+ LayoutName = "game3"</span> → <span class="act">เวลา=120, Play "ElmyraMiniboss"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "เริ่มด่าน+เพลง+เวลา"</p></article>
 <article class="card"><span class="n">2</span><h2>นับถอยหลังเวลา</h2>
+      <img src="images/steps/tutorial-timer-score-hud-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — นับถอยหลังเวลา">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เช็กว่ายังไม่จบด่านก่อนลดเวลา</p><div class="event"><span class="cond">System → Every 1 second</span><br><span class="cond">กำลังจบด่าน = 0</span><br><span class="act">Subtract 1 from เวลา</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
 <article class="card"><span class="n">3</span><h2>เวลาหมด (Time Up)</h2>
+      <img src="images/steps/tutorial-timer-score-hud-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — เวลาหมด (Time Up)">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>แสดง popup และบันทึกอันดับ</p><div class="event"><span class="cond">เวลา ≤ 0</span> AND <span class="cond">กำลังจบด่าน = 0</span> (Trigger once)<br><span class="act">แสดง Layer "popup"</span><br><span class="act">ล็อกตัวละคร player</span><br><span class="act">Set บันทึกอันดับ = 1</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
 <article class="card"><span class="n">4</span><h2>แปลงรูปแบบเป็น นาที : วินาที</h2>
+      <img src="images/steps/tutorial-timer-score-hud-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — แปลงรูปแบบเป็น นาที : วินาที">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>แสดงผลเวลา</p><div class="event"><span class="act">timer_text → Set text to</span><br>zeropad(floor(เวลา / 60), 2) &amp; ":" &amp; zeropad(เวลา % 60, 2)</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
 <article class="card wide warn"><span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-timer-score-hud-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
    <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
 <p>เวลาติดลบ หรือเวลาลดต่อเนื่องตอนจบด่าน</p><div class="event"><span class="cond">สาเหตุ:</span> ไม่ได้เช็คเงื่อนไข กำลังจบด่าน=0<br><span class="act">วิธีแก้:</span> ใส่เงื่อนไข กำลังจบด่าน = 0 ในอีเวนต์ลดเวลา 1 วินาที</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
 </section>
