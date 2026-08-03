@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>คู่มือ Construct 2 — Behaviors พื้นฐาน</title>
+<link rel="stylesheet" href="common.css">
 <style>
   :root {
     --bg: #fff5ed;
@@ -71,6 +72,11 @@
   <section class="grid">
     <article class="card">
       <span class="n">1</span><h2>Solid / Jump-thru</h2>
+      <p>1. คลิกเลือก Object ที่ต้องการใส่ Behavior (เช่น พื้น หรือกำแพง)<br>
+      2. ไปที่หน้าต่าง <b>Properties</b> ด้านซ้าย คลิกเลือกลิงก์ <b>Behaviors</b><br>
+      3. คลิกไอคอน <b>+ (Add new behavior)</b><br>
+      4. เลือก <b>Solid</b> หรือ <b>Jump-thru</b> แล้วกด Add</p>
+      <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Add Behavior">
       <p><b>Solid</b> = ชนจากทุกทิศ ไม่ทะลุ (ใช้กับพื้น กำแพง)<br>
       <b>Jump-thru</b> = ทะลุจากล่าง ยืนบนได้ (ใช้กับเกาะลอย)</p>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก object → Properties → Behaviors → Add behavior</p>
@@ -78,34 +84,60 @@
     
     <article class="card">
       <span class="n">2</span><h2>Platform + Scroll To</h2>
-      <p><b>Platform</b> = ควบคุมเดิน/กระโดดด้วยลูกศร<br>
-      ค่าสำคัญ: Default controls = Yes, Max jumps = 2, Jump strength ≈ 650, Gravity ≈ 1500.<br>
-      <b>Scroll To</b> = กล้องตามตัวละคร</p>
+      <p>1. เลือก <code>player</code> แล้วคลิก <b>Behaviors</b> ใน Properties<br>
+      2. กด Add เลือก <b>Platform</b> (ควบคุมเดิน/กระโดดด้วยลูกศร)<br>
+      3. กด Add อีกครั้ง เลือก <b>Scroll To</b> (กล้องตามตัวละคร)<br>
+      4. ปรับค่าใน Properties ของ Platform:</p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Platform Behavior</th></tr>
+          <tr><td>Max jumps</td><td>2</td></tr>
+          <tr><td>Jump strength</td><td>650</td></tr>
+          <tr><td>Gravity</td><td>1500</td></tr>
+          <tr><td>Default controls</td><td>Yes</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> player → Behaviors</p>
     </article>
     
     <article class="card">
       <span class="n">3</span><h2>Bullet</h2>
-      <p>ใช้กับกระสุน: ยิงไปตรงๆ ด้วยความเร็วที่ตั้ง. ต้องคู่กับ <b>Destroy outside layout</b> เพื่อไม่ให้กระสุนลอยอยู่ตลอด เปลืองหน่วยความจำ</p>
+      <p>1. เลือก Object ที่จะเป็นกระสุน (เช่น <code>emon_bullet</code>)<br>
+      2. เข้าเมนู <b>Behaviors</b> → Add <b>Bullet</b><br>
+      3. Add อีก 1 Behavior คือ <b>Destroy outside layout</b> เพื่อลบกระสุนทิ้งเมื่อออกนอกจอ (ช่วยประหยัดหน่วยความจำ)<br>
+      4. สามารถตั้งความเร็วกระสุนได้ที่ Properties หัวข้อ Bullet</p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Bullet Behavior</th></tr>
+          <tr><td>Speed</td><td>400</td></tr>
+          <tr><td>Set angle</td><td>Yes</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> emon_bullet → Behaviors</p>
     </article>
     
     <article class="card wide">
       <span class="n">4</span><h2>Sine / Flash</h2>
-      <p><b>Sine</b> = ทำให้ object เคลื่อนที่ซ้ำๆ (มอนเดินซ้าย-ขวา, เกาะลอยขึ้น-ลง)<br>
-      <b>Flash</b> = กระพริบชั่วคราว (ใช้ตอนอมตะหลังโดนโจมตี)</p>
+      <p><b>Sine:</b> ทำให้ object เคลื่อนที่ซ้ำๆ ไปกลับ (มอนเดินซ้าย-ขวา, เกาะลอยขึ้น-ลง)<br>
+      1. เลือกมอนสเตอร์ → <b>Behaviors</b> → Add <b>Sine</b><br>
+      2. ปรับ Movement เป็น Horizontal (ซ้ายขวา) หรือ Vertical (บนลงล่าง) ใน Properties<br>
+      <br>
+      <b>Flash:</b> กระพริบชั่วคราว (ใช้ตอนอมตะหลังโดนโจมตี)<br>
+      1. เลือก <code>player</code> → <b>Behaviors</b> → Add <b>Flash</b><br>
+      2. เมื่อโดนโจมตี ให้สั่งงานใน Event sheet: <code>player → Flash (0.1, 0.1, 1)</code></p>
+      <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Sine and Flash Behaviors">
       <p class="small">📍 <b>ที่ไหนใน C2:</b> eminy → Behaviors → Sine, player → Behaviors → Flash</p>
     </article>
     
     <article class="card wide">
-      <span class="n">5</span><h2>ตารางสรุป Behaviors ใน Red Hood</h2>
+      <span class="n">5</span><h2>ตารางสรุป Behaviors ในโปรเจกต์</h2>
       <table>
         <tr><th>Object</th><th>Behaviors ที่ใช้</th></tr>
         <tr><td>player</td><td>Platform, Scroll To, Flash</td></tr>
-        <tr><td>TiledBackground2 (พื้น)</td><td>Solid</td></tr>
-        <tr><td>sky1/sky2 (เกาะ)</td><td>Jump-thru</td></tr>
-        <tr><td>eminy (มอน)</td><td>Sine</td></tr>
-        <tr><td>emon_bullet (กระสุน)</td><td>Bullet, Destroy outside layout</td></tr>
+        <tr><td>พื้น (Ground)</td><td>Solid</td></tr>
+        <tr><td>เกาะ (Platform)</td><td>Jump-thru</td></tr>
+        <tr><td>มอนสเตอร์ (Enemy)</td><td>Sine</td></tr>
+        <tr><td>กระสุน (Bullet)</td><td>Bullet, Destroy outside layout</td></tr>
       </table>
     </article>
 

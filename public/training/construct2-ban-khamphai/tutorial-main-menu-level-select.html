@@ -21,6 +21,7 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#431407}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
 @media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
 </style>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
 <nav class="top-nav">
@@ -42,12 +43,24 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#431407}
 </section>
 <div class="flow"><b>สร้างหน้า Title</b><i>→</i><b>วาง Textbox</b><i>→</i><b>รับชื่อผู้เล่น</b><i>→</i><b>ตรวจห้ามว่าง</b><i>→</i><b>หน้าเลือกด่าน</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>Touch Plugin สำหรับเมนู</h2><p>เพิ่ม Touch plugin และตั้ง Event สำหรับปุ่มใน title sheet</p><div class="event"><span class="cond">Touch → On touched object "play"</span> → <span class="act">Go to layout "name"</span><br><span class="cond">Touch → On touched "btn_rank"</span> → <span class="act">Go to layout "ranking"</span><br><span class="cond">Touch → On touched "Sprite5"</span> → <span class="act">Go to layout "Howto"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
-<article class="card"><span class="n">2</span><h2>เล่นเพลง BGM ในหน้าแรก</h2><p>เล่นเพลง OpeningTheme เมื่อเริ่มเกม</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Audio → Play "OpeningTheme" looping</span><br>Tag: "bgm"</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
-<article class="card"><span class="n">3</span><h2>หยุดเพลงก่อนเปลี่ยนฉาก</h2><p>ป้องกันเสียงเพลงซ้อนกัน</p><div class="event"><span class="cond">System → On end of layout</span><br><span class="act">Audio → Stop tag "bgm"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
-<article class="card"><span class="n">4</span><h2>หน้า name: รับชื่อผู้เล่น</h2><p>รับชื่อด้วย TextBox <b>input_name</b></p><div class="event"><span class="cond">Touch → On touched btn_ok</span> (หรือ <span class="cond">Keyboard → On Key Pressed (Enter 13)</span>)<br><span class="act">Set ชื่อผู้เล่น to input_name.Text</span><br><span class="act">System → Go to layout "select"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> name sheet</p></article>
-<article class="card wide"><span class="n">5</span><h2>หน้า select: เลือกระดับด่าน</h2><p>ปิดปุ่มด่านที่ยังเล่นไม่ถึงโดยเช็คจากตัวแปร ผ่านด่านN</p><div class="event"><span class="cond">System → Compare ผ่านด่าน1 = 1</span> → เปิดด่าน 2<br><span class="act">Else</span> → <span class="act">ลด Opacity ปุ่มด่าน 2 หรือ Disable ปุ่ม</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> select sheet</p></article>
-<article class="card wide warn"><span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2><p>ปุ่มกดไม่ติดบนมือถือ</p><div class="event"><span class="cond">สาเหตุ:</span> ใช้ Mouse plugin แทน Touch<br><span class="act">วิธีแก้:</span> ใช้ Touch plugin (On touched object) เสมอ เพื่อรองรับทั้งมือถือและคอม</div><p class="small">📍 <b>ที่ไหนใน C2:</b> ทุก Event Sheet ที่มีปุ่ม</p></article>
+<article class="card"><span class="n">1</span><h2>Touch Plugin สำหรับเมนู</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เพิ่ม Touch plugin และตั้ง Event สำหรับปุ่มใน title sheet</p><div class="event"><span class="cond">Touch → On touched object "play"</span> → <span class="act">Go to layout "name"</span><br><span class="cond">Touch → On touched "btn_rank"</span> → <span class="act">Go to layout "ranking"</span><br><span class="cond">Touch → On touched "Sprite5"</span> → <span class="act">Go to layout "Howto"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet, Layout title</p></article>
+<article class="card"><span class="n">2</span><h2>เล่นเพลง BGM ในหน้าแรก</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เล่นเพลง OpeningTheme เมื่อเริ่มเกม</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Audio → Play "OpeningTheme" looping</span><br>Tag: "bgm"</div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
+<article class="card"><span class="n">3</span><h2>หยุดเพลงก่อนเปลี่ยนฉาก</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ป้องกันเสียงเพลงซ้อนกัน</p><div class="event"><span class="cond">System → On end of layout</span><br><span class="act">Audio → Stop tag "bgm"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
+<article class="card"><span class="n">4</span><h2>หน้า name: รับชื่อผู้เล่น</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>รับชื่อด้วย TextBox <b>input_name</b></p><div class="event"><span class="cond">Touch → On touched btn_ok</span> (หรือ <span class="cond">Keyboard → On Key Pressed (Enter 13)</span>)<br><span class="act">Set ชื่อผู้เล่น to input_name.Text</span><br><span class="act">System → Go to layout "select"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> name sheet</p></article>
+<article class="card wide"><span class="n">5</span><h2>หน้า select: เลือกระดับด่าน</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ปิดปุ่มด่านที่ยังเล่นไม่ถึงโดยเช็คจากตัวแปร ผ่านด่านN</p><div class="event"><span class="cond">System → Compare ผ่านด่าน1 = 1</span> → เปิดด่าน 2<br><span class="act">Else</span> → <span class="act">ลด Opacity ปุ่มด่าน 2 หรือ Disable ปุ่ม</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> select sheet</p></article>
+<article class="card wide warn"><span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ปุ่มกดไม่ติดบนมือถือ</p><div class="event"><span class="cond">สาเหตุ:</span> ใช้ Mouse plugin แทน Touch<br><span class="act">วิธีแก้:</span> ใช้ Touch plugin (On touched object) เสมอ เพื่อรองรับทั้งมือถือและคอม</div><p class="small">📍 <b>ที่ไหนใน C2:</b> ทุก Event Sheet ที่มีปุ่ม</p></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> กดปุ่มในหน้า title ติดด้วย Touch • เพลง OpeningTheme เล่นวนลูป (Tag bgm) • เพลงหยุดเมื่อเปลี่ยน Layout • กรอกชื่อแล้วกดปุ่ม OK หรือปุ่ม Enter (13) เพื่อไปหน้า select ได้ • ด่านที่ยังไม่ผ่านจะถูกลด opacity หรือกดไม่ได้</aside>
 <footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Main Menu &amp; Level Select</span><span>งานถัดไป: ระบบเวลานับถอยหลังและคะแนนสะสม</span></footer>

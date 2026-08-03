@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>คู่มือ Construct 2 — Sprite, Animation และ Layer</title>
+<link rel="stylesheet" href="common.css">
 <style>
 body { font-family: "Leelawadee UI","Tahoma",sans-serif; background: #f3ebfc; margin: 0; color: #333; line-height: 1.6; }
 .top-nav { background: #333; color: white; display: flex; justify-content: space-between; padding: 10px 20px; align-items: center; }
@@ -56,29 +57,71 @@ body { font-family: "Leelawadee UI","Tahoma",sans-serif; background: #f3ebfc; ma
   <section class="grid">
     <article class="card">
       <h2><span class="n">1</span> สร้าง Sprite</h2>
-      <p>ดับเบิลคลิกพื้นว่างใน Layout → Insert new object → Sprite. จากนั้นทำการ Import รูป PNG (ต้องมีพื้นหลังโปร่งใส) แล้วตั้งชื่อ เช่น <code>player</code>.</p>
+      <p>1. <b>ดับเบิลคลิก</b> พื้นที่ว่างใน Layout view<br>
+      2. จะมีหน้าต่าง Insert New Object ขึ้นมา ให้ดับเบิลคลิก <b>Sprite</b><br>
+      3. เมาส์จะเปลี่ยนเป็นเป้ากากบาท ให้คลิกซ้ายลงบนพื้นที่ว่าง 1 ครั้ง<br>
+      4. หน้าต่าง Edit image จะเปิดขึ้นมา ให้คลิกไอคอนโฟลเดอร์ <b>Load an image from a file</b> ด้านซ้ายบน แล้วเลือกรูป PNG<br>
+      5. ปิดหน้าต่าง Edit image<br>
+      6. ไปที่หน้าต่าง Properties ด้านซ้าย ตั้งชื่อ <b>Name</b> เป็น <code>player</code></p>
+      <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Insert Sprite">
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Properties: Sprite</th></tr>
+          <tr><td>Name</td><td>player</td></tr>
+          <tr><td>Initial visibility</td><td>Visible</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout → ดับเบิลคลิกพื้นว่าง → Insert → Sprite</p>
     </article>
 
     <article class="card">
       <h2><span class="n">2</span> สร้าง Animation หลายชุด</h2>
-      <p>ดับเบิลคลิก Sprite → Animations panel ด้านซ้าย. คลิกขวา → Add animation → ตั้งชื่อเช่น <code>walk</code>, <code>Stand</code>, <code>jump</code>. Import เฟรมภาพ (ใช้ Strip Import ได้). ตั้งค่า Speed ประมาณ 8–12.</p>
+      <p>1. ดับเบิลคลิกที่ <b>Sprite</b> ใน Layout เพื่อเปิดหน้า Edit image<br>
+      2. มองไปที่หน้าต่าง <b>Animations</b> ด้านขวา (หรือขวาล่าง)<br>
+      3. <b>คลิกขวา</b> ที่ Animation 1 → เลือก <b>Rename</b> ตั้งชื่อเป็น <code>walk</code><br>
+      4. <b>คลิกขวา</b> พื้นที่ว่างในช่อง Animations → <b>Add animation</b> ตั้งชื่อเป็น <code>Stand</code><br>
+      5. ดึงรูปเข้าเฟรม โดยคลิกขวาที่แถบ <b>Animation frames</b> ด้านล่าง → <b>Import frames → From sprite strip...</b> หรือ <b>From files...</b><br>
+      6. คลิกที่ชื่อ Animation แล้วตั้งค่าที่ Properties: ตั้งค่า <b>Speed</b> = 8-12, และ <b>Loop</b> = Yes</p>
+      <img src="images/c2-sprite-anim.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Sprite Animation">
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Animation Properties</th></tr>
+          <tr><td>Speed</td><td>10</td></tr>
+          <tr><td>Loop</td><td>Yes</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> ดับเบิลคลิก Sprite → Animations panel</p>
     </article>
 
     <article class="card wide">
       <h2><span class="n">3</span> จัด Layers 3 ชั้น</h2>
-      <p>สร้าง 3 Layer พื้นฐาน:<br>
+      <p>1. มองหาแท็บ <b>Layers</b> (ปกติอยู่มุมขวาล่างของหน้าจอ)<br>
+      2. คลิกไอคอน <b>+ (Add layer)</b> เพื่อเพิ่มเลเยอร์ ให้มีทั้งหมด 3 ชั้น<br>
+      3. <b>คลิกขวา</b> ที่แต่ละเลเยอร์ เลือก <b>Rename</b> และตั้งชื่อจากล่างขึ้นบนตามนี้:</p>
+      <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Layers">
+      <p>
       - <code>bg</code> (ฉากหลัง, ล่างสุด)<br>
       - <code>game</code> (ตัวละคร/วัตถุ, ชั้นกลาง)<br>
-      - <code>HUD</code> (แสดงผล UI เช่น หลอดเลือด, บนสุด)<br>
-      * HUD ต้องคลิกที่ Layer แล้วตั้งค่า Parallax ใน Properties เป็น 0,0 เพื่อให้อยู่กับที่ ไม่เลื่อนตามฉาก</p>
+      - <code>HUD</code> (แสดงผล UI เช่น หลอดเลือด, คะแนน, บนสุด)<br>
+      4. <b>การตั้งค่า HUD ให้ลอยติดหน้าจอเสมอ:</b> คลิกเลือกเลเยอร์ <code>HUD</code> ไปที่หน้าต่าง Properties แล้วเปลี่ยนค่า <b>Parallax</b> เป็น <code>0, 0</code></p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Layer Properties (HUD)</th></tr>
+          <tr><td>Name</td><td>HUD</td></tr>
+          <tr><td>Parallax</td><td>0, 0</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> แถบ Layers (มักอยู่ทางขวาล่างของหน้าจอ)</p>
     </article>
 
     <article class="card wide">
-      <h2><span class="n">4</span> แก้ Collision Polygon</h2>
-      <p>ดับเบิลคลิก Sprite → คลิกไอคอน <b>Collision polygon</b> (ด้านซ้าย) → ลากจุดให้พอดีกับรูปร่าง. ถ้ากรอบ Collision ใหญ่กว่ารูป จะทำให้ตัวละครชนกำแพงที่มองไม่เห็นก่อนที่รูปจะแตะกำแพงจริงๆ</p>
+      <h2><span class="n">4</span> แก้ Collision Polygon (กรอบชน)</h2>
+      <p>1. ดับเบิลคลิก Sprite เพื่อเปิดหน้า Edit image<br>
+      2. คลิกที่ไอคอนรูปกล่องหลายเหลี่ยม <b>Set collision polygon</b> ด้านซ้ายมือ<br>
+      3. ลากจุดสีแดงตามมุมภาพให้พอดีกับรูปร่างของตัวละคร<br>
+      4. สามารถ <b>คลิกขวา</b> บนเส้นขอบสีแดง → เลือก <b>Add point</b> เพื่อเพิ่มจุดมุม หรือกดลบจุดที่ไม่ต้องการได้</p>
+      <img src="images/c2-sprite-anim.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Collision Polygon">
+      <p>ถ้ากรอบ Collision ใหญ่กว่ารูป จะทำให้ตัวละครชนกำแพงที่มองไม่เห็น หรือเดินลอยเหนือพื้น</p>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Image editor (ดับเบิลคลิก Sprite) → เครื่องมือ Set collision polygon</p>
     </article>
 

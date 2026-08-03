@@ -21,6 +21,7 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#451a03}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
 @media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
 </style>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
 <nav class="top-nav">
@@ -94,11 +95,21 @@ function simResetTimer() {
 </script>
 <div class="flow"><b>ตั้งเวลา 180 วินาที</b><i>→</i><b>ลดทุก 1 วินาที</b><i>→</i><b>แปลง format นาที:วิ</b><i>→</i><b>บวกคะแนน</b><i>→</i><b>หมดเวลา = แพ้</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>ตั้งเวลาและเพลงตามด่าน</h2><p>ใช้ LayoutName กำหนดค่าเริ่มต้น</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="cond">+ LayoutName = "game"</span> → <span class="act">เวลา=200, Play "Music2"</span><br><span class="cond">+ LayoutName = "game2"</span> → <span class="act">เวลา=150, Play "PirateShip"</span><br><span class="cond">+ LayoutName = "game3"</span> → <span class="act">เวลา=120, Play "ElmyraMiniboss"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "เริ่มด่าน+เพลง+เวลา"</p></article>
-<article class="card"><span class="n">2</span><h2>นับถอยหลังเวลา</h2><p>เช็กว่ายังไม่จบด่านก่อนลดเวลา</p><div class="event"><span class="cond">System → Every 1 second</span><br><span class="cond">กำลังจบด่าน = 0</span><br><span class="act">Subtract 1 from เวลา</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
-<article class="card"><span class="n">3</span><h2>เวลาหมด (Time Up)</h2><p>แสดง popup และบันทึกอันดับ</p><div class="event"><span class="cond">เวลา ≤ 0</span> AND <span class="cond">กำลังจบด่าน = 0</span> (Trigger once)<br><span class="act">แสดง Layer "popup"</span><br><span class="act">ล็อกตัวละคร player</span><br><span class="act">Set บันทึกอันดับ = 1</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
-<article class="card"><span class="n">4</span><h2>แปลงรูปแบบเป็น นาที : วินาที</h2><p>แสดงผลเวลา</p><div class="event"><span class="act">timer_text → Set text to</span><br>zeropad(floor(เวลา / 60), 2) &amp; ":" &amp; zeropad(เวลา % 60, 2)</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
-<article class="card wide warn"><span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2><p>เวลาติดลบ หรือเวลาลดต่อเนื่องตอนจบด่าน</p><div class="event"><span class="cond">สาเหตุ:</span> ไม่ได้เช็คเงื่อนไข กำลังจบด่าน=0<br><span class="act">วิธีแก้:</span> ใส่เงื่อนไข กำลังจบด่าน = 0 ในอีเวนต์ลดเวลา 1 วินาที</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
+<article class="card"><span class="n">1</span><h2>ตั้งเวลาและเพลงตามด่าน</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ใช้ LayoutName กำหนดค่าเริ่มต้น</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="cond">+ LayoutName = "game"</span> → <span class="act">เวลา=200, Play "Music2"</span><br><span class="cond">+ LayoutName = "game2"</span> → <span class="act">เวลา=150, Play "PirateShip"</span><br><span class="cond">+ LayoutName = "game3"</span> → <span class="act">เวลา=120, Play "ElmyraMiniboss"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "เริ่มด่าน+เพลง+เวลา"</p></article>
+<article class="card"><span class="n">2</span><h2>นับถอยหลังเวลา</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เช็กว่ายังไม่จบด่านก่อนลดเวลา</p><div class="event"><span class="cond">System → Every 1 second</span><br><span class="cond">กำลังจบด่าน = 0</span><br><span class="act">Subtract 1 from เวลา</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
+<article class="card"><span class="n">3</span><h2>เวลาหมด (Time Up)</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>แสดง popup และบันทึกอันดับ</p><div class="event"><span class="cond">เวลา ≤ 0</span> AND <span class="cond">กำลังจบด่าน = 0</span> (Trigger once)<br><span class="act">แสดง Layer "popup"</span><br><span class="act">ล็อกตัวละคร player</span><br><span class="act">Set บันทึกอันดับ = 1</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
+<article class="card"><span class="n">4</span><h2>แปลงรูปแบบเป็น นาที : วินาที</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>แสดงผลเวลา</p><div class="event"><span class="act">timer_text → Set text to</span><br>zeropad(floor(เวลา / 60), 2) &amp; ":" &amp; zeropad(เวลา % 60, 2)</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
+<article class="card wide warn"><span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เวลาติดลบ หรือเวลาลดต่อเนื่องตอนจบด่าน</p><div class="event"><span class="cond">สาเหตุ:</span> ไม่ได้เช็คเงื่อนไข กำลังจบด่าน=0<br><span class="act">วิธีแก้:</span> ใส่เงื่อนไข กำลังจบด่าน = 0 ในอีเวนต์ลดเวลา 1 วินาที</div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet + Layout HUD</p></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> ด่าน game ได้เวลา 200 เพลง Music2 • ด่าน game2 ได้เวลา 150 เพลง PirateShip • ด่าน game3 ได้เวลา 120 เพลง ElmyraMiniboss • เวลาไม่ลดเมื่อกำลังจบด่าน=1 • เวลาหมดแล้วขึ้น Popup และเซ็ต บันทึกอันดับ=1</aside>
 <footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Timer &amp; Score HUD</span><span>งานถัดไป: ระบบเสียงดนตรีและเอฟเฟกต์</span></footer>

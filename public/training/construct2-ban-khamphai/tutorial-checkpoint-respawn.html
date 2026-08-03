@@ -31,14 +31,107 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17243a}
 <section class="map"><div class="ground"></div><div class="pit"></div><span class="lab l1">จุดเริ่ม</span><span class="lab l2">Checkpoint</span><span class="lab l3">เกิดใหม่</span><div class="player">🧍</div><div class="flag">🚩</div><div class="ghost">🧍</div><div class="arrow">➜</div><div class="resp">🧍</div></section>
 <div class="flow"><b>จำจุดเริ่ม</b><i>→</i><b>แตะธง</b><i>→</i><b>บันทึก X/Y</b><i>→</i><b>ตกแล้วกลับมา</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>สร้างตัวแปร 3 ตัว</h2><p>คลิกขวา Event Sheet → Add global variable</p><div class="event"><span class="cond">จุดเกิดX</span> • Number • 0<br><span class="cond">จุดเกิดY</span> • Number • 0<br><span class="cond">กำลังเกิดใหม่</span> • Number • 0</div><p class="small">X/Y จำตำแหน่ง ส่วนตัวแปรสุดท้ายใช้ล็อกไม่ให้คำสั่งเกิดซ้ำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → Add global variable</p></article>
-<article class="card"><span class="n">2</span><h2>จำจุดเริ่มต้นของด่าน</h2><p>เมื่อเริ่ม Layout ให้อ่านตำแหน่ง player ที่วางไว้</p><div class="event"><span class="cond">System → On start of layout</span><br><span class="act">Set จุดเกิดX to player.X</span><br><span class="act">Set จุดเกิดY to player.Y</span><br>Set กำลังเกิดใหม่ to 0</div><p class="small">ไม่ต้องพิมพ์เลขตำแหน่งเอง เมื่อย้าย player ใน Editor ระบบยังถูกต้อง</p></article>
-<article class="card"><span class="n">3</span><h2>สร้างวัตถุ Checkpoint</h2><p>เพิ่ม Sprite รูปธง ตั้งชื่อ <b>checkpoint</b> และเพิ่ม Instance variable</p><div class="event"><span class="cond">checkpoint → Instance variables</span><br>Name: <span class="act">เปิดใช้งานแล้ว</span><br>Type: Boolean • Initial: False</div><p class="small">ธงแต่ละอันจำสถานะของตัวเองได้ เหมาะกับด่านที่มีหลายจุด</p></article>
-<article class="card"><span class="n">4</span><h2>แตะธงแล้วบันทึกตำแหน่ง</h2><div class="event"><span class="cond">player → On collision with checkpoint</span><br>checkpoint.เปิดใช้งานแล้ว = False<br><span class="act">Set จุดเกิดX to checkpoint.X</span><br><span class="act">Set จุดเกิดY to checkpoint.Y − 60</span></div><p class="small">ลบ Y 60 เพื่อให้ player เกิดเหนือธง ไม่เกิดซ้อนกับ Collision ของธง</p></article>
-<article class="card wide"><span class="n">5</span><h2>แสดงว่าธงทำงานแล้ว</h2><div class="event"><span class="cond">ต่อจาก Event ชนธง</span><br><span class="act">checkpoint → Set เปิดใช้งานแล้ว to True</span><br><span class="act">checkpoint → Set animation "Active"</span><br><span class="act">Audio → Play "checkpoint" (not looping)</span></div><p>สร้าง Animation <b>Inactive</b> และ <b>Active</b> คนละสี ผู้เล่นจะเข้าใจทันทีว่าบันทึกสำเร็จแล้ว</p></article>
-<article class="card wide warn"><span class="n">6</span><h2>ตกฉากแล้วกลับ Checkpoint</h2><div class="event"><span class="cond">player.Y &gt; LayoutHeight + 200</span><br>กำลังเกิดใหม่ = 0<br><span class="act">Set กำลังเกิดใหม่ to 1</span><br><span class="act">Subtract 1 from หัวใจ</span><br><span class="act">player → Set position to (จุดเกิดX, 700)</span><br><span class="act">player.Platform → Set vector Y to 0</span></div><p class="small">ตั้ง Y เป็น 700 เพื่อให้ผู้เล่นเกิดใหม่ตกลงมาจากกลางอากาศเหนือพื้นดิน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
-<article class="card wide"><span class="n">7</span><h2>ปลดล็อกหลังเกิดใหม่และกระพริบอมตะ</h2><div class="event"><span class="cond">หลัง Action ย้ายตำแหน่ง</span><br><span class="act">player → Flash (On 0.1, Off 0.1, Duration 3.0)</span><br><span class="act">Wait 0.5 seconds</span><br><span class="act">Set กำลังเกิดใหม่ to 0</span></div><p>ต้องไปเพิ่ม Behavior <span class="act">Flash</span> ให้กับ player ก่อน จึงจะใช้คำสั่งนี้ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> player → Behaviors และ game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
-<article class="card wide"><span class="n">8</span><h2>ป้องกันโดนดาเมจซ้ำตอนกระพริบ</h2><div class="event"><span class="cond">player → On collision with monster</span><br><span class="cond">player → Is flashing (Inverted)</span><br><span class="act">...คำสั่งลดหัวใจ...</span></div><p>คลิกขวาที่ Is flashing แล้วเลือก Invert (กากบาทแดง) แปลว่า "ถ้าไม่ได้กระพริบอยู่" ถึงจะโดนดาเมจ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
+<article class="card"><span class="n">1</span><h2>สร้างตัวแปร 3 ตัว</h2><p>คลิกขวา Event Sheet → Add global variable</p>
+<div class="c2-dialog">
+  <b>1. ตัวแปรจำตำแหน่งแกน X</b><br>
+  Name: <b>จุดเกิดX</b>, Type: Number, Initial value: 0<br><br>
+  <b>2. ตัวแปรจำตำแหน่งแกน Y</b><br>
+  Name: <b>จุดเกิดY</b>, Type: Number, Initial value: 0<br><br>
+  <b>3. ตัวแปรสถานะกำลังเกิดใหม่</b><br>
+  Name: <b>กำลังเกิดใหม่</b>, Type: Number, Initial value: 0
+</div>
+<img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+<p class="small">X/Y จำตำแหน่ง ส่วนตัวแปรสุดท้ายใช้ล็อกไม่ให้คำสั่งเกิดซ้ำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → Add global variable</p></article>
+<article class="card"><span class="n">2</span><h2>จำจุดเริ่มต้นของด่าน</h2><p>เมื่อเริ่ม Layout ให้อ่านตำแหน่ง player ที่วางไว้</p>
+<div class="c2-eventsheet">
+  <div class="c2-es-row">
+    <div class="c2-es-num">1</div>
+    <div class="c2-es-cond"><span class="obj">System</span> On start of layout</div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> <span class="obj">System</span> Set จุดเกิดX to player.X<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Set จุดเกิดY to player.Y<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Set กำลังเกิดใหม่ to 0
+    </div>
+  </div>
+</div>
+<p class="small">ไม่ต้องพิมพ์เลขตำแหน่งเอง เมื่อย้าย player ใน Editor ระบบยังถูกต้อง</p></article>
+<article class="card"><span class="n">3</span><h2>สร้างวัตถุ Checkpoint</h2><p>เพิ่ม Sprite รูปธง ตั้งชื่อ <b>checkpoint</b> และเพิ่ม Instance variable</p>
+<div class="c2-dialog">คลิกที่ธง &gt; ไปที่ Properties Panel &gt; Instance variables<br>คลิก <b>+ (Add new)</b><br>Name: <b>เปิดใช้งานแล้ว</b><br>Type: <b>Boolean</b><br>Initial value: <b>False</b> (ไม่ต้องติ๊ก)</div>
+<p class="small">ธงแต่ละอันจำสถานะของตัวเองได้ เหมาะกับด่านที่มีหลายจุด</p></article>
+<article class="card"><span class="n">4</span><h2>แตะธงแล้วบันทึกตำแหน่ง</h2>
+<div class="c2-eventsheet">
+  <div class="c2-es-row">
+    <div class="c2-es-num">2</div>
+    <div class="c2-es-cond">
+      <span class="obj">player</span> On collision with checkpoint<br>
+      <span class="obj">checkpoint</span> Is boolean instance variable เปิดใช้งานแล้ว set<br>
+      <span class="small">(คลิกขวาที่เงื่อนไขที่สอง เลือก Invert ให้เป็น False)</span>
+    </div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> <span class="obj">System</span> Set จุดเกิดX to checkpoint.X<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Set จุดเกิดY to checkpoint.Y - 60
+    </div>
+  </div>
+</div>
+<p class="small">ลบ Y 60 เพื่อให้ player เกิดเหนือธง ไม่เกิดซ้อนกับ Collision ของธง</p></article>
+<article class="card wide"><span class="n">5</span><h2>แสดงว่าธงทำงานแล้ว</h2>
+<div class="c2-eventsheet">
+  <div class="c2-es-row">
+    <div class="c2-es-num"></div>
+    <div class="c2-es-cond"><span class="small">(ใส่ใน Action ต่อจากข้อ 4 ทันที)</span></div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> <span class="obj">checkpoint</span> Set boolean เปิดใช้งานแล้ว to True<br>
+      <span class="arrow">➔</span> <span class="obj">checkpoint</span> Set animation "Active"<br>
+      <span class="arrow">➔</span> <span class="obj">Audio</span> Play "checkpoint" (not looping)
+    </div>
+  </div>
+</div>
+<p>สร้าง Animation <b>Inactive</b> และ <b>Active</b> คนละสี ผู้เล่นจะเข้าใจทันทีว่าบันทึกสำเร็จแล้ว</p></article>
+<article class="card wide warn"><span class="n">6</span><h2>ตกฉากแล้วกลับ Checkpoint</h2>
+<div class="c2-eventsheet">
+  <div class="c2-es-group">▼ Group: ตัวครละครออกจากฉาก</div>
+  <div class="c2-es-row">
+    <div class="c2-es-num">3</div>
+    <div class="c2-es-cond">
+      <span class="obj">System</span> Compare two values: player.Y &gt; LayoutHeight + 200<br>
+      <span class="obj">System</span> Compare variable กำลังเกิดใหม่ = 0
+    </div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> <span class="obj">System</span> Set กำลังเกิดใหม่ to 1<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Subtract 1 from หัวใจ<br>
+      <span class="arrow">➔</span> <span class="obj">player</span> Set position to (จุดเกิดX, 700)<br>
+      <span class="arrow">➔</span> <span class="obj">player.Platform</span> Set vector Y to 0
+    </div>
+  </div>
+</div>
+<p class="small">ตั้ง Y เป็น 700 เพื่อให้ผู้เล่นเกิดใหม่ตกลงมาจากกลางอากาศเหนือพื้นดิน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
+<article class="card wide"><span class="n">7</span><h2>ปลดล็อกหลังเกิดใหม่และกระพริบอมตะ</h2>
+<div class="c2-eventsheet">
+  <div class="c2-es-row">
+    <div class="c2-es-num"></div>
+    <div class="c2-es-cond"><span class="small">(ใส่ใน Action ต่อจากข้อ 6 ทันที)</span></div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> <span class="obj">player</span> Flash (On 0.1, Off 0.1, Duration 3.0)<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Wait 0.5 seconds<br>
+      <span class="arrow">➔</span> <span class="obj">System</span> Set กำลังเกิดใหม่ to 0
+    </div>
+  </div>
+</div>
+<p>ต้องไปเพิ่ม Behavior <span class="act">Flash</span> ให้กับ player ก่อน จึงจะใช้คำสั่งนี้ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> player → Behaviors และ game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
+<article class="card wide"><span class="n">8</span><h2>ป้องกันโดนดาเมจซ้ำตอนกระพริบ</h2>
+<div class="c2-eventsheet">
+  <div class="c2-es-row">
+    <div class="c2-es-num">4</div>
+    <div class="c2-es-cond">
+      <span class="obj">player</span> On collision with monster<br>
+      <span class="obj">player</span> Is flashing <span class="small">(คลิกขวา Invert เป็นเครื่องหมายกากบาทแดง)</span>
+    </div>
+    <div class="c2-es-act">
+      <span class="arrow">➔</span> ...คำสั่งลดหัวใจ...
+    </div>
+  </div>
+</div>
+<p>คลิกขวาที่ Is flashing แล้วเลือก Invert (กากบาทแดง) แปลว่า "ถ้าไม่ได้กระพริบอยู่" ถึงจะโดนดาเมจ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ตัวครละครออกจากฉาก"</p></article>
 <article class="card wide warn">
 <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
 <div class="event">- ลืมคลิก Invert ที่ Is flashing ทำให้ตอนกระพริบก็ยังเสียเลือดได้<br>- ลืมติด Behavior Flash ให้ผู้เล่น ทำให้รันเกมแล้ว Error หรือหาคำสั่งไม่เจอ</div>

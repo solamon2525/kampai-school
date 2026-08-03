@@ -21,6 +21,7 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#450a0a}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
 @media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
 </style>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
 <nav class="top-nav">
@@ -91,13 +92,27 @@ function simResetBoss() {
 </script>
 <div class="flow"><b>วาง Sprite บอส</b><i>→</i><b>สร้างตัวแปร HP</b><i>→</i><b>ทำหลอด HP</b><i>→</i><b>สลับเฟสการโจมตี</b><i>→</i><b>เอฟเฟกต์ชนะ</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>สร้าง Sprite บอส และตัวแปร</h2><p>วาง Sprite บอสขนาดใหญ่ชื่อ <b>boss</b></p><div class="event"><span class="cond">Instance Variable:</span><br>• <b>บอสHP</b> (Number) = 30<br>• <b>เฟส</b> (Number) = 1</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card"><span class="n">2</span><h2>ทำหลอดพลังชีวิต (HP Bar)</h2><p>สร้าง Sprite หลอดเลือดสีแดงชื่อ <b>boss_hp_bar</b> บน Layer HUD</p><div class="event"><span class="cond">System → Every tick</span><br><span class="act">boss_hp_bar → Set width to</span><br>max(0, (boss.บอสHP / 30) × 300)</div><p class="small">ความกว้างหลอดจะลดลงตามสัดส่วน HP ที่เหลืออย่างแม่นยำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card"><span class="n">3</span><h2>เฟส 1 (HP 21–30): เดินยิงช้าๆ</h2><p>ยิงกระสุนเดี่ยวหาผู้เล่นทุก 3 วินาที</p><div class="event"><span class="cond">boss.บอสHP &gt; 20</span><br><span class="act">boss → Set เฟส to 1</span><br><span class="act">Every 3.0 seconds → Create boss_bullet</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card"><span class="n">4</span><h2>เฟส 2 (HP 11–20): ยิงกระจาย 3 ทิศ</h2><p>เพิ่มความเร็วและยิงเป็นพัด 3 ทิศทาง</p><div class="event"><span class="cond">boss.บอสHP ในช่วง 11..20</span><br><span class="act">boss → Set เฟส to 2</span><br><span class="act">Every 2.0 seconds → Create 3 boss_bullets</span><br>Angles: -15°, 0°, +15°</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card wide"><span class="n">5</span><h2>เฟส 3 (HP 1–10): โหมดคุ้มคลั่ง (Rage Mode)</h2><p>บอสเปลี่ยนเป็นสีแดง กระโดดทุ่มตัว และปล่อยลูกน้องมอนสเตอร์</p><div class="event"><span class="cond">boss.บอสHP ≤ 10</span> → <span class="act">Set เฟส to 3</span><br><span class="act">boss → Set color tint to Red (255, 100, 100)</span><br><span class="act">Every 4.0 seconds → Spawn minion_monster</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card wide warn"><span class="n">6</span><h2>เอฟเฟกต์เมื่อชนะบอส</h2><div class="event"><span class="cond">boss.บอสHP ≤ 0</span><br>System → Trigger once<br><span class="act">Audio → Play "explosion_big"</span><br><span class="act">boss → Spawn explosion_effect</span><br><span class="act">boss → Destroy</span><br><span class="act">Create door at boss.X, boss.Y</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
-<article class="card wide warn"><span class="n">7</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2><p>บอสตายแล้วแต่ลูกน้องหรือกระสุนยังโผล่มา</p><div class="event"><span class="cond">สาเหตุ:</span> Timer สำหรับยิงกระสุนยังทำงานอยู่<br><span class="act">วิธีแก้:</span> ทำลายกระสุนและลูกน้องบนจอให้หมดเมื่อบอส HP=0</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card"><span class="n">1</span><h2>สร้าง Sprite บอส และตัวแปร</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>วาง Sprite บอสขนาดใหญ่ชื่อ <b>boss</b></p><div class="event"><span class="cond">Instance Variable:</span><br>• <b>บอสHP</b> (Number) = 30<br>• <b>เฟส</b> (Number) = 1</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card"><span class="n">2</span><h2>ทำหลอดพลังชีวิต (HP Bar)</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>สร้าง Sprite หลอดเลือดสีแดงชื่อ <b>boss_hp_bar</b> บน Layer HUD</p><div class="event"><span class="cond">System → Every tick</span><br><span class="act">boss_hp_bar → Set width to</span><br>max(0, (boss.บอสHP / 30) × 300)</div><p class="small">ความกว้างหลอดจะลดลงตามสัดส่วน HP ที่เหลืออย่างแม่นยำ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card"><span class="n">3</span><h2>เฟส 1 (HP 21–30): เดินยิงช้าๆ</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ยิงกระสุนเดี่ยวหาผู้เล่นทุก 3 วินาที</p><div class="event"><span class="cond">boss.บอสHP &gt; 20</span><br><span class="act">boss → Set เฟส to 1</span><br><span class="act">Every 3.0 seconds → Create boss_bullet</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card"><span class="n">4</span><h2>เฟส 2 (HP 11–20): ยิงกระจาย 3 ทิศ</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เพิ่มความเร็วและยิงเป็นพัด 3 ทิศทาง</p><div class="event"><span class="cond">boss.บอสHP ในช่วง 11..20</span><br><span class="act">boss → Set เฟส to 2</span><br><span class="act">Every 2.0 seconds → Create 3 boss_bullets</span><br>Angles: -15°, 0°, +15°</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card wide"><span class="n">5</span><h2>เฟส 3 (HP 1–10): โหมดคุ้มคลั่ง (Rage Mode)</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>บอสเปลี่ยนเป็นสีแดง กระโดดทุ่มตัว และปล่อยลูกน้องมอนสเตอร์</p><div class="event"><span class="cond">boss.บอสHP ≤ 10</span> → <span class="act">Set เฟส to 3</span><br><span class="act">boss → Set color tint to Red (255, 100, 100)</span><br><span class="act">Every 4.0 seconds → Spawn minion_monster</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card wide warn"><span class="n">6</span><h2>เอฟเฟกต์เมื่อชนะบอส</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<div class="event"><span class="cond">boss.บอสHP ≤ 0</span><br>System → Trigger once<br><span class="act">Audio → Play "explosion_big"</span><br><span class="act">boss → Spawn explosion_effect</span><br><span class="act">boss → Destroy</span><br><span class="act">Create door at boss.X, boss.Y</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
+<article class="card wide warn"><span class="n">7</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>บอสตายแล้วแต่ลูกน้องหรือกระสุนยังโผล่มา</p><div class="event"><span class="cond">สาเหตุ:</span> Timer สำหรับยิงกระสุนยังทำงานอยู่<br><span class="act">วิธีแก้:</span> ทำลายกระสุนและลูกน้องบนจอให้หมดเมื่อบอส HP=0</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet ย่อยของบอส</p></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> หลอด HP บอสลดลงสมูท • HP ลดถึง 20 สลับเป็นเฟส 2 (ยิง 3 ทิศ) • HP ลดถึง 10 บอสเปลี่ยนสีแดง • บอส HP 0 ระเบิดหายไปแล้วสร้างประตูชนะ • แนะนำให้แยก Event บอสไว้ใน Group หรือ Sheet ต่างหาก</aside>
 <footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Boss Battle &amp; Phases</span><span>งานถัดไป: ฉากสรุปผลและเกียรติบัตรในเกม</span></footer>

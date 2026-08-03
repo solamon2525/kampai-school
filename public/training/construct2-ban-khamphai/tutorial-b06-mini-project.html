@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>คู่มือ Construct 2 — Mini Project: เดินบนพื้นเก็บดาว</title>
+<link rel="stylesheet" href="common.css">
 <style>
   :root {
     --bg: #fef9e7;
@@ -65,34 +66,81 @@
   <section class="grid">
     <article class="card">
       <span class="n">1</span><h2>สร้าง Layout และ Layers</h2>
-      <p>สร้างโปรเจกต์ใหม่ขนาด Window Size: 1280×720. สร้าง 3 Layers เรียงลำดับจากล่างขึ้นบน: <code>bg</code>, <code>game</code>, <code>HUD</code>. วาง TiledBackground เป็นพื้นบน Layer game และใส่ Behavior: Solid.</p>
+      <p>1. ไปที่ <b>File → New → Empty project</b><br>
+      2. ตั้งค่า Window Size เป็น <code>1280, 720</code> ใน Properties<br>
+      3. ไปที่แท็บ Layers สร้าง 3 Layers เรียงลำดับจากล่างขึ้นบน: <code>bg</code>, <code>game</code>, <code>HUD</code><br>
+      4. เลือกเลเยอร์ <code>game</code> ดับเบิลคลิกพื้นที่ว่าง เลือก Insert <b>TiledBackground</b> เพื่อใช้เป็นพื้น<br>
+      5. คลิกที่ TiledBackground ไปที่ Behaviors และ Add <b>Solid</b></p>
+      <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Layers">
       <p class="small">📍 <b>ที่ไหนใน C2:</b> File → New → Empty project</p>
     </article>
     
     <article class="card">
       <span class="n">2</span><h2>วาง Player + Behaviors</h2>
-      <p>สร้าง Sprite <code>player</code> บน Layer game. ใส่ Behavior: <b>Platform</b> (Jump strength: 650, Gravity: 1500, Max jumps: 2) และ <b>Scroll To</b>. สร้าง Animation: <code>walk</code>, <code>Stand</code>.</p>
+      <p>1. เลือกเลเยอร์ <code>game</code><br>
+      2. <b>ดับเบิลคลิก</b> พื้นที่ว่าง → Insert <b>Sprite</b> (ตั้งชื่อ <code>player</code>)<br>
+      3. ไปที่ <b>Behaviors</b> → Add <b>Platform</b> และ Add <b>Scroll To</b><br>
+      4. ปรับค่าใน Properties ของ Platform (Jump strength: 650, Gravity: 1500, Max jumps: 2)<br>
+      5. เปิด Edit image (ดับเบิลคลิกตัวละคร) แล้วสร้าง Animation: <code>walk</code>, <code>Stand</code></p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Platform Behavior</th></tr>
+          <tr><td>Max jumps</td><td>2</td></tr>
+          <tr><td>Jump strength</td><td>650</td></tr>
+          <tr><td>Gravity</td><td>1500</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer game → Insert → Sprite</p>
     </article>
     
     <article class="card">
       <span class="n">3</span><h2>วาง Sprite ดาว</h2>
-      <p>สร้าง Sprite <code>star</code> นำไปวางบนเกาะหรือพื้นที่ต่างๆ 1-3 ดวง. ใช้ Animation หรือเปลี่ยนภาพเป็นดาวหรือเหรียญ.</p>
+      <p>1. เลือกเลเยอร์ <code>game</code><br>
+      2. <b>ดับเบิลคลิก</b> พื้นที่ว่าง → Insert <b>Sprite</b> (ตั้งชื่อ <code>star</code>)<br>
+      3. โหลดภาพดาว หรือเหรียญ เข้ามา<br>
+      4. นำไปวางบนเกาะหรือพื้นที่ต่างๆ 1-3 ดวง</p>
+      <img src="images/c2-sprite-anim.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Insert Star">
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer game → Insert → Sprite ใหม่</p>
     </article>
     
     <article class="card wide">
       <span class="n">4</span><h2>Event Sheet: เดิน + เก็บดาว</h2>
-      <p>สร้าง Group แยกการทำงานเพื่อง่ายต่อการอ่าน:</p>
-      <div class="box"><b>Group: เดิน+กระโดด</b>
-<span class="blue">Keyboard → On Left arrow pressed</span> <span class="red">→ player → Set mirrored / Set animation to "walk"</span>
-<span class="blue">Keyboard → On Right arrow pressed</span> <span class="red">→ player → Set not mirrored / Set animation to "walk"</span>
-<span class="blue">Keyboard → On Left arrow released (หรือตรวจสอบไม่กด)</span> <span class="red">→ player → Set animation to "Stand"</span>
-
-<b>Group: เก็บของ</b>
-<span class="blue">player → On collision with star</span> <span class="red">→ star → Destroy</span>
-<span class="red">→ System → Add 10 to คะแนน</span>
-<span class="red">→ Text → Set text to "คะแนน : " & คะแนน</span></div>
+      <p>1. ใน Event sheet <b>คลิกขวา → Add global variable</b> ชื่อ <code>Score</code><br>
+      2. <b>คลิกขวา → Add group</b> ตั้งชื่อ <code>เดิน+กระโดด</code> และ <code>เก็บของ</code><br>
+      3. เพิ่ม Event ตามลำดับดังนี้:</p>
+      <div class="c2-eventsheet">
+        <b>Group: เดิน+กระโดด</b>
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-keyboard.png" alt="kb" style="width:16px;vertical-align:middle;"> Keyboard ➔ On <b>Left arrow</b> pressed
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ Set mirrored<br>
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ Set animation to <b>"walk"</b>
+          </div>
+        </div>
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-keyboard.png" alt="kb" style="width:16px;vertical-align:middle;"> Keyboard ➔ On <b>Right arrow</b> pressed
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ Set <b>not mirrored</b><br>
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ Set animation to <b>"walk"</b>
+          </div>
+        </div>
+        
+        <br><b>Group: เก็บของ</b>
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ On collision with <b>star</b>
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> star ➔ Destroy<br>
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Add <b>10</b> to <b>Score</b><br>
+            <img src="images/icon-text.png" alt="txt" style="width:16px;vertical-align:middle;"> Text ➔ Set text to <b>"คะแนน : " & Score</b>
+          </div>
+        </div>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet → Add event</p>
     </article>
     

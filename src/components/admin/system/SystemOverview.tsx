@@ -272,9 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.214.0 (คู่มือ Construct 2 master_v32 — 29 บทเรียน 3 ระดับ)',
+        version: 'v1.214.1 (ภาพประกอบและ Visual UI ของ Construct 2 จริงทุกบทเรียน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพประกอบหน้าจอซอฟต์แวร์จริงของ Construct 2 (Workspace UI, Event Sheet, Properties Panel, Behaviors Dialog) ทุกบทเรียน 29 บท',
+            'ปรับปรุงระบบแสดงผลการ์ดใน common.css ด้วย UI Component (c2-eventsheet, c2-properties, c2-dialog, c2-window-mockup)',
+            'เพิ่มคำอธิบายขั้นตอนเมาส์คลิก (คลิกซ้าย, ดับเบิลคลิก, คลิกขวา) และการตั้งค่าอย่างละเอียด',
+        ],
+    },
+    {
+        version: 'v1.214.0 (คู่มือ Construct 2 master_v32 — 29 บทเรียน 3 ระดับ)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
         items: [
             'ผสานคู่มือ 2 เข้ากับคู่มือบ้านคำไผ่ ขยายเป็น 29 บทเรียน 3 ระดับ (พื้นฐาน B1-B6, ระบบหลัก 01-16, ขั้นสูง A1-A7)',
             'ปรับปรุง index.html เป็นระบบ 3 แท็บระดับ ค้นหา กรองแท็ก จัดลำดับบทเรียน และ visual learning path',

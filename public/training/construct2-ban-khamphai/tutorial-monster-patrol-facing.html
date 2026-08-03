@@ -15,7 +15,8 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#19243a}
 .footer{margin-top:35px;padding-top:20px;border-top:2px dashed #bdb5df;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
 @media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:30px!important;left:60px!important;right:60px!important;border:none}}
-</style></head><body>
+</style>  <link rel="stylesheet" href="common.css">
+</head><body>
 <nav class="top-nav">
   <a href="index.html">← หน้าหลักคู่มือ</a>
   <div class="nav-right">
@@ -29,12 +30,22 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#19243a}
 <section class="demo"><div class="ground"></div><div class="limit a"></div><div class="limit b"></div><span class="lab l1">ขอบซ้าย</span><span class="lab l2">เขตลาดตระเวน</span><span class="lab l3">ขอบขวา</span><div class="ar1">←</div><div class="monster">👾</div><div class="ar2">→</div></section>
 <div class="flow"><b>จำจุดเริ่ม</b><i>→</i><b>สุ่มระยะ</b><i>→</i><b>เดิน</b><i>→</i><b>ถึงขอบ</b><i>→</i><b>กลับทิศ</b></div>
 <section class="grid">
-<article class="card"><span class="n">1</span><h2>เดินด้วย Sine Behavior</h2><p>เลือก Sprite <b>eminy</b> แล้วเพิ่ม Behavior</p><div class="event"><span class="cond">eminy → Behaviors → Add Sine</span><br><span class="act">Movement: Horizontal</span><br>Wave: Sine<br>Period: 4 (สุ่มค่า 3-6 ได้เพื่อให้เดินไม่พร้อมกัน)<br>Magnitude: 150 (ระยะการเดินซ้ายขวา)</div><p class="small">Sine จะทำให้มอนสเตอร์เดินแกว่งซ้าย-ขวาอัตโนมัติ โดยไม่ต้องเขียนโค้ดคำนวณตำแหน่งเอง</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout → Layer game</p></article>
-<article class="card"><span class="n">2</span><h2>ตัวแปรจำตำแหน่งเดิม</h2><p>เพิ่ม Instance variable ให้ <b>eminy</b> เพื่อเอาไว้เทียบว่าเดินไปทางไหน</p><div class="event"><span class="cond">eminy → Instance variables</span><br>Name: <span class="act">ตำแหน่งXก่อนหน้า</span><br>Type: Number • Initial: 0</div><p class="small">ตัวแปรนี้จะใช้เก็บตำแหน่งของเฟรมที่แล้ว เพื่อเอามาเทียบกับเฟรมปัจจุบัน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Properties ของ eminy</p></article>
-<article class="card wide"><span class="n">3</span><h2>หันหน้าตามทิศเดิน (ซ้าย-ขวา)</h2><div class="event"><span class="cond">System → Every tick</span><br><span class="cond">eminy → Compare X: &gt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Not mirrored</span><br><span class="cond">eminy → Compare X: &lt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Mirrored</span><br><span class="act">eminy → Set ตำแหน่งXก่อนหน้า to eminy.X</span></div><p class="small">อัปเดต ตำแหน่งXก่อนหน้า ไว้ท้ายสุดเสมอ เพื่อใช้เปรียบเทียบในรอบถัดไป</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนสเตอร์หันหน้าตามทิศเดิน"</p></article>
-<article class="card wide"><span class="n">4</span><h2>สุ่มวางในด่าน 2 และ 3</h2><p>ใน Layout game2 และ game3 คุณสามารถสุ่มวาง eminy ตามเกาะต่างๆ ได้อย่างอิสระ</p><div class="event"><span class="act">Tip:</span> ปรับค่า Period (ความเร็วการเดิน) และ Magnitude (ระยะเดิน) ในหน้า Properties ของแต่ละตัวให้ไม่เท่ากัน เพื่อให้เกมดูเป็นธรรมชาติ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game2 และ game3</p></article>
+<article class="card"><span class="n">1</span><h2>เดินด้วย Sine Behavior</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เลือก Sprite <b>eminy</b> แล้วเพิ่ม Behavior</p><div class="event"><span class="cond">eminy → Behaviors → Add Sine</span><br><span class="act">Movement: Horizontal</span><br>Wave: Sine<br>Period: 4 (สุ่มค่า 3-6 ได้เพื่อให้เดินไม่พร้อมกัน)<br>Magnitude: 150 (ระยะการเดินซ้ายขวา)</div><p class="small">Sine จะทำให้มอนสเตอร์เดินแกว่งซ้าย-ขวาอัตโนมัติ โดยไม่ต้องเขียนโค้ดคำนวณตำแหน่งเอง</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout → Layer game</p></article>
+<article class="card"><span class="n">2</span><h2>ตัวแปรจำตำแหน่งเดิม</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>เพิ่ม Instance variable ให้ <b>eminy</b> เพื่อเอาไว้เทียบว่าเดินไปทางไหน</p><div class="event"><span class="cond">eminy → Instance variables</span><br>Name: <span class="act">ตำแหน่งXก่อนหน้า</span><br>Type: Number • Initial: 0</div><p class="small">ตัวแปรนี้จะใช้เก็บตำแหน่งของเฟรมที่แล้ว เพื่อเอามาเทียบกับเฟรมปัจจุบัน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Properties ของ eminy</p></article>
+<article class="card wide"><span class="n">3</span><h2>หันหน้าตามทิศเดิน (ซ้าย-ขวา)</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<div class="event"><span class="cond">System → Every tick</span><br><span class="cond">eminy → Compare X: &gt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Not mirrored</span><br><span class="cond">eminy → Compare X: &lt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Mirrored</span><br><span class="act">eminy → Set ตำแหน่งXก่อนหน้า to eminy.X</span></div><p class="small">อัปเดต ตำแหน่งXก่อนหน้า ไว้ท้ายสุดเสมอ เพื่อใช้เปรียบเทียบในรอบถัดไป</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนสเตอร์หันหน้าตามทิศเดิน"</p></article>
+<article class="card wide"><span class="n">4</span><h2>สุ่มวางในด่าน 2 และ 3</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+<p>ใน Layout game2 และ game3 คุณสามารถสุ่มวาง eminy ตามเกาะต่างๆ ได้อย่างอิสระ</p><div class="event"><span class="act">Tip:</span> ปรับค่า Period (ความเร็วการเดิน) และ Magnitude (ระยะเดิน) ในหน้า Properties ของแต่ละตัวให้ไม่เท่ากัน เพื่อให้เกมดูเป็นธรรมชาติ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game2 และ game3</p></article>
 <article class="card wide warn">
 <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+
 <div class="event">- ลืมใส่คำสั่งอัปเดตค่า `ตำแหน่งXก่อนหน้า` ไว้บรรทัดสุดท้าย (ต้องอยู่หลังจากการตรวจสอบทิศทางเสมอ)<br>- ตั้ง Magnitude ของ Sine มากเกินไปจนมอนสเตอร์เดินตกขอบเกาะ</div>
 </article>
 </section>

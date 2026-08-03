@@ -30,6 +30,7 @@ body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card { grid-column: 1 / -1; } }
 @media print { .top-nav, .footer { display: none; } body { background: white; } .card { break-inside: avoid; border: 1px solid #ddd; } }
 </style>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
 <nav class="top-nav">
@@ -50,12 +51,16 @@ body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
   <section class="grid">
     <article class="card">
       <span class="n">1</span><h2>เตรียม Function Object</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>ฟังก์ชันใน Construct 2 ต้องการ Object เสริมเพื่อทำงาน ตรวจสอบว่าโปรเจกต์มี Object ชนิด Function แล้วหรือยัง หากยังไม่มีให้เพิ่มเข้ามาก่อน</p>
       <span class="small">📍 <b>ที่ไหนใน C2:</b> ดับเบิลคลิกพื้นที่ว่างใน Layout → Insert object → ค้นหาคำว่า Function (ในกลุ่ม Data & Storage)</span>
     </article>
 
     <article class="card">
       <span class="n">2</span><h2>สร้างและเรียกใช้</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+
       <p>สร้างนิยามของฟังก์ชันและกำหนด Action ภายใน:</p>
       <div class="box">
         <span class="blue">Function → On function "ApplyDamage"</span><br>
@@ -72,6 +77,8 @@ body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 
     <article class="card wide">
       <span class="n">3</span><h2>ฟังก์ชันแนะนำสำหรับ v32</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>หากเรามีจุดที่โค้ดซ้ำกันหลายแห่ง ให้สร้างฟังก์ชันขึ้นมาแทน เช่น:</p>
       <ul>
         <li><code>ApplyDamage</code>: ลดพลังชีวิต + Flash ตัวละคร + เล่นเสียงเจ็บ (เรียกเมื่อชนมอนสเตอร์, โดนกระสุน, หรือตอบคำถามผิด)</li>
@@ -84,6 +91,8 @@ body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 
     <article class="card wide">
       <span class="n">4</span><h2>ส่ง Parameter</h2>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+
       <p>ฟังก์ชันสามารถรับค่า (Parameter) มาประมวลผลได้ ทำให้ยืดหยุ่นมากขึ้น เช่น:</p>
       <div class="box">
         <span class="blue">Function → On function "ApplyDamage"</span><br>
@@ -95,6 +104,8 @@ body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 
     <article class="card wide warn">
       <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <ul>
         <li>พิมพ์ชื่อ function ผิดตอน Call (Construct 2 จะไม่แจ้ง error แต่ฟังก์ชันจะไม่ทำงาน)</li>
         <li>ใช้ Action <code>Wait</code> ภายในเนื้อหาของ Function (อาจทำให้ Timing และ Flow ของฟังก์ชันผิดพลาดได้)</li>

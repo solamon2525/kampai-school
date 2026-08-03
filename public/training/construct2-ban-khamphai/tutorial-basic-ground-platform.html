@@ -63,7 +63,8 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
   <article class="card">
    <span class="n">1</span><h2>สร้างพื้นหลัก</h2>
    <p>วาง Sprite รูปพื้นให้ต่อกันตลอดทาง แล้วตั้งชื่อว่า <b>ground</b></p>
-   <div class="box"><span class="blue">ground → Behaviors</span><br>Add new behavior → <span class="red">Solid</span></div>
+   <div class="c2-dialog">คลิกขวาที่พื้นว่างใน Layout &gt; <b>Insert new object</b> &gt; เลือก <b>Sprite</b> &gt; ตั้งชื่อ <b>ground</b> &gt; คลิกวางใน Layout &gt; โหลดภาพพื้น<br>จากนั้นคลิกที่ ground ใน Layout &gt; ไปที่ Properties Panel (ซ้ายมือ) &gt; คลิกลิงก์ <b>Behaviors</b> &gt; หน้าต่าง Behaviors เด้งขึ้นมา &gt; คลิกปุ่ม <b>+ (Add new)</b> &gt; เลือก <b>Solid</b> &gt; กด Add</div>
+   <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
    <p class="small">Solid ทำให้ผู้เล่นยืนบนพื้นและชนด้านข้างได้</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → Layer game</p>
   </article>
@@ -79,7 +80,8 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
   <article class="card">
    <span class="n">3</span><h2>สร้างเกาะกระโดดทะลุ</h2>
    <p>วาง Sprite เกาะ ตั้งชื่อ <b>sky1</b> แล้วเพิ่ม Behavior</p>
-   <div class="box"><span class="blue">sky1 → Behaviors</span><br>Add new behavior → <span class="red">Jump-thru</span><br>Add new behavior → <span class="red">Sine</span> (ตัวเลือก: ทำให้เกาะลอยขึ้นลงได้)</div>
+   <div class="c2-dialog">คลิกขวาที่เกาะ &gt; ไปที่ Properties Panel &gt; <b>Behaviors</b> &gt; คลิก <b>+</b><br>เลือก <b>Jump-thru</b> &gt; Add<br>เลือก <b>Sine</b> &gt; Add (ตัวเลือก: ทำให้เกาะลอยขึ้นลงได้)</div>
+   <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
    <p class="small">ผู้เล่นกระโดดทะลุจากด้านล่าง และลงมายืนบนด้านบนได้</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก sky1 แล้ว sky2</p>
   </article>
@@ -87,7 +89,15 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
   <article class="card">
    <span class="n">4</span><h2>ตั้งค่าผู้เล่น</h2>
    <p>เลือก Sprite <b>player</b> แล้วเพิ่ม Platform behavior</p>
-   <div class="box"><span class="blue">player → Platform</span><br>Jump strength: <span class="red">650</span><br>Gravity: <span class="red">1500</span><br>Max jumps: <span class="red">2</span></div>
+   <div class="c2-properties">
+     <div class="c2-props-head">Properties: player (Sprite)</div>
+     <table class="c2-props-table">
+       <tr><td>Jump strength</td><td>650</td></tr>
+       <tr><td>Gravity</td><td>1500</td></tr>
+       <tr><td>Max jumps</td><td>2</td></tr>
+     </table>
+   </div>
+   <img src="images/c2-properties.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
    <p class="small">Max jumps = 2 คือ Double Jump ตามระบบเดิมของเกม</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p>
   </article>
@@ -95,7 +105,18 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
   <article class="card wide warn">
    <span class="n">5</span><h2>ผู้เล่นตกฉาก ให้กลับจุดเกิด</h2>
    <p>เพิ่มตัวแปรตำแหน่งปลอดภัย <b>จุดเกิดX</b> และ <b>จุดเกิดY</b> จากนั้นเพิ่ม Event:</p>
-   <div class="box"><span class="blue">System → Compare two values: player.Y &gt; LayoutHeight + 200</span><br><span class="red">player → Set position to (จุดเกิดX, จุดเกิดY)</span><br><span class="red">System → Subtract 1 from หัวใจ</span></div>
+   <div class="c2-eventsheet">
+     <div class="c2-es-group">▼ Group: Player Falls</div>
+     <div class="c2-es-row">
+       <div class="c2-es-num">1</div>
+       <div class="c2-es-cond"><span class="obj">System</span> Compare two values: player.Y &gt; LayoutHeight + 200</div>
+       <div class="c2-es-act">
+         <span class="arrow">➔</span> <span class="obj">player</span> Set position to (จุดเกิดX, จุดเกิดY)<br>
+         <span class="arrow">➔</span> <span class="obj">System</span> Subtract 1 from หัวใจ
+       </div>
+     </div>
+   </div>
+   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
    <p class="small">บวก 200 เพื่อให้ผู้เล่นหลุดพ้นขอบจอก่อน จึงค่อยย้ายกลับ ไม่กระตุกทันทีที่แตะขอบล่าง</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet</p>
   </article>

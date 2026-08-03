@@ -30,6 +30,7 @@ body { background: #fef6e4; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card { grid-column: 1 / -1; } }
 @media print { .top-nav, .footer { display: none; } body { background: white; } .card { break-inside: avoid; border: 1px solid #ddd; } }
 </style>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
 <nav class="top-nav">
@@ -50,12 +51,16 @@ body { background: #fef6e4; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
   <section class="grid">
     <article class="card">
       <span class="n">1</span><h2>ปัญหาของตัวแปรทีละชื่อ</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>ระบบ Top 5 ใน master_v32 แบบปกติจะใช้ตัวแปรชื่อต่างๆ เช่น <code>ชื่อ1, ชื่อ2, ชื่อ3...</code> ควบคู่กับ <code>คะแนน1, คะแนน2...</code> ซึ่งรวมแล้วต้องใช้ถึง 10 ตัวแปร ถ้าเป็นระบบ Top 10 ก็ต้องใช้ 20 ตัวแปร ซึ่งยุ่งยากมาก Array สามารถช่วยแก้ปัญหานี้ได้</p>
       <span class="small">📍 <b>ที่ไหนใน C2:</b> ลองสังเกตจำนวน Global Variables เรียงกันยาวเหยียดใน Event sheet ของ Ranking</span>
     </article>
 
     <article class="card">
       <span class="n">2</span><h2>Array พื้นฐาน</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>คุณสามารถสร้าง Array ไว้เก็บคะแนนได้ โดยตั้งชื่อ <code>TopScores</code> ให้มี Width=5, Height=2 (แถว 0 สำหรับคะแนน, แถว 1 สำหรับชื่อ)</p>
       <div class="box">
         <span class="red">Array → Set at X, Y</span><br>
@@ -67,6 +72,8 @@ body { background: #fef6e4; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 
     <article class="card wide">
       <span class="n">3</span><h2>Dictionary</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>ใช้เก็บข้อมูลแบบ Key-Value คู่กัน เช่น <code>"ผ่านด่าน1" → 1</code> หรือ <code>"ชื่อผู้เล่น" → "สมชาย"</code></p>
       <p>Dictionary เหมาะมากๆ กับการสร้างระบบบันทึกเกม (เซฟเกม) ลงใน WebStorage เพราะคุณสามารถแปลงข้อมูล Dictionary เป็นรูปแบบ JSON string แล้วเซฟครั้งเดียวจบได้เลย</p>
       <span class="small">📍 <b>ที่ไหนใน C2:</b> Insert object → Dictionary</span>
@@ -74,12 +81,16 @@ body { background: #fef6e4; font-family: "Leelawadee UI", Tahoma, sans-serif; ma
 
     <article class="card wide">
       <span class="n">4</span><h2>เมื่อไหร่ยังควรใช้ตัวแปรธรรมดา</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <p>ถ้าตารางคะแนนของคุณคงที่แค่ Top 5 ช่อง (เหมือนใน v32) การใช้ตัวแปรธรรมดาก็อาจจะง่ายต่อการทำความเข้าใจกว่า</p>
       <p>Array จะมีประโยชน์ที่สุดเมื่อจำนวนช่องสามารถปรับเปลี่ยนได้ตลอดเวลา (Dynamic) ส่วนในเกมเวอร์ชันจริงของ v32 การใช้ <strong>ตัวแปรธรรมดา + Dictionary เซฟลง WebStorage</strong> ถือเป็นทางเลือกที่ผสมผสานและใช้งานได้ดี</p>
     </article>
 
     <article class="card wide warn">
       <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <img src="images/c2-workspace.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Workspace UI Visual">
+
       <ul>
         <li>Array index เริ่มนับจากช่องที่ <strong>0</strong> (ไม่ใช่ 1 ดังนั้นขนาด Width 5 จะมีช่อง 0, 1, 2, 3, 4)</li>
         <li>ลืมตั้งค่าขนาด Width/Height ให้กับ Array ก่อนเริ่มใช้งาน ทำให้ Array ไม่สามารถเก็บข้อมูลได้</li>

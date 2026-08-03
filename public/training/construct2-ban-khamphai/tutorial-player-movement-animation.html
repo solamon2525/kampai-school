@@ -42,12 +42,68 @@ h2{display:inline;color:#59357d;font-size:26px}p{font-size:19px;line-height:1.4;
 <section class="demo"><div class="floor"></div><span class="caption t1">Idle</span><span class="caption t2">Run →</span><span class="caption t3">Jump</span><span class="caption t4">← Run</span><div class="char c1">🧍</div><div class="char c2">🏃</div><div class="char c3">🏃</div><div class="char c4">🏃</div></section>
 <div class="flow"><b>Platform</b><i>→</i><b>ปุ่มควบคุม</b><i>→</i><b>หันซ้าย–ขวา</b><i>→</i><b>เลือก Animation</b></div>
 <section class="grid">
- <article class="card"><span class="n">1</span><h2>ใส่ Platform behavior</h2><p>เลือก Sprite <b>player</b> → Behaviors → Add new behavior</p><div class="event"><span class="cond">เพิ่ม Platform</span><br><span class="act">Default controls: Yes</span><br>Max speed: 330<br>Acceleration: 1500<br>Deceleration: 1500</div><p class="small">ใช้ปุ่มลูกศรซ้าย–ขวาและปุ่ม Shift กระโดดได้ทันที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties → Behaviors</p></article>
- <article class="card"><span class="n">2</span><h2>ตั้งค่าการกระโดด</h2><p>ตั้งค่าใน Properties ของ Platform behavior</p><div class="event">Jump strength: <span class="act">650</span><br>Gravity: <span class="act">1500</span><br>Max fall speed: 1000<br>Max jumps: <span class="act">2</span></div><p class="small">Max jumps = 2 คือเพื่อให้กระโดดกลางอากาศ (Double Jump) ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p></article>
- <article class="card"><span class="n">3</span><h2>หันขวาและเดิน</h2><p>เมื่อกดปุ่มลูกศรขวา ให้กลับหน้าปกติและเล่นแอนิเมชันเดิน</p><div class="event"><span class="cond">Keyboard → Right arrow is down</span><br><span class="act">player → Set mirrored: Not mirrored</span><br><span class="act">player → Set animation "walk"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
- <article class="card"><span class="n">4</span><h2>หันซ้ายและเดิน</h2><p>เมื่อกดปุ่มลูกศรซ้าย ให้กลับด้านภาพและเล่นแอนิเมชันเดิน</p><div class="event"><span class="cond">Keyboard → Left arrow is down</span><br><span class="act">player → Set mirrored: Mirrored</span><br><span class="act">player → Set animation "walk"</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
- <article class="card wide"><span class="n">5</span><h2>ยืนนิ่ง (Stand)</h2><p>เมื่อไม่ได้เดินและอยู่บนพื้น ให้เล่นแอนิเมชันยืนนิ่ง</p><div class="event"><span class="cond">player → Is moving (คลิกขวา Invert จะกลายเป็น Not moving)</span><br><span class="cond">player → Is on floor</span><br><span class="act">player → Set animation "Stand"</span></div><p class="small">ชื่อ Animation ต้องพิมพ์ Stand ตัว S พิมพ์ใหญ่ให้ตรงเป๊ะ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
- <article class="card wide"><span class="n">6</span><h2>กระโดดและเล่นเสียง (jump)</h2><div class="event"><span class="cond">player.Platform → Is jumping</span><br><span class="cond">System → Trigger once while true</span><br><span class="act">player → Set animation "jump"</span><br><span class="act">Audio → Play "jump"</span></div><p class="small">ต้องใส่ Trigger once เสมอเวลาเล่นเสียง ไม่งั้นเสียงจะดังรัวๆ หลายร้อยครั้งต่อวินาที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card"><span class="n">1</span><h2>ใส่ Platform behavior</h2><p>เลือก Sprite <b>player</b> → Properties → Behaviors → Add new behavior</p>
+ <div class="c2-dialog">คลิก <b>+ (Add new)</b> &gt; เลือก <b>Platform</b> &gt; Add</div>
+ <div class="c2-properties">
+   <div class="c2-props-head">Properties: Platform</div>
+   <table class="c2-props-table">
+     <tr><td>Default controls</td><td>Yes</td></tr>
+     <tr><td>Max speed</td><td>330</td></tr>
+     <tr><td>Acceleration</td><td>1500</td></tr>
+     <tr><td>Deceleration</td><td>1500</td></tr>
+   </table>
+ </div>
+ <img src="images/c2-properties.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+ <p class="small">ใช้ปุ่มลูกศรซ้าย–ขวาและปุ่ม Shift กระโดดได้ทันที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties → Behaviors</p></article>
+ <article class="card"><span class="n">2</span><h2>ตั้งค่าการกระโดด</h2><p>ตั้งค่าใน Properties ของ Platform behavior</p>
+ <div class="c2-properties">
+   <div class="c2-props-head">Properties: Platform (กระโดด)</div>
+   <table class="c2-props-table">
+     <tr><td>Jump strength</td><td>650</td></tr>
+     <tr><td>Gravity</td><td>1500</td></tr>
+     <tr><td>Max fall speed</td><td>1000</td></tr>
+     <tr><td>Max jumps</td><td>2</td></tr>
+   </table>
+ </div>
+ <p class="small">Max jumps = 2 คือเพื่อให้กระโดดกลางอากาศ (Double Jump) ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p></article>
+ <article class="card"><span class="n">3</span><h2>หันขวาและเดิน</h2><p>เมื่อกดปุ่มลูกศรขวา ให้กลับหน้าปกติและเล่นแอนิเมชันเดิน</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-group">▼ Group: เดิน+กระโดด</div>
+   <div class="c2-es-row">
+     <div class="c2-es-num">1</div>
+     <div class="c2-es-cond"><span class="obj">Keyboard</span> Right arrow is down</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set mirrored: Not mirrored<br><span class="arrow">➔</span> <span class="obj">player</span> Set animation "walk"</div>
+   </div>
+ </div>
+ <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+ <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card"><span class="n">4</span><h2>หันซ้ายและเดิน</h2><p>เมื่อกดปุ่มลูกศรซ้าย ให้กลับด้านภาพและเล่นแอนิเมชันเดิน</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">2</div>
+     <div class="c2-es-cond"><span class="obj">Keyboard</span> Left arrow is down</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set mirrored: Mirrored<br><span class="arrow">➔</span> <span class="obj">player</span> Set animation "walk"</div>
+   </div>
+ </div>
+ <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card wide"><span class="n">5</span><h2>ยืนนิ่ง (Stand)</h2><p>เมื่อไม่ได้เดินและอยู่บนพื้น ให้เล่นแอนิเมชันยืนนิ่ง</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">3</div>
+     <div class="c2-es-cond"><span class="obj">player</span> Is moving <br><span class="small">(คลิกขวา &gt; Invert เพื่อให้เป็น Not moving)</span><br><span class="obj">player</span> Is on floor</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set animation "Stand"</div>
+   </div>
+ </div>
+ <p class="small">ชื่อ Animation ต้องพิมพ์ Stand ตัว S พิมพ์ใหญ่ให้ตรงเป๊ะ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card wide"><span class="n">6</span><h2>กระโดดและเล่นเสียง (jump)</h2>
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">4</div>
+     <div class="c2-es-cond"><span class="obj">player.Platform</span> Is jumping<br><span class="obj">System</span> Trigger once while true</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set animation "jump"<br><span class="arrow">➔</span> <span class="obj">Audio</span> Play "jump"</div>
+   </div>
+ </div>
+ <p class="small">ต้องใส่ Trigger once เสมอเวลาเล่นเสียง ไม่งั้นเสียงจะดังรัวๆ หลายร้อยครั้งต่อวินาที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
  <article class="card wide warn"><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2><div class="event">- พิมพ์ชื่อ Animation ผิดพิมพ์ใหญ่เล็ก (เช่น พิมพ์ Stand ในโค้ด แต่ในภาพตั้งชื่อเป็น stand)<br>- ไม่ได้ตั้งค่า Loop: Yes ในภาพ walk ทำให้เวลาเดินภาพไม่ขยับต่อ<br>- ลืมใส่ Trigger once ในคำสั่ง Is jumping ทำให้เสียงกระโดดดังตื๊ดรัวๆ</div></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> ปล่อยปุ่มแล้วหยุดกลับมายืนนิ่ง (Stand) • เดินซ้าย/ขวาหันถูกทิศและแอนิเมชันเล่นต่อเนื่อง (walk) • กระโดดได้ 2 ครั้งและมีเสียง 1 ครั้งต่อการโดด (jump) • แอนิเมชันไม่ตีกัน</aside>

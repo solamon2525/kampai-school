@@ -118,28 +118,53 @@ h2{display:inline;font-size:28px;color:#233867}p{font-size:21px;line-height:1.42
     <article class="card">
       <span class="num">1</span><h2>สร้างตัวแปรหัวใจ</h2>
       <p>คลิกขวาบน Event Sheet → <b>Add global variable</b></p>
-      <div class="event"><span class="cond">Name:</span> หัวใจ<br>Type: Number<br><span class="act">Initial value: 5</span></div>
+      <div class="c2-dialog">
+        ตั้งค่าตามนี้:<br>
+        Name: <b>หัวใจ</b><br>
+        Type: <b>Number</b><br>
+        Initial value: <b>5</b><br>
+        Description: จำนวนพลังชีวิต
+      </div>
+      <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
       <p class="small">ตัวแปรนี้จำจำนวนชีวิตที่ผู้เล่นเหลืออยู่</p>
     </article>
 
     <article class="card">
       <span class="num">2</span><h2>กำหนดค่าเมื่อเริ่มด่าน</h2>
       <p>เพิ่ม Event เพื่อให้ทุกครั้งที่เริ่มด่านมีครบ 5 หัวใจ</p>
-      <div class="event"><span class="cond">System → On start of layout</span><br><span class="act">System → Set หัวใจ to 5</span></div>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-es-num">1</div>
+          <div class="c2-es-cond"><span class="obj">System</span> On start of layout</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">System</span> Set หัวใจ to 5</div>
+        </div>
+      </div>
       <p class="small">ถ้าต้องการให้หัวใจต่อเนื่องข้ามด่าน ให้ตัด Action นี้ออก</p>
     </article>
 
     <article class="card">
       <span class="num">3</span><h2>โดนมอนสเตอร์แล้วลด</h2>
       <p>เพิ่ม Event การชน และใส่ <b>Trigger once</b> เพื่อไม่ให้หัวใจลดรัว</p>
-      <div class="event"><span class="cond">player → On collision with monster</span><br>+ System → Trigger once<br><span class="act">System → Subtract 1 from หัวใจ</span></div>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-es-num">2</div>
+          <div class="c2-es-cond"><span class="obj">player</span> On collision with monster<br><span class="obj">System</span> Trigger once</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">System</span> Subtract 1 from หัวใจ</div>
+        </div>
+      </div>
       <p class="small">เพิ่ม Action: เล่นเสียง hurt และทำให้ผู้เล่นกระเด็นกลับได้</p>
     </article>
 
     <article class="card">
       <span class="num">4</span><h2>โดนกระสุนแล้วลด</h2>
       <p>ใช้หลักเดียวกัน แล้วทำลายกระสุนทันทีหลังชน</p>
-      <div class="event"><span class="cond">player → On collision with enemy_bullet</span><br><span class="act">Subtract 1 from หัวใจ<br>enemy_bullet → Destroy</span></div>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-es-num">3</div>
+          <div class="c2-es-cond"><span class="obj">player</span> On collision with enemy_bullet</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">System</span> Subtract 1 from หัวใจ<br><span class="arrow">➔</span> <span class="obj">enemy_bullet</span> Destroy</div>
+        </div>
+      </div>
       <p class="small">กระสุนหายหลังชน จึงไม่หักหัวใจซ้ำจากลูกเดิม</p>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
     </article>
@@ -147,13 +172,35 @@ h2{display:inline;font-size:28px;color:#233867}p{font-size:21px;line-height:1.42
     <article class="card wide">
       <span class="num">5</span><h2>แสดงหัวใจบน HUD (ด้วยภาพ 5 ดวง)</h2>
       <p>วาง Sprite รูปหัวใจ 5 ดวงบน Layer HUD ตั้งชื่อว่า <b>heart</b> แล้วเพิ่ม Instance variable <b>index</b> (0 ถึง 4)</p>
-      <div class="event"><span class="cond">System → Every tick</span><br><span class="cond">heart → Compare instance variable: index &lt; หัวใจ</span> → <span class="act">Set visible</span><br><span class="cond">heart → Compare instance variable: index &ge; หัวใจ</span> → <span class="act">Set invisible</span></div>
+      <div class="c2-eventsheet">
+        <div class="c2-es-group">▼ Group: ระบบหัวใจ HUD</div>
+        <div class="c2-es-row">
+          <div class="c2-es-num">4</div>
+          <div class="c2-es-cond"><span class="obj">System</span> Every tick</div>
+        </div>
+        <div class="c2-es-row">
+          <div class="c2-es-num">5</div>
+          <div class="c2-es-cond" style="padding-left:30px"><span class="obj">heart</span> Compare instance variable: index &lt; หัวใจ</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">heart</span> Set visible</div>
+        </div>
+        <div class="c2-es-row">
+          <div class="c2-es-num">6</div>
+          <div class="c2-es-cond" style="padding-left:30px"><span class="obj">heart</span> Compare instance variable: index &ge; หัวใจ</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">heart</span> Set invisible</div>
+        </div>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → Layer HUD และ game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
     </article>
 
     <article class="card wide warn">
       <span class="num">6</span><h2>หัวใจหมด ให้ Game Over เพียงครั้งเดียว</h2>
-      <div class="event"><span class="cond">System → Compare variable หัวใจ ≤ 0</span><br>+ System → Trigger once<br><span class="act">System → Go to layout "Game Over"</span></div>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-es-num">7</div>
+          <div class="c2-es-cond"><span class="obj">System</span> Compare variable หัวใจ ≤ 0<br><span class="obj">System</span> Trigger once while true</div>
+          <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">System</span> Go to layout "Game Over"</div>
+        </div>
+      </div>
       <p><b>สำคัญ:</b> ใช้เงื่อนไข <b>≤ 0</b> เผื่อค่าหัวใจต่ำกว่า 0 และใช้ Trigger once ป้องกันคำสั่งทำงานซ้ำ</p>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
     </article>

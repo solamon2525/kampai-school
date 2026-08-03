@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>คู่มือ Construct 2 — ตัวแปร Global และ Instance</title>
+<link rel="stylesheet" href="common.css">
 <style>
   :root {
     --bg: #eef3fc;
@@ -65,32 +66,73 @@
   <section class="grid">
     <article class="card">
       <span class="n">1</span><h2>Global Variable</h2>
-      <p>ค่าที่ใช้ร่วมทุก Layout ในเกม เช่น <code>คะแนน</code> (Number = 0), <code>ชื่อผู้เล่น</code> (Text = "").</p>
+      <p>ค่าที่ใช้ร่วมทุก Layout ในเกม เช่น <code>คะแนน</code> (Number = 0), <code>ชื่อผู้เล่น</code> (Text = "").<br>
+      1. <b>คลิกขวา</b> พื้นที่ว่างใน Event sheet<br>
+      2. เลือก <b>Add global variable</b><br>
+      3. ตั้งชื่อในช่อง Name เช่น <code>Score</code><br>
+      4. Type เลือก Number หรือ Text, และกำหนด Initial value (ค่าเริ่มต้น)</p>
+      <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Add Global Variable">
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet → คลิกขวา → Add global variable</p>
     </article>
     
     <article class="card">
       <span class="n">2</span><h2>Instance Variable</h2>
-      <p>ค่าที่ติดตัวอยู่กับ object แต่ละตัว เช่น <code>heart.index</code> (แต่ละหัวใจมี index 0-4 ต่างกัน), <code>answer_orb.ค่าคำตอบ</code>.</p>
+      <p>ค่าที่ติดตัวอยู่กับ object แต่ละตัว เช่น <code>heart.index</code> (แต่ละหัวใจมี index 0-4 ต่างกัน)<br>
+      1. คลิกเลือก Object (เช่น <code>heart</code>)<br>
+      2. ในหน้าต่าง Properties มองหาหมวด <b>Instance variables</b> แล้วคลิก<br>
+      3. คลิกไอคอน <b>+ (Add new instance variable)</b><br>
+      4. ตั้งชื่อตัวแปร เช่น <code>index</code> และ Type เป็น Number</p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Instance Variables</th></tr>
+          <tr><td>index</td><td>0</td></tr>
+        </table>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก object → Properties → Instance variables</p>
     </article>
     
     <article class="card wide">
       <span class="n">3</span><h2>Set / Add / Subtract</h2>
-      <p>ตัวอย่างการใช้งานตัวแปร เมื่อผู้เล่นชนดาว (เก็บดาว) ได้คะแนนเพิ่ม:</p>
-      <div class="box"><span class="blue">player → On collision with star</span>
-<span class="red">System → Add 10 to คะแนน</span>
-<span class="red">Text → Set text to "คะแนน : " & คะแนน</span>
-<span class="red">star → Destroy</span></div>
-      <p>ใช้ <b>Set</b> = กำหนดค่าใหม่, <b>Add</b> = บวกเพิ่ม, <b>Subtract</b> = ลบออก.</p>
+      <p>การแก้ไขตัวแปร เช่น การเก็บของแล้วได้คะแนนเพิ่ม:<br>
+      1. สร้าง Event: <b>player → On collision with another object → star</b><br>
+      2. สร้าง Action:<br>
+      - <b>star → Destroy</b><br>
+      - <b>System → Add to</b> (เลือกตัวแปร <code>Score</code>, Value: <code>10</code>)<br>
+      - <b>Text → Set text</b> (พิมพ์ <code>"คะแนน : " & Score</code>)</p>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> player ➔ On collision with <b>star</b>
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> star ➔ Destroy<br>
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Add <b>10</b> to <b>Score</b><br>
+            <img src="images/icon-text.png" alt="txt" style="width:16px;vertical-align:middle;"> Text ➔ Set text to <b>"คะแนน : " & Score</b>
+          </div>
+        </div>
+      </div>
+      <p>ใช้ <b>Set value</b> = กำหนดค่าใหม่ทับไปเลย, <b>Add to</b> = บวกเพิ่ม, <b>Subtract from</b> = ลบออก.</p>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Action → System → Set/Add/Subtract</p>
     </article>
     
     <article class="card">
       <span class="n">4</span><h2>แสดงค่าบน HUD ด้วย Text</h2>
-      <p>วาง Text object บน Layer HUD. ใช้ Event <code>Every tick</code> เพื่ออัปเดตหน้าจอตลอดเวลา:</p>
-      <div class="box"><span class="blue">System → Every tick</span>
-<span class="red">Text → Set text to "คะแนน : " & คะแนน</span></div>
+      <p>1. ไปที่เลเยอร์ HUD (คลิกที่แท็บ Layers)<br>
+      2. <b>ดับเบิลคลิก</b> พื้นที่ว่าง → Insert <b>Text</b><br>
+      3. วางบนตำแหน่งที่ต้องการ เช่น มุมบนซ้าย<br>
+      4. สร้าง Event อัปเดตตลอดเวลา:<br>
+      - Condition: <b>System → Every tick</b><br>
+      - Action: <b>Text → Set text</b> เป็น <code>"คะแนน : " & Score</code></p>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Every tick
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-text.png" alt="txt" style="width:16px;vertical-align:middle;"> Text ➔ Set text to <b>"คะแนน : " & Score</b>
+          </div>
+        </div>
+      </div>
       <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer HUD → Insert → Text</p>
     </article>
     

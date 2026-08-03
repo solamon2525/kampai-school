@@ -26,6 +26,322 @@ body.guide-screen .page{
 /* ป้ายตำแหน่งใน Construct 2 */
 .card .where::before{content:"ที่ไหนใน C2 · ";}
 
+/* ============================================================
+   Construct 2 IDE UI Visual Mockup System (ระบบจำลองหน้าจอ C2)
+   ============================================================ */
+
+/* Construct 2 Event Sheet Table */
+.c2-eventsheet {
+  border: 1px solid #a0b0c0;
+  background: #ffffff;
+  border-radius: 6px;
+  font-family: "Segoe UI", "Leelawadee UI", Tahoma, sans-serif;
+  font-size: 13px;
+  margin: 14px 0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+.c2-es-header {
+  background: linear-gradient(180deg, #f0f4f8 0%, #dbe4ee 100%);
+  border-bottom: 1px solid #b4c2d0;
+  padding: 7px 14px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #2c3e50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.c2-es-group {
+  background: linear-gradient(180deg, #3a4d64 0%, #2b3a4e 100%);
+  color: #ffffff;
+  font-weight: bold;
+  padding: 7px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #1e2936;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.c2-es-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
+  border-bottom: 1px solid #d4deea;
+  min-height: 40px;
+}
+.c2-es-row:last-child {
+  border-bottom: none;
+}
+.c2-es-num {
+  background: #f1f5f9;
+  border-right: 1px solid #cbd5e1;
+  color: #64748b;
+  font-weight: bold;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c2-es-cond {
+  padding: 9px 12px;
+  border-right: 1px solid #cbd5e1;
+  background: #ffffff;
+  line-height: 1.45;
+  color: #1e293b;
+}
+.c2-es-cond .obj {
+  color: #1d4ed8;
+  font-weight: bold;
+}
+.c2-es-cond .func {
+  color: #0f172a;
+}
+.c2-es-act {
+  padding: 9px 12px;
+  background: #fafcfd;
+  line-height: 1.45;
+  color: #1e293b;
+}
+.c2-es-act .arrow {
+  color: #16a34a;
+  font-weight: bold;
+  margin-right: 5px;
+}
+.c2-es-act .obj {
+  color: #b91c1c;
+  font-weight: bold;
+}
+.c2-es-sub {
+  margin-left: 22px;
+  border-left: 3px solid #94a3b8;
+}
+.c2-es-comment {
+  background: #fef9c3;
+  border-left: 4px solid #eab308;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #713f12;
+  font-style: italic;
+  margin: 6px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Construct 2 Properties Inspector */
+.c2-properties {
+  border: 1px solid #b0c2d4;
+  border-radius: 6px;
+  background: #ffffff;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size: 12px;
+  margin: 14px 0;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.c2-props-head {
+  background: linear-gradient(180deg, #dce6f2 0%, #c8d7e6 100%);
+  padding: 7px 12px;
+  font-weight: bold;
+  color: #1e293b;
+  border-bottom: 1px solid #94a3b8;
+  display: flex;
+  justify-content: space-between;
+}
+.c2-props-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.c2-props-table tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+.c2-props-table tr:hover {
+  background: #f1f5f9;
+}
+.c2-props-table td {
+  padding: 6px 12px;
+}
+.c2-props-table td.prop-name {
+  color: #475569;
+  font-weight: 600;
+  width: 48%;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+.c2-props-table td.prop-val {
+  color: #0f172a;
+  font-weight: bold;
+}
+.c2-props-table td.prop-val.val-active {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* Construct 2 IDE Screen Window Mockup */
+.c2-window-mockup {
+  border: 1px solid #64748b;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  margin: 18px 0;
+  background: #e2e8f0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.c2-wm-titlebar {
+  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+  color: #ffffff;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.c2-wm-ribbon {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  color: #475569;
+}
+.c2-wm-ribbon span.active {
+  color: #1d4ed8;
+  font-weight: bold;
+  border-bottom: 2px solid #1d4ed8;
+  padding-bottom: 3px;
+}
+.c2-wm-body {
+  display: grid;
+  grid-template-columns: 210px 1fr 200px;
+  min-height: 240px;
+  background: #cbd5e1;
+  gap: 1px;
+}
+@media (max-width: 768px) {
+  .c2-wm-body { grid-template-columns: 1fr; }
+}
+.c2-wm-pane {
+  background: #ffffff;
+  padding: 10px;
+  font-size: 12px;
+}
+.c2-wm-pane-title {
+  background: #e2e8f0;
+  padding: 5px 8px;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 8px;
+  font-size: 11px;
+  border-radius: 3px;
+}
+.c2-wm-layout-canvas {
+  background: #ffffff;
+  background-image: linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.c2-wm-canvas-viewport {
+  border: 2px dashed #3b82f6;
+  width: 80%;
+  height: 80%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 10px rgba(59,130,246,0.15);
+}
+.c2-wm-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #1e293b;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* Construct 2 Dialog Window Box */
+.c2-dialog {
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+  margin: 16px 0;
+  overflow: hidden;
+  max-width: 520px;
+}
+.c2-dialog-title {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-weight: bold;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.c2-dialog-body {
+  padding: 16px;
+  font-size: 13px;
+  color: #1e293b;
+}
+.c2-dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.c2-dialog-item {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 6px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+}
+.c2-dialog-item.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.3);
+}
+.c2-dialog-item .icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.c2-dialog-item .name {
+  font-weight: bold;
+  font-size: 11px;
+  color: #1e293b;
+}
+.c2-dialog-footer {
+  background: #f1f5f9;
+  padding: 10px 14px;
+  border-top: 1px solid #cbd5e1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.c2-dialog-btn {
+  padding: 6px 16px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+}
+.c2-dialog-btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
 @media print{
   .guide-bar{display:none !important}
   html,body{
@@ -40,3 +356,4 @@ body.guide-screen .page{
   }
   @page{size:A4 portrait;margin:0}
 }
+
