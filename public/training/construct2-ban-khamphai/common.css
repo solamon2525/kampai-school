@@ -89,6 +89,15 @@ body.guide-screen .page{
   line-height: 1.45;
   color: #1e293b;
 }
+.c2-eventsheet img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  object-fit: contain;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: 4px;
+}
 .c2-es-cond .obj {
   color: #1d4ed8;
   font-weight: bold;

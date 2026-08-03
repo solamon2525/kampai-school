@@ -272,9 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.214.1 (ภาพประกอบและ Visual UI ของ Construct 2 จริงทุกบทเรียน)',
+        version: 'v1.214.2 (แก้ไขภาพไอคอน C2 และตรวจสอบลิงก์ภาพประกอบทุกบทเรียน 100%)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
+        items: [
+            'สร้างภาพไอคอน Construct 2 Objects (Keyboard, System, Sprite, Text, Mouse, Audio) 32px HD PNG และ c2-properties.jpg',
+            'ตรวจสอบลิงก์ <img> ทุกบทเรียนผ่านสคริปต์ออดิท (154 แท็กใน 60 ไฟล์ HTML) ไม่พบรูปเสียหรือขาดหายอีกต่อไป (Missing: 0)',
+            'ปรับปรุง common.css เพิ่มสไตล์และระบบ fallback สำหรับไอคอน Event Sheet',
+        ],
+    },
+    {
+        version: 'v1.214.1 (ภาพประกอบและ Visual UI ของ Construct 2 จริงทุกบทเรียน)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
         items: [
             'เพิ่มภาพประกอบหน้าจอซอฟต์แวร์จริงของ Construct 2 (Workspace UI, Event Sheet, Properties Panel, Behaviors Dialog) ทุกบทเรียน 29 บท',
             'ปรับปรุงระบบแสดงผลการ์ดใน common.css ด้วย UI Component (c2-eventsheet, c2-properties, c2-dialog, c2-window-mockup)',
