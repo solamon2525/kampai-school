@@ -68,13 +68,15 @@
     .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:9.5pt;color:#b91c1c;line-height:1}
     .ld-teacher-value{visibility:hidden}
     .ld-answer-fill{visibility:hidden;color:#b91c1c;font-weight:800}
-    .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill{visibility:visible}
-    .show-answers .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
+    .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill,
+    .q.reveal-answer .ld-quotient-answer,.q.reveal-answer .ld-teacher-value,.q.reveal-answer .ld-answer-fill{visibility:visible}
+    .show-answers .ld-quotient-cell,.q.reveal-answer .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
+    .q.reveal-current{outline:2px solid #0284c7;outline-offset:1px}
 
     .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:6.5mm;display:flex;align-items:flex-end;justify-content:center;width:100%}
     .blank-sm{display:inline-block;min-width:32mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;text-align:center}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
-    .show-answers .ta{display:inline}
+    .show-answers .ta,.q.reveal-answer .ta{display:inline}
 
     .parent-slip{border-top:2px dashed #047857;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
     .parent-slip .cut-label{font-weight:800;color:#047857}
@@ -123,8 +125,11 @@
       </select>
       <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
-      <button class="btn primary" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
-      <button class="btn" id="btnAnswers">👁️ เฉลยครู</button>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มชุดใหม่</button>
+      <span class="btn accent" id="answerStepLabel" aria-live="polite">เฉลย: ปิด</span>
+      <button class="btn" id="btnAnswerPrev" title="ซ่อนข้อล่าสุด">◀ ข้อก่อน</button>
+      <button class="btn" id="btnAnswerNext" title="เปิดเฉลยข้อถัดไป">▶ เฉลยข้อถัดไป</button>
+      <button class="btn" id="btnAnswers" title="เปิดหรือซ่อนเฉลยทุกข้อ">👁 ทั้งหมด</button>
       <button class="btn green" id="btnPrint">🖨️ พิมพ์ A4</button>
     </div>
   </div>
@@ -132,7 +137,17 @@
 
 <script src="/games/worksheet-runtime.js?v=1.199.2"></script>
 <script>
-const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const WORKSHEET_KEY='division';
+const SET_TITLE_PREFIX='ใบงานหารยาว';
+let renderSeed=Date.now();
+let rng=null;
+let setsUi=null;
+let revealCount=0;
+function ensureRng(){
+  if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
+  else rng=null;
+}
+const R=(a,b)=>rng?rng.randomInt(a,b):(a+Math.floor(Math.random()*(b-a+1)));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin + '/games/math/long-division-thinking-media.html';
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
@@ -210,6 +225,54 @@ function renderParentSlip(teacherName){
     +'<span>ลงชื่อผู้ปกครอง: .......................................</span></div>';
 }
 
+function currentConfig(){
+  return{
+    style:document.getElementById('selStyle')?.value||'standard',
+    pageCount:document.getElementById('selPageCount')?.value||'1',
+    grade:document.getElementById('selGrade')?.value||'4',
+    count:8,
+    schoolName:document.getElementById('inpSchool')?.value||'',
+    teacherName:document.getElementById('selTeacher')?.value||'',
+    useMode:document.getElementById('selUseMode')?.value||'standard',
+  };
+}
+function applyConfig(cfg){
+  if(!cfg)return;
+  if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
+  if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
+  if(cfg.grade!=null&&document.getElementById('selGrade'))document.getElementById('selGrade').value=String(cfg.grade);
+  if(document.getElementById('selCount'))document.getElementById('selCount').value='8';
+  if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
+  if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
+  if(cfg.useMode!=null&&document.getElementById('selUseMode'))document.getElementById('selUseMode').value=String(cfg.useMode);
+}
+
+function getQuestions(){return Array.from(document.querySelectorAll('#pages .q'))}
+function syncAnswerReveal(){
+  document.body.classList.remove('show-answers');
+  const qs=getQuestions();
+  const total=qs.length;
+  qs.forEach((q,index)=>{
+    q.classList.toggle('reveal-answer',index<revealCount);
+    q.classList.toggle('reveal-current',revealCount>0&&index===revealCount-1);
+  });
+  const label=document.getElementById('answerStepLabel');
+  const btnAll=document.getElementById('btnAnswers');
+  if(!total){label.textContent='เฉลย: ปิด';btnAll.textContent='👁 ทั้งหมด';return}
+  if(revealCount<=0){label.textContent='เฉลย: ปิด';btnAll.textContent='👁 ทั้งหมด'}
+  else if(revealCount>=total){label.textContent='เฉลย: ครบ '+total+' ข้อ';btnAll.textContent='🙈 ซ่อนทั้งหมด'}
+  else{label.textContent='เฉลยข้อ '+revealCount+' / '+total;btnAll.textContent='👁 ทั้งหมด'}
+  document.getElementById('btnAnswerPrev').disabled=revealCount<=0;
+  document.getElementById('btnAnswerNext').disabled=revealCount>=total;
+}
+function revealNext(){const total=getQuestions().length;if(revealCount<total)revealCount+=1;syncAnswerReveal()}
+function revealPrev(){if(revealCount>0)revealCount-=1;syncAnswerReveal()}
+function toggleAllAnswers(){
+  const total=getQuestions().length;
+  revealCount=revealCount>=total?0:total;
+  syncAnswerReveal();
+}
+
 function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName, teacherName){
   let qs = ''; for(let i=1; i<=count; i++) qs += question(i, grade, style==='progressive');
   const indicatorLabel = grade === '4' ? 'ค 1.1 ป.4/9' : 'ทบทวน ค 1.1 ป.4/9';
@@ -224,6 +287,7 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
 }
 
 function render(){
+  ensureRng();
   const style = document.getElementById('selStyle').value;
   const count = 8;
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
@@ -234,23 +298,93 @@ function render(){
   let html = style==='booklet' ? renderBookletCover(schoolName, teacherName) : '';
   for(let p=1; p<=pageCount; p++) html += renderSingleSheet(p, pageCount, style, count, grade, schoolName, teacherName);
   document.getElementById('pages').innerHTML = html;
+  revealCount=0;
+  syncAnswerReveal();
+  if(window.KampaiWorksheetSets){
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
+  }
 }
 
-document.getElementById('btnRandom').onclick = render;
-document.getElementById('selStyle').onchange = render;
-document.getElementById('selPageCount').onchange = render;
-document.getElementById('selGrade').onchange = render;
-document.getElementById('selCount').onchange = render;
+function randomize(){
+  if(window.KampaiWorksheetSets){
+    renderSeed=window.KampaiWorksheetSets.newSeed();
+    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
+  }else{
+    renderSeed=Date.now()+Math.floor(Math.random()*100000);
+  }
+  if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+}
+function applySetState(state){
+  if(state?.config)applyConfig(state.config);
+  if(state?.seed!=null)renderSeed=Number(state.seed);
+  if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
+  render();
+}
+async function bootSets(){
+  try{
+    const Sets=await window.KampaiWorksheet.loadSetsModule();
+    const fromUrl=Sets.getConfigFromUrl();
+    if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
+    else renderSeed=Sets.newSeed();
+    setsUi=Sets.mountToolbar({
+      worksheetKey:WORKSHEET_KEY,
+      titlePrefix:SET_TITLE_PREFIX,
+      initialSetId:fromUrl.setId||'',
+      getState:()=>({
+        seed:renderSeed,
+        config:currentConfig(),
+        title:document.getElementById('kampaiSetTitle')?.value||'',
+      }),
+      applyState:applySetState,
+    });
+    if(fromUrl.setId){
+      const row=await Sets.load(fromUrl.setId);
+      if(row){
+        applyConfig(row.config||{});
+        renderSeed=Number(row.seed);
+        if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
+        else{
+          const titleInput=document.getElementById('kampaiSetTitle');
+          if(titleInput&&row.title)titleInput.value=row.title;
+        }
+        if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
+        render();
+        if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
+        return;
+      }
+    }
+    render();
+    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
+  }catch(error){
+    console.warn('worksheet sets unavailable',error);
+    render();
+  }
+}
+
+document.getElementById('btnRandom').onclick = randomize;
+['selStyle','selPageCount','selGrade','selCount','selTeacher'].forEach((id)=>{
+  document.getElementById(id).onchange=()=>{
+    render();
+    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+  };
+});
 document.getElementById('inpSchool').oninput = render;
-document.getElementById('selTeacher').onchange = render;
-document.getElementById('btnAnswers').onclick = function(){
-  document.body.classList.toggle('show-answers');
-  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
-};
+document.getElementById('btnAnswerNext').onclick=revealNext;
+document.getElementById('btnAnswerPrev').onclick=revealPrev;
+document.getElementById('btnAnswers').onclick=toggleAllAnswers;
 document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+document.addEventListener('keydown',(event)=>{
+  if(event.target.matches('input,textarea,select'))return;
+  if(event.key==='ArrowRight'||event.key==='n'||event.key==='N'){event.preventDefault();revealNext()}
+  if(event.key==='ArrowLeft'||event.key==='b'||event.key==='B'){event.preventDefault();revealPrev()}
+});
 
 window.KampaiWorksheet.loadTeachers();
-render();
+window.render=render;
+window.randomize=randomize;
+bootSets();
 </script>
 <script src="/games/worksheet-modes.js?v=1.199.2"></script>
 </body>
