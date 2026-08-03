@@ -141,25 +141,32 @@ h2{display:inline;font-size:28px;color:#233867}p{font-size:21px;line-height:1.42
       <p>ใช้หลักเดียวกัน แล้วทำลายกระสุนทันทีหลังชน</p>
       <div class="event"><span class="cond">player → On collision with enemy_bullet</span><br><span class="act">Subtract 1 from หัวใจ<br>enemy_bullet → Destroy</span></div>
       <p class="small">กระสุนหายหลังชน จึงไม่หักหัวใจซ้ำจากลูกเดิม</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
     </article>
 
     <article class="card wide">
-      <span class="num">5</span><h2>แสดงหัวใจบน HUD</h2>
-      <p>สร้าง Text ชื่อ <span class="label">แสดงหัวใจ</span> บน Layer HUD แล้วอัปเดตทุกเฟรม</p>
-      <div class="event"><span class="cond">System → Every tick</span><br><span class="act">แสดงหัวใจ → Set text to "หัวใจ : " &amp; หัวใจ &amp; " / 5"</span></div>
-      <p class="small">ผลบนหน้าจอ: <b class="heart-red">หัวใจ : 4 / 5</b> — ตั้งสีแดง ขนาด 28–36 px และวางมุมซ้ายบน</p>
+      <span class="num">5</span><h2>แสดงหัวใจบน HUD (ด้วยภาพ 5 ดวง)</h2>
+      <p>วาง Sprite รูปหัวใจ 5 ดวงบน Layer HUD ตั้งชื่อว่า <b>heart</b> แล้วเพิ่ม Instance variable <b>index</b> (0 ถึง 4)</p>
+      <div class="event"><span class="cond">System → Every tick</span><br><span class="cond">heart → Compare instance variable: index &lt; หัวใจ</span> → <span class="act">Set visible</span><br><span class="cond">heart → Compare instance variable: index &ge; หัวใจ</span> → <span class="act">Set invisible</span></div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → Layer HUD และ game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
     </article>
 
     <article class="card wide warn">
       <span class="num">6</span><h2>หัวใจหมด ให้ Game Over เพียงครั้งเดียว</h2>
       <div class="event"><span class="cond">System → Compare variable หัวใจ ≤ 0</span><br>+ System → Trigger once<br><span class="act">System → Go to layout "Game Over"</span></div>
       <p><b>สำคัญ:</b> ใช้เงื่อนไข <b>≤ 0</b> เผื่อค่าหัวใจต่ำกว่า 0 และใช้ Trigger once ป้องกันคำสั่งทำงานซ้ำ</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "ระบบหัวใจ HUD"</p>
+    </article>
+
+    <article class="card wide warn">
+      <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <div class="event">- ลืมตั้งค่า Layer HUD ให้ Parallax = 0, 0 ทำให้หัวใจเลื่อนหนีไปตามกล้อง<br>- ลืมตั้งค่า index ของหัวใจแต่ละดวง (ต้องเป็น 0, 1, 2, 3, 4 ตามลำดับจากซ้ายไปขวา)</div>
     </article>
   </section>
 
   <aside class="tip">
-    <b>ทดสอบเร็ว</b>
-    <span>เปลี่ยนค่าเริ่มต้นเป็น 2 ชั่วคราว → ชนมอนสเตอร์ 1 ครั้งต้องเหลือ 1 → ชนอีกครั้งต้องไป Game Over → จากนั้นเปลี่ยนกลับเป็น 5</span>
+    <b>ทดสอบเร็ว (รายการทดสอบ):</b>
+    <span>เปลี่ยนค่าเริ่มต้นเป็น 2 ชั่วคราว → หัวใจบนจอต้องแสดงแค่ 2 ดวง (หาย 3) → ชนมอนสเตอร์ 1 ครั้งต้องเหลือ 1 → ชนอีกครั้งต้องไป Game Over ทันที → จากนั้นเปลี่ยนกลับเป็น 5</span>
   </aside>
 
   <footer class="footer">

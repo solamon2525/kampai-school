@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — Functions — ลดโค้ดซ้ำ</title>
+<style>
+body { background: #ebeef5; font-family: "Leelawadee UI", Tahoma, sans-serif; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #fff; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.top-nav a { text-decoration: none; color: #1c2951; font-weight: bold; }
+.nav-right button { margin: 0 10px; cursor: pointer; border: 1px solid #1c2951; background: white; border-radius: 4px; padding: 4px 8px; color: #1c2951; }
+.page { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+.head { background: linear-gradient(135deg, #1c2951, #384e8a); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+.tag { display: inline-block; background: #b0c4de; color: #1c2951; padding: 0.2rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 1rem; }
+.head h1 { margin: 0 0 0.5rem 0; font-size: 2.2rem; }
+.head p { margin: 0; opacity: 0.9; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+.card { background: white; border-radius: 12px; padding: 1.5rem 1.5rem 1.5rem 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #384e8a; position: relative; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { border-top-color: #ff9800; background: #fffde7; }
+.n { position: absolute; top: -15px; left: -15px; background: #ffeb3b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.card h2 { margin-top: 0; color: #1c2951; font-size: 1.3rem; }
+.card.warn h2 { color: #d32f2f; }
+.small { font-size: 0.85rem; color: #666; background: #f5f5f5; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; display: block; }
+.box { border-left: 4px solid #2196f3; background: #f0f8ff; padding: 1rem; margin: 1rem 0; font-family: monospace; }
+.blue { color: #1976d2; font-weight: bold; }
+.red { color: #d32f2f; font-weight: bold; }
+.test { background: #e8f5e9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid #4caf50; }
+.footer { text-align: center; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; padding-top: 2rem; border-top: 1px solid #ddd; margin-bottom: 2rem; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card { grid-column: 1 / -1; } }
+@media print { .top-nav, .footer { display: none; } body { background: white; } .card { break-inside: avoid; border: 1px solid #ddd; } }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-a02-object-families.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-a04-array-dictionary.html">บทที่ A4 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ A3 • Construct 2 ขั้นสูง</div>
+    <h1>Functions — ลดโค้ดซ้ำ</h1>
+    <p>เตรียม Function Object • สร้างฟังก์ชัน • การส่ง Parameter</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>เตรียม Function Object</h2>
+      <p>ฟังก์ชันใน Construct 2 ต้องการ Object เสริมเพื่อทำงาน ตรวจสอบว่าโปรเจกต์มี Object ชนิด Function แล้วหรือยัง หากยังไม่มีให้เพิ่มเข้ามาก่อน</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> ดับเบิลคลิกพื้นที่ว่างใน Layout → Insert object → ค้นหาคำว่า Function (ในกลุ่ม Data & Storage)</span>
+    </article>
+
+    <article class="card">
+      <span class="n">2</span><h2>สร้างและเรียกใช้</h2>
+      <p>สร้างนิยามของฟังก์ชันและกำหนด Action ภายใน:</p>
+      <div class="box">
+        <span class="blue">Function → On function "ApplyDamage"</span><br>
+        <span class="red">System → Subtract 1 from พลังชีวิต</span><br>
+        <span class="red">player → Flash 3s</span><br>
+        <span class="red">Audio → Play "hurt"</span>
+      </div>
+      <p>เมื่อต้องการให้เหตุการณ์เหล่านี้ทำงาน ให้เรียกฟังก์ชันนี้:</p>
+      <div class="box">
+        <span class="red">Function → Call "ApplyDamage"</span>
+      </div>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet → Add event → Function</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">3</span><h2>ฟังก์ชันแนะนำสำหรับ v32</h2>
+      <p>หากเรามีจุดที่โค้ดซ้ำกันหลายแห่ง ให้สร้างฟังก์ชันขึ้นมาแทน เช่น:</p>
+      <ul>
+        <li><code>ApplyDamage</code>: ลดพลังชีวิต + Flash ตัวละคร + เล่นเสียงเจ็บ (เรียกเมื่อชนมอนสเตอร์, โดนกระสุน, หรือตอบคำถามผิด)</li>
+        <li><code>SpawnQuestion</code>: สร้างโจทย์ข้อใหม่ขึ้นมาสุ่ม (เรียกเมื่อเริ่มด่าน หรือเมื่อผู้เล่นตอบข้อที่แล้วเสร็จ)</li>
+        <li><code>SaveTop5</code>: ตรวจสอบและบันทึกคะแนนแทรกลงในตาราง Top 5</li>
+        <li><code>ClearStage</code>: เคลียร์ค่าตัวแปรเมื่อจบด่าน + ทำ Transition หน้าจอ</li>
+      </ul>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> เลื่อนดูใน Event Sheet หา Action ที่เหมือนกันหลายจุด แล้วทำการแยกออกมาใส่ Function</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">4</span><h2>ส่ง Parameter</h2>
+      <p>ฟังก์ชันสามารถรับค่า (Parameter) มาประมวลผลได้ ทำให้ยืดหยุ่นมากขึ้น เช่น:</p>
+      <div class="box">
+        <span class="blue">Function → On function "ApplyDamage"</span><br>
+        <span class="red">System → Subtract Function.Param(0) from พลังชีวิต</span>
+      </div>
+      <p>เวลาเรา Call ฟังก์ชัน เราจะส่งค่า Parameter ไปด้วย เช่น ชนมอนสเตอร์ธรรมดาส่ง <code>1</code> ถ้าชนบอสส่ง <code>2</code></p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Action ของ Function → Call function → มีช่องให้ Add parameter ด้านล่างของชื่อฟังก์ชัน</span>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <ul>
+        <li>พิมพ์ชื่อ function ผิดตอน Call (Construct 2 จะไม่แจ้ง error แต่ฟังก์ชันจะไม่ทำงาน)</li>
+        <li>ใช้ Action <code>Wait</code> ภายในเนื้อหาของ Function (อาจทำให้ Timing และ Flow ของฟังก์ชันผิดพลาดได้)</li>
+        <li>ลืม Include หรือ Insert Function object ลงในโปรเจกต์แต่แรก</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> 
+    มี Function อย่างน้อย 1 ตัวในโปรเจกต์ • มีการเรียกใช้ (Call) จาก 2 จุดขึ้นไปในเกม • สังเกตเห็นได้ชัดเจนว่าช่วยลดจำนวน Event ที่ซ้ำซ้อนกัน
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • Functions — ลดโค้ดซ้ำ</span>
+    <span>งานถัดไป: Array และ Dictionary</span>
+  </footer>
+</main>
+</body>
+</html>

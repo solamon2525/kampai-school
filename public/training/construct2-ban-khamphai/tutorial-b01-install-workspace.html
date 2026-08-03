@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — ติดตั้ง Construct 2 และรู้จักหน้าจอ</title>
+<style>
+body { font-family: "Leelawadee UI","Tahoma",sans-serif; background: #e8f8f5; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #333; color: white; display: flex; justify-content: space-between; padding: 10px 20px; align-items: center; }
+.top-nav a, .top-nav button { color: white; text-decoration: none; background: transparent; border: 1px solid white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-left: 5px; }
+.top-nav a:hover, .top-nav button:hover { background: rgba(255,255,255,0.2); }
+.nav-right { display: flex; gap: 5px; }
+.page { max-width: 1000px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.head { background: linear-gradient(135deg, #0d6e5b, #12a085); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
+.head h1 { margin: 0 0 10px 0; font-size: 2em; }
+.head p { margin: 0; opacity: 0.9; }
+.tag { background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; font-weight: bold; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px; }
+@media (min-width: 800px) { .grid { grid-template-columns: 1fr 1fr; } }
+.card { border: 2px solid #12a085; padding: 20px; border-radius: 8px; position: relative; background: #fff; }
+.card h2 { margin-top: 0; display: inline-block; font-size: 1.2em; color: #0d6e5b; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { background: #fff3cd; border-color: #ffecb5; }
+.card.warn h2 { color: #856404; }
+.n { background: #ffc107; color: #000; width: 28px; height: 28px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; margin-right: 10px; vertical-align: bottom; }
+.small { font-size: 0.85em; color: #666; background: #f1f1f1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; }
+.box { border-left: 4px solid #007bff; background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+.blue { color: #007bff; font-weight: bold; }
+.red { color: #dc3545; font-weight: bold; }
+.test { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin-bottom: 30px; color: #155724; }
+.footer { border-top: 1px solid #eee; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.9em; color: #777; flex-wrap: wrap; gap: 10px; }
+@media print { 
+  .top-nav, button { display: none !important; } 
+  body { background: white; margin: 0; padding: 0; } 
+  .page { box-shadow: none; margin: 0; padding: 0; max-width: 100%; } 
+  .card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="index.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-b02-sprite-animation-layer.html">บทที่ 2 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ B1 • พื้นฐาน Construct 2</div>
+    <h1>ติดตั้ง Construct 2 และรู้จักหน้าจอ</h1>
+    <p>ดาวน์โหลด • ติดตั้ง • หน้าต่างการทำงาน • การสร้างโปรเจกต์ใหม่</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <h2><span class="n">1</span> ดาวน์โหลดและติดตั้ง</h2>
+      <p>โหลด Construct 2 r280 (Free Edition) จากเว็บ Scirra.com แล้วติดตั้งตามขั้นตอน โดยเลือก Typical → Next → Finish.</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Windows → ไฟล์ติดตั้ง .exe</p>
+    </article>
+
+    <article class="card">
+      <h2><span class="n">2</span> หน้าจอหลัก 3 ส่วน</h2>
+      <p>
+        <b>ซ้าย:</b> Project bar (รายการ object, layout, event sheet)<br>
+        <b>กลาง:</b> Layout view (วาดฉาก วางวัตถุ)<br>
+        <b>ขวา:</b> Properties (แก้ค่าต่างๆ ของ object)
+      </p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> หลังเปิดโปรแกรม Construct 2 จะเห็นทันที</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">3</span> สร้างโปรเจกต์แรก</h2>
+      <p>เลือก File → New → Empty project, ตั้งชื่อใน Properties, ตั้ง Window size เป็น 1280×720 หรือ 1500×960. บันทึกงาน (Save as .capx).<br>
+      เวลาต้องการทดสอบเกม ให้กดปุ่ม <b>F5</b> เพื่อ Preview ในบราวเซอร์</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> เมนู File → New</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">4</span> รู้จัก Layout กับ Event Sheet</h2>
+      <p><b>Layout</b> คือ ฉากเกม (สำหรับวาดฉาก วางตัวละคร)<br>
+      <b>Event Sheet</b> คือ สมองของเกม (สำหรับสั่งงานและใส่โค้ด)<br>
+      ทุก Layout จะมี Event Sheet คู่กันเสมอ เพื่อให้ทำงานสอดคล้องกัน</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> แถบ Project bar (ซ้าย) → โฟลเดอร์ Layouts / Event sheets</p>
+    </article>
+
+    <article class="card wide warn">
+      <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <ul>
+        <li><b>ติดตั้ง C2 ไม่สำเร็จ:</b> ให้ลองคลิกขวาที่ไฟล์ติดตั้งแล้วรันแบบ Run as administrator</li>
+        <li><b>เปิดไฟล์ .capx แล้ว C2 ไม่ขึ้น:</b> ตรวจสอบเวอร์ชันของ Construct 2 ว่าตรงกันหรือไม่</li>
+        <li><b>กด F5 แล้วจอดำ:</b> เพราะยังไม่มี object ใน Layout ลองใส่ Sprite สักตัวก่อน</li>
+        <li><b>ลืม Save as:</b> งานอาจหายเมื่อไฟดับ หมั่นเซฟงานเรื่อยๆ</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> เปิด C2 ได้ • สร้างโปรเจกต์ใหม่ได้ • รู้แถบซ้าย/กลาง/ขวา • กด F5 แล้วขึ้นหน้าต่าง Preview
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • ติดตั้งและหน้าจอ</span>
+    <span>งานถัดไป: สร้าง Sprite และ Animation</span>
+  </footer>
+</main>
+</body>
+</html>

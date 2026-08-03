@@ -37,7 +37,7 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
 </head>
 <body>
 <nav class="top-nav">
-  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <a href="tutorial-b06-mini-project.html">← บทก่อนหน้า (B06)</a>
   <div class="nav-right">
     <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
     <a href="tutorial-player-movement-animation.html">บทที่ 2 ถัดไป →</a>
@@ -65,6 +65,7 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
    <p>วาง Sprite รูปพื้นให้ต่อกันตลอดทาง แล้วตั้งชื่อว่า <b>ground</b></p>
    <div class="box"><span class="blue">ground → Behaviors</span><br>Add new behavior → <span class="red">Solid</span></div>
    <p class="small">Solid ทำให้ผู้เล่นยืนบนพื้นและชนด้านข้างได้</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → Layer game</p>
   </article>
 
   <article class="card">
@@ -72,13 +73,15 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
    <p>ดับเบิลคลิก Sprite → เลือกเครื่องมือ Collision polygon</p>
    <div class="box"><span class="blue">Edit collision polygon</span><br><span class="red">วางจุดให้พอดีเฉพาะผิวพื้น</span></div>
    <p class="small">หลีกเลี่ยงกรอบชนใหญ่กว่าภาพ เพราะผู้เล่นจะยืนลอยหรือชนกำแพงที่มองไม่เห็น</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> ดับเบิลคลิก Sprite</p>
   </article>
 
   <article class="card">
    <span class="n">3</span><h2>สร้างเกาะกระโดดทะลุ</h2>
    <p>วาง Sprite เกาะ ตั้งชื่อ <b>sky1</b> แล้วเพิ่ม Behavior</p>
-   <div class="box"><span class="blue">sky1 → Behaviors</span><br>Add new behavior → <span class="red">Jump-thru</span></div>
+   <div class="box"><span class="blue">sky1 → Behaviors</span><br>Add new behavior → <span class="red">Jump-thru</span><br>Add new behavior → <span class="red">Sine</span> (ตัวเลือก: ทำให้เกาะลอยขึ้นลงได้)</div>
    <p class="small">ผู้เล่นกระโดดทะลุจากด้านล่าง และลงมายืนบนด้านบนได้</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก sky1 แล้ว sky2</p>
   </article>
 
   <article class="card">
@@ -86,6 +89,7 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
    <p>เลือก Sprite <b>player</b> แล้วเพิ่ม Platform behavior</p>
    <div class="box"><span class="blue">player → Platform</span><br>Jump strength: <span class="red">650</span><br>Gravity: <span class="red">1500</span><br>Max jumps: <span class="red">2</span></div>
    <p class="small">Max jumps = 2 คือ Double Jump ตามระบบเดิมของเกม</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p>
   </article>
 
   <article class="card wide warn">
@@ -93,16 +97,29 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
    <p>เพิ่มตัวแปรตำแหน่งปลอดภัย <b>จุดเกิดX</b> และ <b>จุดเกิดY</b> จากนั้นเพิ่ม Event:</p>
    <div class="box"><span class="blue">System → Compare two values: player.Y &gt; LayoutHeight + 200</span><br><span class="red">player → Set position to (จุดเกิดX, จุดเกิดY)</span><br><span class="red">System → Subtract 1 from หัวใจ</span></div>
    <p class="small">บวก 200 เพื่อให้ผู้เล่นหลุดพ้นขอบจอก่อน จึงค่อยย้ายกลับ ไม่กระตุกทันทีที่แตะขอบล่าง</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet</p>
   </article>
 
   <article class="card wide">
    <span class="n">6</span><h2>กฎวางเกาะให้กระโดดถึง</h2>
    <div class="box">ระยะสูงจากพื้นถึงเกาะแรก ≤ <span class="red">140 px</span> • เกาะต่อเกาะแนวตั้ง ≤ <span class="red">135 px</span> • แนวนอน ≤ <span class="red">360 px</span></div>
    <p>วางเส้นทางจากต่ำ → กลาง → สูง และทดลองกระโดดจริงทุกจุดก่อนวางดาวคำตอบหรือมอนสเตอร์</p>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> ลากจัดวางใน Layout</p>
+  </article>
+
+  <article class="card wide">
+   <span class="n">7</span><h2>ขนาด Layout แต่ละด่าน</h2>
+   <div class="box">ด่าน 1 (game): <span class="red">4500 × 960</span><br>ด่าน 2 (game2): <span class="red">5500 × 960</span><br>ด่าน 3 (game3): <span class="red">6000 × 960</span></div>
+   <p class="small">📍 <b>ที่ไหนใน C2:</b> คลิกพื้นว่างใน Layout → Layout properties</p>
+  </article>
+
+  <article class="card wide warn">
+   <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+   <div class="box">- เกาะสูงเกินไปจนกระโดดไม่ถึง (ลืมเช็คกฎระยะห่าง)<br>- ผู้เล่นติดขอบเกาะเวลาเดินชน (ตั้งกรอบ Collision polygon กว้างกว่าภาพ)</div>
   </article>
  </section>
 
- <aside class="test"><b>รายการทดสอบ:</b> เดินบนพื้นไม่จม • ชนขอบพื้นได้ • กระโดดทะลุเกาะจากล่าง • ยืนบนเกาะไม่ตก • Double Jump ถึงเกาะระดับกลาง • ตกฉากแล้วกลับจุดเกิดและเสียหัวใจ 1</aside>
+ <aside class="test"><b>รายการทดสอบ:</b> เดินบนพื้นไม่จม • ชนขอบพื้นได้ • กระโดดทะลุเกาะจากล่าง • ยืนบนเกาะไม่ตก • Double Jump ถึงเกาะระดับกลาง • ตกฉากแล้วกลับจุดเกิดและเสียหัวใจ 1 • ทดสอบระยะเกาะว่าโดดถึงทุกอัน</aside>
 
  <footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • พื้นฐานระบบแพลตฟอร์ม</span><span>งานถัดไป: ระบบเดิน กระโดด และแอนิเมชันผู้เล่น</span></footer>
 </main>

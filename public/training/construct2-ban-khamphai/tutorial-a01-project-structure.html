@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — เปิดโปรเจกต์ master_v32 และโครงสร้าง Layout</title>
+<style>
+body { background: #eee8f7; font-family: "Leelawadee UI", Tahoma, sans-serif; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #fff; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.top-nav a { text-decoration: none; color: #2d1b69; font-weight: bold; }
+.nav-right button { margin: 0 10px; cursor: pointer; border: 1px solid #2d1b69; background: white; border-radius: 4px; padding: 4px 8px; color: #2d1b69; }
+.page { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+.head { background: linear-gradient(135deg, #2d1b69, #5636a2); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+.tag { display: inline-block; background: #d7c4ff; color: #2d1b69; padding: 0.2rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 1rem; }
+.head h1 { margin: 0 0 0.5rem 0; font-size: 2.2rem; }
+.head p { margin: 0; opacity: 0.9; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+.card { background: white; border-radius: 12px; padding: 1.5rem 1.5rem 1.5rem 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #5636a2; position: relative; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { border-top-color: #ff9800; background: #fffde7; }
+.n { position: absolute; top: -15px; left: -15px; background: #ffeb3b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.card h2 { margin-top: 0; color: #2d1b69; font-size: 1.3rem; }
+.card.warn h2 { color: #d32f2f; }
+.small { font-size: 0.85rem; color: #666; background: #f5f5f5; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; display: block; }
+.box { border-left: 4px solid #2196f3; background: #f0f8ff; padding: 1rem; margin: 1rem 0; font-family: monospace; }
+.blue { color: #1976d2; font-weight: bold; }
+.red { color: #d32f2f; font-weight: bold; }
+.test { background: #e8f5e9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid #4caf50; }
+.footer { text-align: center; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; padding-top: 2rem; border-top: 1px solid #ddd; margin-bottom: 2rem; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card { grid-column: 1 / -1; } }
+@media print { .top-nav, .footer { display: none; } body { background: white; } .card { break-inside: avoid; border: 1px solid #ddd; } }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-web-export-deploy.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-a02-object-families.html">บทที่ A2 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ A1 • Construct 2 ขั้นสูง</div>
+    <h1>เปิดโปรเจกต์ master_v32 และโครงสร้าง Layout</h1>
+    <p>โครงสร้างโปรเจกต์ • Layout • Layer • Event Sheet</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>เปิดไฟล์ที่ถูกต้อง</h2>
+      <p>เปิด <code>master_v32.capx</code> หรือ <code>_master_v32_extract\New project.caproj</code> จากโฟลเดอร์ "แข่งสร้างเกมส์" ⚠️ <strong>ห้ามเปิด master_v4 (เวอร์ชันเก่า)</strong></p>
+      <p>Project มีชื่อว่า Red Hood Adventure ขนาด Window 1500×960 และตั้งค่า Fullscreen in Browser เป็น Letterbox scale</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Windows Explorer → เปิดไฟล์ .capx</span>
+    </article>
+
+    <article class="card">
+      <span class="n">2</span><h2>8 Layout ในโปรเจกต์</h2>
+      <p>โปรเจกต์นี้มีทั้งหมด 8 Layout ได้แก่ <code>title</code> (เมนูหลัก), <code>name</code> (กรอกชื่อ), <code>select</code> (เลือกด่าน), <code>game</code> / <code>game2</code> / <code>game3</code> (เล่นจริง), <code>ranking</code> (อันดับ), และ <code>Howto</code> (วิธีเล่น)</p>
+      <p>First layout สำหรับเริ่มเกมต้องเป็น <code>title</code></p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Project bar → Layouts</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">3</span><h2>5 Layer ใน Layout game</h2>
+      <p>โครงสร้าง Layer จากล่างขึ้นบน มีความสำคัญมากต่อการแสดงผล:</p>
+      <ul>
+        <li><code>bg</code> - ฉากหลังที่อยู่ล่างสุด</li>
+        <li><code>game</code> - ตัวละคร มอนสเตอร์ กล่องคำตอบ</li>
+        <li><code>popup</code> - UI Overlay เมื่อจบเกมหรือ Game Over</li>
+        <li><code>HUD</code> - แถบพลังชีวิต เวลา และโจทย์คำถาม</li>
+        <li><code>transition</code> - เอฟเฟกต์จอดำเปลี่ยนฉาก (บนสุด)</li>
+      </ul>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → แถบ Layers ขวาล่าง</span>
+    </article>
+
+    <article class="card">
+      <span class="n">4</span><h2>โครงสร้าง Event Sheet</h2>
+      <p>เราใช้ <code>game sheet</code> เพียง sheet เดียวกับทั้งฉาก <code>game</code>, <code>game2</code>, และ <code>game3</code> โดยแยกเงื่อนไขการทำงานในแต่ละฉากด้วย System condition <code>LayoutName</code></p>
+      <p>ส่วนเมนูแต่ละหน้าใช้ sheet แยกต่างหาก (title sheet, name sheet, select sheet, ranking sheet)</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Project bar → Event sheets</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">5</span><h2>ขนาด Layout ตามด่าน</h2>
+      <p>แต่ละฉากมีความยาวไม่เท่ากัน: game = 4500×960, game2 = 5500×960, game3 = 6000×960</p>
+      <p>ตัวละครหลัก (Player) ต้องมี <strong>Scroll To behavior</strong> เพื่อให้กล้องแพนตามไปได้ตลอดทางจนจบฉาก</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> คลิกพื้นที่ว่างใน Layout → Layout properties (ซ้ายมือ)</span>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <ul>
+        <li>เปิดไฟล์ผิดเวอร์ชัน (สับสนระหว่าง v4 กับ v32)</li>
+        <li>แก้ Event ผิด Event Sheet (ดู Tab ชื่อไฟล์ด้านบนให้ดี)</li>
+        <li>First layout ใน Project settings ไม่ใช่ title ทำให้ตอนทดสอบเกมเริ่มผิดหน้า</li>
+        <li>UID (Unique ID) ซ้ำจากการ copy Layout ทั้งหน้า ทำให้ Event ทำงานผิดเพี้ยน</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> 
+    เปิดไฟล์ master_v32 ได้สำเร็จ • นับจำนวน Layout ใน Project bar ได้ 8 หน้า • เปิดหน้า Layout "game" และเห็น Layer ทั้ง 5 ชั้น • สามารถเปิด "game sheet" ได้ • ตรวจสอบ Project Properties ว่า First layout = title
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • เปิดโปรเจกต์ master_v32 และโครงสร้าง Layout</span>
+    <span>งานถัดไป: Object Families</span>
+  </footer>
+</main>
+</body>
+</html>

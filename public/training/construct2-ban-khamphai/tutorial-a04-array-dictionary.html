@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — Array และ Dictionary</title>
+<style>
+body { background: #fef6e4; font-family: "Leelawadee UI", Tahoma, sans-serif; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #fff; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.top-nav a { text-decoration: none; color: #7c4a14; font-weight: bold; }
+.nav-right button { margin: 0 10px; cursor: pointer; border: 1px solid #7c4a14; background: white; border-radius: 4px; padding: 4px 8px; color: #7c4a14; }
+.page { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+.head { background: linear-gradient(135deg, #7c4a14, #b87320); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+.tag { display: inline-block; background: #fdebd0; color: #7c4a14; padding: 0.2rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 1rem; }
+.head h1 { margin: 0 0 0.5rem 0; font-size: 2.2rem; }
+.head p { margin: 0; opacity: 0.9; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+.card { background: white; border-radius: 12px; padding: 1.5rem 1.5rem 1.5rem 2.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #b87320; position: relative; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { border-top-color: #ff9800; background: #fffde7; }
+.n { position: absolute; top: -15px; left: -15px; background: #ffeb3b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.card h2 { margin-top: 0; color: #7c4a14; font-size: 1.3rem; }
+.card.warn h2 { color: #d32f2f; }
+.small { font-size: 0.85rem; color: #666; background: #f5f5f5; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; display: block; }
+.box { border-left: 4px solid #2196f3; background: #f0f8ff; padding: 1rem; margin: 1rem 0; font-family: monospace; }
+.blue { color: #1976d2; font-weight: bold; }
+.red { color: #d32f2f; font-weight: bold; }
+.test { background: #e8f5e9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid #4caf50; }
+.footer { text-align: center; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; padding-top: 2rem; border-top: 1px solid #ddd; margin-bottom: 2rem; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card { grid-column: 1 / -1; } }
+@media print { .top-nav, .footer { display: none; } body { background: white; } .card { break-inside: avoid; border: 1px solid #ddd; } }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-a03-functions.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-a05-debug-performance.html">บทที่ A5 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ A4 • Construct 2 ขั้นสูง</div>
+    <h1>Array และ Dictionary</h1>
+    <p>การจัดการข้อมูลขั้นสูง • เซฟเกม • โครงสร้างข้อมูล</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>ปัญหาของตัวแปรทีละชื่อ</h2>
+      <p>ระบบ Top 5 ใน master_v32 แบบปกติจะใช้ตัวแปรชื่อต่างๆ เช่น <code>ชื่อ1, ชื่อ2, ชื่อ3...</code> ควบคู่กับ <code>คะแนน1, คะแนน2...</code> ซึ่งรวมแล้วต้องใช้ถึง 10 ตัวแปร ถ้าเป็นระบบ Top 10 ก็ต้องใช้ 20 ตัวแปร ซึ่งยุ่งยากมาก Array สามารถช่วยแก้ปัญหานี้ได้</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> ลองสังเกตจำนวน Global Variables เรียงกันยาวเหยียดใน Event sheet ของ Ranking</span>
+    </article>
+
+    <article class="card">
+      <span class="n">2</span><h2>Array พื้นฐาน</h2>
+      <p>คุณสามารถสร้าง Array ไว้เก็บคะแนนได้ โดยตั้งชื่อ <code>TopScores</code> ให้มี Width=5, Height=2 (แถว 0 สำหรับคะแนน, แถว 1 สำหรับชื่อ)</p>
+      <div class="box">
+        <span class="red">Array → Set at X, Y</span><br>
+        <span class="blue">ดึงค่า: Array.At(X, Y)</span>
+      </div>
+      <p>สามารถวนลูปใช้งานด้วย Condition <code>For each element</code> ได้</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Insert object → Array (กลุ่ม Data & Storage)</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">3</span><h2>Dictionary</h2>
+      <p>ใช้เก็บข้อมูลแบบ Key-Value คู่กัน เช่น <code>"ผ่านด่าน1" → 1</code> หรือ <code>"ชื่อผู้เล่น" → "สมชาย"</code></p>
+      <p>Dictionary เหมาะมากๆ กับการสร้างระบบบันทึกเกม (เซฟเกม) ลงใน WebStorage เพราะคุณสามารถแปลงข้อมูล Dictionary เป็นรูปแบบ JSON string แล้วเซฟครั้งเดียวจบได้เลย</p>
+      <span class="small">📍 <b>ที่ไหนใน C2:</b> Insert object → Dictionary</span>
+    </article>
+
+    <article class="card wide">
+      <span class="n">4</span><h2>เมื่อไหร่ยังควรใช้ตัวแปรธรรมดา</h2>
+      <p>ถ้าตารางคะแนนของคุณคงที่แค่ Top 5 ช่อง (เหมือนใน v32) การใช้ตัวแปรธรรมดาก็อาจจะง่ายต่อการทำความเข้าใจกว่า</p>
+      <p>Array จะมีประโยชน์ที่สุดเมื่อจำนวนช่องสามารถปรับเปลี่ยนได้ตลอดเวลา (Dynamic) ส่วนในเกมเวอร์ชันจริงของ v32 การใช้ <strong>ตัวแปรธรรมดา + Dictionary เซฟลง WebStorage</strong> ถือเป็นทางเลือกที่ผสมผสานและใช้งานได้ดี</p>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <ul>
+        <li>Array index เริ่มนับจากช่องที่ <strong>0</strong> (ไม่ใช่ 1 ดังนั้นขนาด Width 5 จะมีช่อง 0, 1, 2, 3, 4)</li>
+        <li>ลืมตั้งค่าขนาด Width/Height ให้กับ Array ก่อนเริ่มใช้งาน ทำให้ Array ไม่สามารถเก็บข้อมูลได้</li>
+        <li>อ้างอิง Dictionary key ผิดเพี้ยน เช่นพิมพ์ตัวพิมพ์เล็ก-ใหญ่ไม่ตรงกัน (Case sensitive)</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> 
+    สร้าง Array และตั้งขนาดได้ถูกต้อง • สามารถ Set ค่าและดึงค่าด้วย At ได้ • อธิบายข้อแตกต่างและสถานการณ์ที่ควรใช้ระหว่างตัวแปรธรรมดา, Array, และ Dictionary
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • Array และ Dictionary</span>
+    <span>งานถัดไป: สิ้นสุดบทเรียนขั้นสูงเบื้องต้น (Debugging & Performance)</span>
+  </footer>
+</main>
+</body>
+</html>

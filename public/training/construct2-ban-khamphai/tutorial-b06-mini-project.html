@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — Mini Project: เดินบนพื้นเก็บดาว</title>
+<style>
+  :root {
+    --bg: #fef9e7;
+    --h-grad1: #7d5a1a;
+    --h-grad2: #c49122;
+    --tag-bg: #5a4111;
+    --card-border: #f0deab;
+    --test-bg: #e5f5e5;
+  }
+  body { margin: 0; font-family: "Leelawadee UI", Tahoma, sans-serif; background: var(--bg); color: #333; }
+  .top-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; }
+  .top-nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+  .nav-right button { margin: 0 10px; cursor: pointer; border: 1px solid #ccc; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; }
+  .page { max-width: 900px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .head { background: linear-gradient(135deg, var(--h-grad1), var(--h-grad2)); color: white; padding: 30px; border-radius: 8px; text-align: center; }
+  .tag { display: inline-block; background: var(--tag-bg); padding: 5px 12px; border-radius: 20px; font-size: 0.9em; margin-bottom: 10px; }
+  h1 { margin: 0 0 10px 0; }
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; font-weight: bold; flex-wrap: wrap; }
+  .flow i { color: #888; font-style: normal; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .card { border: 1px solid var(--card-border); padding: 20px; border-radius: 8px; position: relative; }
+  .card.wide { grid-column: 1 / 3; }
+  .card.warn { background: #fff9e6; border-color: #ffd633; }
+  .n { background: #ffd633; color: #333; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; position: absolute; top: -12px; left: 15px; }
+  .card h2 { margin-top: 0; font-size: 1.2em; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+  .small { font-size: 0.85em; color: #555; }
+  .box { border-left: 4px solid #0066cc; background: #f9f9f9; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
+  .blue { color: #0066cc; font-weight: bold; }
+  .red { color: #cc0000; font-weight: bold; }
+  .test { background: var(--test-bg); padding: 15px; border-radius: 8px; border-left: 4px solid #339933; margin: 20px 0; }
+  .footer { display: flex; justify-content: space-between; font-size: 0.9em; color: #777; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .card.wide { grid-column: 1; }
+  }
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; padding: 0; }
+    .top-nav, .footer { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-b05-variables.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-basic-ground-platform.html">บทที่ 1 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ B6 • พื้นฐาน Construct 2</div>
+    <h1>Mini Project: เดินบนพื้นเก็บดาว</h1>
+    <p>สรุปการเรียนรู้: Layout • Layer • Sprite • Behavior • Event</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>สร้าง Layout และ Layers</h2>
+      <p>สร้างโปรเจกต์ใหม่ขนาด Window Size: 1280×720. สร้าง 3 Layers เรียงลำดับจากล่างขึ้นบน: <code>bg</code>, <code>game</code>, <code>HUD</code>. วาง TiledBackground เป็นพื้นบน Layer game และใส่ Behavior: Solid.</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> File → New → Empty project</p>
+    </article>
+    
+    <article class="card">
+      <span class="n">2</span><h2>วาง Player + Behaviors</h2>
+      <p>สร้าง Sprite <code>player</code> บน Layer game. ใส่ Behavior: <b>Platform</b> (Jump strength: 650, Gravity: 1500, Max jumps: 2) และ <b>Scroll To</b>. สร้าง Animation: <code>walk</code>, <code>Stand</code>.</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer game → Insert → Sprite</p>
+    </article>
+    
+    <article class="card">
+      <span class="n">3</span><h2>วาง Sprite ดาว</h2>
+      <p>สร้าง Sprite <code>star</code> นำไปวางบนเกาะหรือพื้นที่ต่างๆ 1-3 ดวง. ใช้ Animation หรือเปลี่ยนภาพเป็นดาวหรือเหรียญ.</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer game → Insert → Sprite ใหม่</p>
+    </article>
+    
+    <article class="card wide">
+      <span class="n">4</span><h2>Event Sheet: เดิน + เก็บดาว</h2>
+      <p>สร้าง Group แยกการทำงานเพื่อง่ายต่อการอ่าน:</p>
+      <div class="box"><b>Group: เดิน+กระโดด</b>
+<span class="blue">Keyboard → On Left arrow pressed</span> <span class="red">→ player → Set mirrored / Set animation to "walk"</span>
+<span class="blue">Keyboard → On Right arrow pressed</span> <span class="red">→ player → Set not mirrored / Set animation to "walk"</span>
+<span class="blue">Keyboard → On Left arrow released (หรือตรวจสอบไม่กด)</span> <span class="red">→ player → Set animation to "Stand"</span>
+
+<b>Group: เก็บของ</b>
+<span class="blue">player → On collision with star</span> <span class="red">→ star → Destroy</span>
+<span class="red">→ System → Add 10 to คะแนน</span>
+<span class="red">→ Text → Set text to "คะแนน : " & คะแนน</span></div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet → Add event</p>
+    </article>
+    
+    <article class="card wide">
+      <span class="n">5</span><h2>เช็กลิสต์จบหลักสูตร Beginner</h2>
+      <p>✅ เปิด C2 และใช้งาน Layout/Layer ได้<br>✅ สร้าง Sprite + Animation เป็น<br>✅ รู้จัก Condition และ Action<br>✅ ใส่ Behavior พื้นฐานได้ (Solid, Platform, Scroll To)<br>✅ สร้างตัวแปรและใช้งานได้<br>✅ สามารถทำฉากเดียวให้เล่นได้!</p>
+      <p><b>ถ้าทำครบหมด → พร้อมเข้า Core Track แล้ว!</b></p>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">6</span><h2>⚠️ ก่อนเข้า Core Track</h2>
+      <p>เก็บโปรเจกต์ Mini นี้ไว้เป็นตัวอย่างให้ตัวเองดู. ใน Core Track เราจะใช้ไฟล์ <code>master_v32.capx</code> ที่เป็นเกม Red Hood Adventure จริง.<br><b>ห้ามแก้ไฟล์ master_v32.capx ล่วงหน้า</b> จนกว่า Mini Project นี้จะสามารถรันและเล่นได้สมบูรณ์!</p>
+    </article>
+  </section>
+
+  <aside class="test"><b>✅ รายการทดสอบ:</b> ฉากเดียวรันได้ • เดิน/กระโดดได้ • เก็บดาวได้คะแนน • Text HUD โชว์คะแนน • พร้อมเข้า Core บทที่ 1</aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • Mini Project สรุป Beginner</span>
+    <span>งานถัดไป: เข้าสู่ Core Track — ระบบพื้นและแพลตฟอร์ม</span>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — ออกแบบด่านและบาลานซ์</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: "Leelawadee UI", "Tahoma", sans-serif; margin: 0; padding: 0; line-height: 1.6; color: #333; background: #f0f5e6; }
+.top-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; font-size: 0.9em; }
+.top-nav a { text-decoration: none; color: #3e5c1c; font-weight: bold; }
+.nav-right { display: flex; gap: 15px; align-items: center; }
+.nav-right button { border: 1px solid #ccc; background: #f9f9f9; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+.page { max-width: 1000px; margin: 20px auto; padding: 20px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; }
+.head { background: linear-gradient(135deg, #3e5c1c, #6b8e23); color: white; padding: 30px; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px; }
+.tag { display: inline-block; background: #d4e88a; color: #000; padding: 4px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin-bottom: 10px; }
+.head h1 { margin: 0 0 10px 0; font-size: 2.2em; }
+.head p { margin: 0; opacity: 0.9; }
+.flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; font-weight: bold; }
+.flow i { color: #888; font-style: normal; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+.card { border: 2px solid #a3c961; border-radius: 8px; padding: 20px; position: relative; background: #fafafa; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { background: #fff3cd; border-color: #ffe69c; }
+.n { position: absolute; top: -12px; left: -12px; width: 30px; height: 30px; background: #ffd700; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+h2 { margin-top: 0; color: #3e5c1c; font-size: 1.3em; }
+.small { font-size: 0.9em; color: #555; }
+.box { border-left: 4px solid #0066cc; background: #f4f8ff; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 0.95em; }
+.blue { color: #0055b3; font-weight: bold; }
+.red { color: #cc0000; font-weight: bold; }
+.test { background: #e8f5e9; border-left: 5px solid #4caf50; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+.footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em; display: flex; justify-content: space-between; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card.wide { grid-column: 1 / 1; } }
+@media print { .top-nav, .scene { display: none; } .page { box-shadow: none; margin: 0; padding: 0; } }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+th { background-color: #e2efd0; }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-a05-debug-performance.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-a07-kampai-sdk.html">บทที่ A7 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ A6 • Construct 2 ขั้นสูง</div>
+    <h1>ออกแบบด่านและบาลานซ์</h1>
+    <p>ค่าอ้างอิงของเกม • ลำดับการปรับบาลานซ์ • กฎการสร้างด่าน</p>
+  </header>
+
+  <div class="flow"><b>กำหนดค่าอ้างอิง</b><i>→</i><b>ปรับเวลาและศัตรู</b><i>→</i><b>ทดสอบด้วยผู้เล่น 3 ระดับ</b><i>→</i><b>สรุปผลบาลานซ์</b></div>
+
+  <section class="grid">
+    <article class="card wide">
+      <span class="n">1</span><h2>ค่าอ้างอิง master_v32</h2>
+      <p>นี่คือค่ามาตรฐานสำหรับเกม Platformer ใน Kampai School เพื่อให้บาลานซ์เหมาะสม:</p>
+      <table>
+        <tr>
+          <th>ด่าน</th>
+          <th>เวลา (วินาที)</th>
+          <th>ความกว้าง Layout</th>
+          <th>ความยาก/จังหวะยิง</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>200</td>
+          <td>4500</td>
+          <td>ง่าย (สอนกลไก)</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>150</td>
+          <td>5500</td>
+          <td>กลาง (มอนยิงทุก 15-20 วิ)</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>120</td>
+          <td>6000</td>
+          <td>ยาก (มอนยิงทุก 10 วิ)</td>
+        </tr>
+      </table>
+      <p class="small"><b>จำนวนข้อต่อด่าน:</b> 5 ข้อ | <b>HP เริ่มต้น:</b> 5 ดวง</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet กลาง (Game Sheet) → ดูที่ Global variables</p>
+    </article>
+
+    <article class="card">
+      <span class="n">2</span><h2>ปรับอะไรก่อน? (ลำดับความสำคัญ)</h2>
+      <p>เมื่อรู้สึกว่าเกมยากหรือง่ายเกินไป ให้ปรับตามลำดับดังนี้:</p>
+      <ol>
+        <li>เวลา (ง่ายสุด ไม่กระทบเกมเพลย์)</li>
+        <li>จำนวนข้อในด่าน</li>
+        <li>ระยะความห่างของเกาะ / ความสูง</li>
+        <li>จังหวะยิงของมอนสเตอร์ (10-20 วินาที)</li>
+        <li>แรงกระเด็น / จำนวนดาเมจ</li>
+      </ol>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Global variables ที่เกี่ยวข้อง หรือหน้า Layout ด่านนั้นๆ</p>
+    </article>
+
+    <article class="card wide">
+      <span class="n">3</span><h2>วิธีทดสอบบาลานซ์</h2>
+      <p>ให้ทดสอบเล่นแต่ละด่าน 3 รอบด้วยสไตล์ผู้เล่น 3 ระดับ (มือใหม่, ปานกลาง, เก่ง) จากนั้นบันทึกผล:</p>
+      <ul>
+        <li>ผ่านหรือไม่? เหลือเวลาเท่าไหร่? เหลือหัวใจกี่ดวง? ตายตรงไหนบ่อย?</li>
+        <li><b>ตัวชี้วัด:</b> ถ้า "มือใหม่" ผ่านด่าน 1 ได้สบายๆ แสดงว่าบาลานซ์พอดี</li>
+        <li><b>ตัวชี้วัด:</b> ถ้า "คนเก่ง" เล่นแล้วยังเหลือเวลาบานเบอะ = ควรเพิ่มข้อหรือลดเวลาลงในด่าน 2-3</li>
+      </ul>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> ลองเปิด Debug Layout เล่นเพื่อดูตัวแปรไปพร้อมๆ กัน</p>
+    </article>
+
+    <article class="card wide">
+      <span class="n">4</span><h2>กฎทองของการออกแบบด่าน</h2>
+      <p><b>เปลี่ยน 1 ตัวแปรต่อการทดสอบ 1 รอบ</b> การเปลี่ยนทีละหลายๆ ค่าจะทำให้เราไม่รู้ว่าอะไรคือสาเหตุที่เกมสนุกหรือยากขึ้น</p>
+      <p><b>ระยะการกระโดดที่แนะนำ:</b></p>
+      <ul>
+        <li>พื้น → เกาะ: ความสูง ≤ 140px</li>
+        <li>เกาะ → เกาะ (แนวตั้ง): ความสูง ≤ 135px</li>
+        <li>เกาะ → เกาะ (แนวนอน): ระยะห่าง ≤ 360px</li>
+      </ul>
+      <div class="box">
+        <span class="blue">ด่าน 1:</span> เน้นการสอนผู้เล่น กระโดดง่าย ศัตรูน้อย<br>
+        <span class="blue">ด่าน 2:</span> เพิ่มศัตรูสุ่มตำแหน่งและจังหวะรบกวน<br>
+        <span class="blue">ด่าน 3:</span> เวลาน้อยลง ด่านกว้างและซับซ้อนขึ้น เน้นความท้าทาย
+      </div>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <p>
+        1. <b>ปรับหลายค่าพร้อมกัน:</b> ทำให้เกมรวนและไม่รู้ว่าจุดกึ่งกลางอยู่ตรงไหน<br>
+        2. <b>วางเกาะไกลเกินไป:</b> ผู้เล่นกระโดดไม่ถึง (เกินระยะ 360px) ทำให้ติดแหง็ก<br>
+        3. <b>มอนสเตอร์ยิงถี่เกินไป:</b> ยิงทุกๆ 5 วินาที ทำให้ผู้เล่นไม่มีเวลาตอบคำถามและหัวร้อนได้
+      </p>
+    </article>
+  </section>
+
+  <aside class="test"><b>✅ รายการทดสอบ:</b> รู้และเข้าใจค่าอ้างอิง v32 • ลองปรับเวลาและจำนวนข้อแล้วเล่นทดสอบจริง • มีการบันทึกผลการทดสอบบาลานซ์ของตัวเองอย่างน้อย 1 ด่าน</aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • ออกแบบด่านและบาลานซ์</span>
+    <span>งานถัดไป: บทที่ A7 เชื่อมต่อกับ Kampai SDK</span>
+  </footer>
+</main>
+</body>
+</html>

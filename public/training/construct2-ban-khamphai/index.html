@@ -14,9 +14,26 @@ background:linear-gradient(165deg,#e8f4ff 0%,#f7fbef 42%,#fff4e8 100%);overflow:
 .tag{color:#ffe4b8;font-size:18px;font-weight:800}
 h1{font-size:34px;margin:6px 0 10px;line-height:1.15}
 .head p{margin:0;font-size:17px;color:#fff6e8;line-height:1.45}
+.path-visual{display:flex;align-items:center;gap:12px;margin-top:16px;background:rgba(0,0,0,0.15);padding:12px 18px;border-radius:16px;font-weight:700;flex-wrap:wrap;}
+.path-visual span{background:#fff;color:#5c2d0e;padding:4px 12px;border-radius:20px;font-size:14px;}
+.path-visual .arrow{color:#ffe4b8;font-size:18px;}
+
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;align-items:center}
-.toolbar button{appearance:none;border:3px solid #d4a574;background:#fff;color:#5c2d0e;font-weight:800;font-size:15px;border-radius:12px;padding:10px 16px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #ecd5b8}
-.toolbar button.primary{background:#1f8a5b;border-color:#16704a;color:#fff;box-shadow:0 3px 0 #0f5a3b}
+.toolbar button, .toolbar select, .toolbar input, .assets-btn{appearance:none;border:3px solid #d4a574;background:#fff;color:#5c2d0e;font-weight:800;font-size:15px;border-radius:12px;padding:10px 16px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #ecd5b8;text-decoration:none;display:inline-block;}
+.toolbar button.primary, .assets-btn.primary{background:#1f8a5b;border-color:#16704a;color:#fff;box-shadow:0 3px 0 #0f5a3b}
+.toolbar input{cursor:text;min-width:200px;font-weight:600;}
+.toolbar select{padding-right:24px;}
+
+.tabs{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 24px;}
+.tab{background:#fff;border:3px solid #e0c896;padding:12px 20px;border-radius:16px;font-weight:800;font-size:16px;color:#5c2d0e;cursor:pointer;box-shadow:0 4px 0 #f0dcb0;flex:1;text-align:center;transition:all 0.1s;}
+.tab.active{transform:translateY(4px);box-shadow:0 0 0 #f0dcb0;background:#fff3e0;border-color:#c67a28;}
+.tab[data-level="beginner"]{border-color:#7eb8d8;}
+.tab[data-level="core"]{border-color:#efbd55;}
+.tab[data-level="advanced"]{border-color:#c49bdb;}
+.tab.active[data-level="beginner"]{background:#e8f6ff;}
+.tab.active[data-level="core"]{background:#fffaf0;}
+.tab.active[data-level="advanced"]{background:#fdf9ff;}
+
 .note{margin:14px 0 18px;background:#fff;border:3px solid #e8c88a;border-radius:18px;padding:14px 18px;font-size:16px;line-height:1.5;box-shadow:0 5px 0 #f0dcb0}
 .note b{color:#5c2d0e}
 .phase{margin:18px 0 6px;font-size:13px;font-weight:900;color:#8a4a12;letter-spacing:.04em}
@@ -32,98 +49,204 @@ h1{font-size:34px;margin:6px 0 10px;line-height:1.15}
 .main a{color:inherit;text-decoration:none}
 h2{display:inline;font-size:20px;color:#5c2d0e;margin:0}
 .desc{margin:6px 0 0;font-size:14px;color:#566578;line-height:1.35}
+.tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
+.tag-badge{background:#e2e8f0;color:#475569;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.item.beginner .tag-badge{background:#dbeafe;color:#1e40af;}
+.item.core .tag-badge{background:#fef3c7;color:#92400e;}
+.item.advanced .tag-badge{background:#f3e8ff;color:#6b21a8;}
+.level-ind{font-size:18px;margin-left:4px;vertical-align:middle;}
 .controls{display:flex;gap:6px}
 .controls button{width:36px;height:36px;border-radius:10px;border:2px solid #e0c896;background:#fff;font-size:16px;font-weight:900;cursor:pointer;color:#5c2d0e;font-family:inherit}
 .open{display:inline-block;margin-top:8px;background:#c67a28;color:#fff;text-decoration:none;font-weight:800;font-size:13px;border-radius:9px;padding:6px 12px}
 .status{min-height:22px;margin-top:10px;font-size:14px;color:#1f8a5b;font-weight:700}
 .foot{margin-top:24px;color:#425268;font-size:14px;line-height:1.45}
-@media print{.toolbar,.controls,.handle,.status,.open,.phase{display:none!important}.item{break-inside:avoid}}
+@media print{.toolbar,.tabs,.controls,.handle,.status,.open,.phase{display:none!important}.item{break-inside:avoid}}
 </style>
 </head>
 <body class="guide-index">
 <div class="wrap">
  <header class="head">
   <div class="tag">คู่มือ2 · Construct 2 · จาก 0 ถึงขั้นสูง · master_v32</div>
-  <h1>หลักสูตรสร้างเกมครบเส้นทาง</h1>
-  <p>Beginner (B01–B06) → Core Red Hood (01–16) → Advanced (A01–A07) · ลากเรียงได้ · พิมพ์ได้</p>
+  <h1>หลักสูตรสร้างเกมครบเส้นทาง (29 บทเรียน)</h1>
+  <p>เรียนรู้วิธีสร้างเกมด้วย Construct 2 ครบจบในที่เดียว ลากเรียงได้ ค้นหาได้</p>
+  <div class="path-visual">
+    <span>🐣 พื้นฐาน (B1-B6)</span>
+    <div class="arrow">→</div>
+    <span>🎮 ระบบเกมหลัก (01-16)</span>
+    <div class="arrow">→</div>
+    <span>🚀 ขั้นสูง (A1-A7)</span>
+  </div>
  </header>
+
  <div class="toolbar">
+  <input type="text" id="inpSearch" placeholder="ค้นหาบทเรียน...">
+  <select id="selTag">
+    <option value="">ทุกแท็ก</option>
+  </select>
   <button type="button" class="primary" id="btnPrint">พิมพ์สารบัญ</button>
   <button type="button" id="btnReset">คืนลำดับเดิม</button>
   <button type="button" id="btnTop">↑ ขึ้นบนสุด</button>
+  <a href="master_v32.capx" class="assets-btn" download>โหลดไฟล์ Assets</a>
  </div>
+
+ <div class="tabs">
+  <div class="tab active" data-level="all">🌟 ทั้งหมด</div>
+  <div class="tab" data-level="beginner">🐣 พื้นฐาน</div>
+  <div class="tab" data-level="core">🎮 ระบบเกมหลัก</div>
+  <div class="tab" data-level="advanced">🚀 ขั้นสูง</div>
+ </div>
+
  <div class="note">
   <b>แนะนำลำดับเรียน:</b> จบ Beginner ก่อน → เข้า Core กับ master_v32 → ปิดท้ายด้วย Advanced
   · ขอบฟ้า = Beginner · ขอบส้ม = ระบบหลัก Core · ขอบม่วง = Advanced
-  · ทำตามป้าย “ที่ไหนใน C2” และติ๊กทดสอบท้ายบททุกครั้ง
  </div>
+ 
  <ol class="list" id="chapterList"></ol>
  <div class="status" id="status"></div>
  <p class="foot">อ้างอิง master_v32.capx + _master_v32_extract · ลำดับจัดเก็บ localStorage v2</p>
 </div>
 <script>
 (function(){
-var KEY='redhood-guide2-order-v2';
+var KEY='redhood-guide2-order-v3';
 var DEFAULT=[
-{id:'B01',href:'B01-ติดตั้งและหน้าจอ-C2.html',title:'B01 ติดตั้ง Construct 2',desc:'ติดตั้ง · หน้าจอหลัก · F5 Preview',core:false,phase:'Beginner',tier:'beginner'},
-{id:'B02',href:'B02-sprite-animation-layer.html',title:'B02 Sprite / Animation / Layer',desc:'นำเข้าภาพ · แอนิเมชัน · Layer bg/game/HUD',core:false,phase:'Beginner',tier:'beginner'},
-{id:'B03',href:'B03-event-sheet-เบื้องต้น.html',title:'B03 Event Sheet เบื้องต้น',desc:'Condition/Action · Else · Trigger once · Group',core:false,phase:'Beginner',tier:'beginner'},
-{id:'B04',href:'B04-behaviors-พื้นฐาน.html',title:'B04 Behaviors พื้นฐาน',desc:'Solid Platform ScrollTo Bullet Sine Flash',core:false,phase:'Beginner',tier:'beginner'},
-{id:'B05',href:'B05-ตัวแปร-global-instance.html',title:'B05 Global / Instance variable',desc:'คะแนน ชีวิต · โชว์บน Text',core:false,phase:'Beginner',tier:'beginner'},
-{id:'B06',href:'B06-mini-เดินบนพื้น.html',title:'B06 Mini: เดินบนพื้น 1 ฉาก',desc:'รวมพื้นฐานก่อนเข้า Red Hood',core:false,phase:'Beginner',tier:'beginner'},
-{id:'01',href:'01-เปิดโปรเจกต์และ-layout.html',title:'01 เปิดโปรเจกต์และ Layout',desc:'Core: master_v32 · Layout · Layer · Event sheet',core:false,phase:'Core A',tier:''},
-{id:'02',href:'02-พื้นและเกาะ.html',title:'02 พื้นและเกาะ',desc:'TiledBackground2 Solid · sky Jump-thru',core:false,phase:'Core A',tier:''},
-{id:'03',href:'03-ผู้เล่นเดินกระโดด.html',title:'03 ผู้เล่น เดิน กระโดด',desc:'Platform · walk/Stand/jump',core:false,phase:'Core A',tier:''},
-{id:'04',href:'04-หัวใจ5ดวง.html',title:'04 หัวใจ 5 ดวง',desc:'พลังชีวิต · heart.index',core:false,phase:'Core B',tier:''},
-{id:'05',href:'05-ตกฉากโดนดาเมจ.html',title:'05 ตกฉาก / ดาเมจ / Flash',desc:'outside layout · Flash 3วิ',core:false,phase:'Core B',tier:''},
-{id:'06',href:'06-เวลานับถอยหลัง.html',title:'06 เวลานับถอยหลัง',desc:'เวลา 200/150/120 · Game Over',core:false,phase:'Core B',tier:''},
-{id:'07',href:'07-มอนลาดตระเวน.html',title:'07 มอนลาดตระเวน',desc:'eminy Sine · หันหน้า',core:false,phase:'Core C',tier:''},
-{id:'08',href:'08-เหยียบมอนโดนชน.html',title:'08 เหยียบมอน / โดนชน',desc:'stomp vs เจ็บ',core:false,phase:'Core C',tier:''},
-{id:'09',href:'09-มอนยิงกระสุน.html',title:'09 มอนยิงกระสุน',desc:'emon_bullet · มุม≤30°',core:false,phase:'Core C',tier:''},
-{id:'10',href:'10-สร้างโจทย์คณิต.html',title:'10 สร้างโจทย์ × ÷',desc:'ตัวแปรโจทย์ · 5 ข้อ',core:true,phase:'Core D',tier:''},
-{id:'11',href:'11-เกาะคำตอบ10ช่อง.html',title:'11 เกาะคำตอบ 10 ช่อง',desc:'answer_orb · platform ลอย',core:true,phase:'Core D',tier:''},
-{id:'12',href:'12-ตอบถูกผิดข้อถัดไป.html',title:'12 ตอบถูก / ผิด / ข้อถัดไป',desc:'ล็อกคำตอบ · ข้อ++',core:true,phase:'Core D',tier:''},
-{id:'13',href:'13-เปิดประตูเคลียร์ด่าน.html',title:'13 เปิดประตูเคลียร์ด่าน',desc:'door ≤220 · ผ่านด่านN',core:true,phase:'Core D',tier:''},
-{id:'14',href:'14-หน้า-title-howto.html',title:'14 หน้า title / Howto',desc:'PLAY RANK HOW TO',core:false,phase:'Core E',tier:''},
-{id:'15',href:'15-ชื่อและเลือกด่าน.html',title:'15 ชื่อและเลือกด่าน',desc:'ชื่อผู้เล่น · ล็อกด่าน',core:false,phase:'Core E',tier:''},
-{id:'16',href:'16-top5-ranking.html',title:'16 Top 5 และ ranking',desc:'บันทึกอันดับ · rank_line',core:false,phase:'Core E',tier:''},
-{id:'A01',href:'A01-object-families.html',title:'A01 Object Families',desc:'รวมมอน/กระสุนหลายชนิด',core:true,phase:'Advanced',tier:'advanced'},
-{id:'A02',href:'A02-functions.html',title:'A02 Functions',desc:'ApplyDamage · Call function',core:true,phase:'Advanced',tier:'advanced'},
-{id:'A03',href:'A03-array-dictionary.html',title:'A03 Array / Dictionary',desc:'Top5 และชุดโจทย์ยืดหยุ่น',core:true,phase:'Advanced',tier:'advanced'},
-{id:'A04',href:'A04-webstorage-เซฟ.html',title:'A04 WebStorage เซฟ',desc:'จำชื่อ ผ่านด่าน หลังปิดเกม',core:true,phase:'Advanced',tier:'advanced'},
-{id:'A05',href:'A05-ดีบักและประสิทธิภาพ.html',title:'A05 ดีบักและประสิทธิภาพ',desc:'debug text · ลด Every tick',core:false,phase:'Advanced',tier:'advanced'},
-{id:'A06',href:'A06-แพ็ก-capx-export.html',title:'A06 แพ็ก capx / Export',desc:'zip path / · HTML5',core:false,phase:'Advanced',tier:'advanced'},
-{id:'A07',href:'A07-ออกแบบด่านและบาลานซ์.html',title:'A07 ออกแบบด่านและบาลานซ์',desc:'เวลา หัวใจ ข้อ ระยะเกาะ',core:false,phase:'Advanced',tier:'advanced'}
+{id:'B01',href:'tutorial-b01-install-workspace.html',title:'B01 ติดตั้ง C2 และรู้จักหน้าจอ',desc:'ติดตั้ง · หน้าจอหลัก · F5 Preview',level:'beginner',tags:['ติดตั้ง','IDE']},
+{id:'B02',href:'tutorial-b02-sprite-animation-layer.html',title:'B02 Sprite, Animation และ Layer',desc:'นำเข้าภาพ · แอนิเมชัน · Layer bg/game/HUD',level:'beginner',tags:['กราฟิก','Animation']},
+{id:'B03',href:'tutorial-b03-event-sheet-basics.html',title:'B03 Event Sheet เบื้องต้น',desc:'Condition/Action · Else · Trigger once · Group',level:'beginner',tags:['Event','โค้ด']},
+{id:'B04',href:'tutorial-b04-behaviors.html',title:'B04 Behaviors พื้นฐาน',desc:'Solid Platform ScrollTo Bullet Sine Flash',level:'beginner',tags:['Behavior','ฟิสิกส์']},
+{id:'B05',href:'tutorial-b05-variables.html',title:'B05 ตัวแปร Global และ Instance',desc:'คะแนน ชีวิต · โชว์บน Text',level:'beginner',tags:['ตัวแปร','ข้อมูล']},
+{id:'B06',href:'tutorial-b06-mini-project.html',title:'B06 Mini Project: เดินบนพื้น',desc:'รวมพื้นฐานก่อนเข้า Red Hood',level:'beginner',tags:['โปรเจกต์','การบ้าน']},
+
+{id:'01',href:'01-เปิดโปรเจกต์และ-layout.html',title:'01 เปิดโปรเจกต์และ Layout',desc:'Core: master_v32 · Layout · Layer · Event sheet',level:'core',tags:['Layout','Core']},
+{id:'02',href:'02-พื้นและเกาะ.html',title:'02 พื้นและเกาะ',desc:'TiledBackground2 Solid · sky Jump-thru',level:'core',tags:['ฉาก','Platform']},
+{id:'03',href:'03-ผู้เล่นเดินกระโดด.html',title:'03 ผู้เล่น เดิน กระโดด',desc:'Platform · walk/Stand/jump',level:'core',tags:['ผู้เล่น','เคลื่อนไหว']},
+{id:'04',href:'04-หัวใจ5ดวง.html',title:'04 หัวใจ 5 ดวง',desc:'พลังชีวิต · heart.index',level:'core',tags:['ชีวิต','UI']},
+{id:'05',href:'05-ตกฉากโดนดาเมจ.html',title:'05 ตกฉาก / ดาเมจ / Flash',desc:'outside layout · Flash 3วิ',level:'core',tags:['ดาเมจ','พื้นฐาน']},
+{id:'06',href:'06-เวลานับถอยหลัง.html',title:'06 เวลานับถอยหลัง',desc:'เวลา 200/150/120 · Game Over',level:'core',tags:['เวลา','เงื่อนไข']},
+{id:'07',href:'07-มอนลาดตระเวน.html',title:'07 มอนลาดตระเวน',desc:'eminy Sine · หันหน้า',level:'core',tags:['ศัตรู','AI']},
+{id:'08',href:'08-เหยียบมอนโดนชน.html',title:'08 เหยียบมอน / โดนชน',desc:'stomp vs เจ็บ',level:'core',tags:['ต่อสู้','ชน']},
+{id:'09',href:'09-มอนยิงกระสุน.html',title:'09 มอนยิงกระสุน',desc:'emon_bullet · มุม≤30°',level:'core',tags:['ศัตรู','กระสุน']},
+{id:'10',href:'10-สร้างโจทย์คณิต.html',title:'10 สร้างโจทย์ × ÷',desc:'ตัวแปรโจทย์ · 5 ข้อ',level:'core',tags:['โจทย์','คณิตศาสตร์']},
+{id:'11',href:'11-เกาะคำตอบ10ช่อง.html',title:'11 เกาะคำตอบ 10 ช่อง',desc:'answer_orb · platform ลอย',level:'core',tags:['เกาะ','คำตอบ']},
+{id:'12',href:'12-ตอบถูกผิดข้อถัดไป.html',title:'12 ตอบถูก / ผิด / ข้อถัดไป',desc:'ล็อกคำตอบ · ข้อ++',level:'core',tags:['ตรวจคำตอบ','เกมเพลย์']},
+{id:'13',href:'13-เปิดประตูเคลียร์ด่าน.html',title:'13 เปิดประตูเคลียร์ด่าน',desc:'door ≤220 · ผ่านด่านN',level:'core',tags:['ด่าน','ชัยชนะ']},
+{id:'14',href:'14-หน้า-title-howto.html',title:'14 หน้า title / Howto',desc:'PLAY RANK HOW TO',level:'core',tags:['เมนู','UI']},
+{id:'15',href:'15-ชื่อและเลือกด่าน.html',title:'15 ชื่อและเลือกด่าน',desc:'ชื่อผู้เล่น · ล็อกด่าน',level:'core',tags:['ผู้เล่น','เลือกระดับ']},
+{id:'16',href:'16-top5-ranking.html',title:'16 Top 5 และ ranking',desc:'บันทึกอันดับ · rank_line',level:'core',tags:['คะแนน','ออนไลน์']},
+
+{id:'A01',href:'tutorial-a01-project-structure.html',title:'A01 โครงสร้าง master_v32 และ Layout',desc:'รวมมอน/กระสุนหลายชนิด',level:'advanced',tags:['โครงสร้าง','Layout']},
+{id:'A02',href:'tutorial-a02-object-families.html',title:'A02 Object Families',desc:'ApplyDamage · Call function',level:'advanced',tags:['Family','จัดกลุ่ม']},
+{id:'A03',href:'tutorial-a03-functions.html',title:'A03 Functions',desc:'Top5 และชุดโจทย์ยืดหยุ่น',level:'advanced',tags:['Function','โค้ด']},
+{id:'A04',href:'tutorial-a04-array-dictionary.html',title:'A04 Array และ Dictionary',desc:'จำชื่อ ผ่านด่าน หลังปิดเกม',level:'advanced',tags:['Array','ข้อมูล']},
+{id:'A05',href:'tutorial-a05-debug-performance.html',title:'A05 ดีบักและประสิทธิภาพ',desc:'debug text · ลด Every tick',level:'advanced',tags:['ดีบัก','ประสิทธิภาพ']},
+{id:'A06',href:'tutorial-a06-level-design-balance.html',title:'A06 ออกแบบด่านและบาลานซ์',desc:'zip path / · HTML5',level:'advanced',tags:['บาลานซ์','ออกแบบ']},
+{id:'A07',href:'tutorial-a07-kampai-sdk.html',title:'A07 เชื่อมต่อ Kampai SDK',desc:'เวลา หัวใจ ข้อ ระยะเกาะ',level:'advanced',tags:['SDK','Kampai']}
 ];
+
+// Extract unique tags
+var allTags = new Set();
+DEFAULT.forEach(function(c){
+  if(c.tags) c.tags.forEach(function(t){ allTags.add(t); });
+});
+var selTag = document.getElementById('selTag');
+Array.from(allTags).sort().forEach(function(tag){
+  var op = document.createElement('option');
+  op.value = tag;
+  op.textContent = tag;
+  selTag.appendChild(op);
+});
+
 var listEl=document.getElementById('chapterList'),statusEl=document.getElementById('status'),order=load();
-function load(){try{var r=localStorage.getItem(KEY);if(!r)return DEFAULT.map(function(x){return x.id});var ids=JSON.parse(r),known=DEFAULT.map(function(x){return x.id}),c=ids.filter(function(id){return known.indexOf(id)!==-1});known.forEach(function(id){if(c.indexOf(id)===-1)c.push(id)});return c}catch(e){return DEFAULT.map(function(x){return x.id})}}
+var currentLevel = 'all';
+var currentSearch = '';
+var currentTag = '';
+
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);
+    if(!r) return DEFAULT.map(function(x){return x.id});
+    var ids=JSON.parse(r), known=DEFAULT.map(function(x){return x.id}), c=ids.filter(function(id){return known.indexOf(id)!==-1});
+    known.forEach(function(id){if(c.indexOf(id)===-1)c.push(id)});
+    return c;
+  }catch(e){
+    return DEFAULT.map(function(x){return x.id});
+  }
+}
 function save(){localStorage.setItem(KEY,JSON.stringify(order));statusEl.textContent='บันทึกลำดับแล้ว';}
 function byId(id){for(var i=0;i<DEFAULT.length;i++)if(DEFAULT[i].id===id)return DEFAULT[i];return null;}
+function getLevelIcon(level) {
+  if (level === 'beginner') return '🐣';
+  if (level === 'core') return '🎮';
+  if (level === 'advanced') return '🚀';
+  return '';
+}
 function render(){
-  listEl.innerHTML='';var lastPhase='';
-  order.forEach(function(id,idx){
+  listEl.innerHTML='';
+  var filteredOrder = order.filter(function(id){
+    var ch = byId(id);
+    if(!ch) return false;
+    if(currentLevel !== 'all' && ch.level !== currentLevel) return false;
+    if(currentSearch && !(ch.title.toLowerCase().indexOf(currentSearch.toLowerCase())>-1 || ch.desc.toLowerCase().indexOf(currentSearch.toLowerCase())>-1)) return false;
+    if(currentTag && (!ch.tags || ch.tags.indexOf(currentTag)===-1)) return false;
+    return true;
+  });
+
+  filteredOrder.forEach(function(id,idx){
     var ch=byId(id);if(!ch)return;
-    if(ch.phase!==lastPhase){lastPhase=ch.phase;var ph=document.createElement('div');ph.className='phase';ph.textContent=ch.phase;listEl.appendChild(ph);}
     var li=document.createElement('li');
-    var tier=ch.tier?(' '+ch.tier):'';
-    li.className='item'+(ch.core?' core':'')+tier;li.draggable=true;li.dataset.id=ch.id;
-    li.innerHTML='<div class="handle">☰</div><div class="main"><div><span class="num">'+(idx+1)+'</span><a href="'+ch.href+'"><h2>'+ch.title+'</h2></a></div><p class="desc">'+ch.desc+'</p><a class="open" href="'+ch.href+'">เปิดบทนี้</a></div><div class="controls"><button type="button" data-act="up"'+(idx===0?' disabled':'')+'>▲</button><button type="button" data-act="down"'+(idx===order.length-1?' disabled':'')+'>▼</button></div>';
+    li.className='item '+ch.level;
+    li.draggable=true;li.dataset.id=ch.id;
+    
+    var tagsHtml = ch.tags ? '<div class="tags">'+ch.tags.map(function(t){return '<span class="tag-badge">'+t+'</span>';}).join('')+'</div>' : '';
+    
+    li.innerHTML='<div class="handle">☰</div><div class="main"><div><span class="num">'+(idx+1)+'</span><a href="'+ch.href+'"><h2>'+ch.title+' <span class="level-ind">'+getLevelIcon(ch.level)+'</span></h2></a></div><p class="desc">'+ch.desc+'</p>'+tagsHtml+'<a class="open" href="'+ch.href+'">เปิดบทนี้</a></div><div class="controls"><button type="button" data-act="up"'+(idx===0?' disabled':'')+'>▲</button><button type="button" data-act="down"'+(idx===filteredOrder.length-1?' disabled':'')+'>▼</button></div>';
     listEl.appendChild(li);
-  });bindDnD();
+  });
+  bindDnD();
 }
 function move(id,d){var i=order.indexOf(id),j=i+d;if(i<0||j<0||j>=order.length)return;var t=order[i];order[i]=order[j];order[j]=t;save();render();}
+
 listEl.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b)return;var li=b.closest('.item');move(li.dataset.id,b.dataset.act==='up'?-1:1);});
 var dragId=null;
-function bindDnD(){listEl.querySelectorAll('.item').forEach(function(item){
-  item.addEventListener('dragstart',function(e){dragId=item.dataset.id;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
-  item.addEventListener('dragend',function(){item.classList.remove('dragging');dragId=null;});
-  item.addEventListener('dragover',function(e){e.preventDefault();item.classList.add('drag-over');});
-  item.addEventListener('dragleave',function(){item.classList.remove('drag-over');});
-  item.addEventListener('drop',function(e){e.preventDefault();item.classList.remove('drag-over');var from=dragId,to=item.dataset.id;if(!from||from===to)return;var fi=order.indexOf(from),ti=order.indexOf(to);order.splice(fi,1);order.splice(ti,0,from);save();render();});
-});}
+function bindDnD(){
+  listEl.querySelectorAll('.item').forEach(function(item){
+    item.addEventListener('dragstart',function(e){dragId=item.dataset.id;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    item.addEventListener('dragend',function(){item.classList.remove('dragging');dragId=null;});
+    item.addEventListener('dragover',function(e){e.preventDefault();item.classList.add('drag-over');});
+    item.addEventListener('dragleave',function(){item.classList.remove('drag-over');});
+    item.addEventListener('drop',function(e){
+      e.preventDefault();item.classList.remove('drag-over');
+      var from=dragId,to=item.dataset.id;
+      if(!from||from===to)return;
+      var fi=order.indexOf(from),ti=order.indexOf(to);
+      order.splice(fi,1);order.splice(ti,0,from);save();render();
+    });
+  });
+}
+
+// Event Listeners
 document.getElementById('btnPrint').onclick=function(){window.print();};
 document.getElementById('btnReset').onclick=function(){order=DEFAULT.map(function(x){return x.id});localStorage.removeItem(KEY);render();};
 document.getElementById('btnTop').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+
+document.getElementById('inpSearch').addEventListener('input', function(e){
+  currentSearch = e.target.value;
+  render();
+});
+document.getElementById('selTag').addEventListener('change', function(e){
+  currentTag = e.target.value;
+  render();
+});
+
+var tabs = document.querySelectorAll('.tab');
+tabs.forEach(function(t) {
+  t.addEventListener('click', function() {
+    tabs.forEach(function(x){x.classList.remove('active');});
+    this.classList.add('active');
+    currentLevel = this.dataset.level;
+    render();
+  });
+});
+
 render();
 })();
 </script>

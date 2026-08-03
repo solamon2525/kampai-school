@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — ดีบักและเพิ่มประสิทธิภาพ</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: "Leelawadee UI", "Tahoma", sans-serif; margin: 0; padding: 0; line-height: 1.6; color: #333; background: #eceef2; }
+.top-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; font-size: 0.9em; }
+.top-nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+.nav-right { display: flex; gap: 15px; align-items: center; }
+.nav-right button { border: 1px solid #ccc; background: #f9f9f9; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+.page { max-width: 1000px; margin: 20px auto; padding: 20px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; }
+.head { background: linear-gradient(135deg, #2c3e50, #546e7a); color: white; padding: 30px; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px; }
+.tag { display: inline-block; background: #b0bec5; color: #000; padding: 4px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin-bottom: 10px; }
+.head h1 { margin: 0 0 10px 0; font-size: 2.2em; }
+.head p { margin: 0; opacity: 0.9; }
+.flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; font-weight: bold; }
+.flow i { color: #888; font-style: normal; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+.card { border: 2px solid #b0bec5; border-radius: 8px; padding: 20px; position: relative; background: #fafafa; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { background: #fff3cd; border-color: #ffe69c; }
+.n { position: absolute; top: -12px; left: -12px; width: 30px; height: 30px; background: #ffd700; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+h2 { margin-top: 0; color: #2c3e50; font-size: 1.3em; }
+.small { font-size: 0.9em; color: #555; }
+.box { border-left: 4px solid #0066cc; background: #f4f8ff; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 0.95em; }
+.blue { color: #0055b3; font-weight: bold; }
+.red { color: #cc0000; font-weight: bold; }
+.test { background: #e8f5e9; border-left: 5px solid #4caf50; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+.footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em; display: flex; justify-content: space-between; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .card.wide { grid-column: 1 / 1; } }
+@media print { .top-nav, .scene { display: none; } .page { box-shadow: none; margin: 0; padding: 0; } }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="tutorial-a04-array-dictionary.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-a06-level-design-balance.html">บทที่ A6 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ A5 • Construct 2 ขั้นสูง</div>
+    <h1>ดีบักและเพิ่มประสิทธิภาพ</h1>
+    <p>การแสดงค่าตัวแปร • หาจุดผิดพลาด • เทคนิคการปรับปรุง Performance เกม</p>
+  </header>
+
+  <div class="flow"><b>สังเกตปัญหา</b><i>→</i><b>สร้าง Text Debug เพื่อดูค่าตัวแปร</b><i>→</i><b>ตรวจสอบ Event Sheet</b><i>→</i><b>ปรับแก้และลบ Debug ก่อนปล่อยเกม</b></div>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>Text Debug ชั่วคราว</h2>
+      <p>สร้าง Text object บน HUD Layer เพื่อแสดงค่าตัวแปรสถานะต่างๆ ที่เรามองไม่เห็นด้วยตาเปล่าในระหว่างการรันเกม อย่าลืมลบออกก่อน export release!</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Layer HUD → Insert new object → Text</p>
+      <div class="box">
+        <span class="blue">System: Every tick</span><br>
+        <span class="red">DebugText: Set text to "ข้อ:" & ข้อปัจจุบัน & " | ล็อก:" & ล็อกคำตอบ & " | จบ:" & กำลังจบด่าน & " | Layout:" & LayoutName</span>
+      </div>
+      <p class="small">ให้ตรวจสอบบ่อยๆ ว่าค่าเปลี่ยนตรงตามเงื่อนไขที่ตั้งไว้หรือไม่</p>
+    </article>
+
+    <article class="card">
+      <span class="n">2</span><h2>จุดบั๊กยอดฮิตใน v32</h2>
+      <p>ปัญหาที่พบบ่อยมากที่สุดใน Construct 2:</p>
+      <ul>
+        <li><b>Object วางผิด Layer:</b> มอนสเตอร์อยู่บน HUD ทำให้ผู้เล่นเดินทะลุไม่ชน</li>
+        <li><b>UID ซ้ำ:</b> จากการ copy Layout หรือ object ผิดวิธี</li>
+        <li><b>ชื่อ Animation ผิด:</b> พิมพ์ walk แต่ตั้งค่าไว้ Walk (ไม่ error แจ้งเตือนแต่ไม่ทำงาน)</li>
+        <li><b>ลืม Trigger once:</b> โดนชนทีเดียวหัวใจลดรัวๆ</li>
+        <li><b>ลืม Invert Is flashing:</b> โดนตีซ้ำตอนอยู่ในสถานะอมตะ</li>
+        <li>คำตอบปลดล็อกก่อนที่ศัตรู/เกาะจะ spawn เสร็จ</li>
+      </ul>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> ดูแถบ Layout ทางขวา → ตรวจ Layer ของแต่ละ object</p>
+    </article>
+
+    <article class="card wide">
+      <span class="n">3</span><h2>ลดการใช้ Every tick</h2>
+      <p>Event ที่ไม่จำเป็นต้องรันเช็คทุกเฟรม (60 ครั้งต่อวินาที) ให้เปลี่ยนไปใช้ Event-driven แทน เช่น On collision, หรือ On variable changed จะช่วยลดการกินทรัพยากรเครื่องได้มาก</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Event sheet → ดูจำนวน Events ที่ไม่มี Condition (มีแต่รูปเฟือง) → ย้ายเข้า Group</p>
+      <ul>
+        <li><b>สิ่งที่ใช้ Every tick ได้:</b> หัวใจบน HUD หรือการเช็คตำแหน่งคร่าวๆ ของกล้อง (ประมวลผลเร็วและเบา)</li>
+        <li><b>สิ่งที่ไม่ควรใช้ Every tick:</b> การคำนวณตำแหน่งเกาะลอยทั้ง 10 ช่องตลอดเวลา <b>ควรจัด Group</b> แล้วเปิด Action เฉพาะตอนที่กำลังเตรียมคำตอบเท่านั้น และปิดเมื่อเสร็จสิ้น</li>
+      </ul>
+    </article>
+
+    <article class="card wide">
+      <span class="n">4</span><h2>Pick / เงื่อนไขที่เจาะจง</h2>
+      <p>เวลาต้องการทำลาย (Destroy) หรือแก้ค่า object เช่น answer_orb ต้อง <b>Pick</b> ให้ถูกตัว! (ใช้ UID หรือ instance variable อย่าง `ช่องคำตอบ` เพื่อกรอง)</p>
+      <p>ถ้าไม่ Pick ให้ชัดเจน Construct 2 จะทำการเหมาทำลาย object ชนิดนั้น <b>ทั้งหมดในฉาก</b> (เช่น หายไปทั้ง 10 ดวง) การตั้งค่า Text ให้แต่ละ slot ก็ต้อง Pick Text ที่ตรงกับ slot นั้นเช่นกัน</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Event → เพิ่ม Condition เพื่อ Pick object ที่ต้องการ เช่น System: Compare instance variable</p>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <p>
+        1. <b>Debug text ลืมลบ:</b> ก่อนทำการ Export เกมให้เด็กเล่น ลืมลบ Debug text ออก ทำให้เด็กเห็นค่าตัวแปรลับบนหน้าจอ<br>
+        2. <b>Group ปิดแล้วลืมเปิด:</b> ปิด Group เพื่อหยุดการทำงานชั่วคราว แต่ลืมเปิดกลับเมื่อเข้าด่านใหม่ ทำให้เกมหยุดทำงาน<br>
+        3. <b>ไม่ได้เช็ค Performance:</b> Profile ใน C2 ดูได้ที่ Preview → About this → Performance ตรวจสอบ Memory และ CPU เสมอ
+      </p>
+    </article>
+  </section>
+
+  <aside class="test"><b>✅ รายการทดสอบ:</b> มีวิธีดูค่าตัวแปรตอนรันได้ถูกต้อง • สามารถระบุจุดบั๊กยอดฮิตในเกมและวิธีแก้ • อธิบายได้ว่าอะไรควรและไม่ควรอยู่ใน Every tick</aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • ดีบักและเพิ่มประสิทธิภาพ</span>
+    <span>งานถัดไป: บทที่ A6 ออกแบบด่านและบาลานซ์</span>
+  </footer>
+</main>
+</body>
+</html>
