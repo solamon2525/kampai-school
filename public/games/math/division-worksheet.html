@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9" />
   <title>ระบบใบงานการหารยาวอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -65,9 +65,9 @@
     .ld-placed{display:grid;grid-template-columns:repeat(var(--span),var(--ld-cell));align-items:end;height:100%;position:relative}
     .ld-product{border-bottom:1.4px solid #334155}
     .ld-product::before{content:'−';position:absolute;right:100%;bottom:-.5mm;color:#334155;font-size:11pt;font-weight:800}
-    .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:9.5pt;color:#b91c1c;line-height:1}
+    .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:12pt;font-weight:800;color:#b91c1c;line-height:1}
     .ld-teacher-value{visibility:hidden}
-    .ld-answer-fill{visibility:hidden;color:#b91c1c;font-weight:800}
+    .ld-answer-fill{visibility:hidden;color:#b91c1c;font-size:11.5pt;font-weight:800;line-height:1}
     .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill,
     .q.reveal-answer .ld-quotient-answer,.q.reveal-answer .ld-teacher-value,.q.reveal-answer .ld-answer-fill{visibility:visible}
     .show-answers .ld-quotient-cell,.q.reveal-answer .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
@@ -135,7 +135,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.199.2"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.3"></script>
 <script>
 const WORKSHEET_KEY='division';
 const SET_TITLE_PREFIX='ใบงานหารยาว';
@@ -195,7 +195,7 @@ function question(qi, grade, showRating=false){
     return '<div class="ld-calc-row">'+placedValue(step.product, step.digitIndex, 'ld-product', productSpan)+'</div>'
       +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
   }).join('');
-  const rowHeight = dividendDigits.length >= 4 ? '4.8mm' : (workSteps.length <= 2 ? '7mm' : '5.5mm');
+  const rowHeight = dividendDigits.length >= 4 ? '5.6mm' : (workSteps.length <= 2 ? '7.8mm' : '6.3mm');
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
     +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+rowHeight+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
@@ -387,6 +387,6 @@ window.render=render;
 window.randomize=randomize;
 bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.2"></script>
+<script src="/games/worksheet-modes.js?v=1.199.3"></script>
 </body>
 </html>

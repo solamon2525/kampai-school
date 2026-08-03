@@ -113,6 +113,20 @@ function verifyFile(file) {
                 && /<meta\s+name=["']curriculum-indicators["']\s+content=["'][^"']+["']/i.test(source),
             'ต้องระบุสื่อคู่ที่มีอยู่จริงและตัวชี้วัดใน metadata',
         );
+        check(
+            'saved sets contract',
+            /worksheet-topic\.js/.test(source)
+                || /upgradeLegacyWorksheet\s*\(/.test(source)
+                || (/loadSetsModule\s*\(/.test(source) && /mountToolbar\s*\(/.test(source)),
+            'ใบงานทุกไฟล์ต้องบันทึก/โหลด/แชร์ชุดเดิมได้ด้วย worksheet key, seed และ config',
+        );
+        check(
+            'step answer reveal contract',
+            /worksheet-topic\.js/.test(source)
+                || /upgradeLegacyWorksheet\s*\(/.test(source)
+                || (/btnAnswerPrev/.test(source) && /btnAnswerNext/.test(source) && /revealCount/.test(source)),
+            'ใบงานทุกไฟล์ต้องซ่อนคำตอบเริ่มต้นและรองรับเฉลยทีละข้อ ย้อนกลับ และเปิดทั้งหมด',
+        );
     }
 
     const topicCssVersion = extractVersion(source, 'worksheet-topic.css');
@@ -157,12 +171,12 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="5"'].every((token) => source.includes(token))
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="8"'].every((token) => source.includes(token))
                 && !/class=["'][^"']*div-box/.test(source)
                 && !/<span class=["']ta["']>เฉลย/.test(source)
                 && !source.includes('ld-step')
                 && !source.includes('ld-phase'),
-            'โจทย์หารต้องมี 5 ข้อ ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
+            'โจทย์หารต้องมี 8 ข้อ ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
         );
     }
     if (relative.endsWith('/multiplication-worksheet.html')) {

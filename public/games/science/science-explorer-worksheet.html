@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ว 1.2 ป.4/1,ว 2.1 ป.4/3,ว 3.1 ป.4/3" />
   <title>ระบบใบงานวิทยาศาสตร์อัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f0fdf4;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#15803d;color:#fff;box-shadow:0 3px 12px rgba(21,128,61,.35)}
@@ -102,7 +102,7 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.3"></script>
 <script>
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
@@ -207,7 +207,8 @@ document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4()
 
 window.KampaiWorksheet.loadTeachers();
 render();
+window.KampaiWorksheet.upgradeLegacyWorksheet({worksheetKey:'science-explorer',titlePrefix:'Science Explorer',render});
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=1.199.3"></script>
 </body>
 </html>
