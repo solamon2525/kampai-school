@@ -42,7 +42,7 @@
     .qr-img{width:22mm;height:22mm;border:1px solid #047857;border-radius:4px;padding:1px;background:#fff}
     .qr-label{font-size:6.5pt;font-weight:700;color:#047857;margin-top:1px;line-height:1.1}
 
-    .questions{display:grid;grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:2mm;flex:1}
+    .questions{display:grid;grid-template-columns:1fr;grid-template-rows:repeat(5,minmax(0,1fr));gap:2mm;flex:1;min-height:0}
     
     .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1.5mm 3mm;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.2mm;position:relative;break-inside:avoid;min-height:0}
     .q-board{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
@@ -50,29 +50,29 @@
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
     /* Long-division writing scaffold */
-    .long-division{--ld-cell:12mm;--ld-divisor-width:16mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:space-evenly;min-height:0;flex:1}
-    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);margin-bottom:1.8mm;position:relative}
+    .long-division{--ld-cell:14mm;--ld-divisor-width:18mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:center;min-height:0;flex:1}
+    .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);margin-bottom:.8mm;position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
-    .ld-quotient-cell{height:7mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
+    .ld-quotient-cell{height:5.5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
     .ld-quotient-answer{visibility:hidden;color:#b91c1c;font-size:13pt;font-weight:800;line-height:1}
     .ld-main{display:flex;align-items:flex-start}
-    .ld-divisor{width:var(--ld-divisor-width);height:8mm;display:grid;place-items:center;font-size:14pt}
+    .ld-divisor{width:var(--ld-divisor-width);height:7mm;display:grid;place-items:center;font-size:14pt}
     .ld-dividend{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));border-top:2px solid #047857;border-left:2px solid #047857;border-top-left-radius:4px}
-    .ld-digit{height:9mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:14pt}
+    .ld-digit{height:7mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:14pt}
     .ld-digit:last-child{border-right:0}
-    .ld-work{display:flex;flex-direction:column;width:calc(var(--digits) * var(--ld-cell));margin-left:var(--ld-divisor-width);justify-content:space-evenly;flex:1;min-height:12mm}
-    .ld-calc-row{height:4.8mm;display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));position:relative}
+    .ld-work{display:flex;flex-direction:column;width:calc(var(--digits) * var(--ld-cell));margin-left:var(--ld-divisor-width);justify-content:space-evenly;flex:0 1 auto;min-height:9mm}
+    .ld-calc-row{height:3.1mm;display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));position:relative}
     .ld-placed{display:grid;grid-template-columns:repeat(var(--span),var(--ld-cell));align-items:end;height:100%;position:relative}
     .ld-product{border-bottom:1.4px solid #334155}
     .ld-product::before{content:'−';position:absolute;right:100%;bottom:-.5mm;color:#334155;font-size:11pt;font-weight:800}
-    .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:10.5pt;color:#b91c1c;line-height:1}
+    .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:9.5pt;color:#b91c1c;line-height:1}
     .ld-teacher-value{visibility:hidden}
     .ld-answer-fill{visibility:hidden;color:#b91c1c;font-weight:800}
     .show-answers .ld-quotient-answer,.show-answers .ld-teacher-value,.show-answers .ld-answer-fill{visibility:visible}
     .show-answers .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
 
-    .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:7mm;display:flex;align-items:flex-end;justify-content:center;width:100%}
-    .blank-sm{display:inline-block;min-width:26mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;text-align:center}
+    .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:5.5mm;display:flex;align-items:flex-end;justify-content:center;width:100%}
+    .blank-sm{display:inline-block;min-width:30mm;min-height:5mm;border-bottom:1px solid #334155;height:5mm;text-align:center}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
     .show-answers .ta{display:inline}
 
@@ -94,7 +94,7 @@
     @media print{
       @page{size:A4 portrait;margin:0}
       body{background:#fff}.toolbar{display:none!important}.pages{padding:0}
-      .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm;overflow:hidden}.q{min-height:0}
+      .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm}.q{min-height:0}
     }
   </style>
 </head>
