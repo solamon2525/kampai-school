@@ -38,6 +38,20 @@ export const attendanceService = {
       .eq('attendance_date', date)
       .in('student_id', studentIds),
 
+  /**
+   * Completeness helper for ปพ./ปฏิบัติ: student IDs with no attendance row that day.
+   */
+  missingForClass: async (
+    date: string,
+    studentIds: string[],
+  ): Promise<string[]> => {
+    if (!studentIds.length) return [];
+    const { data, error } = await attendanceService.getByDateAndStudentIds(date, studentIds);
+    if (error) throw error;
+    const present = new Set(((data ?? []) as AttendanceRecord[]).map((r) => r.student_id));
+    return studentIds.filter((id) => !present.has(id));
+  },
+
   /** ดึงสรุป attendance ของนักเรียนคนเดียวในช่วงวันที่ */
   getByStudentDateRange: (studentId: string, startDate: string, endDate: string) =>
     supabase

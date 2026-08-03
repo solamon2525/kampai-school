@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>🪥 แปรงฟันถูกวิธี — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#0e7490;--line:#a5f3fc;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#a5f3fc,#0e749022);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#0e7490);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .btn-accent{background:#fbbf24;color:#78350f}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    
+    .layout{display:grid;gap:14px}@media(min-width:860px){.layout{grid-template-columns:1fr 1fr}}
+    .visual{display:flex;flex-direction:column;align-items:center;gap:12px;background:linear-gradient(180deg,#e0f2fe,#cffafe);border-radius:16px;padding:20px}
+    .emo{width:140px;height:140px;border-radius:50%;background:#fff;border:4px solid #67e8f9;display:grid;place-items:center;font-size:4.5rem}
+    .dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    .dot{width:36px;height:36px;border-radius:50%;border:2px solid #67e8f9;background:#fff;font-weight:800;color:var(--deep);cursor:pointer;font-family:inherit}
+    .dot.on{background:var(--deep);color:#fff}
+    .detail{display:flex;flex-direction:column;gap:10px}
+    .num{align-self:flex-start;background:var(--deep);color:#fff;font-weight:800;border-radius:999px;padding:4px 12px;font-size:.85rem}
+    .title{font-size:1.35rem;font-weight:800;color:var(--deep)}
+    .body{font-weight:600;line-height:1.55}
+    .tip{background:#fff;border:2px dashed #67e8f9;border-radius:12px;padding:10px;font-weight:600;color:var(--muted)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .practice{display:none;max-width:520px;margin:0 auto;flex-direction:column;gap:12px}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .prompt{font-weight:800;color:var(--deep);text-align:center;background:#ecfeff;border:2px dashed #67e8f9;border-radius:14px;padding:12px}
+    .pool{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .pbtn{font-family:inherit;font-weight:700;border:2px solid var(--line);border-radius:14px;background:#fff;padding:12px;cursor:pointer;text-align:left}
+    .pbtn.done{opacity:.45;pointer-events:none;background:#dcfce7}
+    .pbtn.bad{background:#fee2e2;border-color:#fca5a5}
+    .track{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    .slot{width:40px;height:40px;border-radius:12px;border:2px dashed #67e8f9;display:grid;place-items:center;font-weight:800;color:#67e8f9}
+    .slot.filled{background:#dcfce7;border-color:#86efac;color:#166534}
+  
+  </style>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>🪥 แปรงฟันถูกวิธี</h1>
+    <span class="badge">ป.3 · สุขศึกษา</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    <a class="btn btn-ghost" href="/games/health/brush-teeth-media-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+  </div>
+  <div class="stage" id="stage"><div class="learn" id="learn"><div class="layout">
+    <div class="visual"><div class="emo" id="emo">🪥</div><div class="dots" id="dots"></div></div>
+    <div class="detail">
+      <span class="num" id="dNum">ขั้นที่ 1</span>
+      <h2 class="title" id="dTitle"></h2>
+      <p class="body" id="dBody"></p>
+      <p class="tip" id="dTip"></p>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnPrev">← ก่อนหน้า</button>
+        <button type="button" class="btn btn-primary" id="btnNext">ถัดไป →</button>
+        <button type="button" class="btn btn-accent" id="btnPlay">▶ เล่นวน</button>
+      </div>
+    </div>
+  </div></div>
+  <div class="practice" id="practice">
+    <p class="prompt">เรียงขั้นตอนแปรงฟันให้ถูกต้อง</p>
+    <div class="track" id="track"></div>
+    <div class="pool" id="pool"></div>
+    <p id="prFb" style="font-weight:800;text-align:center;min-height:24px"></p>
+    <button type="button" class="btn btn-ghost" id="btnResetPr">เริ่มใหม่</button>
+  </div></div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='brush-teeth-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
+
+const STEPS=[
+  {emo:'🚰',title:'เตรียมแปรงและน้ำ',body:'เลือกแปรงขนนุ่ม เปียกน้ำเล็กน้อย บีบยาสีฟันขนาดเมล็ดถั่ว',tip:'เด็กเล็กใช้ยาสีฟันผสมฟลูออไรด์ตามอายุ'},
+  {emo:'😬',title:'แปรงด้านนอก',body:'แปรงฟันด้านที่เห็นเมื่อยิ้ม บน–ล่าง วนเบา ๆ',tip:'อย่าแปรงแรงเกินไป อาจทำเหงือกเป็นแผล'},
+  {emo:'🦷',title:'แปรงด้านใน',body:'เงย/ก้มแปรงด้านในใกล้ลิ้นและเพดาน',tip:'ด้านในทำความสะอาดยาก อย่าลืม'},
+  {emo:'🌽',title:'แปรงบดเคี้ยว',body:'ถูไปมาบนด้านบดเคี้ยวของฟันกราม',tip:'เศษอาหารมักค้างตรงนี้'},
+  {emo:'👅',title:'แปรงลิ้นเบา ๆ',body:'ปาดลิ้นจากโคนมาปลายเพื่อลดกลิ่นปาก',tip:'อย่าแรงจนเจ็บ'},
+  {emo:'💦',title:'บ้วนปากและล้างแปรง',body:'บ้วนน้ำให้สะอาด ล้างแปรงตั้งให้แห้ง',tip:'แปรงฟันเช้า–ก่อนนอนอย่างน้อยวันละ 2 ครั้ง'}
+];
+let i=0,timer=null,mode='learn',order=[],pool=[];
+function setMode(m){mode=m;document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เรียนทีละขั้น · กดเล่นวนได้':'เรียงลำดับขั้นตอน';if(timer){clearInterval(timer);timer=null;}if(m==='practice')resetPractice();}
+function show(){const s=STEPS[i];document.getElementById('emo').textContent=s.emo;document.getElementById('dNum').textContent='ขั้นที่ '+(i+1);document.getElementById('dTitle').textContent=s.title;document.getElementById('dBody').textContent=s.body;document.getElementById('dTip').textContent='💡 '+s.tip;
+  document.getElementById('dots').innerHTML=STEPS.map((_,k)=>'<button type="button" class="dot '+(k===i?'on':'')+'" data-i="'+k+'">'+(k+1)+'</button>').join('');}
+document.getElementById('dots').onclick=e=>{const b=e.target.closest('.dot');if(!b)return;i=+b.dataset.i;show();};
+document.getElementById('btnPrev').onclick=()=>{i=(i-1+STEPS.length)%STEPS.length;show();};
+document.getElementById('btnNext').onclick=()=>{i=(i+1)%STEPS.length;show();};
+document.getElementById('btnPlay').onclick=()=>{if(timer){clearInterval(timer);timer=null;document.getElementById('btnPlay').textContent='▶ เล่นวน';return;}document.getElementById('btnPlay').textContent='⏸ หยุด';timer=setInterval(()=>{i=(i+1)%STEPS.length;show();},2200);};
+function resetPractice(){order=[];pool=STEPS.map((s,idx)=>({idx,label:(idx+1)+'. '+s.title,emo:s.emo})).sort(()=>Math.random()-0.5);renderPractice();document.getElementById('prFb').textContent='';}
+function renderPractice(){document.getElementById('track').innerHTML=STEPS.map((_,k)=>'<div class="slot '+(order[k]!=null?'filled':'')+'">'+(order[k]!=null?order[k]+1:'')+'</div>').join('');
+  document.getElementById('pool').innerHTML=pool.map(p=>'<button type="button" class="pbtn" data-i="'+p.idx+'"><span style="font-size:1.4rem">'+p.emo+'</span> '+p.label+'</button>').join('');}
+document.getElementById('pool').onclick=e=>{const b=e.target.closest('.pbtn');if(!b)return;const idx=+b.dataset.i;const expect=order.length;if(idx===expect){order.push(idx);pool=pool.filter(p=>p.idx!==idx);b.classList.add('done');renderPractice();if(order.length===STEPS.length){document.getElementById('prFb').textContent='✅ เรียงถูกต้องทั้งหมด!';if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.correct();}}else{b.classList.add('bad');document.getElementById('prFb').textContent='ยังไม่ใช่ขั้นนี้';if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.wrong();setTimeout(()=>b.classList.remove('bad'),400);}};
+document.getElementById('btnResetPr').onclick=resetPractice;show();setMode('learn');
+
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]');if(!b)return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+</script>
+</body></html>

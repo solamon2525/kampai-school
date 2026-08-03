@@ -25,8 +25,35 @@ import {
     Copy,
     Check,
     Rocket,
+    Search,
+    ArrowRight,
+    CircleAlert,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { educationalHubService } from '@/services/educational-hub.service';
+import { curriculumService } from '@/services/curriculum.service';
+import { lessonPacksService } from '@/services/lesson-packs.service';
+import { assignmentsService } from '@/services/assignments.service';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { Input } from '@/components/ui/input';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+    featureCatalog,
+    featureCatalogStats,
+    featureGroupsFromCatalog,
+    longTermPlan,
+    type FeatureStatus,
+} from '@/components/admin/system/featureCatalog';
+import { cn } from '@/lib/utils';
+
+const featureGroups = featureGroupsFromCatalog;
 
 const techStack = {
     frontend: [
@@ -54,7 +81,7 @@ const techStack = {
         { name: 'DOMPurify', desc: 'HTML Sanitization (rich text display)' },
         { name: 'date-fns', desc: 'Date Utilities (Thai locale)' },
         { name: 'embla-carousel-react', desc: 'Carousel (Hero Slides)' },
-        { name: 'cmdk', desc: 'Command Palette (installed — Sprint 2 roadmap)' },
+        { name: 'cmdk + fuse.js', desc: 'Command Palette + fuzzy search — live (Ctrl/Cmd+K)' },
         { name: 'vite-plugin-pwa', desc: 'PWA + Service Worker (Workbox) — Add to Home Screen' },
         { name: 'ThaiDatePicker', desc: 'Custom Buddhist Calendar Date Picker (วัน/เดือน/พ.ศ.)' },
         { name: 'ScanFAB / Mobile Camera Scanner', desc: 'กล้องสแกนด่วนบนมือถือครอบคลุมทุกเมนู Portal ครู' },
@@ -73,279 +100,171 @@ const techStack = {
     ],
 };
 
-const featureGroups = [
-    {
-        label: 'เนื้อหาเว็บไซต์',
-        color: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-        features: ['จัดการข่าวสาร + ปักหมุด', 'แกลเลอรี่อัลบั้มรูปภาพ', 'ปฏิทินกิจกรรม', 'จัดการเอกสารดาวน์โหลด', 'FAQ', 'Hero Slides หน้าหลัก', 'Countdown เปิดเทอม Real-time', 'จัดการหน้าแรก (Homepage Layout Manager — DnD zones + live preview)'],
-    },
-    {
-        label: 'บุคลากรและนักเรียน',
-        color: 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800',
-        features: ['ข้อมูลผู้บริหาร', 'ครูและบุคลากร', 'ฐานข้อมูลนักเรียน', 'ความสำเร็จนักเรียน', 'กิจกรรมชุมนุม', 'สภานักเรียน'],
-    },
-    {
-        label: 'การศึกษา',
-        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
-        features: ['หลักสูตรการเรียน (4 สาย)', 'กิจกรรมเสริมหลักสูตร', 'ระบบเช็คชื่อนักเรียน (Attendance) ปรับปรุงฟอร์แมตวันที่ภาษาไทยย่อ/เต็มแบบพรีเมียม (พ.ศ.) + รายงาน', 'ระบบรับสมัครนักเรียนออนไลน์'],
-    },
-    {
-        label: 'ฝ่ายวิชาการ',
-        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-        features: ['ตารางสอน (Grid 5×8 คาบ)', 'แผนการสอน + Approval', 'ทะเบียนสื่อการสอน', 'ปฏิทินวิชาการ', 'นักเรียนพิเศษ', 'บันทึกการแนะแนว', 'บันทึกการนิเทศ'],
-    },
-    {
-        label: 'งานสารบรรณ',
-        color: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-        features: ['หนังสือรับ', 'หนังสือส่ง', 'คำสั่ง/ประกาศ', 'บันทึกการประชุม', 'Dashboard ภาพรวม'],
-    },
-    {
-        label: 'งานบุคคล (HR)',
-        color: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800',
-        features: ['ระบบการลา', 'บันทึกการอบรม/พัฒนาตนเอง', 'ประเมินผลงาน PA Assessment', 'ระบบการลาแสดงผลวันที่ พ.ศ. และรูปแบบช่วงวันอัจฉริยะ'],
-    },
-    {
-        label: 'ระบบบริการ',
-        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-        features: ['ธนาคารขยะ (Waste Bank)', 'กล่องข้อความจากผู้ติดต่อ', 'Email Subscribers', 'แจ้งผู้ปกครองเมื่อนักเรียนขาด (SMS)', 'อัปเกรดการแสดงผลวันที่ภาษาไทย พ.ศ. (ธนาคารขยะ/ธนาคารพอเพียง)'],
-    },
-    {
-        label: 'ระบบ/เครื่องมือ',
-        color: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
-        features: ['Custom Page Builder (About/Contact — text/image/banner/stats/map)', 'Analytics ดูสถิติผู้เข้าชม (Device/Peak Hours/Referrer)', 'ตั้งค่าโรงเรียน (100+ fields)', 'User Roles & Permissions (admin/teacher/parent/viewer)', 'จัดการเว็บไซต์ผ่าน Admin', 'Export CSV + Print รายงาน', 'Notification Center (Realtime)', 'RLS Hardened (45 tables)'],
-    },
-    {
-        label: 'Portal ครู/ผู้ปกครอง',
-        color: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800',
-        features: [
-            'Portal ครู: Dashboard, ตารางสอน, เช็คชื่อ, คะแนน',
-            'Portal ผู้ปกครอง: ดูการมาเรียน/คะแนน/ความประพฤติ/ธนาคารขยะของลูก',
-            'Protected Routes ตาม role',
-            'Smart Login Redirect (admin/teacher/parent)',
-            'Portal ครูรองรับการดึงเมนูระบบงานหลังบ้านแบบไดนามิกตามสิทธิ์และปุ่มสลับระบบหลังบ้าน',
-            'ปุ่มทางลัดสแกนด่วนบนแดชบอร์ดครูและปุ่มลอยสแกนด่วนบนมือถือ (ScanFAB) ทุกหน้าจอ',
-        ],
-    },
-    {
-        label: 'ศูนย์การศึกษา (Edu Hub)',
-        color: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800',
-        features: [
-            'หน้าครูคลังสื่อรายบุคคล (/educational-hub + short URL /h/<username>)',
-            '4 หมวด: คลังสื่อ / เกม / ใบงาน / วิดีโอ',
-            'Item polymorphic 4 ประเภท: file / link / youtube / text',
-            '4 view modes: Grid 3×3 / Featured / List / Compact + column selector + sort',
-            'Admin lock layout default (school_settings — readonly + 🔒 badge)',
-            'Staff short URL /staff/<username> (Migration 067 ย้าย username → staff)',
-            'Portal ครู: tab "รายการของฉัน" + "โปรไฟล์คลัง"',
-            'View counter + Download counter (anon-safe SECURITY DEFINER RPC)',
-        ],
-    },
-    {
-        label: 'PWA / ติดตั้งบนมือถือ',
-        color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
-        features: [
-            'Add to Home Screen — Android (Chrome/Edge/Samsung) + iOS (Safari)',
-            'Service Worker (Workbox autoUpdate) — cache shell + ใช้งานได้ offline เบื้องต้น',
-            'Manifest: name โรงเรียนบ้านคำไผ่ / standalone / theme #157F3C / 4 icons',
-            'InstallBanner: floating bottom banner mobile — Android prompt / iOS instructions',
-            'Dismiss + 14-day TTL — กดปิดแล้วไม่กวนซ้ำ',
-            'Standalone detection — ไม่โชว์ banner ถ้าติดตั้งแล้ว',
-            'Apple PWA meta tags ครบ (capable, status-bar, title, apple-touch-icon)',
-        ],
-    },
-    {
-        label: 'เกมการศึกษา',
-        color: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-        features: [
-            'Wrapper /play/:gameSlug — student auth + XP/Level + Badges + result modal',
-            'Game session tracking (score, duration, mode, combo, fever, metadata)',
-            'XP curve doubling + 8 badge types (first_play, score_*, plays_10, improvement 1.5x, streak_7)',
-            '18+ games (Pizza Master Chef, Attack-on-Noun, fishing, typing, kingdom, ฯลฯ)',
-            'Single-file Game Template + GAME-TEMPLATE.md (ครูสร้างเกมเองได้)',
-            'Admin upload: file หรือ paste HTML code (size counter)',
-            'Iframe security: sandbox + SAMEORIGIN + postMessage navigation',
-            'Mobile parity: touch controls (virtual joystick + fire/jump/zoom buttons)',
-            'Admin dashboard /admin/dashboard/games (stats + leaderboard + BarChart)',
-            'Student 360° tab "เกมการศึกษา" + manual push to score_records',
-            'Anti-cheat: 20s rate-limit + score sanity (0–1M) + duration ≥ 5s',
-        ],
-    },
-];
-
 const dbGroups = [
-    { label: 'เนื้อหา', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'document_categories', 'hero_slides', 'testimonials', 'partners'] },
-    { label: 'บุคลากร', tables: ['administrators', 'staff', 'students', 'attendance_records', 'student_council', 'student_achievements', 'student_activities', 'student_stats', 'grade_data', 'score_records', 'conduct_scores'] },
-    { label: 'บริการ', tables: ['admissions', 'contact_messages', 'waste_categories', 'waste_transactions', 'savings_transactions', 'savings_summary', 'rewards', 'reward_claims', 'curriculum_programs', 'curriculum_activities', 'faq', 'email_subscribers'] },
-    { label: 'สารบรรณ + Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'letter_tracking_logs', 'orders_announcements', 'meetings', 'signatures', 'budget_items', 'sar_records', 'ics_records', 'action_plan_items', 'doc_templates', 'student_documents'] },
-    { label: 'HR', tables: ['leave_requests', 'training_records', 'pa_assessments'] },
-    { label: 'วิชาการ', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'student_special_needs', 'counseling_records', 'supervision_records'] },
-    { label: 'ศูนย์การศึกษา', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'v_educational_hub_teachers (view)'] },
-    { label: 'เกมการศึกษา', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'game_student_stats (view)'] },
-    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'milestones', 'facilities', 'notifications', 'user_roles', 'user_quick_menu_preferences'] },
+    { label: 'เนื้อหา CMS', tables: ['news', 'news_categories', 'gallery_albums', 'gallery_photos', 'events', 'documents', 'hero_slides', 'testimonials', 'partners', 'faq', 'ticker_items', 'surveys'] },
+    { label: 'บุคลากร / นักเรียน', tables: ['administrators', 'staff', 'students', 'attendance_records', 'grade_data', 'score_records', 'conduct_scores', 'parent_student_links', 'student_health_records', 'student_documents'] },
+    { label: 'ธนาคาร / รางวัล', tables: ['waste_categories', 'waste_transactions', 'savings_transactions', 'rewards', 'reward_claims', 'daily_quest_config', 'daily_quest_completions'] },
+    { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'supply_items', 'supply_requests', 'digital_workload_baselines', 'digital_paper_logs', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
+    { label: 'HR', tables: ['leave_requests', 'leave_balances', 'training_records', 'pa_assessments'] },
+    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
+    { label: 'คลังสื่อ / packs', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'lesson_packs', 'lesson_pack_items', 'game_docs', 'game_bgm_tracks'] },
+    { label: 'เกม / quest', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'online_matches', 'english_quest_worlds', 'english_quest_progress', 'pixel_forest_rpg_profiles'] },
+    { label: 'Portal / การบ้าน', tables: ['assignments', 'assignment_submissions', 'conference_slots', 'conference_bookings', 'pickup_persons', 'pickup_log', 'class_photos', 'class_photo_tags'] },
+    { label: 'สื่อสาร', tables: ['chat_threads', 'chat_messages', 'notifications', 'push_subscriptions', 'line_user_links', 'line_message_logs', 'emergency_alerts'] },
+    { label: 'PDPA / บริจาค', tables: ['pdpa_consents', 'pdpa_erasure_requests', 'data_access_logs', 'donation_campaigns', 'donations'] },
+    { label: 'ระบบ', tables: ['school_settings', 'page_views', 'user_roles', 'user_menu_permissions', 'shared_quick_menu', 'user_dashboard_layout', 'ai_assist_log', 'cctv_cameras', 'admissions', 'alumni_profiles'] },
 ];
 
+/** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
-    // 🎨 UX/UI Beautification — เน้นทำให้ระบบสวย น่าใช้
-    { icon: '⌘', title: 'Command Palette (Ctrl+K)', desc: 'ค้นหา/นำทาง/สั่งการด้วยคีย์บอร์ด สไตล์ Linear/Notion — เร็วขึ้น 10x' },
-    { icon: '🔍', title: 'Global Fuzzy Search', desc: 'ค้นข้ามทั้งระบบแบบ real-time — นักเรียน/ข่าว/เอกสาร/กิจกรรม/คำสั่ง' },
-    { icon: '🎨', title: 'Homepage Redesign (Motion + Parallax)', desc: 'หน้าแรกระดับ modern: Video Background, Parallax Scroll, Animated Hero' },
-    { icon: '🎯', title: 'Onboarding Tour', desc: 'Intro tour guide ขึ้นอัตโนมัติสำหรับ admin/teacher/parent คนแรก (react-joyride)' },
-    { icon: '📊', title: 'Customizable Dashboard Widgets', desc: 'ลาก-วาง widgets เลือกข้อมูลที่อยากเห็นบน Dashboard ตามบทบาท' },
-    { icon: '🏆', title: 'Student Gamification + Badges', desc: 'ระบบเหรียญ/ความสำเร็จ: Waste Bank milestones, คะแนนเด่น, ความประพฤติดี' },
-    { icon: '📅', title: 'Activity Heatmap (GitHub-style)', desc: 'แสดงการมีส่วนร่วมนักเรียน/ครู รายปีแบบ heatmap calendar' },
-    { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG interactive — คลิก hover อาคาร/ห้องดูข้อมูลได้' },
-    { icon: '📧', title: 'Visual Newsletter Builder', desc: 'Drag-drop สร้าง email template + ส่งผ่าน Resend อัตโนมัติเมื่อมีข่าวใหม่' },
-
-    // 🔔 Communication & Integration
-    { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', desc: 'แชทภายในเว็บ realtime + typing indicator + read receipts' },
-    { icon: '📲', title: 'PWA + Push Notifications', desc: 'ติดตั้งเป็นแอปบนมือถือ + Browser push notifications เรียบทุกแพลตฟอร์ม' },
-    { icon: '📱', title: 'LINE Messaging API Integration', desc: 'แจ้งผ่าน LINE เมื่อมีข่าว/กิจกรรม/ลูกขาดเรียน (LINE Notify ปิดบริการ เม.ย. 2025 แล้ว — ใช้ Messaging API แทน)' },
-    { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง (ThaiBulkSMS/Twilio) — ไม่ต้อง copy template แล้ว' },
-    { icon: '🔗', title: 'Parent Multi-child Linking', desc: 'ผู้ปกครอง 1 account รองรับลูกหลายคน พร้อม child switcher ด้านบน' },
-    { icon: '🌐', title: 'Multi-language (TH/EN)', desc: 'Toggle ภาษาไทย/อังกฤษ รองรับ i18n ทั้งเว็บ + รองรับผู้ปกครอง expat' },
-    { icon: '📆', title: 'Google Calendar 2-way Sync', desc: 'ซิงค์กิจกรรม/ปฏิทินวิชาการกับ Google Calendar ทั้งสองทาง' },
-    { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานด้วย drag chart + field + date filter ส่งออก PDF/CSV' },
+    { icon: '📅', title: 'Activity Heatmap', desc: 'ความมีส่วนร่วมรายปีแบบ GitHub contribution graph' },
+    { icon: '🗺️', title: 'Interactive Floor Plan', desc: 'แผนที่โรงเรียน SVG — คลิกอาคาร/ห้องดูข้อมูล' },
+    { icon: '📧', title: 'Visual Newsletter Builder', desc: 'ลากวางเทมเพลตอีเมล + ส่งผ่าน Resend เมื่อมีข่าวใหม่' },
+    { icon: '📨', title: 'SMS Gateway (จริง)', desc: 'ส่ง SMS ผ่าน provider จริง — ตอนนี้มีแค่เทมเพลตคัดลอก (deferred)' },
+    { icon: '🌐', title: 'i18n ครบทั้งเว็บ', desc: 'LanguageSwitcher ใน portal มีแล้ว — ขยายแอดมิน + หน้าสาธารณะ' },
+    { icon: '📆', title: 'Google Calendar / iCal', desc: 'ซิงค์ปฏิทินภายนอก (เริ่มจาก iCal ก่อน OAuth เต็ม)' },
+    { icon: '📑', title: 'Reports Builder (Visual)', desc: 'สร้างรายงานลาก chart + filter ส่งออก PDF/CSV' },
+    { icon: '🧾', title: 'e-Donation กรมสรรพากร', desc: 'ใบเสร็จภาษีทางการ — ตอนนี้มีใบเสร็จเบา + PromptPay (deferred ปี 2)' },
+    { icon: '🏫', title: 'MoE SIS / EMIS sync', desc: 'ซิงค์ทะเบียนสองทาง — คง DMC export จนกว่ามี API ชัด (deferred)' },
 ];
 
 const sprintPlan = [
     {
-        sprint: '✅ Sprint 1 — Quick Wins ชัดตา (เสร็จแล้ว v1.5.0)',
-        duration: '~1 สัปดาห์',
-        goal: 'ทำให้ระบบสวยทันทีด้วยการปรับ visual polish ที่ใช้ effort น้อยแต่ผลลัพธ์ชัด',
+        sprint: '✅ ส่งมอบแล้ว (ถึง v1.204)',
+        duration: 'เสร็จ',
+        goal: 'แกนโรงเรียนครบ: CMS · วิชาการ/ปพ./DMC · ธนาคาร+เกม · คลังสื่อ/เกม/ใบงาน/packs · Chat/LINE/Push · Portal 3 บทบาท · สารบรรณ/HR · PDPA/บริจาค',
         badge: 'bg-emerald-600',
         items: [
-            { icon: '🌓', title: 'Dark Mode + Theme Switcher', effort: '1 วัน', stack: 'next-themes + shadcn CSS variables' },
-            { icon: '🖼️', title: 'Empty State Illustrations', effort: '1 วัน', stack: 'unDraw SVG + EmptyState component' },
-            { icon: '✨', title: 'Skeleton Loaders', effort: '1 วัน', stack: 'shadcn Skeleton + react-loading-skeleton' },
-            { icon: '🎨', title: 'Homepage Motion Polish', effort: '2 วัน', stack: 'Framer Motion + Parallax' },
+            { icon: '💬', title: 'Chat + แนบไฟล์ · Push · LINE OA', effort: 'live', stack: 'mig 446 + push_subscriptions + line_*' },
+            { icon: '📦', title: 'Lesson packs + มอบหมายบ้าน + แนบงาน', effort: 'live', stack: 'lesson_packs · assignments · mig 450' },
+            { icon: '📊', title: 'Coverage KPI + soft-gap + BatchMapper', effort: 'live', stack: 'RPC indicator_coverage_summary · mig 447–449' },
+            { icon: '🧾', title: 'บริจาค PromptPay + ใบเสร็จเบา', effort: 'live', stack: 'donations · printable receipt' },
+            { icon: '📚', title: 'บทสรุปฟีเจอร์ทั้งระบบ (SoT)', effort: 'live', stack: 'featureCatalog.ts · v1.204' },
         ],
     },
     {
-        sprint: 'Sprint 2 — Power User Features',
-        duration: '~1 สัปดาห์',
-        goal: 'เพิ่มความเร็วในการใช้งานสำหรับ admin/ครู ให้รู้สึกเหมือน Linear/Notion',
-        badge: 'bg-blue-500',
+        sprint: 'ตอนนี้ — Phase 16 ops',
+        duration: 'ต่อเนื่อง',
+        goal: 'โค้ด Phase 16 พร้อมแล้ว — ปิดด้วยหลักฐานการใช้งานจริงของครู + คุณภาพ map',
+        badge: 'bg-amber-600',
         items: [
-            { icon: '⌘', title: 'Command Palette (Ctrl+K)', effort: '2 วัน', stack: 'cmdk + shadcn Dialog' },
-            { icon: '🔍', title: 'Global Fuzzy Search', effort: '2 วัน', stack: 'fuse.js + Supabase multi-table query' },
-            { icon: '🎯', title: 'Onboarding Tour', effort: '1 วัน', stack: 'react-joyride + localStorage flag' },
+            { icon: '👩‍🏫', title: 'ครู non-admin อัปสื่อ ≥1 คน', effort: 'ops', stack: 'KPI ใน /teacher/edu-hub + System Overview' },
+            { icon: '🔎', title: 'รีวิว soft-gap รายวิชา', effort: 'ops', stack: 'IndicatorCoverageDialog กรอง soft-gap' },
+            { icon: '🔁', title: 'ลูป pack → มอบหมาย → ส่ง → ตรวจ', effort: 'habit', stack: 'ทำให้เป็นกิจวัตรรายสัปดาห์' },
         ],
     },
     {
-        sprint: 'Sprint 3 — Engagement & Gamification',
-        duration: '~1-2 สัปดาห์',
-        goal: 'ทำให้นักเรียน/ครู/ผู้ปกครอง อยากเข้ามาใช้เว็บบ่อยขึ้น',
-        badge: 'bg-rose-500',
+        sprint: 'คิวถัดไป — ปี 1 harden',
+        duration: '3–6 เดือน',
+        goal: 'ทำให้ของที่มีใช้ครบทุกวัน + สื่อสารพึ่งได้ + PDPA เป็นกิจวัตร',
+        badge: 'bg-blue-600',
         items: [
-            { icon: '🏆', title: 'Student Gamification + Badges', effort: '3 วัน', stack: 'Migration + badges table + achievement engine' },
-            { icon: '📅', title: 'Activity Heatmap', effort: '2 วัน', stack: 'react-calendar-heatmap + aggregate query' },
-            { icon: '📊', title: 'Customizable Dashboard Widgets', effort: '3 วัน', stack: 'dnd-kit + user preferences table' },
+            { icon: '✅', title: 'เช็คชื่อ/คะแนนครบก่อนปิดภาค', effort: 'ops', stack: 'ปพ. completeness drills' },
+            { icon: '🔐', title: 'PDPA ความยินยอม + erasure SLA', effort: 'ops', stack: 'pdpa_* + /privacy' },
+            { icon: '📣', title: 'ซ้อมแจ้งเตือนฉุกเฉิน + Push/LINE', effort: 'ops', stack: 'emergency_alerts' },
+            { icon: '📦', title: 'พัสดุ + Digital Ops ลดภาระครู', effort: 'live', stack: 'mig 452 · v1.208' },
+            { icon: '🎯', title: 'Onboarding tour ครู', effort: 'live', stack: 'TeacherOnboardingTour · v1.208' },
+            { icon: '📋', title: 'งานค้างครูบนแดชบอร์ด', effort: 'live', stack: 'TeacherPendingTasksCard · v1.207' },
         ],
     },
     {
-        sprint: 'Sprint 4 — Communication & Integration',
-        duration: '~2 สัปดาห์',
-        goal: 'เชื่อมโยงกับระบบภายนอก + การสื่อสารระหว่างโรงเรียน-ผู้ปกครอง',
-        badge: 'bg-emerald-500',
+        sprint: 'ปี 2 — เชื่อมภายนอก (ตัดสินใจก่อนทำ)',
+        duration: 'ปีถัดไป',
+        goal: 'ขยายเฉพาะเมื่อมีความต้องการจริง — ไม่ทำ SIS/e-Donation ล่วงหน้า',
+        badge: 'bg-violet-700',
         items: [
-            { icon: '💬', title: 'In-app Chat (Teacher ↔ Parent)', effort: '4 วัน', stack: 'Supabase Realtime + messages table' },
-            { icon: '📲', title: 'PWA + Push Notifications', effort: '2 วัน', stack: 'vite-plugin-pwa + Web Push API' },
-            { icon: '📱', title: 'LINE Messaging API Integration', effort: '2 วัน', stack: 'LINE Messaging API + Edge Function (LINE Notify ปิดแล้ว เม.ย. 2025)' },
-            { icon: '📨', title: 'SMS Gateway (จริง)', effort: '2 วัน', stack: 'ThaiBulkSMS/Twilio + Edge Function' },
-            { icon: '🔗', title: 'Parent Multi-child Linking', effort: '2 วัน', stack: 'user_children junction table + child switcher' },
-        ],
-    },
-    {
-        sprint: 'Sprint 5 — Advanced Features',
-        duration: '~2-3 สัปดาห์',
-        goal: 'ยกระดับระบบสู่ production-grade + รองรับผู้ใช้กว้างขึ้น',
-        badge: 'bg-amber-500',
-        items: [
-            { icon: '🌐', title: 'Multi-language (TH/EN)', effort: '4 วัน', stack: 'react-i18next + locale files' },
-            { icon: '📆', title: 'Google Calendar 2-way Sync', effort: '3 วัน', stack: 'Google OAuth + Calendar API' },
-            { icon: '📧', title: 'Visual Newsletter Builder', effort: '3 วัน', stack: 'Maily.to/unlayer + Resend' },
-            { icon: '🗺️', title: 'Interactive Floor Plan', effort: '3 วัน', stack: 'SVG + Tooltip + facilities table' },
-            { icon: '📑', title: 'Reports Builder (Visual)', effort: '4 วัน', stack: 'dnd-kit + Recharts + jsPDF' },
+            { icon: '🧾', title: 'e-Donation API', effort: 'deferred', stack: 'กรมสรรพากร' },
+            { icon: '🏫', title: 'ตัดสินใจ SIS vs DMC-only', effort: 'deferred', stack: 'รอสเปก MoE' },
+            { icon: '🌐', title: 'i18n ครบ + newsletter/calendar', effort: 'optional', stack: 'ถ้ายังต้องการ' },
         ],
     },
 ];
 
-// Roadmap คลังสื่อ+ใบงาน (Phase 11–15) — อัปสถานะแต่ละเฟสใน commit เดียวกับงานเฟสนั้น
-const MEDIA_ROADMAP_STATUS_LABEL: Record<string, string> = {
-    pending: 'รอเริ่ม',
-    'in-progress': 'กำลังทำ',
-    done: '✅ เสร็จแล้ว',
-};
-
 const mediaRoadmap = {
-    baseline: 'จุดตั้งต้น (หลัง Phase 10): สื่อ 51 · ใบงาน 68 · lesson packs 15 — verify:media 51/51 · verify:worksheet:production 68/68',
-    target: 'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ผูกตัวชี้วัด ≥80% · ทุกวิชา ≥6 คู่ · ครบทุกช่วงชั้น ป.1–6',
+    baseline:
+        'Phase 16 โค้ดพร้อม (KPI ครูอัป · packs ในคลัง · มอบหมายบ้าน+แนบไฟล์ · coverage RPC ≈100% ตัวชี้วัดใช้งาน) — เหลือ ops: ครู non-admin อัปจริง + รีวิว soft-gap',
+    target:
+        'เป้าปิด Phase 16: หลักฐานครู non-admin ≥1 อัปใน 30 วัน · packs เป็นหน่วยสอนประจำ · soft-gap รีวิวต่อเนื่อง · parent ส่งงานจากชุดเรียนเป็นกิจวัตร',
     phases: [
         {
             phase: 'Phase 11 — เติมวิชาบาง (+10 คู่)',
             duration: 'เดือน 1–2',
-            status: 'pending',
-            badge: 'bg-rose-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'ปิดวิชาที่สื่อน้อยที่สุด: ศิลปะ +3 · การงาน +3 · เทคโนโลยี +2 · สังคม +2',
             items: [
                 'ศิลปะ: ทัศนธาตุ · จังหวะ-ดนตรี · นาฏศิลป์พื้นฐาน',
                 'การงาน: งานบ้าน-งานประดิษฐ์ · การเกษตร · อาหาร-โภชนาการ',
                 'เทคโนโลยี: อัลกอริทึม unplugged · ข้อมูล-การนำเสนอ',
                 'สังคม: ภูมิศาสตร์ไทย · หน้าที่พลเมือง ป.ต้น',
-                'ทุกคู่: สื่อ learn+practice + ใบงาน scaffold + ปก PNG + ตัวชี้วัด + migration seed',
+                'ทุกคู่: สื่อ learn+practice + ใบงาน scaffold + ปก PNG + ตัวชี้วัด + migration 432',
             ],
         },
         {
             phase: 'Phase 12 — ป.ต้น daily-use (+10 คู่)',
             duration: 'เดือน 3–4',
-            status: 'pending',
-            badge: 'bg-orange-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'สื่อ ป.1–2 ใช้สอนได้ทุกวัน + grade coverage matrix ใน audit script',
             items: [
                 'ไทย: ประสมคำ · อ่านคล่อง-เขียนคล่อง · คำพื้นฐาน',
                 'คณิต: จำนวน 1–100 · บวกลบไม่เกิน 100 · รูปทรงพื้นฐาน',
-                'อังกฤษ: Sight words (E2) · ABC-phonics ต่อยอด',
+                'อังกฤษ: Sight words daily · ABC-phonics',
                 'วิทย์ ป.1–2: สิ่งมีชีวิต-ไม่มีชีวิต · วัสดุรอบตัว',
-                'ใบงาน ป.ต้น: ตัวใหญ่ รอยประ ลากเส้น (scaffold preset ใหม่ถ้าจำเป็น)',
+                'ใบงาน ป.ต้น: ตัวใหญ่ รอยประ ลากเส้น · migration 433',
             ],
         },
         {
             phase: 'Phase 13 — ป.6 + ระบบตัวชี้วัด (+8 คู่)',
             duration: 'เดือน 5–7',
-            status: 'pending',
-            badge: 'bg-amber-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'เติม ป.6 + ผูกตัวชี้วัดสื่อ+เกม ≥80% + publish checklist',
             items: [
-                'ป.6: ร้อยละ-อัตราส่วน · สมการ · โวหาร-วรรณคดี · ไฟฟ้า · ระบบร่างกาย · tense รวม · reading · เศรษฐศาสตร์',
-                'Seed indicator_games ให้สื่อเก่าที่ยังไม่ผูก → ≥80%',
+                'ป.6: ร้อยละ · สมการ · วรรณคดี · ไฟฟ้า · ระบบร่างกาย · tense · เศรษฐศาสตร์',
+                'Seed indicator_games ให้สื่อเก่า → ≥80%',
                 'Coverage สื่อแยกจากเกมใน IndicatorCoverageDialog',
-                'Publish checklist หลังบ้าน (ปก+ตัวชี้วัด+grade ครบก่อน publish)',
+                'Publish checklist หลังบ้าน',
             ],
         },
         {
             phase: 'Phase 14 — แนะนำสื่อ + ครูอัปโหลดเอง',
             duration: 'เดือน 8–10',
-            status: 'pending',
+            status: 'done',
             badge: 'bg-emerald-600',
-            goal: 'นักเรียนเห็นสื่อแนะนำใน /my + ครู non-admin สร้างสื่อ/ชุดคาบเองได้',
+            goal: 'นักเรียนเห็นสื่อแนะนำใน /my + ครู non-admin สร้างสื่อเองได้',
             items: [
-                '"สื่อแนะนำ" ใน /my จาก indicator ที่คะแนนเกมต่ำ',
-                'ปุ่ม "ดูสื่อก่อนเล่น" บนการ์ดเกมที่มีสื่อคู่',
-                'ครู non-admin อัปโหลดสื่อ/ใบงาน (RLS + storage policy ทดสอบจริง)',
-                'W8 คู่มือครูใช้สื่อ (หน้าเดียวในหลังบ้าน)',
+                'สื่อแนะนำใน /my จากตัวชี้วัดที่คะแนนเกมต่ำ',
+                'ปุ่มดูสื่อก่อนเล่นบนการ์ดเกม',
+                'ครู non-admin อัปโหลดสื่อ/ใบงาน (RLS ทดสอบจริง)',
+                'W8 คู่มือครูใช้สื่อ',
             ],
         },
         {
             phase: 'Phase 15 — lesson packs + polish',
             duration: 'เดือน 11–12',
-            status: 'pending',
-            badge: 'bg-sky-600',
+            status: 'done',
+            badge: 'bg-emerald-600',
             goal: 'lesson_packs 15 → ≥30 + เก็บตกคุณภาพทั้งคลัง',
             items: [
                 'ทุกคู่ใหม่จาก Phase 11–13 มี lesson pack',
-                'หน้า «ใบงานบ้าน» parent กรองตามชั้นลูก',
-                'ปก PNG ครบทุกชิ้น + ล้าง extras ใน production catalog',
+                'หน้าใบงานบ้าน parent กรองตามชั้นลูก',
+                'ปก PNG ครบ + ล้าง extras ใน production catalog',
                 'อัปเดต แผนพัฒนาคลังสื่อ.md ล้างรายการ stale',
+            ],
+        },
+        {
+            phase: 'Phase 16 — habit + pack surface',
+            duration: 'ต่อเนื่อง (ops)',
+            status: 'now',
+            badge: 'bg-amber-600',
+            goal: 'โค้ดพร้อมแล้ว — ปิดด้วยหลักฐานครูใช้จริง + คุณภาพ soft-gap',
+            items: [
+                '✅ KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub',
+                '✅ ชุดเรียนบน /educational-hub และหน้าครู (สื่อ → พิมพ์ → เกม)',
+                '✅ มอบหมายใบงาน + parent ส่งงานแนบไฟล์ (mig 450) + ความเห็นครู',
+                '✅ coverage RPC ≈100% ตัวชี้วัดใช้งาน + soft-gap filter (mig 447–449)',
+                '⏳ ops: ครู non-admin อัปจริง ≥1 · รีวิว soft-gap รายวิชา · ลูป pack เป็นกิจวัตร',
             ],
         },
     ],
@@ -353,215 +272,296 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.185.0 (Roadmap คลังสื่อ+ใบงาน Phase 11–15 ในหลังบ้าน)',
+        version: 'v1.213.0 (คู่มือ Construct 2 บ้านคำไผ่)',
         date: 'ล่าสุด',
-        badge: 'bg-violet-700',
+        badge: 'bg-blue-600',
         items: [
-            'ฝัง mediaRoadmap 5 เฟส (เติมวิชาบาง → ป.ต้น → ป.6+ตัวชี้วัด → แนะนำสื่อ+ครูอัปโหลด → lesson packs) ใน SystemOverview',
-            'เป้าปลายปี: สื่อ ~90 · ใบงาน ~110 · lesson packs ≥30 · ตัวชี้วัด ≥80%',
-            'รวมใน export MD/JSON — อัปสถานะเฟสใน commit เดียวกับงานแต่ละเฟส',
+            'เพิ่มคู่มือ Construct 2 แบบจับมือทำ 8 บท พร้อมภาพ Event Sheet ภาษาไทย',
+            'เพิ่มเช็กลิสต์สร้างเกมแบบโต้ตอบและหน้า Training ใหม่ของครูณัฐพงศ์ โดยไม่ทับรายการเดิม',
         ],
     },
     {
-        version: 'v1.184.2 (game PNG covers — Phase 9 batch)',
+        version: 'v1.212.5 (ใบงานทั้งคลัง — บันทึกชุด + เฉลยทีละข้อ)',
         date: 'ล่าสุด',
-        badge: 'bg-fuchsia-600',
+        badge: 'bg-indigo-600',
         items: [
-            'Rasterize 10 Phase 9 game covers → PNG 1280×720 (sharp)',
-            'thumbnail_url → *-cover.png (migration 441)',
-            'scripts/rasterize-game-covers-svg-to-png.mjs · build:game-covers-svg-png',
+            'ยกระดับใบงานอังกฤษ วิทยาศาสตร์ เทคโนโลยี ภาษาไทย และการคูณ ให้บันทึก โหลด และแชร์ชุดเดิมด้วย seed ได้',
+            'เพิ่มเฉลยทีละข้อ ย้อนกลับ เปิดทั้งหมด และคีย์ลัด โดยคำตอบซ่อนเริ่มต้นและไม่เปลี่ยนเลย์เอาต์ A4',
+            'บังคับ contract ฟีเจอร์ใหม่ในตัวตรวจใบงานทุกไฟล์ และแก้กฎหารยาวเป็น 8 ข้อแบบ 2×4',
+            'ขยายตัวเลขเฉลยและระยะบรรทัดวิธีทำของกระดานหารยาว โดยยังคงพอดี A4',
         ],
     },
     {
-        version: 'v1.184.1 (media PNG covers — 11 SVG-only)',
+        version: 'v1.212.4 (ใบงานหารยาว — ตัวหารชิดเส้น + ช่องวิธีทำอัตโนมัติ)',
         date: 'ล่าสุด',
-        badge: 'bg-fuchsia-600',
+        badge: 'bg-teal-600',
         items: [
-            'Rasterize 11 SVG-only media covers → PNG 1280×720 (sharp)',
-            'thumbnail_url → *-cover.png (migration 440)',
-            'scripts/rasterize-media-covers-svg-to-png.mjs · build:media-covers-svg-png',
+            'ลดช่องตัวหารให้เลขอยู่ชิดเส้นตั้งหารตามรูปแบบการเขียนจริง',
+            'ขยายแถวแสดงวิธีทำอัตโนมัติตามจำนวนขั้น โดยคง 8 ข้อและไม่ล้น A4',
         ],
     },
     {
-        version: 'v1.184.0 (Phase 10 — ยกระดับสื่อ+ใบงานทั้งหมด)',
+        version: 'v1.212.3 (ใบงานหารยาว — พื้นที่เขียนด้วยมือ)',
         date: 'ล่าสุด',
-        badge: 'bg-fuchsia-700',
+        badge: 'bg-cyan-600',
         items: [
-            'P1: สื่อ 51/51 ผ่าน verify:media (learn+practice)',
-            'P2–P3: ใบงาน scaffold ลึก · hub 17 deepen-in-place · shallow=0',
-            'P4: ปกครบ · SDK ?v=1.181.0 · CI verify:media:matrix',
-            'P5: subjectGuides เติม · modes cache 1.184.0',
-            'P6: lesson_packs รวม 15 แพ็ก (migration 437)',
+            'ขยายช่องค่าประจำหลักเป็น 16 มม. และช่องตอบเป็น 40 มม. สำหรับลายมือนักเรียน',
+            'เพิ่มความสูงแถวคำนวณแบบปรับตามจำนวนหลัก พร้อมตรวจ A4 โจทย์ 4 หลักหลายชุด',
         ],
     },
     {
-        version: 'v1.183.0 (dual-track คู่เกม 10 ชิ้น — สื่อ+ใบงาน)',
+        version: 'v1.212.2 (ใบงานหารยาว — บันทึกชุด + เฉลยทีละข้อ)',
         date: 'ล่าสุด',
-        badge: 'bg-cyan-700',
+        badge: 'bg-sky-600',
         items: [
-            'สร้างคู่ใหม่: clock · light-sort · first-aid (สื่อ+ใบงาน) migration 435',
-            'ลิงก์เกม↔สื่อ↔ใบงานครบ 10 ชิ้น (ดวงจันทร์ · กระดูก · พอเพียง · อาชีพ · Past Tense · Follow · ข้อเท็จจริง ฯลฯ)',
+            'ใบงานหารยาว 8 ข้อแบบ 2×4 บันทึกและโหลดชุดเดิมด้วย seed ได้อีกครั้ง',
+            'เพิ่มเฉลยทีละข้อ ◀/▶, เปิดทั้งหมด และคีย์ลัด โดยคงคำตอบซ่อนเป็นค่าเริ่มต้น',
         ],
     },
     {
-        version: 'v1.182.0 (เกมใหม่ 10 ชิ้น — ปิดช่องว่างเนื้อหา)',
+        version: 'v1.212.1 (HEART infographic บนหน้าเกี่ยวกับเรา)',
         date: 'ล่าสุด',
-        badge: 'bg-indigo-700',
+        badge: 'bg-rose-600',
         items: [
-            'นาฬิกา · เฟสดวงจันทร์ · แสงทึบ/โปร่ง · กระดูก–กล้ามเนื้อ · ปฐมพยาบาล',
-            'พอเพียง · อาชีพชุมชน · Past Tense · Follow Instructions · ข้อเท็จจริง/ความคิดเห็น',
-            'ทุกเกม KampaiVersus (เดี่ยว/2 คน/ออนไลน์) · migration 434 + game_docs v1.0.0',
+            'แทรกอินโฟกราฟิก HEART Model (`/images/heart-model-infographic.png`) ในหน้า About ใต้หัวข้อนวัตกรรมการบริหาร',
+            'รายงานลดภาระงานครูใช้ภาพ curated เดียวกัน (ไม่ทับด้วยภาพ PIL อัตโนมัติ)',
         ],
     },
     {
-        version: 'v1.181.0 (เฟส 8 — ชุดคาบ · dual-track · วิเคราะห์ · ซ่อมเสริม · UX)',
-        date: 'ล่าสุด',
-        badge: 'bg-violet-700',
+        version: 'v1.212.0 (HEART Model — แทน GPS บนหน้าเกี่ยวกับเรา)',
+        date: '',
+        badge: 'bg-rose-700',
         items: [
-            '8A: `lesson_packs` + แท็บชุดคาบ + seed 5 แพ็ก (migration 430)',
-            '8B: rename 6 สื่อ → `*-media.html` + redirect (migration 431)',
-            '8C: 5 คู่สื่อ+ใบงานใหม่ (migration 432) — ดู v1.180.0',
-            '8D: แท็บการใช้งาน (view_count + worksheet set counts)',
-            '8E: วินิจฉัย → ปุ่มซ่อมเสริม + session topic hint',
-            '8F: ดาว «ใช้ในคาบนี้» (migration 433) + ใบงานบ้านผู้ปกครอง',
-            '8G: `verify:media` เช็กสัญญา slug/learn/practice/ห้าม submitScore',
+            'หน้า About: แทน GPS-Model ด้วย HEART Model (Hub · Ease · Activate · Relate · Track) จากสถาปัตยกรรมเว็บโรงเรียน',
+            'อัปเดตคำอธิบาย PDCA ให้ขับเคลื่อน HEART เพื่อคืนเวลาครู — ลบเนื้อหา Good Governance / Participation / System Approach เดิม',
         ],
     },
     {
-        version: 'v1.180.0 (เฟส 8C — เติม dual-track สื่อ+ใบงาน)',
+        version: 'v1.211.0 (Universal LPC Character Importer)',
         date: 'ล่าสุด',
-        badge: 'bg-teal-700',
+        badge: 'bg-primary',
         items: [
-            '5 คู่สื่อ+ใบงาน: ความปลอดภัยออนไลน์ · สมมาตร · ออกกำลัง/RICE · Past Tense Mini · เงินทอน',
-            'โหมด 📖 สอน / ✏️ ฝึกสั้น MCQ · ไม่แข่งคะแนน (migration 432)',
+            'คลังตัวละครหลังบ้าน: เปิด Universal LPC Generator และนำเข้า PNG + JSON + Credits แบบครบชุด',
+            'ตรวจ Complete sheet 13×21+ · map เดิน 4 ทิศ/ฟัน/แทง/ร่ายเวท/บาดเจ็บอัตโนมัติ · รองรับเฟรม 64/128/192px',
+            'Migration 455 เก็บ source JSON, license และเครดิต พร้อมส่งเครดิตไปยังเกมและแสดงก่อนเริ่มเล่น',
         ],
     },
     {
-        version: 'v1.179.0 (เฟส 8A — ชุดคาบพร้อมใช้)',
+        version: 'v1.210.0 (Educational Hub progressive loading)',
         date: 'ล่าสุด',
-        badge: 'bg-amber-700',
+        badge: 'bg-amber-600',
         items: [
-            'ตาราง `lesson_packs` + RLS · แท็บ «ชุดคาบ» ในพอร์ทัลครู/แอดมิน',
-            'seed 5 แพ็ก: คูณ · หารสั้น · Phonics · ห่วงโซ่ · พอเพียง (migration 430)',
+            'ย้ายชุดเรียนพร้อมสอนไปอยู่ในคลังของผู้สร้าง และย่อหน้ารวมเหลือแถบสรุปที่ deep-link เข้าหมวดโดยตรง',
+            'คลังครูแสดงทีละหมวดและโหลด 24 รายการต่อครั้ง พร้อมค้นหา/กรอง/เรียง/range ฝั่ง Supabase',
+            'เลิก query leaderboard แยกทุกการ์ดเกมตอนเปิดหน้าแรก ลด request fan-out ในคลังขนาดใหญ่',
         ],
     },
     {
-        version: 'v1.178.0 (สื่อเฟส 7 — English dual-track · ฝึกสั้น · วิชาบาง)',
-        date: 'ล่าสุด',
-        badge: 'bg-sky-700',
-        items: [
-            '7A: อังกฤษ → `*-media.html` (phonics · sight-words · grammar-mini · follow-instructions · grammar-vocab) + redirect เก่า (migration 427)',
-            '7B: ฝึกสั้น MCQ — พื้นที่ · อาชีพชุมชน · ส่วนพืช · พอเพียง · กระดูก–กล้ามเนื้อ (migration 428)',
-            '7C: coding-social · แผนที่ไทย · สุโขทัย · วัฏจักรน้ำ · ผสมสี media (migration 429)',
-            'เอกสาร: `MEDIA.md` + dual-track ใน WORKSHEET.md',
-        ],
-    },
-    {
-        version: 'v1.177.0 (ใบงานเฟส 6 — จัดเต็ม practice · reveal · CI · dual-track)',
+        version: 'v1.209.0 (BAYAO harden — คืนพัสดุ · กราฟ · DOCX/PDF · tour แอดมิน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-700',
         items: [
-            'สื่อ leftover ฝึกสั้น: ÷2 · เกม 24 · เส้นจำนวน + ห่วงโซ่/ระบบย่อย/ล้างมือ MCQ (migration 426)',
-            'เฉลยทีละข้อ CSS: หารสั้น · ÷2 · 24 · มุม · ทศนิยม · เส้นจำนวน · deep-link `?tab=worksheet-sets&key=` + ปุ่มชุดจากรายการใบงาน',
-            'โหมดซ่อมเสริม: กล่อง «ตัวอย่างก่อนทำ 1 ข้อ» · subjectGuides เพิ่มวิชาที่ขาด · CI `verify-worksheets.yml` (matrix --strict)',
-            'เอกสาร dual-track สื่อ↔ใบงานใน WORKSHEET.md · bump cache `1.175.15`',
+            'พัสดุ: โฟลว์คืนของ (จ่ายแล้ว→ขอคืน→คืนแล้ว + เติมสต็อก) · แถบแจ้งเตือนสต็อกต่ำ (mig 453)',
+            'Digital Ops: KPI % ครูใช้งานดิจิทัล · กราฟ Time/Paper (recharts) · ส่งออก MD/DOCX/PDF',
+            'AdminOnboardingTour 6 สเต็ป (สารบรรณ→ลา→พัสดุ→Digital Ops→คลังสื่อ)',
         ],
     },
     {
-        version: 'v1.176.9 (สื่อวิทยาศาสตร์/สุขศึกษา — ฝึกสั้น MCQ)',
+        version: 'v1.209.0 (Road Blitz Arcade Racer Game)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
         items: [
-            'ห่วงโซ่อาหาร · ระบบย่อย · ล้างมือ 7 ขั้น: เพิ่มโหมด ✏️ ฝึกสั้น (MCQ 4 ตัวเลือก) คู่กับสอน/เรียง',
-            'game_docs bump v1.1.0 (migration 426)',
+            'เพิ่มเกมใหม่: 🏎️ Road Blitz (Arcade Racing 8-Bit Famicom 2D Pixel Art) — ถนนซิ่งฉากกลางวัน/กลางคืน',
+            'ระบบฟิสิกส์หลบรถคู่แข่ง + ถังน้ำมันเชื้อเพลิง (Fuel Anxiety Loop) + น้ำมันลื่นไถล',
+            'บูรณาการ KAMPAI SDK, Versus Mode แข่ง 2 คน (Hot-seat / Online), migration 454 & seed script',
         ],
     },
     {
-        version: 'v1.176.8 (ใบงานเฟส 5C — โปรเจคเตอร์ · ฝึกสั้น · analytics ชุด)',
-        date: 'ล่าสุด',
-        badge: 'bg-violet-600',
+        version: 'v1.208.0 (BAYAO Smart Office — พัสดุ + Digital Ops)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-emerald-700',
         items: [
-            'โหมดโปรเจคเตอร์ใบงาน: ปุ่ม 📽 + `?present=1` · ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์',
-            'ฝึกสั้นในสื่อ thinking: คูณ · หารสั้น · หารยาว (สลับ สอน|ฝึก MCQ)',
-            'พอร์ทัล: นับชุดใบงานจริงตาม worksheet_key จาก DB · bump cache `1.175.14`',
+            'ระบบพัสดุ/วัสดุพื้นฐาน: ทะเบียน · ครูขอเบิก · อนุมัติตัดสต็อก (mig 452) + /teacher/supplies',
+            'Digital Ops ลดภาระครู: KPI PDCA · Time/Paper metrics · Role Model · Digital Clinic · ส่งออกรายงาน Markdown',
+            'Onboarding tour ครู 5 สเต็ป + แบบสำรวจความพึงพอใจระบบดิจิทัล (auto-ensure)',
+            'featureCatalog / Cmd+K / สิทธิ์เมนู supplies + digital-ops',
         ],
     },
     {
-        version: 'v1.176.7 (ใบงานเฟส 5B — เคลียร์ hub3/shallow ที่เหลือ)',
-        date: 'ล่าสุด',
-        badge: 'bg-violet-600',
+        version: 'v1.207.0 (Teacher ops UX + coverage deep link)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-blue-600',
         items: [
-            'คณิต: bar-chart · decimal-hub · geometry-hub · data-chart · fraction-pieces — แท่ง/ตารางหลัก/SVG + ขั้นติดป้าย',
-            'ไทย/สังคม/ศิลปะ: script · idiom · poetry · punctuation · literature · word-types · thailand · color-wheel',
-            'ขยาย subjectGuides ครอบคลุมชุดนี้ · matrix เป้าหมาย hub3→0',
+            'Teacher Dashboard: การ์ดงานค้าง — ตรวจการบ้าน · อนุมัติรางวัล · เตือนอัปสื่อครั้งแรก',
+            'Portal ครู/ผู้ปกครอง: ปุ่มค้นหา Ctrl/Cmd+K บน top bar (เทียบเท่า AdminLayout)',
+            'Deep link Coverage: /admin/dashboard/educational-hub?tab=games&coverage=1 + Cmd+K "Coverage"',
+            'อัปเดต roadmap: Cmd+K/fuzzy search ขึ้น production แล้ว',
         ],
     },
     {
-        version: 'v1.176.6 (ใบงานเฟส 5 — เฉลยทีละข้อ · พอร์ทัล · matrix)',
-        date: 'ล่าสุด',
-        badge: 'bg-violet-600',
+        version: 'v1.206.0 (Phase 16 Ops dashboard)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-amber-600',
         items: [
-            'เฉลยทีละข้อกลาง (`createAnswerReveal`) ทุก topic sheet + คูณ/หารยาว · คีย์ ←/→',
-            'พอร์ทัล: `?tab=worksheet-sets` + สรุปจำนวนชุดตาม worksheet_key · `verify:worksheet:matrix`',
-            'ยกระดับ fraction-hub (แถบเศษส่วน) + word-problem-hub (อ่าน→วางแผน→คำนวณ) · cache `1.175.13`',
+            'System Overview: แดชบอร์ด Phase 16 Ops — soft-gap RPC (mig 451) · ชุดเรียน · การบ้าน · รายชื่อครู non-admin อัป',
+            'เช็กลิสต์ปิด Phase 16 แบบ live + ลิงก์ไปคลังสื่อ/ครูอัปสื่อ',
+            'getNonAdminUploadHabit แนบชื่อ+รูปครูจาก staff',
         ],
     },
     {
-        version: 'v1.176.5 (ใบงานเฟส 4 — ไทย/อังกฤษ scaffold)',
+        version: 'v1.205.0 (System Overview ข้อมูลปัจจุบัน)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-indigo-700',
+        items: [
+            'รีเฟรช inventory: ตาราง 143 + views 16 · migration ล่าสุด 450 (จากตัวเลขเก่า 84 / 70+)',
+            'dbGroups / roadmap / sprintPlan ให้ตรงของที่ ship แล้ว vs คิวถัดไป · Phase 16 ระบุโค้ดพร้อมเหลือ ops',
+            'export MD/JSON + featureCatalog notes (coverage ≈100% โฟกัส soft-gap)',
+        ],
+    },
+    {
+        version: 'v1.204.0 (บทสรุปฟีเจอร์ทั้งระบบ + แผน 1–2 ปี)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-indigo-700',
+        items: [
+            'System Overview: บทสรุปฟีเจอร์ 8 โดเมน (purpose · พัฒนาต่อได้ไหม · ไอเดีย 1–2 ปี) + ค้นหา',
+            'แผนพัฒนาระยะยาว 1–2 ปี ในหลังบ้าน · export MD/JSON รวม catalog · SoT ที่ featureCatalog.ts',
+        ],
+    },
+    {
+        version: 'v1.203.0 (coverage quality UX + homework attach + portal i18n)',
+        date: 'ก่อนหน้า',
+        badge: 'bg-indigo-700',
+        items: [
+            'IndicatorCoverageDialog: กรอง soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน) · BatchMapper รวมสื่อ+ใบงาน + เฉพาะยังไม่ map',
+            'Parent ส่งงานแนบรูป/PDF (bucket assignment-attachments · mig 450) + push แจ้งครู · YouTube auto-thumb',
+            'LanguageSwitcher ใน RolePortalLayout (ครู/ผู้ปกครอง) ตาม Rule 14.34',
+        ],
+    },
+    {
+        version: 'v1.202.1 (fix coverage KPI truncation + reverse map)',
+        date: 'ล่าสุด',
+        badge: 'bg-teal-700',
+        items: [
+            'แก้ KPI coverage ที่ PostgREST ตัดที่ 1000 แถว → RPC indicator_coverage_summary (mig 449)',
+            'mig 448 reverse heuristic + สคริปต์เช็ก coverage แบบ paged — จริง ~100% ของตัวชี้วัด active',
+        ],
+    },
+    {
+        version: 'v1.202.0 (360 cont: coverage heuristic, receipt, fork, stock)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-700',
+        items: [
+            'mig 447: heuristic map สื่อ/ใบงานที่ยังไม่มีตัวชี้วัด → เร่ง coverage',
+            'ใบเสร็จบริจาค Phase 2 เบา: ออกเลข KP-พ.ศ. + /donate/receipt/:id พิมพ์ได้',
+            'Parent ชุดเรียนโชว์คะแนน/ความเห็นครู · ปุ่มทำสำเนาสื่อ · แถบสต็อกรางวัล drift',
+        ],
+    },
+    {
+        version: 'v1.201.0 (roadmap 360: chat attach, conference push, trust, packs↔plans)',
+        date: 'ล่าสุด',
+        badge: 'bg-violet-700',
+        items: [
+            'Chat แนบรูป/PDF (bucket chat-attachments · mig 446) + push นัดประชุมเมื่อจอง/ยกเลิก',
+            'การบ้าน: การ์ดงานรอตรวจ · เข้าเรียน/คะแนน: เตือนข้อมูลไม่ครบก่อนปพ. · footer + /privacy PDPA',
+            'แผนสอนผูก lesson pack · สตูดิโอเบาจากเทมเพลตสื่อ · HubUsageInsights ยอดเปิดดู · coverage กรองช่องว่าง',
+        ],
+    },
+    {
+        version: 'v1.200.0 (Phase 16 habit + lesson packs in hub)',
+        date: 'ล่าสุด',
+        badge: 'bg-amber-600',
+        items: [
+            'โชว์ชุดเรียน (lesson packs) ใน /educational-hub และหน้าครู — CTA สื่อ→พิมพ์→เกม',
+            'KPI ครู non-admin อัป 30 วัน + แถบสถิติใน /teacher/edu-hub · coverage ตัวชี้วัดใน SystemOverview',
+            'มอบหมายใบงานจาก pack → /teacher/assignments · parent บันทึกฝึกแล้ว + ส่งงาน/ดูความเห็นครู',
+            'ขยายคู่เกม↔สื่อดูก่อนเล่น · รีเฟรช showcase · เปิด mediaRoadmap Phase 16',
+        ],
+    },
+    {
+        version: 'v1.199.2 (long-division cover chibi refresh)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'เปลี่ยนปก `long-division-thinking-media` เป็นภาพจิบิ 16:9 แบบไม่มีคน เน้นแค่คณิตศาสตร์และหัวข้อหารยาวให้ดูเป็นสื่อการสอนชัดเจน',
+            'อัปเดต asset ปกหลักเป็น `public/games/math/long-division-thinking-media-cover.png` เพื่อใช้กับสื่อ long division ตัวนี้โดยตรง',
+        ],
+    },
+    {
+        version: 'v1.199.1 (worksheet print/screen line parity)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-700',
+        items: [
+            'แก้บรรทัดเขียนขยับตอนพิมพ์: ล็อก A4 297mm เท่าจอ+พิมพ์ · เลิก space-evenly/space-between ในช่องทำโจทย์',
+            'KampaiWorksheet.printA4() รอ Sarabun โหลดก่อน print · บัมพ์ cache worksheet-topic/runtime v1.199.1',
+            'แก้ clock-media markup ที่ใส่ work-line ครอบทั้งข้อ · อัปเดต WORKSHEET.md §7.1',
+        ],
+    },
+    {
+        version: 'v1.199.0 (salvage orphan media/worksheets + student pet)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ดึงไฟล์ orphan เข้า git: Batch 9–13 ใบงาน hub · Media Y/Z/AA · QR ออฟไลน์ · starter-media notes',
+            'Student pet companion (437) + idle GIF · แท็บคู่หูใน GamificationHub · PlayGame ส่ง pet เข้า SDK',
+            'renumber mig ชนเลขบน main → 436–445 · แก้ตัวชี้วัดโจทย์ปัญหา (436)',
+        ],
+    },
+    {
+        version: 'v1.198.0 (Phase 15 lesson packs + parent worksheets)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'ตาราง lesson_packs / lesson_pack_items (migration 435) · seed ≥30 ชุดจาก Phase 11–13 + legacy',
+            'หน้า /parent/worksheets กรองใบงานและชุดเรียนตามชั้นลูก',
+            'อัปเดต แผนพัฒนาคลังสื่อ.md · ปิด mediaRoadmap Phase 15 = done',
+        ],
+    },
+    {
+        version: 'v1.197.0 (Phase 14 แนะนำสื่อ + ครูอัปโหลดเอง)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'แนะนำสื่อบน /my (RPC recommend_media · migration 429) + RecommendedMedia',
+            'ปุ่ม「ดูสื่อก่อน」บน PreGamePanel และการ์ดคลังเกม (edu-hub-game-media-pairs)',
+            'ครูอัปสื่อ/ใบงานใน /teacher/edu-hub + W8 คู่มือ 5 นาที · ปิด Phase 14 = done',
+        ],
+    },
+    {
+        version: 'v1.196.0 (Phase 13 ป.6 + ตัวชี้วัด — 8 media+worksheet pairs)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 13: คณิต×2 · ไทย×1 · วิทย์×2 · อังกฤษ×2 · สังคม×1 สำหรับ ป.6 (migration 434)',
+            'IndicatorCoverageDialog แยกเกม/สื่อ/ใบงาน + publish checklist ใน EduHubItemForm',
+            'Backfill indicator_games สื่อเก่า + ปิดสถานะ mediaRoadmap Phase 13 = done',
+        ],
+    },
+    {
+        version: 'v1.195.0 (Phase 12 ป.ต้น daily-use — 10 media+worksheet pairs)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 12: ไทย×3 · คณิต×3 · อังกฤษ×2 · วิทย์×2 สำหรับ ป.1–2 (ตัวใหญ่/รอยประ · migration 433)',
+            'ปิดสถานะ mediaRoadmap Phase 12 = done',
+            'scripts/generate-media-phase12.mjs + apply-migration-433-phase12.mjs',
+        ],
+    },
+    {
+        version: 'v1.194.0 (Phase 11 thin subjects — 10 media+worksheet pairs)',
+        date: 'ล่าสุด',
+        badge: 'bg-primary',
+        items: [
+            'Phase 11: ศิลปะ×3 · การงาน×3 · เทคโนโลยี×2 · สังคม×2 (สื่อ+ใบงาน+ปก+ตัวชี้วัด · migration 432)',
+            'ฝัง mediaRoadmap Phase 11–15 ใน SystemOverview · ปิดสถานะ Phase 11 = done',
+            'scripts/generate-media-phase11.mjs + apply-migration-432-phase11.mjs',
+        ],
+    },
+    {
+        version: 'v1.176.0 (Mario Math Run — ฉากไหล + หลุม + มอนสเตอร์ + โหม่งบล็อก)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
         items: [
-            'ไทย hub: อ่าน (หลักฐาน+ติ๊กใจความ) · เขียน (แผน เริ่ม|เหตุการณ์|จบ) · ไวยากรณ์ (S→V→O) · ประโยค (ชนิด+word-bank)',
-            'อังกฤษ: Grammar Mini · Sight Words · Follow Instructions — evidence/verb-cmd + ขั้นติดป้าย',
-            'vocab-grammar / grammar-vocab: ขั้น ดูคำ→คิด→ตอบ · subjectGuides วินิจฉัย Phase 4',
-        ],
-    },
-    {
-        version: 'v1.176.4 (ใบงานเฟส 3 — วิทย์ สุขศึกษา สังคม อาชีพ)',
-        date: 'ล่าสุด',
-        badge: 'bg-emerald-600',
-        items: [
-            '3A วิทย์: พืช · ห่วงโซ่ · ดวงจันทร์ · ระบบย่อย — แผนภาพ/cycle/classify + ขั้นติดป้าย',
-            '3B สุขศึกษา: 5 หมู่ · ฉลาก · ล้างมือ 7 ขั้น · กระดูก–กล้ามเนื้อ',
-            '3C อาชีพ/สังคม: แยกขยะ · อาชีพชุมชน · พลเมืองดี · เศรษฐกิจพอเพียง (3 ห่วง 2 เงื่อนไข)',
-        ],
-    },
-    {
-        version: 'v1.176.3 (ใบงาน — มุม · ทศนิยม · เส้นจำนวน scaffold)',
-        date: 'ล่าสุด',
-        badge: 'bg-sky-600',
-        items: [
-            'มุม: รูป SVG + ช่องเลือกแหลม/ฉาก/ป้าน/ตรง + ขั้น เทียบ→จำแนก→เหตุผล',
-            'ทศนิยม: ตารางค่าประจำหลัก / ตั้งบวกลบจัดจุด + ขั้น จัดหลัก→คำนวณ→สรุป',
-            'เส้นจำนวน: เส้นขีดจริงทำเครื่องหมายได้ + ขั้นหาตำแหน่ง/กระโดด — bump `1.175.12`',
-        ],
-    },
-    {
-        version: 'v1.176.2 (ใบงาน — ÷2/24 ขั้นชัด + parent-slip พื้นที่)',
-        date: 'ล่าสุด',
-        badge: 'bg-sky-600',
-        items: [
-            'หาร 2 ในใจ + เกม 24: scaffold ติดป้ายขั้น (แบ่งครึ่ง/คิด/ตรวจ · วางแผน/คำนวณ/ตรวจ) + กระเบื้องเลข 24',
-            'rect-area: เพิ่มแถบส่งผู้ปกครอง · subjectGuides โหมดวินิจฉัยสำหรับ short-division / divide-by-2 / math-24',
-            'bump cache ใบงาน `1.175.11`',
-        ],
-    },
-    {
-        version: 'v1.176.1 (ใบงาน — เลย์เอาต์ 5 + sets คูณ/หาร/C + กระดานหารสั้น)',
-        date: 'ล่าสุด',
-        badge: 'bg-sky-600',
-        items: [
-            'ฐานใบงาน: ค่าเริ่มต้น 5 ข้อ/หน้า (`.count-5` แถวสูง) ทั้ง fleet + bump cache `1.175.10`',
-            'บันทึกชุด (KampaiWorksheetSets): ผูกคูณ · หารยาว · grammar-vocab · vocab-grammar · science-explorer · coding-social',
-            'หารสั้น: กระดานตั้งหารสั้นจับคู่สื่อ (ตัวหาร ) ตัวตั้ง · ช่องผลหาร · ทดเศษ) แทน calc-line ตื้น',
-        ],
-    },
-    {
-        version: 'v1.176.0 (Mario Math Run — 5 หัวใจ + โจทย์ใหม่พ้นจอ + บล็อกโหม่งเป็นก้อนหิน)',
-        date: 'ล่าสุด',
-        badge: 'bg-emerald-600',
-        items: [
-            'อัปเกรด Mario Math Run (มาริโอ้ลุยโจทย์คณิต): เพิ่มระบบหัวใจ 5 ดวง (5 Lives), สุ่มสปอนโจทย์ใหม่อัตโนมัติเมื่อบล็อกพ้นจอ, และปรับบล็อกคำตอบที่โหม่งแล้วให้เปลี่ยนเป็นก้อนหินเหยียบ/ยืนต่อได้ (+ − × ÷ หรือผสม)',
+            'อัปเกรด Mario Math Run (มาริโอ้ลุยโจทย์คณิต): ระบบฉากไหลอัตโนมัติ (Auto-scroller) กระโดดข้ามหลุม (Pits) หลบ/เหยียบมอนสเตอร์ (Goombas) และกระโดดโหม่งบล็อก 4 เหลี่ยมลอยฟ้าเพื่อเลือกตอบ (+ − × ÷ หรือผสม) รองรับ 1 คน และ 2 คนในหน้าจอเดียว + KampaiVersus online',
         ],
     },
     {
@@ -881,7 +881,7 @@ const versionHistory = [
         badge: 'bg-primary',
         items: [
             'เพิ่มระบบคู่หูนักเรียน: ร้านสัตว์ 6 ตัว · กระเป๋าเหรียญดาว · คลังสัตว์ · เลือกตัวใช้งาน ผ่าน GamificationHub แบบพับได้',
-            'Migration 394: pet_catalog / student_pet_wallets / pet_coin_transactions / student_pets พร้อม RLS และ RPC ซื้อ/สวมใส่แบบ atomic',
+            'Migration 422: pet_catalog / student_pet_wallets / pet_coin_transactions / student_pets พร้อม RLS และ RPC ซื้อ/สวมใส่แบบ atomic',
             'รับเหรียญจาก 3 รอบแรกต่อวัน + โบนัส Daily Quest; XP ไม่ถูกหักและสัตว์ไม่เพิ่มพลังหรือคะแนน',
             'PlayGame ส่ง pet/wallet เข้า KAMPAI SDK กลาง และแสดงคู่หูบน RewardPopup โดยเกมเดิมยังทำงานได้เหมือนเดิม',
 
@@ -4443,30 +4443,41 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
+        version: 'v1.209.0',
+        live: 'https://kampai-school.vercel.app',
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
-        database: 'Supabase (PostgreSQL)',
+        database: 'Supabase (PostgreSQL) — 147 tables · 16 views',
         primaryLanguage: 'TypeScript + PLpgSQL',
-        frontend: 'React 18 + Vite',
+        frontend: 'React 18.3 + Vite 5',
         auth: 'Supabase Auth + RLS',
         edgeFunctions: 'Deno (Supabase)',
+        currentFocus: 'Phase 16 ops (teacher adoption + soft-gap review)',
     },
     techStack,
     featureGroups: featureGroups.map(g => ({ category: g.label, features: g.features })),
+    featureCatalog: featureCatalog.map((d) => ({
+        id: d.id,
+        label: d.label,
+        summary: d.summary,
+        features: d.features,
+    })),
+    longTermPlan,
+    featureCatalogStats,
     database: {
-        totalTables: '70+',
-        migrations: 84,
+        totalTables: 147,
+        totalViews: 16,
+        migrations: 451,
+        migrationFiles: 464,
+        latestMigration: '453_supply_returns.sql',
         engine: 'PostgreSQL via Supabase',
         security: 'RLS enabled',
         groups: dbGroups,
+        note: 'ตัวเลขตาราง/วิวจาก src/integrations/supabase/types.ts — กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
     sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
-    mediaRoadmap: {
-        baseline: mediaRoadmap.baseline,
-        target: mediaRoadmap.target,
-        phases: mediaRoadmap.phases.map(p => ({ phase: p.phase, duration: p.duration, status: p.status, goal: p.goal, items: p.items })),
-    },
+    mediaRoadmap,
     versionHistory: versionHistory.map(v => ({ version: v.version, date: v.date, changes: v.items })),
     exportedAt: new Date().toISOString(),
 };
@@ -4487,17 +4498,48 @@ const generateMarkdown = () => {
     lines.push('\n### Deployment');
     techStack.deployment.forEach(t => lines.push(`- **${t.name}** — ${t.desc}`));
 
-    lines.push('\n## ฟีเจอร์ที่มีอยู่แล้ว');
-    featureGroups.forEach(g => {
-        lines.push(`\n### ${g.label}`);
-        g.features.forEach(f => lines.push(`- ${f}`));
+    lines.push('\n## บทสรุปฟีเจอร์ทั้งระบบ');
+    lines.push(
+        `> ${featureCatalogStats.domains} โดเมน · ${featureCatalogStats.features} ฟีเจอร์ (live ${featureCatalogStats.live} / partial ${featureCatalogStats.partial} / deferred ${featureCatalogStats.deferred})`,
+    );
+    featureCatalog.forEach((d) => {
+        lines.push(`\n### ${d.label}`);
+        lines.push(d.summary);
+        d.features.forEach((f) => {
+            const st = f.status ?? 'live';
+            const extend = f.canExtend ? 'พัฒนาต่อได้' : 'ยังไม่ขยาย / รอภายนอก';
+            lines.push(`\n#### ${f.name} [${st}]`);
+            lines.push(`- **มีไว้ทำอะไร:** ${f.purpose}`);
+            lines.push(`- **${extend}**${f.extendNote ? ` — ${f.extendNote}` : ''}`);
+            if (f.ideas12m.length) {
+                lines.push('- **ไอเดีย ~1 ปี:**');
+                f.ideas12m.forEach((i) => lines.push(`  - ${i}`));
+            }
+            if (f.ideas24m?.length) {
+                lines.push('- **ไอเดีย ~2 ปี:**');
+                f.ideas24m.forEach((i) => lines.push(`  - ${i}`));
+            }
+        });
+    });
+
+    lines.push('\n## แผนพัฒนาระยะยาว 1–2 ปี');
+    longTermPlan.forEach((y) => {
+        lines.push(`\n### ${y.label}`);
+        y.themes.forEach((t) => {
+            lines.push(`\n#### ${t.title}`);
+            t.items.forEach((i) => lines.push(`- ${i}`));
+        });
     });
 
     lines.push('\n## ฐานข้อมูล');
     lines.push(`- **Tables**: ${exportData.database.totalTables}`);
-    lines.push(`- **Migrations**: ${exportData.database.migrations}`);
+    lines.push(`- **Views**: ${exportData.database.totalViews}`);
+    lines.push(`- **Migrations (latest #)**: ${exportData.database.migrations}`);
+    lines.push(`- **Migration files**: ${exportData.database.migrationFiles}`);
+    lines.push(`- **Latest**: ${exportData.database.latestMigration}`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
+    lines.push(`- **Note**: ${exportData.database.note}`);
     dbGroups.forEach(g => {
         lines.push(`\n### ${g.label}`);
         g.tables.forEach(t => lines.push(`- \`${t}\``));
@@ -4513,11 +4555,12 @@ const generateMarkdown = () => {
         s.items.forEach(i => lines.push(`- ${i.icon} **${i.title}** (${i.effort}) — ${i.stack}`));
     });
 
-    lines.push('\n## Roadmap คลังสื่อ+ใบงาน (Phase 11–15)');
+    const statusLabel: Record<string, string> = { done: 'เสร็จ', pending: 'รอ', 'in-progress': 'กำลังทำ' };
+    lines.push('\n## Roadmap คลังสื่อ+ใบงาน (Phase 11–16)');
     lines.push(`> ${mediaRoadmap.baseline}`);
     lines.push(`> ${mediaRoadmap.target}`);
     mediaRoadmap.phases.forEach(p => {
-        lines.push(`\n### ${p.phase} — ${p.duration} [${MEDIA_ROADMAP_STATUS_LABEL[p.status] ?? p.status}]`);
+        lines.push(`\n### ${p.phase} — ${p.duration} [${statusLabel[p.status] ?? p.status}]`);
         lines.push(`> 🎯 ${p.goal}`);
         p.items.forEach(i => lines.push(`- ${i}`));
     });
@@ -4543,6 +4586,109 @@ const downloadFile = (content: string, filename: string, mime: string) => {
 
 export const SystemOverview = () => {
     const [copied, setCopied] = useState(false);
+    const [featureQuery, setFeatureQuery] = useState('');
+
+    const statusLabel: Record<FeatureStatus, string> = {
+        live: 'ใช้งานจริง',
+        partial: 'บางส่วน',
+        deferred: 'เลื่อนไว้',
+    };
+
+    const filteredCatalog = useMemo(() => {
+        const q = featureQuery.trim().toLowerCase();
+        if (!q) return featureCatalog;
+        return featureCatalog
+            .map((d) => ({
+                ...d,
+                features: d.features.filter(
+                    (f) =>
+                        f.name.toLowerCase().includes(q) ||
+                        f.purpose.toLowerCase().includes(q) ||
+                        (f.extendNote ?? '').toLowerCase().includes(q) ||
+                        f.ideas12m.some((i) => i.toLowerCase().includes(q)) ||
+                        (f.ideas24m ?? []).some((i) => i.toLowerCase().includes(q)),
+                ),
+            }))
+            .filter((d) => d.features.length > 0 || d.label.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q));
+    }, [featureQuery]);
+
+    const { data: habit } = useQuery({
+        queryKey: ['edu-hub', 'non-admin-habit', 30],
+        queryFn: () => educationalHubService.getNonAdminUploadHabit(30),
+        staleTime: 60_000,
+    });
+
+    const { data: coverage } = useQuery({
+        queryKey: ['curriculum', 'indicator-coverage-summary'],
+        queryFn: () => curriculumService.indicatorCoverageSummary(),
+        staleTime: 60_000,
+    });
+
+    const { data: softGap } = useQuery({
+        queryKey: ['curriculum', 'indicator-soft-gap-summary'],
+        queryFn: () => curriculumService.indicatorSoftGapSummary(),
+        staleTime: 60_000,
+    });
+
+    const { data: packCount } = useQuery({
+        queryKey: ['lesson-packs', 'published-count'],
+        queryFn: () => lessonPacksService.countPublished(),
+        staleTime: 60_000,
+    });
+
+    const { data: homework } = useQuery({
+        queryKey: ['assignments', 'ops-summary', 30],
+        queryFn: () => assignmentsService.opsSummary(30),
+        staleTime: 60_000,
+    });
+
+    const phase16Checklist = useMemo(() => {
+        const teacherOk = (habit?.uploaderCount ?? 0) > 0;
+        const coverageOk = (coverage?.pctCovered ?? 0) >= 80;
+        const packsOk = (packCount ?? 0) >= 30;
+        const homeworkOk = (homework?.submissions ?? 0) > 0;
+        return [
+            {
+                id: 'teacher-upload',
+                label: 'ครู non-admin อัปสื่อจริง (30 วัน)',
+                done: teacherOk,
+                detail: habit
+                    ? `${habit.uploaderCount} คน · ${habit.itemCount} รายการ`
+                    : 'กำลังโหลด…',
+            },
+            {
+                id: 'coverage',
+                label: 'ตัวชี้วัดมีสื่อ/เกมผูก ≥80%',
+                done: coverageOk,
+                detail: coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+            },
+            {
+                id: 'packs',
+                label: 'ชุดเรียนเผยแพร่ ≥30',
+                done: packsOk,
+                detail: packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+            },
+            {
+                id: 'homework',
+                label: 'ผู้ปกครองส่งงาน (30 วัน)',
+                done: homeworkOk,
+                detail: homework
+                    ? `${homework.submissions} ส่ง · ${homework.withAttachment} แนบไฟล์`
+                    : 'กำลังโหลด…',
+            },
+            {
+                id: 'soft-gap',
+                label: 'รีวิว soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน)',
+                done: false,
+                detail: softGap
+                    ? `ขาดเกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet} · ยังไม่ map ${softGap.unmapped}`
+                    : 'กำลังโหลด…',
+                ongoing: true,
+            },
+        ];
+    }, [habit, coverage, packCount, homework, softGap]);
+
+    const phase16DoneCount = phase16Checklist.filter((c) => c.done).length;
 
     const handleExportJSON = () => {
         downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
@@ -4571,7 +4717,19 @@ export const SystemOverview = () => {
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
-                    <p className="text-muted-foreground">ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมดของเว็บไซต์โรงเรียน</p>
+                    <p className="text-muted-foreground">
+                        ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
+                        <span className="font-medium text-foreground">v1.209.0</span>
+                        {' · '}live{' '}
+                        <a
+                            href="https://kampai-school.vercel.app"
+                            className="text-primary underline-offset-2 hover:underline"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            kampai-school.vercel.app
+                        </a>
+                    </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={handleExportJSON} className="gap-1.5">
@@ -4608,13 +4766,17 @@ export const SystemOverview = () => {
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.209.0' },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
-                        { icon: Globe, label: 'Hosting', value: 'Vercel (SPA)' },
-                        { icon: Database, label: 'Database', value: 'Supabase (PostgreSQL)' },
+                        { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
+                        { icon: Database, label: 'Database', value: 'Supabase · 147 tables · 16 views' },
+                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #451 · ไฟล์ 464' },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
-                        { icon: Layers, label: 'Frontend Framework', value: 'React 18 + Vite' },
+                        { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },
                         { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
                         { icon: Zap, label: 'Edge Functions', value: 'Deno (Supabase)' },
+                        { icon: CheckCircle2, label: 'Feature catalog', value: '8 โดเมน · 55 ฟีเจอร์ (SoT)' },
+                        { icon: Lightbulb, label: 'โฟกัสปัจจุบัน', value: 'Phase 16 ops + harden ปี 1' },
                     ].map((item) => (
                         <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
                             <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
@@ -4641,7 +4803,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Globe className="w-4 h-4 text-blue-500" />
-                                <h4 className="font-semibold text-sm text-blue-600 dark:text-blue-400">Frontend</h4>
+                                <h4 className="font-semibold text-sm text-blue-600">Frontend</h4>
                             </div>
                             <div className="space-y-2">
                                 {techStack.frontend.map((t) => (
@@ -4660,7 +4822,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Server className="w-4 h-4 text-green-500" />
-                                <h4 className="font-semibold text-sm text-green-600 dark:text-green-400">Backend & Database</h4>
+                                <h4 className="font-semibold text-sm text-green-600">Backend & Database</h4>
                             </div>
                             <div className="space-y-2">
                                 {techStack.backend.map((t) => (
@@ -4679,7 +4841,7 @@ export const SystemOverview = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-3">
                                 <Cloud className="w-4 h-4 text-emerald-500" />
-                                <h4 className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">Deployment & Hosting</h4>
+                                <h4 className="font-semibold text-sm text-emerald-600">Deployment & Hosting</h4>
                             </div>
                             <div className="space-y-2 mb-6">
                                 {techStack.deployment.map((t) => (
@@ -4698,7 +4860,7 @@ export const SystemOverview = () => {
                             {/* Infra Details */}
                             <div className="flex items-center gap-2 mb-3">
                                 <HardDrive className="w-4 h-4 text-orange-500" />
-                                <h4 className="font-semibold text-sm text-orange-600 dark:text-orange-400">Infrastructure</h4>
+                                <h4 className="font-semibold text-sm text-orange-600">Infrastructure</h4>
                             </div>
                             <div className="space-y-1.5 text-xs text-muted-foreground">
                                 <p>• Vercel: SPA rewrite <code className="bg-secondary px-1 rounded">{'/((?!api/|games/).*)'}</code> (exclude static games), cron <code className="bg-secondary px-1 rounded">/api/ping</code> ทุก 3 วัน</p>
@@ -4717,29 +4879,137 @@ export const SystemOverview = () => {
                 </CardContent>
             </Card>
 
-            {/* Section D: Features Inventory */}
+            {/* Section D: Feature catalog summary */}
+            <Card>
+                <CardHeader className="pb-3 space-y-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                        บทสรุปฟีเจอร์ทั้งระบบ
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground font-normal">
+                        Inventory เชิงบริหาร — {featureCatalogStats.domains} โดเมน · {featureCatalogStats.features} ฟีเจอร์
+                        (ใช้งานจริง {featureCatalogStats.live} · บางส่วน {featureCatalogStats.partial} · เลื่อนไว้ {featureCatalogStats.deferred})
+                        · ไม่ใช่คู่มือผู้ใช้ทีละปุ่ม
+                    </p>
+                    <div className="relative max-w-md">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            value={featureQuery}
+                            onChange={(e) => setFeatureQuery(e.target.value)}
+                            placeholder="ค้นหาชื่อฟีเจอร์ / คำอธิบาย / ไอเดีย…"
+                            className="pl-8"
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Accordion type="multiple" className="w-full" defaultValue={filteredCatalog.slice(0, 2).map((d) => d.id)}>
+                        {filteredCatalog.map((domain) => (
+                            <AccordionItem key={domain.id} value={domain.id}>
+                                <AccordionTrigger className="hover:no-underline text-left">
+                                    <div className="flex flex-col gap-1 pr-2">
+                                        <span className="font-semibold text-foreground">{domain.label}</span>
+                                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                                            {domain.summary} · {domain.features.length} รายการ
+                                        </span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <ul className="space-y-4 pt-1">
+                                        {domain.features.map((f) => {
+                                            const st = (f.status ?? 'live') as FeatureStatus;
+                                            return (
+                                                <li
+                                                    key={f.name}
+                                                    className="rounded-lg border border-border bg-card p-3 space-y-2"
+                                                >
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <p className="font-medium text-sm">{f.name}</p>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className={cn(
+                                                                'text-[10px]',
+                                                                st === 'live' && 'border-emerald-300 text-emerald-800 bg-emerald-500/10',
+                                                                st === 'partial' && 'border-amber-300 text-amber-900 bg-amber-500/10',
+                                                                st === 'deferred' && 'border-border text-muted-foreground',
+                                                            )}
+                                                        >
+                                                            {statusLabel[st]}
+                                                        </Badge>
+                                                        <Badge variant="secondary" className="text-[10px]">
+                                                            {f.canExtend ? 'พัฒนาต่อได้' : 'ยังไม่ขยาย / รอภายนอก'}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">{f.purpose}</p>
+                                                    {f.extendNote && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            ขอบเขต: {f.extendNote}
+                                                        </p>
+                                                    )}
+                                                    {f.ideas12m.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[11px] font-semibold text-foreground mb-1">
+                                                                ไอเดีย ~1 ปี
+                                                            </p>
+                                                            <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                                                {f.ideas12m.map((idea) => (
+                                                                    <li key={idea}>{idea}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                    {f.ideas24m && f.ideas24m.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[11px] font-semibold text-foreground mb-1">
+                                                                ไอเดีย ~2 ปี
+                                                            </p>
+                                                            <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                                                {f.ideas24m.map((idea) => (
+                                                                    <li key={idea}>{idea}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                    {filteredCatalog.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-8">ไม่พบฟีเจอร์ตามคำค้น</p>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Section D2: Long-term plan */}
             <Card>
                 <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
-                        <CheckCircle2 className="w-5 h-5 text-primary" />
-                        ฟีเจอร์ที่มีอยู่แล้ว
+                        <Lightbulb className="w-5 h-5 text-primary" />
+                        แผนพัฒนาระยะยาว 1–2 ปี
                     </CardTitle>
+                    <p className="text-sm text-muted-foreground font-normal">
+                        ธีมภาพรวม — รายละเอียดรายฟีเจอร์อยู่ในบทสรุปด้านบน · Phase 16 โค้ดพร้อมแล้ว เหลือ adoption/ops
+                    </p>
                 </CardHeader>
-                <CardContent>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {featureGroups.map((group) => (
-                            <div key={group.label}>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {group.features.map((f) => (
-                                        <Badge key={f} variant="outline" className={`text-xs ${group.color}`}>
-                                            {f}
-                                        </Badge>
-                                    ))}
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                    {longTermPlan.map((year) => (
+                        <div key={year.id} className="rounded-lg border border-border p-4 space-y-3">
+                            <h3 className="font-semibold text-sm">{year.label}</h3>
+                            {year.themes.map((theme) => (
+                                <div key={theme.title}>
+                                    <p className="text-xs font-semibold text-primary mb-1">{theme.title}</p>
+                                    <ul className="list-disc pl-4 text-xs text-muted-foreground space-y-0.5">
+                                        {theme.items.map((item) => (
+                                            <li key={item}>{item}</li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ))}
                 </CardContent>
             </Card>
 
@@ -4754,11 +5024,14 @@ export const SystemOverview = () => {
                 <CardContent>
                     <div className="flex gap-3 mb-4">
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalTables} Tables</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrations} Migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalViews} Views</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Migration #{exportData.database.migrations}</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrationFiles} ไฟล์</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
                     </div>
-                    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <p className="text-xs text-muted-foreground mb-4">{exportData.database.note}</p>
+                    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         {dbGroups.map((group) => (
                             <div key={group.label}>
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
@@ -4780,6 +5053,9 @@ export const SystemOverview = () => {
                         <Lightbulb className="w-5 h-5 text-primary" />
                         สิ่งที่ยังสามารถทำต่อได้ (Roadmap)
                     </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        รายการที่ยังไม่ ship หรือยังไม่ครบ — ของที่ขึ้น production แล้วดูที่บทสรุปฟีเจอร์ / ประวัติเวอร์ชัน
+                    </p>
                 </CardHeader>
                 <CardContent>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
@@ -4804,7 +5080,7 @@ export const SystemOverview = () => {
                         แผนพัฒนาต่อ (Sprint Plan)
                     </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
-                        ลำดับการพัฒนาที่แนะนำ — เริ่มจากงานที่เห็นผลเร็ว (Quick Wins) แล้วค่อยๆ เพิ่มฟีเจอร์เชิงลึก
+                        สถานะปัจจุบันถึง v1.205 — ไม่ใช่แผน Sprint เก่าจากยุค v1.5
                     </p>
                 </CardHeader>
                 <CardContent>
@@ -4847,43 +5123,184 @@ export const SystemOverview = () => {
                 </CardContent>
             </Card>
 
-            {/* Section F3: Media & Worksheet Roadmap (Phase 11–15) */}
+            {/* Section F2b: Phase 16 Ops live dashboard */}
+            <Card className="border-amber-200/80 bg-amber-500/5">
+                <CardHeader className="pb-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <CircleAlert className="w-5 h-5 text-amber-700" />
+                                Phase 16 Ops — สถานะปิดงาน
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                โค้ดพร้อมแล้ว — ติดตาม adoption จริง · เช็กลิสต์ {phase16DoneCount}/{phase16Checklist.length} ผ่าน
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/admin/dashboard/educational-hub?tab=games&coverage=1">
+                                    Soft-gap
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/admin/dashboard/educational-hub">
+                                    คลังสื่อ
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link to="/teacher/edu-hub" target="_blank" rel="noreferrer">
+                                    ครูอัปสื่อ
+                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                    <ul className="grid sm:grid-cols-2 gap-2">
+                        {phase16Checklist.map((item) => (
+                            <li
+                                key={item.id}
+                                className={cn(
+                                    'flex items-start gap-2 rounded-lg border border-border px-3 py-2 text-sm',
+                                    item.done && 'bg-emerald-500/10',
+                                    item.ongoing && !item.done && 'bg-secondary/40',
+                                )}
+                            >
+                                {item.done ? (
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                ) : item.ongoing ? (
+                                    <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                                ) : (
+                                    <CircleAlert className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                                )}
+                                <div className="min-w-0">
+                                    <p className="font-medium text-foreground">{item.label}</p>
+                                    <p className="text-xs text-muted-foreground">{item.detail}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {habit ? habit.uploaderCount : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    คน · {habit ? habit.itemCount : '…'} รายการ
+                                </span>
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">Coverage ตัวชี้วัด</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {coverage ? `${coverage.pctCovered}%` : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">Soft-gap (ทั้งหลักสูตร)</p>
+                            <p className="text-sm font-medium text-foreground leading-snug">
+                                {softGap
+                                    ? `เกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet}`
+                                    : '…'}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                ยังไม่ map {softGap?.unmapped ?? '…'} ตัวชี้วัด
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">การบ้าน 30 วัน</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {homework ? homework.submissions : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                มอบหมาย {homework?.assignments ?? '…'} · แนบไฟล์ {homework?.withAttachment ?? '…'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {habit && habit.uploaders.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">ครูที่อัปล่าสุด (non-admin)</p>
+                            <ul className="flex flex-wrap gap-3">
+                                {habit.uploaders.slice(0, 8).map((u) => (
+                                    <li key={u.staffId} className="flex items-center gap-2 text-sm">
+                                        <PersonAvatar name={u.name} photoUrl={u.photoUrl} size="sm" />
+                                        <span>
+                                            <span className="font-medium">{u.name}</span>
+                                            <span className="text-muted-foreground text-xs ml-1">({u.count})</span>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Section F3: Media Roadmap Phase 11–16 */}
             <Card>
                 <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
-                        <FileText className="w-5 h-5 text-primary" />
-                        Roadmap คลังสื่อ+ใบงาน (Phase 11–15)
+                        <Rocket className="w-5 h-5 text-primary" />
+                        Roadmap คลังสื่อ+ใบงาน (Phase 11–16)
                     </CardTitle>
-                    <div className="space-y-1 mt-1">
-                        <p className="text-xs text-muted-foreground">{mediaRoadmap.baseline}</p>
-                        <p className="text-xs font-medium text-foreground">{mediaRoadmap.target}</p>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{mediaRoadmap.baseline}</p>
+                    <p className="text-xs text-muted-foreground">{mediaRoadmap.target}</p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {habit ? habit.uploaderCount : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    คน · {habit ? habit.itemCount : '…'} รายการ
+                                </span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                {habit && habit.uploaderCount > 0
+                                    ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
+                                    : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
+                            <p className="text-xs font-semibold text-muted-foreground">ตัวชี้วัดที่มีสื่อ/เกมผูก</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {coverage ? `${coverage.pctCovered}%` : '…'}
+                                <span className="text-sm font-normal text-muted-foreground ml-2">
+                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
+                                </span>
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? '…'} ชิ้น · เติมต่อใน IndicatorCoverageDialog
+                            </p>
+                        </div>
+                    </div>
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {mediaRoadmap.phases.map((p, i) => (
-                            <div key={i} className="rounded-xl border border-border bg-secondary/20 hover:bg-secondary/40 transition-colors overflow-hidden">
+                        {mediaRoadmap.phases.map((p) => (
+                            <div key={p.phase} className="rounded-xl border border-border bg-secondary/20 overflow-hidden">
                                 <div className={`${p.badge} text-white px-4 py-2.5 flex items-center justify-between gap-2`}>
                                     <p className="text-sm font-bold">{p.phase}</p>
-                                    <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-xs whitespace-nowrap">
-                                        {p.duration}
+                                    <Badge variant="outline" className="bg-white/20 text-white border-white/30 text-xs shrink-0">
+                                        {p.status === 'done' ? 'เสร็จ' : p.status === 'now' ? 'กำลังทำ' : p.duration}
                                     </Badge>
                                 </div>
-                                <div className="p-4 space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-dashed">
-                                            {MEDIA_ROADMAP_STATUS_LABEL[p.status] ?? p.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground italic leading-relaxed">
-                                        🎯 {p.goal}
-                                    </p>
+                                <div className="p-4 space-y-2">
+                                    <p className="text-xs text-muted-foreground italic">🎯 {p.goal}</p>
                                     <Separator />
                                     <ul className="space-y-1.5">
-                                        {p.items.map((item, j) => (
-                                            <li key={j} className="text-xs text-muted-foreground flex items-start gap-1.5">
-                                                <span className="text-muted-foreground/50 mt-0.5">•</span>
-                                                {item}
+                                        {p.items.map((item) => (
+                                            <li key={item} className="text-sm text-foreground flex gap-2">
+                                                <span className="text-muted-foreground">•</span>
+                                                <span>{item}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -4938,4 +5355,3 @@ export const SystemOverview = () => {
         </div>
     );
 };
-

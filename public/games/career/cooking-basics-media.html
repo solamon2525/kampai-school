@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>อาหารและการประกอบอาหารเบื้องต้น — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#c2410c;--line:#fed7aa;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#ffedd5,#fef9c3);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#9a3412,#f97316);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fff7ed;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #fb923c}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#9a3412;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:760px;margin:0 auto}
+    .panel.on{display:flex}
+    .grid{display:grid;gap:10px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fff7ed}
+    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px;font-size:1.05rem}
+    .card p{font-weight:600;line-height:1.55;font-size:.95rem}
+    .card ul{margin:6px 0 0 18px;font-weight:600;line-height:1.6;font-size:.92rem}
+    .ex{margin-top:8px;font-size:.85rem;font-weight:700;color:#9a3412;background:#fff;border-radius:10px;padding:8px;border:1px dashed #fdba74}
+    .figure{display:flex;justify-content:center;margin:6px 0}
+    .figure svg{max-width:100%;height:auto}
+    .steps5{display:grid;gap:8px;grid-template-columns:1fr;border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+    @media(min-width:700px){.steps5{grid-template-columns:repeat(5,1fr)}}
+    .steps5 div{font-weight:700;padding:8px;border-radius:10px;background:#ffedd5;line-height:1.4;font-size:.85rem;text-align:center}
+    .steps5 strong{color:var(--deep);display:block;font-size:1rem}
+    .tip{background:#fef2f2;border:2px dashed #fca5a5;border-radius:12px;padding:12px;font-weight:700;color:#991b1b;line-height:1.5}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🍳 อาหารและการประกอบอาหารเบื้องต้น — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.4–6 · การงานอาชีพ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">เลือกวัตถุดิบสด · สุขอนามัยครัว · 5 ขั้นทำอาหาร · ปลอดภัยในครัว</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="steps5">
+          <div><strong>1</strong>วางแผน<br>เลือกเมนู–วัตถุดิบ</div>
+          <div><strong>2</strong>เตรียม<br>ล้าง หั่น ตวง</div>
+          <div><strong>3</strong>ปรุง<br>ทำตามลำดับ ไฟพอดี</div>
+          <div><strong>4</strong>จัดเสิร์ฟ<br>ตักใส่จานสะอาด</div>
+          <div><strong>5</strong>เก็บล้าง<br>ล้างอุปกรณ์ เช็ดครัว</div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>🥬 เลือกวัตถุดิบสดใหม่</h3>
+            <ul>
+              <li><strong>ผัก</strong> — ใบเขียวสด ไม่เหี่ยว ไม่ช้ำ ไม่มีรอยเน่า</li>
+              <li><strong>ไข่</strong> — เปลือกสะอาด ไม่ร้าว ไม่มีกลิ่นเหม็น</li>
+              <li><strong>เนื้อสัตว์/ปลา</strong> — สีสด ไม่ซีดคล้ำ ไม่มีกลิ่นเหม็นเปรี้ยว เนื้อเด้งไม่เละ</li>
+              <li>ดู <strong>วันหมดอายุ</strong> บนฉลากทุกครั้งก่อนซื้อ/ใช้</li>
+            </ul>
+            <div class="ex">วัตถุดิบสด = อาหารอร่อย ปลอดภัย และคุ้มค่าเงิน ไม่ต้องทิ้ง</div>
+          </div>
+          <div class="card">
+            <h3>🧼 สุขอนามัยในครัว</h3>
+            <ul>
+              <li><strong>ล้างมือด้วยสบู่</strong> ก่อนจับอาหารทุกครั้ง</li>
+              <li>ล้างผัก–ผลไม้ด้วยน้ำสะอาดหลาย ๆ ครั้ง</li>
+              <li><strong>แยกเขียง</strong> ของดิบ กับ ของสุก/ผัก — กันเชื้อโรคปนเปื้อน</li>
+              <li>อาหารเหลือ ปิดฝา แช่ตู้เย็น ไม่วางทิ้งไว้ข้ามคืน</li>
+            </ul>
+            <div class="figure" aria-hidden="true">
+              <svg width="240" height="84" viewBox="0 0 240 84" role="img">
+                <rect x="16" y="20" width="88" height="52" rx="8" fill="#fecaca" stroke="#b91c1c" stroke-width="3"/>
+                <text x="60" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#b91c1c">เขียงของดิบ</text>
+                <rect x="136" y="20" width="88" height="52" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="3"/>
+                <text x="180" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">เขียงของสุก</text>
+                <line x1="112" y1="26" x2="128" y2="66" stroke="#dc2626" stroke-width="4" stroke-dasharray="6 4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card">
+            <h3>🍳 ลองทำ: ไข่เจียวฟู</h3>
+            <p>เมนูง่ายที่ฝึกครบทุกขั้นตอน</p>
+            <ul>
+              <li>1. ตอกไข่ใส่ถ้วย เติมน้ำปลาเล็กน้อย</li>
+              <li>2. ตีไข่ให้เข้ากันจนฟองฟู</li>
+              <li>3. ตั้งกระทะ ใส่น้ำมัน รอให้ร้อน</li>
+              <li>4. เทไข่ลงทอด พลิกเมื่อขอบเหลืองกรอบ</li>
+              <li>5. ตักขึ้นพักให้สะเด็ดน้ำมัน จัดใส่จาน</li>
+            </ul>
+            <div class="figure" aria-hidden="true">
+              <svg width="220" height="80" viewBox="0 0 220 80" role="img">
+                <ellipse cx="90" cy="46" rx="52" ry="20" fill="#1f2937"/>
+                <ellipse cx="90" cy="42" rx="52" ry="20" fill="#374151"/>
+                <ellipse cx="90" cy="42" rx="40" ry="13" fill="#fbbf24"/>
+                <ellipse cx="90" cy="40" rx="26" ry="8" fill="#fde68a"/>
+                <line x1="140" y1="40" x2="196" y2="30" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+                <path d="M52 16 q4 6 0 12 M66 12 q4 6 0 12 M80 16 q4 6 0 12" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card">
+            <h3>⚠️ ความปลอดภัยในครัว</h3>
+            <ul>
+              <li><strong>มีด</strong> — หั่นบนเขียง กดนิ้วงอเก็บปลายนิ้ว ล้างแล้วเก็บทันที</li>
+              <li><strong>เตา–ไฟ</strong> — เปิดเมื่อจะใช้ ปิดทันทีเมื่อเสร็จ ไม่ทิ้งกระทะไว้บนไฟ</li>
+              <li><strong>น้ำมันร้อน</strong> — ซับวัตถุดิบให้แห้งก่อนทอด กันน้ำมันกระเด็น</li>
+              <li>จับหม้อ–กระทะร้อนด้วย <strong>ผ้าจับของร้อน</strong> เท่านั้น</li>
+              <li>เด็ก ๆ ควรมีผู้ใหญ่ดูแลทุกครั้งเมื่อใช้มีดหรือเตาไฟ</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tip">🔥 ถ้าน้ำมันในกระทะลุกไฟ ห้ามราดน้ำเด็ดขาด — ปิดเตา แล้วใช้ฝาปิดกระทะให้ไฟดับ และเรียกผู้ใหญ่ทันที</div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ง 1.1 ป.4/1 · ง 1.1 ป.5/2 · ง 1.1 ป.6/2</strong> · คู่ใบงาน <a href="/games/career/cooking-basics-worksheet.html">cooking-basics</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'cooking-basics-media';
+    if (window.KAMPAI) window.KAMPAI.setSlug('cooking-basics-media');
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'ก่อนจับอาหารทุกครั้ง ต้องทำอะไรก่อน?', opts: ['ล้างมือด้วยสบู่', 'เปิดเตาไฟรอไว้', 'ชิมอาหารก่อน', 'ใส่น้ำมันในกระทะ'], a: 'ล้างมือด้วยสบู่' },
+      { q: 'ผักที่สดใหม่มีลักษณะอย่างไร?', opts: ['ใบเขียวสด ไม่เหี่ยว ไม่ช้ำ', 'ใบเหลือง มีรอยเน่า', 'เหี่ยวนิ่มทั้งต้น', 'มีกลิ่นเหม็นเปรี้ยว'], a: 'ใบเขียวสด ไม่เหี่ยว ไม่ช้ำ' },
+      { q: 'ทำไมต้องแยกเขียงของดิบกับของสุก?', opts: ['กันเชื้อโรคจากของดิบปนเปื้อนของสุก', 'ให้ครัวดูสวยงาม', 'เขียงจะได้ไม่สึก', 'หั่นได้เร็วขึ้น'], a: 'กันเชื้อโรคจากของดิบปนเปื้อนของสุก' },
+      { q: 'เนื้อสัตว์ที่ไม่ควรนำมาปรุงอาหารคือข้อใด?', opts: ['สีซีดคล้ำ มีกลิ่นเหม็นเปรี้ยว', 'สีสดตามธรรมชาติ', 'เนื้อแน่นเด้ง', 'เพิ่งซื้อจากตลาดเช้า'], a: 'สีซีดคล้ำ มีกลิ่นเหม็นเปรี้ยว' },
+      { q: 'ขั้นตอนแรกของการประกอบอาหารคือข้อใด?', opts: ['วางแผนเลือกเมนูและวัตถุดิบ', 'เปิดเตาไฟทันที', 'จัดจานก่อน', 'ล้างจานก่อน'], a: 'วางแผนเลือกเมนูและวัตถุดิบ' },
+      { q: 'ก่อนทอดอาหาร ควรซับวัตถุดิบให้แห้งเพราะอะไร?', opts: ['กันน้ำมันร้อนกระเด็นใส่', 'ให้อาหารมีสีเข้มขึ้น', 'ประหยัดน้ำปลา', 'ให้เตาสะอาด'], a: 'กันน้ำมันร้อนกระเด็นใส่' },
+      { q: 'จับหม้อหรือกระทะร้อน ต้องใช้อะไร?', opts: ['ผ้าจับของร้อน', 'มือเปล่า', 'กระดาษบาง ๆ', 'ถุงพลาสติก'], a: 'ผ้าจับของร้อน' },
+      { q: 'ใช้มีดอย่างปลอดภัยคือข้อใด?', opts: ['หั่นบนเขียง งอนิ้วเก็บปลายนิ้ว', 'หั่นกลางอากาศ', 'เดินถือมีดชี้ไปข้างหน้า', 'วางมีดไว้ขอบโต๊ะ'], a: 'หั่นบนเขียง งอนิ้วเก็บปลายนิ้ว' },
+      { q: 'น้ำมันในกระทะลุกไฟ ต้องทำอย่างไร?', opts: ['ปิดเตา ใช้ฝาปิดกระทะ เรียกผู้ใหญ่', 'ราดน้ำลงไปทันที', 'เป่าให้ไฟดับ', 'ยกกระทะวิ่งออกไป'], a: 'ปิดเตา ใช้ฝาปิดกระทะ เรียกผู้ใหญ่' },
+      { q: 'ทำอาหารเสร็จแล้ว ขั้นตอนสุดท้ายคือข้อใด?', opts: ['เก็บล้างอุปกรณ์ เช็ดครัวให้สะอาด', 'ทิ้งทุกอย่างไว้ในอ่าง', 'ปล่อยเตาเปิดไว้', 'ไม่ต้องทำอะไร'], a: 'เก็บล้างอุปกรณ์ เช็ดครัวให้สะอาด' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'เลือกวัตถุดิบสด · สุขอนามัยครัว · 5 ขั้นทำอาหาร · ปลอดภัยในครัว' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

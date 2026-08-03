@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { ClipboardList, Plus, Trash2, ChevronRight, Loader2, Check, X } from 'lucide-react';
+import { ClipboardList, Plus, Trash2, ChevronRight, Loader2, Check, X, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,13 +19,52 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 export const AssignmentManagement = () => {
   const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
   const [newOpen, setNewOpen] = useState(false);
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
-  const [form, setForm] = useState({ title: '', description: '', subject: '', class: '', room: '', due_date: '', max_score: '10' });
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    subject: '',
+    class: '',
+    room: '',
+    due_date: '',
+    max_score: '10',
+    attachment_url: '',
+  });
+
+  useEffect(() => {
+    const attach = searchParams.get('attach');
+    const title = searchParams.get('title');
+    const subject = searchParams.get('subject');
+    if (!attach && !title) return;
+    setForm((f) => ({
+      ...f,
+      attachment_url: attach ?? f.attachment_url,
+      title: title ? `ใบงาน: ${title}` : f.title,
+      subject: subject || f.subject,
+      description: attach
+        ? `พิมพ์และส่งใบงานจากชุดเรียน\n${attach}`
+        : f.description,
+    }));
+    setNewOpen(true);
+  }, [searchParams]);
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['my-assignments'],
     queryFn: () => assignmentsService.listMine(),
+  });
+
+  useEffect(() => {
+    const assignmentId = searchParams.get('assignment');
+    if (!assignmentId || assignments.length === 0) return;
+    const found = assignments.find((a) => a.id === assignmentId);
+    if (found) setActiveAssignment(found);
+  }, [searchParams, assignments]);
+
+  const { data: pendingGrade } = useQuery({
+    queryKey: ['my-assignments-pending-grade'],
+    queryFn: () => assignmentsService.countPendingGrading(),
   });
 
   const { data: students = [] } = useQuery({
@@ -53,12 +93,12 @@ export const AssignmentManagement = () => {
         room: form.room || null,
         due_date: form.due_date,
         max_score: Number(form.max_score) || 10,
-        attachment_url: null,
+        attachment_url: form.attachment_url.trim() || null,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-assignments'] });
       setNewOpen(false);
-      setForm({ title: '', description: '', subject: '', class: '', room: '', due_date: '', max_score: '10' });
+      setForm({ title: '', description: '', subject: '', class: '', room: '', due_date: '', max_score: '10', attachment_url: '' });
       toast.success('สร้างการบ้านแล้ว');
     },
     onError: (e: Error) => toast.error(e.message),
@@ -77,6 +117,7 @@ export const AssignmentManagement = () => {
       assignmentsService.grade(id, score, comment),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assignment-submissions', activeAssignment?.id] });
+      qc.invalidateQueries({ queryKey: ['my-assignments-pending-grade'] });
       toast.success('บันทึกคะแนนแล้ว');
     },
   });
@@ -85,6 +126,30 @@ export const AssignmentManagement = () => {
 
   return (
     <div className="p-6 md:p-8 space-y-5 max-w-6xl mx-auto">
+      {(pendingGrade?.pending ?? 0) > 0 && (
+        <Card className="border-amber-300/60 bg-amber-50/40">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                งานรอตรวจ {pendingGrade!.pending} ชิ้น
+              </p>
+              <p className="text-xs text-muted-foreground">
+                จังหวะตรวจการบ้าน — กดเพื่อเปิดรายการแรกที่ค้าง
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                const hit = assignments.find((a) => a.id === pendingGrade!.firstAssignmentId);
+                if (hit) setActiveAssignment(hit);
+              }}
+            >
+              เปิดงานค้าง
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
@@ -135,6 +200,17 @@ export const AssignmentManagement = () => {
                 <div className="col-span-2">
                   <Label>กำหนดส่ง</Label>
                   <Input type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
+                </div>
+                <div className="col-span-2">
+                  <Label>ลิงก์ใบงาน / สื่อ (ไม่บังคับ)</Label>
+                  <Input
+                    placeholder="/games/...-worksheet.html"
+                    value={form.attachment_url}
+                    onChange={(e) => setForm({ ...form, attachment_url: e.target.value })}
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    ผู้ปกครองเห็นปุ่มเปิดใบงานจากชุดเรียนได้
+                  </p>
                 </div>
               </div>
             </div>
@@ -209,6 +285,19 @@ export const AssignmentManagement = () => {
               </CardHeader>
               {activeAssignment.description && (
                 <CardContent className="text-sm whitespace-pre-wrap">{activeAssignment.description}</CardContent>
+              )}
+              {activeAssignment.attachment_url && (
+                <CardContent className="pt-0">
+                  <a
+                    href={activeAssignment.attachment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary inline-flex items-center gap-1 underline-offset-2 hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    เปิดใบงานที่แนบ
+                  </a>
+                </CardContent>
               )}
             </Card>
 

@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ว 1.2 ป.4/1,ว 2.1 ป.4/3,ว 3.1 ป.4/3" />
   <title>ระบบใบงานวิทยาศาสตร์อัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f0fdf4;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#15803d;color:#fff;box-shadow:0 3px 12px rgba(21,128,61,.35)}
@@ -18,7 +18,7 @@
     .btn{border:0;border-radius:8px;padding:7px 11px;font:700 .88rem Sarabun;cursor:pointer;background:#fff;color:#15803d;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
     .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}
     
-    .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(21,128,61,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
+    .pages{padding:14px}.sheet{width:210mm;height:297mm;min-height:297mm;max-height:297mm;overflow:hidden;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(21,128,61,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
     .sheet:last-child{page-break-after:auto}
     
     .sheet-head{border-bottom:2px solid #15803d;padding-bottom:2mm;padding-right:28mm;position:relative;min-height:26mm}
@@ -43,23 +43,14 @@
     .questions{display:grid;gap:1.5mm;flex:1}
     .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
     .questions.count-10 .q{padding:2mm 2.5mm;min-height:36.5mm}
-    .questions.count-5,.questions.worksheet-mode-five{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
-    .questions.count-5 .q,.questions.worksheet-mode-five .q{padding:3.5mm 3mm;min-height:44mm}
-    .count-5 .q-work-block,.worksheet-mode-five .q-work-block{min-height:20mm;gap:2mm}
-    .count-5 .eng-word,.count-5 .sci-word,.count-5 .thai-word,.count-5 .code-word{font-size:16pt}
-    .count-5 .ans,.worksheet-mode-five .ans{margin-top:3mm;font-size:10.5pt}
     
     .q{border:1.4px solid #86efac;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:0;position:relative;break-inside:avoid;background:#f0fdf4}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#15803d;color:#fff;font-weight:800;font-size:9pt}
     .sci-question{font-size:11.5pt;font-weight:800;color:#166534;margin-left:7mm;flex-shrink:0;line-height:1.35}
     .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
-    .step-block{display:flex;flex-direction:column;gap:1.2mm;margin-left:7mm;width:calc(100% - 7mm)}
-    .step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-    .step-tag{font-size:6.5pt;font-weight:800;color:#fff;background:#15803d;border-radius:3px;padding:.8mm;text-align:center;line-height:1.15}
-    .step-body{min-height:6mm;border-bottom:1px dotted #86efac;display:flex;align-items:flex-end;font-weight:700;font-size:8pt;padding-bottom:.3mm}
-    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:8.5mm}
     .ans{font:700 9.5pt Sarabun,sans-serif;color:#15803d;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
     .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
+    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #86efac;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
     .work-fill{color:transparent;font-weight:800}
     .show-answers .work-fill{color:#b91c1c}
     .ta{display:none}
@@ -102,7 +93,6 @@
         <option value="state">หัวข้อ: สถานะของสาร ของแข็ง ของเหลว ก๊าซ (ป.5)</option>
         <option value="solar">หัวข้อ: ระบบสุริยะและดาวเคราะห์ (ป.6)</option>
       </select>
-      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า" title="5 ข้อ = แถวสูง มีที่เขียนวิธีทำ · 10 ข้อ = ฝึกเร็ว 2 คอลัมน์"><option value="5" selected>5 ข้อ / หน้า (มีที่เขียนวิธีทำ)</option><option value="10">10 ข้อ / หน้า (ฝึกเร็ว)</option></select>
       <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
       <button class="btn primary" id="btnRandom">🎲 สุ่มคำถามใหม่</button>
@@ -112,86 +102,46 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.3"></script>
 <script>
-const WORKSHEET_KEY='science-explorer';
-const SET_TITLE_PREFIX='ระบบใบงานวิทยาศาสตร์อัจฉริยะ (Science Explorer)';
-const TOPIC_SHORT={plant:'พืช',state:'สถานะสาร',solar:'ระบบสุริยะ'};
-let renderSeed=Date.now();
-let rng=null;
-let setsUi=null;
-function ensureRng(){
-  if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
-  else rng=null;
-}
-function R(a,b){
-  if(rng) return rng.randomInt(a,b);
-  return a+Math.floor(Math.random()*(b-a+1));
-}
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin + '/games/science/science-p45-hub/index.html';
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
 
 const SCI_DATA = {
   plant: [
-    {q:'ทำหน้าที่ดูดน้ำและแร่ธาตุจากดิน', ans:'ราก (Root)', s1:'หน้าที่: ดูดน้ำ–แร่ธาตุ', s2:'อยู่ใต้ดิน', s3:'ราก (Root)'},
-    {q:'ทำหน้าที่ลำเลียงน้ำและอาหารไปเลี้ยงส่วนต่างๆ', ans:'ลำต้น (Stem)', s1:'หน้าที่: ลำเลียง', s2:'เชื่อมรากกับใบ', s3:'ลำต้น (Stem)'},
-    {q:'ทำหน้าที่สร้างอาหารและสังเคราะห์ด้วยแสง', ans:'ใบ (Leaf)', s1:'หน้าที่: สร้างอาหาร', s2:'ใช้แสง', s3:'ใบ (Leaf)'},
-    {q:'ทำหน้าที่ล่อแมลงและสืบพันธุ์', ans:'ดอก (Flower)', s1:'หน้าที่: สืบพันธุ์', s2:'ล่อแมลง', s3:'ดอก (Flower)'},
-    {q:'แก๊สที่พืชใช้ในการสังเคราะห์ด้วยแสง', ans:'คาร์บอนไดออกไซด์', s1:'กระบวนการ: สังเคราะห์ด้วยแสง', s2:'แก๊สที่พืชใช้', s3:'คาร์บอนไดออกไซด์'}
+    {q:'ทำหน้าที่ดูดน้ำและแร่ธาตุจากดิน', ans:'ราก (Root)'},
+    {q:'ทำหน้าที่ลำเลียงน้ำและอาหารไปเลี้ยงส่วนต่างๆ', ans:'ลำต้น (Stem)'},
+    {q:'ทำหน้าที่สร้างอาหารและสังเคราะห์ด้วยแสง', ans:'ใบ (Leaf)'},
+    {q:'ทำหน้าที่ล่อแมลงและสืบพันธุ์', ans:'ดอก (Flower)'},
+    {q:'แก๊สที่พืชใช้ในการสังเคราะห์ด้วยแสง', ans:'คาร์บอนไดออกไซด์'}
   ],
   state: [
-    {q:'ไอน้ำในอากาศ มีสถานะเป็นอะไร?', ans:'แก๊ส (Gas)', s1:'สังเกต: กระจายในอากาศ', s2:'ไม่มีรูปร่างคงที่', s3:'แก๊ส (Gas)'},
-    {q:'น้ำแข็งก้อน มีสถานะเป็นอะไร?', ans:'ของแข็ง (Solid)', s1:'สังเกต: รูปร่างคงที่', s2:'ปริมาตรคงที่', s3:'ของแข็ง (Solid)'},
-    {q:'น้ำมันพืช มีสถานะเป็นอะไร?', ans:'ของเหลว (Liquid)', s1:'สังเกต: รับรูปภาชนะ', s2:'ยังมีปริมาตร', s3:'ของเหลว (Liquid)'},
-    {q:'กระบวนการที่ของเหลวเปลี่ยนเป็นแก๊สเรียกว่าอะไร?', ans:'การกลายเป็นไอ / การระเหย', s1:'เริ่ม: ของเหลว', s2:'ได้: แก๊ส', s3:'ระเหย / กลายเป็นไอ'}
+    {q:'ไอน้ำในอากาศ มีสถานะเป็นอะไร?', ans:'แก๊ส (Gas)'},
+    {q:'น้ำแข็งก้อน มีสถานะเป็นอะไร?', ans:'ของแข็ง (Solid)'},
+    {q:'น้ำมันพืช มีสถานะเป็นอะไร?', ans:'ของเหลว (Liquid)'},
+    {q:'กระบวนการที่ของเหลวเปลี่ยนเป็นแก๊สเรียกว่าอะไร?', ans:'การกลายเป็นไอ / การระเหย'}
   ],
   solar: [
-    {q:'ดาวเคราะห์ที่อยู่ใกล้ดวงอาทิตย์ที่สุดคือดาวใด?', ans:'ดาวพุธ (Mercury)', s1:'เรียงระยะจากดวงอาทิตย์', s2:'ดวงแรก', s3:'ดาวพุธ (Mercury)'},
-    {q:'ดาวเคราะห์ที่ได้ชื่อว่าเป็น "ดาวเคราะห์สีน้ำเงิน"?', ans:'โลก (Earth)', s1:'สีที่เห็นจากอวกาศ', s2:'มีน้ำมาก', s3:'โลก (Earth)'},
-    {q:'ดาวเคราะห์ที่มีวงแหวนขนาดใหญ่เห็นชัดเจนที่สุดคือดาวใด?', ans:'ดาวเสาร์ (Saturn)', s1:'ลักษณะเด่น: วงแหวน', s2:'เห็นชัดที่สุด', s3:'ดาวเสาร์ (Saturn)'},
-    {q:'ดาวเคราะห์แดง คือชื่อเรียกของดาวดวงใด?', ans:'ดาวอังคาร (Mars)', s1:'ฉายา: ดาวเคราะห์แดง', s2:'สีแดงจากฝุ่นเหล็ก', s3:'ดาวอังคาร (Mars)'}
+    {q:'ดาวเคราะห์ที่อยู่ใกล้ดวงอาทิตย์ที่สุดคือดาวใด?', ans:'ดาวพุธ (Mercury)'},
+    {q:'ดาวเคราะห์ที่ได้ชื่อว่าเป็น "ดาวเคราะห์สีน้ำเงิน"?', ans:'โลก (Earth)'},
+    {q:'ดาวเคราะห์ที่มีวงแหวนขนาดใหญ่เห็นชัดเจนที่สุดคือดาวใด?', ans:'ดาวเสาร์ (Saturn)'},
+    {q:'ดาวเคราะห์แดง คือชื่อเรียกของดาวดวงใด?', ans:'ดาวอังคาร (Mars)'}
   ]
 };
 
 function buildSciWork(item, topicKey){
-  if(topicKey==='plant') return {t1:'1 หน้าที่',t2:'2 ตำแหน่ง',t3:'3 ส่วน',s1:item.s1,s2:item.s2,s3:item.s3};
-  if(topicKey==='state') return {t1:'1 สังเกต',t2:'2 คุณสมบัติ',t3:'3 สถานะ',s1:item.s1,s2:item.s2,s3:item.s3};
-  return {t1:'1 ลักษณะ',t2:'2 เชื่อมความรู้',t3:'3 ดาว',s1:item.s1,s2:item.s2,s3:item.s3};
+  if(topicKey==='plant') return {line1:'เชื่อมหน้าที่กับอวัยวะจากคำถาม', line2:'→ '+item.ans};
+  if(topicKey==='state') return {line1:'พิจารณาสถานะของสาร/กระบวนการ', line2:'→ '+item.ans};
+  return {line1:'อ้างความรู้ระบบสุริยะ', line2:'→ '+item.ans};
 }
 function question(qi, topicItem, topicKey){
   const work=buildSciWork(topicItem, topicKey);
   return '<article class="q"><span class="q-num">'+qi+'</span>'
     +'<div class="sci-question">คำถาม: "'+topicItem.q+'"</div>'
-    +'<div class="q-work-block step-block">'
-    +'<div class="step-row"><span class="step-tag">'+work.t1+'</span><div class="step-body"><span class="work-fill">'+work.s1+'</span></div></div>'
-    +'<div class="step-row"><span class="step-tag">'+work.t2+'</span><div class="step-body"><span class="work-fill">'+work.s2+'</span></div></div>'
-    +'<div class="step-row"><span class="step-tag">'+work.t3+'</span><div class="step-body"><span class="work-fill">'+work.s3+'</span></div></div>'
-    +'</div>'
+    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
     +'<div class="ans">คำตอบ: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
-}
-
-function currentConfig(){
-  return{
-    style:document.getElementById('selStyle')?.value||'standard',
-    pageCount:document.getElementById('selPageCount')?.value||'1',
-    topic:document.getElementById('selTopic')?.value||'plant',
-    count:Number(document.getElementById('selCount')?.value||5)||5,
-    schoolName:document.getElementById('inpSchool')?.value||'',
-    teacherName:document.getElementById('selTeacher')?.value||'',
-  };
-}
-function applyConfig(cfg){
-  if(!cfg)return;
-  if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
-  if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
-  if(cfg.topic!=null&&document.getElementById('selTopic'))document.getElementById('selTopic').value=String(cfg.topic);
-  if(cfg.count!=null&&document.getElementById('selCount')){
-    const n=Number(cfg.count)===10?10:5;
-    document.getElementById('selCount').value=String(n);
-  }
-  if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
-  if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
 }
 
 function renderBookletCover(schoolName, teacherName){
@@ -216,11 +166,9 @@ function renderParentSlip(teacherName){
 }
 
 function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, teacherName){
-  const count = Number(document.getElementById('selCount')?.value) === 10 ? 10 : 5;
   const list = SCI_DATA[topicKey] || SCI_DATA.plant;
-  const offset = (Number(renderSeed)>>>0) % Math.max(list.length,1);
-  let qs = ''; for(let i=1; i<=count; i++){
-    const item = list[(i-1+pageIdx*2+offset) % list.length];
+  let qs = ''; for(let i=1; i<=10; i++){
+    const item = list[(i-1+pageIdx*2) % list.length];
     qs += question(i, item, topicKey);
   }
   return '<section class="sheet"><header class="sheet-head">'
@@ -229,12 +177,11 @@ function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, tea
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="student-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
     +'<div class="directions"><span>คำชี้แจง: จงตอบคำถามทางวิทยาศาสตร์ต่อไปนี้ให้ถูกต้องและสมบูรณ์</span><span class="indicator">ว 1.2 ป.4-6</span></div>'
-    +'</header><div class="questions count-'+count+'">'+qs+'</div>'+renderParentSlip(teacherName)
+    +'</header><div class="questions count-10">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>หน้า '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">ครูผู้สอน: ${teacherName}</span>`:'')+'</footer></section>';
 }
 
 function render(){
-  ensureRng();
   const style = document.getElementById('selStyle').value;
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const topicKey = document.getElementById('selTopic').value;
@@ -244,91 +191,24 @@ function render(){
   let html = style==='booklet' ? renderBookletCover(schoolName, teacherName) : '';
   for(let p=1; p<=pageCount; p++) html += renderSingleSheet(p, pageCount, style, topicKey, schoolName, teacherName);
   document.getElementById('pages').innerHTML = html;
-  if(window.KampaiWorksheetSets){
-    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
-  }
-}
-function randomize(){
-  if(window.KampaiWorksheetSets){
-    renderSeed=window.KampaiWorksheetSets.newSeed();
-    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
-  }else{
-    renderSeed=Date.now()+Math.floor(Math.random()*100000);
-  }
-  if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
-  render();
-  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
-}
-function applySetState(state){
-  if(state?.config)applyConfig(state.config);
-  if(state?.seed!=null)renderSeed=Number(state.seed);
-  if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
-  render();
-}
-async function bootSets(){
-  try{
-    const Sets=await window.KampaiWorksheet.loadSetsModule();
-    const fromUrl=Sets.getConfigFromUrl();
-    if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
-    else renderSeed=Sets.newSeed();
-    setsUi=Sets.mountToolbar({
-      worksheetKey:WORKSHEET_KEY,
-      titlePrefix:SET_TITLE_PREFIX,
-      topicLabels:TOPIC_SHORT,
-      initialSetId:fromUrl.setId||'',
-      getState:()=>({
-        seed:renderSeed,
-        config:currentConfig(),
-        title:document.getElementById('kampaiSetTitle')?.value||'',
-      }),
-      applyState:applySetState,
-    });
-    if(fromUrl.setId){
-      const row=await Sets.load(fromUrl.setId);
-      if(row){
-        applyConfig(row.config||{});
-        renderSeed=Number(row.seed);
-        if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
-        else{
-          const titleInput=document.getElementById('kampaiSetTitle');
-          if(titleInput&&row.title)titleInput.value=row.title;
-        }
-        if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
-        render();
-        if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
-        return;
-      }
-    }
-    render();
-    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
-  }catch(error){
-    console.warn('worksheet sets unavailable',error);
-    render();
-  }
 }
 
-document.getElementById('btnRandom').onclick = randomize;
-function onCtrlChange(){
-  render();
-  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
-}
-document.getElementById('selStyle').onchange = onCtrlChange;
-document.getElementById('selPageCount').onchange = onCtrlChange;
-document.getElementById('selCount').onchange = onCtrlChange;
-document.getElementById('selTopic').onchange = onCtrlChange;
+document.getElementById('btnRandom').onclick = render;
+document.getElementById('selStyle').onchange = render;
+document.getElementById('selPageCount').onchange = render;
+document.getElementById('selTopic').onchange = render;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
 document.getElementById('btnAnswers').onclick = function(){
   document.body.classList.toggle('show-answers');
   this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
 };
-document.getElementById('btnPrint').onclick = () => window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 
 window.KampaiWorksheet.loadTeachers();
-window.render=render;
-window.randomize=randomize;
-bootSets();
+render();
+window.KampaiWorksheet.upgradeLegacyWorksheet({worksheetKey:'science-explorer',titlePrefix:'Science Explorer',render});
 </script>
-<script src="/games/worksheet-modes.js?v=1.184.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.3"></script>
 </body>
 </html>

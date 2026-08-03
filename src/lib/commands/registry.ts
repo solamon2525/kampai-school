@@ -30,6 +30,8 @@ import {
   LogOut,
   Facebook,
   Lightbulb,
+  Package,
+  Gauge,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -99,6 +101,10 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-alumni', label: 'ศิษย์เก่า (จัดการ)', group: 'แอดมิน', icon: GraduationCap, roles: ['admin'], keywords: ['alumni', 'verify', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/admin/dashboard/alumni' } },
   { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: ImageIcon, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
   { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
+  { id: 'adm-edu-hub', label: 'คลังสื่อ/เกม (admin)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['edu', 'hub', 'games', 'media', 'คลัง'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub' } },
+  { id: 'adm-coverage', label: 'Coverage ตัวชี้วัด (soft-gap)', group: 'แอดมิน', icon: BookOpen, roles: ['admin'], keywords: ['coverage', 'indicator', 'soft', 'gap', 'ตัวชี้วัด', 'map'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub?tab=games&coverage=1' } },
+  { id: 'adm-supplies', label: 'พัสดุ / วัสดุ', group: 'แอดมิน', icon: Package, roles: ['admin'], keywords: ['supply', 'พัสดุ', 'วัสดุ', 'เบิก'], action: { type: 'navigate', path: '/admin/dashboard/supplies' } },
+  { id: 'adm-digital-ops', label: 'ลดภาระครู (Digital Ops)', group: 'แอดมิน', icon: Gauge, roles: ['admin'], keywords: ['digital', 'ops', 'ลดภาระ', 'bayao', 'pdca'], action: { type: 'navigate', path: '/admin/dashboard/digital-ops' } },
 
   // ── Teacher ──────────────────────────────────────────────
   { id: 't-dashboard', label: 'แดชบอร์ดครู', group: 'พอร์ทัลครู', icon: LayoutDashboard, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher' } },
@@ -109,6 +115,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 't-edu-hub', label: 'จัดการคลังสื่อของฉัน', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/edu-hub' } },
   { id: 't-game-research', label: 'วิจัยเกมในชั้นเรียน', group: 'พอร์ทัลครู', icon: FlaskConical, roles: ['teacher', 'admin'], keywords: ['research', 'game', 'วิจัย', 'เกม'], action: { type: 'navigate', path: '/teacher/game-research' } },
   { id: 't-assignments', label: 'จัดการการบ้าน', group: 'พอร์ทัลครู', icon: ClipboardCheck, roles: ['teacher', 'admin'], keywords: ['homework', 'assignment', 'การบ้าน'], action: { type: 'navigate', path: '/teacher/assignments' } },
+  { id: 't-supplies', label: 'เบิกพัสดุ', group: 'พอร์ทัลครู', icon: Package, roles: ['teacher', 'admin'], keywords: ['supply', 'พัสดุ', 'วัสดุ', 'เบิก'], action: { type: 'navigate', path: '/teacher/supplies' } },
   { id: 't-conferences', label: 'ตารางนัดผู้ปกครอง', group: 'พอร์ทัลครู', icon: Calendar, roles: ['teacher', 'admin'], keywords: ['conference', 'slot', 'นัด'], action: { type: 'navigate', path: '/teacher/conferences' } },
 
   // ── Parent ───────────────────────────────────────────────

@@ -1,52 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/sufficiency-media.html"><meta name="curriculum-indicators" content="ส 3.1 ป.4/3"><title>ใบงานเศรษฐกิจพอเพียง ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.ring-box{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5mm;margin:1mm 0}
-.ring{border:1.6px solid var(--ws-accent);border-radius:50%;aspect-ratio:1;display:grid;place-items:center;font-size:6.5pt;font-weight:800;color:var(--ws-accent);text-align:center;padding:1mm;line-height:1.2}
-.cond-row{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin-top:1mm}
-.cond{border:1px dashed var(--ws-accent-2);border-radius:4px;padding:.8mm;font-size:7pt;font-weight:700;text-align:center;color:var(--ws-muted)}
-.apply-box{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:1mm;align-items:center;margin-top:1mm;font-size:6.5pt;font-weight:700}
-.apply-box div{border:1px dashed var(--ws-line);border-radius:3px;min-height:7mm;padding:.4mm;text-align:center}
-.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
-.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
-.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
-.count-5 .step-row{min-height:8.5mm}.count-10 .ring{font-size:5.5pt}
-</style>
-</head><body>
-<header class="toolbar"><h1>⚖️ ใบงานเศรษฐกิจพอเพียง</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="principle">หลัก 3 ห่วง</option><option value="condition">2 เงื่อนไข</option><option value="apply">ใช้ในชีวิต</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/sufficiency-media.html"><meta name="curriculum-indicators" content="ส 3.1 ป.4/3"><title>ใบงานเศรษฐกิจพอเพียง ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>⚖️ ใบงานเศรษฐกิจพอเพียง</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="principle">หลัก 3 ห่วง</option><option value="condition">2 เงื่อนไข</option><option value="apply">ใช้ในชีวิต</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const SUFF_ITEMS=[
- {type:'principle',prompt:'หลักพอประมาณหมายถึงอะไร',topic:'พอประมาณ',answer:'ใช้จ่าย/ทำในขอบเขตที่เหมาะสม ไม่มากไม่น้อยเกินไป',s1:'ห่วงพอประมาณ',s2:'ไม่มากไม่น้อย',s3:'ขอบเขตเหมาะสม'},
- {type:'principle',prompt:'หลักมีเหตุผลหมายถึงอะไร',topic:'มีเหตุผล',answer:'ตัดสินใจโดยคิดผลดี–ผลเสียอย่างมีเหตุผล',s1:'ห่วงมีเหตุผล',s2:'คิดผลดี–ผลเสีย',s3:'ตัดสินใจมีเหตุผล'},
- {type:'principle',prompt:'หลักมีภูมิคุ้มกันหมายถึงอะไร',topic:'ภูมิคุ้มกัน',answer:'เตรียมพร้อมรับความเปลี่ยนแปลงและความเสี่ยง',s1:'ห่วงภูมิคุ้มกัน',s2:'เตรียมรับความเสี่ยง',s3:'พร้อมเปลี่ยนแปลง'},
- {type:'principle',prompt:'3 ห่วงของเศรษฐกิจพอเพียงคืออะไร',topic:'3 ห่วง',answer:'พอประมาณ มีเหตุผล มีภูมิคุ้มกัน',s1:'นับห่วงทั้ง 3',s2:'พอประมาณ · มีเหตุผล',s3:'มีภูมิคุ้มกัน'},
- {type:'condition',prompt:'เงื่อนไขความรู้หมายถึงอะไร',topic:'ความรู้',answer:'ใช้ความรู้รอบด้านประกอบการตัดสินใจ',s1:'เงื่อนไขความรู้',s2:'ใช้ความรู้รอบด้าน',s3:'ช่วยตัดสินใจ'},
- {type:'condition',prompt:'เงื่อนไขคุณธรรมหมายถึงอะไร',topic:'คุณธรรม',answer:'ซื่อสัตย์ ขยัน อดทน แบ่งปัน ไม่เอาเปรียบ',s1:'เงื่อนไขคุณธรรม',s2:'ซื่อสัตย์ ขยัน อดทน',s3:'ไม่เอาเปรียบ'},
- {type:'condition',prompt:'2 เงื่อนไขคืออะไร',topic:'2 เงื่อนไข',answer:'เงื่อนไขความรู้ และเงื่อนไขคุณธรรม',s1:'รองรับ 3 ห่วง',s2:'ความรู้',s3:'คุณธรรม'},
- {type:'apply',prompt:'นักเรียนใช้จ่ายเงินอย่างไรให้พอประมาณ',topic:'เงิน',answer:'ซื้อของจำเป็น เก็บออม ไม่ตามเพื่อนทุกอย่าง',s1:'สถานการณ์: ใช้เงิน',s2:'ห่วง: พอประมาณ',s3:'ซื้อจำเป็น+ออม'},
- {type:'apply',prompt:'ตัวอย่างภูมิคุ้มกันในครอบครัว',topic:'ครอบครัว',answer:'มีเงินออม สำรองอาหาร วางแผนก่อนใช้จ่ายใหญ่',s1:'สถานการณ์: ครอบครัว',s2:'ห่วง: ภูมิคุ้มกัน',s3:'ออม/สำรอง/วางแผน'},
- {type:'apply',prompt:'ถ้าฝนทิ้งช่วง เกษตรกรมีภูมิคุ้มกันอย่างไร',topic:'เกษตร',answer:'เก็บน้ำ ปลูกพืชหลากชนิด มีอาชีพเสริม',s1:'ฝนทิ้งช่วง',s2:'ห่วง: ภูมิคุ้มกัน',s3:'เก็บน้ำ/พืชหลาก/อาชีพเสริม'},
- {type:'apply',prompt:'ทำไมต้องมีทั้งความรู้และคุณธรรม',topic:'เงื่อนไข',answer:'ความรู้ช่วยตัดสินใจถูก คุณธรรมช่วยไม่เบียดเบียนผู้อื่น',s1:'2 เงื่อนไข',s2:'ความรู้ = ตัดสินใจถูก',s3:'คุณธรรม = ไม่เบียดเบียน'},
- {type:'apply',prompt:'เขียนแผนพอเพียงของตนเอง 1 ข้อ',topic:'แผน',answer:'เช่น ออมสัปดาห์ละ 10 บาท และช่วยงานบ้าน',s1:'สถานการณ์ของฉัน',s2:'เลือกห่วง/เงื่อนไข',s3:'แผนปฏิบัติได้'}
+ {type:'principle',prompt:'หลักพอประมาณหมายถึงอะไร',topic:'พอประมาณ',answer:'ใช้จ่าย/ทำในขอบเขตที่เหมาะสม ไม่มากไม่น้อยเกินไป'},
+ {type:'principle',prompt:'หลักมีเหตุผลหมายถึงอะไร',topic:'มีเหตุผล',answer:'ตัดสินใจโดยคิดผลดี–ผลเสียอย่างมีเหตุผล'},
+ {type:'principle',prompt:'หลักมีภูมิคุ้มกันหมายถึงอะไร',topic:'ภูมิคุ้มกัน',answer:'เตรียมพร้อมรับความเปลี่ยนแปลงและความเสี่ยง'},
+ {type:'principle',prompt:'3 ห่วงของเศรษฐกิจพอเพียงคืออะไร',topic:'3 ห่วง',answer:'พอประมาณ มีเหตุผล มีภูมิคุ้มกัน'},
+ {type:'condition',prompt:'เงื่อนไขความรู้หมายถึงอะไร',topic:'ความรู้',answer:'ใช้ความรู้รอบด้านประกอบการตัดสินใจ'},
+ {type:'condition',prompt:'เงื่อนไขคุณธรรมหมายถึงอะไร',topic:'คุณธรรม',answer:'ซื่อสัตย์ ขยัน อดทน แบ่งปัน ไม่เอาเปรียบ'},
+ {type:'condition',prompt:'2 เงื่อนไขคืออะไร',topic:'2 เงื่อนไข',answer:'เงื่อนไขความรู้ และเงื่อนไขคุณธรรม'},
+ {type:'apply',prompt:'นักเรียนใช้จ่ายเงินอย่างไรให้พอประมาณ',topic:'เงิน',answer:'ซื้อของจำเป็น เก็บออม ไม่ตามเพื่อนทุกอย่าง'},
+ {type:'apply',prompt:'ตัวอย่างภูมิคุ้มกันในครอบครัว',topic:'ครอบครัว',answer:'มีเงินออม สำรองอาหาร วางแผนก่อนใช้จ่ายใหญ่'},
+ {type:'apply',prompt:'ถ้าฝนทิ้งช่วง เกษตรกรมีภูมิคุ้มกันอย่างไร',topic:'เกษตร',answer:'เก็บน้ำ ปลูกพืชหลากชนิด มีอาชีพเสริม'},
+ {type:'apply',prompt:'ทำไมต้องมีทั้งความรู้และคุณธรรม',topic:'เงื่อนไข',answer:'ความรู้ช่วยตัดสินใจถูก คุณธรรมช่วยไม่เบียดเบียนผู้อื่น'},
+ {type:'apply',prompt:'เขียนแผนพอเพียงของตนเอง 1 ข้อ',topic:'แผน',answer:'เช่น ออมสัปดาห์ละ 10 บาท และช่วยงานบ้าน'}
 ];
-window.WORKSHEET_CONFIG={
-  worksheetKey:'sufficiency',icon:'⚖️',title:'ใบงานเศรษฐกิจพอเพียง',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'เศรษฐกิจพอเพียง',
-  sourceMediaUrl:'/games/social/sufficiency-media.html',indicators:['ส 3.1 ป.4/3'],
-  directions:'แผนภาพ 3 ห่วง 2 เงื่อนไข · สถานการณ์ → ห่วงที่ใช้ → การกระทำ',
-  getItems(t){return t==='mixed'?SUFF_ITEMS:SUFF_ITEMS.filter(i=>i.type===t);},
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    const apply=item.type==='apply'?'<div class="apply-box"><div>สถานการณ์</div><span>→</span><div>ห่วงที่ใช้</div><span>→</span><div>การกระทำ</div></div>':'';
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'
-      +'<div class="ring-box"><div class="ring">พอประมาณ</div><div class="ring">มีเหตุผล</div><div class="ring">มีภูมิคุ้มกัน</div></div>'
-      +'<div class="cond-row"><div class="cond">□ ความรู้</div><div class="cond">□ คุณธรรม</div></div>'
-      +apply+'</div><div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 ระบุ</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 ห่วง/เงื่อนไข</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 ปฏิบัติ</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
-      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'⚖️',title:'ใบงานเศรษฐกิจพอเพียง',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'เศรษฐกิจพอเพียง',sourceMediaUrl:'/games/social/sufficiency-media.html',indicators:['ส 3.1 ป.4/3'],directions:'อธิบาย 3 ห่วง 2 เงื่อนไข และประยุกต์ใช้ในชีวิตประจำวัน',getItems(topic){return topic==='mixed'?SUFF_ITEMS:SUFF_ITEMS.filter(i=>i.type===topic);},buildSuffWork(item){if(item.type==='principle')return{line1:'หลัก: '+item.topic,line2:item.answer};if(item.type==='condition')return{line1:'เงื่อนไข: '+item.topic,line2:item.answer};return{line1:'ประยุกต์ใช้: '+item.topic,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildSuffWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">พอประมาณ</div><div class="classify-box">มีเหตุผล</div><div class="classify-box">มีภูมิคุ้มกัน</div><div class="classify-box">ความรู้+คุณธรรม</div></div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

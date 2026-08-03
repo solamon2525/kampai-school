@@ -206,61 +206,91 @@ const About = () => {
             </div>
           </section>
 
-          {/* GPS-Model & PDCA — Compact spacing and grids */}
+          {/* HEART Model & PDCA — จากแพลตฟอร์มเว็บโรงเรียน */}
           <section className="py-4 md:py-8 bg-background">
             <div className="container mx-auto px-4">
-              <div className="text-center max-w-2xl mx-auto mb-4 md:mb-5">
+              <div className="text-center max-w-3xl mx-auto mb-4 md:mb-5">
                 <span className="inline-block text-primary font-semibold mb-1 uppercase tracking-widest text-xs md:text-sm">นวัตกรรมการบริหาร</span>
-                <h2 className="text-lg md:text-3xl font-extrabold text-foreground mb-1">GPS-Model</h2>
+                <h2 className="text-lg md:text-3xl font-extrabold text-foreground mb-1">HEART Model</h2>
                 <p className="text-foreground/75 text-xs md:text-base leading-relaxed">
-                  โมเดลที่นำทางไปสู่จุดหมายและความสำเร็จ บนพื้นฐาน Good Governance ·{' '}
-                  Participation Management · System Approach
+                  หัวใจของระบบดิจิทัลที่คืนเวลาให้ครู — ออกแบบจากเว็บโรงเรียนบ้านคำไผ่
+                  เป็นแม่แบบ (Hub · Ease · Activate · Relate · Track)
                 </p>
               </div>
 
-              {/* G · P · S cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5 mb-4 md:mb-5">
+              {/* อินโฟกราฟิก HEART Model */}
+              <figure className="max-w-5xl mx-auto mb-4 md:mb-5">
+                <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+                  <img
+                    src="/images/heart-model-infographic.png"
+                    alt="อินโฟกราฟิก HEART Model — Hub Ease Activate Relate Track และวงจรคุณภาพ PDCA โรงเรียนบ้านคำไผ่"
+                    className="w-full h-auto object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <figcaption className="mt-2 text-center text-[10px] md:text-xs text-muted-foreground">
+                  อินโฟกราฟิก HEART Model — โรงเรียนบ้านคำไผ่ · KAMPAI Smart School
+                </figcaption>
+              </figure>
+
+              {/* H · E · A · R · T cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 mb-4 md:mb-5">
                 {[
                   {
-                    letter: 'G',
+                    letter: 'H',
                     bg: 'bg-primary',
-                    title: 'Good & Goal',
-                    subtitle: 'ดีและมีเป้าหมาย',
-                    desc: 'บริหารงานตามหลักธรรมาภิบาล (Good Governance) มุ่งเน้นผลลัพธ์ที่ดีและมีเป้าหมายที่ชัดเจนในทุกมิติของการพัฒนาโรงเรียน',
+                    title: 'Hub',
+                    subtitle: 'หนึ่งฐานกลาง',
+                    desc: 'เว็บโรงเรียนเป็นศูนย์รวมข้อมูลและบริการ — CMS สาธารณะ ฐานข้อมูลกลาง และ PWA เข้าถึงได้ทุกที่ทุกเวลา',
                   },
                   {
-                    letter: 'P',
+                    letter: 'E',
                     bg: 'bg-accent',
-                    title: 'Participation & Performance',
-                    subtitle: 'มีส่วนร่วมและมีผลงาน',
-                    desc: 'บริหารแบบมีส่วนร่วม (Participation Management) เปิดโอกาสให้ทุกภาคส่วนมีส่วนในการพัฒนา สร้างผลงานที่วัดผลได้',
+                    title: 'Ease',
+                    subtitle: 'ลดภาระอัตโนมัติ',
+                    desc: 'เปลี่ยนงานเอกสารซ้ำซ้อนเป็นดิจิทัล — Docs Hub สารบรรณ HR/ลา เช็คชื่อ และลายเซ็นดิจิทัล',
                   },
                   {
-                    letter: 'S',
-                    bg: 'bg-primary/70',
-                    title: 'System & Sustain',
-                    subtitle: 'เป็นระบบและยั่งยืน',
-                    desc: 'ใช้วิธีการเชิงระบบ (System Approach) ในการดำเนินงาน เพื่อพัฒนาอย่างต่อเนื่องและนำไปสู่ความยั่งยืน',
+                    letter: 'A',
+                    bg: 'bg-primary',
+                    title: 'Activate',
+                    subtitle: 'เสริมพลังเรียนรู้',
+                    desc: 'Educational Hub รวมสื่อ เกม ใบงาน และชุดแผนการสอน ใช้ซ้ำได้ทั้งโรงเรียน รองรับ Active Learning',
+                  },
+                  {
+                    letter: 'R',
+                    bg: 'bg-accent',
+                    title: 'Relate',
+                    subtitle: 'เชื่อมทุกบทบาท',
+                    desc: 'พอร์ทัลครู ผู้ปกครอง นักเรียน พร้อมแชท แจ้งเตือน และการบ้านดิจิทัล ลดกระดาษและโทรศัพท์',
+                  },
+                  {
+                    letter: 'T',
+                    bg: 'bg-primary',
+                    title: 'Track',
+                    subtitle: 'วัดผลเพื่อปรับปรุง',
+                    desc: 'ปพ.๕/๖ · DMC · Dashboard · KPI เวลา–กระดาษ และวงจรคุณภาพ PDCA ให้ข้อมูลถูกต้อง รวดเร็ว เป็นปัจจุบัน',
                   },
                 ].map(({ letter, bg, title, subtitle, desc }) => (
-                  <div key={letter} className="bg-card rounded-2xl p-4 md:p-6 shadow-sm border border-border text-center hover:shadow-md transition-all duration-300">
-                    <div className={`w-9 h-9 md:w-14 md:h-14 rounded-2xl ${bg} text-white flex items-center justify-center text-lg md:text-3xl font-black mx-auto mb-2 md:mb-3 shadow`}>
+                  <div key={letter} className="bg-card rounded-2xl p-3 md:p-4 shadow-sm border border-border text-center hover:shadow-md transition-all duration-300">
+                    <div className={`w-9 h-9 md:w-12 md:h-12 rounded-2xl ${bg} text-primary-foreground flex items-center justify-center text-lg md:text-2xl font-black mx-auto mb-2 shadow`}>
                       {letter}
                     </div>
-                    <h3 className="text-sm md:text-lg font-bold text-foreground mb-0.5">{title}</h3>
-                    <p className="text-[10px] md:text-sm text-primary font-semibold mb-1.5">{subtitle}</p>
-                    <p className="text-foreground/75 text-xs md:text-sm leading-relaxed">{desc}</p>
+                    <h3 className="text-sm md:text-base font-bold text-foreground mb-0.5">{title}</h3>
+                    <p className="text-[10px] md:text-xs text-primary font-semibold mb-1.5">{subtitle}</p>
+                    <p className="text-foreground/75 text-[11px] md:text-xs leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
 
-              {/* PDCA — Beautiful 2x2 Grid on Mobile */}
+              {/* PDCA */}
               <div className="bg-secondary/20 rounded-2xl p-4 md:p-6 border border-border">
                 <div className="text-center mb-3 md:mb-4">
                   <span className="text-[9px] md:text-xs font-bold uppercase tracking-widest text-primary">วงจรคุณภาพ</span>
                   <h3 className="text-base md:text-2xl font-bold text-foreground mt-0.5">PDCA Cycle</h3>
                   <p className="text-foreground/75 text-[10px] md:text-sm mt-1 max-w-xl mx-auto">
-                    ขับเคลื่อน GPS-Model ด้วยวงจรคุณภาพ PDCA เพื่อแก้ปัญหาและปรับปรุงคุณภาพการดำเนินงานอย่างต่อเนื่อง
+                    ขับเคลื่อน HEART Model ด้วยวงจรคุณภาพ PDCA — จากเว็บโรงเรียนสู่ระบบงานดิจิทัล เพื่อคืนเวลาให้ครูอย่างต่อเนื่อง
                   </p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 max-w-2xl mx-auto">
@@ -271,7 +301,7 @@ const About = () => {
                     { letter: 'A', label: 'Act', desc: 'ปรับปรุง' },
                   ].map(({ letter, label, desc }) => (
                     <div key={letter} className="text-center p-2.5 md:p-3 bg-card rounded-xl border border-border">
-                      <div className="w-8 h-8 md:w-11 md:h-11 rounded-full bg-primary text-white flex items-center justify-center text-xs md:text-lg font-black mx-auto mb-1 shadow-sm">
+                      <div className="w-8 h-8 md:w-11 md:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs md:text-lg font-black mx-auto mb-1 shadow-sm">
                         {letter}
                       </div>
                       <div className="text-xs md:text-base font-bold text-foreground leading-tight">{label}</div>

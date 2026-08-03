@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="gDataBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#082f49"/>
+      <stop offset="50%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#gDataBg)"/>
+  <circle cx="170" cy="150" r="95" fill="#ffffff" fill-opacity="0.12"/>
+  <circle cx="1110" cy="590" r="150" fill="#ffffff" fill-opacity="0.10"/>
+  <g fill="#ffffff" fill-opacity="0.22"><rect x="960" y="120" width="44" height="90" rx="8"/><rect x="1016" y="80" width="44" height="130" rx="8"/><rect x="1072" y="150" width="44" height="60" rx="8"/><rect x="90" y="520" width="44" height="60" rx="8"/><rect x="146" y="480" width="44" height="100" rx="8"/><rect x="202" y="540" width="44" height="40" rx="8"/></g>
+  <rect x="80" y="160" width="1120" height="400" rx="32" fill="#ffffff" fill-opacity="0.18"/>
+  <text x="640" y="300" text-anchor="middle" font-size="96">📊</text>
+  <text x="640" y="420" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="62" font-weight="700" fill="#ffffff">ข้อมูลและการนำเสนอ</text>
+  <text x="640" y="488" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="600" fill="#ffffff" fill-opacity="0.92">เก็บข้อมูล · ตารางนับ · แผนภูมิรูปภาพ/แท่ง · สรุปผล · ป.4–6</text>
+  <text x="640" y="645" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">สื่อการสอน · บ้านคำไผ่</text>
+</svg>

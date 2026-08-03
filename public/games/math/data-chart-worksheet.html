@@ -6,16 +6,8 @@
   <meta name="curriculum-indicators" content="ค 3.1 ป.4/1">
   <title>ใบงานข้อมูลและแผนภูมิ ป.4 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-  <style>
-  .step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
-  .step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-  .step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
-  .step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
-  .work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-  .count-5 .step-row{min-height:8.5mm}.count-5 .bar-preview{height:24mm}
-  </style>
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
 </head>
 <body>
 <header class="toolbar"><h1>📊 ใบงานข้อมูลและแผนภูมิ</h1><div class="toolbar-ctrls">
@@ -23,13 +15,13 @@
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
   <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
   <select class="t-select" id="selTopic" aria-label="หัวข้อ"><option value="mixed">ผสมทุกทักษะ</option><option value="bar">แผนภูมิแท่ง</option><option value="picto">แผนภาพรูปภาพ</option><option value="table">ตารางข้อมูล</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
   <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
   <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
   <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
 <script>
 const DATA_ITEMS = [
   {type:'bar',labels:['มะม่วง','กล้วย','ส้ม'],values:[6,9,4],ask:'ผลไม้ชนิดใดมีจำนวนมากที่สุด',answer:'กล้วย 9 ผล'},
@@ -46,59 +38,55 @@ const DATA_ITEMS = [
   {type:'table',labels:['เหนือ','กลาง','ใต้'],values:[7,11,8],ask:'เรียงข้อมูลจากน้อยไปมาก',answer:'เหนือ 7, ใต้ 8, กลาง 11'}
 ];
 window.WORKSHEET_CONFIG = {
-  worksheetKey:'data-chart',icon:'📊',title:'ใบงานข้อมูลและแผนภูมิ',subject:'คณิตศาสตร์',gradeLabel:'ป.4',mediaLabel:'คลังข้อมูลและกราฟ ป.4–5',
-  sourceMediaUrl:'/games/math/math-data-hub/index.html',indicators:['ค 3.1 ป.4/1','ค 3.1 ป.4/2'],
-  directions:'อ่านตาราง · กำหนดสเกล · อ่าน/วาดกราฟ · ขั้นติดป้าย',
+  icon:'📊',title:'ใบงานข้อมูลและแผนภูมิ',subject:'คณิตศาสตร์',gradeLabel:'ป.4',mediaLabel:'คลังข้อมูลและกราฟ ป.4–5',
+  sourceMediaUrl:'/games/math/math-data-hub/index.html',indicators:['ค 3.1 ป.4/1','ค 3.1 ป.4/2'],directions:'อ่านตาราง กำหนดสเกล วาดหรืออ่านกราฟ แล้วแสดงเหตุผล',
   getItems(topic){return topic==='mixed'?DATA_ITEMS:DATA_ITEMS.filter(item=>item.type===topic);},
   buildChartSteps(item){
     const pairs=item.labels.map((l,i)=>l+'='+item.values[i]).join(', ');
     const maxI=item.values.indexOf(Math.max(...item.values));
+    const minI=item.values.indexOf(Math.min(...item.values));
     const sum=item.values.reduce((a,b)=>a+b,0);
     const ask=item.ask;
-    if(/มากที่สุด|น้อยที่สุด|ชนิดใด|ช่วงใด/.test(ask)&&!/ต่าง|มากกว่า|น้อยกว่า/.test(ask)){
-      return{s1:'อ่านตาราง: '+pairs,s2:'เปรียบเทียบหาสุดขั้ว',s3:item.labels[maxI]+' ('+item.values[maxI]+')'};
+    if(/มากที่สุด|น้อยที่สุด|ชนิดใด|ช่วงใด/.test(ask)){
+      return{line1:'เปรียบเทียบ: '+pairs,line2:'มากที่สุด = '+item.labels[maxI]+' ('+item.values[maxI]+')'};
     }
     if(/มากกว่า|ต่าง|น้อยกว่า/.test(ask)){
-      return{s1:'อ่านค่า: '+pairs,s2:'หาผลต่างของสองค่า',s3:item.answer};
+      const diff=Math.abs(item.values[1]-item.values[0]);
+      return{line1:'อ่านค่า: '+pairs,line2:'ผลต่าง = '+Math.max(item.values[0],item.values[1])+' − '+Math.min(item.values[0],item.values[1])+' = '+diff};
     }
     if(/รวม|ผลรวม/.test(ask)){
-      return{s1:item.values.join(' + '),s2:'= '+sum,s3:item.answer};
+      return{line1:item.values.join(' + ')+' = '+sum,line2:'ตอบ: '+item.answer};
     }
     if(item.type==='picto'){
-      const scale=ask.includes('■')?3:2;
-      return{s1:'สเกลสัญลักษณ์ ×'+scale,s2:'คูณจำนวนสัญลักษณ์',s3:item.answer};
+      const scale=ask.includes('●')?2:ask.includes('★')?2:3;
+      const target=ask.includes('สุนัข')?1:ask.includes('วิทย์')?1:0;
+      return{line1:'สเกล ×'+scale+' → '+item.labels[target]+' '+item.values[target]+'×'+scale,line2:'= '+(item.values[target]*scale)+' · '+item.answer};
     }
     if(/เรียง/.test(ask)){
-      return{s1:'ดูค่าทุกช่อง',s2:'เรียงจากน้อย→มาก',s3:item.answer};
+      const sorted=[...item.labels].sort((a,b)=>item.values[item.labels.indexOf(a)]-item.values[item.labels.indexOf(b)]);
+      return{line1:'เรียงจากน้อยไปมาก: '+sorted.map(l=>l+' '+item.values[item.labels.indexOf(l)]).join(', '),line2:'ตอบ: '+item.answer};
     }
-    return{s1:'ข้อมูล: '+pairs,s2:'กำหนดสเกล/วาด',s3:item.answer};
+    return{line1:'ข้อมูล: '+pairs,line2:'ตอบ: '+item.answer};
   },
   renderQuestion(item){
     const e=window.KampaiTopicWorksheet.escapeHtml;
     const work=this.buildChartSteps(item);
     const heads=item.labels.map(label=>'<th>'+e(label)+'</th>').join('');
     const cells=item.values.map(value=>'<td>'+value+'</td>').join('');
-    const max=Math.max(...item.values,1);
-    const bars=item.values.map(value=>'<i style="height:'+Math.max(8,(value/max)*100)+'%"></i>').join('');
-    const visual=item.type==='bar'
-      ?'<div class="bar-preview" aria-label="แผนภูมิแท่งตัวอย่าง">'+bars+'</div>'
-      :'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>';
+    const bars=item.values.map(value=>'<i style="height:'+Math.min(100,value*6)+'%"></i>').join('');
+    const visual=item.type==='bar'?'<div class="bar-preview" aria-label="แผนภูมิแท่งตัวอย่าง">'+bars+'</div>':'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>';
     return '<div class="q-stem"><div class="q-prompt">'+e(item.ask)+'</div><div class="chart-task"><table class="mini-table"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'+visual+'</div><div class="scale-box">สเกล/สัญลักษณ์: ____________________</div></div>'
-      +'<div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 อ่าน</span><div class="step-body"><span class="work-fill">'+e(work.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 คิด</span><div class="step-body"><span class="work-fill">'+e(work.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(work.s3)+'</span></div></div>'
-      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+      +'<div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(work.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(work.line2)+'</span></div><div class="calc-line"><span class="work-fill">ตอบ: '+e(item.answer)+'</span></div></div>';
   }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.181.0"></script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.print();
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.184.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body></html>

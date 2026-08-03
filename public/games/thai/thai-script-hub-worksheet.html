@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-script-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.1/1,ท 4.1 ป.2/1,ท 4.1 ป.4/1">
+  <title>ใบงานคลังอักษรไทย ป.1–ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🔤 ใบงานคลังอักษรไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.1–ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="mid">พยัญชนะกลาง</option><option value="high">พยัญชนะสูง</option><option value="low">พยัญชนะต่ำ</option><option value="vowel">สระ</option><option value="tone">วรรณยุกต์</option><option value="lead">อักษรนำ</option><option value="matra">มาตรา</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"mid","prompt":"จัดกลุ่มพยัญชนะกลางแล้วยกตัวอย่างคำ","hint":"ก จ ฎ ฏ ด ต บ ป อ","answer":"พยัญชนะกลาง · เช่น กา จาน"},{"type":"high","prompt":"จัดกลุ่มพยัญชนะสูงแล้วยกตัวอย่างคำ","hint":"ข ฃ ฉ ฐ ถ ผ ฝ ศ ษ ส ห","answer":"พยัญชนะสูง · เช่น ขา ฝน"},{"type":"low","prompt":"จัดกลุ่มพยัญชนะต่ำแล้วยกตัวอย่างคำ","hint":"ค ฅ ฆ ช ซ ฌ ญ ฑ ฒ ณ ท ธ น พ ฟ ภ ม ย ร ล ว ฬ ฮ","answer":"พยัญชนะต่ำ · เช่น คอ นา"},{"type":"vowel","prompt":"แยกสระสั้น–ยาวจากคู่คำ","hint":"กะ/กา · ติ/ตี · ตุ/ตู","answer":"สั้น: กะ ติ ตุ · ยาว: กา ตี ตู"},{"type":"tone","prompt":"เรียงวรรณยุกต์และบอกชื่อ","hint":"กา ก่า ก้า ก๊า ก๋า","answer":"สามัญ เอก โท ตรี จัตวา"},{"type":"lead","prompt":"หาอักษรนำและอธิบาย","hint":"หวาย ขนม ตลาด","answer":"ห+ว / ข+น / ต+ล"},{"type":"matra","prompt":"บอกแม่มาตราตัวสะกด","hint":"มาก บ้าน จาน บอก","answer":"แม่กก / แม่กน / แม่กน / แม่กก"},{"type":"mixed","prompt":"วิเคราะห์คำ: หมู่พยัญชนะ สระ วรรณยุกต์","hint":"น้ำ","answer":"น (ต่ำ) + ำ + ไม้โท"},{"type":"mid","prompt":"เขียนคำพยัญชนะกลาง 4 คำ","hint":"ก จ ด ต","answer":"เช่น กบ จาน ดอก ตา"},{"type":"high","prompt":"เขียนคำพยัญชนะสูง 4 คำ","hint":"ข ผ ฝ ส","answer":"เช่น ขา ผี ฝน สาว"},{"type":"low","prompt":"เขียนคำพยัญชนะต่ำ 4 คำ","hint":"ค น ม ร","answer":"เช่น คอ นา มา เรือ"},{"type":"vowel","prompt":"เติมสระให้คำอ่านได้","hint":"ข_น / ต_น / บ_น","answer":"เช่น ขน/ขอน · ตน/โต้น · บน/บอน"},{"type":"tone","prompt":"เปลี่ยนวรรณยุกต์ของคำ “มา” ให้ได้ 3 เสียง","hint":"มา","answer":"เช่น ม่า ม้า ม๊า"},{"type":"lead","prompt":"วงอักษรนำในคำ","hint":"หนู หวาน ขนม","answer":"ห+น / ห+ว / ข+น"},{"type":"matra","prompt":"จัดคำตามแม่กก กน กด","hint":"มาก จาน บาด","answer":"กก: มาก บาด · กน: จาน"},{"type":"mixed","prompt":"วิเคราะห์คำ “ช้าง”","hint":"ช้าง","answer":"ช (ต่ำ) + า + ง · แม่กง"},{"type":"vowel","prompt":"จับคู่สระสั้น–ยาว","hint":"อิ/อี · อุ/อู · เอะ/เอ","answer":"อิ↔อี · อุ↔อู · เอะ↔เอ"},{"type":"tone","prompt":"บอกวรรณยุกต์ในคำ “ม้า”","hint":"ม้า","answer":"ไม้โท"}];
+window.WORKSHEET_CONFIG={
+  icon:'🔤',title:'ใบงานคลังอักษรไทย',subject:'ภาษาไทย',gradeLabel:'ป.1–ป.4',
+  mediaLabel:'คลังอักษรไทย',sourceMediaUrl:'/games/thai/thai-script-hub/index.html',
+  indicators:["ท 4.1 ป.1/1","ท 4.1 ป.2/1","ท 4.1 ป.4/1"],
+  directions:"จัดกลุ่มพยัญชนะ วิเคราะห์สระ–วรรณยุกต์ และอธิบายเหตุผล",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context">คำใบ้: '+e(item.hint)+'</div>'
+      +'<table class="mini-table thai-script-grid"><tr><th>หมู่พยัญชนะ</th><th>สระ</th><th>วรรณยุกต์</th></tr>'
+      +'<tr><td>________</td><td>________</td><td>________</td></tr></table>'
+      +'<div>ตัวอย่างคำ / การวิเคราะห์</div><div class="work-line"></div><div class="work-line"></div>'
+      +'<div>เหตุผลสั้น ๆ</div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

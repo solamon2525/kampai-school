@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bgve" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="55%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <radialGradient id="sphve" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#fdf4ff"/>
+      <stop offset="100%" stop-color="#a21caf"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bgve)"/>
+  <circle cx="150" cy="120" r="10" fill="#facc15"/>
+  <circle cx="200" cy="90" r="16" fill="#fb923c"/>
+  <circle cx="255" cy="130" r="7" fill="#f9a8d4"/>
+  <polyline points="960,90 1000,130 1040,90 1080,130 1120,90" fill="none" stroke="#facc15" stroke-width="8" stroke-linecap="round"/>
+  <path d="M80 620 C 180 560, 280 680, 380 620" fill="none" stroke="#f9a8d4" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="1120,560 1060,660 1180,660" fill="none" stroke="#a5f3fc" stroke-width="8"/>
+  <circle cx="985" cy="610" r="52" fill="url(#sphve)"/>
+  <ellipse cx="1005" cy="672" rx="55" ry="10" fill="#1e1b4b" opacity="0.35"/>
+  <rect x="120" y="540" width="46" height="46" rx="8" fill="#ef4444"/>
+  <rect x="176" y="540" width="46" height="46" rx="8" fill="#f97316"/>
+  <rect x="232" y="540" width="46" height="46" rx="8" fill="#facc15"/>
+  <rect x="288" y="540" width="46" height="46" rx="8" fill="#22d3ee"/>
+  <rect x="200" y="200" width="880" height="300" rx="36" fill="#ffffff" fill-opacity="0.16"/>
+  <text x="640" y="300" text-anchor="middle" font-size="88"><�</text>
+  <text x="640" y="402" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="72" font-weight="800" fill="#ffffff">1(28 7 -"H2</text>
+  <text x="640" y="465" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="30" font-weight="600" fill="#ffffff" fill-opacity="0.92">8 @*I #9#H2 #9# *5 7I4' A*@2 � .45</text>
+  <text x="640" y="560" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">*7H-2#*-(4%0 � B#@#5"I23DH</text>
+</svg>

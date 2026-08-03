@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-grammar-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.4/2,ท 4.1 ป.4/6,ท 4.1 ป.5/2">
+  <title>ใบงานคลังไวยากรณ์ไทย ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📘 ใบงานคลังไวยากรณ์ไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="noun">นาม</option><option value="verb">กริยา</option><option value="adj">คุณศัพท์</option><option value="adv">วิเศษณ์</option><option value="prep">บุพบท</option><option value="conj">สันธาน</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"noun","prompt":"ขีดเส้นใต้นามทุกคำ","text":"แมวนอนบนเสื่อ","answer":"แมว · เสื่อ"},{"type":"verb","prompt":"ขีดเส้นใต้กริยา","text":"เด็ก ๆ วิ่งเล่นในสนาม","answer":"วิ่งเล่น"},{"type":"adj","prompt":"หาคุณศัพท์และบอกคำที่ถูกขยาย","text":"ดอกไม้สีแดงบานสะพรั่ง","answer":"สีแดง ขยายดอกไม้"},{"type":"adv","prompt":"หาวิเศษณ์และบอกหน้าที่","text":"นกบินสูงเหนือต้นไม้","answer":"สูง · บอกอาการของกริยาบิน"},{"type":"prep","prompt":"หาบุพบทและคำที่ตามมา","text":"หนังสืออยู่บนโต๊ะ","answer":"บน + โต๊ะ"},{"type":"conj","prompt":"หาสันธานและความสัมพันธ์","text":"ฝนตกจึงถนนลื่น","answer":"จึง · แสดงผล"},{"type":"mixed","prompt":"จำแนกชนิดคำทีละคำ","text":"น้องสาวอ่านหนังสืออย่างตั้งใจ","answer":"นาม กริยา นาม วิเศษณ์"},{"type":"noun","prompt":"แต่งประโยคที่มีนามอย่างน้อย 2 คำ","text":"ใช้คำ: ครู / นักเรียน","answer":"เช่น ครูชมนักเรียน"},{"type":"verb","prompt":"เติมกริยาให้เหมาะ","text":"ปลา___ในน้ำ","answer":"ว่าย / ว่ายน้ำ"},{"type":"adj","prompt":"เติมคุณศัพท์","text":"ท้องฟ้า___หลังฝนตก","answer":"เช่น สดใส / แจ่มใส"},{"type":"adv","prompt":"เติมวิเศษณ์","text":"นักเรียนอ่านหนังสือ___","answer":"เช่น อย่างตั้งใจ / ช้า ๆ"},{"type":"prep","prompt":"เติมบุพบท","text":"ดินสออยู่ใน___","answer":"เช่น กล่อง / กระเป๋า"},{"type":"conj","prompt":"เชื่อมประโยคด้วยสันธาน","text":"อากาศร้อน / อยากดื่มน้ำ","answer":"เช่น อากาศร้อนจึงอยากดื่มน้ำ"},{"type":"noun","prompt":"หาคำนามเฉพาะ","text":"ครูสมชายสอนวิชาคณิตศาสตร์","answer":"สมชาย"},{"type":"verb","prompt":"เปลี่ยนกริยาให้เป็นอดีตในความหมาย","text":"ฉันกินข้าว","answer":"เช่น ฉันกินข้าวแล้ว"},{"type":"mixed","prompt":"วงนามและขีดกริยา","text":"แม่หุงข้าวในครัว","answer":"นาม: แม่ ข้าว ครัว · กริยา: หุง"},{"type":"adj","prompt":"หาคุณศัพท์ 2 คำ","text":"รถคันสีแดงวิ่งเร็วมาก","answer":"สีแดง · เร็ว"},{"type":"conj","prompt":"เลือกสันธานที่เหมาะ","text":"อยากไปเที่ยว ___ ฝนตกหนัก","answer":"แต่ / แต่เนื่องจาก"}];
+window.WORKSHEET_CONFIG={
+  icon:'📘',title:'ใบงานคลังไวยากรณ์ไทย',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังไวยากรณ์ไทย',sourceMediaUrl:'/games/thai/thai-grammar-hub/index.html',
+  indicators:["ท 4.1 ป.4/2","ท 4.1 ป.4/6","ท 4.1 ป.5/2"],
+  directions:"จำแนกชนิดของคำ ขีดเส้นใต้ และแต่งประโยคสั้น",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context">“'+e(item.text)+'”</div>'
+      +'<div class="classify-grid word-types-grid">'
+      +'<div class="classify-box">[ ] นาม</div><div class="classify-box">[ ] กริยา</div>'
+      +'<div class="classify-box">[ ] คุณศัพท์</div><div class="classify-box">[ ] อื่น ๆ</div></div>'
+      +'<div>ขีดเส้นใต้ / ระบุชนิดคำ</div><div class="work-line"></div>'
+      +'<div>เหตุผลสั้น ๆ</div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

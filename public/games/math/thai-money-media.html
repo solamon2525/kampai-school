@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>🪙 เงินไทย — บาทและสตางค์ — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#b45309;--line:#fde68a;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fde68a,#b4530922);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#b45309);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .btn-accent{background:#fbbf24;color:#78350f}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    
+    .layout{display:grid;gap:14px}@media(min-width:860px){.layout{grid-template-columns:1.1fr .9fr}}
+    .coins{display:flex;flex-wrap:wrap;gap:10px}
+    .coin{font-family:inherit;border:3px solid #fbbf24;border-radius:16px;padding:12px 14px;background:#fffbeb;cursor:pointer;font-weight:800;color:#92400e;min-width:88px;text-align:center}
+    .coin .v{font-size:1.3rem;display:block}
+    .coin .u{font-size:.75rem;color:#a16207}
+    .sum{font-size:2rem;font-weight:800;color:#92400e;text-align:center;margin:10px 0}
+    .box{background:#fffbeb;border:2px dashed #fbbf24;border-radius:14px;padding:14px;font-weight:600;line-height:1.5}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .practice{display:none;max-width:520px;margin:0 auto;flex-direction:column;gap:12px}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .target{font-size:1.6rem;font-weight:800;color:#92400e;text-align:center}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .choice{font-family:inherit;font-weight:800;padding:14px;border:2px solid #fde68a;border-radius:12px;background:#fff;cursor:pointer}
+    .choice.ok{background:#dcfce7;border-color:#86efac}.choice.no{background:#fee2e2;border-color:#fca5a5}
+  
+  </style>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>🪙 เงินไทย — บาทและสตางค์</h1>
+    <span class="badge">ป.1–3 · คณิตศาสตร์</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    <a class="btn btn-ghost" href="/games/math/thai-money-media-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+  </div>
+  <div class="stage" id="stage"><div class="learn" id="learn"><div class="layout">
+    <div>
+      <p style="font-weight:800;color:#92400e;margin-bottom:8px">แตะเหรียญ/ธนบัตรเพื่อบวกยอด</p>
+      <div class="coins" id="coins"></div>
+      <div class="sum" id="sum">0 บาท</div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnClear">ล้างยอด</button>
+        <button type="button" class="btn btn-accent" id="btnSpeakSum">🔊 อ่านยอด</button>
+      </div>
+    </div>
+    <div class="box" id="tip">1 บาท = 100 สตางค์ · เหรียญ 1, 2, 5, 10 บาท · ธนบัตรเริ่ม 20 บาท</div>
+  </div></div>
+  <div class="practice" id="practice">
+    <p class="target" id="target">ซื้อของราคา 25 บาท</p>
+    <p style="font-weight:700;text-align:center">ควรจ่ายเท่าไร?</p>
+    <div class="choices" id="prChoices"></div>
+    <p id="prFb" style="font-weight:800;text-align:center;min-height:24px"></p>
+    <button type="button" class="btn btn-primary" id="btnNextPr">ข้อถัดไป</button>
+  </div></div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='thai-money-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
+
+const ITEMS=[{v:1,u:'บาท',emoji:'🪙'},{v:2,u:'บาท',emoji:'🪙'},{v:5,u:'บาท',emoji:'🪙'},{v:10,u:'บาท',emoji:'🪙'},{v:20,u:'บาท',emoji:'💵'},{v:50,u:'บาท',emoji:'💵'},{v:100,u:'บาท',emoji:'💵'}];
+let total=0,mode='learn';
+function setMode(m){mode=m;document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'บวกเงินจากเหรียญ/ธนบัตร':'เลือกจำนวนเงินที่ถูกต้อง';if(m==='practice')nextPractice();}
+function renderCoins(){const el=document.getElementById('coins');el.innerHTML=ITEMS.map(i=>'<button type="button" class="coin" data-v="'+i.v+'"><span>'+i.emoji+'</span><span class="v">'+i.v+'</span><span class="u">'+i.u+'</span></button>').join('');
+  el.onclick=e=>{const b=e.target.closest('.coin');if(!b)return;total+=+b.dataset.v;document.getElementById('sum').textContent=total+' บาท';document.getElementById('tip').textContent='ยอดปัจจุบัน '+total+' บาท · ลองคิดว่าซื้อของชิ้นไหนได้';};}
+function nextPractice(){const price=[12,15,20,25,30,35,40,50,55,60][Math.floor(Math.random()*10)];document.getElementById('target').textContent='ซื้อของราคา '+price+' บาท';document.getElementById('prFb').textContent='';
+  const opts=new Set([price+' บาท']);while(opts.size<4){opts.add((price+[5,10,-5,20,-10][Math.floor(Math.random()*5)])+' บาท');}
+  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
+  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===price+' บาท';b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ ถูกต้อง!':'เฉลย '+price+' บาท';if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
+document.getElementById('btnClear').onclick=()=>{total=0;document.getElementById('sum').textContent='0 บาท';};
+document.getElementById('btnSpeakSum').onclick=()=>{const t=total+' บาท';if(KAMPAI&&KAMPAI.sound)KAMPAI.sound.speak(t,'th-TH');else speechSynthesis.speak(new SpeechSynthesisUtterance(t));};
+document.getElementById('btnNextPr').onclick=nextPractice;renderCoins();setMode('learn');
+
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]');if(!b)return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+</script>
+</body></html>

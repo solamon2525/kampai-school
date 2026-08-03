@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-sentence-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.3/4,ท 4.1 ป.5/2">
+  <title>ใบงานคลังประโยคไทย ป.3–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🧩 ใบงานคลังประโยคไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.3–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="subject">ประธาน</option><option value="verb">ภาคแสดง</option><option value="object">กรรม</option><option value="expand">ขยายประโยค</option><option value="compound">ประโยคเชื่อม</option><option value="order">เรียงคำ</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"subject","prompt":"ขีดเส้นใต้ประธานและบอกชนิด","text":"นักเรียนทำการบ้าน","answer":"นักเรียน · นาม"},{"type":"verb","prompt":"หาภาคแสดง","text":"แมววิ่งไล่หนู","answer":"วิ่งไล่หนู"},{"type":"object","prompt":"หากรรมของกริยา","text":"แม่หุงข้าว","answer":"ข้าว · กรรมของหุง"},{"type":"expand","prompt":"ขยายด้วยสถานที่/เวลา","text":"เด็กอ่านหนังสือ","answer":"เช่น เด็กอ่านหนังสือที่ห้องสมุดตอนเย็น"},{"type":"compound","prompt":"รวมสองประโยคด้วยคำเชื่อม","text":"ฝนตก / ถนนลื่น","answer":"ฝนตกจึงถนนลื่น"},{"type":"order","prompt":"เรียงคำให้เป็นประโยค","text":"สนาม / ใน / เล่น / เด็ก","answer":"เด็กเล่นในสนาม"},{"type":"subject","prompt":"แต่งประโยคที่มีประธานชัด","text":"ใช้กริยา: ช่วยเหลือ","answer":"เช่น เพื่อนช่วยเหลือกัน"},{"type":"expand","prompt":"เติมส่วนขยาย","text":"นกบิน","answer":"เช่น นกบินเหนือต้นไม้สูง"},{"type":"compound","prompt":"เขียนประโยคเหตุ–ผล","text":"เหตุ–ผล","answer":"เช่น เพราะฝนตก เราจึงอยู่บ้าน"},{"type":"order","prompt":"แก้ลำดับคำ","text":"หนังสือ อ่าน น้องสาว","answer":"น้องสาวอ่านหนังสือ"},{"type":"subject","prompt":"แยกประธานออกจากภาคแสดง","text":"นักเรียนชั้นป.4 ร้องเพลง","answer":"ประธาน: นักเรียนชั้นป.4"},{"type":"object","prompt":"เติมกรรมให้สมบูรณ์","text":"ครูตรวจ___","answer":"เช่น สมุด / การบ้าน"},{"type":"verb","prompt":"เปลี่ยนภาคแสดงให้อ่านลื่น","text":"แมวบนหลังคา","answer":"เช่น แมวนอนบนหลังคา"},{"type":"expand","prompt":"ขยายด้วยคำคุณศัพท์","text":"ดอกไม้บาน","answer":"เช่น ดอกไม้สีชมพูบานสะพรั่ง"},{"type":"compound","prompt":"เชื่อมด้วย “และ/แต่/จึง”","text":"อยากเล่น / ต้องทำการบ้านก่อน","answer":"อยากเล่นแต่ต้องทำการบ้านก่อน"},{"type":"order","prompt":"เรียงใหม่ให้ถูก","text":"ทุกวัน / อ่านหนังสือ / น้องชาย","answer":"น้องชายอ่านหนังสือทุกวัน"},{"type":"object","prompt":"ระบุประธาน กริยา กรรม","text":"พ่อซื้อผลไม้","answer":"พ่อ / ซื้อ / ผลไม้"},{"type":"subject","prompt":"เขียนประโยค 2 ประโยคคนละประธาน","text":"เกี่ยวกับโรงเรียน","answer":"เช่น ครูสอน / นักเรียนเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'🧩',title:'ใบงานคลังประโยคไทย',subject:'ภาษาไทย',gradeLabel:'ป.3–ป.5',
+  mediaLabel:'คลังประโยคไทย',sourceMediaUrl:'/games/thai/thai-sentence-hub/index.html',
+  indicators:["ท 4.1 ป.3/4","ท 4.1 ป.5/2"],
+  directions:"แยกประธาน กริยา กรรม ขยาย และเรียงประโยคให้สมบูรณ์",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context sentence-case">'+e(item.text)+'</div>'
+      +'<div class="classify-grid sentence-slot-grid">'
+      +'<div class="classify-box">ประธาน: ________</div>'
+      +'<div class="classify-box">กริยา: ________</div>'
+      +'<div class="classify-box">กรรม: ________</div>'
+      +'<div class="classify-box">ส่วนขยาย: ________</div></div>'
+      +'<div>ประโยคที่สมบูรณ์</div><div class="work-line"></div><div class="work-line"></div>'
+      +'<div>เหตุผล / วิธีจัดเรียง</div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

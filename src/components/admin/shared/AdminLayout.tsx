@@ -57,6 +57,8 @@ import {
     Facebook,
     Lightbulb,
     FlaskConical,
+    Package,
+    Gauge,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
@@ -65,6 +67,7 @@ import { CameraPermissionPrompt } from '@/components/shared/CameraPermissionProm
 import { useCommandPalette } from '@/hooks/useCommandPalette';
 import { Search } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { AdminOnboardingTour } from '@/components/admin/shared/AdminOnboardingTour';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -79,6 +82,8 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'dashboard-school', label: 'แดชบอร์ดโรงเรียน', icon: Database, path: '/admin/dashboard/dashboard-school', adminOnly: true },
     { type: 'item', id: 'docs-hub', label: 'ศูนย์เอกสาร', icon: FolderOpen, path: '/admin/dashboard/docs-hub', adminOnly: true },
     { type: 'item', id: 'budget', label: 'งบประมาณ', icon: Wallet, path: '/admin/dashboard/budget', adminOnly: true },
+    { type: 'item', id: 'supplies', label: 'พัสดุ / วัสดุ', icon: Package, path: '/admin/dashboard/supplies', adminOnly: true },
+    { type: 'item', id: 'digital-ops', label: 'ลดภาระครู (Digital Ops)', icon: Gauge, path: '/admin/dashboard/digital-ops', adminOnly: true },
     { type: 'item', id: 'sar', label: 'SAR ประกันคุณภาพ', icon: ClipboardCheck, path: '/admin/dashboard/sar', adminOnly: true },
     { type: 'item', id: 'ics', label: 'ควบคุมภายใน (ICS)', icon: ShieldCheck, path: '/admin/dashboard/ics', adminOnly: true },
     { type: 'item', id: 'action-plan', label: 'แผนปฏิบัติการ', icon: Target, path: '/admin/dashboard/action-plan', adminOnly: true },
@@ -392,6 +397,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
             {/* Camera permission pre-request — ขออนุญาตล่วงหน้าตอน login ครั้งแรก */}
             <CameraPermissionPrompt />
+            <AdminOnboardingTour enabled={isAdmin || allowedMenus.length > 0} />
         </div>
     );
 };

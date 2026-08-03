@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ส่วนหน้าประเมินครูผู้ช่วย - โรงเรียนบ้านคำไผ่</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #eef6ff;
+      font-family: 'Sarabun', sans-serif;
+      color: #16325c;
+    }
+
+    .page {
+      width: 1600px;
+      height: 900px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 16%, rgba(44, 139, 255, 0.16), transparent 26%),
+        radial-gradient(circle at 88% 18%, rgba(30, 185, 129, 0.16), transparent 24%),
+        linear-gradient(135deg, #f7fbff 0%, #eef8f5 52%, #f9fbff 100%);
+      padding: 72px 92px;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 32px;
+      border: 2px solid rgba(22, 50, 92, 0.1);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #e7f5ff;
+      color: #0f5ca8;
+      font-weight: 700;
+      font-size: 30px;
+      border: 2px solid rgba(15, 92, 168, 0.14);
+    }
+
+    .school-mark {
+      position: absolute;
+      right: 90px;
+      top: 66px;
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1e8a6a, #2563eb);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 60px;
+      font-weight: 800;
+      box-shadow: 0 18px 44px rgba(21, 74, 116, 0.22);
+    }
+
+    h1 {
+      margin: 54px 0 18px;
+      font-size: 82px;
+      line-height: 1.08;
+      font-weight: 800;
+      color: #102a56;
+      max-width: 1080px;
+    }
+
+    h2 {
+      margin: 0 0 28px;
+      font-size: 52px;
+      line-height: 1.16;
+      color: #102a56;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: 38px;
+      color: #315170;
+      line-height: 1.45;
+      max-width: 1050px;
+      margin: 0 0 50px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px 34px;
+      margin-top: 34px;
+    }
+
+    .field {
+      background: rgba(255, 255, 255, 0.82);
+      border: 2px solid rgba(22, 50, 92, 0.14);
+      border-radius: 22px;
+      padding: 24px 28px 22px;
+      min-height: 104px;
+      box-shadow: 0 14px 30px rgba(19, 63, 102, 0.08);
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .label {
+      font-size: 24px;
+      color: #48617d;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .line {
+      border-bottom: 4px dotted rgba(22, 50, 92, 0.34);
+      height: 34px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 14px;
+      margin-top: 26px;
+      font-size: 28px;
+    }
+
+    .table th {
+      color: #102a56;
+      text-align: left;
+      font-size: 25px;
+      padding: 0 20px 8px;
+    }
+
+    .table td {
+      background: rgba(255, 255, 255, 0.86);
+      border-top: 2px solid rgba(22, 50, 92, 0.12);
+      border-bottom: 2px solid rgba(22, 50, 92, 0.12);
+      padding: 20px;
+      height: 72px;
+    }
+
+    .table td:first-child {
+      border-left: 2px solid rgba(22, 50, 92, 0.12);
+      border-radius: 18px 0 0 18px;
+      font-weight: 700;
+    }
+
+    .table td:last-child {
+      border-right: 2px solid rgba(22, 50, 92, 0.12);
+      border-radius: 0 18px 18px 0;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .evidence-card {
+      min-height: 214px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 2px dashed rgba(22, 50, 92, 0.24);
+      padding: 26px;
+      box-shadow: 0 14px 30px rgba(19, 63, 102, 0.08);
+    }
+
+    .evidence-card strong {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 26px;
+      color: #102a56;
+    }
+
+    .small-lines {
+      display: grid;
+      gap: 20px;
+    }
+
+    .small-line {
+      border-bottom: 3px dotted rgba(22, 50, 92, 0.32);
+      height: 26px;
+    }
+
+    .footer-note {
+      position: absolute;
+      left: 92px;
+      right: 92px;
+      bottom: 56px;
+      display: flex;
+      justify-content: space-between;
+      color: #48617d;
+      font-size: 24px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <section class="page" data-document-role="page" data-label="ปกประเมินครูผู้ช่วย">
+    <div class="badge">เอกสารประกอบการประเมิน</div>
+    <div class="school-mark">คผ</div>
+    <h1>การประเมินครูผู้ช่วย</h1>
+    <p class="subtitle">โรงเรียนบ้านคำไผ่<br>เว้นพื้นที่สำหรับกรอกข้อมูลผู้รับการประเมิน รอบการประเมิน และคณะกรรมการ</p>
+    <div class="form-grid">
+      <div class="field">
+        <div class="label">ชื่อ - สกุลผู้รับการประเมิน</div>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <div class="label">ตำแหน่ง / วิชาเอก</div>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <div class="label">รอบการประเมิน</div>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <div class="label">วันที่ประเมิน</div>
+        <div class="line"></div>
+      </div>
+    </div>
+    <div class="footer-note">
+      <span>สังกัด: ....................................................</span>
+      <span>ปีการศึกษา: ....................</span>
+    </div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="ข้อมูลผู้รับการประเมิน">
+    <div class="badge">ข้อมูลผู้รับการประเมิน</div>
+    <h2>ข้อมูลพื้นฐานสำหรับเติมเอง</h2>
+    <div class="form-grid">
+      <div class="field"><div class="label">ชื่อ - สกุล</div><div class="line"></div></div>
+      <div class="field"><div class="label">เลขที่ตำแหน่ง</div><div class="line"></div></div>
+      <div class="field"><div class="label">กลุ่มสาระ / งานที่รับผิดชอบ</div><div class="line"></div></div>
+      <div class="field"><div class="label">วันที่บรรจุและแต่งตั้ง</div><div class="line"></div></div>
+      <div class="field full"><div class="label">คณะกรรมการประเมิน</div><div class="line"></div></div>
+      <div class="field full"><div class="label">หมายเหตุเพิ่มเติม</div><div class="line"></div></div>
+    </div>
+    <div class="footer-note">
+      <span>โรงเรียนบ้านคำไผ่</span>
+      <span>ส่วนหน้าก่อนอินโฟกราฟิกระบบเว็บโรงเรียน</span>
+    </div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="สรุปหัวข้อการประเมิน">
+    <div class="badge">สรุปหัวข้อการประเมิน</div>
+    <h2>ตารางสรุปคะแนนและข้อสังเกต</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 46%">องค์ประกอบการประเมิน</th>
+          <th style="width: 16%">คะแนนเต็ม</th>
+          <th style="width: 16%">คะแนนที่ได้</th>
+          <th>หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>การปฏิบัติตนและวินัย</td><td></td><td></td><td></td></tr>
+        <tr><td>คุณธรรม จริยธรรม และจรรยาบรรณวิชาชีพ</td><td></td><td></td><td></td></tr>
+        <tr><td>การจัดการเรียนรู้และพัฒนาผู้เรียน</td><td></td><td></td><td></td></tr>
+        <tr><td>งานที่ได้รับมอบหมายและการทำงานร่วมกับชุมชน</td><td></td><td></td><td></td></tr>
+        <tr><td>การพัฒนาตนเองและวิชาชีพ</td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="footer-note">
+      <span>ลงชื่อผู้รับการประเมิน: ........................................</span>
+      <span>ลงชื่อประธานกรรมการ: ........................................</span>
+    </div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="หลักฐานประกอบการประเมิน">
+    <div class="badge">หลักฐานประกอบการประเมิน</div>
+    <h2>พื้นที่วางหลักฐาน / ภาพกิจกรรม / เอกสารอ้างอิง</h2>
+    <div class="evidence-grid">
+      <div class="evidence-card"><strong>แผนการจัดการเรียนรู้</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ภาพกิจกรรมการสอน</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ผลงานนักเรียน</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>งานพิเศษที่ได้รับมอบหมาย</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>การอบรม / PLC</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ข้อเสนอแนะ</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+    </div>
+    <div class="footer-note">
+      <span>แนบก่อนชุดอินโฟกราฟิกระบบเว็บโรงเรียนครบวงจร</span>
+      <span>โรงเรียนบ้านคำไผ่</span>
+    </div>
+  </section>
+</body>
+</html>

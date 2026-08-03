@@ -7,7 +7,7 @@
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/9,ค 1.1 ป.5/6" />
   <title>ระบบใบงานการคูณอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.3" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#ecfdf5;color:#0f172a;font-family:Sarabun,sans-serif}
     :root{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
@@ -20,7 +20,7 @@
     .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}.btn.accent{background:#0284c7;color:#fff}
     
     /* ── Maximize Page Area: Reduced sheet padding for edge-to-edge content ── */
-    .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(6,95,70,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
+    .pages{padding:14px}.sheet{width:210mm;height:297mm;min-height:297mm;max-height:297mm;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(6,95,70,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative;overflow:hidden}
     .sheet:last-child{page-break-after:auto}
     
     /* ── Header with 28mm right padding for QR code isolation ── */
@@ -67,7 +67,7 @@
     .questions.count-5 .blank-sm{min-width:26mm;height:5.5mm}
     .questions.count-5 .ta{font-size:10pt}
     
-    .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0;position:relative;break-inside:avoid}
+    .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1.5mm;position:relative;break-inside:avoid}
     .q-board{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6mm;height:6mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:8pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
@@ -83,13 +83,13 @@
     .gz{color:#94a3b8;background:#f8fafc;font-size:10pt}
     .bl{background:#fafaf9;border-color:#e2e8f0}
     .gd.bt,.gs.bt{border-bottom:2.5px solid #047857}
-    .show-answers .wk,.q.reveal-answer .wk{color:#dc2626;background:#fef2f2}
+    .show-answers .wk{color:#dc2626;background:#fef2f2}
     
     /* ── Answer line ── */
     .ans{font:700 9pt Sarabun,sans-serif;color:#065f46;margin-top:0;min-height:7mm;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0;width:100%}
     .blank-sm{display:inline-block;min-width:20mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
-    .show-answers .ta,.q.reveal-answer .ta{display:inline}
+    .show-answers .ta{display:inline}
 
     /* ── Parent Slip & Bottom Teacher Info ── */
     .parent-slip{border-top:2px dashed #047857;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
@@ -177,7 +177,10 @@
       <select class="t-select" id="selMode">
         <option value="mixed">ความยาก: ทุกระดับในชั้น</option>
       </select>
-      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า" title="5 ข้อ = แถวสูง มีที่เขียนวิธีทำ · 10 ข้อ = ฝึกเร็ว 2 คอลัมน์"><option value="5" selected>5 ข้อ / หน้า (มีที่เขียนวิธีทำ)</option><option value="10">10 ข้อ / หน้า (ฝึกเร็ว)</option></select>
+      <select class="t-select" id="selCount">
+        <option value="10" selected>10 ข้อ/หน้า (โจทย์ใหญ่ ตัวเต็มช่อง)</option>
+        <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่พิเศษ)</option>
+      </select>
       <input class="t-input" type="text" id="inpSchool" placeholder="ชื่อโรงเรียน..." value="โรงเรียนบ้านคำไผ่" />
       <select class="t-select" id="selTeacher">
         <option value="">-- เลือกครูผู้สอน --</option>
@@ -190,28 +193,10 @@
   </div>
   <main class="pages" id="pages"></main>
 
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.3"></script>
 <script>
-const WORKSHEET_KEY='multiplication';
-const SET_TITLE_PREFIX='ใบงานการคูณ';
-let renderSeed=Date.now();
-let rng=null;
-let setsUi=null;
-function ensureRng(){
-  if(window.KampaiWorksheetSets) rng=window.KampaiWorksheetSets.createRng(renderSeed);
-  else rng=null;
-}
-function R(a,b){
-  if(rng) return rng.randomInt(a,b);
-  return a+Math.floor(Math.random()*(b-a+1));
-}
-function RF(a,b,dec=1){
-  const u=rng?rng.random():Math.random();
-  return Math.round((a+u*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
-}
-function batchCodeFromSeed(seed){
-  return ((Number(seed)>>>0).toString(36).toUpperCase()+'XXXX').slice(0,4);
-}
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const RF=(a,b,dec=1)=>Math.round((a+Math.random()*(b-a))*Math.pow(10,dec))/Math.pow(10,dec);
 
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 
@@ -289,34 +274,6 @@ function updateModeOptions(){
   }
   selMode.innerHTML = '<option value="mixed">ความยาก: ทุกระดับในชั้น (' + (grade==='all'?'รวม ป.4–ป.6':`ป.${grade}`) + ')</option>'
     + filtered.map(l => `<option value="${l.id}">ความยาก: ${l.name} (${l.indicator})</option>`).join('');
-}
-
-function currentConfig(){
-  return{
-    style:document.getElementById('selStyle')?.value||'standard',
-    pageCount:document.getElementById('selPageCount')?.value||'1',
-    multiStrategy:document.getElementById('selMultiStrategy')?.value||'random',
-    grade:document.getElementById('selGrade')?.value||'4',
-    mode:document.getElementById('selMode')?.value||'mixed',
-    count:Number(document.getElementById('selCount')?.value||5)||5,
-    schoolName:document.getElementById('inpSchool')?.value||'',
-    teacherName:document.getElementById('selTeacher')?.value||'',
-  };
-}
-function applyConfig(cfg){
-  if(!cfg)return;
-  if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
-  if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
-  if(cfg.multiStrategy!=null&&document.getElementById('selMultiStrategy'))document.getElementById('selMultiStrategy').value=String(cfg.multiStrategy);
-  if(cfg.grade!=null&&document.getElementById('selGrade'))document.getElementById('selGrade').value=String(cfg.grade);
-  updateModeOptions();
-  if(cfg.mode!=null&&document.getElementById('selMode'))document.getElementById('selMode').value=String(cfg.mode);
-  if(cfg.count!=null&&document.getElementById('selCount')){
-    const n=Number(cfg.count)===10?10:5;
-    document.getElementById('selCount').value=String(n);
-  }
-  if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
-  if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
 }
 
 function renderBookletCover(schoolName, teacherName){
@@ -411,11 +368,10 @@ function renderSingleSheet(lv, pageIdx, totalPages, batchCode, style, count, sch
 }
 
 function render(){
-  ensureRng();
   const style = document.getElementById('selStyle').value;
   const grade = document.getElementById('selGrade').value;
   const mode = document.getElementById('selMode').value;
-  const count = Number(document.getElementById('selCount')?.value)===10?10:5;
+  const count = parseInt(document.getElementById('selCount').value, 10);
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const multiStrategy = document.getElementById('selMultiStrategy').value;
   const schoolName = document.getElementById('inpSchool').value.trim();
@@ -435,7 +391,7 @@ function render(){
     html += renderBookletCover(schoolName, teacherName);
   }
 
-  const batchCode = batchCodeFromSeed(renderSeed);
+  const batchCode = Math.random().toString(36).substring(2,6).toUpperCase();
 
   for(let p=1; p<=pageCount; p++){
     let currentLv = targetLevels[(p-1) % targetLevels.length];
@@ -451,103 +407,35 @@ function render(){
   }
 
   document.getElementById('pages').innerHTML = html;
-  if(window.KampaiWorksheetSets){
-    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
-  }
-}
-function randomize(){
-  if(window.KampaiWorksheetSets){
-    renderSeed=window.KampaiWorksheetSets.newSeed();
-    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
-  }else{
-    renderSeed=Date.now()+Math.floor(Math.random()*100000);
-  }
-  if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
-  render();
-  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
-}
-function applySetState(state){
-  if(state?.config)applyConfig(state.config);
-  if(state?.seed!=null)renderSeed=Number(state.seed);
-  if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
-  render();
-}
-async function bootSets(){
-  try{
-    const Sets=await window.KampaiWorksheet.loadSetsModule();
-    const fromUrl=Sets.getConfigFromUrl();
-    if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
-    else renderSeed=Sets.newSeed();
-    setsUi=Sets.mountToolbar({
-      worksheetKey:WORKSHEET_KEY,
-      titlePrefix:SET_TITLE_PREFIX,
-      initialSetId:fromUrl.setId||'',
-      getState:()=>({
-        seed:renderSeed,
-        config:currentConfig(),
-        title:document.getElementById('kampaiSetTitle')?.value||'',
-      }),
-      applyState:applySetState,
-    });
-    if(fromUrl.setId){
-      const row=await Sets.load(fromUrl.setId);
-      if(row){
-        applyConfig(row.config||{});
-        renderSeed=Number(row.seed);
-        if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
-        else{
-          const titleInput=document.getElementById('kampaiSetTitle');
-          if(titleInput&&row.title)titleInput.value=row.title;
-        }
-        if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId(row.id);
-        render();
-        if(setsUi?.setMessage)setsUi.setMessage('โหลดชุด: '+(row.title||row.id.slice(0,8)));
-        return;
-      }
-    }
-    render();
-    if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(false);
-  }catch(error){
-    console.warn('worksheet sets unavailable',error);
-    render();
-  }
 }
 
 document.getElementById('btnBack').onclick = () => location.href = '/games/math/multiplication-thinking-media.html';
-document.getElementById('btnRandom').onclick = randomize;
-function onCtrlChange(){
-  render();
-  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
-}
-document.getElementById('selStyle').onchange = onCtrlChange;
-document.getElementById('selPageCount').onchange = onCtrlChange;
-document.getElementById('selMultiStrategy').onchange = onCtrlChange;
-document.getElementById('selGrade').onchange = () => { updateModeOptions(); onCtrlChange(); };
-document.getElementById('selMode').onchange = onCtrlChange;
-document.getElementById('selCount').onchange = onCtrlChange;
+document.getElementById('btnRandom').onclick = render;
+document.getElementById('selStyle').onchange = render;
+document.getElementById('selPageCount').onchange = render;
+document.getElementById('selMultiStrategy').onchange = render;
+document.getElementById('selGrade').onchange = () => { updateModeOptions(); render(); };
+document.getElementById('selMode').onchange = render;
+document.getElementById('selCount').onchange = render;
 document.getElementById('inpSchool').oninput = render;
 document.getElementById('selTeacher').onchange = render;
-document.getElementById('btnPrint').onclick = () => window.print();
+document.getElementById('btnAnswers').onclick = function(){
+  document.body.classList.toggle('show-answers');
+  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
+};
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 
 updateModeOptions();
 window.KampaiWorksheet.loadTeachers();
-window.render=render;
-window.randomize=randomize;
-const mulAnswerReveal = window.KampaiWorksheet.createAnswerReveal({
-  allLabel: '👁 ทั้งหมด',
-  hideLabel: '🙈 ซ่อนทั้งหมด',
+render();
+window.KampaiWorksheet.upgradeLegacyWorksheet({
+  worksheetKey:'math-multiplication',
+  titlePrefix:'ใบงานการคูณแนวตั้ง',
+  render,
+  fieldIds:['selStyle','selPageCount','selGrade','selMode','selCount','selMultiStrategy','inpSchool','selTeacher','selUseMode'],
+  answerRevealCss:'.q.reveal-answer .wk{color:#dc2626;background:#fef2f2}.q.reveal-answer .ta{display:inline}'
 });
-const _mulRender = render;
-render = function(){
-  _mulRender();
-  mulAnswerReveal.reset();
-};
-window.render = render;
-document.getElementById('inpSchool').oninput = render;
-document.getElementById('selTeacher').onchange = render;
-mulAnswerReveal.install();
-bootSets();
 </script>
-<script src="/games/worksheet-modes.js?v=1.184.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.3"></script>
 </body>
 </html>

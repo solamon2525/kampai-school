@@ -6,19 +6,23 @@ import type { EduHubCategory } from '@/services/educational-hub.service';
 interface Props {
     categories: EduHubCategory[];
     counts: Record<string, number>;
+    activeKey?: string | null;
+    onSelect?: (key: string) => void;
 }
 
-export const CategoryChipStrip = ({ categories, counts }: Props) => {
-    const [activeKey, setActiveKey] = useState<string | null>(null);
+export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect }: Props) => {
+    const [observedActiveKey, setObservedActiveKey] = useState<string | null>(null);
+    const currentActiveKey = activeKey ?? observedActiveKey;
 
     // Highlight the section in view
     useEffect(() => {
+        if (onSelect) return;
         const observer = new IntersectionObserver(
             (entries) => {
                 const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
                 if (visible[0]) {
                     const key = visible[0].target.id.replace('cat-', '');
-                    setActiveKey(key);
+                    setObservedActiveKey(key);
                 }
             },
             { rootMargin: '-100px 0px -50% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
@@ -29,9 +33,13 @@ export const CategoryChipStrip = ({ categories, counts }: Props) => {
             if (el) observer.observe(el);
         });
         return () => observer.disconnect();
-    }, [categories]);
+    }, [categories, onSelect]);
 
     const handleClick = (key: string) => {
+        if (onSelect) {
+            onSelect(key);
+            return;
+        }
         const el = document.getElementById(`cat-${key}`);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -50,9 +58,10 @@ export const CategoryChipStrip = ({ categories, counts }: Props) => {
                             ?? Icons.Folder;
                         // counts_by_category is keyed by category.id (UUID) per migration 065
                         const n = counts[c.id] ?? 0;
-                        const isActive = activeKey === c.category_key;
+                        const isActive = currentActiveKey === c.category_key;
                         return (
                             <button
+                                type="button"
                                 key={c.id}
                                 onClick={() => handleClick(c.category_key)}
                                 className={cn(

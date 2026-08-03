@@ -1,8 +1,7 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet, BookOpen, FileText } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet, BookOpen, FileText, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useActiveChild } from '@/hooks/useActiveChild';
 import { ChildSwitcher } from '@/components/parent/ChildSwitcher';
 import { LineConnectCard } from '@/components/parent/LineConnectCard';
@@ -15,29 +14,8 @@ const MENU = [
     { id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/parent/waste-bank' },
     { id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/parent/savings-bank' },
     { id: 'vocab-review', label: 'คำศัพท์ที่พลาด', icon: BookOpen, path: '/parent/vocab-review' },
-];
-
-const HOME_WORKSHEETS = [
-    {
-        title: 'ใบงานคูณ',
-        url: '/games/math/multiplication-worksheet.html',
-        note: 'ฝึกคูณ · มีช่องผู้ปกครองลงชื่อท้ายใบ',
-    },
-    {
-        title: 'ใบงานหารสั้น',
-        url: '/games/math/short-division-worksheet.html',
-        note: 'หารสั้น · ตรวจผลแล้วตัดส่งครู',
-    },
-    {
-        title: 'ใบงาน Phonics',
-        url: '/games/english/phonics-worksheet.html',
-        note: 'เสียงตัวอักษร · ทบทวนที่บ้านได้',
-    },
-    {
-        title: 'ใบงานความปลอดภัยออนไลน์',
-        url: '/games/tech/online-safety-worksheet.html',
-        note: 'คุยกับลูกเรื่องออนไลน์ปลอดภัย',
-    },
+    { id: 'worksheets', label: 'ใบงานบ้าน', icon: FileText, path: '/parent/worksheets' },
+    { id: 'assignments', label: 'การบ้าน', icon: ClipboardList, path: '/parent/assignments' },
 ];
 
 export default function ParentDashboard() {
@@ -70,39 +48,6 @@ export default function ParentDashboard() {
                 )}
 
                 <LineConnectCard />
-
-                <Card>
-                    <CardContent className="p-6 space-y-4">
-                        <div className="flex items-start gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                                <FileText className="w-6 h-6" />
-                            </div>
-                            <div className="min-w-0">
-                                <p className="font-semibold text-foreground">ใบงานบ้าน</p>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    เปิดใบงานพิมพ์ที่บ้าน ทำเสร็จแล้วใช้แถบ «ผู้ปกครองลงชื่อ» ท้ายใบส่งครู
-                                    — ไม่ต้องตรวจออนไลน์
-                                </p>
-                            </div>
-                        </div>
-                        <ul className="grid sm:grid-cols-2 gap-3">
-                            {HOME_WORKSHEETS.map((ws) => (
-                                <li key={ws.url}>
-                                    <Button variant="outline" className="h-auto w-full justify-start py-3 px-3" asChild>
-                                        <a href={ws.url} target="_blank" rel="noreferrer">
-                                            <span className="text-left">
-                                                <span className="block font-semibold text-foreground">{ws.title}</span>
-                                                <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                                                    {ws.note}
-                                                </span>
-                                            </span>
-                                        </a>
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    </CardContent>
-                </Card>
 
                 <div className="grid md:grid-cols-2 gap-4">
                     {MENU.slice(1).map((item) => (

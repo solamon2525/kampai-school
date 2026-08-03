@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/social/thai-geography-media.html">
+  <meta name="curriculum-indicators" content="ส 5.1 ป.3/1,ส 5.1 ป.3/2,ส 5.1 ป.4/1">
+  <title>ใบงานภูมิศาสตร์ไทย ป.3–ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🗺️ ใบงานภูมิศาสตร์ไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.3–ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="dir">ทิศ</option><option value="region">ภาค</option><option value="place">ที่ตั้ง</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"dir","prompt":"ดวงอาทิตย์ขึ้นทางทิศใด","answer":"ตะวันออก"},{"type":"dir","prompt":"ทิศตรงข้ามเหนือคือทิศใด","answer":"ใต้"},{"type":"region","prompt":"ภาคเหนือมีลักษณะเด่น","answer":"ภูเขา / อากาศเย็น"},{"type":"region","prompt":"ภาคกลางเหมาะปลูกอะไร","answer":"ข้าว"},{"type":"region","prompt":"อีสานคือภาคใด","answer":"ตะวันออกเฉียงเหนือ"},{"type":"region","prompt":"ภาคใต้ติดอะไร","answer":"ทะเล"},{"type":"place","prompt":"อุดรธานีอยู่ภาคใด","answer":"ตะวันออกเฉียงเหนือ"},{"type":"place","prompt":"กรุงเทพฯ อยู่ภาคใด","answer":"กลาง"},{"type":"dir","prompt":"ใช้เข็มทิศทำไม","answer":"หาทิศ"},{"type":"region","prompt":"จับคู่: สวนยาง–ภาค…","answer":"ใต้"},{"type":"region","prompt":"จับคู่: ที่ราบสูง–ภาค…","answer":"ตะวันออกเฉียงเหนือ"},{"type":"place","prompt":"ชี้จังหวัดตนเองบนแผนที่ (อธิบาย)","answer":"อุดรธานี / ตามจริง"},{"type":"dir","prompt":"ถ้าหันหน้าไปทิศเหนือ ซ้ายมือคือทิศใด","answer":"ตะวันตก"},{"type":"region","prompt":"ทำไมภาคกลางมีนาข้าวมาก","answer":"ที่ราบลุ่มแม่น้ำ"},{"type":"place","prompt":"โรงเรียนบ้านคำไผ่อยู่จังหวัดใด","answer":"อุดรธานี"},{"type":"region","prompt":"สรุปภาคของไทยมีกี่ภาคหลักที่เรียน","answer":"4 (เหนือ กลาง อีสาน ใต้) หรือตามที่ครูสอน"}];
+window.WORKSHEET_CONFIG={
+  icon:'🗺️',title:'ใบงานภูมิศาสตร์ไทย',subject:'สังคมศึกษา',gradeLabel:'ป.3–ป.4',
+  mediaLabel:'สื่อภูมิศาสตร์ไทย',sourceMediaUrl:'/games/social/thai-geography-media.html',
+  indicators:["ส 5.1 ป.3/1","ส 5.1 ป.3/2","ส 5.1 ป.4/1"],
+  directions:"ตอบเรื่องทิศ ภาคของไทย ลักษณะภูมิประเทศ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

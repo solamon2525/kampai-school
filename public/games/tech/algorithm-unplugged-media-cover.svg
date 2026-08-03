@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="gAlgoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#a5b4fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#gAlgoBg)"/>
+  <circle cx="170" cy="150" r="95" fill="#ffffff" fill-opacity="0.12"/>
+  <circle cx="1110" cy="590" r="150" fill="#ffffff" fill-opacity="0.10"/>
+  <g stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" fill="none"><rect x="950" y="90" width="90" height="60" rx="12"/><path d="M1040 120 h50"/><rect x="1090" y="90" width="90" height="60" rx="12"/><path d="M120 540 h60 M210 540 h60"/><rect x="60" y="510" width="60" height="60" rx="12"/></g>
+  <rect x="80" y="160" width="1120" height="400" rx="32" fill="#ffffff" fill-opacity="0.18"/>
+  <text x="640" y="300" text-anchor="middle" font-size="96">🤖</text>
+  <text x="640" y="420" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="62" font-weight="700" fill="#ffffff">อัลกอริทึมแบบ Unplugged</text>
+  <text x="640" y="488" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="600" fill="#ffffff" fill-opacity="0.92">ลำดับขั้นตอน · คำสั่งทีละก้าว · เงื่อนไข ถ้า…ให้… · แก้บั๊ก · ป.2–4</text>
+  <text x="640" y="645" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">สื่อการสอน · บ้านคำไผ่</text>
+</svg>

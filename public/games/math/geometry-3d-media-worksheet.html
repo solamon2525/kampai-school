@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/geometry-3d-media.html">
+  <meta name="curriculum-indicators" content="ค 2.2 ป.5/4,ค 2.2 ป.6/3,ค 2.2 ป.6/4">
+  <title>ใบงานเรขาคณิต 2D/3D ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🧊 ใบงานเรขาคณิต 2D/3D</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="count">นับส่วน</option><option value="net">รูปคลี่</option><option value="name">ชื่อทรง</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
+<script src="/games/kampai-qr.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"count","prompt":"ลูกบาศก์มีกี่หน้า","answer":"6"},{"type":"count","prompt":"ลูกบาศก์มีกี่ขอบ","answer":"12"},{"type":"count","prompt":"ลูกบาศก์มีกี่จุดยอด","answer":"8"},{"type":"count","prompt":"พีระมิดฐานสี่เหลี่ยมมีกี่หน้า","answer":"5"},{"type":"count","prompt":"ปริซึมฐานสามเหลี่ยมมีกี่จุดยอด","answer":"6"},{"type":"net","prompt":"รูปคลี่ลูกบาศก์เป็นรูปอะไรกี่ชิ้น","answer":"จัตุรัส 6 ชิ้น"},{"type":"net","prompt":"รูปคลี่ทรงกระบอกมีอะไรบ้าง","answer":"สี่เหลี่ยมผืนผ้า + วงกลม 2"},{"type":"name","prompt":"ทรงที่มีผิวโค้งอย่างเดียว ไม่มีขอบตรง","answer":"ทรงกลม"},{"type":"name","prompt":"กล่องรองเท้าใกล้เคียงทรงใด","answer":"ปริซึมสี่เหลี่ยมมุมฉาก"},{"type":"count","prompt":"ทรงกรวยมีจุดยอดกี่จุด","answer":"1"},{"type":"count","prompt":"ตรวจออยเลอร์ลูกบาศก์: หน้า+จุดยอด กับ ขอบ+2","answer":"6+8=12+2 ✓"},{"type":"name","prompt":"สี่เหลี่ยมจัตุรัสเป็นกี่มิติ","answer":"2 มิติ"},{"type":"net","prompt":"ทำไมทรงกลมกางเป็นแผ่นแบนยาก","answer":"ผิวโค้งทั้งหมด"},{"type":"count","prompt":"พีระมิดฐานสี่เหลี่ยมมีกี่ขอบ","answer":"8"},{"type":"name","prompt":"กระป๋องน้ำอัดลมใกล้เคียงทรงใด","answer":"ทรงกระบอก"},{"type":"count","prompt":"ปริซึมสี่เหลี่ยมมุมฉากมีกี่หน้า","answer":"6"},{"type":"net","prompt":"วาดคร่าว ๆ รูปคลี่ลูกบาศก์แบบกากบาท","answer":"ตามสื่อ · 6 ช่อง"},{"type":"name","prompt":"กรวยไอศกรีมใกล้เคียงทรงใด","answer":"ทรงกรวย"}];
+window.WORKSHEET_CONFIG={
+  icon:'🧊',title:'ใบงานเรขาคณิต 2D/3D',subject:'คณิตศาสตร์',gradeLabel:'ป.4–ป.6',
+  mediaLabel:'สื่อเรขา 2D/3D',sourceMediaUrl:'/games/math/geometry-3d-media.html',
+  indicators:["ค 2.2 ป.5/4","ค 2.2 ป.6/3","ค 2.2 ป.6/4"],
+  directions:"นับหน้า ขอบ จุดยอด หรือตอบเกี่ยวกับรูปคลี่ · เขียนเหตุผลสั้น ๆ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="geometry-ws-grid calc-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / สูตรจำ <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

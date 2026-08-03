@@ -96,6 +96,30 @@ export const assignmentsService = {
     return (data ?? []) as AssignmentSubmission[];
   },
 
+  /**
+   * Graded submissions + assignment attachment — match pack worksheet URLs on parent worksheets.
+   */
+  async listGradedWithAssignment(studentId: string): Promise<
+    Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >
+  > {
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('*, assignments:assignment_id(id, title, attachment_url, max_score)')
+      .eq('student_id', studentId)
+      .not('graded_at', 'is', null)
+      .order('graded_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as Array<
+      AssignmentSubmission & {
+        assignments: Pick<Assignment, 'id' | 'title' | 'attachment_url' | 'max_score'> | null;
+      }
+    >;
+  },
+
   async submit(input: { assignment_id: string; student_id: string; body?: string; attachment_url?: string | null }): Promise<void> {
     const { data: userResp } = await supabase.auth.getUser();
     if (!userResp.user) throw new Error('Not authenticated');
@@ -111,6 +135,51 @@ export const assignmentsService = {
       { onConflict: 'assignment_id,student_id' },
     );
     if (error) throw error;
+
+    // Best-effort push to assignment creator (teacher)
+    try {
+      const { data: asg } = await supabase
+        .from('assignments' as any)
+        .select('title, created_by')
+        .eq('id', input.assignment_id)
+        .maybeSingle();
+      const row = asg as { title?: string; created_by?: string | null } | null;
+      if (row?.created_by) {
+        await supabase.functions
+          .invoke('send-push', {
+            body: {
+              user_ids: [row.created_by],
+              topic: 'homework',
+              title: 'มีงานส่งใหม่',
+              body: row.title || 'ผู้ปกครองส่งงานแล้ว',
+              url: '/teacher/assignments',
+              tag: `homework-submit-${input.assignment_id}-${input.student_id}`,
+            },
+          })
+          .catch(() => {});
+      }
+    } catch {
+      // Non-fatal
+    }
+  },
+
+  /** Upload student work photo/PDF for parent homework submit. */
+  async uploadAttachment(file: File): Promise<string> {
+    const { data: userResp } = await supabase.auth.getUser();
+    if (!userResp.user) throw new Error('Not authenticated');
+    const cleanName = file.name.replace(/[^\w.\-]+/g, '_');
+    const path = `${userResp.user.id}/${Date.now()}_${crypto.randomUUID().slice(0, 8)}_${cleanName}`;
+    const { error: upErr } = await supabase.storage.from('assignment-attachments').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (upErr) throw upErr;
+    const { data: signed, error: signErr } = await supabase.storage
+      .from('assignment-attachments')
+      .createSignedUrl(path, 60 * 60 * 24 * 14);
+    if (signErr || !signed?.signedUrl) throw signErr ?? new Error('ไม่สามารถสร้างลิงก์ไฟล์ได้');
+    return signed.signedUrl;
   },
 
   async grade(submissionId: string, score: number, comment?: string): Promise<void> {
@@ -125,5 +194,60 @@ export const assignmentsService = {
       })
       .eq('id', submissionId);
     if (error) throw error;
+  },
+
+  /** Teacher cadence: submissions awaiting grade across own assignments. */
+  async countPendingGrading(): Promise<{ pending: number; firstAssignmentId: string | null }> {
+    const mine = await assignmentsService.listMine();
+    const active = mine.filter((a) => !a.is_archived);
+    if (!active.length) return { pending: 0, firstAssignmentId: null };
+    const ids = active.map((a) => a.id);
+    const { data, error } = await supabase
+      .from('assignment_submissions' as any)
+      .select('id, assignment_id')
+      .in('assignment_id', ids)
+      .is('graded_at', null);
+    if (error) throw error;
+    const rows = (data ?? []) as { id: string; assignment_id: string }[];
+    return {
+      pending: rows.length,
+      firstAssignmentId: rows[0]?.assignment_id ?? null,
+    };
+  },
+
+  /** Phase 16 ops: homework loop activity in last N days */
+  opsSummary: async (
+    sinceDays = 30,
+  ): Promise<{ sinceDays: number; assignments: number; submissions: number; withAttachment: number }> => {
+    const since = new Date();
+    since.setDate(since.getDate() - sinceDays);
+    const sinceIso = since.toISOString();
+
+    const [assignRes, subRes, attachRes] = await Promise.all([
+      supabase
+        .from('assignments' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', sinceIso)
+        .eq('is_archived', false),
+      supabase
+        .from('assignment_submissions' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('submitted_at', sinceIso),
+      supabase
+        .from('assignment_submissions' as any)
+        .select('*', { count: 'exact', head: true })
+        .gte('submitted_at', sinceIso)
+        .not('attachment_url', 'is', null),
+    ]);
+    if (assignRes.error) throw assignRes.error;
+    if (subRes.error) throw subRes.error;
+    if (attachRes.error) throw attachRes.error;
+
+    return {
+      sinceDays,
+      assignments: assignRes.count ?? 0,
+      submissions: subRes.count ?? 0,
+      withAttachment: attachRes.count ?? 0,
+    };
   },
 };

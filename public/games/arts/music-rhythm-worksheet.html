@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/arts/music-rhythm-media.html"><meta name="curriculum-indicators" content="ศ 2.1 ป.3/2, ศ 2.1 ป.4/3, ศ 2.1 ป.4/4"><title>ใบงานจังหวะและเครื่องหมายดนตรี ป.3–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.184.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.item-box{border:1px solid var(--ws-line);border-radius:3px;padding:1mm;margin:.8mm 0;font-size:8pt;font-weight:800;color:var(--ws-accent);text-align:center}
+.item-box svg{display:inline-block;vertical-align:middle}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.show-answers .tick-box.tick-ans{border:1.5px solid var(--ws-danger);color:var(--ws-danger);font-weight:800}
+.beat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1mm;margin:.8mm 0}
+.beat-cell{border:1px dashed var(--ws-line);border-radius:3px;text-align:center;padding:.6mm}
+.beat-cell svg{display:block;margin:0 auto}
+.beat-blank{min-height:4.5mm;border-bottom:1px dotted var(--ws-muted);font-size:8pt;font-weight:800;display:flex;align-items:flex-end;justify-content:center}
+.draw-box{border:1px solid var(--ws-line);border-radius:3px;min-height:15mm;margin:.8mm 0;position:relative;padding:3.5mm 1mm 1mm;text-align:center}
+.draw-box .draw-hint{position:absolute;top:.5mm;left:1mm;font-size:6pt;font-weight:700;color:var(--ws-muted)}
+.draw-box svg{max-width:100%;height:auto}
+.draw-check{display:flex;flex-wrap:wrap;gap:1.5mm;margin:.6mm 0;font-size:6.5pt;font-weight:700;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+.count-5 .draw-box{min-height:24mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>🎵 ใบงานจังหวะและเครื่องหมายดนตรี</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="value">ค่าตัวโน้ต</option><option value="symbol">เครื่องหมายดนตรี</option><option value="rhythm">รูปแบบจังหวะ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.184.0"></script><script>
+function noteSvg(type,s){
+  s=s||26;let inner='';
+  if(type==='whole')inner='<ellipse cx="14" cy="17" rx="8" ry="5.5" fill="none" stroke="#111" stroke-width="2"/>';
+  else if(type==='half')inner='<ellipse cx="10" cy="26" rx="5.5" ry="4" transform="rotate(-20 10 26)" fill="none" stroke="#111" stroke-width="1.7"/><line x1="15.2" y1="24" x2="15.2" y2="3" stroke="#111" stroke-width="1.5"/>';
+  else if(type==='quarter')inner='<ellipse cx="10" cy="26" rx="5.5" ry="4" transform="rotate(-20 10 26)" fill="#111"/><line x1="15.2" y1="24" x2="15.2" y2="3" stroke="#111" stroke-width="1.5"/>';
+  else if(type==='eighth')inner='<ellipse cx="10" cy="26" rx="5.5" ry="4" transform="rotate(-20 10 26)" fill="#111"/><line x1="15.2" y1="24" x2="15.2" y2="3" stroke="#111" stroke-width="1.5"/><path d="M15.2 3 C 22 7, 22 13, 16 17" fill="none" stroke="#111" stroke-width="1.7"/>';
+  else if(type==='rest-q')inner='<path d="M12 3 l6 7 c-3 3 -4 5 -1 8.5 c-4 1 -6 4 -4 8 c-3.5 -1.5 -4 -4.5 -1.5 -7 l-4.5 -5.5 c3 -2.5 4.5 -6 5 -11 z" fill="#111"/>';
+  else if(type==='rest-h')inner='<line x1="3" y1="20" x2="25" y2="20" stroke="#111" stroke-width="1.4"/><rect x="8" y="14" width="12" height="6" fill="#111"/>';
+  else if(type==='rest-w')inner='<line x1="3" y1="12" x2="25" y2="12" stroke="#111" stroke-width="1.4"/><rect x="8" y="12" width="12" height="6" fill="#111"/>';
+  return '<svg viewBox="0 0 28 32" width="'+s+'" height="'+Math.round(s*32/28)+'">'+inner+'</svg>';
+}
+const STAFF_SVG='<svg viewBox="0 0 170 46" width="170" height="46">'+[0,1,2,3,4].map(i=>'<line x1="4" y1="'+(8+i*7)+'" x2="166" y2="'+(8+i*7)+'" stroke="#334155" stroke-width="1"/>').join('')+'<line x1="45" y1="8" x2="45" y2="36" stroke="#334155" stroke-width="1.2"/><line x1="85" y1="8" x2="85" y2="36" stroke="#334155" stroke-width="1.2"/><line x1="125" y1="8" x2="125" y2="36" stroke="#334155" stroke-width="1.2"/></svg>';
+const CLEF_SVG='<svg viewBox="0 0 40 60" width="26" height="39"><path d="M22 48 C 12 45, 11 34, 20 31 C 29 28, 33 37, 26 41 C 18 45, 15 18, 21 4 C 26 12, 24 24, 21 35" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const BAR_SVG='<svg viewBox="0 0 60 40" width="45" height="30">'+[0,1,2,3,4].map(i=>'<line x1="4" y1="'+(6+i*6)+'" x2="56" y2="'+(6+i*6)+'" stroke="#111" stroke-width="1"/>').join('')+'<line x1="30" y1="6" x2="30" y2="30" stroke="#111" stroke-width="2.2"/></svg>';
+const ITEMS=[
+ {topic:'value',tag:'ค่าตัวโน้ต',kind:'tick',prompt:'ตัวโน้ตในกรอบคือ «ตัวดำ» มีค่ากี่จังหวะ',svg:noteSvg('quarter',30),choices:['1 จังหวะ','2 จังหวะ','4 จังหวะ','ครึ่งจังหวะ'],ans:'1 จังหวะ',steps:['หัวโน้ตทึบ มีก้าน ไม่มีธง','คือโน้ตตัวดำ','ตัวดำ = 1 จังหวะ'],answer:'1 จังหวะ'},
+ {topic:'value',tag:'ค่าตัวโน้ต',kind:'tick',prompt:'ตัวโน้ตในกรอบคือ «ตัวขาว» มีค่ากี่จังหวะ',svg:noteSvg('half',30),choices:['2 จังหวะ','1 จังหวะ','4 จังหวะ','ครึ่งจังหวะ'],ans:'2 จังหวะ',steps:['หัวโน้ตโปร่ง มีก้าน','คือโน้ตตัวขาว','ตัวขาว = 2 จังหวะ'],answer:'2 จังหวะ'},
+ {topic:'value',tag:'ค่าตัวโน้ต',kind:'tick',prompt:'ตัวโน้ตในกรอบคือ «ตัวกลม» มีค่ากี่จังหวะ',svg:noteSvg('whole',30),choices:['4 จังหวะ','2 จังหวะ','1 จังหวะ','3 จังหวะ'],ans:'4 จังหวะ',steps:['หัวโปร่ง ไม่มีก้าน','คือโน้ตตัวกลม (ยาวสุด)','ตัวกลม = 4 จังหวะ'],answer:'4 จังหวะ'},
+ {topic:'value',tag:'ค่าตัวโน้ต',kind:'tick',prompt:'ตัวโน้ตในกรอบคือ «เขบ็ตหนึ่งชั้น» มีค่ากี่จังหวะ',svg:noteSvg('eighth',30),choices:['ครึ่งจังหวะ','1 จังหวะ','2 จังหวะ','4 จังหวะ'],ans:'ครึ่งจังหวะ',steps:['หัวทึบ มีก้าน มีธง 1 ชั้น','คือเขบ็ตหนึ่งชั้น (เสียงสั้น)','= ครึ่งจังหวะ'],answer:'ครึ่งจังหวะ'},
+ {topic:'value',tag:'ค่าตัวโน้ต·เทียบ',kind:'tick',prompt:'โน้ตตัวขาว 1 ตัว มีค่าเท่ากับโน้ตตัวดำกี่ตัว',svg:noteSvg('half',26)+'<span style="font-weight:800"> = ? × </span>'+noteSvg('quarter',26),choices:['2 ตัว','1 ตัว','4 ตัว','8 ตัว'],ans:'2 ตัว',steps:['ตัวขาว = 2 จังหวะ','ตัวดำ = 1 จังหวะ','2 ÷ 1 = 2 ตัว'],answer:'2 ตัว (2 จังหวะ = ตัวดำ 2 ตัว)'},
+ {topic:'symbol',tag:'เครื่องหมาย',kind:'tick',prompt:'สัญลักษณ์ในกรอบคือ «ตัวหยุดตัวดำ» บอกให้เราทำอย่างไร',svg:noteSvg('rest-q',30),choices:['เงียบเสียง 1 จังหวะ','ร้องดังขึ้น','เล่นเร็วขึ้น','จบเพลงทันที'],ans:'เงียบเสียง 1 จังหวะ',steps:['ตัวหยุด = เครื่องหมายเงียบเสียง','หยุดตัวดำ มีค่าเท่าตัวดำ','เงียบ 1 จังหวะ แต่ยังนับต่อ'],answer:'เงียบเสียง 1 จังหวะ (ยังนับจังหวะต่อ)'},
+ {topic:'symbol',tag:'เครื่องหมาย',kind:'tick',prompt:'สัญลักษณ์ในกรอบคือ «กุญแจซอล» ทำหน้าที่อะไร',svg:CLEF_SVG,choices:['กำหนดระดับเสียง วางต้นบรรทัด 5 เส้น','บอกให้หยุดเล่น','แบ่งห้องเพลง','บอกความดัง–เบา'],ans:'กำหนดระดับเสียง วางต้นบรรทัด 5 เส้น',steps:['อยู่หน้าสุดของบรรทัด 5 เส้น','เป็นกุญแจประจำหลัก','กำหนดระดับเสียงของโน้ต'],answer:'กำหนดระดับเสียงของตัวโน้ต วางไว้ต้นบรรทัด 5 เส้น'},
+ {topic:'symbol',tag:'เครื่องหมาย',kind:'tick',prompt:'เส้นตั้งกลางบรรทัด 5 เส้นในกรอบ เรียกว่าอะไร',svg:BAR_SVG,choices:['เส้นกั้นห้อง','กุญแจซอล','ตัวหยุด','เส้นน้ำหนัก'],ans:'เส้นกั้นห้อง',steps:['เส้นตั้งขวางบรรทัด 5 เส้น','ใช้แบ่งเพลงเป็นห้อง ๆ','คือ เส้นกั้นห้อง'],answer:'เส้นกั้นห้อง — แบ่งเพลงเป็นห้อง ๆ'},
+ {topic:'symbol',tag:'เครื่องหมาย',kind:'tick',prompt:'เครื่องหมายประจำจังหวะ 4/4 ที่ต้นเพลง บอกอะไรเรา',item:'4 / 4',choices:['1 ห้องมี 4 จังหวะ','เพลงมี 4 ท่อน','ร้องซ้ำ 4 รอบ','ใช้นิ้ว 4 นิ้วเล่น'],ans:'1 ห้องมี 4 จังหวะ',steps:['เลขบน = จำนวนจังหวะใน 1 ห้อง','เลขบนคือ 4','1 ห้องมี 4 จังหวะ'],answer:'1 ห้องมี 4 จังหวะ (ตัวดำ = 1 จังหวะ)'},
+ {topic:'rhythm',tag:'นับจังหวะ',kind:'count',prompt:'เขียนค่าจังหวะใต้สัญลักษณ์แต่ละตัว (ตัวหยุด = เงียบแต่ต้องนับ) ห้องนี้รวมได้กี่จังหวะ',pattern:[{t:'quarter',v:'1'},{t:'quarter',v:'1'},{t:'rest-q',v:'เงียบ 1'},{t:'quarter',v:'1'}],patternNote:'(ช่องที่ 3 เป็นตัวหยุดตัวดำ)',steps:['ดำ = 1 จังหวะ สามตัว','หยุดตัวดำ = เงียบ 1 จังหวะ','1 + 1 + 1 + 1 = 4 จังหวะ'],answer:'1 + 1 + เงียบ 1 + 1 = 4 จังหวะ ครบห้อง 4/4'},
+ {topic:'rhythm',tag:'นับจังหวะ',kind:'count',prompt:'เขียนค่าจังหวะใต้ตัวโน้ตแต่ละตัว ห้องนี้รวมได้กี่จังหวะ',pattern:[{t:'half',v:'2'},{t:'quarter',v:'1'},{t:'quarter',v:'1'},{t:'',v:''}],patternNote:'(ช่องว่างสุดท้ายไม่ต้องเติม)',steps:['ขาว = 2 จังหวะ','ดำ = 1 จังหวะ สองตัว','2 + 1 + 1 = 4 จังหวะ'],answer:'2 + 1 + 1 = 4 จังหวะ ครบห้อง 4/4'},
+ {topic:'rhythm',tag:'นับจังหวะ',kind:'count',prompt:'เขียนค่าจังหวะใต้ตัวโน้ต (เขบ็ต 2 ตัว = ติ–ติ) ห้องนี้รวมได้กี่จังหวะ',pattern:[{t:'quarter',v:'1'},{t:'eighth',v:'ครึ่ง'},{t:'eighth',v:'ครึ่ง'},{t:'half',v:'2'}],patternNote:'',steps:['ดำ = 1','เขบ็ต 2 ตัว = ครึ่ง + ครึ่ง = 1','1 + 1 + 2 = 4 จังหวะ'],answer:'1 + ครึ่ง + ครึ่ง + 2 = 4 จังหวะพอดี'},
+ {topic:'rhythm',tag:'วาดโน้ต',kind:'draw',prompt:'วาดโน้ต «ตัวดำ 2 ตัว» และ «ตัวขาว 1 ตัว» ลงบนบรรทัด 5 เส้น ให้ครบห้อง 4/4 (ตำแหน่งสูง–ต่ำวางได้อิสระ)',svgDraw:STAFF_SVG,drawHint:'วาดหัวโน้ต+ก้านลงบนบรรทัด 5 เส้น',checklist:['□ ตัวดำ 2 ตัว (หัวทึบ)','□ ตัวขาว 1 ตัว (หัวโปร่ง)','□ รวม 4 จังหวะ'],steps:['ตัวดำ 2 ตัว = 2 จังหวะ','ตัวขาว 1 ตัว = 2 จังหวะ','2 + 2 = 4 จังหวะ ครบห้อง'],answer:'แนวเฉลย: หัวทึบมีก้าน 2 ตัว + หัวโปร่งมีก้าน 1 ตัว = 2+2 = 4 จังหวะ'},
+ {topic:'rhythm',tag:'ออกแบบจังหวะ',kind:'draw',prompt:'ออกแบบรูปแบบจังหวะของตนเอง 1 ห้อง (รวม 4 จังหวะ) ด้วยสัญลักษณ์ ตา (ตัวดำ) / ติ–ติ (เขบ็ตคู่) / ขาว แล้วฝึกปรบมือตาม',drawHint:'เขียนสัญลักษณ์จังหวะ 1 ห้อง (4 จังหวะ)',checklist:['□ รวมครบ 4 จังหวะ','□ ใช้สัญลักษณ์อย่างน้อย 2 ชนิด','□ ปรบมือตามได้จริง'],steps:['เลือกสัญลักษณ์ เช่น ตา ตา ติ–ติ ตา','นับรวม: 1+1+1+1 = 4','ปรบมือทดสอบกับเพื่อน'],answer:'แนวเฉลย: เช่น ตา ตา ติ–ติ ตา (1+1+1+1 = 4 จังหวะ)'},
+ {topic:'rhythm',tag:'ช้า–เร็ว',kind:'tick',prompt:'เพลงเชียร์กีฬาสีที่สนุก คึกคัก ควรใช้ความเร็วจังหวะแบบใด',item:'📣 เพลงเชียร์กีฬาสี',choices:['เร็ว กระฉับกระเฉง','ช้า เนิบนาบ','ช้ามากเหมือนเพลงกล่อมเด็ก'],cols:3,ans:'เร็ว กระฉับกระเฉง',steps:['อารมณ์เพลงเชียร์ = สนุก คึกคัก','จังหวะเร็วให้ความรู้สึกตื่นตัว','เลือก จังหวะเร็ว'],answer:'จังหวะเร็ว กระฉับกระเฉง'},
+];
+window.WORKSHEET_CONFIG={
+  worksheetKey:'music-rhythm',
+  icon:'🎵',title:'ใบงานจังหวะและเครื่องหมายดนตรี',subject:'ศิลปะ (ดนตรี)',gradeLabel:'ป.3–4',mediaLabel:'จังหวะและเครื่องหมายดนตรี',
+  sourceMediaUrl:'/games/arts/music-rhythm-media.html',indicators:['ศ 2.1 ป.3/2','ศ 2.1 ป.4/3','ศ 2.1 ป.4/4'],
+  topicLabels:{mixed:'ผสมทุกทักษะ',value:'ค่าตัวโน้ต',symbol:'เครื่องหมายดนตรี',rhythm:'รูปแบบจังหวะ'},
+  directions:'สแกน QR เรียนจากสื่อก่อน → ดูสัญลักษณ์ → ติ๊ก/เขียนค่าจังหวะ/วาดโน้ต → เขียนวิธีคิดทีละขั้น',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.topic===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let html='<div class="q-stem"><span class="skill-tag">'+e(item.tag)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>';
+    if(item.svg)html+='<div class="item-box">'+item.svg+'</div>';
+    else if(item.item)html+='<div class="item-box">'+e(item.item)+'</div>';
+    if(item.kind==='tick'){
+      html+='<div class="tick-grid'+(item.cols===3?' cols-3':'')+'">'+item.choices.map(c=>'<div class="tick-box'+(c===item.ans?' tick-ans':'')+'">□ '+e(c)+'</div>').join('')+'</div>';
+    }else if(item.kind==='count'){
+      html+='<div class="beat-row">'+item.pattern.map(p=>'<div class="beat-cell">'+(p.t?noteSvg(p.t,22):'<span style="font-size:7pt;color:var(--ws-muted)">—</span>')+'<div class="beat-blank"><span class="work-fill">'+e(p.v)+'</span></div></div>').join('')+'</div>'
+        +(item.patternNote?'<div class="draw-check"><span>'+e(item.patternNote)+'</span></div>':'');
+    }
+    html+='</div>';
+    if(item.kind==='draw'){
+      html+='<div class="draw-box"><span class="draw-hint">✏️ '+e(item.drawHint)+'</span>'+(item.svgDraw||'')+'</div><div class="draw-check">'+item.checklist.map(c=>'<span>'+e(c)+'</span>').join('')+'</div>';
+    }
+    html+='<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.steps[0])+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 นับ/คิด</span><div class="step-body"><span class="work-fill">'+e(item.steps[1])+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.steps[2])+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+    return html;
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.184.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

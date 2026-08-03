@@ -1,55 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-fraction-hub/index.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/13, ค 1.1 ป.4/14"><title>ใบงานเศษส่วน Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.frac-board{display:flex;gap:3mm;align-items:center;margin:1mm 0;flex-wrap:wrap}
-.frac-bar{display:flex;border:1.5px solid var(--ws-ink);border-radius:3px;overflow:hidden;height:8mm;min-width:28mm}
-.frac-bar i{flex:1;border-right:1px solid var(--ws-line);background:transparent}.frac-bar i:last-child{border-right:0}.frac-bar i.on{background:var(--ws-accent)}
-.frac-sym{font-size:14pt;font-weight:800;color:var(--ws-accent);line-height:1}
-.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
-.step-row{display:grid;grid-template-columns:18mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
-.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-.count-5 .step-row{min-height:8.5mm}.count-5 .frac-bar{height:10mm}
-</style>
-</head><body>
-<header class="toolbar"><h1>🍰 ใบงานเศษส่วน Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="meaning">ความหมาย</option><option value="compare">เปรียบเทียบ</option><option value="equivalent">เท่ากัน</option><option value="operate">บวกลบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
-function bar(n,d){return '<div class="frac-bar" aria-hidden="true">'+Array.from({length:d},(_,i)=>'<i class="'+(i<n?'on':'')+'"></i>').join('')+'</div>';}
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-fraction-hub/index.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/13, ค 1.1 ป.4/14"><title>ใบงานเศษส่วน Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>🍰 ใบงานเศษส่วน Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="meaning">ความหมาย</option><option value="compare">เปรียบเทียบ</option><option value="equivalent">เท่ากัน</option><option value="operate">บวกลบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const FRAC_ITEMS=[
-{type:'meaning',prompt:'1/4 หมายถึงอะไร',context:'แบ่งเท่า ๆ แล้วเอาบางส่วน',n:1,d:4,choices:['แบ่ง 4 ส่วน เอา 1','แบ่ง 1 เอา 4'],answer:'แบ่งเท่า 4 ส่วน เอา 1 ส่วน',s1:'ตัวส่วน = 4 ส่วน',s2:'ตัวเศษ = 1 ส่วน',s3:'แรเงา 1 จาก 4'},
-{type:'meaning',prompt:'3/5 อ่านอย่างไร',context:'3/5',n:3,d:5,choices:['สามส่วนห้า','ห้าส่วนสาม'],answer:'สามส่วนห้า',s1:'เศษ 3',s2:'ส่วน 5',s3:'สามส่วนห้า'},
-{type:'compare',prompt:'1/2 ___ 1/4',context:'เปรียบเทียบขนาดชิ้น',n:1,d:2,n2:1,d2:4,choices:['>','<','='],answer:'1/2 > 1/4',s1:'ครึ่งใหญ่กว่าหนึ่งส่วนสี่',s2:'ส่วนเล็ก = ชิ้นใหญ่',s3:'>'},
-{type:'compare',prompt:'2/3 ___ 2/5',context:'ตัวเศษเท่ากัน',n:2,d:3,n2:2,d2:5,choices:['>','<','='],answer:'2/3 > 2/5',s1:'เศษเท่า ดูตัวส่วน',s2:'3 < 5 → 2/3 ใหญ่กว่า',s3:'>'},
-{type:'equivalent',prompt:'1/2 = ?/4',context:'ขยายให้ส่วนเป็น 4',n:1,d:2,n2:2,d2:4,choices:['2/4','1/4'],answer:'2/4',s1:'ส่วน ×2 → 4',s2:'เศษ ×2 → 2',s3:'2/4'},
-{type:'equivalent',prompt:'3/6 = ?/2',context:'ย่อเศษส่วน',n:3,d:6,n2:1,d2:2,choices:['1/2','3/2'],answer:'1/2',s1:'หารทั้งคู่ด้วย 3',s2:'3÷3=1 · 6÷3=2',s3:'1/2'},
-{type:'operate',prompt:'1/4 + 1/4 = ?',context:'ส่วนเท่ากัน',n:1,d:4,n2:1,d2:4,choices:['2/4','1/8'],answer:'2/4 = 1/2',s1:'ส่วนเท่า → บวกเศษ',s2:'1+1=2',s3:'2/4 = 1/2'},
-{type:'operate',prompt:'3/4 − 1/4 = ?',context:'ส่วนเท่ากัน',n:3,d:4,n2:1,d2:4,choices:['2/4','4/4'],answer:'2/4 = 1/2',s1:'ส่วนเท่า → ลบเศษ',s2:'3−1=2',s3:'2/4 = 1/2'},
-{type:'meaning',prompt:'5/4 เป็นเศษเกินหนึ่งอย่างไร',context:'5/4',n:5,d:4,choices:['มากกว่า 1','น้อยกว่า 1'],answer:'มากกว่า 1 (1 + 1/4)',s1:'4/4 = 1',s2:'5/4 = 1 + 1/4',s3:'> 1'},
-{type:'compare',prompt:'เรียง 1/3, 1/2, 1/5 จากมาก→น้อย',context:'เศษส่วนหน่วย',choices:['1/2, 1/3, 1/5','1/5, 1/3, 1/2'],answer:'1/2, 1/3, 1/5',s1:'1/2 มากสุด',s2:'1/5 น้อยสุด',s3:'1/2 → 1/3 → 1/5'},
-{type:'equivalent',prompt:'2/3 = 4/?',context:'ขยาย ×2',n:2,d:3,n2:4,d2:6,choices:['6','5'],answer:'6',s1:'เศษ ×2 = 4',s2:'ส่วน ×2 = 6',s3:'4/6'},
-{type:'operate',prompt:'1/2 + 1/4 = ?',context:'ทำส่วนให้เท่า',n:1,d:2,n2:1,d2:4,choices:['3/4','2/6'],answer:'3/4',s1:'1/2 = 2/4',s2:'2/4 + 1/4',s3:'3/4'}
+{type:'meaning',prompt:'1/4 หมายถึงอะไร',context:'1/4',choices:['แบ่ง 4 ส่วน เอา 1','แบ่ง 1 เอา 4'],answer:'แบ่งเท่า 4 ส่วน เอา 1 ส่วน',step1:'分母=4 ส่วน',step2:'分子=1 ส่วน',step3:'1 จาก 4'},
+{type:'meaning',prompt:'3/5 อ่านอย่างไร',context:'3/5',choices:['สามส่วนห้า','ห้าส่วนสาม'],answer:'สามส่วนห้า',step1:'3 ด้านบน',step2:'5 ด้านล่าง',step3:'สามส่วนห้า'},
+{type:'compare',prompt:'1/2 ___ 1/4',context:'1/2 · 1/4',choices:['>','<'],answer:'1/2 > 1/4',step1:'ครึ่ง > หนึ่งส่วนสี่',step2:'分母เล็ก=ชิ้นใหญ่',step3:'>'},
+{type:'compare',prompt:'2/3 ___ 2/5',context:'ตัวเศษเท่า',choices:['>','<'],answer:'2/3 > 2/5',step1:'เศษเท่า ดู分母',step2:'3<5 → 2/3 ใหญ่กว่า',step3:'>'},
+{type:'equivalent',prompt:'1/2 = ?/4',context:'เท่ากัน',choices:['2/4','1/4'],answer:'2/4',step1:'2×2=4',step2:'1×2=2',step3:'2/4'},
+{type:'equivalent',prompt:'3/6 = ?/2',context:'ย่อ',choices:['1/2','3/2'],answer:'1/2',step1:'หาร 3',step2:'3÷3=1 · 6÷3=2',step3:'1/2'},
+{type:'operate',prompt:'1/4 + 1/4 = ?',nums:'1/4+1/4',answer:'2/4 = 1/2',step1:'分母เท่า บวกเศษ',step2:'1+1=2',step3:'2/4=1/2'},
+{type:'operate',prompt:'3/4 − 1/4 = ?',nums:'3/4−1/4',answer:'2/4 = 1/2',step1:'分母เท่า',step2:'3−1=2',step3:'2/4=1/2'},
+{type:'meaning',prompt:'เศษส่วนที่มากกว่า 1 เช่น 5/4',context:'5/4',choices:['มากกว่า 1 ชิ้นเต็ม','น้อยกว่า 1'],answer:'มากกว่า 1 (1 ชิ้นเต็ม + 1/4)',step1:'4/4=1',step2:'5/4=1+1/4',step3:'>1'},
+{type:'compare',prompt:'เรียง 1/3, 1/2, 1/5 มาก→น้อย',context:'เศษส่วน',choices:['1/2,1/3,1/5','1/5,1/3,1/2'],answer:'1/2, 1/3, 1/5',step1:'1/2 มากสุด',step2:'1/5 น้อยสุด',step3:'1/2→1/3→1/5'},
+{type:'equivalent',prompt:'2/3 = 4/?',context:'ขยาย',choices:['6','5'],answer:'6',step1:'×2 ทั้งคู่',step2:'3×2=6',step3:'4/6'},
+{type:'operate',prompt:'1/2 + 1/4 = ?',nums:'1/2+1/4',answer:'3/4',step1:'1/2=2/4',step2:'2/4+1/4=3/4',step3:'3/4'}
 ];
-window.WORKSHEET_CONFIG={
-  worksheetKey:'fraction-hub',icon:'🍰',title:'ใบงานเศษส่วน Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'เศษส่วน Hub',
-  sourceMediaUrl:'/games/math/math-fraction-hub/index.html',indicators:['ค 1.1 ป.4/13','ค 1.1 ป.4/14'],
-  directions:'ดูแถบเศษส่วน · เปรียบเทียบ/ย่อขยาย · บวกลบส่วนเท่า · เขียนขั้นติดป้าย',
-  getItems(t){return t==='mixed'?FRAC_ITEMS:FRAC_ITEMS.filter(i=>i.type===t);},
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    let board='';
-    if(item.n!=null&&item.d!=null){
-      board='<div class="frac-board"><span class="frac-sym">'+e(item.n+'/'+item.d)+'</span>'+bar(item.n,item.d);
-      if(item.n2!=null)board+='<span class="frac-sym">'+(item.type==='compare'?'vs':item.type==='operate'?'&':'=')+'</span><span class="frac-sym">'+e(item.n2+'/'+item.d2)+'</span>'+bar(item.n2,item.d2);
-      board+='</div>';
-    }
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.context||'')+'</div>'+board
-      +(item.choices?'<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>':'')
-      +'</div><div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 ดู</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 คิด</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
-      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'🍰',title:'ใบงานเศษส่วน Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'เศษส่วน Hub',sourceMediaUrl:'/games/math/math-fraction-hub/index.html',indicators:['ค 1.1 ป.4/13','ค 1.1 ป.4/14'],directions:'ความหมาย เปรียบเทียบ เศษส่วนเท่ากัน และบวกลบ',getItems(t){return t==='mixed'?FRAC_ITEMS:FRAC_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.context)stem+='<div class="q-context">'+e(item.context)+'</div>';if(item.choices)stem+='<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>';stem+='<div>ลงวิธีคิด 3 ขั้น</div></div>';return stem+'<div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

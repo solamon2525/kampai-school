@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/thai-regions-media.html"><meta name="curriculum-indicators" content="ส 5.1 ป.5/1, ส 5.2 ป.5/2, ส 5.1 ป.6/1"><title>ใบงานภูมิศาสตร์ 6 ภาคของไทย ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.184.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.region-box{border:1px solid var(--ws-line);border-radius:3px;padding:1mm;margin:.8mm 0;font-size:8.5pt;font-weight:800;color:var(--ws-accent);text-align:center}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm 1mm;font-size:6.5pt;font-weight:700;text-align:left;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:22mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:9mm}
+.count-10 .tick-grid{grid-template-columns:1fr 1fr}
+</style>
+</head><body>
+<header class="toolbar"><h1>🗺️ ใบงาน 6 ภาคของไทย</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="terrain">ภูมิประเทศ</option><option value="climate">ภูมิอากาศ</option><option value="jobs">อาชีพ–ของดี</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.184.0"></script><script>
+const TERRAIN_TICKS=['□ ภูเขาสูงสลับหุบเขา','□ ที่ราบสูง ดินปนทราย','□ ที่ราบลุ่มแม่น้ำ','□ ชายฝั่ง–คาบสมุทร'];
+const CLIMATE_TICKS=['□ หนาวเย็น มีหมอก','□ ร้อนแห้งแล้ง ฝนน้อย','□ ร้อนชื้น 3 ฤดู','□ ฝนชุกเกือบทั้งปี'];
+const ITEMS=[
+ {type:'terrain',region:'⛰️ ภาคเหนือ',prompt:'ภูมิประเทศของภาคเหนือเป็นแบบใด',ticks:TERRAIN_TICKS,answer:'ภูเขาสูงสลับหุบเขา — ต้นน้ำปิง วัง ยม น่าน',step1:'ภูเขาสูง มีดอย',step2:'ต้นน้ำ 4 สาย',step3:'ภูเขา–หุบเขา'},
+ {type:'terrain',region:'🌾 ภาคอีสาน',prompt:'ภูมิประเทศของภาคตะวันออกเฉียงเหนือเป็นแบบใด',ticks:TERRAIN_TICKS,answer:'ที่ราบสูงโคราช ดินปนทราย — แม่น้ำโขง ชี มูล',step1:'แผ่นดินยกตัวสูง',step2:'ดินปนทราย เก็บน้ำยาก',step3:'ที่ราบสูง'},
+ {type:'terrain',region:'🚜 ภาคกลาง',prompt:'ภูมิประเทศของภาคกลางเป็นแบบใด',ticks:TERRAIN_TICKS,answer:'ที่ราบลุ่มแม่น้ำเจ้าพระยา ดินอุดมสมบูรณ์',step1:'แม่น้ำเจ้าพระยา',step2:'ดินตะกอนอุดม',step3:'ที่ราบลุ่มแม่น้ำ'},
+ {type:'terrain',region:'🏖️ ภาคตะวันออก',prompt:'ภูมิประเทศของภาคตะวันออกเป็นแบบใด',ticks:TERRAIN_TICKS,answer:'ที่ราบชายฝั่งทะเลสลับภูเขาเตี้ย มีเกาะมาก',step1:'ติดอ่าวไทย',step2:'มีเกาะ–ชายหาด',step3:'ชายฝั่งทะเล'},
+ {type:'terrain',region:'🏞️ ภาคตะวันตก',prompt:'ภูมิประเทศของภาคตะวันตกเป็นแบบใด',ticks:TERRAIN_TICKS,answer:'ทิวเขาตะนาวศรี หุบเขาลึก มีเขื่อนขนาดใหญ่',step1:'ทิวเขาตะนาวศรี',step2:'แม่น้ำแคว–เขื่อน',step3:'ภูเขา–หุบเขา'},
+ {type:'terrain',region:'🏝️ ภาคใต้',prompt:'ภูมิประเทศของภาคใต้เป็นแบบใด',ticks:TERRAIN_TICKS,answer:'คาบสมุทรแคบยาว ชายฝั่งทะเล 2 ด้าน ภูเขาตอนกลาง',step1:'แผ่นดินแคบยาว',step2:'ทะเล 2 ด้าน',step3:'คาบสมุทร'},
+ {type:'climate',region:'⛰️ ภาคเหนือ',prompt:'ภูมิอากาศเด่นของภาคเหนือเป็นอย่างไร',ticks:CLIMATE_TICKS,answer:'ฤดูหนาวเย็นถึงหนาว มีหมอกตอนเช้า',step1:'อยู่เหนือสุด มีภูเขาสูง',step2:'ฤดูหนาวอากาศเย็นจัด',step3:'หนาวเย็น มีหมอก'},
+ {type:'climate',region:'🌾 ภาคอีสาน',prompt:'เหตุใดภาคอีสานจึงแห้งแล้งกว่าภาคอื่น',ticks:CLIMATE_TICKS,answer:'ฝนน้อย ฝนทิ้งช่วง ดินปนทรายเก็บน้ำไม่อยู่',step1:'ฝนตกน้อย–ทิ้งช่วง',step2:'ดินทรายอุ้มน้ำยาก',step3:'ร้อนแห้งแล้ง'},
+ {type:'climate',region:'🏞️ ภาคตะวันตก',prompt:'เหตุใดภาคตะวันตกจึงมีฝนน้อย',ticks:CLIMATE_TICKS,answer:'อยู่ในเขตเงาฝนของทิวเขาตะนาวศรี',step1:'ทิวเขาบังลมฝน',step2:'ฝนตกอีกฝั่งของเขา',step3:'เขตเงาฝน = ฝนน้อย'},
+ {type:'climate',region:'🏝️ ภาคใต้',prompt:'ภูมิอากาศของภาคใต้ต่างจากภาคอื่นอย่างไร',ticks:CLIMATE_TICKS,answer:'ฝนตกชุกเกือบทั้งปี มี 2 ฤดู คือ ร้อนกับฝน',step1:'ติดทะเล 2 ด้าน',step2:'รับลมฝนตลอดปี',step3:'2 ฤดู ฝนชุก'},
+ {type:'jobs',region:'⛰️ ภาคเหนือ',prompt:'อากาศเย็นบนดอยทำให้ภาคเหนือมีอาชีพ–ของดีใด',answer:'ปลูกพืชเมืองหนาว ชา กาแฟ ลำไย ลิ้นจี่ หัตถกรรมร่ม–ผ้าทอ',step1:'อากาศเย็น–ดอยสูง',step2:'พืชเมืองหนาวชอบอากาศเย็น',step3:'ชา กาแฟ ลำไย'},
+ {type:'jobs',region:'🚜 ภาคกลาง',prompt:'เพราะเหตุใดภาคกลางจึงได้ชื่อว่า «อู่ข้าวอู่น้ำ»',answer:'ที่ราบลุ่มดินอุดม น้ำท่าอุดม จึงทำนาข้าวได้มากที่สุด',step1:'ดินอุดม–น้ำมาก',step2:'เหมาะทำนาข้าว',step3:'อู่ข้าวอู่น้ำ'},
+ {type:'jobs',region:'🏖️ ภาคตะวันออก',prompt:'ฝนชุกของภาคตะวันออกส่งผลต่ออาชีพอย่างไร',answer:'สวนผลไม้ ทุเรียน เงาะ มังคุด ประมง อัญมณีจันทบุรี',step1:'ฝนชุก–ดินดี',step2:'ผลไม้ต้องการน้ำมาก',step3:'สวนผลไม้–ประมง'},
+ {type:'jobs',region:'🏝️ ภาคใต้',prompt:'ฝนชุกเกือบทั้งปีทำให้ภาคใต้มีอาชีพ–ของดีใด',answer:'ยางพารา ปาล์มน้ำมัน ประมง ท่องเที่ยวทะเล',step1:'ฝนชุกตลอดปี',step2:'ยางพาราชอบฝน',step3:'ยาง–ปาล์ม–ประมง'}
+];
+const SKILL={terrain:'ภูมิประเทศ',climate:'ภูมิอากาศ',jobs:'อาชีพ–ของดี'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'thai-regions',
+  icon:'🗺️',title:'ใบงาน 6 ภาคของไทย',subject:'สังคมศึกษา',gradeLabel:'ป.4–6',mediaLabel:'6 ภาคของไทย',
+  sourceMediaUrl:'/games/social/thai-regions-media.html',indicators:['ส 5.1 ป.5/1','ส 5.2 ป.5/2','ส 5.1 ป.6/1'],
+  topicLabels:{mixed:'ผสมทุกทักษะ',terrain:'ภูมิประเทศ',climate:'ภูมิอากาศ',jobs:'อาชีพ–ของดี'},
+  directions:'อ่านชื่อภาค → ติ๊กลักษณะเด่น → เขียนเหตุผลทีละขั้น: นึกภาพแผนที่ · ลักษณะเด่น · สรุปคำตอบ',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    const ticks=item.ticks?'<div class="tick-grid">'+item.ticks.map(t=>'<div class="tick-box">'+e(t)+'</div>').join('')+'</div>':'';
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="region-box">'+e(item.region)+'</div>'+ticks
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 นึกภาพแผนที่</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 ลักษณะเด่น</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุปคำตอบ</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.184.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

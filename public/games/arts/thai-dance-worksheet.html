@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/arts/thai-dance-media.html"><meta name="curriculum-indicators" content="ศ 3.1 ป.3/2, ศ 3.1 ป.4/2, ศ 3.1 ป.5/3"><title>ใบงานนาฏศิลป์พื้นฐาน ภาษาท่า–นาฏยศัพท์ ป.3–5 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.184.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.item-box{border:1px solid var(--ws-line);border-radius:3px;padding:1mm;margin:.8mm 0;font-size:8pt;font-weight:800;color:var(--ws-accent);text-align:center}
+.tick-grid{display:grid;grid-template-columns:1fr 1fr;gap:1mm;margin:.8mm 0}
+.tick-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.show-answers .tick-box.tick-ans{border:1.5px solid var(--ws-danger);color:var(--ws-danger);font-weight:800}
+.seq-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1mm;margin:.8mm 0}
+.seq-cell{border:1px dashed var(--ws-line);border-radius:3px;text-align:center;padding:.6mm}
+.seq-cell .seq-lbl{display:block;font-size:6pt;font-weight:800;color:var(--ws-accent)}
+.seq-blank{min-height:5mm;border-bottom:1px dotted var(--ws-muted);font-size:7.5pt;font-weight:800;display:flex;align-items:flex-end;justify-content:center}
+.draw-box{border:1px solid var(--ws-line);border-radius:3px;min-height:15mm;margin:.8mm 0;position:relative;padding:3.5mm 1mm 1mm}
+.draw-box .draw-hint{position:absolute;top:.5mm;left:1mm;font-size:6pt;font-weight:700;color:var(--ws-muted)}
+.draw-check{display:flex;flex-wrap:wrap;gap:1.5mm;margin:.6mm 0;font-size:6.5pt;font-weight:700;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+.count-5 .draw-box{min-height:26mm}
+</style>
+</head><body>
+<header class="toolbar"><h1>💃 ใบงานนาฏศิลป์พื้นฐาน</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="3">ป.3</option><option value="4">ป.4</option><option value="5">ป.5</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="vocab">นาฏยศัพท์</option><option value="gesture">ภาษาท่า</option><option value="move">เคลื่อนไหวประกอบเพลง</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.184.0"></script><script>
+const ITEMS=[
+ {topic:'vocab',tag:'นาฏยศัพท์·มือ',kind:'tick',prompt:'«หัวแม่มือจรดข้อแรกของนิ้วชี้ อีกสามนิ้วเหยียดตึง» คือนาฏยศัพท์ท่าใด',item:'🖐️ ท่ามือพื้นฐาน',choices:['จีบ','ตั้งวง','ประเท้า','กระดกเท้า'],ans:'จีบ',steps:['อ่านลักษณะท่า: ใช้นิ้วมือ','หัวแม่มือจรดนิ้วชี้','คือท่า จีบ'],answer:'จีบ (มีจีบหงาย–จีบคว่ำ)'},
+ {topic:'vocab',tag:'นาฏยศัพท์·มือ',kind:'tick',prompt:'«ยกแขนโค้งเป็นวง นิ้วทั้งสี่เรียงชิด หัวแม่มือหักเข้าฝ่ามือ» คือนาฏยศัพท์ท่าใด',item:'💪 ท่าแขนพื้นฐาน',choices:['ตั้งวง','จีบ','กระทุ้งเท้า','ก้าวข้าง'],ans:'ตั้งวง',steps:['อ่านลักษณะท่า: ใช้แขนโค้ง','โค้งเป็นวง ระดับศีรษะ/เอว','คือท่า ตั้งวง (วงบน–วงล่าง)'],answer:'ตั้งวง (วงบนระดับศีรษะ · วงล่างระดับเอว)'},
+ {topic:'vocab',tag:'นาฏยศัพท์·เท้า',kind:'tick',prompt:'«ใช้จมูกเท้าแตะพื้นเบา ๆ แล้วยกขึ้น เป็นการเตรียมก้าว» คือนาฏยศัพท์ท่าใด',item:'🦶 ท่าเท้าพื้นฐาน',choices:['ประเท้า','กระดกเท้า','ตั้งวง','จีบคว่ำ'],ans:'ประเท้า',steps:['อ่านลักษณะท่า: ใช้เท้า','จมูกเท้าแตะพื้นแล้วยก','คือท่า ประเท้า'],answer:'ประเท้า'},
+ {topic:'vocab',tag:'นาฏยศัพท์·เท้า',kind:'tick',prompt:'«พับขาไปด้านหลัง หนีบน่อง ปลายเท้ากระดกขึ้น» คือนาฏยศัพท์ท่าใด',item:'🦶 ท่าเท้าพื้นฐาน',choices:['กระดกเท้า','ประเท้า','ตั้งวงล่าง','จีบหงาย'],ans:'กระดกเท้า',steps:['อ่านลักษณะท่า: ขาพับไปหลัง','ปลายเท้ากระดกขึ้น','คือท่า กระดกเท้า'],answer:'กระดกเท้า'},
+ {topic:'gesture',tag:'ภาษาท่า',kind:'tick',prompt:'ภาษาท่า «รัก» แสดงอย่างไร',item:'💗 สื่ออารมณ์รัก',choices:['ฝ่ามือทั้งสองทาบที่อก','ชี้นิ้วไปที่เพื่อน','โบกมือไปมา','กระทืบเท้า'],ans:'ฝ่ามือทั้งสองทาบที่อก',steps:['คำว่า รัก อยู่ที่ใจ','ใจอยู่ที่อก','จึงใช้มือทาบอก'],answer:'ฝ่ามือทั้งสองทาบที่อก'},
+ {topic:'gesture',tag:'ภาษาท่า',kind:'tick',prompt:'ภาษาท่า «ปฏิเสธ (ไม่)» แสดงอย่างไร',item:'🙅 สื่อความหมาย ไม่',choices:['ตั้งฝ่ามือแล้วสั่นมือ','พยักหน้ารับ','กวักมือเข้าหาตัว','นั่งลงกับพื้น'],ans:'ตั้งฝ่ามือแล้วสั่นมือ',steps:['ความหมาย = ไม่เอา ไม่ใช่','ใช้มือห้ามไว้','ตั้งฝ่ามือแล้วสั่น'],answer:'ตั้งฝ่ามือแล้วสั่นมือไปมา'},
+ {topic:'gesture',tag:'ภาษาท่า',kind:'tick',prompt:'ภาษาท่า «ตัวฉัน» แสดงอย่างไร',item:'🙋 สื่อความหมาย ฉัน',choices:['นิ้วชี้จรดอกตนเอง','ผายมือไปทางผู้อื่น','เอามือปิดตา','ยกมือเหนือหัว'],ans:'นิ้วชี้จรดอกตนเอง',steps:['ความหมายชี้มาที่ตนเอง','จุดแทนตัวเรา = อก','นิ้วชี้จรดอกตนเอง'],answer:'นิ้วชี้จรดอกตนเอง (ท่าน/เธอ = ผายมือออก)'},
+ {topic:'gesture',tag:'ภาษาท่า·แต่งประโยค',kind:'seq',prompt:'แปลประโยค «ฉันรักเธอ» เป็นภาษาท่า 3 ท่าตามลำดับ เขียนชื่อท่าลงในช่อง แล้วลุกขึ้นแสดงจริง',seq:[{lbl:'ท่าที่ 1 (ฉัน)',v:'นิ้วชี้จรดอก'},{lbl:'ท่าที่ 2 (รัก)',v:'มือทาบอก'},{lbl:'ท่าที่ 3 (เธอ)',v:'ผายมือไปทางเพื่อน'}],steps:['แยกคำ: ฉัน / รัก / เธอ','นึกภาษาท่าทีละคำ','เรียงแสดงต่อกันให้ลื่นไหล'],answer:'ตัวฉัน (นิ้วชี้จรดอก) → รัก (มือทาบอก) → ท่าน/เธอ (ผายมือ)'},
+ {topic:'gesture',tag:'ภาษาท่า·แต่งประโยค',kind:'seq',prompt:'แปลประโยค «เธอมานี่ ฉันดีใจ» เป็นภาษาท่า 3 ท่าตามลำดับ เขียนชื่อท่าลงในช่อง',seq:[{lbl:'ท่าที่ 1 (เธอ)',v:'ผายมือไปทางเพื่อน'},{lbl:'ท่าที่ 2 (มานี่)',v:'กวักมือเข้าหาตัว'},{lbl:'ท่าที่ 3 (ดีใจ)',v:'ยิ้ม แขนตั้งวงระดับอก'}],steps:['แยกคำ: เธอ / มานี่ / ดีใจ','นึกภาษาท่าทีละคำ','ฝึกแสดงให้ตรงจังหวะ'],answer:'ท่าน/เธอ → เรียก (กวักมือ) → ดีใจ (ยิ้ม/ตั้งวง)'},
+ {topic:'vocab',tag:'นาฏยศัพท์·วาดจริง',kind:'draw',prompt:'วาดภาพร่างตนเองกำลังทำท่า «ตั้งวงบน» ให้ถูกต้อง แล้วติ๊กเช็กลิสต์ท้ายภาพ',drawHint:'วาดคนทำท่าตั้งวงบน (วาดง่าย ๆ แบบการ์ตูนก้านไม้ขีดได้)',checklist:['□ แขนโค้งเป็นวงระดับศีรษะ','□ นิ้วทั้งสี่เรียงชิด','□ ลำตัวตั้งตรง'],steps:['นึกภาพท่าตั้งวงบนจากสื่อ','วาดหัว–ลำตัว–แขนโค้ง','ตรวจกับเช็กลิสต์ทีละข้อ'],answer:'แนวเฉลย: แขนทั้งสองโค้งเป็นวงเหนือระดับศีรษะเล็กน้อย นิ้วชิด ลำตัวตรง'},
+ {topic:'move',tag:'เคลื่อนไหว·จังหวะ',kind:'tick',prompt:'เมื่อเพลงมีจังหวะช้า นุ่มนวล ควรเคลื่อนไหวประกอบเพลงอย่างไร',item:'🐢 เพลงช้า เช่น เพลงกล่อมเด็ก',choices:['นุ่มนวล ต่อเนื่อง','กระโดดเร็วแรง','สะบัดแขนรัว ๆ'],cols:3,ans:'นุ่มนวล ต่อเนื่อง',steps:['ฟังความเร็วจังหวะ','เพลงช้า = อารมณ์สงบ','ท่าต้องนุ่มนวลต่อเนื่อง'],answer:'เคลื่อนไหวนุ่มนวล ต่อเนื่อง ตรงจังหวะ'},
+ {topic:'move',tag:'เคลื่อนไหว·ออกแบบ',kind:'draw',prompt:'ออกแบบท่าประกอบเพลง 8 จังหวะ (แบ่งเป็น 2 ช่วง ช่วงละ 4 จังหวะ) วาดหรือเขียนอธิบายท่า ให้ใช้ทั้ง «ทิศทาง» และ «ระดับ»',drawHint:'ช่วงที่ 1 (จังหวะ 1–4) | ช่วงที่ 2 (จังหวะ 5–8)',checklist:['□ มีทิศทาง (หน้า/หลัง/ซ้าย/ขวา)','□ มีระดับ (สูง/กลาง/ต่ำ)','□ ตรงจังหวะ 8 จังหวะ'],steps:['เลือกท่าช่วงแรก เช่น ก้าวข้าง+ตั้งวง','เปลี่ยนระดับช่วงหลัง เช่น ย่อตัว+จีบ','ซ้อมนับ 1–8 ให้ตรงจังหวะ'],answer:'แนวเฉลย: เปิดกว้าง — ต้องมีทิศทาง ≥1 · ระดับ ≥2 ระดับ · ครบ 8 จังหวะ'},
+ {topic:'move',tag:'เคลื่อนไหว·แสดงหมู่',kind:'tick',prompt:'การแสดงนาฏศิลป์เป็นหมู่ (หลายคน) สิ่งสำคัญที่สุดคือข้อใด',item:'👯 รำหมู่หน้าเสาธง',choices:['ความพร้อมเพรียง ตรงจังหวะเดียวกัน','ต่างคนต่างทำท่าตามใจ','แข่งกันเด่นคนเดียว'],cols:3,ans:'ความพร้อมเพรียง ตรงจังหวะเดียวกัน',steps:['หมู่ = ทำร่วมกันหลายคน','ถ้าต่างคนต่างทำจะไม่สวย','ต้องพร้อมเพรียงตรงจังหวะ'],answer:'ความพร้อมเพรียง ตรงจังหวะเดียวกันทั้งกลุ่ม'},
+];
+window.WORKSHEET_CONFIG={
+  worksheetKey:'thai-dance',
+  icon:'💃',title:'ใบงานนาฏศิลป์พื้นฐาน',subject:'ศิลปะ (นาฏศิลป์)',gradeLabel:'ป.3–5',mediaLabel:'นาฏศิลป์พื้นฐาน ภาษาท่า–นาฏยศัพท์',
+  sourceMediaUrl:'/games/arts/thai-dance-media.html',indicators:['ศ 3.1 ป.3/2','ศ 3.1 ป.4/2','ศ 3.1 ป.5/3'],
+  topicLabels:{mixed:'ผสมทุกทักษะ',vocab:'นาฏยศัพท์',gesture:'ภาษาท่า',move:'เคลื่อนไหวประกอบเพลง'},
+  directions:'สแกน QR เรียนจากสื่อก่อน → อ่านโจทย์ → ติ๊ก/เขียนลำดับท่า/วาดท่า → เขียนวิธีคิดทีละขั้น แล้วลุกขึ้นแสดงจริง',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.topic===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let html='<div class="q-stem"><span class="skill-tag">'+e(item.tag)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>';
+    if(item.item)html+='<div class="item-box">'+e(item.item)+'</div>';
+    if(item.kind==='tick'){
+      html+='<div class="tick-grid'+(item.cols===3?' cols-3':'')+'">'+item.choices.map(c=>'<div class="tick-box'+(c===item.ans?' tick-ans':'')+'">□ '+e(c)+'</div>').join('')+'</div>';
+    }else if(item.kind==='seq'){
+      html+='<div class="seq-row">'+item.seq.map(sq=>'<div class="seq-cell"><span class="seq-lbl">'+e(sq.lbl)+'</span><div class="seq-blank"><span class="work-fill">'+e(sq.v)+'</span></div></div>').join('')+'</div>';
+    }
+    html+='</div>';
+    if(item.kind==='draw'){
+      html+='<div class="draw-box"><span class="draw-hint">✏️ '+e(item.drawHint)+'</span></div><div class="draw-check">'+item.checklist.map(c=>'<span>'+e(c)+'</span>').join('')+'</div>';
+    }
+    html+='<div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 สังเกต</span><div class="step-body"><span class="work-fill">'+e(item.steps[0])+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 คิด</span><div class="step-body"><span class="work-fill">'+e(item.steps[1])+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 สรุป/แสดง</span><div class="step-body"><span class="work-fill">'+e(item.steps[2])+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+    return html;
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.184.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

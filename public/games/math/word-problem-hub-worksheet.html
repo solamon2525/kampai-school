@@ -1,49 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-word-problem-hub/index.html"><meta name="curriculum-indicators" content="ค 1.2 ป.4/1, ค 1.2 ป.5/1"><title>ใบงานโจทย์ปัญหา Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.op-chip{display:inline-flex;gap:1.5mm;flex-wrap:wrap;margin:1mm 0}
-.op-chip span{border:1.4px solid var(--ws-accent);border-radius:4px;padding:.4mm 2mm;font-size:8pt;font-weight:800;color:var(--ws-accent)}
-.op-chip .on{background:var(--ws-accent);color:var(--ws-paper)}
-.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
-.step-row{display:grid;grid-template-columns:22mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
-.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-.count-5 .step-row{min-height:8.5mm}
-</style>
-</head><body>
-<header class="toolbar"><h1>📝 ใบงานโจทย์ปัญหา Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านโจทย์</option><option value="plan">วางแผน</option><option value="compute">คำนวณ</option><option value="check">ตรวจคำตอบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-word-problem-hub/index.html"><meta name="curriculum-indicators" content="ค 1.2 ป.4/1, ค 1.2 ป.5/1"><title>ใบงานโจทย์ปัญหา Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>📝 ใบงานโจทย์ปัญหา Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านโจทย์</option><option value="plan">วางแผน</option><option value="compute">คำนวณ</option><option value="check">ตรวจคำตอบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const WP_ITEMS=[
-{type:'read',prompt:'มีแอปเปิล 12 ลูก กิน 5 ลูก เหลือกี่ลูก?',context:'หาคำสำคัญ: มี · กิน · เหลือ',op:'−',choices:['ลบ','บวก'],answer:'ลบ · 12−5=7',s1:'เริ่ม 12',s2:'กิน = ลดลง → ลบ',s3:'12−5=7'},
-{type:'read',prompt:'มีลูกอม 8 ถุง ถุงละ 6 ลูก รวมกี่ลูก?',context:'ถุงละ = แต่ละกลุ่มเท่ากัน',op:'×',choices:['คูณ','บวก'],answer:'คูณ · 8×6=48',s1:'ถุงละ 6',s2:'8 ถุง → คูณ',s3:'8×6=48'},
-{type:'plan',prompt:'แจกลูกบอล 24 ลูกให้ 6 คนเท่า ๆ กัน เขียนสมการ',context:'แบ่งเท่า = หาร',op:'÷',choices:['24÷6','24−6'],answer:'24÷6=4',s1:'แบ่งเท่า = หาร',s2:'24÷6',s3:'=4 คนละ'},
-{type:'plan',prompt:'ซื้อสมุด 3 แพ็ก แพ็กละ 15 บาท รวมเท่าไร',context:'แพ็กละ',op:'×',choices:['3×15','3+15'],answer:'3×15=45 บาท',s1:'แพ็กละ 15',s2:'3 แพ็ก → คูณ',s3:'45 บาท'},
-{type:'compute',prompt:'ร้านขายของเล่นเช้า 28 ชิ้น บ่าย 17 ชิ้น รวมกี่ชิ้น?',context:'28 + 17',op:'+',answer:'45',s1:'28+17',s2:'=45',s3:'45 ชิ้น'},
-{type:'compute',prompt:'มีเงิน 100 บาท ซื้อของ 37 บาท เหลือเท่าไร?',context:'100 − 37',op:'−',answer:'63 บาท',s1:'100−37',s2:'=63',s3:'63 บาท'},
-{type:'check',prompt:'มีคนบอกว่า 7×8=54 ถูกหรือผิด?',context:'ตรวจด้วยคูณใหม่',op:'×',choices:['ผิด','ถูก'],answer:'ผิด · 7×8=56',s1:'คำนวณใหม่ 7×8',s2:'=56 ≠ 54',s3:'ผิด'},
-{type:'check',prompt:'48÷6=8 ตรวจด้วยคูณย้อนกลับ',context:'ตัวหาร × ผลหาร',op:'÷',choices:['ถูก','ผิด'],answer:'ถูก · 6×8=48',s1:'6×8',s2:'=48 ตรง',s3:'ถูก'},
-{type:'read',prompt:'รถวิ่งได้ 40 กม. ไปแล้ว 15 กม. เหลือกี่กม.?',context:'ไปแล้ว = ลดระยะ',op:'−',choices:['25 กม.','55 กม.'],answer:'25 กม.',s1:'40−15',s2:'=25',s3:'25 กม.'},
-{type:'plan',prompt:'เรียน 5 วัน วันละ 2 ชั่วโมง รวมกี่ชั่วโมง?',context:'วันละ',op:'×',choices:['10 ชม.','7 ชม.'],answer:'10 ชม.',s1:'วันละ 2',s2:'5×2',s3:'10 ชม.'},
-{type:'compute',prompt:'หนังสือ 3 เล่มราคา 125, 98, 77 บาท รวมเท่าไร?',context:'125+98+77',op:'+',answer:'300 บาท',s1:'125+98=223',s2:'223+77=300',s3:'300 บาท'},
-{type:'check',prompt:'โจทย์: มี 50 แจก 12 เหลือ 38 — ตรวจคำตอบ',context:'50−12',op:'−',choices:['ถูก','ผิด'],answer:'ถูก · 50−12=38',s1:'50−12',s2:'=38',s3:'ถูก'}
+{type:'read',prompt:'มีแอปple 12 ลูก กิน 5 ลูก เหลือ?',context:'12−5',choices:['ลบ','บวก'],answer:'ลบ (12−5)',step1:'เริ่ม 12',step2:'กิน=ลด',step3:'12−5=7'},
+{type:'read',prompt:'มีลูกอม 8 ถุง ถุงละ 6 ลูก รวม?',context:'8×6',choices:['คูณ','บวก'],answer:'คูณ 8×6=48',step1:'ถุงละ 6',step2:'8 ถุง',step3:'8×6=48'},
+{type:'plan',prompt:'แจก 24 ลูก 6 คนเท่ากัน สมการ',context:'24÷6',choices:['24÷6','24−6'],answer:'24÷6=4',step1:'แบ่งเท่า=หาร',step2:'24÷6',step3:'=4/คน'},
+{type:'plan',prompt:'ซื้อ 3 แพ็ก แพ็กละ 15 บาท',context:'3×15',choices:['3×15','3+15'],answer:'3×15=45',step1:'แพ็กละ 15',step2:'3 แพ็ก',step3:'45 บาท'},
+{type:'compute',prompt:'ร้านขาย 45 ชิ้น เช้า 28 บ่าย 17 รวม?',context:'28+17',answer:'45',step1:'28+17',step2:'=45',step3:'45'},
+{type:'compute',prompt:'มีเงิน 100 ซื้อ 37 เหลือ?',context:'100−37',answer:'63',step1:'100−37',step2:'=63',step3:'63 บาท'},
+{type:'check',prompt:'7×8=54 ถูกไหม',context:'ตรวจ',choices:['ผิด','ถูก'],answer:'ผิด · 7×8=56',step1:'7×8',step2:'=56≠54',step3:'ผิด'},
+{type:'check',prompt:'48÷6=8 ตรวจ',context:'คูณย้อน',choices:['ถูก','ผิด'],answer:'ถูก · 6×8=48',step1:'6×8=48',step2:'ตรง',step3:'ถูก'},
+{type:'read',prompt:'ย طย 40 km ไป 15 km เหลือ?',context:'40−15',choices:['25 km','55 km'],answer:'25 km',step1:'40−15',step2:'=25',step3:'25 km'},
+{type:'plan',prompt:'เรียน 5 วัน วันละ 2 ชม. รวม?',context:'5×2',choices:['10 ชม.','7 ชม.'],answer:'10 ชม.',step1:'5×2',step2:'=10',step3:'10 ชม.'},
+{type:'compute',prompt:'หนังสือ 3 เล่ม 125,98,77 บาท รวม',context:'125+98+77',answer:'300',step1:'125+98=223',step2:'223+77=300',step3:'300'},
+{type:'check',prompt:'โจทย์: มี 50 แจก 12 เหลือ 38 — ตรวจ',context:'50−12',choices:['ถูก','ผิด'],answer:'ถูก · 50−12=38',step1:'50−12',step2:'=38',step3:'ถูก'}
 ];
-window.WORKSHEET_CONFIG={
-  worksheetKey:'word-problem-hub',icon:'📝',title:'ใบงานโจทย์ปัญหา Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'โจทย์ปัญหา Hub',
-  sourceMediaUrl:'/games/math/math-word-problem-hub/index.html',indicators:['ค 1.2 ป.4/1','ค 1.2 ป.5/1'],
-  directions:'อ่านโจทย์ → เลือกเครื่องหมาย → คำนวณ → ตรวจคำตอบ (ขั้นติดป้าย)',
-  getItems(t){return t==='mixed'?WP_ITEMS:WP_ITEMS.filter(i=>i.type===t);},
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    const ops=['+','−','×','÷'].map(o=>'<span class="'+(o===item.op?'on':'')+'">'+e(o)+'</span>').join('');
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.context)+'</div>'
-      +'<div class="op-chip">'+ops+'</div>'
-      +(item.choices?'<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>':'')
-      +'</div><div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 อ่าน</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 วางแผน</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 คำนวณ</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
-      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'📝',title:'ใบงานโจทย์ปัญหา Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'โจทย์ปัญหา Hub',sourceMediaUrl:'/games/math/math-word-problem-hub/index.html',indicators:['ค 1.2 ป.4/1','ค 1.2 ป.5/1'],directions:'อ่านโจทย์ วางแผน คำนวณ และตรวจคำตอบ',getItems(t){return t==='mixed'?WP_ITEMS:WP_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.nums)stem+='<table class="mini-table"><tr><th>โจทย์</th><th>ข้อมูล</th></tr><tr><td>'+e(item.prompt.split(' ')[0])+'</td><td>'+e(item.nums)+'</td></tr></table>';stem+='<div>ลงวิธีคิดทีละขั้น</div></div>';return stem+'<div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="calc-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

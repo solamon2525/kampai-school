@@ -232,13 +232,52 @@ export const CHARACTER_ANIM_PRESET_TOPDOWN_4DIR_16: CharacterAnimationConfig = {
     feetPad: 8,
 };
 
+export const CHARACTER_ANIM_PRESET_UNIVERSAL_LPC: CharacterAnimationConfig = {
+    preset: 'universal-lpc-classic',
+    layout: 'grid',
+    cols: 13,
+    rows: 21,
+    idle: [130],
+    walk: [130, 131, 132, 133, 134, 135, 136, 137, 138],
+    run: [130, 131, 132, 133, 134, 135, 136, 137, 138],
+    jump: [130],
+    hurt: 260,
+    happy: 32,
+    directions: {
+        up: [104, 105, 106, 107, 108, 109, 110, 111, 112],
+        left: [117, 118, 119, 120, 121, 122, 123, 124, 125],
+        down: [130, 131, 132, 133, 134, 135, 136, 137, 138],
+        right: [143, 144, 145, 146, 147, 148, 149, 150, 151],
+    },
+    extras: {
+        attack: [182, 183, 184, 185, 186, 187],
+        attackHeavy: [78, 79, 80, 81, 82, 83, 84, 85],
+        special: [26, 27, 28, 29, 30, 31, 32],
+        death: [260, 261, 262, 263, 264, 265],
+    },
+    walkFps: 8,
+    runFps: 10,
+    poseFps: { attack: 10, attackHeavy: 10, special: 8, death: 6 },
+    anchorFoot: 0.96,
+    feetPad: 2,
+};
+
 export const CHARACTER_ANIM_PRESETS: Record<string, CharacterAnimationConfig> = {
     'platformer-12': CHARACTER_ANIM_PRESET_PLATFORMER_12,
     'grid-3x6-18': CHARACTER_ANIM_PRESET_GRID_3X6_18,
     'topdown-4dir-16': CHARACTER_ANIM_PRESET_TOPDOWN_4DIR_16,
+    'universal-lpc-classic': CHARACTER_ANIM_PRESET_UNIVERSAL_LPC,
 };
 
 export const CHARACTER_ANIM_PRESET_OPTIONS = [
+    {
+        key: 'universal-lpc-classic',
+        label: 'Universal LPC — Complete sheet 13×21+',
+        frameCount: 273,
+        cols: 13,
+        rows: 21,
+        frameHint: 'เดิน 4 ทิศ · ฟัน · แทง · ร่ายเวท · บาดเจ็บ/ล้ม · รองรับ LPC Expanded ที่คง 21 แถวแรก',
+    },
     {
         key: 'grid-3x6-18',
         label: 'Grid 3×6 — 18 เฟรม (วิ่ง / โดด / ยืน)',

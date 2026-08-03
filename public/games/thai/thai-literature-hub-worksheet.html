@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-literature-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 5.1 ป.4/1,ท 5.1 ป.4/2">
+  <title>ใบงานคลังวรรณคดีวรรณกรรม ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📚 ใบงานคลังวรรณคดีวรรณกรรม</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="tale">นิทาน</option><option value="proverb">สุภาษิต</option><option value="moral">ข้อคิด</option><option value="character">ตัวละคร</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"tale","prompt":"อ่านนิทานสั้นแล้วตอบคำถาม","text":"กระต่ายหยิ่งแข่งกับเต่า เต่าเดินช้าแต่ไม่หยุด พอถึงเส้นชัยกระต่ายยังหลับอยู่","ask":"ใครชนะ เพราะอะไร","answer":"เต่าชนะ เพราะพากเพียรไม่หยุด"},{"type":"tale","prompt":"บอกตัวละครเอกและตัวละครรอง","text":"ลูกหมูสามตัวสร้างบ้าน คนละแบบ หมาป่ามาเป่าบ้านฟางและไม้ล้ม","ask":"ตัวละครเอกคือใคร","answer":"ลูกหมูสามตัว (หรือลูกหมูสร้างบ้านอิฐ)"},{"type":"proverb","prompt":"อธิบายสุภาษิต","text":"ช้า ๆ ได้พร้าเล่มงาม","answer":"ทำอย่างรอบคอบได้ผลดี"},{"type":"proverb","prompt":"เลือกสุภาษิตที่เหมาะกับสถานการณ์","text":"เพื่อนชวนโกหกครู","answer":"เช่น คบคนพาลพาลพาไปหาผิด"},{"type":"moral","prompt":"สรุปข้อคิดจากเรื่อง","text":"เด็กเห็นคนแก่ถือของหนักจึงเข้าไปช่วย","answer":"มีน้ำใจ ช่วยเหลือผู้อื่น"},{"type":"moral","prompt":"ข้อคิดที่สอดคล้องกับเรื่อง","text":"คนโกหกจนไม่มีใครเชื่อ","answer":"ความซื่อสัตย์สำคัญ"},{"type":"character","prompt":"บอกลักษณะนิสัยตัวละคร","text":"นายทองใจเย็น ฟังเพื่อนจบก่อนตอบ","answer":"ใจเย็น รู้จักฟัง"},{"type":"character","prompt":"เปรียบเทียบตัวละครสองตัว","text":"พี่ขยันทบทวน น้องเล่นตลอดเวลา","answer":"พี่ขยัน น้องยังไม่ตั้งใจ"},{"type":"tale","prompt":"เรียงลำดับเหตุการณ์","text":"หิว → หาอาหาร → แบ่งให้เพื่อน","ask":"ลำดับที่ถูก","answer":"หิว หาอาหาร แบ่งเพื่อน"},{"type":"proverb","prompt":"แต่งประโยคใช้สุภาษิต","text":"น้ำขึ้นให้รีบตัก","answer":"เช่น ตอนลดราคาควรซื้อของจำเป็น"},{"type":"moral","prompt":"เลือกข้อคิดที่เหมาะสมที่สุด","text":"ช่วยเพื่อนที่ล้มโดยไม่หัวเราะ","answer":"เมตตา / เห็นอกเห็นใจ"},{"type":"character","prompt":"ตัวละครทำไมจึงน่าชื่นชม","text":"เด็กเก็บของได้แล้วคืนเจ้าของ","answer":"ซื่อสัตย์ มีคุณธรรม"},{"type":"tale","prompt":"ถ้าเปลี่ยนตอนจบจะเป็นอย่างไร","text":"กระต่ายไม่หลับแต่ยังประมาท","ask":"จบแบบสอนใจ","answer":"ยังแพ้ถ้าไม่จริงจัง หรือชนะถ้าตั้งใจ"},{"type":"proverb","prompt":"จับคู่ความหมาย","text":"ปิดทองหลังพระ","answer":"ทำดีโดยไม่โอ้อวด"},{"type":"moral","prompt":"เขียนข้อคิด 1 ประโยคด้วยคำของตนเอง","text":"เรื่องเพื่อนช่วยกันทำการบ้านเข้าใจ","answer":"การช่วยเหลือทำให้สำเร็จร่วมกัน"},{"type":"character","prompt":"ระบุบทบาทตัวละคร","text":"พ่อเล่าเรื่องให้ลูกฟังก่อนนอน","answer":"พ่อ=ผู้เล่า · ลูก=ผู้ฟัง"},{"type":"tale","prompt":"หาปัญหาและวิธีแก้ในเรื่อง","text":"เรือรั่วกลางลำน้ำ ทุกคนช่วยตักน้ำ","ask":"ปัญหา/วิธีแก้","answer":"เรือรั่ว / ช่วยกันตักน้ำ"},{"type":"proverb","prompt":"อธิบายสั้น ๆ","text":"พูดไปสองไพเบี้ย นิ่งเสียตำลึงทอง","answer":"บางครั้งนิ่งไว้ดีกว่าพูด"}];
+window.WORKSHEET_CONFIG={
+  icon:'📚',title:'ใบงานคลังวรรณคดีวรรณกรรม',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังวรรณคดีวรรณกรรม',sourceMediaUrl:'/games/thai/thai-literature-hub/index.html',
+  indicators:["ท 5.1 ป.4/1","ท 5.1 ป.4/2"],
+  directions:"อ่านนิทาน/สุภาษิต วิเคราะห์ตัวละคร และสรุปข้อคิด",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context literature-case">'+e(item.text)+'</div>'
+      +(item.ask?'<div class="q-context">'+e(item.ask)+'</div>':'')
+      +'<div class="classify-grid literature-hub-grid">'
+      +'<div class="classify-box">ตัวละคร/ประเด็น: ________</div>'
+      +'<div class="classify-box">ข้อคิด: ________</div></div>'
+      +'<div class="evidence-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

@@ -11,6 +11,7 @@ import {
 } from '@/services/educational-hub.service';
 import { TeacherHubCard, type CardVariant } from '@/components/educational-hub/TeacherHubCard';
 import { HubToolbar } from '@/components/educational-hub/HubToolbar';
+import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSection';
 import { useHubLayoutWithDefault } from '@/hooks/useHubLayoutWithDefault';
 import type { HubColumns } from '@/hooks/useHubViewMode';
 import { cn } from '@/lib/utils';
@@ -125,6 +126,8 @@ const EducationalHub = () => {
 
                 {/* Toolbar + content */}
                 <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 space-y-3">
+                    <LessonPacksSection variant="summary" />
+
                     <HubToolbar
                         search={search}
                         onSearchChange={setSearch}

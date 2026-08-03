@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/career/food-nutrition-media.html">
+  <meta name="curriculum-indicators" content="ง 1.1 ป.2/1,ง 1.1 ป.3/1">
+  <title>ใบงานอาหาร-โภชนาการ ป.2–ป.3 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🥗 ใบงานอาหาร-โภชนาการ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.2–ป.3</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="group">กลุ่มอาหาร</option><option value="habit">นิสัย</option><option value="safe">สุขลักษณะ</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"group","prompt":"ข้าวจัดเป็นกลุ่มใด","answer":"พลังงาน / แป้ง"},{"type":"group","prompt":"ไข่ให้สารอาหารหลักใด","answer":"โปรตีน"},{"type":"group","prompt":"ผักช่วยเรื่องใด","answer":"วิตามิน / ใยอาหาร"},{"type":"group","prompt":"นมเด่นเรื่องใด","answer":"แคลเซียม"},{"type":"habit","prompt":"ทำไมไม่ควรหวานจัดบ่อย","answer":"ฟันผุ / อ้วน"},{"type":"habit","prompt":"ทำไมมื้อเช้าสำคัญ","answer":"มีแรงเรียน / พลังงาน"},{"type":"safe","prompt":"ก่อนปรุงอาหารควรทำอะไร","answer":"ล้างมือ / ล้างวัตถุดิบ"},{"type":"safe","prompt":"ของสุกกับดิบควรแยกอย่างไร","answer":"ไม่ปนกัน"},{"type":"group","prompt":"จัดอาหารกลางวันสมดุล 1 จาน","answer":"มีข้าว โปรตีน ผัก"},{"type":"habit","prompt":"ผลไม้แทนของหวานได้อย่างไร","answer":"ให้วิตามิน หวานธรรมชาติ"},{"type":"safe","prompt":"ภาชนะไม่สะอาดเสี่ยงอะไร","answer":"ท้องเสีย / เชื้อโรค"},{"type":"group","prompt":"ถั่วเหลืองแทนเนื้อได้อย่างไร","answer":"โปรตีนพืช"},{"type":"habit","prompt":"ดื่มน้ำเปล่าสำคัญอย่างไร","answer":"ร่างกายต้องการน้ำ"},{"type":"safe","prompt":"ล้างผักผลไม้เพื่ออะไร","answer":"ลดสาร/สิ่งสกปรก"},{"type":"group","prompt":"ของทอดบ่อย ๆ ดีหรือไม่ เพราะเหตุใด","answer":"ไม่ดี · ไขมันสูง"},{"type":"habit","prompt":"ตั้งเป้าหมายอาหารดี 1 ข้อของตน","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'🥗',title:'ใบงานอาหาร-โภชนาการ',subject:'การงานอาชีพ',gradeLabel:'ป.2–ป.3',
+  mediaLabel:'สื่ออาหาร-โภชนาการ',sourceMediaUrl:'/games/career/food-nutrition-media.html',
+  indicators:["ง 1.1 ป.2/1","ง 1.1 ป.3/1"],
+  directions:"จำแนกกลุ่มอาหารและสุขลักษณะ · อธิบายเหตุผลสั้น ๆ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

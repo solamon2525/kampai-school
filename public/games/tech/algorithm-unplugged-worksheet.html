@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/tech/algorithm-unplugged-media.html">
+  <meta name="curriculum-indicators" content="ว 4.2 ป.1/2,ว 4.2 ป.2/1,ว 4.2 ป.3/1">
+  <title>ใบงานอัลกอริทึม unplugged ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🧭 ใบงานอัลกอริทึม unplugged</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.1–ป.3</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="steps">ลำดับ</option><option value="logic">เงื่อนไข/ลูป</option><option value="debug">ดีบัก</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"steps","prompt":"อัลกอริทึมคืออะไร","answer":"ลำดับขั้นตอนแก้ปัญหา"},{"type":"steps","prompt":"เขียน 4 ขั้นการแปรงฟัน","answer":"ตามลำดับสมเหตุสมผล"},{"type":"steps","prompt":"คำสั่งดีควรเป็นอย่างไร","answer":"ชัดเจน"},{"type":"logic","prompt":"ตบมือ 4 ครั้งคือแนวคิดใด","answer":"ทำซ้ำ / ลูป"},{"type":"logic","prompt":"ถ้าฝนตกเอาร่ม คืออะไร","answer":"เงื่อนไข"},{"type":"debug","prompt":"ดีบักคืออะไร","answer":"หาและแก้จุดผิด"},{"type":"steps","prompt":"ลำดับผูกเชือกรองเท้า (อย่างน้อย 3 ขั้น)","answer":"ตามที่เขียน"},{"type":"logic","prompt":"ถ้าหิวแล้ว… เติมเงื่อนไข","answer":"เช่น กินข้าว"},{"type":"debug","prompt":"ขั้น “ใส่ถุงเท้า” มาก่อน “ถอดรองเท้า” ผิดตรงไหน","answer":"ลำดับสลับ"},{"type":"steps","prompt":"ใช้ลูกศรนำทางบนตารางทำอะไร","answer":"สั่งทิศทาง"},{"type":"logic","prompt":"ทำซ้ำจนถึงกำแพงแล้วหยุด ออกแบบคำสั่ง","answer":"ลูป+เงื่อนไข"},{"type":"debug","prompt":"เพื่อนทำตามคำสั่งแล้วชนกำแพง แก้ยังไง","answer":"ตรวจทิศ/จำนวนก้าว"},{"type":"steps","prompt":"ทำไมต้องเรียงขั้นให้ถูก","answer":"ผลลัพธ์จะถูก"},{"type":"logic","prompt":"ยกตัวอย่างเงื่อนไขในชีวิตประจำวัน","answer":"ตามนักเรียน"},{"type":"debug","prompt":"ลองทีละขั้นช่วยดีบักอย่างไร","answer":"เจอจุดผิดเร็ว"},{"type":"steps","prompt":"สรุปอัลกอริทึมด้วยคำของคุณ","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'🧭',title:'ใบงานอัลกอริทึม unplugged',subject:'วิทยาศาสตร์',gradeLabel:'ป.1–ป.3',
+  mediaLabel:'สื่ออัลกอริทึม',sourceMediaUrl:'/games/tech/algorithm-unplugged-media.html',
+  indicators:["ว 4.2 ป.1/2","ว 4.2 ป.2/1","ว 4.2 ป.3/1"],
+  directions:"เขียนลำดับขั้นตอน เงื่อนไข ทำซ้ำ · แก้จุดผิด",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

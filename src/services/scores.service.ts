@@ -76,4 +76,27 @@ export const scoresService = {
   /** ลบคะแนน */
   delete: (id: string) =>
     supabase.from('score_records').delete().eq('id', id),
+
+  /**
+   * Completeness helper: students missing a score row for subject/type/term.
+   */
+  missingForClass: async (
+    studentIds: string[],
+    subject: string,
+    scoreType: string,
+    semester: string,
+    academicYear: string,
+  ): Promise<string[]> => {
+    if (!studentIds.length) return [];
+    const { data, error } = await scoresService.getByStudentIds(
+      studentIds,
+      subject,
+      scoreType,
+      semester,
+      academicYear,
+    );
+    if (error) throw error;
+    const have = new Set(((data ?? []) as ScoreRecord[]).map((r) => r.student_id));
+    return studentIds.filter((id) => !have.has(id));
+  },
 };

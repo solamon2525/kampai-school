@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/thai-reading-hub/index.html">
+  <meta name="curriculum-indicators" content="ท 1.1 ป.5/2,ท 1.1 ป.5/3">
+  <title>ใบงานคลังอ่านจับใจความ ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📖 ใบงานคลังอ่านจับใจความ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="main">ใจความสำคัญ</option><option value="detail">รายละเอียด</option><option value="infer">อนุมาน</option><option value="fact">ข้อเท็จจริง/ความคิดเห็น</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"main","passage":"เช้านี้ฝนตกเล็กน้อย นักเรียนพกร่มมาโรงเรียน ครูชมว่าทุกคนเตรียมตัวดี","prompt":"ใจความสำคัญของข้อความคืออะไร","answer":"นักเรียนเตรียมตัวดีเมื่อฝนตก"},{"type":"main","passage":"แมวส้มชอบนอนแดดหน้าต่าง มันยืดตัวแล้วครางเบา ๆ เมื่อมีคนลูบหัว","prompt":"ข้อความนี้พูดถึงเรื่องอะไรเป็นหลัก","answer":"นิสัย/พฤติกรรมของแมวส้ม"},{"type":"detail","passage":"ตลาดนัดวันเสาร์ขายผลไม้ ผักสด และของเล่นไม้ จากชาวบ้านใกล้เคียง","prompt":"ตลาดนัดมีวันใด","answer":"วันเสาร์"},{"type":"detail","passage":"นกกาฝากสร้างรังบนต้นไม้สูงเพื่อความปลอดภัยจากสัตว์อื่น","prompt":"ทำไมนกจึงสร้างรังบนต้นไม้สูง","answer":"เพื่อความปลอดภัยจากสัตว์อื่น"},{"type":"infer","passage":"น้องเล็กห่มผ้าหนาและจามบ่อย แม่รีบต้มน้ำขิงให้ดื่ม","prompt":"คาดว่าน้องเล็กเป็นอย่างไร","answer":"อาจเป็นหวัด/หนาว"},{"type":"infer","passage":"ไฟในห้องดับและทุกคนหาไฟฉาย ฟ้าผ่าดังสนั่นข้างนอก","prompt":"สถานการณ์นอกบ้านเป็นอย่างไร","answer":"พายุ/ฝนฟ้าคะนอง"},{"type":"fact","passage":"ดวงอาทิตย์เป็นดาวฤกษ์ที่ใกล้โลกที่สุด ให้แสงและความร้อน","prompt":"ข้อใดเป็นข้อเท็จจริง","answer":"ดวงอาทิตย์ใกล้โลกและให้แสงความร้อน"},{"type":"fact","passage":"ฉันคิดว่าผลไม้สีม่วงอร่อยที่สุดในโลก","prompt":"ข้อความนี้เป็นข้อเท็จจริงหรือความคิดเห็น","answer":"ความคิดเห็น"},{"type":"main","passage":"ห้องสมุดเปิดหลังเลิกเรียน นักเรียนมาอ่านการ์ตูนความรู้และทำรายงาน","prompt":"สรุปใจความสั้น ๆ","answer":"นักเรียนใช้ห้องสมุดหลังเลิกเรียน"},{"type":"detail","passage":"แม่น้ำโขงไหลผ่านหลายประเทศในเอเชียตะวันออกเฉียงใต้","prompt":"แม่น้ำโขงไหลผ่านบริเวณใด","answer":"เอเชียตะวันออกเฉียงใต้"},{"type":"infer","passage":"เพื่อนยิ้มกว้างเมื่อได้รับของขวัญวันเกิดจากชั้นเรียน","prompt":"เพื่อนรู้สึกอย่างไร","answer":"ดีใจ/มีความสุข"},{"type":"fact","passage":"กรุงเทพฯ เป็นเมืองหลวงของประเทศไทย","prompt":"ยืนยันข้อเท็จจริงจากข้อความ","answer":"กรุงเทพฯ เป็นเมืองหลวง"},{"type":"main","passage":"การล้างมือก่อนกินอาหารช่วยลดเชื้อโรคที่อาจเข้าสู่ร่างกาย","prompt":"ใจความสำคัญ","answer":"ล้างมือก่อนกินลดเชื้อโรค"},{"type":"detail","passage":"ต้นมะม่วงในสวนหลังบ้านออกผลช่วงหน้าร้อน","prompt":"มะม่วงออกผลช่วงใด","answer":"หน้าร้อน"},{"type":"infer","passage":"นักเรียนรีบเก็บสมุดเมื่อได้ยินเสียงกริ่งหมดเวลาสอบ","prompt":"เกิดเหตุการณ์ใด","answer":"หมดเวลาสอบแล้ว"},{"type":"fact","passage":"ปลาหายใจด้วยเหงือก ไม่ใช่ปอดเหมือนคน","prompt":"ข้อเท็จจริงในข้อความ","answer":"ปลาหายใจด้วยเหงือก"},{"type":"main","passage":"ชุมชนช่วยกันเก็บขยะริมคลอง ทำให้คลองใสขึ้นและไม่มีกลิ่นเหม็น","prompt":"ผลจากการร่วมมือของชุมชน","answer":"คลองสะอาดขึ้น"},{"type":"detail","passage":"พิพิธภัณฑ์เปิดเวลา 09.00–16.00 น. ปิดวันจันทร์","prompt":"พิพิธภัณฑ์ปิดวันใด","answer":"วันจันทร์"}];
+window.WORKSHEET_CONFIG={
+  icon:'📖',title:'ใบงานคลังอ่านจับใจความ',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังอ่านจับใจความ',sourceMediaUrl:'/games/thai/thai-reading-hub/index.html',
+  indicators:["ท 1.1 ป.5/2","ท 1.1 ป.5/3"],
+  directions:"อ่านข้อความสั้น จับใจความ หาข้อมูล และสรุป/อนุมานอย่างมีเหตุผล",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="q-context reading-passage">'+e(item.passage)+'</div>'
+      +'<div class="classify-grid reading-hub-grid">'
+      +'<div class="classify-box">ใจความ: ____________</div>'
+      +'<div class="classify-box">หลักฐานในข้อความ: ____________</div></div>'
+      +'<div>คำตอบ / คำอธิบาย</div><div class="evidence-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { FolderOpen, Plus, BookOpen, Loader2, Star } from 'lucide-react';
+import { FolderOpen, Plus, BookOpen, Loader2, Eye, Upload } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { th } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -35,44 +37,76 @@ import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMis
 import { staffService } from '@/services/staff.service';
 import TeacherGameAnalytics from './TeacherGameAnalytics';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
-import { LessonPacksPanel } from '@/components/educational-hub/LessonPacksPanel';
-import { HubUsagePanel } from '@/components/educational-hub/HubUsagePanel';
-import { useTeacherLessonFavorites } from '@/hooks/useTeacherLessonFavorites';
+import { HubUsageInsights } from '@/components/educational-hub/HubUsageInsights';
+import { Link } from 'react-router-dom';
 
 const MENU = [
     { id: 'dashboard', label: 'แดชบอร์ด', icon: FolderOpen, path: '/teacher' },
     { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
 ];
 
+function TeacherHabitStrip({ staffId }: { staffId: string }) {
+    const { data: stats } = useQuery({
+        queryKey: ['edu-hub', 'my-upload-stats', staffId],
+        queryFn: () => educationalHubService.getMyUploadStats(staffId),
+    });
+
+    if (!stats) return null;
+
+    const lastLabel = stats.lastCreatedAt
+        ? formatDistanceToNow(new Date(stats.lastCreatedAt), { addSuffix: true, locale: th })
+        : 'ยังไม่เคยอัป';
+
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-2 text-sm">
+                    <Upload className="h-4 w-4 text-primary" />
+                    <span>
+                        ของคุณ <strong>{stats.total}</strong> รายการ · เผยแพร่แล้ว{' '}
+                        <strong>{stats.published}</strong>
+                    </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye className="h-4 w-4" />
+                    ยอดดูรวม {stats.totalViews.toLocaleString('th-TH')} · อัปล่าสุด {lastLabel}
+                </div>
+                <div className="sm:ml-auto flex flex-wrap gap-2">
+                    <Badge variant={stats.published > 0 ? 'default' : 'outline'} className="text-[10px]">
+                        {stats.published > 0 ? 'มีสื่อเผยแพร่แล้ว' : 'ยังไม่มีสื่อเผยแพร่ — เริ่มอัปได้เลย'}
+                    </Badge>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" asChild>
+                        <Link to="/educational-hub">ดูชุดเรียนในคลัง</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function TeacherEduHubManager() {
     const { data: link } = useLinkedRecord();
     const staffId = link?.staff_id ?? null;
-    const [searchParams, setSearchParams] = useSearchParams();
-    const teacherTabs = ['items', 'lesson-packs', 'worksheet-sets', 'profile', 'analytics', 'usage', 'vocab-review'] as const;
-    type TeacherTab = (typeof teacherTabs)[number];
-    const tabParam = searchParams.get('tab');
-    const tab: TeacherTab = teacherTabs.includes(tabParam as TeacherTab)
-        ? (tabParam as TeacherTab)
-        : 'items';
-    const setTab = (value: string) => {
-        setSearchParams((prev) => {
-            const next = new URLSearchParams(prev);
-            if (value === 'items') next.delete('tab');
-            else next.set('tab', value);
-            if (value !== 'worksheet-sets') next.delete('key');
-            return next;
-        }, { replace: true });
-    };
 
     return (
         <RolePortalLayout title="Portal ครู" subtitle="คลังสื่อ/เกม ของฉัน" menu={MENU} accent="teacher">
             <div className="p-4 sm:p-6 space-y-4 max-w-5xl mx-auto">
-                <div>
-                    <h1 className="text-2xl font-bold text-foreground">คลังสื่อและเกมการศึกษา</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        จัดการโปรไฟล์คลังและรายการสื่อ/เกม/ใบงานของคุณ
-                    </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-foreground">คลังสื่อและเกมการศึกษา</h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            จัดการโปรไฟล์คลังและรายการสื่อ/เกม/ใบงานของคุณ
+                        </p>
+                    </div>
+                    <Button variant="outline" asChild className="shrink-0">
+                        <a href="/docs/teacher-upload-media-guide.html" target="_blank" rel="noopener noreferrer">
+                            <BookOpen className="mr-2 h-4 w-4" />
+                            คู่มืออัปสื่อ 5 นาที
+                        </a>
+                    </Button>
                 </div>
+
+                {staffId && <TeacherHabitStrip staffId={staffId} />}
 
                 {!staffId ? (
                     <Card>
@@ -83,29 +117,28 @@ export default function TeacherEduHubManager() {
                         </CardContent>
                     </Card>
                 ) : (
-                    <Tabs value={tab} onValueChange={setTab} className="w-full">
+                    <Tabs defaultValue="items" className="w-full">
                         <TabsList>
                             <TabsTrigger value="items">รายการของฉัน</TabsTrigger>
-                            <TabsTrigger value="lesson-packs">ชุดคาบ</TabsTrigger>
                             <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                             <TabsTrigger value="profile">โปรไฟล์คลัง</TabsTrigger>
                             <TabsTrigger value="analytics">วิเคราะห์คะแนนเกม</TabsTrigger>
-                            <TabsTrigger value="usage">การใช้งาน</TabsTrigger>
                             <TabsTrigger value="vocab-review">
                                 <BookOpen className="h-3.5 w-3.5 mr-1.5" />
                                 คำศัพท์ที่พลาด
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent value="items"><MyItemsTab staffId={staffId} /></TabsContent>
-                        <TabsContent value="lesson-packs">
-                            <LessonPacksPanel staffId={staffId} mode="mine" />
-                        </TabsContent>
                         <TabsContent value="worksheet-sets">
                             <WorksheetSetsPanel staffId={staffId} mode="mine" />
                         </TabsContent>
                         <TabsContent value="profile"><MyProfileTab staffId={staffId} /></TabsContent>
-                        <TabsContent value="analytics"><TeacherGameAnalytics staffId={staffId} /></TabsContent>
-                        <TabsContent value="usage"><HubUsagePanel staffId={staffId} /></TabsContent>
+                        <TabsContent value="analytics">
+                            <div className="space-y-4">
+                                <HubUsageInsights staffId={staffId} />
+                                <TeacherGameAnalytics staffId={staffId} />
+                            </div>
+                        </TabsContent>
                         <TabsContent value="vocab-review"><ThaiVocabMissedReportClass /></TabsContent>
                     </Tabs>
                 )}
@@ -124,7 +157,6 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
     const [editing, setEditing] = useState<EduHubItem | null>(null);
     const [docsItem, setDocsItem] = useState<EduHubItem | null>(null);
     const [vocabItem, setVocabItem] = useState<EduHubItem | null>(null);
-    const { favorites, isFavorite, toggle: toggleFavorite } = useTeacherLessonFavorites(staffId);
 
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'items', 'mine', staffId],
@@ -167,39 +199,55 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
 
     return (
         <div className="space-y-6">
-            {favorites.length > 0 && items && (
-                <Card>
-                    <CardContent className="p-4 space-y-2">
-                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                            <Star className="h-4 w-4 text-amber-600 fill-amber-600" />
-                            ใช้ในคาบนี้
-                        </div>
-                        <ul className="space-y-1">
-                            {items.filter((it) => favorites.includes(it.id)).map((it) => (
-                                <li key={it.id} className="flex items-center gap-2 text-sm">
-                                    <span className="min-w-0 flex-1 truncate font-medium">{it.title}</span>
-                                    {it.external_url ? (
-                                        <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
-                                            <a href={it.external_url} target="_blank" rel="noreferrer">เปิด</a>
-                                        </Button>
-                                    ) : null}
-                                </li>
-                            ))}
-                        </ul>
-                    </CardContent>
-                </Card>
-            )}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="text-sm text-muted-foreground">
-                    รวม {items?.length ?? 0} รายการ · กดดาวเพื่อปัก «ใช้ในคาบนี้»
+                    รวม {items?.length ?? 0} รายการ
+                    {items ? ` · เผยแพร่ ${items.filter((i) => i.is_published).length}` : ''}
                 </div>
-                <Button
-                    onClick={() => { setEditing(null); setDialogOpen(true); }}
-                    disabled={!categories || categories.length === 0}
-                >
-                    <Plus className="h-4 w-4 mr-2" />เพิ่มรายการ
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={async () => {
+                            const mediaCat = categories?.find((c) => c.category_key === 'media');
+                            if (!mediaCat) {
+                                toast({ title: 'ยังไม่มีหมวดสื่อ', variant: 'destructive' });
+                                return;
+                            }
+                            const { data, error } = await educationalHubService.createFromMediaTemplate({
+                                ownerStaffId: staffId,
+                                categoryId: mediaCat.id,
+                            });
+                            if (error || !data) {
+                                toast({ title: 'สร้างร่างไม่สำเร็จ', description: error?.message, variant: 'destructive' });
+                                return;
+                            }
+                            queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items', 'mine', staffId] });
+                            toast({ title: 'สร้างร่างจากเทมเพลตแล้ว' });
+                            setEditing(data);
+                            setDialogOpen(true);
+                        }}
+                        disabled={!categories || categories.length === 0}
+                    >
+                        <BookOpen className="h-4 w-4 mr-2" />จากเทมเพลตสื่อ
+                    </Button>
+                    <Button
+                        onClick={() => { setEditing(null); setDialogOpen(true); }}
+                        disabled={!categories || categories.length === 0}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />เพิ่มสื่อ / ใบงาน / เกม
+                    </Button>
+                </div>
             </div>
+                <p className="text-xs text-muted-foreground">
+                    ครูอัปโหลดเองได้ — แนะนำเริ่มที่หมวด <strong>สื่อ</strong> หรือ <strong>ใบงาน</strong> แล้วใส่วิชา·ชั้น·ปกก่อนเผยแพร่ ·{' '}
+                    <a href="/docs/teacher-upload-media-guide.html" target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                        คู่มือ 5 นาที
+                    </a>
+                    {' · '}
+                    <a href="/games/_template-media.html" target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">
+                        เปิดเทมเพลตสื่อ
+                    </a>
+                </p>
 
             {isLoading ? (
                 <div className="text-center text-muted-foreground py-12">กำลังโหลด...</div>
@@ -228,10 +276,9 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         items={list}
                                         invalidateKeys={invalidateKeys}
                                         onEdit={(item) => { setEditing(item); setDialogOpen(true); }}
+                                        onDuplicated={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
                                         onVocabManage={(item) => setVocabItem(item)}
-                                        isFavorite={isFavorite}
-                                        onToggleFavorite={(item) => toggleFavorite(item.id)}
                                     />
                                 )}
                             </div>

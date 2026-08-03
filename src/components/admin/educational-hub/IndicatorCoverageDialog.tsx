@@ -1,8 +1,8 @@
 /**
- * IndicatorCoverageDialog.tsx — ความครอบคลุมตัวชี้วัด → เกม (มุมแอดมิน)
+ * IndicatorCoverageDialog.tsx — ความครอบคลุมตัวชี้วัด → เกม/สื่อ/ใบงาน (มุมแอดมิน)
  *
- * เลือกวิชา + ชั้น → ตารางตัวชี้วัดทุกตัว แต่ละแถวโชว์เกมที่ผูก (หรือ "ยังไม่มีเกม")
- * ช่วยให้แอดมินเห็นว่าตัวชี้วัดไหนมีเกมฝึกแล้ว / ตัวไหนยังขาด เพื่อวางแผนสร้างเกมเพิ่ม.
+ * เลือกวิชา + ชั้น → ตารางตัวชี้วัดทุกตัว แต่ละแถวโชว์เกม/สื่อ/ใบงานที่ผูกแยกกัน
+ * ช่วยให้แอดมินเห็นว่าตัวชี้วัดไหนมีเกมฝึก / สื่อ / ใบงาน แล้ว หรือยังขาด
  *
  * RLS: อ่านตัวชี้วัด public; indicator_games อ่านได้ (mig 170).
  */
@@ -28,6 +28,9 @@ import { IndicatorKindBadge } from '@/components/admin/curriculum/IndicatorKindB
 export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) => {
     const [subjectKey, setSubjectKey] = useState('thai');
     const [grade, setGrade] = useState('ป.1');
+    const [gapsOnly, setGapsOnly] = useState(false);
+    /** soft gap: missing game / media / worksheet (even if other kinds exist) */
+    const [softGap, setSoftGap] = useState<'none' | 'no-game' | 'no-media' | 'no-worksheet'>('none');
 
     const { data: rows, isLoading } = useQuery({
         queryKey: ['indicator-coverage', subjectKey, grade],
@@ -36,20 +39,51 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
 
     const stats = useMemo(() => {
         const total = (rows ?? []).length;
-        const covered = (rows ?? []).filter((r) => r.games.length > 0).length;
-        return { total, covered, pct: total ? Math.round((covered / total) * 100) : 0 };
+        const withGame = (rows ?? []).filter((r) => r.games.length > 0).length;
+        const withMedia = (rows ?? []).filter((r) => r.media.length > 0).length;
+        const withWs = (rows ?? []).filter((r) => r.worksheets.length > 0).length;
+        const withAny = (rows ?? []).filter(
+            (r) => r.games.length > 0 || r.media.length > 0 || r.worksheets.length > 0,
+        ).length;
+        return {
+            total,
+            withGame,
+            withMedia,
+            withWs,
+            withAny,
+            gaps: total - withAny,
+            noGame: total - withGame,
+            noMedia: total - withMedia,
+            noWs: total - withWs,
+            gamePct: total ? Math.round((withGame / total) * 100) : 0,
+            mediaPct: total ? Math.round((withMedia / total) * 100) : 0,
+            anyPct: total ? Math.round((withAny / total) * 100) : 0,
+        };
     }, [rows]);
+
+    const visibleRows = useMemo(() => {
+        let list = rows ?? [];
+        if (gapsOnly) {
+            list = list.filter(
+                (r) => r.games.length === 0 && r.media.length === 0 && r.worksheets.length === 0,
+            );
+        }
+        if (softGap === 'no-game') list = list.filter((r) => r.games.length === 0);
+        if (softGap === 'no-media') list = list.filter((r) => r.media.length === 0);
+        if (softGap === 'no-worksheet') list = list.filter((r) => r.worksheets.length === 0);
+        return list;
+    }, [rows, gapsOnly, softGap]);
 
     return (
         <>
             <DialogHeader>
-                <DialogTitle>📊 ความครอบคลุมตัวชี้วัด → เกม</DialogTitle>
+                <DialogTitle>ความครอบคลุมตัวชี้วัด → เกม / สื่อ / ใบงาน</DialogTitle>
                 <DialogDescription>
-                    ดูว่าตัวชี้วัดไหนมีเกมฝึกแล้ว / ตัวไหนยังขาด เพื่อวางแผนสร้างเกมเพิ่ม
+                    แยกดูเกมฝึก สื่อเรียนรู้ และใบงานที่ผูกกับตัวชี้วัด — เป้า ≥80% รวม · กรองเฉพาะช่องว่างเพื่อเติมต่อเนื่อง
                 </DialogDescription>
             </DialogHeader>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Select value={subjectKey} onValueChange={setSubjectKey}>
                     <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -66,9 +100,52 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
                         ))}
                     </SelectContent>
                 </Select>
-                <span className="ml-auto text-xs text-muted-foreground">
-                    มีเกมแล้ว {stats.covered}/{stats.total} ({stats.pct}%)
-                </span>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={gapsOnly ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => {
+                        setGapsOnly((v) => !v);
+                        if (!gapsOnly) setSoftGap('none');
+                    }}
+                >
+                    ว่างสนิท ({stats.gaps})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-game' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-game' ? 'none' : 'no-game'))}
+                >
+                    ยังไม่มีเกม ({stats.noGame})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-media' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-media' ? 'none' : 'no-media'))}
+                >
+                    ยังไม่มีสื่อ ({stats.noMedia})
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={softGap === 'no-worksheet' ? 'default' : 'outline'}
+                    className="h-8 text-xs"
+                    onClick={() => setSoftGap((v) => (v === 'no-worksheet' ? 'none' : 'no-worksheet'))}
+                >
+                    ยังไม่มีใบงาน ({stats.noWs})
+                </Button>
+                <div className="ml-auto flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                    <span className={stats.anyPct >= 80 ? 'text-emerald-700 font-semibold' : ''}>
+                        รวม {stats.withAny}/{stats.total} ({stats.anyPct}%){stats.anyPct >= 80 ? ' ✓' : ' — เป้า ≥80%'}
+                    </span>
+                    <span>· เกม {stats.gamePct}%</span>
+                    <span>· สื่อ {stats.mediaPct}%</span>
+                </div>
             </div>
 
             <div className="mt-3 max-h-[55vh] overflow-y-auto rounded-md border border-border divide-y divide-border">
@@ -76,49 +153,89 @@ export const IndicatorCoverageDialog = ({ onClose }: { onClose: () => void }) =>
                     <div className="py-10 text-center text-muted-foreground">
                         <Loader2 className="h-5 w-5 mx-auto animate-spin" />
                     </div>
-                ) : (rows ?? []).length === 0 ? (
+                ) : visibleRows.length === 0 ? (
                     <p className="py-10 text-center text-sm text-muted-foreground">
-                        ยังไม่มีตัวชี้วัดของวิชานี้ในระดับชั้นนี้
+                        {gapsOnly || softGap !== 'none'
+                            ? 'ไม่มีรายการตามตัวกรองนี้'
+                            : 'ยังไม่มีตัวชี้วัดของวิชานี้ในระดับชั้นนี้'}
                     </p>
                 ) : (
-                    (rows ?? []).map((r) => (
-                        <div key={r.id} className="px-3 py-2.5">
-                            <div className="flex items-start gap-2">
-                                <div className="min-w-0 flex-1">
-                                    <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
-                                        {r.indicator_code}
-                                        <IndicatorKindBadge kind={r.indicator_kind} />
-                                    </p>
-                                    <p className="text-sm text-foreground">{r.description}</p>
+                    visibleRows.map((r) => {
+                        const empty = r.games.length === 0 && r.media.length === 0 && r.worksheets.length === 0;
+                        return (
+                            <div key={r.id} className="px-3 py-2.5">
+                                <div className="flex items-start gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                                            {r.indicator_code}
+                                            <IndicatorKindBadge kind={r.indicator_kind} />
+                                        </p>
+                                        <p className="text-sm text-foreground">{r.description}</p>
+                                    </div>
+                                    <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                                        {r.games.length > 0 && (
+                                            <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-emerald-200">
+                                                เกม {r.games.length}
+                                            </Badge>
+                                        )}
+                                        {r.media.length > 0 && (
+                                            <Badge className="text-[10px] bg-sky-100 text-sky-700 border-sky-200">
+                                                สื่อ {r.media.length}
+                                            </Badge>
+                                        )}
+                                        {r.worksheets.length > 0 && (
+                                            <Badge className="text-[10px] bg-amber-100 text-amber-800 border-amber-200">
+                                                ใบงาน {r.worksheets.length}
+                                            </Badge>
+                                        )}
+                                        {empty && (
+                                            <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                                                ยังไม่มี
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
-                                {r.games.length > 0 ? (
-                                    <Badge className="shrink-0 text-[10px] bg-emerald-100 text-emerald-700 border-emerald-200">
-                                        🎯 {r.games.length} เกม
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="outline" className="shrink-0 text-[10px] text-muted-foreground">
-                                        ยังไม่มีเกม
-                                    </Badge>
+                                {(r.games.length > 0 || r.media.length > 0 || r.worksheets.length > 0) && (
+                                    <div className="mt-1.5 space-y-1">
+                                        {r.games.length > 0 && (
+                                            <div className="flex flex-wrap gap-1">
+                                                {r.games.map((g) => (
+                                                    <span key={g.id} className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                                                        เกม · {g.title}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {r.media.length > 0 && (
+                                            <div className="flex flex-wrap gap-1">
+                                                {r.media.map((g) => (
+                                                    <span key={g.id} className="rounded bg-sky-50 px-1.5 py-0.5 text-[11px] text-sky-800">
+                                                        สื่อ · {g.title}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {r.worksheets.length > 0 && (
+                                            <div className="flex flex-wrap gap-1">
+                                                {r.worksheets.map((g) => (
+                                                    <span key={g.id} className="rounded bg-amber-50 px-1.5 py-0.5 text-[11px] text-amber-900">
+                                                        ใบงาน · {g.title}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
-                            {r.games.length > 0 && (
-                                <div className="mt-1.5 flex flex-wrap gap-1">
-                                    {r.games.map((g) => (
-                                        <span
-                                            key={g.id}
-                                            className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
-                                        >
-                                            {g.title}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:items-center">
+                <p className="text-[11px] text-muted-foreground mr-auto">
+                    ผูกตัวชี้วัดรายเกม/สื่อได้จากปุ่ม “ตัวชี้วัด” ใน GamesTab · หรือ RPC batch_set_game_indicators
+                </p>
                 <Button variant="ghost" onClick={onClose}>ปิด</Button>
             </DialogFooter>
         </>

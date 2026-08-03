@@ -74,6 +74,10 @@ export type EduHubItem = {
     character_frame_count: number | null;
     character_animation_config: CharacterAnimationConfig | null;
     character_color_config: CharacterColorConfig | null;
+    character_source_url: string | null;
+    character_credits_text: string | null;
+    character_license_summary: string[] | null;
+    character_attribution_required: boolean;
     game_play_style: string | null;
     blueprint_id: string | null;
     blueprint_json: Record<string, unknown> | null;
@@ -124,6 +128,15 @@ export type CharacterSheet = {
     color_config: CharacterColorConfig | null;
     preview_url: string | null;
     notes: string | null;
+    source_kind: 'upload' | 'template' | 'universal-lpc';
+    source_url: string | null;
+    source_json: Record<string, unknown> | null;
+    source_json_filename: string | null;
+    credits_text: string | null;
+    credits_filename: string | null;
+    license_summary: string[];
+    attribution_required: boolean;
+    imported_at: string | null;
     created_by: string | null;
     created_at: string;
 };
@@ -146,6 +159,17 @@ export type EduHubTeacherCard = {
     username: string | null;
     /** Most recent published item created_at across all categories (nullable) */
     last_item_at: string | null;
+};
+
+export type EduHubItemPageOptions = {
+    categoryId: string;
+    limit?: number;
+    search?: string;
+    subjects?: string[];
+    grades?: string[];
+    tags?: string[];
+    types?: EduHubItemType[];
+    sort?: 'default' | 'newest' | 'popular' | 'alpha';
 };
 
 const BUCKET = 'educational-hub';
@@ -241,6 +265,63 @@ export const educationalHubService = {
             .order('created_at', { ascending: false });
     },
 
+    /** Public teacher-library page: fetch only the active category and visible range. */
+    listItemsByTeacherPage: async (
+        staffId: string,
+        opts: EduHubItemPageOptions,
+    ): Promise<{ data: EduHubItem[]; count: number; error: Error | null }> => {
+        const limit = Math.max(1, Math.min(opts.limit ?? 24, 120));
+        let q = supabase
+            .from('educational_hub_items' as never)
+            .select('*', { count: 'exact' })
+            .eq('owner_staff_id', staffId)
+            .eq('category_id', opts.categoryId)
+            .eq('is_published', true);
+
+        const search = opts.search?.replace(/[,%()]/g, ' ').trim();
+        if (search) q = q.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+        if (opts.subjects?.length) q = q.in('subject', opts.subjects);
+        if (opts.grades?.length) q = q.overlaps('grade_levels', opts.grades);
+        if (opts.tags?.length) q = q.overlaps('tags', opts.tags);
+        if (opts.types?.length) q = q.in('item_type', opts.types);
+
+        q = q
+            .order('library_pinned', { ascending: false })
+            .order('library_pin_order', { ascending: true, nullsFirst: false });
+
+        if (opts.sort === 'popular') {
+            q = q.order('view_count', { ascending: false });
+        } else if (opts.sort === 'alpha') {
+            q = q.order('title', { ascending: true });
+        } else if (opts.sort === 'default') {
+            q = q
+                .order('sort_order', { ascending: true })
+                .order('created_at', { ascending: false });
+        } else {
+            q = q.order('created_at', { ascending: false });
+        }
+
+        const { data, count, error } = await q.range(0, limit - 1);
+        return {
+            data: ((data ?? []) as unknown as EduHubItem[]),
+            count: count ?? 0,
+            error: (error as Error | null) ?? null,
+        };
+    },
+
+    /** Lightweight pair-link index; avoids downloading every full card row. */
+    listPublishedItemUrlsByTeacher: async (staffId: string): Promise<string[]> => {
+        const { data, error } = await supabase
+            .from('educational_hub_items' as never)
+            .select('external_url')
+            .eq('owner_staff_id', staffId)
+            .eq('is_published', true)
+            .not('external_url', 'is', null);
+        if (error) throw error;
+        return ((data ?? []) as unknown as Array<{ external_url: string | null }>)
+            .flatMap((row) => row.external_url ? [row.external_url] : []);
+    },
+
     // เกมที่ปักหมุดขึ้นหน้าแรก (โซน "เกมแนะนำ") — published เท่านั้น, anon อ่านได้
     listFeaturedGames: (limit = 12) =>
         supabase
@@ -293,6 +374,83 @@ export const educationalHubService = {
 
     deleteItem: (id: string) =>
         supabase.from('educational_hub_items' as never).delete().eq('id', id),
+
+    /**
+     * Light studio: fork an existing hub item as unpublished draft for the current owner.
+     */
+    duplicateItem: async (
+        sourceId: string,
+        ownerStaffId: string,
+        overrides?: Partial<EduHubItem>,
+    ): Promise<{ data: EduHubItem | null; error: Error | null }> => {
+        const { data: src, error: getErr } = await educationalHubService.getItem(sourceId);
+        if (getErr) return { data: null, error: getErr as Error };
+        const source = src as EduHubItem | null;
+        if (!source) return { data: null, error: new Error('ไม่พบรายการต้นฉบับ') };
+        const {
+            id: _id,
+            created_at: _c,
+            updated_at: _u,
+            view_count: _v,
+            download_count: _d,
+            library_pinned: _lp,
+            library_pin_order: _lo,
+            homepage_featured: _hf,
+            ...rest
+        } = source as EduHubItem & Record<string, unknown>;
+        const payload: Partial<EduHubItem> = {
+            ...(rest as Partial<EduHubItem>),
+            owner_staff_id: ownerStaffId,
+            title: `${source.title} (สำเนา)`,
+            is_published: false,
+            sort_order: (source.sort_order ?? 0) + 1,
+            ...overrides,
+        };
+        const { data, error } = await educationalHubService.insertItem(payload);
+        return { data: (data as EduHubItem | null) ?? null, error: (error as Error | null) ?? null };
+    },
+
+    /**
+     * Create a draft media item pointed at the shared HTML template (light studio).
+     */
+    createFromMediaTemplate: async (opts: {
+        ownerStaffId: string;
+        categoryId: string;
+        title?: string;
+        subject?: string | null;
+        gradeLevels?: string[] | null;
+    }): Promise<{ data: EduHubItem | null; error: Error | null }> => {
+        return educationalHubService.insertItem({
+            owner_staff_id: opts.ownerStaffId,
+            category_id: opts.categoryId,
+            title: opts.title ?? 'สื่อใหม่จากเทมเพลต',
+            description: 'ร่างจาก _template-media — แทนที่เนื้อหาแล้วเผยแพร่',
+            item_type: 'link',
+            external_url: '/games/_template-media.html',
+            subject: opts.subject ?? null,
+            grade_levels: opts.gradeLevels ?? null,
+            is_published: false,
+            sort_order: 0,
+        } as Partial<EduHubItem>);
+    },
+
+    /**
+     * Teacher/admin usage insights: top viewed items (own or published).
+     */
+    listTopViewedItems: async (
+        opts: { ownerStaffId?: string; limit?: number } = {},
+    ): Promise<EduHubItem[]> => {
+        let q = supabase
+            .from('educational_hub_items' as never)
+            .select('*')
+            .order('view_count', { ascending: false })
+            .limit(opts.limit ?? 20);
+        if (opts.ownerStaffId) q = q.eq('owner_staff_id', opts.ownerStaffId);
+        else q = q.eq('is_published', true);
+        const { data, error } = await q;
+        if (error) throw error;
+        return (data ?? []) as EduHubItem[];
+    },
 
     /**
      * Batch update sort_order for multiple items in one round-trip.
@@ -387,6 +545,143 @@ export const educationalHubService = {
                 { onConflict: 'key' },
             ),
 
+    /**
+     * Stats for the teacher habit loop on `/teacher/edu-hub`.
+     * Own items only — no admin comparison.
+     */
+    getMyUploadStats: async (
+        staffId: string,
+    ): Promise<{
+        total: number;
+        published: number;
+        totalViews: number;
+        lastCreatedAt: string | null;
+    }> => {
+        const { data, error } = await educationalHubService.listMyItems(staffId);
+        if (error) throw error;
+        const items = (data ?? []) as EduHubItem[];
+        const published = items.filter((i) => i.is_published).length;
+        const totalViews = items.reduce((sum, i) => sum + (i.view_count ?? 0), 0);
+        const lastCreatedAt =
+            items
+                .map((i) => i.created_at)
+                .filter(Boolean)
+                .sort()
+                .at(-1) ?? null;
+        return { total: items.length, published, totalViews, lastCreatedAt };
+    },
+
+    /**
+     * Admin KPI: non-admin staff who uploaded hub items in the last N days.
+     * Uses user_roles.role = 'admin' staff_id set as exclusion list.
+     */
+    getNonAdminUploadHabit: async (
+        sinceDays = 30,
+    ): Promise<{
+        sinceDays: number;
+        uploaderCount: number;
+        itemCount: number;
+        uploaders: Array<{
+            staffId: string;
+            name: string;
+            photoUrl: string | null;
+            count: number;
+            lastAt: string;
+        }>;
+    }> => {
+        const since = new Date();
+        since.setDate(since.getDate() - sinceDays);
+        const sinceIso = since.toISOString();
+
+        const [{ data: adminRoles, error: rolesErr }, { data: items, error: itemsErr }] =
+            await Promise.all([
+                supabase
+                    .from('user_roles' as never)
+                    .select('staff_id')
+                    .eq('role', 'admin'),
+                supabase
+                    .from('educational_hub_items' as never)
+                    .select('id, owner_staff_id, created_at')
+                    .gte('created_at', sinceIso)
+                    .not('owner_staff_id', 'is', null)
+                    .order('created_at', { ascending: false })
+                    .limit(500),
+            ]);
+        if (rolesErr) throw rolesErr;
+        if (itemsErr) throw itemsErr;
+
+        const adminStaffIds = new Set(
+            ((adminRoles ?? []) as { staff_id: string | null }[])
+                .map((r) => r.staff_id)
+                .filter((id): id is string => !!id),
+        );
+
+        const byOwner = new Map<string, { count: number; lastAt: string }>();
+        for (const row of (items ?? []) as {
+            id: string;
+            owner_staff_id: string;
+            created_at: string;
+        }[]) {
+            if (adminStaffIds.has(row.owner_staff_id)) continue;
+            const prev = byOwner.get(row.owner_staff_id);
+            if (!prev) {
+                byOwner.set(row.owner_staff_id, { count: 1, lastAt: row.created_at });
+            } else {
+                byOwner.set(row.owner_staff_id, {
+                    count: prev.count + 1,
+                    lastAt: row.created_at > prev.lastAt ? row.created_at : prev.lastAt,
+                });
+            }
+        }
+
+        const uploaders = Array.from(byOwner.entries())
+            .map(([staffId, v]) => ({ staffId, count: v.count, lastAt: v.lastAt }))
+            .sort((a, b) => b.count - a.count);
+
+        let uploadersWithStaff: Array<{
+            staffId: string;
+            name: string;
+            photoUrl: string | null;
+            count: number;
+            lastAt: string;
+        }> = uploaders.map((u) => ({
+            ...u,
+            name: u.staffId.slice(0, 8),
+            photoUrl: null as string | null,
+        }));
+
+        if (uploaders.length > 0) {
+            const ids = uploaders.map((u) => u.staffId);
+            const { data: staffRows, error: staffErr } = await supabase
+                .from('staff' as never)
+                .select('id, name, photo_url')
+                .in('id', ids);
+            if (!staffErr && staffRows) {
+                const byId = new Map(
+                    (staffRows as { id: string; name: string; photo_url: string | null }[]).map((s) => [
+                        s.id,
+                        s,
+                    ]),
+                );
+                uploadersWithStaff = uploaders.map((u) => {
+                    const s = byId.get(u.staffId);
+                    return {
+                        ...u,
+                        name: s?.name ?? u.staffId.slice(0, 8),
+                        photoUrl: s?.photo_url ?? null,
+                    };
+                });
+            }
+        }
+
+        return {
+            sinceDays,
+            uploaderCount: uploaders.length,
+            itemCount: uploaders.reduce((s, u) => s + u.count, 0),
+            uploaders: uploadersWithStaff,
+        };
+    },
+
     // ─── Counters (anon-safe RPCs) ──────────────────────────────────────
     incrementView: (id: string) =>
         supabase.rpc('increment_ehi_view' as never, { p_id: id } as never),
@@ -403,7 +698,7 @@ export const educationalHubService = {
         subPath: string,
         file: File,
     ): Promise<{ url: string; path: string; error: Error | null }> => {
-        const cleanName = file.name.replace(/[^\w.\-]+/g, '_');
+        const cleanName = file.name.replace(/[^\w.-]+/g, '_');
         const path = `${subPath.replace(/\/+$/, '')}/${Date.now()}_${crypto.randomUUID().slice(0, 8)}_${cleanName}`;
         const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
             cacheControl: '3600',
@@ -598,6 +893,14 @@ export const characterSheetsService = {
         animationPreset?: string;
         animationConfig?: CharacterAnimationConfig;
         notes?: string;
+        sourceKind?: CharacterSheet['source_kind'];
+        sourceUrl?: string | null;
+        sourceJson?: Record<string, unknown> | null;
+        sourceJsonFilename?: string | null;
+        creditsText?: string | null;
+        creditsFilename?: string | null;
+        licenseSummary?: string[];
+        attributionRequired?: boolean;
     }): Promise<{ sheet: CharacterSheet | null; error: Error | null }> => {
         const animationConfig = params.animationConfig
             ?? getCharacterAnimPreset(params.animationPreset ?? 'grid-3x6-18');
@@ -644,6 +947,15 @@ export const characterSheetsService = {
                 frame_count: params.frameCount,
                 animation_config: animationConfig,
                 notes: params.notes?.trim() || null,
+                source_kind: params.sourceKind ?? 'upload',
+                source_url: params.sourceUrl ?? null,
+                source_json: params.sourceJson ?? null,
+                source_json_filename: params.sourceJsonFilename ?? null,
+                credits_text: params.creditsText?.trim() || null,
+                credits_filename: params.creditsFilename ?? null,
+                license_summary: params.licenseSummary ?? [],
+                attribution_required: params.attributionRequired ?? false,
+                imported_at: params.sourceKind === 'universal-lpc' ? new Date().toISOString() : null,
             } as never)
             .select()
             .single();
@@ -702,6 +1014,11 @@ export const characterSheetsService = {
             .order('title'),
 
     remove: async (sheet: CharacterSheet): Promise<{ error: Error | null }> => {
+        const { error: clearError } = await supabase
+            .from('educational_hub_items')
+            .update(characterAssignmentFromSheet(null) as never)
+            .eq('character_sheet_id', sheet.id);
+        if (clearError) return { error: clearError as Error };
         if (!sheet.storage_path.startsWith('git:')) {
             await educationalHubService.removeFile(sheet.storage_path);
         }
@@ -764,6 +1081,7 @@ export const characterSheetsService = {
                 frame_count: t.frameCount,
                 animation_config: t.animationConfig,
                 color_config: colorConfig,
+                source_kind: 'template',
                 notes: `สร้างจากเทมเพลต ${t.key}`,
             } as never)
             .select()
@@ -878,6 +1196,15 @@ export const characterSheetsService = {
                 animation_config: src.animation_config,
                 color_config: src.color_config,
                 notes: src.notes,
+                source_kind: src.source_kind,
+                source_url: src.source_url,
+                source_json: src.source_json,
+                source_json_filename: src.source_json_filename,
+                credits_text: src.credits_text,
+                credits_filename: src.credits_filename,
+                license_summary: src.license_summary,
+                attribution_required: src.attribution_required,
+                imported_at: src.imported_at,
             } as never)
             .select()
             .single();
@@ -905,6 +1232,10 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
             character_frame_count: null,
             character_animation_config: null,
             character_color_config: null,
+            character_source_url: null,
+            character_credits_text: null,
+            character_license_summary: null,
+            character_attribution_required: false,
         };
     }
     return {
@@ -916,6 +1247,10 @@ export function characterAssignmentFromSheet(sheet: CharacterSheet | null | unde
         character_frame_count: sheet.frame_count,
         character_animation_config: sheet.animation_config,
         character_color_config: sheet.color_config,
+        character_source_url: sheet.source_url,
+        character_credits_text: sheet.credits_text,
+        character_license_summary: sheet.license_summary,
+        character_attribution_required: sheet.attribution_required,
     };
 }
 

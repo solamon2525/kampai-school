@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/arts/dance-basics-media.html">
+  <meta name="curriculum-indicators" content="ศ 3.1 ป.1/1,ศ 3.1 ป.1/2,ศ 3.1 ป.2/1">
+  <title>ใบงานนาฏศิลป์พื้นฐาน ป.1–ป.3 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>💃 ใบงานนาฏศิลป์พื้นฐาน</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.1–ป.3</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="pose">ท่าทาง</option><option value="manner">มารยาท</option><option value="why">เหตุผล</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"pose","prompt":"ก่อนเริ่มรำควรยืนอย่างไร","answer":"ยืนตรง พร้อม"},{"type":"pose","prompt":"ไหว้แสดงถึงอะไร","answer":"ความเคารพ"},{"type":"pose","prompt":"จีบมือคล้ายรูปอะไร","answer":"ดอกบัวตูม"},{"type":"pose","prompt":"ก้าวเท้าควรสัมพันธ์กับอะไร","answer":"จังหวะเพลง"},{"type":"manner","prompt":"มารยาทหลังเวทีข้อสำคัญ","answer":"ไม่ส่งเสียงดัง / เป็นระเบียบ"},{"type":"manner","prompt":"เข้าแถวบนเวทีควรทำอย่างไร","answer":"เป็นระเบียบตามคิว"},{"type":"why","prompt":"ทำไมสีหน้าสำคัญในการรำ","answer":"สื่ออารมณ์"},{"type":"why","prompt":"ทำไมไม่ควรเกร็งข้อมือตอนจีบ","answer":"ท่าไม่สวย / เจ็บ"},{"type":"pose","prompt":"ลำดับง่าย ๆ: เตรียม → ไหว้ → …","answer":"เริ่มท่ารำ / ก้าว"},{"type":"manner","prompt":"ทำอย่างไรเมื่อทำท่าผิดบนเวที","answer":"นิ่งต่อ / ไม่หัวเราะเสียงดัง"},{"type":"why","prompt":"หายใจก่อนเริ่มช่วยอะไร","answer":"ผ่อนคลาย / พร้อม"},{"type":"pose","prompt":"วาดมือจีบแบบง่าย ๆ","answer":"ตามที่วาด"},{"type":"manner","prompt":"ถอดรองเท้า/เตรียมชุดก่อนขึ้นเวทีหรือไม่","answer":"ตามข้อตกลงครู · เตรียมตัว"},{"type":"why","prompt":"ทำไมต้องซ้อมช้าก่อนเร็ว","answer":"จำท่าได้แม่น"},{"type":"pose","prompt":"ท่ารำที่บ้านฝึกได้โดยไม่ต้องมีเพลงหรือไม่","answer":"ได้ · นับจังหวะเอง"},{"type":"manner","prompt":"สรุปมารยาทนาฏศิลป์ 2 ข้อ","answer":"เช่น เคารพ/เป็นระเบียบ"}];
+window.WORKSHEET_CONFIG={
+  icon:'💃',title:'ใบงานนาฏศิลป์พื้นฐาน',subject:'ศิลปะ',gradeLabel:'ป.1–ป.3',
+  mediaLabel:'สื่อนาฏศิลป์',sourceMediaUrl:'/games/arts/dance-basics-media.html',
+  indicators:["ศ 3.1 ป.1/1","ศ 3.1 ป.1/2","ศ 3.1 ป.2/1"],
+  directions:"ตอบเรื่องท่าเตรียม ไหว้ จีบมือ ก้าวเท้า มารยาทเวที",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

@@ -1,88 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/number-line-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.1/2, ค 1.1 ป.2/1, ค 1.1 ป.3/1"><title>ใบงานเส้นจำนวน ป.1–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.nl-wrap{margin:1.2mm 0 1mm;padding:0 1mm}
-.nl-track{position:relative;height:11mm;border-bottom:2.2px solid var(--ws-ink);margin:0 2mm 0 2mm}
-.nl-ticks{display:flex;justify-content:space-between;position:absolute;left:0;right:0;bottom:0;height:100%}
-.nl-tick{position:relative;width:0;border-left:1.4px solid var(--ws-ink);height:3.2mm;align-self:flex-end}
-.nl-tick span{position:absolute;top:3.8mm;left:50%;transform:translateX(-50%);font-size:6.5pt;font-weight:800;color:var(--ws-muted);white-space:nowrap}
-.nl-mark{position:absolute;bottom:3.5mm;width:0;height:0;border-left:2.8mm solid transparent;border-right:2.8mm solid transparent;border-top:4mm solid var(--ws-danger);transform:translateX(-50%);visibility:hidden;z-index:2}
-.show-answers .nl-mark,.q.reveal-answer .nl-mark{visibility:visible}
-.nl-mark-blank{position:absolute;bottom:2.8mm;left:var(--mark-x,50%);transform:translateX(-50%);width:5mm;height:5mm;border:1.2px dashed var(--ws-accent);border-radius:50%;background:var(--ws-soft)}
-.show-answers .nl-mark-blank,.q.reveal-answer .nl-mark-blank{visibility:hidden}
-.step-block{display:flex;flex-direction:column;gap:1.3mm;margin-top:.8mm}
-.step-row{display:grid;grid-template-columns:20mm 1fr;gap:2mm;align-items:end;min-height:7mm}
-.step-tag{font-size:7pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:4px;padding:1mm;text-align:center;line-height:1.15}
-.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;padding-bottom:.4mm;font-weight:700;font-size:8.5pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-.nl-choices{display:flex;gap:2mm;flex-wrap:wrap;font-size:7.5pt;font-weight:700;color:var(--ws-muted);margin-top:.5mm}
-.nl-choices span{border:1px dashed var(--ws-line);border-radius:3px;padding:.5mm 1.5mm}
-.count-5 .nl-track{height:13mm}
-.count-5 .step-row{min-height:8.5mm}
-.count-10 .nl-tick span{font-size:5.5pt}
-</style>
-</head><body>
-<header class="toolbar"><h1>📏 ใบงานเส้นจำนวน</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1</option><option value="2">ป.2</option><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="locate">ระบุตำแหน่ง</option><option value="compare">เปรียบเทียบ</option><option value="order">เรียงลำดับ</option><option value="jump">กระโดดบนเส้น</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/number-line-media.html"><meta name="curriculum-indicators" content="ค 1.1 ป.1/2, ค 1.1 ป.2/1, ค 1.1 ป.3/1"><title>ใบงานเส้นจำนวน ป.1–4 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>📏 ใบงานเส้นจำนวน</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1</option><option value="2">ป.2</option><option value="3">ป.3</option><option value="4">ป.4</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="locate">ระบุตำแหน่ง</option><option value="compare">เปรียบเทียบ</option><option value="order">เรียงลำดับ</option><option value="jump">กระโดดบนเส้น</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const NL_ITEMS=[
-{type:'locate',prompt:'ทำเครื่องหมายที่ 7 บนเส้น 0–10',min:0,max:10,marks:[7],focus:7,answer:'ระหว่าง 5 กับ 10',step1:'นับจาก 0 ไปทางขวา',step2:'หยุดที่ขีด 7',step3:'7 อยู่ครึ่งหลังของเส้น'},
-{type:'locate',prompt:'ทำเครื่องหมายที่ 3 บนเส้น 0–10',min:0,max:10,marks:[3],focus:3,answer:'ก่อน 5 (ครึ่งแรก)',step1:'3 < 5',step2:'อยู่ในช่วง 0–5',step3:'ทำเครื่องหมายที่ 3'},
-{type:'compare',prompt:'เปรียบเทียบ 4 กับ 9 บนเส้นจำนวน',min:0,max:10,marks:[4,9],focus:null,answer:'4 < 9',step1:'ซ้าย = น้อยกว่า',step2:'4 อยู่ซ้ายของ 9',step3:'4 < 9'},
-{type:'compare',prompt:'เปรียบเทียบ 6 กับ 6',min:0,max:10,marks:[6],focus:6,answer:'6 = 6',step1:'ตำแหน่งเดียวกัน',step2:'ค่าเท่ากัน',step3:'6 = 6'},
-{type:'order',prompt:'เรียง 8, 2, 5 จากน้อย → มาก แล้วทำเครื่องหมาย',min:0,max:10,marks:[2,5,8],focus:null,answer:'2, 5, 8',step1:'2 น้อยสุด (ซ้ายสุด)',step2:'5 อยู่กลาง',step3:'2 → 5 → 8'},
-{type:'order',prompt:'เรียง 10, 7, 9 จากมาก → น้อย',min:0,max:10,marks:[7,9,10],focus:null,answer:'10, 9, 7',step1:'10 มากสุด (ขวาสุด)',step2:'9 อยู่ถัดมา',step3:'10 → 9 → 7'},
-{type:'jump',prompt:'เริ่มที่ 3 กระโดด +4 ได้เท่าไร',min:0,max:10,marks:[3,7],focus:7,from:3,jumps:4,answer:'7',step1:'เริ่มที่ 3',step2:'กระโดดขวา 4 ช่อง',step3:'ถึง 7'},
-{type:'jump',prompt:'เริ่มที่ 9 กระโดด −3 ได้เท่าไร',min:0,max:10,marks:[9,6],focus:6,from:9,jumps:-3,answer:'6',step1:'เริ่มที่ 9',step2:'กระโดดซ้าย 3 ช่อง',step3:'ถึง 6'},
-{type:'locate',prompt:'ทำเครื่องหมายที่ 0.5 บนเส้น 0–1',min:0,max:1,step:0.1,marks:[0.5],focus:0.5,answer:'กลางเส้น 0–1',step1:'0.5 = ครึ่งหนึ่ง',step2:'อยู่กึ่งกลาง 0 กับ 1',step3:'ทำเครื่องหมายที่ 0.5'},
-{type:'compare',prompt:'เปรียบเทียบ 0.3 กับ 0.7',min:0,max:1,step:0.1,marks:[0.3,0.7],focus:null,answer:'0.3 < 0.7',step1:'ซ้าย = น้อยกว่า',step2:'0.3 อยู่ซ้ายของ 0.7',step3:'0.3 < 0.7'},
-{type:'jump',prompt:'เริ่มที่ 0 กระโดด +0.2 สามครั้ง',min:0,max:1,step:0.1,marks:[0,0.6],focus:0.6,from:0,jumps:3,answer:'0.6',step1:'เริ่มที่ 0',step2:'+0.2 × 3',step3:'= 0.6'},
-{type:'order',prompt:'เรียง 0.8, 0.2, 0.5 จากน้อย → มาก',min:0,max:1,step:0.1,marks:[0.2,0.5,0.8],focus:null,answer:'0.2, 0.5, 0.8',step1:'ดูตำแหน่งบนเส้น 0–1',step2:'0.2 ซ้ายสุด',step3:'0.2 → 0.5 → 0.8'}
+{type:'locate',prompt:'7 อยู่ระหว่างใดบนเส้น 0–10',context:'0–10',choices:['5 กับ 10','0 กับ 5'],answer:'ระหว่าง 5 กับ 10',step1:'7>5 และ 7<10',step2:'นับ ...5,6,7...',step3:'ครึ่งหลัง'},
+{type:'locate',prompt:'3 บนเส้น 0–10',context:'0–10',choices:['ก่อน 5','หลัง 8'],answer:'ก่อน 5',step1:'3<5',step2:'ครึ่งแรก',step3:'0–5'},
+{type:'compare',prompt:'4 กับ 9',context:'4 · 9',choices:['4<9','4>9'],answer:'4<9',step1:'ซ้าย=น้อย',step2:'4 ซ้าย 9',step3:'4<9'},
+{type:'compare',prompt:'6 กับ 6',context:'6 · 6',choices:['6=6','6<6'],answer:'6=6',step1:'ตำแหน่งเดียว',step2:'เท่ากัน',step3:'6=6'},
+{type:'order',prompt:'เรียง 8,2,5 น้อย→มาก',context:'8·2·5',choices:['2,5,8','8,5,2'],answer:'2,5,8',step1:'2 น้อยสุด',step2:'5 กลาง',step3:'2→5→8'},
+{type:'order',prompt:'เรียง 10,7,9 มาก→น้อย',context:'10·7·9',choices:['10,9,7','7,9,10'],answer:'10,9,7',step1:'10 มากสุด',step2:'9 กลาง',step3:'10→9→7'},
+{type:'jump',prompt:'3 +4 → ?',context:'3+4',choices:['7','6'],answer:'7',step1:'เริ่ม 3',step2:'+4 ช่อง',step3:'=7'},
+{type:'jump',prompt:'9 −3 → ?',context:'9−3',choices:['6','12'],answer:'6',step1:'เริ่ม 9',step2:'−3 ช่อง',step3:'=6'},
+{type:'locate',prompt:'0.5 บนเส้น 0–1',context:'ทศนิยม',choices:['กลาง 0–1','หลัง 1'],answer:'กลาง 0–1',step1:'0.5=ครึ่ง',step2:'กลางเส้น',step3:'0.5'},
+{type:'compare',prompt:'0.3 กับ 0.7',context:'ทศนิยม',choices:['0.3<0.7','0.3>0.7'],answer:'0.3<0.7',step1:'0.3 ซ้าย',step2:'ซ้าย=น้อย',step3:'0.3<0.7'},
+{type:'jump',prompt:'0 +0.2×3',context:'ทศนิยม',choices:['0.6','0.3'],answer:'0.6',step1:'0.2×3',step2:'=0.6',step3:'0.6'},
+{type:'order',prompt:'เรียง 0.8,0.2,0.5',context:'ทศนิยม',choices:['0.2,0.5,0.8','0.8,0.5,0.2'],answer:'0.2,0.5,0.8',step1:'บนเส้น 0–1',step2:'0.2 ซ้ายสุด',step3:'0.2→0.5→0.8'}
 ];
-
-function buildNumberLine(item){
-  const min=item.min??0, max=item.max??10;
-  const step=item.step!=null?item.step:1;
-  const ticks=[];
-  for(let v=min; v<=max+1e-9; v=Math.round((v+step)*1000)/1000){
-    const pct=((v-min)/(max-min))*100;
-    const label=(step<1?(Math.round(v*10)/10):v);
-    ticks.push({v,pct,label:String(label)});
-  }
-  const tickHtml=ticks.map(t=>'<i class="nl-tick"><span>'+t.label+'</span></i>').join('');
-  const marks=item.marks||[];
-  const markHtml=marks.map(function(m){
-    const pct=((m-min)/(max-min))*100;
-    return '<i class="nl-mark" style="left:'+pct+'%"></i>';
-  }).join('');
-  const focus=item.focus!=null?item.focus:(marks[0]);
-  const blankPct=focus!=null?(((focus-min)/(max-min))*100):50;
-  return '<div class="nl-wrap" role="img" aria-label="เส้นจำนวน '+min+' ถึง '+max+'">'
-    +'<div class="nl-track"><div class="nl-ticks">'+tickHtml+'</div>'
-    +markHtml
-    +'<i class="nl-mark-blank" style="--mark-x:'+blankPct+'%"></i>'
-    +'</div></div>';
-}
-
-window.WORKSHEET_CONFIG={
-  worksheetKey:'number-line',
-  icon:'📏',title:'ใบงานเส้นจำนวน',subject:'คณิตศาสตร์',gradeLabel:'ป.1–4',mediaLabel:'เส้นจำนวน',
-  sourceMediaUrl:'/games/math/number-line-media.html',
-  indicators:['ค 1.1 ป.1/2','ค 1.1 ป.2/1','ค 1.1 ป.3/1'],
-  directions:'ใช้เส้นจำนวนจริง: ทำเครื่องหมาย · เปรียบเทียบซ้าย–ขวา · กระโดดบวกลบ',
-  getItems(t){return t==='mixed'?NL_ITEMS:NL_ITEMS.filter(i=>i.type===t);},
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    const tag1=item.type==='jump'?'1 เริ่ม':'1 หาตำแหน่ง';
-    const tag2=item.type==='jump'?'2 กระโดด':(item.type==='order'?'2 เรียง':'2 เทียบ');
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'
-      +buildNumberLine(item)
-      +'</div>'
-      +'<div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">'+tag1+'</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">'+tag2+'</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
-      +'</div>'
-      +'<div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'📏',title:'ใบงานเส้นจำนวน',subject:'คณิตศาสตร์',gradeLabel:'ป.1–4',mediaLabel:'เส้นจำนวน',sourceMediaUrl:'/games/math/number-line-media.html',indicators:['ค 1.1 ป.1/2','ค 1.1 ป.2/1','ค 1.1 ป.3/1'],directions:'ใช้เส้นจำนวนระบุตำแหน่ง เปรียบเทียบ เรียง และกระโดดบวกลบ',getItems(t){return t==='mixed'?NL_ITEMS:NL_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.context)stem+='<div class="q-context">'+e(item.context)+'</div>';if(item.choices)stem+='<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>';stem+='<div>ลงวิธีคิด 3 ขั้น</div></div>';return stem+'<div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

@@ -6,8 +6,9 @@
  *
  * ส่วนประกอบ:
  *   1. หัวการ์ด: ชื่อ + PersonAvatar + เลเวล/XP + เหรียญนับ
- *   2. แผนที่ตัวชี้วัดของฉัน (เลือกวิชา → ตัวชี้วัดทั้งหมดในระดับชั้นตัวเอง + สถานะ)
- *   3. แนะนำเกมสำหรับคุณ (#1 — RecommendedGames)
+ *   2. แนะนำเกมสำหรับคุณ (#1 — RecommendedGames)
+ *   2b. แนะนำสื่อสำหรับคุณ (recommend_media · migration 429)
+ *   3. แผนที่ตัวชี้วัดของฉัน (เลือกวิชา → ตัวชี้วัดทั้งหมดในระดับชั้นตัวเอง + สถานะ)
  *
  * RPC: my_mastery (migration 269) — SECURITY DEFINER (anon-callable)
  */
@@ -15,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-    ArrowLeft, Loader2, LogOut, Gamepad2, Star, Award, Sparkles, Search,
+    ArrowLeft, BookOpen, Loader2, LogOut, Gamepad2, Star, Award, Sparkles, Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,7 @@ import {
 import { levelFromXp } from '@/services/game-play.service';
 import { CURRICULUM_SUBJECTS } from '@/lib/curriculumSubjects';
 import { RecommendedGames } from '@/components/student/RecommendedGames';
+import { RecommendedMedia } from '@/components/student/RecommendedMedia';
 
 const STORAGE_KEY = 'kampai_my_student_code';
 
@@ -216,6 +218,15 @@ const DashboardView = ({ studentCode, onLogout }: { studentCode: string; onLogou
                         <h3 className="text-lg font-bold">แนะนำเกมสำหรับคุณ</h3>
                     </div>
                     <RecommendedGames studentCode={studentCode} limit={8} />
+                </section>
+
+                {/* 2b. แนะนำสื่อสำหรับคุณ */}
+                <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-primary" />
+                        <h3 className="text-lg font-bold">แนะนำสื่อสำหรับคุณ</h3>
+                    </div>
+                    <RecommendedMedia studentCode={studentCode} limit={8} />
                 </section>
 
                 {/* 3. แผนที่ตัวชี้วัดของฉัน */}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/math-data-hub/index.html">
+  <meta name="curriculum-indicators" content="ค 3.1 ป.4/1">
+  <title>ใบงานคลังข้อมูลและกราฟ ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📊 ใบงานคลังข้อมูลและกราฟ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="bar">แผนภูมิแท่ง</option><option value="picto">แผนภาพรูปภาพ</option><option value="table">ตาราง</option><option value="quiz">วิเคราะห์ข้อมูล</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"bar","labels":["มะม่วง","กล้วย","ส้ม"],"values":[6,9,4],"ask":"ผลไม้ใดมากที่สุด","answer":"กล้วย 9"},{"type":"bar","labels":["แดง","ฟ้า","เขียว"],"values":[8,5,7],"ask":"มากสุดต่างน้อยสุดเท่าไร","answer":"3"},{"type":"bar","labels":["จ.","อ.","พ."],"values":[5,8,6],"ask":"อังคารมากกว่าจันทร์เท่าไร","answer":"3"},{"type":"bar","labels":["ป.4/1","ป.4/2","ป.4/3"],"values":[12,10,14],"ask":"รวมสามห้อง","answer":"36"},{"type":"picto","labels":["แมว","สุนัข","ปลา"],"values":[4,6,3],"ask":"● = 2 ตัว → สุนัขกี่ตัว","answer":"12"},{"type":"picto","labels":["ฟุตบอล","ว่ายน้ำ","วิ่ง"],"values":[5,3,4],"ask":"★ = 2 → ฟุตบอล+ว่ายน้ำ","answer":"16 คน (8★)"},{"type":"picto","labels":["นิทาน","วิทย์","การ์ตูน"],"values":[3,5,4],"ask":"■ = 3 เล่ม → วิทย์กี่เล่ม","answer":"15"},{"type":"table","labels":["ดินสอ","ปากกา","ยาง"],"values":[12,7,9],"ask":"น้อยกว่าดินสอ 3 ชิ้นคืออะไร","answer":"ยางลบ"},{"type":"table","labels":["เช้า","กลางวัน","เย็น"],"values":[24,31,27],"ask":"ช่วงใดมากสุด และมากกว่าเช้าเท่าไร","answer":"กลางวัน +7"},{"type":"table","labels":["ก","ข","ค"],"values":[18,15,20],"ask":"ก+ข","answer":"33"},{"type":"quiz","labels":["ข้าว","นม","ไข่"],"values":[10,6,8],"ask":"กำหนดสเกลครั้งละ 2 แล้ววาดแท่ง","answer":"สูง 10,6,8"},{"type":"quiz","labels":["เหนือ","กลาง","ใต้"],"values":[7,11,8],"ask":"เรียงจากน้อย→มาก","answer":"เหนือ 7, ใต้ 8, กลาง 11"},{"type":"bar","labels":["ฝน","แดด","ลม"],"values":[4,9,2],"ask":"ผลรวมทั้งหมด","answer":"15"},{"type":"picto","labels":["รถ","เรือ","เครื่องบิน"],"values":[2,3,1],"ask":"△ = 5 → รวมทั้งหมด","answer":"30"},{"type":"table","labels":["A","B","C","D"],"values":[5,8,6,7],"ask":"ค่าเฉลี่ยอย่างง่าย (รวม÷4)","answer":"6.5"},{"type":"quiz","labels":["จันทร์","อังคาร"],"values":[10,14],"ask":"เขียนคำถามจากข้อมูลนี้ 1 ข้อ","answer":"เช่น อังคารมากกว่าจันทร์กี่หน่วย"},{"type":"bar","labels":["อ่าน","เขียน","คิด"],"values":[7,5,9],"ask":"วิชาใดน้อยสุด","answer":"เขียน 5"},{"type":"table","labels":["เช้า","บ่าย"],"values":[15,20],"ask":"บ่ายคิดเป็นกี่เท่าของเช้า","answer":"4/3 เท่า"}];
+window.WORKSHEET_CONFIG={
+  icon:'📊',title:'ใบงานคลังข้อมูลและกราฟ',subject:'คณิตศาสตร์',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังข้อมูลและกราฟ',sourceMediaUrl:'/games/math/math-data-hub/index.html',
+  indicators:["ค 3.1 ป.4/1"],
+  directions:"อ่านตาราง กำหนดสเกล วาด/อ่านแผนภูมิ และอธิบายเหตุผล",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    const heads=item.labels.map(l=>'<th>'+e(l)+'</th>').join('');
+    const cells=item.values.map(v=>'<td>'+v+'</td>').join('');
+    return '<div class="q-prompt">'+e(item.ask)+'</div>'
+      +'<table class="mini-table math-data-hub-grid"><tr>'+heads+'</tr><tr>'+cells+'</tr></table>'
+      +'<div class="chart-grid" aria-label="พื้นที่วาดกราฟ"></div>'
+      +'<div class="scale-box">สเกล/สัญลักษณ์: ____________________</div>'
+      +'<div class="calc-line"></div><div class="work-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

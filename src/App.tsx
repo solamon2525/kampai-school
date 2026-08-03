@@ -77,6 +77,7 @@ const TeacherAttendance = lazyWithRetry(() => import("./pages/teacher/TeacherAtt
 const TeacherScores = lazyWithRetry(() => import("./pages/teacher/TeacherScores"));
 const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/TeacherRewardsApproval"));
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
+const TeacherSupplies = lazyWithRetry(() => import("./pages/teacher/TeacherSupplies"));
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
 const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherGameResearch"));
@@ -87,10 +88,13 @@ const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboa
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const ParentMastery = lazyWithRetry(() => import("./pages/parent/ParentMastery"));
 const ParentVocabReview = lazyWithRetry(() => import("./pages/parent/ParentVocabReview"));
+const ParentWorksheets = lazyWithRetry(() => import("./pages/parent/ParentWorksheets"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
 const MyLearning = lazyWithRetry(() => import("./pages/student/MyLearning"));
 const PdpaSelfView = lazyWithRetry(() => import("./components/parent/PdpaSelfView").then(m => ({ default: m.PdpaSelfView })));
 const ChatPage = lazyWithRetry(() => import("./components/chat/ChatPage").then(m => ({ default: m.ChatPage })));
 const Donate = lazyWithRetry(() => import("./pages/Donate"));
+const DonationReceipt = lazyWithRetry(() => import("./pages/DonationReceipt"));
 const ParentAssignments = lazyWithRetry(() => import("./components/parent/ParentAssignments").then(m => ({ default: m.ParentAssignments })));
 const ConferenceBooking = lazyWithRetry(() => import("./components/parent/ConferenceBooking").then(m => ({ default: m.ConferenceBooking })));
 const AssignmentManagement = lazyWithRetry(() => import("./components/teacher/AssignmentManagement").then(m => ({ default: m.AssignmentManagement })));
@@ -202,6 +206,8 @@ const App = () => (
             <Route path="/hero" element={<StudentHeroPublic />} />
             <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
             <Route path="/donate" element={<Donate />} />
+            <Route path="/donate/receipt/:id" element={<DonationReceipt />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/alumni" element={<Alumni />} />
             <Route path="/surveys/:id" element={<SurveyResponse />} />
 
@@ -223,6 +229,9 @@ const App = () => (
             } />
             <Route path="/teacher/edu-hub" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherEduHubManager /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/supplies" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherSupplies /></PortalProtectedRoute>
             } />
             <Route path="/teacher/cctv" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherCctv /></PortalProtectedRoute>
@@ -267,6 +276,9 @@ const App = () => (
             } />
             <Route path="/parent/mastery" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentMastery /></PortalProtectedRoute>
+            } />
+            <Route path="/parent/worksheets" element={
+              <PortalProtectedRoute allow={['parent', 'admin']}><ParentWorksheets /></PortalProtectedRoute>
             } />
             <Route path="/parent/vocab-review" element={
               <PortalProtectedRoute allow={['parent', 'admin']}><ParentVocabReview /></PortalProtectedRoute>

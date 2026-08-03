@@ -420,9 +420,11 @@
     const questions = sheet.querySelector('.questions');
     if (!questions) return [];
     const items = Array.from(questions.querySelectorAll('.q'));
-    items.slice(5).forEach((item) => item.remove());
-    questions.classList.add('worksheet-mode-five');
-    return items.slice(0, 5);
+    const fixedCount = Number(document.getElementById('selCount')?.dataset.fixedCount);
+    const limit = Number.isInteger(fixedCount) && fixedCount > 0 ? fixedCount : 5;
+    items.slice(limit).forEach((item) => item.remove());
+    questions.classList.toggle('worksheet-mode-five', limit === 5);
+    return items.slice(0, limit);
   }
 
   function addExitReflection(sheet) {

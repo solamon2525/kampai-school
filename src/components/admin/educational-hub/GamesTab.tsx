@@ -17,6 +17,7 @@
  */
 
 import { useMemo, useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,6 +65,7 @@ import { CharacterSheetScenePreview } from './CharacterSheetScenePreview';
 import { CharacterSheetStudio } from './CharacterSheetStudio';
 import { CharacterCreationWizard } from './CharacterCreationWizard';
 import { CharacterTemplatePicker } from './CharacterTemplatePicker';
+import { LpcCharacterImporter, type LpcImportPayload } from './LpcCharacterImporter';
 import { GameBlueprintEditor } from './GameBlueprintEditor';
 import { supportsBlueprintEditor, blueprintPreviewEngineUrl } from '@/lib/game-blueprint';
 import {
@@ -100,6 +102,11 @@ import { ThaiVocabManageDialog } from './ThaiVocabManageDialog';
 import { isThaiVocabHubGame } from '@/lib/thai-vocab-hub';
 import { curriculumService } from '@/services/curriculum.service';
 import { GameIndicatorBatchMapper } from '@/components/admin/curriculum/GameIndicatorBatchMapper';
+import {
+    LPC_GENERATOR_URL,
+    LPC_SOURCE_KIND,
+    downloadCharacterMetadata,
+} from '@/lib/lpc-character';
 
 /** preset เพลงสังเคราะห์ (ตรงกับ BGM_PRESETS ใน kampai-sdk.js) */
 const BGM_PRESETS: { key: string; label: string }[] = [
@@ -522,6 +529,7 @@ type Teacher = {
 export const GamesTab = () => {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [dialog, setDialog] = useState<
         | { mode: 'create' }
         | { mode: 'replace'; item: EduHubItem }
@@ -546,6 +554,16 @@ export const GamesTab = () => {
         | null
     >(null);
     const [styleFilter, setStyleFilter] = useState<GamePlayStyleFilter>('__all__');
+
+    useEffect(() => {
+        if (searchParams.get('coverage') !== '1') return;
+        setDialog({ mode: 'coverage' });
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('coverage');
+            return next;
+        }, { replace: true });
+    }, [searchParams, setSearchParams]);
 
     const handleConfirm = async () => {
         if (!confirmAction) return;
@@ -1604,6 +1622,45 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
         }
     };
 
+    const handleLpcImport = async (payload: LpcImportPayload) => {
+        setBusy(true);
+        try {
+            const { sheet, error } = await characterSheetsService.upload({
+                title: payload.title,
+                sheetFile: payload.sheetFile,
+                frameWidth: payload.analysis.frameWidth,
+                frameHeight: payload.analysis.frameHeight,
+                frameCount: payload.analysis.frameCount,
+                animationConfig: payload.analysis.animationConfig,
+                sourceKind: LPC_SOURCE_KIND,
+                sourceUrl: LPC_GENERATOR_URL,
+                sourceJson: payload.metadata.sourceJson,
+                sourceJsonFilename: payload.metadata.sourceJsonFilename,
+                creditsText: payload.metadata.creditsText,
+                creditsFilename: payload.metadata.creditsFilename,
+                licenseSummary: payload.metadata.licenseSummary,
+                attributionRequired: true,
+                notes: 'นำเข้าจาก Universal LPC Generator · เก็บ JSON และ Credits ต้นฉบับแล้ว',
+            });
+            if (error) throw error;
+            queryClient.invalidateQueries({ queryKey: ['character-sheets'] });
+            toast({
+                title: 'นำเข้าตัวละคร LPC สำเร็จ',
+                description: 'ระบบ map ท่า 4 ทิศและบันทึก Credits พร้อมใช้งานแล้ว',
+            });
+            if (sheet) setEditingSheet(sheet);
+        } catch (error) {
+            toast({
+                title: 'นำเข้า LPC ไม่สำเร็จ',
+                description: error instanceof Error ? error.message : 'เกิดข้อผิดพลาด',
+                variant: 'destructive',
+            });
+            throw error;
+        } finally {
+            setBusy(false);
+        }
+    };
+
     const handleCreateFromTemplate = async (template: CharacterStudioTemplate) => {
         setTemplateBusy(true);
         try {
@@ -1643,9 +1700,66 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                         busy={saveBusy}
                         onSave={(payload) => handleSaveSheet(editingSheet, payload)}
                     />
+                    {editingSheet.source_kind === LPC_SOURCE_KIND && (
+                        <div className="space-y-3 rounded-lg border border-border bg-card p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <p className="text-sm font-medium text-foreground">เครดิต Universal LPC</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {editingSheet.license_summary.length > 0
+                                            ? editingSheet.license_summary.join(' · ')
+                                            : 'ตามไฟล์ Credits ที่แนบ'}
+                                    </p>
+                                </div>
+                                <Button type="button" variant="outline" size="sm" asChild>
+                                    <a href={editingSheet.source_url ?? LPC_GENERATOR_URL} target="_blank" rel="noopener noreferrer">
+                                        แหล่งที่มา <ExternalLink className="ml-1 h-3.5 w-3.5" />
+                                    </a>
+                                </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {editingSheet.source_json && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => downloadCharacterMetadata(
+                                            editingSheet.source_json_filename ?? 'lpc-character.json',
+                                            JSON.stringify(editingSheet.source_json, null, 2),
+                                            'application/json',
+                                        )}
+                                    >
+                                        <Download className="mr-1 h-3.5 w-3.5" /> JSON ต้นฉบับ
+                                    </Button>
+                                )}
+                                {editingSheet.credits_text && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => downloadCharacterMetadata(
+                                            editingSheet.credits_filename ?? 'lpc-credits.txt',
+                                            editingSheet.credits_text ?? '',
+                                        )}
+                                    >
+                                        <Download className="mr-1 h-3.5 w-3.5" /> Credits
+                                    </Button>
+                                )}
+                            </div>
+                            {editingSheet.credits_text && (
+                                <details className="rounded-md border border-border px-3 py-2 text-xs">
+                                    <summary className="cursor-pointer font-medium text-foreground">ดูข้อความเครดิต</summary>
+                                    <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap font-sans text-muted-foreground">
+                                        {editingSheet.credits_text}
+                                    </pre>
+                                </details>
+                            )}
+                        </div>
+                    )}
                 </div>
             ) : (
             <div className="space-y-4">
+                <LpcCharacterImporter busy={busy} onImport={handleLpcImport} />
                 <CharacterTemplatePicker busy={templateBusy} onSelect={handleCreateFromTemplate} />
                 <CharacterCreationWizard busy={busy} onUpload={handleWizardUpload} />
                 <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
@@ -1722,6 +1836,9 @@ const CharacterLibraryDialog = ({ onClose }: { onClose: () => void }) => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">{s.title}</p>
+                                        {s.source_kind === LPC_SOURCE_KIND && (
+                                            <Badge variant="secondary" className="mb-1 text-[10px]">Universal LPC · มี Credits</Badge>
+                                        )}
                                         <p className="text-xs text-muted-foreground">
                                             {s.frame_width}×{s.frame_height} · {s.frame_count} เฟรม · {anim.preset}
                                             {s.sheet_url_p2 ? ' · 2P' : ''}

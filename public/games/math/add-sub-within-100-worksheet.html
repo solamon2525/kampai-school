@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/add-sub-within-100-media.html">
+  <meta name="curriculum-indicators" content="ค 1.1 ป.1/4,ค 1.1 ป.1/5,ค 1.1 ป.2/1">
+  <title>ใบงานบวกลบไม่เกิน 100 ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>➕ ใบงานบวกลบไม่เกิน 100</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.2</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="add">บวก</option><option value="sub">ลบ</option><option value="word">โจทย์</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
+<script src="/games/kampai-qr.js?v=1.195.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"add","prompt":"5+3 =","answer":"8"},{"type":"sub","prompt":"8−3 =","answer":"5"},{"type":"add","prompt":"24+3 =","answer":"27"},{"type":"sub","prompt":"28−5 =","answer":"23"},{"type":"add","prompt":"30+40 =","answer":"70"},{"type":"word","prompt":"มี 12 เอาไป 4 เหลือ","answer":"8"},{"type":"add","prompt":"15+10 =","answer":"25"},{"type":"sub","prompt":"50−20 =","answer":"30"},{"type":"word","prompt":"มี 7 ได้เพิ่ม 5 รวม","answer":"12"},{"type":"add","prompt":"6+6 =","answer":"12"},{"type":"sub","prompt":"19−9 =","answer":"10"},{"type":"word","prompt":"ไข่ 20 ฟอง แตก 3 เหลือ","answer":"17"},{"type":"add","prompt":"45+5 =","answer":"50"},{"type":"sub","prompt":"100−10 =","answer":"90"},{"type":"add","prompt":"2+8+5 =","answer":"15"},{"type":"word","prompt":"สร้างโจทย์บวกเอง 1 ข้อพร้อมคำตอบ","answer":"ตามนักเรียน"}];
+window.WORKSHEET_CONFIG={
+  icon:'➕',title:'ใบงานบวกลบไม่เกิน 100',subject:'คณิตศาสตร์',gradeLabel:'ป.1–ป.2',
+  mediaLabel:'สื่อบวกลบ',sourceMediaUrl:'/games/math/add-sub-within-100-media.html',
+  indicators:["ค 1.1 ป.1/4","ค 1.1 ป.1/5","ค 1.1 ป.2/1"],
+  directions:"บวก–ลบ และโจทย์สั้น · แสดงวิธีคิด",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

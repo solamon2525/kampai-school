@@ -121,6 +121,30 @@ export type GameRecommendation = {
     tier: number;
 };
 
+/** คำแนะนำสื่อการสอน (จาก RPC recommend_media) */
+export type MediaRecommendation = {
+    item_id: string;
+    title: string;
+    thumbnail: string | null;
+    subject: string | null;
+    subject_key: string | null;
+    external_url: string | null;
+    youtube_id: string | null;
+    file_url: string | null;
+    item_type: string | null;
+    reason: GameRecommendationReason;
+    indicator_desc: string | null;
+    tier: number;
+};
+
+/** Resolve openable URL for a media recommendation card */
+export function mediaRecommendationHref(m: MediaRecommendation): string | null {
+    if (m.youtube_id) return `https://www.youtube.com/watch?v=${m.youtube_id}`;
+    if (m.external_url) return m.external_url;
+    if (m.file_url) return m.file_url;
+    return null;
+}
+
 /** แถว heatmap ต่อตัวชี้วัด (จาก RPC class_indicator_heatmap) */
 export type IndicatorHeatmapRow = {
     indicator_id: string;
@@ -257,13 +281,81 @@ export const curriculumService = {
     },
 
     /**
-     * ความครอบคลุม: ตัวชี้วัดของวิชา+ชั้น → รายชื่อเกมที่ผูก (เห็นว่าตัวไหนยังไม่มีเกม)
-     * คืน indicator ทุกตัว (เรียง sort_order) พร้อม games[] (อาจว่าง)
+     * School-wide indicator coverage for media roadmap KPI.
+     * "covered" = has ≥1 linked hub item (game / media / worksheet).
+     * Uses RPC — client `.select()` truncates at 1000 rows and under-counts.
+     */
+    indicatorCoverageSummary: async (): Promise<{
+        totalIndicators: number;
+        covered: number;
+        pctCovered: number;
+        linkedItems: number;
+    }> => {
+        const { data, error } = await supabase.rpc('indicator_coverage_summary' as never);
+        if (error) throw error;
+        const row = (data ?? {}) as {
+            totalIndicators?: number;
+            covered?: number;
+            pctCovered?: number;
+            linkedItems?: number;
+        };
+        return {
+            totalIndicators: Number(row.totalIndicators ?? 0),
+            covered: Number(row.covered ?? 0),
+            pctCovered: Number(row.pctCovered ?? 0),
+            linkedItems: Number(row.linkedItems ?? 0),
+        };
+    },
+
+    /** Soft-gap counts — ตัวชี้วัดที่ยังไม่มีเกม/สื่อ/ใบงาน (RPC 451) */
+    indicatorSoftGapSummary: async (): Promise<{
+        totalIndicators: number;
+        unmapped: number;
+        noGame: number;
+        noMedia: number;
+        noWorksheet: number;
+    }> => {
+        const { data, error } = await supabase.rpc('indicator_soft_gap_summary' as never);
+        if (error) throw error;
+        const row = (data ?? {}) as {
+            totalIndicators?: number;
+            unmapped?: number;
+            noGame?: number;
+            noMedia?: number;
+            noWorksheet?: number;
+        };
+        return {
+            totalIndicators: Number(row.totalIndicators ?? 0),
+            unmapped: Number(row.unmapped ?? 0),
+            noGame: Number(row.noGame ?? 0),
+            noMedia: Number(row.noMedia ?? 0),
+            noWorksheet: Number(row.noWorksheet ?? 0),
+        };
+    },
+
+    /**
+     * ความครอบคลุม: ตัวชี้วัดของวิชา+ชั้น → รายการเกม/สื่อ/ใบงานที่ผูก
+     * คืน indicator ทุกตัว (เรียง sort_order) พร้อม items[] แยก kind
      */
     gamesByIndicator: async (
         subjectKey: string,
         grade: string,
-    ): Promise<Array<CurriculumIndicator & { games: { id: string; title: string }[] }>> => {
+    ): Promise<Array<CurriculumIndicator & {
+        games: { id: string; title: string; kind: 'game' | 'media' | 'worksheet' | 'other' }[];
+        media: { id: string; title: string; kind: 'media' }[];
+        worksheets: { id: string; title: string; kind: 'worksheet' }[];
+    }>> => {
+        const classify = (
+            url: string | null | undefined,
+            tracked: boolean | null | undefined,
+        ): 'game' | 'media' | 'worksheet' | 'other' => {
+            if (!url) return 'other';
+            if (url.includes('-worksheet.html')) return 'worksheet';
+            if (url.includes('-media.html')) return 'media';
+            if (tracked || url.includes('/edu-hub-games/') || url.includes('/games/')) return 'game';
+            return 'other';
+        };
+
         const { data: inds, error: e1 } = await supabase
             .from('curriculum_indicators' as never)
             .select('*')
@@ -278,22 +370,48 @@ export const curriculumService = {
         const ids = indicators.map((i) => i.id);
         const { data: maps, error: e2 } = await supabase
             .from('indicator_games' as never)
-            .select('indicator_id, educational_hub_items(id, title)')
+            .select('indicator_id, educational_hub_items(id, title, external_url, tracked_game)')
             .in('indicator_id', ids);
         if (e2) throw e2;
 
-        const byInd = new Map<string, { id: string; title: string }[]>();
+        type HubRef = {
+            id: string;
+            title: string;
+            kind: 'game' | 'media' | 'worksheet' | 'other';
+        };
+        const byInd = new Map<string, HubRef[]>();
         ((maps ?? []) as {
             indicator_id: string;
-            educational_hub_items: { id: string; title: string } | null;
+            educational_hub_items: {
+                id: string;
+                title: string;
+                external_url: string | null;
+                tracked_game: boolean | null;
+            } | null;
         }[]).forEach((r) => {
             if (!r.educational_hub_items) return;
+            const kind = classify(
+                r.educational_hub_items.external_url,
+                r.educational_hub_items.tracked_game,
+            );
             const arr = byInd.get(r.indicator_id) ?? [];
-            arr.push(r.educational_hub_items);
+            arr.push({
+                id: r.educational_hub_items.id,
+                title: r.educational_hub_items.title,
+                kind,
+            });
             byInd.set(r.indicator_id, arr);
         });
 
-        return indicators.map((ind) => ({ ...ind, games: byInd.get(ind.id) ?? [] }));
+        return indicators.map((ind) => {
+            const all = byInd.get(ind.id) ?? [];
+            return {
+                ...ind,
+                games: all.filter((x) => x.kind === 'game' || x.kind === 'other'),
+                media: all.filter((x) => x.kind === 'media') as { id: string; title: string; kind: 'media' }[],
+                worksheets: all.filter((x) => x.kind === 'worksheet') as { id: string; title: string; kind: 'worksheet' }[],
+            };
+        });
     },
 
     // ─── Mapping: แผนการเรียน ↔ ตัวชี้วัด ─────────────────────────────────────
@@ -383,6 +501,19 @@ export const curriculumService = {
         } as never);
         if (error) throw error;
         return (data as unknown as GameRecommendation[]) ?? [];
+    },
+
+    /** Media Recommendation: สื่อที่ควรดูต่อ (3-tier · migration 429) */
+    recommendMedia: async (
+        studentCode: string,
+        limit = 8,
+    ): Promise<MediaRecommendation[]> => {
+        const { data, error } = await supabase.rpc('recommend_media' as never, {
+            p_student_code: studentCode,
+            p_limit: limit,
+        } as never);
+        if (error) throw error;
+        return (data as unknown as MediaRecommendation[]) ?? [];
     },
 
     /** Class Heatmap (#3): สถานะตัวชี้วัดรวมรายห้อง */

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ครูผู้ช่วย + ระบบเว็บโรงเรียนครบวงจร โรงเรียนบ้านคำไผ่</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef6ff; font-family: 'Sarabun', sans-serif; color: #12325c; }
+    .page {
+      width: 1600px;
+      height: 900px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 16%, rgba(44, 139, 255, .16), transparent 26%),
+        radial-gradient(circle at 88% 18%, rgba(30, 185, 129, .16), transparent 24%),
+        linear-gradient(135deg, #f7fbff 0%, #eef8f5 52%, #f9fbff 100%);
+      padding: 72px 92px;
+    }
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 32px;
+      border: 2px solid rgba(22, 50, 92, .1);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+    .original { padding: 0; background: #fff; }
+    .original::before { display: none; }
+    .original img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .badge {
+      display: inline-flex;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #e7f5ff;
+      color: #0f5ca8;
+      font-weight: 700;
+      font-size: 30px;
+      border: 2px solid rgba(15, 92, 168, .14);
+    }
+    .school-mark {
+      position: absolute;
+      right: 90px;
+      top: 66px;
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1e8a6a, #2563eb);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 60px;
+      font-weight: 800;
+      box-shadow: 0 18px 44px rgba(21, 74, 116, .22);
+    }
+    h1 { margin: 54px 0 18px; font-size: 82px; line-height: 1.08; font-weight: 800; color: #102a56; max-width: 1080px; }
+    h2 { margin: 0 0 28px; font-size: 52px; line-height: 1.16; color: #102a56; font-weight: 800; }
+    .subtitle { font-size: 38px; color: #315170; line-height: 1.45; max-width: 1050px; margin: 0 0 50px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 34px; margin-top: 34px; }
+    .field {
+      background: rgba(255,255,255,.84);
+      border: 2px solid rgba(22,50,92,.14);
+      border-radius: 22px;
+      padding: 24px 28px 22px;
+      min-height: 104px;
+      box-shadow: 0 14px 30px rgba(19,63,102,.08);
+    }
+    .field.full { grid-column: 1 / -1; }
+    .label { font-size: 24px; color: #48617d; font-weight: 700; margin-bottom: 14px; }
+    .line { border-bottom: 4px dotted rgba(22,50,92,.34); height: 34px; }
+    .table { width: 100%; border-collapse: separate; border-spacing: 0 14px; margin-top: 26px; font-size: 28px; }
+    .table th { color: #102a56; text-align: left; font-size: 25px; padding: 0 20px 8px; }
+    .table td { background: rgba(255,255,255,.86); border-top: 2px solid rgba(22,50,92,.12); border-bottom: 2px solid rgba(22,50,92,.12); padding: 20px; height: 72px; }
+    .table td:first-child { border-left: 2px solid rgba(22,50,92,.12); border-radius: 18px 0 0 18px; font-weight: 700; }
+    .table td:last-child { border-right: 2px solid rgba(22,50,92,.12); border-radius: 0 18px 18px 0; }
+    .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 36px; }
+    .evidence-card {
+      min-height: 214px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.86);
+      border: 2px dashed rgba(22,50,92,.24);
+      padding: 26px;
+      box-shadow: 0 14px 30px rgba(19,63,102,.08);
+    }
+    .evidence-card strong { display: block; font-size: 30px; margin-bottom: 26px; color: #102a56; }
+    .small-lines { display: grid; gap: 20px; }
+    .small-line { border-bottom: 3px dotted rgba(22,50,92,.32); height: 26px; }
+    .footer-note {
+      position: absolute;
+      left: 92px;
+      right: 92px;
+      bottom: 56px;
+      display: flex;
+      justify-content: space-between;
+      color: #48617d;
+      font-size: 24px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <section class="page" data-document-role="page" data-label="ปกประเมินครูผู้ช่วย">
+    <div class="badge">เอกสารประกอบการประเมิน</div>
+    <div class="school-mark">คผ</div>
+    <h1>การประเมินครูผู้ช่วย</h1>
+    <p class="subtitle">โรงเรียนบ้านคำไผ่<br>เว้นพื้นที่สำหรับกรอกข้อมูลผู้รับการประเมิน รอบการประเมิน และคณะกรรมการ</p>
+    <div class="form-grid">
+      <div class="field"><div class="label">ชื่อ - สกุลผู้รับการประเมิน</div><div class="line"></div></div>
+      <div class="field"><div class="label">ตำแหน่ง / วิชาเอก</div><div class="line"></div></div>
+      <div class="field"><div class="label">รอบการประเมิน</div><div class="line"></div></div>
+      <div class="field"><div class="label">วันที่ประเมิน</div><div class="line"></div></div>
+    </div>
+    <div class="footer-note"><span>สังกัด: ....................................................</span><span>ปีการศึกษา: ....................</span></div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="ข้อมูลผู้รับการประเมิน">
+    <div class="badge">ข้อมูลผู้รับการประเมิน</div>
+    <h2>ข้อมูลพื้นฐานสำหรับเติมเอง</h2>
+    <div class="form-grid">
+      <div class="field"><div class="label">ชื่อ - สกุล</div><div class="line"></div></div>
+      <div class="field"><div class="label">เลขที่ตำแหน่ง</div><div class="line"></div></div>
+      <div class="field"><div class="label">กลุ่มสาระ / งานที่รับผิดชอบ</div><div class="line"></div></div>
+      <div class="field"><div class="label">วันที่บรรจุและแต่งตั้ง</div><div class="line"></div></div>
+      <div class="field full"><div class="label">คณะกรรมการประเมิน</div><div class="line"></div></div>
+      <div class="field full"><div class="label">หมายเหตุเพิ่มเติม</div><div class="line"></div></div>
+    </div>
+    <div class="footer-note"><span>โรงเรียนบ้านคำไผ่</span><span>ส่วนหน้าก่อนอินโฟกราฟิกระบบเว็บโรงเรียน</span></div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="สรุปหัวข้อการประเมิน">
+    <div class="badge">สรุปหัวข้อการประเมิน</div>
+    <h2>ตารางสรุปคะแนนและข้อสังเกต</h2>
+    <table class="table">
+      <thead><tr><th style="width:46%">องค์ประกอบการประเมิน</th><th style="width:16%">คะแนนเต็ม</th><th style="width:16%">คะแนนที่ได้</th><th>หมายเหตุ</th></tr></thead>
+      <tbody>
+        <tr><td>การปฏิบัติตนและวินัย</td><td></td><td></td><td></td></tr>
+        <tr><td>คุณธรรม จริยธรรม และจรรยาบรรณวิชาชีพ</td><td></td><td></td><td></td></tr>
+        <tr><td>การจัดการเรียนรู้และพัฒนาผู้เรียน</td><td></td><td></td><td></td></tr>
+        <tr><td>งานที่ได้รับมอบหมายและการทำงานร่วมกับชุมชน</td><td></td><td></td><td></td></tr>
+        <tr><td>การพัฒนาตนเองและวิชาชีพ</td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="footer-note"><span>ลงชื่อผู้รับการประเมิน: ........................................</span><span>ลงชื่อประธานกรรมการ: ........................................</span></div>
+  </section>
+
+  <section class="page" data-document-role="page" data-label="หลักฐานประกอบการประเมิน">
+    <div class="badge">หลักฐานประกอบการประเมิน</div>
+    <h2>พื้นที่วางหลักฐาน / ภาพกิจกรรม / เอกสารอ้างอิง</h2>
+    <div class="evidence-grid">
+      <div class="evidence-card"><strong>แผนการจัดการเรียนรู้</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ภาพกิจกรรมการสอน</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ผลงานนักเรียน</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>งานพิเศษที่ได้รับมอบหมาย</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>การอบรม / PLC</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+      <div class="evidence-card"><strong>ข้อเสนอแนะ</strong><div class="small-lines"><div class="small-line"></div><div class="small-line"></div><div class="small-line"></div></div></div>
+    </div>
+    <div class="footer-note"><span>แนบก่อนชุดอินโฟกราฟิกระบบเว็บโรงเรียนครบวงจร</span><span>โรงเรียนบ้านคำไผ่</span></div>
+  </section>
+
+  <section class="page original" data-document-role="page" data-label="Infographic 01"><img alt="Infographic page 1" src="https://media.canva.com/v2/document-image/hash:819565207/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAMkt14WHwc9uZLxiG2Jtve3NEEG_U6pvejIJDyBakcJ-&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0001.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T023916Z%26X-Amz-Expires%3D88659%26X-Amz-Signature%3D2ae7bd5b725a6bec76258a0c95ad071b95c4431ff41621be5cb962052a586d47%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAACKHr6RpIZ9A9ZXLHpXz0WKob_fFaMZ8lNT-prwobF1N&page=1&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 02"><img alt="Infographic page 2" src="https://media.canva.com/v2/document-image/hash:618721018/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAOoOFzPfg_ncUTSDnADMdDMW7SU7MB9lOz2Y3uAPrWDW&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0002.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T124539Z%26X-Amz-Expires%3D52276%26X-Amz-Signature%3D2fa26ea0f608beea4135d7104da03f848acb514c704b00060c31298eb005ebc4%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAH6sbsyeJTaaVN-XBQhgLTsHoMCYZtQsF8bLq1itFIbN&page=2&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 03"><img alt="Infographic page 3" src="https://media.canva.com/v2/document-image/hash:-253834125/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAALtFR3BtUF_dAJsIUUtsuiWJLkwIVx-aejadTvU_KEex&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0003.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T120459Z%26X-Amz-Expires%3D54716%26X-Amz-Signature%3Df40bc050fb7223bbc2936f4d5536624fc37f6b1513220d980b7a60d3d899483c%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAPKjlqpIa2aZtcVmJnWzO5kX5xWfQIyLSmVphXo870PG&page=3&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 04"><img alt="Infographic page 4" src="https://media.canva.com/v2/document-image/hash:-2080135174/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAAxdPDZW0Luj9VoTbktgpDl1fT_C_dk9fnJ88DL56n4J&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0004.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T225238Z%26X-Amz-Expires%3D15857%26X-Amz-Signature%3Dcb5f3bfca61e8e81c2627f935ef4e0ab3374bc067733eef1ec7946d02e438b89%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAANHlXPF7HpToAHmXhrCZyWJqHR4yk94vUD_fO6go2jpJ&page=4&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 05"><img alt="Infographic page 5" src="https://media.canva.com/v2/document-image/hash:1947980547/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAAk3FXtHml9h8OylkjQ0emGFFJaZ0mpIYDLgKeC54wgF&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0005.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260714%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260714T015816Z%26X-Amz-Expires%3D4719%26X-Amz-Signature%3Dc2bc55d5524f4ecd2ee0dec60a49c1a52961d3e3ae32a8ed9d8b585b96fded0e%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAIvCDwQCExhtnGzQ4pnWYY7H1NKSrahGWZLGxLh1BCKI&page=5&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 06"><img alt="Infographic page 6" src="https://media.canva.com/v2/document-image/hash:1806809194/height:335/id:DAHPSi-z4BM/type:B/width:596?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAODIYb_bFmXmhtn8erqPapoy0FWyjDc5_kGUwmQ4Gm0m&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F1%2Fthumbnail%2F0006.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T023328Z%26X-Amz-Expires%3D89007%26X-Amz-Signature%3D8870b61e8463e488377c29e4b9688f896a0a6dd215aa34b0dd8e99767cf549c7%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAKmVEF7nlI_7P5U8BXDz4DTQtkegfnLbk_jHMkhDjGXV&page=6&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 07"><img alt="Infographic page 7" src="https://media.canva.com/v2/document-image/hash:-1583650574/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAALkxCkT_npoqn1Bmmzm5K54-lybkON2PRzBvq14AeQKx&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0007.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T075250Z%26X-Amz-Expires%3D69845%26X-Amz-Signature%3Da8c8f4c1c8ff4c402f6bf8216530ce7f1996b07a718087f2b7926b5473b0c2b3%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAJIf_qcxk64zQBayOns8-8oGq8uIorDohKxlk6fl8zMf&page=7&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 08"><img alt="Infographic page 8" src="https://media.canva.com/v2/document-image/hash:2023047418/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAN-g-eY0K5_8PHrYTidT1bJ2d6Ckd_tWs0SOXgexu9Xt&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0008.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T030620Z%26X-Amz-Expires%3D87035%26X-Amz-Signature%3Df309d7277a7aa25dd4353d2212d92840e4eeca4be1fea00345aeb9f96271eb9d%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAADRJhkst2TjQnAn4gMXIbOxICiotJje3my1GBimq3Pl4&page=8&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 09"><img alt="Infographic page 9" src="https://media.canva.com/v2/document-image/hash:672162333/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAPDHne2ROG8xrxI5Nv1UXm-UmtPpyJMI36Tu0tOVVmq6&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0009.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T235939Z%26X-Amz-Expires%3D11836%26X-Amz-Signature%3D25d2e8594e95d04120837222ece6c9ce4b31886daf05fac3e59a5feece6db70b%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAF_TKXoMkCR7er5XAf7EEnK5u_4jNrBqoxvI-k-MwsVv&page=9&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 10"><img alt="Infographic page 10" src="https://media.canva.com/v2/document-image/hash:-1015612392/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAFXR7JTBYIm2z4V4taSS6jJBkXCOatk49ZPbYdJ6TVi2&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0010.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T075815Z%26X-Amz-Expires%3D69520%26X-Amz-Signature%3D874b92c9a8820bfaa9b709853641c61f4c7a45bc3f9ca9f073cb953285460205%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAL113dh7LIyXMJXtswBGYr5_U8VecH0u9JbZuyJOZbQl&page=10&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 11"><img alt="Infographic page 11" src="https://media.canva.com/v2/document-image/hash:1608490644/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAABgWd7LX2GIUFk8y6hwSNTkjBjBeLDX4f9tDC9XibGD2&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0011.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T055637Z%26X-Amz-Expires%3D76818%26X-Amz-Signature%3De6940aa95832f2200e464b794ddff6dc0a930e60db652d6da118a8961e45720f%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAIBfTqdPc0-P8b02t8v2j_7rk6myIScpiv-euP0TVDkA&page=11&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 12"><img alt="Infographic page 12" src="https://media.canva.com/v2/document-image/hash:424334323/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAFF_f-W4wSLCRyHtm75nGEE6NsSTztUyhAuvlVNUSMkZ&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0012.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T231016Z%26X-Amz-Expires%3D14799%26X-Amz-Signature%3D9571bb6b0318398bcc6cefbce351e3c9814e21d77c5f6c8217fb6d57a2281d1b%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAMC0Yr7ys8KLLZdDijRV5t4chS3wBJgalWAt3-kD3xo9&page=12&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 13"><img alt="Infographic page 13" src="https://media.canva.com/v2/document-image/hash:-1417451130/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAGcR0Qz-yQbzg9t0nhP7nzr4O3XAaZ2ygsWL627pphUp&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0013.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T182922Z%26X-Amz-Expires%3D31653%26X-Amz-Signature%3De2e63b9b83b2485c4d45a095b4bc574e0505f284f860dffbc5e31173b571ffa0%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAARXlNkhZ04oGUtlDrySBA5BALByu3OjaCOmexn0sH5Y&page=13&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 14"><img alt="Infographic page 14" src="https://media.canva.com/v2/document-image/hash:-481178905/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAADQTgF6wotJYP5KDiNMihf88KGrlPQ2b1HdWxAqBddHq&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0014.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T030408Z%26X-Amz-Expires%3D87167%26X-Amz-Signature%3Daa5f252478af3c24b6bcef9724cd5883f68f9a849de29837098404a356ac96f8%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAANZ96_LJOcHRIfFV7LyN2QNblbwsGERRXeDZay7PWzDk&page=14&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 15"><img alt="Infographic page 15" src="https://media.canva.com/v2/document-image/hash:-1854716285/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAAyLAmD6DxraPkyPreA12_O80Al05x7M70gcVijItHCV&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0015.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T194409Z%26X-Amz-Expires%3D27166%26X-Amz-Signature%3D712990d1c0aa164037ce71e375f3e72ae5244b57d85fbdd65d01931c0cc8b2d8%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAAGqe6xb_HrzB3hCTdDnfJUscHA4cxvf7PHJ4JLYSZ0bs&page=15&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+  <section class="page original" data-document-role="page" data-label="Infographic 16"><img alt="Infographic page 16" src="https://media.canva.com/v2/document-image/hash:599681033/height:335/id:DAHPSi-z4BM/type:B/width:595?brand=BADAO9o04UA&csig=AAAAAAAAAAAAAAAAAAAAAPt15dzLBBDtKMqsNM5kJ6VNzRQqzYJa-R6oGSQXfrTa&disableexport=T&exp=1783999015&fallback=https%3A%2F%2Fs3.amazonaws.com%2Fdocument-export.canva.com%2F-z4BM%2FDAHPSi-z4BM%2F5%2Fthumbnail%2F0016.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIAQYCGKMUHXSTDDERN%252F20260713%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260713T180630Z%26X-Amz-Expires%3D33025%26X-Amz-Signature%3D62eb7b0ca2617ebff5926d3cdeddc83988688d37b4f0270f63a5a42aa627da90%26X-Amz-SignedHeaders%3Dhost%26response-expires%3DTue%252C%252014%2520Jul%25202026%252003%253A16%253A55%2520GMT&osig=AAAAAAAAAAAAAAAAAAAAALJ2kxD8QSe8M98H95K3Wmwc4vf7o8J3bDlXvNwsIvLb&page=16&signed=brand%2Cdisableexport%2Cfallback%2Cpage%2Cversion&signer=document-rpc&version=5"></section>
+</body>
+</html>

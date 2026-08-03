@@ -1,150 +1,117 @@
 <!DOCTYPE html>
-<html lang="th">
-<head>
-  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>อ่านนาฬิกาเข็ม — สื่อการสอน — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<html lang="th"><head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>🕐 นาฬิกาบอกเวลา — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#1e3a8a;--line:#93c5fd;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#dbeafe,#e0e7ff);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff}
-    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    :root{--deep:#1d4ed8;--line:#bfdbfe;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#bfdbfe,#1d4ed822);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#1d4ed8);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
     .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
     .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
     .btn-primary{background:var(--deep);color:#fff}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#eff6ff;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #60a5fa}
+    .btn-accent{background:#fbbf24;color:#78350f}
+    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
     .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
     .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.85rem;font-weight:600;color:#1e40af;flex:1;min-width:120px}
-    .stage{flex:1;padding:16px}
-    .panel{display:none;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
-    .panel.on{display:flex}
-    .clock-demo{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center}
-    .clock-face{width:160px;height:160px;border-radius:50%;border:6px solid var(--deep);background:#fff;position:relative;box-shadow:inset 0 0 0 2px #bfdbfe}
-    .clock-face .num{position:absolute;font-weight:800;font-size:.85rem;color:var(--deep)}
-    .hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;border-radius:4px}
-    .hand.h{width:6px;height:42px;margin-left:-3px;background:#1e3a8a}
-    .hand.m{width:4px;height:58px;margin-left:-2px;background:#dc2626}
-    .hand.dot{width:12px;height:12px;border-radius:50%;background:#1e3a8a;left:50%;top:50%;margin:-6px 0 0 -6px;bottom:auto;transform:none}
-    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#eff6ff;font-weight:700;line-height:1.55}
-    .tip-row{display:grid;gap:8px}@media(min-width:560px){.tip-row{grid-template-columns:1fr 1fr}}
-    .tip{border:2px dashed #93c5fd;border-radius:12px;padding:10px;background:#fff;font-weight:700;font-size:.92rem}
-    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
-    .opts{display:flex;flex-direction:column;gap:8px}
-    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
-    .fb{font-weight:800;text-align:center;min-height:24px}
-    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+    .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
+    .stage{flex:1;padding:16px;overflow:auto}
+    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    
+    .layout{display:grid;gap:16px}@media(min-width:860px){.layout{grid-template-columns:1fr 1fr}}
+    .clock-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+    .clock{width:min(280px,80vw);aspect-ratio:1;border-radius:50%;border:8px solid var(--deep);background:#fff;position:relative;box-shadow:0 12px 30px rgba(29,78,216,.15)}
+    .num{position:absolute;font-weight:800;color:var(--deep);font-size:1.1rem;transform:translate(-50%,-50%)}
+    .hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;border-radius:8px}
+    .hour{width:8px;height:28%;background:#0f172a;margin-left:-4px}
+    .minute{width:5px;height:38%;background:#2563eb;margin-left:-2.5px}
+    .dot{position:absolute;left:50%;top:50%;width:16px;height:16px;background:var(--deep);border-radius:50%;transform:translate(-50%,-50%);z-index:2}
+    .time-big{font-size:2rem;font-weight:800;color:var(--deep)}
+    .ctrls{display:grid;gap:10px}
+    .ctrls label{font-weight:700;color:var(--deep);display:block;margin-bottom:4px}
+    .ctrls input{width:100%}
+    .box{background:#eff6ff;border:2px dashed var(--line);border-radius:14px;padding:14px;font-weight:600;line-height:1.5}
+    .practice{display:none;max-width:480px;margin:0 auto;flex-direction:column;gap:12px;align-items:center}
+    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+    .choice{font-family:inherit;font-weight:800;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+    .choice.ok{background:#dcfce7;border-color:#86efac}.choice.no{background:#fee2e2;border-color:#fca5a5}
+  
   </style>
-</head>
-<body>
-  <div class="shell">
-    <header>
-      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
-      <h1>🕐 อ่านนาฬิกาเข็ม — สอนและฝึกสั้น</h1>
-      <span class="badge">ป.2–4 · คณิตศาสตร์</span>
-    </header>
-    <div class="toolbar">
-      <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 สอน</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-      </span>
-      <span class="hint" id="hintText">เข็มสั้น = ชั่วโมง · เข็มยาว = นาที · ครึ่ง/เศษสี่</span>
-    </div>
-    <div class="stage">
-      <div class="panel on" id="learn">
-        <div class="clock-demo">
-          <div class="clock-face" aria-hidden="true">
-            <span class="num" style="top:8px;left:50%;margin-left:-4px">12</span>
-            <span class="num" style="top:50%;right:10px;margin-top:-8px">3</span>
-            <span class="num" style="bottom:8px;left:50%;margin-left:-4px">6</span>
-            <span class="num" style="top:50%;left:10px;margin-top:-8px">9</span>
-            <div class="hand h" style="transform:rotate(90deg)"></div>
-            <div class="hand m" style="transform:rotate(180deg)"></div>
-            <div class="hand dot"></div>
-          </div>
-          <div class="mix-card" style="flex:1;min-width:220px">
-            <p>ตัวอย่างหน้าปัด: <strong style="color:var(--deep)">3:30</strong></p>
-            <p style="margin-top:6px">เข็มสั้นชี้ใกล้ 3 → ชั่วโมง <strong>3</strong></p>
-            <p>เข็มยาวยืนที่ 6 → นาที <strong>30</strong> (ครึ่งชั่วโมง)</p>
-          </div>
-        </div>
-        <div class="mix-card">
-          <p><strong>เข็มสั้น (ชั่วโมง):</strong> ชี้เลขชั่วโมง — ระหว่างเลขเมื่อมีนาที</p>
-          <p style="margin-top:6px"><strong>เข็มยาว (นาที):</strong> แต่ละขีดเลข = 5 นาที · ที่ 12 = 0 นาที · ที่ 3 = 15 · ที่ 6 = 30 · ที่ 9 = 45</p>
-        </div>
-        <div class="tip-row">
-          <div class="tip">⏱ <strong>ครึ่งชั่วโมง</strong> = 30 นาที (เข็มยาวยืนที่ 6)</div>
-          <div class="tip">⏱ <strong>เศษสี่ (¼)</strong> = 15 นาที · <strong>สามเศษสี่</strong> = 45 นาที</div>
-        </div>
-      </div>
-      <div class="panel" id="practice">
-        <p class="q" id="pq"></p>
-        <div class="opts" id="popts"></div>
-        <p class="fb" id="pfb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
-      </div>
-    </div>
-    <footer class="footer">ตัวชี้วัด <strong>ค 2.1 ป.2/1</strong> · <strong>ค 2.1 ป.3/1</strong> · คู่ใบงาน <a href="/games/math/clock-worksheet.html">clock</a> · เกมแข่งคะแนน <a href="/games/math/clock-quest.html">clock-quest (game)</a></footer>
+</head><body>
+<div class="shell" id="shell">
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+    <h1>🕐 นาฬิกาบอกเวลา</h1>
+    <span class="badge">ป.1–4 · คณิตศาสตร์</span>
+  </header>
+  <div class="toolbar">
+    <span class="seg" id="modeSeg">
+      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice">✏️ ฝึก</button>
+    </span>
+    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
+    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+    <a class="btn btn-ghost" href="/games/math/clock-media-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
   </div>
-  <script>
-    const MEDIA_SLUG = 'clock-media';
-    if (window.KAMPAI) window.KAMPAI.setSlug(MEDIA_SLUG);
-    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+  <div class="stage" id="stage"><div class="learn" id="learn"><div class="layout">
+    <div class="clock-wrap">
+      <div class="clock" id="clock"></div>
+      <div class="time-big" id="timeText">3:00</div>
+    </div>
+    <div class="ctrls">
+      <div><label for="hour">ชั่วโมง (1–12)</label><input type="range" id="hour" min="1" max="12" value="3"></div>
+      <div><label for="minute">นาที (ทีละ 5)</label><input type="range" id="minute" min="0" max="55" step="5" value="0"></div>
+      <button type="button" class="btn btn-accent" id="btnRandom">🎲 สุ่มเวลา</button>
+      <div class="box" id="explain">เข็มสั้น = ชั่วโมง · เข็มยาว = นาที · นาที 0 = ตรง</div>
+    </div>
+  </div></div>
+  <div class="practice" id="practice">
+    <div class="clock" id="prClock" style="width:220px"></div>
+    <p style="font-weight:800;color:var(--deep)">เวลานี้คือเท่าไร?</p>
+    <div class="choices" id="prChoices"></div>
+    <p id="prFb" style="font-weight:800;min-height:24px"></p>
+    <button type="button" class="btn btn-primary" id="btnNextPr">ข้อถัดไป</button>
+  </div></div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · ไม่เก็บคะแนน</div>
+</div>
+<script>
+const MEDIA_SLUG='clock-media';
+if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
 
-    const QS = [
-      { q: 'เข็มสั้นบอกอะไร?', opts: ['ชั่วโมง', 'นาที', 'วินาที', 'วัน'], a: 'ชั่วโมง' },
-      { q: 'เข็มยาวบอกอะไร?', opts: ['นาที', 'ชั่วโมง', 'เดือน', 'ปี'], a: 'นาที' },
-      { q: 'เข็มยาวยืนที่เลข 6 หมายถึงกี่นาที?', opts: ['30 นาที', '6 นาที', '60 นาที', '15 นาที'], a: '30 นาที' },
-      { q: 'เข็มยาวยืนที่เลข 3 หมายถึงกี่นาที?', opts: ['15 นาที', '3 นาที', '30 นาที', '45 นาที'], a: '15 นาที' },
-      { q: 'ครึ่งชั่วโมงเท่ากับกี่นาที?', opts: ['30 นาที', '15 นาที', '45 นาที', '60 นาที'], a: '30 นาที' },
-      { q: 'เศษสี่ชั่วโมง (¼) เท่ากับกี่นาที?', opts: ['15 นาที', '30 นาที', '45 นาที', '20 นาที'], a: '15 นาที' },
-      { q: 'เข็มยาวยืนที่เลข 9 หมายถึงกี่นาที?', opts: ['45 นาที', '9 นาที', '15 นาที', '90 นาที'], a: '45 นาที' },
-      { q: 'จาก 2:00 ไปอีก 30 นาที เป็นกี่โมง?', opts: ['2:30', '3:00', '2:15', '1:30'], a: '2:30' },
-    ];
+let H=3,M=0,mode='learn',pr={h:3,m:0};
+function setMode(m){mode=m;document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลื่อนเข็มดูเวลา':'เลือกคำตอบที่ถูก';if(m==='practice')nextPractice();}
+function fmt(h,m){return h+':'+(m<10?'0':'')+m;}
+function placeNums(el){el.innerHTML='';for(let i=1;i<=12;i++){const a=(i%12)*30*Math.PI/180;const x=50+42*Math.sin(a);const y=50-42*Math.cos(a);const n=document.createElement('div');n.className='num';n.style.left=x+'%';n.style.top=y+'%';n.textContent=i;el.appendChild(n);}
+  const hour=document.createElement('div');hour.className='hand hour';hour.id=el.id+'Hour';
+  const minute=document.createElement('div');minute.className='hand minute';minute.id=el.id+'Minute';
+  const dot=document.createElement('div');dot.className='dot';
+  el.append(hour,minute,dot);}
+function draw(elId,h,m){const hour=document.getElementById(elId+'Hour');const minute=document.getElementById(elId+'Minute');if(!hour)return;hour.style.transform='rotate('+((h%12)*30+m*0.5)+'deg)';minute.style.transform='rotate('+(m*6)+'deg)';}
+function explain(){const words=M===0?'ตรง':M===15?'เศษหนึ่งส่วนสี่':M===30?'ครึ่ง':M===45?'สามเศษสี่':'นาทีที่ '+M;document.getElementById('explain').textContent='เวลา '+fmt(H,M)+' · '+words+' · เข็มสั้นชี้ใกล้ '+H+(M?'และเลยไปตามนาที':'');document.getElementById('timeText').textContent=fmt(H,M);}
+function sync(){H=+document.getElementById('hour').value;M=+document.getElementById('minute').value;draw('clock',H,M);explain();}
+function nextPractice(){pr={h:1+Math.floor(Math.random()*12),m:Math.floor(Math.random()*12)*5};draw('prClock',pr.h,pr.m);document.getElementById('prFb').textContent='';
+  const ans=fmt(pr.h,pr.m);const opts=new Set([ans]);while(opts.size<4){opts.add(fmt(1+Math.floor(Math.random()*12),Math.floor(Math.random()*12)*5));}
+  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
+  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===ans;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ ถูกต้อง!':'เฉลย '+ans;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
+placeNums(document.getElementById('clock'));placeNums(document.getElementById('prClock'));
+document.getElementById('hour').oninput=sync;document.getElementById('minute').oninput=sync;
+document.getElementById('btnRandom').onclick=()=>{document.getElementById('hour').value=1+Math.floor(Math.random()*12);document.getElementById('minute').value=Math.floor(Math.random()*12)*5;sync();};
+document.getElementById('btnNextPr').onclick=nextPractice;sync();setMode('learn');
 
-    function nextPractice() {
-      const item = QS[(Math.random() * QS.length) | 0];
-      document.getElementById('pq').textContent = item.q;
-      document.getElementById('pfb').textContent = '';
-      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
-      document.getElementById('popts').innerHTML = opts.map((o) =>
-        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
-      ).join('');
-      document.querySelectorAll('#popts .opt').forEach((btn) => {
-        btn.onclick = () => {
-          const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach((b) => {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
-          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
-        };
-      });
-    }
-
-    document.getElementById('modeSeg').onclick = (e) => {
-      const b = e.target.closest('button[data-mode]');
-      if (!b) return;
-      const mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('on', mode === 'learn');
-      document.getElementById('practice').classList.toggle('on', mode === 'practice');
-      document.getElementById('hintText').textContent =
-        mode === 'learn' ? 'เข็มสั้น = ชั่วโมง · เข็มยาว = นาที · ครึ่ง/เศษสี่' : 'เลือกคำตอบ 4 ตัวเลือก';
-      if (mode === 'practice') nextPractice();
-    };
-    document.getElementById('btnNext').onclick = nextPractice;
-  </script>
-</body>
-</html>
+document.getElementById('modeSeg').onclick=e=>{
+  const b=e.target.closest('button[data-mode]');if(!b)return;
+  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+  setMode(b.dataset.mode);
+};
+document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+</script>
+</body></html>

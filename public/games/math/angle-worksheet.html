@@ -1,90 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/angle-media.html"><meta name="curriculum-indicators" content="ค 2.2 ป.4/1, ค 2.2 ป.4/2"><title>ใบงานมุม ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.ang-layout{display:grid;grid-template-columns:28mm 1fr;gap:2.5mm;align-items:center}
-.ang-svg{width:26mm;height:26mm}
-.ang-choices{display:grid;grid-template-columns:1fr 1fr;gap:1mm}
-.ang-choice{border:1px dashed var(--ws-line);border-radius:3px;padding:.8mm 1.2mm;font-size:7.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
-.step-block{display:flex;flex-direction:column;gap:1.4mm;margin-top:1mm}
-.step-row{display:grid;grid-template-columns:20mm 1fr;gap:2mm;align-items:end;min-height:7.5mm}
-.step-tag{font-size:7pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:4px;padding:1mm;text-align:center;line-height:1.15}
-.step-body{min-height:6.5mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;padding-bottom:.4mm;font-weight:700;font-size:8.5pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-.count-5 .ang-svg{width:30mm;height:30mm}
-.count-5 .step-row{min-height:9mm}
-.count-10 .ang-layout{grid-template-columns:22mm 1fr}
-.count-10 .ang-svg{width:20mm;height:20mm}
-</style>
-</head><body>
-<header class="toolbar"><h1>📐 ใบงานมุม</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="classify">จำแนกชนิดมุม</option><option value="measure">วัด/อ่านค่า</option><option value="apply">ประยุกต์ใช้</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/angle-media.html"><meta name="curriculum-indicators" content="ค 2.2 ป.4/1, ค 2.2 ป.4/2"><title>ใบงานมุม ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>📐 ใบงานมุม</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="classify">จำแนกชนิดมุม</option><option value="measure">วัด/อ่านค่า</option><option value="apply">ประยุกต์ใช้</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const ANGLE_ITEMS=[
- {type:'classify',prompt:'จำแนกชนิดมุมจากรูป',deg:35,answer:'มุมแหลม (< 90°)'},
- {type:'classify',prompt:'จำแนกชนิดมุมจากรูป',deg:90,answer:'มุมฉาก (= 90°)'},
- {type:'classify',prompt:'จำแนกชนิดมุมจากรูป',deg:110,answer:'มุมป้าน (> 90° แต่ < 180°)'},
- {type:'classify',prompt:'จำแนกชนิดมุมจากรูป',deg:180,answer:'มุมตรง (= 180°)'},
- {type:'measure',prompt:'อ่านขนาดมุมจากรูป (สมมติโพรแทรกเตอร์)',deg:45,answer:'45°'},
+ {type:'classify',prompt:'จำแนกชนิดมุม',deg:35,answer:'มุมแหลม (< 90°)'},
+ {type:'classify',prompt:'จำแนกชนิดมุม',deg:90,answer:'มุมฉาก (= 90°)'},
+ {type:'classify',prompt:'จำแนกชนิดมุม',deg:110,answer:'มุมป้าน (> 90° แต่ < 180°)'},
+ {type:'classify',prompt:'จำแนกชนิดมุม',deg:180,answer:'มุมตรง (= 180°)'},
+ {type:'measure',prompt:'อ่านขนาดมุมจากโพรแทรกเตอร์',deg:45,answer:'45°'},
  {type:'measure',prompt:'มุมนี้มีขนาดเท่าไร',deg:120,answer:'120°'},
- {type:'measure',prompt:'อ่านขนาดมุมจากรูป',deg:75,answer:'75°'},
- {type:'apply',prompt:'มุมใดเป็นมุมฉากในห้องเรียนได้บ้าง',deg:90,answer:'มุมหน้าต่าง/มุมโต๊ะ'},
+ {type:'measure',prompt:'มุมที่โคจรเคลื่อนที่จาก 0° ไปถึงเส้นนี้',deg:75,answer:'75°'},
+ {type:'apply',prompt:'มุมใดเป็นมุมฉากในห้องเรียน',deg:90,answer:'มุมหน้าต่าง/มุมโต๊ะ'},
  {type:'apply',prompt:'ถ้ามุม A = 30° และมุม B = 60° รวมเป็นมุมฉากหรือไม่',deg:90,answer:'ใช่ 30°+60°=90°'},
  {type:'apply',prompt:'มุม 95° ควรจำแนกเป็น',deg:95,answer:'มุมป้าน'},
  {type:'apply',prompt:'เขียนเหตุผลว่าทำไม 89° จึงเป็นมุมแหลม',deg:89,answer:'เพราะน้อยกว่า 90°'},
  {type:'apply',prompt:'มุมสามเหลี่ยมหนึ่งมุม 40° อีกมุม 50° มุมที่สามเท่าไร',deg:90,answer:'90° (180°−40°−50°)'}
 ];
-
-function angleSvg(deg){
-  const r=38, cx=48, cy=48;
-  const rad=deg*Math.PI/180;
-  const x2=cx+r*Math.cos(rad);
-  const y2=cy-r*Math.sin(rad);
-  const large=deg>180?1:0;
-  const arc=deg>=180
-    ? 'M '+(cx+r)+' '+cy+' A '+r+' '+r+' 0 1 0 '+(cx-r)+' '+cy
-    : 'M '+(cx+r)+' '+cy+' A '+r+' '+r+' 0 '+large+' 0 '+x2+' '+y2;
-  return '<svg class="ang-svg" viewBox="0 0 96 96" aria-hidden="true">'
-    +'<circle cx="'+cx+'" cy="'+cy+'" r="2.2" fill="currentColor"/>'
-    +'<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r)+'" y2="'+cy+'" stroke="currentColor" stroke-width="2.5"/>'
-    +'<line x1="'+cx+'" y1="'+cy+'" x2="'+x2+'" y2="'+y2+'" stroke="currentColor" stroke-width="2.5"/>'
-    +'<path d="'+arc+'" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/>'
-    +'</svg>';
-}
-
-function angleKind(deg){
-  if(deg<90)return{kind:'แหลม',cmp:deg+'° < 90°'};
-  if(deg===90)return{kind:'ฉาก',cmp:deg+'° = 90°'};
-  if(deg<180)return{kind:'ป้าน',cmp:'90° < '+deg+'° < 180°'};
-  return{kind:'ตรง',cmp:deg+'° = 180°'};
-}
-
-window.WORKSHEET_CONFIG={
-  worksheetKey:'angle',
-  icon:'📐',title:'ใบงานมุม',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'มุม',
-  sourceMediaUrl:'/games/math/angle-media.html',
-  indicators:['ค 2.2 ป.4/1','ค 2.2 ป.4/2'],
-  directions:'ดูรูปมุม → เทียบกับ 90°/180° → จำแนกหรืออ่านค่า พร้อมเหตุผล',
-  getItems(topic){return topic==='mixed'?ANGLE_ITEMS:ANGLE_ITEMS.filter(i=>i.type===topic);},
-  buildSteps(item){
-    const k=angleKind(item.deg);
-    if(item.type==='classify')return{s1:'เทียบกับ 90°: '+k.cmp,s2:'ชนิดมุม = '+k.kind,s3:item.answer};
-    if(item.type==='measure')return{s1:'ตั้งโพรแทรกเตอร์ที่จุดมุม',s2:'อ่านขีดที่แขนมุม: '+item.deg+'°',s3:'ตอบ '+item.answer};
-    return{s1:'ใช้ความรู้มุม '+item.deg+'°',s2:'คำนวณ/อธิบาย',s3:item.answer};
-  },
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    const w=this.buildSteps(item);
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'
-      +'<div class="ang-layout">'+angleSvg(item.deg)
-      +'<div class="ang-choices">'
-      +'<div class="ang-choice">□ แหลม</div><div class="ang-choice">□ ฉาก</div>'
-      +'<div class="ang-choice">□ ป้าน</div><div class="ang-choice">□ ตรง</div>'
-      +'</div></div></div>'
-      +'<div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 เทียบ</span><div class="step-body"><span class="work-fill">'+e(w.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 จำแนก</span><div class="step-body"><span class="work-fill">'+e(w.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 เหตุผล</span><div class="step-body"><span class="work-fill">'+e(w.s3)+'</span></div></div>'
-      +'</div>'
-      +'<div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'📐',title:'ใบงานมุม',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'มุม',sourceMediaUrl:'/games/math/angle-media.html',indicators:['ค 2.2 ป.4/1','ค 2.2 ป.4/2'],directions:'จำแนกมุมแหลม ฉาก ป้าน อ่านค่า และใช้เหตุผล',getItems(topic){return topic==='mixed'?ANGLE_ITEMS:ANGLE_ITEMS.filter(i=>i.type===topic);},buildAngleWork(item){if(item.type==='classify'){const d=item.deg;if(d<90)return{line1:''+d+'° < 90° → มุมแหลม',line2:item.answer};if(d===90)return{line1:d+'° = 90° → มุมฉาก',line2:item.answer};if(d<180)return{line1:d+'° > 90° และ < 180° → มุมป้าน',line2:item.answer};return{line1:d+'° = 180° → มุมตรง',line2:item.answer};}if(item.type==='measure')return{line1:'อ่านจากโพรแทรกเตอร์ที่ '+item.deg+'°',line2:'ตอบ: '+item.answer};return{line1:'ใช้ความรู้มุม '+item.deg+'°',line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildAngleWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">มุม '+item.deg+'°</div><div class="classify-box">แหลม / ฉาก / ป้าน / ตรง</div></div><div>ลงเหตุผล</div></div><div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

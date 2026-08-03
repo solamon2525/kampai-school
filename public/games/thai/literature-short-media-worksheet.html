@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/thai/literature-short-media.html">
+  <meta name="curriculum-indicators" content="ท 1.1 ป.4/5,ท 1.1 ป.5/5,ท 1.1 ป.6/4">
+  <title>ใบงานวรรณคดีสั้น ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>📖 ใบงานวรรณคดีสั้น</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="char">ตัวละคร</option><option value="plot">เหตุการณ์</option><option value="moral">ข้อคิด</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
+<script src="/games/kampai-qr.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"char","prompt":"ใครช่วยพระสังข์ตอนลอยน้ำ","answer":"แม่ย่านาง"},{"type":"plot","prompt":"พระสังข์ถอดรูปอะไร","answer":"เปลือกหอย / กงจักร"},{"type":"char","prompt":"พระอภัยมณีเก่งด้านใด","answer":"ดนตรี"},{"type":"plot","prompt":"ใครจับพระอภัยมณีไป (ย่อ)","answer":"นางผีเสื้อสมุทร"},{"type":"char","prompt":"ใครพานางสีดาไปในรามเกียรติ์","answer":"ทศกัณฐ์"},{"type":"char","prompt":"ใครช่วยพระรามรบ (วานร)","answer":"หนุมาน"},{"type":"moral","prompt":"นิทานพื้นบ้านมักสอนเรื่องใด","answer":"คติสอนใจ"},{"type":"moral","prompt":"ข้อคิดจากความขยัน (สั้น ๆ)","answer":"เช่น ขยันนำมาซึ่งผลดี"},{"type":"plot","prompt":"สรุปสังข์ทอง 1 ประโยค","answer":"ตามย่อในสื่อ"},{"type":"plot","prompt":"สรุปรามเกียรติ์ 1 ประโยค","answer":"พระรามตามนางสีดา…"},{"type":"char","prompt":"นางรอฉานเกี่ยวข้องกับเรื่องใด","answer":"สังข์ทอง"},{"type":"char","prompt":"นางสุวรรณมาลีเกี่ยวข้องกับเรื่องใด","answer":"พระอภัยมณี"},{"type":"moral","prompt":"ศิลปะ/สติจากพระอภัยมณีสอนอะไร","answer":"ใช้ปัญญา/ศิลปะช่วยชีวิต"},{"type":"plot","prompt":"ทำไมต้องมีคำถามท้ายบท","answer":"ตรวจความเข้าใจ"},{"type":"moral","prompt":"เลือกเรื่อง 1 เรื่อง เขียนข้อคิดของตน","answer":"คำตอบอิสระตามเรื่อง"},{"type":"char","prompt":"ทศกัณฐ์เป็นตัวละครฝ่ายใด","answer":"ฝ่ายตรงข้าม / ยักษ์"},{"type":"plot","prompt":"เรียงลำดับ: ถูกลอยน้ำ → ได้อภิเษก (สังข์ทอง)","answer":"มีเหตุการณ์กลางตามสื่อ"},{"type":"moral","prompt":"ความโลภในนิทานมักนำไปสู่ผลใด","answer":"ผลเสีย / สอนไม่โลภ"}];
+window.WORKSHEET_CONFIG={
+  icon:'📖',title:'ใบงานวรรณคดีสั้น',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.6',
+  mediaLabel:'สื่อวรรณคดีสั้น',sourceMediaUrl:'/games/thai/literature-short-media.html',
+  indicators:["ท 1.1 ป.4/5","ท 1.1 ป.5/5","ท 1.1 ป.6/4"],
+  directions:"อ่านเรื่องย่อแล้วตอบตัวละคร ข้อคิด หรือเหตุการณ์ · อ้างหลักฐานจากเรื่อง",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="literature-ws-grid literature-hub-grid evidence-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="evidence-line">หลักฐานจากเรื่อง <span class="blank long"></span></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">ข้อคิด / เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

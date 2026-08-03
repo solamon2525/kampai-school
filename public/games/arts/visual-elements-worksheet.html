@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/arts/visual-elements-media.html">
+  <meta name="curriculum-indicators" content="ศ 1.1 ป.2/2,ศ 1.1 ป.3/3,ศ 1.1 ป.4/3">
+  <title>ใบงานทัศนธาตุ ป.2–ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🎨 ใบงานทัศนธาตุ</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.2–ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="line">เส้น</option><option value="shape">รูปทรง</option><option value="color">สี</option><option value="other">อื่น ๆ</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.194.0"></script>
+<script src="/games/kampai-qr.js?v=1.194.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"line","prompt":"เส้นตรงมักให้ความรู้สึกใด","answer":"มั่นคง / แข็งแรง"},{"type":"line","prompt":"วาดเส้นโค้ง 3 เส้นที่ให้ความรู้สึกนุ่มนวล","answer":"ตามสื่อ · เส้นโค้งมน"},{"type":"shape","prompt":"วงกลม สามเหลี่ยม สี่เหลี่ยม เรียกว่าอะไร","answer":"รูปทรง"},{"type":"shape","prompt":"รูปอิสระต่างจากรูปเรขาคณิตอย่างไร","answer":"ไม่เป็นแบบเรขาคณิตตายตัว"},{"type":"color","prompt":"สีแดง เหลือง จัดเป็นกลุ่มสีใด","answer":"สีอุ่น"},{"type":"color","prompt":"สีฟ้า เขียว จัดเป็นกลุ่มสีใด","answer":"สีเย็น"},{"type":"other","prompt":"พื้นผิวหยาบยกตัวอย่าง 1 อย่าง","answer":"ทราย / เปลือกไม้ ฯลฯ"},{"type":"other","prompt":"แรเงาช่วยสร้างสิ่งใดในภาพ","answer":"ค่าน้ำหนัก / มิติ"},{"type":"other","prompt":"ทำไมต้องมีพื้นที่ว่างในภาพ","answer":"ไม่อึดอัด / โฟกัสชัด"},{"type":"line","prompt":"เส้นหนาและเส้นบางสื่อความต่างอย่างไร","answer":"น้ำหนัก/ความรู้สึกต่างกัน"},{"type":"color","prompt":"สีตรงข้ามใช้แล้วเกิดผลอย่างไร","answer":"ตัดกันชัด / สะดุดตา"},{"type":"shape","prompt":"วงกลมในห้องเรียนเจอที่ไหนได้บ้าง","answer":"นาฬิกา / จาน ฯลฯ"},{"type":"other","prompt":"เลือกทัศนธาตุ 1 อย่าง วาดตัวอย่างสั้น ๆ","answer":"ตามที่นักเรียนวาด"},{"type":"line","prompt":"เส้นซิกแซกอาจให้ความรู้สึกใด","answer":"ตื่นเต้น / ไม่สงบ"},{"type":"color","prompt":"ทำไมศิลปินเลือกสีเย็นในภาพทะเล","answer":"สื่อความเย็น/สงบ"},{"type":"other","prompt":"สรุปทัศนธาตุที่เรียนมา 3 ข้อ","answer":"เช่น เส้น รูปทรง สี"}];
+window.WORKSHEET_CONFIG={
+  icon:'🎨',title:'ใบงานทัศนธาตุ',subject:'ศิลปะ',gradeLabel:'ป.2–ป.4',
+  mediaLabel:'สื่อทัศนธาตุ',sourceMediaUrl:'/games/arts/visual-elements-media.html',
+  indicators:["ศ 1.1 ป.2/2","ศ 1.1 ป.3/3","ศ 1.1 ป.4/3"],
+  directions:"ตอบเกี่ยวกับเส้น รูปทรง สี พื้นผิว ค่าน้ำหนัก พื้นที่ว่าง · วาด/อธิบายสั้น ๆ",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line">คำตอบ <span class="blank long"></span></div><div class="reason-line">เหตุผล / ตัวอย่าง <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

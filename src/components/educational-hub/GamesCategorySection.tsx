@@ -29,6 +29,7 @@ import {
     type EduHubItem,
 } from '@/services/educational-hub.service';
 import type { ViewMode } from '@/hooks/useViewMode';
+import type { PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
 
 interface Props {
     category: EduHubCategory;
@@ -37,6 +38,7 @@ interface Props {
     isFavorite?: (id: string) => boolean;
     onToggleFavorite?: (id: string) => void;
     editable?: boolean;
+    pairedByItemId?: Map<string, PairedHubLink | null>;
 }
 
 const COLOR_TO_TEXT: Record<string, string> = {
@@ -70,6 +72,7 @@ export const GamesCategorySection = ({
     isFavorite,
     onToggleFavorite,
     editable = false,
+    pairedByItemId,
 }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -164,7 +167,8 @@ export const GamesCategorySection = ({
             onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
-            reserveLeaderboardSlot={viewMode !== 'compact'}
+            categoryKey={category.category_key}
+            pairedLink={pairedByItemId?.get(item.id) ?? null}
         />
     );
 

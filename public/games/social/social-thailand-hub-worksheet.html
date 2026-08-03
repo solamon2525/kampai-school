@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/social/social-thailand-hub/index.html">
+  <meta name="curriculum-indicators" content="ส 5.1 ป.4/1,ส 4.3 ป.4/1,ส 2.1 ป.4/1">
+  <title>ใบงานคลังสังคมศึกษาไทย ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🇹🇭 ใบงานคลังสังคมศึกษาไทย</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="map">แผนที่/ภูมิศาสตร์</option><option value="history">ประวัติศาสตร์</option><option value="citizen">พลเมืองดี</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"map","prompt":"จังหวัดในภาคตะวันออกเฉียงเหนือข้อใด","choices":["ขอนแก่น","เชียงใหม่","ภูเก็ต"],"answer":"ขอนแก่น"},{"type":"map","prompt":"ภาคใต้ติดทะเลสำคัญข้อใด","choices":["อันดามัน/อ่าวไทย","ทะเลสาบแคสเปียน","ทะเลเหนือ"],"answer":"อันดามัน/อ่าวไทย"},{"type":"history","prompt":"สุโขทัยมีความสำคัญอย่างไร","text":"เป็นราชอาณาจักรไทยช่วงแรก ๆ ที่สำคัญ","answer":"จุดเริ่มต้นประวัติศาสตร์ไทยสำคัญ"},{"type":"history","prompt":"เรียงยุคอย่างง่าย","text":"สุโขทัย → อยุธยา → รัตนโกสินทร์","answer":"สุโขทัย อยุธยา รัตนโกสินทร์"},{"type":"citizen","prompt":"พฤติกรรมพลเมืองดีข้อใด","choices":["ทิ้งขยะลงถัง","ขีดเขียนฝาผนัง","แย่งคิว"],"answer":"ทิ้งขยะลงถัง"},{"type":"citizen","prompt":"เมื่อพบของมีค่าในโรงเรียนควรทำอย่างไร","choices":["ส่งครู/ประกาศหาเจ้าของ","เก็บไว้เอง","ทิ้ง"],"answer":"ส่งครู/ประกาศหาเจ้าของ"},{"type":"map","prompt":"กรุงเทพฯ อยู่ในภาคใด","choices":["กลาง","เหนือ","ใต้"],"answer":"กลาง"},{"type":"map","prompt":"แม่น้ำเจ้าพระยาสำคัญอย่างไร","text":"เป็นแม่น้ำสายหลักของภาคกลาง","answer":"สายหลักภาคกลาง / คมนาคม เกษตร"},{"type":"history","prompt":"วันสำคัญทางประวัติศาสตร์ที่รู้จัก","text":"วันจักรี / วันสงกรานต์ (วัฒนธรรม)","answer":"ระบุได้อย่างน้อย 1 วันพร้อมความหมาย"},{"type":"citizen","prompt":"สิทธิและหน้าที่ของนักเรียน","text":"มีสิทธิ์เรียนและมีหน้าที่ตั้งใจเรียน","answer":"เรียนรู้อย่างตั้งใจ เคารพกฎ"},{"type":"map","prompt":"ภาคเหนือมีลักษณะภูมิประเทศเด่น","choices":["ภูเขา/หุบเขา","ทะเลทราย","ธารน้ำแข็ง"],"answer":"ภูเขา/หุบเขา"},{"type":"history","prompt":"ทำไมต้องเรียนรู้ประวัติศาสตร์ท้องถิ่น","text":"เข้าใจรากเหง้าและรักบ้านเกิด","answer":"รู้ที่มาของชุมชน/รักท้องถิ่น"},{"type":"citizen","prompt":"การอยู่ร่วมกันในห้องเรียน","choices":["รับฟังเพื่อน","เยาะเย้ย","แย่งของ"],"answer":"รับฟังเพื่อน"},{"type":"map","prompt":"ชี้จังหวัดของโรงเรียนบนแผนที่ความคิด","text":"เขียนชื่ออำเภอ/จังหวัดตนเอง","answer":"ระบุถิ่นที่อยู่ถูกต้อง"},{"type":"history","prompt":"บุคคลสำคัญในประวัติศาสตร์ไทยที่รู้จัก","text":"เช่น พ่อขุนรามคำแหง","answer":"ระบุชื่อ+ผลงานสั้น ๆ"},{"type":"citizen","prompt":"เมื่อเห็นเพื่อนถูกรังแกควรทำอย่างไร","choices":["บอกครู/ช่วยเหลืออย่างปลอดภัย","นิ่งเฉยตลอด","ร่วมรังแก"],"answer":"บอกครู/ช่วยเหลืออย่างปลอดภัย"},{"type":"map","prompt":"ทรัพยากรสำคัญของท้องถิ่นตนเอง","text":"เช่น ข้าว ยางพารา การท่องเที่ยว","answer":"ระบุทรัพยากรท้องถิ่น+เหตุผล"},{"type":"history","prompt":"เชื่อมโยงอดีต–ปัจจุบัน","text":"ตลาดเก่าของชุมชนยังมีอยู่","answer":"อธิบายสิ่งที่เปลี่ยน/คงเดิม"}];
+window.WORKSHEET_CONFIG={
+  icon:'🇹🇭',title:'ใบงานคลังสังคมศึกษาไทย',subject:'สังคมศึกษา',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังสังคมศึกษาไทย',sourceMediaUrl:'/games/social/social-thailand-hub/index.html',
+  indicators:["ส 5.1 ป.4/1","ส 4.3 ป.4/1","ส 2.1 ป.4/1"],
+  directions:"ฝึกแผนที่ไทย ประวัติศาสตร์อย่างง่าย และพฤติกรรมพลเมืองดี",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+      +(item.text?'<div class="q-context social-case">'+e(item.text)+'</div>':'')
+      +(item.choices?'<div class="classify-grid social-thailand-hub-grid">'+item.choices.map(c=>'<div class="classify-box">[ ] '+e(c)+'</div>').join('')+'</div>':'<div class="decision-box social-thailand-hub-grid">ตอบ / อธิบาย: ____________________</div>')
+      +'<div class="work-line"></div><div class="reason-line"></div>'
+      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

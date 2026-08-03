@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/math/math-decimal-hub/index.html">
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/5,ค 1.1 ป.4/6">
+  <title>ใบงานคลังทศนิยม ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🔢 ใบงานคลังทศนิยม</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านทศนิยม</option><option value="compare">เปรียบเทียบ</option><option value="addsub">บวกลบ</option><option value="money">เงินบาท/สตางค์</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS=[{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"4.56","answer":"สี่จุดห้าหก"},{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"10.08","answer":"สิบจุดศูนย์แปด"},{"type":"read","prompt":"บอกค่าประจำหลักสิบส่วน","value":"7.29","answer":"2 สิบส่วน = 0.2"},{"type":"read","prompt":"เขียนทศนิยมจากคำอ่าน","value":"สามจุดเจ็ดห้า","answer":"3.75"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"2.45","right":"2.5","answer":"2.45 < 2.5"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"6.30","right":"6.3","answer":"6.30 = 6.3"},{"type":"compare","prompt":"เรียงจากน้อยไปมาก","left":"0.9, 0.89, 1.01","right":"","answer":"0.89 < 0.9 < 1.01"},{"type":"compare","prompt":"วงค่าที่มากกว่า","left":"5.08","right":"5.8","answer":"5.8"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"1.25 + 0.47","answer":"1.72"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"3.6 + 0.85","answer":"4.45"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"5.4 − 1.25","answer":"4.15"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"8.03 − 0.7","answer":"7.33"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"12 บาท 50 สตางค์","answer":"12.50 บาท"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"3 บาท 5 สตางค์","answer":"3.05 บาท"},{"type":"money","prompt":"บวกราคาสินค้า","expr":"15.75 + 4.50","answer":"20.25 บาท"},{"type":"money","prompt":"ทอนเงินจาก 50 บาท","expr":"50.00 − 32.75","answer":"17.25 บาท"},{"type":"read","prompt":"เติมหลักร้อยส่วนที่หายไป","value":"9.4_","answer":"เช่น 9.40 หรือตามบริบทโจทย์"},{"type":"addsub","prompt":"ตรวจคำตอบด้วยการลบย้อนกลับ","expr":"2.15 + 1.4 = ?","answer":"3.55 · ตรวจ 3.55−1.4=2.15"}];
+window.WORKSHEET_CONFIG={
+  icon:'🔢',title:'ใบงานคลังทศนิยม',subject:'คณิตศาสตร์',gradeLabel:'ป.4–ป.5',
+  mediaLabel:'คลังทศนิยม',sourceMediaUrl:'/games/math/math-decimal-hub/index.html',
+  indicators:["ค 1.1 ป.4/5","ค 1.1 ป.4/6"],
+  directions:"อ่านค่าประจำหลัก เปรียบเทียบ บวกลบ และแก้โจทย์เงินบาท/สตางค์",
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
+  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
+    if(item.type==='read'){
+      return '<div class="q-prompt">'+e(item.prompt)+' · '+e(item.value)+'</div>'
+        +'<table class="mini-table place-value-table"><tr><th>หลักสิบ</th><th>หลักหน่วย</th><th>.</th><th>สิบส่วน</th><th>ร้อยส่วน</th></tr>'
+        +'<tr><td>____</td><td>____</td><td>.</td><td>____</td><td>____</td></tr></table>'
+        +'<div>อ่านค่า / อธิบาย</div><div class="work-line"></div><div class="reason-line"></div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    if(item.type==='compare'){
+      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+        +'<div class="q-context">'+e(item.left)+(item.right?' กับ '+e(item.right):'')+'</div>'
+        +'<div class="choice-row"><span class="check">[ ] &gt;</span><span class="check">[ ] &lt;</span><span class="check">[ ] =</span></div>'
+        +'<div>วิธีเทียบ</div><div class="calc-line"></div><div class="work-line"></div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    if(item.type==='money'){
+      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
+        +'<div class="q-context">'+e(item.value||item.expr)+'</div>'
+        +'<div>ตั้งตามหลักเงิน · จุดทศนิยมตรงกัน</div><div class="calc-line"></div><div class="work-line"></div>'
+        +'<div>คำตอบ ____________ บาท</div>'
+        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+    }
+    return '<div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.expr)+'</div>'
+      +'<div>ตั้งตามหลัก · จุดทศนิยมตรงกัน</div><div class="calc-line"></div><div class="work-line"></div>'
+      +'<div>คำตอบ ____________</div><span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+function render(){window.KampaiTopicWorksheet.render();}
+document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body></html>

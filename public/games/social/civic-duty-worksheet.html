@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/social/civic-duty-media.html"><meta name="curriculum-indicators" content="ส 2.1 ป.2/1, ส 2.1 ป.2/4, ส 2.2 ป.1/3"><title>ใบงานหน้าที่พลเมืองน้อย ป.1–3 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.184.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:7pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.4mm;margin-bottom:1mm}
+.q-prompt-big{font-size:11pt;font-weight:800;line-height:1.5}
+.pick-row{display:grid;grid-template-columns:1fr 1fr;gap:2mm;margin:1.2mm 0}
+.pick{border:1.5px solid var(--ws-line);border-radius:4px;padding:1.5mm;text-align:center;min-height:17mm;display:flex;flex-direction:column;justify-content:center;gap:.8mm}
+.pick .pic{font-size:15pt;line-height:1}
+.pick .cap{font-size:8.5pt;font-weight:700;line-height:1.35}
+.show-answers .pick.is-ans{box-shadow:inset 0 0 0 1.2mm var(--ws-danger);border-color:var(--ws-danger)}
+.choice-row{display:grid;grid-template-columns:1fr 1fr;gap:2mm;margin:1.2mm 0}
+.choice-box{border:1.5px solid var(--ws-line);border-radius:4px;padding:1.5mm;font-size:10.5pt;font-weight:800;text-align:center;color:var(--ws-ink)}
+.show-answers .choice-box.is-ans{box-shadow:inset 0 0 0 1.2mm var(--ws-danger);border-color:var(--ws-danger)}
+.situation-box{border:1.5px dashed var(--ws-accent);border-radius:4px;background:var(--ws-soft);padding:1.6mm 2mm;font-size:10pt;font-weight:700;line-height:1.5;margin:1mm 0}
+.match-grid{display:grid;grid-template-columns:1fr 14mm 1fr;gap:1mm;align-items:stretch;margin:1.2mm 0}
+.match-left,.match-right{display:flex;flex-direction:column;gap:1.2mm}
+.match-cell{border:1.5px solid var(--ws-line);border-radius:4px;padding:1.2mm 1.6mm;font-size:9pt;font-weight:700;min-height:8.5mm;display:flex;align-items:center;gap:1.4mm;line-height:1.35}
+.match-cell .dot{width:2.6mm;height:2.6mm;border-radius:50%;border:.5mm solid var(--ws-accent);flex:0 0 auto}
+.match-left .match-cell{flex-direction:row-reverse;text-align:right}
+.match-mid{display:flex;align-items:center;justify-content:center;font-size:8pt;font-weight:800;color:var(--ws-muted)}
+.reason-row{display:grid;grid-template-columns:16mm 1fr;gap:1.5mm;align-items:end;min-height:8mm;margin-top:1mm}
+.reason-tag{font-size:7pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:1mm;text-align:center}
+.reason-body{min-height:7mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:9pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+</style>
+</head><body>
+<header class="toolbar"><h1>🤝 ใบงานหน้าที่พลเมืองน้อย</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1</option><option value="2">ป.2</option><option value="3">ป.3</option></select><select class="t-select" id="selTopic" aria-label="หัวข้อ"><option value="mixed">ผสมทุกหัวข้อ</option><option value="home">กติกาในบ้าน</option><option value="school">กติกาในโรงเรียน</option><option value="community">กติกาในชุมชน</option><option value="democracy">ประชาธิปไตยในห้องเรียน</option></select><select class="t-select" id="selCount" data-fixed-count="5" aria-label="จำนวนข้อ" hidden><option value="5" selected>5 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.184.0"></script><script>
+const ITEMS=[
+ {topic:'home',kind:'circle',prompt:'วงกลม ⭕ ภาพที่ทำตามกติกาในบ้าน',
+  picks:[{pic:'🧸➡️📦',cap:'เก็บของเล่นเข้าที่',ans:true},{pic:'🧸🛋️🧸',cap:'ทิ้งของเล่นเกลื่อนบ้าน',ans:false}],
+  answer:'เก็บของเล่นเข้าที่'},
+ {topic:'home',kind:'choose',situation:'น้องกำลังนอนหลับ เราเปิดการ์ตูนเสียงดังมาก',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:1,reason:'เสียงดังรบกวนน้องที่กำลังหลับ',answer:'ไม่ควรทำ — รบกวนผู้อื่น'},
+ {topic:'home',kind:'choose',situation:'กินข้าวเสร็จแล้ว ช่วยเก็บจานไปวางที่อ่างล้างจาน',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:0,reason:'ช่วยงานบ้านตามวัย เป็นสมาชิกที่ดีของครอบครัว',answer:'ควรทำ — ช่วยงานบ้านตามวัย'},
+ {topic:'school',kind:'circle',prompt:'วงกลม ⭕ ภาพที่ทำตามกติกาในโรงเรียน',
+  picks:[{pic:'🚶🚶🚶',cap:'เข้าแถวรอตามลำดับ',ans:true},{pic:'🏃💨😠',cap:'วิ่งแซงเพื่อนในแถว',ans:false}],
+  answer:'เข้าแถวรอตามลำดับ'},
+ {topic:'school',kind:'choose',situation:'เพื่อนกำลังตอบคำถามครู เราพูดแทรกขึ้นมาทันที',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:1,reason:'ไม่เคารพสิทธิของเพื่อนที่กำลังพูด ต้องฟังให้จบ',answer:'ไม่ควรทำ — ต้องเคารพสิทธิผู้พูด'},
+ {topic:'school',kind:'match',prompt:'โยงเส้น ➰ จับคู่ การทำดี กับ สถานที่ ให้ถูกต้อง',
+  pairs:[{left:'✋ ยกมือก่อนตอบครู',right:'🏫 โรงเรียน'},{left:'🛏️ เก็บที่นอนตอนเช้า',right:'🏠 บ้าน'},{left:'🗑️ ทิ้งขยะลงถังในสวน',right:'🏘️ ชุมชน'}],
+  answer:'ยกมือ→โรงเรียน · เก็บที่นอน→บ้าน · ทิ้งขยะลงถัง→ชุมชน'},
+ {topic:'community',kind:'choose',situation:'จะข้ามถนน เดินไปข้ามตรงทางม้าลาย มองซ้าย–ขวาก่อน',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:0,reason:'ปลอดภัยและทำตามกติกาของชุมชน',answer:'ควรทำ — ปลอดภัยและถูกกติกา'},
+ {topic:'community',kind:'circle',prompt:'วงกลม ⭕ ภาพที่ทำถูกต้องในห้องสมุด',
+  picks:[{pic:'🤫📖',cap:'อ่านเงียบ ๆ พูดเบา ๆ',ans:true},{pic:'📢🏃',cap:'ตะโกนและวิ่งเล่น',ans:false}],
+  answer:'อ่านเงียบ ๆ พูดเบา ๆ'},
+ {topic:'community',kind:'match',prompt:'โยงเส้น ➰ จับคู่ การทำดี กับ สถานที่ ให้ถูกต้อง',
+  pairs:[{left:'🧍‍♀️🧍 ต่อแถวซื้อของ',right:'🏪 ตลาด–ร้านค้า'},{left:'🤫 พูดเบา ๆ สำรวม',right:'🛕 วัด–ห้องสมุด'},{left:'🚸 ข้ามทางม้าลาย',right:'🛣️ ถนน'}],
+  answer:'ต่อแถว→ตลาด · พูดเบา→วัด/ห้องสมุด · ทางม้าลาย→ถนน'},
+ {topic:'democracy',kind:'circle',prompt:'วงกลม ⭕ วิธีเลือกหัวหน้าห้องแบบประชาธิปไตย',
+  picks:[{pic:'✋🗳️✋',cap:'ยกมือโหวต นับเสียงข้างมาก',ans:true},{pic:'😤👉',cap:'คนตัวโตสั่งให้ตัวเองเป็น',ans:false}],
+  answer:'ยกมือโหวต นับเสียงข้างมาก'},
+ {topic:'democracy',kind:'choose',situation:'ผลโหวตชื่อมุมหนังสือไม่ตรงกับที่เราเลือก เราโกรธและไม่ยอมรับผล',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:1,reason:'ต้องยอมรับเสียงข้างมาก ตามกติกาประชาธิปไตย',answer:'ไม่ควรทำ — ต้องยอมรับเสียงข้างมาก'},
+ {topic:'democracy',kind:'choose',situation:'เพื่อนเสนอความคิดไม่เหมือนเรา เราตั้งใจฟังเพื่อนจนจบ',
+  prompt:'อ่านสถานการณ์ แล้วติ๊กว่า ควรทำ หรือ ไม่ควรทำ พร้อมบอกเหตุผล',
+  choices:['😊 ควรทำ','🚫 ไม่ควรทำ'],ansIndex:0,reason:'ทุกคนมีสิทธิ์พูด เราเคารพสิทธิของผู้อื่น',answer:'ควรทำ — เคารพสิทธิของผู้อื่น'}
+];
+const TOPIC_LABEL={home:'กติกาในบ้าน',school:'กติกาในโรงเรียน',community:'กติกาในชุมชน',democracy:'ประชาธิปไตยในห้องเรียน'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'civic-duty',
+  icon:'🤝',title:'ใบงานหน้าที่พลเมืองน้อย',subject:'สังคมศึกษา',gradeLabel:'ป.1–3',mediaLabel:'หน้าที่พลเมืองน้อย',
+  sourceMediaUrl:'/games/social/civic-duty-media.html',indicators:['ส 2.1 ป.2/1','ส 2.1 ป.2/4','ส 2.2 ป.1/3'],
+  topicLabels:{mixed:'ผสมทุกหัวข้อ',home:'กติกาในบ้าน',school:'กติกาในโรงเรียน',community:'กติกาในชุมชน',democracy:'ประชาธิปไตยในห้องเรียน'},
+  directions:'ดูภาพ–อ่านสถานการณ์ตัวโต ๆ → วงกลม / โยงเส้น / ติ๊กเลือกทำ → บอกเหตุผลสั้น ๆ',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.topic===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let body='';
+    if(item.kind==='circle'){
+      body='<div class="pick-row">'+item.picks.map(p=>
+        '<div class="pick'+(p.ans?' is-ans':'')+'"><span class="pic">'+e(p.pic)+'</span><span class="cap">'+e(p.cap)+'</span></div>'
+      ).join('')+'</div>';
+    }else if(item.kind==='choose'){
+      body='<div class="situation-box">📖 '+e(item.situation)+'</div>'
+        +'<div class="choice-row">'+item.choices.map((c,i)=>
+          '<div class="choice-box'+(i===item.ansIndex?' is-ans':'')+'">□ '+e(c)+'</div>'
+        ).join('')+'</div>'
+        +'<div class="reason-row"><span class="reason-tag">เพราะ</span><div class="reason-body"><span class="work-fill">'+e(item.reason)+'</span></div></div>';
+    }else if(item.kind==='match'){
+      body='<div class="match-grid"><div class="match-left">'
+        +item.pairs.map(p=>'<div class="match-cell"><span class="dot"></span><span>'+e(p.left)+'</span></div>').join('')
+        +'</div><div class="match-mid">โยงเส้น</div><div class="match-right">'
+        +item.pairs.slice().reverse().map(p=>'<div class="match-cell"><span class="dot"></span><span>'+e(p.right)+'</span></div>').join('')
+        +'</div></div>';
+    }
+    return '<div class="q-stem"><span class="skill-tag">'+e(TOPIC_LABEL[item.topic]||item.topic)+'</span><div class="q-prompt q-prompt-big">'+e(item.prompt)+'</div></div>'
+      +'<div class="q-work-block">'+body+'</div>'
+      +'<div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.184.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

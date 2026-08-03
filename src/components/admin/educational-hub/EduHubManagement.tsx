@@ -32,7 +32,6 @@ import { GamesTab } from './GamesTab';
 import { SortableCategoriesGrid } from './SortableCategoriesGrid';
 import { HubLayoutDefaultsTab } from './HubLayoutDefaultsTab';
 import { WorksheetSetsPanel } from '@/components/educational-hub/WorksheetSetsPanel';
-import { LessonPacksPanel } from '@/components/educational-hub/LessonPacksPanel';
 
 type Teacher = {
     id: string;
@@ -71,20 +70,15 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
     text: 'ข้อความ',
 };
 
-const HUB_TABS = ['items', 'games', 'lesson-packs', 'worksheet-sets', 'categories', 'teachers', 'layout-defaults'] as const;
-type HubTab = (typeof HUB_TABS)[number];
-
 export const EduHubManagement = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const tabParam = searchParams.get('tab');
-    const tab: HubTab = HUB_TABS.includes(tabParam as HubTab) ? (tabParam as HubTab) : 'items';
+    const activeTab = searchParams.get('tab') ?? 'items';
 
-    const setTab = (value: string) => {
+    const onTabChange = (value: string) => {
         setSearchParams((prev) => {
             const next = new URLSearchParams(prev);
             if (value === 'items') next.delete('tab');
             else next.set('tab', value);
-            if (value !== 'worksheet-sets') next.delete('key');
             return next;
         }, { replace: true });
     };
@@ -98,11 +92,10 @@ export const EduHubManagement = () => {
                 </p>
             </div>
 
-            <Tabs value={tab} onValueChange={setTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
                 <TabsList>
                     <TabsTrigger value="items">รายการทั้งหมด</TabsTrigger>
                     <TabsTrigger value="games">เกม HTML</TabsTrigger>
-                    <TabsTrigger value="lesson-packs">ชุดคาบ</TabsTrigger>
                     <TabsTrigger value="worksheet-sets">ชุดใบงาน</TabsTrigger>
                     <TabsTrigger value="categories">หมวดหมู่</TabsTrigger>
                     <TabsTrigger value="teachers">ครู</TabsTrigger>
@@ -111,7 +104,6 @@ export const EduHubManagement = () => {
 
                 <TabsContent value="items"><AllItemsTab /></TabsContent>
                 <TabsContent value="games"><GamesTab /></TabsContent>
-                <TabsContent value="lesson-packs"><LessonPacksPanel mode="recent" /></TabsContent>
                 <TabsContent value="worksheet-sets"><WorksheetSetsPanel mode="recent" limit={40} /></TabsContent>
                 <TabsContent value="categories"><CategoriesTab /></TabsContent>
                 <TabsContent value="teachers"><TeachersTab /></TabsContent>

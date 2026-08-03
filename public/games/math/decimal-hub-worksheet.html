@@ -1,60 +1,20 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-decimal-hub/index.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/5, ค 1.1 ป.4/6"><title>ใบงานทศนิยม Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.181.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
-<style>
-.place-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1mm;margin:1.2mm 0;text-align:center;font-size:7.5pt;font-weight:800}
-.place-grid .cell{border:1.3px solid var(--ws-line);border-radius:3px;padding:1mm;min-height:8mm;display:flex;flex-direction:column;justify-content:center}
-.place-grid .hdr{background:var(--ws-soft);color:var(--ws-accent);font-size:6pt}
-.place-grid .dot{border-style:dashed;color:var(--ws-accent)}
-.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
-.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
-.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
-.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
-.work-fill{color:transparent;font-weight:800}.show-answers .work-fill,.q.reveal-answer .work-fill{color:var(--ws-danger)}
-.count-5 .step-row{min-height:8.5mm}.count-5 .place-grid .cell{min-height:10mm}
-</style>
-</head><body>
-<header class="toolbar"><h1>🔢 ใบงานทศนิยม Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านค่า</option><option value="compare">เปรียบเทียบ</option><option value="place">ค่าประจำหลัก</option><option value="compute">บวกลบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.181.0"></script><script>
-function placeBoard(num){
-  const s=String(num);
-  const [whole,frac='' ]=s.split('.');
-  const ones=whole.slice(-1)||'0';
-  const tens=whole.length>1?whole.slice(-2,-1):'';
-  const t=frac[0]||'';
-  const h=frac[1]||'';
-  return '<div class="place-grid"><div class="cell hdr">สิบ</div><div class="cell hdr">หน่วย</div><div class="cell hdr dot">.</div><div class="cell hdr">ส่วนสิบ</div><div class="cell hdr">ส่วนร้อย</div>'
-    +'<div class="cell">'+(tens||'·')+'</div><div class="cell">'+ones+'</div><div class="cell dot">.</div><div class="cell">'+(t||'·')+'</div><div class="cell">'+(h||'·')+'</div></div>';
-}
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/math-decimal-hub/index.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/5, ค 1.1 ป.4/6"><title>ใบงานทศนิยม Hub ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
+<header class="toolbar"><h1>🔢 ใบงานทศนิยม Hub</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านค่า</option><option value="compare">เปรียบเทียบ</option><option value="place">ค่าประจำหลัก</option><option value="compute">บวกลบ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
 const DEC_ITEMS=[
-{type:'read',prompt:'0.7 อ่านอย่างไร',num:'0.7',choices:['ศูนย์จุดเจ็ด','เจ็ดสิบ'],answer:'ศูนย์จุดเจ็ด / จุดเจ็ด',s1:'0 = ศูนย์',s2:'.7 = 7 ส่วนสิบ',s3:'ศูนย์จุดเจ็ด'},
-{type:'read',prompt:'2.35 มีกี่หลักทศนิยม',num:'2.35',choices:['2 หลัก','3 หลัก'],answer:'2 หลัก (3 และ 5)',s1:'หลังจุด = ทศนิยม',s2:'3 ส่วนสิบ · 5 ส่วนร้อย',s3:'2 หลัก'},
-{type:'compare',prompt:'0.6 ___ 0.8',num:'0.6',num2:'0.8',choices:['<','>','='],answer:'0.6 < 0.8',s1:'เทียบส่วนสิบ',s2:'6 < 8',s3:'<'},
-{type:'compare',prompt:'1.2 ___ 1.20',num:'1.2',num2:'1.20',choices:['=','<','>'],answer:'1.2 = 1.20',s1:'0 ท้ายไม่เปลี่ยนค่า',s2:'เท่ากัน',s3:'='},
-{type:'place',prompt:'ใน 4.56 หลักหน่วย = ?',num:'4.56',choices:['4','5'],answer:'4',s1:'4 อยู่หลักหน่วย',s2:'5 ส่วนสิบ · 6 ส่วนร้อย',s3:'หลักหน่วย=4'},
-{type:'place',prompt:'0.08 หลักส่วนร้อย = ?',num:'0.08',choices:['8','0'],answer:'8',s1:'0 ส่วนสิบ',s2:'8 ส่วนร้อย',s3:'8'},
-{type:'compute',prompt:'1.2 + 0.5 = ?',num:'1.2',num2:'0.5',answer:'1.7',s1:'จัดจุดทศนิยมให้ตรง',s2:'1.2+0.5',s3:'1.7'},
-{type:'compute',prompt:'3.6 − 1.4 = ?',num:'3.6',num2:'1.4',answer:'2.2',s1:'จัดจุดให้ตรง',s2:'3.6−1.4',s3:'2.2'},
-{type:'read',prompt:'0.05 อ่านอย่างไร',num:'0.05',choices:['ศูนย์จุดศูนย์ห้า','ห้าสิบ'],answer:'ศูนย์จุดศูนย์ห้า',s1:'0 ส่วนสิบ',s2:'5 ส่วนร้อย',s3:'ศูนย์จุดศูนย์ห้า'},
-{type:'compare',prompt:'เรียง 0.9, 0.09, 0.5 น้อย→มาก',num:'0.9',choices:['0.09, 0.5, 0.9','0.9, 0.5, 0.09'],answer:'0.09, 0.5, 0.9',s1:'0.09 น้อยสุด',s2:'0.5 กลาง',s3:'0.09→0.5→0.9'},
-{type:'compute',prompt:'0.3 + 0.4 = ?',num:'0.3',num2:'0.4',answer:'0.7',s1:'3+4 ส่วนสิบ',s2:'=7 ส่วนสิบ',s3:'0.7'},
-{type:'place',prompt:'5.0 = 5 หรือไม่',num:'5.0',choices:['เท่ากัน','ต่างกัน'],answer:'เท่ากัน (5.0=5)',s1:'.0 ไม่เปลี่ยนค่า',s2:'5.0=5',s3:'เท่ากัน'}
+{type:'read',prompt:'0.7 อ่านอย่างไร',context:'0.7',choices:['ศูนย์จุดเจ็ด','เจ็ดสิบ'],answer:'ศูนย์จุดเจ็ด / จุดเจ็ด',step1:'0 = ศูนย์',step2:'.7 = 7 ในหลัก tenths',step3:'ศูนย์จุดเจ็ด'},
+{type:'read',prompt:'2.35 มีกี่หลักทศนิยม',context:'2.35',choices:['2 หลัก','3 หลัก'],answer:'2 หลัก (3 และ 5)',step1:'หลังจุด = ทศนิยม',step2:'3 หลับสิบ · 5 หลับร้อย',step3:'2 หลัก'},
+{type:'compare',prompt:'0.6 ___ 0.8',context:'0.6 · 0.8',choices:['<','>'],answer:'0.6 < 0.8',step1:'6 tenths < 8 tenths',step2:'0.6 น้อยกว่า',step3:'<'},
+{type:'compare',prompt:'1.2 ___ 1.20',context:'1.2 · 1.20',choices:['=','<'],answer:'1.2 = 1.20',step1:'0 ท้ายไม่เปลี่ยนค่า',step2:'เท่ากัน',step3:'='},
+{type:'place',prompt:'ใน 4.56 หลักสิบ = ?',context:'4.56',choices:['4','5'],answer:'4',step1:'4 อยู่หลักสิบ',step2:'5 หลับสิบ · 6 หลับร้อย',step3:'หลักสิบ=4'},
+{type:'place',prompt:'0.08 หลักร้อย = ?',context:'0.08',choices:['8','0'],answer:'8',step1:'0 หลับสิบ',step2:'8 หลับร้อย',step3:'8'},
+{type:'compute',prompt:'1.2 + 0.5 = ?',nums:'1.2+0.5',answer:'1.7',step1:'1.2+0.5',step2:'=1.7',step3:'1.7'},
+{type:'compute',prompt:'3.6 − 1.4 = ?',nums:'3.6−1.4',answer:'2.2',step1:'3.6−1.4',step2:'=2.2',step3:'2.2'},
+{type:'read',prompt:'0.05 อ่านอย่างไร',context:'0.05',choices:['ศูนย์จุดศูนย์ห้า','ห้าสิบ'],answer:'ศูนย์จุดศูนย์ห้า',step1:'0 tenths',step2:'5 hundredths',step3:'ศูนย์จุดศูนย์ห้า'},
+{type:'compare',prompt:'เรียง 0.9, 0.09, 0.5 น้อย→มาก',context:'ทศนิยม',choices:['0.09,0.5,0.9','0.9,0.5,0.09'],answer:'0.09, 0.5, 0.9',step1:'0.09 น้อยสุด',step2:'0.5 กลาง',step3:'0.09→0.5→0.9'},
+{type:'compute',prompt:'0.3 + 0.4 = ?',nums:'0.3+0.4',answer:'0.7',step1:'3 tenths + 4 tenths',step2:'=7 tenths',step3:'0.7'},
+{type:'place',prompt:'5.0 = 5 หรือไม่',context:'5.0',choices:['เท่ากัน','ต่างกัน'],answer:'เท่ากัน (5.0=5)',step1:'.0 ไม่เปลี่ยนค่า',step2:'5.0=5',step3:'เท่ากัน'}
 ];
-window.WORKSHEET_CONFIG={
-  worksheetKey:'decimal-hub',icon:'🔢',title:'ใบงานทศนิยม Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ทศนิยม Hub',
-  sourceMediaUrl:'/games/math/math-decimal-hub/index.html',indicators:['ค 1.1 ป.4/5','ค 1.1 ป.4/6'],
-  directions:'ตารางค่าประจำหลัก · เปรียบเทียบ · บวกลบจัดจุด',
-  getItems(t){return t==='mixed'?DEC_ITEMS:DEC_ITEMS.filter(i=>i.type===t);},
-  renderQuestion(item){
-    const e=window.KampaiTopicWorksheet.escapeHtml;
-    let board=placeBoard(item.num);
-    if(item.num2)board+='<div class="q-context">เทียบกับ '+e(item.num2)+'</div>'+placeBoard(item.num2);
-    return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>'+board
-      +(item.choices?'<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>':'')
-      +'</div><div class="q-work-block step-block">'
-      +'<div class="step-row"><span class="step-tag">1 จัดหลัก</span><div class="step-body"><span class="work-fill">'+e(item.s1)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">2 คิด</span><div class="step-body"><span class="work-fill">'+e(item.s2)+'</span></div></div>'
-      +'<div class="step-row"><span class="step-tag">3 สรุป</span><div class="step-body"><span class="work-fill">'+e(item.s3)+'</span></div></div>'
-      +'</div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
-  }
-};
-</script><script src="/games/worksheet-topic.js?v=1.181.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>
+window.WORKSHEET_CONFIG={icon:'🔢',title:'ใบงานทศนิยม Hub',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'ทศนิยม Hub',sourceMediaUrl:'/games/math/math-decimal-hub/index.html',indicators:['ค 1.1 ป.4/5','ค 1.1 ป.4/6'],directions:'อ่าน เปรียบเทียบ ค่าประจำหลัก และบวกลบทศนิยม',getItems(t){return t==='mixed'?DEC_ITEMS:DEC_ITEMS.filter(i=>i.type===t);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let stem='<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div>';if(item.context)stem+='<div class="q-context">'+e(item.context)+'</div>';if(item.choices)stem+='<div class="classify-grid">'+item.choices.map(c=>'<div class="classify-box">'+e(c)+'</div>').join('')+'</div>';stem+='<div>ลงวิธีคิด 3 ขั้น</div></div>';return stem+'<div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(item.step1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step2)+'</span></div><div class="reason-line"><span class="work-fill">'+e(item.step3)+'</span></div></div><div class="q-foot"><div class="answer-line">สรุป <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

@@ -26,8 +26,12 @@ dist-ssr
 .claude/settings.local.json
 .claude/skills/
 .claude/worktrees/
-.agents/
+.agents/*
 skills/
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/kampai-worksheet-builder/
+!.agents/skills/kampai-worksheet-builder/**
 skills-lock.json
 
 # Editor directories and files

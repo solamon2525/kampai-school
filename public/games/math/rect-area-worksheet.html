@@ -7,12 +7,12 @@
   <meta name="curriculum-indicators" content="ค 2.1 ป.4/3,ค 2.1 ป.5/4" />
   <title>ใบงานพื้นที่รูปเรขาคณิต — 5 หรือ 10 ข้อต่อหน้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet" />
+<link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
   <style>
     *{box-sizing:border-box} body{margin:0;background:#e2e8f0;color:#0f172a;font-family:Sarabun,sans-serif}
     .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0c4a6e;color:#fff;box-shadow:0 3px 12px #0f172a33}
     .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:210px}.toolbar-ctrls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.t-select{font:700 .85rem Sarabun;padding:7px 10px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit}.t-select option{color:initial}.btn{border:0;border-radius:10px;padding:10px 14px;font:700 .95rem Sarabun;cursor:pointer;background:#fff;color:#075985}.btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#16a34a;color:#fff}
-    .pages{padding:14px}.sheet{width:210mm;min-height:297mm;margin:0 auto 16px;background:#fff;padding:8mm;box-shadow:0 5px 24px #0f172a26;page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:4mm}
+    .pages{padding:14px}.sheet{width:210mm;height:297mm;min-height:297mm;max-height:297mm;margin:0 auto 16px;background:#fff;padding:8mm;box-shadow:0 5px 24px #0f172a26;page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:4mm;overflow:hidden}
     .sheet:last-child{page-break-after:auto}.sheet-head{border-bottom:2px solid #0369a1;padding-bottom:3mm}.sheet-title{display:flex;align-items:center;gap:8px}.sheet-title h2{margin:0;flex:1;color:#075985;font-size:18pt}.level{border:1.5px solid #38bdf8;border-radius:999px;padding:2px 9px;font-weight:800;color:#075985}
     .student{display:grid;grid-template-columns:minmax(0,1fr) 36mm 30mm;column-gap:5mm;align-items:end;margin-top:3mm;font-size:11pt}.student .field{display:flex;flex-wrap:nowrap;align-items:baseline;gap:2mm;min-width:0;white-space:nowrap}.student .lbl{flex:0 0 auto;line-height:1.2}.student .blank{display:block;flex:1 1 auto;min-width:0;height:1.2em;border-bottom:1.25px solid #334155;box-sizing:border-box}.directions{display:flex;justify-content:space-between;gap:8px;font-size:10pt;font-weight:700;color:#334155;margin-top:2mm}.formula{color:#075985;font-weight:800}
     /* 10 ข้อ = 2 คอลัมน์ (ฝึกเร็ว) · 5 ข้อ = 1 คอลัมน์ (พื้นที่วิธีทำกว้าง — ไม่ให้เลขกับบรรทัดวิธีทำชิดกัน) */
@@ -29,18 +29,14 @@
     .count-5 .mini,.worksheet-mode-five .mini{width:40mm;height:38mm}
     .shape{fill:#e0f2fe;stroke:#0369a1;stroke-width:2.5;stroke-linejoin:round}.cut{fill:#fff;stroke:#0369a1;stroke-width:2;stroke-dasharray:4 3}.measure{stroke:#dc2626;stroke-width:1.5;stroke-dasharray:4 3}.label{fill:#0f172a;font:700 9px Sarabun,sans-serif}
     .count-5 .label,.worksheet-mode-five .label{font-size:11px}
-    .q-body{display:flex;flex-direction:column;justify-content:space-between;height:100%;min-height:29mm;padding:1mm 0;font-size:9.5pt;gap:1mm}
-    .count-5 .q-body,.worksheet-mode-five .q-body{min-height:38mm;font-size:11pt;gap:1.5mm;padding:1.5mm 0}
+    .q-body{display:flex;flex-direction:column;justify-content:flex-start;height:100%;min-height:29mm;padding:1mm 0;font-size:9.5pt;gap:1.5mm}
+    .count-5 .q-body,.worksheet-mode-five .q-body{min-height:38mm;font-size:11pt;gap:1.8mm;padding:1.5mm 0}
     .q-text{font-weight:700;line-height:1.35;flex-shrink:0}
     .count-5 .q-text,.worksheet-mode-five .q-text{font-size:11.5pt;line-height:1.4}
-    .work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:20mm;padding:1mm 0;gap:1.2mm}
+    .work-block{flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;min-height:20mm;padding:1mm 0;gap:1.5mm}
     .count-5 .work-block,.worksheet-mode-five .work-block{min-height:28mm;padding:2mm 0;gap:2mm}
-    .step-row{display:grid;grid-template-columns:16mm 1fr;gap:1.5mm;align-items:end;min-height:6.2mm}
-    .count-5 .step-row,.worksheet-mode-five .step-row{min-height:9mm}
-    .step-tag{font-size:6pt;font-weight:800;color:#fff;background:#0369a1;border-radius:3px;padding:.6mm;text-align:center;line-height:1.15}
-    .count-5 .step-tag,.worksheet-mode-five .step-tag{font-size:7pt}
-    .work-line{border-bottom:1px dotted #64748b;min-height:5.5mm;font-size:8pt;line-height:1.25;display:flex;align-items:flex-end;padding-bottom:.3mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:8mm;font-size:10pt;line-height:1.35}
+    .work-line{border-bottom:1px dotted #64748b;min-height:6.2mm;height:6.2mm;font-size:8pt;line-height:1.25;display:flex;align-items:flex-end;padding-bottom:.5mm;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .count-5 .work-line,.worksheet-mode-five .work-line{min-height:9mm;height:9mm;font-size:10pt;line-height:1.35}
     .work-fill,.answer-fill{color:transparent}
     .show-answers .work-fill,.q.reveal-answer .work-fill{color:#b91c1c;font-weight:800;font-size:13pt;line-height:1.2}
     .show-answers .count-5 .work-fill,.count-5 .q.reveal-answer .work-fill,
@@ -57,10 +53,8 @@
     .q.reveal-current{border-color:#dc2626;box-shadow:0 0 0 1.5px #dc262680}
     .answer-step-label{font:700 .82rem Sarabun,sans-serif;padding:6px 8px;border-radius:8px;background:#0369a1;color:#fff;min-width:7.5rem;text-align:center}
     .sheet-foot{text-align:right;color:#64748b;font-size:8pt}
-    .parent-slip{border-top:1.5px dashed #0369a1;margin-top:auto;padding-top:1.2mm;display:flex;flex-wrap:wrap;gap:4mm;justify-content:space-between;align-items:center;font-size:7.5pt;color:#334155;font-weight:700}
-    .parent-slip .cut{color:#0369a1;font-weight:800}
     @media(max-width:900px){.pages{padding:6px;overflow:auto}.sheet{transform-origin:top left}.toolbar h1{flex-basis:100%}}
-    @media print{@page{size:A4 portrait;margin:0}body{background:#fff}.toolbar{display:none!important}.pages{padding:0}.sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:8mm;overflow:hidden}.q{min-height:0}}
+    @media print{@page{size:A4 portrait;margin:0}html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar{display:none!important}.pages{padding:0}.sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;max-height:297mm;padding:8mm;overflow:hidden}.q{min-height:0}.q-body,.work-block{justify-content:flex-start}}
   </style>
 </head>
 <body>
@@ -102,7 +96,7 @@
     </div>
   </div>
   <main class="pages" id="pages"></main>
-  <script src="/games/worksheet-runtime.js?v=1.181.0"></script>
+  <script src="/games/worksheet-runtime.js?v=1.199.1"></script>
   <script>
     const PI=3.14;
     const WORKSHEET_KEY='rect-area';
@@ -305,9 +299,9 @@
       return '<article class="q"><span class="q-num">'+i+'</span>'+svg(s,p)
         +'<div class="q-body"><div class="q-text">กำหนดให้ '+data+' จงหาพื้นที่</div>'
         +'<div class="work-block">'
-        +'<div class="step-row"><span class="step-tag">1 สูตร</span><div class="work-line"><span class="work-fill">'+work.line1+'</span></div></div>'
-        +'<div class="step-row"><span class="step-tag">2 แทนค่า</span><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
-        +'<div class="step-row"><span class="step-tag">3 คำนวณ</span><div class="work-line"><span class="work-fill">'+work.line3+'</span></div></div>'
+        +'<div class="work-line"><span class="work-fill">'+work.line1+'</span></div>'
+        +'<div class="work-line"><span class="work-fill">'+work.line2+'</span></div>'
+        +'<div class="work-line"><span class="work-fill">'+work.line3+'</span></div>'
         +'</div>'
         +'<div class="answer-line"><span class="answer-label">ตอบ</span><span class="answer-fill">'+work.answer+'</span><span class="answer-unit">ตารางหน่วย</span></div>'
         +'</div></article>';
@@ -351,7 +345,7 @@
       document.getElementById('pages').innerHTML=pageShapes.map((s,page)=>{
         const used=new Set();
         let qs='';for(let i=1;i<=perPage;i++)qs+=question(s,values(s,used),i);
-        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+' · '+perPage+' ข้อ</span></div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ</span><span class="blank"></span></div><div class="field field-class"><span class="lbl">ชั้น</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions count-'+perPage+'">'+qs+'</div><div class="parent-slip"><span class="cut">✂ แถบส่งผู้ปกครอง</span><span>ผล: [ ] ผ่าน [ ] ควรทบทวน</span><span>ผู้ปกครองลงชื่อ ____________________</span></div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · '+perPage+' ข้อ/หน้า · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
+        return '<section class="sheet"><header class="sheet-head"><div class="sheet-title"><h2>'+s.icon+' ใบงานพื้นที่'+s.name+'</h2><span class="level">'+s.grade+' · '+perPage+' ข้อ</span></div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ</span><span class="blank"></span></div><div class="field field-class"><span class="lbl">ชั้น</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div><div class="directions"><span>คำชี้แจง: แสดงวิธีคำนวณและเติมคำตอบให้ครบ</span><span class="formula">สูตร: '+s.formula+'</span></div></header><div class="questions count-'+perPage+'">'+qs+'</div><footer class="sheet-foot">หน้า '+(page+1)+' / '+pageShapes.length+' · '+perPage+' ข้อ/หน้า · ห้องทดลองพื้นที่รูปเรขาคณิต</footer></section>';
       }).join('');
       revealCount=0;
       syncAnswerReveal();
@@ -434,7 +428,7 @@
     document.getElementById('btnAnswerNext').onclick=revealNext;
     document.getElementById('btnAnswerPrev').onclick=revealPrev;
     document.getElementById('btnAnswers').onclick=toggleAllAnswers;
-    document.getElementById('btnPrint').onclick=()=>window.print();
+    document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
     document.addEventListener('keydown',(event)=>{
       if(event.target.matches('input,textarea,select'))return;
       if(event.key==='ArrowRight'||event.key==='n'||event.key==='N'){event.preventDefault();revealNext()}
@@ -444,6 +438,6 @@
     window.randomize=randomize;
     bootSets();
   </script>
-<script src="/games/worksheet-modes.js?v=1.184.0"></script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
 </body>
 </html>

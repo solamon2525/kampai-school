@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — เดิน กระโดด หันตัว และแอนิเมชัน</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:auto;overflow-y:auto}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b}
+.page{width:1240px;height:1754px;padding:50px 60px;position:relative;background:linear-gradient(150deg,#e6f8ff 0 53%,#fff4d9 53%)}
+.head{background:linear-gradient(125deg,#4b2879,#8151b1);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #321b55}
+.tag{color:#f3c9ff;font-size:21px;font-weight:800}.head h1{font-size:46px;line-height:1.13;margin:5px 0}.head p{font-size:22px;margin:0;color:#f7efff}
+.demo{height:190px;margin:24px 0 20px;border:4px solid #68508a;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#9ee1ff 0 70%,#72b84d 70%)}
+.floor{position:absolute;bottom:0;left:0;right:0;height:43px;background:#81502f;border-top:10px solid #3b922f}
+.char{position:absolute;bottom:39px;font-size:65px}.c1{left:90px}.c2{left:355px}.c3{left:650px;bottom:88px}.c4{right:100px;transform:scaleX(-1)}
+.caption{position:absolute;top:18px;background:#fff;border:2px solid #54397b;border-radius:9px;padding:4px 11px;font-weight:800;color:#54397b}.t1{left:72px}.t2{left:330px}.t3{left:630px}.t4{right:65px}
+.flow{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:18px}.flow b{background:#fff;border:3px solid #9b79ba;border-radius:13px;padding:9px 14px;font-size:19px}.flow i{font-style:normal;font-size:25px;color:#df4e61}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.card{background:#fff;border:3px solid #c1a9d6;border-radius:19px;padding:17px 20px;box-shadow:0 6px 0 #d7c5e4;min-height:213px}.wide{grid-column:1/3;min-height:184px}
+.n{display:inline-grid;place-items:center;width:45px;height:45px;border-radius:50%;background:#ffcb42;color:#34234f;font-size:25px;font-weight:900;margin-right:7px}
+h2{display:inline;color:#59357d;font-size:26px}p{font-size:19px;line-height:1.4;margin:8px 0}.event{background:#f4eff8;border-left:8px solid #7549a0;border-radius:9px;padding:9px 13px;font-size:18px;line-height:1.48;font-weight:700}.cond{color:#67408e}.act{color:#bb384d}.small{font-size:16.5px;color:#566277}.warn{border-color:#e5a849;background:#fffaf0}.warn .event{border-color:#de4e59}
+.tip{margin-top:18px;background:#236c5e;color:#fff;border-radius:18px;padding:15px 23px;font-size:18px;line-height:1.45}.tip b{font-size:22px}
+.footer{position:absolute;bottom:32px;left:60px;right:60px;display:flex;justify-content:space-between;color:#46536b;font-size:16px}
+</style>
+</head>
+<body><main class="page">
+<header class="head"><div class="tag">บทที่ 2 • ระบบผู้เล่น</div><h1>เดิน กระโดด หันตัว และเล่นแอนิเมชัน</h1><p>ควบคุมลื่นไหล • Double Jump • ตัวละครหันตามทิศ • แอนิเมชันไม่ตีกัน</p></header>
+<section class="demo"><div class="floor"></div><span class="caption t1">Idle</span><span class="caption t2">Run →</span><span class="caption t3">Jump</span><span class="caption t4">← Run</span><div class="char c1">🧍</div><div class="char c2">🏃</div><div class="char c3">🏃</div><div class="char c4">🏃</div></section>
+<div class="flow"><b>Platform</b><i>→</i><b>ปุ่มควบคุม</b><i>→</i><b>หันซ้าย–ขวา</b><i>→</i><b>เลือก Animation</b></div>
+<section class="grid">
+ <article class="card"><span class="n">1</span><h2>ใส่ Platform behavior</h2><p>เลือก Sprite <b>player</b> → Behaviors → Add new behavior</p><div class="event"><span class="cond">เพิ่ม Platform</span><br><span class="act">Default controls: Yes</span><br>Max speed: 330<br>Acceleration: 1500<br>Deceleration: 1500</div><p class="small">ใช้ปุ่มลูกศรซ้าย–ขวาและปุ่ม Shift กระโดดได้ทันที</p></article>
+ <article class="card"><span class="n">2</span><h2>ตั้งค่าการกระโดด</h2><p>ตั้งค่าใน Properties ของ Platform behavior</p><div class="event">Jump strength: <span class="act">650</span><br>Gravity: <span class="act">1500</span><br>Max fall speed: 1000<br>Double jump: <span class="act">Enabled</span></div><p class="small">ถ้า Construct 2 รุ่นที่ใช้ไม่มี Double jump ให้ใช้ตัวแปรนับจำนวนกระโดดแทน</p></article>
+ <article class="card"><span class="n">3</span><h2>หันหน้าไปทางขวา</h2><p>ตรวจความเร็วแนวนอน ถ้ามากกว่า 0 ให้หันขวา</p><div class="event"><span class="cond">player.Platform.VectorX &gt; 0</span><br><span class="act">player → Set mirrored: Not mirrored</span></div><p class="small">ภาพต้นฉบับของ player ควรวาดให้หันขวา เพื่อให้จำง่าย</p></article>
+ <article class="card"><span class="n">4</span><h2>หันหน้าไปทางซ้าย</h2><p>ถ้าความเร็วน้อยกว่า 0 ให้กลับภาพในแนวนอน</p><div class="event"><span class="cond">player.Platform.VectorX &lt; 0</span><br><span class="act">player → Set mirrored: Mirrored</span></div><p class="small">ไม่ใช้ Set angle 180° เพราะจะทำให้ตัวละครกลับหัว</p></article>
+ <article class="card wide"><span class="n">5</span><h2>สร้าง Animation 4 ชุด</h2><div class="event"><span class="cond">Idle</span> = ยืนนิ่ง • Loop: Yes • Speed: 6<br><span class="cond">Run</span> = วิ่ง • Loop: Yes • Speed: 12<br><span class="cond">Jump</span> = กำลังกระโดดขึ้น • Loop: No<br><span class="cond">Fall</span> = กำลังตกลง • Loop: Yes หรือใช้ 1 เฟรม</div><p>ตั้งชื่อให้ตรงตัวพิมพ์ทุกตัว เพราะ Construct 2 แยกชื่อ Animation ตามข้อความที่กรอก</p></article>
+ <article class="card wide warn"><span class="n">6</span><h2>เลือก Animation ตามลำดับความสำคัญ</h2><div class="event"><span class="cond">player.Platform → Is falling</span> → <span class="act">Set animation "Fall"</span><br><span class="cond">Else + Is jumping</span> → <span class="act">Set animation "Jump"</span><br><span class="cond">Else + Is moving</span> → <span class="act">Set animation "Run"</span><br><span class="cond">Else</span> → <span class="act">Set animation "Idle"</span></div><p class="small">เรียง Fall/Jump ก่อน Run/Idle เพื่อไม่ให้แอนิเมชันวิ่งแย่งทำงานขณะอยู่กลางอากาศ</p></article>
+ <article class="card wide"><span class="n">7</span><h2>ป้องกัน Animation เริ่มใหม่ทุกเฟรม</h2><p>ใน Action <b>Set animation</b> เลือก <b>Play from: Current frame</b> หากมีตัวเลือก หรือเพิ่มเงื่อนไขก่อนเปลี่ยน:</p><div class="event"><span class="cond">player.AnimationName ≠ "Run"</span><br><span class="act">player → Set animation "Run"</span></div><p class="small">ช่วยให้เฟรมวิ่งเล่นต่อเนื่อง ไม่ย้อนกลับเฟรมแรกตลอดเวลา</p></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> ปล่อยปุ่มแล้วหยุด • เดินซ้าย/ขวาหันถูกทิศ • กระโดดได้ 2 ครั้ง • Jump เปลี่ยนเป็น Fall ที่จุดสูงสุด • ลงพื้นกลับ Idle/Run • ตัวละครไม่กลับหัวและ Animation ไม่กระพริบ</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • ระบบควบคุมผู้เล่น</span><span>งานถัดไป: Checkpoint และการเกิดใหม่</span></footer>
+</main></body></html>

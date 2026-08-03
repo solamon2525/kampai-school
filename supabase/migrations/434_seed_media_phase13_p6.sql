@@ -1,0 +1,46 @@
+-- Migration 434: Phase 13 — ป.6 media+worksheet pairs (+8)
+-- Seed applied via scripts/apply-migration-434-phase13.mjs (service role)
+--
+-- Worksheet URLs (for verify:worksheet catalog check):
+--   /games/math/percent-ratio-worksheet.html
+--   /games/math/simple-equation-worksheet.html
+--   /games/thai/rhetoric-literature-p6-worksheet.html
+--   /games/science/electric-circuit-worksheet.html
+--   /games/science/body-systems-p6-worksheet.html
+--   /games/english/english-tenses-p6-worksheet.html
+--   /games/english/english-reading-p6-worksheet.html
+--   /games/social/economics-p6-worksheet.html
+--
+-- Media URLs:
+--   /games/math/percent-ratio-media.html
+--   /games/math/simple-equation-media.html
+--   /games/thai/rhetoric-literature-p6-media.html
+--   /games/science/electric-circuit-media.html
+--   /games/science/body-systems-p6-media.html
+--   /games/english/english-tenses-p6-media.html
+--   /games/english/english-reading-p6-media.html
+--   /games/social/economics-p6-media.html
+--
+-- Covers:
+--   /games/math/percent-ratio-media-cover.png
+--   /games/math/simple-equation-media-cover.png
+--   /games/thai/rhetoric-literature-p6-media-cover.png
+--   /games/science/electric-circuit-media-cover.png
+--   /games/science/body-systems-p6-media-cover.png
+--   /games/english/english-tenses-p6-media-cover.png
+--   /games/english/english-reading-p6-media-cover.png
+--   /games/social/economics-p6-media-cover.png
+--
+-- Indicators (media + worksheets):
+--   ค 1.1 ป.6/2, ค 1.1 ป.6/11, ค 1.1 ป.6/12
+--   ค 1.2 ป.6/1
+--   ท 1.1 ป.6/2, ท 5.1 ป.6/1, ท 5.1 ป.6/3
+--   ว 2.3 ป.6/1, ว 2.3 ป.6/2, ว 2.3 ป.6/4
+--   ว 1.2 ป.6/1, ว 1.2 ป.6/4, ว 1.2 ป.6/5
+--   ต 1.2 ป.6/1, ต 1.2 ป.6/4, ต 2.2 ป.6/1
+--   ต 1.1 ป.6/2, ต 1.1 ป.6/3, ต 1.1 ป.6/4
+--   ส 3.1 ป.6/1, ส 3.1 ป.6/2, ส 3.1 ป.6/3, ส 3.2 ป.6/1
+--
+-- Also backfills indicator_games for selected older media (see apply script).
+
+SELECT 1;

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>คู่มือครูอัปสื่อใน 5 นาที — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--navy:#1e3a8a;--gold:#d4a017;--line:#e2e8f0;--muted:#64748b}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Sarabun',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;padding:20px}
+    .page{max-width:800px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px 24px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    h1{font-size:1.45rem;color:var(--navy);margin-bottom:4px}
+    .sub{color:var(--muted);font-weight:600;margin-bottom:18px}
+    .steps{display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:14px;border:2px solid var(--line);border-radius:14px;background:#f8fafc}
+    .n{width:48px;height:48px;border-radius:12px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem}
+    .step h2{font-size:1.05rem;color:var(--navy);margin-bottom:4px}
+    .step p{font-weight:600;color:#334155;font-size:.95rem}
+    .tip{margin-top:16px;padding:14px;border-left:4px solid var(--gold);background:#fffbeb;border-radius:0 12px 12px 0;font-weight:600}
+    .tip strong{color:#92400e}
+    .types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    @media(max-width:560px){.types{grid-template-columns:1fr}}
+    .types div{padding:10px;border:1px solid var(--line);border-radius:10px;font-weight:600;font-size:.9rem}
+    .footer{margin-top:18px;font-size:.85rem;color:var(--muted);text-align:center}
+    a{color:var(--navy);font-weight:700}
+    @media print{body{background:#fff;padding:0}.page{box-shadow:none;border:none}}
+  </style>
+</head><body>
+  <article class="page">
+    <h1>📚 คู่มือครู — อัปสื่อในคลังเองภายใน 5 นาที</h1>
+    <p class="sub">โรงเรียนบ้านคำไผ่ · Teacher Portal · ไม่ต้องเขียนโค้ด</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><h2>เข้า Teacher Portal</h2><p>เปิด <a href="/teacher/edu-hub">/teacher/edu-hub</a> แล้วล็อกอินด้วยบัญชีครู → แท็บ <strong>รายการของฉัน</strong></p></div></div>
+      <div class="step"><div class="n">2</div><div><h2>กดเพิ่มรายการ</h2><p>เลือกประเภทสื่อที่ต้องการ แล้วกรอกชื่อเรื่องให้ครู/นักเรียนเข้าใจทันที</p></div></div>
+      <div class="step"><div class="n">3</div><div><h2>แนบเนื้อหา</h2>
+        <div class="types">
+          <div>📄 <strong>ไฟล์</strong> — PDF / ใบงาน</div>
+          <div>🔗 <strong>ลิงก์</strong> — หน้าเว็บ / สื่อ HTML</div>
+          <div>▶️ <strong>YouTube</strong> — วางลิงก์คลิป</div>
+          <div>📝 <strong>ข้อความ</strong> — ความรู้สั้นในห้อง</div>
+        </div>
+      </div></div>
+      <div class="step"><div class="n">4</div><div><h2>ใส่ metadata</h2><p>เลือก <strong>วิชา</strong> · <strong>ชั้น</strong> · <strong>tags</strong> · คำอธิบายสั้น ๆ — ช่วยให้นักเรียนค้นเจอ</p></div></div>
+      <div class="step"><div class="n">5</div><div><h2>เผยแพร่</h2><p>เปิดสถานะเผยแพร่ → ตรวจใน <a href="/educational-hub">คลังสื่อ</a> ว่าการ์ดขึ้นครบ ชื่อ/ปก/วิชา</p></div></div>
+    </div>
+    <div class="tip"><strong>เคล็ดลับ:</strong> สื่อสาธิตจอใหญ่ใช้เทมเพลต HTML ได้ที่แอดมิน (GamesTab → สร้างสื่อจาก AI) · สัญญาเขียนสื่ออยู่ที่ <a href="/MEDIA-PROMPT.md">/MEDIA-PROMPT.md</a> · สื่อ ≠ เกม (ไม่เก็บคะแนน/LB)</div>
+    <p class="footer">W8 · โรงเรียนบ้านคำไผ่ · พิมพ์หน้านี้ได้ (Ctrl+P)</p>
+  </article>
+</body></html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — ระบบพื้นและแพลตฟอร์ม</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:auto;overflow-y:auto}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b}
+.page{width:1240px;height:1754px;padding:50px 60px;position:relative;background:linear-gradient(#dff6ff 0 24%,#f7fbef 24% 100%)}
+.head{background:linear-gradient(130deg,#174b7b,#277eb1);color:white;border-radius:26px;padding:28px 38px;box-shadow:0 9px 0 #103553}
+.tag{color:#8eeaff;font-size:22px;font-weight:800}.head h1{font-size:49px;margin:4px 0 7px;line-height:1.12}.head p{font-size:23px;margin:0;color:#e9f8ff}
+.scene{height:205px;margin:25px 0 22px;border:4px solid #4384a7;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(#83dcff 0 66%,#82c657 66% 100%)}
+.cloud{position:absolute;width:130px;height:34px;border-radius:50px;background:#fff9;top:30px;left:95px}.cloud:before,.cloud:after{content:"";position:absolute;background:#fff9;border-radius:50%;width:55px;height:55px;top:-25px}.cloud:before{left:20px}.cloud:after{left:60px}
+.ground{position:absolute;left:0;right:0;bottom:0;height:42px;background:#875126;border-top:12px solid #55a93c}
+.island{position:absolute;width:210px;height:28px;background:#98633c;border-top:11px solid #65b94b;border-radius:8px}.i1{left:155px;top:118px}.i2{left:505px;top:80px}.i3{right:85px;top:125px}
+.player{position:absolute;left:55px;bottom:39px;font-size:68px}.labels span{position:absolute;background:#fff;border:2px solid #174b7b;border-radius:8px;padding:3px 9px;font-weight:800;color:#174b7b}.solid{left:18px;bottom:8px}.jump{left:555px;top:40px}
+.flow{display:flex;justify-content:center;gap:10px;align-items:center;margin-bottom:20px}.flow b{background:white;border:3px solid #6ba5c5;border-radius:13px;padding:9px 15px;font-size:20px}.flow i{font-style:normal;font-size:26px;color:#e45354}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:white;border:3px solid #a8cde1;border-radius:20px;padding:18px 21px;box-shadow:0 6px 0 #c5dfeb;min-height:220px}
+.wide{grid-column:1/3;min-height:190px}.n{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#ffd04a;color:#20365a;font-size:26px;font-weight:900;margin-right:8px}
+h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;margin:9px 0}
+.box{background:#eef6fb;border-left:8px solid #277db2;border-radius:9px;padding:10px 13px;font-size:19px;line-height:1.48;font-weight:700}
+.blue{color:#176aa0}.red{color:#c53e4c}.small{font-size:17px;color:#566578}
+.warn{border-color:#efbd55;background:#fffaf0}.warn .box{border-color:#e05257}
+.test{margin-top:19px;background:#236c5e;color:#fff;border-radius:18px;padding:16px 23px;font-size:19px;line-height:1.45}
+.test b{font-size:23px}.footer{position:absolute;bottom:34px;left:60px;right:60px;display:flex;justify-content:space-between;color:#425268;font-size:16px}
+</style>
+</head>
+<body>
+<main class="page">
+ <header class="head">
+  <div class="tag">บทที่ 1 • ระบบเกมพื้นฐาน</div>
+  <h1>สร้างพื้นและแพลตฟอร์มให้เดิน–กระโดดได้</h1>
+  <p>Solid สำหรับพื้น • Jump-thru สำหรับเกาะ • ป้องกันผู้เล่นตกออกจากฉาก</p>
+ </header>
+
+ <section class="scene">
+  <div class="cloud"></div><div class="ground"></div>
+  <div class="island i1"></div><div class="island i2"></div><div class="island i3"></div>
+  <div class="player">🧍</div>
+  <div class="labels"><span class="solid">พื้น = Solid</span><span class="jump">เกาะ = Jump-thru</span></div>
+ </section>
+
+ <div class="flow"><b>วาง Sprite</b><i>→</i><b>ใส่ Behavior</b><i>→</i><b>ตั้ง Collision</b><i>→</i><b>ทดสอบ</b></div>
+
+ <section class="grid">
+  <article class="card">
+   <span class="n">1</span><h2>สร้างพื้นหลัก</h2>
+   <p>วาง Sprite รูปพื้นให้ต่อกันตลอดทาง แล้วตั้งชื่อว่า <b>ground</b></p>
+   <div class="box"><span class="blue">ground → Behaviors</span><br>Add new behavior → <span class="red">Solid</span></div>
+   <p class="small">Solid ทำให้ผู้เล่นยืนบนพื้นและชนด้านข้างได้</p>
+  </article>
+
+  <article class="card">
+   <span class="n">2</span><h2>ตรวจ Collision Polygon</h2>
+   <p>ดับเบิลคลิก Sprite → เลือกเครื่องมือ Collision polygon</p>
+   <div class="box"><span class="blue">Edit collision polygon</span><br><span class="red">วางจุดให้พอดีเฉพาะผิวพื้น</span></div>
+   <p class="small">หลีกเลี่ยงกรอบชนใหญ่กว่าภาพ เพราะผู้เล่นจะยืนลอยหรือชนกำแพงที่มองไม่เห็น</p>
+  </article>
+
+  <article class="card">
+   <span class="n">3</span><h2>สร้างเกาะกระโดดทะลุ</h2>
+   <p>วาง Sprite เกาะ ตั้งชื่อ <b>sky1</b> แล้วเพิ่ม Behavior</p>
+   <div class="box"><span class="blue">sky1 → Behaviors</span><br>Add new behavior → <span class="red">Jump-thru</span></div>
+   <p class="small">ผู้เล่นกระโดดทะลุจากด้านล่าง และลงมายืนบนด้านบนได้</p>
+  </article>
+
+  <article class="card">
+   <span class="n">4</span><h2>ตั้งค่าผู้เล่น</h2>
+   <p>เลือก Sprite <b>player</b> แล้วเพิ่ม Platform behavior</p>
+   <div class="box"><span class="blue">player → Platform</span><br>Jump strength: <span class="red">650</span><br>Gravity: <span class="red">1500</span><br>Max jumps: <span class="red">2</span></div>
+   <p class="small">Max jumps = 2 คือ Double Jump ตามระบบเดิมของเกม</p>
+  </article>
+
+  <article class="card wide warn">
+   <span class="n">5</span><h2>ผู้เล่นตกฉาก ให้กลับจุดเกิด</h2>
+   <p>เพิ่มตัวแปรตำแหน่งปลอดภัย <b>จุดเกิดX</b> และ <b>จุดเกิดY</b> จากนั้นเพิ่ม Event:</p>
+   <div class="box"><span class="blue">System → Compare two values: player.Y &gt; LayoutHeight + 200</span><br><span class="red">player → Set position to (จุดเกิดX, จุดเกิดY)</span><br><span class="red">System → Subtract 1 from หัวใจ</span></div>
+   <p class="small">บวก 200 เพื่อให้ผู้เล่นหลุดพ้นขอบจอก่อน จึงค่อยย้ายกลับ ไม่กระตุกทันทีที่แตะขอบล่าง</p>
+  </article>
+
+  <article class="card wide">
+   <span class="n">6</span><h2>กฎวางเกาะให้กระโดดถึง</h2>
+   <div class="box">ระยะสูงจากพื้นถึงเกาะแรก ≤ <span class="red">140 px</span> • เกาะต่อเกาะแนวตั้ง ≤ <span class="red">135 px</span> • แนวนอน ≤ <span class="red">360 px</span></div>
+   <p>วางเส้นทางจากต่ำ → กลาง → สูง และทดลองกระโดดจริงทุกจุดก่อนวางดาวคำตอบหรือมอนสเตอร์</p>
+  </article>
+ </section>
+
+ <aside class="test"><b>รายการทดสอบ:</b> เดินบนพื้นไม่จม • ชนขอบพื้นได้ • กระโดดทะลุเกาะจากล่าง • ยืนบนเกาะไม่ตก • Double Jump ถึงเกาะระดับกลาง • ตกฉากแล้วกลับจุดเกิดและเสียหัวใจ 1</aside>
+
+ <footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • พื้นฐานระบบแพลตฟอร์ม</span><span>งานถัดไป: ระบบเดิน กระโดด และแอนิเมชันผู้เล่น</span></footer>
+</main>
+</body>
+</html>

@@ -73,6 +73,21 @@ const schema = z.object({
     if (val.item_type === 'text' && (!val.body_html || val.body_html.trim().length === 0)) {
         ctx.addIssue({ code: 'custom', path: ['body_html'], message: 'กรุณากรอกเนื้อหา' });
     }
+    // W4 / Phase 13 — publish checklist ก่อนเผยแพร่
+    if (val.is_published) {
+        if (!val.subject || !String(val.subject).trim()) {
+            ctx.addIssue({ code: 'custom', path: ['subject'], message: 'ก่อนเผยแพร่ต้องเลือกวิชา' });
+        }
+        if (!val.grade_levels || val.grade_levels.length === 0) {
+            ctx.addIssue({ code: 'custom', path: ['grade_levels'], message: 'ก่อนเผยแพร่ต้องเลือกอย่างน้อย 1 ชั้น' });
+        }
+        if (!val.description || !String(val.description).trim()) {
+            ctx.addIssue({ code: 'custom', path: ['description'], message: 'ก่อนเผยแพร่ต้องมีคำอธิบายสั้น ๆ' });
+        }
+        if (!val.thumbnail_url || !String(val.thumbnail_url).trim()) {
+            ctx.addIssue({ code: 'custom', path: ['thumbnail_url'], message: 'ก่อนเผยแพร่ต้องมีปก/รูปตัวอย่าง' });
+        }
+    }
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -123,13 +138,24 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
     const watchedExtUrl = form.watch('external_url');
     const isStorageGame = !!(watchedExtUrl && watchedExtUrl.includes(STORAGE_GAME_MARKER));
 
-    // Auto-derive youtube_id from URL input
+    // Auto-derive youtube_id from URL input + fill thumbnail if empty
     const ytInput = form.watch('youtube_url_input');
     useEffect(() => {
         if (itemType !== 'youtube') return;
         const id = ytInput ? extractYoutubeId(ytInput) : null;
         if (id !== form.getValues('youtube_id')) {
             form.setValue('youtube_id', id ?? '', { shouldValidate: true });
+        }
+        if (id) {
+            const currentThumb = (form.getValues('thumbnail_url') ?? '').trim();
+            const autoThumb = youtubeThumbnail(id, 'hq');
+            const isYtThumb =
+                !currentThumb ||
+                /img\.youtube\.com\/vi\//.test(currentThumb) ||
+                /i\.ytimg\.com\/vi\//.test(currentThumb);
+            if (isYtThumb && currentThumb !== autoThumb) {
+                form.setValue('thumbnail_url', autoThumb, { shouldValidate: true });
+            }
         }
     }, [ytInput, itemType, form]);
 
@@ -634,6 +660,17 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                     )}
                 />
 
+                <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2">
+                    <p className="text-sm font-medium text-foreground">✅ Publish checklist</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                        <li>{form.watch('subject') ? '✓' : '○'} เลือกวิชา</li>
+                        <li>{(form.watch('grade_levels')?.length ?? 0) > 0 ? '✓' : '○'} เลือกอย่างน้อย 1 ชั้น</li>
+                        <li>{form.watch('description')?.trim() ? '✓' : '○'} มีคำอธิบายสั้น ๆ</li>
+                        <li>{form.watch('thumbnail_url')?.trim() ? '✓' : '○'} มีปก/รูปตัวอย่าง</li>
+                        <li className="text-muted-foreground/80">แนะนำ: ผูกตัวชี้วัดหลังบันทึก (ปุ่มตัวชี้วัดในการ์ด)</li>
+                    </ul>
+                </div>
+
                 <FormField
                     control={form.control}
                     name="is_published"
@@ -641,7 +678,7 @@ export const EduHubItemForm = ({ ownerStaffId, categories, initial, onSaved, onC
                         <FormItem className="flex items-center justify-between rounded-lg border border-border p-3">
                             <div>
                                 <FormLabel className="mb-0">เผยแพร่</FormLabel>
-                                <FormDescription>ปิดเพื่อบันทึกร่างไว้ก่อน</FormDescription>
+                                <FormDescription>ปิดเพื่อบันทึกร่างไว้ก่อน — ต้องผ่าน checklist ด้านบนก่อนเปิดเผยแพร่</FormDescription>
                             </div>
                             <FormControl>
                                 <Switch checked={field.value} onCheckedChange={field.onChange} />

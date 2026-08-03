@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/career/agriculture-basics-media.html"><meta name="curriculum-indicators" content="ง 1.1 ป.4/2 · ง 1.1 ป.5/1 · ง 1.1 ป.6/1"><title>ใบงานการปลูกพืชและเลี้ยงสัตว์ ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.184.0" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.184.0" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.order-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(26mm,1fr));gap:1.5mm;margin:1mm 0}
+.order-tile{border:1px solid var(--ws-line);border-radius:3px;padding:1.2mm 1mm;text-align:center;font-size:7.5pt;font-weight:700;line-height:1.35;display:flex;flex-direction:column;gap:.8mm;align-items:center;justify-content:space-between}
+.num-box{width:8mm;height:7mm;border:1.5px solid var(--ws-accent);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10pt;font-weight:800}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2mm 3mm;margin:1mm 0}
+.match-left,.match-right{display:flex;align-items:center;gap:1.2mm;border:1px solid var(--ws-line);border-radius:3px;padding:1mm;font-size:8pt;font-weight:700;min-height:7.5mm}
+.match-letter{flex:none;width:6mm;height:6mm;border-radius:50%;background:var(--ws-accent);color:var(--ws-paper);font-size:8pt;font-weight:800;display:flex;align-items:center;justify-content:center}
+.write-box{flex:none;width:8mm;height:7mm;border:1.5px solid var(--ws-accent);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9.5pt;font-weight:800;margin-left:auto}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:20mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}
+.count-5 .order-tile{min-height:14mm;font-size:8.5pt}
+</style>
+</head><body>
+<header class="toolbar"><h1>🌱 ใบงานการปลูกพืชและเลี้ยงสัตว์</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="plant">ขั้นตอนปลูกผัก</option><option value="care">การดูแลรดน้ำ</option><option value="tools">เครื่องมือเกษตร</option><option value="animal">เลี้ยงสัตว์</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/worksheet-runtime.js?v=1.184.0"></script><script>
+const LETTERS=['ก','ข','ค'];
+const ITEMS=[
+ {type:'plant',kind:'order',prompt:'เขียนเลข 1–5 เรียงลำดับขั้นตอนการปลูกผัก',steps:['เตรียมดิน พรวนดิน','เพาะเมล็ด กลบดินบาง ๆ','รดน้ำเช้า–เย็น','ใส่ปุ๋ย ถอนวัชพืช','เก็บเกี่ยว'],display:[2,0,4,1,3],answer:'เตรียมดิน → เพาะเมล็ด → รดน้ำ → ใส่ปุ๋ย/ถอนวัชพืช → เก็บเกี่ยว'},
+ {type:'plant',kind:'reason',prompt:'ทำไมต้องเตรียมดินก่อนเพาะเมล็ด',step1:'พรวนดิน ผสมปุ๋ยคอก',step2:'ดินร่วนซุย มีธาตุอาหาร รากชอนไชได้',step3:'เมล็ดงอกดี ต้นโตเร็ว',answer:'ดินร่วนซุยมีอาหาร เมล็ดจึงงอกและโตดี'},
+ {type:'plant',kind:'reason',prompt:'เพาะเมล็ดแล้วทำไมต้องกลบดินแค่บาง ๆ',step1:'หยอดเมล็ด กลบดินบาง ๆ',step2:'กลบหนาเกิน ต้นอ่อนดันขึ้นไม่ไหว',step3:'ต้นกล้างอกโผล่พ้นดินได้',answer:'กลบบาง ๆ เพื่อให้ต้นอ่อนงอกพ้นดินได้'},
+ {type:'care',kind:'reason',prompt:'ทำไมต้องรดน้ำตอนเช้าและเย็น',step1:'รดน้ำช่วงแดดอ่อน',step2:'น้ำไม่ระเหยเร็ว ใบไม่ไหม้',step3:'ผักได้รับน้ำเต็มที่',answer:'ช่วงแดดอ่อนน้ำไม่ระเหยเร็ว ใบไม่ไหม้'},
+ {type:'care',kind:'reason',prompt:'รดน้ำมากจนน้ำขังแฉะ จะเกิดอะไรขึ้น',step1:'สังเกตดินแฉะ มีน้ำขัง',step2:'รากขาดอากาศหายใจ',step3:'รากเน่า ต้นเหี่ยวตาย',answer:'น้ำขังทำให้รากขาดอากาศ รากเน่า ต้นตาย'},
+ {type:'care',kind:'reason',prompt:'ทำไมต้องถอนวัชพืชในแปลงผัก',step1:'ถอนหญ้ารอบโคนต้นสม่ำเสมอ',step2:'วัชพืชแย่งน้ำและธาตุอาหาร',step3:'ผักได้อาหารเต็มที่ โตดี',answer:'วัชพืชแย่งน้ำและอาหาร ถอนแล้วผักโตดี'},
+ {type:'tools',kind:'match',prompt:'จับคู่เครื่องมือกับงาน — เขียน ก ข ค ลงในช่อง',pairs:[['จอบ','ขุด–พรวนดินแปลงใหญ่'],['เสียม','ขุดหลุมปลูกลึก'],['บัวรดน้ำ','รดน้ำต้นกล้าเป็นฝอย']],rightOrder:[1,2,0],answer:'จอบ→พรวนดินแปลงใหญ่ · เสียม→ขุดหลุม · บัวรดน้ำ→รดน้ำฝอย'},
+ {type:'tools',kind:'match',prompt:'จับคู่เครื่องมือกับงาน — เขียน ก ข ค ลงในช่อง',pairs:[['คราด','เกลี่ยดิน เก็บเศษหญ้า'],['ส้อมพรวน','พรวนดินรอบโคนต้นเบา ๆ'],['ถุงมือ','ป้องกันมือขณะทำงาน']],rightOrder:[2,0,1],answer:'คราด→เกลี่ยดิน · ส้อมพรวน→พรวนโคนต้น · ถุงมือ→ป้องกันมือ'},
+ {type:'tools',kind:'reason',prompt:'ใช้เครื่องมือเสร็จ ทำไมต้องล้างและเช็ดให้แห้ง',step1:'ล้างดินออก เช็ดแห้ง เก็บเข้าที่',step2:'ป้องกันสนิม หาไม่เจอ',step3:'เครื่องมือใช้ได้นาน ปลอดภัย',answer:'กันสนิมและหาย ใช้ได้นานและปลอดภัย'},
+ {type:'animal',kind:'order',prompt:'เขียนเลข 1–3 เรียงลำดับการเริ่มเลี้ยงสัตว์',steps:['เตรียมโรงเรือน/กรงให้สะอาด','ให้อาหารและน้ำสะอาดเป็นเวลา','สังเกตอาการและจดบันทึกทุกวัน'],display:[1,2,0],answer:'เตรียมโรงเรือน → ให้อาหาร–น้ำ → สังเกต–จดบันทึก'},
+ {type:'animal',kind:'reason',prompt:'ทำไมไม่ควรให้อาหารปลามากเกินไป',step1:'ให้อาหารพอดี เป็นเวลา',step2:'เศษอาหารเหลือทำให้น้ำเน่าเสีย',step3:'ปลาแข็งแรง น้ำใสสะอาด',answer:'เศษอาหารเหลือทำให้น้ำเน่า ปลาป่วย'},
+ {type:'animal',kind:'reason',prompt:'พบไก่ซึม ไม่กินอาหาร ควรทำอย่างไร',step1:'แยกไก่ป่วยออกจากฝูง',step2:'ป้องกันโรคแพร่ไปตัวอื่น',step3:'แจ้งครู/ผู้ใหญ่ให้ช่วยตรวจดู',answer:'แยกตัวป่วย กันโรคแพร่ แล้วแจ้งผู้ใหญ่'}
+];
+const SKILL={plant:'ขั้นตอนปลูกผัก',care:'การดูแลรดน้ำ',tools:'เครื่องมือเกษตร',animal:'เลี้ยงสัตว์'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'agriculture-basics',
+  icon:'🌱',title:'ใบงานการปลูกพืชและเลี้ยงสัตว์',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'การปลูกพืชและเลี้ยงสัตว์เบื้องต้น',
+  sourceMediaUrl:'/games/career/agriculture-basics-media.html',indicators:['ง 1.1 ป.4/2','ง 1.1 ป.5/1','ง 1.1 ป.6/1'],
+  directions:'อ่านโจทย์ → เรียงลำดับ / จับคู่ / ลงขั้นตอน–เหตุผล–ผลที่ได้ ทีละขั้นให้ครบ',
+  topicLabels:SKILL,
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    let body='';
+    if(item.kind==='order'){
+      body='<div class="order-row">'+item.display.map((stepIndex)=>
+        '<div class="order-tile"><span>'+e(item.steps[stepIndex])+'</span><span class="num-box"><span class="work-fill">'+(stepIndex+1)+'</span></span></div>'
+      ).join('')+'</div>';
+    }else if(item.kind==='match'){
+      body='<div class="match-grid">'+item.rightOrder.map((pairIndex,row)=>
+        '<div class="match-left"><span class="match-letter">'+LETTERS[row]+'</span><span>'+e(item.pairs[row][0])+'</span></div>'
+        +'<div class="match-right"><span>'+e(item.pairs[pairIndex][1])+'</span><span class="write-box"><span class="work-fill">'+LETTERS[item.rightOrder.indexOf(pairIndex)]+'</span></span></div>'
+      ).join('')+'</div>';
+    }else{
+      body='<div class="step-block">'
+        +'<div class="step-row"><span class="step-tag">1 สิ่งที่ทำ</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+        +'<div class="step-row"><span class="step-tag">2 เหตุผล</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+        +'<div class="step-row"><span class="step-tag">3 ผลที่ได้</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+        +'</div>';
+    }
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div></div>'
+      +'<div class="q-work-block">'+body+'</div>'
+      +'<div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
+  }
+};
+</script><script src="/games/worksheet-topic.js?v=1.184.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.print();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.184.0"></script></body></html>

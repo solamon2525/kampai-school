@@ -25,10 +25,9 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Link } from 'react-router-dom';
 import {
     GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen,
-    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Layers, Star,
+    FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Copy,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,37 +58,20 @@ const ITEM_TYPE_LABEL: Record<EduHubItemType, string> = {
     text: 'ข้อความ',
 };
 
-/** Derive worksheet_key from hub item URL for deep-link to sets tab */
-function worksheetKeyFromItemUrl(url: string | null | undefined): string | null {
-    if (!url || !url.includes('-worksheet.html')) return null;
-    const base = url.split('?')[0].split('/').pop() || '';
-    const key = base.replace(/-worksheet\.html$/i, '');
-    return key || null;
-}
-
 interface Props {
     items: EduHubItem[];
     /** Query keys to invalidate after publish/delete/reorder */
     invalidateKeys: readonly (readonly unknown[])[];
     onEdit: (item: EduHubItem) => void;
+    /** After fork — open editor on the new draft */
+    onDuplicated?: (item: EduHubItem) => void;
     /** เปิด dialog รายละเอียดเกม — แสดงปุ่มเฉพาะรายการที่เป็นเกม (optional) */
     onDocs?: (item: EduHubItem) => void;
     /** จัดการคำศัพท์ Thai Vocab Hub (optional) */
     onVocabManage?: (item: EduHubItem) => void;
-    /** ดาว «ใช้ในคาบนี้» (optional) */
-    isFavorite?: (itemId: string) => boolean;
-    onToggleFavorite?: (item: EduHubItem) => void;
 }
 
-export const SortableItemsTable = ({
-    items,
-    invalidateKeys,
-    onEdit,
-    onDocs,
-    onVocabManage,
-    isFavorite,
-    onToggleFavorite,
-}: Props) => {
+export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDuplicated, onDocs, onVocabManage }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [orderedItems, setOrderedItems] = useState(items);
@@ -160,6 +142,21 @@ export const SortableItemsTable = ({
         toast({ title: 'ลบรายการสำเร็จ' });
     };
 
+    const handleDuplicate = async (item: EduHubItem) => {
+        if (!item.owner_staff_id) {
+            toast({ title: 'ทำสำเนาไม่ได้', description: 'รายการนี้ไม่มีเจ้าของครู', variant: 'destructive' });
+            return;
+        }
+        const { data, error } = await educationalHubService.duplicateItem(item.id, item.owner_staff_id);
+        if (error || !data) {
+            toast({ title: 'ทำสำเนาไม่สำเร็จ', description: error?.message, variant: 'destructive' });
+            return;
+        }
+        await invalidateAll();
+        toast({ title: 'สร้างสำเนาแล้ว (ยังไม่เผยแพร่)' });
+        onDuplicated?.(data);
+    };
+
     return (
         <Card>
             <CardContent className="p-0 relative">
@@ -183,11 +180,10 @@ export const SortableItemsTable = ({
                                         item={item}
                                         onTogglePublished={togglePublished}
                                         onEdit={onEdit}
+                                        onDuplicate={handleDuplicate}
                                         onDocs={onDocs}
                                         onVocabManage={onVocabManage}
                                         onDelete={handleDelete}
-                                        isFavorite={isFavorite?.(item.id) ?? false}
-                                        onToggleFavorite={onToggleFavorite}
                                     />
                                 ))}
                             </tbody>
@@ -205,20 +201,18 @@ const SortableRow = ({
     item,
     onTogglePublished,
     onEdit,
+    onDuplicate,
     onDocs,
     onVocabManage,
     onDelete,
-    isFavorite,
-    onToggleFavorite,
 }: {
     item: EduHubItem;
     onTogglePublished: (item: EduHubItem) => void;
     onEdit: (item: EduHubItem) => void;
+    onDuplicate: (item: EduHubItem) => void;
     onDocs?: (item: EduHubItem) => void;
     onVocabManage?: (item: EduHubItem) => void;
     onDelete: (item: EduHubItem) => void;
-    isFavorite?: boolean;
-    onToggleFavorite?: (item: EduHubItem) => void;
 }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
     const Icon = ITEM_TYPE_ICON[item.item_type];
@@ -278,34 +272,17 @@ const SortableRow = ({
             </td>
             <td className="px-3 py-2 w-24">
                 <div className="flex gap-1">
-                    {onToggleFavorite ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            title={isFavorite ? 'เอาออกจากใช้ในคาบนี้' : 'ใช้ในคาบนี้'}
-                            onClick={() => onToggleFavorite(item)}
-                            className={cn(isFavorite && 'text-amber-600')}
-                        >
-                            <Star className={cn('h-4 w-4', isFavorite && 'fill-current')} />
-                        </Button>
-                    ) : null}
                     <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
                         <Edit className="h-4 w-4" />
                     </Button>
-                    {(() => {
-                        const wsKey = worksheetKeyFromItemUrl(item.external_url);
-                        if (!wsKey) return null;
-                        return (
-                            <Button variant="ghost" size="sm" className="text-sky-700" asChild>
-                                <Link
-                                    to={`?tab=worksheet-sets&key=${encodeURIComponent(wsKey)}`}
-                                    title={`ชุดใบงาน: ${wsKey}`}
-                                >
-                                    <Layers className="h-4 w-4" />
-                                </Link>
-                            </Button>
-                        );
-                    })()}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        title="ทำสำเนา"
+                        onClick={() => onDuplicate(item)}
+                    >
+                        <Copy className="h-4 w-4" />
+                    </Button>
                     {onDocs && isGameItem(item) && (
                         <Button
                             variant="ghost"
