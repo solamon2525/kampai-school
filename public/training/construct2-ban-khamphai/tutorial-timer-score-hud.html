@@ -33,10 +33,65 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#451a03}
 </nav>
 <main class="page">
 <header class="head"><div class="tag">บทที่ 11 • ระบบเวลาและคะแนน</div><h1>ระบบเวลานับถอยหลังและคะแนนสะสม</h1><p>ตั้งเวลานับถอยหลัง 180 วินาที → แปลงเป็น นาที:วินาที → เพิ่มคะแนนสะสม → เวลาหมดเข้า Game Over</p></header>
-<section class="demo">
-  <div class="hud-item">⏱️ เวลา: 02:45</div>
-  <div class="hud-item">⭐ คะแนน: 1,250</div>
+
+<!-- Interactive Event Simulator Widget -->
+<section style="margin:20px 0;background:#fff;border:3px solid #ca8a04;border-radius:18px;padding:18px 24px;box-shadow:0 6px 0 #fef9c3">
+  <div style="font-size:20px;font-weight:900;color:#713f12">🎮 Interactive Event Simulator (ทดลองรันเวลานับถอยหลัง &amp; คะแนน):</div>
+  <div style="margin:12px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <button id="simTimerToggleBtn" onclick="simToggleTimer()" style="padding:10px 18px;border-radius:10px;background:#ca8a04;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">▶️ สั่งนับเวลาถอยหลัง (Start)</button>
+    <button onclick="simAddScore()" style="padding:10px 18px;border-radius:10px;background:#854d0e;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">🪙 เก็บเหรียญ (+100 คะแนน)</button>
+    <button onclick="simResetTimer()" style="padding:10px 18px;border-radius:10px;background:#475569;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">🔄 รีเซ็ตเวลา (180s)</button>
+  </div>
 </section>
+
+<section class="demo">
+  <div class="hud-item" id="simTimerDisplay">⏱️ เวลา: 03:00</div>
+  <div class="hud-item" id="simScoreDisplay">⭐ คะแนน: 0</div>
+</section>
+
+<script>
+let simTime = 180;
+let simScore = 0;
+let simTimerInterval = null;
+
+function simToggleTimer() {
+  if(simTimerInterval) {
+    clearInterval(simTimerInterval);
+    simTimerInterval = null;
+    document.getElementById("simTimerToggleBtn").textContent = "▶️ สั่งนับเวลาถอยหลัง (Start)";
+  } else {
+    document.getElementById("simTimerToggleBtn").textContent = "⏸️ หยุดเวลา (Pause)";
+    simTimerInterval = setInterval(() => {
+      if(simTime > 0) {
+        simTime--;
+        const m = String(Math.floor(simTime / 60)).padStart(2, '0');
+        const s = String(simTime % 60).padStart(2, '0');
+        document.getElementById("simTimerDisplay").textContent = "⏱️ เวลา: " + m + ":" + s;
+      } else {
+        clearInterval(simTimerInterval);
+        simTimerInterval = null;
+        document.getElementById("simTimerDisplay").textContent = "💀 เวลาหมด! Game Over";
+        document.getElementById("simTimerToggleBtn").textContent = "▶️ สั่งนับเวลาถอยหลัง (Start)";
+      }
+    }, 1000);
+  }
+}
+
+function simAddScore() {
+  simScore += 100;
+  document.getElementById("simScoreDisplay").textContent = "⭐ คะแนน: " + simScore.toLocaleString();
+}
+
+function simResetTimer() {
+  if(simTimerInterval) {
+    clearInterval(simTimerInterval);
+    simTimerInterval = null;
+  }
+  simTime = 180;
+  document.getElementById("simTimerDisplay").textContent = "⏱️ เวลา: 03:00";
+  document.getElementById("simTimerToggleBtn").textContent = "▶️ สั่งนับเวลาถอยหลัง (Start)";
+}
+</script>
 <div class="flow"><b>ตั้งเวลา 180 วินาที</b><i>→</i><b>ลดทุก 1 วินาที</b><i>→</i><b>แปลง format นาที:วิ</b><i>→</i><b>บวกคะแนน</b><i>→</i><b>หมดเวลา = แพ้</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>สร้างตัวแปรเวลาและคะแนน</h2><p>เพิ่ม Global Variables ใน Event Sheet</p><div class="event"><span class="cond">เวลาคงเหลือ</span> • Number • 180<br><span class="cond">คะแนนรวม</span> • Number • 0</div></article>

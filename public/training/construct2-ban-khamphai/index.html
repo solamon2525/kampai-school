@@ -1,23 +1,315 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="คู่มือ Construct 2 แบบจับมือทำ โรงเรียนบ้านคำไผ่"><title>Construct 2 บ้านคำไผ่</title>
-<style>:root{--ink:#172554;--muted:#52627a;--blue:#2563eb;--sky:#e0f2fe;--gold:#fbbf24;--line:#dbeafe}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,"Noto Sans Thai",sans-serif;color:var(--ink);background:#f0f7ff;line-height:1.65}.wrap{width:min(1120px,calc(100% - 32px));margin:auto}.hero{padding:58px 20px 72px;background:linear-gradient(135deg,#172554,#1d4ed8 64%,#38bdf8);color:#fff}.eyebrow{display:inline-flex;padding:6px 12px;border-radius:999px;background:#ffffff26;font-weight:700}.hero h1{font-size:clamp(36px,7vw,72px);line-height:1.05;margin:18px 0 12px}.hero p{font-size:clamp(17px,2vw,22px);max-width:760px;color:#dbeafe}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-block;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:800;background:var(--gold);color:#422006}.btn.alt{background:#fff;color:#1d4ed8}main{padding:34px 0 64px}.intro{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:-58px}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 45px #1e40af1a}.panel h2{margin:0 0 8px}.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.quick div{padding:14px;border-radius:14px;background:var(--sky);font-weight:700}.section-head{margin:48px 0 18px}.section-head h2{font-size:30px;margin:0}.section-head p{margin:2px 0;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 10px 28px #1e40af14}.card img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top}.content{padding:20px}.num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#1d4ed8;color:white;font-weight:900}.content h3{display:inline;margin-left:8px;font-size:21px}.content p{color:var(--muted);margin:10px 0 14px}.open{font-weight:800;color:var(--blue);text-decoration:none}.open:hover{text-decoration:underline}.check{margin-top:44px;background:linear-gradient(135deg,#fef3c7,#fff7ed);border-color:#fde68a}.check img{width:100%;border-radius:14px;border:1px solid #fde68a;margin-top:16px}.footer{padding:24px;text-align:center;color:#64748b;background:#fff;border-top:1px solid var(--line)}@media(max-width:760px){.intro,.grid{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.panel{padding:18px}}@media print{.hero{padding:24px;background:#fff;color:#172554}.actions,.footer{display:none}.intro{margin-top:0}.grid{grid-template-columns:1fr 1fr}.card{break-inside:avoid}}</style></head>
-<body><header class="hero"><div class="wrap"><span class="eyebrow">คู่มือสร้างเกมแบบจับมือทำ</span><h1>Construct 2<br>บ้านคำไผ่</h1><p>เรียนรู้ทีละระบบจากพื้นฐานไปจนถึงเกมคณิตศาสตร์และโครงสร้างเกมสมบูรณ์แบบ พร้อมภาพ Event Sheet ภาษาไทยที่เปิดดูและทำตามได้ทันที</p><div class="actions"><a class="btn" href="#lessons">เริ่มบทเรียน</a><a class="btn alt" href="interactive-game-checklist.html">เปิดเช็กลิสต์เกม</a></div></div></header>
-<main class="wrap"><section class="intro"><div class="panel"><h2>วิธีใช้คู่มือนี้</h2><p>เปิด Construct 2 ควบคู่กับคู่มือ เลือกบทตามลำดับ กด “เปิดคู่มือเต็มหน้า” แล้วสร้าง Object, Behavior และ Event ตามภาพทีละขั้น จากนั้น Preview ทดสอบทุกครั้งก่อนขึ้นบทต่อไป</p></div><div class="panel quick"><div>16 บทเรียนหลัก</div><div>ภาพ Event จริง</div><div>ภาษาไทยอ่านง่าย</div><div>เช็กลิสต์จำสถานะ</div></div></section>
-<div class="section-head" id="lessons"><h2>บทเรียนทั้งหมด (16 บท)</h2><p>แนะนำให้ทำตามลำดับ 1–16 เพื่อให้ระบบเชื่อมต่อกันเป็นเกมสมบูรณ์</p></div><section class="grid">
-<article class="card"><img src="tutorial-basic-ground-platform.png" alt="ระบบพื้นและแท่นกระโดด" loading="lazy"><div class="content"><span class="num">1</span><h3>ระบบพื้นและแท่นกระโดด</h3><p>สร้างพื้น Solid และแท่น Jump-thru ให้ผู้เล่นยืน กระโดด และทะลุจากด้านล่างได้</p><a class="open" href="tutorial-basic-ground-platform.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-player-movement-animation.png" alt="การเดิน กระโดด และแอนิเมชัน" loading="lazy"><div class="content"><span class="num">2</span><h3>การเดิน กระโดด และแอนิเมชัน</h3><p>ตั้ง Platform behavior และเปลี่ยนภาพตัวละครให้ตรงกับการเคลื่อนไหว</p><a class="open" href="tutorial-player-movement-animation.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-health-5-hearts.png" alt="ระบบพลังชีวิต 5 หัวใจ" loading="lazy"><div class="content"><span class="num">3</span><h3>ระบบพลังชีวิต 5 หัวใจ</h3><p>สร้างตัวแปรหัวใจ อัปเดต HUD และตรวจ Game Over เมื่อพลังชีวิตหมด</p><a class="open" href="tutorial-health-5-hearts.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-checkpoint-respawn.png" alt="จุดเช็กพอยต์และเกิดใหม่" loading="lazy"><div class="content"><span class="num">4</span><h3>จุดเช็กพอยต์และเกิดใหม่</h3><p>บันทึกตำแหน่งล่าสุด และพาผู้เล่นกลับมาเมื่อหล่นฉากหรือเสียชีวิต</p><a class="open" href="tutorial-checkpoint-respawn.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-damage-knockback-invincible.png" alt="โดนโจมตี กระเด็น และอมตะ" loading="lazy"><div class="content"><span class="num">5</span><h3>โดนโจมตี กระเด็น และอมตะ</h3><p>ลดหัวใจ กระเด็นถอยหลัง และป้องกันการเสียเลือดซ้ำในช่วงสั้น ๆ</p><a class="open" href="tutorial-damage-knockback-invincible.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-monster-patrol-facing.png" alt="มอนสเตอร์เดินและหันหน้า" loading="lazy"><div class="content"><span class="num">6</span><h3>มอนสเตอร์เดินและหันหน้า</h3><p>กำหนดระยะลาดตระเวน และกลับภาพให้หัวหันไปตามทิศทางเดิน</p><a class="open" href="tutorial-monster-patrol-facing.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-monster-auto-shoot.png" alt="มอนสเตอร์ยิงอัตโนมัติ" loading="lazy"><div class="content"><span class="num">7</span><h3>มอนสเตอร์ยิงอัตโนมัติ</h3><p>สร้างกระสุนจากปาก เล็งผู้เล่น และกำหนดช่วงเวลายิงให้สมเหตุสมผล</p><a class="open" href="tutorial-monster-auto-shoot.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-math-question-answers.png" alt="ระบบโจทย์คณิตและคำตอบ" loading="lazy"><div class="content"><span class="num">8</span><h3>โจทย์คณิตและคำตอบ</h3><p>สร้างโจทย์ คำตอบถูกและตัวหลอก ตรวจการชน และเปิดทางเมื่อทำครบ</p><a class="open" href="tutorial-math-question-answers.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-math-question-answers.png" alt="ระบบประตูผ่านด่านและการสลับฉาก" loading="lazy"><div class="content"><span class="num">9</span><h3>ระบบประตูผ่านด่านและการสลับฉาก</h3><p>ประตูเปลี่ยนสเตตัสเมื่อตอบครบ 5 ข้อ ล็อกปุ่ม และสลับฉากไปยัง Layout ถัดไป</p><a class="open" href="tutorial-level-gate-transition.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-player-movement-animation.png" alt="หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน" loading="lazy"><div class="content"><span class="num">10</span><h3>หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน</h3><p>สร้างหน้าแรกรับชื่อนักเรียนด้วย Textbox ตรวจห้ามว่าง และระบบเลือกด่าน 1–3</p><a class="open" href="tutorial-main-menu-level-select.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-health-5-hearts.png" alt="ระบบเวลานับถอยหลังและคะแนนสะสม" loading="lazy"><div class="content"><span class="num">11</span><h3>ระบบเวลานับถอยหลังและคะแนนสะสม</h3><p>นับเวลาถอยหลัง 180 วินาที แสดงผล format นาที:วินาที และเพิ่มคะแนนสะสม</p><a class="open" href="tutorial-timer-score-hud.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-monster-auto-shoot.png" alt="ระบบเสียงดนตรีและเอฟเฟกต์" loading="lazy"><div class="content"><span class="num">12</span><h3>ระบบเสียงดนตรีและเอฟเฟกต์</h3><p>เล่นเพลงประกอบ BGM วนลูป หยุดเพลงเดิมก่อนเปลี่ยนฉาก และเสียง FX ต่อสู้</p><a class="open" href="tutorial-bgm-sound-fx.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-checkpoint-respawn.png" alt="ระบบบันทึกข้อมูลผู้เล่นลงเครื่อง" loading="lazy"><div class="content"><span class="num">13</span><h3>ระบบบันทึกข้อมูลผู้เล่นลงเครื่อง</h3><p>จำชื่อผู้เล่น ด่านสูงสุดที่ผ่าน และคะแนนสูงสุดด้วย LocalStorage</p><a class="open" href="tutorial-local-storage-save.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-damage-knockback-invincible.png" alt="การสร้างบอสประจำด่านและท่าโจมตี" loading="lazy"><div class="content"><span class="num">14</span><h3>การสร้างบอสประจำด่านและท่าโจมตี</h3><p>ทำหลอด HP บอส และสลับแพตเทิร์นการโจมตี 3 เฟสเมื่อเลือดลดลง</p><a class="open" href="tutorial-boss-battle-phases.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-math-question-answers.png" alt="ฉากสรุปผลและเกียรติบัตรในเกม" loading="lazy"><div class="content"><span class="num">15</span><h3>ฉากสรุปผลและเกียรติบัตรในเกม</h3><p>คำนวณดาวประเมิน 1–3 ดาว แสดงแผ่นเกียรติบัตรจำลอง ชื่อนักเรียน และคะแนนรวม</p><a class="open" href="tutorial-game-clear-rating.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-<article class="card"><img src="tutorial-basic-ground-platform.png" alt="การ Export และเปิดเล่นบนเว็บ" loading="lazy"><div class="content"><span class="num">16</span><h3>การ Export และเปิดเล่นบนเว็บ</h3><p>ส่งออกโปรเจกต์เป็น HTML5 Website และนำเข้าสู่ระบบคลังสื่อ Kampai School</p><a class="open" href="tutorial-web-export-deploy.html">เปิดคู่มือเต็มหน้า →</a></div></article>
-</section>
-<section class="panel check"><h2>เช็กลิสต์สร้างเกมให้ครบระบบ</h2><p>ติ๊กงานที่ทำเสร็จได้จริง ระบบจะจำสถานะไว้ในเครื่องนี้ เหมาะสำหรับตรวจงานตั้งแต่ฉากแรกจนถึงระบบผ่านด่าน</p><a class="btn" href="interactive-game-checklist.html">เปิดเช็กลิสต์แบบโต้ตอบ</a><img src="game-production-checklist.png" alt="ภาพรวมเช็กลิสต์สร้างเกม" loading="lazy"></section></main><footer class="footer">คู่มือ Construct 2 บ้านคำไผ่ · โรงเรียนบ้านคำไผ่</footer></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="คู่มือ Construct 2 แบบจับมือทำ โรงเรียนบ้านคำไผ่">
+<title>Construct 2 บ้านคำไผ่ — คู่มือและคลังการเรียนรู้</title>
+<style>
+:root{--ink:#172554;--muted:#52627a;--blue:#2563eb;--sky:#e0f2fe;--gold:#fbbf24;--line:#dbeafe}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Tahoma,"Noto Sans Thai",sans-serif;color:var(--ink);background:#f0f7ff;line-height:1.65;overflow-y:auto}
+.wrap{width:min(1120px,calc(100% - 32px));margin:auto}
+.hero{padding:58px 20px 72px;background:linear-gradient(135deg,#172554,#1d4ed8 64%,#38bdf8);color:#fff}
+.eyebrow{display:inline-flex;padding:6px 12px;border-radius:999px;background:#ffffff26;font-weight:700}
+.hero h1{font-size:clamp(36px,7vw,72px);line-height:1.05;margin:18px 0 12px}
+.hero p{font-size:clamp(17px,2vw,22px);max-width:760px;color:#dbeafe}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn{display:inline-block;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:800;background:var(--gold);color:#422006;border:none;cursor:pointer}
+.btn.alt{background:#fff;color:#1d4ed8}
+main{padding:34px 0 64px}
+.intro{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:-58px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 45px #1e40af1a}
+.panel h2{margin:0 0 8px}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick div{padding:14px;border-radius:14px;background:var(--sky);font-weight:700}
+.search-box{margin:35px 0 20px;background:#fff;border:2px solid var(--blue);border-radius:20px;padding:20px;box-shadow:0 10px 25px #1d4ed81a}
+.search-input{width:100%;padding:14px 20px;font-size:19px;border:2px solid #93c5fd;border-radius:12px;outline:none;font-family:inherit}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #93c5fd55}
+.tag-filters{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tag-btn{padding:8px 16px;border-radius:999px;border:1px solid #bfdbfe;background:#f0f9ff;color:#1d4ed8;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+.tag-btn:hover,.tag-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.section-head{margin:28px 0 18px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}
+.section-head h2{font-size:30px;margin:0}
+.section-head p{margin:2px 0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 10px 28px #1e40af14;transition:.2s}
+.card.hidden{display:none}
+.card img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top}
+.content{padding:20px}
+.num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#1d4ed8;color:white;font-weight:900}
+.content h3{display:inline;margin-left:8px;font-size:21px}
+.content p{color:var(--muted);margin:10px 0 14px}
+.tag-badge{display:inline-block;padding:3px 10px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-size:13px;font-weight:800;margin-bottom:8px}
+.open{font-weight:800;color:var(--blue);text-decoration:none;display:inline-block;margin-top:4px}
+.open:hover{text-decoration:underline}
+.check{margin-top:44px;background:linear-gradient(135deg,#fef3c7,#fff7ed);border-color:#fde68a}
+.check img{width:100%;border-radius:14px;border:1px solid #fde68a;margin-top:16px}
+.assets-panel{margin-top:35px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px dashed #3b82f6;border-radius:20px;padding:24px}
+.assets-panel h3{margin:0 0 10px;font-size:24px;color:#1e40af}
+.footer{padding:24px;text-align:center;color:#64748b;background:#fff;border-top:1px solid var(--line);margin-top:40px}
+@media(max-width:760px){.intro,.grid{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.panel{padding:18px}}
+@media print{.hero{padding:24px;background:#fff;color:#172554}.actions,.footer,.search-box{display:none}.intro{margin-top:0}.grid{grid-template-columns:1fr 1fr}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">คู่มือสร้างเกมแบบจับมือทำ</span>
+    <h1>Construct 2<br>บ้านคำไผ่</h1>
+    <p>เรียนรู้ทีละระบบจากพื้นฐานไปจนถึงเกมคณิตศาสตร์และโครงสร้างเกมสมบูรณ์แบบ พร้อมภาพ Event Sheet ภาษาไทยที่เปิดดูและทำตามได้ทันที</p>
+    <div class="actions">
+      <a class="btn" href="#lessons">เริ่มบทเรียน</a>
+      <a class="btn alt" href="interactive-game-checklist.html">เปิดเช็กลิสต์เกม</a>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <section class="intro">
+    <div class="panel">
+      <h2>วิธีใช้คู่มือนี้</h2>
+      <p>เปิด Construct 2 ควบคู่กับคู่มือ เลือกบทตามลำดับ กด “เปิดคู่มือเต็มหน้า” แล้วสร้าง Object, Behavior และ Event ตามภาพทีละขั้น จากนั้น Preview ทดสอบทุกครั้งก่อนขึ้นบทต่อไป</p>
+    </div>
+    <div class="panel quick">
+      <div>16 บทเรียนหลัก</div>
+      <div>ภาพ Event จริง</div>
+      <div>Interactive Simulator</div>
+      <div>ค้นหาง่าย Real-time</div>
+    </div>
+  </section>
+
+  <!-- Search & Tag Filter Box -->
+  <section class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 ค้นหาบทเรียนหรือคำสั่ง เช่น กระโดด, หัวใจ, สุ่มโจทย์, บอส, LocalStorage...">
+    <div class="tag-filters">
+      <button class="tag-btn active" onclick="filterTag('all', this)">ทั้งหมด</button>
+      <button class="tag-btn" onclick="filterTag('player', this)">🏃 ระบบผู้เล่น</button>
+      <button class="tag-btn" onclick="filterTag('enemy', this)">👾 ระบบมอนสเตอร์ &amp; บอส</button>
+      <button class="tag-btn" onclick="filterTag('math', this)">🧮 โจทย์คณิตศาสตร์</button>
+      <button class="tag-btn" onclick="filterTag('structure', this)">🚪 โครงสร้างเกม &amp; เวลา</button>
+      <button class="tag-btn" onclick="filterTag('media', this)">🎵 เสียง &amp; บันทึกข้อมูล</button>
+    </div>
+  </section>
+
+  <div class="section-head" id="lessons">
+    <h2>บทเรียนทั้งหมด (<span id="countDisplay">16</span> บท)</h2>
+    <p>แนะนำให้ทำตามลำดับ 1–16 เพื่อให้ระบบเชื่อมต่อกันเป็นเกมสมบูรณ์</p>
+  </div>
+
+  <section class="grid" id="lessonGrid">
+    <article class="card" data-tags="player structure" data-title="ระบบพื้นและแท่นกระโดด Solid Jump-thru">
+      <img src="tutorial-basic-ground-platform.png" alt="ระบบพื้นและแท่นกระโดด" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบผู้เล่น</span><br>
+        <span class="num">1</span><h3>ระบบพื้นและแท่นกระโดด</h3>
+        <p>สร้างพื้น Solid และแท่น Jump-thru ให้ผู้เล่นยืน กระโดด และทะลุจากด้านล่างได้</p>
+        <a class="open" href="tutorial-basic-ground-platform.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="player" data-title="การเดิน กระโดด และแอนิเมชัน Platform Double Jump Mirrored">
+      <img src="tutorial-player-movement-animation.png" alt="การเดิน กระโดด และแอนิเมชัน" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบผู้เล่น</span><br>
+        <span class="num">2</span><h3>การเดิน กระโดด และแอนิเมชัน</h3>
+        <p>ตั้ง Platform behavior และเปลี่ยนภาพตัวละครให้ตรงกับการเคลื่อนไหว</p>
+        <a class="open" href="tutorial-player-movement-animation.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="player structure" data-title="ระบบพลังชีวิต 5 หัวใจ HUD Game Over">
+      <img src="tutorial-health-5-hearts.png" alt="ระบบพลังชีวิต 5 หัวใจ" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบผู้เล่น</span><br>
+        <span class="num">3</span><h3>ระบบพลังชีวิต 5 หัวใจ</h3>
+        <p>สร้างตัวแปรหัวใจ อัปเดต HUD และตรวจ Game Over เมื่อพลังชีวิตหมด</p>
+        <a class="open" href="tutorial-health-5-hearts.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="player structure" data-title="จุดเช็กพอยต์และเกิดใหม่ Checkpoint Respawn">
+      <img src="tutorial-checkpoint-respawn.png" alt="จุดเช็กพอยต์และเกิดใหม่" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">4</span><h3>จุดเช็กพอยต์และเกิดใหม่</h3>
+        <p>บันทึกตำแหน่งล่าสุด และพาผู้เล่นกลับมาเมื่อหล่นฉากหรือเสียชีวิต</p>
+        <a class="open" href="tutorial-checkpoint-respawn.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="player enemy" data-title="โดนโจมตี กระเด็น และอมตะ Knockback Invincible Flash">
+      <img src="tutorial-damage-knockback-invincible.png" alt="โดนโจมตี กระเด็น และอมตะ" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบศัตรู</span><br>
+        <span class="num">5</span><h3>โดนโจมตี กระเด็น และอมตะ</h3>
+        <p>ลดหัวใจ กระเด็นถอยหลัง และป้องกันการเสียเลือดซ้ำในช่วงสั้น ๆ</p>
+        <a class="open" href="tutorial-damage-knockback-invincible.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="enemy" data-title="มอนสเตอร์เดินและหันหน้า Patrol Facing Mirrored">
+      <img src="tutorial-monster-patrol-facing.png" alt="มอนสเตอร์เดินและหันหน้า" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบมอนสเตอร์</span><br>
+        <span class="num">6</span><h3>มอนสเตอร์เดินและหันหน้า</h3>
+        <p>กำหนดระยะลาดตระเวน และกลับภาพให้หัวหันไปตามทิศทางเดิน</p>
+        <a class="open" href="tutorial-monster-patrol-facing.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="enemy" data-title="มอนสเตอร์ยิงอัตโนมัติ Bullet Shoot Angle">
+      <img src="tutorial-monster-auto-shoot.png" alt="มอนสเตอร์ยิงอัตโนมัติ" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบมอนสเตอร์</span><br>
+        <span class="num">7</span><h3>มอนสเตอร์ยิงอัตโนมัติ</h3>
+        <p>สร้างกระสุนจากปาก เล็งผู้เล่น และกำหนดช่วงเวลายิงให้สมเหตุสมผล</p>
+        <a class="open" href="tutorial-monster-auto-shoot.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="math" data-title="โจทย์คณิตและคำตอบ Math Question Answer Star">
+      <img src="tutorial-math-question-answers.png" alt="ระบบโจทย์คณิตและคำตอบ" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">โจทย์คณิตศาสตร์</span><br>
+        <span class="num">8</span><h3>โจทย์คณิตและคำตอบ</h3>
+        <p>สร้างโจทย์ คำตอบถูกและตัวหลอก ตรวจการชน และเปิดทางเมื่อทำครบ</p>
+        <a class="open" href="tutorial-math-question-answers.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="structure" data-title="ระบบประตูผ่านด่านและการสลับฉาก Door Gate Layout Level Transition">
+      <img src="tutorial-math-question-answers.png" alt="ระบบประตูผ่านด่านและการสลับฉาก" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">9</span><h3>ระบบประตูผ่านด่านและการสลับฉาก</h3>
+        <p>ประตูเปลี่ยนสเตตัสเมื่อตอบครบ 5 ข้อ ล็อกปุ่ม และสลับฉากไปยัง Layout ถัดไป</p>
+        <a class="open" href="tutorial-level-gate-transition.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="structure" data-title="หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน Main Menu Textbox Level Select Lock">
+      <img src="tutorial-player-movement-animation.png" alt="หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">10</span><h3>หน้าเมนูหลัก รับชื่อผู้เล่น และเลือกด่าน</h3>
+        <p>สร้างหน้าแรกรับชื่อนักเรียนด้วย Textbox ตรวจห้ามว่าง และระบบเลือกด่าน 1–3</p>
+        <a class="open" href="tutorial-main-menu-level-select.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="structure" data-title="ระบบเวลานับถอยหลังและคะแนนสะสม Timer Countdown Score HUD">
+      <img src="tutorial-health-5-hearts.png" alt="ระบบเวลานับถอยหลังและคะแนนสะสม" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">11</span><h3>ระบบเวลานับถอยหลังและคะแนนสะสม</h3>
+        <p>นับเวลาถอยหลัง 180 วินาที แสดงผล format นาที:วินาที และเพิ่มคะแนนสะสม</p>
+        <a class="open" href="tutorial-timer-score-hud.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="media" data-title="ระบบเสียงดนตรีและเอฟเฟกต์ Audio BGM Sound FX Volume Mute">
+      <img src="tutorial-monster-auto-shoot.png" alt="ระบบเสียงดนตรีและเอฟเฟกต์" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">เสียง &amp; บันทึก</span><br>
+        <span class="num">12</span><h3>ระบบเสียงดนตรีและเอฟเฟกต์</h3>
+        <p>เล่นเพลงประกอบ BGM วนลูป หยุดเพลงเดิมก่อนเปลี่ยนฉาก และเสียง FX ต่อสู้</p>
+        <a class="open" href="tutorial-bgm-sound-fx.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="media" data-title="ระบบบันทึกข้อมูลผู้เล่นลงเครื่อง LocalStorage Save High Score">
+      <img src="tutorial-checkpoint-respawn.png" alt="ระบบบันทึกข้อมูลผู้เล่นลงเครื่อง" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">เสียง &amp; บันทึก</span><br>
+        <span class="num">13</span><h3>ระบบบันทึกข้อมูลผู้เล่นลงเครื่อง</h3>
+        <p>จำชื่อผู้เล่น ด่านสูงสุดที่ผ่าน และคะแนนสูงสุดด้วย LocalStorage</p>
+        <a class="open" href="tutorial-local-storage-save.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="enemy" data-title="การสร้างบอสประจำด่านและท่าโจมตี Boss Battle HP Bar Phases Rage">
+      <img src="tutorial-damage-knockback-invincible.png" alt="การสร้างบอสประจำด่านและท่าโจมตี" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบมอนสเตอร์ &amp; บอส</span><br>
+        <span class="num">14</span><h3>การสร้างบอสประจำด่านและท่าโจมตี</h3>
+        <p>ทำหลอด HP บอส และสลับแพตเทิร์นการโจมตี 3 เฟสเมื่อเลือดลดลง</p>
+        <a class="open" href="tutorial-boss-battle-phases.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="structure math" data-title="ฉากสรุปผลและเกียรติบัตรในเกม Victory Certificate Rating Star">
+      <img src="tutorial-math-question-answers.png" alt="ฉากสรุปผลและเกียรติบัตรในเกม" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">15</span><h3>ฉากสรุปผลและเกียรติบัตรในเกม</h3>
+        <p>คำนวณดาวประเมิน 1–3 ดาว แสดงแผ่นเกียรติบัตรจำลอง ชื่อนักเรียน และคะแนนรวม</p>
+        <a class="open" href="tutorial-game-clear-rating.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+
+    <article class="card" data-tags="structure" data-title="การ Export และเปิดเล่นบนเว็บ HTML5 Export Kampai Hub Build">
+      <img src="tutorial-basic-ground-platform.png" alt="การ Export และเปิดเล่นบนเว็บ" loading="lazy">
+      <div class="content">
+        <span class="tag-badge">ระบบโครงสร้างเกม</span><br>
+        <span class="num">16</span><h3>การ Export และเปิดเล่นบนเว็บ</h3>
+        <p>ส่งออกโปรเจกต์เป็น HTML5 Website และนำเข้าสู่ระบบคลังสื่อ Kampai School</p>
+        <a class="open" href="tutorial-web-export-deploy.html">เปิดคู่มือเต็มหน้า →</a>
+      </div>
+    </article>
+  </section>
+
+  <!-- Downloadable Starter Assets & Templates Panel -->
+  <section class="assets-panel">
+    <h3>📦 คลังดาวน์โหลดทรัพยากรตัวอย่างและแม่แบบ (Starter Assets &amp; Templates)</h3>
+    <p>รวบรวมไฟล์รูปภาพ Sprite ตัวละคร มอนสเตอร์ หลอดเลือด และไฟล์เสียงสำหรับนำไปใช้ฝึกสร้างเกมใน Construct 2</p>
+    <a href="assets-starter-pack.json" target="_blank" class="btn" style="background:#1d4ed8;color:#fff">📥 เปิดคลังไฟล์แม่แบบ (.json)</a>
+  </section>
+
+  <section class="panel check">
+    <h2>เช็กลิสต์สร้างเกมให้ครบระบบ</h2>
+    <p>ติ๊กงานที่ทำเสร็จได้จริง ระบบจะจำสถานะไว้ในเครื่องนี้ เหมาะสำหรับตรวจงานตั้งแต่ฉากแรกจนถึงระบบผ่านด่าน</p>
+    <a class="btn" href="interactive-game-checklist.html">เปิดเช็กลิสต์แบบโต้ตอบ</a>
+    <img src="game-production-checklist.png" alt="ภาพรวมเช็กลิสต์สร้างเกม" loading="lazy">
+  </section>
+</main>
+<footer class="footer">คู่มือ Construct 2 บ้านคำไผ่ · โรงเรียนบ้านคำไผ่</footer>
+
+<script>
+let currentCategory = 'all';
+
+function filterTag(cat, btnEl) {
+  currentCategory = cat;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  applyFilters();
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+function applyFilters() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.card');
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const tags = card.getAttribute('data-tags') || '';
+    const title = card.getAttribute('data-title') || '';
+    const textContent = card.innerText.toLowerCase();
+
+    const matchesCat = (currentCategory === 'all') || tags.includes(currentCategory);
+    const matchesQuery = (query === '') || textContent.includes(query) || title.toLowerCase().includes(query);
+
+    if (matchesCat && matchesQuery) {
+      card.classList.remove('hidden');
+      visibleCount++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('countDisplay').textContent = visibleCount;
+}
+</script>
+</body>
+</html>

@@ -47,11 +47,66 @@ h2{display:inline;font-size:28px;color:#233867}p{font-size:21px;line-height:1.42
 <main class="page">
   <header class="top">
     <div class="eyebrow">CONSTRUCT 2 • จับมือทำทีละขั้น</div>
-    <h1>สร้างระบบพลังชีวิต 5 หัวใจ</h1>
-    <p>โดนศัตรูแล้วลดทีละ 1 • ไม่ลดรัว • หมดหัวใจแล้ว Game Over</p>
+    <h1>ระบบพลังชีวิต 5 หัวใจ และการควบคุม HUD</h1>
+    <p>สร้างตัวแปร Global • ตรวจการชนศัตรู • ลดหัวใจ • แสดงภาพ HUD • ป้องกันเลือดหมด</p>
+    <div class="hearts" id="simHearts">❤️ ❤️ ❤️ ❤️ ❤️</div>
   </header>
-  <div class="hearts">♥ ♥ ♥ ♥ ♥</div>
 
+  <!-- Interactive Event Simulator Widget -->
+  <section style="margin:20px 0;background:#fff;border:3px solid #2878bd;border-radius:18px;padding:18px 24px;box-shadow:0 6px 0 #b5d8ed">
+    <div style="font-size:20px;font-weight:900;color:#273b70">🎮 Interactive Event Simulator (ทดลองกด Event Sheet สด):</div>
+    <p style="margin:6px 0 14px;font-size:17px;color:#52627a">ทดลองกดปุ่มด้านล่างเพื่อดูผลลัพธ์ของ Event Sheet ลด/เพิ่มหัวใจ และสถานะอมตะกระพริบ</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <button onclick="simTakeDamage()" style="padding:10px 18px;border-radius:10px;background:#e6294f;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">💥 ลองกดชนมอนสเตอร์ (-1 ❤️)</button>
+      <button onclick="simHeal()" style="padding:10px 18px;border-radius:10px;background:#247653;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">💚 ลองกดเก็บหัวใจ (+1 ❤️)</button>
+      <span id="simStatus" style="font-weight:bold;font-size:17px;color:#273b70">สถานะ: ปกติ</span>
+    </div>
+  </section>
+
+  <script>
+  let simHp = 5;
+  let simInvincible = false;
+
+  function updateSimHearts() {
+    let text = "";
+    for(let i=1; i<=5; i++) {
+      text += i <= simHp ? "❤️ " : "🖤 ";
+    }
+    const el = document.getElementById("simHearts");
+    if(el) el.textContent = text.trim();
+  }
+
+  function simTakeDamage() {
+    if(simInvincible) {
+      document.getElementById("simStatus").textContent = "สถานะ: อมตะอยู่! โดนชนฟรีไม่เสียหัวใจ";
+      return;
+    }
+    if(simHp > 0) {
+      simHp--;
+      updateSimHearts();
+      if(simHp === 0) {
+        document.getElementById("simStatus").textContent = "💀 GAME OVER! หัวใจหมดแล้ว";
+      } else {
+        simInvincible = true;
+        document.getElementById("simStatus").textContent = "🛡️ โดนความเสียหาย! อมตะกระพริบ 1.5 วินาที...";
+        document.getElementById("simHearts").style.opacity = "0.3";
+        setTimeout(() => {
+          simInvincible = false;
+          document.getElementById("simHearts").style.opacity = "1";
+          document.getElementById("simStatus").textContent = "สถานะ: ปกติ (รับความเสียหายได้)";
+        }, 1500);
+      }
+    }
+  }
+
+  function simHeal() {
+    if(simHp < 5) {
+      simHp++;
+      updateSimHearts();
+      document.getElementById("simStatus").textContent = "💚 ฟื้นฟูหัวใจ +1!";
+    }
+  }
+  </script>
   <section class="flow">
     <div class="pill">เริ่มเกม 5</div><div class="arrow">→</div>
     <div class="pill">โดนโจมตี −1</div><div class="arrow">→</div>

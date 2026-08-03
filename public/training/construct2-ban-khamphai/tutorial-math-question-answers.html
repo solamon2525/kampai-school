@@ -26,7 +26,53 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#18243a}
 </nav>
 <main class="page">
 <header class="head"><div class="tag">บทที่ 8 • ระบบการเรียนรู้</div><h1>สร้างโจทย์คณิตและตัวเลือกคำตอบ</h1><p>โจทย์คูณ 5 ข้อ • คำตอบ 3 ค่าไม่ซ้ำ • ไม่มี 0 • มีคำตอบถูกเพียงหนึ่งตัว</p></header>
-<section class="demo"><div class="ground"></div><div class="question">7 × 8 = ?</div><div class="star s1">⭐</div><div class="star s2">⭐</div><div class="star s3">⭐</div><div class="ans a1">54</div><div class="ans a2">56</div><div class="ans a3">63</div></section>
+
+<!-- Interactive Event Simulator Widget -->
+<section style="margin:20px 0;background:#fff;border:3px solid #318b9b;border-radius:18px;padding:18px 24px;box-shadow:0 6px 0 #cde5e9">
+  <div style="font-size:20px;font-weight:900;color:#24677a">🎮 Interactive Event Simulator (สุ่มโจทย์และลองคลิกตอบ):</div>
+  <div style="margin:12px 0;display:flex;gap:12px;align-items:center">
+    <button onclick="simGenMath()" style="padding:10px 18px;border-radius:10px;background:#267384;color:#fff;font-weight:bold;border:none;cursor:pointer;font-size:16px">🎲 สุ่มโจทย์คณิตศาสตร์ใหม่</button>
+    <span id="simMathResult" style="font-weight:bold;font-size:17px;color:#24677a">เลือกคำตอบบนดาวด้านล่าง!</span>
+  </div>
+</section>
+
+<section class="demo"><div class="ground"></div><div class="question" id="simQuestionText">7 × 8 = ?</div><div class="star s1" style="cursor:pointer" onclick="simCheckAns(0)">⭐</div><div class="star s2" style="cursor:pointer" onclick="simCheckAns(1)">⭐</div><div class="star s3" style="cursor:pointer" onclick="simCheckAns(2)">⭐</div><div class="ans a1" id="simAns0">54</div><div class="ans a2" id="simAns1">56</div><div class="ans a3" id="simAns2">63</div></section>
+
+<script>
+let simA = 7, simB = 8, simCorrect = 56;
+let simChoices = [54, 56, 63];
+
+function simGenMath() {
+  simA = Math.floor(Math.random() * 11) + 2;
+  simB = Math.floor(Math.random() * 11) + 2;
+  simCorrect = simA * simB;
+  
+  let d1 = Math.max(1, simCorrect - (Math.floor(Math.random() * 5) + 1));
+  let d2 = simCorrect + (Math.floor(Math.random() * 5) + 1);
+  if(d1 === simCorrect) d1 += 2;
+  if(d2 === simCorrect || d2 === d1) d2 += 3;
+  
+  let pos = Math.floor(Math.random() * 3);
+  simChoices = [];
+  if(pos === 0) simChoices = [simCorrect, d1, d2];
+  else if(pos === 1) simChoices = [d1, simCorrect, d2];
+  else simChoices = [d1, d2, simCorrect];
+
+  document.getElementById("simQuestionText").textContent = simA + " × " + simB + " = ?";
+  document.getElementById("simAns0").textContent = simChoices[0];
+  document.getElementById("simAns1").textContent = simChoices[1];
+  document.getElementById("simAns2").textContent = simChoices[2];
+  document.getElementById("simMathResult").textContent = "เลือกคำตอบบนดาว!";
+}
+
+function simCheckAns(idx) {
+  if(simChoices[idx] === simCorrect) {
+    document.getElementById("simMathResult").textContent = "🎉 ถถูกต้อง! " + simA + " × " + simB + " = " + simCorrect;
+  } else {
+    document.getElementById("simMathResult").textContent = "❌ ผิด! ตัวเลือก " + simChoices[idx] + " ไม่ใช่คำตอบที่ถูกต้อง";
+  }
+}
+</script>
 <div class="flow"><b>สุ่มโจทย์</b><i>→</i><b>คำนวณคำตอบ</b><i>→</i><b>สร้างตัวลวง</b><i>→</i><b>สลับตำแหน่ง</b><i>→</i><b>ให้ผู้เล่นเลือก</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>สร้างตัวแปรโจทย์</h2><p>เพิ่ม Global variables ใน Event Sheet</p><div class="event"><span class="cond">ตัวตั้ง</span> • Number • 0<br><span class="cond">ตัวคูณ</span> • Number • 0<br><span class="cond">คำตอบถูก</span> • Number • 0<br><span class="cond">ข้อปัจจุบัน</span> • Number • 1<br><span class="cond">จำนวนข้อทั้งหมด</span> • Number • 5</div></article>

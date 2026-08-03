@@ -1,0 +1,23 @@
+{
+  "title": "Construct 2 Ban Khamphai - Starter Asset & Template Pack",
+  "version": "1.0.0",
+  "description": "ชุดทรัพยากรภาพ Sprite เสียงเอฟเฟกต์ และเทมเพลตสำหรับฝึกสร้างเกมตามคู่มือโรงเรียนบ้านคำไผ่",
+  "categories": [
+    {
+      "name": "Sprite การ์ตูนผู้เล่นและมอนสเตอร์",
+      "items": [
+        { "name": "Player Spritesheet (Idle/Run/Jump)", "type": "png", "url": "/games/math/word-problem-hub/cover.png" },
+        { "name": "Monster Patrol & Bullet Assets", "type": "png", "url": "/games/science/digestive/cover.png" },
+        { "name": "Boss Enemy Multi-phase Asset", "type": "png", "url": "/games/social/thailand-map/cover.png" }
+      ]
+    },
+    {
+      "name": "วัตถุฉากและอินเทอร์เฟซ (HUD)",
+      "items": [
+        { "name": "Solid Ground & Island Tiles", "type": "png", "url": "/training/construct2-ban-khamphai/cover.svg" },
+        { "name": "Heart HUD & Question Star Icons", "type": "svg", "url": "/training/construct2-ban-khamphai/cover.svg" },
+        { "name": "Level Gate (Closed / Open Door)", "type": "svg", "url": "/training/construct2-ban-khamphai/cover.svg" }
+      ]
+    }
+  ]
+}
