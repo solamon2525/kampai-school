@@ -272,6 +272,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.213.0 (คู่มือ Construct 2 บ้านคำไผ่)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มคู่มือ Construct 2 แบบจับมือทำ 8 บท พร้อมภาพ Event Sheet ภาษาไทย',
+            'เพิ่มเช็กลิสต์สร้างเกมแบบโต้ตอบและหน้า Training ใหม่ของครูณัฐพงศ์ โดยไม่ทับรายการเดิม',
+        ],
+    },
+    {
         version: 'v1.212.5 (ใบงานทั้งคลัง — บันทึกชุด + เฉลยทีละข้อ)',
         date: 'ล่าสุด',
         badge: 'bg-indigo-600',
