@@ -1,0 +1,42 @@
+/* คู่มือ2 — โหมดหน้าจอเลื่อนได้ + พิมพ์ A4 */
+:root{--bar-h:52px}
+html{scroll-behavior:smooth}
+body.guide-screen{
+  margin:0;min-height:100%;overflow:auto !important;
+  width:auto !important;height:auto !important;background:#d9e8f2;
+}
+body.guide-screen .page{
+  margin:calc(var(--bar-h) + 16px) auto 40px;box-shadow:0 12px 40px #0002;
+}
+.guide-bar{
+  position:fixed;top:0;left:0;right:0;z-index:9999;height:var(--bar-h);
+  display:flex;align-items:center;gap:10px;padding:0 14px;background:#173a5c;color:#fff;
+  font-family:"Leelawadee UI","Tahoma",sans-serif;font-size:15px;box-shadow:0 4px 14px #0003;
+}
+.guide-bar a,.guide-bar button{
+  appearance:none;border:0;cursor:pointer;text-decoration:none;background:#2b6ea3;color:#fff;
+  font-weight:800;font-size:14px;border-radius:10px;padding:8px 14px;font-family:inherit;
+}
+.guide-bar a:hover,.guide-bar button:hover{background:#3d86c2}
+.guide-bar .print{background:#1f8a5b}
+.guide-bar .print:hover{background:#26a46c}
+.guide-bar .spacer{flex:1}
+.guide-bar .hint{opacity:.85;font-size:13px}
+
+/* ป้ายตำแหน่งใน Construct 2 */
+.card .where::before{content:"ที่ไหนใน C2 · ";}
+
+@media print{
+  .guide-bar{display:none !important}
+  html,body{
+    width:1240px !important;height:auto !important;overflow:visible !important;
+    margin:0 !important;padding:0 !important;background:#fff !important;
+    -webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;
+  }
+  body.guide-screen .page{
+    margin:0 !important;box-shadow:none !important;width:1240px !important;
+    height:1754px !important;page-break-after:always !important;
+    page-break-inside:avoid !important;overflow:hidden !important;
+  }
+  @page{size:A4 portrait;margin:0}
+}

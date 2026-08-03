@@ -1,0 +1,57 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ2 บท 10 — สร้างโจทย์ × ÷</title><link rel="stylesheet" href="common.css"><style>
+*{box-sizing:border-box}html,body{margin:0;width:1240px;min-height:1754px;height:auto;overflow:auto}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b;background:#d9e8f2}
+.page{width:1240px;min-height:1754px;padding:36px 44px 28px;background:linear-gradient(#e8f4ff 0 18%,#f8faf4 18% 100%)}
+.head{background:linear-gradient(130deg,#174b7b,#277eb1);color:#fff;border-radius:16px;padding:14px 22px;box-shadow:0 5px 0 #103553;margin-bottom:10px}
+.tag{font-size:13px;font-weight:800;color:#9ee7ff}.head h1{font-size:28px;margin:2px 0 4px;line-height:1.15}.head p{font-size:15px;margin:0;color:#e4f3ff}
+.goal{background:#fff;border:2px solid #a8cde1;border-left:8px solid #1f8a5b;border-radius:10px;padding:8px 14px;font-size:15px;margin:0 0 10px;line-height:1.4}.goal b{color:#1f8a5b}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:0 0 10px}.flow b{background:#fff;border:2px solid #6ba5c5;border-radius:9px;padding:5px 10px;font-size:13px}.flow i{font-style:normal;color:#e45354;font-weight:900}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border:2px solid #a8cde1;border-radius:12px;padding:10px 12px;box-shadow:0 3px 0 #c5dfeb}.wide{grid-column:1/3}
+.n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ffd04a;color:#20365a;font-size:14px;font-weight:900;margin-right:6px}
+h2{display:inline;font-size:17px;color:#1f4c78;margin:0}
+.where{display:inline-block;margin:4px 0 6px;background:#eef4fb;color:#174b7b;font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px}
+p{font-size:13.5px;line-height:1.35;margin:4px 0}
+.box{background:#eef6fb;border-left:6px solid #277db2;border-radius:7px;padding:7px 10px;font-size:13px;line-height:1.42;font-weight:700;margin:6px 0}
+.blue{color:#176aa0}.red{color:#c53e4c}.small{font-size:12px;color:#566578;font-weight:600}
+.warn{border-color:#efbd55;background:#fffaf0}.warn .box{border-color:#e05257;background:#fff5f5}
+.tip{border-color:#8bc4a0;background:#f0faf4}.ol{margin:4px 0 4px 18px;padding:0;font-size:13px;line-height:1.4}.ol li{margin:2px 0}
+.test{margin-top:10px;background:#236c5e;color:#fff;border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.4}.test b{font-size:15px}
+.footer{margin-top:10px;display:flex;justify-content:space-between;color:#425268;font-size:12px;border-top:2px solid #c5dfeb;padding-top:8px}.footer a{color:#174b7b;font-weight:800}
+.scene{height:90px;margin:0 0 8px;border:3px solid #4384a7;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(#83dcff 0 68%,#82c657 68%)}
+</style></head><body>
+<main class="page"><header class="head core"><div class="tag">บทที่ 10 · เฟส D ★ · หัวใจเกม · ทำตามทีละขั้น</div><h1>สร้างโจทย์ × ÷</h1><p>ตัวตั้ง · คำตอบถูก · 5 ข้อ · ธงสร้างข้อใหม่</p></header>
+<div class="goal"><b>เป้าหมายบทนี้:</b> สุ่มโจทย์คูณ/หารประถม คำนวณคำตอบถูกจากตัวเลขจริง และแสดงบน HUD</div>
+<div class="flow"><b>ตัวแปร</b><i>→</i><b>เริ่มข้อ 1</b><i>→</i><b>สุ่มโจทย์</b><i>→</i><b>คำนวณคำตอบ</b><i>→</i><b>HUD</b></div>
+<section class="grid"><article class="card"><span class="n">1</span><h2>สร้างตัวแปรโจทย์ทั้งหมด</h2>
+<div class="where">game sheet → Add global variable</div>
+<div class="box"><span class="blue">ตัวตั้ง</span> · <span class="blue">ตัวคูณหรือตัวหาร</span> · <span class="blue">คำตอบถูก</span><br>
+<span class="blue">ข้อปัจจุบัน</span>=1 · <span class="blue">จำนวนข้อทั้งหมด</span>=5<br>
+<span class="blue">คำตอบลวง1</span> · <span class="blue">คำตอบลวง2</span><br>
+<span class="blue">สร้างข้อใหม่</span> · <span class="blue">เตรียมคำตอบ</span> · <span class="blue">ล็อกคำตอบ</span><br>
+<span class="blue">ข้อความโจทย์</span> (Text)</div>
+<p class="small">กลุ่มในเกม: “1 สร้างโจทย์คณิต”</p></article>
+<article class="card"><span class="n">2</span><h2>On start ของด่าน</h2>
+<div class="box"><span class="blue">System → On start of layout</span><br>
+<span class="red">ข้อปัจจุบัน = 1</span><br>
+<span class="red">สร้างข้อใหม่ = 1</span><br>
+<span class="red">เตรียมคำตอบ = 0</span><br>
+<span class="red">ล็อกคำตอบ = 1</span> (ล็อกไว้ก่อนสร้างเสร็จ)</div>
+<div class="box">ทุกด่าน: จำนวนข้อทั้งหมด = <span class="red">5</span><br>
+game2 อาจตั้งเวลาทับเป็น 180 · game3 เป็น 160</div></article>
+<article class="card wide tip"><span class="n">3</span><h2>กฎสร้างโจทย์ (สำคัญ)</h2>
+<ol class="ol"><li>สุ่มตัวเลขช่วงประถมสำหรับตัวตั้ง / ตัวคูณหรือตัวหาร</li>
+<li>เลือกเครื่องหมาย × หรือ ÷</li>
+<li><b>คำนวณ</b> <span class="red">คำตอบถูก</span> จากโจทย์ — ห้ามสุ่มคำตอบถูกแยก</li>
+<li>สร้างคำตอบลวง 2 ค่าที่ไม่ซ้ำและไม่เป็น 0</li></ol>
+<div class="box">อัปเดต HUD: <span class="red">stage_goal / ข้อความโจทย์</span><br>
+เช่น "ข้อ 1/5 : 7 × 8 = ?"</div></article>
+<article class="card wide warn"><span class="n">4</span><h2>State machine ธง</h2>
+<div class="box"><span class="red">สร้างข้อใหม่=1</span> → เริ่มสุ่มโจทย์<br>
+เสร็จแล้ว → <span class="red">เตรียมคำตอบ=1</span> (ไปบท 11 วาง 10 ช่อง)<br>
+พร้อมเล่น → <span class="red">ล็อกคำตอบ=0</span> ให้ชน orb ได้</div>
+<p class="small">อย่าปลดล็อกก่อนวางคำตอบครบ — จะชนค่าเก่าผิดพลาด</p></article></section>
+<aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> เริ่มข้อ 1 · HUD โชว์โจทย์ · คำตอบถูกตรงกับสูตร · มีทั้ง × และ ÷ · ล็อกก่อนพร้อม</aside>
+<footer class="footer"><span><a href="index.html">← สารบัญ</a> · master_v32 · ทำตามทีละขั้น</span><span>ถัดไป: เกาะคำตอบ 10 ช่อง →</span></footer>
+</main><script src="common.js"></script></body></html>

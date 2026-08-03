@@ -1,0 +1,52 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ2 บท 05 — ตกฉาก / โดนดาเมจ / Flash</title><link rel="stylesheet" href="common.css"><style>
+*{box-sizing:border-box}html,body{margin:0;width:1240px;min-height:1754px;height:auto;overflow:auto}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b;background:#d9e8f2}
+.page{width:1240px;min-height:1754px;padding:36px 44px 28px;background:linear-gradient(#e8f4ff 0 18%,#f8faf4 18% 100%)}
+.head{background:linear-gradient(130deg,#174b7b,#277eb1);color:#fff;border-radius:16px;padding:14px 22px;box-shadow:0 5px 0 #103553;margin-bottom:10px}
+.tag{font-size:13px;font-weight:800;color:#9ee7ff}.head h1{font-size:28px;margin:2px 0 4px;line-height:1.15}.head p{font-size:15px;margin:0;color:#e4f3ff}
+.goal{background:#fff;border:2px solid #a8cde1;border-left:8px solid #1f8a5b;border-radius:10px;padding:8px 14px;font-size:15px;margin:0 0 10px;line-height:1.4}.goal b{color:#1f8a5b}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:0 0 10px}.flow b{background:#fff;border:2px solid #6ba5c5;border-radius:9px;padding:5px 10px;font-size:13px}.flow i{font-style:normal;color:#e45354;font-weight:900}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border:2px solid #a8cde1;border-radius:12px;padding:10px 12px;box-shadow:0 3px 0 #c5dfeb}.wide{grid-column:1/3}
+.n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ffd04a;color:#20365a;font-size:14px;font-weight:900;margin-right:6px}
+h2{display:inline;font-size:17px;color:#1f4c78;margin:0}
+.where{display:inline-block;margin:4px 0 6px;background:#eef4fb;color:#174b7b;font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px}
+p{font-size:13.5px;line-height:1.35;margin:4px 0}
+.box{background:#eef6fb;border-left:6px solid #277db2;border-radius:7px;padding:7px 10px;font-size:13px;line-height:1.42;font-weight:700;margin:6px 0}
+.blue{color:#176aa0}.red{color:#c53e4c}.small{font-size:12px;color:#566578;font-weight:600}
+.warn{border-color:#efbd55;background:#fffaf0}.warn .box{border-color:#e05257;background:#fff5f5}
+.tip{border-color:#8bc4a0;background:#f0faf4}.ol{margin:4px 0 4px 18px;padding:0;font-size:13px;line-height:1.4}.ol li{margin:2px 0}
+.test{margin-top:10px;background:#236c5e;color:#fff;border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.4}.test b{font-size:15px}
+.footer{margin-top:10px;display:flex;justify-content:space-between;color:#425268;font-size:12px;border-top:2px solid #c5dfeb;padding-top:8px}.footer a{color:#174b7b;font-weight:800}
+.scene{height:90px;margin:0 0 8px;border:3px solid #4384a7;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(#83dcff 0 68%,#82c657 68%)}
+</style></head><body>
+<main class="page"><header class="head"><div class="tag">บทที่ 5 · เฟส B · ความปลอดภัย · ทำตามทีละขั้น</div><h1>ตกฉาก / โดนดาเมจ / Flash</h1><p>Is outside layout · ชน eminy · Flash อมตะ 3 วินาที</p></header>
+<div class="goal"><b>เป้าหมายบทนี้:</b> เมื่อตกฉากหรือโดนศัตรู ให้เสียหัวใจครั้งเดียว แล้วอมตะกระพริบ ไม่โดนซ้ำรัว</div>
+<div class="flow"><b>เงื่อนไขชน/ตก</b><i>→</i><b>ลดชีวิต</b><i>→</i><b>Flash</b><i>→</i><b>กันซ้ำ</b></div>
+<section class="grid"><article class="card"><span class="n">1</span><h2>เตรียม Flash บน player</h2>
+<div class="where">player → Behaviors</div>
+<ol class="ol"><li>ต้องมี Behavior <span class="red">Flash</span> แล้ว (จากบท 3)</li>
+<li>จะใช้เงื่อนไข <span class="blue">Is flashing</span> (Invert) แทนตัวแปรอมตะ</li></ol>
+<div class="box">Flash Duration ในเกมจริง = <span class="red">3.0</span> วินาที · On/Off = 0.1</div></article>
+<article class="card"><span class="n">2</span><h2>ตกนอกฉาก</h2>
+<div class="where">game sheet → กลุ่ม “ตัวครละครออกจากฉาก”</div>
+<div class="box"><span class="blue">player → Is outside layout</span><br>
+<span class="blue">Flash → Is flashing</span> (Invert)<br>
+<span class="blue">System → Trigger once while true</span></div>
+<div class="box"><span class="red">Set position X=player.X , Y=700</span><br>
+<span class="red">Subtract 1 from พลังชีวิต</span><br>
+<span class="red">Flash (0.1 / 0.1 / Duration 3.0)</span></div>
+<p class="small">Y=700 ยกขึ้นเหนือพื้น — ปรับถ้าพื้นคนละระดับ</p></article>
+<article class="card wide tip"><span class="n">3</span><h2>ชน eminy ด้านข้าง (สรุป — ละเอียดบท 8)</h2>
+<div class="box"><span class="blue">player → On collision with eminy</span><br>
+Sub-event Else + ไม่ Flash → ลดชีวิต · Vector X กระเด็น · Vector Y=-350 · Play hurt · Flash 3s</div>
+<p>เหยียบหลังมอน (กำลังตก + Y สูงกว่า) = ทำลายมอน ไม่ลดหัวใจ — ดูบท 8</p></article>
+<article class="card wide warn"><span class="n">4</span><h2>ทำไมต้อง Invert Is flashing?</h2>
+<div class="box">ถ้าไม่เช็ค Flash → ยืนชนมอนจะลดหัวใจทุกเฟรมจนตายทันที<br>
+ระหว่างกระพริบ 3 วินาที เงื่อนไข Invert ทำให้ Event ดาเมจไม่ผ่าน</div>
+<ol class="ol"><li>อย่าใช้ Wait ใต้ Every tick เพื่อปลดอมตะ</li>
+<li>อย่าลืม Trigger once ตอนตกฉาก</li></ol></article></section>
+<aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> ตกฉากเสีย 1 หัวใจ · Flash กระพริบ · ระหว่าง Flash ไม่เสียซ้ำ · ยกกลับขึ้นพื้น</aside>
+<footer class="footer"><span><a href="index.html">← สารบัญ</a> · master_v32 · ทำตามทีละขั้น</span><span>ถัดไป: เวลานับถอยหลัง →</span></footer>
+</main><script src="common.js"></script></body></html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ2 บท 01 — เปิดโปรเจกต์และ Layout</title>
+<link rel="stylesheet" href="common.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1240px;min-height:1754px;height:auto;overflow:auto}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b;background:#d9e8f2}
+.page{width:1240px;min-height:1754px;padding:36px 44px 28px;background:linear-gradient(#e8f4ff 0 18%,#f8faf4 18% 100%)}
+.head{background:linear-gradient(130deg,#174b7b,#277eb1);color:#fff;border-radius:16px;padding:14px 22px;box-shadow:0 5px 0 #103553;margin-bottom:10px}
+.tag{font-size:13px;font-weight:800;color:#9ee7ff}.head h1{font-size:28px;margin:2px 0 4px;line-height:1.15}.head p{font-size:15px;margin:0;color:#e4f3ff}
+.goal{background:#fff;border:2px solid #a8cde1;border-left:8px solid #1f8a5b;border-radius:10px;padding:8px 14px;font-size:15px;margin:0 0 10px;line-height:1.4}.goal b{color:#1f8a5b}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:0 0 10px}.flow b{background:#fff;border:2px solid #6ba5c5;border-radius:9px;padding:5px 10px;font-size:13px}.flow i{font-style:normal;color:#e45354;font-weight:900}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border:2px solid #a8cde1;border-radius:12px;padding:10px 12px;box-shadow:0 3px 0 #c5dfeb}.wide{grid-column:1/3}
+.n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ffd04a;color:#20365a;font-size:14px;font-weight:900;margin-right:6px}
+h2{display:inline;font-size:17px;color:#1f4c78;margin:0}
+.where{display:inline-block;margin:4px 0 6px;background:#eef4fb;color:#174b7b;font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px}
+p{font-size:13.5px;line-height:1.35;margin:4px 0}
+.box{background:#eef6fb;border-left:6px solid #277db2;border-radius:7px;padding:7px 10px;font-size:13px;line-height:1.42;font-weight:700;margin:6px 0}
+.blue{color:#176aa0}.red{color:#c53e4c}.small{font-size:12px;color:#566578;font-weight:600}
+.warn{border-color:#efbd55;background:#fffaf0}.warn .box{border-color:#e05257;background:#fff5f5}
+.tip{border-color:#8bc4a0;background:#f0faf4}.ol{margin:4px 0 4px 18px;padding:0;font-size:13px;line-height:1.4}.ol li{margin:2px 0}
+.test{margin-top:10px;background:#236c5e;color:#fff;border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.4}.test b{font-size:15px}
+.footer{margin-top:10px;display:flex;justify-content:space-between;color:#425268;font-size:12px;border-top:2px solid #c5dfeb;padding-top:8px}.footer a{color:#174b7b;font-weight:800}
+.scene{height:90px;margin:0 0 8px;border:3px solid #4384a7;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(#83dcff 0 68%,#82c657 68%)}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="head">
+  <div class="tag">บทที่ 1 · Core · ทางเข้า Red Hood · ควรจบ Beginner แล้ว</div>
+  <h1>เปิดโปรเจกต์และ Layout</h1>
+  <p>รู้จักไฟล์ master_v32 · Layout 8 ฉาก · Layer · Event Sheet · <a href="B06-mini-เดินบนพื้น.html" style="color:#9ee7ff">← กลับ Mini B06</a></p>
+</header>
+<div class="goal"><b>เป้าหมายบทนี้:</b> เปิดเกมใน Construct 2 ให้ถูกไฟล์ และรู้ว่าแต่ละหน้าจออยู่ Layout ไหน ก่อนเริ่มแก้ Event</div>
+<section class="scene"><div style="position:absolute;inset:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:900;color:#174b7b"><span style="background:#fff;padding:6px 10px;border-radius:8px">title</span>→<span style="background:#fff;padding:6px 10px;border-radius:8px">name</span>→<span style="background:#fff;padding:6px 10px;border-radius:8px">select</span>→<span style="background:#fff;padding:6px 10px;border-radius:8px">game×3</span>→<span style="background:#fff;padding:6px 10px;border-radius:8px">ranking</span></div></section>
+<div class="flow"><b>เปิดไฟล์</b><i>→</i><b>ดู Layouts</b><i>→</i><b>ดู Layers</b><i>→</i><b>ดู Event Sheets</b></div>
+<section class="grid">
+<article class="card">
+<span class="n">1</span><h2>เปิดไฟล์ที่ถูกต้อง</h2>
+<div class="where">Windows Explorer / Construct 2</div>
+<ol class="ol">
+<li>ไปโฟลเดอร์ <b>แข่งสร้างเกมส์</b> (My Drive)</li>
+<li>ดับเบิลคลิก <span class="red">master_v32.capx</span></li>
+<li>หรือเปิด extract: <span class="red">_master_v32_extract\New project.caproj</span></li>
+</ol>
+<div class="box">ชื่อโปรเจกต์ = <span class="red">Red Hood Adventure</span><br>Window: <span class="red">1500×960</span> · Fullscreen: Letterbox scale</div>
+<p class="small">อย่าเปิด master_v4 — คนละระบบผ่านด่าน (คูณดาว UID)</p>
+</article>
+<article class="card">
+<span class="n">2</span><h2>ดูรายชื่อ Layout</h2>
+<div class="where">Project bar ซ้าย → Layouts</div>
+<div class="box">
+<span class="blue">title</span> เมนูหลัก<br>
+<span class="blue">name</span> ใส่ชื่อ<br>
+<span class="blue">select</span> เลือกด่าน<br>
+<span class="blue">game / game2 / game3</span> เล่น<br>
+<span class="blue">ranking</span> Top 5<br>
+<span class="blue">Howto</span> วิธีเล่น
+</div>
+<p class="small">ดับเบิลคลิกชื่อ Layout เพื่อเปิดฉากนั้น</p>
+</article>
+<article class="card wide tip">
+<span class="n">3</span><h2>Layer ในด่าน (สำคัญมาก)</h2>
+<div class="where">เปิด Layout game → แถบ Layers</div>
+<ol class="ol">
+<li>คลิก Layout <b>game</b></li>
+<li>ดู Layers: จากล่างขึ้นบน</li>
+</ol>
+<div class="box"><span class="red">bg</span> พื้นหลัง · <span class="red">game</span> ตัวละคร มอน คำตอบ<br>
+<span class="red">popup</span> Game Over · <span class="red">HUD</span> หัวใจ/เวลา/โจทย์ · <span class="red">transition</span> จอดำเคลียร์</div>
+<p class="small">วางหัวใจผิด Layer (เช่น ไปอยู่ game) → เลื่อนตามกล้องหรือถูกบัง</p>
+</article>
+<article class="card wide">
+<span class="n">4</span><h2>Event Sheet ที่ใช้</h2>
+<div class="where">Project bar → Event sheets</div>
+<div class="box"><span class="blue">game sheet</span> = ระบบเล่นทั้ง 3 ด่าน (ยาวที่สุด)<br>
+title / name / select / ranking / howto sheet = เมนู</div>
+<p>ด่าน <b>game / game2 / game3 ใช้ game sheet แผ่นเดียว</b> แยกด้วยเงื่อนไข <span class="red">LayoutName</span></p>
+<p class="small">กลุ่มใน game sheet ที่จะเจอ: เดิน+กระโดด · เริ่มด่าน+เวลา · หัวใจ · โจทย์คณิต · ประตู · Top5</p>
+</article>
+<article class="card wide warn">
+<span class="n">5</span><h2>ผิดพลาดที่พบบ่อย</h2>
+<div class="box">เปิดไฟล์เก่าแล้วงงว่าทำไมไม่มี answer_orb → ตรวจว่าเปิด <span class="red">v32</span> จริง<br>
+แก้ Event ใน Layout ผิดแผ่น → ดูชื่อ Event sheet มุมบน<br>
+Preview ไม่ขึ้นเมนู → ตั้ง First layout = <span class="red">title</span> ใน Project Properties</div>
+</article>
+</section>
+<aside class="test"><b>ทดสอบก่อนไปบทถัดไป:</b> เปิด master_v32 ได้ · นับ Layout ได้ 8 · เปิด game แล้วเห็น Layer 5 ชั้น · เปิด game sheet ได้ · First layout เป็น title</aside>
+<footer class="footer"><span><a href="index.html">← สารบัญ</a> · master_v32 · ทำตามทีละขั้น</span><span>ถัดไป: พื้นและเกาะ →</span></footer>
+</main>
+<script src="common.js"></script>
+</body>
+</html>
