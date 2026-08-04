@@ -1,6 +1,6 @@
 /**
  * c2-speech.js — ระบบเสียงอ่านภาษาไทยและอังกฤษสำหรับคำศัพท์ Construct 2
- * ปรับแต่งพิเศษเพื่อความต่อเนื่อง ลื่นไหล ไม่สะดุด ไม่ตัดคำกลางทาง
+ * ออกแบบให้เสถียร ชัดเจน อ่านออกเสียงได้ 100% ป้องกันเสียงดับ/เงียบกลางทางใน Chrome/Edge
  */
 (function(window) {
   'use strict';
@@ -8,6 +8,7 @@
   var synth = window.speechSynthesis;
   var voices = [];
   var isSpeaking = false;
+  var currentUtterance = null; // ป้องกัน Chrome Garbage Collector ลบตัวแปรขณะกำลังพูด
 
   function loadVoices() {
     if (!synth) return;
@@ -22,95 +23,60 @@
   }
 
   /**
-   * แปลงคำศัพท์ภาษาอังกฤษในข้อความไทยเป็นคำอ่านภาษาไทย เพื่อให้เสียงพากย์ไทยอ่านลื่นไหล ไม่หยุดชะงัก
+   * ทำความสะอาดข้อความให้เป็นภาษาไทยธรรมชาติ เว้นวรรคอ่านง่าย
    */
-  function normalizeTextForSpeech(text, lang) {
+  function cleanSpeechText(text, lang) {
     if (!text) return '';
     var str = String(text);
 
     if (lang === 'th') {
-      // 1. ลบสัญลักษณ์และสัญลักษณ์พิเศษที่ทำให้เครื่องเสียงสะดุด
-      str = str.replace(/[➔➔•▼▶▪■✓✕📌💡⚙️⚡🎬🧩📊คำสั่งประเภท:]/g, ' ');
+      // 1. ลบสัญลักษณ์พิเศษที่ทำให้ระบบอ่านแปลกๆ ออก
+      str = str.replace(/[➔•▼▶▪■✓✕📌💡⚙️⚡🎬🧩📊]/g, ' ');
       str = str.replace(/[\(\)\[\]\{\}<>#@~_\-\=\+\\\/]/g, ' ');
 
-      // 2. แปลงคำทับศัพท์ C2 ภาษาอังกฤษเป็นคำอ่านภาษาไทยเป๊ะๆ
-      var phoneticMap = [
-        [/\bEvent Sheet\b/gi, 'อีเวนต์ชีต'],
-        [/\bEvent sheets\b/gi, 'อีเวนต์ชีต'],
-        [/\bEvent sheet\b/gi, 'อีเวนต์ชีต'],
-        [/\bProject Bar\b/gi, 'โปรเจกต์บาร์'],
-        [/\bProperties panel\b/gi, 'พร็อปเพอร์ตี้พาเนล'],
-        [/\bProperties\b/gi, 'พร็อปเพอร์ตี้'],
-        [/\bLayouts\b/gi, 'เลย์เอาต์'],
-        [/\bLayout\b/gi, 'เลย์เอาต์'],
-        [/\bCollision Polygon\b/gi, 'คอลลิชันพอลีกอน'],
-        [/\bImage Point\b/gi, 'อิมเมจพอยต์'],
-        [/\bOn start of layout\b/gi, 'ออนสตาร์ตออฟเลย์เอาต์'],
-        [/\bEvery tick\b/gi, 'เอเวอรีติก'],
-        [/\bTrigger once while true\b/gi, 'ทริกเกอร์วันส์ไวลทรู'],
-        [/\bTrigger once\b/gi, 'ทริกเกอร์วันส์'],
-        [/\bOn collision with\b/gi, 'ออนคอลลิชันวิด'],
-        [/\bIs overlapping another object\b/gi, 'อิสโอเวอร์แลปปิง'],
-        [/\bIs overlapping\b/gi, 'อิสโอเวอร์แลปปิง'],
-        [/\bCompare two values\b/gi, 'คอมแพร์ทูแวลูส'],
-        [/\bSet position\b/gi, 'เซตโพซิชัน'],
-        [/\bSet animation\b/gi, 'เซตแอนิเมชัน'],
-        [/\bSpawn another object\b/gi, 'สปอว์นออบเจกต์'],
-        [/\bSet mirrored\b/gi, 'เซตมิเรอร์ด'],
-        [/\bSet not mirrored\b/gi, 'เซตนอตมิเรอร์ด'],
-        [/\bAdd to\b/gi, 'แอดทู'],
-        [/\bSubtract from\b/gi, 'ซับแทรกต์ฟรอม'],
-        [/\bSet text\b/gi, 'เซตเท็กซ์'],
-        [/\bGo to layout\b/gi, 'โกทูเลย์เอาต์'],
-        [/\bJump-thru\b/gi, 'จัมป์ทรู'],
-        [/\bJump thru\b/gi, 'จัมป์ทรู'],
-        [/\bScroll To\b/gi, 'สกรอลล์ทู'],
-        [/\bDestroy outside layout\b/gi, 'ดิสทรอยเอาต์ไซด์เลย์เอาต์'],
-        [/\bGlobal Variable\b/gi, 'โกลบอลแวริเอเบิล'],
-        [/\bInstance Variable\b/gi, 'อินสแตนซ์แวริเอเบิล'],
-        [/\bInstance variables\b/gi, 'อินสแตนซ์แวริเอเบิล'],
-        [/\bWebStorage\b/gi, 'เว็บสตอเรจ'],
-        [/\bCondition\b/gi, 'คอนดิชัน'],
-        [/\bConditions\b/gi, 'คอนดิชัน'],
-        [/\bAction\b/gi, 'แอ็กชัน'],
-        [/\bActions\b/gi, 'แอ็กชัน'],
-        [/\bBehavior\b/gi, 'บีเฮฟเวียร์'],
-        [/\bBehaviors\b/gi, 'บีเฮฟเวียร์'],
-        [/\bVariable\b/gi, 'แวริเอเบิล'],
-        [/\bVariables\b/gi, 'แวริเอเบิล'],
-        [/\bSprite\b/gi, 'สไปรต์'],
-        [/\bSolid\b/gi, 'โซลิด'],
-        [/\bPlatform\b/gi, 'แพลตฟอร์ม'],
-        [/\bBullet\b/gi, 'บูลเล็ต'],
-        [/\bSine\b/gi, 'ไซน์'],
-        [/\bFlash\b/gi, 'แฟลช'],
-        [/\bArray\b/gi, 'อาร์เรย์'],
-        [/\bDictionary\b/gi, 'ดิคชันนารี'],
-        [/\bFunction\b/gi, 'ฟังก์ชัน'],
-        [/\bParallax\b/gi, 'พารัลแลกซ์'],
-        [/\bDestroy\b/gi, 'ดิสทรอย'],
-        [/\bElse\b/gi, 'เอลส์'],
-        [/\bHUD\b/gi, 'เอชยูดี'],
-        [/\bFPS\b/gi, 'เอฟพีเอส'],
-        [/\bJSON\b/gi, 'เจสัน'],
-        [/\bC2\b/gi, 'ซีสอง'],
-        [/\bF5\b/gi, 'เอฟห้า'],
-        [/\bX\s*,\s*Y\b/gi, 'เอ็กซ์ และ วาย'],
-        [/\bX\b/gi, 'เอ็กซ์'],
-        [/\bY\b/gi, 'วาย'],
-        [/\bNumber\b/gi, 'นัมเบอร์'],
-        [/\bText\b/gi, 'เท็กซ์'],
-        [/\bBoolean\b/gi, 'บูลีน']
-      ];
+      // 2. แปลงคำทับศัพท์หลักเป็นคำอ่านไทยที่เว้นวรรคธรรมชาติ
+      str = str.replace(/\bEvent Sheet\b/gi, ' อีเวนต์ชีต ');
+      str = str.replace(/\bEvent sheet\b/gi, ' อีเวนต์ชีต ');
+      str = str.replace(/\bProject Bar\b/gi, ' โปรเจกต์บาร์ ');
+      str = str.replace(/\bProperties\b/gi, ' พร็อปเพอร์ตี้ ');
+      str = str.replace(/\bLayout\b/gi, ' เลย์เอาต์ ');
+      str = str.replace(/\bCollision Polygon\b/gi, ' คอลลิชันพอลีกอน ');
+      str = str.replace(/\bImage Point\b/gi, ' อิมเมจพอยต์ ');
+      str = str.replace(/\bOn start of layout\b/gi, ' ออนสตาร์ตออฟเลย์เอาต์ ');
+      str = str.replace(/\bEvery tick\b/gi, ' เอเวอรีติก ');
+      str = str.replace(/\bTrigger once while true\b/gi, ' ทริกเกอร์วันส์ไวลทรู ');
+      str = str.replace(/\bOn collision with\b/gi, ' ออนคอลลิชันวิด ');
+      str = str.replace(/\bIs overlapping\b/gi, ' อิสโอเวอร์แลปปิง ');
+      str = str.replace(/\bCompare two values\b/gi, ' คอมแพร์ทูแวลูส ');
+      str = str.replace(/\bSet position\b/gi, ' เซตโพซิชัน ');
+      str = str.replace(/\bSet animation\b/gi, ' เซตแอนิเมชัน ');
+      str = str.replace(/\bSpawn another object\b/gi, ' สปอว์นออบเจกต์ ');
+      str = str.replace(/\bSet mirrored\b/gi, ' เซตมิเรอร์ด ');
+      str = str.replace(/\bAdd to\b/gi, ' แอดทู ');
+      str = str.replace(/\bSubtract from\b/gi, ' ซับแทรกต์ฟรอม ');
+      str = str.replace(/\bSet text\b/gi, ' เซตเท็กซ์ ');
+      str = str.replace(/\bGo to layout\b/gi, ' โกทูเลย์เอาต์ ');
+      str = str.replace(/\bJump-thru\b/gi, ' จัมป์ทรู ');
+      str = str.replace(/\bScroll To\b/gi, ' สกรอลล์ทู ');
+      str = str.replace(/\bDestroy outside layout\b/gi, ' ดิสทรอยเอาต์ไซด์เลย์เอาต์ ');
+      str = str.replace(/\bGlobal Variable\b/gi, ' โกลบอลแวริเอเบิล ');
+      str = str.replace(/\bInstance Variable\b/gi, ' อินสแตนซ์แวริเอเบิล ');
+      str = str.replace(/\bWebStorage\b/gi, ' เว็บสตอเรจ ');
+      str = str.replace(/\bSprite\b/gi, ' สไปรต์ ');
+      str = str.replace(/\bSolid\b/gi, ' โซลิด ');
+      str = str.replace(/\bPlatform\b/gi, ' แพลตฟอร์ม ');
+      str = str.replace(/\bBullet\b/gi, ' บูลเล็ต ');
+      str = str.replace(/\bSine\b/gi, ' ไซน์ ');
+      str = str.replace(/\bFlash\b/gi, ' แฟลช ');
+      str = str.replace(/\bArray\b/gi, ' อาร์เรย์ ');
+      str = str.replace(/\bDictionary\b/gi, ' ดิคชันนารี ');
+      str = str.replace(/\bFunction\b/gi, ' ฟังก์ชัน ');
+      str = str.replace(/\bDestroy\b/gi, ' ดิสทรอย ');
+      str = str.replace(/\bElse\b/gi, ' เอลส์ ');
+      str = str.replace(/\bHUD\b/gi, ' เอชยูดี ');
 
-      for (var i = 0; i < phoneticMap.length; i++) {
-        str = str.replace(phoneticMap[i][0], phoneticMap[i][1]);
-      }
-
-      // 3. กำจัดช่องว่างซ้ำซ้อนให้กระชับ
       str = str.replace(/\s+/g, ' ').trim();
     } else {
-      // ภาษาอังกฤษ: Clean up characters
       str = str.replace(/[➔•▼▶✓✕📌💡⚙️⚡🎬🧩📊]/g, '');
       str = str.replace(/\s+/g, ' ').trim();
     }
@@ -118,97 +84,79 @@
     return str;
   }
 
-  function findVoice(langPrefix) {
+  function findVoice(langCode) {
     if (!voices.length) loadVoices();
-    var voiceList = voices.filter(function(v) {
-      return v.lang && v.lang.toLowerCase().indexOf(langPrefix.toLowerCase()) === 0;
-    });
-
-    if (!voiceList.length) return null;
-
-    // ชอบเสียงพากย์ธรรมชาติ (Google / Microsoft)
-    for (var i = 0; i < voiceList.length; i++) {
-      var name = voiceList[i].name.toLowerCase();
-      if (name.indexOf('google') !== -1 || name.indexOf('natural') !== -1 || name.indexOf('online') !== -1) {
-        return voiceList[i];
+    var target = (langCode === 'en-US') ? 'en' : 'th';
+    
+    for (var i = 0; i < voices.length; i++) {
+      if (voices[i].lang && voices[i].lang.toLowerCase().indexOf(target) === 0) {
+        return voices[i];
       }
     }
-    return voiceList[0];
+    return null;
   }
 
   var C2Speech = {
     /**
-     * อ่านข้อความภาษาไทยหรืออังกฤษแบบลื่นไหล
+     * อ่านข้อความเสียงภาษาไทย/อังกฤษ
      */
     speak: function(text, lang, onEndCallback) {
       if (!synth) {
-        console.warn('SpeechSynthesis is not supported');
+        alert('เบราว์เซอร์ของคุณยังไม่รองรับระบบเสียงอ่าน (Speech Synthesis)');
         if (onEndCallback) onEndCallback();
         return;
       }
 
+      // หยุดเสียงเดิมที่กำลังอ่านอยู่
+      synth.cancel();
+
       lang = lang || 'th';
-      var cleanText = normalizeTextForSpeech(text, lang);
+      var cleanText = cleanSpeechText(text, lang);
       if (!cleanText) {
         if (onEndCallback) onEndCallback();
         return;
       }
 
-      // ป้องกันการสะดุด หยุดเสียงเดิมก่อน
-      synth.cancel();
+      var langCode = (lang === 'en') ? 'en-US' : 'th-TH';
+      var utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = langCode;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
 
-      // แยกประโยคย่อยด้วยเครื่องหมายจุด หรือเว้นวรรคยาว เพื่อให้อ่านประโยคต่อเนื่องไม่หลุดคิว
-      var sentences = cleanText.split(/[\.\n]/).filter(function(s) { return s.trim().length > 0; });
-      if (!sentences.length) sentences = [cleanText];
-
-      var index = 0;
-
-      function speakNextSentence() {
-        if (index >= sentences.length) {
-          isSpeaking = false;
-          if (onEndCallback) onEndCallback();
-          return;
-        }
-
-        var sentenceText = sentences[index].trim();
-        index++;
-
-        var utterance = new SpeechSynthesisUtterance(sentenceText);
-        utterance.lang = (lang === 'en') ? 'en-US' : 'th-TH';
-        utterance.rate = (lang === 'en') ? 0.95 : 1.02; // อัตราความเร็วธรรมชาติ อ่านกระชับต่อเนื่อง
-        utterance.pitch = 1.0;
-
-        var voice = findVoice(lang === 'en' ? 'en' : 'th');
-        if (voice) {
-          utterance.voice = voice;
-        }
-
-        utterance.onstart = function() {
-          isSpeaking = true;
-        };
-
-        utterance.onend = function() {
-          speakNextSentence();
-        };
-
-        utterance.onerror = function(e) {
-          console.warn('Utterance speech error:', e);
-          speakNextSentence();
-        };
-
-        // Delay เล็กน้อย 50ms ระหว่างประโยคเพื่อความต่อเนื่องสละสลวย
-        setTimeout(function() {
-          synth.speak(utterance);
-        }, 40);
+      var voice = findVoice(langCode);
+      if (voice) {
+        utterance.voice = voice;
       }
 
-      speakNextSentence();
+      utterance.onstart = function() {
+        isSpeaking = true;
+      };
+
+      utterance.onend = function() {
+        isSpeaking = false;
+        currentUtterance = null;
+        if (onEndCallback) onEndCallback();
+      };
+
+      utterance.onerror = function(e) {
+        isSpeaking = false;
+        currentUtterance = null;
+        console.warn('SpeechSynthesis error:', e);
+        if (onEndCallback) onEndCallback();
+      };
+
+      // เก็บไว้ในอ้างอิงหลักเพื่อไม่ให้ถูก Chrome GC ลบทิ้ง
+      currentUtterance = utterance;
+
+      // สั่งพูด
+      synth.speak(utterance);
     },
 
     stop: function() {
       if (synth) {
         synth.cancel();
         isSpeaking = false;
+        currentUtterance = null;
       }
     },
 
