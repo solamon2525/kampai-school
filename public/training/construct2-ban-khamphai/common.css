@@ -20,6 +20,8 @@ body.guide-screen .page{
 .guide-bar a:hover,.guide-bar button:hover{background:#3d86c2}
 .guide-bar .glossary-btn{background:#0284c7!important}
 .guide-bar .glossary-btn:hover{background:#0369a1!important}
+.guide-bar .builder-btn{background:#f59e0b!important}
+.guide-bar .builder-btn:hover{background:#d97706!important}
 .guide-bar .print{background:#1f8a5b}
 .guide-bar .print:hover{background:#26a46c}
 .guide-bar .spacer{flex:1}

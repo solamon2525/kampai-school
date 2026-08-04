@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว — Construct 2 | คู่มือบ้านคำไผ่</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="common.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  min-height:100%;font-family:'Sarabun',sans-serif;color:#1e293b;
+  background:#f0f4fa;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+
+/* HERO HEADER */
+.b-hero{
+  background:linear-gradient(135deg,#0f2744 0%,#1e3a5f 55%,#162e4a 100%);
+  color:#fff;padding:32px 40px;position:relative;overflow:hidden;
+  border-bottom:4px solid #f59e0b;
+}
+.b-hero-inner{max-width:1200px;margin:0 auto;}
+.b-hero-eyebrow{
+  font-size:13px;font-weight:700;color:#fbbf24;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;
+}
+.b-hero-eyebrow::before{content:'';display:inline-block;width:20px;height:2px;background:#fbbf24;border-radius:2px}
+.b-hero h1{font-size:clamp(22px,3.2vw,34px);font-weight:800;line-height:1.2;margin-bottom:6px}
+.b-hero p{font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:18px}
+
+.b-nav-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.b-nav-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;
+  background:rgba(255,255,255,0.12);color:#fff;font-weight:700;font-size:14px;
+  border:1px solid rgba(255,255,255,0.25);transition:all .15s;text-decoration:none;
+}
+.b-nav-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-1px)}
+
+/* TOOLBAR */
+.b-toolbar{
+  background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 40px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+.b-toolbar-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+.b-project-input{
+  font-family:inherit;font-size:16px;font-weight:800;color:#0f2744;
+  border:2px solid #cbd5e1;border-radius:10px;padding:8px 14px;
+  min-width:240px;flex:1;outline:none;transition:border-color .15s;
+}
+.b-project-input:focus{border-color:#2563eb;background:#fff}
+
+.b-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;
+  font-size:13px;font-weight:700;font-family:inherit;border:2px solid #cbd5e1;
+  background:#fff;color:#475569;cursor:pointer;transition:all .15s;
+}
+.b-btn:hover{border-color:#94a3b8;background:#f8fafc;color:#1e293b}
+.b-btn.primary{background:#2563eb;border-color:#2563eb;color:#fff}
+.b-btn.primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.b-btn.success{background:#16a34a;border-color:#16a34a;color:#fff}
+.b-btn.success:hover{background:#15803d;border-color:#15803d}
+.b-btn.danger{background:#fff1f2;border-color:#fecdd3;color:#e11d48}
+.b-btn.danger:hover{background:#ffe4e6;border-color:#fda4af}
+
+.b-sync-badge{
+  font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;
+  background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;
+  display:inline-flex;align-items:center;gap:6px;margin-left:auto;
+}
+
+/* MAIN CONTENT */
+.b-content{max-width:1200px;margin:24px auto 60px;padding:0 40px}
+
+/* STEP ROWS LIST */
+.b-list{display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
+
+.b-row{
+  background:#fff;border-radius:16px;border:2px solid #e2e8f0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.03);padding:16px 20px;
+  display:grid;grid-template-columns:36px 44px 1fr 150px 1.5fr 40px 40px;
+  gap:12px;align-items:center;
+  transition:transform .15s,box-shadow .15s,border-color .15s;
+  position:relative;
+}
+.b-row:hover{border-color:#cbd5e1;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+.b-row.dragging{opacity:.4;border-style:dashed}
+.b-row.drag-over{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.25)}
+.b-row.completed{background:#f8fafc;border-color:#cbd5e1;opacity:.8}
+.b-row.completed .b-input-title{text-decoration:line-through;color:#64748b}
+
+.b-handle{
+  display:grid;place-items:center;width:32px;height:32px;border-radius:8px;
+  background:#f1f5f9;color:#64748b;font-size:18px;cursor:grab;user-select:none;
+}
+.b-handle:active{cursor:grabbing}
+
+.b-num{
+  display:grid;place-items:center;width:36px;height:36px;border-radius:50%;
+  background:#0f2744;color:#fbbf24;font-weight:900;font-size:14px;
+}
+
+.b-input{
+  font-family:inherit;font-size:14px;padding:8px 12px;border:1.5px solid #cbd5e1;
+  border-radius:8px;outline:none;transition:border-color .15s;background:#fff;
+}
+.b-input:focus{border-color:#2563eb;background:#fff}
+
+.b-input-title{font-weight:700;color:#0f2744}
+
+.b-select-cat{
+  appearance:none;padding-right:24px;font-weight:600;color:#475569;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;
+}
+
+.b-checkbox-wrap{display:flex;align-items:center;justify-content:center}
+.b-checkbox{width:22px;height:22px;cursor:pointer;accent-color:#16a34a}
+
+.b-btn-del{
+  width:36px;height:36px;border-radius:8px;border:none;background:#fff1f2;
+  color:#e11d48;font-size:16px;cursor:pointer;display:grid;place-items:center;
+  transition:background .15s;
+}
+.b-btn-del:hover{background:#ffe4e6;color:#be123c}
+
+/* PRINT FORMATTING */
+@media print{
+  .b-hero,.b-toolbar,.b-handle,.b-btn-del,.b-checkbox-wrap,.b-add-bar{display:none!important}
+  body{background:#fff}
+  .b-content{max-width:100%;margin:0;padding:0}
+  .b-row{
+    grid-template-columns:30px 1fr 120px 1.5fr;border:1px solid #cbd5e1;
+    box-shadow:none;break-inside:avoid;margin-bottom:8px;padding:10px 14px;
+  }
+  .b-input{border:none!important;padding:0!important}
+}
+
+@media(max-width:900px){
+  .b-row{
+    grid-template-columns:30px 36px 1fr 36px 36px;
+    grid-template-areas:
+      "handle num title check del"
+      "cat cat detail detail detail";
+    gap:8px;
+  }
+  .b-handle{grid-area:handle}
+  .b-num{grid-area:num}
+  .b-input-title{grid-area:title}
+  .b-checkbox-wrap{grid-area:check}
+  .b-btn-del{grid-area:del}
+  .b-select-cat{grid-area:cat}
+  .b-input-detail{grid-area:detail}
+  .b-toolbar{padding:10px 16px}
+  .b-content{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<header class="b-hero">
+  <div class="b-hero-inner">
+    <div class="b-hero-eyebrow">📝 MY CUSTOM GAME BUILDER PLANNER</div>
+    <h1>สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว</h1>
+    <p>พิมพ์เรียงขั้นตอนการสร้างเกมของคุณเอง เพิ่มขั้นตอน ลากสลับเรียงลำดับ และบันทึกซิงก์ตรงลง Production DB โดยอัตโนมัติ!</p>
+    
+    <div class="b-nav-btns">
+      <a href="index.html" class="b-nav-btn">← กลับหน้าหลักหลักสูตร</a>
+      <a href="glossary.html" class="b-nav-btn">📖 คลังคำศัพท์ C2</a>
+    </div>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="b-toolbar">
+  <div class="b-toolbar-inner">
+    <input type="text" id="inpProjectName" class="b-project-input" value="เกม Red Hood ของฉัน" placeholder="ระบุชื่อเกม/โปรเจกต์ของคุณ...">
+    
+    <button class="b-btn primary" id="btnAddStep">➕ เพิ่มขั้นตอนใหม่</button>
+    <button class="b-btn success" id="btnSaveNow">☁️ บันทึกลง Production</button>
+    <button class="b-btn" id="btnLoadTemplate">💡 ตัวอย่าง 6 ขั้นตอน</button>
+    <button class="b-btn" id="btnPrint">🖨️ พิมพ์ออก A4</button>
+    <button class="b-btn danger" id="btnResetAll">🧹 ล้างข้อมูล</button>
+
+    <div class="b-sync-badge" id="syncStatus">
+      <span>☁️</span> <span id="syncText">ซิงก์ Supabase Production DB แล้ว</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="b-content">
+  <div class="b-list" id="stepList"></div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  // Supabase Credentials
+  var SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMwMzU5MDAsImV4cCI6MjA1ODYxMTkwMH0.2-P4pE_fA0iO02HwJ718XbJ3hZ-0rXf0c1lQ3eG6R1o';
+
+  var LOCAL_KEY = 'c2_custom_game_planner_v1';
+  var saveTimer = null;
+
+  var state = {
+    projectName: 'เกม Red Hood ของฉัน',
+    steps: []
+  };
+
+  var stepListEl = document.getElementById('stepList');
+  var inpProjectName = document.getElementById('inpProjectName');
+  var syncTextEl = document.getElementById('syncText');
+
+  var DEFAULT_TEMPLATE = [
+    { id:'s1', title:'สร้างโปรเจกต์ใหม่และตั้งขนาด Layout', category:'IDE / Layout', detail:'Window size: 1500×960 | Layout size: 4500×960 | ตั้งชื่อฉากว่า game', done:true },
+    { id:'s2', title:'สร้างพื้นดิน TiledBackground และใส่ Solid behavior', category:'Behaviors', detail:'วาง TiledBackground2 บน Layer game ➔ Add behavior: Solid (เพื่อให้ตัวละครยืนได้)', done:true },
+    { id:'s3', title:'สร้าง Sprite player และใส่ Platform + Scroll To', category:'Behaviors', detail:'วาง player ➔ Add behaviors: Platform (Jump 650, Gravity 1500) + Scroll To (กล้องติดตาม)', done:true },
+    { id:'s4', title:'เขียน Event แอนิเมชันเดิน กระโดด และสลับหน้าซ้ายขวา', category:'Event Sheet', detail:'Is moving ➔ set anim "walk" | On floor ➔ set anim "Stand" | Is moving left ➔ Set mirrored', done:false },
+    { id:'s5', title:'เขียน Event ชนมอนสเตอร์แล้วลดหัวใจ', category:'Event Sheet', detail:'player On collision with monster + Trigger once ➔ Subtract 1 from หัวใจ + Flash 2s', done:false },
+    { id:'s6', title:'สร้างเกาะลอยคำตอบและตรวจเช็กเคลียร์ด่าน', category:'เกาะคำตอบ', detail:'วาง answer_orb 10 ช่อง + ตรวจสอบการชนประตูเคลียร์ด่านไป Layout game2', done:false }
+  ];
+
+  function setSyncStatus(msg, isSuccess) {
+    if (syncTextEl) {
+      syncTextEl.textContent = msg;
+      var parent = syncTextEl.parentElement;
+      if (parent) {
+        parent.style.borderColor = isSuccess ? '#bbf7d0' : '#fed7aa';
+        parent.style.background = isSuccess ? '#f0fdf4' : '#fff7ed';
+        parent.style.color = isSuccess ? '#166534' : '#c2410c';
+      }
+    }
+  }
+
+  // Load from Supabase Production DB or LocalStorage
+  function fetchFromSupabase() {
+    setSyncStatus('กำลังโหลดจาก Cloud DB...', true);
+    fetch(SUPABASE_URL + '/rest/v1/c2_custom_game_plans?id=eq.default_plan&select=*', {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (Array.isArray(data) && data.length > 0 && data[0].steps && data[0].steps.length > 0) {
+        state.projectName = data[0].project_name || 'เกม Red Hood ของฉัน';
+        state.steps = data[0].steps;
+        inpProjectName.value = state.projectName;
+        setSyncStatus('☁️ ซิงก์ Supabase Production DB แล้ว', true);
+        render();
+      } else {
+        loadFromLocalStorage();
+      }
+    })
+    .catch(function(err) {
+      console.warn('Supabase fetch error, using localStorage:', err);
+      loadFromLocalStorage();
+    });
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      var raw = localStorage.getItem(LOCAL_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        state.projectName = parsed.projectName || 'เกม Red Hood ของฉัน';
+        state.steps = parsed.steps || [];
+      } else {
+        state.steps = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+      }
+    } catch(e) {
+      state.steps = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+    }
+    inpProjectName.value = state.projectName;
+    setSyncStatus('💾 บันทึกในเครื่อง (localStorage)', true);
+    render();
+  }
+
+  // Save to Supabase Production DB + LocalStorage
+  function saveAll() {
+    setSyncStatus('กำลังบันทึก...', true);
+    // Save to LocalStorage
+    try {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
+    } catch(e){}
+
+    // Upsert to Supabase Production DB
+    var payload = {
+      id: 'default_plan',
+      project_name: state.projectName,
+      steps: state.steps,
+      updated_at: new Date().toISOString()
+    };
+
+    fetch(SUPABASE_URL + '/rest/v1/c2_custom_game_plans', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (res.ok) {
+        setSyncStatus('☁️ บันทึกลง Production DB สำเร็จแล้ว!', true);
+      } else {
+        setSyncStatus('💾 บันทึกลงเครื่องแล้ว', true);
+      }
+    })
+    .catch(function(err) {
+      console.warn('Supabase save error:', err);
+      setSyncStatus('💾 บันทึกลงเครื่องแล้ว (Offline)', true);
+    });
+  }
+
+  function triggerAutoSave() {
+    clearTimeout(saveTimer);
+    setSyncStatus('กำลังพิมพ์...', false);
+    saveTimer = setTimeout(function() {
+      saveAll();
+    }, 1200);
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render() {
+    stepListEl.innerHTML = '';
+
+    if (!state.steps.length) {
+      stepListEl.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">ยังไม่มีขั้นตอนในบันทึกของคุณ กดปุ่ม <strong>"+ เพิ่มขั้นตอนใหม่"</strong> ด้านบนเพื่อเริ่มเขียนได้ทันที</div>';
+      return;
+    }
+
+    state.steps.forEach(function(step, idx) {
+      var row = document.createElement('div');
+      row.className = 'b-row' + (step.done ? ' completed' : '');
+      row.draggable = true;
+      row.dataset.idx = idx;
+
+      var categories = ['IDE / Layout', 'Behaviors', 'Event Sheet', 'ตัวแปร', 'เกาะคำตอบ', 'มอนสเตอร์/ต่อสู้', 'เสียง/BGM', 'เมนู/UI', 'อื่นๆ'];
+      var optionsHtml = categories.map(function(c) {
+        var sel = (step.category === c) ? ' selected' : '';
+        return '<option value="' + c + '"' + sel + '>' + c + '</option>';
+      }).join('');
+
+      row.innerHTML = 
+        '<div class="b-handle" title="ลากสลับลำดับ">☰</div>' +
+        '<div class="b-num">' + (idx + 1) + '</div>' +
+        '<input type="text" class="b-input b-input-title" data-field="title" value="' + esc(step.title) + '" placeholder="ระบุชื่อขั้นตอนการทำงาน...">' +
+        '<select class="b-input b-select-cat" data-field="category">' + optionsHtml + '</select>' +
+        '<input type="text" class="b-input b-input-detail" data-field="detail" value="' + esc(step.detail) + '" placeholder="ระบุรายละเอียดคำสั่ง/เงื่อนไขที่ต้องตั้งค่า...">' +
+        '<div class="b-checkbox-wrap"><input type="checkbox" class="b-checkbox" data-field="done"' + (step.done ? ' checked' : '') + ' title="ทำเสร็จแล้ว"></div>' +
+        '<button type="button" class="b-btn-del" data-act="del" title="ลบขั้นตอนนี้">🗑️</button>';
+
+      stepListEl.appendChild(row);
+    });
+
+    bindDragDrop();
+  }
+
+  // Drag and drop reordering
+  var dragIdx = null;
+  function bindDragDrop() {
+    var rows = stepListEl.querySelectorAll('.b-row');
+    rows.forEach(function(row) {
+      row.addEventListener('dragstart', function(e) {
+        dragIdx = parseInt(row.dataset.idx, 10);
+        row.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', function() {
+        row.classList.remove('dragging');
+        dragIdx = null;
+      });
+      row.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        row.classList.add('drag-over');
+      });
+      row.addEventListener('dragleave', function() {
+        row.classList.remove('drag-over');
+      });
+      row.addEventListener('drop', function(e) {
+        e.preventDefault();
+        row.classList.remove('drag-over');
+        var targetIdx = parseInt(row.dataset.idx, 10);
+        if (dragIdx === null || dragIdx === targetIdx) return;
+
+        var moved = state.steps.splice(dragIdx, 1)[0];
+        state.steps.splice(targetIdx, 0, moved);
+        render();
+        saveAll();
+      });
+    });
+  }
+
+  // Event Delegation for Inputs & Delete
+  stepListEl.addEventListener('input', function(e) {
+    var target = e.target;
+    var row = target.closest('.b-row');
+    if (!row) return;
+    var idx = parseInt(row.dataset.idx, 10);
+    var field = target.dataset.field;
+
+    if (field && state.steps[idx]) {
+      if (field === 'done') {
+        state.steps[idx].done = target.checked;
+        row.classList.toggle('completed', target.checked);
+      } else {
+        state.steps[idx][field] = target.value;
+      }
+      triggerAutoSave();
+    }
+  });
+
+  stepListEl.addEventListener('change', function(e) {
+    var target = e.target;
+    var row = target.closest('.b-row');
+    if (!row) return;
+    var idx = parseInt(row.dataset.idx, 10);
+    var field = target.dataset.field;
+
+    if (field && state.steps[idx]) {
+      if (field === 'done') {
+        state.steps[idx].done = target.checked;
+        row.classList.toggle('completed', target.checked);
+      } else {
+        state.steps[idx][field] = target.value;
+      }
+      saveAll();
+    }
+  });
+
+  stepListEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-act="del"]');
+    if (!btn) return;
+    var row = btn.closest('.b-row');
+    var idx = parseInt(row.dataset.idx, 10);
+    state.steps.splice(idx, 1);
+    render();
+    saveAll();
+  });
+
+  // Project Name Change
+  inpProjectName.addEventListener('input', function() {
+    state.projectName = inpProjectName.value;
+    triggerAutoSave();
+  });
+
+  // Buttons
+  document.getElementById('btnAddStep').onclick = function() {
+    state.steps.push({
+      id: 'step_' + Date.now(),
+      title: 'ขั้นตอนใหม่ที่ ' + (state.steps.length + 1),
+      category: 'Event Sheet',
+      detail: '',
+      done: false
+    });
+    render();
+    saveAll();
+  };
+
+  document.getElementById('btnSaveNow').onclick = function() {
+    saveAll();
+  };
+
+  document.getElementById('btnLoadTemplate').onclick = function() {
+    if (confirm('โหลด 6 ขั้นตอนตัวอย่าง? ขั้นตอนเดิมจะถูกเขียนทับ')) {
+      state.steps = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+      render();
+      saveAll();
+    }
+  };
+
+  document.getElementById('btnPrint').onclick = function() {
+    window.print();
+  };
+
+  document.getElementById('btnResetAll').onclick = function() {
+    if (confirm('ต้องการล้างขั้นตอนทั้งหมดหรือไม่?')) {
+      state.steps = [];
+      render();
+      saveAll();
+    }
+  };
+
+  // Initial Fetch
+  fetchFromSupabase();
+
+})();
+</script>
+</body>
+</html>

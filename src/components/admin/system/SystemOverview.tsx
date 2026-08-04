@@ -272,6 +272,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.218.0 (เพิ่มฟีเจอร์สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว ซิงก์ตรงลง Supabase Production DB)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้าง Migration 249 เพิ่มตาราง c2_custom_game_plans บน Supabase Production DB (lkpqssbqxxpasidfqhpb)',
+            'เพิ่มไฟล์ public/training/construct2-ban-khamphai/my-game-steps.html สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว (Custom Step Planner UI)',
+            'รองรับการพิมพ์ข้อความเอง เพิ่มแถว ลบแถว ติ๊กความสำเร็จ ลากสลับลำดับแถว (Drag & Drop) และพิมพ์ออก A4',
+            'ระบบ Auto-Sync สองทาง Realtime กับ Supabase Production DB สลับเครื่องเล่นเปิดมาข้อมูลก็ยังอยู่ครบ',
+            'เพิ่มปุ่มเมนู 📝 บันทึกขั้นตอนสร้างเกม ใน Toolbar หน้าแรก และ Guide Bar ของบทเรียนทุกหน้า',
+        ],
+    },
+    {
         version: 'v1.217.0 (สร้างฟีเจอร์คลังคำศัพท์ Construct 2 พร้อมเสียงอ่านภาษาไทย & ตัวอย่างเหตุการณ์ใช้งาน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
