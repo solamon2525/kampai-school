@@ -31,4 +31,5 @@ let n=0;groups.forEach((g,gi)=>{const c=document.createElement("article");c.clas
 function save(){state.version=version.value;state.tester=tester.value;localStorage.setItem(key,JSON.stringify(state));update();saved.textContent="บันทึกแล้ว";setTimeout(()=>saved.textContent="",900)}
 function update(){const all=[...document.querySelectorAll('input[type=checkbox]')],done=all.filter(x=>x.checked).length,p=Math.round(done/all.length*100);count.textContent=done+" / "+all.length+" ("+p+"%)";fill.style.width=p+"%"}
 version.value=state.version||"";tester.value=state.tester||"";version.oninput=save;tester.oninput=save;reset.onclick=()=>{if(confirm("ล้างเครื่องหมายถูกและข้อมูลทั้งหมดหรือไม่?")){localStorage.removeItem(key);location.reload()}};update();
-</script></body></html>
+</script>  <script src="c2-lightbox.js"></script>
+</body></html>
