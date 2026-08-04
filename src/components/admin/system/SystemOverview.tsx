@@ -272,6 +272,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.217.0 (สร้างฟีเจอร์คลังคำศัพท์ Construct 2 พร้อมเสียงอ่านภาษาไทย & ตัวอย่างเหตุการณ์ใช้งาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มไฟล์ public/training/construct2-ban-khamphai/glossary.html คลังคำศัพท์ C2 สมบูรณ์แบบ 50+ คำศัพท์',
+            'พัฒนาคลังข้อมูล c2-glossary-data.js แบ่ง 5 หมวดหมู่ (IDE, Conditions, Actions, Behaviors, Variables) พร้อมระบุเหตุการณ์ที่ใช้ชัดเจน',
+            'สร้างระบบเสียงอ่าน c2-speech.js (Speech Synthesis) รองรับปุ่ม 🔊 ฟังเสียงอธิบายภาษาไทย และ 🗣️ เสียงออกเสียงภาษาอังกฤษ',
+            'เพิ่มปุ่มทางเข้า 📖 คลังคำศัพท์ C2 ใน Toolbar หน้าหลัก และ Guide Bar ในบทเรียนทุกหน้า',
+        ],
+    },
+    {
         version: 'v1.217.0 (ใบงานการหารยาว — เลือกหลักตัวหารและตัวตั้งได้อิสระ)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
