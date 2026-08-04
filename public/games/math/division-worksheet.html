@@ -116,9 +116,23 @@
         <option value="5">สร้าง 5 หน้าพร้อมกัน</option>
       </select>
       <select class="t-select" id="selGrade" aria-label="ระดับชั้นของใบงาน">
-        <option value="4" selected>ชั้น: ป.4 (หารไม่เกิน 3 หลัก)</option>
-        <option value="5">ชั้น: ป.5 (หารมีเศษ/ตัวหาร 2 หลัก)</option>
-        <option value="6">ชั้น: ป.6 (หารทศนิยม)</option>
+        <option value="4">ชั้น: ป.4 (ตัวหาร 1 หลัก ÷ ตัวตั้ง 3 หลัก)</option>
+        <option value="4_4d">ชั้น: ป.4 (ตัวหาร 1 หลัก ÷ ตัวตั้ง 4 หลัก)</option>
+        <option value="5_2d3d">ชั้น: ป.5 (ตัวหาร 2 หลัก ÷ ตัวตั้ง 3 หลัก เช่น 20 ÷ 269)</option>
+        <option value="5" selected>ชั้น: ป.5 (ตัวหาร 2 หลัก ÷ ตัวตั้ง 4 หลัก เช่น 21 ÷ 2456)</option>
+        <option value="6">ชั้น: ป.6 (หารทศนิยม / ลงตัว)</option>
+        <option value="custom">⚙️ กำหนดจำนวนหลักเอง...</option>
+      </select>
+      <select class="t-select" id="selDivisorDigits" aria-label="หลักตัวหาร" style="display:none">
+        <option value="1">ตัวหาร: 1 หลัก (2–9)</option>
+        <option value="2_round">ตัวหาร: 2 หลักเต็มสิบ (10,20..90)</option>
+        <option value="2" selected>ตัวหาร: 2 หลัก (10–99)</option>
+      </select>
+      <select class="t-select" id="selDividendDigits" aria-label="หลักตัวตั้ง" style="display:none">
+        <option value="2">ตัวตั้ง: 2 หลัก (10–99)</option>
+        <option value="3">ตัวตั้ง: 3 หลัก (100–999)</option>
+        <option value="4" selected>ตัวตั้ง: 4 หลัก (1,000–9,999)</option>
+        <option value="5">ตัวตั้ง: 5 หลัก (10,000–99,999)</option>
       </select>
       <select id="selCount" data-fixed-count="8" aria-label="จำนวนข้อต่อหน้า" hidden>
         <option value="8" selected>8 ข้อ/หน้า</option>
@@ -151,10 +165,39 @@ const R=(a,b)=>rng?rng.randomInt(a,b):(a+Math.floor(Math.random()*(b-a+1)));
 const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
 const MEDIA_URL = window.location.origin + '/games/math/long-division-thinking-media.html';
 const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
-function question(qi, grade, showRating=false){
-  let divisor = R(2,9), dividend = R(100,999);
-  if(grade === '5') { divisor = R(10,25); dividend = R(1000,9999); }
-  else if(grade === '6') { divisor = R(2,9); dividend = R(10,99)*10; }
+
+function getProblemNumbers(grade, divOpt, dvdOpt){
+  let divDigits = divOpt || '2';
+  let dvdDigits = dvdOpt || '4';
+  if(grade === '4'){ divDigits = '1'; dvdDigits = '3'; }
+  else if(grade === '4_4d'){ divDigits = '1'; dvdDigits = '4'; }
+  else if(grade === '5_2d3d'){ divDigits = '2_round'; dvdDigits = '3'; }
+  else if(grade === '5'){ divDigits = '2'; dvdDigits = '4'; }
+  else if(grade === '6'){ divDigits = '1'; dvdDigits = '3'; }
+
+  let divisor = 2, dividend = 100;
+  let attempts = 0;
+  do {
+    attempts++;
+    if(divDigits === '1') divisor = R(2,9);
+    else if(divDigits === '2_round') divisor = R(1,9) * 10;
+    else if(divDigits === '2') divisor = R(10,99);
+    else divisor = R(2,9);
+
+    if(dvdDigits === '2') dividend = R(10,99);
+    else if(dvdDigits === '3') dividend = R(100,999);
+    else if(dvdDigits === '4') dividend = R(1000,9999);
+    else if(dvdDigits === '5') dividend = R(10000,99999);
+    else dividend = R(100,999);
+
+    if(grade === '6') dividend = R(10,99) * 10;
+  } while(attempts < 50 && (dividend < divisor * 2));
+
+  return { divisor, dividend };
+}
+
+function question(qi, grade, divOpt, dvdOpt, showRating=false){
+  const { divisor, dividend } = getProblemNumbers(grade, divOpt, dvdOpt);
   
   const quotient = Math.floor(dividend / divisor);
   const remainder = dividend % divisor;
@@ -195,10 +238,19 @@ function question(qi, grade, showRating=false){
     return '<div class="ld-calc-row">'+placedValue(step.product, step.digitIndex, 'ld-product', productSpan)+'</div>'
       +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
   }).join('');
-  const rowHeight = dividendDigits.length >= 4 ? '5.6mm' : (workSteps.length <= 2 ? '7.8mm' : '6.3mm');
+  
+  let rowHeight = '6.3mm';
+  if (dividendDigits.length >= 5) {
+    rowHeight = workSteps.length >= 4 ? '4.2mm' : '4.8mm';
+  } else if (dividendDigits.length >= 4) {
+    rowHeight = workSteps.length >= 3 ? '5.2mm' : '5.8mm';
+  } else if (workSteps.length <= 2) {
+    rowHeight = '7.8mm';
+  }
+  const divisorWidth = String(divisor).length >= 2 ? '14mm' : '9mm';
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
-    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+rowHeight+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
+    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+rowHeight+';--ld-divisor-width:'+divisorWidth+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
     +'<div class="ld-quotient">'+quotientCells+'</div>'
     +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
     +'<div class="ld-work">'+workRows+'</div></div></div>'
@@ -226,11 +278,32 @@ function renderParentSlip(teacherName){
     +'<span>ลงชื่อผู้ปกครอง: .......................................</span></div>';
 }
 
+function syncDigitSelectors(fromGradeChange=false){
+  const grade = document.getElementById('selGrade')?.value;
+  const selDiv = document.getElementById('selDivisorDigits');
+  const selDvd = document.getElementById('selDividendDigits');
+  if(!selDiv || !selDvd) return;
+
+  if (fromGradeChange) {
+    if (grade === '4') { selDiv.value = '1'; selDvd.value = '3'; }
+    else if (grade === '4_4d') { selDiv.value = '1'; selDvd.value = '4'; }
+    else if (grade === '5_2d3d') { selDiv.value = '2_round'; selDvd.value = '3'; }
+    else if (grade === '5') { selDiv.value = '2'; selDvd.value = '4'; }
+    else if (grade === '6') { selDiv.value = '1'; selDvd.value = '3'; }
+  }
+
+  const isCustom = grade === 'custom';
+  selDiv.style.display = isCustom ? 'inline-block' : 'none';
+  selDvd.style.display = isCustom ? 'inline-block' : 'none';
+}
+
 function currentConfig(){
   return{
     style:document.getElementById('selStyle')?.value||'standard',
     pageCount:document.getElementById('selPageCount')?.value||'1',
-    grade:document.getElementById('selGrade')?.value||'4',
+    grade:document.getElementById('selGrade')?.value||'5',
+    divisorDigits:document.getElementById('selDivisorDigits')?.value||'2',
+    dividendDigits:document.getElementById('selDividendDigits')?.value||'4',
     count:8,
     schoolName:document.getElementById('inpSchool')?.value||'',
     teacherName:document.getElementById('selTeacher')?.value||'',
@@ -242,10 +315,13 @@ function applyConfig(cfg){
   if(cfg.style!=null&&document.getElementById('selStyle'))document.getElementById('selStyle').value=String(cfg.style);
   if(cfg.pageCount!=null&&document.getElementById('selPageCount'))document.getElementById('selPageCount').value=String(cfg.pageCount);
   if(cfg.grade!=null&&document.getElementById('selGrade'))document.getElementById('selGrade').value=String(cfg.grade);
+  if(cfg.divisorDigits!=null&&document.getElementById('selDivisorDigits'))document.getElementById('selDivisorDigits').value=String(cfg.divisorDigits);
+  if(cfg.dividendDigits!=null&&document.getElementById('selDividendDigits'))document.getElementById('selDividendDigits').value=String(cfg.dividendDigits);
   if(document.getElementById('selCount'))document.getElementById('selCount').value='8';
   if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
   if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
   if(cfg.useMode!=null&&document.getElementById('selUseMode'))document.getElementById('selUseMode').value=String(cfg.useMode);
+  syncDigitSelectors(false);
 }
 
 function getQuestions(){return Array.from(document.querySelectorAll('#pages .q'))}
@@ -275,11 +351,26 @@ function toggleAllAnswers(){
 }
 
 function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName, teacherName){
-  let qs = ''; for(let i=1; i<=count; i++) qs += question(i, grade, style==='progressive');
-  const indicatorLabel = grade === '4' ? 'ค 1.1 ป.4/9' : 'ทบทวน ค 1.1 ป.4/9';
+  const divOpt = document.getElementById('selDivisorDigits')?.value || '2';
+  const dvdOpt = document.getElementById('selDividendDigits')?.value || '4';
+  let qs = ''; for(let i=1; i<=count; i++) qs += question(i, grade, divOpt, dvdOpt, style==='progressive');
+  
+  let indicatorLabel = 'ค 1.1 ป.5/8';
+  let gradeDisplay = 'ป.5';
+  if (grade === '4' || grade === '4_4d') {
+    gradeDisplay = 'ป.4';
+    indicatorLabel = 'ค 1.1 ป.4/9';
+  } else if (grade === '6') {
+    gradeDisplay = 'ป.6';
+    indicatorLabel = 'ทบทวน ค 1.1 ป.6/1';
+  } else if (grade === 'custom') {
+    gradeDisplay = 'กำหนดหลักเอง';
+    indicatorLabel = 'ค 1.1';
+  }
+  
   return '<section class="sheet"><header class="sheet-head">'
     +'<div class="qr-box"><img class="qr-img" src="'+QR_API+'" alt="QR" /><span class="qr-label">สแกนดูวิธีคิด</span></div>'
-    +'<div class="sheet-title"><h2>➗ ใบงานการหารยาว — ชั้น ป.'+grade+'</h2><span class="level">'+indicatorLabel+'</span></div>'
+    +'<div class="sheet-title"><h2>➗ ใบงานการหารยาว — ชั้น '+gradeDisplay+'</h2><span class="level">'+indicatorLabel+'</span></div>'
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="student-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
     +'<div class="directions"><span>คำชี้แจง: ตั้งหารให้ตรงหลัก เขียนผลคูณใต้จำนวนที่หาร ขีดเส้น ลบ แล้วดึงเลขหลักถัดไปลงมา</span><span class="indicator">'+indicatorLabel+'</span></div>'
@@ -365,7 +456,23 @@ async function bootSets(){
 }
 
 document.getElementById('btnRandom').onclick = randomize;
-['selStyle','selPageCount','selGrade','selCount','selTeacher'].forEach((id)=>{
+document.getElementById('selGrade').onchange = () => {
+  syncDigitSelectors(true);
+  render();
+  if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+};
+['selDivisorDigits', 'selDividendDigits'].forEach((id) => {
+  const el = document.getElementById(id);
+  if(el){
+    el.onchange = () => {
+      if(document.getElementById('selGrade')) document.getElementById('selGrade').value = 'custom';
+      syncDigitSelectors(false);
+      render();
+      if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
+    };
+  }
+});
+['selStyle','selPageCount','selCount','selTeacher'].forEach((id)=>{
   document.getElementById(id).onchange=()=>{
     render();
     if(setsUi?.refreshSuggestedTitle)setsUi.refreshSuggestedTitle(true);
