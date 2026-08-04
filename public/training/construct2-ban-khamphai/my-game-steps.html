@@ -74,85 +74,98 @@ a{text-decoration:none;color:inherit}
 /* MAIN CONTENT */
 .b-content{max-width:1200px;margin:24px auto 60px;padding:0 40px}
 
-/* STEP ROWS LIST */
-.b-list{display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
+/* STEP CARDS LIST */
+.b-list{display:flex;flex-direction:column;gap:18px;margin-bottom:24px}
 
 .b-row{
-  background:#fff;border-radius:16px;border:2px solid #e2e8f0;
-  box-shadow:0 2px 8px rgba(0,0,0,0.03);padding:16px 20px;
-  display:grid;grid-template-columns:36px 44px 1fr 150px 1.5fr 40px 40px;
-  gap:12px;align-items:center;
+  background:#fff;border-radius:16px;border:2px solid #cbd5e1;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);padding:18px 22px;
+  display:flex;flex-direction:column;gap:12px;
   transition:transform .15s,box-shadow .15s,border-color .15s;
   position:relative;
 }
-.b-row:hover{border-color:#cbd5e1;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+.b-row:hover{border-color:#94a3b8;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
 .b-row.dragging{opacity:.4;border-style:dashed}
 .b-row.drag-over{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.25)}
-.b-row.completed{background:#f8fafc;border-color:#cbd5e1;opacity:.8}
+.b-row.completed{background:#f8fafc;border-color:#cbd5e1;opacity:.85}
 .b-row.completed .b-input-title{text-decoration:line-through;color:#64748b}
 
+/* TOP HEADER BAR OF STEP CARD */
+.b-row-top{
+  display:flex;align-items:center;gap:12px;width:100%;
+}
+
 .b-handle{
-  display:grid;place-items:center;width:32px;height:32px;border-radius:8px;
+  display:grid;place-items:center;width:34px;height:34px;border-radius:8px;
   background:#f1f5f9;color:#64748b;font-size:18px;cursor:grab;user-select:none;
+  flex-shrink:0;
 }
 .b-handle:active{cursor:grabbing}
 
 .b-num{
   display:grid;place-items:center;width:36px;height:36px;border-radius:50%;
-  background:#0f2744;color:#fbbf24;font-weight:900;font-size:14px;
+  background:#0f2744;color:#fbbf24;font-weight:900;font-size:15px;
+  flex-shrink:0;
 }
 
 .b-input{
-  font-family:inherit;font-size:14px;padding:8px 12px;border:1.5px solid #cbd5e1;
-  border-radius:8px;outline:none;transition:border-color .15s;background:#fff;
+  font-family:inherit;font-size:14px;padding:9px 14px;border:1.5px solid #cbd5e1;
+  border-radius:10px;outline:none;transition:border-color .15s;background:#fff;
+  color:#1e293b;
 }
-.b-input:focus{border-color:#2563eb;background:#fff}
+.b-input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 
-.b-input-title{font-weight:700;color:#0f2744}
+.b-input-title{font-weight:700;color:#0f2744;flex:1;font-size:15px}
 
 .b-select-cat{
-  appearance:none;padding-right:24px;font-weight:600;color:#475569;
+  appearance:none;padding-right:28px;font-weight:700;color:#475569;
   background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center;
+  background-repeat:no-repeat;background-position:right 10px center;
+  flex-shrink:0;min-width:140px;
 }
 
-.b-checkbox-wrap{display:flex;align-items:center;justify-content:center}
-.b-checkbox{width:22px;height:22px;cursor:pointer;accent-color:#16a34a}
+.b-checkbox-wrap{
+  display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+  color:#166534;background:#f0fdf4;padding:6px 12px;border-radius:8px;
+  border:1px solid #bbf7d0;flex-shrink:0;cursor:pointer;
+}
+.b-checkbox{width:20px;height:20px;cursor:pointer;accent-color:#16a34a}
 
 .b-btn-del{
   width:36px;height:36px;border-radius:8px;border:none;background:#fff1f2;
   color:#e11d48;font-size:16px;cursor:pointer;display:grid;place-items:center;
-  transition:background .15s;
+  transition:background .15s;flex-shrink:0;
 }
 .b-btn-del:hover{background:#ffe4e6;color:#be123c}
 
+/* MULTI-LINE TEXTAREA DETAIL BOX */
+.b-row-bottom{width:100%;}
+.b-input-detail{
+  width:100%;min-height:72px;font-size:14px;line-height:1.6;
+  resize:vertical;font-family:inherit;color:#334155;
+  background:#f8fafc;padding:10px 14px;border-radius:10px;
+}
+.b-input-detail:focus{background:#fff;border-color:#2563eb}
+
 /* PRINT FORMATTING */
 @media print{
-  .b-hero,.b-toolbar,.b-handle,.b-btn-del,.b-checkbox-wrap,.b-add-bar{display:none!important}
+  .b-hero,.b-toolbar,.b-handle,.b-btn-del,.b-checkbox-wrap{display:none!important}
   body{background:#fff}
   .b-content{max-width:100%;margin:0;padding:0}
   .b-row{
-    grid-template-columns:30px 1fr 120px 1.5fr;border:1px solid #cbd5e1;
-    box-shadow:none;break-inside:avoid;margin-bottom:8px;padding:10px 14px;
+    border:1px solid #cbd5e1;box-shadow:none;break-inside:avoid;
+    margin-bottom:12px;padding:12px 16px;
   }
-  .b-input{border:none!important;padding:0!important}
+  .b-input{border:none!important;padding:0!important;background:none!important}
+  .b-input-detail{min-height:auto!important;resize:none!important}
 }
 
-@media(max-width:900px){
-  .b-row{
-    grid-template-columns:30px 36px 1fr 36px 36px;
-    grid-template-areas:
-      "handle num title check del"
-      "cat cat detail detail detail";
-    gap:8px;
-  }
-  .b-handle{grid-area:handle}
-  .b-num{grid-area:num}
-  .b-input-title{grid-area:title}
-  .b-checkbox-wrap{grid-area:check}
-  .b-btn-del{grid-area:del}
-  .b-select-cat{grid-area:cat}
-  .b-input-detail{grid-area:detail}
+@media(max-width:768px){
+  .b-row-top{flex-wrap:wrap}
+  .b-input-title{min-width:100%;order:3}
+  .b-select-cat{order:4;flex:1}
+  .b-checkbox-wrap{order:5}
+  .b-btn-del{order:6}
   .b-toolbar{padding:10px 16px}
   .b-content{padding:0 16px}
 }
@@ -165,7 +178,7 @@ a{text-decoration:none;color:inherit}
   <div class="b-hero-inner">
     <div class="b-hero-eyebrow">📝 MY CUSTOM GAME BUILDER PLANNER</div>
     <h1>สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว</h1>
-    <p>พิมพ์เรียงขั้นตอนการสร้างเกมของคุณเอง เพิ่มขั้นตอน ลากสลับเรียงลำดับ และบันทึกซิงก์ตรงลง Production DB โดยอัตโนมัติ!</p>
+    <p>พิมพ์เรียงขั้นตอนการสร้างเกมของคุณเอง เพิ่มขั้นตอน ลากสลับเรียงลำดับ ปรับขนาดช่องพิมพ์ได้อิสระ และบันทึกซิงก์ตรงลง Production DB โดยอัตโนมัติ!</p>
     
     <div class="b-nav-btns">
       <a href="index.html" class="b-nav-btn">← กลับหน้าหลักหลักสูตร</a>
@@ -217,12 +230,12 @@ a{text-decoration:none;color:inherit}
   var syncTextEl = document.getElementById('syncText');
 
   var DEFAULT_TEMPLATE = [
-    { id:'s1', title:'สร้างโปรเจกต์ใหม่และตั้งขนาด Layout', category:'IDE / Layout', detail:'Window size: 1500×960 | Layout size: 4500×960 | ตั้งชื่อฉากว่า game', done:true },
-    { id:'s2', title:'สร้างพื้นดิน TiledBackground และใส่ Solid behavior', category:'Behaviors', detail:'วาง TiledBackground2 บน Layer game ➔ Add behavior: Solid (เพื่อให้ตัวละครยืนได้)', done:true },
-    { id:'s3', title:'สร้าง Sprite player และใส่ Platform + Scroll To', category:'Behaviors', detail:'วาง player ➔ Add behaviors: Platform (Jump 650, Gravity 1500) + Scroll To (กล้องติดตาม)', done:true },
-    { id:'s4', title:'เขียน Event แอนิเมชันเดิน กระโดด และสลับหน้าซ้ายขวา', category:'Event Sheet', detail:'Is moving ➔ set anim "walk" | On floor ➔ set anim "Stand" | Is moving left ➔ Set mirrored', done:false },
-    { id:'s5', title:'เขียน Event ชนมอนสเตอร์แล้วลดหัวใจ', category:'Event Sheet', detail:'player On collision with monster + Trigger once ➔ Subtract 1 from หัวใจ + Flash 2s', done:false },
-    { id:'s6', title:'สร้างเกาะลอยคำตอบและตรวจเช็กเคลียร์ด่าน', category:'เกาะคำตอบ', detail:'วาง answer_orb 10 ช่อง + ตรวจสอบการชนประตูเคลียร์ด่านไป Layout game2', done:false }
+    { id:'s1', title:'สร้างโปรเจกต์ใหม่และตั้งขนาด Layout', category:'IDE / Layout', detail:'Window size: 1500×960\nLayout size: 4500×960\nตั้งชื่อฉากว่า game', done:true },
+    { id:'s2', title:'สร้างพื้นดิน TiledBackground และใส่ Solid behavior', category:'Behaviors', detail:'วาง TiledBackground2 บน Layer game\nAdd behavior: Solid (เพื่อให้ตัวละครยืนบนพื้นได้)', done:true },
+    { id:'s3', title:'สร้าง Sprite player และใส่ Platform + Scroll To', category:'Behaviors', detail:'วาง player ➔ Add behaviors:\n- Platform (Jump 650, Gravity 1500)\n- Scroll To (กล้องติดตามตัวละคร)', done:true },
+    { id:'s4', title:'เขียน Event แอนิเมชันเดิน กระโดด และสลับหน้าซ้ายขวา', category:'Event Sheet', detail:'Is moving ➔ set anim "walk"\nOn floor ➔ set anim "Stand"\nIs moving left ➔ Set mirrored (หันซ้าย)', done:false },
+    { id:'s5', title:'เขียน Event ชนมอนสเตอร์แล้วลดหัวใจ', category:'Event Sheet', detail:'player On collision with monster + Trigger once\n➔ Subtract 1 from หัวใจ\n➔ player Flash 2s (อมตะชั่วคราว)', done:false },
+    { id:'s6', title:'สร้างเกาะลอยคำตอบและตรวจเช็กเคลียร์ด่าน', category:'เกาะคำตอบ', detail:'วาง answer_orb 10 ช่อง\nตรวจสอบการชนประตูเคลียร์ด่าน เพื่อไป Layout game2', done:false }
   ];
 
   function setSyncStatus(msg, isSuccess) {
@@ -285,12 +298,10 @@ a{text-decoration:none;color:inherit}
   // Save to Supabase Production DB + LocalStorage
   function saveAll() {
     setSyncStatus('กำลังบันทึก...', true);
-    // Save to LocalStorage
     try {
       localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
     } catch(e){}
 
-    // Upsert to Supabase Production DB
     var payload = {
       id: 'default_plan',
       project_name: state.projectName,
@@ -354,13 +365,20 @@ a{text-decoration:none;color:inherit}
       }).join('');
 
       row.innerHTML = 
-        '<div class="b-handle" title="ลากสลับลำดับ">☰</div>' +
-        '<div class="b-num">' + (idx + 1) + '</div>' +
-        '<input type="text" class="b-input b-input-title" data-field="title" value="' + esc(step.title) + '" placeholder="ระบุชื่อขั้นตอนการทำงาน...">' +
-        '<select class="b-input b-select-cat" data-field="category">' + optionsHtml + '</select>' +
-        '<input type="text" class="b-input b-input-detail" data-field="detail" value="' + esc(step.detail) + '" placeholder="ระบุรายละเอียดคำสั่ง/เงื่อนไขที่ต้องตั้งค่า...">' +
-        '<div class="b-checkbox-wrap"><input type="checkbox" class="b-checkbox" data-field="done"' + (step.done ? ' checked' : '') + ' title="ทำเสร็จแล้ว"></div>' +
-        '<button type="button" class="b-btn-del" data-act="del" title="ลบขั้นตอนนี้">🗑️</button>';
+        '<div class="b-row-top">' +
+          '<div class="b-handle" title="ลากสลับลำดับ">☰</div>' +
+          '<div class="b-num">' + (idx + 1) + '</div>' +
+          '<input type="text" class="b-input b-input-title" data-field="title" value="' + esc(step.title) + '" placeholder="ระบุชื่อขั้นตอนการทำงาน...">' +
+          '<select class="b-input b-select-cat" data-field="category">' + optionsHtml + '</select>' +
+          '<label class="b-checkbox-wrap" title="คลิกเมื่อทำเสร็จแล้ว">' +
+            '<input type="checkbox" class="b-checkbox" data-field="done"' + (step.done ? ' checked' : '') + '>' +
+            '<span>เสร็จแล้ว</span>' +
+          '</label>' +
+          '<button type="button" class="b-btn-del" data-act="del" title="ลบขั้นตอนนี้">🗑️</button>' +
+        '</div>' +
+        '<div class="b-row-bottom">' +
+          '<textarea class="b-input b-input-detail" data-field="detail" rows="2" placeholder="ระบุรายละเอียดคำสั่ง/เงื่อนไขที่ต้องตั้งค่า (พิมพ์ได้หลายบรรทัด ยืดขยายขนาดช่องได้ตามต้องการ)...">' + esc(step.detail) + '</textarea>' +
+        '</div>';
 
       stepListEl.appendChild(row);
     });
