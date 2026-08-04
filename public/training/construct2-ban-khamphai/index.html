@@ -3,233 +3,797 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>คู่มือ2 — Construct 2 จาก 0 ถึงขั้นสูง</title>
-<link rel="stylesheet" href="common.css">
+<title>คู่มือ Construct 2 — หลักสูตรสร้างเกมครบเส้นทาง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap">
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b;
-background:linear-gradient(165deg,#e8f4ff 0%,#f7fbef 42%,#fff4e8 100%);overflow:auto}
-.wrap{max-width:980px;margin:0 auto;padding:28px 28px 72px}
-.head{background:linear-gradient(130deg,#5c2d0e,#c67a28);color:#fff;border-radius:26px;padding:28px 34px;box-shadow:0 9px 0 #3d1e08}
-.tag{color:#ffe4b8;font-size:18px;font-weight:800}
-h1{font-size:34px;margin:6px 0 10px;line-height:1.15}
-.head p{margin:0;font-size:17px;color:#fff6e8;line-height:1.45}
-.path-visual{display:flex;align-items:center;gap:12px;margin-top:16px;background:rgba(0,0,0,0.15);padding:12px 18px;border-radius:16px;font-weight:700;flex-wrap:wrap;}
-.path-visual span{background:#fff;color:#5c2d0e;padding:4px 12px;border-radius:20px;font-size:14px;}
-.path-visual .arrow{color:#ffe4b8;font-size:18px;}
+/* ======================================================
+   RESET & BASE
+====================================================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  min-height:100%;font-family:'Sarabun',sans-serif;color:#1e293b;
+  background:#f0f4fa;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
 
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;align-items:center}
-.toolbar button, .toolbar select, .toolbar input, .assets-btn{appearance:none;border:3px solid #d4a574;background:#fff;color:#5c2d0e;font-weight:800;font-size:15px;border-radius:12px;padding:10px 16px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #ecd5b8;text-decoration:none;display:inline-block;}
-.toolbar button.primary, .assets-btn.primary{background:#1f8a5b;border-color:#16704a;color:#fff;box-shadow:0 3px 0 #0f5a3b}
-.toolbar input{cursor:text;min-width:200px;font-weight:600;}
-.toolbar select{padding-right:24px;}
+/* ======================================================
+   HERO HEADER
+====================================================== */
+.hero{
+  background:linear-gradient(135deg,#0f2744 0%,#1e3a5f 55%,#1a3352 100%);
+  color:#fff;padding:36px 40px 32px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;}
+.hero-eyebrow{
+  font-size:13px;font-weight:700;color:#fbbf24;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.hero-eyebrow::before{content:'';display:inline-block;width:24px;height:2px;background:#fbbf24;border-radius:2px}
+.hero h1{font-size:clamp(24px,3.5vw,38px);font-weight:800;line-height:1.2;margin-bottom:8px;letter-spacing:-.01em}
+.hero-sub{font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:24px}
 
-.tabs{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 24px;}
-.tab{background:#fff;border:3px solid #e0c896;padding:12px 20px;border-radius:16px;font-weight:800;font-size:16px;color:#5c2d0e;cursor:pointer;box-shadow:0 4px 0 #f0dcb0;flex:1;text-align:center;transition:all 0.1s;}
-.tab.active{transform:translateY(4px);box-shadow:0 0 0 #f0dcb0;background:#fff3e0;border-color:#c67a28;}
-.tab[data-level="beginner"]{border-color:#7eb8d8;}
-.tab[data-level="core"]{border-color:#efbd55;}
-.tab[data-level="advanced"]{border-color:#c49bdb;}
-.tab.active[data-level="beginner"]{background:#e8f6ff;}
-.tab.active[data-level="core"]{background:#fffaf0;}
-.tab.active[data-level="advanced"]{background:#fdf9ff;}
+.hero-tracks{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+.track-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:14px;font-weight:700;font-size:14px;
+  border:2px solid;backdrop-filter:blur(4px);transition:transform .15s,box-shadow .15s;
+  cursor:default;
+}
+.track-pill:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.25)}
+.track-pill.beginner{border-color:rgba(59,130,246,0.6);background:rgba(59,130,246,0.12);color:#93c5fd}
+.track-pill.core{border-color:rgba(251,191,36,0.6);background:rgba(251,191,36,0.12);color:#fbbf24}
+.track-pill.advanced{border-color:rgba(167,139,250,0.6);background:rgba(167,139,250,0.12);color:#c4b5fd}
+.track-count{
+  font-size:11px;background:rgba(255,255,255,0.15);padding:2px 8px;
+  border-radius:20px;font-weight:600;
+}
+.track-arrow{color:rgba(255,255,255,0.3);font-size:20px;align-self:center}
 
-.note{margin:14px 0 18px;background:#fff;border:3px solid #e8c88a;border-radius:18px;padding:14px 18px;font-size:16px;line-height:1.5;box-shadow:0 5px 0 #f0dcb0}
-.note b{color:#5c2d0e}
-.phase{margin:18px 0 6px;font-size:13px;font-weight:900;color:#8a4a12;letter-spacing:.04em}
-.list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
-.item{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:#fff;border:3px solid #e0c896;border-radius:18px;padding:12px 14px;box-shadow:0 5px 0 #f0dcb0;cursor:grab;user-select:none}
-.item.core{border-color:#efbd55;background:#fffaf0}
-.item.beginner{border-color:#7eb8d8;background:#f3faff}
-.item.advanced{border-color:#c49bdb;background:#faf5ff}
-.item.dragging{opacity:.55;border-style:dashed}
-.item.drag-over{border-color:#c67a28;transform:scale(1.01)}
-.handle{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#fff3e0;color:#5c2d0e;font-size:22px;font-weight:900}
-.num{display:inline-grid;place-items:center;min-width:36px;height:36px;border-radius:50%;background:#ffd04a;color:#20365a;font-weight:900;font-size:18px;margin-right:8px}
-.main a{color:inherit;text-decoration:none}
-h2{display:inline;font-size:20px;color:#5c2d0e;margin:0}
-.desc{margin:6px 0 0;font-size:14px;color:#566578;line-height:1.35}
-.tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
-.tag-badge{background:#e2e8f0;color:#475569;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;}
-.item.beginner .tag-badge{background:#dbeafe;color:#1e40af;}
-.item.core .tag-badge{background:#fef3c7;color:#92400e;}
-.item.advanced .tag-badge{background:#f3e8ff;color:#6b21a8;}
-.level-ind{font-size:18px;margin-left:4px;vertical-align:middle;}
-.controls{display:flex;gap:6px}
-.controls button{width:36px;height:36px;border-radius:10px;border:2px solid #e0c896;background:#fff;font-size:16px;font-weight:900;cursor:pointer;color:#5c2d0e;font-family:inherit}
-.open{display:inline-block;margin-top:8px;background:#c67a28;color:#fff;text-decoration:none;font-weight:800;font-size:13px;border-radius:9px;padding:6px 12px}
-.status{min-height:22px;margin-top:10px;font-size:14px;color:#1f8a5b;font-weight:700}
-.foot{margin-top:24px;color:#425268;font-size:14px;line-height:1.45}
-@media print{.toolbar,.tabs,.controls,.handle,.status,.open,.phase{display:none!important}.item{break-inside:avoid}}
+.hero-progress-wrap{background:rgba(255,255,255,0.08);border-radius:16px;padding:16px 20px}
+.hero-progress-label{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:14px;margin-bottom:10px;
+}
+.hero-progress-label strong{color:#fbbf24;font-size:16px}
+.hero-progress-bar{background:rgba(255,255,255,0.12);border-radius:99px;height:8px;overflow:hidden}
+.hero-progress-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#fbbf24,#f59e0b);
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* ======================================================
+   TOOLBAR
+====================================================== */
+.toolbar-wrap{
+  background:#fff;border-bottom:1px solid #e2e8f0;
+  padding:12px 40px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.toolbar-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search-box{
+  display:flex;align-items:center;gap:8px;background:#f8fafc;
+  border:2px solid #e2e8f0;border-radius:12px;padding:8px 14px;
+  flex:1;min-width:180px;max-width:280px;transition:border-color .15s;
+}
+.search-box:focus-within{border-color:#3b82f6}
+.search-box svg{color:#94a3b8;flex-shrink:0}
+.search-box input{
+  border:none;background:none;outline:none;font-size:14px;
+  font-family:inherit;color:#1e293b;width:100%;
+}
+.search-box input::placeholder{color:#94a3b8}
+.tb-select{
+  appearance:none;border:2px solid #e2e8f0;background:#fff;
+  color:#475569;font-size:13px;font-family:inherit;font-weight:600;
+  border-radius:10px;padding:8px 30px 8px 12px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.tb-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:2px solid #e2e8f0;background:#fff;color:#475569;
+  font-size:13px;font-weight:700;font-family:inherit;
+  border-radius:10px;padding:8px 14px;cursor:pointer;transition:all .15s;
+}
+.tb-btn:hover{border-color:#94a3b8;background:#f8fafc;color:#1e293b}
+.tb-btn.primary{background:#1e3a5f;border-color:#1e3a5f;color:#fff}
+.tb-btn.primary:hover{background:#0f2744;border-color:#0f2744}
+.tb-btn.gold{background:linear-gradient(135deg,#f59e0b,#d97706);border-color:#d97706;color:#fff}
+.tb-btn.gold:hover{background:linear-gradient(135deg,#d97706,#b45309);border-color:#b45309}
+.tb-spacer{flex:1}
+
+/* ======================================================
+   FILTER TABS
+====================================================== */
+.tabs-wrap{max-width:1200px;margin:0 auto;padding:20px 40px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.tab{
+  display:flex;align-items:center;gap:7px;padding:10px 20px;border-radius:12px;
+  font-weight:700;font-size:14px;border:2px solid #e2e8f0;background:#fff;
+  color:#64748b;cursor:pointer;transition:all .15s;user-select:none;
+}
+.tab:hover{border-color:#94a3b8;color:#1e293b}
+.tab.active{color:#fff;border-color:transparent}
+.tab[data-level="all"].active{background:#1e3a5f}
+.tab[data-level="beginner"].active{background:#3b82f6}
+.tab[data-level="core"].active{background:#d97706}
+.tab[data-level="advanced"].active{background:#7c3aed}
+.tab-count{
+  font-size:11px;background:rgba(255,255,255,0.25);padding:2px 7px;
+  border-radius:20px;font-weight:700;
+}
+.tab:not(.active) .tab-count{background:rgba(0,0,0,0.06);color:#94a3b8}
+
+.learning-tip{
+  background:linear-gradient(135deg,#eff6ff,#f0fdf4);
+  border:2px solid #dbeafe;border-radius:14px;padding:14px 18px;
+  font-size:14px;line-height:1.6;color:#1e3a5f;margin-bottom:24px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.tip-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+
+/* ======================================================
+   CARD GRID
+====================================================== */
+.content-wrap{max-width:1200px;margin:0 auto;padding:0 40px 60px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#fff;border-radius:18px;overflow:hidden;
+  border:2px solid #e2e8f0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  display:flex;flex-direction:column;
+  cursor:grab;user-select:none;
+  position:relative;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.12)}
+.card:active{cursor:grabbing}
+.card.dragging{opacity:.45;transform:rotate(1deg);border-style:dashed}
+.card.drag-over{border-color:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,0.3)}
+.card.done{border-color:#22c55e}
+.card.done .card-thumb-wrap::after{
+  content:'✓ เรียนแล้ว';position:absolute;inset:0;
+  background:rgba(15,23,42,0.55);display:flex;align-items:center;
+  justify-content:center;font-size:18px;font-weight:800;color:#4ade80;
+  letter-spacing:.05em;backdrop-filter:blur(2px);
+}
+
+/* Level accent */
+.card.beginner{border-left:4px solid #3b82f6}
+.card.core{border-left:4px solid #f59e0b}
+.card.advanced{border-left:4px solid #7c3aed}
+
+/* Thumbnail */
+.card-thumb-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0f2744}
+.card-thumb{width:100%;height:100%;object-fit:cover;transition:transform .3s ease;display:block}
+.card:hover .card-thumb{transform:scale(1.04)}
+.card-level-badge{
+  position:absolute;top:10px;left:10px;
+  padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;
+  backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);
+}
+.beginner .card-level-badge{background:rgba(59,130,246,0.85);color:#fff}
+.core     .card-level-badge{background:rgba(217,119,6,0.85);color:#fff}
+.advanced .card-level-badge{background:rgba(124,58,237,0.85);color:#fff}
+.card-num{
+  position:absolute;top:10px;right:10px;
+  width:30px;height:30px;border-radius:50%;
+  background:#1e3a5f;color:#fbbf24;
+  font-weight:900;font-size:13px;display:grid;place-items:center;
+  border:2px solid rgba(251,191,36,0.5);
+}
+
+/* Card body */
+.card-body{padding:16px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card-title{font-size:16px;font-weight:800;color:#1e293b;line-height:1.35}
+.card-title a{color:inherit}
+.card-title a:hover{color:#1e3a5f}
+.card-desc{font-size:13px;color:#64748b;line-height:1.5}
+
+/* Progress */
+.card-progress-row{display:flex;align-items:center;gap:8px}
+.card-progress-bar{flex:1;background:#f1f5f9;border-radius:99px;height:6px;overflow:hidden}
+.card-progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#fbbf24,#f59e0b);transition:width .5s}
+.card-progress-pct{font-size:11px;font-weight:700;color:#94a3b8;white-space:nowrap}
+
+/* Tags */
+.card-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag-badge{
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;
+}
+.beginner .tag-badge{background:#dbeafe;color:#1d4ed8}
+.core     .tag-badge{background:#fef3c7;color:#92400e}
+.advanced .tag-badge{background:#ede9fe;color:#5b21b6}
+
+/* Card footer */
+.card-footer{
+  padding:12px 18px;border-top:1px solid #f1f5f9;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-open{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#1e3a5f;color:#fff;font-size:13px;font-weight:700;
+  font-family:inherit;border:none;border-radius:10px;padding:9px 16px;
+  cursor:pointer;text-decoration:none;transition:background .15s;flex:1;
+  justify-content:center;
+}
+.btn-open:hover{background:#0f2744}
+.btn-done{
+  display:inline-flex;align-items:center;gap:5px;
+  border:2px solid #e2e8f0;background:#fff;color:#64748b;
+  font-size:12px;font-weight:700;font-family:inherit;
+  border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .15s;
+  flex-shrink:0;
+}
+.btn-done:hover{border-color:#22c55e;color:#15803d;background:#f0fdf4}
+.card.done .btn-done{background:#f0fdf4;border-color:#22c55e;color:#15803d}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+.empty{
+  grid-column:1/-1;text-align:center;padding:64px 20px;
+  color:#94a3b8;
+}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:20px;font-weight:700;color:#475569;margin-bottom:6px}
+
+/* ======================================================
+   STATUS BAR
+====================================================== */
+.status-bar{
+  text-align:center;padding:12px;font-size:13px;font-weight:700;
+  color:#1f8a5b;min-height:36px;transition:opacity .3s;
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+.page-footer{
+  text-align:center;padding:24px;font-size:13px;color:#94a3b8;
+  border-top:1px solid #e2e8f0;background:#fff;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media(max-width:768px){
+  .hero{padding:24px 20px}
+  .hero-tracks{gap:8px}
+  .toolbar-wrap{padding:10px 16px}
+  .tabs-wrap,.content-wrap{padding-left:16px;padding-right:16px}
+  .grid{grid-template-columns:1fr}
+}
+@media(max-width:540px){
+  .grid{grid-template-columns:1fr}
+}
+
+/* ======================================================
+   PRINT
+====================================================== */
+@media print{
+  .toolbar-wrap,.tabs-wrap,.card-footer,.card-progress-row,.card-tags{display:none!important}
+  .card{break-inside:avoid;box-shadow:none;transform:none!important}
+  .hero{background:#1e3a5f!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
 </style>
 </head>
-<body class="guide-index">
-<div class="wrap">
- <header class="head">
-  <div class="tag">คู่มือ2 · Construct 2 · จาก 0 ถึงขั้นสูง · master_v32</div>
-  <h1>หลักสูตรสร้างเกมครบเส้นทาง (29 บทเรียน)</h1>
-  <p>เรียนรู้วิธีสร้างเกมด้วย Construct 2 ครบจบในที่เดียว ลากเรียงได้ ค้นหาได้</p>
-  <div class="path-visual">
-    <span>🐣 พื้นฐาน (B1-B6)</span>
-    <div class="arrow">→</div>
-    <span>🎮 ระบบเกมหลัก (01-16)</span>
-    <div class="arrow">→</div>
-    <span>🚀 ขั้นสูง (A1-A7)</span>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">📚 คู่มือ Construct 2 · จาก 0 ถึงขั้นสูง · master_v32</div>
+    <h1>หลักสูตรสร้างเกมครบเส้นทาง</h1>
+    <p class="hero-sub">เรียนรู้วิธีสร้างเกมด้วย Construct 2 ครบจบในที่เดียว — ลากเรียงได้ · ค้นหาได้ · ติดตาม Progress ได้</p>
+
+    <div class="hero-tracks">
+      <div class="track-pill beginner">🐣 พื้นฐาน (B1–B6) <span class="track-count">6 บท</span></div>
+      <div class="track-arrow">→</div>
+      <div class="track-pill core">🎮 ระบบเกมหลัก (01–16) <span class="track-count">16 บท</span></div>
+      <div class="track-arrow">→</div>
+      <div class="track-pill advanced">🚀 ขั้นสูง (A1–A7) <span class="track-count">7 บท</span></div>
+    </div>
+
+    <div class="hero-progress-wrap">
+      <div class="hero-progress-label">
+        <span id="progressText">กำลังโหลด...</span>
+        <strong id="progressBadge"></strong>
+      </div>
+      <div class="hero-progress-bar">
+        <div class="hero-progress-fill" id="heroProgressFill" style="width:0%"></div>
+      </div>
+    </div>
   </div>
- </header>
+</header>
 
- <div class="toolbar">
-  <input type="text" id="inpSearch" placeholder="ค้นหาบทเรียน...">
-  <select id="selTag">
-    <option value="">ทุกแท็ก</option>
-  </select>
-  <button type="button" class="primary" id="btnPrint">พิมพ์สารบัญ</button>
-  <button type="button" id="btnReset">คืนลำดับเดิม</button>
-  <button type="button" id="btnTop">↑ ขึ้นบนสุด</button>
-  <a href="master_v32.capx" class="assets-btn" download>โหลดไฟล์ Assets</a>
- </div>
+<!-- ============ TOOLBAR ============ -->
+<div class="toolbar-wrap">
+  <div class="toolbar-inner">
+    <label class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="inpSearch" placeholder="ค้นหาบทเรียน...">
+    </label>
 
- <div class="tabs">
-  <div class="tab active" data-level="all">🌟 ทั้งหมด</div>
-  <div class="tab" data-level="beginner">🐣 พื้นฐาน</div>
-  <div class="tab" data-level="core">🎮 ระบบเกมหลัก</div>
-  <div class="tab" data-level="advanced">🚀 ขั้นสูง</div>
- </div>
+    <select id="selTag" class="tb-select">
+      <option value="">🏷️ ทุกแท็ก</option>
+    </select>
 
- <div class="note">
-  <b>แนะนำลำดับเรียน:</b> จบ Beginner ก่อน → เข้า Core กับ master_v32 → ปิดท้ายด้วย Advanced
-  · ขอบฟ้า = Beginner · ขอบส้ม = ระบบหลัก Core · ขอบม่วง = Advanced
- </div>
- 
- <ol class="list" id="chapterList"></ol>
- <div class="status" id="status"></div>
- <p class="foot">อ้างอิง master_v32.capx + _master_v32_extract · ลำดับจัดเก็บ localStorage v2</p>
+    <div class="tb-spacer"></div>
+
+    <button class="tb-btn primary" id="btnPrint">🖨️ พิมพ์</button>
+    <button class="tb-btn" id="btnReset">↩️ คืนลำดับ</button>
+    <button class="tb-btn" id="btnResetProgress">🔄 Reset Progress</button>
+    <button class="tb-btn" id="btnTop">↑ บนสุด</button>
+    <a href="master_v32.capx" class="tb-btn gold" download>⬇️ โหลด Assets</a>
+  </div>
 </div>
+
+<!-- ============ TABS ============ -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <div class="tab active" data-level="all">
+      🌟 ทั้งหมด <span class="tab-count" id="cnt-all">29</span>
+    </div>
+    <div class="tab" data-level="beginner">
+      🐣 พื้นฐาน <span class="tab-count" id="cnt-beginner">6</span>
+    </div>
+    <div class="tab" data-level="core">
+      🎮 ระบบเกมหลัก <span class="tab-count" id="cnt-core">16</span>
+    </div>
+    <div class="tab" data-level="advanced">
+      🚀 ขั้นสูง <span class="tab-count" id="cnt-advanced">7</span>
+    </div>
+  </div>
+
+  <div class="learning-tip">
+    <span class="tip-icon">💡</span>
+    <span><strong>แนะนำลำดับเรียน:</strong> เริ่มที่ 🐣 พื้นฐาน (B1–B6) → เข้า 🎮 ระบบเกมหลักกับ master_v32 → ปิดท้ายด้วย 🚀 ขั้นสูง — กดปุ่ม <strong>✓ เรียนแล้ว</strong> บนการ์ดเพื่อติดตาม Progress</span>
+  </div>
+</div>
+
+<!-- ============ GRID ============ -->
+<div class="content-wrap">
+  <div class="grid" id="chapterGrid"></div>
+  <div class="status-bar" id="status"></div>
+</div>
+
+<footer class="page-footer">
+  อ้างอิง master_v32.capx · ลำดับจัดเก็บ localStorage v3 · คู่มือบ้านคำไผ่
+</footer>
+
 <script>
 (function(){
-var KEY='redhood-guide2-order-v3';
-var DEFAULT=[
-{id:'B01',href:'tutorial-b01-install-workspace.html',title:'B01 ติดตั้ง C2 และรู้จักหน้าจอ',desc:'ติดตั้ง · หน้าจอหลัก · F5 Preview',level:'beginner',tags:['ติดตั้ง','IDE']},
-{id:'B02',href:'tutorial-b02-sprite-animation-layer.html',title:'B02 Sprite, Animation และ Layer',desc:'นำเข้าภาพ · แอนิเมชัน · Layer bg/game/HUD',level:'beginner',tags:['กราฟิก','Animation']},
-{id:'B03',href:'tutorial-b03-event-sheet-basics.html',title:'B03 Event Sheet เบื้องต้น',desc:'Condition/Action · Else · Trigger once · Group',level:'beginner',tags:['Event','โค้ด']},
-{id:'B04',href:'tutorial-b04-behaviors.html',title:'B04 Behaviors พื้นฐาน',desc:'Solid Platform ScrollTo Bullet Sine Flash',level:'beginner',tags:['Behavior','ฟิสิกส์']},
-{id:'B05',href:'tutorial-b05-variables.html',title:'B05 ตัวแปร Global และ Instance',desc:'คะแนน ชีวิต · โชว์บน Text',level:'beginner',tags:['ตัวแปร','ข้อมูล']},
-{id:'B06',href:'tutorial-b06-mini-project.html',title:'B06 Mini Project: เดินบนพื้น',desc:'รวมพื้นฐานก่อนเข้า Red Hood',level:'beginner',tags:['โปรเจกต์','การบ้าน']},
+'use strict';
 
-{id:'01',href:'01-เปิดโปรเจกต์และ-layout.html',title:'01 เปิดโปรเจกต์และ Layout',desc:'Core: master_v32 · Layout · Layer · Event sheet',level:'core',tags:['Layout','Core']},
-{id:'02',href:'02-พื้นและเกาะ.html',title:'02 พื้นและเกาะ',desc:'TiledBackground2 Solid · sky Jump-thru',level:'core',tags:['ฉาก','Platform']},
-{id:'03',href:'03-ผู้เล่นเดินกระโดด.html',title:'03 ผู้เล่น เดิน กระโดด',desc:'Platform · walk/Stand/jump',level:'core',tags:['ผู้เล่น','เคลื่อนไหว']},
-{id:'04',href:'04-หัวใจ5ดวง.html',title:'04 หัวใจ 5 ดวง',desc:'พลังชีวิต · heart.index',level:'core',tags:['ชีวิต','UI']},
-{id:'05',href:'05-ตกฉากโดนดาเมจ.html',title:'05 ตกฉาก / ดาเมจ / Flash',desc:'outside layout · Flash 3วิ',level:'core',tags:['ดาเมจ','พื้นฐาน']},
-{id:'06',href:'06-เวลานับถอยหลัง.html',title:'06 เวลานับถอยหลัง',desc:'เวลา 200/150/120 · Game Over',level:'core',tags:['เวลา','เงื่อนไข']},
-{id:'07',href:'07-มอนลาดตระเวน.html',title:'07 มอนลาดตระเวน',desc:'eminy Sine · หันหน้า',level:'core',tags:['ศัตรู','AI']},
-{id:'08',href:'08-เหยียบมอนโดนชน.html',title:'08 เหยียบมอน / โดนชน',desc:'stomp vs เจ็บ',level:'core',tags:['ต่อสู้','ชน']},
-{id:'09',href:'09-มอนยิงกระสุน.html',title:'09 มอนยิงกระสุน',desc:'emon_bullet · มุม≤30°',level:'core',tags:['ศัตรู','กระสุน']},
-{id:'10',href:'10-สร้างโจทย์คณิต.html',title:'10 สร้างโจทย์ × ÷',desc:'ตัวแปรโจทย์ · 5 ข้อ',level:'core',tags:['โจทย์','คณิตศาสตร์']},
-{id:'11',href:'11-เกาะคำตอบ10ช่อง.html',title:'11 เกาะคำตอบ 10 ช่อง',desc:'answer_orb · platform ลอย',level:'core',tags:['เกาะ','คำตอบ']},
-{id:'12',href:'12-ตอบถูกผิดข้อถัดไป.html',title:'12 ตอบถูก / ผิด / ข้อถัดไป',desc:'ล็อกคำตอบ · ข้อ++',level:'core',tags:['ตรวจคำตอบ','เกมเพลย์']},
-{id:'13',href:'13-เปิดประตูเคลียร์ด่าน.html',title:'13 เปิดประตูเคลียร์ด่าน',desc:'door ≤220 · ผ่านด่านN',level:'core',tags:['ด่าน','ชัยชนะ']},
-{id:'14',href:'14-หน้า-title-howto.html',title:'14 หน้า title / Howto',desc:'PLAY RANK HOW TO',level:'core',tags:['เมนู','UI']},
-{id:'15',href:'15-ชื่อและเลือกด่าน.html',title:'15 ชื่อและเลือกด่าน',desc:'ชื่อผู้เล่น · ล็อกด่าน',level:'core',tags:['ผู้เล่น','เลือกระดับ']},
-{id:'16',href:'16-top5-ranking.html',title:'16 Top 5 และ ranking',desc:'บันทึกอันดับ · rank_line',level:'core',tags:['คะแนน','ออนไลน์']},
+var ORDER_KEY    = 'redhood-guide2-order-v3';
+var DONE_KEY     = 'redhood-guide2-done-v1';
 
-{id:'A01',href:'tutorial-a01-project-structure.html',title:'A01 โครงสร้าง master_v32 และ Layout',desc:'รวมมอน/กระสุนหลายชนิด',level:'advanced',tags:['โครงสร้าง','Layout']},
-{id:'A02',href:'tutorial-a02-object-families.html',title:'A02 Object Families',desc:'ApplyDamage · Call function',level:'advanced',tags:['Family','จัดกลุ่ม']},
-{id:'A03',href:'tutorial-a03-functions.html',title:'A03 Functions',desc:'Top5 และชุดโจทย์ยืดหยุ่น',level:'advanced',tags:['Function','โค้ด']},
-{id:'A04',href:'tutorial-a04-array-dictionary.html',title:'A04 Array และ Dictionary',desc:'จำชื่อ ผ่านด่าน หลังปิดเกม',level:'advanced',tags:['Array','ข้อมูล']},
-{id:'A05',href:'tutorial-a05-debug-performance.html',title:'A05 ดีบักและประสิทธิภาพ',desc:'debug text · ลด Every tick',level:'advanced',tags:['ดีบัก','ประสิทธิภาพ']},
-{id:'A06',href:'tutorial-a06-level-design-balance.html',title:'A06 ออกแบบด่านและบาลานซ์',desc:'zip path / · HTML5',level:'advanced',tags:['บาลานซ์','ออกแบบ']},
-{id:'A07',href:'tutorial-a07-kampai-sdk.html',title:'A07 เชื่อมต่อ Kampai SDK',desc:'เวลา หัวใจ ข้อ ระยะเกาะ',level:'advanced',tags:['SDK','Kampai']}
+var DEFAULT = [
+  {id:'B01',href:'tutorial-b01-install-workspace.html',
+   thumb:'images/steps/tutorial-b01-install-workspace-step1.jpg',
+   title:'B01 ติดตั้ง C2 และรู้จักหน้าจอ',
+   desc:'ติดตั้ง Construct 2 · หน้าจอหลัก 3 ส่วน · F5 Preview · บันทึก .capx',
+   level:'beginner',tags:['ติดตั้ง','IDE','เริ่มต้น']},
+
+  {id:'B02',href:'tutorial-b02-sprite-animation-layer.html',
+   thumb:'images/steps/tutorial-b02-sprite-animation-layer-step1.jpg',
+   title:'B02 Sprite, Animation และ Layer',
+   desc:'นำเข้าภาพ PNG · สร้าง Animation walk/jump · จัด 3 Layer (bg/game/HUD)',
+   level:'beginner',tags:['กราฟิก','Animation','Layer']},
+
+  {id:'B03',href:'tutorial-b03-event-sheet-basics.html',
+   thumb:'images/steps/tutorial-b03-event-sheet-basics-step1.jpg',
+   title:'B03 Event Sheet เบื้องต้น',
+   desc:'Condition → Action · Else · Trigger once · Event Group',
+   level:'beginner',tags:['Event Sheet','โค้ด','Logic']},
+
+  {id:'B04',href:'tutorial-b04-behaviors.html',
+   thumb:'images/steps/tutorial-b04-behaviors-step1.jpg',
+   title:'B04 Behaviors พื้นฐาน',
+   desc:'Solid · Platform · Jump-thru · Scroll To · Sine · Flash',
+   level:'beginner',tags:['Behavior','ฟิสิกส์','Platform']},
+
+  {id:'B05',href:'tutorial-b05-variables.html',
+   thumb:'images/steps/tutorial-b05-variables-step1.jpg',
+   title:'B05 ตัวแปร Global และ Instance',
+   desc:'คะแนน · ชีวิต · Global vs Instance · แสดงผลบน HUD Text',
+   level:'beginner',tags:['ตัวแปร','ข้อมูล','HUD']},
+
+  {id:'B06',href:'tutorial-b06-mini-project.html',
+   thumb:'images/steps/tutorial-b06-mini-project-step1.jpg',
+   title:'B06 Mini Project: เดินบนพื้น',
+   desc:'รวมพื้นฐานทั้งหมด · ทดสอบ F5 · เช็กลิสต์ก่อนเข้า Core',
+   level:'beginner',tags:['โปรเจกต์','การบ้าน','สรุป']},
+
+  {id:'01',href:'01-เปิดโปรเจกต์และ-layout.html',
+   thumb:'images/steps/01-เปิดโปรเจกต์และ-layout-step1.jpg',
+   title:'01 เปิดโปรเจกต์และ Layout',
+   desc:'master_v32 · 8 Layout · Layer ครบ · Global Event sheet',
+   level:'core',tags:['Layout','Core','โครงสร้าง']},
+
+  {id:'02',href:'02-พื้นและเกาะ.html',
+   thumb:'images/steps/02-พื้นและเกาะ-step1.jpg',
+   title:'02 พื้นและเกาะ',
+   desc:'TiledBackground2 + Solid · sky Jump-thru · ระยะห่างเกาะ',
+   level:'core',tags:['ฉาก','Platform','Jump-thru']},
+
+  {id:'03',href:'03-ผู้เล่นเดินกระโดด.html',
+   thumb:'images/steps/03-ผู้เล่นเดินกระโดด-step1.jpg',
+   title:'03 ผู้เล่น เดิน กระโดด',
+   desc:'Platform · walk/Stand/jump Animation · Flip ซ้ายขวา',
+   level:'core',tags:['ผู้เล่น','เคลื่อนไหว','Animation']},
+
+  {id:'04',href:'04-หัวใจ5ดวง.html',
+   thumb:'images/steps/04-หัวใจ5ดวง-step1.jpg',
+   title:'04 หัวใจ 5 ดวง (HUD)',
+   desc:'Global var หัวใจ · heart.index · ลด/เพิ่ม · แสดงบน HUD',
+   level:'core',tags:['ชีวิต','HUD','UI']},
+
+  {id:'05',href:'05-ตกฉากโดนดาเมจ.html',
+   thumb:'images/steps/05-ตกฉากโดนดาเมจ-step1.jpg',
+   title:'05 ตกฉาก / ดาเมจ / Flash',
+   desc:'outside layout · Knockback · Flash อมตะ 2 วิ',
+   level:'core',tags:['ดาเมจ','Knockback','Flash']},
+
+  {id:'06',href:'06-เวลานับถอยหลัง.html',
+   thumb:'images/steps/06-เวลานับถอยหลัง-step1.jpg',
+   title:'06 เวลานับถอยหลัง',
+   desc:'Every 1 second · 200/150/120 วิ · Game Over เมื่อเวลาหมด',
+   level:'core',tags:['เวลา','Timer','เงื่อนไข']},
+
+  {id:'07',href:'07-มอนลาดตระเวน.html',
+   thumb:'images/steps/07-มอนลาดตระเวน-step1.jpg',
+   title:'07 มอนสเตอร์ลาดตระเวน',
+   desc:'eminy + Sine · หันหน้าตามทิศ · Boundary wall',
+   level:'core',tags:['ศัตรู','AI','Patrol']},
+
+  {id:'08',href:'08-เหยียบมอนโดนชน.html',
+   thumb:'images/steps/08-เหยียบมอนโดนชน-step1.jpg',
+   title:'08 เหยียบมอน / โดนชน',
+   desc:'stomp = +คะแนน / ชน = −หัวใจ · ตรวจ overlap จากบน',
+   level:'core',tags:['ต่อสู้','ชน','Stomp']},
+
+  {id:'09',href:'09-มอนยิงกระสุน.html',
+   thumb:'images/steps/09-มอนยิงกระสุน-step1.jpg',
+   title:'09 มอนสเตอร์ยิงกระสุน',
+   desc:'emon_bullet · Image point 1 · มุม≤30° · Destroy outside',
+   level:'core',tags:['ศัตรู','กระสุน','Image Point']},
+
+  {id:'10',href:'10-สร้างโจทย์คณิต.html',
+   thumb:'images/steps/10-สร้างโจทย์คณิต-step1.jpg',
+   title:'10 สร้างโจทย์คณิตศาสตร์',
+   desc:'ตัวแปรโจทย์ × ÷ · 5 ข้อ · แสดงบน Text',
+   level:'core',tags:['โจทย์','คณิตศาสตร์','Math']},
+
+  {id:'11',href:'11-เกาะคำตอบ10ช่อง.html',
+   thumb:'images/steps/11-เกาะคำตอบ10ช่อง-step1.jpg',
+   title:'11 เกาะคำตอบ 10 ช่อง',
+   desc:'answer_orb · platform ลอย · ตั้งค่า .val 0–9',
+   level:'core',tags:['เกาะ','คำตอบ','Spawn']},
+
+  {id:'12',href:'12-ตอบถูกผิดข้อถัดไป.html',
+   thumb:'images/steps/12-ตอบถูกผิดข้อถัดไป-step1.jpg',
+   title:'12 ตอบถูก / ผิด / ข้อถัดไป',
+   desc:'ล็อกคำตอบ · ข้อ++ · เสียง correct/wrong · Flash ผิด',
+   level:'core',tags:['ตรวจคำตอบ','เกมเพลย์','Logic']},
+
+  {id:'13',href:'13-เปิดประตูเคลียร์ด่าน.html',
+   thumb:'images/steps/13-เปิดประตูเคลียร์ด่าน-step1.jpg',
+   title:'13 เปิดประตู / เคลียร์ด่าน',
+   desc:'door ≤220 · score >= goal · GoToLayout game2/game3',
+   level:'core',tags:['ด่าน','ชัยชนะ','Gate']},
+
+  {id:'14',href:'14-หน้า-title-howto.html',
+   thumb:'images/steps/14-หน้า-title-howto-step1.jpg',
+   title:'14 หน้า Title / Howto',
+   desc:'PLAY · RANK · HOW TO · Layout title + howto',
+   level:'core',tags:['เมนู','UI','Title Screen']},
+
+  {id:'15',href:'15-ชื่อและเลือกด่าน.html',
+   thumb:'images/steps/15-ชื่อและเลือกด่าน-step1.jpg',
+   title:'15 ชื่อผู้เล่น / เลือกด่าน',
+   desc:'ชื่อผู้เล่น · ล็อกด่าน · unlock ด้วย WebStorage',
+   level:'core',tags:['ผู้เล่น','เลือกระดับ','WebStorage']},
+
+  {id:'16',href:'16-top5-ranking.html',
+   thumb:'images/steps/16-top5-ranking-step1.jpg',
+   title:'16 Top 5 Ranking',
+   desc:'บันทึกอันดับ · rank_line · sort · แสดงผล',
+   level:'core',tags:['คะแนน','Ranking','WebStorage']},
+
+  {id:'A01',href:'tutorial-a01-project-structure.html',
+   thumb:'images/steps/tutorial-a01-project-structure-step1.jpg',
+   title:'A01 โครงสร้าง master_v32',
+   desc:'8 Layout · Event include · Global layer · Object types ทั้งหมด',
+   level:'advanced',tags:['โครงสร้าง','Layout','Architecture']},
+
+  {id:'A02',href:'tutorial-a02-object-families.html',
+   thumb:'images/steps/tutorial-a02-object-families-step1.jpg',
+   title:'A02 Object Families',
+   desc:'Family: enemies · shared instance var hp · ApplyDamage',
+   level:'advanced',tags:['Family','จัดกลุ่ม','OOP']},
+
+  {id:'A03',href:'tutorial-a03-functions.html',
+   thumb:'images/steps/tutorial-a03-functions-step1.jpg',
+   title:'A03 Functions',
+   desc:'Function object · Param(0) · Top5 และชุดโจทย์ยืดหยุ่น',
+   level:'advanced',tags:['Function','โค้ด','DRY']},
+
+  {id:'A04',href:'tutorial-a04-array-dictionary.html',
+   thumb:'images/steps/tutorial-a04-array-dictionary-step1.jpg',
+   title:'A04 Array และ Dictionary',
+   desc:'qArray · Dictionary key-value · จำชื่อ ผ่านด่าน หลังปิดเกม',
+   level:'advanced',tags:['Array','Dictionary','ข้อมูล']},
+
+  {id:'A05',href:'tutorial-a05-debug-performance.html',
+   thumb:'images/steps/tutorial-a05-debug-performance-step1.jpg',
+   title:'A05 Debug และประสิทธิภาพ',
+   desc:'debug text · ลด Every tick · Profiler · Watch variable',
+   level:'advanced',tags:['ดีบัก','ประสิทธิภาพ','Optimize']},
+
+  {id:'A06',href:'tutorial-a06-level-design-balance.html',
+   thumb:'images/steps/tutorial-a06-level-design-balance-step1.jpg',
+   title:'A06 ออกแบบด่าน / บาลานซ์',
+   desc:'ระยะเกาะ · Difficulty curve · Export HTML5 / zip',
+   level:'advanced',tags:['ออกแบบ','บาลานซ์','Level Design']},
+
+  {id:'A07',href:'tutorial-a07-kampai-sdk.html',
+   thumb:'images/steps/tutorial-a07-kampai-sdk-step1.jpg',
+   title:'A07 เชื่อมต่อ Kampai SDK',
+   desc:'KAMPAI.onReady · submitScore · leaderboard · student profile',
+   level:'advanced',tags:['SDK','Kampai','Online']}
 ];
 
-// Extract unique tags
-var allTags = new Set();
-DEFAULT.forEach(function(c){
-  if(c.tags) c.tags.forEach(function(t){ allTags.add(t); });
-});
-var selTag = document.getElementById('selTag');
-Array.from(allTags).sort().forEach(function(tag){
-  var op = document.createElement('option');
-  op.value = tag;
-  op.textContent = tag;
-  selTag.appendChild(op);
-});
-
-var listEl=document.getElementById('chapterList'),statusEl=document.getElementById('status'),order=load();
-var currentLevel = 'all';
+/* =========================================================
+   STATE
+========================================================= */
+var order    = loadOrder();
+var done     = loadDone();
+var currentLevel  = 'all';
 var currentSearch = '';
-var currentTag = '';
+var currentTag    = '';
+var statusTimer   = null;
 
-function load(){
+/* =========================================================
+   PERSIST
+========================================================= */
+function loadOrder(){
   try{
-    var r=localStorage.getItem(KEY);
+    var r = localStorage.getItem(ORDER_KEY);
     if(!r) return DEFAULT.map(function(x){return x.id});
-    var ids=JSON.parse(r), known=DEFAULT.map(function(x){return x.id}), c=ids.filter(function(id){return known.indexOf(id)!==-1});
-    known.forEach(function(id){if(c.indexOf(id)===-1)c.push(id)});
+    var ids = JSON.parse(r);
+    var known = DEFAULT.map(function(x){return x.id});
+    var c = ids.filter(function(id){return known.indexOf(id)!==-1});
+    known.forEach(function(id){if(c.indexOf(id)===-1) c.push(id)});
     return c;
-  }catch(e){
-    return DEFAULT.map(function(x){return x.id});
-  }
+  }catch(e){return DEFAULT.map(function(x){return x.id})}
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(order));statusEl.textContent='บันทึกลำดับแล้ว';}
-function byId(id){for(var i=0;i<DEFAULT.length;i++)if(DEFAULT[i].id===id)return DEFAULT[i];return null;}
-function getLevelIcon(level) {
-  if (level === 'beginner') return '🐣';
-  if (level === 'core') return '🎮';
-  if (level === 'advanced') return '🚀';
-  return '';
+function saveOrder(){localStorage.setItem(ORDER_KEY, JSON.stringify(order)); showStatus('บันทึกลำดับแล้ว ✓')}
+function loadDone(){
+  try{return JSON.parse(localStorage.getItem(DONE_KEY)||'[]')}catch(e){return []}
 }
+function saveDone(){localStorage.setItem(DONE_KEY, JSON.stringify(done))}
+function byId(id){
+  for(var i=0;i<DEFAULT.length;i++) if(DEFAULT[i].id===id) return DEFAULT[i];
+  return null;
+}
+
+/* =========================================================
+   PROGRESS TRACKING
+========================================================= */
+function updateHeroProgress(){
+  var total = DEFAULT.length;
+  var count = done.length;
+  var pct   = Math.round(count / total * 100);
+  var fill  = document.getElementById('heroProgressFill');
+  var text  = document.getElementById('progressText');
+  var badge = document.getElementById('progressBadge');
+  if(fill)  fill.style.width  = pct + '%';
+  if(text)  text.textContent  = 'ความคืบหน้า: เรียนแล้ว ' + count + ' / ' + total + ' บท';
+  if(badge) badge.textContent = pct + '%';
+}
+
+/* =========================================================
+   STATUS BAR
+========================================================= */
+function showStatus(msg){
+  var el = document.getElementById('status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(function(){el.style.opacity='0';}, 2400);
+}
+
+/* =========================================================
+   UPDATE TAB COUNTS
+========================================================= */
+function updateCounts(){
+  var counts = {all:0, beginner:0, core:0, advanced:0};
+  order.forEach(function(id){
+    var ch = byId(id); if(!ch) return;
+    counts.all++;
+    counts[ch.level]++;
+  });
+  Object.keys(counts).forEach(function(k){
+    var el = document.getElementById('cnt-'+k);
+    if(el) el.textContent = counts[k];
+  });
+}
+
+/* =========================================================
+   RENDER GRID
+========================================================= */
 function render(){
-  listEl.innerHTML='';
-  var filteredOrder = order.filter(function(id){
-    var ch = byId(id);
-    if(!ch) return false;
+  var grid = document.getElementById('chapterGrid');
+  grid.innerHTML = '';
+
+  var filtered = order.filter(function(id){
+    var ch = byId(id); if(!ch) return false;
     if(currentLevel !== 'all' && ch.level !== currentLevel) return false;
-    if(currentSearch && !(ch.title.toLowerCase().indexOf(currentSearch.toLowerCase())>-1 || ch.desc.toLowerCase().indexOf(currentSearch.toLowerCase())>-1)) return false;
+    if(currentSearch){
+      var q = currentSearch.toLowerCase();
+      if(!(ch.title.toLowerCase().indexOf(q)>-1 ||
+           ch.desc.toLowerCase().indexOf(q)>-1  ||
+           (ch.tags && ch.tags.join(' ').toLowerCase().indexOf(q)>-1))) return false;
+    }
     if(currentTag && (!ch.tags || ch.tags.indexOf(currentTag)===-1)) return false;
     return true;
   });
 
-  filteredOrder.forEach(function(id,idx){
-    var ch=byId(id);if(!ch)return;
-    var li=document.createElement('li');
-    li.className='item '+ch.level;
-    li.draggable=true;li.dataset.id=ch.id;
-    
-    var tagsHtml = ch.tags ? '<div class="tags">'+ch.tags.map(function(t){return '<span class="tag-badge">'+t+'</span>';}).join('')+'</div>' : '';
-    
-    li.innerHTML='<div class="handle">☰</div><div class="main"><div><span class="num">'+(idx+1)+'</span><a href="'+ch.href+'"><h2>'+ch.title+' <span class="level-ind">'+getLevelIcon(ch.level)+'</span></h2></a></div><p class="desc">'+ch.desc+'</p>'+tagsHtml+'<a class="open" href="'+ch.href+'">เปิดบทนี้</a></div><div class="controls"><button type="button" data-act="up"'+(idx===0?' disabled':'')+'>▲</button><button type="button" data-act="down"'+(idx===filteredOrder.length-1?' disabled':'')+'>▼</button></div>';
-    listEl.appendChild(li);
-  });
-  bindDnD();
-}
-function move(id,d){var i=order.indexOf(id),j=i+d;if(i<0||j<0||j>=order.length)return;var t=order[i];order[i]=order[j];order[j]=t;save();render();}
+  if(!filtered.length){
+    var empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML = '<div class="empty-icon">🔍</div><h3>ไม่พบบทเรียนที่ตรงกัน</h3><p>ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง</p>';
+    grid.appendChild(empty);
+    return;
+  }
 
-listEl.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b)return;var li=b.closest('.item');move(li.dataset.id,b.dataset.act==='up'?-1:1);});
-var dragId=null;
-function bindDnD(){
-  listEl.querySelectorAll('.item').forEach(function(item){
-    item.addEventListener('dragstart',function(e){dragId=item.dataset.id;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
-    item.addEventListener('dragend',function(){item.classList.remove('dragging');dragId=null;});
-    item.addEventListener('dragover',function(e){e.preventDefault();item.classList.add('drag-over');});
-    item.addEventListener('dragleave',function(){item.classList.remove('drag-over');});
-    item.addEventListener('drop',function(e){
-      e.preventDefault();item.classList.remove('drag-over');
-      var from=dragId,to=item.dataset.id;
-      if(!from||from===to)return;
-      var fi=order.indexOf(from),ti=order.indexOf(to);
-      order.splice(fi,1);order.splice(ti,0,from);save();render();
+  filtered.forEach(function(id, idx){
+    var ch  = byId(id);        if(!ch) return;
+    var isDone = done.indexOf(id) !== -1;
+
+    /* Tags HTML */
+    var tagsHtml = (ch.tags||[]).map(function(t){
+      return '<span class="tag-badge">' + escHtml(t) + '</span>';
+    }).join('');
+
+    /* Level label */
+    var levelIcons = {beginner:'🐣 พื้นฐาน', core:'🎮 ระบบหลัก', advanced:'🚀 ขั้นสูง'};
+    var lvlLabel   = levelIcons[ch.level] || ch.level;
+
+    /* Card element */
+    var card = document.createElement('div');
+    card.className = 'card ' + ch.level + (isDone ? ' done' : '');
+    card.draggable  = true;
+    card.dataset.id = ch.id;
+
+    card.innerHTML =
+      '<div class="card-thumb-wrap">' +
+        '<img class="card-thumb" src="' + escHtml(ch.thumb) + '" alt="' + escHtml(ch.title) + '" loading="lazy" onerror="this.src=\'images/steps/tutorial-basic-ground-platform-step1.jpg\'">' +
+        '<span class="card-level-badge">' + lvlLabel + '</span>' +
+        '<span class="card-num">' + escHtml(ch.id) + '</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-title"><a href="' + escHtml(ch.href) + '">' + escHtml(ch.title) + '</a></div>' +
+        '<div class="card-desc">' + escHtml(ch.desc) + '</div>' +
+        '<div class="card-tags">' + tagsHtml + '</div>' +
+      '</div>' +
+      '<div class="card-footer">' +
+        '<a href="' + escHtml(ch.href) + '" class="btn-open">เปิดบทนี้ →</a>' +
+        '<button class="btn-done" data-id="' + ch.id + '">' +
+          (isDone ? '✓ เรียนแล้ว' : '○ เรียนแล้ว') +
+        '</button>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+
+  bindDragDrop();
+  updateCounts();
+  updateHeroProgress();
+}
+
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* =========================================================
+   DRAG AND DROP
+========================================================= */
+var dragId = null;
+
+function bindDragDrop(){
+  var cards = document.querySelectorAll('.card');
+  cards.forEach(function(card){
+    card.addEventListener('dragstart', function(e){
+      dragId = card.dataset.id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', function(){
+      card.classList.remove('dragging');
+      dragId = null;
+    });
+    card.addEventListener('dragover', function(e){
+      e.preventDefault();
+      card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave', function(){
+      card.classList.remove('drag-over');
+    });
+    card.addEventListener('drop', function(e){
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if(!dragId || dragId === card.dataset.id) return;
+      var fi = order.indexOf(dragId);
+      var ti = order.indexOf(card.dataset.id);
+      if(fi<0||ti<0) return;
+      order.splice(fi,1);
+      order.splice(ti,0,dragId);
+      saveOrder();
+      render();
     });
   });
 }
 
-// Event Listeners
-document.getElementById('btnPrint').onclick=function(){window.print();};
-document.getElementById('btnReset').onclick=function(){order=DEFAULT.map(function(x){return x.id});localStorage.removeItem(KEY);render();};
-document.getElementById('btnTop').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+/* =========================================================
+   DONE BUTTON DELEGATION
+========================================================= */
+document.getElementById('chapterGrid').addEventListener('click', function(e){
+  var btn = e.target.closest('.btn-done');
+  if(!btn) return;
+  var id  = btn.dataset.id;
+  var idx = done.indexOf(id);
+  if(idx === -1){
+    done.push(id);
+    showStatus('✅ ทำเครื่องหมาย "' + (byId(id)||{title:id}).title + '" ว่าเรียนแล้ว');
+  } else {
+    done.splice(idx, 1);
+    showStatus('🔲 ยกเลิก "เรียนแล้ว" สำหรับบทนี้');
+  }
+  saveDone();
+  render();
+});
 
+/* =========================================================
+   TOOLBAR EVENTS
+========================================================= */
+document.getElementById('btnPrint').onclick = function(){ window.print(); };
+document.getElementById('btnReset').onclick = function(){
+  order = DEFAULT.map(function(x){return x.id});
+  localStorage.removeItem(ORDER_KEY);
+  render();
+  showStatus('คืนลำดับเดิมแล้ว ✓');
+};
+document.getElementById('btnResetProgress').onclick = function(){
+  if(!confirm('รีเซ็ต Progress ทั้งหมด? บทที่ทำเครื่องหมายไว้จะถูกล้าง')) return;
+  done = [];
+  saveDone();
+  render();
+  showStatus('รีเซ็ต Progress แล้ว');
+};
+document.getElementById('btnTop').onclick = function(){
+  window.scrollTo({top:0, behavior:'smooth'});
+};
 document.getElementById('inpSearch').addEventListener('input', function(e){
-  currentSearch = e.target.value;
+  currentSearch = e.target.value.trim();
   render();
 });
 document.getElementById('selTag').addEventListener('change', function(e){
@@ -237,17 +801,36 @@ document.getElementById('selTag').addEventListener('change', function(e){
   render();
 });
 
+/* =========================================================
+   FILTER TABS
+========================================================= */
 var tabs = document.querySelectorAll('.tab');
-tabs.forEach(function(t) {
-  t.addEventListener('click', function() {
-    tabs.forEach(function(x){x.classList.remove('active');});
+tabs.forEach(function(t){
+  t.addEventListener('click', function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
     this.classList.add('active');
     currentLevel = this.dataset.level;
     render();
   });
 });
 
+/* =========================================================
+   POPULATE TAG DROPDOWN
+========================================================= */
+var allTags = new Set();
+DEFAULT.forEach(function(c){ (c.tags||[]).forEach(function(t){ allTags.add(t); }); });
+var selTag = document.getElementById('selTag');
+Array.from(allTags).sort().forEach(function(tag){
+  var op = document.createElement('option');
+  op.value = tag; op.textContent = tag;
+  selTag.appendChild(op);
+});
+
+/* =========================================================
+   INIT
+========================================================= */
 render();
+
 })();
 </script>
 </body>
