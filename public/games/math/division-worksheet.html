@@ -120,6 +120,7 @@
         <option value="4_4d">ชั้น: ป.4 (ตัวหาร 1 หลัก ÷ ตัวตั้ง 4 หลัก)</option>
         <option value="5_2d3d">ชั้น: ป.5 (ตัวหาร 2 หลัก ÷ ตัวตั้ง 3 หลัก เช่น 20 ÷ 269)</option>
         <option value="5" selected>ชั้น: ป.5 (ตัวหาร 2 หลัก ÷ ตัวตั้ง 4 หลัก เช่น 21 ÷ 2456)</option>
+        <option value="5_6d">ชั้น: ป.5–ป.6 (ตัวหารไม่เกิน 2 หลัก ÷ ตัวตั้งไม่เกิน 6 หลัก ผสม)</option>
         <option value="6">ชั้น: ป.6 (หารทศนิยม / ลงตัว)</option>
         <option value="custom">⚙️ กำหนดจำนวนหลักเอง...</option>
       </select>
@@ -127,12 +128,15 @@
         <option value="1">ตัวหาร: 1 หลัก (2–9)</option>
         <option value="2_round">ตัวหาร: 2 หลักเต็มสิบ (10,20..90)</option>
         <option value="2" selected>ตัวหาร: 2 หลัก (10–99)</option>
+        <option value="1_2">ตัวหาร: ไม่เกิน 2 หลัก (2–99 ผสม)</option>
       </select>
       <select class="t-select" id="selDividendDigits" aria-label="หลักตัวตั้ง" style="display:none">
         <option value="2">ตัวตั้ง: 2 หลัก (10–99)</option>
         <option value="3">ตัวตั้ง: 3 หลัก (100–999)</option>
         <option value="4" selected>ตัวตั้ง: 4 หลัก (1,000–9,999)</option>
         <option value="5">ตัวตั้ง: 5 หลัก (10,000–99,999)</option>
+        <option value="6">ตัวตั้ง: 6 หลัก (100,000–999,999)</option>
+        <option value="mix_3_6">ตัวตั้ง: 3–6 หลัก (ไม่เกิน 6 หลัก ผสม)</option>
       </select>
       <select id="selCount" data-fixed-count="8" aria-label="จำนวนข้อต่อหน้า" hidden>
         <option value="8" selected>8 ข้อ/หน้า</option>
@@ -173,21 +177,34 @@ function getProblemNumbers(grade, divOpt, dvdOpt){
   else if(grade === '4_4d'){ divDigits = '1'; dvdDigits = '4'; }
   else if(grade === '5_2d3d'){ divDigits = '2_round'; dvdDigits = '3'; }
   else if(grade === '5'){ divDigits = '2'; dvdDigits = '4'; }
+  else if(grade === '5_6d'){ divDigits = '1_2'; dvdDigits = 'mix_3_6'; }
   else if(grade === '6'){ divDigits = '1'; dvdDigits = '3'; }
 
   let divisor = 2, dividend = 100;
   let attempts = 0;
   do {
     attempts++;
-    if(divDigits === '1') divisor = R(2,9);
-    else if(divDigits === '2_round') divisor = R(1,9) * 10;
-    else if(divDigits === '2') divisor = R(10,99);
-    else divisor = R(2,9);
+    let chosenDivOpt = divDigits;
+    if (divDigits === '1_2') {
+      chosenDivOpt = R(1, 10) <= 3 ? '1' : '2';
+    }
 
-    if(dvdDigits === '2') dividend = R(10,99);
-    else if(dvdDigits === '3') dividend = R(100,999);
-    else if(dvdDigits === '4') dividend = R(1000,9999);
-    else if(dvdDigits === '5') dividend = R(10000,99999);
+    if(chosenDivOpt === '1') divisor = R(2,9);
+    else if(chosenDivOpt === '2_round') divisor = R(1,9) * 10;
+    else if(chosenDivOpt === '2') divisor = R(10,99);
+    else divisor = R(2,99);
+
+    let chosenDvdOpt = dvdDigits;
+    if (dvdDigits === 'mix_3_6') {
+      const digitChoices = ['3', '4', '5', '6'];
+      chosenDvdOpt = digitChoices[R(0, 3)];
+    }
+
+    if(chosenDvdOpt === '2') dividend = R(10,99);
+    else if(chosenDvdOpt === '3') dividend = R(100,999);
+    else if(chosenDvdOpt === '4') dividend = R(1000,9999);
+    else if(chosenDvdOpt === '5') dividend = R(10000,99999);
+    else if(chosenDvdOpt === '6') dividend = R(100000,999999);
     else dividend = R(100,999);
 
     if(grade === '6') dividend = R(10,99) * 10;
@@ -239,8 +256,17 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
       +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
   }).join('');
   
+  let cellWidth = '16mm';
+  if (dividendDigits.length >= 6) {
+    cellWidth = '11.5mm';
+  } else if (dividendDigits.length >= 5) {
+    cellWidth = '13.5mm';
+  }
+
   let rowHeight = '6.3mm';
-  if (dividendDigits.length >= 5) {
+  if (dividendDigits.length >= 6) {
+    rowHeight = workSteps.length >= 5 ? '3.8mm' : '4.2mm';
+  } else if (dividendDigits.length >= 5) {
     rowHeight = workSteps.length >= 4 ? '4.2mm' : '4.8mm';
   } else if (dividendDigits.length >= 4) {
     rowHeight = workSteps.length >= 3 ? '5.2mm' : '5.8mm';
@@ -250,7 +276,7 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
   const divisorWidth = String(divisor).length >= 2 ? '14mm' : '9mm';
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
-    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-row:'+rowHeight+';--ld-divisor-width:'+divisorWidth+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
+    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-cell:'+cellWidth+';--ld-row:'+rowHeight+';--ld-divisor-width:'+divisorWidth+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
     +'<div class="ld-quotient">'+quotientCells+'</div>'
     +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
     +'<div class="ld-work">'+workRows+'</div></div></div>'
@@ -289,6 +315,7 @@ function syncDigitSelectors(fromGradeChange=false){
     else if (grade === '4_4d') { selDiv.value = '1'; selDvd.value = '4'; }
     else if (grade === '5_2d3d') { selDiv.value = '2_round'; selDvd.value = '3'; }
     else if (grade === '5') { selDiv.value = '2'; selDvd.value = '4'; }
+    else if (grade === '5_6d') { selDiv.value = '1_2'; selDvd.value = 'mix_3_6'; }
     else if (grade === '6') { selDiv.value = '1'; selDvd.value = '3'; }
   }
 
@@ -360,6 +387,9 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
   if (grade === '4' || grade === '4_4d') {
     gradeDisplay = 'ป.4';
     indicatorLabel = 'ค 1.1 ป.4/9';
+  } else if (grade === '5_6d') {
+    gradeDisplay = 'ป.5–ป.6';
+    indicatorLabel = 'ค 1.1 ป.5/8 · ป.6/1';
   } else if (grade === '6') {
     gradeDisplay = 'ป.6';
     indicatorLabel = 'ทบทวน ค 1.1 ป.6/1';
