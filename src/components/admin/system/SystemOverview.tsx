@@ -272,6 +272,26 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.217.0 (ใบงานการหารยาว — เลือกหลักตัวหารและตัวตั้งได้อิสระ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเดต public/games/math/division-worksheet.html เพิ่มตัวเลือกกำหนดหลักตัวหาร (1-2 หลัก) และตัวตั้ง (2-5 หลัก) เช่น 20 ÷ 269 และ 21 ÷ 2456',
+            'เพิ่มโหมดตัวเลือกหลัก customDigits และพรีเซ็ต ป.4, ป.5, ป.6 สำหรับการหารยาว 2 หลักและหลายหลัก',
+            'รองรับการเซฟ/โหลด config และ URL parameters ครบถ้วน พร้อมผ่านการออดิท pnpm verify:worksheet 14/14 checks',
+        ],
+    },
+    {
+        version: 'v1.216.0 (ภาพประกอบขั้นตอนแม่นยำ 100% — 619 ภาพไม่ซ้ำใน 59 บทเรียน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างภาพประกอบประจำขั้นตอน (Step-specific C2 Screenshots) ใหม่ทั้งหมด 301 ภาพ — แต่ละภาพแสดงหน้าต่าง C2 ที่แม่นยำตรงกับขั้นตอนนั้น (Layout View, Behaviors Dialog, Properties Panel, Event Sheet Group, Add Event Dialog, Sprite Editor, Preview Browser)',
+            'ลบภาพ generic ซ้ำ (c2-behaviors.jpg, c2-event-sheet.jpg, c2-properties.jpg) ออกจากการ์ดทุกใบ — ป้องกันภาพกระจุกในบทเดียวกัน',
+            'ตรวจสอบ 619 แท็ก <img> ใน 60 ไฟล์ HTML — Missing: 0 (100% pass)',
+        ],
+    },
+    {
         version: 'v1.215.0 (เพิ่มภาพประกอบประจำขั้นตอนครบทุกการ์ด 451 ภาพใน 29 บทเรียน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

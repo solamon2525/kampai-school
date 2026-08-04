@@ -25,6 +25,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ให้นับเวลาถอยหลังตามด่าน แสดงบน HUD และจบเกมเมื่อหมดเวลา</div>
 <div class="flow"><b>ตั้งเวลาเริ่ม</b><i>→</i><b>Every 1s</b><i>→</i><b>อัปเดต HUD</b><i>→</i><b>หมดเวลา</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>ตัวแปร + Text HUD</h2>
+      <img src="images/steps/06-เวลานับถอยหลัง-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — 06-เวลานับถอยหลัง">
+
       <img src="images/steps/06-เวลานับถอยหลัง-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ตัวแปร + Text HUD">
 
 <div class="where">game sheet + Layout HUD</div>
@@ -32,6 +34,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <li>วาง Text ชื่อ <span class="red">time_text</span> บน Layer HUD</li></ol>
 <div class="box">อัปเดตข้อความ: <span class="red">"เวลา : " &amp; เวลา</span></div></article>
 <article class="card"><span class="n">2</span><h2>ตั้งเวลาตอนเริ่มด่าน</h2>
+      <img src="images/steps/06-เวลานับถอยหลัง-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — 06-เวลานับถอยหลัง">
+
       <img src="images/steps/06-เวลานับถอยหลัง-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตั้งเวลาตอนเริ่มด่าน">
 
 <div class="where">กลุ่ม “เริ่มด่าน+เพลง+เวลา”</div>
@@ -40,6 +44,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="blue">="game3"</span> → <span class="red">120</span> + ElmyraMiniboss</div>
 <p class="small">ระบบโจทย์อาจเขียนทับ game2→180, game3→160 ทีหลัง — ดูบท 10</p></article>
 <article class="card wide"><span class="n">3</span><h2>นับถอยหลังทุกวินาที</h2>
+      <img src="images/steps/06-เวลานับถอยหลัง-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — 06-เวลานับถอยหลัง">
+
       <img src="images/steps/06-เวลานับถอยหลัง-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — นับถอยหลังทุกวินาที">
 
 <div class="box"><span class="blue">System → Every X seconds → 1.0</span><br>
@@ -47,12 +53,16 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="red">Subtract 1 from เวลา</span><br>
 <span class="red">time_text → Set text</span></div></article>
 <article class="card wide warn"><span class="n">4</span><h2>หมดเวลา → Game Over</h2>
+      <img src="images/steps/06-เวลานับถอยหลัง-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — 06-เวลานับถอยหลัง">
+
       <img src="images/steps/06-เวลานับถอยหลัง-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — หมดเวลา → Game Over">
 
 <div class="box"><span class="blue">เวลา ≤ 0</span> + Trigger once + กำลังจบด่าน=0<br>
 <span class="red">โชว์ layer popup</span> · ซ่อน/ล็อกผู้เล่น · <span class="red">บันทึกอันดับ = 1</span></div>
 <p class="small">เคลียร์ด่านสำเร็จ: คะแนน += เวลาที่เหลือ (บท 13)</p></article>
 <article class="card wide tip"><span class="n">5</span><h2>ขั้นตอนสร้าง Event หมดเวลา</h2>
+      <img src="images/steps/06-เวลานับถอยหลัง-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — 06-เวลานับถอยหลัง">
+
       <img src="images/steps/06-เวลานับถอยหลัง-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ขั้นตอนสร้าง Event หมดเวลา">
 
 <ol class="ol"><li>Add condition: System → Compare variable → เวลา ≤ 0</li>

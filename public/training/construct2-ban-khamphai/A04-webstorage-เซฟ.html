@@ -24,11 +24,15 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> บันทึกและโหลดข้อมูลสำคัญด้วย WebStorage เพื่อไม่หายเมื่อปิดเกม</div>
 <div class="flow"><b>Local storage</b><i>→</i><b>Set item</b><i>→</i><b>On start Check</b><i>→</i><b>Load</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>เพิ่ม WebStorage</h2>
+      <img src="images/steps/A04-webstorage-เซฟ-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — A04-webstorage-เซฟ">
+
       <img src="images/steps/A04-webstorage-เซฟ-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เพิ่ม WebStorage">
 
 <div class="where">Insert → WebStorage</div>
 <p>ใช้ Local storage (ต่อเครื่อง/เบราว์เซอร์)</p></article>
 <article class="card"><span class="n">2</span><h2>เซฟตอนสำคัญ</h2>
+      <img src="images/steps/A04-webstorage-เซฟ-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — A04-webstorage-เซฟ">
+
       <img src="images/steps/A04-webstorage-เซฟ-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — เซฟตอนสำคัญ">
 
 <div class="box">หลังเคลียร์ด่าน / หลังบันทึก Top5 / หลังใส่ชื่อ:<br>
@@ -36,6 +40,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">Set "pass1" to ผ่านด่าน1</span> (และ 2, 3)<br>
 <span class="red">Set "score1"…"name1" …</span></div></article>
 <article class="card wide tip"><span class="n">3</span><h2>โหลดตอนเปิดเกม</h2>
+      <img src="images/steps/A04-webstorage-เซฟ-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — A04-webstorage-เซฟ">
+
       <img src="images/steps/A04-webstorage-เซฟ-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — โหลดตอนเปิดเกม">
 
 <div class="box"><span class="blue">On start of layout title</span><br>
@@ -43,6 +49,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">Set ชื่อผู้เล่น to WebStorage.LocalValue("playerName")</span></div>
 <p class="small">ถ้าไม่มี key → ใช้ค่าเริ่มต้นว่าง/0</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>ข้อจำกัด</h2>
+      <img src="images/steps/A04-webstorage-เซฟ-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — A04-webstorage-เซฟ">
+
       <img src="images/steps/A04-webstorage-เซฟ-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ข้อจำกัด">
 
 <div class="box">ข้อมูลผูกเบราว์เซอร์/เครื่อง · ล้าง cache แล้วหาย<br>

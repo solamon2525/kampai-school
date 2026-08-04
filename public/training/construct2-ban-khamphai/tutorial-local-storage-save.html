@@ -41,29 +41,39 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#064e3b}
 <div class="flow"><b>เพิ่ม LocalStorage</b><i>→</i><b>บันทึกค่าด้วย Set Item</b><i>→</i><b>อ่านค่าเมื่อเริ่มเกม</b><i>→</i><b>อัปเดตตัวแปร</b><i>→</i><b>แสดงผล</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>ใช้ WebStorage Object</h2>
+      <img src="images/steps/tutorial-local-storage-save-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-local-storage-save">
+
       <img src="images/steps/tutorial-local-storage-save-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ใช้ WebStorage Object">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>เพิ่ม Plugin WebStorage แทน LocalStorage</p><div class="event">WebStorage มีความเสถียรมากกว่าในบางเบราว์เซอร์เก่า</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Insert → WebStorage</p></article>
 <article class="card"><span class="n">2</span><h2>บันทึกข้อมูลเฉพาะที่จำเป็น</h2>
+      <img src="images/steps/tutorial-local-storage-save-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-local-storage-save">
+
       <img src="images/steps/tutorial-local-storage-save-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — บันทึกข้อมูลเฉพาะที่จำเป็น">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>ใช้ Set local value บันทึก Key</p><div class="event"><span class="act">WebStorage → Set local value</span><br>Keys: playerName, pass1, pass2, pass3, score1-5, name1-5</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheets (เมื่อมีการเปลี่ยนแปลงข้อมูล)</p></article>
 <article class="card"><span class="n">3</span><h2>ตรวจสอบก่อนโหลดข้อมูล</h2>
+      <img src="images/steps/tutorial-local-storage-save-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-local-storage-save">
+
       <img src="images/steps/tutorial-local-storage-save-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ตรวจสอบก่อนโหลดข้อมูล">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>หน้า Title Start ต้องเช็คว่ามี Key หรือไม่</p><div class="event"><span class="cond">WebStorage → Local key "playerName" exists</span><br><span class="act">Set ชื่อผู้เล่น to WebStorage.LocalValue("playerName")</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
 <article class="card"><span class="n">4</span><h2>กำหนดค่าเริ่มต้นถ้าไม่มี Key</h2>
+      <img src="images/steps/tutorial-local-storage-save-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-local-storage-save">
+
       <img src="images/steps/tutorial-local-storage-save-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — กำหนดค่าเริ่มต้นถ้าไม่มี Key">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>ถ้าเป็นผู้เล่นใหม่</p><div class="event"><span class="cond">System → Else (ไม่มี Key)</span><br><span class="act">Set ชื่อผู้เล่น to ""</span><br><span class="act">Set score1 to 0</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> title sheet</p></article>
 <article class="card wide warn"><span class="n">5</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-local-storage-save-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-local-storage-save">
+
       <img src="images/steps/tutorial-local-storage-save-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>ข้อมูลเซฟหายเมื่อย้ายเครื่อง หรือล้าง Cache</p><div class="event"><span class="cond">ข้อควรระวัง:</span> WebStorage จะผูกติดกับเบราว์เซอร์และอุปกรณ์นั้นๆ<br><span class="act">การแก้ปัญหา:</span> แนะนำผู้เล่นไม่ให้ Clear Cache หรือใช้ Database ออนไลน์แทนหากจำเป็น</div><p class="small">📍 <b>ที่ไหนใน C2:</b> ทั่วไป</p></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> ใช้ WebStorage Object • เซฟ Key (playerName, pass1-3, score1-5, name1-5) • เช็ค Key Exists ก่อนโหลด (On start) • ค่าเป็น Default 0/ว่าง หากไม่มีเซฟ</aside>

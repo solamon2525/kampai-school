@@ -24,6 +24,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> สร้างตัวแปร เก็บคะแนน/ชีวิต และโชว์บนหน้าจอได้</div>
 <div class="flow"><b>Global</b><i>→</i><b>Instance</b><i>→</i><b>Set/Add</b><i>→</i><b>Text HUD</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>Global variable</h2>
+      <img src="images/steps/B05-ตัวแปร-global-instance-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — B05-ตัวแปร-global-instance">
+
       <img src="images/steps/B05-ตัวแปร-global-instance-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Global variable">
 
 <div class="where">Event sheet → คลิกขวา → Add global variable</div>
@@ -31,12 +33,16 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <li>ชื่อ <span class="red">ชื่อผู้เล่น</span> Type Text = ""</li></ol>
 <div class="box">Global ใช้ร่วมทุก Layout ในรันไทม์</div></article>
 <article class="card"><span class="n">2</span><h2>Instance variable</h2>
+      <img src="images/steps/B05-ตัวแปร-global-instance-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — B05-ตัวแปร-global-instance">
+
       <img src="images/steps/B05-ตัวแปร-global-instance-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Instance variable">
 
 <div class="where">เลือก object → Properties → Instance variables</div>
 <div class="box">เช่น heart.<span class="red">index</span> · answer_orb.<span class="red">ค่าคำตอบ</span><br>
 แต่ละชิ้นบน Layout มีค่าคนละค่าได้</div></article>
 <article class="card wide tip"><span class="n">3</span><h2>Event เปลี่ยนค่า + โชว์</h2>
+      <img src="images/steps/B05-ตัวแปร-global-instance-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — B05-ตัวแปร-global-instance">
+
       <img src="images/steps/B05-ตัวแปร-global-instance-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Event เปลี่ยนค่า + โชว์">
 
 <div class="box"><span class="blue">On start of layout</span><br>
@@ -45,6 +51,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">Add 10 to คะแนน</span><br>
 <span class="red">Text → Set text to "คะแนน : " &amp; คะแนน</span></div></article>
 <article class="card wide warn"><span class="n">4</span><h2>ผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/B05-ตัวแปร-global-instance-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — B05-ตัวแปร-global-instance">
+
       <img src="images/steps/B05-ตัวแปร-global-instance-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ผิดพลาดที่พบบ่อย">
 
 <div class="box">พิมพ์ชื่อตัวแปรไม่ตรง → Event หาไม่เจอ<br>

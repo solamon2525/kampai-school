@@ -41,24 +41,32 @@ body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#0c4a6e}
 <div class="flow"><b>File ➔ Export</b><i>→</i><b>เลือก HTML5 Website</b><i>→</i><b>ตรวจไฟล์ Build</b><i>→</i><b>ลงคลังสื่อ Kampai</b><i>→</i><b>เปิดเล่นบนเว็บ</b></div>
 <section class="grid">
 <article class="card"><span class="n">1</span><h2>Pre-flight check ก่อน Export</h2>
+      <img src="images/steps/tutorial-web-export-deploy-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-web-export-deploy">
+
       <img src="images/steps/tutorial-web-export-deploy-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Pre-flight check ก่อน Export">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>ตรวจสอบความเรียบร้อยของโปรเจกต์</p><div class="event"><span class="act">- ห้ามมี UID ซ้ำซ้อนกันในฉาก</span><br><span class="act">- First layout (ใน Project Settings) ต้องเป็น title</span><br><span class="act">- กด F5 ทดสอบเล่นให้จบ 1 รอบ</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> Project Properties</p></article>
 <article class="card"><span class="n">2</span><h2>การ Export HTML5</h2>
+      <img src="images/steps/tutorial-web-export-deploy-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-web-export-deploy">
+
       <img src="images/steps/tutorial-web-export-deploy-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — การ Export HTML5">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>เลือก Export เป็น Website</p><div class="event"><span class="cond">File → Export project → HTML5</span><br><span class="act">ปิดการ Minify ถ้ามีปัญหา Script Error บนเว็บ</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> File → Export project → HTML5</p></article>
 <article class="card"><span class="n">3</span><h2>กฎการบีบอัด Zip ไฟล์</h2>
+      <img src="images/steps/tutorial-web-export-deploy-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-web-export-deploy">
+
       <img src="images/steps/tutorial-web-export-deploy-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — กฎการบีบอัด Zip ไฟล์">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>เส้นทางไฟล์สำคัญมาก</p><div class="event"><span class="cond">ข้อควรระวัง:</span> ระบบภายใน ZIP หรือ Server ต้องใช้ Forward Slashes ( / ) สำหรับ Path เสมอ ห้ามใช้ Backslashes ( \\ )</div><p class="small">📍 <b>ที่ไหนใน C2:</b> File → Save as (ถ้าส่ง .capx)</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>⚠️ Preview กับ Export ไม่เหมือนกัน!</h2>
+      <img src="images/steps/tutorial-web-export-deploy-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-web-export-deploy">
+
       <img src="images/steps/tutorial-web-export-deploy-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ⚠️ Preview กับ Export ไม่เหมือนกัน!">
 
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;" alt="Construct 2 Event Sheet UI Visual">
+   
 <p>ฟีเจอร์บางอย่างทำงานต่างกัน</p><div class="event"><span class="cond">TextBox:</span> บนมือถือตอน Export อาจบังจอ ต้องทดสอบจริง<br><span class="cond">Audio:</span> เบราว์เซอร์บังคับให้ต้องมีการสัมผัส (Touch) ก่อนเสียงจึงจะดัง<br><span class="act">วิธีแก้:</span> บังคับให้ผู้เล่นต้องกดปุ่ม "Start" ก่อนเข้าเกมเสมอ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> เบราว์เซอร์จริง</p></article>
 </section>
 <aside class="tip"><b>รายการทดสอบ:</b> First layout = title • กด F5 ทดสอบรันเต็มระบบผ่านหมด • Export เป็น HTML5 แล้วอัปขึ้นโฮสต์สำเร็จ • Zip และ Path ใน C2/Export ใช้ Forward Slashes (/) เสมอ • ผู้เล่นต้องทัชจอก่อนได้ยินเสียง</aside>

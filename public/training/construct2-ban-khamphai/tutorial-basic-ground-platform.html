@@ -62,17 +62,21 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
  <section class="grid">
   <article class="card">
    <span class="n">1</span><h2>สร้างพื้นหลัก</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้างพื้นหลัก">
 
    <p>วาง Sprite รูปพื้นให้ต่อกันตลอดทาง แล้วตั้งชื่อว่า <b>ground</b></p>
    <div class="c2-dialog">คลิกขวาที่พื้นว่างใน Layout &gt; <b>Insert new object</b> &gt; เลือก <b>Sprite</b> &gt; ตั้งชื่อ <b>ground</b> &gt; คลิกวางใน Layout &gt; โหลดภาพพื้น<br>จากนั้นคลิกที่ ground ใน Layout &gt; ไปที่ Properties Panel (ซ้ายมือ) &gt; คลิกลิงก์ <b>Behaviors</b> &gt; หน้าต่าง Behaviors เด้งขึ้นมา &gt; คลิกปุ่ม <b>+ (Add new)</b> &gt; เลือก <b>Solid</b> &gt; กด Add</div>
-   <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+   
    <p class="small">Solid ทำให้ผู้เล่นยืนบนพื้นและชนด้านข้างได้</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game → Layer game</p>
   </article>
 
   <article class="card">
    <span class="n">2</span><h2>ตรวจ Collision Polygon</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตรวจ Collision Polygon">
 
    <p>ดับเบิลคลิก Sprite → เลือกเครื่องมือ Collision polygon</p>
@@ -83,17 +87,21 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
 
   <article class="card">
    <span class="n">3</span><h2>สร้างเกาะกระโดดทะลุ</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — สร้างเกาะกระโดดทะลุ">
 
    <p>วาง Sprite เกาะ ตั้งชื่อ <b>sky1</b> แล้วเพิ่ม Behavior</p>
    <div class="c2-dialog">คลิกขวาที่เกาะ &gt; ไปที่ Properties Panel &gt; <b>Behaviors</b> &gt; คลิก <b>+</b><br>เลือก <b>Jump-thru</b> &gt; Add<br>เลือก <b>Sine</b> &gt; Add (ตัวเลือก: ทำให้เกาะลอยขึ้นลงได้)</div>
-   <img src="images/c2-behaviors.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+   
    <p class="small">ผู้เล่นกระโดดทะลุจากด้านล่าง และลงมายืนบนด้านบนได้</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก sky1 แล้ว sky2</p>
   </article>
 
   <article class="card">
    <span class="n">4</span><h2>ตั้งค่าผู้เล่น</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — ตั้งค่าผู้เล่น">
 
    <p>เลือก Sprite <b>player</b> แล้วเพิ่ม Platform behavior</p>
@@ -105,13 +113,15 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
        <tr><td>Max jumps</td><td>2</td></tr>
      </table>
    </div>
-   <img src="images/c2-properties.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+   
    <p class="small">Max jumps = 2 คือ Double Jump ตามระบบเดิมของเกม</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p>
   </article>
 
   <article class="card wide warn">
    <span class="n">5</span><h2>ผู้เล่นตกฉาก ให้กลับจุดเกิด</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ผู้เล่นตกฉาก ให้กลับจุดเกิด">
 
    <p>เพิ่มตัวแปรตำแหน่งปลอดภัย <b>จุดเกิดX</b> และ <b>จุดเกิดY</b> จากนั้นเพิ่ม Event:</p>
@@ -126,13 +136,15 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
        </div>
      </div>
    </div>
-   <img src="images/c2-event-sheet.jpg" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #ccc;">
+   
    <p class="small">บวก 200 เพื่อให้ผู้เล่นหลุดพ้นขอบจอก่อน จึงค่อยย้ายกลับ ไม่กระตุกทันทีที่แตะขอบล่าง</p>
    <p class="small">📍 <b>ที่ไหนใน C2:</b> Event Sheet</p>
   </article>
 
   <article class="card wide">
    <span class="n">6</span><h2>กฎวางเกาะให้กระโดดถึง</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 6 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — กฎวางเกาะให้กระโดดถึง">
 
    <div class="box">ระยะสูงจากพื้นถึงเกาะแรก ≤ <span class="red">140 px</span> • เกาะต่อเกาะแนวตั้ง ≤ <span class="red">135 px</span> • แนวนอน ≤ <span class="red">360 px</span></div>
@@ -142,6 +154,8 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
 
   <article class="card wide">
    <span class="n">7</span><h2>ขนาด Layout แต่ละด่าน</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 7 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 7 Screenshot — ขนาด Layout แต่ละด่าน">
 
    <div class="box">ด่าน 1 (game): <span class="red">4500 × 960</span><br>ด่าน 2 (game2): <span class="red">5500 × 960</span><br>ด่าน 3 (game3): <span class="red">6000 × 960</span></div>
@@ -150,6 +164,8 @@ h2{display:inline;font-size:27px;color:#1f4c78}p{font-size:20px;line-height:1.4;
 
   <article class="card wide warn">
    <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-basic-ground-platform-step8.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 8 — tutorial-basic-ground-platform">
+
       <img src="images/steps/tutorial-basic-ground-platform-step8.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 8 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
 
    <div class="box">- เกาะสูงเกินไปจนกระโดดไม่ถึง (ลืมเช็คกฎระยะห่าง)<br>- ผู้เล่นติดขอบเกาะเวลาเดินชน (ตั้งกรอบ Collision polygon กว้างกว่าภาพ)</div>

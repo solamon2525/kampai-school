@@ -25,6 +25,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> เมื่อตอบครบแล้วเข้าใกล้ประตู ให้เคลียร์ด่านครั้งเดียว ล็อกด่าน และกลับ select</div>
 <div class="flow"><b>ครบโจทย์</b><i>→</i><b>เข้าใกล้ door</b><i>→</i><b>คะแนน+เวลา</b><i>→</i><b>ล็อกด่าน</b><i>→</i><b>select</b></div>
 <section class="grid"><article class="card wide tip"><span class="n">1</span><h2>เงื่อนไขเปิดประตู (อ่านจากบนลงล่าง)</h2>
+      <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — 13-เปิดประตูเคลียร์ด่าน">
+
       <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เงื่อนไขเปิดประตู (อ่านจากบนลงล่าง)">
 
 <div class="where">กลุ่ม “6 เปิดประตูเมื่อทำครบ”</div>
@@ -34,6 +36,8 @@ p{font-size:13.5px;line-height:1.35;margin:4px 0}
 <span class="blue">Trigger once while true</span></div>
 <p class="small">ใช้ระยะแทน On collision เพราะขอบรูปประตูอาจไม่ตรงภาพ</p></article>
 <article class="card"><span class="n">2</span><h2>Actions ตอนเคลียร์</h2>
+      <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — 13-เปิดประตูเคลียร์ด่าน">
+
       <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Actions ตอนเคลียร์">
 
 <div class="box"><span class="red">กำลังจบด่าน = 1</span><br>
@@ -42,6 +46,8 @@ Stop all audio · Play "Area Clear"<br>
 Platform → Set ignoring input<br>
 Set animation walk · vector X = 220 (เดินเข้าประตู)</div></article>
 <article class="card"><span class="n">3</span><h2>ล็อกด่านตาม LayoutName</h2>
+      <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — 13-เปิดประตูเคลียร์ด่าน">
+
       <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ล็อกด่านตาม LayoutName">
 
 <div class="box">game → <span class="red">ผ่านด่าน1 = 1</span><br>
@@ -49,12 +55,16 @@ game2 → <span class="red">ผ่านด่าน2 = 1</span><br>
 game3 → <span class="red">ผ่านด่าน3 = 1</span></div>
 <p class="small">select sheet จะปิดปุ่มด่านที่ผ่านแล้ว</p></article>
 <article class="card wide warn"><span class="n">4</span><h2>transition กลับ select</h2>
+      <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — 13-เปิดประตูเคลียร์ด่าน">
+
       <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — transition กลับ select">
 
 <div class="box">โชว์ <span class="red">transition_cover</span> (จอดำ/เฟด)<br>
 Wait สั้นๆ → <span class="red">Go to layout "select"</span><br>
 อย่าลืมให้ระบบรีเซ็ต กำลังจบด่าน ตอนเริ่มด่านใหม่</div></article>
 <article class="card wide"><span class="n">5</span><h2>ทดสอบเส้นทางเคลียร์</h2>
+      <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — 13-เปิดประตูเคลียร์ด่าน">
+
       <img src="images/steps/13-เปิดประตูเคลียร์ด่าน-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ทดสอบเส้นทางเคลียร์">
 
 <ol class="ol"><li>Cheat ชั่วคราว: ตั้งข้อปัจจุบัน = 6 แล้วเดินใกล้ประตู</li>

@@ -24,6 +24,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> ให้หัวใจบน HUD ลดตามค่า พลังชีวิต และหายเมื่อเสียชีวิต</div>
 <div class="flow"><b>ตัวแปร</b><i>→</i><b>วาง heart</b><i>→</i><b>ตั้ง index</b><i>→</i><b>Event โชว์/ซ่อน</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>สร้างตัวแปร Global</h2>
+      <img src="images/steps/04-หัวใจ5ดวง-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — 04-หัวใจ5ดวง">
+
       <img src="images/steps/04-หัวใจ5ดวง-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — สร้างตัวแปร Global">
 
 <div class="where">game sheet → คลิกขวาพื้นที่ว่าง</div>
@@ -32,6 +34,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="box">On start of layout (กลุ่มเริ่มด่าน):<br>
 <span class="red">System → Set พลังชีวิต to 5</span></div></article>
 <article class="card"><span class="n">2</span><h2>วาง heart บน HUD</h2>
+      <img src="images/steps/04-หัวใจ5ดวง-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — 04-หัวใจ5ดวง">
+
       <img src="images/steps/04-หัวใจ5ดวง-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — วาง heart บน HUD">
 
 <div class="where">Layout game → Layer HUD</div>
@@ -40,6 +44,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <li>ตั้งค่า index = <span class="red">0, 1, 2, 3, 4</span> ตามลำดับจากซ้าย</li></ol>
 <p class="small">index ต้องต่อเนื่องเริ่ม 0 — ห้ามซ้ำ</p></article>
 <article class="card wide tip"><span class="n">3</span><h2>Event โชว์หัวใจที่ยังมี</h2>
+      <img src="images/steps/04-หัวใจ5ดวง-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — 04-หัวใจ5ดวง">
+
       <img src="images/steps/04-หัวใจ5ดวง-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Event โชว์หัวใจที่ยังมี">
 
 <div class="where">game sheet → กลุ่ม “ระบบหัวใจ HUD”</div>
@@ -48,6 +54,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">heart → Set visible</span></div>
 <p>ตัวอย่าง: พลังชีวิต=3 → โชว์หัวใจ index 0,1,2</p></article>
 <article class="card wide"><span class="n">4</span><h2>Event ซ่อนหัวใจที่หมด</h2>
+      <img src="images/steps/04-หัวใจ5ดวง-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — 04-หัวใจ5ดวง">
+
       <img src="images/steps/04-หัวใจ5ดวง-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — Event ซ่อนหัวใจที่หมด">
 
 <div class="box"><span class="blue">Every tick</span><br>
@@ -55,6 +63,8 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <span class="red">heart → Set invisible</span></div>
 <p class="small">อยากได้ 3 หัวใจ: วาง 3 อัน index 0–2 และตั้งค่าเริ่ม พลังชีวิต=3</p></article>
 <article class="card wide warn"><span class="n">5</span><h2>ผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/04-หัวใจ5ดวง-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — 04-หัวใจ5ดวง">
+
       <img src="images/steps/04-หัวใจ5ดวง-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ผิดพลาดที่พบบ่อย">
 
 <div class="box">หัวใจไม่หาย → ลืมตั้ง index · หรือเปรียบเทียบผิดทิศ<br>

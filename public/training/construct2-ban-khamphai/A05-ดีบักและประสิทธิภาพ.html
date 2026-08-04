@@ -24,22 +24,30 @@ p{font-size:12.5px;line-height:1.32;margin:3px 0}
 <div class="goal"><b>เป้าหมายบทนี้:</b> หาสาเหตุบั๊กเร็วขึ้น และลด Event ที่กินประสิทธิภาพโดยไม่จำเป็น</div>
 <div class="flow"><b>สังเกตอาการ</b><i>→</i><b>Debug text</b><i>→</i><b>ย่อเงื่อนไข</b><i>→</i><b>ลด Every tick</b></div>
 <section class="grid"><article class="card"><span class="n">1</span><h2>Text debug ชั่วคราว</h2>
+      <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — A05-ดีบักและประสิทธิภาพ">
+
       <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Text debug ชั่วคราว">
 
 <div class="where">Layer HUD</div>
 <div class="box">แสดง <span class="red">ข้อปัจจุบัน</span> · <span class="red">ล็อกคำตอบ</span> · <span class="red">กำลังจบด่าน</span> · LayoutName<br>
 Every tick Set text ระหว่างหาบั๊ก แล้วลบออกตอนส่งงาน</div></article>
 <article class="card"><span class="n">2</span><h2>เช็คของที่พบบ่อยใน v32</h2>
+      <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — A05-ดีบักและประสิทธิภาพ">
+
       <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — เช็คของที่พบบ่อยใน v32">
 
 <div class="box">Layer ผิด · UID ซ้ำหลังก็อปด่าน · ชื่อแอนิเมชันสะกดผิด<br>
 ลืม Trigger once · Flash ไม่ Invert · โจทย์ปลดล็อกก่อน spawn ครบ</div></article>
 <article class="card wide tip"><span class="n">3</span><h2>ลด Every tick</h2>
+      <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — A05-ดีบักและประสิทธิภาพ">
+
       <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — ลด Every tick">
 
 <div class="box">หัวใจ HUD ใช้ Every tick ได้ แต่ของที่เปลี่ยนตอน Event พอ → อัปเดตตอนค่านั้นเปลี่ยน<br>
 เกาะลอยต้องทุกเฟรม — แต่แยกกลุ่มให้ปิดตอนไม่ใช้ได้</div></article>
 <article class="card wide warn"><span class="n">4</span><h2>Pick / เงื่อนไขแคบ</h2>
+      <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — A05-ดีบักและประสิทธิภาพ">
+
       <img src="images/steps/A05-ดีบักและประสิทธิภาพ-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — Pick / เงื่อนไขแคบ">
 
 <div class="box">ก่อน Destroy/Set กับ object หลายชิ้น ให้ Pick ที่ถูกต้อง (UID / ช่องคำตอบ)<br>
