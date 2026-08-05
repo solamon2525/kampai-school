@@ -10,12 +10,101 @@
   let renderSeed = Date.now();
   let rng = null;
   let setsUi = null;
-  const answerReveal = window.KampaiWorksheet?.createAnswerReveal
-    ? window.KampaiWorksheet.createAnswerReveal()
-    : null;
+  let revealCount = 0;
 
   function escapeHtml(value) {
     return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  }
+
+  function questions() {
+    return Array.from(document.querySelectorAll('#pages .q'));
+  }
+
+  function syncReveal() {
+    document.body.classList.remove('show-answers');
+    const items = questions();
+    const total = items.length;
+    revealCount = Math.max(0, Math.min(revealCount, total));
+
+    items.forEach((item, index) => {
+      item.classList.toggle('reveal-answer', index < revealCount);
+      item.classList.toggle('reveal-current', revealCount > 0 && index === revealCount - 1);
+    });
+
+    const label = document.getElementById('answerStepLabel');
+    const prevBtn = document.getElementById('btnAnswerPrev');
+    const nextBtn = document.getElementById('btnAnswerNext');
+    const allBtn = document.getElementById('btnAnswers');
+
+    if (!total) {
+      if (label) label.textContent = 'เฉลย: ปิด';
+      if (allBtn) allBtn.textContent = '👁 ทั้งหมด';
+      return;
+    }
+
+    if (revealCount <= 0) {
+      if (label) label.textContent = 'เฉลย: ปิด';
+      if (allBtn) allBtn.textContent = '👁 ทั้งหมด';
+    } else if (revealCount >= total) {
+      if (label) label.textContent = 'เฉลย: ครบ ' + total + ' ข้อ';
+      if (allBtn) allBtn.textContent = '🙈 ซ่อนทั้งหมด';
+    } else {
+      if (label) label.textContent = 'เฉลยข้อ ' + revealCount + ' / ' + total;
+      if (allBtn) allBtn.textContent = '👁 ทั้งหมด';
+    }
+
+    if (prevBtn) prevBtn.disabled = revealCount <= 0;
+    if (nextBtn) nextBtn.disabled = revealCount >= total;
+  }
+
+  function revealNext() {
+    const total = questions().length;
+    if (revealCount < total) revealCount += 1;
+    syncReveal();
+  }
+
+  function revealPrev() {
+    if (revealCount > 0) revealCount -= 1;
+    syncReveal();
+  }
+
+  function toggleAllAnswers() {
+    const total = questions().length;
+    revealCount = revealCount >= total ? 0 : total;
+    syncReveal();
+  }
+
+  function mountRevealControls() {
+    const allBtn = document.getElementById('btnAnswers');
+    if (!allBtn) return;
+
+    if (!document.getElementById('btnAnswerNext')) {
+      allBtn.insertAdjacentHTML(
+        'beforebegin',
+        '<button class="btn" id="btnAnswerPrev" type="button" title="ซ่อนข้อล่าสุด">◀ ข้อก่อน</button>' +
+        '<button class="btn" id="btnAnswerNext" type="button" title="เปิดเฉลยข้อถัดไป">▶ เฉลยข้อถัดไป</button>' +
+        '<span class="answer-step-label" id="answerStepLabel" aria-live="polite">เฉลย: ปิด</span>'
+      );
+    }
+
+    const prevBtn = document.getElementById('btnAnswerPrev');
+    const nextBtn = document.getElementById('btnAnswerNext');
+
+    if (prevBtn) prevBtn.onclick = revealPrev;
+    if (nextBtn) nextBtn.onclick = revealNext;
+    allBtn.onclick = toggleAllAnswers;
+
+    window.addEventListener('keydown', (event) => {
+      if (event.target?.matches?.('input,select,textarea')) return;
+      if (event.key === 'ArrowRight' || event.key === 'n' || event.key === 'N') {
+        event.preventDefault();
+        revealNext();
+      }
+      if (event.key === 'ArrowLeft' || event.key === 'b' || event.key === 'B') {
+        event.preventDefault();
+        revealPrev();
+      }
+    });
   }
 
   function ensureRng() {
@@ -99,7 +188,7 @@
   function renderSheet(pageIndex, totalPages, count, style, schoolName, teacherName, topic) {
     const pool = config.getItems(topic);
     const items = selectItems(pool, count, pageIndex);
-    const questions = items.map((item, index) => '<article class="q"><span class="q-num">' + (index + 1) + '</span>'
+    const questionsHtml = items.map((item, index) => '<article class="q"><span class="q-num">' + (index + 1) + '</span>'
       + (style === 'progressive' ? '<span class="q-rating">[ ] 3 [ ] 2 [ ] 1</span>' : '')
       + config.renderQuestion(item, index, { count, topic, pageIndex }) + '</article>').join('');
     const teacher = teacherName ? '<span class="sheet-foot-teacher">ครูผู้สอน: ' + escapeHtml(teacherName) + '</span>' : '<span></span>';
@@ -107,7 +196,7 @@
       + '<div class="sheet-title"><h2>' + escapeHtml(config.icon + ' ' + config.title) + '</h2><span class="level">' + escapeHtml(config.gradeLabel) + '</span></div>'
       + '<div class="school-name">🏫 ' + escapeHtml(schoolName) + '</div><div class="student"><div class="field field-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="field field-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
       + '<div class="directions"><span>' + escapeHtml(config.directions) + '</span><span class="indicator">' + escapeHtml(config.indicators.join(' · ')) + '</span></div></header>'
-      + '<div class="questions count-' + count + '">' + questions + '</div>'
+      + '<div class="questions count-' + count + '">' + questionsHtml + '</div>'
       + '<div class="parent-slip"><span>✂ ผล: [ ] ผ่าน [ ] ควรทบทวน</span><span>ผู้ปกครองลงชื่อ ____________________</span></div>'
       + '<footer class="sheet-foot">' + teacher + '<span>หน้า ' + (pageIndex + 1) + '/' + totalPages + ' · สื่อคู่: ' + escapeHtml(config.mediaLabel) + '</span></footer></section>';
   }
@@ -120,7 +209,8 @@
       html += renderSheet(page, controls.pageCount, controls.count, controls.style, controls.schoolName, controls.teacherName, controls.topic);
     }
     document.getElementById('pages').innerHTML = html;
-    if (answerReveal) answerReveal.reset();
+    revealCount = 0;
+    syncReveal();
     if (window.KampaiWorksheetSets) {
       window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, setId: setsUi?.getCurrentSetId?.() || undefined });
     }
@@ -155,7 +245,6 @@
       if (!Sets) return;
       const fromUrl = Sets.getConfigFromUrl();
       if (fromUrl.seed != null) renderSeed = Number(fromUrl.seed);
-      // else keep renderSeed from initial Date.now() so first paint matches boot
 
       setsUi = Sets.mountToolbar({
         worksheetKey,
@@ -200,11 +289,14 @@
     render,
     getSeed: () => renderSeed,
     worksheetKey,
-    answerReveal,
+    revealNext,
+    revealPrev,
+    toggleAllAnswers,
+    syncReveal,
   });
 
   function boot() {
-    if (answerReveal) answerReveal.install();
+    mountRevealControls();
     bootSets();
   }
 
