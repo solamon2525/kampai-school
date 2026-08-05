@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.218.6 (แก้ไขปัญหาเฉลยซ้อนทับกันและการจัดวางช่องในใบงานเกม 24)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css ปรับความสูงบรรทัดคำนวณ .calc-line เป็น 5.8mm และคุม overflow ให้กับ .q-work-block ป้องกันการเกยทับช่องสรุปคำตอบ',
+            'อัปเดต renderQuestion ใน public/games/math/math-24-worksheet.html แสดง 2 บรรทัดวิธีทำขั้นที่ 1-2 และ 1 บรรทัดสรุปผลสมการสุดท้าย',
+            'จัดระยะขอบ padding และความสูงบรรทัดใหม่ทั้งหมด ป้องกันตัวหนังสือเบียดหรือทับกันในโหมด 10 ข้อบน A4 คมชัดสวยงาม 100%',
+        ],
+    },
+    {
         version: 'v1.218.5 (แก้ไขปัญหาการแสดงผลตัวเลขเฉลยเมื่อกดเปิดเฉลย)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
