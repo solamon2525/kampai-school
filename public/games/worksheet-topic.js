@@ -129,10 +129,27 @@
     return result;
   }
 
-  function selectItems(pool, count, pageIndex) {
-    const shifted = [...pool.slice(pageIndex % Math.max(pool.length, 1)), ...pool.slice(0, pageIndex % Math.max(pool.length, 1))];
-    const mixed = shuffle(shifted);
-    return Array.from({ length: count }, (_, index) => mixed[index % mixed.length]);
+  function selectAllPageItems(fullPool, selectedPool, count, pageCount) {
+    const primary = shuffle([...selectedPool]);
+    const backup = shuffle(fullPool.filter(item => !primary.includes(item)));
+    const combined = [...primary, ...backup];
+
+    const pages = [];
+    let currentIndex = 0;
+    for (let page = 0; page < pageCount; page += 1) {
+      const pageItems = [];
+      for (let i = 0; i < count; i += 1) {
+        if (currentIndex < combined.length) {
+          pageItems.push(combined[currentIndex]);
+          currentIndex += 1;
+        } else {
+          const fallbackIndex = i % Math.max(combined.length, 1);
+          pageItems.push(combined[fallbackIndex]);
+        }
+      }
+      pages.push(pageItems);
+    }
+    return pages;
   }
 
   function qrUrl() {
@@ -185,9 +202,7 @@
       + '</section>';
   }
 
-  function renderSheet(pageIndex, totalPages, count, style, schoolName, teacherName, topic) {
-    const pool = config.getItems(topic);
-    const items = selectItems(pool, count, pageIndex);
+  function renderSheet(pageIndex, totalPages, count, style, schoolName, teacherName, topic, items) {
     const questionsHtml = items.map((item, index) => '<article class="q"><span class="q-num">' + (index + 1) + '</span>'
       + (style === 'progressive' ? '<span class="q-rating">[ ] 3 [ ] 2 [ ] 1</span>' : '')
       + config.renderQuestion(item, index, { count, topic, pageIndex }) + '</article>').join('');
@@ -204,9 +219,13 @@
   function render() {
     ensureRng();
     const controls = readControls();
+    const fullPool = config.getItems('mixed');
+    const selectedPool = config.getItems(controls.topic);
+    const pagesItems = selectAllPageItems(fullPool, selectedPool, controls.count, controls.pageCount);
+
     let html = controls.style === 'booklet' ? renderCover(controls.schoolName, controls.teacherName) : '';
     for (let page = 0; page < controls.pageCount; page += 1) {
-      html += renderSheet(page, controls.pageCount, controls.count, controls.style, controls.schoolName, controls.teacherName, controls.topic);
+      html += renderSheet(page, controls.pageCount, controls.count, controls.style, controls.schoolName, controls.teacherName, controls.topic, pagesItems[page]);
     }
     document.getElementById('pages').innerHTML = html;
     revealCount = 0;
