@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.218.5 (แก้ไขปัญหาการแสดงผลตัวเลขเฉลยเมื่อกดเปิดเฉลย)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.js ให้สลับคลาส show-answers บน document.body และ reveal-answer บนการ์ดคำถามแบบซิงก์กัน 100%',
+            'อัปเดต public/games/worksheet-topic.css เพิ่มความสำคัญ CSS Specificity และ !important ให้กับ .work-fill, .answer-fill, .teacher-answer',
+            'แก้ไขปัญหาตัวเลขเฉลยไม่เปลี่ยนสีเมื่อกดเฉลย ให้แสดงสีแดงเข้ม (#b42318) และสีเขียวเข้ม (#086c5c) คมชัดอ่านง่ายทุกเครื่อง',
+        ],
+    },
+    {
         version: 'v1.218.4 (ปรับปรุงระบบสุ่มคำถาม ห้ามซ้ำคำถามกันในชุดใบงานเดียวกัน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

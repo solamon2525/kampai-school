@@ -21,14 +21,17 @@
   }
 
   function syncReveal() {
-    document.body.classList.remove('show-answers');
     const items = questions();
     const total = items.length;
     revealCount = Math.max(0, Math.min(revealCount, total));
 
+    const isAll = revealCount >= total && total > 0;
+    document.body.classList.toggle('show-answers', isAll);
+
     items.forEach((item, index) => {
-      item.classList.toggle('reveal-answer', index < revealCount);
-      item.classList.toggle('reveal-current', revealCount > 0 && index === revealCount - 1);
+      const isRevealed = isAll || index < revealCount;
+      item.classList.toggle('reveal-answer', isRevealed);
+      item.classList.toggle('reveal-current', !isAll && revealCount > 0 && index === revealCount - 1);
     });
 
     const label = document.getElementById('answerStepLabel');
