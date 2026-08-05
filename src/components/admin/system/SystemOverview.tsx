@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.218.1 (แก้ไขปัญหาใบงานหัวข้อ/เกม 24 แสดงผลล้นขอบขวา)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css แก้ไขระบบ Grid จาก 1fr 1fr เป็น repeat(2, minmax(0, 1fr)) ป้องกันเนื้อหาการ์ดดึงคอลัมน์เกิน 50%',
+            'เพิ่ม min-width: 0, table-layout: fixed และ overflow-wrap ให้กับ .questions, .q, .mini-table, .answer-line ป้องกันการ์ดล้นขอบขวาบน A4',
+            'แก้ปัญหาใบงานเกม 24 (math-24-worksheet.html) และใบงานหัวข้อทุกวิชาแสดงผลเต็มแผ่น A4 สมบูรณ์',
+        ],
+    },
+    {
         version: 'v1.218.0 (เพิ่มฟีเจอร์สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว ซิงก์ตรงลง Supabase Production DB)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
