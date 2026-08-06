@@ -45,7 +45,7 @@
     .questions,.questions.count-8,.questions.count-8.worksheet-mode-five{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3mm;flex:1;min-height:0}
     
     .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1mm 1.5mm;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:.5mm;position:relative;break-inside:avoid;min-height:0}
-    .q-board{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;padding-left:12mm}
+    .q-board{flex:1;display:flex;align-items:flex-start;justify-content:flex-start;width:100%;min-height:0;padding-left:10mm;overflow:hidden}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:9pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
@@ -75,7 +75,7 @@
     .show-answers .ld-quotient-cell,.q.reveal-answer .ld-quotient-cell{background:#fef2f2;border-color:#f87171}
     .q.reveal-current{outline:2px solid #0284c7;outline-offset:1px}
 
-    .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:7mm;display:flex;align-items:flex-end;justify-content:center;width:100%}
+    .ans{font:700 10pt Sarabun,sans-serif;color:#065f46;white-space:nowrap;flex-shrink:0;min-height:6.5mm;display:flex;align-items:flex-end;justify-content:flex-end;padding-right:3mm;width:100%;box-sizing:border-box;margin-top:auto;position:relative;z-index:2}
     .blank-sm{display:inline-block;min-width:40mm;min-height:6.5mm;border-bottom:1px solid #334155;height:6.5mm;text-align:center}
     .ta{display:none;color:#b91c1c;font-weight:800;border:1px dashed #f87171;background:#fef2f2;border-radius:4px;padding:0 4px;margin-left:4px;font-size:8.5pt}
     .show-answers .ta,.q.reveal-answer .ta{display:inline}
@@ -273,15 +273,17 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
     cellWidth = '13.5mm';
   }
 
-  let rowHeight = '6.3mm';
+  let rowHeight = '5.0mm';
   if (dividendDigits.length >= 6) {
-    rowHeight = workSteps.length >= 5 ? '3.8mm' : '4.2mm';
+    rowHeight = workSteps.length >= 5 ? '3.4mm' : '3.8mm';
   } else if (dividendDigits.length >= 5) {
-    rowHeight = workSteps.length >= 4 ? '4.2mm' : '4.8mm';
+    rowHeight = workSteps.length >= 4 ? '3.8mm' : '4.2mm';
   } else if (dividendDigits.length >= 4) {
-    rowHeight = workSteps.length >= 3 ? '5.2mm' : '5.8mm';
-  } else if (workSteps.length <= 2) {
-    rowHeight = '7.8mm';
+    rowHeight = workSteps.length >= 3 ? '4.4mm' : '4.8mm';
+  } else if (workSteps.length >= 3) {
+    rowHeight = '4.6mm';
+  } else {
+    rowHeight = '5.4mm';
   }
   const divisorWidth = String(divisor).length >= 2 ? '14mm' : '9mm';
   
