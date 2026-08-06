@@ -65,6 +65,8 @@
     .ld-placed{display:grid;grid-template-columns:repeat(var(--span),var(--ld-cell));align-items:end;height:100%;position:relative}
     .ld-product{border-bottom:1.4px solid #334155}
     .ld-product::before{content:'−';position:absolute;right:100%;bottom:-.5mm;color:#334155;font-size:11pt;font-weight:800}
+    .ld-partial{border-bottom:1px solid #64748b}
+    .ld-final-remainder{border-bottom:3px double #334155!important}
     .ld-pos-digit{display:grid;place-items:end center;height:100%;font-size:12pt;font-weight:800;color:#b91c1c;line-height:1}
     .ld-teacher-value{visibility:hidden}
     .ld-answer-fill{visibility:hidden;color:#b91c1c;font-size:11.5pt;font-weight:800;line-height:1}
@@ -254,12 +256,14 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
     const cells = Array.from({ length: spanLength }, (_, index) => '<span class="ld-pos-digit ld-teacher-value">'+(index < pad ? '' : text[index-pad])+'</span>').join('');
     return '<span class="ld-placed '+className+'" style="--span:'+spanLength+';grid-column:'+start+' / span '+spanLength+'">'+cells+'</span>';
   };
-  const workRows = workSteps.map((step) => {
+  const workRows = workSteps.map((step, stepIndex) => {
     const productSpan = Math.max(String(step.partial).length, String(step.product).length);
     const nextPartial = step.nextDigit === undefined ? step.remainderAfter : step.remainderAfter * 10 + Number(step.nextDigit);
     const nextEndIndex = step.nextDigit === undefined ? step.digitIndex : step.digitIndex + 1;
+    const isLastStep = stepIndex === workSteps.length - 1;
+    const partialClass = isLastStep ? 'ld-partial ld-final-remainder' : 'ld-partial';
     return '<div class="ld-calc-row">'+placedValue(step.product, step.digitIndex, 'ld-product', productSpan)+'</div>'
-      +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, 'ld-partial')+'</div>';
+      +'<div class="ld-calc-row">'+placedValue(nextPartial, nextEndIndex, partialClass)+'</div>';
   }).join('');
   
   let cellWidth = '16mm';
