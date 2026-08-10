@@ -213,11 +213,17 @@ const EducationalHubTeacher = () => {
         if (categories) setOrderedCategories(categories);
     }, [categories]);
 
-    const handleCategoryDragEnd = async (e: DragEndEvent) => {
-        const { active, over } = e;
-        if (!over || active.id === over.id) return;
-        const oldIdx = orderedCategories.findIndex((c) => c.id === active.id);
-        const newIdx = orderedCategories.findIndex((c) => c.id === over.id);
+    const displayedCategoryChoices = useMemo(() => {
+        const displayedCategories = orderedCategories.length > 0 ? orderedCategories : (categories ?? []);
+        return packCount > 0
+            ? [LESSON_PACKS_CATEGORY, ...displayedCategories]
+            : displayedCategories;
+    }, [categories, orderedCategories, packCount]);
+
+    const reorderCategories = async (activeId: string, overId: string) => {
+        if (activeId === overId || activeId === LESSON_PACKS_CATEGORY.id || overId === LESSON_PACKS_CATEGORY.id) return;
+        const oldIdx = orderedCategories.findIndex((c) => c.id === activeId);
+        const newIdx = orderedCategories.findIndex((c) => c.id === overId);
         if (oldIdx < 0 || newIdx < 0) return;
         const next = arrayMove(orderedCategories, oldIdx, newIdx);
         setOrderedCategories(next);
@@ -231,6 +237,11 @@ const EducationalHubTeacher = () => {
         await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
         await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories', 'admin'] });
         toast({ title: 'บันทึกลำดับใหม่' });
+    };
+
+    const handleCategoryDragEnd = (e: DragEndEvent) => {
+        if (!e.over) return;
+        void reorderCategories(String(e.active.id), String(e.over.id));
     };
 
     const publishedUrlSet = useMemo(() => new Set(publishedUrls), [publishedUrls]);
@@ -423,10 +434,12 @@ const EducationalHubTeacher = () => {
 
                 {/* Sticky category nav */}
                 <CategoryChipStrip
-                    categories={categoryChoices}
+                    categories={displayedCategoryChoices}
                     counts={categoryCounts}
                     activeKey={activeCategoryKey}
                     onSelect={handleCategorySelect}
+                    editable={isAdmin}
+                    onReorder={(activeId, overId) => void reorderCategories(activeId, overId)}
                 />
 
                 {/* พาเนลรายละเอียดของการ์ดนักเรียนใน Hero — แสดงตรงนี้เพื่อไม่ดันความสูง Hero */}

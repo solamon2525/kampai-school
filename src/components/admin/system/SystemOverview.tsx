@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.219.5 (Educational Hub — แอดมินจัดลำดับชิปหมวดหมู่)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier เพิ่ม grip บนชิปหมวดหมู่สำหรับแอดมิน ลากซ้าย–ขวาเพื่อกำหนดหมวดที่แสดงก่อน–หลังได้โดยตรงจากแถบหมวด',
+            'บันทึกลำดับใหม่ลง educational_hub_categories.sort_order ผ่าน educationalHubService และ invalidate cache ให้ลำดับใหม่มีผลทุกเครื่อง',
+            'ผู้ใช้ทั่วไปไม่เห็นเครื่องมือจัดลำดับ และหมวดระบบชุดเรียนพร้อมสอนยังปักซ้ายสุดเพราะเป็นหมวดสังเคราะห์นอกตารางหมวดหมู่',
+        ],
+    },
+    {
         version: 'v1.219.4 (Educational Hub — ย้ายข้อมูลนักเรียนขึ้น Hero)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
