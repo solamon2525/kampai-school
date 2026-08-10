@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.219.4 (Educational Hub — ย้ายข้อมูลนักเรียนขึ้น Hero)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier ปรับ Hero เป็น responsive split layout: ข้อมูลครูอยู่ซ้าย และการ์ดสรุปนักเรียน GamificationHub ใช้พื้นที่ว่างด้านขวาบน desktop',
+            'มือถือและแท็บเล็ตเรียงข้อมูลครูกับการ์ดนักเรียนแนวตั้งอัตโนมัติ โดยยังคง compact spacing และกรอบ max-w-7xl',
+            'พาเนลอันดับ เหรียญ ภารกิจ และคู่หู render ผ่าน optional panelTargetId ไปใต้แถบหมวดหมู่ จึงเปิดรายละเอียดได้โดยไม่ทำให้ Hero สูงกระโดด',
+        ],
+    },
+    {
         version: 'v1.219.3 (ปรับบรรทัด "ตอบ" ไปจัดวางทางฝั่งซ้าย ใต้ตำแหน่งตัวหาร พอดีเป๊ะ)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

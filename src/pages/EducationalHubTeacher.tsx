@@ -341,7 +341,8 @@ const EducationalHubTeacher = () => {
                                 : 'bg-gradient-to-br from-primary/10 via-accent/5 to-background text-foreground'
                         }
                     >
-                        <div className="px-4 py-3 sm:py-5">
+                        <div className="grid gap-3 px-4 py-3 sm:py-5 lg:grid-cols-[minmax(0,2fr)_minmax(28rem,3fr)] lg:items-center lg:gap-6">
+                          <div className="min-w-0">
                             <Button
                                 asChild
                                 variant={teacher.banner_url ? 'secondary' : 'ghost'}
@@ -408,6 +409,14 @@ const EducationalHubTeacher = () => {
                                     </div>
                                 </div>
                             </div>
+                          </div>
+
+                          <div className="min-w-0">
+                            <GamificationHub
+                                studentCode={hubStudentCode}
+                                panelTargetId="gamification-hub-panels"
+                            />
+                          </div>
                         </div>
                     </div>
                 </section>
@@ -420,10 +429,11 @@ const EducationalHubTeacher = () => {
                     onSelect={handleCategorySelect}
                 />
 
-                {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ย่อเป็นแถบสรุป+แท็บ ให้เห็นปกเกมทันที) */}
-                <section className="px-4 pt-6 max-w-5xl mx-auto">
-                    <GamificationHub studentCode={hubStudentCode} />
-                </section>
+                {/* พาเนลรายละเอียดของการ์ดนักเรียนใน Hero — แสดงตรงนี้เพื่อไม่ดันความสูง Hero */}
+                <section
+                    id="gamification-hub-panels"
+                    className="empty:hidden px-4 pt-5 max-w-5xl mx-auto w-full"
+                />
 
                 {/* Category sections */}
                 <div className="px-4 py-5 space-y-4">

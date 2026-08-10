@@ -349,9 +349,14 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 
 ```tsx
 import { GamificationHub } from '@/components/games/GamificationHub';
-<GamificationHub studentCode={hubStudentCode} />   // ใช้ใน EducationalHubTeacher.tsx
+<GamificationHub
+  studentCode={hubStudentCode}
+  panelTargetId="gamification-hub-panels"
+/>   // การ์ดสรุปอยู่ใน Hero; พาเนลขยายไปยัง target ใต้แถบหมวด
 ```
 
+- หน้า `/h/:identifier` วางการ์ดสรุปใน Hero แบบ responsive split: ข้อมูลครูซ้าย + ข้อมูลนักเรียนขวาบน desktop และเรียงแนวตั้งบนจอเล็ก
+- `panelTargetId` เป็น optional portal target สำหรับพาเนลขยาย; ถ้าไม่ส่ง prop จะ render ต่อท้ายการ์ดตามเดิม เพื่อให้ component ใช้ซ้ำได้โดยไม่บังคับโครงหน้า
 - **แถบสรุป (เห็นเสมอ ~143px เดสก์ท็อป):** `LevelRing size={44}` + ชื่อ/ชั้น (PersonAvatar) + XP bar + chips `🎮 เกม · 🏅 เหรียญ · 🔥 streak · 🎯 ภารกิจ` — match สไตล์ chip เดิม (`rounded-full bg-muted px-2 py-0.5`)
 - **ปุ่มแท็บ 4 อัน collapsed by default** — state `openTab: 'rank'|'medals'|'quest'|'pet'|null`; กดซ้ำ = ปิด, กดอื่น = สลับ. ร้านคู่หูจึงไม่ดันกริดเกมลงใต้ fold
 - พาเนลขยาย **reuse component เดิม** เป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด): `rank → <GameRankings>` · `medals → <HonorWall variant="medals">` · `quest → <DailyQuestPanel variant="full">` · `pet → <StudentPetHub>`
