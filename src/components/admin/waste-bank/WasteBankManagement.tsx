@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,11 @@ import { QuickStudentPicker } from './QuickStudentPicker';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
+import {
+  PointsConfirmationDialog,
+  type PointsConfirmation,
+} from '@/components/admin/shared/PointsConfirmationDialog';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -87,6 +92,7 @@ export const WasteBankManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
+  const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
 
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -259,6 +265,12 @@ export const WasteBankManagement = () => {
       recorded_by_administrator_id: recorder.administratorId,
     }));
 
+    const student = studentOptions.find((option) => option.id === selectedStudentId);
+    const { data: summaryBefore } = selectedStudentId
+      ? await wasteSummaryService.getForStudent(selectedStudentId)
+      : { data: null };
+    const pointsBefore = Number(summaryBefore?.total_points_earned ?? 0);
+
     setIsSubmitting(true);
     const { error } = await wasteTransactionsService.insertMany(payload);
     setIsSubmitting(false);
@@ -273,6 +285,16 @@ export const WasteBankManagement = () => {
       title: 'บันทึกรายการสำเร็จ',
       description: `${form.student_name} — ${valid.length} ประเภท · รวม ${totalPointsSubmitted} แต้ม`,
     });
+    const accumulatedPoints = pointsBefore + totalPointsSubmitted;
+    setPointsConfirmation({
+      studentName: form.student_name,
+      photoUrl: student?.photo_url ?? null,
+      latestPoints: totalPointsSubmitted,
+      accumulatedPoints,
+    });
+    speakThai(
+      `ฝากขยะ ชื่อ ${getFirstName(form.student_name)} คะแนนล่าสุด ${totalPointsSubmitted} แต้ม คะแนนสะสม ${accumulatedPoints} แต้ม`,
+    );
     const defaultCat = categories.find(
       (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
     );
@@ -284,10 +306,12 @@ export const WasteBankManagement = () => {
     setStudentOptions([]);
     fetchTransactions();
     fetchSummaries();
-    if (quickRepeat) {
-      setShowQRScanner(true);
-    }
   };
+
+  const closePointsConfirmation = useCallback(() => {
+    setPointsConfirmation(null);
+    if (quickRepeat) setShowQRScanner(true);
+  }, [quickRepeat]);
 
   const handleDeleteTransaction = async (id: string) => {
     if (!confirm('ต้องการลบรายการนี้?')) return;
@@ -966,6 +990,14 @@ export const WasteBankManagement = () => {
 
       {/* ===== TAB 5: คำขอแลกรางวัล ===== */}
       {activeTab === 'claims' && <ClaimsApproval onAction={fetchPendingCount} />}
+
+      <PointsConfirmationDialog
+        confirmation={pointsConfirmation}
+        title="ฝากขยะสำเร็จ"
+        latestLabel="คะแนนล่าสุด"
+        accumulatedLabel="คะแนนสะสม"
+        onClose={closePointsConfirmation}
+      />
 
       {/* QR Scanner Dialog */}
       {showQRScanner && (

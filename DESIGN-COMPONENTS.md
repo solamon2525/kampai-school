@@ -592,6 +592,13 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - `pending` และ `approved` กันคะแนนทันที; `rejected` คืน available ของทั้งสองกระเป๋าโดยไม่เพิ่ม/ลบ `conduct_scores`
 - ทุกหน้าที่แสดงราคาใช้ `<RewardCostDisplay>` เพื่อให้ label และสีของสองกระเป๋าตรงกัน
 
+### `<PointsConfirmationDialog confirmation title latestLabel accumulatedLabel onClose />`
+- Path: `src/components/admin/shared/PointsConfirmationDialog.tsx`
+- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและ Kampai Hero หลังรายการเพิ่มสำเร็จเท่านั้น
+- ต้องแสดง `<PersonAvatar>` คู่ชื่อ พร้อมคะแนนล่าสุดและยอดสะสมเป็นตัวเลขขนาดใหญ่กลางจอแบบ responsive
+- ปิดอัตโนมัติภายใน 5 วินาทีหรือกดปิดได้; โหมดสแกนต่อเนื่องเปิด scanner รายการถัดไปหลัง dialog ปิดเพื่อห้าม modal ซ้อน
+- เสียงใช้ `speakThai()` โดยอ่านชื่อคำแรกจาก `getFirstName()`; อุปกรณ์ไม่มี Web Speech API ต้องยังบันทึกและเปิด dialog ได้ตามปกติ
+
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |
 |---|---|---|---|---|

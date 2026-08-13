@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { studentsService, conductService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,11 @@ import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import {
+    PointsConfirmationDialog,
+    type PointsConfirmation,
+} from '@/components/admin/shared/PointsConfirmationDialog';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -129,6 +134,8 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [semester, setSemester] = useState('1');
     const [academicYear, setAcademicYear] = useState(currentYear);
     const [isSaving, setIsSaving] = useState(false);
+    const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
+    const closePointsConfirmation = useCallback(() => setPointsConfirmation(null), []);
 
     useEffect(() => {
         setStudents([]);
@@ -159,11 +166,20 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             toast({ variant: 'destructive', title: 'นักเรียนที่เลือกไม่อยู่ในชั้นเรียนปัจจุบัน' });
             return;
         }
+        const parsedScore = parseInt(score) || 1;
+        const student = students.find(s => s.id === selectedStudentId);
+        const { data: existingRecords } = type === 'add'
+            ? await conductService.getByStudentId(selectedStudentId)
+            : { data: null };
+        const accumulatedBefore = (existingRecords || [])
+            .filter(record => record.academic_year === academicYear)
+            .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
+
         setIsSaving(true);
         const { error } = await conductService.insert({
             student_id: selectedStudentId,
             type,
-            score: parseInt(score) || 1,
+            score: parsedScore,
             category: category || (type === 'add' ? 'publicMind' : 'discipline'),
             reason: reason.trim(),
             recorded_by: recorder.name || null,
@@ -175,11 +191,22 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         setIsSaving(false);
         if (error) { toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message }); return; }
 
-        const student = students.find(s => s.id === selectedStudentId);
         toast({
             title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
             description: `${student?.name} ${type === 'add' ? '+' : '-'}${score} คะแนน · ${reason}`,
         });
+        if (type === 'add' && student) {
+            const accumulatedPoints = Math.max(0, accumulatedBefore + parsedScore);
+            setPointsConfirmation({
+                studentName: student.name,
+                photoUrl: student.photo_url,
+                latestPoints: parsedScore,
+                accumulatedPoints,
+            });
+            speakThai(
+                `เพิ่มคะแนนความดี ชื่อ ${getFirstName(student.name)} คะแนนล่าสุด ${parsedScore} คะแนน คะแนนความดีสะสม ${accumulatedPoints} คะแนน`,
+            );
+        }
         setReason('');
         setScore('1');
     };
@@ -341,6 +368,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                     </CardContent>
                 </Card>
             </div>
+            <PointsConfirmationDialog
+                confirmation={pointsConfirmation}
+                title="เพิ่มคะแนนความดีสำเร็จ"
+                latestLabel="คะแนนความดีล่าสุด"
+                accumulatedLabel="คะแนนความดีสะสม"
+                onClose={closePointsConfirmation}
+            />
         </div>
     );
 }
