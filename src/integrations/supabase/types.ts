@@ -7381,6 +7381,8 @@ export type Database = {
           grade: string | null
           id: string
           indicator_code: string | null
+          image_alt: string | null
+          image_url: string | null
           meaning: string
           note: string | null
           origin_lang: string | null
@@ -7405,6 +7407,8 @@ export type Database = {
           grade?: string | null
           id?: string
           indicator_code?: string | null
+          image_alt?: string | null
+          image_url?: string | null
           meaning: string
           note?: string | null
           origin_lang?: string | null
@@ -7429,6 +7433,8 @@ export type Database = {
           grade?: string | null
           id?: string
           indicator_code?: string | null
+          image_alt?: string | null
+          image_url?: string | null
           meaning?: string
           note?: string | null
           origin_lang?: string | null

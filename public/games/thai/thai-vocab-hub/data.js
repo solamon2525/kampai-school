@@ -4009,6 +4009,8 @@ window.GAME_DATA = {
     "royal": [
       {
         "word": "พระเนตร",
+        "image_url": "assets/royal-visuals/phra-net.webp",
+        "image_alt": "ภาพระยะใกล้ของดวงตา",
         "reading": "พะ-เนด",
         "meaning": "ดวงตา (คำราชาศัพท์)",
         "emoji": "👁️",
@@ -4017,6 +4019,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระกรรณ",
+        "image_url": "assets/royal-visuals/phra-kan.webp",
+        "image_alt": "ภาพระยะใกล้ของหู",
         "reading": "พะ-กาน",
         "meaning": "หู (คำราชาศัพท์)",
         "emoji": "👂",
@@ -4025,6 +4029,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระโอษฐ์",
+        "image_url": "assets/royal-visuals/phra-ot.webp",
+        "image_alt": "ภาพระยะใกล้ของปาก",
         "reading": "พะ-โอด",
         "meaning": "ปาก (คำราชาศัพท์)",
         "emoji": "👄",
@@ -4033,6 +4039,8 @@ window.GAME_DATA = {
       },
       {
         "word": "เสวย",
+        "image_url": "assets/royal-visuals/sawoei.webp",
+        "image_alt": "มือกำลังใช้ช้อนรับประทานอาหาร",
         "reading": "สะ-เวย",
         "meaning": "กิน, รับประทาน (คำราชาศัพท์)",
         "emoji": "🍽️",
@@ -4041,6 +4049,8 @@ window.GAME_DATA = {
       },
       {
         "word": "บรรทม",
+        "image_url": "assets/royal-visuals/banthom.webp",
+        "image_alt": "เตียงที่จัดเรียบร้อยพร้อมหมอนและผ้าห่ม",
         "reading": "บัน-ทม",
         "meaning": "นอน (คำราชาศัพท์)",
         "emoji": "🛌",
@@ -4049,6 +4059,8 @@ window.GAME_DATA = {
       },
       {
         "word": "สรงน้ำ",
+        "image_url": "assets/royal-visuals/song-nam.webp",
+        "image_alt": "มือกำลังล้างด้วยน้ำสะอาด",
         "reading": "สง-น้ำ",
         "meaning": "อาบน้ำ (ใช้กับพระและราชาศัพท์)",
         "emoji": "🚿",
@@ -4057,6 +4069,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระราชสาส์น",
+        "image_url": "assets/royal-visuals/phra-ratcha-san.webp",
+        "image_alt": "จดหมายบนโต๊ะเรียนโดยไม่เห็นข้อความ",
         "reading": "พะ-ราด-ชะ-สาน",
         "meaning": "จดหมาย (ใช้สำหรับพระมหากษัตริย์เขียนถึงต่างประเทศ)",
         "emoji": "✉️",
@@ -4065,6 +4079,8 @@ window.GAME_DATA = {
       },
       {
         "word": "ฉลองพระองค์",
+        "image_url": "assets/royal-visuals/chalong-phra-ong.webp",
+        "image_alt": "เครื่องแต่งกายเรียบสุภาพของบุคคลที่ไม่เห็นใบหน้า",
         "reading": "ฉะ-ลอง-พะ-อง",
         "meaning": "เสื้อผ้า เครื่องแต่งกาย (คำราชาศัพท์)",
         "emoji": "👔",
@@ -4073,6 +4089,8 @@ window.GAME_DATA = {
       },
       {
         "word": "ฉลองพระบาท",
+        "image_url": "assets/royal-visuals/chalong-phra-bat.webp",
+        "image_alt": "รองเท้าหนังสีดำหนึ่งคู่",
         "reading": "ฉะ-ลอง-พะ-บาด",
         "meaning": "รองเท้า (คำราชาศัพท์)",
         "emoji": "👟",
@@ -4081,6 +4099,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระเกศา",
+        "image_url": "assets/royal-visuals/phra-kesa.webp",
+        "image_alt": "เส้นผมสีดำในภาพระยะใกล้",
         "reading": "พะ-เก-สา",
         "meaning": "ผม เส้นผม (คำราชาศัพท์)",
         "emoji": "💇",
@@ -4089,6 +4109,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระนลาฏ",
+        "image_url": "assets/royal-visuals/phra-nalat.webp",
+        "image_alt": "ภาพระยะใกล้ของหน้าผาก",
         "reading": "พะ-นะ-ลาด",
         "meaning": "หน้าผาก (คำราชาศัพท์)",
         "emoji": "💆",
@@ -4113,6 +4135,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระหัตถ์",
+        "image_url": "assets/royal-visuals/phra-hat.webp",
+        "image_alt": "ฝ่ามือที่กางออก",
         "reading": "พะ-หัต",
         "meaning": "มือ (คำราชาศัพท์)",
         "emoji": "✋",
@@ -4121,6 +4145,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระบาท",
+        "image_url": "assets/royal-visuals/phra-bat.webp",
+        "image_alt": "เท้าเปล่าในภาพระยะใกล้",
         "reading": "พะ-บาด",
         "meaning": "เท้า (คำราชาศัพท์)",
         "emoji": "🦶",
@@ -4129,6 +4155,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระทนต์",
+        "image_url": "assets/royal-visuals/phra-than.webp",
+        "image_alt": "รอยยิ้มที่เห็นฟันชัดเจน",
         "reading": "พะ-ทน",
         "meaning": "ฟัน (คำราชาศัพท์)",
         "emoji": "🦷",
@@ -4137,6 +4165,8 @@ window.GAME_DATA = {
       },
       {
         "word": "ทรงพระอักษร",
+        "image_url": "assets/royal-visuals/song-phra-aksorn.webp",
+        "image_alt": "มือกำลังเขียนในสมุดด้วยดินสอ",
         "reading": "ซง-พะ-อัก-สอน",
         "meaning": "เรียนหรือเขียนหนังสือ (คำราชาศัพท์)",
         "emoji": "📝",
@@ -4145,6 +4175,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระเศียร",
+        "image_url": "assets/royal-visuals/phra-sirsa.webp",
+        "image_alt": "ด้านหลังศีรษะและเส้นผมของบุคคลที่ไม่เห็นใบหน้า",
         "reading": "พะ-เสียน",
         "meaning": "ศีรษะ หัว (คำราชาศัพท์)",
         "emoji": "👤",
@@ -4153,6 +4185,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระพักตร์",
+        "image_url": "assets/royal-visuals/phra-phak.webp",
+        "image_alt": "โมเดลใบหน้าสำหรับการเรียนรู้ที่ไม่ระบุตัวตน",
         "reading": "พะ-พัก",
         "meaning": "หน้า ใบหน้า (คำราชาศัพท์)",
         "emoji": "😊",
@@ -4161,6 +4195,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระนาสิก",
+        "image_url": "assets/royal-visuals/phra-nasik.webp",
+        "image_alt": "ภาพระยะใกล้ของจมูก",
         "reading": "พะ-นา-สิก",
         "meaning": "จมูก (คำราชาศัพท์)",
         "emoji": "👃",
@@ -4169,6 +4205,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระชิวหา",
+        "image_url": "assets/royal-visuals/phra-chivha.webp",
+        "image_alt": "ภาพลิ้นในช่องปากอย่างไม่แสดงภาพทางการแพทย์",
         "reading": "พะ-ชิว-หา",
         "meaning": "ลิ้น (คำราชาศัพท์)",
         "emoji": "👅",
@@ -4177,6 +4215,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระหฤทัย",
+        "image_url": "assets/royal-visuals/phra-hruthai.webp",
+        "image_alt": "โมเดลหัวใจสำหรับการเรียนรู้",
         "reading": "พะ-หะ-รึ-ไท",
         "meaning": "หัวใจ (คำราชาศัพท์)",
         "emoji": "❤️",
@@ -4185,6 +4225,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระอุระ",
+        "image_url": "assets/royal-visuals/phra-ura.webp",
+        "image_alt": "ช่วงอกของบุคคลที่สวมเสื้อเรียบและไม่เห็นใบหน้า",
         "reading": "พะ-อุ-ระ",
         "meaning": "อก หน้าอก (คำราชาศัพท์)",
         "emoji": "🫁",
@@ -4193,6 +4235,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระกร",
+        "image_url": "assets/royal-visuals/phra-korn.webp",
+        "image_alt": "แขนที่ยกขึ้นในภาพระยะใกล้",
         "reading": "พะ-กอน",
         "meaning": "แขน (คำราชาศัพท์)",
         "emoji": "💪",
@@ -4201,6 +4245,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระชงฆ์",
+        "image_url": "assets/royal-visuals/phra-chongkho.webp",
+        "image_alt": "ช่วงขาและแข้งในภาพระยะใกล้",
         "reading": "พะ-ชง",
         "meaning": "แข้ง (คำราชาศัพท์)",
         "emoji": "🦵",
@@ -4257,6 +4303,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระกระยาหาร",
+        "image_url": "assets/royal-visuals/phra-kra-yahan.webp",
+        "image_alt": "ถาดอาหารที่มีข้าว ผัก และซุป",
         "reading": "พะ-กระ-ยา-หาน",
         "meaning": "อาหาร (คำราชาศัพท์)",
         "emoji": "🍚",
@@ -4265,6 +4313,8 @@ window.GAME_DATA = {
       },
       {
         "word": "พระสุธารส",
+        "image_url": "assets/royal-visuals/phra-sutharot.webp",
+        "image_alt": "แก้วน้ำดื่มใส",
         "reading": "พะ-สุ-ทา-รด",
         "meaning": "น้ำดื่ม เครื่องดื่ม (คำราชาศัพท์)",
         "emoji": "🥤",

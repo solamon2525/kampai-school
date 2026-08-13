@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.219.7 (Thai Vocab Hub — pilot ภาพคำราชาศัพท์)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพประกอบสมจริง 25 คำในหมวดคำราชาศัพท์: ผู้เรียนเห็นคำและคำอ่านก่อน แล้วจึงกดเปิดภาพเพื่อเชื่อมความหมายอย่างเป็นรูปธรรม',
+            'มีทั้งแท็บภาพประกอบและปุ่มดูภาพในบัตรคำ/กริด พร้อมปิดด้วย Esc และ fallback เมื่อภาพโหลดไม่สำเร็จ โดยไม่กระทบระบบคะแนน',
+            'เพิ่ม image_url/image_alt ใน source, seed, export, lazy RPC และ validator รวมถึงรายงาน CSV สำหรับครูตรวจภาพ; migration 20260813052859 อัปเดต game_docs เป็น v2.2.0',
+        ],
+    },
+    {
         version: 'v1.217.1 (Thai Vocab Hub — กรองคำศัพท์ให้ตรงหมวด)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',

@@ -44,7 +44,7 @@ async function main() {
   for (const cat of categories) {
     const { data, error } = await supabase
       .from('thai_vocab_items')
-      .select('word, reading, meaning, emoji, grade, difficulty, indicator_code, classifier_for, pair_id, synonym_group, origin_lang, tags, note, content_status, review_reason, category_evidence, duplicate_rationale, sort_order')
+      .select('word, reading, meaning, emoji, grade, difficulty, indicator_code, classifier_for, pair_id, synonym_group, origin_lang, tags, note, content_status, review_reason, category_evidence, duplicate_rationale, image_url, image_alt, sort_order')
       .eq('category_slug', cat.slug)
       .order('sort_order');
     if (error) throw error;
@@ -69,6 +69,8 @@ async function main() {
       if (r.review_reason) o.review_reason = r.review_reason;
       if (r.category_evidence) o.category_evidence = r.category_evidence;
       if (r.duplicate_rationale) o.duplicate_rationale = r.duplicate_rationale;
+      if (r.image_url) o.image_url = r.image_url;
+      if (r.image_alt) o.image_alt = r.image_alt;
       return o;
     });
 

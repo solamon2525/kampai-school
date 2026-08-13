@@ -75,6 +75,8 @@ async function main() {
       review_reason: w.review_reason ?? null,
       category_evidence: w.category_evidence ?? null,
       duplicate_rationale: w.duplicate_rationale ?? null,
+      image_url: w.image_url ?? null,
+      image_alt: w.image_alt ?? null,
       tags: w.tags ?? [],
       note: w.note ?? null,
       sort_order: i,

@@ -2,7 +2,7 @@
 
 let currentScore = 0;
 let currentLives = 5;
-let currentMode = 'auto'; // auto, dictation, choice, match
+let currentMode = 'auto'; // auto, flash, dictation, choice, match, listen, visual
 let activeCategory = null;
 let activeCategorySlug = null;
 let fullCategoryWords = [];
@@ -50,6 +50,9 @@ let sessionTotal = 0;
 let missedWords = [];
 let serverMissedWords = [];
 let vocabLazyLoad = false;
+let visualWords = [];
+let visualWordIndex = 0;
+let visualViewerReturnFocus = null;
 
 // Online controller placeholder: Thai Vocab Hub is primarily a self-paced study
 // tool, but the verifier expects existing game pages to wire the shared match API.
@@ -74,6 +77,27 @@ function getApprovedWords(words) {
     : list.slice(0, 150);
 }
 
+function mergeLocalVisuals(slug, words) {
+  return (Array.isArray(words) ? words : []).map((word) => {
+    const local = LOCAL_VISUALS_BY_WORD.get(`${slug}\u0000${word.word}\u0000${word.reading}`);
+    return local && !word.image_url ? { ...word, ...local } : word;
+  });
+}
+
+function getVisualWords() {
+  return activeCategorySlug === 'royal'
+    ? getApprovedWords(categoryWords).filter((word) => word.image_url)
+    : [];
+}
+
+function updateVisualModeAvailability() {
+  const button = document.getElementById('m-visual');
+  if (!button) return;
+  const enabled = activeCategorySlug === 'royal' && getVisualWords().length > 0;
+  button.style.display = enabled ? '' : 'none';
+  if (!enabled && currentMode === 'visual') switchMode('auto');
+}
+
 function applyVocabFromSdk(sdk) {
   const vocab = sdk && sdk.gameData && sdk.gameData.vocab;
   if (!vocab || !vocab.categories || !vocab.categories.length) return;
@@ -96,8 +120,9 @@ function applyVocabFromSdk(sdk) {
   if (hubVisible) initHubGrid();
 
   if (activeCategorySlug && ALL_WORDS[activeCategorySlug]) {
-    fullCategoryWords = getApprovedWords(ALL_WORDS[activeCategorySlug]);
+    fullCategoryWords = getApprovedWords(mergeLocalVisuals(activeCategorySlug, ALL_WORDS[activeCategorySlug]));
     categoryWords = fullCategoryWords;
+    updateVisualModeAvailability();
     if (currentMode === 'auto') renderWordsGrid();
   }
 }
@@ -114,7 +139,7 @@ function loadCategoryWordsFromParent(slug) {
       if (e.data?.type === 'vocabWords' && e.data.slug === slug) {
         clearTimeout(timeout);
         window.removeEventListener('message', handler);
-        const words = getApprovedWords(e.data.words);
+        const words = getApprovedWords(mergeLocalVisuals(slug, e.data.words));
         ALL_WORDS[slug] = words;
         resolve(words);
       }
@@ -204,6 +229,17 @@ function resetSession() {
 const CONFIG = window.GAME_CONFIG || {};
 const CATEGORIES = (window.GAME_DATA && window.GAME_DATA.categories) || [];
 const ALL_WORDS = (window.GAME_DATA && window.GAME_DATA.words) || {};
+
+// Keep locally bundled learning images available when an older lazy RPC has not
+// yet returned the new image metadata.
+const LOCAL_VISUALS_BY_WORD = new Map(
+  Object.entries(ALL_WORDS).flatMap(([slug, words]) => (words || [])
+    .filter((word) => word && word.image_url)
+    .map((word) => [`${slug}\u0000${word.word}\u0000${word.reading}`, {
+      image_url: word.image_url,
+      image_alt: word.image_alt,
+    }]))
+);
 
 // แสดงหน้าเลือกหัวข้อทันที — ไม่ผูกกับ SDK callback
 // ใช้ requestAnimationFrame เพื่อมั่นใจว่า DOM render พร้อมจริงก่อนจัด layout
@@ -720,7 +756,7 @@ function initHubGrid() {
 async function loadAndSelectCategory(slug) {
   const loaded = await loadCategoryWordsFromParent(slug);
   if (loaded.length) {
-    ALL_WORDS[slug] = getApprovedWords(loaded);
+    ALL_WORDS[slug] = getApprovedWords(mergeLocalVisuals(slug, loaded));
   }
   selectCategory(slug);
 }
@@ -728,7 +764,7 @@ async function loadAndSelectCategory(slug) {
 function selectCategory(slug) {
   activeCategorySlug = slug;
   activeCategory = CATEGORIES.find(c => c.slug === slug);
-  fullCategoryWords = getApprovedWords(ALL_WORDS[slug]);
+  fullCategoryWords = getApprovedWords(mergeLocalVisuals(slug, ALL_WORDS[slug]));
   categoryWords = fullCategoryWords;
 
   if (categoryWords.length === 0) return;
@@ -736,6 +772,7 @@ function selectCategory(slug) {
   // เปลี่ยนหน้าการแสดงผล (ชื่อหมวดแสดงบนการ์ดอยู่แล้ว — ไม่มีแถบ HUD บนสุด)
   document.getElementById('hub-view').style.display = 'none';
   document.getElementById('topic-view').style.display = 'flex';
+  updateVisualModeAvailability();
 
   // รีเซ็ตค่าด่าน
   currentScore = 0;
@@ -765,7 +802,7 @@ function switchMode(mode) {
   // โหมดฝึก (dictation/choice/match) = เริ่มรอบใหม่: รีเซ็ตชีวิต/คะแนน/สรุปผล
   const sd = document.getElementById('score-display');
   const scoredModes = ['dictation', 'choice', 'match', 'listen'];
-  if (sd) sd.style.display = (mode === 'auto' || mode === 'flash') ? 'none' : 'flex';
+  if (sd) sd.style.display = (mode === 'auto' || mode === 'flash' || mode === 'visual') ? 'none' : 'flex';
   if (scoredModes.includes(mode)) {
     currentScore = 0;
     currentLives = CONFIG.LIVES;
@@ -786,6 +823,7 @@ function switchMode(mode) {
   document.getElementById('choice-mode').style.display = 'none';
   document.getElementById('match-mode').style.display = 'none';
   document.getElementById('listen-mode').style.display = 'none';
+  document.getElementById('visual-mode').style.display = 'none';
   const flashControls = document.getElementById('flash-controls');
   if (flashControls) flashControls.style.display = 'none';
 
@@ -800,7 +838,7 @@ function switchMode(mode) {
   // เลือกแผงตามโหมด
   const topicView = document.getElementById('topic-view');
   const wordArea = document.getElementById('word-area');
-  if (topicView) topicView.classList.remove('flash-mode');
+  if (topicView) topicView.classList.remove('flash-mode', 'auto-grid-mode');
 
   if (mode === 'auto') {
     if (topicView) topicView.classList.add('auto-grid-mode');
@@ -819,6 +857,13 @@ function switchMode(mode) {
     if (sd) sd.style.display = 'none';
     mountFlashControls();
     startFlashMode();
+  } else if (mode === 'visual') {
+    if (wordArea) wordArea.style.display = 'none';
+    if (autoplayControls) autoplayControls.style.display = 'none';
+    document.getElementById('visual-mode').style.display = 'flex';
+    visualWords = getVisualWords();
+    visualWordIndex = Math.min(visualWordIndex, Math.max(0, visualWords.length - 1));
+    renderVisualStudy();
   } else {
     if (topicView) topicView.classList.remove('auto-grid-mode');
     if (wordArea) wordArea.style.display = '';
@@ -910,6 +955,7 @@ function renderWordsGrid() {
         <div class="grid-flip-face grid-flip-back">
           <span class="grid-reading">[ ${item.reading} ]</span>
           <span class="grid-meaning">${item.meaning}</span>
+          ${item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : ''}
         </div>
       </div>
     `;
@@ -919,6 +965,14 @@ function renderWordsGrid() {
       sayBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         speakThai(item.word);
+      });
+    }
+
+    const visualBtn = card.querySelector('.grid-visual-btn');
+    if (visualBtn) {
+      visualBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openVisualViewer(item, visualBtn);
       });
     }
 
@@ -972,6 +1026,7 @@ function loadWord(index) {
 
   document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${wordItem.reading} ]`;
   document.getElementById('wback-meaning').textContent = wordItem.meaning;
+  mountCardVisualButton(wordItem);
 
   // พลิกกลับหน้าหลักทุกครั้งที่เปลี่ยนคำ
   document.getElementById('tcard').classList.remove('flipped');
@@ -1001,6 +1056,65 @@ function flipCard() {
     return;
   }
   document.getElementById('tcard').classList.toggle('flipped');
+}
+
+function mountCardVisualButton(wordItem) {
+  const button = document.getElementById('btn-card-visual');
+  if (!button) return;
+  button.style.display = wordItem?.image_url ? '' : 'none';
+  button.onclick = (event) => {
+    event.stopPropagation();
+    if (wordItem?.image_url) openVisualViewer(wordItem, button);
+  };
+}
+
+function renderVisualStudy() {
+  const item = visualWords[visualWordIndex];
+  if (!item) {
+    switchMode('auto');
+    return;
+  }
+  document.getElementById('visual-count').textContent = `${visualWordIndex + 1}/${visualWords.length}`;
+  document.getElementById('visual-word').textContent = item.word;
+  document.getElementById('visual-reading').textContent = `[ ${item.reading} ]`;
+  document.getElementById('visual-meaning').textContent = item.meaning;
+  document.getElementById('btn-visual-say').onclick = () => speakThai(item.word);
+  document.getElementById('btn-visual-open').onclick = (event) => openVisualViewer(item, event.currentTarget);
+  document.getElementById('btn-visual-prev').onclick = () => {
+    visualWordIndex = (visualWordIndex - 1 + visualWords.length) % visualWords.length;
+    renderVisualStudy();
+  };
+  document.getElementById('btn-visual-next').onclick = () => {
+    visualWordIndex = (visualWordIndex + 1) % visualWords.length;
+    renderVisualStudy();
+  };
+}
+
+function openVisualViewer(item, returnFocus) {
+  if (!item?.image_url) return;
+  visualViewerReturnFocus = returnFocus || document.activeElement;
+  const viewer = document.getElementById('visual-viewer');
+  const image = document.getElementById('visual-viewer-image');
+  image.alt = item.image_alt || `ภาพประกอบคำว่า ${item.word}`;
+  image.src = item.image_url;
+  image.onerror = () => {
+    image.removeAttribute('src');
+    image.alt = 'ไม่สามารถแสดงภาพประกอบได้';
+    showToast('ภาพประกอบกำลังปรับปรุง', 'wrong');
+  };
+  document.getElementById('visual-viewer-title').textContent = item.word;
+  document.getElementById('visual-viewer-meaning').textContent = item.meaning;
+  viewer.style.display = 'grid';
+  document.getElementById('btn-visual-close').focus();
+}
+
+function closeVisualViewer() {
+  const viewer = document.getElementById('visual-viewer');
+  if (!viewer || viewer.style.display === 'none') return;
+  viewer.style.display = 'none';
+  document.getElementById('visual-viewer-image').removeAttribute('src');
+  if (visualViewerReturnFocus?.focus) visualViewerReturnFocus.focus();
+  visualViewerReturnFocus = null;
 }
 
 // เลื่อนคำถัดไป/ก่อนหน้าในโหมดทบทวน (ปุ่ม ◀ ▶ และลูกศรคีย์บอร์ด) วนรอบ
@@ -1389,6 +1503,7 @@ function renderFlashCard() {
   const v = pickFlashVariant();
   const tcard = document.getElementById('tcard');
   tcard.classList.remove('flipped');
+  mountCardVisualButton(item);
 
   document.getElementById('btn-flash-reveal').style.display = '';
   document.getElementById('btn-flash-know').style.display = 'none';
@@ -1434,6 +1549,14 @@ function revealFlashCard() {
   const item = words[flashDeck[0]];
   if (item && flashVariant !== 'audio2word') speakThai(item.word);
 }
+
+document.getElementById('btn-visual-close')?.addEventListener('click', closeVisualViewer);
+document.getElementById('visual-viewer')?.addEventListener('click', (event) => {
+  if (event.target.id === 'visual-viewer') closeVisualViewer();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeVisualViewer();
+});
 
 function flashMarkKnown(isKnown) {
   if (!flashRevealed) return;

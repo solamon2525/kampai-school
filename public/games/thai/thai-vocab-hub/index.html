@@ -58,6 +58,7 @@
                 <div class="back-col">
                     <span id="wback-reading">คำอ่าน: [ — ]</span>
                     <span id="wback-meaning">ความหมาย...</span>
+                    <button type="button" id="btn-card-visual" class="card-visual-btn" style="display:none">ดูภาพประกอบ</button>
                 </div>
             </div>
         </div>
@@ -152,6 +153,24 @@
                 <div id="listen-options" class="options-grid"></div>
             </div>
         </div>
+
+        <!-- 6. Visual vocabulary (word first, image on request) -->
+        <div id="visual-mode" class="mode-panel visual-mode-panel" style="display:none">
+            <section class="visual-study-card" aria-live="polite">
+                <div class="visual-study-topline">
+                    <span id="visual-count">1/25</span>
+                    <button type="button" id="btn-visual-say" class="voice-btn" title="ฟังเสียงอ่าน">🔊 ฟังเสียง</button>
+                </div>
+                <div class="visual-study-word" id="visual-word">คำศัพท์</div>
+                <div class="visual-study-reading" id="visual-reading">[ คำอ่าน ]</div>
+                <p class="visual-study-meaning" id="visual-meaning">ความหมาย</p>
+                <button type="button" id="btn-visual-open" class="btn btn-primary visual-open-btn">เปิดดูภาพประกอบ</button>
+                <div class="visual-nav">
+                    <button type="button" id="btn-visual-prev" class="btn-nav" aria-label="คำก่อนหน้า">◀</button>
+                    <button type="button" id="btn-visual-next" class="btn-nav" aria-label="คำถัดไป">▶</button>
+                </div>
+            </section>
+        </div>
     </div>
 
     <!-- Bottom Toolbar -->
@@ -164,6 +183,7 @@
             <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
             <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
             <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
+            <button class="cbtn mbtn" id="m-visual" onclick="switchMode('visual')" style="display:none">🖼️ ภาพประกอบ</button>
         </div>
         <div id="dots"></div>
         <div id="score-display" style="display:none">
@@ -203,6 +223,17 @@
 
 <!-- ═══ Toast feedback ═══ -->
 <div id="toast" class="toast">แจ้งเตือน</div>
+
+<div id="visual-viewer" class="visual-viewer" style="display:none" role="dialog" aria-modal="true" aria-labelledby="visual-viewer-title">
+    <button type="button" id="btn-visual-close" class="visual-viewer-close" aria-label="ปิดภาพประกอบ">×</button>
+    <figure class="visual-viewer-figure">
+        <img id="visual-viewer-image" alt="">
+        <figcaption>
+            <strong id="visual-viewer-title"></strong>
+            <span id="visual-viewer-meaning"></span>
+        </figcaption>
+    </figure>
+</div>
 
 <!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
 <script src="/games/kampai-sdk.js"></script>

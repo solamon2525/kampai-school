@@ -61,6 +61,13 @@ for (const slug of slugs) {
     if (item.grade != null && item.grade !== '' && !['ป.4', 'ป.5', 'ป.6'].includes(item.grade)) errors.push(`${loc}: grade ต้องเป็น ป.4 | ป.5 | ป.6`);
     if (status === 'quarantined' && !item.review_reason) errors.push(`${loc}: quarantined ต้องมี review_reason`);
     if (status === 'approved' && !item.category_evidence) warnings.push(`${loc}: approved ควรมี category_evidence ก่อนใช้เป็นคำทดแทน`);
+    if (item.image_url != null || item.image_alt != null) {
+      if (status !== 'approved') errors.push(`${loc}: ภาพประกอบต้องอยู่กับคำ approved เท่านั้น`);
+      if (slug !== 'royal') errors.push(`${loc}: pilot ภาพประกอบอนุญาตเฉพาะหมวด royal`);
+      if (!item.image_url || typeof item.image_url !== 'string') errors.push(`${loc}: image_url ว่าง`);
+      if (!item.image_alt || typeof item.image_alt !== 'string' || !item.image_alt.trim()) errors.push(`${loc}: image_alt ว่าง`);
+      if (item.image_url && !existsSync(join(ROOT, 'public/games/thai/thai-vocab-hub', item.image_url))) errors.push(`${loc}: ไม่พบไฟล์ ${item.image_url}`);
+    }
 
     if (status === 'approved' && slug === 'classifiers' && !item.classifier_for) {
       errors.push(`${loc}: หมวดลักษณนามต้องมี classifier_for`);
@@ -99,6 +106,10 @@ for (const slug of slugs) {
     }
   }
 }
+
+const royalItems = loadJson(join(DATA_DIR, 'words', 'royal.json'));
+const visualPilot = royalItems.filter((item) => item.content_status !== 'quarantined' && item.image_url);
+if (visualPilot.length !== 25) errors.push(`[royal] pilot ภาพประกอบต้องมี 25 คำ (พบ ${visualPilot.length})`);
 
 for (const [word, locs] of byWord) {
   const approvedLocs = locs.filter((loc) => loc.status === 'approved');
