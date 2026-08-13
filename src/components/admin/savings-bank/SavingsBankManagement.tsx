@@ -50,6 +50,14 @@ import {
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -62,6 +70,13 @@ interface StudentOption {
   photo_url: string | null;
 }
 
+interface DepositConfirmation {
+  studentName: string;
+  photoUrl: string | null;
+  amount: number;
+  balanceAfter: number;
+}
+
 type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
 
 const fmtBaht = (n: number | null | undefined) => {
@@ -71,6 +86,29 @@ const fmtBaht = (n: number | null | undefined) => {
 
 const fmtCount = (n: number | null | undefined) =>
   Number(n ?? 0).toLocaleString('th-TH');
+
+const getFirstName = (fullName: string) => fullName.trim().split(/\s+/)[0] || fullName.trim();
+
+const speakDepositConfirmation = (studentName: string, amount: number, balanceAfter: number) => {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+  try {
+    const utterance = new SpeechSynthesisUtterance(
+      `ฝากเงิน ชื่อ ${getFirstName(studentName)} ยอดฝากล่าสุด ${amount} บาท ยอดเงินสะสม ${balanceAfter} บาท`,
+    );
+    utterance.lang = 'th-TH';
+    utterance.rate = 0.92;
+    utterance.pitch = 1.02;
+    const thaiVoice = window.speechSynthesis
+      .getVoices()
+      .find((voice) => voice.lang.toLocaleLowerCase().startsWith('th'));
+    if (thaiVoice) utterance.voice = thaiVoice;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // Voice feedback is optional; saving and visual confirmation must still succeed.
+  }
+};
 
 export const SavingsBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -101,6 +139,7 @@ export const SavingsBankManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
+  const [depositConfirmation, setDepositConfirmation] = useState<DepositConfirmation | null>(null);
 
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
@@ -140,6 +179,20 @@ export const SavingsBankManagement = () => {
       });
     })();
   }, [form.student_class]);
+
+  useEffect(() => {
+    if (!depositConfirmation) return;
+    const timer = window.setTimeout(() => {
+      setDepositConfirmation(null);
+      if (quickRepeat) setScannerOpen(true);
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [depositConfirmation, quickRepeat]);
+
+  const closeDepositConfirmation = () => {
+    setDepositConfirmation(null);
+    if (quickRepeat) setScannerOpen(true);
+  };
 
   const fetchTransactions = async () => {
     const { data, error } = await savingsTransactionsService.getAll();
@@ -256,6 +309,17 @@ export const SavingsBankManagement = () => {
         description: `${studentOpt?.name} — ${fmtBaht(amount)} (คงเหลือ ${fmtBaht(balance_after)})`,
       });
 
+      if (form.transaction_type === 'deposit') {
+        const studentName = studentOpt?.name ?? form.student_name;
+        setDepositConfirmation({
+          studentName,
+          photoUrl: studentOpt?.photo_url ?? null,
+          amount,
+          balanceAfter: balance_after,
+        });
+        speakDepositConfirmation(studentName, amount, balance_after);
+      }
+
       setForm((p) => ({
         ...p,
         student_id: '',
@@ -264,7 +328,7 @@ export const SavingsBankManagement = () => {
         notes: '',
       }));
       await Promise.all([fetchTransactions(), fetchSummaries()]);
-      if (quickRepeat) {
+      if (quickRepeat && form.transaction_type !== 'deposit') {
         setScannerOpen(true);
       }
     } catch (err) {
@@ -611,6 +675,54 @@ export const SavingsBankManagement = () => {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={depositConfirmation !== null}
+        onOpenChange={(open) => {
+          if (!open && depositConfirmation) closeDepositConfirmation();
+        }}
+      >
+        <DialogContent className="max-w-2xl border-border bg-card px-5 py-8 text-center sm:px-10 sm:py-10">
+          {depositConfirmation && (
+            <>
+              <DialogHeader className="items-center text-center">
+                <div className="mb-2 flex items-center gap-3">
+                  <PersonAvatar
+                    name={depositConfirmation.studentName}
+                    photoUrl={depositConfirmation.photoUrl}
+                    size="lg"
+                    className="ring-4 ring-amber-200"
+                  />
+                  <div className="text-left">
+                    <DialogTitle className="text-xl font-extrabold text-foreground sm:text-2xl">
+                      ฝากเงินสำเร็จ
+                    </DialogTitle>
+                    <DialogDescription className="mt-1 text-base font-semibold text-foreground/75 sm:text-lg">
+                      {depositConfirmation.studentName}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
+                  <p className="text-sm font-bold text-amber-900 sm:text-base">ยอดฝากล่าสุด</p>
+                  <p className="mt-2 text-4xl font-black tabular-nums text-amber-950 sm:text-5xl">
+                    {fmtBaht(depositConfirmation.amount)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-primary p-5 text-primary-foreground">
+                  <p className="text-sm font-bold sm:text-base">ยอดเงินสะสม</p>
+                  <p className="mt-2 text-4xl font-black tabular-nums sm:text-5xl">
+                    {fmtBaht(depositConfirmation.balanceAfter)}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">หน้าต่างนี้จะปิดอัตโนมัติภายใน 5 วินาที</p>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* ─── Tab 2: Summary ────────────────────────────────────────────── */}
       {activeTab === 'summary' && <StudentSummaryTab summaries={summaries} />}
