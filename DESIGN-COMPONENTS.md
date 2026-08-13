@@ -573,18 +573,24 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 ### `<RewardCard reward={...} onClaim={...} />`
 - Path: `src/components/rewards/RewardCard.tsx`
 - Square aspect image (fallback `<Gift>` icon บน gradient ของ tier)
-- Top-left badge = **tier** (emoji + label) — สีตาม `tierFor(points_cost)`
+- Top-left badge = **tier** (emoji + label) — สีตามผลรวม `waste_points_cost + virtue_points_cost`
 - Top-right badge = **stock** ถ้า `stock !== null` (สีแดงเมื่อหมด)
-- Bottom: ชื่อ + description (line-clamp-2) + แต้ม + ปุ่ม "แลกรางวัล"
+- Bottom: ชื่อ + description (line-clamp-2) + ต้นทุนแยก “ขยะ / ความดี” + ปุ่ม "แลกรางวัล"
 - Hover: `-translate-y-1 hover:shadow-xl`
 
 ### `<RewardClaimDialog reward open onOpenChange />`
 - Path: `src/components/rewards/RewardClaimDialog.tsx`
 - 2-step flow ใน Dialog เดียว:
   1. กรอก `student_code` → ปุ่ม "ตรวจสอบ" → เรียก RPC `lookup_student_balance`
-  2. Preview ชื่อ + แต้มคงเหลือ + การ์ดเตือนถ้าแต้มไม่พอ → ปุ่ม "ยืนยันส่งคำขอ" → เรียก RPC `claim_reward`
-- Error mapping: `STUDENT_NOT_FOUND` / `REWARD_UNAVAILABLE` / `INSUFFICIENT_POINTS` / `OUT_OF_STOCK` → ภาษาไทย
+  2. Preview ชื่อ + ยอดสะสม/คงเหลือ 2 กระเป๋า + การ์ดเตือนถ้ากระเป๋าใดไม่พอ → ปุ่ม "ยืนยันส่งคำขอ" → เรียก RPC `claim_reward`
+- Error mapping: `STUDENT_NOT_FOUND` / `REWARD_UNAVAILABLE` / `INSUFFICIENT_WASTE_POINTS` / `INSUFFICIENT_VIRTUE_POINTS` / `OUT_OF_STOCK` → ภาษาไทย
 - Reset state ทุกครั้งที่เปิดใหม่
+
+### Dual-wallet reward cost
+- รางวัลกำหนดต้นทุนต่อชิ้นเป็นขยะล้วน ความดีล้วน หรือจำนวนตายตัวจากทั้งสองกระเป๋า; ห้ามทดแทนคะแนนข้ามกระเป๋า
+- คะแนนความดีสะสม = `conduct_scores add - deduct` ของปีการศึกษาปัจจุบัน ไม่รวมโบนัส Kampai Hero และไม่แก้ ledger เดิมเมื่อแลก
+- `pending` และ `approved` กันคะแนนทันที; `rejected` คืน available ของทั้งสองกระเป๋าโดยไม่เพิ่ม/ลบ `conduct_scores`
+- ทุกหน้าที่แสดงราคาใช้ `<RewardCostDisplay>` เพื่อให้ label และสีของสองกระเป๋าตรงกัน
 
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |
@@ -594,12 +600,12 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 | `great` | 🌳 | ระดับเยี่ยม | 151–300 | `bg-teal-100 text-teal-700` |
 | `elite` | 🏆 | ระดับเลิศ | 301+ | `bg-amber-100 text-amber-700` |
 
-ใช้ `tierFor(points_cost)` เพื่อ map คะแนน → tier ทั้งใน `RewardCard` (สี+badge) และ `RewardsCatalog` (grouping)
+ใช้ `tierFor(waste_points_cost + virtue_points_cost)` เพื่อ map คะแนน → tier ใน `RewardCard`
 
 ### กฎ Public Claim flow (security)
 - **ห้ามเปิด INSERT policy บน `reward_claims`** ให้ anon ตรงๆ — ใช้ SECURITY DEFINER RPC `claim_reward(p_code, p_reward_id)` แทน
 - Validation ทั้งหมด (student lookup, balance, stock, active) อยู่ใน RPC ฝั่ง DB — ไม่เชื่อ client
-- Migration: `supabase/migrations/031_reward_claim_public_rpc.sql`
+- Migration dual-wallet: `457_reward_virtue_points_wallet.sql`; migration `458_lock_reward_approval_rpc.sql` บังคับ approve/reject เป็น authenticated-only
 
 ---
 

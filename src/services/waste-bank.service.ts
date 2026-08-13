@@ -53,6 +53,8 @@ export type Reward = {
   description: string | null;
   image_url: string | null;
   points_cost: number;
+  waste_points_cost: number;
+  virtue_points_cost: number;
   stock: number | null;
   is_active: boolean | null;
   order_position: number | null;
@@ -74,6 +76,8 @@ export type RewardClaim = {
   reward_id: string;
   reward_name: string;
   points_used: number;
+  waste_points_used: number;
+  virtue_points_used: number;
   status: RewardClaimStatus;
   claimed_at: string;
   reviewed_at: string | null;
@@ -82,6 +86,8 @@ export type RewardClaim = {
   academic_year: string | null;
   semester: string | null;
   balance_after: number | null;
+  waste_balance_after: number | null;
+  virtue_balance_after: number | null;
   approved_by_staff_id: string | null;
   approved_by_administrator_id: string | null;
   rewards?: { image_url: string | null; owner_staff_id: string | null; owner_administrator_id: string | null } | null;
@@ -93,7 +99,12 @@ export type StudentBalanceLookup = {
   full_name: string;
   class_name: string | null;
   photo_url: string | null;
-  available_points: number;
+  waste_points_earned: number;
+  waste_points_available: number;
+  virtue_points_earned: number;
+  virtue_points_spent: number;
+  virtue_points_available: number;
+  virtue_academic_year: string;
 };
 
 export type StudentHistoryRow = {
@@ -101,9 +112,13 @@ export type StudentHistoryRow = {
   reward_name: string;
   reward_image: string | null;
   points_used: number;
+  waste_points_used: number;
+  virtue_points_used: number;
   /** จำนวนชิ้นที่แลกในครั้งนั้น (default 1, มาจาก migration 099) */
   quantity: number;
   balance_after: number | null;
+  waste_balance_after: number | null;
+  virtue_balance_after: number | null;
   status: RewardClaimStatus;
   claimed_at: string;
   academic_year: string | null;

@@ -13,6 +13,40 @@ import { useQuery } from '@tanstack/react-query';
 import { rewardsService } from '@/services/waste-bank.service';
 import type { Reward } from '@/services/waste-bank.service';
 import { cn } from '@/lib/utils';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+
+const rewardSchema = z.object({
+  name: z.string().trim().min(1, 'กรุณากรอกชื่อรางวัล'),
+  description: z.string(),
+  image_url: z.string(),
+  payment_type: z.enum(['waste', 'virtue', 'mixed']),
+  waste_points_cost: z.string(),
+  virtue_points_cost: z.string(),
+  stock: z.string(),
+  is_active: z.boolean(),
+  category: z.string(),
+  is_central: z.boolean(),
+}).superRefine((values, ctx) => {
+  const waste = Number(values.waste_points_cost || 0);
+  const virtue = Number(values.virtue_points_cost || 0);
+  if (!Number.isInteger(waste) || waste < 0 || !Number.isInteger(virtue) || virtue < 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['waste_points_cost'], message: 'คะแนนต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป' });
+  }
+  if (values.payment_type === 'waste' && waste <= 0) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['waste_points_cost'], message: 'กรุณากำหนดแต้มขยะ' });
+  if (values.payment_type === 'virtue' && virtue <= 0) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['virtue_points_cost'], message: 'กรุณากำหนดคะแนนความดี' });
+  if (values.payment_type === 'mixed' && (waste <= 0 || virtue <= 0)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['virtue_points_cost'], message: 'แบบผสมต้องกำหนดคะแนนทั้งสองประเภท' });
+});
+
+type RewardFormValues = z.infer<typeof rewardSchema>;
+const EMPTY_REWARD: RewardFormValues = {
+  name: '', description: '', image_url: '', payment_type: 'waste', waste_points_cost: '',
+  virtue_points_cost: '', stock: '', is_active: true, category: '', is_central: false,
+};
 
 export const RewardsManagement = () => {
   const { toast } = useToast();
@@ -23,16 +57,12 @@ export const RewardsManagement = () => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    image_url: '',
-    points_cost: '',
-    stock: '',
-    is_active: true,
-    category: '',
-    is_central: false, // admin-only: mark as รางวัลกลาง (owner=NULL)
+  const form = useForm<RewardFormValues>({
+    resolver: zodResolver(rewardSchema),
+    defaultValues: EMPTY_REWARD,
   });
+  const paymentType = form.watch('payment_type');
+  const imageUrl = form.watch('image_url');
 
   useEffect(() => {
     fetchAll();
@@ -64,16 +94,7 @@ export const RewardsManagement = () => {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({
-      name: '',
-      description: '',
-      image_url: '',
-      points_cost: '',
-      stock: '',
-      is_active: true,
-      category: '',
-      is_central: false,
-    });
+    form.reset(EMPTY_REWARD);
     setShowForm(true);
   };
 
@@ -83,11 +104,13 @@ export const RewardsManagement = () => {
       return;
     }
     setEditing(r);
-    setForm({
+    form.reset({
       name: r.name,
       description: r.description ?? '',
       image_url: r.image_url ?? '',
-      points_cost: String(r.points_cost),
+      payment_type: r.waste_points_cost > 0 && r.virtue_points_cost > 0 ? 'mixed' : r.virtue_points_cost > 0 ? 'virtue' : 'waste',
+      waste_points_cost: r.waste_points_cost > 0 ? String(r.waste_points_cost) : '',
+      virtue_points_cost: r.virtue_points_cost > 0 ? String(r.virtue_points_cost) : '',
       stock: r.stock !== null && r.stock !== undefined ? String(r.stock) : '',
       is_active: r.is_active ?? true,
       category: r.category ?? '',
@@ -100,7 +123,7 @@ export const RewardsManagement = () => {
     setUploading(true);
     try {
       const url = await rewardsService.uploadImage(file);
-      setForm((p) => ({ ...p, image_url: url }));
+      form.setValue('image_url', url, { shouldDirty: true });
       toast({ title: 'อัพโหลดรูปสำเร็จ' });
     } catch (err) {
       toast({ title: 'อัพโหลดไม่สำเร็จ', description: err instanceof Error ? err.message : String(err), variant: 'destructive' });
@@ -109,37 +132,32 @@ export const RewardsManagement = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!form.name.trim() || !form.points_cost) {
-      toast({ title: 'กรุณากรอกชื่อและจำนวนแต้ม', variant: 'destructive' });
-      return;
-    }
-    const cost = parseInt(form.points_cost, 10);
-    if (isNaN(cost) || cost <= 0) {
-      toast({ title: 'แต้มต้องเป็นตัวเลขมากกว่า 0', variant: 'destructive' });
-      return;
-    }
-    const stock = form.stock === '' ? null : parseInt(form.stock, 10);
+  const handleSave = async (values: RewardFormValues) => {
+    const wasteCost = values.payment_type === 'virtue' ? 0 : Number(values.waste_points_cost || 0);
+    const virtueCost = values.payment_type === 'waste' ? 0 : Number(values.virtue_points_cost || 0);
+    const stock = values.stock === '' ? null : parseInt(values.stock, 10);
     if (stock !== null && (isNaN(stock) || stock < 0)) {
       toast({ title: 'จำนวนคงเหลือไม่ถูกต้อง', variant: 'destructive' });
       return;
     }
 
     // ownership: anyone (teachers and admins) can toggle central
-    const willBeCentral = form.is_central;
+    const willBeCentral = values.is_central;
     const owner_staff_id = willBeCentral ? null : (staffId ?? null);
     const owner_administrator_id = willBeCentral ? null : (staffId ? null : administratorId);
 
     setSaving(true);
     const payload = {
-      name: form.name.trim(),
-      description: form.description.trim() || null,
-      image_url: form.image_url || null,
-      points_cost: cost,
+      name: values.name.trim(),
+      description: values.description.trim() || null,
+      image_url: values.image_url || null,
+      points_cost: wasteCost + virtueCost,
+      waste_points_cost: wasteCost,
+      virtue_points_cost: virtueCost,
       stock,
-      is_active: form.is_active,
+      is_active: values.is_active,
       order_position: editing?.order_position ?? 99,
-      category: form.category.trim() || null,
+      category: values.category.trim() || null,
     };
 
     const { error } = editing
@@ -212,58 +230,37 @@ export const RewardsManagement = () => {
           <CardHeader>
             <CardTitle className="text-base">{editing ? 'แก้ไขรางวัล' : 'เพิ่มรางวัลใหม่'}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>ชื่อรางวัล <span className="text-destructive">*</span></Label>
-                <Input
-                  placeholder="เช่น สมุดโน้ต, ขนมปัง, ปากกา"
-                  value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>จำนวนแต้มที่ต้องใช้ <span className="text-destructive">*</span></Label>
-                <Input
-                  type="number" step="1" min="1"
-                  placeholder="10"
-                  value={form.points_cost}
-                  onChange={(e) => setForm((p) => ({ ...p, points_cost: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>จำนวนคงเหลือ (เว้นว่าง = ไม่จำกัด)</Label>
-                <Input
-                  type="number" step="1" min="0"
-                  placeholder="เว้นว่างถ้าไม่จำกัด"
-                  value={form.stock}
-                  onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>สถานะ</Label>
-                <div className="flex items-center gap-2 h-10">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={form.is_active}
-                    onChange={(e) => setForm((p) => ({ ...p, is_active: e.target.checked }))}
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor="is_active" className="text-sm">เปิดให้แลก</label>
-                </div>
-              </div>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem><FormLabel>ชื่อรางวัล</FormLabel><FormControl><Input placeholder="เช่น สมุดโน้ต, ขนมปัง, ปากกา" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="payment_type" render={({ field }) => (
+                    <FormItem><FormLabel>ประเภทคะแนนที่ใช้</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="waste">แต้มธนาคารขยะล้วน</SelectItem><SelectItem value="virtue">คะแนนความดีล้วน</SelectItem><SelectItem value="mixed">ใช้ทั้งสองส่วนผสมกัน</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  )} />
+                  {paymentType !== 'virtue' ? (
+                    <FormField control={form.control} name="waste_points_cost" render={({ field }) => (
+                      <FormItem><FormLabel>แต้มธนาคารขยะต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  ) : null}
+                  {paymentType !== 'waste' ? (
+                    <FormField control={form.control} name="virtue_points_cost" render={({ field }) => (
+                      <FormItem><FormLabel>คะแนนความดีต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  ) : null}
+                  <FormField control={form.control} name="stock" render={({ field }) => (
+                    <FormItem><FormLabel>จำนวนคงเหลือ (ว่าง = ไม่จำกัด)</FormLabel><FormControl><Input type="number" min="0" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="is_active" render={({ field }) => (
+                    <FormItem><FormLabel>สถานะ</FormLabel><div className="flex h-10 items-center gap-2"><input id="is_active" type="checkbox" checked={field.value} onChange={field.onChange} /><label htmlFor="is_active" className="text-sm">เปิดให้แลก</label></div></FormItem>
+                  )} />
               {(isAdmin || staffId || administratorId) && (
                 <div className="space-y-1 md:col-span-2">
                   <Label>เจ้าของรางวัล</Label>
                   <div className="flex items-center gap-2 h-10">
-                    <input
-                      type="checkbox"
-                      id="is_central"
-                      checked={form.is_central}
-                      onChange={(e) => setForm((p) => ({ ...p, is_central: e.target.checked }))}
-                      className="w-4 h-4"
-                    />
+                    <input type="checkbox" id="is_central" {...form.register('is_central')} className="w-4 h-4" />
                     <label htmlFor="is_central" className="text-sm flex items-center gap-1">
                       <Globe2 className="w-3.5 h-3.5" />
                       เป็นรางวัลกลาง — ครูทุกคนอนุมัติได้
@@ -279,8 +276,7 @@ export const RewardsManagement = () => {
                 <Input
                   list="reward-category-suggestions"
                   placeholder="เช่น เครื่องเขียน, ขนมและเครื่องดื่ม"
-                  value={form.category}
-                  onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                  {...form.register('category')}
                 />
                 <datalist id="reward-category-suggestions">
                   <option value="เครื่องเขียน" />
@@ -295,20 +291,19 @@ export const RewardsManagement = () => {
                 <Label>คำอธิบาย</Label>
                 <Textarea
                   placeholder="รายละเอียดเพิ่มเติม..."
-                  value={form.description}
-                  onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                  {...form.register('description')}
                 />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <Label>รูปภาพ</Label>
                 <div className="flex items-center gap-3">
-                  {form.image_url && (
-                    <img src={form.image_url} alt="preview" className="w-20 h-20 object-cover rounded-md border border-border" />
+                  {imageUrl && (
+                    <img src={imageUrl} alt="ตัวอย่างรางวัล" className="w-20 h-20 object-cover rounded-md border border-border" />
                   )}
                   <label className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-md hover:border-primary transition-colors">
                       <ImagePlus className="w-4 h-4" />
-                      <span className="text-sm">{uploading ? 'กำลังอัพโหลด...' : (form.image_url ? 'เปลี่ยนรูป' : 'เลือกรูป')}</span>
+                      <span className="text-sm">{uploading ? 'กำลังอัพโหลด...' : (imageUrl ? 'เปลี่ยนรูป' : 'เลือกรูป')}</span>
                     </div>
                     <input
                       type="file"
@@ -323,16 +318,18 @@ export const RewardsManagement = () => {
                   </label>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowForm(false)}>
+                </div>
+                <div className="flex gap-2 justify-end">
+              <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                 <X className="w-4 h-4 mr-1" /> ยกเลิก
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button type="submit" disabled={saving}>
                 <Save className="w-4 h-4 mr-1" />
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
-            </div>
+                </div>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       )}
@@ -382,9 +379,7 @@ export const RewardsManagement = () => {
                     <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20">
-                      {r.points_cost} แต้ม
-                    </Badge>
+                    <RewardCostDisplay waste={r.waste_points_cost} virtue={r.virtue_points_cost} />
                     {isAdmin ? (
                       <StockResetPopover reward={r} onSaved={fetchAll} />
                     ) : (

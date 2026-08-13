@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Loader2, Sparkles, Search, CheckCircle2, AlertTriangle, Gift, Plus, Minus } from 'lucide-react';
+import { Loader2, Search, CheckCircle2, AlertTriangle, Gift, Plus, Minus } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import {
   Dialog,
@@ -19,6 +19,9 @@ import {
   type StudentBalanceLookup,
 } from '@/services/waste-bank.service';
 import { cn } from '@/lib/utils';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { RewardCostDisplay } from './RewardCostDisplay';
+import { canAffordReward, maxAffordableQuantity } from './reward-cost';
 
 interface RewardClaimDialogProps {
   reward: Reward | null;
@@ -34,6 +37,8 @@ const ERROR_MAP: Record<string, string> = {
   STUDENT_NOT_FOUND: 'ไม่พบนักเรียนที่ใช้รหัสนี้',
   REWARD_UNAVAILABLE: 'รางวัลนี้ปิดให้บริการชั่วคราว',
   INSUFFICIENT_POINTS: 'แต้มไม่พอสำหรับจำนวนที่เลือก',
+  INSUFFICIENT_WASTE_POINTS: 'แต้มธนาคารขยะไม่พอสำหรับจำนวนที่เลือก',
+  INSUFFICIENT_VIRTUE_POINTS: 'คะแนนความดีไม่พอสำหรับจำนวนที่เลือก',
   OUT_OF_STOCK: 'สต็อกไม่พอสำหรับจำนวนที่เลือก',
   INVALID_QUANTITY: 'จำนวนที่กรอกไม่ถูกต้อง',
 };
@@ -81,9 +86,7 @@ export function RewardClaimDialog({
   // คำนวณ max quantity = min(แต้มเหลือ/ราคา, stock ที่เหลือ)
   const maxQuantity = useMemo(() => {
     if (!reward || !student) return 1;
-    const affordable = Math.floor(student.available_points / reward.points_cost);
-    const stockCap = reward.stock ?? Infinity;
-    return Math.max(1, Math.min(affordable, stockCap));
+    return Math.max(1, maxAffordableQuantity(reward, student));
   }, [reward, student]);
 
   // Clamp quantity เมื่อ max เปลี่ยน (เช่นโหลด student มาแล้ว)
@@ -135,9 +138,9 @@ export function RewardClaimDialog({
 
   if (!reward) return null;
 
-  const totalCost = reward.points_cost * quantity;
-  const insufficient = student !== null && student.available_points < totalCost;
-  const remainingAfter = student ? student.available_points - totalCost : 0;
+  const wasteTotal = reward.waste_points_cost * quantity;
+  const virtueTotal = reward.virtue_points_cost * quantity;
+  const insufficient = student !== null && !canAffordReward(reward, student, quantity);
 
   if (successClaimId) {
     return (
@@ -168,9 +171,7 @@ export function RewardClaimDialog({
               <div className="text-xs text-muted-foreground">
                 ผู้ขอแลก: {student?.full_name} ({student?.class_name})
               </div>
-              <div className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">
-                ใช้แต้มสะสม: {reward.points_cost * successQuantity} แต้ม
-              </div>
+              <RewardCostDisplay waste={reward.waste_points_cost} virtue={reward.virtue_points_cost} multiplier={successQuantity} className="mt-2 justify-center" />
             </div>
           </div>
 
@@ -193,7 +194,7 @@ export function RewardClaimDialog({
             แลกรางวัล: {reward.name}
           </DialogTitle>
           <DialogDescription>
-            ราคาต่อชิ้น <span className="font-semibold text-amber-600">{reward.points_cost} แต้ม</span>
+            ราคาต่อชิ้น <RewardCostDisplay waste={reward.waste_points_cost} virtue={reward.virtue_points_cost} className="mt-1" />
             {reward.stock !== null && reward.stock !== undefined && (
               <span className="text-muted-foreground"> · เหลือ {reward.stock} ชิ้น</span>
             )}
@@ -232,27 +233,14 @@ export function RewardClaimDialog({
           {student && (
             <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-3">
               <div className="flex items-center gap-3">
-                {student.photo_url ? (
-                  <img
-                    src={student.photo_url}
-                    alt={student.full_name}
-                    className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {student.full_name.slice(0, 1)}
-                  </div>
-                )}
+                <PersonAvatar name={student.full_name} photoUrl={student.photo_url} size="lg" className="ring-2 ring-primary/20" />
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold truncate">{student.full_name}</div>
                   <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">แต้มคงเหลือ</div>
-                  <div className="flex items-center gap-1 text-amber-600 font-bold">
-                    <Sparkles className="w-4 h-4" />
-                    {student.available_points}
-                  </div>
+                <div className="text-right text-xs font-semibold">
+                  <div className="text-emerald-800">ขยะ {student.waste_points_available}</div>
+                  <div className="text-amber-800">ความดี {student.virtue_points_available}</div>
                 </div>
               </div>
 
@@ -312,7 +300,7 @@ export function RewardClaimDialog({
               >
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>
-                    {reward.points_cost} × {quantity} ชิ้น
+                    ราคาต่อชิ้น × {quantity}
                   </span>
                   <span>รวมที่จะหัก</span>
                 </div>
@@ -323,7 +311,7 @@ export function RewardClaimDialog({
                       insufficient ? 'text-rose-700 dark:text-rose-300' : 'text-amber-700 dark:text-amber-300',
                     )}
                   >
-                    −{totalCost}
+                    −{wasteTotal + virtueTotal}
                   </span>
                   <span className="text-xs text-muted-foreground">แต้ม</span>
                 </div>
@@ -332,15 +320,14 @@ export function RewardClaimDialog({
                     <>
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                       <span className="text-rose-700 dark:text-rose-300">
-                        แต้มไม่พอ — ขาดอีก{' '}
-                        <strong>{totalCost - student.available_points}</strong> แต้ม
+                        คะแนนไม่พอ — ตรวจยอดขยะและความดีที่ต้องใช้
                       </span>
                     </>
                   ) : (
                     <>
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>
-                        หลังแลก จะเหลือ <strong>{remainingAfter}</strong> แต้ม
+                        หลังแลก: ขยะ <strong>{student.waste_points_available - wasteTotal}</strong> · ความดี <strong>{student.virtue_points_available - virtueTotal}</strong>
                       </span>
                     </>
                   )}

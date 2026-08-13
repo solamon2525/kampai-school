@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       academic_calendar: {
@@ -732,6 +757,30 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
         ]
+      }
+      c2_custom_game_plans: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_name: string
+          steps: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_name?: string
+          steps?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_name?: string
+          steps?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       cctv_cameras: {
         Row: {
@@ -5285,6 +5334,10 @@ export type Database = {
           semester: string | null
           status: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
+          virtue_balance_after: number | null
+          virtue_points_used: number
+          waste_balance_after: number | null
+          waste_points_used: number
         }
         Insert: {
           academic_year?: string | null
@@ -5303,6 +5356,10 @@ export type Database = {
           semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
+          virtue_balance_after?: number | null
+          virtue_points_used?: number
+          waste_balance_after?: number | null
+          waste_points_used?: number
         }
         Update: {
           academic_year?: string | null
@@ -5321,6 +5378,10 @@ export type Database = {
           semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id?: string
+          virtue_balance_after?: number | null
+          virtue_points_used?: number
+          waste_balance_after?: number | null
+          waste_points_used?: number
         }
         Relationships: [
           {
@@ -5389,6 +5450,8 @@ export type Database = {
           points_cost: number
           stock: number | null
           updated_at: string | null
+          virtue_points_cost: number
+          waste_points_cost: number
         }
         Insert: {
           category?: string | null
@@ -5404,6 +5467,8 @@ export type Database = {
           points_cost: number
           stock?: number | null
           updated_at?: string | null
+          virtue_points_cost?: number
+          waste_points_cost?: number
         }
         Update: {
           category?: string | null
@@ -5419,6 +5484,8 @@ export type Database = {
           points_cost?: number
           stock?: number | null
           updated_at?: string | null
+          virtue_points_cost?: number
+          waste_points_cost?: number
         }
         Relationships: [
           {
@@ -7372,23 +7439,17 @@ export type Database = {
         Row: {
           category_slug: string
           classifier_for: string | null
-          category_evidence: string | null
-          content_status: string
           created_at: string
           difficulty: number | null
-          duplicate_rationale: string | null
           emoji: string | null
           grade: string | null
           id: string
           indicator_code: string | null
-          image_alt: string | null
-          image_url: string | null
           meaning: string
           note: string | null
           origin_lang: string | null
           pair_id: string | null
           reading: string
-          review_reason: string | null
           sort_order: number
           synonym_group: string | null
           tags: string[]
@@ -7398,23 +7459,17 @@ export type Database = {
         Insert: {
           category_slug: string
           classifier_for?: string | null
-          category_evidence?: string | null
-          content_status?: string
           created_at?: string
           difficulty?: number | null
-          duplicate_rationale?: string | null
           emoji?: string | null
           grade?: string | null
           id?: string
           indicator_code?: string | null
-          image_alt?: string | null
-          image_url?: string | null
           meaning: string
           note?: string | null
           origin_lang?: string | null
           pair_id?: string | null
           reading: string
-          review_reason?: string | null
           sort_order?: number
           synonym_group?: string | null
           tags?: string[]
@@ -7424,23 +7479,17 @@ export type Database = {
         Update: {
           category_slug?: string
           classifier_for?: string | null
-          category_evidence?: string | null
-          content_status?: string
           created_at?: string
           difficulty?: number | null
-          duplicate_rationale?: string | null
           emoji?: string | null
           grade?: string | null
           id?: string
           indicator_code?: string | null
-          image_alt?: string | null
-          image_url?: string | null
           meaning?: string
           note?: string | null
           origin_lang?: string | null
           pair_id?: string | null
           reading?: string
-          review_reason?: string | null
           sort_order?: number
           synonym_group?: string | null
           tags?: string[]
@@ -8629,6 +8678,10 @@ export type Database = {
           reward_name: string
           semester: string
           status: Database["public"]["Enums"]["reward_claim_status"]
+          virtue_balance_after: number
+          virtue_points_used: number
+          waste_balance_after: number
+          waste_points_used: number
         }[]
       }
       get_student_honor_profile: {
@@ -8763,11 +8816,16 @@ export type Database = {
       lookup_student_balance: {
         Args: { p_code: string }
         Returns: {
-          available_points: number
           class_name: string
           full_name: string
           photo_url: string
           student_id: string
+          virtue_academic_year: string
+          virtue_points_available: number
+          virtue_points_earned: number
+          virtue_points_spent: number
+          waste_points_available: number
+          waste_points_earned: number
         }[]
       }
       lookup_student_for_game: {
@@ -9124,6 +9182,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       edu_hub_item_type: ["file", "link", "youtube", "text"],
