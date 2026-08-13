@@ -6,7 +6,9 @@
     "emoji": "💻",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "en"
+    "origin_lang": "en",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไอศกรีม",
@@ -15,7 +17,9 @@
     "emoji": "🍦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ก๋วยเตี๋ยว",
@@ -24,7 +28,9 @@
     "emoji": "🍜",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "zh"
+    "origin_lang": "zh",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซาลาเปา",
@@ -33,7 +39,9 @@
     "emoji": "🥟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คอนเสิร์ต",
@@ -42,7 +50,9 @@
     "emoji": "🎸",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฟุตบอล",
@@ -51,7 +61,9 @@
     "emoji": "⚽",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ช็อกโกแลต",
@@ -60,7 +72,9 @@
     "emoji": "🍫",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กอล์ฟ",
@@ -69,7 +83,10 @@
     "emoji": "⛳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"กอล์ฟ\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "คลินิก",
@@ -78,7 +95,10 @@
     "emoji": "🏥",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"คลินิก\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เก้าอี้",
@@ -87,7 +107,10 @@
     "emoji": "🪑",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เก้าอี้\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "โต๊ะ",
@@ -96,7 +119,10 @@
     "emoji": "📥",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"โต๊ะ\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ลิ้นจี่",
@@ -105,7 +131,9 @@
     "emoji": "🍒",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปฏิเสธ",
@@ -114,7 +142,10 @@
     "emoji": "🙅",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ปฏิเสธ\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ภรรยา",
@@ -123,7 +154,9 @@
     "emoji": "👩‍❤️‍👨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เทคโนโลยี",
@@ -132,7 +165,10 @@
     "emoji": "🤖",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เทคโนโลยี\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "โทรทัศน์",
@@ -141,7 +177,9 @@
     "emoji": "📺",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บะหมี่",
@@ -150,7 +188,9 @@
     "emoji": "🍜",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "zh"
+    "origin_lang": "zh",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แบตเตอรี่",
@@ -159,7 +199,9 @@
     "emoji": "🔋",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โทรศัพท์",
@@ -168,7 +210,9 @@
     "emoji": "📱",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิทยุ",
@@ -177,7 +221,9 @@
     "emoji": "📻",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แชมพู",
@@ -186,7 +232,9 @@
     "emoji": "🧴",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เค้ก",
@@ -195,7 +243,9 @@
     "emoji": "🍰",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โซฟา",
@@ -204,7 +254,9 @@
     "emoji": "🛋️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไมโครโฟน",
@@ -213,7 +265,9 @@
     "emoji": "🎤",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แท็กซี่",
@@ -222,7 +276,9 @@
     "emoji": "🚕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "การ์ตูน",
@@ -231,7 +287,9 @@
     "emoji": "🎞️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เนกไท",
@@ -240,7 +298,9 @@
     "emoji": "👔",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เกี๊ยว",
@@ -249,7 +309,9 @@
     "emoji": "🥟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เต้าหู้",
@@ -258,7 +320,9 @@
     "emoji": "🍲",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กุยช่าย",
@@ -267,7 +331,9 @@
     "emoji": "🥬",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตะหลิว",
@@ -276,7 +342,9 @@
     "emoji": "🍳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซินแส",
@@ -285,7 +353,9 @@
     "emoji": "🔮",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กวยจั๊บ",
@@ -294,7 +364,9 @@
     "emoji": "🍜",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เซียมซี",
@@ -303,7 +375,9 @@
     "emoji": "🎴",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ศิลปะ",
@@ -312,7 +386,10 @@
     "emoji": "🎨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ศิลปะ\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ประวัติ",
@@ -321,7 +398,9 @@
     "emoji": "📜",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กีฬา",
@@ -330,7 +409,9 @@
     "emoji": "⚽",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อากาศ",
@@ -339,7 +420,9 @@
     "emoji": "☁️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภาษา",
@@ -348,7 +431,9 @@
     "emoji": "🗣️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นาฬิกา",
@@ -357,7 +442,9 @@
     "emoji": "🕐",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แซนด์วิช",
@@ -366,7 +453,9 @@
     "emoji": "🥪",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แฮมเบอร์เกอร์",
@@ -375,7 +464,9 @@
     "emoji": "🍔",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พิซซ่า",
@@ -384,7 +475,9 @@
     "emoji": "🍕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สปาเก็ตตี้",
@@ -393,7 +486,9 @@
     "emoji": "🍝",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สเต็ก",
@@ -402,7 +497,9 @@
     "emoji": "🥩",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ป๊อปคอร์น",
@@ -411,7 +508,9 @@
     "emoji": "🍿",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โยเกิร์ต",
@@ -420,7 +519,9 @@
     "emoji": "🥛",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แพนเค้ก",
@@ -429,7 +530,9 @@
     "emoji": "🥞",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วาฟเฟิล",
@@ -438,7 +541,9 @@
     "emoji": "🧇",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คุกกี้",
@@ -447,7 +552,9 @@
     "emoji": "🍪",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โดนัท",
@@ -456,7 +563,9 @@
     "emoji": "🍩",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มัฟฟิน",
@@ -465,7 +574,9 @@
     "emoji": "🧁",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บิสกิต",
@@ -474,7 +585,9 @@
     "emoji": "🍪",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "น้ำอัดลม",
@@ -483,7 +596,9 @@
     "emoji": "🥤",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โค้ก",
@@ -492,7 +607,9 @@
     "emoji": "🥤",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สมูทตี้",
@@ -501,7 +618,9 @@
     "emoji": "🥤",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลาเต้",
@@ -510,7 +629,9 @@
     "emoji": "☕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คาปูชิโน่",
@@ -519,7 +640,9 @@
     "emoji": "☕",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เอสเปรสโซ่",
@@ -528,7 +651,9 @@
     "emoji": "☕",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชาเขียว",
@@ -537,7 +662,9 @@
     "emoji": "🍵",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บิงซู",
@@ -546,7 +673,9 @@
     "emoji": "🍧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ติ่มซำ",
@@ -555,7 +684,9 @@
     "emoji": "🥟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หมูแดง",
@@ -564,7 +695,9 @@
     "emoji": "🍖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เป็ดย่าง",
@@ -573,7 +706,9 @@
     "emoji": "🦆",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ข้าวมันไก่",
@@ -582,7 +717,9 @@
     "emoji": "🍗",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ขนมจีบ",
@@ -591,7 +728,9 @@
     "emoji": "🥟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ข้าวเหนียวมะม่วง",
@@ -600,7 +739,9 @@
     "emoji": "🥭",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลอนดรี",
@@ -609,7 +750,9 @@
     "emoji": "👗",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ยีนส์",
@@ -618,7 +761,9 @@
     "emoji": "👖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฮู้ด",
@@ -627,7 +772,9 @@
     "emoji": "🧥",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สนีกเกอร์",
@@ -636,7 +783,9 @@
     "emoji": "👟",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รองเท้าแตะ",
@@ -645,7 +794,9 @@
     "emoji": "🩴",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แว่นตา",
@@ -654,7 +805,9 @@
     "emoji": "👓",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นาฬิกาข้อมือ",
@@ -663,7 +816,9 @@
     "emoji": "⌚",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กระเป๋า",
@@ -672,7 +827,9 @@
     "emoji": "👜",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ร่ม",
@@ -681,7 +838,9 @@
     "emoji": "☂️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หมวก",
@@ -690,7 +849,9 @@
     "emoji": "🧢",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เสื้อกันหนาว",
@@ -699,7 +860,9 @@
     "emoji": "🧥",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แอร์",
@@ -708,7 +871,9 @@
     "emoji": "❄️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พัดลม",
@@ -717,7 +882,9 @@
     "emoji": "🌀",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตู้เย็น",
@@ -726,7 +893,9 @@
     "emoji": "🧊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไมโครเวฟ",
@@ -735,7 +904,9 @@
     "emoji": "📻",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เครื่องซักผ้า",
@@ -744,7 +915,9 @@
     "emoji": "🧺",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เครื่องดูดฝุ่น",
@@ -753,7 +926,9 @@
     "emoji": "🧹",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รีโมท",
@@ -762,7 +937,9 @@
     "emoji": "📺",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อินเทอร์เน็ต",
@@ -771,7 +948,9 @@
     "emoji": "🌐",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อีเมล",
@@ -780,7 +959,9 @@
     "emoji": "📧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เว็บไซต์",
@@ -789,7 +970,9 @@
     "emoji": "🌐",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แอปพลิเคชัน",
@@ -798,7 +981,9 @@
     "emoji": "📱",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สมาร์ทโฟน",
@@ -807,7 +992,9 @@
     "emoji": "📱",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แท็บเล็ต",
@@ -816,7 +1003,9 @@
     "emoji": "📱",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เซิร์ฟเวอร์",
@@ -825,7 +1014,9 @@
     "emoji": "🖥️",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดาวน์โหลด",
@@ -834,7 +1025,9 @@
     "emoji": "⬇️",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัปโหลด",
@@ -843,7 +1036,9 @@
     "emoji": "⬆️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พาสเวิร์ด",
@@ -852,7 +1047,9 @@
     "emoji": "🔑",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไวรัส",
@@ -861,7 +1058,9 @@
     "emoji": "🦠",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วัคซีน",
@@ -870,7 +1069,9 @@
     "emoji": "💉",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อนุบาล",
@@ -879,7 +1080,9 @@
     "emoji": "🏫",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มหาวิทยาลัย",
@@ -888,7 +1091,9 @@
     "emoji": "🎓",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/2",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อาจารย์",
@@ -897,7 +1102,10 @@
     "emoji": "👨‍🏫",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"อาจารย์\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "กิโลกรัม",
@@ -907,7 +1115,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เซนติเมตร",
@@ -917,7 +1127,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลิตร",
@@ -927,7 +1139,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เมตร",
@@ -937,7 +1151,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โปรแกรม",
@@ -947,7 +1163,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คีย์บอร์ด",
@@ -957,7 +1175,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เมาส์",
@@ -967,7 +1187,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จอภาพ",
@@ -977,7 +1199,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไฟล์",
@@ -987,7 +1211,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โฟลเดอร์",
@@ -997,7 +1223,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิดีโอ",
@@ -1007,7 +1235,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แอนิเมชัน",
@@ -1017,7 +1247,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กราฟิก",
@@ -1027,7 +1259,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดีไซน์",
@@ -1037,7 +1271,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โปสเตอร์",
@@ -1047,7 +1283,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โบรชัวร์",
@@ -1057,7 +1295,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สแกน",
@@ -1067,7 +1307,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปริ้นต์",
@@ -1077,7 +1319,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คลิป",
@@ -1087,7 +1331,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไลฟ์",
@@ -1097,7 +1343,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แชต",
@@ -1107,7 +1355,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คอมเมนต์",
@@ -1117,7 +1367,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "en"
+    "origin_lang": "en",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โพสต์",
@@ -1127,7 +1379,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แชร์",
@@ -1137,7 +1391,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กีฬาเทนนิส",
@@ -1147,7 +1403,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วอลเลย์บอล",
@@ -1157,7 +1415,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บาสเกตบอล",
@@ -1167,7 +1427,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แบดมินตัน",
@@ -1177,7 +1439,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เปียโน",
@@ -1187,7 +1451,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กีตาร์",
@@ -1197,7 +1463,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไวโอลิน",
@@ -1207,7 +1475,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทรัมเป็ต",
@@ -1217,7 +1487,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซูชิ",
@@ -1227,7 +1499,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ราเมง",
@@ -1237,7 +1511,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กิมจิ",
@@ -1247,7 +1523,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บาร์บีคิว",
@@ -1257,7 +1535,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สลัด",
@@ -1267,7 +1547,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"สลัด\" ซ้ำในหมวด คำภาษาต่างประเทศ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ซอส",
@@ -1277,7 +1560,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มายองเนส",
@@ -1287,7 +1572,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซีเรียล",
@@ -1297,7 +1584,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พลาสติก",
@@ -1307,7 +1596,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อะลูมิเนียม",
@@ -1317,7 +1608,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซีเมนต์",
@@ -1327,7 +1620,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คอนกรีต",
@@ -1337,7 +1632,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลิฟต์",
@@ -1347,7 +1644,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อพาร์ตเมนต์",
@@ -1357,7 +1656,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โรงแรม",
@@ -1367,7 +1668,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รีสอร์ต",
@@ -1377,7 +1680,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 3,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มอเตอร์ไซค์",
@@ -1387,7 +1692,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 1,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เฮลิคอปเตอร์",
@@ -1397,7 +1704,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/1",
     "difficulty": 2,
-    "origin_lang": "other"
+    "origin_lang": "other",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำภาษาต่างประเทศ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อธิษฐาน",
@@ -1410,7 +1719,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "มหัศจรรย์",
@@ -1423,7 +1735,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ประสบการณ์",
@@ -1436,7 +1751,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "นิทรรศการ",
@@ -1449,7 +1767,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "จินตนาการ",
@@ -1462,7 +1783,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ปรัชญา",
@@ -1475,7 +1799,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "กิจกรรม",
@@ -1488,7 +1815,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "นพรัตน์",
@@ -1501,7 +1831,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อุปสรรค",
@@ -1514,7 +1847,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ทรมาน",
@@ -1527,7 +1863,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ปราศจาก",
@@ -1540,7 +1879,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "พจนานุกรม",
@@ -1553,7 +1895,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "วิทยานิพนธ์",
@@ -1566,7 +1911,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "พยาบาท",
@@ -1579,7 +1927,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ทัศนศึกษา",
@@ -1592,7 +1943,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "สาธารณะ",
@@ -1605,7 +1959,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "กระตือรือร้น",
@@ -1618,7 +1975,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ปรากฏการณ์",
@@ -1631,7 +1991,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "กษัตริย์",
@@ -1644,7 +2007,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ปฏิทิน",
@@ -1657,7 +2023,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อัศจรรย์",
@@ -1670,7 +2039,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "พฤติกรรม",
@@ -1683,7 +2055,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "สัญลักษณ์",
@@ -1696,7 +2071,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ทฤษฎี",
@@ -1709,7 +2087,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "เกียรติประวัติ",
@@ -1722,7 +2103,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ปฏิสัมพันธ์",
@@ -1735,7 +2119,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "มัจฉา",
@@ -1748,7 +2135,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "คฤหาสน์",
@@ -1761,7 +2151,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ภูมิศาสตร์",
@@ -1774,7 +2167,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ประวัติศาสตร์",
@@ -1787,7 +2183,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "วิทยาศาสตร์",
@@ -1800,7 +2199,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "กิตติมศักดิ์",
@@ -1813,7 +2215,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "สังเขป",
@@ -1826,7 +2231,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อนุสรณ์",
@@ -1839,7 +2247,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "เบ็ดเตล็ด",
@@ -1852,7 +2263,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "โฆษณา",
@@ -1865,7 +2279,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "เทศกาล",
@@ -1878,7 +2295,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "มหาสมุทร",
@@ -1891,7 +2311,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "สถาปัตยกรรม",
@@ -1904,7 +2327,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำนาจ",
@@ -1917,7 +2343,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำเภอ",
@@ -1930,7 +2359,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำนวย",
@@ -1943,7 +2375,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำมหิต",
@@ -1956,7 +2391,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำลา",
@@ -1969,7 +2407,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำพราง",
@@ -1982,7 +2423,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "อำพรา",
@@ -1995,7 +2439,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ฤดู",
@@ -2008,7 +2455,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ฤทธิ์",
@@ -2021,7 +2471,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "ฤทัย",
@@ -2034,7 +2487,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   },
   {
     "word": "กฤษณา",
@@ -2047,6 +2503,9 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำภาษาต่างประเทศ"
   }
 ]

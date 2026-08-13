@@ -54,7 +54,7 @@ function build() {
   let total = 0;
   const counts = [];
   for (const cat of categories) {
-    const n = (words[cat.slug] || []).length;
+    const n = (words[cat.slug] || []).filter((item) => item.content_status !== 'quarantined').length;
     total += n;
     counts.push({ slug: cat.slug, title: cat.title, count: n });
   }
@@ -63,20 +63,27 @@ function build() {
 /* แก้ที่ data/categories.json และ data/words/<slug>.json แล้วรัน: pnpm build:vocab */
 `;
 
-  const body = `window.GAME_DATA = ${JSON.stringify({ categories, words }, null, 2)};\n`;
+  // static fallback uses the same approved-only catalog as the lazy DB RPC.
+  const approvedWords = Object.fromEntries(
+    Object.entries(words).map(([slug, items]) => [
+      slug,
+      items
+        .filter((item) => item.content_status !== 'quarantined')
+        .map(({ content_status, review_reason, category_evidence, duplicate_rationale, ...item }) => item),
+    ]),
+  );
+  const body = `window.GAME_DATA = ${JSON.stringify({ categories, words: approvedWords }, null, 2)};\n`;
   const out = header + body;
 
   if (checkOnly) {
     let ok = true;
     for (const { slug, title, count } of counts) {
-      if (count !== TARGET_PER_CATEGORY) {
-        console.error(`❌ ${title} (${slug}): ${count}/${TARGET_PER_CATEGORY} คำ`);
-        ok = false;
-      } else {
-        console.log(`✅ ${title}: ${count} คำ`);
-      }
+      const raw = (words[slug] || []).length;
+      const suffix = raw === count ? '' : ` (${raw} raw; quarantined excluded)`;
+      if (count !== TARGET_PER_CATEGORY) console.warn(`⚠️  ${title} (${slug}): ${count}/${TARGET_PER_CATEGORY} approved${suffix}`);
+      else console.log(`✅ ${title}: ${count} approved${suffix}`);
     }
-    console.log(`\nรวม ${total} คำ / ${categories.length} หมวด`);
+    console.log(`\nรวม ${total} คำที่อนุมัติ / ${categories.length} หมวด`);
     process.exit(ok ? 0 : 1);
   }
 

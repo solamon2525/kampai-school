@@ -71,6 +71,10 @@ async function main() {
       pair_id: w.pair_id ?? null,
       synonym_group: w.synonym_group ?? null,
       origin_lang: w.origin_lang ?? null,
+      content_status: w.content_status ?? 'approved',
+      review_reason: w.review_reason ?? null,
+      category_evidence: w.category_evidence ?? null,
+      duplicate_rationale: w.duplicate_rationale ?? null,
       tags: w.tags ?? [],
       note: w.note ?? null,
       sort_order: i,
@@ -86,7 +90,8 @@ async function main() {
       if (error) throw error;
     }
     total += rows.length;
-    console.log(`  ${cat.slug}: ${rows.length} คำ`);
+    const approved = words.filter((word) => word.content_status !== 'quarantined').length;
+    console.log(`  ${cat.slug}: ${approved} approved / ${rows.length} raw`);
   }
 
   console.log(`\n✅ รวม ${total} คำ`);

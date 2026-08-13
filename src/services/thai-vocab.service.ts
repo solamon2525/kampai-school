@@ -15,6 +15,10 @@ export type ThaiVocabWord = {
   pair_id?: string | null;
   synonym_group?: string | null;
   origin_lang?: string | null;
+  content_status?: 'approved' | 'quarantined';
+  review_reason?: string | null;
+  category_evidence?: string | null;
+  duplicate_rationale?: string | null;
 };
 
 export type ThaiVocabCategory = {
@@ -62,6 +66,7 @@ export type ThaiVocabCategoryStat = {
   slug: string;
   title: string;
   item_count: number;
+  quarantined_count?: number;
   with_indicator: number;
 };
 
@@ -78,6 +83,10 @@ export type ThaiVocabImportRow = {
   pair_id?: string;
   synonym_group?: string;
   origin_lang?: string;
+  content_status?: 'approved' | 'quarantined';
+  review_reason?: string;
+  category_evidence?: string;
+  duplicate_rationale?: string;
 };
 
 export const thaiVocabService = {
@@ -206,6 +215,10 @@ export const thaiVocabService = {
       pair_id: r.pair_id?.trim() || null,
       synonym_group: r.synonym_group?.trim() || null,
       origin_lang: r.origin_lang?.trim() || null,
+      content_status: r.content_status ?? 'approved',
+      review_reason: r.review_reason?.trim() || null,
+      category_evidence: r.category_evidence?.trim() || null,
+      duplicate_rationale: r.duplicate_rationale?.trim() || null,
       sort_order: i,
       updated_at: new Date().toISOString(),
     }));
@@ -219,7 +232,7 @@ export const thaiVocabService = {
   async fetchAllItemsForExport(): Promise<ThaiVocabImportRow[]> {
     const { data, error } = await supabase
       .from('thai_vocab_items' as never)
-      .select('category_slug, word, reading, meaning, emoji, grade, difficulty, indicator_code, classifier_for, pair_id, synonym_group, origin_lang, sort_order')
+      .select('category_slug, word, reading, meaning, emoji, grade, difficulty, indicator_code, classifier_for, pair_id, synonym_group, origin_lang, content_status, review_reason, category_evidence, duplicate_rationale, sort_order')
       .order('category_slug')
       .order('sort_order');
     if (error) throw error;
@@ -236,6 +249,10 @@ export const thaiVocabService = {
       pair_id: r.pair_id ?? undefined,
       synonym_group: r.synonym_group ?? undefined,
       origin_lang: r.origin_lang ?? undefined,
+      content_status: r.content_status as ThaiVocabImportRow['content_status'],
+      review_reason: r.review_reason ?? undefined,
+      category_evidence: r.category_evidence ?? undefined,
+      duplicate_rationale: r.duplicate_rationale ?? undefined,
     }));
   },
 };
@@ -287,13 +304,21 @@ export function parseVocabCsv(text: string): ThaiVocabImportRow[] {
       grade: idx('grade') >= 0 ? cols[idx('grade')] : undefined,
       difficulty: idx('difficulty') >= 0 ? Number(cols[idx('difficulty')]) || undefined : undefined,
       indicator_code: idx('indicator_code') >= 0 ? cols[idx('indicator_code')] : undefined,
+      classifier_for: idx('classifier_for') >= 0 ? cols[idx('classifier_for')] : undefined,
+      pair_id: idx('pair_id') >= 0 ? cols[idx('pair_id')] : undefined,
+      synonym_group: idx('synonym_group') >= 0 ? cols[idx('synonym_group')] : undefined,
+      origin_lang: idx('origin_lang') >= 0 ? cols[idx('origin_lang')] : undefined,
+      content_status: idx('content_status') >= 0 && cols[idx('content_status')] === 'quarantined' ? 'quarantined' : 'approved',
+      review_reason: idx('review_reason') >= 0 ? cols[idx('review_reason')] : undefined,
+      category_evidence: idx('category_evidence') >= 0 ? cols[idx('category_evidence')] : undefined,
+      duplicate_rationale: idx('duplicate_rationale') >= 0 ? cols[idx('duplicate_rationale')] : undefined,
     });
   }
   return rows.filter((r) => r.category_slug && r.reading && r.meaning);
 }
 
 export function vocabRowsToCsv(rows: ThaiVocabImportRow[]): string {
-  const header = 'category_slug,word,reading,meaning,emoji,grade,difficulty,indicator_code,classifier_for,pair_id,synonym_group,origin_lang';
+  const header = 'category_slug,word,reading,meaning,emoji,grade,difficulty,indicator_code,classifier_for,pair_id,synonym_group,origin_lang,content_status,review_reason,category_evidence,duplicate_rationale';
   const esc = (v: string) => (v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v);
   const body = rows.map((r) => [
     r.category_slug,
@@ -308,6 +333,10 @@ export function vocabRowsToCsv(rows: ThaiVocabImportRow[]): string {
     r.pair_id ?? '',
     r.synonym_group ?? '',
     r.origin_lang ?? '',
+    r.content_status ?? 'approved',
+    r.review_reason ?? '',
+    r.category_evidence ?? '',
+    r.duplicate_rationale ?? '',
   ].map(esc).join(','));
   return [header, ...body].join('\n');
 }

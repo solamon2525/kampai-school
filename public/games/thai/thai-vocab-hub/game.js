@@ -64,6 +64,16 @@ const vocabMatch = window.KampaiMatch && typeof window.KampaiMatch.create === 'f
     })
   : null;
 
+// คำที่ยังรอตรวจหมวดต้องไม่ปรากฏในเส้นทางการเรียน แม้ DB/RPC เก่ายังไม่มี content_status.
+// ชุดข้อมูลก่อน migration มี 150 คำเดิมที่ผ่านหมวดตามด้วย 50 คำยืมข้ามหมวด จึงตัดที่ 150 ชั่วคราว.
+function getApprovedWords(words) {
+  const list = Array.isArray(words) ? words : [];
+  const hasReviewStatus = list.some((word) => typeof word?.content_status === 'string');
+  return hasReviewStatus
+    ? list.filter((word) => word.content_status !== 'quarantined')
+    : list.slice(0, 150);
+}
+
 function applyVocabFromSdk(sdk) {
   const vocab = sdk && sdk.gameData && sdk.gameData.vocab;
   if (!vocab || !vocab.categories || !vocab.categories.length) return;
@@ -86,7 +96,7 @@ function applyVocabFromSdk(sdk) {
   if (hubVisible) initHubGrid();
 
   if (activeCategorySlug && ALL_WORDS[activeCategorySlug]) {
-    fullCategoryWords = ALL_WORDS[activeCategorySlug] || [];
+    fullCategoryWords = getApprovedWords(ALL_WORDS[activeCategorySlug]);
     categoryWords = fullCategoryWords;
     if (currentMode === 'auto') renderWordsGrid();
   }
@@ -104,7 +114,7 @@ function loadCategoryWordsFromParent(slug) {
       if (e.data?.type === 'vocabWords' && e.data.slug === slug) {
         clearTimeout(timeout);
         window.removeEventListener('message', handler);
-        const words = Array.isArray(e.data.words) ? e.data.words : [];
+        const words = getApprovedWords(e.data.words);
         ALL_WORDS[slug] = words;
         resolve(words);
       }
@@ -180,7 +190,7 @@ function saveFlashKnown(slug) {
 }
 
 function getFlashProgressPct(slug) {
-  const total = (ALL_WORDS[slug] || []).length;
+  const total = getApprovedWords(ALL_WORDS[slug]).length;
   if (!total) return 0;
   return Math.min(100, Math.round((loadFlashKnown(slug).size / total) * 100));
 }
@@ -691,7 +701,7 @@ function initHubGrid() {
     card.onclick = () => loadAndSelectCategory(cat.slug);
 
     const pct = getFlashProgressPct(cat.slug);
-    const count = (ALL_WORDS[cat.slug] || []).length;
+    const count = getApprovedWords(ALL_WORDS[cat.slug]).length;
     const progBlock = pct > 0
       ? `<div class="hc-progress"><div class="hc-prog-fill${pct >= 100 ? ' done' : ''}" style="width:${pct}%"></div></div><span class="hc-prog-pct">รู้แล้ว ${pct}%</span>`
       : (count ? `<span class="hc-prog-pct">${count} คำ</span>` : '');
@@ -710,7 +720,7 @@ function initHubGrid() {
 async function loadAndSelectCategory(slug) {
   const loaded = await loadCategoryWordsFromParent(slug);
   if (loaded.length) {
-    ALL_WORDS[slug] = loaded;
+    ALL_WORDS[slug] = getApprovedWords(loaded);
   }
   selectCategory(slug);
 }
@@ -718,7 +728,7 @@ async function loadAndSelectCategory(slug) {
 function selectCategory(slug) {
   activeCategorySlug = slug;
   activeCategory = CATEGORIES.find(c => c.slug === slug);
-  fullCategoryWords = ALL_WORDS[slug] || [];
+  fullCategoryWords = getApprovedWords(ALL_WORDS[slug]);
   categoryWords = fullCategoryWords;
 
   if (categoryWords.length === 0) return;

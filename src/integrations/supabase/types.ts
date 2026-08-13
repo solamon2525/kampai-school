@@ -7372,8 +7372,11 @@ export type Database = {
         Row: {
           category_slug: string
           classifier_for: string | null
+          category_evidence: string | null
+          content_status: string
           created_at: string
           difficulty: number | null
+          duplicate_rationale: string | null
           emoji: string | null
           grade: string | null
           id: string
@@ -7383,6 +7386,7 @@ export type Database = {
           origin_lang: string | null
           pair_id: string | null
           reading: string
+          review_reason: string | null
           sort_order: number
           synonym_group: string | null
           tags: string[]
@@ -7392,8 +7396,11 @@ export type Database = {
         Insert: {
           category_slug: string
           classifier_for?: string | null
+          category_evidence?: string | null
+          content_status?: string
           created_at?: string
           difficulty?: number | null
+          duplicate_rationale?: string | null
           emoji?: string | null
           grade?: string | null
           id?: string
@@ -7403,6 +7410,7 @@ export type Database = {
           origin_lang?: string | null
           pair_id?: string | null
           reading: string
+          review_reason?: string | null
           sort_order?: number
           synonym_group?: string | null
           tags?: string[]
@@ -7412,8 +7420,11 @@ export type Database = {
         Update: {
           category_slug?: string
           classifier_for?: string | null
+          category_evidence?: string | null
+          content_status?: string
           created_at?: string
           difficulty?: number | null
+          duplicate_rationale?: string | null
           emoji?: string | null
           grade?: string | null
           id?: string
@@ -7423,6 +7434,7 @@ export type Database = {
           origin_lang?: string | null
           pair_id?: string | null
           reading?: string
+          review_reason?: string | null
           sort_order?: number
           synonym_group?: string | null
           tags?: string[]
