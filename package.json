@@ -22,6 +22,7 @@
     "optimize:logos": "node scripts/optimize-logos.mjs",
     "verify:game": "node scripts/verify-game.mjs",
     "verify:worksheet": "node scripts/verify-worksheet.mjs",
+    "verify:worksheet:math24": "node scripts/verify-math24-worksheet.mjs",
     "verify:worksheet:matrix": "node scripts/verify-worksheet-matrix.mjs",
     "verify:worksheet:matrix:strict": "node scripts/verify-worksheet-matrix.mjs --strict",
     "verify:worksheet:production": "node scripts/verify-worksheet-production.mjs",

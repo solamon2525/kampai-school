@@ -67,6 +67,14 @@ Translate the learning objective into writable evidence:
 
 Allocate space for a child's handwriting. If content overflows or writing is cramped, redesign that worksheet case-by-case. Never conceal overflow with clipping.
 
+For arithmetic-puzzle worksheets such as Game 24:
+
+- validate every expression programmatically; do not trust written answer text alone;
+- verify that each source number is used exactly as many times as it appears;
+- reject neutral-operation padding such as multiplying by one, dividing a number by itself, or adding/subtracting zero merely to consume inputs;
+- derive a canonical key from the sorted source numbers and enforce uniqueness across every page in a generated set;
+- keep elementary-school intermediate results positive integers unless the learning objective explicitly teaches fractions or negative numbers.
+
 ## Registration and documentation
 
 For a new worksheet:
@@ -87,8 +95,9 @@ Do not certify from static inspection or `file://`.
 4. Verify initial hidden answers, next, previous, all, keyboard controls, and stable sheet dimensions.
 5. Verify randomize changes seed; reload with the same seed reproduces questions; save/load config and `?set=` restore state.
 6. Emulate print at 100%. Measure every `.sheet`: content and scroll dimensions must fit A4 without clipping. Check all pages, not only page one.
-7. Run `pnpm verify:worksheet` for the full catalog and `pnpm build`.
-8. When a migration changes published catalog state, run `pnpm verify:worksheet:production` after applying it.
+7. For generated puzzles, verify answer correctness, exact input use, canonical uniqueness across the full multi-page set, and prohibited shortcut patterns with a deterministic checker.
+8. Run `pnpm verify:worksheet` for the full catalog and `pnpm build`.
+9. When a migration changes published catalog state, run `pnpm verify:worksheet:production` after applying it.
 
 Stop publishing if any required check fails or cannot be performed. Report the exact remaining gate.
 
