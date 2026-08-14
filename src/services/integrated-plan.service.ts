@@ -22,6 +22,7 @@ export type IntegratedPlanTopic = {
   note: string | null;
   sort_order: number;
   is_custom: boolean;
+  source_indicator_id: string | null;
   integrated_plan_topic_indicators: Array<{ curriculum_indicators: PlanIndicator | null }>;
 };
 

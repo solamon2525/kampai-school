@@ -3772,6 +3772,7 @@ export type Database = {
           note: string | null
           owner_staff_id: string
           sort_order: number
+          source_indicator_id: string | null
           status: string
           subject_key: string
           title: string
@@ -3787,6 +3788,7 @@ export type Database = {
           note?: string | null
           owner_staff_id: string
           sort_order?: number
+          source_indicator_id?: string | null
           status?: string
           subject_key: string
           title: string
@@ -3802,6 +3804,7 @@ export type Database = {
           note?: string | null
           owner_staff_id?: string
           sort_order?: number
+          source_indicator_id?: string | null
           status?: string
           subject_key?: string
           title?: string
@@ -3821,6 +3824,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topics_source_indicator_id_fkey"
+            columns: ["source_indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
           },
         ]
       }
