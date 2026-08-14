@@ -12,6 +12,13 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Integrated Plan Topic Card
+
+- แสดง badge วิชา + badge สถานะ, ชื่อเรื่อง, สาระสำคัญ และรหัสตัวชี้วัดใน card เดียว
+- ปุ่มวงกลมซ้ายเป็น action หลักสำหรับวนสถานะ; ปุ่มแก้ไข/ลบอยู่ขวาและต้องมี accessible label
+- หัวข้อจากหลักสูตรแก้รายละเอียดส่วนตัวได้ แต่ลบไม่ได้; หัวข้อที่ครูเพิ่มเองแสดง badge “เพิ่มเอง” และลบได้
+- Integration suggestion card ต้องแสดงคู่ข้ามวิชา คำที่สัมพันธ์ และปุ่ม “ยืนยันการบูรณาการ”; ห้ามสร้างความสัมพันธ์อัตโนมัติ
+
 ### Hero
 ```tsx
 <section className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 py-16 md:py-24">

@@ -3692,6 +3692,210 @@ export type Database = {
           },
         ]
       }
+      integrated_plan_pin_settings: {
+        Row: {
+          failed_attempts: number
+          locked_until: string | null
+          owner_staff_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          failed_attempts?: number
+          locked_until?: string | null
+          owner_staff_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          failed_attempts?: number
+          locked_until?: string | null
+          owner_staff_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_pin_settings_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_pin_settings_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: true
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      integrated_plan_topic_indicators: {
+        Row: {
+          indicator_id: string
+          topic_id: string
+        }
+        Insert: {
+          indicator_id: string
+          topic_id: string
+        }
+        Update: {
+          indicator_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_topic_indicators_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topic_indicators_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrated_plan_topics: {
+        Row: {
+          created_at: string
+          essential_concept: string
+          grade: string
+          id: string
+          is_custom: boolean
+          keywords: string[]
+          note: string | null
+          owner_staff_id: string
+          sort_order: number
+          status: string
+          subject_key: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          essential_concept?: string
+          grade?: string
+          id?: string
+          is_custom?: boolean
+          keywords?: string[]
+          note?: string | null
+          owner_staff_id: string
+          sort_order?: number
+          status?: string
+          subject_key: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          essential_concept?: string
+          grade?: string
+          id?: string
+          is_custom?: boolean
+          keywords?: string[]
+          note?: string | null
+          owner_staff_id?: string
+          sort_order?: number
+          status?: string
+          subject_key?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_topics_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topics_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      integrated_plan_unit_topics: {
+        Row: {
+          topic_id: string
+          unit_id: string
+        }
+        Insert: {
+          topic_id: string
+          unit_id: string
+        }
+        Update: {
+          topic_id?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_unit_topics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_unit_topics_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrated_plan_units: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          owner_staff_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner_staff_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner_staff_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_units_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_units_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       leave_balances: {
         Row: {
           academic_year: string
@@ -8777,6 +8981,8 @@ export type Database = {
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       indicator_coverage_summary: { Args: never; Returns: Json }
       indicator_soft_gap_summary: { Args: never; Returns: Json }
+      initialize_integrated_plan: { Args: never; Returns: number }
+      integrated_plan_pin_status: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_my_student: { Args: { student_uuid: string }; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
@@ -9022,6 +9228,7 @@ export type Database = {
         }
         Returns: Json
       }
+      set_integrated_plan_pin: { Args: { p_pin: string }; Returns: undefined }
       subject_key_from_folder: { Args: { p_subject: string }; Returns: string }
       subject_keys: { Args: { p_subject: string }; Returns: string[] }
       submit_daily_challenge_score: {
@@ -9052,6 +9259,7 @@ export type Database = {
         Args: { p_category_slug: string; p_student_code: string; p_words: Json }
         Returns: number
       }
+      verify_integrated_plan_pin: { Args: { p_pin: string }; Returns: Json }
     }
     Enums: {
       edu_hub_item_type: "file" | "link" | "youtube" | "text"

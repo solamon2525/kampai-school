@@ -84,6 +84,7 @@ const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherG
 const ResearchPlay = lazyWithRetry(() => import("./pages/ResearchPlay"));
 const ResearchPlayIndex = lazyWithRetry(() => import("./pages/ResearchPlayIndex"));
 const TeacherMasteryHeatmap = lazyWithRetry(() => import("./pages/teacher/TeacherMasteryHeatmap"));
+const TeacherIntegratedPlan = lazyWithRetry(() => import("./pages/teacher/TeacherIntegratedPlan"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const ParentMastery = lazyWithRetry(() => import("./pages/parent/ParentMastery"));
@@ -217,6 +218,9 @@ const App = () => (
             } />
             <Route path="/teacher/schedule" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherSchedule /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/integrated-plan" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherIntegratedPlan /></PortalProtectedRoute>
             } />
             <Route path="/teacher/attendance" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherAttendance /></PortalProtectedRoute>

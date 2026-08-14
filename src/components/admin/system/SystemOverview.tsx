@@ -106,7 +106,7 @@ const dbGroups = [
     { label: 'ธนาคาร / รางวัล', tables: ['waste_categories', 'waste_transactions', 'savings_transactions', 'rewards', 'reward_claims', 'daily_quest_config', 'daily_quest_completions'] },
     { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'supply_items', 'supply_requests', 'digital_workload_baselines', 'digital_paper_logs', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
     { label: 'HR', tables: ['leave_requests', 'leave_balances', 'training_records', 'pa_assessments'] },
-    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
+    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'integrated_plan_topics', 'integrated_plan_units', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
     { label: 'คลังสื่อ / packs', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'lesson_packs', 'lesson_pack_items', 'game_docs', 'game_bgm_tracks'] },
     { label: 'เกม / quest', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'online_matches', 'english_quest_worlds', 'english_quest_progress', 'pixel_forest_rpg_profiles'] },
     { label: 'Portal / การบ้าน', tables: ['assignments', 'assignment_submissions', 'conference_slots', 'conference_bookings', 'pickup_persons', 'pickup_log', 'class_photos', 'class_photo_tags'] },
@@ -271,6 +271,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.220.1 (แผนการสอนบูรณาการ ป.4 ส่วนตัว)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มหน้า /teacher/integrated-plan เป็น Do List ส่วนตัวครบ 8 กลุ่มสาระ สร้างหัวข้อจากมาตรฐานและตัวชี้วัดหลักสูตรแกนกลาง ป.4 ที่มีอยู่จริง',
+            'ติดตามสถานะ ยังไม่สอน/กำลังสอน/สอนแล้ว พร้อมค้นหา กรอง สรุปความคืบหน้า เพิ่มหัวข้อส่วนตัว และสร้างหน่วยบูรณาการข้ามวิชา',
+            'ทางเข้าลับจากการกดรูปเจ้าของคลังครู 5 ครั้ง ใช้บัญชีครู + PIN 6 หลักแบบ hash/lockout และ RLS แยกข้อมูลตาม owner_staff_id',
+        ],
+    },
     {
         version: 'v1.220.0 (ใบงานเกม 24 — สมการพื้นฐานและโจทย์ไม่ซ้ำ)',
         date: 'ล่าสุด',

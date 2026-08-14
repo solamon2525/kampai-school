@@ -974,6 +974,14 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - **iOS support:** ต้องติดตั้ง PWA ผ่าน "Add to Home Screen" + iOS 16.4+ เท่านั้น — แสดง hint นี้ใน PushPermissionBanner ถ้าตรวจพบ Safari iOS ปกติ
 - **Banner UX:** `PushPermissionBanner` แสดงเฉพาะเมื่อ `session && permission === 'default' && !dismissedRecently(7d)` — ห้าม spam
 
+### Rule 14.40 — แผนการสอนบูรณาการส่วนตัว
+
+- หน้า `/teacher/integrated-plan` เป็นพื้นที่ light-mode สำหรับครูเจ้าของข้อมูล ใช้ `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground` และ `border-border` เท่านั้น
+- Dashboard ต้องแสดงความคืบหน้ารวมก่อน ตามด้วย 8 กลุ่มสาระ ตัวกรอง และรายการหัวข้อ เพื่อให้สถานะงานอ่านได้ในจอเดียว
+- สถานะหัวข้อมี 3 ค่าเท่านั้น: ยังไม่สอน → กำลังสอน → สอนแล้ว; การกดไอคอนสถานะต้องย้อนรอบได้และมี `aria-label`
+- ทางเข้ากดรูป 5 ครั้งเป็นเพียง hidden affordance; route ต้องมี PortalProtectedRoute, PIN gate และ RLS ตาม `owner_staff_id` เป็นความปลอดภัยจริง
+- คำแนะนำบูรณาการต้องแสดงวิชาทั้งสอง เหตุผล/คำสำคัญร่วม และรอครูยืนยันก่อนสร้างหน่วยเสมอ
+
 ---
 
 ## 15. Spacing & Layout

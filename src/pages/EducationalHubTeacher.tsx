@@ -1,5 +1,5 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
 import {
@@ -45,6 +45,7 @@ import { useViewMode } from '@/hooks/useViewMode';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthProvider';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -63,6 +64,9 @@ const LESSON_PACKS_CATEGORY: EduHubCategory = {
 };
 
 const EducationalHubTeacher = () => {
+    const navigate = useNavigate();
+    const { session, staffId: signedInStaffId } = useAuth();
+    const secretTapRef = useRef({ count: 0, startedAt: 0 });
     // Page is mounted from 2 routes:
     //   /educational-hub/:staffId  (legacy long URL — UUID)
     //   /h/:identifier             (short URL — username OR UUID for fallback)
@@ -97,6 +101,23 @@ const EducationalHubTeacher = () => {
     }, [cards, rawId]);
 
     const resolvedStaffId = teacher?.staff_id ?? null;
+
+    const handleSecretAvatarTap = () => {
+        const now = Date.now();
+        const state = secretTapRef.current;
+        if (now - state.startedAt > 2500) {
+            state.count = 0;
+            state.startedAt = now;
+        }
+        state.count += 1;
+        if (state.count < 5) return;
+        state.count = 0;
+        if (!session) {
+            navigate(`/admin?redirect=${encodeURIComponent('/teacher/integrated-plan')}`);
+            return;
+        }
+        if (signedInStaffId === resolvedStaffId) navigate('/teacher/integrated-plan');
+    };
 
     const { data: categories } = useQuery({
         queryKey: ['edu-hub', 'categories'],
@@ -367,14 +388,19 @@ const EducationalHubTeacher = () => {
                             </Button>
 
                             <div className="flex flex-row items-center gap-3">
-                                <div className="rounded-full bg-background p-1 shadow-lg shrink-0">
+                                <button
+                                    type="button"
+                                    aria-label="รูปประจำตัวครู"
+                                    onClick={handleSecretAvatarTap}
+                                    className="rounded-full bg-background p-1 shadow-lg shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
                                     <PersonAvatar
                                         name={teacher.name}
                                         photoUrl={teacher.photo_url}
                                         size="lg"
                                         className="!h-12 !w-12 !text-base"
                                     />
-                                </div>
+                                </button>
 
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div>
