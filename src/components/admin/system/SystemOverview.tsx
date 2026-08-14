@@ -272,6 +272,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.220.2 (แผนบูรณาการ — แก้ตั้งและตรวจ PIN บน Supabase)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ RPC ตั้ง/ตรวจ PIN ให้เรียก extensions.gen_salt และ extensions.crypt ตาม schema จริงของ hosted Supabase',
+            'คง SECURITY DEFINER search_path แบบจำกัดไว้ที่ public และ qualify ฟังก์ชันเข้ารหัสโดยตรงเพื่อความปลอดภัย',
+        ],
+    },
+    {
         version: 'v1.220.1 (แผนการสอนบูรณาการ ป.4 ส่วนตัว)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
