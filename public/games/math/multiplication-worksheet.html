@@ -44,15 +44,15 @@
     /* ── Question Grid Layouts ── */
     .questions{display:grid;gap:1.5mm;flex:1}
     
-    /* ── 10-Question Mode: Extra Large Grid & Fonts, Comfortable Answer Line ── */
-    .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
-    .questions.count-10 .q{padding:1.5mm 1mm 2mm;min-height:36.5mm}
-    .questions.count-10 .mg{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
-    .questions.count-10 .gd{font-size:17.5pt;font-weight:800}
-    .questions.count-10 .gs{font-size:15pt;font-weight:800}
-    .questions.count-10 .gc{font-size:9pt}
-    .questions.count-10 .ans{font-size:10pt;margin-top:3.5mm}
-    .questions.count-10 .q-num{width:6.5mm;height:6.5mm;font-size:9pt;left:1.5mm;top:1mm}
+    /* ── 8-Question Mode: Extra Large Grid & Fonts, Comfortable Answer Line ── */
+    .questions.count-8{grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:1.5mm 3mm}
+    .questions.count-8 .q{padding:1.5mm 1mm 2mm;min-height:36.5mm}
+    .questions.count-8 .mg{--sw:22px;--cw:33px;--ch:31px;--rh:17.5px}
+    .questions.count-8 .gd{font-size:17.5pt;font-weight:800}
+    .questions.count-8 .gs{font-size:15pt;font-weight:800}
+    .questions.count-8 .gc{font-size:9pt}
+    .questions.count-8 .ans{font-size:10pt;margin-top:3.5mm}
+    .questions.count-8 .q-num{width:6.5mm;height:6.5mm;font-size:9pt;left:1.5mm;top:1mm}
     
     /* ── 5-Question Mode: Extra Large ── */
     .questions.count-5{grid-template-columns:1fr;grid-template-rows:repeat(5,1fr);gap:3mm}
@@ -126,13 +126,13 @@
       .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm;overflow:hidden}
       .q{min-height:0}
       
-      /* Print scaling for 10-question mode: Extra Large Numbers, Comfortable Answer Line */
-      .questions.count-10 .mg{--sw:5.8mm;--cw:8.5mm;--ch:8mm;--rh:4.6mm}
-      .questions.count-10 .gd{font-size:16pt}
-      .questions.count-10 .gs{font-size:14pt}
-      .questions.count-10 .gc{font-size:8pt}
-      .questions.count-10 .ans{font-size:10pt;margin-top:3mm}
-      .questions.count-10 .q-num{width:6.5mm;height:6.5mm;font-size:9.5pt}
+      /* Print scaling for 8-question mode: Extra Large Numbers, Comfortable Answer Line */
+      .questions.count-8 .mg{--sw:5.8mm;--cw:8.5mm;--ch:8mm;--rh:4.6mm}
+      .questions.count-8 .gd{font-size:16pt}
+      .questions.count-8 .gs{font-size:14pt}
+      .questions.count-8 .gc{font-size:8pt}
+      .questions.count-8 .ans{font-size:10pt;margin-top:3mm}
+      .questions.count-8 .q-num{width:6.5mm;height:6.5mm;font-size:9.5pt}
 
       /* Print scaling for 5-question mode */
       .questions.count-5 .mg{--sw:7mm;--cw:10mm;--ch:9.5mm;--rh:5.5mm}
@@ -178,7 +178,7 @@
         <option value="mixed">ความยาก: ทุกระดับในชั้น</option>
       </select>
       <select class="t-select" id="selCount">
-        <option value="10" selected>10 ข้อ/หน้า (โจทย์ใหญ่ ตัวเต็มช่อง)</option>
+        <option value="8" selected>8 ข้อ/หน้า (พอดีกระดาษ A4)</option>
         <option value="5">5 ข้อ/หน้า (โจทย์ใหญ่พิเศษ)</option>
       </select>
       <input class="t-input" type="text" id="inpSchool" placeholder="ชื่อโรงเรียน..." value="โรงเรียนบ้านคำไผ่" />
