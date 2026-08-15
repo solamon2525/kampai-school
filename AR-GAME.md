@@ -227,6 +227,7 @@ kampai-sdk.js               │              + hands.collectHitProbes() ถ้�
 | 2026-07-01 | **Restart กล้องไม่ทำงาน** หลังเล่นจบแล้วเริ่มใหม่ (`catch-numbers`, `multiply-burst`) | **KampaiHands v1.3.1**: `stop()` ปล่อย tracks + `srcObject=null` · `start()` teardown ก่อนเปิดใหม่ · เกม `hands=null` หลัง stop | กล้อง/มือกลับมาทำงานรอบ 2+ |
 | 2026-07-01 | `catch-numbers` framediff ไม่แม่น — ตะกร้าเลื่อนตามการขยับตัว | ย้ายเป็น **KampaiHands** · `minExtendedFingers:0` · map `leftHand.x` → ตะกร้า | แม่นกว่า framediff มาก · tap fallback ยังอยู่ |
 | 2026-07-01 | `multiply-burst` solo setup + ความแม่นยำ | เลือก op/stage ก่อนเล่น · จูน HANDS 960×720 + oneEuro · split-presence `FACE_MODEL:full` + smoothing | โจทย์ +−×÷ ผสม · 2P split หัวนิ่งขึ้น |
+| 2026-08-15 | `sci-lab-defender` (AR วันวิทยาศาสตร์) | ผสาน 3 ฐาน: สสารเคมี (Catch), สะท้อนเลเซอร์ 2 มือ (Optics), อุกกาบาต (Poke) | KampaiHands `minExtendedFingers:0`, `960×720`, `oneEuroBeta:0.01` ลื่นไหล 60 FPS |
 | _เพิ่มแถวใหม่ทุกครั้งที่จูน_ | | | |
 
 ## 7. Engine API (`window.KampaiAR`)

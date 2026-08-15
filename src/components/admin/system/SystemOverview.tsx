@@ -272,8 +272,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.212.1 (HEART infographic บนหน้าเกี่ยวกับเรา)',
+        version: 'v1.213.0 (Sci-Lab Defender AR — เกม AR วันวิทยาศาสตร์ 3 ฐาน)',
         date: 'ล่าสุด',
+        badge: 'bg-cyan-600',
+        items: [
+            'เพิ่มเกม AR การศึกษา "Sci-Lab Defender (ผู้พิทักษ์ห้องแล็บอวกาศ)" สำหรับกิจกรรมวันวิทยาศาสตร์ระดับประถม (ป.1 - ป.6)',
+            'ผสาน 3 ฐานการทดลองใน 1 รอบ 75 วินาที: 1) คัดแยกสสารเคมี, 2) สะท้อนแสงเลเซอร์โซลาร์เซลล์, 3) จิ้มระเบิดอุกกาบาตอวกาศ Fever',
+            'ขับเคลื่อนด้วย KampaiHands Engine (MediaPipe Hands + One Euro Filter) รองรับ 2 มือ พร้อมระบบ Tap/Click Fallback 100%',
+            'Migration 457 + game_docs + ระบบดวล Versus + หน้าปก 16:9 1280×720',
+        ],
+    },
+    {
+        version: 'v1.212.1 (HEART infographic บนหน้าเกี่ยวกับเรา)',
+        date: '',
         badge: 'bg-rose-600',
         items: [
             'แทรกอินโฟกราฟิก HEART Model (`/images/heart-model-infographic.png`) ในหน้า About ใต้หัวข้อนวัตกรรมการบริหาร',
