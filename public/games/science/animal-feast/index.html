@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Animal Feast (ยอดนักป้อนอาหารสัตว์)</title>
+<!--
+═══════════════════════════════════════════════════════════════════════════
+  KAMPAI-SCHOOL · ANIMAL FEAST (เกมวิทยาศาสตร์ชีวภาพ ป.1-4)
+  เรียนรู้เรื่องประเภทอาหารและการดำรงชีวิตของสัตว์ (กินพืช/กินเนื้อ/กินทั้งสองอย่าง)
+  ───────────────────────────────────────────────────────────────────────
+  ใช้ KAMPAI SDK + KampaiVersus (เล่นเดี่ยว + แข่งขัน 2 คน + ลีดเดอร์บอร์ด)
+═══════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── ซ่อน DOM Elements เพื่อความเข้ากันได้กับ Boilerplate Check ── -->
+<div id="blocker" style="display:none;"></div>
+
+<!-- ── ฟีดแบ็กแอนิเมชันตอนป้อนอาหาร ── -->
+<div id="feedPopup">🎉 อร่อยมาก! +20</div>
+
+<!-- ── จอเริ่มต้น (Start Screen) ── -->
+<div class="screen active" id="startScreen">
+    <div class="card">
+        <div class="logo-badge">🐾🥗🥩</div>
+        <h1 class="title">Animal Feast</h1>
+        <div class="subtitle">ยอดนักป้อนอาหารสัตว์ (วิทยาศาสตร์ ป.1-4)</div>
+        
+        <div id="player-chip"></div>
+
+        <div class="diet-pills-row">
+            <div class="diet-pill p-herb">
+                <b>🌿 สัตว์กินพืช</b>
+                <span>ช้าง, กระต่าย, แพนด้า</span>
+            </div>
+            <div class="diet-pill p-carn">
+                <b>🥩 สัตว์กินเนื้อ</b>
+                <span>สิงโต, เสือ, จระเข้</span>
+            </div>
+            <div class="diet-pill p-omni">
+                <b>🥗🍗 กินทั้งสองอย่าง</b>
+                <span>หมี, ลิง, หมู, เป็ด</span>
+            </div>
+        </div>
+
+        <div class="hint-box">
+            🎯 <b>กติกาง่ายๆ:</b> ดูสัตว์ที่โผล่ขึ้นมา แล้วกดเลือกอาหารให้ถูกต้อง<br>
+            • ถ้าเป็นสัตว์กินพืช 🌿 $\rightarrow$ ป้อนผัก/ผลไม้<br>
+            • ถ้าเป็นสัตว์กินเนื้อ 🥩 $\rightarrow$ ป้อนเนื้อ/ปลา<br>
+            • ถ้าเป็นสัตว์กินทั้งพืชและเนื้อ 🐻 $\rightarrow$ ป้อนอะไรก็ได้ อร่อยหมด!
+        </div>
+
+        <div id="my-stats" style="display:none;">
+            <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+            <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+        </div>
+
+        <div class="lb-box" id="lbBox" style="display:none">
+            <h3>🏆 5 อันดับยอดผู้ดูแลสัตว์วันนี้</h3>
+            <ul class="lb-list" id="lbList"></ul>
+        </div>
+
+        <div class="mode-row">
+            <button class="btn btn-primary" id="startBtn">🐾 เริ่มเปิดสวนสัตว์</button>
+            <button class="btn btn-accent" id="versusBtn">⚔️ โหมดดวล (Versus)</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── จอเล่นเกม (Game Screen) ── -->
+<div class="screen" id="gameScreen">
+    <div class="hud">
+        <button class="back-btn" id="quitBtn">🏠 ออก</button>
+        <span class="pill timer" id="timerPill">⏱ 60s</span>
+        <span class="pill score" id="scorePill">⭐ 0</span>
+    </div>
+
+    <!-- เวทีสัตว์ตรงกลาง -->
+    <div class="animal-stage-card">
+        <div class="combo-banner" id="comboBanner">🔥 COMBO x3</div>
+        <div class="animal-avatar-box" id="animalAvatar">🐰</div>
+        <div class="animal-name" id="animalName">กระต่ายน้อย</div>
+        <div class="speech-bubble" id="animalSpeech">ขอกินแครอทกรุบกรอบหน่อยนะ!</div>
+        <div class="fact-badge" id="animalFact">💡 เกร็ดวิทย์: กระต่ายฟันหน้ายาวขึ้นเรื่อยๆ ต้องเคี้ยวพืช</div>
+    </div>
+
+    <!-- ปุ่มตัวเลือกอาหารขนาดใหญ่ 2 ฝั่ง -->
+    <div class="food-choices-grid">
+        <button class="food-btn btn-plant" id="plantBtn">
+            <div class="food-icon-big">🌿🥕</div>
+            <div class="food-btn-label">พืช / ผัก / ผลไม้</div>
+            <div class="food-btn-sub">แครอท, หญ้า, ไผ่, กล้วย</div>
+        </button>
+
+        <button class="food-btn btn-meat" id="meatBtn">
+            <div class="food-icon-big">🥩🐟</div>
+            <div class="food-btn-label">เนื้อสัตว์ / ปลา</div>
+            <div class="food-btn-sub">น่องไก่, ปลาสด, แมลง</div>
+        </button>
+    </div>
+</div>
+
+<!-- ── จอจบเกม (Result Screen) ── -->
+<div class="screen" id="resultScreen">
+    <div class="card">
+        <div class="logo-badge">🏆</div>
+        <h1 class="title">หมดเวลาป้อนอาหาร!</h1>
+        <div id="go-stars">⭐⭐⭐</div>
+        <div id="final-score">0</div>
+        <div id="final-detail">สุดยอดผู้ดูแลสวนสัตว์ใจดี!</div>
+        <div id="kampai-result"></div>
+
+        <div class="lb-box" id="lbBoxEnd" style="display:none">
+            <h3>🏆 อันดับผู้ดูแลสวนสัตว์วันนี้</h3>
+            <ul class="lb-list" id="lbListEnd"></ul>
+        </div>
+
+        <div class="row">
+            <button class="btn btn-primary" id="restartBtn">🔄 ป้อนอีกรอบ</button>
+            <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ SDK + Online + Versus ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{ correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){},leave:function(){}};} };
+</script>
+
+<!-- ═══ สคริปต์เกม (config → data → game) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
