@@ -8,45 +8,45 @@ window.GAME_CONFIG = {
     BGM: 'cheerful',
 
     TOTAL_STAGES: 3,
-    STAGE_DURATION: 30,         // วินาทีต่อฐาน (30s x 3 = 90 วินาที)
-    LIVES_MAX: 5,               // พลังงานเกราะป้องกันห้องทดลอง
+    STAGE_DURATION: 45,         // วินาทีต่อฐาน (45s x 3 = 135 วินาที)
+    LIVES_MAX: 7,               // พลังงานเกราะป้องกันห้องทดลอง
 
     // ── ฐานที่ 1: สสารและเคมี (Chemistry & Matter Lab) ──
     STAGE1: {
-        SPAWN_INTERVAL_MS: 1100,
-        ITEM_SPEED_MIN: 1.8,
-        ITEM_SPEED_MAX: 2.8,
+        SPAWN_INTERVAL_MS: 2200,
+        ITEM_SPEED_MIN: 1.0,
+        ITEM_SPEED_MAX: 1.6,
         BEAKER_WIDTH_RATIO: 0.16, // สัดส่วนความกว้างบีกเกอร์เทียบกับหน้าจอ
         POINTS_CORRECT: 15,
-        POINTS_WRONG: -10,
-        POINTS_HAZARD: -20
+        POINTS_WRONG: -5,
+        POINTS_HAZARD: -10
     },
 
     // ── ฐานที่ 2: แสงและพลังงาน (Optics & Solar Defense) ──
     STAGE2: {
-        SPAWN_INTERVAL_MS: 1300,
-        LASER_SPEED_MIN: 2.0,
-        LASER_SPEED_MAX: 3.2,
+        SPAWN_INTERVAL_MS: 2000,
+        LASER_SPEED_MIN: 1.2,
+        LASER_SPEED_MAX: 2.0,
         SHIELD_RADIUS: 38,        // รัศมีโล่กระจกสะท้อนแสงรอบมือ (px)
         POINTS_DEFLECT: 20,
         POINTS_CORE_HIT: 35,
-        POINTS_MISS: -10
+        POINTS_MISS: -5
     },
 
     // ── ฐานที่ 3: อวกาศและดาราศาสตร์ (Space Defense Fever Time) ──
     STAGE3: {
-        SPAWN_INTERVAL_MS: 750,
-        TARGET_SPEED_MIN: 1.6,
-        TARGET_SPEED_MAX: 3.0,
+        SPAWN_INTERVAL_MS: 1200,
+        TARGET_SPEED_MIN: 0.8,
+        TARGET_SPEED_MAX: 1.8,
         FINGER_HIT_PADDING: 30,   // รัศมีตรวจจับชนปลายนิ้วชี้ (px)
         POINTS_TARGET: 25,
         POINTS_BONUS: 60
     },
 
     // ── เกณฑ์เหรียญรางวัล ──
-    MEDAL_GOLD_SCORE: 500,
-    MEDAL_SILVER_SCORE: 320,
-    MEDAL_BRONZE_SCORE: 180,
+    MEDAL_GOLD_SCORE: 300,
+    MEDAL_SILVER_SCORE: 180,
+    MEDAL_BRONZE_SCORE: 80,
 
     // ── MediaPipe Hands Engine Config (KampaiHands) ──
     HANDS: {
