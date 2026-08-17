@@ -296,7 +296,7 @@
             x: 0.12 + qrand() * 0.76,
             y: -0.08,
             speed: speed,
-            radius: Math.max(34, W * 0.045),
+            radius: Math.max(22, W * 0.028),
             angle: 0,
             rotSpeed: (qrand() - 0.5) * 0.04
         });
@@ -397,7 +397,7 @@
             vy: speed / H,
             deflected: false,
             targetCore: null,
-            radius: Math.max(22, W * 0.028)
+            radius: Math.max(16, W * 0.02)
         });
     }
 
@@ -539,7 +539,7 @@
             points: tpl.points,
             color: tpl.color,
             isBonus: !!tpl.isBonus,
-            radius: Math.max(32, W * 0.04),
+            radius: Math.max(22, W * 0.028),
             x: startX,
             y: startY,
             vx: (dx / len) * spd,
@@ -817,6 +817,12 @@
             ctx.shadowBlur = 4;
             ctx.fillText(it.name, 0, it.radius + 14);
 
+            // ป้ายบอกสถานะสสารเพื่อช่วยในการจำแนก
+            ctx.font = 'bold 10px Sarabun, sans-serif';
+            ctx.fillStyle = it.isHazard ? '#f87171' : '#bae6fd';
+            var stateLabel = it.isHazard ? '☣️ อันตราย' : (it.state === 'solid' ? '🧊 ของแข็ง' : (it.state === 'liquid' ? '💧 ของเหลว' : '💨 แก๊ส'));
+            ctx.fillText(stateLabel, 0, it.radius + 27);
+
             ctx.restore();
         }
 
@@ -894,14 +900,14 @@
             var vlen = Math.sqrt(l.vx * l.vx + l.vy * l.vy) || 0.001;
             var dirX = l.vx / vlen;
             var dirY = l.vy / vlen;
-            var tailLength = Math.max(32, W * 0.045);
+            var tailLength = Math.max(20, W * 0.025);
 
             ctx.save();
             // หางลำแสงพุ่ง
             ctx.strokeStyle = l.color;
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.shadowColor = l.glow;
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 16;
             ctx.beginPath();
             ctx.moveTo(lx, ly);
             ctx.lineTo(lx - dirX * tailLength, ly - dirY * tailLength);
@@ -993,7 +999,15 @@
 
             ctx.font = 'bold 12px Sarabun, sans-serif';
             ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 4;
             ctx.fillText(t.name, 0, t.radius + 14);
+
+            if (t.sub) {
+                ctx.font = 'bold 10px Sarabun, sans-serif';
+                ctx.fillStyle = t.isBonus ? '#fde047' : '#cbd5e1';
+                ctx.fillText(t.sub, 0, t.radius + 26);
+            }
 
             ctx.restore();
         }
