@@ -698,8 +698,9 @@
     }
 
     // ── Main Render Loop (ไม่เรียก requestAnimationFrame ในตัว) ──
-    function render() {
+    function render(dt) {
         if (!ctx || !canvas) return;
+        var deltaFactor = (dt || 0.016) * 60;
         ctx.clearRect(0, 0, W, H);
 
         // 1. วาด HUD Overlay ตารางไซเบอร์แล็บ
@@ -725,9 +726,9 @@
         // 4. วาด Particles
         for (var p = ST.particles.length - 1; p >= 0; p--) {
             var pt = ST.particles[p];
-            pt.x += pt.vx;
-            pt.y += pt.vy;
-            pt.alpha -= pt.decay;
+            pt.x += pt.vx * deltaFactor;
+            pt.y += pt.vy * deltaFactor;
+            pt.alpha -= pt.decay * deltaFactor;
             if (pt.alpha <= 0) {
                 ST.particles.splice(p, 1);
                 continue;
@@ -744,8 +745,8 @@
         // 5. วาด Floating Texts
         for (var f = ST.floatingTexts.length - 1; f >= 0; f--) {
             var ft = ST.floatingTexts[f];
-            ft.y += ft.vy;
-            ft.life -= 0.025;
+            ft.y += ft.vy * deltaFactor;
+            ft.life -= 0.025 * deltaFactor;
             if (ft.life <= 0) {
                 ST.floatingTexts.splice(f, 1);
                 continue;
@@ -966,15 +967,16 @@
 
             ctx.save();
             ctx.translate(px, py);
-            ctx.rotate(t.angle);
 
-            // เปลวหางอวกาศ
+            // เปลวหางอวกาศ (วาดก่อน rotate เพื่อให้ทิศทางตรงกับเวกเตอร์การเคลื่อนที่จริง)
             ctx.strokeStyle = t.color;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(-dirX * 36, -dirY * 36);
             ctx.stroke();
+
+            ctx.rotate(t.angle);
 
             // ออร่าเรืองแสง
             ctx.fillStyle = t.color;
@@ -1072,10 +1074,13 @@
         clearInterval(ST.clockTimer);
 
         if (ST.stage === 1) {
+            spawnStage1Item();
             ST.spawnTimer = setInterval(spawnStage1Item, CFG.STAGE1.SPAWN_INTERVAL_MS);
         } else if (ST.stage === 2) {
+            spawnStage2Laser();
             ST.spawnTimer = setInterval(spawnStage2Laser, CFG.STAGE2.SPAWN_INTERVAL_MS);
         } else if (ST.stage === 3) {
+            spawnStage3Target();
             ST.spawnTimer = setInterval(spawnStage3Target, CFG.STAGE3.SPAWN_INTERVAL_MS);
         }
 
@@ -1239,7 +1244,7 @@
             else if (ST.stage === 3) updateStage3(dt);
         }
 
-        render();
+        render(dt);
         ST.rafId = requestAnimationFrame(gameLoop);
     }
     ST.rafId = requestAnimationFrame(gameLoop);

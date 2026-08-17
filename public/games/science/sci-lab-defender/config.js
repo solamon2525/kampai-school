@@ -14,8 +14,8 @@ window.GAME_CONFIG = {
     // ── ฐานที่ 1: สสารและเคมี (Chemistry & Matter Lab) ──
     STAGE1: {
         SPAWN_INTERVAL_MS: 900,
-        ITEM_SPEED_MIN: 2.2,
-        ITEM_SPEED_MAX: 3.8,
+        ITEM_SPEED_MIN: 3.5,
+        ITEM_SPEED_MAX: 5.8,
         BEAKER_WIDTH_RATIO: 0.22, // สัดส่วนความกว้างบีกเกอร์เทียบกับหน้าจอ
         POINTS_CORRECT: 15,
         POINTS_WRONG: -10,
@@ -25,8 +25,8 @@ window.GAME_CONFIG = {
     // ── ฐานที่ 2: แสงและพลังงาน (Optics & Solar Defense) ──
     STAGE2: {
         SPAWN_INTERVAL_MS: 1050,
-        LASER_SPEED_MIN: 2.6,
-        LASER_SPEED_MAX: 4.2,
+        LASER_SPEED_MIN: 4.0,
+        LASER_SPEED_MAX: 6.5,
         SHIELD_RADIUS: 52,        // รัศมีโล่กระจกสะท้อนแสงรอบมือ (px)
         POINTS_DEFLECT: 20,
         POINTS_CORE_HIT: 35,
@@ -36,8 +36,8 @@ window.GAME_CONFIG = {
     // ── ฐานที่ 3: อวกาศและดาราศาสตร์ (Space Defense Fever Time) ──
     STAGE3: {
         SPAWN_INTERVAL_MS: 620,
-        TARGET_SPEED_MIN: 2.0,
-        TARGET_SPEED_MAX: 4.6,
+        TARGET_SPEED_MIN: 3.0,
+        TARGET_SPEED_MAX: 6.0,
         FINGER_HIT_PADDING: 38,   // รัศมีตรวจจับชนปลายนิ้วชี้ (px)
         POINTS_TARGET: 25,
         POINTS_BONUS: 60
