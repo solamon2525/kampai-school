@@ -1,5 +1,5 @@
 /* game.js — Sci-Lab Defender (AR วันวิทย์)
-   ลอจิกหลัก: จัดการ 3 ฐานกิจกรรม, KampaiHands AR, Particle Engine, HUD และคะแนน */
+   ลอจิกหลัก: จัดการ 3 ฐานกิจกรรม, KampaiHands AR, Particle Engine, Multi-touch และการคำนวณคะแนน */
 (function () {
     'use strict';
     var CFG = window.GAME_CONFIG;
@@ -59,6 +59,26 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // ── Safe Canvas Rounded Rect Helper ──
+    function drawRoundedRect(c, x, y, w, h, r) {
+        if (c.roundRect) {
+            c.beginPath();
+            c.roundRect(x, y, w, h, r);
+        } else {
+            c.beginPath();
+            c.moveTo(x + r, y);
+            c.lineTo(x + w - r, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + r);
+            c.lineTo(x + w, y + h - r);
+            c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            c.lineTo(x + r, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - r);
+            c.lineTo(x, y + r);
+            c.quadraticCurveTo(x, y, x + r, y);
+            c.closePath();
+        }
+    }
+
     // ── State กลางของเกม ──
     var ST = {
         state: 'start', // 'start' | 'stage_brief' | 'playing' | 'gameover'
@@ -103,7 +123,16 @@
 
     var hands = null;
 
-    // ── Hand Tracking Management ──
+    // ── Helper คำนวณขอบเขตบีกเกอร์ (Stage 1) ──
+    function getBeakerRect() {
+        var bw = W * CFG.STAGE1.BEAKER_WIDTH_RATIO;
+        var bh = bw * 0.75;
+        var by = H - bh - 24;
+        var bx = ST.beakerX * W - bw / 2;
+        return { x: bx, y: by, w: bw, h: bh };
+    }
+
+    // ── Hand Tracking Management (KampaiHands) ──
     function buildHands() {
         return KampaiHands.create({
             video: '#arVideo',
@@ -187,7 +216,7 @@
         renderLeaderboard();
     });
 
-    // ── ระบบเสียง Effect & Speech ──
+    // ── ระบบ Visual Effects & Popups ──
     function spawnFloatingText(text, x, y, color) {
         ST.floatingTexts.push({
             text: text,
@@ -274,29 +303,31 @@
     }
 
     function updateStage1(dt) {
-        // อัปเดตตำแหน่งบีกเกอร์จากมือ AR หรือแตะ
+        var deltaFactor = dt * 60;
+
+        // อัปเดตตำแหน่งบีกเกอร์จากมือ AR
         if (hands && hands.mode === 'camera') {
             var xs = [];
             if (hands.leftHand && hands.leftHand.active) xs.push(hands.leftHand.x);
             if (hands.rightHand && hands.rightHand.active) xs.push(hands.rightHand.x);
             if (xs.length > 0) {
                 var avgX = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length;
-                ST.beakerX += (avgX - ST.beakerX) * 0.35;
+                ST.beakerX += (avgX - ST.beakerX) * Math.min(1.0, 0.35 * deltaFactor);
             }
         }
 
-        var beakerW = W * CFG.STAGE1.BEAKER_WIDTH_RATIO;
-        var beakerH = beakerW * 0.75;
-        var beakerY = H - beakerH - 24;
-        var beakerLeft = ST.beakerX * W - beakerW / 2;
-        var beakerRight = beakerLeft + beakerW;
+        var beaker = getBeakerRect();
+        var beakerLeft = beaker.x;
+        var beakerRight = beaker.x + beaker.w;
+        var beakerY = beaker.y;
+        var beakerH = beaker.h;
 
         var wave = DATA.STAGE1_WAVES[ST.stage1WaveIdx] || DATA.STAGE1_WAVES[0];
 
         for (var i = ST.stage1Items.length - 1; i >= 0; i--) {
             var it = ST.stage1Items[i];
-            it.y += (it.speed / H);
-            it.angle += it.rotSpeed;
+            it.y += ((it.speed * deltaFactor) / H);
+            it.angle += it.rotSpeed * deltaFactor;
 
             var px = it.x * W;
             var py = it.y * H;
@@ -304,9 +335,7 @@
             // ตรวจสอบการชนกับบีกเกอร์
             if (py + it.radius >= beakerY && py - it.radius <= beakerY + beakerH * 0.5) {
                 if (px >= beakerLeft - 10 && px <= beakerRight + 10) {
-                    // รับไอเท็มสำเร็จ!
                     if (it.isHazard) {
-                        // สารพิษอันตราย
                         ST.score = Math.max(0, ST.score + CFG.STAGE1.POINTS_HAZARD);
                         ST.stageScores[0] = Math.max(0, ST.stageScores[0] + CFG.STAGE1.POINTS_HAZARD);
                         ST.lives = Math.max(0, ST.lives - 1);
@@ -316,7 +345,6 @@
                         spawnFloatingText('☣️ สารพิษ! -20', px, beakerY, '#ef4444');
                         spawnParticles(px, beakerY, '#ef4444', 20, 5);
                     } else if (it.state === wave.targetState) {
-                        // ถูกสถานะ
                         ST.combo++;
                         if (ST.combo > ST.maxCombo) ST.maxCombo = ST.combo;
                         var pts = CFG.STAGE1.POINTS_CORRECT + (ST.combo > 2 ? 5 : 0);
@@ -327,7 +355,6 @@
                         spawnFloatingText('+' + pts + ' ' + (ST.combo > 2 ? '🔥x' + ST.combo : ''), px, beakerY, '#38bdf8');
                         spawnParticles(px, beakerY, it.color, 18, 4);
                     } else {
-                        // ผิดสถานะ
                         ST.score = Math.max(0, ST.score + CFG.STAGE1.POINTS_WRONG);
                         ST.stageScores[0] = Math.max(0, ST.stageScores[0] + CFG.STAGE1.POINTS_WRONG);
                         ST.lives = Math.max(0, ST.lives - 1);
@@ -375,16 +402,18 @@
     }
 
     function updateStage2(dt) {
+        var deltaFactor = dt * 60;
+
         // อัปเดตตำแหน่งโล่กระจกจากมือ 2 ข้าง
         if (hands && hands.mode === 'camera') {
             if (hands.leftHand && hands.leftHand.active) {
-                ST.leftShield.x += (hands.leftHand.x - ST.leftShield.x) * 0.4;
-                ST.leftShield.y += (hands.leftHand.y - ST.leftShield.y) * 0.4;
+                ST.leftShield.x += (hands.leftHand.x - ST.leftShield.x) * Math.min(1.0, 0.4 * deltaFactor);
+                ST.leftShield.y += (hands.leftHand.y - ST.leftShield.y) * Math.min(1.0, 0.4 * deltaFactor);
                 ST.leftShield.active = true;
             }
             if (hands.rightHand && hands.rightHand.active) {
-                ST.rightShield.x += (hands.rightHand.x - ST.rightShield.x) * 0.4;
-                ST.rightShield.y += (hands.rightHand.y - ST.rightShield.y) * 0.4;
+                ST.rightShield.x += (hands.rightHand.x - ST.rightShield.x) * Math.min(1.0, 0.4 * deltaFactor);
+                ST.rightShield.y += (hands.rightHand.y - ST.rightShield.y) * Math.min(1.0, 0.4 * deltaFactor);
                 ST.rightShield.active = true;
             }
         }
@@ -396,8 +425,8 @@
             var l = ST.lasers[i];
 
             if (!l.deflected) {
-                l.x += l.vx;
-                l.y += l.vy;
+                l.x += l.vx * deltaFactor;
+                l.y += l.vy * deltaFactor;
 
                 var lx = l.x * W;
                 var ly = l.y * H;
@@ -414,7 +443,6 @@
                     var dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist < shieldRadius + l.radius) {
-                        // สะท้อนแสงเลเซอร์!
                         l.deflected = true;
                         l.targetCore = (lx < W / 2) ? ST.solarCores[0] : ST.solarCores[1];
 
@@ -422,7 +450,7 @@
                         var ty = l.targetCore.y * H;
                         var tdx = tx - lx;
                         var tdy = ty - ly;
-                        var tlen = Math.sqrt(tdx * tdx + tdy * tdy);
+                        var tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
 
                         var deflectSpeed = 8.5;
                         l.vx = (tdx / tlen) * (deflectSpeed / W);
@@ -456,8 +484,8 @@
                 }
             } else {
                 // เลเซอร์ที่สะท้อนแล้ว พุ่งเข้าแท่นชาร์จโซลาร์เซลล์
-                l.x += l.vx;
-                l.y += l.vy;
+                l.x += l.vx * deltaFactor;
+                l.y += l.vy * deltaFactor;
 
                 var clx = l.x * W;
                 var cly = l.y * H;
@@ -467,7 +495,6 @@
                 var cdx = clx - coreX;
                 var cdy = cly - coreY;
                 if (Math.sqrt(cdx * cdx + cdy * cdy) < 45) {
-                    // ชาร์จพลังงานสำเร็จ!
                     l.targetCore.energy = Math.min(100, l.targetCore.energy + l.power);
                     ST.score += CFG.STAGE2.POINTS_CORE_HIT;
                     ST.stageScores[1] += CFG.STAGE2.POINTS_CORE_HIT;
@@ -501,7 +528,7 @@
 
         var dx = targetX - startX;
         var dy = targetY - startY;
-        var len = Math.sqrt(dx * dx + dy * dy);
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
         var spd = (CFG.STAGE3.TARGET_SPEED_MIN + qrand() * (CFG.STAGE3.TARGET_SPEED_MAX - CFG.STAGE3.TARGET_SPEED_MIN)) / 600;
 
         ST.stage3Targets.push({
@@ -523,7 +550,6 @@
     }
 
     function checkFingerHit(tx, ty, tr) {
-        // ตรวจสอบกับปลายนิ้วชี้ของ KampaiHands
         if (hands && hands.collectHitProbes) {
             var probes = hands.collectHitProbes();
             var pad = CFG.STAGE3.FINGER_HIT_PADDING;
@@ -559,11 +585,13 @@
     }
 
     function updateStage3(dt) {
+        var deltaFactor = dt * 60;
+
         for (var i = ST.stage3Targets.length - 1; i >= 0; i--) {
             var t = ST.stage3Targets[i];
-            t.x += t.vx;
-            t.y += t.vy;
-            t.angle += t.rotSpeed;
+            t.x += t.vx * deltaFactor;
+            t.y += t.vy * deltaFactor;
+            t.angle += t.rotSpeed * deltaFactor;
 
             var px = t.x * W;
             var py = t.y * H;
@@ -599,9 +627,9 @@
         }
     }
 
-    // ── Touch & Mouse Fallback ──
+    // ── Touch & Mouse Fallback (รองรับ Multi-touch 2 มือ) ──
     function handlePointerInput(clientX, clientY) {
-        if (ST.state !== 'playing') return;
+        if (ST.state !== 'playing' || !canvas) return;
 
         var rect = canvas.getBoundingClientRect();
         var px = clientX - rect.left;
@@ -610,25 +638,24 @@
         var normY = py / H;
 
         if (ST.stage === 1) {
-            // เลื่อนบีกเกอร์ตามนิ้ว
             ST.beakerX = Math.max(0.1, Math.min(0.9, normX));
         } else if (ST.stage === 2) {
-            // เลื่อนกระจกสะท้อนตามนิ้ว
             if (normX < 0.5) {
                 ST.leftShield.x = normX;
                 ST.leftShield.y = normY;
+                ST.leftShield.active = true;
             } else {
                 ST.rightShield.x = normX;
                 ST.rightShield.y = normY;
+                ST.rightShield.active = true;
             }
         } else if (ST.stage === 3) {
-            // แตะทำลายเป้าหมายอวกาศโดยตรง
             for (var i = ST.stage3Targets.length - 1; i >= 0; i--) {
                 var t = ST.stage3Targets[i];
                 var tx = t.x * W;
                 var ty = t.y * H;
                 var dist = Math.sqrt((px - tx) * (px - tx) + (py - ty) * (py - ty));
-                if (dist < t.radius + 30) {
+                if (dist < t.radius + 32) {
                     destroyTarget(i, tx, ty);
                     break;
                 }
@@ -636,23 +663,46 @@
         }
     }
 
+    function handleAllTouches(e) {
+        if (ST.state !== 'playing' || !canvas) return;
+        var touches = e.touches;
+        if (touches && touches.length > 0) {
+            for (var i = 0; i < touches.length; i++) {
+                handlePointerInput(touches[i].clientX, touches[i].clientY);
+            }
+        }
+    }
+
     if (canvas) {
+        canvas.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            handleAllTouches(e);
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+            handleAllTouches(e);
+        }, { passive: false });
+
         canvas.addEventListener('pointerdown', function (e) {
-            handlePointerInput(e.clientX, e.clientY);
+            if (e.pointerType !== 'touch') {
+                handlePointerInput(e.clientX, e.clientY);
+            }
         });
+
         canvas.addEventListener('pointermove', function (e) {
-            if (e.buttons > 0 || e.pointerType === 'touch') {
+            if (e.pointerType !== 'touch' && e.buttons > 0) {
                 handlePointerInput(e.clientX, e.clientY);
             }
         });
     }
 
-    // ── Main Render Loop ──
+    // ── Main Render Loop (ไม่เรียก requestAnimationFrame ในตัว) ──
     function render() {
         if (!ctx || !canvas) return;
         ctx.clearRect(0, 0, W, H);
 
-        // 1. วาด HUD Overlay บรรยากาศไฮเทค
+        // 1. วาด HUD Overlay ตารางไซเบอร์แล็บ
         drawSciLabBackgroundGrid();
 
         // 2. วาดตามแต่ละ Stage
@@ -683,7 +733,7 @@
                 continue;
             }
             ctx.save();
-            ctx.globalAlpha = pt.alpha;
+            ctx.globalAlpha = Math.max(0, pt.alpha);
             ctx.fillStyle = pt.color;
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
@@ -701,7 +751,7 @@
                 continue;
             }
             ctx.save();
-            ctx.globalAlpha = Math.min(1.0, ft.life * 1.5);
+            ctx.globalAlpha = Math.min(1.0, Math.max(0, ft.life * 1.5));
             ctx.font = 'bold 20px Sarabun, sans-serif';
             ctx.fillStyle = ft.color;
             ctx.shadowColor = 'rgba(0,0,0,0.8)';
@@ -710,8 +760,6 @@
             ctx.fillText(ft.text, ft.x, ft.y);
             ctx.restore();
         }
-
-        ST.rafId = requestAnimationFrame(render);
     }
 
     function drawSciLabBackgroundGrid() {
@@ -735,7 +783,6 @@
     }
 
     function renderStage1() {
-        // วาดไอเท็มสสารที่กำลังตกลงมา
         for (var i = 0; i < ST.stage1Items.length; i++) {
             var it = ST.stage1Items[i];
             var px = it.x * W;
@@ -772,14 +819,9 @@
             ctx.restore();
         }
 
-        // วาดบีกเกอร์ทดลอง (Beaker)
-        var beakerW = W * CFG.STAGE1.BEAKER_WIDTH_RATIO;
-        var beakerH = beakerW * 0.75;
-        var beakerX = ST.beakerX * W - beakerW / 2;
-        var beakerY = H - beakerH - 24;
-
+        // วาดบีกเกอร์แก้วทดลอง
+        var b = getBeakerRect();
         ctx.save();
-        // บีกเกอร์แก้ว
         ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 3;
@@ -787,27 +829,26 @@
         ctx.shadowBlur = 12;
 
         ctx.beginPath();
-        ctx.moveTo(beakerX, beakerY);
-        ctx.lineTo(beakerX + 10, beakerY + beakerH);
-        ctx.lineTo(beakerX + beakerW - 10, beakerY + beakerH);
-        ctx.lineTo(beakerX + beakerW, beakerY);
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(b.x + 10, b.y + b.h);
+        ctx.lineTo(b.x + b.w - 10, b.y + b.h);
+        ctx.lineTo(b.x + b.w, b.y);
         ctx.stroke();
         ctx.fill();
 
         // ของเหลวเรืองแสงในบีกเกอร์
         ctx.fillStyle = 'rgba(6, 182, 212, 0.6)';
         ctx.beginPath();
-        ctx.moveTo(beakerX + 5, beakerY + beakerH * 0.4);
-        ctx.lineTo(beakerX + 10, beakerY + beakerH);
-        ctx.lineTo(beakerX + beakerW - 10, beakerY + beakerH);
-        ctx.lineTo(beakerX + beakerW - 5, beakerY + beakerH * 0.4);
+        ctx.moveTo(b.x + 5, b.y + b.h * 0.4);
+        ctx.lineTo(b.x + 10, b.y + b.h);
+        ctx.lineTo(b.x + b.w - 10, b.y + b.h);
+        ctx.lineTo(b.x + b.w - 5, b.y + b.h * 0.4);
         ctx.fill();
 
-        // ปากบีกเกอร์ & ฉลาก
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px Sarabun, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🧪 BEAKER LAB', beakerX + beakerW / 2, beakerY + beakerH / 2 + 6);
+        ctx.fillText('🧪 BEAKER LAB', b.x + b.w / 2, b.y + b.h / 2 + 6);
         ctx.restore();
     }
 
@@ -825,8 +866,7 @@
             ctx.shadowColor = ctx.strokeStyle;
             ctx.shadowBlur = 16;
 
-            ctx.beginPath();
-            ctx.roundRect(cx - 36, cy - 70, 72, 140, 16);
+            drawRoundedRect(ctx, cx - 36, cy - 70, 72, 140, 16);
             ctx.fill();
             ctx.stroke();
 
@@ -844,28 +884,33 @@
             ctx.restore();
         }
 
-        // วาดลำแสงเลเซอร์
+        // วาดลำแสงเลเซอร์ (Laser Vector Rendering with Beam Tail)
         for (var i = 0; i < ST.lasers.length; i++) {
             var l = ST.lasers[i];
             var lx = l.x * W;
             var ly = l.y * H;
 
+            var vlen = Math.sqrt(l.vx * l.vx + l.vy * l.vy) || 0.001;
+            var dirX = l.vx / vlen;
+            var dirY = l.vy / vlen;
+            var tailLength = Math.max(32, W * 0.045);
+
             ctx.save();
-            ctx.fillStyle = l.color;
+            // หางลำแสงพุ่ง
+            ctx.strokeStyle = l.color;
+            ctx.lineWidth = 5;
             ctx.shadowColor = l.glow;
             ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.moveTo(lx, ly);
+            ctx.lineTo(lx - dirX * tailLength, ly - dirY * tailLength);
+            ctx.stroke();
 
+            // หัวกระสุนเลเซอร์
+            ctx.fillStyle = l.color;
             ctx.beginPath();
             ctx.arc(lx, ly, l.radius, 0, Math.PI * 2);
             ctx.fill();
-
-            // ลำแสงหางเลเซอร์
-            ctx.strokeStyle = l.color;
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(lx, ly);
-            ctx.lineTo(lx - l.vx * 300, ly - l.vy * 300);
-            ctx.stroke();
 
             ctx.font = (l.radius * 0.9) + 'px sans-serif';
             ctx.textAlign = 'center';
@@ -897,7 +942,6 @@
             ctx.fill();
             ctx.stroke();
 
-            // วงแหวนหมุนกระจก
             ctx.beginPath();
             ctx.arc(sx, sy, CFG.STAGE2.SHIELD_RADIUS * 0.65, 0, Math.PI * 2);
             ctx.stroke();
@@ -911,32 +955,34 @@
     }
 
     function renderStage3() {
-        // วาดอุกกาบาตและขยะอวกาศ
         for (var i = 0; i < ST.stage3Targets.length; i++) {
             var t = ST.stage3Targets[i];
             var px = t.x * W;
             var py = t.y * H;
 
+            var vlen = Math.sqrt(t.vx * t.vx + t.vy * t.vy) || 0.001;
+            var dirX = t.vx / vlen;
+            var dirY = t.vy / vlen;
+
             ctx.save();
             ctx.translate(px, py);
             ctx.rotate(t.angle);
 
-            // รัศมีอวกาศเรืองแสง
-            ctx.fillStyle = t.color;
-            ctx.shadowColor = t.color;
-            ctx.shadowBlur = 16;
-
-            ctx.beginPath();
-            ctx.arc(0, 0, t.radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // หางเปลวไฟอวกาศ
+            // เปลวหางอวกาศ
             ctx.strokeStyle = t.color;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(-t.vx * 200, -t.vy * 200);
+            ctx.lineTo(-dirX * 36, -dirY * 36);
             ctx.stroke();
+
+            // ออร่าเรืองแสง
+            ctx.fillStyle = t.color;
+            ctx.shadowColor = t.color;
+            ctx.shadowBlur = 16;
+            ctx.beginPath();
+            ctx.arc(0, 0, t.radius, 0, Math.PI * 2);
+            ctx.fill();
 
             ctx.font = (t.radius * 0.95) + 'px sans-serif';
             ctx.textAlign = 'center';
@@ -969,6 +1015,7 @@
         ST.stage1Items = [];
         ST.lasers = [];
         ST.stage3Targets = [];
+        ST.solarCores.forEach(function (c) { c.energy = 0; });
 
         showScreen('gameScreen');
         briefStage(1);
@@ -977,6 +1024,10 @@
     function briefStage(stageNum) {
         ST.stage = stageNum;
         ST.state = 'stage_brief';
+        ST.stage1Items = [];
+        ST.lasers = [];
+        ST.stage3Targets = [];
+
         var info = DATA.STAGES[stageNum - 1];
 
         var modal = $('stageModal');
@@ -992,6 +1043,7 @@
         if (descEl) descEl.innerText = info.desc;
         if (modal) modal.classList.add('active');
 
+        if (KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
         KAMPAI.sound.speak(info.speech, 'th-TH');
 
         var count = 3;
@@ -1019,7 +1071,6 @@
         clearInterval(ST.spawnTimer);
         clearInterval(ST.clockTimer);
 
-        // กำหนด Spawner ตาม Stage
         if (ST.stage === 1) {
             ST.spawnTimer = setInterval(spawnStage1Item, CFG.STAGE1.SPAWN_INTERVAL_MS);
         } else if (ST.stage === 2) {
@@ -1028,11 +1079,9 @@
             ST.spawnTimer = setInterval(spawnStage3Target, CFG.STAGE3.SPAWN_INTERVAL_MS);
         }
 
-        // จับเวลารอบละ 30 วินาที
         ST.clockTimer = setInterval(function () {
             if (ST.state !== 'playing') return;
 
-            // Stage 1 เปลี่ยน Wave ทุก 10 วินาที
             if (ST.stage === 1) {
                 var waveInterval = Math.floor(CFG.STAGE_DURATION / 3);
                 var newWave = Math.min(2, Math.floor((CFG.STAGE_DURATION - ST.stageTimer) / waveInterval));
@@ -1040,6 +1089,7 @@
                     ST.stage1WaveIdx = newWave;
                     var waveObj = DATA.STAGE1_WAVES[newWave];
                     if (waveObj) {
+                        if (KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
                         KAMPAI.sound.speak(waveObj.speechPrompt, 'th-TH');
                         spawnFloatingText('🎯 ' + waveObj.taskPrompt, W / 2, H / 2 - 40, '#38bdf8');
                     }
@@ -1097,7 +1147,6 @@
 
         showScreen('resultScreen');
 
-        // บันทึกคะแนนผ่าน KAMPAI SDK
         KAMPAI.submitScore(ST.score, {
             mode: (hands && hands.mode === 'camera') ? 'ar_camera' : 'touch_fallback',
             stageScores: ST.stageScores,
@@ -1116,6 +1165,7 @@
         clearInterval(ST.spawnTimer);
         clearInterval(ST.clockTimer);
         clearInterval(ST.briefingTimer);
+        if (KAMPAI.sound.stopSpeak) KAMPAI.sound.stopSpeak();
         var modal = $('stageModal');
         if (modal) modal.classList.remove('active');
     }
@@ -1177,10 +1227,10 @@
         };
     }
 
-    // ── Start Loop ──
+    // ── Unified Smooth Game Loop ──
     var lastTime = performance.now();
     function gameLoop(now) {
-        var dt = (now - lastTime) / 1000;
+        var dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
 
         if (ST.state === 'playing') {
@@ -1190,11 +1240,13 @@
         }
 
         render();
+        ST.rafId = requestAnimationFrame(gameLoop);
     }
     ST.rafId = requestAnimationFrame(gameLoop);
 
     window.addEventListener('beforeunload', function () {
         cleanupAll();
         stopHandTracking();
+        if (ST.rafId) cancelAnimationFrame(ST.rafId);
     });
 })();
