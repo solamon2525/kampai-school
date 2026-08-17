@@ -47,7 +47,7 @@ window.GAME_DATA = {
                 { name: 'แอลกอฮอล์', sub: 'Ethanol', state: 'liquid', icon: '🧴', color: '#67e8f9' },
                 { name: 'น้ำมันพืช', sub: 'Vegetable Oil', state: 'liquid', icon: '🫒', color: '#facc15' },
                 { name: 'น้ำผึ้ง', sub: 'Honey', state: 'liquid', icon: '🍯', color: '#eab308' },
-                { name: 'ก้อนน้ำแข็ง', sub: 'Solid Ice', state: 'solid', icon: '🧊', color: '#a5f3fc' },
+                { name: 'ก้อนน้ำแข็ง', sub: 'Ice', state: 'solid', icon: '🧊', color: '#a5f3fc' },
                 { name: 'ก้อนหิน', sub: 'Stone', state: 'solid', icon: '🪨', color: '#94a3b8' },
                 { name: 'แก๊สออกซิเจน', sub: 'Oxygen', state: 'gas', icon: '💨', color: '#a7f3d0' },
                 { name: 'สารเคมีมีพิษ', sub: 'Toxic Waste', state: 'hazard', icon: '☣️', color: '#ef4444', isHazard: true }
@@ -68,7 +68,7 @@ window.GAME_DATA = {
                 { name: 'ถ่านหิน', sub: 'Coal', state: 'solid', icon: '🪨', color: '#64748b' },
                 { name: 'น้ำส้มคั้น', sub: 'Orange Juice', state: 'liquid', icon: '🧃', color: '#fb923c' },
                 { name: 'น้ำมันพืช', sub: 'Cooking Oil', state: 'liquid', icon: '🫒', color: '#facc15' },
-                { name: 'แก๊สฮีเลียม', sub: 'Helium Gas', state: 'gas', icon: '🎈', color: '#f43f5e' },
+                { name: 'แก๊สฮีเลียม', sub: 'Helium (He)', state: 'gas', icon: '🎈', color: '#f43f5e' },
                 { name: 'กรดเข้มข้นอันตราย', sub: 'Danger Acid', state: 'hazard', icon: '🧪', color: '#dc2626', isHazard: true }
             ]
         },
@@ -80,12 +80,12 @@ window.GAME_DATA = {
             speechPrompt: 'ภารกิจที่สาม เปลี่ยนเป็นเก็บเฉพาะแก๊ส',
             items: [
                 { name: 'แก๊สออกซิเจน', sub: 'Oxygen (O₂)', state: 'gas', icon: '💨', color: '#34d399' },
-                { name: 'คาร์บอนไดออกไซด์', sub: 'CO₂ Gas', state: 'gas', icon: '🌫️', color: '#a3e635' },
+                { name: 'คาร์บอนไดออกไซด์', sub: 'CO₂', state: 'gas', icon: '🌫️', color: '#a3e635' },
                 { name: 'ไอน้ำเดือด', sub: 'Water Vapor', state: 'gas', icon: '♨️', color: '#e2e8f0' },
                 { name: 'แก๊สฮีเลียม', sub: 'Helium (He)', state: 'gas', icon: '🎈', color: '#ec4899' },
                 { name: 'แก๊สไนโตรเจน', sub: 'Nitrogen (N₂)', state: 'gas', icon: '🌬️', color: '#60a5fa' },
-                { name: 'ก้อนหินแร่', sub: 'Rock Solid', state: 'solid', icon: '🪨', color: '#94a3b8' },
-                { name: 'น้ำดื่มบริสุทธิ์', sub: 'Liquid Water', state: 'liquid', icon: '💧', color: '#38bdf8' },
+                { name: 'ก้อนหินแร่', sub: 'Mineral Rock', state: 'solid', icon: '🪨', color: '#94a3b8' },
+                { name: 'น้ำดื่มบริสุทธิ์', sub: 'Drinking Water', state: 'liquid', icon: '💧', color: '#38bdf8' },
                 { name: 'กากกัมมันตรังสี', sub: 'Radioactive', state: 'hazard', icon: '☣️', color: '#ef4444', isHazard: true }
             ]
         }

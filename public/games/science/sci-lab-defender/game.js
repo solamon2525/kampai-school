@@ -817,12 +817,6 @@
             ctx.shadowBlur = 4;
             ctx.fillText(it.name, 0, it.radius + 14);
 
-            // ป้ายบอกสถานะสสารเพื่อช่วยในการจำแนก
-            ctx.font = 'bold 10px Sarabun, sans-serif';
-            ctx.fillStyle = it.isHazard ? '#f87171' : '#bae6fd';
-            var stateLabel = it.isHazard ? '☣️ อันตราย' : (it.state === 'solid' ? '🧊 ของแข็ง' : (it.state === 'liquid' ? '💧 ของเหลว' : '💨 แก๊ส'));
-            ctx.fillText(stateLabel, 0, it.radius + 27);
-
             ctx.restore();
         }
 
