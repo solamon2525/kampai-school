@@ -38,6 +38,8 @@ interface Props {
     isFavorite?: (id: string) => boolean;
     onToggleFavorite?: (id: string) => void;
     editable?: boolean;
+    /** Category order is managed by the dedicated category-order dialog. */
+    categoryDraggable?: boolean;
     pairedByItemId?: Map<string, PairedHubLink | null>;
 }
 
@@ -72,6 +74,7 @@ export const GamesCategorySection = ({
     isFavorite,
     onToggleFavorite,
     editable = false,
+    categoryDraggable = false,
     pairedByItemId,
 }: Props) => {
     const { toast } = useToast();
@@ -92,7 +95,7 @@ export const GamesCategorySection = ({
 
     const sectionSortable = useSortable({
         id: category.id,
-        disabled: !editable,
+        disabled: !categoryDraggable,
     });
 
     const sectionStyle: React.CSSProperties = {
@@ -192,7 +195,7 @@ export const GamesCategorySection = ({
             className={cn('scroll-mt-24 space-y-4', sectionSortable.isDragging && 'opacity-50')}
         >
             <header className="flex items-center gap-3">
-                {editable && (
+                {categoryDraggable && (
                     <button
                         type="button"
                         {...sectionSortable.attributes}

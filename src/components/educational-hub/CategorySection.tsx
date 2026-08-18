@@ -44,6 +44,8 @@ interface Props {
      * DndContext) and enable item drag-drop inside the section.
      */
     editable?: boolean;
+    /** Category order is managed by the dedicated category-order dialog. */
+    categoryDraggable?: boolean;
     /** Media ↔ worksheet pairs resolved from the teacher catalog */
     pairedByItemId?: Map<string, PairedHubLink | null>;
 }
@@ -80,6 +82,7 @@ export const CategorySection = ({
     onToggleFavorite,
     hideHeader = false,
     editable = false,
+    categoryDraggable = false,
     pairedByItemId,
 }: Props) => {
     const { toast } = useToast();
@@ -111,7 +114,7 @@ export const CategorySection = ({
     // flag noops it for non-admin or favorites section (category null).
     const sectionSortable = useSortable({
         id: category?.id ?? '__noop__',
-        disabled: !editable || !category,
+        disabled: !categoryDraggable || !category,
     });
 
     const sectionStyle: React.CSSProperties = {
@@ -241,7 +244,7 @@ export const CategorySection = ({
         >
             {!hideHeader && category && (
                 <header className="flex items-center gap-3">
-                    {editable && (
+                {categoryDraggable && (
                         <button
                             type="button"
                             {...sectionSortable.attributes}

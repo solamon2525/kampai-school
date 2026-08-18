@@ -2,19 +2,6 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
-import {
-    DndContext,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    closestCenter,
-    type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    SortableContext,
-    arrayMove,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -226,43 +213,37 @@ const EducationalHubTeacher = () => {
     const { isAdmin, isTeacher } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const dndSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-    const [orderedCategories, setOrderedCategories] = useState<EduHubCategory[]>([]);
-
-    // Sync local order with server data (categories from useQuery)
-    useEffect(() => {
-        if (categories) setOrderedCategories(categories);
-    }, [categories]);
-
     const displayedCategoryChoices = useMemo(() => {
-        const displayedCategories = orderedCategories.length > 0 ? orderedCategories : (categories ?? []);
         return packCount > 0
-            ? [LESSON_PACKS_CATEGORY, ...displayedCategories]
-            : displayedCategories;
-    }, [categories, orderedCategories, packCount]);
+            ? [LESSON_PACKS_CATEGORY, ...(categories ?? [])]
+            : (categories ?? []);
+    }, [categories, packCount]);
 
-    const reorderCategories = async (activeId: string, overId: string) => {
-        if (activeId === overId || activeId === LESSON_PACKS_CATEGORY.id || overId === LESSON_PACKS_CATEGORY.id) return;
-        const oldIdx = orderedCategories.findIndex((c) => c.id === activeId);
-        const newIdx = orderedCategories.findIndex((c) => c.id === overId);
-        if (oldIdx < 0 || newIdx < 0) return;
-        const next = arrayMove(orderedCategories, oldIdx, newIdx);
-        setOrderedCategories(next);
+    const saveCategoryOrder = async (next: EduHubCategory[]) => {
         const updates = next.map((c, i) => ({ id: c.id, sort_order: (i + 1) * 10 }));
         const { error } = await educationalHubService.bulkUpdateSortOrderCategories(updates);
         if (error) {
-            setOrderedCategories(categories ?? []);
             toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
-            return;
+            return false;
         }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
+
+        const { data: verifiedCategories, error: verifyError } = await educationalHubService.listCategories();
+        const verifiedIds = (verifiedCategories ?? []).map((category) => category.id);
+        const expectedIds = next.map((category) => category.id);
+        if (verifyError || verifiedIds.join(',') !== expectedIds.join(',')) {
+            toast({
+                title: 'ยังยืนยันลำดับใหม่ไม่ได้',
+                description: verifyError?.message ?? 'ข้อมูลจากเซิร์ฟเวอร์ไม่ตรงกับลำดับที่บันทึก กรุณาลองอีกครั้ง',
+                variant: 'destructive',
+            });
+            await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
+            return false;
+        }
+
+        queryClient.setQueryData(['edu-hub', 'categories'], verifiedCategories);
         await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories', 'admin'] });
         toast({ title: 'บันทึกลำดับใหม่' });
-    };
-
-    const handleCategoryDragEnd = (e: DragEndEvent) => {
-        if (!e.over) return;
-        void reorderCategories(String(e.active.id), String(e.over.id));
+        return true;
     };
 
     const publishedUrlSet = useMemo(() => new Set(publishedUrls), [publishedUrls]);
@@ -465,7 +446,7 @@ const EducationalHubTeacher = () => {
                     activeKey={activeCategoryKey}
                     onSelect={handleCategorySelect}
                     editable={isAdmin}
-                    onReorder={(activeId, overId) => void reorderCategories(activeId, overId)}
+                    onSaveOrder={saveCategoryOrder}
                 />
 
                 {/* พาเนลรายละเอียดของการ์ดนักเรียนใน Hero — แสดงตรงนี้เพื่อไม่ดันความสูง Hero */}
@@ -529,19 +510,9 @@ const EducationalHubTeacher = () => {
 
                             {isAdmin && (
                                 <p className="text-[10px] text-muted-foreground -mb-4 italic">
-                                    💡 โหมด admin: ลาก grip บนหัวหมวดเพื่อจัดลำดับหมวด · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
+                                    💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
                                 </p>
                             )}
-                            <DndContext
-                                sensors={dndSensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleCategoryDragEnd}
-                            >
-                                <SortableContext
-                                    items={orderedCategories.map((c) => c.id)}
-                                    strategy={verticalListSortingStrategy}
-                                    disabled={!isAdmin}
-                                >
                                     <div className="space-y-10">
                                         {visibleCategories.length === 0 && deepLinkCat ? (
                                             <div className="text-center text-muted-foreground py-16 text-sm">
@@ -574,8 +545,6 @@ const EducationalHubTeacher = () => {
                                             ),
                                         )}
                                     </div>
-                                </SortableContext>
-                            </DndContext>
                             {allItems.length < totalItems ? (
                                 <div className="flex justify-center pt-2">
                                     <Button

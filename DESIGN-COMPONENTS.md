@@ -384,8 +384,8 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 
 - `summary` ใช้เฉพาะหน้ารวมคลัง: แถบ compact แสดงจำนวนชุด + ผู้สร้างด้วย `PersonAvatar` และลิงก์ไป `/h/:identifier?cat=lesson-packs`
 - `grid` ใช้ในคลังเจ้าของ: query ตาม `owner_staff_id`, โหลด 24 รายการแรก และ “แสดงเพิ่ม” ทีละ 24
-- `CategoryChipStrip` รับ `activeKey`/`onSelect` แบบ controlled ในหน้าคลังผู้สร้าง; เมื่อ controlled ห้ามใช้ scroll observer เปลี่ยนหมวด
-- แอดมินจัดลำดับชิปหมวดใน `CategoryChipStrip` ได้ด้วย grip drag แนวนอน (`editable` + `onReorder`) และบันทึก `educational_hub_categories.sort_order`; ผู้ใช้ทั่วไปไม่มี drag handle. หมวดสังเคราะห์ `lesson-packs` ปักซ้ายสุดและไม่ร่วม reorder
+- `CategoryChipStrip` เป็นปุ่ม compact แสดงหมวดปัจจุบัน; กดแล้วเปิด dialog เลือกหมวดแบบกริด 1 คอลัมน์บนมือถือ/2 คอลัมน์บนจอใหญ่ โดยรับ `activeKey`/`onSelect` แบบ controlled
+- แอดมินจัดลำดับผ่าน dialog แนวตั้ง (`editable` + `onSaveOrder`) โดยลากขึ้นลงหรือใช้ปุ่มลูกศร แล้วจึงกดบันทึก; ต้องยืนยันจำนวนแถวและลำดับที่อ่านกลับจาก server ก่อนแจ้งสำเร็จ ผู้ใช้ทั่วไปไม่เห็นปุ่มนี้ และหมวดสังเคราะห์ `lesson-packs` ล็อกไว้บนสุดโดยไม่ร่วม update
 - `EduHubItemCard` ไม่สำรองพื้นที่และไม่ query mini leaderboard ต่อการ์ด; ใช้ `GamificationHub` เป็นจุดโหลดอันดับรวม
 - รายการและตัวกรองทั้งหมดต้องมาจาก service แบบ server-filtered/server-ranged ตาม DESIGN.md Rule 14.45
 
