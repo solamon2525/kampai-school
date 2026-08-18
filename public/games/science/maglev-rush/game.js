@@ -1,6 +1,6 @@
 /* game.js — Maglev Rush (รถไฟแม่เหล็ก)
    ลอจิกฟิสิกส์ 2.5D Pseudo-3D Runner มุมมองกว้าง ควบคุมง่าย สบายตา
-   แรงแม่เหล็ก N/S, สารแม่เหล็ก, และระบบ 2 ผู้เล่น (KampaiVersus) */
+   ปรับลดความยากลง 50% — ช้าลง นุ่มนวล ดูดแม่เหล็กอัตโนมัติทั้ง 3 เลน มี 7 ชีวิต และฟื้นฟูเลือดได้ */
 
 (function() {
 'use strict';
@@ -56,14 +56,14 @@ let gameMode = 'adventure'; // 'adventure' | 'versus' | 'time'
 let score = 0;
 let combo = 0;
 let comboTimer = 0;
-let lives = 5;
-let speedKmh = 160;
-let targetSpeedKmh = 160;
-let topSpeedRecord = 160;
+let lives = 7;
+let speedKmh = 100;
+let targetSpeedKmh = 100;
+let topSpeedRecord = 100;
 let itemsCollectedCount = 0;
 let turbosCount = 0;
 let distanceTravelled = 0; // เมตร
-let distanceToStation = 2000;
+let distanceToStation = 1800;
 let currentStationIdx = 0;
 
 // พารามิเตอร์ของรถไฟ Maglev
@@ -85,7 +85,7 @@ const train = {
 let trackEntities = [];
 let particles = [];
 let speedLines = [];
-let nextSpawnZ = 400;
+let nextSpawnZ = 450;
 
 /* ═══ SECTION 4: เชื่อมต่อ KAMPAI VERSUS FRAMEWORK ═══ */
 const vs = window.KampaiVersus.create({
@@ -133,11 +133,11 @@ function togglePole() {
 
 function emergencyBrake() {
     if (!isRunning || isPaused) return;
-    if (speedKmh > (CFG.SPEED_MIN_KMH || 90)) {
-        speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, speedKmh - 45);
-        train.cameraShake = 6;
+    if (speedKmh > (CFG.SPEED_MIN_KMH || 60)) {
+        speedKmh = Math.max(CFG.SPEED_MIN_KMH || 60, speedKmh - 30);
+        train.cameraShake = 4;
         showToast('🛑 เบรกแม่เหล็ก Eddy Current!');
-        spawnSparks(train.currentX, 0, '#38bdf8', 16);
+        spawnSparks(train.currentX, 0, '#38bdf8', 14);
     }
 }
 
@@ -208,20 +208,8 @@ function spawnTrackEntity(zPos) {
     const lane = [-1, 0, 1][Math.floor(currentRng() * 3)];
     const roll = currentRng();
 
-    // 40% ขดลวดแม่เหล็ก N/S บนราง
-    if (roll < 0.40) {
-        const pole = currentRng() > 0.5 ? 'N' : 'S';
-        trackEntities.push({
-            type: 'coil',
-            pole: pole,
-            lane: lane,
-            z: zPos,
-            width: 140,
-            active: true
-        });
-    }
-    // 38% สารแม่เหล็ก (ตะปู, คลิป, นิกเกิล, ลูกปืน ฯลฯ)
-    else if (roll < 0.78) {
+    // 55% สารแม่เหล็ก (ตะปู, คลิป, นิกเกิล, ลูกปืน ฯลฯ) — ดูดเก็บง่าย ได้คะแนน
+    if (roll < 0.55) {
         const itemData = DATA.MAGNETIC_ITEMS[Math.floor(currentRng() * DATA.MAGNETIC_ITEMS.length)];
         trackEntities.push({
             type: 'magnetic_item',
@@ -233,8 +221,20 @@ function spawnTrackEntity(zPos) {
             active: true
         });
     }
-    // 16% สิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (ไม้, พลาสติก, แก้ว ฯลฯ)
-    else if (roll < 0.94) {
+    // 30% ขดลวดแม่เหล็ก N/S บนราง — ช่วยเร่งความเร็ว
+    else if (roll < 0.85) {
+        const pole = currentRng() > 0.5 ? 'N' : 'S';
+        trackEntities.push({
+            type: 'coil',
+            pole: pole,
+            lane: lane,
+            z: zPos,
+            width: 140,
+            active: true
+        });
+    }
+    // 8% สิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (ลดเหลือเพียง 8% เพื่อไม่ให้กวนใจ)
+    else if (roll < 0.93) {
         const obsData = DATA.OBSTACLES[Math.floor(currentRng() * DATA.OBSTACLES.length)];
         trackEntities.push({
             type: 'obstacle',
@@ -246,7 +246,7 @@ function spawnTrackEntity(zPos) {
             active: true
         });
     }
-    // 6% พาวเวอร์อัปพิเศษ (Superconductor หรือ Shield)
+    // 7% พาวเวอร์อัปพิเศษ (Superconductor หรือ Shield)
     else {
         const pwrData = DATA.POWERUPS[Math.floor(currentRng() * DATA.POWERUPS.length)];
         trackEntities.push({
@@ -277,14 +277,14 @@ function startRound(rng, mode) {
     score = 0;
     combo = 0;
     comboTimer = 0;
-    lives = CFG.SOLO_LIVES || 5;
-    speedKmh = CFG.SPEED_CRUISE_KMH || 160;
+    lives = CFG.SOLO_LIVES || 7;
+    speedKmh = CFG.SPEED_CRUISE_KMH || 100;
     targetSpeedKmh = speedKmh;
     topSpeedRecord = speedKmh;
     itemsCollectedCount = 0;
     turbosCount = 0;
     distanceTravelled = 0;
-    distanceToStation = CFG.STATION_INTERVAL_METERS || 2000;
+    distanceToStation = CFG.STATION_INTERVAL_METERS || 1800;
     currentStationIdx = 0;
 
     train.laneIndex = 1;
@@ -302,12 +302,12 @@ function startRound(rng, mode) {
     trackEntities = [];
     particles = [];
     speedLines = [];
-    nextSpawnZ = 450;
+    nextSpawnZ = 500;
 
-    // เตรียมเสาและวัตถุเริ่มต้น เว้นระยะห่างสบายตา
-    const minGap = CFG.SPAWN_GAP_MIN || 320;
-    const maxGap = CFG.SPAWN_GAP_MAX || 480;
-    for (let z = 500; z < (CFG.TRACK_DEPTH || 2200); z += minGap + currentRng() * (maxGap - minGap)) {
+    // เตรียมเสาและวัตถุเริ่มต้น เว้นระยะห่างสบายตามาก
+    const minGap = CFG.SPAWN_GAP_MIN || 550;
+    const maxGap = CFG.SPAWN_GAP_MAX || 850;
+    for (let z = 600; z < (CFG.TRACK_DEPTH || 2400); z += minGap + currentRng() * (maxGap - minGap)) {
         spawnTrackEntity(z);
     }
 
@@ -328,7 +328,7 @@ function startRound(rng, mode) {
         }
     }
 
-    showToast('🚀 ซิ่ง Maglev! สลับขั้วให้ตรงกับรางเพื่อเทอร์โบ');
+    showToast('🚀 ซิ่ง Maglev! สบายๆ ปลอดภัย เพลิดเพลิน');
 }
 window.startRound = startRound;
 
@@ -400,7 +400,7 @@ function triggerStationArrival() {
                 feedBox.className = 'quiz-feedback show good';
                 feedBox.innerHTML = `✅ <strong>ถูกต้อง!</strong> ${opt.explain}<br>+150 คะแนน & ได้รับ HYPER BOOST ⚡`;
                 score += CFG.POINTS_STATION_PERFECT || 150;
-                speedKmh = Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh + 60);
+                speedKmh = Math.min(CFG.SPEED_MAX_KMH || 220, speedKmh + 40);
                 if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
                 vs.report(score, { correct: itemsCollectedCount });
             } else {
@@ -413,7 +413,7 @@ function triggerStationArrival() {
             setTimeout(() => {
                 stModal.classList.add('hidden');
                 isPaused = false;
-                distanceToStation = CFG.STATION_INTERVAL_METERS || 2000;
+                distanceToStation = CFG.STATION_INTERVAL_METERS || 1800;
                 showToast('⚡ ออกจากสถานีด้วยพลังแม่เหล็กเต็มพิกัด!');
             }, 2200);
         };
@@ -431,14 +431,14 @@ let lastTimestamp = performance.now();
 function updateGame(dt) {
     if (!isRunning || isPaused) return;
 
-    // 1. ความเร็วและระยะทาง (ปรับให้คืนตัวนุ่มนวล)
-    const cruise = CFG.SPEED_CRUISE_KMH || 160;
+    // 1. ความเร็วและระยะทาง (นุ่มนวล ไม่กระชาก)
+    const cruise = CFG.SPEED_CRUISE_KMH || 100;
     if (speedKmh > cruise) {
-        speedKmh -= (CFG.CRUISE_RECOVERY_RATE || 0.5) * dt * 60;
+        speedKmh -= (CFG.CRUISE_RECOVERY_RATE || 0.3) * dt * 60;
     } else if (speedKmh < cruise) {
-        speedKmh += (CFG.CRUISE_RECOVERY_RATE || 0.5) * dt * 60;
+        speedKmh += (CFG.CRUISE_RECOVERY_RATE || 0.3) * dt * 60;
     }
-    speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh));
+    speedKmh = Math.max(CFG.SPEED_MIN_KMH || 60, Math.min(CFG.SPEED_MAX_KMH || 220, speedKmh));
 
     if (speedKmh > topSpeedRecord) topSpeedRecord = speedKmh;
 
@@ -450,13 +450,13 @@ function updateGame(dt) {
         triggerStationArrival();
     }
 
-    // 2. ตำแหน่งการเลื่อนเลนของรถไฟ (การตอบสนองไว คมชัด 0.26)
+    // 2. ตำแหน่งการเลื่อนเลนของรถไฟ (การตอบสนองไว คมชัด 0.28)
     const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
     const targetX = (train.laneIndex - 1) * laneWidth;
-    train.currentX += (targetX - train.currentX) * 0.26;
-    train.currentY = Math.sin(performance.now() * 0.005) * 5; // การลอยตัว
+    train.currentX += (targetX - train.currentX) * 0.28;
+    train.currentY = Math.sin(performance.now() * 0.004) * 4; // การลอยตัว
 
-    if (Math.abs(train.tilt) > 0.01) train.tilt *= 0.86;
+    if (Math.abs(train.tilt) > 0.01) train.tilt *= 0.85;
 
     // 3. จัดการเวลาสถานะพิเศษ
     if (train.superconductorSec > 0) {
@@ -464,10 +464,10 @@ function updateGame(dt) {
         spawnSparks(train.currentX, 20, '#06b6d4', 2);
     }
     if (train.invincibleSec > 0) train.invincibleSec -= dt;
-    if (train.cameraShake > 0) train.cameraShake *= 0.86;
+    if (train.cameraShake > 0) train.cameraShake *= 0.85;
 
     // 4. พลังงานแม่เหล็ก
-    train.energy = Math.max(0, train.energy - (CFG.MAGNET_DRAIN_PER_SEC || 1.0) * dt);
+    train.energy = Math.max(0, train.energy - (CFG.MAGNET_DRAIN_PER_SEC || 0.5) * dt);
 
     // 5. คอมโบหมดเวลา
     if (combo > 0) {
@@ -478,51 +478,52 @@ function updateGame(dt) {
         }
     }
 
-    // 6. เลื่อนวัตถุบนรางเข้าหากล้อง (ความเร็วกำลังพอดี มีเวลาอ่านและคิด)
-    const zStep = (speedKmh * (CFG.SPEED_STEP_MULTIPLIER || 1.15)) * dt;
+    // 6. เลื่อนวัตถุบนรางเข้าหากล้อง (ความเร็วสบายๆ มีเวลาคิด 8-10 วิ)
+    const zStep = (speedKmh * (CFG.SPEED_STEP_MULTIPLIER || 0.58)) * dt;
 
     for (let i = trackEntities.length - 1; i >= 0; i--) {
         const ent = trackEntities[i];
         ent.z -= zStep;
 
-        // ฟิสิกส์แรงดูดสารแม่เหล็ก (Magnetic Attraction กว้างข้ามเลน)
+        // ฟิสิกส์แรงดูดซูเปอร์แม่เหล็ก (Super Magnetic Attraction ดูดข้ามเลนง่ายมาก)
         if (ent.active && (ent.type === 'magnetic_item' || (ent.type === 'powerup' && train.superconductorSec > 0))) {
             const entWorldX = ent.worldX || (ent.lane * laneWidth);
             const dx = train.currentX - entWorldX;
             const dz = ent.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
 
-            const attractRange = train.superconductorSec > 0 ? 650 : (CFG.ATTRACT_RADIUS || 360);
+            const attractRange = train.superconductorSec > 0 ? 800 : (CFG.ATTRACT_RADIUS || 550);
 
-            if (dist < attractRange && ent.z < 550) {
-                const pullSpeed = (CFG.ATTRACT_FORCE_SPEED || 22) * (1 - dist / attractRange) * 1.6;
+            if (dist < attractRange && ent.z < 700) {
+                const pullSpeed = (CFG.ATTRACT_FORCE_SPEED || 35) * (1 - dist / attractRange) * 1.8;
                 ent.worldX = (ent.worldX || entWorldX) + (dx > 0 ? pullSpeed : -pullSpeed);
-                ent.worldY = (ent.worldY || 15) + (train.currentY + 15 - ent.worldY) * 0.18;
+                ent.worldY = (ent.worldY || 15) + (train.currentY + 15 - ent.worldY) * 0.22;
             }
         }
 
-        // ตรวจสอบการชนกับหน้ารถไฟ (Z ~= 10 ถึง 75)
-        if (ent.active && ent.z >= -15 && ent.z <= 75) {
+        // ตรวจสอบการชนกับหน้ารถไฟ (Z ~= 0 ถึง 85)
+        if (ent.active && ent.z >= -20 && ent.z <= 85) {
             const entX = ent.worldX !== undefined ? ent.worldX : (ent.lane * laneWidth);
             const laneDiff = Math.abs(train.currentX - entX);
 
-            // วัตถุอยู่ในระยะชนเลน
-            if (laneDiff < 85) {
+            // วัตถุอยู่ในระยะชนเลน (ดูดสารแม่เหล็กได้กว้าง 110px)
+            const hitThreshold = (ent.type === 'magnetic_item' || ent.type === 'powerup') ? 120 : 75;
+            if (laneDiff < hitThreshold) {
                 ent.active = false;
                 handleEntityCollision(ent);
             }
         }
 
         // ลบวัตถุที่ผ่านเลยด้านหลังกล้อง
-        if (ent.z < -90) {
+        if (ent.z < -100) {
             trackEntities.splice(i, 1);
         }
     }
 
-    // สปอว์นวัตถุใหม่ข้างหน้าแบบเว้นระยะห่างสบายตา
-    const minGap = CFG.SPAWN_GAP_MIN || 320;
-    const maxGap = CFG.SPAWN_GAP_MAX || 480;
-    while (nextSpawnZ < (CFG.TRACK_DEPTH || 2200)) {
+    // สปอว์นวัตถุใหม่ข้างหน้าแบบเว้นระยะห่างกว้าง โล่ง
+    const minGap = CFG.SPAWN_GAP_MIN || 550;
+    const maxGap = CFG.SPAWN_GAP_MAX || 850;
+    while (nextSpawnZ < (CFG.TRACK_DEPTH || 2400)) {
         spawnTrackEntity(nextSpawnZ);
         nextSpawnZ += minGap + currentRng() * (maxGap - minGap);
     }
@@ -539,20 +540,20 @@ function handleEntityCollision(ent) {
     if (ent.type === 'coil') {
         if (train.pole === ent.pole) {
             // 🚀 ขั้วตรงกัน (N-N หรือ S-S) = แรงผลักเทอร์โบ!
-            speedKmh = Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh + (CFG.TURBO_BOOST_KMH || 40));
+            speedKmh = Math.min(CFG.SPEED_MAX_KMH || 220, speedKmh + (CFG.TURBO_BOOST_KMH || 30));
             turbosCount++;
             addScore(CFG.POINTS_TURBO_BOOST || 35);
             addCombo();
-            train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_BOOST || 25));
+            train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_BOOST || 30));
             showToast(`🚀 แรงผลักเทอร์โบ! ขั้ว ${train.pole}-${ent.pole} เร่งสปีด!`);
-            spawnSparks(train.currentX, 20, ent.pole === 'N' ? '#ef4444' : '#3b82f6', 22);
+            spawnSparks(train.currentX, 20, ent.pole === 'N' ? '#ef4444' : '#3b82f6', 20);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
         } else {
-            // ⚠️ ขั้วต่างกัน (N-S) = แรงดูดฉุดความเร็ว
-            speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, speedKmh - (CFG.ATTRACT_DRAG_KMH || 15));
-            train.cameraShake = 4;
-            showToast(`⚠️ ขั้วต่างกัน (${train.pole} เจอ ${ent.pole}) ดูดฉุดความเร็ว!`);
-            spawnSparks(train.currentX, 10, '#f97316', 12);
+            // ⚠️ ขั้วต่างกัน (N-S) = แรงดูดฉุดความเร็วเพียงเล็กน้อย
+            speedKmh = Math.max(CFG.SPEED_MIN_KMH || 60, speedKmh - (CFG.ATTRACT_DRAG_KMH || 5));
+            train.cameraShake = 2;
+            showToast(`⚠️ ขั้วต่างกัน (${train.pole} เจอ ${ent.pole})`);
+            spawnSparks(train.currentX, 10, '#f97316', 8);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
         }
     }
@@ -561,9 +562,19 @@ function handleEntityCollision(ent) {
         itemsCollectedCount++;
         addScore(ent.data.points || (CFG.POINTS_MAGNETIC_ITEM || 20));
         addCombo();
-        train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_ITEM || 15));
-        showToast(`🧲 ดูดเก็บ: ${ent.data.name} [${ent.data.element}]`);
-        spawnSparks(train.currentX, 20, '#facc15', 16);
+        train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_ITEM || 20));
+
+        // 💖 ระบบฟื้นฟูเลือด: เก็บครบทุก 6 ชิ้น ฟื้นฟู +1 ชีวิต!
+        const healStep = CFG.HEAL_EVERY_ITEMS || 6;
+        const maxLives = CFG.SOLO_LIVES || 7;
+        if (itemsCollectedCount % healStep === 0 && lives < maxLives) {
+            lives++;
+            showToast(`💖 พลังแม่เหล็กฟื้นฟู +1 ชีวิต (${lives}/${maxLives})!`);
+        } else {
+            showToast(`🧲 ดูดเก็บ: ${ent.data.name} [${ent.data.element}]`);
+        }
+
+        spawnSparks(train.currentX, 20, '#facc15', 14);
         if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
     }
     // 3. ชนสิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (Obstacle)
@@ -571,16 +582,16 @@ function handleEntityCollision(ent) {
         if (train.shield) {
             train.shield = false;
             showToast('🛡️ เกราะสนามแม่เหล็กป้องกันแรงกระแทก!');
-            spawnSparks(train.currentX, 20, '#38bdf8', 22);
+            spawnSparks(train.currentX, 20, '#38bdf8', 20);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
         } else if (train.invincibleSec <= 0) {
             lives--;
-            speedKmh = CFG.SPEED_MIN_KMH || 90;
-            train.invincibleSec = CFG.INVINCIBLE_TIME_SEC || 2.5; // เวลาฟื้นตัวนานขึ้น ไม่โดนซ้ำ
-            train.cameraShake = 10;
+            speedKmh = CFG.SPEED_MIN_KMH || 60;
+            train.invincibleSec = CFG.INVINCIBLE_TIME_SEC || 3.5; // เวลาเป็นอมตะ 3.5 วินาที
+            train.cameraShake = 8;
             combo = 0;
             showToast(`💥 ชน${ent.data.name}! ไม่ใช่สารแม่เหล็ก`);
-            spawnSparks(train.currentX, 20, '#ef4444', 25);
+            spawnSparks(train.currentX, 20, '#ef4444', 20);
             if (window.KAMPAI && window.KAMPAI.sound) {
                 window.KAMPAI.sound.wrong();
                 window.KAMPAI.sound.fxFlash(false);
@@ -600,7 +611,7 @@ function handleEntityCollision(ent) {
             showToast('🛡️ ได้รับเกราะสนามแม่เหล็กสะท้อน!');
         }
         addScore(CFG.POINTS_SUPERCONDUCTOR || 80);
-        spawnSparks(train.currentX, 30, '#06b6d4', 22);
+        spawnSparks(train.currentX, 30, '#06b6d4', 20);
         if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
     }
 
@@ -614,7 +625,7 @@ function addScore(basePts) {
 
 function addCombo() {
     combo++;
-    comboTimer = (CFG.COMBO_TIMEOUT_MS || 3500) / 1000;
+    comboTimer = (CFG.COMBO_TIMEOUT_MS || 4500) / 1000;
 }
 
 /* ═══ SECTION 10: ระบบอนุภาค & กราฟิกเสริม (PARTICLES & FX) ═══ */
@@ -624,9 +635,9 @@ function spawnSparks(worldX, worldY, color, count) {
             x: worldX + (Math.random() - 0.5) * 35,
             y: worldY + (Math.random() - 0.5) * 25,
             z: 20 + Math.random() * 30,
-            vx: (Math.random() - 0.5) * 14,
-            vy: (Math.random() - 0.5) * 14,
-            vz: -Math.random() * 8,
+            vx: (Math.random() - 0.5) * 12,
+            vy: (Math.random() - 0.5) * 12,
+            vz: -Math.random() * 6,
             color: color,
             life: 1.0,
             decay: 0.03 + Math.random() * 0.03,
@@ -645,14 +656,14 @@ function updateParticles(dt) {
         if (p.life <= 0) particles.splice(i, 1);
     }
 
-    // เส้นความเร็ว Speedlines เมื่อเร่งสปีด
-    if (speedKmh > 220 && Math.random() < 0.35) {
+    // เส้นความเร็ว Speedlines
+    if (speedKmh > 150 && Math.random() < 0.3) {
         speedLines.push({
             x: (Math.random() - 0.5) * W * 1.3,
             y: (Math.random() - 0.5) * H * 1.3,
-            len: 40 + Math.random() * 80,
+            len: 30 + Math.random() * 60,
             life: 1.0,
-            decay: 0.07
+            decay: 0.08
         });
     }
     for (let i = speedLines.length - 1; i >= 0; i--) {
@@ -726,7 +737,7 @@ function render() {
 
 function renderMaglevTrack(horizonY) {
     const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
-    const maxZ = CFG.TRACK_DEPTH || 2200;
+    const maxZ = CFG.TRACK_DEPTH || 2400;
 
     // พื้นรางหลัก กว้างใหญ่ครอบคลุมสายตา
     ctx.beginPath();
@@ -936,7 +947,7 @@ function renderTrainPlayer() {
     if (p.scale <= 0) return;
 
     // การกะพริบเมื่ออยู่ในช่วงอมตะหลังชน
-    if (train.invincibleSec > 0 && Math.floor(performance.now() / 100) % 2 === 0) {
+    if (train.invincibleSec > 0 && Math.floor(performance.now() / 120) % 2 === 0) {
         return;
     }
 
@@ -1059,8 +1070,8 @@ function updateHUD() {
 
     // Speedometer Color
     const speedEl = $('speed-val');
-    if (speedKmh > 260) speedEl.style.color = '#ef4444';
-    else if (speedKmh > 190) speedEl.style.color = '#f59e0b';
+    if (speedKmh > 180) speedEl.style.color = '#ef4444';
+    else if (speedKmh > 130) speedEl.style.color = '#f59e0b';
     else speedEl.style.color = '#38bdf8';
 
     // Combo Badge
@@ -1072,8 +1083,8 @@ function updateHUD() {
         cb.style.display = 'none';
     }
 
-    // Lives Hearts (5 ดวง)
-    const maxLives = CFG.SOLO_LIVES || 5;
+    // Lives Hearts (7 ดวง)
+    const maxLives = CFG.SOLO_LIVES || 7;
     const hearts = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, maxLives - lives));
     $('lives-box').textContent = hearts;
 
