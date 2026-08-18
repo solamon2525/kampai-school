@@ -1,0 +1,577 @@
+/* style.css — Maglev Rush (รถไฟแม่เหล็ก)
+   ธีม Futuristic Cyber-Rail & Magnetic Levitation */
+
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&family=Sarabun:wght@400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #060913;
+    font-family: 'Kanit', 'Sarabun', sans-serif;
+    color: #f8fafc;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 30%, #0d1b2a 0%, #050811 100%);
+}
+
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HUD (Heads-Up Display)
+   ═══════════════════════════════════════════════════════════ */
+#hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+#hud.hidden {
+    display: none;
+}
+
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.hud-pill {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 6px 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* คะแนนและคอมโบ */
+#score-box {
+    border-color: rgba(250, 204, 21, 0.4);
+}
+.score-val {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 800;
+    color: #fde047;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+#combo-badge {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.2);
+    border: 1px solid #f97316;
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: none;
+    animation: pulseCombo 0.8s infinite alternate;
+}
+@keyframes pulseCombo {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 12px #ea580c; }
+}
+
+/* มาตรวัดความเร็ว Maglev */
+#speedometer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-color: rgba(56, 189, 248, 0.4);
+}
+.speed-num {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    color: #38bdf8;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.speed-unit {
+    font-size: 11px;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+/* ขั้วแม่เหล็กรถไฟ (N/S) */
+#pole-indicator {
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    pointer-events: auto;
+}
+#pole-indicator.pole-N {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(185, 28, 28, 0.95));
+    border: 2px solid #fca5a5;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    color: #fff;
+}
+#pole-indicator.pole-S {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(29, 78, 216, 0.95));
+    border: 2px solid #93c5fd;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    color: #fff;
+}
+
+/* พลังงาน & ชีวิต */
+.hud-subbar {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+#lives-box {
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+#energy-meter {
+    flex: 1;
+    max-width: 140px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    align-self: center;
+}
+#energy-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    transition: width 0.2s ease;
+}
+
+/* ระยะทางถึงสถานี */
+#station-progress-box {
+    position: absolute;
+    top: 74px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ปุ่มควบคุมหน้าจอสัมผัส (Touch Controls)
+   ═══════════════════════════════════════════════════════════ */
+#touch-controls {
+    display: none;
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: auto;
+    z-index: 15;
+}
+
+.t-btn-group {
+    display: flex;
+    gap: 12px;
+}
+
+.t-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s, background 0.15s, border-color 0.15s;
+    user-select: none;
+}
+.t-btn:active {
+    transform: scale(0.92);
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #38bdf8;
+}
+
+.t-btn-switch {
+    width: 120px;
+    height: 64px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
+    gap: 6px;
+    background: linear-gradient(135deg, #ef4444, #3b82f6);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   หน้าจอหลัก & Modals (Start, Game Over, Station)
+   ═══════════════════════════════════════════════════════════ */
+.screen-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 9, 19, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+.screen-overlay.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: clamp(20px, 4vw, 32px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.15);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+}
+
+h1.game-title {
+    font-size: clamp(28px, 6vw, 40px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #facc15 0%, #f97316 50%, #ef4444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.15;
+}
+
+.game-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* กล่องคำแนะนำวิทยาศาสตร์ */
+.science-tip-box {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 18px;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 13px;
+    color: #e2e8f0;
+    line-height: 1.6;
+}
+.science-tip-box strong {
+    color: #38bdf8;
+}
+
+/* การ์ดสถิติฉัน */
+#my-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.ms-cell {
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 10px;
+}
+.ms-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: #facc15;
+}
+.ms-label {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* ลีดเดอร์บอร์ด */
+.leaderboard-box {
+    background: rgba(2, 6, 23, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 12px 14px;
+    text-align: left;
+}
+.lb-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #facc15;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.leaderboard-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+.leaderboard-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 13px;
+}
+.leaderboard-list li.is-me {
+    background: rgba(56, 189, 248, 0.2);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    font-weight: 700;
+}
+
+/* ปุ่มเมนู */
+.btn-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+@media (min-width: 480px) {
+    .btn-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .btn-row .btn {
+        flex: 1;
+    }
+}
+
+.btn {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 20px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    color: #fff;
+    transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+.btn-versus {
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+.btn-blue {
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Station Checkpoint Quiz Modal (Eddy Current Brake)
+   ═══════════════════════════════════════════════════════════ */
+#station-modal {
+    z-index: 60;
+}
+.station-header {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 18px;
+    padding: 12px;
+}
+.station-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+.station-q {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+.quiz-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 10px 0;
+}
+.quiz-opt-btn {
+    background: rgba(15, 23, 42, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px 16px;
+    color: #f1f5f9;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+.quiz-opt-btn:hover {
+    border-color: #38bdf8;
+    background: rgba(30, 41, 59, 0.95);
+}
+.quiz-opt-btn.correct {
+    background: linear-gradient(135deg, #15803d, #16a34a) !important;
+    border-color: #86efac !important;
+    color: #fff;
+}
+.quiz-opt-btn.wrong {
+    background: linear-gradient(135deg, #b91c1c, #dc2626) !important;
+    border-color: #fca5a5 !important;
+    color: #fff;
+}
+.quiz-feedback {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    display: none;
+    line-height: 1.4;
+    text-align: left;
+}
+.quiz-feedback.show {
+    display: block;
+}
+.quiz-feedback.good {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #86efac;
+}
+.quiz-feedback.bad {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+}
+
+/* Toast Message */
+#toast {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-60px);
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #38bdf8;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 100;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+    opacity: 0;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    white-space: nowrap;
+}
+#toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Game Over Results Screen
+   ═══════════════════════════════════════════════════════════ */
+.final-score-box {
+    margin: 8px 0;
+}
+.final-score-num {
+    font-size: clamp(38px, 8vw, 56px);
+    font-weight: 800;
+    color: #facc15;
+    text-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+    line-height: 1;
+}
+.final-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+}
+.fsg-item {
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 8px 4px;
+}
+.fsg-val {
+    font-size: 17px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+.fsg-lbl {
+    font-size: 11px;
+    color: #94a3b8;
+}

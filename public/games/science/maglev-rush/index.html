@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🧲 Maglev Rush (รถไฟแม่เหล็ก) — วิทยาศาสตร์ ป.1-6</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="hud-top">
+            <div class="hud-pill" id="score-box">
+                <span style="font-size:20px;">⭐</span>
+                <span class="score-val" id="score-val">0</span>
+                <span id="combo-badge">COMBO x1</span>
+            </div>
+
+            <div class="hud-pill" id="speedometer">
+                <div class="speed-num" id="speed-val">220</div>
+                <div class="speed-unit">KM / H</div>
+            </div>
+
+            <div class="hud-pill" id="pole-indicator" onclick="togglePole()">
+                <span id="pole-icon">⚡</span> <span id="pole-text">ขั้ว N</span>
+            </div>
+        </div>
+
+        <!-- Station Progress -->
+        <div id="station-progress-box">
+            <span>🚉 สถานีถัดไป:</span>
+            <span id="station-dist-val" style="font-weight:700; color:#38bdf8;">2,500 m</span>
+        </div>
+
+        <div class="hud-bottom">
+            <div class="hud-subbar">
+                <div class="hud-pill" id="lives-box">❤️❤️❤️</div>
+                <div class="hud-pill" style="flex:1; max-width:200px;">
+                    <span style="font-size:14px;">🧲</span>
+                    <div id="energy-meter"><div id="energy-fill"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Touch Controls (Mobile) -->
+    <div id="touch-controls">
+        <div class="t-btn-group">
+            <button class="t-btn" id="btn-left" aria-label="เลี้ยวซ้าย">◀</button>
+            <button class="t-btn" id="btn-right" aria-label="เลี้ยวขวา">▶</button>
+        </div>
+        <div class="t-btn-group">
+            <button class="t-btn t-btn-switch" id="btn-switch" onclick="togglePole()">
+                <span id="t-pole-label">สลับขั้ว N/S</span>
+            </button>
+            <button class="t-btn" id="btn-brake" aria-label="เบรกแม่เหล็ก" style="background:rgba(239,68,68,0.3); border-color:#ef4444;">🛑</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- ═══ Start Screen ═══ -->
+    <div id="start-screen" class="screen-overlay">
+        <div class="modal-card">
+            <h1 class="game-title">🧲 MAGLEV RUSH</h1>
+            <p class="game-subtitle">ซิ่งรถไฟแม่เหล็กความเร็วสูง 180 - 450 km/h<br>วิทยาศาสตร์กายภาพ (แรงและแม่เหล็ก ว 2.2 ป.1 - ป.6)</p>
+
+            <div class="science-tip-box">
+                <strong>🔬 กฎฟิสิกส์แม่เหล็กที่ต้องจำ:</strong><br>
+                • <strong>ขั้วเหมือนกัน (N-N / S-S) ผลักกัน</strong> ➔ สลับขั้วให้ตรงกับขดลวดบนรางเพื่อ <span style="color:#fde047; font-weight:700;">Turbo Boost! 🚀</span><br>
+                • <strong>ขั้วต่างกัน (N-S) ดึงดูดกัน</strong> ➔ เกิดแรงต้านฉุดความเร็ว<br>
+                • <strong>สารแม่เหล็ก (เหล็ก, นิกเกิล, โคบอลต์)</strong> ➔ รถไฟจะดูดเก็บอัตโนมัติ<br>
+                • <strong>สิ่งกีดขวาง (ไม้, พลาสติก, แก้ว)</strong> ➔ ไม่ใช่สารแม่เหล็ก ต้องเปลี่ยนเลนหลบ!
+            </div>
+
+            <!-- สถิติฉัน -->
+            <div id="my-stats">
+                <div class="ms-cell">
+                    <div class="ms-val" id="ms-best">0</div>
+                    <div class="ms-label">คะแนนสูงสุดของฉัน</div>
+                </div>
+                <div class="ms-cell">
+                    <div class="ms-val" id="ms-plays">0</div>
+                    <div class="ms-label">เล่นไปแล้ว (ครั้ง)</div>
+                </div>
+            </div>
+
+            <!-- ลีดเดอร์บอร์ด -->
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 อันดับคะแนนโรงเรียน</div>
+                <ul id="score-list" class="leaderboard-list">
+                    <li style="color:#94a3b8; justify-content:center;">กำลังโหลดอันดับ...</li>
+                </ul>
+            </div>
+
+            <!-- ปุ่มเริ่มเกม -->
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="startSolo('adventure')">▶ ผจญภัยความเร็วสูง (3 ชีวิต)</button>
+                <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน (Hot-seat / ออนไลน์)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Station Checkpoint Quiz (Eddy Current Brake) ═══ -->
+    <div id="station-modal" class="screen-overlay hidden">
+        <div class="modal-card">
+            <div class="station-header">
+                <div style="font-size:12px; color:#94a3b8;">⚡ EDDY CURRENT BRAKING SYSTEM</div>
+                <div class="station-title" id="st-name">สถานีศูนย์วิทยาศาสตร์เทคโนโลยี</div>
+            </div>
+
+            <div class="station-q" id="st-question">คำถามวิทยาศาสตร์...</div>
+            <div class="quiz-options" id="st-options"></div>
+            <div class="quiz-feedback" id="st-feedback"></div>
+        </div>
+    </div>
+
+    <!-- ═══ Game Over Screen ═══ -->
+    <div id="gameover-screen" class="screen-overlay hidden">
+        <div class="modal-card">
+            <h1 class="game-title" style="font-size:32px;">🏁 จบการเดินทาง!</h1>
+            
+            <div class="final-score-box">
+                <div style="font-size:14px; color:#94a3b8;">คะแนนรวม</div>
+                <div class="final-score-num" id="final-score">0</div>
+            </div>
+
+            <div class="final-stats-grid">
+                <div class="fsg-item">
+                    <div class="fsg-val" id="res-top-speed">0</div>
+                    <div class="fsg-lbl">ความเร็วสูงสุด (km/h)</div>
+                </div>
+                <div class="fsg-item">
+                    <div class="fsg-val" id="res-items-count">0</div>
+                    <div class="fsg-lbl">สารแม่เหล็กที่เก็บได้</div>
+                </div>
+                <div class="fsg-item">
+                    <div class="fsg-val" id="res-turbos-count">0</div>
+                    <div class="fsg-lbl">เทอร์โบแรงผลัก (ครั้ง)</div>
+                </div>
+            </div>
+
+            <div id="kampai-result"></div>
+
+            <!-- ลีดเดอร์บอร์ดท้ายเกม -->
+            <div class="leaderboard-box">
+                <div class="lb-title">🏆 อันดับคะแนนโรงเรียน</div>
+                <ul id="score-list-gameover" class="leaderboard-list">
+                    <li style="color:#94a3b8; justify-content:center;">—</li>
+                </ul>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="restartGame()">🔄 ซิ่งรอบใหม่</button>
+                <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 กลับหน้าศูนย์การเรียนรู้</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Versus Framework (single source) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub */
+window.KAMPAI = window.KAMPAI || {
+    isEmbed: false,
+    ready: true,
+    student: null,
+    stats: null,
+    leaderboard: [],
+    classmates: [],
+    onReady: function(cb) { cb(this); },
+    setSlug: function() { return this; },
+    submitScore: function() { return false; },
+    beginRound: function() { return this; },
+    goHome: function() { location.href = '/h/nattapong'; },
+    controls: { mount: function() { return this; } },
+    sound: {
+        correct: function() {},
+        wrong: function() {},
+        timeUp: function() {},
+        gameOver: function() {},
+        mountToggles: function() {},
+        defaultBgm: function() {},
+        bgmStart: function() {},
+        bgmStop: function() {},
+        unlock: function() {}
+    },
+    online: { available: false }
+};
+</script>
+<script src="/games/kampai-match.js"></script>
+<script>
+window.KampaiMatch = window.KampaiMatch || {
+    create: function() {
+        return {
+            available: false,
+            openMenu: function() { alert('โหมดออนไลน์เปิดเล่นผ่านระบบ Kampai School'); },
+            report: function() {},
+            finish: function() {},
+            leave: function() {}
+        };
+    }
+};
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || {
+    create: function(o) {
+        var m = (window.KampaiMatch && window.KampaiMatch.create) ? window.KampaiMatch.create(o) : null;
+        return {
+            available: false,
+            openMenu: function() { if (m) m.openMenu(); },
+            report: function(s, i) { if (m) m.report(s, i); },
+            finish: function(s, i) { if (m) { m.finish(s, i); return true; } return false; },
+            leave: function() {},
+            mode: null
+        };
+    }
+};
+</script>
+
+<!-- ═══ Game Scripts (config → data → game) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
