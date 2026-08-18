@@ -1,5 +1,6 @@
 /* game.js — Maglev Rush (รถไฟแม่เหล็ก)
-   ลอจิกฟิสิกส์ 2.5D Pseudo-3D Runner, แรงแม่เหล็ก N/S, สารแม่เหล็ก, และระบบ 2 ผู้เล่น (KampaiVersus) */
+   ลอจิกฟิสิกส์ 2.5D Pseudo-3D Runner มุมมองกว้าง ควบคุมง่าย สบายตา
+   แรงแม่เหล็ก N/S, สารแม่เหล็ก, และระบบ 2 ผู้เล่น (KampaiVersus) */
 
 (function() {
 'use strict';
@@ -28,7 +29,7 @@ function resizeCanvas() {
     H = window.innerHeight;
     canvas.width = W;
     canvas.height = H;
-    if (W < 768 && $('touch-controls')) {
+    if (('ontouchstart' in window || navigator.maxTouchPoints > 0 || W < 1024) && $('touch-controls')) {
         $('touch-controls').style.display = 'flex';
     }
 }
@@ -50,20 +51,19 @@ function makeSeededRng(seed) {
 let isRunning = false;
 let isPaused = false;
 let gameMode = 'adventure'; // 'adventure' | 'versus' | 'time'
-let versusTimer = null;
 
 // ข้อมูลผู้เล่นและสถิติ
 let score = 0;
 let combo = 0;
 let comboTimer = 0;
-let lives = 3;
-let speedKmh = 220;
-let targetSpeedKmh = 220;
-let topSpeedRecord = 220;
+let lives = 5;
+let speedKmh = 160;
+let targetSpeedKmh = 160;
+let topSpeedRecord = 160;
 let itemsCollectedCount = 0;
 let turbosCount = 0;
 let distanceTravelled = 0; // เมตร
-let distanceToStation = 2500;
+let distanceToStation = 2000;
 let currentStationIdx = 0;
 
 // พารามิเตอร์ของรถไฟ Maglev
@@ -119,8 +119,8 @@ function moveRight() {
 }
 
 function triggerLaneShift(dir) {
-    train.tilt = dir * 0.18;
-    spawnSparks(train.currentX, 20, train.pole === 'N' ? '#ef4444' : '#3b82f6', 8);
+    train.tilt = dir * 0.16;
+    spawnSparks(train.currentX, 20, train.pole === 'N' ? '#ef4444' : '#3b82f6', 6);
 }
 
 function togglePole() {
@@ -128,16 +128,16 @@ function togglePole() {
     train.pole = (train.pole === 'N') ? 'S' : 'N';
     updatePoleUI();
     showToast(`สลับเป็นขั้ว ${train.pole === 'N' ? 'เหนือ (N 🔴)' : 'ใต้ (S 🔵)'}`);
-    spawnSparks(train.currentX, 10, train.pole === 'N' ? '#ef4444' : '#3b82f6', 15);
+    spawnSparks(train.currentX, 10, train.pole === 'N' ? '#ef4444' : '#3b82f6', 12);
 }
 
 function emergencyBrake() {
     if (!isRunning || isPaused) return;
-    if (speedKmh > 120) {
-        speedKmh = Math.max(100, speedKmh - 60);
-        train.cameraShake = 8;
-        showToast('🛑 เบรกฉุกเฉิน Eddy Current!');
-        spawnSparks(train.currentX, 0, '#38bdf8', 20);
+    if (speedKmh > (CFG.SPEED_MIN_KMH || 90)) {
+        speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, speedKmh - 45);
+        train.cameraShake = 6;
+        showToast('🛑 เบรกแม่เหล็ก Eddy Current!');
+        spawnSparks(train.currentX, 0, '#38bdf8', 16);
     }
 }
 
@@ -193,10 +193,10 @@ canvas.addEventListener('touchend', (e) => {
     if (!isRunning || isPaused || e.changedTouches.length === 0) return;
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0) moveRight();
         else moveLeft();
-    } else if (Math.abs(dy) > 35 && Math.abs(dy) > Math.abs(dx)) {
+    } else if (Math.abs(dy) > 30 && Math.abs(dy) > Math.abs(dx)) {
         if (dy < 0) togglePole();
         else emergencyBrake();
     }
@@ -204,48 +204,49 @@ canvas.addEventListener('touchend', (e) => {
 
 /* ═══ SECTION 6: ระบบสร้างและสุ่มวัตถุบนราง (TRACK GENERATION) ═══ */
 function spawnTrackEntity(zPos) {
+    const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
     const lane = [-1, 0, 1][Math.floor(currentRng() * 3)];
     const roll = currentRng();
 
-    // 35% ขดลวดแม่เหล็ก N/S บนราง
-    if (roll < 0.35) {
+    // 40% ขดลวดแม่เหล็ก N/S บนราง
+    if (roll < 0.40) {
         const pole = currentRng() > 0.5 ? 'N' : 'S';
         trackEntities.push({
             type: 'coil',
             pole: pole,
             lane: lane,
             z: zPos,
-            width: 110,
+            width: 140,
             active: true
         });
     }
-    // 35% สารแม่เหล็ก (ตะปู, คลิป, นิกเกิล, ลูกปืน ฯลฯ)
-    else if (roll < 0.70) {
+    // 38% สารแม่เหล็ก (ตะปู, คลิป, นิกเกิล, ลูกปืน ฯลฯ)
+    else if (roll < 0.78) {
         const itemData = DATA.MAGNETIC_ITEMS[Math.floor(currentRng() * DATA.MAGNETIC_ITEMS.length)];
         trackEntities.push({
             type: 'magnetic_item',
             data: itemData,
             lane: lane,
             z: zPos,
-            worldX: lane * (CFG.LANE_WIDTH_WORLD || 140),
+            worldX: lane * laneWidth,
             worldY: 15,
             active: true
         });
     }
-    // 25% สิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (ไม้, พลาสติก, แก้ว ฯลฯ)
-    else if (roll < 0.95) {
+    // 16% สิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (ไม้, พลาสติก, แก้ว ฯลฯ)
+    else if (roll < 0.94) {
         const obsData = DATA.OBSTACLES[Math.floor(currentRng() * DATA.OBSTACLES.length)];
         trackEntities.push({
             type: 'obstacle',
             data: obsData,
             lane: lane,
             z: zPos,
-            worldX: lane * (CFG.LANE_WIDTH_WORLD || 140),
+            worldX: lane * laneWidth,
             worldY: 0,
             active: true
         });
     }
-    // 5% พาวเวอร์อัปพิเศษ (Superconductor หรือ Shield)
+    // 6% พาวเวอร์อัปพิเศษ (Superconductor หรือ Shield)
     else {
         const pwrData = DATA.POWERUPS[Math.floor(currentRng() * DATA.POWERUPS.length)];
         trackEntities.push({
@@ -253,7 +254,7 @@ function spawnTrackEntity(zPos) {
             data: pwrData,
             lane: lane,
             z: zPos,
-            worldX: lane * (CFG.LANE_WIDTH_WORLD || 140),
+            worldX: lane * laneWidth,
             worldY: 25,
             active: true
         });
@@ -276,14 +277,14 @@ function startRound(rng, mode) {
     score = 0;
     combo = 0;
     comboTimer = 0;
-    lives = CFG.SOLO_LIVES || 3;
-    speedKmh = CFG.SPEED_CRUISE_KMH || 220;
+    lives = CFG.SOLO_LIVES || 5;
+    speedKmh = CFG.SPEED_CRUISE_KMH || 160;
     targetSpeedKmh = speedKmh;
     topSpeedRecord = speedKmh;
     itemsCollectedCount = 0;
     turbosCount = 0;
     distanceTravelled = 0;
-    distanceToStation = CFG.STATION_INTERVAL_METERS || 2500;
+    distanceToStation = CFG.STATION_INTERVAL_METERS || 2000;
     currentStationIdx = 0;
 
     train.laneIndex = 1;
@@ -301,10 +302,12 @@ function startRound(rng, mode) {
     trackEntities = [];
     particles = [];
     speedLines = [];
-    nextSpawnZ = 300;
+    nextSpawnZ = 450;
 
-    // เตรียมเสาและวัตถุเริ่มต้น
-    for (let z = 300; z < (CFG.TRACK_DEPTH || 1800); z += 120) {
+    // เตรียมเสาและวัตถุเริ่มต้น เว้นระยะห่างสบายตา
+    const minGap = CFG.SPAWN_GAP_MIN || 320;
+    const maxGap = CFG.SPAWN_GAP_MAX || 480;
+    for (let z = 500; z < (CFG.TRACK_DEPTH || 2200); z += minGap + currentRng() * (maxGap - minGap)) {
         spawnTrackEntity(z);
     }
 
@@ -397,7 +400,7 @@ function triggerStationArrival() {
                 feedBox.className = 'quiz-feedback show good';
                 feedBox.innerHTML = `✅ <strong>ถูกต้อง!</strong> ${opt.explain}<br>+150 คะแนน & ได้รับ HYPER BOOST ⚡`;
                 score += CFG.POINTS_STATION_PERFECT || 150;
-                speedKmh = Math.min(CFG.SPEED_MAX_KMH || 480, speedKmh + 90);
+                speedKmh = Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh + 60);
                 if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
                 vs.report(score, { correct: itemsCollectedCount });
             } else {
@@ -410,7 +413,7 @@ function triggerStationArrival() {
             setTimeout(() => {
                 stModal.classList.add('hidden');
                 isPaused = false;
-                distanceToStation = CFG.STATION_INTERVAL_METERS || 2500;
+                distanceToStation = CFG.STATION_INTERVAL_METERS || 2000;
                 showToast('⚡ ออกจากสถานีด้วยพลังแม่เหล็กเต็มพิกัด!');
             }, 2200);
         };
@@ -428,13 +431,14 @@ let lastTimestamp = performance.now();
 function updateGame(dt) {
     if (!isRunning || isPaused) return;
 
-    // 1. ความเร็วและระยะทาง
-    if (speedKmh > (CFG.SPEED_CRUISE_KMH || 220)) {
-        speedKmh -= (CFG.CRUISE_RECOVERY_RATE || 0.8) * dt * 60;
-    } else if (speedKmh < (CFG.SPEED_CRUISE_KMH || 220)) {
-        speedKmh += (CFG.CRUISE_RECOVERY_RATE || 0.8) * dt * 60;
+    // 1. ความเร็วและระยะทาง (ปรับให้คืนตัวนุ่มนวล)
+    const cruise = CFG.SPEED_CRUISE_KMH || 160;
+    if (speedKmh > cruise) {
+        speedKmh -= (CFG.CRUISE_RECOVERY_RATE || 0.5) * dt * 60;
+    } else if (speedKmh < cruise) {
+        speedKmh += (CFG.CRUISE_RECOVERY_RATE || 0.5) * dt * 60;
     }
-    speedKmh = Math.max(CFG.SPEED_MIN_KMH || 100, Math.min(CFG.SPEED_MAX_KMH || 480, speedKmh));
+    speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh));
 
     if (speedKmh > topSpeedRecord) topSpeedRecord = speedKmh;
 
@@ -446,13 +450,13 @@ function updateGame(dt) {
         triggerStationArrival();
     }
 
-    // 2. ตำแหน่งการเลื่อนเลนของรถไฟ
-    const laneWidth = CFG.LANE_WIDTH_WORLD || 140;
+    // 2. ตำแหน่งการเลื่อนเลนของรถไฟ (การตอบสนองไว คมชัด 0.26)
+    const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
     const targetX = (train.laneIndex - 1) * laneWidth;
-    train.currentX += (targetX - train.currentX) * 0.18;
-    train.currentY = Math.sin(performance.now() * 0.006) * 6; // การลอยตัว
+    train.currentX += (targetX - train.currentX) * 0.26;
+    train.currentY = Math.sin(performance.now() * 0.005) * 5; // การลอยตัว
 
-    if (Math.abs(train.tilt) > 0.01) train.tilt *= 0.88;
+    if (Math.abs(train.tilt) > 0.01) train.tilt *= 0.86;
 
     // 3. จัดการเวลาสถานะพิเศษ
     if (train.superconductorSec > 0) {
@@ -460,10 +464,10 @@ function updateGame(dt) {
         spawnSparks(train.currentX, 20, '#06b6d4', 2);
     }
     if (train.invincibleSec > 0) train.invincibleSec -= dt;
-    if (train.cameraShake > 0) train.cameraShake *= 0.88;
+    if (train.cameraShake > 0) train.cameraShake *= 0.86;
 
     // 4. พลังงานแม่เหล็ก
-    train.energy = Math.max(0, train.energy - (CFG.MAGNET_DRAIN_PER_SEC || 1.5) * dt);
+    train.energy = Math.max(0, train.energy - (CFG.MAGNET_DRAIN_PER_SEC || 1.0) * dt);
 
     // 5. คอมโบหมดเวลา
     if (combo > 0) {
@@ -474,51 +478,53 @@ function updateGame(dt) {
         }
     }
 
-    // 6. เลื่อนวัตถุบนรางเข้าหากล้อง (Z-axis movement)
-    const zStep = (speedKmh * 2.8) * dt;
+    // 6. เลื่อนวัตถุบนรางเข้าหากล้อง (ความเร็วกำลังพอดี มีเวลาอ่านและคิด)
+    const zStep = (speedKmh * (CFG.SPEED_STEP_MULTIPLIER || 1.15)) * dt;
 
     for (let i = trackEntities.length - 1; i >= 0; i--) {
         const ent = trackEntities[i];
         ent.z -= zStep;
 
-        // ฟิสิกส์แรงดูดสารแม่เหล็ก (Magnetic Attraction)
+        // ฟิสิกส์แรงดูดสารแม่เหล็ก (Magnetic Attraction กว้างข้ามเลน)
         if (ent.active && (ent.type === 'magnetic_item' || (ent.type === 'powerup' && train.superconductorSec > 0))) {
             const entWorldX = ent.worldX || (ent.lane * laneWidth);
             const dx = train.currentX - entWorldX;
             const dz = ent.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
 
-            const attractRange = train.superconductorSec > 0 ? 550 : (CFG.ATTRACT_RADIUS || 240);
+            const attractRange = train.superconductorSec > 0 ? 650 : (CFG.ATTRACT_RADIUS || 360);
 
-            if (dist < attractRange && ent.z < 450) {
-                const pullSpeed = (CFG.ATTRACT_FORCE_SPEED || 18) * (1 - dist / attractRange) * 1.5;
+            if (dist < attractRange && ent.z < 550) {
+                const pullSpeed = (CFG.ATTRACT_FORCE_SPEED || 22) * (1 - dist / attractRange) * 1.6;
                 ent.worldX = (ent.worldX || entWorldX) + (dx > 0 ? pullSpeed : -pullSpeed);
-                ent.worldY = (ent.worldY || 15) + (train.currentY + 15 - ent.worldY) * 0.15;
+                ent.worldY = (ent.worldY || 15) + (train.currentY + 15 - ent.worldY) * 0.18;
             }
         }
 
-        // ตรวจสอบการชนกับหน้ารถไฟ (Z ~= 20 ถึง 60)
-        if (ent.active && ent.z >= -10 && ent.z <= 65) {
+        // ตรวจสอบการชนกับหน้ารถไฟ (Z ~= 10 ถึง 75)
+        if (ent.active && ent.z >= -15 && ent.z <= 75) {
             const entX = ent.worldX !== undefined ? ent.worldX : (ent.lane * laneWidth);
             const laneDiff = Math.abs(train.currentX - entX);
 
             // วัตถุอยู่ในระยะชนเลน
-            if (laneDiff < 75) {
+            if (laneDiff < 85) {
                 ent.active = false;
                 handleEntityCollision(ent);
             }
         }
 
         // ลบวัตถุที่ผ่านเลยด้านหลังกล้อง
-        if (ent.z < -80) {
+        if (ent.z < -90) {
             trackEntities.splice(i, 1);
         }
     }
 
-    // สปอว์นวัตถุใหม่ข้างหน้า
-    while (nextSpawnZ < (CFG.TRACK_DEPTH || 1800)) {
+    // สปอว์นวัตถุใหม่ข้างหน้าแบบเว้นระยะห่างสบายตา
+    const minGap = CFG.SPAWN_GAP_MIN || 320;
+    const maxGap = CFG.SPAWN_GAP_MAX || 480;
+    while (nextSpawnZ < (CFG.TRACK_DEPTH || 2200)) {
         spawnTrackEntity(nextSpawnZ);
-        nextSpawnZ += 110 + currentRng() * 90;
+        nextSpawnZ += minGap + currentRng() * (maxGap - minGap);
     }
     nextSpawnZ -= zStep;
 
@@ -533,20 +539,20 @@ function handleEntityCollision(ent) {
     if (ent.type === 'coil') {
         if (train.pole === ent.pole) {
             // 🚀 ขั้วตรงกัน (N-N หรือ S-S) = แรงผลักเทอร์โบ!
-            speedKmh = Math.min(CFG.SPEED_MAX_KMH || 480, speedKmh + (CFG.TURBO_BOOST_KMH || 55));
+            speedKmh = Math.min(CFG.SPEED_MAX_KMH || 320, speedKmh + (CFG.TURBO_BOOST_KMH || 40));
             turbosCount++;
             addScore(CFG.POINTS_TURBO_BOOST || 35);
             addCombo();
-            train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_BOOST || 20));
-            showToast(`🚀 แรงผลักเทอร์โบ! ขั้ว ${train.pole}-${ent.pole} เร่งความเร็ว!`);
-            spawnSparks(train.currentX, 20, ent.pole === 'N' ? '#ef4444' : '#3b82f6', 25);
+            train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_BOOST || 25));
+            showToast(`🚀 แรงผลักเทอร์โบ! ขั้ว ${train.pole}-${ent.pole} เร่งสปีด!`);
+            spawnSparks(train.currentX, 20, ent.pole === 'N' ? '#ef4444' : '#3b82f6', 22);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
         } else {
             // ⚠️ ขั้วต่างกัน (N-S) = แรงดูดฉุดความเร็ว
-            speedKmh = Math.max(CFG.SPEED_MIN_KMH || 100, speedKmh - (CFG.ATTRACT_DRAG_KMH || 25));
-            train.cameraShake = 5;
+            speedKmh = Math.max(CFG.SPEED_MIN_KMH || 90, speedKmh - (CFG.ATTRACT_DRAG_KMH || 15));
+            train.cameraShake = 4;
             showToast(`⚠️ ขั้วต่างกัน (${train.pole} เจอ ${ent.pole}) ดูดฉุดความเร็ว!`);
-            spawnSparks(train.currentX, 10, '#f97316', 15);
+            spawnSparks(train.currentX, 10, '#f97316', 12);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
         }
     }
@@ -555,9 +561,9 @@ function handleEntityCollision(ent) {
         itemsCollectedCount++;
         addScore(ent.data.points || (CFG.POINTS_MAGNETIC_ITEM || 20));
         addCombo();
-        train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_ITEM || 12));
+        train.energy = Math.min(100, train.energy + (CFG.MAGNET_REFILL_ITEM || 15));
         showToast(`🧲 ดูดเก็บ: ${ent.data.name} [${ent.data.element}]`);
-        spawnSparks(train.currentX, 20, '#facc15', 18);
+        spawnSparks(train.currentX, 20, '#facc15', 16);
         if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
     }
     // 3. ชนสิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (Obstacle)
@@ -565,16 +571,16 @@ function handleEntityCollision(ent) {
         if (train.shield) {
             train.shield = false;
             showToast('🛡️ เกราะสนามแม่เหล็กป้องกันแรงกระแทก!');
-            spawnSparks(train.currentX, 20, '#38bdf8', 25);
+            spawnSparks(train.currentX, 20, '#38bdf8', 22);
             if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
         } else if (train.invincibleSec <= 0) {
             lives--;
-            speedKmh = CFG.SPEED_MIN_KMH || 100;
-            train.invincibleSec = 1.5;
-            train.cameraShake = 14;
+            speedKmh = CFG.SPEED_MIN_KMH || 90;
+            train.invincibleSec = CFG.INVINCIBLE_TIME_SEC || 2.5; // เวลาฟื้นตัวนานขึ้น ไม่โดนซ้ำ
+            train.cameraShake = 10;
             combo = 0;
             showToast(`💥 ชน${ent.data.name}! ไม่ใช่สารแม่เหล็ก`);
-            spawnSparks(train.currentX, 20, '#ef4444', 30);
+            spawnSparks(train.currentX, 20, '#ef4444', 25);
             if (window.KAMPAI && window.KAMPAI.sound) {
                 window.KAMPAI.sound.wrong();
                 window.KAMPAI.sound.fxFlash(false);
@@ -594,7 +600,7 @@ function handleEntityCollision(ent) {
             showToast('🛡️ ได้รับเกราะสนามแม่เหล็กสะท้อน!');
         }
         addScore(CFG.POINTS_SUPERCONDUCTOR || 80);
-        spawnSparks(train.currentX, 30, '#06b6d4', 25);
+        spawnSparks(train.currentX, 30, '#06b6d4', 22);
         if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
     }
 
@@ -608,22 +614,22 @@ function addScore(basePts) {
 
 function addCombo() {
     combo++;
-    comboTimer = (CFG.COMBO_TIMEOUT_MS || 3000) / 1000;
+    comboTimer = (CFG.COMBO_TIMEOUT_MS || 3500) / 1000;
 }
 
 /* ═══ SECTION 10: ระบบอนุภาค & กราฟิกเสริม (PARTICLES & FX) ═══ */
 function spawnSparks(worldX, worldY, color, count) {
     for (let i = 0; i < count; i++) {
         particles.push({
-            x: worldX + (Math.random() - 0.5) * 30,
-            y: worldY + (Math.random() - 0.5) * 20,
+            x: worldX + (Math.random() - 0.5) * 35,
+            y: worldY + (Math.random() - 0.5) * 25,
             z: 20 + Math.random() * 30,
-            vx: (Math.random() - 0.5) * 16,
-            vy: (Math.random() - 0.5) * 16,
-            vz: -Math.random() * 10,
+            vx: (Math.random() - 0.5) * 14,
+            vy: (Math.random() - 0.5) * 14,
+            vz: -Math.random() * 8,
             color: color,
             life: 1.0,
-            decay: 0.03 + Math.random() * 0.04,
+            decay: 0.03 + Math.random() * 0.03,
             size: 3 + Math.random() * 4
         });
     }
@@ -639,14 +645,14 @@ function updateParticles(dt) {
         if (p.life <= 0) particles.splice(i, 1);
     }
 
-    // เส้นความเร็ว Speedlines เมื่อขับเร็วเกิน 300 km/h
-    if (speedKmh > 280 && Math.random() < 0.4) {
+    // เส้นความเร็ว Speedlines เมื่อเร่งสปีด
+    if (speedKmh > 220 && Math.random() < 0.35) {
         speedLines.push({
-            x: (Math.random() - 0.5) * W * 1.2,
-            y: (Math.random() - 0.5) * H * 1.2,
-            len: 40 + Math.random() * 100,
+            x: (Math.random() - 0.5) * W * 1.3,
+            y: (Math.random() - 0.5) * H * 1.3,
+            len: 40 + Math.random() * 80,
             life: 1.0,
-            decay: 0.08
+            decay: 0.07
         });
     }
     for (let i = speedLines.length - 1; i >= 0; i--) {
@@ -656,11 +662,11 @@ function updateParticles(dt) {
     }
 }
 
-/* ═══ SECTION 11: 2.5D PERSPECTIVE RENDERER (CANVAS 60FPS) ═══ */
+/* ═══ SECTION 11: 2.5D PERSPECTIVE RENDERER (CANVAS 60FPS — WIDE VIEW) ═══ */
 function project3D(x, y, z) {
-    const fov = CFG.FOV || 280;
-    const camHeight = CFG.CAMERA_HEIGHT || 170;
-    const tilt = CFG.CAMERA_TILT || 0.12;
+    const fov = CFG.FOV || 360;
+    const camHeight = CFG.CAMERA_HEIGHT || 155;
+    const tilt = CFG.CAMERA_TILT || 0.08;
 
     const scale = fov / (fov + z);
     const projX = W / 2 + x * scale;
@@ -673,7 +679,7 @@ function render() {
 
     // Camera Shake Offset
     let shakeX = 0, shakeY = 0;
-    if (train.cameraShake > 0.5) {
+    if (train.cameraShake > 0.4) {
         shakeX = (Math.random() - 0.5) * train.cameraShake;
         shakeY = (Math.random() - 0.5) * train.cameraShake;
     }
@@ -682,22 +688,25 @@ function render() {
     ctx.translate(shakeX, shakeY);
 
     // 1. วาดท้องฟ้าและแสงขอบฟ้าไซเบอร์ (Cyber Horizon)
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.65);
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.7);
     skyGrad.addColorStop(0, '#040711');
-    skyGrad.addColorStop(0.5, '#0c1b33');
+    skyGrad.addColorStop(0.4, '#0a192f');
+    skyGrad.addColorStop(0.8, '#0f172a');
     skyGrad.addColorStop(1, '#050914');
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // แสงอาทิตย์นีออน / โฮโลแกรมขอบฟ้า
-    const horizonY = H / 2 + (H * (CFG.CAMERA_TILT || 0.12));
-    const sunGrad = ctx.createRadialGradient(W / 2, horizonY - 30, 10, W / 2, horizonY - 30, 260);
-    sunGrad.addColorStop(0, train.pole === 'N' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)');
+    const horizonY = H / 2 + (H * (CFG.CAMERA_TILT || 0.08));
+
+    // ดวงอาทิตย์โฮโลแกรม / แสงเรืองขอบฟ้ากว้าง
+    const sunGrad = ctx.createRadialGradient(W / 2, horizonY - 40, 20, W / 2, horizonY - 40, Math.max(350, W * 0.45));
+    sunGrad.addColorStop(0, train.pole === 'N' ? 'rgba(239, 68, 68, 0.45)' : 'rgba(59, 130, 246, 0.45)');
+    sunGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.15)');
     sunGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = sunGrad;
-    ctx.fillRect(0, horizonY - 260, W, 260);
+    ctx.fillRect(0, horizonY - 350, W, 350);
 
-    // 2. วาดรางแม่เหล็ก 3 เลน (Maglev Guide Rails)
+    // 2. วาดรางแม่เหล็ก 3 เลนแบบเปิดกว้าง (Wide Maglev Guide Rails)
     renderMaglevTrack(horizonY);
 
     // 3. วาดวัตถุบนราง (เรียงจาก Z ไกลมาใกล้)
@@ -716,15 +725,15 @@ function render() {
 }
 
 function renderMaglevTrack(horizonY) {
-    const laneWidth = CFG.LANE_WIDTH_WORLD || 140;
-    const maxZ = CFG.TRACK_DEPTH || 1800;
+    const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
+    const maxZ = CFG.TRACK_DEPTH || 2200;
 
-    // พื้นรางหลัก
+    // พื้นรางหลัก กว้างใหญ่ครอบคลุมสายตา
     ctx.beginPath();
-    const pFarL = project3D(-laneWidth * 1.8, 0, maxZ);
-    const pFarR = project3D(laneWidth * 1.8, 0, maxZ);
-    const pNearR = project3D(laneWidth * 1.8, 0, 0);
-    const pNearL = project3D(-laneWidth * 1.8, 0, 0);
+    const pFarL = project3D(-laneWidth * 2.2, 0, maxZ);
+    const pFarR = project3D(laneWidth * 2.2, 0, maxZ);
+    const pNearR = project3D(laneWidth * 2.4, 0, 0);
+    const pNearL = project3D(-laneWidth * 2.4, 0, 0);
 
     ctx.moveTo(pFarL.x, pFarL.y);
     ctx.lineTo(pFarR.x, pFarR.y);
@@ -733,43 +742,64 @@ function renderMaglevTrack(horizonY) {
     ctx.closePath();
 
     const trackGrad = ctx.createLinearGradient(0, horizonY, 0, H);
-    trackGrad.addColorStop(0, '#0a1128');
+    trackGrad.addColorStop(0, '#0c1a30');
+    trackGrad.addColorStop(0.5, '#071120');
     trackGrad.addColorStop(1, '#020617');
     ctx.fillStyle = trackGrad;
     ctx.fill();
 
-    // เส้นแบ่ง 3 เลนเรืองแสง (Lane Dividers)
-    [-1.5, -0.5, 0.5, 1.5].forEach((pos) => {
+    // ขอบรางแม่เหล็กเรืองแสงซ้าย-ขวา (Glowing Magnetic Side Guides)
+    const pFarGuideL = project3D(-laneWidth * 1.6, 0, maxZ);
+    const pNearGuideL = project3D(-laneWidth * 1.6, 0, 0);
+    const pFarGuideR = project3D(laneWidth * 1.6, 0, maxZ);
+    const pNearGuideR = project3D(laneWidth * 1.6, 0, 0);
+
+    ctx.strokeStyle = train.pole === 'N' ? 'rgba(239, 68, 68, 0.85)' : 'rgba(59, 130, 246, 0.85)';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(pFarGuideL.x, pFarGuideL.y);
+    ctx.lineTo(pNearGuideL.x, pNearGuideL.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(pFarGuideR.x, pFarGuideR.y);
+    ctx.lineTo(pNearGuideR.x, pNearGuideR.y);
+    ctx.stroke();
+
+    // เส้นแบ่ง 3 เลน (Lane Lines)
+    [-0.5, 0.5].forEach((pos) => {
         const p1 = project3D(pos * laneWidth, 0, maxZ);
         const p2 = project3D(pos * laneWidth, 0, 0);
-        ctx.strokeStyle = Math.abs(pos) > 1.0 ? 'rgba(56, 189, 248, 0.8)' : 'rgba(148, 163, 184, 0.3)';
-        ctx.lineWidth = Math.abs(pos) > 1.0 ? 3 : 1.5;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([20, 15]);
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
+        ctx.setLineDash([]);
     });
 
-    // เสาแม่เหล็กรางลอยตัวข้างทาง (Magnetic Guide Pillars)
-    const pillarSpacing = 160;
-    const offsetZ = (distanceTravelled * 4) % pillarSpacing;
+    // เสาแม่เหล็กรางลอยตัวข้างทาง (Magnetic Guide Pylons)
+    const pillarSpacing = 220;
+    const offsetZ = (distanceTravelled * 3.5) % pillarSpacing;
 
     for (let z = pillarSpacing - offsetZ; z < maxZ; z += pillarSpacing) {
-        [-1.85, 1.85].forEach((side) => {
+        [-2.0, 2.0].forEach((side) => {
             const base = project3D(side * laneWidth, 0, z);
-            const top = project3D(side * laneWidth, 50, z);
+            const top = project3D(side * laneWidth, 65, z);
             if (base.scale > 0) {
-                ctx.strokeStyle = train.pole === 'N' ? 'rgba(239, 68, 68, 0.5)' : 'rgba(59, 130, 246, 0.5)';
-                ctx.lineWidth = 4 * base.scale;
+                ctx.strokeStyle = train.pole === 'N' ? 'rgba(239, 68, 68, 0.6)' : 'rgba(59, 130, 246, 0.6)';
+                ctx.lineWidth = 5 * base.scale;
                 ctx.beginPath();
                 ctx.moveTo(base.x, base.y);
                 ctx.lineTo(top.x, top.y);
                 ctx.stroke();
 
-                // หลอดไฟ LED หัวเสา
+                // ไฟ LED นีออนหัวเสา
                 ctx.fillStyle = train.pole === 'N' ? '#f87171' : '#60a5fa';
                 ctx.beginPath();
-                ctx.arc(top.x, top.y, 4 * top.scale, 0, Math.PI * 2);
+                ctx.arc(top.x, top.y, 6 * top.scale, 0, Math.PI * 2);
                 ctx.fill();
             }
         });
@@ -778,7 +808,7 @@ function renderMaglevTrack(horizonY) {
 
 function renderTrackEntity(ent) {
     if (!ent.active || ent.z < 0) return;
-    const laneWidth = CFG.LANE_WIDTH_WORLD || 140;
+    const laneWidth = CFG.LANE_WIDTH_WORLD || 220;
     const worldX = ent.worldX !== undefined ? ent.worldX : (ent.lane * laneWidth);
     const worldY = ent.worldY || 0;
     const p = project3D(worldX, worldY, ent.z);
@@ -793,96 +823,109 @@ function renderTrackEntity(ent) {
     if (ent.type === 'coil') {
         const isN = ent.pole === 'N';
         const color = isN ? '#ef4444' : '#3b82f6';
-        const glow = isN ? 'rgba(239, 68, 68, 0.8)' : 'rgba(59, 130, 246, 0.8)';
+        const glow = isN ? 'rgba(239, 68, 68, 0.9)' : 'rgba(59, 130, 246, 0.9)';
 
-        // ฐานขดลวด
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        // ฐานขดลวดกว้าง ชัดเจน
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         ctx.strokeStyle = color;
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 7;
         ctx.beginPath();
-        ctx.roundRect(-55, -25, 110, 50, 12);
+        ctx.roundRect(-75, -30, 150, 60, 14);
         ctx.fill();
         ctx.stroke();
 
-        // ตัวอักษรขั้ว N / S ขนาดใหญ่
+        // ตัวอักษรขั้ว N / S ขนาดใหญ่ เด่นชัด
         ctx.fillStyle = '#ffffff';
-        ctx.font = '800 36px Kanit, sans-serif';
+        ctx.font = '800 42px Kanit, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = glow;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 18;
         ctx.fillText(ent.pole, 0, 0);
+
+        // ป้ายภาษาไทยกำกับ
+        ctx.font = '700 13px Kanit, sans-serif';
+        ctx.fillText(isN ? 'ขั้วเหนือ' : 'ขั้วใต้', 0, 22);
 
         // วงแหวนสนามแม่เหล็กรอบขดลวด
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.ellipse(0, 0, 70, 32, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 90, 40, 0, 0, Math.PI * 2);
         ctx.stroke();
     }
     // 2. สารแม่เหล็ก (Magnetic Items)
     else if (ent.type === 'magnetic_item') {
-        // วงแหวนสนามแม่เหล็กหมุนรอบ
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.6)';
-        ctx.lineWidth = 3;
+        // วงแหวนสนามแม่เหล็กเรืองแสงสีทอง
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.8)';
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.arc(0, -10, 32, 0, Math.PI * 2);
+        ctx.arc(0, -15, 42, 0, Math.PI * 2);
         ctx.stroke();
 
-        // ไอคอนวัตถุ
-        ctx.font = '40px sans-serif';
+        // ไอคอนสารแม่เหล็กขนาดใหญ่
+        ctx.font = '48px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(ent.data.icon || '🔩', 0, -10);
+        ctx.fillText(ent.data.icon || '🔩', 0, -15);
 
-        // ป้ายชื่อสารและธาตุ
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+        // ป้ายชื่อสารและธาตุตัวใหญ่ ชัดเจน อ่านง่าย
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
         ctx.beginPath();
-        ctx.roundRect(-60, 24, 120, 22, 6);
+        ctx.roundRect(-75, 28, 150, 26, 8);
         ctx.fill();
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
         ctx.fillStyle = '#fde047';
-        ctx.font = '600 12px Kanit, sans-serif';
-        ctx.fillText(ent.data.element || ent.data.name, 0, 35);
+        ctx.font = '700 13px Kanit, sans-serif';
+        ctx.fillText(ent.data.element || ent.data.name, 0, 41);
     }
     // 3. สิ่งกีดขวางที่ไม่ใช่สารแม่เหล็ก (Obstacles)
     else if (ent.type === 'obstacle') {
-        // กรอบเตือนภัยอันตราย
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+        // กรอบเตือนภัยอันตรายสีแดง
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
         ctx.strokeStyle = '#ef4444';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.roundRect(-36, -46, 72, 72, 14);
+        ctx.roundRect(-45, -55, 90, 90, 16);
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = '42px sans-serif';
+        // ไอคอนเตือน ⚠️ ด้านบน เพื่อให้เห็นแต่ไกล
+        ctx.font = '24px sans-serif';
         ctx.textAlign = 'center';
+        ctx.fillText('⚠️', 0, -68);
+
+        // ไอคอนสิ่งกีดขวาง
+        ctx.font = '50px sans-serif';
         ctx.textBaseline = 'middle';
         ctx.fillText(ent.data.icon || '🪵', 0, -10);
 
         // ป้ายเตือนว่าไม่ใช่สารแม่เหล็ก
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.95)';
         ctx.beginPath();
-        ctx.roundRect(-55, 30, 110, 20, 6);
+        ctx.roundRect(-68, 36, 136, 24, 8);
         ctx.fill();
         ctx.fillStyle = '#ffffff';
-        ctx.font = '700 11px Kanit, sans-serif';
-        ctx.fillText('ไม่ใช่แม่เหล็ก!', 0, 40);
+        ctx.font = '700 12px Kanit, sans-serif';
+        ctx.fillText('ไม่ใช่แม่เหล็ก!', 0, 48);
     }
     // 4. พาวเวอร์อัปพิเศษ (Powerups)
     else if (ent.type === 'powerup') {
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.3)';
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.35)';
         ctx.strokeStyle = '#06b6d4';
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.arc(0, -10, 36, 0, Math.PI * 2);
+        ctx.arc(0, -15, 45, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.font = '40px sans-serif';
+        ctx.font = '48px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(ent.data.icon || '⚡', 0, -10);
+        ctx.fillText(ent.data.icon || '⚡', 0, -15);
     }
 
     ctx.restore();
@@ -892,85 +935,90 @@ function renderTrainPlayer() {
     const p = project3D(train.currentX, train.currentY, 30);
     if (p.scale <= 0) return;
 
+    // การกะพริบเมื่ออยู่ในช่วงอมตะหลังชน
+    if (train.invincibleSec > 0 && Math.floor(performance.now() / 100) % 2 === 0) {
+        return;
+    }
+
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(train.tilt);
 
     const isN = train.pole === 'N';
     const mainColor = isN ? '#ef4444' : '#3b82f6';
-    const glowColor = isN ? 'rgba(239, 68, 68, 0.6)' : 'rgba(59, 130, 246, 0.6)';
+    const glowColor = isN ? 'rgba(239, 68, 68, 0.7)' : 'rgba(59, 130, 246, 0.7)';
 
-    // 1. แสงเรืองลอยตัวแม่เหล็กใต้ท้องรถ (Levitation Glow)
-    const levGrad = ctx.createRadialGradient(0, 20, 5, 0, 20, 90);
+    // 1. แสงเรืองลอยตัวแม่เหล็กใต้ท้องรถ (Levitation Glow Cushion)
+    const levGrad = ctx.createRadialGradient(0, 25, 10, 0, 25, 120);
     levGrad.addColorStop(0, glowColor);
     levGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = levGrad;
     ctx.beginPath();
-    ctx.ellipse(0, 25, 80, 24, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 30, 110, 30, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. ตัวถังรถไฟ Maglev ทรงหัวกระสุนแอโรไดนามิก
+    // 2. ตัวถังรถไฟ Maglev ขนาดใหญ่ เด่น ชัดเจน
     ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 24;
 
-    // หลังคารถไฟ
-    const bodyGrad = ctx.createLinearGradient(-45, -60, 45, 20);
-    bodyGrad.addColorStop(0, '#f8fafc');
-    bodyGrad.addColorStop(0.5, '#cbd5e1');
+    // หลังคารถไฟทรงหัวกระสุน
+    const bodyGrad = ctx.createLinearGradient(-60, -80, 60, 25);
+    bodyGrad.addColorStop(0, '#ffffff');
+    bodyGrad.addColorStop(0.4, '#e2e8f0');
     bodyGrad.addColorStop(1, '#64748b');
 
     ctx.fillStyle = bodyGrad;
     ctx.beginPath();
-    ctx.moveTo(0, -65);           // หัวรถกระสุนแหลม
-    ctx.bezierCurveTo(35, -50, 48, -10, 46, 18);
-    ctx.lineTo(-46, 18);
-    ctx.bezierCurveTo(-48, -10, -35, -50, 0, -65);
+    ctx.moveTo(0, -85);           // หัวรถกระสุนแหลม
+    ctx.bezierCurveTo(45, -65, 62, -15, 60, 24);
+    ctx.lineTo(-60, 24);
+    ctx.bezierCurveTo(-62, -15, -45, -65, 0, -85);
     ctx.closePath();
     ctx.fill();
 
-    // ขอบข้าง & ลายสนามแม่เหล็กขั้ว N/S
+    // ขอบข้าง & แถบสีประจำขั้วแม่เหล็ก N/S
     ctx.fillStyle = mainColor;
     ctx.beginPath();
-    ctx.moveTo(0, -60);
-    ctx.lineTo(24, 18);
-    ctx.lineTo(-24, 18);
+    ctx.moveTo(0, -78);
+    ctx.lineTo(30, 24);
+    ctx.lineTo(-30, 24);
     ctx.closePath();
     ctx.fill();
 
-    // กระจกหน้าห้องควบคุม (Cockpit Windshield)
-    const glassGrad = ctx.createLinearGradient(0, -45, 0, -10);
+    // กระจกหน้าห้องคนขับ (Cockpit Windshield)
+    const glassGrad = ctx.createLinearGradient(0, -60, 0, -15);
     glassGrad.addColorStop(0, '#0284c7');
     glassGrad.addColorStop(1, '#0f172a');
     ctx.fillStyle = glassGrad;
     ctx.beginPath();
-    ctx.moveTo(0, -48);
-    ctx.lineTo(20, -15);
-    ctx.lineTo(-20, -15);
+    ctx.moveTo(0, -62);
+    ctx.lineTo(26, -20);
+    ctx.lineTo(-26, -20);
     ctx.closePath();
     ctx.fill();
 
-    // สัญลักษณ์ขั้วแม่เหล็ก N / S เรืองแสงบนหัวรถ
+    // สัญลักษณ์ขั้วแม่เหล็ก N / S เรืองแสงบนตัวรถ
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 20px Kanit, sans-serif';
+    ctx.font = '800 26px Kanit, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(train.pole, 0, -2);
 
-    // 3. เอฟเฟกต์เกราะป้องกัน (ถ้ามี)
+    // 3. เอฟเฟกต์เกราะสนามแม่เหล็ก (ถ้ามี)
     if (train.shield) {
         ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.arc(0, -15, 65, 0, Math.PI * 2);
+        ctx.arc(0, -20, 80, 0, Math.PI * 2);
         ctx.stroke();
     }
 
     // 4. เอฟเฟกต์ซูเปอร์คอนดักเตอร์
     if (train.superconductorSec > 0) {
-        ctx.strokeStyle = 'rgba(6, 182, 212, 0.8)';
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.9)';
+        ctx.lineWidth = 5;
         ctx.beginPath();
-        ctx.arc(0, -15, 75 + Math.sin(performance.now() * 0.02) * 8, 0, Math.PI * 2);
+        ctx.arc(0, -20, 95 + Math.sin(performance.now() * 0.02) * 10, 0, Math.PI * 2);
         ctx.stroke();
     }
 
@@ -995,7 +1043,7 @@ function renderParticlesAndLines() {
     for (const sl of speedLines) {
         const cx = W / 2 + sl.x;
         const cy = H / 2 + sl.y;
-        ctx.strokeStyle = `rgba(255, 255, 255, ${sl.life * 0.4})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${sl.life * 0.35})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -1011,8 +1059,8 @@ function updateHUD() {
 
     // Speedometer Color
     const speedEl = $('speed-val');
-    if (speedKmh > 350) speedEl.style.color = '#ef4444';
-    else if (speedKmh > 260) speedEl.style.color = '#f59e0b';
+    if (speedKmh > 260) speedEl.style.color = '#ef4444';
+    else if (speedKmh > 190) speedEl.style.color = '#f59e0b';
     else speedEl.style.color = '#38bdf8';
 
     // Combo Badge
@@ -1024,8 +1072,9 @@ function updateHUD() {
         cb.style.display = 'none';
     }
 
-    // Lives Hearts
-    const hearts = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, 3 - lives));
+    // Lives Hearts (5 ดวง)
+    const maxLives = CFG.SOLO_LIVES || 5;
+    const hearts = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, maxLives - lives));
     $('lives-box').textContent = hearts;
 
     // Energy Bar
