@@ -85,6 +85,18 @@ For a new worksheet:
 
 For any feature or meaningful UX change, update `WORKSHEET.md` when the contract changes and add the newest entry to `src/components/admin/system/SystemOverview.tsx`. Follow `AGENTS.md` documentation discipline and keep documentation atomic with implementation.
 
+## Continuous rule improvement
+
+When worksheet implementation or verification reveals a new issue that is likely to recur across worksheets, do not leave the lesson only in the current file:
+
+1. distinguish a reusable rule from a one-off implementation detail;
+2. collect concrete evidence from the failure, browser check, learner-writing constraint, or validator result;
+3. propose the rule to the user with its purpose, scope, suggested wording, and expected verification before changing an authoritative rule document;
+4. after approval, add the smallest general rule to this skill and/or `WORKSHEET.md`, plus a reusable verifier check when it can be tested deterministically;
+5. report where the rule was recorded and which future worksheets it affects.
+
+Do not silently turn a single observation into a repository-wide mandate. Urgent correctness or safety fixes may be implemented within the approved task, but the broader permanent rule must still be surfaced explicitly to the user.
+
 ## Verification loop
 
 Do not certify from static inspection or `file://`.

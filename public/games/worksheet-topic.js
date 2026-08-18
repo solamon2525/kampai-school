@@ -224,7 +224,16 @@
     const controls = readControls();
     const fullPool = config.getItems('mixed');
     const selectedPool = config.getItems(controls.topic);
-    const pagesItems = selectAllPageItems(fullPool, selectedPool, controls.count, controls.pageCount);
+    const pagesItems = typeof config.selectAllPageItems === 'function'
+      ? config.selectAllPageItems({
+          fullPool: [...fullPool],
+          selectedPool: [...selectedPool],
+          count: controls.count,
+          pageCount: controls.pageCount,
+          shuffle,
+          nextRandom,
+        })
+      : selectAllPageItems(fullPool, selectedPool, controls.count, controls.pageCount);
 
     let html = controls.style === 'booklet' ? renderCover(controls.schoolName, controls.teacherName) : '';
     for (let page = 0; page < controls.pageCount; page += 1) {
