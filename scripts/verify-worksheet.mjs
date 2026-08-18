@@ -171,12 +171,12 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="8"'].every((token) => source.includes(token))
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="6"', 'function getWorksheetCount()', 'count-6', 'count-8'].every((token) => source.includes(token))
                 && !/class=["'][^"']*div-box/.test(source)
                 && !/<span class=["']ta["']>เฉลย/.test(source)
                 && !source.includes('ld-step')
                 && !source.includes('ld-phase'),
-            'โจทย์หารต้องมี 8 ข้อ ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
+            'โจทย์หารต้องปรับ 6/8 ข้อตามจำนวนหลัก ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
         );
     }
     if (relative.endsWith('/multiplication-worksheet.html')) {

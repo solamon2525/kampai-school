@@ -42,7 +42,9 @@
     .qr-img{width:22mm;height:22mm;border:1px solid #047857;border-radius:4px;padding:1px;background:#fff}
     .qr-label{font-size:6.5pt;font-weight:700;color:#047857;margin-top:1px;line-height:1.1}
 
-    .questions,.questions.count-8,.questions.count-8.worksheet-mode-five{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3mm;flex:1;min-height:0}
+    .questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;flex:1;min-height:0}
+    .questions.count-8,.questions.count-8.worksheet-mode-five{grid-template-rows:repeat(4,minmax(0,1fr))}
+    .questions.count-6,.questions.count-6.worksheet-mode-five{grid-template-rows:repeat(3,minmax(0,1fr))}
     
     .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1mm 1.5mm;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:.5mm;position:relative;break-inside:avoid;min-height:0}
     .q-board{flex:1;display:flex;align-items:flex-start;justify-content:flex-start;width:100%;min-height:0;padding-left:10mm;overflow:hidden}
@@ -145,7 +147,8 @@
         <option value="6">ตัวตั้ง: 6 หลัก (100,000–999,999)</option>
         <option value="mix_3_6">ตัวตั้ง: 3–6 หลัก (ไม่เกิน 6 หลัก ผสม)</option>
       </select>
-      <select id="selCount" data-fixed-count="8" aria-label="จำนวนข้อต่อหน้า" hidden>
+      <select id="selCount" data-fixed-count="6" aria-label="จำนวนข้อต่อหน้า" hidden>
+        <option value="6">6 ข้อ/หน้า</option>
         <option value="8" selected>8 ข้อ/หน้า</option>
       </select>
       <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
@@ -273,17 +276,17 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
     cellWidth = '13.5mm';
   }
 
-  let rowHeight = '5.0mm';
+  let rowHeight = '7.2mm';
   if (dividendDigits.length >= 6) {
-    rowHeight = workSteps.length >= 5 ? '3.4mm' : '3.8mm';
+    rowHeight = workSteps.length >= 5 ? '4.6mm' : '5.2mm';
   } else if (dividendDigits.length >= 5) {
-    rowHeight = workSteps.length >= 4 ? '3.8mm' : '4.2mm';
+    rowHeight = workSteps.length >= 4 ? '5.2mm' : '5.8mm';
   } else if (dividendDigits.length >= 4) {
-    rowHeight = workSteps.length >= 3 ? '4.4mm' : '4.8mm';
+    rowHeight = workSteps.length >= 3 ? '6.0mm' : '6.6mm';
   } else if (workSteps.length >= 3) {
-    rowHeight = '4.6mm';
-  } else {
-    rowHeight = '5.4mm';
+    rowHeight = '5.6mm';
+  } else if (workSteps.length >= 2) {
+    rowHeight = '6.3mm';
   }
   const divisorWidth = String(divisor).length >= 2 ? '14mm' : '9mm';
   
@@ -336,6 +339,25 @@ function syncDigitSelectors(fromGradeChange=false){
   selDvd.style.display = isCustom ? 'inline-block' : 'none';
 }
 
+function getWorksheetCount(){
+  const grade = document.getElementById('selGrade')?.value || '5';
+  const dividendDigits = document.getElementById('selDividendDigits')?.value || '4';
+  if(grade === '4' || grade === '5_2d3d') return 8;
+  if(grade === 'custom') return dividendDigits === '2' || dividendDigits === '3' ? 8 : 6;
+  if(grade.startsWith('6') && grade !== '6_long_div') return 8;
+  return 6;
+}
+
+function syncWorksheetCount(){
+  const count = getWorksheetCount();
+  const select = document.getElementById('selCount');
+  if(select){
+    select.value = String(count);
+    select.dataset.fixedCount = String(count);
+  }
+  return count;
+}
+
 function currentConfig(){
   return{
     style:document.getElementById('selStyle')?.value||'standard',
@@ -343,7 +365,7 @@ function currentConfig(){
     grade:document.getElementById('selGrade')?.value||'5',
     divisorDigits:document.getElementById('selDivisorDigits')?.value||'2',
     dividendDigits:document.getElementById('selDividendDigits')?.value||'4',
-    count:8,
+    count:getWorksheetCount(),
     schoolName:document.getElementById('inpSchool')?.value||'',
     teacherName:document.getElementById('selTeacher')?.value||'',
     useMode:document.getElementById('selUseMode')?.value||'standard',
@@ -356,11 +378,11 @@ function applyConfig(cfg){
   if(cfg.grade!=null&&document.getElementById('selGrade'))document.getElementById('selGrade').value=String(cfg.grade);
   if(cfg.divisorDigits!=null&&document.getElementById('selDivisorDigits'))document.getElementById('selDivisorDigits').value=String(cfg.divisorDigits);
   if(cfg.dividendDigits!=null&&document.getElementById('selDividendDigits'))document.getElementById('selDividendDigits').value=String(cfg.dividendDigits);
-  if(document.getElementById('selCount'))document.getElementById('selCount').value='8';
   if(cfg.schoolName!=null&&document.getElementById('inpSchool'))document.getElementById('inpSchool').value=String(cfg.schoolName);
   if(cfg.teacherName!=null&&document.getElementById('selTeacher'))document.getElementById('selTeacher').value=String(cfg.teacherName);
   if(cfg.useMode!=null&&document.getElementById('selUseMode'))document.getElementById('selUseMode').value=String(cfg.useMode);
   syncDigitSelectors(false);
+  syncWorksheetCount();
 }
 
 function getQuestions(){return Array.from(document.querySelectorAll('#pages .q'))}
@@ -426,14 +448,14 @@ function renderSingleSheet(pageIdx, totalPages, style, count, grade, schoolName,
     +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
     +'<div class="student"><div class="student-name"><span class="lbl">ชื่อ–นามสกุล</span><span class="blank"></span></div><div class="student-no"><span class="lbl">เลขที่</span><span class="blank"></span></div></div>'
     +'<div class="directions"><span>คำชี้แจง: ตั้งหารให้ตรงหลัก เขียนผลคูณใต้จำนวนที่หาร ขีดเส้น ลบ แล้วดึงเลขหลักถัดไปลงมา</span><span class="indicator">'+indicatorLabel+'</span></div>'
-    +'</header><div class="questions count-8">'+qs+'</div>'+renderParentSlip(teacherName)
+    +'</header><div class="questions count-'+count+'">'+qs+'</div>'+renderParentSlip(teacherName)
     +'<footer class="sheet-foot"><span>หน้า '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">ครูผู้สอน: ${teacherName}</span>`:'')+'</footer></section>';
 }
 
 function render(){
   ensureRng();
   const style = document.getElementById('selStyle').value;
-  const count = 8;
+  const count = syncWorksheetCount();
   const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
   const grade = document.getElementById('selGrade').value;
   const schoolName = document.getElementById('inpSchool').value.trim();
