@@ -47,12 +47,12 @@
     .questions.count-6,.questions.count-6.worksheet-mode-five{grid-template-rows:repeat(3,minmax(0,1fr))}
     
     .q{border:1.4px solid #a7f3d0;border-radius:2.5mm;padding:1mm 1.5mm;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:.5mm;position:relative;break-inside:avoid;min-height:0}
-    .q-board{flex:1;display:flex;align-items:flex-start;justify-content:flex-start;width:100%;min-height:0;padding-left:10mm;overflow:hidden}
+    .q-board{flex:1;display:flex;align-items:stretch;justify-content:flex-start;width:100%;min-height:0;padding-left:10mm;overflow:hidden}
     .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#047857;color:#fff;font-weight:800;font-size:9pt}
     .q-rating{position:absolute;right:2mm;top:1.5mm;font-size:7pt;color:#64748b;font-weight:700}
     
     /* Long-division writing scaffold */
-    .long-division{--ld-cell:16mm;--ld-divisor-width:9mm;--ld-row:5.5mm;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:flex-start;min-height:0;flex:1}
+    .long-division{--ld-cell:16mm;--ld-divisor-width:9mm;--ld-row-min:5.5mm;--work-rows:2;display:flex;flex-direction:column;align-items:flex-start;color:#065f46;font-weight:800;justify-content:flex-start;min-height:0;height:100%;flex:1}
     .ld-quotient{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));margin-left:var(--ld-divisor-width);margin-bottom:.8mm;position:relative}
     .ld-quotient::before{content:'ผลหาร';position:absolute;right:calc(100% + 2mm);bottom:1mm;font-size:6.5pt;color:#64748b;white-space:nowrap}
     .ld-quotient-cell{height:7.5mm;border-bottom:1px dashed #047857;display:grid;place-items:center;position:relative}
@@ -62,8 +62,8 @@
     .ld-dividend{display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));border-top:2px solid #047857;border-left:2px solid #047857;border-top-left-radius:4px}
     .ld-digit{height:9mm;display:grid;place-items:center;border-right:1px dashed #a7f3d0;font-size:14pt}
     .ld-digit:last-child{border-right:0}
-    .ld-work{display:flex;flex-direction:column;width:calc(var(--digits) * var(--ld-cell));margin-left:var(--ld-divisor-width);justify-content:flex-start;flex:0 1 auto;min-height:12mm}
-    .ld-calc-row{height:var(--ld-row);display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));position:relative}
+    .ld-work{display:grid;grid-template-rows:repeat(var(--work-rows),minmax(var(--ld-row-min),1fr));width:calc(var(--digits) * var(--ld-cell));margin-left:var(--ld-divisor-width);flex:1 1 auto;min-height:0}
+    .ld-calc-row{min-height:var(--ld-row-min);display:grid;grid-template-columns:repeat(var(--digits),var(--ld-cell));position:relative}
     .ld-placed{display:grid;grid-template-columns:repeat(var(--span),var(--ld-cell));align-items:end;height:100%;position:relative}
     .ld-product{border-bottom:1.4px solid #334155}
     .ld-product::before{content:'−';position:absolute;right:100%;bottom:-.5mm;color:#334155;font-size:11pt;font-weight:800}
@@ -276,22 +276,22 @@ function question(qi, grade, divOpt, dvdOpt, showRating=false){
     cellWidth = '13.5mm';
   }
 
-  let rowHeight = '7.2mm';
+  let rowMinHeight = '6.4mm';
   if (dividendDigits.length >= 6) {
-    rowHeight = workSteps.length >= 5 ? '4.6mm' : '5.2mm';
+    rowMinHeight = workSteps.length >= 5 ? '4.6mm' : '5.0mm';
   } else if (dividendDigits.length >= 5) {
-    rowHeight = workSteps.length >= 4 ? '5.2mm' : '5.8mm';
+    rowMinHeight = workSteps.length >= 4 ? '5.0mm' : '5.4mm';
   } else if (dividendDigits.length >= 4) {
-    rowHeight = workSteps.length >= 3 ? '6.0mm' : '6.6mm';
+    rowMinHeight = workSteps.length >= 3 ? '5.2mm' : '5.8mm';
   } else if (workSteps.length >= 3) {
-    rowHeight = '5.6mm';
+    rowMinHeight = '5.2mm';
   } else if (workSteps.length >= 2) {
-    rowHeight = '6.3mm';
+    rowMinHeight = '5.8mm';
   }
   const divisorWidth = String(divisor).length >= 2 ? '14mm' : '9mm';
   
   return '<article class="q"><span class="q-num">'+qi+'</span>'+ratingHtml
-    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-cell:'+cellWidth+';--ld-row:'+rowHeight+';--ld-divisor-width:'+divisorWidth+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
+    +'<div class="q-board"><div class="long-division" style="--digits:'+dividendDigits.length+';--ld-cell:'+cellWidth+';--ld-row-min:'+rowMinHeight+';--work-rows:'+(workSteps.length*2)+';--ld-divisor-width:'+divisorWidth+'" aria-label="ตั้งหารยาว '+dividend+' หารด้วย '+divisor+'">'
     +'<div class="ld-quotient">'+quotientCells+'</div>'
     +'<div class="ld-main"><span class="ld-divisor">'+divisor+'</span><div class="ld-dividend">'+dividendCells+'</div></div>'
     +'<div class="ld-work">'+workRows+'</div></div></div>'

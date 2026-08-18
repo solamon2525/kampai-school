@@ -171,7 +171,7 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="6"', 'function getWorksheetCount()', 'count-6', 'count-8'].every((token) => source.includes(token))
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="6"', 'function getWorksheetCount()', 'count-6', 'count-8', '--work-rows', 'grid-template-rows:repeat(var(--work-rows)'].every((token) => source.includes(token))
                 && !/class=["'][^"']*div-box/.test(source)
                 && !/<span class=["']ta["']>เฉลย/.test(source)
                 && !source.includes('ld-step')
