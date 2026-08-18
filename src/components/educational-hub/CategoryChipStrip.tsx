@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import * as Icons from 'lucide-react';
-import { ArrowDown, ArrowUp, Check, ChevronDown, GripVertical, ListOrdered, Lock } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ChevronDown, GripVertical, ListOrdered } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -61,18 +61,15 @@ export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect, edi
     const [draftCategories, setDraftCategories] = useState<EduHubCategory[]>([]);
     const [saving, setSaving] = useState(false);
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-    const lessonPacks = categories.find((category) => category.category_key === 'lesson-packs') ?? null;
-    const sortableCategories = useMemo(() => categories.filter((category) => category.category_key !== 'lesson-packs'), [categories]);
     const activeCategory = categories.find((category) => category.category_key === activeKey) ?? categories[0];
 
     useEffect(() => {
-        if (orderOpen) setDraftCategories(sortableCategories);
-    }, [orderOpen, sortableCategories]);
+        if (orderOpen) setDraftCategories(categories);
+    }, [categories, orderOpen]);
 
     if (categories.length === 0 || !activeCategory) return null;
 
     const ActiveIcon = categoryIcon(activeCategory);
-    const offset = lessonPacks ? 1 : 0;
     const moveDraft = (from: number, to: number) => {
         if (to < 0 || to >= draftCategories.length) return;
         setDraftCategories((current) => arrayMove(current, from, to));
@@ -136,19 +133,12 @@ export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect, edi
                 <DialogContent className="max-w-lg">
                     <DialogHeader><DialogTitle>จัดลำดับหมวด</DialogTitle><DialogDescription>ลากขึ้นลงหรือใช้ปุ่มลูกศร แล้วกดบันทึกเมื่อเรียบร้อย</DialogDescription></DialogHeader>
                     <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
-                        {lessonPacks && (
-                            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-2">
-                                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">1</span>
-                                <Lock className="h-4 w-4 text-muted-foreground" /><span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{lessonPacks.name}</span>
-                                <span className="text-xs text-muted-foreground">ล็อกไว้ด้านบน</span>
-                            </div>
-                        )}
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                             <SortableContext items={draftCategories.map((category) => category.id)} strategy={verticalListSortingStrategy}>
                                 <div className="space-y-2">
                                     {draftCategories.map((category, index) => (
                                         <SortableCategoryRow key={category.id} category={category} index={index}
-                                            displayIndex={index + offset} total={draftCategories.length}
+                                            displayIndex={index} total={draftCategories.length}
                                             onMove={moveDraft} />
                                     ))}
                                 </div>

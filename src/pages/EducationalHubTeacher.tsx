@@ -37,19 +37,6 @@ import { useAuth } from '@/contexts/AuthProvider';
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PAGE_SIZE = 24;
-const LESSON_PACKS_CATEGORY: EduHubCategory = {
-    id: 'lesson-packs',
-    category_key: 'lesson-packs',
-    name: 'ชุดเรียนพร้อมสอน',
-    description: 'สื่อ ใบงาน และเกมที่จัดเป็นชุดพร้อมใช้ในชั้นเรียน',
-    icon_name: 'Package',
-    color_class: 'text-primary',
-    sort_order: -1,
-    is_active: true,
-    created_at: '',
-    updated_at: '',
-};
-
 const EducationalHubTeacher = () => {
     const navigate = useNavigate();
     const { session, staffId: signedInStaffId } = useAuth();
@@ -127,12 +114,7 @@ const EducationalHubTeacher = () => {
         staleTime: 5 * 60 * 1000,
     });
 
-    const categoryChoices = useMemo(
-        () => packCount > 0
-            ? [LESSON_PACKS_CATEGORY, ...(categories ?? [])]
-            : (categories ?? []),
-        [categories, packCount],
-    );
+    const categoryChoices = categories ?? [];
 
     const activeCategoryKey = useMemo(() => {
         if (deepLinkCat && categoryChoices.some((category) => category.category_key === deepLinkCat)) {
@@ -166,7 +148,7 @@ const EducationalHubTeacher = () => {
             'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, visibleLimit,
             deferredSearch, filter.subjects, filter.grades, filter.tags, filter.types, sort,
         ],
-        enabled: !!resolvedStaffId && !!activeCategory && !loadingPackCount,
+        enabled: !!resolvedStaffId && !!activeCategory && activeCategory.category_key !== 'lesson-packs' && !loadingPackCount,
         queryFn: async () => {
             const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
                 categoryId: activeCategory!.id,
@@ -194,10 +176,12 @@ const EducationalHubTeacher = () => {
         staleTime: 5 * 60 * 1000,
     });
 
-    const categoryCounts = useMemo(
-        () => ({ ...(teacher?.counts_by_category ?? {}), 'lesson-packs': packCount }),
-        [packCount, teacher?.counts_by_category],
-    );
+    const categoryCounts = useMemo(() => {
+        const counts = { ...(teacher?.counts_by_category ?? {}) };
+        const lessonPacksCategory = (categories ?? []).find((category) => category.category_key === 'lesson-packs');
+        if (lessonPacksCategory) counts[lessonPacksCategory.id] = packCount;
+        return counts;
+    }, [categories, packCount, teacher?.counts_by_category]);
 
     const handleCategorySelect = (categoryKey: string) => {
         const next = new URLSearchParams(searchParams);
@@ -213,11 +197,7 @@ const EducationalHubTeacher = () => {
     const { isAdmin, isTeacher } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const displayedCategoryChoices = useMemo(() => {
-        return packCount > 0
-            ? [LESSON_PACKS_CATEGORY, ...(categories ?? [])]
-            : (categories ?? []);
-    }, [categories, packCount]);
+    const displayedCategoryChoices = categories ?? [];
 
     const saveCategoryOrder = async (next: EduHubCategory[]) => {
         const updates = next.map((c, i) => ({ id: c.id, sort_order: (i + 1) * 10 }));

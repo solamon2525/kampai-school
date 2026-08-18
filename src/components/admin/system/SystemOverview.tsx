@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.220.9 (Educational Hub — ชุดเรียนพร้อมสอนเป็นหมวดปกติ)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ย้ายชุดเรียนพร้อมสอนจากหมวดสังเคราะห์ที่ล็อกไว้บนสุดเป็นแถวจริงใน educational_hub_categories ผ่าน migration 464',
+            'แอดมินลากหรือกดลูกศรย้ายชุดเรียนพร้อมสอนไปตำแหน่งใดก็ได้ และบันทึก sort_order ร่วมกับหมวดอื่นแบบเดียวกัน',
+            'คงการโหลดเนื้อหาชุดเรียนจาก lessonPacksService และผูกจำนวนรายการเข้ากับ id ของหมวดจริง โดยไม่ query รายการ Educational Hub ซ้ำ',
+        ],
+    },
+    {
         version: 'v1.220.9 (ใบงานเกม 24 — สุ่มหลากหลายและหารลงตัว)',
         date: '18 ส.ค. 2569',
         badge: 'bg-emerald-600',
