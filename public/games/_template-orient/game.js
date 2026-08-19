@@ -140,6 +140,8 @@ function endGame() {
 function startGame() {
   if (started || !KampaiOrient.canStart()) return;
   started = true;
+  isGameOver = false;
+  KAMPAI.beginRound();
   KampaiOrient.notifyGameStart();
   KampaiOrient.setPlaying(true);
   KAMPAI.sound.unlock();
@@ -148,6 +150,16 @@ function startGame() {
   document.getElementById('hud-center').textContent = KampaiOrient.isLandscape() ? 'แนวนอน' : 'แนวตั้ง';
   basketX = cw / 2;
   requestAnimationFrame(loop);
+}
+
+function restartGame() {
+  started = false;
+  isGameOver = false;
+  stars = [];
+  setScore(0);
+  setLives(CFG.LIVES);
+  document.getElementById('gameover-screen').style.display = 'none';
+  startGame();
 }
 
 function loop(ts) {

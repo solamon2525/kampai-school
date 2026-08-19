@@ -67,3 +67,7 @@ h1.title { font-family: 'Fredoka One', cursive; font-size: 34px; color: #fbbf24;
 #loading.on { display: flex; }
 .narrow-hint { display: none; }
 @media (max-width: 560px) { .narrow-hint { display: block; } }
+button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Kampai Game Dev"
+  short_description: "Build modern kampai-school games with quality gates"
+  default_prompt: "Use $kampai-game-dev to design, scaffold, implement, document, and verify a kampai-school game through the static and browser release gates."
+policy:
+  allow_implicit_invocation: true

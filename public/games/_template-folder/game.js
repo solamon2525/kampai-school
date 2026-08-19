@@ -45,10 +45,10 @@ KAMPAI.onReady(function () { renderPlayer(); renderMyStats(); renderLeaderboard(
 KAMPAI.controls.mount({ dpad: true, buttons: [] });   // D-pad มือถือ + ลูกศร/AD เดสก์ท็อป
 KAMPAI.sound.mountToggles();                            // ปุ่ม 🔊/🗣️/🎵
 
-/* ═══ โหมดออนไลน์ (kampai-match) — เปิด/ปิดที่ config.ENABLE_ONLINE ═══ */
-let match = null;
-if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-    match = KampaiMatch.create({
+/* ═══ โหมดแข่งขัน (KampaiVersus: เดี่ยว + local hot-seat + online) ═══ */
+let vs = null;
+if (CFG.ENABLE_ONLINE && window.KampaiVersus) {
+    vs = KampaiVersus.create({
         duration: CFG.ONLINE_DURATION,
         title: 'แข่งเก็บดาว',
         onPlay: function () { startGame('online'); },          // GO! (ใช้ rng ถ้าโจทย์ต้องตรงทุกเครื่อง)
@@ -56,7 +56,7 @@ if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
     });
     document.getElementById('online-btn').style.display = '';
 }
-function openOnline() { if (match) match.openMenu(); }
+function openOnline() { if (vs) vs.openMenu(); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    GAME LOGIC (เขียนเกมของคุณตรงนี้ — ตัวอย่าง: ตะกร้ารับดาว)
@@ -137,13 +137,14 @@ function onCatch(it) {
     scorePop(x, y, '+' + gain, it.kind === 'bonus' ? '#22d3ee' : '#FFD700');
     KAMPAI.sound.correct(); KAMPAI.sound.fxFlash(true);
     basketPop = 1.25;
-    if (mode === 'online' && match) match.report(score, { correct: caught });
+    if (mode === 'online' && vs) vs.report(score, { correct: caught });
 }
 
 let basketPop = 1;
 function startGame(m) {
     if (started && m !== 'online' && mode !== 'online') return;
     mode = m || 'adventure';
+    KAMPAI.beginRound();
     started = true; isGameOver = false;
     score = 0; lives = CFG.LIVES; level = 1; combo = 0; caught = 0; items = []; basketX = cw / 2; dragX = null;
     spawnTs = 0; levelTs = performance.now(); timeLeft = CFG.TIME_SECONDS;
@@ -166,6 +167,20 @@ function startGame(m) {
     }
     KAMPAI.sound.unlock(); KAMPAI.sound.bgmStart();
     requestAnimationFrame(loop);
+}
+
+function cleanupRound() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    isGameOver = true;
+    dragX = null;
+    KAMPAI.sound.bgmStop();
+}
+
+function restartGame() {
+    cleanupRound();
+    started = false;
+    $('gameover-screen').style.display = 'none';
+    startGame(mode === 'time' ? 'time' : 'adventure');
 }
 
 function tickTimer() {
@@ -205,11 +220,12 @@ function loop(ts) {
     requestAnimationFrame(loop);
 }
 
-// ⚠️ ต้องเรียก KAMPAI.submitScore() ตอนจบ (ออฟไลน์). ออนไลน์ kampai-match submit ให้เอง
+// ⚠️ เดี่ยวต้อง submitScore ตอนจบ; KampaiVersus จัดการผลของ local/online ให้เอง
 function endGame() {
     if (isGameOver) return;
     isGameOver = true;
     if (timerId) { clearInterval(timerId); timerId = null; }
+    if (vs && vs.finish(score, { correct: caught })) return;
     KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
     const stars = CFG.STAR_THRESHOLDS.filter((t) => score >= t).length;
     KAMPAI.submitScore(score, { mode: 'normal', stars, caught, level });

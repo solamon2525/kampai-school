@@ -23,7 +23,7 @@
             🎥 ขยับตัวไปยัง <b>โซน</b> ของคำตอบที่ใช่ แล้ว <b>ค้างไว้</b> จนแถบเต็ม<br>
             📱 ไม่มีกล้อง? <b>แตะโซน</b> คำตอบได้เลย
         </div>
-        <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+        <button class="btn" id="startBtn" data-kampai-action="start">▶️ เริ่มเล่น</button>
         <div class="lb-box" id="lbBox" style="display:none">
             <h3>🏆 อันดับ</h3>
             <ul class="lb-list" id="lbList"></ul>
@@ -70,9 +70,11 @@
         <h1 class="title">จบเกม!</h1>
         <div id="final-score">0</div>
         <div id="final-detail"></div>
+        <div id="kampai-result"></div>
         <div class="row">
-            <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn" id="restartBtn" data-kampai-action="restart">🔄 เล่นอีกครั้ง</button>
             <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+            <button type="button" data-kampai-action="finish-test" hidden>จบเกมสำหรับทดสอบ</button>
         </div>
     </div>
 </div>
@@ -81,9 +83,12 @@
 <script src="config.js"></script>
 <script src="data.js"></script>
 <script src="/games/kampai-sdk.js"></script>
-<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
 <script src="/games/kampai-ar.js"></script>
 <script>window.KampaiAR = window.KampaiAR || { VERSION:'stub', create:function(){ return { start:function(){return Promise.resolve(false);}, stop:function(){}, setActive:function(){}, tap:function(){}, mode:'tap' }; } };</script>
+<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>window.KampaiMatch=window.KampaiMatch||{create:function(){return{openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};}};window.KampaiVersus=window.KampaiVersus||{create:function(o){var m=KampaiMatch.create(o);return{openMenu:function(){m.openMenu();},report:function(s,i){m.report(s,i);},finish:function(s,i){return m.finish(s,i);},leave:function(){m.leave();}};}};</script>
 <script src="game.js"></script>
 </body>
 </html>

@@ -1,0 +1,62 @@
+name: Verify changed games
+
+on:
+  pull_request:
+    paths:
+      - 'public/games/**'
+      - 'scripts/*game*.mjs'
+      - '.agents/skills/kampai-game-dev/**'
+      - 'GAME.md'
+      - 'AR-GAME.md'
+      - 'ORIENT-GAME.md'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/games/**'
+      - 'scripts/*game*.mjs'
+      - '.agents/skills/kampai-game-dev/**'
+      - 'GAME.md'
+
+jobs:
+  verify-games:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:game-tooling
+      - name: Verify changed game files
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          mapfile -t files < <(git diff --name-only "$base" HEAD -- 'public/games/**' | grep -v '/_template' || true)
+          declare -A targets=()
+          for file in "${files[@]}"; do
+            case "$file" in
+              *.html)
+                if [[ "$(basename "$file")" == "index.html" ]]; then targets["$(dirname "$file")"]=1; else targets["$file"]=1; fi
+                ;;
+              public/games/*/*/*) targets["$(dirname "$file")"]=1 ;;
+            esac
+          done
+          for target in "${!targets[@]}"; do pnpm verify:game:all -- "$target"; done
+      - name: Upload game verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-verification
+          path: .artifacts/game-verify
+          if-no-files-found: ignore

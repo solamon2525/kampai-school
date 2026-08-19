@@ -665,3 +665,13 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 2. INSERT badges ลง `game_achievements_catalog` (game_slug ใหม่)
 3. UPDATE `educational_hub_items SET game_slug='...', tracked_game=true WHERE external_url='...'`
 4. ตรวจ `subject` ให้ตรงเนื้อหาจริง (ไม่ใช่ folder)
+
+---
+
+## 19. KAMPAI Game Quality Gate
+
+- เกมใหม่เริ่มจาก `pnpm create:game` และมี lifecycle hooks `data-kampai-action` สำหรับ start, finish-test และ restart
+- ปุ่มในเกมและปุ่มเสียงจาก `/games/kampai-sdk.js` ต้องมี hit target อย่างน้อย 44×44px ทุก pointer mode
+- restart ต้อง cleanup แล้วเริ่มรอบใน iframe เดิม พร้อม `KAMPAI.beginRound()`; ห้าม `location.reload()`
+- ก่อนเผยแพร่ต้องผ่าน `pnpm verify:game:all -- <path>` ซึ่งรวม static strict, JSON report และ Playwright 3 viewport/2 รอบ
+- AR ใช้ mock camera ใน CI แต่ยังบังคับตรวจกล้องจริง, permission denied และ tap fallback ด้วยคน

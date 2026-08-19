@@ -29,7 +29,12 @@ const FAIL = `${RED}❌${RESET}`;
 const WARN = `${YELLOW}⚠️${RESET}`;
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
-const targetArg = process.argv[2];
+const cliArgs = process.argv.slice(2);
+const targetArg = cliArgs.find((arg) => !arg.startsWith('--'));
+const strictMode = cliArgs.includes('--strict');
+const jsonOnly = cliArgs.includes('--json');
+const reportArg = cliArgs.find((arg) => arg.startsWith('--report='));
+const reportPath = resolve(REPO_ROOT, reportArg ? reportArg.slice('--report='.length) : '.artifacts/game-verify/static.json');
 if (!targetArg) {
     console.error(`${FAIL} ${BOLD}Usage:${RESET} pnpm verify:game <path-to-game.html>`);
     console.error(`        เช่น: pnpm verify:game public/games/tech/word-shield.html`);
@@ -70,8 +75,10 @@ const scanSource = collectGameScripts(html, gameDir);
 // เกมที่ใช้ KAMPAI SDK (/games/kampai-sdk.js) — integration อยู่ใน SDK ไม่ใช่ในไฟล์เกม
 const usesSdk = /kampai-sdk\.js/.test(html) || /KAMPAI\s*\.\s*(submitScore|setSlug|onReady|goHome)/.test(scanSource);
 
-console.log(`\n${BOLD}${CYAN}🎮 Verify Game Integration${RESET}`);
-console.log(`${CYAN}File:${RESET} ${targetArg}\n`);
+if (!jsonOnly) {
+    console.log(`\n${BOLD}${CYAN}🎮 Verify Game Integration${RESET}`);
+    console.log(`${CYAN}File:${RESET} ${targetArg}\n`);
+}
 
 const issues = [];
 const warnings = [];
@@ -154,17 +161,19 @@ if (!submitCalled) {
 // ─── Check 6: migration file exists for this slug ───────────────────────────
 const migrationsDir = join(REPO_ROOT, 'supabase', 'migrations');
 let migrationFound = false;
+let migrationPath = null;
 if (detectedSlug && detectedSlug !== 'placeholder-slug' && existsSync(migrationsDir)) {
     const files = readdirSync(migrationsDir);
     const slugNoDash = detectedSlug.replace(/-/g, '_');
     migrationFound = files.some((f) => {
         const lower = f.toLowerCase();
         const filenameMatch = lower.includes(detectedSlug.toLowerCase()) || lower.includes(slugNoDash.toLowerCase());
-        if (filenameMatch) return true;
+        if (filenameMatch) { migrationPath = join(migrationsDir, f); return true; }
         if (f.endsWith('075_track_all_legacy_games.sql')) {
             try {
                 const content = readFileSync(join(migrationsDir, f), 'utf8');
-                return content.includes(detectedSlug);
+                if (content.includes(detectedSlug)) { migrationPath = join(migrationsDir, f); return true; }
+                return false;
             } catch { return false; }
         }
         return false;
@@ -184,6 +193,16 @@ if (!detectedSlug || detectedSlug === 'placeholder-slug') {
     console.log(`${FAIL} Check 6 — migration: ไม่พบ`);
 } else {
     console.log(`${PASS} Check 6 — migration: พบไฟล์ที่อ้างถึง '${detectedSlug}'`);
+    const migrationSource = migrationPath ? readFileSync(migrationPath, 'utf8') : '';
+    if (!/INSERT\s+INTO\s+public\.game_docs/i.test(migrationSource) || !/version\s*[,)]/i.test(migrationSource)) {
+        issues.push({
+            check: 'game_docs',
+            msg: 'migration ของเกมต้อง upsert public.game_docs พร้อม version ในไฟล์เดียวกัน',
+        });
+        console.log(`${FAIL} Check 6b — game_docs: ไม่พบ upsert/version ใน migration`);
+    } else {
+        console.log(`${PASS} Check 6b — game_docs: migration มีรายละเอียดและ version`);
+    }
 }
 
 // ─── Anti-patterns (warnings) ───────────────────────────────────────────────
@@ -360,10 +379,29 @@ if (loadsVersus && wiresVersus) {
     console.log(`${FAIL} Check 11 — 2 ผู้เล่น: ไม่พบ (ต้องมี KampaiVersus หรืออย่างน้อย KampaiMatch)`);
 }
 
+// ─── Check 12: quality contract (warning in compatibility mode, gate in --strict) ──
+const qualityRules = [
+    ['begin-round', /KAMPAI\s*\.\s*beginRound\s*\(/.test(scanSource), 'ไม่พบ KAMPAI.beginRound() ตอนเริ่มรอบ'],
+    ['result-slot', /id=["']kampai-result["']/.test(html), 'ไม่พบ #kampai-result ในจอจบ'],
+    ['test-hooks', /data-kampai-action=["']start["']/.test(html) && /data-kampai-action=["']restart["']/.test(html), 'ไม่พบ browser hooks start/restart'],
+    ['reload-restart', !/(?:location\s*\.\s*reload|location\s*=)/.test(scanSource), 'restart ต้อง cleanup+start โดยไม่ reload iframe'],
+    ['reduced-motion', /prefers-reduced-motion\s*:\s*reduce/.test(scanSource), 'ไม่พบ reduced-motion fallback'],
+    ['focus-visible', /:focus-visible/.test(scanSource), 'ไม่พบ visible keyboard focus style'],
+    ['duplicate-hooks', (html.match(/data-kampai-action=["']restart["']/g) || []).length === 1, 'ต้องมี restart hook เพียงจุดเดียว เพื่อไม่ให้ wrapper controls ซ้ำ'],
+];
+const qualityFailures = qualityRules.filter(([, pass]) => !pass);
+if (qualityFailures.length === 0) {
+    console.log(`${PASS} Check 12 — quality contract: lifecycle + accessibility hooks ครบ`);
+} else {
+    for (const [check, , msg] of qualityFailures) warnings.push({ check, msg });
+    console.log(`${WARN} Check 12 — quality contract: ขาด ${qualityFailures.length} รายการ${strictMode ? ' (--strict = fail)' : ''}`);
+}
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 console.log('');
 if (issues.length === 0 && warnings.length === 0) {
     console.log(`${BOLD}${GREEN}✨ ผ่านทุก check — เกมพร้อมใช้งาน!${RESET}\n`);
+    writeReport({ status: 'passed', exitCode: 0 });
     process.exit(0);
 }
 
@@ -383,7 +421,32 @@ if (warnings.length > 0) {
 }
 
 console.log(`${CYAN}💡 อ่าน GAME.md สำหรับ EMBED block + checklist เต็ม${RESET}\n`);
-process.exit(issues.length > 0 ? 1 : 0);
+const exitCode = issues.length > 0 || (strictMode && warnings.length > 0) ? 1 : 0;
+writeReport({ status: exitCode === 0 ? 'passed-with-warnings' : 'failed', exitCode });
+process.exit(exitCode);
+
+function writeReport({ status, exitCode }) {
+    const report = {
+        schemaVersion: 1,
+        tool: 'verify-game',
+        target: targetArg,
+        slug: detectedSlug,
+        strict: strictMode,
+        status,
+        exitCode,
+        issues,
+        warnings,
+        generatedAt: new Date().toISOString(),
+    };
+    mkdirSync(dirname(reportPath), { recursive: true });
+    writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
+    if (jsonOnly) console.log(JSON.stringify(report));
+    else console.log(`${CYAN}JSON:${RESET} ${relativePath(reportPath)}`);
+}
+
+function relativePath(path) {
+    return path.startsWith(REPO_ROOT) ? path.slice(REPO_ROOT.length + 1) : path;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Cover helpers (hoisted) — หาไฟล์ปก + อ่านขนาดจริง (sniff magic bytes ไม่เชื่อ extension)

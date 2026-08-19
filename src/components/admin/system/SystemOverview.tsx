@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.223.0 (Game Dev Quality Gate — Generator, Playwright และ CI)',
+        date: '19 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับทักษะ kampai-game-dev เป็น workflow Discover → Design → Scaffold → Implement → Verify → Document → Ship พร้อม quality contract แยกตามเกมมาตรฐาน, versus, orientation และ AR',
+            'เพิ่ม create:game generator, static verifier แบบ strict/JSON, Playwright browser gate 3 viewport/2 รอบ, regression tooling และ GitHub Actions artifacts สำหรับเกมที่เปลี่ยน',
+            'อัปเดต templates ให้ restart โดยไม่ reload, เรียก beginRound ทุกครั้ง, มี browser hooks, reduced-motion/focus-visible และปรับปุ่มเสียง KAMPAI SDK เป็นขั้นต่ำ 44×44px',
+        ],
+    },
+    {
         version: 'v1.222.0 (สื่อการสอน — 🪐 ระบบสุริยะ 3 มิติ Solar System 3D Lab & Dual-Track Worksheet)',
         date: '19 ส.ค. 2569',
         badge: 'bg-emerald-600',

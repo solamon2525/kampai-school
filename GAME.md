@@ -12,7 +12,7 @@
 2.  แก้ GAME_SLUG = '{slug}'  (1 ที่ใน <script>)
 3.  เขียน game logic ใน SECTION C
 4.  สร้าง supabase/migrations/NNN_seed_{slug}_game.sql  (รวม upsert game_docs — รูปแบบ/ฟีเจอร์/เวอร์ชัน, บังคับ)
-5.  pnpm verify:game public/games/{subject}/{slug}.html   # ต้องผ่าน 9/9 checks (Check 9 = ปก 16:9)
+5.  pnpm verify:game:all -- public/games/{subject}/{slug}.html   # static strict + browser 3 viewport + 2 รอบ
 ```
 
 > 🔖 **บังคับทุกเกม:** ทุกครั้งที่สร้าง/แก้เกม ต้องเขียน/อัปเดต `game_docs` (รูปแบบ + ฟีเจอร์ + เวอร์ชัน)
@@ -45,7 +45,8 @@
 └─ มีไฟล์เกมเก่าอยู่แล้ว     → /integrate-game <path>   (Claude slash command)
 
 แก้ไขเกมเดิม
-├─ ตรวจสอบสถานะ        → pnpm verify:game <path>   (รวม Check 7 render smoke-test)
+├─ ตรวจระหว่างพัฒนา     → pnpm verify:game <path>   (static + jsdom + JSON report)
+├─ Gate ก่อนเผยแพร่     → pnpm verify:game:all -- <path> (static strict + Playwright)
 ├─ Claude ช่วย integrate → /integrate-game <path>
 └─ แก้เอง              → อ่าน Section "EMBED Block" + "postMessage Protocol"
 ```
@@ -440,7 +441,7 @@ document.getElementById('gameover-screen')?.classList.add('hidden');
 5. **lucide:** ใช้ `_mkIcon` ที่ template ให้ (SECTION B) แล้ว destructure ไอคอนที่ใช้ —
    **อย่าเขียน shim เอง**
 6. ปิดท้ายด้วย `ReactDOM.createRoot(document.getElementById('root')).render(<App/>)`
-7. `pnpm verify:game <path>` ต้องผ่าน **8/8** (Check 7 = render จริง, Check 8 = ไอคอนไม่ชน JS global)
+7. `pnpm verify:game:all -- <path>` ต้องผ่านทุก named check และ browser gate; ห้ามอ้างจำนวนรวมแบบ hardcode เพราะ verifier เพิ่มกฎได้
 
 **⚠️ lucide IconNode shape:** `window.lucide.icons.X = ["svg", attrs, [["path",{...}], ...]]`
 — drawing children อยู่ที่ **index 2** (`node[2]`). เคยพลาด map ผิด level (คิดว่าเป็น array ของ
@@ -604,7 +605,11 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 
 | คำสั่ง | หน้าที่ |
 |---|---|
-| `pnpm verify:game <file>` | ตรวจ 8 จุด: 6 static (GAME_SLUG, sendGameEnd, navigateBack, init listener, sendGameEnd called, migration) + **Check 7 render smoke-test** (jsdom + React UMD — จับจอดำ/crash) + **Check 8 global-shadow** (ไอคอนชื่อชน JS global เช่น Map/Image → Tailwind ล่ม จอเบี้ยว) |
+| `pnpm create:game -- --subject <subject> --slug <slug> --type <type>` | สร้าง scaffold โดยไม่เขียนทับ path เดิม พร้อม migration draft + `game_docs` |
+| `pnpm verify:game <file>` | ตรวจ static contract, migration/`game_docs`, jsdom render, global-shadow, cover, AR/versus และ quality contract พร้อม JSON report |
+| `pnpm verify:game:browser -- <file>` | เปิดผ่าน HTTP/iframe จริงด้วย Playwright ที่ 360×800, 768×1024, 1280×720 และทดสอบส่งคะแนน 2 รอบ |
+| `pnpm verify:game:all -- <file>` | release gate: static `--strict` แล้วต่อด้วย browser verifier |
+| `pnpm test:game-tooling` | regression ของ generator, templates และ bug classes ที่เคยเกิด |
 | `/integrate-game <file>` | Claude slash command — auto-integrate ตาม checklist |
 
 > Check 7 ใช้ `jsdom` + `@babel/standalone` (devDeps) + ดาวน์โหลด React/lucide UMD cache ที่
@@ -626,7 +631,7 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 
 ## ✅ Pre-Commit Checklist
 
-รัน `pnpm verify:game <file>` — ต้องผ่าน 8/8 + ไม่มี anti-pattern warning
+รัน `pnpm verify:game:all -- <file>` — ต้องผ่านทุก named check, ไม่มี warning ใน strict mode และมี browser artifacts
 
 หรือเช็คด้วยตา:
 - [ ] `GAME_SLUG` ตรงกับ `game_slug` ใน DB (ไม่ใช่ placeholder)
@@ -635,7 +640,7 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 - [ ] ไม่มี Firebase SDK ที่ active
 - [ ] ไม่มี input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT)
 - [ ] Migration SQL พร้อม
-- [ ] **`pnpm verify:game` ผ่าน 8/8 (Check 7 render — ไม่จอดำ + Check 8 — ไอคอนไม่ชน JS global)**
+- [ ] **`pnpm verify:game:all -- <path>` ผ่าน static strict + browser 3 viewport + เล่นจบ 2 รอบ**
 - [ ] **เปิด browser จริง: เกมแสดงผล + ไอคอนขึ้นครบ + เล่นจบได้** (static + render check ไม่พอสำหรับ UX)
 - [ ] ทดสอบ local: `/play/{slug}` → กรอกรหัส → เล่น → คะแนนขึ้น GamePlayDashboard
 
@@ -703,4 +708,4 @@ PlayGame wrapper ทำสิ่งเหล่านี้ — เกม HTML *
 
 ---
 
-*v1.64.0 — วัฒนธรรมเกม v2: โครงสร้างโฟลเดอร์ 5 ไฟล์ (`_template-folder` + นำร่อง `english/listen-spell/`) + โหมดออนไลน์ "ถามก่อนสร้าง" + verify รองรับเกมโฟลเดอร์ (inline siblings). v1.63.x — sync วัฒนธรรมเกม: เช็กลิสต์มาตรฐานจุดเดียว + sound API ในตาราง SDK + หมวด AR/กล้อง + migration pattern (idempotent + apply remote) + 8/8 checks. v1.41.0 — KAMPAI SDK (/games/kampai-sdk.js) + in-game leaderboard ผ่าน init + D-pad มือถือ + GAME-PROMPT.md. v1.40.6 — Check 7 render smoke-test + _template-react.html. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
+*v1.65.0 — generator + quality contract + static JSON/strict + Playwright 3 viewport/2 rounds + CI artifacts; ใช้ชื่อ check เป็น source of truth ไม่ hardcode จำนวนรวม. v1.64.0 — วัฒนธรรมเกม v2: โครงสร้างโฟลเดอร์ 5 ไฟล์ (`_template-folder` + นำร่อง `english/listen-spell/`) + verify รองรับเกมโฟลเดอร์. v1.63.x — sync SDK/AR/migration และ verifier รุ่นก่อน. อัปเดตล่าสุดดู `src/components/admin/system/SystemOverview.tsx`*
