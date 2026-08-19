@@ -1,11 +1,29 @@
 ---
 name: kampai-worksheet-builder
-description: Create, upgrade, debug, verify, register, and publish printable HTML worksheets for the kampai-school repository. Use whenever Codex creates or modifies public/games/**/*-worksheet.html, pairs a worksheet with teaching media, adds worksheet sets or step-by-step answers, fixes A4/print layouts, or audits worksheet feature compliance.
+description: Create, upgrade, debug, compare, verify, register, and publish Kampai School teaching media and printable HTML worksheets. Use for public/games/**/*-media.html, public/games/**/*-worksheet.html, paired dual-track materials, A4/print layouts, worksheet sets, step answers, or evidence-backed preference learning from user revisions.
 ---
 
 # Kampai Worksheet Builder
 
-Build worksheets from repository contracts and existing engines. Do not invent a parallel worksheet system.
+Build media and worksheets from repository contracts and proven user preferences. Do not invent a parallel runtime or silently turn one revision into a permanent rule.
+
+## Workflow
+
+1. **Classify** the task as `media`, `worksheet`, or paired dual-track and identify the learning process.
+2. **Discover** by reading the repository contracts and inspecting the closest artifact by learning process, not merely subject.
+3. **Load preferences** from [references/media-preferences.md](references/media-preferences.md) or [references/worksheet-preferences.md](references/worksheet-preferences.md). For feedback-driven work also read [references/preference-evidence.md](references/preference-evidence.md).
+4. **Contract** the grade, indicators, slug, paired path, scaffold, density, controls, deterministic state, registration, and verification.
+5. **Implement** with the shared template/runtime while preserving authentic spatial work.
+6. **Compare** revisions with the same seed, scenario, data, viewport, and print settings: `pnpm compare:learning-artifact -- --kind <media|worksheet> --before <path|ref:path> --after <path|ref:path> --scenario <name> --seed <seed>`.
+7. **Verify** through HTTP, including print for worksheets; never certify from static inspection or `file://`.
+8. **Learn** only from an explicit instruction, selection, or accepted result. One independent task creates a candidate; the second creates a proposal; only user approval promotes it.
+9. **Document and ship** by updating only changed contracts and staging only task files.
+
+## Authority and scope
+
+Apply rules in this order: correctness, safety, curriculum validity, and accessibility; `WORKSHEET.md` or `MEDIA.md`; approved preferences in their recorded scope; template defaults.
+
+Use scopes `shared`, `media-only`, `worksheet-only`, and `subject/activity-specific`. A narrow preference never overrides a hard contract. Experimental and exceptional instructions do not accumulate evidence.
 
 ## Required reading
 
@@ -89,13 +107,13 @@ For any feature or meaningful UX change, update `WORKSHEET.md` when the contract
 
 When worksheet implementation or verification reveals a new issue that is likely to recur across worksheets, do not leave the lesson only in the current file:
 
-1. distinguish a reusable rule from a one-off implementation detail;
-2. collect concrete evidence from the failure, browser check, learner-writing constraint, or validator result;
-3. propose the rule to the user with its purpose, scope, suggested wording, and expected verification before changing an authoritative rule document;
-4. after approval, add the smallest general rule to this skill and/or `WORKSHEET.md`, plus a reusable verifier check when it can be tested deterministically;
-5. report where the rule was recorded and which future worksheets it affects.
+1. record the first supported occurrence as `candidate` using [references/preference-evidence.md](references/preference-evidence.md), without changing a permanent rule;
+2. after the same pattern appears in a second independent task, prepare a `proposed` rule with wording, scope, before/after evidence, impact, and verifier feasibility;
+3. after explicit approval, mark it `approved` and add the smallest rule to the relevant preference profile;
+4. append `rejected` or `superseded` decisions rather than erasing history;
+5. add a verifier only for deterministic requirements; keep subjective taste in browser comparison review.
 
-Do not silently turn a single observation into a repository-wide mandate. Urgent correctness or safety fixes may be implemented within the approved task, but the broader permanent rule must still be surfaced explicitly to the user.
+Historical commits may bootstrap candidates but cannot bootstrap approval. Urgent correctness or safety fixes may proceed within scope, but broader permanent rules still require approval.
 
 ## Verification loop
 
@@ -110,6 +128,7 @@ Do not certify from static inspection or `file://`.
 7. For generated puzzles, verify answer correctness, exact input use, canonical uniqueness across the full multi-page set, and prohibited shortcut patterns with a deterministic checker.
 8. Run `pnpm verify:worksheet` for the full catalog and `pnpm build`.
 9. When a migration changes published catalog state, run `pnpm verify:worksheet:production` after applying it.
+10. After changing preference rules or comparison tooling, run `pnpm test:learning-preferences` and validate this skill with `quick_validate.py`.
 
 Stop publishing if any required check fails or cannot be performed. Report the exact remaining gate.
 
@@ -118,3 +137,5 @@ Stop publishing if any required check fails or cannot be performed. Report the e
 Follow the automatic commit/push policy in `AGENTS.md`: inspect status and diff, stage only task files, confirm no divergence/conflict/secrets, commit atomically with relevant migration/docs/version history, and push the approved production branch.
 
 Report changed worksheet files, shared files, migration status, browser/A4 cases, verifier totals, build result, documentation locations, commit hash, and push branch.
+
+If `rtk` is unavailable, state that fact and use the direct command as the documented fallback; do not stop silently.

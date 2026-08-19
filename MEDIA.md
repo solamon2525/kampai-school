@@ -22,6 +22,14 @@ Live hub: หมวด `media` ใน Educational Hub · สัญญาสร�
 
 ห้าม: `submitScore` / leaderboard / lives / timer แข่ง (นั่นคือเกม — ดู `GAME.md`)
 
+## Preference learning protocol
+
+- ลำดับอำนาจคือ ความถูกต้อง/ความปลอดภัย/หลักสูตร → `MEDIA.md` → preference ที่ผู้ใช้อนุมัติใน `kampai-worksheet-builder` → ค่าเริ่มต้นของ template
+- แยก preference ของสื่อออกจากใบงาน โดยใช้หลัก accessibility ความเหมาะสมตามวัย และความถูกต้องร่วมกัน
+- ครั้งแรกบันทึกเป็น `candidate`; เมื่อรูปแบบเดียวกันเกิดในงานอิสระครั้งที่ 2 ให้เสนอข้อความกฎ ขอบเขต ภาพก่อน–หลัง และผลกระทบเพื่อขออนุมัติ ห้ามเลื่อนเป็นกฎถาวรเอง
+- ใช้ seed/scenario เดียวกันเปรียบเทียบที่ 360×800, 768×1024 และ 1280×720 และเก็บ visual diff/report ใต้ `.artifacts/learning-preferences/` หรือ CI artifacts
+- งานทดลองและข้อยกเว้นไม่นับสะสม; กฎเชิงรสนิยมใช้ browser review ส่วนข้อกำหนดวัดซ้ำได้จึงเพิ่มใน verifier
+
 ## Verification
 
 ```bash

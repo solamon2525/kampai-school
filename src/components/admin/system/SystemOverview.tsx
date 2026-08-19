@@ -272,6 +272,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.224.0 (สื่อและใบงาน — Evidence-backed Preference Learning)',
+        date: '20 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แยกโปรไฟล์ความชอบสื่อการสอนและใบงาน โดยให้กฎความถูกต้อง หลักสูตร และ repository contract มีอำนาจสูงกว่า preference เสมอ',
+            'เพิ่มหลักฐานแบบ append-only: ครั้งแรกเป็น candidate ครั้งที่สองจากงานอิสระเป็น proposal และต้องได้รับอนุมัติก่อนเลื่อนเป็นกฎถาวร',
+            'เพิ่มคำสั่ง compare:learning-artifact สำหรับภาพก่อน–หลัง visual diff, metrics และ checksum ที่ viewport สื่อ 3 ขนาดหรือ A4 screen/print',
+        ],
+    },
+    {
         version: 'v1.223.0 (Game Dev Quality Gate — Generator, Playwright และ CI)',
         date: '19 ส.ค. 2569',
         badge: 'bg-emerald-600',
