@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🪐 ระบบสุริยะ 3 มิติ (Solar System 3D) — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --accent: #f59e0b;
+      --accent-glow: #fbbf24;
+      --bg-dark: #030712;
+      --panel-bg: rgba(15, 23, 42, 0.88);
+      --panel-border: rgba(56, 189, 248, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --ok: #22c55e;
+      --danger: #ef4444;
+      --purple: #a855f7;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text-main);
+      user-select: none;
+      -webkit-user-select: none;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ─── Top Header Navigation ─── */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 16px;
+      background: linear-gradient(90deg, #0f172a 0%, #1e293b 60%, #0369a1 100%);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      z-index: 100;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .header-left h1 {
+      font-size: clamp(0.95rem, 3vw, 1.25rem);
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .badge {
+      font-size: 0.75rem;
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Segmented Mode Toggle (Learn / Practice) ─── */
+    .mode-seg {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 2px;
+    }
+    .mode-seg button {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .mode-seg button.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5);
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-back:hover { background: rgba(255, 255, 255, 0.22); }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.16); }
+    .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-quiz { background: #ec4899; color: #fff; width: 100%; }
+    .btn-quiz:hover { background: #db2777; }
+    .btn-align { background: var(--purple); color: #fff; width: 100%; }
+    .btn-align:hover { background: #9333ea; }
+    .btn-earth { background: #10b981; color: #fff; width: 100%; }
+    .btn-earth:hover { background: #059669; }
+    .btn-light { background: #eab308; color: #000; width: 100%; }
+    .btn-light:hover { background: #ca8a04; }
+    .btn-slice { background: #ef4444; color: #fff; width: 100%; }
+
+    /* ─── Canvas ─── */
+    #solarCanvas {
+      position: absolute;
+      top: 56px;
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - 56px);
+      display: block;
+    }
+
+    /* ─── Panels (Glassmorphism) ─── */
+    .panel {
+      position: absolute;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65);
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+
+    /* Left Control Panel */
+    #controlPanel {
+      top: 72px;
+      left: 16px;
+      width: 280px;
+      max-height: calc(100vh - 90px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    #controlPanel::-webkit-scrollbar { width: 4px; }
+    #controlPanel::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 4px; }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 14px 0 6px 0;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      padding-bottom: 4px;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+
+    .slider-container {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .slider-container label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    input[type=range] {
+      width: 100%;
+      cursor: pointer;
+      accent-color: #38bdf8;
+    }
+
+    .select-field {
+      width: 100%;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      margin-bottom: 8px;
+    }
+
+    /* Right Quick Encyclopedia Card */
+    #quickEncPanel {
+      top: 72px;
+      right: 16px;
+      width: 250px;
+    }
+
+    /* Planet Hover/Selection Info Card */
+    #infoPanel {
+      top: 230px;
+      right: 16px;
+      width: 300px;
+      display: none;
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+    }
+    #infoPanel h2 {
+      margin: 0 0 6px 0;
+      color: #facc15;
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .info-label { color: #94a3b8; font-size: 0.8rem; }
+    .info-value { color: #fff; font-weight: 700; font-size: 0.88rem; }
+    .info-row { margin-bottom: 5px; }
+
+    #layerInfoPanel {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+    .layer-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+    }
+    .layer-color {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      flex-shrink: 0;
+    }
+
+    /* ─── Special Features Panel (Moon Phases / Light Speed) ─── */
+    #specialFeaturePanel {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 30, 0.94);
+      border: 2px solid #facc15;
+      border-radius: 16px;
+      padding: 14px 24px;
+      text-align: center;
+      display: none;
+      z-index: 25;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(250, 204, 21, 0.25);
+      max-width: 90vw;
+    }
+    #specialFeatureTitle { font-size: 1.05rem; color: #facc15; font-weight: 800; margin-bottom: 4px; }
+    #specialFeatureContent { font-size: 1.5rem; font-weight: 800; margin: 4px 0; color: #fff; }
+    #specialFeatureDesc { font-size: 0.85rem; color: #cbd5e1; }
+
+    /* ─── Quiz / Practice Mission Panel ─── */
+    #quizPanel {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 620px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #ec4899;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      display: none;
+      z-index: 30;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(236, 72, 153, 0.3);
+    }
+    #quizHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    #quizTitle { font-size: 1.05rem; color: #ec4899; font-weight: 800; }
+    #quizProgress {
+      font-size: 0.8rem;
+      background: rgba(236, 72, 153, 0.2);
+      color: #f472b6;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    #questionText {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin: 10px 0 14px 0;
+      color: #fff;
+      line-height: 1.4;
+    }
+    #quizChoices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .quiz-choice-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quiz-choice-btn:hover {
+      background: rgba(236, 72, 153, 0.25);
+      border-color: #ec4899;
+    }
+
+    /* ─── Encyclopedia Overlay (Slide-out or Drawer) ─── */
+    #encyclopediaOverlay {
+      position: fixed;
+      top: 56px;
+      right: 0;
+      width: min(540px, 92vw);
+      height: calc(100vh - 56px);
+      background: rgba(10, 15, 30, 0.96);
+      border-left: 2px solid #38bdf8;
+      z-index: 120;
+      display: none;
+      flex-direction: column;
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    #encHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    #encContent {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      scrollbar-width: thin;
+    }
+    #encNav {
+      display: flex;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+    .enc-nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e2e8f0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.15s;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .enc-nav-btn:hover, .enc-nav-btn.active {
+      background: #38bdf8;
+      color: #000;
+      border-color: #38bdf8;
+      font-weight: 800;
+    }
+    .enc-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .enc-stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .enc-stat-box .icon { font-size: 1.2rem; margin-bottom: 3px; display: block; }
+    .enc-title { color: #facc15; font-size: 1.6rem; font-weight: 800; margin: 0; }
+    .enc-subtitle { color: #38bdf8; font-size: 0.95rem; font-weight: 700; margin: 3px 0 14px 0; }
+    .enc-text { line-height: 1.65; color: #e2e8f0; font-size: 0.92rem; margin-bottom: 14px; }
+    .enc-funfact {
+      background: rgba(245, 158, 11, 0.12);
+      border-left: 4px solid #f59e0b;
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      margin-top: 12px;
+    }
+
+    /* ─── Feedback Popup ─── */
+    #feedback {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(15, 23, 42, 0.92);
+      border: 2px solid #38bdf8;
+      border-radius: 16px;
+      padding: 16px 28px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    /* ─── Bottom-Right Action Buttons ─── */
+    .bottom-actions {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 15;
+    }
+
+    /* ─── Mobile Responsiveness ─── */
+    @media (max-width: 768px) {
+      header { padding: 0 10px; }
+      .header-left h1 { font-size: 0.95rem; }
+      .badge { display: none; }
+      #controlPanel { width: calc(100vw - 32px); max-height: 48vh; }
+      #quickEncPanel { display: none; }
+      #infoPanel { width: calc(100vw - 32px); right: 16px; top: auto; bottom: 80px; }
+      #quizChoices { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header>
+    <div class="header-left">
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <h1>🪐 ระบบสุริยะ 3 มิติ (Solar System 3D)</h1>
+      <span class="badge">ป.4–ป.6 · วิทยาศาสตร์ (ว 3.1)</span>
+    </div>
+    <div class="header-right">
+      <div class="mode-seg" id="modeSeg">
+        <button type="button" id="tabLearn" class="active" data-mode="learn">📖 เรียนรู้ 3D</button>
+        <button type="button" id="tabPractice" data-mode="practice">✏️ ภารกิจควิซ</button>
+      </div>
+      <a class="btn btn-ghost" href="/games/science/solar-system-3d-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+      <button type="button" class="btn btn-ghost" id="btnFs" title="เต็มจอ">⛶</button>
+    </div>
+  </header>
+
+  <!-- ═══ 3D WEBGL CANVAS ═══ -->
+  <canvas id="solarCanvas"></canvas>
+
+  <!-- ═══ LEFT CONTROL PANEL ═══ -->
+  <div id="controlPanel" class="panel">
+    <div id="panelHeader" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:10px;">
+      <span style="font-weight:800; color:#38bdf8; font-size:0.95rem;">🛠️ เครื่องมือควบคุม</span>
+      <span id="menuToggleIcon" style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">ย่อ ➖</span>
+    </div>
+
+    <div id="panelContent">
+      <div class="section-title">⏱️ ความเร็วการโคจร</div>
+      <div class="slider-container">
+        <label for="speedSlider">ปรับความเร็วกาลเวลา:</label>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="range" id="speedSlider" min="0" max="4" value="0.3" step="0.1" style="flex:1;" />
+          <input type="number" id="speedInput" min="0" max="20" value="0.3" step="0.1" style="width:55px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid #64748b; border-radius:6px; padding:3px; text-align:center; font-family:inherit;" />
+        </div>
+      </div>
+
+      <div class="section-title">🔍 มุมกล้องติดตามดวงดาว</div>
+      <select id="followSelect" class="select-field">
+        <option value="">-- มุมมองอิสระ / ศูนย์กลาง --</option>
+        <option value="sun">☀️ ดวงอาทิตย์ (Sun)</option>
+        <option value="mercury">🌑 ดาวพุธ (Mercury)</option>
+        <option value="venus">🌕 ดาวศุกร์ (Venus)</option>
+        <option value="earth">🌍 โลก (Earth)</option>
+        <option value="mars">🔴 ดาวอังคาร (Mars)</option>
+        <option value="jupiter">🪐 ดาวพฤหัสบดี (Jupiter)</option>
+        <option value="saturn">🪐 ดาวเสาร์ (Saturn)</option>
+        <option value="uranus">🔵 ดาวยูเรนัส (Uranus)</option>
+        <option value="neptune">🔵 ดาวเนปจูน (Neptune)</option>
+      </select>
+
+      <div class="section-title">✨ โหมดสำรวจเฉพาะทาง</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button type="button" id="toggleAlignBtn" class="btn btn-align">📏 เปรียบเทียบขนาด (เรียงแถว)</button>
+        <button type="button" id="earthMoonBtn" class="btn btn-earth">🌗 เจาะลึกโลกและดวงจันทร์</button>
+        <button type="button" id="lightSpeedBtn" class="btn btn-light">🚀 เดินทางด้วยความเร็วแสง</button>
+        <button type="button" id="toggleQuizBtn" class="btn btn-quiz">🎯 ภารกิจนักสำรวจ (Quiz 3D)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT QUICK ENCYCLOPEDIA PANEL ═══ -->
+  <div id="quickEncPanel" class="panel">
+    <div id="quickEncHeader" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:8px;">
+      <span style="font-weight:800; color:#a855f7; font-size:0.9rem;">📚 สารานุกรมอวกาศ</span>
+      <span id="quickEncToggleIcon" style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">ย่อ ➖</span>
+    </div>
+    <div id="quickEncContent">
+      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">เลือกดาวเพื่อดูข้อมูลเจาะลึก:</div>
+      <select id="quickEncSelect" class="select-field" style="margin-bottom:8px;">
+        <option value="sun">☀️ ดวงอาทิตย์ (Sun)</option>
+        <option value="mercury">ดาวพุธ (Mercury)</option>
+        <option value="venus">ดาวศุกร์ (Venus)</option>
+        <option value="earth" selected>โลก (Earth)</option>
+        <option value="mars">ดาวอังคาร (Mars)</option>
+        <option value="jupiter">ดาวพฤหัสบดี (Jupiter)</option>
+        <option value="saturn">ดาวเสาร์ (Saturn)</option>
+        <option value="uranus">ดาวยูเรนัส (Uranus)</option>
+        <option value="neptune">ดาวเนปจูน (Neptune)</option>
+      </select>
+      <button type="button" id="quickEncBtn" class="btn btn-align" style="width:100%;">📖 เปิดอ่านสารานุกรม</button>
+    </div>
+  </div>
+
+  <!-- ═══ PLANET HOVER / SELECTION CARD ═══ -->
+  <div id="infoPanel" class="panel">
+    <h2>
+      <span id="pName">ชื่อดาว</span>
+      <button type="button" id="btnTtsPlanet" style="background:none; border:none; color:#38bdf8; cursor:pointer; font-size:1.1rem;" title="ฟังเสียงอ่าน">🗣️</button>
+    </h2>
+    <p id="pDesc" style="line-height:1.45; font-size:0.85rem; color:#cbd5e1; margin-bottom:10px;"></p>
+    <div class="info-row"><span class="info-label">เวลาโคจรรอบดวงอาทิตย์:</span> <span class="info-value" id="pOrbit">-</span></div>
+    <div class="info-row"><span class="info-label">อุณหภูมิเฉลี่ย:</span> <span class="info-value" id="pTemp">-</span></div>
+    
+    <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
+      <button type="button" id="crossSectionBtn" class="btn btn-slice">🍰 ผ่าดูโครงสร้างภายใน</button>
+      <button type="button" id="openEncyclopediaBtn" class="btn btn-align">📖 อ่านสารานุกรมฉบับเต็ม</button>
+    </div>
+
+    <div id="layerInfoPanel">
+      <h4 style="margin:0 0 8px 0; color:#f87171; font-size:0.85rem;">🍰 ชั้นโครงสร้างภายใน</h4>
+      <div id="layersList"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SPECIAL FEATURE PANEL (Moon Phases / Light Speed) ═══ -->
+  <div id="specialFeaturePanel">
+    <h3 id="specialFeatureTitle">หัวข้อพิเศษ</h3>
+    <p id="specialFeatureContent">เนื้อหา</p>
+    <div id="specialFeatureDesc">คำอธิบาย</div>
+
+    <!-- Light Speed Controls -->
+    <div id="lightSpeedControls" style="display:none; margin-top:12px; border-top:1px solid rgba(255,255,255,0.15); padding-top:12px;">
+      <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px; line-height:1.4;">
+        💡 แสงเดินทางด้วยความเร็ว <b>300,000 กิโลเมตร/วินาที</b><br>
+        เลือกดาวต้นทางและปลายทางเพื่อดูเวลาที่แสงใช้เดินทางจริง:
+      </div>
+      <div style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:10px;">
+        <select id="lsFrom" class="select-field" style="width:auto; margin:0;"></select>
+        <span>➡</span>
+        <select id="lsTo" class="select-field" style="width:auto; margin:0;"></select>
+      </div>
+      <button type="button" id="lsStartBtn" class="btn btn-light">🚀 เริ่มปล่อยอนุภาคแสง</button>
+    </div>
+  </div>
+
+  <!-- ═══ QUIZ / PRACTICE MISSION PANEL ═══ -->
+  <div id="quizPanel">
+    <div id="quizHeader">
+      <span id="quizTitle">🎯 ภารกิจสำรวจระบบสุริยะ</span>
+      <span id="quizProgress">ข้อ 1/9</span>
+    </div>
+    <div id="questionText">คำถามจะปรากฏที่นี่...</div>
+    <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px;">👉 คลิกดาว 3 มิติในฉาก หรือเลือกคำตอบด้านล่าง:</div>
+    <div id="quizChoices"></div>
+  </div>
+
+  <!-- ═══ 3D ENCYCLOPEDIA OVERLAY ═══ -->
+  <div id="encyclopediaOverlay">
+    <div id="encHeader">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h2 style="margin:0; color:#38bdf8; font-size:1.15rem; font-weight:800;">📖 สารานุกรมอวกาศ 3 มิติ</h2>
+        <button type="button" id="btnTtsEnc" class="btn btn-ghost" style="padding:4px 8px; font-size:0.75rem;">🗣️ ฟังเสียง</button>
+      </div>
+      <button type="button" id="closeEncBtn" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:700; font-family:inherit;">✕ ปิด</button>
+    </div>
+    <div id="encContent">
+      <h1 class="enc-title" id="encName">ชื่อดาว</h1>
+      <h3 class="enc-subtitle" id="encType">ประเภทดาว</h3>
+      <div class="enc-stat-grid">
+        <div class="enc-stat-box"><span class="icon">📏</span><div style="color:#94a3b8;font-size:0.75rem;">ขนาดเทียบกับโลก</div><div id="encSize" style="font-weight:800; margin-top:3px;">...</div></div>
+        <div class="enc-stat-box"><span class="icon">⚖️</span><div style="color:#94a3b8;font-size:0.75rem;">แรงโน้มถ่วง</div><div id="encGravity" style="font-weight:800; margin-top:3px;">...</div></div>
+        <div class="enc-stat-box"><span class="icon">🌡️</span><div style="color:#94a3b8;font-size:0.75rem;">อุณหภูมิเฉลี่ย</div><div id="encTempInfo" style="font-weight:800; margin-top:3px;">...</div></div>
+        <div class="enc-stat-box"><span class="icon">🌙</span><div style="color:#94a3b8;font-size:0.75rem;">ดวงจันทร์บริวาร</div><div id="encMoons" style="font-weight:800; margin-top:3px;">...</div></div>
+      </div>
+      <h4 style="color:#22c55e; border-bottom:1px solid rgba(34,197,94,0.3); padding-bottom:4px; font-size:0.95rem; margin-top:12px;">รายละเอียดเชิงลึก</h4>
+      <p class="enc-text" id="encDetails">...</p>
+      <div class="enc-funfact">
+        <h4 style="color:#f59e0b; margin-top:0; font-size:0.9rem;">💡 เกร็ดความรู้ (Did you know?)</h4>
+        <p id="encFunFact" style="margin-bottom:0; line-height:1.5; color:#fff; font-size:0.85rem;"></p>
+      </div>
+    </div>
+    <div id="encNav"></div>
+  </div>
+
+  <!-- Feedback Popup -->
+  <div id="feedback">ยอดเยี่ยม!</div>
+
+  <!-- Bottom-Right View Reset -->
+  <div class="bottom-actions">
+    <button type="button" class="btn btn-ghost" id="resetViewBtn">🔄 รีเซ็ตมุมมอง</button>
+  </div>
+
+  <script>
+    (function () {
+      const MEDIA_SLUG = 'solar-system-3d-media';
+      const GAME_SLUG = 'solar-system-3d-media';
+      if (window.KAMPAI && KAMPAI.setSlug) {
+        try { KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+      }
+
+      // --- THREE.JS INITIALIZATION ---
+      const canvas = document.getElementById('solarCanvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / (window.innerHeight - 56), 0.1, 5000);
+      camera.position.set(0, 320, 650);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight - 56);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.localClippingEnabled = true;
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxDistance = 2500;
+      controls.minDistance = 20;
+
+      // Lights
+      scene.add(new THREE.AmbientLight(0x334155, 1.2));
+      const sunLight = new THREE.PointLight(0xffffff, 2.8, 3000);
+      scene.add(sunLight);
+
+      // Starfield Background
+      const starGeo = new THREE.BufferGeometry();
+      const starPos = new Float32Array(2500 * 3);
+      for (let i = 0; i < 7500; i++) starPos[i] = (Math.random() - 0.5) * 3500;
+      starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+      scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, transparent: true, opacity: 0.8 })));
+
+      // Clipping Plane for Planetary Cross-sections
+      const clipPlane = new THREE.Plane(new THREE.Vector3(1, 0.2, 1).normalize(), 0);
+
+      // --- CELESTIAL BODIES DATA ---
+      const planetsConfig = [
+        {
+          id: "sun", name: "ดวงอาทิตย์ (Sun)", color: 0xffcc00, size: 36, dist: 0, speed: 0,
+          desc: "ดาวฤกษ์ศูนย์กลางของระบบสุริยะ แหล่งกำเนิดพลังงานและแสงสว่าง", orbit: "-", temp: "5,500 °C (พื้นผิว)",
+          scaleTxt: "109 เท่าของโลก", isSun: true,
+          layers: [
+            { name: "เขตการแผ่รังสี (Radiative Zone)", color: 0xff8c00, ratio: 0.7 },
+            { name: "แก่นดาว (Core)", color: 0xffffff, ratio: 0.25 }
+          ],
+          enc: {
+            type: "ดาวฤกษ์ (Yellow Dwarf Star)", gravity: "28 เท่าของโลก", moons: "มีดาวเคราะห์ 8 ดวงเป็นบริวาร",
+            details: "ดวงอาทิตย์เป็นดาวฤกษ์ประเภท G2V ก้อนพลาสมามหึมาที่สร้างพลังงานด้วยปฏิกิริยานิวเคลียร์ฟิวชัน มวลของดวงอาทิตย์คิดเป็น 99.8% ของมวลทั้งหมดในระบบสุริยะ ทำให้เกิดแรงโน้มถ่วงมหาศาลดึงดูดดาวเคราะห์ทุกดวงไว้",
+            funFact: "แสงจากดวงอาทิตย์ใช้เวลาเดินทางมาถึงโลกประมาณ 8 นาที 20 วินาที หากดวงอาทิตย์ดับลง เราจะไม่รู้ตัวเลยจนกว่าจะผ่านไปแล้ว 8 นาที!"
+          }
+        },
+        {
+          id: "mercury", name: "ดาวพุธ (Mercury)", color: 0xa8a29e, size: 5, dist: 65, speed: 0.04,
+          desc: "ดาวเคราะห์ที่เล็กที่สุดและอยู่ใกล้ดวงอาทิตย์ที่สุด", orbit: "88 วัน", temp: "-180 ถึง 430 °C",
+          scaleTxt: "0.38 เท่าของโลก",
+          layers: [
+            { name: "เนื้อดาว (Mantle)", color: 0x78716c, ratio: 0.8 },
+            { name: "แก่นเหล็กยักษ์ (Iron Core)", color: 0xf59e0b, ratio: 0.7 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์หิน (Terrestrial Planet)", gravity: "0.38 เท่าของโลก", moons: "ไม่มี",
+            details: "ดาวพุธมีพื้นผิวขรุขระเต็มไปด้วยหลุมอุกกาบาตคล้ายดวงจันทร์ ไม่มีชั้นบรรยากาศคอยกักเก็บความร้อน กลางวันจึงร้อนจัดและกลางคืนหนาวจัดสุดขั้ว",
+            funFact: "หนึ่งวันบนดาวพุธ (หมุนรอบตัวเอง) ใช้เวลายาวนานกว่าหนึ่งปี (โคจรรอบดวงอาทิตย์) ของมันเอง!"
+          }
+        },
+        {
+          id: "venus", name: "ดาวศุกร์ (Venus)", color: 0xfde047, size: 10, dist: 100, speed: 0.03,
+          desc: "ดาวเคราะห์ที่ร้อนที่สุดในระบบสุริยะ มีก๊าซเรือนกระจกหนาแน่น", orbit: "225 วัน", temp: "464 °C",
+          scaleTxt: "0.95 เท่าของโลก (ฝาแฝด)",
+          layers: [
+            { name: "เนื้อดาว (Mantle)", color: 0xd97706, ratio: 0.85 },
+            { name: "แก่นดาว (Core)", color: 0xfbbf24, ratio: 0.5 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์หิน (Terrestrial Planet)", gravity: "0.9 เท่าของโลก", moons: "ไม่มี",
+            details: "แม้ไม่ได้อยู่ใกล้ดวงอาทิตย์ที่สุด แต่มีบรรยากาศคาร์บอนไดออกไซด์เข้มข้นและเมฆกรดกำมะถัน เกิดภาวะเรือนกระจกขั้นรุนแรงจนร้อนที่สุด",
+            funFact: "ดาวศุกร์หมุนรอบตัวเองกลับทิศทางกับดาวดวงอื่น ทำให้บนดาวศุกร์ดวงอาทิตย์จะขึ้นทางทิศตะวันตกและตกทางทิศตะวันออก!"
+          }
+        },
+        {
+          id: "earth", name: "โลก (Earth)", color: 0x38bdf8, size: 11, dist: 145, speed: 0.02,
+          desc: "ดาวเคราะห์สีน้ำเงินเพียงดวงเดียวที่พบสิ่งมีชีวิต", orbit: "365.25 วัน", temp: "15 °C",
+          hasMoon: true, tilt: 23.5, scaleTxt: "1 เท่า (โลกของเรา)",
+          layers: [
+            { name: "เนื้อโลก (Mantle)", color: 0xea580c, ratio: 0.85 },
+            { name: "แก่นโลกชั้นนอก (Outer Core)", color: 0xf59e0b, ratio: 0.55 },
+            { name: "แก่นโลกชั้นใน (Inner Core)", color: 0xffffff, ratio: 0.25 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์หิน (Terrestrial Planet)", gravity: "1.0 เท่า (มาตรฐาน)", moons: "1 ดวง (ดวงจันทร์)",
+            details: "ดาวเคราะห์ดวงเดียวที่มีน้ำในสถานะของเหลวปกคลุม 71% มีชั้นบรรยากาศที่เหมาะสม และสนามแม่เหล็กช่วยป้องกันรังสีอันตรายจากอวกาศ",
+            funFact: "โลกหมุนรอบตัวเองโดยมีแกนเอียง 23.5 องศา ทำให้เกิดฤดูกาลต่างๆ ตลอดทั้งปี!"
+          }
+        },
+        {
+          id: "mars", name: "ดาวอังคาร (Mars)", color: 0xef4444, size: 6, dist: 190, speed: 0.015,
+          desc: "ดาวเคราะห์สีแดง เต็มไปด้วยสนิมเหล็กและภูเขาไฟยักษ์", orbit: "687 วัน", temp: "-63 °C",
+          scaleTxt: "0.53 เท่าของโลก",
+          layers: [
+            { name: "เนื้อดาว (Mantle)", color: 0xb91c1c, ratio: 0.8 },
+            { name: "แก่นดาว (Core)", color: 0x64748b, ratio: 0.45 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์หิน (Terrestrial Planet)", gravity: "0.38 เท่าของโลก", moons: "2 ดวง (โฟบอส, ดีมอส)",
+            details: "พื้นผิวเป็นสีแดงเพราะมีฝุ่นเหล็กออกไซด์ (สนิม) มีร่องรอยธารน้ำโบราณ และมีภูเขาไฟโอลิมปัสมอนส์ที่สูงที่สุดในระบบสุริยะ",
+            funFact: "บนดาวอังคาร พระอาทิตย์ตกดินจะปรากฏเป็นแสง 'สีฟ้า' แตกต่างจากบนโลก!"
+          }
+        },
+        {
+          id: "jupiter", name: "ดาวพฤหัสบดี (Jupiter)", color: 0xfb923c, size: 28, dist: 280, speed: 0.008,
+          desc: "ดาวเคราะห์แก๊สยักษ์ที่ใหญ่ที่สุดในระบบสุริยะ", orbit: "11.86 ปี", temp: "-110 °C",
+          scaleTxt: "ใหญ่เป็น 11 เท่าของโลก",
+          layers: [
+            { name: "ไฮโดรเจนเหลว (Liquid Metallic Hydrogen)", color: 0x334155, ratio: 0.85 },
+            { name: "แก่นหินและน้ำแข็ง (Rocky Core)", color: 0x7c3aed, ratio: 0.2 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์แก๊สยักษ์ (Gas Giant)", gravity: "2.53 เท่าของโลก", moons: "95+ ดวง (บริวารมากที่สุด)",
+            details: "เป็นดาวแก๊สยักษ์ที่ไม่มีพื้นผิวแข็ง มีจุดเด่นคือ 'จุดแดงใหญ่' (Great Red Spot) ซึ่งเป็นพายุหมุนขนาดยักษ์ที่พัดต่อเนื่องมาหลายร้อยปี",
+            funFact: "ดาวพฤหัสบดีมีมวลมากกว่าดาวเคราะห์ดวงอื่นในระบบสุริยะรวมกันถึง 2.5 เท่า!"
+          }
+        },
+        {
+          id: "saturn", name: "ดาวเสาร์ (Saturn)", color: 0xfacc15, size: 22, dist: 380, speed: 0.006,
+          desc: "โดดเด่นด้วยระบบวงแหวนน้ำแข็งที่สวยงามและกว้างใหญ่", orbit: "29.45 ปี", temp: "-140 °C",
+          hasRing: true, scaleTxt: "ใหญ่เป็น 9 เท่าของโลก",
+          layers: [
+            { name: "ไฮโดรเจนเหลว (Liquid Hydrogen)", color: 0x64748b, ratio: 0.75 },
+            { name: "แก่นดาว (Dense Core)", color: 0x991b1b, ratio: 0.25 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์แก๊สยักษ์ (Gas Giant)", gravity: "1.06 เท่าของโลก", moons: "146+ ดวง",
+            details: "วงแหวนของดาวเสาร์ประกอบด้วยอนุภาคน้ำแข็งและเศษหินจำนวนมหาศาล มีความหนาแน่นเฉลี่ยน้อยที่สุดในระบบสุริยะ",
+            funFact: "ดาวเสาร์มีความหนาแน่นน้อยกว่าน้ำ! หากมีอ่างน้ำขนาดใหญ่พอ ดาวเสาร์จะสามารถ 'ลอยน้ำ' ได้!"
+          }
+        },
+        {
+          id: "uranus", name: "ดาวยูเรนัส (Uranus)", color: 0x67e8f9, size: 14, dist: 470, speed: 0.004,
+          desc: "ดาวยักษ์น้ำแข็งสีฟ้าแกมเขียวที่หมุนตะแคงข้างเกือบ 90 องศา", orbit: "84 ปี", temp: "-195 °C",
+          scaleTxt: "ใหญ่เป็น 4 เท่าของโลก",
+          layers: [
+            { name: "ชั้นน้ำแข็งและมีเทน (Icy Mantle)", color: 0x0284c7, ratio: 0.8 },
+            { name: "แก่นหิน (Rocky Core)", color: 0x475569, ratio: 0.3 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์น้ำแข็งยักษ์ (Ice Giant)", gravity: "0.89 เท่าของโลก", moons: "28 ดวง",
+            details: "บรรยากาศมีก๊าซมีเทนที่ดูดซับแสงสีแดงทำให้มองเห็นเป็นสีฟ้าเทอร์ควอยซ์ แกนหมุนเอียง 98 องศาทำให้เหมือนกลิ้งไปตามวงโคจร",
+            funFact: "เพราะมันหมุนตะแคงข้าง ขั้วหนึ่งของดาวยูเรนัสจะได้รับแสงแดดยาวนาน 42 ปี และอีกขั้วจะมืดมิด 42 ปี!"
+          }
+        },
+        {
+          id: "neptune", name: "ดาวเนปจูน (Neptune)", color: 0x2563eb, size: 13, dist: 550, speed: 0.003,
+          desc: "ดาวเคราะห์ดวงสุดท้าย อยู่ไกลที่สุดและมีลมพายุรุนแรงที่สุด", orbit: "164.8 ปี", temp: "-200 °C",
+          scaleTxt: "ใหญ่เป็น 3.8 เท่าของโลก",
+          layers: [
+            { name: "ชั้นน้ำแข็งมีเทน (Icy Mantle)", color: 0x0d9488, ratio: 0.8 },
+            { name: "แก่นหิน (Rocky Core)", color: 0x334155, ratio: 0.3 }
+          ],
+          enc: {
+            type: "ดาวเคราะห์น้ำแข็งยักษ์ (Ice Giant)", gravity: "1.14 เท่าของโลก", moons: "16 ดวง (ไทรทันใหญ่สุด)",
+            details: "ดาวเคราะห์สีน้ำเงินเข้มที่มีสภาพอากาศแปรปรวน ลมพายุพัดเร็วถึง 2,100 กม./ชม. ซึ่งเร็วที่สุดในระบบสุริยะ",
+            funFact: "นับตั้งแต่ถูกค้นพบในปี ค.ศ. 1846 ดาวเนปจูนเพิ่งโคจรรอบดวงอาทิตย์ครบ 1 รอบเต็มเมื่อปี ค.ศ. 2011!"
+          }
+        }
+      ];
+
+      // Light speed particle
+      const photonGeo = new THREE.SphereGeometry(3, 16, 16);
+      const photonMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const photon = new THREE.Mesh(photonGeo, photonMat);
+      const photonGlow = new THREE.Mesh(new THREE.SphereGeometry(6, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending }));
+      photon.add(photonGlow);
+      photon.visible = false;
+      scene.add(photon);
+
+      const planetObjects = [];
+      const planetMeshes = [];
+      let earthObjectData = null;
+      let sunObjectData = null;
+
+      function createSprite(text, yOffset, size, color) {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 64;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = color;
+        ctx.font = 'bold 26px Sarabun';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, 256, 40);
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+        sprite.scale.set(size, size / 4, 1);
+        sprite.position.y = yOffset;
+        return sprite;
+      }
+
+      // Build 3D Planet Meshes
+      planetsConfig.forEach((p) => {
+        const pGroup = new THREE.Group();
+        const meshGroup = new THREE.Group();
+        pGroup.add(meshGroup);
+
+        const allMaterials = [];
+        const geo = new THREE.SphereGeometry(p.size, 32, 32);
+
+        const mat = p.isSun
+          ? new THREE.MeshBasicMaterial({ color: p.color, side: THREE.DoubleSide })
+          : new THREE.MeshStandardMaterial({ color: p.color, roughness: 0.8, side: THREE.DoubleSide });
+
+        allMaterials.push(mat);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.userData = { id: p.id };
+        planetMeshes.push(mesh);
+        meshGroup.add(mesh);
+
+        if (p.isSun) {
+          const glowMat = new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending });
+          const sunGlow = new THREE.Mesh(new THREE.SphereGeometry(p.size + 8, 32, 32), glowMat);
+          p.sunGlow = sunGlow;
+          meshGroup.add(sunGlow);
+        }
+
+        if (p.tilt) {
+          meshGroup.rotation.z = p.tilt * (Math.PI / 180);
+          const axisMat = new THREE.LineBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.6 });
+          const axisGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -p.size - 6, 0), new THREE.Vector3(0, p.size + 6, 0)]);
+          const axisLine = new THREE.Line(axisGeo, axisMat);
+          axisLine.visible = false;
+          p.axisLine = axisLine;
+          meshGroup.add(axisLine);
+        }
+
+        if (p.layers) {
+          p.layers.forEach((layer) => {
+            const lGeo = new THREE.SphereGeometry(p.size * layer.ratio, 32, 32);
+            const lMat = p.isSun
+              ? new THREE.MeshBasicMaterial({ color: layer.color, side: THREE.DoubleSide })
+              : new THREE.MeshStandardMaterial({ color: layer.color, roughness: 0.9, side: THREE.DoubleSide });
+            allMaterials.push(lMat);
+            meshGroup.add(new THREE.Mesh(lGeo, lMat));
+          });
+        }
+
+        if (p.hasRing) {
+          const ring = new THREE.Mesh(
+            new THREE.RingGeometry(p.size * 1.3, p.size * 2.2, 32),
+            new THREE.MeshStandardMaterial({ color: 0xfacc15, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+          );
+          ring.rotation.x = Math.PI / 2 + 0.3;
+          pGroup.add(ring);
+        }
+
+        if (p.hasMoon) {
+          const moonGeo = new THREE.SphereGeometry(2.2, 16, 16);
+          const moonMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0 });
+          const moon = new THREE.Mesh(moonGeo, moonMat);
+          p.moonMesh = moon;
+          pGroup.add(moon);
+        }
+
+        p.sprite = createSprite(p.name.split(' ')[0], p.size + 12, 60, '#ffffff');
+        pGroup.add(p.sprite);
+
+        p.scaleSprite = createSprite(p.scaleTxt, -p.size - 12, 80, '#38bdf8');
+        p.scaleSprite.visible = false;
+        pGroup.add(p.scaleSprite);
+
+        if (!p.isSun) {
+          const pathGeo = new THREE.BufferGeometry();
+          const pathPoints = [];
+          for (let i = 0; i <= 64; i++) {
+            pathPoints.push(new THREE.Vector3(Math.cos((i / 64) * Math.PI * 2) * p.dist, 0, Math.sin((i / 64) * Math.PI * 2) * p.dist));
+          }
+          pathGeo.setFromPoints(pathPoints);
+          p.orbitLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 }));
+          scene.add(p.orbitLine);
+        } else {
+          p.orbitLine = new THREE.Object3D();
+          p.orbitLine.material = { opacity: 0, color: { setHex: () => {} } };
+        }
+
+        scene.add(pGroup);
+        const pObj = {
+          config: p, group: pGroup, meshGroup: meshGroup, mesh: mesh,
+          materials: allMaterials, angle: Math.random() * Math.PI * 2, alignTarget: new THREE.Vector3(0, 0, 0)
+        };
+        planetObjects.push(pObj);
+
+        if (p.id === 'earth') earthObjectData = pObj;
+        if (p.isSun) sunObjectData = pObj;
+      });
+
+      const highlightMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.6 })
+      );
+      highlightMesh.visible = false;
+      scene.add(highlightMesh);
+
+      // --- ALIGNMENT POSITION CALCULATION ---
+      function calcAlignPos() {
+        let sorted = [...planetObjects].sort((a, b) => a.config.dist - b.config.dist);
+        let curX = 0;
+        sorted.forEach((obj) => {
+          if (obj.config.isSun) {
+            obj.alignTarget.set(0, 0, 0);
+            curX += obj.config.size + 24;
+          } else {
+            let space = obj.config.size * 1.5 + 16;
+            if (obj.config.hasRing) space += 16;
+            curX += space;
+            obj.alignTarget.set(curX, 0, 0);
+            curX += space;
+          }
+        });
+      }
+      calcAlignPos();
+
+      // --- SPEED CONTROLLER ---
+      const speedSlider = document.getElementById('speedSlider');
+      const speedInput = document.getElementById('speedInput');
+
+      function setSystemSpeed(val) {
+        speedSlider.value = val;
+        speedInput.value = val;
+      }
+
+      speedSlider.addEventListener('input', (e) => { speedInput.value = e.target.value; });
+      speedInput.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (isNaN(val) || val < 0) val = 0;
+        speedSlider.value = Math.min(val, parseFloat(speedSlider.max));
+      });
+
+      // --- STATE VARIABLES ---
+      let isCrossSectionMode = false;
+      let isAlignmentMode = false;
+      let isEarthMoonMode = false;
+      let isLightSpeedMode = false;
+      let isQuizMode = false;
+      let isEncyclopediaMode = false;
+
+      let selectedPlanetData = null;
+      let preSpecialSpeed = 0.3;
+      let moonAngle = 0;
+      let lightPhotonDistance = 0;
+      let followedPlanetId = '';
+
+      let lsActive = false;
+      let lsStartX = 0;
+      let lsTargetX = 0;
+      let lsDir = 1;
+
+      // Fill Light Speed dropdowns
+      const lsFrom = document.getElementById('lsFrom');
+      const lsTo = document.getElementById('lsTo');
+      planetsConfig.forEach((p) => {
+        lsFrom.add(new Option(p.name.split(' ')[0], p.id));
+        lsTo.add(new Option(p.name.split(' ')[0], p.id));
+      });
+      lsTo.value = 'earth';
+
+      document.getElementById('lsStartBtn').addEventListener('click', () => {
+        const fromId = lsFrom.value;
+        const toId = lsTo.value;
+        if (fromId === toId) {
+          alert('กรุณาเลือกดาวต้นทางและปลายทางให้ต่างกันครับ');
+          return;
+        }
+
+        const fromObj = planetObjects.find((p) => p.config.id === fromId);
+        const toObj = planetObjects.find((p) => p.config.id === toId);
+
+        lsStartX = fromObj.alignTarget.x;
+        lsTargetX = toObj.alignTarget.x;
+        lsDir = Math.sign(lsTargetX - lsStartX);
+        lightPhotonDistance = lsStartX;
+
+        photon.visible = true;
+        photon.position.set(lightPhotonDistance, 0, 0);
+        lsActive = true;
+
+        camera.position.set(lightPhotonDistance + 50 * -lsDir, 100, 200);
+        controls.target.set(lightPhotonDistance, 0, 0);
+
+        document.getElementById('specialFeatureTitle').innerText = `🚀 ${fromObj.config.name.split(' ')[0]} ➡ ${toObj.config.name.split(' ')[0]}`;
+        document.getElementById('specialFeatureContent').innerText = '00 นาที 00 วินาที';
+        document.getElementById('specialFeatureDesc').innerText = `กำลังเดินทางออกจาก ${fromObj.config.name}...`;
+      });
+
+      // --- QUIZ QUESTIONS (CORE CURRICULUM ว 3.1) ---
+      const quizQuestions = [
+        {
+          q: "1. ดาวเคราะห์ดวงใดมีขนาดใหญ่ที่สุดในระบบสุริยะ และมี 'จุดแดงใหญ่'?",
+          ansId: "jupiter",
+          ansName: "ดาวพฤหัสบดี",
+          explain: "ดาวพฤหัสบดีเป็นดาวเคราะห์แก๊สยักษ์ที่มีขนาดใหญ่ที่สุด และมีพายุหมุนจุดแดงใหญ่",
+          choices: ["ดาวพฤหัสบดี", "ดาวเสาร์", "โลก", "ดวงอาทิตย์"]
+        },
+        {
+          q: "2. ดาวเคราะห์ดวงใดถูกขนานนามว่า 'ดาวเคราะห์สีแดง' เนื่องจากมีสนิมเหล็กปกคลุม?",
+          ansId: "mars",
+          ansName: "ดาวอังคาร",
+          explain: "ดาวอังคารเต็มไปด้วยฝุ่นเหล็กออกไซด์ (สนิม) จึงมองเห็นเป็นสีแดงส้ม",
+          choices: ["ดาวอังคาร", "ดาวพุธ", "ดาวศุกร์", "ดาวเนปจูน"]
+        },
+        {
+          q: "3. ดาวเคราะห์ดวงใดอยู่ใกล้ดวงอาทิตย์ที่สุด และมีอุณหภูมิกลางวัน-กลางคืนต่างกันสุดขั้ว?",
+          ansId: "mercury",
+          ansName: "ดาวพุธ",
+          explain: "ดาวพุธอยู่ใกล้ดวงอาทิตย์ที่สุดและไม่มีบรรยากาศกักเก็บความร้อน จึงมีฉายาว่า 'เตาไฟแช่แข็ง'",
+          choices: ["ดาวพุธ", "ดาวศุกร์", "โลก", "ดาวพฤหัสบดี"]
+        },
+        {
+          q: "4. ดาวเคราะห์ดวงใดมีระบบวงแหวนน้ำแข็งที่กว้างใหญ่และสวยงามที่สุด?",
+          ansId: "saturn",
+          ansName: "ดาวเสาร์",
+          explain: "ดาวเสาร์โดดเด่นด้วยวงแหวนที่ทำจากอนุภาคน้ำแข็งและเศษหินจำนวนมหาศาล",
+          choices: ["ดาวเสาร์", "ดาวยูเรนัส", "ดาวพฤหัสบดี", "ดาวเนปจูน"]
+        },
+        {
+          q: "5. ดาวเคราะห์ดวงใดที่มีน้ำในสถานะของเหลวและเหมาะสมต่อการดำรงชีวิตของสิ่งมีชีวิต?",
+          ansId: "earth",
+          ansName: "โลก",
+          explain: "โลก (Earth) เป็นดาวเคราะห์สีน้ำเงินดวงเดียวที่ค้นพบสิ่งมีชีวิตในปัจจุบัน",
+          choices: ["โลก", "ดาวอังคาร", "ดาวศุกร์", "ดาวพุธ"]
+        },
+        {
+          q: "6. ดาวเคราะห์ดวงใดที่มีแกนหมุนเอียงตะแคงข้างเกือบ 90 องศา (เอียง 98°)?",
+          ansId: "uranus",
+          ansName: "ดาวยูเรนัส",
+          explain: "ดาวยูเรนัสมีแกนหมุนเอียงตะแคงข้างเกือบระนาบวงโคจร ทำให้ดูเหมือนกลิ้งไปในอวกาศ",
+          choices: ["ดาวยูเรนัส", "ดาวเนปจูน", "ดาวเสาร์", "ดาวพุธ"]
+        },
+        {
+          q: "7. ดาวเคราะห์ดวงใดที่ร้อนที่สุดในระบบสุริยะจากภาวะเรือนกระจกขั้นรุนแรง?",
+          ansId: "venus",
+          ansName: "ดาวศุกร์",
+          explain: "ดาวศุกร์มีบรรยากาศคาร์บอนไดออกไซด์เข้มข้น จึงกักเก็บความร้อนจนมีอุณหภูมิสูงถึง 464 °C",
+          choices: ["ดาวศุกร์", "ดาวพุธ", "ดวงอาทิตย์", "ดาวอังคาร"]
+        },
+        {
+          q: "8. ดาวเคราะห์ดวงสุดท้ายที่อยู่ไกลที่สุดและมีลมพายุรุนแรงที่สุดในระบบสุริยะคือดวงใด?",
+          ansId: "neptune",
+          ansName: "ดาวเนปจูน",
+          explain: "ดาวเนปจูนเป็นดาวน้ำแข็งยักษ์สีน้ำเงินเข้มดวงสุดท้าย มีความเร็วลมสูงถึง 2,100 กม./ชม.",
+          choices: ["ดาวเนปจูน", "ดาวยูเรนัส", "ดาวเสาร์", "ดาวพลูโต"]
+        },
+        {
+          q: "9. ดาวฤกษ์ดวงเดียวที่เป็นศูนย์กลางและเป็นแหล่งพลังงานหลักของระบบสุริยะคือดวงใด?",
+          ansId: "sun",
+          ansName: "ดวงอาทิตย์",
+          explain: "ดวงอาทิตย์เป็นดาวฤกษ์ศูนย์กลางที่มีมวล 99.8% ของระบบสุริยะทั้งหมด",
+          choices: ["ดวงอาทิตย์", "ดาวพฤหัสบดี", "ดวงจันทร์", "โลก"]
+        }
+      ];
+
+      let currentQuestionIndex = 0;
+      let quizScore = 0;
+
+      function showFeedback(text, color) {
+        const fb = document.getElementById('feedback');
+        fb.innerText = text;
+        fb.style.color = color;
+        fb.style.borderColor = color;
+        fb.style.opacity = '1';
+        fb.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        setTimeout(() => {
+          fb.style.opacity = '0';
+          fb.style.transform = 'translate(-50%, -50%) scale(0.9)';
+        }, 1600);
+      }
+
+      function speakThai(text) {
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
+          KAMPAI.sound.speak(text, 'th-TH');
+        }
+      }
+
+      function loadQuizQuestion() {
+        if (currentQuestionIndex >= quizQuestions.length) {
+          document.getElementById('quizProgress').innerText = `สำเร็จ 9/9`;
+          document.getElementById('questionText').innerHTML = `🎉 ยอดเยี่ยมมาก! ทำภารกิจสำรวจอวกาศครบทุกข้อแล้ว (${quizScore}/9 ข้อ)<br><span style="font-size:0.9rem; color:#38bdf8; font-weight:normal;">เข้าใจระบบสุริยะและดวงดาวบริวารอย่างลึกซึ้ง</span>`;
+          document.getElementById('quizChoices').innerHTML = `<button type="button" class="quiz-choice-btn" style="grid-column: span 2; background:#0284c7; color:#fff;" onclick="window.restartQuiz()">🔄 ทำภารกิจใหม่อีกครั้ง</button>`;
+          return;
+        }
+
+        const q = quizQuestions[currentQuestionIndex];
+        document.getElementById('quizProgress').innerText = `ข้อ ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+        document.getElementById('questionText').innerText = q.q;
+
+        const choiceBox = document.getElementById('quizChoices');
+        choiceBox.innerHTML = q.choices.map((ch) => {
+          return `<button type="button" class="quiz-choice-btn" data-choice="${ch}">${ch}</button>`;
+        }).join('');
+
+        choiceBox.querySelectorAll('.quiz-choice-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const ch = btn.getAttribute('data-choice');
+            checkAnswerByName(ch);
+          });
+        });
+      }
+
+      window.restartQuiz = function () {
+        currentQuestionIndex = 0;
+        quizScore = 0;
+        loadQuizQuestion();
+      };
+
+      function checkAnswer(id) {
+        if (currentQuestionIndex >= quizQuestions.length) return;
+        const currentQ = quizQuestions[currentQuestionIndex];
+        if (id === currentQ.ansId) {
+          handleCorrectAnswer(currentQ);
+        } else {
+          handleWrongAnswer(currentQ);
+        }
+      }
+
+      function checkAnswerByName(name) {
+        if (currentQuestionIndex >= quizQuestions.length) return;
+        const currentQ = quizQuestions[currentQuestionIndex];
+        if (name.includes(currentQ.ansName) || currentQ.ansName.includes(name)) {
+          handleCorrectAnswer(currentQ);
+        } else {
+          handleWrongAnswer(currentQ);
+        }
+      }
+
+      function handleCorrectAnswer(currentQ) {
+        showFeedback('✅ ถูกต้อง! เก่งมาก', '#22c55e');
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) KAMPAI.sound.correct();
+        quizScore++;
+        speakThai(`ถูกต้อง ${currentQ.ansName} ${currentQ.explain}`);
+        currentQuestionIndex++;
+        setTimeout(loadQuizQuestion, 1200);
+      }
+
+      function handleWrongAnswer(currentQ) {
+        showFeedback(`❌ ยังไม่ถูกนะ (คือ ${currentQ.ansName})`, '#ef4444');
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) KAMPAI.sound.wrong();
+        speakThai(`ยังไม่ถูกครับ คำตอบคือ ${currentQ.ansName}`);
+        currentQuestionIndex++;
+        setTimeout(loadQuizQuestion, 1600);
+      }
+
+      // --- ORBIT HIGHLIGHT SYSTEM ---
+      function updateOrbitHighlight() {
+        planetObjects.forEach((obj) => {
+          if (obj.config.isSun) return;
+          if (followedPlanetId && obj.config.id === followedPlanetId) {
+            obj.config.orbitLine.material.opacity = 0.8;
+            obj.config.orbitLine.material.color.setHex(0x38bdf8);
+          } else {
+            obj.config.orbitLine.material.opacity = 0.18;
+            obj.config.orbitLine.material.color.setHex(0xffffff);
+          }
+        });
+      }
+
+      // Follow Select
+      const followSelect = document.getElementById('followSelect');
+      followSelect.addEventListener('change', (e) => {
+        followedPlanetId = e.target.value;
+        updateOrbitHighlight();
+
+        if (followedPlanetId) {
+          if (isEarthMoonMode) document.getElementById('earthMoonBtn').click();
+          if (isLightSpeedMode) document.getElementById('lightSpeedBtn').click();
+
+          const p = planetObjects.find((obj) => obj.config.id === followedPlanetId);
+          if (p) {
+            const dist = p.config.size * 8;
+            camera.position.set(p.group.position.x + dist, p.group.position.y + dist * 0.5, p.group.position.z + dist);
+            controls.target.copy(p.group.position);
+          }
+        } else {
+          controls.target.set(0, 0, 0);
+        }
+      });
+
+      // --- RAYCASTER INTERACTION (CLICK & HOVER) ---
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      let isDragging = false;
+      let mouseDownPos = { x: 0, y: 0 };
+
+      window.addEventListener('pointerdown', (e) => {
+        mouseDownPos = { x: e.clientX, y: e.clientY };
+        isDragging = false;
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y) > 8) {
+          isDragging = true;
+        }
+
+        if (isCrossSectionMode || isEarthMoonMode || isLightSpeedMode || isEncyclopediaMode) return;
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -((e.clientY - 56) / (window.innerHeight - 56)) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(planetMeshes);
+        if (intersects.length > 0) {
+          const hit = intersects[0].object;
+          const hoveredObj = planetObjects.find((po) => po.mesh === hit);
+
+          highlightMesh.position.copy(hit.parent.parent.position);
+          highlightMesh.scale.set(hoveredObj.config.size + 1.5, hoveredObj.config.size + 1.5, hoveredObj.config.size + 1.5);
+          highlightMesh.material.color.setHex(isQuizMode ? 0xec4899 : 0x38bdf8);
+          highlightMesh.visible = true;
+          canvas.style.cursor = 'pointer';
+
+          if (!isQuizMode) {
+            selectedPlanetData = hoveredObj;
+            document.getElementById('pName').innerText = hoveredObj.config.name;
+            document.getElementById('pDesc').innerText = hoveredObj.config.desc;
+            document.getElementById('pOrbit').innerText = hoveredObj.config.orbit;
+            document.getElementById('pTemp').innerText = hoveredObj.config.temp;
+            document.getElementById('crossSectionBtn').style.display = 'block';
+            document.getElementById('infoPanel').style.display = 'block';
+          }
+        } else {
+          highlightMesh.visible = false;
+          canvas.style.cursor = 'default';
+          if (!isQuizMode && !selectedPlanetData) document.getElementById('infoPanel').style.display = 'none';
+        }
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        if (isDragging) return;
+
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -((e.clientY - 56) / (window.innerHeight - 56)) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(planetMeshes);
+        if (intersects.length > 0) {
+          const hit = intersects[0].object;
+          const clickedObj = planetObjects.find((po) => po.mesh === hit);
+          if (clickedObj) {
+            if (isQuizMode) {
+              checkAnswer(clickedObj.config.id);
+            } else {
+              selectedPlanetData = clickedObj;
+              document.getElementById('pName').innerText = clickedObj.config.name;
+              document.getElementById('pDesc').innerText = clickedObj.config.desc;
+              document.getElementById('pOrbit').innerText = clickedObj.config.orbit;
+              document.getElementById('pTemp').innerText = clickedObj.config.temp;
+              document.getElementById('crossSectionBtn').style.display = 'block';
+              document.getElementById('infoPanel').style.display = 'block';
+            }
+          }
+        }
+      });
+
+      // TTS Buttons
+      document.getElementById('btnTtsPlanet').addEventListener('click', () => {
+        if (selectedPlanetData) {
+          speakThai(`${selectedPlanetData.config.name}. ${selectedPlanetData.config.desc}. อุณหภูมิเฉลี่ย ${selectedPlanetData.config.temp}`);
+        }
+      });
+
+      document.getElementById('btnTtsEnc').addEventListener('click', () => {
+        const title = document.getElementById('encName').innerText;
+        const details = document.getElementById('encDetails').innerText;
+        const fact = document.getElementById('encFunFact').innerText;
+        speakThai(`${title}. ${details}. เกร็ดความรู้: ${fact}`);
+      });
+
+      // --- ENCYCLOPEDIA OVERLAY ---
+      const encNav = document.getElementById('encNav');
+      let preEncCameraPos = new THREE.Vector3();
+      let preEncTarget = new THREE.Vector3();
+
+      planetsConfig.forEach((p) => {
+        const btn = document.createElement('button');
+        btn.className = 'enc-nav-btn';
+        btn.id = 'encNav_' + p.id;
+        btn.innerText = p.name.split(' ')[0];
+        btn.onclick = () => openEncyclopedia(p.id);
+        encNav.appendChild(btn);
+      });
+
+      function openEncyclopedia(planetId) {
+        if (!isEncyclopediaMode) {
+          preEncCameraPos.copy(camera.position);
+          preEncTarget.copy(controls.target);
+          isEncyclopediaMode = true;
+
+          document.getElementById('controlPanel').style.display = 'none';
+          document.getElementById('infoPanel').style.display = 'none';
+          document.getElementById('quickEncPanel').style.display = 'none';
+          document.getElementById('encyclopediaOverlay').style.display = 'flex';
+
+          preSpecialSpeed = parseFloat(speedInput.value);
+          setSystemSpeed(0.2);
+        }
+
+        followedPlanetId = planetId;
+        document.getElementById('followSelect').value = planetId;
+        updateOrbitHighlight();
+
+        planetObjects.forEach((obj) => {
+          if (obj.config.id === planetId) {
+            obj.group.visible = true;
+            if (!obj.config.isSun) obj.config.orbitLine.visible = false;
+            obj.config.sprite.visible = false;
+            obj.config.scaleSprite.visible = false;
+
+            const dist = obj.config.size * 12;
+            camera.position.set(obj.group.position.x + dist, obj.group.position.y + dist * 0.4, obj.group.position.z + dist);
+            controls.target.copy(obj.group.position);
+
+            document.getElementById('encName').innerText = obj.config.name;
+            document.getElementById('encType').innerText = obj.config.enc.type;
+            document.getElementById('encSize').innerText = obj.config.scaleTxt;
+            document.getElementById('encGravity').innerText = obj.config.enc.gravity;
+            document.getElementById('encTempInfo').innerText = obj.config.temp;
+            document.getElementById('encMoons').innerText = obj.config.enc.moons;
+            document.getElementById('encDetails').innerText = obj.config.enc.details;
+            document.getElementById('encFunFact').innerText = obj.config.enc.funFact;
+          } else {
+            obj.group.visible = false;
+          }
+        });
+
+        document.querySelectorAll('.enc-nav-btn').forEach((btn) => btn.classList.remove('active'));
+        const targetNavBtn = document.getElementById('encNav_' + planetId);
+        if (targetNavBtn) targetNavBtn.classList.add('active');
+        highlightMesh.visible = false;
+      }
+
+      document.getElementById('openEncyclopediaBtn').addEventListener('click', () => {
+        if (selectedPlanetData) openEncyclopedia(selectedPlanetData.config.id);
+      });
+
+      document.getElementById('quickEncBtn').addEventListener('click', () => {
+        const sel = document.getElementById('quickEncSelect').value;
+        openEncyclopedia(sel);
+      });
+
+      document.getElementById('closeEncBtn').addEventListener('click', () => {
+        isEncyclopediaMode = false;
+        document.getElementById('controlPanel').style.display = 'block';
+        document.getElementById('encyclopediaOverlay').style.display = 'none';
+        document.getElementById('quickEncPanel').style.display = 'block';
+
+        followedPlanetId = '';
+        document.getElementById('followSelect').value = '';
+        updateOrbitHighlight();
+
+        setSystemSpeed(preSpecialSpeed);
+        camera.position.copy(preEncCameraPos);
+        controls.target.copy(preEncTarget);
+
+        planetObjects.forEach((obj) => {
+          obj.group.visible = true;
+          if (!isAlignmentMode && !obj.config.isSun) obj.config.orbitLine.visible = true;
+          if (!isQuizMode) obj.config.sprite.visible = true;
+          if (isAlignmentMode) obj.config.scaleSprite.visible = true;
+        });
+      });
+
+      // --- CROSS-SECTION MODE (ผ่าดูโครงสร้าง) ---
+      document.getElementById('crossSectionBtn').addEventListener('click', () => {
+        if (!selectedPlanetData) return;
+        isCrossSectionMode = !isCrossSectionMode;
+
+        const btn = document.getElementById('crossSectionBtn');
+        if (isCrossSectionMode) {
+          btn.innerText = '🌌 ปิดโหมดผ่าดาว (กลับสู่ปกติ)';
+          btn.style.background = '#475569';
+          preSpecialSpeed = parseFloat(speedInput.value);
+          setSystemSpeed(0);
+          clipPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(1, 0.2, 1).normalize(), selectedPlanetData.group.position);
+          selectedPlanetData.materials.forEach((m) => (m.clippingPlanes = [clipPlane]));
+
+          const pos = selectedPlanetData.group.position;
+          const dist = selectedPlanetData.config.size * 5;
+          camera.position.set(pos.x + dist, pos.y + dist / 2, pos.z + dist);
+          controls.target.copy(pos);
+
+          const layersList = document.getElementById('layersList');
+          layersList.innerHTML = '';
+
+          const outerLayerName = selectedPlanetData.config.isSun ? 'พื้นผิวดาว (Photosphere)' : 'เปลือกดาว / ชั้นบรรยากาศ';
+          layersList.innerHTML += `<div class="layer-item"><div class="layer-color" style="background:#${selectedPlanetData.config.color.toString(16).padStart(6, '0')}"></div> ${outerLayerName}</div>`;
+
+          if (selectedPlanetData.config.layers) {
+            selectedPlanetData.config.layers.forEach((l) => {
+              const colorStr = '#' + l.color.toString(16).padStart(6, '0');
+              layersList.innerHTML += `<div class="layer-item"><div class="layer-color" style="background:${colorStr}"></div> ${l.name}</div>`;
+            });
+          }
+          document.getElementById('layerInfoPanel').style.display = 'block';
+          highlightMesh.visible = false;
+        } else {
+          btn.innerText = '🍰 ผ่าดูโครงสร้างภายใน';
+          btn.style.background = '#ef4444';
+          selectedPlanetData.materials.forEach((m) => (m.clippingPlanes = []));
+          setSystemSpeed(preSpecialSpeed);
+          document.getElementById('layerInfoPanel').style.display = 'none';
+        }
+      });
+
+      // --- ALIGNMENT MODE (เปรียบเทียบขนาด) ---
+      function toggleAlignment(forceOn = false) {
+        if (forceOn) isAlignmentMode = true;
+        else isAlignmentMode = !isAlignmentMode;
+
+        const btn = document.getElementById('toggleAlignBtn');
+        if (isAlignmentMode) {
+          btn.innerText = '🌌 กลับสู่วงโคจรปกติ';
+          btn.style.background = '#ea580c';
+          planetObjects.forEach((p) => {
+            if (!p.config.isSun) p.config.orbitLine.visible = false;
+            p.config.scaleSprite.visible = true;
+          });
+          camera.position.set(200, 150, 420);
+          controls.target.set(200, 0, 0);
+        } else {
+          btn.innerText = '📏 เปรียบเทียบขนาด (เรียงแถว)';
+          btn.style.background = '#a855f7';
+          planetObjects.forEach((p) => {
+            if (!p.config.isSun) p.config.orbitLine.visible = true;
+            p.config.scaleSprite.visible = false;
+          });
+        }
+      }
+      document.getElementById('toggleAlignBtn').addEventListener('click', () => toggleAlignment());
+
+      // --- EARTH & MOON MODE (เจาะลึกโลกและดวงจันทร์) ---
+      document.getElementById('earthMoonBtn').addEventListener('click', (e) => {
+        isEarthMoonMode = !isEarthMoonMode;
+        const btn = e.target;
+        const panel = document.getElementById('specialFeaturePanel');
+
+        if (isEarthMoonMode) {
+          btn.innerText = '🌍 ออกจากโหมดเจาะลึกโลก';
+          btn.style.background = '#ea580c';
+
+          if (isAlignmentMode) toggleAlignment();
+          if (isLightSpeedMode) document.getElementById('lightSpeedBtn').click();
+
+          followedPlanetId = '';
+          followSelect.value = '';
+          updateOrbitHighlight();
+
+          preSpecialSpeed = parseFloat(speedInput.value);
+          setSystemSpeed(0.5);
+
+          earthObjectData.config.axisLine.visible = true;
+
+          const pos = earthObjectData.group.position;
+          camera.position.set(pos.x, pos.y + 16, pos.z + 42);
+          controls.target.copy(pos);
+
+          document.getElementById('specialFeatureTitle').innerText = '🌗 ข้างขึ้น-ข้างแรม (Moon Phases)';
+          document.getElementById('specialFeatureDesc').innerText = 'แกนโลกเอียง 23.5° และดวงจันทร์โคจรรอบโลก';
+          panel.style.display = 'block';
+          panel.style.borderColor = '#10b981';
+          document.getElementById('specialFeatureTitle').style.color = '#10b981';
+
+          planetObjects.forEach((p) => {
+            if (p.config.id !== 'earth') p.group.visible = false;
+          });
+        } else {
+          btn.innerText = '🌗 เจาะลึกโลกและดวงจันทร์';
+          btn.style.background = '#10b981';
+          earthObjectData.config.axisLine.visible = false;
+          setSystemSpeed(preSpecialSpeed);
+          panel.style.display = 'none';
+          planetObjects.forEach((p) => (p.group.visible = true));
+        }
+      });
+
+      // --- LIGHT SPEED MODE (ความเร็วแสง) ---
+      document.getElementById('lightSpeedBtn').addEventListener('click', (e) => {
+        isLightSpeedMode = !isLightSpeedMode;
+        const btn = e.target;
+        const panel = document.getElementById('specialFeaturePanel');
+
+        if (isLightSpeedMode) {
+          btn.innerText = '⏹️ ออกจากโหมดความเร็วแสง';
+          btn.style.background = '#ef4444';
+          btn.style.color = '#fff';
+
+          if (!isAlignmentMode) toggleAlignment(true);
+          if (isEarthMoonMode) document.getElementById('earthMoonBtn').click();
+
+          followedPlanetId = '';
+          followSelect.value = '';
+          updateOrbitHighlight();
+
+          preSpecialSpeed = parseFloat(speedInput.value);
+          setSystemSpeed(0);
+
+          lsActive = false;
+          photon.visible = false;
+
+          camera.position.set(150, 200, 420);
+          controls.target.set(150, 0, 0);
+
+          document.getElementById('specialFeatureTitle').innerText = '🚀 คำนวณการเดินทางความเร็วแสง';
+          document.getElementById('specialFeatureContent').innerText = '300,000 กม./วินาที';
+          document.getElementById('specialFeatureDesc').innerText = 'เลือกดาวต้นทางและปลายทางด้านล่าง เพื่อจำลองการเดินทาง';
+          document.getElementById('lightSpeedControls').style.display = 'block';
+          panel.style.display = 'block';
+          panel.style.borderColor = '#facc15';
+          document.getElementById('specialFeatureTitle').style.color = '#facc15';
+        } else {
+          btn.innerText = '🚀 เดินทางด้วยความเร็วแสง';
+          btn.style.background = '#eab308';
+          btn.style.color = '#000';
+          setSystemSpeed(preSpecialSpeed);
+          photon.visible = false;
+          lsActive = false;
+          document.getElementById('lightSpeedControls').style.display = 'none';
+          panel.style.display = 'none';
+        }
+      });
+
+      // --- MODE TOGGLES (Learn vs Practice) ---
+      function setMainMode(mode) {
+        document.getElementById('tabLearn').classList.toggle('active', mode === 'learn');
+        document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
+
+        if (mode === 'practice') {
+          isQuizMode = true;
+          document.getElementById('quizPanel').style.display = 'block';
+          document.getElementById('infoPanel').style.display = 'none';
+          document.getElementById('quickEncPanel').style.display = 'none';
+          document.getElementById('toggleQuizBtn').innerText = '🌍 ออกจากโหมดทดสอบ';
+          document.getElementById('toggleQuizBtn').style.background = '#ef4444';
+
+          planetObjects.forEach((p) => {
+            p.config.sprite.visible = false;
+            p.config.scaleSprite.visible = false;
+          });
+
+          loadQuizQuestion();
+        } else {
+          isQuizMode = false;
+          document.getElementById('quizPanel').style.display = 'none';
+          document.getElementById('quickEncPanel').style.display = 'block';
+          document.getElementById('toggleQuizBtn').innerText = '🎯 ภารกิจนักสำรวจ (Quiz 3D)';
+          document.getElementById('toggleQuizBtn').style.background = '#ec4899';
+
+          planetObjects.forEach((p) => {
+            p.config.sprite.visible = true;
+            if (isAlignmentMode && !p.config.isSun) p.config.scaleSprite.visible = true;
+          });
+        }
+      }
+
+      document.getElementById('tabLearn').addEventListener('click', () => setMainMode('learn'));
+      document.getElementById('tabPractice').addEventListener('click', () => setMainMode('practice'));
+      document.getElementById('toggleQuizBtn').addEventListener('click', () => {
+        setMainMode(isQuizMode ? 'learn' : 'practice');
+      });
+
+      // --- ANIMATION LOOP ---
+      let time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+
+        const speed = parseFloat(speedInput.value) || 0;
+        time += 0.05 * speed;
+
+        if (sunObjectData) {
+          sunObjectData.config.sunGlow.scale.set(
+            1 + Math.sin(time) * 0.02,
+            1 + Math.sin(time) * 0.02,
+            1 + Math.sin(time) * 0.02
+          );
+        }
+
+        planetObjects.forEach((obj) => {
+          const oldPos = obj.group.position.clone();
+
+          if (!isCrossSectionMode || speed > 0) obj.angle += obj.config.speed * speed;
+
+          let tX = isAlignmentMode ? obj.alignTarget.x : Math.cos(obj.angle) * obj.config.dist;
+          let tZ = isAlignmentMode ? obj.alignTarget.z : Math.sin(obj.angle) * obj.config.dist;
+
+          obj.group.position.x += (tX - obj.group.position.x) * 0.05;
+          obj.group.position.z += (tZ - obj.group.position.z) * 0.05;
+
+          if (!isCrossSectionMode || speed > 0) obj.meshGroup.rotation.y += 0.01 * speed;
+
+          // Moon orbit around Earth
+          if (obj.config.hasMoon && obj.config.id === 'earth') {
+            moonAngle += 0.03 * speed;
+            const mDist = obj.config.size + 8;
+            obj.config.moonMesh.position.set(Math.cos(moonAngle) * mDist, 0, Math.sin(moonAngle) * mDist);
+
+            if (isEarthMoonMode) {
+              controls.target.copy(obj.group.position);
+
+              let phase = moonAngle % (Math.PI * 2);
+              if (phase < 0) phase += Math.PI * 2;
+
+              let phaseText = '';
+              let phaseIcon = '';
+              if (phase < 0.5 || phase > 5.8) { phaseIcon = '🌑'; phaseText = 'จันทร์ดับ (New Moon)'; }
+              else if (phase >= 0.5 && phase < 1.5) { phaseIcon = '🌒'; phaseText = 'ข้างขึ้นอ่อนๆ (Waxing Crescent)'; }
+              else if (phase >= 1.5 && phase < 2.0) { phaseIcon = '🌓'; phaseText = 'จันทร์ครึ่งดวง (First Quarter)'; }
+              else if (phase >= 2.0 && phase < 3.0) { phaseIcon = '🌔'; phaseText = 'ข้างขึ้นแก่ๆ (Waxing Gibbous)'; }
+              else if (phase >= 3.0 && phase < 3.5) { phaseIcon = '🌕'; phaseText = 'จันทร์เพ็ญ (Full Moon)'; }
+              else if (phase >= 3.5 && phase < 4.5) { phaseIcon = '🌖'; phaseText = 'ข้างแรมอ่อนๆ (Waning Gibbous)'; }
+              else if (phase >= 4.5 && phase < 5.0) { phaseIcon = '🌗'; phaseText = 'จันทร์ครึ่งดวง (Third Quarter)'; }
+              else { phaseIcon = '🌘'; phaseText = 'ข้างแรมแก่ๆ (Waning Crescent)'; }
+
+              document.getElementById('specialFeatureContent').innerText = phaseIcon + ' ' + phaseText;
+            }
+          }
+
+          // Camera Follow
+          if (followedPlanetId === obj.config.id && !isEarthMoonMode && !isLightSpeedMode) {
+            const delta = obj.group.position.clone().sub(oldPos);
+            camera.position.add(delta);
+            controls.target.copy(obj.group.position);
+          }
+        });
+
+        if (isCrossSectionMode && selectedPlanetData) {
+          clipPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(1, 0.2, 1).normalize(), selectedPlanetData.group.position);
+        }
+
+        // Light Speed Animation
+        if (isLightSpeedMode && lsActive) {
+          lightPhotonDistance += 2 * lsDir;
+          photon.position.set(lightPhotonDistance, 0, 0);
+
+          camera.position.x = lightPhotonDistance + 50 * -lsDir;
+          controls.target.set(lightPhotonDistance, 0, 0);
+
+          let distTraveled = Math.abs(lightPhotonDistance - lsStartX);
+          let lsEarthDist = earthObjectData.alignTarget.x;
+          let realLifeSeconds = Math.floor((distTraveled / lsEarthDist) * 500);
+
+          if (realLifeSeconds > 0) {
+            let mins = Math.floor(realLifeSeconds / 60);
+            let secs = realLifeSeconds % 60;
+            let hours = Math.floor(mins / 60);
+            mins = mins % 60;
+
+            let timeString = '';
+            if (hours > 0) timeString += `${hours} ชั่วโมง `;
+            timeString += `${mins.toString().padStart(2, '0')} นาที ${secs.toString().padStart(2, '0')} วินาที`;
+
+            document.getElementById('specialFeatureContent').innerText = timeString;
+
+            planetObjects.forEach((p) => {
+              if (!p.config.isSun && Math.abs(lightPhotonDistance - p.alignTarget.x) < 2) {
+                document.getElementById('specialFeatureDesc').innerText = `✨ แสงเดินทางผ่าน: ${p.config.name}!`;
+              }
+            });
+          }
+
+          if ((lsDir > 0 && lightPhotonDistance >= lsTargetX) || (lsDir < 0 && lightPhotonDistance <= lsTargetX)) {
+            lsActive = false;
+            lightPhotonDistance = lsTargetX;
+            photon.position.set(lightPhotonDistance, 0, 0);
+
+            let totalDist = Math.abs(lsTargetX - lsStartX);
+            let totalRealLifeSeconds = Math.floor((totalDist / lsEarthDist) * 500);
+            let finalMins = Math.floor(totalRealLifeSeconds / 60);
+            let finalSecs = totalRealLifeSeconds % 60;
+            let finalHours = Math.floor(finalMins / 60);
+            finalMins = finalMins % 60;
+
+            let finalTimeStr = '';
+            if (finalHours > 0) finalTimeStr += `${finalHours} ชั่วโมง `;
+            finalTimeStr += `${finalMins.toString().padStart(2, '0')} นาที ${finalSecs.toString().padStart(2, '0')} วินาที`;
+
+            document.getElementById('specialFeatureContent').innerText = finalTimeStr;
+            document.getElementById('specialFeatureDesc').innerText = `✨ ถึงที่หมายแล้ว! เวลาเดินทางรวม: ${finalTimeStr}`;
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // --- MENU COLLAPSE CONTROLS ---
+      const panelHeader = document.getElementById('panelHeader');
+      const panelContent = document.getElementById('panelContent');
+      const menuToggleIcon = document.getElementById('menuToggleIcon');
+      let isMenuCollapsed = false;
+
+      panelHeader.addEventListener('click', () => {
+        isMenuCollapsed = !isMenuCollapsed;
+        panelContent.style.display = isMenuCollapsed ? 'none' : 'block';
+        menuToggleIcon.innerText = isMenuCollapsed ? 'ขยาย ➕' : 'ย่อ ➖';
+      });
+
+      const quickEncHeader = document.getElementById('quickEncHeader');
+      const quickEncContent = document.getElementById('quickEncContent');
+      const quickEncToggleIcon = document.getElementById('quickEncToggleIcon');
+      let isQuickEncCollapsed = false;
+
+      quickEncHeader.addEventListener('click', () => {
+        isQuickEncCollapsed = !isQuickEncCollapsed;
+        quickEncContent.style.display = isQuickEncCollapsed ? 'none' : 'block';
+        quickEncToggleIcon.innerText = isQuickEncCollapsed ? 'ขยาย ➕' : 'ย่อ ➖';
+      });
+
+      document.getElementById('resetViewBtn').addEventListener('click', () => {
+        camera.position.set(0, 320, 650);
+        controls.target.set(0, 0, 0);
+        followedPlanetId = '';
+        followSelect.value = '';
+        updateOrbitHighlight();
+      });
+
+      document.getElementById('btnFs').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / (window.innerHeight - 56);
+        renderer.setSize(window.innerWidth, window.innerHeight - 56);
+        camera.updateProjectionMatrix();
+      });
+    })();
+  </script>
+</body>
+</html>

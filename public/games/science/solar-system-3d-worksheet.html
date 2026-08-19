@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="worksheet-source-media" content="/games/science/solar-system-3d-media.html" />
+  <meta name="curriculum-indicators" content="ว 3.1 ป.4/1, ว 3.1 ป.4/2, ว 3.1 ป.5/1, ว 3.1 ป.5/2" />
+  <title>ใบงานระบบสุริยะ 3 มิติ — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet" />
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
+</head>
+<body>
+<header class="toolbar">
+  <h1>🪐 ใบงานระบบสุริยะ 3 มิติ</h1>
+  <div class="toolbar-ctrls">
+    <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+      <option value="standard">มาตรฐาน</option>
+      <option value="progressive">บันไดระดับ</option>
+      <option value="booklet">รวมเล่ม</option>
+    </select>
+    <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+      <option value="1">1 หน้า</option>
+      <option value="2">2 หน้า</option>
+      <option value="3">3 หน้า</option>
+    </select>
+    <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+      <option value="1">ป.4–ป.6</option>
+    </select>
+    <select class="t-select" id="selTopic" aria-label="หัวข้อทักษะ">
+      <option value="mixed">รวมทุกหัวข้อ</option>
+      <option value="planets">ดาวเคราะห์ & ประเภทดาว</option>
+      <option value="moon_phases">ข้างขึ้น-ข้างแรม & โลก</option>
+      <option value="light_speed">ระยะทาง & ความเร็วแสง</option>
+      <option value="cross_section">โครงสร้างภายในดาว</option>
+    </select>
+    <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+      <option value="5">5 ข้อ</option>
+      <option value="8">8 ข้อ</option>
+      <option value="10">10 ข้อ</option>
+    </select>
+    <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน" />
+    <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+      <option value="">-- เลือกครูผู้สอน --</option>
+    </select>
+    <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+    <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+    <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+  </div>
+</header>
+
+<main class="pages" id="pages">
+  <section class="sheet">
+    <div class="questions">
+      <article class="q">กำลังสร้างใบงานระบบสุริยะ...</article>
+    </div>
+  </section>
+</main>
+
+<script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
+<script src="/games/kampai-qr.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const ITEMS = [
+  // ─── หัวข้อ 1: ดาวเคราะห์ & ประเภทดาว (planets) ───
+  {
+    type: "planets",
+    prompt: "จงระบุชื่อดาวเคราะห์หิน (Terrestrial Planets) ทั้ง 4 ดวงในระบบสุริยะตามลำดับระยะห่างจากดวงอาทิตย์",
+    answer: "ดาวพุธ, ดาวศุกร์, โลก, ดาวอังคาร",
+    hint: "ดาวเคราะห์ 4 ดวงแรกที่มีพื้นผิวแข็งและอยู่ใกล้ดวงอาทิตย์"
+  },
+  {
+    type: "planets",
+    prompt: "จงเปรียบเทียบความแตกต่างระหว่าง 'ดาวเคราะห์แก๊สยักษ์' (พฤหัสบดี, เสาร์) กับ 'ดาวเคราะห์น้ำแข็งยักษ์' (ยูเรนัส, เนปจูน)",
+    answer: "แก๊สยักษ์มีไฮโดรเจนและฮีเลียมเป็นหลัก ส่วนน้ำแข็งยักษ์มีน้ำ มีเทน และแอมโมเนียแข็งเป็นหลัก",
+    hint: "ดูจากองค์ประกอบหลักของชั้นบรรยากาศและเนื้อดาว"
+  },
+  {
+    type: "planets",
+    prompt: "เหตุใด 'ดาวศุกร์' จึงเป็นดาวเคราะห์ที่ร้อนที่สุดในระบบสุริยะ แม้ไม่ได้อยู่ใกล้ดวงอาทิตย์ที่สุด?",
+    answer: "มีบรรยากาศคาร์บอนไดออกไซด์หนาแน่น เกิดปรากฏการณ์เรือนกระจกขั้นรุนแรง (กักเก็บความร้อนสูงถึง 464 °C)",
+    hint: "เกี่ยวข้องกับก๊าซเรือนกระจกและชั้นบรรยากาศ"
+  },
+  {
+    type: "planets",
+    prompt: "ดาวพฤหัสบดีมีจุดเด่นคือ 'จุดแดงใหญ่' (Great Red Spot) สิ่งนี้คืออะไรและเกิดขึ้นได้อย่างไร?",
+    answer: "เป็นพายุหมุนขนาดยักษ์ที่มีขนาดใหญ่กว่าโลก พัดต่อเนื่องยาวนานหลายร้อยปีในบรรยากาศแก๊สของดาวพฤหัสบดี",
+    hint: "ปรากฏการณ์สภาพอากาศในชั้นบรรยากาศแก๊ส"
+  },
+  {
+    type: "planets",
+    prompt: "เหตุใด 'ดาวเสาร์' จึงสามารถลอยน้ำได้ตามทฤษฎี?",
+    answer: "เพราะดาวเสาร์มีความหนาแน่นเฉลี่ยเพียง 0.69 g/cm³ ซึ่งน้อยกว่าความหนาแน่นของน้ำ (1.0 g/cm³)",
+    hint: "เปรียบเทียบความหนาแน่นเฉลี่ยของดาวเสาร์กับความหนาแน่นของน้ำ"
+  },
+  {
+    type: "planets",
+    prompt: "ดาวยูเรนัสมีความแปลกประหลาดด้านการหมุนรอบตัวเองอย่างไร และส่งผลต่อฤดูกาลอย่างไร?",
+    answer: "แกนหมุนเอียง 98 องศา (หมุนตะแคงข้าง) ทำให้ขั้วแต่ละข้างได้รับแสงแดดยาวนาน 42 ปีและมืดมิด 42 ปี",
+    hint: "พิจารณามุมเอียงของแกนหมุนเทียบกับระนาบวงโคจร"
+  },
+
+  // ─── หัวข้อ 2: ข้างขึ้น-ข้างแรม & โลก (moon_phases) ───
+  {
+    type: "moon_phases",
+    prompt: "ข้างขึ้น-ข้างแรม (Moon Phases) เกิดจากสาเหตุใด?",
+    answer: "เกิดจากการที่ดวงจันทร์โคจรรอบโลก ทำให้ตำแหน่งของดวงจันทร์ ดวงอาทิตย์ และโลกเปลี่ยนไป ผู้สังเกตบนโลกจึงมองเห็นส่วนสว่างของดวงจันทร์ไม่เท่ากันในแต่ละวัน",
+    hint: "การโคจรของดวงจันทร์รอบโลกและมุมสะท้อนแสงจากดวงอาทิตย์"
+  },
+  {
+    type: "moon_phases",
+    prompt: "ในวัน 'จันทร์เพ็ญ' (Full Moon / ขึ้น 15 ค่ำ) โลก ดวงอาทิตย์ และดวงจันทร์ เรียงตัวกันอย่างไร?",
+    answer: "ดวงจันทร์และดวงอาทิตย์อยู่คนละด้านของโลก (ดวงอาทิตย์ - โลก - ดวงจันทร์) ผู้สังเกตบนโลกจึงเห็นด้านสว่างของดวงจันทร์เต็มดวง",
+    hint: "ตำแหน่งของโลกจะอยู่ตรงกลางระหว่างดวงอาทิตย์กับดวงจันทร์"
+  },
+  {
+    type: "moon_phases",
+    prompt: "แกนโลกเอียงทำมุม 23.5 องศากับแนวตั้งฉากระนาบวงโคจร ส่งผลให้เกิดปรากฏการณ์สำคัญใดบนโลก?",
+    answer: "ทำให้เกิด 'ฤดูกาล' (Seasons) ต่างๆ บนโลก เนื่องจากแต่ละพื้นที่ได้รับแสงแดดในมุมและความยาวนานไม่เท่ากันตลอดปี",
+    hint: "การเปลี่ยนแปลงสภาพอากาศและอุณหภูมิในรอบ 1 ปี"
+  },
+  {
+    type: "moon_phases",
+    prompt: "จงอธิบายความแตกต่างระหว่าง 'วันขึ้น 8 ค่ำ' (First Quarter) และ 'วันแรม 8 ค่ำ' (Third Quarter)",
+    answer: "ขึ้น 8 ค่ำจะสว่างครึ่งดวงทางทิศตะวันตก (หันด้านสว่างไปทางตก) ส่วนแรม 8 ค่ำจะสว่างครึ่งดวงทางทิศตะวันออก",
+    hint: "ทิศทางของเสี้ยวสว่างครึ่งดวงบนท้องฟ้า"
+  },
+
+  // ─── หัวข้อ 3: ระยะทาง & ความเร็วแสง (light_speed) ───
+  {
+    type: "light_speed",
+    prompt: "แสงเดินทางด้วยความเร็วประมาณ 300,000 กม./วินาที และแสงจากดวงอาทิตย์ใช้เวลาเดินทางมายังโลก 500 วินาที จงคำนวณระยะห่างระหว่างโลกกับดวงอาทิตย์",
+    answer: "ระยะทาง = 300,000 × 500 = 150,000,000 กิโลเมตร (150 ล้านกิโลเมตร หรือ 1 หน่วยดาราศาสตร์ AU)",
+    hint: "สูตร ระยะทาง = ความเร็วแสง × เวลาที่ใช้เดินทาง"
+  },
+  {
+    type: "light_speed",
+    prompt: "หากแสงจากดวงอาทิตย์ใช้เวลาเดินทางมายังดาวพฤหัสบดีประมาณ 43 นาที จงอธิบายว่าทำไมภาพที่เรามองเห็นดาวพฤหัสบดีในปัจจุบันจึงเป็นภาพในอดีต?",
+    answer: "เพราะแสงต้องใช้เวลาเดินทาง 43 นาที ภาพที่เราเห็นจึงเป็นสภาพของดาวพฤหัสบดีเมื่อ 43 นาทีที่แล้ว ไม่ใช่เวลาปัจจุบันทันที",
+    hint: "ความเร็วของแสงที่มีขีดจำกัดทำให้การรับภาพต้องใช้เวลาเดินทาง"
+  },
+  {
+    type: "light_speed",
+    prompt: "ดาวเคราะห์ดวงใดที่แสงจากดวงอาทิตย์ใช้เวลาเดินทางไปถึงนานที่สุด และใช้เวลาประมาณเท่าใด?",
+    answer: "ดาวเนปจูน ใช้เวลาประมาณ 4 ชั่วโมง 10 นาที (ประมาณ 250 นาที)",
+    hint: "ดาวเคราะห์ดวงสุดท้ายที่อยู่ไกลจากดวงอาทิตย์มากที่สุด"
+  },
+
+  // ─── หัวข้อ 4: โครงสร้างภายในดาว (cross_section) ───
+  {
+    type: "cross_section",
+    prompt: "จงระบุชั้นโครงสร้างภายในของ 'โลก' (Earth) จากชั้นนอกสุดไปหาชั้นในสุด 3 ชั้นหลัก",
+    answer: "1. เปลือกโลก (Crust) 2. เนื้อโลก (Mantle) 3. แก่นโลก (Core - แก่นชั้นนอกและแก่นชั้นใน)",
+    hint: "แบ่งตามสมบัติทางกายภาพและองค์ประกอบทางเคมี"
+  },
+  {
+    type: "cross_section",
+    prompt: "แก่นโลกชั้นใน (Inner Core) มีสถานะเป็นของแข็งหรือของเหลว และประกอบด้วยธาตุใดเป็นหลัก?",
+    answer: "มีสถานะเป็น 'ของแข็ง' เนื่องจากความดันมหาศาล และประกอบด้วย 'เหล็กและนิกเกิล' เป็นหลัก",
+    hint: "ความดันใจกลางโลกทำให้โลหะไม่สามารถหลอมเหลวเป็นของเหลวได้"
+  },
+  {
+    type: "cross_section",
+    prompt: "ดวงอาทิตย์สร้างพลังงานความร้อนและแสงสว่างที่ชั้นใด และด้วยกระบวนการใด?",
+    answer: "สร้างที่ 'แก่นดาว' (Core) ด้วยปฏิกิริยา 'นิวเคลียร์ฟิวชัน' (Nuclear Fusion) โดยหลอมไฮโดรเจนเป็นฮีเลียม",
+    hint: "ใจกลางดวงอาทิตย์ที่อุณหภูมิสูงกว่า 15 ล้านองศาเซลเซียส"
+  }
+];
+
+window.WORKSHEET_CONFIG = {
+  worksheetKey: 'solar-system-3d',
+  icon: '🪐',
+  title: 'ใบงานระบบสุริยะ 3 มิติ',
+  subject: 'วิทยาศาสตร์',
+  gradeLabel: 'ป.4–ป.6',
+  mediaLabel: 'สื่อระบบสุริยะ 3D',
+  sourceMediaUrl:'/games/science/solar-system-3d-media.html',
+  indicators: ["ว 3.1 ป.4/1", "ว 3.1 ป.4/2", "ว 3.1 ป.5/1", "ว 3.1 ป.5/2"],
+  directions: "สำรวจระบบสุริยะ 3 มิติ · จำแนกดาวเคราะห์ · อธิบายข้างขึ้น-ข้างแรม และวิเคราะห์โครงสร้างภายในดาว",
+  getItems(topic) {
+    return topic === 'mixed' ? ITEMS : ITEMS.filter(item => item.type === topic);
+  },
+  renderQuestion(item) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="work-line reason-line" style="font-size:1.02rem">' +
+      '<div class="prompt"><strong>' + e(item.prompt) + '</strong></div>' +
+      '<div class="answer-line" style="min-height:2.2em; margin-top:6px;">' +
+        'คำตอบ: <span class="blank long"></span>' +
+      '</div>' +
+      '<div class="reason-line" style="min-height:2.4em; border-bottom:2px dotted #94a3b8; margin-top:4px;">' +
+        'เหตุผล/กระบวนการคิด: <span class="blank long"></span>' +
+      '</div>' +
+      '<div class="answer teacher-answer" style="margin-top:6px; color:#15803d; font-weight:700;">' +
+        'เฉลย: ' + e(item.answer) +
+      '</div>' +
+    '</div>';
+  }
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+  document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+  document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+  document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+  window.KampaiWorksheet.loadTeachers();
+  window.KampaiTopicWorksheet.render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body>
+</html>

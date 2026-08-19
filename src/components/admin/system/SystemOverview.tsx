@@ -272,6 +272,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.222.0 (สื่อการสอน — 🪐 ระบบสุริยะ 3 มิติ Solar System 3D Lab & Dual-Track Worksheet)',
+        date: '19 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มสื่อการสอนวิทยาศาสตร์และดาราศาสตร์ 3 มิติ (ว 3.1 ป.4–ป.6) ภายใต้ public/games/science/solar-system-3d-media.html พร้อมปก 16:9 1280×720 และผ่าน verify:media ครบถ้วน',
+            'โหมดสำรวจ 3D: Three.js OrbitControls, ปรับความเร็วกาลเวลา, ผ่าดูโครงสร้างภายในดาวเคราะห์ (Cross-Section Slicer), เรียงแถวเปรียบเทียบขนาด (Scale Alignment), ข้างขึ้น-ข้างแรม 8 เฟส, คำนวณการเดินทางความเร็วแสง (Speed of Light Trip) และสารานุกรมอวกาศ 3 มิติพร้อมเสียงอ่านภาษาไทย (TTS)',
+            'โหมดภารกิจควิซ 3D (Practice Mode): คำถาม 9 ข้อตามตัวชี้วัดหลักสูตรแกนกลาง รองรับการคลิกเลือกดาว 3 มิติในอวกาศและปุ่มตัวเลือก พร้อมเฉลยละเอียดและเสียงเอฟเฟกต์ตอบรับ',
+            'สร้างใบงานพิมพ์คู่สื่อ Dual-track: solar-system-3d-worksheet.html รองรับโหมดฝึก 5/8/10 ข้อ, สุ่มโจทย์ 4 ทักษะ, scaffold แสดงวิธีคิด, เฉลยครู และผ่าน verify:worksheet 16/16 Checks',
+        ],
+    },
+    {
         version: 'v1.221.0 (วิทยาศาสตร์ — Maglev Rush รถไฟแม่เหล็กความเร็วสูง)',
         date: '18 ส.ค. 2569',
         badge: 'bg-emerald-600',
