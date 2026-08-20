@@ -1,10 +1,14 @@
 # เฟืองล็อกแกนมอเตอร์ TT แบบ 2 ทาง
 
-ไฟล์ต้นฉบับ: `tt-dual-shaft-locking-gear.scad`
+- ไฟล์พร้อมพิมพ์: `tt-dual-shaft-locking-gear.3mf`
+- ไฟล์ต้นฉบับแก้ขนาด: `tt-dual-shaft-locking-gear.scad`
+- ภาพตรวจสอบ: `tt-dual-shaft-locking-gear-preview.png`
 
 ชิ้นงานตั้งต้นสำหรับมอเตอร์เกียร์ TT สีเหลืองแบบแกนออกสองด้าน ใช้รูแกนทรง D ขนาด 5.55 มม. และน็อต M3 แบบฝังเพื่อขันสกรูกดล็อกแกน
 
-## วิธีส่งออก STL
+ไฟล์ 3MF ใช้หน่วยมิลลิเมตรและเปิดได้โดยตรงใน Bambu Studio, OrcaSlicer, PrusaSlicer หรือ Cura
+
+## วิธีส่งออก STL เพิ่มเติม
 
 1. เปิดไฟล์ `.scad` ด้วย OpenSCAD
 2. กด `F6` เพื่อ Render
