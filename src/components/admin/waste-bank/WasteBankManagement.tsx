@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp, Presentation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,7 @@ import {
   type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
 import { getFirstName, speakThai } from '@/lib/thaiSpeech';
+import { WasteBankShowcaseManagement } from './WasteBankShowcaseManagement';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -65,7 +66,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims';
+type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims' | 'showcase';
 
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -394,6 +395,7 @@ export const WasteBankManagement = () => {
     { id: 'summary', label: 'สรุปยอดสะสม', icon: <Users className="w-4 h-4" /> },
     { id: 'categories', label: 'ประเภทขยะ', icon: <List className="w-4 h-4" /> },
     { id: 'rewards', label: 'รางวัล', icon: <Gift className="w-4 h-4" /> },
+    { id: 'showcase', label: 'ผลการดำเนินงาน', icon: <Presentation className="w-4 h-4" /> },
     {
       id: 'claims',
       label: 'คำขอแลกรางวัล',
@@ -990,6 +992,7 @@ export const WasteBankManagement = () => {
 
       {/* ===== TAB 5: คำขอแลกรางวัล ===== */}
       {activeTab === 'claims' && <ClaimsApproval onAction={fetchPendingCount} />}
+      {activeTab === 'showcase' && <WasteBankShowcaseManagement />}
 
       <PointsConfirmationDialog
         confirmation={pointsConfirmation}

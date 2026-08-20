@@ -12,6 +12,15 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Waste Bank Results (`/waste-bank/results`)
+
+- หน้าสาธารณะเล่าเรื่องตามลำดับ Hero → KPI ภาคเรียนปัจจุบัน → ขั้นตอนดำเนินงาน → กราฟ → Top 10 → เป้าหมาย/ไฮไลต์ → แกลเลอรี่ → QR แชร์หน้า
+- Top 10 ต้องใช้ `PersonAvatar` คู่ชื่อเสมอ และ payload สาธารณะห้ามมี student ID หรือข้อมูลธุรกรรมรายบุคคล
+- แกลเลอรี่มีหมวดคงที่ `waste_delivery`, `reward_claim`, `reward_handover`; ผู้ชมเห็นเฉพาะภาพ `is_published` ของภาคเรียนปัจจุบันผ่าน signed URL จาก private bucket
+- หลังบ้านใช้ React Hook Form + Zod, รูปใหม่เริ่มเป็นฉบับร่าง, mutation ทุกชนิด invalidate query key `waste-bank-showcase`
+- QR Code ชี้ canonical URL `https://kampai-school.vercel.app/waste-bank/results` และดาวน์โหลด PNG 1200×1200 ได้
+- Component ห้าม query Supabase โดยตรง ให้ผ่าน `wasteBankShowcaseService` เท่านั้น
+
 ### Integrated Plan Topic Card
 
 - รายการหลักสูตรหนึ่งแถวต้องผูกตัวชี้วัดเพียงข้อเดียว และจัดกลุ่มแบบ accordion ตาม “สาระ → มาตรฐาน → ตัวชี้วัด”

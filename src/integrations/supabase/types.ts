@@ -8013,6 +8013,95 @@ export type Database = {
           },
         ]
       }
+      waste_bank_showcase_photos: {
+        Row: {
+          activity_date: string | null
+          caption: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          report_id: string
+          sort_order: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          activity_date?: string | null
+          caption?: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          report_id: string
+          sort_order?: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          activity_date?: string | null
+          caption?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          report_id?: string
+          sort_order?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_bank_showcase_photos_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "waste_bank_showcase_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waste_bank_showcase_reports: {
+        Row: {
+          academic_year: string
+          created_at: string
+          goal_text: string
+          highlight_text: string
+          id: string
+          introduction: string
+          semester: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          academic_year: string
+          created_at?: string
+          goal_text?: string
+          highlight_text?: string
+          id?: string
+          introduction?: string
+          semester: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          goal_text?: string
+          highlight_text?: string
+          id?: string
+          introduction?: string
+          semester?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       waste_categories: {
         Row: {
           color: string | null
@@ -8971,6 +9060,7 @@ export type Database = {
           wins: number
         }[]
       }
+      get_waste_bank_public_results: { Args: never; Returns: Json }
       get_weekly_xp_leaderboard: {
         Args: { p_limit?: number; p_student_code?: string }
         Returns: {

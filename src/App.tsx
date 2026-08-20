@@ -57,6 +57,7 @@ const PageBuilder = lazyWithRetry(() => import("./pages/admin/PageBuilder"));
 const Documents = lazyWithRetry(() => import("./pages/Documents"));
 const WasteBank = lazyWithRetry(() => import("./pages/WasteBank"));
 const WasteBankStats = lazyWithRetry(() => import("./pages/WasteBankStats"));
+const WasteBankResults = lazyWithRetry(() => import("./pages/WasteBankResults"));
 const RewardsCatalog = lazyWithRetry(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazyWithRetry(() => import("./pages/SavingsBank"));
 const HallOfFame = lazyWithRetry(() => import("./pages/HallOfFame"));
@@ -187,6 +188,7 @@ const App = () => (
             <Route path="/documents" element={<Documents />} />
             <Route path="/waste-bank" element={<WasteBank />} />
             <Route path="/waste-bank/stats" element={<WasteBankStats />} />
+            <Route path="/waste-bank/results" element={<WasteBankResults />} />
             <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
             <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />

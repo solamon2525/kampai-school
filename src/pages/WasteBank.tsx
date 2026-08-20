@@ -14,6 +14,7 @@ import {
   Clock,
   Gift,
   BarChart3,
+  Presentation,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -295,6 +296,13 @@ const WasteBank = () => {
             >
               <BarChart3 className="w-4 h-4" />
               ดูสถิติแบบละเอียด
+            </Link>
+            <Link
+              to="/waste-bank/results"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary-foreground/90 md:text-sm"
+            >
+              <Presentation className="h-4 w-4" />
+              ผลการดำเนินงาน
             </Link>
           </div>
         </div>
