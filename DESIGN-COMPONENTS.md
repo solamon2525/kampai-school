@@ -15,6 +15,7 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 ### Waste Bank Results (`/waste-bank/results`)
 
 - หน้าสาธารณะเล่าเรื่องตามลำดับ Hero → KPI ภาคเรียนปัจจุบัน → ขั้นตอนดำเนินงาน → กราฟ → Top 10 → เป้าหมาย/ไฮไลต์ → แกลเลอรี่ → QR แชร์หน้า
+- ส่วน “รางวัลสำหรับนักเรียน” ดึงรายการรางวัลที่เปิดใช้งานและภาพจาก `rewardsService.getActive()` โดยตรง เพื่อให้ข้อมูลตรงกับหน้าแลกรางวัลและไม่เก็บภาพซ้ำ
 - Top 10 ต้องใช้ `PersonAvatar` คู่ชื่อเสมอ และ payload สาธารณะห้ามมี student ID หรือข้อมูลธุรกรรมรายบุคคล
 - แกลเลอรี่มีหมวดคงที่ `waste_delivery`, `reward_claim`, `reward_handover`; ผู้ชมเห็นเฉพาะภาพ `is_published` ของภาคเรียนปัจจุบันผ่าน signed URL จาก private bucket
 - หลังบ้านใช้ React Hook Form + Zod, รูปใหม่เริ่มเป็นฉบับร่าง, mutation ทุกชนิด invalidate query key `waste-bank-showcase`

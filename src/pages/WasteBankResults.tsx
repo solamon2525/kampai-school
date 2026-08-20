@@ -12,9 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { WasteBankResultsQr } from '@/components/waste-bank/WasteBankResultsQr';
+import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
-import { wasteBankShowcaseService, type WasteShowcasePhotoWithUrl } from '@/services';
+import { rewardsService, wasteBankShowcaseService, type WasteShowcasePhotoWithUrl } from '@/services';
 
 const DEFAULT_COPY = {
   title: 'ผลการดำเนินงานธนาคารขยะ',
@@ -53,6 +54,15 @@ const WasteBankResults = () => {
     queryKey: ['waste-bank-showcase', 'photos', report?.id],
     queryFn: () => wasteBankShowcaseService.listPhotos(report!.id),
     enabled: !!report,
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: rewards = [], isLoading: rewardsLoading } = useQuery({
+    queryKey: ['rewards', 'active'],
+    queryFn: async () => {
+      const { data, error } = await rewardsService.getActive();
+      if (error) throw error;
+      return data ?? [];
+    },
     staleTime: 5 * 60 * 1000,
   });
 
@@ -117,6 +127,41 @@ const WasteBankResults = () => {
                   </div>)}
                 </div>
               </div>
+            </section>
+
+            <section className="mx-auto max-w-6xl px-4 py-10">
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-primary">เปลี่ยนแต้มเป็นความภาคภูมิใจ</p>
+                  <h2 className="text-xl font-bold text-foreground md:text-2xl">รางวัลสำหรับนักเรียน</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">ตัวอย่างรางวัลที่นักเรียนสามารถใช้แต้มจากธนาคารขยะแลกได้</p>
+                </div>
+                <Button asChild variant="outline" size="sm"><Link to="/waste-bank/rewards"><Gift className="mr-2 h-4 w-4" />ดูรางวัลทั้งหมด</Link></Button>
+              </div>
+              {rewardsLoading ? (
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: 4 }, (_, index) => <div key={index} className="aspect-[4/5] animate-pulse rounded-xl bg-muted" />)}
+                </div>
+              ) : rewards.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {rewards.map((reward) => (
+                    <article key={reward.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                      <div className="aspect-square overflow-hidden bg-muted">
+                        {reward.image_url ? <img src={reward.image_url} alt={reward.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Gift className="h-10 w-10" /></div>}
+                      </div>
+                      <div className="space-y-2 p-3">
+                        <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-foreground">{reward.name}</h3>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <RewardCostDisplay waste={reward.waste_points_cost} virtue={reward.virtue_points_cost} className="text-xs" />
+                          {reward.stock !== null && <span className="text-xs text-muted-foreground">{reward.stock > 0 ? `เหลือ ${reward.stock}` : 'หมดชั่วคราว'}</span>}
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">กำลังเตรียมรายการรางวัลสำหรับนักเรียน</div>
+              )}
             </section>
 
             <section className="mx-auto grid max-w-6xl gap-6 px-4 py-10 lg:grid-cols-2">
