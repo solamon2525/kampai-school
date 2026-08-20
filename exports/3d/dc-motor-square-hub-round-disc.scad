@@ -15,7 +15,7 @@ hub_total_height = 16;
 square_shaft_size = 5.5;
 shaft_clearance = 0.15;  // Opening becomes 5.8 x 5.8 mm
 
-mount_hole_diameter = 3.2;
+mount_hole_diameter = 4.5;  // M4 clearance with allowance for FDM printing
 mount_hole_radius = 14;
 mount_hole_count = 4;
 
