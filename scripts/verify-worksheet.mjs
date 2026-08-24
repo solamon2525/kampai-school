@@ -47,7 +47,8 @@ function readLinkedLocalAsset(source, assetName) {
 function verifyFile(file) {
     const source = fs.readFileSync(file, 'utf8');
     const sharedTopicSource = readLinkedLocalAsset(source, 'worksheet-topic.css') + readLinkedLocalAsset(source, 'worksheet-topic.js');
-    const effectiveSource = source + sharedTopicSource;
+    const sharedColorFillSource = readLinkedLocalAsset(source, 'color-fill-pack.css') + readLinkedLocalAsset(source, 'color-fill-pack.js');
+    const effectiveSource = source + sharedTopicSource + sharedColorFillSource;
     const relative = path.relative(repoRoot, file).replaceAll('\\', '/');
     const failures = [];
     const checks = [];
@@ -117,14 +118,14 @@ function verifyFile(file) {
             'saved sets contract',
             /worksheet-topic\.js/.test(source)
                 || /upgradeLegacyWorksheet\s*\(/.test(source)
-                || (/loadSetsModule\s*\(/.test(source) && /mountToolbar\s*\(/.test(source)),
+                || (/loadSetsModule\s*\(/.test(effectiveSource) && /mountToolbar\s*\(/.test(effectiveSource)),
             'ใบงานทุกไฟล์ต้องบันทึก/โหลด/แชร์ชุดเดิมได้ด้วย worksheet key, seed และ config',
         );
         check(
             'step answer reveal contract',
             /worksheet-topic\.js/.test(source)
                 || /upgradeLegacyWorksheet\s*\(/.test(source)
-                || (/btnAnswerPrev/.test(source) && /btnAnswerNext/.test(source) && /revealCount/.test(source)),
+                || (/btnAnswerPrev/.test(effectiveSource) && /btnAnswerNext/.test(effectiveSource) && /reveal/.test(effectiveSource)),
             'ใบงานทุกไฟล์ต้องซ่อนคำตอบเริ่มต้นและรองรับเฉลยทีละข้อ ย้อนกลับ และเปิดทั้งหมด',
         );
     }
@@ -158,7 +159,7 @@ function verifyFile(file) {
             'teacher runtime',
             Boolean(runtimeVersion)
                 && runtimeVersion === jsVersion
-                && /KampaiWorksheet\.loadTeachers\s*\(/.test(source),
+                && /KampaiWorksheet\.loadTeachers\s*\(/.test(effectiveSource),
             'ใบงานที่เลือกครูต้องใช้ worksheet-runtime.js version เดียวกับ shared modes',
         );
         check(
