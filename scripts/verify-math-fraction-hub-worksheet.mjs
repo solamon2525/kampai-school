@@ -12,7 +12,7 @@ let activeLevel = 'mid', activeTopic = 'mixed';
 const context = {
   document: { getElementById(id) { return id === 'selLevel' ? { value: activeLevel } : id === 'selTopic' ? { value: activeTopic } : { value: '6', dataset: {} }; } },
 };
-vm.runInNewContext(`${source}\nresult={topics:FH_TOPICS,levels:FH_LEVEL_DENOMS,buildTopic:fhBuildTopic,buildPool:fhBuildPool,answer:fhAnswer,bar:fhBarSvg,select:fhSelectPages};`, context, { timeout: 10000 });
+vm.runInNewContext(`${source}\nresult={topics:FH_TOPICS,levels:FH_LEVEL_DENOMS,buildTopic:fhBuildTopic,buildPool:fhBuildPool,answer:fhAnswer,bar:fhBarSvg,render:fhRenderQuestion,select:fhSelectPages};`, context, { timeout: 10000 });
 const api = context.result;
 const errors = [];
 
@@ -55,8 +55,13 @@ for (const [level, denoms] of Object.entries(api.levels)) {
       const denominator = item.type.startsWith('mixed_') ? item.p4 : item.type === 'shade' || item.type === 'read' ? item.p1 : item.p2;
       if (!denoms.includes(denominator)) errors.push(`${level}/${item.key}: ตัวส่วนอยู่นอกระดับ`);
       if (item.type === 'subtract' && item.p0 <= item.p1) errors.push(`${level}/${item.key}: ผลลบไม่เป็นบวก`);
+      if (item.type === 'add' && (item.p0 >= denominator || item.p1 >= denominator)) errors.push(`${level}/${item.key}: ตัวตั้งบวกต้องเป็นเศษส่วนแท้`);
       if (item.type === 'mixed_sub' && item.p0 * item.p4 + item.p1 <= item.p2 * item.p4 + item.p3) errors.push(`${level}/${item.key}: จำนวนคละลบไม่เป็นบวก`);
       if (api.answer(item) !== expected(item)) errors.push(`${level}/${item.key}: คำตอบผิด ${api.answer(item)} != ${expected(item)}`);
+      const rendered = api.render(item);
+      const expectedSlots = item.type === 'shade' || item.type === 'read' || item.type === 'whole' ? 2 : item.type === 'compare' ? 1 : 3;
+      if ((rendered.match(/answer-slot/g) || []).length !== expectedSlots) errors.push(`${level}/${item.key}: ช่องเติมไม่มีเฉลยครบ`);
+      if (rendered.includes('____')) errors.push(`${level}/${item.key}: ยังมีช่องเติมที่ไม่ผูกเฉลย`);
     }
     if (topic === 'shade' || topic === 'read') {
       for (const item of items.slice(0, 12)) {
