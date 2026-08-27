@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
@@ -103,9 +103,9 @@ const EducationalHubTeacher = () => {
     });
 
     const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+    const [searchInput, setSearchInput] = useState('');
     const [sort, setSort] = useState<SortMode>('newest');
     const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE);
-    const deferredSearch = useDeferredValue(filter.search);
 
     const { data: packCount = 0, isLoading: loadingPackCount } = useQuery({
         queryKey: ['lesson-packs', 'published-count', resolvedStaffId],
@@ -135,7 +135,7 @@ const EducationalHubTeacher = () => {
         setVisibleLimit(PAGE_SIZE);
     }, [
         activeCategoryKey,
-        deferredSearch,
+        filter.search,
         filter.subjects,
         filter.grades,
         filter.tags,
@@ -146,14 +146,14 @@ const EducationalHubTeacher = () => {
     const { data: itemPage, isLoading: loadingItems, isFetching: fetchingItems } = useQuery({
         queryKey: [
             'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, visibleLimit,
-            deferredSearch, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+            filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
         ],
         enabled: !!resolvedStaffId && !!activeCategory && activeCategory.category_key !== 'lesson-packs' && !loadingPackCount,
         queryFn: async () => {
             const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
                 categoryId: activeCategory!.id,
                 limit: visibleLimit,
-                search: deferredSearch,
+                search: filter.search,
                 subjects: filter.subjects,
                 grades: filter.grades,
                 tags: filter.tags,
@@ -456,6 +456,13 @@ const EducationalHubTeacher = () => {
                             <SectionToolbar
                                 filter={filter}
                                 onFilterChange={setFilter}
+                                searchInput={searchInput}
+                                onSearchInputChange={setSearchInput}
+                                onSearch={() => {
+                                    const search = searchInput.trim();
+                                    if (search !== filter.search) setFilter((current) => ({ ...current, search }));
+                                }}
+                                isSearching={fetchingItems}
                                 sort={sort}
                                 onSortChange={setSort}
                                 viewMode={viewMode}
