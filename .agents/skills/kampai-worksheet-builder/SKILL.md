@@ -85,6 +85,8 @@ Translate the learning objective into writable evidence:
 
 Allocate space for a child's handwriting. If content overflows or writing is cramped, redesign that worksheet case-by-case. Never conceal overflow with clipping.
 
+For two-column calculation worksheets with at least three written scaffold steps per problem, start at no more than eight questions per page. Ten questions are acceptable only after HTTP browser and 100% A4 verification show that the font remains readable and every writing slot accommodates student handwriting.
+
 For arithmetic-puzzle worksheets such as Game 24:
 
 - validate every expression programmatically; do not trust written answer text alone;

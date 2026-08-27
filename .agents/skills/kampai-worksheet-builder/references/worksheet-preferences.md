@@ -6,6 +6,8 @@ This file contains only user-approved defaults. Repository contracts remain auth
 
 No historical candidate is approved automatically. Add a rule here only after explicit approval recorded in `preference-evidence.md`.
 
+- For two-column calculation worksheets with at least three written scaffold steps per problem, start at no more than eight questions per page. Use ten only when HTTP browser and 100% A4 evidence confirm readable type and genuinely writable slots. This does not limit short fluency worksheets.
+
 ## Working design baseline
 
 Use these as review prompts, not learned mandates:

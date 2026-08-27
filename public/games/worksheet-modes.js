@@ -390,7 +390,7 @@
     if (forced) {
       styleSelect.value = 'standard';
       pageCountSelect.value = mode === 'differentiated' ? '3' : '1';
-      if (countSelect) countSelect.value = countSelect.dataset.fixedCount || '10';
+      if (countSelect) countSelect.value = countSelect.dataset.standardCount || countSelect.dataset.fixedCount || '10';
     }
     pageCountSelect.disabled = forced;
     styleSelect.disabled = forced;

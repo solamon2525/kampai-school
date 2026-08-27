@@ -44,3 +44,19 @@ These are navigation leads only. Reconstruct evidence before creating a formal e
 - Screen/print parity: use existing overflow and answer-reveal history only when a before/after pair can be reproduced.
 
 None of these candidates is approved or may override `WORKSHEET.md` or `MEDIA.md`.
+
+### PREF-20260827-001 — cap dense multi-step two-column worksheets at eight
+
+- Status: approved
+- Scope: worksheet-only
+- Occurrence: 2
+- Independent task: long-division density revisions and mixed-number worksheet revision ending after commit `ca68c45`
+- Source artifact: `public/games/math/improper-to-mixed-worksheet.html`
+- User evidence: user reported that 10 questions made the font too small, selected “เพิ่มกฎแบบแคบ”, and approved a default cap of eight for two-column worksheets with at least three steps
+- Reason: preserve readable type and handwriting space without restricting short fluency practice
+- Before: `22e12201648395b1b64f9450bd34cb6dfeb5716fe762f19f291d5227ad0c4b42`
+- After: `50d4266e40533612c036c49785df8571fe2823251276f1db52d8b810f2b9840e`
+- Diff/report: browser comparison and A4 measurement from the implementation verification
+- Proposed rule: For two-column calculation worksheets with at least three written scaffold steps per problem, start at no more than eight questions per page. Use ten only when HTTP browser and 100% A4 evidence confirm readable type and genuinely writable slots.
+- Verifier: target validator plus HTTP browser/A4 measurement
+- Related entry: historical long-division bootstrap candidate

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="worksheet-source-media" content="/games/math/mixed-number-media.html" />
   <meta name="curriculum-indicators" content="ค 1.1 ป.4/3,ค 1.1 ป.4/4,ค 1.1 ป.4/13,ค 1.1 ป.4/14,ค 1.1 ป.5/3" />
-  <title>ใบงานแปลงเศษเกินเป็นจำนวนคละ ป.4–5 — โรงเรียนบ้านคำไผ่</title>
+  <title>ใบงานแปลงเศษเกินและจำนวนคละ ป.4–5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&amp;display=swap" rel="stylesheet" />
-  <link href="/games/worksheet-topic.css?v=1.199.4" rel="stylesheet" />
-  <link href="/games/worksheet-modes.css?v=1.199.4" rel="stylesheet" />
+  <link href="/games/worksheet-topic.css?v=1.199.5" rel="stylesheet" />
+  <link href="/games/worksheet-modes.css?v=1.199.5" rel="stylesheet" />
   <style>
     :root {
       --ws-ink: #172033;
@@ -23,25 +23,25 @@
       --ws-fill-part: #f59e0b;
     }
 
-    /* 10-Question Mode Grid (2 cols x 5 rows) */
-    .questions.count-10 {
+    /* 8-Question Mode Grid (2 cols x 4 rows) */
+    .questions.count-8 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-rows: repeat(5, minmax(0, 1fr));
-      gap: 1.6mm 2.8mm;
+      grid-template-rows: repeat(4, minmax(0, 1fr));
+      gap: 2mm 3mm;
     }
-    .questions.count-10 .q {
-      padding: 1.6mm 2.2mm 1.4mm 8.5mm;
+    .questions.count-8 .q {
+      padding: 2.2mm 2.8mm 2mm 10mm;
       min-height: 0;
-      gap: 0.6mm;
-      font-size: 8pt;
-      line-height: 1.22;
+      gap: 1mm;
+      font-size: 9.2pt;
+      line-height: 1.28;
     }
-    .questions.count-10 .q-num {
-      width: 5.8mm;
-      height: 5.8mm;
-      font-size: 7.8pt;
-      left: 1.8mm;
-      top: 1.8mm;
+    .questions.count-8 .q-num {
+      width: 7mm;
+      height: 7mm;
+      font-size: 9.2pt;
+      left: 2mm;
+      top: 2mm;
     }
 
     /* 5-Question Mode Grid (1 col x 5 rows) */
@@ -88,7 +88,7 @@
       gap: 1.5mm;
       font-weight: 800;
       color: var(--ws-accent);
-      font-size: 11pt;
+      font-size: 13pt;
     }
     .count-5 .problem-equation {
       font-size: 13pt;
@@ -128,15 +128,15 @@
     /* Process Scaffolding Steps */
     .steps-board {
       display: grid;
-      grid-auto-rows: 6.2mm;
-      gap: 1.4mm;
-      margin: 1.5mm 0 0;
+      grid-auto-rows: 7mm;
+      gap: 1.8mm;
+      margin: 2mm 0 0;
       color: var(--ws-ink);
-      font-size: 7.8pt;
+      font-size: 9pt;
       width: 100%;
     }
     .count-5 .steps-board {
-      font-size: 8.8pt;
+      font-size: 9.5pt;
       grid-auto-rows: 7mm;
       gap: 1.8mm;
       margin-top: 2mm;
@@ -145,7 +145,7 @@
       display: flex;
       align-items: center;
       gap: 1mm;
-      min-height: 6.2mm;
+      min-height: 7mm;
       border-bottom: 1px dotted var(--ws-line);
       white-space: nowrap;
       overflow: hidden;
@@ -161,10 +161,10 @@
     }
     .reason-text {
       color: var(--ws-muted);
-      font-size: 7.2pt;
+      font-size: 8.4pt;
     }
     .count-5 .reason-text {
-      font-size: 8pt;
+      font-size: 8.8pt;
     }
 
     /* Answer Slots & Reveal Fill */
@@ -199,7 +199,7 @@
       gap: 4mm;
       font-weight: 800;
       color: var(--ws-accent);
-      font-size: 8.2pt;
+      font-size: 9.8pt;
       margin-top: auto;
     }
     .count-5 .ans-row {
@@ -257,9 +257,9 @@
     }
 
     @media print {
-      .questions.count-10 .q {
+      .questions.count-8 .q {
         min-height: 0;
-        padding: 1.5mm 2mm 1.3mm 8mm;
+        padding: 2.2mm 2.8mm 2mm 10mm;
       }
       .questions.count-5 .q {
         min-height: 0;
@@ -278,7 +278,7 @@
 </head>
 <body>
   <header class="toolbar">
-    <h1>🧩 ใบงานแปลงเศษเกินเป็นจำนวนคละ</h1>
+    <h1>🧩 ใบงานแปลงเศษเกินและจำนวนคละ</h1>
     <div class="toolbar-ctrls">
       <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
         <option value="standard" selected>มาตรฐาน</option>
@@ -288,7 +288,7 @@
       <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
         <option value="1">1 หน้า</option>
         <option value="2">2 หน้า</option>
-        <option value="3" selected>3 หน้า (ครบ 30 ข้อ)</option>
+        <option value="3" selected>3 หน้า (ครบ 24 ข้อ)</option>
         <option value="5">5 หน้า</option>
         <option value="10">10 หน้า</option>
       </select>
@@ -303,8 +303,13 @@
         <option value="reducible">ระดับตัดทอน (เป็นเศษส่วนอย่างต่ำ)</option>
         <option value="challenge">ระดับท้าทาย (ตัวส่วน 11–20)</option>
       </select>
-      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า">
-        <option value="10" selected>10 ข้อ/หน้า (ฝึกคล่อง)</option>
+      <select class="t-select" id="selDirection" aria-label="ทิศทางการแปลง">
+        <option value="improper-to-mixed">เศษเกิน → จำนวนคละ</option>
+        <option value="mixed-to-improper">จำนวนคละ → เศษเกิน</option>
+        <option value="both" selected>ผสมสองทิศทาง</option>
+      </select>
+      <select class="t-select" id="selCount" data-standard-count="8" aria-label="จำนวนข้อต่อหน้า">
+        <option value="8" selected>8 ข้อ/หน้า (ฟอนต์ใหญ่ เขียนง่าย)</option>
         <option value="5">5 ข้อ/หน้า (พร้อมภาพประกอบ)</option>
       </select>
       <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน" />
@@ -325,7 +330,7 @@
     </section>
   </main>
 
-  <script src="/games/worksheet-runtime.js?v=1.199.4"></script>
+  <script src="/games/worksheet-runtime.js?v=1.199.5"></script>
   <script>
     /* ── Mathematical Helper Functions ── */
     function gcd(a, b) {
@@ -367,6 +372,7 @@
 
       return {
         key: whole + '_' + remainder + '_' + denominator,
+        valueKey: whole + '_' + simpleNum + '_' + simpleDen,
         category,
         whole,
         remainder,
@@ -466,7 +472,7 @@
 
     /* ── Multi-Page Selection (No duplicate questions across pages) ── */
     function selectMultiPageItems({ fullPool, selectedPool, count, pageCount, shuffle, nextRandom }) {
-      const topic = document.getElementById('selTopic')?.value || 'mixed';
+      const direction = document.getElementById('selDirection')?.value || 'both';
       const usedKeys = new Set();
       const pages = [];
 
@@ -474,20 +480,20 @@
       let backupPool = shuffle(fullPool.filter(it => !selectedPool.some(p => p.key === it.key)));
       let combined = [...primaryPool, ...backupPool];
 
+      const directionOffset = Math.floor(nextRandom() * 2);
       for (let p = 0; p < pageCount; p++) {
         const pageItems = [];
         for (const it of combined) {
           if (pageItems.length >= count) break;
-          if (!usedKeys.has(it.key)) {
-            usedKeys.add(it.key);
-            pageItems.push(it);
+          if (!usedKeys.has(it.valueKey)) {
+            const itemDirection = direction === 'both'
+              ? ((pageItems.length + p + directionOffset) % 2 === 0 ? 'improper-to-mixed' : 'mixed-to-improper')
+              : direction;
+            usedKeys.add(it.valueKey);
+            pageItems.push({ ...it, direction: itemDirection });
           }
         }
-        // Fallback if pool is exhausted
-        while (pageItems.length < count) {
-          const fallback = combined[Math.floor(nextRandom() * combined.length)];
-          pageItems.push(fallback);
-        }
+        if (pageItems.length !== count) throw new Error('คลังโจทย์ไม่พอสำหรับชุดที่เลือกโดยไม่ออกค่าซ้ำ');
         pages.push(pageItems);
       }
       return pages;
@@ -497,13 +503,13 @@
     window.WORKSHEET_CONFIG = {
       worksheetKey: 'math/improper-to-mixed',
       icon: '🧩',
-      title: 'ใบงานแปลงเศษเกินเป็นจำนวนคละ',
+      title: 'ใบงานแปลงเศษเกินและจำนวนคละ',
       subject: 'คณิตศาสตร์',
       gradeLabel: 'ป.4–ป.5',
       mediaLabel: 'สื่อการสอนจำนวนคละ',
       sourceMediaUrl:'/games/math/mixed-number-media.html',
       indicators: ['ค 1.1 ป.4/3', 'ค 1.1 ป.4/4', 'ค 1.1 ป.4/13', 'ค 1.1 ป.4/14', 'ค 1.1 ป.5/3'],
-      directions: 'แปลงเศษเกินเป็นจำนวนคละ โดยหารตัวเศษด้วยตัวส่วน และเขียนคำตอบในรูปอย่างต่ำ',
+      directions: 'แปลงเศษเกินและจำนวนคละตามลูกศร เติมวิธีทำทุกขั้น และเขียนคำตอบในรูปอย่างต่ำ',
       topicLabels: {
         mixed: 'ผสมทุกระดับ',
         basic: 'พื้นฐาน (ส่วน 2–5)',
@@ -515,10 +521,45 @@
         const pools = getAllPools();
         return pools[topic] || pools.mixed;
       },
+      readExtraControls() {
+        return { direction: document.getElementById('selDirection')?.value || 'both' };
+      },
+      applyExtraControls(saved) {
+        const countSelect = document.getElementById('selCount');
+        if (countSelect && Number(saved?.count) === 10) countSelect.value = '8';
+        const directionSelect = document.getElementById('selDirection');
+        if (directionSelect) directionSelect.value = saved?.direction || 'improper-to-mixed';
+      },
       selectAllPageItems: selectMultiPageItems,
       renderQuestion(item, index, context) {
         const is5Count = context.count === 5;
-        const e = window.KampaiTopicWorksheet?.escapeHtml || (s => s);
+        const isReverse = item.direction === 'mixed-to-improper';
+
+        if (isReverse) {
+          const sourceNum = item.simpleNum;
+          const sourceDen = item.simpleDen;
+          const product = item.whole * sourceDen;
+          const improperNum = product + sourceNum;
+          const visualHtml = is5Count ? renderVisualSvg({ ...item, remainder: sourceNum, denominator: sourceDen }) : '';
+          return '<div class="item-card">'
+            + '<div class="item-header">'
+            + '<div class="problem-equation">' + mixedHtml(item.whole, sourceNum, sourceDen) + ' = ?</div>'
+            + '<div class="reason-text">แปลงเป็นเศษเกิน</div>'
+            + '</div>'
+            + visualHtml
+            + '<div class="steps-board">'
+            + '<div class="step-row"><span class="step-badge">①</span> คูณ: '
+            + item.whole + ' × ' + sourceDen + ' = <span class="slot short">' + product + '</span></div>'
+            + '<div class="step-row"><span class="step-badge">②</span> บวกตัวเศษ: '
+            + '<span class="slot short">' + product + '</span> + ' + sourceNum
+            + ' = <span class="slot short">' + improperNum + '</span></div>'
+            + '<div class="step-row reason-text"><span class="step-badge">③</span> ตัวส่วนคงเดิม = '
+            + '<span class="slot short">' + sourceDen + '</span></div>'
+            + '</div>'
+            + '<div class="ans-row"><span class="ans-target">ตอบ</span>'
+            + '<span class="ans-fill">' + fracHtml(improperNum, sourceDen) + '</span></div>'
+            + '</div>';
+        }
 
         // Step 1: ตั้งหาร
         const step1Html = '<div class="step-row">'
@@ -580,7 +621,7 @@
       },
     };
   </script>
-  <script src="/games/worksheet-topic.js?v=1.199.4"></script>
+  <script src="/games/worksheet-topic.js?v=1.199.5"></script>
   <script>
     function render() {
       window.KampaiTopicWorksheet.render();
@@ -590,6 +631,9 @@
     window.KampaiWorksheet.loadTeachers();
     render();
   </script>
-  <script src="/games/worksheet-modes.js?v=1.199.4"></script>
+  <script src="/games/worksheet-modes.js?v=1.199.5"></script>
+  <script>
+    document.getElementById('selDirection').onchange = () => document.getElementById('selTopic').onchange();
+  </script>
 </body>
 </html>
