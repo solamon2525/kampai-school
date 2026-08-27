@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -51,6 +51,7 @@ import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 import {
   Dialog,
   DialogContent,
@@ -75,6 +76,7 @@ interface DepositConfirmation {
   photoUrl: string | null;
   amount: number;
   balanceAfter: number;
+  transactionType: SavingsTransactionType;
 }
 
 type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
@@ -86,29 +88,6 @@ const fmtBaht = (n: number | null | undefined) => {
 
 const fmtCount = (n: number | null | undefined) =>
   Number(n ?? 0).toLocaleString('th-TH');
-
-const getFirstName = (fullName: string) => fullName.trim().split(/\s+/)[0] || fullName.trim();
-
-const speakDepositConfirmation = (studentName: string, amount: number, balanceAfter: number) => {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-
-  try {
-    const utterance = new SpeechSynthesisUtterance(
-      `ฝากเงิน ชื่อ ${getFirstName(studentName)} ยอดฝากล่าสุด ${amount} บาท ยอดเงินสะสม ${balanceAfter} บาท`,
-    );
-    utterance.lang = 'th-TH';
-    utterance.rate = 0.92;
-    utterance.pitch = 1.02;
-    const thaiVoice = window.speechSynthesis
-      .getVoices()
-      .find((voice) => voice.lang.toLocaleLowerCase().startsWith('th'));
-    if (thaiVoice) utterance.voice = thaiVoice;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  } catch {
-    // Voice feedback is optional; saving and visual confirmation must still succeed.
-  }
-};
 
 export const SavingsBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -140,6 +119,8 @@ export const SavingsBankManagement = () => {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
   const [depositConfirmation, setDepositConfirmation] = useState<DepositConfirmation | null>(null);
+  const [speechComplete, setSpeechComplete] = useState(false);
+  const speechRequestRef = useRef(0);
 
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
@@ -181,15 +162,16 @@ export const SavingsBankManagement = () => {
   }, [form.student_class]);
 
   useEffect(() => {
-    if (!depositConfirmation) return;
+    if (!depositConfirmation || !speechComplete) return;
     const timer = window.setTimeout(() => {
       setDepositConfirmation(null);
       if (quickRepeat) setScannerOpen(true);
-    }, 5000);
+    }, 800);
     return () => window.clearTimeout(timer);
-  }, [depositConfirmation, quickRepeat]);
+  }, [depositConfirmation, quickRepeat, speechComplete]);
 
   const closeDepositConfirmation = () => {
+    speechRequestRef.current += 1;
     setDepositConfirmation(null);
     if (quickRepeat) setScannerOpen(true);
   };
@@ -309,16 +291,29 @@ export const SavingsBankManagement = () => {
         description: `${studentOpt?.name} — ${fmtBaht(amount)} (คงเหลือ ${fmtBaht(balance_after)})`,
       });
 
-      if (form.transaction_type === 'deposit') {
-        const studentName = studentOpt?.name ?? form.student_name;
-        setDepositConfirmation({
-          studentName,
-          photoUrl: studentOpt?.photo_url ?? null,
-          amount,
-          balanceAfter: balance_after,
-        });
-        speakDepositConfirmation(studentName, amount, balance_after);
-      }
+      const studentName = studentOpt?.name ?? form.student_name;
+      const transactionType = form.transaction_type;
+      setDepositConfirmation({
+        studentName,
+        photoUrl: studentOpt?.photo_url ?? null,
+        amount,
+        balanceAfter: balance_after,
+        transactionType,
+      });
+      setSpeechComplete(false);
+      const speechRequest = ++speechRequestRef.current;
+      void speakThai([
+        `${transactionType === 'deposit' ? 'ฝาก' : 'ถอน'}เงินสำเร็จ`,
+        `ชื่อ ${getFirstName(studentName)}`,
+        `${transactionType === 'deposit' ? 'ฝาก' : 'ถอน'} ${thaiNumberToWords(amount)} บาท`,
+        `ยอดคงเหลือ ${thaiNumberToWords(balance_after)} บาท`,
+      ]).then(({ spoken }) => {
+        if (speechRequest !== speechRequestRef.current) return;
+        if (spoken) setSpeechComplete(true);
+        else window.setTimeout(() => {
+          if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+        }, 5000);
+      });
 
       setForm((p) => ({
         ...p,
@@ -695,7 +690,7 @@ export const SavingsBankManagement = () => {
                   />
                   <div className="text-left">
                     <DialogTitle className="text-xl font-extrabold text-foreground sm:text-2xl">
-                      ฝากเงินสำเร็จ
+                      {depositConfirmation.transactionType === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ'}
                     </DialogTitle>
                     <DialogDescription className="mt-1 text-base font-semibold text-foreground/75 sm:text-lg">
                       {depositConfirmation.studentName}
@@ -706,7 +701,9 @@ export const SavingsBankManagement = () => {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
-                  <p className="text-sm font-bold text-amber-900 sm:text-base">ยอดฝากล่าสุด</p>
+                  <p className="text-sm font-bold text-amber-900 sm:text-base">
+                    {depositConfirmation.transactionType === 'deposit' ? 'ยอดฝากล่าสุด' : 'ยอดถอนล่าสุด'}
+                  </p>
                   <p className="mt-2 text-4xl font-black tabular-nums text-amber-950 sm:text-5xl">
                     {fmtBaht(depositConfirmation.amount)}
                   </p>
@@ -718,7 +715,9 @@ export const SavingsBankManagement = () => {
                   </p>
                 </div>
               </div>
-              <p className="text-sm font-medium text-muted-foreground">หน้าต่างนี้จะปิดอัตโนมัติภายใน 5 วินาที</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {speechComplete ? 'อ่านข้อมูลเรียบร้อยแล้ว' : 'กำลังอ่านข้อมูลยืนยันรายการ...'}
+              </p>
             </>
           )}
         </DialogContent>

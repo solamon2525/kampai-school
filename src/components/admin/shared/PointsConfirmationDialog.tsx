@@ -13,6 +13,7 @@ export interface PointsConfirmation {
   photoUrl: string | null;
   latestPoints: number;
   accumulatedPoints: number;
+  latestSign?: '+' | '-';
 }
 
 interface PointsConfirmationDialogProps {
@@ -20,6 +21,7 @@ interface PointsConfirmationDialogProps {
   title: string;
   latestLabel: string;
   accumulatedLabel: string;
+  speechComplete: boolean;
   onClose: () => void;
 }
 
@@ -30,13 +32,14 @@ export const PointsConfirmationDialog = ({
   title,
   latestLabel,
   accumulatedLabel,
+  speechComplete,
   onClose,
 }: PointsConfirmationDialogProps) => {
   useEffect(() => {
-    if (!confirmation) return;
-    const timer = window.setTimeout(onClose, 5000);
+    if (!confirmation || !speechComplete) return;
+    const timer = window.setTimeout(onClose, 800);
     return () => window.clearTimeout(timer);
-  }, [confirmation, onClose]);
+  }, [confirmation, onClose, speechComplete]);
 
   return (
     <Dialog open={confirmation !== null} onOpenChange={(open) => !open && confirmation && onClose()}>
@@ -66,7 +69,7 @@ export const PointsConfirmationDialog = ({
               <div className="rounded-2xl border border-primary/30 bg-primary/10 p-5">
                 <p className="text-sm font-bold text-foreground sm:text-base">{latestLabel}</p>
                 <p className="mt-2 text-4xl font-black tabular-nums text-primary sm:text-5xl">
-                  +{fmtPoints(confirmation.latestPoints)}
+                  {confirmation.latestSign ?? '+'}{fmtPoints(confirmation.latestPoints)}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-primary p-5 text-primary-foreground">
@@ -77,7 +80,7 @@ export const PointsConfirmationDialog = ({
               </div>
             </div>
             <p className="text-sm font-medium text-muted-foreground">
-              หน้าต่างนี้จะปิดอัตโนมัติภายใน 5 วินาที
+              {speechComplete ? 'อ่านข้อมูลเรียบร้อยแล้ว' : 'กำลังอ่านข้อมูลยืนยันรายการ...'}
             </p>
           </>
         )}

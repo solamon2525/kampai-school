@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { studentsService, conductService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ import {
     PointsConfirmationDialog,
     type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
-import { getFirstName, speakThai } from '@/lib/thaiSpeech';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -135,7 +135,12 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [academicYear, setAcademicYear] = useState(currentYear);
     const [isSaving, setIsSaving] = useState(false);
     const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
-    const closePointsConfirmation = useCallback(() => setPointsConfirmation(null), []);
+    const [speechComplete, setSpeechComplete] = useState(false);
+    const speechRequestRef = useRef(0);
+    const closePointsConfirmation = useCallback(() => {
+        speechRequestRef.current += 1;
+        setPointsConfirmation(null);
+    }, []);
 
     useEffect(() => {
         setStudents([]);
@@ -168,9 +173,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         }
         const parsedScore = parseInt(score) || 1;
         const student = students.find(s => s.id === selectedStudentId);
-        const { data: existingRecords } = type === 'add'
-            ? await conductService.getByStudentId(selectedStudentId)
-            : { data: null };
+        const { data: existingRecords } = await conductService.getByStudentId(selectedStudentId);
         const accumulatedBefore = (existingRecords || [])
             .filter(record => record.academic_year === academicYear)
             .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
@@ -195,17 +198,30 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
             description: `${student?.name} ${type === 'add' ? '+' : '-'}${score} คะแนน · ${reason}`,
         });
-        if (type === 'add' && student) {
-            const accumulatedPoints = Math.max(0, accumulatedBefore + parsedScore);
+        if (student) {
+            const isAdd = type === 'add';
+            const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
             setPointsConfirmation({
                 studentName: student.name,
                 photoUrl: student.photo_url,
                 latestPoints: parsedScore,
                 accumulatedPoints,
+                latestSign: isAdd ? '+' : '-',
             });
-            speakThai(
-                `เพิ่มคะแนนความดี ชื่อ ${getFirstName(student.name)} คะแนนล่าสุด ${parsedScore} คะแนน คะแนนความดีสะสม ${accumulatedPoints} คะแนน`,
-            );
+            setSpeechComplete(false);
+            const speechRequest = ++speechRequestRef.current;
+            void speakThai([
+                `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
+                `ชื่อ ${getFirstName(student.name)}`,
+                `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
+                `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
+            ]).then(({ spoken }) => {
+                if (speechRequest !== speechRequestRef.current) return;
+                if (spoken) setSpeechComplete(true);
+                else window.setTimeout(() => {
+                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+                }, 5000);
+            });
         }
         setReason('');
         setScore('1');
@@ -370,9 +386,10 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             </div>
             <PointsConfirmationDialog
                 confirmation={pointsConfirmation}
-                title="เพิ่มคะแนนความดีสำเร็จ"
+                title={`${pointsConfirmation?.latestSign === '-' ? 'หัก' : 'เพิ่ม'}คะแนนความดีสำเร็จ`}
                 latestLabel="คะแนนความดีล่าสุด"
                 accumulatedLabel="คะแนนความดีสะสม"
+                speechComplete={speechComplete}
                 onClose={closePointsConfirmation}
             />
         </div>

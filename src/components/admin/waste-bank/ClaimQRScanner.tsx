@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { describeCameraError, startRearScanner } from '@/lib/qrCamera';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 interface Props {
   open: boolean;
@@ -131,6 +132,11 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: approveErr.message, variant: 'destructive' });
     } else {
       toast({ title: 'อนุมัติสำเร็จ', description: `มอบของรางวัล "${claim.reward_name}" เรียบร้อย` });
+      void speakThai([
+        'อนุมัติมอบรางวัลสำเร็จ',
+        `ชื่อ ${getFirstName(claim.students?.name ?? '')}`,
+        `ได้รับรางวัล ${claim.reward_name}`,
+      ]);
       onAction();
       onClose();
     }

@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { RewardCostDisplay } from './RewardCostDisplay';
 import { canAffordReward, maxAffordableQuantity } from './reward-cost';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 
 interface RewardClaimDialogProps {
   reward: Reward | null;
@@ -128,6 +129,13 @@ export function RewardClaimDialog({
       title: 'ส่งคำขอแลกสำเร็จ',
       description: `แลก ${reward.name} จำนวน ${quantity} ชิ้น — รอครูอนุมัติ`,
     });
+    void speakThai([
+      'ส่งคำขอแลกรางวัลสำเร็จ',
+      `ชื่อ ${getFirstName(student?.full_name ?? '')}`,
+      `รางวัล ${reward.name}`,
+      `จำนวน ${thaiNumberToWords(quantity)} ชิ้น`,
+      'รอครูอนุมัติ',
+    ]);
     setSuccessQuantity(quantity);
     if (data) {
       setSuccessClaimId(data as string);

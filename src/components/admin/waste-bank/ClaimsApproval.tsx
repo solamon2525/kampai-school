@@ -11,6 +11,7 @@ import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ClaimQRScanner } from './ClaimQRScanner';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 const STATUS_LABEL: Record<RewardClaimStatus, string> = {
   pending: 'รออนุมัติ',
@@ -44,16 +45,21 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     onAction?.();
   };
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (claim: RewardClaim) => {
     if (!user?.id) return;
-    setProcessingId(id);
+    setProcessingId(claim.id);
     // v1.37.4: RPC อ่าน reviewer + approver จาก auth.uid() เอง — ไม่ต้องส่ง params
-    const { error } = await rewardClaimsService.approve(id);
+    const { error } = await rewardClaimsService.approve(claim.id);
     setProcessingId(null);
     if (error) {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'อนุมัติสำเร็จ' });
+      void speakThai([
+        'อนุมัติมอบรางวัลสำเร็จ',
+        `ชื่อ ${getFirstName(claim.students?.name ?? '')}`,
+        `ได้รับรางวัล ${claim.reward_name}`,
+      ]);
       handleActionCompleted();
     }
   };
@@ -187,7 +193,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                               size="sm"
                               variant="outline"
                               className="text-emerald-700 border-emerald-300 hover:bg-emerald-50"
-                              onClick={() => handleApprove(c.id)}
+                              onClick={() => handleApprove(c)}
                               disabled={processingId === c.id}
                             >
                               <Check className="w-4 h-4" />

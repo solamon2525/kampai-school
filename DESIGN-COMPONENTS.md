@@ -611,12 +611,14 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - `pending` และ `approved` กันคะแนนทันที; `rejected` คืน available ของทั้งสองกระเป๋าโดยไม่เพิ่ม/ลบ `conduct_scores`
 - ทุกหน้าที่แสดงราคาใช้ `<RewardCostDisplay>` เพื่อให้ label และสีของสองกระเป๋าตรงกัน
 
-### `<PointsConfirmationDialog confirmation title latestLabel accumulatedLabel onClose />`
+### `<PointsConfirmationDialog confirmation title latestLabel accumulatedLabel speechComplete onClose />`
 - Path: `src/components/admin/shared/PointsConfirmationDialog.tsx`
-- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและ Kampai Hero หลังรายการเพิ่มสำเร็จเท่านั้น
+- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและ Kampai Hero หลังรายการเพิ่ม/หักสำเร็จเท่านั้น; `latestSign` รองรับ `+` และ `-`
 - ต้องแสดง `<PersonAvatar>` คู่ชื่อ พร้อมคะแนนล่าสุดและยอดสะสมเป็นตัวเลขขนาดใหญ่กลางจอแบบ responsive
-- ปิดอัตโนมัติภายใน 5 วินาทีหรือกดปิดได้; โหมดสแกนต่อเนื่องเปิด scanner รายการถัดไปหลัง dialog ปิดเพื่อห้าม modal ซ้อน
-- เสียงใช้ `speakThai()` โดยอ่านชื่อคำแรกจาก `getFirstName()`; อุปกรณ์ไม่มี Web Speech API ต้องยังบันทึกและเปิด dialog ได้ตามปกติ
+- ปิดอัตโนมัติหลัง `speechComplete` แล้วหน่วง 800ms หรือกดปิดได้; ถ้าไม่มี Web Speech API ใช้ fallback 5 วินาที
+- เสียงยืนยันธุรกรรมทุกระบบใช้ `speakThai()` ส่วนกลางหลัง mutation สำเร็จเท่านั้น โดยส่งข้อความเป็นช่วงสั้นและแปลงจำนวนเต็มผ่าน `thaiNumberToWords()`
+- `speakThai()` ต้องคง utterance จน `onend/onerror`, เข้าคิว FIFO และห้าม `cancel()` รายการก่อนหน้า; ใช้ `stopThaiSpeech()` เฉพาะ logout/teardown
+- ครอบคลุมฝาก/ถอนธนาคารพอเพียง, ฝากขยะ, เพิ่ม/หักความดี, ส่งคำขอแลกรางวัล และอนุมัติมอบรางวัลจากรายการหรือ QR; ห้ามอ่านเมื่อบันทึกล้มเหลวหรือปฏิเสธคำขอ
 
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |

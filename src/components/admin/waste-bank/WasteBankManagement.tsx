@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp, Presentation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ import {
   PointsConfirmationDialog,
   type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
-import { getFirstName, speakThai } from '@/lib/thaiSpeech';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 import { WasteBankShowcaseManagement } from './WasteBankShowcaseManagement';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -94,6 +94,8 @@ export const WasteBankManagement = () => {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
   const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
+  const [speechComplete, setSpeechComplete] = useState(false);
+  const speechRequestRef = useRef(0);
 
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -293,9 +295,20 @@ export const WasteBankManagement = () => {
       latestPoints: totalPointsSubmitted,
       accumulatedPoints,
     });
-    speakThai(
-      `ฝากขยะ ชื่อ ${getFirstName(form.student_name)} คะแนนล่าสุด ${totalPointsSubmitted} แต้ม คะแนนสะสม ${accumulatedPoints} แต้ม`,
-    );
+    setSpeechComplete(false);
+    const speechRequest = ++speechRequestRef.current;
+    void speakThai([
+      'รับฝากขยะสำเร็จ',
+      `ชื่อ ${getFirstName(form.student_name)}`,
+      `ได้รับ ${thaiNumberToWords(totalPointsSubmitted)} แต้ม`,
+      `แต้มสะสม ${thaiNumberToWords(accumulatedPoints)} แต้ม`,
+    ]).then(({ spoken }) => {
+      if (speechRequest !== speechRequestRef.current) return;
+      if (spoken) setSpeechComplete(true);
+      else window.setTimeout(() => {
+        if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+      }, 5000);
+    });
     const defaultCat = categories.find(
       (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
     );
@@ -310,6 +323,7 @@ export const WasteBankManagement = () => {
   };
 
   const closePointsConfirmation = useCallback(() => {
+    speechRequestRef.current += 1;
     setPointsConfirmation(null);
     if (quickRepeat) setShowQRScanner(true);
   }, [quickRepeat]);
@@ -999,6 +1013,7 @@ export const WasteBankManagement = () => {
         title="ฝากขยะสำเร็จ"
         latestLabel="คะแนนล่าสุด"
         accumulatedLabel="คะแนนสะสม"
+        speechComplete={speechComplete}
         onClose={closePointsConfirmation}
       />
 
