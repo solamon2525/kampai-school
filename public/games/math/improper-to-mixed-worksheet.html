@@ -71,7 +71,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       min-height: 0;
       gap: 0.6mm;
     }
@@ -128,28 +128,31 @@
     /* Process Scaffolding Steps */
     .steps-board {
       display: grid;
-      gap: 0.5mm;
-      margin: 0;
+      grid-auto-rows: 6.2mm;
+      gap: 1.4mm;
+      margin: 1.5mm 0 0;
       color: var(--ws-ink);
       font-size: 7.8pt;
       width: 100%;
     }
     .count-5 .steps-board {
       font-size: 8.8pt;
-      gap: 0.8mm;
+      grid-auto-rows: 7mm;
+      gap: 1.8mm;
+      margin-top: 2mm;
     }
     .step-row {
       display: flex;
       align-items: center;
       gap: 1mm;
-      min-height: 4.6mm;
+      min-height: 6.2mm;
       border-bottom: 1px dotted var(--ws-line);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .count-5 .step-row {
-      min-height: 5.6mm;
+      min-height: 7mm;
     }
     .step-badge {
       font-weight: 800;
@@ -192,11 +195,12 @@
     .ans-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 4mm;
       font-weight: 800;
       color: var(--ws-accent);
       font-size: 8.2pt;
-      margin-top: 0.2mm;
+      margin-top: auto;
     }
     .count-5 .ans-row {
       font-size: 9.8pt;
@@ -525,32 +529,23 @@
           + '<span class="slot short">' + item.remainder + '</span>'
           + '</div>';
 
-        // Step 2: เหตุผล / ตรวจสอบ
-        let step2Html = '';
-        if (is5Count) {
-          step2Html = '<div class="step-row">'
-            + '<span class="step-badge">②</span> จำนวนเต็ม = '
-            + '<span class="slot short">' + item.whole + '</span>'
-            + ', ตัวเศษ = '
-            + '<span class="slot short">' + item.remainder + '</span>'
-            + ', ตัวส่วนคงเดิม ' + item.denominator
-            + '</div>';
-        } else {
-          step2Html = '<div class="step-row reason-text">'
-            + '<span class="step-badge">②</span> คิดจาก: '
-            + item.denominator + ' × ' + item.whole + ' = ' + (item.denominator * item.whole)
-            + ' (เหลือ ' + item.numerator + ' − ' + (item.denominator * item.whole) + ' = ' + item.remainder + ')'
-            + '</div>';
-        }
+        // Step 2: ตรวจสอบโดยซ่อนค่าที่นักเรียนต้องคำนวณทุกตำแหน่ง
+        const product = item.denominator * item.whole;
+        const step2Html = '<div class="step-row reason-text">'
+          + '<span class="step-badge">②</span> ตรวจสอบ: '
+          + item.denominator + ' × <span class="slot short">' + item.whole + '</span>'
+          + ' = <span class="slot short">' + product + '</span>'
+          + ' และ ' + item.numerator + ' − <span class="slot short">' + product + '</span>'
+          + ' = <span class="slot short">' + item.remainder + '</span>'
+          + '</div>';
 
-        // Step 3 (if reducible in count-5 mode)
-        let step3Html = '';
-        if (is5Count && item.isReducible) {
+        // Step 3: ตรวจการย่อ โดยซ่อนตัวหารและผลอย่างต่ำ
+        let step3Html = '<div class="step-row reason-text"><span class="step-badge">③</span> ส่วนเศษเป็นเศษส่วนอย่างต่ำแล้ว</div>';
+        if (item.isReducible) {
           step3Html = '<div class="step-row">'
-            + '<span class="step-badge">③</span> ตัดทอน '
-            + fracHtml(item.remainder, item.denominator)
-            + ' ด้วย ' + item.divisor
-            + ' = ' + fracHtml(item.simpleNum, item.simpleDen)
+            + '<span class="step-badge">③</span> ย่อส่วนเศษด้วย '
+            + '<span class="slot short">' + item.divisor + '</span>'
+            + ' ได้ <span class="slot mixed">' + fracHtml(item.simpleNum, item.simpleDen) + '</span>'
             + '</div>';
         }
 
