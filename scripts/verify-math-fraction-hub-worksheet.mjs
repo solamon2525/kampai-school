@@ -12,7 +12,7 @@ let activeLevel = 'mid', activeTopic = 'mixed';
 const context = {
   document: { getElementById(id) { return id === 'selLevel' ? { value: activeLevel } : id === 'selTopic' ? { value: activeTopic } : { value: '6', dataset: {} }; } },
 };
-vm.runInNewContext(`${source}\nresult={topics:FH_TOPICS,levels:FH_LEVEL_DENOMS,buildTopic:fhBuildTopic,buildPool:fhBuildPool,answer:fhAnswer,bar:fhBarSvg,render:fhRenderQuestion,select:fhSelectPages};`, context, { timeout: 10000 });
+vm.runInNewContext(`${source}\nresult={topics:FH_TOPICS,levels:FH_LEVEL_DENOMS,buildTopic:fhBuildTopic,buildPool:fhBuildPool,answer:fhAnswer,bar:fhBarSvg,render:fhRenderQuestion,valueHtml:fhValueHtml,stepLabel:fhResultStepLabel,select:fhSelectPages};`, context, { timeout: 10000 });
 const api = context.result;
 const errors = [];
 
@@ -62,6 +62,18 @@ for (const [level, denoms] of Object.entries(api.levels)) {
       const expectedSlots = item.type === 'shade' || item.type === 'read' || item.type === 'whole' ? 2 : item.type === 'compare' ? 1 : 3;
       if ((rendered.match(/answer-slot/g) || []).length !== expectedSlots) errors.push(`${level}/${item.key}: ช่องเติมไม่มีเฉลยครบ`);
       if (rendered.includes('____')) errors.push(`${level}/${item.key}: ยังมีช่องเติมที่ไม่ผูกเฉลย`);
+      const answer = api.answer(item);
+      if (/^\d+ \d+\/\d+$/.test(answer)) {
+        const mixed = api.valueHtml(answer);
+        if (!mixed.includes('class="mixed-number"') || !mixed.includes(`data-mixed-number="${answer}"`)) errors.push(`${level}/${item.key}: จำนวนคละไม่ได้อยู่ในกลุ่มเดียว`);
+        const visibleMixedText = mixed.replace(/<[^>]+>/g, '');
+        if (visibleMixedText.includes('=') || (mixed.match(/class="whole-num"/g) || []).length !== 1 || (mixed.match(/class="frac-stack"/g) || []).length !== 1) errors.push(`${level}/${item.key}: โครงสร้างจำนวนคละไม่ชัดเจน`);
+      }
+      if (item.type === 'add' || item.type === 'subtract') {
+        const raw = item.type === 'add' ? item.p0 + item.p1 : item.p0 - item.p1;
+        const expectedLabel = raw > denominator ? 'ก่อนแปลงเป็นจำนวนคละ' : raw === denominator ? 'ก่อนแปลงเป็นจำนวนเต็ม' : gcd(raw, denominator) > 1 ? 'ก่อนย่อ' : 'รวมได้';
+        if (api.stepLabel(raw, denominator) !== expectedLabel || !rendered.includes(expectedLabel)) errors.push(`${level}/${item.key}: คำอธิบายขั้นกลางไม่ตรงผลลัพธ์`);
+      }
     }
     if (topic === 'shade' || topic === 'read') {
       for (const item of items.slice(0, 12)) {
