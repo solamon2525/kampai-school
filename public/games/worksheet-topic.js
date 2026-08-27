@@ -161,7 +161,7 @@
   }
 
   function readControls() {
-    return {
+    const controls = {
       style: document.getElementById('selStyle')?.value || 'standard',
       pageCount: Number(document.getElementById('selPageCount')?.value || 1),
       count: Number(document.getElementById('selCount')?.value || 5),
@@ -170,6 +170,8 @@
       schoolName: (document.getElementById('inpSchool')?.value || '').trim() || 'โรงเรียนบ้านคำไผ่',
       teacherName: document.getElementById('selTeacher')?.value || '',
     };
+    const extra = typeof config.readExtraControls === 'function' ? config.readExtraControls() : null;
+    return extra && typeof extra === 'object' ? { ...controls, ...extra } : controls;
   }
 
   function applyControls(cfg) {
@@ -188,6 +190,7 @@
       if (!el || cfg[key] == null || cfg[key] === '') return;
       el.value = String(cfg[key]);
     });
+    if (typeof config.applyExtraControls === 'function') config.applyExtraControls(cfg);
   }
 
   function currentConfig() {
