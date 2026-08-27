@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="worksheet-source-media" content="/games/math/mixed-number-media.html" />
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/3,ค 1.1 ป.4/4,ค 1.1 ป.4/13,ค 1.1 ป.4/14,ค 1.1 ป.5/3" />
+  <title>ใบงานแปลงเศษเกินเป็นจำนวนคละ ป.4–5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&amp;display=swap" rel="stylesheet" />
+  <link href="/games/worksheet-topic.css?v=1.199.4" rel="stylesheet" />
+  <link href="/games/worksheet-modes.css?v=1.199.4" rel="stylesheet" />
+  <style>
+    :root {
+      --ws-ink: #172033;
+      --ws-muted: #475569;
+      --ws-line: #cbd5e1;
+      --ws-paper: #ffffff;
+      --ws-soft: #f0fdf4;
+      --ws-accent: #047857;
+      --ws-accent-2: #d97706;
+      --ws-danger: #b91c1c;
+      --ws-fill-full: #10b981;
+      --ws-fill-part: #f59e0b;
+    }
+
+    /* 10-Question Mode Grid (2 cols x 5 rows) */
+    .questions.count-10 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(5, minmax(0, 1fr));
+      gap: 1.6mm 2.8mm;
+    }
+    .questions.count-10 .q {
+      padding: 1.6mm 2.2mm 1.4mm 8.5mm;
+      min-height: 0;
+      gap: 0.6mm;
+      font-size: 8pt;
+      line-height: 1.22;
+    }
+    .questions.count-10 .q-num {
+      width: 5.8mm;
+      height: 5.8mm;
+      font-size: 7.8pt;
+      left: 1.8mm;
+      top: 1.8mm;
+    }
+
+    /* 5-Question Mode Grid (1 col x 5 rows) */
+    .questions.count-5 {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: repeat(5, minmax(0, 1fr));
+      gap: 2.2mm;
+    }
+    .questions.count-5 .q {
+      padding: 2.5mm 3.5mm 2.2mm 11mm;
+      min-height: 0;
+      gap: 1.2mm;
+      font-size: 9.2pt;
+      line-height: 1.3;
+    }
+    .questions.count-5 .q-num {
+      width: 7.2mm;
+      height: 7.2mm;
+      font-size: 9.5pt;
+      left: 2.2mm;
+      top: 2.2mm;
+    }
+
+    /* Card Item Layout */
+    .item-card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      gap: 0.6mm;
+    }
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2mm;
+      min-width: 0;
+    }
+    .problem-equation {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5mm;
+      font-weight: 800;
+      color: var(--ws-accent);
+      font-size: 11pt;
+    }
+    .count-5 .problem-equation {
+      font-size: 13pt;
+    }
+
+    /* Typography for Fractions & Mixed Numbers */
+    .frac-box {
+      display: inline-grid;
+      grid-template-rows: auto auto;
+      min-width: 6mm;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .frac-box .num {
+      border-bottom: 1.4px solid currentColor;
+      padding: 0 0.8mm 0.5mm;
+    }
+    .frac-box .den {
+      padding: 0.5mm 0.8mm 0;
+    }
+
+    .mixed-box {
+      display: inline-flex;
+      align-items: center;
+      column-gap: 1.2mm;
+      white-space: nowrap;
+      font-weight: 800;
+      direction: ltr;
+    }
+    .mixed-box .whole {
+      font-size: 1.18em;
+      line-height: 1;
+    }
+
+    /* Process Scaffolding Steps */
+    .steps-board {
+      display: grid;
+      gap: 0.5mm;
+      margin: 0;
+      color: var(--ws-ink);
+      font-size: 7.8pt;
+      width: 100%;
+    }
+    .count-5 .steps-board {
+      font-size: 8.8pt;
+      gap: 0.8mm;
+    }
+    .step-row {
+      display: flex;
+      align-items: center;
+      gap: 1mm;
+      min-height: 4.6mm;
+      border-bottom: 1px dotted var(--ws-line);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .count-5 .step-row {
+      min-height: 5.6mm;
+    }
+    .step-badge {
+      font-weight: 800;
+      color: var(--ws-accent);
+      flex-shrink: 0;
+    }
+    .reason-text {
+      color: var(--ws-muted);
+      font-size: 7.2pt;
+    }
+    .count-5 .reason-text {
+      font-size: 8pt;
+    }
+
+    /* Answer Slots & Reveal Fill */
+    .slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 9mm;
+      min-height: 4.2mm;
+      border-bottom: 1.2px solid var(--ws-ink);
+      color: transparent;
+      font-weight: 800;
+      padding: 0 1mm;
+    }
+    .slot.short {
+      min-width: 6.5mm;
+    }
+    .slot.mixed {
+      min-width: 14mm;
+    }
+    .show-answers .slot,
+    .q.reveal-answer .slot {
+      color: var(--ws-danger) !important;
+      border-bottom-color: var(--ws-danger) !important;
+    }
+
+    /* Final Answer Line */
+    .ans-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 800;
+      color: var(--ws-accent);
+      font-size: 8.2pt;
+      margin-top: 0.2mm;
+    }
+    .count-5 .ans-row {
+      font-size: 9.8pt;
+    }
+    .ans-target {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+    .ans-fill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18mm;
+      min-height: 5.2mm;
+      border-bottom: 1.3px dotted var(--ws-muted);
+      color: transparent;
+      font-weight: 800;
+      padding: 0 1.5mm;
+    }
+    .show-answers .ans-fill,
+    .q.reveal-answer .ans-fill {
+      color: var(--ws-danger) !important;
+      border-bottom-color: var(--ws-danger) !important;
+      font-size: 1.05em !important;
+    }
+
+    /* Visual Bars (Used in count-5 Mode or Visual Scaffolding) */
+    .visual-stage {
+      display: flex;
+      align-items: center;
+      gap: 1.2mm;
+      width: 100%;
+      height: 8.5mm;
+    }
+    .visual-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+    .vis-seg {
+      fill: var(--ws-paper);
+      stroke: var(--ws-line);
+      stroke-width: 1.2;
+    }
+    .vis-seg.full {
+      fill: #a7f3d0;
+      stroke: var(--ws-accent);
+    }
+    .vis-seg.part {
+      fill: #fde68a;
+      stroke: var(--ws-accent-2);
+    }
+
+    @media print {
+      .questions.count-10 .q {
+        min-height: 0;
+        padding: 1.5mm 2mm 1.3mm 8mm;
+      }
+      .questions.count-5 .q {
+        min-height: 0;
+        padding: 2.3mm 3mm 2mm 10mm;
+      }
+      .vis-seg.full {
+        fill: #d1d5db;
+        stroke: #334155;
+      }
+      .vis-seg.part {
+        fill: #e2e8f0;
+        stroke: #475569;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <h1>🧩 ใบงานแปลงเศษเกินเป็นจำนวนคละ</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+        <option value="standard" selected>มาตรฐาน</option>
+        <option value="progressive">บันไดระดับ ⭐</option>
+        <option value="booklet">รวมเล่มแบบฝึกหัด (พร้อมปก)</option>
+      </select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+        <option value="1">1 หน้า</option>
+        <option value="2">2 หน้า</option>
+        <option value="3" selected>3 หน้า (ครบ 30 ข้อ)</option>
+        <option value="5">5 หน้า</option>
+        <option value="10">10 หน้า</option>
+      </select>
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+        <option value="4" selected>ป.4</option>
+        <option value="5">ป.5</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="ระดับความยาก">
+        <option value="mixed" selected>ผสมทุกระดับ</option>
+        <option value="basic">ระดับพื้นฐาน (ตัวส่วน 2–5)</option>
+        <option value="standard">ระดับมาตรฐาน (ตัวส่วน 6–10)</option>
+        <option value="reducible">ระดับตัดทอน (เป็นเศษส่วนอย่างต่ำ)</option>
+        <option value="challenge">ระดับท้าทาย (ตัวส่วน 11–20)</option>
+      </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อต่อหน้า">
+        <option value="10" selected>10 ข้อ/หน้า (ฝึกคล่อง)</option>
+        <option value="5">5 ข้อ/หน้า (พร้อมภาพประกอบ)</option>
+      </select>
+      <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน" />
+      <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+        <option value="">-- เลือกครูผู้สอน --</option>
+      </select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+      <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+    </div>
+  </header>
+
+  <main class="pages" id="pages">
+    <section class="sheet">
+      <div class="questions">
+        <article class="q">กำลังสร้างใบงาน...</article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/games/worksheet-runtime.js?v=1.199.4"></script>
+  <script>
+    /* ── Mathematical Helper Functions ── */
+    function gcd(a, b) {
+      a = Math.abs(a); b = Math.abs(b);
+      while (b) { const t = a % b; a = b; b = t; }
+      return a || 1;
+    }
+
+    function simplify(n, d) {
+      const g = gcd(n, d);
+      return [n / g, d / g];
+    }
+
+    function fracHtml(n, d) {
+      return '<span class="frac-box"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>';
+    }
+
+    function mixedHtml(w, n, d) {
+      if (!n || n === 0) return '<span class="whole">' + w + '</span>';
+      return '<span class="mixed-box"><span class="whole">' + w + '</span>' + fracHtml(n, d) + '</span>';
+    }
+
+    function hashKey(str) {
+      let hash = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    /* ── Item Factory ── */
+    function createImproperItem(whole, remainder, denominator, category) {
+      const numerator = whole * denominator + remainder;
+      const g = gcd(remainder, denominator);
+      const simpleNum = remainder / g;
+      const simpleDen = denominator / g;
+      const isReducible = g > 1;
+
+      return {
+        key: whole + '_' + remainder + '_' + denominator,
+        category,
+        whole,
+        remainder,
+        denominator,
+        numerator,
+        divisor: g,
+        simpleNum,
+        simpleDen,
+        isReducible,
+        mixedAnswer: isReducible
+          ? whole + ' ' + remainder + '/' + denominator + ' = ' + whole + ' ' + simpleNum + '/' + simpleDen
+          : whole + ' ' + remainder + '/' + denominator,
+      };
+    }
+
+    /* ── Problem Pool Generation ── */
+    const POOL_CONFIGS = {
+      basic: { denoms: [2, 3, 4, 5], minWhole: 1, maxWhole: 7 },
+      standard: { denoms: [6, 7, 8, 9, 10], minWhole: 1, maxWhole: 7 },
+      reducible: { denoms: [4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20], minWhole: 1, maxWhole: 6 },
+      challenge: { denoms: [11, 12, 13, 14, 15, 16, 18, 20], minWhole: 2, maxWhole: 8 },
+    };
+
+    function buildCategoryPool(category) {
+      const items = [];
+      if (category === 'basic' || category === 'standard') {
+        const conf = POOL_CONFIGS[category];
+        for (const d of conf.denoms) {
+          for (let w = conf.minWhole; w <= conf.maxWhole; w++) {
+            for (let r = 1; r < d; r++) {
+              items.push(createImproperItem(w, r, d, category));
+            }
+          }
+        }
+      } else if (category === 'reducible') {
+        const conf = POOL_CONFIGS.reducible;
+        for (const d of conf.denoms) {
+          for (let w = conf.minWhole; w <= conf.maxWhole; w++) {
+            for (let r = 1; r < d; r++) {
+              if (gcd(r, d) > 1) {
+                items.push(createImproperItem(w, r, d, category));
+              }
+            }
+          }
+        }
+      } else if (category === 'challenge') {
+        const conf = POOL_CONFIGS.challenge;
+        for (const d of conf.denoms) {
+          for (let w = conf.minWhole; w <= conf.maxWhole; w++) {
+            for (let r = 1; r < d; r++) {
+              items.push(createImproperItem(w, r, d, category));
+            }
+          }
+        }
+      }
+      return items;
+    }
+
+    function getAllPools() {
+      const basic = buildCategoryPool('basic');
+      const standard = buildCategoryPool('standard');
+      const reducible = buildCategoryPool('reducible');
+      const challenge = buildCategoryPool('challenge');
+      return {
+        basic,
+        standard,
+        reducible,
+        challenge,
+        mixed: [...basic, ...standard, ...reducible, ...challenge],
+      };
+    }
+
+    /* ── SVG Fraction Visual for 5-Question Mode ── */
+    function renderVisualSvg(item) {
+      const totalBars = item.whole + (item.remainder > 0 ? 1 : 0);
+      const barSvgWidth = 340;
+      const barSvgHeight = 24;
+      let barsHtml = '';
+
+      for (let b = 0; b < totalBars; b++) {
+        const isLastBar = b === item.whole;
+        const cellWidth = barSvgWidth / item.denominator;
+        let cells = '';
+
+        for (let c = 0; c < item.denominator; c++) {
+          const isFilled = !isLastBar || c < item.remainder;
+          const segClass = isFilled ? (isLastBar ? 'vis-seg part' : 'vis-seg full') : 'vis-seg';
+          cells += '<rect class="' + segClass + '" x="' + (c * cellWidth) + '" y="2" width="' + cellWidth + '" height="20" rx="1"/>';
+        }
+
+        barsHtml += '<svg class="visual-svg" viewBox="0 0 ' + barSvgWidth + ' ' + barSvgHeight + '" role="img" aria-label="แถบเศษส่วน">'
+          + cells + '</svg>';
+      }
+
+      return '<div class="visual-stage">' + barsHtml + '</div>';
+    }
+
+    /* ── Multi-Page Selection (No duplicate questions across pages) ── */
+    function selectMultiPageItems({ fullPool, selectedPool, count, pageCount, shuffle, nextRandom }) {
+      const topic = document.getElementById('selTopic')?.value || 'mixed';
+      const usedKeys = new Set();
+      const pages = [];
+
+      let primaryPool = shuffle(selectedPool);
+      let backupPool = shuffle(fullPool.filter(it => !selectedPool.some(p => p.key === it.key)));
+      let combined = [...primaryPool, ...backupPool];
+
+      for (let p = 0; p < pageCount; p++) {
+        const pageItems = [];
+        for (const it of combined) {
+          if (pageItems.length >= count) break;
+          if (!usedKeys.has(it.key)) {
+            usedKeys.add(it.key);
+            pageItems.push(it);
+          }
+        }
+        // Fallback if pool is exhausted
+        while (pageItems.length < count) {
+          const fallback = combined[Math.floor(nextRandom() * combined.length)];
+          pageItems.push(fallback);
+        }
+        pages.push(pageItems);
+      }
+      return pages;
+    }
+
+    /* ── Worksheet Configuration Contract ── */
+    window.WORKSHEET_CONFIG = {
+      worksheetKey: 'math/improper-to-mixed',
+      icon: '🧩',
+      title: 'ใบงานแปลงเศษเกินเป็นจำนวนคละ',
+      subject: 'คณิตศาสตร์',
+      gradeLabel: 'ป.4–ป.5',
+      mediaLabel: 'สื่อการสอนจำนวนคละ',
+      sourceMediaUrl:'/games/math/mixed-number-media.html',
+      indicators: ['ค 1.1 ป.4/3', 'ค 1.1 ป.4/4', 'ค 1.1 ป.4/13', 'ค 1.1 ป.4/14', 'ค 1.1 ป.5/3'],
+      directions: 'แปลงเศษเกินเป็นจำนวนคละ โดยหารตัวเศษด้วยตัวส่วน และเขียนคำตอบในรูปอย่างต่ำ',
+      topicLabels: {
+        mixed: 'ผสมทุกระดับ',
+        basic: 'พื้นฐาน (ส่วน 2–5)',
+        standard: 'มาตรฐาน (ส่วน 6–10)',
+        reducible: 'ตัดทอนรูปอย่างต่ำ',
+        challenge: 'ท้าทาย (ส่วน 11–20)',
+      },
+      getItems(topic) {
+        const pools = getAllPools();
+        return pools[topic] || pools.mixed;
+      },
+      selectAllPageItems: selectMultiPageItems,
+      renderQuestion(item, index, context) {
+        const is5Count = context.count === 5;
+        const e = window.KampaiTopicWorksheet?.escapeHtml || (s => s);
+
+        // Step 1: ตั้งหาร
+        const step1Html = '<div class="step-row">'
+          + '<span class="step-badge">①</span> ตั้งหาร: '
+          + item.numerator + ' ÷ ' + item.denominator + ' = '
+          + '<span class="slot short">' + item.whole + '</span>'
+          + ' เศษ '
+          + '<span class="slot short">' + item.remainder + '</span>'
+          + '</div>';
+
+        // Step 2: เหตุผล / ตรวจสอบ
+        let step2Html = '';
+        if (is5Count) {
+          step2Html = '<div class="step-row">'
+            + '<span class="step-badge">②</span> จำนวนเต็ม = '
+            + '<span class="slot short">' + item.whole + '</span>'
+            + ', ตัวเศษ = '
+            + '<span class="slot short">' + item.remainder + '</span>'
+            + ', ตัวส่วนคงเดิม ' + item.denominator
+            + '</div>';
+        } else {
+          step2Html = '<div class="step-row reason-text">'
+            + '<span class="step-badge">②</span> คิดจาก: '
+            + item.denominator + ' × ' + item.whole + ' = ' + (item.denominator * item.whole)
+            + ' (เหลือ ' + item.numerator + ' − ' + (item.denominator * item.whole) + ' = ' + item.remainder + ')'
+            + '</div>';
+        }
+
+        // Step 3 (if reducible in count-5 mode)
+        let step3Html = '';
+        if (is5Count && item.isReducible) {
+          step3Html = '<div class="step-row">'
+            + '<span class="step-badge">③</span> ตัดทอน '
+            + fracHtml(item.remainder, item.denominator)
+            + ' ด้วย ' + item.divisor
+            + ' = ' + fracHtml(item.simpleNum, item.simpleDen)
+            + '</div>';
+        }
+
+        // Answer Display
+        let answerHtml = '';
+        if (item.isReducible) {
+          answerHtml = mixedHtml(item.whole, item.remainder, item.denominator)
+            + ' <span style="font-weight:700;color:currentColor;margin:0 1mm">=</span> '
+            + mixedHtml(item.whole, item.simpleNum, item.simpleDen);
+        } else {
+          answerHtml = mixedHtml(item.whole, item.remainder, item.denominator);
+        }
+
+        const visualHtml = is5Count ? renderVisualSvg(item) : '';
+
+        return '<div class="item-card">'
+          + '<div class="item-header">'
+          + '<div class="problem-equation">' + fracHtml(item.numerator, item.denominator) + ' = ?</div>'
+          + (is5Count ? '<div class="reason-text">แปลงเป็นจำนวนคละ</div>' : '')
+          + '</div>'
+          + visualHtml
+          + '<div class="steps-board">'
+          + step1Html
+          + step2Html
+          + step3Html
+          + '</div>'
+          + '<div class="ans-row">'
+          + '<span class="ans-target">ตอบ</span>'
+          + '<span class="ans-fill">' + answerHtml + '</span>'
+          + '</div>'
+          + '</div>';
+      },
+    };
+  </script>
+  <script src="/games/worksheet-topic.js?v=1.199.4"></script>
+  <script>
+    function render() {
+      window.KampaiTopicWorksheet.render();
+    }
+    document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+    document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+    window.KampaiWorksheet.loadTeachers();
+    render();
+  </script>
+  <script src="/games/worksheet-modes.js?v=1.199.4"></script>
+</body>
+</html>
