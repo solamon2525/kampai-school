@@ -9,7 +9,7 @@
   <rect width="1280" height="720" fill="url(#g558b65ae)"/>
   <circle cx="180" cy="140" r="90" fill="#ffffff" fill-opacity="0.12"/>
   <circle cx="1120" cy="580" r="140" fill="#ffffff" fill-opacity="0.10"/>
-  <rect x="80" y="160" width="1120" height="400" rx="32" fill="#ffffff" fill-opacity="0.18"/>
+  <rect x="80" y="160" width="1120" height="400" rx="32" fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-opacity="0.55" stroke-width="4"/>
   <text x="640" y="300" text-anchor="middle" font-size="96">💰</text>
   <text x="640" y="420" text-anchor="middle" font-family="Sarabun, Tahoma, sans-serif" font-size="56" font-weight="800" fill="#ffffff">เงินทอน</text>
   <text x="640" y="490" text-anchor="middle" font-family="Sarabun, Tahoma, sans-serif" font-size="28" font-weight="600" fill="#ffffff" fill-opacity="0.9">สื่อการสอน · บ้านคำไผ่</text>
