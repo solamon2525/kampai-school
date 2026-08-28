@@ -28,8 +28,10 @@ import {
     Search,
     ArrowRight,
     CircleAlert,
+    RefreshCw,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { educationalHubService } from '@/services/educational-hub.service';
@@ -115,6 +117,22 @@ const dbGroups = [
     { label: 'ระบบ', tables: ['school_settings', 'page_views', 'user_roles', 'user_menu_permissions', 'shared_quick_menu', 'user_dashboard_layout', 'ai_assist_log', 'cctv_cameras', 'admissions', 'alumni_profiles'] },
 ];
 
+const SYSTEM_OVERVIEW_META = {
+    version: 'v1.227.6',
+    verifiedDate: '28 ส.ค. 2569',
+    verifiedIsoDate: '2026-08-28',
+    productionUrl: 'https://kampai-school.vercel.app',
+    database: {
+        tables: 165,
+        views: 16,
+        rlsTables: 165,
+        appliedMigrations: 250,
+        trackedMigrationFiles: 506,
+        latestProductionMigration: '20260827162859 · upgrade_mixed_number_conversion_worksheet',
+        latestRepositoryMigration: '476_upgrade_mixed_number_conversion_worksheet.sql',
+    },
+} as const;
+
 /** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
     { icon: '📅', title: 'Activity Heatmap', desc: 'ความมีส่วนร่วมรายปีแบบ GitHub contribution graph' },
@@ -130,7 +148,7 @@ const roadmap = [
 
 const sprintPlan = [
     {
-        sprint: '✅ ส่งมอบแล้ว (ถึง v1.204)',
+        sprint: `✅ ส่งมอบแล้ว (ถึง ${SYSTEM_OVERVIEW_META.version})`,
         duration: 'เสร็จ',
         goal: 'แกนโรงเรียนครบ: CMS · วิชาการ/ปพ./DMC · ธนาคาร+เกม · คลังสื่อ/เกม/ใบงาน/packs · Chat/LINE/Push · Portal 3 บทบาท · สารบรรณ/HR · PDPA/บริจาค',
         badge: 'bg-emerald-600',
@@ -271,6 +289,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.227.6 (System Overview — production snapshot และสถานะระบบ)',
+        date: '28 ส.ค. 2569',
+        badge: 'bg-indigo-700',
+        items: [
+            'รวม metadata เวอร์ชันและฐานข้อมูลไว้จุดเดียว พร้อม snapshot production 165 ตาราง 16 views และ RLS ครบ 165 ตาราง',
+            'แยกจำนวน migration ที่ใช้จริงบน production ออกจากไฟล์ migration ที่ติดตามใน Git และระบุวันที่ตรวจล่าสุด',
+            'เพิ่ม error/retry state ให้ Phase 16 KPI และปรับหน้า System Overview ไม่ให้ล้นจอบนมือถือ',
+        ],
+    },
     {
         version: 'v1.227.5 (คลังสื่อ — ค้นหาเมื่อยืนยัน)',
         date: '27 ส.ค. 2569',
@@ -5012,11 +5040,11 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.209.0',
-        live: 'https://kampai-school.vercel.app',
+        version: SYSTEM_OVERVIEW_META.version,
+        live: SYSTEM_OVERVIEW_META.productionUrl,
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
-        database: 'Supabase (PostgreSQL) — 147 tables · 16 views',
+        database: `Supabase (PostgreSQL) — ${SYSTEM_OVERVIEW_META.database.tables} tables · ${SYSTEM_OVERVIEW_META.database.views} views`,
         primaryLanguage: 'TypeScript + PLpgSQL',
         frontend: 'React 18.3 + Vite 5',
         auth: 'Supabase Auth + RLS',
@@ -5034,15 +5062,19 @@ const exportData = {
     longTermPlan,
     featureCatalogStats,
     database: {
-        totalTables: 147,
-        totalViews: 16,
-        migrations: 451,
-        migrationFiles: 464,
-        latestMigration: '453_supply_returns.sql',
+        totalTables: SYSTEM_OVERVIEW_META.database.tables,
+        totalViews: SYSTEM_OVERVIEW_META.database.views,
+        rlsTables: SYSTEM_OVERVIEW_META.database.rlsTables,
+        appliedMigrations: SYSTEM_OVERVIEW_META.database.appliedMigrations,
+        migrationFiles: SYSTEM_OVERVIEW_META.database.trackedMigrationFiles,
+        latestProductionMigration: SYSTEM_OVERVIEW_META.database.latestProductionMigration,
+        latestRepositoryMigration: SYSTEM_OVERVIEW_META.database.latestRepositoryMigration,
+        verifiedDate: SYSTEM_OVERVIEW_META.verifiedDate,
+        verifiedIsoDate: SYSTEM_OVERVIEW_META.verifiedIsoDate,
         engine: 'PostgreSQL via Supabase',
-        security: 'RLS enabled',
+        security: `RLS enabled ${SYSTEM_OVERVIEW_META.database.rlsTables}/${SYSTEM_OVERVIEW_META.database.tables} tables`,
         groups: dbGroups,
-        note: 'ตัวเลขตาราง/วิวจาก src/integrations/supabase/types.ts — กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
+        note: 'ตัวเลข schema เป็น snapshot จาก production ตามวันที่ตรวจ; KPI Phase 16 โหลดสดเมื่อเปิดหน้า กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
     sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
@@ -5103,9 +5135,12 @@ const generateMarkdown = () => {
     lines.push('\n## ฐานข้อมูล');
     lines.push(`- **Tables**: ${exportData.database.totalTables}`);
     lines.push(`- **Views**: ${exportData.database.totalViews}`);
-    lines.push(`- **Migrations (latest #)**: ${exportData.database.migrations}`);
-    lines.push(`- **Migration files**: ${exportData.database.migrationFiles}`);
-    lines.push(`- **Latest**: ${exportData.database.latestMigration}`);
+    lines.push(`- **RLS tables**: ${exportData.database.rlsTables}/${exportData.database.totalTables}`);
+    lines.push(`- **Applied migrations (production)**: ${exportData.database.appliedMigrations}`);
+    lines.push(`- **Tracked migration files (Git)**: ${exportData.database.migrationFiles}`);
+    lines.push(`- **Latest production migration**: ${exportData.database.latestProductionMigration}`);
+    lines.push(`- **Latest repository migration**: ${exportData.database.latestRepositoryMigration}`);
+    lines.push(`- **Verified**: ${exportData.database.verifiedDate}`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     lines.push(`- **Note**: ${exportData.database.note}`);
@@ -5153,6 +5188,39 @@ const downloadFile = (content: string, filename: string, mime: string) => {
     URL.revokeObjectURL(url);
 };
 
+const OpsQueryState = ({
+    isLoading,
+    isError,
+    error,
+    onRetry,
+    children,
+}: {
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+    onRetry: () => void;
+    children: ReactNode;
+}) => {
+    if (isLoading) {
+        return <p className="text-sm text-muted-foreground">กำลังโหลด…</p>;
+    }
+    if (isError) {
+        return (
+            <div className="space-y-1.5" role="alert">
+                <p className="text-sm font-medium text-destructive">โหลดข้อมูลไม่สำเร็จ</p>
+                {error instanceof Error && (
+                    <p className="text-xs text-muted-foreground break-words">{error.message}</p>
+                )}
+                <Button variant="outline" size="sm" className="h-7 gap-1.5" onClick={onRetry}>
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    ลองใหม่
+                </Button>
+            </div>
+        );
+    }
+    return <>{children}</>;
+};
+
 export const SystemOverview = () => {
     const [copied, setCopied] = useState(false);
     const [featureQuery, setFeatureQuery] = useState('');
@@ -5181,35 +5249,41 @@ export const SystemOverview = () => {
             .filter((d) => d.features.length > 0 || d.label.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q));
     }, [featureQuery]);
 
-    const { data: habit } = useQuery({
+    const habitQuery = useQuery({
         queryKey: ['edu-hub', 'non-admin-habit', 30],
         queryFn: () => educationalHubService.getNonAdminUploadHabit(30),
         staleTime: 60_000,
     });
 
-    const { data: coverage } = useQuery({
+    const coverageQuery = useQuery({
         queryKey: ['curriculum', 'indicator-coverage-summary'],
         queryFn: () => curriculumService.indicatorCoverageSummary(),
         staleTime: 60_000,
     });
 
-    const { data: softGap } = useQuery({
+    const softGapQuery = useQuery({
         queryKey: ['curriculum', 'indicator-soft-gap-summary'],
         queryFn: () => curriculumService.indicatorSoftGapSummary(),
         staleTime: 60_000,
     });
 
-    const { data: packCount } = useQuery({
+    const packCountQuery = useQuery({
         queryKey: ['lesson-packs', 'published-count'],
         queryFn: () => lessonPacksService.countPublished(),
         staleTime: 60_000,
     });
 
-    const { data: homework } = useQuery({
+    const homeworkQuery = useQuery({
         queryKey: ['assignments', 'ops-summary', 30],
         queryFn: () => assignmentsService.opsSummary(30),
         staleTime: 60_000,
     });
+
+    const habit = habitQuery.data;
+    const coverage = coverageQuery.data;
+    const softGap = softGapQuery.data;
+    const packCount = packCountQuery.data;
+    const homework = homeworkQuery.data;
 
     const phase16Checklist = useMemo(() => {
         const teacherOk = (habit?.uploaderCount ?? 0) > 0;
@@ -5221,43 +5295,61 @@ export const SystemOverview = () => {
                 id: 'teacher-upload',
                 label: 'ครู non-admin อัปสื่อจริง (30 วัน)',
                 done: teacherOk,
-                detail: habit
+                detail: habitQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : habit
                     ? `${habit.uploaderCount} คน · ${habit.itemCount} รายการ`
                     : 'กำลังโหลด…',
+                failed: habitQuery.isError,
             },
             {
                 id: 'coverage',
                 label: 'ตัวชี้วัดมีสื่อ/เกมผูก ≥80%',
                 done: coverageOk,
-                detail: coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+                detail: coverageQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+                failed: coverageQuery.isError,
             },
             {
                 id: 'packs',
                 label: 'ชุดเรียนเผยแพร่ ≥30',
                 done: packsOk,
-                detail: packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+                detail: packCountQuery.isError ? 'โหลดข้อมูลไม่สำเร็จ' : packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+                failed: packCountQuery.isError,
             },
             {
                 id: 'homework',
                 label: 'ผู้ปกครองส่งงาน (30 วัน)',
                 done: homeworkOk,
-                detail: homework
+                detail: homeworkQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : homework
                     ? `${homework.submissions} ส่ง · ${homework.withAttachment} แนบไฟล์`
                     : 'กำลังโหลด…',
+                failed: homeworkQuery.isError,
             },
             {
                 id: 'soft-gap',
                 label: 'รีวิว soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน)',
                 done: false,
-                detail: softGap
+                detail: softGapQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : softGap
                     ? `ขาดเกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet} · ยังไม่ map ${softGap.unmapped}`
                     : 'กำลังโหลด…',
                 ongoing: true,
+                failed: softGapQuery.isError,
             },
         ];
-    }, [habit, coverage, packCount, homework, softGap]);
+    }, [habit, coverage, packCount, homework, softGap, habitQuery.isError, coverageQuery.isError, packCountQuery.isError, homeworkQuery.isError, softGapQuery.isError]);
 
     const phase16DoneCount = phase16Checklist.filter((c) => c.done).length;
+    const phase16Queries = [habitQuery, coverageQuery, softGapQuery, packCountQuery, homeworkQuery];
+    const hasPhase16QueryError = phase16Queries.some((query) => query.isError);
+    const retryPhase16Queries = () => {
+        void Promise.all(phase16Queries.map((query) => query.refetch()));
+    };
 
     const handleExportJSON = () => {
         downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
@@ -5281,17 +5373,17 @@ export const SystemOverview = () => {
     };
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 min-w-0">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.209.0</span>
+                        <span className="font-medium text-foreground">{SYSTEM_OVERVIEW_META.version}</span>
                         {' · '}live{' '}
                         <a
-                            href="https://kampai-school.vercel.app"
+                            href={SYSTEM_OVERVIEW_META.productionUrl}
                             className="text-primary underline-offset-2 hover:underline"
                             target="_blank"
                             rel="noreferrer"
@@ -5299,8 +5391,11 @@ export const SystemOverview = () => {
                             kampai-school.vercel.app
                         </a>
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        ตรวจ snapshot ระบบล่าสุด {SYSTEM_OVERVIEW_META.verifiedDate} · ตัวเลข schema เป็น snapshot และ KPI Phase 16 โหลดสดเมื่อเปิดหน้า
+                    </p>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex w-full sm:w-auto items-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={handleExportJSON} className="gap-1.5">
                         <FileJson className="w-4 h-4 text-yellow-500" />
                         JSON
@@ -5332,26 +5427,27 @@ export const SystemOverview = () => {
                         ข้อมูลโปรเจค
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.209.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: SYSTEM_OVERVIEW_META.version },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
-                        { icon: Database, label: 'Database', value: 'Supabase · 147 tables · 16 views' },
-                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #451 · ไฟล์ 464' },
+                        { icon: Database, label: 'Database', value: `Supabase · ${SYSTEM_OVERVIEW_META.database.tables} tables · ${SYSTEM_OVERVIEW_META.database.views} views` },
+                        { icon: HardDrive, label: 'Migrations', value: `production ${SYSTEM_OVERVIEW_META.database.appliedMigrations} · Git ${SYSTEM_OVERVIEW_META.database.trackedMigrationFiles} ไฟล์` },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
                         { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },
                         { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
                         { icon: Zap, label: 'Edge Functions', value: 'Deno (Supabase)' },
-                        { icon: CheckCircle2, label: 'Feature catalog', value: '8 โดเมน · 55 ฟีเจอร์ (SoT)' },
+                        { icon: CheckCircle2, label: 'Feature catalog', value: `${featureCatalogStats.domains} โดเมน · ${featureCatalogStats.features} ฟีเจอร์ (SoT)` },
                         { icon: Lightbulb, label: 'โฟกัสปัจจุบัน', value: 'Phase 16 ops + harden ปี 1' },
+                        { icon: Clock, label: 'ตรวจข้อมูลล่าสุด', value: SYSTEM_OVERVIEW_META.verifiedDate },
                     ].map((item) => (
                         <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
                             <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-xs text-muted-foreground">{item.label}</p>
-                                <p className="text-sm font-medium text-foreground">{item.value}</p>
+                                <p className="text-sm font-medium text-foreground break-words">{item.value}</p>
                             </div>
                         </div>
                     ))}
@@ -5591,15 +5687,26 @@ export const SystemOverview = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-3 mb-4">
+                    <div className="flex flex-wrap gap-2 sm:gap-3 mb-4">
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalTables} Tables</div>
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalViews} Views</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Migration #{exportData.database.migrations}</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrationFiles} ไฟล์</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS {exportData.database.rlsTables}/{exportData.database.totalTables}</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Production {exportData.database.appliedMigrations} migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Git {exportData.database.migrationFiles} ไฟล์</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">ตรวจ {exportData.database.verifiedDate}</div>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{exportData.database.note}</p>
+                    <div className="grid gap-2 sm:grid-cols-2 mb-4 text-xs">
+                        <p className="rounded-lg border border-border bg-secondary/30 px-3 py-2 break-all">
+                            <span className="font-semibold text-foreground">Production ล่าสุด:</span>{' '}
+                            <span className="text-muted-foreground">{exportData.database.latestProductionMigration}</span>
+                        </p>
+                        <p className="rounded-lg border border-border bg-secondary/30 px-3 py-2 break-all">
+                            <span className="font-semibold text-foreground">Git ล่าสุด:</span>{' '}
+                            <span className="text-muted-foreground">{exportData.database.latestRepositoryMigration}</span>
+                        </p>
+                    </div>
                     <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         {dbGroups.map((group) => (
                             <div key={group.label}>
@@ -5649,7 +5756,7 @@ export const SystemOverview = () => {
                         แผนพัฒนาต่อ (Sprint Plan)
                     </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
-                        สถานะปัจจุบันถึง v1.205 — ไม่ใช่แผน Sprint เก่าจากยุค v1.5
+                        สถานะปัจจุบันถึง {SYSTEM_OVERVIEW_META.version} · ตรวจล่าสุด {SYSTEM_OVERVIEW_META.verifiedDate}
                     </p>
                 </CardHeader>
                 <CardContent>
@@ -5728,6 +5835,15 @@ export const SystemOverview = () => {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-5">
+                    {hasPhase16QueryError && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2" role="alert">
+                            <p className="text-sm font-medium text-destructive">ข้อมูล KPI บางส่วนโหลดไม่สำเร็จ จึงไม่แสดงค่าศูนย์แทนผลจริง</p>
+                            <Button variant="outline" size="sm" className="gap-1.5" onClick={retryPhase16Queries}>
+                                <RefreshCw className="h-4 w-4" />
+                                ลองใหม่ทั้งหมด
+                            </Button>
+                        </div>
+                    )}
                     <ul className="grid sm:grid-cols-2 gap-2">
                         {phase16Checklist.map((item) => (
                             <li
@@ -5735,10 +5851,13 @@ export const SystemOverview = () => {
                                 className={cn(
                                     'flex items-start gap-2 rounded-lg border border-border px-3 py-2 text-sm',
                                     item.done && 'bg-emerald-500/10',
+                                    item.failed && 'border-destructive/40 bg-destructive/5',
                                     item.ongoing && !item.done && 'bg-secondary/40',
                                 )}
                             >
-                                {item.done ? (
+                                {item.failed ? (
+                                    <CircleAlert className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+                                ) : item.done ? (
                                     <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                                 ) : item.ongoing ? (
                                     <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
@@ -5756,42 +5875,48 @@ export const SystemOverview = () => {
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {habit ? habit.uploaderCount : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    คน · {habit ? habit.itemCount : '…'} รายการ
-                                </span>
-                            </p>
+                            <OpsQueryState isLoading={habitQuery.isLoading} isError={habitQuery.isError} error={habitQuery.error} onRetry={() => { void habitQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {habit?.uploaderCount ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        คน · {habit?.itemCount ?? 0} รายการ
+                                    </span>
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">Coverage ตัวชี้วัด</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {coverage ? `${coverage.pctCovered}%` : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
-                                </span>
-                            </p>
+                            <OpsQueryState isLoading={coverageQuery.isLoading} isError={coverageQuery.isError} error={coverageQuery.error} onRetry={() => { void coverageQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {coverage?.pctCovered ?? 0}%
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {coverage?.covered ?? 0}/{coverage?.totalIndicators ?? 0}
+                                    </span>
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">Soft-gap (ทั้งหลักสูตร)</p>
-                            <p className="text-sm font-medium text-foreground leading-snug">
-                                {softGap
-                                    ? `เกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet}`
-                                    : '…'}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                ยังไม่ map {softGap?.unmapped ?? '…'} ตัวชี้วัด
-                            </p>
+                            <OpsQueryState isLoading={softGapQuery.isLoading} isError={softGapQuery.isError} error={softGapQuery.error} onRetry={() => { void softGapQuery.refetch(); }}>
+                                <p className="text-sm font-medium text-foreground leading-snug">
+                                    เกม {softGap?.noGame ?? 0} · สื่อ {softGap?.noMedia ?? 0} · ใบงาน {softGap?.noWorksheet ?? 0}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    ยังไม่ map {softGap?.unmapped ?? 0} ตัวชี้วัด
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">การบ้าน 30 วัน</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {homework ? homework.submissions : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                มอบหมาย {homework?.assignments ?? '…'} · แนบไฟล์ {homework?.withAttachment ?? '…'}
-                            </p>
+                            <OpsQueryState isLoading={homeworkQuery.isLoading} isError={homeworkQuery.isError} error={homeworkQuery.error} onRetry={() => { void homeworkQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {homework?.submissions ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    มอบหมาย {homework?.assignments ?? 0} · แนบไฟล์ {homework?.withAttachment ?? 0}
+                                </p>
+                            </OpsQueryState>
                         </div>
                     </div>
 
@@ -5828,29 +5953,33 @@ export const SystemOverview = () => {
                     <div className="grid sm:grid-cols-2 gap-3">
                         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {habit ? habit.uploaderCount : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    คน · {habit ? habit.itemCount : '…'} รายการ
-                                </span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                {habit && habit.uploaderCount > 0
-                                    ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
-                                    : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
-                            </p>
+                            <OpsQueryState isLoading={habitQuery.isLoading} isError={habitQuery.isError} error={habitQuery.error} onRetry={() => { void habitQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {habit?.uploaderCount ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        คน · {habit?.itemCount ?? 0} รายการ
+                                    </span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    {(habit?.uploaderCount ?? 0) > 0
+                                        ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
+                                        : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ตัวชี้วัดที่มีสื่อ/เกมผูก</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {coverage ? `${coverage.pctCovered}%` : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
-                                </span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? '…'} ชิ้น · เติมต่อใน IndicatorCoverageDialog
-                            </p>
+                            <OpsQueryState isLoading={coverageQuery.isLoading} isError={coverageQuery.isError} error={coverageQuery.error} onRetry={() => { void coverageQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {coverage?.pctCovered ?? 0}%
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {coverage?.covered ?? 0}/{coverage?.totalIndicators ?? 0}
+                                    </span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? 0} ชิ้น · เติมต่อใน IndicatorCoverageDialog
+                                </p>
+                            </OpsQueryState>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">

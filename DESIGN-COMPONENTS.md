@@ -626,6 +626,12 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - ปุ่มค้นหาปิดเมื่อคำค้นไม่เปลี่ยนหรือกำลัง fetch; ปุ่มล้างต้องล้างทั้งข้อความและผลค้นหาทันที
 - ตัวกรอง วิชา ชั้น แท็ก ประเภท และการเรียงลำดับยังตอบสนองทันทีตามเดิม
 
+### `<SystemOverview />` — metadata และ KPI snapshot
+- เวอร์ชัน, วันตรวจ และตัวเลขฐานข้อมูลต้องอ่านจาก `SYSTEM_OVERVIEW_META` จุดเดียว ทั้ง header, การ์ด, Sprint Plan และไฟล์ export; ห้าม hard-code ซ้ำหลายตำแหน่ง
+- ต้องแยก schema snapshot ของ production ออกจาก KPI ที่โหลดสด และแยก migration ที่ apply บน production ออกจากไฟล์ migration ที่ติดตามใน Git
+- query KPI ทุกตัวต้องแสดง loading/error/retry อย่างชัดเจน; เมื่อ query ล้มเหลวห้ามใช้ `0` แทนผลจริงหรือปล่อยข้อความ “กำลังโหลด…” ค้าง
+- layout ต้องใช้ padding ตาม breakpoint, chip/action ต้อง wrap และข้อความ migration ยาวต้องตัดบรรทัดได้โดยไม่ทำให้มือถือเกิด horizontal overflow
+
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |
 |---|---|---|---|---|
