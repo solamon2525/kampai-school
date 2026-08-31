@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   graphql_public: {
     Tables: {
@@ -1069,6 +1069,459 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      classroom_competition_attempts: {
+        Row: {
+          attempt_no: number
+          competition_id: string
+          created_at: string
+          device_id: string
+          id: string
+          idempotency_key: string
+          is_correct: boolean
+          question_id: string
+          response: Json
+          response_ms: number
+          team_id: string
+        }
+        Insert: {
+          attempt_no: number
+          competition_id: string
+          created_at?: string
+          device_id: string
+          id?: string
+          idempotency_key: string
+          is_correct: boolean
+          question_id: string
+          response: Json
+          response_ms: number
+          team_id: string
+        }
+        Update: {
+          attempt_no?: number
+          competition_id?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          idempotency_key?: string
+          is_correct?: boolean
+          question_id?: string
+          response?: Json
+          response_ms?: number
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_attempts_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_devices: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          competition_id: string
+          created_at: string
+          display_name: string
+          expires_at: string
+          id: string
+          last_seen_at: string
+          status: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id: string | null
+          token_hash: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          competition_id: string
+          created_at?: string
+          display_name: string
+          expires_at: string
+          id?: string
+          last_seen_at?: string
+          status?: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id?: string | null
+          token_hash: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          competition_id?: string
+          created_at?: string
+          display_name?: string
+          expires_at?: string
+          id?: string
+          last_seen_at?: string
+          status?: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_devices_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_devices_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_members: {
+        Row: {
+          competition_id: string
+          created_at: string
+          id: string
+          roster_order: number
+          student_id: string
+          team_id: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          id?: string
+          roster_order?: number
+          student_id: string
+          team_id: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          id?: string
+          roster_order?: number
+          student_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_members_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_questions: {
+        Row: {
+          activity_key: string
+          answer_key: Json
+          canonical_key: string
+          competition_id: string
+          created_at: string
+          difficulty: string
+          id: string
+          is_tiebreak: boolean
+          prompt: Json
+          sequence_no: number
+          team_id: string | null
+          validator_version: string
+        }
+        Insert: {
+          activity_key: string
+          answer_key: Json
+          canonical_key: string
+          competition_id: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_tiebreak?: boolean
+          prompt: Json
+          sequence_no: number
+          team_id?: string | null
+          validator_version: string
+        }
+        Update: {
+          activity_key?: string
+          answer_key?: Json
+          canonical_key?: string
+          competition_id?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_tiebreak?: boolean
+          prompt?: Json
+          sequence_no?: number
+          team_id?: string | null
+          validator_version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_questions_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_questions_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_results: {
+        Row: {
+          competition_id: string
+          created_at: string
+          final_score: number
+          id: string
+          league_points: number
+          locked_count: number
+          outcome: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank: number
+          response_ms_total: number
+          team_id: string
+          wrong_count: number
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          final_score: number
+          id?: string
+          league_points: number
+          locked_count: number
+          outcome: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank: number
+          response_ms_total: number
+          team_id: string
+          wrong_count: number
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          final_score?: number
+          id?: string
+          league_points?: number
+          locked_count?: number
+          outcome?: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank?: number
+          response_ms_total?: number
+          team_id?: string
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_results_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_results_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_teams: {
+        Row: {
+          color_key: string
+          competition_id: string
+          created_at: string
+          current_question_index: number
+          id: string
+          locked_count: number
+          name: string
+          question_started_at: string | null
+          response_ms_total: number
+          score: number
+          sort_order: number
+          wrong_count: number
+        }
+        Insert: {
+          color_key: string
+          competition_id: string
+          created_at?: string
+          current_question_index?: number
+          id?: string
+          locked_count?: number
+          name: string
+          question_started_at?: string | null
+          response_ms_total?: number
+          score?: number
+          sort_order: number
+          wrong_count?: number
+        }
+        Update: {
+          color_key?: string
+          competition_id?: string
+          created_at?: string
+          current_question_index?: number
+          id?: string
+          locked_count?: number
+          name?: string
+          question_started_at?: string | null
+          response_ms_total?: number
+          score?: number
+          sort_order?: number
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_teams_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classroom_competitions: {
+        Row: {
+          activity_key: string
+          attempt_limit: number
+          cancelled_at: string | null
+          class_name: string
+          created_at: string
+          difficulty: string
+          duration_seconds: number
+          ends_at: string | null
+          engine_version: string
+          finished_at: string | null
+          grade_level: string
+          id: string
+          owner_user_id: string
+          paused_at: string | null
+          paused_remaining_seconds: number | null
+          question_count: number
+          question_distribution: string
+          room_code: string
+          seed: number
+          settings: Json
+          started_at: string | null
+          status: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key: string
+          updated_at: string
+          winner_team_id: string | null
+        }
+        Insert: {
+          activity_key: string
+          attempt_limit?: number
+          cancelled_at?: string | null
+          class_name: string
+          created_at?: string
+          difficulty: string
+          duration_seconds: number
+          ends_at?: string | null
+          engine_version: string
+          finished_at?: string | null
+          grade_level?: string
+          id?: string
+          owner_user_id: string
+          paused_at?: string | null
+          paused_remaining_seconds?: number | null
+          question_count: number
+          question_distribution: string
+          room_code: string
+          seed: number
+          settings?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key?: string
+          updated_at?: string
+          winner_team_id?: string | null
+        }
+        Update: {
+          activity_key?: string
+          attempt_limit?: number
+          cancelled_at?: string | null
+          class_name?: string
+          created_at?: string
+          difficulty?: string
+          duration_seconds?: number
+          ends_at?: string | null
+          engine_version?: string
+          finished_at?: string | null
+          grade_level?: string
+          id?: string
+          owner_user_id?: string
+          paused_at?: string | null
+          paused_remaining_seconds?: number | null
+          question_count?: number
+          question_distribution?: string
+          room_code?: string
+          seed?: number
+          settings?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key?: string
+          updated_at?: string
+          winner_team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competitions_winner_team_fk"
+            columns: ["winner_team_id", "id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
           },
         ]
       }
@@ -8739,6 +9192,10 @@ export type Database = {
         Args: { p_pet_code: string; p_student_code: string }
         Returns: Json
       }
+      finalize_classroom_competition: {
+        Args: { p_competition_id: string; p_force?: boolean }
+        Returns: Json
+      }
       get_daily_challenge_leaderboard: {
         Args: { p_game_slug: string; p_limit?: number; p_student_code?: string }
         Returns: {
@@ -9191,6 +9648,18 @@ export type Database = {
         Args: { p_match_id: string }
         Returns: undefined
       }
+      record_classroom_competition_attempt: {
+        Args: {
+          p_competition_id: string
+          p_device_id: string
+          p_idempotency_key: string
+          p_is_correct: boolean
+          p_question_id: string
+          p_response: Json
+          p_team_id: string
+        }
+        Returns: Json
+      }
       record_game_session: {
         Args: {
           p_duration_sec?: number
@@ -9362,6 +9831,20 @@ export type Database = {
       verify_integrated_plan_pin: { Args: { p_pin: string }; Returns: Json }
     }
     Enums: {
+      classroom_competition_device_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "revoked"
+      classroom_competition_outcome: "winner" | "loser"
+      classroom_competition_status:
+        | "draft"
+        | "waiting_devices"
+        | "live"
+        | "paused"
+        | "tiebreak"
+        | "finished"
+        | "cancelled"
       edu_hub_item_type: "file" | "link" | "youtube" | "text"
       reward_claim_status: "pending" | "approved" | "rejected"
       user_role: "admin" | "teacher" | "viewer" | "parent"
@@ -9495,6 +9978,22 @@ export const Constants = {
   },
   public: {
     Enums: {
+      classroom_competition_device_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "revoked",
+      ],
+      classroom_competition_outcome: ["winner", "loser"],
+      classroom_competition_status: [
+        "draft",
+        "waiting_devices",
+        "live",
+        "paused",
+        "tiebreak",
+        "finished",
+        "cancelled",
+      ],
       edu_hub_item_type: ["file", "link", "youtube", "text"],
       reward_claim_status: ["pending", "approved", "rejected"],
       user_role: ["admin", "teacher", "viewer", "parent"],

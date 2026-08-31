@@ -82,6 +82,9 @@ const TeacherSupplies = lazyWithRetry(() => import("./pages/teacher/TeacherSuppl
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
 const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherGameResearch"));
+const TeacherClassroomCompetitions = lazyWithRetry(() => import("./pages/teacher/TeacherClassroomCompetitions"));
+const TeacherClassroomCompetitionHost = lazyWithRetry(() => import("./pages/teacher/TeacherClassroomCompetitionHost"));
+const ClassroomCompetitionJoin = lazyWithRetry(() => import("./pages/ClassroomCompetitionJoin"));
 const ResearchPlay = lazyWithRetry(() => import("./pages/ResearchPlay"));
 const ResearchPlayIndex = lazyWithRetry(() => import("./pages/ResearchPlayIndex"));
 const TeacherMasteryHeatmap = lazyWithRetry(() => import("./pages/teacher/TeacherMasteryHeatmap"));
@@ -213,6 +216,7 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/alumni" element={<Alumni />} />
             <Route path="/surveys/:id" element={<SurveyResponse />} />
+            <Route path="/classroom-competition/join" element={<ClassroomCompetitionJoin />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
@@ -247,6 +251,12 @@ const App = () => (
             } />
             <Route path="/teacher/game-research" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherGameResearch /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/classroom-competitions" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherClassroomCompetitions /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/classroom-competitions/:id/host" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherClassroomCompetitionHost /></PortalProtectedRoute>
             } />
             <Route path="/teacher/mastery" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMasteryHeatmap /></PortalProtectedRoute>
