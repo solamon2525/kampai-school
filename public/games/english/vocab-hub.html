@@ -238,6 +238,16 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   transition:background 0.12s,transform 0.1s;
 }
 #btn-say:hover{background:rgba(255,215,0,0.3);transform:scale(1.08)}
+#voice-mode-pill{
+  position:absolute;top:7.8vh;right:2vw;z-index:5;
+  display:none;align-items:center;justify-content:center;
+  padding:0.55vh 1.1vh;border-radius:999px;
+  border:1px solid rgba(255,224,130,0.32);
+  background:rgba(8,28,66,0.68);
+  color:#FFE082;font-size:1.45vh;font-weight:700;letter-spacing:0.02em;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  pointer-events:none;
+}
 #btn-star{
   position:absolute;top:1vh;right:calc(2vw + 8vh);z-index:5;
   font-size:2.8vh;width:6vh;height:6vh;border-radius:50%;cursor:pointer;
@@ -805,6 +815,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #wback-mean{font-size:18px;white-space:normal;text-align:center}
   #wback-example{font-size:14px;white-space:normal;text-align:center}
   #btn-say{top:6px;right:8px;width:34px;height:34px;font-size:16px}
+  #voice-mode-pill{top:42px;right:8px;padding:3px 8px;font-size:11px}
   #btn-star{top:6px;right:48px;width:34px;height:34px;font-size:16px}
 
   /* AUTO GRID / CELLS */
@@ -906,6 +917,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   <div id="word">
     <button id="btn-star" title="บันทึกคำศัพท์โปรด/คำยาก">☆</button>
     <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
+    <div id="voice-mode-pill" aria-live="polite"></div>
     <div id="tcard">
       <div class="tface tfront"><div class="front-col"><span id="wfront"></span><span id="wfront-sub"></span></div></div>
       <div class="tface tback">
@@ -1497,6 +1509,7 @@ const btnHome   = document.getElementById('btn-home');
 const btnSay    = document.getElementById('btn-say');
 const btnSound  = document.getElementById('btn-sound');
 const btnVoice  = document.getElementById('btn-voice');
+const voiceModePill = document.getElementById('voice-mode-pill');
 const toastEl   = document.getElementById('toast');
 const winEl     = document.getElementById('win');
 const cfx       = document.getElementById('cfx');
@@ -3481,6 +3494,15 @@ function applyVoiceMode(){
   btnVoice.title = currentSlug === 'fruits'
     ? 'สลับภาษาเสียงอ่าน: อังกฤษ · ไทย · อังกฤษ+ไทย'
     : 'เลือกภาษาเสียงอ่าน';
+  if (voiceModePill) {
+    if (currentSlug === 'fruits') {
+      voiceModePill.style.display = 'flex';
+      voiceModePill.textContent = `โหมดเสียง: ${cur.label.replace('🎙️ ', '')}`;
+    } else {
+      voiceModePill.style.display = 'none';
+      voiceModePill.textContent = '';
+    }
+  }
 }
 function voiceModeKey(slug){
   return `${VOICE_MODE_KEY_PREFIX}${slug || 'global'}`;

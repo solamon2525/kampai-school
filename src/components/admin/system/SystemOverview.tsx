@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.228.2 (vocab-hub — ป้ายโหมดเสียง fruits)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-cyan-600',
+        items: [
+            'เพิ่มป้ายสถานะโหมดเสียงข้างปุ่มอ่านใน fruits เพื่อให้เห็น EN / ไทย / EN+ไทย ชัดขึ้นทันที',
+            'คงค่าเริ่มต้นแบบไม่อ่านอัตโนมัติ และยังจำโหมดเสียงรายหมวดใน localStorage ต่อ topic ตามเดิม',
+        ],
+    },
+    {
         version: 'v1.228.1 (vocab-hub — ปิดอ่านอัตโนมัติ + fruits อ่านไทย)',
         date: '31 ส.ค. 2569',
         badge: 'bg-sky-600',
