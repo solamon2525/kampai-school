@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.228.3 (vocab-hub — fruits ฝึกผสมเสียง)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มตัวช่วยฝึก phonics ใน fruits เมื่อเลือกโหมดเสียง ไทย หรือ EN+ไทย โดยแบ่งคำเป็นช่วงเสียง เช่น `ap + ple → apple`',
+            'กดฟังแต่ละช่วงเสียงได้เอง เพื่อให้เด็กค่อย ๆ ผสมเสียงไปหาคำเต็ม โดยไม่เปิดเสียงอัตโนมัติ',
+        ],
+    },
+    {
         version: 'v1.228.2 (vocab-hub — ป้ายโหมดเสียง fruits)',
         date: '31 ส.ค. 2569',
         badge: 'bg-cyan-600',

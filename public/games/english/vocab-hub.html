@@ -248,6 +248,22 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   box-shadow:0 6px 18px rgba(0,0,0,0.25);
   pointer-events:none;
 }
+#phonics-hint{
+  position:absolute;left:50%;bottom:0.4vh;z-index:4;
+  display:none;align-items:center;justify-content:center;gap:0.7vh;flex-wrap:wrap;
+  transform:translateX(-50%);max-width:92vw;
+  color:rgba(255,255,255,0.88);font-size:1.65vh;font-weight:700;
+}
+#phonics-hint .ph-label{opacity:0.82}
+#phonics-hint .ph-part{
+  min-width:44px;min-height:36px;padding:4px 10px;border-radius:10px;
+  border:1px solid rgba(255,224,130,0.45);background:rgba(8,28,66,0.62);
+  color:#FFE082;font:inherit;cursor:pointer;
+}
+#phonics-hint .ph-part:hover,#phonics-hint .ph-part:focus-visible{
+  background:rgba(255,224,130,0.2);outline:2px solid rgba(255,224,130,0.7);outline-offset:2px;
+}
+#phonics-hint .ph-arrow{opacity:0.75}
 #btn-star{
   position:absolute;top:1vh;right:calc(2vw + 8vh);z-index:5;
   font-size:2.8vh;width:6vh;height:6vh;border-radius:50%;cursor:pointer;
@@ -816,6 +832,8 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #wback-example{font-size:14px;white-space:normal;text-align:center}
   #btn-say{top:6px;right:8px;width:34px;height:34px;font-size:16px}
   #voice-mode-pill{top:42px;right:8px;padding:3px 8px;font-size:11px}
+  #phonics-hint{bottom:0.3vh;font-size:12px;gap:4px}
+  #phonics-hint .ph-part{min-width:44px;min-height:40px;padding:4px 9px}
   #btn-star{top:6px;right:48px;width:34px;height:34px;font-size:16px}
 
   /* AUTO GRID / CELLS */
@@ -929,6 +947,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
         </div>
       </div>
     </div>
+    <div id="phonics-hint" aria-label="ตัวช่วยฝึกผสมเสียง"></div>
     <div class="swipe-indicator swipe-left" id="sw-left">🔁 ทบทวน</div>
     <div class="swipe-indicator swipe-right" id="sw-right">✅ รู้แล้ว</div>
   </div>
@@ -1210,16 +1229,16 @@ const TOPICS = {
     {label:'Snake',    en:'Snake',    th:'สเนก',         meaning:'งู',       emoji:'🐍', example:'The snake has no legs.'},
   ],
   fruits: [
-    {label:'Apple',      en:'Apple',      th:'แอปเปิล',       meaning:'แอปเปิล',       emoji:'🍎', example:'I eat an apple every day.'},
-    {label:'Banana',     en:'Banana',     th:'บานานา',        meaning:'กล้วย',         emoji:'🍌', example:'The monkey eats a banana.'},
-    {label:'Mango',      en:'Mango',      th:'แมงโก้',        meaning:'มะม่วง',        emoji:'🥭', example:'Mango is my favorite fruit.'},
-    {label:'Orange',     en:'Orange',     th:'ออเรนจ์',       meaning:'ส้ม',           emoji:'🍊', example:'She peels the orange.'},
-    {label:'Grape',      en:'Grape',      th:'เกรป',          meaning:'องุ่น',         emoji:'🍇', example:'We bought a bunch of grapes.'},
-    {label:'Watermelon', en:'Watermelon', th:'วอเทอร์เมลอน',  meaning:'แตงโม',         emoji:'🍉', example:'Watermelon is sweet and juicy.'},
-    {label:'Pineapple',  en:'Pineapple',  th:'ไพน์แอปเปิล',   meaning:'สับปะรด',       emoji:'🍍', example:'The pineapple is yellow inside.'},
-    {label:'Strawberry', en:'Strawberry', th:'สตรอว์เบอร์รี่', meaning:'สตรอว์เบอร์รี', emoji:'🍓', example:'I like strawberry ice cream.'},
-    {label:'Coconut',    en:'Coconut',    th:'โคโคนัท',       meaning:'มะพร้าว',       emoji:'🥥', example:'We drink coconut water.'},
-    {label:'Papaya',     en:'Papaya',     th:'ปาปาย่า',       meaning:'มะละกอ',        emoji:'🍈', example:'Papaya is good for your stomach.'},
+    {label:'Apple',      en:'Apple',      th:'แอปเปิล',       meaning:'แอปเปิล',       phonics:['ap','ple'],          emoji:'🍎', example:'I eat an apple every day.'},
+    {label:'Banana',     en:'Banana',     th:'บานานา',        meaning:'กล้วย',         phonics:['ba','na','na'],       emoji:'🍌', example:'The monkey eats a banana.'},
+    {label:'Mango',      en:'Mango',      th:'แมงโก้',        meaning:'มะม่วง',        phonics:['man','go'],           emoji:'🥭', example:'Mango is my favorite fruit.'},
+    {label:'Orange',     en:'Orange',     th:'ออเรนจ์',       meaning:'ส้ม',           phonics:['or','ange'],          emoji:'🍊', example:'She peels the orange.'},
+    {label:'Grape',      en:'Grape',      th:'เกรป',          meaning:'องุ่น',         phonics:['grape'],               emoji:'🍇', example:'We bought a bunch of grapes.'},
+    {label:'Watermelon', en:'Watermelon', th:'วอเทอร์เมลอน',  meaning:'แตงโม',         phonics:['wa','ter','mel','on'], emoji:'🍉', example:'Watermelon is sweet and juicy.'},
+    {label:'Pineapple',  en:'Pineapple',  th:'ไพน์แอปเปิล',   meaning:'สับปะรด',       phonics:['pine','ap','ple'],     emoji:'🍍', example:'The pineapple is yellow inside.'},
+    {label:'Strawberry', en:'Strawberry', th:'สตรอว์เบอร์รี่', meaning:'สตรอว์เบอร์รี', phonics:['straw','ber','ry'],   emoji:'🍓', example:'I like strawberry ice cream.'},
+    {label:'Coconut',    en:'Coconut',    th:'โคโคนัท',       meaning:'มะพร้าว',       phonics:['co','co','nut'],       emoji:'🥥', example:'We drink coconut water.'},
+    {label:'Papaya',     en:'Papaya',     th:'ปาปาย่า',       meaning:'มะละกอ',        phonics:['pa','pa','ya'],         emoji:'🍈', example:'Papaya is good for your stomach.'},
   ],
   body: [
     {label:'Head',  en:'Head',  th:'เฮด',    meaning:'หัว',   emoji:'😀', example:'I wear a hat on my head.'},
@@ -1474,6 +1493,7 @@ const playEl    = document.getElementById('play');
 const tcard     = document.getElementById('tcard');
 const wfront    = document.getElementById('wfront');
 const wfrontSub = document.getElementById('wfront-sub');
+const phonicsHint = document.getElementById('phonics-hint');
 const wbackEn   = document.getElementById('wback-en');
 const wbackTh   = document.getElementById('wback-th');
 const wbackMean = document.getElementById('wback-mean');
@@ -2360,6 +2380,16 @@ function setBannerAuto(item){
   wfront.textContent=item.en;
   wfront.style.fontSize=bannerFontSize(item.en);
   wfrontSub.textContent=item.meaning || '';   // คำแปลไทยใต้คำอังกฤษ (ถ้ามี)
+  updatePhonicsHint(item);
+}
+function updatePhonicsHint(item){
+  if(!phonicsHint) return;
+  const show = currentSlug === 'fruits' && voiceMode !== 'en' && item && Array.isArray(item.phonics);
+  if(!show){ phonicsHint.style.display='none'; phonicsHint.innerHTML=''; return; }
+  phonicsHint.style.display='flex';
+  phonicsHint.innerHTML = '<span class="ph-label">ฝึกผสมเสียง</span>'
+    + item.phonics.map((part,i)=>`${i?' <span class="ph-arrow">+</span> ':''}<button type="button" class="ph-part" data-phonics-part="${part}" aria-label="ฟังเสียงช่วง ${part}">${part}</button>`).join('')
+    + `<span class="ph-arrow">→ ${item.en.toLowerCase()}</span>`;
 }
 function setHl(sIdx,cIdx, force){
   applyHl(sIdx,cIdx);
@@ -2520,6 +2550,7 @@ function renderFlashCard(){
   else if(v==='spell2word'){ const sc=scrambleWord(it.en); wfront.textContent=sc; wfront.style.fontSize=bannerFontSize(sc.replace(/ /g,'')); }  // สะกด: ตัวอักษรสลับ
   else { wfront.textContent=it.en; wfront.style.fontSize=bannerFontSize(it.en); }                  // en2th
   wfrontSub.textContent='';
+  updatePhonicsHint(it);
   // ----- BACK (เฉลย: คำเต็ม + คำอ่าน + ไทย) -----
   wbackEn.textContent=it.en; wbackEn.style.fontSize=backEnFontSize(it.en);
   wbackTh.textContent='('+it.th+')';
@@ -3472,6 +3503,12 @@ Object.keys(modeBtns).forEach(k=>{
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
 btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem, null, true); });
+wordEl.addEventListener('click',e=>{
+  const part = e.target.closest('[data-phonics-part]');
+  if(!part) return;
+  e.stopPropagation();
+  _speakOne(part.dataset.phonicsPart, 'en-US', enVoice, 0.82);
+});
 btnPause.addEventListener('click',e=>{ e.stopPropagation(); autoPaused ? resumeAuto() : pauseAuto(); });
 btnPrevSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide-1); });
 btnNextSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide+1); });
@@ -3503,6 +3540,7 @@ function applyVoiceMode(){
       voiceModePill.textContent = '';
     }
   }
+  updatePhonicsHint(curItem);
 }
 function voiceModeKey(slug){
   return `${VOICE_MODE_KEY_PREFIX}${slug || 'global'}`;
