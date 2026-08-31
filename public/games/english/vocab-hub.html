@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
 <script src="/games/kampai-sdk.js"></script>
+<script src="./vocab-hub-data.js"></script>
 <script>
 // SDK fallback stub — กัน standalone play ไม่ crash
 window.KAMPAI = window.KAMPAI || {
@@ -334,6 +335,16 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   font-size: 2vh;
   font-weight: 700;
 }
+.grid-header-copy{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#scope-controls{display:none;align-items:center;gap:6px}
+#scope-controls .scope-label{color:rgba(255,255,255,0.78);font-size:1.7vh;font-weight:700}
+.scope-btn{
+  min-height:44px;padding:5px 12px;border-radius:999px;
+  border:1.5px solid rgba(255,224,130,0.35);background:rgba(8,28,66,0.5);
+  color:rgba(255,255,255,0.82);font:700 1.7vh inherit;cursor:pointer;
+}
+.scope-btn.on{background:#FFE082;color:#12305f;border-color:#FFE082}
+.scope-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .grid-ctrl-btn {
   padding: 4px 12px;
   font-size: 1.8vh;
@@ -416,6 +427,9 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     text-align: center;
     gap: 4px;
   }
+  .grid-header-copy{justify-content:center}
+  #scope-controls{width:100%;justify-content:center}
+  .scope-btn{font-size:13px;padding:5px 10px}
   .grid-header-title {
     font-size: 1.8vh;
   }
@@ -952,7 +966,14 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     <div class="swipe-indicator swipe-right" id="sw-right">✅ รู้แล้ว</div>
   </div>
   <div id="grid-header">
-    <span class="grid-header-title">ฝึกอ่านเฉพาะคำที่เลือก (คลิก 🔊 ที่การ์ดเพื่อเปิด/ปิดเสียง)</span>
+    <div class="grid-header-copy">
+      <span class="grid-header-title">ฝึกอ่านเฉพาะคำที่เลือก (คลิก 🔊 ที่การ์ดเพื่อเปิด/ปิดเสียง)</span>
+      <div id="scope-controls" aria-label="เลือกชุดคำศัพท์">
+        <span class="scope-label">ชุดคำ</span>
+        <button type="button" class="scope-btn" data-vocab-scope="basic" aria-pressed="true">พื้นฐาน</button>
+        <button type="button" class="scope-btn" data-vocab-scope="all" aria-pressed="false">ทั้งหมด</button>
+      </div>
+    </div>
     <div style="display:flex; gap:8px;">
       <button class="grid-ctrl-btn" id="btn-mute-all" title="ปิดเสียงอ่านของทุกคำในหมวดนี้">🔇 ปิดเสียงทั้งหมด</button>
       <button class="grid-ctrl-btn" id="btn-unmute-all" title="เปิดเสียงอ่านของทุกคำในหมวดนี้">🔊 เปิดเสียงทั้งหมด</button>
@@ -1063,34 +1084,34 @@ if (window.KAMPAI) {
 // TOPIC METADATA (for hub cards)
 // =====================================================================
 const TOPIC_META = [
-  { slug:'numbers',  title:'ตัวเลข',          en:'Numbers 1–100',    icon:'🔢', count:100 },
-  { slug:'colors',   title:'สี',               en:'Colors',           icon:'🎨', count:12  },
-  { slug:'days',     title:'วันในสัปดาห์',     en:'Days of the Week', icon:'📅', count:7   },
-  { slug:'months',   title:'เดือน',            en:'Months',           icon:'🗓️', count:12  },
-  { slug:'alphabet', title:'ตัวอักษร A–Z',     en:'Alphabet',         icon:'🔤', count:26  },
-  { slug:'animals',  title:'สัตว์',            en:'Animals',          icon:'🐾', count:12  },
-  { slug:'fruits',   title:'ผลไม้',            en:'Fruits',           icon:'🍎', count:10  },
-  { slug:'body',     title:'ส่วนของร่างกาย',   en:'Body Parts',       icon:'🫀', count:10  },
-  { slug:'shapes',   title:'รูปทรง',           en:'Shapes',           icon:'🔷', count:8   },
-  { slug:'family',   title:'ครอบครัว',         en:'Family',           icon:'👨‍👩‍👧', count:8   },
-  { slug:'food',     title:'อาหาร',            en:'Food',             icon:'🍽️', count:12  },
-  { slug:'jobs',     title:'อาชีพ',            en:'Occupations',      icon:'💼', count:12  },
-  { slug:'weather',  title:'อากาศ',            en:'Weather',          icon:'🌤️', count:10  },
-  { slug:'verbs',    title:'คำกริยา',          en:'Verbs',            icon:'🏃', count:12  },
-  { slug:'clothes',        title:'เสื้อผ้า',          en:'Clothes',               icon:'👕', count:10 },
-  { slug:'classroom',      title:'ของใช้ในห้องเรียน', en:'Classroom Items',       icon:'🎒', count:10 },
-  { slug:'house-rooms',    title:'ห้องในบ้าน',        en:'Rooms in the House',    icon:'🏠', count:8  },
-  { slug:'toys',           title:'ของเล่น',           en:'Toys',                  icon:'🧸', count:8  },
-  { slug:'transportation', title:'ยานพาหนะ',          en:'Transportation',        icon:'🚗', count:10 },
-  { slug:'sports',         title:'กีฬา',              en:'Sports',                icon:'⚽', count:8  },
-  { slug:'places',         title:'สถานที่',           en:'Places',                icon:'📍', count:10 },
-  { slug:'instruments',    title:'เครื่องดนตรี',      en:'Musical Instruments',   icon:'🎸', count:7  },
-  { slug:'vegetables',     title:'ผัก',               en:'Vegetables',            icon:'🥦', count:10 },
-  { slug:'insects',        title:'แมลง',              en:'Insects',               icon:'🐝', count:8  },
-  { slug:'sea-animals',    title:'สัตว์ทะเล',         en:'Sea Animals',           icon:'🐬', count:8  },
-  { slug:'seasons',        title:'ฤดูกาล',            en:'Seasons',               icon:'🍂', count:4  },
-  { slug:'emotions',       title:'ความรู้สึก',        en:'Emotions',              icon:'😊', count:10 },
-  { slug:'directions',     title:'ทิศทาง',            en:'Directions',            icon:'🧭', count:10 },
+  { slug:'numbers',  title:'ตัวเลข',          en:'Numbers 1–100',    icon:'🔢' },
+  { slug:'colors',   title:'สี',               en:'Colors',           icon:'🎨' },
+  { slug:'days',     title:'วันในสัปดาห์',     en:'Days of the Week', icon:'📅' },
+  { slug:'months',   title:'เดือน',            en:'Months',           icon:'🗓️' },
+  { slug:'alphabet', title:'ตัวอักษร A–Z',     en:'Alphabet',         icon:'🔤' },
+  { slug:'animals',  title:'สัตว์',            en:'Animals',          icon:'🐾' },
+  { slug:'fruits',   title:'ผลไม้',            en:'Fruits',           icon:'🍎' },
+  { slug:'body',     title:'ส่วนของร่างกาย',   en:'Body Parts',       icon:'🫀' },
+  { slug:'shapes',   title:'รูปทรง',           en:'Shapes',           icon:'🔷' },
+  { slug:'family',   title:'ครอบครัว',         en:'Family',           icon:'👨‍👩‍👧' },
+  { slug:'food',     title:'อาหาร',            en:'Food',             icon:'🍽️' },
+  { slug:'jobs',     title:'อาชีพ',            en:'Occupations',      icon:'💼' },
+  { slug:'weather',  title:'อากาศ',            en:'Weather',          icon:'🌤️' },
+  { slug:'verbs',    title:'คำกริยา',          en:'Verbs',            icon:'🏃' },
+  { slug:'clothes',        title:'เสื้อผ้า',          en:'Clothes',             icon:'👕' },
+  { slug:'classroom',      title:'ของใช้ในห้องเรียน', en:'Classroom Items',     icon:'🎒' },
+  { slug:'house-rooms',    title:'ห้องในบ้าน',        en:'Rooms in the House',  icon:'🏠' },
+  { slug:'toys',           title:'ของเล่น',           en:'Toys',                icon:'🧸' },
+  { slug:'transportation', title:'ยานพาหนะ',          en:'Transportation',      icon:'🚗' },
+  { slug:'sports',         title:'กีฬา',              en:'Sports',              icon:'⚽' },
+  { slug:'places',         title:'สถานที่',           en:'Places',              icon:'📍' },
+  { slug:'instruments',    title:'เครื่องดนตรี',      en:'Musical Instruments', icon:'🎸' },
+  { slug:'vegetables',     title:'ผัก',               en:'Vegetables',          icon:'🥦' },
+  { slug:'insects',        title:'แมลง',              en:'Insects',             icon:'🐝' },
+  { slug:'sea-animals',    title:'สัตว์ทะเล',          en:'Sea Animals',         icon:'🐬' },
+  { slug:'seasons',        title:'ฤดูกาล',            en:'Seasons',             icon:'🍂' },
+  { slug:'emotions',       title:'ความรู้สึก',        en:'Emotions',            icon:'😊' },
+  { slug:'directions',     title:'ทิศทาง',            en:'Directions',          icon:'🧭' },
 ];
 
 // =====================================================================
@@ -1477,6 +1498,14 @@ const TOPICS = {
   ],
 };
 
+const EXTENDED_TOPICS = window.VOCAB_HUB_EXTENDED_TOPICS || {};
+Object.entries(EXTENDED_TOPICS).forEach(([slug, items]) => {
+  if (!TOPICS[slug]) TOPICS[slug] = [];
+  TOPICS[slug].push(...items);
+});
+window.VOCAB_HUB_TOPIC_META = TOPIC_META;
+window.VOCAB_HUB_TOPICS = TOPICS;
+
 // =====================================================================
 // DOM REFS
 // =====================================================================
@@ -1486,6 +1515,8 @@ const hubGrid   = document.getElementById('hub-grid');
 const wordEl    = document.getElementById('word');
 const gridEl    = document.getElementById('grid');
 const gridHeader   = document.getElementById('grid-header');
+const scopeControls = document.getElementById('scope-controls');
+const scopeButtons = Array.from(document.querySelectorAll('[data-vocab-scope]'));
 const btnMuteAll   = document.getElementById('btn-mute-all');
 const btnUnmuteAll = document.getElementById('btn-unmute-all');
 const btnStar      = document.getElementById('btn-star');
@@ -1613,9 +1644,10 @@ function saveKnownEns(){
         JSON.stringify([...flashKnown].map(i => allItems[i].en))); } catch(_){}
 }
 // ทิศที่ใช้ได้ในหมวดปัจจุบัน (รูป=เฉพาะหมวดที่มีรูป/สี, สะกด=ยกเว้น alphabet)
-function applicableVariants(){
+function applicableVariants(item){
   const v = ['en2th','th2en','audio2word'];
-  if(allItems.length && allItems.every(hasVisual)) v.push('pic2word');
+  const visualReady = item ? hasVisual(item) : allItems.filter(hasVisual).length >= 4;
+  if(visualReady) v.push('pic2word');
   if(currentSlug!=='alphabet') v.push('spell2word');
   return v;
 }
@@ -1633,6 +1665,10 @@ function fmtTime(ms){
 }
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
 let isColorTopic = false, ips = 10, curItem = null, cellLabelFs = '10vh';
+let vocabScope = (()=>{
+  try { return localStorage.getItem('vocab_hub_scope') === 'all' ? 'all' : 'basic'; }
+  catch(_){ return 'basic'; }
+})();
 let audioOn = true;
 let voiceMode = 'en';   // 'en' = อังกฤษ · 'th' = ไทย · 'both' = อังกฤษ + ไทย
 const VOICE_MODE_KEY_PREFIX = 'vocab_hub_voice_mode_';
@@ -1846,6 +1882,21 @@ function showWin(emoji,text,scoreHtml,stars){
 // =====================================================================
 // HUB
 // =====================================================================
+const itemLevel = item => item && item.level === 'extended' ? 'extended' : 'basic';
+function topicItemsForScope(slug){
+  const items = TOPICS[slug] || [];
+  return vocabScope === 'all' ? items : items.filter(item => itemLevel(item) === 'basic');
+}
+function syncScopeControls(slug){
+  const source = TOPICS[slug] || [];
+  const hasExtended = slug !== 'starred' && source.some(item => itemLevel(item) === 'extended');
+  scopeControls.style.display = hasExtended ? 'flex' : 'none';
+  scopeButtons.forEach(btn=>{
+    const on = btn.dataset.vocabScope === vocabScope;
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
 function buildHub(){
   hubGrid.innerHTML='';
   
@@ -1879,15 +1930,19 @@ function buildHub(){
   TOPIC_META.forEach(meta=>{
     const c=document.createElement('div');
     c.className='hub-card';
-    // อ่าน progress จาก localStorage (flash mode "รู้แล้ว")
-    let knownCount=0;
+    // อ่าน progress จาก localStorage เฉพาะชุดคำที่กำลังเลือก
+    const source = TOPICS[meta.slug] || [];
+    const basicCount = source.filter(item=>itemLevel(item)==='basic').length;
+    const allCount = source.length;
+    const activeItems = topicItemsForScope(meta.slug);
+    let activeKnownCount = 0;
     try{
-      const stored=JSON.parse(localStorage.getItem('kvh_known_'+meta.slug)||'[]');
-      knownCount=Array.isArray(stored)?stored.length:0;
-    }catch(_){}
-    const pct=meta.count>0?Math.round(knownCount/meta.count*100):0;
+      const knownWords = new Set(JSON.parse(localStorage.getItem('kvh_known_'+meta.slug)||'[]'));
+      activeKnownCount = activeItems.filter(item=>knownWords.has(item.en)).length;
+    }catch(_){ activeKnownCount = 0; }
+    const pct=activeItems.length>0?Math.round(activeKnownCount/activeItems.length*100):0;
     const cappedPct=Math.min(pct,100);
-    const progHtml=knownCount>0
+    const progHtml=activeKnownCount>0
       ? `<div class="hc-progress"><div class="hc-prog-fill${cappedPct>=100?' done':''}" style="width:${cappedPct}%"></div></div>`
         +`<div class="hc-prog-pct">${cappedPct}%</div>`
       : '';
@@ -1895,7 +1950,7 @@ function buildHub(){
       `<div class="hc-icon">${meta.icon}</div>`+
       `<div class="hc-th" style="font-size:${hubTitleFontSize(meta.title)}">${meta.title}</div>`+
       `<div class="hc-en">${meta.en}</div>`+
-      `<div class="hc-count">${meta.count} คำ</div>`+
+      `<div class="hc-count">${allCount>basicCount?`พื้นฐาน ${basicCount} · ทั้งหมด ${allCount}`:`${allCount} คำ`}</div>`+
       progHtml;
     c.addEventListener('click',()=>{ try{KAMPAI.sound.unlock();}catch(_){} location.hash='#'+meta.slug; });
     hubGrid.appendChild(c);
@@ -1987,9 +2042,9 @@ function showTopic(slug){
       if (saved) list = JSON.parse(saved);
     } catch(e) {}
     TOPICS['starred'] = list;
-    items = list;
+    items = list.map(item=>({...item}));
   } else {
-    items = TOPICS[slug];
+    items = topicItemsForScope(slug).map(item=>({...item}));
   }
   if(!items || items.length === 0) return;
   clearTimeout(timer);
@@ -2021,6 +2076,7 @@ function showTopic(slug){
   });
 
   loadVoiceModeForTopic(slug);
+  syncScopeControls(slug);
 
   // ขนาดตัวอักษรในเซลล์ = อิงคำที่ยาวสุดของหมวด → ทุกเซลล์เท่ากันทั้งจอ (กันตัวเล็กใหญ่ไม่เท่า)
   const longest=items.reduce((a,it)=>(!it.emoji&&it.label.length>a.length)?it.label:a,'');
@@ -2458,7 +2514,7 @@ function resumeAuto(){
 // =====================================================================
 function pickVariant(it){
   if(flashVariant!=='mixed') return flashVariant;
-  const pool = applicableVariants();
+  const pool = applicableVariants(it);
   return pool[Math.floor(Math.random()*pool.length)];
 }
 function updateFlashScore(){
@@ -2574,14 +2630,15 @@ function renderFlashCard(){
   barEl.style.width=(flashKnown.size/flashTotal*100)+'%';
 }
 function startFlash(){
-  flashTotal = allItems.length;
+  const candidates = [...Array(allItems.length).keys()].filter(i=>flashVariant!=='pic2word' || hasVisual(allItems[i]));
+  flashTotal = candidates.length;
   // โหลด "รู้แล้ว" ที่จำไว้ → เริ่มจากเฉพาะคำที่ยังไม่แม่น
   const knownEns = loadKnownEns(currentSlug);
-  flashKnown = new Set(allItems.map((it,i)=>knownEns.has(it.en)?i:-1).filter(i=>i>=0));
-  flashDeck = shuffle([...Array(allItems.length).keys()].filter(i=>!flashKnown.has(i)));
+  flashKnown = new Set(candidates.filter(i=>knownEns.has(allItems[i].en)));
+  flashDeck = shuffle(candidates.filter(i=>!flashKnown.has(i)));
   if(!flashDeck.length){    // แม่นครบทุกคำแล้ว → เริ่มทบทวนทั้งหมดใหม่ (ไม่ล้างที่จำไว้ใน localStorage)
     flashKnown = new Set();
-    flashDeck = shuffle([...Array(allItems.length).keys()]);
+    flashDeck = shuffle(candidates);
   }
   flashReviewCount = {};
   flashStartTime = Date.now();
@@ -2591,9 +2648,10 @@ function startFlash(){
   renderFlashCard();
 }
 function startFlipRace(){
-  flashTotal = allItems.length;
+  const candidates = [...Array(allItems.length).keys()].filter(i=>flashVariant!=='pic2word' || hasVisual(allItems[i]));
+  flashTotal = candidates.length;
   flashKnown = new Set();
-  flashDeck = shuffle([...Array(allItems.length).keys()]);
+  flashDeck = shuffle(candidates);
   flashReviewCount = {};
   flashStartTime = Date.now();
   flashHistory = [];
@@ -3496,13 +3554,23 @@ document.querySelectorAll('.fv').forEach(b=>b.addEventListener('click',e=>{
   e.stopPropagation();
   document.querySelectorAll('.fv').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); flashVariant=b.dataset.v;
-  if(mode==='flash'||mode==='fliprace') renderFlashCard();   // เปลี่ยนทิศใบปัจจุบันทันที (ไม่รีเซ็ตกอง/คะแนน)
+  if(mode==='flash') startFlash();
+  else if(mode==='fliprace') startFlipRace();
 }));
 Object.keys(modeBtns).forEach(k=>{
   if(modeBtns[k]) modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
 btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem, null, true); });
+scopeButtons.forEach(btn=>btn.addEventListener('click',e=>{
+  e.stopPropagation();
+  const next = btn.dataset.vocabScope === 'all' ? 'all' : 'basic';
+  if(next === vocabScope) return;
+  vocabScope = next;
+  try{ localStorage.setItem('vocab_hub_scope', vocabScope); }catch(_){}
+  if(currentSlug && currentSlug !== 'starred') showTopic(currentSlug);
+  else buildHub();
+}));
 wordEl.addEventListener('click',e=>{
   const part = e.target.closest('[data-phonics-part]');
   if(!part) return;
@@ -3614,7 +3682,9 @@ function toggleStarItem(item){
         emoji: item.emoji,
         bgColor: item.bgColor,
         darkText: item.darkText,
-        example: item.example
+        example: item.example,
+        level: itemLevel(item),
+        phonics: item.phonics
       });
     }
   } else {
