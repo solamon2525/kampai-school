@@ -320,6 +320,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   color:#fff;text-align:center;padding:0 0.3em;
   white-space:nowrap;
 }
+.cell-reading{
+  color:#FFE082;font-size:clamp(13px,1.8vh,18px);font-weight:700;line-height:1.15;
+  text-align:center;padding:0 3.4em;white-space:normal;
+}
 
 /* Grid Header & Mute Controls */
 #grid-header {
@@ -853,6 +857,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   /* AUTO GRID / CELLS */
   .cell .emoji{font-size:34px}
   .lbl{font-size:clamp(18px,5.5vw,30px);white-space:normal}
+  .cell-reading{font-size:13px;padding:0 42px}
 
   /* CHOICE / LISTEN */
   .q-prompt{flex:0 0 auto;min-height:120px}
@@ -1989,6 +1994,12 @@ function buildCell(item, sIdx, cIdx){
   lbl.style.fontSize = item.emoji ? '3.4vh' : cellLabelFs;
   if(isColor&&item.darkText) lbl.style.color='#1A237E';
   el.appendChild(lbl); el._item=item;
+  if(currentSlug === 'fruits' && item.th){
+    const reading=document.createElement('span');
+    reading.className='cell-reading';
+    reading.textContent='คำอ่าน: '+item.th;
+    el.appendChild(reading);
+  }
 
   // Star button to toggle favorite for this word
   const starBtn = document.createElement('button');
@@ -2435,7 +2446,9 @@ function setBannerAuto(item){
   tcard.classList.remove('flipped');
   wfront.textContent=item.en;
   wfront.style.fontSize=bannerFontSize(item.en);
-  wfrontSub.textContent=item.meaning || '';   // คำแปลไทยใต้คำอังกฤษ (ถ้ามี)
+  wfrontSub.textContent=currentSlug === 'fruits' && item.th
+    ? 'คำอ่าน: '+item.th
+    : (item.meaning || '');
   updatePhonicsHint(item);
 }
 function updatePhonicsHint(item){

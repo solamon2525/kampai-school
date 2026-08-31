@@ -29,6 +29,12 @@ const errors = [];
 
 if (metaSlugs.length !== 28) errors.push(`ต้องมี 28 หมวด แต่พบ ${metaSlugs.length}`);
 if (new Set(metaSlugs).size !== metaSlugs.length) errors.push('พบ slug ซ้ำใน TOPIC_META');
+if (!/className='cell-reading'/.test(html) || !/reading\.textContent='คำอ่าน: '/.test(html)) {
+  errors.push('fruits: กริดต้องแสดงคำอ่านภาษาไทยด้วย .cell-reading');
+}
+if (!/currentSlug === 'fruits' && item\.th[\s\S]{0,120}'คำอ่าน: '\+item\.th/.test(html)) {
+  errors.push('fruits: การ์ดหลักต้องแสดงคำอ่านภาษาไทยใต้คำอังกฤษ');
+}
 
 for (const slug of metaSlugs) {
   const items = topics[slug];
