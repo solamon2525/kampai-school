@@ -22,7 +22,7 @@ let autoplayGen = 0;
 let isAutoplayActive = false;
 let autoplayPaused = false;
 let autoplayPauseMs = 1500;
-let autoReadMode = 'full';
+let autoReadMode = 'off';
 let autoFlipEnabled = true;
 let autoSoundEnabled = true;
 let speechGen = 0;
@@ -2024,7 +2024,7 @@ const AUTO_SOUND_KEY = 'tvh_auto_sound';
 
 function loadAutoplayPrefs() {
   const mode = localStorage.getItem(AUTO_READ_KEY);
-  if (['word', 'reading', 'meaning', 'full'].includes(mode)) autoReadMode = mode;
+  if (['off', 'word', 'reading', 'meaning', 'full'].includes(mode)) autoReadMode = mode;
   const ms = parseInt(localStorage.getItem(AUTO_PAUSE_MS_KEY), 10);
   if ([500, 1000, 1500, 2000, 3000].includes(ms)) autoplayPauseMs = ms;
   const flip = localStorage.getItem(AUTO_FLIP_KEY);
@@ -2068,7 +2068,7 @@ function mountAutoplayControls() {
 }
 
 function setAutoReadMode(value) {
-  if (!['word', 'reading', 'meaning', 'full'].includes(value)) return;
+  if (!['off', 'word', 'reading', 'meaning', 'full'].includes(value)) return;
   autoReadMode = value;
   localStorage.setItem(AUTO_READ_KEY, value);
   if (isAutoplayActive && !autoplayPaused) runAutoplayStep();
@@ -2094,6 +2094,7 @@ function toggleAutoSound() {
 
 function buildAutoplayTexts(item, side) {
   if (!item) return [];
+  if (autoReadMode === 'off') return [];
   if (side === 'front') return [item.word];
   const texts = [];
   if (autoReadMode === 'reading' || autoReadMode === 'full') {

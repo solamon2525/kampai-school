@@ -102,10 +102,11 @@
         <div class="autoplay-speed-group">
             <span class="speed-label">อ่าน</span>
             <select id="autoplay-read-mode" class="speed-select" onchange="setAutoReadMode(this.value)" aria-label="โหมดการอ่าน">
+                <option value="off" selected>ปิดอ่านอัตโนมัติ</option>
                 <option value="word">คำศัพท์</option>
                 <option value="reading">คำ + คำอ่าน</option>
                 <option value="meaning">คำ + ความหมาย</option>
-                <option value="full" selected>ครบ (คำ→อ่าน→ความ)</option>
+                <option value="full">ครบ (คำ→อ่าน→ความ)</option>
             </select>
         </div>
         <button type="button" id="btn-auto-flip" class="autoplay-opt-btn on" onclick="toggleAutoFlip()" title="พลิกการ์ดดูความหมาย">🔄 พลิก</button>

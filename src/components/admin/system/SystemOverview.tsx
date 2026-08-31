@@ -290,6 +290,26 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.228.1 (vocab-hub — ปิดอ่านอัตโนมัติ + fruits อ่านไทย)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-sky-600',
+        items: [
+            'vocab-hub: ตัดเสียงอ่านอัตโนมัติจากการเปิดการ์ด/เปลี่ยนคำ ให้เหลือเฉพาะการกดอ่านโดยผู้ใช้หรือโหมดที่ตั้งใจ',
+            'เพิ่มโหมดเสียงแยกตามหมวด โดย `fruits` สลับได้ EN / ไทย / EN+ไทย และจำค่าต่อหมวดใน localStorage',
+            'Thai Vocab Hub: ลดค่าเริ่มต้น autoplay read mode เป็นคำศัพท์ และตั้งค่าเริ่มต้นให้เลือกเองก่อนอ่านยาว',
+        ],
+    },
+    {
+        version: 'v1.228.0 (แข่งขันใบงานสด ป.4 คณิตศาสตร์)',
+        date: '28 ส.ค. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มห้องแข่งขัน 3 เครื่อง: ครูเป็น Host และเครื่องทีม 2 เครื่อง พร้อมสุ่ม/สลับสมาชิก อนุมัติเครื่อง เวลา และคะแนนสด',
+            'เพิ่ม seeded provider คณิตศาสตร์ 4 ชุดและโหมดผสม พร้อม operation-tree validator ของเกม 24 และสิทธิ์ตอบ 2 ครั้งต่อข้อ',
+            'เพิ่มผล 3/1 ประวัติทีม สถิติรายบุคคล RLS, capability token แบบ SHA-256, Edge Functions และ transactional attempt RPC',
+        ],
+    },
+    {
         version: 'v1.227.6 (System Overview — production snapshot และสถานะระบบ)',
         date: '28 ส.ค. 2569',
         badge: 'bg-indigo-700',
