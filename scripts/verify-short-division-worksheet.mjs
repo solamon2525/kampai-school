@@ -188,6 +188,17 @@ try {
   const answerState = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
   await mediaPage.locator(`.opt[data-answer="${answerState.correct}"]`).click();
   check((await mediaPage.locator('#pfb').textContent()).includes(answerState.reason), 'ตอบแล้วต้องแสดงเหตุผลของขั้นนั้น');
+  await mediaPage.setViewportSize({ width: 1280, height: 720 });
+  const practiceTypography = await mediaPage.evaluate(() => ({
+    questionSize: Number.parseFloat(getComputedStyle(document.querySelector('.pq')).fontSize),
+    answerSizes: [...document.querySelectorAll('.opt')].map((option) => Number.parseFloat(getComputedStyle(option).fontSize)),
+    panelWidth: document.querySelector('.practice-panel').getBoundingClientRect().width,
+    documentFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+  }));
+  check(practiceTypography.questionSize >= 72, 'เดสก์ท็อปต้องขยายคำถามฝึกอย่างน้อย 72px');
+  check(Math.max(...practiceTypography.answerSizes) >= 96, 'คำตอบสั้นบนเดสก์ท็อปต้องขยายอย่างน้อย 96px');
+  check(Math.min(...practiceTypography.answerSizes) >= 64, 'คำตอบที่มีเศษบนเดสก์ท็อปต้องอ่านได้อย่างน้อย 64px');
+  check(practiceTypography.panelWidth >= 800 && practiceTypography.documentFits, 'แผงฝึกต้องใช้พื้นที่จอและไม่ล้นแนวนอน');
   const syncedProblem = `${answerState.dividend}/${answerState.divisor}`;
   await mediaPage.click('#modeSeg button[data-mode="learn"]');
   check(`${await mediaPage.inputValue('#dividend')}/${await mediaPage.inputValue('#divisor')}` === syncedProblem, 'สลับกลับโหมดสอนต้องคงโจทย์เดียวกับโหมดฝึก');
