@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.4 (vocab-hub — ซิงก์คำอ่านส่วนหัวกับสวิตช์)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เมื่อปิดคำอ่านใน Fruits จะซ่อนคำอ่านทั้งบนการ์ดและส่วนหัวทันที โดยส่วนหัวกลับไปแสดงความหมายแทน',
+            'เพิ่ม data verifier ป้องกันสถานะคำอ่านส่วนหัวกับการ์ดไม่ตรงกัน และอัปเดต game_docs เป็น v2.5.2',
+        ],
+    },
+    {
         version: 'v1.229.3 (vocab-hub — เพิ่ม contrast คำอ่านบนการ์ดที่เลือก)',
         date: '1 ก.ย. 2569',
         badge: 'bg-emerald-600',

@@ -2131,6 +2131,7 @@ function syncReadingVisibility(){
   btnReading.setAttribute('aria-pressed',String(showThaiReading));
   btnReading.classList.toggle('on',showThaiReading);
   btnReading.style.display=isVisualTopic?'':'none';
+  if(mode==='auto' && curItem) setBannerAuto(curItem);
 }
 function syncVisualGridSize(){
   if(!isVisualTopic || mode!=='auto' || !gridEl.clientWidth || !gridEl.clientHeight) return;
@@ -2574,7 +2575,7 @@ function setBannerAuto(item){
   tcard.classList.remove('flipped');
   wfront.textContent=item.en;
   wfront.style.fontSize=bannerFontSize(item.en);
-  wfrontSub.textContent=currentSlug === 'fruits' && item.th
+  wfrontSub.textContent=currentSlug === 'fruits' && item.th && showThaiReading
     ? 'คำอ่าน: '+item.th
     : (item.meaning || '');
   updatePhonicsHint(item);
