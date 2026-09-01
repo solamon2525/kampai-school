@@ -148,6 +148,53 @@ try {
   check(mediaFit.documentFits && mediaFit.boardFits, 'สื่อสอน 6 หลัก ÷ 2 หลักต้องไม่ล้นบนมือถือ');
   check(mediaFit.remainder.startsWith('เศษ '), 'ขั้นสรุปต้องแสดงเศษแยกจากหลักผลหาร');
 
+  await mediaPage.click('#modeSeg button[data-mode="practice"]');
+  const practiceStates = [];
+  practiceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
+  for (let index = 0; index < 3; index += 1) {
+    await mediaPage.evaluate(() => window.ShortDivisionMedia.nextPractice());
+    practiceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
+  }
+  check(new Set(practiceStates.map((state) => state.type)).size === 4, 'ถุงสุ่มรอบแรกต้องมีโจทย์ฝึกครบ 4 ประเภทโดยไม่ซ้ำ');
+  practiceStates.forEach((state) => {
+    check(!state.question.startsWith('ตรวจ:') && !state.question.includes('×'), 'โหมดฝึกต้องไม่สร้างโจทย์ตรวจด้วยการคูณ');
+    check(state.divisor * state.quotient + state.remainder === state.dividend, `${state.type}: สมการหารต้องถูกต้อง`);
+    check(state.remainder >= 0 && state.remainder < state.divisor, `${state.type}: เศษต้องน้อยกว่าตัวหาร`);
+    check(new Set(state.choices).size === state.choices.length && state.choices.includes(state.correct), `${state.type}: ตัวเลือกต้องไม่ซ้ำและมีคำตอบ`);
+    if (state.type === 'quotient-digit') {
+      check(state.choices.every((choice) => Number(choice) >= 0 && Number(choice) <= 9), 'ตัวเลือกผลหารรายหลักต้องเป็นเลข 0–9');
+      check(Number(state.correct) === state.selectedStep.quotientDigit, 'คำตอบผลหารรายหลักต้องตรงกับ trace');
+    }
+    if (state.type === 'remainder' || state.type === 'carry') {
+      check(state.choices.every((choice) => Number(choice) >= 0 && Number(choice) < state.divisor), `${state.type}: ตัวเลือกเศษต้องน้อยกว่าตัวหาร`);
+    }
+    if (state.type === 'carry') check(Number(state.correct) === state.selectedStep.remainder && state.selectedStep.hasNext, 'คำตอบตัวทดต้องตรงกับเศษก่อนหลักถัดไป');
+  });
+
+  const presetValues = ['2x1', '3x1', '4x1', '5x1', '6x1', '3x2', '4x2', '5x2', '6x2'];
+  for (const preset of presetValues) {
+    await mediaPage.selectOption('#presetSelect', preset);
+    const state = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
+    const [dividendDigits, divisorDigits] = preset.split('x').map(Number);
+    check(String(state.dividend).length === dividendDigits, `${preset}: ตัวตั้งต้องตรงจำนวนหลักของ preset`);
+    check(String(state.divisor).length === divisorDigits, `${preset}: ตัวหารต้องตรงจำนวนหลักของ preset`);
+    check(await mediaPage.inputValue('#dividend') === String(state.dividend) && await mediaPage.inputValue('#divisor') === String(state.divisor), `${preset}: ช่องตัวเลขต้องซิงก์กับโจทย์ฝึก`);
+  }
+
+  const balanceStates = [];
+  for (let index = 0; index < 8; index += 1) {
+    await mediaPage.evaluate(() => window.ShortDivisionMedia.nextPractice());
+    balanceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
+  }
+  check(balanceStates.filter((state) => state.remainderMode === 'exact').length === 4 && balanceStates.filter((state) => state.remainderMode === 'remainder').length === 4, 'โจทย์ 8 ข้อต้องกระจายลงตัว/มีเศษอย่างละ 4 ข้อ');
+  const answerState = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
+  await mediaPage.locator(`.opt[data-answer="${answerState.correct}"]`).click();
+  check((await mediaPage.locator('#pfb').textContent()).includes(answerState.reason), 'ตอบแล้วต้องแสดงเหตุผลของขั้นนั้น');
+  const syncedProblem = `${answerState.dividend}/${answerState.divisor}`;
+  await mediaPage.click('#modeSeg button[data-mode="learn"]');
+  check(`${await mediaPage.inputValue('#dividend')}/${await mediaPage.inputValue('#divisor')}` === syncedProblem, 'สลับกลับโหมดสอนต้องคงโจทย์เดียวกับโหมดฝึก');
+  await mediaPage.click('#btnNext');
+
   const presentationViewports = [
     { width: 1280, height: 720 },
     { width: 1920, height: 1080 },
