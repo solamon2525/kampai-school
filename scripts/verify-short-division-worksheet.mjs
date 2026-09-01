@@ -145,6 +145,54 @@ try {
   }));
   check(mediaFit.documentFits && mediaFit.boardFits, 'สื่อสอน 6 หลัก ÷ 2 หลักต้องไม่ล้นบนมือถือ');
   check(mediaFit.remainder.startsWith('เศษ '), 'ขั้นสรุปต้องแสดงเศษแยกจากหลักผลหาร');
+
+  const presentationViewports = [
+    { width: 1280, height: 720 },
+    { width: 1920, height: 1080 },
+    { width: 2560, height: 1440 },
+    { width: 3840, height: 2160 },
+  ];
+  for (const viewport of presentationViewports) {
+    await mediaPage.setViewportSize(viewport);
+    await mediaPage.evaluate(() => window.ShortDivisionMedia.setPresentationMode(true));
+    await mediaPage.waitForTimeout(80);
+    const expectedScale = Math.max(1, Math.min(3, viewport.width / 1200, viewport.height / 650));
+    const presentationFit = await mediaPage.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      const board = rect('.board-card');
+      const grid = rect('.math-grid');
+      const explanation = rect('.explain-card');
+      return {
+        scale: window.ShortDivisionMedia.getPresentationScale(),
+        active: document.body.classList.contains('presentation-mode'),
+        hiddenChrome: getComputedStyle(document.querySelector('.sidebar')).display === 'none' &&
+          getComputedStyle(document.querySelector('.intro-banner')).display === 'none' &&
+          getComputedStyle(document.querySelector('.footer')).display === 'none',
+        documentFits: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1 &&
+          document.documentElement.scrollHeight <= document.documentElement.clientHeight + 1,
+        boardFits: grid.left >= board.left - 1 && grid.right <= board.right + 1 && grid.top >= board.top - 1 && grid.bottom <= board.bottom + 1,
+        explanationFits: explanation.right <= innerWidth + 1 && explanation.bottom <= innerHeight + 1,
+        controlFont: parseFloat(getComputedStyle(document.querySelector('#btnNext')).fontSize),
+        controlVar: getComputedStyle(document.body).getPropertyValue('--p-font-base').trim(),
+      };
+    });
+    check(presentationFit.active && presentationFit.hiddenChrome, `${viewport.width}x${viewport.height}: โหมดจอใหญ่ต้องซ่อนแผงตั้งค่าและ footer`);
+    check(Math.abs(presentationFit.scale - expectedScale) < 0.02, `${viewport.width}x${viewport.height}: scale ต้องพอดีจอและไม่เกิน 3x`);
+    check(presentationFit.documentFits && presentationFit.boardFits && presentationFit.explanationFits, `${viewport.width}x${viewport.height}: กระดานและคำอธิบายต้องไม่ถูกตัด`);
+    check(presentationFit.controlFont >= 14.5 * expectedScale, `${viewport.width}x${viewport.height}: ปุ่มควบคุมต้องขยายตามโหมดนำเสนอ (ได้ ${presentationFit.controlFont}px, var ${presentationFit.controlVar}, scale ${expectedScale.toFixed(2)})`);
+  }
+  check(Math.abs((await mediaPage.evaluate(() => window.ShortDivisionMedia.getPresentationScale())) - 3) < 0.02, 'จอ 4K ต้องขยายได้ถึง 3x');
+  await mediaPage.keyboard.press('Escape');
+  check(!(await mediaPage.evaluate(() => window.ShortDivisionMedia.isPresentationMode())), 'Escape ต้องออกจากโหมดจอใหญ่เมื่อไม่ได้ใช้ Fullscreen API');
+  await mediaPage.setViewportSize({ width: 1280, height: 720 });
+  await mediaPage.click('#btnPresentation');
+  await mediaPage.waitForTimeout(80);
+  check(await mediaPage.evaluate(() => window.ShortDivisionMedia.isPresentationMode()), 'ปุ่มจอใหญ่ต้องเปิดโหมดนำเสนอได้');
+  const counterBefore = await mediaPage.locator('#stepCounter').textContent();
+  await mediaPage.click('#btnPrev');
+  check((await mediaPage.locator('#stepCounter').textContent()) !== counterBefore, 'ปุ่มย้อนกลับต้องทำงานในโหมดจอใหญ่');
+  await mediaPage.click('#btnSpeakStage');
+  await mediaPage.evaluate(() => window.ShortDivisionMedia.setPresentationMode(false));
   check(mediaErrors.length === 0, `media browser errors: ${mediaErrors.join(' | ')}`);
   await mediaPage.close();
 } finally {
@@ -158,4 +206,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Short-division worksheet verified: math, seeds, responsive 8/6/5 layouts, media, reveal, and A4 fit');
+console.log('Short-division worksheet verified: math, seeds, responsive 8/6/5 layouts, 1x-3x presentation media, reveal, and A4 fit');

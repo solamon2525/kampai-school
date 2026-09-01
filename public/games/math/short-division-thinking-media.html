@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body {
       font-family: 'Sarabun', sans-serif;
       background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
@@ -126,6 +127,7 @@
       flex-direction: column;
       min-width: 0;
       background: #f8fafc;
+      position: relative;
     }
     
     .content {
@@ -135,6 +137,25 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+    }
+
+    .presentation-bar {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-presentation {
+      width: auto;
+      min-height: 44px;
+      background: #0f766e;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.18);
+    }
+    .btn-presentation:hover { background: #115e59; }
+    .btn:focus-visible,
+    .select-field:focus-visible,
+    .input-field:focus-visible {
+      outline: 3px solid #fbbf24;
+      outline-offset: 3px;
     }
     
     .intro-banner {
@@ -174,13 +195,18 @@
     /* Grid System for Short Division */
     .math-grid {
       --media-cell: 54px;
+      --media-row: 60px;
+      --media-gap: 8px;
       --media-font: 2.2rem;
+      --media-carry-font: 1.1rem;
+      --media-bracket-font: 2.5rem;
+      --media-remainder-font: 1rem;
       display: grid;
       font-family: 'Courier New', Courier, monospace;
       font-weight: bold;
       font-size: var(--media-font);
       color: #1e293b;
-      row-gap: 8px;
+      row-gap: var(--media-gap);
       user-select: none;
     }
     
@@ -192,7 +218,7 @@
     
     .math-cell {
       width: var(--media-cell);
-      height: 60px;
+      height: var(--media-row);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -206,7 +232,7 @@
       position: absolute;
       top: 2px;
       left: 4px;
-      font-size: clamp(0.7rem, calc(var(--media-cell) * 0.4), 1.1rem);
+      font-size: var(--media-carry-font);
       color: #dc2626; /* red */
       font-weight: 800;
     }
@@ -228,13 +254,13 @@
     .bracket-cell {
       font-family: 'Sarabun', sans-serif;
       color: #d97706;
-      font-size: calc(var(--media-font) * 1.15);
+      font-size: var(--media-bracket-font);
       font-weight: 300;
     }
 
     .remainder-summary {
       font-family: 'Sarabun', sans-serif;
-      font-size: clamp(0.8rem, calc(var(--media-cell) * 0.42), 1rem);
+      font-size: var(--media-remainder-font);
       white-space: nowrap;
     }
     
@@ -279,6 +305,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+    .btn-stage-speak { display: none; }
     
     .btn-step {
       background: #f1f5f9;
@@ -329,6 +356,115 @@
     .practice-panel .opt.ok{border-color:#16a34a;background:#dcfce7}
     .practice-panel .opt.no{border-color:#dc2626;background:#fee2e2}
     .practice-panel .pfb{font-weight:800;min-height:1.4em}
+
+    body.presentation-mode {
+      --presentation-scale: 1;
+      padding: 0;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    body.presentation-mode .shell {
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+      max-width: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    body.presentation-mode .sidebar,
+    body.presentation-mode .intro-banner,
+    body.presentation-mode .practice-panel,
+    body.presentation-mode .footer {
+      display: none !important;
+    }
+    body.presentation-mode .main,
+    body.presentation-mode .content {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+    body.presentation-mode .content {
+      padding: var(--p-14);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-8);
+    }
+    body.presentation-mode .presentation-bar {
+      position: static;
+      flex: 0 0 auto;
+    }
+    body.presentation-mode .btn-presentation {
+      min-height: clamp(44px, var(--p-44), 72px);
+      padding: clamp(10px, var(--p-10), 16px) clamp(16px, var(--p-16), 28px);
+      font-size: clamp(1rem, var(--p-font-base), 1.5rem);
+    }
+    body.presentation-mode .workspace {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: var(--p-18);
+      align-items: stretch;
+    }
+    body.presentation-mode .board-card,
+    body.presentation-mode .explain-card {
+      min-height: 0;
+      height: 100%;
+      border-radius: var(--p-20);
+      padding: var(--p-20);
+    }
+    body.presentation-mode .explain-card {
+      gap: var(--p-14);
+    }
+    body.presentation-mode .explain-header {
+      padding-bottom: var(--p-10);
+    }
+    body.presentation-mode .explain-title {
+      font-size: var(--p-font-title);
+    }
+    body.presentation-mode .step-counter,
+    body.presentation-mode .step-sub {
+      font-size: var(--p-font-small);
+    }
+    body.presentation-mode .step-detail-box {
+      min-height: var(--p-120);
+      border-radius: var(--p-12);
+      border-left-width: var(--p-4);
+      padding: var(--p-16);
+    }
+    body.presentation-mode .step-desc {
+      font-size: var(--p-font-detail);
+      line-height: 1.55;
+    }
+    body.presentation-mode .ctrl-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--p-10);
+    }
+    body.presentation-mode .btn-stage-speak { display: flex; }
+    body.presentation-mode .ctrl-row .btn,
+    body.presentation-mode .btn-play {
+      min-height: var(--p-48);
+      border-radius: var(--p-12);
+      padding: var(--p-12);
+      font-size: var(--p-font-base);
+    }
+    @media (max-width: 899px) {
+      body.presentation-mode { overflow: auto; }
+      body.presentation-mode .content { overflow: auto; }
+      body.presentation-mode .workspace {
+        height: auto;
+        flex: none;
+        min-height: 100%;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      body.presentation-mode .board-card,
+      body.presentation-mode .explain-card { min-height: 44vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn, .math-cell { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -374,6 +510,9 @@
 
     <main class="main">
       <div class="content">
+        <div class="presentation-bar">
+          <button type="button" class="btn btn-presentation" id="btnPresentation" aria-pressed="false" data-kampai-action="presentation-toggle">🖥️ โหมดจอใหญ่</button>
+        </div>
         <div class="intro-banner">
           💡 <strong>เรียนรู้การหารสั้นทีละสเตป:</strong> การหารสั้นเป็นวิธีที่กระชับและรวดเร็ว โดยคำนวณหักลบเศษในใจ แล้วนำเศษที่ได้ไปเขียนเป็นตัวทดขนาดเล็กไว้ด้านบนขวา/ซ้ายของหลักถัดไปโดยตรง
         </div>
@@ -407,6 +546,7 @@
             
             <div class="ctrl-row">
               <button type="button" class="btn btn-step" id="btnPrev" disabled>← ย้อนกลับ</button>
+              <button type="button" class="btn btn-step btn-stage-speak" id="btnSpeakStage">🔊 ฟัง</button>
               <button type="button" class="btn btn-step" id="btnNext" disabled>ถัดไป →</button>
             </div>
             <button type="button" class="btn btn-play" id="btnPlay" disabled>▶ เล่นอัตโนมัติ</button>
@@ -442,10 +582,47 @@
       var btnPrev = document.getElementById('btnPrev');
       var btnNext = document.getElementById('btnNext');
       var btnPlay = document.getElementById('btnPlay');
+      var btnSpeakStage = document.getElementById('btnSpeakStage');
+      var btnPresentation = document.getElementById('btnPresentation');
+      var presentationMode = false;
       
       var traceSteps = [];
       var currentStepIndex = 0;
       var playInterval = null;
+
+      function presentationScale() {
+        if (!presentationMode) return 1;
+        return Math.max(1, Math.min(3, window.innerWidth / 1200, window.innerHeight / 650));
+      }
+
+      function refreshPresentationLayout() {
+        var scale = presentationScale();
+        document.body.style.setProperty('--presentation-scale', scale.toFixed(3));
+        [4, 8, 10, 12, 14, 16, 18, 20, 44, 48, 120].forEach(function (size) {
+          document.body.style.setProperty('--p-' + size, (size * scale).toFixed(2) + 'px');
+        });
+        // Slight optical compensation keeps projected Thai text near the requested scale.
+        document.body.style.setProperty('--p-font-small', (15.5 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-base', (17.6 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-detail', (18.5 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-title', (19.4 * scale).toFixed(2) + 'px');
+        if (traceSteps.length) renderStep(currentStepIndex);
+      }
+
+      function setPresentationMode(enabled, requestFullscreen) {
+        presentationMode = Boolean(enabled);
+        document.body.classList.toggle('presentation-mode', presentationMode);
+        btnPresentation.setAttribute('aria-pressed', String(presentationMode));
+        btnPresentation.textContent = presentationMode ? '✕ ออกจากจอใหญ่' : '🖥️ โหมดจอใหญ่';
+
+        if (presentationMode && requestFullscreen && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (!presentationMode && document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        }
+
+        requestAnimationFrame(refreshPresentationLayout);
+      }
 
       function getRandomInRange(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -648,13 +825,28 @@
         var N = dividendStr.length;
         var D = divisorStr.length;
         var W = D + 1 + N;
-        var contentWidth = Math.max(180, mathGrid.parentElement.clientWidth - 48);
-        var cellSize = Math.max(20, Math.min(54, Math.floor(contentWidth / W)));
-        var fontSize = cellSize <= 24 ? '1.1rem' : (cellSize <= 30 ? '1.35rem' : (cellSize <= 40 ? '1.75rem' : '2.2rem'));
+        var scale = presentationScale();
+        var cardStyle = getComputedStyle(mathGrid.parentElement);
+        var horizontalPadding = parseFloat(cardStyle.paddingLeft) + parseFloat(cardStyle.paddingRight);
+        var verticalPadding = parseFloat(cardStyle.paddingTop) + parseFloat(cardStyle.paddingBottom);
+        var contentWidth = Math.max(180, mathGrid.parentElement.clientWidth - horizontalPadding);
+        var rowCount = Math.max.apply(null, cells.map(function (cell) { return cell.r; })) + 1;
+        var desiredGap = 8 * scale;
+        var contentHeight = Math.max(120, mathGrid.parentElement.clientHeight - verticalPadding - desiredGap * Math.max(0, rowCount - 1));
+        var widthCell = Math.floor(contentWidth / W);
+        var heightCell = Math.floor((contentHeight / rowCount) * 0.9);
+        var cellSize = Math.max(20, Math.min(54 * scale, widthCell, heightCell));
+        var rowSize = Math.max(24, cellSize * (60 / 54));
+        var fontSize = Math.max(17.6, 35.2 * (cellSize / 54));
 
         mathGrid.innerHTML = '';
         mathGrid.style.setProperty('--media-cell', cellSize + 'px');
-        mathGrid.style.setProperty('--media-font', fontSize);
+        mathGrid.style.setProperty('--media-row', rowSize + 'px');
+        mathGrid.style.setProperty('--media-gap', desiredGap + 'px');
+        mathGrid.style.setProperty('--media-font', fontSize + 'px');
+        mathGrid.style.setProperty('--media-carry-font', Math.max(11.2, cellSize * 0.34) + 'px');
+        mathGrid.style.setProperty('--media-bracket-font', (fontSize * 1.15) + 'px');
+        mathGrid.style.setProperty('--media-remainder-font', Math.max(12.8, cellSize * 0.3) + 'px');
         mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', ' + cellSize + 'px)';
 
         // Render cells
@@ -695,7 +887,18 @@
       }
 
       window.addEventListener('resize', function () {
-        if (traceSteps.length) renderStep(currentStepIndex);
+        refreshPresentationLayout();
+      });
+
+      document.addEventListener('fullscreenchange', function () {
+        if (presentationMode && !document.fullscreenElement) setPresentationMode(false, false);
+        else refreshPresentationLayout();
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && presentationMode && !document.fullscreenElement) {
+          setPresentationMode(false, false);
+        }
       });
 
       // TTS triggers
@@ -750,7 +953,11 @@
       
       btnPlay.onclick = togglePlay;
       btnSpeak.onclick = speak;
+      btnSpeakStage.onclick = speak;
       btnRandom.onclick = randomize;
+      btnPresentation.onclick = function () {
+        setPresentationMode(!presentationMode, true);
+      };
 
       document.getElementById('btnBack').onclick = function () {
         if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
@@ -763,6 +970,12 @@
       });
       inputDivisor.addEventListener('input', function() {
         if (playInterval) clearInterval(playInterval);
+      });
+
+      window.ShortDivisionMedia = Object.freeze({
+        setPresentationMode: function (enabled) { setPresentationMode(enabled, false); },
+        getPresentationScale: presentationScale,
+        isPresentationMode: function () { return presentationMode; }
       });
 
       function shuffleArr(arr) {
