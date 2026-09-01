@@ -69,6 +69,18 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 
 รายละเอียดเต็มเรียกได้ที่ `/andrej-karpathy-skills:karpathy-guidelines`
 
+## Classroom-first Product Rules
+
+ใช้กับ UI สำหรับครูและเด็กทั้ง repo โดยเฉพาะเกม สื่อการสอน และใบงาน:
+
+- **Real-screen truth (mandatory)** — ตรวจ UI ผ่าน HTTP/browser จริง ห้ามรับรองจาก static check หรือ verifier อย่างเดียว; อย่างน้อยตรวจ 360×800 และ 1280×720 รวมถึงจอใหญ่เมื่อสื่อรองรับ และต้องไม่มี overflow/ข้อความล้น
+- **One dominant task (default)** — แต่ละโหมดควรมีงานเรียนรู้หลักเพียงอย่างเดียว; ห้ามเพิ่มหลายรูปแบบเพียงเพราะทำได้ ถ้าผู้ใช้ยังไม่ได้ขอชัดเจน
+- **Readability over density (default)** — ยอมลดจำนวนข้อ การ์ด หรือ controls ต่อหน้า เพื่อให้ภาพ ตัวอักษร และพื้นที่ตอบใหญ่พอสำหรับห้องเรียน
+- **No contradictory state (mandatory)** — toggle หรือสถานะหนึ่งตัวต้องมีผลกับข้อความและพฤติกรรมเดียวกันทุกตำแหน่งทันที; label, state และสิ่งที่แสดงต้องตรงกัน
+- **Use available space (default)** — ถ้าพื้นที่หลักว่างมาก ให้ขยายเนื้อหาหลักแทนการยึด `max-width` หรือขนาดฟอนต์เดิม; สื่อจอใหญ่อาจขยายเนื้อหาหลักประมาณ 5–10 เท่าตามพื้นที่ แต่ต้อง auto-fit ข้อความยาวและไม่ล้นบนจอเล็ก; ห้ามนำอัตรานี้ไปบังคับกับหน้าระบบทั่วไป
+- **User-triggered defaults (mandatory)** — autoplay, TTS, กล้อง และ fullscreen ต้องไม่เริ่มเอง; เริ่มเฉพาะจาก user gesture ที่ชัดเจน
+- **Remove, do not hide (default)** — เมื่อยืนยันว่าไม่ต้องการรูปแบบหรือฟีเจอร์แล้ว ให้ลบ logic, state, UI และ test ที่หมดหน้าที่ ไม่ใช่เพียงซ่อน UI
+
 ## Gotchas
 
 - **รูปคนบีบ/ไม่สมส่วน:** แสดงรูป ครู/นักเรียน/ผู้บริหาร ต้องใช้ `<PersonAvatar>` เท่านั้น — base `AvatarImage` (`components/ui/avatar.tsx`) มี `object-cover` แล้ว + ESLint `no-restricted-imports` ห้าม import `@/components/ui/avatar` ตรง (ยกเว้น `PersonAvatar.tsx`). ถ้าจำเป็นต้องใช้ `<img>` raw กับรูปคน → **ใส่ `object-cover` เสมอ** (DESIGN.md Rule 14.13)
