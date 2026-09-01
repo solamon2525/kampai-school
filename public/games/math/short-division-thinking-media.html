@@ -590,8 +590,6 @@
       var currentStepIndex = 0;
       var playInterval = null;
       var practiceActive = false;
-      var practiceTypeBag = [];
-      var lastPracticeType = '';
       var practiceCounter = 0;
       var currentPractice = null;
 
@@ -994,46 +992,7 @@
         return arr;
       }
 
-      function takePracticeType() {
-        if (!practiceTypeBag.length) {
-          practiceTypeBag = shuffleArr(['full', 'remainder', 'quotient-digit', 'carry'].slice());
-          if (practiceTypeBag[0] === lastPracticeType) {
-            var swap = practiceTypeBag[0];
-            practiceTypeBag[0] = practiceTypeBag[1];
-            practiceTypeBag[1] = swap;
-          }
-        }
-        var type = practiceTypeBag.shift();
-        lastPracticeType = type;
-        return type;
-      }
-
-      function shortDivisionPracticeTrace(dividend, divisor) {
-        var digits = String(dividend).split('').map(Number);
-        var remainder = 0;
-        var started = false;
-        var steps = [];
-        digits.forEach(function (digit, index) {
-          var currentNumber = remainder * 10 + digit;
-          if (currentNumber < divisor && !started && index < digits.length - 1) {
-            remainder = currentNumber;
-            return;
-          }
-          started = true;
-          var quotientDigit = Math.floor(currentNumber / divisor);
-          remainder = currentNumber % divisor;
-          steps.push({
-            column: index + 1,
-            currentNumber: currentNumber,
-            quotientDigit: quotientDigit,
-            remainder: remainder,
-            hasNext: index < digits.length - 1
-          });
-        });
-        return steps;
-      }
-
-      function createPracticeProblem(type, withRemainder) {
+      function createPracticeProblem(withRemainder) {
         var preset = presetSelect.value.split('x');
         var dividendDigits = Number(preset[0]);
         var divisorDigits = Number(preset[1]);
@@ -1043,7 +1002,7 @@
 
         while (attempt < 300) {
           attempt++;
-          var divisorMin = divisorDigits === 2 ? 10 : ((type === 'remainder' || type === 'carry') ? 4 : 2);
+          var divisorMin = divisorDigits === 2 ? 10 : 2;
           var divisorMax = divisorDigits === 2 ? 99 : 9;
           var divisor = getRandomInRange(divisorMin, divisorMax);
           var remainder = withRemainder ? getRandomInRange(1, divisor - 1) : 0;
@@ -1052,20 +1011,13 @@
           if (quotientMin > quotientMax) continue;
           var quotient = getRandomInRange(quotientMin, quotientMax);
           var dividend = divisor * quotient + remainder;
-          var steps = shortDivisionPracticeTrace(dividend, divisor);
-          var eligible = type === 'carry'
-            ? steps.filter(function (step) { return step.hasNext && step.remainder > 0; })
-            : steps;
-          if (!eligible.length) continue;
           return {
-            type: type,
+            type: 'full',
             preset: presetSelect.value,
             dividend: dividend,
             divisor: divisor,
             quotient: quotient,
             remainder: remainder,
-            steps: steps,
-            selectedStep: eligible[getRandomInRange(0, eligible.length - 1)],
             remainderMode: withRemainder ? 'remainder' : 'exact'
           };
         }
@@ -1076,13 +1028,12 @@
         return remainder > 0 ? quotient + ' เศษ ' + remainder : String(quotient);
       }
 
-      function uniquePracticeOptions(correct, candidates, fallback, validator) {
+      function uniquePracticeOptions(correct, candidates, fallback) {
         var seen = {};
         var options = [];
-        validator = validator || function () { return true; };
         [correct].concat(candidates).forEach(function (value) {
           var text = String(value);
-          if (validator(value) && !seen[text] && text !== '' && options.length < 4) {
+          if (!seen[text] && text !== '' && options.length < 4) {
             seen[text] = true;
             options.push(text);
           }
@@ -1091,7 +1042,7 @@
         while (options.length < 4 && index < 30) {
           var fallbackValue = fallback(index++);
           var extra = String(fallbackValue);
-          if (validator(fallbackValue) && !seen[extra]) {
+          if (!seen[extra]) {
             seen[extra] = true;
             options.push(extra);
           }
@@ -1100,60 +1051,27 @@
       }
 
       function buildPracticeQuestion(problem) {
-        var step = problem.selectedStep;
-        var correct;
-        var question;
-        var reason;
-        var candidates;
-        var fallback;
-        var optionValidator;
+        var correct = formatDivisionAnswer(problem.quotient, problem.remainder);
+        var candidates = [
+          formatDivisionAnswer(problem.quotient + 1, problem.remainder),
+          formatDivisionAnswer(Math.max(1, problem.quotient - 1), problem.remainder),
+          formatDivisionAnswer(problem.quotient, problem.remainder ? problem.remainder - 1 : 1),
+          formatDivisionAnswer(problem.quotient, problem.remainder < problem.divisor - 1 ? problem.remainder + 1 : 0)
+        ];
 
-        if (problem.type === 'full') {
-          correct = formatDivisionAnswer(problem.quotient, problem.remainder);
-          question = 'หาคำตอบ: ' + problem.dividend + ' ÷ ' + problem.divisor + ' = ?';
-          reason = problem.dividend + ' ÷ ' + problem.divisor + ' = ' + correct;
-          candidates = [
-            formatDivisionAnswer(problem.quotient + 1, problem.remainder),
-            formatDivisionAnswer(Math.max(1, problem.quotient - 1), problem.remainder),
-            formatDivisionAnswer(problem.quotient, problem.remainder ? problem.remainder - 1 : 1),
-            formatDivisionAnswer(problem.quotient, problem.remainder < problem.divisor - 1 ? problem.remainder + 1 : 0)
-          ];
-          fallback = function (index) { return formatDivisionAnswer(problem.quotient + index + 2, problem.remainder); };
-        } else if (problem.type === 'remainder') {
-          correct = String(problem.remainder);
-          question = problem.dividend + ' ÷ ' + problem.divisor + ' เหลือเศษเท่าไร?';
-          reason = problem.divisor + ' × ' + problem.quotient + ' + ' + problem.remainder + ' = ' + problem.dividend + ' จึงเหลือเศษ ' + problem.remainder;
-          candidates = [0, problem.remainder + 1, Math.max(0, problem.remainder - 1), problem.divisor - 1];
-          fallback = function (index) { return index % problem.divisor; };
-          optionValidator = function (value) { return Number(value) >= 0 && Number(value) < problem.divisor; };
-        } else if (problem.type === 'quotient-digit') {
-          correct = String(step.quotientDigit);
-          question = 'หลักที่ ' + step.column + ': ' + step.currentNumber + ' ÷ ' + problem.divisor + ' ต้องเขียนเลขใดในผลหาร?';
-          reason = step.currentNumber + ' ÷ ' + problem.divisor + ' ได้ ' + step.quotientDigit + ' ครั้ง เหลือ ' + step.remainder + ' จึงเขียน ' + step.quotientDigit + ' ในหลักนี้';
-          candidates = [step.quotientDigit + 1, Math.max(0, step.quotientDigit - 1), 0, 9];
-          fallback = function (index) { return index % 10; };
-          optionValidator = function (value) { return Number(value) >= 0 && Number(value) <= 9; };
-        } else {
-          correct = String(step.remainder);
-          question = step.currentNumber + ' ÷ ' + problem.divisor + ' ได้ ' + step.quotientDigit + ' ครั้ง ต้องทดเลขใดหน้าหลักถัดไป?';
-          reason = step.currentNumber + ' ÷ ' + problem.divisor + ' ได้ ' + step.quotientDigit + ' ครั้ง เหลือ ' + step.remainder + ' จึงทด ' + step.remainder;
-          candidates = [0, step.remainder + 1, Math.max(0, step.remainder - 1), problem.divisor - 1];
-          fallback = function (index) { return index % problem.divisor; };
-          optionValidator = function (value) { return Number(value) >= 0 && Number(value) < problem.divisor; };
-        }
-
-        problem.question = question;
+        problem.question = 'หาคำตอบ: ' + problem.dividend + ' ÷ ' + problem.divisor + ' = ?';
         problem.correct = correct;
-        problem.reason = reason;
-        problem.choices = uniquePracticeOptions(correct, candidates, fallback, optionValidator);
+        problem.reason = problem.dividend + ' ÷ ' + problem.divisor + ' = ' + correct;
+        problem.choices = uniquePracticeOptions(correct, candidates, function (index) {
+          return formatDivisionAnswer(problem.quotient + index + 2, problem.remainder);
+        });
         return problem;
       }
 
       function nextPractice() {
-        var type = takePracticeType();
         var withRemainder = practiceCounter % 2 === 1;
         practiceCounter++;
-        currentPractice = buildPracticeQuestion(createPracticeProblem(type, withRemainder));
+        currentPractice = buildPracticeQuestion(createPracticeProblem(withRemainder));
 
         inputDividend.value = String(currentPractice.dividend);
         inputDivisor.value = String(currentPractice.divisor);

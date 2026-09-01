@@ -151,24 +151,23 @@ try {
   await mediaPage.click('#modeSeg button[data-mode="practice"]');
   const practiceStates = [];
   practiceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
-  for (let index = 0; index < 3; index += 1) {
+  for (let index = 0; index < 7; index += 1) {
     await mediaPage.evaluate(() => window.ShortDivisionMedia.nextPractice());
     practiceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
   }
-  check(new Set(practiceStates.map((state) => state.type)).size === 4, 'ถุงสุ่มรอบแรกต้องมีโจทย์ฝึกครบ 4 ประเภทโดยไม่ซ้ำ');
+  check(practiceStates.every((state) => state.type === 'full'), 'โหมดฝึกต้องมีเฉพาะโจทย์หาคำตอบเต็ม');
+  check(practiceStates.filter((state) => state.remainderMode === 'exact').length === 4 && practiceStates.filter((state) => state.remainderMode === 'remainder').length === 4, 'โจทย์ 8 ข้อต้องกระจายลงตัว/มีเศษอย่างละ 4 ข้อ');
   practiceStates.forEach((state) => {
-    check(!state.question.startsWith('ตรวจ:') && !state.question.includes('×'), 'โหมดฝึกต้องไม่สร้างโจทย์ตรวจด้วยการคูณ');
-    check(state.divisor * state.quotient + state.remainder === state.dividend, `${state.type}: สมการหารต้องถูกต้อง`);
-    check(state.remainder >= 0 && state.remainder < state.divisor, `${state.type}: เศษต้องน้อยกว่าตัวหาร`);
-    check(new Set(state.choices).size === state.choices.length && state.choices.includes(state.correct), `${state.type}: ตัวเลือกต้องไม่ซ้ำและมีคำตอบ`);
-    if (state.type === 'quotient-digit') {
-      check(state.choices.every((choice) => Number(choice) >= 0 && Number(choice) <= 9), 'ตัวเลือกผลหารรายหลักต้องเป็นเลข 0–9');
-      check(Number(state.correct) === state.selectedStep.quotientDigit, 'คำตอบผลหารรายหลักต้องตรงกับ trace');
-    }
-    if (state.type === 'remainder' || state.type === 'carry') {
-      check(state.choices.every((choice) => Number(choice) >= 0 && Number(choice) < state.divisor), `${state.type}: ตัวเลือกเศษต้องน้อยกว่าตัวหาร`);
-    }
-    if (state.type === 'carry') check(Number(state.correct) === state.selectedStep.remainder && state.selectedStep.hasNext, 'คำตอบตัวทดต้องตรงกับเศษก่อนหลักถัดไป');
+    check(state.question === `หาคำตอบ: ${state.dividend} ÷ ${state.divisor} = ?`, 'คำถามทุกข้อต้องใช้รูปแบบหาคำตอบเต็ม');
+    check(state.divisor * state.quotient + state.remainder === state.dividend, 'สมการหารต้องถูกต้อง');
+    check(state.remainder >= 0 && state.remainder < state.divisor, 'เศษต้องน้อยกว่าตัวหาร');
+    check(new Set(state.choices).size === 4 && state.choices.includes(state.correct), 'ตัวเลือกต้องมี 4 ข้อ ไม่ซ้ำ และมีคำตอบ');
+    check(state.correct === (state.remainder ? `${state.quotient} เศษ ${state.remainder}` : String(state.quotient)), 'รูปแบบคำตอบเต็มต้องตรงผลหารและเศษ');
+    state.choices.forEach((choice) => {
+      const match = choice.match(/^(\d+)(?: เศษ (\d+))?$/);
+      check(Boolean(match), 'ตัวเลือกต้องเป็นผลหารเต็มหรือผลหารพร้อมเศษ');
+      if (match?.[2]) check(Number(match[2]) < state.divisor, 'เศษในตัวเลือกต้องน้อยกว่าตัวหาร');
+    });
   });
 
   const presetValues = ['2x1', '3x1', '4x1', '5x1', '6x1', '3x2', '4x2', '5x2', '6x2'];
@@ -181,12 +180,11 @@ try {
     check(await mediaPage.inputValue('#dividend') === String(state.dividend) && await mediaPage.inputValue('#divisor') === String(state.divisor), `${preset}: ช่องตัวเลขต้องซิงก์กับโจทย์ฝึก`);
   }
 
-  const balanceStates = [];
-  for (let index = 0; index < 8; index += 1) {
-    await mediaPage.evaluate(() => window.ShortDivisionMedia.nextPractice());
-    balanceStates.push(await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState()));
-  }
-  check(balanceStates.filter((state) => state.remainderMode === 'exact').length === 4 && balanceStates.filter((state) => state.remainderMode === 'remainder').length === 4, 'โจทย์ 8 ข้อต้องกระจายลงตัว/มีเศษอย่างละ 4 ข้อ');
+  const beforeRandom = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
+  await mediaPage.click('#btnRandom');
+  const afterRandom = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
+  check(JSON.stringify(afterRandom) !== JSON.stringify(beforeRandom), 'ปุ่มสุ่มโจทย์ใหม่ต้องสร้างโจทย์ฝึกข้อใหม่');
+  await mediaPage.click('#btnPracticeNext');
   const answerState = await mediaPage.evaluate(() => window.ShortDivisionMedia.getPracticeState());
   await mediaPage.locator(`.opt[data-answer="${answerState.correct}"]`).click();
   check((await mediaPage.locator('#pfb').textContent()).includes(answerState.reason), 'ตอบแล้วต้องแสดงเหตุผลของขั้นนั้น');
