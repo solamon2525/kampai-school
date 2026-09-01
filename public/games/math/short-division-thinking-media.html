@@ -4,6 +4,7 @@
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.5/7, ค 1.1 ป.6/7" />
   <title>สื่อการสอนการหารสั้น — วิธีคิดทีละขั้น</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -172,10 +173,12 @@
     
     /* Grid System for Short Division */
     .math-grid {
+      --media-cell: 54px;
+      --media-font: 2.2rem;
       display: grid;
       font-family: 'Courier New', Courier, monospace;
       font-weight: bold;
-      font-size: 2.2rem;
+      font-size: var(--media-font);
       color: #1e293b;
       row-gap: 8px;
       user-select: none;
@@ -188,7 +191,7 @@
     }
     
     .math-cell {
-      width: 54px;
+      width: var(--media-cell);
       height: 60px;
       display: flex;
       align-items: center;
@@ -203,7 +206,7 @@
       position: absolute;
       top: 2px;
       left: 4px;
-      font-size: 1.1rem;
+      font-size: clamp(0.7rem, calc(var(--media-cell) * 0.4), 1.1rem);
       color: #dc2626; /* red */
       font-weight: 800;
     }
@@ -225,8 +228,14 @@
     .bracket-cell {
       font-family: 'Sarabun', sans-serif;
       color: #d97706;
-      font-size: 2.5rem;
+      font-size: calc(var(--media-font) * 1.15);
       font-weight: 300;
+    }
+
+    .remainder-summary {
+      font-family: 'Sarabun', sans-serif;
+      font-size: clamp(0.8rem, calc(var(--media-cell) * 0.42), 1rem);
+      white-space: nowrap;
     }
     
     /* Explain panel */
@@ -339,16 +348,20 @@
           <option value="2x1">สุ่ม 2 หลัก ÷ 1 หลัก</option>
           <option value="3x1" selected>สุ่ม 3 หลัก ÷ 1 หลัก</option>
           <option value="4x1">สุ่ม 4 หลัก ÷ 1 หลัก</option>
+          <option value="5x1">สุ่ม 5 หลัก ÷ 1 หลัก</option>
+          <option value="6x1">สุ่ม 6 หลัก ÷ 1 หลัก</option>
           <option value="3x2">สุ่ม 3 หลัก ÷ 2 หลัก</option>
           <option value="4x2">สุ่ม 4 หลัก ÷ 2 หลัก</option>
+          <option value="5x2">สุ่ม 5 หลัก ÷ 2 หลัก</option>
+          <option value="6x2">สุ่ม 6 หลัก ÷ 2 หลัก</option>
         </select>
       </div>
 
       <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
       
       <div>
-        <label class="field-label" for="dividend">ตัวตั้ง (10-9999)</label>
-        <input id="dividend" class="input-field" type="number" min="10" max="9999" value="475" />
+        <label class="field-label" for="dividend">ตัวตั้ง (10-999999)</label>
+        <input id="dividend" class="input-field" type="number" min="10" max="999999" value="475" />
       </div>
       <div>
         <label class="field-label" for="divisor">ตัวหาร (2-99)</label>
@@ -402,7 +415,7 @@
       </div>
       
       <footer class="footer">
-        <span>ตัวชี้วัด ป.4: ค 1.1 ป.4/9 · ค 1.1 ป.4/10 · ค 1.1 ป.4/11</span>
+        <span>ตัวชี้วัด: ค 1.1 ป.4/9 · ค 1.1 ป.5/7 · ค 1.1 ป.6/7</span>
         <span>คู่เกมหาร <a href="/games/math/math-han.html">math-han</a></span>
       </footer>
     </main>
@@ -442,22 +455,11 @@
         var preset = presetSelect.value;
         var dividendVal, divisorVal;
         
-        if (preset === '2x1') {
-          dividendVal = getRandomInRange(10, 99);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '3x1') {
-          dividendVal = getRandomInRange(100, 999);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '4x1') {
-          dividendVal = getRandomInRange(1000, 9999);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '3x2') {
-          dividendVal = getRandomInRange(100, 999);
-          divisorVal = getRandomInRange(10, 99);
-        } else if (preset === '4x2') {
-          dividendVal = getRandomInRange(1000, 9999);
-          divisorVal = getRandomInRange(10, 99);
-        }
+        var parts = preset.split('x');
+        var dividendDigits = Number(parts[0]);
+        var divisorDigits = Number(parts[1]);
+        dividendVal = getRandomInRange(Math.pow(10, dividendDigits - 1), Math.pow(10, dividendDigits) - 1);
+        divisorVal = divisorDigits === 2 ? getRandomInRange(10, 99) : getRandomInRange(2, 9);
         
         inputDividend.value = String(dividendVal);
         inputDivisor.value = String(divisorVal);
@@ -475,8 +477,8 @@
         var dividendVal = parseInt(inputDividend.value, 10);
         var divisorVal = parseInt(inputDivisor.value, 10);
         
-        if (isNaN(dividendVal) || dividendVal < 10 || dividendVal > 9999 || isNaN(divisorVal) || divisorVal < 2 || divisorVal > 99) {
-          alert('กรุณากรอกตัวตั้ง 10–9999 และตัวหาร 2–99');
+        if (isNaN(dividendVal) || dividendVal < 10 || dividendVal > 999999 || isNaN(divisorVal) || divisorVal < 2 || divisorVal > 99) {
+          alert('กรุณากรอกตัวตั้ง 10–999999 และตัวหาร 2–99');
           return;
         }
 
@@ -609,9 +611,15 @@
           tempRem = rem;
         }
 
-        // Add remainder label next to quotient if remainder exists
+        // Keep the final remainder below the quotient so it never steals a digit column.
         if (finalRemainder > 0) {
-          activeCells.push({ r: 1, c: D + 1 + N, val: 'เศษ ' + finalRemainder, class: 'cell-highlight-quotient cell-line-double-below', styleWidth: '150px' });
+          activeCells.push({
+            r: 2,
+            c: Math.max(D + 1, D + N - 2),
+            val: 'เศษ ' + finalRemainder,
+            class: 'remainder-summary cell-highlight-quotient cell-line-double-below',
+            styleWidth: 'summary'
+          });
         }
 
         // Final answer step
@@ -639,10 +647,15 @@
         var divisorStr = String(divisorVal);
         var N = dividendStr.length;
         var D = divisorStr.length;
-        var W = D + 1 + N + (dividendVal % divisorVal > 0 ? 2 : 0);
+        var W = D + 1 + N;
+        var contentWidth = Math.max(180, mathGrid.parentElement.clientWidth - 48);
+        var cellSize = Math.max(20, Math.min(54, Math.floor(contentWidth / W)));
+        var fontSize = cellSize <= 24 ? '1.1rem' : (cellSize <= 30 ? '1.35rem' : (cellSize <= 40 ? '1.75rem' : '2.2rem'));
 
         mathGrid.innerHTML = '';
-        mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', 54px)';
+        mathGrid.style.setProperty('--media-cell', cellSize + 'px');
+        mathGrid.style.setProperty('--media-font', fontSize);
+        mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', ' + cellSize + 'px)';
 
         // Render cells
         cells.forEach(function (c) {
@@ -653,7 +666,7 @@
           cellDiv.textContent = c.val || '';
           
           if (c.styleWidth) {
-            cellDiv.style.width = c.styleWidth;
+            cellDiv.style.width = Math.min(150, cellSize * 3) + 'px';
             cellDiv.style.gridColumnEnd = 'span 3';
           }
           
@@ -680,6 +693,10 @@
         
         window._lastSpeech = step.speech;
       }
+
+      window.addEventListener('resize', function () {
+        if (traceSteps.length) renderStep(currentStepIndex);
+      });
 
       // TTS triggers
       function speak() {
