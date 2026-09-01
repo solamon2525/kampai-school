@@ -206,6 +206,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   color:#FFE082;white-space:nowrap;letter-spacing:0.02em;
 }
 #wfront .wf-emoji{margin-right:0.18em}
+#wfront .wf-image{width:min(34vh,52vw);height:min(34vh,52vw)}
 .front-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh}
 #wfront-sub{
   font-size:6.5vh;font-weight:700;line-height:1;
@@ -284,6 +285,16 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   grid-auto-flow:column;
   gap:0.5vh 0.8vw;
 }
+#grid.visual-grid{
+  --visual-cols:3;
+  --visual-rows:2;
+  --visual-card-size:220px;
+  grid-template-columns:repeat(var(--visual-cols),var(--visual-card-size));
+  grid-template-rows:repeat(var(--visual-rows),var(--visual-card-size));
+  grid-auto-flow:row;
+  place-content:center;
+  gap:clamp(8px,1.2vh,14px);
+}
 .cell{
   position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.2vh;
@@ -293,7 +304,17 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s,background 0.15s;
   overflow:hidden;
 }
-.cell .emoji{font-size:6vh;line-height:1}
+.cell.visual-card{aspect-ratio:1/1;gap:clamp(3px,0.6vh,8px);padding:clamp(6px,1vh,12px)}
+.cell-visual{
+  width:72%;height:58%;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.cell .emoji{font-size:clamp(54px,8vh,104px);line-height:1}
+.vocab-image{display:block;width:100%;height:100%;object-fit:contain}
+.image-fallback{display:none}
+.image-failed>.vocab-image{display:none}
+.image-failed>.image-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.cell-image{filter:drop-shadow(0 6px 8px rgba(0,0,0,0.2))}
 /* Default highlight (non-color topics) */
 .cell.hl{
   background:#FFD700;
@@ -321,9 +342,10 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   white-space:nowrap;
 }
 .cell-reading{
-  color:#FFE082;font-size:clamp(13px,1.8vh,18px);font-weight:700;line-height:1.15;
+  color:#FFE082;font-size:clamp(15px,2.1vh,20px);font-weight:700;line-height:1.15;
   text-align:center;padding:0 3.4em;white-space:normal;
 }
+#grid.hide-readings .cell-reading{display:none}
 
 /* Grid Header & Mute Controls */
 #grid-header {
@@ -366,6 +388,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   border-color: rgba(255,224,130,0.6);
   transform: scale(1.04);
 }
+.grid-ctrl-btn.on{background:#FFE082;color:#12305f;border-color:#FFE082}
 .cell-spk {
   position: absolute;
   top: 6px;
@@ -454,6 +477,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   border-radius:18px;border:2px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);
 }
 .q-prompt .qp-emoji{font-size:18vh;line-height:1}
+.q-prompt .qp-image{width:min(28vh,46vw);height:min(28vh,46vw)}
 .q-prompt .qp-label{font-size:9vh;font-weight:700;color:#FFE082;line-height:1}
 .q-prompt .qp-mean{font-size:9vh;font-weight:700;color:#FFE082;line-height:1.05;text-align:center;padding:0 2vw}
 .q-prompt .qp-swatch{width:26vh;height:26vh;border-radius:24px;border:3px solid rgba(255,255,255,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35)}
@@ -480,6 +504,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   box-shadow:0 2px 6px rgba(0,0,0,0.3);
 }
 .opt .opt-emoji{font-size:7vh;line-height:1}
+.opt .opt-image{width:8vh;height:8vh;flex:0 0 auto}
 .opt .opt-swatch{width:8vh;height:8vh;border-radius:16px;border:2px solid rgba(255,255,255,0.6)}
 .opt:hover{background:rgba(255,255,255,0.16)}
 .opt.ok{border-color:#43A047;background:rgba(67,160,71,0.35);color:#C8E6C9}
@@ -497,6 +522,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   transition:background 0.12s,border-color 0.12s,transform 0.12s,box-shadow 0.12s;
 }
 .mcard .mc-emoji{font-size:6vh;line-height:1}
+.mcard .mc-image{width:7vh;height:7vh;flex:0 0 auto}
 .mcard:hover{background:rgba(255,255,255,0.16)}
 .mcard.sel{
   border-color:#ffffff !important;
@@ -512,6 +538,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 .spell-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;cursor:pointer}
 .sp-visual{height:18vh;display:flex;align-items:center;justify-content:center}
 .sp-visual .sp-emoji{font-size:16vh;line-height:1}
+.sp-visual .sp-image{width:18vh;height:18vh}
 .sp-visual .sp-swatch{width:18vh;height:18vh;border-radius:50%;border:3px solid rgba(255,255,255,0.4);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
 .sp-letters{display:flex;gap:1.4vw;justify-content:center;flex-wrap:wrap;max-width:94vw}
 .sp-letter{
@@ -855,19 +882,25 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   #btn-star{top:6px;right:48px;width:34px;height:34px;font-size:16px}
 
   /* AUTO GRID / CELLS */
-  .cell .emoji{font-size:34px}
+  #grid.visual-grid{--visual-cols:2;--visual-rows:2;gap:8px;padding:4px}
+  .cell.visual-card{padding:6px}
+  .cell-visual{width:70%;height:55%}
+  .cell .emoji{font-size:clamp(48px,16vw,76px)}
   .lbl{font-size:clamp(18px,5.5vw,30px);white-space:normal}
-  .cell-reading{font-size:13px;padding:0 42px}
+  .cell-reading{font-size:14px;padding:0 42px}
+  .cell.visual-card .cell-star,.cell.visual-card .cell-spk{width:44px;height:44px;font-size:18px}
 
   /* CHOICE / LISTEN */
   .q-prompt{flex:0 0 auto;min-height:120px}
   .q-prompt .qp-emoji{font-size:80px}
+  .q-prompt .qp-image{width:110px;height:110px}
   .q-prompt .qp-label,.q-prompt .qp-mean{font-size:34px}
   .q-prompt .qp-swatch{width:110px;height:110px}
   .q-listen{font-size:48px;width:120px;height:120px}
   .opt{font-size:22px;padding:10px}
   .opt .opt-key{width:34px;height:34px;font-size:20px}
   .opt .opt-emoji{font-size:40px}
+  .opt .opt-image{width:44px;height:44px}
   .opt .opt-swatch{width:44px;height:44px}
 
   /* MATCH */
@@ -875,11 +908,13 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .mcol{max-width:46vw}
   .mcard{font-size:18px;min-height:64px}
   .mcard .mc-emoji{font-size:34px}
+  .mcard .mc-image{width:42px;height:42px}
 
   /* SPELL */
   .spell-wrap{gap:14px}
   .sp-visual{height:90px}
   .sp-visual .sp-emoji{font-size:80px}
+  .sp-visual .sp-image{width:90px;height:90px}
   .sp-visual .sp-swatch{width:90px;height:90px}
   .sp-letters{gap:2vw;max-width:96vw}
   .sp-letter{min-width:clamp(34px,11vw,52px);height:64px;font-size:clamp(26px,9vw,40px)}
@@ -979,7 +1014,8 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
         <button type="button" class="scope-btn" data-vocab-scope="all" aria-pressed="false">ทั้งหมด</button>
       </div>
     </div>
-    <div style="display:flex; gap:8px;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+      <button class="grid-ctrl-btn" id="btn-reading" type="button" aria-pressed="true" title="แสดงหรือซ่อนคำอ่านภาษาไทยบนการ์ด">คำอ่าน: เปิด</button>
       <button class="grid-ctrl-btn" id="btn-mute-all" title="ปิดเสียงอ่านของทุกคำในหมวดนี้">🔇 ปิดเสียงทั้งหมด</button>
       <button class="grid-ctrl-btn" id="btn-unmute-all" title="เปิดเสียงอ่านของทุกคำในหมวดนี้">🔊 เปิดเสียงทั้งหมด</button>
     </div>
@@ -1508,6 +1544,12 @@ Object.entries(EXTENDED_TOPICS).forEach(([slug, items]) => {
   if (!TOPICS[slug]) TOPICS[slug] = [];
   TOPICS[slug].push(...items);
 });
+const FRUIT_IMAGE_BASE = './vocab-hub-assets/fruits/';
+const FRUIT_IMAGES = window.VOCAB_HUB_FRUIT_IMAGES || {};
+(TOPICS.fruits || []).forEach(item => {
+  const file = FRUIT_IMAGES[item.en];
+  if (file) item.image = FRUIT_IMAGE_BASE + file;
+});
 window.VOCAB_HUB_TOPIC_META = TOPIC_META;
 window.VOCAB_HUB_TOPICS = TOPICS;
 
@@ -1524,6 +1566,7 @@ const scopeControls = document.getElementById('scope-controls');
 const scopeButtons = Array.from(document.querySelectorAll('[data-vocab-scope]'));
 const btnMuteAll   = document.getElementById('btn-mute-all');
 const btnUnmuteAll = document.getElementById('btn-unmute-all');
+const btnReading   = document.getElementById('btn-reading');
 const btnStar      = document.getElementById('btn-star');
 const playEl    = document.getElementById('play');
 const tcard     = document.getElementById('tcard');
@@ -1601,7 +1644,7 @@ let flashDeck = [], flashKnown = new Set(), flashTotal = 0, flashRevealVariant =
 let flashReviewCount = {};       // index → จำนวนครั้งที่กด "ทบทวน" (สถิติคำที่ยังไม่แม่น)
 let flashStartTime = 0, flashTimer = null;   // จับเวลาต่อกอง
 const thSide = it => it.meaning || it.label;       // ฝั่งไทย/คำตอบ: meaning ถ้ามี ไม่งั้น label (numbers=เลข, alphabet=ตัวอักษร)
-const hasVisual = it => !!(it.emoji || it.bgColor);
+const hasVisual = it => !!(it.image || it.emoji || it.bgColor);
 
 // True/False state
 let tfOrder = [], tfPos = 0, tfScore = 0, tfLen = 0, tfCurrentAnswer = true, tfLock = false;
@@ -1669,12 +1712,16 @@ function fmtTime(ms){
   return m + ':' + String(s%60).padStart(2,'0');
 }
 let currentSlug = '', allItems = [], slides = [], slideEls = [], dotElArr = [];
-let isColorTopic = false, ips = 10, curItem = null, cellLabelFs = '10vh';
+let isColorTopic = false, isVisualTopic = false, ips = 10, curItem = null, cellLabelFs = '10vh';
 let vocabScope = (()=>{
   try { return localStorage.getItem('vocab_hub_scope') === 'all' ? 'all' : 'basic'; }
   catch(_){ return 'basic'; }
 })();
 let audioOn = true;
+let showThaiReading = (()=>{
+  try { return localStorage.getItem('vocab_hub_show_thai_reading') !== 'false'; }
+  catch(_){ return true; }
+})();
 let voiceMode = 'en';   // 'en' = อังกฤษ · 'th' = ไทย · 'both' = อังกฤษ + ไทย
 const VOICE_MODE_KEY_PREFIX = 'vocab_hub_voice_mode_';
 // choice/listen
@@ -1892,6 +1939,24 @@ function topicItemsForScope(slug){
   const items = TOPICS[slug] || [];
   return vocabScope === 'all' ? items : items.filter(item => itemLevel(item) === 'basic');
 }
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[ch]);
+}
+function imageMarkup(item, sizeClass, fallbackClass){
+  if(!item.image) return '';
+  const fallback = item.emoji || item.meaning || 'รูปภาพ';
+  return `<span class="image-asset ${sizeClass}">`
+    + `<img class="vocab-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.meaning || item.label)}" loading="lazy" decoding="async">`
+    + `<span class="image-fallback ${fallbackClass}">${escapeHtml(fallback)}</span>`
+    + `</span>`;
+}
+document.addEventListener('error',event=>{
+  if(event.target instanceof HTMLImageElement && event.target.classList.contains('vocab-image')){
+    event.target.parentElement?.classList.add('image-failed');
+  }
+},true);
 function syncScopeControls(slug){
   const source = TOPICS[slug] || [];
   const hasExtended = slug !== 'starred' && source.some(item => itemLevel(item) === 'extended');
@@ -1978,7 +2043,8 @@ function showHub(){
 // =====================================================================
 // TOPIC SETUP
 // =====================================================================
-function getIps(count){
+function getIps(count, visualTopic=false){
+  if(visualTopic) return matchMedia('(max-width: 768px)').matches ? Math.min(count,4) : Math.min(count,6);
   if(count<=10) return count;
   if(count<=12) return 6;
   return 10;
@@ -1986,18 +2052,32 @@ function getIps(count){
 function buildCell(item, sIdx, cIdx){
   const el=document.createElement('div');
   const isColor = isColorTopic || (currentSlug === 'starred' && item.sourceSlug === 'colors');
-  el.className='cell'+(isColor?' color-cell':'');
+  el.className='cell'+(isColor?' color-cell':'')+(isVisualTopic?' visual-card':'')+(!hasVisual(item)&&isVisualTopic?' text-visual-card':'');
   if(isColor&&item.bgColor){ el.style.background=item.bgColor; el.style.borderColor='rgba(255,255,255,0.28)'; }
-  if(item.emoji){ const em=document.createElement('span'); em.className='emoji'; em.innerHTML=item.emoji; el.appendChild(em); }
+  if(item.image || item.emoji){
+    const visual=document.createElement('span'); visual.className='cell-visual';
+    if(item.image){
+      const img=document.createElement('img');
+      img.className='vocab-image cell-image'; img.src=item.image; img.alt=item.meaning || item.label;
+      img.loading='lazy'; img.decoding='async';
+      const fallback=document.createElement('span'); fallback.className='image-fallback emoji';
+      fallback.textContent=item.emoji || item.meaning || item.label;
+      visual.append(img,fallback);
+    }else{
+      const em=document.createElement('span'); em.className='emoji'; em.innerHTML=item.emoji; visual.appendChild(em);
+    }
+    el.appendChild(visual);
+  }
   const lbl=document.createElement('span');
   lbl.className='lbl'; lbl.textContent=item.label;
-  lbl.style.fontSize = item.emoji ? '3.4vh' : cellLabelFs;
+  lbl.style.fontSize = hasVisual(item) ? 'clamp(24px,3.4vh,42px)' : cellLabelFs;
   if(isColor&&item.darkText) lbl.style.color='#1A237E';
   el.appendChild(lbl); el._item=item;
-  if(currentSlug === 'fruits' && item.th){
+  if(isVisualTopic && item.th){
     const reading=document.createElement('span');
     reading.className='cell-reading';
     reading.textContent='คำอ่าน: '+item.th;
+    if(isColor&&item.darkText) reading.style.color='#1A237E';
     el.appendChild(reading);
   }
 
@@ -2044,6 +2124,47 @@ function buildCell(item, sIdx, cIdx){
   });
   return el;
 }
+function syncReadingVisibility(){
+  gridEl.classList.toggle('hide-readings',!showThaiReading);
+  btnReading.textContent=showThaiReading?'คำอ่าน: เปิด':'คำอ่าน: ปิด';
+  btnReading.setAttribute('aria-pressed',String(showThaiReading));
+  btnReading.classList.toggle('on',showThaiReading);
+  btnReading.style.display=isVisualTopic?'':'none';
+}
+function syncVisualGridSize(){
+  if(!isVisualTopic || mode!=='auto' || !gridEl.clientWidth || !gridEl.clientHeight) return;
+  const cols=matchMedia('(max-width: 768px)').matches?2:3;
+  const rows=2;
+  const style=getComputedStyle(gridEl);
+  const gap=parseFloat(style.columnGap)||8;
+  const padX=(parseFloat(style.paddingLeft)||0)+(parseFloat(style.paddingRight)||0);
+  const padY=(parseFloat(style.paddingTop)||0)+(parseFloat(style.paddingBottom)||0);
+  const size=Math.max(96,Math.floor(Math.min(
+    (gridEl.clientWidth-padX-gap*(cols-1))/cols,
+    (gridEl.clientHeight-padY-gap*(rows-1))/rows
+  )));
+  gridEl.style.setProperty('--visual-cols',cols);
+  gridEl.style.setProperty('--visual-rows',rows);
+  gridEl.style.setProperty('--visual-card-size',size+'px');
+}
+function rebuildTopicSlides(preserveItem){
+  ips=getIps(allItems.length,isVisualTopic);
+  slides=[];
+  for(let i=0;i<allItems.length;i+=ips) slides.push(allItems.slice(i,i+ips));
+  slideEls=slides.map((slide,sIdx)=>slide.map((item,cIdx)=>buildCell(item,sIdx,cIdx)));
+  dotsEl.innerHTML='';
+  slides.forEach(()=>{ const dot=document.createElement('div'); dot.className='dot'; dotsEl.appendChild(dot); });
+  dotElArr=Array.from(dotsEl.querySelectorAll('.dot'));
+  if(isVisualTopic){
+    gridEl.style.gridTemplateRows='';
+  }else{
+    gridEl.style.gridTemplateRows=`repeat(${Math.ceil(ips/2)}, 1fr)`;
+  }
+  const preservedIndex=preserveItem?allItems.indexOf(preserveItem):-1;
+  const activeIndex=preservedIndex>=0?preservedIndex:0;
+  curSlide=Math.floor(activeIndex/ips);
+  curCell=activeIndex%ips;
+}
 function showTopic(slug){
   let items;
   if(slug==='starred'){
@@ -2053,7 +2174,13 @@ function showTopic(slug){
       if (saved) list = JSON.parse(saved);
     } catch(e) {}
     TOPICS['starred'] = list;
-    items = list.map(item=>({...item}));
+    items = list.map(item=>{
+      const copy={...item};
+      if(!copy.image && copy.sourceSlug==='fruits' && FRUIT_IMAGES[copy.en]){
+        copy.image=FRUIT_IMAGE_BASE+FRUIT_IMAGES[copy.en];
+      }
+      return copy;
+    });
   } else {
     items = topicItemsForScope(slug).map(item=>({...item}));
   }
@@ -2062,7 +2189,8 @@ function showTopic(slug){
   curSlide=0; curCell=0;
   currentSlug=slug; allItems=items;
   isColorTopic = slug==='colors';
-  ips=getIps(items.length);
+  isVisualTopic = items.some(hasVisual);
+  gridEl.classList.toggle('visual-grid',isVisualTopic);
 
   // Load muted list for this topic
   let mutedList = [];
@@ -2090,16 +2218,10 @@ function showTopic(slug){
   syncScopeControls(slug);
 
   // ขนาดตัวอักษรในเซลล์ = อิงคำที่ยาวสุดของหมวด → ทุกเซลล์เท่ากันทั้งจอ (กันตัวเล็กใหญ่ไม่เท่า)
-  const longest=items.reduce((a,it)=>(!it.emoji&&it.label.length>a.length)?it.label:a,'');
+  const longest=items.reduce((a,it)=>(!hasVisual(it)&&it.label.length>a.length)?it.label:a,'');
   cellLabelFs = longest ? cellFontSize(longest) : '10vh';
-  slides=[];
-  for(let i=0;i<items.length;i+=ips) slides.push(items.slice(i,i+ips));
-  slideEls=slides.map((s,sIdx)=>s.map((item,cIdx)=>buildCell(item,sIdx,cIdx)));
-  dotsEl.innerHTML='';
-  slides.forEach(()=>{ const d=document.createElement('div'); d.className='dot'; dotsEl.appendChild(d); });
-  dotElArr=Array.from(dotsEl.querySelectorAll('.dot'));
-  const rows=Math.ceil(ips/2);
-  gridEl.style.gridTemplateRows=`repeat(${rows}, 1fr)`;
+  rebuildTopicSlides();
+  syncReadingVisibility();
   const meta=TOPIC_META.find(m=>m.slug===slug);
   document.title=meta?meta.title:slug;
   hubView.style.display='none';
@@ -2112,6 +2234,7 @@ function showTopic(slug){
   modeBtns.tf.style.display = (slug==='alphabet') ? 'none' : '';
   modeBtns.math.style.display = (slug==='numbers') ? '' : 'none';
   setMode('auto');
+  requestAnimationFrame(syncVisualGridSize);
 }
 
 // =====================================================================
@@ -2440,7 +2563,11 @@ function nextMathQuestion(){
 // =====================================================================
 // AUTO MODE
 // =====================================================================
-function renderSlide(sIdx){ gridEl.innerHTML=''; slideEls[sIdx].forEach(el=>gridEl.appendChild(el)); }
+function renderSlide(sIdx){
+  gridEl.innerHTML='';
+  slideEls[sIdx].forEach(el=>gridEl.appendChild(el));
+  requestAnimationFrame(syncVisualGridSize);
+}
 function applyHl(sIdx,cIdx){ slideEls[sIdx].forEach((el,i)=>el.classList.toggle('hl',i===cIdx)); }
 function setBannerAuto(item){
   tcard.classList.remove('flipped');
@@ -2610,9 +2737,9 @@ function renderFlashCard(){
   // ----- FRONT (โจทย์ตามทิศ) -----
   if(v==='th2en'){ wfront.textContent=thSide(it); wfront.style.fontSize=bannerFontSize(thSide(it)); }
   else if(v==='pic2word'){
-    wfront.innerHTML = it.emoji
-      ? `<span class="wf-emoji">${it.emoji}</span>`
-      : `<span class="wf-swatch" style="background:${it.bgColor}"></span>`;
+    wfront.innerHTML = it.image
+      ? imageMarkup(it,'wf-image','wf-emoji')
+      : (it.emoji ? `<span class="wf-emoji">${it.emoji}</span>` : `<span class="wf-swatch" style="background:${it.bgColor}"></span>`);
     wfront.style.fontSize='14vh';
   }
   else if(v==='audio2word'){ wfront.textContent='🔊'; wfront.style.fontSize='14vh'; speak(it,null,'en'); }  // ฟัง→ทาย: เล่นเสียงทันที (บังคับ EN ไม่ให้เฉลย)
@@ -2693,6 +2820,7 @@ const startChoice = startQuizGame;
 const startListen = startQuizGame;
 function glyph(item){
   const slug = item.sourceSlug || currentSlug;
+  if(item.image)   return imageMarkup(item,'opt-image','opt-emoji');
   if(item.emoji)   return `<span class="opt-emoji">${item.emoji}</span>`;
   if(item.bgColor) return `<span class="opt-swatch" style="background:${item.bgColor}"></span>`;  // หมวดสี: ตัวเลือกเป็นช่องสี
   return slug==='months' ? item.en : item.label;   // months: ชื่อเต็ม (label เป็นตัวย่อ)
@@ -2705,6 +2833,7 @@ function optLabel(item){
 }
 // โจทย์ทายคำ = cue ที่ "ไม่ใช่คำอังกฤษ" → ให้เด็กเลือกคำอังกฤษเอง (กันโจทย์เฉลยคำตอบตรงตัว)
 function quizPrompt(item){
+  if(item.image)   return imageMarkup(item,'qp-image','qp-emoji');
   if(item.emoji)   return `<span class="qp-emoji">${item.emoji}</span>`;        // รูป (สัตว์/ผลไม้/ร่างกาย/รูปทรง/ครอบครัว)
   if(item.bgColor) return `<span class="qp-swatch" style="background:${item.bgColor}"></span>`; // ช่องสี (สี)
   if(item.meaning) return `<span class="qp-mean">${item.meaning}</span>`;        // คำแปลไทย (วัน/เดือน)
@@ -2786,7 +2915,10 @@ function startMatch(){
   renderMatchRound();
 }
 function matchCardInner(item, side){
-  if(side==='l'){ return item.emoji ? `<span class="mc-emoji">${item.emoji}</span><span>${item.label}</span>` : item.label; }
+  if(side==='l'){
+    if(item.image) return imageMarkup(item,'mc-image','mc-emoji')+`<span>${escapeHtml(item.label)}</span>`;
+    return item.emoji ? `<span class="mc-emoji">${item.emoji}</span><span>${item.label}</span>` : item.label;
+  }
   const slug = item.sourceSlug || currentSlug;
   return item.meaning || (slug==='numbers' ? item.en : item.th);   // ขวา = คำแปล / numbers=คำอังกฤษ / alphabet=คำอ่าน
 }
@@ -3443,6 +3575,7 @@ function renderSpell(){
 
   let visual='';
   if(item.bgColor) visual = `<span class="sp-swatch" style="background:${item.bgColor}"></span>`;
+  else if(item.image) visual = imageMarkup(item,'sp-image','sp-emoji');
   else if(item.emoji) visual = `<span class="sp-emoji">${item.emoji}</span>`;
 
   const lettersHtml = letters.map((ch,i)=>`<span class="sp-letter" data-i="${i}">${ch}</span>`).join('');
@@ -3584,6 +3717,35 @@ scopeButtons.forEach(btn=>btn.addEventListener('click',e=>{
   if(currentSlug && currentSlug !== 'starred') showTopic(currentSlug);
   else buildHub();
 }));
+btnReading.addEventListener('click',e=>{
+  e.stopPropagation();
+  showThaiReading=!showThaiReading;
+  try{ localStorage.setItem('vocab_hub_show_thai_reading',String(showThaiReading)); }catch(_){}
+  syncReadingVisibility();
+});
+let visualResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(visualResizeTimer);
+  visualResizeTimer=setTimeout(()=>{
+    if(!currentSlug || !isVisualTopic || mode!=='auto') return;
+    const nextIps=getIps(allItems.length,true);
+    if(nextIps!==ips){
+      const preserved=curItem;
+      clearTimeout(timer);
+      if(window.speechSynthesis) speechSynthesis.cancel();
+      autoPaused=true;
+      btnPause.textContent='▶'; btnPause.classList.add('on');
+      rebuildTopicSlides(preserved);
+      renderSlide(curSlide);
+      dotElArr[curSlide]?.classList.add('active');
+      applyHl(curSlide,curCell);
+      curItem=slides[curSlide][curCell];
+      setBannerAuto(curItem);
+      updateBannerStar();
+    }
+    syncVisualGridSize();
+  },100);
+});
 wordEl.addEventListener('click',e=>{
   const part = e.target.closest('[data-phonics-part]');
   if(!part) return;
@@ -3692,6 +3854,7 @@ function toggleStarItem(item){
         th: item.th,
         meaning: item.meaning,
         label: item.label,
+        image: item.image,
         emoji: item.emoji,
         bgColor: item.bgColor,
         darkText: item.darkText,

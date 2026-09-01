@@ -1,5 +1,7 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import vm from 'node:vm';
+import sharp from 'sharp';
 
 const htmlPath = 'public/games/english/vocab-hub.html';
 const dataPath = 'public/games/english/vocab-hub-data.js';
@@ -22,6 +24,11 @@ vm.runInContext(dataCode, context);
 const topics = context.base;
 const extended = context.window.VOCAB_HUB_EXTENDED_TOPICS || {};
 Object.entries(extended).forEach(([slug, items]) => topics[slug].push(...items));
+const fruitImages = context.window.VOCAB_HUB_FRUIT_IMAGES || {};
+Object.entries(fruitImages).forEach(([en, file]) => {
+  const item = topics.fruits.find(candidate => candidate.en === en);
+  if (item) item.image = `./vocab-hub-assets/fruits/${file}`;
+});
 
 const fixedCounts = { numbers: 100, days: 7, months: 12, alphabet: 26, seasons: 4 };
 const metaSlugs = context.meta.map(item => item.slug);
@@ -29,11 +36,17 @@ const errors = [];
 
 if (metaSlugs.length !== 28) errors.push(`ต้องมี 28 หมวด แต่พบ ${metaSlugs.length}`);
 if (new Set(metaSlugs).size !== metaSlugs.length) errors.push('พบ slug ซ้ำใน TOPIC_META');
-if (!/className='cell-reading'/.test(html) || !/reading\.textContent='คำอ่าน: '/.test(html)) {
-  errors.push('fruits: กริดต้องแสดงคำอ่านภาษาไทยด้วย .cell-reading');
+if (!/className='cell-reading'/.test(html) || !/isVisualTopic && item\.th/.test(html)) {
+  errors.push('visual topics: กริดต้องแสดงคำอ่านภาษาไทยด้วย .cell-reading');
 }
 if (!/currentSlug === 'fruits' && item\.th[\s\S]{0,120}'คำอ่าน: '\+item\.th/.test(html)) {
   errors.push('fruits: การ์ดหลักต้องแสดงคำอ่านภาษาไทยใต้คำอังกฤษ');
+}
+if (!/vocab_hub_show_thai_reading/.test(html) || !/id="btn-reading"/.test(html)) {
+  errors.push('visual topics: ขาดตัวเลือกเปิด/ปิดคำอ่านที่จำค่า global');
+}
+if (!/const hasVisual = it => !!\(it\.image \|\| it\.emoji \|\| it\.bgColor\)/.test(html)) {
+  errors.push('visual topics: hasVisual ต้องรองรับ image');
 }
 
 for (const slug of metaSlugs) {
@@ -66,6 +79,28 @@ const total = Object.values(topics).reduce((sum, items) => sum + items.length, 0
 const extendedTotal = Object.values(extended).reduce((sum, items) => sum + items.length, 0);
 if (total !== 839) errors.push(`คำศัพท์รวมต้องเป็น 839 แต่พบ ${total}`);
 if (extendedTotal !== 467) errors.push(`คำต่อยอดต้องเป็น 467 แต่พบ ${extendedTotal}`);
+
+if (Object.keys(fruitImages).length !== 30) {
+  errors.push(`fruits: ต้องมี image mapping 30 คำ แต่พบ ${Object.keys(fruitImages).length}`);
+}
+if (new Set(Object.values(fruitImages)).size !== Object.keys(fruitImages).length) {
+  errors.push('fruits: พบชื่อไฟล์ภาพซ้ำ');
+}
+for (const item of topics.fruits) {
+  if (!item.image) {
+    errors.push(`fruits/${item.en}: ขาด image`);
+    continue;
+  }
+  const assetPath = path.join('public/games/english', item.image.replace(/^\.\//, ''));
+  if (!fs.existsSync(assetPath)) {
+    errors.push(`fruits/${item.en}: ไม่พบไฟล์ ${assetPath}`);
+    continue;
+  }
+  const metadata = await sharp(assetPath).metadata();
+  if (metadata.width !== 512 || metadata.height !== 512 || metadata.format !== 'webp') {
+    errors.push(`fruits/${item.en}: ภาพต้องเป็น WebP 512x512 แต่พบ ${metadata.format} ${metadata.width}x${metadata.height}`);
+  }
+}
 
 if (errors.length) {
   console.error(`Vocab Hub data verification failed (${errors.length})`);

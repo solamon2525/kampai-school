@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.2 (vocab-hub — การ์ดภาพใหญ่และภาพ fruits 30 คำ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนหมวดที่มีภาพเป็นการ์ดจัตุรัส 3×2 บนเดสก์ท็อปและ 2×2 บนมือถือ พร้อมรักษาคำเดิมเมื่อหน้าจอเปลี่ยนขนาด',
+            'เพิ่มภาพวาดการ์ตูน WebP สำหรับ fruits ครบ 30 คำ โดยแสดงเต็มภาพ ไม่ครอป และ fallback เป็น visual เดิมเมื่อโหลดไม่ได้',
+            'แสดงคำอ่านไทยในทุกหมวดที่มีภาพ พร้อมปุ่มเปิด/ปิดที่จำค่ารวมทั้งสื่อ โดยไม่เปลี่ยนโหมดเสียงหรือ phonics',
+            'อัปเดต visual renderer สำหรับ Flash, Choice, Match และ Spell พร้อม data verifier ตรวจไฟล์ WebP 512×512 และ game_docs v2.5.0',
+        ],
+    },
+    {
         version: 'v1.229.1 (vocab-hub — fruits แสดงคำอ่านภาษาไทย)',
         date: '31 ส.ค. 2569',
         badge: 'bg-emerald-600',

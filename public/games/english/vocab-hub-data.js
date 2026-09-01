@@ -290,4 +290,16 @@
       return item;
     })])
   );
+
+  window.VOCAB_HUB_FRUIT_IMAGES = Object.freeze({
+    Apple: 'apple.webp', Banana: 'banana.webp', Mango: 'mango.webp', Orange: 'orange.webp',
+    Grape: 'grape.webp', Watermelon: 'watermelon.webp', Pineapple: 'pineapple.webp',
+    Strawberry: 'strawberry.webp', Coconut: 'coconut.webp', Papaya: 'papaya.webp',
+    Cherry: 'cherry.webp', Lemon: 'lemon.webp', Lime: 'lime.webp', Pear: 'pear.webp',
+    Peach: 'peach.webp', Plum: 'plum.webp', Kiwi: 'kiwi.webp', Guava: 'guava.webp',
+    Lychee: 'lychee.webp', Rambutan: 'rambutan.webp', Mangosteen: 'mangosteen.webp',
+    Durian: 'durian.webp', 'Dragon Fruit': 'dragon-fruit.webp', Pomegranate: 'pomegranate.webp',
+    Avocado: 'avocado.webp', Blueberry: 'blueberry.webp', Raspberry: 'raspberry.webp',
+    Blackberry: 'blackberry.webp', Tangerine: 'tangerine.webp', Grapefruit: 'grapefruit.webp',
+  });
 })();
