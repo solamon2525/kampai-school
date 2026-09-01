@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.3 (vocab-hub — เพิ่ม contrast คำอ่านบนการ์ดที่เลือก)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนคำอ่านภาษาไทยบนการ์ดที่ถูกเลือกเป็นสีกรมท่า เพื่อให้อ่านชัดบนพื้นหลังสีเหลือง',
+            'เพิ่ม data verifier ป้องกันสีคำอ่านของสถานะไฮไลต์กลับไปกลืนกับพื้นหลัง และอัปเดต game_docs เป็น v2.5.1',
+        ],
+    },
+    {
         version: 'v1.229.2 (vocab-hub — การ์ดภาพใหญ่และภาพ fruits 30 คำ)',
         date: '1 ก.ย. 2569',
         badge: 'bg-emerald-600',

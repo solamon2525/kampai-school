@@ -45,6 +45,9 @@ if (!/currentSlug === 'fruits' && item\.th[\s\S]{0,120}'คำอ่าน: '\+i
 if (!/vocab_hub_show_thai_reading/.test(html) || !/id="btn-reading"/.test(html)) {
   errors.push('visual topics: ขาดตัวเลือกเปิด/ปิดคำอ่านที่จำค่า global');
 }
+if (!/\.cell\.hl \.cell-reading\{color:#1A237E\}/.test(html)) {
+  errors.push('visual topics: คำอ่านบนการ์ดไฮไลต์ต้องใช้สีกรมท่าที่อ่านชัดบนพื้นเหลือง');
+}
 if (!/const hasVisual = it => !!\(it\.image \|\| it\.emoji \|\| it\.bgColor\)/.test(html)) {
   errors.push('visual topics: hasVisual ต้องรองรับ image');
 }
