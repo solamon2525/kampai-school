@@ -99,7 +99,7 @@ try {
   const sheetHeight = await page.locator('.sheet').first().evaluate((node) => node.getBoundingClientRect().height);
   check(await page.locator('.sd-answer').first().evaluate((node) => getComputedStyle(node).visibility === 'hidden'), 'คำตอบต้องซ่อนตอนเริ่ม');
   const remainderWork = await page.locator('.sd-remainder-work').evaluateAll((nodes) => nodes.map((node) => ({ text: node.textContent, answerVisible: getComputedStyle(node.querySelector('.sd-answer')).visibility })));
-  check(remainderWork.length === defaultCards.length && remainderWork.every((item) => item.text.includes('เศษสุดท้าย') && item.answerVisible === 'hidden'), 'ทุกข้อควรมีช่องเศษสุดท้ายที่ซ่อนเฉลย');
+  check(remainderWork.length === defaultCards.length && remainderWork.every((item) => item.text.includes('เศษ =') && !item.text.includes('เศษสุดท้าย') && item.answerVisible === 'hidden'), 'ทุกข้อควรมีช่องเศษที่ซ่อนเฉลย');
   await page.click('#btnAnswerNext');
   check(await page.locator('.q').first().evaluate((node) => node.classList.contains('reveal-answer')), 'ปุ่มเฉลยถัดไปต้องเปิดทีละข้อ');
   check(Math.abs((await page.locator('.sheet').first().evaluate((node) => node.getBoundingClientRect().height)) - sheetHeight) < 0.5, 'เปิดเฉลยแล้วขนาด A4 ต้องไม่เปลี่ยน');
