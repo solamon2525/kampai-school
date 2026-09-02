@@ -24,8 +24,13 @@ import { integratedPlanService, type IntegratedPlanTopic, type TopicStatus } fro
 const STATUS: Record<TopicStatus, string> = { not_started: 'ยังไม่สอน', in_progress: 'กำลังสอน', taught: 'สอนแล้ว' };
 const topicSchema = z.object({ subject_key: z.string().min(1), title: z.string().trim().min(1).max(180), essential_concept: z.string().trim().min(1), keywords: z.string().optional(), note: z.string().optional() });
 const unitSchema = z.object({ title: z.string().trim().min(1, 'กรุณาใส่ชื่อหน่วย').max(180), note: z.string().optional() });
+const resetPinSchema = z.object({
+  pin: z.string().regex(/^\d{6}$/, 'กรุณากรอก PIN ตัวเลข 6 หลัก'),
+  confirmPin: z.string().regex(/^\d{6}$/, 'กรุณากรอก PIN ยืนยัน 6 หลัก'),
+}).refine((values) => values.pin === values.confirmPin, { path: ['confirmPin'], message: 'PIN ทั้งสองช่องไม่ตรงกัน' });
 type TopicForm = z.infer<typeof topicSchema>;
 type UnitForm = z.infer<typeof unitSchema>;
+type ResetPinForm = z.infer<typeof resetPinSchema>;
 const cycleStatus = (status: TopicStatus): TopicStatus => status === 'not_started' ? 'in_progress' : status === 'in_progress' ? 'taught' : 'not_started';
 
 const tokenize = (topic: IntegratedPlanTopic) => {
@@ -35,7 +40,13 @@ const tokenize = (topic: IntegratedPlanTopic) => {
 
 const PinGate = ({ onUnlock }: { onUnlock: () => void }) => {
   const [pin, setPin] = useState('');
+  const [resetOpen, setResetOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const resetForm = useForm<ResetPinForm>({
+    resolver: zodResolver(resetPinSchema),
+    defaultValues: { pin: '', confirmPin: '' },
+  });
   const status = useQuery({ queryKey: ['integrated-plan', 'pin-status'], queryFn: integratedPlanService.pinStatus });
   const submit = useMutation({
     mutationFn: async () => {
@@ -50,8 +61,80 @@ const PinGate = ({ onUnlock }: { onUnlock: () => void }) => {
     },
     onError: (error: Error) => toast({ title: error.message, variant: 'destructive' }),
   });
-  const reset = useMutation({ mutationFn: () => integratedPlanService.setPin(pin), onSuccess: () => { toast({ title: 'ตั้ง PIN ใหม่แล้ว' }); onUnlock(); }, onError: (error: Error) => toast({ title: error.message, variant: 'destructive' }) });
-  return <div className="flex min-h-screen items-center justify-center bg-background p-4"><Card className="w-full max-w-md border-border"><CardHeader className="text-center"><KeyRound className="mx-auto h-10 w-10 text-primary" /><CardTitle>{status.data?.has_pin ? 'ปลดล็อกแผนส่วนตัว' : 'ตั้ง PIN สำหรับอุปกรณ์นี้'}</CardTitle></CardHeader><CardContent className="space-y-4"><p className="text-center text-sm text-muted-foreground">{status.data?.has_pin ? 'กรอก PIN ตัวเลข 6 หลัก' : 'ใช้หลังจากกดรูปครู 5 ครั้งในครั้งถัดไป'}</p><Input aria-label="PIN 6 หลัก" inputMode="numeric" type="password" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ''))} className="text-center text-2xl tracking-[0.45em]" onKeyDown={(event) => event.key === 'Enter' && submit.mutate()} /><Button className="w-full" disabled={submit.isPending || status.isLoading} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}ปลดล็อก</Button>{status.data?.has_pin ? <Button variant="ghost" className="w-full text-xs" disabled={!/^\d{6}$/.test(pin) || reset.isPending} onClick={() => reset.mutate()}>ลืม PIN — ตั้งใหม่ด้วยบัญชีที่ล็อกอินอยู่</Button> : null}<Button asChild variant="outline" className="w-full"><Link to="/teacher"><ArrowLeft className="mr-2 h-4 w-4" />กลับหน้าครู</Link></Button></CardContent></Card></div>;
+  const reset = useMutation({
+    mutationFn: ({ pin: nextPin }: ResetPinForm) => integratedPlanService.setPin(nextPin),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['integrated-plan', 'pin-status'] });
+      toast({ title: 'ตั้ง PIN ใหม่แล้ว' });
+      setResetOpen(false);
+      resetForm.reset();
+      onUnlock();
+    },
+    onError: (error: Error) => toast({ title: error.message, variant: 'destructive' }),
+  });
+  const handleResetOpenChange = (open: boolean) => {
+    setResetOpen(open);
+    if (!open) resetForm.reset();
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md border-border">
+        <CardHeader className="text-center">
+          <KeyRound className="mx-auto h-10 w-10 text-primary" />
+          <CardTitle>{status.data?.has_pin ? 'ปลดล็อกแผนส่วนตัว' : 'ตั้ง PIN สำหรับอุปกรณ์นี้'}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-center text-sm text-muted-foreground">{status.data?.has_pin ? 'กรอก PIN ตัวเลข 6 หลัก' : 'ใช้หลังจากกดรูปครู 5 ครั้งในครั้งถัดไป'}</p>
+          <Input aria-label="PIN 6 หลัก" inputMode="numeric" type="password" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ''))} className="text-center text-2xl tracking-[0.45em]" onKeyDown={(event) => event.key === 'Enter' && submit.mutate()} />
+          <Button className="w-full" disabled={submit.isPending || status.isLoading} onClick={() => submit.mutate()}>
+            {submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            ปลดล็อก
+          </Button>
+          {status.data?.has_pin ? (
+            <Button variant="ghost" className="w-full text-xs" disabled={status.isLoading} onClick={() => setResetOpen(true)}>
+              ลืม PIN — ตั้งใหม่ด้วยบัญชีที่ล็อกอินอยู่
+            </Button>
+          ) : null}
+          <Button asChild variant="outline" className="w-full"><Link to="/teacher"><ArrowLeft className="mr-2 h-4 w-4" />กลับหน้าครู</Link></Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={resetOpen} onOpenChange={handleResetOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>ตั้ง PIN ใหม่</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">กำหนด PIN ตัวเลข 6 หลักใหม่สำหรับแผนส่วนตัวของบัญชีที่กำลังล็อกอิน</p>
+          <Form {...resetForm}>
+            <form onSubmit={resetForm.handleSubmit((values) => reset.mutate(values))} className="space-y-4">
+              <FormField control={resetForm.control} name="pin" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>PIN ใหม่</FormLabel>
+                  <FormControl><Input {...field} autoFocus inputMode="numeric" type="password" maxLength={6} autoComplete="new-password" onChange={(event) => field.onChange(event.target.value.replace(/\D/g, ''))} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={resetForm.control} name="confirmPin" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ยืนยัน PIN ใหม่</FormLabel>
+                  <FormControl><Input {...field} inputMode="numeric" type="password" maxLength={6} autoComplete="new-password" onChange={(event) => field.onChange(event.target.value.replace(/\D/g, ''))} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => handleResetOpenChange(false)}>ยกเลิก</Button>
+                <Button type="submit" disabled={reset.isPending}>
+                  {reset.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  ตั้ง PIN ใหม่
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
 
 const TeacherIntegratedPlan = () => {

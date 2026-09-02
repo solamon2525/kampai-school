@@ -632,6 +632,12 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - query KPI ทุกตัวต้องแสดง loading/error/retry อย่างชัดเจน; เมื่อ query ล้มเหลวห้ามใช้ `0` แทนผลจริงหรือปล่อยข้อความ “กำลังโหลด…” ค้าง
 - layout ต้องใช้ padding ตาม breakpoint, chip/action ต้อง wrap และข้อความ migration ยาวต้องตัดบรรทัดได้โดยไม่ทำให้มือถือเกิด horizontal overflow
 
+### `<PinGate />` — แผนส่วนตัวครู
+- ปุ่ม “ลืม PIN” ต้องกดได้ทันทีเมื่อบัญชีมี PIN อยู่ ห้ามผูก disabled state กับช่องกรอก PIN สำหรับปลดล็อก
+- การรีเซ็ตต้องเปิด Dialog แยก ใช้ React Hook Form + Zod ตรวจ PIN ตัวเลข 6 หลักและช่องยืนยันให้ตรงกัน
+- ตั้ง PIN ใหม่ผ่านบัญชี authenticated ที่กำลังใช้งานเท่านั้น; หลังสำเร็จ invalidate query สถานะ PIN แล้วจึงปลดล็อกหน้า
+- ห้ามแสดงหรือพยายามกู้ PIN เดิม เพราะระบบเก็บเฉพาะค่า hash
+
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |
 |---|---|---|---|---|

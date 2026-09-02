@@ -118,7 +118,7 @@ const dbGroups = [
 ];
 
 const SYSTEM_OVERVIEW_META = {
-    version: 'v1.227.6',
+    version: 'v1.229.23',
     verifiedDate: '28 ส.ค. 2569',
     verifiedIsoDate: '2026-08-28',
     productionUrl: 'https://kampai-school.vercel.app',
@@ -289,6 +289,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.229.23 (แผนส่วนตัวครู — รีเซ็ต PIN ได้ทันที)',
+        date: '2 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ปุ่มลืม PIN ที่เดิมถูกปิดจนกว่าจะกรอก PIN ในช่องปลดล็อก ให้กดเปิดขั้นตอนรีเซ็ตได้ทันที',
+            'เพิ่มหน้าต่างตั้ง PIN ใหม่และยืนยัน PIN พร้อมตรวจเลข 6 หลักและข้อความแจ้งเมื่อสองช่องไม่ตรงกัน',
+            'รีเซ็ตผ่านบัญชีครูที่ล็อกอินอยู่และ invalidate สถานะ PIN หลังบันทึกสำเร็จ',
+        ],
+    },
     {
         version: 'v1.229.22 (vocab-hub — ภาพคำพื้นฐาน 205 คำ)',
         date: '2 ก.ย. 2569',
