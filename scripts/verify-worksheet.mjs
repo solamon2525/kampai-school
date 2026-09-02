@@ -89,6 +89,8 @@ function verifyFile(file) {
                 || /printA4\s*\(/.test(readLinkedLocalAsset(source, 'worksheet-runtime.js'))),
         'ต้องมี @media print, @page A4 portrait และปุ่มเรียก window.print() หรือ KampaiWorksheet.printA4()',
     );
+    check('print runtime', !/window\.print\s*\(/.test(source), 'ต้องใช้ KampaiWorksheet.printA4() แทน window.print() โดยตรง');
+    check('work spacing', !/\.q-work-block[^{}]*justify-content\s*:\s*space-evenly/.test(effectiveSource), 'พื้นที่ทำงานต้องใช้ gap คงที่ ไม่ใช้ space-evenly');
 
     const cssVersion = extractVersion(source, 'worksheet-modes.css');
     const jsVersion = extractVersion(source, 'worksheet-modes.js');
