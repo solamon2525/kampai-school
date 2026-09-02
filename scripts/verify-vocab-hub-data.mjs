@@ -56,6 +56,36 @@ if (!/const hasVisual = it => !!\(it\.image \|\| it\.emoji \|\| it\.bgColor\)/.t
   errors.push('visual topics: hasVisual ต้องรองรับ image');
 }
 
+const removedSoundControls = [
+  'cell-spk',
+  'btn-mute-all',
+  'btn-unmute-all',
+  'btn-sound',
+  'audioOn',
+  'speakEnabled',
+  'vocab_hub_muted_',
+];
+for (const token of removedSoundControls) {
+  if (html.includes(token)) errors.push(`เสียงอ่าน: ยังพบ state/control ซ้ำซ้อน ${token}`);
+}
+if ((html.match(/id="btn-say"/g) || []).length !== 1
+    || !/btnSay\.addEventListener\('click',[\s\S]{0,120}speak\(curItem\)/.test(html)) {
+  errors.push('เสียงอ่าน: ต้องเหลือปุ่ม #btn-say เพียงจุดเดียวสำหรับอ่านคำที่เลือก');
+}
+const setHlSource = html.slice(html.indexOf('function setHl('), html.indexOf('function goTo('));
+if (!setHlSource || /\bspeak\s*\(/.test(setHlSource)) {
+  errors.push('เสียงอ่าน: การเลือกหรือเลื่อนคำผ่าน setHl ต้องไม่อ่านอัตโนมัติ');
+}
+const voiceButtonStart = html.indexOf("btnVoice.addEventListener('click'");
+const voiceButtonEnd = html.indexOf('\n});\napplyVoiceMode();', voiceButtonStart);
+const voiceButtonSource = html.slice(voiceButtonStart, voiceButtonEnd);
+if (voiceButtonStart < 0 || voiceButtonEnd < 0 || /\bspeak\s*\(/.test(voiceButtonSource)) {
+  errors.push('เสียงอ่าน: ปุ่มเปลี่ยนภาษาต้องไม่เล่นเสียงตัวอย่าง');
+}
+if (!/เลือกคำ แล้วกดลำโพงข้างคำใหญ่เพื่อฟัง/.test(html)) {
+  errors.push('เสียงอ่าน: คำแนะนำต้องชี้ไปยังปุ่มอ่านด้านบนเพียงจุดเดียว');
+}
+
 for (const slug of metaSlugs) {
   const items = topics[slug];
   if (!Array.isArray(items)) {

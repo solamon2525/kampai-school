@@ -30,21 +30,37 @@ window.KampaiMatch = window.KampaiMatch || {
   }
 };
 </script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KampaiVersus = window.KampaiVersus || {
+  create: function(options) {
+    const online = window.KampaiMatch && window.KampaiMatch.create
+      ? window.KampaiMatch.create(options)
+      : null;
+    return {
+      available: false,
+      openMenu: function() { if (online) online.openMenu(); },
+      report: function(score, info) { if (online) online.report(score, info); },
+      finish: function(score, info) {
+        if (!online) return false;
+        online.finish(score, info);
+        return true;
+      },
+      leave: function() { if (online) online.leave(); },
+      mode: null
+    };
+  }
+};
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>คำศัพท์ภาษาอังกฤษ</title>
 <script>
-// เกมไม่ควรถูก Service Worker ของ SPA คุมเลย — ถ้ามี SW เก่าค้างคุมหน้านี้อยู่ (เคยเล่นก่อน fix)
-// ให้ปลดทันที + รีโหลด 1 ครั้งเพื่อให้โหลดสดจาก network (กัน "ต้องฮาร์ดรีเฟรชถึงเห็นของใหม่")
+// เกมไม่ควรถูก Service Worker ของ SPA คุม จึงปลด registration โดยไม่ reload iframe
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function (regs) {
     if (!regs.length) return;
-    var wasControlled = !!navigator.serviceWorker.controller;
     regs.forEach(function (r) { r.unregister(); });
-    if (wasControlled && !sessionStorage.getItem('kampai_sw_unregistered')) {
-      sessionStorage.setItem('kampai_sw_unregistered', '1');
-      location.reload();
-    }
   }).catch(function () {});
 }
 </script>
@@ -52,6 +68,9 @@ if ('serviceWorker' in navigator) {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidden;user-select:none;
   font-family:'TH Sarabun New',Sarabun,Arial,sans-serif}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
 
 /* ===== PLAYER CHIP ===== */
 #player-chip{
@@ -390,35 +409,6 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   transform: scale(1.04);
 }
 .grid-ctrl-btn.on{background:#FFE082;color:#12305f;border-color:#FFE082}
-.cell-spk {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 10;
-  width: 4.2vh;
-  height: 4.2vh;
-  min-width: 26px;
-  min-height: 26px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(0,0,0,0.45);
-  color: rgba(255,255,255,0.4);
-  font-size: 1.8vh;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-}
-.cell-spk:hover {
-  transform: scale(1.1);
-  background: rgba(0,0,0,0.65);
-}
-.cell-spk.active {
-  color: #FFD700;
-  border-color: rgba(255,215,0,0.5);
-  background: rgba(255,215,0,0.15);
-}
 .cell-star {
   position: absolute;
   top: 6px;
@@ -889,7 +879,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .cell .emoji{font-size:clamp(48px,16vw,76px)}
   .lbl{font-size:clamp(18px,5.5vw,30px);white-space:normal}
   .cell-reading{font-size:14px;padding:0 42px}
-  .cell.visual-card .cell-star,.cell.visual-card .cell-spk{width:44px;height:44px;font-size:18px}
+  .cell.visual-card .cell-star{width:44px;height:44px;font-size:18px}
 
   /* CHOICE / LISTEN */
   .q-prompt{flex:0 0 auto;min-height:120px}
@@ -933,7 +923,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .fv{font-size:13px;padding:7px 11px}
   #flash-reset{font-size:15px;padding:7px 10px}
   #speed label,#flash-variant label{font-size:13px}
-  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen,.cell-spk,.grid-ctrl-btn,.cell-star{touch-action:manipulation}
+  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen,.grid-ctrl-btn,.cell-star{touch-action:manipulation}
 
   /* OVERLAYS */
   #win .win-emoji{font-size:90px}
@@ -966,7 +956,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   <!-- แดชบอด (โปรไฟล์/สถิติ/อันดับ) แยกออกไปเป็นหน้าต่างหาก /play/vocab-hub/dashboard -->
   <div style="text-align:center;margin-bottom:1.2vh;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
     <button id="btn-back-hub" onclick="KAMPAI.goHome()"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;
+      style="display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 22px;border-radius:12px;
         border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
         color:#FFE082;font-size:2vh;font-weight:700;cursor:pointer;
         font-family:inherit;transition:background 0.15s,transform 0.1s,border-color 0.15s"
@@ -974,7 +964,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       onmouseout="this.style.background='rgba(255,224,130,0.1)';this.style.borderColor='rgba(255,224,130,0.35)';this.style.transform='scale(1)'"
     >⬅ กลับหน้ารวมเกม</button>
     <a id="btn-dashboard" href="/play/vocab-hub/dashboard" target="_top"
-      style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;border-radius:12px;text-decoration:none;
+      style="display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 22px;border-radius:12px;text-decoration:none;
         border:2px solid rgba(255,224,130,0.35);background:rgba(255,224,130,0.1);
         color:#FFE082;font-size:2vh;font-weight:700;cursor:pointer;
         font-family:inherit;transition:background 0.15s,transform 0.1s,border-color 0.15s"
@@ -989,7 +979,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
 <div id="topic-view">
   <div id="word">
     <button id="btn-star" title="บันทึกคำศัพท์โปรด/คำยาก">☆</button>
-    <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
+    <button id="btn-say" title="อ่านคำที่เลือก" aria-label="อ่านคำที่เลือก">🔊</button>
     <div id="voice-mode-pill" aria-live="polite"></div>
     <div id="tcard">
       <div class="tface tfront"><div class="front-col"><span id="wfront"></span><span id="wfront-sub"></span></div></div>
@@ -1008,7 +998,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   </div>
   <div id="grid-header">
     <div class="grid-header-copy">
-      <span class="grid-header-title">ฝึกอ่านเฉพาะคำที่เลือก (คลิก 🔊 ที่การ์ดเพื่อเปิด/ปิดเสียง)</span>
+      <span class="grid-header-title">เลือกคำ แล้วกดลำโพงข้างคำใหญ่เพื่อฟัง</span>
       <div id="scope-controls" aria-label="เลือกชุดคำศัพท์">
         <span class="scope-label">ชุดคำ</span>
         <button type="button" class="scope-btn" data-vocab-scope="basic" aria-pressed="true">พื้นฐาน</button>
@@ -1017,8 +1007,6 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     </div>
     <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
       <button class="grid-ctrl-btn" id="btn-reading" type="button" aria-pressed="true" title="แสดงหรือซ่อนคำอ่านภาษาไทยบนการ์ด">คำอ่าน: เปิด</button>
-      <button class="grid-ctrl-btn" id="btn-mute-all" title="ปิดเสียงอ่านของทุกคำในหมวดนี้">🔇 ปิดเสียงทั้งหมด</button>
-      <button class="grid-ctrl-btn" id="btn-unmute-all" title="เปิดเสียงอ่านของทุกคำในหมวดนี้">🔊 เปิดเสียงทั้งหมด</button>
     </div>
   </div>
   <div id="grid"></div>
@@ -1072,8 +1060,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
       <button class="cbtn mbtn" id="m-fliprace">⚡ Flip Race</button>
       <button class="cbtn mbtn" id="m-wordsearch">🧩 หาคำ</button>
       <button class="cbtn mbtn" id="m-math">➕ Math Question</button>
-      <button class="cbtn mbtn" id="m-online">⚔️ แข่งออนไลน์</button>
-      <button class="cbtn" id="btn-sound">🔊 เสียง</button>
+      <button class="cbtn mbtn" id="m-online">⚔️ แข่ง 2 คน</button>
       <button class="cbtn on" id="btn-voice" title="เลือกภาษาเสียงอ่าน">🎙️ EN</button>
     </div>
     <div id="dotsnav">
@@ -1102,7 +1089,12 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   </div>
 </div>
 
-<div id="toast"></div>
+  <div id="toast"></div>
+  <div hidden aria-hidden="true">
+    <button type="button" data-kampai-action="start">เริ่มทดสอบ</button>
+    <button type="button" data-kampai-action="finish-test">จบทดสอบ</button>
+    <button type="button" data-kampai-action="restart">เริ่มรอบทดสอบใหม่</button>
+  </div>
 <div id="win">
   <div class="win-emoji">🎉</div>
   <div class="win-text">เก่งมาก!</div>
@@ -1565,8 +1557,6 @@ const gridEl    = document.getElementById('grid');
 const gridHeader   = document.getElementById('grid-header');
 const scopeControls = document.getElementById('scope-controls');
 const scopeButtons = Array.from(document.querySelectorAll('[data-vocab-scope]'));
-const btnMuteAll   = document.getElementById('btn-mute-all');
-const btnUnmuteAll = document.getElementById('btn-unmute-all');
 const btnReading   = document.getElementById('btn-reading');
 const btnStar      = document.getElementById('btn-star');
 const playEl    = document.getElementById('play');
@@ -1607,7 +1597,6 @@ const wsWordsList = document.getElementById('ws-words-list');
 const flashVarDiv = document.getElementById('flash-variant');
 const btnHome   = document.getElementById('btn-home');
 const btnSay    = document.getElementById('btn-say');
-const btnSound  = document.getElementById('btn-sound');
 const btnVoice  = document.getElementById('btn-voice');
 const voiceModePill = document.getElementById('voice-mode-pill');
 const toastEl   = document.getElementById('toast');
@@ -1718,7 +1707,6 @@ let vocabScope = (()=>{
   try { return localStorage.getItem('vocab_hub_scope') === 'all' ? 'all' : 'basic'; }
   catch(_){ return 'basic'; }
 })();
-let audioOn = true;
 let showThaiReading = (()=>{
   try { return localStorage.getItem('vocab_hub_show_thai_reading') !== 'false'; }
   catch(_){ return true; }
@@ -1772,14 +1760,9 @@ function _speakOne(text, lang, voice, rate, onDone){
     speechSynthesis.speak(u);
   } catch(_){ if(onDone) onDone(); }
 }
-function speak(item, onDone, force){
-  if (!audioOn || !window.speechSynthesis){ if(onDone) onDone(); return; }
-  if (mode === 'auto' && !force && item && item.speakEnabled === false) {
-    try { speechSynthesis.cancel(); } catch(_) {}
-    if(onDone) onDone();
-    return;
-  }
-  const m = force === true ? voiceMode : (force || voiceMode);
+function speak(item, onDone, voiceOverride){
+  if (!window.speechSynthesis){ if(onDone) onDone(); return; }
+  const m = ['en','th','both'].includes(voiceOverride) ? voiceOverride : voiceMode;
   try {
     speechSynthesis.cancel();
     if(m === 'th'){
@@ -1795,7 +1778,7 @@ function speak(item, onDone, force){
 }
 // อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
 function speakLetter(ch, onDone){
-  if(!audioOn || !window.speechSynthesis){ if(onDone) onDone(); return; }
+  if(!window.speechSynthesis){ if(onDone) onDone(); return; }
   try {
     const u = new SpeechSynthesisUtterance(ch);
     u.lang='en-US'; if(enVoice) u.voice=enVoice; u.rate=0.8;
@@ -1806,7 +1789,6 @@ function speakLetter(ch, onDone){
 let actx = null;
 function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){}} return actx; }
 function tone(freq, start, dur, type='sine', vol=0.16){
-  if(!audioOn) return;
   const c = ac(); if(!c) return;
   const o=c.createOscillator(), g=c.createGain();
   o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
@@ -2096,32 +2078,13 @@ function buildCell(item, sIdx, cIdx){
   });
   el.appendChild(starBtn);
 
-  // Speaker button to toggle sound for this word
-  const spkBtn = document.createElement('button');
-  spkBtn.className = 'cell-spk' + (item.speakEnabled !== false ? ' active' : '');
-  spkBtn.title = 'เปิด/ปิด เสียงคำนี้';
-  spkBtn.innerHTML = (item.speakEnabled !== false) ? '🔊' : '🔇';
-  spkBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    item.speakEnabled = !item.speakEnabled;
-    spkBtn.className = 'cell-spk' + (item.speakEnabled ? ' active' : '');
-    spkBtn.innerHTML = item.speakEnabled ? '🔊' : '🔇';
-    saveMutedState();
-    if (item.speakEnabled) {
-      speak(item, null, true); // force play preview
-    } else {
-      if(window.speechSynthesis) speechSynthesis.cancel();
-    }
-  });
-  el.appendChild(spkBtn);
-
-  // โหมดอัตโนมัติ: คลิกคำไหนก็ได้เพื่อหยุดและดู/ฟังคำนั้นทันที (กดเองได้ ไม่ต้องรอ)
+  // โหมดอัตโนมัติ: คลิกเพื่อหยุดและเลือกคำ โดยไม่อ่านเสียงเอง
   el.addEventListener('click', e=>{
     if(mode!=='auto') return;
     e.stopPropagation();
     pauseAuto();
     curCell=cIdx;
-    setHl(sIdx,cIdx, true);
+    setHl(sIdx,cIdx);
   });
   return el;
 }
@@ -2194,13 +2157,6 @@ function showTopic(slug){
   isVisualTopic = items.some(hasVisual);
   gridEl.classList.toggle('visual-grid',isVisualTopic);
 
-  // Load muted list for this topic
-  let mutedList = [];
-  try {
-    const saved = localStorage.getItem('vocab_hub_muted_' + slug);
-    if (saved) mutedList = JSON.parse(saved);
-  } catch(e) {}
-  
   let starredList = [];
   try {
     const saved = localStorage.getItem('vocab_hub_starred_words');
@@ -2213,7 +2169,6 @@ function showTopic(slug){
       item.sourceSlug = slug;
     }
     item.starred = starredKeys.has(item.en + '||' + item.label + '||' + item.sourceSlug);
-    item.speakEnabled = !mutedList.includes(item.en || item.label);
   });
 
   loadVoiceModeForTopic(slug);
@@ -2589,7 +2544,7 @@ function updatePhonicsHint(item){
     + item.phonics.map((part,i)=>`${i?' <span class="ph-arrow">+</span> ':''}<button type="button" class="ph-part" data-phonics-part="${part}" aria-label="ฟังเสียงช่วง ${part}">${part}</button>`).join('')
     + `<span class="ph-arrow">→ ${item.en.toLowerCase()}</span>`;
 }
-function setHl(sIdx,cIdx, force){
+function setHl(sIdx,cIdx){
   applyHl(sIdx,cIdx);
   curItem=slides[sIdx][cIdx];
   setBannerAuto(curItem);
@@ -2597,29 +2552,15 @@ function setHl(sIdx,cIdx, force){
   
   clearTimeout(timer);
   
-  let advanced = false;
-  const advance = () => {
-    if (advanced) return;
-    advanced = true;
-    clearTimeout(timer);
-    if (mode === 'auto' && !autoPaused && !force) {
-      timer = setTimeout(() => {
-        curCell++;
-        if (curCell >= slides[curSlide].length) {
-          goTo(curSlide + 1);
-        } else {
-          setHl(curSlide, curCell);
-        }
-      }, cellMs);
-    }
-  };
-
-  if (force) {
-    speak(curItem, () => {
-      advance();
-    }, true);
-  } else {
-    advance();
+  if (mode === 'auto' && !autoPaused) {
+    timer = setTimeout(() => {
+      curCell++;
+      if (curCell >= slides[curSlide].length) {
+        goTo(curSlide + 1);
+      } else {
+        setHl(curSlide, curCell);
+      }
+    }, cellMs);
   }
 
   barEl.style.width=((cIdx+1)/ips*100)+'%';
@@ -3444,9 +3385,9 @@ function setupWSDragging() {
 }
 
 // =====================================================================
-// ONLINE MULTIPLAYER (⚔️ แข่งออนไลน์)
+// TWO-PLAYER MODE (local hot-seat or online)
 // =====================================================================
-const match = KampaiMatch.create({
+const match = KampaiVersus.create({
   duration: 60,
   title: 'แข่งศัพท์ภาษาอังกฤษ',
   onPlay: ({ rng }) => startOnlineMatch(rng),
@@ -3709,7 +3650,7 @@ Object.keys(modeBtns).forEach(k=>{
   if(modeBtns[k]) modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
-btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem, null, true); });
+btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem); });
 scopeButtons.forEach(btn=>btn.addEventListener('click',e=>{
   e.stopPropagation();
   const next = btn.dataset.vocabScope === 'all' ? 'all' : 'basic';
@@ -3757,13 +3698,6 @@ wordEl.addEventListener('click',e=>{
 btnPause.addEventListener('click',e=>{ e.stopPropagation(); autoPaused ? resumeAuto() : pauseAuto(); });
 btnPrevSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide-1); });
 btnNextSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide+1); });
-btnSound.addEventListener('click',e=>{
-  e.stopPropagation();
-  audioOn=!audioOn;
-  btnSound.textContent = audioOn ? '🔊 เสียง' : '🔇 ปิดเสียง';
-  btnSound.classList.toggle('on',audioOn);
-  if(!audioOn && window.speechSynthesis) speechSynthesis.cancel();
-});
 const VOICE_CYCLE = [
   {mode:'en',   label:'🎙️ EN'},
   {mode:'th',   label:'🎙️ ไทย'},
@@ -3806,7 +3740,6 @@ btnVoice.addEventListener('click',e=>{
   applyVoiceMode();
   saveVoiceModeForTopic();
   if(window.speechSynthesis) speechSynthesis.cancel();
-  if(curItem) speak(curItem, null, true);
 });
 applyVoiceMode();
 
@@ -3874,42 +3807,6 @@ function toggleStarItem(item){
   localStorage.setItem('vocab_hub_starred_words', JSON.stringify(list));
 }
 
-function saveMutedState(){
-  if (!currentSlug || !allItems) return;
-  const mutedItems = allItems.filter(item => item.speakEnabled === false).map(item => item.en || item.label);
-  localStorage.setItem('vocab_hub_muted_' + currentSlug, JSON.stringify(mutedItems));
-}
-btnMuteAll.addEventListener('click', e => {
-  e.stopPropagation();
-  if (!allItems) return;
-  allItems.forEach(item => { item.speakEnabled = false; });
-  slideEls.forEach(slide => {
-    slide.forEach(cell => {
-      const spk = cell.querySelector('.cell-spk');
-      if (spk) {
-        spk.classList.remove('active');
-        spk.innerHTML = '🔇';
-      }
-    });
-  });
-  saveMutedState();
-  if(window.speechSynthesis) speechSynthesis.cancel();
-});
-btnUnmuteAll.addEventListener('click', e => {
-  e.stopPropagation();
-  if (!allItems) return;
-  allItems.forEach(item => { item.speakEnabled = true; });
-  slideEls.forEach(slide => {
-    slide.forEach(cell => {
-      const spk = cell.querySelector('.cell-spk');
-      if (spk) {
-        spk.classList.add('active');
-        spk.innerHTML = '🔊';
-      }
-    });
-  });
-  saveMutedState();
-});
 document.querySelectorAll('.spd').forEach(btn=>{
   btn.addEventListener('click',e=>{
     e.stopPropagation();
@@ -3924,6 +3821,21 @@ topicView.addEventListener('click',e=>{
 });
 document.getElementById('win-again').addEventListener('click',()=>{ winEl.classList.remove('show'); setMode(mode); });
 document.getElementById('win-home').addEventListener('click',()=>{ location.hash=''; showHub(); });
+const testActions=Object.fromEntries(Array.from(document.querySelectorAll('[data-kampai-action]'),el=>[el.dataset.kampaiAction,el]));
+testActions.start.addEventListener('click',()=>{
+  if(!currentSlug) showTopic('fruits');
+  try{KAMPAI.beginRound();}catch(_){}
+});
+testActions['finish-test'].addEventListener('click',()=>{
+  try{KAMPAI.submitScore(0,{mode:'browser-test',topic:currentSlug||'fruits',total:0,stars:0});}catch(_){}
+});
+testActions.restart.addEventListener('click',()=>{
+  clearTimeout(timer);
+  clearTimeout(spStepTimer);
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  showTopic(currentSlug||'fruits');
+  try{KAMPAI.beginRound();}catch(_){}
+});
 
 // =====================================================================
 // FLASH CARD SWIPE GESTURES
