@@ -291,6 +291,38 @@
     })])
   );
 
+  const BASIC_IMAGE_WORDS = Object.freeze({
+    body: ['Head','Eye','Ear','Nose','Mouth','Hand','Foot','Arm','Leg','Back'],
+    family: ['Father','Mother','Brother','Sister','Grandfather','Grandmother','Uncle','Aunt'],
+    clothes: ['Shirt','Pants','Shoes','Hat','Dress','Boots','Socks','Jacket','Gloves','Scarf'],
+    classroom: ['Pencil','Pen','Book','Notebook','Ruler','Bag','Chair','Scissors','Crayon','Calculator'],
+    'house-rooms': ['Bedroom','Kitchen','Bathroom','Living Room','Garden','Dining Room','Garage','Stairs'],
+    toys: ['Ball','Doll','Kite','Robot','Puzzle','Balloon','Blocks','Teddy Bear'],
+    food: ['Rice','Bread','Egg','Milk','Noodles','Soup','Chicken','Meat','Cake','Ice Cream','Pizza','Water'],
+    animals: ['Dog','Cat','Bird','Fish','Rabbit','Elephant','Tiger','Monkey','Cow','Horse','Frog','Snake'],
+    shapes: ['Circle','Square','Triangle','Rectangle','Star','Heart','Oval','Diamond'],
+    weather: ['Sunny','Rainy','Cloudy','Windy','Snowy','Stormy','Hot','Cold','Foggy','Rainbow'],
+    transportation: ['Car','Bus','Bicycle','Train','Airplane','Boat','Motorcycle','Truck','Taxi','Ship'],
+    places: ['School','Hospital','Market','Park','Zoo','Library','Restaurant','Bank','Post Office','Airport'],
+    vegetables: ['Carrot','Tomato','Potato','Onion','Cabbage','Corn','Cucumber','Pumpkin','Broccoli','Eggplant'],
+    insects: ['Ant','Bee','Butterfly','Spider','Mosquito','Ladybug','Worm','Cricket'],
+    'sea-animals': ['Shark','Whale','Octopus','Crab','Turtle','Dolphin','Jellyfish','Shrimp'],
+    seasons: ['Spring','Summer','Autumn','Winter'],
+    directions: ['Up','Down','Left','Right','In','On','Under','Behind','Front','Between'],
+    jobs: ['Teacher','Doctor','Nurse','Police Officer','Firefighter','Farmer','Chef','Pilot','Singer','Artist','Dentist','Driver'],
+    verbs: ['Eat','Drink','Sleep','Run','Walk','Swim','Read','Write','Sing','Dance','Cook','Jump'],
+    sports: ['Football','Basketball','Swimming','Tennis','Badminton','Running','Volleyball','Boxing'],
+    instruments: ['Guitar','Piano','Drum','Violin','Saxophone','Trumpet','Banjo'],
+    emotions: ['Happy','Sad','Angry','Surprised','Scared','Tired','Excited','Bored','Worried','Proud'],
+  });
+  const imageFileName = en => en.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '.webp';
+  window.VOCAB_HUB_BASIC_IMAGES = Object.freeze(Object.fromEntries(
+    Object.entries(BASIC_IMAGE_WORDS).map(([slug, words]) => [
+      slug,
+      Object.freeze(Object.fromEntries(words.map(en => [en, imageFileName(en)]))),
+    ])
+  ));
+
   window.VOCAB_HUB_FRUIT_IMAGES = Object.freeze({
     Apple: 'apple.webp', Banana: 'banana.webp', Mango: 'mango.webp', Orange: 'orange.webp',
     Grape: 'grape.webp', Watermelon: 'watermelon.webp', Pineapple: 'pineapple.webp',

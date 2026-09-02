@@ -1537,6 +1537,15 @@ Object.entries(EXTENDED_TOPICS).forEach(([slug, items]) => {
   if (!TOPICS[slug]) TOPICS[slug] = [];
   TOPICS[slug].push(...items);
 });
+const BASIC_IMAGE_BASE = './vocab-hub-assets/';
+const BASIC_IMAGES = window.VOCAB_HUB_BASIC_IMAGES || {};
+Object.entries(BASIC_IMAGES).forEach(([slug, images]) => {
+  (TOPICS[slug] || []).forEach(item => {
+    if (item.level === 'extended') return;
+    const file = images[item.en];
+    if (file) item.image = BASIC_IMAGE_BASE + slug + '/' + file;
+  });
+});
 const FRUIT_IMAGE_BASE = './vocab-hub-assets/fruits/';
 const FRUIT_IMAGES = window.VOCAB_HUB_FRUIT_IMAGES || {};
 (TOPICS.fruits || []).forEach(item => {
