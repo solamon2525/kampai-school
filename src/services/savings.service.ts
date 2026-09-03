@@ -4,6 +4,7 @@
  * — ฝาก/ถอนเงินจริง (บาท) สำหรับนักเรียนประถม
  */
 import { supabase } from '@/integrations/supabase/client';
+import { buildSavingsStatement } from '@/lib/savings-statement';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type SavingsTransactionType = 'deposit' | 'withdraw';
@@ -152,6 +153,38 @@ export const savingsTransactionsService = {
 };
 
 // ─── Summary VIEW ─────────────────────────────────────────────────────────────
+/** Read-only admin statement. No partial page is returned on failure. */
+export const savingsStatementService = {
+  get: async (studentId: string, signal?: AbortSignal) => {
+    const query = () => supabase.from('savings_transactions')
+      .select('*, recorder_staff:staff!recorded_by_staff_id(photo_url), recorder_admin:administrators!recorded_by_administrator_id(photo_url)')
+      .eq('student_id', studentId)
+      .order('transaction_date').order('created_at', { nullsFirst: true }).order('id');
+    type Row = NonNullable<Awaited<ReturnType<typeof query>>['data']>[number];
+    const rows: Row[] = [];
+    for (let from = 0; ; from += 1000) {
+      const request = query().range(from, from + 999);
+      const { data, error } = await (signal ? request.abortSignal(signal) : request);
+      if (error) throw error;
+      rows.push(...(data ?? []));
+      if ((data?.length ?? 0) < 1000) break;
+    }
+    const request = supabase.from('savings_student_summary').select('*').eq('student_id', studentId);
+    const { data: student, error } = await (signal ? request.abortSignal(signal) : request).single();
+    if (error) throw error;
+    const ledger = buildSavingsStatement(rows);
+    const equalMoney = (a: number, b: number | null) => Math.round(a * 100) === Math.round(Number(b ?? 0) * 100);
+    if (new Set(rows.map(row => row.id)).size !== rows.length ||
+      !equalMoney(ledger.current, student.current_balance) ||
+      !equalMoney(ledger.deposits, student.total_deposits) ||
+      !equalMoney(ledger.withdrawals, student.total_withdrawals) ||
+      rows.length !== Number(student.total_transactions ?? 0)) {
+      throw new Error('ยอดประวัติไม่ตรงกับยอดสรุป อาจมีการบันทึกพร้อมกัน กรุณาโหลดใหม่ก่อนออกรายงาน');
+    }
+    return { student, rows };
+  },
+};
+
 export const savingsSummaryService = {
   getAll: () =>
     supabase

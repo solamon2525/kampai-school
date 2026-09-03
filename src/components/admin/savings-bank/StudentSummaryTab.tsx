@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { StudentStatementDialog } from './StudentStatementDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 const CLASS_ORDER = Object.fromEntries(CLASSES.map((c, i) => [c, i]));
@@ -77,6 +78,7 @@ const applySortFn = (
 };
 
 export const StudentSummaryTab = ({ summaries }: Props) => {
+  const [statementStudentId, setStatementStudentId] = useState<string | null>(null);
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<SavingsSummaryViewMode>('table');
   const [sortBy, setSortBy] = useState<SavingsSummarySortBy>('balance');
@@ -366,6 +368,7 @@ tr:nth-child(even){background:#f8fafc}
                         <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="sm" />
                         <span className="font-bold text-slate-900">{s.full_name}</span>
                       </div>
+                      <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`} className={cn('mt-2')}>ดูรายละเอียด</Button>
                     </td>
                     <td className="p-3 text-center">
                       <Badge variant="outline" className="text-xs font-semibold">
@@ -435,6 +438,7 @@ tr:nth-child(even){background:#f8fafc}
                     <span>ฝาก {Number(s.deposit_count ?? 0)} ครั้ง</span>
                     <span>ถอน {Number(s.withdraw_count ?? 0)} ครั้ง</span>
                   </div>
+                  <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`}>ดูรายละเอียด</Button>
                 </div>
               );
             })}
@@ -484,6 +488,7 @@ tr:nth-child(even){background:#f8fafc}
                               <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="xs" />
                               <span className="font-semibold text-slate-900 text-xs">{s.full_name}</span>
                             </div>
+                            <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`} className={cn('mt-2')}>ดูรายละเอียด</Button>
                           </td>
                           <td className="p-2.5 text-right text-xs tabular-nums text-emerald-700 font-semibold">
                             {Number(s.deposit_count ?? 0).toLocaleString('th-TH')}
@@ -507,6 +512,7 @@ tr:nth-child(even){background:#f8fafc}
           </div>
         )}
       </div>
+      {statementStudentId && <StudentStatementDialog key={statementStudentId} studentId={statementStudentId} open onOpenChange={open => { if (!open) setStatementStudentId(null); }} />}
     </div>
   );
 };

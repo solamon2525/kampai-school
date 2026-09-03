@@ -705,3 +705,11 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - restart ต้อง cleanup แล้วเริ่มรอบใน iframe เดิม พร้อม `KAMPAI.beginRound()`; ห้าม `location.reload()`
 - ก่อนเผยแพร่ต้องผ่าน `pnpm verify:game:all -- <path>` ซึ่งรวม static strict, JSON report และ Playwright 3 viewport/2 รอบ
 - AR ใช้ mock camera ใน CI แต่ยังบังคับตรวจกล้องจริง, permission denied และ tap fallback ด้วยคน
+# Savings student statement — v1.229.24
+
+- Admin savings summary: explicit “ดูรายละเอียด” action in table, grid and class views; identify students by ID, never by name. Missing IDs cannot open a statement.
+- Read-only dialog uses TanStack Query through `savingsStatementService`; fetch the complete ledger in stable date/created-at/ID order, including more than 1,000 rows. Errors discard partial data and disable export. Compare count/deposit/withdrawal/balance with a fresh summary; mismatches retry once then show a retry action.
+- Rebuild balances from deposits minus withdrawals (integer satang arithmetic), before applying an inclusive date range. Distinguish opening/period totals/closing balance from the current all-time balance. Stored `balance_after` is not authoritative for this report.
+- Default all history, 50 rows per screen; desktop table and mobile cards. Date filters require explicit submission with RHF/Zod validation. Student and recorder names use PersonAvatar and service selects photo_url.
+- Print preview and UTF-8 CSV include every filtered row, identity, period, opening balance, totals and issue time. Render untrusted print text via textContent; neutralize CSV formulas. Never export cached data while fetching or after errors. No schema, permission or transaction writes.
+- Preflight: existing ledger/summary schema and recorder FKs; existing admin route/permission guard and RLS; reuse summary entrypoints instead of a duplicate route; responsive bounded dialog; no new dependencies required.
