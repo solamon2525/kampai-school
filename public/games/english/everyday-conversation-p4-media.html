@@ -30,6 +30,8 @@
     .mode-group{display:flex;border:2px solid var(--navy);border-radius:15px;overflow:hidden}
     .mode-btn{min-height:44px;border:0;background:var(--white);color:var(--navy);padding:8px 15px;font-weight:800;cursor:pointer}
     .mode-btn.on{background:var(--navy);color:var(--white)}
+    .use-profile{background:var(--aqua);border-color:var(--blue);color:var(--navy)}
+    .use-profile[aria-pressed="true"]{background:var(--gold);border-color:var(--navy)}
     .toolbar-spacer{flex:1}
     .toggle{background:var(--cream);border-color:var(--gold);color:var(--navy)}
     .toggle[aria-pressed="false"]{background:var(--white);border-color:var(--line);color:var(--muted)}
@@ -46,6 +48,17 @@
     .lesson-list{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
     .lesson-btn{min-width:44px;min-height:44px;border:2px solid rgba(255,255,255,.26);border-radius:12px;background:rgba(255,255,255,.08);color:var(--white);font-weight:800;cursor:pointer}
     .lesson-btn.on{background:var(--coral);border-color:var(--white)}
+    .profile-form{display:none;gap:10px}.myself-mode .profile-form{display:grid}.myself-mode .lesson-nav{display:none}
+    .form-section{display:grid;gap:7px;padding:10px;border:2px solid rgba(255,255,255,.2);border-radius:14px;background:rgba(255,255,255,.07)}
+    .form-section h3{font-size:16px;color:var(--gold)}
+    .field{display:grid;gap:3px;font-size:13px;font-weight:800;color:#d9f2f0}
+    .field input,.field select{width:100%;min-height:44px;border:2px solid transparent;border-radius:10px;padding:7px 9px;background:var(--white);color:var(--ink);font:700 16px 'Sarabun',sans-serif}
+    .field input:focus,.field select:focus{outline:3px solid var(--gold);border-color:var(--navy)}
+    .profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.profile-actions .btn{padding:7px;font-size:14px}
+    .btn-apply{grid-column:1/-1;background:var(--gold);border-color:var(--white);color:var(--navy)}
+    .btn-reset{background:var(--white);border-color:var(--line);color:var(--navy)}
+    .my-view{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:var(--white)}.my-view.on{background:var(--coral);border-color:var(--white)}
+    .profile-status{min-height:38px;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.1);font-size:13px;font-weight:700;color:#d9f2f0}
     .main{min-width:0;display:flex;flex-direction:column;background:
       linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5)),
       repeating-linear-gradient(0deg,transparent 0 42px,rgba(31,111,139,.07) 43px 44px)}
@@ -67,6 +80,7 @@
     .line[data-role="B"] .role{background:var(--coral)}
     .line-text{min-width:0}
     .english{font-family:'Atkinson Hyperlegible','Sarabun',sans-serif;font-size:clamp(25px,3vw,48px);font-weight:700;line-height:1.05;color:var(--navy);overflow-wrap:anywhere}
+    .profile-slot{display:inline-block;min-width:90px;padding:0 7px;border-bottom:4px solid var(--coral);border-radius:8px 8px 2px 2px;background:var(--cream);color:#a83b38;text-align:center;overflow-wrap:anywhere}
     .reading{font-size:clamp(15px,1.5vw,21px);font-weight:700;color:#7a4b00;margin-top:5px}
     .meaning{font-size:clamp(14px,1.35vw,19px);font-weight:600;color:var(--muted);margin-top:2px}
     .hide-reading .reading,.hide-meaning .meaning{display:none}
@@ -102,7 +116,7 @@
     }
     @media (max-width:560px){
       .topbar{padding:9px}.topbar h1{font-size:20px}.badge{display:none}.btn-back{padding:7px 9px;font-size:0;width:44px}.btn-back::after{content:'←';font-size:22px}
-      .toolbar{padding:7px;gap:6px}.mode-btn{padding:7px 10px}.toolbar-spacer{display:none}.toggle{flex:1;padding:7px 8px}.btn-fs{width:44px;padding:0;font-size:0}.btn-fs::after{content:'⛶';font-size:21px}
+      .toolbar{padding:7px;gap:6px}.mode-btn{padding:7px 8px;font-size:14px}.toolbar-spacer{display:none}.toggle{flex:1;padding:7px 8px}.use-profile{flex:1}.btn-fs{width:44px;padding:0;font-size:0}.btn-fs::after{content:'⛶';font-size:21px}
       .scene-btn{min-width:132px;min-height:48px}.scene-btn .scene-icon{font-size:23px}.sidebar-title{display:none}.lesson-list{margin-top:5px}
       .lesson-copy{flex-basis:100%}.lesson-copy h2{font-size:25px}.goal{font-size:14px}.lesson-emoji{display:none}.english{font-size:clamp(22px,7.2vw,30px)}.reading{font-size:15px}.meaning{font-size:14px}
       .line,.pair-mode .line{width:100%;grid-template-columns:42px minmax(0,1fr) 44px;gap:7px;border-width:2px}.role{width:38px;height:38px;font-size:20px}
@@ -123,7 +137,9 @@
       <div class="mode-group">
         <button type="button" class="mode-btn on" data-mode="learn" aria-pressed="true">ครูนำ</button>
         <button type="button" class="mode-btn" data-mode="practice" aria-pressed="false">จับคู่ A/B</button>
+        <button type="button" class="mode-btn" data-mode="myself" aria-pressed="false">เรื่องของฉัน</button>
       </div>
+      <button type="button" class="btn use-profile" id="btnUseProfile" aria-pressed="false">ข้อมูลฉัน: ไม่ใช้</button>
       <span class="toolbar-spacer"></span>
       <button type="button" class="btn toggle" id="toggleReading" aria-pressed="true">คำอ่าน: เปิด</button>
       <button type="button" class="btn toggle" id="toggleMeaning" aria-pressed="true">คำแปล: เปิด</button>
@@ -132,10 +148,34 @@
 
     <div class="workspace">
       <aside class="sidebar">
-        <p class="sidebar-title">เลือกสถานการณ์</p>
-        <div class="scene-list" id="sceneList"></div>
-        <p class="sidebar-title" style="margin-top:14px">เลือกบทที่ 1–5</p>
-        <div class="lesson-list" id="lessonList"></div>
+        <div class="lesson-nav" id="lessonNav">
+          <p class="sidebar-title">เลือกสถานการณ์</p>
+          <div class="scene-list" id="sceneList"></div>
+          <p class="sidebar-title" style="margin-top:14px">เลือกบทที่ 1–5</p>
+          <div class="lesson-list" id="lessonList"></div>
+        </div>
+        <form class="profile-form" id="profileForm" autocomplete="off">
+          <div class="form-section">
+            <h3>ครูตั้งครั้งแรก</h3>
+            <label class="field">โรงเรียน (English)<input id="profileSchool" name="school" maxlength="36" placeholder="Ban Kham Phai School"></label>
+            <label class="field">จังหวัด (English)<input id="profileProvince" name="province" maxlength="24" placeholder="Khon Kaen"></label>
+          </div>
+          <div class="form-section">
+            <h3>ข้อมูลของฉัน</h3>
+            <label class="field">ชื่อเล่น (English)<input id="profileName" name="name" maxlength="20" placeholder="Mali"></label>
+            <label class="field">อายุ<select id="profileAge" name="age"><option value="">เลือกอายุ</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></label>
+            <label class="field">ชั้น / ห้อง<input id="profileGrade" name="grade" maxlength="8" placeholder="4/1"></label>
+            <label class="field">สิ่งที่ชอบ (English)<input id="profileLike" name="like" maxlength="24" list="likeOptions" placeholder="football"><datalist id="likeOptions"><option value="football"><option value="badminton"><option value="music"><option value="drawing"><option value="reading"><option value="English"><option value="mangoes"><option value="noodles"></datalist></label>
+            <label class="field">สมาชิกครอบครัว<select id="profileFamily" name="family"><option value="">เลือกจำนวน</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label>
+          </div>
+          <div class="profile-status" id="profileStatus" role="status">กรอกข้อมูลเพื่อสร้างบทพูดของฉัน</div>
+          <div class="profile-actions">
+            <button type="button" class="btn my-view on" data-my-view="intro">แนะนำตัว</button>
+            <button type="button" class="btn my-view" data-my-view="qa">ถาม–ตอบ</button>
+            <button type="button" class="btn btn-apply" id="btnApplyProfile">ใช้ข้อมูลนี้ในบทเดิม</button>
+            <button type="button" class="btn btn-reset" id="btnNewStudent">นักเรียนคนใหม่</button>
+          </div>
+        </form>
       </aside>
 
       <main class="main">
@@ -217,7 +257,40 @@
       ]}
     ];
 
-    const state={scene:0,lesson:0,line:0,mode:'learn',swapped:false,playing:false,playToken:0,
+    const PERSONAL_INTRO={title:'My self-introduction',lines:[
+      ['I','Hello! My name is {{name}}.','เฮลโล มาย เนม อิส {{name}}','สวัสดี ฉันชื่อ {{name}}'],
+      ['I','I am {{age}} years old.','ไอ แอม {{ageReading}} เยียร์ส โอลด์','ฉันอายุ {{age}} ปี'],
+      ['I','I am in Grade {{grade}} at {{school}}.','ไอ แอม อิน เกรด {{gradeReading}} แอท {{school}}','ฉันเรียนชั้น {{grade}} ที่ {{school}}'],
+      ['I','I live in {{province}}.','ไอ ลิฟ อิน {{province}}','ฉันอาศัยอยู่ที่ {{province}}'],
+      ['I','I like {{like}}.','ไอ ไลก์ {{likeReading}}','ฉันชอบ {{like}}'],
+      ['I','There are {{family}} people in my family.','แดร์ อาร์ {{familyReading}} พีเพิล อิน มาย แฟมิลี','ครอบครัวของฉันมี {{family}} คน']
+    ]};
+    const PERSONAL_QA={title:'Ask and answer about me',lines:[
+      ['A','What is your name?','ว็อท อิส ยัวร์ เนม','คุณชื่ออะไร'],
+      ['B','My name is {{name}}.','มาย เนม อิส {{name}}','ฉันชื่อ {{name}}'],
+      ['A','How old are you?','ฮาว โอลด์ อาร์ ยู','คุณอายุเท่าไร'],
+      ['B','I am {{age}} years old.','ไอ แอม {{ageReading}} เยียร์ส โอลด์','ฉันอายุ {{age}} ปี'],
+      ['A','What grade are you in?','ว็อท เกรด อาร์ ยู อิน','คุณเรียนอยู่ชั้นอะไร'],
+      ['B','I am in Grade {{grade}} at {{school}}.','ไอ แอม อิน เกรด {{gradeReading}} แอท {{school}}','ฉันเรียนชั้น {{grade}} ที่ {{school}}'],
+      ['A','Where do you live?','แวร์ ดู ยู ลิฟ','คุณอาศัยอยู่ที่ไหน'],
+      ['B','I live in {{province}}.','ไอ ลิฟ อิน {{province}}','ฉันอาศัยอยู่ที่ {{province}}'],
+      ['A','What do you like?','ว็อท ดู ยู ไลก์','คุณชอบอะไร'],
+      ['B','I like {{like}}.','ไอ ไลก์ {{likeReading}}','ฉันชอบ {{like}}'],
+      ['A','How many people are in your family?','ฮาว เมนี พีเพิล อาร์ อิน ยัวร์ แฟมิลี','ครอบครัวคุณมีกี่คน'],
+      ['B','There are {{family}} people in my family.','แดร์ อาร์ {{familyReading}} พีเพิล อิน มาย แฟมิลี','ครอบครัวของฉันมี {{family}} คน']
+    ]};
+    const PERSONALIZED_LINES={
+      'Hello! My name is Mali.':['Hello! My name is {{name}}.','เฮลโล มาย เนม อิส {{name}}','สวัสดี ฉันชื่อ {{name}}'],
+      'My name is Nan.':['My name is {{name}}.','มาย เนม อิส {{name}}','ฉันชื่อ {{name}}'],
+      'N-A-N, Nan.':['{{spelling}}, {{name}}.','{{spelling}} {{name}}','สะกดว่า {{spelling}} ชื่อ {{name}}'],
+      'I am ten years old.':['I am {{age}} years old.','ไอ แอม {{ageReading}} เยียร์ส โอลด์','ฉันอายุ {{age}} ปี'],
+      'There are four people.':['There are {{family}} people.','แดร์ อาร์ {{familyReading}} พีเพิล','มีสมาชิก {{family}} คน'],
+      'I live in Khon Kaen.':['I live in {{province}}.','ไอ ลิฟ อิน {{province}}','ฉันอาศัยอยู่ที่ {{province}}'],
+      'No, it is near my school.':['No, I live near {{school}}.','โน ไอ ลิฟ เนียร์ {{school}}','ไม่ ฉันอยู่ใกล้ {{school}}']
+    };
+    const PROFILE_FIELDS=['school','province','name','age','grade','like','family'];
+    const state={scene:0,lesson:0,line:0,mode:'learn',myView:'intro',swapped:false,playing:false,playToken:0,useProfile:false,
+      profile:{school:'',province:'',name:'',age:'',grade:'',like:'',family:''},
       showReading:localStorage.getItem(STORAGE_READING)!=='0',showMeaning:localStorage.getItem(STORAGE_MEANING)!=='0'};
     const $=id=>document.getElementById(id);
     const shell=$('shell');
@@ -234,9 +307,40 @@
       }catch(_e){}
     }
 
-    function currentScene(){return SCENES[state.scene]}
-    function currentLesson(){return currentScene().dialogues[state.lesson]}
-    function currentLine(){return currentLesson().lines[state.line]}
+    function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+    function cleanValue(value){return String(value||'').replace(/\s+/g,' ').trim()}
+    function profileValues(){
+      const values={};PROFILE_FIELDS.forEach(key=>{values[key]=cleanValue(state.profile[key])});
+      const numberReading={'0':'ซีโร','1':'วัน','2':'ทู','3':'ทรี','4':'โฟร์','5':'ไฟฟ์','6':'ซิกซ์','7':'เซเวิน','8':'เอท','9':'ไนน์','10':'เท็น','11':'อิเลฟเวิน','12':'ทเวลฟ'};
+      const likeReading={football:'ฟุตบอล',badminton:'แบดมินตัน',music:'มิวสิก',drawing:'ดรออิง',reading:'รีดดิง',english:'อิงลิช',mangoes:'แมงโกส์',noodles:'นูเดิลส์'};
+      values.ageReading=numberReading[values.age]||values.age;values.familyReading=numberReading[values.family]||values.family;
+      values.gradeReading=values.grade.split('').map(char=>char==='/'?'สแลช':numberReading[char]||char).join(' ');
+      values.likeReading=likeReading[values.like.toLowerCase()]||values.like;
+      values.spelling=values.name?values.name.replace(/[^a-z]/gi,'').toUpperCase().split('').join('-'):'';
+      return values;
+    }
+    function profileComplete(){const values=profileValues();return PROFILE_FIELDS.every(key=>values[key])}
+    function firstMissingField(){const values=profileValues();return PROFILE_FIELDS.find(key=>!values[key])||null}
+    function fillTemplate(template,asHtml){
+      const values=profileValues();let cursor=0;let output='';const pattern=/\{\{(\w+)\}\}/g;let match;
+      while((match=pattern.exec(template))){
+        const raw=values[match[1]]||'________';output+=(asHtml?escapeHtml(template.slice(cursor,match.index)):template.slice(cursor,match.index));
+        output+=asHtml?'<span class="profile-slot">'+escapeHtml(raw)+'</span>':raw;cursor=match.index+match[0].length;
+      }
+      output+=asHtml?escapeHtml(template.slice(cursor)):template.slice(cursor);return output;
+    }
+    function personalLesson(){return state.myView==='qa'?PERSONAL_QA:PERSONAL_INTRO}
+    function currentScene(){
+      if(state.mode==='myself')return {icon:'🙋',label:'เรื่องของฉัน',goal:state.myView==='qa'?'จับคู่ถาม–ตอบข้อมูลจริงของฉัน':'พูดแนะนำตัวเอง 6 ประโยค',indicator:'ต 1.2 ป.4/1 · ต 1.2 ป.4/4 · ต 1.2 ป.4/5 · ต 4.1 ป.4/1',dialogues:[personalLesson()]};
+      return SCENES[state.scene];
+    }
+    function currentLesson(){return state.mode==='myself'?personalLesson():currentScene().dialogues[state.lesson]}
+    function resolveSourceLine(source,personalize){
+      let templates=source.slice(1);
+      if(personalize&&PERSONALIZED_LINES[source[1]])templates=PERSONALIZED_LINES[source[1]];
+      return {role:source[0],en:fillTemplate(templates[0],false),reading:fillTemplate(templates[1],false),meaning:fillTemplate(templates[2],false),enHtml:fillTemplate(templates[0],true),readingHtml:fillTemplate(templates[1],true),meaningHtml:fillTemplate(templates[2],true)};
+    }
+    function resolvedLine(index){return resolveSourceLine(currentLesson().lines[index],state.mode!=='myself'&&state.useProfile)}
     function stopPlayback(){
       state.playToken+=1;state.playing=false;$('btnPlay').classList.remove('playing');$('btnPlay').textContent='▶ เล่นทั้งบท';$('turnCue').classList.remove('show');
       try{window.KAMPAI?.sound?.stopSpeak?.();}catch(_e){}
@@ -245,31 +349,39 @@
       shell.classList.toggle('hide-reading',!state.showReading);shell.classList.toggle('hide-meaning',!state.showMeaning);
       $('toggleReading').setAttribute('aria-pressed',String(state.showReading));$('toggleReading').textContent='คำอ่าน: '+(state.showReading?'เปิด':'ปิด');
       $('toggleMeaning').setAttribute('aria-pressed',String(state.showMeaning));$('toggleMeaning').textContent='คำแปล: '+(state.showMeaning?'เปิด':'ปิด');
+      $('btnUseProfile').setAttribute('aria-pressed',String(state.useProfile));$('btnUseProfile').textContent='ข้อมูลฉัน: '+(state.useProfile?'ใช้อยู่':'ไม่ใช้');
     }
     function renderNavigation(){
+      if(state.mode==='myself'){document.querySelectorAll('[data-my-view]').forEach(button=>button.classList.toggle('on',button.dataset.myView===state.myView));return;}
       $('sceneList').innerHTML=SCENES.map((scene,index)=>'<button type="button" class="scene-btn '+(index===state.scene?'on':'')+'" data-scene="'+index+'"><span class="scene-icon">'+scene.icon+'</span><span>'+scene.label+'</span></button>').join('');
       $('lessonList').innerHTML=currentScene().dialogues.map((_item,index)=>'<button type="button" class="lesson-btn '+(index===state.lesson?'on':'')+'" data-lesson="'+index+'" aria-label="บทที่ '+(index+1)+'">'+(index+1)+'</button>').join('');
     }
+    function renderProfileStatus(){
+      const missing=firstMissingField();$('profileStatus').textContent=missing?'ยังขาด: '+({school:'โรงเรียน',province:'จังหวัด',name:'ชื่อเล่น',age:'อายุ',grade:'ชั้น/ห้อง',like:'สิ่งที่ชอบ',family:'จำนวนสมาชิกครอบครัว'}[missing]):(state.useProfile?'พร้อมฝึก และกำลังใช้ข้อมูลนี้ในบทเดิม':'ข้อมูลครบแล้ว กดใช้ข้อมูลนี้ในบทเดิมได้');
+    }
     function renderDialogue(){
       const scene=currentScene(),lesson=currentLesson();
-      $('sceneEmoji').textContent=scene.icon;$('sceneLabel').textContent='สถานการณ์ '+(state.scene+1)+' จาก '+SCENES.length+' · '+scene.indicator;
-      $('lessonTitle').textContent=lesson.title;$('lessonGoal').textContent=scene.goal+' · บท '+(state.lesson+1)+' จาก '+scene.dialogues.length;
-      $('dialogue').innerHTML=lesson.lines.map((line,index)=>'<article class="line '+(index===state.line?'active':'')+'" data-role="'+line[0]+'" data-line="'+index+'"><span class="role">'+line[0]+'</span><div class="line-text"><div class="english">'+line[1]+'</div><div class="reading">คำอ่าน: '+line[2]+'</div><div class="meaning">'+line[3]+'</div></div><button type="button" class="say-btn" data-say="'+index+'" aria-label="ฟัง '+line[1]+'">🔊</button></article>').join('');
+      $('sceneEmoji').textContent=scene.icon;$('sceneLabel').textContent=state.mode==='myself'?'เรื่องของฉัน · '+scene.indicator:'สถานการณ์ '+(state.scene+1)+' จาก '+SCENES.length+' · '+scene.indicator;
+      $('lessonTitle').textContent=lesson.title;$('lessonGoal').textContent=state.mode==='myself'?scene.goal:scene.goal+' · บท '+(state.lesson+1)+' จาก '+scene.dialogues.length;
+      $('dialogue').innerHTML=lesson.lines.map((_line,index)=>{const line=resolvedLine(index);return '<article class="line '+(index===state.line?'active':'')+'" data-role="'+escapeHtml(line.role)+'" data-line="'+index+'"><span class="role">'+escapeHtml(line.role)+'</span><div class="line-text"><div class="english">'+line.enHtml+'</div><div class="reading">คำอ่าน: '+line.readingHtml+'</div><div class="meaning">'+line.meaningHtml+'</div></div><button type="button" class="say-btn" data-say="'+index+'" aria-label="ฟัง '+escapeHtml(line.en)+'">🔊</button></article>'}).join('');
       const active=$('dialogue').querySelector('.line.active');if(active&&active.scrollIntoView)active.scrollIntoView({block:'nearest',behavior:'smooth'});
     }
-    function render(){renderNavigation();renderDialogue();updateVisibility()}
+    function render(){renderNavigation();renderDialogue();renderProfileStatus();updateVisibility()}
     function selectLine(index){state.line=Math.max(0,Math.min(currentLesson().lines.length-1,index));renderDialogue()}
     function changeLesson(delta){
+      if(state.mode==='myself'){state.myView=state.myView==='intro'?'qa':'intro';state.line=delta<0?currentLesson().lines.length-1:0;render();return;}
       stopPlayback();const scene=currentScene();let next=state.lesson+delta;
       if(next<0){state.scene=(state.scene-1+SCENES.length)%SCENES.length;state.lesson=SCENES[state.scene].dialogues.length-1;}
       else if(next>=scene.dialogues.length){state.scene=(state.scene+1)%SCENES.length;state.lesson=0;}else state.lesson=next;
       state.line=0;render();
     }
+    function focusMissing(){const missing=firstMissingField();if(missing){setMode('myself');setTimeout(()=>$('profile'+missing[0].toUpperCase()+missing.slice(1))?.focus(),0)}return missing}
     function speakLine(index,onDone){
-      selectLine(index);const line=currentLesson().lines[index];
-      if(window.KAMPAI?.sound?.speakBilingual){KAMPAI.sound.speakBilingual(line[1],line[3],{force:'en',onDone:onDone||function(){}});return;}
+      if(state.mode==='myself'&&!profileComplete()){focusMissing();if(onDone)onDone();return;}
+      selectLine(index);const line=resolvedLine(index);
+      if(window.KAMPAI?.sound?.speakBilingual){KAMPAI.sound.speakBilingual(line.en,line.meaning,{force:'en',onDone:onDone||function(){}});return;}
       if('speechSynthesis' in window){
-        try{speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(line[1]);utterance.lang='en-US';utterance.rate=.82;utterance.onend=utterance.onerror=onDone||function(){};speechSynthesis.speak(utterance);return;}catch(_e){}
+        try{speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(line.en);utterance.lang='en-US';utterance.rate=.82;utterance.onend=utterance.onerror=onDone||function(){};speechSynthesis.speak(utterance);return;}catch(_e){}
       }
       if(onDone)onDone();
     }
@@ -279,16 +391,16 @@
       const run=index=>{
         if(!state.playing||token!==state.playToken)return;
         if(index>=currentLesson().lines.length){stopPlayback();return;}
-        const role=currentLesson().lines[index][0],side=state.swapped?(role==='A'?'ฝั่งขวา':'ฝั่งซ้าย'):(role==='A'?'ฝั่งซ้าย':'ฝั่งขวา');
-        $('turnCue').textContent='ถึงคิว '+side+' · บท '+role;$('turnCue').classList.add('show');
+        const role=currentLesson().lines[index][0],side=role==='I'?'ผู้พูด':state.swapped?(role==='A'?'ฝั่งขวา':'ฝั่งซ้าย'):(role==='A'?'ฝั่งซ้าย':'ฝั่งขวา');
+        $('turnCue').textContent=role==='I'?'ประโยคที่ '+(index+1)+' · พูดตาม':'ถึงคิว '+side+' · บท '+role;$('turnCue').classList.add('show');
         speakLine(index,()=>setTimeout(()=>run(index+1),850));
       };
       run(0);
     }
     function setMode(mode){
-      stopPlayback();state.mode=mode;state.line=0;state.swapped=false;shell.classList.toggle('pair-mode',mode==='practice');$('roleBoard').classList.toggle('show',mode==='practice');
+      stopPlayback();state.mode=mode;state.line=0;state.swapped=false;shell.classList.toggle('pair-mode',mode==='practice'||(mode==='myself'&&state.myView==='qa'));shell.classList.toggle('myself-mode',mode==='myself');$('roleBoard').classList.toggle('show',mode==='practice'||(mode==='myself'&&state.myView==='qa'));
       document.querySelectorAll('[data-mode]').forEach(button=>{const on=button.dataset.mode===mode;button.classList.toggle('on',on);button.setAttribute('aria-pressed',String(on));});
-      updateRoles();renderDialogue();
+      updateRoles();render();
     }
     function updateRoles(){
       $('roleA').textContent=state.swapped?'ฝั่งซ้าย = B':'ฝั่งซ้าย = A';$('roleB').textContent=state.swapped?'ฝั่งขวา = A':'ฝั่งขวา = B';
@@ -298,6 +410,25 @@
     $('lessonList').addEventListener('click',event=>{const button=event.target.closest('[data-lesson]');if(!button)return;stopPlayback();state.lesson=Number(button.dataset.lesson);state.line=0;render();});
     $('dialogue').addEventListener('click',event=>{const say=event.target.closest('[data-say]');if(say){stopPlayback();speakLine(Number(say.dataset.say));return;}const line=event.target.closest('[data-line]');if(line){stopPlayback();selectLine(Number(line.dataset.line));}});
     document.querySelector('.mode-group').addEventListener('click',event=>{const button=event.target.closest('[data-mode]');if(button)setMode(button.dataset.mode);});
+    $('profileForm').addEventListener('submit',event=>event.preventDefault());
+    $('profileForm').addEventListener('input',event=>{
+      const field=event.target;if(!field.name||!PROFILE_FIELDS.includes(field.name))return;
+      state.profile[field.name]=field.value;stopPlayback();renderDialogue();renderProfileStatus();
+    });
+    $('profileForm').addEventListener('click',event=>{
+      const view=event.target.closest('[data-my-view]');if(!view)return;
+      state.myView=view.dataset.myView;setMode('myself');
+    });
+    function toggleProfileUse(){
+      stopPlayback();if(state.useProfile){state.useProfile=false;render();return;}
+      if(focusMissing())return;state.useProfile=true;render();
+    }
+    $('btnUseProfile').addEventListener('click',toggleProfileUse);
+    $('btnApplyProfile').addEventListener('click',()=>{if(focusMissing())return;state.useProfile=true;render()});
+    $('btnNewStudent').addEventListener('click',()=>{
+      stopPlayback();['name','age','grade','like','family'].forEach(key=>{state.profile[key]='';$('profile'+key[0].toUpperCase()+key.slice(1)).value=''});
+      state.useProfile=false;state.myView='intro';state.line=0;setMode('myself');$('profileName').focus();
+    });
     $('btnPrev').addEventListener('click',()=>{stopPlayback();if(state.line>0)selectLine(state.line-1);else changeLesson(-1);});
     $('btnNext').addEventListener('click',()=>{stopPlayback();if(state.line<currentLesson().lines.length-1)selectLine(state.line+1);else changeLesson(1);});
     $('btnListen').addEventListener('click',()=>{stopPlayback();speakLine(state.line);});
@@ -312,7 +443,7 @@
     window.addEventListener('pagehide',stopPlayback);
 
     window.EverydayConversationP4=Object.freeze({
-      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,playing:state.playing,dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0)}),
+      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,playing:state.playing,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
       scenes:Object.freeze(SCENES.map(scene=>Object.freeze({id:scene.id,count:scene.dialogues.length,indicator:scene.indicator})))
     });
     render();setMode('learn');
