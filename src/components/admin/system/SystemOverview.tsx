@@ -118,7 +118,7 @@ const dbGroups = [
 ];
 
 const SYSTEM_OVERVIEW_META = {
-    version: 'v1.229.24',
+    version: 'v1.229.25',
     verifiedDate: '28 ส.ค. 2569',
     verifiedIsoDate: '2026-08-28',
     productionUrl: 'https://kampai-school.vercel.app',
@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.27 (เกมสื่อการสอน AI — Neural Bot: สมองกลกู้จักรวาล)',
+        date: '4 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมสื่อการสอนวิชาวิทยาการคำนวณและเทคโนโลยี "Neural Bot: สมองกลกู้จักรวาล" จำลองการฝึกสอน AI & Machine Learning จริง',
+            'ระบบ Interactive Neural Decision Boundary ปรับ Features, Weights และดูผลลัพธ์กราฟ 2D แบบเรียลไทม์',
+            'โหมด Space Inference Run จำแนกวัตถุอวกาศด้วย Confidence Score พร้อมระบบ Manual Override และโหมดแข่งขัน KampaiVersus 3 รูปแบบ',
+            'ผ่านการทดสอบคุณภาพ 100% (Static strict + Playwright browser 3 viewports) พร้อม migration 495 และ game_docs v1.0.0',
+        ],
+    },
+    {
         version: 'v1.229.26 (สื่ออังกฤษ ป.4 — Everyday Conversation)',
         date: '4 ก.ย. 2569',
         badge: 'bg-emerald-600',
@@ -298,6 +309,17 @@ const versionHistory = [
             'มีโหมดครูนำและจับคู่ A/B พร้อมสลับบท ฟังทีละประโยคหรือทั้งบท และไม่มีเสียงเริ่มเอง',
             'คำอ่านไทยและคำแปลเปิดหรือปิดได้แยกกัน รองรับมือถือ จอห้องเรียน และเต็มจอ',
             'เชื่อมตัวชี้วัด integrated-plan 7 ตัว พร้อมลงทะเบียนคลังสื่อและ game_docs v1.0.0 ใน migration 496',
+        ],
+    },
+    {
+        version: 'v1.229.25 (ธนาคารพอเพียง — ป้องกันข้อมูลและคุม ledger)',
+        date: '3 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'รอตรวจและนำ migration 493 ขึ้นฐานข้อมูลจริงก่อนเผยแพร่ frontend; ไม่ใช่การยืนยัน production',
+            'ย้าย public leaderboard, กิจกรรมล่าสุด, parent view และ hero profile ไปใช้ RPC ที่คืนข้อมูลเท่าที่จำเป็น',
+            'ปิดการอ่านตารางธุรกรรมและ view สรุปโดย anonymous พร้อมคงสิทธิ์อ่านสำหรับครู/ผู้ดูแลระบบ',
+            'ฝากและลบรายการผ่าน RPC ที่ล็อกบัญชี คำนวณ balance_after ใหม่ และป้องกันยอดติดลบจากรายการย้อนหลัง',
         ],
     },
     {
