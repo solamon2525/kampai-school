@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Everyday Conversation ป.4 - บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#12355b;--blue:#1f6f8b;--aqua:#d8f3ed;--cream:#fff7df;--paper:#fffdf7;
+      --gold:#f5b700;--coral:#ef6f6c;--ink:#132238;--muted:#536579;--line:#b8d8d8;--white:#fff;
+    }
+    html,body{min-height:100%}
+    body{font-family:'Sarabun',sans-serif;color:var(--ink);background:
+      radial-gradient(circle at 8% 8%,rgba(245,183,0,.24),transparent 24%),
+      radial-gradient(circle at 92% 88%,rgba(31,111,139,.22),transparent 28%),
+      linear-gradient(145deg,var(--cream),var(--aqua));padding:10px}
+    button{font:inherit}
+    button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+    .shell{width:min(1500px,100%);min-height:calc(100vh - 20px);margin:auto;background:var(--paper);border:2px solid var(--navy);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(18,53,91,.16);display:flex;flex-direction:column}
+    .topbar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--navy);color:var(--white)}
+    .topbar h1{font-family:'Atkinson Hyperlegible','Sarabun',sans-serif;font-size:clamp(22px,2.4vw,38px);line-height:1;flex:1}
+    .badge{font-weight:800;background:var(--gold);color:var(--navy);padding:7px 13px;border-radius:999px;white-space:nowrap}
+    .btn{min-height:44px;border:2px solid transparent;border-radius:14px;padding:9px 14px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .12s,background .12s}
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--white)}
+    .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:9px 14px;background:var(--white);border-bottom:2px solid var(--line)}
+    .mode-group{display:flex;border:2px solid var(--navy);border-radius:15px;overflow:hidden}
+    .mode-btn{min-height:44px;border:0;background:var(--white);color:var(--navy);padding:8px 15px;font-weight:800;cursor:pointer}
+    .mode-btn.on{background:var(--navy);color:var(--white)}
+    .toolbar-spacer{flex:1}
+    .toggle{background:var(--cream);border-color:var(--gold);color:var(--navy)}
+    .toggle[aria-pressed="false"]{background:var(--white);border-color:var(--line);color:var(--muted)}
+    .btn-fs{background:var(--blue);color:var(--white)}
+    .toolbar #kampai-snd{position:static;inset:auto;display:flex;flex:0 0 auto}
+    .toolbar #kampai-snd .ksnd{background:var(--navy);box-shadow:none}
+    .workspace{display:grid;grid-template-columns:280px minmax(0,1fr);flex:1;min-height:0}
+    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto}
+    .sidebar-title{font-size:14px;color:#bde5e3;margin:4px 4px 9px;font-weight:800}
+    .scene-list{display:grid;gap:8px}
+    .scene-btn{width:100%;min-height:54px;border:2px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.08);color:var(--white);padding:8px 10px;text-align:left;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:10px}
+    .scene-btn .scene-icon{font-size:28px}
+    .scene-btn.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+    .lesson-list{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+    .lesson-btn{min-width:44px;min-height:44px;border:2px solid rgba(255,255,255,.26);border-radius:12px;background:rgba(255,255,255,.08);color:var(--white);font-weight:800;cursor:pointer}
+    .lesson-btn.on{background:var(--coral);border-color:var(--white)}
+    .main{min-width:0;display:flex;flex-direction:column;background:
+      linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5)),
+      repeating-linear-gradient(0deg,transparent 0 42px,rgba(31,111,139,.07) 43px 44px)}
+    .lesson-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:2px dashed var(--line);background:rgba(255,253,247,.9)}
+    .lesson-emoji{width:62px;height:62px;border-radius:18px;background:var(--gold);display:grid;place-items:center;font-size:36px;flex:0 0 auto;box-shadow:5px 5px 0 var(--navy)}
+    .lesson-copy{min-width:0;flex:1}
+    .eyebrow{font-weight:800;color:var(--blue);font-size:14px}
+    .lesson-copy h2{font-family:'Atkinson Hyperlegible','Sarabun',sans-serif;font-size:clamp(25px,3vw,44px);line-height:1.05;color:var(--navy)}
+    .goal{font-size:clamp(15px,1.4vw,20px);color:var(--muted);font-weight:600;margin-top:4px}
+    .role-board{display:none;align-items:center;gap:8px;background:var(--aqua);border:2px solid var(--blue);border-radius:16px;padding:8px 12px;font-weight:800;color:var(--navy)}
+    .role-board.show{display:flex}
+    .role-a,.role-b{padding:6px 10px;border-radius:10px;background:var(--white)}
+    .swap-btn{min-width:44px;min-height:44px;border:0;border-radius:50%;background:var(--coral);color:var(--white);font-size:20px;cursor:pointer}
+    .dialogue{flex:1;display:grid;align-content:center;gap:10px;padding:16px 22px;overflow:auto}
+    .line{display:grid;grid-template-columns:68px minmax(0,1fr) 52px;align-items:center;gap:10px;width:min(88%,1050px);border:3px solid var(--line);border-radius:20px;padding:10px 12px;background:var(--white);box-shadow:0 6px 0 rgba(18,53,91,.08);transition:border .15s,transform .15s,background .15s}
+    .line[data-role="B"]{margin-left:auto;background:#eef8ff}
+    .line.active{border-color:var(--gold);background:#fff4b8;transform:scale(1.015)}
+    .role{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--white);font-family:'Atkinson Hyperlegible',sans-serif;font-size:28px;font-weight:700}
+    .line[data-role="B"] .role{background:var(--coral)}
+    .line-text{min-width:0}
+    .english{font-family:'Atkinson Hyperlegible','Sarabun',sans-serif;font-size:clamp(25px,3vw,48px);font-weight:700;line-height:1.05;color:var(--navy);overflow-wrap:anywhere}
+    .reading{font-size:clamp(15px,1.5vw,21px);font-weight:700;color:#7a4b00;margin-top:5px}
+    .meaning{font-size:clamp(14px,1.35vw,19px);font-weight:600;color:var(--muted);margin-top:2px}
+    .hide-reading .reading,.hide-meaning .meaning{display:none}
+    .say-btn{width:50px;height:50px;border:2px solid var(--blue);border-radius:50%;background:var(--aqua);font-size:22px;cursor:pointer}
+    .controls{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:8px;padding:10px 16px 14px;background:rgba(255,253,247,.95);border-top:2px solid var(--line)}
+    .ctrl-prev,.ctrl-next{background:var(--white);border-color:var(--line);color:var(--navy)}
+    .ctrl-listen{background:var(--aqua);border-color:var(--blue);color:var(--navy)}
+    .ctrl-play{background:var(--gold);border-color:var(--navy);color:var(--navy)}
+    .ctrl-play.playing{background:var(--coral);color:var(--white)}
+    .turn-cue{display:none;text-align:center;padding:10px;background:var(--coral);color:var(--white);font-size:clamp(18px,2vw,28px);font-weight:800}
+    .turn-cue.show{display:block}
+    .footer{padding:6px 14px;text-align:center;color:var(--muted);font-size:13px;background:var(--white);border-top:1px solid var(--line)}
+    .pair-mode .dialogue{padding-inline:4vw}
+    .pair-mode .line{width:92%}
+    .pair-mode .line[data-role="A"]{margin-right:auto}
+    .pair-mode .line[data-role="B"]{margin-left:auto}
+    :fullscreen body{padding:0}
+    :fullscreen .shell{width:100%;height:100vh;min-height:100vh;border:0;border-radius:0}
+    @media (max-width:900px){
+      body{padding:0}.shell{min-height:100vh;border:0;border-radius:0}
+      .workspace{grid-template-columns:minmax(0,1fr)}.sidebar{min-width:0;padding:8px;overflow:visible}
+      .scene-list{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}.scene-btn{width:auto;min-width:160px;flex:0 0 auto}
+      .lesson-list{max-width:300px}.lesson-head{padding:10px 12px;flex-wrap:wrap}.lesson-emoji{width:52px;height:52px;font-size:30px}
+      .role-board{width:100%;max-width:100%;min-width:0;flex:0 1 100%;justify-content:center}.role-board.show{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr)}.dialogue{padding:10px;align-content:start}.line{width:96%;grid-template-columns:50px minmax(0,1fr) 46px;padding:9px 8px}.role{width:44px;height:44px;font-size:23px}.say-btn{width:44px;height:44px}
+      .controls{grid-template-columns:repeat(2,1fr);padding:8px}.footer{display:none}
+    }
+    @media (min-width:901px) and (max-height:800px){
+      .topbar{padding:8px 14px}.toolbar{padding:5px 12px}.scene-btn{min-height:48px}.sidebar{padding:9px 12px}
+      .lesson-head{padding:8px 16px}.lesson-emoji{width:50px;height:50px;font-size:30px}.lesson-copy h2{font-size:32px}.goal{font-size:15px}
+      .dialogue{gap:6px;padding:8px 18px}.line{padding:6px 10px;border-width:2px}.role{width:44px;height:44px;font-size:23px}
+      .english{font-size:clamp(25px,2.5vw,34px)}.reading{font-size:15px;margin-top:2px}.meaning{font-size:14px}
+      .say-btn{width:44px;height:44px}.turn-cue{padding:5px;font-size:19px}.controls{padding:6px 14px}.footer{display:none}
+    }
+    @media (max-width:560px){
+      .topbar{padding:9px}.topbar h1{font-size:20px}.badge{display:none}.btn-back{padding:7px 9px;font-size:0;width:44px}.btn-back::after{content:'←';font-size:22px}
+      .toolbar{padding:7px;gap:6px}.mode-btn{padding:7px 10px}.toolbar-spacer{display:none}.toggle{flex:1;padding:7px 8px}.btn-fs{width:44px;padding:0;font-size:0}.btn-fs::after{content:'⛶';font-size:21px}
+      .scene-btn{min-width:132px;min-height:48px}.scene-btn .scene-icon{font-size:23px}.sidebar-title{display:none}.lesson-list{margin-top:5px}
+      .lesson-copy{flex-basis:100%}.lesson-copy h2{font-size:25px}.goal{font-size:14px}.lesson-emoji{display:none}.english{font-size:clamp(22px,7.2vw,30px)}.reading{font-size:15px}.meaning{font-size:14px}
+      .line,.pair-mode .line{width:100%;grid-template-columns:42px minmax(0,1fr) 44px;gap:7px;border-width:2px}.role{width:38px;height:38px;font-size:20px}
+      .role-board{font-size:12px;padding:6px;gap:5px}.role-board span{min-width:0;padding:6px 3px;text-align:center;white-space:nowrap}.controls .btn{font-size:14px;padding:7px}
+    }
+    @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack" aria-label="กลับคลังสื่อ">← กลับคลังสื่อ</button>
+      <h1>Everyday Conversation</h1>
+      <span class="badge">ภาษาอังกฤษ ป.4</span>
+    </header>
+
+    <nav class="toolbar" id="toolbar" aria-label="โหมดและตัวช่วย">
+      <div class="mode-group">
+        <button type="button" class="mode-btn on" data-mode="learn" aria-pressed="true">ครูนำ</button>
+        <button type="button" class="mode-btn" data-mode="practice" aria-pressed="false">จับคู่ A/B</button>
+      </div>
+      <span class="toolbar-spacer"></span>
+      <button type="button" class="btn toggle" id="toggleReading" aria-pressed="true">คำอ่าน: เปิด</button>
+      <button type="button" class="btn toggle" id="toggleMeaning" aria-pressed="true">คำแปล: เปิด</button>
+      <button type="button" class="btn btn-fs" id="btnFs">⛶ เต็มจอ</button>
+    </nav>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <p class="sidebar-title">เลือกสถานการณ์</p>
+        <div class="scene-list" id="sceneList"></div>
+        <p class="sidebar-title" style="margin-top:14px">เลือกบทที่ 1–5</p>
+        <div class="lesson-list" id="lessonList"></div>
+      </aside>
+
+      <main class="main">
+        <section class="lesson-head">
+          <div class="lesson-emoji" id="sceneEmoji" aria-hidden="true">👋</div>
+          <div class="lesson-copy">
+            <p class="eyebrow" id="sceneLabel">สถานการณ์ 1 จาก 6</p>
+            <h2 id="lessonTitle">Meeting a new friend</h2>
+            <p class="goal" id="lessonGoal">ฝึกทักทายและแนะนำตัว</p>
+          </div>
+          <div class="role-board" id="roleBoard">
+            <span class="role-a" id="roleA">ฝั่งซ้าย = A</span>
+            <button type="button" class="swap-btn" id="btnSwap" aria-label="สลับบท A และ B">⇄</button>
+            <span class="role-b" id="roleB">ฝั่งขวา = B</span>
+          </div>
+        </section>
+        <div class="turn-cue" id="turnCue" role="status"></div>
+        <section class="dialogue" id="dialogue" aria-live="polite"></section>
+        <div class="controls">
+          <button type="button" class="btn ctrl-prev" id="btnPrev">← ประโยคก่อน</button>
+          <button type="button" class="btn ctrl-listen" id="btnListen">ฟังประโยคนี้</button>
+          <button type="button" class="btn ctrl-play" id="btnPlay">▶ เล่นทั้งบท</button>
+          <button type="button" class="btn ctrl-next" id="btnNext">ประโยคถัดไป →</button>
+        </div>
+        <footer class="footer">เลือกบทก่อน แล้วกดฟังเมื่อต้องการ ไม่มีเสียงอ่านอัตโนมัติ · ไม่เก็บคะแนน</footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    const GAME_SLUG='everyday-conversation-p4-media';
+    const MEDIA_SLUG='everyday-conversation-p4-media';
+    const STORAGE_READING='conversation_p4_show_reading';
+    const STORAGE_MEANING='conversation_p4_show_meaning';
+    const SCENES=[
+      {id:'greetings',icon:'👋',label:'ทักทายและรู้จักกัน',goal:'พูดโต้ตอบและแนะนำตัว',indicator:'ต 1.2 ป.4/1',dialogues:[
+        {title:'Meeting a new friend',lines:[['A','Hello! My name is Mali.','เฮลโล มาย เนม อิส มะลิ','สวัสดี ฉันชื่อมะลิ'],['B','Hi, Mali. I am Ton.','ไฮ มะลิ ไอ แอม ต้น','สวัสดีมะลิ ฉันชื่อต้น'],['A','Nice to meet you.','ไนซ์ ทู มีต ยู','ยินดีที่ได้รู้จัก'],['B','Nice to meet you, too.','ไนซ์ ทู มีต ยู ทู','ยินดีที่ได้รู้จักเช่นกัน']]},
+        {title:'What is your name?',lines:[['A','What is your name?','ว็อท อิส ยัวร์ เนม','คุณชื่ออะไร'],['B','My name is Nan.','มาย เนม อิส แนน','ฉันชื่อแนน'],['A','How do you spell it?','ฮาว ดู ยู สเปล อิท','สะกดอย่างไร'],['B','N-A-N, Nan.','เอ็น เอ เอ็น แนน','N-A-N แนน']]},
+        {title:'How old are you?',lines:[['A','How old are you?','ฮาว โอลด์ อาร์ ยู','คุณอายุเท่าไร'],['B','I am ten years old.','ไอ แอม เท็น เยียร์ส โอลด์','ฉันอายุสิบปี'],['A','I am ten, too.','ไอ แอม เท็น ทู','ฉันก็อายุสิบปี'],['B','We are the same age!','วี อาร์ เดอะ เซม เอจ','เราอายุเท่ากันเลย']]},
+        {title:'Good morning',lines:[['A','Good morning, Pim.','กูด มอร์นิง พิม','สวัสดีตอนเช้า พิม'],['B','Good morning, Joe.','กูด มอร์นิง โจ','สวัสดีตอนเช้า โจ'],['A','How are you today?','ฮาว อาร์ ยู ทูเดย์','วันนี้คุณเป็นอย่างไรบ้าง'],['B','I am great, thank you.','ไอ แอม เกรต แธงก์ ยู','ฉันสบายดีมาก ขอบคุณ']]},
+        {title:'See you tomorrow',lines:[['A','It is time to go home.','อิท อิส ไทม์ ทู โก โฮม','ถึงเวลากลับบ้านแล้ว'],['B','Yes. See you tomorrow.','เยส ซี ยู ทูมอร์โรว์','ใช่ แล้วเจอกันพรุ่งนี้'],['A','Have a nice evening.','แฮฟ อะ ไนซ์ อีฟนิง','ขอให้มีความสุขในตอนเย็น'],['B','You, too. Goodbye!','ยู ทู กูดบาย','เช่นกัน ลาก่อน']]}
+      ]},
+      {id:'personal',icon:'🏠',label:'ตัวฉัน เพื่อน และครอบครัว',goal:'ขอและให้ข้อมูลเรื่องใกล้ตัว',indicator:'ต 1.2 ป.4/4',dialogues:[
+        {title:'My family',lines:[['A','How many people are in your family?','ฮาว เมนี พีเพิล อาร์ อิน ยัวร์ แฟมิลี','ครอบครัวคุณมีกี่คน'],['B','There are four people.','แดร์ อาร์ โฟร์ พีเพิล','มีสี่คน'],['A','Who are they?','ฮู อาร์ เดย์','มีใครบ้าง'],['B','My parents, my brother, and me.','มาย แพเรินทส์ มาย บราเธอร์ แอนด์ มี','พ่อแม่ น้องชาย และฉัน']]},
+        {title:'My best friend',lines:[['A','Who is your best friend?','ฮู อิส ยัวร์ เบสต์ เฟรนด์','ใครคือเพื่อนสนิทของคุณ'],['B','My best friend is Kwan.','มาย เบสต์ เฟรนด์ อิส ขวัญ','เพื่อนสนิทของฉันคือขวัญ'],['A','What is she like?','ว็อท อิส ชี ไลก์','เธอเป็นคนอย่างไร'],['B','She is kind and funny.','ชี อิส ไคนด์ แอนด์ ฟันนี','เธอใจดีและตลก']]},
+        {title:'Where do you live?',lines:[['A','Where do you live?','แวร์ ดู ยู ลิฟ','คุณอาศัยอยู่ที่ไหน'],['B','I live in Khon Kaen.','ไอ ลิฟ อิน ขอนแก่น','ฉันอยู่จังหวัดขอนแก่น'],['A','Is it far from school?','อิส อิท ฟาร์ ฟรอม สกูล','ไกลจากโรงเรียนไหม'],['B','No, it is near my school.','โน อิท อิส เนียร์ มาย สกูล','ไม่ อยู่ใกล้โรงเรียน']]},
+        {title:'Do you have a pet?',lines:[['A','Do you have a pet?','ดู ยู แฮฟ อะ เพ็ต','คุณมีสัตว์เลี้ยงไหม'],['B','Yes, I have a dog.','เยส ไอ แฮฟ อะ ด็อก','มี ฉันมีสุนัขหนึ่งตัว'],['A','What is its name?','ว็อท อิส อิทส์ เนม','มันชื่ออะไร'],['B','Its name is Lucky.','อิทส์ เนม อิส ลักกี','มันชื่อลักกี']]},
+        {title:'My favorite subject',lines:[['A','What is your favorite subject?','ว็อท อิส ยัวร์ เฟเวอริท ซับเจ็กต์','วิชาโปรดของคุณคืออะไร'],['B','My favorite subject is English.','มาย เฟเวอริท ซับเจ็กต์ อิส อิงลิช','วิชาโปรดของฉันคือภาษาอังกฤษ'],['A','Why do you like it?','วาย ดู ยู ไลก์ อิท','ทำไมคุณจึงชอบ'],['B','Because I like speaking.','บีคอส ไอ ไลก์ สปีกกิง','เพราะฉันชอบพูด']]}
+      ]},
+      {id:'classroom',icon:'🏫',label:'ภาษาในห้องเรียน',goal:'ใช้คำสั่ง คำขอร้อง และคำขออนุญาต',indicator:'ต 1.2 ป.4/2 · ต 4.1 ป.4/1',dialogues:[
+        {title:'May I come in?',lines:[['A','May I come in, please?','เมย์ ไอ คัม อิน พลีซ','ขออนุญาตเข้าได้ไหม'],['B','Yes, you may.','เยส ยู เมย์','ได้ เข้ามาได้'],['A','I am sorry I am late.','ไอ แอม ซอรี ไอ แอม เลท','ขอโทษที่มาสาย'],['B','Please sit down.','พลีซ ซิท ดาวน์','กรุณานั่งลง']]},
+        {title:'May I go out?',lines:[['A','May I go to the toilet?','เมย์ ไอ โก ทู เดอะ ทอยเล็ท','ขออนุญาตไปห้องน้ำได้ไหม'],['B','Yes, but come back soon.','เยส บัท คัม แบ็ก ซูน','ได้ แต่รีบกลับมา'],['A','Thank you, teacher.','แธงก์ ยู ทีเชอร์','ขอบคุณครับ/ค่ะ คุณครู'],['B','You are welcome.','ยู อาร์ เวลคัม','ด้วยความยินดี']]},
+        {title:'Borrowing a pencil',lines:[['A','Can I borrow your pencil?','แคน ไอ บอร์โรว์ ยัวร์ เพ็นซิล','ขอยืมดินสอได้ไหม'],['B','Sure. Here you are.','ชัวร์ เฮียร์ ยู อาร์','ได้ นี่จ้ะ'],['A','Thank you very much.','แธงก์ ยู เวรี มัช','ขอบคุณมาก'],['B','No problem.','โน พร็อบเล็ม','ไม่เป็นไร']]},
+        {title:'Please repeat',lines:[['A','Please repeat that.','พลีซ รีพีต แดต','กรุณาพูดซ้ำอีกครั้ง'],['B','Open your book to page ten.','โอเพิน ยัวร์ บุ๊ก ทู เพจ เท็น','เปิดหนังสือหน้าสิบ'],['A','Page ten. Is that right?','เพจ เท็น อิส แดต ไรต์','หน้าสิบ ถูกต้องไหม'],['B','Yes, that is right.','เยส แดต อิส ไรต์','ใช่ ถูกต้อง']]},
+        {title:'Working together',lines:[['A','Please work with your partner.','พลีซ เวิร์ก วิธ ยัวร์ พาร์ตเนอร์','กรุณาทำงานกับคู่ของคุณ'],['B','Who is my partner?','ฮู อิส มาย พาร์ตเนอร์','ใครคือคู่ของฉัน'],['A','Nok is your partner.','นก อิส ยัวร์ พาร์ตเนอร์','นกคือคู่ของคุณ'],['B','Okay. Let us begin.','โอเค เล็ท อัส บีกิน','ตกลง มาเริ่มกันเลย']]}
+      ]},
+      {id:'help',icon:'🤝',label:'ความต้องการและขอความช่วยเหลือ',goal:'บอกความต้องการและขอความช่วยเหลือ',indicator:'ต 1.2 ป.4/3',dialogues:[
+        {title:'I need some water',lines:[['A','I am thirsty.','ไอ แอม เธิร์สที','ฉันกระหายน้ำ'],['B','Would you like some water?','วูด ยู ไลก์ ซัม วอเทอร์','รับน้ำสักหน่อยไหม'],['A','Yes, please.','เยส พลีซ','รับครับ/ค่ะ'],['B','Here is your water.','เฮียร์ อิส ยัวร์ วอเทอร์','นี่คือน้ำของคุณ']]},
+        {title:'I cannot find my book',lines:[['A','I cannot find my book.','ไอ แคนน็อท ไฟนด์ มาย บุ๊ก','ฉันหาหนังสือไม่เจอ'],['B','What color is it?','ว็อท คัลเลอร์ อิส อิท','มันสีอะไร'],['A','It is a blue book.','อิท อิส อะ บลู บุ๊ก','เป็นหนังสือสีน้ำเงิน'],['B','Is this your book?','อิส ดิส ยัวร์ บุ๊ก','นี่คือหนังสือของคุณไหม']]},
+        {title:'Please help me',lines:[['A','Can you help me, please?','แคน ยู เฮลป์ มี พลีซ','ช่วยฉันหน่อยได้ไหม'],['B','Of course. What do you need?','ออฟ คอร์ส ว็อท ดู ยู นีด','ได้สิ คุณต้องการอะไร'],['A','Please carry this box.','พลีซ แครี ดิส บ็อกซ์','ช่วยถือกล่องนี้หน่อย'],['B','Okay. Let us carry it together.','โอเค เล็ท อัส แครี อิท ทูเก็ทเธอร์','ตกลง เราช่วยกันถือ']]},
+        {title:'I do not understand',lines:[['A','I do not understand this word.','ไอ ดู น็อท อันเดอร์สแตนด์ ดิส เวิร์ด','ฉันไม่เข้าใจคำนี้'],['B','Which word?','วิช เวิร์ด','คำไหน'],['A','The word library.','เดอะ เวิร์ด ไลบรารี','คำว่า library'],['B','It is a place with many books.','อิท อิส อะ เพลส วิธ เมนี บุ๊กส์','เป็นสถานที่ที่มีหนังสือมากมาย']]},
+        {title:'I feel sick',lines:[['A','I feel sick.','ไอ ฟีล ซิก','ฉันรู้สึกไม่สบาย'],['B','Do you need the nurse?','ดู ยู นีด เดอะ เนิร์ส','ต้องการพบพยาบาลไหม'],['A','Yes. Please come with me.','เยส พลีซ คัม วิธ มี','ต้องการ ช่วยไปกับฉันหน่อย'],['B','Okay. I will help you.','โอเค ไอ วิล เฮลป์ ยู','ตกลง ฉันจะช่วยคุณ']]}
+      ]},
+      {id:'feelings',icon:'😊',label:'ความชอบและความรู้สึก',goal:'ถามตอบและพูดความรู้สึกเรื่องใกล้ตัว',indicator:'ต 1.2 ป.4/5',dialogues:[
+        {title:'Do you like football?',lines:[['A','Do you like football?','ดู ยู ไลก์ ฟุตบอล','คุณชอบฟุตบอลไหม'],['B','Yes, I do. I love it.','เยส ไอ ดู ไอ เลิฟ อิท','ชอบ ฉันชอบมาก'],['A','When do you play?','เว็น ดู ยู เพลย์','คุณเล่นเมื่อไร'],['B','I play after school.','ไอ เพลย์ อาฟเทอร์ สกูล','ฉันเล่นหลังเลิกเรียน']]},
+        {title:'I am happy',lines:[['A','You look happy today.','ยู ลุก แฮปปี ทูเดย์','วันนี้คุณดูมีความสุข'],['B','Yes! I got a good score.','เยส ไอ ก็อท อะ กูด สกอร์','ใช่ ฉันได้คะแนนดี'],['A','That is wonderful!','แดต อิส วันเดอร์ฟูล','ยอดเยี่ยมมาก'],['B','Thank you. I am very proud.','แธงก์ ยู ไอ แอม เวรี พราวด์','ขอบคุณ ฉันภูมิใจมาก']]},
+        {title:'I am scared',lines:[['A','Are you okay?','อาร์ ยู โอเค','คุณโอเคไหม'],['B','I am scared of the storm.','ไอ แอม สแกร์ด ออฟ เดอะ สตอร์ม','ฉันกลัวพายุ'],['A','Do not worry. You are safe.','ดู น็อท เวอรี ยู อาร์ เซฟ','ไม่ต้องกังวล คุณปลอดภัย'],['B','Thank you for staying with me.','แธงก์ ยู ฟอร์ สเตย์อิง วิธ มี','ขอบคุณที่อยู่กับฉัน']]},
+        {title:'After P.E. class',lines:[['A','How do you feel?','ฮาว ดู ยู ฟีล','คุณรู้สึกอย่างไร'],['B','I am tired but happy.','ไอ แอม ไทเอิร์ด บัท แฮปปี','ฉันเหนื่อยแต่มีความสุข'],['A','Would you like to rest?','วูด ยู ไลก์ ทู เรสต์','อยากพักไหม'],['B','Yes, just for a minute.','เยส จัสต์ ฟอร์ อะ มินิท','อยากพักสักครู่']]},
+        {title:'The school trip',lines:[['A','Are you excited about the trip?','อาร์ ยู เอ็กไซทิด อะเบาท์ เดอะ ทริป','คุณตื่นเต้นกับทัศนศึกษาไหม'],['B','Yes! I want to see the animals.','เยส ไอ วอนท์ ทู ซี ดิ แอนิมอลส์','ตื่นเต้น ฉันอยากดูสัตว์'],['A','I want to see the elephants.','ไอ วอนท์ ทู ซี ดิ เอลิแฟนท์ส','ฉันอยากดูช้าง'],['B','It will be fun!','อิท วิล บี ฟัน','ต้องสนุกแน่']]}
+      ]},
+      {id:'school',icon:'📚',label:'ชีวิตในโรงเรียน',goal:'ฟังและตอบคำถามจากบทสนทนาในโรงเรียน',indicator:'ต 1.1 ป.4/4 · ต 4.1 ป.4/1',dialogues:[
+        {title:'Today’s timetable',lines:[['A','What is our first class today?','ว็อท อิส อาวร์ เฟิร์สต์ คลาส ทูเดย์','วันนี้คาบแรกเรียนอะไร'],['B','Our first class is math.','อาวร์ เฟิร์สต์ คลาส อิส แมธ','คาบแรกคือคณิตศาสตร์'],['A','What class is next?','ว็อท คลาส อิส เน็กซ์','คาบต่อไปคือวิชาอะไร'],['B','English is next.','อิงลิช อิส เน็กซ์','ต่อไปคือภาษาอังกฤษ']]},
+        {title:'Where is the library?',lines:[['A','Excuse me. Where is the library?','เอ็กซ์คิวซ มี แวร์ อิส เดอะ ไลบรารี','ขอโทษ ห้องสมุดอยู่ที่ไหน'],['B','It is next to the computer room.','อิท อิส เน็กซ์ ทู เดอะ คอมพิวเตอร์ รูม','อยู่ข้างห้องคอมพิวเตอร์'],['A','Is it on the second floor?','อิส อิท ออน เดอะ เซคเคินด์ ฟลอร์','อยู่ชั้นสองใช่ไหม'],['B','Yes. Go up the stairs.','เยส โก อัพ เดอะ สแตร์ส','ใช่ ขึ้นบันไดไป']]},
+        {title:'At lunchtime',lines:[['A','What do you have for lunch?','ว็อท ดู ยู แฮฟ ฟอร์ ลันช์','คุณกินอะไรเป็นอาหารกลางวัน'],['B','I have rice and chicken.','ไอ แฮฟ ไรซ์ แอนด์ ชิกเกิน','ฉันกินข้าวกับไก่'],['A','Would you like some fruit?','วูด ยู ไลก์ ซัม ฟรุต','รับผลไม้ไหม'],['B','Yes, I would like a banana.','เยส ไอ วูด ไลก์ อะ บานานา','รับ ฉันอยากได้กล้วย']]},
+        {title:'After-school club',lines:[['A','Which club are you in?','วิช คลับ อาร์ ยู อิน','คุณอยู่ชมรมอะไร'],['B','I am in the music club.','ไอ แอม อิน เดอะ มิวสิก คลับ','ฉันอยู่ชมรมดนตรี'],['A','What instrument do you play?','ว็อท อินสทรูเมินท์ ดู ยู เพลย์','คุณเล่นเครื่องดนตรีอะไร'],['B','I play the guitar.','ไอ เพลย์ เดอะ กีทาร์','ฉันเล่นกีตาร์']]},
+        {title:'Sports day',lines:[['A','When is sports day?','เว็น อิส สปอร์ตส์ เดย์','วันกีฬาเมื่อไร'],['B','It is on Friday.','อิท อิส ออน ฟรายเดย์','วันศุกร์'],['A','Which team are you on?','วิช ทีม อาร์ ยู ออน','คุณอยู่ทีมไหน'],['B','I am on the blue team.','ไอ แอม ออน เดอะ บลู ทีม','ฉันอยู่ทีมสีน้ำเงิน']]}
+      ]}
+    ];
+
+    const state={scene:0,lesson:0,line:0,mode:'learn',swapped:false,playing:false,playToken:0,
+      showReading:localStorage.getItem(STORAGE_READING)!=='0',showMeaning:localStorage.getItem(STORAGE_MEANING)!=='0'};
+    const $=id=>document.getElementById(id);
+    const shell=$('shell');
+
+    if(window.KAMPAI){
+      try{
+        KAMPAI.setSlug(MEDIA_SLUG);KAMPAI.sound?.mountToggles?.();
+        const soundBar=document.getElementById('kampai-snd');
+        const speechButton=document.getElementById('kbtn-tts');
+        if(soundBar&&speechButton){
+          soundBar.replaceChildren(speechButton);speechButton.title='เปิดหรือปิดเสียงพูด';speechButton.setAttribute('aria-label','เปิดหรือปิดเสียงพูด');
+          $('toolbar').insertBefore(soundBar,$('btnFs'));
+        }
+      }catch(_e){}
+    }
+
+    function currentScene(){return SCENES[state.scene]}
+    function currentLesson(){return currentScene().dialogues[state.lesson]}
+    function currentLine(){return currentLesson().lines[state.line]}
+    function stopPlayback(){
+      state.playToken+=1;state.playing=false;$('btnPlay').classList.remove('playing');$('btnPlay').textContent='▶ เล่นทั้งบท';$('turnCue').classList.remove('show');
+      try{window.KAMPAI?.sound?.stopSpeak?.();}catch(_e){}
+    }
+    function updateVisibility(){
+      shell.classList.toggle('hide-reading',!state.showReading);shell.classList.toggle('hide-meaning',!state.showMeaning);
+      $('toggleReading').setAttribute('aria-pressed',String(state.showReading));$('toggleReading').textContent='คำอ่าน: '+(state.showReading?'เปิด':'ปิด');
+      $('toggleMeaning').setAttribute('aria-pressed',String(state.showMeaning));$('toggleMeaning').textContent='คำแปล: '+(state.showMeaning?'เปิด':'ปิด');
+    }
+    function renderNavigation(){
+      $('sceneList').innerHTML=SCENES.map((scene,index)=>'<button type="button" class="scene-btn '+(index===state.scene?'on':'')+'" data-scene="'+index+'"><span class="scene-icon">'+scene.icon+'</span><span>'+scene.label+'</span></button>').join('');
+      $('lessonList').innerHTML=currentScene().dialogues.map((_item,index)=>'<button type="button" class="lesson-btn '+(index===state.lesson?'on':'')+'" data-lesson="'+index+'" aria-label="บทที่ '+(index+1)+'">'+(index+1)+'</button>').join('');
+    }
+    function renderDialogue(){
+      const scene=currentScene(),lesson=currentLesson();
+      $('sceneEmoji').textContent=scene.icon;$('sceneLabel').textContent='สถานการณ์ '+(state.scene+1)+' จาก '+SCENES.length+' · '+scene.indicator;
+      $('lessonTitle').textContent=lesson.title;$('lessonGoal').textContent=scene.goal+' · บท '+(state.lesson+1)+' จาก '+scene.dialogues.length;
+      $('dialogue').innerHTML=lesson.lines.map((line,index)=>'<article class="line '+(index===state.line?'active':'')+'" data-role="'+line[0]+'" data-line="'+index+'"><span class="role">'+line[0]+'</span><div class="line-text"><div class="english">'+line[1]+'</div><div class="reading">คำอ่าน: '+line[2]+'</div><div class="meaning">'+line[3]+'</div></div><button type="button" class="say-btn" data-say="'+index+'" aria-label="ฟัง '+line[1]+'">🔊</button></article>').join('');
+      const active=$('dialogue').querySelector('.line.active');if(active&&active.scrollIntoView)active.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }
+    function render(){renderNavigation();renderDialogue();updateVisibility()}
+    function selectLine(index){state.line=Math.max(0,Math.min(currentLesson().lines.length-1,index));renderDialogue()}
+    function changeLesson(delta){
+      stopPlayback();const scene=currentScene();let next=state.lesson+delta;
+      if(next<0){state.scene=(state.scene-1+SCENES.length)%SCENES.length;state.lesson=SCENES[state.scene].dialogues.length-1;}
+      else if(next>=scene.dialogues.length){state.scene=(state.scene+1)%SCENES.length;state.lesson=0;}else state.lesson=next;
+      state.line=0;render();
+    }
+    function speakLine(index,onDone){
+      selectLine(index);const line=currentLesson().lines[index];
+      if(window.KAMPAI?.sound?.speakBilingual){KAMPAI.sound.speakBilingual(line[1],line[3],{force:'en',onDone:onDone||function(){}});return;}
+      if('speechSynthesis' in window){
+        try{speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(line[1]);utterance.lang='en-US';utterance.rate=.82;utterance.onend=utterance.onerror=onDone||function(){};speechSynthesis.speak(utterance);return;}catch(_e){}
+      }
+      if(onDone)onDone();
+    }
+    function playAll(){
+      if(state.playing){stopPlayback();return;}
+      state.playing=true;state.playToken+=1;const token=state.playToken;$('btnPlay').classList.add('playing');$('btnPlay').textContent='■ หยุดเล่น';
+      const run=index=>{
+        if(!state.playing||token!==state.playToken)return;
+        if(index>=currentLesson().lines.length){stopPlayback();return;}
+        const role=currentLesson().lines[index][0],side=state.swapped?(role==='A'?'ฝั่งขวา':'ฝั่งซ้าย'):(role==='A'?'ฝั่งซ้าย':'ฝั่งขวา');
+        $('turnCue').textContent='ถึงคิว '+side+' · บท '+role;$('turnCue').classList.add('show');
+        speakLine(index,()=>setTimeout(()=>run(index+1),850));
+      };
+      run(0);
+    }
+    function setMode(mode){
+      stopPlayback();state.mode=mode;state.line=0;state.swapped=false;shell.classList.toggle('pair-mode',mode==='practice');$('roleBoard').classList.toggle('show',mode==='practice');
+      document.querySelectorAll('[data-mode]').forEach(button=>{const on=button.dataset.mode===mode;button.classList.toggle('on',on);button.setAttribute('aria-pressed',String(on));});
+      updateRoles();renderDialogue();
+    }
+    function updateRoles(){
+      $('roleA').textContent=state.swapped?'ฝั่งซ้าย = B':'ฝั่งซ้าย = A';$('roleB').textContent=state.swapped?'ฝั่งขวา = A':'ฝั่งขวา = B';
+    }
+
+    $('sceneList').addEventListener('click',event=>{const button=event.target.closest('[data-scene]');if(!button)return;stopPlayback();state.scene=Number(button.dataset.scene);state.lesson=0;state.line=0;render();});
+    $('lessonList').addEventListener('click',event=>{const button=event.target.closest('[data-lesson]');if(!button)return;stopPlayback();state.lesson=Number(button.dataset.lesson);state.line=0;render();});
+    $('dialogue').addEventListener('click',event=>{const say=event.target.closest('[data-say]');if(say){stopPlayback();speakLine(Number(say.dataset.say));return;}const line=event.target.closest('[data-line]');if(line){stopPlayback();selectLine(Number(line.dataset.line));}});
+    document.querySelector('.mode-group').addEventListener('click',event=>{const button=event.target.closest('[data-mode]');if(button)setMode(button.dataset.mode);});
+    $('btnPrev').addEventListener('click',()=>{stopPlayback();if(state.line>0)selectLine(state.line-1);else changeLesson(-1);});
+    $('btnNext').addEventListener('click',()=>{stopPlayback();if(state.line<currentLesson().lines.length-1)selectLine(state.line+1);else changeLesson(1);});
+    $('btnListen').addEventListener('click',()=>{stopPlayback();speakLine(state.line);});
+    $('btnPlay').addEventListener('click',playAll);
+    $('btnSwap').addEventListener('click',()=>{stopPlayback();state.swapped=!state.swapped;updateRoles();});
+    $('toggleReading').addEventListener('click',()=>{state.showReading=!state.showReading;localStorage.setItem(STORAGE_READING,state.showReading?'1':'0');updateVisibility();});
+    $('toggleMeaning').addEventListener('click',()=>{state.showMeaning=!state.showMeaning;localStorage.setItem(STORAGE_MEANING,state.showMeaning?'1':'0');updateVisibility();});
+    $('btnFs').addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{});else document.exitFullscreen?.();});
+    $('btnBack').addEventListener('click',()=>{stopPlayback();if(window.KAMPAI?.goHome)KAMPAI.goHome();else history.back();});
+    document.addEventListener('keydown',event=>{if(event.key==='ArrowLeft')$('btnPrev').click();if(event.key==='ArrowRight')$('btnNext').click();if(event.key==='Escape')stopPlayback();});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback();});
+    window.addEventListener('pagehide',stopPlayback);
+
+    window.EverydayConversationP4=Object.freeze({
+      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,playing:state.playing,dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0)}),
+      scenes:Object.freeze(SCENES.map(scene=>Object.freeze({id:scene.id,count:scene.dialogues.length,indicator:scene.indicator})))
+    });
+    render();setMode('learn');
+  })();
+  </script>
+</body>
+</html>
