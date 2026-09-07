@@ -31,12 +31,10 @@ import type { ViewMode } from '@/hooks/useViewMode';
 import type { PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
 
 interface Props {
-    /** Pass null when rendering items outside a category (e.g. Favorites section) */
+    /** Pass null when rendering items outside a category. */
     category: EduHubCategory | null;
     items: EduHubItem[];
     viewMode?: ViewMode;
-    isFavorite?: (id: string) => boolean;
-    onToggleFavorite?: (id: string) => void;
     /** Skip rendering the section header (parent supplies its own) */
     hideHeader?: boolean;
     /**
@@ -78,8 +76,6 @@ export const CategorySection = ({
     category,
     items,
     viewMode = 'grid',
-    isFavorite,
-    onToggleFavorite,
     hideHeader = false,
     editable = false,
     categoryDraggable = false,
@@ -111,7 +107,7 @@ export const CategorySection = ({
 
     // Sortable for the SECTION itself (controlled by parent DndContext in
     // EducationalHubTeacher when admin). Hook must always run — `disabled`
-    // flag noops it for non-admin or favorites section (category null).
+    // flag noops it for non-admin or a section without a category.
     const sectionSortable = useSortable({
         id: category?.id ?? '__noop__',
         disabled: !categoryDraggable || !category,
@@ -205,8 +201,6 @@ export const CategorySection = ({
             key={item.id}
             item={item}
             viewMode={viewMode}
-            isFavorite={isFavorite?.(item.id) ?? false}
-            onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
             editable={dragEditable}
             libraryPinned={!!item.library_pinned}
             showLibraryPinControl={editable}

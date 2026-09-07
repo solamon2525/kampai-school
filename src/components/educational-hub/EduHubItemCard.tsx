@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
+    FileText, ExternalLink, Play, Type, Download, Eye, PlayCircle, Maximize2,
     GripVertical, Gamepad2, Pin, Loader2,
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
@@ -30,9 +30,6 @@ import { isWorksheetItem, type PairedHubLink } from '@/lib/edu-hub-worksheet-pai
 interface Props {
     item: EduHubItem;
     viewMode?: ViewMode;
-    isFavorite?: boolean;
-    /** If provided, renders a ⭐ button (toggle on click) */
-    onToggleFavorite?: () => void;
     /** Admin-only — shows a drag handle and registers with parent SortableContext */
     editable?: boolean;
     /** ปักหมุดคลังเกม (global) */
@@ -49,8 +46,6 @@ interface Props {
 export const EduHubItemCard = ({
     item: originalItem,
     viewMode = 'grid',
-    isFavorite = false,
-    onToggleFavorite,
     editable = false,
     libraryPinned = false,
     showLibraryPinControl = false,
@@ -117,11 +112,6 @@ export const EduHubItemCard = ({
         }
     };
 
-    const handleFavoriteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onToggleFavorite?.();
-    };
-
     const handleLibraryPinClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onToggleLibraryPin?.();
@@ -173,8 +163,6 @@ export const EduHubItemCard = ({
                     </div>
                     <CardActions
                         item={item}
-                        isFavorite={isFavorite}
-                        onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
                         onEmbed={item.item_type === 'link' ? handleEmbedClick : undefined}
                         libraryPinned={libraryPinned}
                         showLibraryPinControl={showLibraryPinControl}
@@ -218,7 +206,7 @@ export const EduHubItemCard = ({
                     </button>
                 )}
 
-                {/* Favorite + Embed action overlay (top-right) */}
+                {/* Embed and library pin actions (top-right) */}
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
                     {item.item_type === 'link' && item.external_url && (
                         <button
@@ -239,7 +227,7 @@ export const EduHubItemCard = ({
                             className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform disabled:opacity-60"
                             aria-label={libraryPinned ? 'ปลดหมุดคลัง' : 'ปักหมุดคลัง'}
                             aria-pressed={libraryPinned}
-                            title={libraryPinned ? 'ปักหมุดคลัง (มีผลทุกเครื่อง)' : 'ปักหมุดคลัง (มีผลทุกเครื่อง)'}
+                            title={libraryPinned ? 'ปลดหมุดคลัง (มีผลทุกเครื่อง)' : 'ปักหมุดคลัง (มีผลทุกเครื่อง)'}
                         >
                             {libraryPinLoading ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
@@ -251,23 +239,6 @@ export const EduHubItemCard = ({
                                     )}
                                 />
                             )}
-                        </button>
-                    )}
-                    {onToggleFavorite && (
-                        <button
-                            type="button"
-                            onClick={handleFavoriteClick}
-                            className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform"
-                            aria-label={isFavorite ? 'ลบจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
-                            aria-pressed={isFavorite}
-                            title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
-                        >
-                            <Star
-                                className={cn(
-                                    'h-3.5 w-3.5 transition-colors',
-                                    isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
-                                )}
-                            />
                         </button>
                     )}
                 </div>
@@ -452,8 +423,6 @@ const ArBadge = ({ text }: { text: string }) => (
 
 const CardActions = ({
     item,
-    isFavorite,
-    onToggleFavorite,
     onEmbed,
     libraryPinned = false,
     showLibraryPinControl = false,
@@ -462,8 +431,6 @@ const CardActions = ({
     compact,
 }: {
     item: EduHubItem;
-    isFavorite: boolean;
-    onToggleFavorite?: (e: React.MouseEvent) => void;
     onEmbed?: (e: React.MouseEvent) => void;
     libraryPinned?: boolean;
     showLibraryPinControl?: boolean;
@@ -503,23 +470,6 @@ const CardActions = ({
                         )}
                     />
                 )}
-            </Button>
-        )}
-        {onToggleFavorite && (
-            <Button
-                size="icon"
-                variant="ghost"
-                onClick={onToggleFavorite}
-                className={compact ? 'h-7 w-7' : 'h-8 w-8'}
-                title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
-                aria-pressed={isFavorite}
-            >
-                <Star
-                    className={cn(
-                        'h-4 w-4',
-                        isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
-                    )}
-                />
             </Button>
         )}
     </div>

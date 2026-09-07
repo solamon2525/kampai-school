@@ -397,6 +397,7 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 - `CategoryChipStrip` เป็นปุ่ม compact แสดงหมวดปัจจุบัน; กดแล้วเปิด dialog เลือกหมวดแบบกริด 1 คอลัมน์บนมือถือ/2 คอลัมน์บนจอใหญ่ โดยรับ `activeKey`/`onSelect` แบบ controlled
 - แอดมินจัดลำดับผ่าน dialog แนวตั้ง (`editable` + `onSaveOrder`) โดยลากขึ้นลงหรือใช้ปุ่มลูกศร แล้วจึงกดบันทึก; ต้องยืนยันจำนวนแถวและลำดับที่อ่านกลับจาก server ก่อนแจ้งสำเร็จ ผู้ใช้ทั่วไปไม่เห็นปุ่มนี้ และ `lesson-packs` เป็นหมวดจริงที่ร่วมจัดลำดับ/บันทึกเหมือนหมวดอื่น แม้เนื้อหาจะมาจาก service เฉพาะ
 - `EduHubItemCard` ไม่สำรองพื้นที่และไม่ query mini leaderboard ต่อการ์ด; ใช้ `GamificationHub` เป็นจุดโหลดอันดับรวม
+- `EduHubItemCard` ใช้ `library_pinned` เป็นระบบเก็บรายการเด่นเพียงระบบเดียว; ห้ามเพิ่มรายการโปรดเฉพาะเครื่องหรือปุ่มดาวซ้ำกับปักหมุด
 - รายการและตัวกรองทั้งหมดต้องมาจาก service แบบ server-filtered/server-ranged ตาม DESIGN.md Rule 14.45
 
 ### StudentPetHub + PetVisual (games — Student companion)

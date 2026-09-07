@@ -35,8 +35,6 @@ interface Props {
     category: EduHubCategory;
     items: EduHubItem[];
     viewMode?: ViewMode;
-    isFavorite?: (id: string) => boolean;
-    onToggleFavorite?: (id: string) => void;
     editable?: boolean;
     /** Category order is managed by the dedicated category-order dialog. */
     categoryDraggable?: boolean;
@@ -71,8 +69,6 @@ export const GamesCategorySection = ({
     category,
     items,
     viewMode = 'grid',
-    isFavorite,
-    onToggleFavorite,
     editable = false,
     categoryDraggable = false,
     pairedByItemId,
@@ -162,8 +158,6 @@ export const GamesCategorySection = ({
             key={item.id}
             item={item}
             viewMode={viewMode}
-            isFavorite={isFavorite?.(item.id) ?? false}
-            onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
             editable={dragEditable}
             libraryPinned={!!item.library_pinned}
             showLibraryPinControl={editable}
@@ -225,7 +219,6 @@ export const GamesCategorySection = ({
                 <p className="text-[11px] text-muted-foreground rounded-md border border-border bg-muted/30 px-3 py-2 leading-relaxed">
                     <Pin className="inline h-3 w-3 mr-1 text-primary" />
                     กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด — ลากเรียงเฉพาะเกมที่ปักไว้ — มีผล<strong>ทุกเครื่อง</strong>
-                    (คนละส่วนกับ ⭐ เกมโปรดที่เก็บบนเครื่องนี้)
                 </p>
             )}
 

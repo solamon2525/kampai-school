@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard, Star } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,6 @@ import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSect
 import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
 import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
-import { useFavorites } from '@/hooks/useFavorites';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -220,9 +219,6 @@ const EducationalHubTeacher = () => {
         setSearchParams(next, { replace: true });
     };
 
-    // ─── Toolbar state: favorites ───────────────────────────────────────
-    const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
-
     // Admin edit mode — adds drag handles on section headers + item cards
     const { isAdmin, isTeacher } = useUserRole();
     const { toast } = useToast();
@@ -297,12 +293,6 @@ const EducationalHubTeacher = () => {
         });
         return m;
     }, [allItems]);
-
-    // Favorites = subset of ALL items (so user can find favorites even if filtered out)
-    const favoriteItems = useMemo(
-        () => allTeacherItems.filter((it) => favorites.has(it.id)),
-        [allTeacherItems, favorites],
-    );
 
     // Deep-link: scroll to ?cat=key after items render
     useEffect(() => {
@@ -517,31 +507,6 @@ const EducationalHubTeacher = () => {
                                 }}
                             />
 
-                            {/* ⭐ Favorites pinned above */}
-                            {favoriteItems.length > 0 && (
-                                <section className="space-y-4">
-                                    <header className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                            <Star className="h-5 w-5 text-amber-600 fill-amber-500" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h2 className="text-lg sm:text-xl font-bold text-foreground">รายการโปรด</h2>
-                                            <p className="text-xs text-muted-foreground">เก็บไว้บนเครื่องนี้ — เล่นซ้ำได้ง่ายๆ</p>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground font-medium">{favoriteItems.length} รายการ</span>
-                                    </header>
-                                    <CategorySection
-                                        category={null}
-                                        items={favoriteItems}
-                                        viewMode={viewMode}
-                                        isFavorite={isFavorite}
-                                        onToggleFavorite={toggleFav}
-                                        hideHeader
-                                        pairedByItemId={pairedByItemId}
-                                    />
-                                </section>
-                            )}
-
                             {isAdmin && (
                                 <p className="text-[10px] text-muted-foreground -mb-4 italic">
                                     💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
@@ -560,8 +525,6 @@ const EducationalHubTeacher = () => {
                                                     category={cat}
                                                     items={itemsByCategory.get(cat.id) ?? []}
                                                     viewMode={viewMode}
-                                                    isFavorite={isFavorite}
-                                                    onToggleFavorite={toggleFav}
                                                     editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
                                                     pairedByItemId={pairedByItemId}
                                                 />
@@ -571,8 +534,6 @@ const EducationalHubTeacher = () => {
                                                     category={cat}
                                                     items={itemsByCategory.get(cat.id) ?? []}
                                                     viewMode={viewMode}
-                                                    isFavorite={isFavorite}
-                                                    onToggleFavorite={toggleFav}
                                                     editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
                                                     pairedByItemId={pairedByItemId}
                                                 />
