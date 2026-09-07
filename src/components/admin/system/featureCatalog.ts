@@ -340,6 +340,7 @@ export const featureCatalog: FeatureDomain[] = [
                 purpose: 'ซิงค์ปฏิทินกิจกรรมกับ Google',
                 canExtend: false,
                 extendNote: 'ยังไม่วางในผลิตภัณฑ์',
+                ideas12m: [],
                 ideas24m: ['iCal export ก่อน แล้วค่อย OAuth sync'],
                 status: 'deferred',
             },
