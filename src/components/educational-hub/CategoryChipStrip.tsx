@@ -3,7 +3,7 @@ import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type D
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import * as Icons from 'lucide-react';
-import { ArrowDown, ArrowUp, Check, ChevronDown, GripVertical, ListOrdered } from 'lucide-react';
+import { ArrowDown, ArrowUp, GripVertical, ListOrdered } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -56,20 +56,16 @@ const SortableCategoryRow = ({ category, index, displayIndex, total, onMove }: {
 };
 
 export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect, editable = false, onSaveOrder }: Props) => {
-    const [selectOpen, setSelectOpen] = useState(false);
     const [orderOpen, setOrderOpen] = useState(false);
     const [draftCategories, setDraftCategories] = useState<EduHubCategory[]>([]);
     const [saving, setSaving] = useState(false);
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-    const activeCategory = categories.find((category) => category.category_key === activeKey) ?? categories[0];
 
     useEffect(() => {
         if (orderOpen) setDraftCategories(categories);
     }, [categories, orderOpen]);
 
-    if (categories.length === 0 || !activeCategory) return null;
-
-    const ActiveIcon = categoryIcon(activeCategory);
+    if (categories.length === 0) return null;
     const moveDraft = (from: number, to: number) => {
         if (to < 0 || to >= draftCategories.length) return;
         setDraftCategories((current) => arrayMove(current, from, to));
@@ -91,15 +87,22 @@ export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect, edi
     return (
         <>
             <div className="sticky top-16 z-30 border-b border-border bg-background/90 px-4 py-2 backdrop-blur">
-                <div className="mx-auto flex max-w-5xl items-center gap-2">
-                    <Button type="button" variant="outline" className="min-w-0 max-w-full justify-between gap-2 bg-card sm:max-w-md" onClick={() => setSelectOpen(true)}>
-                        <span className="flex min-w-0 items-center gap-2">
-                            <ActiveIcon className="h-4 w-4 shrink-0 text-primary" />
-                            <span className="truncate font-medium">{activeCategory.name}</span>
-                            {(counts[activeCategory.id] ?? 0) > 0 && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">{counts[activeCategory.id]}</span>}
-                        </span>
-                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    </Button>
+                <div className="mx-auto flex max-w-7xl items-center gap-2">
+                    <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5" role="tablist" aria-label="เลือกหมวดคลังสื่อ">
+                        {categories.map((category) => {
+                            const Icon = categoryIcon(category);
+                            const active = category.category_key === activeKey;
+                            return (
+                                <button key={category.id} type="button" role="tab" aria-selected={active}
+                                    onClick={() => onSelect?.(category.category_key)}
+                                    className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-foreground hover:bg-accent')}>
+                                    <Icon className="h-3.5 w-3.5" />
+                                    <span>{category.name}</span>
+                                    <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', active ? 'bg-primary-foreground/20' : 'bg-muted text-muted-foreground')}>{counts[category.id] ?? 0}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                     {editable && (
                         <Button type="button" variant="outline" onClick={() => setOrderOpen(true)}>
                             <ListOrdered className="mr-2 h-4 w-4" />
@@ -108,26 +111,6 @@ export const CategoryChipStrip = ({ categories, counts, activeKey, onSelect, edi
                     )}
                 </div>
             </div>
-
-            <Dialog open={selectOpen} onOpenChange={setSelectOpen}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader><DialogTitle>เลือกหมวด</DialogTitle><DialogDescription>เลือกคลังที่ต้องการเปิดดู</DialogDescription></DialogHeader>
-                    <div className="grid max-h-[60vh] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                        {categories.map((category) => {
-                            const Icon = categoryIcon(category);
-                            const active = category.category_key === activeKey;
-                            return (
-                                <button key={category.id} type="button" onClick={() => { onSelect?.(category.category_key); setSelectOpen(false); }}
-                                    className={cn('flex min-w-0 items-center gap-3 rounded-lg border p-3 text-left transition-colors', active ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-foreground hover:bg-accent')}>
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted"><Icon className="h-4 w-4 text-primary" /></span>
-                                    <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{category.name}</span><span className="text-xs text-muted-foreground">{counts[category.id] ?? 0} รายการ</span></span>
-                                    {active && <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </DialogContent>
-            </Dialog>
 
             <Dialog open={orderOpen} onOpenChange={(open) => !saving && setOrderOpen(open)}>
                 <DialogContent className="max-w-lg">

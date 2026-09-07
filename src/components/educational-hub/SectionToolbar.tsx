@@ -8,7 +8,7 @@
 
 import { useMemo, useRef } from 'react';
 import type { FormEvent } from 'react';
-import { Search, X, Rows, Grid3x3, LayoutGrid, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
+import { Search, X, Grid3x3, LayoutGrid, ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { ViewMode } from '@/hooks/useViewMode';
 import type { EduHubItem, EduHubItemType } from '@/services/educational-hub.service';
+import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
 
 export type SortMode = 'default' | 'newest' | 'popular' | 'alpha';
 
@@ -67,6 +68,8 @@ interface Props {
     onViewModeChange: (next: ViewMode) => void;
     /** All items (unfiltered) used to derive available filter options */
     allItems: EduHubItem[];
+    quickFilters?: { id: string; label: string; subjects: string[]; categoryKey?: string }[];
+    onQuickFilter?: (filter: { subjects: string[]; categoryKey?: string }) => void;
 }
 
 export const SectionToolbar = ({
@@ -81,6 +84,8 @@ export const SectionToolbar = ({
     viewMode,
     onViewModeChange,
     allItems,
+    quickFilters = [],
+    onQuickFilter,
 }: Props) => {
     const isComposingRef = useRef(false);
 
@@ -173,7 +178,6 @@ export const SectionToolbar = ({
 
                 {/* View mode */}
                 <div className="inline-flex rounded-md border border-border overflow-hidden">
-                    <ViewBtn icon={Rows} active={viewMode === 'compact'} onClick={() => onViewModeChange('compact')} title="แสดงแบบกะทัดรัด" />
                     <ViewBtn icon={Grid3x3} active={viewMode === 'grid'} onClick={() => onViewModeChange('grid')} title="แสดงแบบตาราง" />
                     <ViewBtn icon={LayoutGrid} active={viewMode === 'spotlight'} onClick={() => onViewModeChange('spotlight')} title="แสดงแบบเด่น" />
                 </div>
@@ -242,6 +246,28 @@ export const SectionToolbar = ({
                         </div>
                     </PopoverContent>
                 </Popover>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 border-t border-border pt-2" aria-label="ตัวกรองวิชาหลัก">
+                <span className="mr-1 text-xs font-semibold text-foreground">วิชาหลัก:</span>
+                <button type="button" onClick={() => onFilterChange({ ...filter, subjects: [] })}
+                    className={cn('rounded-full border px-2.5 py-1 text-[11px] transition-colors', filter.subjects.length === 0 ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-accent')}>
+                    ทั้งหมด
+                </button>
+                {SUBJECT_OPTIONS.filter((subject) => allItems.some((item) => item.subject === subject.value)).map((subject) => {
+                    const active = filter.subjects.length === 1 && filter.subjects[0] === subject.value;
+                    return <button key={subject.value} type="button" onClick={() => onFilterChange({ ...filter, subjects: [subject.value] })}
+                        className={cn('rounded-full border px-2.5 py-1 text-[11px] transition-colors', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-accent')}>
+                        {subject.label}
+                    </button>;
+                })}
+                {quickFilters.map((preset) => {
+                    const active = filter.subjects.length === preset.subjects.length && preset.subjects.every((s) => filter.subjects.includes(s));
+                    return <button key={preset.id} type="button" onClick={() => onQuickFilter?.(preset)}
+                        className={cn('rounded-full border px-2.5 py-1 text-[11px] transition-colors', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-accent')}>
+                        {preset.label}
+                    </button>;
+                })}
             </div>
 
             {/* Row 2: active filter chips */}

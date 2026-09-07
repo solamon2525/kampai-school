@@ -164,6 +164,7 @@ export type EduHubTeacherCard = {
 export type EduHubItemPageOptions = {
     categoryId: string;
     limit?: number;
+    offset?: number;
     search?: string;
     subjects?: string[];
     grades?: string[];
@@ -311,7 +312,8 @@ export const educationalHubService = {
             q = q.order('created_at', { ascending: false });
         }
 
-        const { data, count, error } = await q.range(0, limit - 1);
+        const offset = Math.max(0, opts.offset ?? 0);
+        const { data, count, error } = await q.range(offset, offset + limit - 1);
         return {
             data: ((data ?? []) as unknown as EduHubItem[]),
             count: count ?? 0,
