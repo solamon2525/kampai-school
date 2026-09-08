@@ -161,6 +161,19 @@ export type EduHubTeacherCard = {
     last_item_at: string | null;
 };
 
+export type EduHubUsage60Day = {
+    item_id: string;
+    title: string;
+    subject: string | null;
+    library_pinned: boolean;
+    observation_started_on: string;
+    owner_open_count: number;
+    public_open_count: number;
+    total_open_count: number;
+    last_opened_at: string | null;
+    review_candidate: boolean;
+};
+
 export type EduHubItemPageOptions = {
     categoryId: string;
     limit?: number;
@@ -462,6 +475,15 @@ export const educationalHubService = {
         const { data, error } = await q;
         if (error) throw error;
         return (data ?? []) as EduHubItem[];
+    },
+
+    /** Auditable 60-day usage window. Pinned items are never review candidates. */
+    listUsage60Day: async (ownerStaffId: string): Promise<EduHubUsage60Day[]> => {
+        const { data, error } = await supabase.rpc('list_ehi_usage_60d' as never, {
+            p_owner_staff_id: ownerStaffId,
+        } as never);
+        if (error) throw error;
+        return (data ?? []) as unknown as EduHubUsage60Day[];
     },
 
     /**

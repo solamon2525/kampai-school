@@ -32,6 +32,7 @@ import {
 import { EduHubItemForm } from '@/components/admin/educational-hub/EduHubItemForm';
 import { SortableItemsTable } from '@/components/admin/educational-hub/SortableItemsTable';
 import { GameDocsDialog } from '@/components/admin/educational-hub/GameDocsDialog';
+import { TeachingMediaUnitDialog } from '@/components/admin/educational-hub/TeachingMediaUnitDialog';
 import { ThaiVocabManageDialog } from '@/components/admin/educational-hub/ThaiVocabManageDialog';
 import { ThaiVocabMissedReportClass } from '@/components/thai-vocab/ThaiVocabMissedReport';
 import { staffService } from '@/services/staff.service';
@@ -157,6 +158,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
     const [editing, setEditing] = useState<EduHubItem | null>(null);
     const [docsItem, setDocsItem] = useState<EduHubItem | null>(null);
     const [vocabItem, setVocabItem] = useState<EduHubItem | null>(null);
+    const [teachingUnitItem, setTeachingUnitItem] = useState<EduHubItem | null>(null);
 
     const { data: items, isLoading } = useQuery({
         queryKey: ['edu-hub', 'items', 'mine', staffId],
@@ -259,7 +261,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                 </Card>
             ) : (
                 <div className="space-y-6">
-                    {categories.map((cat) => {
+                    {categories.filter((cat) => cat.category_key !== 'lesson-packs').map((cat) => {
                         const list = itemsByCategory.get(cat.id) ?? [];
                         return (
                             <div key={cat.id} className="space-y-2">
@@ -279,6 +281,7 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                                         onDuplicated={(item) => { setEditing(item); setDialogOpen(true); }}
                                         onDocs={(item) => setDocsItem(item)}
                                         onVocabManage={(item) => setVocabItem(item)}
+                                        onTeachingUnit={cat.category_key === 'media' ? (item) => setTeachingUnitItem(item) : undefined}
                                     />
                                 )}
                             </div>
@@ -316,6 +319,22 @@ const MyItemsTab = ({ staffId }: { staffId: string }) => {
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     {vocabItem && (
                         <ThaiVocabManageDialog item={vocabItem} onClose={() => setVocabItem(null)} />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!teachingUnitItem} onOpenChange={(open) => !open && setTeachingUnitItem(null)}>
+                <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>จัดหน่วยสอนในจุดเดียว</DialogTitle>
+                    </DialogHeader>
+                    {teachingUnitItem && items && categories && (
+                        <TeachingMediaUnitDialog
+                            media={teachingUnitItem}
+                            items={items}
+                            categories={categories}
+                            onClose={() => setTeachingUnitItem(null)}
+                        />
                     )}
                 </DialogContent>
             </Dialog>

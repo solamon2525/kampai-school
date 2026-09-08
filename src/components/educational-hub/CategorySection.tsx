@@ -29,6 +29,7 @@ import {
 } from '@/services/educational-hub.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 import type { PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
+import type { TeachingMediaUnit } from '@/services/lesson-packs.service';
 
 interface Props {
     /** Pass null when rendering items outside a category. */
@@ -46,6 +47,8 @@ interface Props {
     categoryDraggable?: boolean;
     /** Media ↔ worksheet pairs resolved from the teacher catalog */
     pairedByItemId?: Map<string, PairedHubLink | null>;
+    /** Lesson-pack resources folded into their primary media card. */
+    teachingUnitsByItemId?: Map<string, TeachingMediaUnit>;
 }
 
 const COLOR_TO_TEXT: Record<string, string> = {
@@ -80,6 +83,7 @@ export const CategorySection = ({
     editable = false,
     categoryDraggable = false,
     pairedByItemId,
+    teachingUnitsByItemId,
 }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -209,6 +213,7 @@ export const CategorySection = ({
             linkedIndicators={indicatorMap?.get(item.id)}
             categoryKey={category?.category_key}
             pairedLink={pairedByItemId?.get(item.id) ?? null}
+            teachingUnit={teachingUnitsByItemId?.get(item.id) ?? null}
         />
     );
 

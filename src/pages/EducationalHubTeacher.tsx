@@ -25,7 +25,6 @@ import {
     type FilterState,
     type SortMode,
 } from '@/components/educational-hub/SectionToolbar';
-import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSection';
 import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
 import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
@@ -36,7 +35,6 @@ import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const LESSON_PACK_PAGE_SIZE = 24;
 const PAGE_ROWS = 7;
 const EducationalHubTeacher = () => {
     const navigate = useNavigate();
@@ -119,24 +117,27 @@ const EducationalHubTeacher = () => {
     const columns = viewMode === 'spotlight' ? (viewportWidth >= 1024 ? 2 : 1) : (viewportWidth >= 1024 ? 3 : viewportWidth >= 640 ? 2 : 1);
     const pageSize = PAGE_ROWS * columns;
 
-    const { data: packCount = 0, isLoading: loadingPackCount } = useQuery({
-        queryKey: ['lesson-packs', 'published-count', resolvedStaffId],
-        queryFn: () => lessonPacksService.countPublished(resolvedStaffId),
-        enabled: !!resolvedStaffId,
-        staleTime: 5 * 60 * 1000,
-    });
+    const categoryChoices = useMemo(
+        () => (categories ?? []).filter((category) => category.category_key !== 'lesson-packs'),
+        [categories],
+    );
+    const requestedCategoryKey = deepLinkCat === 'lesson-packs' ? 'media' : deepLinkCat;
 
-    const categoryChoices = categories ?? [];
+    useEffect(() => {
+        if (deepLinkCat !== 'lesson-packs') return;
+        const next = new URLSearchParams(searchParams);
+        next.set('cat', 'media');
+        setSearchParams(next, { replace: true });
+    }, [deepLinkCat, searchParams, setSearchParams]);
 
     const activeCategoryKey = useMemo(() => {
-        if (deepLinkCat && categoryChoices.some((category) => category.category_key === deepLinkCat)) {
-            return deepLinkCat;
+        if (requestedCategoryKey && categoryChoices.some((category) => category.category_key === requestedCategoryKey)) {
+            return requestedCategoryKey;
         }
-        return categoryChoices.find((category) => {
-            if (category.category_key === 'lesson-packs') return packCount > 0;
-            return (teacher?.counts_by_category?.[category.id] ?? 0) > 0;
-        })?.category_key ?? categoryChoices[0]?.category_key ?? null;
-    }, [categoryChoices, deepLinkCat, packCount, teacher?.counts_by_category]);
+        return categoryChoices.find(
+            (category) => (teacher?.counts_by_category?.[category.id] ?? 0) > 0,
+        )?.category_key ?? categoryChoices[0]?.category_key ?? null;
+    }, [categoryChoices, requestedCategoryKey, teacher?.counts_by_category]);
 
     const activeCategory = useMemo(
         () => (categories ?? []).find((category) => category.category_key === activeCategoryKey) ?? null,
@@ -161,7 +162,7 @@ const EducationalHubTeacher = () => {
             'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, currentPage, pageSize,
             filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
         ],
-        enabled: !!resolvedStaffId && !!activeCategory && activeCategory.category_key !== 'lesson-packs' && !loadingPackCount,
+        enabled: !!resolvedStaffId && !!activeCategory,
         queryFn: async () => {
             const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
                 categoryId: activeCategory!.id,
@@ -195,6 +196,17 @@ const EducationalHubTeacher = () => {
     const totalItems = itemPage?.count ?? 0;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
+    const mediaItemIds = useMemo(
+        () => activeCategoryKey === 'media' ? allItems.map((item) => item.id) : [],
+        [activeCategoryKey, allItems],
+    );
+    const { data: teachingUnitsByItemId } = useQuery({
+        queryKey: ['lesson-packs', 'teaching-units', resolvedStaffId, mediaItemIds.join(',')],
+        queryFn: () => lessonPacksService.listTeachingUnitsForMediaIds(mediaItemIds, resolvedStaffId),
+        enabled: !!resolvedStaffId && mediaItemIds.length > 0,
+        staleTime: 5 * 60 * 1000,
+    });
+
     useEffect(() => {
         if (currentPage > totalPages) setCurrentPage(totalPages);
     }, [currentPage, totalPages]);
@@ -206,12 +218,7 @@ const EducationalHubTeacher = () => {
         staleTime: 5 * 60 * 1000,
     });
 
-    const categoryCounts = useMemo(() => {
-        const counts = { ...(teacher?.counts_by_category ?? {}) };
-        const lessonPacksCategory = (categories ?? []).find((category) => category.category_key === 'lesson-packs');
-        if (lessonPacksCategory) counts[lessonPacksCategory.id] = packCount;
-        return counts;
-    }, [categories, packCount, teacher?.counts_by_category]);
+    const categoryCounts = teacher?.counts_by_category ?? {};
 
     const handleCategorySelect = (categoryKey: string) => {
         const next = new URLSearchParams(searchParams);
@@ -220,10 +227,10 @@ const EducationalHubTeacher = () => {
     };
 
     // Admin edit mode — adds drag handles on section headers + item cards
-    const { isAdmin, isTeacher } = useUserRole();
+    const { isAdmin } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const displayedCategoryChoices = categories ?? [];
+    const displayedCategoryChoices = categoryChoices;
     const quickFilters = useMemo(() => {
         const subjects = SUBJECT_OPTIONS.filter((subject) => allTeacherItems.some((item) => item.subject === subject.value));
         const categoryPresets = displayedCategoryChoices.filter((category) => /สื่อ|ใบงาน/.test(category.name));
@@ -296,13 +303,13 @@ const EducationalHubTeacher = () => {
 
     // Deep-link: scroll to ?cat=key after items render
     useEffect(() => {
-        if (!deepLinkCat || loadingItems) return;
+        if (!requestedCategoryKey || loadingItems) return;
         const t = setTimeout(() => {
-            const el = document.getElementById(`cat-${deepLinkCat}`);
+            const el = document.getElementById(`cat-${requestedCategoryKey}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 150);
         return () => clearTimeout(t);
-    }, [deepLinkCat, loadingItems]);
+    }, [requestedCategoryKey, loadingItems]);
 
     if (loadingCards) {
         return (
@@ -469,14 +476,7 @@ const EducationalHubTeacher = () => {
 
                 {/* Category sections */}
                 <div className="px-4 py-5 space-y-4">
-                    {activeCategoryKey === 'lesson-packs' ? (
-                        <LessonPacksSection
-                            ownerStaffId={resolvedStaffId}
-                            totalCount={packCount}
-                            showAssignLink={isAdmin || isTeacher}
-                            limit={LESSON_PACK_PAGE_SIZE}
-                        />
-                    ) : loadingItems ? (
+                    {loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
                     ) : !categories || categories.length === 0 ? (
                         <div className="text-center text-muted-foreground py-20">
@@ -512,34 +512,35 @@ const EducationalHubTeacher = () => {
                                     💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
                                 </p>
                             )}
-                                    <div className="space-y-10">
-                                        {visibleCategories.length === 0 && deepLinkCat ? (
-                                            <div className="text-center text-muted-foreground py-16 text-sm">
-                                                ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
-                                            </div>
-                                        ) : null}
-                                        {visibleCategories.map((cat) =>
-                                            cat.category_key === 'games' ? (
-                                                <GamesCategorySection
-                                                    key={cat.id}
-                                                    category={cat}
-                                                    items={itemsByCategory.get(cat.id) ?? []}
-                                                    viewMode={viewMode}
-                                                    editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
-                                                    pairedByItemId={pairedByItemId}
-                                                />
-                                            ) : (
-                                                <CategorySection
-                                                    key={cat.id}
-                                                    category={cat}
-                                                    items={itemsByCategory.get(cat.id) ?? []}
-                                                    viewMode={viewMode}
-                                                    editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
-                                                    pairedByItemId={pairedByItemId}
-                                                />
-                                            ),
-                                        )}
+                            <div className="space-y-10">
+                                {visibleCategories.length === 0 && deepLinkCat ? (
+                                    <div className="text-center text-muted-foreground py-16 text-sm">
+                                        ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
                                     </div>
+                                ) : null}
+                                {visibleCategories.map((cat) =>
+                                    cat.category_key === 'games' ? (
+                                        <GamesCategorySection
+                                            key={cat.id}
+                                            category={cat}
+                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            viewMode={viewMode}
+                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            pairedByItemId={pairedByItemId}
+                                        />
+                                    ) : (
+                                        <CategorySection
+                                            key={cat.id}
+                                            category={cat}
+                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            viewMode={viewMode}
+                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            pairedByItemId={pairedByItemId}
+                                            teachingUnitsByItemId={teachingUnitsByItemId}
+                                        />
+                                    ),
+                                )}
+                            </div>
                             {totalPages > 1 ? (
                                 <nav className="flex flex-wrap items-center justify-center gap-1 pt-2" aria-label="หน้ารายการสื่อ">
                                     <Button type="button" size="icon" variant="outline" disabled={currentPage === 1 || fetchingItems}

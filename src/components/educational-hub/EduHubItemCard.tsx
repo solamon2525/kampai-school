@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     FileText, ExternalLink, Play, Type, Download, Eye, PlayCircle, Maximize2,
-    GripVertical, Gamepad2, Pin, Loader2,
+    GripVertical, Gamepad2, Pin, Loader2, BookOpenCheck,
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -26,6 +26,7 @@ import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 import { isWorksheetItem, type PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
+import type { LessonPackItem, TeachingMediaUnit } from '@/services/lesson-packs.service';
 
 interface Props {
     item: EduHubItem;
@@ -41,6 +42,7 @@ interface Props {
     linkedIndicators?: GameCardIndicator[];
     categoryKey?: string | null;
     pairedLink?: PairedHubLink | null;
+    teachingUnit?: TeachingMediaUnit | null;
 }
 
 export const EduHubItemCard = ({
@@ -54,6 +56,7 @@ export const EduHubItemCard = ({
     linkedIndicators,
     categoryKey = null,
     pairedLink = null,
+    teachingUnit = null,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -123,6 +126,28 @@ export const EduHubItemCard = ({
         setEmbedOpen(true);
     };
 
+    const openUnitResource = (e: React.MouseEvent, resource: LessonPackItem) => {
+        e.stopPropagation();
+        const resourceItem = resource.item;
+        if (!resourceItem) return;
+        void Promise.resolve(educationalHubService.incrementView(resource.edu_hub_item_id)).catch(() => {});
+        if (resourceItem.tracked_game && resourceItem.game_slug) {
+            navigate(`/play/${resourceItem.game_slug}`);
+            return;
+        }
+        const href = resourceItem.file_url || resourceItem.external_url;
+        if (href) window.open(href, '_blank', 'noopener,noreferrer');
+    };
+
+    const hasResourceTarget = (resource: LessonPackItem) => Boolean(
+        resource.item?.file_url
+        || resource.item?.external_url
+        || (resource.item?.tracked_game && resource.item?.game_slug),
+    );
+    const worksheetResources = teachingUnit?.worksheets.filter(hasResourceTarget) ?? [];
+    const gameResources = teachingUnit?.games.filter(hasResourceTarget) ?? [];
+    const fallbackPair = worksheetResources.length === 0 ? pairedLink : null;
+
     // ─── COMPACT view: single-row list item ────────────────────────────
     if (isCompact) {
         return (
@@ -169,6 +194,13 @@ export const EduHubItemCard = ({
                         onToggleLibraryPin={onToggleLibraryPin ? handleLibraryPinClick : undefined}
                         libraryPinLoading={libraryPinLoading}
                         compact
+                    />
+                    <TeachingUnitActions
+                        worksheets={worksheetResources}
+                        games={gameResources}
+                        fallbackPair={fallbackPair}
+                        compact
+                        onOpenResource={openUnitResource}
                     />
                 </Card>
                 <DetailDialog item={item} open={openDialog} onOpenChange={setOpenDialog} />
@@ -306,6 +338,12 @@ export const EduHubItemCard = ({
                                     ปักหมุด
                                 </Badge>
                             )}
+                            {teachingUnit && (
+                                <Badge variant="outline" className="gap-1 text-[10px] border-primary/40 text-primary">
+                                    <BookOpenCheck className="h-3 w-3" />
+                                    {worksheetResources.length > 0 ? 'หน่วยพร้อมสอน' : 'กำลังเติมทรัพยากร'}
+                                </Badge>
+                            )}
                             {item.grade_levels?.slice(0, 2).map((g) => (
                                 <Badge key={g} variant="outline" className="text-[10px]">{g}</Badge>
                             ))}
@@ -314,28 +352,32 @@ export const EduHubItemCard = ({
                             ))}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                            {pairedLink && (
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-7 px-2 text-[10px] font-semibold"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(pairedLink.href, '_blank', 'noopener,noreferrer');
-                                    }}
-                                >
-                                    {pairedLink.kind === 'worksheet' ? (
-                                        <FileText className="h-3 w-3 mr-1" />
-                                    ) : (
-                                        <ExternalLink className="h-3 w-3 mr-1" />
-                                    )}
-                                    {pairedLink.label}
-                                </Button>
-                            )}
                             <ActionStat item={item} />
                         </div>
                     </div>
+
+                    {(categoryKey === 'media' || teachingUnit || fallbackPair) && (
+                        <div className="shrink-0 flex flex-wrap gap-2 py-2 border-t border-border/70 mt-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="h-11 text-sm font-semibold"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleClick();
+                                }}
+                            >
+                                <PlayCircle className="h-3.5 w-3.5 mr-1" />
+                                เปิดสื่อ
+                            </Button>
+                            <TeachingUnitActions
+                                worksheets={worksheetResources}
+                                games={gameResources}
+                                fallbackPair={fallbackPair}
+                                onOpenResource={openUnitResource}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {showFooterStrips && (
@@ -420,6 +462,74 @@ const ArBadge = ({ text }: { text: string }) => (
 );
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
+
+const TeachingUnitActions = ({
+    worksheets,
+    games,
+    fallbackPair,
+    compact = false,
+    onOpenResource,
+}: {
+    worksheets: LessonPackItem[];
+    games: LessonPackItem[];
+    fallbackPair: PairedHubLink | null;
+    compact?: boolean;
+    onOpenResource: (event: React.MouseEvent, resource: LessonPackItem) => void;
+}) => (
+    <>
+        {worksheets.map((resource, index) => (
+            <Button
+                key={resource.id}
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="outline"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={resource.item?.title ?? 'เปิดใบงาน'}
+                aria-label={resource.item?.title ?? 'เปิดใบงาน'}
+                onClick={(event) => onOpenResource(event, resource)}
+            >
+                <FileText className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                {!compact && (worksheets.length > 1 ? `ใบงาน ${index + 1}` : 'เปิดใบงาน')}
+            </Button>
+        ))}
+        {games.map((resource, index) => (
+            <Button
+                key={resource.id}
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="secondary"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={resource.item?.title ?? 'เล่นเกม'}
+                aria-label={resource.item?.title ?? 'เล่นเกม'}
+                onClick={(event) => onOpenResource(event, resource)}
+            >
+                <Gamepad2 className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                {!compact && (games.length > 1 ? `เกม ${index + 1}` : 'เล่นเกม')}
+            </Button>
+        ))}
+        {fallbackPair && (
+            <Button
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="outline"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={fallbackPair.label}
+                aria-label={fallbackPair.label}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    window.open(fallbackPair.href, '_blank', 'noopener,noreferrer');
+                }}
+            >
+                {fallbackPair.kind === 'worksheet' ? (
+                    <FileText className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                ) : (
+                    <ExternalLink className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                )}
+                {!compact && fallbackPair.label}
+            </Button>
+        )}
+    </>
+);
 
 const CardActions = ({
     item,

@@ -2838,6 +2838,48 @@ export type Database = {
           },
         ]
       }
+      educational_hub_usage_daily: {
+        Row: {
+          item_id: string
+          last_opened_at: string | null
+          owner_open_count: number
+          owner_staff_id: string
+          public_open_count: number
+          usage_date: string
+        }
+        Insert: {
+          item_id: string
+          last_opened_at?: string | null
+          owner_open_count?: number
+          owner_staff_id: string
+          public_open_count?: number
+          usage_date?: string
+        }
+        Update: {
+          item_id?: string
+          last_opened_at?: string | null
+          owner_open_count?: number
+          owner_staff_id?: string
+          public_open_count?: number
+          usage_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educational_hub_usage_daily_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "educational_hub_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "educational_hub_usage_daily_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       educational_hub_profiles: {
         Row: {
           accent_color: string | null
@@ -4084,16 +4126,22 @@ export type Database = {
           created_at: string
           edu_hub_item_id: string
           indicator_id: string
+          mapping_role: string
+          sort_order: number
         }
         Insert: {
           created_at?: string
           edu_hub_item_id: string
           indicator_id: string
+          mapping_role?: string
+          sort_order?: number
         }
         Update: {
           created_at?: string
           edu_hub_item_id?: string
           indicator_id?: string
+          mapping_role?: string
+          sort_order?: number
         }
         Relationships: [
           {
@@ -9535,6 +9583,21 @@ export type Database = {
       has_menu_permission: { Args: { menu_id: string }; Returns: boolean }
       increment_ehi_download: { Args: { p_id: string }; Returns: undefined }
       increment_ehi_view: { Args: { p_id: string }; Returns: undefined }
+      list_ehi_usage_60d: {
+        Args: { p_owner_staff_id: string }
+        Returns: {
+          item_id: string
+          last_opened_at: string | null
+          library_pinned: boolean
+          observation_started_on: string
+          owner_open_count: number
+          public_open_count: number
+          review_candidate: boolean
+          subject: string | null
+          title: string
+          total_open_count: number
+        }[]
+      }
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       indicator_coverage_summary: { Args: never; Returns: Json }
       indicator_soft_gap_summary: { Args: never; Returns: Json }
@@ -9555,6 +9618,22 @@ export type Database = {
         Returns: Json
       }
       list_research_studies_public: { Args: never; Returns: Json }
+      save_teaching_media_unit: {
+        Args: {
+          p_description: string
+          p_game_item_ids: string[]
+          p_grade_levels: string[]
+          p_is_published: boolean
+          p_media_item_id: string
+          p_owner_staff_id: string
+          p_pack_id: string
+          p_subject: string
+          p_thumbnail_url: string
+          p_title: string
+          p_worksheet_item_ids: string[]
+        }
+        Returns: string
+      }
       log_data_access: {
         Args: {
           p_action: string
