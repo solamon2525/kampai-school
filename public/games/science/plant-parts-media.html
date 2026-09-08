@@ -4,6 +4,7 @@
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="plant-parts-data.js"></script>
   <title>ส่วนของพืชดอก — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -30,9 +31,6 @@
     .panel.on { display: flex; }
     .diagram-row { display: grid; gap: 14px; }
     @media (min-width: 760px) { .diagram-row { grid-template-columns: 1fr 1fr; } }
-    .plant-svg { width: 100%; max-width: 380px; margin: 0 auto; background: linear-gradient(180deg, #ecfdf5, #d1fae5); border-radius: 16px; border: 2px solid var(--line); }
-    .hotspot { cursor: pointer; }
-    .hotspot.on .hs { stroke: #fbbf24; stroke-width: 3; filter: drop-shadow(0 0 5px #fbbf24); }
     .detail { background: #f0fdf4; border: 2px solid var(--line); border-radius: 16px; padding: 16px; min-height: 180px; }
     .detail h2 { font-size: 1.4rem; font-weight: 800; color: var(--deep); margin-bottom: 8px; }
     .detail p { font-weight: 600; line-height: 1.5; color: #14532d; margin-bottom: 8px; }
@@ -78,6 +76,7 @@
     .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
 
   </style>
+  <link rel="stylesheet" href="plant-parts-explorer.css" />
 </head>
 <body>
   <div class="shell">
@@ -95,57 +94,28 @@
         <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="เข้าเต็มจอ">เต็มจอ</button>
     </div>
     <div class="stage">
       <div class="panel on" id="panel-diagram">
         <div class="diagram-row">
-          <svg class="plant-svg" viewBox="0 0 280 400" aria-label="แผนภาพพืชดอก">
-            <ellipse cx="140" cy="380" rx="90" ry="18" fill="#a3e635" opacity=".5"/>
-            <!-- root -->
-            <g class="hotspot" data-id="root" id="hs-root">
-              <path class="hs" d="M140 300 Q120 340 100 370 M140 300 Q140 350 140 375 M140 300 Q160 340 180 370 M125 320 Q110 350 95 365 M155 320 Q170 350 185 365" fill="none" stroke="#a16207" stroke-width="8" stroke-linecap="round"/>
-              <text x="50" y="355" font-size="13" font-weight="800" fill="#854d0e">ราก</text>
-            </g>
-            <!-- stem -->
-            <g class="hotspot" data-id="stem" id="hs-stem">
-              <rect class="hs" x="128" y="160" width="24" height="145" rx="10" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
-              <text x="168" y="240" font-size="13" font-weight="800" fill="#14532d">ลำต้น</text>
-            </g>
-            <!-- leaf -->
-            <g class="hotspot" data-id="leaf" id="hs-leaf">
-              <ellipse class="hs" cx="85" cy="210" rx="48" ry="22" fill="#4ade80" stroke="#16a34a" stroke-width="2" transform="rotate(-25 85 210)"/>
-              <ellipse class="hs" cx="200" cy="230" rx="42" ry="18" fill="#86efac" stroke="#16a34a" stroke-width="2" transform="rotate(30 200 230)"/>
-              <text x="30" y="195" font-size="13" font-weight="800" fill="#14532d">ใบ</text>
-            </g>
-            <!-- flower -->
-            <g class="hotspot" data-id="flower" id="hs-flower">
-              <circle class="hs" cx="140" cy="95" r="18" fill="#fbbf24"/>
-              <circle cx="140" cy="70" r="16" fill="#f472b6"/>
-              <circle cx="118" cy="85" r="16" fill="#fb7185"/>
-              <circle cx="162" cy="85" r="16" fill="#fb7185"/>
-              <circle cx="125" cy="110" r="14" fill="#f9a8d4"/>
-              <circle cx="155" cy="110" r="14" fill="#f9a8d4"/>
-              <circle cx="140" cy="95" r="10" fill="#fde047"/>
-              <text x="175" y="70" font-size="13" font-weight="800" fill="#9d174d">ดอก</text>
-            </g>
-            <!-- fruit -->
-            <g class="hotspot" data-id="fruit" id="hs-fruit">
-              <ellipse class="hs" cx="70" cy="145" rx="22" ry="18" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
-              <path d="M70 127 Q75 118 80 122" fill="none" stroke="#16a34a" stroke-width="3"/>
-              <text x="20" y="130" font-size="13" font-weight="800" fill="#991b1b">ผล</text>
-            </g>
-            <!-- seed -->
-            <g class="hotspot" data-id="seed" id="hs-seed">
-              <ellipse class="hs" cx="210" cy="155" rx="14" ry="10" fill="#78350f" stroke="#451a03" stroke-width="2"/>
-              <ellipse cx="228" cy="160" rx="10" ry="7" fill="#92400e"/>
-              <text x="225" y="145" font-size="13" font-weight="800" fill="#78350f">เมล็ด</text>
-            </g>
-          </svg>
+          <div class="plant-view">
+            <div class="plant-frame" id="plantFrame">
+              <img id="plantOverview" width="1280" height="720" alt="ต้นมะเขือเปราะพร้อมรากใต้ดิน" />
+              <div id="plantHotspots"></div>
+              <p class="image-fallback" id="overviewFallback" hidden>ภาพไม่พร้อมใช้งาน เลือกชื่อส่วนพืชเพื่ออ่านต่อได้</p>
+            </div>
+            <p class="image-caption">มะเขือเปราะ · ภาพจำลองเพื่อการเรียนรู้ ไม่ใช่มาตราส่วนจริง</p>
+            <div id="closeup" hidden>
+              <img id="partImage" width="1024" height="1024" alt="" />
+              <p id="detailFallback" hidden>ภาพขยายไม่พร้อมใช้งาน อ่านคำอธิบายต่อได้</p>
+              <button type="button" class="btn btn-ghost" id="backOverview">กลับภาพรวม</button>
+            </div>
+          </div>
           <div>
             <div class="chips" id="partChips"></div>
             <div class="detail" id="partDetail" style="margin-top:12px">
-              <p style="color:var(--muted);font-weight:600;text-align:center;margin:auto 0;padding:24px 8px">แตะส่วนพืชบนแผนภาพหรือป้ายด้านล่าง</p>
+              <h2>สำรวจพืชดอก</h2><p>เลือกส่วนของพืชเพื่อสำรวจ</p><p>กดปุ่มฟังเมื่อต้องการเสียงอธิบาย</p>
             </div>
           </div>
         </div>
@@ -196,14 +166,7 @@
     const MEDIA_SLUG = 'plant-parts-media';
     if (window.KAMPAI) KAMPAI.setSlug('plant-parts-media');
 
-    const PARTS = [
-      { id: 'root', nameTh: 'ราก', emoji: '🪴', functionTh: 'ดูดน้ำและแร่ธาตุจากดิน และยึดลำต้นไว้กับพื้น', funFact: 'รากบางชนิดสะสมอาหาร เช่น แครอท หัวผักกาด', hotspot: { x: 50, y: 88 }, examples: ['แครอท', 'มันสำปะหลัง', 'หัวไชเท้า'] },
-      { id: 'stem', nameTh: 'ลำต้น', emoji: '🎋', functionTh: 'ค้ำใบและดอก และลำเลียงน้ำอาหารระหว่างรากกับใบ', funFact: 'ลำต้นใต้ดินบางชนิดก็เป็นอาหาร เช่น มันฝรั่ง', hotspot: { x: 50, y: 55 }, examples: ['อ้อย', 'หน่อไม้', 'มันฝรั่ง'] },
-      { id: 'leaf', nameTh: 'ใบ', emoji: '🍃', functionTh: 'สังเคราะห์แสง — ใช้แสงอาทิตย์ทำอาหารให้พืช', funFact: 'ใบเขียวมีคลอโรฟิลล์ช่วยจับแสง', hotspot: { x: 28, y: 48 }, examples: ['กะหล่ำปลี', 'ผักบุ้ง', 'ผักกาด'] },
-      { id: 'flower', nameTh: 'ดอก', emoji: '🌸', functionTh: 'ส่วนสืบพันธุ์ — ดึงแมลงผสมเกสรเพื่อสร้างเมล็ด', funFact: 'สีและกลิ่นดอกช่วยดึงแมลงผสมเกสร', hotspot: { x: 50, y: 22 }, examples: ['กุหลาบ', 'ดอกหอม', 'ดอกแค'] },
-      { id: 'fruit', nameTh: 'ผล', emoji: '🍎', functionTh: 'หุ้มและปกป้องเมล็ด ช่วยแพร่กระจายเมล็ด', funFact: 'ผลหลายชนิดเป็นอาหารของคนและสัตว์', hotspot: { x: 22, y: 36 }, examples: ['มะม่วง', 'แตงกวา', 'มะเขือเทศ'] },
-      { id: 'seed', nameTh: 'เมล็ด', emoji: '🫘', functionTh: 'เติบโตเป็นต้นใหม่เมื่อได้ความชื้นและอุณหภูมิเหมาะสม', funFact: 'เมล็ดบรรจุอาหารสำรองให้ต้นอ่อน', hotspot: { x: 78, y: 40 }, examples: ['ข้าวโพด', 'ถั่ว', 'เมล็ดทานตะวัน'] },
-    ];
+    const PARTS = window.PLANT_PARTS_CONTENT.parts;
 
     const EXAMPLES = [
       { id: 'carrot', nameTh: 'แครอท', emoji: '🥕', ediblePart: 'root', tip: 'ส่วนที่กินคือรากสะสมอาหารสีส้ม' },
@@ -231,7 +194,7 @@
     ];
 
     const HINTS = {
-      diagram: 'แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่',
+      diagram: 'เลือกส่วนของพืชเพื่อสำรวจ แล้วกดฟังเมื่อต้องการเสียง',
       match: 'อ่านหน้าที่แล้วเลือกส่วนพืชที่ตรงกัน — ไม่มีคะแนน',
       edible: 'ดูตัวอย่างอาหาร แล้วเลือกส่วนที่เรากินเป็นหลัก',
       grow: 'เรียงเมล็ด → ต้นอ่อน → ต้นโต → ดอก → ผล',
@@ -245,14 +208,11 @@
       }
       return a;
     }
-    function speak(t) {
-      if (window.KAMPAI?.sound?.speak) KAMPAI.sound.speak(t, 'th-TH');
-    }
     function ding(ok) {
       if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
     }
 
-    let mode = 'diagram', selectedPart = null;
+    let mode = 'diagram';
     let matchQ = null, edibleQ = null, growNext = 1;
 
     
@@ -345,6 +305,7 @@
     document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
 
     function setMode(m) {
+      window.PlantExplorer.stop();
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
@@ -366,45 +327,15 @@
       if (b) setMode(b.dataset.mode);
     };
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
-      else document.exitFullscreen?.();
+      const task = !document.fullscreenElement ? document.documentElement.requestFullscreen?.() : document.exitFullscreen?.();
+      task?.catch(() => { document.getElementById('hintText').textContent = 'เครื่องนี้ไม่อนุญาตเต็มจอ ยังใช้สื่อในหน้าปกติได้'; });
     };
-
-    function selectPart(id) {
-      selectedPart = id;
-      document.querySelectorAll('.hotspot').forEach((g) => g.classList.toggle('on', g.dataset.id === id));
-      document.querySelectorAll('#partChips .chip').forEach((c) => c.classList.toggle('on', c.dataset.id === id));
-      const p = PARTS.find((x) => x.id === id);
-      const el = document.getElementById('partDetail');
-      el.innerHTML = `
-        <div style="font-size:2.2rem">${p.emoji}</div>
-        <h2>${p.nameTh}</h2>
-        <p><strong>หน้าที่:</strong> ${p.functionTh}</p>
-        <p class="examples">ตัวอย่าง: ${p.examples.join(' · ')}</p>
-        <p class="tip">💡 ${p.funFact}</p>
-        <button type="button" class="btn btn-ghost" style="align-self:flex-start;margin-top:6px" id="btnSpeakPart">🔊 อ่าน</button>
-      `;
-      document.getElementById('btnSpeakPart').onclick = () => speak(p.nameTh + '. ' + p.functionTh);
-      speak(p.nameTh);
-    }
-
-    function renderChips() {
-      const el = document.getElementById('partChips');
-      el.innerHTML = '';
-      PARTS.forEach((p) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'chip';
-        b.dataset.id = p.id;
-        b.textContent = p.emoji + ' ' + p.nameTh;
-        b.onclick = () => selectPart(p.id);
-        el.appendChild(b);
-      });
-    }
-
-    document.querySelectorAll('.hotspot').forEach((g) => {
-      g.onclick = () => selectPart(g.dataset.id);
+    document.addEventListener('fullscreenchange', () => {
+      const b = document.getElementById('btnFs');
+      b.textContent = document.fullscreenElement ? 'ออกจากเต็มจอ' : 'เต็มจอ';
+      b.setAttribute('aria-label', b.textContent);
     });
+
 
     /* ---- match ---- */
     function newMatch() {
@@ -546,7 +477,7 @@
       document.getElementById('growFb').textContent = 'เฉลย: ' + GROW.map((g) => g.emoji + g.name).join(' → ');
     };
 
-    renderChips();
   </script>
+  <script src="plant-parts-explorer.js"></script>
 </body>
 </html>
