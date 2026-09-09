@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.38 (Everyday Conversation — คาราโอเกะอ่านชัด)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ไล่สีคำอังกฤษตามเสียงพร้อมกันทั้งไดอะล็อกและฉากพูดได้ โดยมี timer สำรองเมื่อ browser ไม่มี speech boundary',
+            'ขยายคำอ่านไทยและคำแปล พร้อมเน้นทั้งบรรทัดของประโยคที่กำลังพูดสำหรับจอห้องเรียน',
+            'ล้างสี เสียง และ timer เมื่อหยุดหรือเปลี่ยนบริบท; คงการเริ่มเสียงจากการกดเท่านั้น; game_docs v1.5.0 ใน migration 508',
+        ],
+    },
+    {
         version: 'v1.229.37 (Everyday Conversation — จับคู่ตัวละครกับเสียง)',
         date: '9 ก.ย. 2569',
         badge: 'bg-emerald-600',

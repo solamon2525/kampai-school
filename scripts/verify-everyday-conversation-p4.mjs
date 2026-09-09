@@ -97,6 +97,9 @@ for (const code of expectedIndicators) {
 if (!/data-mode="learn"/.test(html) || !/data-mode="practice"/.test(html) || !/data-mode="myself"/.test(html) || !/data-mode="visual"/.test(html)) errors.push('ขาดโหมดครูนำ จับคู่ A/B เรื่องของฉัน หรือฉากพูดได้');
 if (/submitScore\s*\(/.test(html)) errors.push('สื่อการสอนต้องไม่ส่งคะแนน');
 if (!/SpeechSynthesisUtterance/.test(html) || !/onDone/.test(html)) errors.push('ขาดเสียงทีละบรรทัดหรือคิวเล่นทั้งบท');
+if (!/onboundary/.test(html) || !/karaokeTimer/.test(html) || !/karaokeSync/.test(html) || !/speechTargets/.test(html)) errors.push('ขาด karaoke แบบ speech boundary หรือ timer สำรองที่ใช้ร่วมกันทั้งสองโหมด');
+if (!/\$\('visualSpeech'\)\.classList\.add\('speaking'\)/.test(html)) errors.push('ฉากพูดได้ไม่ได้รับสถานะกำลังพูดร่วมกับไดอะล็อก');
+if (!/\.line\.active \.reading\{font-size:clamp\(30px/.test(html) || !/\.line\.active \.meaning\{font-size:clamp\(26px/.test(html)) errors.push('คำอ่านหรือคำแปลประโยคปัจจุบันยังไม่ถึงขนาดสำหรับจอห้องเรียน');
 if (!/conversation_p4_show_reading/.test(html) || !/conversation_p4_show_meaning/.test(html)) errors.push('ขาดสถานะคำอ่านหรือคำแปล');
 if (!/btnUseProfile/.test(html) || !/btnNewStudent/.test(html) || !/PERSONALIZED_LINES/.test(html)) errors.push('ขาดการใช้ข้อมูลฉันหรือเริ่มนักเรียนคนใหม่');
 if (/JSON\.stringify\(state\.profile\)/.test(html)) errors.push('ห้ามบันทึกข้อมูลนักเรียนลง localStorage');
