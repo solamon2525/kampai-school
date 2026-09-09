@@ -74,6 +74,14 @@
     .practice-mcq .popt.ok{background:#dcfce7;border-color:#86efac}
     .practice-mcq .popt.no{background:#fee2e2;border-color:#fca5a5}
     .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
+    .activity-visual { width: min(100%, 170px); height: 120px; object-fit: contain; border-radius: 12px; background: #fffaf0; display: block; }
+    .choice, .card { gap: 8px; }
+    .choice .activity-visual, .card .activity-visual { width: min(100%, 150px); height: 105px; }
+    .activity-visual.is-fallback { display: none; }
+    .activity-visual-wrap { display: flex; align-items: center; justify-content: center; min-height: 105px; }
+    .activity-visual-wrap .emo { font-size: 2.5rem; }
+    .practice-mcq .question-visual { margin: 0 auto; width: 180px; height: 120px; object-fit: contain; border-radius: 12px; background: #fffaf0; }
+    @media (max-width: 520px) { .activity-visual { height: 92px; } .choice .activity-visual, .card .activity-visual { height: 82px; } }
 
   </style>
   <link rel="stylesheet" href="plant-parts-explorer.css" />
@@ -154,6 +162,7 @@
     
     <div class="practice-mcq" id="practiceMcq">
       <p class="pq"></p>
+      <img class="question-visual" id="practiceVisual" alt="" loading="lazy">
       <div class="popts"></div>
       <p class="pfb"></p>
       <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
@@ -210,6 +219,14 @@
     }
     function ding(ok) {
       if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+    }
+
+    const imageByPart = Object.fromEntries(PARTS.map((p) => [p.id, p.image]));
+    const growthImages = { g1: imageByPart.seed, g2: window.PLANT_PARTS_CONTENT.overview, g3: window.PLANT_PARTS_CONTENT.overview, g4: imageByPart.flower, g5: imageByPart.fruit };
+    function visualMarkup(part, label, image = part?.image) {
+      const safeLabel = String(label || part?.nameTh || 'ภาพพืช').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const fallback = String(part?.emoji || '🌱');
+      return `<span class="activity-visual-wrap"><img class="activity-visual" src="${image || ''}" alt="${safeLabel}" loading="lazy" onerror="this.classList.add('is-fallback');this.nextElementSibling.hidden=false"><span class="emo" hidden>${fallback}</span></span><span class="activity-label">${safeLabel}</span>`;
     }
 
     let mode = 'diagram';
@@ -283,6 +300,11 @@
       const box = document.getElementById('practiceMcq');
       if(!box) return;
       box.querySelector('.pq').textContent = item.q;
+      const practicePartId = ['root', 'leaf', 'flower', 'stem', 'fruit', 'root'][PRACTICE_Q.indexOf(item)] || 'root';
+      const practicePart = PARTS.find((part) => part.id === practicePartId) || PARTS[0];
+      const practiceVisual = document.getElementById('practiceVisual');
+      practiceVisual.src = practicePart.image;
+      practiceVisual.alt = practicePart.imageAlt;
       const fb = box.querySelector('.pfb');
       fb.textContent=''; fb.style.color='';
       const opts = item.opts.slice().sort(()=>Math.random()-0.5);
@@ -351,7 +373,7 @@
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'choice';
-        b.textContent = p.emoji + ' ' + p.nameTh;
+        b.innerHTML = visualMarkup(p);
         b.onclick = () => {
           if (b.dataset.locked) return;
           if (p.id === matchQ.id) {
@@ -390,7 +412,7 @@
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'choice';
-        b.textContent = p.emoji + ' ' + p.nameTh;
+        b.innerHTML = visualMarkup(p);
         b.onclick = () => {
           if (b.dataset.locked) return;
           if (p.id === edibleQ.ediblePart) {
@@ -443,7 +465,9 @@
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'card';
-        b.innerHTML = `<span class="emo">${g.emoji}</span><span class="lab">${g.name}</span>`;
+        const growPart = PARTS.find((p) => p.id === g.id);
+        const growImage = growPart?.image || growthImages[g.id] || '';
+        b.innerHTML = visualMarkup(growPart, g.name, growImage);
         b.onclick = () => {
           if (b.classList.contains('done')) return;
           if (g.ord !== growNext) {
@@ -457,7 +481,9 @@
           b.classList.add('done');
           const slot = document.getElementById('grow-slot-' + g.ord);
           slot.classList.add('filled');
-          slot.innerHTML = `<span class="sn">${g.ord}</span><span style="font-size:1.4rem">${g.emoji}</span><small style="font-weight:800;font-size:.7rem">${g.name}</small>`;
+          const slotPart = PARTS.find((p) => p.id === g.id);
+          const slotImage = slotPart?.image || growthImages[g.id] || '';
+          slot.innerHTML = `<span class="sn">${g.ord}</span>${visualMarkup(slotPart, g.name, slotImage)}`;
           growNext++;
           if (growNext > GROW.length) {
             document.getElementById('growFb').className = 'fb ok';
