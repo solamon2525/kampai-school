@@ -62,6 +62,20 @@
     next();
   }
 
+  function listenEnglish(part) {
+    stop();
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+    const utterance = new SpeechSynthesisUtterance(part.nameEn);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.78;
+    const voice = speechSynthesis.getVoices().find(v => /^en([-_]|$)/i.test(v.lang));
+    if (voice) utterance.voice = voice;
+    state.speaking = true;
+    utterance.onend = () => { state.speaking = false; };
+    utterance.onerror = () => { state.speaking = false; };
+    try { speechSynthesis.speak(utterance); } catch { state.speaking = false; }
+  }
+
   function render() {
     const part = content.parts.find(p => p.id === state.part);
     const expanded = state.step >= 0;
@@ -81,10 +95,10 @@
     }
     byId('partDetail').innerHTML = `
       <p class="step-label">${part.core ? 'เนื้อหาหลัก ป.4' : 'เรียนรู้เพิ่มเติม'}${expanded ? ` · ขั้น ${state.step + 1}/${part.steps.length}` : ''}</p>
-      <h2 data-narration>${escape(part.nameTh)}</h2>
+      <h2><span data-narration>${escape(part.nameTh)}</span><span class="english-term" lang="en">${escape(part.nameEn)} <span class="english-reading">(${escape(part.readingEn)})</span></span></h2>
       <p data-narration>${escape(expanded ? part.steps[state.step] : part.functionTh)}</p>
       ${expanded ? `<div class="actions"><button class="btn btn-ghost" id="previousStep" ${state.step === 0 ? 'disabled' : ''}>ย้อนกลับ</button><button class="btn btn-primary" id="nextStep" ${state.step === part.steps.length - 1 ? 'disabled' : ''}>ถัดไป</button></div>` : '<button class="btn btn-primary" id="showDetail">ดูรายละเอียด</button>'}
-      <div class="actions"><button class="btn btn-accent" id="btnSpeakPart" aria-pressed="false">ฟัง</button></div>
+      <div class="actions"><button class="btn btn-accent" id="btnSpeakPart" aria-pressed="false">ฟังคำอธิบาย</button><button class="btn btn-ghost english-listen" id="btnSpeakEnglish" lang="en">🔊 ${escape(part.nameEn)}</button></div>
       <p class="speech-status" id="speechStatus" role="status"></p>
       <details id="teacherNotes" ${state.notes ? 'open' : ''}><summary>ตัวอย่างและคำถามชวนคิด</summary>
       ${!expanded ? `<p class="examples" data-narration>ตัวอย่าง: ${escape(part.examples.join(' · '))}</p>` : `<p class="tip" data-narration>${escape(part.funFact)}</p>`}
@@ -95,6 +109,7 @@
       if (event.target.isConnected && state.notes !== event.target.open) { stop(); state.notes = event.target.open; }
     });
     byId('btnSpeakPart').onclick = listen;
+    byId('btnSpeakEnglish').onclick = () => listenEnglish(part);
     byId('showDetail')?.addEventListener('click', () => { stop(); state.step = 0; render(); });
     byId('previousStep')?.addEventListener('click', () => changeStep(-1));
     byId('nextStep')?.addEventListener('click', () => changeStep(1));
@@ -135,7 +150,7 @@
     chip.type = 'button';
     chip.className = 'chip';
     chip.dataset.part = part.id;
-    chip.textContent = `${i + 1}. ${part.nameTh}`;
+    chip.innerHTML = `${i + 1}. ${part.nameTh}<span class="en-label" lang="en">${part.nameEn}</span>`;
     chip.onclick = () => select(part.id);
     chip.setAttribute('aria-pressed', 'false');
     byId('partChips').append(chip);

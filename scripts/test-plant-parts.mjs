@@ -52,6 +52,12 @@ try {
   }
   assert.equal(await page.evaluate(() => testSpeech.length), 0);
   await page.locator('.chip[data-part="root"]').click();
+  assert.match(await page.locator('#partDetail').innerText(), /root/);
+  assert.match(await page.locator('#partDetail').innerText(), /รูต/);
+  await page.locator('#btnSpeakEnglish').click();
+  assert.equal(await page.evaluate(() => testSpeech.at(-1).text), 'root');
+  assert.equal(await page.evaluate(() => testSpeech.length), 1);
+  await page.evaluate(() => testSpeech.at(-1).onend?.());
   await page.locator('#btnSpeakPart').click();
   assert.equal(await page.locator('.spoken').innerText(), 'ราก');
   await page.evaluate(() => testSpeech.at(-1).onend());

@@ -8,6 +8,7 @@
 - User selects a part, opens details, advances one step, and optionally listens. No speech on selection or page entry.
 - Examples and teacher questions are collapsed initially to prioritize the large image and explanation.
 - Seven lesson images plus a replacement cover. Generated botanical illustrations are not scale drawings or experimental evidence.
+- English integration shows root, stem, leaf, flower, fruit and seed with Thai reading; English and Thai explanation speech are separate user-triggered actions.
 
 ## Content references
 

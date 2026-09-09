@@ -226,7 +226,8 @@
     function visualMarkup(part, label, image = part?.image) {
       const safeLabel = String(label || part?.nameTh || 'ภาพพืช').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const fallback = String(part?.emoji || '🌱');
-      return `<span class="activity-visual-wrap"><img class="activity-visual" src="${image || ''}" alt="${safeLabel}" loading="lazy" onerror="this.classList.add('is-fallback');this.nextElementSibling.hidden=false"><span class="emo" hidden>${fallback}</span></span><span class="activity-label">${safeLabel}</span>`;
+      const english = part?.nameEn ? `<span class="en-label" lang="en">${String(part.nameEn).replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;' }[c]))}</span>` : '';
+      return `<span class="activity-visual-wrap"><img class="activity-visual" src="${image || ''}" alt="${safeLabel}" loading="lazy" onerror="this.classList.add('is-fallback');this.nextElementSibling.hidden=false"><span class="emo" hidden>${fallback}</span></span><span class="activity-label">${safeLabel}${english}</span>`;
     }
 
     let mode = 'diagram';

@@ -26,9 +26,13 @@
 #partChips { justify-content: flex-start; margin-bottom: 10px; }
 .chip, .btn, .seg button, .choice, .card, .popt { min-height: 44px; min-width: 44px; }
 .chip { font-size: clamp(18px, 1.4vw, 28px); }
+.chip .en-label { display: block; font-size: .72em; font-family: Arial, sans-serif; letter-spacing: .02em; }
 .chip-heading { flex-basis: 100%; font-size: 16px; color: var(--plant-ink); margin-top: 8px; }
 .detail { color: var(--plant-ink); border-color: var(--plant-border); background: var(--plant-paper); }
 .detail h2 { font-size: clamp(32px, 3.2vw, 64px); }
+.detail .english-term { display: block; margin-top: -6px; font: 800 clamp(22px, 2vw, 36px) Arial, sans-serif; color: #276749; }
+.detail .english-reading { font-size: clamp(18px, 1.3vw, 26px); color: #4a6b5d; }
+.english-listen { font-family: Arial, sans-serif; }
 .detail p, .detail .examples, .detail .tip { font-size: clamp(24px, 1.8vw, 40px); line-height: 1.55; overflow-wrap: anywhere; color: var(--plant-ink); }
 .detail .btn { font-size: clamp(18px, 1.4vw, 28px); }
 .detail .step-label { font-size: 18px; }

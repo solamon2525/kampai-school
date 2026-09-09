@@ -8,11 +8,12 @@ const base = path.resolve('public/games/science');
 const context = { window: {} };
 vm.runInNewContext(await fs.readFile(path.join(base, 'plant-parts-data.js'), 'utf8'), context);
 const data = context.window.PLANT_PARTS_CONTENT;
+assert.equal(data.version, 'v1.4.0');
 assert.equal(data.parts.length, 6);
 assert.equal(data.parts.filter(p => p.core).length, 4);
 const paths = [data.overview];
 for (const part of data.parts) {
-  for (const key of ['id', 'nameTh', 'functionTh', 'image', 'imageAlt', 'question', 'answer', 'funFact']) assert.ok(part[key]?.trim(), key);
+  for (const key of ['id', 'nameTh', 'nameEn', 'readingEn', 'functionTh', 'image', 'imageAlt', 'question', 'answer', 'funFact']) assert.ok(part[key]?.trim(), key);
   assert.ok(part.steps.length >= 2 && part.steps.length <= 3);
   assert.ok(part.steps.every(s => s.trim()));
   assert.ok(part.examples.length);
