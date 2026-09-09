@@ -26,8 +26,9 @@ try {
   }
   // Reproduce Supabase's existing explicit grants, not only PUBLIC inheritance.
   await db.exec('GRANT ALL ON savings_transactions, savings_student_summary TO anon, authenticated');
-  await db.exec(readFileSync('supabase/migrations/493_secure_savings_bank_access_and_ledger.sql', 'utf8'));
-  await db.exec(readFileSync('supabase/migrations/494_activate_savings_bank_rpc_only_access.sql', 'utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260903074254_secure_savings_bank_access_and_ledger.sql', 'utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260909003859_activate_savings_bank_rpc_only_access.sql', 'utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260909004057_revoke_savings_mutation_anon_execute.sql', 'utf8'));
   const a = '10000000-0000-0000-0000-000000000001';
   const b = '10000000-0000-0000-0000-000000000002';
   const parent = '20000000-0000-0000-0000-000000000001';

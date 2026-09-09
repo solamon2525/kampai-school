@@ -2,7 +2,7 @@
 
 ## Scope
 
-Migration 493 introduces restricted public/parent RPCs and staff-only ledger mutations. It must be applied before publishing the corresponding frontend. Never run all pending migrations blindly in a dirty worktree.
+Migrations `20260903074254`, `20260909003859` and `20260909004057` introduce restricted public/parent RPCs and staff-only ledger mutations. They are already applied to production. Never run all pending migrations blindly in a dirty worktree.
 
 ## Automated Checks
 
@@ -14,7 +14,7 @@ Migration 493 introduces restricted public/parent RPCs and staff-only ledger mut
 
 ## Remaining Release Checks
 
-Pre-push check on 2026-09-03: isolated SQL tests, statement tests, static contracts and production build passed. Targeted ESLint had zero errors and two hook warnings. Full-project TypeScript checking failed, including the existing summary-only backup reference to the nonexistent `savings_summaries` table. Browser verification was not completed (`agent-browser` unavailable). No commit, push or production migration was performed; production migration authorization was requested separately.
+Release check on 2026-09-09: isolated SQL tests, statement tests, static contracts, production build and live HTTP status passed. Targeted ESLint had zero errors. Full-project TypeScript checking remains blocked by unrelated baseline errors. Browser automation was unavailable.
 
 - PGlite is single-connection: it cannot verify PostgreSQL multi-session advisory-lock contention or deadlock behavior.
 - Local Supabase/Docker is unavailable. Full local migrations and locally regenerated types remain unverified.

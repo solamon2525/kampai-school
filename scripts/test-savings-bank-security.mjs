@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const migration = ['493_secure_savings_bank_access_and_ledger.sql', '494_activate_savings_bank_rpc_only_access.sql']
+const migration = ['20260903074254_secure_savings_bank_access_and_ledger.sql', '20260909003859_activate_savings_bank_rpc_only_access.sql', '20260909004057_revoke_savings_mutation_anon_execute.sql']
   .map(file => readFileSync(`supabase/migrations/${file}`, 'utf8')).join('\n');
 const service = readFileSync('src/services/savings.service.ts', 'utf8');
 const parent = readFileSync('src/components/parent/SavingsBankParentView.tsx', 'utf8');
