@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.39 (สื่อวิทยาศาสตร์ — วัฏจักรน้ำฉากภาพและเสียงบรรยาย)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-sky-600',
+        items: [
+            'ยกระดับ water-cycle-media เป็นบทเรียน 5 ฉาก พร้อม sidebar, โหมดภาพประกอบ 16:9 และการ์ดคำอธิบายสำหรับ ป.3–5',
+            'เพิ่มภาพวาดการศึกษา local 5 ภาพ พร้อม fallback เมื่อภาพโหลดไม่ได้ และคงแบบฝึกเรียงลำดับเดิม',
+            'เพิ่มเสียงบรรยายภาษาไทยแบบ user-triggered ผ่าน Kampai TTS/fallback speechSynthesis และหยุดเสียงเมื่อเปลี่ยนบริบท',
+        ],
+    },
+    {
         version: 'v1.229.38 (Everyday Conversation — คาราโอเกะอ่านชัด)',
         date: '9 ก.ย. 2569',
         badge: 'bg-emerald-600',
