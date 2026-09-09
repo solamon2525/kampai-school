@@ -15,6 +15,12 @@ const checks = [
   ['visual text avoids character area', (source) => /\.visual-overlay\{[^}]*top:3%[^}]*bottom:auto/.test(source)],
   ['keeps practice mode', (source) => /data-mode="practice"/.test(source) && /orderList/.test(source)],
   ['has responsive visual frame', (source) => /aspect-ratio\s*:\s*16\/9/.test(source) && /@media/.test(source)],
+  ['has simulation mode', (source) => /data-mode="simulation"/.test(source) && /simulation-stage/.test(source)],
+  ['has three simulation controls', (source) => /id="heatControl"/.test(source) && /id="airControl"/.test(source) && /id="vaporControl"/.test(source)],
+  ['has cause-effect output', (source) => /id="simCause"/.test(source) && /renderSimulation/.test(source)],
+  ['has prediction checkpoints', (source) => /prediction-card/.test(source) && /predictionOptions/.test(source)],
+  ['has reduced motion fallback', (source) => /prefers-reduced-motion/.test(source) && /reducedMotionNote/.test(source)],
+  ['cleans up simulation narration on mode changes', (source) => /simulation-mode/.test(source) && /stopPlayback\(\)/.test(source)],
 ];
 
 const failures = checks.filter(([, check]) => !check(html));
