@@ -25,14 +25,13 @@ interface Props {
   fetchSummaries: () => Promise<void>;
 }
 
-export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
+export const BackupsTabContent = ({ summaries }: Props) => {
   const { toast } = useToast();
   const [teachers, setTeachers] = useState<any[]>([]);
   const [backups, setBackups] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
   const [dbError, setDbError] = useState<string | null>(null);
 
   // Settings state
@@ -193,45 +192,6 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
       toast({ title: 'เกิดข้อผิดพลาดในการสร้าง', description: err.message, variant: 'destructive' });
     } finally {
       setIsCreatingSnapshot(false);
-    }
-  };
-
-  const handleRestore = async (backup: any) => {
-    const totalBalance = Number(backup.total_balance).toLocaleString();
-    const formattedDate = formatThaiDateFull(backup.backup_date);
-    
-    const doubleConfirm = confirm(
-      `⚠️ คำเตือนวิกฤต: คุณกำลังจะย้อนกลับข้อมูลยอดเงินคงเหลือของนักเรียนทั้งหมดเป็นข้อมูลย้อนหลัง ณ วันที่ ${formattedDate} (ยอดเงินฝากรวม ${totalBalance} บาท, นักออม ${backup.total_savers} คน)\n\nการดำเนินการนี้จะเขียนทับตัวเลขยอดออมสะสมปัจจุบันทันที! ยืนยันที่จะย้อนเวลาระบบหรือไม่?`
-    );
-
-    if (!doubleConfirm) return;
-
-    setIsRestoring(true);
-    try {
-      const dataList = backup.backup_data as any[];
-      if (!Array.isArray(dataList)) throw new Error('โครงสร้างข้อมูลในไฟล์สำรองไม่ถูกต้อง');
-
-      // Update current student balances to match the snapshot
-      for (const item of dataList) {
-        await supabase
-          .from('savings_summaries')
-          .upsert({
-            student_id: item.student_id,
-            current_balance: item.current_balance,
-            total_transactions: item.total_transactions,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'student_id' });
-      }
-
-      toast({ 
-        title: 'กู้คืนระบบสำเร็จ! 🎉', 
-        description: `ย้อนกลับยอดฝากสะสมของบัญชีนักออมทั้งหมดเป็นข้อมูล ณ วันที่ ${formattedDate} เรียบร้อยแล้ว` 
-      });
-      await fetchSummaries();
-    } catch (err: any) {
-      toast({ title: 'กู้คืนไม่สำเร็จ', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsRestoring(false);
     }
   };
 
@@ -421,21 +381,13 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
           <CardHeader className="bg-slate-50 border-b">
             <CardTitle className="text-base flex items-center gap-2">
               <History className="w-5 h-5 text-slate-800" />
-              ประวัติจุดบันทึกย้อนเวลา (Restore Points)
+              ประวัติภาพรวมยอดบัญชี (Snapshots)
             </CardTitle>
             <CardDescription className="text-xs">
-              ภาพรวมสำรองย้อนหลัง 30 วัน แอดมินสามารถย้อนกลับ (Rollback) ข้อมูลยอดคงเหลือได้ในกรณีฉุกเฉิน
+              Snapshot เก็บเฉพาะยอดสรุป ไม่ใช่รายการธุรกรรมครบชุด จึงใช้ตรวจสอบย้อนหลังเท่านั้น ไม่สามารถเขียนทับหรือกู้คืนยอดบัญชีได้
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            {isRestoring && (
-              <div className="p-6 text-center space-y-3 bg-amber-500/5 border-b border-amber-200">
-                <RefreshCw className="w-8 h-8 animate-spin mx-auto text-amber-500" />
-                <h3 className="text-sm font-bold text-amber-950">กำลังย้อนเวลากู้คืนยอดคงเหลือนักเรียน...</h3>
-                <p className="text-xs text-amber-700 font-medium">กรุณาห้ามปิดหน้านี้หรือรีเฟรชเบราว์เซอร์เด็ดขาด</p>
-              </div>
-            )}
-
             {backups.length === 0 ? (
               <div className="p-12 text-center text-muted-foreground text-xs">
                 <ShieldAlert className="w-12 h-12 mx-auto mb-3 opacity-30 text-amber-500" />
@@ -461,20 +413,9 @@ export const BackupsTabContent = ({ summaries, fetchSummaries }: Props) => {
 
                     <div className="flex items-center gap-1.5 justify-end">
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRestore(b)}
-                        disabled={isRestoring}
-                        className="border-amber-300 text-amber-900 bg-amber-500/5 hover:bg-amber-500 hover:text-amber-950 font-bold text-[10px] h-7 px-2"
-                      >
-                        <RefreshCw className="w-3 h-3 mr-0.5" />
-                        ย้อนข้อมูลกลับจุดนี้
-                      </Button>
-                      <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDeleteBackup(b.id)}
-                        disabled={isRestoring}
                         className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

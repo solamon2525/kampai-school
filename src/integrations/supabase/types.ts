@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   graphql_public: {
     Tables: {
@@ -2838,48 +2838,6 @@ export type Database = {
           },
         ]
       }
-      educational_hub_usage_daily: {
-        Row: {
-          item_id: string
-          last_opened_at: string | null
-          owner_open_count: number
-          owner_staff_id: string
-          public_open_count: number
-          usage_date: string
-        }
-        Insert: {
-          item_id: string
-          last_opened_at?: string | null
-          owner_open_count?: number
-          owner_staff_id: string
-          public_open_count?: number
-          usage_date?: string
-        }
-        Update: {
-          item_id?: string
-          last_opened_at?: string | null
-          owner_open_count?: number
-          owner_staff_id?: string
-          public_open_count?: number
-          usage_date?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "educational_hub_usage_daily_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "educational_hub_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "educational_hub_usage_daily_owner_staff_id_fkey"
-            columns: ["owner_staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       educational_hub_profiles: {
         Row: {
           accent_color: string | null
@@ -4126,22 +4084,16 @@ export type Database = {
           created_at: string
           edu_hub_item_id: string
           indicator_id: string
-          mapping_role: string
-          sort_order: number
         }
         Insert: {
           created_at?: string
           edu_hub_item_id: string
           indicator_id: string
-          mapping_role?: string
-          sort_order?: number
         }
         Update: {
           created_at?: string
           edu_hub_item_id?: string
           indicator_id?: string
-          mapping_role?: string
-          sort_order?: number
         }
         Relationships: [
           {
@@ -9219,6 +9171,12 @@ export type Database = {
         Args: { p_student_code: string; p_study_id: string }
         Returns: Json
       }
+      delete_savings_transaction: {
+        Args: { p_transaction_id: string }
+        Returns: {
+          transaction_id: string
+        }[]
+      }
       english_quest_complete_lesson: {
         Args: {
           p_correct: number
@@ -9445,11 +9403,75 @@ export type Database = {
           wins: number
         }[]
       }
+      get_parent_savings_history: {
+        Args: { p_limit?: number; p_student_id: string }
+        Returns: {
+          academic_year: string
+          amount: number
+          balance_after: number
+          created_at: string
+          notes: string
+          recorded_by: string
+          semester: string
+          transaction_date: string
+          transaction_type: string
+          txn_id: string
+        }[]
+      }
+      get_parent_savings_summary: {
+        Args: { p_student_id: string }
+        Returns: {
+          class_name: string | null
+          current_balance: number | null
+          deposit_count: number | null
+          full_name: string | null
+          photo_url: string | null
+          student_code: string | null
+          student_id: string | null
+          total_deposits: number | null
+          total_transactions: number | null
+          total_withdrawals: number | null
+          withdraw_count: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "savings_student_summary"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_pixel_forest_rpg_state: {
         Args: { p_student_code: string }
         Returns: Json
       }
+      get_public_savings_leaderboard: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          class_name: string
+          deposit_count: number
+          full_name: string
+          photo_url: string
+          student_id: string
+          total_transactions: number
+          withdraw_count: number
+        }[]
+      }
+      get_public_savings_overview: {
+        Args: { p_limit?: number }
+        Returns: {
+          photo_url: string
+          student_class: string
+          student_name: string
+          transaction_date: string
+          transaction_id: string
+          transaction_type: string
+        }[]
+      }
       get_research_study_public: { Args: { p_study_id: string }; Returns: Json }
+      get_savings_deposit_count: {
+        Args: { p_student_id: string }
+        Returns: number
+      }
       get_savings_history: {
         Args: { p_code: string; p_limit?: number }
         Returns: {
@@ -9583,21 +9605,6 @@ export type Database = {
       has_menu_permission: { Args: { menu_id: string }; Returns: boolean }
       increment_ehi_download: { Args: { p_id: string }; Returns: undefined }
       increment_ehi_view: { Args: { p_id: string }; Returns: undefined }
-      list_ehi_usage_60d: {
-        Args: { p_owner_staff_id: string }
-        Returns: {
-          item_id: string
-          last_opened_at: string | null
-          library_pinned: boolean
-          observation_started_on: string
-          owner_open_count: number
-          public_open_count: number
-          review_candidate: boolean
-          subject: string | null
-          title: string
-          total_open_count: number
-        }[]
-      }
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       indicator_coverage_summary: { Args: never; Returns: Json }
       indicator_soft_gap_summary: { Args: never; Returns: Json }
@@ -9618,22 +9625,6 @@ export type Database = {
         Returns: Json
       }
       list_research_studies_public: { Args: never; Returns: Json }
-      save_teaching_media_unit: {
-        Args: {
-          p_description: string
-          p_game_item_ids: string[]
-          p_grade_levels: string[]
-          p_is_published: boolean
-          p_media_item_id: string
-          p_owner_staff_id: string
-          p_pack_id: string
-          p_subject: string
-          p_thumbnail_url: string
-          p_title: string
-          p_worksheet_item_ids: string[]
-        }
-        Returns: string
-      }
       log_data_access: {
         Args: {
           p_action: string
@@ -9750,6 +9741,24 @@ export type Database = {
           p_student_code: string
         }
         Returns: Json
+      }
+      record_savings_transaction: {
+        Args: {
+          p_academic_year?: string
+          p_amount: number
+          p_notes?: string
+          p_recorded_by?: string
+          p_recorded_by_administrator_id?: string
+          p_recorded_by_staff_id?: string
+          p_semester?: string
+          p_student_id: string
+          p_transaction_date?: string
+          p_transaction_type: string
+        }
+        Returns: {
+          balance_after: number
+          transaction_id: string
+        }[]
       }
       record_vocab_missed_indicators: {
         Args: { p_indicator_codes: Json; p_student_id: string }
@@ -9899,6 +9908,19 @@ export type Database = {
         Args: { p_per_table: Json; p_student_code: string }
         Returns: undefined
       }
+      update_savings_transaction: {
+        Args: {
+          p_amount?: number
+          p_notes?: string
+          p_transaction_date?: string
+          p_transaction_id: string
+          p_transaction_type?: string
+        }
+        Returns: {
+          balance_after: number
+          transaction_id: string
+        }[]
+      }
       upsert_thai_vocab_missed: {
         Args: { p_category_slug: string; p_student_id: string; p_words: Json }
         Returns: number
@@ -9942,12 +9964,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9971,11 +9993,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9996,11 +10018,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10021,11 +10043,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10038,11 +10060,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

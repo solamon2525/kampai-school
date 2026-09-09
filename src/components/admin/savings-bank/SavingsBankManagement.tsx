@@ -32,6 +32,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   savingsTransactionsService,
+  savingsErrorMessage,
   savingsSummaryService,
   studentsService,
   termService,
@@ -231,12 +232,13 @@ export const SavingsBankManagement = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!form.student_id) {
       toast({ title: 'กรุณาเลือกนักเรียน', variant: 'destructive' });
       return;
     }
-    const amount = parseInt(form.amount, 10);
-    if (!Number.isInteger(amount) || amount <= 0) {
+    const amount = Number(form.amount);
+    if (!Number.isInteger(amount) || amount <= 0 || amount >= 100000000) {
       toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
       return;
     }
@@ -260,21 +262,15 @@ export const SavingsBankManagement = () => {
 
     setIsSubmitting(true);
     try {
-      const { data: summaryBefore } = await savingsSummaryService.getForStudent(form.student_id);
-      const before = Number(summaryBefore?.current_balance ?? 0);
-      const balance_after =
-        form.transaction_type === 'deposit' ? before + amount : before - amount;
-
       const term = await termService.getActive();
 
       const studentOpt = studentOptions.find((s) => s.id === form.student_id);
-      const { error } = await savingsTransactionsService.insert({
+      const { data: saved, error } = await savingsTransactionsService.insert({
         student_id: form.student_id,
         student_name: studentOpt?.name ?? form.student_name,
         student_class: form.student_class,
         transaction_type: form.transaction_type,
         amount,
-        balance_after,
         transaction_date: form.transaction_date,
         notes: form.notes || null,
         recorded_by: recorder.name,
@@ -285,6 +281,8 @@ export const SavingsBankManagement = () => {
       });
 
       if (error) throw error;
+      if (!saved?.[0]) throw new Error('ไม่ได้รับการยืนยันจากระบบ กรุณาตรวจสอบประวัติก่อนบันทึกซ้ำ');
+      const balance_after = Number(saved[0].balance_after);
 
       toast({
         title: form.transaction_type === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ',
@@ -323,11 +321,8 @@ export const SavingsBankManagement = () => {
         notes: '',
       }));
       await Promise.all([fetchTransactions(), fetchSummaries()]);
-      if (quickRepeat && form.transaction_type !== 'deposit') {
-        setScannerOpen(true);
-      }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาด';
+      const msg = savingsErrorMessage(err);
       toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
@@ -338,7 +333,7 @@ export const SavingsBankManagement = () => {
     if (!confirm('ลบรายการนี้? — ยอดเงินคงเหลือจะถูกคำนวณใหม่')) return;
     const { error } = await savingsTransactionsService.delete(id);
     if (error) {
-      toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      toast({ title: 'ลบไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
       return;
     }
     toast({ title: 'ลบรายการแล้ว' });
@@ -805,7 +800,7 @@ export const SavingsBankManagement = () => {
                     <Th className="text-right">จำนวน</Th>
                     <Th className="text-right">คงเหลือหลัง</Th>
                     <Th className="text-left">ผู้บันทึก</Th>
-                    <Th className="text-center"></Th>
+                    <Th className="text-center">จัดการ</Th>
                   </tr>
                 </thead>
                 <tbody>

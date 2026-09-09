@@ -12,6 +12,16 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Savings Bank Access And Ledger (v1.229.25)
+
+- Public rankings and recent activity use allowlisted RPC payloads. Never include student codes, balances, amounts, notes or recorder identities in those feeds.
+- Rankings load all pages before calculating school totals. Public and parent screens distinguish loading/failure from an empty account and offer retry.
+- Parent requests are keyed by student ID and authorized against `parent_student_links` in SQL. Changing children must not display the previous child's balance.
+- Deposit/withdraw forms reject fractional baht; confirmations and Thai speech use the RPC-confirmed account balance, never a locally predicted balance.
+- Mutation RPCs serialize writes per student, rebuild the dated ledger and roll back operations that create a negative historical balance. Direct client table writes are revoked.
+- Continuous QR resumes after closing the confirmation, not while the confirmation is visible.
+- Verification and rollout limitations: `docs/savings-bank-security-qa.md`. A passing frontend build alone does not verify SQL, RLS, concurrency or production rollout.
+
 ### Waste Bank Results (`/waste-bank/results`)
 
 - หน้าสาธารณะเล่าเรื่องตามลำดับ Hero → KPI ภาคเรียนปัจจุบัน → ขั้นตอนดำเนินงาน → กราฟ → Top 10 → เป้าหมาย/ไฮไลต์ → แกลเลอรี่ → QR แชร์หน้า

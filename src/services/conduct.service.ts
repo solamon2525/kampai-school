@@ -226,10 +226,7 @@ export const conductService = {
         .eq('student_id', studentId)
         .maybeSingle(),
       supabase
-        .from('savings_student_summary')
-        .select('deposit_count')
-        .eq('student_id', studentId)
-        .maybeSingle(),
+        .rpc('get_savings_deposit_count' as never, { p_student_id: studentId } as never),
       supabase
         .from('attendance_records')
         .select('status')
@@ -274,7 +271,7 @@ export const conductService = {
     const wasteBonus = Math.min(50, Math.floor(wastePoints / 10));
 
     // ⏰ วินัย (discipline) ⬅️ ธนาคารพอเพียง (Savings Bank)
-    const depositCount = savingsRes.data?.deposit_count || 0;
+    const depositCount = Number(savingsRes.data || 0);
     const savingsBonus = Math.min(40, depositCount * 2);
 
     // 📘 ความรับผิดชอบ (responsibility) ⬅️ เวลามาเรียน (Attendance - ย้อนหลัง 12 เดือนล่าสุด)
