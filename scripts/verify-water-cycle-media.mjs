@@ -12,6 +12,7 @@ const checks = [
   ['has narration controls', (source) => /KAMPAI\.sound\.speak|speechSynthesis/.test(source)],
   ['does not autoplay narration', (source) => !/speak\([^)]*\)\s*;?\s*\/\/\s*autoplay/i.test(source)],
   ['has image fallback', (source) => /image-error|visualFallback/.test(source)],
+  ['visual text avoids character area', (source) => /\.visual-overlay\{[^}]*top:3%[^}]*bottom:auto/.test(source)],
   ['keeps practice mode', (source) => /data-mode="practice"/.test(source) && /orderList/.test(source)],
   ['has responsive visual frame', (source) => /aspect-ratio\s*:\s*16\/9/.test(source) && /@media/.test(source)],
 ];
