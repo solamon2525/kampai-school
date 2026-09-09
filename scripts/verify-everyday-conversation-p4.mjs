@@ -49,6 +49,9 @@ for (const scene of scenes) {
     if (titles.has(dialogue.title)) errors.push(`ชื่อบทซ้ำ: ${dialogue.title}`);
     titles.add(dialogue.title);
     if (!dialogue.image || !dialogue.imageAlt) errors.push(`${dialogue.title}: ขาด image หรือ imageAlt`);
+    if (!dialogue.voiceRoles || !['A', 'B'].every((role) => ['female', 'male'].includes(dialogue.voiceRoles[role]))) {
+      errors.push(`${dialogue.title}: ขาด voiceRoles ของ A/B หรือชนิดเสียงไม่ถูกต้อง`);
+    }
     if (visualPaths.has(dialogue.image)) errors.push(`path ภาพซ้ำ: ${dialogue.image}`);
     visualPaths.add(dialogue.image);
     if (dialogue.lines.length !== 4) errors.push(`${dialogue.title}: ต้องมี 4 ช่วงพูด`);
@@ -69,6 +72,10 @@ if (intro.lines.length !== 6) errors.push(`บทแนะนำตัวต้�
 if (qa.lines.length !== 12) errors.push(`บทถามตอบต้องมี 6 คู่/12 ช่วงพูด แต่พบ ${qa.lines.length}`);
 for (const personal of [intro, qa]) {
   if (!personal.image || !personal.imageAlt) errors.push(`${personal.title}: ขาด image หรือ imageAlt`);
+  const expectedRoles = personal === intro ? ['I'] : ['A', 'B'];
+  if (!personal.voiceRoles || !expectedRoles.every((role) => ['female', 'male'].includes(personal.voiceRoles[role]))) {
+    errors.push(`${personal.title}: ขาด voiceRoles ของผู้พูด`);
+  }
   if (visualPaths.has(personal.image)) errors.push(`path ภาพซ้ำ: ${personal.image}`);
   visualPaths.add(personal.image);
 }
@@ -89,10 +96,10 @@ for (const code of expectedIndicators) {
 }
 if (!/data-mode="learn"/.test(html) || !/data-mode="practice"/.test(html) || !/data-mode="myself"/.test(html) || !/data-mode="visual"/.test(html)) errors.push('ขาดโหมดครูนำ จับคู่ A/B เรื่องของฉัน หรือฉากพูดได้');
 if (/submitScore\s*\(/.test(html)) errors.push('สื่อการสอนต้องไม่ส่งคะแนน');
-if (!/speakBilingual/.test(html) || !/onDone/.test(html)) errors.push('ขาดเสียงทีละบรรทัดหรือคิวเล่นทั้งบท');
+if (!/SpeechSynthesisUtterance/.test(html) || !/onDone/.test(html)) errors.push('ขาดเสียงทีละบรรทัดหรือคิวเล่นทั้งบท');
 if (!/conversation_p4_show_reading/.test(html) || !/conversation_p4_show_meaning/.test(html)) errors.push('ขาดสถานะคำอ่านหรือคำแปล');
 if (!/btnUseProfile/.test(html) || !/btnNewStudent/.test(html) || !/PERSONALIZED_LINES/.test(html)) errors.push('ขาดการใช้ข้อมูลฉันหรือเริ่มนักเรียนคนใหม่');
-if (/localStorage\.(?:getItem|setItem)\([^)]*profile/i.test(html)) errors.push('ห้ามบันทึกข้อมูลส่วนตัวลง localStorage');
+if (/JSON\.stringify\(state\.profile\)/.test(html)) errors.push('ห้ามบันทึกข้อมูลนักเรียนลง localStorage');
 if (!/repeatRemaining=3/.test(html) || !/playVisualScene/.test(html) || !/data-visual-role/.test(html)) errors.push('ขาดลำดับฉากพูดหรือช่วงพูดตาม 3 วินาที');
 if (visualPaths.size !== 32) errors.push(`ต้องมีภาพไม่ซ้ำ 32 ภาพ แต่พบ ${visualPaths.size}`);
 
@@ -101,7 +108,10 @@ for (const imageUrl of visualPaths) {
     errors.push(`path ภาพอยู่นอกโฟลเดอร์ฉาก: ${imageUrl}`);
     continue;
   }
-  const filePath = path.join('public', imageUrl.replace(/^\/games\//, 'games/'));
+  const relativeImagePath = imageUrl.startsWith('/')
+    ? imageUrl.replace(/^\/+/, '')
+    : path.join('games', 'english', imageUrl);
+  const filePath = path.join('public', relativeImagePath);
   if (!fs.existsSync(filePath)) {
     errors.push(`ไม่พบไฟล์ภาพ: ${filePath}`);
     continue;

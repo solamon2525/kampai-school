@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.37 (Everyday Conversation — จับคู่ตัวละครกับเสียง)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้การจับคู่เสียงตามตัวละครหญิง/ชายของแต่ละฉาก และมี fallback เมื่อ browser ไม่มี voice แยกชนิด',
+            'สลับ A/B แล้วย้ายการ์ดไปฝั่งจริง พร้อมแก้การหยุดเสียงและ timer เมื่อออกจาก fullscreen',
+            'แก้ direct-open file:// ให้โหลด SDK และภาพฉากได้; game_docs v1.4.0 ใน migration 507',
+        ],
+    },
+    {
         version: 'v1.229.36 (ส่วนของพืชดอก ป.4: การ์ดภาพอ่านชัด)',
         date: '9 ก.ย. 2569',
         badge: 'bg-emerald-600',
