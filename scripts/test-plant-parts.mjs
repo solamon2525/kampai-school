@@ -79,11 +79,24 @@ try {
     document.dispatchEvent(new Event('visibilitychange'));
   });
   assert.equal(await page.evaluate(() => PlantPartsMedia.getState().speaking), false);
-  for (const mode of ['match', 'edible', 'grow', 'practice']) {
-    await page.locator(`[data-mode="${mode}"]`).click();
-    assert.ok(await page.locator(mode === 'practice' ? '#practiceMcq' : `#panel-${mode}`).isVisible());
-    const buttons = page.locator(mode === 'practice' ? '.popt' : `#panel-${mode} .choice, #panel-${mode} .card`);
-    await buttons.first().click();
+  for (const [width, height] of [[360, 800], [768, 1024], [1280, 720]]) {
+    await page.setViewportSize({ width, height });
+    for (const mode of ['match', 'edible', 'grow', 'practice']) {
+      await page.locator(`[data-mode="${mode}"]`).click();
+      assert.ok(await page.locator(mode === 'practice' ? '#practiceMcq' : `#panel-${mode}`).isVisible());
+      if (mode !== 'practice') {
+        const frame = page.locator(`#panel-${mode} .activity-visual-wrap`).first();
+        const image = page.locator(`#panel-${mode} .activity-visual`).first();
+        const label = page.locator(`#panel-${mode} .activity-label .en-label`).first();
+        await frame.waitFor({ state: 'visible' });
+        const bounds = await frame.boundingBox();
+        assert.ok(bounds && Math.abs(bounds.width - bounds.height) <= 2, `${width} ${mode} image frame is not square`);
+        assert.equal(await image.evaluate(el => getComputedStyle(el).objectFit), 'contain');
+        if (await label.count()) assert.equal(await label.evaluate(el => getComputedStyle(el).display), 'block');
+      }
+      const buttons = page.locator(mode === 'practice' ? '.popt' : `#panel-${mode} .choice, #panel-${mode} .card`);
+      await buttons.first().click();
+    }
   }
   await page.locator('[data-mode="diagram"]').click();
   await page.locator('#btnFs').click();
