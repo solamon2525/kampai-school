@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.41 (Gap-first media lab — เทคโนโลยี ศิลปะ การงาน และสุขศึกษา)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-violet-600',
+        items: [
+            'เพิ่ม runtime สื่อ standalone รุ่นใหม่ที่มีโหมดอ่าน ภาพประกอบ ฝึกปฏิบัติ และห้องทดลองเฉพาะหัวข้อ พร้อม TTS แบบ user-triggered, image fallback และ reduced-motion',
+            'เพิ่มสื่อ+ใบงาน 7 คู่: รู้เท่าทัน AI, เครื่องดนตรีไทย, วิจารณ์งานศิลป์, รายรับรายจ่าย, ความปลอดภัยในการทำงาน, อารมณ์ และการขอความช่วยเหลือ',
+            'เพิ่ม custom verifier และ catalog migration 509 สำหรับ URL สื่อ ใบงาน และ indicator mapping โดยไม่เพิ่มระบบคะแนนหรือข้อมูลนักเรียน',
+        ],
+    },
+    {
         version: 'v1.229.40 (สื่อวิทยาศาสตร์ — ห้องทดลองวัฏจักรน้ำ)',
         date: '9 ก.ย. 2569',
         badge: 'bg-cyan-600',

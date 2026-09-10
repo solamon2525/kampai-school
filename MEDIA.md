@@ -22,6 +22,16 @@ Live hub: หมวด `media` ใน Educational Hub · สัญญาสร�
 
 ห้าม: `submitScore` / leaderboard / lives / timer แข่ง (นั่นคือเกม — ดู `GAME.md`)
 
+## Interactive media lab runtime (v1.229.41)
+
+หัวข้อที่เป็นสื่อทดลองหรือสื่อ gap-first ใช้ `public/games/media-lab-runtime.js` และกำหนด `window.MEDIA_CONFIG` ในไฟล์สื่อ โดยต้องมี:
+
+- โหมดอ่าน ภาพประกอบ และฝึกปฏิบัติ; เพิ่มโหมดทดลองเฉพาะหัวข้อที่เหมาะสม
+- state ภายในหน้าและ QA hook แบบ read-only ผ่าน `window.<StateKey>.getState()` ไม่บันทึกคะแนนหรือคำตอบนักเรียน
+- `KAMPAI.sound.speak()` พร้อม fallback `speechSynthesis`, เริ่มเสียงจาก user gesture และหยุดเมื่อเปลี่ยนโหมด/ออกจากหน้า
+- ภาพ local อัตราส่วน 16:9 พร้อม fallback ข้อความ และ `prefers-reduced-motion` ที่หยุด animation
+- event-driven rendering สำหรับ control, choice และ prediction โดยไม่ใช้ polling loop
+
 ## Preference learning protocol
 
 - ลำดับอำนาจคือ ความถูกต้อง/ความปลอดภัย/หลักสูตร → `MEDIA.md` → preference ที่ผู้ใช้อนุมัติใน `kampai-worksheet-builder` → ค่าเริ่มต้นของ template
