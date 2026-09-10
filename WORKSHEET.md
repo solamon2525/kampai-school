@@ -105,6 +105,8 @@ Workflow ครู:
 
 - ชื่อชุดตั้งอัตโนมัติทุกใบงานที่ `mountToolbar` (รูปแบบ `{ชื่อใบงาน} - {หัวข้อ} · {M} ข้อ · {N} หน้า · ชุด {k}` เมื่อมี `#selCount`) — ช่องชื่อเป็น readonly ไม่ต้องพิมพ์; ปรับด้วย `titlePrefix` / `topicLabels` / `suggestTitle` ได้
 - สุ่มใหม่ = seed ใหม่ (ไม่ทับชุดที่บันทึกจนกดบันทึก)
+- **Fresh-open seed:** การเปิด URL ปกติที่ไม่มี `?seed=` หรือ `?set=` ต้องสร้าง seed ใหม่ทุกครั้ง และห้าม `render()` เขียน seed กลับลง URL เพราะจะทำให้รีเฟรชได้ชุดเดิมโดยไม่ตั้งใจ
+- `?seed=<number>` และ `?set=<uuid>` เป็น explicit reproducible replay สำหรับตรวจสอบ แชร์ และโหลดชุดที่บันทึกไว้เท่านั้น; การสุ่มใหม่ต้องล้างพารามิเตอร์ทั้งสองก่อน render
 - ยังไม่ล็อกอิน: โหลดชุด `access=link` ได้ แต่ปุ่มบันทึกจะบอกให้เข้าพอร์ทัลก่อน
 - verify:worksheet ตรวจ contract ชุดสำหรับ rect-area และใบงานที่ใช้ topic/runtime กลาง + auto title ใน engine กลาง
 

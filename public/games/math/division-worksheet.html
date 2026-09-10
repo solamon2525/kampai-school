@@ -168,6 +168,7 @@
 const WORKSHEET_KEY='division';
 const SET_TITLE_PREFIX='ใบงานหารยาว';
 let renderSeed=Date.now();
+let freshOpenSeed=true;
 let rng=null;
 let setsUi=null;
 let revealCount=0;
@@ -466,7 +467,7 @@ function render(){
   document.getElementById('pages').innerHTML = html;
   revealCount=0;
   syncAnswerReveal();
-  if(window.KampaiWorksheetSets){
+  if(window.KampaiWorksheetSets && (freshOpenSeed===false || setsUi?.getCurrentSetId?.())){
     window.KampaiWorksheetSets.writeUrl({seed:renderSeed,setId:setsUi?.getCurrentSetId?.()||undefined});
   }
 }
@@ -474,9 +475,11 @@ function render(){
 function randomize(){
   if(window.KampaiWorksheetSets){
     renderSeed=window.KampaiWorksheetSets.newSeed();
-    window.KampaiWorksheetSets.writeUrl({seed:renderSeed,clearSet:true});
+    freshOpenSeed=true;
+    window.KampaiWorksheetSets.writeUrl({clearSeed:true,clearSet:true});
   }else{
     renderSeed=Date.now()+Math.floor(Math.random()*100000);
+    freshOpenSeed=true;
   }
   if(setsUi?.setCurrentSetId)setsUi.setCurrentSetId('');
   render();
@@ -484,7 +487,7 @@ function randomize(){
 }
 function applySetState(state){
   if(state?.config)applyConfig(state.config);
-  if(state?.seed!=null)renderSeed=Number(state.seed);
+  if(state?.seed!=null){renderSeed=Number(state.seed);freshOpenSeed=false;}
   if(state?.setId&&setsUi?.setCurrentSetId)setsUi.setCurrentSetId(state.setId);
   render();
 }
@@ -492,6 +495,7 @@ async function bootSets(){
   try{
     const Sets=await window.KampaiWorksheet.loadSetsModule();
     const fromUrl=Sets.getConfigFromUrl();
+    freshOpenSeed=fromUrl.seed==null && !fromUrl.setId;
     if(fromUrl.seed!=null)renderSeed=Number(fromUrl.seed);
     else renderSeed=Sets.newSeed();
     setsUi=Sets.mountToolbar({
@@ -510,6 +514,7 @@ async function bootSets(){
       if(row){
         applyConfig(row.config||{});
         renderSeed=Number(row.seed);
+        freshOpenSeed=false;
         if(setsUi?.markTitleLoaded)setsUi.markTitleLoaded(row.title||'');
         else{
           const titleInput=document.getElementById('kampaiSetTitle');

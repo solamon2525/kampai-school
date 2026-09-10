@@ -8,6 +8,7 @@
     || 'topic-worksheet';
 
   let renderSeed = Date.now();
+  let freshOpenSeed = config.freshOnOpen === true;
   let rng = null;
   let setsUi = null;
   let revealCount = 0;
@@ -245,12 +246,13 @@
     document.getElementById('pages').innerHTML = html;
     revealCount = 0;
     syncReveal();
-    if (window.KampaiWorksheetSets) {
+    if (window.KampaiWorksheetSets && (!freshOpenSeed || setsUi?.getCurrentSetId?.())) {
       window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, setId: setsUi?.getCurrentSetId?.() || undefined });
     }
   }
 
   function randomize() {
+    if (config.freshOnOpen === true) freshOpenSeed = true;
     if (window.KampaiWorksheetSets) {
       renderSeed = window.KampaiWorksheetSets.newSeed();
     } else {
@@ -258,7 +260,7 @@
     }
     if (setsUi?.setCurrentSetId) setsUi.setCurrentSetId('');
     if (window.KampaiWorksheetSets) {
-      window.KampaiWorksheetSets.writeUrl({ seed: renderSeed, clearSet: true });
+      window.KampaiWorksheetSets.writeUrl({ clearSeed: true, clearSet: true });
     }
     render();
     if (setsUi?.refreshSuggestedTitle) setsUi.refreshSuggestedTitle(true);
@@ -266,7 +268,10 @@
 
   function applySetState(state) {
     if (state?.config) applyControls(state.config);
-    if (state?.seed != null) renderSeed = Number(state.seed);
+    if (state?.seed != null) {
+      renderSeed = Number(state.seed);
+      freshOpenSeed = false;
+    }
     if (state?.setId && setsUi?.setCurrentSetId) setsUi.setCurrentSetId(state.setId);
     render();
   }
@@ -278,6 +283,7 @@
       const Sets = await loader();
       if (!Sets) return;
       const fromUrl = Sets.getConfigFromUrl();
+      freshOpenSeed = config.freshOnOpen === true && fromUrl.seed == null && !fromUrl.setId;
       if (fromUrl.seed != null) renderSeed = Number(fromUrl.seed);
 
       setsUi = Sets.mountToolbar({
@@ -298,6 +304,7 @@
         if (row) {
           applyControls(row.config || {});
           renderSeed = Number(row.seed);
+          freshOpenSeed = false;
           if (setsUi?.markTitleLoaded) setsUi.markTitleLoaded(row.title || '');
           else {
             const titleInput = document.getElementById('kampaiSetTitle');

@@ -92,6 +92,24 @@ function verifyFile(file) {
     check('print runtime', !/window\.print\s*\(/.test(source), 'ต้องใช้ KampaiWorksheet.printA4() แทน window.print() โดยตรง');
     check('work spacing', !/\.q-work-block[^{}]*justify-content\s*:\s*space-evenly/.test(effectiveSource), 'พื้นที่ทำงานต้องใช้ gap คงที่ ไม่ใช้ space-evenly');
 
+    const freshOpenTargets = new Set([
+        'public/games/math/division-worksheet.html',
+        'public/games/math/short-division-worksheet.html',
+        'public/games/math/improper-to-mixed-worksheet.html',
+    ]);
+    if (freshOpenTargets.has(relative)) {
+        check(
+            'fresh-open seed',
+            /freshOpenSeed/.test(source) || /freshOnOpen\s*:\s*true/.test(source),
+            'ใบงานกลุ่มนี้ต้องแยกการเปิดปกติแบบ fresh seed ออกจาก ?seed=/?set=',
+        );
+        check(
+            'fresh-random URL reset',
+            /clearSeed\s*:\s*true/.test(effectiveSource),
+            'ปุ่มสุ่มใหม่ต้องล้าง seed ใน URL ก่อน render เพื่อไม่ล็อกชุดเดิม',
+        );
+    }
+
     const cssVersion = extractVersion(source, 'worksheet-modes.css');
     const jsVersion = extractVersion(source, 'worksheet-modes.js');
     check(
