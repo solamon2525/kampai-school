@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.44 (Everyday Conversation — speaker identity)',
+        date: '10 ก.ย. 2569',
+        badge: 'bg-cyan-700',
+        items: [
+            'แก้บท Nan และ Joe/Pim ให้ชื่อ ตัวละคร A/B ภาพ และเสียงชาย–หญิงตรงกันทั้งไดอะล็อกและฉากพูดได้',
+            'รวม metadata ภาพกับเพศผู้พูด ลดความเสี่ยงจากรายการคู่ขนานเรียงผิด และไม่ใช้ลำดับ voice ของ browser เป็นเพศสำรอง',
+            'เพิ่มตัวเลือกเสียงหญิง/ชายสำหรับข้อมูลเด็กแบบ session-only โดยไม่มีเสียงอัตโนมัติและไม่บันทึกข้อมูลส่วนตัว',
+        ],
+    },
+    {
         version: 'v1.229.43 (Fresh-open worksheet seeds — หารยาว/หารสั้น/แปลงจำนวนคละ)',
         date: '10 ก.ย. 2569',
         badge: 'bg-blue-600',

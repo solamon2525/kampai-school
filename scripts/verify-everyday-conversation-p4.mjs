@@ -68,8 +68,32 @@ for (const scene of scenes) {
   }
 }
 
+const dialogueByTitle = new Map(dialogues.map((dialogue) => [dialogue.title, dialogue]));
+const expectedNamedSpeakers = {
+  'Meeting a new friend': { A: 'female', B: 'male' },
+  'What is your name?': { A: 'male', B: 'female' },
+  'Good morning': { A: 'male', B: 'female' },
+};
+for (const [title, expected] of Object.entries(expectedNamedSpeakers)) {
+  const dialogue = dialogueByTitle.get(title);
+  if (!dialogue || dialogue.voiceRoles?.A !== expected.A || dialogue.voiceRoles?.B !== expected.B) {
+    errors.push(`${title}: เพศผู้พูดไม่ตรงกับชื่อในบท (${expected.A}/${expected.B})`);
+  }
+}
+const expectedProfileRoles = {
+  'Meeting a new friend': 'A',
+  'What is your name?': 'B',
+  'How old are you?': 'B',
+  'My family': 'B',
+  'Where do you live?': 'B',
+};
+for (const [title, role] of Object.entries(expectedProfileRoles)) {
+  if (dialogueByTitle.get(title)?.profileRole !== role) errors.push(`${title}: profileRole ต้องเป็น ${role}`);
+}
+
 if (intro.lines.length !== 6) errors.push(`บทแนะนำตัวต้องมี 6 ประโยค แต่พบ ${intro.lines.length}`);
 if (qa.lines.length !== 12) errors.push(`บทถามตอบต้องมี 6 คู่/12 ช่วงพูด แต่พบ ${qa.lines.length}`);
+if (intro.profileRole !== 'I' || qa.profileRole !== 'B') errors.push('บทเรื่องของฉันต้องระบุ profileRole เป็น I และ B');
 for (const personal of [intro, qa]) {
   if (!personal.image || !personal.imageAlt) errors.push(`${personal.title}: ขาด image หรือ imageAlt`);
   const expectedRoles = personal === intro ? ['I'] : ['A', 'B'];
@@ -102,6 +126,9 @@ if (!/\$\('visualSpeech'\)\.classList\.add\('speaking'\)/.test(html)) errors.pus
 if (!/\.line\.active \.reading\{font-size:clamp\(30px/.test(html) || !/\.line\.active \.meaning\{font-size:clamp\(26px/.test(html)) errors.push('คำอ่านหรือคำแปลประโยคปัจจุบันยังไม่ถึงขนาดสำหรับจอห้องเรียน');
 if (!/conversation_p4_show_reading/.test(html) || !/conversation_p4_show_meaning/.test(html)) errors.push('ขาดสถานะคำอ่านหรือคำแปล');
 if (!/btnUseProfile/.test(html) || !/btnNewStudent/.test(html) || !/PERSONALIZED_LINES/.test(html)) errors.push('ขาดการใช้ข้อมูลฉันหรือเริ่มนักเรียนคนใหม่');
+if (/const SCENE_SPEAKERS=/.test(html)) errors.push('ข้อมูลเพศผู้พูดยังแยกจาก metadata ภาพและเสี่ยงเรียงผิด');
+if (!/name="profileVoice"/.test(html) || !/profileVoice:'female'/.test(html)) errors.push('ขาดตัวเลือกเสียงหญิง/ชายของเด็กแบบ session-only');
+if (/profileVoice[^\n]*localStorage|localStorage[^\n]*profileVoice/.test(html)) errors.push('ห้ามบันทึกเสียงที่เด็กเลือกลง localStorage');
 if (/JSON\.stringify\(state\.profile\)/.test(html)) errors.push('ห้ามบันทึกข้อมูลนักเรียนลง localStorage');
 if (!/repeatRemaining=3/.test(html) || !/playVisualScene/.test(html) || !/data-visual-role/.test(html)) errors.push('ขาดลำดับฉากพูดหรือช่วงพูดตาม 3 วินาที');
 if (visualPaths.size !== 32) errors.push(`ต้องมีภาพไม่ซ้ำ 32 ภาพ แต่พบ ${visualPaths.size}`);

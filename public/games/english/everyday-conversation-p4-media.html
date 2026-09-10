@@ -54,6 +54,12 @@
     .field{display:grid;gap:3px;font-size:13px;font-weight:800;color:#d9f2f0}
     .field input,.field select{width:100%;min-height:44px;border:2px solid transparent;border-radius:10px;padding:7px 9px;background:var(--white);color:var(--ink);font:700 16px 'Sarabun',sans-serif}
     .field input:focus,.field select:focus{outline:3px solid var(--gold);border-color:var(--navy)}
+    .voice-choice{border:0;display:grid;gap:5px}.voice-choice legend{font-size:13px;font-weight:800;color:#d9f2f0}
+    .voice-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .voice-option{position:relative;min-width:0}.voice-option input{position:absolute;inset:0;z-index:1;width:100%;height:100%;opacity:0;cursor:pointer}
+    .voice-option span{min-height:44px;border:2px solid rgba(255,255,255,.34);border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.1);color:var(--white);font-weight:800;cursor:pointer}
+    .voice-option input:checked+span{border-color:var(--white);background:var(--gold);color:var(--navy)}
+    .voice-option input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
     .profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.profile-actions .btn{padding:7px;font-size:14px}
     .btn-apply{grid-column:1/-1;background:var(--gold);border-color:var(--white);color:var(--navy)}
     .btn-reset{background:var(--white);border-color:var(--line);color:var(--navy)}
@@ -216,6 +222,7 @@
           <div class="form-section">
             <h3>ข้อมูลของฉัน</h3>
             <label class="field">ชื่อเล่น (English)<input id="profileName" name="name" maxlength="20" placeholder="Mali"></label>
+            <fieldset class="voice-choice"><legend>เสียงของฉัน</legend><div class="voice-options"><label class="voice-option"><input id="profileVoiceFemale" type="radio" name="profileVoice" value="female" checked><span>เสียงผู้หญิง</span></label><label class="voice-option"><input id="profileVoiceMale" type="radio" name="profileVoice" value="male"><span>เสียงผู้ชาย</span></label></div></fieldset>
             <label class="field">อายุ<select id="profileAge" name="age"><option value="">เลือกอายุ</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></label>
             <label class="field">ชั้น / ห้อง<input id="profileGrade" name="grade" maxlength="8" placeholder="4/1"></label>
             <label class="field">สิ่งที่ชอบ (English)<input id="profileLike" name="like" maxlength="24" list="likeOptions" placeholder="football"><datalist id="likeOptions"><option value="football"><option value="badminton"><option value="music"><option value="drawing"><option value="reading"><option value="English"><option value="mangoes"><option value="noodles"></datalist></label>
@@ -333,59 +340,51 @@
 
     const SCENE_VISUALS={
       greetings:[
-        ['greetings/01-meeting-new-friend.webp','เด็กนักเรียนไทยสองคนพบและทักทายเพื่อนใหม่ในลานโรงเรียน'],
-        ['greetings/02-what-is-your-name.webp','เด็กนักเรียนไทยสองคนถามและบอกชื่อของตนเอง'],
-        ['greetings/03-how-old-are-you.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องอายุในห้องเรียน'],
-        ['greetings/04-good-morning.webp','เด็กนักเรียนไทยสองคนทักทายกันหน้าโรงเรียนในตอนเช้า'],
-        ['greetings/05-see-you-tomorrow.webp','เด็กนักเรียนไทยสองคนโบกมือลากันหลังเลิกเรียน']
+        ['greetings/01-meeting-new-friend.webp','เด็กหญิงมะลิทางซ้ายทักทายเด็กชายต้นทางขวาในลานโรงเรียน',{A:'female',B:'male'},'A'],
+        ['greetings/02-what-is-your-name.webp','เด็กชายทางซ้ายถามชื่อ และเด็กหญิงแนนทางขวาบอกชื่อของตนเอง',{A:'male',B:'female'},'B'],
+        ['greetings/03-how-old-are-you.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องอายุในห้องเรียน',{A:'female',B:'male'},'B'],
+        ['greetings/04-good-morning.webp','เด็กชายโจทางซ้ายและเด็กหญิงพิมทางขวาทักทายกันหน้าโรงเรียนตอนเช้า',{A:'male',B:'female'}],
+        ['greetings/05-see-you-tomorrow.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาโบกมือลากันหลังเลิกเรียน',{A:'female',B:'male'}]
       ],
       personal:[
-        ['personal/01-my-family.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องจำนวนสมาชิกในครอบครัว'],
-        ['personal/02-my-best-friend.webp','เพื่อนนักเรียนไทยสองคนพูดคุยกันใต้ต้นไม้ในโรงเรียน'],
-        ['personal/03-where-do-you-live.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องบ้านและโรงเรียน'],
-        ['personal/04-do-you-have-a-pet.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องสุนัขเลี้ยงในสวนบ้าน'],
-        ['personal/05-my-favorite-subject.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องวิชาโปรดในห้องเรียน']
+        ['personal/01-my-family.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องจำนวนสมาชิกในครอบครัว',{A:'female',B:'male'},'B'],
+        ['personal/02-my-best-friend.webp','เพื่อนนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยกันใต้ต้นไม้ในโรงเรียน',{A:'female',B:'male'}],
+        ['personal/03-where-do-you-live.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องบ้านและโรงเรียน',{A:'female',B:'male'},'B'],
+        ['personal/04-do-you-have-a-pet.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องสุนัขเลี้ยงในสวนบ้าน',{A:'female',B:'male'}],
+        ['personal/05-my-favorite-subject.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องวิชาโปรดในห้องเรียน',{A:'female',B:'male'}]
       ],
       classroom:[
-        ['classroom/01-may-i-come-in.webp','นักเรียนไทยขออนุญาตคุณครูเข้าห้องเรียน'],
-        ['classroom/02-may-i-go-out.webp','นักเรียนไทยขออนุญาตคุณครูออกจากห้องเรียน'],
-        ['classroom/03-borrowing-a-pencil.webp','เด็กนักเรียนไทยสองคนให้ยืมดินสอกันในห้องเรียน'],
-        ['classroom/04-please-repeat.webp','นักเรียนไทยขอให้คุณครูพูดคำสั่งซ้ำ'],
-        ['classroom/05-working-together.webp','เด็กนักเรียนไทยสองคนทำงานร่วมกันด้วยตัวต่อ']
+        ['classroom/01-may-i-come-in.webp','นักเรียนหญิงทางซ้ายขออนุญาตคุณครูหญิงทางขวาเข้าห้องเรียน',{A:'female',B:'female'}],
+        ['classroom/02-may-i-go-out.webp','นักเรียนชายทางซ้ายขออนุญาตคุณครูหญิงทางขวาออกจากห้องเรียน',{A:'male',B:'female'}],
+        ['classroom/03-borrowing-a-pencil.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาให้ยืมดินสอกันในห้องเรียน',{A:'female',B:'male'}],
+        ['classroom/04-please-repeat.webp','นักเรียนชายทางซ้ายขอให้คุณครูหญิงทางขวาพูดคำสั่งซ้ำ',{A:'male',B:'female'}],
+        ['classroom/05-working-together.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาทำงานร่วมกันด้วยตัวต่อ',{A:'female',B:'male'}]
       ],
       help:[
-        ['help/01-i-need-some-water.webp','เพื่อนนักเรียนยื่นน้ำให้เด็กที่กำลังกระหายน้ำ'],
-        ['help/02-i-cannot-find-my-book.webp','เพื่อนช่วยหาและยื่นหนังสือสีน้ำเงินที่หายไป'],
-        ['help/03-please-help-me.webp','เด็กนักเรียนไทยสองคนช่วยกันยกกล่อง'],
-        ['help/04-i-do-not-understand.webp','นักเรียนถามคุณครูเกี่ยวกับภาพห้องสมุดที่ไม่เข้าใจ'],
-        ['help/05-i-feel-sick.webp','เพื่อนชี้ทางไปห้องพยาบาลให้เด็กที่ไม่สบาย']
+        ['help/01-i-need-some-water.webp','เด็กหญิงทางซ้ายขอน้ำและเด็กชายทางขวายื่นน้ำให้',{A:'female',B:'male'}],
+        ['help/02-i-cannot-find-my-book.webp','เด็กหญิงทางซ้ายหาหนังสือและเด็กชายทางขวาช่วยยื่นหนังสือสีน้ำเงิน',{A:'female',B:'male'}],
+        ['help/03-please-help-me.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาช่วยกันยกกล่อง',{A:'female',B:'male'}],
+        ['help/04-i-do-not-understand.webp','นักเรียนชายทางซ้ายถามคุณครูหญิงทางขวาเกี่ยวกับภาพห้องสมุด',{A:'male',B:'female'}],
+        ['help/05-i-feel-sick.webp','เด็กหญิงทางซ้ายไม่สบายและเด็กชายทางขวาชี้ทางไปห้องพยาบาล',{A:'female',B:'male'}]
       ],
       feelings:[
-        ['feelings/01-do-you-like-football.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องความชอบฟุตบอล'],
-        ['feelings/02-i-am-happy.webp','เพื่อนแสดงความยินดีกับเด็กที่ภูมิใจในผลงาน'],
-        ['feelings/03-i-am-scared.webp','เพื่อนปลอบเด็กที่กลัวพายุฝนฟ้าคะนอง'],
-        ['feelings/04-after-pe-class.webp','เพื่อนถามความรู้สึกหลังเรียนวิชาพลศึกษา'],
-        ['feelings/05-the-school-trip.webp','เด็กนักเรียนไทยสองคนตื่นเต้นเตรียมขึ้นรถทัศนศึกษา']
+        ['feelings/01-do-you-like-football.webp','เด็กนักเรียนชายสองคนพูดคุยเรื่องความชอบฟุตบอล',{A:'male',B:'male'}],
+        ['feelings/02-i-am-happy.webp','เด็กหญิงทางซ้ายแสดงความยินดีกับเด็กชายทางขวาที่ภูมิใจในผลงาน',{A:'female',B:'male'}],
+        ['feelings/03-i-am-scared.webp','เด็กหญิงทางซ้ายปลอบเด็กชายทางขวาที่กลัวพายุฝนฟ้าคะนอง',{A:'female',B:'male'}],
+        ['feelings/04-after-pe-class.webp','เด็กหญิงทางซ้ายถามความรู้สึกเด็กชายทางขวาหลังเรียนพลศึกษา',{A:'female',B:'male'}],
+        ['feelings/05-the-school-trip.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาตื่นเต้นเตรียมขึ้นรถทัศนศึกษา',{A:'female',B:'male'}]
       ],
       school:[
-        ['school/01-todays-timetable.webp','เด็กนักเรียนไทยสองคนคุยกันหน้าแผนภาพตารางเรียน'],
-        ['school/02-where-is-the-library.webp','เพื่อนชี้ทางไปห้องสมุดและบันไดในอาคารเรียน'],
-        ['school/03-at-lunchtime.webp','เด็กนักเรียนไทยสองคนรับประทานอาหารและแบ่งผลไม้'],
-        ['school/04-after-school-club.webp','เด็กนักเรียนไทยสองคนพูดคุยเรื่องชมรมดนตรีและกีตาร์'],
-        ['school/05-sports-day.webp','เด็กนักเรียนไทยสองคนเตรียมแข่งขันกีฬาสีในสนาม']
+        ['school/01-todays-timetable.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาคุยกันหน้าแผนภาพตารางเรียน',{A:'female',B:'male'}],
+        ['school/02-where-is-the-library.webp','เด็กหญิงทางซ้ายถามทางและเด็กชายทางขวาชี้ทางไปห้องสมุด',{A:'female',B:'male'}],
+        ['school/03-at-lunchtime.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวารับประทานอาหารและแบ่งผลไม้',{A:'female',B:'male'}],
+        ['school/04-after-school-club.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องชมรมดนตรีและกีตาร์',{A:'female',B:'male'}],
+        ['school/05-sports-day.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาเตรียมแข่งขันกีฬาสีในสนาม',{A:'female',B:'male'}]
       ]
     };
     const VISUAL_BASE='everyday-conversation-p4-assets/scenes/';
-    const SCENE_SPEAKERS={
-      greetings:[{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'}],
-      personal:[{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'}],
-      classroom:[{A:'female',B:'female'},{A:'male',B:'female'},{A:'female',B:'male'},{A:'male',B:'female'},{A:'female',B:'male'}],
-      help:[{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'male',B:'female'},{A:'female',B:'male'}],
-      feelings:[{A:'male',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'}],
-      school:[{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'},{A:'female',B:'male'}]
-    };
     SCENES.forEach(scene=>scene.dialogues.forEach((dialogue,index)=>{
-      const visual=SCENE_VISUALS[scene.id][index];dialogue.image=VISUAL_BASE+visual[0];dialogue.imageAlt=visual[1];dialogue.voiceRoles=SCENE_SPEAKERS[scene.id]?.[index]||{};
+      const visual=SCENE_VISUALS[scene.id][index];dialogue.image=VISUAL_BASE+visual[0];dialogue.imageAlt=visual[1];dialogue.voiceRoles=visual[2];dialogue.profileRole=visual[3]||null;
     }));
 
     const PERSONAL_INTRO={title:'My self-introduction',image:VISUAL_BASE+'myself/01-self-introduction.webp',imageAlt:'นักเรียนไทยยืนแนะนำตัวเองอย่างมั่นใจในห้องเรียน',lines:[
@@ -410,8 +409,8 @@
       ['A','How many people are in your family?','ฮาว เมนี พีเพิล อาร์ อิน ยัวร์ แฟมิลี','ครอบครัวคุณมีกี่คน'],
       ['B','There are {{family}} people in my family.','แดร์ อาร์ {{familyReading}} พีเพิล อิน มาย แฟมิลี','ครอบครัวของฉันมี {{family}} คน']
     ]};
-    PERSONAL_INTRO.voiceRoles={I:'male'};
-    PERSONAL_QA.voiceRoles={A:'female',B:'male'};
+    PERSONAL_INTRO.voiceRoles={I:'female'};PERSONAL_INTRO.profileRole='I';
+    PERSONAL_QA.voiceRoles={A:'female',B:'female'};PERSONAL_QA.profileRole='B';
     const PERSONALIZED_LINES={
       'Hi, Mali. I am Ton.':['Hi, {{name}}. I am Ton.','ไฮ {{name}} ไอ แอม ต้น','สวัสดี {{name}} ฉันชื่อต้น'],
       'Hello! My name is Mali.':['Hello! My name is {{name}}.','เฮลโล มาย เนม อิส {{name}}','สวัสดี ฉันชื่อ {{name}}'],
@@ -423,7 +422,7 @@
       'No, it is near my school.':['No, I live near {{school}}.','โน ไอ ลิฟ เนียร์ {{school}}','ไม่ ฉันอยู่ใกล้ {{school}}']
     };
     const PROFILE_FIELDS=['school','province','name','age','grade','like','family'];
-    const state={scene:0,lesson:0,line:0,mode:'learn',myView:'intro',visualPersonal:false,swapped:false,playing:false,playToken:0,playbackTimer:0,speechGuardTimer:0,karaokeTimer:0,karaokeWordIndex:-1,karaokeSync:'idle',phase:'idle',repeatRemaining:0,useProfile:false,
+    const state={scene:0,lesson:0,line:0,mode:'learn',myView:'intro',visualPersonal:false,swapped:false,playing:false,playToken:0,playbackTimer:0,speechGuardTimer:0,karaokeTimer:0,karaokeWordIndex:-1,karaokeSync:'idle',phase:'idle',repeatRemaining:0,useProfile:false,profileVoice:'female',lastVoiceName:'',
       profile:{school:'',province:'',name:'',age:'',grade:'',like:'',family:''},
       showReading:localStorage.getItem(STORAGE_READING)!=='0',showMeaning:localStorage.getItem(STORAGE_MEANING)!=='0'};
     const $=id=>document.getElementById(id);
@@ -434,12 +433,12 @@
     function saveTeacher(){try{localStorage.setItem('conversation_p4_teacher',JSON.stringify({school:state.profile.school,province:state.profile.province,schoolSpeech:$('schoolSpeech').value}))}catch(_e){}}
     const VOICE_HINTS={female:/\bfemale\b|\bwoman\b|\bgirl\b|samantha|victoria|zira|susan|karen|moira|ava|aria|jenny|salli|libby|hazel/i,male:/\bmale\b|\bman\b|\bboy\b|david|daniel|george|guy|fred|aaron|tom|mark|ravi/i};
     function englishVoices(){return 'speechSynthesis' in window?speechSynthesis.getVoices().filter(voice=>/^en(?:[-_]|$)/i.test(voice.lang)):[]}
-    function voiceForRole(lesson,role){
+    function voiceForKind(kind){
       const voices=englishVoices();if(!voices.length)return null;
-      const kind=lesson.voiceRoles?.[role];
       if(kind){const metadata=voices.find(voice=>String(voice.gender||'').toLowerCase()===kind);if(metadata)return metadata;const hinted=voices.find(voice=>VOICE_HINTS[kind].test((voice.name||'')+' '+(voice.voiceURI||'')));if(hinted)return hinted;}
-      return voices[role==='A'?0:Math.min(1,voices.length-1)];
+      return voices[0];
     }
+    function voiceKindForLine(lesson,role){return state.useProfile&&lesson.profileRole===role?state.profileVoice:lesson.voiceRoles?.[role]}
 
     if(window.KAMPAI){
       try{
@@ -575,7 +574,7 @@
       const targets=speechTargets();
       targets.forEach(el=>{el.innerHTML=line.en.split(/(\s+)/).map(part=>/^\s+$/.test(part)?escapeHtml(part):'<span data-word>'+escapeHtml(part)+'</span>').join('')});
       if('speechSynthesis' in window){
-        try{speechSynthesis.cancel();let spoken=line.en;const school=cleanValue(state.profile.school),alias=cleanValue($('schoolSpeech').value),lesson=currentLesson(),voiceKind=lesson.voiceRoles?.[line.role];if(state.useProfile&&school&&alias)spoken=spoken.replace(school,alias);const displayWords=wordRanges(line.en),spokenWords=wordRanges(spoken),wordMap=speechWordMap(line.en,spoken,displayWords,spokenWords,school,alias);const utterance=new SpeechSynthesisUtterance(spoken);utterance.lang='en-US';utterance.voice=voiceForRole(lesson,line.role);utterance.pitch=voiceKind==='female'?1.08:voiceKind==='male'?0.92:1;utterance.rate=.82;
+        try{speechSynthesis.cancel();let spoken=line.en;const school=cleanValue(state.profile.school),alias=cleanValue($('schoolSpeech').value),lesson=currentLesson(),voiceKind=voiceKindForLine(lesson,line.role);if(state.useProfile&&school&&alias)spoken=spoken.replace(school,alias);const displayWords=wordRanges(line.en),spokenWords=wordRanges(spoken),wordMap=speechWordMap(line.en,spoken,displayWords,spokenWords,school,alias);const utterance=new SpeechSynthesisUtterance(spoken);utterance.lang='en-US';utterance.voice=voiceForKind(voiceKind);state.lastVoiceName=utterance.voice?.name||'';utterance.pitch=voiceKind==='female'?1.08:voiceKind==='male'?0.92:1;utterance.rate=.82;
           utterance.onstart=()=>{if(token!==state.playToken||finished)return;$('dialogue').querySelector('.line.active')?.classList.add('speaking');$('visualSpeech').classList.add('speaking');let fallbackWord=0;const advanceFallback=()=>{if(token!==state.playToken||finished||state.karaokeSync==='boundary')return;showKaraokeWord(targets,wordMap[fallbackWord]??fallbackWord,'fallback');fallbackWord+=1;if(fallbackWord<spokenWords.length)state.karaokeTimer=setTimeout(advanceFallback,Math.max(320,Math.min(720,Math.round(440/utterance.rate))))};state.karaokeTimer=setTimeout(advanceFallback,180)};
           utterance.onboundary=event=>{if(token!==state.playToken||finished)return;let spokenWord=spokenWords.findIndex(word=>event.charIndex>=word.index&&event.charIndex<word.index+word[0].length);if(spokenWord<0)spokenWord=spokenWords.reduce((latest,word,wordIndex)=>word.index<=event.charIndex?wordIndex:latest,-1);if(spokenWord<0)return;clearTimeout(state.karaokeTimer);state.karaokeTimer=0;showKaraokeWord(targets,wordMap[spokenWord]??spokenWord,'boundary')};utterance.onend=utterance.onerror=done;speechSynthesis.speak(utterance);return;}catch(_e){}
       }
@@ -650,7 +649,7 @@
     document.querySelector('.mode-group').addEventListener('click',event=>{const button=event.target.closest('[data-mode]');if(button)setMode(button.dataset.mode);});
     $('profileForm').addEventListener('submit',event=>event.preventDefault());
     $('profileForm').addEventListener('input',event=>{
-      const field=event.target;if(!field.name||!PROFILE_FIELDS.includes(field.name))return;
+      const field=event.target;if(field.name==='profileVoice'){stopPlayback();state.profileVoice=field.value;return;}if(!field.name||!PROFILE_FIELDS.includes(field.name))return;
       state.profile[field.name]=field.value;if(field.name!=='school'&&field.name!=='province')state.useProfile=true;saveTeacher();stopPlayback();renderDialogue();renderProfileStatus();updateVisibility();
     });
     $('profileForm').addEventListener('click',event=>{
@@ -670,7 +669,7 @@
     $('kbtn-tts')?.addEventListener('click',stopPlayback);
     $('btnNewStudent').addEventListener('click',()=>{
       stopPlayback();['name','age','grade','like','family'].forEach(key=>{state.profile[key]='';$('profile'+key[0].toUpperCase()+key.slice(1)).value=''});
-      state.useProfile=false;state.myView='intro';state.line=0;setMode('myself');$('profileName').focus();
+      state.profileVoice='female';$('profileVoiceFemale').checked=true;state.useProfile=false;state.myView='intro';state.line=0;setMode('myself');$('profileName').focus();
     });
     $('btnPrev').addEventListener('click',()=>{stopPlayback();if(state.line>0)selectLine(state.line-1);else changeLesson(-1);});
     $('btnNext').addEventListener('click',()=>{stopPlayback();if(state.line<currentLesson().lines.length-1)selectLine(state.line+1);else changeLesson(1);});
@@ -687,7 +686,7 @@
     window.addEventListener('pagehide',stopPlayback);
 
     window.EverydayConversationP4=Object.freeze({
-      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,visualPersonal:state.visualPersonal,playing:state.playing,phase:state.phase,repeatRemaining:state.repeatRemaining,karaokeWordIndex:state.karaokeWordIndex,karaokeSync:state.karaokeSync,activeRole:currentLesson().lines[state.line][0],image:currentLesson().image,imageAlt:currentLesson().imageAlt,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
+      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,visualPersonal:state.visualPersonal,playing:state.playing,phase:state.phase,repeatRemaining:state.repeatRemaining,karaokeWordIndex:state.karaokeWordIndex,karaokeSync:state.karaokeSync,activeRole:currentLesson().lines[state.line][0],activeVoiceKind:voiceKindForLine(currentLesson(),currentLesson().lines[state.line][0]),lastVoiceName:state.lastVoiceName,profileVoice:state.profileVoice,image:currentLesson().image,imageAlt:currentLesson().imageAlt,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
       scenes:Object.freeze(SCENES.map(scene=>Object.freeze({id:scene.id,count:scene.dialogues.length,indicator:scene.indicator})))
     });
     render();setMode('learn');
