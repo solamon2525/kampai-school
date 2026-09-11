@@ -1081,7 +1081,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     <div id="lctrl">
       <button class="cbtn" id="btn-home">← หน้าหลัก</button>
       <button class="cbtn mbtn on" id="m-auto">▶ อัตโนมัติ</button>
-      <button class="cbtn" id="btn-pause" title="หยุดชั่วคราว / เล่นต่อ">⏸</button>
+      <button class="cbtn on" id="btn-pause" title="กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ">▶ เล่นต่อเนื่อง</button>
       <button class="cbtn mbtn" id="m-flash">🎲 สุ่ม</button>
       <button class="cbtn mbtn" id="m-choice">🎯 ทายคำ</button>
       <button class="cbtn mbtn" id="m-match">🔗 จับคู่</button>
@@ -1689,7 +1689,7 @@ const btnNextSlide = document.getElementById('btn-next-slide');
 // =====================================================================
 let mode = 'auto';                       // auto | flash | choice | match | listen | spell
 let cellMs = 1500, curSlide = 0, curCell = 0, timer = null;
-let autoPaused = false;                  // หยุดชั่วคราวในโหมดอัตโนมัติ (ปุ่ม pause หรือคลิกคำเอง)
+let autoPaused = true;                  // หยุดชั่วคราวในโหมดอัตโนมัติ (เริ่มต้นไม่เล่นเอง ครู/แอดมินเป็นคนกดเริ่ม)
 let revealed = false;     // flash
 // flash (สุ่ม) — flashcard หลายทิศ + deck รู้แล้ว/ทบทวน + จำข้ามรอบ + จับเวลา/สถิติ
 let flashVariant = 'en2th';     // en2th | th2en | pic2word | audio2word | spell2word | mixed
@@ -2373,7 +2373,7 @@ function setMode(m){
     }
   }
   if(isAuto){
-    autoPaused=false; btnPause.textContent='⏸'; btnPause.classList.remove('on');
+    autoPaused=true; btnPause.textContent='▶ เล่นต่อเนื่อง'; btnPause.title='กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ'; btnPause.classList.add('on');
     curCell=0; goTo(curSlide);
   }
   else if(m==='flash'){ startFlash(); }
@@ -2688,13 +2688,17 @@ function pauseAuto(){
   if(mode!=='auto'||autoPaused) return;
   autoPaused=true;
   clearTimeout(timer);
-  btnPause.textContent='▶'; btnPause.classList.add('on');
+  btnPause.textContent='▶ เล่นต่อเนื่อง';
+  btnPause.title='กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ';
+  btnPause.classList.add('on');
   if(window.speechSynthesis) speechSynthesis.cancel();
 }
 function resumeAuto(){
   if(mode!=='auto'||!autoPaused) return;
   autoPaused=false;
-  btnPause.textContent='⏸'; btnPause.classList.remove('on');
+  btnPause.textContent='⏸ หยุดชั่วคราว';
+  btnPause.title='กดเพื่อหยุดเล่นชั่วคราว';
+  btnPause.classList.remove('on');
   startTimer();
 }
 
@@ -3753,7 +3757,11 @@ document.querySelectorAll('.fv').forEach(b=>b.addEventListener('click',e=>{
   else if(mode==='fliprace') startFlipRace();
 }));
 Object.keys(modeBtns).forEach(k=>{
-  if(modeBtns[k]) modeBtns[k].addEventListener('click',e=>{ e.stopPropagation(); if(mode!==k) setMode(k); });
+  if(modeBtns[k]) modeBtns[k].addEventListener('click',e=>{
+    e.stopPropagation();
+    if(mode!==k) setMode(k);
+    else if(k==='auto') { autoPaused ? resumeAuto() : pauseAuto(); }
+  });
 });
 btnHome.addEventListener('click',e=>{ e.stopPropagation(); location.hash=''; showHub(); });
 btnSay.addEventListener('click',e=>{ e.stopPropagation(); if(curItem) speak(curItem); });
@@ -3783,7 +3791,9 @@ window.addEventListener('resize',()=>{
       clearTimeout(timer);
       if(window.speechSynthesis) speechSynthesis.cancel();
       autoPaused=true;
-      btnPause.textContent='▶'; btnPause.classList.add('on');
+      btnPause.textContent='▶ เล่นต่อเนื่อง';
+      btnPause.title='กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ';
+      btnPause.classList.add('on');
       rebuildTopicSlides(preserved);
       renderSlide(curSlide);
       dotElArr[curSlide]?.classList.add('active');
