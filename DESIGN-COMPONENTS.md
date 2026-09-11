@@ -12,6 +12,13 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### QuickMenu — teacher conduct access (v1.229.53)
+
+- ธนาคารความดี (`conduct` → `/admin/dashboard/conduct`) เป็นเมนูพื้นฐานของ role `teacher`; ไม่ต้องมีใน `allowedMenus` และไม่ต้องเพิ่มสิทธิ์รายบัญชีเมื่อสร้างครูใหม่
+- สิทธิ์เมนูลัด = admin หรือ (role เป็น teacher และเป็นเมนูพื้นฐานครู) หรือได้รับ menu ID ใน `allowedMenus` โดยชัดแจ้ง; parent/viewer/unknown ไม่ได้รับสิทธิ์พื้นฐานครูโดยอัตโนมัติ
+- คงรายการ/ลำดับ shared quick menu ที่ผู้ดูแลจัดไว้ ไม่เพิ่มสิทธิ์ scan หรือระบบอื่น และไม่เปลี่ยน RLS/สิทธิ์แก้ไขหรือลบคะแนน
+- Regression: `node scripts/test-teacher-conduct-access.mjs` ตรวจคอมโพเนนต์จริงผ่าน HTTP/browser ด้วย synthetic roles ทั้งสองขนาดจอ; ไม่ใช่การทดสอบบันทึกคะแนนด้วยบัญชีครูจริง
+
 ### Savings Bank Access And Ledger (v1.229.25)
 
 - Public rankings and recent activity use allowlisted RPC payloads. Never include student codes, balances, amounts, notes or recorder identities in those feeds.

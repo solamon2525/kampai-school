@@ -902,6 +902,8 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 
 ### Rule 14.40 — Shared Quick Menu (เมนูลัดบน dashboard)
 
+**Teacher access (v1.229.53):** `conduct` (ธนาคารความดี) เป็นเมนูพื้นฐานสำหรับ role `teacher` ทุกบัญชี รวมครูใหม่ ไม่ต้องเพิ่ม `allowedMenus` รายคน เงื่อนไขเมนูพื้นฐานครูต้องตรวจ role จริงเสมอ; parent/viewer/unknown ไม่ได้รับสิทธิ์นี้โดยอัตโนมัติ คงรายการ/ลำดับ shared menu และสิทธิ์ RLS เดิม ไม่ยกระดับบัญชีเป็น admin
+
 **Source of truth:** ตาราง `shared_quick_menu` (singleton, id=1) — **ห้าม** อ่าน/เขียน `user_quick_menu_preferences` ใน QuickMenu อีก (deprecated, คงไว้เพื่อ rollback)
 
 **Data flow:**

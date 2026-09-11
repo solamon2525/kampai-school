@@ -95,6 +95,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 ];
 
 export const TEACHER_QUICK_MENU_CATALOG: QuickMenuOption[] = [
+  { id: 'conduct', label: 'ธนาคารความดี', icon: Star, path: '/admin/dashboard/conduct', group: 'งานครู' },
   { id: 'schedule', label: 'ตารางสอน', icon: Calendar, path: '/teacher/schedule', group: 'งานครู' },
   { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance', group: 'งานครู' },
   { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores', group: 'งานครู' },
