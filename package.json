@@ -36,6 +36,7 @@
     "verify:media:matrix": "node scripts/verify-media-matrix.mjs",
     "compare:learning-artifact": "node scripts/compare-learning-artifact.mjs",
     "test:learning-preferences": "node scripts/test-learning-preferences.mjs",
+    "test:virtue-bank-naming": "node scripts/test-virtue-bank-naming.mjs",
     "audit:covers": "node scripts/audit-cover-safe-top.mjs",
     "fix:covers-safe-top": "node scripts/reframe-cover-safe-top.mjs --all-risky",
     "build:vocab": "node scripts/build-vocab-data.mjs",

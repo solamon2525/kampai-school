@@ -40,7 +40,7 @@ export const globalSearchService = {
         title: s.name ?? '',
         subtitle: [cls, s.student_code].filter(Boolean).join(' · '),
         photoUrl: s.photo_url,
-        path: `/hero/${s.id}`,
+        path: `/virtue-bank/${s.id}`,
       });
     });
 

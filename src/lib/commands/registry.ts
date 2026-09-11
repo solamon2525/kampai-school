@@ -78,7 +78,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-staff', label: 'จัดการครู/บุคลากร', group: 'แอดมิน', icon: Briefcase, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/staff' } },
   { id: 'adm-attendance', label: 'เช็คชื่อนักเรียน', group: 'แอดมิน', icon: ClipboardCheck, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/attendance' } },
   { id: 'adm-scores', label: 'คะแนนเก็บ', group: 'แอดมิน', icon: PenLine, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/scores' } },
-  { id: 'adm-conduct', label: 'Kampai Hero (ความประพฤติ)', group: 'แอดมิน', icon: Star, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/conduct' } },
+  { id: 'adm-conduct', label: 'ธนาคารความดี (ความประพฤติ)', group: 'แอดมิน', icon: Star, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/conduct' } },
   { id: 'adm-waste', label: 'ธนาคารขยะ (admin)', group: 'แอดมิน', icon: Recycle, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/waste-bank' } },
   { id: 'adm-savings', label: 'ธนาคารพอเพียง (admin)', group: 'แอดมิน', icon: Wallet, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/savings-bank' } },
   { id: 'adm-scan', label: 'สแกน QR ด่วน', group: 'แอดมิน', icon: QrCode, roles: ['admin', 'teacher'], shortcut: '⌃⇧S', action: { type: 'navigate', path: '/admin/dashboard/scan' } },

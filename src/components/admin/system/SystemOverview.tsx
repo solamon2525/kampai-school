@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.47 (ธนาคารความดี — เปลี่ยนชื่อและ URL ให้เป็นระบบเดียวกัน)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เปลี่ยนชื่อระบบที่ผู้ใช้เห็นเป็น “ธนาคารความดี” และเปลี่ยนหน่วยคะแนนเป็น “คะแนนความดี” ในหน้าบ้าน หลังบ้าน parent และระบบรางวัล',
+            'เพิ่ม URL หลัก `/virtue-bank` และ `/virtue-bank/:studentId` พร้อม redirect จาก `/hero` เดิมเพื่อรักษาลิงก์และ QR เก่า',
+            'คง schema `conduct_scores`, RPC และ service ภายในเดิม เพื่อรักษาข้อมูลคะแนนและการแลกรางวัลโดยไม่ต้อง migration',
+        ],
+    },
+    {
         version: 'v1.229.46 (Educational Hub — all media on one page)',
         date: '11 ก.ย. 2569',
         badge: 'bg-emerald-700',
@@ -1095,7 +1105,7 @@ const versionHistory = [
         ],
     },
     {
-        version: 'v1.219.9 (ธนาคารขยะและ Kampai Hero — เสียงแจ้งคะแนน)',
+        version: 'v1.219.9 (ธนาคารขยะและธนาคารความดี — เสียงแจ้งคะแนน)',
         date: 'ล่าสุด',
         badge: 'bg-emerald-600',
         items: [
@@ -3752,11 +3762,11 @@ const versionHistory = [
         ],
     },
     {
-        version: 'v1.52.1 (ใบเกียรติบัตรฮีโร่ + กันรูปคนบีบไม่สมส่วนถาวร)',
+        version: 'v1.52.1 (ใบเกียรติบัตรธนาคารความดี + กันรูปคนบีบไม่สมส่วนถาวร)',
         date: '',
         badge: 'bg-emerald-700',
         items: [
-            'ใบเกียรติบัตรฮีโร่ความดี (/hero): รูปนักเรียนเป็นกรอบเต็มตัวไม่ครอป, แก้สังกัดเป็น "สพป.อุดรธานี เขต 2", URL สั้นด้วยรหัสนักเรียน (/hero/<รหัส>) + QR สแกนได้จริงเปิดหน้าประวัติ',
+            'ใบเกียรติบัตรธนาคารความดี (/virtue-bank): รูปนักเรียนเป็นกรอบเต็มตัวไม่ครอป, แก้สังกัดเป็น "สพป.อุดรธานี เขต 2", URL สั้นด้วยรหัสนักเรียน (/virtue-bank/<รหัส>) + QR สแกนได้จริงเปิดหน้าประวัติ',
             'แก้รูป ครู/นักเรียน ถูกบีบยืดไม่สมส่วน: base AvatarImage (shadcn) ใส่ object-cover → รูปไม่จัตุรัส crop กึ่งกลางพอดี ไม่บิด มีผลทุก avatar ทั้งระบบ',
             'Guardrail กันเกิดซ้ำ: ESLint no-restricted-imports ห้าม import @/components/ui/avatar ตรง (ยกเว้น PersonAvatar) → บังคับ avatar คนทุกตัวผ่าน <PersonAvatar> จับตอน build + migrate HallOfFame เข้า PersonAvatar',
         ],
@@ -4685,7 +4695,7 @@ const versionHistory = [
         date: '',
         badge: 'bg-slate-600',
         items: [
-            'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อก สุดยอดฮีโร่ความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
+            'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อกสุดยอดนักเรียนธนาคารความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
             'สร้าง Migration 070_public_read_active_students_basic.sql เพื่อตั้งค่าสิทธิ์ Row Level Security (RLS) ของตารางนักเรียน (students) ให้ผู้ใช้ทั่วไป (anon) และผู้ใช้ที่ล็อกอินสามารถ SELECT นักเรียนที่มีสถานะ is_active = true และให้ผู้ปกครองสามารถ SELECT ประวัตินักเรียนของตนเองได้',
             'ปรับปรุงระบบการแสดงผลชื่อนักเรียนและรูปภาพโปรไฟล์ (PersonAvatar) บนหน้าแรก (Featured Hero Block) ให้สอดคล้องตามกฎ PDPA และกฎ DESIGN.md Rule 14.13 ในระบบโรงเรียน',
         ],

@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useParams } from "react-router-dom";
 import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
@@ -36,6 +36,11 @@ const lazyWithRetry = (componentImport: () => Promise<any>) => {
       throw error; // If already retried, let ErrorBoundary catch it
     }
   });
+};
+
+const LegacyHeroRedirect = () => {
+  const { studentId } = useParams();
+  return <Navigate to={studentId ? `/virtue-bank/${studentId}` : "/virtue-bank"} replace />;
 };
 
 // หน้าอื่นๆ โหลดแบบ lazy เพื่อลดขนาด bundle เริ่มต้น
@@ -209,8 +214,10 @@ const App = () => (
             {/* Student Self-Dashboard — เข้าด้วย student_code (public) */}
             <Route path="/my" element={<MyLearning />} />
             <Route path="/english-quest" element={<EnglishQuest />} />
-            <Route path="/hero" element={<StudentHeroPublic />} />
-            <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
+            <Route path="/virtue-bank" element={<StudentHeroPublic />} />
+            <Route path="/virtue-bank/:studentId" element={<StudentHeroPublic />} />
+            <Route path="/hero" element={<LegacyHeroRedirect />} />
+            <Route path="/hero/:studentId" element={<LegacyHeroRedirect />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/donate/receipt/:id" element={<DonationReceipt />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

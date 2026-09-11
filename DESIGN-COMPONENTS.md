@@ -618,13 +618,13 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 
 ### Dual-wallet reward cost
 - รางวัลกำหนดต้นทุนต่อชิ้นเป็นขยะล้วน ความดีล้วน หรือจำนวนตายตัวจากทั้งสองกระเป๋า; ห้ามทดแทนคะแนนข้ามกระเป๋า
-- คะแนนความดีสะสม = `conduct_scores add - deduct` ของปีการศึกษาปัจจุบัน ไม่รวมโบนัส Kampai Hero และไม่แก้ ledger เดิมเมื่อแลก
+- คะแนนความดีสะสม = `conduct_scores add - deduct` ของปีการศึกษาปัจจุบัน ไม่รวมโบนัสธนาคารความดี และไม่แก้ ledger เดิมเมื่อแลก
 - `pending` และ `approved` กันคะแนนทันที; `rejected` คืน available ของทั้งสองกระเป๋าโดยไม่เพิ่ม/ลบ `conduct_scores`
 - ทุกหน้าที่แสดงราคาใช้ `<RewardCostDisplay>` เพื่อให้ label และสีของสองกระเป๋าตรงกัน
 
 ### `<PointsConfirmationDialog confirmation title latestLabel accumulatedLabel speechComplete onClose />`
 - Path: `src/components/admin/shared/PointsConfirmationDialog.tsx`
-- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและ Kampai Hero หลังรายการเพิ่ม/หักสำเร็จเท่านั้น; `latestSign` รองรับ `+` และ `-`
+- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและธนาคารความดีหลังรายการเพิ่ม/หักสำเร็จเท่านั้น; `latestSign` รองรับ `+` และ `-`
 - ต้องแสดง `<PersonAvatar>` คู่ชื่อ พร้อมคะแนนล่าสุดและยอดสะสมเป็นตัวเลขขนาดใหญ่กลางจอแบบ responsive
 - ปิดอัตโนมัติหลัง `speechComplete` แล้วหน่วง 800ms หรือกดปิดได้; ถ้าไม่มี Web Speech API ใช้ fallback 5 วินาที
 - เสียงยืนยันธุรกรรมทุกระบบใช้ `speakThai()` ส่วนกลางหลัง mutation สำเร็จเท่านั้น โดยส่งข้อความเป็นช่วงสั้นและแปลงจำนวนเต็มผ่าน `thaiNumberToWords()`

@@ -83,7 +83,7 @@ export const studentsService = {
   getById: (id: string) =>
     supabase.from('students').select('*').eq('id', id).single(),
 
-  /** ดึงนักเรียนจากรหัสนักเรียน หรือ UUID (รองรับ URL สั้น /hero/<code>) */
+  /** ดึงนักเรียนจากรหัสนักเรียน หรือ UUID (รองรับ URL สั้น /virtue-bank/<code>) */
   getByCodeOrId: (identifier: string) => {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
     return isUuid

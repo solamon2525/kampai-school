@@ -1,7 +1,7 @@
 /**
  * conduct.service.ts
  * Supabase queries สำหรับ conduct_scores table
- * และโมเดลการประมวลผลระบบพลังความดีของฮีโร่ (Kampai Hero System)
+ * และโมเดลการประมวลผลระบบธนาคารความดี
  */
 import { supabase } from '@/integrations/supabase/client';
 
@@ -197,7 +197,7 @@ export const conductService = {
   },
 
   // =========================================================
-  // ฟีเจอร์เพิ่มเติมสำหรับ Kampai Hero System (Backend Ledger Calculation)
+  // ฟีเจอร์เพิ่มเติมสำหรับธนาคารความดี (Backend Ledger Calculation)
   // =========================================================
 
   /** คำนวณประมวลผลโปรไฟล์ฮีโร่ของนักเรียน */

@@ -93,7 +93,7 @@ export const ConductManagement = () => {
         <div className="space-y-4">
             <div className="flex items-center gap-2">
                 <Star className="w-6 h-6 text-yellow-500" />
-                <h2 className="text-xl font-bold">ระบบ Kampai Hero System</h2>
+                <h2 className="text-xl font-bold">ระบบธนาคารความดี</h2>
             </div>
 
             <Tabs defaultValue="record">
@@ -396,7 +396,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     );
 }
 
-// ===== Tab 2: อันดับ Kampai Hero System =====
+// ===== Tab 2: อันดับธนาคารความดี =====
 function LeaderboardTab() {
     const [filterClass, setFilterClass] = useState('');
     const [filterSemester, setFilterSemester] = useState('1');
@@ -453,14 +453,14 @@ function LeaderboardTab() {
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                         <Trophy className="w-4 h-4 text-yellow-500" />
-                        อันดับ Kampai Hero System ({leaderboard.length} คน)
+                        อันดับธนาคารความดี ({leaderboard.length} คน)
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
                         <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : leaderboard.length === 0 ? (
-                        <p className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูล Kampai Hero System</p>
+                        <p className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูลธนาคารความดี</p>
                     ) : (
                         <div className="space-y-2">
                             {leaderboard.map((s, idx) => (

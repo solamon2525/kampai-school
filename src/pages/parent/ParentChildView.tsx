@@ -127,7 +127,7 @@ export default function ParentChildView({ view }: Props) {
                     </h1>
                     {view === 'conduct' && link?.student_id && (
                         <a 
-                            href={`/hero/${link.student_id}`}
+                            href={`/virtue-bank/${link.student_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-[0.98] w-fit"
