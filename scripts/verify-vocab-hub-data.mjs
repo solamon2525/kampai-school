@@ -37,8 +37,9 @@ Object.entries(fruitImages).forEach(([en, file]) => {
   if (item) item.image = `./vocab-hub-assets/fruits/${file}`;
 });
 
-const fixedCounts = { numbers: 100, days: 7, months: 12, alphabet: 26, seasons: 4 };
+const fixedCounts = { numbers: 100, days: 7, months: 12, alphabet: 26, seasons: 4, birds: 10 };
 const basicImageTopicCounts = {
+  birds: 10,
   body: 10, family: 8, clothes: 10, classroom: 10, 'house-rooms': 8, toys: 8,
   food: 12, animals: 12, shapes: 8, weather: 10, transportation: 10, places: 10,
   vegetables: 10, insects: 8, 'sea-animals': 8, seasons: 4, directions: 10,
@@ -66,7 +67,7 @@ async function verifyImageAsset(label, assetPath) {
   if (mean < 10 || deviation < 5) errors.push(`${label}: ภาพมืดหรือว่างผิดปกติ`);
 }
 
-if (metaSlugs.length !== 28) errors.push(`ต้องมี 28 หมวด แต่พบ ${metaSlugs.length}`);
+if (metaSlugs.length !== 29) errors.push(`ต้องมี 29 หมวด แต่พบ ${metaSlugs.length}`);
 if (new Set(metaSlugs).size !== metaSlugs.length) errors.push('พบ slug ซ้ำใน TOPIC_META');
 if (!/className='cell-reading'/.test(html) || !/isVisualTopic && item\.th/.test(html)) {
   errors.push('visual topics: กริดต้องแสดงคำอ่านภาษาไทยด้วย .cell-reading');
@@ -146,19 +147,19 @@ for (const slug of metaSlugs) {
 
 const total = Object.values(topics).reduce((sum, items) => sum + items.length, 0);
 const extendedTotal = Object.values(extended).reduce((sum, items) => sum + items.length, 0);
-if (total !== 839) errors.push(`คำศัพท์รวมต้องเป็น 839 แต่พบ ${total}`);
+if (total !== 849) errors.push(`คำศัพท์รวมต้องเป็น 849 แต่พบ ${total}`);
 if (extendedTotal !== 467) errors.push(`คำต่อยอดต้องเป็น 467 แต่พบ ${extendedTotal}`);
 
-if (Object.keys(basicImages).length !== 22) {
-  errors.push(`ภาพคำพื้นฐาน: ต้องมี 22 หมวด แต่พบ ${Object.keys(basicImages).length}`);
+if (Object.keys(basicImages).length !== 23) {
+  errors.push(`ภาพคำพื้นฐาน: ต้องมี 23 หมวด แต่พบ ${Object.keys(basicImages).length}`);
 }
 for (const slug of textOnlyTopics) {
   if (basicImages[slug]) errors.push(`ภาพคำพื้นฐาน: ${slug} ต้องคงรูปแบบข้อความ/สีเดิม`);
 }
 const basicImageEntries = Object.entries(basicImages)
   .flatMap(([slug, images]) => Object.entries(images).map(([en, file]) => ({ slug, en, file })));
-if (basicImageEntries.length !== 205) {
-  errors.push(`ภาพคำพื้นฐาน: ต้องมี mapping 205 คำ แต่พบ ${basicImageEntries.length}`);
+if (basicImageEntries.length !== 215) {
+  errors.push(`ภาพคำพื้นฐาน: ต้องมี mapping 215 คำ แต่พบ ${basicImageEntries.length}`);
 }
 const basicImagePaths = basicImageEntries.map(({ slug, file }) => `${slug}/${file}`);
 if (new Set(basicImagePaths).size !== basicImagePaths.length) {

@@ -260,6 +260,7 @@
     instruments: en => `She plays the ${en.toLowerCase()}.`,
     emotions: en => `I feel ${en.toLowerCase()} today.`,
     directions: en => `The direction word is ${en.toLowerCase()}.`,
+    birds: en => `The ${en.toLowerCase()} is a lovely bird.`,
   };
 
   const mergedRows = {};
@@ -292,6 +293,7 @@
   );
 
   const BASIC_IMAGE_WORDS = Object.freeze({
+    birds: ['Eagle','Pigeon','Crow','Sparrow','Parrot','Peacock','Hen','Duck','Kingfisher','Woodpecker'],
     body: ['Head','Eye','Ear','Nose','Mouth','Hand','Foot','Arm','Leg','Back'],
     family: ['Father','Mother','Brother','Sister','Grandfather','Grandmother','Uncle','Aunt'],
     clothes: ['Shirt','Pants','Shoes','Hat','Dress','Boots','Socks','Jacket','Gloves','Scarf'],
