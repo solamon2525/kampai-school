@@ -36,6 +36,13 @@ Object.entries(fruitImages).forEach(([en, file]) => {
   const item = topics.fruits.find(candidate => candidate.en === en);
   if (item) item.image = `./vocab-hub-assets/fruits/${file}`;
 });
+const extendedImages = context.window.VOCAB_HUB_EXTENDED_IMAGES || {};
+Object.entries(extendedImages).forEach(([slug, images]) => {
+  Object.entries(images).forEach(([en, file]) => {
+    const item = topics[slug]?.find(candidate => candidate.level === 'extended' && candidate.en === en);
+    if (item) item.image = `./vocab-hub-assets/${slug}/${file}`;
+  });
+});
 
 const fixedCounts = { numbers: 100, days: 7, months: 12, alphabet: 26, seasons: 4, birds: 10 };
 const basicImageTopicCounts = {
@@ -190,9 +197,22 @@ for (const { slug, en, file } of basicImageEntries) {
 }
 for (const [slug, items] of Object.entries(topics)) {
   for (const item of items) {
-    if (slug !== 'fruits' && item.level === 'extended' && item.image) {
-      errors.push(`ภาพคำพื้นฐาน/${slug}/${item.en}: คำต่อยอดต้องไม่รับ image mapping`);
+    const hasAuthorizedExtendedImage = slug === 'fruits' || Boolean(extendedImages[slug]?.[item.en]);
+    if (!hasAuthorizedExtendedImage && item.level === 'extended' && item.image) {
+      errors.push(`ภาพคำพื้นฐาน/${slug}/${item.en}: คำต่อยอดต้องไม่รับ image mapping โดยไม่ได้รับอนุญาต`);
     }
+  }
+}
+
+for (const [slug, images] of Object.entries(extendedImages)) {
+  for (const [en, file] of Object.entries(images)) {
+    const item = topics[slug]?.find(candidate => candidate.level === 'extended' && candidate.en === en);
+    if (!item) {
+      errors.push(`ภาพคำต่อยอด/${slug}: ไม่พบคำ ${en}`);
+      continue;
+    }
+    const assetPath = path.join('public/games/english/vocab-hub-assets', slug, file);
+    await verifyImageAsset(`${slug}/${en}`, assetPath);
   }
 }
 

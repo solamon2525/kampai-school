@@ -325,6 +325,16 @@
     ])
   ));
 
+  const EXTENDED_IMAGE_WORDS = Object.freeze({
+    animals: ['Lion', 'Bear', 'Duck', 'Peacock'],
+  });
+  window.VOCAB_HUB_EXTENDED_IMAGES = Object.freeze(Object.fromEntries(
+    Object.entries(EXTENDED_IMAGE_WORDS).map(([slug, words]) => [
+      slug,
+      Object.freeze(Object.fromEntries(words.map(en => [en, imageFileName(en)]))),
+    ])
+  ));
+
   window.VOCAB_HUB_FRUIT_IMAGES = Object.freeze({
     Apple: 'apple.webp', Banana: 'banana.webp', Mango: 'mango.webp', Orange: 'orange.webp',
     Grape: 'grape.webp', Watermelon: 'watermelon.webp', Pineapple: 'pineapple.webp',
