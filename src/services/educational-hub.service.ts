@@ -3,6 +3,10 @@
  * Supabase queries สำหรับ Educational Hub — categories, profiles, items + counter RPCs
  */
 import { supabase } from '@/integrations/supabase/client';
+import {
+    collectAllEducationalHubItems,
+    EDUCATIONAL_HUB_BATCH_SIZE,
+} from './educational-hub-pagination';
 import { getCharacterAnimPreset, type CharacterAnimationConfig } from '@/lib/character-animation';
 import { type CharacterColorConfig, presetToColorConfig } from '@/lib/character-color';
 import { getCharacterStudioTemplate } from '@/lib/character-templates';
@@ -186,8 +190,55 @@ export type EduHubItemPageOptions = {
     sort?: 'default' | 'newest' | 'popular' | 'alpha';
 };
 
+export type EduHubAllItemsOptions = Omit<EduHubItemPageOptions, 'limit' | 'offset'>;
+
 const BUCKET = 'educational-hub';
 const GAMES_BUCKET = 'edu-hub-games';
+
+const listItemsByTeacherPage = async (
+    staffId: string,
+    opts: EduHubItemPageOptions,
+): Promise<{ data: EduHubItem[]; count: number; error: Error | null }> => {
+    const limit = Math.max(1, Math.min(opts.limit ?? 24, EDUCATIONAL_HUB_BATCH_SIZE));
+    let q = supabase
+        .from('educational_hub_items' as never)
+        .select('*', { count: 'exact' })
+        .eq('owner_staff_id', staffId)
+        .eq('category_id', opts.categoryId)
+        .eq('is_published', true);
+
+    const search = opts.search?.replace(/[,%()]/g, ' ').trim();
+    if (search) q = q.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+    if (opts.subjects?.length) q = q.in('subject', opts.subjects);
+    if (opts.grades?.length) q = q.overlaps('grade_levels', opts.grades);
+    if (opts.tags?.length) q = q.overlaps('tags', opts.tags);
+    if (opts.types?.length) q = q.in('item_type', opts.types);
+
+    q = q
+        .order('library_pinned', { ascending: false })
+        .order('library_pin_order', { ascending: true, nullsFirst: false });
+
+    if (opts.sort === 'popular') {
+        q = q.order('view_count', { ascending: false });
+    } else if (opts.sort === 'alpha') {
+        q = q.order('title', { ascending: true });
+    } else if (opts.sort === 'default') {
+        q = q
+            .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: false });
+    } else {
+        q = q.order('created_at', { ascending: false });
+    }
+    q = q.order('id', { ascending: true });
+
+    const offset = Math.max(0, opts.offset ?? 0);
+    const { data, count, error } = await q.range(offset, offset + limit - 1);
+    return {
+        data: ((data ?? []) as unknown as EduHubItem[]),
+        count: count ?? 0,
+        error: (error as Error | null) ?? null,
+    };
+};
 
 export const educationalHubService = {
     // ─── Categories ─────────────────────────────────────────────────────
@@ -290,49 +341,17 @@ export const educationalHubService = {
     },
 
     /** Public teacher-library page: fetch only the active category and visible range. */
-    listItemsByTeacherPage: async (
+    listItemsByTeacherPage,
+
+    /** Public media library: fetch every filtered row in stable 120-row batches. */
+    listItemsByTeacherAll: (
         staffId: string,
-        opts: EduHubItemPageOptions,
-    ): Promise<{ data: EduHubItem[]; count: number; error: Error | null }> => {
-        const limit = Math.max(1, Math.min(opts.limit ?? 24, 120));
-        let q = supabase
-            .from('educational_hub_items' as never)
-            .select('*', { count: 'exact' })
-            .eq('owner_staff_id', staffId)
-            .eq('category_id', opts.categoryId)
-            .eq('is_published', true);
-
-        const search = opts.search?.replace(/[,%()]/g, ' ').trim();
-        if (search) q = q.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-        if (opts.subjects?.length) q = q.in('subject', opts.subjects);
-        if (opts.grades?.length) q = q.overlaps('grade_levels', opts.grades);
-        if (opts.tags?.length) q = q.overlaps('tags', opts.tags);
-        if (opts.types?.length) q = q.in('item_type', opts.types);
-
-        q = q
-            .order('library_pinned', { ascending: false })
-            .order('library_pin_order', { ascending: true, nullsFirst: false });
-
-        if (opts.sort === 'popular') {
-            q = q.order('view_count', { ascending: false });
-        } else if (opts.sort === 'alpha') {
-            q = q.order('title', { ascending: true });
-        } else if (opts.sort === 'default') {
-            q = q
-                .order('sort_order', { ascending: true })
-                .order('created_at', { ascending: false });
-        } else {
-            q = q.order('created_at', { ascending: false });
-        }
-
-        const offset = Math.max(0, opts.offset ?? 0);
-        const { data, count, error } = await q.range(offset, offset + limit - 1);
-        return {
-            data: ((data ?? []) as unknown as EduHubItem[]),
-            count: count ?? 0,
-            error: (error as Error | null) ?? null,
-        };
-    },
+        opts: EduHubAllItemsOptions,
+    ): Promise<{ data: EduHubItem[]; count: number; error: Error | null }> =>
+        collectAllEducationalHubItems(
+            (pageOptions) => listItemsByTeacherPage(staffId, pageOptions),
+            opts,
+        ),
 
     /** Lightweight pair-link index; avoids downloading every full card row. */
     listPublishedItemUrlsByTeacher: async (staffId: string): Promise<string[]> => {

@@ -239,6 +239,7 @@ export const CategorySection = ({
             ref={sectionSortable.setNodeRef}
             style={sectionStyle}
             id={category ? `cat-${category.category_key}` : undefined}
+            data-edu-hub-category-count={items.length}
             className={sectionClasses}
         >
             {!hideHeader && category && (

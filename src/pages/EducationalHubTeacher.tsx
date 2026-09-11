@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
@@ -105,6 +105,8 @@ const EducationalHubTeacher = () => {
     const [searchInput, setSearchInput] = useState('');
     const [sort, setSort] = useState<SortMode>('newest');
     const [currentPage, setCurrentPage] = useState(1);
+    const itemsSectionRef = useRef<HTMLDivElement>(null);
+    const pendingPageRef = useRef<{ page: number; categoryKey: string | null } | null>(null);
     const { mode: viewMode, setMode: setViewMode } = useViewMode();
     const [viewportWidth, setViewportWidth] = useState(() => (typeof window === 'undefined' ? 1280 : window.innerWidth));
 
@@ -143,8 +145,11 @@ const EducationalHubTeacher = () => {
         () => (categories ?? []).find((category) => category.category_key === activeCategoryKey) ?? null,
         [activeCategoryKey, categories],
     );
+    const showAllMedia = activeCategoryKey === 'media';
+    const paginationSizeKey = showAllMedia ? 'all' : pageSize;
 
     useEffect(() => {
+        pendingPageRef.current = null;
         setCurrentPage(1);
     }, [
         activeCategoryKey,
@@ -154,30 +159,47 @@ const EducationalHubTeacher = () => {
         filter.tags,
         filter.types,
         sort,
-        pageSize,
+        paginationSizeKey,
     ]);
 
-    const { data: itemPage, isLoading: loadingItems, isFetching: fetchingItems } = useQuery({
-        queryKey: [
-            'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, currentPage, pageSize,
-            filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
-        ],
+    const {
+        data: itemPage,
+        isLoading: loadingItems,
+        isFetching: fetchingItems,
+        isError: itemLoadFailed,
+        refetch: retryItems,
+    } = useQuery({
+        queryKey: showAllMedia
+            ? [
+                'edu-hub', 'items-all', resolvedStaffId, activeCategory?.id,
+                filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+            ]
+            : [
+                'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, currentPage, pageSize,
+                filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+            ],
         enabled: !!resolvedStaffId && !!activeCategory,
         queryFn: async () => {
-            const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
+            const options = {
                 categoryId: activeCategory!.id,
-                limit: pageSize,
-                offset: (currentPage - 1) * pageSize,
                 search: filter.search,
                 subjects: filter.subjects,
                 grades: filter.grades,
                 tags: filter.tags,
                 types: filter.types,
                 sort,
-            });
+            };
+            const result = showAllMedia
+                ? await educationalHubService.listItemsByTeacherAll(resolvedStaffId!, options)
+                : await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
+                    ...options,
+                    limit: pageSize,
+                    offset: (currentPage - 1) * pageSize,
+                });
             if (result.error) throw result.error;
             return result;
         },
+        placeholderData: showAllMedia ? undefined : keepPreviousData,
         staleTime: 60 * 1000,
     });
 
@@ -194,7 +216,7 @@ const EducationalHubTeacher = () => {
 
     const allItems = useMemo(() => itemPage?.data ?? [], [itemPage?.data]);
     const totalItems = itemPage?.count ?? 0;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    const totalPages = showAllMedia ? 1 : Math.max(1, Math.ceil(totalItems / pageSize));
 
     const mediaItemIds = useMemo(
         () => activeCategoryKey === 'media' ? allItems.map((item) => item.id) : [],
@@ -208,8 +230,19 @@ const EducationalHubTeacher = () => {
     });
 
     useEffect(() => {
+        if (showAllMedia) return;
         if (currentPage > totalPages) setCurrentPage(totalPages);
-    }, [currentPage, totalPages]);
+    }, [currentPage, showAllMedia, totalPages]);
+
+    useEffect(() => {
+        if (showAllMedia) return;
+        const pendingPage = pendingPageRef.current;
+        if (!pendingPage || pendingPage.page !== currentPage || pendingPage.categoryKey !== activeCategoryKey || fetchingItems) return;
+        pendingPageRef.current = null;
+        requestAnimationFrame(() => {
+            itemsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [activeCategoryKey, currentPage, fetchingItems, itemPage?.data, showAllMedia]);
 
     const { data: publishedUrls = [] } = useQuery({
         queryKey: ['edu-hub', 'published-item-urls', resolvedStaffId],
@@ -224,6 +257,12 @@ const EducationalHubTeacher = () => {
         const next = new URLSearchParams(searchParams);
         next.set('cat', categoryKey);
         setSearchParams(next, { replace: true });
+    };
+
+    const handlePageChange = (page: number) => {
+        if (page === currentPage) return;
+        pendingPageRef.current = { page, categoryKey: activeCategoryKey };
+        setCurrentPage(page);
     };
 
     // Admin edit mode — adds drag handles on section headers + item cards
@@ -478,6 +517,14 @@ const EducationalHubTeacher = () => {
                 <div className="px-4 py-5 space-y-4">
                     {loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
+                    ) : itemLoadFailed ? (
+                        <div role="alert" className="mx-auto max-w-xl rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-10 text-center">
+                            <p className="font-semibold text-foreground">โหลดรายการสื่อไม่ครบ</p>
+                            <p className="mt-1 text-sm text-muted-foreground">กรุณาตรวจสอบการเชื่อมต่อ แล้วลองโหลดรายการทั้งหมดอีกครั้ง</p>
+                            <Button type="button" className="mt-4" onClick={() => void retryItems()}>
+                                ลองใหม่
+                            </Button>
+                        </div>
                     ) : !categories || categories.length === 0 ? (
                         <div className="text-center text-muted-foreground py-20">
                             ยังไม่มีหมวดหมู่
@@ -512,7 +559,12 @@ const EducationalHubTeacher = () => {
                                     💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
                                 </p>
                             )}
-                            <div className="space-y-10">
+                            <div
+                                ref={itemsSectionRef}
+                                data-edu-hub-items
+                                aria-busy={fetchingItems}
+                                className={`space-y-10 transition-opacity ${fetchingItems ? 'opacity-70' : ''}`}
+                            >
                                 {visibleCategories.length === 0 && deepLinkCat ? (
                                     <div className="text-center text-muted-foreground py-16 text-sm">
                                         ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
@@ -541,20 +593,20 @@ const EducationalHubTeacher = () => {
                                     ),
                                 )}
                             </div>
-                            {totalPages > 1 ? (
+                            {!showAllMedia && totalPages > 1 ? (
                                 <nav className="flex flex-wrap items-center justify-center gap-1 pt-2" aria-label="หน้ารายการสื่อ">
                                     <Button type="button" size="icon" variant="outline" disabled={currentPage === 1 || fetchingItems}
-                                        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} aria-label="หน้าก่อนหน้า">
+                                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))} aria-label="หน้าก่อนหน้า">
                                         <ChevronLeft className="h-4 w-4" />
                                     </Button>
                                     {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                                         <Button key={page} type="button" size="sm" variant={page === currentPage ? 'default' : 'outline'}
-                                            disabled={fetchingItems} onClick={() => setCurrentPage(page)} aria-current={page === currentPage ? 'page' : undefined}>
+                                            disabled={fetchingItems} onClick={() => handlePageChange(page)} aria-current={page === currentPage ? 'page' : undefined}>
                                             {page}
                                         </Button>
                                     ))}
                                     <Button type="button" size="icon" variant="outline" disabled={currentPage === totalPages || fetchingItems}
-                                        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} aria-label="หน้าถัดไป">
+                                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} aria-label="หน้าถัดไป">
                                         <ChevronRight className="h-4 w-4" />
                                     </Button>
                                     <span className="ml-2 text-xs text-muted-foreground">หน้า {currentPage} จาก {totalPages}</span>

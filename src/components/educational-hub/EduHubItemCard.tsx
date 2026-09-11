@@ -155,6 +155,10 @@ export const EduHubItemCard = ({
                 <Card
                     ref={sortable.setNodeRef}
                     style={sortableStyle}
+                    data-edu-hub-item-id={item.id}
+                    data-edu-hub-item-title={item.title}
+                    data-edu-hub-item-subject={item.subject ?? ''}
+                    data-edu-hub-pinned={libraryPinned ? 'true' : 'false'}
                     onClick={handleClick}
                     className="group cursor-pointer flex items-center gap-3 p-2.5 hover:shadow-sm transition-all hover:bg-accent/30"
                 >
@@ -216,6 +220,10 @@ export const EduHubItemCard = ({
             <Card
                 ref={sortable.setNodeRef}
                 style={sortableStyle}
+                data-edu-hub-item-id={item.id}
+                data-edu-hub-item-title={item.title}
+                data-edu-hub-item-subject={item.subject ?? ''}
+                data-edu-hub-pinned={libraryPinned ? 'true' : 'false'}
                 onClick={handleClick}
                 className={cn(
                     'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative flex flex-col h-full',

@@ -256,7 +256,7 @@ export const SectionToolbar = ({
                 </button>
                 {SUBJECT_OPTIONS.filter((subject) => allItems.some((item) => item.subject === subject.value)).map((subject) => {
                     const active = filter.subjects.length === 1 && filter.subjects[0] === subject.value;
-                    return <button key={subject.value} type="button" onClick={() => onFilterChange({ ...filter, subjects: [subject.value] })}
+                    return <button key={subject.value} type="button" data-edu-hub-subject-filter={subject.value} onClick={() => onFilterChange({ ...filter, subjects: [subject.value] })}
                         className={cn('rounded-full border px-2.5 py-1 text-[11px] transition-colors', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card hover:bg-accent')}>
                         {subject.label}
                     </button>;
