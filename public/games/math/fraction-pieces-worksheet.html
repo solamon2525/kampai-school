@@ -1,20 +1,178 @@
-<!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/math/fraction-pieces.html"><meta name="curriculum-indicators" content="ค 1.1 ป.4/3, ค 1.1 ป.4/4"><title>ใบงานเศษส่วน ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
-<header class="toolbar"><h1>🍰 ใบงานเศษส่วน</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="shade">แทนค่าเศษส่วน</option><option value="compare">เปรียบเทียบ</option><option value="equivalent">เท่ากัน</option><option value="add">บวกเศษส่วน</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
-const FRACTION_ITEMS=[
- {type:'shade',prompt:'เศษส่วนใดแทนแท่งที่ทึบ 2 จาก 4 ช่อง',frac:'2/4',answer:'2/4 หรือ 1/2'},
- {type:'shade',prompt:'เขียนเศษส่วนที่แทน 3 ชิ้นจาก 8 ชิ้น',frac:'3/8',answer:'3/8'},
- {type:'shade',prompt:'ถ้าเต็ม 1 แผ่น มี 6 ช่อง ทึบ 1 ช่อง คือ',frac:'1/6',answer:'1/6'},
- {type:'compare',prompt:'ใส่ > < = : 3/4 ___ 2/4',frac:'3/4 vs 2/4',answer:'>'},
- {type:'compare',prompt:'เศษส่วนใดมากกว่า 5/8 หรือ 3/8',frac:'5/8 vs 3/8',answer:'5/8'},
- {type:'compare',prompt:'เรียงจากน้อยไปมาก: 1/2 , 1/4 , 3/4',frac:'สามค่า',answer:'1/4 < 1/2 < 3/4'},
- {type:'equivalent',prompt:'เศษส่วนใดเท่ากับ 1/2',frac:'2/4',answer:'2/4 = 1/2'},
- {type:'equivalent',prompt:'3/6 เท่ากับเศษส่วนใด',frac:'3/6',answer:'1/2'},
- {type:'add',prompt:'1/4 + 1/4 =',frac:'1/4+1/4',answer:'2/4 = 1/2'},
- {type:'add',prompt:'1/8 + 3/8 =',frac:'1/8+3/8',answer:'4/8 = 1/2'},
- {type:'add',prompt:'2/5 + 1/5 =',frac:'2/5+1/5',answer:'3/5'},
- {type:'add',prompt:'1/3 + 1/3 =',frac:'1/3+1/3',answer:'2/3'}
-];
-window.WORKSHEET_CONFIG={icon:'🍰',title:'ใบงานเศษส่วน',subject:'คณิตศาสตร์',gradeLabel:'ป.4–6',mediaLabel:'เศษส่วนชิ้น',sourceMediaUrl:'/games/math/fraction-pieces.html',indicators:['ค 1.1 ป.4/3','ค 1.1 ป.4/4'],directions:'แทนเศษส่วน เปรียบเทียบ หาเท่ากัน และบวกเศษส่วนที่ตัวส่วนเท่ากัน',getItems(topic){return topic==='mixed'?FRACTION_ITEMS:FRACTION_ITEMS.filter(i=>i.type===topic);},buildFractionWork(item){if(item.type==='shade')return{line1:'ทึบ/เต็ม → '+item.frac,line2:'ตอบ: '+item.answer};if(item.type==='compare'){if(item.frac.includes('vs'))return{line1:'ตัวส่วนเท่ากัน → ดูตัวเศษ',line2:'ตอบ: '+item.answer};return{line1:'เทียบขนาดชิ้น/ตัวเศษ',line2:'ตอบ: '+item.answer};}if(item.type==='equivalent')return{line1:'ขยาย/ย่อตัวเศษและตัวส่วน',line2:'ตอบ: '+item.answer};return{line1:item.frac+' → ตัวส่วนเท่ากัน บวกตัวเศษ',line2:'ตอบ: '+item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildFractionWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="bar-preview"><i style="height:55%"></i><i style="height:80%"></i><i style="height:35%"></i><i style="height:100%"></i></div><div class="q-context">เศษส่วน: '+e(item.frac)+'</div></div><div class="q-work-block"><div class="calc-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="calc-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="worksheet-source-media" content="/games/math/fraction-pieces-media.html" />
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/3,ค 1.1 ป.4/4,ค 1.1 ป.4/13,ค 1.1 ป.4/14,ค 1.1 ป.5/3,ค 1.1 ป.5/4,ค 1.1 ป.5/5" />
+  <title>ใบงานเศษส่วนแบบภาพ ป.4–5 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&amp;display=swap" rel="stylesheet" />
+  <link href="/games/worksheet-topic.css?v=1.199.3" rel="stylesheet" />
+  <link href="/games/worksheet-modes.css?v=1.199.3" rel="stylesheet" />
+  <style>
+    :root{
+      --fraction-ink:#172554;--fraction-accent:#b45309;--fraction-soft:#fffbeb;
+      --fraction-fill:#d97706;--fraction-muted:#64748b;--fraction-line:#94a3b8;
+      --fraction-paper:#ffffff;--fraction-answer:#b91c1c;
+    }
+    .questions.count-6{grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(0,1fr));gap:2.5mm}
+    .questions.count-8{grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,minmax(0,1fr));gap:1.8mm 2.5mm}
+    .questions.count-6 .q{padding:3mm;min-height:59mm}
+    .questions.count-8 .q{padding:2mm;min-height:43mm}
+    .q{border-color:var(--fraction-line);color:var(--fraction-ink);overflow:hidden}
+    .q-prompt{font-size:11pt;line-height:1.35;min-height:10mm}
+    .count-8 .q-prompt{font-size:9.5pt;min-height:8mm}
+    .fraction-stage{display:flex;align-items:center;justify-content:center;gap:3mm;min-height:24mm;width:100%}
+    .fraction-svg{width:48mm;height:25mm;color:var(--fraction-ink);overflow:visible}
+    .count-8 .fraction-svg{width:39mm;height:20mm}
+    .fraction-shape{fill:var(--fraction-paper);stroke:currentColor;stroke-width:1.5}
+    .fraction-part{fill:var(--fraction-soft);stroke:currentColor;stroke-width:1}
+    .fraction-part.is-filled{fill:var(--fraction-fill)}
+    .fraction-part.is-answer{fill:url(#answerHatch);color:var(--fraction-answer)}
+    .answer-mark{display:none;color:var(--fraction-answer);font-weight:800}
+    .q.reveal-answer .answer-mark{display:inline}
+    .q.reveal-answer .student-fill{fill:url(#answerHatch)}
+    .choice-row{display:flex;justify-content:center;gap:2.5mm;flex-wrap:wrap;font-weight:700;font-size:9pt}
+    .choice{border:1px solid currentColor;border-radius:2mm;padding:1mm 2mm;min-width:18mm;text-align:center}
+    .match-board{display:grid;grid-template-columns:1fr 10mm 1fr;align-items:center;width:100%;gap:1mm}
+    .match-dots{border-top:1px dashed currentColor;height:0}
+    .match-options{display:grid;gap:1mm;font-size:8.5pt}
+    .fraction-box{display:inline-grid;grid-template-rows:auto auto;line-height:1;text-align:center;vertical-align:middle;min-width:9mm}
+    .fraction-box span:first-child{border-bottom:1.3px solid currentColor;padding-bottom:.5mm}
+    .fraction-box span:last-child{padding-top:.5mm}
+    .number-line{position:relative;width:52mm;height:18mm;border-bottom:2px solid currentColor}
+    .number-tick{position:absolute;bottom:-2.2mm;width:1px;height:5mm;background:currentColor}
+    .number-label{position:absolute;bottom:-8mm;transform:translateX(-50%);font-size:7pt}
+    .number-point{position:absolute;bottom:-1.6mm;transform:translateX(-50%);width:4mm;height:4mm;border:1.5px solid currentColor;border-radius:50%;background:var(--fraction-paper)}
+    .q.reveal-answer .number-point{background:var(--fraction-answer)}
+    .work-lines{width:100%;display:grid;gap:2mm;margin-top:1mm;font-size:8.5pt}
+    .work-line{border-bottom:1px dashed var(--fraction-muted);min-height:4mm}
+    .count-8 .work-lines{gap:1mm}.count-8 .work-line{min-height:3mm}
+    .q-foot{font-size:8.5pt}.q.reveal-answer .answer-fill{color:var(--fraction-answer)}
+    .shape-label{font-size:9pt;font-weight:800;white-space:nowrap}
+    .detective{border:1px dashed currentColor;border-radius:2mm;padding:2mm;text-align:center;font-size:10pt;font-weight:800}
+    .reason-options{display:flex;gap:3mm;justify-content:center;font-size:8.5pt}
+    @media print{
+      .questions.count-6 .q{min-height:0;padding:2.5mm}
+      .questions.count-8 .q{min-height:0;padding:1.7mm}
+      .fraction-svg{width:45mm;height:23mm}.count-8 .fraction-svg{width:36mm;height:18mm}
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <h1>🍰 ใบงานเศษส่วนแบบภาพ ป.4–5</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+        <option value="standard">มาตรฐาน</option><option value="progressive">ไต่ระดับ</option><option value="booklet">รวมเล่ม</option>
+      </select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+        <option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option><option value="5">5 หน้า</option><option value="10">10 หน้า</option>
+      </select>
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+        <option value="4" selected>ป.4</option><option value="5">ป.5</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="หัวข้อเศษส่วน">
+        <option value="mixed">ชุดผสมครบกระบวนการ</option>
+        <option value="read">อ่านภาพและเขียนเศษส่วน</option><option value="match">โยงภาพ–ตัวเลข–คำอ่าน</option>
+        <option value="shade">ระบายสีตามเศษส่วน</option><option value="draw">วาดและแบ่งรูป</option>
+        <option value="compare">เปรียบเทียบและเรียงลำดับ</option><option value="equivalent">เศษส่วนเท่ากัน</option>
+        <option value="numberline">เศษส่วนบนเส้นจำนวน</option><option value="mixednumber">เศษส่วนแท้–เกิน–จำนวนคละ</option>
+        <option value="operate">คำนวณและสถานการณ์</option><option value="detective">นักสืบเศษส่วน</option>
+      </select>
+      <select class="t-select" id="selCount" data-fixed-count="5" aria-label="จำนวนข้อต่อหน้า">
+        <option value="6" selected>6 ข้อ (ภาพใหญ่)</option><option value="8">8 ข้อ (กระชับ)</option><option value="5" hidden>5 ข้อ (โหมดการสอน)</option>
+      </select>
+      <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน" />
+      <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+    </div>
+  </header>
+  <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+
+  <script src="/games/worksheet-runtime.js?v=1.199.3"></script>
+  <script>
+    const TOPICS=['read','match','shade','draw','compare','equivalent','numberline','mixednumber','operate','detective'];
+    const THAI_NUM=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ','สิบเอ็ด','สิบสอง'];
+    const SHAPES=['bar','circle','grid','pizza','objects','flag','triangle'];
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    const frac=(n,d)=>'<span class="fraction-box"><span>'+n+'</span><span>'+d+'</span></span>';
+    const fracText=(n,d)=>'เศษ'+THAI_NUM[n]+'ส่วน'+THAI_NUM[d];
+    const simplify=(n,d)=>{const g=gcd(n,d);return[n/g,d/g]};
+    const compareValue=(a,b,c,d)=>a*d===c*b?'=':(a*d>c*b?'>':'<');
+    function svgDefs(){return '<defs><pattern id="answerHatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="currentColor" stroke-width="2"/></pattern></defs>'}
+    function shapeSvg(n,d,shape,blank=false){
+      const filled=blank?0:n;
+      if(shape==='circle'||shape==='pizza'){
+        const cx=60,cy=35,r=29;let paths='';
+        for(let i=0;i<d;i++){const a1=-Math.PI/2+i*2*Math.PI/d,a2=-Math.PI/2+(i+1)*2*Math.PI/d;const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);const cls=i<filled?'fraction-part is-filled student-fill':'fraction-part';paths+='<path class="'+cls+'" d="M '+cx+' '+cy+' L '+x1+' '+y1+' A '+r+' '+r+' 0 '+(d===2?1:0)+' 1 '+x2+' '+y2+' Z"/>'}
+        return '<svg class="fraction-svg" viewBox="0 0 120 70" aria-label="รูปเศษส่วนวงกลม">'+svgDefs()+paths+'</svg>';
+      }
+      if(shape==='objects'){
+        let parts='';for(let i=0;i<d;i++){const x=12+(i%6)*18,y=18+Math.floor(i/6)*26;parts+='<circle class="fraction-part '+(i<filled?'is-filled student-fill':'')+'" cx="'+x+'" cy="'+y+'" r="7"/><path class="fraction-shape" d="M'+x+' '+(y-8)+' q4 -7 8 -1"/>'}
+        return '<svg class="fraction-svg" viewBox="0 0 120 70" aria-label="ชุดผลไม้แทนเศษส่วน">'+svgDefs()+parts+'</svg>';
+      }
+      if(shape==='triangle'){
+        const cls=i=>i<filled?'fraction-part is-filled student-fill':'fraction-part';
+        return '<svg class="fraction-svg" viewBox="0 0 120 70" aria-label="รูปสามเหลี่ยมแบ่งสี่ส่วน">'+svgDefs()+'<path class="'+cls(0)+'" d="M60 5 L35 60 L60 32 Z"/><path class="'+cls(1)+'" d="M60 5 L85 60 L60 32 Z"/><path class="'+cls(2)+'" d="M35 60 L60 60 L60 32 Z"/><path class="'+cls(3)+'" d="M60 60 L85 60 L60 32 Z"/></svg>';
+      }
+      const cols=(shape==='grid'?Math.ceil(d/2):d),rows=(shape==='grid'?2:1),w=92/cols,h=46/rows;let rects='';
+      for(let i=0;i<d;i++){const x=14+(i%cols)*w,y=12+Math.floor(i/cols)*h;rects+='<rect class="fraction-part '+(i<filled?'is-filled student-fill':'')+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"/>'}
+      return '<svg class="fraction-svg" viewBox="0 0 120 70" aria-label="รูปแท่งแบ่งเศษส่วน">'+svgDefs()+rects+'</svg>';
+    }
+    function numberLine(n,d){let ticks='';for(let i=0;i<=d;i++){const left=i/d*100;ticks+='<span class="number-tick" style="left:'+left+'%"></span>';if(i===0||i===d)ticks+='<span class="number-label" style="left:'+left+'%">'+(i/d)+'</span>'}return '<div class="number-line">'+ticks+'<span class="number-point" style="left:'+(n/d*100)+'%"></span></div>'}
+    function itemFor(topic,i,grade){
+      let d=2+(i%9),n=1+(Math.floor(i/9)%Math.max(1,d-1)),shape=SHAPES[Math.floor(i/3)%SHAPES.length];
+      if(shape==='triangle'){d=4;n=1+(i%3)}
+      const base={type:topic,key:topic+'-'+grade+'-'+i,n,d,shape,grade};
+      if(topic==='read')return{...base,prompt:'ดูภาพแล้วเขียนเศษส่วนและคำอ่าน',answer:n+'/'+d,work:fracText(n,d)};
+      if(topic==='match')return{...base,prompt:'โยงรูปภาพไปยังตัวเลขและคำอ่านที่ถูกต้อง',answer:n+'/'+d+' — '+fracText(n,d),work:'ตรวจจำนวนส่วนทั้งหมดและส่วนที่ระบาย'};
+      if(topic==='shade')return{...base,prompt:'ระบายสีให้แสดง '+n+'/'+d,answer:'ระบาย '+n+' จาก '+d+' ส่วน',work:'แต่ละส่วนต้องมีขนาดเท่ากัน',blank:true};
+      if(topic==='draw')return{...base,prompt:'แบ่งรูปและแสดง '+n+'/'+d+' (ลองวาดได้มากกว่า 1 วิธี)',answer:'แบ่งเท่า '+d+' ส่วน แสดง '+n+' ส่วน',work:'คำตอบต่างรูปได้ แต่พื้นที่ต้องเท่ากัน',blank:true};
+      if(topic==='compare'){
+        let d2=grade===4?d:2+((i+3)%9),n2=1+((n+i+1)%Math.max(1,d2-1));if(n*d2===n2*d)n2=n2%d2+1;
+        return{...base,d2,n2,prompt:'เติม > < หรือ = แล้วอธิบาย',answer:n+'/'+d+' '+compareValue(n,d,n2,d2)+' '+n2+'/'+d2,work:'เปรียบเทียบด้วยภาพหรือทำส่วนให้เท่ากัน'};
+      }
+      if(topic==='equivalent'){
+        const factor=2+(i%3),missing=i%2?'den':'num';return{...base,factor,missing,prompt:missing==='num'?n+'/'+d+' = □/'+(d*factor):n+'/'+d+' = '+(n*factor)+'/□',answer:missing==='num'?String(n*factor):String(d*factor),work:'คูณตัวเศษและตัวส่วนด้วย '+factor};
+      }
+      if(topic==='numberline')return{...base,prompt:'เขียนเศษส่วนของจุดบนเส้นจำนวน',answer:n+'/'+d,work:'ช่วง 0 ถึง 1 แบ่งเป็น '+d+' ส่วนเท่ากัน'};
+      if(topic==='mixednumber'){
+        const whole=1+(i%3),imp=whole*d+n;return{...base,whole,imp,prompt:'เขียน '+imp+'/'+d+' เป็นจำนวนคละ และวาดภาพประกอบ',answer:whole+' '+n+'/'+d,work:imp+' = '+whole+'×'+d+' + '+n};
+      }
+      if(topic==='operate'){
+        if(grade===4){const b=1+((n+i+1)%Math.max(1,d-n));return{...base,b,op:i%2?'+':'−',prompt:i%2?'สูตรผลไม้ใช้ '+n+'/'+d+' ถ้วย เติมอีก '+b+'/'+d+' ถ้วย รวมเท่าไร':'มีริบบิ้น '+(n+b)+'/'+d+' เมตร ใช้ไป '+b+'/'+d+' เมตร เหลือเท่าไร',answer:i%2?(n+b)+'/'+d:n+'/'+d,work:'ตัวส่วนเท่ากัน จัดการตัวเศษ'}}
+        const op=['+','−','×','÷'][i%4];let a=n,b=1+((i+2)%Math.max(1,d-1));if(op==='−'&&a<b)[a,b]=[b,a];let an,ad;if(op==='+'){an=a+b;ad=d}else if(op==='−'){an=a-b;ad=d}else if(op==='×'){an=a*b;ad=d*d}else{an=a*d;ad=d*b}const s=simplify(an,ad);return{...base,b,op,prompt:'คำนวณ '+a+'/'+d+' '+op+' '+b+'/'+d+' และย่อคำตอบ',answer:s[0]+'/'+s[1],work:op==='+'||op==='−'?'ตัวส่วนเท่ากัน จัดการตัวเศษ':'คูณหรือกลับเศษส่วนตัวหารก่อนคำนวณ'};
+      }
+      const shown=i%2?((n+1)+'/'+d):(n+'/'+(d+1));const correct=shown===n+'/'+d;return{...base,prompt:'นักเรียนตอบว่า ภาพนี้แทน '+shown+' ถูกหรือไม่ เพราะเหตุใด',answer:correct?'ถูก':'ไม่ถูก — ควรเป็น '+n+'/'+d,work:'นับส่วนทั้งหมดและส่วนที่ระบายอีกครั้ง'};
+    }
+    function buildPool(topic){const grade=Number(document.getElementById('selGrade')?.value||4),topics=topic==='mixed'?TOPICS:[topic],items=[];topics.forEach((type,tIndex)=>{for(let i=0;i<84;i++)items.push(itemFor(type,i+tIndex*101,grade))});return items}
+    function renderVisual(item){
+      if(item.type==='numberline')return numberLine(item.n,item.d);
+      if(item.type==='compare')return shapeSvg(item.n,item.d,item.shape)+shapeSvg(item.n2,item.d2,SHAPES[(SHAPES.indexOf(item.shape)+1)%SHAPES.length]);
+      if(item.type==='mixednumber')return shapeSvg(item.d,item.d,'bar')+shapeSvg(item.n,item.d,item.shape);
+      return shapeSvg(item.n,item.d,item.shape,item.blank);
+    }
+    function renderChoices(item){
+      if(item.type!=='match')return'';
+      const wrongN=item.n===1?2:item.n-1,wrongD=item.d===12?item.d-1:item.d+1;
+      return '<div class="match-board"><div class="shape-label">ภาพ</div><div class="match-dots"></div><div class="match-options"><span>A. '+item.n+'/'+item.d+'</span><span>B. '+wrongN+'/'+item.d+'</span><span>C. '+item.n+'/'+wrongD+'</span></div></div>';
+    }
+    window.WORKSHEET_CONFIG={
+      worksheetKey:'math/fraction-pieces',icon:'🍰',title:'ใบงานเศษส่วนแบบภาพ',subject:'คณิตศาสตร์',gradeLabel:'ป.4–5',mediaLabel:'สื่อเศษส่วนชิ้น',
+      sourceMediaUrl:'/games/math/fraction-pieces-media.html',indicators:['ค 1.1 ป.4/3','ค 1.1 ป.4/4','ค 1.1 ป.4/13','ค 1.1 ป.4/14','ค 1.1 ป.5/3','ค 1.1 ป.5/4','ค 1.1 ป.5/5'],
+      directions:'ใช้ภาพ ภาษา สัญลักษณ์ และเหตุผลเพื่อแสดงความเข้าใจเรื่องเศษส่วน',
+      getItems(topic){return buildPool(topic)},
+      renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;let extra='';if(item.type==='compare')extra='<div class="choice-row">'+frac(item.n,item.d)+' ○ '+frac(item.n2,item.d2)+'</div>';if(item.type==='equivalent')extra='<div class="choice-row">'+item.prompt+'</div>';if(item.type==='operate'||item.type==='detective')extra='<div class="detective">'+e(item.prompt)+'</div>';return '<div class="q-stem"><div class="q-prompt">'+(item.type==='operate'||item.type==='detective'?'':e(item.prompt))+'</div><div class="fraction-stage">'+renderVisual(item)+'</div>'+renderChoices(item)+extra+'</div><div class="work-lines"><div class="work-line"></div><div class="work-line"><span class="work-fill">'+e(item.work)+'</span></div></div><div class="q-foot">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div>'}
+    };
+  </script>
+  <script src="/games/worksheet-topic.js?v=1.199.3"></script>
+  <script>
+    function render(){window.KampaiTopicWorksheet.render()}
+    document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
+    document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+    window.KampaiWorksheet.loadTeachers();render();
+  </script>
+  <script src="/games/worksheet-modes.js?v=1.199.3"></script>
+</body>
+</html>
