@@ -115,8 +115,11 @@ const voiceButtonSource = html.slice(voiceButtonStart, voiceButtonEnd);
 if (voiceButtonStart < 0 || voiceButtonEnd < 0 || /\bspeak\s*\(/.test(voiceButtonSource)) {
   errors.push('เสียงอ่าน: ปุ่มเปลี่ยนภาษาต้องไม่เล่นเสียงตัวอย่าง');
 }
-if (!/เลือกคำ แล้วกดลำโพงข้างคำใหญ่เพื่อฟัง/.test(html)) {
-  errors.push('เสียงอ่าน: คำแนะนำต้องชี้ไปยังปุ่มอ่านด้านบนเพียงจุดเดียว');
+if (!/แตะภาพหรือกดลำโพง 🔊 เพื่อฟังเสียงอ่าน|เลือกคำ แล้วกดลำโพงข้างคำใหญ่เพื่อฟัง/.test(html)) {
+  errors.push('เสียงอ่าน: คำแนะนำต้องระบุวิธีฟังเสียงอ่าน');
+}
+if (!html.includes('cell-sound-btn')) {
+  errors.push('เสียงอ่าน: ต้องมีปุ่มลำโพง cell-sound-btn ประจำการ์ด');
 }
 
 for (const slug of metaSlugs) {

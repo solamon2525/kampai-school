@@ -438,6 +438,38 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   border-color: rgba(255,215,0,0.5);
   background: rgba(255,215,0,0.15);
 }
+.cell-sound-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 10;
+  width: 4.2vh;
+  height: 4.2vh;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(0,0,0,0.45);
+  color: #FFE082;
+  font-size: 1.8vh;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+.cell-sound-btn:hover {
+  transform: scale(1.12);
+  background: rgba(255,215,0,0.3);
+  border-color: #FFD700;
+  color: #FFF;
+}
+.cell-sound-btn:active, .cell-sound-btn.speaking {
+  transform: scale(0.95);
+  background: #FFD700;
+  color: #1A237E;
+  box-shadow: 0 0 12px rgba(255,215,0,0.6);
+}
 @media (max-width: 600px) {
   #grid-header {
     flex-direction: column;
@@ -880,6 +912,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .lbl{font-size:clamp(18px,5.5vw,30px);white-space:normal}
   .cell-reading{font-size:14px;padding:0 42px}
   .cell.visual-card .cell-star{width:44px;height:44px;font-size:18px}
+  .cell.visual-card .cell-sound-btn{width:44px;height:44px;font-size:18px}
 
   /* CHOICE / LISTEN */
   .q-prompt{flex:0 0 auto;min-height:120px}
@@ -923,7 +956,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   .fv{font-size:13px;padding:7px 11px}
   #flash-reset{font-size:15px;padding:7px 10px}
   #speed label,#flash-variant label{font-size:13px}
-  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen,.grid-ctrl-btn,.cell-star{touch-action:manipulation}
+  .cbtn,.spd,.opt,.mcard,.hub-card,.win-btn,.qbtn,.cell,.q-listen,.grid-ctrl-btn,.cell-star,.cell-sound-btn{touch-action:manipulation}
 
   /* OVERLAYS */
   #win .win-emoji{font-size:90px}
@@ -998,7 +1031,7 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
   </div>
   <div id="grid-header">
     <div class="grid-header-copy">
-      <span class="grid-header-title">เลือกคำ แล้วกดลำโพงข้างคำใหญ่เพื่อฟัง</span>
+      <span class="grid-header-title">แตะภาพหรือกดลำโพง 🔊 เพื่อฟังเสียงอ่าน</span>
       <div id="scope-controls" aria-label="เลือกชุดคำศัพท์">
         <span class="scope-label">ชุดคำ</span>
         <button type="button" class="scope-btn" data-vocab-scope="basic" aria-pressed="true">พื้นฐาน</button>
@@ -2059,8 +2092,49 @@ function buildCell(item, sIdx, cIdx){
   const isColor = isColorTopic || (currentSlug === 'starred' && item.sourceSlug === 'colors');
   el.className='cell'+(isColor?' color-cell':'')+(isVisualTopic?' visual-card':'')+(!hasVisual(item)&&isVisualTopic?' text-visual-card':'');
   if(isColor&&item.bgColor){ el.style.background=item.bgColor; el.style.borderColor='rgba(255,255,255,0.28)'; }
+  // Sound button to play pronunciation
+  const soundBtn = document.createElement('button');
+  soundBtn.className = 'cell-sound-btn';
+  soundBtn.title = 'ฟังเสียงอ่าน: ' + (item.en || item.label);
+  soundBtn.setAttribute('aria-label', 'ฟังเสียงอ่าน: ' + (item.en || item.label));
+  soundBtn.innerHTML = '🔊';
+  const triggerSpeak = () => {
+    soundBtn.classList.add('speaking');
+    speak(item, () => soundBtn.classList.remove('speaking'));
+    setTimeout(() => soundBtn.classList.remove('speaking'), 1500);
+  };
+  soundBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (mode === 'auto') {
+      pauseAuto();
+      curCell = cIdx;
+      setHl(sIdx, cIdx);
+    }
+    triggerSpeak();
+  });
+
   if(item.image || item.emoji){
     const visual=document.createElement('span'); visual.className='cell-visual';
+    let hoverTimer = null;
+    visual.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        triggerSpeak();
+      }, 120);
+    });
+    visual.addEventListener('mouseleave', () => {
+      clearTimeout(hoverTimer);
+    });
+    visual.addEventListener('click', e => {
+      clearTimeout(hoverTimer);
+      e.stopPropagation();
+      if (mode === 'auto') {
+        pauseAuto();
+        curCell = cIdx;
+        setHl(sIdx, cIdx);
+      }
+      triggerSpeak();
+    });
     if(item.image){
       const img=document.createElement('img');
       img.className='vocab-image cell-image'; img.src=item.image; img.alt=item.meaning || item.label;
@@ -2099,14 +2173,16 @@ function buildCell(item, sIdx, cIdx){
     updateBannerStar(); // Update the main slide banner star if curItem matches
   });
   el.appendChild(starBtn);
+  el.appendChild(soundBtn);
 
-  // โหมดอัตโนมัติ: คลิกเพื่อหยุดและเลือกคำ โดยไม่อ่านเสียงเอง
+  // โหมดอัตโนมัติ: คลิกเพื่อหยุด เลือกคำ และออกเสียงอ่าน
   el.addEventListener('click', e=>{
     if(mode!=='auto') return;
     e.stopPropagation();
     pauseAuto();
     curCell=cIdx;
     setHl(sIdx,cIdx);
+    triggerSpeak();
   });
   return el;
 }
@@ -3713,9 +3789,24 @@ window.addEventListener('resize',()=>{
 });
 wordEl.addEventListener('click',e=>{
   const part = e.target.closest('[data-phonics-part]');
-  if(!part) return;
-  e.stopPropagation();
-  _speakOne(part.dataset.phonicsPart, 'en-US', enVoice, 0.82);
+  if(part){
+    e.stopPropagation();
+    _speakOne(part.dataset.phonicsPart, 'en-US', enVoice, 0.82);
+    return;
+  }
+  if(e.target.closest('#btn-star') || e.target.closest('#btn-say')) return;
+  if(curItem) speak(curItem);
+});
+let bannerHoverTimer = null;
+wordEl.addEventListener('mouseenter', () => {
+  if (mode !== 'auto' || !curItem) return;
+  clearTimeout(bannerHoverTimer);
+  bannerHoverTimer = setTimeout(() => {
+    if (mode === 'auto' && curItem) speak(curItem);
+  }, 180);
+});
+wordEl.addEventListener('mouseleave', () => {
+  clearTimeout(bannerHoverTimer);
 });
 btnPause.addEventListener('click',e=>{ e.stopPropagation(); autoPaused ? resumeAuto() : pauseAuto(); });
 btnPrevSlide.addEventListener('click',e=>{ e.stopPropagation(); if(mode!=='auto') return; pauseAuto(); goTo(curSlide-1); });
