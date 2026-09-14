@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.58 (Vocab Hub — ภาพประกอบอาหารชุดใหม่ Hamburger, Sandwich, Sausage, Cheese)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ในหมวดอาหาร (Food): Hamburger (แฮมเบอร์เกอร์), Sandwich (แซนด์วิช), Sausage (ไส้กรอก), Cheese (ชีส)',
+            'รวมภาพประกอบในหมวดอาหารมีภาพแล้ว 16/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
         version: 'v1.229.57 (Vocab Hub — ภาพประกอบหมวดสัตว์ครบสมบูรณ์ 30/30 คำ)',
         date: '14 ก.ย. 2569',
         badge: 'bg-emerald-600',
