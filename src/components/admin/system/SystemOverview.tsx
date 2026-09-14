@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.56 (Vocab Hub — ภาพประกอบสัตว์ชุดใหม่ Fox, Wolf, Zebra, Giraffe)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-teal-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ อีก 4 คำในหมวดสัตว์: Fox (สุนัขจิ้งจอก), Wolf (หมาป่า), Zebra (ม้าลาย), Giraffe (ยีราฟ)',
+            'รวมภาพประกอบในหมวดสัตว์มีภาพแล้ว 21/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
         version: 'v1.229.55 (แก้ไขกริดคำศัพท์ Vocab Hub แสดงผลปกติทุกหมวด และเพิ่มภาพกวาง Deer)',
         date: '14 ก.ย. 2569',
         badge: 'bg-emerald-600',
