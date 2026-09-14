@@ -2618,33 +2618,29 @@ function syncVisualGridSize(){
   gridEl.style.setProperty('--visual-rows',rows);
   gridEl.style.setProperty('--visual-card-size',size+'px');
 }
-function rebuildTopicSlides(keepItem=null){
+function rebuildTopicSlides(preserveItem=null){
   ips=getIps(allItems.length,isVisualTopic);
   slides=[];
   for(let i=0;i<allItems.length;i+=ips) slides.push(allItems.slice(i,i+ips));
-  slideEls=slides.map((s,sIdx)=>{
-    const d=document.createElement('div');
-    d.className='slide';
-    s.forEach((it,cIdx)=>d.appendChild(buildCell(it,sIdx,cIdx)));
-    return d;
-  });
-  gridEl.innerHTML='';
-  slideEls.forEach(s=>gridEl.appendChild(s));
+  slideEls=slides.map((slide,sIdx)=>slide.map((item,cIdx)=>buildCell(item,sIdx,cIdx)));
   dotsEl.innerHTML='';
-  dotElArr=slides.map((_,i)=>{
-    const b=document.createElement('button');
-    b.className='dot';
-    b.addEventListener('click',()=>goTo(i));
-    dotsEl.appendChild(b);
-    return b;
+  slides.forEach((_,i)=>{
+    const dot=document.createElement('button');
+    dot.className='dot';
+    dot.title='ไปยังหน้าที่ '+(i+1);
+    dot.addEventListener('click',()=>goTo(i));
+    dotsEl.appendChild(dot);
   });
-  if(keepItem){
-    const sIdx=slides.findIndex(s=>s.includes(keepItem));
-    curSlide=sIdx>=0?sIdx:0;
-    curCell=sIdx>=0?slides[sIdx].indexOf(keepItem):0;
-  } else {
-    curSlide=0; curCell=0;
+  dotElArr=Array.from(dotsEl.querySelectorAll('.dot'));
+  if(isVisualTopic){
+    gridEl.style.gridTemplateRows='';
+  }else{
+    gridEl.style.gridTemplateRows=`repeat(${Math.ceil(ips/2)}, 1fr)`;
   }
+  const preservedIndex=preserveItem?allItems.indexOf(preserveItem):-1;
+  const activeIndex=preservedIndex>=0?preservedIndex:0;
+  curSlide=Math.floor(activeIndex/ips);
+  curCell=activeIndex%ips;
 }
 function showTopic(slug){
   closeLightbox();
