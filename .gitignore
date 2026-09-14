@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .artifacts/
+.worktrees/
+.superpowers/
 
 # Environment files (IMPORTANT: Never commit these!)
 .env
