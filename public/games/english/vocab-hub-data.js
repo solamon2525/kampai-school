@@ -326,7 +326,10 @@
   ));
 
   const EXTENDED_IMAGE_WORDS = Object.freeze({
-    animals: ['Lion', 'Bear', 'Duck', 'Peacock', 'Deer', 'Fox', 'Wolf', 'Zebra', 'Giraffe'],
+    animals: [
+      'Lion', 'Bear', 'Duck', 'Peacock', 'Deer', 'Fox', 'Wolf', 'Zebra', 'Giraffe',
+      'Kangaroo', 'Panda', 'Koala', 'Camel', 'Goat', 'Sheep', 'Pig', 'Owl', 'Crocodile',
+    ],
   });
   window.VOCAB_HUB_EXTENDED_IMAGES = Object.freeze(Object.fromEntries(
     Object.entries(EXTENDED_IMAGE_WORDS).map(([slug, words]) => [

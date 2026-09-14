@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.57 (Vocab Hub — ภาพประกอบหมวดสัตว์ครบสมบูรณ์ 30/30 คำ)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เจเนอเรตภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ครบทั้ง 9 คำสุดท้าย: Kangaroo, Panda, Koala, Camel, Goat, Sheep, Pig, Owl, Crocodile',
+            'ทำให้หมวดสัตว์ (Animals) มีภาพประกอบครบถ้วน 100% (30/30 คำ) ทั้งในชุดคำพื้นฐาน (12 คำ) และชุดคำทั้งหมด (30 คำ)',
+            'ผ่านการทดสอบ Browser Regression ด้วย Playwright และการตรวจ Verify Game ครบทุกฟังก์ชัน',
+        ],
+    },
+    {
         version: 'v1.229.56 (Vocab Hub — ภาพประกอบสัตว์ชุดใหม่ Fox, Wolf, Zebra, Giraffe)',
         date: '14 ก.ย. 2569',
         badge: 'bg-teal-600',
