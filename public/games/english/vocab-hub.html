@@ -2299,8 +2299,20 @@ function _speakOne(text, lang, voice, rate, onDone){
     speechSynthesis.speak(u);
   } catch(_){ if(onDone) onDone(); }
 }
+let lastSpeakKey = '';
+let lastSpeakTimestamp = 0;
 function speak(item, onDone, voiceOverride){
-  if (!window.speechSynthesis){ if(onDone) onDone(); return; }
+  if (!window.speechSynthesis || !item){ if(onDone) onDone(); return; }
+  const now = Date.now();
+  const itemKey = (item.en || item.label || '') + '_' + (voiceOverride || voiceMode);
+  // ป้องกันการยิงคำสั่งอ่านซ้ำติดกันภายใน 280ms (Event collision / Double tap)
+  if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 280) {
+    if(onDone) onDone();
+    return;
+  }
+  lastSpeakKey = itemKey;
+  lastSpeakTimestamp = now;
+
   const m = ['en','th','both'].includes(voiceOverride) ? voiceOverride : voiceMode;
   try {
     speechSynthesis.cancel();
@@ -2547,8 +2559,14 @@ function buildHub(){
   });
 }
 function showHub(){
-  clearTimeout(timer);
-  clearTimeout(spStepTimer);
+  if(isLightboxActive) closeLightbox();
+  clearTimeout(timer); timer = null;
+  clearTimeout(spStepTimer); spStepTimer = null;
+  clearInterval(flashTimer); flashTimer = null;
+  clearInterval(taTimer); taTimer = null;
+  clearInterval(tfTimer); tfTimer = null;
+  clearInterval(wsTimer); wsTimer = null;
+  clearTimeout(lbTimer); lbTimer = null;
   if(window.speechSynthesis) speechSynthesis.cancel();
   currentSlug='';
   hubView.style.display='';
@@ -2606,16 +2624,6 @@ function buildCell(item, sIdx, cIdx){
     });
     visual.addEventListener('mouseleave', () => {
       clearTimeout(hoverTimer);
-    });
-    visual.addEventListener('click', e => {
-      clearTimeout(hoverTimer);
-      e.stopPropagation();
-      if (mode === 'auto') {
-        pauseAuto();
-        curCell = cIdx;
-        setHl(sIdx, cIdx);
-      }
-      triggerSpeak();
     });
     if(item.image){
       const img=document.createElement('img');

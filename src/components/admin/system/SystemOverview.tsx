@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.64 (Vocab Hub — แก้ไขบั๊กอ่านออกเสียงซ้ำ 2 ครั้งซ้อน & ป้องกัน Timer รั่วไหล)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ไขบั๊กการอ่านออกเสียงซ้ำ 2 ครั้งซ้อน (TTS Double-Speaking) ด้วย Audio Debounce Guard (280ms) ป้องกัน Event collision จากการแตะซ้ำหรือ Double-tap บนหน้าจอสัมผัส/Smartboard',
+            'ตัด Event Listener คลิกซ้อนที่ visual element ของการ์ด ให้การคลิกอ่านออกเสียงมีจุดศูนย์กลางที่แน่นอนจุดเดียว ป้องกัน Race condition',
+            'ปรับปรุงฟังก์ชัน showHub() เพิ่มการเคลียร์ Timer และ Interval ของทุกโหมด (Flash, Timed, True/False, Word Search, Lightbox) อย่างหมดจด ป้องกัน Memory Leak เบื้องหลัง',
+            'ผ่านการตรวจสอบคุณภาพและ Browser Regression Gate ครบทุกขนาดหน้าจอ 100%',
+        ],
+    },
+    {
         version: 'v1.229.63 (Vocab Hub — ปรับปรุงดีไซน์หน้าแรกสู่ระดับ Production ครบทั้ง Desktop & Mobile)',
         date: '15 ก.ย. 2569',
         badge: 'bg-emerald-600',
