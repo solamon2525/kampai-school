@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.61 (Vocab Hub — ภาพประกอบผักชุดใหม่ Lettuce, Spinach, Kale, Celery, Radish, Beetroot)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ในหมวดผัก (Vegetables): Lettuce (ผักกาดหอม), Spinach (ผักโขม), Kale (คะน้าเคล), Celery (ขึ้นฉ่ายฝรั่ง), Radish (หัวไชเท้า), Beetroot (บีตรูต)',
+            'รวมภาพประกอบในหมวดผักมีภาพแล้ว 16/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
         version: 'v1.229.60 (Vocab Hub — อัปเกรดโหมดไลท์บ็อกซ์ 3x ขยายใหญ่รายคำ + รองรับดับเบิลคลิก)',
         date: '15 ก.ย. 2569',
         badge: 'bg-emerald-600',

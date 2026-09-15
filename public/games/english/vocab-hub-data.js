@@ -335,6 +335,7 @@
       'Hamburger', 'Sausage', 'Cheese', 'Butter', 'Yogurt', 'Cereal',
       'Cookie', 'Chocolate', 'Juice', 'Tea', 'Coffee',
     ],
+    vegetables: ['Lettuce', 'Spinach', 'Kale', 'Celery', 'Radish', 'Beetroot'],
   });
   window.VOCAB_HUB_EXTENDED_IMAGES = Object.freeze(Object.fromEntries(
     Object.entries(EXTENDED_IMAGE_WORDS).map(([slug, words]) => [
