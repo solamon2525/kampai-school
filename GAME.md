@@ -61,7 +61,7 @@
 |---|---|
 | **จอเริ่ม (title)** | การ์ด "สถิติฉัน" (`personalBest`+`playsCount`) + ตารางอันดับ Top 5 (`leaderboard`, ไฮไลต์ `isMe`) + ปุ่มเริ่ม · **ไม่มี input ชื่อ** (ไม่มีข้อมูล → ซ่อนการ์ด) |
 | **ระหว่างเล่น (HUD)** | คะแนน + ชีวิต/เวลา + ป้ายผู้เล่น (`student.displayName`+รูป) |
-| **จอจบ (game over)** | คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกัน) + ปุ่มเล่นใหม่ + `KAMPAI.goHome()` + **เรียก `KAMPAI.submitScore(...)`** · **ต้องมี `<div id="kampai-result"></div>`** ในการ์ดจอจบ (SDK เติม XP/เลเวล/เหรียญให้อัตโนมัติ → จอเดียว ไม่มีการ์ด XP ลอยซ้ำของ wrapper). **ห้ามมีปุ่มเล่นซ้ำ/ออก ซ้ำกับของ wrapper** |
+| **จอจบ (game over)** | คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกัน) + ปุ่มเล่นใหม่ + `KAMPAI.goHome()` + **solo ส่ง `KAMPAI.submitScore(...)` ครั้งเดียว; practice ไม่ส่ง; แข่งขันให้ framework จัดการ** · **ต้องมี `<div id="kampai-result"></div>`** ในการ์ดจอจบ (SDK เติม XP/เลเวล/เหรียญให้อัตโนมัติ → จอเดียว ไม่มีการ์ด XP ลอยซ้ำของ wrapper). **ห้ามมีปุ่มเล่นซ้ำ/ออก ซ้ำกับของ wrapper** |
 | **เสียง** | `KAMPAI.sound.defaultBgm(preset)` + `mountToggles()` ตอนเริ่ม · `correct()/wrong()/timeUp()/gameOver()` ตามเหตุการณ์ · `speak(word,lang)` สำหรับ**เกมภาษา** (TTS) |
 | **มือถือ** | `controls.mount()` หรือ tap · responsive ~360px **ไม่ล้นแนวนอน** · ปุ่ม ≥44px |
 
@@ -119,11 +119,17 @@
 
 ## 🚀 KAMPAI SDK (แนะนำ — เทมเพลตใหม่ใช้ตัวนี้)
 
+### แหล่งหลักของ SDK และเสียง
+
+`/games/kampai-sdk.js` เป็นแหล่งหลักของ `window.KAMPAI`; wrapper `PlayGame.tsx` ส่ง student, stats, leaderboard และ `init.audio.{bgm,bgmUrl}`. ระบบเสียงแก้ที่ SDK เพื่อใช้ร่วมทุกเกม: `mountToggles()`, `correct/wrong/timeUp/gameOver`, `speak(text,lang)`, `fxFlash`, `bgmStart/bgmStop/defaultBgm(preset)`.
+
+เพลงรายเกมตั้งผ่านหลังบ้านด้วย `educational_hub_items.bgm_preset` หรือ `bgm_url`; คลังเพลง GamesTab ใช้ `game_bgm_tracks` และ bucket `educational-hub/bgm/`. `setBgmUrl()` เล่น MP3 แบบ loop ก่อน synth. เสียงและเพลงเริ่มจาก user gesture ตามกฎหลักเท่านั้น.
+
 เกมใหม่โหลด **ไฟล์เดียว** `/games/kampai-sdk.js` แทนการ copy boilerplate เอง → integration อัปเดต
 ที่เดียว ทุกเกมได้ตาม. ใส่ใน `<body>` ก่อน script เกม + fallback stub (กัน standalone พัง):
 ```html
 <script src="/games/kampai-sdk.js"></script>
-<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };</script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, beginRound:function(){}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}} };</script>
 ```
 
 **API (`window.KAMPAI`):**
@@ -134,7 +140,7 @@
 | `KAMPAI.student` | `{id, code, displayName, photoUrl, classLabel}` |
 | `KAMPAI.stats` | `{playsCount, personalBest, totalXp, level}` |
 | `KAMPAI.leaderboard` | `[{rank, studentId, displayName, photoUrl, classLabel, personalBest, isMe}]` |
-| `KAMPAI.submitScore(score,{mode,...meta})` | ส่งคะแนนตอนจบเกม (= gameEnd เดิม) — **ต้องเรียก** · SDK ตั้ง `_submitted` ครั้งเดียวต่อรอบ — รอบใหม่ต้อง `beginRound()` (ดู §กฎเก็บคะแนน) |
+| `KAMPAI.submitScore(score,{mode,...meta})` | Solo ส่งครั้งเดียวตอนจบรอบจริง; practice ไม่ส่ง; การแข่งขันให้ framework จัดการ · รอบใหม่ต้อง `beginRound()` (ดู §กฎเก็บคะแนน) |
 | `KAMPAI.beginRound()` | เริ่มรอบใหม่ — รีเซ็ต `_submitted` + `_startTs` + `postMessage gameStart` (เรียกใน `startGame` ทุกครั้ง) |
 | `KAMPAI.goHome()` | ปุ่มกลับหน้าหลัก (= navigate เดิม) |
 | `KAMPAI.controls.mount({dpad,buttons,onTap})` | วาด D-pad+ปุ่มบนมือถือ + sync คีย์บอร์ด → อ่าน `KAMPAI.input{up,down,left,right,a,b}` |
@@ -362,11 +368,13 @@ function navigateBack() {
 }
 ```
 
-**สำคัญ:** ต้องเรียก `sendGameEnd(score, mode, extra)` ในฟังก์ชันจุดจบเกมทุกครั้ง — ไม่งั้นคะแนนไม่ถูกบันทึก
+**Legacy solo:** เรียก `sendGameEnd(score, mode, extra)` ครั้งเดียวที่จบรอบจริง; practice ไม่ส่ง และการแข่งขันให้ framework จัดการตามกฎเก็บคะแนนด้านล่าง. เกมที่ใช้ SDK ใช้ `KAMPAI.submitScore()` แทน ไม่เพิ่มเส้นทางส่งซ้ำ.
 
 ---
 
 ## 🔴 กฎเก็บคะแนน (บทเรียน incident `pizza-master-chef`)
+
+ปัญหารอบ 2+ ให้ตรวจส่วนกลางก่อน: SDK (`gameResult` → `_submitted=false`) และ PlayGame (`sessionSubmittedRef` + `init` ซ้ำ) ไม่แก้ทุกเกมเพื่อชดเชยบั๊กของส่วนกลาง.
 
 นักเรียนเล่นแล้วคะแนนในเกมขึ้น แต่ leaderboard/XP ไม่ขึ้น — มักมาจากข้อใดข้อหนึ่งด้านล่าง เกม embed **ต้องผ่าน checklist นี้ก่อน ship:**
 
@@ -379,7 +387,7 @@ function navigateBack() {
 | 5 | นักเรียนต้องเล่นผ่าน **`/play/[slug]`** + รหัส — ไม่ใช่เปิด `/games/.../*.html` ตรง ๆ | `submitScore` = no-op (`!IS_EMBED`) |
 | 6 | **คะแนนสมุดเกรด** (เก็บ / กลางภาค / ปลายภาค) ≠ leaderboard XP — ครูโอนเองใน TeacherGameAnalytics | ครูเห็น XP แต่สมุดเกรดว่าง |
 
-**ทุกโหมดในเกมเดียว** (เช่น classic / compare / daily) ใช้ `submitScore(score, { mode: '<ชื่อโหมด>' })` ชุดเดียวกัน — ระบบเก็บ `mode` ใน `game_sessions.mode` ไม่แยกตารางต่อโหมด
+**Solo ที่มีการบันทึกคะแนน** (เช่น classic / compare / daily) เรียก `submitScore(score, { mode: '<ชื่อโหมด>' })` ครั้งเดียวตอนจบรอบจริง — ระบบเก็บ `mode` ใน `game_sessions.mode` ไม่แยกตารางต่อโหมด. **Practice ไม่ส่งคะแนน**; local/online ให้ KampaiVersus จัดการ completion และการบันทึกตามโหมด ไม่ส่งซ้ำจากเกม.
 
 ```js
 // ต้นฉบับใน startGame() / start(mode) — คัดลอกได้
@@ -492,6 +500,8 @@ document.getElementById('gameover-screen')?.classList.add('hidden');
 
 ## 🗄️ DB Migration Pattern
 
+`game_docs` เป็นสเปกเดียวต่อเกม (1:1 กับ `educational_hub_items`, migration 168): รูปแบบ, features, version, notes. RLS ให้เจ้าของ (`owner_staff_id`) และ admin เห็นเท่านั้น; ไม่ล็อกอินได้ 0 แถว. ใช้ `gameDocsService` ใน `src/services/educational-hub.service.ts`; หลังบ้านแก้ได้ที่ปุ่มรายละเอียดใน GamesTab. ทุกครั้งที่สร้างหรือแก้เกมให้ upsert `game_docs` พร้อม bump version ใน migration ใหม่เดียวกับการเปลี่ยนรายการเกม ตามตัวอย่างด้านล่าง.
+
 สร้างไฟล์ `supabase/migrations/NNN_seed_{slug}_game.sql` — **idempotent** (re-run ได้ไม่ซ้ำ):
 keyed ที่ staff(เจ้าของ) + external_url, `INSERT ... WHERE NOT EXISTS` แล้ว `UPDATE` flags ทุกครั้ง
 (ตัวอย่างจริง: `supabase/migrations/136_seed_vocab_move_game.sql`)
@@ -552,6 +562,8 @@ END $$;
 ⚠️ **ต้อง apply เข้า remote ด้วย** (ไฟล์ migration อย่างเดียวไม่พอ — DB จริงต้องมี row) ผ่าน
 Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `supabase db push`
 
+ใช้ migration เป็นเส้นทางหลัก: ตรวจรายการ pending และฐานข้อมูลเป้าหมายก่อน apply ภายในขอบเขตที่ได้รับอนุญาต แล้วตรวจรายการเกมและ `game_docs` หลัง apply. ไม่สร้างหรือรัน seed JavaScript ซ้ำสำหรับทุกเกม; ใช้เฉพาะงาน import/repair ที่มีความจำเป็นและได้รับอนุญาต. สร้าง migration ใหม่เสมอ ห้ามแก้ migration ที่ apply แล้ว. การแก้เอกสารคำสั่งล้วนไม่ต้องสร้าง migration หรือเปลี่ยนเวอร์ชันเกม.
+
 ---
 
 ## 🤖 AI Prompt Templates
@@ -565,14 +577,11 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 หรือ prompt แบบ manual:
 
 ```
-อ่าน GAME.md และไฟล์ public/games/{subject}/{slug}.html
-แล้วทำตาม integration checklist:
-1. เพิ่ม EMBED block (ถ้ายังไม่มี)
-2. ตั้ง GAME_SLUG = '{slug}'
-3. เรียก sendGameEnd() ในจุดจบเกม
-4. แทน window.location.href ด้วย navigateBack()
-5. สร้าง migration NNN_seed_{slug}_game.sql
-แล้วรัน pnpm verify:game public/games/{subject}/{slug}.html
+อ่านไฟล์ public/games/{subject}/{slug}.html และ GAME.md เฉพาะ SDK/คะแนน/3 โหมด/registration
+ใช้ KAMPAI SDK และ KampaiVersus ตาม contract; beginRound ทุกเริ่มรอบ
+solo ส่งคะแนนครั้งเดียวเมื่อจบจริง, practice ไม่ส่ง, การแข่งขันให้ framework จัดการ
+สร้าง migration ใหม่พร้อม game_docs โดยไม่แก้ migration ที่ apply แล้ว
+ก่อนส่งรัน pnpm verify:game:all -- public/games/{subject}/{slug}.html
 ```
 
 ### B. สร้างเกมใหม่จากศูนย์
@@ -580,11 +589,10 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 ```
 สร้างเกม "{ชื่อเกม}" สำหรับนักเรียน {ระดับชั้น} วิชา {subject}
 กติกา: {คำอธิบาย}
-- copy public/games/_template-full.html → public/games/{subject}/{slug}.html
-- GAME_SLUG = '{slug}'
-- เขียน game logic ใน SECTION C เท่านั้น (ห้ามแก้ Section A/B)
-- สร้าง migration NNN_seed_{slug}_game.sql
-- รัน pnpm verify:game
+- เลือก template/generator ตาม GAME.md decision tree และคง 3 โหมดผ่าน KampaiVersus
+- ใช้ KAMPAI.setSlug('{slug}') และ lifecycle/คะแนนตาม GAME.md
+- สร้าง migration ใหม่พร้อม game_docs ตรวจ TODO และไม่เขียนทับไฟล์เดิม
+- ก่อนส่งรัน pnpm verify:game:all -- <path> หนึ่งครั้ง
 ```
 
 ### C. Debug เกมที่ส่งคะแนนไม่ได้
@@ -633,12 +641,12 @@ Supabase MCP `apply_migration` (project `lkpqssbqxxpasidfqhpb`) หรือ `su
 
 รัน `pnpm verify:game:all -- <file>` — ต้องผ่านทุก named check, ไม่มี warning ใน strict mode และมี browser artifacts
 
-หรือเช็คด้วยตา:
-- [ ] `GAME_SLUG` ตรงกับ `game_slug` ใน DB (ไม่ใช่ placeholder)
-- [ ] `sendGameEnd()` ถูกเรียกในจุดจบเกม
-- [ ] `navigateBack()` ใช้กับปุ่มกลับหน้าหลัก
+ตรวจพฤติกรรมต่อไปนี้ร่วมกับผลอัตโนมัติ (ไม่ใช้แทน release gate):
+- [ ] `KAMPAI.setSlug()` ตรงกับ `game_slug` ใน DB (legacy ใช้ `GAME_SLUG`)
+- [ ] Solo ส่งคะแนนครั้งเดียวที่จบรอบจริงผ่าน `KAMPAI.submitScore()` (legacy `sendGameEnd()`); practice ไม่ส่ง; แข่งขันให้ framework จัดการ
+- [ ] ปุ่มกลับใช้ `KAMPAI.goHome()` (legacy ใช้ `navigateBack()`)
 - [ ] ไม่มี Firebase SDK ที่ active
-- [ ] ไม่มี input ชื่อผู้เล่น (ใช้ DISPLAY_NAME_INIT)
+- [ ] ไม่มี input ชื่อผู้เล่น (ใช้ `KAMPAI.student`; legacy ใช้ `DISPLAY_NAME_INIT`)
 - [ ] Migration SQL พร้อม
 - [ ] **`pnpm verify:game:all -- <path>` ผ่าน static strict + browser 3 viewport + เล่นจบ 2 รอบ**
 - [ ] **เปิด browser จริง: เกมแสดงผล + ไอคอนขึ้นครบ + เล่นจบได้** (static + render check ไม่พอสำหรับ UX)

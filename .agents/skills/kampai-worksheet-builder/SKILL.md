@@ -1,143 +1,47 @@
 ---
 name: kampai-worksheet-builder
-description: Create, upgrade, debug, compare, verify, register, and publish Kampai School teaching media and printable HTML worksheets. Use for public/games/**/*-media.html, public/games/**/*-worksheet.html, paired dual-track materials, A4/print layouts, worksheet sets, step answers, or evidence-backed preference learning from user revisions.
+description: Use when creating or editing Kampai HTML worksheets, teaching media, A4 layouts, or their shared runtimes.
 ---
 
 # Kampai Worksheet Builder
 
-Build media and worksheets from repository contracts and proven user preferences. Do not invent a parallel runtime or silently turn one revision into a permanent rule.
+Classify as media, worksheet, or paired dual-track. Preserve the learning process, shared runtime, and writable scaffold. Read only what the change needs.
 
-## Workflow
+## Read by task
 
-1. **Classify** the task as `media`, `worksheet`, or paired dual-track and identify the learning process.
-2. **Discover** by reading the repository contracts and inspecting the closest artifact by learning process, not merely subject.
-3. **Load preferences** from [references/media-preferences.md](references/media-preferences.md) or [references/worksheet-preferences.md](references/worksheet-preferences.md). For feedback-driven work also read [references/preference-evidence.md](references/preference-evidence.md).
-4. **Contract** the grade, indicators, slug, paired path, scaffold, density, controls, deterministic state, registration, and verification.
-5. **Implement** with the shared template/runtime while preserving authentic spatial work.
-6. **Compare** revisions with the same seed, scenario, data, viewport, and print settings: `pnpm compare:learning-artifact -- --kind <media|worksheet> --before <path|ref:path> --after <path|ref:path> --scenario <name> --seed <seed>`.
-7. **Verify** through HTTP, including print for worksheets; never certify from static inspection or `file://`.
-8. **Learn** only from an explicit instruction, selection, or accepted result. One independent task creates a candidate; the second creates a proposal; only user approval promotes it.
-9. **Document and ship** by updating only changed contracts and staging only task files.
+| Change | Read |
+|---|---|
+| Text/content in one artifact | Target file and affected subject/answer requirements in WORKSHEET.md or MEDIA.md; no full manual/template prerequisite |
+| Worksheet layout, print, answers or saved sets | Relevant WORKSHEET.md sections, affected runtime/style, and [worksheet contract](references/worksheet-contract.md) sections |
+| Shared runtime/style | Contract for the affected behavior, consumers, and [decision checklist](references/decision-checklist.md) |
+| New worksheet | WORKSHEET.md core contract, [worksheet contract](references/worksheet-contract.md), [decision checklist](references/decision-checklist.md), closest scaffold and chosen template/runtime |
+| Teaching media | Relevant MEDIA.md sections and closest media; load worksheet contract only if the paired worksheet changes |
+| Layout choice or user feedback | [media preferences](references/media-preferences.md) or [worksheet preferences](references/worksheet-preferences.md); feedback also uses [preference evidence](references/preference-evidence.md) |
 
-## Authority and scope
+Ask only about missing curriculum intent that materially changes the artifact. Otherwise state a reasonable assumption and proceed within the request.
 
-Apply rules in this order: correctness, safety, curriculum validity, and accessibility; `WORKSHEET.md` or `MEDIA.md`; approved preferences in their recorded scope; template defaults.
+## Authority and preferences
 
-Use scopes `shared`, `media-only`, `worksheet-only`, and `subject/activity-specific`. A narrow preference never overrides a hard contract. Experimental and exceptional instructions do not accumulate evidence.
+Apply correctness, safety, curriculum validity, and accessibility; WORKSHEET.md or MEDIA.md; approved preferences in their recorded scope; template defaults.
+A narrow preference never overrides a hard contract.
+One independent task creates a candidate; the second creates a proposal; only user approval promotes it. See the evidence reference for promotion, rejection and supersession.
 
-## Required reading
+Compare layout revisions with the same seed, scenario, data, viewport and print settings using `pnpm compare:learning-artifact -- --kind <media|worksheet> --before <path|ref:path> --after <path|ref:path> --scenario <name> --seed <seed>`. Do not require image comparison for a text-only correction.
 
-Before editing:
+## Verify by impact
 
-1. Read `AGENTS.md` and `WORKSHEET.md` completely from the active worktree.
-2. Read `MEDIA.md` when creating or changing the paired teaching media relationship.
-3. Inspect `public/games/_template-worksheet.html`, `public/games/worksheet-topic.js`, `public/games/worksheet-runtime.js`, `public/games/worksheet-modes.js`, and the closest subject/scaffold example.
-4. Read [references/decision-checklist.md](references/decision-checklist.md).
+| Change | Required evidence |
+|---|---|
+| One worksheet, including a typo | `pnpm verify:worksheet <path>`, HTTP/browser at 360×800 and 1280×720, affected longest content and A4 at 100%; verify edited answers mathematically where relevant |
+| New worksheet or layout/behavior change | Above plus every supported mode/count affected, every generated A4 page, no clipping, answer navigation, same/new seed and save/load/share as applicable |
+| Shared worksheet runtime/style | Full worksheet verifier plus browser/A4 matrix across affected consumers and behaviors; include deterministic puzzles if their generation changes |
+| Media | Target media verifier and HTTP/browser journey per MEDIA.md; paired worksheet checks only if affected |
+| React/app/wrapper/build integration | Affected tests and `pnpm build` in addition to artifact checks |
+| Catalog migration | Verify local catalog contract; after authorized apply, `pnpm verify:worksheet:production` before claiming production parity |
+| Instructions/preferences/comparison tooling | Skill metadata/link checks and `pnpm test:learning-preferences`; no whole-site build/browser for documentation only |
 
-Repository documents are authoritative when they differ from this skill.
+Static checks or file:// never certify UI. Do not repeat passing checks without a new change or unresolved concern. Failed or unavailable required checks block publishing; report the exact gate.
 
-## Establish the contract
+## Document and ship
 
-Determine from repo evidence before coding:
-
-- subject, grade, curriculum indicators, worksheet slug, `worksheet_key`, and paired media path;
-- learning process being assessed and the writing scaffold it requires;
-- questions per page based on actual handwriting space, not a preferred generic grid;
-- controls required: topic, grade, page count, question count, style, teaching mode, school, and teacher;
-- whether a new catalog item/migration is required.
-
-Ask only when missing curriculum intent materially changes the artifact. Otherwise select the closest published pattern and state the assumption.
-
-## Choose the implementation path
-
-- Use `worksheet-topic.css` + `worksheet-topic.js` for a standard topic worksheet whose layout fits the shared shell.
-- Use the template plus shared runtime/modes for a specialized process scaffold such as long division, vertical multiplication, geometry drawings, charts, or multi-step calculations.
-- Extend a shared engine only when behavior is genuinely common. Do not copy teacher fetch, mode logic, print logic, saved-set logic, or answer-navigation logic into each worksheet.
-- Preserve specialized mathematical layout. Never replace vertical work, place-value alignment, diagrams, tables, or observation scaffolds with generic question text.
-
-## Mandatory behavior
-
-Every non-template worksheet must:
-
-- load `worksheet-modes.css`, `worksheet-runtime.js`, and `worksheet-modes.js` with the same current cache version;
-- expose repeatable `render()` behavior and use deterministic seeded RNG;
-- define a unique stable `worksheet_key`;
-- mount the shared worksheet-set toolbar and save every applicable control in semantic config keys;
-- reproduce identical questions from the same seed and change the seed on randomize;
-- support save, load, and `?set=` sharing through the shared engine;
-- hide answers initially and provide previous, next, all, status text, and left/right keyboard navigation;
-- reset answer progress after randomize or loading a set;
-- reveal answers in reserved positions without changing A4 dimensions;
-- include source-media and curriculum-indicator metadata pointing to a real file;
-- use the shared teacher runtime and never duplicate Supabase URL, key, REST query, or mutation;
-- retain `.toolbar-ctrls`, required hidden or visible controls, `#pages > .sheet`, `.questions > .q`, parent slip, footer, student fields, QR, and print support required by `WORKSHEET.md`.
-
-Use CSS custom properties for new standalone worksheet colors. Ensure grayscale print remains understandable.
-
-## Build the learning scaffold
-
-Translate the learning objective into writable evidence:
-
-- calculation: aligned operands, intermediate work, checking, units;
-- geometry: diagram, formula, substitution, calculation, unit²;
-- language: word bank, classification/evidence, sentence components, or writing plan;
-- science/technology: observation table, sequence, classification, prediction, evidence, or reasoning.
-
-Allocate space for a child's handwriting. If content overflows or writing is cramped, redesign that worksheet case-by-case. Never conceal overflow with clipping.
-
-For two-column calculation worksheets with at least three written scaffold steps per problem, start at no more than eight questions per page. Ten questions are acceptable only after HTTP browser and 100% A4 verification show that the font remains readable and every writing slot accommodates student handwriting.
-
-For arithmetic-puzzle worksheets such as Game 24:
-
-- validate every expression programmatically; do not trust written answer text alone;
-- verify that each source number is used exactly as many times as it appears;
-- reject neutral-operation padding such as multiplying by one, dividing a number by itself, or adding/subtracting zero merely to consume inputs;
-- derive a canonical key from the sorted source numbers and enforce uniqueness across every page in a generated set;
-- keep elementary-school intermediate results positive integers unless the learning objective explicitly teaches fractions or negative numbers.
-
-## Registration and documentation
-
-For a new worksheet:
-
-1. Create a new three-digit migration; never edit an old migration.
-2. Register the published worksheet catalog URL and indicator links using the current migration pattern.
-3. Apply the migration when authorized and run the production parity check.
-
-For any feature or meaningful UX change, update `WORKSHEET.md` when the contract changes and add the newest entry to `src/components/admin/system/SystemOverview.tsx`. Follow `AGENTS.md` documentation discipline and keep documentation atomic with implementation.
-
-## Continuous rule improvement
-
-When worksheet implementation or verification reveals a new issue that is likely to recur across worksheets, do not leave the lesson only in the current file:
-
-1. record the first supported occurrence as `candidate` using [references/preference-evidence.md](references/preference-evidence.md), without changing a permanent rule;
-2. after the same pattern appears in a second independent task, prepare a `proposed` rule with wording, scope, before/after evidence, impact, and verifier feasibility;
-3. after explicit approval, mark it `approved` and add the smallest rule to the relevant preference profile;
-4. append `rejected` or `superseded` decisions rather than erasing history;
-5. add a verifier only for deterministic requirements; keep subjective taste in browser comparison review.
-
-Historical commits may bootstrap candidates but cannot bootstrap approval. Urgent correctness or safety fixes may proceed within scope, but broader permanent rules still require approval.
-
-## Verification loop
-
-Do not certify from static inspection or `file://`.
-
-1. Run `pnpm verify:worksheet <path>` while iterating.
-2. Serve through HTTP and test in a real browser.
-3. Verify standard, A–B–C, exit, diagnostic, remedial, longest content, and every supported 5/10/fixed-count layout.
-4. Verify initial hidden answers, next, previous, all, keyboard controls, and stable sheet dimensions.
-5. Verify randomize changes seed; reload with the same seed reproduces questions; save/load config and `?set=` restore state.
-6. Emulate print at 100%. Measure every `.sheet`: content and scroll dimensions must fit A4 without clipping. Check all pages, not only page one.
-7. For generated puzzles, verify answer correctness, exact input use, canonical uniqueness across the full multi-page set, and prohibited shortcut patterns with a deterministic checker.
-8. Run `pnpm verify:worksheet` for the full catalog and `pnpm build`.
-9. When a migration changes published catalog state, run `pnpm verify:worksheet:production` after applying it.
-10. After changing preference rules or comparison tooling, run `pnpm test:learning-preferences` and validate this skill with `quick_validate.py`.
-
-Stop publishing if any required check fails or cannot be performed. Report the exact remaining gate.
-
-## Publish
-
-Follow the automatic commit/push policy in `AGENTS.md`: inspect status and diff, stage only task files, confirm no divergence/conflict/secrets, commit atomically with relevant migration/docs/version history, and push the approved production branch.
-
-Report changed worksheet files, shared files, migration status, browser/A4 cases, verifier totals, build result, documentation locations, commit hash, and push branch.
-
-If `rtk` is unavailable, state that fact and use the direct command as the documented fallback; do not stop silently.
+Follow root AGENTS.md for documentation, command fallback and scoped automatic commit/push. Update only changed contracts. New catalog entries use a new migration, never an applied file. Preserve paired metadata and registration; report migration/production status separately from Git publication.

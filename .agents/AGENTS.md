@@ -72,17 +72,17 @@ Follow these standards strictly when developing, refactoring, or integrating edu
   - Read student profile data from `k.student`.
   - Read previous stats from `k.stats`.
   - Read and render the Top 5 leaderboard from `k.leaderboard`.
-- **Score Submission**: Always invoke `KAMPAI.submitScore(score, { mode, ... })` at the game-over screen to save student progress.
+- **Score Submission**: Follow `GAME.md` scoring ownership: solo submits once at a real round end; practice never submits; KampaiVersus owns competitive completion. Call `KAMPAI.beginRound()` when each round becomes playable.
 - **Audio & Sound API**:
   - Trigger `KAMPAI.sound.unlock()` on the first user interaction.
   - Control background music via `KAMPAI.sound.bgmStart()` / `bgmStop()` and `defaultBgm(preset)`.
   - Use `KAMPAI.sound.correct()`, `wrong()`, `timeUp()`, `gameOver()` for events.
   - For language/verbal games, use text-to-speech: `KAMPAI.sound.speak(text, lang)`.
 
-### C. Online Multiplayer (`kampai-match.js`)
-- Always ask the user if they want a multiplayer/online option (synchronized live play).
-- If yes, include `/games/kampai-match.js` and instantiate it using `KampaiMatch.create({ duration, title, onPlay, onEnd })`.
-- Sync real-time scoring via `match.report(score, { correct })`.
+### C. Three Modes (`kampai-versus.js`)
+- Follow `GAME.md` as the source of truth: every new or modified game retains solo, local hot-seat, and online through KampaiVersus. Do not ask whether to add these standard modes.
+- Use `/games/kampai-versus.js`; KampaiMatch is its internal online layer.
+- Sync real-time scoring via `vs.report(score, { correct })`.
 - Use the provided seeded `rng` inside `onPlay(({ rng }) => { ... })` so all players receive identical questions.
 
 - **Rule**: Never prompt the student for their name or attempt to manage lobbies manually. The SDK and KampaiMatch wrapper handle authentication, student profiles, and lobby synchronization.
@@ -92,12 +92,12 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 - **Rule**: The migration must:
   1. Seed the item in `educational_hub_items` (`game_slug`, `tracked_game = true`, `thumbnail_url = '/games/{subject}/{slug}/cover.png'`).
   2. Insert or update the game profile details in `game_docs` using `INSERT ... ON CONFLICT (item_id) DO UPDATE` with game format, features, build version, and notes.
-- **Programmatic Seeding**: Note that writing an SQL migration file in `supabase/migrations` registers the schema but does not automatically populate/publish the game on the live Supabase production database. To make the game immediately visible in the Game Library (คลังเกมการศึกษา), you **MUST** also create a JavaScript seed script under `scripts/seed-{slug}-game.mjs` and execute it (`node scripts/seed-{slug}-game.mjs`) to programmatically upsert the game metadata into `educational_hub_items` and `game_docs` using the Supabase Service Role key from `.env.local`.
+- **Publishing**: Follow the migration workflow in `GAME.md`. A migration file alone does not apply changes to production. Apply the new migration to the verified target within authorized scope, then verify the catalog and `game_docs`. Do not create a second seed script by default; use one only for a specific import/repair requirement. Never edit an applied migration.
 
 ### E. Local Verification
 - Before finalizing a game, run the verification tool:
   ```bash
-  pnpm verify:game public/games/{subject}/{slug}
+  pnpm verify:game:all -- public/games/{subject}/{slug}
   ```
 - The game **MUST** pass all verification checks (including the 16:9 thumbnail check and browser/JSDOM smoke-test) before staging.
 

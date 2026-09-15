@@ -1,6 +1,6 @@
 # Worksheet decision checklist
 
-Use this checklist before selecting a layout or declaring completion.
+Use the relevant sections when selecting a new layout or changing behavior. For text-only fixes, use the scope matrix in ../SKILL.md and WORKSHEET.md §7 instead of this full checklist.
 
 ## Pre-flight
 
@@ -53,12 +53,12 @@ Add specialized fields such as calculation format or progression strategy when t
 ## Completion evidence
 
 - Target verifier passes.
-- Full worksheet verifier passes.
+- Full worksheet verifier passes when shared runtime/style changes; a single artifact uses its target verifier.
 - Same-seed reproduction passes.
 - New-seed randomization passes.
 - Saved config/load/link path passes or the exact auth-dependent portion is explicitly isolated.
 - All answer-navigation paths pass.
 - HTTP browser and print A4 measurements pass for every required case.
-- Production build passes.
+- Production build passes when React/app/wrapper or build integration changes.
 - Catalog production parity passes after catalog migration.
 - Documentation/version history and migration are atomic with the feature.

@@ -33,7 +33,7 @@ ENV จำเป็น: `VITE_SUPABASE_URL` · `VITE_SUPABASE_PUBLISHABLE_KEY` �
 - รวม class ด้วย `cn()` จาก `@/lib/utils` เสมอ
 - Illustrations = inline SVG component ที่ใช้ `currentColor` + Tailwind class (ไม่ download PNG, ไม่ใส่ `public/`)
 - ห้ามใช้ `dark:` prefix เด็ดขาด (เว็บเป็น Light-only) และระวังการเขียนทับกันของสไตล์/สิทธิ์การทับซ้อน (Rule 14.15 & 14.16)
-- **ก่อนสร้างหน้าใหม่ / Component ใหม่:** ต้องรัน Pre-flight Check 5 ด้าน (DB Schema, Auth, Redundancy, Layout, Feasibility) และเช็กความพร้อมก่อนเสมอ (Rule 14.17)
+- **ก่อนสร้างหน้าใหม่ / Component ใหม่:** ตรวจ DB Schema, Auth, Redundancy, Layout, Feasibility ตามส่วนที่กระทบ (Rule 14.17); ส่วนไม่เกี่ยวข้องระบุ N/A สั้น ๆ ไม่ต้องสำรวจ DB สำหรับ component แสดงผลล้วน
 - **ข้อยกเว้น standalone print worksheet:** ใช้ CSS ปกติได้ แต่สีใหม่ต้องประกาศเป็น custom property ใน `:root` หรือ shared worksheet stylesheet แล้วใช้ `var(...)`; ห้ามเพิ่ม hex กระจายใน selector
 
 **Person display:** ทุกที่ที่แสดงชื่อ ครู/ผู้บริหาร/นักเรียน → ต้องใช้ `<PersonAvatar name=... photoUrl=... />` คู่ชื่อเสมอ — ห้าม name-only (DESIGN.md Rule 14.13) + service ที่ดึงชื่อมา **ต้อง SELECT `photo_url` ด้วย**; ยกเว้น print-only worksheet native selector/footer/ช่องลงชื่อ ซึ่งแสดงชื่อเต็ม+ตำแหน่งได้โดยไม่ใช้ avatar
@@ -62,12 +62,11 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 
 ## Behavioral guidelines (Karpathy)
 
-- **Think first** — surface assumptions ก่อน code, ถามถ้าไม่ชัด, ไม่เลือกแนวทางเงียบ ๆ
+- **Think first** — ตรวจข้อเท็จจริงก่อน ถามเฉพาะความกำกวมที่เปลี่ยนผลลัพธ์หรือขอบเขต; งานชัดเจนที่ได้รับอนุญาตแล้วให้ดำเนินการจนตรวจผ่าน
 - **Simplicity first** — เขียน code น้อยที่สุดที่แก้ปัญหา; ไม่เพิ่ม abstraction / config / "flexibility" ที่ไม่ได้ขอ; ไม่ handle scenario ที่เป็นไปไม่ได้
 - **Surgical changes** — แตะเฉพาะที่จำเป็น; ไม่ refactor adjacent code; match style เดิมแม้จะไม่ใช่ที่ตัวเองชอบ; ลบเฉพาะ orphan ที่ตัวเองทำให้เกิด
 - **Goal-driven** — แปลงงานเป็น verifiable success criteria + loop จนผ่าน (เช่น "add validation" → "write tests for invalid inputs, then make them pass")
 
-รายละเอียดเต็มเรียกได้ที่ `/andrej-karpathy-skills:karpathy-guidelines`
 
 ## Classroom-first Product Rules
 
@@ -90,25 +89,37 @@ Client check = UX เท่านั้น **ความปลอดภัย�
 - Windows CRLF warning + React Quill `findDOMNode` warning → ignore ได้
 - **registry.ts blank-screen trap:** เพิ่ม entry ใน `src/lib/commands/registry.ts` ต้องเช็คว่า icon ใน `icon: X` มีใน top `import { ... } from 'lucide-react'` — TS ปล่อยผ่าน, runtime ถึงพัง, ทำให้เว็บขาวทั้งระบบ (incident `2ba6903` — ดู DESIGN.md Rule 14.38, รัน `grep -oE "icon: [A-Z][a-zA-Z]+" src/lib/commands/registry.ts | sort -u` ก่อน commit)
 - **PWA cache recovery:** user รายงานเว็บขาว → แนะนำเปิด `https://kampai-school.vercel.app/?reset_sw=1` เป็นด่านแรกก่อน escalate (kill-switch อยู่ใน `src/main.tsx` — DESIGN.md Rule 14.39)
-- **เกม AR/กล้อง (เคลื่อนไหวร่างกาย):** อ่าน **`AR-GAME.md` ก่อนทำทุกครั้ง** · **จิ้ม/ชนวัตถุด้วยนิ้ว / เลื่อนตะกร้าด้วยมือ** → `public/games/kampai-hands.js` (`KampaiHands`) + `cp -r public/games/_template-ar-hands` (ตัวอย่าง `thai/balloon-burst/`, `math/catch-numbers/`) · **ยืนเลือกโซน/ท่าทาง** → `kampai-ar.js` (`KampaiAR`) + `_template-ar` (ตัวอย่าง `demo/ar-zone-quiz/`) · 🔴 pitfall #1: container กล้องต้อง `position:absolute; inset:0` ห้าม `relative` · 🔴 pitfall #12: restart ต้อง `hands.stop(); hands=null` ก่อน `buildHands()`+`start()` · บังคับมี tap fallback · `verify:game` Check 10 = AR
-- **เกม HTML (port/integrate):** อ่าน `GAME.md` + รัน `pnpm verify:game <path>` ต้องผ่าน **9/9** (Check 7 render smoke-test — static อย่างเดียวเคยปล่อยเกมจอดำผ่าน เคส wizard-thai; **Check 9 = ปกต้องเป็น 16:9 เต็มช่อง 1280×720 เสมอ** ไม่งั้นการ์ดมีขอบขาว) + เปิด browser จริง. เกม React component → `cp public/games/_template-react.html`; lucide IconNode = `["svg", attrs, children]` → drawing อยู่ `node[2]` (อย่าเขียน shim เอง map ผิด level)
-- **ใบงานพิมพ์:** อ่าน `WORKSHEET.md` + รัน `pnpm verify:worksheet [path]` และเปิดผ่าน HTTP/browser จริง; ห้ามรับรองจาก `file://` หรือ static grep อย่างเดียว และทักษะที่ต้องแสดงกระบวนการต้องมี scaffold ให้ลงวิธีทำจริง
-- **ลงเกียรติบัตรครูจาก CLI:** drop รูปเกียรติบัตรใน Codex → Codex อ่านด้วย vision (แม่นกว่า Tesseract เดิม) → เขียน data JSON (recipient_name/course_name/training_type/start_date ISO ค.ศ./hours/...) → `node scripts/import-cert.mjs --image=<path> --data=<json> [--staff-id=<uuid>] [--dry-run]` (match staff→staff_id, อัปรูปเข้า `school-images/training-certificates/`, insert `training_records` status='ผ่านการอบรม'). **ต้องมี `SUPABASE_SERVICE_ROLE_KEY` ใน .env.local** (storage policy ให้แค่ authenticated อัป — anon ไม่ผ่าน). ชื่อ match หลายคน → script print candidate ให้ส่ง `--staff-id`. รับ `.pdf` ด้วย (render หน้าแรก→PNG @2x ผ่าน `mupdf` devDep). ภาพตะแคง/มีแถบ → หมุน/ครอปด้วย `sharp` ก่อน (เปิดดูยืนยันก่อนอัปเสมอ). เช็ค duplicate ใน `training_records` ก่อนลงทุกครั้ง
-- **เกมคะแนนไม่ขึ้นใน portal (incident pizza-master-chef):** อ่าน **GAME.md §กฎเก็บคะแนน** — รอบ 2+ แก้กลางที่ **SDK (`gameResult` → `_submitted=false`) + PlayGame (`sessionSubmittedRef` + `init` ซ้ำ)** ไม่ต้องแก้ทุกไฟล์เกม · เกมใหม่ยังควรเรียก `KAMPAI.beginRound()` ตอนเริ่มรอบ
-- **เกมใหม่ใช้ KAMPAI SDK:** `/games/kampai-sdk.js` (single source) = `window.KAMPAI` — `setSlug/onReady/student/stats/leaderboard/submitScore/goHome/controls.mount(D-pad)` + `sound.*` (ระบบเสียงรวม: `mountToggles()` ปุ่ม 🔊/🗣️/🎵 + `correct/wrong/timeUp/gameOver/speak(text,lang)/fxFlash/bgmStart/bgmStop/defaultBgm(preset)` — แก้เสียงที่ SDK ที่เดียวมีผลทุกเกม; เพลงรายเกมตั้งจากหลังบ้าน: `educational_hub_items.bgm_preset` (เพลงสังเคราะห์) หรือ `bgm_url` (mp3 อัปโหลดจาก "คลังเพลง" ใน GamesTab → ตาราง `game_bgm_tracks`, bucket `educational-hub/bgm/`) → wrapper ส่ง `init.audio.{bgm,bgmUrl}` — `setBgmUrl()` เล่น mp3 (HTMLAudio loop) มาก่อน synth). wrapper (`PlayGame.tsx`) ส่ง student+stats+leaderboard ผ่าน init ให้เกมโชว์ในจอ. สั่ง AI เจ้าอื่นสร้างเกม → ใช้ `public/GAME-PROMPT.md` (ปุ่มดาวน์โหลด+คัดลอกใน GamesTab). เทมเพลต `_template-full.html`/`_template-react.html` ใช้ SDK แล้ว
-- **รายละเอียดเกม (game_docs) — บังคับทุกครั้งที่สร้าง/แก้เกม:** ตาราง `game_docs` (1:1 กับ `educational_hub_items`, migration 168) เก็บ **รูปแบบเกม / ฟีเจอร์ / เวอร์ชันบิลด์ / notes** แบบสเปกเดียวต่อเกม (แก้ทับ). RLS เห็นเฉพาะ **เจ้าของเกม (owner_staff_id) + admin** — ไม่ล็อกอิน = 0 แถว. ดู/แก้ในหลังบ้านที่ปุ่ม **"รายละเอียด"** ในการ์ดเกม GamesTab. **กฎ:** ทุกครั้งที่ seed เกมใหม่หรือแก้เกม ต้อง `INSERT ... ON CONFLICT (item_id) DO UPDATE` ลง `game_docs` **ใน migration เดียวกัน** + เด้งเวอร์ชัน (ดูเทมเพลตใน `GAME.md`). service = `gameDocsService` (`src/services/educational-hub.service.ts`)
+
+## อ่านตามประเภทงาน
+
+อ่านเฉพาะหัวข้อที่เกี่ยวข้อง ไม่ต้องอ่านคู่มือทั้งหมดก่อนทุก edit
+
+| งาน | แหล่งหลัก |
+|---|---|
+| เกม / SDK / คะแนน / multiplayer / game_docs | [GAME.md](GAME.md) และ [game skill](.agents/skills/kampai-game-dev/SKILL.md); คงมาตรฐาน 3 โหมดตาม GAME.md |
+| กล้อง / มือ / ท่าทาง | [AR-GAME.md](AR-GAME.md) เฉพาะ engine และ lifecycle ที่แก้ |
+| แนวตั้ง / แนวนอน | [ORIENT-GAME.md](ORIENT-GAME.md) |
+| ใบงาน / A4 / scaffold | [WORKSHEET.md](WORKSHEET.md) และ [worksheet skill](.agents/skills/kampai-worksheet-builder/SKILL.md) |
+| สื่อการสอน | [MEDIA.md](MEDIA.md) และ worksheet skill ส่วน media |
+| Design / component | [DESIGN.md](DESIGN.md) / [DESIGN-COMPONENTS.md](DESIGN-COMPONENTS.md) เฉพาะสัญญาที่เปลี่ยน |
+| นำเข้าเกียรติบัตรครู | [คู่มือนำเข้า](docs/operations/import-training-certificates.md) |
+
+## ตรวจตามผลกระทบ
+
+- ระหว่างแก้รัน checks เฉพาะจุด; เกมที่เปลี่ยนต้องผ่าน `pnpm verify:game:all -- <path>` ก่อนส่งหนึ่งครั้ง ไม่ต้องรัน static/browser ซ้ำถ้าชุดรวมตรวจแล้ว
+- ใบงานรายชิ้น: verifier เป้าหมาย + HTTP/browser และ A4; shared runtime/style: ตรวจทั้งคลังที่ได้รับผล ตาม WORKSHEET.md §7
+- Build เมื่อกระทบ React/app/wrapper หรือ build integration; เอกสารล้วนตรวจเนื้อหา ลิงก์ และ skill metadata โดยไม่ต้อง build/browser ทั้งเว็บ
+- รักษา browser จริงและ viewport ตาม Classroom-first เมื่อเปลี่ยน UI; ไม่ใช้ static แทนการตรวจจอจริง
+- ผ่านทุก check ที่เกี่ยวข้องและแก้ failure จากงานนี้แล้วจึงส่ง; รายงาน required check ที่ทำไม่ได้ ห้ามอ้างว่าผ่าน
+- คำสั่งอ่าน/ทดสอบใน local ที่อยู่ในขอบเขตงานทำต่อได้โดยไม่ถามซ้ำ; seed/import/migration ที่เขียนข้อมูลจริงต้องอยู่ในขอบเขตที่ได้รับอนุญาต ตรวจเป้าหมายก่อนรัน
 
 ## Git
 
 - Branch: `main` (production)
 - Commit: `feat(scope): ...` · `fix(scope): ...` · `docs(scope): ...`
 - รวม Codex co-author เมื่อใช้ Codex
-- **ใช้ `rtk` prefix ทุก shell command** — chained ต้อง prefix ทุกตัว:
-  ```
-  ✅ rtk git add X && rtk git commit -m "..." && rtk git push
-  ❌ rtk git add X && git commit -m "..." && git push
-  ```
-  Reference เต็ม + Windows note: `~/.Codex/AGENTS.md`
+- ใช้ `rtk` prefix เมื่อมีใน environment; chained commands ใส่ prefix ให้แต่ละคำสั่ง หากไม่พบหรือไม่รองรับคำสั่ง ให้แจ้งครั้งเดียวแล้วใช้คำสั่งตรง ไม่ต้องติดตั้งเพื่อทำงานต่อ
+- PowerShell ใช้คำสั่ง native และ absolute path; ตัวอย่าง bash ในคู่มือให้แปลงตาม shell ที่ใช้งาน
 
 ### Automatic Commit & Push
 
