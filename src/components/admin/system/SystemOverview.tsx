@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.59 (Vocab Hub — ภาพประกอบหมวดอาหารครบสมบูรณ์ 30/30 คำ)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เจเนอเรตและแปลงภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ครบทั้ง 14 คำสุดท้าย: Salad, Beef, Pork, Fish, Vegetable, Fruit, Butter, Yogurt, Cereal, Cookie, Chocolate, Juice, Tea, Coffee',
+            'ทำให้หมวดอาหาร (Food) มีภาพประกอบครบถ้วน 100% (30/30 คำ ทั้ง 5 สไลด์) พร้อมลงทะเบียนใน EXTENDED_IMAGE_WORDS',
+            'ผ่านการทดสอบ Browser Regression ด้วย Playwright และการตรวจ Verify Game ครบทุกฟังก์ชัน',
+        ],
+    },
+    {
         version: 'v1.229.58 (Vocab Hub — ภาพประกอบอาหารชุดใหม่ Hamburger, Sandwich, Sausage, Cheese)',
         date: '14 ก.ย. 2569',
         badge: 'bg-amber-600',
