@@ -1,1 +1,1081 @@
-<!doctype html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>เครื่องดนตรีไทยและเสียง</title><script src="/games/kampai-sdk.js?v=1.181.0"></script><script>const MEDIA_SLUG='thai-instruments-media';window.MEDIA_CONFIG={slug:MEDIA_SLUG,stateKey:'ThaiInstrumentsMedia',icon:'🎶',title:'เครื่องดนตรีไทยและเสียง',grade:'ป.1–4',subject:'ศิลปะ',kicker:'ศิลปะ · ฟังและจำแนกเสียง',objective:'รู้จักเครื่องดนตรีไทยจากลักษณะและเสียง',image:'/games/media-lab-assets/learning-scene.svg',scenes:[{icon:'🥁',label:'ตี',title:'เครื่องดนตรีประเภทตี',body:'เครื่องดนตรีประเภทตีเกิดเสียงเมื่อเราใช้ไม้หรือมือกระทบ เช่น ระนาดและกลอง เสียงอาจสูงต่ำและสั้นยาวต่างกัน',tip:'ลองฟังจังหวะ: ตีเบา ตีแรง และเว้นจังหวะ',speak:'เครื่องดนตรีประเภทตีเกิดเสียงจากการกระทบ'},{icon:'🎻',label:'สี',title:'เครื่องดนตรีประเภทสี',body:'เครื่องดนตรีประเภทสีใช้คันชักถูสายให้สั่น เช่น ซอ เสียงจึงเปลี่ยนได้ตามสายและตำแหน่งที่กด',tip:'สายสั่นจึงเกิดเสียง',speak:'เครื่องดนตรีประเภทสีใช้คันชักทำให้สายสั่น'},{icon:'🎺',label:'เป่า',title:'เครื่องดนตรีประเภทเป่า',body:'เครื่องดนตรีประเภทเป่าใช้ลมหายใจทำให้ลิ้นหรือช่องอากาศสั่น เช่น ปี่ เสียงเปลี่ยนตามลมและรูนิ้ว',tip:'ลมมากหรือน้อยทำให้เสียงต่างกัน',speak:'เครื่องดนตรีประเภทเป่าใช้ลมหายใจทำให้เกิดการสั่น'},{icon:'🪕',label:'ดีด',title:'เครื่องดนตรีประเภทดีด',body:'เครื่องดนตรีประเภทดีดใช้มือหรือนิ้วดีดสายให้สั่น เช่น จะเข้ เสียงจะกังวานตามสายและกล่องเสียง',tip:'ฟังเสียงกังวานหลังดีด',speak:'เครื่องดนตรีประเภทดีดใช้มือทำให้สายสั่น'}],practice:{title:'จับคู่เสียงกับวิธีเล่น',question:'ถ้าเห็นกลอง เราควรจัดอยู่ในประเภทใด?',options:[{label:'ประเภทตี',correct:true,explain:'ถูกต้อง กลองเกิดเสียงจากการใช้มือหรือไม้กระทบหน้ากลอง'},{label:'ประเภทสี',correct:false,explain:'ซอจึงเป็นตัวอย่างของประเภทสี เพราะใช้คันชักถูสาย'},{label:'ประเภทเป่า',correct:false,explain:'ปี่เป็นเครื่องดนตรีประเภทเป่า เพราะใช้ลมทำให้เกิดเสียง'}]}};</script><script src="/games/media-lab-runtime.js?v=1.0.0" defer></script></head><body><div id="media-root"><button data-mode="learn" hidden></button><button data-mode="practice" hidden></button></div></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>เครื่องดนตรีไทยและเสียง — บ้านคำไผ่</title>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#12355b;--blue:#1f6f8b;--aqua:#d8f3ed;--cream:#fff7df;--paper:#fffdf7;
+      --gold:#f5b700;--coral:#ef6f6c;--ink:#132238;--muted:#536579;--line:#b8d8d8;
+      --white:#fff;--ok:#14804a;--bad:#b42318;
+    }
+    html,body{min-height:100%;background:linear-gradient(145deg,var(--cream),var(--aqua))}
+    body{font-family:'Sarabun',Arial,sans-serif;color:var(--ink);padding:10px}
+    button{font:inherit}
+    button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+    
+    .shell{
+      width:min(1500px,100%);min-height:calc(100vh - 20px);margin:auto;
+      background:var(--paper);border:2px solid var(--navy);border-radius:24px;
+      overflow:hidden;box-shadow:0 20px 60px rgba(18,53,91,.16);
+      display:flex;flex-direction:column;
+    }
+    .topbar{
+      display:flex;align-items:center;gap:12px;padding:12px 18px;
+      background:var(--navy);color:var(--white);
+    }
+    .topbar h1{font-size:clamp(22px,2.4vw,36px);line-height:1;flex:1}
+    .badge{font-weight:800;background:var(--gold);color:var(--navy);padding:7px 13px;border-radius:999px;white-space:nowrap}
+    .btn{
+      min-height:44px;border:2px solid transparent;border-radius:14px;
+      padding:9px 14px;font-weight:800;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      transition:transform .12s,background .12s;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--white)}
+    
+    .toolbar{
+      display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:9px 14px;
+      background:var(--white);border-bottom:2px solid var(--line);
+    }
+    .mode-group{display:flex;border:2px solid var(--navy);border-radius:15px;overflow:hidden}
+    .mode-btn{
+      min-height:44px;border:0;background:var(--white);color:var(--navy);
+      padding:8px 15px;font-weight:800;cursor:pointer;
+    }
+    .mode-btn.on{background:var(--navy);color:var(--white)}
+    .toolbar-spacer{flex:1}
+    .toolbar-hint{font-weight:700;color:var(--muted);font-size:14px}
+    .btn-listen{background:var(--aqua);border-color:var(--blue);color:var(--navy)}
+    .btn-fs{background:var(--blue);color:var(--white)}
+    #kampai-snd{position:static!important;display:flex!important;flex:0 0 auto}
+    #kampai-snd .ksnd{background:var(--navy);box-shadow:none}
+
+    .workspace{display:grid;grid-template-columns:280px minmax(0,1fr);flex:1;min-height:0}
+    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto}
+    .sidebar-title{font-size:14px;color:#bde5e3;margin:4px 4px 9px;font-weight:800}
+    .scene-list{display:grid;gap:8px}
+    .scene-btn{
+      width:100%;min-height:56px;border:2px solid rgba(255,255,255,.18);border-radius:14px;
+      background:rgba(255,255,255,.08);color:var(--white);padding:8px 10px;
+      text-align:left;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:10px;
+    }
+    .scene-btn .scene-icon{font-size:28px}
+    .scene-btn.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+    .lesson-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+    .lesson-btn{
+      min-width:42px;min-height:42px;border:2px solid rgba(255,255,255,.26);border-radius:12px;
+      background:rgba(255,255,255,.08);color:var(--white);font-weight:800;cursor:pointer;
+    }
+    .lesson-btn.on{background:var(--coral);border-color:var(--white)}
+
+    .main{min-width:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#dff6ff,var(--cream))}
+    .lesson-head{
+      display:flex;align-items:center;gap:14px;padding:14px 20px;
+      border-bottom:2px dashed var(--line);background:rgba(255,253,247,.92);
+    }
+    .lesson-emoji{
+      width:62px;height:62px;border-radius:18px;background:var(--gold);
+      display:grid;place-items:center;font-size:36px;flex:0 0 auto;box-shadow:5px 5px 0 var(--navy);
+    }
+    .lesson-copy{min-width:0;flex:1}
+    .lesson-kicker{font-size:14px;font-weight:800;color:var(--blue)}
+    .lesson-copy h2{font-size:clamp(25px,3vw,44px);line-height:1.05;color:var(--navy)}
+    .lesson-goal{font-size:clamp(15px,1.6vw,20px);font-weight:700;color:var(--muted);margin-top:4px}
+
+    /* Stages */
+    .learn-stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:16px;padding:16px;flex:1;min-height:0}
+    .visual-stage{display:none;align-items:center;justify-content:center;flex:1;min-height:0;padding:14px}
+    .practice-stage{display:none;flex:1;padding:18px;overflow:auto}
+    .lab-stage{display:none;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px;padding:16px;flex:1;min-height:0;overflow:auto}
+
+    .visual-mode .learn-stage,.visual-mode .practice-stage,.visual-mode .lab-stage{display:none}
+    .visual-mode .visual-stage{display:flex}
+    .practice-mode .learn-stage,.practice-mode .visual-stage,.practice-mode .lab-stage{display:none}
+    .practice-mode .practice-stage{display:block}
+    .lab-mode .learn-stage,.lab-mode .visual-stage,.lab-mode .practice-stage{display:none}
+    .lab-mode .lab-stage{display:grid}
+
+    /* Illustration Frame */
+    .visual-frame{
+      position:relative;width:min(100%,calc((100vh - 260px)*16/9));aspect-ratio:16/9;
+      max-height:calc(100vh - 260px);overflow:hidden;border:4px solid var(--navy);
+      border-radius:24px;background:linear-gradient(145deg,var(--aqua),var(--cream));
+      box-shadow:0 12px 28px rgba(18,53,91,.18);
+    }
+    .visual-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .visual-fallback{
+      position:absolute;inset:0;display:none;place-items:center;padding:24px;
+      text-align:center;font-size:clamp(22px,3vw,42px);font-weight:800;color:var(--navy);
+      background:linear-gradient(145deg,var(--aqua),var(--cream));
+    }
+    .visual-frame.image-error .visual-fallback{display:grid}
+    .visual-frame.image-error .visual-image{display:none}
+    .visual-overlay{
+      position:absolute;left:3%;right:3%;top:3%;bottom:auto;padding:14px 18px;
+      border:3px solid var(--navy);border-radius:18px;background:rgba(255,253,247,.94);
+      box-shadow:0 7px 0 rgba(18,53,91,.2);cursor:pointer;
+    }
+    .visual-overlay h3{font-size:clamp(20px,2.8vw,38px);color:var(--navy)}
+    .visual-overlay p{font-size:clamp(15px,1.5vw,20px);font-weight:700;color:var(--muted);line-height:1.4}
+    .visual-overlay .sound-state{color:var(--blue);font-weight:800;margin-top:6px}
+
+    .illustration-card{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .illustration-card .visual-frame{width:100%;max-height:none}
+    .step-strip{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+    .step-chip{
+      min-height:42px;border:2px solid var(--line);border-radius:999px;background:var(--white);
+      color:var(--navy);padding:7px 12px;font-weight:800;cursor:pointer;
+    }
+    .step-chip.on{background:var(--gold);border-color:var(--navy)}
+
+    .detail-card{
+      display:flex;flex-direction:column;gap:12px;padding:18px;border:3px solid var(--navy);
+      border-radius:20px;background:rgba(255,253,247,.95);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+      min-height:0;
+    }
+    .detail-card .number{
+      align-self:flex-start;background:var(--navy);color:var(--white);
+      border-radius:999px;padding:4px 12px;font-weight:800;
+    }
+    .detail-card h3{font-size:clamp(25px,3vw,40px);line-height:1.05;color:var(--navy)}
+    .detail-card .category-badge{
+      display:inline-block;padding:4px 10px;background:var(--aqua);border:2px solid var(--blue);
+      border-radius:8px;font-weight:800;color:var(--navy);font-size:15px;align-self:flex-start;
+    }
+    .detail-card .body{font-size:clamp(17px,1.7vw,22px);font-weight:600;line-height:1.55}
+    .tip{padding:11px 13px;border:2px dashed var(--line);border-radius:14px;background:var(--white);font-weight:700;color:var(--muted);line-height:1.45}
+    .sample-sound-box{
+      display:flex;align-items:center;gap:10px;padding:12px;border:2px solid var(--gold);
+      border-radius:14px;background:var(--cream);
+    }
+    .btn-sample{
+      min-height:44px;padding:8px 16px;border:2px solid var(--navy);border-radius:12px;
+      background:var(--gold);color:var(--navy);font-weight:800;cursor:pointer;
+    }
+    .sample-sound-box p{font-weight:700;font-size:14px;color:var(--navy);flex:1}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+    .actions .btn{flex:1;min-width:140px}
+
+    /* Sound Lab Stage */
+    .sound-lab-container{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .sound-lab-container h3{font-size:clamp(22px,2.5vw,34px);color:var(--navy)}
+    .inst-selector{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;
+    }
+    .inst-card-btn{
+      min-height:64px;border:2px solid var(--line);border-radius:14px;background:var(--white);
+      padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      cursor:pointer;transition:transform .12s,border-color .12s;
+    }
+    .inst-card-btn:hover{border-color:var(--blue)}
+    .inst-card-btn.on{border-color:var(--navy);background:var(--cream);box-shadow:0 0 0 3px var(--gold)}
+    .inst-card-btn .inst-ico{font-size:24px}
+    .inst-card-btn .inst-txt{font-size:14px;font-weight:800;color:var(--navy);margin-top:2px}
+    .inst-card-btn .inst-tag{font-size:11px;font-weight:700;color:var(--blue)}
+
+    .synth-keyboard{
+      display:flex;gap:6px;justify-content:center;padding:12px 6px;background:var(--navy);
+      border-radius:18px;box-shadow:inset 0 4px 10px rgba(0,0,0,.3);overflow-x:auto;
+    }
+    .piano-key{
+      min-width:48px;height:120px;border:2px solid var(--navy);border-radius:0 0 10px 10px;
+      background:var(--white);display:flex;flex-direction:column;justify-content:flex-end;
+      align-items:center;padding-bottom:10px;cursor:pointer;user-select:none;touch-action:none;
+      transition:background .1s,transform .1s;
+    }
+    .piano-key:active,.piano-key.playing{background:var(--gold);transform:scaleY(.97)}
+    .piano-key .thai-note{font-size:16px;font-weight:800;color:var(--navy)}
+    .piano-key .eng-note{font-size:11px;font-weight:700;color:var(--muted)}
+
+    .lab-side{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .sound-visualizer{
+      min-height:90px;display:flex;align-items:center;justify-content:center;gap:5px;
+      background:var(--navy);border-radius:16px;padding:12px;
+    }
+    .wave-bar{
+      width:8px;height:20px;background:var(--gold);border-radius:4px;
+      transition:height .08s ease;
+    }
+    .wave-bar.active{height:65px;background:#48cae4}
+
+    /* Practice Stage */
+    .practice-box{
+      max-width:800px;margin:auto;display:flex;flex-direction:column;gap:16px;
+      padding:20px;border:3px solid var(--navy);border-radius:24px;
+      background:rgba(255,253,247,.98);box-shadow:8px 8px 0 rgba(18,53,91,.12);
+    }
+    .practice-header{display:flex;align-items:center;justify-content:space-between}
+    .practice-progress{font-weight:800;color:var(--blue);font-size:16px}
+    .practice-prompt{
+      font-size:clamp(20px,2.5vw,30px);font-weight:800;color:var(--navy);
+      line-height:1.35;padding:14px;border:2px dashed var(--line);border-radius:16px;background:var(--white);
+    }
+    .practice-sound-btn{
+      min-height:50px;border:2px solid var(--navy);border-radius:14px;background:var(--aqua);
+      color:var(--navy);font-size:17px;font-weight:800;cursor:pointer;display:inline-flex;
+      align-items:center;justify-content:center;gap:8px;
+    }
+    .practice-sound-btn:hover{background:var(--gold)}
+    .practice-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .opt-btn{
+      min-height:56px;border:2px solid var(--navy);border-radius:14px;background:var(--white);
+      font-size:18px;font-weight:800;color:var(--navy);cursor:pointer;padding:10px 14px;
+      text-align:left;transition:all .12s;display:flex;align-items:center;gap:10px;
+    }
+    .opt-btn:hover{background:var(--cream);border-color:var(--blue)}
+    .opt-btn.correct{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .opt-btn.wrong{background:#fee2e2;border-color:var(--bad);color:var(--bad)}
+    .opt-btn:disabled{cursor:default}
+    .practice-fb{
+      min-height:48px;padding:12px;border-radius:14px;font-weight:800;font-size:16px;
+      line-height:1.45;background:var(--white);border:2px solid var(--line);
+    }
+    .practice-fb.good{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .practice-fb.retry{background:var(--cream);border-color:var(--gold);color:#8a5600}
+
+    .footer{
+      display:flex;justify-content:space-between;gap:8px;padding:9px 16px;
+      border-top:2px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+      .btn,.opt-btn,.inst-card-btn{transition:none!important}
+    }
+    @media(max-width:900px){
+      body{padding:0}
+      .shell{min-height:100vh;border-radius:0;border-width:0}
+      .workspace{grid-template-columns:1fr}
+      .sidebar{padding:10px;overflow:visible}
+      .scene-list{display:flex;overflow-x:auto;padding-bottom:3px}
+      .scene-btn{min-width:180px}
+      .lesson-nav{display:none}
+      .learn-stage,.lab-stage{grid-template-columns:1fr;padding:10px}
+      .detail-card,.sound-lab-container,.lab-side{padding:14px}
+      .visual-frame{width:100%;max-height:none}
+      .footer{display:none}
+    }
+    @media(max-width:520px){
+      .topbar{padding:10px 12px}.topbar h1{font-size:21px}.badge{font-size:12px;padding:5px 8px}
+      .toolbar{padding:8px;gap:6px}.mode-group{width:100%;overflow:auto}
+      .mode-btn{flex:1;white-space:nowrap;padding-inline:10px;font-size:14px}
+      .toolbar-hint,.toolbar-spacer{display:none}
+      .lesson-head{padding:10px 12px;gap:10px}
+      .lesson-emoji{width:48px;height:48px;font-size:27px}
+      .lesson-copy h2{font-size:24px}.lesson-goal{font-size:14px}
+      .practice-options{grid-template-columns:1fr}
+      .piano-key{min-width:38px;height:100px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🎶 เครื่องดนตรีไทยและเสียง</h1>
+      <span class="badge">ป.1–4 · ศิลปะ</span>
+    </header>
+    
+    <div class="toolbar">
+      <div class="mode-group" role="tablist" aria-label="โหมดการเรียนรู้">
+        <button type="button" class="mode-btn on" data-mode="learn" aria-pressed="true">📖 ทำความรู้จัก</button>
+        <button type="button" class="mode-btn" data-mode="visual" aria-pressed="false">🖼️ ภาพประกอบ</button>
+        <button type="button" class="mode-btn" data-mode="lab" aria-pressed="false">🎹 ห้องทดลองเสียง</button>
+        <button type="button" class="mode-btn" data-mode="practice" aria-pressed="false">✏️ ทายเสียงปริศนา</button>
+      </div>
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-hint" id="toolbarHint">เลือกประเภทเครื่องดนตรี แล้วกดฟังคำอธิบายได้ทุกเวลา</span>
+      <button type="button" class="btn btn-listen" id="btnListen">🔊 ฟังคำอธิบาย</button>
+      <button type="button" class="btn btn-fs" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-title">4 ประเภทเครื่องดนตรีไทย</div>
+        <nav class="scene-list" id="sceneList" aria-label="เลือกประเภทเครื่องดนตรี"></nav>
+        <div class="sidebar-title" style="margin-top:18px">ลำดับการเรียน</div>
+        <div class="lesson-nav" id="lessonNav"></div>
+      </aside>
+
+      <main class="main">
+        <header class="lesson-head">
+          <div class="lesson-emoji" id="lessonEmoji">🥁</div>
+          <div class="lesson-copy">
+            <div class="lesson-kicker" id="lessonKicker">ประเภทที่ 1 จาก 4 · ศิลปะและดนตรีไทย</div>
+            <h2 id="lessonTitle">เครื่องดนตรีประเภทตี</h2>
+            <p class="lesson-goal" id="lessonGoal">เกิดเสียงจากการใช้ไม้หรือมือกระทบลงบนหน้าสัมผัส</p>
+          </div>
+        </header>
+
+        <!-- 1. Learn Mode -->
+        <section class="learn-stage" id="learnStage">
+          <div class="illustration-card">
+            <div class="visual-frame" id="learnFrame">
+              <img class="visual-image" id="learnImage" alt="ภาพเครื่องดนตรีไทย" src="/games/arts/thai-instruments-media-cover.png" decoding="async">
+              <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฟังเสียงจำลองได้</div>
+            </div>
+            <div class="step-strip" id="stepStrip"></div>
+          </div>
+          <article class="detail-card" id="detailCard">
+            <span class="number" id="detailNumber">ขั้นที่ 1</span>
+            <div class="category-badge" id="detailBadge">ประเภทตี (Percussion)</div>
+            <h3 id="detailTitle">เครื่องดนตรีประเภทตี</h3>
+            <p class="body" id="detailBody"></p>
+            <div class="sample-sound-box">
+              <button type="button" class="btn-sample" id="btnPlaySample">🎵 ฟังเสียงตัวอย่าง</button>
+              <p id="sampleText">ตัวอย่าง: ระนาดเอก (เสียงใส แกร่ง คมชัด)</p>
+            </div>
+            <p class="tip" id="detailTip"></p>
+            <div class="actions">
+              <button type="button" class="btn btn-listen" id="btnSpeakScene">🔊 อ่านคำอธิบาย</button>
+              <button type="button" class="btn btn-fs" id="btnNextScene">ประเภทถัดไป →</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- 2. Visual Mode -->
+        <section class="visual-stage" id="visualStage" aria-label="ฉากภาพประกอบ">
+          <div class="visual-frame" id="visualFrame">
+            <img class="visual-image" id="visualImage" alt="ภาพเครื่องดนตรีไทย" src="/games/arts/thai-instruments-media-cover.png" decoding="async">
+            <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฟังเสียงจำลองได้</div>
+            <article class="visual-overlay" id="visualOverlay" tabindex="0" aria-label="กดเพื่อฟังคำบรรยายซ้ำ">
+              <h3 id="visualTitle"></h3>
+              <p id="visualBody"></p>
+              <div class="sound-state" id="visualSound">🔊 แตะการ์ดนี้เพื่อฟังคำบรรยายและเสียงดนตรี</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 3. Sound Lab Mode -->
+        <section class="lab-stage" id="labStage" aria-label="ห้องทดลองเสียงเครื่องดนตรีไทย">
+          <div class="sound-lab-container">
+            <h3>🎹 เลือกเครื่องดนตรีไทยเพื่อทดลองบรรเลง</h3>
+            <div class="inst-selector" id="instSelector"></div>
+            <div style="margin-top:10px">
+              <p style="font-weight:800;color:var(--navy);margin-bottom:8px">คีย์บอร์ด 8 โน้ต (แตะเพื่อเล่นเสียงจริงผ่าน Web Audio Synthesizer):</p>
+              <div class="synth-keyboard" id="synthKeyboard">
+                <button type="button" class="piano-key" data-note="C4"><span class="thai-note">โด</span><span class="eng-note">C4</span></button>
+                <button type="button" class="piano-key" data-note="D4"><span class="thai-note">เร</span><span class="eng-note">D4</span></button>
+                <button type="button" class="piano-key" data-note="E4"><span class="thai-note">มี</span><span class="eng-note">E4</span></button>
+                <button type="button" class="piano-key" data-note="F4"><span class="thai-note">ฟา</span><span class="eng-note">F4</span></button>
+                <button type="button" class="piano-key" data-note="G4"><span class="thai-note">ซอล</span><span class="eng-note">G4</span></button>
+                <button type="button" class="piano-key" data-note="A4"><span class="thai-note">ลา</span><span class="eng-note">A4</span></button>
+                <button type="button" class="piano-key" data-note="B4"><span class="thai-note">ที</span><span class="eng-note">B4</span></button>
+                <button type="button" class="piano-key" data-note="C5"><span class="thai-note">โด๊</span><span class="eng-note">C5</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="lab-side">
+            <h3 id="labInstTitle">ระนาดเอก</h3>
+            <p id="labInstDesc" style="line-height:1.55;font-weight:600;font-size:16px;color:var(--navy)">
+              ทำด้วยไม้เนื้อแข็ง แขวนบนรางเสียง ให้เสียงใส คมชัด ดำเนินทำนองนำในวงปี่พาทย์
+            </p>
+            <div style="margin-top:8px">
+              <p style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px">คลื่นเสียงสังเคราะห์ (Audio Wave Simulation):</p>
+              <div class="sound-visualizer" id="visualizer">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+              </div>
+            </div>
+            <div class="tip" id="labTip">
+              💡 <strong>ข้อสังเกต:</strong> เครื่องดนตรีแต่ละชนิดมีกลไกกำเนิดเสียง (Envelope) ต่างกัน เช่น ระนาดเอกเสียงจะตกเร็ว ส่วนขิมและซอจะมีความกังวานและลูกคอยาวนาน
+            </div>
+            <button type="button" class="btn btn-listen" id="btnPlayScale" style="margin-top:auto">🎶 เล่นไล่เสียงทำนองไทย (Scale Demo)</button>
+          </div>
+        </section>
+
+        <!-- 4. Practice Mode -->
+        <section class="practice-stage" id="practiceStage" aria-label="แบบฝึกหัดทายเสียงและจำแนก">
+          <div class="practice-box">
+            <div class="practice-header">
+              <span class="practice-progress" id="quizProg">คำถามที่ 1 จาก 6</span>
+              <button type="button" class="btn btn-listen" id="btnRestartQuiz" style="min-height:36px;padding:4px 12px">↺ เริ่มใหม่</button>
+            </div>
+            <div class="practice-prompt" id="quizQuestion">เสียงเครื่องดนตรีไทยที่ได้ยินนี้ คือเครื่องดนตรีประเภทใด?</div>
+            <button type="button" class="practice-sound-btn" id="btnQuizSound">
+              🔊 กดฟังเสียงปริศนา
+            </button>
+            <div class="practice-options" id="quizOptions"></div>
+            <div class="practice-fb" id="quizFeedback">กดปุ่มฟังเสียงปริศนา แล้วเลือกคำตอบ</div>
+            <button type="button" class="btn btn-fs" id="btnNextQuiz" style="display:none;align-self:flex-end">ข้อถัดไป →</button>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>สื่อการเรียนรู้ศิลปะ · ดนตรีไทย ป.1–4 · บ้านคำไผ่</span>
+          <span>สังเคราะห์เสียงตามหลัก Acoustic Physics ด้วย Web Audio API</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  (()=>{
+    'use strict';
+
+    const MEDIA_SLUG = 'thai-instruments-media';
+    if (window.KAMPAI) {
+      try {
+        KAMPAI.setSlug(MEDIA_SLUG);
+        KAMPAI.sound?.mountToggles?.();
+      } catch (_) {}
+    }
+
+    // ข้อมูล 4 ประเภทเครื่องดนตรีไทยหลัก (หมวดการเรียนรู้)
+    const SCENES = [
+      {
+        id: 'percussion',
+        icon: '🥁',
+        label: 'เครื่องตี',
+        kicker: 'ประเภทที่ 1 จาก 4 · เกิดเสียงจากการกระทบ',
+        title: 'เครื่องดนตรีประเภทตี',
+        categoryTag: 'ประเภทตี (Percussion)',
+        goal: 'ใช้ไม้ตีหรือมือกระทบ เช่น ระนาดเอก ฆ้องวง กลองยาว',
+        body: 'เครื่องดนตรีประเภทตี เกิดเสียงจากการนำไม้หรือมือกระทบลงบนหน้าสัมผัสของวัตถุ เช่น ไม้ระนาด แผ่นโลหะ หรือหนังกลอง แรงสั่นสะเทือนจะส่งผ่านอากาศทำให้เกิดเสียงที่มีความทึบ แน่น หรือกังวานใสตามเนื้อวัสดุ',
+        tip: '💡 ข้อสังเกต: ตีเบาจะให้เสียงนุ่มนวล ตีแรงจะให้เสียงดังกังวาน',
+        speak: 'ประเภทที่หนึ่ง เครื่องดนตรีประเภทตี เกิดเสียงเมื่อเราใช้ไม้หรือมือกระทบ เช่น ระนาดเอก และกลองยาว เสียงสั้นยาวต่างกันตามวัสดุ',
+        sampleInst: 'ranat-ek',
+        sampleText: 'ตัวอย่าง: ระนาดเอก (เสียงใส คมชัด เคาะบนรางไม้)'
+      },
+      {
+        id: 'bowed',
+        icon: '🎻',
+        label: 'เครื่องสี',
+        kicker: 'ประเภทที่ 2 จาก 4 · เกิดเสียงจากการเสียดสี',
+        title: 'เครื่องดนตรีประเภทสี',
+        categoryTag: 'ประเภทสี (Bowed Strings)',
+        goal: 'ใช้คันชักถูกับสายให้เกิดการสั่นสะเทือนต่อเนื่อง เช่น ซอด้วง ซออู้',
+        body: 'เครื่องดนตรีประเภทสี ใช้คันชักที่มีหางม้าถูเสียดสีกับสาย เพื่อให้สายสั่นสะเทือนอย่างต่อเนื่อง ผู้เล่นสามารถใช้นิ้วมือกดสายเพื่อเปลี่ยนความยาวของสาย ทำให้เกิดเสียงสูงต่ำตามต้องการ',
+        tip: '💡 ข้อสังเกต: ซอด้วงเสียงแหลมสูง ส่วนซออู้ที่ใช้กะลามะพร้าวจะให้เสียงทุ้มนุ่มนวล',
+        speak: 'ประเภทที่สอง เครื่องดนตรีประเภทสี ใช้คันชักถูสายให้สั่นต่อเนื่อง เช่น ซอด้วง และซออู้ เสียงจะทุ้มหรือแหลมขึ้นอยู่กับขนาดกะโหลกซอและความตึงของสาย',
+        sampleInst: 'saw-duang',
+        sampleText: 'ตัวอย่าง: ซอด้วง (เสียงแหลมสูง กังวานพลิ้วไหว)'
+      },
+      {
+        id: 'wind',
+        icon: '🎋',
+        label: 'เครื่องเป่า',
+        kicker: 'ประเภทที่ 3 จาก 4 · เกิดเสียงจากลมหายใจ',
+        title: 'เครื่องดนตรีประเภทเป่า',
+        categoryTag: 'ประเภทเป่า (Woodwind)',
+        goal: 'ใช้ลมเป่าผ่านช่องลมหรือลิ้นให้ลำอากาศสั่นสะเทือน เช่น ขลุ่ยเพียงอ้อ ปี่ใน',
+        body: 'เครื่องดนตรีประเภทเป่า เกิดเสียงจากลมหายใจของผู้เล่นที่เป่าผ่านรูเป่าหรือลิ้น ทำให้ลำอากาศภายในท่อเกิดการสั่นสะเทือน เปลี่ยนระดับเสียงได้โดยการใช้นิ้วเปิด-ปิดรูบนเลาขลุ่ยหรือปี่',
+        tip: '💡 ข้อสังเกต: ขลุ่ยเพียงอ้อไม่มีลิ้นเสียงจะนุ่มโหยหวน ส่วนปี่มีลิ้นเสียงจะดังแหลมสะบัด',
+        speak: 'ประเภทที่สาม เครื่องดนตรีประเภทเป่า ใช้ลมหายใจทำให้ช่องอากาศภายในสั่นสะเทือน เช่น ขลุ่ยเพียงอ้อ และปี่ใน เสียงเปลี่ยนตามการเปิดปิดรูนิ้ว',
+        sampleInst: 'khlui',
+        sampleText: 'ตัวอย่าง: ขลุ่ยเพียงอ้อ (เสียงนุ่มนวล พริ้วไหว มีลมแฝง)'
+      },
+      {
+        id: 'plucked',
+        icon: '🪕',
+        label: 'เครื่องดีด',
+        kicker: 'ประเภทที่ 4 จาก 4 · เกิดเสียงจากการเกี่ยวดึงสาย',
+        title: 'เครื่องดนตรีประเภทดีด',
+        categoryTag: 'ประเภทดีด (Plucked Strings)',
+        goal: 'ใช้นิ้วหรือไม้ดีดสายให้สั่นกังวาน เช่น จะเข้ พิณน้ำเต้า ซึง',
+        body: 'เครื่องดนตรีประเภทดีด เล่นโดยการใช้นิ้วมือหรือไม้ดีดปลายแหลมสะกิดดึงสายให้สั่นสะเทือน เสียงที่ได้จะมีความกังวานตามกล่องเสียงที่ทำจากไม้เนื้อดี แล้วค่อยๆ จางหายไปอย่างไพเราะ',
+        tip: '💡 ข้อสังเกต: จะเข้วางราบกับพื้น ผู้เล่นนั่งพับเพียบดีดด้วยไม้รัดนิ้ว',
+        speak: 'ประเภทที่สี่ เครื่องดนตรีประเภทดีด ใช้มือหรือไม้ดีดสายให้สั่น เช่น จะเข้ และพิณ เสียงจะกังวานใสก้องในกล่องเสียง',
+        sampleInst: 'jakhe',
+        sampleText: 'ตัวอย่าง: จะเข้ (เสียงดีดสายก้องกังวาน ชัดเจน)'
+      }
+    ];
+
+    // รายชื่อเครื่องดนตรีสำหรับห้องทดลองเสียง (Web Audio Synthesizer)
+    const INSTRUMENTS = [
+      {
+        id: 'ranat-ek',
+        nameTh: 'ระนาดเอก',
+        category: 'เครื่องตี',
+        icon: '🎹',
+        desc: 'ผืนระนาดร้อยแขวนบนรางไม้เนื้อแข็ง เสียงใส แกร่ง คมชัด เป็นผู้นำในวงปี่พาทย์',
+        synth: { type: 'sine', attack: 0.002, decay: 0.09, sustain: 0.0, release: 0.06, freqMult: 2.0, filter: 2400 }
+      },
+      {
+        id: 'khim',
+        nameTh: 'ขิม',
+        category: 'เครื่องตี',
+        icon: '📐',
+        desc: 'ใช้ไม้ตีปลายอ่อนเคาะสายลวดทองเหลือง เสียงกังวานใสหวานฉ่ำทอดเสียงยาว',
+        synth: { type: 'triangle', attack: 0.004, decay: 0.35, sustain: 0.1, release: 0.35, freqMult: 1.5, filter: 2800 }
+      },
+      {
+        id: 'klong-yao',
+        nameTh: 'กลองยาว',
+        category: 'เครื่องตี',
+        icon: '🥁',
+        desc: 'กลองขึงหนังหน้าเดียว ตีด้วยมือเป็นจังหวะสนุกสนานเร้าใจในขบวนแห่',
+        synth: { type: 'sine', attack: 0.001, decay: 0.22, sustain: 0.0, release: 0.2, freqMult: 0.5, pitchDecay: true, filter: 450 }
+      },
+      {
+        id: 'saw-duang',
+        nameTh: 'ซอด้วง',
+        category: 'เครื่องสี',
+        icon: '🎻',
+        desc: 'กระบอกไม้ขึงหนังงู คันชักอยู่ระหว่างสาย เสียงแหลมสูง ก้องกังวาน ดำเนินทำนองนำ',
+        synth: { type: 'sawtooth', attack: 0.08, decay: 0.08, sustain: 0.8, release: 0.15, freqMult: 2.0, vibrato: true, filter: 1600 }
+      },
+      {
+        id: 'saw-u',
+        nameTh: 'ซออู้',
+        category: 'เครื่องสี',
+        icon: '🥥',
+        desc: 'กะโหลกซอทำจากกะลามะพร้าวตัดครึ่ง เสียงทุ้มนุ่ม ลึกซึ้ง ไพเราะอบอุ่น',
+        synth: { type: 'triangle', attack: 0.12, decay: 0.1, sustain: 0.7, release: 0.2, freqMult: 1.0, vibrato: true, filter: 850 }
+      },
+      {
+        id: 'khlui',
+        nameTh: 'ขลุ่ยเพียงอ้อ',
+        category: 'เครื่องเป่า',
+        icon: '🎋',
+        desc: 'ทำจากไม้รวก ไม่มีลิ้น ลมเป่าผ่านดากไม้ เสียงหวานนุ่มนวล โหยหวนพลิ้วไหว',
+        synth: { type: 'sine', attack: 0.08, decay: 0.05, sustain: 0.85, release: 0.12, freqMult: 1.5, vibrato: true, noise: 0.1, filter: 1300 }
+      },
+      {
+        id: 'jakhe',
+        nameTh: 'จะเข้',
+        category: 'เครื่องดีด',
+        icon: '🪕',
+        desc: 'มี 3 สาย วางราบกับพื้น ดีดด้วยไม้ดีดทรงกรวยปลายแหลม เสียงใสคมชัด ก้องกังวาน',
+        synth: { type: 'triangle', attack: 0.005, decay: 0.18, sustain: 0.0, release: 0.12, freqMult: 1.0, filter: 1900 }
+      },
+      {
+        id: 'phin',
+        nameTh: 'พิณอีสาน',
+        category: 'เครื่องดีด',
+        icon: '🎸',
+        desc: 'เครื่องดนตรีพื้นบ้าน มี 2–4 สาย ใช้นิ้วดีดจังหวะม่วนชื่น เสียงแหลมใสกระชับ',
+        synth: { type: 'sawtooth', attack: 0.01, decay: 0.14, sustain: 0.0, release: 0.08, freqMult: 2.0, filter: 1350 }
+      }
+    ];
+
+    // โน้ตความถี่มาตรฐาน
+    const NOTE_FREQS = {
+      'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
+      'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+    };
+
+    // คำถามแบบฝึกหัด (ทั้งจำแนกหมวดและทายเสียง)
+    const QUIZZES = [
+      {
+        type: 'sound',
+        instId: 'ranat-ek',
+        question: 'เสียงเครื่องดนตรีไทยที่กำลังได้ยินนี้ คือเครื่องดนตรีชนิดใด?',
+        options: [
+          { text: 'ระนาดเอก', correct: true, explain: 'ถูกต้อง! เสียงเคาะคมชัดใสสั้น คือเอกลักษณ์ของระนาดเอก' },
+          { text: 'ซออู้', correct: false, explain: 'ยังไม่ใช่ ซออู้เป็นเครื่องสีที่มีเสียงทุ้มยาวต่อเนื่อง' },
+          { text: 'ขลุ่ยเพียงอ้อ', correct: false, explain: 'ยังไม่ใช่ ขลุ่ยเป็นเครื่องเป่าที่มีเสียงลมพริ้วไหว' },
+          { text: 'จะเข้', correct: false, explain: 'ยังไม่ใช่ จะเข้เป็นเครื่องดีดที่มีเสียงสายโลหะ' }
+        ]
+      },
+      {
+        type: 'sound',
+        instId: 'khlui',
+        question: 'เสียงพริ้วไหวนุ่มนวลที่มีลมแฝงนี้ คือเครื่องดนตรีชนิดใด?',
+        options: [
+          { text: 'กลองยาว', correct: false, explain: 'ยังไม่ใช่ กลองยาวเป็นเครื่องตีเสียงทุ้มแน่น' },
+          { text: 'ขลุ่ยเพียงอ้อ', correct: true, explain: 'ถูกต้อง! เสียงเป่าลมผ่านท่อเสียงใสโหยหวน คือขลุ่ยเพียงอ้อ' },
+          { text: 'ซอด้วง', correct: false, explain: 'ยังไม่ใช่ ซอด้วงเป็นเครื่องสีที่เสียงแหลมสูง' },
+          { text: 'ขิม', correct: false, explain: 'ยังไม่ใช่ ขิมเป็นเครื่องตีสายโลหะ' }
+        ]
+      },
+      {
+        type: 'sound',
+        instId: 'saw-u',
+        question: 'เสียงทุ้มนุ่มลึกที่ลากยาวต่อเนื่องนี้ เกิดจากเครื่องดนตรีใด?',
+        options: [
+          { text: 'ระนาดเอก', correct: false, explain: 'ระนาดเอกเป็นเครื่องตีเสียงสั้นคม' },
+          { text: 'จะเข้', correct: false, explain: 'จะเข้เป็นเครื่องดีด' },
+          { text: 'ซออู้', correct: true, explain: 'ถูกต้อง! กะโหลกซอที่ทำจากกะลามะพร้าวทำให้ซออู้มีเสียงทุ้มนุ่มนวล' },
+          { text: 'พิณ', correct: false, explain: 'พิณเป็นเครื่องดนตรีประเภทดีด' }
+        ]
+      },
+      {
+        type: 'sound',
+        instId: 'jakhe',
+        question: 'เสียงดนตรีไทยข้อใดที่กำลังบรรเลงอยู่นี้?',
+        options: [
+          { text: 'ขลุ่ยเพียงอ้อ', correct: false, explain: 'ขลุ่ยเป็นเครื่องเป่า' },
+          { text: 'จะเข้', correct: true, explain: 'ถูกต้อง! เสียงดีดสายสะบัดด้วยไม้ดีดปลายแหลมคือ จะเข้' },
+          { text: 'ซอด้วง', correct: false, explain: 'ซอด้วงใช้คันชักสีสาย' },
+          { text: 'กลองยาว', correct: false, explain: 'กลองยาวเป็นเครื่องตี' }
+        ]
+      },
+      {
+        type: 'concept',
+        question: 'ถ้าเห็นนักดนตรีกำลังใช้ "คันชักถูสาย" เครื่องดนตรีนั้นจัดอยู่ในประเภทใด?',
+        options: [
+          { text: 'ประเภทดีด', correct: false, explain: 'ประเภทดีดใช้นิ้วหรือไม้ดีด ไม่ใช้คันชัก' },
+          { text: 'ประเภทสี', correct: true, explain: 'ถูกต้อง! เครื่องดนตรีประเภทสี เช่น ซอด้วง ซออู้ ใช้คันชักถูสายให้สั่น' },
+          { text: 'ประเภทตี', correct: false, explain: 'ประเภทตีใช้ไม้หรือมือกระทบ' },
+          { text: 'ประเภทเป่า', correct: false, explain: 'ประเภทเป่าใช้ลมหายใจ' }
+        ]
+      },
+      {
+        type: 'concept',
+        question: 'กะโหลกของ "ซออู้" มักทำจากวัสดุธรรมชาติชนิดใด เพื่อให้เสียงทุ้มนุ่ม?',
+        options: [
+          { text: 'กระบอกไม้ไผ่', correct: false, explain: 'กระบอกไม้ไผ่มักนำมาทำขลุ่ย' },
+          { text: 'กะลามะพร้าว', correct: true, explain: 'ถูกต้อง! กะลามะพร้าวทรงกลมตัดครึ่งช่วยสร้างกล่องเสียงที่ทุ้มนุ่ม' },
+          { text: 'ดินเผาเคลือบ', correct: false, explain: 'ดินเผาไม่นิยมใช้ทำกะโหลกซอไทย' },
+          { text: 'แผ่นโลหะทองเหลือง', correct: false, explain: 'โลหะทองเหลืองมักใช้ทำฆ้องหรือฉิ่ง' }
+        ]
+      }
+    ];
+
+    // State
+    const $ = id => document.getElementById(id);
+    const state = {
+      mode: 'learn',
+      scene: 0,
+      selectedLabInst: 0,
+      quizIdx: 0,
+      quizAnswered: false,
+      audioCtx: null
+    };
+
+    // ═══ WEB AUDIO SYNTHESIZER ═══
+    function getAudioContext() {
+      if (!state.audioCtx) {
+        state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (state.audioCtx.state === 'suspended') {
+        state.audioCtx.resume();
+      }
+      return state.audioCtx;
+    }
+
+    function triggerVisualizer() {
+      const bars = document.querySelectorAll('.wave-bar');
+      bars.forEach((b, i) => {
+        b.classList.add('active');
+        setTimeout(() => b.classList.remove('active'), 150 + (i * 25));
+      });
+    }
+
+    function playNote(noteKey, overrideInst = null) {
+      const freq = NOTE_FREQS[noteKey];
+      if (!freq) return;
+
+      triggerVisualizer();
+      const inst = overrideInst || INSTRUMENTS[state.selectedLabInst];
+      const s = inst.synth;
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = s.type;
+      const finalFreq = freq * (s.freqMult || 1.0);
+      osc.frequency.setValueAtTime(finalFreq, now);
+
+      if (s.pitchDecay) {
+        osc.frequency.exponentialRampToValueAtTime(finalFreq / 3.5, now + (s.decay || 0.2));
+      }
+
+      if (s.vibrato) {
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 5.5; // 5.5Hz vibrato
+        lfoGain.gain.value = finalFreq * 0.02;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start(now);
+        lfo.stop(now + 1.6);
+      }
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(s.filter || 2000, now);
+
+      const a = s.attack || 0.01;
+      const d = s.decay || 0.15;
+      const sus = s.sustain !== undefined ? s.sustain : 0.5;
+      const r = s.release || 0.15;
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.65, now + a);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, sus * 0.65), now + a + d);
+
+      if (s.noise) {
+        const bufSize = ctx.sampleRate * 1.2;
+        const nBuffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const out = nBuffer.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) out[i] = Math.random() * 2 - 1;
+        const noiseSrc = ctx.createBufferSource();
+        noiseSrc.buffer = nBuffer;
+
+        const nFilter = ctx.createBiquadFilter();
+        nFilter.type = 'bandpass';
+        nFilter.frequency.value = finalFreq;
+        nFilter.Q.value = 7;
+
+        const nGain = ctx.createGain();
+        nGain.gain.setValueAtTime(0, now);
+        nGain.gain.linearRampToValueAtTime(s.noise * 0.12, now + a);
+        nGain.gain.exponentialRampToValueAtTime(0.0001, now + a + d + 0.3);
+
+        noiseSrc.connect(nFilter);
+        nFilter.connect(nGain);
+        nGain.connect(filter);
+        noiseSrc.start(now);
+        noiseSrc.stop(now + a + d + 0.3);
+      }
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      const playDur = sus === 0 ? (a + d) : 0.65;
+      const stopAt = now + playDur;
+      gain.gain.setValueAtTime(gain.gain.value, stopAt);
+      gain.gain.exponentialRampToValueAtTime(0.0001, stopAt + r);
+      osc.stop(stopAt + r + 0.05);
+    }
+
+    function playMelody(inst, notes) {
+      notes.forEach((item, idx) => {
+        setTimeout(() => {
+          playNote(item.note, inst);
+        }, item.delay);
+      });
+    }
+
+    // ═══ TTS & Audio Speech ═══
+    function stopSpeak() {
+      try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+      try { window.speechSynthesis?.cancel(); } catch (_) {}
+    }
+
+    function speak(text) {
+      stopSpeak();
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          window.KAMPAI.sound.speak(text, 'th-TH', true);
+          return;
+        }
+      } catch (_) {}
+      if ('speechSynthesis' in window) {
+        try {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'th-TH';
+          u.rate = 0.88;
+          window.speechSynthesis.speak(u);
+        } catch (_) {}
+      }
+    }
+
+    // ═══ UI Rendering & Navigation ═══
+    function currentScene() { return SCENES[state.scene] || SCENES[0]; }
+
+    function renderNavigation() {
+      $('sceneList').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="scene-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          <span class="scene-icon">${scene.icon}</span>
+          <span>${scene.label}</span>
+        </button>
+      `).join('');
+
+      $('lessonNav').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="lesson-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${idx + 1}
+        </button>
+      `).join('');
+
+      $('stepStrip').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="step-chip ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${scene.icon} ${scene.label}
+        </button>
+      `).join('');
+    }
+
+    function renderScene() {
+      const s = currentScene();
+      $('lessonEmoji').textContent = s.icon;
+      $('lessonKicker').textContent = s.kicker;
+      $('lessonTitle').textContent = s.title;
+      $('lessonGoal').textContent = s.goal;
+
+      $('detailNumber').textContent = `ประเภทที่ ${state.scene + 1} จาก ${SCENES.length}`;
+      $('detailBadge').textContent = s.categoryTag;
+      $('detailTitle').textContent = s.title;
+      $('detailBody').textContent = s.body;
+      $('detailTip').textContent = s.tip;
+      $('sampleText').textContent = s.sampleText;
+
+      $('visualTitle').textContent = s.title;
+      $('visualBody').textContent = s.body;
+      renderNavigation();
+    }
+
+    function setMode(mode) {
+      stopSpeak();
+      state.mode = mode;
+      const shell = $('shell');
+      shell.classList.remove('visual-mode', 'practice-mode', 'lab-mode');
+      if (mode !== 'learn') shell.classList.add(`${mode}-mode`);
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        const active = btn.dataset.mode === mode;
+        btn.classList.toggle('on', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+
+      const hints = {
+        learn: 'เลือกประเภทเครื่องดนตรี แล้วกดฟังคำอธิบายได้ทุกเวลา',
+        visual: 'แตะการ์ดภาพเพื่อฟังคำบรรยายประกอบภาพ',
+        lab: 'เลือกเครื่องดนตรีไทย แล้วแตะคีย์บอร์ดเพื่อฟังเสียงจำลอง',
+        practice: 'ฟังเสียงปริศนา หรืออ่านคำถาม แล้วเลือกคำตอบที่ถูกต้อง'
+      };
+      $('toolbarHint').textContent = hints[mode] || '';
+
+      if (mode === 'lab') renderSoundLab();
+      if (mode === 'practice') renderQuiz();
+    }
+
+    // ═══ Sound Lab UI ═══
+    function renderSoundLab() {
+      const selector = $('instSelector');
+      selector.innerHTML = INSTRUMENTS.map((inst, idx) => `
+        <button type="button" class="inst-card-btn ${state.selectedLabInst === idx ? 'on' : ''}" data-lab-inst="${idx}">
+          <span class="inst-ico">${inst.icon}</span>
+          <span class="inst-txt">${inst.nameTh}</span>
+          <span class="inst-tag">${inst.category}</span>
+        </button>
+      `).join('');
+
+      const inst = INSTRUMENTS[state.selectedLabInst];
+      $('labInstTitle').textContent = `${inst.icon} ${inst.nameTh} (${inst.category})`;
+      $('labInstDesc').textContent = inst.desc;
+    }
+
+    function selectLabInstrument(idx) {
+      state.selectedLabInst = idx;
+      renderSoundLab();
+      playNote('C4'); // preview
+    }
+
+    // ═══ Practice / Quiz UI ═══
+    function renderQuiz() {
+      const q = QUIZZES[state.quizIdx];
+      $('quizProg').textContent = `คำถามที่ ${state.quizIdx + 1} จาก ${QUIZZES.length}`;
+      $('quizQuestion').textContent = q.question;
+      $('btnQuizSound').style.display = q.type === 'sound' ? 'inline-flex' : 'none';
+      $('btnNextQuiz').style.display = 'none';
+      state.quizAnswered = false;
+
+      $('quizOptions').innerHTML = q.options.map((opt, i) => `
+        <button type="button" class="opt-btn" data-opt="${i}">
+          <span>${['ก', 'ข', 'ค', 'ง'][i]}.</span>
+          <span>${opt.text}</span>
+        </button>
+      `).join('');
+
+      $('quizFeedback').textContent = q.type === 'sound' 
+        ? '🔊 กดปุ่ม "ฟังเสียงปริศนา" ด้านบน แล้วเลือกคำตอบ' 
+        : 'อ่านคำถามแล้วเลือกคำตอบที่ถูกต้องที่สุด';
+      $('quizFeedback').className = 'practice-fb';
+
+      if (q.type === 'sound') {
+        setTimeout(playQuizSound, 300);
+      }
+    }
+
+    function playQuizSound() {
+      const q = QUIZZES[state.quizIdx];
+      if (q.type !== 'sound') return;
+      const inst = INSTRUMENTS.find(it => it.id === q.instId) || INSTRUMENTS[0];
+      playMelody(inst, [
+        { note: 'C4', delay: 0 },
+        { note: 'E4', delay: 280 },
+        { note: 'G4', delay: 560 },
+        { note: 'C5', delay: 840 }
+      ]);
+    }
+
+    function answerQuiz(idx) {
+      if (state.quizAnswered) return;
+      state.quizAnswered = true;
+
+      const q = QUIZZES[state.quizIdx];
+      const opt = q.options[idx];
+      const isOk = opt.correct;
+
+      const buttons = document.querySelectorAll('.opt-btn');
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (q.options[i].correct) btn.classList.add('correct');
+        else if (i === idx) btn.classList.add('wrong');
+      });
+
+      const fb = $('quizFeedback');
+      fb.textContent = opt.explain;
+      fb.className = `practice-fb ${isOk ? 'good' : 'retry'}`;
+
+      try {
+        window.KAMPAI?.sound?.[isOk ? 'correct' : 'wrong']?.();
+      } catch (_) {}
+
+      speak(opt.explain);
+      $('btnNextQuiz').style.display = 'inline-flex';
+    }
+
+    // ═══ Event Listeners ═══
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.addEventListener('click', () => setMode(b.dataset.mode));
+    });
+
+    $('btnBack').addEventListener('click', () => {
+      stopSpeak();
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    });
+
+    $('btnListen').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnSpeakScene').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('visualOverlay').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnNextScene').addEventListener('click', () => {
+      stopSpeak();
+      state.scene = (state.scene + 1) % SCENES.length;
+      renderScene();
+    });
+
+    $('btnPlaySample').addEventListener('click', () => {
+      const s = currentScene();
+      const inst = INSTRUMENTS.find(it => it.id === s.sampleInst) || INSTRUMENTS[0];
+      playMelody(inst, [
+        { note: 'C4', delay: 0 },
+        { note: 'D4', delay: 240 },
+        { note: 'E4', delay: 480 },
+        { note: 'G4', delay: 720 },
+        { note: 'A4', delay: 960 },
+        { note: 'C5', delay: 1200 }
+      ]);
+    });
+
+    $('btnPlayScale').addEventListener('click', () => {
+      const inst = INSTRUMENTS[state.selectedLabInst];
+      playMelody(inst, [
+        { note: 'C4', delay: 0 },
+        { note: 'D4', delay: 220 },
+        { note: 'E4', delay: 440 },
+        { note: 'F4', delay: 660 },
+        { note: 'G4', delay: 880 },
+        { note: 'A4', delay: 1100 },
+        { note: 'B4', delay: 1320 },
+        { note: 'C5', delay: 1540 }
+      ]);
+    });
+
+    $('synthKeyboard').addEventListener('pointerdown', e => {
+      const key = e.target.closest('.piano-key');
+      if (key) {
+        key.classList.add('playing');
+        playNote(key.dataset.note);
+        setTimeout(() => key.classList.remove('playing'), 200);
+      }
+    });
+
+    $('instSelector').addEventListener('click', e => {
+      const b = e.target.closest('[data-lab-inst]');
+      if (b) selectLabInstrument(Number(b.dataset.labInst));
+    });
+
+    $('btnQuizSound').addEventListener('click', playQuizSound);
+
+    $('quizOptions').addEventListener('click', e => {
+      const b = e.target.closest('[data-opt]');
+      if (b) answerQuiz(Number(b.dataset.opt));
+    });
+
+    $('btnNextQuiz').addEventListener('click', () => {
+      state.quizIdx = (state.quizIdx + 1) % QUIZZES.length;
+      renderQuiz();
+    });
+
+    $('btnRestartQuiz').addEventListener('click', () => {
+      state.quizIdx = 0;
+      renderQuiz();
+    });
+
+    $('sceneList').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('lessonNav').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('stepStrip').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('btnFs').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeak();
+    });
+    window.addEventListener('pagehide', stopSpeak);
+
+    // Initial setup
+    renderScene();
+    renderSoundLab();
+
+    // Read-only QA State Inspector
+    window.ThaiInstrumentsMedia = Object.freeze({
+      getState: () => Object.freeze({
+        mode: state.mode,
+        scene: state.scene,
+        selectedLabInst: state.selectedLabInst,
+        quizIdx: state.quizIdx,
+        quizAnswered: state.quizAnswered
+      })
+    });
+  })();
+  </script>
+</body>
+</html>
