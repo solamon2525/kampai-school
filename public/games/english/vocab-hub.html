@@ -1303,7 +1303,21 @@ html,body{width:100%;height:100%;height:100dvh;background:#1565C0;overflow:hidde
     text-align: center;
   }
   .lb-controls {
-    gap: 8px;
+    gap: 6px;
+  }
+  .lb-nav-btn {
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+  .lb-play-btn {
+    padding: 6px 16px;
+    font-size: 16px;
+  }
+  .lb-speed-group {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
   }
 }
 </style>
@@ -2592,6 +2606,12 @@ function buildCell(item, sIdx, cIdx){
     setHl(sIdx,cIdx);
     triggerSpeak();
   });
+  // ดับเบิลคลิกเพื่อเปิดโหมดขยายใหญ่ 3 เท่า (ไลท์บ็อกซ์) ตรงคำนี้ทันที
+  el.addEventListener('dblclick', e=>{
+    if(mode!=='auto') return;
+    e.stopPropagation();
+    openLightbox(item);
+  });
   return el;
 }
 function syncReadingVisibility(){
@@ -3113,7 +3133,7 @@ function resumeAuto(){
 // =====================================================================
 // LIGHTBOX MODE (ขยายใหญ่ 3 เท่า — สไลด์โชว์ในห้องเรียน)
 // =====================================================================
-function openLightbox(){
+function openLightbox(targetItem){
   if(!allItems || allItems.length === 0) return;
   isLightboxActive = true;
   lightboxOverlay.style.display = 'flex';
@@ -3132,7 +3152,11 @@ function openLightbox(){
   document.querySelectorAll('.lb-spd').forEach(b => b.classList.toggle('on', +b.dataset.ms === cellMs));
 
   // หาตำแหน่งคำปัจจุบัน
-  lbFlatIndex = allItems.indexOf(curItem);
+  if(targetItem && allItems.includes(targetItem)){
+    lbFlatIndex = allItems.indexOf(targetItem);
+  } else {
+    lbFlatIndex = allItems.indexOf(curItem);
+  }
   if(lbFlatIndex < 0) lbFlatIndex = 0;
   
   // ค่าเริ่มต้นหยุดพักไว้ เพื่อให้ครูเป็นผู้สั่งเล่นต่อเนื่อง
