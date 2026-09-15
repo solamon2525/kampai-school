@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.62 (คลังสื่อการเรียนรู้ — โคลนสื่อคำศัพท์ภาษาอังกฤษไปยัง ครูมะลิวัลย์ จรุงพันธ์)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'โคลนสื่อการเรียนรู้ "คำศัพท์ภาษาอังกฤษ (Vocabulary Hub)" ไปยังครูผู้สอน นางสาวมะลิวัลย์ จรุงพันธ์ (หัวหน้ากลุ่มสาระ)',
+            'สร้าง Migration 513 บันทึกสำเนาสื่อใน educational_hub_items พร้อมเชื่อมโยง game_docs ข้อมูลรายละเอียดสื่อครบถ้วน',
+            'เปิดใช้งานสื่อเรียบร้อย (is_published = true) สามารถเข้าถึงและจัดการผ่านพอร์ตัลครูได้ทันที',
+        ],
+    },
+    {
         version: 'v1.229.61 (Vocab Hub — ภาพประกอบผักชุดใหม่ Lettuce, Spinach, Kale, Celery, Radish, Beetroot)',
         date: '15 ก.ย. 2569',
         badge: 'bg-amber-600',
