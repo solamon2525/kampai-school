@@ -1,1 +1,1128 @@
-<!doctype html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ความปลอดภัยในการทำงาน</title><script src="/games/kampai-sdk.js?v=1.181.0"></script><script>const MEDIA_SLUG='workplace-safety-media';window.MEDIA_CONFIG={slug:MEDIA_SLUG,stateKey:'WorkplaceSafetyMedia',icon:'🦺',title:'ความปลอดภัยในการทำงานและเครื่องมือ',grade:'ป.1–6',subject:'การงานอาชีพ',kicker:'การงานอาชีพ · ปลอดภัยก่อนลงมือ',objective:'เลือกวิธีใช้เครื่องมืออย่างปลอดภัย',image:'/games/media-lab-assets/learning-scene.svg',scenes:[{icon:'👀',label:'สำรวจ',title:'ดูพื้นที่ก่อนทำงาน',body:'ก่อนใช้เครื่องมือให้มองหาพื้นเปียก ของเกะกะ และคนที่อยู่ใกล้ ๆ จัดพื้นที่ให้ปลอดภัยก่อนเริ่ม',tip:'พื้นที่พร้อม คนพร้อม เครื่องมือพร้อม',speak:'สำรวจพื้นที่ก่อนเริ่มทำงานเพื่อป้องกันอุบัติเหตุ'},{icon:'🧰',label:'เลือก',title:'เลือกเครื่องมือให้เหมาะ',body:'ใช้เครื่องมือที่ตรงกับงานและมีขนาดเหมาะกับมือ ไม่ใช้ของชำรุดหรือของที่ไม่รู้วิธีใช้',tip:'ถ้าไม่แน่ใจให้ถามผู้ใหญ่',speak:'เลือกเครื่องมือให้ตรงงานและถามผู้ใหญ่เมื่อไม่แน่ใจ'},{icon:'🧤',label:'ป้องกัน',title:'ใช้อุปกรณ์ป้องกัน',body:'บางงานต้องสวมถุงมือ แว่นตา หรือรองเท้าที่เหมาะสม เพื่อป้องกันมือ ตา และเท้า',tip:'อุปกรณ์ป้องกันต้องใส่ให้ถูกวิธี',speak:'ใช้อุปกรณ์ป้องกันให้เหมาะกับความเสี่ยงของงาน'},{icon:'🧹',label:'เก็บ',title:'หยุดงานแล้วเก็บให้เรียบร้อย',body:'หลังใช้งานให้ปิดหรือเก็บเครื่องมือ ทำความสะอาดพื้นที่ และแจ้งผู้ใหญ่ถ้ามีของเสียหาย',tip:'เก็บทันทีช่วยลดอุบัติเหตุครั้งต่อไป',speak:'เก็บเครื่องมือและแจ้งผู้ใหญ่เมื่อพบความเสียหาย'}],practice:{title:'เลือกวิธีที่ปลอดภัย',question:'ถ้าพบกรรไกรชำรุด ควรทำอย่างไร?',options:[{label:'ใช้ต่อให้เสร็จเร็ว ๆ',correct:false,explain:'ไม่ปลอดภัย เพราะกรรไกรชำรุดอาจบาดมือหรือทำให้งานเสีย'},{label:'หยุดใช้และบอกผู้ใหญ่',correct:true,explain:'ถูกต้อง ควรหยุดใช้และบอกผู้ใหญ่เพื่อเปลี่ยนหรือซ่อมอย่างปลอดภัย'},{label:'ซ่อนไว้ไม่ให้ใครเห็น',correct:false,explain:'ไม่ควรซ่อน เพราะคนอื่นอาจหยิบไปใช้และเกิดอันตราย'}]}};</script><script src="/games/media-lab-runtime.js?v=1.0.0" defer></script></head><body><div id="media-root"><button data-mode="learn" hidden></button><button data-mode="practice" hidden></button></div></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ความปลอดภัยในการทำงานและเครื่องมือ — สื่อการสอนสุขศึกษาและการงานอาชีพ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Sarabun', sans-serif; }
+    .tab-btn.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <script>
+    const MEDIA_SLUG = 'workplace-safety-media';
+  </script>
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button onclick="goHome()" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span class="hidden sm:inline">กลับหน้าหลัก</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🦺</span>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">ความปลอดภัยในการทำงานและเครื่องมือ</h1>
+            <p class="text-xs text-slate-500 hidden sm:block">ห้องปฏิบัติการตรวจจุดเสี่ยงและทักษะช่างปลอดภัย · ป.1–6</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Switches -->
+      <div class="flex items-center gap-2">
+        <button id="btn-mode-learn" data-mode="learn" onclick="switchMode('learn')" class="tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition">
+          📖 บทเรียน & แล็บ
+        </button>
+        <button id="btn-mode-practice" data-mode="practice" onclick="switchMode('practice')" class="tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          📝 แบบฝึกหัด (6 ข้อ)
+        </button>
+        <button id="btn-sound-toggle" onclick="toggleSound()" title="เปิด/ปิดเสียง" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition border border-slate-200">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- LEARN MODE -->
+    <section id="section-learn" class="space-y-6">
+
+      <!-- Sub Navigation Tabs -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+          <button id="subtab-btn-pillars" onclick="switchSubTab('pillars')" class="px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition">
+            🛡️ 4 เสาหลักความปลอดภัย
+          </button>
+          <button id="subtab-btn-hazards" onclick="switchSubTab('hazards')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            🔍 ค้นหาจุดเสี่ยง 4 โซน
+          </button>
+          <button id="subtab-btn-ppe" onclick="switchSubTab('ppe')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            🧰 จำลองแต่งกาย PPE ตามภารกิจ
+          </button>
+        </div>
+        <div class="text-xs text-slate-500 px-2 flex items-center gap-1">
+          <span>💡 แตะที่การ์ดเพื่อฟังเสียงอธิบาย</span>
+        </div>
+      </div>
+
+      <!-- SUBTAB 1: 4 PILLARS OF WORKPLACE SAFETY -->
+      <div id="subtab-pillars" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Pillar 1 -->
+          <div class="bg-white rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(0)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl">🥽</div>
+                <span class="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">เสาหลัก 1</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1.5">สวมใส่อุปกรณ์ PPE</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">สวมใส่อุปกรณ์ป้องกันร่างกายเสมอ เช่น แว่นตานิรภัยกันเศษกระเด็นเข้าตา ถุงมือป้องกันของมีคม และผ้ากันเปื้อน</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-sky-600">🛡️</span>
+              <span><strong>หัวใจสำคัญ:</strong> ตา มือ และเท้า ต้องได้รับการปกป้อง</span>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(1)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl">🔍</div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">เสาหลัก 2</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1.5">ตรวจสภาพเครื่องมือ</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">ตรวจด้ามจับ น็อตยึด และความคมก่อนใช้ ห้ามใช้ของชำรุด หากด้ามค้อนหลวมหรือคัตเตอร์หัก ให้แจ้งครูทันที</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-amber-600">⚠️</span>
+              <span><strong>หัวใจสำคัญ:</strong> เครื่องมือชำรุด ห้ามฝืนใช้งานเด็ดขาด</span>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="bg-white rounded-2xl p-5 border border-emerald-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(2)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">🧹</div>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">เสาหลัก 3</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1.5">จัดพื้นที่ทำงาน 5 ส.</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">โต๊ะทำงานต้องมีแสงสว่างเพียงพอ ทางเดินโล่ง ไม่มีสายไฟระเกะระกะ และไม่มีน้ำหรือสารเคมีหกเลอะพื้น</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-emerald-600">✨</span>
+              <span><strong>หัวใจสำคัญ:</strong> สะอาด เรียบร้อย ลดอุบัติเหตุได้ 90%</span>
+            </div>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="bg-white rounded-2xl p-5 border border-rose-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(3)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl">🩹</div>
+                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">เสาหลัก 4</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1.5">ปฐมพยาบาล & แจ้งครู</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">เมื่อเกิดอุบัติเหตุ เช่น แผลมีดบาดหรือไฟลวก ให้ล้างน้ำสะอาด กดห้ามเลือด และส่งเสียงขอความช่วยเหลือจากคุณครูทันที</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-rose-600">🚨</span>
+              <span><strong>หัวใจสำคัญ:</strong> อย่าแอบซ่อนแผล ต้องแจ้งผู้ใหญ่ทันที</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safe Workshop Visual Scene -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-1/2">
+              <div class="relative rounded-xl overflow-hidden shadow-inner border border-slate-100">
+                <img src="/games/career/workplace-safety-media-cover.png" alt="ห้องปฏิบัติการปลอดภัย" class="w-full h-auto object-cover">
+                <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-slate-700 shadow-sm">
+                  🏫 สภาพแวดล้อมห้องปฏิบัติการมาตรฐาน
+                </div>
+              </div>
+            </div>
+            <div class="w-full md:w-1/2 space-y-3">
+              <div class="inline-block px-3 py-1 bg-sky-100 text-sky-800 rounded-full text-xs font-bold">
+                🎯 ทักษะชีวิตความปลอดภัย
+              </div>
+              <h2 class="text-xl font-bold text-slate-900 leading-snug">
+                "ปลอดภัยไว้ก่อน (Safety First) สร้างผลงานยอดเยี่ยมและไร้อุบัติเหตุ"
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                การทำงานช่างและงานประดิษฐ์ไม่ได้ฝึกแค่ความอดทนและความคิดสร้างสรรค์ แต่ยังฝึก <strong>สติ ความรับผิดชอบ และความรอบคอบ</strong> ทุกเครื่องมือมีพลังในการสร้างสรรค์ หากใช้อย่างถูกวิธีและเคารพกฎความปลอดภัย
+              </p>
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">✓</span> แผ่นรองตัดเสมอเมื่อใช้มีด
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">✓</span> ถอดปลั๊กเมื่อไม่ใช้งาน
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">✓</span> ห้ามวิ่งหรือเล่นหยอกล้อ
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">✓</span> ทำความสะอาดและเก็บเข้าที่
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 2: HAZARD HUNTER LAB -->
+      <div id="subtab-hazards" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span>🔍</span> ห้องจำลองตรวจจับจุดเสี่ยง 4 โซน (Hazard Hunter)
+              </h2>
+              <p class="text-xs text-slate-500">คลิกเลือกโซนและสลับสวิตช์ระหว่าง จุดเสี่ยง ⚠️ กับ การแก้ไขที่ปลอดภัย ✅</p>
+            </div>
+            <!-- Zone Selector Buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="selectZone(0)" id="zone-btn-0" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
+                ✂️ โต๊ะตัดโมเดล
+              </button>
+              <button onclick="selectZone(1)" id="zone-btn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🔨 โต๊ะงานช่างไม้
+              </button>
+              <button onclick="selectZone(2)" id="zone-btn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                ⚡ จุดปืนกาวร้อน & ไฟฟ้า
+              </button>
+              <button onclick="selectZone(3)" id="zone-btn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🧹 จุดทำความสะอาด & จัดเก็บ
+              </button>
+            </div>
+          </div>
+
+          <!-- Zone Interactive Card Display -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Scene Visualization Box -->
+            <div class="lg:col-span-6 bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
+              <div class="absolute top-0 right-0 p-8 opacity-10 text-9xl font-black select-none" id="zone-watermark">✂️</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span id="zone-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1">
+                    ⚠️ ตรวจพบจุดเสี่ยงอันตราย
+                  </span>
+                  <!-- Hazard Toggle Switch -->
+                  <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button id="btn-state-danger" onclick="setZoneState('danger')" class="px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition">
+                      ⚠️ สถานการณ์เสี่ยง
+                    </button>
+                    <button id="btn-state-safe" onclick="setZoneState('safe')" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+                      ✅ ปลอดภัยถูกต้อง
+                    </button>
+                  </div>
+                </div>
+
+                <div class="text-center py-6">
+                  <div id="zone-icon" class="text-7xl mb-3 transform hover:scale-110 transition duration-300">🔪</div>
+                  <h3 id="zone-title" class="text-2xl font-black tracking-tight mb-2">ใบมีดคัตเตอร์ยื่นยาว ไม่มีแผ่นรองตัด</h3>
+                  <p id="zone-subtitle" class="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                    การกรีดกระดาษโดยดันใบมีดออกมาเกิน 1 ข้อ และไม่มีแผ่นรองตัด เสี่ยงใบมีดหักกระเด็นเข้าตาหรือบาดนิ้วลึก
+                  </p>
+                </div>
+              </div>
+
+              <div class="bg-slate-800/80 backdrop-blur-sm p-3.5 rounded-xl border border-slate-700 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 text-slate-300">
+                  <span class="text-amber-400">⚡ ดัชนีความเสี่ยง:</span>
+                  <span id="zone-risk-level" class="font-bold text-rose-400">สูงมาก (เสี่ยงบาดเจ็บฉับพลัน)</span>
+                </div>
+                <button onclick="speakCurrentZone()" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 rounded-lg text-white font-medium flex items-center gap-1 transition">
+                  🔊 ฟังเสียง
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Detailed Safety Analysis -->
+            <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
+              <!-- Analysis Item 1 -->
+              <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 transition" id="box-consequence">
+                <div class="flex items-center gap-2 text-rose-800 font-bold text-sm mb-1">
+                  <span>💥</span> ผลกระทบหรืออันตรายที่อาจเกิดขึ้น:
+                </div>
+                <p id="zone-consequence" class="text-xs text-rose-900 leading-relaxed">
+                  ใบมีดคัตเตอร์หักดีดใส่ดวงตา หรือมีดแฉลบเข้าเนื้อนิ้วมือ เสียเลือดมากและติดเชื้อ
+                </p>
+              </div>
+
+              <!-- Analysis Item 2 -->
+              <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 transition" id="box-solution">
+                <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-1">
+                  <span>🛡️</span> มาตรการความปลอดภัยและการแก้ไข:
+                </div>
+                <p id="zone-solution" class="text-xs text-emerald-900 leading-relaxed">
+                  1. ดันใบมีดออกเพียง 1 ข้อล็อกพอดี<br>
+                  2. วางแผ่นรองตัด (Cutting Mat) ใต้ชิ้นงานเสมอ<br>
+                  3. ใช้ไม้บรรทัดเหล็กและวางนิ้วมือให้อยู่ห่างจากแนวคมมีดอย่างน้อย 3-5 ซม.
+                </p>
+              </div>
+
+              <!-- Analysis Item 3: Golden Safety Rule -->
+              <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-center gap-3">
+                <div class="text-3xl">⭐</div>
+                <div>
+                  <h4 class="text-xs font-bold text-sky-900 mb-0.5">กฎทองคำประจำโซน (Golden Rule)</h4>
+                  <p id="zone-golden-rule" class="text-xs text-sky-800 leading-relaxed">
+                    "มือกดไม้บรรทัดต้องอยู่หลังแนวใบมีดเสมอ และอย่าใช้มีดกรีดเข้าหาตัวเอง"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 3: PPE DRESS-UP & MISSION CHECKLIST -->
+      <div id="subtab-ppe" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span>🧰</span> จำลองเตรียมความพร้อมและเลือกชุด PPE ตามภารกิจ
+              </h2>
+              <p class="text-xs text-slate-500">เลือกภารกิจงานช่าง จากนั้นติ๊กเลือกอุปกรณ์ป้องกันที่จำเป็นให้ถูกต้องครบถ้วน</p>
+            </div>
+            <!-- Mission Buttons -->
+            <div class="flex items-center gap-2">
+              <button onclick="selectMission(0)" id="mis-btn-0" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
+                ภารกิจ A: กรีดตัดโมเดล
+              </button>
+              <button onclick="selectMission(1)" id="mis-btn-1" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                ภารกิจ B: เลื่อยและตอกตะปู
+              </button>
+              <button onclick="selectMission(2)" id="mis-btn-2" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                ภารกิจ C: งานปืนกาวร้อน
+              </button>
+            </div>
+          </div>
+
+          <!-- Mission Header Info -->
+          <div class="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-4 text-white flex items-center justify-between mb-6 shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="text-3xl" id="mis-icon">✂️</div>
+              <div>
+                <h3 id="mis-name" class="text-base font-bold">ภารกิจ A: การกรีดตัดโมเดลกระดาษแข็งและโฟม</h3>
+                <p id="mis-desc" class="text-xs text-sky-100">ต้องใช้คัตเตอร์และกรรไกร มีความเสี่ยงจากของมีคมบาดและการกระเด็นของเศษวัสดุ</p>
+              </div>
+            </div>
+            <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-bold backdrop-blur-sm">ระดับชั้น ป.4–6</span>
+          </div>
+
+          <!-- PPE Items Grid -->
+          <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">เลือกอุปกรณ์ป้องกันที่ต้องใช้สำหรับภารกิจนี้:</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6" id="ppe-options-grid">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Action & Result Feedback -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <button onclick="checkPpeScore()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2">
+              <span>🚀</span> ตรวจสอบความปลอดภัย
+            </button>
+            <div id="ppe-feedback-msg" class="text-sm font-bold text-slate-600">
+              แตะเลือกอุปกรณ์ที่จำเป็น แล้วกดตรวจสอบความปลอดภัย
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PRACTICE MODE (6 QUESTIONS QUIZ) -->
+    <section id="section-practice" class="space-y-6 hidden">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm max-w-3xl mx-auto">
+        
+        <!-- Quiz Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">📝</span>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">แบบฝึกหัดคิดวิเคราะห์ความปลอดภัยในการทำงาน</h2>
+              <p class="text-xs text-slate-500">ตอบคำถามสถานการณ์จริง 6 ข้อ เพื่อประเมินความพร้อมก่อนลงมือปฏิบัติ</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">ข้อที่</span>
+            <div class="text-lg font-black text-sky-600"><span id="quiz-curr-q">1</span> / 6</div>
+          </div>
+        </div>
+
+        <!-- Quiz Body Card -->
+        <div id="quiz-active-box" class="space-y-6">
+          <!-- Question Title -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-start gap-3">
+            <div class="text-2xl mt-0.5">❓</div>
+            <div class="flex-1">
+              <div class="text-xs font-bold text-sky-600 uppercase mb-1" id="quiz-q-topic">สถานการณ์การทำงานช่าง</div>
+              <h3 id="quiz-q-title" class="text-base font-bold text-slate-800 leading-snug">
+                หากพบว่ากรรไกรมีน็อตตรงกลางหลวม โยกเยก และตัดกระดาษไม่เข้า ควรปฏิบัติอย่างไร?
+              </h3>
+            </div>
+            <button onclick="speakQuestion()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition" title="ฟังเสียงโจทย์">
+              🔊
+            </button>
+          </div>
+
+          <!-- Choices -->
+          <div class="space-y-2.5" id="quiz-choices-container">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Explanation / Feedback Banner (Hidden by default) -->
+          <div id="quiz-feedback-box" class="hidden rounded-2xl p-4 border transition">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl" id="quiz-fb-icon">💡</div>
+              <div>
+                <h4 class="text-sm font-bold" id="quiz-fb-title">คำอธิบายเหตุผล</h4>
+                <p class="text-xs mt-1 leading-relaxed" id="quiz-fb-desc"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end pt-2">
+            <button id="quiz-btn-next" onclick="nextQuestion()" disabled class="px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed">
+              <span>ข้อถัดไป</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Result Screen (Hidden until finished) -->
+        <div id="quiz-result-box" class="hidden py-8 text-center space-y-6">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-amber-100 flex items-center justify-center text-5xl shadow-inner border border-amber-200" id="res-medal-icon">
+            🏆
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-slate-900 mb-1" id="res-grade-title">ยอดเยี่ยมมาก! ปลอดภัยระดับมืออาชีพ</h3>
+            <p class="text-sm text-slate-600 max-w-md mx-auto" id="res-grade-desc">
+              คุณมีความรู้ความเข้าใจในหลักความปลอดภัยและการใช้เครื่องมืออย่างถูกต้องพร้อมลงมือปฏิบัติจริง
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-6 bg-slate-50 px-8 py-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">คะแนนที่ได้</div>
+              <div class="text-3xl font-black text-sky-600"><span id="res-score">6</span> / 6</div>
+            </div>
+            <div class="h-8 w-px bg-slate-200"></div>
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">ระดับความปลอดภัย</div>
+              <div class="text-base font-bold text-emerald-600" id="res-rank">A+ ยอดเยี่ยม</div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex items-center justify-center gap-3">
+            <button onclick="restartQuiz()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2">
+              <span>🔄</span> ทำแบบฝึกหัดอีกครั้ง
+            </button>
+            <button onclick="switchMode('learn')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition">
+              📖 กลับไปทบทวนบทเรียน
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    โรงเรียนคำไฮวิทยา · สื่อการสอนสุขศึกษาและการงานอาชีพ Classroom-first · เพื่อการเรียนรู้ที่ปลอดภัย
+  </footer>
+
+  <!-- Sound & Interactive Logic -->
+  <script>
+    // State
+    let currentMode = 'learn';
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    // Web Audio Synthesizer for feedback
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSoundEffect(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(180, now + 0.15);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'fanfare') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.type = 'triangle';
+            o.frequency.value = freq;
+            const start = now + idx * 0.12;
+            g.gain.setValueAtTime(0.2, start);
+            g.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+            o.start(start);
+            o.stop(start + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn('Web Audio issue', e);
+      }
+    }
+
+    // TTS
+    function speakText(text) {
+      if (!soundEnabled) return;
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'th-TH';
+      u.rate = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btn-sound-toggle');
+      btn.innerText = soundEnabled ? '🔊' : '🔇';
+      if (!soundEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function goHome() {
+      if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+        window.KAMPAI.goHome();
+      } else {
+        window.location.href = '/games/hub.html';
+      }
+    }
+
+    // Mode Switcher
+    function switchMode(mode) {
+      currentMode = mode;
+      playSoundEffect('click');
+      const learnSec = document.getElementById('section-learn');
+      const practiceSec = document.getElementById('section-practice');
+      const btnLearn = document.getElementById('btn-mode-learn');
+      const btnPractice = document.getElementById('btn-mode-practice');
+
+      if (mode === 'learn') {
+        learnSec.classList.remove('hidden');
+        practiceSec.classList.add('hidden');
+        btnLearn.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnPractice.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+      } else {
+        learnSec.classList.add('hidden');
+        practiceSec.classList.remove('hidden');
+        btnPractice.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnLearn.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        initQuiz();
+      }
+    }
+
+    // Subtab Switcher
+    function switchSubTab(sub) {
+      playSoundEffect('click');
+      const tabs = ['pillars', 'hazards', 'ppe'];
+      tabs.forEach(t => {
+        const el = document.getElementById('subtab-' + t);
+        const btn = document.getElementById('subtab-btn-' + t);
+        if (t === sub) {
+          el.classList.remove('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        }
+      });
+    }
+
+    // Pillars Speech
+    const PILLARS_DATA = [
+      { title: 'สวมใส่อุปกรณ์ PPE', body: 'เสาหลักที่หนึ่ง สวมใส่อุปกรณ์ป้องกันร่างกายเสมอ เช่น แว่นตานิรภัยกันเศษกระเด็นเข้าตา ถุงมือป้องกันของมีคม และผ้ากันเปื้อน ตา มือ และเท้า ต้องได้รับการปกป้อง' },
+      { title: 'ตรวจสภาพเครื่องมือ', body: 'เสาหลักที่สอง ตรวจสอบเครื่องมือก่อนใช้งานทุกครั้ง ตรวจด้ามจับ น็อตยึด และความคม ห้ามใช้เครื่องมือชำรุดเด็ดขาด หากพบให้แจ้งคุณครูทันที' },
+      { title: 'จัดพื้นที่ทำงาน 5 ส.', body: 'เสาหลักที่สาม จัดพื้นที่ทำงานให้มีแสงสว่างพอ ทางเดินโล่ง สะอาด ไม่มีน้ำหรือสารเคมีหกเลอะพื้น ช่วยลดอุบัติเหตุได้ถึงเก้าสิบเปอร์เซ็นต์' },
+      { title: 'ปฐมพยาบาลและแจ้งครู', body: 'เสาหลักที่สี่ เมื่อเกิดอุบัติเหตุ เช่น แผลมีดบาดหรือไฟลวก ให้ล้างน้ำสะอาด กดห้ามเลือด ห้ามแอบซ่อนแผล และส่งเสียงขอความช่วยเหลือจากคุณครูทันที' }
+    ];
+
+    function speakPillar(idx) {
+      playSoundEffect('click');
+      speakText(PILLARS_DATA[idx].body);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 2: HAZARD HUNTER LOGIC
+    // ----------------------------------------------------
+    const ZONES_DATA = [
+      {
+        id: 'cut',
+        name: 'โต๊ะตัดโมเดล',
+        icon: '✂️',
+        watermark: '✂️',
+        danger: {
+          badge: '⚠️ ตรวจพบจุดเสี่ยงอันตราย',
+          title: 'ใบมีดคัตเตอร์ยื่นยาว ไม่มีแผ่นรองตัด',
+          desc: 'การกรีดกระดาษโดยดันใบมีดออกมาเกิน 1 ข้อ และไม่มีแผ่นรองตัด เสี่ยงใบมีดหักกระเด็นเข้าตาหรือบาดนิ้วลึก',
+          risk: 'สูงมาก (เสี่ยงบาดเจ็บฉับพลัน)',
+          consequence: 'ใบมีดคัตเตอร์หักดีดใส่ดวงตา หรือมีดแฉลบเข้าเนื้อนิ้วมือ เสียเลือดมากและติดเชื้อ',
+          solution: '1. ดันใบมีดออกเพียง 1 ข้อล็อกพอดี\\n2. วางแผ่นรองตัดใต้ชิ้นงานเสมอ\\n3. ใช้ไม้บรรทัดเหล็กและวางนิ้วมือให้อยู่ห่างจากแนวคมมีด',
+          golden: 'มือกดไม้บรรทัดต้องอยู่หลังแนวใบมีดเสมอ และอย่าใช้มีดกรีดเข้าหาตัวเอง'
+        },
+        safe: {
+          badge: '✅ จัดการปลอดภัยถูกต้อง',
+          title: 'มีแผ่นรองตัด ดันใบมีด 1 ข้อ ไม้บรรทัดเหล็กชิดแนว',
+          desc: 'ปรับใบมีดสั้นพอดี มีแผ่นรองตัดยางป้องกันโต๊ะเสียหาย มือซ้ายจับไม้บรรทัดหลังแนวปลอดภัย และสวมแว่นตานิรภัย',
+          risk: 'ต่ำมาก (ควบคุมความเสี่ยงได้สมบูรณ์)',
+          consequence: 'ไม่มีความเสี่ยง ชิ้นงานตัดตรงสวยงาม ไม่เกิดการบาดเจ็บ',
+          solution: 'รักษามาตรฐานนี้เสมอ และเก็บใบมีดกลับเข้าด้ามทันทีเมื่อวางมือ',
+          golden: 'เก็บใบมีดทุกครั้งทันทีที่วางมือลงบนโต๊ะ'
+        }
+      },
+      {
+        id: 'wood',
+        name: 'โต๊ะงานช่างไม้',
+        icon: '🔨',
+        watermark: '🔨',
+        danger: {
+          badge: '⚠️ ตรวจพบจุดเสี่ยงอันตราย',
+          title: 'ค้อนด้ามหลวม ไม่ใส่แว่นตา เศษไม้เกะกะ',
+          desc: 'ใช้ค้อนที่หัวคลอนหลวมในการตอกตะปู และไม่สวมแว่นตานิรภัย เสี่ยงหัวค้อนหลุดลอยใส่เพื่อนหรือเศษไม้กระเด็นเข้าตา',
+          risk: 'วิกฤต (เสี่ยงกระแทกและบาดเจ็บรุนแรง)',
+          consequence: 'หัวค้อนหลุดกระแทกศีรษะหรือใบหน้า เศษตะปูงอกระเด็นเข้าตาอาจทำให้ตาบอดได้',
+          solution: '1. เปลี่ยนใช้ค้อนที่ด้ามแน่นสมบูรณ์\\n2. สวมแว่นตานิรภัยทุกครั้งที่ตอกหรือเลื่อยไม้\\n3. ยึดจับชิ้นงานด้วยปากกาจับไม้ ไม่ใช้มือเปล่าจับใกล้ตะปู',
+          golden: 'ทุกครั้งที่จับค้อนหรือเลื่อย ต้องมีแว่นตานิรภัยอยู่บนใบหน้าเสมอ'
+        },
+        safe: {
+          badge: '✅ จัดการปลอดภัยถูกต้อง',
+          title: 'สวมแว่นตานิรภัย ค้อนด้ามแน่น ยึดชิ้นงานมั่นคง',
+          desc: 'ชิ้นงานถูกจับยึดด้วยปากกาจับชิ้นงาน สวมแว่นตานิรภัย ค้อนด้ามแน่น จับที่ปลายด้าม 1/3 เพื่อแรงตอกที่มั่นคงและแม่นยำ',
+          risk: 'ต่ำมาก (ปลอดภัยตามมาตรฐานโรงประลองช่าง)',
+          consequence: 'ตอกตะปูได้ตรง ไม้ไม่แตก ไม่เกิดอุบัติเหตุ เศษไม้ถูกเก็บกวาดเรียบร้อย',
+          solution: 'ตรวจสอบความแน่นของด้ามค้อนก่อนและหลังการใช้งานทุกครั้ง',
+          golden: 'จับค้อนบริเวณปลายด้ามเพื่อควบคุมทิศทางและแรงตอกได้สมดุลที่สุด'
+        }
+      },
+      {
+        id: 'elec',
+        name: 'จุดปืนกาวร้อน & ไฟฟ้า',
+        icon: '⚡',
+        watermark: '⚡',
+        danger: {
+          badge: '⚠️ ตรวจพบจุดเสี่ยงอันตราย',
+          title: 'สายไฟพาดทางเดิน ปืนกาววางนอนกับโต๊ะ',
+          desc: 'วางปืนกาวร้อนแนบกับพื้นโต๊ะไม้โดยไม่มีขาตั้งรอง สายไฟตึงพาดขวางทางเดิน เสี่ยงมีคนสะดุดดึงปืนกาวร้อนตกใส่ขา',
+          risk: 'สูง (เสี่ยงไฟลวกผิวหนังและไฟฟ้าลัดวงจร)',
+          consequence: 'กาวร้อนอุณหภูมิกว่า 150 องศาเซลเซียสลวกผิวหนังเป็นตุ่มพอง หรือสายไฟขาดทำให้เกิดไฟดูด',
+          solution: '1. วางปืนกาวบนขาตั้งโลหะและมีถาดกระดาษรองกาวหยด\\n2. จัดสายไฟชิดผนัง ไม่พาดทางเดิน\\n3. ถอดปลั๊กออกทันทีเมื่อใช้งานเสร็จ',
+          golden: 'ห้ามสัมผัสปลายโลหะของปืนกาวด้วยมือเปล่าเด็ดขาด เพราะร้อนจัดเทียบเท่าน้ำเดือด'
+        },
+        safe: {
+          badge: '✅ จัดการปลอดภัยถูกต้อง',
+          title: 'ตั้งปืนกาวบนขาตั้ง มีถาดรอง และเดินสายไฟชิดใน',
+          desc: 'ปืนกาววางบนขาตั้งพับพร้อมแผ่นซิลิโคนรองกาวหยด สายไฟร้อยเก็บเรียบร้อย มีการถอดปลั๊กและรอให้เย็นก่อนเก็บเข้ากล่อง',
+          risk: 'ต่ำมาก (ควบคุมความร้อนและไฟฟ้าได้ดี)',
+          consequence: 'ติดชิ้นงานแน่นหนา ปลอดภัย ไร้รอยไหม้หรืออุบัติเหตุสะดุดสายไฟ',
+          solution: 'เตือนเพื่อนร่วมโต๊ะไม่ให้เอื้อมมือตัดหน้าปากกระบอกปืนกาว',
+          golden: 'หากกาวร้อนโดนมือ ให้รีบล้างน้ำเย็นไหลผ่าน 10 นาที ห้ามแกะคราบกาวแห้งทันที'
+        }
+      },
+      {
+        id: 'clean',
+        name: 'จุดทำความสะอาด & จัดเก็บ',
+        icon: '🧹',
+        watermark: '🧹',
+        danger: {
+          badge: '⚠️ ตรวจพบจุดเสี่ยงอันตราย',
+          title: 'พื้นเปียกไม่มีป้ายเตือน เครื่องมือวางปะปน',
+          desc: 'ถูพื้นเปียกแฉะแต่ไม่ตั้งป้ายเตือนระวังลื่น เครื่องมือของมีคมวางปนอยู่ในถังขยะหรือกองเศษผ้า เสี่ยงคนเหยียบหรือบาดมือ',
+          risk: 'ปานกลางถึงสูง (เสี่ยงลื่นล้มและของมีคมทิ่มแทง)',
+          consequence: 'ลื่นล้มศีรษะฟาดพื้น หรือหยิบกองผ้าแล้วโดนเศษใบมีดที่ซ่อนอยู่บาดฝ่ามือลึก',
+          solution: '1. ตั้งป้ายเตือนสีเหลือง \"ระวังพื้นลื่น\" ทันทีที่ทำความสะอาด\\n2. คัดแยกขยะมีคมใส่ขวดพลาสติกแข็งหรือห่อกระดาษก่อนทิ้ง\\n3. เช็ดพื้นให้แห้งสนิทก่อนเปิดให้เดินผ่าน',
+          golden: 'เครื่องมือทุกชิ้นต้องมีบ้านของมัน และขยะมีคมห้ามทิ้งปนในถุงพลาสติกบาง'
+        },
+        safe: {
+          badge: '✅ จัดการปลอดภัยถูกต้อง',
+          title: 'ตั้งป้ายเตือนพื้นเปียก แยกขยะมีคม แขวนเครื่องมือตรงช่อง',
+          desc: 'มีป้ายระวังลื่นชัดเจน เครื่องมือทำความสะอาดแขวนเป็นระเบียบ แผงแขวนเครื่องมือมีป้ายชื่อกำกับชัดเจน',
+          risk: 'ต่ำมาก (พื้นที่ 5 ส. ถูกสุขอนามัย)',
+          consequence: 'ห้องสะอาด ปลอดโปร่ง ไม่มีกลิ่นอับ และพร้อมใช้งานในคาบถัดไป',
+          solution: 'ช่วยกันตรวจตราก่อนออกจากห้องช่างเป็นประจำทุกครั้ง',
+          golden: 'จัดเก็บให้เรียบร้อย สะอาด สว่าง สะดวก สุขลักษณะ สร้างนิสัย 5 ส.'
+        }
+      }
+    ];
+
+    let currentZoneIdx = 0;
+    let currentZoneState = 'danger';
+
+    function selectZone(idx) {
+      currentZoneIdx = idx;
+      playSoundEffect('click');
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById('zone-btn-' + i);
+        if (i === idx) {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+        }
+      }
+      renderZone();
+    }
+
+    function setZoneState(st) {
+      currentZoneState = st;
+      playSoundEffect(st === 'safe' ? 'correct' : 'wrong');
+      const btnDanger = document.getElementById('btn-state-danger');
+      const btnSafe = document.getElementById('btn-state-safe');
+
+      if (st === 'danger') {
+        btnDanger.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition';
+        btnSafe.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+      } else {
+        btnSafe.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition';
+        btnDanger.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+      }
+      renderZone();
+    }
+
+    function renderZone() {
+      const z = ZONES_DATA[currentZoneIdx];
+      const data = currentZoneState === 'danger' ? z.danger : z.safe;
+
+      document.getElementById('zone-watermark').innerText = z.watermark;
+      document.getElementById('zone-icon').innerText = currentZoneState === 'danger' ? '⚠️' : '🛡️';
+      document.getElementById('zone-badge').innerText = data.badge;
+      document.getElementById('zone-badge').className = currentZoneState === 'danger' 
+        ? 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1'
+        : 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-400 text-slate-950 flex items-center gap-1';
+
+      document.getElementById('zone-title').innerText = data.title;
+      document.getElementById('zone-subtitle').innerText = data.desc;
+      document.getElementById('zone-risk-level').innerText = data.risk;
+      document.getElementById('zone-risk-level').className = currentZoneState === 'danger' ? 'font-bold text-rose-400' : 'font-bold text-emerald-400';
+
+      document.getElementById('zone-consequence').innerText = data.consequence;
+      document.getElementById('zone-solution').innerText = data.solution;
+      document.getElementById('zone-golden-rule').innerText = data.golden;
+
+      const boxCons = document.getElementById('box-consequence');
+      const boxSol = document.getElementById('box-solution');
+      if (currentZoneState === 'safe') {
+        boxCons.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-4 transition opacity-80';
+        boxSol.className = 'bg-emerald-50 border border-emerald-300 rounded-2xl p-4 transition ring-2 ring-emerald-400/20';
+      } else {
+        boxCons.className = 'bg-rose-50 border border-rose-200 rounded-2xl p-4 transition ring-2 ring-rose-400/20';
+        boxSol.className = 'bg-emerald-50 border border-emerald-200 rounded-2xl p-4 transition';
+      }
+    }
+
+    function speakCurrentZone() {
+      const z = ZONES_DATA[currentZoneIdx];
+      const data = currentZoneState === 'danger' ? z.danger : z.safe;
+      speakText(data.title + '. ' + data.desc + '. ข้อแนะนำ: ' + data.golden);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 3: PPE DRESS-UP SIMULATOR
+    // ----------------------------------------------------
+    const MISSIONS_DATA = [
+      {
+        id: 'craft',
+        name: 'ภารกิจ A: การกรีดตัดโมเดลกระดาษแข็งและโฟม',
+        icon: '✂️',
+        desc: 'ตัดกระดาษแข็งและแผ่นโฟมด้วยคัตเตอร์ มีความเสี่ยงจากของมีคมบาดและการกระเด็นของเศษวัสดุ',
+        requiredPpe: ['cutting_mat', 'ruler', 'goggles'],
+        explanation: 'สำหรับงานตัดโมเดล อุปกรณ์ที่ขาดไม่ได้คือ แผ่นรองตัด เพื่อป้องกันพื้นผิวโต๊ะ, ไม้บรรทัดเหล็ก สำหรับทาบแนวตัดที่ปลอดภัย, และ แว่นตานิรภัย ป้องกันเศษใบมีดหรือเศษโฟมกระเด็น'
+      },
+      {
+        id: 'wood',
+        name: 'ภารกิจ B: งานตอกตะปูและเลื่อยฉลุไม้',
+        icon: '🔨',
+        desc: 'ใช้ค้อนตอกตะปูและเลื่อยฉลุตัดไม้ มีฝุ่นละอองไม้ เศษเสี้ยน และความเสี่ยงจากแรงกระแทก',
+        requiredPpe: ['goggles', 'gloves', 'apron'],
+        explanation: 'งานช่างไม้ต้องสวม แว่นตานิรภัย เสมอเพื่อกันขี้เลื่อยและเศษตะปู, ถุงมือผ้า เพื่อกันเสี้ยนไม้ตำมือ, และ ผ้ากันเปื้อน เพื่อป้องกันเศษไม้และสิ่งสกปรกติดเสื้อผ้า'
+      },
+      {
+        id: 'glue',
+        name: 'ภารกิจ C: งานประกอบชิ้นงานด้วยปืนกาวร้อน',
+        icon: '🔥',
+        desc: 'ใช้ปืนกาวร้อนอุณหภูมิสูงต่อติดชิ้นงานประดิษฐ์ เสี่ยงโดนกาวลวกผิวหนังและอันตรายจากไฟฟ้า',
+        requiredPpe: ['stand', 'mat', 'goggles'],
+        explanation: 'งานปืนกาวร้อนต้องมี ขาตั้งปืนกาว เพื่อไม่ให้หัวร้อนสัมผัสโต๊ะ, ถาดรองซิลิโคน รองรับกาวหยด และ แว่นตานิรภัย เพื่อความปลอดภัย'
+      }
+    ];
+
+    const PPE_ITEMS = [
+      { id: 'goggles', name: 'แว่นตานิรภัย', icon: '🥽' },
+      { id: 'gloves', name: 'ถุงมือป้องกัน', icon: '🧤' },
+      { id: 'cutting_mat', name: 'แผ่นรองตัด', icon: '🟩' },
+      { id: 'ruler', name: 'ไม้บรรทัดเหล็ก', icon: '📏' },
+      { id: 'apron', name: 'ผ้ากันเปื้อนช่าง', icon: '🦺' },
+      { id: 'stand', name: 'ขาตั้งปืนกาว', icon: '📐' },
+      { id: 'mat', name: 'ถาดรองกาวหยด', icon: '🛡️' },
+      { id: 'sign', name: 'ป้ายเตือนระวัง', icon: '⚠️' }
+    ];
+
+    let currentMissionIdx = 0;
+    let selectedPpeIds = new Set();
+
+    function selectMission(idx) {
+      currentMissionIdx = idx;
+      selectedPpeIds.clear();
+      playSoundEffect('click');
+      for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById('mis-btn-' + i);
+        if (i === idx) {
+          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+        }
+      }
+      const mis = MISSIONS_DATA[idx];
+      document.getElementById('mis-icon').innerText = mis.icon;
+      document.getElementById('mis-name').innerText = mis.name;
+      document.getElementById('mis-desc').innerText = mis.desc;
+      document.getElementById('ppe-feedback-msg').innerText = 'แตะเลือกอุปกรณ์ที่จำเป็น แล้วกดตรวจสอบความปลอดภัย';
+      document.getElementById('ppe-feedback-msg').className = 'text-sm font-bold text-slate-600';
+      renderPpeGrid();
+    }
+
+    function togglePpe(id) {
+      playSoundEffect('click');
+      if (selectedPpeIds.has(id)) {
+        selectedPpeIds.delete(id);
+      } else {
+        selectedPpeIds.add(id);
+      }
+      renderPpeGrid();
+    }
+
+    function renderPpeGrid() {
+      const container = document.getElementById('ppe-options-grid');
+      container.innerHTML = '';
+      PPE_ITEMS.forEach(item => {
+        const isSelected = selectedPpeIds.has(item.id);
+        const card = document.createElement('div');
+        card.onclick = () => togglePpe(item.id);
+        card.className = isSelected
+          ? 'p-3 rounded-2xl border-2 border-sky-500 bg-sky-50 cursor-pointer text-center transition transform scale-105 shadow-sm'
+          : 'p-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-center transition';
+        card.innerHTML = `
+          <div class="text-3xl mb-1.5">${item.icon}</div>
+          <div class="text-xs font-bold ${isSelected ? 'text-sky-700' : 'text-slate-700'}">${item.name}</div>
+          <div class="text-[10px] font-semibold mt-1 ${isSelected ? 'text-sky-600' : 'text-slate-400'}">${isSelected ? '✓ เลือกแล้ว' : '+ คลิกเลือก'}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function checkPpeScore() {
+      const mis = MISSIONS_DATA[currentMissionIdx];
+      const required = mis.requiredPpe;
+      const selected = Array.from(selectedPpeIds);
+
+      const allRequiredChosen = required.every(id => selected.includes(id));
+      const hasRedundant = selected.some(id => !required.includes(id));
+
+      const fb = document.getElementById('ppe-feedback-msg');
+      if (allRequiredChosen && !hasRedundant) {
+        playSoundEffect('fanfare');
+        fb.innerHTML = '🎉 ถูกต้องครบถ้วน 100%! ' + mis.explanation;
+        fb.className = 'text-sm font-bold text-emerald-600';
+        speakText('ยอดเยี่ยมมาก คุณเลือกอุปกรณ์ความปลอดภัยได้ถูกต้องครบถ้วนสมบูรณ์');
+      } else if (allRequiredChosen && hasRedundant) {
+        playSoundEffect('correct');
+        fb.innerHTML = '👍 อุปกรณ์จำเป็นครบแล้ว แต่เลือกอุปกรณ์ที่ไม่จำเป็นเกินมาเล็กน้อย: ' + mis.explanation;
+        fb.className = 'text-sm font-bold text-amber-600';
+      } else {
+        playSoundEffect('wrong');
+        const missingCount = required.filter(id => !selected.includes(id)).length;
+        fb.innerHTML = '⚠️ ยังขาดอุปกรณ์จำเป็นอีก ' + missingCount + ' รายการ กรุณาตรวจสอบใหม่อีกครั้ง';
+        fb.className = 'text-sm font-bold text-rose-600';
+      }
+    }
+
+    // ----------------------------------------------------
+    // PRACTICE MODE: 6 QUESTIONS QUIZ
+    // ----------------------------------------------------
+    const QUIZ_QUESTIONS = [
+      {
+        topic: 'การตรวจสภาพเครื่องมือ',
+        title: 'หากพบว่ากรรไกรมีน็อตตรงกลางหลวม โยกเยก และตัดกระดาษไม่เข้า ควรปฏิบัติอย่างไรจึงจะถูกต้องและปลอดภัยที่สุด?',
+        choices: [
+          { text: 'หยุดใช้งานทันทีและนำไปแจ้งคุณครูเพื่อซ่อมแซมหรือเปลี่ยนใหม่', correct: true },
+          { text: 'ออกแรงบีบตัดให้แน่นขึ้นเพื่อให้กระดาษขาดตามต้องการ', correct: false },
+          { text: 'นำก้อนหินหรือค้อนมาเคาะน็อตเองโดยไม่ถามใคร', correct: false },
+          { text: 'ซ่อนกรรไกรไว้ใต้โต๊ะแล้วหยิบของเพื่อนมาใช้แทนโดยไม่บอก', correct: false }
+        ],
+        explain: 'เครื่องมือชำรุดห้ามฝืนใช้งานเด็ดขาด เพราะอาจทำให้กระดาษแฉลบหรือบาดโดนนิ้วมือ ควรหยุดใช้และแจ้งคุณครูทันที'
+      },
+      {
+        topic: 'ความปลอดภัยจากของมีคม',
+        title: 'ในการใช้คัตเตอร์กรีดตัดกระดาษแข็งร่วมกับไม้บรรทัดเหล็ก กฎความปลอดภัยข้อใดสำคัญที่สุด?',
+        choices: [
+          { text: 'ดันใบมีดยื่นออกมายาว ๆ เพื่อให้กรีดขาดในครั้งเดียว', correct: false },
+          { text: 'วางนิ้วมือซ้ายที่กดไม้บรรทัดให้อยู่หลังแนวมีด และมีแผ่นรองตัดใต้กระดาษเสมอ', correct: true },
+          { text: 'ใช้มีดกรีดเข้าหาลำตัวเพื่อให้มีแรงดึงมากขึ้น', correct: false },
+          { text: 'ตัดบนโต๊ะไม้เปล่าๆ โดยไม่ต้องใช้แผ่นรองตัด', correct: false }
+        ],
+        explain: 'ต้องดันใบมีดเพียง 1 ข้อ วางแผ่นรองตัด และวางนิ้วมือกดไม้บรรทัดให้อยู่ห่างจากแนวใบมีดเสมอ เพื่อป้องกันมีดแฉลบเข้ามือ'
+      },
+      {
+        topic: 'ความปลอดภัยจากความร้อนและไฟฟ้า',
+        title: 'เมื่อใช้งานปืนกาวร้อนในห้องปฏิบัติการ ข้อควรระวังสูงสุดคือข้อใด?',
+        choices: [
+          { text: 'ห้ามใช้มือเปล่าสัมผัสปลายโลหะของปืนกาว และวางบนขาตั้งทุกครั้งที่วางมือ', correct: true },
+          { text: 'วางปืนกาวนอนราบไปกับหนังสือหรือกองเศษผ้า', correct: false },
+          { text: 'กระชากสายไฟแรง ๆ เมื่อต้องการถอดปลั๊กเพื่อความรวดเร็ว', correct: false },
+          { text: 'นำปืนกาวไปจุ่มน้ำเพื่อเร่งให้เย็นเร็วขึ้น', correct: false }
+        ],
+        explain: 'ปลายปืนกาวร้อนมีความร้อนสูงกว่า 150 องศาเซลเซียส สัมผัสอาจทำให้ผิวหนังพองได้ ต้องวางบนขาตั้งโลหะเสมอ และห้ามนำเครื่องใช้ไฟฟ้าไปจุ่มน้ำ'
+      },
+      {
+        topic: 'การจัดพื้นที่ทำงานและการป้องกันอุบัติเหตุ',
+        title: 'หากพบว่ามีเพื่อนทำน้ำหรือสารเคมีหกเลอะพื้นทางเดินในห้องงานช่าง ควรทำอย่างไรเป็นลำดับแรก?',
+        choices: [
+          { text: 'เดินข้ามไปโดยไม่สนใจ เพราะไม่ใช่เวรทำความสะอาดของเรา', correct: false },
+          { text: 'บอกเพื่อนให้ระวัง และรีบนำป้ายเตือนมาวางพร้อมเช็ดพื้นให้แห้งทันที', correct: true },
+          { text: 'รอจนหมดชั่วโมงเรียนค่อยทำความสะอาดพร้อมกัน', correct: false },
+          { text: 'นำกระดาษหนังสือพิมพ์แผ่นเดียวมาคลุมปิดทับไว้', correct: false }
+        ],
+        explain: 'พื้นเปียกเป็นสาเหตุหลักของการลื่นล้มและอาจชนโต๊ะเครื่องมือมีคม ควรรีบเตือนผู้อื่น ตั้งป้ายเตือน และเช็ดให้แห้งสนิททันที'
+      },
+      {
+        topic: 'การปฐมพยาบาลเบื้องต้น',
+        title: 'หากเกิดอุบัติเหตุโดนคัตเตอร์บาดปลายนิ้วมือเป็นแผลเล็กน้อยและมีเลือดไหล ควรทำอย่างไร?',
+        choices: [
+          { text: 'ล้างแผลด้วยน้ำสะอาด ใช้ผ้าสะอาดกดห้ามเลือด และรีบแจ้งคุณครูทันที', correct: true },
+          { text: 'แอบเอานิ้วอมไว้ในปากแล้วไม่บอกใครเพราะกลัวโดนดุ', correct: false },
+          { text: 'นำดินหรือขี้เลื่อยมาพอกปากแผลเพื่อให้เลือดหยุดไหล', correct: false },
+          { text: 'ปล่อยทิ้งไว้ให้แห้งเองแล้วทำงานต่อจนเสร็จชั่วโมง', correct: false }
+        ],
+        explain: 'ห้ามแอบซ่อนแผล ต้องล้างน้ำสะอาด กดห้ามเลือด และแจ้งคุณครูเพื่อใส่ยาและทำแผลอย่างถูกสุขอนามัย ป้องกันการติดเชื้อ'
+      },
+      {
+        topic: 'วินัยและการจัดเก็บหลังทำงาน',
+        title: 'เมื่อทำงานช่างหรือประดิษฐ์ชิ้นงานเสร็จเรียบร้อยแล้ว กิจวัตรความปลอดภัยที่สำคัญที่สุดคืออะไร?',
+        choices: [
+          { text: 'ปิดสวิตช์ ถอดปลั๊ก เช็ดทำความสะอาด แยกขยะมีคม และเก็บเครื่องมือเข้าที่เดิม', correct: true },
+          { text: 'วางเครื่องมือทิ้งไว้บนโต๊ะเพื่อให้ห้องอื่นมาใช้ต่อได้เลย', correct: false },
+          { text: 'โยนเศษใบมีดและตะปูลงในถุงขยะพลาสติกทั่วไปทันที', correct: false },
+          { text: 'รีบวิ่งออกจากห้องทันทีที่ได้ยินเสียงกริ่งหมดเวลา', correct: false }
+        ],
+        explain: 'การจัดเก็บเครื่องมือเข้าที่ ทำความสะอาดโต๊ะ และคัดแยกขยะมีคม เป็นหัวใจสำคัญของ 5 ส. ที่ทำให้ห้องปฏิบัติการปลอดภัยสำหรับทุกคน'
+      }
+    ];
+
+    let quizCurrentIdx = 0;
+    let quizScore = 0;
+    let quizAnswered = false;
+
+    function initQuiz() {
+      quizCurrentIdx = 0;
+      quizScore = 0;
+      quizAnswered = false;
+      document.getElementById('quiz-active-box').classList.remove('hidden');
+      document.getElementById('quiz-result-box').classList.add('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      quizAnswered = false;
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      document.getElementById('quiz-curr-q').innerText = (quizCurrentIdx + 1);
+      document.getElementById('quiz-q-topic').innerText = q.topic;
+      document.getElementById('quiz-q-title').innerText = q.title;
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.className = 'hidden rounded-2xl p-4 border transition';
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = true;
+      btnNext.className = 'px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed';
+
+      const container = document.getElementById('quiz-choices-container');
+      container.innerHTML = '';
+      q.choices.forEach((c, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full p-4 text-left rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-sky-300 transition text-sm font-medium text-slate-800 flex items-center justify-between group shadow-sm';
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-sky-100 group-hover:text-sky-700 text-slate-500 font-bold text-xs flex items-center justify-center transition">${String.fromCharCode(65 + idx)}</span>
+            <span>${c.text}</span>
+          </div>
+          <span class="choice-icon text-lg hidden"></span>
+        `;
+        btn.onclick = () => selectQuizChoice(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectQuizChoice(choiceIdx, btnEl) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      const isCorrect = q.choices[choiceIdx].correct;
+      const choicesBtns = document.getElementById('quiz-choices-container').children;
+
+      if (isCorrect) {
+        quizScore++;
+        playSoundEffect('correct');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-sm font-bold text-emerald-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '✅';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+      } else {
+        playSoundEffect('wrong');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-rose-500 bg-rose-50 text-sm font-bold text-rose-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '❌';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+
+        q.choices.forEach((c, idx) => {
+          if (c.correct) {
+            choicesBtns[idx].className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-400 bg-emerald-50/70 text-sm font-bold text-emerald-800 flex items-center justify-between shadow-sm';
+            choicesBtns[idx].querySelector('.choice-icon').innerText = '✅';
+            choicesBtns[idx].querySelector('.choice-icon').classList.remove('hidden');
+          }
+        });
+      }
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.classList.remove('hidden');
+      if (isCorrect) {
+        fbBox.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50 text-emerald-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '🎉';
+        document.getElementById('quiz-fb-title').innerText = 'ตอบถูกต้อง!';
+      } else {
+        fbBox.className = 'rounded-2xl p-4 border border-rose-200 bg-rose-50 text-rose-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '💡';
+        document.getElementById('quiz-fb-title').innerText = 'ข้อคิดความปลอดภัย:';
+      }
+      document.getElementById('quiz-fb-desc').innerText = q.explain;
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = false;
+      btnNext.className = 'px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2 cursor-pointer';
+    }
+
+    function nextQuestion() {
+      if (quizCurrentIdx < QUIZ_QUESTIONS.length - 1) {
+        quizCurrentIdx++;
+        playSoundEffect('click');
+        renderQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      playSoundEffect('fanfare');
+      document.getElementById('quiz-active-box').classList.add('hidden');
+      document.getElementById('quiz-result-box').classList.remove('hidden');
+
+      document.getElementById('res-score').innerText = quizScore;
+      const titleEl = document.getElementById('res-grade-title');
+      const descEl = document.getElementById('res-grade-desc');
+      const medalEl = document.getElementById('res-medal-icon');
+      const rankEl = document.getElementById('res-rank');
+
+      if (quizScore === 6) {
+        medalEl.innerText = '🥇';
+        rankEl.innerText = 'A+ ผู้เชี่ยวชาญความปลอดภัย';
+        rankEl.className = 'text-base font-bold text-emerald-600';
+        titleEl.innerText = 'ยอดเยี่ยมระดับมืออาชีพ! 100%';
+        descEl.innerText = 'คุณมีความเข้าใจในกฎความปลอดภัย การใช้เครื่องมือ และการจัดการเหตุฉุกเฉินอย่างสมบูรณ์แบบ';
+      } else if (quizScore >= 4) {
+        medalEl.innerText = '🥈';
+        rankEl.innerText = 'B+ มีความรอบคอบดีเยี่ยม';
+        rankEl.className = 'text-base font-bold text-sky-600';
+        titleEl.innerText = 'ผ่านเกณฑ์ความปลอดภัยดีมาก!';
+        descEl.innerText = 'คุณมีความรอบคอบและเข้าใจหลัก 5 ส. เป็นอย่างดี ปฏิบัติงานได้อย่างมั่นใจ';
+      } else {
+        medalEl.innerText = '🥉';
+        rankEl.innerText = 'C ควรทบทวนเพิ่มความระมัดระวัง';
+        rankEl.className = 'text-base font-bold text-amber-600';
+        titleEl.innerText = 'ควรทบทวนความปลอดภัยเพิ่มเติม';
+        descEl.innerText = 'ลองกลับไปศึกษา 4 เสาหลักและสำรวจจุดเสี่ยง 4 โซนอีกครั้ง เพื่อความปลอดภัยสูงสุดก่อนลงมือทำงานช่าง';
+      }
+    }
+
+    function restartQuiz() {
+      initQuiz();
+    }
+
+    function speakQuestion() {
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      speakText(q.topic + '. คำถาม: ' + q.title);
+    }
+
+    // Init on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderZone();
+      selectMission(0);
+      initQuiz();
+    });
+  </script>
+</body>
+</html>
