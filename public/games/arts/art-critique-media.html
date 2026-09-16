@@ -1,1 +1,1046 @@
-<!doctype html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>การวิจารณ์งานศิลป์เบื้องต้น</title><script src="/games/kampai-sdk.js?v=1.181.0"></script><script>const MEDIA_SLUG='art-critique-media';window.MEDIA_CONFIG={slug:MEDIA_SLUG,stateKey:'ArtCritiqueMedia',icon:'🎨',title:'การวิจารณ์งานศิลป์เบื้องต้น',grade:'ป.3–6',subject:'ศิลปะ',kicker:'ศิลปะ · สังเกตและอธิบาย',objective:'บอกสิ่งที่สังเกตและให้เหตุผลอย่างสุภาพ',image:'/games/media-lab-assets/learning-scene.svg',scenes:[{icon:'👀',label:'สังเกต',title:'มองให้เห็นรายละเอียด',body:'เริ่มจากบอกสิ่งที่เห็นจริง เช่น สี เส้น รูปร่าง พื้นผิว และตำแหน่ง ไม่รีบตัดสินว่าสวยหรือไม่สวย',tip:'ใช้คำว่า “ฉันสังเกตเห็น...”',speak:'เริ่มวิจารณ์งานศิลป์ด้วยการสังเกตรายละเอียด'},{icon:'🎨',label:'สี',title:'สีสร้างความรู้สึก',body:'สีอุ่นอาจทำให้รู้สึกสดใสหรืออบอุ่น ส่วนสีเย็นอาจทำให้รู้สึกสงบ สิ่งสำคัญคือบอกเหตุผลจากภาพ',tip:'ไม่มีคำตอบเดียว หากมีเหตุผลรองรับ',speak:'สีช่วยสร้างความรู้สึกและบรรยากาศของภาพ'},{icon:'〰️',label:'เส้นและรูปร่าง',title:'เส้นนำสายตา',body:'เส้นโค้ง เส้นตรง และรูปร่างต่าง ๆ ช่วยนำสายตาและทำให้ภาพดูเคลื่อนไหวหรือสงบนิ่ง',tip:'ลองชี้ว่าเส้นพาสายตาไปที่ใด',speak:'เส้นและรูปร่างช่วยนำสายตาและสร้างจังหวะในภาพ'},{icon:'💬',label:'อธิบาย',title:'พูดถึงงานอย่างสุภาพ',body:'การวิจารณ์ที่ดีพูดถึงผลงาน ไม่ตัดสินตัวคน และเสนอความคิดเห็นพร้อมหลักฐานจากสิ่งที่เห็น',tip:'ชมจุดเด่นและเสนอแนวทางพัฒนาได้',speak:'พูดถึงผลงานอย่างสุภาพและให้เหตุผลจากภาพ'}],practice:{title:'เลือกเหตุผลที่ดี',question:'ประโยคใดเป็นการวิจารณ์งานศิลป์ที่มีหลักฐาน?',options:[{label:'ภาพนี้ไม่สวยเลย',correct:false,explain:'ประโยคนี้เป็นการตัดสินกว้าง ๆ แต่ยังไม่มีหลักฐานจากภาพ'},{label:'ฉันรู้สึกสงบ เพราะใช้สีฟ้าและเส้นโค้งมาก',correct:true,explain:'ถูกต้อง มีทั้งความรู้สึกและหลักฐานที่สังเกตได้จากสีและเส้น'},{label:'คนวาดคงไม่ตั้งใจทำ',correct:false,explain:'ไม่ควรตัดสินความตั้งใจของคนจากภาพเพียงอย่างเดียว'}]}};</script><script src="/games/media-lab-runtime.js?v=1.0.0" defer></script></head><body><div id="media-root"><button data-mode="learn" hidden></button><button data-mode="practice" hidden></button></div></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>การวิจารณ์งานศิลป์เบื้องต้น — สื่อการสอนศิลปะ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Sarabun', sans-serif; }
+    .tab-btn.active {
+      background-color: #8b5cf6;
+      color: #ffffff;
+      border-color: #8b5cf6;
+      box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <script>
+    const MEDIA_SLUG = 'art-critique-media';
+  </script>
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button onclick="goHome()" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span class="hidden sm:inline">กลับหน้าหลัก</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🎨</span>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">การวิจารณ์งานศิลป์เบื้องต้น</h1>
+            <p class="text-xs text-slate-500 hidden sm:block">ห้องทดลองการอ่านภาพ สังเกตองค์ประกอบ และวิจารณ์เชิงบวก · ป.3–6</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Switches -->
+      <div class="flex items-center gap-2">
+        <button id="btn-mode-learn" data-mode="learn" onclick="switchMode('learn')" class="tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition">
+          📖 บทเรียน & แกลเลอรี
+        </button>
+        <button id="btn-mode-practice" data-mode="practice" onclick="switchMode('practice')" class="tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          📝 แบบฝึกหัด (6 ข้อ)
+        </button>
+        <button id="btn-sound-toggle" onclick="toggleSound()" title="เปิด/ปิดเสียง" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition border border-slate-200">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- LEARN MODE -->
+    <section id="section-learn" class="space-y-6">
+
+      <!-- Sub Navigation Tabs -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+          <button id="subtab-btn-steps" onclick="switchSubTab('steps')" class="px-4 py-2 rounded-xl text-sm font-bold bg-violet-50 text-violet-700 border border-violet-200 transition">
+            👁️ 4 ขั้นตอนวิจารณ์ศิลปะ (Feldman)
+          </button>
+          <button id="subtab-btn-gallery" onclick="switchSubTab('gallery')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            🖼️ แกลเลอรีสำรวจภาพ & วิเคราะห์
+          </button>
+          <button id="subtab-btn-builder" onclick="switchSubTab('builder')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            💬 เครื่องมือสร้างคำวิจารณ์เชิงบวก
+          </button>
+        </div>
+        <div class="text-xs text-slate-500 px-2 flex items-center gap-1">
+          <span>💡 แตะที่การ์ดเพื่อฟังเสียงอธิบาย</span>
+        </div>
+      </div>
+
+      <!-- SUBTAB 1: 4 STEPS OF ART CRITIQUE -->
+      <div id="subtab-steps" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Step 1 -->
+          <div class="bg-white rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakStep(0)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl">👀</div>
+                <span class="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">ขั้นที่ 1</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">สังเกตและระบุ (Describe)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">บอกเฉพาะสิ่งที่มองเห็นด้วยตาเปล่า ไม่ด่วนตัดสินว่าสวยหรือไม่ เช่น มีวัตถุอะไรบ้าง ใช้เส้นแบบไหน สีอะไร และรูปร่างใด</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-sky-600">📌</span>
+              <span><strong>ตัวอย่าง:</strong> "ฉันเห็นภูเขา พระอาทิตย์ และเส้นโค้งสีฟ้า"</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakStep(1)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl">📐</div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">ขั้นที่ 2</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">วิเคราะห์องค์ประกอบ (Analyze)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">ดูการจัดวางองค์ประกอบศิลป์ (Principles of Design) เช่น จุดเด่น (Focal Point) อยู่ตรงไหน ภาพมีความสมดุลแบบใด และเกิดจังหวะอย่างไร</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-amber-600">📌</span>
+              <span><strong>ตัวอย่าง:</strong> "ดวงอาทิตย์สีเหลืองเด่นชัดท่ามกลางท้องฟ้าม่วงเข้ม"</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-white rounded-2xl p-5 border border-rose-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakStep(2)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl">💭</div>
+                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">ขั้นที่ 3</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">ตีความหมาย (Interpret)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">ภาพนี้สื่อถึงอารมณ์ความรู้สึกใด? ศิลปินต้องการบอกอะไรกับเรา โดยใช้หลักฐานจากสีและเส้นในภาพมาสนับสนุนความรู้สึกนั้น</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-rose-600">📌</span>
+              <span><strong>ตัวอย่าง:</strong> "รู้สึกอบอุ่นและมีความหวัง เพราะใช้สีวรรณะอุ่นสดใส"</span>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-white rounded-2xl p-5 border border-emerald-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakStep(3)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">🏆</div>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">ขั้นที่ 4</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">ประเมินคุณค่า (Evaluate)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">สรุปคุณค่าของภาพ ชื่นชมจุดเด่นที่น่าประทับใจ และเสนอแนะสิ่งที่สามารถพัฒนาต่อยอดได้อย่างสุภาพและสร้างสรรค์</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-emerald-600">📌</span>
+              <span><strong>ตัวอย่าง:</strong> "ผลงานมีพลังมาก หากเพิ่มแสงเงาที่ภูเขาจะยิ่งมีมิติ"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Art Concept Overview Banner -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-1/2">
+              <div class="relative rounded-xl overflow-hidden shadow-inner border border-slate-100">
+                <img src="/games/arts/art-critique-media-cover.png" alt="การวิจารณ์ศิลป์" class="w-full h-auto object-cover">
+                <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-slate-700 shadow-sm">
+                  🎨 สตูดิโอทัศนศิลป์และศิลปะวิจารณ์
+                </div>
+              </div>
+            </div>
+            <div class="w-full md:w-1/2 space-y-3">
+              <div class="inline-block px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-xs font-bold">
+                💡 ศิลปะวิจารณ์ไม่ใช่การจับผิด
+              </div>
+              <h2 class="text-xl font-bold text-slate-900 leading-snug">
+                "การวิจารณ์ศิลปะ คือการฝึกมองอย่างลึกซึ้ง เข้าใจความรู้สึก และสื่อสารด้วยความเคารพ"
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                ในโลกศิลปะ <strong>ไม่มีคำว่าสวยหรือขี้เหร่เพียงอย่างเดียว</strong> ทุกผลงานสะท้อนความคิดของผู้สร้าง การวิจารณ์ที่ดีต้อง <em>มีหลักฐานจากภาพ ไม่ตัดสินตัวบุคคล และใช้ถ้อยคำที่สร้างกำลังใจ</em>
+              </p>
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-violet-600 font-bold">✓</span> พูดถึงสิ่งที่เห็นจริงในภาพ
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-violet-600 font-bold">✓</span> บอกเหตุผลรองรับความรู้สึก
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-violet-600 font-bold">✓</span> ชื่นชมจุดเด่นเป็นอันดับแรก
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-violet-600 font-bold">✓</span> แนะนำวิธีพัฒนาอย่างสุภาพ
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 2: ART GALLERY & VISUAL INSPECTOR -->
+      <div id="subtab-gallery" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span>🖼️</span> แกลเลอรีผลงาน & ห้องวิเคราะห์องค์ประกอบศิลป์
+              </h2>
+              <p class="text-xs text-slate-500">เลือกชมผลงาน 3 สไตล์ และกดสลับดูการวิเคราะห์ เส้น สี และจุดเด่น</p>
+            </div>
+            <!-- Artwork Selector Buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="selectArtwork(0)" id="art-btn-0" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-violet-50 text-violet-700 border-violet-300">
+                🌻 1. ทุ่งทานตะวัน (วรรณะอุ่น)
+              </button>
+              <button onclick="selectArtwork(1)" id="art-btn-1" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🌊 2. คลื่นใต้แสงจันทร์ (วรรณะเย็น)
+              </button>
+              <button onclick="selectArtwork(2)" id="art-btn-2" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🏙️ 3. เมืองนามธรรมเรขาคณิต
+              </button>
+            </div>
+          </div>
+
+          <!-- Artwork Display & Analysis Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Dynamic Canvas Artwork -->
+            <div class="lg:col-span-6 bg-slate-900 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden text-white shadow-md">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span id="art-palette-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950">
+                    ☀️ วรรณะสีอุ่น (Warm Tone)
+                  </span>
+                  <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+                    <button id="view-mode-full" onclick="setArtView('full')" class="px-2.5 py-1 rounded-lg font-bold bg-violet-600 text-white transition">ภาพรวม</button>
+                    <button id="view-mode-elements" onclick="setArtView('elements')" class="px-2.5 py-1 rounded-lg font-medium text-slate-300 hover:text-white transition">วิเคราะห์เส้น & จุดเด่น</button>
+                  </div>
+                </div>
+
+                <!-- Canvas Visual Rendering -->
+                <div id="canvas-container" class="w-full h-64 rounded-xl overflow-hidden shadow-inner flex items-center justify-center relative">
+                  <!-- Rendered by JS / SVG -->
+                </div>
+              </div>
+
+              <div class="pt-4 flex items-center justify-between text-xs border-t border-slate-800">
+                <div>
+                  <span class="text-slate-400">ชื่อผลงาน:</span>
+                  <strong class="text-white ml-1 text-sm" id="art-title">รุ่งอรุณทุ่งดอกทานตะวัน</strong>
+                </div>
+                <button onclick="speakCurrentArtwork()" class="px-3 py-1 bg-violet-600 hover:bg-violet-500 rounded-lg text-white font-medium flex items-center gap-1 transition">
+                  🔊 ฟังเสียงวิเคราะห์
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: 4-Step Analysis Details -->
+            <div class="lg:col-span-6 space-y-3">
+              <!-- Step 1 Info -->
+              <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-sky-800 flex items-center gap-1.5 mb-1">
+                  <span>👀</span> 1. สังเกตสิ่งที่เห็น (What is seen):
+                </div>
+                <p id="art-desc-text" class="text-xs text-sky-950 leading-relaxed"></p>
+              </div>
+
+              <!-- Step 2 Info -->
+              <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-amber-800 flex items-center gap-1.5 mb-1">
+                  <span>📐</span> 2. องค์ประกอบศิลป์ (Art Elements & Principles):
+                </div>
+                <p id="art-analyze-text" class="text-xs text-amber-950 leading-relaxed"></p>
+              </div>
+
+              <!-- Step 3 Info -->
+              <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-rose-800 flex items-center gap-1.5 mb-1">
+                  <span>💭</span> 3. อารมณ์และความรู้สึก (Mood & Interpretation):
+                </div>
+                <p id="art-interpret-text" class="text-xs text-rose-950 leading-relaxed"></p>
+              </div>
+
+              <!-- Step 4 Info -->
+              <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-emerald-800 flex items-center gap-1.5 mb-1">
+                  <span>🏆</span> 4. ข้อเสนอแนะเชิงสร้างสรรค์ (Constructive Advice):
+                </div>
+                <p id="art-eval-text" class="text-xs text-emerald-950 leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 3: CONSTRUCTIVE CRITIQUE BUILDER -->
+      <div id="subtab-builder" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="mb-5">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>💬</span> เครื่องมือประกอบประโยควิจารณ์เชิงบวก (Sandwich Method)
+            </h2>
+            <p class="text-xs text-slate-500">ฝึกพูดวิจารณ์ผลงานเพื่อนด้วยเทคนิค แซนด์วิช: [ชมจุดเด่น] + [บอกองค์ประกอบที่เห็น] + [แนะนำวิธีต่อยอด]</p>
+          </div>
+
+          <!-- 3 Parts Selection -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Part 1: Compliment -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px]">1</span>
+                <span>ชั้นบน: ชมเชยจุดเด่นที่ประทับใจ</span>
+              </label>
+              <select id="builder-part-1" onchange="updateCritiqueSentence()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:ring-2 focus:ring-violet-500">
+                <option value="ฉันประทับใจผลงานชิ้นนี้มาก">"ฉันประทับใจผลงานชิ้นนี้มาก..."</option>
+                <option value="ภาพนี้ดึงดูดสายตาและมีความน่าสนใจอย่างยิ่ง">"ภาพนี้ดึงดูดสายตาและมีความน่าสนใจอย่างยิ่ง..."</option>
+                <option value="ชอบการเลือกใช้สีที่มีชีวิตชีวาของเธอมาก">"ชอบการเลือกใช้สีที่มีชีวิตชีวาของเธอมาก..."</option>
+              </select>
+            </div>
+
+            <!-- Part 2: Visual Evidence -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span class="w-5 h-5 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-[10px]">2</span>
+                <span>ไส้กลาง: อธิบายหลักฐานจากองค์ประกอบ</span>
+              </label>
+              <select id="builder-part-2" onchange="updateCritiqueSentence()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:ring-2 focus:ring-violet-500">
+                <option value="เพราะมีการใช้เส้นโค้งและสีวรรณะเย็นที่ทำให้รู้สึกสงบผ่อนคลาย">"...เพราะมีการใช้เส้นโค้งและสีวรรณะเย็นที่ทำให้รู้สึกสงบผ่อนคลาย..."</option>
+                <option value="โดยเฉพาะการจัดวางจุดเด่นไว้ที่จุดตัดเก้าช่อง ทำให้ภาพดูสมดุล">"...โดยเฉพาะการจัดวางจุดเด่นไว้ที่จุดตัดเก้าช่อง ทำให้ภาพดูสมดุล..."</option>
+                <option value="ซึ่งการตัดกันของสีคู่ตรงข้ามช่วยขับเน้นให้วัตถุเด่นชัดออกมา">"...ซึ่งการตัดกันของสีคู่ตรงข้ามช่วยขับเน้นให้วัตถุเด่นชัดออกมา..."</option>
+              </select>
+            </div>
+
+            <!-- Part 3: Constructive Suggestion -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px]">3</span>
+                <span>ชั้นล่าง: ข้อเสนอแนะเพื่อพัฒนาต่อยอด</span>
+              </label>
+              <select id="builder-part-3" onchange="updateCritiqueSentence()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-medium focus:ring-2 focus:ring-violet-500">
+                <option value="หากเพิ่มน้ำหนักแสงเงาที่พื้นหลังอีกนิด ภาพจะมีมิติลึกขึ้นอย่างน่าทึ่ง">"...หากเพิ่มน้ำหนักแสงเงาที่พื้นหลังอีกนิด ภาพจะมีมิติลึกขึ้นอย่างน่าทึ่ง"</option>
+                <option value="ถ้าลองเกลี่ยรอยต่อของพู่กันให้เรียบเนียนขึ้น ชิ้นงานจะดูประณีตยิ่งขึ้น">"...ถ้าลองเกลี่ยรอยต่อของพู่กันให้เรียบเนียนขึ้น ชิ้นงานจะดูประณีตยิ่งขึ้น"</option>
+                <option value="อยากให้ลองเว้นพื้นที่ว่างรอบข้างอีกเล็กน้อย เพื่อให้สายตาได้พักและสบายตายิ่งขึ้น">"...อยากให้ลองเว้นพื้นที่ว่างรอบข้างอีกเล็กน้อย เพื่อให้สายตาได้พักและสบายตายิ่งขึ้น"</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Generated Sentence Preview Box -->
+          <div class="bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-200 rounded-2xl p-5 mb-4">
+            <div class="text-xs font-bold text-violet-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span>🌟</span> ประโยควิจารณ์ศิลปะเชิงสร้างสรรค์ของคุณ:
+            </div>
+            <p id="builder-preview-text" class="text-sm font-semibold text-slate-800 leading-relaxed">
+              "ฉันประทับใจผลงานชิ้นนี้มาก เพราะมีการใช้เส้นโค้งและสีวรรณะเย็นที่ทำให้รู้สึกสงบผ่อนคลาย หากเพิ่มน้ำหนักแสงเงาที่พื้นหลังอีกนิด ภาพจะมีมิติลึกขึ้นอย่างน่าทึ่ง"
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <button onclick="speakCritiqueSentence()" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2">
+              <span>🔊</span> ฟังเสียงอ่านประโยค
+            </button>
+            <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+              ✅ สุภาพ · มีหลักฐาน · ชื่นชมและให้กำลังใจ (Constructive 100%)
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PRACTICE MODE (6 QUESTIONS QUIZ) -->
+    <section id="section-practice" class="space-y-6 hidden">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm max-w-3xl mx-auto">
+        
+        <!-- Quiz Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">📝</span>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">แบบฝึกหัดคิดวิเคราะห์การวิจารณ์งานศิลป์</h2>
+              <p class="text-xs text-slate-500">ตอบคำถาม 6 ข้อ เพื่อประเมินทักษะการสังเกตและวิจารณ์อย่างสร้างสรรค์</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">ข้อที่</span>
+            <div class="text-lg font-black text-violet-600"><span id="quiz-curr-q">1</span> / 6</div>
+          </div>
+        </div>
+
+        <!-- Quiz Body Card -->
+        <div id="quiz-active-box" class="space-y-6">
+          <!-- Question Title -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-start gap-3">
+            <div class="text-2xl mt-0.5">❓</div>
+            <div class="flex-1">
+              <div class="text-xs font-bold text-violet-600 uppercase mb-1" id="quiz-q-topic">หลักการวิจารณ์ศิลป์</div>
+              <h3 id="quiz-q-title" class="text-base font-bold text-slate-800 leading-snug">
+                ข้อใดคือความแตกต่างสำคัญที่สุดระหว่าง "การตัดสิน (Judgment)" กับ "การวิจารณ์ศิลปะ (Critique)"?
+              </h3>
+            </div>
+            <button onclick="speakQuestion()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition" title="ฟังเสียงโจทย์">
+              🔊
+            </button>
+          </div>
+
+          <!-- Choices -->
+          <div class="space-y-2.5" id="quiz-choices-container">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Explanation / Feedback Banner (Hidden by default) -->
+          <div id="quiz-feedback-box" class="hidden rounded-2xl p-4 border transition">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl" id="quiz-fb-icon">💡</div>
+              <div>
+                <h4 class="text-sm font-bold" id="quiz-fb-title">คำอธิบายเหตุผล</h4>
+                <p class="text-xs mt-1 leading-relaxed" id="quiz-fb-desc"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end pt-2">
+            <button id="quiz-btn-next" onclick="nextQuestion()" disabled class="px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed">
+              <span>ข้อถัดไป</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Result Screen (Hidden until finished) -->
+        <div id="quiz-result-box" class="hidden py-8 text-center space-y-6">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-violet-100 flex items-center justify-center text-5xl shadow-inner border border-violet-200" id="res-medal-icon">
+            🏆
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-slate-900 mb-1" id="res-grade-title">ยอดเยี่ยมมาก! นักวิจารณ์ศิลป์รุ่นเยาว์</h3>
+            <p class="text-sm text-slate-600 max-w-md mx-auto" id="res-grade-desc">
+              คุณมีความเข้าใจในกระบวนการสังเกต วิเคราะห์องค์ประกอบ และการสื่อสารเชิงสร้างสรรค์อย่างลึกซึ้ง
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-6 bg-slate-50 px-8 py-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">คะแนนที่ได้</div>
+              <div class="text-3xl font-black text-violet-600"><span id="res-score">6</span> / 6</div>
+            </div>
+            <div class="h-8 w-px bg-slate-200"></div>
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">ระดับทัศนทักษะ</div>
+              <div class="text-base font-bold text-emerald-600" id="res-rank">A+ ยอดเยี่ยม</div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex items-center justify-center gap-3">
+            <button onclick="restartQuiz()" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2">
+              <span>🔄</span> ทำแบบฝึกหัดอีกครั้ง
+            </button>
+            <button onclick="switchMode('learn')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition">
+              📖 กลับไปสำรวจแกลเลอรี
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    โรงเรียนคำไฮวิทยา · สื่อการสอนกลุ่มสาระการเรียนรู้ศิลปะ Classroom-first · พัฒนาสุนทรียภาพและการคิดวิเคราะห์
+  </footer>
+
+  <!-- Sound & Interactive Logic -->
+  <script>
+    // State
+    let currentMode = 'learn';
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSoundEffect(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(180, now + 0.15);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'fanfare') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.type = 'triangle';
+            o.frequency.value = freq;
+            const start = now + idx * 0.12;
+            g.gain.setValueAtTime(0.2, start);
+            g.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+            o.start(start);
+            o.stop(start + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn('Web Audio issue', e);
+      }
+    }
+
+    function speakText(text) {
+      if (!soundEnabled) return;
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'th-TH';
+      u.rate = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btn-sound-toggle');
+      btn.innerText = soundEnabled ? '🔊' : '🔇';
+      if (!soundEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function goHome() {
+      if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+        window.KAMPAI.goHome();
+      } else {
+        window.location.href = '/games/hub.html';
+      }
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      playSoundEffect('click');
+      const learnSec = document.getElementById('section-learn');
+      const practiceSec = document.getElementById('section-practice');
+      const btnLearn = document.getElementById('btn-mode-learn');
+      const btnPractice = document.getElementById('btn-mode-practice');
+
+      if (mode === 'learn') {
+        learnSec.classList.remove('hidden');
+        practiceSec.classList.add('hidden');
+        btnLearn.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnPractice.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+      } else {
+        learnSec.classList.add('hidden');
+        practiceSec.classList.remove('hidden');
+        btnPractice.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnLearn.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        initQuiz();
+      }
+    }
+
+    function switchSubTab(sub) {
+      playSoundEffect('click');
+      const tabs = ['steps', 'gallery', 'builder'];
+      tabs.forEach(t => {
+        const el = document.getElementById('subtab-' + t);
+        const btn = document.getElementById('subtab-btn-' + t);
+        if (t === sub) {
+          el.classList.remove('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-violet-50 text-violet-700 border border-violet-200 transition';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        }
+      });
+    }
+
+    // Steps speech
+    const STEPS_DATA = [
+      { title: 'สังเกตและระบุ', body: 'ขั้นที่หนึ่ง สังเกตและระบุสิ่งที่เป็นรูปธรรมในภาพ บอกเฉพาะสิ่งที่เห็นจริงด้วยตาเปล่า เช่น เส้น สี รูปร่าง และวัตถุ โดยยังไม่ด่วนตัดสินว่าสวยหรือไม่สวย' },
+      { title: 'วิเคราะห์องค์ประกอบ', body: 'ขั้นที่สอง วิเคราะห์องค์ประกอบศิลป์ ดูการจัดวาง จุดเด่นของภาพ ความสมดุล ความกลมกลืน และจังหวะที่สายตามองผ่าน' },
+      { title: 'ตีความหมาย', body: 'ขั้นที่สาม ตีความหมายและอารมณ์ความรู้สึก ภาพนี้สื่อถึงอะไร ทำให้เรารู้สึกอย่างไร โดยอ้างอิงหลักฐานจากสีและเส้นในภาพ' },
+      { title: 'ประเมินคุณค่า', body: 'ขั้นที่สี่ ประเมินคุณค่าของผลงาน สรุปความประทับใจ ชื่นชมจุดเด่น และให้ข้อเสนอแนะในการพัฒนาอย่างสุภาพและสร้างสรรค์' }
+    ];
+
+    function speakStep(idx) {
+      playSoundEffect('click');
+      speakText(STEPS_DATA[idx].body);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 2: GALLERY ARTWORKS DATA & VIEWER
+    // ----------------------------------------------------
+    const ARTWORKS_DATA = [
+      {
+        title: 'รุ่งอรุณทุ่งดอกทานตะวัน (Golden Sunrise)',
+        badge: '☀️ วรรณะสีอุ่น (Warm Tone)',
+        badgeColor: 'bg-amber-400 text-slate-950',
+        desc: 'เห็นทุ่งดอกทานตะวันสีเหลืองทอง ดอกโตหันหน้าเข้าหาดวงอาทิตย์สีส้มแดงฉายแสงเหนือแนวภูเขาสีม่วงอ่อนในยามเช้า',
+        analyze: 'จุดเด่น (Focal Point) คือดวงอาทิตย์และดอกทานตะวันดอกหน้าสุด มีความสมดุลแบบอสมมาตร (Asymmetry) การใช้เส้นโค้งของกลีบดอกสร้างจังหวะที่นุ่มนวล',
+        interpret: 'สื่อถึงความอบอุ่น พลังแห่งความหวัง การเริ่มต้นวันใหม่อย่างสดใส และความเบิกบานใจของชีวิต',
+        evaluate: 'การจับคู่สีเหลืองและส้มตัดกับท้องฟ้าทำได้ทรงพลังมาก หากเพิ่มน้ำหนักเงาใต้กลีบดอกอีกเล็กน้อย จะยิ่งทำให้มิติความลึกชัดเจนขึ้น',
+        fullSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full">
+            <defs>
+              <linearGradient id="warmSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f97316"/>
+                <stop offset="60%" stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#fef08a"/>
+              </linearGradient>
+            </defs>
+            <rect width="400" height="220" fill="url(#warmSky)"/>
+            <!-- Sun -->
+            <circle cx="200" cy="90" r="45" fill="#ea580c"/>
+            <circle cx="200" cy="90" r="38" fill="#facc15"/>
+            <!-- Mountain -->
+            <polygon points="0,150 110,95 240,150" fill="#7c3aed" fill-opacity="0.3"/>
+            <polygon points="160,150 290,80 400,150" fill="#6d28d9" fill-opacity="0.4"/>
+            <!-- Field Ground -->
+            <rect y="140" width="400" height="80" fill="#15803d"/>
+            <!-- Sunflowers -->
+            <circle cx="80" cy="160" r="18" fill="#eab308"/><circle cx="80" cy="160" r="8" fill="#713f12"/>
+            <circle cx="160" cy="150" r="14" fill="#eab308"/><circle cx="160" cy="150" r="6" fill="#713f12"/>
+            <circle cx="240" cy="170" r="22" fill="#facc15"/><circle cx="240" cy="170" r="10" fill="#713f12"/>
+            <circle cx="330" cy="155" r="16" fill="#eab308"/><circle cx="330" cy="155" r="7" fill="#713f12"/>
+          </svg>
+        `,
+        elementsSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full bg-slate-950">
+            <!-- Focal Point Target -->
+            <circle cx="200" cy="90" r="45" fill="none" stroke="#facc15" stroke-width="2" stroke-dasharray="4 4"/>
+            <circle cx="200" cy="90" r="4" fill="#ef4444"/>
+            <text x="200" y="40" text-anchor="middle" fill="#facc15" font-size="11" font-weight="bold">🎯 จุดเด่นหลัก (ดวงอาทิตย์)</text>
+            <!-- Flow Lines -->
+            <path d="M50 190 Q 200 130 350 190" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="200" y="210" text-anchor="middle" fill="#38bdf8" font-size="11">〰️ เส้นโค้งนำสายตาระดับทุ่งดอกไม้</text>
+            <!-- Focal sunflower -->
+            <circle cx="240" cy="170" r="24" fill="none" stroke="#ea580c" stroke-width="2"/>
+            <text x="240" y="140" text-anchor="middle" fill="#ea580c" font-size="10">จุดรองรับสายตา</text>
+          </svg>
+        `
+      },
+      {
+        title: 'ทะเลคลื่นใต้แสงจันทร์ (Moonlit Ocean Waves)',
+        badge: '🌙 วรรณะสีเย็น (Cool Tone)',
+        badgeColor: 'bg-sky-400 text-slate-950',
+        desc: 'เห็นท้องฟ้ายามค่ำคืนสีน้ำเงินเข้ม ดวงจันทร์เสี้ยวสีนวลสะท้อนลงบนเกลียวคลื่นทะเลสีครามและฟองคลื่นสีขาว',
+        analyze: 'การใช้เส้นหยักและเส้นโค้งพลิ้วไหวอย่างต่อเนื่องทำให้เกิด "จังหวะและความเคลื่อนไหว (Movement)" จุดสว่างของแสงสะท้อนบนผิวน้ำช่วยนำสายตาจากดวงจันทร์ลงสู่ท้องทะเล',
+        interpret: 'สื่อถึงความสงบ เยือกเย็น ความลึกลับของธรรมชาติ และความยิ่งใหญ่ของมหาสมุทรที่ชวนให้ค้นหา',
+        evaluate: 'สื่อสารอารมณ์ความสงบนิ่งได้ยอดเยี่ยมมาก เส้นคลื่นมีน้ำหนักพริ้วไหว หากเพิ่มเรือลำเล็ก ๆ เป็นจุดเด่นเสริม จะทำให้มีเรื่องราวน่าติดตามยิ่งขึ้น',
+        fullSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full">
+            <defs>
+              <linearGradient id="coolSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#020617"/>
+                <stop offset="50%" stop-color="#0f172a"/>
+                <stop offset="100%" stop-color="#1e3a8a"/>
+              </linearGradient>
+            </defs>
+            <rect width="400" height="220" fill="url(#coolSky)"/>
+            <!-- Moon -->
+            <circle cx="310" cy="55" r="24" fill="#fef08a"/>
+            <circle cx="317" cy="51" r="22" fill="#0f172a"/>
+            <!-- Ocean Waves -->
+            <path d="M0 130 Q 100 110 200 130 T 400 130 L 400 220 L 0 220 Z" fill="#1e40af"/>
+            <path d="M0 155 Q 80 135 180 160 T 400 150 L 400 220 L 0 220 Z" fill="#1d4ed8"/>
+            <path d="M0 180 Q 120 160 220 185 T 400 175 L 400 220 L 0 220 Z" fill="#2563eb"/>
+            <!-- Moon reflection -->
+            <ellipse cx="305" cy="170" rx="14" ry="4" fill="#fef08a" fill-opacity="0.4"/>
+            <ellipse cx="300" cy="190" rx="22" ry="5" fill="#fef08a" fill-opacity="0.3"/>
+          </svg>
+        `,
+        elementsSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full bg-slate-950">
+            <!-- Moon Target -->
+            <circle cx="310" cy="55" r="26" fill="none" stroke="#fef08a" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="310" y="24" text-anchor="middle" fill="#fef08a" font-size="11">🎯 จุดกำเนิดแสง (ดวงจันทร์)</text>
+            <!-- Vertical Sightline -->
+            <line x1="305" y1="75" x2="305" y2="190" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="240" y="115" fill="#f43f5e" font-size="10">แนวแสงสะท้อนนำสายตา</text>
+            <!-- Wave rhythms -->
+            <path d="M50 140 Q 150 110 250 140 T 380 140" fill="none" stroke="#38bdf8" stroke-width="2"/>
+            <text x="120" y="170" fill="#38bdf8" font-size="10">〰️ จังหวะความเคลื่อนไหวของคลื่น (Rhythm)</text>
+          </svg>
+        `
+      },
+      {
+        title: 'เมืองนามธรรมเรขาคณิต (Geometric Star City)',
+        badge: '📐 ศิลปะนามธรรม (Abstract/Cubism)',
+        badgeColor: 'bg-emerald-400 text-slate-950',
+        desc: 'เห็นอาคารบ้านเรือนที่ถูกตัดทอนเป็นรูปทรงสี่เหลี่ยม สามเหลี่ยม และวงกลม ซ้อนทับกันด้วยคู่สีสดใส เช่น แดง น้ำเงิน เหลือง',
+        analyze: 'เน้น "เอกภาพและความหลากหลาย (Unity & Variety)" การจัดวางรูปทรงเรขาคณิตมีเส้นตรงและมุมฉากที่สื่อถึงความมั่นคง โครงสร้างเมือง และความทันสมัย',
+        interpret: 'สื่อถึงความเจริญก้าวหน้า ความกระฉับกระเฉง และมุมมองต่อเมืองใหญ่ที่เต็มไปด้วยความหลากหลายและพลังงานของผู้คน',
+        evaluate: 'การประสานรูปทรงและคู่สีแม่สีสดใสมีความน่าสนใจแบบศิลปะสมัยใหม่ หากจัดระยะน้ำหนักสีเข้ม-อ่อนให้มีมิติหน้า-หลัง จะยิ่งเสริมความลึกของผังเมือง',
+        fullSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full">
+            <rect width="400" height="220" fill="#f8fafc"/>
+            <!-- Shapes -->
+            <polygon points="60,220 60,80 140,80 140,220" fill="#ef4444"/>
+            <polygon points="120,220 120,50 210,50 210,220" fill="#3b82f6"/>
+            <polygon points="190,220 190,110 280,110 280,220" fill="#eab308"/>
+            <polygon points="260,220 260,70 340,70 340,220" fill="#10b981"/>
+            <!-- Triangle Roofs -->
+            <polygon points="60,80 100,30 140,80" fill="#1e1b4b"/>
+            <circle cx="165" cy="95" r="20" fill="#f8fafc"/>
+            <circle cx="165" cy="95" r="14" fill="#f97316"/>
+            <!-- Windows grid -->
+            <rect x="80" y="110" width="16" height="24" fill="#ffffff"/>
+            <rect x="104" y="110" width="16" height="24" fill="#ffffff"/>
+            <rect x="210" y="130" width="20" height="20" fill="#1e1b4b"/>
+            <rect x="238" y="130" width="20" height="20" fill="#1e1b4b"/>
+          </svg>
+        `,
+        elementsSvg: `
+          <svg viewBox="0 0 400 220" class="w-full h-full bg-slate-950">
+            <!-- Geometric bounding boxes -->
+            <rect x="60" y="50" width="280" height="170" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="200" y="35" text-anchor="middle" fill="#a855f7" font-size="11">📐 โครงสร้างจัดกลุ่มเอกภาพ (Unity Grouping)</text>
+            <!-- Vertical lines of buildings -->
+            <line x1="120" y1="50" x2="120" y2="220" stroke="#facc15" stroke-width="2"/>
+            <line x1="210" y1="50" x2="210" y2="220" stroke="#facc15" stroke-width="2"/>
+            <text x="165" y="180" text-anchor="middle" fill="#facc15" font-size="10">เส้นตั้งมั่นคง</text>
+            <!-- Focal Circle -->
+            <circle cx="165" cy="95" r="22" fill="none" stroke="#ef4444" stroke-width="2"/>
+            <text x="165" y="65" text-anchor="middle" fill="#ef4444" font-size="10">จุดเด่นตัดรูปทรง</text>
+          </svg>
+        `
+      }
+    ];
+
+    let currentArtIdx = 0;
+    let currentArtView = 'full'; // 'full' or 'elements'
+
+    function selectArtwork(idx) {
+      currentArtIdx = idx;
+      playSoundEffect('click');
+      for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById('art-btn-' + i);
+        if (i === idx) {
+          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-violet-50 text-violet-700 border-violet-300';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+        }
+      }
+      renderArtwork();
+    }
+
+    function setArtView(view) {
+      currentArtView = view;
+      playSoundEffect('click');
+      const btnFull = document.getElementById('view-mode-full');
+      const btnElem = document.getElementById('view-mode-elements');
+
+      if (view === 'full') {
+        btnFull.className = 'px-2.5 py-1 rounded-lg font-bold bg-violet-600 text-white transition';
+        btnElem.className = 'px-2.5 py-1 rounded-lg font-medium text-slate-300 hover:text-white transition';
+      } else {
+        btnElem.className = 'px-2.5 py-1 rounded-lg font-bold bg-violet-600 text-white transition';
+        btnFull.className = 'px-2.5 py-1 rounded-lg font-medium text-slate-300 hover:text-white transition';
+      }
+      renderArtwork();
+    }
+
+    function renderArtwork() {
+      const art = ARTWORKS_DATA[currentArtIdx];
+      document.getElementById('art-title').innerText = art.title;
+      document.getElementById('art-palette-badge').innerText = art.badge;
+      document.getElementById('art-palette-badge').className = 'px-3 py-1 rounded-full text-xs font-bold ' + art.badgeColor;
+
+      const container = document.getElementById('canvas-container');
+      container.innerHTML = currentArtView === 'full' ? art.fullSvg : art.elementsSvg;
+
+      document.getElementById('art-desc-text').innerText = art.desc;
+      document.getElementById('art-analyze-text').innerText = art.analyze;
+      document.getElementById('art-interpret-text').innerText = art.interpret;
+      document.getElementById('art-eval-text').innerText = art.evaluate;
+    }
+
+    function speakCurrentArtwork() {
+      const art = ARTWORKS_DATA[currentArtIdx];
+      speakText(art.title + '. สังเกตเห็น: ' + art.desc + '. องค์ประกอบ: ' + art.analyze + '. ความรู้สึก: ' + art.interpret);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 3: CONSTRUCTIVE CRITIQUE BUILDER
+    // ----------------------------------------------------
+    function updateCritiqueSentence() {
+      const p1 = document.getElementById('builder-part-1').value;
+      const p2 = document.getElementById('builder-part-2').value;
+      const p3 = document.getElementById('builder-part-3').value;
+      const fullText = `"${p1} ${p2} ${p3}"`;
+      document.getElementById('builder-preview-text').innerText = fullText;
+    }
+
+    function speakCritiqueSentence() {
+      const txt = document.getElementById('builder-preview-text').innerText.replace(/"/g, '');
+      playSoundEffect('click');
+      speakText(txt);
+    }
+
+    // ----------------------------------------------------
+    // PRACTICE MODE: 6 QUESTIONS QUIZ
+    // ----------------------------------------------------
+    const QUIZ_QUESTIONS = [
+      {
+        topic: 'หลักการวิจารณ์ศิลปะ',
+        title: 'ข้อใดคือความแตกต่างสำคัญที่สุดระหว่าง "การตัดสิน (Judgment)" กับ "การวิจารณ์ศิลปะ (Critique)"?',
+        choices: [
+          { text: 'การวิจารณ์ศิลปะต้องมีหลักฐานจากองค์ประกอบในภาพมารองรับ และชี้แนะแนวทางพัฒนาอย่างสร้างสรรค์', correct: true },
+          { text: 'การตัดสินใช้เวลาคิดนานกว่าการวิจารณ์ศิลปะ', correct: false },
+          { text: 'การวิจารณ์ศิลปะอนุญาตให้พูดเฉพาะเรื่องที่ไม่ชอบเท่านั้น', correct: false },
+          { text: 'ทั้งสองอย่างมีความหมายเหมือนกันทุกประการ', correct: false }
+        ],
+        explain: 'การวิจารณ์ศิลปะไม่ใช่การตัดสินว่าสวยหรือไม่สวยตามความชอบส่วนตัว แต่เป็นการพิจารณาหลักฐานจากสิ่งที่เห็นในภาพ พร้อมให้เหตุผลและข้อเสนอแนะเชิงสร้างสรรค์'
+      },
+      {
+        topic: 'ขั้นตอนการวิจารณ์ (Feldman\'s Model)',
+        title: 'เมื่อเริ่มมองภาพวาด ขั้นตอนแรกสุดตามหลักการวิจารณ์ศิลปะ (Describe) ควรทำสิ่งใดเป็นลำดับแรก?',
+        choices: [
+          { text: 'สังเกตและบอกสิ่งที่เห็นจริง เช่น วัตถุ เส้น สี และรูปร่าง โดยยังไม่ด่วนตัดสินความรู้สึก', correct: true },
+          { text: 'บอกทันทีว่าภาพนี้ควรขายในราคาเท่าไร', correct: false },
+          { text: 'วิจารณ์นิสัยของผู้วาดว่ามีความตั้งใจมากน้อยเพียงใด', correct: false },
+          { text: 'นำพู่กันไปแต่งแต้มแก้ไขภาพของผู้อื่นทันที', correct: false }
+        ],
+        explain: 'ขั้นแรกคือ "ขั้นสังเกตและระบุ (Describe)" ต้องมองสิ่งที่ปรากฏจริงอย่างเป็นกลาง เช่น เส้นตรง เส้นโค้ง สีวรรณะใด และมีวัตถุอะไรบ้าง'
+      },
+      {
+        topic: 'จิตวิทยาของสีในงานศิลป์',
+        title: 'หากภาพวาดชิ้นหนึ่งใช้สีส้ม สีแดง และสีเหลืองเป็นส่วนใหญ่ มักจะสื่อถึงอารมณ์ความรู้สึกในข้อใดมากที่สุด?',
+        choices: [
+          { text: 'ความอบอุ่น ความสดใส มีพลัง และความตื่นเต้นมีชีวิตชีวา', correct: true },
+          { text: 'ความโศกเศร้า เยือกเย็น และความเหงาเงียบสงัด', correct: false },
+          { text: 'ความน่ากลัว สยองขวัญ และความมืดมิด', correct: false },
+          { text: 'ความง่วงนอนและความเฉยชา', correct: false }
+        ],
+        explain: 'สีส้ม แดง และเหลือง จัดอยู่ใน "วรรณะสีอุ่น (Warm Tone)" ให้ความรู้สึกถึงแสงแดด พลังงาน ความอบอุ่น และความสดใส'
+      },
+      {
+        topic: 'การวิเคราะห์องค์ประกอบศิลป์',
+        title: '"ฉันชอบที่ภาพนี้ใช้เส้นโค้งของคลื่นน้ำต่อเนื่องกัน ทำให้รู้สึกว่าเรือกำลังแล่นเคลื่อนไหวอยู่จริง" ข้อความนี้อยู่ในขั้นตอนใด?',
+        choices: [
+          { text: 'ขั้นวิเคราะห์องค์ประกอบศิลป์ (Analyze: จังหวะและความเคลื่อนไหว)', correct: true },
+          { text: 'ขั้นซื้อขายภาพวาด', correct: false },
+          { text: 'ขั้นคัดเลือกกระดาษวาดเขียน', correct: false },
+          { text: 'ขั้นล้างพู่กันทำความสะอาด', correct: false }
+        ],
+        explain: 'ประโยคนี้กล่าวถึง "เส้นโค้ง" และ "ความเคลื่อนไหว (Movement)" ซึ่งเป็นหลักการจัดองค์ประกอบศิลป์ในขั้นวิเคราะห์'
+      },
+      {
+        topic: 'มารยาทและการให้ข้อเสนอแนะ',
+        title: 'วิธีการให้ข้อเสนอแนะแก่ผลงานของเพื่อนอย่างสร้างสรรค์ (Constructive Feedback) ข้อใดเหมาะสมที่สุด?',
+        choices: [
+          { text: 'ชมเชยจุดเด่นที่ทำได้ดีก่อน แล้วเสนอแนะสิ่งที่สามารถพัฒนาต่อยอดได้อย่างสุภาพ', correct: true },
+          { text: 'บอกเพื่อนว่าภาพวาดไม่สวยเลย แล้วหัวเราะเสียงดัง', correct: false },
+          { text: 'เงียบไว้ไม่พูดอะไรเลยเพราะกลัวเพื่อนโกรธ', correct: false },
+          { text: 'ฉีกผลงานของเพื่อนทิ้งเพื่อให้เพื่อนวาดใหม่', correct: false }
+        ],
+        explain: 'การใช้วิธีชมเชยจุดเด่นก่อน (Compliment) แล้วจึงให้ข้อเสนอแนะเชิงพัฒนา (Improvement) จะช่วยสร้างกำลังใจและเปิดใจรับฟังอย่างสร้างสรรค์'
+      },
+      {
+        topic: 'จุดเด่นของภาพ (Focal Point)',
+        title: 'การมองหา "จุดเด่น (Focal Point)" ในภาพวาด หมายถึงการมองหาสิ่งใด?',
+        choices: [
+          { text: 'จุดที่ดึงดูดสายตาเป็นอันดับแรก ซึ่งอาจมีสี ขนาด หรือตำแหน่งที่โดดเด่นกว่าจุดอื่น', correct: true },
+          { text: 'กรอบรูปไม้ที่ใส่ภาพวาดไว้', correct: false },
+          { text: 'รอยเปื้อนหมึกที่มุมกระดาษ', correct: false },
+          { text: 'ลายเซ็นที่เล็กที่สุดของผู้วาด', correct: false }
+        ],
+        explain: 'จุดเด่น (Focal Point) คือบริเวณหลักที่ศิลปินตั้งใจให้สายตาของผู้ชมพุ่งเป้าไปเป็นจุดแรก โดยใช้ความแตกต่างของสี แสงเงา หรือขนาด'
+      }
+    ];
+
+    let quizCurrentIdx = 0;
+    let quizScore = 0;
+    let quizAnswered = false;
+
+    function initQuiz() {
+      quizCurrentIdx = 0;
+      quizScore = 0;
+      quizAnswered = false;
+      document.getElementById('quiz-active-box').classList.remove('hidden');
+      document.getElementById('quiz-result-box').classList.add('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      quizAnswered = false;
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      document.getElementById('quiz-curr-q').innerText = (quizCurrentIdx + 1);
+      document.getElementById('quiz-q-topic').innerText = q.topic;
+      document.getElementById('quiz-q-title').innerText = q.title;
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.className = 'hidden rounded-2xl p-4 border transition';
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = true;
+      btnNext.className = 'px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed';
+
+      const container = document.getElementById('quiz-choices-container');
+      container.innerHTML = '';
+      q.choices.forEach((c, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full p-4 text-left rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-violet-300 transition text-sm font-medium text-slate-800 flex items-center justify-between group shadow-sm';
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-violet-100 group-hover:text-violet-700 text-slate-500 font-bold text-xs flex items-center justify-center transition">${String.fromCharCode(65 + idx)}</span>
+            <span>${c.text}</span>
+          </div>
+          <span class="choice-icon text-lg hidden"></span>
+        `;
+        btn.onclick = () => selectQuizChoice(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectQuizChoice(choiceIdx, btnEl) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      const isCorrect = q.choices[choiceIdx].correct;
+      const choicesBtns = document.getElementById('quiz-choices-container').children;
+
+      if (isCorrect) {
+        quizScore++;
+        playSoundEffect('correct');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-sm font-bold text-emerald-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '✅';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+      } else {
+        playSoundEffect('wrong');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-rose-500 bg-rose-50 text-sm font-bold text-rose-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '❌';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+
+        q.choices.forEach((c, idx) => {
+          if (c.correct) {
+            choicesBtns[idx].className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-400 bg-emerald-50/70 text-sm font-bold text-emerald-800 flex items-center justify-between shadow-sm';
+            choicesBtns[idx].querySelector('.choice-icon').innerText = '✅';
+            choicesBtns[idx].querySelector('.choice-icon').classList.remove('hidden');
+          }
+        });
+      }
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.classList.remove('hidden');
+      if (isCorrect) {
+        fbBox.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50 text-emerald-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '🎉';
+        document.getElementById('quiz-fb-title').innerText = 'ตอบถูกต้อง!';
+      } else {
+        fbBox.className = 'rounded-2xl p-4 border border-rose-200 bg-rose-50 text-rose-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '💡';
+        document.getElementById('quiz-fb-title').innerText = 'ข้อคิดการวิจารณ์ศิลป์:';
+      }
+      document.getElementById('quiz-fb-desc').innerText = q.explain;
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = false;
+      btnNext.className = 'px-6 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2 cursor-pointer';
+    }
+
+    function nextQuestion() {
+      if (quizCurrentIdx < QUIZ_QUESTIONS.length - 1) {
+        quizCurrentIdx++;
+        playSoundEffect('click');
+        renderQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      playSoundEffect('fanfare');
+      document.getElementById('quiz-active-box').classList.add('hidden');
+      document.getElementById('quiz-result-box').classList.remove('hidden');
+
+      document.getElementById('res-score').innerText = quizScore;
+      const titleEl = document.getElementById('res-grade-title');
+      const descEl = document.getElementById('res-grade-desc');
+      const medalEl = document.getElementById('res-medal-icon');
+      const rankEl = document.getElementById('res-rank');
+
+      if (quizScore === 6) {
+        medalEl.innerText = '🥇';
+        rankEl.innerText = 'A+ นักวิจารณ์ศิลป์ยอดเยี่ยม';
+        rankEl.className = 'text-base font-bold text-emerald-600';
+        titleEl.innerText = 'ยอดเยี่ยมระดับมืออาชีพ! 100%';
+        descEl.innerText = 'คุณเข้าใจการสังเกต วิเคราะห์องค์ประกอบ และการสื่อสารอย่างสร้างสรรค์สมบูรณ์แบบ';
+      } else if (quizScore >= 4) {
+        medalEl.innerText = '🥈';
+        rankEl.innerText = 'B+ มีสุนทรียทัศน์ดีเยี่ยม';
+        rankEl.className = 'text-base font-bold text-violet-600';
+        titleEl.innerText = 'ผ่านเกณฑ์วิจารณ์ศิลป์ดีมาก!';
+        descEl.innerText = 'คุณมีความเข้าใจในจิตวิทยาของสีและองค์ประกอบศิลป์เป็นอย่างดี พร้อมเป็นผู้ให้กำลังใจเพื่อน';
+      } else {
+        medalEl.innerText = '🥉';
+        rankEl.innerText = 'C ควรฝึกสังเกตเพิ่มเติม';
+        rankEl.className = 'text-base font-bold text-amber-600';
+        titleEl.innerText = 'ควรทบทวนการวิจารณ์ศิลป์เพิ่มเติม';
+        descEl.innerText = 'ลองกลับไปศึกษา 4 ขั้นตอนของ Feldman และสำรวจแกลเลอรีผลงานอีกครั้ง เพื่อพัฒนาทัศนทักษะให้เฉียบคมยิ่งขึ้น';
+      }
+    }
+
+    function restartQuiz() {
+      initQuiz();
+    }
+
+    function speakQuestion() {
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      speakText(q.topic + '. คำถาม: ' + q.title);
+    }
+
+    // Init on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      selectArtwork(0);
+      updateCritiqueSentence();
+      initQuiz();
+    });
+  </script>
+</body>
+</html>
