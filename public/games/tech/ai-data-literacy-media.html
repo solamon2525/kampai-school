@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>รู้เท่าทัน AI และข้อมูล — บ้านคำไผ่</title>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script>
+    const MEDIA_SLUG = 'ai-data-literacy-media';
+    if (window.KAMPAI) {
+      try {
+        KAMPAI.setSlug(MEDIA_SLUG);
+        if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
+      } catch (_) {}
+    }
+  </script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{

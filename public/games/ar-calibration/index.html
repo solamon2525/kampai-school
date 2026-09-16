@@ -7,6 +7,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+    button:focus-visible, [role="button"]:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #6366f1; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    }
+    </style>
 </head>
 <body>
     <!-- App Container -->
@@ -103,9 +109,12 @@
 
                     <!-- Buttons -->
                     <div class="btn-group">
-                        <button id="btn-toggle-cam" class="btn primary">📷 Start Camera</button>
+                        <button id="btn-toggle-cam" class="btn primary" data-kampai-action="start">📷 Start Camera</button>
+                        <button id="btn-restart" class="btn secondary" data-kampai-action="restart">🔄 Restart</button>
                         <button id="btn-copy-config" class="btn secondary">📋 Copy Configuration</button>
+                        <button type="button" data-kampai-action="finish-test" hidden>จบเกมสำหรับทดสอบ</button>
                     </div>
+                    <div id="kampai-result" style="display:none;"></div>
                     <p class="cal-tip">💡 หลัง Copy JSON ไปวางใน <code>config.js</code> ของเกม — ทด <b>Stop → Start</b> กล้องที่นี่เพื่อจำลอง restart · เกม KampaiHands ต้อง <code>hands.stop(); hands=null</code> ก่อนเล่นใหม่ (ดู AR-GAME.md §4.12)</p>
 
                     <div class="config-output-wrapper">
@@ -150,7 +159,7 @@
     <script src="config.js"></script>
     <script src="data.js"></script>
     <script src="/games/kampai-sdk.js"></script>
-    <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
+    <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/';}, sound:{ unlock:function(){}, correct:function(){}, wrong:function(){}, timeUp:function(){}, gameOver:function(){}, speak:function(){}, stopSpeak:function(){}, fxFlash:function(){}, mountToggles:function(){}, defaultBgm:function(){}, bgmStart:function(){}, bgmStop:function(){} } };</script>
     <script src="/games/kampai-versus.js"></script>
     <script>window.KampaiVersus = window.KampaiVersus || { VERSION:'stub', create:function(){ return { openMenu:function(){}, report:function(){}, finish:function(){return false;}, leave:function(){} }; } };</script>
     <script src="/games/kampai-ar.js"></script>

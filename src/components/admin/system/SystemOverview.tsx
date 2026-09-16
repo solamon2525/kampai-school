@@ -290,6 +290,21 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.73 (วิทยาศาสตร์ & เทคโนโลยี — ยกระดับ Media Lab, จูนสมดุล AR จรวดพลังงาน และสร้างมาตรฐาน AR Calibration Tool)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ผ่านการตรวจสอบชุด Media Lab วิทยาศาสตร์และเทคโนโลยี 10 หัวข้อ (สื่อ 10 ชุด + ใบงานคู่ขนาน 10 ชุด) 100% ผ่าน scripts/verify-media-lab.mjs',
+            'ปรับปรุงโครงสร้าง ai-data-literacy-media.html, electric-circuit-media, states-of-matter-media และ algorithm-unplugged-media ให้สอดคล้องกับมาตรฐาน SDK และรองรับ WebP/SVG',
+            'รัน Migration 522 ลงทะเบียนสื่อจำลองสถานการณ์และใบงานคู่ขนานพร้อมผูกตัวชี้วัด ว 4.2, ว 2.1, ว 2.3 บน Supabase',
+            'ปรับปรุงและจูนสมดุลเกม AR "จรวดพลังงาน" (public/games/science/energy-rocket/): ปรับ CHARGE_K/TAP_K/DRAIN ให้ขยับ 6-10 วินาทีจึงจะเต็ม, แตะ fallback 40 ครั้ง, พร้อมเอฟเฟกต์การสั่น (Shake) และไอพ่นเรืองแสง (Thruster flicker)',
+            'ยกระดับ AR Calibration Tool (public/games/ar-calibration/): ระบบสอบเทียบความนิ่งของมือ OneEuroFilter/EMA พร้อม UI Glassmorphism ปรับแต่งจูนเนอร์แบบเรียลไทม์',
+            'ติดตั้งข้อกำหนด Quality Contract (Check 12) ครบทั้ง 2 เกม: KAMPAI.beginRound(), #kampai-result, start/restart/finish-test hooks, prefers-reduced-motion, และ focus-visible',
+            'ผ่านการทดสอบ verify:game:all 100% ทั้ง energy-rocket และ ar-calibration บนวิวพอร์ตมือถือ แท็บเล็ต และเดสก์ท็อป (360x800, 768x1024, 1280x720)',
+            'รัน Migration 523 อัปเดตข้อมูล game_docs ของ energy-rocket และ ar-calibration บน Supabase',
+        ],
+    },
+    {
         version: 'v1.229.72 (สื่อการสอนภาษาอังกฤษ — ยกระดับ ABC Phonics Studio A-Z, อัปเกรดใบงานโฟนิกส์คู่สื่อ และแก้ไขบั๊กเสียงอ่านซ้อน)',
         date: '16 ก.ย. 2569',
         badge: 'bg-emerald-600',

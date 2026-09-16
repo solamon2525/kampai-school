@@ -9,6 +9,12 @@
   ใช้ KAMPAI SDK + KampaiAR engine v1.1.0 (onEnergy). โครงร่าง/วิธีทำ: AR-GAME.md
 -->
 <link rel="stylesheet" href="style.css">
+<style>
+button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+</style>
 </head>
 <body>
 
@@ -25,7 +31,7 @@
             📱 ไม่มีกล้อง? <b>แตะปุ่ม "ออกแรง"</b> รัว ๆ
         </div>
         <div class="row">
-            <button class="btn" id="startBtn">▶️ เริ่มเล่น</button>
+            <button class="btn" id="startBtn" data-kampai-action="start">▶️ เริ่มเล่น</button>
             <button class="btn ghost" id="vsBtn">🏁 แข่ง 2 คน</button>
         </div>
         <div class="lb-box" id="lbBox" style="display:none">
@@ -78,9 +84,11 @@
         <h1 class="title">จบเกม!</h1>
         <div id="final-score">0</div>
         <div id="final-detail"></div>
+        <div id="kampai-result"></div>
         <div class="row">
-            <button class="btn" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn" id="restartBtn" data-kampai-action="restart">🔄 เล่นอีกครั้ง</button>
             <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+            <button type="button" data-kampai-action="finish-test" hidden>จบเกมสำหรับทดสอบ</button>
         </div>
     </div>
 </div>

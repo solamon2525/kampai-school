@@ -160,6 +160,7 @@
         $('roundPill').textContent = 'จรวด ' + (ST.round + 1) + '/' + ST.rounds.length;
         $('rocket').classList.remove('launch');
         updateMeter();
+        if (window.KAMPAI && KAMPAI.beginRound) KAMPAI.beginRound();
         startTimer();
     }
     function startTimer() {
@@ -222,5 +223,11 @@
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('homeBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('vsBtn').addEventListener('click', function () { vs.openMenu(); });
+    var finishBtn = document.querySelector('[data-kampai-action="finish-test"]');
+    if (finishBtn) finishBtn.addEventListener('click', finishGame);
+    window.KAMPAI_GAME = {
+        start: function () { startGame(null); },
+        restart: function () { startGame(null); }
+    };
     window.addEventListener('beforeunload', cleanup);
 })();

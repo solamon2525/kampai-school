@@ -4,12 +4,15 @@ import path from 'node:path';
 const root = process.cwd();
 const topics = [
   ['tech', 'ai-data-literacy'],
+  ['tech', 'algorithm-unplugged'],
   ['arts', 'thai-instruments'],
   ['arts', 'art-critique'],
   ['career', 'budget-planning'],
   ['career', 'workplace-safety'],
   ['health', 'emotional-wellbeing'],
   ['health', 'safety-help'],
+  ['science', 'states-of-matter'],
+  ['science', 'electric-circuit'],
 ];
 const runtime = path.join(root, 'public', 'games', 'media-lab-runtime.js');
 const asset = path.join(root, 'public', 'games', 'media-lab-assets', 'learning-scene.svg');
@@ -28,14 +31,18 @@ for (const [subject, slug] of topics) {
   const label = `${subject}/${slug}`;
   if (!media) failures.push(`${label}: missing media`);
   for (const [name, pattern] of [
-    ['media slug', /const MEDIA_SLUG=/],
+    ['media slug', /const\s+MEDIA_SLUG\s*=/],
     ['learn mode', /data-mode="learn"/],
     ['practice mode', /data-mode="practice"/],
     ['TTS fallback', /KAMPAI\.sound|speechSynthesis/],
     ['reduced motion', /prefers-reduced-motion/],
-    ['local image', /media-lab-assets\/learning-scene\.svg/],
+    ['local image', /(?:image|illustration)\s*:\s*['"][^'"]+\.(?:svg|png|webp|jpg)|src=['"][^'"]+\.(?:svg|png|webp|jpg)['"]/i],
     ['no score submit', (source) => !/submitScore\s*\(/.test(source)],
   ]) if (!((typeof pattern === 'function' ? pattern(mediaWithRuntime) : pattern.test(mediaWithRuntime)))) failures.push(`${label}: ${name}`);
+  if (subject === 'science') {
+    if (!/lab\s*:\s*\{/.test(media)) failures.push(`${label}: simulation lab`);
+    if (!/predictions\s*:\s*\[/.test(media)) failures.push(`${label}: prediction questions`);
+  }
   if (!worksheet) failures.push(`${label}: missing worksheet`);
   for (const [name, pattern] of [
     ['source media metadata', /worksheet-source-media/],
