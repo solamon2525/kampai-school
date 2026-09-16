@@ -1,82 +1,974 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>ABC Phonics — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔤 ABC & Phonics Reading Studio — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#2563eb;--line:#bfdbfe;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#bfdbfe,#2563eb22);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#2563eb);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --navy: #12355b;
+      --blue: #2563eb;
+      --blue-subtle: #eff6ff;
+      --line: #cbd5e1;
+      --line-subtle: #e2e8f0;
+      --gold: #f59e0b;
+      --gold-subtle: #fef3c7;
+      --text: #0f172a;
+      --muted: #64748b;
+      --ok: #16a34a;
+      --ok-bg: #dcfce7;
+      --bad: #dc2626;
+      --bad-bg: #fee2e2;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .shell {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      background: var(--surface);
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    header.topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, var(--navy) 0%, #1e40af 100%);
+      color: #ffffff;
+    }
+    .topbar h1 {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      flex: 1;
+      min-width: 140px;
+    }
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      border: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 0.88rem;
+    }
+    .btn-back:hover { background: rgba(255, 255, 255, 0.25); }
+    .btn-fs {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 0.85rem;
+    }
+    .btn-fs:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* Main Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line-subtle);
+    }
+    .seg-group {
+      display: flex;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 12px;
+      gap: 2px;
+      width: 100%;
+    }
+    .seg-btn {
+      flex: 1;
+      min-width: 80px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      background: transparent;
+      color: #475569;
+      min-height: 44px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .seg-btn.on {
+      background: var(--surface);
+      color: var(--navy);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .toolbar-spacer { flex: 1; }
+
+    /* Voice & Speed Controls */
+    .voice-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--blue-subtle);
+      border-bottom: 1px solid #dbeafe;
+      font-size: 0.88rem;
+    }
+    .control-label {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 0.85rem;
+    }
+    .select-input {
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1.5px solid #93c5fd;
+      background: var(--surface);
+      color: var(--navy);
+      cursor: pointer;
+      min-height: 44px;
+      flex: 1;
+      min-width: 130px;
+    }
+    .speed-btn-group {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      overflow: hidden;
+      min-height: 44px;
+    }
+    .speed-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      min-height: 44px;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.12s;
+    }
+    .speed-btn.on {
+      background: var(--blue);
+      color: #ffffff;
+    }
+
+    /* Stage Area */
+    .stage {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    /* Mode 1: Flashcard Studio */
+    .studio-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .studio-card {
+      width: 100%;
+      background: var(--surface);
+      border: 3px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      transition: all 0.2s;
+    }
+    @media (max-width: 680px) {
+      .studio-card {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card-visual {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px solid var(--line-subtle);
+      position: relative;
+    }
+    @media (max-width: 680px) {
+      .card-visual { border-right: none; border-bottom: 2px solid var(--line-subtle); }
+    }
+    .card-img-wrap {
+      width: 100%;
+      max-width: 220px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(15,23,42,0.06);
+    }
+    .card-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .letter-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--navy);
+      background: var(--gold-subtle);
+      border: 2px solid var(--gold);
+      padding: 2px 14px;
+      border-radius: 999px;
+      line-height: 1.2;
+    }
+    .card-info {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+    .letter-title {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: clamp(2.6rem, 6vw, 4rem);
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+    }
+    .letter-sound-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-subtle);
+      border: 1.5px solid #bfdbfe;
+      padding: 4px 14px;
+      border-radius: 10px;
+      width: fit-content;
+    }
+    .word-guide {
+      background: #f8fafc;
+      border: 1px solid var(--line-subtle);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .word-en-large {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .word-th-large {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #b45309;
+    }
+    .phonics-tip {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Card Controls */
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn-speak-main {
+      background: var(--navy);
+      color: #ffffff;
+      font-size: 1.05rem;
+      padding: 10px 22px;
+      border-radius: 12px;
+    }
+    .btn-speak-main:hover { background: #1e3a8a; }
+    .nav-ctrls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .nav-btn {
+      flex: 1;
+      min-width: 80px;
+      max-width: 160px;
+      background: var(--surface);
+      color: var(--navy);
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .nav-btn:hover {
+      border-color: var(--navy);
+      background: #f8fafc;
+    }
+
+    /* Mode 2: A-Z Picture Grid */
+    .grid-view {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .grid-card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .grid-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--blue);
+      box-shadow: 0 6px 16px rgba(37,99,235,0.12);
+    }
+    .grid-img-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 90px;
+      background: #f8fafc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .grid-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    .grid-letter {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+    }
+    .grid-word {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+    .grid-th {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Mode 3: Alphabet Quiz */
+    .quiz-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .quiz-card {
+      width: 100%;
+      background: var(--surface);
+      border: 3px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+    }
+    .quiz-prompt {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .quiz-audio-btn {
+      min-height: 48px;
+      padding: 10px 24px;
+      background: var(--gold-subtle);
+      border: 2px solid var(--gold);
+      color: #78350f;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+    .quiz-audio-btn:hover { background: var(--gold); color: var(--navy); }
+    .quiz-choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      width: 100%;
+    }
+    .quiz-choice {
+      background: var(--surface);
+      border: 2.5px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      min-height: 140px;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .quiz-choice:hover {
+      border-color: var(--navy);
+      background: #f8fafc;
+    }
+    .quiz-choice.correct {
+      border-color: var(--ok);
+      background: var(--ok-bg);
+    }
+    .quiz-choice.wrong {
+      border-color: var(--bad);
+      background: var(--bad-bg);
+    }
+    .quiz-choice-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+    .quiz-choice-letter {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .quiz-feedback {
+      min-height: 36px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-feedback.ok { color: var(--ok); }
+    .quiz-feedback.no { color: var(--bad); }
+
+    /* Footer */
+    footer.bottombar {
+      padding: 12px 20px;
+      background: #f8fafc;
+      border-top: 1px solid var(--line-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
-</head><body>
-<div class="shell" id="shell">
-  <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
-    <h1>🔤 ABC & Phonics</h1>
-    <span class="badge">ป.1–2 · English</span>
-  </header>
-  <div class="toolbar">
-    <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
-    </span>
-    <p class="hint" id="hintText">สื่อ ป.ต้น — ไม่เก็บคะแนน</p>
-    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
-    <a class="btn btn-ghost" href="/games/english/alphabet-phonics-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <!-- Header -->
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack" aria-label="กลับคลังสื่อ">← กลับคลังสื่อ</button>
+      <h1>🔤 ABC & Phonics Reading Studio</h1>
+      <span class="badge">ป.1–2 · สื่อภาษาอังกฤษ</span>
+      <button type="button" class="btn btn-fs" id="btnFs" aria-label="สลับเต็มจอ">⛶ เต็มจอ</button>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="seg-group" role="tablist" aria-label="โหมดการเรียนรู้">
+        <button type="button" class="seg-btn on" data-mode="learn" id="tabModeLearn" role="tab" aria-selected="true">
+          📖 บัตรคำ (Card)
+        </button>
+        <button type="button" class="seg-btn" data-mode="grid" id="tabModeGrid" role="tab" aria-selected="false">
+          📋 ตาราง A–Z (Grid)
+        </button>
+        <button type="button" class="seg-btn" data-mode="practice" id="tabModePractice" role="tab" aria-selected="false">
+          ✏️ แบบทดสอบ (Quiz)
+        </button>
+      </div>
+
+      <!-- Quick Action: Open Worksheet -->
+      <a href="/games/english/alphabet-phonics-worksheet.html" target="_blank" rel="noopener" class="btn" style="background:#fff;border:2px solid var(--navy);color:var(--navy);font-size:0.85rem;width:100%;">
+        📝 ใบงาน ABC Phonics (พิมพ์ A4)
+      </a>
+    </div>
+
+    <!-- Voice Settings Bar -->
+    <div class="voice-bar">
+      <span class="control-label">🗣️ เลือกเสียงคำอ่าน:</span>
+      <select id="selectVoice" class="select-input" aria-label="เลือกสำเนียงและเพศเสียง">
+        <option value="us-female">🇺🇸 US English (เสียงผู้หญิง)</option>
+        <option value="us-male">🇺🇸 US English (เสียงผู้ชาย)</option>
+        <option value="uk">🇬🇧 UK English (สำเนียงบริติช)</option>
+      </select>
+
+      <span class="control-label" style="margin-left:8px;">ความเร็ว:</span>
+      <div class="speed-btn-group" role="group" aria-label="ความเร็วการอ่าน">
+        <button type="button" class="speed-btn on" data-rate="0.75" id="btnSpeedSlow" title="ช้า เหมาะสำหรับเด็กเริ่มเรียน">🐢 ช้า 0.75x</button>
+        <button type="button" class="speed-btn" data-rate="1.0" id="btnSpeedNormal" title="ความเร็วปกติ">🚶 ปกติ 1.0x</button>
+      </div>
+
+      <span class="control-label" style="margin-left:8px;">รูปแบบการอ่าน:</span>
+      <select id="selectReadMode" class="select-input" aria-label="เลือกรูปแบบการอ่านเสียง">
+        <option value="sound">🗣️ อ่านเสียงตัวอักษร + คำศัพท์ (Letter & Sound)</option>
+        <option value="word">🔊 อ่านคำศัพท์อย่างเดียว (Word only)</option>
+        <option value="meaning">📖 อ่านคำศัพท์ + คำแปลไทย (Word & Meaning)</option>
+      </select>
+    </div>
+
+    <!-- Stage -->
+    <main class="stage" id="stage">
+      <!-- Mode 1: Flashcard Studio -->
+      <div class="studio-view" id="studioView">
+        <div class="studio-card" id="studioCard">
+          <div class="card-visual">
+            <span class="letter-badge" id="cardLetterBadge">A a</span>
+            <div class="card-img-wrap">
+              <img src="/games/english/vocab-hub-assets/fruits/apple.webp" alt="Apple" class="card-img" id="cardImg"/>
+            </div>
+          </div>
+          <div class="card-info">
+            <h2 class="letter-title" id="cardLetter">A a</h2>
+            <div class="letter-sound-tag" id="cardSoundTag">🔊 เสียง /æ/ (แอะ)</div>
+            <div class="word-guide">
+              <div class="word-en-large" id="cardWordEn">Apple</div>
+              <div class="word-th-large" id="cardWordTh">แอปเปิล (ผลไม้)</div>
+              <p class="phonics-tip" id="cardTip">💡 อ้าปากกว้าง ลิ้นวางต่ำ เปล่งเสียง "แอะ"</p>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn btn-speak-main" id="btnSpeakMain">
+                🔊 ฟังเสียงอ่าน
+              </button>
+              <button type="button" class="btn btn-speak-letter" id="btnSpeakLetter" style="background:#eff6ff;color:var(--blue);border:1.5px solid #bfdbfe;border-radius:12px;">
+                🗣️ ฟังเสียงตัวอักษร
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-ctrls">
+          <button type="button" class="btn nav-btn" id="btnPrevLetter">◀ ตัวก่อนหน้า</button>
+          <button type="button" class="btn nav-btn" id="btnRandLetter">🎲 สุ่มตัวอักษร</button>
+          <button type="button" class="btn nav-btn" id="btnNextLetter">ตัวถัดไป ▶</button>
+        </div>
+      </div>
+
+      <!-- Mode 2: A-Z Grid -->
+      <div class="grid-view" id="gridView">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Mode 3: Alphabet Quiz -->
+      <div class="quiz-view" id="quizView">
+        <div class="quiz-card">
+          <div class="quiz-prompt" id="quizPrompt">ฟังเสียงโฟนิกส์ แล้วเลือกตัวอักษรที่ถูกต้อง</div>
+          <button type="button" class="btn quiz-audio-btn" id="btnQuizSound">
+            🔊 กดเพื่อฟังเสียงปริศนา
+          </button>
+          <div class="quiz-choices" id="quizChoices"></div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <button type="button" class="btn" id="btnQuizNext" style="background:var(--blue);color:#fff;border-radius:12px;display:none;">
+            ข้อถัดไป ▶
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bottombar">
+      <span>โรงเรียนบ้านคำไผ่ · สื่อการสอน ABC Phonics ป.1–2 (Classroom-first)</span>
+      <span>สื่อการเรียนรู้เพื่อการศึกษา · ไม่เก็บคะแนน</span>
+    </footer>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
-</div>
-<script>
-const MEDIA_SLUG='alphabet-phonics-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"A","name":"A a /æ/","body":"Apple — เสียงต้น a","tip":"แตะ 🔊 ในใจ: æ","q":"Apple ขึ้นต้นด้วยตัว?","a":"A"},{"emoji":"B","name":"B b /b/","body":"Ball — เสียง b","tip":"ริมฝีปากปิดแล้วเปิด","q":"Ball ขึ้นต้นด้วย?","a":"B"},{"emoji":"C","name":"C c /k/","body":"Cat — เสียง c แบบ k","tip":"ไม่ใช่เสียง s ใน cat","q":"Cat ขึ้นต้นด้วย?","a":"C"},{"emoji":"D","name":"D d /d/","body":"Dog — เสียง d","tip":"ปลายลิ้นแตะปุ่มเหงือก","q":"Dog ขึ้นต้นด้วย?","a":"D"},{"emoji":"S","name":"S s /s/","body":"Sun — เสียง s","tip":"เสียงฟ่อเบา ๆ","q":"Sun ขึ้นต้นด้วย?","a":"S"},{"emoji":"T","name":"T t /t/","body":"Tiger — เสียง t","tip":"ลมปะทุสั้น","q":"Tiger ขึ้นต้นด้วย?","a":"T"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
-}
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
-</script>
-</body></html>
+
+  <script>
+    const GAME_SLUG = 'alphabet-phonics-media';
+    const MEDIA_SLUG = 'alphabet-phonics-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
+    }
+
+    const ALPHABET_DATA = [
+      { letter:'A a', upper:'A', lower:'a', sound:'/æ/', thSound:'แอะ', word:'Apple', thWord:'แอปเปิล', img:'/games/english/vocab-hub-assets/fruits/apple.webp', tip:'อ้าปากกว้าง ลิ้นวางต่ำ เปล่งเสียง "แอะ"' },
+      { letter:'B b', upper:'B', lower:'b', sound:'/b/', thSound:'เบอะ', word:'Ball', thWord:'ลูกบอล', img:'/games/english/vocab-hub-assets/toys/ball.webp', tip:'ริมฝีปากบนล่างประกบกันแล้วระเบิดลมออก' },
+      { letter:'C c', upper:'C', lower:'c', sound:'/k/', thSound:'เคอะ', word:'Cat', thWord:'แมว', img:'/games/english/vocab-hub-assets/animals/cat.webp', tip:'โคนลิ้นแตะเพดานอ่อน ลมปะทุสั้น' },
+      { letter:'D d', upper:'D', lower:'d', sound:'/d/', thSound:'เดอะ', word:'Dog', thWord:'สุนัข', img:'/games/english/vocab-hub-assets/animals/dog.webp', tip:'ปลายลิ้นแตะปุ่มเหงือกด้านบน' },
+      { letter:'E e', upper:'E', lower:'e', sound:'/e/', thSound:'เอะ', word:'Egg', thWord:'ไข่', img:'/games/english/vocab-hub-assets/food/egg.webp', tip:'ยิ้มมุมปากเล็กน้อย เปล่งเสียง "เอะ"' },
+      { letter:'F f', upper:'F', lower:'f', sound:'/f/', thSound:'เฟอะ', word:'Fish', thWord:'ปลา', img:'/games/english/vocab-hub-assets/animals/fish.webp', tip:'ฟันบนแตะริมฝีปากล่าง พ่นลมฟ่อเบาๆ' },
+      { letter:'G g', upper:'G', lower:'g', sound:'/ɡ/', thSound:'เกอะ', word:'Guitar', thWord:'กีตาร์', img:'/games/english/vocab-hub-assets/instruments/guitar.webp', tip:'โคนลิ้นสัมผัสเพดานอ่อน ออกเสียงก้อง' },
+      { letter:'H h', upper:'H', lower:'h', sound:'/h/', thSound:'เฮอะ', word:'Hat', thWord:'หมวก', img:'/games/english/vocab-hub-assets/clothes/hat.webp', tip:'เปิดปากหายใจพ่นลมเบาๆ ออกจากลำคอ' },
+      { letter:'I i', upper:'I', lower:'i', sound:'/aɪ/ & /ɪ/', thSound:'อิ / ไอ', word:'Ice Cream', thWord:'ไอศกรีม', img:'/games/english/vocab-hub-assets/food/ice-cream.webp', tip:'ฉีกยิ้มเบาๆ ลิ้นอยู่ระดับกลาง' },
+      { letter:'J j', upper:'J', lower:'j', sound:'/dʒ/', thSound:'เจอะ', word:'Juice', thWord:'น้ำผลไม้', img:'/games/english/vocab-hub-assets/food/juice.webp', tip:'ห่อริมฝีปากเล็กน้อย ออกเสียงจึผสมก้อง' },
+      { letter:'K k', upper:'K', lower:'k', sound:'/k/', thSound:'เคอะ', word:'Kite', thWord:'ว่าว', img:'/games/english/vocab-hub-assets/toys/kite.webp', tip:'โคนลิ้นดีดลมพ่นออก "เคอะ"' },
+      { letter:'L l', upper:'L', lower:'l', sound:'/l/', thSound:'เลอะ', word:'Lion', thWord:'สิงโต', img:'/games/english/vocab-hub-assets/animals/lion.webp', tip:'ปลายลิ้นแตะค้างไว้ที่ปุ่มเหงือกด้านหลังฟันบน' },
+      { letter:'M m', upper:'M', lower:'m', sound:'/m/', thSound:'เมอะ', word:'Monkey', thWord:'ลิง', img:'/games/english/vocab-hub-assets/animals/monkey.webp', tip:'ปิดปากสนิท สั่นเสียงขึ้นจมูก "อืม-เมอะ"' },
+      { letter:'N n', upper:'N', lower:'n', sound:'/n/', thSound:'เนอะ', word:'Nose', thWord:'จมูก', img:'/games/english/vocab-hub-assets/body/nose.webp', tip:'ปลายลิ้นกั้นลมที่เพดานหน้า เสียงออกทางจมูก' },
+      { letter:'O o', upper:'O', lower:'o', sound:'/ɒ/', thSound:'เอาะ', word:'Orange', thWord:'ส้ม', img:'/games/english/vocab-hub-assets/fruits/orange.webp', tip:'ทำปากรูปวงกลมมน เปล่งเสียง "เอาะ"' },
+      { letter:'P p', upper:'P', lower:'p', sound:'/p/', thSound:'เพอะ', word:'Pig', thWord:'หมู', img:'/games/english/vocab-hub-assets/animals/pig.webp', tip:'เม้มริมฝีปากแล้วพ่นลมแรง "เพอะ"' },
+      { letter:'Q q', upper:'Q', lower:'q', sound:'/kw/', thSound:'เควอะ', word:'Queen', thWord:'พระราชินี', img:'/games/english/vocab-hub-assets/jobs/queen.webp', tip:'ผสมเสียง k และ w เข้าด้วยกันเป็น "เควอะ"' },
+      { letter:'R r', upper:'R', lower:'r', sound:'/r/', thSound:'เรอะ', word:'Rabbit', thWord:'กระต่าย', img:'/games/english/vocab-hub-assets/animals/rabbit.webp', tip:'ห่อปากเล็กน้อย ห่อลิ้นถอยหลัง ไม่แตะเพดาน' },
+      { letter:'S s', upper:'S', lower:'s', sound:'/s/', thSound:'เซอะ', word:'Sun', thWord:'ดวงอาทิตย์', img:'/games/english/vocab-hub-assets/weather/sunny.webp', tip:'ฟันสบกันเบาๆ พ่นลมฟ่อดัง "สึ"' },
+      { letter:'T t', upper:'T', lower:'t', sound:'/t/', thSound:'เทอะ', word:'Tiger', thWord:'เสือ', img:'/games/english/vocab-hub-assets/animals/tiger.webp', tip:'ปลายลิ้นแตะปุ่มเหงือก สะบัดลมสั้น "เทอะ"' },
+      { letter:'U u', upper:'U', lower:'u', sound:'/ʌ/', thSound:'อะ', word:'Uncle', thWord:'คุณลุง', img:'/games/english/vocab-hub-assets/family/uncle.webp', tip:'ผ่อนคลายปากและลิ้น เปล่งเสียงสั้น "อะ"' },
+      { letter:'V v', upper:'V', lower:'v', sound:'/v/', thSound:'เวอะ (สั่น)', word:'Violin', thWord:'ไวโอลิน', img:'/games/english/vocab-hub-assets/instruments/violin.webp', tip:'ฟันบนแตะริมฝีปากล่าง เปล่งเสียงสั่นสะเทือน' },
+      { letter:'W w', upper:'W', lower:'w', sound:'/w/', thSound:'เวอะ', word:'Whale', thWord:'วาฬ', img:'/games/english/vocab-hub-assets/sea-animals/whale.webp', tip:'ทำปากจู๋แล้วคลายออก "เวอะ"' },
+      { letter:'X x', upper:'X', lower:'x', sound:'/ks/', thSound:'คึซ (ท้ายคำ)', word:'Fox', thWord:'สุนัขจิ้งจอก', img:'/games/english/vocab-hub-assets/animals/fox.webp', tip:'เสียงผสมท้ายคำ k + s เสียงพ่น "คึซ"' },
+      { letter:'Y y', upper:'Y', lower:'y', sound:'/j/', thSound:'เยอะ', word:'Yogurt', thWord:'โยเกิร์ต', img:'/games/english/vocab-hub-assets/food/yogurt.webp', tip:'ยกโคนลิ้นขึ้น ออกเสียง "เยอะ"' },
+      { letter:'Z z', upper:'Z', lower:'z', sound:'/z/', thSound:'เซอะ (สั่น)', word:'Zebra', thWord:'ม้าลาย', img:'/games/english/vocab-hub-assets/animals/zebra.webp', tip:'ฟันสบกัน พ่นลมพร้อมสั่นสายเสียง "ซึสั่น"' }
+    ];
+
+    let curIdx = 0;
+    let speechRate = 0.75;
+    let selectedVoiceKind = 'us-female';
+    let readMode = 'sound';
+    let speechVoices = [];
+
+    function refreshVoices() {
+      if ('speechSynthesis' in window) {
+        speechVoices = window.speechSynthesis.getVoices() || [];
+      }
+    }
+    refreshVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
+    }
+
+    function getVoiceForKind(kind) {
+      if (!speechVoices.length) refreshVoices();
+      if (kind === 'uk') {
+        const uk = speechVoices.find(v => /uk|british|great britain/i.test(v.name) || /en[-_]GB/i.test(v.lang));
+        if (uk) return uk;
+      } else if (kind === 'us-male') {
+        const male = speechVoices.find(v => /male|guy|david|mark|alex|daniel/i.test(v.name) && /^en/i.test(v.lang));
+        if (male) return male;
+      }
+      return speechVoices.find(v => /female|samantha|zira|victoria|karen/i.test(v.name) && /^en/i.test(v.lang)) ||
+             speechVoices.find(v => /^en/i.test(v.lang)) || null;
+    }
+
+    let isSpeakingLocked = false;
+    function speakText(text, lang, onEnd) {
+      if (isSpeakingLocked) return;
+      isSpeakingLocked = true;
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          setTimeout(() => {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang || 'en-US';
+            u.rate = speechRate;
+            const v = getVoiceForKind(selectedVoiceKind);
+            if (v) u.voice = v;
+            u.onend = u.onerror = () => {
+              isSpeakingLocked = false;
+              if (onEnd) onEnd();
+            };
+            window.speechSynthesis.speak(u);
+          }, 50);
+        } else if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
+          KAMPAI.sound.speak(text, lang);
+          setTimeout(() => { isSpeakingLocked = false; if(onEnd) onEnd(); }, 1200);
+        } else {
+          isSpeakingLocked = false;
+          if (onEnd) onEnd();
+        }
+      } catch (err) {
+        isSpeakingLocked = false;
+        if (onEnd) onEnd();
+      }
+    }
+
+    function playActiveItem() {
+      const it = ALPHABET_DATA[curIdx];
+      if (!it) return;
+      if (readMode === 'word') {
+        speakText(it.word, 'en-US');
+      } else if (readMode === 'meaning') {
+        speakText(it.word, 'en-US', () => {
+          setTimeout(() => speakText(it.thWord, 'th-TH'), 200);
+        });
+      } else {
+        // Letter & Sound: "A says /æ/! Apple!"
+        const msg = `${it.upper}! ... ${it.word}!`;
+        speakText(msg, 'en-US');
+      }
+    }
+
+    function renderStudioCard() {
+      const it = ALPHABET_DATA[curIdx];
+      if (!it) return;
+      document.getElementById('cardLetterBadge').textContent = it.letter;
+      document.getElementById('cardImg').src = it.img;
+      document.getElementById('cardImg').alt = it.word;
+      document.getElementById('cardLetter').textContent = it.letter;
+      document.getElementById('cardSoundTag').textContent = `🔊 เสียง ${it.sound} (${it.thSound})`;
+      document.getElementById('cardWordEn').textContent = it.word;
+      document.getElementById('cardWordTh').textContent = `${it.thWord}`;
+      document.getElementById('cardTip').textContent = `💡 ${it.tip}`;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('gridView');
+      grid.innerHTML = ALPHABET_DATA.map((it, idx) => `
+        <div class="grid-card" data-idx="${idx}" tabindex="0" role="button" aria-label="${it.letter} ${it.word}">
+          <div class="grid-img-wrap">
+            <img src="${it.img}" alt="${it.word}" class="grid-img" loading="lazy"/>
+          </div>
+          <div class="grid-letter">${it.letter}</div>
+          <div class="grid-word">${it.word}</div>
+          <div class="grid-th">${it.thSound} · ${it.thWord}</div>
+        </div>
+      `).join('');
+    }
+
+    // Quiz State
+    let quizTarget = null;
+    let quizChoices = [];
+
+    function setupQuizQuestion() {
+      const targetIdx = Math.floor(Math.random() * ALPHABET_DATA.length);
+      quizTarget = ALPHABET_DATA[targetIdx];
+      const choicesSet = new Set([targetIdx]);
+      while (choicesSet.size < 3) {
+        choicesSet.add(Math.floor(Math.random() * ALPHABET_DATA.length));
+      }
+      quizChoices = Array.from(choicesSet).map(idx => ALPHABET_DATA[idx]).sort(() => Math.random() - 0.5);
+
+      document.getElementById('quizPrompt').textContent = `เสียงใดคือเสียงของตัวอักษรนี้?`;
+      document.getElementById('quizFeedback').textContent = '';
+      document.getElementById('quizFeedback').className = 'quiz-feedback';
+      document.getElementById('btnQuizNext').style.display = 'none';
+
+      const container = document.getElementById('quizChoices');
+      container.innerHTML = quizChoices.map(c => `
+        <div class="quiz-choice" data-letter="${c.upper}" tabindex="0" role="button" aria-label="${c.letter} ${c.word}">
+          <img src="${c.img}" alt="${c.word}" class="quiz-choice-img"/>
+          <div class="quiz-choice-letter">${c.letter}</div>
+          <div style="font-weight:700;color:var(--muted);font-size:0.9rem;">${c.word}</div>
+        </div>
+      `).join('');
+
+      speakQuizPrompt();
+    }
+
+    function speakQuizPrompt() {
+      if (!quizTarget) return;
+      speakText(`${quizTarget.word}!`, 'en-US');
+    }
+
+    // Event Listeners
+    document.getElementById('btnBack').onclick = () => {
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+
+    document.getElementById('btnSpeakMain').onclick = playActiveItem;
+    document.getElementById('btnSpeakLetter').onclick = () => {
+      const it = ALPHABET_DATA[curIdx];
+      if (it) speakText(it.upper, 'en-US');
+    };
+
+    document.getElementById('btnPrevLetter').onclick = () => {
+      curIdx = (curIdx - 1 + ALPHABET_DATA.length) % ALPHABET_DATA.length;
+      renderStudioCard();
+      playActiveItem();
+    };
+
+    document.getElementById('btnNextLetter').onclick = () => {
+      curIdx = (curIdx + 1) % ALPHABET_DATA.length;
+      renderStudioCard();
+      playActiveItem();
+    };
+
+    document.getElementById('btnRandLetter').onclick = () => {
+      curIdx = Math.floor(Math.random() * ALPHABET_DATA.length);
+      renderStudioCard();
+      playActiveItem();
+    };
+
+    // Mode Switcher
+    function setMode(mode) {
+      document.querySelectorAll('.seg-btn').forEach(b => {
+        const on = b.dataset.mode === mode;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      document.getElementById('studioView').style.display = mode === 'learn' ? 'flex' : 'none';
+      document.getElementById('gridView').style.display = mode === 'grid' ? 'grid' : 'none';
+      document.getElementById('quizView').style.display = mode === 'practice' ? 'flex' : 'none';
+
+      if (mode === 'grid') renderGrid();
+      if (mode === 'practice') setupQuizQuestion();
+    }
+
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.onclick = () => setMode(btn.dataset.mode);
+    });
+
+    // Grid item click
+    document.getElementById('gridView').onclick = e => {
+      const card = e.target.closest('.grid-card');
+      if (!card) return;
+      curIdx = Number(card.dataset.idx);
+      renderStudioCard();
+      playActiveItem();
+    };
+
+    // Voice and Speed Controls
+    document.getElementById('selectVoice').onchange = e => {
+      selectedVoiceKind = e.target.value;
+    };
+    document.getElementById('selectReadMode').onchange = e => {
+      readMode = e.target.value;
+    };
+    document.getElementById('btnSpeedSlow').onclick = () => {
+      speechRate = 0.75;
+      document.getElementById('btnSpeedSlow').classList.add('on');
+      document.getElementById('btnSpeedNormal').classList.remove('on');
+    };
+    document.getElementById('btnSpeedNormal').onclick = () => {
+      speechRate = 1.0;
+      document.getElementById('btnSpeedNormal').classList.add('on');
+      document.getElementById('btnSpeedSlow').classList.remove('on');
+    };
+
+    // Quiz Events
+    document.getElementById('btnQuizSound').onclick = speakQuizPrompt;
+    document.getElementById('quizChoices').onclick = e => {
+      const choice = e.target.closest('.quiz-choice');
+      if (!choice || !quizTarget) return;
+      const isCorrect = choice.dataset.letter === quizTarget.upper;
+      document.querySelectorAll('.quiz-choice').forEach(c => {
+        if (c.dataset.letter === quizTarget.upper) c.classList.add('correct');
+        else if (c === choice && !isCorrect) c.classList.add('wrong');
+      });
+
+      const fb = document.getElementById('quizFeedback');
+      if (isCorrect) {
+        fb.textContent = `🎉 ถูกต้อง! ${quizTarget.letter} สำหรับ ${quizTarget.word}`;
+        fb.className = 'quiz-feedback ok';
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.correct();
+      } else {
+        fb.textContent = `💡 ลองใหม่นะ! คำตอบที่ถูกคือ ${quizTarget.letter} (${quizTarget.word})`;
+        fb.className = 'quiz-feedback no';
+        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.wrong();
+      }
+      document.getElementById('btnQuizNext').style.display = 'inline-flex';
+    };
+    document.getElementById('btnQuizNext').onclick = setupQuizQuestion;
+
+    // Initialize
+    renderStudioCard();
+    renderGrid();
+  </script>
+</body>
+</html>

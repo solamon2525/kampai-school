@@ -1,26 +1,157 @@
 <!DOCTYPE html><html lang="th"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/english/phonics-chart.html"><meta name="curriculum-indicators" content="ต 1.1 ป.1/2,ต 2.2 ป.1/1">
-<title>Phonics Worksheet ป.1–3 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet"></head><body>
-<header class="toolbar"><h1>🔤 Phonics — เสียงและคำ</h1><div class="toolbar-ctrls">
-<select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–3</option></select><select class="t-select" id="selTopic" aria-label="กลุ่มเสียง"><option value="mixed">ผสมทุกเสียง</option><option value="letter">ตัวอักษรเดี่ยว</option><option value="blend">Blends</option><option value="digraph">Digraphs</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 New set</button><button class="btn" id="btnAnswers">👁 Teacher key</button><button class="btn green" id="btnPrint">🖨 Print A4</button>
-</div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">Loading worksheet</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
-const PHONICS_ITEMS=[
- {type:'letter',sound:'a',cue:'/æ/',words:['apple','ant','sun'],answer:'apple, ant',position:'ต้นคำ'},
- {type:'letter',sound:'b',cue:'/b/',words:['ball','book','cat'],answer:'ball, book',position:'ต้นคำ'},
- {type:'letter',sound:'c',cue:'/k/',words:['cat','cup','fish'],answer:'cat, cup',position:'ต้นคำ'},
- {type:'letter',sound:'f',cue:'/f/',words:['fish','fan','dog'],answer:'fish, fan',position:'ต้นคำ'},
- {type:'letter',sound:'m',cue:'/m/',words:['moon','map','pen'],answer:'moon, map',position:'ต้นคำ'},
- {type:'blend',sound:'bl',cue:'/bl/',words:['blue','black','rain'],answer:'blue, black',position:'ต้นคำ'},
- {type:'blend',sound:'st',cue:'/st/',words:['star','stop','ship'],answer:'star, stop',position:'ต้นคำ'},
- {type:'blend',sound:'cr',cue:'/kr/',words:['crab','cry','tree'],answer:'crab, cry',position:'ต้นคำ'},
- {type:'blend',sound:'fl',cue:'/fl/',words:['flag','flower','chair'],answer:'flag, flower',position:'ต้นคำ'},
- {type:'digraph',sound:'sh',cue:'/ʃ/',words:['ship','shop','cat'],answer:'ship, shop',position:'ต้นคำ'},
- {type:'digraph',sound:'ch',cue:'/tʃ/',words:['chair','chick','ring'],answer:'chair, chick',position:'ต้นคำ'},
- {type:'digraph',sound:'th',cue:'/θ/',words:['three','thin','moon'],answer:'three, thin',position:'ต้นคำ'},
- {type:'digraph',sound:'ph',cue:'/f/',words:['phone','photo','ball'],answer:'phone, photo',position:'ต้นคำ'},
- {type:'digraph',sound:'ck',cue:'/k/',words:['duck','sock','sun'],answer:'duck, sock',position:'ท้ายคำ'},
- {type:'digraph',sound:'ng',cue:'/ŋ/',words:['ring','king','map'],answer:'ring, king',position:'ท้ายคำ'}
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="worksheet-source-media" content="/games/english/phonics-media.html">
+<meta name="curriculum-indicators" content="ต 1.1 ป.1/2,ต 2.2 ป.1/1">
+<title>Phonics Reading Worksheet ป.1–ป.4 — โรงเรียนบ้านคำไผ่</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+<link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🔤 Phonics Reading Worksheet</h1><div class="toolbar-ctrls">
+<select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+<select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+<select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.4</option></select>
+<select class="t-select" id="selTopic" aria-label="กลุ่มเสียงโฟนิกส์"><option value="mixed">รวมทุกหมวดเสียง (All Sounds)</option><option value="short-a">Short A (/æ/)</option><option value="short-e">Short E (/e/)</option><option value="short-i">Short I (/ɪ/)</option><option value="short-o">Short O (/ɒ/)</option><option value="short-u">Short U (/ʌ/)</option><option value="blends">Blends & Digraphs</option></select>
+<select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+<input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+<select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+<button class="btn primary" id="btnRandom">🎲 สุ่มใหม่ (New set)</button>
+<button class="btn" id="btnAnswers">👁 เฉลยคุณครู</button>
+<button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างแบบฝึกหัด Phonics...</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=2.0.0"></script>
+<script src="/games/kampai-qr.js?v=2.0.0"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
+<script>
+const PHONICS_ITEMS = [
+  // Short A (/æ/)
+  { group:'short-a', sound:'a', cue:'/æ/', word:'cat', parts:['c','a','t'], th:'แคท (แมว)', options:['cat','cot','cut','can'], answer:'cat' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'bat', parts:['b','a','t'], th:'แบท (ค้างคาว)', options:['bat','bet','bit','but'], answer:'bat' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'hat', parts:['h','a','t'], th:'แฮท (หมวกมีปีก)', options:['hat','hot','hit','hut'], answer:'hat' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'pan', parts:['p','a','n'], th:'แพน (กระทะ)', options:['pan','pen','pin','pot'], answer:'pan' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'can', parts:['c','a','n'], th:'แคน (กระป๋อง)', options:['can','cup','cat','cap'], answer:'can' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'fan', parts:['f','a','n'], th:'แฟน (พัดลม)', options:['fan','fun','fin','fox'], answer:'fan' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'bag', parts:['b','a','g'], th:'แบก (กระเป๋า)', options:['bag','bug','big','bed'], answer:'bag' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'map', parts:['m','a','p'], th:'แมพ (แผนที่)', options:['map','mop','mug','mat'], answer:'map' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'cap', parts:['c','a','p'], th:'แคพ (หมวกแก๊ป)', options:['cap','cup','cop','cat'], answer:'cap' },
+  { group:'short-a', sound:'a', cue:'/æ/', word:'rat', parts:['r','a','t'], th:'แรท (หนู)', options:['rat','red','rug','run'], answer:'rat' },
+
+  // Short E (/e/)
+  { group:'short-e', sound:'e', cue:'/e/', word:'bed', parts:['b','e','d'], th:'เบด (เตียงนอน)', options:['bed','bad','bug','bin'], answer:'bed' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'red', parts:['r','e','d'], th:'เรด (สีแดง)', options:['red','rat','rug','rod'], answer:'red' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'pen', parts:['p','e','n'], th:'เพน (ปากกา)', options:['pen','pan','pin','pot'], answer:'pen' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'hen', parts:['h','e','n'], th:'เฮน (แม่ไก่)', options:['hen','hat','hot','hut'], answer:'hen' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'ten', parts:['t','e','n'], th:'เทน (เลขสิบ)', options:['ten','tin','top','tub'], answer:'ten' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'net', parts:['n','e','t'], th:'เนท (ตาข่าย)', options:['net','nut','not','nap'], answer:'net' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'jet', parts:['j','e','t'], th:'เจท (เครื่องบินไอพ่น)', options:['jet','jug','jam','job'], answer:'jet' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'wet', parts:['w','e','t'], th:'เวท (เปียก)', options:['wet','win','web','wig'], answer:'wet' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'pet', parts:['p','e','t'], th:'เพท (สัตว์เลี้ยง)', options:['pet','pot','pit','pan'], answer:'pet' },
+  { group:'short-e', sound:'e', cue:'/e/', word:'leg', parts:['l','e','g'], th:'เลก (ขา)', options:['leg','log','lid','lip'], answer:'leg' },
+
+  // Short I (/ɪ/)
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'pig', parts:['p','i','g'], th:'พิก (หมู)', options:['pig','peg','pug','pot'], answer:'pig' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'bin', parts:['b','i','n'], th:'บิน (ถังขยะ)', options:['bin','bun','ban','bed'], answer:'bin' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'pin', parts:['p','i','n'], th:'พิน (เข็มหมุด)', options:['pin','pen','pan','pot'], answer:'pin' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'win', parts:['w','i','n'], th:'วิน (ชนะ)', options:['win','wet','wig','web'], answer:'win' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'fin', parts:['f','i','n'], th:'ฟิน (ครีบปลา)', options:['fin','fan','fun','fox'], answer:'fin' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'tin', parts:['t','i','n'], th:'ทิน (กระป๋องดีบุก)', options:['tin','ten','top','tub'], answer:'tin' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'sit', parts:['s','i','t'], th:'ซิท (นั่ง)', options:['sit','sun','six','set'], answer:'sit' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'zip', parts:['z','i','p'], th:'ซิพ (ซิป)', options:['zip','zap','zoo','zeal'], answer:'zip' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'lid', parts:['l','i','d'], th:'ลิด (ฝาปิด)', options:['lid','leg','log','lip'], answer:'lid' },
+  { group:'short-i', sound:'i', cue:'/ɪ/', word:'dig', parts:['d','i','g'], th:'ดิก (ขุด)', options:['dig','dog','duck','dot'], answer:'dig' },
+
+  // Short O (/ɒ/)
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'dog', parts:['d','o','g'], th:'ด็อก (สุนัข)', options:['dog','dig','duck','dot'], answer:'dog' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'fox', parts:['f','o','x'], th:'ฟอกซ์ (สุนัขจิ้งจอก)', options:['fox','box','fix','fan'], answer:'fox' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'box', parts:['b','o','x'], th:'บอกซ์ (กล่อง)', options:['box','fox','bag','bus'], answer:'box' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'pot', parts:['p','o','t'], th:'พ็อท (หม้อต้ม)', options:['pot','pet','pan','pin'], answer:'pot' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'hot', parts:['h','o','t'], th:'ฮ็อท (ร้อน)', options:['hot','hat','hen','hut'], answer:'hot' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'dot', parts:['d','o','t'], th:'ด็อท (จุด)', options:['dot','dog','dig','duck'], answer:'dot' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'mop', parts:['m','o','p'], th:'ม็อพ (ไม้ม็อบ)', options:['mop','map','mug','mat'], answer:'mop' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'top', parts:['t','o','p'], th:'ท็อป (ลูกข่าง/ด้านบน)', options:['top','tap','tip','tub'], answer:'top' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'log', parts:['l','o','g'], th:'ล็อก (ท่อนไม้)', options:['log','leg','lid','lip'], answer:'log' },
+  { group:'short-o', sound:'o', cue:'/ɒ/', word:'cot', parts:['c','o','t'], th:'ค็อท (เตียงเด็ก)', options:['cot','cat','cup','can'], answer:'cot' },
+
+  // Short U (/ʌ/)
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'sun', parts:['s','u','n'], th:'ซัน (ดวงอาทิตย์)', options:['sun','sit','set','son'], answer:'sun' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'cup', parts:['c','u','p'], th:'คัพ (ถ้วย)', options:['cup','cap','cop','cat'], answer:'cup' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'bus', parts:['b','u','s'], th:'บัส (รถประจำทาง)', options:['bus','bag','bug','box'], answer:'bus' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'bug', parts:['b','u','g'], th:'บัก (แมลงปีกแข็ง)', options:['bug','bag','big','bed'], answer:'bug' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'rug', parts:['r','u','g'], th:'รัก (พรมปูพื้น)', options:['rug','red','rat','run'], answer:'rug' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'jug', parts:['j','u','g'], th:'จัก (เหยือกน้ำ)', options:['jug','jet','jam','job'], answer:'jug' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'mug', parts:['m','u','g'], th:'มัก (แก้วมีหู)', options:['mug','map','mop','mat'], answer:'mug' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'run', parts:['r','u','n'], th:'รัน (วิ่ง)', options:['run','rug','rat','red'], answer:'run' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'nut', parts:['n','u','t'], th:'นัท (ถั่ว/เมล็ดพืช)', options:['nut','net','not','nap'], answer:'nut' },
+  { group:'short-u', sound:'u', cue:'/ʌ/', word:'tub', parts:['t','u','b'], th:'ทับ (อ่างน้ำ)', options:['tub','top','ten','tin'], answer:'tub' },
+
+  // Blends & Digraphs
+  { group:'blends', sound:'ch', cue:'/tʃ/', word:'chair', parts:['ch','air'], th:'แชร์ (เก้าอี้)', options:['chair','chin','ship','star'], answer:'chair' },
+  { group:'blends', sound:'ch', cue:'/tʃ/', word:'chin', parts:['ch','in'], th:'ชิน (คาง)', options:['chin','chair','thin','pin'], answer:'chin' },
+  { group:'blends', sound:'sh', cue:'/ʃ/', word:'ship', parts:['sh','i','p'], th:'ชิพ (เรือลำใหญ่)', options:['ship','shop','fish','chip'], answer:'ship' },
+  { group:'blends', sound:'sh', cue:'/ʃ/', word:'shop', parts:['sh','o','p'], th:'ช็อป (ร้านค้า)', options:['shop','ship','stop','drop'], answer:'shop' },
+  { group:'blends', sound:'sh', cue:'/ʃ/', word:'fish', parts:['f','i','sh'], th:'ฟิช (ปลา)', options:['fish','dish','wish','ship'], answer:'fish' },
+  { group:'blends', sound:'st', cue:'/st/', word:'star', parts:['st','ar'], th:'สตาร์ (ดาว)', options:['star','stop','step','stay'], answer:'star' },
+  { group:'blends', sound:'tr', cue:'/tr/', word:'tree', parts:['tr','ee'], th:'ทรี (ต้นไม้)', options:['tree','train','trip','true'], answer:'tree' },
+  { group:'blends', sound:'fr', cue:'/fr/', word:'frog', parts:['fr','o','g'], th:'ฟร็อก (กบ)', options:['frog','from','free','flag'], answer:'frog' },
+  { group:'blends', sound:'cr', cue:'/kr/', word:'crab', parts:['cr','a','b'], th:'แครบ (ปู)', options:['crab','crop','cross','crib'], answer:'crab' },
+  { group:'blends', sound:'dr', cue:'/dr/', word:'drum', parts:['dr','u','m'], th:'ดรัม (กลอง)', options:['drum','drop','draw','dress'], answer:'drum' },
+  { group:'blends', sound:'ck', cue:'/k/', word:'duck', parts:['d','u','ck'], th:'ดัค (เป็ด)', options:['duck','clock','sock','lock'], answer:'duck' },
+  { group:'blends', sound:'cl', cue:'/kl/', word:'clock', parts:['cl','o','ck'], th:'คล็อก (นาฬิกา)', options:['clock','duck','sock','rock'], answer:'clock' }
 ];
-window.WORKSHEET_CONFIG={icon:'🔤',title:'Phonics — Sounds & Words',subject:'ภาษาอังกฤษ',gradeLabel:'ป.1–3',mediaLabel:'Phonics Chart',sourceMediaUrl:'/games/english/phonics-chart.html',indicators:['ต 1.1 ป.1/2','ต 2.2 ป.1/1'],directions:'สแกนฟังเสียงจากสื่อ แล้วจับคู่เสียง แยกเสียง และเขียนคำ',getItems(topic){return topic==='mixed'?PHONICS_ITEMS:PHONICS_ITEMS.filter(item=>item.type===topic);},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const answers=item.answer.split(',').map(s=>s.trim());const boxes=item.sound.split('').map(letter=>'<span class="sound-box">'+e(letter)+'</span>').join('');const words=item.words.map(word=>{const hit=answers.some(a=>a.toLowerCase()===word.toLowerCase());return '○ '+ (hit?'<span class="word-hit">'+e(word)+'</span>':e(word));}).join(' &nbsp; ');return '<div class="q-stem"><div class="q-prompt">Sound <strong>'+e(item.sound)+'</strong> '+e(item.cue)+' — circle words with this sound at the '+(item.position==='ท้ายคำ'?'end':'beginning')+'.</div><div class="word-bank">'+words+'</div><div class="sound-row"><span>Split the sound:</span>'+boxes+'</div><div>Write one more word:</div></div><div class="q-work-block"><div class="work-line"><span class="work-fill">'+e(answers[0]||item.answer)+'</span></div><div class="work-line"><span class="work-fill">Matched: '+e(item.answer)+'</span></div></div>';}};
-</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>
+
+window.WORKSHEET_CONFIG = {
+  icon: '🔤',
+  title: 'Phonics Reading Worksheet',
+  subject: 'ภาษาอังกฤษ',
+  gradeLabel: 'ป.1–ป.4',
+  mediaLabel: 'Phonics Reading Studio',
+  sourceMediaUrl:'/games/english/phonics-media.html',
+  indicators: ['ต 1.1 ป.1/2', 'ต 2.2 ป.1/1'],
+  directions: 'ฝึกผสมเสียงโฟนิกส์ แยกเสียงย่อย (Sound Blending) เลือกคำศัพท์ที่ถูกต้อง และคัดคำให้สวยงาม',
+  getItems(topic) {
+    if (!topic || topic === 'mixed') return PHONICS_ITEMS;
+    return PHONICS_ITEMS.filter(item => item.group === topic);
+  },
+  renderQuestion(item) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    const boxes = item.parts.map(p => '<span class="sound-box" style="display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border:2px solid #2563eb;border-radius:8px;font-weight:800;font-size:1.15rem;margin:0 3px;background:#eff6ff;color:#1e40af;">' + e(p) + '</span>').join(' + ');
+    const opts = item.options.map(opt => {
+      const isCorrect = opt.toLowerCase() === item.answer.toLowerCase();
+      return '<span style="display:inline-block;padding:3px 10px;margin:2px 4px;border:1.5px solid #cbd5e1;border-radius:6px;font-weight:700;' + (isCorrect ? 'background:#f0fdf4;border-color:#86efac;' : '') + '">○ ' + e(opt) + '</span>';
+    }).join(' ');
+
+    return '<div class="q-stem" style="line-height:1.6;font-size:1.05rem;">' +
+      '<div class="q-prompt" style="font-weight:700;color:#0f172a;margin-bottom:6px;">' +
+        'เสียง <strong style="color:#2563eb;font-size:1.2rem;">' + e(item.sound) + '</strong> ' + e(item.cue) +
+        ' · ความหมาย: <span style="color:#b45309;font-weight:800;">' + e(item.th) + '</span>' +
+      '</div>' +
+      '<div style="margin:6px 0;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">' +
+        '<span style="font-weight:700;color:#475569;font-size:0.95rem;">กระจายเสียงสะกด (Phonemes):</span> ' + boxes +
+      '</div>' +
+      '<div class="word-bank" style="margin:8px 0;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">' +
+        '<span style="font-size:0.9rem;font-weight:700;color:#64748b;">ตัวเลือก:</span> ' + opts +
+      '</div>' +
+    '</div>' +
+    '<div class="q-work-block" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;">' +
+      '<div class="work-line" style="display:flex;align-items:center;gap:8px;font-weight:700;color:#334155;">' +
+        'เขียนคำศัพท์: <span class="work-fill" style="flex:1;min-height:28px;border-bottom:2px dashed #94a3b8;">' + e(item.answer) + '</span>' +
+      '</div>' +
+      '<div class="answer teacher-answer" style="color:#16a34a;font-weight:800;font-size:0.95rem;">' +
+        '✅ เฉลย: ' + e(item.answer) + ' (' + e(item.cue) + ' ' + e(item.th) + ')' +
+      '</div>' +
+    '</div>';
+  }
+};
+</script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
+<script>
+function render() { window.KampaiTopicWorksheet.render(); }
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
+</body></html>

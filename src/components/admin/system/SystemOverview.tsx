@@ -290,6 +290,21 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.72 (สื่อการสอนภาษาอังกฤษ — ยกระดับ ABC Phonics Studio A-Z, อัปเกรดใบงานโฟนิกส์คู่สื่อ และแก้ไขบั๊กเสียงอ่านซ้อน)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรดใบงานโฟนิกส์ (public/games/english/phonics-worksheet.html) ให้ซิงค์ 66 คำศัพท์แท้ครบ 6 หมวดเสียงตรงกับ Phonics Reading Studio พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครู',
+            'แก้ไขปุ่ม "ใบงาน Phonics" ในสื่อ phonics-media.html ให้เชื่อมโยงตรงสู่ phonics-worksheet.html',
+            'ยกระดับสื่อ ABC & Phonics (public/games/english/alphabet-phonics-media.html) ครบ 26 ตัวอักษร A ถึง Z ด้วยภาพวาดประกอบ WebP แท้ 26 ภาพ ไร้ Emoji',
+            'ติดตั้งระบบเสียงเลือกเสียงได้ (US Female, US Male, UK) ปรับสปีด 0.75x/1.0x และ 3 โหมดการเรียนรู้ (บัตรคำ A-Z, ตารางรวม 26 ตัวอักษร, และแบบทดสอบทายเสียงโฟนิกส์)',
+            'อัปเกรดใบงานคู่กัน alphabet-phonics-worksheet.html ครอบคลุมแบบฝึกหัดตัวอักษร A-Z 26 ตัว พร้อมพิมพ์ A4',
+            'แก้ไขบั๊กการอ่านออกเสียงซ้อน (Double-speech) ใน vocab-hub.html: ป้องกันการสะสม Event Listener ในโหมดฟังทาย (#q-play) และปลด Mouseenter Auto-speech บนอุปกรณ์จอสัมผัส/Smartboard พร้อม Safety Cancel Delay',
+            'แก้ไขฟังก์ชัน speak ใน classroom-english-media.html ให้มี Debounce และยกเลิกเสียงเดิมก่อนพูดเสียงใหม่',
+            'ผ่านการทดสอบ Browser จริงบน 360x800 และ 1280x720, ผ่าน verify:media, verify:worksheet, และ verify:game:all 100%',
+        ],
+    },
+    {
         version: 'v1.229.71 (สื่อการสอนภาษาอังกฤษ — ยกระดับ Phonics Reading Studio ภาพจริงและเสียงอ่านครบวงจร สู่ระดับ Production)',
         date: '16 ก.ย. 2569',
         badge: 'bg-emerald-600',

@@ -2291,22 +2291,30 @@ function sayThaiText(item){
   }
   return parts.join(" ");
 }
+let isSpeakingBusy = false;
 function _speakOne(text, lang, voice, rate, onDone){
   try {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang; if(voice) u.voice = voice; u.rate = rate;
-    if(onDone){ u.onend=onDone; u.onerror=onDone; }
+    u.onend = u.onerror = () => {
+      isSpeakingBusy = false;
+      if(onDone) onDone();
+    };
     speechSynthesis.speak(u);
-  } catch(_){ if(onDone) onDone(); }
+  } catch(_){
+    isSpeakingBusy = false;
+    if(onDone) onDone();
+  }
 }
 let lastSpeakKey = '';
 let lastSpeakTimestamp = 0;
+let speakCancelTimer = null;
 function speak(item, onDone, voiceOverride){
   if (!window.speechSynthesis || !item){ if(onDone) onDone(); return; }
   const now = Date.now();
   const itemKey = (item.en || item.label || '') + '_' + (voiceOverride || voiceMode);
-  // ป้องกันการยิงคำสั่งอ่านซ้ำติดกันภายใน 280ms (Event collision / Double tap)
-  if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 280) {
+  // ป้องกันการยิงคำสั่งอ่านซ้ำติดกันภายใน 320ms (Event collision / Double tap)
+  if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 320) {
     if(onDone) onDone();
     return;
   }
@@ -2316,15 +2324,19 @@ function speak(item, onDone, voiceOverride){
   const m = ['en','th','both'].includes(voiceOverride) ? voiceOverride : voiceMode;
   try {
     speechSynthesis.cancel();
-    if(m === 'th'){
-      _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone);
-    } else if(m === 'both'){
-      _speakOne(sayText(item), 'en-US', enVoice, 0.9, ()=>{
-        setTimeout(()=>{ _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone); }, 180);
-      });
-    } else {
-      _speakOne(sayText(item), 'en-US', enVoice, 0.9, onDone);
-    }
+    clearTimeout(speakCancelTimer);
+    speakCancelTimer = setTimeout(() => {
+      isSpeakingBusy = true;
+      if(m === 'th'){
+        _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone);
+      } else if(m === 'both'){
+        _speakOne(sayText(item), 'en-US', enVoice, 0.9, ()=>{
+          setTimeout(()=>{ _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone); }, 180);
+        });
+      } else {
+        _speakOne(sayText(item), 'en-US', enVoice, 0.9, onDone);
+      }
+    }, 50);
   } catch(_){ if(onDone) onDone(); }
 }
 // อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
@@ -3629,7 +3641,7 @@ function renderQuestion(){
   });
   if(isListen){
     const pb=document.getElementById('q-play');
-    pb.addEventListener('click',()=>speak(target,null,'en'));   // โหมดฟัง → ทาย: บังคับ EN ไม่ให้เฉลย
+    pb.onclick = () => speak(target, null, 'en');   // โหมดฟัง → ทาย: บังคับ EN ไม่ให้เฉลย
     speak(target,null,'en');
   } else {
     speak(target);
@@ -4511,6 +4523,7 @@ window.addEventListener('resize',()=>{
   },100);
 });
 wordEl.addEventListener('click',e=>{
+  clearTimeout(bannerHoverTimer);
   const part = e.target.closest('[data-phonics-part]');
   if(part){
     e.stopPropagation();
@@ -4521,12 +4534,13 @@ wordEl.addEventListener('click',e=>{
   if(curItem) speak(curItem);
 });
 let bannerHoverTimer = null;
+const isTouchDevice = ('ontouchstart' in window) || (navigator && navigator.maxTouchPoints > 0);
 wordEl.addEventListener('mouseenter', () => {
-  if (mode !== 'auto' || !curItem) return;
+  if (isTouchDevice || mode !== 'auto' || !curItem) return;
   clearTimeout(bannerHoverTimer);
   bannerHoverTimer = setTimeout(() => {
     if (mode === 'auto' && curItem) speak(curItem);
-  }, 180);
+  }, 400);
 });
 wordEl.addEventListener('mouseleave', () => {
   clearTimeout(bannerHoverTimer);

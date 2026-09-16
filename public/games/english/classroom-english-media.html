@@ -67,7 +67,24 @@ const DATA={
 };
 let cat='Greetings';
 function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'แตะ 🔊 เพื่อฟัง':'จับคู่ความหมาย';if(m==='practice')nextPr();}
-function speak(t){if(window.KAMPAI&&KAMPAI.sound&&KAMPAI.sound.speak)KAMPAI.sound.speak(t,'en-US');else if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.speak(u);}}
+let lastSpeakTs = 0;
+function speak(t){
+  const now = Date.now();
+  if (now - lastSpeakTs < 320) return;
+  lastSpeakTs = now;
+  if(window.KAMPAI&&KAMPAI.sound&&KAMPAI.sound.speak){
+    KAMPAI.sound.speak(t,'en-US',true);
+  } else if(window.speechSynthesis){
+    try {
+      window.speechSynthesis.cancel();
+      setTimeout(()=>{
+        const u=new SpeechSynthesisUtterance(t);
+        u.lang='en-US';
+        speechSynthesis.speak(u);
+      },50);
+    } catch(_){}
+  }
+}
 function render(){
   document.getElementById('cats').innerHTML=Object.keys(DATA).map(k=>'<button type="button" data-c="'+k+'" class="'+(k===cat?'on':'')+'">'+k+'</button>').join('');
   document.getElementById('list').innerHTML=DATA[cat].map((r,i)=>'<div class="row"><div class="en">'+r.en+'</div><div class="th">'+r.th+'</div><button type="button" class="btn btn-ghost" data-say="'+i+'">🔊</button></div>').join('');
