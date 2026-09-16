@@ -12,6 +12,7 @@ import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { CommandPaletteProvider } from "./hooks/useCommandPalette";
 import { ActiveChildProvider } from "./hooks/useActiveChild";
+import { AuthProvider } from "./contexts/AuthProvider";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -152,6 +153,7 @@ const PageViewTracker = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <MotionConfig reducedMotion="user">
     <TooltipProvider>
       <RuntimeThemeStyles />
@@ -188,7 +190,7 @@ const App = () => (
             <Route path="/admin" element={<AdminLogin />} />
             {/* Admin dashboard with nested route support */}
             <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
-            <Route path="/admin/page-builder" element={<PageBuilder />} />
+            <Route path="/admin/page-builder" element={<PortalProtectedRoute allow={['admin']}><PageBuilder /></PortalProtectedRoute>} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/events" element={<Events />} />
             <Route path="/calendar" element={<AcademicCalendar />} />
@@ -328,6 +330,7 @@ const App = () => (
       </ErrorBoundary>
     </TooltipProvider>
     </MotionConfig>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

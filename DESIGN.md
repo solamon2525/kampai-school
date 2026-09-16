@@ -902,6 +902,8 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 
 ### Rule 14.40 — Shared Quick Menu (เมนูลัดบน dashboard)
 
+**Auth readiness (v1.229.54):** การตัดสินสิทธิ์ต้องรอ session, role และ menu permissions ครบ รวมระหว่าง refresh; โหลดผิดพลาด/ไม่มี role ให้ปิดสิทธิ์ไว้และแสดง “ลองใหม่” ไม่ fallback เป็น admin ไม่เปลี่ยน URL เป้าหมายเพราะ network error และไม่ใช้ผลของบัญชีเก่าหลังเปลี่ยนผู้ใช้ หน้า Page Builder จำกัด role admin ผ่าน guard กลาง ส่วนความปลอดภัยข้อมูลจริงยังอยู่ที่ RLS
+
 **Teacher access (v1.229.53):** `conduct` (ธนาคารความดี) เป็นเมนูพื้นฐานสำหรับ role `teacher` ทุกบัญชี รวมครูใหม่ ไม่ต้องเพิ่ม `allowedMenus` รายคน เงื่อนไขเมนูพื้นฐานครูต้องตรวจ role จริงเสมอ; parent/viewer/unknown ไม่ได้รับสิทธิ์นี้โดยอัตโนมัติ คงรายการ/ลำดับ shared menu และสิทธิ์ RLS เดิม ไม่ยกระดับบัญชีเป็น admin
 
 **Source of truth:** ตาราง `shared_quick_menu` (singleton, id=1) — **ห้าม** อ่าน/เขียน `user_quick_menu_preferences` ใน QuickMenu อีก (deprecated, คงไว้เพื่อ rollback)

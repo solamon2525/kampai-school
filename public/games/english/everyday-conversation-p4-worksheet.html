@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="worksheet-source-media" content="/games/english/everyday-conversation-p4-media.html">
+  <meta name="curriculum-indicators" content="ต 1.1 ป.4/1,ต 1.1 ป.4/4,ต 1.2 ป.4/1,ต 1.2 ป.4/2,ต 1.2 ป.4/3,ต 1.2 ป.4/4,ต 1.2 ป.4/5,ต 4.1 ป.4/1">
+  <title>ใบงาน Everyday Conversation ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+</head><body>
+<header class="toolbar"><h1>🗣️ ใบงาน Everyday Conversation ป.4</h1><div class="toolbar-ctrls">
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
+  <select class="t-select" id="selTopic" aria-label="สถานการณ์">
+    <option value="mixed">รวมทุกสถานการณ์</option>
+    <option value="greetings">ทักทายและรู้จักกัน</option>
+    <option value="personal">ตัวฉัน เพื่อน และครอบครัว</option>
+    <option value="classroom">ภาษาในห้องเรียน</option>
+    <option value="help">ความต้องการและขอความช่วยเหลือ</option>
+    <option value="feelings">ความชอบและความรู้สึก</option>
+    <option value="school">ชีวิตในโรงเรียน</option>
+  </select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
+  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
+  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+</div></header>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน Everyday Conversation...</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=2.0.0"></script>
+<script src="/games/kampai-qr.js?v=2.0.0"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
+<script>
+const ITEMS = [
+  // 1. greetings (ทักทายและรู้จักกัน)
+  { type:'greetings', prompt:'A: Hello! My name is Mali.\nB: ____________________ (ตอบทักทายและบอกชื่อว่า Ton)', answer:'Hi, Mali. I am Ton.' },
+  { type:'greetings', prompt:'A: What is your name?\nB: ____________________ (บอกชื่อตนเองว่า Nan)', answer:'My name is Nan.' },
+  { type:'greetings', prompt:'A: How do you spell it?\nB: ____________________ (สะกดชื่อ Nan)', answer:'N-A-N, Nan.' },
+  { type:'greetings', prompt:'A: How old are you?\nB: ____________________ (บอกอายุสิบปี)', answer:'I am ten years old.' },
+  { type:'greetings', prompt:'A: Good morning, Pim. How are you today?\nB: ____________________ (ตอบว่าสบายดีมาก ขอบคุณ)', answer:'I am great, thank you.' },
+  { type:'greetings', prompt:'A: It is time to go home.\nB: ____________________ (ตอบรับแล้วบอกลาพบกันพรุ่งนี้)', answer:'Yes. See you tomorrow. (หรือ Goodbye!)' },
+  { type:'greetings', prompt:'Nice to meet you. แปลว่าอะไร และควรตอบกลับอย่างไร', answer:'ยินดีที่ได้รู้จัก (ตอบ: Nice to meet you, too.)' },
+
+  // 2. personal (ตัวฉัน เพื่อน และครอบครัว)
+  { type:'personal', prompt:'A: How many people are in your family?\nB: ____________________ (ตอบว่ามี 4 คน)', answer:'There are four people.' },
+  { type:'personal', prompt:'A: Who are they?\nB: ____________________ (พ่อแม่ น้องชาย และฉัน)', answer:'My parents, my brother, and me.' },
+  { type:'personal', prompt:'A: Who is your best friend?\nB: ____________________ (เพื่อนสนิทของฉันคือ Kwan)', answer:'My best friend is Kwan.' },
+  { type:'personal', prompt:'A: What is she like?\nB: ____________________ (เธอใจดีและตลก)', answer:'She is kind and funny.' },
+  { type:'personal', prompt:'A: Where do you live?\nB: ____________________ (ฉันอาศัยอยู่ที่ขอนแก่น)', answer:'I live in Khon Kaen.' },
+  { type:'personal', prompt:'A: Do you have a pet?\nB: ____________________ (มี ฉันมีสุนัขชื่อ Lucky)', answer:'Yes, I have a dog. Its name is Lucky.' },
+  { type:'personal', prompt:'A: What is your favorite subject?\nB: ____________________ (วิชาโปรดของฉันคือภาษาอังกฤษ)', answer:'My favorite subject is English.' },
+
+  // 3. classroom (ภาษาในห้องเรียน)
+  { type:'classroom', prompt:'A: May I come in, please? (ขออนุญาตเข้าห้อง)\nTeacher: ____________________ (อนุญาตและบอกให้นั่งลง)', answer:'Yes, you may. Please sit down.' },
+  { type:'classroom', prompt:'A: May I go to the toilet? (ขออนุญาตไปห้องน้ำ)\nTeacher: ____________________ (อนุญาตแต่บอกให้รีบกลับมา)', answer:'Yes, but come back soon.' },
+  { type:'classroom', prompt:'A: Can I borrow your pencil?\nB: ____________________ (ได้ นี่จ้ะ)', answer:'Sure. Here you are.' },
+  { type:'classroom', prompt:'A: Please repeat that. แปลว่าอะไร', answer:'กรุณาพูดซ้ำอีกครั้ง' },
+  { type:'classroom', prompt:'A: Open your book to page ten. แปลว่าอะไร', answer:'เปิดหนังสือของคุณไปที่หน้าสิบ' },
+  { type:'classroom', prompt:'A: Thank you very much.\nB: ____________________ (ตอบรับคำขอบคุณ: ไม่เป็นไร / ด้วยความยินดี)', answer:'No problem. (หรือ You are welcome.)' },
+  { type:'classroom', prompt:'A: Please work with your partner. แปลว่าอะไร', answer:'กรุณาทำงานร่วมกับคู่ของคุณ' },
+
+  // 4. help (ความต้องการและขอความช่วยเหลือ)
+  { type:'help', prompt:'A: I am thirsty. Would you like some water?\nB: ____________________ (ตอบรับด้วยความสุภาพ)', answer:'Yes, please.' },
+  { type:'help', prompt:'A: I cannot find my book. It is blue.\nB: ____________________ (ถามว่านี่คือหนังสือของคุณใช่ไหม)', answer:'Is this your book?' },
+  { type:'help', prompt:'A: Can you help me, please?\nB: ____________________ (ยินดีช่วย ถามว่าต้องการอะไร)', answer:'Of course. What do you need?' },
+  { type:'help', prompt:'A: Please carry this box.\nB: ____________________ (ตกลง เราช่วยกันถือนะ)', answer:'Okay. Let us carry it together.' },
+  { type:'help', prompt:'A: I do not understand this word.\nB: ____________________ (ถามว่าคำไหน)', answer:'Which word?' },
+  { type:'help', prompt:'A: I feel sick. Do you need the nurse?\nB: ____________________ (ใช่ ช่วยไปห้องพยาบาลกับฉันหน่อย)', answer:'Yes. Please come with me.' },
+
+  // 5. feelings (ความชอบและความรู้สึก)
+  { type:'feelings', prompt:'A: Do you like football?\nB: ____________________ (ชอบมาก ฉันเล่นหลังเลิกเรียน)', answer:'Yes, I do. I play after school.' },
+  { type:'feelings', prompt:'A: You look happy today.\nB: ____________________ (ใช่ ฉันได้คะแนนดี ภูมิใจมาก)', answer:'Yes! I got a good score. I am very proud.' },
+  { type:'feelings', prompt:'A: I am scared of the storm.\nB: ____________________ (ปลอบใจเพื่อน: ไม่ต้องกังวล คุณปลอดภัย)', answer:'Do not worry. You are safe.' },
+  { type:'feelings', prompt:'A: How do you feel after P.E. class?\nB: ____________________ (ฉันเหนื่อยแต่มีความสุข)', answer:'I am tired but happy.' },
+  { type:'feelings', prompt:'A: Are you excited about the school trip?\nB: ____________________ (ตื่นเต้นมาก อยากไปดูสัตว์)', answer:'Yes! I want to see the animals.' },
+  { type:'feelings', prompt:'ประโยค "Do not worry. You are safe." แปลว่าอะไร', answer:'ไม่ต้องกังวล คุณปลอดภัยแล้ว' },
+
+  // 6. school (ชีวิตในโรงเรียน)
+  { type:'school', prompt:'A: What is our first class today?\nB: ____________________ (คาบแรกคือวิชาคณิตศาสตร์)', answer:'Our first class is math.' },
+  { type:'school', prompt:'A: Excuse me. Where is the library?\nB: ____________________ (อยู่ข้างห้องคอมพิวเตอร์)', answer:'It is next to the computer room.' },
+  { type:'school', prompt:'A: What do you have for lunch?\nB: ____________________ (ฉันกินข้าวกับไก่)', answer:'I have rice and chicken.' },
+  { type:'school', prompt:'A: Which club are you in?\nB: ____________________ (ฉันอยู่ชมรมดนตรี เล่นกีตาร์)', answer:'I am in the music club. I play the guitar.' },
+  { type:'school', prompt:'A: When is sports day?\nB: ____________________ (วันศุกร์ ฉันอยู่ทีมสีน้ำเงิน)', answer:'It is on Friday. I am on the blue team.' },
+  { type:'school', prompt:'ประโยค "Go up the stairs." แปลว่าอะไร', answer:'ขึ้นบันไดไป' }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '🗣️',
+  title: 'ใบงาน Everyday Conversation',
+  subject: 'ภาษาอังกฤษ',
+  gradeLabel: 'ป.4',
+  mediaLabel: 'สื่อ Everyday Conversation',
+  sourceMediaUrl:'/games/english/everyday-conversation-p4-media.html',
+  indicators: [
+    'ต 1.1 ป.4/1',
+    'ต 1.1 ป.4/4',
+    'ต 1.2 ป.4/1',
+    'ต 1.2 ป.4/2',
+    'ต 1.2 ป.4/3',
+    'ต 1.2 ป.4/4',
+    'ต 1.2 ป.4/5',
+    'ต 4.1 ป.4/1'
+  ],
+  directions: 'เติมบทสนทนาภาษาอังกฤษให้ถูกต้องเหมาะสมกับสถานการณ์ หรือแปลความหมายของประโยค',
+  getItems(topic) {
+    if (!topic || topic === 'mixed') return ITEMS;
+    return ITEMS.filter(item => item.type === topic);
+  },
+  renderQuestion(item) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="work-line reason-line">' +
+      '<div class="prompt"><strong>' + e(item.prompt).replace(/\n/g, '<br>') + '</strong></div>' +
+      '<div class="answer-line">บทพูดภาษาอังกฤษ / คำตอบ: <span class="blank long"></span></div>' +
+      '<div class="reason-line">คำแปลไทย / บริบทการใช้: <span class="blank long"></span></div>' +
+      '<div class="answer teacher-answer">เฉลยคุณครู: ' + e(item.answer) + '</div>' +
+    '</div>';
+  }
+};
+</script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
+<script>
+function render() {
+  window.KampaiTopicWorksheet.render();
+}
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+window.KampaiWorksheet.loadTeachers();
+render();
+</script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
+</body></html>

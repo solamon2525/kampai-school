@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth, type UserRole } from '@/contexts/AuthProvider';
+import { AuthLoadError } from './AuthLoadError';
 
 interface Props {
     children: ReactNode;
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export const PortalProtectedRoute = ({ children, allow }: Props) => {
-    const { session, role, loading } = useAuth();
+    const { session, role, loading, authError } = useAuth();
     const location = useLocation();
 
     const loginRedirect = `/admin?redirect=${encodeURIComponent(location.pathname + location.search)}`;
@@ -21,6 +22,7 @@ export const PortalProtectedRoute = ({ children, allow }: Props) => {
         );
     }
 
+    if (authError) return <AuthLoadError />;
     if (!session) return <Navigate to={loginRedirect} replace />;
     if (!allow.includes(role)) return <Navigate to={loginRedirect} replace />;
 

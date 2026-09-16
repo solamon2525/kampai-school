@@ -103,3 +103,52 @@ Integrity mode: development
 ### การแสดงผลและการตรวจสอบ
 - [ ] ตัวจรวดมีวิชวลเอฟเฟกต์สั่นและเร่งเครื่องสัมพันธ์กับค่าพลังชาร์จอย่างชัดเจน
 - [ ] ผ่านเกณฑ์การรัน `verify:game public/games/science/energy-rocket` ครบ 11/11 Checks
+
+## Follow-up — 2026-09-15T13:50:04Z
+
+# Comprehensive Bug & Quality Audit for English Educational Media
+
+Conduct an in-depth, rigorous code and runtime audit across Kampai School's primary English educational media:
+1. `public/games/english/vocab-hub.html` (Vocabulary Hub — 29 topics, 14 game modes, Lightbox 3x)
+2. `public/games/english/everyday-conversation-p4-media.html` (Everyday Conversation P.4 — guided dialogue, speech recognition, audio playback)
+
+Working directory: `d:/kampai-school-main`
+Integrity mode: development
+
+## Requirements
+
+### R1. Root Cause Analysis: TTS Double-Speech Bug
+- Thoroughly trace the audio lifecycle in `vocab-hub.html` (and `everyday-conversation-p4-media.html` if applicable):
+  - Investigate card click vs tap double event triggers (`click` + `touchend`, or bubbling from child elements like sound button inside card).
+  - Investigate speech synthesis queue collision: race conditions between `speechSynthesis.cancel()` and concurrent `speechSynthesis.speak()`.
+  - Check mode transitions (e.g. autoplay timer step firing concurrently with manual word selection).
+  - Check Lightbox 3x modal audio triggers vs underlying cell audio handlers.
+- Document exact code lines, trigger conditions, and concrete code patches to eliminate double-speech completely.
+
+### R2. Comprehensive Code & Logic Audit Across Game Modes
+Audit all 14 interactive modes in Vocab Hub (Auto, Flash, Choice, Match, Listen, Spell, Timed, Type-in, True/False, Flip Race, Word Search, Lightbox 3x, Math, 2-Player Versus):
+- **Timer & Lifecycle leaks:** Identify un-cleared intervals (`setInterval`), dangling timeouts (`setTimeout`), or animation frames when switching modes, pausing, or exiting to hub.
+- **State desynchronization:** Identify state variables (`curIdx`, `score`, `streak`, `timer`) that fail to reset cleanly or conflict between modes.
+- **Input & Event Glitches:** Check double-submission, rapid-click breaking game flow, or modal backdrop event leaks.
+- **Content & Vocabulary Integrity:** Audit `vocab-hub-data.js` and inlined `TOPICS` data for missing translations, mismatched Thai pronunciations, broken image paths, or null reference hazards.
+
+### R3. Everyday Conversation P.4 Media Audit
+Audit `everyday-conversation-p4-media.html` and its runtime scripts:
+- Audio/TTS playback synchronization with dialogue speech bubbles.
+- Microphone / Web Speech Recognition error handling and fallbacks when permission is denied or audio fails.
+- Step transition reliability, scoring accuracy, and completion events.
+
+### R4. Actionable Audit Report Delivery
+Produce a clear, prioritized Markdown report categorized into:
+1. **Critical / High Impact Bugs:** (TTS double-speech, game freeze, memory leaks) with root causes and exact code diff solutions.
+2. **Medium Impact UX / Classroom Issues:** (Touch target misalignments, timer glitches, mobile responsive flaws).
+3. **Low Impact Polish & Minor Inconsistencies:** (Translations, styling edge cases).
+
+## Acceptance Criteria
+
+### Audit Depth & Precision
+- [ ] Root cause of the TTS double-speech bug is definitively pinpointed with reproducible scenario and verified code fix.
+- [ ] All 14 modes in `vocab-hub.html` are audited for timer cleanup and lifecycle transitions.
+- [ ] Dialogue flow, speech recognition, and audio in `everyday-conversation-p4-media.html` are thoroughly audited.
+- [ ] The generated audit report provides concrete file paths, line numbers, and copy-paste ready code patches for all reported bugs.
+- [ ] Existing verifiers (`pnpm verify:game:all -- public/games/english/vocab-hub.html`) continue to pass without regression.

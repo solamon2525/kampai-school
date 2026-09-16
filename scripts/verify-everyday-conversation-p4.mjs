@@ -13,7 +13,7 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(`${html.slice(start, end + 7)};globalThis.scenes=SCENES;`, context);
 
-const visualStart = html.indexOf('const SCENE_VISUALS=');
+const visualStart = html.indexOf('const SPEAKING_PILOTS=');
 const personalStart = html.indexOf('const PERSONAL_INTRO=');
 const personalEnd = html.indexOf('    const state=', personalStart);
 if (visualStart < 0 || personalStart < 0 || personalEnd < 0) throw new Error('ไม่พบข้อมูลภาพหรือ template เรื่องของฉัน');
@@ -38,6 +38,12 @@ const expectedIndicators = [
 
 if (scenes.length !== 6) errors.push(`ต้องมี 6 สถานการณ์ แต่พบ ${scenes.length}`);
 const dialogues = scenes.flatMap((scene) => scene.dialogues);
+const pilots = dialogues.filter(dialogue => dialogue.speakingPractice);
+if (pilots.length !== 5) errors.push('ต้องมีบทนำร่องฝึกพูดเอง 5 บท');
+for (const lesson of pilots) {
+  if (lesson.speakingPractice.hints.length !== lesson.lines.length || lesson.speakingPractice.hints.some(hint => !hint.includes('____'))) errors.push(`${lesson.title}: คำใบ้ต้องครบทุกประโยคและมีช่องว่าง`);
+  if (!lesson.speakingPractice.sourceIndicatorId) errors.push(`${lesson.title}: ขาดตัวชี้วัดจาก Integrated Plan`);
+}
 if (dialogues.length !== 30) errors.push(`ต้องมี 30 บทสนทนา แต่พบ ${dialogues.length}`);
 
 const titles = new Set();

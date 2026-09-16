@@ -12,6 +12,15 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Auth readiness and Page Builder access (v1.229.54)
+
+- Provider order: QueryClientProvider → AuthProvider → application consumers. AuthProvider uses the same query client for role/menu reads and realtime invalidation.
+- `useAuth().loading` covers initial session and both permission reads, including refresh; do not redirect or grant privileged UI while it is true.
+- `authError` is a user-safe Thai message; `retryAuth()` retries the failed session or permission stage. ProtectedRoute and PortalProtectedRoute show AuthLoadError with a keyboard-accessible “ลองใหม่” button, keeping the requested URL on failure.
+- Unknown/missing role or either query error never becomes admin. Missing menu row means no additional menus. Query keys include user ID and identity generation; late responses cannot restore a previous user's role after switch/sign-out. SIGNED_IN, TOKEN_REFRESHED and USER_UPDATED revalidate even for the same user, outside the auth callback.
+- `/admin/page-builder` uses the existing `PortalProtectedRoute allow={['admin']}` API. This is a client UX gate, not a substitute for server RLS. No database policies or other routes are changed.
+- Verification: `node scripts/test-auth-readiness.mjs` uses real provider/service/guards and the App editor route registration over HTTP at 360×800 and 1280×720, with synthetic auth/database responses and no production writes.
+
 ### QuickMenu — teacher conduct access (v1.229.53)
 
 - ธนาคารความดี (`conduct` → `/admin/dashboard/conduct`) เป็นเมนูพื้นฐานของ role `teacher`; ไม่ต้องมีใน `allowedMenus` และไม่ต้องเพิ่มสิทธิ์รายบัญชีเมื่อสร้างครูใหม่

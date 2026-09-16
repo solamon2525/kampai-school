@@ -290,6 +290,20 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.74 (ภาษาอังกฤษ & ระบบสิทธิ์ — ใบงาน Everyday Conversation ป.4 คู่สื่อการสอน และเสริมความแข็งแกร่ง Auth Readiness 100%)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างใบงานคู่สื่อ Everyday Conversation ป.4 (public/games/english/everyday-conversation-p4-worksheet.html) ครอบคลุม 6 สถานการณ์บทสนทนา รวม 38 ข้อ พร้อมเฉลยสำหรับครู และพิมพ์ A4',
+            'เชื่อมโยงปุ่มเปิดใบงาน 📄 ใบงาน บนแถบเครื่องมือของสื่อการสอน everyday-conversation-p4-media.html',
+            'รัน Migration 524 บน Supabase ลงทะเบียนใบงานลง educational_hub_items และอัปเกรดเวอร์ชันสื่อเป็น v1.6.0 พร้อม game_docs และตัวชี้วัด ต 1.1, ต 1.2, ต 4.1',
+            'ผ่านการตรวจสอบใบงาน 18 เช็ค 100% ผ่าน scripts/verify-worksheet.mjs และ verify-everyday-conversation-p4.mjs',
+            'เสริมความแข็งแกร่งระบบความปลอดภัย Auth Readiness & Permissions (AuthProvider, PortalProtectedRoute, AuthLoadError, auth-permissions.service.ts)',
+            'รองรับ Deep links, Fail-closed บนข้อผิดพลาดสิทธิ์, ตัดการเข้าถึงทันทีเมื่อมี Realtime Role Revocation, และจัดการ Invalidation หลัง Sign-out',
+            'ผ่านการทดสอบ Auth Readiness Integration Suite ทั้งหมด 24/24 รายการ 100% ผ่าน scripts/test-auth-readiness.mjs',
+        ],
+    },
+    {
         version: 'v1.229.73 (วิทยาศาสตร์ & เทคโนโลยี — ยกระดับ Media Lab, จูนสมดุล AR จรวดพลังงาน และสร้างมาตรฐาน AR Calibration Tool)',
         date: '16 ก.ย. 2569',
         badge: 'bg-emerald-600',

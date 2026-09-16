@@ -170,7 +170,17 @@
     .speech-card.speaking{outline:5px solid var(--gold);outline-offset:3px}
     .speech-card .reading{font-size:clamp(28px,2.7vw,42px);line-height:1.45}
     .speech-card .meaning{font-size:clamp(24px,2.2vw,34px);line-height:1.4}
-    .practice-options{display:none;gap:8px;align-items:center;flex-wrap:wrap}.pair-mode .practice-options{display:flex}
+    .practice-options{display:none;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:var(--aqua);color:var(--navy)}.pair-mode .practice-options,.guided-available .practice-options{display:flex}
+    .practice-options label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .guided-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .guided-tools[hidden],.practice-options [hidden],.practice-end[hidden],.partner-cue[hidden]{display:none!important}
+    .practice-options select{background:var(--white);color:var(--navy);border:2px solid var(--blue);border-radius:10px;padding:6px}
+    .guided-tools .btn,#continueRole{min-height:48px;background:var(--gold);color:var(--navy);border-color:var(--navy)}
+    .line.masked .reading,.line.masked .meaning,.speech-card.masked .reading,.speech-card.masked .meaning{display:none!important}
+    .partner-cue{font-size:clamp(22px,2vw,32px);padding:8px 16px;color:var(--navy);background:var(--aqua);overflow-wrap:anywhere}
+    .practice-end{padding:14px 20px;background:var(--aqua);color:var(--navy);font-size:22px}
+    .practice-end p{margin:6px 0}.practice-end .btn{min-height:48px;background:var(--gold);color:var(--navy);margin:5px}
+    .practice-end ul{padding-left:24px;font-size:20px}
     .practice-options select{font:inherit;min-height:44px;max-width:100%}
     .speech-card{max-height:94%;overflow-y:auto}
     @media(max-width:767px){
@@ -198,6 +208,7 @@
       </div>
       <button type="button" class="btn use-profile" id="btnUseProfile" aria-pressed="false">ข้อมูลฉัน: ไม่ใช้</button>
       <span class="toolbar-spacer"></span>
+      <a href="/games/english/everyday-conversation-p4-worksheet.html" target="_blank" rel="noopener" class="btn" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;text-decoration:none;font-weight:700;" title="เปิดใบงาน A4">📄 ใบงาน</a>
       <button type="button" class="btn toggle" id="toggleReading" aria-pressed="true">คำอ่าน: เปิด</button>
       <button type="button" class="btn toggle" id="toggleMeaning" aria-pressed="true">คำแปล: เปิด</button>
       <button type="button" class="btn btn-fs" id="btnFs">⛶ เต็มจอ</button>
@@ -239,7 +250,9 @@
       </aside>
 
       <main class="main">
-        <div class="practice-options"><label>ฉันฝึกเป็น <select id="practiceRole"><option value="">อ่านทั้งสองบท</option><option value="A">A — ระบบอ่าน B</option><option value="B">B — ระบบอ่าน A</option></select></label><button type="button" class="btn" id="continueRole" hidden>พูดแล้ว ไปต่อ</button></div>
+        <div class="practice-options"><label>ฉันฝึกเป็น <select id="practiceRole"><option value="">อ่านทั้งสองบท</option><option value="A">A — ระบบอ่าน B</option><option value="B">B — ระบบอ่าน A</option></select></label><div id="guidedTools" class="guided-tools" hidden><label>ตัวช่วย <select id="supportLevel"><option value="full">ประโยคเต็ม</option><option value="hint">คำใบ้</option><option value="independent">พูดเอง</option></select></label><button type="button" class="btn" id="btnHint" hidden>ขอคำใบ้</button><button type="button" class="btn" id="btnExample" hidden>ดูตัวอย่าง</button></div><button type="button" class="btn" id="continueRole" hidden>พูดแล้ว ไปต่อ</button></div>
+        <div id="partnerCue" class="partner-cue" hidden></div>
+        <section id="practiceEnd" class="practice-end" hidden aria-live="polite"><strong>จบบทแล้ว ลองพูดด้วยตัวเองอีกครั้ง</strong><p>ครูสังเกตการพูดของเด็ก</p><ul><li>สื่อความหมายได้</li><li>โต้ตอบตรงสถานการณ์</li><li>ใช้ตัวช่วยน้อยลง</li></ul><button class="btn" type="button" id="btnRetryPractice">ลองอีกครั้ง</button><button class="btn" type="button" id="btnSwitchPractice">สลับบท</button></section>
         <section class="lesson-head">
           <div class="lesson-emoji" id="sceneEmoji" aria-hidden="true">👋</div>
           <div class="lesson-copy">
@@ -338,6 +351,18 @@
       ]}
     ];
 
+    const SPEAKING_PILOTS={
+      'What is your name?':{indicator:'ต 1.2 ป.4/1',sourceIndicatorId:'ea395500-99e0-4903-bd89-8ed68adae95c',hints:['What is your ____?','My name is ____.','How do you ____ it?','____ (spell your name)']},
+      'How old are you?':{indicator:'ต 1.2 ป.4/4',sourceIndicatorId:'9d04cc89-c6c1-4bb6-946e-baca6b299726',hints:['How ____ are you?','I am ____ years old.','Thank you for ____.','You are ____.']},
+      'Where do you live?':{indicator:'ต 1.2 ป.4/4',sourceIndicatorId:'9d04cc89-c6c1-4bb6-946e-baca6b299726',hints:['Where do you ____?','I live in ____.','Is it ____ from school?','It is ____ my school.']},
+      'Borrowing a pencil':{indicator:'ต 1.2 ป.4/3',sourceIndicatorId:'b65b6714-2097-4dde-9235-1a87e2045901',hints:['Can I borrow your ____?','Sure. Here ____.','Thank you ____.','No ____.']},
+      'Do you like football?':{indicator:'ต 1.2 ป.4/5',sourceIndicatorId:'62ae2b8f-b772-4ac6-bcaf-d768d2d4c11e',hints:['Do you like ____?','Yes, I ____. / No, I ____.','When do you ____?','I play ____.']}
+    };
+    SCENES.forEach(scene=>scene.dialogues.forEach(lesson=>{lesson.speakingPractice=SPEAKING_PILOTS[lesson.title]||null}));
+    const ageLesson=SCENES[0].dialogues[2];
+    ageLesson.lines[2]=['A','Thank you for telling me.','แธงก์ ยู ฟอร์ เทลลิง มี','ขอบคุณที่บอกฉัน'];
+    ageLesson.lines[3]=['B','You are welcome.','ยู อาร์ เวลคัม','ด้วยความยินดี'];
+
     const SCENE_VISUALS={
       greetings:[
         ['greetings/01-meeting-new-friend.webp','เด็กหญิงมะลิทางซ้ายทักทายเด็กชายต้นทางขวาในลานโรงเรียน',{A:'female',B:'male'},'A'],
@@ -423,6 +448,7 @@
     };
     const PROFILE_FIELDS=['school','province','name','age','grade','like','family'];
     const state={scene:0,lesson:0,line:0,mode:'learn',myView:'intro',visualPersonal:false,swapped:false,playing:false,playToken:0,playbackTimer:0,speechGuardTimer:0,karaokeTimer:0,karaokeWordIndex:-1,karaokeSync:'idle',phase:'idle',repeatRemaining:0,useProfile:false,profileVoice:'female',lastVoiceName:'',
+      supportLevel:'full',revealIndex:-1,revealLevel:null,practiceComplete:false,
       profile:{school:'',province:'',name:'',age:'',grade:'',like:'',family:''},
       showReading:localStorage.getItem(STORAGE_READING)!=='0',showMeaning:localStorage.getItem(STORAGE_MEANING)!=='0'};
     const $=id=>document.getElementById(id);
@@ -487,12 +513,32 @@
       return {role:source[0],en:fillTemplate(templates[0],false),reading:fillTemplate(templates[1],false),meaning:fillTemplate(templates[2],false),enHtml:fillTemplate(templates[0],true),readingHtml:fillTemplate(templates[1],true),meaningHtml:fillTemplate(templates[2],true)};
     }
     function resolvedLine(index){readingExamples=usesPersonalLesson()&&!state.useProfile;try{return resolveSourceLine(currentLesson().lines[index],!usesPersonalLesson()&&state.useProfile)}finally{readingExamples=false}}
+    function pilotAvailable(){return !usesPersonalLesson()&&!!currentLesson().speakingPractice&&(state.mode==='practice'||state.mode==='visual')}
+    function guidedPractice(){return pilotAvailable()&&!!$('practiceRole').value}
+    function studentLine(index){return guidedPractice()&&currentLesson().lines[index][0]===$('practiceRole').value}
+    function displayedLine(index){
+      const line=resolvedLine(index),level=state.revealIndex===index?state.revealLevel:state.supportLevel;
+      if(!studentLine(index)||level==='full')return {...line,masked:false};
+      const text=level==='hint'?currentLesson().speakingPractice.hints[index]:'ถึงตาคุณพูด';
+      return {...line,enHtml:escapeHtml(text),readingHtml:'',meaningHtml:'',masked:true};
+    }
+    function renderPractice(){
+      const available=pilotAvailable(),guided=guidedPractice(),student=studentLine(state.line);
+      shell.classList.toggle('guided-available',available);$('guidedTools').hidden=!available;
+      $('supportLevel').disabled=!guided;
+      $('btnHint').hidden=!student||state.supportLevel!=='independent';$('btnExample').hidden=!student||state.supportLevel==='full';
+      $('continueRole').hidden=state.phase!=='waiting'&&!continueRole;
+      $('practiceEnd').hidden=!state.practiceComplete;
+      const previous=state.line>0?resolvedLine(state.line-1):null;
+      $('partnerCue').hidden=!(student&&state.mode==='visual'&&previous&&previous.role!==$('practiceRole').value);
+      $('partnerCue').textContent=previous?'คู่สนทนา: '+previous.en:'';
+    }
     function idlePlayLabel(){return state.mode==='visual'?'▶ เริ่มฉาก':'▶ เล่นทั้งบท'}
     function speechTargets(){return [$('dialogue').querySelector('.line.active .english'),$('visualEnglish')].filter(Boolean)}
     function clearKaraoke(restoreText){
       clearTimeout(state.karaokeTimer);state.karaokeTimer=0;state.karaokeWordIndex=-1;state.karaokeSync='idle';
       document.querySelectorAll('.spoken-word,.speaking').forEach(el=>el.classList.remove('spoken-word','speaking'));
-      if(restoreText){const line=resolvedLine(state.line);speechTargets().forEach(el=>{el.innerHTML=line.enHtml})}
+      if(restoreText){const line=displayedLine(state.line);speechTargets().forEach(el=>{el.innerHTML=line.enHtml})}
     }
     function showKaraokeWord(targets,index,source){
       if(index<0)return;state.karaokeWordIndex=index;state.karaokeSync=source;
@@ -503,6 +549,7 @@
       state.playToken+=1;state.playing=false;state.phase='idle';state.repeatRemaining=0;clearTimeout(state.playbackTimer);clearTimeout(state.speechGuardTimer);state.playbackTimer=0;state.speechGuardTimer=0;$('btnPlay').classList.remove('playing');$('btnPlay').textContent=idlePlayLabel();$('turnCue').classList.remove('show');$('repeatCountdown').classList.remove('show');
       document.querySelectorAll('.speaker-tag').forEach(tag=>tag.classList.remove('talking'));
       try{window.KAMPAI?.sound?.stopSpeak?.();}catch(_e){}
+      state.revealIndex=-1;state.revealLevel=null;state.practiceComplete=false;renderDialogue();
     }
     function updateVisibility(){
       shell.classList.toggle('hide-reading',!state.showReading);shell.classList.toggle('hide-meaning',!state.showMeaning);
@@ -524,23 +571,23 @@
     }
     function renderDialogue(){
       const scene=currentScene(),lesson=currentLesson();
-      $('sceneEmoji').textContent=scene.icon;$('sceneLabel').textContent=usesPersonalLesson()?'เรื่องของฉัน · '+scene.indicator:'สถานการณ์ '+(state.scene+1)+' จาก '+SCENES.length+' · '+scene.indicator;
-      $('lessonTitle').textContent=lesson.title;$('lessonGoal').textContent=usesPersonalLesson()?scene.goal:scene.goal+' · บท '+(state.lesson+1)+' จาก '+scene.dialogues.length;
-      $('dialogue').innerHTML=lesson.lines.map((_line,index)=>{const line=resolvedLine(index);const side=state.swapped&&line.role!=='I'?(line.role==='A'?'B':'A'):line.role;return '<article class="line '+(index===state.line?'active':'')+'" data-role="'+escapeHtml(line.role)+'" data-side="'+escapeHtml(side)+'" data-line="'+index+'"><span class="role">'+escapeHtml(line.role)+'</span><div class="line-text"><div class="english">'+line.enHtml+'</div><div class="reading">คำอ่าน: '+line.readingHtml+'</div><div class="meaning">'+line.meaningHtml+'</div></div><button type="button" class="say-btn" data-say="'+index+'" aria-label="ฟัง '+escapeHtml(line.en)+'">🔊</button></article>'}).join('');
-      const active=$('dialogue').querySelector('.line.active');if(active&&active.scrollIntoView)active.scrollIntoView({block:'nearest',behavior:'smooth'});
-      renderVisual();
+      $('sceneEmoji').textContent=scene.icon;$('sceneLabel').textContent=usesPersonalLesson()?'เรื่องของฉัน · '+scene.indicator:'สถานการณ์ '+(state.scene+1)+' จาก '+SCENES.length+' · '+(lesson.speakingPractice?.indicator||scene.indicator);
+      $('lessonTitle').textContent=lesson.title;$('lessonGoal').textContent=usesPersonalLesson()?scene.goal:scene.goal+' · บท '+(state.lesson+1)+' จาก '+scene.dialogues.length+(lesson.speakingPractice?' · ฝึกพูดเอง 3 ระดับ':'');
+      $('dialogue').innerHTML=lesson.lines.map((_line,index)=>{const line=displayedLine(index);const side=state.swapped&&line.role!=='I'?(line.role==='A'?'B':'A'):line.role;return '<article class="line '+(index===state.line?'active':'')+(line.masked?' masked':'')+'" data-role="'+escapeHtml(line.role)+'" data-side="'+escapeHtml(side)+'" data-line="'+index+'"><span class="role">'+escapeHtml(line.role)+'</span><div class="line-text"><div class="english">'+line.enHtml+'</div><div class="reading">'+(line.readingHtml?'คำอ่าน: '+line.readingHtml:'')+'</div><div class="meaning">'+line.meaningHtml+'</div></div><button type="button" class="say-btn" data-say="'+index+'" aria-label="'+(line.masked?'ฟังตัวอย่าง':('ฟัง '+escapeHtml(line.en)))+'">🔊</button></article>'}).join('');
+      const active=$('dialogue').querySelector('.line.active');if(state.mode!=='visual'&&active&&active.scrollIntoView)active.scrollIntoView({block:'nearest',behavior:'instant'});
+      renderVisual();renderPractice();
     }
     function renderVisual(){
-      const lesson=currentLesson(),line=resolvedLine(state.line),image=$('visualImage'),frame=$('visualFrame');
+      const lesson=currentLesson(),line=displayedLine(state.line),image=$('visualImage'),frame=$('visualFrame');
       if(image.dataset.src!==lesson.image){frame.classList.remove('image-error');image.dataset.src=lesson.image;image.src=lesson.image;image.alt=lesson.imageAlt||'';}
-      $('visualSpeech').dataset.role=line.role;$('visualEnglish').innerHTML=line.enHtml;$('visualReading').innerHTML='คำอ่าน: '+line.readingHtml;$('visualMeaning').innerHTML=line.meaningHtml;
+      $('visualSpeech').classList.toggle('masked',line.masked);$('visualSpeech').dataset.role=line.role;$('visualEnglish').innerHTML=line.enHtml;$('visualReading').innerHTML=line.readingHtml?'คำอ่าน: '+line.readingHtml:'';$('visualMeaning').innerHTML=line.meaningHtml;
       const isIntro=line.role==='I';
       document.querySelectorAll('[data-visual-role]').forEach(zone=>{zone.hidden=isIntro?zone.dataset.visualRole!=='I':zone.dataset.visualRole==='I';zone.classList.toggle('active',zone.dataset.visualRole===line.role)});
       document.querySelectorAll('.speaker-tag').forEach(tag=>{const role=tag.classList.contains('speaker-tag-a')?'A':tag.classList.contains('speaker-tag-b')?'B':'I';tag.hidden=isIntro?role!=='I':role==='I';tag.classList.toggle('talking',role===line.role&&state.phase==='speaking')});
       $('repeatCountdown').textContent=state.phase==='repeat'?'พูดตาม · '+state.repeatRemaining:'';$('repeatCountdown').classList.toggle('show',state.phase==='repeat');
     }
     function render(){renderNavigation();renderDialogue();renderProfileStatus();updateVisibility()}
-    function selectLine(index){state.line=Math.max(0,Math.min(currentLesson().lines.length-1,index));renderDialogue()}
+    function selectLine(index){if(index!==state.line){state.revealIndex=-1;state.revealLevel=null;}state.line=Math.max(0,Math.min(currentLesson().lines.length-1,index));renderDialogue()}
     function changeLesson(delta){
       if(usesPersonalLesson()){state.myView=state.myView==='intro'?'qa':'intro';state.line=delta<0?currentLesson().lines.length-1:0;render();return;}
       stopPlayback();const scene=currentScene();let next=state.lesson+delta;
@@ -580,6 +627,40 @@
       }
       done();
     }
+    function waitForStudent(index){
+      const token=state.playToken;state.phase='waiting';state.revealIndex=-1;state.revealLevel=null;selectLine(index);
+      $('turnCue').textContent='ถึงตาคุณพูด · บท '+$('practiceRole').value;$('turnCue').classList.add('show');
+      continueRole=()=>{if(token!==state.playToken||!state.playing||state.phase!=='waiting')return;continueRole=null;runGuided(index+1)};
+      renderPractice();
+    }
+    function runGuided(index){
+      if(!state.playing)return;
+      if(index>=currentLesson().lines.length){stopPlayback();state.practiceComplete=true;renderPractice();return;}
+      state.revealIndex=-1;state.revealLevel=null;
+      if(studentLine(index)){waitForStudent(index);return;}
+      continueRole=null;state.phase='speaking';const token=state.playToken;selectLine(index);
+      $('turnCue').textContent='ฟังคู่สนทนา · บท '+currentLesson().lines[index][0];$('turnCue').classList.add('show');
+      speakLine(index,()=>{if(token===state.playToken&&state.playing)state.playbackTimer=setTimeout(()=>runGuided(index+1),850)});
+    }
+    function startGuided(){
+      if(state.playing){stopPlayback();return;}
+      stopPlayback();state.playing=true;$('btnPlay').textContent='■ หยุด';$('btnPlay').classList.add('playing');runGuided(0);
+    }
+    function listenLine(index){
+      if(!studentLine(index)){
+        stopPlayback();state.phase='speaking';speakLine(index,()=>{state.phase='idle';renderVisual()});return;
+      }
+      // A requested model answer returns to the same student turn, never advances it.
+      stopPlayback();state.playing=true;state.line=index;state.revealIndex=index;state.revealLevel='full';state.phase='example';
+      $('btnPlay').textContent='■ หยุด';$('btnPlay').classList.add('playing');
+      speakLine(index,()=>waitForStudent(index));
+    }
+    function revealStudent(level){
+      if(!studentLine(state.line))return;
+      const index=state.line,waiting=state.phase==='waiting';
+      if(!waiting){stopPlayback();state.playing=true;waitForStudent(index)}
+      state.revealIndex=index;state.revealLevel=level;renderDialogue();
+    }
     function playVisualScene(){
       if(state.playing){stopPlayback();renderVisual();return;}
       state.playing=true;state.playToken+=1;const token=state.playToken;$('btnPlay').classList.add('playing');$('btnPlay').textContent='■ หยุด';
@@ -601,6 +682,7 @@
       run(0);
     }
     function replayVisualLine(index){
+      if(studentLine(index)){listenLine(index);return;}
       stopPlayback();state.line=index;state.phase='speaking';renderDialogue();speakLine(index,()=>{state.phase='idle';renderVisual()});
     }
     function visualLineForRole(role){
@@ -608,6 +690,7 @@
       const next=lines.findIndex((line,index)=>index>state.line&&line[0]===role);return next>=0?next:lines.findIndex(line=>line[0]===role);
     }
     function playAll(){
+      if(guidedPractice()){startGuided();return;}
       if(state.mode==='visual'){playVisualScene();return;}
       if(state.playing){stopPlayback();return;}
       state.playing=true;state.playToken+=1;const token=state.playToken;$('btnPlay').classList.add('playing');$('btnPlay').textContent='■ หยุดเล่น';
@@ -638,7 +721,7 @@
       const visualView=event.target.closest('[data-visual-view]');if(visualView){stopPlayback();state.myView=visualView.dataset.visualView;state.line=0;render();return;}
       const button=event.target.closest('[data-lesson]');if(!button)return;stopPlayback();state.lesson=Number(button.dataset.lesson);state.line=0;render();
     });
-    $('dialogue').addEventListener('click',event=>{const say=event.target.closest('[data-say]');if(say){stopPlayback();speakLine(Number(say.dataset.say));return;}const line=event.target.closest('[data-line]');if(line){stopPlayback();selectLine(Number(line.dataset.line));}});
+    $('dialogue').addEventListener('click',event=>{const say=event.target.closest('[data-say]');if(say){listenLine(Number(say.dataset.say));return;}const line=event.target.closest('[data-line]');if(line){stopPlayback();selectLine(Number(line.dataset.line));}});
     $('visualStage').addEventListener('click',event=>{
       const zone=event.target.closest('[data-visual-role]');if(zone){const index=visualLineForRole(zone.dataset.visualRole);if(index>=0)replayVisualLine(index);return;}
       if(event.target.closest('#visualSpeech'))replayVisualLine(state.line);
@@ -663,7 +746,12 @@
     $('btnUseProfile').addEventListener('click',toggleProfileUse);
     $('btnApplyProfile').addEventListener('click',()=>{stopPlayback();state.useProfile=true;render();if(!profileComplete())focusMissing()});
     $('continueRole').addEventListener('click',()=>continueRole?.());
-    $('practiceRole').addEventListener('change',stopPlayback);
+    $('practiceRole').addEventListener('change',()=>{stopPlayback();renderDialogue()});
+    $('supportLevel').addEventListener('change',()=>{stopPlayback();state.supportLevel=$('supportLevel').value;renderDialogue()});
+    $('btnHint').addEventListener('click',()=>revealStudent('hint'));
+    $('btnExample').addEventListener('click',()=>revealStudent('full'));
+    $('btnRetryPractice').addEventListener('click',()=>{stopPlayback();startGuided()});
+    $('btnSwitchPractice').addEventListener('click',()=>{stopPlayback();$('practiceRole').value=$('practiceRole').value==='A'?'B':'A';selectLine(0)});
     $('schoolSpeech').addEventListener('input',()=>{stopPlayback();saveTeacher()});
     $('testSchool').addEventListener('click',()=>{stopPlayback();if($('kbtn-tts')?.classList.contains('off')||!window.speechSynthesis)return;const text=cleanValue($('schoolSpeech').value)||cleanValue(state.profile.school);if(!text)return;const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.voice=speechSynthesis.getVoices().find(v=>/^en[-_]/i.test(v.lang))||null;u.rate=.82;speechSynthesis.speak(u)});
     $('kbtn-tts')?.addEventListener('click',stopPlayback);
@@ -673,7 +761,7 @@
     });
     $('btnPrev').addEventListener('click',()=>{stopPlayback();if(state.line>0)selectLine(state.line-1);else changeLesson(-1);});
     $('btnNext').addEventListener('click',()=>{stopPlayback();if(state.line<currentLesson().lines.length-1)selectLine(state.line+1);else changeLesson(1);});
-    $('btnListen').addEventListener('click',()=>{if(state.mode==='visual'){replayVisualLine(state.line);return;}stopPlayback();speakLine(state.line);});
+    $('btnListen').addEventListener('click',()=>{listenLine(state.line)});
     $('btnPlay').addEventListener('click',playAll);
     $('btnSwap').addEventListener('click',()=>{stopPlayback();state.swapped=!state.swapped;render();});
     $('toggleReading').addEventListener('click',()=>{state.showReading=!state.showReading;localStorage.setItem(STORAGE_READING,state.showReading?'1':'0');updateVisibility();});
@@ -686,6 +774,7 @@
     window.addEventListener('pagehide',stopPlayback);
 
     window.EverydayConversationP4=Object.freeze({
+      getPracticeState:()=>Object.freeze({available:pilotAvailable(),enabled:guidedPractice(),supportLevel:state.supportLevel,studentRole:$('practiceRole').value,phase:state.phase,line:state.line,revealLevel:state.revealLevel,complete:state.practiceComplete,indicator:currentLesson().speakingPractice?.indicator||null,sourceIndicatorId:currentLesson().speakingPractice?.sourceIndicatorId||null}),
       getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,visualPersonal:state.visualPersonal,playing:state.playing,phase:state.phase,repeatRemaining:state.repeatRemaining,karaokeWordIndex:state.karaokeWordIndex,karaokeSync:state.karaokeSync,activeRole:currentLesson().lines[state.line][0],activeVoiceKind:voiceKindForLine(currentLesson(),currentLesson().lines[state.line][0]),lastVoiceName:state.lastVoiceName,profileVoice:state.profileVoice,image:currentLesson().image,imageAlt:currentLesson().imageAlt,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
       scenes:Object.freeze(SCENES.map(scene=>Object.freeze({id:scene.id,count:scene.dialogues.length,indicator:scene.indicator})))
     });
