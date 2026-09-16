@@ -290,6 +290,21 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.75 (ภาษาอังกฤษ — ยกระดับ Phonics Reading Studio 10 หมวดเสียง 116 คำ, โหมดต่อบล็อกเสียง Phonics Builder, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Phonics Reading Studio (public/games/english/phonics-media.html) จาก 6 เป็น 10 หมวดเสียง (+4 หมวดใหม่: Long Vowels & Magic E, Vowel Teams, Bossy R, Special Vowels & Diphthongs) รวมคำศัพท์ 116 คำ (>= 11 คำ/หมวด)',
+            'คำศัพท์ใหม่ทุกคำใช้ภาพประกอบ WebP แท้จากคลัง vocab-hub-assets สอดคล้องตามหลักการเรียนรู้ (ไร้ Emoji, ลายเส้นสะอาด สไตล์การศึกษา)',
+            'เพิ่มโหมดที่ 4 Phonics Sound Builder (🧩 ต่อบล็อกเสียง): แตะบล็อกเสียงโฟนิกส์และตัวกวนเพื่อผสมคำศัพท์ (Synthetic Phonics Blending) พร้อมตัวนับสถิติความถูกต้อง',
+            'เพิ่มฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม): นับถอยหลัง 3 วินาทีพร้อมแอนิเมชัน Pulse ให้เด็กฝึกเปล่งเสียงตามต้นแบบสำเนียงเจ้าของภาษา',
+            'เพิ่มคีย์บอร์ดชอร์ตคัตสำหรับครูผู้สอนบน Smartboard (Spacebar = เล่นเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนคำ, ปุ่ม 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/phonics-worksheet.html) ให้รองรับครบทั้ง 10 หมวดเสียง เพิ่ม 40 โจทย์ใหม่ รวมทั้งหมด 101 คำศัพท์ พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครู',
+            'ผ่านการตรวจสอบ 9 ข้อ 100% ผ่าน scripts/verify-phonics-media.mjs ทั้งบน Mobile (360x800) และ Desktop (1280x720) ปุ่มสัมผัส >= 44x44px และไร้การล้นจอ',
+            'ผ่านการตรวจสอบใบงาน 19 ข้อ 100% ผ่าน scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
         version: 'v1.229.74 (ภาษาอังกฤษ & ระบบสิทธิ์ — ใบงาน Everyday Conversation ป.4 คู่สื่อการสอน และเสริมความแข็งแกร่ง Auth Readiness 100%)',
         date: '16 ก.ย. 2569',
         badge: 'bg-emerald-600',

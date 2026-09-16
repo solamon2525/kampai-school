@@ -744,6 +744,159 @@
     .quiz-feedback.ok { color: var(--ok); }
     .quiz-feedback.no { color: var(--bad); }
 
+    /* Mode: Phonics Builder (โหมดต่อบล็อกเสียง) */
+    .builder-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .builder-card {
+      width: 100%;
+      background: var(--white);
+      border: 3px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(18,53,91,0.08);
+    }
+    .builder-img-wrap {
+      width: 130px;
+      height: 130px;
+      border-radius: 20px;
+      background: #f8fafc;
+      border: 2px solid var(--line-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+    .builder-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .builder-th-meaning {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .builder-slots-box {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .builder-tiles-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .builder-slots {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin: 4px 0;
+    }
+    .builder-slot {
+      min-width: 60px;
+      min-height: 60px;
+      padding: 0 12px;
+      border: 3px dashed var(--blue);
+      border-radius: 16px;
+      background: var(--blue-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--navy);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .builder-slot.filled {
+      border-style: solid;
+      border-color: var(--navy);
+      background: var(--cream);
+    }
+    .builder-slot.correct {
+      border-color: var(--ok);
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+    .builder-tiles-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .sound-tile-btn {
+      min-width: 58px;
+      min-height: 58px;
+      padding: 8px 16px;
+      border: 2px solid var(--navy);
+      border-radius: 16px;
+      background: var(--white);
+      color: var(--navy);
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--navy);
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sound-tile-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--navy);
+    }
+    .sound-tile-btn.used {
+      opacity: 0.35;
+      pointer-events: none;
+      box-shadow: none;
+      transform: translateY(2px);
+    }
+    .builder-result-box {
+      font-size: 1.15rem;
+      font-weight: 800;
+      min-height: 32px;
+    }
+    .builder-result-box.ok { color: var(--ok); }
+    .builder-result-box.no { color: var(--bad); }
+
+    /* Echo Repeat Countdown */
+    .echo-countdown {
+      padding: 8px 18px;
+      border-radius: 14px;
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      color: #92400e;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      animation: echoPulse 0.8s infinite alternate;
+    }
+    @keyframes echoPulse {
+      from { transform: scale(0.98); }
+      to { transform: scale(1.02); }
+    }
+
     /* Footer */
     footer.bottombar {
       padding: 12px 18px;
@@ -801,6 +954,9 @@
         </button>
         <button type="button" class="seg-btn" data-mode="practice" id="tabModePractice" role="tab" aria-selected="false">
           ✏️ แบบทดสอบทายเสียง
+        </button>
+        <button type="button" class="seg-btn" data-mode="builder" id="tabModeBuilder" role="tab" aria-selected="false">
+          🧩 ต่อบล็อกเสียง
         </button>
       </div>
 
@@ -894,10 +1050,14 @@
               <button type="button" class="btn btn-blend" id="btnSpeakBlend">
                 🗣️ สะกดทีละเสียง
               </button>
+              <button type="button" class="btn btn-echo" id="btnEchoRepeat" style="background:#e0f2fe;color:var(--navy);border:2px solid #7dd3fc;" title="ฟังแล้วฝึกเปล่งเสียงตาม (รอ 3 วินาที)">
+                🎤 ฝึกพูดตาม
+              </button>
               <button type="button" class="btn btn-autoread" id="btnAutoRead">
                 ▶️ อ่านอัตโนมัติ
               </button>
             </div>
+            <div class="echo-countdown" id="echoCountdown" style="display:none;" role="status"></div>
           </div>
         </article>
 
@@ -947,6 +1107,39 @@
           <button type="button" class="btn primary" id="btnQuizNext" style="background:var(--navy);color:#fff;min-width:160px;display:none;">
             ข้อถัดไป →
           </button>
+        </div>
+      </div>
+
+      <!-- MODE 4: Phonics Sound Builder View -->
+      <div class="builder-view" id="builderView" style="display:none;">
+        <div class="builder-card">
+          <div class="quiz-streak-tag" id="builderStreakTag">
+            ⭐ ต่อคำถูกต้อง: 0 คำ
+          </div>
+          <div class="builder-img-wrap">
+            <img src="" alt="" class="builder-img" id="builderImg" />
+          </div>
+          <div class="builder-info">
+            <div class="builder-th-meaning" id="builderThMeaning">แมว (แคท)</div>
+          </div>
+          <div class="builder-slots-box">
+            <span class="builder-tiles-label">แตะบล็อกเสียงด้านล่างเรียงเป็นคำให้ถูกต้อง:</span>
+            <div class="builder-slots" id="builderSlots">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+          <div class="builder-tiles-grid" id="builderTilesGrid">
+            <!-- Rendered via JS: Sound Tiles -->
+          </div>
+          <div class="builder-result-box" id="builderResultBox" aria-live="polite"></div>
+          <div class="builder-actions" style="display:flex;gap:10px;margin-top:8px;">
+            <button type="button" class="btn" id="btnBuilderReset" style="background:#f1f5f9;color:var(--navy);border:2px solid var(--line);">
+              ↺ เริ่มใหม่
+            </button>
+            <button type="button" class="btn primary" id="btnBuilderNext" style="background:var(--navy);color:#fff;min-width:140px;display:none;">
+              คำถัดไป →
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -1086,6 +1279,85 @@
             { en: 'whale', focus: 'wh', ipa: '/weɪl/', thReading: 'เวล', thMeaning: 'ปลาวาฬ', phonemes: ['wh', 'ale'], img: 'sea-animals/whale.webp' },
             { en: 'blocks', focus: 'bl', ipa: '/blɒks/', thReading: 'บล็อกส์', thMeaning: 'ตัวต่อบล็อก', phonemes: ['bl', 'o', 'cks'], img: 'toys/blocks.webp' }
           ]
+        },
+        {
+          id: 'long-vowels',
+          title: 'Long Vowels (Magic E)',
+          thaiSound: 'สระเสียงยาว & Magic E',
+          description: 'สระเสียงยาวที่มี Magic E (a_e, i_e, o_e, u_e) เช่น cake, kite, nose',
+          words: [
+            { en: 'cake', focus: 'a_e', ipa: '/keɪk/', thReading: 'เค้ก', thMeaning: 'ขนมเค้ก', phonemes: ['c', 'a', 'k', 'e'], img: 'food/cake.webp' },
+            { en: 'snake', focus: 'a_e', ipa: '/sneɪk/', thReading: 'สเนก', thMeaning: 'งู', phonemes: ['sn', 'a', 'k', 'e'], img: 'animals/snake.webp' },
+            { en: 'grape', focus: 'a_e', ipa: '/ɡreɪp/', thReading: 'เกรพ', thMeaning: 'องุ่น', phonemes: ['gr', 'a', 'p', 'e'], img: 'fruits/grape.webp' },
+            { en: 'kite', focus: 'i_e', ipa: '/kaɪt/', thReading: 'ไคท์', thMeaning: 'ว่าว', phonemes: ['k', 'i', 't', 'e'], img: 'toys/kite.webp' },
+            { en: 'bike', focus: 'i_e', ipa: '/baɪk/', thReading: 'ไบค์', thMeaning: 'จักรยาน', phonemes: ['b', 'i', 'k', 'e'], img: 'transportation/bicycle.webp' },
+            { en: 'lime', focus: 'i_e', ipa: '/laɪm/', thReading: 'ไลม์', thMeaning: 'มะนาวเขียว', phonemes: ['l', 'i', 'm', 'e'], img: 'fruits/lime.webp' },
+            { en: 'rice', focus: 'i_e', ipa: '/raɪs/', thReading: 'ไรซ์', thMeaning: 'ข้าวสวย', phonemes: ['r', 'i', 'c', 'e'], img: 'food/rice.webp' },
+            { en: 'nose', focus: 'o_e', ipa: '/noʊz/', thReading: 'โนส', thMeaning: 'จมูก', phonemes: ['n', 'o', 's', 'e'], img: 'body/nose.webp' },
+            { en: 'robot', focus: 'o', ipa: '/ˈroʊ.bɒt/', thReading: 'โร-บอท', thMeaning: 'หุ่นยนต์', phonemes: ['ro', 'bot'], img: 'toys/robot.webp' },
+            { en: 'fruit', focus: 'ui', ipa: '/fruːt/', thReading: 'ฟรุต', thMeaning: 'ผลไม้', phonemes: ['fr', 'ui', 't'], img: 'food/fruit.webp' },
+            { en: 'juice', focus: 'ui', ipa: '/dʒuːs/', thReading: 'จูซ', thMeaning: 'น้ำผลไม้', phonemes: ['j', 'ui', 'ce'], img: 'food/juice.webp' }
+          ]
+        },
+        {
+          id: 'vowel-teams',
+          title: 'Vowel Teams',
+          thaiSound: 'สระคู่เสียงยาว',
+          description: 'สระคู่เสียงยาว ee, ea, ai, oa, ue เช่น bee, tea, train, boat',
+          words: [
+            { en: 'bee', focus: 'ee', ipa: '/biː/', thReading: 'บี', thMeaning: 'ผึ้ง', phonemes: ['b', 'ee'], img: 'insects/bee.webp' },
+            { en: 'tea', focus: 'ea', ipa: '/tiː/', thReading: 'ที', thMeaning: 'น้ำชา', phonemes: ['t', 'ea'], img: 'food/tea.webp' },
+            { en: 'meat', focus: 'ea', ipa: '/miːt/', thReading: 'มีท', thMeaning: 'เนื้อสัตว์', phonemes: ['m', 'ea', 't'], img: 'food/meat.webp' },
+            { en: 'peach', focus: 'ea', ipa: '/piːtʃ/', thReading: 'พีช', thMeaning: 'ลูกพีช', phonemes: ['p', 'ea', 'ch'], img: 'fruits/peach.webp' },
+            { en: 'queen', focus: 'ee', ipa: '/kwiːn/', thReading: 'ควีน', thMeaning: 'พระราชินี', phonemes: ['qu', 'ee', 'n'], img: 'jobs/queen.webp' },
+            { en: 'sheep', focus: 'ee', ipa: '/ʃiːp/', thReading: 'ชีพ', thMeaning: 'แกะ', phonemes: ['sh', 'ee', 'p'], img: 'animals/sheep.webp' },
+            { en: 'train', focus: 'ai', ipa: '/treɪn/', thReading: 'เทรน', thMeaning: 'รถไฟ', phonemes: ['tr', 'ai', 'n'], img: 'transportation/train.webp' },
+            { en: 'boat', focus: 'oa', ipa: '/boʊt/', thReading: 'โบ้ท', thMeaning: 'เรือ', phonemes: ['b', 'oa', 't'], img: 'transportation/boat.webp' },
+            { en: 'goat', focus: 'oa', ipa: '/ɡoʊt/', thReading: 'โกท', thMeaning: 'แพะ', phonemes: ['g', 'oa', 't'], img: 'animals/goat.webp' },
+            { en: 'blue', focus: 'ue', ipa: '/bluː/', thReading: 'บลู', thMeaning: 'สีน้ำเงิน', phonemes: ['bl', 'ue'], img: 'fruits/blueberry.webp' },
+            { en: 'soup', focus: 'ou', ipa: '/suːp/', thReading: 'ซุป', thMeaning: 'น้ำแกง/ซุป', phonemes: ['s', 'ou', 'p'], img: 'food/soup.webp' }
+          ]
+        },
+        {
+          id: 'bossy-r',
+          title: 'Bossy R (R-Controlled)',
+          thaiSound: 'พยัญชนะ R ควบคุมสระ',
+          description: 'สระที่ตามด้วย r (ar, or, er, ir, ur) เช่น star, car, corn, bird, turtle',
+          words: [
+            { en: 'star', focus: 'ar', ipa: '/stɑːr/', thReading: 'สตาร์', thMeaning: 'ดวงดาว', phonemes: ['st', 'ar'], img: 'shapes/star.webp' },
+            { en: 'car', focus: 'ar', ipa: '/kɑːr/', thReading: 'คาร์', thMeaning: 'รถยนต์', phonemes: ['c', 'ar'], img: 'transportation/car.webp' },
+            { en: 'park', focus: 'ar', ipa: '/pɑːk/', thReading: 'พาร์ค', thMeaning: 'สวนสาธารณะ', phonemes: ['p', 'ar', 'k'], img: 'places/park.webp' },
+            { en: 'shark', focus: 'ar', ipa: '/ʃɑːk/', thReading: 'ชาร์ค', thMeaning: 'ปลาฉลาม', phonemes: ['sh', 'ar', 'k'], img: 'sea-animals/shark.webp' },
+            { en: 'scarf', focus: 'ar', ipa: '/skɑːf/', thReading: 'สคาร์ฟ', thMeaning: 'ผ้าพันคอ', phonemes: ['sc', 'ar', 'f'], img: 'clothes/scarf.webp' },
+            { en: 'farmer', focus: 'ar', ipa: '/ˈfɑː.mər/', thReading: 'ฟาร์ม-เมอร์', thMeaning: 'ชาวนา', phonemes: ['farm', 'er'], img: 'jobs/farmer.webp' },
+            { en: 'corn', focus: 'or', ipa: '/kɔːn/', thReading: 'คอร์น', thMeaning: 'ข้าวโพด', phonemes: ['c', 'or', 'n'], img: 'vegetables/corn.webp' },
+            { en: 'horse', focus: 'or', ipa: '/hɔːs/', thReading: 'ฮอร์ส', thMeaning: 'ม้า', phonemes: ['h', 'or', 'se'], img: 'animals/horse.webp' },
+            { en: 'storm', focus: 'or', ipa: '/stɔːm/', thReading: 'สตอร์ม', thMeaning: 'พายุ', phonemes: ['storm', 'y'], img: 'weather/stormy.webp' },
+            { en: 'bird', focus: 'ir', ipa: '/bɜːd/', thReading: 'เบิร์ด', thMeaning: 'นก', phonemes: ['b', 'ir', 'd'], img: 'animals/bird.webp' },
+            { en: 'shirt', focus: 'ir', ipa: '/ʃɜːt/', thReading: 'เชิ้ต', thMeaning: 'เสื้อเชิ้ต', phonemes: ['sh', 'ir', 't'], img: 'clothes/shirt.webp' },
+            { en: 'turtle', focus: 'ur', ipa: '/ˈtɜː.təl/', thReading: 'เทอร์-เทิล', thMeaning: 'เต่าทะเล', phonemes: ['tur', 'tle'], img: 'sea-animals/turtle.webp' },
+            { en: 'nurse', focus: 'ur', ipa: '/nɜːs/', thReading: 'เนิร์ส', thMeaning: 'พยาบาล', phonemes: ['n', 'ur', 'se'], img: 'jobs/nurse.webp' }
+          ]
+        },
+        {
+          id: 'diphthongs-special',
+          title: 'Special Vowels & Diphthongs',
+          thaiSound: 'สระประสมพิเศษ',
+          description: 'สระพิเศษ oo, ow, ou, au เช่น book, boots, cow, mouth, autumn',
+          words: [
+            { en: 'book', focus: 'oo', ipa: '/bʊk/', thReading: 'บุ๊ก', thMeaning: 'หนังสือ', phonemes: ['b', 'oo', 'k'], img: 'classroom/book.webp' },
+            { en: 'cook', focus: 'oo', ipa: '/kʊk/', thReading: 'คุ้ก', thMeaning: 'ทำอาหาร', phonemes: ['c', 'oo', 'k'], img: 'verbs/cook.webp' },
+            { en: 'foot', focus: 'oo', ipa: '/fʊt/', thReading: 'ฟุต', thMeaning: 'เท้า', phonemes: ['f', 'oo', 't'], img: 'body/foot.webp' },
+            { en: 'boots', focus: 'oo', ipa: '/buːts/', thReading: 'บูทส์', thMeaning: 'รองเท้าบูท', phonemes: ['b', 'oo', 'ts'], img: 'clothes/boots.webp' },
+            { en: 'zoo', focus: 'oo', ipa: '/zuː/', thReading: 'ซู', thMeaning: 'สวนสัตว์', phonemes: ['z', 'oo'], img: 'places/zoo.webp' },
+            { en: 'noodles', focus: 'oo', ipa: '/ˈnuː.dəlz/', thReading: 'นู-เดิลส์', thMeaning: 'ก๋วยเตี๋ยว', phonemes: ['noo', 'dles'], img: 'food/noodles.webp' },
+            { en: 'cow', focus: 'ow', ipa: '/kaʊ/', thReading: 'คาว', thMeaning: 'แม่วัว', phonemes: ['c', 'ow'], img: 'animals/cow.webp' },
+            { en: 'owl', focus: 'ow', ipa: '/aʊl/', thReading: 'เอาล์', thMeaning: 'นกฮูก', phonemes: ['ow', 'l'], img: 'animals/owl.webp' },
+            { en: 'mouth', focus: 'ou', ipa: '/maʊθ/', thReading: 'เมาธ์', thMeaning: 'ปาก', phonemes: ['m', 'ou', 'th'], img: 'body/mouth.webp' },
+            { en: 'cloud', focus: 'ou', ipa: '/klaʊd/', thReading: 'คลาวด์', thMeaning: 'ก้อนเมฆ', phonemes: ['cl', 'ou', 'dy'], img: 'weather/cloudy.webp' },
+            { en: 'autumn', focus: 'au', ipa: '/ˈɔː.təm/', thReading: 'ออ-ทัม', thMeaning: 'ฤดูใบไม้ร่วง', phonemes: ['au', 'tumn'], img: 'seasons/autumn.webp' },
+            { en: 'sausage', focus: 'au', ipa: '/ˈsɒs.ɪdʒ/', thReading: 'ซอส-สิจ', thMeaning: 'ไส้กรอก', phonemes: ['sau', 'sage'], img: 'food/sausage.webp' }
+          ]
         }
       ];
 
@@ -1093,7 +1365,7 @@
       var state = {
         curGroupIdx: 0,
         curWordIdx: 0,
-        activeMode: 'learn', // 'learn' | 'gallery' | 'practice'
+        activeMode: 'learn', // 'learn' | 'gallery' | 'practice' | 'builder'
         voiceOption: 'us-female',
         speechRate: 0.75,
         readMode: 'blend',
@@ -1102,7 +1374,13 @@
         quizItem: null,
         quizChoices: [],
         quizStreak: 0,
-        quizAnswered: false
+        quizAnswered: false,
+        builderItem: null,
+        builderSlots: [],
+        builderAvailable: [],
+        builderStreak: 0,
+        builderSolved: false,
+        echoTimer: null
       };
 
       // DOM Elements
@@ -1130,6 +1408,19 @@
       var elQuizChoicesGrid = document.getElementById('quizChoicesGrid');
       var elQuizFeedback = document.getElementById('quizFeedback');
       var elBtnQuizNext = document.getElementById('btnQuizNext');
+
+      var elBuilderView = document.getElementById('builderView');
+      var elBuilderStreakTag = document.getElementById('builderStreakTag');
+      var elBuilderImg = document.getElementById('builderImg');
+      var elBuilderThMeaning = document.getElementById('builderThMeaning');
+      var elBuilderSlots = document.getElementById('builderSlots');
+      var elBuilderTilesGrid = document.getElementById('builderTilesGrid');
+      var elBuilderResultBox = document.getElementById('builderResultBox');
+      var elBtnBuilderReset = document.getElementById('btnBuilderReset');
+      var elBtnBuilderNext = document.getElementById('btnBuilderNext');
+
+      var elBtnEchoRepeat = document.getElementById('btnEchoRepeat');
+      var elEchoCountdown = document.getElementById('echoCountdown');
 
       var elSelectVoice = document.getElementById('selectVoice');
       var elSelectReadMode = document.getElementById('selectReadMode');
@@ -1435,6 +1726,12 @@
       function switchMode(newMode) {
         stopAutoRead();
         stopSpeech();
+        if (state.echoTimer) {
+          clearInterval(state.echoTimer);
+          state.echoTimer = null;
+          elEchoCountdown.style.display = 'none';
+          elBtnEchoRepeat.disabled = false;
+        }
         state.activeMode = newMode;
 
         document.querySelectorAll('.seg-btn').forEach(function (b) {
@@ -1446,6 +1743,7 @@
         elStudioView.style.display = newMode === 'learn' ? 'flex' : 'none';
         elGalleryView.style.display = newMode === 'gallery' ? 'flex' : 'none';
         elPracticeView.style.display = newMode === 'practice' ? 'flex' : 'none';
+        elBuilderView.style.display = newMode === 'builder' ? 'flex' : 'none';
 
         updateCurrentView();
       }
@@ -1457,7 +1755,191 @@
           renderGalleryView();
         } else if (state.activeMode === 'practice') {
           nextQuizQuestion();
+        } else if (state.activeMode === 'builder') {
+          initBuilderWord();
         }
+      }
+
+      // Classroom Echo Feature (ฟังแล้วฝึกเปล่งเสียงตาม 3 วินาที)
+      function triggerEchoRepeat() {
+        if (state.echoTimer) {
+          clearInterval(state.echoTimer);
+          state.echoTimer = null;
+        }
+        var word = GROUPS[state.curGroupIdx].words[state.curWordIdx];
+        elBtnEchoRepeat.disabled = true;
+        elEchoCountdown.style.display = 'inline-flex';
+        elEchoCountdown.textContent = '🔊 กำลังฟังเสียงต้นแบบ: ' + word.en + '...';
+
+        speak(word.en, null, 0.75, function () {
+          var count = 3;
+          elEchoCountdown.textContent = '🎤 ตาหนูพูดแล้ว! พูดว่า: ' + word.en + ' (' + count + ')';
+          state.echoTimer = setInterval(function () {
+            count--;
+            if (count > 0) {
+              elEchoCountdown.textContent = '🎤 ตาหนูพูดแล้ว! พูดว่า: ' + word.en + ' (' + count + ')';
+            } else {
+              clearInterval(state.echoTimer);
+              state.echoTimer = null;
+              elEchoCountdown.textContent = '✨ เก่งมากครับ! ยอดเยี่ยมมาก';
+              setTimeout(function () {
+                elEchoCountdown.style.display = 'none';
+                elBtnEchoRepeat.disabled = false;
+              }, 1200);
+            }
+          }, 1000);
+        });
+      }
+
+      // MODE 4: Phonics Sound Builder Logic (ต่อบล็อกเสียง)
+      function initBuilderWord() {
+        state.builderSolved = false;
+        elBuilderResultBox.textContent = '';
+        elBuilderResultBox.className = 'builder-result-box';
+        elBtnBuilderNext.style.display = 'none';
+
+        var groupWords = GROUPS[state.curGroupIdx].words;
+        var word = groupWords[state.curWordIdx % groupWords.length];
+        state.builderItem = word;
+
+        var targetPhonemes = (word.phonemes && word.phonemes.length) ? word.phonemes : [word.en];
+        state.builderSlots = [];
+
+        // Distractor phonemes from group
+        var otherPhonemes = [];
+        groupWords.forEach(function (w) {
+          if (w.en !== word.en && w.phonemes) {
+            w.phonemes.forEach(function (p) {
+              if (otherPhonemes.indexOf(p) === -1 && targetPhonemes.indexOf(p) === -1) {
+                otherPhonemes.push(p);
+              }
+            });
+          }
+        });
+        otherPhonemes.sort(function () { return Math.random() - 0.5; });
+        var distractors = otherPhonemes.slice(0, 2);
+
+        var tiles = [];
+        targetPhonemes.forEach(function (p, idx) {
+          tiles.push({ id: 'target-' + idx, text: p, used: false });
+        });
+        distractors.forEach(function (p, idx) {
+          tiles.push({ id: 'distract-' + idx, text: p, used: false });
+        });
+        tiles.sort(function () { return Math.random() - 0.5; });
+        state.builderAvailable = tiles;
+
+        renderBuilderCard();
+      }
+
+      function renderBuilderCard() {
+        var word = state.builderItem;
+        if (!word) return;
+        var targetPhonemes = (word.phonemes && word.phonemes.length) ? word.phonemes : [word.en];
+
+        elBuilderStreakTag.textContent = '⭐ ต่อคำถูกต้อง: ' + state.builderStreak + ' คำ';
+        elBuilderImg.src = ASSET_BASE + word.img;
+        elBuilderImg.alt = word.en + ' — ' + word.thMeaning;
+        elBuilderThMeaning.textContent = word.thMeaning + ' (' + word.thReading + ')';
+
+        // Render slots
+        elBuilderSlots.innerHTML = '';
+        for (var i = 0; i < targetPhonemes.length; i++) {
+          var slotEl = document.createElement('button');
+          slotEl.type = 'button';
+          slotEl.className = 'builder-slot';
+          slotEl.setAttribute('aria-label', 'ช่องเสียงที่ ' + (i + 1));
+          var placedTile = state.builderSlots[i];
+          if (placedTile) {
+            slotEl.textContent = placedTile.text;
+            slotEl.classList.add('filled');
+            if (state.builderSolved) slotEl.classList.add('correct');
+            (function (index, tileObj) {
+              slotEl.addEventListener('click', function () {
+                if (state.builderSolved) return;
+                tileObj.used = false;
+                state.builderSlots.splice(index, 1);
+                elBuilderResultBox.textContent = '';
+                elBuilderResultBox.className = 'builder-result-box';
+                renderBuilderCard();
+              });
+            })(i, placedTile);
+          } else {
+            slotEl.textContent = '·';
+          }
+          elBuilderSlots.appendChild(slotEl);
+        }
+
+        // Render available sound tiles
+        elBuilderTilesGrid.innerHTML = '';
+        state.builderAvailable.forEach(function (tile) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'sound-tile-btn' + (tile.used ? ' used' : '');
+          btn.textContent = tile.text;
+          btn.setAttribute('aria-label', 'บล็อกเสียง ' + tile.text);
+          btn.addEventListener('click', function () {
+            if (tile.used || state.builderSolved) return;
+            speak(tile.text, null, 0.75);
+            if (state.builderSlots.length < targetPhonemes.length) {
+              tile.used = true;
+              state.builderSlots.push(tile);
+              renderBuilderCard();
+              if (state.builderSlots.length === targetPhonemes.length) {
+                checkBuilderMatch();
+              }
+            }
+          });
+          elBuilderTilesGrid.appendChild(btn);
+        });
+      }
+
+      function checkBuilderMatch() {
+        var word = state.builderItem;
+        var targetPhonemes = (word.phonemes && word.phonemes.length) ? word.phonemes : [word.en];
+        var isMatch = true;
+        for (var i = 0; i < targetPhonemes.length; i++) {
+          if (!state.builderSlots[i] || state.builderSlots[i].text !== targetPhonemes[i]) {
+            isMatch = false;
+            break;
+          }
+        }
+
+        if (isMatch) {
+          state.builderSolved = true;
+          state.builderStreak++;
+          elBuilderStreakTag.textContent = '⭐ ต่อคำถูกต้อง: ' + state.builderStreak + ' คำ';
+          elBuilderResultBox.textContent = '🎉 เยี่ยมมาก! ผสมเสียงได้คำว่า ' + word.en + ' (' + word.thReading + ')';
+          elBuilderResultBox.className = 'builder-result-box ok';
+          elBtnBuilderNext.style.display = 'inline-flex';
+          renderBuilderCard();
+          if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.correct === 'function') {
+            try { KAMPAI.sound.correct(); } catch (e) {}
+          }
+          speakWord(word);
+        } else {
+          elBuilderResultBox.textContent = '❌ เสียงยังไม่ตรง ลองแตะบล็อกในช่องเพื่อเอาออกแล้วเรียงใหม่นะ';
+          elBuilderResultBox.className = 'builder-result-box no';
+          if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.wrong === 'function') {
+            try { KAMPAI.sound.wrong(); } catch (e) {}
+          }
+        }
+      }
+
+      function nextBuilderWord() {
+        var groupWords = GROUPS[state.curGroupIdx].words;
+        state.curWordIdx = (state.curWordIdx + 1) % groupWords.length;
+        initBuilderWord();
+      }
+
+      function resetBuilderCurrent() {
+        state.builderSlots = [];
+        state.builderAvailable.forEach(function (t) { t.used = false; });
+        state.builderSolved = false;
+        elBuilderResultBox.textContent = '';
+        elBuilderResultBox.className = 'builder-result-box';
+        elBtnBuilderNext.style.display = 'none';
+        renderBuilderCard();
       }
 
       // Auto-Read Playlist Loop
@@ -1521,6 +2003,7 @@
       document.getElementById('tabModeLearn').addEventListener('click', function () { switchMode('learn'); });
       document.getElementById('tabModeGallery').addEventListener('click', function () { switchMode('gallery'); });
       document.getElementById('tabModePractice').addEventListener('click', function () { switchMode('practice'); });
+      document.getElementById('tabModeBuilder').addEventListener('click', function () { switchMode('builder'); });
 
       // Voice Selection & Controls
       elSelectVoice.addEventListener('change', function () {
@@ -1549,6 +2032,7 @@
         var word = GROUPS[state.curGroupIdx].words[state.curWordIdx];
         speakPhonicsBlend(word);
       });
+      elBtnEchoRepeat.addEventListener('click', triggerEchoRepeat);
       elBtnAutoRead.addEventListener('click', toggleAutoRead);
 
       document.getElementById('btnPrevWord').addEventListener('click', function () {
@@ -1593,6 +2077,56 @@
         if (state.quizItem) speak(state.quizItem.en);
       });
       elBtnQuizNext.addEventListener('click', nextQuizQuestion);
+
+      // Builder Controls
+      elBtnBuilderReset.addEventListener('click', resetBuilderCurrent);
+      elBtnBuilderNext.addEventListener('click', nextBuilderWord);
+
+      // Teacher Smartboard Keyboard Shortcuts
+      window.addEventListener('keydown', function (e) {
+        var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          if (state.activeMode === 'learn') {
+            var word = GROUPS[state.curGroupIdx].words[state.curWordIdx];
+            speakWord(word);
+          } else if (state.activeMode === 'practice') {
+            if (state.quizItem) speak(state.quizItem.en);
+          } else if (state.activeMode === 'builder') {
+            if (state.builderItem) speak(state.builderItem.en);
+          }
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (state.activeMode === 'learn') {
+            document.getElementById('btnNextWord').click();
+          } else if (state.activeMode === 'builder') {
+            nextBuilderWord();
+          } else if (state.activeMode === 'practice') {
+            nextQuizQuestion();
+          }
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (state.activeMode === 'learn') {
+            document.getElementById('btnPrevWord').click();
+          }
+        } else if (e.key === '1') {
+          switchMode('learn');
+        } else if (e.key === '2') {
+          switchMode('gallery');
+        } else if (e.key === '3') {
+          switchMode('practice');
+        } else if (e.key === '4') {
+          switchMode('builder');
+        } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
+          document.getElementById('btnFs').click();
+        } else if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M') {
+          if (state.activeMode === 'learn') {
+            triggerEchoRepeat();
+          }
+        }
+      });
 
       // QA Hook for automated verification
       window.__getState = function () {

@@ -133,6 +133,35 @@ for (const vp of viewports) {
   console.log(`Switched to Blends group, first word: ${blendWord} (Expected chair)`);
   if (blendWord !== 'chair') allPassed = false;
 
+  // Check 8: Switch to Mode 4 (Builder Mode)
+  await page.click('#tabModeBuilder');
+  await page.waitForTimeout(300);
+  const builderState = await page.evaluate(() => {
+    const slots = document.querySelectorAll('#builderSlots .builder-slot').length;
+    const tiles = document.querySelectorAll('#builderTilesGrid .sound-tile-btn').length;
+    const isVisible = getComputedStyle(document.getElementById('builderView')).display !== 'none';
+    return { slots, tiles, isVisible };
+  });
+  console.log(`Builder mode: visible=${builderState.isVisible}, slots=${builderState.slots}, tiles=${builderState.tiles}`);
+  if (!builderState.isVisible || builderState.slots === 0 || builderState.tiles === 0) {
+    console.error('❌ Builder mode failed to render slots or tiles');
+    allPassed = false;
+  } else {
+    console.log('✅ Mode 4 Phonics Builder successfully verified');
+  }
+  await page.screenshot({ path: join(outputDir, `phonics-builder-${vp.name}.png`), fullPage: true });
+
+  // Check 9: Keyboard shortcuts test (Press "1" to return to learn mode)
+  await page.keyboard.press('1');
+  await page.waitForTimeout(200);
+  const modeAfterKey = await page.evaluate(() => window.__getState?.()?.mode);
+  if (modeAfterKey !== 'learn') {
+    console.error(`❌ Keyboard shortcut "1" did not switch to learn mode, got: ${modeAfterKey}`);
+    allPassed = false;
+  } else {
+    console.log('✅ Keyboard shortcut "1" successfully switched mode to learn');
+  }
+
   await page.close();
 }
 

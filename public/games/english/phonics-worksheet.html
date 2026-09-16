@@ -11,7 +11,7 @@
 <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
 <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
 <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.4</option></select>
-<select class="t-select" id="selTopic" aria-label="กลุ่มเสียงโฟนิกส์"><option value="mixed">รวมทุกหมวดเสียง (All Sounds)</option><option value="short-a">Short A (/æ/)</option><option value="short-e">Short E (/e/)</option><option value="short-i">Short I (/ɪ/)</option><option value="short-o">Short O (/ɒ/)</option><option value="short-u">Short U (/ʌ/)</option><option value="blends">Blends & Digraphs</option></select>
+<select class="t-select" id="selTopic" aria-label="กลุ่มเสียงโฟนิกส์"><option value="mixed">รวมทุกหมวดเสียง (All Sounds)</option><option value="short-a">Short A (/æ/)</option><option value="short-e">Short E (/e/)</option><option value="short-i">Short I (/ɪ/)</option><option value="short-o">Short O (/ɒ/)</option><option value="short-u">Short U (/ʌ/)</option><option value="blends">Blends & Digraphs</option><option value="long-vowels">Long Vowels (Magic E)</option><option value="vowel-teams">Vowel Teams</option><option value="bossy-r">Bossy R (R-Controlled)</option><option value="diphthongs-special">Special Vowels & Diphthongs</option></select>
 <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
 <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
 <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
@@ -97,7 +97,55 @@ const PHONICS_ITEMS = [
   { group:'blends', sound:'cr', cue:'/kr/', word:'crab', parts:['cr','a','b'], th:'แครบ (ปู)', options:['crab','crop','cross','crib'], answer:'crab' },
   { group:'blends', sound:'dr', cue:'/dr/', word:'drum', parts:['dr','u','m'], th:'ดรัม (กลอง)', options:['drum','drop','draw','dress'], answer:'drum' },
   { group:'blends', sound:'ck', cue:'/k/', word:'duck', parts:['d','u','ck'], th:'ดัค (เป็ด)', options:['duck','clock','sock','lock'], answer:'duck' },
-  { group:'blends', sound:'cl', cue:'/kl/', word:'clock', parts:['cl','o','ck'], th:'คล็อก (นาฬิกา)', options:['clock','duck','sock','rock'], answer:'clock' }
+  { group:'blends', sound:'cl', cue:'/kl/', word:'clock', parts:['cl','o','ck'], th:'คล็อก (นาฬิกา)', options:['clock','duck','sock','rock'], answer:'clock' },
+
+  // Long Vowels & Magic E
+  { group:'long-vowels', sound:'a_e', cue:'/eɪ/', word:'cake', parts:['c','a','ke'], th:'เค้ก (ขนมเค้ก)', options:['cake','coke','cube','cone'], answer:'cake' },
+  { group:'long-vowels', sound:'i_e', cue:'/aɪ/', word:'bike', parts:['b','i','ke'], th:'ไบค (รถจักรยาน)', options:['bike','bake','book','boat'], answer:'bike' },
+  { group:'long-vowels', sound:'o_e', cue:'/oʊ/', word:'rose', parts:['r','o','se'], th:'โรส (ดอกกุหลาบ)', options:['rose','rice','rope','nose'], answer:'rose' },
+  { group:'long-vowels', sound:'u_e', cue:'/juː/', word:'cube', parts:['c','u','be'], th:'คิวบ์ (ลูกบาศก์)', options:['cube','tube','cake','cure'], answer:'cube' },
+  { group:'long-vowels', sound:'i_e', cue:'/aɪ/', word:'kite', parts:['k','i','te'], th:'ไคท์ (ว่าว)', options:['kite','cake','king','bite'], answer:'kite' },
+  { group:'long-vowels', sound:'o_e', cue:'/oʊ/', word:'rope', parts:['r','o','pe'], th:'โรพ (เชือก)', options:['rope','rose','ripe','rice'], answer:'rope' },
+  { group:'long-vowels', sound:'a_e', cue:'/eɪ/', word:'game', parts:['g','a','me'], th:'เกม (เกม/การละเล่น)', options:['game','gum','gate','gain'], answer:'game' },
+  { group:'long-vowels', sound:'o_e', cue:'/oʊ/', word:'nose', parts:['n','o','se'], th:'โนส (จมูก)', options:['nose','rose','nine','nest'], answer:'nose' },
+  { group:'long-vowels', sound:'a_e', cue:'/eɪ/', word:'plate', parts:['pl','a','te'], th:'เพลท (จานอาหาร)', options:['plate','plane','plant','plum'], answer:'plate' },
+  { group:'long-vowels', sound:'i_e', cue:'/aɪ/', word:'smile', parts:['sm','i','le'], th:'สไมล์ (ยิ้ม)', options:['smile','smoke','small','smell'], answer:'smile' },
+
+  // Vowel Teams
+  { group:'vowel-teams', sound:'ee', cue:'/iː/', word:'bee', parts:['b','ee'], th:'บี (ผึ้ง)', options:['bee','bed','bag','box'], answer:'bee' },
+  { group:'vowel-teams', sound:'ea', cue:'/iː/', word:'tea', parts:['t','ea'], th:'ที (น้ำชา)', options:['tea','ten','top','tub'], answer:'tea' },
+  { group:'vowel-teams', sound:'ea', cue:'/iː/', word:'meat', parts:['m','ea','t'], th:'มีท (เนื้อสัตว์)', options:['meat','meet','meal','mop'], answer:'meat' },
+  { group:'vowel-teams', sound:'ea', cue:'/iː/', word:'peach', parts:['p','ea','ch'], th:'พีช (ลูกพีช)', options:['peach','pen','pin','pear'], answer:'peach' },
+  { group:'vowel-teams', sound:'ee', cue:'/iː/', word:'queen', parts:['qu','ee','n'], th:'ควีน (พระราชินี)', options:['queen','quick','quiet','quilt'], answer:'queen' },
+  { group:'vowel-teams', sound:'ee', cue:'/iː/', word:'sheep', parts:['sh','ee','p'], th:'ชีพ (แกะ)', options:['sheep','ship','shop','shut'], answer:'sheep' },
+  { group:'vowel-teams', sound:'ai', cue:'/treɪn/', word:'train', parts:['tr','ai','n'], th:'เทรน (รถไฟ)', options:['train','tree','trip','trap'], answer:'train' },
+  { group:'vowel-teams', sound:'oa', cue:'/oʊ/', word:'boat', parts:['b','oa','t'], th:'โบ้ท (เรือ)', options:['boat','boot','goat','coat'], answer:'boat' },
+  { group:'vowel-teams', sound:'oa', cue:'/oʊ/', word:'goat', parts:['g','oa','t'], th:'โกท (แพะ)', options:['goat','boat','gate','gold'], answer:'goat' },
+  { group:'vowel-teams', sound:'ue', cue:'/uː/', word:'blue', parts:['bl','ue'], th:'บลู (สีน้ำเงิน)', options:['blue','blow','glue','clue'], answer:'blue' },
+
+  // Bossy R (R-Controlled)
+  { group:'bossy-r', sound:'ar', cue:'/ɑːr/', word:'star', parts:['st','ar'], th:'สตาร์ (ดวงดาว)', options:['star','stop','step','stay'], answer:'star' },
+  { group:'bossy-r', sound:'ar', cue:'/ɑːr/', word:'car', parts:['c','ar'], th:'คาร์ (รถยนต์)', options:['car','cat','can','cup'], answer:'car' },
+  { group:'bossy-r', sound:'ar', cue:'/ɑːr/', word:'park', parts:['p','ar','k'], th:'พาร์ค (สวนสาธารณะ)', options:['park','pork','pink','pack'], answer:'park' },
+  { group:'bossy-r', sound:'ar', cue:'/ɑːr/', word:'shark', parts:['sh','ar','k'], th:'ชาร์ค (ปลาฉลาม)', options:['shark','sheep','ship','sharp'], answer:'shark' },
+  { group:'bossy-r', sound:'ar', cue:'/ɑːr/', word:'scarf', parts:['sc','ar','f'], th:'สคาร์ฟ (ผ้าพันคอ)', options:['scarf','scale','score','scare'], answer:'scarf' },
+  { group:'bossy-r', sound:'or', cue:'/ɔːn/', word:'corn', parts:['c','or','n'], th:'คอร์น (ข้าวโพด)', options:['corn','coin','cane','cone'], answer:'corn' },
+  { group:'bossy-r', sound:'or', cue:'/ɔːs/', word:'horse', parts:['h','or','se'], th:'ฮอร์ส (ม้า)', options:['horse','house','horn','hose'], answer:'horse' },
+  { group:'bossy-r', sound:'ir', cue:'/ɜːd/', word:'bird', parts:['b','ir','d'], th:'เบิร์ด (นก)', options:['bird','bard','bed','board'], answer:'bird' },
+  { group:'bossy-r', sound:'ir', cue:'/ɜːt/', word:'shirt', parts:['sh','ir','t'], th:'เชิ้ต (เสื้อเชิ้ต)', options:['shirt','short','skirt','sheep'], answer:'shirt' },
+  { group:'bossy-r', sound:'ur', cue:'/ɜːs/', word:'nurse', parts:['n','ur','se'], th:'เนิร์ส (พยาบาล)', options:['nurse','nose','nest','net'], answer:'nurse' },
+
+  // Special Vowels & Diphthongs
+  { group:'diphthongs-special', sound:'oo', cue:'/ʊ/', word:'book', parts:['b','oo','k'], th:'บุ๊ก (หนังสือ)', options:['book','boot','bake','back'], answer:'book' },
+  { group:'diphthongs-special', sound:'oo', cue:'/ʊ/', word:'cook', parts:['c','oo','k'], th:'คุ้ก (ทำอาหาร)', options:['cook','cool','cake','coke'], answer:'cook' },
+  { group:'diphthongs-special', sound:'oo', cue:'/ʊ/', word:'foot', parts:['f','oo','t'], th:'ฟุต (เท้า)', options:['foot','food','fit','fat'], answer:'foot' },
+  { group:'diphthongs-special', sound:'oo', cue:'/uː/', word:'boots', parts:['b','oo','ts'], th:'บูทส์ (รองเท้าบูท)', options:['boots','boats','books','bats'], answer:'boots' },
+  { group:'diphthongs-special', sound:'oo', cue:'/uː/', word:'zoo', parts:['z','oo'], th:'ซู (สวนสัตว์)', options:['zoo','zip','zero','zebra'], answer:'zoo' },
+  { group:'diphthongs-special', sound:'ow', cue:'/aʊ/', word:'cow', parts:['c','ow'], th:'คาว (แม่วัว)', options:['cow','can','cup','car'], answer:'cow' },
+  { group:'diphthongs-special', sound:'ow', cue:'/aʊ/', word:'owl', parts:['ow','l'], th:'เอาล์ (นกฮูก)', options:['owl','oil','old','oak'], answer:'owl' },
+  { group:'diphthongs-special', sound:'ou', cue:'/aʊ/', word:'mouth', parts:['m','ou','th'], th:'เมาธ์ (ปาก)', options:['mouth','mouse','moth','math'], answer:'mouth' },
+  { group:'diphthongs-special', sound:'ou', cue:'/aʊ/', word:'cloud', parts:['cl','ou','d'], th:'คลาวด์ (ก้อนเมฆ)', options:['cloud','clock','clown','cloth'], answer:'cloud' },
+  { group:'diphthongs-special', sound:'au', cue:'/ɔː/', word:'autumn', parts:['au','tumn'], th:'ออ-ทัม (ฤดูใบไม้ร่วง)', options:['autumn','author','auto','august'], answer:'autumn' }
 ];
 
 window.WORKSHEET_CONFIG = {
