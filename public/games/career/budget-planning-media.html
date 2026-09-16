@@ -1,1 +1,900 @@
-<!doctype html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>วางแผนรายรับรายจ่าย</title><script src="/games/kampai-sdk.js?v=1.181.0"></script><script>const MEDIA_SLUG='budget-planning-media';window.MEDIA_CONFIG={slug:MEDIA_SLUG,stateKey:'BudgetPlanningMedia',icon:'💰',title:'วางแผนรายรับรายจ่าย',grade:'ป.4–6',subject:'การงานอาชีพ',kicker:'การงานอาชีพ · วางแผนก่อนใช้',objective:'จัดสรรเงินอย่างมีเหตุผลและรับผิดชอบ',image:'/games/media-lab-assets/learning-scene.svg',scenes:[{icon:'📥',label:'รายรับ',title:'รู้ว่าเงินเข้ามาจากไหน',body:'รายรับคือเงินที่เราได้รับ เช่น เงินค่าขนม เงินออม หรือเงินจากการทำงานเล็ก ๆ ควรรู้จำนวนก่อนวางแผนใช้',tip:'เขียนรายรับให้ชัดและไม่เดา',speak:'รายรับคือเงินที่เราได้รับและนำมาวางแผนได้'},{icon:'🏠',label:'จำเป็น',title:'แยกรายจ่ายจำเป็น',body:'ค่าอาหาร อุปกรณ์การเรียน และการเดินทางอาจเป็นรายจ่ายจำเป็น ควรจัดไว้ก่อนรายจ่ายที่รอได้',tip:'ถามตัวเองว่า ถ้าไม่จ่ายตอนนี้จะเกิดอะไรขึ้น',speak:'ควรจัดรายจ่ายจำเป็นก่อนสิ่งที่อยากได้'},{icon:'🎁',label:'อยากได้',title:'คิดก่อนซื้อสิ่งที่อยากได้',body:'สิ่งที่อยากได้ไม่ผิด แต่ควรเปรียบเทียบราคา รอเวลา และดูว่าเงินที่เหลือเพียงพอหรือไม่',tip:'การรอหนึ่งวันช่วยให้ตัดสินใจดีขึ้น',speak:'คิดก่อนซื้อสิ่งที่อยากได้และดูเงินคงเหลือ'},{icon:'🐷',label:'ออม',title:'แบ่งเงินไว้สำหรับอนาคต',body:'เมื่อมีเงินเหลือ ลองแบ่งส่วนหนึ่งไว้ออม เป้าหมายเล็ก ๆ ทำให้เราฝึกวางแผนได้สม่ำเสมอ',tip:'ออมทีละน้อยแต่ทำเป็นประจำ',speak:'การออมช่วยเตรียมเงินสำหรับเป้าหมายในอนาคต'}],lab:{type:'budget',title:'ทดลองจัดงบประมาณ',intro:'เลื่อนตัวเลขแล้วดูเงินคงเหลือทันที',controls:[{id:'income',label:'รายรับ',min:100,max:1000,value:500,unit:' บาท'},{id:'need',label:'รายจ่ายจำเป็น',min:0,max:800,value:250,unit:' บาท'},{id:'want',label:'รายจ่ายที่อยากได้',min:0,max:800,value:100,unit:' บาท'}],question:'ถ้าซื้อของที่อยากได้มากขึ้น เงินคงเหลือจะเปลี่ยนอย่างไร?'}};</script><script src="/games/media-lab-runtime.js?v=1.0.0" defer></script></head><body><div id="media-root"><button data-mode="learn" hidden></button><button data-mode="practice" hidden></button></div></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>วางแผนรายรับรายจ่าย — บ้านคำไผ่</title>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#12355b;--blue:#1f6f8b;--aqua:#d8f3ed;--cream:#fff7df;--paper:#fffdf7;
+      --gold:#f5b700;--coral:#ef6f6c;--ink:#132238;--muted:#536579;--line:#b8d8d8;
+      --white:#fff;--ok:#14804a;--bad:#b42318;
+    }
+    html,body{min-height:100%;background:linear-gradient(145deg,var(--cream),var(--aqua))}
+    body{font-family:'Sarabun',Arial,sans-serif;color:var(--ink);padding:10px}
+    button{font:inherit}
+    button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+
+    .shell{
+      width:min(1500px,100%);min-height:calc(100vh - 20px);margin:auto;
+      background:var(--paper);border:2px solid var(--navy);border-radius:24px;
+      overflow:hidden;box-shadow:0 20px 60px rgba(18,53,91,.16);
+      display:flex;flex-direction:column;
+    }
+    .topbar{
+      display:flex;align-items:center;gap:12px;padding:12px 18px;
+      background:var(--navy);color:var(--white);
+    }
+    .topbar h1{font-size:clamp(22px,2.4vw,36px);line-height:1;flex:1}
+    .badge{font-weight:800;background:var(--gold);color:var(--navy);padding:7px 13px;border-radius:999px;white-space:nowrap}
+    .btn{
+      min-height:44px;border:2px solid transparent;border-radius:14px;
+      padding:9px 14px;font-weight:800;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      transition:transform .12s,background .12s;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--white)}
+
+    .toolbar{
+      display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:9px 14px;
+      background:var(--white);border-bottom:2px solid var(--line);
+    }
+    .mode-group{display:flex;border:2px solid var(--navy);border-radius:15px;overflow:hidden}
+    .mode-btn{
+      min-height:44px;border:0;background:var(--white);color:var(--navy);
+      padding:8px 15px;font-weight:800;cursor:pointer;
+    }
+    .mode-btn.on{background:var(--navy);color:var(--white)}
+    .toolbar-spacer{flex:1}
+    .toolbar-hint{font-weight:700;color:var(--muted);font-size:14px}
+    .btn-listen{background:var(--aqua);border-color:var(--blue);color:var(--navy)}
+    .btn-fs{background:var(--blue);color:var(--white)}
+    #kampai-snd{position:static!important;display:flex!important;flex:0 0 auto}
+    #kampai-snd .ksnd{background:var(--navy);box-shadow:none}
+
+    .workspace{display:grid;grid-template-columns:280px minmax(0,1fr);flex:1;min-height:0}
+    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto}
+    .sidebar-title{font-size:14px;color:#bde5e3;margin:4px 4px 9px;font-weight:800}
+    .scene-list{display:grid;gap:8px}
+    .scene-btn{
+      width:100%;min-height:56px;border:2px solid rgba(255,255,255,.18);border-radius:14px;
+      background:rgba(255,255,255,.08);color:var(--white);padding:8px 10px;
+      text-align:left;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:10px;
+    }
+    .scene-btn .scene-icon{font-size:28px}
+    .scene-btn.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+    .lesson-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+    .lesson-btn{
+      min-width:42px;min-height:42px;border:2px solid rgba(255,255,255,.26);border-radius:12px;
+      background:rgba(255,255,255,.08);color:var(--white);font-weight:800;cursor:pointer;
+    }
+    .lesson-btn.on{background:var(--coral);border-color:var(--white)}
+
+    .main{min-width:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#dff6ff,var(--cream))}
+    .lesson-head{
+      display:flex;align-items:center;gap:14px;padding:14px 20px;
+      border-bottom:2px dashed var(--line);background:rgba(255,253,247,.92);
+    }
+    .lesson-emoji{
+      width:62px;height:62px;border-radius:18px;background:var(--gold);
+      display:grid;place-items:center;font-size:36px;flex:0 0 auto;box-shadow:5px 5px 0 var(--navy);
+    }
+    .lesson-copy{min-width:0;flex:1}
+    .lesson-kicker{font-size:14px;font-weight:800;color:var(--blue)}
+    .lesson-copy h2{font-size:clamp(25px,3vw,44px);line-height:1.05;color:var(--navy)}
+    .lesson-goal{font-size:clamp(15px,1.6vw,20px);font-weight:700;color:var(--muted);margin-top:4px}
+
+    /* Stages */
+    .learn-stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:16px;padding:16px;flex:1;min-height:0}
+    .visual-stage{display:none;align-items:center;justify-content:center;flex:1;min-height:0;padding:14px}
+    .practice-stage{display:none;flex:1;padding:18px;overflow:auto}
+    .lab-stage{display:none;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px;padding:16px;flex:1;min-height:0;overflow:auto}
+
+    .visual-mode .learn-stage,.visual-mode .practice-stage,.visual-mode .lab-stage{display:none}
+    .visual-mode .visual-stage{display:flex}
+    .practice-mode .learn-stage,.practice-mode .visual-stage,.practice-mode .lab-stage{display:none}
+    .practice-mode .practice-stage{display:block}
+    .lab-mode .learn-stage,.lab-mode .visual-stage,.lab-mode .practice-stage{display:none}
+    .lab-mode .lab-stage{display:grid}
+
+    /* Illustration Frame */
+    .visual-frame{
+      position:relative;width:min(100%,calc((100vh - 260px)*16/9));aspect-ratio:16/9;
+      max-height:calc(100vh - 260px);overflow:hidden;border:4px solid var(--navy);
+      border-radius:24px;background:linear-gradient(145deg,var(--aqua),var(--cream));
+      box-shadow:0 12px 28px rgba(18,53,91,.18);
+    }
+    .visual-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .visual-fallback{
+      position:absolute;inset:0;display:none;place-items:center;padding:24px;
+      text-align:center;font-size:clamp(22px,3vw,42px);font-weight:800;color:var(--navy);
+      background:linear-gradient(145deg,var(--aqua),var(--cream));
+    }
+    .visual-frame.image-error .visual-fallback{display:grid}
+    .visual-frame.image-error .visual-image{display:none}
+    .visual-overlay{
+      position:absolute;left:3%;right:3%;top:3%;bottom:auto;padding:14px 18px;
+      border:3px solid var(--navy);border-radius:18px;background:rgba(255,253,247,.94);
+      box-shadow:0 7px 0 rgba(18,53,91,.2);cursor:pointer;
+    }
+    .visual-overlay h3{font-size:clamp(20px,2.8vw,38px);color:var(--navy)}
+    .visual-overlay p{font-size:clamp(15px,1.5vw,20px);font-weight:700;color:var(--muted);line-height:1.4}
+    .visual-overlay .sound-state{color:var(--blue);font-weight:800;margin-top:6px}
+
+    .illustration-card{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .illustration-card .visual-frame{width:100%;max-height:none}
+    .step-strip{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+    .step-chip{
+      min-height:42px;border:2px solid var(--line);border-radius:999px;background:var(--white);
+      color:var(--navy);padding:7px 12px;font-weight:800;cursor:pointer;
+    }
+    .step-chip.on{background:var(--gold);border-color:var(--navy)}
+
+    .detail-card{
+      display:flex;flex-direction:column;gap:12px;padding:18px;border:3px solid var(--navy);
+      border-radius:20px;background:rgba(255,253,247,.95);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+      min-height:0;
+    }
+    .detail-card .number{
+      align-self:flex-start;background:var(--navy);color:var(--white);
+      border-radius:999px;padding:4px 12px;font-weight:800;
+    }
+    .detail-card h3{font-size:clamp(25px,3vw,40px);line-height:1.05;color:var(--navy)}
+    .detail-card .category-badge{
+      display:inline-block;padding:4px 10px;background:var(--aqua);border:2px solid var(--blue);
+      border-radius:8px;font-weight:800;color:var(--navy);font-size:15px;align-self:flex-start;
+    }
+    .detail-card .body{font-size:clamp(17px,1.7vw,22px);font-weight:600;line-height:1.55}
+    .tip{padding:11px 13px;border:2px dashed var(--line);border-radius:14px;background:var(--white);font-weight:700;color:var(--muted);line-height:1.45}
+    .rule-box{
+      display:grid;gap:6px;padding:12px;border:2px solid var(--gold);
+      border-radius:14px;background:var(--cream);
+    }
+    .rule-box h4{color:var(--navy);font-size:15px;font-weight:800}
+    .rule-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--navy)}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+    .actions .btn{flex:1;min-width:140px}
+
+    /* Lab Stage (Budget Simulator) */
+    .lab-container{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .lab-container h3{font-size:clamp(22px,2.5vw,34px);color:var(--navy)}
+    .slider-group{display:grid;gap:12px}
+    .slider-card{
+      display:flex;flex-direction:column;gap:6px;padding:12px;border:2px solid var(--line);
+      border-radius:14px;background:var(--white);
+    }
+    .slider-head{display:flex;justify-content:space-between;font-weight:800;font-size:15px;color:var(--navy)}
+    .slider-head span:last-child{color:var(--blue)}
+    .slider-card input[type="range"]{width:100%;accent-color:var(--navy);cursor:pointer;min-height:36px}
+    .slider-desc{font-size:13px;color:var(--muted);font-weight:600}
+
+    .lab-side{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .balance-card{
+      padding:16px;border:3px solid var(--navy);border-radius:18px;background:var(--white);
+      text-align:center;box-shadow:0 6px 0 rgba(18,53,91,.1);
+    }
+    .balance-card .title{font-size:14px;font-weight:800;color:var(--muted)}
+    .balance-card .amount{font-size:clamp(28px,3.5vw,46px);font-weight:800;margin:6px 0;line-height:1}
+    .balance-card .amount.good{color:var(--ok)}
+    .balance-card .amount.warn{color:var(--bad)}
+    .balance-card .tag{
+      display:inline-block;padding:4px 12px;border-radius:999px;font-weight:800;font-size:14px;
+    }
+    .balance-card .tag.good{background:#e4f7ed;color:var(--ok)}
+    .balance-card .tag.warn{background:#fee2e2;color:var(--bad)}
+
+    .breakdown-bars{display:grid;gap:8px}
+    .bar-row{display:flex;flex-direction:column;gap:4px}
+    .bar-label{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--navy)}
+    .bar-track{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+    .bar-fill{height:100%;border-radius:999px;transition:width .25s ease}
+
+    .advice-box{
+      padding:12px;border:2px dashed var(--blue);border-radius:14px;background:var(--aqua);
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .advice-box h4{margin:0;font-size:15px;color:var(--navy)}
+    .advice-box p{margin:0;font-size:14px;line-height:1.45;font-weight:700;color:var(--muted)}
+
+    /* Practice Stage */
+    .practice-box{
+      max-width:800px;margin:auto;display:flex;flex-direction:column;gap:16px;
+      padding:20px;border:3px solid var(--navy);border-radius:24px;
+      background:rgba(255,253,247,.98);box-shadow:8px 8px 0 rgba(18,53,91,.12);
+    }
+    .practice-header{display:flex;align-items:center;justify-content:space-between}
+    .practice-progress{font-weight:800;color:var(--blue);font-size:16px}
+    .practice-prompt{
+      font-size:clamp(19px,2.2vw,28px);font-weight:800;color:var(--navy);
+      line-height:1.35;padding:14px;border:2px dashed var(--line);border-radius:16px;background:var(--white);
+    }
+    .practice-options{display:grid;grid-template-columns:1fr;gap:10px}
+    .opt-btn{
+      min-height:54px;border:2px solid var(--navy);border-radius:14px;background:var(--white);
+      font-size:17px;font-weight:800;color:var(--navy);cursor:pointer;padding:10px 14px;
+      text-align:left;transition:all .12s;display:flex;align-items:center;gap:10px;
+    }
+    .opt-btn:hover{background:var(--cream);border-color:var(--blue)}
+    .opt-btn.correct{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .opt-btn.wrong{background:#fee2e2;border-color:var(--bad);color:var(--bad)}
+    .opt-btn:disabled{cursor:default}
+    .practice-fb{
+      min-height:48px;padding:12px;border-radius:14px;font-weight:800;font-size:16px;
+      line-height:1.45;background:var(--white);border:2px solid var(--line);
+    }
+    .practice-fb.good{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .practice-fb.retry{background:var(--cream);border-color:var(--gold);color:#8a5600}
+
+    .footer{
+      display:flex;justify-content:space-between;gap:8px;padding:9px 16px;
+      border-top:2px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+      .btn,.opt-btn{transition:none!important}
+    }
+    @media(max-width:900px){
+      body{padding:0}
+      .shell{min-height:100vh;border-radius:0;border-width:0}
+      .workspace{grid-template-columns:1fr}
+      .sidebar{padding:10px;overflow:visible}
+      .scene-list{display:flex;overflow-x:auto;padding-bottom:3px}
+      .scene-btn{min-width:180px}
+      .lesson-nav{display:none}
+      .learn-stage,.lab-stage{grid-template-columns:1fr;padding:10px}
+      .detail-card,.lab-container,.lab-side{padding:14px}
+      .visual-frame{width:100%;max-height:none}
+      .footer{display:none}
+    }
+    @media(max-width:520px){
+      .topbar{padding:10px 12px}.topbar h1{font-size:21px}.badge{font-size:12px;padding:5px 8px}
+      .toolbar{padding:8px;gap:6px}.mode-group{width:100%;overflow:auto}
+      .mode-btn{flex:1;white-space:nowrap;padding-inline:10px;font-size:14px}
+      .toolbar-hint,.toolbar-spacer{display:none}
+      .lesson-head{padding:10px 12px;gap:10px}
+      .lesson-emoji{width:48px;height:48px;font-size:27px}
+      .lesson-copy h2{font-size:24px}.lesson-goal{font-size:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>💰 วางแผนรายรับรายจ่าย</h1>
+      <span class="badge">ป.4–6 · การงานอาชีพ</span>
+    </header>
+
+    <div class="toolbar">
+      <div class="mode-group" role="tablist" aria-label="โหมดการเรียนรู้">
+        <button type="button" class="mode-btn on" data-mode="learn" aria-pressed="true">📖 เรียนรู้ 4 เสาหลัก</button>
+        <button type="button" class="mode-btn" data-mode="visual" aria-pressed="false">🖼️ ภาพประกอบ</button>
+        <button type="button" class="mode-btn" data-mode="lab" aria-pressed="false">🧪 ห้องทดลองงบประมาณ</button>
+        <button type="button" class="mode-btn" data-mode="practice" aria-pressed="false">✏️ ฝึกคิดวิเคราะห์การเงิน</button>
+      </div>
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-hint" id="toolbarHint">เลือกหัวข้อการเรียนรู้ แล้วกดฟังคำอธิบายได้ทุกเวลา</span>
+      <button type="button" class="btn btn-listen" id="btnListen">🔊 ฟังคำอธิบาย</button>
+      <button type="button" class="btn btn-fs" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-title">4 เสาหลักการวางแผนเงิน</div>
+        <nav class="scene-list" id="sceneList" aria-label="เลือกหัวข้อการเงิน"></nav>
+        <div class="sidebar-title" style="margin-top:18px">ลำดับการเรียน</div>
+        <div class="lesson-nav" id="lessonNav"></div>
+      </aside>
+
+      <main class="main">
+        <header class="lesson-head">
+          <div class="lesson-emoji" id="lessonEmoji">📥</div>
+          <div class="lesson-copy">
+            <div class="lesson-kicker" id="lessonKicker">เสาหลักที่ 1 จาก 4 · รู้ที่มาของเงิน</div>
+            <h2 id="lessonTitle">รายรับ (Income)</h2>
+            <p class="lesson-goal" id="lessonGoal">รู้ว่าเงินเข้ามาจากไหน มีเท่าใด ก่อนเริ่มคิดเรื่องการใช้จ่าย</p>
+          </div>
+        </header>
+
+        <!-- 1. Learn Mode -->
+        <section class="learn-stage" id="learnStage">
+          <div class="illustration-card">
+            <div class="visual-frame" id="learnFrame">
+              <img class="visual-image" id="learnImage" alt="ภาพการวางแผนการเงินในห้องเรียน" src="/games/career/budget-planning-media-cover.png" decoding="async">
+              <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฝึกวางแผนเงินได้</div>
+            </div>
+            <div class="step-strip" id="stepStrip"></div>
+          </div>
+          <article class="detail-card" id="detailCard">
+            <span class="number" id="detailNumber">ขั้นที่ 1</span>
+            <div class="category-badge" id="detailBadge">เสาหลัก: รายรับที่สุจริต</div>
+            <h3 id="detailTitle">รายรับ (Income)</h3>
+            <p class="body" id="detailBody"></p>
+            <div class="rule-box" id="ruleBox">
+              <h4>💡 ข้อคิดสำคัญประจำขั้น:</h4>
+              <div class="rule-item"><span>📌</span><span id="rule1">จดบันทึกรายรับที่แท้จริง ไม่ประมาณการตัวเลขเกินจริง</span></div>
+              <div class="rule-item"><span>📌</span><span id="rule2">รายรับที่ได้มาอย่างสุจริตสร้างความภาคภูมิใจและมั่นคง</span></div>
+            </div>
+            <p class="tip" id="detailTip"></p>
+            <div class="actions">
+              <button type="button" class="btn btn-listen" id="btnSpeakScene">🔊 อ่านคำอธิบาย</button>
+              <button type="button" class="btn btn-fs" id="btnNextScene">ขั้นถัดไป →</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- 2. Visual Mode -->
+        <section class="visual-stage" id="visualStage" aria-label="ฉากภาพประกอบ">
+          <div class="visual-frame" id="visualFrame">
+            <img class="visual-image" id="visualImage" alt="ภาพการวางแผนการเงินในห้องเรียน" src="/games/career/budget-planning-media-cover.png" decoding="async">
+            <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฝึกวางแผนเงินได้</div>
+            <article class="visual-overlay" id="visualOverlay" tabindex="0" aria-label="กดเพื่อฟังคำบรรยายซ้ำ">
+              <h3 id="visualTitle"></h3>
+              <p id="visualBody"></p>
+              <div class="sound-state" id="visualSound">🔊 แตะการ์ดนี้เพื่อฟังคำบรรยายหลักการบริหารเงิน</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 3. Lab Mode (Budget Simulator) -->
+        <section class="lab-stage" id="labStage" aria-label="ห้องทดลองจัดงบประมาณจำลอง">
+          <div class="lab-container">
+            <h3>🧪 ทดลองเลื่อนปรับงบประมาณรายสัปดาห์</h3>
+            <div class="slider-group">
+              <div class="slider-card">
+                <div class="slider-head">
+                  <span>📥 1. รายรับประจำสัปดาห์ (ค่าขนม + ช่วยงาน)</span>
+                  <span id="incomeVal">500 บาท</span>
+                </div>
+                <input type="range" id="incomeRange" min="100" max="1000" step="20" value="500">
+                <div class="slider-desc">เงินที่ได้รับจากผู้ปกครองหรือรางวัลการทำงานพิเศษ</div>
+              </div>
+
+              <div class="slider-card">
+                <div class="slider-head">
+                  <span>🏠 2. รายจ่ายจำเป็น (ค่าอาหาร + รถ + สมุดดินสอ)</span>
+                  <span id="needVal">250 บาท</span>
+                </div>
+                <input type="range" id="needRange" min="50" max="600" step="10" value="250">
+                <div class="slider-desc">สิ่งที่ขาดไม่ได้สำหรับการเรียนและการดำรงชีวิตประจำวัน</div>
+              </div>
+
+              <div class="slider-card">
+                <div class="slider-head">
+                  <span>🎁 3. รายจ่ายตามความอยากได้ (ขนมหวาน + ของเล่น)</span>
+                  <span id="wantVal">100 บาท</span>
+                </div>
+                <input type="range" id="wantRange" min="0" max="500" step="10" value="100">
+                <div class="slider-desc">ความสุขส่วนตัวที่สามารถลดทอนหรือชะลอการซื้อได้</div>
+              </div>
+
+              <div class="slider-card">
+                <div class="slider-head">
+                  <span>🐷 4. เงินออมเป้าหมาย (หยอดกระปุก / ธนาคารโรงเรียน)</span>
+                  <span id="saveVal">150 บาท</span>
+                </div>
+                <input type="range" id="saveRange" min="0" max="400" step="10" value="150">
+                <div class="slider-desc">เงินสะสมเพื่ออนาคตหรือซื้อของชิ้นใหญ่ที่มีคุณค่า</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-side">
+            <div class="balance-card">
+              <div class="title">สถานะความสมดุลทางการเงิน (Net Balance)</div>
+              <div class="amount good" id="balanceAmount">+0 บาท</div>
+              <div class="tag good" id="balanceTag">งบประมาณสมดุลพอดี</div>
+            </div>
+
+            <div class="breakdown-bars">
+              <div class="bar-row">
+                <div class="bar-label"><span>รายจ่ายจำเป็น (Needs)</span><span id="needPct">50%</span></div>
+                <div class="bar-track"><div class="bar-fill" id="needFill" style="width:50%;background:#3b82f6"></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label"><span>รายจ่ายอยากได้ (Wants)</span><span id="wantPct">20%</span></div>
+                <div class="bar-track"><div class="bar-fill" id="wantFill" style="width:20%;background:#f59e0b"></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label"><span>เงินออม (Savings)</span><span id="savePct">30%</span></div>
+                <div class="bar-track"><div class="bar-fill" id="saveFill" style="width:30%;background:#10b981"></div></div>
+              </div>
+            </div>
+
+            <div class="advice-box" id="adviceBox">
+              <h4 id="adviceTitle">คำแนะนำการเงินฉลาดใช้:</h4>
+              <p id="adviceText">แบ่งเงินได้ยอดเยี่ยม! รายจ่ายจำเป็นและเงินออมอยู่ในเกณฑ์ที่ดีมาก ไม่เกิดภาวะเงินตึงตัว</p>
+            </div>
+
+            <button type="button" class="btn btn-listen" id="btnAdviceSpeak" style="margin-top:auto">🔊 ฟังคำแนะนำการจัดงบ</button>
+          </div>
+        </section>
+
+        <!-- 4. Practice Mode -->
+        <section class="practice-stage" id="practiceStage" aria-label="แบบฝึกหัดคิดวิเคราะห์การเงิน">
+          <div class="practice-box">
+            <div class="practice-header">
+              <span class="practice-progress" id="quizProg">คำถามที่ 1 จาก 6</span>
+              <button type="button" class="btn btn-listen" id="btnRestartQuiz" style="min-height:36px;padding:4px 12px">↺ เริ่มใหม่</button>
+            </div>
+            <div class="practice-prompt" id="quizQuestion"></div>
+            <div class="practice-options" id="quizOptions"></div>
+            <div class="practice-fb" id="quizFeedback">เลือกคำตอบเพื่อดูเหตุผลและข้อคิดทางการเงิน</div>
+            <button type="button" class="btn btn-fs" id="btnNextQuiz" style="display:none;align-self:flex-end">ข้อถัดไป →</button>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>สื่อการเรียนรู้การงานอาชีพและเศรษฐศาสตร์ชีวิต · ป.4–6 · บ้านคำไผ่</span>
+          <span>สร้างวินัยทางการเงินตั้งแต่วัยเยาว์ตามหลักปรัชญาของเศรษฐกิจพอเพียง</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  (()=>{
+    'use strict';
+
+    const MEDIA_SLUG = 'budget-planning-media';
+    if (window.KAMPAI) {
+      try {
+        KAMPAI.setSlug(MEDIA_SLUG);
+        KAMPAI.sound?.mountToggles?.();
+      } catch (_) {}
+    }
+
+    const SCENES = [
+      {
+        id: 'income',
+        icon: '📥',
+        label: '1. รู้รายรับ',
+        kicker: 'เสาหลักที่ 1 จาก 4 · รู้ที่มาของเงิน',
+        title: 'รายรับ (Income)',
+        badge: 'เสาหลัก: รายรับที่สุจริต',
+        goal: 'รู้ว่าเงินเข้ามาจากไหน มีเท่าใด ก่อนเริ่มคิดเรื่องการใช้จ่าย',
+        body: 'รายรับ คือ เงินหรือผลประโยชน์ตอบแทนที่ได้รับเข้ามา เช่น เงินค่าขนมประจำวันจากผู้ปกครอง เงินรางวัลจากการตั้งใจเรียน หรือเงินจากการช่วยงานเล็กๆ น้อยๆ ในครอบครัว สิ่งสำคัญคือต้องจดบันทึกตัวเลขจริงเสมอ เพื่อไม่ให้ใช้จ่ายเกินกว่าเงินที่มี',
+        rule1: 'จดบันทึกรายรับที่แท้จริง ไม่ประมาณการตัวเลขเกินจริง',
+        rule2: 'รายรับที่ได้มาอย่างสุจริตสร้างความภาคภูมิใจและมั่นคง',
+        tip: '💡 เคล็ดลับ: การทำบัญชีรายรับทำให้เรารู้เพดานสูงสุดในการใช้เงินในแต่ละสัปดาห์',
+        speak: 'เสาหลักที่หนึ่ง รายรับ คือเงินที่เราได้รับเข้ามา ควรรู้จำนวนที่แน่นอนก่อนวางแผนใช้จ่าย'
+      },
+      {
+        id: 'needs',
+        icon: '🏠',
+        label: '2. แยกสิ่งจำเป็น',
+        kicker: 'เสาหลักที่ 2 จาก 4 · สิ่งที่ขาดไม่ได้',
+        title: 'รายจ่ายจำเป็น (Needs)',
+        badge: 'เสาหลัก: จัดลำดับสิ่งจำเป็นก่อนเสมอ',
+        goal: 'แยกแยะสิ่งที่ต้องจ่ายเพื่อการดำรงชีวิตและการเรียนให้ออก',
+        body: 'รายจ่ายจำเป็น คือ สิ่งที่ถ้าไม่จ่ายจะส่งผลกระทบต่อสุขภาพ ความปลอดภัย หรือการศึกษา เช่น อาหารกลางวัน ค่ายานพาหนะเดินทางมาโรงเรียน ค่ารักษาพยาบาล สมุด ดินสอ และชุดนักเรียน เราต้องกันเงินสำหรับส่วนนี้ไว้เป็นลำดับแรกเสมอ',
+        rule1: 'ถามตัวเองว่า “ถ้าไม่มีสิ่งนี้ เราจะใช้ชีวิตหรือเรียนต่อได้ปกติหรือไม่?”',
+        rule2: 'เลือกของที่มีคุณภาพเหมาะสม คุ้มค่า ไม่จำเป็นต้องแพงที่สุด',
+        tip: '💡 เคล็ดลับ: จ่ายสิ่งจำเป็นให้ครบก่อนเสมอ แล้วจึงนำเงินส่วนที่เหลือไปคิดเรื่องอื่น',
+        speak: 'เสาหลักที่สอง รายจ่ายจำเป็น เช่น ค่าอาหารและอุปกรณ์การเรียน ควรจัดสรรไว้ก่อนสิ่งที่อยากได้เสมอ'
+      },
+      {
+        id: 'wants',
+        icon: '🎁',
+        label: '3. ชะลอสิ่งที่อยากได้',
+        kicker: 'เสาหลักที่ 3 จาก 4 · ควบคุมความอยาก',
+        title: 'รายจ่ายตามความอยากได้ (Wants)',
+        badge: 'เสาหลัก: คิดก่อนซื้อ ชะลอความอยาก',
+        goal: 'ความอยากได้ไม่ผิด แต่ต้องรู้จักอดทนรอคอยและเปรียบเทียบความคุ้มค่า',
+        body: 'รายจ่ายตามความอยากได้ คือ สิ่งที่ซื้อเพื่อความเพลิดเพลิน ความสวยงาม หรือตามกระแสนิยม เช่น ขนมขบเคี้ยว ของเล่น เสื้อผ้าแฟชั่น หรือเกมใหม่ การซื้อของเหล่านี้ทำได้เมื่อมีเงินเหลือ แต่ต้องฝึกกฎ “หยุดรอ 3 วัน” ก่อนซื้อ เพื่อทบทวนว่าจำเป็นจริงหรือไม่',
+        rule1: 'ใช้กฎ “อดทนรอคอย (Delayed Gratification)” ช่วยลดการซื้อของที่ไม่จำเป็น',
+        rule2: 'เปรียบเทียบราคาและประโยชน์ใช้สอยก่อนตัดสินใจจ่ายเงิน',
+        tip: '💡 เคล็ดลับ: บ่อยครั้งเมื่อผ่านไป 3 วัน ความอยากได้จะลดลงและทำให้เราประหยัดเงินได้ก้อนโต',
+        speak: 'เสาหลักที่สาม รายจ่ายตามความอยากได้ คิดให้รอบคอบก่อนซื้อ และรอเวลาดูว่าเงินคงเหลือเพียงพอหรือไม่'
+      },
+      {
+        id: 'savings',
+        icon: '🐷',
+        label: '4. ออมเพื่ออนาคต',
+        kicker: 'เสาหลักที่ 4 จาก 4 · ปลูกต้นไม้การเงิน',
+        title: 'การออมเงิน (Savings)',
+        badge: 'เสาหลัก: ออมก่อนใช้ สร้างอนาคตมั่นคง',
+        goal: 'แบ่งเงินออมทันทีที่ได้รับเงิน และตั้งเป้าหมายที่มีความหมาย',
+        body: 'การออมเงิน คือ การเก็บเงินส่วนหนึ่งไว้สำหรับอนาคต แบ่งเป็นเงินออมเผื่อฉุกเฉิน (ยามเจ็บป่วยหรือของสำคัญชำรุด) และเงินออมเพื่อเป้าหมาย (เช่น ซื้อจักรยาน หรือเรียนต่อ) สูตรลับของคนเก่งการเงินคือ “รายรับ - เงินออม = รายจ่าย” ไม่ใช่ใช้เหลือแล้วค่อยเก็บ',
+        rule1: 'ออมสม่ำเสมอทุกวัน แม้วันละ 5 หรือ 10 บาท ก็สะสมเป็นเงินก้อนใหญ่ได้',
+        rule2: 'นำเงินไปฝากธนาคารโรงเรียน เพื่อความปลอดภัยและฝึกวินัยทางการเงิน',
+        tip: '💡 เคล็ดลับ: เงินออมคือพลังที่ทำให้เราพึ่งพาตนเองได้และพร้อมรับมือกับทุกเหตุการณ์',
+        speak: 'เสาหลักที่สี่ การออมเงิน แบ่งเงินส่วนหนึ่งไว้ออมทันที สร้างความมั่นคงและเตรียมพร้อมสำหรับอนาคต'
+      }
+    ];
+
+    const QUIZZES = [
+      {
+        question: 'สูตรการบริหารเงินที่ถูกต้องของนักเรียนที่ฉลาดใช้เงิน คือข้อใด?',
+        options: [
+          { text: 'รายรับ - รายจ่ายตามใจชอบ = เงินที่เหลือค่อยออม', correct: false, explain: 'หากใช้จ่ายตามใจก่อน มักจะไม่มีเงินเหลือให้ออม' },
+          { text: 'รายรับ - เงินออม = เงินสำหรับรายจ่ายที่จำเป็นและอยากได้', correct: true, explain: 'ถูกต้อง! การหักเงินออมไว้ทันทีก่อนใช้จ่าย คือหัวใจของความมั่นคงทางการเงิน' },
+          { text: 'ยืมเงินเพื่อนมาซื้อของก่อน แล้วค่อยรอเงินค่าขนมสัปดาห์หน้า', correct: false, explain: 'การสร้างหนี้เพื่อซื้อของฟุ่มเฟือยจะทำให้เกิดปัญหาทางการเงินเรื้อรัง' }
+        ]
+      },
+      {
+        question: 'ของชิ้นใดต่อไปนี้จัดว่าเป็น "รายจ่ายจำเป็น (Needs)" สำหรับนักเรียน?',
+        options: [
+          { text: 'สมุดจดการบ้านและปากกาที่ใช้หมดแล้ว', correct: true, explain: 'ถูกต้อง! อุปกรณ์การเรียนเป็นสิ่งจำเป็นสำหรับการศึกษาและทำหน้าที่นักเรียน' },
+          { text: 'สติ๊กเกอร์การ์ตูนรุ่นใหม่ล่าสุดที่เพื่อนกำลังฮิต', correct: false, explain: 'นี่คือสิ่งที่อยากได้ (Wants) ไม่มีก็ยังเรียนและใช้ชีวิตได้ตามปกติ' },
+          { text: 'ชานมไข่มุกแก้วพิเศษใส่น้ำตาลเข้มข้น', correct: false, explain: 'นี่คือรายจ่ายตามความอยากได้ และยังส่งผลต่อสุขภาพหากดื่มบ่อย' }
+        ]
+      },
+      {
+        question: 'เมื่อนักเรียนอยากได้รองเท้ากีฬาคู่ใหม่ที่มีราคาสูงมาก วิธีแก้ปัญหาที่ดีที่สุดคืออะไร?',
+        options: [
+          { text: 'รบเร้าให้ผู้ปกครองซื้อให้ทันที โดยไม่สนใจว่าเงินครอบครัวพอหรือไม่', correct: false, explain: 'อาจสร้างความเดือดร้อนทางการเงินให้แก่ครอบครัว' },
+          { text: 'ตั้งเป้าหมายออมเงินวันละเล็กละน้อย จนครบจำนวนแล้วจึงซื้อด้วยตนเอง', correct: true, explain: 'ถูกต้อง! การออมเพื่อซื้อของด้วยตนเองสร้างความภาคภูมิใจและวินัยการเงิน' },
+          { text: 'อดอาหารกลางวันทั้งหมดเพื่อให้ได้เงินเร็วที่สุด', correct: false, explain: 'ไม่ถูกต้องอย่างยิ่ง เพราะการอดอาหารจะทำลายสุขภาพและพัฒนาการของร่างกาย' }
+        ]
+      },
+      {
+        question: 'กฎ "หยุดรอ 3 วัน (The 72-Hour Rule)" มีประโยชน์อย่างไรในการใช้เงิน?',
+        options: [
+          { text: 'ช่วยให้ร้านค้าขึ้นราคาสินค้าได้มากขึ้น', correct: false, explain: 'ไม่เกี่ยวข้องกัน' },
+          { text: 'ช่วยลดอารมณ์ชั่ววูบ และทำให้รู้ว่าสิ่งนั้นจำเป็นจริงหรือแค่อยากได้ชั่วคราว', correct: true, explain: 'ถูกต้อง! เวลาจะช่วยกรองอารมณ์อยากได้ หากผ่านไป 3 วันแล้วยังจำเป็นจริงจึงค่อยวางแผนซื้อ' },
+          { text: 'เพื่อให้เพื่อนซื้อตัดหน้าเราไปก่อน', correct: false, explain: 'ไม่ใช่จุดประสงค์ของกฎนี้' }
+        ]
+      },
+      {
+        question: 'ถ้าพบว่ารายจ่ายรวมในสัปดาห์นี้ “มากกว่า” รายรับที่ได้รับมา ควรแก้ไขอย่างไร?',
+        options: [
+          { text: 'ตัดลดรายจ่ายที่ไม่จำเป็นและชะลอการซื้อของที่อยากได้ออกไปทันที', correct: true, explain: 'ถูกต้อง! เมื่อเงินไม่พอ ต้องตัดรายจ่ายอยากได้ออกก่อนเพื่อรักษาสภาพคล่อง' },
+          { text: 'ตัดค่าอาหารกลางวันออกก่อนเป็นอันดับแรก', correct: false, explain: 'อาหารเป็นสิ่งจำเป็นต่อร่างกาย ห้ามตัดออกเด็ดขาด' },
+          { text: 'แอบนำเงินส่วนรวมของห้องเรียนมาใช้ชั่วคราว', correct: false, explain: 'ผิดทั้งกฎหมายและจริยธรรมอย่างร้ายแรง' }
+        ]
+      },
+      {
+        question: 'การนำเงินออมไปฝากไว้ที่ "ธนาคารโรงเรียน" มีข้อดีกว่าเก็บไว้ในกระเป๋านักเรียนอย่างไร?',
+        options: [
+          { text: 'ปลอดภัยจากการสูญหาย ไม่เผลอนำมาใช้ และมีบันทึกหลักฐานชัดเจน', correct: true, explain: 'ถูกต้อง! เงินไม่สูญหาย ช่วยตัดสิ่งล่อใจ และสร้างประวัติการออมที่น่าภาคภูมิใจ' },
+          { text: 'ทำให้เงินกลายเป็นศูนย์ทันที', correct: false, explain: 'ไม่จริง เงินยังคงเป็นของเราครบถ้วน' },
+          { text: 'ครูจะยึดเงินไปเป็นของโรงเรียน', correct: false, explain: 'ธนาคารโรงเรียนมีไว้ฝึกนักเรียน เงินเป็นกรรมสิทธิ์ของนักเรียน 100%' }
+        ]
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const state = {
+      mode: 'learn',
+      scene: 0,
+      quizIdx: 0,
+      quizAnswered: false,
+      income: 500,
+      need: 250,
+      want: 100,
+      save: 150
+    };
+
+    function stopSpeak() {
+      try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+      try { window.speechSynthesis?.cancel(); } catch (_) {}
+    }
+
+    function speak(text) {
+      stopSpeak();
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          window.KAMPAI.sound.speak(text, 'th-TH', true);
+          return;
+        }
+      } catch (_) {}
+      if ('speechSynthesis' in window) {
+        try {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'th-TH';
+          u.rate = 0.88;
+          window.speechSynthesis.speak(u);
+        } catch (_) {}
+      }
+    }
+
+    function currentScene() { return SCENES[state.scene] || SCENES[0]; }
+
+    function renderNavigation() {
+      $('sceneList').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="scene-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          <span class="scene-icon">${scene.icon}</span>
+          <span>${scene.label}</span>
+        </button>
+      `).join('');
+
+      $('lessonNav').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="lesson-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${idx + 1}
+        </button>
+      `).join('');
+
+      $('stepStrip').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="step-chip ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${scene.icon} ${scene.label}
+        </button>
+      `).join('');
+    }
+
+    function renderScene() {
+      const s = currentScene();
+      $('lessonEmoji').textContent = s.icon;
+      $('lessonKicker').textContent = s.kicker;
+      $('lessonTitle').textContent = s.title;
+      $('lessonGoal').textContent = s.goal;
+
+      $('detailNumber').textContent = `เสาหลักที่ ${state.scene + 1} จาก ${SCENES.length}`;
+      $('detailBadge').textContent = s.badge;
+      $('detailTitle').textContent = s.title;
+      $('detailBody').textContent = s.body;
+      $('rule1').textContent = s.rule1;
+      $('rule2').textContent = s.rule2;
+      $('detailTip').textContent = s.tip;
+
+      $('visualTitle').textContent = s.title;
+      $('visualBody').textContent = s.body;
+      renderNavigation();
+    }
+
+    function setMode(mode) {
+      stopSpeak();
+      state.mode = mode;
+      const shell = $('shell');
+      shell.classList.remove('visual-mode', 'practice-mode', 'lab-mode');
+      if (mode !== 'learn') shell.classList.add(`${mode}-mode`);
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        const active = btn.dataset.mode === mode;
+        btn.classList.toggle('on', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+
+      const hints = {
+        learn: 'เลือกเสาหลักการเงิน แล้วกดฟังคำอธิบายได้ทุกเวลา',
+        visual: 'แตะการ์ดภาพเพื่อฟังคำบรรยายประกอบภาพ',
+        lab: 'เลื่อนแถบตัวเลขรายรับ-รายจ่าย เพื่อดูความสมดุลทางการเงินทันที',
+        practice: 'อ่านโจทย์สถานการณ์ แล้วเลือกการตัดสินใจทางการเงินที่ถูกต้อง'
+      };
+      $('toolbarHint').textContent = hints[mode] || '';
+
+      if (mode === 'lab') updateBudgetLab();
+      if (mode === 'practice') renderQuiz();
+    }
+
+    // ═══ Budget Lab Simulator ═══
+    function updateBudgetLab() {
+      const income = state.income;
+      const need = state.need;
+      const want = state.want;
+      const save = state.save;
+
+      $('incomeVal').textContent = `${income} บาท`;
+      $('needVal').textContent = `${need} บาท`;
+      $('wantVal').textContent = `${want} บาท`;
+      $('saveVal').textContent = `${save} บาท`;
+
+      const totalOut = need + want + save;
+      const net = income - totalOut;
+
+      const amtEl = $('balanceAmount');
+      const tagEl = $('balanceTag');
+      const advTitle = $('adviceTitle');
+      const advText = $('adviceText');
+
+      if (net > 0) {
+        amtEl.textContent = `+${net} บาท`;
+        amtEl.className = 'amount good';
+        tagEl.textContent = 'มีเงินเหลือเพิ่ม (Surplus)';
+        tagEl.className = 'tag good';
+        advTitle.textContent = 'ยอดเยี่ยม! เงินยังเหลือเพิ่ม:';
+        advText.textContent = `คุณมีเงินเหลือ ${net} บาท สามารถนำไปเพิ่มในส่วนของเงินออมเพื่อเป้าหมาย หรือเก็บไว้เผื่อรายจ่ายฉุกเฉินสัปดาห์หน้าได้`;
+      } else if (net === 0) {
+        amtEl.textContent = '0 บาท';
+        amtEl.className = 'amount good';
+        tagEl.textContent = 'งบประมาณสมดุลพอดี (Balanced)';
+        tagEl.className = 'tag good';
+        advTitle.textContent = 'สมดุลยอดเยี่ยม (Zero-Based Budget):';
+        advText.textContent = 'เงินทุกบาทมีหน้าที่ชัดเจน ทั้งค่าใช้จ่ายจำเป็น ความสุขส่วนตัว และการออมเพื่ออนาคต ไม่มีเงินรั่วไหล';
+      } else {
+        amtEl.textContent = `${net} บาท`;
+        amtEl.className = 'amount warn';
+        tagEl.textContent = 'งบประมาณติดลบ (Deficit)';
+        tagEl.className = 'tag warn';
+        advTitle.textContent = '⚠️ คำเตือน: เงินไม่พอใช้จ่าย:';
+        advText.textContent = `รายจ่ายเกินรายรับอยู่ ${Math.abs(net)} บาท ควรปรับลดรายจ่ายตามความอยากได้ (ขนม/ของเล่น) ลงทันทีเพื่อให้เงินกลับมาสมดุล`;
+      }
+
+      // Breakdown Percentages based on Income
+      const needPct = Math.round((need / income) * 100);
+      const wantPct = Math.round((want / income) * 100);
+      const savePct = Math.round((save / income) * 100);
+
+      $('needPct').textContent = `${needPct}% (${need}บ.)`;
+      $('wantPct').textContent = `${wantPct}% (${want}บ.)`;
+      $('savePct').textContent = `${savePct}% (${save}บ.)`;
+
+      $('needFill').style.width = `${Math.min(100, needPct)}%`;
+      $('wantFill').style.width = `${Math.min(100, wantPct)}%`;
+      $('saveFill').style.width = `${Math.min(100, savePct)}%`;
+    }
+
+    // ═══ Practice UI ═══
+    function renderQuiz() {
+      const q = QUIZZES[state.quizIdx];
+      $('quizProg').textContent = `คำถามที่ ${state.quizIdx + 1} จาก ${QUIZZES.length}`;
+      $('quizQuestion').textContent = q.question;
+      $('btnNextQuiz').style.display = 'none';
+      state.quizAnswered = false;
+
+      $('quizOptions').innerHTML = q.options.map((opt, i) => `
+        <button type="button" class="opt-btn" data-opt="${i}">
+          <span>${['ก', 'ข', 'ค'][i]}.</span>
+          <span>${opt.text}</span>
+        </button>
+      `).join('');
+
+      $('quizFeedback').textContent = 'เลือกคำตอบเพื่อดูเหตุผลและข้อคิดทางการเงิน';
+      $('quizFeedback').className = 'practice-fb';
+    }
+
+    function answerQuiz(idx) {
+      if (state.quizAnswered) return;
+      state.quizAnswered = true;
+
+      const q = QUIZZES[state.quizIdx];
+      const opt = q.options[idx];
+      const isOk = opt.correct;
+
+      const buttons = document.querySelectorAll('.opt-btn');
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (q.options[i].correct) btn.classList.add('correct');
+        else if (i === idx) btn.classList.add('wrong');
+      });
+
+      const fb = $('quizFeedback');
+      fb.textContent = opt.explain;
+      fb.className = `practice-fb ${isOk ? 'good' : 'retry'}`;
+
+      try {
+        window.KAMPAI?.sound?.[isOk ? 'correct' : 'wrong']?.();
+      } catch (_) {}
+
+      speak(opt.explain);
+      $('btnNextQuiz').style.display = 'inline-flex';
+    }
+
+    // ═══ Event Listeners ═══
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.addEventListener('click', () => setMode(b.dataset.mode));
+    });
+
+    $('btnBack').addEventListener('click', () => {
+      stopSpeak();
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    });
+
+    $('btnListen').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnSpeakScene').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('visualOverlay').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnNextScene').addEventListener('click', () => {
+      stopSpeak();
+      state.scene = (state.scene + 1) % SCENES.length;
+      renderScene();
+    });
+
+    // Slider inputs
+    $('incomeRange').addEventListener('input', e => {
+      state.income = Number(e.target.value);
+      updateBudgetLab();
+    });
+    $('needRange').addEventListener('input', e => {
+      state.need = Number(e.target.value);
+      updateBudgetLab();
+    });
+    $('wantRange').addEventListener('input', e => {
+      state.want = Number(e.target.value);
+      updateBudgetLab();
+    });
+    $('saveRange').addEventListener('input', e => {
+      state.save = Number(e.target.value);
+      updateBudgetLab();
+    });
+
+    $('btnAdviceSpeak').addEventListener('click', () => {
+      const advText = $('adviceText').textContent;
+      speak(advText);
+    });
+
+    $('quizOptions').addEventListener('click', e => {
+      const b = e.target.closest('[data-opt]');
+      if (b) answerQuiz(Number(b.dataset.opt));
+    });
+
+    $('btnNextQuiz').addEventListener('click', () => {
+      state.quizIdx = (state.quizIdx + 1) % QUIZZES.length;
+      renderQuiz();
+    });
+
+    $('btnRestartQuiz').addEventListener('click', () => {
+      state.quizIdx = 0;
+      renderQuiz();
+    });
+
+    $('sceneList').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('lessonNav').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('stepStrip').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('btnFs').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeak();
+    });
+    window.addEventListener('pagehide', stopSpeak);
+
+    // Initial setup
+    renderScene();
+    updateBudgetLab();
+
+    // Read-only QA State Inspector
+    window.BudgetPlanningMedia = Object.freeze({
+      getState: () => Object.freeze({
+        mode: state.mode,
+        scene: state.scene,
+        income: state.income,
+        need: state.need,
+        want: state.want,
+        save: state.save,
+        quizIdx: state.quizIdx,
+        quizAnswered: state.quizAnswered
+      })
+    });
+  })();
+  </script>
+</body>
+</html>
