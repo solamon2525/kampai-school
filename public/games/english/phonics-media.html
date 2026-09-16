@@ -4,521 +4,1611 @@
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>สื่อ Phonics Chart — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <title>Phonics Studio — สื่อฝึกอ่านออกเสียงโฟนิกส์ บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --deep: #155e75; --line: #a5f3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626;
+      --navy: #12355b;
+      --navy-light: #1e4976;
+      --blue: #1f6f8b;
+      --blue-subtle: #e0f2fe;
+      --aqua: #d8f3ed;
+      --cream: #fff7df;
+      --paper: #fffdf7;
+      --gold: #f5b700;
+      --gold-deep: #b45309;
+      --coral: #ef6f6c;
+      --ink: #132238;
+      --muted: #536579;
+      --line: #bae6fd;
+      --line-subtle: #e2e8f0;
+      --white: #ffffff;
+      --ok: #16a34a;
+      --ok-bg: #dcfce7;
+      --bad: #dc2626;
+      --bad-bg: #fee2e2;
+      --focus: #f59e0b;
     }
-    body {
+    html, body {
+      min-height: 100%;
+      background: radial-gradient(circle at 10% 10%, rgba(245,183,0,0.22), transparent 28%),
+                  radial-gradient(circle at 90% 90%, rgba(31,111,139,0.2), transparent 32%),
+                  linear-gradient(150deg, #f0fdfa 0%, #f8fafc 50%, #e0f2fe 100%);
       font-family: 'Sarabun', sans-serif;
-      background: linear-gradient(145deg, #cffafe 0%, #ecfeff 40%, #a5f3fc 100%);
-      min-height: 100%; color: #0f172a; padding: 12px;
+      color: var(--ink);
+      padding: 10px;
     }
+    button, input, select { font-family: inherit; }
+    button:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Shell & Frame */
     .shell {
-      max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem;
-      box-shadow: 0 20px 50px rgba(15,23,42,.12); border: 1px solid rgba(255,255,255,.7);
-      overflow: hidden; display: flex; flex-direction: column; min-height: calc(100vh - 24px);
+      max-width: 1320px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 2px solid var(--navy);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(18,53,91,0.16);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 20px);
     }
-    header {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px;
-      background: linear-gradient(90deg, #155e75, #0e7490 50%, #0891b2); color: #fff;
-    }
-    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
-    header .badge {
-      font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px;
-      border-radius: 999px; font-weight: 700;
+
+    /* Topbar */
+    header.topbar {
+      background: linear-gradient(90deg, var(--navy) 0%, var(--navy-light) 60%, var(--blue) 100%);
+      color: var(--white);
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
     }
     .btn {
-      font-family: inherit; font-weight: 700; border: none; border-radius: 12px;
-      padding: 10px 14px; cursor: pointer; font-size: .95rem; text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 44px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s, background-color 0.15s, border-color 0.15s;
+      user-select: none;
+      text-decoration: none;
     }
-    .btn:active { transform: scale(.97); }
+    .btn:active { transform: scale(0.97); }
     .btn-back {
-      background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35);
-      padding: 8px 12px; font-size: .85rem;
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.3);
+      color: var(--white);
+      font-size: 0.9rem;
     }
-    .btn-primary { background: var(--deep); color: #fff; }
-    .btn-accent { background: #fbbf24; color: #78350f; }
-    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
-    .btn-ok { background: var(--ok); color: #fff; }
+    .btn-back:hover { background: rgba(255,255,255,0.22); }
+    header h1 {
+      font-family: 'Atkinson Hyperlegible', 'Sarabun', sans-serif;
+      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.8rem;
+      font-weight: 800;
+      background: var(--gold);
+      color: var(--navy);
+      padding: 5px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-fs {
+      background: rgba(255,255,255,0.14);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.28);
+    }
+
+    /* Main Toolbar */
     .toolbar {
-      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #ecfeff;
-      border-bottom: 1px solid var(--line); align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: #f8fafc;
+      border-bottom: 2px solid var(--line);
     }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #67e8f9; }
-    .seg button {
-      font-family: inherit; font-weight: 800; border: none; background: #fff;
-      color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem;
+    .seg-group {
+      display: inline-flex;
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--white);
     }
-    .seg button.on { background: var(--deep); color: #fff; }
-    .hint { font-size: .85rem; color: #0e7490; font-weight: 600; flex: 1; min-width: 160px; }
-    .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
-    @media (min-width: 820px) { .stage { grid-template-columns: 1fr 300px; } }
-    .grid-wrap { padding: 14px; overflow: auto; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
-    .grid.blends { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
-    .tile {
-      aspect-ratio: 1; border-radius: 14px; border: 2px solid #a5f3fc; background: #fff;
-      cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 2px; font-weight: 800; color: var(--deep); min-height: 56px; user-select: none;
+    .seg-btn {
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: var(--navy);
+      font-weight: 800;
+      padding: 6px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.92rem;
+      transition: background-color 0.15s, color 0.15s;
     }
-    .tile:hover { border-color: #22d3ee; }
-    .tile.on { background: linear-gradient(145deg, #22d3ee, #06b6d4); color: #fff; border-color: #0891b2; }
-    .tile .letter { font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1; text-transform: uppercase; }
-    .tile .sub { font-size: .65rem; font-weight: 700; opacity: .75; text-transform: lowercase; }
-    .detail {
-      background: #ecfeff; border-top: 1px solid var(--line); padding: 16px;
-      display: flex; flex-direction: column; gap: 12px;
+    .seg-btn.on {
+      background: var(--navy);
+      color: var(--white);
     }
-    @media (min-width: 820px) { .detail { border-top: none; border-left: 1px solid var(--line); } }
-    .detail-empty { color: var(--muted); font-weight: 600; text-align: center; margin: auto 0; line-height: 1.5; }
-    .detail-card, .practice-card { display: none; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
-    .detail-card.show, .practice-card.show { display: flex; }
-    .big-letter { font-size: 4rem; font-weight: 800; color: var(--deep); line-height: 1; text-transform: uppercase; }
-    .big-letter .lower { font-size: 2.4rem; color: #0891b2; margin-left: 6px; }
-    .sound-chip, .cue-chip {
-      display: inline-flex; align-items: center; gap: 6px; background: #fff;
-      border: 2px solid #67e8f9; border-radius: 999px; padding: 8px 16px;
-      font-weight: 800; color: var(--deep); font-size: 1rem;
+    .toolbar-spacer { flex: 1; min-width: 10px; }
+
+    /* Voice & Audio Controls Bar */
+    .voice-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      background: #eff6ff;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.9rem;
     }
-    .cue-chip { font-size: .95rem; border-color: #fbbf24; background: #fffbeb; }
-    .thai-hint { font-size: .9rem; font-weight: 700; color: #0e7490; }
-    .words { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-    .word-btn, .choice-btn {
-      font-family: inherit; font-weight: 800; font-size: 1.1rem; border: 2px solid #a5f3fc;
-      background: #fff; border-radius: 14px; padding: 12px 14px; cursor: pointer;
-      display: flex; align-items: center; gap: 10px; color: #0f172a; text-align: left; width: 100%;
+    .control-label {
+      font-weight: 700;
+      color: var(--navy);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
-    .word-btn:hover, .choice-btn:hover { background: #cffafe; }
-    .choice-btn.correct { border-color: #86efac; background: #dcfce7; }
-    .choice-btn.wrong { border-color: #fca5a5; background: #fee2e2; }
-    .choice-btn:disabled { cursor: default; opacity: .95; }
-    .word-btn .emoji, .choice-btn .emoji { font-size: 1.6rem; }
-    .word-btn .meta, .choice-btn .meta { display: flex; flex-direction: column; gap: 2px; }
-    .word-btn .en, .choice-btn .en { font-size: 1.15rem; }
-    .word-btn .th, .choice-btn .th { font-size: .8rem; font-weight: 600; color: var(--muted); }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
-    .actions .btn { flex: 1; min-width: 110px; }
-    .practice-prompt {
-      font-size: 1.1rem; font-weight: 800; color: var(--deep); line-height: 1.4;
-      background: #fff; border-radius: 14px; padding: 12px; width: 100%; border: 2px dashed #67e8f9;
+    .select-input {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 6px 12px;
+      background: var(--white);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
     }
-    .practice-letter {
-      font-size: 3.2rem; font-weight: 800; color: var(--deep); text-transform: uppercase;
+    .speed-btn-group {
+      display: inline-flex;
+      border: 2px solid var(--blue);
+      border-radius: 10px;
+      overflow: hidden;
     }
-    .practice-fb { min-height: 28px; font-weight: 800; font-size: 1rem; }
-    .practice-fb.ok { color: var(--ok); }
-    .practice-fb.no { color: var(--bad); }
-    .streak { font-size: .85rem; font-weight: 700; color: #0e7490; }
-    .footer {
-      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
-      padding: 10px 16px; font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line);
+    .speed-btn {
+      border: none;
+      background: var(--white);
+      color: var(--blue);
+      font-weight: 800;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      min-height: 44px;
+      min-width: 44px;
     }
-    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
-    .learn-only { display: contents; }
-    .shell.mode-practice .learn-only { display: none; }
-    .shell.mode-practice .stage { grid-template-columns: 1fr; }
-    .practice-wrap { display: none; padding: 20px; max-width: 480px; margin: 0 auto; width: 100%; }
-    .shell.mode-practice .practice-wrap { display: block; }
-    .shell.mode-practice .stage > .grid-wrap,
-    .shell.mode-practice .stage > .detail { display: none; }
+    .speed-btn.on {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    /* Unit / Phonics Tabs */
+    .unit-selector {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 18px;
+      background: var(--cream);
+      border-bottom: 2px solid #fde68a;
+      scrollbar-width: thin;
+    }
+    .unit-btn {
+      min-height: 44px;
+      padding: 6px 16px;
+      border: 2px solid #fbbf24;
+      border-radius: 12px;
+      background: var(--white);
+      color: #78350f;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .unit-btn .sub {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .unit-btn:hover { background: #fef3c7; }
+    .unit-btn.on {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: var(--white);
+    }
+    .unit-btn.on .sub { color: var(--gold); }
+
+    /* Workspace */
+    .stage-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 16px 18px;
+    }
+
+    /* Mode: Card Studio (โหมดฝึกอ่านทีละคำ) */
+    .studio-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .progress-bar-wrap {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--gold));
+      width: 0%;
+      transition: width 0.25s ease-out;
+    }
+
+    /* Main Focus Card */
+    .focus-card {
+      width: 100%;
+      background: var(--white);
+      border: 3px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(18,53,91,0.08);
+      display: grid;
+      grid-template-columns: 1fr;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    @media (min-width: 780px) {
+      .focus-card {
+        grid-template-columns: 360px 1fr;
+      }
+    }
+    .card-visual {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid var(--line);
+      position: relative;
+    }
+    @media (min-width: 780px) {
+      .card-visual {
+        border-bottom: none;
+        border-right: 2px solid var(--line);
+      }
+    }
+    .card-img-wrap {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1;
+      border-radius: 20px;
+      background: var(--white);
+      border: 2px solid var(--line);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+    }
+    .card-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.2s;
+    }
+    .focus-card:hover .card-img { transform: scale(1.04); }
+    .card-category-tag {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--blue-subtle);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .card-content {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+    .word-en-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .word-en {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .word-en .phonics-focus {
+      color: #dc2626;
+      text-decoration: underline;
+      text-decoration-thickness: 4px;
+      text-underline-offset: 6px;
+    }
+    .word-ipa {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--blue);
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    /* Sound Blending Bar */
+    .blending-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .blending-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .blending-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .phoneme-chip {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 14px;
+      background: #fffbeb;
+      border: 2px solid #fde68a;
+      border-radius: 12px;
+      color: #92400e;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .phoneme-chip:hover {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--navy);
+      transform: translateY(-2px);
+    }
+    .blending-arrow {
+      font-size: 1.2rem;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    /* Thai Transcriptions */
+    .reading-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line-subtle);
+    }
+    .reading-col { display: flex; flex-direction: column; gap: 2px; }
+    .reading-col-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+    .reading-thai { font-size: 1.25rem; font-weight: 800; color: #b45309; }
+    .meaning-thai { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
+
+    /* Studio Actions */
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn-speak {
+      background: var(--navy);
+      color: var(--white);
+      font-size: 1.05rem;
+      flex: 1;
+      min-width: 140px;
+    }
+    .btn-speak:hover { background: var(--navy-light); }
+    .btn-blend {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: #d97706;
+      font-size: 1rem;
+      flex: 1;
+      min-width: 140px;
+    }
+    .btn-blend:hover { background: #fde047; }
+    .btn-autoread {
+      background: var(--aqua);
+      color: var(--navy);
+      border-color: var(--blue);
+      min-width: 130px;
+    }
+    .btn-autoread.playing {
+      background: var(--coral);
+      color: var(--white);
+      border-color: #dc2626;
+    }
+
+    /* Studio Navigation Bar */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .nav-btn {
+      min-height: 48px;
+      min-width: 80px;
+      flex: 1;
+      max-width: 160px;
+      padding: 6px 10px;
+      background: var(--white);
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { background: #f1f5f9; }
+    .nav-btn.primary {
+      background: var(--navy);
+      color: var(--white);
+    }
+    .nav-btn.primary:hover { background: var(--navy-light); }
+
+    /* Mode: Gallery Grid (โหมดดูคำศัพท์ทั้งหมด) */
+    .gallery-view {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+    .gallery-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .gallery-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 480px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+    }
+    .gallery-card {
+      background: var(--white);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.05);
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .gallery-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--navy);
+      box-shadow: 0 8px 24px rgba(18,53,91,0.12);
+    }
+    .gallery-card-img-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 130px;
+      border-radius: 12px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .gallery-card-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    .gallery-word-en {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .gallery-word-th {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #b45309;
+      margin-top: 2px;
+    }
+    .gallery-word-meaning {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .gallery-listen-btn {
+      margin-top: 8px;
+      width: 100%;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #f0f9ff;
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .gallery-listen-btn:hover {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    /* Mode: Practice Quiz (โหมดแบบทดสอบฝึกทายเสียง) */
+    .practice-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 760px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .quiz-card {
+      width: 100%;
+      background: var(--white);
+      border: 3px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(18,53,91,0.08);
+    }
+    .quiz-streak-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cream);
+      border: 2px solid #fde68a;
+      color: #92400e;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+    .quiz-prompt-box {
+      background: #f0f9ff;
+      border: 2px dashed var(--blue);
+      border-radius: 16px;
+      padding: 16px 24px;
+      width: 100%;
+    }
+    .quiz-prompt-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .quiz-sound-btn {
+      margin-top: 10px;
+      background: var(--gold);
+      color: var(--navy);
+      border: 2px solid #d97706;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+    .quiz-choices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      width: 100%;
+    }
+    .choice-card {
+      background: var(--white);
+      border: 3px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      min-height: 180px;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .choice-card:hover {
+      border-color: var(--navy);
+      background: #f8fafc;
+    }
+    .choice-card.correct {
+      border-color: var(--ok);
+      background: var(--ok-bg);
+    }
+    .choice-card.wrong {
+      border-color: var(--bad);
+      background: var(--bad-bg);
+    }
+    .choice-img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+    }
+    .choice-word {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .choice-th {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .quiz-feedback {
+      min-height: 36px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-feedback.ok { color: var(--ok); }
+    .quiz-feedback.no { color: var(--bad); }
+
+    /* Footer */
+    footer.bottombar {
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer.bottombar a {
+      color: var(--navy);
+      font-weight: 700;
+      text-decoration: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    footer.bottombar a:hover { text-decoration: underline; background: rgba(18,53,91,0.06); }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="shell" id="shell">
-    <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
-      <h1>🔤 Phonics Chart — เสียงตัวอักษรอังกฤษ</h1>
-      <span class="badge">ป.1–3 · ภาษาอังกฤษ</span>
+    <!-- Header -->
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack" aria-label="กลับคลังสื่อ">← กลับคลังสื่อ</button>
+      <h1>🔤 Phonics Reading Studio</h1>
+      <span class="badge">ป.1–4 · สื่อภาษาอังกฤษ</span>
+      <button type="button" class="btn btn-fs" id="btnFs" aria-label="สลับเต็มจอ">⛶ เต็มจอ</button>
     </header>
 
+    <!-- Toolbar -->
     <div class="toolbar">
-      <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="practice">✏️ ฝึก</button>
-      </span>
-      <span class="seg learn-only" id="tabSeg">
-        <button type="button" data-tab="letters" class="on">A–Z</button>
-        <button type="button" data-tab="blends">Blends</button>
-        <button type="button" data-tab="digraphs">Digraphs</button>
-      </span>
-      <p class="hint" id="hintText">แตะตัวอักษร → ฟังแบบ “a as in apple” + คำตัวอย่าง</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+      <div class="seg-group" role="tablist" aria-label="โหมดการเรียนรู้">
+        <button type="button" class="seg-btn on" data-mode="learn" id="tabModeLearn" role="tab" aria-selected="true">
+          📖 ฝึกอ่านทีละคำ
+        </button>
+        <button type="button" class="seg-btn" data-mode="gallery" id="tabModeGallery" role="tab" aria-selected="false">
+          📋 ดูคำศัพท์ภาพทั้งหมด
+        </button>
+        <button type="button" class="seg-btn" data-mode="practice" id="tabModePractice" role="tab" aria-selected="false">
+          ✏️ แบบทดสอบทายเสียง
+        </button>
+      </div>
+
+      <div class="toolbar-spacer"></div>
+
+      <!-- Quick Action: Open Worksheet -->
+      <a href="/games/english/alphabet-phonics-worksheet.html" target="_blank" rel="noopener" class="btn" style="background:#fff;border:2px solid var(--navy);color:var(--navy);font-size:0.88rem;">
+        📝 ใบงาน Phonics
+      </a>
     </div>
 
-    <div class="stage">
-      <div class="grid-wrap learn-only">
-        <div class="grid" id="grid"></div>
+    <!-- Voice Settings Bar (เลือกเสียง & ความเร็ว) -->
+    <div class="voice-bar">
+      <span class="control-label">🗣️ เลือกเสียงคำอ่าน:</span>
+      <select id="selectVoice" class="select-input" aria-label="เลือกสำเนียงและเพศเสียง">
+        <option value="us-female">🇺🇸 US English (เสียงผู้หญิง)</option>
+        <option value="us-male">🇺🇸 US English (เสียงผู้ชาย)</option>
+        <option value="uk">🇬🇧 UK English (สำเนียงบริติช)</option>
+      </select>
+
+      <span class="control-label" style="margin-left:8px;">ความเร็ว:</span>
+      <div class="speed-btn-group" role="group" aria-label="ความเร็วการอ่าน">
+        <button type="button" class="speed-btn on" data-rate="0.75" id="btnSpeedSlow" title="ช้า เหมาะสำหรับฝึกสะกด">🐢 ช้า 0.75x</button>
+        <button type="button" class="speed-btn" data-rate="1.0" id="btnSpeedNormal" title="ความเร็วปกติ">🚶 ปกติ 1.0x</button>
       </div>
-      <aside class="detail learn-only">
-        <div class="detail-empty" id="detailEmpty">แตะตัวอักษรทางซ้าย<br>เพื่อฟังเสียงและดูคำตัวอย่าง</div>
-        <div class="detail-card" id="detailCard">
-          <div class="big-letter" id="bigLetter"></div>
-          <div class="sound-chip" id="soundChip"></div>
-          <div class="cue-chip" id="cueChip"></div>
-          <p class="thai-hint" id="thaiHint"></p>
-          <div class="words" id="words"></div>
-          <div class="actions">
-            <button type="button" class="btn btn-accent" id="btnSound">🔊 ฟังเสียง</button>
-            <button type="button" class="btn btn-primary" id="btnAllWords">🗣️ อ่านคำทั้งหมด</button>
+
+      <span class="control-label" style="margin-left:8px;">รูปแบบการอ่าน:</span>
+      <select id="selectReadMode" class="select-input" aria-label="เลือกรูปแบบการอ่านเสียง">
+        <option value="blend">🗣️ สะกดโฟนิกส์ (Phonics Blend)</option>
+        <option value="whole">🔊 อ่านทั้งคำ (Whole Word)</option>
+        <option value="meaning">📖 อ่านคำ + คำแปลไทย (Word & Thai)</option>
+      </select>
+    </div>
+
+    <!-- Phonics Sound Groups (สระเสียงสั้น & เสียงผสม) -->
+    <nav class="unit-selector" id="unitSelector" aria-label="เลือกหมวดเสียงโฟนิกส์">
+      <!-- Generated via JS -->
+    </nav>
+
+    <!-- Workspace Body -->
+    <main class="stage-container" id="stageContainer">
+      <!-- MODE 1: Studio Focus Card View -->
+      <div class="studio-view" id="studioView">
+        <div class="progress-bar-wrap">
+          <span id="studioIndexText">คำที่ 1 จาก 12</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
           </div>
+          <span id="studioGroupTag">Short A</span>
         </div>
-      </aside>
-    </div>
 
-    <div class="practice-wrap">
-      <div class="practice-card show" id="practiceCard">
-        <p class="streak" id="streakLabel">ถูกติดกัน: 0</p>
-        <div class="practice-letter" id="practiceLetter">?</div>
-        <div class="cue-chip" id="practiceCue">—</div>
-        <div class="practice-prompt">คำไหนขึ้นต้นด้วยเสียงนี้?</div>
-        <div class="words" id="practiceChoices"></div>
-        <div class="practice-fb" id="practiceFb"></div>
-        <div class="actions">
-          <button type="button" class="btn btn-accent" id="btnPracticeSound">🔊 ฟังเสียงอีกครั้ง</button>
-          <button type="button" class="btn btn-ok" id="btnPracticeNext">ข้อถัดไป →</button>
+        <article class="focus-card" id="focusCard" aria-label="การ์ดคำศัพท์โฟนิกส์">
+          <div class="card-visual">
+            <div class="card-img-wrap">
+              <img src="" alt="" class="card-img" id="cardImg" />
+            </div>
+            <span class="card-category-tag" id="cardCategoryTag">กลุ่มเสียง Short A</span>
+          </div>
+
+          <div class="card-content">
+            <div class="word-en-box">
+              <h2 class="word-en" id="cardWordEn">cat</h2>
+              <span class="word-ipa" id="cardWordIpa">/kæt/</span>
+            </div>
+
+            <!-- Blending Breakdown -->
+            <div class="blending-section">
+              <span class="blending-label">แตะเพื่อฟังทีละเสียง (Sound Blending):</span>
+              <div class="blending-bar" id="blendingBar">
+                <!-- Generated Chips -->
+              </div>
+            </div>
+
+            <!-- Thai Reading & Meaning -->
+            <div class="reading-details">
+              <div class="reading-col">
+                <span class="reading-col-label">คำอ่านภาษาไทย</span>
+                <span class="reading-thai" id="cardThaiReading">แคท</span>
+              </div>
+              <div class="reading-col">
+                <span class="reading-col-label">ความหมาย</span>
+                <span class="meaning-thai" id="cardThaiMeaning">แมว</span>
+              </div>
+            </div>
+
+            <!-- Audio Actions -->
+            <div class="card-actions">
+              <button type="button" class="btn btn-speak" id="btnSpeakWord">
+                🔊 ฟังคำอ่าน
+              </button>
+              <button type="button" class="btn btn-blend" id="btnSpeakBlend">
+                🗣️ สะกดทีละเสียง
+              </button>
+              <button type="button" class="btn btn-autoread" id="btnAutoRead">
+                ▶️ อ่านอัตโนมัติ
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Studio Navigation Buttons -->
+        <div class="nav-bar">
+          <button type="button" class="nav-btn" id="btnPrevWord" aria-label="คำก่อนหน้า">
+            ← ก่อนหน้า
+          </button>
+          <button type="button" class="nav-btn" id="btnRandomWord" aria-label="สุ่มคำ">
+            🎲 สุ่มคำ
+          </button>
+          <button type="button" class="nav-btn primary" id="btnNextWord" aria-label="คำถัดไป">
+            ถัดไป →
+          </button>
         </div>
       </div>
-    </div>
 
-    <div class="footer">
-      <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอน</span>
-      <a href="/play/vocab-hub">คลังคำศัพท์อังกฤษ →</a>
-    </div>
+      <!-- MODE 2: Gallery Grid View -->
+      <div class="gallery-view" id="galleryView">
+        <div class="gallery-header">
+          <h2 class="gallery-title" id="galleryTitle">หมวดสระเสียงสั้น Short A (12 คำพร้อมภาพประกอบ)</h2>
+          <button type="button" class="btn" id="btnGalleryReadGroup" style="background:var(--navy);color:#fff;">
+            🔊 ฟังคำอ่านทุกคำในหมวดนี้
+          </button>
+        </div>
+        <div class="gallery-grid" id="galleryGrid">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- MODE 3: Practice Quiz View -->
+      <div class="practice-view" id="practiceView">
+        <div class="quiz-card">
+          <div class="quiz-streak-tag" id="quizStreakTag">
+            ⭐ ตอบถูกต่อเนื่อง: 0 ข้อ
+          </div>
+          <div class="quiz-prompt-box">
+            <p class="quiz-prompt-text">แตะปุ่มฟังเสียง แล้วเลือกคำศัพท์และภาพที่ถูกต้อง</p>
+            <button type="button" class="quiz-sound-btn" id="btnQuizPlaySound">
+              🔊 ฟังเสียงโจทย์อีกครั้ง
+            </button>
+          </div>
+          <div class="quiz-choices-grid" id="quizChoicesGrid">
+            <!-- Rendered via JS -->
+          </div>
+          <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+          <button type="button" class="btn primary" id="btnQuizNext" style="background:var(--navy);color:#fff;min-width:160px;display:none;">
+            ข้อถัดไป →
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bottombar">
+      <span>🏫 โรงเรียนบ้านคำไผ่ · สื่อการสอนโฟนิกส์และคำศัพท์ภาษาอังกฤษ</span>
+      <a href="/play/vocab-hub">คลังคำศัพท์ภาษาอังกฤษ 29 หมวด →</a>
+    </footer>
   </div>
 
   <script>
     (function () {
-      var MEDIA_SLUG = 'phonics-media';
-      if (window.KAMPAI) { try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {} }
-
-      function item(id, sound, thai, words) {
-        return {
-          id: id,
-          label: id.length === 1 ? id.toUpperCase() + id : id,
-          sound: sound,
-          thai: thai,
-          words: words,
-          cue: id + ' as in ' + words[0].en,
-        };
+      'use strict';
+      const GAME_SLUG = 'phonics-media';
+      const MEDIA_SLUG = 'phonics-media';
+      if (window.KAMPAI) {
+        try { window.KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
       }
-      function w(en, th, emoji) { return { en: en, th: th, emoji: emoji }; }
 
-      var LETTERS = [
-        item('a', 'æ', 'เสียงสั้นเหมือน "แอ" ใน apple', [w('apple','แอปเปิล','🍎'), w('ant','มด','🐜')]),
-        item('b', 'b', 'เสียง "บ" ปิดปากแล้วเปิด', [w('ball','ลูกบอล','⚽'), w('book','หนังสือ','📖')]),
-        item('c', 'k', 'เสียงแข็ง "ค" (cat) — ไม่ใช่ "ซ"', [w('cat','แมว','🐱'), w('cup','ถ้วย','🥤')]),
-        item('d', 'd', 'เสียง "ด"', [w('dog','หมา','🐶'), w('duck','เป็ด','🦆')]),
-        item('e', 'e', 'เสียงสั้น "เอะ" ใน egg', [w('egg','ไข่','🥚'), w('elephant','ช้าง','🐘')]),
-        item('f', 'f', 'เสียง "ฟ" ฟันบนแตะปากล่าง', [w('fish','ปลา','🐟'), w('fan','พัดลม','🪭')]),
-        item('g', 'g', 'เสียงแข็ง "ก" (goat)', [w('goat','แพะ','🐐'), w('grape','องุ่น','🍇')]),
-        item('h', 'h', 'เสียงลมหายใจ "ฮ"', [w('hat','หมวก','🎩'), w('hand','มือ','✋')]),
-        item('i', 'ɪ', 'เสียงสั้น "อิ" ใน igloo', [w('igloo','บ้านน้ำแข็ง','🏠'), w('insect','แมลง','🐛')]),
-        item('j', 'dʒ', 'เสียง "จ" นุ่ม (jam)', [w('jam','แยม','🍓'), w('juice','น้ำผลไม้','🧃')]),
-        item('k', 'k', 'เสียง "ค" เหมือน c ใน cat', [w('kite','ว่าว','🪁'), w('key','กุญแจ','🔑')]),
-        item('l', 'l', 'เสียง "ล" ปลายลิ้นแตะเพดาน', [w('lion','สิงโต','🦁'), w('leaf','ใบไม้','🍃')]),
-        item('m', 'm', 'เสียง "ม" ปิดปาก', [w('moon','พระจันทร์','🌙'), w('milk','นม','🥛')]),
-        item('n', 'n', 'เสียง "น"', [w('nose','จมูก','👃'), w('net','ตาข่าย','🥅')]),
-        item('o', 'ɒ', 'เสียงสั้น "ออ" ใน octopus', [w('octopus','ปลาหมึก','🐙'), w('orange','ส้ม','🍊')]),
-        item('p', 'p', 'เสียง "ป" พ่นลม', [w('pig','หมู','🐷'), w('pen','ปากกา','🖊️')]),
-        item('q', 'kw', 'มักคู่กับ u = "คว" (queen)', [w('queen','ราชินี','👑'), w('quilt','ผ้าห่ม','🛏️')]),
-        item('r', 'r', 'เสียง "ร" แบบอังกฤษ', [w('rabbit','กระต่าย','🐰'), w('red','สีแดง','🔴')]),
-        item('s', 's', 'เสียง "ซ/ส" ลมยาว', [w('sun','พระอาทิตย์','☀️'), w('snake','งู','🐍')]),
-        item('t', 't', 'เสียง "ท/ต" พ่นลม', [w('tiger','เสือ','🐯'), w('tree','ต้นไม้','🌳')]),
-        item('u', 'ʌ', 'เสียงสั้น "อะ" ใน umbrella', [w('umbrella','ร่ม','☂️'), w('up','ขึ้น','⬆️')]),
-        item('v', 'v', 'เสียง "ว" สั่น', [w('van','รถตู้','🚐'), w('violin','ไวโอลิน','🎻')]),
-        item('w', 'w', 'เสียง "ว" กลมปาก', [w('water','น้ำ','💧'), w('wolf','หมาป่า','🐺')]),
-        item('x', 'ks', 'เสียง "คซ" มักอยู่ท้ายคำ', [w('box','กล่อง','📦'), w('fox','จิ้งจอก','🦊')]),
-        item('y', 'j', 'ต้นคำเสียง "ย" (yellow)', [w('yellow','สีเหลือง','💛'), w('yo-yo','โยโย่','🪀')]),
-        item('z', 'z', 'เสียง "ซ" สั่น', [w('zebra','ม้าลาย','🦓'), w('zoo','สวนสัตว์','🦁')]),
+      var ASSET_BASE = '/games/english/vocab-hub-assets/';
+
+      // 6 Phonics Groups, each with >= 11 words (all >= 10) with verified local WebP images
+      var GROUPS = [
+        {
+          id: 'short-a',
+          title: 'Short A (/æ/)',
+          thaiSound: 'สระแอะ/สระแอ',
+          description: 'เสียงสระเสียงสั้น /æ/ เหมือน "แอะ" ใน cat, apple',
+          words: [
+            { en: 'cat', focus: 'a', ipa: '/kæt/', thReading: 'แคท', thMeaning: 'แมว', phonemes: ['c', 'a', 't'], img: 'animals/cat.webp' },
+            { en: 'apple', focus: 'a', ipa: '/ˈæp.əl/', thReading: 'แอป-เปิล', thMeaning: 'ผลแอปเปิล', phonemes: ['ap', 'ple'], img: 'fruits/apple.webp' },
+            { en: 'ant', focus: 'a', ipa: '/ænt/', thReading: 'แอนท์', thMeaning: 'มด', phonemes: ['a', 'n', 't'], img: 'insects/ant.webp' },
+            { en: 'bag', focus: 'a', ipa: '/bæɡ/', thReading: 'แบก', thMeaning: 'กระเป๋า', phonemes: ['b', 'a', 'g'], img: 'classroom/bag.webp' },
+            { en: 'hat', focus: 'a', ipa: '/hæt/', thReading: 'แฮท', thMeaning: 'หมวกปีก', phonemes: ['h', 'a', 't'], img: 'clothes/hat.webp' },
+            { en: 'rabbit', focus: 'a', ipa: '/ˈræb.ɪt/', thReading: 'แรบ-บิท', thMeaning: 'กระต่าย', phonemes: ['rab', 'bit'], img: 'animals/rabbit.webp' },
+            { en: 'crab', focus: 'a', ipa: '/kræb/', thReading: 'แครบ', thMeaning: 'ปูทะเล', phonemes: ['cr', 'a', 'b'], img: 'sea-animals/crab.webp' },
+            { en: 'carrot', focus: 'a', ipa: '/ˈkær.ət/', thReading: 'แคร์-เริท', thMeaning: 'แครอท', phonemes: ['car', 'rot'], img: 'vegetables/carrot.webp' },
+            { en: 'cabbage', focus: 'a', ipa: '/ˈkæb.ɪdʒ/', thReading: 'แคบ-บิจ', thMeaning: 'กะหล่ำปลี', phonemes: ['cab', 'bage'], img: 'vegetables/cabbage.webp' },
+            { en: 'sandwich', focus: 'a', ipa: '/ˈsæn.wɪdʒ/', thReading: 'แซนด์-วิช', thMeaning: 'แซนด์วิช', phonemes: ['sand', 'wich'], img: 'food/sandwich.webp' },
+            { en: 'hand', focus: 'a', ipa: '/hænd/', thReading: 'แฮนด์', thMeaning: 'มือ', phonemes: ['h', 'a', 'n', 'd'], img: 'body/hand.webp' },
+            { en: 'sad', focus: 'a', ipa: '/sæd/', thReading: 'แซด', thMeaning: 'เศร้า/เสียใจ', phonemes: ['s', 'a', 'd'], img: 'emotions/sad.webp' }
+          ]
+        },
+        {
+          id: 'short-e',
+          title: 'Short E (/e/)',
+          thaiSound: 'สระเอะ',
+          description: 'เสียงสระเสียงสั้น /e/ เหมือน "เอะ" ใน pen, egg',
+          words: [
+            { en: 'egg', focus: 'e', ipa: '/eɡ/', thReading: 'เอ็ก', thMeaning: 'ไข่ไก่', phonemes: ['e', 'gg'], img: 'food/egg.webp' },
+            { en: 'elephant', focus: 'e', ipa: '/ˈel.ɪ.fənt/', thReading: 'เอล-ลิ-เฟินท์', thMeaning: 'ช้าง', phonemes: ['el', 'e', 'phant'], img: 'animals/elephant.webp' },
+            { en: 'pen', focus: 'e', ipa: '/pen/', thReading: 'เพน', thMeaning: 'ปากกา', phonemes: ['p', 'e', 'n'], img: 'classroom/pen.webp' },
+            { en: 'pencil', focus: 'e', ipa: '/ˈpen.səl/', thReading: 'เพน-เซิล', thMeaning: 'ดินสอ', phonemes: ['pen', 'cil'], img: 'classroom/pencil.webp' },
+            { en: 'leg', focus: 'e', ipa: '/leɡ/', thReading: 'เล็ก', thMeaning: 'ขา', phonemes: ['l', 'e', 'g'], img: 'body/leg.webp' },
+            { en: 'bedroom', focus: 'e', ipa: '/ˈbed.ruːm/', thReading: 'เบด-รูม', thMeaning: 'ห้องนอน', phonemes: ['bed', 'room'], img: 'house-rooms/bedroom.webp' },
+            { en: 'dress', focus: 'e', ipa: '/dres/', thReading: 'เดรส', thMeaning: 'ชุดกระโปรง', phonemes: ['dr', 'e', 'ss'], img: 'clothes/dress.webp' },
+            { en: 'eggplant', focus: 'e', ipa: '/ˈeɡ.plɑːnt/', thReading: 'เอ็ก-แพลนท์', thMeaning: 'มะเขือม่วง', phonemes: ['egg', 'plant'], img: 'vegetables/eggplant.webp' },
+            { en: 'tennis', focus: 'e', ipa: '/ˈten.ɪs/', thReading: 'เทน-นิส', thMeaning: 'กีฬาเทนนิส', phonemes: ['ten', 'nis'], img: 'sports/tennis.webp' },
+            { en: 'celery', focus: 'e', ipa: '/ˈsel.ər.i/', thReading: 'เซล-เลอ-รี', thMeaning: 'ขึ้นฉ่ายฝรั่ง', phonemes: ['cel', 'er', 'y'], img: 'vegetables/celery.webp' },
+            { en: 'hen', focus: 'e', ipa: '/hen/', thReading: 'เฮน', thMeaning: 'แม่ไก่', phonemes: ['h', 'e', 'n'], img: 'birds/hen.webp' }
+          ]
+        },
+        {
+          id: 'short-i',
+          title: 'Short I (/ɪ/)',
+          thaiSound: 'สระอิ',
+          description: 'เสียงสระเสียงสั้น /ɪ/ เหมือน "อิ" ใน pig, fish',
+          words: [
+            { en: 'pig', focus: 'i', ipa: '/pɪɡ/', thReading: 'พิก', thMeaning: 'หมู', phonemes: ['p', 'i', 'g'], img: 'animals/pig.webp' },
+            { en: 'fish', focus: 'i', ipa: '/fɪʃ/', thReading: 'ฟิช', thMeaning: 'ปลา', phonemes: ['f', 'i', 'sh'], img: 'animals/fish.webp' },
+            { en: 'ship', focus: 'i', ipa: '/ʃɪp/', thReading: 'ชิพ', thMeaning: 'เรือใหญ่', phonemes: ['sh', 'i', 'p'], img: 'transportation/ship.webp' },
+            { en: 'milk', focus: 'i', ipa: '/mɪlk/', thReading: 'มิลค์', thMeaning: 'นมสด', phonemes: ['m', 'i', 'l', 'k'], img: 'food/milk.webp' },
+            { en: 'swim', focus: 'i', ipa: '/swɪm/', thReading: 'สวิม', thMeaning: 'ว่ายน้ำ', phonemes: ['sw', 'i', 'm'], img: 'verbs/swim.webp' },
+            { en: 'sing', focus: 'i', ipa: '/sɪŋ/', thReading: 'ซิง', thMeaning: 'ร้องเพลง', phonemes: ['s', 'i', 'ng'], img: 'verbs/sing.webp' },
+            { en: 'spring', focus: 'i', ipa: '/sprɪŋ/', thReading: 'สปริง', thMeaning: 'ฤดูใบไม้ผลิ', phonemes: ['spr', 'i', 'ng'], img: 'seasons/spring.webp' },
+            { en: 'winter', focus: 'i', ipa: '/ˈwɪn.tər/', thReading: 'วิน-เทอร์', thMeaning: 'ฤดูหนาว', phonemes: ['win', 'ter'], img: 'seasons/winter.webp' },
+            { en: 'windy', focus: 'i', ipa: '/ˈwɪn.di/', thReading: 'วิน-ดี', thMeaning: 'มีลมแรง', phonemes: ['win', 'dy'], img: 'weather/windy.webp' },
+            { en: 'chicken', focus: 'i', ipa: '/ˈtʃɪk.ɪn/', thReading: 'ชิก-เกน', thMeaning: 'เนื้อไก่/ไก่', phonemes: ['ch', 'ick', 'en'], img: 'food/chicken.webp' },
+            { en: 'cricket', focus: 'i', ipa: '/ˈkrɪk.ɪt/', thReading: 'คริก-เกิต', thMeaning: 'จิ้งหรีด', phonemes: ['cr', 'ick', 'et'], img: 'insects/cricket.webp' }
+          ]
+        },
+        {
+          id: 'short-o',
+          title: 'Short O (/ɒ/)',
+          thaiSound: 'สระเอาะ/ออ',
+          description: 'เสียงสระเสียงสั้น /ɒ/ เหมือน "เอาะ/ออ" ใน dog, fox',
+          words: [
+            { en: 'dog', focus: 'o', ipa: '/dɒɡ/', thReading: 'ด็อก', thMeaning: 'สุนัข', phonemes: ['d', 'o', 'g'], img: 'animals/dog.webp' },
+            { en: 'fox', focus: 'o', ipa: '/fɒks/', thReading: 'ฟ็อกซ์', thMeaning: 'สุนัขจิ้งจอก', phonemes: ['f', 'o', 'x'], img: 'animals/fox.webp' },
+            { en: 'frog', focus: 'o', ipa: '/frɒɡ/', thReading: 'ฟร็อก', thMeaning: 'กบ', phonemes: ['fr', 'o', 'g'], img: 'animals/frog.webp' },
+            { en: 'octopus', focus: 'o', ipa: '/ˈɒk.tə.pəs/', thReading: 'อ็อก-โท-พัส', thMeaning: 'หมึกยักษ์', phonemes: ['oc', 'to', 'pus'], img: 'sea-animals/octopus.webp' },
+            { en: 'orange', focus: 'o', ipa: '/ˈɒr.ɪndʒ/', thReading: 'ออ-เรนจ์', thMeaning: 'ผลส้ม', phonemes: ['or', 'ange'], img: 'fruits/orange.webp' },
+            { en: 'doll', focus: 'o', ipa: '/dɒl/', thReading: 'ดอลล์', thMeaning: 'ตุ๊กตา', phonemes: ['d', 'o', 'll'], img: 'toys/doll.webp' },
+            { en: 'blocks', focus: 'o', ipa: '/blɒks/', thReading: 'บล็อกส์', thMeaning: 'ตัวต่อของเล่น', phonemes: ['bl', 'o', 'cks'], img: 'toys/blocks.webp' },
+            { en: 'boxing', focus: 'o', ipa: '/ˈbɒk.sɪŋ/', thReading: 'บ็อก-ซิง', thMeaning: 'กีฬามวย', phonemes: ['box', 'ing'], img: 'sports/boxing.webp' },
+            { en: 'doctor', focus: 'o', ipa: '/ˈdɒk.tər/', thReading: 'ด็อก-เทอร์', thMeaning: 'คุณหมอ', phonemes: ['doc', 'tor'], img: 'jobs/doctor.webp' },
+            { en: 'hospital', focus: 'o', ipa: '/ˈhɒs.pɪ.təl/', thReading: 'ฮอส-พิ-เทิล', thMeaning: 'โรงพยาบาล', phonemes: ['hos', 'pi', 'tal'], img: 'places/hospital.webp' },
+            { en: 'socks', focus: 'o', ipa: '/sɒks/', thReading: 'ซ็อกส์', thMeaning: 'ถุงเท้า', phonemes: ['s', 'o', 'cks'], img: 'clothes/socks.webp' }
+          ]
+        },
+        {
+          id: 'short-u',
+          title: 'Short U (/ʌ/)',
+          thaiSound: 'สระอะ',
+          description: 'เสียงสระเสียงสั้น /ʌ/ เหมือน "อะ" ใน duck, bus, sun',
+          words: [
+            { en: 'duck', focus: 'u', ipa: '/dʌk/', thReading: 'ดั๊ก', thMeaning: 'เป็ด', phonemes: ['d', 'u', 'ck'], img: 'animals/duck.webp' },
+            { en: 'bus', focus: 'u', ipa: '/bʌs/', thReading: 'บัส', thMeaning: 'รถประจำทาง', phonemes: ['b', 'u', 's'], img: 'transportation/bus.webp' },
+            { en: 'truck', focus: 'u', ipa: '/trʌk/', thReading: 'ทรัค', thMeaning: 'รถบรรทุก', phonemes: ['tr', 'u', 'ck'], img: 'transportation/truck.webp' },
+            { en: 'sun', focus: 'u', ipa: '/sʌn/', thReading: 'ซัน', thMeaning: 'พระอาทิตย์', phonemes: ['s', 'u', 'n'], img: 'weather/sunny.webp' },
+            { en: 'summer', focus: 'u', ipa: '/ˈsʌm.ər/', thReading: 'ซัม-เมอร์', thMeaning: 'ฤดูร้อน', phonemes: ['sum', 'mer'], img: 'seasons/summer.webp' },
+            { en: 'drum', focus: 'u', ipa: '/drʌm/', thReading: 'ดรัม', thMeaning: 'กลอง', phonemes: ['dr', 'u', 'm'], img: 'instruments/drum.webp' },
+            { en: 'jump', focus: 'u', ipa: '/dʒʌmp/', thReading: 'จัมพ์', thMeaning: 'กระโดด', phonemes: ['j', 'u', 'mp'], img: 'verbs/jump.webp' },
+            { en: 'running', focus: 'u', ipa: '/ˈrʌn.ɪŋ/', thReading: 'รัน-นิง', thMeaning: 'การวิ่ง', phonemes: ['run', 'ning'], img: 'sports/running.webp' },
+            { en: 'pumpkin', focus: 'u', ipa: '/ˈpʌmp.kɪn/', thReading: 'พัมพ์-คิน', thMeaning: 'ฟักทอง', phonemes: ['pump', 'kin'], img: 'vegetables/pumpkin.webp' },
+            { en: 'puzzle', focus: 'u', ipa: '/ˈpʌz.əl/', thReading: 'พัซ-เซิล', thMeaning: 'ตัวต่อปริศนา', phonemes: ['puz', 'zle'], img: 'toys/puzzle.webp' },
+            { en: 'butter', focus: 'u', ipa: '/ˈbʌt.ər/', thReading: 'บัต-เทอร์', thMeaning: 'เนยสด', phonemes: ['but', 'ter'], img: 'food/butter.webp' }
+          ]
+        },
+        {
+          id: 'blends-digraphs',
+          title: 'Blends & Digraphs',
+          thaiSound: 'เสียงพยัญชนะผสม',
+          description: 'เสียงผสม เช่น ch, sh, st, tr, br, wh',
+          words: [
+            { en: 'chair', focus: 'ch', ipa: '/tʃeər/', thReading: 'แชร์', thMeaning: 'เก้าอี้', phonemes: ['ch', 'air'], img: 'classroom/chair.webp' },
+            { en: 'cheese', focus: 'ch', ipa: '/tʃiːz/', thReading: 'ชีส', thMeaning: 'เนยแข็ง/ชีส', phonemes: ['ch', 'eese'], img: 'food/cheese.webp' },
+            { en: 'ship', focus: 'sh', ipa: '/ʃɪp/', thReading: 'ชิพ', thMeaning: 'เรือใหญ่', phonemes: ['sh', 'i', 'p'], img: 'transportation/ship.webp' },
+            { en: 'shark', focus: 'sh', ipa: '/ʃɑːk/', thReading: 'ชาร์ค', thMeaning: 'ปลาฉลาม', phonemes: ['sh', 'ark'], img: 'sea-animals/shark.webp' },
+            { en: 'shirt', focus: 'sh', ipa: '/ʃɜːt/', thReading: 'เชิ้ต', thMeaning: 'เสื้อเชิ้ต', phonemes: ['sh', 'irt'], img: 'clothes/shirt.webp' },
+            { en: 'shoes', focus: 'sh', ipa: '/ʃuːz/', thReading: 'ชูส์', thMeaning: 'รองเท้า', phonemes: ['sh', 'oes'], img: 'clothes/shoes.webp' },
+            { en: 'shrimp', focus: 'sh', ipa: '/ʃrɪmp/', thReading: 'ชริมพ์', thMeaning: 'กุ้ง', phonemes: ['sh', 'r', 'i', 'mp'], img: 'sea-animals/shrimp.webp' },
+            { en: 'star', focus: 'st', ipa: '/stɑːr/', thReading: 'สตาร์', thMeaning: 'ดวงดาว', phonemes: ['st', 'ar'], img: 'shapes/star.webp' },
+            { en: 'train', focus: 'tr', ipa: '/treɪn/', thReading: 'เทรน', thMeaning: 'รถไฟ', phonemes: ['tr', 'ain'], img: 'transportation/train.webp' },
+            { en: 'bread', focus: 'br', ipa: '/bred/', thReading: 'เบรด', thMeaning: 'ขนมปัง', phonemes: ['br', 'ead'], img: 'food/bread.webp' },
+            { en: 'whale', focus: 'wh', ipa: '/weɪl/', thReading: 'เวล', thMeaning: 'ปลาวาฬ', phonemes: ['wh', 'ale'], img: 'sea-animals/whale.webp' },
+            { en: 'blocks', focus: 'bl', ipa: '/blɒks/', thReading: 'บล็อกส์', thMeaning: 'ตัวต่อบล็อก', phonemes: ['bl', 'o', 'cks'], img: 'toys/blocks.webp' }
+          ]
+        }
       ];
 
-      var BLENDS = [
-        item('bl','bl','b + l พร้อมกัน',[w('blue','สีน้ำเงิน','💙'), w('black','สีดำ','⬛')]),
-        item('br','br','b + r',[w('bread','ขนมปัง','🍞'), w('brush','แปรง','🪥')]),
-        item('cl','cl','c + l',[w('clock','นาฬิกา','🕐'), w('cloud','เมฆ','☁️')]),
-        item('cr','cr','c + r',[w('crab','ปู','🦀'), w('cry','ร้องไห้','😢')]),
-        item('dr','dr','d + r',[w('drum','กลอง','🥁'), w('dress','ชุดกระโปรง','👗')]),
-        item('fl','fl','f + l',[w('flag','ธง','🚩'), w('flower','ดอกไม้','🌸')]),
-        item('fr','fr','f + r',[w('frog','กบ','🐸'), w('fruit','ผลไม้','🍎')]),
-        item('gl','gl','g + l',[w('glass','แก้ว','🥛'), w('glue','กาว','🧴')]),
-        item('gr','gr','g + r',[w('green','สีเขียว','💚'), w('grape','องุ่น','🍇')]),
-        item('pl','pl','p + l',[w('plane','เครื่องบิน','✈️'), w('plant','ต้นไม้','🌱')]),
-        item('pr','pr','p + r',[w('prize','รางวัล','🏆'), w('proud','ภูมิใจ','😊')]),
-        item('sk','sk','s + k',[w('sky','ท้องฟ้า','🌌'), w('skate','สเก็ต','⛸️')]),
-        item('sl','sl','s + l',[w('slide','สไลเดอร์','🛝'), w('sleep','นอน','😴')]),
-        item('sm','sm','s + m',[w('smile','ยิ้ม','😊'), w('small','เล็ก','🔹')]),
-        item('sn','sn','s + n',[w('snake','งู','🐍'), w('snow','หิมะ','❄️')]),
-        item('sp','sp','s + p',[w('spoon','ช้อน','🥄'), w('spider','แมงมุม','🕷️')]),
-        item('st','st','s + t',[w('star','ดาว','⭐'), w('stop','หยุด','🛑')]),
-        item('sw','sw','s + w',[w('swim','ว่ายน้ำ','🏊'), w('swing','ชิงช้า','🪑')]),
-        item('tr','tr','t + r',[w('tree','ต้นไม้','🌳'), w('train','รถไฟ','🚂')]),
-        item('tw','tw','t + w',[w('twin','ฝาแฝด','👯'), w('twelve','สิบสอง','🔢')]),
-      ];
+      // State Management
+      var state = {
+        curGroupIdx: 0,
+        curWordIdx: 0,
+        activeMode: 'learn', // 'learn' | 'gallery' | 'practice'
+        voiceOption: 'us-female',
+        speechRate: 0.75,
+        readMode: 'blend',
+        isAutoPlaying: false,
+        autoPlayTimer: null,
+        quizItem: null,
+        quizChoices: [],
+        quizStreak: 0,
+        quizAnswered: false
+      };
 
-      var DIGRAPHS = [
-        item('ch','tʃ','เสียง "ช" (chair)',[w('chair','เก้าอี้','🪑'), w('cheese','ชีส','🧀')]),
-        item('sh','ʃ','เสียง "ช" ลมยาว (ship)',[w('ship','เรือ','🚢'), w('fish','ปลา','🐟')]),
-        item('th','θ','ลิ้นแตะฟัน (think)',[w('three','สาม','3️⃣'), w('thumb','นิ้วโป้ง','👍')]),
-        item('wh','w','มักเสียงเหมือน w (whale)',[w('whale','วาฬ','🐋'), w('white','สีขาว','⬜')]),
-        item('ph','f','เสียง "ฟ" (phone)',[w('phone','โทรศัพท์','📱'), w('photo','รูปภาพ','📷')]),
-        item('ck','k','ท้ายคำเสียง "ค" (duck)',[w('duck','เป็ด','🦆'), w('sock','ถุงเท้า','🧦')]),
-        item('ng','ŋ','เสียง "ง" ท้ายคำ (ring)',[w('ring','แหวน','💍'), w('king','ราชา','🤴')]),
-        item('qu','kw','q + u = "คว"',[w('queen','ราชินี','👑'), w('quiet','เงียบ','🤫')]),
-      ];
+      // DOM Elements
+      var elUnitSelector = document.getElementById('unitSelector');
+      var elStudioView = document.getElementById('studioView');
+      var elGalleryView = document.getElementById('galleryView');
+      var elPracticeView = document.getElementById('practiceView');
 
-      // x/ck/ng มักอยู่ท้ายคำ — cue ใช้ "ends with"
-      LETTERS.find(function (x) { return x.id === 'x'; }).cue = 'x as in box';
-      DIGRAPHS.find(function (x) { return x.id === 'ck'; }).cue = 'ck as in duck';
-      DIGRAPHS.find(function (x) { return x.id === 'ng'; }).cue = 'ng as in ring';
+      var elCardImg = document.getElementById('cardImg');
+      var elCardCategoryTag = document.getElementById('cardCategoryTag');
+      var elCardWordEn = document.getElementById('cardWordEn');
+      var elCardWordIpa = document.getElementById('cardWordIpa');
+      var elCardThaiReading = document.getElementById('cardThaiReading');
+      var elCardThaiMeaning = document.getElementById('cardThaiMeaning');
+      var elBlendingBar = document.getElementById('blendingBar');
+      var elStudioIndexText = document.getElementById('studioIndexText');
+      var elProgressFill = document.getElementById('progressFill');
+      var elStudioGroupTag = document.getElementById('studioGroupTag');
 
-      var DATA = { letters: LETTERS, blends: BLENDS, digraphs: DIGRAPHS };
-      var tab = 'letters';
-      var mode = 'learn';
-      var selected = null;
-      var practiceItem = null;
-      var practiceAnswered = false;
-      var streak = 0;
+      var elBtnAutoRead = document.getElementById('btnAutoRead');
+      var elGalleryTitle = document.getElementById('galleryTitle');
+      var elGalleryGrid = document.getElementById('galleryGrid');
 
-      var shell = document.getElementById('shell');
-      var grid = document.getElementById('grid');
-      var detailEmpty = document.getElementById('detailEmpty');
-      var detailCard = document.getElementById('detailCard');
-      var bigLetter = document.getElementById('bigLetter');
-      var soundChip = document.getElementById('soundChip');
-      var cueChip = document.getElementById('cueChip');
-      var thaiHint = document.getElementById('thaiHint');
-      var wordsEl = document.getElementById('words');
-      var hintText = document.getElementById('hintText');
+      var elQuizStreakTag = document.getElementById('quizStreakTag');
+      var elQuizChoicesGrid = document.getElementById('quizChoicesGrid');
+      var elQuizFeedback = document.getElementById('quizFeedback');
+      var elBtnQuizNext = document.getElementById('btnQuizNext');
 
-      function speak(text, lang) {
-        lang = lang || 'en-US';
+      var elSelectVoice = document.getElementById('selectVoice');
+      var elSelectReadMode = document.getElementById('selectReadMode');
+      var elBtnSpeedSlow = document.getElementById('btnSpeedSlow');
+      var elBtnSpeedNormal = document.getElementById('btnSpeedNormal');
+
+      // Audio & Speech Synthesis Engine
+      var speechVoices = [];
+      function refreshVoices() {
+        if ('speechSynthesis' in window) {
+          speechVoices = window.speechSynthesis.getVoices() || [];
+        }
+      }
+      if ('speechSynthesis' in window) {
+        refreshVoices();
+        window.speechSynthesis.onvoiceschanged = refreshVoices;
+      }
+
+      function getBestVoice(target) {
+        if (!speechVoices.length) return null;
+        var lower = target.toLowerCase();
+        if (lower === 'us-female') {
+          return speechVoices.find(function (v) {
+            return v.lang.startsWith('en-US') && /female|samantha|zira|victoria|karen/i.test(v.name);
+          }) || speechVoices.find(function (v) { return v.lang.startsWith('en-US'); }) || speechVoices.find(function (v) { return v.lang.startsWith('en'); });
+        }
+        if (lower === 'us-male') {
+          return speechVoices.find(function (v) {
+            return v.lang.startsWith('en-US') && /male|david|alex|daniel|tom/i.test(v.name);
+          }) || speechVoices.find(function (v) { return v.lang.startsWith('en-US'); }) || speechVoices.find(function (v) { return v.lang.startsWith('en'); });
+        }
+        if (lower === 'uk') {
+          return speechVoices.find(function (v) {
+            return v.lang.startsWith('en-GB');
+          }) || speechVoices.find(function (v) { return /british|uk|hazel|george/i.test(v.name); }) || speechVoices.find(function (v) { return v.lang.startsWith('en'); });
+        }
+        return null;
+      }
+
+      function stopSpeech() {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      function speak(text, lang, rate, onEnd) {
+        stopSpeech();
+        lang = lang || (state.voiceOption === 'uk' ? 'en-GB' : 'en-US');
+        rate = (typeof rate === 'number') ? rate : state.speechRate;
+
+        if ('speechSynthesis' in window) {
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = lang;
+          u.rate = rate;
+          var matchedVoice = getBestVoice(state.voiceOption);
+          if (matchedVoice) u.voice = matchedVoice;
+          if (typeof onEnd === 'function') {
+            u.onend = onEnd;
+            u.onerror = onEnd;
+          }
+          window.speechSynthesis.speak(u);
+          return;
+        }
+
         if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.speak === 'function') {
           try {
-            if (KAMPAI.sound.speak.length >= 3) KAMPAI.sound.speak(text, lang, true);
-            else KAMPAI.sound.speak(text, lang);
+            KAMPAI.sound.speak(text, lang);
+            if (typeof onEnd === 'function') setTimeout(onEnd, 1200);
             return;
           } catch (e) {}
         }
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          var u = new SpeechSynthesisUtterance(text);
-          u.lang = lang;
-          u.rate = 0.85;
-          window.speechSynthesis.speak(u);
+        if (typeof onEnd === 'function') setTimeout(onEnd, 800);
+      }
+
+      function speakWord(word, onEnd) {
+        if (state.readMode === 'blend') {
+          speakPhonicsBlend(word, onEnd);
+        } else if (state.readMode === 'meaning') {
+          speak(word.en, null, state.speechRate, function () {
+            setTimeout(function () {
+              speak(word.thMeaning, 'th-TH', 0.95, onEnd);
+            }, 300);
+          });
+        } else {
+          speak(word.en, null, state.speechRate, onEnd);
         }
       }
 
-      /** เสียง phoneme แบบห้องเรียน: "a as in apple" */
-      function speakSound(item) {
-        speak(item.cue, 'en-US');
+      function speakPhonicsBlend(word, onEnd) {
+        var pieces = word.phonemes || [word.en];
+        var idx = 0;
+        function nextPiece() {
+          if (idx >= pieces.length) {
+            setTimeout(function () {
+              speak(word.en, null, state.speechRate, onEnd);
+            }, 350);
+            return;
+          }
+          var p = pieces[idx++];
+          speak(p, null, 0.75, function () {
+            setTimeout(nextPiece, 250);
+          });
+        }
+        nextPiece();
       }
 
-      function speakWord(en) { speak(en, 'en-US'); }
-
-      function renderGrid() {
-        var list = DATA[tab];
-        grid.className = 'grid' + (tab !== 'letters' ? ' blends' : '');
-        grid.innerHTML = '';
-        list.forEach(function (it) {
+      // Render Navigation Tabs
+      function renderUnitTabs() {
+        elUnitSelector.innerHTML = '';
+        GROUPS.forEach(function (g, idx) {
           var btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = 'tile' + (selected && selected.id === it.id ? ' on' : '');
-          btn.innerHTML = tab === 'letters'
-            ? '<span class="letter">' + it.id.toUpperCase() + '</span><span class="sub">' + it.id + '</span>'
-            : '<span class="letter" style="font-size:1.2rem">' + it.id + '</span>';
-          btn.addEventListener('click', function () { selectItem(it); });
-          grid.appendChild(btn);
-        });
-      }
-
-      function selectItem(it) {
-        selected = it;
-        renderGrid();
-        detailEmpty.style.display = 'none';
-        detailCard.classList.add('show');
-        if (tab === 'letters') {
-          bigLetter.innerHTML = it.id.toUpperCase() + '<span class="lower">' + it.id + '</span>';
-        } else {
-          bigLetter.textContent = it.id;
-        }
-        soundChip.textContent = '/' + it.sound + '/';
-        cueChip.textContent = '“' + it.cue + '”';
-        thaiHint.textContent = it.thai;
-        wordsEl.innerHTML = '';
-        it.words.forEach(function (word) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'word-btn';
-          b.innerHTML = '<span class="emoji">' + word.emoji + '</span><span class="meta"><span class="en">' +
-            word.en + '</span><span class="th">' + word.th + '</span></span>';
-          b.addEventListener('click', function () { speakWord(word.en); });
-          wordsEl.appendChild(b);
-        });
-        speakSound(it);
-      }
-
-      function allWordsPool() {
-        var pool = [];
-        Object.keys(DATA).forEach(function (k) {
-          DATA[k].forEach(function (it) {
-            it.words.forEach(function (word) {
-              pool.push({ item: it, word: word, tab: k });
-            });
+          btn.className = 'unit-btn' + (idx === state.curGroupIdx ? ' on' : '');
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', idx === state.curGroupIdx ? 'true' : 'false');
+          btn.innerHTML = '<span>' + g.title + '</span><span class="sub">' + g.thaiSound + ' (' + g.words.length + ' คำ)</span>';
+          btn.addEventListener('click', function () {
+            stopAutoRead();
+            state.curGroupIdx = idx;
+            state.curWordIdx = 0;
+            renderUnitTabs();
+            updateCurrentView();
           });
+          elUnitSelector.appendChild(btn);
         });
-        return pool;
       }
 
-      function wordMatchesItem(wordEn, it) {
-        // คำถูกถ้าอยู่ใน words ของ item นั้น
-        return it.words.some(function (w) { return w.en === wordEn; });
+      // Format word with highlighted focus phoneme
+      function formatFocusWord(en, focus) {
+        if (!focus) return en;
+        var idx = en.toLowerCase().indexOf(focus.toLowerCase());
+        if (idx === -1) return en;
+        var before = en.slice(0, idx);
+        var match = en.slice(idx, idx + focus.length);
+        var after = en.slice(idx + focus.length);
+        return before + '<span class="phonics-focus">' + match + '</span>' + after;
       }
 
-      function startsWithSound(wordEn, it) {
-        var w = wordEn.toLowerCase();
-        var id = it.id.toLowerCase();
-        if (id === 'x' || id === 'ck' || id === 'ng') {
-          return w.endsWith(id === 'x' ? 'x' : id);
-        }
-        if (id === 'c') return w.startsWith('c') || w.startsWith('k');
-        if (id === 'k') return w.startsWith('k') || w.startsWith('c');
-        return w.startsWith(id);
-      }
+      // Render Studio Focus Card
+      function renderStudioCard() {
+        var group = GROUPS[state.curGroupIdx];
+        var word = group.words[state.curWordIdx];
+        var total = group.words.length;
 
-      function nextPractice() {
-        practiceAnswered = false;
-        document.getElementById('practiceFb').textContent = '';
-        document.getElementById('practiceFb').className = 'practice-fb';
+        elStudioIndexText.textContent = 'คำที่ ' + (state.curWordIdx + 1) + ' จาก ' + total;
+        elProgressFill.style.width = Math.round(((state.curWordIdx + 1) / total) * 100) + '%';
+        elStudioGroupTag.textContent = group.title;
 
-        var list = DATA[tab] || LETTERS;
-        practiceItem = list[Math.floor(Math.random() * list.length)];
+        elCardImg.src = ASSET_BASE + word.img;
+        elCardImg.alt = word.en + ' — ' + word.thMeaning;
+        elCardCategoryTag.textContent = group.title + ' · ' + group.thaiSound;
 
-        document.getElementById('practiceLetter').textContent =
-          practiceItem.id.length === 1 ? practiceItem.id.toUpperCase() : practiceItem.id;
-        document.getElementById('practiceCue').textContent = '“' + practiceItem.cue + '”';
-        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
+        elCardWordEn.innerHTML = formatFocusWord(word.en, word.focus);
+        elCardWordIpa.textContent = word.ipa;
+        elCardThaiReading.textContent = word.thReading;
+        elCardThaiMeaning.textContent = word.thMeaning;
 
-        var correct = practiceItem.words[Math.floor(Math.random() * practiceItem.words.length)];
-        var pool = allWordsPool().filter(function (p) {
-          return p.word.en !== correct.en && !startsWithSound(p.word.en, practiceItem);
+        // Render Blending Chips
+        elBlendingBar.innerHTML = '';
+        (word.phonemes || [word.en]).forEach(function (p) {
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'phoneme-chip';
+          chip.textContent = p;
+          chip.title = 'แตะเพื่อฟังเสียง ' + p;
+          chip.addEventListener('click', function (e) {
+            e.stopPropagation();
+            speak(p, null, 0.7);
+          });
+          elBlendingBar.appendChild(chip);
         });
-        // shuffle pool
+        var arrow = document.createElement('span');
+        arrow.className = 'blending-arrow';
+        arrow.textContent = '➔';
+        elBlendingBar.appendChild(arrow);
+
+        var wholeBtn = document.createElement('button');
+        wholeBtn.type = 'button';
+        wholeBtn.className = 'phoneme-chip';
+        wholeBtn.style.background = 'var(--gold)';
+        wholeBtn.style.color = 'var(--navy)';
+        wholeBtn.style.borderColor = 'var(--navy)';
+        wholeBtn.textContent = word.en;
+        wholeBtn.title = 'ฟังคำเต็ม: ' + word.en;
+        wholeBtn.addEventListener('click', function () {
+          speak(word.en);
+        });
+        elBlendingBar.appendChild(wholeBtn);
+      }
+
+      // Render Gallery View
+      function renderGalleryView() {
+        var group = GROUPS[state.curGroupIdx];
+        elGalleryTitle.textContent = group.title + ' — ' + group.thaiSound + ' (' + group.words.length + ' คำพร้อมภาพประกอบ)';
+        elGalleryGrid.innerHTML = '';
+
+        group.words.forEach(function (word, idx) {
+          var card = document.createElement('div');
+          card.className = 'gallery-card';
+          card.setAttribute('role', 'button');
+          card.setAttribute('tabindex', '0');
+          card.innerHTML =
+            '<div class="gallery-card-img-wrap">' +
+              '<img src="' + ASSET_BASE + word.img + '" alt="' + word.en + '" class="gallery-card-img" loading="lazy" />' +
+            '</div>' +
+            '<div class="gallery-word-en">' + formatFocusWord(word.en, word.focus) + '</div>' +
+            '<div class="gallery-word-th">' + word.thReading + '</div>' +
+            '<div class="gallery-word-meaning">' + word.thMeaning + '</div>' +
+            '<button type="button" class="gallery-listen-btn" aria-label="ฟังเสียง ' + word.en + '">🔊 ฟังคำอ่าน</button>';
+
+          card.addEventListener('click', function (e) {
+            if (e.target.closest('.gallery-listen-btn')) {
+              speak(word.en);
+              return;
+            }
+            state.curWordIdx = idx;
+            switchMode('learn');
+            speakWord(word);
+          });
+          elGalleryGrid.appendChild(card);
+        });
+      }
+
+      // Render Practice Quiz
+      function nextQuizQuestion() {
+        state.quizAnswered = false;
+        elQuizFeedback.textContent = '';
+        elQuizFeedback.className = 'quiz-feedback';
+        elBtnQuizNext.style.display = 'none';
+
+        var allWords = [];
+        GROUPS.forEach(function (g) { allWords = allWords.concat(g.words); });
+
+        var groupWords = GROUPS[state.curGroupIdx].words;
+        var correct = groupWords[Math.floor(Math.random() * groupWords.length)];
+        state.quizItem = correct;
+
+        // Pick 2-3 distractors
+        var pool = allWords.filter(function (w) { return w.en !== correct.en; });
         pool.sort(function () { return Math.random() - 0.5; });
         var choices = [correct];
         for (var i = 0; i < pool.length && choices.length < 3; i++) {
-          if (!choices.some(function (c) { return c.en === pool[i].word.en; })) {
-            choices.push(pool[i].word);
+          if (!choices.some(function (c) { return c.en === pool[i].en; })) {
+            choices.push(pool[i]);
           }
         }
         choices.sort(function () { return Math.random() - 0.5; });
+        state.quizChoices = choices;
 
-        var box = document.getElementById('practiceChoices');
-        box.innerHTML = '';
-        choices.forEach(function (word) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'choice-btn';
-          b.innerHTML = '<span class="emoji">' + word.emoji + '</span><span class="meta"><span class="en">' +
-            word.en + '</span><span class="th">' + word.th + '</span></span>';
-          b.addEventListener('click', function () { onPracticePick(b, word, correct); });
-          box.appendChild(b);
+        elQuizChoicesGrid.innerHTML = '';
+        choices.forEach(function (choice) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'choice-card';
+          btn.innerHTML =
+            '<img src="' + ASSET_BASE + choice.img + '" alt="" class="choice-img" />' +
+            '<span class="choice-word">' + choice.en + '</span>' +
+            '<span class="choice-th">' + choice.thReading + ' (' + choice.thMeaning + ')</span>';
+          btn.addEventListener('click', function () { onQuizAnswer(btn, choice, correct); });
+          elQuizChoicesGrid.appendChild(btn);
         });
 
-        speakSound(practiceItem);
+        // Speak question sound
+        speak(correct.en);
       }
 
-      function onPracticePick(btn, word, correct) {
-        if (practiceAnswered) return;
-        practiceAnswered = true;
-        var ok = word.en === correct.en;
-        var fb = document.getElementById('practiceFb');
-        var buttons = document.querySelectorAll('#practiceChoices .choice-btn');
-        buttons.forEach(function (el) {
-          el.disabled = true;
-          var en = el.querySelector('.en').textContent;
-          if (en === correct.en) el.classList.add('correct');
+      function onQuizAnswer(btn, choice, correct) {
+        if (state.quizAnswered) return;
+        state.quizAnswered = true;
+        var isOk = choice.en === correct.en;
+
+        var allButtons = elQuizChoicesGrid.querySelectorAll('.choice-card');
+        allButtons.forEach(function (b) {
+          b.disabled = true;
+          if (b.querySelector('.choice-word').textContent === correct.en) {
+            b.classList.add('correct');
+          }
         });
-        if (ok) {
+
+        if (isOk) {
           btn.classList.add('correct');
-          streak++;
-          fb.textContent = '✅ ถูกต้อง! ' + practiceItem.cue;
-          fb.className = 'practice-fb ok';
-          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.correct(); } catch (e) {}
+          state.quizStreak++;
+          elQuizFeedback.textContent = '✅ เก่งมาก! ถูกต้อง: ' + correct.en + ' (' + correct.thReading + ')';
+          elQuizFeedback.className = 'quiz-feedback ok';
+          if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.correct === 'function') {
+            try { KAMPAI.sound.correct(); } catch (e) {}
+          }
         } else {
           btn.classList.add('wrong');
-          streak = 0;
-          fb.textContent = '❌ ลองใหม่ — คำที่ถูกคือ ' + correct.en;
-          fb.className = 'practice-fb no';
-          if (window.KAMPAI && KAMPAI.sound) try { KAMPAI.sound.wrong(); } catch (e) {}
+          state.quizStreak = 0;
+          elQuizFeedback.textContent = '❌ ลองฟังอีกครั้ง คำที่ถูกต้องคือ: ' + correct.en;
+          elQuizFeedback.className = 'quiz-feedback no';
+          if (window.KAMPAI && KAMPAI.sound && typeof KAMPAI.sound.wrong === 'function') {
+            try { KAMPAI.sound.wrong(); } catch (e) {}
+          }
         }
-        document.getElementById('streakLabel').textContent = 'ถูกติดกัน: ' + streak;
-        speakWord(correct.en);
+        elQuizStreakTag.textContent = '⭐ ตอบถูกต่อเนื่อง: ' + state.quizStreak + ' ข้อ';
+        elBtnQuizNext.style.display = 'inline-flex';
+        speak(correct.en);
       }
 
-      function setMode(m) {
-        mode = m;
-        shell.classList.toggle('mode-practice', m === 'practice');
-        document.querySelectorAll('#modeSeg button').forEach(function (b) {
-          b.classList.toggle('on', b.dataset.mode === m);
+      // Switch Modes
+      function switchMode(newMode) {
+        stopAutoRead();
+        stopSpeech();
+        state.activeMode = newMode;
+
+        document.querySelectorAll('.seg-btn').forEach(function (b) {
+          var isCurrent = b.getAttribute('data-mode') === newMode;
+          b.classList.toggle('on', isCurrent);
+          b.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
         });
-        if (m === 'practice') {
-          hintText.textContent = 'ฟังเสียงแบบ “a as in apple” แล้วเลือกคำที่ขึ้นต้นด้วยเสียงนั้น';
-          // โหมดฝึกใช้ A–Z เป็นหลัก (ชัดสำหรับป.ต้น)
-          tab = 'letters';
-          nextPractice();
+
+        elStudioView.style.display = newMode === 'learn' ? 'flex' : 'none';
+        elGalleryView.style.display = newMode === 'gallery' ? 'flex' : 'none';
+        elPracticeView.style.display = newMode === 'practice' ? 'flex' : 'none';
+
+        updateCurrentView();
+      }
+
+      function updateCurrentView() {
+        if (state.activeMode === 'learn') {
+          renderStudioCard();
+        } else if (state.activeMode === 'gallery') {
+          renderGalleryView();
+        } else if (state.activeMode === 'practice') {
+          nextQuizQuestion();
+        }
+      }
+
+      // Auto-Read Playlist Loop
+      function stopAutoRead() {
+        state.isAutoPlaying = false;
+        if (state.autoPlayTimer) {
+          clearTimeout(state.autoPlayTimer);
+          state.autoPlayTimer = null;
+        }
+        elBtnAutoRead.innerHTML = '▶️ อ่านอัตโนมัติ';
+        elBtnAutoRead.classList.remove('playing');
+      }
+
+      function toggleAutoRead() {
+        if (state.isAutoPlaying) {
+          stopAutoRead();
+          stopSpeech();
         } else {
-          hintText.textContent = 'แตะตัวอักษร → ฟังแบบ “a as in apple” + คำตัวอย่าง';
+          state.isAutoPlaying = true;
+          elBtnAutoRead.innerHTML = '⏸️ หยุดอ่าน';
+          elBtnAutoRead.classList.add('playing');
+          runAutoReadStep();
         }
       }
 
-      document.getElementById('modeSeg').addEventListener('click', function (e) {
-        var btn = e.target.closest('button[data-mode]');
-        if (btn) setMode(btn.dataset.mode);
-      });
+      function runAutoReadStep() {
+        if (!state.isAutoPlaying) return;
+        var group = GROUPS[state.curGroupIdx];
+        var word = group.words[state.curWordIdx];
+        renderStudioCard();
 
-      document.getElementById('tabSeg').addEventListener('click', function (e) {
-        var btn = e.target.closest('button[data-tab]');
-        if (!btn) return;
-        tab = btn.dataset.tab;
-        document.querySelectorAll('#tabSeg button').forEach(function (b) {
-          b.classList.toggle('on', b === btn);
+        speakWord(word, function () {
+          if (!state.isAutoPlaying) return;
+          state.autoPlayTimer = setTimeout(function () {
+            if (!state.isAutoPlaying) return;
+            state.curWordIdx = (state.curWordIdx + 1) % group.words.length;
+            runAutoReadStep();
+          }, 2400); // 2.4s pause for repetition
         });
-        selected = null;
-        detailCard.classList.remove('show');
-        detailEmpty.style.display = 'block';
-        renderGrid();
-      });
+      }
 
-      document.getElementById('btnSound').addEventListener('click', function () {
-        if (selected) speakSound(selected);
-      });
-      document.getElementById('btnAllWords').addEventListener('click', function () {
-        if (!selected) return;
-        var i = 0;
-        function next() {
-          if (i >= selected.words.length) return;
-          speakWord(selected.words[i].en);
-          i++;
-          setTimeout(next, 1300);
+      // Event Listeners
+      document.getElementById('btnBack').addEventListener('click', function () {
+        stopSpeech();
+        if (window.KAMPAI && typeof KAMPAI.goHome === 'function') {
+          KAMPAI.goHome();
+        } else {
+          window.location.href = '/play/vocab-hub';
         }
-        // เล่น cue ก่อน แล้วค่อยคำ
-        speakSound(selected);
-        setTimeout(next, 1600);
-      });
-      document.getElementById('btnPracticeSound').addEventListener('click', function () {
-        if (practiceItem) speakSound(practiceItem);
-      });
-      document.getElementById('btnPracticeNext').addEventListener('click', nextPractice);
-      document.getElementById('btnFs').addEventListener('click', function () {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () {});
-        else if (document.exitFullscreen) document.exitFullscreen();
       });
 
-      renderGrid();
+      document.getElementById('btnFs').addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+
+      // Segmented Tabs
+      document.getElementById('tabModeLearn').addEventListener('click', function () { switchMode('learn'); });
+      document.getElementById('tabModeGallery').addEventListener('click', function () { switchMode('gallery'); });
+      document.getElementById('tabModePractice').addEventListener('click', function () { switchMode('practice'); });
+
+      // Voice Selection & Controls
+      elSelectVoice.addEventListener('change', function () {
+        state.voiceOption = this.value;
+      });
+      elSelectReadMode.addEventListener('change', function () {
+        state.readMode = this.value;
+      });
+      elBtnSpeedSlow.addEventListener('click', function () {
+        state.speechRate = 0.75;
+        elBtnSpeedSlow.classList.add('on');
+        elBtnSpeedNormal.classList.remove('on');
+      });
+      elBtnSpeedNormal.addEventListener('click', function () {
+        state.speechRate = 1.0;
+        elBtnSpeedNormal.classList.add('on');
+        elBtnSpeedSlow.classList.remove('on');
+      });
+
+      // Studio Controls
+      document.getElementById('btnSpeakWord').addEventListener('click', function () {
+        var word = GROUPS[state.curGroupIdx].words[state.curWordIdx];
+        speak(word.en);
+      });
+      document.getElementById('btnSpeakBlend').addEventListener('click', function () {
+        var word = GROUPS[state.curGroupIdx].words[state.curWordIdx];
+        speakPhonicsBlend(word);
+      });
+      elBtnAutoRead.addEventListener('click', toggleAutoRead);
+
+      document.getElementById('btnPrevWord').addEventListener('click', function () {
+        stopAutoRead();
+        var words = GROUPS[state.curGroupIdx].words;
+        state.curWordIdx = (state.curWordIdx - 1 + words.length) % words.length;
+        renderStudioCard();
+        speakWord(words[state.curWordIdx]);
+      });
+
+      document.getElementById('btnNextWord').addEventListener('click', function () {
+        stopAutoRead();
+        var words = GROUPS[state.curGroupIdx].words;
+        state.curWordIdx = (state.curWordIdx + 1) % words.length;
+        renderStudioCard();
+        speakWord(words[state.curWordIdx]);
+      });
+
+      document.getElementById('btnRandomWord').addEventListener('click', function () {
+        stopAutoRead();
+        var words = GROUPS[state.curGroupIdx].words;
+        state.curWordIdx = Math.floor(Math.random() * words.length);
+        renderStudioCard();
+        speakWord(words[state.curWordIdx]);
+      });
+
+      document.getElementById('btnGalleryReadGroup').addEventListener('click', function () {
+        var group = GROUPS[state.curGroupIdx];
+        var i = 0;
+        function readNext() {
+          if (i >= group.words.length) return;
+          var w = group.words[i++];
+          speak(w.en, null, state.speechRate, function () {
+            setTimeout(readNext, 900);
+          });
+        }
+        readNext();
+      });
+
+      // Quiz Controls
+      document.getElementById('btnQuizPlaySound').addEventListener('click', function () {
+        if (state.quizItem) speak(state.quizItem.en);
+      });
+      elBtnQuizNext.addEventListener('click', nextQuizQuestion);
+
+      // QA Hook for automated verification
+      window.__getState = function () {
+        return {
+          slug: MEDIA_SLUG,
+          group: GROUPS[state.curGroupIdx].id,
+          totalGroups: GROUPS.length,
+          totalWordsInGroup: GROUPS[state.curGroupIdx].words.length,
+          curWord: GROUPS[state.curGroupIdx].words[state.curWordIdx].en,
+          mode: state.activeMode
+        };
+      };
+
+      // Initialization
+      renderUnitTabs();
+      switchMode('learn');
     })();
   </script>
 </body>
