@@ -290,6 +290,33 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.77 (ภาษาอังกฤษ — ยกระดับ English Tenses Learning Studio ป.4–ป.6 4 กาลหลัก, ไทม์ไลน์ภาพประกอบ, โหมดต่อประโยค, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด English Tenses Learning Studio (public/games/english/english-tenses-p6-media.html) จากโครงเดิมสู่สตูดิโอเต็มรูปแบบ ครอบคลุม 3 ระดับชั้น (ป.4, ป.5, ป.6) และ 4 กาลหลัก (Present Simple, Present Continuous, Past Simple, Future Simple)',
+            'หลักสูตร 3 ระดับขั้น (3-tier curriculum progression): ป.4 (กาลปัจจุบัน 2 กาล), ป.5 (อดีตและอนาคต), ป.6 (เปรียบเทียบ 4 กาลขนานและการแปลงประโยคบอกเล่า/ปฏิเสธ/คำถาม)',
+            'ติดตั้ง Visual Time Machine & Interactive Timeline แสดงตำแหน่งของกาลและการกระทำต่อเนื่อง พร้อมภาพประกอบการศึกษา WebP แท้คมชัด 12 กริยาแอ็กชันและบริบทสถานการณ์ ไร้ Emoji',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Tense Studio เจาะลึกโครงสร้าง 2. Comparison Matrix เปรียบเทียบ 4 กาลขนาน 3. Practice Quiz ทายกาลและเติมคำ 4. Tense Sentence Builder ต่อบล็อกประโยค',
+            'ระบบสังเคราะห์เสียง Web Speech API เลือกได้ 3 สำเนียง (US Female, US Male, UK British) ปรับความเร็ว 0.75x/1.0x พร้อมฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม) นับถอยหลัง 3 วินาทีแบบแอนิเมชัน Pulse',
+            'เพิ่มคีย์ลัดสำหรับครูผู้สอนบน Smartboard (Spacebar = เล่นเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนการ์ด, 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/english-tenses-p6-worksheet.html) เพิ่มตัวเลือกชั้น ป.4, ป.5, ป.6 และ รวม ป.4–ป.6 ขยายคลังโจทย์ 48 ข้อ พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครูแบบ Zero-shift',
+            'รัน Migration 526 อัปเดตข้อมูล educational_hub_items และ game_docs ขยายระดับชั้นเป็น ป.4–ป.6 พร้อมเชื่อมโยงตัวชี้วัด ต 1.1, ต 1.2, ต 2.2 บน Supabase',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-tenses-p6.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.76 (Vocabulary Hub — ภาพ 3D ใหญ่ กริด 3 ขนาด และผู้ดูแลจัดลำดับกลาง)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'หน้าเลือกคำศัพท์พื้นสว่างทอง–กรมท่า พร้อมภาพปก 3D จำนวน 30 ภาพสำหรับ 29 หมวดและรายการโปรด',
+            'เลือกกริดภาพใหญ่ มาตรฐาน หรือกะทัดรัด จำวิวเฉพาะเบราว์เซอร์และปรับตามขนาดหน้าจอ',
+            'ผู้ดูแลลากเรียงหมวดหมู่ด้วยเมาส์ สัมผัส หรือปุ่มคีย์บอร์ด พร้อมบันทึก ยกเลิก และคืนลำดับเดิม',
+            'บันทึกลำดับกลางผ่าน service/wrapper ลง school_settings และตรวจสิทธิ์ด้วย RLS; คงระบบฝึกและแข่งขันเดิม',
+        ],
+    },
+    {
         version: 'v1.229.75 (ภาษาอังกฤษ — ยกระดับ Phonics Reading Studio 10 หมวดเสียง 116 คำ, โหมดต่อบล็อกเสียง Phonics Builder, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
         date: '16 ก.ย. 2569',
         badge: 'bg-emerald-600',

@@ -1,82 +1,2432 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Tenses ป.6 — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>English Tenses Learning Studio (ป.4–ป.6) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#0369a1;--line:#bae6fd;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#bae6fd,#0369a122);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#0369a1);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.45rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .ex{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px dashed var(--line);font-size:1rem}
+    :root {
+      --deep: #0369a1;
+      --deep-dark: #075985;
+      --navy: #0f172a;
+      --navy-card: #1e293b;
+      --line: #bae6fd;
+      --border: #cbd5e1;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --gold-dark: #b45309;
+      --emerald: #059669;
+      --emerald-light: #d1fae5;
+      --indigo: #4f46e5;
+      --indigo-light: #e0e7ff;
+      --sky: #0284c7;
+      --sky-light: #e0f2fe;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(150deg, #e0f2fe 0%, #f0f9ff 50%, #e0e7ff 100%);
+      min-height: 100vh;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
+      color: #ffffff;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.18);
+      color: #e0f2fe;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      white-space: nowrap;
+    }
+
+    /* BUTTONS & CONTROLS */
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .btn-primary {
+      background: var(--deep);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--deep-dark);
+    }
+    .btn-ghost {
+      background: #ffffff;
+      color: var(--deep);
+      border: 2px solid var(--line);
+    }
+    .btn-ghost:hover {
+      background: #f0f9ff;
+      border-color: var(--deep);
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #ffffff;
+      border: 2px solid #fde047;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .btn-gold:hover {
+      background: var(--gold-dark);
+    }
+    .voice-select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 10px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+    .voice-select option {
+      color: #0f172a;
+      background: #ffffff;
+    }
+
+    /* TOOLBAR & LEVEL SELECTOR */
+    .toolbar-container {
+      background: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .seg-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 14px;
+      gap: 3px;
+    }
+    .seg-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      min-height: 44px;
+      border-radius: 11px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+    .seg-btn:hover {
+      color: var(--navy);
+    }
+    .seg-btn.active {
+      background: #ffffff;
+      color: var(--deep);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+    }
+    .level-seg .seg-btn.active {
+      background: #0f172a;
+      color: #fef08a;
+    }
+
+    /* TIMELINE CONTAINER */
+    .timeline-wrapper {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+    .timeline-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timeline-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      background: #f1f5f9;
+      border-radius: 16px;
+      padding: 0 12px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+    }
+    .timeline-zone {
+      flex: 1;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 8px 4px;
+      border-radius: 12px;
+      transition: all 0.25s ease;
+      position: relative;
+      z-index: 2;
+    }
+    .zone-past {
+      color: #4338ca;
+    }
+    .zone-present {
+      color: #b45309;
+      border-left: 2px dashed #cbd5e1;
+      border-right: 2px dashed #cbd5e1;
+    }
+    .zone-future {
+      color: #047857;
+    }
+    .timeline-zone.active {
+      transform: scale(1.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .zone-past.active {
+      background: #e0e7ff;
+      border: 2px solid #6366f1;
+    }
+    .zone-present.active {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+    }
+    .zone-future.active {
+      background: #d1fae5;
+      border: 2px solid #10b981;
+    }
+    .timeline-indicator-line {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      right: 20px;
+      height: 4px;
+      background: #cbd5e1;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+
+    /* MAIN STAGE */
+    .stage {
+      flex: 1;
+      padding: 18px;
+      background: #f8fafc;
+    }
+    .mode-section {
+      display: none;
+    }
+    .mode-section.active {
+      display: block;
+    }
+
+    /* MODE 1: STUDIO */
+    .studio-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .studio-pill-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      color: var(--deep);
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .studio-pill-btn:hover {
+      border-color: var(--deep);
+      background: #f0f9ff;
+    }
+    .studio-pill-btn.active {
+      background: var(--deep);
+      color: #ffffff;
+      border-color: var(--deep);
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.25);
+    }
+
+    .studio-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .studio-card {
+        grid-template-columns: 1fr;
+      }
+    }
+    .studio-img-box {
+      background: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .studio-img {
+      width: 100%;
+      max-width: 220px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 12px;
+      transition: transform 0.2s ease;
+    }
+    .studio-img:hover {
+      transform: scale(1.05);
+    }
+    .formula-tag {
+      display: inline-block;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #f59e0b;
+      letter-spacing: 0.3px;
+    }
+    .studio-content h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .studio-usage {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .signals-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+    .signals-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .signal-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .signal-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid #7dd3fc;
+    }
+
+    /* Variations Tab */
+    .variations-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .variation-item {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .var-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .var-aff { background: #dcfce7; color: #166534; }
+    .var-neg { background: #fee2e2; color: #991b1b; }
+    .var-que { background: #e0e7ff; color: #3730a3; }
+    .var-text {
+      flex: 1;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .var-th {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    /* Audio Actions Bar */
+    .audio-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 2px solid #f1f5f9;
+    }
+    .echo-box {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    @keyframes echoPulse {
+      0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+      100% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .echo-countdown {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      color: #92400e;
+      font-weight: 800;
+      font-size: 1.05rem;
+      animation: echoPulse 1s infinite;
+    }
+
+    /* MODE 2: MATRIX */
+    .matrix-verb-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .verb-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 8px 14px;
+      min-height: 44px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      color: #0f172a;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .verb-btn img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    .verb-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 768px) {
+      .matrix-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .matrix-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      border: 2px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      transition: transform 0.2s ease;
+    }
+    .matrix-card:hover {
+      transform: translateY(-2px);
+    }
+    .matrix-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .matrix-tense-pill {
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .card-pres-sim { border-top: 5px solid #16a34a; }
+    .card-pres-sim .matrix-tense-pill { background: #dcfce7; color: #166534; }
+    .card-pres-cont { border-top: 5px solid #d97706; }
+    .card-pres-cont .matrix-tense-pill { background: #fef3c7; color: #92400e; }
+    .card-past-sim { border-top: 5px solid #4f46e5; }
+    .card-past-sim .matrix-tense-pill { background: #e0e7ff; color: #3730a3; }
+    .card-fut-sim { border-top: 5px solid #0284c7; }
+    .card-fut-sim .matrix-tense-pill { background: #e0f2fe; color: #0369a1; }
+
+    .matrix-en {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.4;
+    }
+    .matrix-th {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .matrix-rule {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border-left: 3px solid #cbd5e1;
+    }
+
+    /* MODE 3: PRACTICE QUIZ */
+    .quiz-container {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    }
+    .quiz-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+    .quiz-streak {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ea580c;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .quiz-prompt-box {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .quiz-img {
+      max-height: 140px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      margin-bottom: 10px;
+      border-radius: 12px;
+    }
+    .quiz-q-text {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .quiz-hint {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--deep);
+      background: #f0f9ff;
+      padding: 6px 12px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .quiz-choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      .quiz-choices {
+        grid-template-columns: 1fr;
+      }
+    }
+    .choice-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 12px 16px;
+      min-height: 52px;
+      border-radius: 14px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .choice-btn:hover {
+      border-color: var(--deep);
+      background: #f8fafc;
+    }
+    .choice-btn.correct {
+      background: #dcfce7 !important;
+      border-color: #22c55e !important;
+      color: #15803d !important;
+    }
+    .choice-btn.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #b91c1c !important;
+    }
+    .quiz-feedback {
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.6;
+      display: none;
+    }
+    .quiz-feedback.show-ok {
+      display: block;
+      background: #dcfce7;
+      border: 2px solid #86efac;
+      color: #14532d;
+    }
+    .quiz-feedback.show-no {
+      display: block;
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #7f1d1d;
+    }
+
+    /* MODE 4: SENTENCE BUILDER */
+    .builder-container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    }
+    .builder-prompt {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+    }
+    .builder-img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 4px;
+      border: 1px solid #cbd5e1;
+    }
+    .builder-prompt-text h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .builder-prompt-text p {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .slots-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 60px;
+      padding: 12px;
+      background: #f1f5f9;
+      border: 2px dashed #94a3b8;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .slot-placeholder {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #64748b;
+      margin: 0 auto;
+    }
+
+    .bank-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .word-tile {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 8px 16px;
+      min-height: 48px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .word-tile:active {
+      transform: scale(0.95);
+    }
+    .tile-subj {
+      background: #e0f2fe;
+      border: 2px solid #38bdf8;
+      color: #0369a1;
+    }
+    .tile-verb {
+      background: #d1fae5;
+      border: 2px solid #34d399;
+      color: #065f46;
+    }
+    .tile-obj {
+      background: #fef3c7;
+      border: 2px solid #facc15;
+      color: #854d0e;
+    }
+    .tile-time {
+      background: #ede9fe;
+      border: 2px solid #a78bfa;
+      color: #5b21b6;
+    }
+
+    .builder-feedback {
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: none;
+    }
+    .builder-feedback.ok {
+      display: block;
+      background: #dcfce7;
+      border: 2px solid #4ade80;
+      color: #14532d;
+    }
+    .builder-feedback.no {
+      display: block;
+      background: #fee2e2;
+      border: 2px solid #f87171;
+      color: #991b1b;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 14px 18px;
+      background: #ffffff;
+      border-top: 2px solid #e2e8f0;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .footer-shortcuts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .kbd-tag {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-family: monospace;
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.8rem;
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
+  <!-- HEADER -->
   <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
-    <h1>⏱️ Tenses รวม ป.6</h1>
-    <span class="badge">ป.6 · English</span>
+    <div class="header-left">
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()" aria-label="กลับคลังสื่อ">
+        ← กลับคลังสื่อ
+      </button>
+      <h1>⏱️ English Tenses Studio</h1>
+      <span class="badge-grade">ป.4–ป.6 · Grammar</span>
+    </div>
+    <div class="header-right">
+      <select id="selVoice" class="voice-select" aria-label="เลือกสำเนียงเสียง">
+        <option value="us-female">🇺🇸 US (หญิง)</option>
+        <option value="us-male">🇺🇸 US (ชาย)</option>
+        <option value="uk">🇬🇧 UK (อังกฤษ)</option>
+      </select>
+      <button type="button" id="btnSpeed" class="btn btn-back" aria-label="ความเร็วเสียง">
+        🚶 1.0x
+      </button>
+      <button type="button" class="btn btn-back" id="btnFs" aria-label="เต็มจอ">
+        ⛶ เต็มจอ
+      </button>
+      <a class="btn btn-gold" href="/games/english/english-tenses-p6-worksheet.html" target="_blank" rel="noopener">
+        📝 เปิดใบงาน A4
+      </a>
+    </div>
   </header>
-  <div class="toolbar">
-    <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
-    </span>
-    <p class="hint" id="hintText">สื่อ ป.6 — ไม่เก็บคะแนน</p>
-    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
-    <a class="btn btn-ghost" href="/games/english/english-tenses-p6-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+
+  <!-- TOOLBAR & LEVEL SELECTOR -->
+  <div class="toolbar-container">
+    <div class="toolbar-row">
+      <!-- 4 LEARNING MODES -->
+      <div class="seg-group" id="modeSeg">
+        <button type="button" class="seg-btn active" data-mode="studio">
+          📖 ไทม์ไลน์กาล (Studio)
+        </button>
+        <button type="button" class="seg-btn" data-mode="matrix">
+          📊 เปรียบเทียบ 4 กาล (Matrix)
+        </button>
+        <button type="button" class="seg-btn" data-mode="quiz">
+          ✏️ แบบทดสอบ (Quiz)
+        </button>
+        <button type="button" class="seg-btn" data-mode="builder">
+          🧩 ต่อประโยค (Builder)
+        </button>
+      </div>
+
+      <!-- 3-TIER GRADE LEVEL FILTER -->
+      <div class="seg-group level-seg" id="levelSeg">
+        <button type="button" class="seg-btn active" data-level="all">
+          ทั้งหมด (ป.4–ป.6)
+        </button>
+        <button type="button" class="seg-btn" data-level="p4">
+          ป.4 (พื้นฐาน)
+        </button>
+        <button type="button" class="seg-btn" data-level="p5">
+          ป.5 (ปานกลาง)
+        </button>
+        <button type="button" class="seg-btn" data-level="p6">
+          ป.6 (ท้าทาย)
+        </button>
+      </div>
+    </div>
+
+    <!-- DYNAMIC VISUAL TIMELINE / TIME MACHINE -->
+    <div class="timeline-wrapper">
+      <div class="timeline-title">
+        <span>⏳ Visual Time Machine / ไทม์ไลน์ภาพเสมือน</span>
+        <span id="timelineStatusText" style="margin-left:auto;color:var(--deep);font-weight:700">กำลังศึกษา: Present Simple</span>
+      </div>
+      <div class="timeline-bar">
+        <div class="timeline-indicator-line"></div>
+        <div class="timeline-zone zone-past" id="zonePast">
+          <div>⏮️ PAST (อดีต)</div>
+          <div style="font-size:0.75rem;font-weight:600">จบสมบูรณ์แล้ว [✓]</div>
+        </div>
+        <div class="timeline-zone zone-present active" id="zonePresent">
+          <div>📍 PRESENT (ปัจจุบัน)</div>
+          <div id="zonePresentSub" style="font-size:0.75rem;font-weight:600">กิจวัตรสม่ำเสมอ 🔄</div>
+        </div>
+        <div class="timeline-zone zone-future" id="zoneFuture">
+          <div>⏭️ FUTURE (อนาคต)</div>
+          <div style="font-size:0.75rem;font-weight:600">กำลังจะเกิดขึ้น ➔</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.6 · Phase 13 · ไม่เก็บคะแนน</div>
+
+  <!-- MAIN STAGE -->
+  <main class="stage" id="mainStage">
+
+    <!-- MODE 1: TENSE STUDIO & TIMELINE -->
+    <section class="mode-section active" id="secStudio">
+      <div class="studio-pills" id="studioPills"></div>
+      <div class="studio-card" id="studioCard"></div>
+    </section>
+
+    <!-- MODE 2: TENSE COMPARISON MATRIX -->
+    <section class="mode-section" id="secMatrix">
+      <div style="margin-bottom:12px">
+        <span style="font-weight:800;font-size:1.1rem;color:#0f172a">เลือกคำกริยาเพื่อเปรียบเทียบ 4 กาลขนานกัน:</span>
+      </div>
+      <div class="matrix-verb-bar" id="matrixVerbBar"></div>
+      <div class="matrix-grid" id="matrixGrid"></div>
+    </section>
+
+    <!-- MODE 3: PRACTICE QUIZ -->
+    <section class="mode-section" id="secQuiz">
+      <div class="quiz-container">
+        <div class="quiz-meta">
+          <span style="font-weight:800;color:var(--deep)" id="quizCounter">ข้อที่ 1/12</span>
+          <span class="quiz-streak" id="quizStreak">🔥 ต่อเนื่อง: 0 ข้อ</span>
+        </div>
+        <div class="quiz-prompt-box">
+          <img src="/games/english/vocab-hub-assets/verbs/cook.webp" alt="Prompt" class="quiz-img" id="quizImg"/>
+          <div class="quiz-q-text" id="quizPrompt">คำถามกำลังโหลด...</div>
+          <div class="quiz-hint" id="quizHint">คำใบ้</div>
+        </div>
+        <div class="quiz-choices" id="quizChoices"></div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <button type="button" class="btn btn-ghost" id="btnQuizSpeak">🔊 ฟังคำถาม (Space)</button>
+          <button type="button" class="btn btn-primary" id="btnQuizNext">ข้อถัดไป →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODE 4: TENSE SENTENCE BUILDER -->
+    <section class="mode-section" id="secBuilder">
+      <div class="builder-container">
+        <div class="builder-prompt">
+          <img src="/games/english/vocab-hub-assets/verbs/cook.webp" alt="Challenge" class="builder-img" id="builderImg"/>
+          <div class="builder-prompt-text">
+            <span class="formula-tag" id="builderTenseTag" style="margin-bottom:6px">Present Simple</span>
+            <h3 id="builderThPrompt">เธอทำอาหารอร่อยทุกวัน</h3>
+            <p>แตะคำศัพท์ด้านล่างเพื่อเรียงเป็นประโยคที่ถูกต้องตามหลักไวยากรณ์</p>
+          </div>
+        </div>
+
+        <div style="font-weight:800;font-size:0.95rem;color:var(--muted);margin-bottom:6px">
+          ช่องประโยค (Sentence Slots):
+        </div>
+        <div class="slots-container" id="builderSlots"></div>
+
+        <div style="font-weight:800;font-size:0.95rem;color:var(--muted);margin-bottom:8px">
+          คลังคำศัพท์ (แตะเพื่อวาง):
+        </div>
+        <div class="bank-container" id="builderBank"></div>
+
+        <div class="builder-feedback" id="builderFeedback"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <button type="button" class="btn btn-ghost" id="btnBuilderReset">🔄 เริ่มจัดใหม่</button>
+          <button type="button" class="btn btn-primary" id="btnBuilderNext">โจทย์ถัดไป →</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>โรงเรียนบ้านคำไผ่ · English Tenses Learning Studio · ป.4–ป.6 · ไม่เก็บคะแนนแข่งขัน</div>
+    <div class="footer-shortcuts">
+      <span>⌨️ ทางลัด:</span>
+      <span class="kbd-tag">Space</span> ฟังเสียง
+      <span class="kbd-tag">1-4</span> โหมด
+      <span class="kbd-tag">← / →</span> เลื่อนการ์ด
+      <span class="kbd-tag">M</span> พูดตาม
+      <span class="kbd-tag">F</span> เต็มจอ
+    </div>
+  </footer>
 </div>
+
 <script>
-const MEDIA_SLUG='english-tenses-p6-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"1️⃣","name":"Present Simple","body":"Habit / fact: I play football. She plays football.","tip":"He/She/It → verb+s","ex":"The sun rises in the east.","q":"She ___ football every day. (play)","a":"plays"},{"emoji":"2️⃣","name":"Present Continuous","body":"Now: I am reading. They are playing.","tip":"be + V-ing","ex":"Look! It is raining.","q":"I ___ reading now. (am/is/are)","a":"am"},{"emoji":"3️⃣","name":"Past Simple","body":"Finished past: I played yesterday. She went home.","tip":"regular +ed / irregular forms","ex":"go → went, eat → ate","q":"Yesterday I ___ to school. (go)","a":"went"},{"emoji":"4️⃣","name":"Future (will)","body":"Will + V1: I will help you. It will rain.","tip":"decisions / predictions","ex":"I think it will be sunny.","q":"I ___ help you. (will)","a":"will"},{"emoji":"🔀","name":"เลือกกาลให้ถูก","body":"ดูคำบอกเวลา: every day / now / yesterday / tomorrow","tip":"time words = tense clues","ex":"now → continuous · yesterday → past","q":"คำว่า yesterday มักใช้กับกาลใด?","a":"Past Simple"},{"emoji":"✍️","name":"เขียนสั้น ๆ","body":"พูด/เขียนเกี่ยวกับตนเอง ครอบครัว กิจกรรมใกล้ตัวด้วยกาลที่ถูก","tip":"เริ่มจากประโยคสั้น 1 ประโยคต่อกาล","ex":"I study English every day.","q":"Present Simple ใช้กับสถานการณ์ใด?","a":"นิสัย/ข้อเท็จจริง"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · อ่านให้เข้าใจ':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.ex?'<div class="ex">'+cur.ex+'</div>':'');
+// ==========================================
+// 1. DATA & PEDAGOGICAL CONTENT
+// ==========================================
+const MEDIA_SLUG = 'english-tenses-p6-media';
+if (window.KAMPAI) {
+  KAMPAI.setSlug(MEDIA_SLUG);
+  if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
 }
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
+
+// 6 Core Studio Cards
+const STUDIO_CARDS = [
+  {
+    id: 'present-simple',
+    grade: 'p4',
+    name: '1. Present Simple',
+    thaiName: 'กาลปัจจุบันธรรมดา (กิจวัตร/ข้อเท็จจริง)',
+    formula: 'Subject + Verb 1 (s/es)',
+    img: '/games/english/vocab-hub-assets/verbs/cook.webp',
+    zone: 'present',
+    subText: 'กิจวัตรสม่ำเสมอ / ความจริง 🔄',
+    usage: 'ใช้บอกเหตุการณ์ที่เป็นกิจวัตรประจำวัน นิสัย หรือข้อเท็จจริงทางธรรมชาติที่เกิดขึ้นเป็นประจำ',
+    rule: '💡 ประธานเอกพจน์ (He, She, It, A cat) กริยาต้องเติม -s หรือ -es | ประธานพหูพจน์ (I, You, We, They) กริยาคงรูปเดิม',
+    signals: ['every day', 'always', 'usually', 'often', 'sometimes', 'on Sundays'],
+    affirmative: { en: 'She cooks delicious food every day.', th: 'เธอทำอาหารอร่อยทุกวัน' },
+    negative: { en: 'She does not cook dinner on Mondays.', th: 'เธอไม่ได้ทำอาหารเย็นในวันจันทร์' },
+    question: { en: 'Does she cook dinner every evening?', th: 'เธอทำอาหารเย็นทุกเย็นใช่ไหม?' }
+  },
+  {
+    id: 'present-continuous',
+    grade: 'p4',
+    name: '2. Present Continuous',
+    thaiName: 'กาลปัจจุบันกำลังกระทำ',
+    formula: 'Subject + is / am / are + V-ing',
+    img: '/games/english/vocab-hub-assets/verbs/read.webp',
+    zone: 'present',
+    subText: 'กำลังดำเนินอยู่ขณะนี้ ▶️',
+    usage: 'ใช้บอกเหตุการณ์ที่กำลังดำเนินอยู่ในขณะที่พูด หรือการกระทำชั่วคราวที่มีคำเตือนให้สังเกต',
+    rule: '💡 เลือกใช้ Verb to be ให้ตรงกับประธาน: I am / He, She, It is / You, We, They are + กริยาเติม -ing',
+    signals: ['now', 'right now', 'at the moment', 'Look!', 'Listen!', 'Shh!'],
+    affirmative: { en: 'He is reading an interesting book now.', th: 'เขากำลังอ่านหนังสือที่น่าสนใจอยู่ตอนนี้' },
+    negative: { en: 'He is not reading a comic book.', th: 'เขาไม่ได้กำลังอ่านหนังสือการ์ตูน' },
+    question: { en: 'Is he reading an interesting book now?', th: 'เขากำลังอ่านหนังสือที่น่าสนใจอยู่ตอนนี้ใช่ไหม?' }
+  },
+  {
+    id: 'past-simple',
+    grade: 'p5',
+    name: '3. Past Simple',
+    thaiName: 'กาลอดีตธรรมดา (จบแล้วในอดีต)',
+    formula: 'Subject + Verb 2 (ed / irregular)',
+    img: '/games/english/vocab-hub-assets/verbs/eat.webp',
+    zone: 'past',
+    subText: 'จบสิ้นสมบูรณ์แล้วในอดีต [✓]',
+    usage: 'ใช้บอกเหตุการณ์ที่เกิดขึ้นและจบสมบูรณ์ลงแล้วในอดีต มีจุดเวลาระบุชัดเจน',
+    rule: '💡 กริยาปกติเติม -ed (walked, cooked) | กริยาอปกติเปลี่ยนรูป (go ➔ went, eat ➔ ate, buy ➔ bought)',
+    signals: ['yesterday', 'last night', 'last week', '2 days ago', 'in 2024'],
+    affirmative: { en: 'We ate pizza together last night.', th: 'พวกเรากินพิซซ่าด้วยกันเมื่อคืนนี้' },
+    negative: { en: 'We did not eat fast food yesterday.', th: 'พวกเราไม่ได้กินอาหารฟาสต์ฟู้ดเมื่อวานนี้ (did not + V.1)' },
+    question: { en: 'Did you eat pizza last night?', th: 'เธอได้กินพิซซ่าเมื่อคืนนี้ใช่ไหม? (Did + V.1)' }
+  },
+  {
+    id: 'future-simple',
+    grade: 'p5',
+    name: '4. Future Simple',
+    thaiName: 'กาลอนาคตธรรมดา (การตัดสินใจ/สัญญา)',
+    formula: 'Subject + will + Verb.inf',
+    img: '/games/english/vocab-hub-assets/verbs/swim.webp',
+    zone: 'future',
+    subText: 'จะเกิดขึ้นในอนาคต ➔',
+    usage: 'ใช้บอกเหตุการณ์ที่จะเกิดขึ้นในอนาคต การคาดเดา การตัดสินใจในทันที หรือการสัญญา',
+    rule: '💡 ใช้ will ตามด้วยกริยารูปเดิมเสมอ (V.inf) ไม่เติม -s, -ed หรือ -ing ไม่ว่าประธานจะเป็นใคร',
+    signals: ['tomorrow', 'next week', 'next month', 'soon', 'tonight'],
+    affirmative: { en: 'They will swim in the pool tomorrow.', th: 'พวกเขาจะว่ายน้ำในสระว่ายน้ำพรุ่งนี้' },
+    negative: { en: 'They will not swim in cold weather.', th: 'พวกเขาจะไม่ว่ายน้ำในอากาศหนาว (will not = won\'t)' },
+    question: { en: 'Will they swim in the pool tomorrow?', th: 'พวกเขาจะว่ายน้ำในสระพรุ่งนี้ใช่ไหม?' }
+  },
+  {
+    id: 'time-detective',
+    grade: 'p6',
+    name: '5. Time Detective',
+    thaiName: 'นักสืบคำบอกเวลา 4 กาล',
+    formula: 'Time Word ➔ Tense Clue',
+    img: '/games/english/vocab-hub-assets/verbs/walk.webp',
+    zone: 'present',
+    subText: 'เชื่อมโยงคำบอกเวลากับกริยา 🔍',
+    usage: 'เทคนิคสังเกตคำบอกเวลา (Time Markers) เพื่อเลือกรูปกริยาได้อย่างแม่นยำ 100%',
+    rule: '💡 every/always ➔ V.1 | now/Look! ➔ be + V-ing | yesterday/last ➔ V.2 | tomorrow/next ➔ will + V.inf',
+    signals: ['every day (Pres.Sim)', 'now (Pres.Cont)', 'yesterday (Past.Sim)', 'tomorrow (Fut.Sim)'],
+    affirmative: { en: 'Look! He is walking to school now.', th: 'ดูสิ! เขากำลังเดินไปโรงเรียนตอนนี้ (คำว่า Look/now ชี้กาล)' },
+    negative: { en: 'Yesterday, he did not walk to school.', th: 'เมื่อวานนี้เขาไม่ได้เดินไปโรงเรียน (yesterday ชี้อดีต)' },
+    question: { en: 'Will you walk with me tomorrow?', th: 'เธอจะเดินไปกับฉันในวันพรุ่งนี้ไหม? (tomorrow ชี้อนาคต)' }
+  },
+  {
+    id: 'sentence-transformation',
+    grade: 'p6',
+    name: '6. Transformation',
+    thaiName: 'การแปลงรูปประโยค (บอกเล่า/ปฏิเสธ/คำถาม)',
+    formula: 'Affirmative (+) ➔ Negative (-) ➔ Question (?)',
+    img: '/games/english/vocab-hub-assets/verbs/write.webp',
+    zone: 'present',
+    subText: 'ผันรูปโครงสร้างประโยค 🔄',
+    usage: 'การเปลี่ยนประโยคบอกเล่าเป็นปฏิเสธและคำถาม โดยใช้กริยาช่วย (do/does/did/will/be)',
+    rule: '💡 ปฏิเสธเติม not หลังกริยาช่วย | คำถามย้ายกริยาช่วยมาหน้าประธานเสมอ',
+    signals: ['don\'t / doesn\'t', 'isn\'t / aren\'t', 'didn\'t + V.inf', 'won\'t + V.inf'],
+    affirmative: { en: 'She writes in her diary every day.', th: 'บอกเล่า: เธอเขียนบันทึกไดอารี่ทุกวัน' },
+    negative: { en: 'She does not write in class.', th: 'ปฏิเสธ: เธอไม่ได้เขียนในชั้นเรียน (does not + V.1)' },
+    question: { en: 'Does she write in her diary every day?', th: 'คำถาม: เธอเขียนไดอารี่ทุกวันใช่ไหม?' }
+  }
+];
+
+// 8 Verbs for Mode 2 (Comparison Matrix)
+const MATRIX_VERBS = [
+  {
+    id: 'cook', name: 'cook (ทำอาหาร)', img: '/games/english/vocab-hub-assets/verbs/cook.webp',
+    presSim: { en: 'My mother cooks dinner every day.', th: 'แม่ของฉันทำอาหารเย็นทุกวัน (กิจวัตร)', rule: 'กริยา cook เติม -s เพราะประธานคือ My mother' },
+    presCont: { en: 'My mother is cooking soup right now.', th: 'แม่ของฉันกำลังต้มซุปอยู่ตอนนี้ (กำลังทำ)', rule: 'ใช้ is + V-ing เพราะประธานเป็นเอกพจน์' },
+    pastSim: { en: 'My mother cooked pasta yesterday.', th: 'แม่ของฉันทำพาสต้าเมื่อวานนี้ (ทำจบแล้ว)', rule: 'cook เติม -ed เป็นรูปอดีตช่อง 2' },
+    futSim: { en: 'My mother will cook breakfast tomorrow.', th: 'แม่ของฉันจะทำอาหารเช้าพรุ่งนี้ (จะทำ)', rule: 'ใช้ will + V.inf (cook ไม่ผัน)' }
+  },
+  {
+    id: 'eat', name: 'eat (รับประทาน)', img: '/games/english/vocab-hub-assets/verbs/eat.webp',
+    presSim: { en: 'I eat fruit every morning.', th: 'ฉันกินผลไม้ทุกเช้า (นิสัย)', rule: 'ประธาน I ใช้กริยาช่อง 1 รูปเดิม eat' },
+    presCont: { en: 'I am eating a sandwich now.', th: 'ฉันกำลังกินแซนด์วิชอยู่ตอนนี้ (กำลังทำ)', rule: 'ใช้ am + eating คู่กับประธาน I' },
+    pastSim: { en: 'I ate pizza last night.', th: 'ฉันกินพิซซ่าเมื่อคืนนี้ (อดีตจบแล้ว)', rule: 'eat เป็นกริยาเปลี่ยนรูป ช่อง 2 คือ ate' },
+    futSim: { en: 'I will eat dinner with my family.', th: 'ฉันจะกินมื้อเย็นกับครอบครัว (อนาคต)', rule: 'will + eat แสดงความตั้งใจในอนาคต' }
+  },
+  {
+    id: 'read', name: 'read (อ่าน)', img: '/games/english/vocab-hub-assets/verbs/read.webp',
+    presSim: { en: 'He reads books every week.', th: 'เขาอ่านหนังสือทุกสัปดาห์ (สม่ำเสมอ)', rule: 'ประธาน He กริยา read เติม -s เป็น reads' },
+    presCont: { en: 'He is reading a story right now.', th: 'เขากำลังอ่านนิทานอยู่ตอนนี้ (กำลังอ่าน)', rule: 'is + reading' },
+    pastSim: { en: 'He read a comic book yesterday.', th: 'เขาอ่านหนังสือการ์ตูนเมื่อวานนี้ (จบแล้ว)', rule: 'รูปอดีตเขียนเหมือนเดิม read แต่ออกเสียง เรด' },
+    futSim: { en: 'He will read a novel tomorrow.', th: 'เขาจะอ่านนวนิยายในวันพรุ่งนี้ (อนาคต)', rule: 'will + read' }
+  },
+  {
+    id: 'swim', name: 'swim (ว่ายน้ำ)', img: '/games/english/vocab-hub-assets/verbs/swim.webp',
+    presSim: { en: 'They swim at the pool on Saturdays.', th: 'พวกเขากว่ายน้ำที่สระทุกวันเสาร์', rule: 'ประธาน They ใช้ swim รูปเดิม' },
+    presCont: { en: 'Look! They are swimming fast.', th: 'ดูสิ! พวกเขากำลังว่ายน้ำอย่างเร็ว', rule: 'are + swimming (เบิ้ล m ก่อนเติม ing)' },
+    pastSim: { en: 'They swam in the sea last week.', th: 'พวกเขาว่ายน้ำในทะเลสัปดาห์ที่แล้ว', rule: 'swim เปลี่ยนรูปเป็น swam ช่อง 2' },
+    futSim: { en: 'They will swim in the race soon.', th: 'พวกเขาจะลงว่ายน้ำแข่งเร็วๆ นี้', rule: 'will + swim' }
+  },
+  {
+    id: 'walk', name: 'walk (เดิน)', img: '/games/english/vocab-hub-assets/verbs/walk.webp',
+    presSim: { en: 'We walk to school every morning.', th: 'พวกเราเดินไปโรงเรียนทุกเช้า (กิจวัตร)', rule: 'ประธาน We ใช้ walk ช่อง 1' },
+    presCont: { en: 'We are walking in the park now.', th: 'พวกเรากำลังเดินเล่นในสวนตอนนี้', rule: 'are + walking' },
+    pastSim: { en: 'We walked two kilometers yesterday.', th: 'พวกเราเดิน 2 กิโลเมตรเมื่อวานนี้', rule: 'walk เติม -ed เป็น walked' },
+    futSim: { en: 'We will walk together tomorrow.', th: 'พวกเราจะเดินไปด้วยกันพรุ่งนี้', rule: 'will + walk' }
+  },
+  {
+    id: 'drink', name: 'drink (ดื่ม)', img: '/games/english/vocab-hub-assets/verbs/drink.webp',
+    presSim: { en: 'She drinks fresh milk every night.', th: 'เธอดื่มนมสดทุกคืนก่อนนอน', rule: 'She + drinks (เติม s)' },
+    presCont: { en: 'She is drinking cold water now.', th: 'เธอกำลังดื่มน้ำเย็นอยู่ตอนนี้', rule: 'is + drinking' },
+    pastSim: { en: 'She drank orange juice this morning.', th: 'เธอดื่มน้ำส้มไปเมื่อเช้านี้ (จบแล้ว)', rule: 'drink เปลี่ยนรูปเป็น drank' },
+    futSim: { en: 'She will drink warm tea tonight.', th: 'เธอจะดื่มชาอุ่นๆ คืนนี้', rule: 'will + drink' }
+  },
+  {
+    id: 'write', name: 'write (เขียน)', img: '/games/english/vocab-hub-assets/verbs/write.webp',
+    presSim: { en: 'The boy writes notes every day.', th: 'เด็กชายจดบันทึกทุกวัน (ประจำ)', rule: 'The boy เป็นเอกพจน์ write เติม s' },
+    presCont: { en: 'The boy is writing a letter now.', th: 'เด็กชายกำลังเขียนจดหมายตอนนี้', rule: 'is + writing (ตัด e ออกก่อนเติม ing)' },
+    pastSim: { en: 'The boy wrote an essay yesterday.', th: 'เด็กชายเขียนเรียงความเมื่อวานนี้', rule: 'write เปลี่ยนรูปเป็น wrote' },
+    futSim: { en: 'The boy will write a diary tonight.', th: 'เด็กชายจะเขียนไดอารี่คืนนี้', rule: 'will + write' }
+  },
+  {
+    id: 'run', name: 'run (วิ่ง)', img: '/games/english/vocab-hub-assets/verbs/run.webp',
+    presSim: { en: 'The athlete runs in the stadium.', th: 'นักกีฬาวิ่งในสนามเป็นประจำ', rule: 'The athlete + runs' },
+    presCont: { en: 'Listen! The athlete is running fast.', th: 'ฟังนะ! นักกีฬากำลังวิ่งอย่างรวดเร็ว', rule: 'is + running (เบิ้ล n)' },
+    pastSim: { en: 'The athlete ran five laps yesterday.', th: 'นักกีฬาวิ่ง 5 รอบเมื่อวานนี้', rule: 'run เปลี่ยนรูปเป็น ran' },
+    futSim: { en: 'The athlete will run in the race tomorrow.', th: 'นักกีฬาจะลงวิ่งแข่งในวันพรุ่งนี้', rule: 'will + run' }
+  }
+];
+
+// 36 Graded Questions for Mode 3 (Quiz)
+const QUIZ_ITEMS = [
+  // LEVEL 1 (ป.4)
+  {
+    id: 'q1', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/verbs/cook.webp',
+    prompt: 'She ___ (cook) dinner with her mother every day.',
+    hint: 'สังเกตประธาน "She" และคำบอกเวลา "every day"',
+    choices: ['cook', 'cooks', 'is cooking', 'cooked'],
+    correct: 'cooks',
+    explanation: 'ประธานเอกพจน์ "She" และมีคำว่า "every day" เป็น Present Simple กริยา cook ต้องเติม -s กลายเป็น cooks'
+  },
+  {
+    id: 'q2', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/read.webp',
+    prompt: 'I ___ (read) an exciting comic book right now.',
+    hint: 'มีคำบอกเวลา "right now" (ขณะนี้)',
+    choices: ['am reading', 'is reading', 'are reading', 'read'],
+    correct: 'am reading',
+    explanation: 'มีคำว่า "right now" แสดงเหตุการณ์กำลังทำอยู่ ประธาน "I" ต้องใช้คู่กับ "am reading"'
+  },
+  {
+    id: 'q3', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/sports/football.webp',
+    prompt: 'The boys ___ (play) football in the field every afternoon.',
+    hint: 'ประธาน "The boys" เป็นพหูพจน์ (มีหลายคน)',
+    choices: ['plays', 'play', 'are playing', 'played'],
+    correct: 'play',
+    explanation: 'ประธานพหูพจน์ The boys ใน Present Simple กริยาคงรูปเดิม ไม่เติม s ใช้ "play"'
+  },
+  {
+    id: 'q4', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/sleep.webp',
+    prompt: 'Look! The cat ___ (sleep) on the sofa.',
+    hint: 'มีคำอุทานเตือน "Look!" (ดูสิ!)',
+    choices: ['sleeps', 'is sleeping', 'are sleeping', 'slept'],
+    correct: 'is sleeping',
+    explanation: 'คำว่า "Look!" บ่งบอกว่าเหตุการณ์กำลังเกิดขึ้นต่อหน้า ประธาน The cat (เอกพจน์) จึงใช้ "is sleeping"'
+  },
+  {
+    id: 'q5', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/food/rice.webp',
+    prompt: 'He ___ (not like) spicy food.',
+    hint: 'ประโยคปฏิเสธของ Present Simple ประธาน "He"',
+    choices: ['do not like', 'does not like', 'is not liking', 'did not like'],
+    correct: 'does not like',
+    explanation: 'ประธานเอกพจน์ "He" ใน Present Simple ปฏิเสธใช้ "does not" + กริยาช่อง 1 ไม่ผัน'
+  },
+  {
+    id: 'q6', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/sing.webp',
+    prompt: 'Listen! Someone ___ (sing) in the music room.',
+    hint: 'มีคำว่า "Listen!" (ฟังนะ!)',
+    choices: ['is singing', 'sings', 'are singing', 'sang'],
+    correct: 'is singing',
+    explanation: '"Listen!" ชี้เหตุการณ์กำลังกระทำ Someone นับเป็นเอกพจน์ จึงใช้ "is singing"'
+  },
+  {
+    id: 'q7', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/verbs/walk.webp',
+    prompt: 'They always ___ (walk) to school together in the morning.',
+    hint: 'คำบอกความถี่ "always" (สม่ำเสมอ)',
+    choices: ['walks', 'walk', 'are walking', 'walked'],
+    correct: 'walk',
+    explanation: 'คำว่า "always" คือ Present Simple ประธาน They ใช้กริยารูปปกติ "walk"'
+  },
+  {
+    id: 'q8', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/classroom/notebook.webp',
+    prompt: '___ you doing your homework at the moment?',
+    hint: 'คำถาม Present Continuous กับประธาน "you"',
+    choices: ['Is', 'Am', 'Are', 'Do'],
+    correct: 'Are',
+    explanation: 'คำถาม Present Continuous: Verb to be + Subject + V-ing? ประธาน you ต้องใช้กริยา "Are"'
+  },
+  {
+    id: 'q9', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/birds/parrot.webp',
+    prompt: 'A bird ___ (fly) in the sky.',
+    hint: 'กริยา fly ลงท้ายด้วย y หน้า y เป็นพยัญชนะ',
+    choices: ['fly', 'flies', 'flying', 'is fly'],
+    correct: 'flies',
+    explanation: 'กริยา fly เปลี่ยน y เป็น i แล้วเติม es เมื่อประธานเป็นเอกพจน์ (A bird) ➔ flies'
+  },
+  {
+    id: 'q10', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/sleep.webp',
+    prompt: 'Shh! The baby ___ in the bedroom.',
+    hint: '"Shh!" สั่งให้เงียบเพราะเหตุการณ์กำลังเกิดขึ้น',
+    choices: ['is sleeping', 'sleeps', 'slept', 'are sleeping'],
+    correct: 'is sleeping',
+    explanation: '"Shh!" บ่งชี้ว่าทารกกำลังหลับอยู่ ประธาน The baby ใช้ "is sleeping"'
+  },
+  {
+    id: 'q11', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/verbs/drink.webp',
+    prompt: 'My father ___ (drink) coffee every morning.',
+    hint: 'กิจวัตร "every morning" ประธาน My father (He)',
+    choices: ['drink', 'drinks', 'is drinking', 'drank'],
+    correct: 'drinks',
+    explanation: 'กิจวัตรประจำวัน ประธานเอกพจน์ My father กริยา drink เติม -s กลายเป็น drinks'
+  },
+  {
+    id: 'q12', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/classroom/book.webp',
+    prompt: 'We ___ (not watch) TV right now; we are studying.',
+    hint: 'ปฏิเสธ Present Continuous ประธาน "We"',
+    choices: ['are not watching', 'is not watching', 'do not watch', 'did not watch'],
+    correct: 'are not watching',
+    explanation: 'มีคำว่า "right now" และประธาน We จึงใช้ "are not watching"'
+  },
+
+  // LEVEL 2 (ป.5)
+  {
+    id: 'q13', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/places/zoo.webp',
+    prompt: 'Yesterday, my brother ___ (go) to the zoo with our parents.',
+    hint: '"Yesterday" (เมื่อวานนี้) ชี้อดีต กริยา go ช่อง 2',
+    choices: ['goes', 'go', 'went', 'will go'],
+    correct: 'went',
+    explanation: 'Yesterday ชี้ Past Simple กริยา go เป็นกริยาเปลี่ยนรูป ช่อง 2 คือ "went"'
+  },
+  {
+    id: 'q14', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/places/school.webp',
+    prompt: 'Tomorrow, we ___ (visit) the science museum in Bangkok.',
+    hint: '"Tomorrow" (วันพรุ่งนี้) ชี้อนาคต',
+    choices: ['will visit', 'visited', 'visits', 'are visit'],
+    correct: 'will visit',
+    explanation: 'Tomorrow ชี้ Future Simple โครงสร้างคือ will + V.inf จึงใช้ "will visit"'
+  },
+  {
+    id: 'q15', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/food/bread.webp',
+    prompt: 'She ___ (eat) delicious noodles last night.',
+    hint: '"last night" (เมื่อคืนนี้) กริยา eat ช่อง 2',
+    choices: ['eat', 'eats', 'ate', 'will eat'],
+    correct: 'ate',
+    explanation: 'last night ชี้ Past Simple กริยา eat เปลี่ยนรูปช่อง 2 เป็น "ate"'
+  },
+  {
+    id: 'q16', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/weather/rainy.webp',
+    prompt: 'I think it ___ (rain) soon. Look at those dark clouds.',
+    hint: 'การคาดเดาอนาคต "soon" (เร็วๆ นี้)',
+    choices: ['rained', 'rains', 'will rain', 'is rain'],
+    correct: 'will rain',
+    explanation: 'การคาดเดาอนาคตใช้ Future Simple คือ "will rain"'
+  },
+  {
+    id: 'q17', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/sports/badminton.webp',
+    prompt: 'They ___ (play) badminton two days ago.',
+    hint: '"two days ago" (สองวันที่แล้ว) กริยาปกติ play',
+    choices: ['played', 'plays', 'will play', 'are playing'],
+    correct: 'played',
+    explanation: 'two days ago ชี้ Past Simple กริยาปกติ play เติม -ed เป็น "played"'
+  },
+  {
+    id: 'q18', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/classroom/bag.webp',
+    prompt: 'I ___ (help) you carry those heavy books.',
+    hint: 'การเสนอตัวช่วยเหลือหรือตัดสินใจในทันที',
+    choices: ['helped', 'will help', 'helps', 'am help'],
+    correct: 'will help',
+    explanation: 'การเสนอตัวช่วยเหลือหรือตัดสินใจทันทีใช้ Future Simple: "will help"'
+  },
+  {
+    id: 'q19', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/animals/elephant.webp',
+    prompt: 'We ___ (see) an elephant at the safari park last week.',
+    hint: '"last week" กริยา see ช่อง 2',
+    choices: ['saw', 'see', 'sees', 'will see'],
+    correct: 'saw',
+    explanation: 'last week ชี้อดีต กริยา see เปลี่ยนรูปช่อง 2 เป็น "saw"'
+  },
+  {
+    id: 'q20', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/transportation/bicycle.webp',
+    prompt: 'Tom ___ (buy) a new bicycle yesterday afternoon.',
+    hint: 'กริยา buy ในอดีต (yesterday)',
+    choices: ['buys', 'buyed', 'bought', 'will buy'],
+    correct: 'bought',
+    explanation: 'buy เป็นกริยาเปลี่ยนรูป ช่อง 2 คือ "bought" (ไม่มี buyed)'
+  },
+  {
+    id: 'q21', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/sports/basketball.webp',
+    prompt: 'Next month, our class ___ (have) a sports day.',
+    hint: '"Next month" (เดือนหน้า) ชี้อนาคต',
+    choices: ['had', 'will have', 'has', 'is have'],
+    correct: 'will have',
+    explanation: 'Next month บ่งชี้อนาคต ใช้ Future Simple: "will have"'
+  },
+  {
+    id: 'q22', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/fruits/orange.webp',
+    prompt: 'She ___ (drink) a glass of orange juice this morning.',
+    hint: '"this morning" (เมื่อเช้านี้ จบแล้ว) กริยา drink ช่อง 2',
+    choices: ['drank', 'drinks', 'will drink', 'is drink'],
+    correct: 'drank',
+    explanation: 'drink เปลี่ยนรูปช่อง 2 เป็น "drank" เมื่อพูดถึงเหตุการณ์ในอดีต'
+  },
+  {
+    id: 'q23', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/places/park.webp',
+    prompt: 'They ___ (not go) to the beach yesterday because it rained.',
+    hint: 'ปฏิเสธ Past Simple: did not + กริยารูปเดิม',
+    choices: ['did not go', 'do not go', 'will not go', 'did not went'],
+    correct: 'did not go',
+    explanation: 'ปฏิเสธในอดีตใช้ "did not" + กริยาช่อง 1 ไม่ผัน ➔ "did not go"'
+  },
+  {
+    id: 'q24', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/classroom/pen.webp',
+    prompt: '___ you call me tonight?',
+    hint: '"tonight" (คืนนี้ - ยังมาไม่ถึง) ถามเรื่องอนาคต',
+    choices: ['Did', 'Will', 'Are', 'Were'],
+    correct: 'Will',
+    explanation: 'ถามเหตุการณ์ในอนาคต (tonight) ใช้กริยาช่วย "Will you call me tonight?"'
+  },
+
+  // LEVEL 3 (ป.6)
+  {
+    id: 'q25', grade: 'p6', tense: 'Identify Tense',
+    img: '/games/english/vocab-hub-assets/places/school.webp',
+    prompt: 'ระบุกาล: "Look! The students are cleaning the classroom."',
+    hint: 'สังเกตโครงสร้าง "are cleaning"',
+    choices: ['Present Simple', 'Present Continuous', 'Past Simple', 'Future Simple'],
+    correct: 'Present Continuous',
+    explanation: 'โครงสร้าง "are cleaning" (be + V-ing) และมีคำว่า Look! เป็น Present Continuous ชัดเจน'
+  },
+  {
+    id: 'q26', grade: 'p6', tense: 'Sentence Transformation',
+    img: '/games/english/vocab-hub-assets/places/school.webp',
+    prompt: 'แปลงเป็นปฏิเสธ: "He went to school yesterday."',
+    hint: 'ใช้ did not และเปลี่ยนกริยา went กลับเป็นช่อง 1',
+    choices: ['He did not go to school yesterday.', 'He did not went to school yesterday.', 'He does not go to school yesterday.', 'He will not go to school yesterday.'],
+    correct: 'He did not go to school yesterday.',
+    explanation: 'เมื่อมี did not กริยา went ต้องกลับเป็นกริยารูปเดิม "go"'
+  },
+  {
+    id: 'q27', grade: 'p6', tense: 'Time Detective',
+    img: '/games/english/vocab-hub-assets/weather/cloudy.webp',
+    prompt: 'คำบอกเวลาคู่ใดแสดงกาล "Past Simple" ทั้งหมด?',
+    hint: 'ค้นหาคำที่แสดงเหตุการณ์ที่จบไปแล้วในอดีต',
+    choices: ['yesterday / last night', 'now / right now', 'tomorrow / next week', 'always / every day'],
+    correct: 'yesterday / last night',
+    explanation: 'yesterday (เมื่อวาน) และ last night (เมื่อคืน) เป็นคำบอกเวลาอดีต Past Simple ทั้งคู่'
+  },
+  {
+    id: 'q28', grade: 'p6', tense: 'Sentence Transformation',
+    img: '/games/english/vocab-hub-assets/verbs/dance.webp',
+    prompt: 'แปลงเป็นประโยคคำถาม: "She speaks English well."',
+    hint: 'ประธาน She ใช้กริยาช่วย Does แล้วตัด s จาก speaks',
+    choices: ['Does she speak English well?', 'Do she speak English well?', 'Did she speak English well?', 'Is she speak English well?'],
+    correct: 'Does she speak English well?',
+    explanation: 'Present Simple ใช้ Does ขึ้นต้นคำถามกับประธานเอกพจน์ และ speaks คืนรูปเป็น speak'
+  },
+  {
+    id: 'q29', grade: 'p6', tense: 'Time Detective',
+    img: '/games/english/vocab-hub-assets/house-rooms/living-room.webp',
+    prompt: 'Time Detective: "My family ___ in Chiang Mai in 2020."',
+    hint: '"in 2020" เป็นปีในอดีตที่ผ่านพ้นไปแล้ว',
+    choices: ['lived', 'lives', 'is living', 'will live'],
+    correct: 'lived',
+    explanation: 'in 2020 คือปีในอดีต ต้องใช้ Past Simple กริยา live เติม -d เป็น lived'
+  },
+  {
+    id: 'q30', grade: 'p6', tense: 'Matrix Comparison',
+    img: '/games/english/vocab-hub-assets/transportation/airplane.webp',
+    prompt: 'เลือกประโยคที่แสดง "Future Simple" อย่างถูกต้อง:',
+    hint: 'โครงสร้าง will + กริยาช่อง 1 ไม่ผัน',
+    choices: ['I will travel to Japan next year.', 'I travelled to Japan last year.', 'I am travelling to Japan now.', 'I travel to Japan every year.'],
+    correct: 'I will travel to Japan next year.',
+    explanation: 'Future Simple ใช้โครงสร้าง "will + V.inf" คู่กับคำบอกเวลาอนาคต "next year"'
+  },
+  {
+    id: 'q31', grade: 'p6', tense: 'Sentence Transformation',
+    img: '/games/english/vocab-hub-assets/sports/tennis.webp',
+    prompt: 'แปลงเป็นปฏิเสธ: "They will join the competition tomorrow."',
+    hint: 'ปฏิเสธของ will คือ will not (won\'t)',
+    choices: ['They will not join the competition tomorrow.', 'They did not join the competition tomorrow.', 'They do not join the competition tomorrow.', 'They are not join the competition tomorrow.'],
+    correct: 'They will not join the competition tomorrow.',
+    explanation: 'ปฏิเสธของ will คือ will not + V.inf ➔ "They will not join..."'
+  },
+  {
+    id: 'q32', grade: 'p6', tense: 'Matrix Comparison',
+    img: '/games/english/vocab-hub-assets/body/hand.webp',
+    prompt: 'เลือกประโยคที่แสดงกิจวัตรประจำวัน (Habitual routine):',
+    hint: 'กิจวัตรประจำวันใช้ Present Simple (Subject + V.1 s/es)',
+    choices: ['She washes her hands before eating.', 'She is washing her hands yesterday.', 'She will washed her hands now.', 'She wash her hands every day.'],
+    correct: 'She washes her hands before eating.',
+    explanation: 'กิจวัตรประจำวันใช้ Present Simple ประธาน She กริยา wash เติม -es เป็น washes'
+  },
+  {
+    id: 'q33', grade: 'p6', tense: 'Sentence Transformation',
+    img: '/games/english/vocab-hub-assets/fruits/banana.webp',
+    prompt: 'แปลงเป็นคำถาม: "You ate breakfast this morning."',
+    hint: 'คำถามในอดีต ใช้ Did + ประธาน + กริยาช่อง 1',
+    choices: ['Did you eat breakfast this morning?', 'Did you ate breakfast this morning?', 'Do you eat breakfast this morning?', 'Were you eat breakfast this morning?'],
+    correct: 'Did you eat breakfast this morning?',
+    explanation: 'อดีตตั้งคำถามด้วย Did + Subject + V.1 (eat) ➔ "Did you eat...?"'
+  },
+  {
+    id: 'q34', grade: 'p6', tense: 'Time Detective',
+    img: '/games/english/vocab-hub-assets/classroom/pen.webp',
+    prompt: 'Time Detective: "Listen! The telephone ___."',
+    hint: '"Listen!" ชี้เหตุการณ์กำลังส่งเสียงดังขึ้นในขณะนี้',
+    choices: ['is ringing', 'rang', 'rings', 'will ring'],
+    correct: 'is ringing',
+    explanation: 'Listen! บ่งบอกว่าโทรศัพท์กำลังดังขึ้นในขณะนี้ ใช้ Present Continuous: "is ringing"'
+  },
+  {
+    id: 'q35', grade: 'p6', tense: 'Time Detective',
+    img: '/games/english/vocab-hub-assets/family/mother.webp',
+    prompt: 'ประโยคใดแสดงการกระทำที่จบสมบูรณ์ลงแล้วในอดีต?',
+    hint: 'ค้นหาประโยค Past Simple (V.2)',
+    choices: ['We visited our grandparents last Sunday.', 'We visit our grandparents every Sunday.', 'We are visiting our grandparents now.', 'We will visit our grandparents soon.'],
+    correct: 'We visited our grandparents last Sunday.',
+    explanation: 'การกระทำที่จบไปแล้วในอดีต (last Sunday) ใช้ Past Simple: "visited"'
+  },
+  {
+    id: 'q36', grade: 'p6', tense: 'Sentence Transformation',
+    img: '/games/english/vocab-hub-assets/sports/basketball.webp',
+    prompt: 'เติมคำถาม: "___ they play basketball every weekend?"',
+    hint: 'คำถาม Present Simple กับประธานพหูพจน์ "they"',
+    choices: ['Do', 'Does', 'Did', 'Are'],
+    correct: 'Do',
+    explanation: 'every weekend ชี้ Present Simple ประธาน they เป็นพหูพจน์ ใช้กริยาช่วย "Do"'
+  }
+];
+
+// 12 Sentence Builder Challenges for Mode 4
+const BUILDER_CHALLENGES = [
+  // P.4 Challenges
+  {
+    id: 'b1', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/verbs/cook.webp',
+    thPrompt: 'เธอทำอาหารอร่อยทุกวัน',
+    target: ['She', 'cooks', 'delicious food', 'every day'],
+    bank: [
+      { text: 'She', type: 'subj' },
+      { text: 'cooks', type: 'verb' },
+      { text: 'delicious food', type: 'obj' },
+      { text: 'every day', type: 'time' },
+      { text: 'is cooking', type: 'verb' },
+      { text: 'yesterday', type: 'time' }
+    ]
+  },
+  {
+    id: 'b2', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/read.webp',
+    thPrompt: 'ฉันกำลังอ่านหนังสือตอนนี้',
+    target: ['I', 'am reading', 'a story book', 'now'],
+    bank: [
+      { text: 'I', type: 'subj' },
+      { text: 'am reading', type: 'verb' },
+      { text: 'a story book', type: 'obj' },
+      { text: 'now', type: 'time' },
+      { text: 'reads', type: 'verb' },
+      { text: 'tomorrow', type: 'time' }
+    ]
+  },
+  {
+    id: 'b3', grade: 'p4', tense: 'Present Continuous',
+    img: '/games/english/vocab-hub-assets/verbs/swim.webp',
+    thPrompt: 'พวกเขากำลังว่ายน้ำในสระอยู่ตอนนี้',
+    target: ['They', 'are swimming', 'in the pool', 'right now'],
+    bank: [
+      { text: 'They', type: 'subj' },
+      { text: 'are swimming', type: 'verb' },
+      { text: 'in the pool', type: 'obj' },
+      { text: 'right now', type: 'time' },
+      { text: 'swims', type: 'verb' },
+      { text: 'last night', type: 'time' }
+    ]
+  },
+  {
+    id: 'b4', grade: 'p4', tense: 'Present Simple',
+    img: '/games/english/vocab-hub-assets/verbs/drink.webp',
+    thPrompt: 'เด็กชายดื่มนมสดทุกเช้า',
+    target: ['The boy', 'drinks', 'fresh milk', 'every morning'],
+    bank: [
+      { text: 'The boy', type: 'subj' },
+      { text: 'drinks', type: 'verb' },
+      { text: 'fresh milk', type: 'obj' },
+      { text: 'every morning', type: 'time' },
+      { text: 'drank', type: 'verb' },
+      { text: 'tomorrow', type: 'time' }
+    ]
+  },
+
+  // P.5 Challenges
+  {
+    id: 'b5', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/verbs/sleep.webp',
+    thPrompt: 'พวกเราดูโทรทัศน์เมื่อคืนนี้',
+    target: ['We', 'watched', 'television', 'last night'],
+    bank: [
+      { text: 'We', type: 'subj' },
+      { text: 'watched', type: 'verb' },
+      { text: 'television', type: 'obj' },
+      { text: 'last night', type: 'time' },
+      { text: 'watch', type: 'verb' },
+      { text: 'tomorrow', type: 'time' }
+    ]
+  },
+  {
+    id: 'b6', grade: 'p5', tense: 'Past Simple',
+    img: '/games/english/vocab-hub-assets/verbs/walk.webp',
+    thPrompt: 'เขาเดินไปโรงเรียนเมื่อวานนี้',
+    target: ['He', 'went', 'to school', 'yesterday'],
+    bank: [
+      { text: 'He', type: 'subj' },
+      { text: 'went', type: 'verb' },
+      { text: 'to school', type: 'obj' },
+      { text: 'yesterday', type: 'time' },
+      { text: 'goes', type: 'verb' },
+      { text: 'now', type: 'time' }
+    ]
+  },
+  {
+    id: 'b7', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/sports/football.webp',
+    thPrompt: 'ฉันจะเล่นฟุตบอลในวันพรุ่งนี้',
+    target: ['I', 'will play', 'football', 'tomorrow'],
+    bank: [
+      { text: 'I', type: 'subj' },
+      { text: 'will play', type: 'verb' },
+      { text: 'football', type: 'obj' },
+      { text: 'tomorrow', type: 'time' },
+      { text: 'played', type: 'verb' },
+      { text: 'yesterday', type: 'time' }
+    ]
+  },
+  {
+    id: 'b8', grade: 'p5', tense: 'Future Simple',
+    img: '/games/english/vocab-hub-assets/places/zoo.webp',
+    thPrompt: 'พวกเขาจะไปเที่ยวสวนสัตว์สัปดาห์หน้า',
+    target: ['They', 'will visit', 'the zoo', 'next week'],
+    bank: [
+      { text: 'They', type: 'subj' },
+      { text: 'will visit', type: 'verb' },
+      { text: 'the zoo', type: 'obj' },
+      { text: 'next week', type: 'time' },
+      { text: 'visited', type: 'verb' },
+      { text: 'right now', type: 'time' }
+    ]
+  },
+
+  // P.6 Challenges
+  {
+    id: 'b9', grade: 'p6', tense: 'Past Simple Negative',
+    img: '/games/english/vocab-hub-assets/verbs/eat.webp',
+    thPrompt: 'เธอไม่ได้กินพิซซ่าเมื่อวานนี้',
+    target: ['She', 'did not eat', 'pizza', 'yesterday'],
+    bank: [
+      { text: 'She', type: 'subj' },
+      { text: 'did not eat', type: 'verb' },
+      { text: 'pizza', type: 'obj' },
+      { text: 'yesterday', type: 'time' },
+      { text: 'does not eat', type: 'verb' },
+      { text: 'tomorrow', type: 'time' }
+    ]
+  },
+  {
+    id: 'b10', grade: 'p6', tense: 'Present Simple Question',
+    img: '/games/english/vocab-hub-assets/verbs/walk.webp',
+    thPrompt: 'คุณเดินไปโรงเรียนทุกเช้าใช่ไหม?',
+    target: ['Do you walk', 'to school', 'every morning', '?'],
+    bank: [
+      { text: 'Do you walk', type: 'verb' },
+      { text: 'to school', type: 'obj' },
+      { text: 'every morning', type: 'time' },
+      { text: '?', type: 'time' },
+      { text: 'Did you walk', type: 'verb' },
+      { text: 'yesterday', type: 'time' }
+    ]
+  },
+  {
+    id: 'b11', grade: 'p6', tense: 'Present Continuous Clue',
+    img: '/games/english/vocab-hub-assets/verbs/sing.webp',
+    thPrompt: 'ดูสิ! นกกำลังร้องเพลงบนต้นไม้',
+    target: ['Look!', 'The birds', 'are singing', 'in the tree'],
+    bank: [
+      { text: 'Look!', type: 'time' },
+      { text: 'The birds', type: 'subj' },
+      { text: 'are singing', type: 'verb' },
+      { text: 'in the tree', type: 'obj' },
+      { text: 'sang', type: 'verb' },
+      { text: 'yesterday', type: 'time' }
+    ]
+  },
+  {
+    id: 'b12', grade: 'p6', tense: 'Past Simple Irregular',
+    img: '/games/english/vocab-hub-assets/verbs/write.webp',
+    thPrompt: 'นักเรียนเขียนจดหมายเมื่อวานนี้',
+    target: ['The student', 'wrote', 'a letter', 'yesterday'],
+    bank: [
+      { text: 'The student', type: 'subj' },
+      { text: 'wrote', type: 'verb' },
+      { text: 'a letter', type: 'obj' },
+      { text: 'yesterday', type: 'time' },
+      { text: 'writes', type: 'verb' },
+      { text: 'tomorrow', type: 'time' }
+    ]
+  }
+];
+
+// ==========================================
+// 2. AUDIO & SPEECH SYNTHESIS ARCHITECTURE
+// ==========================================
+let currentSpeakGen = 0;
+let speakCancelTimer = null;
+let lastSpeakKey = '';
+let lastSpeakTimestamp = 0;
+let speechRate = 1.0;
+let echoTimer = null;
+
+function cancelAllSpeech() {
+  currentSpeakGen++;
+  clearTimeout(speakCancelTimer);
+  if (echoTimer) {
+    clearInterval(echoTimer);
+    echoTimer = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+  const echoBox = document.getElementById('echoBox');
+  if (echoBox) echoBox.innerHTML = '';
+}
+
+function getBestVoice(option) {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || !voices.length) return null;
+  const opt = (option || 'us-female').toLowerCase();
+  if (opt === 'us-female') {
+    return voices.find(v => v.lang.startsWith('en-US') && /female|samantha|zira|victoria|karen|aria|jenny/i.test(v.name))
+        || voices.find(v => v.lang.startsWith('en-US'))
+        || voices.find(v => v.lang.startsWith('en'));
+  }
+  if (opt === 'us-male') {
+    return voices.find(v => v.lang.startsWith('en-US') && /male|david|alex|daniel|tom|guy/i.test(v.name))
+        || voices.find(v => v.lang.startsWith('en-US'))
+        || voices.find(v => v.lang.startsWith('en'));
+  }
+  if (opt === 'uk') {
+    return voices.find(v => v.lang.startsWith('en-GB'))
+        || voices.find(v => /british|uk|hazel|george/i.test(v.name))
+        || voices.find(v => v.lang.startsWith('en'));
+  }
+  return null;
+}
+
+function speakSentence(text, customRate, onEndCallback) {
+  if (!text || !('speechSynthesis' in window)) {
+    if (onEndCallback) onEndCallback();
+    return;
+  }
+  if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.unlock) {
+    KAMPAI.sound.unlock();
+  }
+
+  const voiceOpt = document.getElementById('selVoice')?.value || 'us-female';
+  const rate = customRate || speechRate || 1.0;
+  const now = Date.now();
+  const itemKey = text + '_' + voiceOpt + '_' + rate;
+
+  if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 320) {
+    return;
+  }
+  lastSpeakKey = itemKey;
+  lastSpeakTimestamp = now;
+
+  currentSpeakGen++;
+  const gen = currentSpeakGen;
+
+  window.speechSynthesis.cancel();
+  clearTimeout(speakCancelTimer);
+
+  speakCancelTimer = setTimeout(() => {
+    if (gen !== currentSpeakGen) return;
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = voiceOpt === 'uk' ? 'en-GB' : 'en-US';
+      u.rate = rate;
+      const matchedVoice = getBestVoice(voiceOpt);
+      if (matchedVoice) u.voice = matchedVoice;
+      u.onend = () => {
+        if (gen === currentSpeakGen && onEndCallback) onEndCallback();
+      };
+      u.onerror = () => {
+        if (gen === currentSpeakGen && onEndCallback) onEndCallback();
+      };
+      window.speechSynthesis.speak(u);
+    } catch (err) {
+      console.warn('TTS error:', err);
+      if (onEndCallback) onEndCallback();
+    }
+  }, 50);
+}
+
+// Classroom Echo repeat-after-me
+function startClassroomEcho(sentence) {
+  cancelAllSpeech();
+  const echoBox = document.getElementById('echoBox');
+  const btnEcho = document.getElementById('btnEcho');
+  if (btnEcho) btnEcho.disabled = true;
+
+  if (echoBox) {
+    echoBox.innerHTML = '<span class="echo-countdown">🔊 กำลังฟังต้นแบบ...</span>';
+  }
+
+  speakSentence(sentence, 0.8, () => {
+    let count = 3;
+    if (echoBox) {
+      echoBox.innerHTML = '<span class="echo-countdown">🎤 ตาหนูพูดแล้ว! (' + count + ')</span>';
+    }
+
+    echoTimer = setInterval(() => {
+      count--;
+      if (count > 0) {
+        if (echoBox) {
+          echoBox.innerHTML = '<span class="echo-countdown">🎤 ตาหนูพูดแล้ว! (' + count + ')</span>';
+        }
+      } else {
+        clearInterval(echoTimer);
+        echoTimer = null;
+        if (echoBox) {
+          echoBox.innerHTML = '<span class="echo-countdown" style="background:#dcfce7;border-color:#22c55e;color:#15803d">✨ ยอดเยี่ยมมากครับ!</span>';
+        }
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+          KAMPAI.sound.correct();
+        }
+        setTimeout(() => {
+          if (echoBox) echoBox.innerHTML = '';
+          if (btnEcho) btnEcho.disabled = false;
+        }, 1400);
+      }
+    }, 1000);
+  });
+}
+
+// ==========================================
+// 3. APPLICATION STATE MANAGEMENT
+// ==========================================
+let currentMode = 'studio'; // 'studio' | 'matrix' | 'quiz' | 'builder'
+let currentLevel = 'all'; // 'all' | 'p4' | 'p5' | 'p6'
+
+let curStudioIndex = 0;
+let curVerbIndex = 0;
+let quizIndex = 0;
+let quizStreak = 0;
+let quizScore = 0;
+let activeQuizList = [];
+let curQuizItem = null;
+
+let builderIndex = 0;
+let activeBuilderList = [];
+let curBuilderItem = null;
+let placedSlots = [];
+let availableBank = [];
+
+// ==========================================
+// 4. TIMELINE UPDATE ENGINE
+// ==========================================
+function updateTimeline(zoneName, subText, titleLabel) {
+  const zPast = document.getElementById('zonePast');
+  const zPres = document.getElementById('zonePresent');
+  const zFut = document.getElementById('zoneFuture');
+  const statusEl = document.getElementById('timelineStatusText');
+  const presSub = document.getElementById('zonePresentSub');
+
+  if (zPast) zPast.classList.toggle('active', zoneName === 'past');
+  if (zPres) zPres.classList.toggle('active', zoneName === 'present');
+  if (zFut) zFut.classList.toggle('active', zoneName === 'future');
+
+  if (statusEl && titleLabel) statusEl.textContent = 'กำลังศึกษา: ' + titleLabel;
+  if (presSub && zoneName === 'present' && subText) presSub.textContent = subText;
+}
+
+// ==========================================
+// 5. MODE 1: TENSE STUDIO RENDER
+// ==========================================
+function filterStudioCards() {
+  if (currentLevel === 'all') return STUDIO_CARDS;
+  return STUDIO_CARDS.filter(c => c.grade === currentLevel || currentLevel === 'p6');
+}
+
+function renderStudio() {
+  const cards = filterStudioCards();
+  if (curStudioIndex >= cards.length) curStudioIndex = 0;
+  const curCard = cards[curStudioIndex] || cards[0];
+
+  // Render pills
+  const pillsEl = document.getElementById('studioPills');
+  pillsEl.innerHTML = cards.map((c, idx) => {
+    const isAct = idx === curStudioIndex;
+    return '<button type="button" class="studio-pill-btn ' + (isAct ? 'active' : '') + '" data-idx="' + idx + '">' +
+           c.name + ' (' + c.grade.toUpperCase() + ')' +
+           '</button>';
+  }).join('');
+
+  // Render card
+  const cardEl = document.getElementById('studioCard');
+  cardEl.innerHTML = 
+    '<div class="studio-img-box">' +
+      '<img src="' + curCard.img + '" alt="' + curCard.name + '" class="studio-img"/>' +
+      '<span class="formula-tag">' + curCard.formula + '</span>' +
+      '<span class="badge-grade" style="background:#0f172a;color:#ffffff">' + curCard.grade.toUpperCase() + ' · ประถมศึกษา</span>' +
+    '</div>' +
+    '<div class="studio-content">' +
+      '<h2>' + curCard.name + '</h2>' +
+      '<div style="font-size:1.1rem;font-weight:700;color:var(--deep);margin-bottom:8px">' + curCard.thaiName + '</div>' +
+      '<p class="studio-usage">' + curCard.usage + '</p>' +
+      '<div style="margin-bottom:12px;font-size:0.95rem;font-weight:700;color:#475569">' + curCard.rule + '</div>' +
+      '<div class="signals-box">' +
+        '<div class="signals-title">⚡ คำบอกเวลาสังเกต (Signal Words):</div>' +
+        '<div class="signal-badges">' +
+          curCard.signals.map(s => '<span class="signal-badge">' + s + '</span>').join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="variations-box">' +
+        '<div class="variation-item">' +
+          '<span class="var-badge var-aff">บอกเล่า (+)</span>' +
+          '<div class="var-text">' + curCard.affirmative.en + '<div class="var-th">' + curCard.affirmative.th + '</div></div>' +
+          '<button type="button" class="btn btn-ghost btn-speak-var" style="padding:6px 10px;min-height:44px" data-text="' + curCard.affirmative.en.replace(/"/g, '&quot;') + '">🔊</button>' +
+        '</div>' +
+        '<div class="variation-item">' +
+          '<span class="var-badge var-neg">ปฏิเสธ (-)</span>' +
+          '<div class="var-text">' + curCard.negative.en + '<div class="var-th">' + curCard.negative.th + '</div></div>' +
+          '<button type="button" class="btn btn-ghost btn-speak-var" style="padding:6px 10px;min-height:44px" data-text="' + curCard.negative.en.replace(/"/g, '&quot;') + '">🔊</button>' +
+        '</div>' +
+        '<div class="variation-item">' +
+          '<span class="var-badge var-que">คำถาม (?)</span>' +
+          '<div class="var-text">' + curCard.question.en + '<div class="var-th">' + curCard.question.th + '</div></div>' +
+          '<button type="button" class="btn btn-ghost btn-speak-var" style="padding:6px 10px;min-height:44px" data-text="' + curCard.question.en.replace(/"/g, '&quot;') + '">🔊</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="audio-actions-bar">' +
+        '<button type="button" class="btn btn-primary" id="btnSpeakMain">🔊 ฟังประโยคบอกเล่า (Space)</button>' +
+        '<button type="button" class="btn btn-gold" id="btnEcho">🎤 ฝึกพูดตาม (Classroom Echo - M)</button>' +
+        '<div class="echo-box" id="echoBox"></div>' +
+        '<div style="margin-left:auto;display:flex;gap:6px">' +
+          '<button type="button" class="btn btn-ghost" id="btnStudioPrev" aria-label="การ์ดก่อนหน้า">← ก่อนหน้า</button>' +
+          '<button type="button" class="btn btn-ghost" id="btnStudioNext" aria-label="การ์ดถัดไป">ถัดไป →</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  cardEl.querySelectorAll('.btn-speak-var').forEach(btn => {
+    btn.onclick = () => speakSentence(btn.dataset.text);
+  });
+
+  updateTimeline(curCard.zone, curCard.subText, curCard.name);
+
+  // Hook pill clicks
+  document.querySelectorAll('.studio-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      cancelAllSpeech();
+      curStudioIndex = parseInt(btn.dataset.idx, 10);
+      renderStudio();
+    };
+  });
+
+  document.getElementById('btnSpeakMain').onclick = () => {
+    speakSentence(curCard.affirmative.en);
+  };
+  document.getElementById('btnEcho').onclick = () => {
+    startClassroomEcho(curCard.affirmative.en);
+  };
+  document.getElementById('btnStudioPrev').onclick = () => {
+    cancelAllSpeech();
+    curStudioIndex = (curStudioIndex - 1 + cards.length) % cards.length;
+    renderStudio();
+  };
+  document.getElementById('btnStudioNext').onclick = () => {
+    cancelAllSpeech();
+    curStudioIndex = (curStudioIndex + 1) % cards.length;
+    renderStudio();
+  };
+}
+
+// ==========================================
+// 6. MODE 2: COMPARISON MATRIX RENDER
+// ==========================================
+function renderMatrix() {
+  const verbBar = document.getElementById('matrixVerbBar');
+  verbBar.innerHTML = MATRIX_VERBS.map((v, i) => {
+    const isAct = i === curVerbIndex;
+    return '<button type="button" class="verb-btn ' + (isAct ? 'active' : '') + '" data-idx="' + i + '">' +
+           '<img src="' + v.img + '" alt="' + v.name + '"/>' +
+           '<span>' + v.name + '</span>' +
+           '</button>';
+  }).join('');
+
+  verbBar.querySelectorAll('.verb-btn').forEach(btn => {
+    btn.onclick = () => {
+      cancelAllSpeech();
+      curVerbIndex = parseInt(btn.dataset.idx, 10);
+      renderMatrix();
+    };
+  });
+
+  const curV = MATRIX_VERBS[curVerbIndex] || MATRIX_VERBS[0];
+  const gridEl = document.getElementById('matrixGrid');
+  gridEl.innerHTML = 
+    // 1. Present Simple
+    '<div class="matrix-card card-pres-sim">' +
+      '<div class="matrix-header">' +
+        '<span class="matrix-tense-pill">Present Simple (ป.4)</span>' +
+        '<button type="button" class="btn btn-ghost btn-speak-mat" style="padding:4px 8px;min-height:44px" data-text="' + curV.presSim.en.replace(/"/g, '&quot;') + '">🔊 ฟัง</button>' +
+      '</div>' +
+      '<div class="matrix-en">' + curV.presSim.en + '</div>' +
+      '<div class="matrix-th">' + curV.presSim.th + '</div>' +
+      '<div class="matrix-rule">💡 ' + curV.presSim.rule + '</div>' +
+    '</div>' +
+
+    // 2. Present Continuous
+    '<div class="matrix-card card-pres-cont">' +
+      '<div class="matrix-header">' +
+        '<span class="matrix-tense-pill">Present Continuous (ป.4)</span>' +
+        '<button type="button" class="btn btn-ghost btn-speak-mat" style="padding:4px 8px;min-height:44px" data-text="' + curV.presCont.en.replace(/"/g, '&quot;') + '">🔊 ฟัง</button>' +
+      '</div>' +
+      '<div class="matrix-en">' + curV.presCont.en + '</div>' +
+      '<div class="matrix-th">' + curV.presCont.th + '</div>' +
+      '<div class="matrix-rule">💡 ' + curV.presCont.rule + '</div>' +
+    '</div>' +
+
+    // 3. Past Simple
+    '<div class="matrix-card card-past-sim">' +
+      '<div class="matrix-header">' +
+        '<span class="matrix-tense-pill">Past Simple (ป.5)</span>' +
+        '<button type="button" class="btn btn-ghost btn-speak-mat" style="padding:4px 8px;min-height:44px" data-text="' + curV.pastSim.en.replace(/"/g, '&quot;') + '">🔊 ฟัง</button>' +
+      '</div>' +
+      '<div class="matrix-en">' + curV.pastSim.en + '</div>' +
+      '<div class="matrix-th">' + curV.pastSim.th + '</div>' +
+      '<div class="matrix-rule">💡 ' + curV.pastSim.rule + '</div>' +
+    '</div>' +
+
+    // 4. Future Simple
+    '<div class="matrix-card card-fut-sim">' +
+      '<div class="matrix-header">' +
+        '<span class="matrix-tense-pill">Future Simple (ป.5)</span>' +
+        '<button type="button" class="btn btn-ghost btn-speak-mat" style="padding:4px 8px;min-height:44px" data-text="' + curV.futSim.en.replace(/"/g, '&quot;') + '">🔊 ฟัง</button>' +
+      '</div>' +
+      '<div class="matrix-en">' + curV.futSim.en + '</div>' +
+      '<div class="matrix-th">' + curV.futSim.th + '</div>' +
+      '<div class="matrix-rule">💡 ' + curV.futSim.rule + '</div>' +
+    '</div>';
+
+  gridEl.querySelectorAll('.btn-speak-mat').forEach(btn => {
+    btn.onclick = () => speakSentence(btn.dataset.text);
+  });
+
+  updateTimeline('present', 'เปรียบเทียบกาลขนาน (Matrix)', '4 กาลคู่ขนาน: ' + curV.name);
+}
+
+// ==========================================
+// 7. MODE 3: PRACTICE QUIZ RENDER
+// ==========================================
+function filterQuizItems() {
+  if (currentLevel === 'all') return QUIZ_ITEMS;
+  return QUIZ_ITEMS.filter(q => q.grade === currentLevel);
+}
+
+function renderQuiz() {
+  activeQuizList = filterQuizItems();
+  if (quizIndex >= activeQuizList.length) quizIndex = 0;
+  curQuizItem = activeQuizList[quizIndex] || activeQuizList[0];
+
+  document.getElementById('quizCounter').textContent = 'ข้อที่ ' + (quizIndex + 1) + ' / ' + activeQuizList.length + ' (' + curQuizItem.grade.toUpperCase() + ')';
+  document.getElementById('quizStreak').textContent = '🔥 ต่อเนื่อง: ' + quizStreak + ' ข้อ';
+  document.getElementById('quizImg').src = curQuizItem.img;
+  document.getElementById('quizPrompt').textContent = curQuizItem.prompt;
+  document.getElementById('quizHint').textContent = '💡 ' + curQuizItem.hint;
+
+  const fbEl = document.getElementById('quizFeedback');
+  fbEl.className = 'quiz-feedback';
+  fbEl.style.display = 'none';
+
+  const choicesEl = document.getElementById('quizChoices');
+  choicesEl.innerHTML = curQuizItem.choices.map(c => {
+    return '<button type="button" class="choice-btn" data-val="' + c + '">' +
+           '<span>' + c + '</span>' +
+           '</button>';
+  }).join('');
+
+  choicesEl.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.onclick = () => {
+      const selected = btn.dataset.val;
+      const isCorrect = selected === curQuizItem.correct;
+
+      // Lock all buttons
+      choicesEl.querySelectorAll('.choice-btn').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.val === curQuizItem.correct) {
+          b.classList.add('correct');
+        } else if (b === btn && !isCorrect) {
+          b.classList.add('wrong');
+        }
+      });
+
+      fbEl.style.display = 'block';
+      if (isCorrect) {
+        quizStreak++;
+        quizScore++;
+        document.getElementById('quizStreak').textContent = '🔥 ต่อเนื่อง: ' + quizStreak + ' ข้อ';
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) KAMPAI.sound.correct();
+        fbEl.className = 'quiz-feedback show-ok';
+        fbEl.innerHTML = '🎉 ถูกต้องยอดเยี่ยม! ' + curQuizItem.explanation;
+      } else {
+        quizStreak = 0;
+        document.getElementById('quizStreak').textContent = '🔥 ต่อเนื่อง: 0 ข้อ';
+        if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) KAMPAI.sound.wrong();
+        fbEl.className = 'quiz-feedback show-no';
+        fbEl.innerHTML = '❌ ยังไม่ถูกต้อง (คำตอบที่ถูกคือ: <strong>' + curQuizItem.correct + '</strong>)<br/>' + curQuizItem.explanation;
+      }
+    };
+  });
+
+  updateTimeline('present', 'แบบทดสอบทายกาลและเติมคำ', 'Quiz ข้อ ' + (quizIndex + 1));
+}
+
+document.getElementById('btnQuizSpeak').onclick = () => {
+  if (curQuizItem) {
+    const textToSpeak = curQuizItem.prompt.replace(/___/g, 'blank');
+    speakSentence(textToSpeak);
+  }
 };
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+document.getElementById('btnQuizNext').onclick = () => {
+  cancelAllSpeech();
+  quizIndex = (quizIndex + 1) % activeQuizList.length;
+  renderQuiz();
+};
+
+// ==========================================
+// 8. MODE 4: SENTENCE BUILDER RENDER
+// ==========================================
+function filterBuilderChallenges() {
+  if (currentLevel === 'all') return BUILDER_CHALLENGES;
+  return BUILDER_CHALLENGES.filter(b => b.grade === currentLevel);
+}
+
+function initBuilderChallenge() {
+  activeBuilderList = filterBuilderChallenges();
+  if (builderIndex >= activeBuilderList.length) builderIndex = 0;
+  curBuilderItem = activeBuilderList[builderIndex] || activeBuilderList[0];
+
+  placedSlots = [];
+  // Clone bank with fresh IDs and shuffle
+  availableBank = curBuilderItem.bank.map((w, idx) => ({ ...w, uid: idx + '_' + w.text }))
+    .sort(() => Math.random() - 0.5);
+
+  renderBuilderUI();
+}
+
+function renderBuilderUI() {
+  document.getElementById('builderImg').src = curBuilderItem.img;
+  document.getElementById('builderTenseTag').textContent = curBuilderItem.tense + ' (' + curBuilderItem.grade.toUpperCase() + ')';
+  document.getElementById('builderThPrompt').textContent = curBuilderItem.thPrompt;
+
+  const fbEl = document.getElementById('builderFeedback');
+  fbEl.className = 'builder-feedback';
+  fbEl.style.display = 'none';
+
+  // Render Slots
+  const slotsEl = document.getElementById('builderSlots');
+  if (placedSlots.length === 0) {
+    slotsEl.innerHTML = '<span class="slot-placeholder">แตะบล็อกคำศัพท์ด้านล่างเพื่อวางในช่องประโยค</span>';
+  } else {
+    slotsEl.innerHTML = placedSlots.map((tile, idx) => {
+      return '<button type="button" class="word-tile tile-' + tile.type + '" data-idx="' + idx + '" title="แตะเพื่อนำออก">' +
+             tile.text +
+             '</button>';
+    }).join('');
+
+    slotsEl.querySelectorAll('.word-tile').forEach(btn => {
+      btn.onclick = () => {
+        const slotIdx = parseInt(btn.dataset.idx, 10);
+        const removed = placedSlots.splice(slotIdx, 1)[0];
+        availableBank.push(removed);
+        renderBuilderUI();
+      };
+    });
+  }
+
+  // Render Bank
+  const bankEl = document.getElementById('builderBank');
+  bankEl.innerHTML = availableBank.map(tile => {
+    return '<button type="button" class="word-tile tile-' + tile.type + '" data-uid="' + tile.uid + '">' +
+           tile.text +
+           '</button>';
+  }).join('');
+
+  bankEl.querySelectorAll('.word-tile').forEach(btn => {
+    btn.onclick = () => {
+      const uid = btn.dataset.uid;
+      const tileIdx = availableBank.findIndex(t => t.uid === uid);
+      if (tileIdx > -1) {
+        const selected = availableBank.splice(tileIdx, 1)[0];
+        placedSlots.push(selected);
+        renderBuilderUI();
+        checkBuilderCompletion();
+      }
+    };
+  });
+
+  updateTimeline('present', 'ต่อบล็อกประโยค (Sentence Builder)', 'Builder: ' + curBuilderItem.thPrompt);
+}
+
+function checkBuilderCompletion() {
+  if (placedSlots.length !== curBuilderItem.target.length) return;
+  const currentSentence = placedSlots.map(s => s.text).join(' ');
+  const targetSentence = curBuilderItem.target.join(' ');
+
+  const fbEl = document.getElementById('builderFeedback');
+  fbEl.style.display = 'block';
+  if (currentSentence === targetSentence) {
+    fbEl.className = 'builder-feedback ok';
+    fbEl.innerHTML = '🎉 ยอดเยี่ยมมาก! ประโยคถูกต้องสมบูรณ์: <strong>' + targetSentence + '</strong>';
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) KAMPAI.sound.correct();
+    speakSentence(targetSentence);
+  } else {
+    fbEl.className = 'builder-feedback no';
+    fbEl.innerHTML = '⚠️ ลำดับคำหรือรูปแบบกริยายังไม่ถูกต้อง ลองแตะเพื่อสลับหรือเลือกใหม่นะครับ';
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) KAMPAI.sound.wrong();
+  }
+}
+
+document.getElementById('btnBuilderReset').onclick = () => {
+  cancelAllSpeech();
+  initBuilderChallenge();
+};
+document.getElementById('btnBuilderNext').onclick = () => {
+  cancelAllSpeech();
+  builderIndex = (builderIndex + 1) % activeBuilderList.length;
+  initBuilderChallenge();
+};
+
+// ==========================================
+// 9. MODE & LEVEL SWITCHING
+// ==========================================
+function switchMode(newMode) {
+  cancelAllSpeech();
+  currentMode = newMode;
+  document.querySelectorAll('#modeSeg .seg-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === newMode);
+  });
+  document.querySelectorAll('.mode-section').forEach(sec => {
+    sec.classList.remove('active');
+  });
+
+  if (newMode === 'studio') {
+    document.getElementById('secStudio').classList.add('active');
+    renderStudio();
+  } else if (newMode === 'matrix') {
+    document.getElementById('secMatrix').classList.add('active');
+    renderMatrix();
+  } else if (newMode === 'quiz') {
+    document.getElementById('secQuiz').classList.add('active');
+    renderQuiz();
+  } else if (newMode === 'builder') {
+    document.getElementById('secBuilder').classList.add('active');
+    initBuilderChallenge();
+  }
+}
+
+document.getElementById('modeSeg').onclick = e => {
+  const btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  switchMode(btn.dataset.mode);
+};
+
+function switchLevel(newLevel) {
+  cancelAllSpeech();
+  currentLevel = newLevel;
+  document.querySelectorAll('#levelSeg .seg-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.level === newLevel);
+  });
+
+  if (currentMode === 'studio') renderStudio();
+  else if (currentMode === 'matrix') renderMatrix();
+  else if (currentMode === 'quiz') { quizIndex = 0; renderQuiz(); }
+  else if (currentMode === 'builder') { builderIndex = 0; initBuilderChallenge(); }
+}
+
+document.getElementById('levelSeg').onclick = e => {
+  const btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  switchLevel(btn.dataset.level);
+};
+
+// Speed Toggle
+const btnSpeed = document.getElementById('btnSpeed');
+btnSpeed.onclick = () => {
+  if (speechRate === 1.0) {
+    speechRate = 0.75;
+    btnSpeed.textContent = '🐢 0.75x';
+  } else {
+    speechRate = 1.0;
+    btnSpeed.textContent = '🚶 1.0x';
+  }
+};
+
+// Fullscreen Toggle
+const btnFs = document.getElementById('btnFs');
+btnFs.onclick = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.().catch(() => {});
+  }
+};
+
+// ==========================================
+// 10. SMARTBOARD KEYBOARD SHORTCUTS
+// ==========================================
+window.addEventListener('keydown', e => {
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+  if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (currentMode === 'studio') {
+      const curCard = filterStudioCards()[curStudioIndex];
+      if (curCard) speakSentence(curCard.affirmative.en);
+    } else if (currentMode === 'matrix') {
+      const curV = MATRIX_VERBS[curVerbIndex];
+      if (curV) speakSentence(curV.presSim.en);
+    } else if (currentMode === 'quiz') {
+      if (curQuizItem) speakSentence(curQuizItem.prompt.replace(/___/g, 'blank'));
+    } else if (currentMode === 'builder') {
+      if (curBuilderItem) speakSentence(curBuilderItem.target.join(' '));
+    }
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (currentMode === 'studio') document.getElementById('btnStudioNext')?.click();
+    else if (currentMode === 'matrix') { curVerbIndex = (curVerbIndex + 1) % MATRIX_VERBS.length; renderMatrix(); }
+    else if (currentMode === 'quiz') document.getElementById('btnQuizNext')?.click();
+    else if (currentMode === 'builder') document.getElementById('btnBuilderNext')?.click();
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (currentMode === 'studio') document.getElementById('btnStudioPrev')?.click();
+    else if (currentMode === 'matrix') { curVerbIndex = (curVerbIndex - 1 + MATRIX_VERBS.length) % MATRIX_VERBS.length; renderMatrix(); }
+  } else if (e.key === '1') {
+    switchMode('studio');
+  } else if (e.key === '2') {
+    switchMode('matrix');
+  } else if (e.key === '3') {
+    switchMode('quiz');
+  } else if (e.key === '4') {
+    switchMode('builder');
+  } else if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M') {
+    if (currentMode === 'studio') {
+      const curCard = filterStudioCards()[curStudioIndex];
+      if (curCard) startClassroomEcho(curCard.affirmative.en);
+    }
+  } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
+    btnFs.click();
+  }
+});
+
+// ==========================================
+// 11. QA & AUTOMATION INSPECTION HOOK
+// ==========================================
+window.__getState = function() {
+  return {
+    slug: MEDIA_SLUG,
+    mode: currentMode,
+    level: currentLevel,
+    curVerb: MATRIX_VERBS[curVerbIndex]?.id,
+    curStudioId: filterStudioCards()[curStudioIndex]?.id,
+    quizIndex: quizIndex,
+    quizTotal: activeQuizList.length,
+    quizStreak: quizStreak,
+    quizScore: quizScore,
+    builderIndex: builderIndex,
+    speechRate: speechRate
+  };
+};
+
+// Initial Render
+renderStudio();
 </script>
-</body></html>
+</body>
+</html>
