@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.82 (ภาษาไทย — ยกระดับ Thai Reading Comprehension Studio ป.4–ป.5 4 โหมดจับใจความ, ผัง 5W1H, แล็บข้อเท็จจริง/ข้อคิดเห็น, เรียงเหตุการณ์ และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Thai Reading Hub (public/games/thai/thai-reading-hub/index.html) สู่สตูดิโอการเรียนรู้การอ่านจับใจความเต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ท 1.1 ป.4/3, ท 1.1 ป.4/4, ท 1.1 ป.4/6, ท 1.1 ป.5/3, ท 1.1 ป.5/4, ท 1.1 ป.5/5, ท 1.1 ป.5/7)',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Reading Studio & 5W1H Navigator (บทอ่าน 11 เรื่อง 5 หมวด, ผัง 5W1H ใคร ทำอะไร ที่ไหน เมื่อไหร่ ทำไม อย่างไร, ไฮไลต์ใจความสำคัญ และเสียงสังเคราะห์ไทย) 2. Fact vs Opinion Detective Lab (ห้องแล็บแยกแยะข้อเท็จจริง vs ข้อคิดเห็น พร้อมคำกุญแจสังเกต) 3. Story Sequencer Lab (กิจกรรมจัดเรียงลำดับเหตุการณ์) 4. Practice Quiz Challenge (แบบทดสอบ 4 ตัวเลือกพร้อมคำอธิบายละเอียด)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/thai/thai-reading-hub-worksheet.html) ขยายคลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะการอ่านจับใจความ พร้อมเลย์เอาต์ A4 Zero-shift และเฉลยครู',
+            'รัน Migration 529 อัปเดต educational_hub_items ปรับ thumbnail_url ของใบงานให้เชื่อมโยงภาพปก 16:9 (/games/thai/thai-reading-hub/cover.png) แทนที่ placeholder SVG สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-thai-reading-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs 18/18 checks',
+        ],
+    },
+    {
         version: 'v1.229.81 (Vocabulary Hub — เสียงอ่านคำศัพท์บนมือถือ)',
         date: '17 ก.ย. 2569',
         badge: 'bg-primary',
