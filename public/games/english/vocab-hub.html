@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<script>
+if (/^https?:$/.test(location.protocol) && window.self === window.top && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('/play/vocab-hub' + location.search + location.hash);
+}
+</script>
 <script src="/games/kampai-sdk.js"></script>
 <script src="./vocab-hub-data.js"></script>
 <script>
@@ -93,131 +98,8 @@ body::before{content:'';position:fixed;inset:0;
   background:#FFE082;color:#1565C0;font-weight:700;
 }
 
-/* ===== HUB ===== */
-#hub-view{
-  display:flex;flex-direction:column;
-  width:100vw;height:100vh;height:100dvh;
-  padding:2vh 3vw 1.5vh;
-  position:relative;z-index:1;
-}
-#hub-title{
-  text-align:center;
-  font-size:5.5vh;font-weight:700;
-  background:linear-gradient(135deg,#FFE082 0%,#FFD54F 40%,#FFB300 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  letter-spacing:0.06em;
-  margin-bottom:0.3vh;
-  filter:drop-shadow(0 2px 8px rgba(255,193,7,0.25));
-}
-#hub-sub{
-  text-align:center;font-size:2.2vh;
-  color:rgba(255,224,130,0.6);
-  margin-bottom:1.5vh;
-  letter-spacing:0.03em;
-}
-#hub-grid{
-  flex:1;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  grid-auto-rows:minmax(15vh,1fr);
-  gap:1.4vh 1.2vw;
-  overflow-y:auto;
-  padding:0.4vh 0;
-}
-#hub-grid::-webkit-scrollbar{width:6px}
-#hub-grid::-webkit-scrollbar-track{background:transparent}
-#hub-grid::-webkit-scrollbar-thumb{background:rgba(255,224,130,0.25);border-radius:3px}
-#hub-grid::-webkit-scrollbar-thumb:hover{background:rgba(255,224,130,0.4)}
+/* Category menu styles live in vocab-hub-menu.css. */
 
-.hub-card{
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  border-radius:16px;
-  border:1.5px solid rgba(255,255,255,0.12);
-  background:linear-gradient(145deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.04) 100%);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  cursor:pointer;
-  gap:0.4vh;
-  padding:1vh 0.6vw;
-  overflow:hidden;
-  position:relative;
-  transition:transform 0.2s ease,border-color 0.25s ease,box-shadow 0.25s ease,background 0.25s ease;
-}
-.hub-card::before{
-  content:'';position:absolute;inset:-1px;border-radius:17px;
-  background:linear-gradient(135deg,rgba(255,224,130,0.15),rgba(100,181,246,0.1),rgba(255,224,130,0.08));
-  opacity:0;transition:opacity 0.25s ease;z-index:-1;
-}
-.hub-card:hover{
-  border-color:rgba(255,215,0,0.45);
-  transform:translateY(-3px) scale(1.02);
-  box-shadow:0 8px 25px rgba(0,0,0,0.2),0 0 20px rgba(255,215,0,0.08);
-  background:linear-gradient(145deg,rgba(255,255,255,0.16) 0%,rgba(255,255,255,0.06) 100%);
-}
-.hub-card:hover::before{opacity:1}
-.hub-card:active{transform:translateY(-1px) scale(0.98)}
-.hub-card .hc-icon{
-  font-size:3.6vh;line-height:1;
-  display:flex;align-items:center;justify-content:center;
-  width:5.4vh;height:5.4vh;
-  border-radius:50%;
-  background:rgba(255,255,255,0.08);
-  box-shadow:0 2px 8px rgba(0,0,0,0.12);
-  transition:transform 0.2s ease,background 0.2s ease;
-  flex-shrink:0;
-}
-.hub-card:hover .hc-icon{
-  transform:scale(1.08);
-  background:rgba(255,224,130,0.12);
-}
-.hub-card .hc-th{width:100%;font-weight:700;color:#FFE082;text-align:center;line-height:1.1;
-  word-break:break-word;overflow-wrap:break-word;
-  text-shadow:0 1px 4px rgba(0,0,0,0.15)}
-.hub-card .hc-en{font-size:1.65vh;color:rgba(255,255,255,0.78);text-align:center;
-  letter-spacing:0.02em;font-weight:500}
-.hub-card .hc-count{font-size:1.4vh;color:#FFE082;opacity:0.85;letter-spacing:0.01em}
-.hc-progress{
-  width:82%;height:4px;border-radius:4px;
-  background:rgba(255,255,255,0.1);
-  margin-top:0.4vh;overflow:hidden;position:relative;
-}
-.hc-prog-fill{
-  height:100%;border-radius:4px;
-  background:linear-gradient(90deg,#4FC3F7,#81C784);
-  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-.hc-prog-fill.done{background:linear-gradient(90deg,#FFD700,#FFA000)}
-.hc-prog-pct{
-  font-size:1.2vh;color:rgba(255,255,255,0.5);margin-top:0.15vh;
-}
-.hub-card.starred-card{
-  border-color:rgba(255,215,0,0.35);
-  background:linear-gradient(145deg,rgba(255,215,0,0.12) 0%,rgba(255,193,7,0.04) 100%);
-}
-.hub-card.starred-card:hover{
-  border-color:rgba(255,215,0,0.6);
-  box-shadow:0 8px 25px rgba(0,0,0,0.2),0 0 25px rgba(255,215,0,0.15);
-}
-
-/* ===== HUB NAV BUTTONS ===== */
-.hub-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  min-height:44px;padding:8px 22px;border-radius:12px;
-  border:1.5px solid rgba(255,224,130,0.3);
-  background:linear-gradient(145deg,rgba(255,224,130,0.1),rgba(255,224,130,0.04));
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  color:#FFE082;font-size:2vh;font-weight:700;cursor:pointer;
-  font-family:inherit;text-decoration:none;
-  transition:background 0.2s,transform 0.15s,border-color 0.2s,box-shadow 0.2s;
-}
-.hub-btn:hover{
-  background:linear-gradient(145deg,rgba(255,224,130,0.2),rgba(255,224,130,0.08));
-  border-color:rgba(255,224,130,0.55);
-  transform:translateY(-1px);
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-.hub-btn:active{transform:translateY(0);box-shadow:none}
 /* ===== TYPE-IN ===== */
 .ti-input-wrap{display:flex;gap:8px;margin-top:2vh;width:90%;max-width:400px}
 .ti-input{
@@ -954,18 +836,6 @@ body::before{content:'';position:fixed;inset:0;
   body{overflow:auto}
   #topic-view{overflow-y:auto}
 
-  /* HUB → 2 คอลัมน์ */
-  #hub-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:minmax(92px,auto);gap:10px;overflow-y:auto;padding:6px 0}
-  #hub-title{font-size:26px}
-  #hub-sub{font-size:13px}
-  .hub-card{border-radius:14px;padding:10px 8px;gap:2px;min-height:90px}
-  .hub-card::before{border-radius:15px}
-  .hub-card .hc-icon{font-size:24px;width:38px;height:38px;margin-bottom:2px}
-  .hub-card .hc-th{font-size:18px!important;line-height:1.15}
-  .hub-card .hc-en{font-size:12px;color:rgba(255,255,255,0.8);font-weight:500}
-  .hub-card .hc-count{font-size:11px;color:#FFE082;opacity:0.85}
-  .hc-progress{width:88%;height:4px;margin-top:3px}
-
   /* BANNER */
   #word{flex:0 0 auto;min-height:120px;padding:8px 3vw}
   #wfront{font-size:clamp(30px,9vw,46px);white-space:normal;text-align:center}
@@ -1397,6 +1267,9 @@ body::before{content:'';position:fixed;inset:0;
   }
 }
 </style>
+<link rel="stylesheet" href="./vocab-hub-menu.css">
+<script src="./vocab-hub-order.js" defer></script>
+<script src="./vocab-hub-menu.js" defer></script>
 </head>
 <body>
 <div id="bar-wrap"><div id="bar" style="width:0"></div></div>
@@ -1404,13 +1277,32 @@ body::before{content:'';position:fixed;inset:0;
 <!-- HUB -->
 <div id="player-chip"></div>
 <div id="hub-view">
+  <div class="hub-heading"><div>
+  <div class="hub-eyebrow">ENGLISH VOCABULARY</div>
   <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
-  <div id="hub-sub">English Vocabulary — เลือกหัวข้อ &nbsp;|&nbsp; F = เต็มจอ</div>
+  <div id="hub-sub">โลกของคำศัพท์ เริ่มต้นจากสิ่งที่ชอบ</div>
+  </div>
   <!-- แดชบอด (โปรไฟล์/สถิติ/อันดับ) แยกออกไปเป็นหน้าต่างหาก /play/vocab-hub/dashboard -->
-  <div style="text-align:center;margin-bottom:1.2vh;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+  <div class="hub-nav">
     <button id="btn-back-hub" class="hub-btn" onclick="KAMPAI.goHome()">⬅ กลับหน้ารวมเกม</button>
     <a id="btn-dashboard" class="hub-btn" href="/play/vocab-hub/dashboard" target="_top">📊 แดชบอด / อันดับ</a>
   </div>
+  </div>
+  <div class="hub-toolbar">
+    <div class="hub-section-title">สำรวจหมวดหมู่ <span>29 หมวดหมู่</span></div>
+    <div class="hub-views" role="group" aria-label="ขนาดกริด">
+      <button class="hub-control" data-hub-view="large" aria-pressed="true">ภาพใหญ่</button>
+      <button class="hub-control" data-hub-view="standard" aria-pressed="false">มาตรฐาน</button>
+      <button class="hub-control" data-hub-view="compact" aria-pressed="false">กะทัดรัด</button>
+    </div>
+    <button class="hub-control" id="hub-edit" hidden>จัดหมวดหมู่</button>
+    <div id="hub-edit-actions" class="hub-edit-actions" hidden>
+      <button class="hub-control primary" id="hub-save">บันทึก</button>
+      <button class="hub-control" id="hub-cancel">ยกเลิก</button>
+      <button class="hub-control" id="hub-reset">คืนลำดับเดิม</button>
+    </div>
+  </div>
+  <p id="hub-order-status" class="hub-status" role="status" aria-live="polite">เลือกหมวดหมู่ที่อยากเรียนรู้ แล้วเริ่มกันเลย</p>
   <div id="hub-grid"></div>
 </div>
 
@@ -2372,17 +2264,7 @@ function shuffle(arr){
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
-function hubTitleFontSize(title){
-  // เพดาน vh ต่ำพอให้ ไอคอน+ชื่อ+en+count พอดีการ์ด (grid-auto-rows 15vh) — กันชื่อสั้นตัวใหญ่ล้นการ์ด
-  const n=title.length;
-  if(n<=3)  return 'min(3.6vh,9vw)';
-  if(n<=5)  return 'min(3.6vh,7vw)';
-  if(n<=7)  return 'min(3.4vh,5.4vw)';
-  if(n<=9)  return 'min(3.3vh,4.2vw)';
-  if(n<=12) return 'min(2.6vh,3.3vw)';
-  if(n<=14) return 'min(2.2vh,2.8vw)';
-  return 'min(1.85vh,2.3vw)';
-}
+
 function cellFontSize(label){
   const n=label.length;
   if(n<=4) return '10vh';
@@ -2526,10 +2408,10 @@ function buildHub(){
   const sc = document.createElement('div');
   sc.className = 'hub-card starred-card';
   sc.innerHTML = 
-    `<div class="hc-icon" style="color: #FFD700">⭐</div>`+
-    `<div class="hc-th" style="color: #FFD700; font-size: min(3.6vh,7vw)">รายการโปรด</div>`+
+    `<div class="hc-icon">⭐</div>`+
+    `<div class="hc-th">รายการโปรด</div>`+
     `<div class="hc-en">Starred Words</div>`+
-    `<div class="hc-count" style="color: #FFD54F">${starredCount} คำ</div>`;
+    `<div class="hc-count">${starredCount} คำ</div>`;
   
   sc.addEventListener('click', () => {
     if (starredCount === 0) {
@@ -2544,6 +2426,7 @@ function buildHub(){
   TOPIC_META.forEach(meta=>{
     const c=document.createElement('div');
     c.className='hub-card';
+    c.dataset.category=meta.slug;
     // อ่าน progress จาก localStorage เฉพาะชุดคำที่กำลังเลือก
     const source = TOPICS[meta.slug] || [];
     const basicCount = source.filter(item=>itemLevel(item)==='basic').length;
@@ -2562,13 +2445,14 @@ function buildHub(){
       : '';
     c.innerHTML=
       `<div class="hc-icon">${meta.icon}</div>`+
-      `<div class="hc-th" style="font-size:${hubTitleFontSize(meta.title)}">${meta.title}</div>`+
+      `<div class="hc-th">${meta.title}</div>`+
       `<div class="hc-en">${meta.en}</div>`+
       `<div class="hc-count">${allCount>basicCount?`พื้นฐาน ${basicCount} · ทั้งหมด ${allCount}`:`${allCount} คำ`}</div>`+
       progHtml;
     c.addEventListener('click',()=>{ try{KAMPAI.sound.unlock();}catch(_){} location.hash='#'+meta.slug; });
     hubGrid.appendChild(c);
   });
+  window.VocabHubMenu?.enhance();
 }
 function showHub(){
   if(isLightboxActive) closeLightbox();

@@ -1,5 +1,14 @@
 # DESIGN-COMPONENTS.md — Component Specs + Migration
 
+## Vocabulary Hub category gallery — v2.8.0
+
+- Menu only: light navy/gold surfaces, Sarabun, generated 3D WebP covers for 29 categories plus starred words. Covers use `object-fit: contain`; Thai/English names remain live text. This user-approved raster exception is limited to these category covers.
+- Large / standard / compact grids: 1280px = 3/4/5 columns, 1920px = 4/5/6, phone = 1/2/2. Large is default; view preference is local. Starred is always first. Labels wrap, controls are at least 44px, and keyboard focus remains visible.
+- Admin edit mode exposes drag handles and previous/next controls; pointer capture supports touch and edge auto-scroll. Save publishes globally; cancel discards; reset changes the draft until saved. Errors preserve the draft.
+- `vocab_hub_category_order` stores a JSON slug array in `school_settings`. Existing RLS allows public reads and admin-only writes. Service + React Query own data access; the HTML menu only exchanges validated same-origin/source messages with its wrapper. No credentials enter game messages.
+- `/play/vocab-hub` opens the menu for visitors; the existing player menu still provides student-code entry for score tracking. Direct production HTML links redirect there with the category hash. Local standalone previews remain supported.
+- Verification: `node scripts/test-vocab-hub-order.mjs`, `node scripts/test-vocab-hub-menu.mjs`, game aggregate verifier, app build, and rollback-only SQL role tests. Harness persistence is simulated; database RLS is verified separately.
+
 > Companion to [`DESIGN.md`](./DESIGN.md). อ่านไฟล์นี้เมื่อ:
 > - กำลัง implement component ตาม spec (Hero/Card/Button/AdminSidebar/AdminTable)
 > - ต้องตรวจ replacement mapping (purple → green token)

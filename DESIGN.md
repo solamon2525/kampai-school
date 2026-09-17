@@ -242,6 +242,12 @@ Font: **Sarabun** (Google Fonts, wght 100-800) สำหรับทั้งภ
 
 ## 7. Typography Scale (Sarabun)
 
+### Vocabulary Hub category menu exception — 17 September 2026
+
+The English Vocabulary Hub category menu uses a light surface with navy text and gold accents, scoped in `vocab-hub-menu.css` using `--vh-*` custom properties. Gameplay surfaces remain unchanged. Category cards prioritize large images and wrapping Thai/English labels over showing all categories at once; large/standard/compact grids are documented in DESIGN-COMPONENTS.md.
+
+For this user-requested gallery, generated soft 3D raster covers are explicitly permitted instead of the default inline-SVG illustration rule. Store optimized WebP files under `public/games/english/vocab-hub-covers/`; keep titles in HTML, use contain-fit images, and keep source prompts in the accompanying asset manifest. This exception does not extend to other UI illustrations or person avatars.
+
 | Token | Size | Weight | Line-height | Use |
 |---|---|---|---|---|
 | `h1` | 3rem (48px) | 700 | 1.15 | Page title (hero) |

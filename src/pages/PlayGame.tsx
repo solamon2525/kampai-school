@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
+import { useVocabHubLayout } from '@/hooks/use-vocab-hub-layout';
 import { cn } from '@/lib/utils';
 import { resolveGameMediaPair } from '@/lib/edu-hub-game-media-pairs';
 import { guessPairedUrls } from '@/lib/edu-hub-worksheet-pairs';
@@ -132,7 +133,9 @@ const PlayGame = () => {
     }
   }, [gameSlug, navigate]);
 
-  const [phase, setPhase] = useState<Phase>('lookup');
+  const [phase, setPhase] = useState<Phase>(
+    gameSlug === 'vocab-hub' && !researchStudyId ? 'playing' : 'lookup',
+  );
   const [codeInput, setCodeInput] = useState('');
   const [student, setStudent] = useState<StudentLookup | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -185,6 +188,7 @@ const PlayGame = () => {
   });
 
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+  useVocabHubLayout(resolvedSlug, iframeRef);
 
   const researchRoundsQuery = useQuery({
     queryKey: ['research-rounds', researchStudyId, codeInput],
@@ -1105,8 +1109,9 @@ const PlayGame = () => {
     const extra = ['grade', 'mode', 'practice']
       .map((k) => { const v = searchParams.get(k); return v ? `&${k}=${encodeURIComponent(v)}` : ''; })
       .join('');
-    return `${url}${sep}embed=1${extra}&t=${Date.now()}`;
-  }, [gameQuery.data?.external_url, searchParams]);
+    const categoryHash = gameSlug === 'vocab-hub' ? window.location.hash : '';
+    return `${url}${sep}embed=1${extra}&t=${Date.now()}${categoryHash}`;
+  }, [gameQuery.data?.external_url, searchParams, gameSlug]);
 
   // ─── early returns: 404 / loading ─────────────────────────────────────────
   if (gameQuery.isLoading) {
@@ -1170,7 +1175,7 @@ const PlayGame = () => {
       )}
 
       {/* header — math-runner ซ่อนตอนเล่นเพื่อให้ iframe ได้พื้นที่แนวนอนเต็มที่ */}
-      {!(phase === 'playing' && resolvedSlug === 'math-runner') && (
+      {!(phase === 'playing' && (resolvedSlug === 'math-runner' || resolvedSlug === 'vocab-hub')) && (
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
@@ -1320,10 +1325,18 @@ const PlayGame = () => {
                 </button>
               </div>
             ) : !isMathRunnerMobilePlay ? (
-            <div className="shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 bg-black/60 backdrop-blur-sm border-b border-white/10">
+            <div className={cn('shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 border-b',
+              resolvedSlug === 'vocab-hub' ? 'bg-card border-border' : 'bg-black/60 backdrop-blur-sm border-white/10')}>
+              {resolvedSlug === 'vocab-hub' && !student && (
+                <Button variant="ghost" className={cn('mr-auto min-h-11 text-sm')} onClick={handleSwitchStudent}>
+                  เข้าด้วยรหัสนักเรียนเพื่อบันทึกคะแนน
+                </Button>
+              )}
               <button
                 onClick={toggleFullscreen}
-                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
+                className={cn('rounded-full transition-colors', resolvedSlug === 'vocab-hub'
+                  ? 'min-h-11 min-w-11 flex items-center justify-center text-foreground hover:bg-muted'
+                  : 'bg-white/10 p-1.5 text-white hover:bg-white/20')}
                 title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
                 aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
               >
@@ -1331,7 +1344,9 @@ const PlayGame = () => {
               </button>
               <button
                 onClick={() => setShowExitMenu(true)}
-                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
+                className={cn('rounded-full transition-colors', resolvedSlug === 'vocab-hub'
+                  ? 'min-h-11 min-w-11 flex items-center justify-center text-foreground hover:bg-muted'
+                  : 'bg-white/10 p-1.5 text-white hover:bg-white/20')}
                 title="เมนู / ออกจากเกม"
                 aria-label="เมนู / ออกจากเกม"
               >

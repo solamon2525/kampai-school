@@ -1,0 +1,128 @@
+{
+  "tool": "Built-in image_gen",
+  "date": "2026-09-17",
+  "size": "640x640 WebP quality 85",
+  "promptTemplate": "Create one premium educational category thumbnail: {subject}. Soft rounded 3D clay toy illustration, charming high quality, warm soft studio lighting, clean ivory background, navy and golden yellow accents with cheerful pastel colors, centered isolated composition filling 80 percent of a square canvas, generous safe margins, no text except any explicitly specified digits or letters, no labels, no watermark, no border. Match a coherent collection for Thai elementary classroom vocabulary cards. One square image.",
+  "assets": [
+    {
+      "file": "starred.webp",
+      "subject": "a large golden star with two smaller stars and a tiny open keepsake box"
+    },
+    {
+      "file": "numbers.webp",
+      "subject": "three chunky colorful counting blocks with raised digits 1, 2, 3"
+    },
+    {
+      "file": "colors.webp",
+      "subject": "a round artist palette with vibrant paint blobs and a paintbrush"
+    },
+    {
+      "file": "days.webp",
+      "subject": "a friendly desk calendar with seven colorful blank tabs, no lettering"
+    },
+    {
+      "file": "months.webp",
+      "subject": "a charming stack of twelve blank calendar pages with a tiny sun and leaf"
+    },
+    {
+      "file": "alphabet.webp",
+      "subject": "three playful alphabet blocks with raised letters A B C"
+    },
+    {
+      "file": "animals.webp",
+      "subject": "a friendly lion cub, bunny and little elephant nestled together"
+    },
+    {
+      "file": "fruits.webp",
+      "subject": "a bright apple, orange, banana and strawberries"
+    },
+    {
+      "file": "body.webp",
+      "subject": "a friendly simplified full-body child standing waving, modest clothing"
+    },
+    {
+      "file": "shapes.webp",
+      "subject": "a sphere, cube, cone and triangular prism in bright colors"
+    },
+    {
+      "file": "family.webp",
+      "subject": "a warm smiling family of four embracing, full bodies"
+    },
+    {
+      "file": "food.webp",
+      "subject": "a plate of rice with vegetables and egg, spoon and fork"
+    },
+    {
+      "file": "jobs.webp",
+      "subject": "a friendly doctor's bag, chef hat and builder helmet"
+    },
+    {
+      "file": "weather.webp",
+      "subject": "a smiling sun peeking behind a fluffy cloud with raindrops"
+    },
+    {
+      "file": "verbs.webp",
+      "subject": "a friendly child running with a small ball, full body"
+    },
+    {
+      "file": "clothes.webp",
+      "subject": "a neatly arranged shirt, shorts, shoes and hat"
+    },
+    {
+      "file": "classroom.webp",
+      "subject": "a backpack with pencils, notebook and ruler"
+    },
+    {
+      "file": "house-rooms.webp",
+      "subject": "a cozy dollhouse cutaway showing bedroom, kitchen and sitting room"
+    },
+    {
+      "file": "toys.webp",
+      "subject": "a teddy bear, colorful toy blocks and spinning top"
+    },
+    {
+      "file": "transportation.webp",
+      "subject": "a little red car, bus and airplane"
+    },
+    {
+      "file": "sports.webp",
+      "subject": "a soccer ball, basketball and badminton racket"
+    },
+    {
+      "file": "places.webp",
+      "subject": "a miniature friendly school, park tree and shop"
+    },
+    {
+      "file": "instruments.webp",
+      "subject": "a little acoustic guitar, drum and keyboard"
+    },
+    {
+      "file": "vegetables.webp",
+      "subject": "a broccoli, carrot, pumpkin and tomato"
+    },
+    {
+      "file": "insects.webp",
+      "subject": "a friendly bee, butterfly and ladybug"
+    },
+    {
+      "file": "sea-animals.webp",
+      "subject": "a playful dolphin, sea turtle and little fish"
+    },
+    {
+      "file": "seasons.webp",
+      "subject": "a miniature tree with green leaves, orange leaves, snow and flowers around it"
+    },
+    {
+      "file": "emotions.webp",
+      "subject": "three cute round expressive faces showing happy, surprised and thoughtful feelings"
+    },
+    {
+      "file": "directions.webp",
+      "subject": "a colorful toy compass with four bold arrows, no lettering"
+    },
+    {
+      "file": "birds.webp",
+      "subject": "a cheerful parrot, little robin and duck"
+    }
+  ]
+}
