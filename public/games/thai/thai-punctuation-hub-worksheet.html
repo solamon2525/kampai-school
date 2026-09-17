@@ -2,53 +2,620 @@
 <html lang="th"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="worksheet-source-media" content="/games/thai/thai-punctuation-hub/index.html">
-  <meta name="curriculum-indicators" content="ท 2.1 ป.3/1,ท 2.1 ป.4/1">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.3/6,ท 4.1 ป.4/2,ท 2.1 ป.3/1,ท 2.1 ป.4/1,ท 2.1 ป.5/1">
   <title>ใบงานเครื่องหมายวรรคตอน ป.3–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    @media (max-width: 600px) {
+      .toolbar {
+        padding: 6px 8px;
+      }
+      .toolbar-ctrls {
+        gap: 4px;
+        max-width: 100%;
+      }
+      .t-select, .t-input, .btn {
+        max-width: 100%;
+        font-size: 0.76rem;
+        padding: 4px 6px;
+      }
+      .btn {
+        white-space: normal;
+        word-break: break-word;
+      }
+      .t-input {
+        width: 105px;
+      }
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6.2pt;
+      font-weight: 800;
+      color: var(--ws-accent, #1d4ed8);
+      border: 1px solid var(--ws-accent, #1d4ed8);
+      border-radius: 3px;
+      padding: .2mm 1.2mm;
+      margin-bottom: .4mm;
+      line-height: 1.2;
+      background: var(--ws-soft, #eff6ff);
+    }
+    .count-5 .skill-tag {
+      font-size: 7.5pt;
+      padding: .3mm 1.5mm;
+      margin-bottom: .6mm;
+    }
+    .sentence-box {
+      background: #f8fafc;
+      border: 1px solid var(--ws-line, #cbd5e1);
+      border-left: 3px solid var(--ws-accent, #2563eb);
+      border-radius: 4px;
+      padding: 1.2mm 2.2mm;
+      margin: 0.8mm 0;
+      font-size: 8.2pt;
+      line-height: 1.45;
+      color: #1e293b;
+      font-weight: 600;
+    }
+    .count-5 .sentence-box {
+      font-size: 9.5pt;
+      line-height: 1.55;
+      padding: 1.8mm 2.8mm;
+      margin: 1.2mm 0;
+    }
+    .q-prompt-thai {
+      font-size: 7.8pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.8mm;
+    }
+    .count-5 .q-prompt-thai {
+      font-size: 9.2pt;
+      margin-bottom: 1.2mm;
+    }
+    .answer-write-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8mm;
+      margin-top: 0.6mm;
+    }
+    .answer-line-fill {
+      border-bottom: 1px dotted #94a3b8;
+      min-height: 4.8mm;
+      display: flex;
+      align-items: center;
+      font-size: 7.5pt;
+      color: #334155;
+      position: relative;
+    }
+    .count-5 .answer-line-fill {
+      min-height: 6.2mm;
+      font-size: 8.8pt;
+    }
+    .ans-prefix {
+      font-weight: 700;
+      color: #64748b;
+      margin-right: 1.5mm;
+      flex-shrink: 0;
+    }
+    .teacher-ans-text {
+      color: #047857;
+      font-weight: 700;
+      display: none;
+    }
+    body.show-answers .teacher-ans-text {
+      display: inline;
+    }
+    body.show-answers .student-placeholder {
+      display: none;
+    }
+    .student-placeholder {
+      color: #cbd5e1;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline;
+    }
+  </style>
 </head><body>
-<header class="toolbar"><h1>✒️ ใบงานเครื่องหมายวรรคตอน</h1><div class="toolbar-ctrls">
-  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
-  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
-  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.3–ป.5</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="question">เครื่องหมายคำถาม</option><option value="exclaim">เครื่องหมายอัศเจรีย์</option><option value="dash">ขีด</option><option value="paren">วงเล็บ</option><option value="quote">คำพูด</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
-  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
-  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
-  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
-  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
-  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
-</div></header>
-<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<header class="toolbar">
+  <h1>✒️ ใบงานเครื่องหมายวรรคตอน</h1>
+  <div class="toolbar-ctrls">
+    <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+      <option value="standard">มาตรฐาน</option>
+      <option value="progressive">บันไดระดับ</option>
+      <option value="booklet">รวมเล่ม</option>
+    </select>
+    <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+      <option value="1">1 หน้า</option>
+      <option value="2">2 หน้า</option>
+      <option value="3">3 หน้า</option>
+    </select>
+    <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+      <option value="all">รวม ป.3–ป.5</option>
+      <option value="3">ป.3</option>
+      <option value="4">ป.4</option>
+      <option value="5">ป.5</option>
+    </select>
+    <select class="t-select" id="selTopic" aria-label="ทักษะวรรคตอน">
+      <option value="mixed">ผสมทุกทักษะ</option>
+      <option value="repetition_omission">1. ไม้ยมก / ไปยาลน้อย / ไปยาลใหญ่</option>
+      <option value="emotion_question">2. อัศเจรีย์ และ ปรัศนี</option>
+      <option value="quote_parenthesis">3. อัญประกาศ และ นขลิขิต</option>
+      <option value="dash_period_slash">4. ยัติภังค์ / มหัพภาค / ทับ</option>
+      <option value="sentence_correction">5. ซ่อมประโยคและเลือกใช้</option>
+    </select>
+    <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+      <option value="10">10 ข้อ</option>
+      <option value="5">5 ข้อ</option>
+    </select>
+    <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+    <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+      <option value="">-- เลือกครูผู้สอน --</option>
+    </select>
+    <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+    <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+    <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+  </div>
+</header>
+
+<main class="pages" id="pages">
+  <section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section>
+</main>
+
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"question","prompt":"เติมเครื่องหมายและอธิบายหน้าที่","text":"หนูชื่ออะไร","answer":"หนูชื่ออะไร? · ใช้เมื่อถาม"},{"type":"exclaim","prompt":"เติมเครื่องหมายและบอกอารมณ์","text":"สุดยอดมาก","answer":"สุดยอดมาก! · ดีใจ/ทึ่ง"},{"type":"dash","prompt":"ใช้ขีดช่วยความหมาย","text":"เปิด ปิด ประตูให้ถูกวิธี","answer":"เปิด–ปิดประตูให้ถูกวิธี"},{"type":"paren","prompt":"ใส่วงเล็บข้อมูลเสริม","text":"ครูสมชาย ครูประจำชั้นป.4 มาแล้ว","answer":"ครูสมชาย (ครูประจำชั้นป.4) มาแล้ว"},{"type":"quote","prompt":"ใส่เครื่องหมายคำพูด","text":"แม่บอก ให้ทำการบ้านก่อน","answer":"แม่บอก “ให้ทำการบ้านก่อน”"},{"type":"mixed","prompt":"แก้เครื่องหมายทั้งประโยค","text":"ใครไปบ้าง น้องสาว พี่ชาย และฉัน","answer":"ใครไปบ้าง? น้องสาว พี่ชาย และฉัน"},{"type":"question","prompt":"เขียนประโยคคำถาม 2 ประโยค","text":"เกี่ยวกับโรงเรียน","answer":"เช่น โรงเรียนเปิดกี่โมง?"},{"type":"exclaim","prompt":"เขียนประโยคแสดงความประหลาดใจ","text":"เหตุการณ์ในห้องเรียน","answer":"เช่น คะแนนเต็มแล้ว!"},{"type":"paren","prompt":"เพิ่มข้อมูลในวงเล็บ","text":"พรุ่งนี้มีการสอบวิชาคณิตศาสตร์","answer":"พรุ่งนี้มีการสอบ (วิชาคณิตศาสตร์)"},{"type":"dash","prompt":"ใช้ขีดแสดงช่วงเวลา","text":"เรียนเวลา 08.30 ถึง 15.30","answer":"เรียนเวลา 08.30–15.30"},{"type":"quote","prompt":"ใส่คำพูดของตัวละคร","text":"ครูกล่าว ตั้งใจเรียนนะ","answer":"ครูกล่าว “ตั้งใจเรียนนะ”"},{"type":"mixed","prompt":"เติมเครื่องหมายที่หายไป","text":"วันนี้อากาศดีจัง","answer":"วันนี้อากาศดีจัง!"},{"type":"question","prompt":"เปลี่ยนเป็นประโยคคำถาม","text":"หนูชอบวิชาคณิตศาสตร์","answer":"หนูชอบวิชาคณิตศาสตร์ไหม?"},{"type":"exclaim","prompt":"เปลี่ยนเป็นประโยคอุทาน","text":"ของเล่นชิ้นนี้สวย","answer":"ของเล่นชิ้นนี้สวยจัง!"},{"type":"paren","prompt":"ใส่วงเล็บชื่อย่อ","text":"องค์การสหประชาชาติ UN","answer":"องค์การสหประชาชาติ (UN)"},{"type":"dash","prompt":"ใช้ขีดคั่นรายการสั้น","text":"สีที่ใช้ แดง เขียว น้ำเงิน","answer":"สีที่ใช้: แดง–เขียว–น้ำเงิน หรือ แดง เขียว น้ำเงิน"},{"type":"mixed","prompt":"แก้ประโยคให้ถูกวรรคตอน","text":"คุณครูถาม ใครทำการบ้านเสร็จแล้ว","answer":"คุณครูถาม “ใครทำการบ้านเสร็จแล้ว?”"},{"type":"quote","prompt":"แยกคำพูดกับคำเล่า","text":"พี่ชายบอกพรุ่งนี้ไปเที่ยวทะเล","answer":"พี่ชายบอก “พรุ่งนี้ไปเที่ยวทะเล”"}];
-window.WORKSHEET_CONFIG={
-  icon:'✒️',title:'ใบงานเครื่องหมายวรรคตอน',subject:'ภาษาไทย',gradeLabel:'ป.3–ป.5',
-  mediaLabel:'เครื่องหมายวรรคตอน',sourceMediaUrl:'/games/thai/thai-punctuation-hub/index.html',
-  indicators:["ท 2.1 ป.3/1","ท 2.1 ป.4/1"],
-  directions:"เติมเครื่องหมายวรรคตอน อธิบายหน้าที่ และแก้ประโยค",
-  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
-  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
-    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
-      +'<div class="q-context">'+e(item.text)+'</div>'
-      +'<div class="classify-grid thai-punct-grid">'
-      +'<div class="classify-box">เติมเครื่องหมาย: ______</div>'
-      +'<div class="classify-box">หน้าที่: ____________</div></div>'
-      +'<div>ประโยคที่แก้แล้ว</div><div class="work-line"></div><div class="work-line"></div>'
-      +'<div>อธิบายสั้น ๆ</div><div class="reason-line"></div>'
-      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+const ITEMS = [
+  // ====================================================
+  // 1. ไม้ยมก / ไปยาลน้อย / ไปยาลใหญ่ (10 ข้อ)
+  // ====================================================
+  {
+    id: 'ro-1', grade: 3, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'เด็ก ๆ วิ่งเล่นในสนามหญ้าหน้าโรงเรียน',
+    prompt: 'เครื่องหมาย "ๆ" มีชื่อเรียกว่าอะไร และคำว่า "เด็ก ๆ" ต้องอ่านออกเสียงอย่างไร?',
+    answer: 'ไม้ยมก (ๆ) · อ่านว่า "เด็ก-เด็ก"',
+    explanation: 'ไม้ยมกใช้เขียนหลังคำเพื่อให้อ่านซ้ำคำเดิม ในที่นี้แสดงพหูพจน์'
+  },
+  {
+    id: 'ro-2', grade: 3, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'ครอบครัวของฉันเดินทางไปท่องเที่ยวที่กรุงเทพฯ',
+    prompt: 'เครื่องหมาย "ฯ" ในคำว่า "กรุงเทพฯ" มีชื่อเรียกว่าอะไร และต้องอ่านออกเสียงอย่างไร?',
+    answer: 'ไปยาลน้อย (ฯ) · อ่านออกเสียงคำเต็มว่า "กรุงเทพมหานคร"',
+    explanation: 'ไปยาลน้อยใช้ย่อคำที่ยาวและรู้จักกันดี เวลาอ่านต้องเปล่งเสียงคำเต็มเสมอ'
+  },
+  {
+    id: 'ro-3', grade: 4, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'ในสวนสัตว์มีสัตว์นานาชนิด เช่น เสือ ช้าง ลิง ม้าลาย ฯลฯ',
+    prompt: 'เครื่องหมาย "ฯลฯ" มีชื่อเรียกว่าอะไร และสามารถอ่านออกเสียงได้อย่างไรบ้าง?',
+    answer: 'ไปยาลใหญ่ (ฯลฯ) · อ่านว่า "ละ" หรือ "และอื่น ๆ"',
+    explanation: 'ใช้ละข้อความท้ายรายการที่มีสิ่งของประเภทเดียวกันอยู่อีกมากมาย'
+  },
+  {
+    id: 'ro-4', grade: 3, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'สายฝนตกพรำ ๆ ทำให้พื้นถนนเปียกลื่น',
+    prompt: 'คำว่า "พรำ ๆ" ไม้ยมกทำหน้าที่อะไรในประโยค?',
+    answer: 'ซ้ำคำวิเศษณ์เพื่อเน้นย้ำลักษณะอาการของฝนที่ตกอย่างต่อเนื่อง',
+    explanation: 'ใช้ซ้ำคำบอกลักษณะเพื่อเน้นย้ำความต่อเนื่องของเหตุการณ์'
+  },
+  {
+    id: 'ro-5', grade: 4, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'พระบาทสมเด็จพระเจ้าอยู่หัวโปรดเกล้าฯ ให้ผู้ว่าฯ เข้าเฝ้า',
+    prompt: 'คำว่า "โปรดเกล้าฯ" อ่านออกเสียงคำเต็มว่าอย่างไร?',
+    answer: 'โปรด-เกล้า-โปรด-กระ-หม่อม',
+    explanation: 'เป็นคำราชาศัพท์ที่ละส่วนท้ายไว้ด้วยเครื่องหมายไปยาลน้อย'
+  },
+  {
+    id: 'ro-6', grade: 5, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'ประโยค "นายดำดำน้ำลงไปงมหอย" เพราะเหตุใดจึงห้ามเขียนเป็น "นายดำๆ น้ำ"?',
+    prompt: 'อธิบายข้อห้ามในการใช้ไม้ยมกสำหรับประโยคนี้',
+    answer: 'เพราะคำว่า "ดำ" ทั้งสองคำมีความหมายและหน้าที่ต่างกัน (ดำแรกเป็นชื่อคน ดำหลังเป็นคำกริยา)',
+    explanation: 'ห้ามใช้ไม้ยมกซ้ำคำที่เขียนเหมือนกันแต่มีความหมายหรือหน้าที่คนละอย่าง'
+  },
+  {
+    id: 'ro-7', grade: 4, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'อุปกรณ์เครื่องเขียนมี ดินสอ ยางลบ ไม้บรรทัด กบเหลา ฯลฯ',
+    prompt: 'เพราะเหตุใดจึงใช้เครื่องหมายไปยาลใหญ่ (ฯลฯ) ท้ายข้อความนี้?',
+    answer: 'เพื่อละรายการอุปกรณ์เครื่องเขียนอื่น ๆ ที่ยังมีอยู่อีกมากมาย',
+    explanation: 'ใช้ละรายการสิ่งของประเภทเดียวกันที่มีอยู่อีกมาก ไม่จำเป็นต้องกล่าวให้หมด'
+  },
+  {
+    id: 'ro-8', grade: 3, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'วันหนึ่ง ๆ ผ่านไปอย่างรวดเร็วเมื่อเราสนุกสนาน',
+    prompt: 'คำว่า "วันหนึ่ง ๆ" ต้องอ่านออกเสียงซ้ำอย่างไร?',
+    answer: 'วัน-หนึ่ง-วัน-หนึ่ง',
+    explanation: 'ไม้ยมกที่เขียนหลังกลุ่มคำหรือวลี ให้อ่านซ้ำทั้งกลุ่มคำเดิม'
+  },
+  {
+    id: 'ro-9', grade: 4, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ',
+    prompt: 'เครื่องหมาย "ฯ" ท้ายพระนามย่อมาจากคำเต็มว่าอย่างไร?',
+    answer: 'สยามบรมราชกุมารี',
+    explanation: 'ไปยาลน้อยใช้ย่อสร้อยพระนามที่เป็นที่รู้จักกันดีในสังคมไทย'
+  },
+  {
+    id: 'ro-10', grade: 5, type: 'repetition_omission', skill: 'ไม้ยมก/ไปยาล',
+    sentence: 'อาหารไทยขึ้นชื่อมี ผัดไทย ต้มยำกุ้ง ส้มตำ แกงเขียวหวาน ฯลฯ',
+    prompt: 'เขียนคำอ่านที่ถูกต้องของเครื่องหมาย "ฯลฯ" ในประโยคนี้',
+    answer: 'อ่านว่า "ละ" หรือ "และ-อื่น-อื่น"',
+    explanation: 'ไปยาลใหญ่มีวิธีอ่านออกเสียงมาตรฐาน 2 แบบตามหลักราชบัณฑิตยสภา'
+  },
+
+  // ====================================================
+  // 2. อัศเจรีย์ และ ปรัศนี (10 ข้อ)
+  // ====================================================
+  {
+    id: 'eq-1', grade: 3, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'ไชโย! ทีมฟุตบอลโรงเรียนของเราชนะการแข่งขันแล้ว',
+    prompt: 'เครื่องหมาย "!" มีชื่อเรียกว่าอะไร และเขียนไว้หลังคำประเภทใด?',
+    answer: 'อัศเจรีย์ (เครื่องหมายตกใจ) · เขียนไว้หลังคำอุทาน',
+    explanation: 'ใช้อัศเจรีย์เขียนชิดหลังคำอุทานเพื่อแสดงอารมณ์ความรู้สึกตื่นเต้น ดีใจ'
+  },
+  {
+    id: 'eq-2', grade: 3, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'เธอทำการบ้านวิชาภาษาไทยเสร็จเรียบร้อยหรือยัง?',
+    prompt: 'เครื่องหมาย "?" มีชื่อเรียกว่าอะไร และทำหน้าที่ใดในประโยค?',
+    answer: 'ปรัศนี (เครื่องหมายคำถาม) · แสดงว่าข้อความข้างหน้าเป็นประโยคคำถาม',
+    explanation: 'ปรัศนีใช้เขียนไว้ท้ายประโยคคำถาม เพื่อบอกให้ผู้อ่านทราบชัดเจน'
+  },
+  {
+    id: 'eq-3', grade: 3, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'โอ้โฮ! ดอกกุหลาบในสวนดอกไม้นี้สวยงามมาก',
+    prompt: 'เครื่องหมายอัศเจรีย์ในประโยคนี้แสดงอารมณ์ความรู้สึกใด?',
+    answer: 'แสดงความประหลาดใจ ชื่นชม และทึ่งในความสวยงาม',
+    explanation: 'คำอุทาน "โอ้โฮ!" สื่อถึงความรู้สึกทึ่งและประทับใจ'
+  },
+  {
+    id: 'eq-4', grade: 4, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'ช่วยด้วย! มีแมวติดอยู่บนยอดไม้สูง',
+    prompt: 'เหตุใดจึงต้องใช้อัศเจรีย์ (!) หลังข้อความ "ช่วยด้วย"?',
+    answer: 'เพื่อแสดงน้ำเสียงตื่นตระหนก เร่งด่วน และขอความช่วยเหลือฉุกเฉิน',
+    explanation: 'อัศเจรีย์เน้นย้ำความรู้สึกตื่นเต้นตกใจและต้องการความช่วยเหลือทันที'
+  },
+  {
+    id: 'eq-5', grade: 4, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'ใครเป็นหัวหน้าห้องเรียนชั้นประถมศึกษาปีที่ ๔?',
+    prompt: 'ประโยคนี้เป็นประโยคชนิดใด และมีเครื่องหมายใดกำกับท้าย?',
+    answer: 'ประโยคคำถาม · มีเครื่องหมายปรัศนี (?) กำกับท้าย',
+    explanation: 'มีคำว่า "ใคร" แสดงการถามหาบุคคล และลงท้ายด้วยเครื่องหมายปรัศนี'
+  },
+  {
+    id: 'eq-6', grade: 3, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'อุ๊ย! ฉันทำแก้วน้ำหล่นแตก',
+    prompt: 'คำว่า "อุ๊ย!" เครื่องหมายอัศเจรีย์แสดงความรู้สึกอย่างไร?',
+    answer: 'แสดงความรู้สึกตกใจอย่างกะทันหัน',
+    explanation: 'คำอุทาน "อุ๊ย" สื่อถึงอาการตกใจเมื่อเกิดอุบัติเหตุไม่คาดคิด'
+  },
+  {
+    id: 'eq-7', grade: 5, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'เหตุใดในการเขียนภาษาไทยทางการทั่วไป จึงมักไม่นิยมใส่เครื่องหมายปรัศนี (?) ท้ายประโยคคำถาม?',
+    prompt: 'อธิบายลักษณะการใช้ภาษาไทยที่แตกต่างจากภาษาอังกฤษ',
+    answer: 'เพราะประโยคภาษาไทยมีคำแสดงคำถามชัดเจนในตัวอยู่แล้ว (เช่น ใคร อะไร ที่ไหน ไหม หรือไม่)',
+    explanation: 'ภาษาไทยมีรูปคำถามชัดเจน จึงไม่จำเป็นต้องใช้ปรัศนีในงานเขียนร้อยแก้วทางการ'
+  },
+  {
+    id: 'eq-8', grade: 4, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'โอ๊ย! มดกัดที่แขนของฉันเจ็บจังเลย',
+    prompt: 'จำแนกคำอุทานและเครื่องหมายวรรคตอนในข้อความนี้',
+    answer: 'คำอุทาน: โอ๊ย · เครื่องหมายวรรคตอน: อัศเจรีย์ (!)',
+    explanation: 'อัศเจรีย์วางชิดหลังคำอุทานแสดงความเจ็บปวด'
+  },
+  {
+    id: 'eq-9', grade: 4, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'วันหยุดสุดสัปดาห์นี้เธอจะไปเที่ยวทะเลหรือน้ำตก?',
+    prompt: 'เครื่องหมายปรัศนีในประโยคนี้ช่วยเน้นย้ำความหมายใด?',
+    answer: 'เน้นย้ำคำถามให้ผู้ฟังเลือกตอบอย่างใดอย่างหนึ่ง',
+    explanation: 'เป็นประโยคคำถามที่มีคำสันธาน "หรือ" ให้เลือก'
+  },
+  {
+    id: 'eq-10', grade: 5, type: 'emotion_question', skill: 'อัศเจรีย์/ปรัศนี',
+    sentence: 'อนิจจา! ลูกนกตกจากรังลงมาตาย',
+    prompt: 'คำว่า "อนิจจา!" เครื่องหมายอัศเจรีย์แสดงอารมณ์ความรู้สึกใด?',
+    answer: 'แสดงความสงสาร เวทนา และเสียดายสลดใจ',
+    explanation: '"อนิจจา" เป็นคำอุทานบอกความรู้สึกสลดใจและสงสาร'
+  },
+
+  // ====================================================
+  // 3. อัญประกาศ และ นขลิขิต (10 ข้อ)
+  // ====================================================
+  {
+    id: 'qp-1', grade: 4, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'คุณครูบอกกับนักเรียนว่า “ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่น”',
+    prompt: 'เครื่องหมาย “ ” มีชื่อเรียกว่าอะไร และทำหน้าที่ใดในประโยค?',
+    answer: 'อัญประกาศ (เครื่องหมายคำพูด) · ใช้ครอบข้อความที่เป็นคำพูดตรงหรือคติพจน์',
+    explanation: 'อัญประกาศใช้เขียนคร่อมคำพูดหรือข้อความที่ยกมาเน้นย้ำ'
+  },
+  {
+    id: 'qp-2', grade: 3, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'พระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (รัชกาลที่ ๕) ทรงประกาศเลิกทาส',
+    prompt: 'เครื่องหมาย ( ) มีชื่อทางการว่าอะไร และข้อความในวงเล็บทำหน้าที่อะไร?',
+    answer: 'นขลิขิต (วงเล็บ) · ทำหน้าที่อธิบายหรือขยายความเพิ่มเติมให้ชัดเจนขึ้น',
+    explanation: 'นขลิขิตใช้คร่อมข้อความที่ช่วยเสริมความเข้าใจ'
+  },
+  {
+    id: 'qp-3', grade: 4, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'แม่เตือนฉันเสมอว่า “อย่าไว้ใจทาง อย่าวางใจคน”',
+    prompt: 'เขียนวิธีอ่านออกเสียงเครื่องหมายอัญประกาศในประโยคนี้',
+    answer: 'อ่านว่า ...อัญประกาศเปิด อย่าไว้ใจทาง อย่าวางใจคน อัญประกาศปิด',
+    explanation: 'การอ่านออกเสียงเป็นทางการต้องอ่านคำว่า อัญประกาศเปิด และ อัญประกาศปิด'
+  },
+  {
+    id: 'qp-4', grade: 3, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'จังหวัดขอนแก่น (ภาคตะวันออกเฉียงเหนือ) มีประชากรหนาแน่น',
+    prompt: 'เขียนวิธีอ่านออกเสียงเครื่องหมายนขลิขิตในประโยคนี้',
+    answer: 'อ่านว่า ...วงเล็บเปิด ภาคตะวันออกเฉียงเหนือ วงเล็บปิด...',
+    explanation: 'เวลาอ่านออกเสียงข้อความในวงเล็บ ให้อ่านคำว่า "วงเล็บเปิด" และ "วงเล็บปิด"'
+  },
+  {
+    id: 'qp-5', grade: 4, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'คำว่า “กาพย์ยานี ๑๑” เป็นบทร้อยกรองที่นิยมแต่งในภาษาไทย',
+    prompt: 'เหตุใดคำว่า "กาพย์ยานี ๑๑" จึงต้องใส่อัญประกาศคร่อมไว้?',
+    answer: 'เพื่อเน้นชื่อเฉพาะหรือคำสำคัญให้เด่นชัดขึ้นจากข้อความอื่น',
+    explanation: 'อัญประกาศนอกจากใช้เป็นเครื่องหมายคำพูดแล้ว ยังใช้เน้นคำสำคัญได้ด้วย'
+  },
+  {
+    id: 'qp-6', grade: 5, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'องค์การการศึกษาวิทยาศาสตร์และวัฒนธรรมแห่งสหประชาชาติ (UNESCO)',
+    prompt: 'ข้อความภาษาอังกฤษในนขลิขิตทำหน้าที่อะไร?',
+    answer: 'ระบุชื่อย่อสากลภาษาอังกฤษของหน่วยงานเพื่อขยายความ',
+    explanation: 'ใช้วงเล็บเพื่อแจ้งชื่อย่อหรือชื่อภาษาอื่นที่ช่วยให้เข้าใจง่ายขึ้น'
+  },
+  {
+    id: 'qp-7', grade: 4, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'คุณยายถามหลานว่า “วันนี้ที่โรงเรียนมีอาหารกลางวันอะไรบ้างลูก”',
+    prompt: 'ระบุเครื่องหมายวรรคตอน ๒ ชนิดที่ปรากฏในประโยคนี้',
+    answer: 'อัญประกาศ (“ ”) และ ปรัศนี/หรือข้อความคำถาม',
+    explanation: 'มีอัญประกาศคร่อมคำพูด และมีเนื้อความเป็นคำถาม'
+  },
+  {
+    id: 'qp-8', grade: 5, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'หากตัดข้อความในนขลิขิต ( ) ออกจากประโยค ใจความหลักของประโยคจะเสียไปหรือไม่ เพราะเหตุใด?',
+    answer: 'ไม่เสียใจความหลัก เพราะข้อความในวงเล็บเป็นเพียงข้อมูลขยายความเพิ่มเติม',
+    explanation: 'ข้อความในนขลิขิตมีไว้เพื่อเสริมความกระจ่าง ตัดออกได้โดยประโยคหลักยังสมบูรณ์'
+  },
+  {
+    id: 'qp-9', grade: 4, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'ป้ายหน้าห้องสมุดเขียนเตือนว่า “กรุณาปิดเสียงโทรศัพท์มือถือ”',
+    prompt: 'คำว่า “กรุณาปิดเสียงโทรศัพท์มือถือ” ทำไมต้องใช้อัญประกาศ?',
+    answer: 'เพื่อยกข้อความที่ปรากฏบนป้ายเตือนมาแสดงอย่างตรงตัว',
+    explanation: 'ใช้อัญประกาศเพื่ออ้างอิงข้อความที่คัดลอกมาจากแหล่งอื่น'
+  },
+  {
+    id: 'qp-10', grade: 5, type: 'quote_parenthesis', skill: 'อัญประกาศ/นขลิขิต',
+    sentence: 'พระสุนทรโวหาร (ภู่) กวีเอกในสมัยรัตนโกสินทร์',
+    prompt: 'คำว่า "(ภู่)" วงเล็บไว้เพื่อบอกอะไร?',
+    answer: 'บอกชื่อเดิมของพระสุนทรโวหาร คือ ภู่',
+    explanation: 'นขลิขิตช่วยระบุชื่อเดิมหรือนามที่เป็นที่รู้จักแพร่หลาย'
+  },
+
+  // ====================================================
+  // 4. ยัติภังค์ / มหัพภาค / ทับ (10 ข้อ)
+  // ====================================================
+  {
+    id: 'dps-1', grade: 3, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'คำว่า กตัญญู เขียนคำอ่านว่า กะ-ตัน-ยู',
+    prompt: 'เครื่องหมาย "-" ในคำอ่านมีชื่อเรียกว่าอะไร และทำหน้าที่ใด?',
+    answer: 'ยัติภังค์ (-) · ทำหน้าที่แยกพยางค์เพื่อแสดงเสียงอ่าน',
+    explanation: 'ยัติภังค์ใช้คั่นระหว่างพยางค์เพื่อให้อ่านออกเสียงได้ถูกต้องชัดเจน'
+  },
+  {
+    id: 'dps-2', grade: 3, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'โรงเรียนเปิดรับสมัครนักเรียนใหม่เวลา ๐๘.๓๐ - ๑๖.๓๐ น.',
+    prompt: 'เครื่องหมาย "-" ในประโยคนี้มีความหมายว่าอย่างไร และอ่านออกเสียงว่าอะไร?',
+    answer: 'มีความหมายว่าบอกช่วงเวลา · อ่านออกเสียงว่า "ถึง"',
+    explanation: 'ยัติภังค์เมื่อเขียนระหว่างตัวเลขบอกช่วงเวลา ให้อ่านออกเสียงว่า "ถึง"'
+  },
+  {
+    id: 'dps-3', grade: 3, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'พ.ศ. ๒๕๖๙ โรงเรียนบ้านคำไผ่จัดงานครบรอบการก่อตั้ง',
+    prompt: 'เครื่องหมาย "." มีชื่อเรียกว่าอะไร และทำหน้าที่ใดในคำว่า "พ.ศ."?',
+    answer: 'มหัพภาค (จุด) · ใช้เขียนกำกับหลังพยัญชนะเพื่อบอกว่าเป็นอักษรย่อ',
+    explanation: 'มหัพภาคใช้เขียนหลังอักษรย่อ โดย พ.ศ. ย่อมาจากคำว่า พุทธศักราช'
+  },
+  {
+    id: 'dps-4', grade: 4, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'บ้านพักครูตั้งอยู่บ้านเลขที่ ๑๒๓/๔๕ หมู่ ๓',
+    prompt: 'เครื่องหมาย "/" มีชื่อเรียกว่าอะไร และอ่านออกเสียงอย่างไร?',
+    answer: 'ทับ (/) · อ่านออกเสียงว่า "ทับ"',
+    explanation: 'เครื่องหมายทับใช้คั่นตัวเลขเพื่อแบ่งหมวดหมู่ เช่น บ้านเลขที่ ให้อ่านว่า "ทับ"'
+  },
+  {
+    id: 'dps-5', grade: 4, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'คุณหมอเริ่มตรวจคนไข้เวลา ๐๙.๑๕ น.',
+    prompt: 'เครื่องหมายมหัพภาค (.) ในตัวเลขเวลา ๐๙.๑๕ น. ทำหน้าที่ใด?',
+    answer: 'คั่นระหว่างตัวเลขบอกชั่วโมงกับตัวเลขบอกนาที',
+    explanation: 'มหัพภาคใช้คั่นเวลา ชั่วโมง.นาที และ น. ย่อมาจากคำว่า นาฬิกา'
+  },
+  {
+    id: 'dps-6', grade: 4, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'นักเรียนชั้น ป.๔/๑ ช่วยกันจัดทำบอร์ดวันภาษาไทยแห่งชาติ',
+    prompt: 'คำว่า "ป.๔/๑" อ่านออกเสียงคำเต็มว่าอย่างไร?',
+    answer: 'ประถมศึกษาปีที่สี่ทับหนึ่ง (หรือ ปอสี่ทับหนึ่ง)',
+    explanation: 'เครื่องหมายจุดย่อประถมศึกษา และเครื่องหมายทับแบ่งลำดับห้องเรียน'
+  },
+  {
+    id: 'dps-7', grade: 5, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'ระยะทางจากบ้านถึงโรงเรียนประมาณ ๓ - ๕ กิโลเมตร',
+    prompt: 'เขียนคำอ่านของข้อความ "๓ - ๕ กิโลเมตร" ให้ถูกต้อง',
+    answer: 'สาม ถึง ห้า กิโลเมตร',
+    explanation: 'เครื่องหมายยัติภังค์ระหว่างตัวเลขบอกปริมาณหรือระยะทางให้อ่านว่า "ถึง"'
+  },
+  {
+    id: 'dps-8', grade: 4, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'สมุดวิชาคณิตศาสตร์ราคาเล่มละ ๒๕.๕๐ บาท',
+    prompt: 'เครื่องหมายจุด (.) ในจำนวนเงิน ๒๕.๕๐ บาท ทำหน้าที่อะไร?',
+    answer: 'คั่นจุดทศนิยมระหว่างจำนวนบาทกับจำนวนสตางค์',
+    explanation: 'มหัพภาคใช้เป็นจุดทศนิยมคั่นหน่วยเต็มและเศษสตางค์'
+  },
+  {
+    id: 'dps-9', grade: 5, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'หนังสือราชการลงวันที่ ศธ ๐๔/๒๕๖๙',
+    prompt: 'เครื่องหมายทับ (/) ในเลขที่หนังสือราชการทำหน้าที่อะไร?',
+    answer: 'คั่นระหว่างลำดับที่ของหนังสือราชการกับปีพุทธศักราช',
+    explanation: 'ใช้แบ่งส่วนลำดับที่และปีที่ออกหนังสือราชการ'
+  },
+  {
+    id: 'dps-10', grade: 5, type: 'dash_period_slash', skill: 'ยัติภังค์/มหัพภาค/ทับ',
+    sentence: 'คำว่า มหัศจรรย์ เขียนคำอ่านโดยใช้ยัติภังค์ (-) ได้อย่างไร?',
+    prompt: 'เขียนคำอ่านแยกพยางค์ของคำว่า "มหัศจรรย์"',
+    answer: 'มะ-หัด-สะ-จัน',
+    explanation: 'ใช้ยัติภังค์คั่นแยกแต่ละพยางค์ตามเสียงอ่านจริงของคำ'
+  },
+
+  // ====================================================
+  // 5. ซ่อมประโยคและเลือกใช้เครื่องหมายวรรคตอน (10 ข้อ)
+  // ====================================================
+  {
+    id: 'sc-1', grade: 3, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'ฝนตกหนักน้ำจึงท่วมถนน___ เด็ก___ต้องลุยน้ำไปโรงเรียน',
+    prompt: 'เติมเครื่องหมายวรรคตอนที่เหมาะสมลงในช่องว่างทั้งสองจุด',
+    answer: 'จุดแรกเว้นวรรค (หรือ มหัพภาค) · จุดที่สองเติม ไม้ยมก (ๆ) กลายเป็น "เด็ก ๆ"',
+    explanation: 'เด็กหลายคนต้องใช้ไม้ยมกซ้ำคำนาม'
+  },
+  {
+    id: 'sc-2', grade: 3, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'คุณครูถามว่า ใครยังไม่ได้ส่งการบ้าน',
+    prompt: 'แก้ไขประโยคนี้โดยใส่เครื่องหมายคำพูดให้ถูกต้องตามหลักภาษาไทย',
+    answer: 'คุณครูถามว่า “ใครยังไม่ได้ส่งการบ้าน”',
+    explanation: 'คำพูดที่คุณครูถามต้องใส่อัญประกาศ (“ ”) คร่อมไว้'
+  },
+  {
+    id: 'sc-3', grade: 4, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'คุณพระช่วย รถชนกันที่หน้าโรงเรียน',
+    prompt: 'ใส่เครื่องหมายวรรคตอนหลังคำอุทานให้ถูกต้องเพื่อแสดงความตกใจ',
+    answer: 'คุณพระช่วย! รถชนกันที่หน้าโรงเรียน',
+    explanation: 'หลังคำอุทาน "คุณพระช่วย" ต้องใส่อัศเจรีย์ (!)'
+  },
+  {
+    id: 'sc-4', grade: 4, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'ในป่ามีต้นไม้นานาพรรณ เช่น ไม้สัก ไม้ประดู่ ไม้มะค่า ไม้เต็ง___',
+    prompt: 'เติมเครื่องหมายวรรคตอนท้ายประโยคเพื่อบอกว่ายังมีต้นไม้อื่นอีกมาก',
+    answer: 'เติม ไปยาลใหญ่ (ฯลฯ)',
+    explanation: 'การละรายการสิ่งของประเภทเดียวกันที่มีอีกมาก ต้องใช้ไปยาลใหญ่'
+  },
+  {
+    id: 'sc-5', grade: 5, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'คุณตาตื่นนอนเวลา ๐๕.๐๐ น. เพื่อไปออกกำลังกาย',
+    prompt: 'เครื่องหมายจุด (.) ที่ปรากฏในประโยคทำหน้าที่อะไรบ้าง (ระบุ ๒ จุด)?',
+    answer: 'จุดแรกคั่นเวลา (ชั่วโมงกับนาที) · จุดหลังเขียนกำกับอักษรย่อ น. (นาฬิกา)',
+    explanation: 'มหัพภาคจุดแรกคั่นเวลา ๐๕.๐๐ และจุดหลังคือกำกับตัวย่อ น.'
+  },
+  {
+    id: 'sc-6', grade: 4, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'สมเด็จพระสังฆราชเสด็จ___ ไปทรงเปิดศูนย์ปฏิบัติธรรม',
+    prompt: 'เติมเครื่องหมายวรรคตอนหลังคำราชาศัพท์เพื่อละคำเต็ม',
+    answer: 'เติม ไปยาลน้อย (ฯ) กลายเป็น "เสด็จฯ"',
+    explanation: 'เสด็จฯ ละคำเต็มว่า เสด็จพระราชดำเนิน หรือ เสด็จไป'
+  },
+  {
+    id: 'sc-7', grade: 5, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'จังหวัดพระนครศรีอยุธยา เมืองหลวงเก่าของไทย มีโบราณสถานสำคัญมากมาย',
+    prompt: 'เติมเครื่องหมายวรรคตอนเพื่อจัดวางข้อความ "เมืองหลวงเก่าของไทย" ให้เป็นส่วนขยายความ',
+    answer: 'ใส่ นขลิขิต ( ) กลายเป็น จังหวัดพระนครศรีอยุธยา (เมืองหลวงเก่าของไทย)...',
+    explanation: 'นขลิขิตช่วยคร่อมข้อความที่ต้องการอธิบายเสริม'
+  },
+  {
+    id: 'sc-8', grade: 4, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'การแข่งขันวิ่งผลัดรอบชิงชนะเลิศจะเริ่มในเวลา ๑๔.๓๐___๑๕.๓๐ น.',
+    prompt: 'เติมเครื่องหมายวรรคตอนที่เชื่อมบอกช่วงเวลาลงในช่องว่าง',
+    answer: 'เติม ยัติภังค์ (-) อ่านว่า "ถึง"',
+    explanation: 'ยัติภังค์ใช้เชื่อมตัวเลขบอกเวลาเริ่มต้นถึงสิ้นสุด'
+  },
+  {
+    id: 'sc-9', grade: 5, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'แม่บอกว่าอย่ากินขนมหวานมากฟันจะผุนะลูก',
+    prompt: 'แก้ไขประโยคนี้ให้ถูกต้องโดยใส่เครื่องหมายคำพูดและเว้นวรรคให้เหมาะสม',
+    answer: 'แม่บอกว่า “อย่ากินขนมหวานมาก ฟันจะผุนะลูก”',
+    explanation: 'ใส่อัญประกาศครอบคำพูดของแม่ และเว้นวรรคประโยคให้สื่อความหมายชัดเจน'
+  },
+  {
+    id: 'sc-10', grade: 5, type: 'sentence_correction', skill: 'ซ่อมประโยคและเลือกใช้',
+    sentence: 'ไชโยพวกเราสอบผ่านแล้วคุณครูกล่าวชื่นชม',
+    prompt: 'เติมเครื่องหมายอัศเจรีย์และอัญประกาศให้ประโยคนี้สมบูรณ์ถูกต้อง',
+    answer: '“ไชโย! พวกเราสอบผ่านแล้ว” คุณครูกล่าวชื่นชม',
+    explanation: 'ใส่อัศเจรีย์หลังคำอุทาน "ไชโย!" และครอบคำพูดทั้งหมดด้วยอัญประกาศ (“ ”)'
+  }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '✒️',
+  title: 'ใบงานเครื่องหมายวรรคตอน',
+  subject: 'ภาษาไทย',
+  gradeLabel: 'ป.3–ป.5',
+  mediaLabel: 'คลังเครื่องหมายวรรคตอนไทย',
+  sourceMediaUrl:'/games/thai/thai-punctuation-hub/index.html',
+  indicators: ["ท 4.1 ป.3/6", "ท 4.1 ป.4/2", "ท 2.1 ป.3/1", "ท 2.1 ป.4/1", "ท 2.1 ป.5/1"],
+  directions: 'อ่านข้อความ วิเคราะห์การใช้เครื่องหมายวรรคตอน ตอบคำถาม และอธิบายหน้าที่ให้ถูกต้องตามหลักภาษาไทย',
+  topicLabels: {
+    repetition_omission: '1. ไม้ยมก / ไปยาลน้อย / ไปยาลใหญ่',
+    emotion_question: '2. อัศเจรีย์ และ ปรัศนี',
+    quote_parenthesis: '3. อัญประกาศ และ นขลิขิต',
+    dash_period_slash: '4. ยัติภังค์ / มหัพภาค / ทับ',
+    sentence_correction: '5. ซ่อมประโยคและเลือกใช้'
+  },
+
+  getItems(topic) {
+    const gradeVal = document.getElementById('selGrade')?.value || 'all';
+    let pool = ITEMS;
+    if (gradeVal === '3') pool = ITEMS.filter(item => item.grade === 3);
+    else if (gradeVal === '4') pool = ITEMS.filter(item => item.grade === 4);
+    else if (gradeVal === '5') pool = ITEMS.filter(item => item.grade === 5);
+
+    if (!topic || topic === 'mixed') return pool;
+    const filtered = pool.filter(item => item.type === topic);
+    return filtered.length > 0 ? filtered : ITEMS.filter(item => item.type === topic);
+  },
+
+  renderQuestion(item, index, ctx) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    
+    return `
+      <div class="q-stem">
+        <div>
+          <span class="skill-tag">${e(item.skill)} (ป.${item.grade})</span>
+        </div>
+        <div class="sentence-box">
+          “${e(item.sentence)}”
+        </div>
+        <div class="q-prompt-thai">
+          <strong>คำถาม:</strong> ${e(item.prompt)}
+        </div>
+      </div>
+      <div class="answer-write-area">
+        <div class="answer-line-fill">
+          <span class="ans-prefix">คำตอบ:</span>
+          <span class="teacher-ans-text">${e(item.answer)}</span>
+          <span class="student-placeholder">...................................................................................................................................................</span>
+        </div>
+        <div class="answer-line-fill">
+          <span class="ans-prefix">คำอธิบาย/หน้าที่:</span>
+          <span class="teacher-ans-text">${e(item.explanation)}</span>
+          <span class="student-placeholder">...................................................................................................................................................</span>
+        </div>
+      </div>
+    `;
+  }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
-function render(){window.KampaiTopicWorksheet.render();}
-document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
-document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+function render() {
+  window.KampaiTopicWorksheet.render();
+}
+window.render = render;
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>
