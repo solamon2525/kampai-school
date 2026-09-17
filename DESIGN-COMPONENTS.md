@@ -7,6 +7,8 @@
 - Admin edit mode exposes drag handles and previous/next controls; pointer capture supports touch and edge auto-scroll. Save publishes globally; cancel discards; reset changes the draft until saved. Errors preserve the draft.
 - `vocab_hub_category_order` stores a JSON slug array in `school_settings`. Existing RLS allows public reads and admin-only writes. Service + React Query own data access; the HTML menu only exchanges validated same-origin/source messages with its wrapper. No credentials enter game messages.
 - `/play/vocab-hub` opens the learning menu without student-code entry. Exercises show immediate feedback but do not persist scores or XP; the former dashboard URL redirects back to the menu. Direct production HTML links redirect there with the category hash. Local standalone previews remain supported.
+- Pronunciation buttons in every topic use at least 44 × 44px touch targets. Taps start speech synchronously and repeated taps replay; only the current request can continue the English/Thai sequence. A selected-voice error retries once with the browser's default voice for the same language, then shows a four-second error message. Touch hover never triggers audio. No student score is submitted.
+- Audio regression checks: `node scripts/test-vocab-hub-mobile-speech.mjs` (mocked Web Speech callbacks) and `node scripts/test-vocab-hub-mobile-browser.mjs` (all 29 topics at 360/1280/1920). Physical Android Chrome listening still requires a device check.
 - Verification: `node scripts/test-vocab-hub-order.mjs`, `node scripts/test-vocab-hub-menu.mjs`, game aggregate verifier, app build, and rollback-only SQL role tests. Harness persistence is simulated; database RLS is verified separately.
 
 > Companion to [`DESIGN.md`](./DESIGN.md). อ่านไฟล์นี้เมื่อ:

@@ -250,6 +250,8 @@ For this user-requested gallery, generated soft 3D raster covers are explicitly 
 
 Vocabulary Hub is teaching media. It opens without student-code lookup, shows only in-session learning feedback, and does not submit game sessions, XP, or leaderboard scores. The shared category order remains an admin-managed setting.
 
+Vocabulary Hub pronunciation starts in the same user gesture as a speaker tap. Every tap, including a repeated word, requests playback. A new request cancels the previous one; delayed callbacks may continue an English–Thai sequence only for the current request. Touch-triggered hover events never start a second reading. Speaker targets are at least 44 × 44 CSS pixels, and synthesis failures show a readable message while a missing selected voice gets one same-language default-voice retry.
+
 | Token | Size | Weight | Line-height | Use |
 |---|---|---|---|---|
 | `h1` | 3rem (48px) | 700 | 1.15 | Page title (hero) |

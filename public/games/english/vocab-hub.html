@@ -344,15 +344,15 @@ body::before{content:'';position:fixed;inset:0;
   top: 6px;
   right: 6px;
   z-index: 10;
-  width: 4.2vh;
-  height: 4.2vh;
-  min-width: 26px;
-  min-height: 26px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.28);
   background: rgba(0,0,0,0.45);
   color: #FFE082;
-  font-size: 1.8vh;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -784,7 +784,7 @@ body::before{content:'';position:fixed;inset:0;
   #wback-th{font-size:24px;white-space:normal;text-align:center}
   #wback-mean{font-size:18px;white-space:normal;text-align:center}
   #wback-example{font-size:14px;white-space:normal;text-align:center}
-  #btn-say{top:6px;right:8px;width:34px;height:34px;font-size:16px}
+  #btn-say{top:6px;right:8px;width:44px;height:44px;font-size:18px}
   #voice-mode-pill{top:42px;right:8px;padding:3px 8px;font-size:11px}
   #phonics-hint{bottom:0.3vh;font-size:12px;gap:4px}
   #phonics-hint .ph-part{min-width:44px;min-height:40px;padding:4px 9px}
@@ -2090,7 +2090,7 @@ function loadVoices(){
   enVoice = vs.find(v=>/en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
   thVoice = vs.find(v=>/^th/i.test(v.lang)) || null;
 }
-if (window.speechSynthesis){ speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
+if (window.speechSynthesis){ speechSynthesis.addEventListener('voiceschanged', loadVoices); loadVoices(); }
 function sayText(item){
   const slug = item.sourceSlug || currentSlug;
   if (slug === 'alphabet') return item.label;   // อ่านชื่อตัวอักษรเดี่ยว (A) ไม่อ่านคำตัวอย่าง (A for Apple)
@@ -2109,52 +2109,61 @@ function sayThaiText(item){
   }
   return parts.join(" ");
 }
-let isSpeakingBusy = false;
-function _speakOne(text, lang, voice, rate, onDone){
-  try {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang; if(voice) u.voice = voice; u.rate = rate;
-    u.onend = u.onerror = () => {
-      isSpeakingBusy = false;
-      if(onDone) onDone();
-    };
-    speechSynthesis.speak(u);
-  } catch(_){
-    isSpeakingBusy = false;
-    if(onDone) onDone();
-  }
+let speechRequest = 0;
+let speechNextTimer = null;
+function cancelSpeech(){
+  speechRequest++;
+  clearTimeout(speechNextTimer);
+  speechSynthesis.cancel();
 }
-let lastSpeakKey = '';
-let lastSpeakTimestamp = 0;
-let speakCancelTimer = null;
+function _speakOne(text, lang, voice, rate, onDone, requestId){
+  const active = () => requestId === undefined || requestId === speechRequest;
+  const attempt = (selectedVoice, retryAllowed) => {
+    if (!active()) return;
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang; if(selectedVoice) u.voice = selectedVoice; u.rate = rate;
+      u.onend = () => { if(active() && onDone) onDone(true); };
+      u.onerror = event => {
+        if (!active()) return;
+        if (retryAllowed && selectedVoice && event.error === 'voice-unavailable') {
+          attempt(null, false);
+          return;
+        }
+        if (event.error !== 'canceled' && event.error !== 'interrupted') {
+          toast(false, 'เสียงอ่านไม่พร้อม กรุณาลองแตะอีกครั้ง', 4000);
+        }
+        if(onDone) onDone(false);
+      };
+      speechSynthesis.speak(u);
+    } catch(_) {
+      if (!active()) return;
+      if (retryAllowed && selectedVoice) { attempt(null, false); return; }
+      toast(false, 'เสียงอ่านไม่พร้อม กรุณาลองแตะอีกครั้ง', 4000);
+      if(onDone) onDone(false);
+    }
+  };
+  attempt(voice, true);
+}
 function speak(item, onDone, voiceOverride){
-  if (!window.speechSynthesis || !item){ if(onDone) onDone(); return; }
-  const now = Date.now();
-  const itemKey = (item.en || item.label || '') + '_' + (voiceOverride || voiceMode);
-  // ป้องกันการยิงคำสั่งอ่านซ้ำติดกันภายใน 320ms (Event collision / Double tap)
-  if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 320) {
-    if(onDone) onDone();
-    return;
-  }
-  lastSpeakKey = itemKey;
-  lastSpeakTimestamp = now;
-
+  if (!item) { if(onDone) onDone(); return; }
+  if (!window.speechSynthesis) { toast(false, 'อุปกรณ์นี้ไม่รองรับเสียงอ่าน', 4000); if(onDone) onDone(false); return; }
   const m = ['en','th','both'].includes(voiceOverride) ? voiceOverride : voiceMode;
   try {
-    speechSynthesis.cancel();
-    clearTimeout(speakCancelTimer);
-    speakCancelTimer = setTimeout(() => {
-      isSpeakingBusy = true;
-      if(m === 'th'){
-        _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone);
-      } else if(m === 'both'){
-        _speakOne(sayText(item), 'en-US', enVoice, 0.9, ()=>{
-          setTimeout(()=>{ _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone); }, 180);
-        });
-      } else {
-        _speakOne(sayText(item), 'en-US', enVoice, 0.9, onDone);
-      }
-    }, 50);
+    cancelSpeech();
+    const requestId = speechRequest;
+    if(m === 'th'){
+      _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone, requestId);
+    } else if(m === 'both'){
+      _speakOne(sayText(item), 'en-US', enVoice, 0.9, succeeded => {
+        if (!succeeded || requestId !== speechRequest) { if(onDone) onDone(false); return; }
+        speechNextTimer = setTimeout(() => {
+          if (requestId === speechRequest) _speakOne(sayThaiText(item), 'th-TH', thVoice, 0.95, onDone, requestId);
+        }, 180);
+      }, requestId);
+    } else {
+      _speakOne(sayText(item), 'en-US', enVoice, 0.9, onDone, requestId);
+    }
   } catch(_){ if(onDone) onDone(); }
 }
 // อ่านชื่อตัวอักษรทีละตัว — ไม่ cancel (queue ต่อกัน กันตัดเสียงตัวก่อนหน้า)
@@ -2213,11 +2222,11 @@ function backEnFontSize(text){
   return '5.5vh';
 }
 let toastTimer=null;
-function toast(ok,text){
+function toast(ok,text,duration=900){
   clearTimeout(toastTimer);
   toastEl.className=(ok?'ok':'bad')+' show';
   toastEl.textContent=(ok?'✓ ':'✗ ')+text;
-  toastTimer=setTimeout(()=>toastEl.classList.remove('show'),900);
+  toastTimer=setTimeout(()=>toastEl.classList.remove('show'),duration);
 }
 function confetti(){
   const ctx=cfx.getContext('2d'); cfx.width=innerWidth; cfx.height=innerHeight; cfx.style.display='block';
@@ -2346,7 +2355,7 @@ function showHub(){
   clearInterval(tfTimer); tfTimer = null;
   clearInterval(wsTimer); wsTimer = null;
   clearTimeout(lbTimer); lbTimer = null;
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
   currentSlug='';
   hubView.style.display='';
   topicView.classList.remove('show');
@@ -2396,6 +2405,7 @@ function buildCell(item, sIdx, cIdx){
     const visual=document.createElement('span'); visual.className='cell-visual';
     let hoverTimer = null;
     visual.addEventListener('mouseenter', () => {
+      if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       clearTimeout(hoverTimer);
       hoverTimer = setTimeout(() => {
         triggerSpeak();
@@ -2589,7 +2599,7 @@ function setMode(m){
   clearInterval(taTimer); taTimer=null;
   clearInterval(tfTimer); tfTimer=null;
   clearInterval(wsTimer); wsTimer=null;
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
   Object.keys(modeBtns).forEach(k=>modeBtns[k] && modeBtns[k].classList.toggle('on',k===m));
   quizCtrl.classList.remove('show');
   winEl.classList.remove('show');
@@ -2759,12 +2769,12 @@ function mathAnswerSpeakParts(q){
 let mathSpeakGen = 0;
 function mathSpeakCancel(){
   mathSpeakGen += 1;
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(_){}
+  try{ if(window.speechSynthesis) cancelSpeech(); }catch(_){}
 }
 function mathSpeakParts(parts){
   if(!window.speechSynthesis || !parts || !parts.length) return;
   const gen = ++mathSpeakGen;
-  try{ speechSynthesis.cancel(); }catch(_){}
+  try{ cancelSpeech(); }catch(_){}
   const voice = pickEnVoiceByGender(mathVoiceGender);
   let index = 0;
   function speakNext(){
@@ -2965,7 +2975,7 @@ function pauseAuto(){
   btnPause.textContent='▶ เล่นต่อเนื่อง';
   btnPause.title='กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ';
   btnPause.classList.add('on');
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
 }
 function resumeAuto(){
   if(mode!=='auto'||!autoPaused) return;
@@ -3016,7 +3026,7 @@ function closeLightbox(){
   isLightboxActive = false;
   clearTimeout(lbTimer);
   lbPlayRunning = false;
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
   lightboxOverlay.classList.remove('show');
   setTimeout(() => {
     if(!isLightboxActive) lightboxOverlay.style.display = 'none';
@@ -3161,7 +3171,7 @@ function toggleLbPlay(){
     }, cellMs);
   } else {
     clearTimeout(lbTimer);
-    if(window.speechSynthesis) speechSynthesis.cancel();
+    if(window.speechSynthesis) cancelSpeech();
   }
 }
 
@@ -3946,7 +3956,7 @@ function startSpell(){
 function spellNext(){ clearTimeout(spStepTimer); spPos++; renderSpell(); }
 function renderSpell(){
   clearTimeout(spStepTimer);
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
   spGen++; const myGen = spGen;
   if(spPos>=spOrder.length) spPos=0;                 // วน loop
   const item = allItems[spOrder[spPos]];
@@ -4126,7 +4136,7 @@ window.addEventListener('resize',()=>{
     if(nextIps!==ips){
       const preserved=curItem;
       clearTimeout(timer);
-      if(window.speechSynthesis) speechSynthesis.cancel();
+      if(window.speechSynthesis) cancelSpeech();
       autoPaused=true;
       btnPause.textContent='▶ เล่นต่อเนื่อง';
       btnPause.title='กดเพื่อเริ่มเล่นต่อเนื่องอัตโนมัติ';
@@ -4209,7 +4219,7 @@ btnVoice.addEventListener('click',e=>{
   voiceMode = VOICE_CYCLE[(i+1) % VOICE_CYCLE.length].mode;
   applyVoiceMode();
   saveVoiceModeForTopic();
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
 });
 applyVoiceMode();
 
@@ -4393,7 +4403,7 @@ testActions['finish-test'].addEventListener('click',()=>{
 testActions.restart.addEventListener('click',()=>{
   clearTimeout(timer);
   clearTimeout(spStepTimer);
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  if(window.speechSynthesis) cancelSpeech();
   showTopic(currentSlug||'fruits');
   try{KAMPAI.beginRound();}catch(_){}
 });
