@@ -102,13 +102,17 @@
       border: none;
       background: transparent;
       color: var(--text-muted);
-      padding: 6px 12px;
+      padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      box-sizing: border-box;
     }
     .mode-seg button.active {
       background: var(--primary);
@@ -122,42 +126,46 @@
       font-weight: 700;
       border: none;
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 10px 14px;
+      min-height: 44px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       text-decoration: none;
+      box-sizing: border-box;
     }
     .btn:active { transform: scale(0.97); }
     .btn-back {
       background: rgba(255, 255, 255, 0.12);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 6px 12px;
+      padding: 8px 14px;
       font-size: 0.85rem;
+      min-height: 44px;
     }
     .btn-back:hover { background: rgba(255, 255, 255, 0.22); }
     .btn-ghost {
       background: rgba(255, 255, 255, 0.08);
       color: #e2e8f0;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      min-height: 44px;
     }
     .btn-ghost:hover { background: rgba(255, 255, 255, 0.16); }
-    .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+    .btn-primary { background: var(--primary); color: #fff; width: 100%; min-height: 44px; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .btn-quiz { background: #ec4899; color: #fff; width: 100%; }
+    .btn-quiz { background: #ec4899; color: #fff; width: 100%; min-height: 44px; }
     .btn-quiz:hover { background: #db2777; }
-    .btn-align { background: var(--purple); color: #fff; width: 100%; }
+    .btn-align { background: var(--purple); color: #fff; width: 100%; min-height: 44px; }
     .btn-align:hover { background: #9333ea; }
-    .btn-earth { background: #10b981; color: #fff; width: 100%; }
+    .btn-earth { background: #10b981; color: #fff; width: 100%; min-height: 44px; }
     .btn-earth:hover { background: #059669; }
-    .btn-light { background: #eab308; color: #000; width: 100%; }
+    .btn-light { background: #eab308; color: #000; width: 100%; min-height: 44px; }
     .btn-light:hover { background: #ca8a04; }
-    .btn-slice { background: #ef4444; color: #fff; width: 100%; }
+    .btn-slice { background: #ef4444; color: #fff; width: 100%; min-height: 44px; }
 
     /* ─── Canvas ─── */
     #solarCanvas {
@@ -232,12 +240,14 @@
       color: #fff;
       border: 1px solid rgba(56, 189, 248, 0.3);
       border-radius: 8px;
-      padding: 9px 12px;
+      padding: 10px 12px;
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 600;
       outline: none;
       margin-bottom: 8px;
+      min-height: 44px;
+      box-sizing: border-box;
     }
 
     /* Right Quick Encyclopedia Card */
@@ -484,12 +494,16 @@
 
     /* ─── Mobile Responsiveness ─── */
     @media (max-width: 768px) {
-      header { padding: 0 10px; }
-      .header-left h1 { font-size: 0.95rem; }
-      .badge { display: none; }
-      #controlPanel { width: calc(100vw - 32px); max-height: 48vh; }
-      #quickEncPanel { display: none; }
-      #infoPanel { width: calc(100vw - 32px); right: 16px; top: auto; bottom: 80px; }
+      header { padding: 0 8px; gap: 6px; }
+      .header-left { gap: 6px; min-width: 0; }
+      .header-left h1 { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+      .badge { display: none !important; }
+      .btn-back { padding: 8px 10px; min-width: 44px; min-height: 44px; }
+      .btn-back .btn-text { display: none; }
+      .mode-seg button { padding: 6px 10px; font-size: 0.8rem; }
+      #controlPanel { width: calc(100vw - 24px); left: 12px; max-height: 48vh; }
+      #quickEncPanel { display: none !important; }
+      #infoPanel { width: calc(100vw - 24px); left: 12px; right: 12px; top: auto; bottom: 80px; }
       #quizChoices { grid-template-columns: 1fr; }
     }
   </style>
@@ -499,8 +513,8 @@
   <!-- ═══ HEADER ═══ -->
   <header>
     <div class="header-left">
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
-      <h1>🪐 ระบบสุริยะ 3 มิติ (Solar System 3D)</h1>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();" aria-label="กลับคลังสื่อ"><span class="btn-arrow">←</span><span class="btn-text"> กลับคลังสื่อ</span></button>
+      <h1>🪐 ระบบสุริยะ 3 มิติ</h1>
       <span class="badge">ป.4–ป.6 · วิทยาศาสตร์ (ว 3.1)</span>
     </div>
     <div class="header-right">
@@ -509,7 +523,7 @@
         <button type="button" id="tabPractice" data-mode="practice">✏️ ภารกิจควิซ</button>
       </div>
       <a class="btn btn-ghost" href="/games/science/solar-system-3d-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
-      <button type="button" class="btn btn-ghost" id="btnFs" title="เต็มจอ">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" title="เต็มจอ" style="min-width:44px; min-height:44px;">⛶</button>
     </div>
   </header>
 
@@ -1149,6 +1163,14 @@
       function speakThai(text) {
         if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
           KAMPAI.sound.speak(text, 'th-TH');
+        } else if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'th-TH';
+            u.rate = 0.95;
+            window.speechSynthesis.speak(u);
+          } catch (e) {}
         }
       }
 
@@ -1784,6 +1806,13 @@
         quickEncToggleIcon.innerText = isQuickEncCollapsed ? 'ขยาย ➕' : 'ย่อ ➖';
       });
 
+      // Collapse control panel on small screens by default to prevent blocking 3D view
+      if (window.innerWidth <= 768) {
+        isMenuCollapsed = true;
+        panelContent.style.display = 'none';
+        menuToggleIcon.innerText = 'ขยาย ➕';
+      }
+
       document.getElementById('resetViewBtn').addEventListener('click', () => {
         camera.position.set(0, 320, 650);
         controls.target.set(0, 0, 0);
@@ -1804,6 +1833,44 @@
         camera.aspect = window.innerWidth / (window.innerHeight - 56);
         renderer.setSize(window.innerWidth, window.innerHeight - 56);
         camera.updateProjectionMatrix();
+      });
+
+      // Teacher / Smartboard Keyboard Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (e.key === '1') {
+          document.getElementById('tabLearn').click();
+        } else if (e.key === '2') {
+          document.getElementById('toggleAlignBtn').click();
+        } else if (e.key === '3') {
+          document.getElementById('earthMoonBtn').click();
+        } else if (e.key === '4') {
+          document.getElementById('lightSpeedBtn').click();
+        } else if (e.key === '5' || e.key.toLowerCase() === 'q') {
+          document.getElementById('tabPractice').click();
+        } else if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          if (isQuizMode && typeof currentQuestionIndex !== 'undefined') {
+            const q = quizQuestions[currentQuestionIndex];
+            if (q) speakThai(q.q);
+          } else if (selectedPlanetData) {
+            document.getElementById('btnTtsPlanet')?.click();
+          }
+        } else if (e.key.toLowerCase() === 'f') {
+          document.getElementById('btnFs').click();
+        }
+      });
+
+      // window.__getState hook for automated testing & monitoring
+      window.__getState = () => ({
+        isAlignmentMode,
+        isEarthMoonMode,
+        isLightSpeedMode,
+        isCrossSectionMode,
+        isQuizMode,
+        currentQuestionIndex,
+        selectedPlanet: selectedPlanetData ? selectedPlanetData.config.id : null,
+        followedPlanetId
       });
     })();
   </script>
