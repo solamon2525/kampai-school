@@ -248,6 +248,8 @@ The English Vocabulary Hub category menu uses a light surface with navy text and
 
 For this user-requested gallery, generated soft 3D raster covers are explicitly permitted instead of the default inline-SVG illustration rule. Store optimized WebP files under `public/games/english/vocab-hub-covers/`; keep titles in HTML, use contain-fit images, and keep source prompts in the accompanying asset manifest. This exception does not extend to other UI illustrations or person avatars.
 
+Vocabulary Hub is teaching media. It opens without student-code lookup, shows only in-session learning feedback, and does not submit game sessions, XP, or leaderboard scores. The shared category order remains an admin-managed setting.
+
 | Token | Size | Weight | Line-height | Use |
 |---|---|---|---|---|
 | `h1` | 3rem (48px) | 700 | 1.15 | Page title (hero) |

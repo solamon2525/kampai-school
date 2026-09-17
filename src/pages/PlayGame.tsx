@@ -134,7 +134,7 @@ const PlayGame = () => {
   }, [gameSlug, navigate]);
 
   const [phase, setPhase] = useState<Phase>(
-    gameSlug === 'vocab-hub' && !researchStudyId ? 'playing' : 'lookup',
+    gameSlug === 'vocab-hub' ? 'playing' : 'lookup',
   );
   const [codeInput, setCodeInput] = useState('');
   const [student, setStudent] = useState<StudentLookup | null>(null);
@@ -150,6 +150,13 @@ const PlayGame = () => {
     typeof window !== 'undefined' ? getParentLandscape() : false,
   );
   const [gameSessionStarted, setGameSessionStarted] = useState(false);
+
+  useEffect(() => {
+    if (gameSlug !== 'vocab-hub') return;
+    setPhase('playing');
+    setStudent(null);
+    setCodeInput('');
+  }, [gameSlug]);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
@@ -540,7 +547,7 @@ const PlayGame = () => {
     statsOverride?: Awaited<ReturnType<typeof gameStatsService.getForStudent>>['data'],
     leaderboardOverride?: Awaited<ReturnType<typeof gamePlayService.getLeaderboard>>,
   ) => {
-    if (!student || !iframeRef.current?.contentWindow) return;
+    if (resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     const s = statsOverride ?? statsQuery.data;
     const lb = leaderboardOverride ?? leaderboardQuery.data ?? [];
     const lvl = levelFromXp(s?.total_xp ?? 0).level;
@@ -642,7 +649,7 @@ const PlayGame = () => {
       setTimeout(postParentViewport, 100);
       setTimeout(postParentViewport, 500);
     }
-    if (!student || !iframeRef.current?.contentWindow) return;
+    if (resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
     setShowReward(false);
     setResult(null);
@@ -651,20 +658,21 @@ const PlayGame = () => {
   }, [student, resolvedSlug, postParentViewport, postInitToIframe]);
 
   useEffect(() => {
-    if (phase !== 'playing' || !student || !iframeRef.current?.contentWindow) return;
+    if (phase !== 'playing' || resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     postInitToIframe();
   }, [phase, student, postInitToIframe]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    if (gameSlug === 'vocab-hub') return;
     const saved = localStorage.getItem('kampai_student_code');
     if (saved) {
       setCodeInput(saved);
       handleLookup(saved);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [researchStudyId, autostart]);
+  }, [researchStudyId, autostart, gameSlug]);
 
   // ─── receive `navigate` from iframe (exit / select-another-game buttons) ──
   // Not gated by phase — game can request navigation anytime (pause modal, etc.)
@@ -770,6 +778,8 @@ const PlayGame = () => {
       }
       if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
       if (data?.type !== 'gameEnd') return;
+      // Vocabulary Hub is teaching media: never persist a student game session.
+      if (resolvedSlug === 'vocab-hub') return;
       if (sessionSubmittedRef.current) return;
       setGameSessionStarted(false);
       sessionSubmittedRef.current = true;
@@ -1081,13 +1091,18 @@ const PlayGame = () => {
   }, [phase, student, resolvedSlug]);
 
   const handlePlayAgain = useCallback(() => {
+    if (resolvedSlug === 'vocab-hub') {
+      setPhase('playing');
+      iframeRef.current?.contentWindow?.location.reload();
+      return;
+    }
     setResult(null);
     setShowReward(false);
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
     setGameSessionStarted(false);
     setPhase('pre-game');
-  }, [levelInfo]);
+  }, [levelInfo, resolvedSlug]);
 
   const handleSwitchStudent = useCallback(() => {
     setStudent(null);
@@ -1327,11 +1342,6 @@ const PlayGame = () => {
             ) : !isMathRunnerMobilePlay ? (
             <div className={cn('shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 border-b',
               resolvedSlug === 'vocab-hub' ? 'bg-card border-border' : 'bg-black/60 backdrop-blur-sm border-white/10')}>
-              {resolvedSlug === 'vocab-hub' && !student && (
-                <Button variant="ghost" className={cn('mr-auto min-h-11 text-sm')} onClick={handleSwitchStudent}>
-                  เข้าด้วยรหัสนักเรียนเพื่อบันทึกคะแนน
-                </Button>
-              )}
               <button
                 onClick={toggleFullscreen}
                 className={cn('rounded-full transition-colors', resolvedSlug === 'vocab-hub'
@@ -1364,7 +1374,7 @@ const PlayGame = () => {
               <DialogContent className="sm:max-w-xs">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Menu className="h-4 w-4" /> เมนูเกม
+                    <Menu className="h-4 w-4" /> {resolvedSlug === 'vocab-hub' ? 'เมนูสื่อ' : 'เมนูเกม'}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-2 pt-1">
@@ -1375,7 +1385,7 @@ const PlayGame = () => {
                     onClick={() => { setShowExitMenu(false); handlePlayAgain(); }}
                   >
                     <RotateCcw className="h-4 w-4 shrink-0" />
-                    <span>เล่นซ้ำเกมนี้</span>
+                    <span>{resolvedSlug === 'vocab-hub' ? 'เริ่มบทเรียนใหม่' : 'เล่นซ้ำเกมนี้'}</span>
                   </Button>
 
                   {/* 2. เลือกเกมอื่น — keep session */}
@@ -1386,13 +1396,13 @@ const PlayGame = () => {
                   >
                     <Gamepad2 className="h-4 w-4 shrink-0" />
                     <div className="flex flex-col items-start">
-                      <span>เลือกเกมอื่น</span>
-                      <span className="text-[10px] text-muted-foreground font-normal">ไม่ต้องกรอกรหัสใหม่</span>
+                      <span>{resolvedSlug === 'vocab-hub' ? 'เลือกสื่ออื่น' : 'เลือกเกมอื่น'}</span>
+                      {resolvedSlug !== 'vocab-hub' && <span className="text-[10px] text-muted-foreground font-normal">ไม่ต้องกรอกรหัสใหม่</span>}
                     </div>
                   </Button>
 
-                  {/* 3. เปลี่ยนผู้เล่น — clear session, stay on this game */}
-                  <Button
+                  {/* 3. เปลี่ยนผู้เล่น — เฉพาะเกมที่เก็บคะแนน */}
+                  {resolvedSlug !== 'vocab-hub' && <Button
                     variant="outline"
                     className="justify-start gap-3 h-12"
                     onClick={() => {
@@ -1406,7 +1416,7 @@ const PlayGame = () => {
                       <span>เปลี่ยนผู้เล่น</span>
                       <span className="text-[10px] text-muted-foreground font-normal">กรอกรหัสใหม่ — เกมเดิม</span>
                     </div>
-                  </Button>
+                  </Button>}
 
                   {/* 4. กลับหน้าหลัก — clear session */}
                   <Button

@@ -20,44 +20,8 @@ window.KAMPAI = window.KAMPAI || {
          unlock:function(){},fxFlash:function(){}}
 };
 </script>
-<script src="/games/kampai-match.js"></script>
-<script>
-// KampaiMatch fallback stub
-window.KampaiMatch = window.KampaiMatch || {
-  create: function() {
-    return {
-      available: false,
-      openMenu: function() { alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); },
-      report: function() {},
-      finish: function() {},
-      leave: function() {}
-    };
-  }
-};
-</script>
-<script src="/games/kampai-versus.js"></script>
-<script>
-window.KampaiVersus = window.KampaiVersus || {
-  create: function(options) {
-    const online = window.KampaiMatch && window.KampaiMatch.create
-      ? window.KampaiMatch.create(options)
-      : null;
-    return {
-      available: false,
-      openMenu: function() { if (online) online.openMenu(); },
-      report: function(score, info) { if (online) online.report(score, info); },
-      finish: function(score, info) {
-        if (!online) return false;
-        online.finish(score, info);
-        return true;
-      },
-      leave: function() { if (online) online.leave(); },
-      mode: null
-    };
-  }
-};
-</script>
 <meta charset="UTF-8">
+<meta name="kampai-content-kind" content="teaching-media">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>คำศัพท์ภาษาอังกฤษ</title>
 <script>
@@ -81,21 +45,6 @@ body::before{content:'';position:fixed;inset:0;
   pointer-events:none;z-index:0}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-}
-
-/* ===== PLAYER CHIP ===== */
-#player-chip{
-  display:none;position:fixed;top:1.2vh;right:2vw;z-index:90;
-  align-items:center;gap:6px;padding:4px 12px 4px 4px;
-  background:rgba(0,0,0,0.35);border-radius:20px;backdrop-filter:blur(8px);
-  font-size:1.8vh;color:#fff;
-}
-#player-chip img,#player-chip .pc-init{
-  width:28px;height:28px;border-radius:50%;object-fit:cover;
-}
-#player-chip .pc-init{
-  display:flex;align-items:center;justify-content:center;
-  background:#FFE082;color:#1565C0;font-weight:700;
 }
 
 /* Category menu styles live in vocab-hub-menu.css. */
@@ -821,15 +770,6 @@ body::before{content:'';position:fixed;inset:0;
 .lb-score{font-size:1.7vh;font-weight:700;color:#FFD700;white-space:nowrap}
 .lb-class{font-size:1.4vh;color:rgba(255,255,255,0.4);white-space:nowrap}
 
-/* ===== WIN SCREEN — personal best + kampai-result slot ===== */
-#win-personal-best{
-  font-size:2.6vh;font-weight:700;color:#FFD700;
-  animation:pop 0.4s;text-align:center;
-  display:none;
-}
-#win-personal-best.show{display:block}
-#kampai-result{margin:0 auto}
-
 /* ===== MOBILE / RESPONSIVE (≤768px) ===== */
 @media (max-width: 768px){
   /* scroll safety — ของล้นต้องเข้าถึงได้เสมอ */
@@ -1275,17 +1215,14 @@ body::before{content:'';position:fixed;inset:0;
 <div id="bar-wrap"><div id="bar" style="width:0"></div></div>
 
 <!-- HUB -->
-<div id="player-chip"></div>
 <div id="hub-view">
   <div class="hub-heading"><div>
   <div class="hub-eyebrow">ENGLISH VOCABULARY</div>
   <div id="hub-title">คำศัพท์ภาษาอังกฤษ</div>
   <div id="hub-sub">โลกของคำศัพท์ เริ่มต้นจากสิ่งที่ชอบ</div>
   </div>
-  <!-- แดชบอด (โปรไฟล์/สถิติ/อันดับ) แยกออกไปเป็นหน้าต่างหาก /play/vocab-hub/dashboard -->
   <div class="hub-nav">
-    <button id="btn-back-hub" class="hub-btn" onclick="KAMPAI.goHome()">⬅ กลับหน้ารวมเกม</button>
-    <a id="btn-dashboard" class="hub-btn" href="/play/vocab-hub/dashboard" target="_top">📊 แดชบอด / อันดับ</a>
+    <button id="btn-back-hub" class="hub-btn" onclick="KAMPAI.goHome()">⬅ กลับคลังสื่อ</button>
   </div>
   </div>
   <div class="hub-toolbar">
@@ -1393,7 +1330,6 @@ body::before{content:'';position:fixed;inset:0;
       <button class="cbtn mbtn" id="m-fliprace">⚡ Flip Race</button>
       <button class="cbtn mbtn" id="m-wordsearch">🧩 หาคำ</button>
       <button class="cbtn mbtn" id="m-math">➕ Math Question</button>
-      <button class="cbtn mbtn" id="m-online">⚔️ แข่ง 2 คน</button>
       <button class="cbtn on" id="btn-voice" title="เลือกภาษาเสียงอ่าน">🎙️ EN</button>
     </div>
     <div id="dotsnav">
@@ -1480,8 +1416,6 @@ body::before{content:'';position:fixed;inset:0;
   <div class="win-text">เก่งมาก!</div>
   <div class="win-stars"></div>
   <div class="win-score"></div>
-  <div id="win-personal-best"></div>
-  <div id="kampai-result"></div>
   <div class="win-btns">
     <button class="win-btn primary" id="win-again">▶ เล่นอีกครั้ง</button>
     <button class="win-btn" id="win-home">← หน้าหลัก</button>
@@ -2025,7 +1959,6 @@ const modeBtns  = {
   fliprace:   document.getElementById('m-fliprace'),
   wordsearch: document.getElementById('m-wordsearch'),
   math:       document.getElementById('m-math'),
-  online:     document.getElementById('m-online'),
   lightbox:   document.getElementById('m-lightbox'),
 };
 const btnPause     = document.getElementById('btn-pause');
@@ -2094,13 +2027,6 @@ let mathLocked = false, mathStartTime = 0;
 let flashHistory = []; // ดัชนีที่กดปุ่ม Next / Know ไปแล้ว เพื่อให้ย้อนดูได้
 
 // Online Multiplayer state
-let onlineRng = Math.random;
-let onlineActive = false;
-let onlineScore = 0;
-let onlineCorrect = 0;
-let onlineQPos = 0;
-let onlineQOrder = [];
-let onlineQLen = 15;
 
 // จำ "รู้แล้ว" ข้ามรอบด้วย localStorage (คีย์ตามคำอังกฤษ กันพังเวลา index เลื่อน)
 const flashStoreKey = slug => 'kvh_known_' + slug;
@@ -2310,53 +2236,10 @@ function showWin(emoji,text,scoreHtml,stars){
   winEl.querySelector('.win-text').textContent=text;
   winEl.querySelector('.win-stars').textContent=stars||'';
   winEl.querySelector('.win-score').innerHTML=scoreHtml||'';
-  // Personal best check
-  var pbEl = document.getElementById('win-personal-best');
-  if (pbEl) {
-    pbEl.textContent = '';
-    pbEl.classList.remove('show');
-    try {
-      var numScore = parseInt((scoreHtml||'').replace(/<[^>]*>/g,'').match(/\d+/)?.[0] || '0', 10);
-      var pb = KAMPAI.stats && KAMPAI.stats.personalBest;
-      if (pb != null && numScore > 0 && numScore > pb) {
-        pbEl.textContent = '🎉 สถิติใหม่! ' + numScore + ' คะแนน';
-        pbEl.classList.add('show');
-      }
-    } catch(_) {}
-  }
   winEl.classList.add('show');
   sWin(); confetti();
   try{KAMPAI.sound.fxFlash(true);}catch(_){}
 
-  if (window.KAMPAI) {
-    let finalScore = 0;
-    if (typeof mode !== 'undefined') {
-      if (mode === 'choice' || mode === 'listen') {
-        finalScore = (typeof qLen !== 'undefined' && qLen > 0) ? Math.round((score / qLen) * 100) : 0;
-      } else if (mode === 'math') {
-        finalScore = mathScore;
-      } else if (mode === 'match') {
-        finalScore = 100;
-      } else {
-        finalScore = 100;
-      }
-    } else {
-      finalScore = 100;
-    }
-    let starCount = 0;
-    if (typeof stars === 'string') {
-      starCount = (stars.match(/⭐/g) || []).length;
-    }
-    const scoreMeta = {
-      stars: starCount,
-      mode: (typeof mode !== 'undefined' ? mode : 'normal')
-    };
-    if (mode === 'math') Object.assign(scoreMeta, {
-      difficulty: mathDifficulty, ops: mathOps.slice(), voice: mathVoiceGender, format: mathFormat, correct: mathCorrect,
-      total: mathTotal, timeMs: Date.now() - mathStartTime
-    });
-    window.KAMPAI.submitScore(finalScore, scoreMeta);
-  }
 }
 
 // =====================================================================
@@ -2779,7 +2662,6 @@ function setMode(m){
   else if(m==='tf'){ startTF(); }
   else if(m==='wordsearch'){ startWordSearch(); }
   else if(m==='math'){ startMathQuestion(); }
-  else if(m==='online'){ startOnlineMultiplayer(); }
 }
 
 // =====================================================================
@@ -3335,15 +3217,6 @@ function flashWin(){
       html += `<br><span style="font-size:0.8em;opacity:0.8">เวลาดีที่สุด: ${fmtTime(bestTime)}</span>`;
     }
     
-    try {
-      KAMPAI.submitScore(flashTotal, {
-        mode: 'fliprace',
-        topic: currentSlug,
-        timeMs: elapsed,
-        stars: 3
-      });
-    } catch (_) {}
-    
     showWin('🏆', isNewRecord ? 'ทำลายสถิติ!' : 'สุดยอด!', html, '⭐⭐⭐');
   } else {
     // สถิติ: คำที่กดทบทวนบ่อยสุด (ยังไม่แม่น)
@@ -3352,7 +3225,6 @@ function flashWin(){
       .map(([i,n])=>`${allItems[i].en} (${n})`);
     let html = `รู้แล้วครบ <b>${flashTotal}</b> คำ${took?` · ใช้เวลา <b>${took}</b>`:''}`;
     if(hard.length) html += `<br><span style="font-size:0.8em;opacity:0.85">ทบทวนบ่อย: ${hard.join(' · ')}</span>`;
-    try{KAMPAI.submitScore(flashTotal,{mode:'flash',topic:currentSlug,variant:flashVariant,timeMs:elapsed,stars:3});}catch(_){}
     showWin('🎉','เก่งมาก!', html, '⭐⭐⭐');
   }
 }
@@ -3489,8 +3361,6 @@ function renderQuestion(){
   if(qPos>=qLen){
     const pct=Math.round(score/qLen*100);
     const stars = pct>=90?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
-    const starCount = pct>=90?3:pct>=60?2:1;
-    try{KAMPAI.submitScore(score,{mode:mode,topic:currentSlug,total:qLen,percent:pct,stars:starCount});}catch(_){}
     showWin(pct>=80?'🏆':'👍','เล่นจบแล้ว!',`ตอบถูก <b>${score}</b>/${qLen} (${pct}%)`,stars);
     return;
   }
@@ -3605,7 +3475,7 @@ function pickMatch(el){
       sCorrect();
       if([...playEl.querySelectorAll('.mcard.matched')].length === mRounds[mRi].length*2){
         if(mRi<mRounds.length-1){ mLock=true; toast(true,'รอบนี้ผ่าน!'); setTimeout(()=>{ mRi++; mLock=false; renderMatchRound(); },900); }
-        else { try{KAMPAI.submitScore(mMatched,{mode:'match',topic:currentSlug,total:mTotal,stars:3});}catch(_){} showWin('🎉','จับคู่ครบแล้ว!',`ครบทั้ง <b>${mTotal}</b> คู่`,'⭐⭐⭐'); }
+        else { showWin('🎉','จับคู่ครบแล้ว!',`ครบทั้ง <b>${mTotal}</b> คู่`,'⭐⭐⭐'); }
       }
     } else {
       mLock=true; L.el.classList.add('wrong'); R.el.classList.add('wrong');
@@ -3684,7 +3554,6 @@ function endTimeAttack(){
   const pct = taTotal>0 ? Math.round(taScore/taTotal*100) : 0;
   const stars = pct>=90?3:pct>=60?2:1;
   const starsStr = '⭐'.repeat(stars);
-  try{KAMPAI.submitScore(taScore,{mode:'timed',topic:currentSlug,total:taTotal,percent:pct,stars:stars,duration:TA_DURATION});}catch(_){}
   showWin(taScore>=10?'🏆':'👍','หมดเวลา!',`ตอบถูก <b>${taScore}</b>/${taTotal} (${pct}%) ใน <b>${TA_DURATION}</b> วินาที`,starsStr);
 }
 
@@ -3703,8 +3572,6 @@ function renderTypeinQ(){
   if(tiPos>=tiLen){
     const pct=Math.round(tiScore/tiLen*100);
     const stars=pct>=90?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
-    const starCount=pct>=90?3:pct>=60?2:1;
-    try{KAMPAI.submitScore(tiScore,{mode:'typein',topic:currentSlug,total:tiLen,percent:pct,stars:starCount});}catch(_){}
     showWin(pct>=80?'🏆':'👍','เล่นจบแล้ว!',`พิมพ์ถูก <b>${tiScore}</b>/${tiLen} (${pct}%)`,stars);
     return;
   }
@@ -3800,17 +3667,6 @@ function renderTFQ() {
     const pct = Math.round(tfScore / tfLen * 100);
     const starCount = pct >= 90 ? 3 : (pct >= 60 ? 2 : 1);
     const starsStr = '⭐'.repeat(starCount);
-    
-    try {
-      KAMPAI.submitScore(tfScore, {
-        mode: 'tf',
-        topic: currentSlug,
-        total: tfLen,
-        percent: pct,
-        timeMs: elapsed,
-        stars: starCount
-      });
-    } catch (_) {}
     
     showWin(tfScore >= 10 ? '🏆' : '👍', 'เล่นจบแล้ว!', `ตอบถูก <b>${tfScore}</b>/${tfLen} (${pct}%)<br>ใช้เวลา <b>${fmtTime(elapsed)}</b>`, starsStr);
     return;
@@ -4049,15 +3905,6 @@ function setupWSDragging() {
         clearInterval(wsTimer); wsTimer = null;
         const elapsed = Date.now() - wsStartTime;
         
-        try {
-          KAMPAI.submitScore(wsWords.length, {
-            mode: 'wordsearch',
-            topic: currentSlug,
-            timeMs: elapsed,
-            stars: 3
-          });
-        } catch (_) {}
-        
         showWin('🧩', 'ยอดเยี่ยม!', `ค้นหาคำศัพท์ครบทั้งหมด <b>${wsWords.length}</b> คำ<br>ใช้เวลา <b>${fmtTime(elapsed)}</b>`, '⭐⭐⭐');
       }
     }
@@ -4085,117 +3932,6 @@ function setupWSDragging() {
     if (cell) handleMove(cell);
   }, { passive: true });
   wsGridEl.addEventListener('touchend', handleEnd);
-}
-
-// =====================================================================
-// TWO-PLAYER MODE (local hot-seat or online)
-// =====================================================================
-const match = KampaiVersus.create({
-  duration: 60,
-  title: 'แข่งศัพท์ภาษาอังกฤษ',
-  onPlay: ({ rng }) => startOnlineMatch(rng),
-  onEnd: () => { onlineActive = false; }
-});
-function startOnlineMultiplayer() {
-  match.openMenu();
-}
-function startOnlineMatch(rng) {
-  onlineRng = rng;
-  onlineActive = true;
-  onlineScore = 0;
-  onlineCorrect = 0;
-  onlineQPos = 0;
-  
-  playEl.classList.add('show');
-  
-  onlineQOrder = [...Array(allItems.length).keys()];
-  shuffleWithRng(onlineQOrder, onlineRng);
-  
-  renderOnlineQuestion();
-}
-function shuffleWithRng(array, rng) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-function renderOnlineQuestion() {
-  if (!onlineActive || mode !== 'online') return;
-  
-  if (onlineQPos >= onlineQOrder.length) {
-    onlineQPos = 0;
-    shuffleWithRng(onlineQOrder, onlineRng);
-  }
-  
-  const qIdx = onlineQOrder[onlineQPos];
-  const target = allItems[qIdx];
-  curItem = target;
-  
-  playEl.innerHTML = '';
-  
-  const prompt = document.createElement('div');
-  prompt.className = 'q-prompt';
-  prompt.innerHTML = `<div class="play-wrap">${quizPrompt(target)}</div>`;
-  playEl.appendChild(prompt);
-  
-  let pool = allItems.filter(it => it.en !== target.en);
-  let opts = [target];
-  
-  while (opts.length < 4 && pool.length > 0) {
-    const rIdx = Math.floor(onlineRng() * pool.length);
-    opts.push(pool.splice(rIdx, 1)[0]);
-  }
-  
-  shuffleWithRng(opts, onlineRng);
-  
-  const optWrap = document.createElement('div');
-  optWrap.className = 'q-options';
-  optWrap.id = 'online-opts';
-  playEl.appendChild(optWrap);
-  
-  opts.forEach((opt, idx) => {
-    const btn = document.createElement('div');
-    btn.className = 'opt';
-    const key = String.fromCharCode(65 + idx);
-    btn.innerHTML = `<span class="opt-key">${key}</span> <span>${thSide(opt)}</span>`;
-    btn._item = opt;
-    btn.addEventListener('click', () => submitOnlineAnswer(opt === target, btn, target));
-    optWrap.appendChild(btn);
-  });
-  
-  setScore(`คะแนน <b>${onlineScore}</b>`);
-  speak(target, null, 'en');
-}
-function submitOnlineAnswer(isCorrect, btn, target) {
-  if (!onlineActive || mode !== 'online') return;
-  
-  if (isCorrect) {
-    onlineCorrect++;
-    onlineScore += 10;
-    btn.classList.add('ok');
-    try { KAMPAI.sound.correct(); } catch (_) {}
-    toast(true, 'ถูกต้อง!');
-    speak(target);
-    
-    match.report(onlineScore, { correct: onlineCorrect });
-    
-    setTimeout(() => {
-      onlineQPos++;
-      renderOnlineQuestion();
-    }, 450);
-  } else {
-    btn.classList.add('bad');
-    try { KAMPAI.sound.wrong(); } catch (_) {}
-    toast(false, 'คำตอบคือ ' + thSide(target));
-    [...document.querySelectorAll('.opt')].forEach(o => {
-      if (o._item === target) o.classList.add('ok');
-    });
-    
-    setTimeout(() => {
-      onlineQPos++;
-      renderOnlineQuestion();
-    }, 900);
-  }
 }
 
 // =====================================================================
@@ -4652,7 +4388,7 @@ testActions.start.addEventListener('click',()=>{
   try{KAMPAI.beginRound();}catch(_){}
 });
 testActions['finish-test'].addEventListener('click',()=>{
-  try{KAMPAI.submitScore(0,{mode:'browser-test',topic:currentSlug||'fruits',total:0,stars:0});}catch(_){}
+  showWin('🎉','จบรอบฝึกแล้ว','ทบทวนต่อได้ทุกเมื่อ','');
 });
 testActions.restart.addEventListener('click',()=>{
   clearTimeout(timer);
@@ -4816,9 +4552,9 @@ document.addEventListener('keydown',e=>{
         else if(e.key==='3'||e.key==='l'||e.key==='L'||e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); btnC3.click(); }
       }
     }
-  } else if(mode==='choice'||mode==='listen'||mode==='timed'||mode==='online'){
-    if(/^[1-4]$/.test(e.key)){ const o=document.querySelectorAll('.opt')[+e.key-1] || document.getElementById('online-opts')?.querySelectorAll('.opt')[+e.key-1]; if(o) o.click(); }
-    else { const m='abcd'.indexOf(e.key.toLowerCase()); if(m>=0){ const o=document.querySelectorAll('.opt')[m] || document.getElementById('online-opts')?.querySelectorAll('.opt')[m]; if(o) o.click(); } }
+  } else if(mode==='choice'||mode==='listen'||mode==='timed'){
+    if(/^[1-4]$/.test(e.key)){ const o=document.querySelectorAll('.opt')[+e.key-1]; if(o) o.click(); }
+    else { const m='abcd'.indexOf(e.key.toLowerCase()); if(m>=0){ const o=document.querySelectorAll('.opt')[m]; if(o) o.click(); } }
   } else if(mode==='tf'){
     if(e.key==='1'||e.key==='ArrowLeft'||e.key.toLowerCase()==='a'||e.key.toLowerCase()==='f'){ btnTfFalse.click(); }
     else if(e.key==='2'||e.key==='ArrowRight'||e.key.toLowerCase()==='d'||e.key.toLowerCase()==='t'){ btnTfTrue.click(); }
@@ -4840,34 +4576,10 @@ window.addEventListener('hashchange',route);
 buildHub();
 route();
 
-// KAMPAI SDK init — player chip + XP result (GAME_SLUG ประกาศไว้แล้วด้านบน)
+// Keep learning sounds and round lifecycle; this teaching media never submits scores.
 KAMPAI.setSlug(GAME_SLUG);
-KAMPAI.onReady(function(K){
+KAMPAI.onReady(function(){
   try {
-    var s = K.student;
-
-    // ── 1. Player chip (top-right corner, existing) ──────────────────────
-    if(s){
-      var chip = document.getElementById('player-chip');
-      if(chip){
-        var av = s.photoUrl
-          ? '<img src="'+s.photoUrl+'" alt="">'
-          : '<div class="pc-init">'+(s.displayName||'?')[0]+'</div>';
-        chip.innerHTML = av + '<span>'+s.displayName+'</span>';
-        chip.style.display = 'flex';
-      }
-    }
-
-    // หมายเหตุ: แดชบอด (student banner + leaderboard) ย้ายออกไปหน้า
-    // /play/vocab-hub/dashboard แล้ว — จอ hub เหลือแค่หัวข้อ + เล่น
-
-    // ── 2. XP Result panel — ลงทะเบียนก่อนส่งคะแนน ─────────────────────
-    // KAMPAI.onResult ทำให้ SDK inject XP ลง #kampai-result อัตโนมัติ
-    // (ถ้าไม่ register, SDK จะ inject ด้วย showResult() เองอยู่แล้ว)
-    KAMPAI.onResult(function(result, info){
-      try { KAMPAI.showResult(info); } catch(_) {}
-    });
-
     KAMPAI.sound.defaultBgm('cheerful');
   } catch(e){ console.warn('SDK init error', e); }
 });

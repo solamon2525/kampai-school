@@ -378,6 +378,8 @@ function navigateBack() {
 
 นักเรียนเล่นแล้วคะแนนในเกมขึ้น แต่ leaderboard/XP ไม่ขึ้น — มักมาจากข้อใดข้อหนึ่งด้านล่าง เกม embed **ต้องผ่าน checklist นี้ก่อน ship:**
 
+**สื่อการสอนที่ไม่เก็บคะแนน** (เช่น Vocabulary Hub): ใส่ `<meta name="kampai-content-kind" content="teaching-media">` และให้ wrapper เปิดสื่อได้โดยไม่ระบุตัวนักเรียน สื่อยังแสดงผลตอบกลับหรือจำนวนข้อถูกเฉพาะรอบได้ แต่ห้ามเรียก `submitScore`/`sendGameEnd`, แสดง XP/อันดับ หรือเปิดโหมดแข่งขันที่บันทึกผล; wrapper ต้องปฏิเสธ `gameEnd` ของสื่อนั้นด้วย ตัวตรวจ `verify:game:all` จะตรวจสองรอบว่ามีผลจบบนจอและไม่มีข้อความ `gameEnd` แทนกฎเก็บคะแนนของเกม
+
 | # | กฎ | ผลถ้าขาด |
 |---|---|---|
 | 1 | เรียก **`KAMPAI.setSlug('slug')`** ทันทีหลังโหลด SDK — ตรง `educational_hub_items.game_slug` | `gameEnd` ส่ง slug ผิด/ว่าง |

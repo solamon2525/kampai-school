@@ -52,6 +52,7 @@ if (!existsSync(filePath)) {
 const gameDir = dirname(filePath);
 const isFolderGame = basename(filePath).toLowerCase() === 'index.html';
 const html = readFileSync(filePath, 'utf8');
+const isTeachingMedia = /<meta\s+name=["']kampai-content-kind["']\s+content=["']teaching-media["']\s*\/?\s*>/i.test(html);
 const fileName = isFolderGame ? basename(gameDir) : basename(filePath, '.html');
 
 /**
@@ -116,7 +117,7 @@ if (!(usesSdk || /function\s+sendGameEnd\s*\(/.test(scanSource))) {
     });
     console.log(`${FAIL} Check 2 — score submit: ไม่พบ (SDK/sendGameEnd)`);
 } else {
-    console.log(`${PASS} Check 2 — score submit: ${usesSdk ? 'KAMPAI SDK' : 'sendGameEnd'}`);
+    console.log(`${PASS} Check 2 — ${isTeachingMedia ? 'teaching media SDK' : `score submit: ${usesSdk ? 'KAMPAI SDK' : 'sendGameEnd'}`}`);
 }
 
 // ─── Check 3: กลับหน้าหลัก (SDK: KAMPAI.goHome | legacy: navigateBack | a[target=_top]) ──
@@ -146,7 +147,12 @@ if (!(usesSdk || hasInitListener)) {
 const sdkSubmitCalls = (scanSource.match(/KAMPAI\s*\.\s*submitScore\s*\(/g) || []).length;
 const sendCalls = (scanSource.match(/sendGameEnd\s*\(/g) || []).length;
 const submitCalled = usesSdk ? sdkSubmitCalls >= 1 : sendCalls >= 2;
-if (!submitCalled) {
+if (isTeachingMedia && (sdkSubmitCalls > 0 || sendCalls > 1)) {
+    issues.push({ check: 'teaching-media-score', msg: 'สื่อการสอนต้องไม่เรียก submitScore/sendGameEnd' });
+    console.log(`${FAIL} Check 5 — teaching media: พบการส่งคะแนน`);
+} else if (isTeachingMedia) {
+    console.log(`${PASS} Check 5 — teaching media: ไม่ส่งคะแนน`);
+} else if (!submitCalled) {
     issues.push({
         check: 'sendGameEnd called',
         msg:   usesSdk
@@ -363,7 +369,12 @@ const loadsVersus = /kampai-versus\.js/.test(html);
 const loadsMatch = /kampai-match\.js/.test(html);
 const wiresVersus = /KampaiVersus\s*\.\s*create\s*\(/.test(scanSource);
 const wiresMatch = /KampaiMatch\s*\.\s*create\s*\(/.test(scanSource);
-if (loadsVersus && wiresVersus) {
+if (isTeachingMedia && (loadsVersus || loadsMatch || wiresVersus || wiresMatch)) {
+    issues.push({ check: 'teaching-media-versus', msg: 'สื่อการสอนต้องไม่เปิดระบบแข่งขัน' });
+    console.log(`${FAIL} Check 11 — teaching media: พบระบบแข่งขัน`);
+} else if (isTeachingMedia) {
+    console.log(`${PASS} Check 11 — teaching media: ไม่มีระบบแข่งขัน`);
+} else if (loadsVersus && wiresVersus) {
     console.log(`${PASS} Check 11 — 2 ผู้เล่น: KampaiVersus (เดี่ยว + local hot-seat + online)`);
 } else if (loadsMatch && wiresMatch) {
     warnings.push({
@@ -382,7 +393,7 @@ if (loadsVersus && wiresVersus) {
 // ─── Check 12: quality contract (warning in compatibility mode, gate in --strict) ──
 const qualityRules = [
     ['begin-round', /KAMPAI\s*\.\s*beginRound\s*\(/.test(scanSource), 'ไม่พบ KAMPAI.beginRound() ตอนเริ่มรอบ'],
-    ['result-slot', /id=["']kampai-result["']/.test(html), 'ไม่พบ #kampai-result ในจอจบ'],
+    ['result-slot', isTeachingMedia || /id=["']kampai-result["']/.test(html), 'ไม่พบ #kampai-result ในจอจบ'],
     ['test-hooks', /data-kampai-action=["']start["']/.test(html) && /data-kampai-action=["']restart["']/.test(html), 'ไม่พบ browser hooks start/restart'],
     ['reload-restart', !/(?:location\s*\.\s*reload|location\s*=)/.test(scanSource), 'restart ต้อง cleanup+start โดยไม่ reload iframe'],
     ['reduced-motion', /prefers-reduced-motion\s*:\s*reduce/.test(scanSource), 'ไม่พบ reduced-motion fallback'],

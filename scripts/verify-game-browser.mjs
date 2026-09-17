@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from 'node:http';
-import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +20,7 @@ if (!existsSync(targetPath)) fail(`ไม่พบไฟล์หรือโฟ
 if (statSync(targetPath).isDirectory()) targetPath = join(targetPath, 'index.html');
 if (!existsSync(targetPath) || extname(targetPath).toLowerCase() !== '.html') fail(`target ต้องเป็นเกม HTML: ${targetArg}`);
 if (!targetPath.startsWith(publicRoot)) fail('browser verifier รองรับเฉพาะไฟล์ใต้ public/');
+const isTeachingMedia = /<meta\s+name=["']kampai-content-kind["']\s+content=["']teaching-media["']\s*\/?\s*>/i.test(readFileSync(targetPath, 'utf8'));
 
 let chromium;
 try {
@@ -97,7 +98,7 @@ async function verifyViewport(browserInstance, viewport) {
   });
 
   try {
-    await page.goto(`${baseUrl}/__kampai_harness?game=${encodeURIComponent(gameUrl)}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${baseUrl}/__kampai_harness?game=${encodeURIComponent(gameUrl)}&teaching=${isTeachingMedia ? '1' : '0'}`, { waitUntil: 'domcontentloaded' });
     const iframe = await page.locator('#game').elementHandle();
     const frame = await iframe?.contentFrame();
     if (!frame) throw new Error('ไม่พบ game iframe');
@@ -128,12 +129,20 @@ async function verifyViewport(browserInstance, viewport) {
     if (errors.length === 0) {
       await clickHook(frame, 'start');
       await clickHook(frame, 'finish-test');
-      await waitForSubmissions(page, 1);
+      if (isTeachingMedia) {
+        if (!await frame.locator('#win').isVisible()) errors.push('จบรอบฝึกครั้งแรกไม่แสดงผล');
+      } else {
+        await waitForSubmissions(page, 1);
+      }
       await clickHook(frame, 'restart');
       await clickHook(frame, 'finish-test');
-      await waitForSubmissions(page, 2);
+      if (isTeachingMedia) {
+        if (!await frame.locator('#win').isVisible()) errors.push('จบรอบฝึกครั้งที่สองไม่แสดงผล');
+      } else {
+        await waitForSubmissions(page, 2);
+      }
       const submissions = await page.evaluate(() => window.__kampaiMessages.filter((message) => message?.type === 'gameEnd').length);
-      if (submissions !== 2) errors.push(`คาดว่า submit 2 รอบ แต่ได้ ${submissions}`);
+      if (submissions !== (isTeachingMedia ? 0 : 2)) errors.push(`จำนวน gameEnd ไม่ถูกต้อง: ${submissions}`);
     }
 
     const screenshot = join(artifactDir, `browser-${viewport.name}.png`);
@@ -164,7 +173,8 @@ function createStaticServer() {
     if (url.pathname === '/__kampai_harness') {
       const requestedGame = url.searchParams.get('game') || '';
       response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-      response.end(`<!doctype html><html><body style="margin:0"><iframe id="game" style="border:0;width:100vw;height:100vh" src="${escapeHtml(requestedGame)}?embed=1&kampai_test=1"></iframe><script>window.__kampaiMessages=[];addEventListener('message',function(e){window.__kampaiMessages.push(e.data);});document.getElementById('game').addEventListener('load',function(){this.contentWindow.postMessage({type:'init',studentCode:'CI001',student:{id:'ci-student',displayName:'ผู้เล่นทดสอบ'},stats:{playsCount:0,personalBest:0,totalXp:0,level:1},leaderboard:[]},'*');});</script></body></html>`);
+      const initScript = url.searchParams.get('teaching') === '1' ? '' : `document.getElementById('game').addEventListener('load',function(){this.contentWindow.postMessage({type:'init',studentCode:'CI001',student:{id:'ci-student',displayName:'ผู้เล่นทดสอบ'},stats:{playsCount:0,personalBest:0,totalXp:0,level:1},leaderboard:[]},'*');});`;
+      response.end(`<!doctype html><html><body style="margin:0"><iframe id="game" style="border:0;width:100vw;height:100vh" src="${escapeHtml(requestedGame)}?embed=1&kampai_test=1"></iframe><script>window.__kampaiMessages=[];addEventListener('message',function(e){window.__kampaiMessages.push(e.data);});${initScript}</script></body></html>`);
       return;
     }
     const decoded = decodeURIComponent(url.pathname).replace(/^\/+/, '');
