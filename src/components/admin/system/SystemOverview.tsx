@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.83 (ภาษาไทย — ยกระดับ Thai Grammar Learning Studio ป.4–ป.5 4 โหมดชนิดและหน้าที่ของคำ, สแกนเนอร์วิเคราะห์หน้าที่ในประโยค, แล็บตัวต่อประโยค และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Thai Grammar Hub (public/games/thai/thai-grammar-hub/index.html) สู่สตูดิโอการเรียนรู้ไวยากรณ์ไทยเต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ท 4.1 ป.4/2, ท 4.1 ป.5/1)',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Grammar Studio & POS Explorer (คลัง 7 ชนิดคำ: นาม, สรรพนาม, กริยา, วิเศษณ์, บุพบท, สันธาน, อุทาน พร้อมรหัสสีและเสียงสังเคราะห์ไทย) 2. Sentence Syntax Scanner (สแกนเนอร์วิเคราะห์หน้าที่ของคำในประโยคแบบ Interactive: ประธาน, กริยา, กรรม, ส่วนขยาย) 3. Grammar Sentence Builder Lab (ห้องปฏิบัติการต่อประโยคด้วยบล็อกคำศัพท์ตามรหัสสีชนิดคำและระบบตรวจผลทันที) 4. Practice Quiz Challenge (แบบทดสอบท้าทาย 4 ตัวเลือกและคำอธิบายเฉลยละเอียด)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/thai/thai-grammar-hub-worksheet.html) ขยายคลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะไวยากรณ์หลัก พร้อมเลย์เอาต์ A4 Zero-shift, ตัวกรองระดับชั้น/ทักษะ และเฉลยครู',
+            'รัน Migration 531 อัปเดต educational_hub_items ปรับ thumbnail_url ของใบงานและสื่อให้เชื่อมโยงภาพปก 16:9 (/games/thai/thai-grammar-hub/cover.png) แทนที่ placeholder SVG พร้อมบันทึก game_docs และผูกตัวชี้วัด ท 4.1 ป.4/2, ท 4.1 ป.5/1 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-thai-grammar-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs 18/18 checks',
+        ],
+    },
+    {
         version: 'v1.229.82 (ภาษาไทย — ยกระดับ Thai Reading Comprehension Studio ป.4–ป.5 4 โหมดจับใจความ, ผัง 5W1H, แล็บข้อเท็จจริง/ข้อคิดเห็น, เรียงเหตุการณ์ และใบงาน A4)',
         date: '17 ก.ย. 2569',
         badge: 'bg-emerald-600',
