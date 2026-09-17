@@ -300,6 +300,20 @@ const versionHistory = [
         ],
     },
     {
+        version: 'v1.229.79 (คณิตศาสตร์ — ยกระดับ Math Decimal Learning Studio ป.4–ป.5 4 โหมดการเรียนรู้, ตารางค่าประจำหลัก, โมเดลกริด 10/100, เงินบาท/สตางค์, สกิล Cover Creator และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Math Decimal Hub (public/games/math/math-decimal-hub/index.html) สู่สตูดิโอการเรียนรู้คณิตศาสตร์เต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ค 1.1 ป.4/5, ค 1.1 ป.4/6, ค 1.1 ป.5/1, ค 1.1 ป.5/8)',
+            'รองรับ 4 โหมดการเรียนรู้เชิงลึก: 1. Place Value & Reading Studio (ค่าประจำหลักและการอ่านทศนิยม พร้อมโมเดลกริด 10/100 และเสียงอ่านไทย) 2. Decimal Comparison & Number Line (เปรียบเทียบค่าและเส้นจำนวนซูมได้) 3. Operations & Thai Money Lab (การบวกลบตั้งจุดตรงกัน และระบบจำลองเงินบาท/สตางค์) 4. Practice Quiz & Fraction-Decimal Match (แบบทดสอบและเกมจับคู่เศษส่วน-ทศนิยม)',
+            'สร้างภาพปกการศึกษา 16:9 (1280x720) มาตรฐานใหม่ธีม Chibi วิทย์-คณิต ปลอดภัยไร้ความรุนแรง พร้อม Safe-Zone 27%-73% ผ่าน scripts/make-cover.mjs',
+            'สร้างสกิลมาตรฐานใหม่ .agents/skills/kampai-cover-creator/SKILL.md กำหนดแนวทางการสร้าง Prompt, การคำนวณ Safe-Zone อัตราส่วน 16:9 และการจัดการภาพปกคู่ระหว่างสื่อและใบงาน',
+            'อัปเกรดใบงานคู่สื่อ (public/games/math/math-decimal-hub-worksheet.html) ขยายคลังโจทย์ 40+ ข้อ ครอบคลุม 4 ทักษะ พร้อมพิมพ์ A4 สแกน QR และเฉลยครูแบบ Zero-shift',
+            'รัน Migration 528 อัปเดต educational_hub_items ปรับ thumbnail_url ของสื่อและใบงานให้ตรงกันที่ /games/math/math-decimal-hub/cover.png (แทนที่ placeholder SVG) พร้อมบันทึก game_docs และผูกตัวชี้วัด ค 1.1 ป.4/5, ป.4/6, ป.5/1, ป.5/8 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-math-decimal-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
         version: 'v1.229.78 (ภาษาอังกฤษ — ยกระดับ English Grammar & Sight Words Studio ป.4–ป.5 6 กฎไวยากรณ์, บัตรคำจำ 32 คำ, ห้องแล็บคำสั่ง 10 ภารกิจ, ต่อประโยค, เสียง 3 สำเนียง, Classroom Echo และใบงาน A4)',
         date: '17 ก.ย. 2569',
         badge: 'bg-emerald-600',

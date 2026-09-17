@@ -35,6 +35,10 @@ skills/
 .agents/skills/*
 !.agents/skills/kampai-worksheet-builder/
 !.agents/skills/kampai-worksheet-builder/**
+!.agents/skills/kampai-game-dev/
+!.agents/skills/kampai-game-dev/**
+!.agents/skills/kampai-cover-creator/
+!.agents/skills/kampai-cover-creator/**
 skills-lock.json
 
 # Editor directories and files
