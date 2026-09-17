@@ -290,6 +290,23 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.78 (ภาษาอังกฤษ — ยกระดับ English Grammar & Sight Words Studio ป.4–ป.5 6 กฎไวยากรณ์, บัตรคำจำ 32 คำ, ห้องแล็บคำสั่ง 10 ภารกิจ, ต่อประโยค, เสียง 3 สำเนียง, Classroom Echo และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด English Grammar Hub (public/games/english/english-grammar-p45-hub/index.html) สู่สตูดิโอการเรียนรู้เต็มรูปแบบสำหรับระดับประถมศึกษาตอนปลาย (ป.4–ป.5) ตามหลักสูตรแกนกลาง (ต 1.1 ป.4/1-2, ต 1.2 ป.4/1, ต 2.1 ป.4/1)',
+            'ครอบคลุม 6 กฎไวยากรณ์หลัก: Verb to Be (is/am/are/was/were), Articles (a/an/the), Demonstratives (this/that/these/those), Pronouns & Possessives (I/my, he/his...), Prepositions of Place (in/on/under/behind...), Wh-Questions & Helping Verbs',
+            'คลังบัตรคำจำ Graded Sight Words 32 คำ 4 หมวดหมู่ (School & Study, People & Feelings, Time & Nature, Daily Actions) พร้อมสัทอักษร IPA, คำแปลภาษาไทย, ตัวอย่างประโยค และภาพ WebP ประกอบการศึกษา',
+            'ห้องปฏิบัติการทำตามคำสั่ง Follow Instructions Lab 10 ภารกิจ (Circle, Underline, Tick, Cross out, Put in, Point to, Choose, Color, Find, Match) พร้อมตัวเลือกภาพ WebP คมชัด ไร้ Emoji',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Grammar Studio เจาะลึกกฎพร้อมตัวอย่างประโยค 2. Sight Words Flashcards บัตรคำจำ 3. Follow Instructions Lab แล็บปฏิบัติตามคำสั่ง 4. Practice Quiz & Sentence Builder แบบทดสอบและต่อบล็อกประโยค',
+            'ระบบสังเคราะห์เสียง Web Speech API 3 สำเนียง (US Female, US Male, UK British) ปรับความเร็ว 0.75x/1.0x พร้อมฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม) นับถอยหลัง 3 วินาทีแอนิเมชัน Pulse',
+            'คีย์ลัดสำหรับครูผู้สอนบน Smartboard (Spacebar = ฟังเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนการ์ด/คำถาม, 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/english-grammar-p45-hub-worksheet.html) เป็น 42 ข้อ ครอบคลุม 3 ทักษะ พร้อมพิมพ์ A4, สแกน QR และเฉลยครูแบบ Zero-shift',
+            'รัน Migration 527 อัปเดต educational_hub_items และ game_docs เวอร์ชัน v1.229.78 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-grammar-p45-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
         version: 'v1.229.77 (ภาษาอังกฤษ — ยกระดับ English Tenses Learning Studio ป.4–ป.6 4 กาลหลัก, ไทม์ไลน์ภาพประกอบ, โหมดต่อประโยค, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
         date: '17 ก.ย. 2569',
         badge: 'bg-emerald-600',
