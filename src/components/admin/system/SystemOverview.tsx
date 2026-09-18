@@ -290,6 +290,21 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.88 (ภาษาอังกฤษ — ยกระดับ Grammar & Vocab Studio: ภาพประกอบประโยคละเอียด, นิทานภาพต่อเนื่อง 4 ฉาก Sequential Storyboard, เครื่องเล่น Auto-Play และ Syntax Inspector)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอนไวยากรณ์ภาษาอังกฤษ (public/games/english/grammar-vocab-media.html) สู่ระบบ Interactive Learning Studio 5 โหมดเต็มรูปแบบสำหรับนักเรียนชั้น ป.4–ป.5',
+            'บูรณาการภาพประกอบเพื่อการศึกษาคุณภาพสูง (WebP Educational Illustrations): จับคู่ภาพสถานการณ์จริงกับทุกประโยคตัวอย่างของ 6 กฎไวยากรณ์หลัก (Verb to Be, Articles, Pronouns, Demonstratives, Prepositions, Helping Verbs)',
+            'พัฒนาระบบนิทานภาพต่อเนื่อง (Sequential Storyboard): 3 เรื่องราวต่อเนื่อง 4 ฉาก (วันเรียนแสนสุขของเคน, การผจญภัยของลูกสุนัขแสนซน, ทัศนศึกษาซาฟารีที่สวนสัตว์) พร้อมฟิล์มสตริปลำดับเหตุการณ์',
+            'ติดตั้งเครื่องเล่นนิทานอัตโนมัติ (Auto-Play Story Theater): บรรยายเสียงต่อเนื่องฉากต่อฉากสองสำเนียง (US/UK) พร้อมระบบนับถอยหลังฝึกพูดตาม (Classroom Echo 3s pulse)',
+            'โหมดตรวจโครงสร้างประโยค (Syntax Inspector): แยกรหัสสีส่วนประกอบประโยค (S + V + O + Prep) พร้อมคลิกฟังเสียงและดูหน้าที่คำศัพท์',
+            'โหมดซ่อมประโยค (Fixer Lab) และแบบทดสอบความแม่นยำ (Practice Quiz) 15 ข้อ พร้อมภาพประกอบคู่คำถามทุกข้อ',
+            'รัน Migration 536 อัปเดต educational_hub_items และลงทะเบียน game_docs 10 ฟีเจอร์เวอร์ชัน v1.229.88 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-pack-media.mjs ทั้งบนวิวพอร์ต 360x800 และ 1280x720 และผ่าน verify-worksheet 18/18 checks สำหรับใบงานคู่สื่อ',
+        ],
+    },
+    {
         version: 'v1.229.87 (ภาษาอังกฤษ — ยกระดับ 4 Interactive Learning Studios หลัก: Sight Words ป.4, Sight Words ป.1–3, Grammar & Vocab, Past Tense Mini พร้อมปก 16:9, เสียงสองสำเนียง US/UK และใบงาน A4)',
         date: '18 ก.ย. 2569',
         badge: 'bg-emerald-600',
