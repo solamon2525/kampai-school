@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.89 (ภาษาอังกฤษ — พัฒนา Classroom Action & TPR Commands Studio, ใบงานคู่สื่อ A4 48 ข้อ, ปกใหม่ 16:9 1280x720 และลงทะเบียน Supabase Hub)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'พัฒนาสื่อการสอนอินเทอร์แอ็กทีฟภาษาอังกฤษ TPR Commands Studio (public/games/english/classroom-action-media.html) 4 โหมดกิจกรรมบน Smartboard (Blind Reveal, Simon Says Challenge, Speed Randomizer, Command Builder) ครอบคลุม 24+ ท่าทาง 4 หมวดหมู่',
+            'พัฒนาใบงานคู่สื่อการสอนพิมพ์ A4 (public/games/english/classroom-action-worksheet.html) สถาปัตยกรรม worksheet-topic.js คลังโจทย์ 48 ข้อ 4 หมวดหมู่ พร้อมเฉลยครู Zero-shift ผ่านเกณฑ์ verify-worksheet 18/18 checks',
+            'สร้างภาพปกมาตรฐาน 16:9 สไตล์จิบิเพื่อการศึกษา (public/games/english/classroom-action-media-cover.png 1280x720) ตัวละครเด็กเคลื่อนไหวท่าทาง Stand up, Turn around, Jump ปลอดความรุนแรง จัดวางใน Safe Zone 60%',
+            'รัน Migration 537 บน Supabase ลงทะเบียน educational_hub_items ทั้งสื่อการสอนและใบงานคู่สื่อ พร้อมบันทึก game_docs ครบ 10 ฟีเจอร์เวอร์ชัน v1.229.89',
+            'รองรับระบบเสียงพูดสังเคราะห์สองสำเนียง (Web Speech API US/UK และไทย) พร้อมคีย์ลัด Smartboard ครบครัน (1-4, Space, Enter/R, Arrows, F)',
+        ],
+    },
+    {
         version: 'v1.229.88 (ภาษาอังกฤษ — ยกระดับ Grammar & Vocab Studio: ภาพประกอบประโยคละเอียด, นิทานภาพต่อเนื่อง 4 ฉาก Sequential Storyboard, เครื่องเล่น Auto-Play และ Syntax Inspector)',
         date: '18 ก.ย. 2569',
         badge: 'bg-emerald-600',
