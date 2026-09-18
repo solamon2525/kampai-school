@@ -1,137 +1,806 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/kampai-sdk.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Past Tense Mini — สื่อการสอน — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <title>Past Tense Mini — สอนและฝึกสั้น (ป.4–ป.6) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#1d4ed8;--line:#bfdbfe;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#dbeafe,#e0e7ff);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff}
-    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#eff6ff;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #60a5fa}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.85rem;font-weight:600;color:#1e40af;flex:1;min-width:120px}
-    .stage{flex:1;padding:16px}
-    .panel{display:none;flex-direction:column;gap:12px;max-width:720px;margin:0 auto}
-    .panel.on{display:flex}
-    .grid{display:grid;gap:10px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr}}
-    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#eff6ff}
-    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px;font-size:1rem}
-    .card p{font-weight:600;line-height:1.5;font-size:.95rem}
-    .ex{font-family:inherit;font-weight:800;color:#1e3a8a}
-    .tip{background:#fffbeb;border:2px dashed #fcd34d;border-radius:12px;padding:12px;font-weight:700;color:#92400e;line-height:1.45}
-    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
-    .opts{display:flex;flex-direction:column;gap:8px}
-    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
-    .fb{font-weight:800;text-align:center;min-height:24px}
-    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+    :root {
+      --blue: #1d4ed8;
+      --blue-dark: #1e3a8a;
+      --blue-light: #eff6ff;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --navy: #0f172a;
+      --border: #e2e8f0;
+      --line: #bfdbfe;
+      --muted: #64748b;
+      --card-bg: #ffffff;
+      --ok: #059669;
+      --bad: #e11d48;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(150deg, #eff6ff 0%, #dbeafe 50%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);
+      color: #ffffff;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    header h1 { font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #fde047;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-hdr:hover { background: rgba(255, 255, 255, 0.25); }
+
+    nav.nav-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 4px 8px;
+      gap: 6px;
+    }
+    nav.nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 0 auto;
+      min-width: 130px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: rgba(29, 78, 216, 0.08); color: var(--blue); }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--blue-dark);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      border-bottom: 3px solid var(--blue);
+    }
+
+    main.content {
+      padding: 20px 16px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .card-title .tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--line);
+      color: var(--blue-dark);
+    }
+
+    /* TIMELINE STAGE */
+    .timeline-stage {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+    }
+    .timeline-bar {
+      width: 100%;
+      max-width: 600px;
+      height: 12px;
+      background: #cbd5e1;
+      border-radius: 6px;
+      position: relative;
+      margin: 30px 0;
+    }
+    .tl-node {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .tl-node.past { left: 25%; }
+    .tl-node.now { left: 75%; }
+    .node-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 10px rgba(29, 78, 216, 0.4);
+    }
+    .tl-node.now .node-dot { background: var(--ok); box-shadow: 0 0 10px rgba(5, 150, 105, 0.4); }
+    .node-label {
+      position: absolute;
+      top: -30px;
+      white-space: nowrap;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--blue-dark);
+    }
+    .node-sub {
+      position: absolute;
+      top: 32px;
+      white-space: nowrap;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* VERBS GRID */
+    .verbs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .verb-card {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .verb-card:hover {
+      background: #eff6ff;
+      border-color: var(--blue);
+      transform: translateY(-2px);
+    }
+    .verb-card.active {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue-dark);
+    }
+    .verb-card .v1 { font-size: 0.9rem; font-weight: 700; opacity: 0.8; }
+    .verb-card .v2 { font-size: 1.25rem; font-weight: 900; color: var(--blue-dark); }
+    .verb-card.active .v2 { color: #fde047; }
+    .verb-card .th { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+    .verb-card.active .th { color: #ffffff; opacity: 0.9; }
+
+    /* TIME DETECTIVE */
+    .detective-box {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .clue-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fef3c7;
+      border: 1.5px solid #f59e0b;
+      color: #92400e;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      align-self: flex-start;
+    }
+
+    /* ACTION BUTTONS */
+    .btn-act {
+      min-height: 44px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .btn-act.primary {
+      background: var(--blue);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+    }
+    .btn-act.primary:hover { background: var(--blue-dark); }
+    .btn-act.secondary { background: #e2e8f0; color: var(--navy); }
+    .btn-act.secondary:hover { background: #cbd5e1; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* QUIZ */
+    .q-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) { .options-grid { grid-template-columns: 1fr 1fr; } }
+    .opt-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+    .opt-btn:hover { background: var(--blue-light); border-color: var(--blue); }
+    .opt-btn.correct { background: #dcfce7; border-color: var(--ok); color: var(--ok); }
+    .opt-btn.wrong { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .quiz-feedback { padding: 12px; border-radius: 10px; font-weight: 700; display: none; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct { background: #dcfce7; color: var(--ok); }
+    .quiz-feedback.wrong { background: #ffe4e6; color: var(--bad); }
+
+    footer {
+      margin-top: auto;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--blue); text-decoration: none; font-weight: 700; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header>
-      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
-      <h1>📘 Past Tense Mini — สอนและฝึกสั้น</h1>
-      <span class="badge">ป.4–6 · ภาษาอังกฤษ</span>
-    </header>
-    <div class="toolbar">
-      <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 สอน</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-      </span>
-      <span class="hint" id="hintText">was/were · กริยาปกติ -ed · went/saw/ate</span>
+
+<div class="shell">
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>📘 Past Tense Mini — สตูดิโออดีตกาล ป.4–ป.6</h1>
+      <span class="badge-grade">ต 1.1 ป.5–6, ต 1.2 ป.6/1</span>
     </div>
-    <div class="stage">
-      <div class="panel on" id="learn">
-        <div class="grid">
-          <div class="card">
-            <h3>was / were</h3>
-            <p>I/he/she/it → <span class="ex">was</span><br>you/we/they → <span class="ex">were</span></p>
-            <p style="margin-top:6px">She <span class="ex">was</span> happy.<br>They <span class="ex">were</span> at school.</p>
+    <div class="header-right">
+      <select id="selVoiceAccent" class="btn-hdr" style="color:#0f172a; background:#fff; font-weight:700;">
+        <option value="en-US">🇺🇸 สำเนียง US</option>
+        <option value="en-GB">🇬🇧 สำเนียง UK</option>
+      </select>
+      <button class="btn-hdr" id="btnAudioToggle">
+        <span id="audioIcon">🔊</span> <span id="audioLabel">เปิดเสียง</span>
+      </button>
+      <button class="btn-hdr" id="btnFullscreen"><span>⛶</span> เต็มจอ</button>
+      <a href="/games/english/past-tense-mini-worksheet.html" class="btn-hdr" target="_blank"><span>📄</span> ใบงาน A4</a>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="timeline"><span>⏳</span> 1. ไทม์ไลน์อดีต (Timeline)</button>
+    <button class="tab-btn" data-tab="matrix"><span>📊</span> 2. คลังกริยา (Verb Matrix)</button>
+    <button class="tab-btn" data-tab="detective"><span>🕵️</span> 3. นักสืบเวลา (Detective)</button>
+    <button class="tab-btn" data-tab="quiz"><span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- MODE 1: TIMELINE -->
+    <section class="panel active" id="panel-timeline">
+      <div class="card">
+        <div class="card-title">
+          <span>ไทม์ไลน์เปรียบเทียบ Past Simple Tense กับปัจจุบัน</span>
+          <span class="tag">โครงสร้าง: S + V.2</span>
+        </div>
+
+        <div class="timeline-stage">
+          <div class="timeline-bar">
+            <div class="tl-node past" id="nodePast">
+              <span class="node-label">PAST (อดีต จบแล้ว)</span>
+              <div class="node-dot"></div>
+              <span class="node-sub">yesterday / last week</span>
+            </div>
+            <div class="tl-node now" id="nodeNow">
+              <span class="node-label">NOW (ปัจจุบัน)</span>
+              <div class="node-dot"></div>
+              <span class="node-sub">today / every day</span>
+            </div>
           </div>
-          <div class="card">
-            <h3>Regular (-ed)</h3>
-            <p>play → <span class="ex">played</span><br>watch → <span class="ex">watched</span><br>like → <span class="ex">liked</span></p>
-            <p style="margin-top:6px">Yesterday I <span class="ex">played</span> football.</p>
+          <div style="background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:14px; width:100%; max-width:650px;" id="timelineDetail">
+            <h4 style="color:var(--blue-dark); font-weight:800; font-size:1.1rem; margin-bottom:6px;">Past Simple Tense คืออะไร?</h4>
+            <p style="color:var(--navy); font-size:0.95rem; line-height:1.6;">
+              ใช้เล่าถึง <strong>เหตุการณ์ที่เกิดขึ้นและสิ้นสุดลงแล้วในอดีต</strong> มักมีคำบอกเวลาที่ชัดเจน เช่น <em>yesterday</em> (เมื่อวานนี้), <em>last night</em> (เมื่อคืน), <em>2 days ago</em> (2 วันก่อน)<br>
+              <strong>สูตร:</strong> ประธาน + กริยาช่องที่ 2 (Subject + Verb 2)
+            </p>
           </div>
-          <div class="card">
-            <h3>Irregular</h3>
-            <p>go → <span class="ex">went</span><br>see → <span class="ex">saw</span><br>eat → <span class="ex">ate</span></p>
-            <p style="margin-top:6px">We <span class="ex">went</span> home.<br>I <span class="ex">saw</span> a bird.<br>She <span class="ex">ate</span> rice.</p>
+          <button class="btn-act secondary" id="btnSpeakTl">🔊 ฟังคำอธิบาย</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODE 2: MATRIX -->
+    <section class="panel" id="panel-matrix">
+      <div class="card">
+        <div class="card-title">
+          <span>ตารางกริยาช่อง 2: กริยาปกติ (-ed) & กริยาอปกติ (Irregular)</span>
+          <span class="tag">แตะเพื่อฟังเสียง</span>
+        </div>
+        <div class="btn-row" style="margin-bottom:6px;">
+          <button class="btn-act primary" id="btnFilterAll">ทั้งหมด (All)</button>
+          <button class="btn-act secondary" id="btnFilterReg">กริยาปกติ (-ed)</button>
+          <button class="btn-act secondary" id="btnFilterIrreg">กริยาอปกติ (เปลี่ยนรูป)</button>
+        </div>
+        <div class="verbs-grid" id="verbsGrid"></div>
+      </div>
+    </section>
+
+    <!-- MODE 3: DETECTIVE -->
+    <section class="panel" id="panel-detective">
+      <div class="card">
+        <div class="card-title">
+          <span>ห้องแล็บนักสืบหาคำบอกเวลา (Time Detective Lab)</span>
+          <span class="tag">หาเงื่อนงำอดีต</span>
+        </div>
+        <div class="detective-box">
+          <span class="clue-chip" id="detClue">🔍 คำบอกเวลา: yesterday</span>
+          <p style="font-size:1.2rem; font-weight:800; color:var(--navy);" id="detSentence">I (go) _______ to school yesterday.</p>
+          <div class="options-grid" id="detOptions"></div>
+          <div class="quiz-feedback" id="detFeedback"></div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn-act secondary" id="btnSpeakDet">🔊 ฟังเสียงประโยค</button>
+            <button class="btn-act primary" id="btnNextDet" style="display:none;">ประโยคถัดไป ➔</button>
           </div>
         </div>
-        <div class="tip">Past tense = พูดถึงสิ่งที่เกิดขึ้นแล้ว (yesterday / last week / this morning)</div>
       </div>
-      <div class="panel" id="practice">
-        <p class="q" id="pq"></p>
-        <div class="opts" id="popts"></div>
-        <p class="fb" id="pfb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+    </section>
+
+    <!-- MODE 4: QUIZ -->
+    <section class="panel" id="panel-quiz">
+      <div class="card">
+        <div class="card-title">
+          <span>แบบทดสอบท้าทาย Past Tense (15 ข้อ)</span>
+          <span class="tag">คะแนน: <span id="qScore">0</span> / 15</span>
+        </div>
+        <div class="q-card" id="qCard">
+          <p style="font-size:1.2rem; font-weight:800;" id="qPrompt">คำถาม...</p>
+          <div class="options-grid" id="qOptions"></div>
+          <div class="quiz-feedback" id="qFeedback"></div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn-act secondary" id="btnSpeakQ">🔊 อ่านโจทย์</button>
+            <button class="btn-act primary" id="btnNextQ" style="display:none;">ข้อต่อไป ➔</button>
+          </div>
+        </div>
+        <div class="card" id="qResult" style="display:none; text-align:center; padding:30px;">
+          <h2 style="font-size:1.6rem; font-weight:900;">🎉 ยอดเยี่ยม! ผ่านการทดสอบ Past Tense</h2>
+          <div style="font-size:3.5rem; margin:10px 0;">⏳</div>
+          <p style="font-size:1.3rem; font-weight:800; color:var(--blue);" id="qResultScore">15 / 15 คะแนน</p>
+          <button class="btn-act primary" id="btnRestartQuiz" style="margin-top:14px;">เริ่มทำใหม่</button>
+        </div>
       </div>
-    </div>
-    <footer class="footer">ตัวชี้วัด <strong>ต 1.1 ป.4/2</strong> · คู่เกม <a href="/games/english/past-tense-run.html">Past Tense Run</a> · คู่ใบงาน <a href="/games/english/past-tense-mini-worksheet.html">past-tense-mini</a></footer>
-  </div>
-  <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('past-tense-mini-media');
-    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+    </section>
 
-    const QS = [
-      { q: 'เลือกคำที่ถูก: She ___ happy yesterday.', opts: ['was', 'were', 'is', 'are'], a: 'was' },
-      { q: 'เลือกคำที่ถูก: They ___ at the park.', opts: ['were', 'was', 'is', 'am'], a: 'were' },
-      { q: 'play ในรูปอดีตคือ…', opts: ['played', 'play', 'playing', 'plays'], a: 'played' },
-      { q: 'go ในรูปอดีตคือ…', opts: ['went', 'goed', 'goes', 'going'], a: 'went' },
-      { q: 'see ในรูปอดีตคือ…', opts: ['saw', 'seed', 'seen', 'sees'], a: 'saw' },
-      { q: 'eat ในรูปอดีตคือ…', opts: ['ate', 'eated', 'eats', 'eating'], a: 'ate' },
-    ];
+  </main>
 
-    function nextPractice() {
-      const item = QS[(Math.random() * QS.length) | 0];
-      document.getElementById('pq').textContent = item.q;
-      document.getElementById('pfb').textContent = '';
-      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
-      document.getElementById('popts').innerHTML = opts.map((o) =>
-        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
-      ).join('');
-      document.querySelectorAll('#popts .opt').forEach((btn) => {
-        btn.onclick = () => {
-          const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach((b) => {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ Correct!' : '✗ Answer: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
-          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
-        };
-      });
-    }
+  <footer>
+    <div><strong>โรงเรียนบ้านคำไผ่</strong> · กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ</div>
+    <div><a href="/games/english/past-tense-mini-worksheet.html">เปิดใบงานคู่ขนาน A4 (50 ข้อ)</a></div>
+  </footer>
+</div>
 
-    document.getElementById('modeSeg').onclick = (e) => {
-      const b = e.target.closest('button[data-mode]');
-      if (!b) return;
-      const mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('on', mode === 'learn');
-      document.getElementById('practice').classList.toggle('on', mode === 'practice');
-      document.getElementById('hintText').textContent =
-        mode === 'learn' ? 'was/were · กริยาปกติ -ed · went/saw/ate' : 'เลือกคำตอบ 4 ตัวเลือก';
-      if (mode === 'practice') nextPractice();
-    };
-    document.getElementById('btnNext').onclick = nextPractice;
-  </script>
+<script>
+// VERB MATRIX DATA
+const VERBS = [
+  // Regular (-ed)
+  { v1: 'walk', v2: 'walked', th: 'เดิน', type: 'reg', s: 'I walked to school yesterday.' },
+  { v1: 'play', v2: 'played', th: 'เล่น', type: 'reg', s: 'We played football last night.' },
+  { v1: 'watch', v2: 'watched', th: 'ดู', type: 'reg', s: 'She watched television.' },
+  { v1: 'clean', v2: 'cleaned', th: 'ทำความสะอาด', type: 'reg', s: 'He cleaned his room.' },
+  { v1: 'cook', v2: 'cooked', th: 'ปรุงอาหาร', type: 'reg', s: 'Mom cooked delicious soup.' },
+  { v1: 'stop', v2: 'stopped', th: 'หยุด', type: 'reg', s: 'The red bus stopped.' },
+  { v1: 'study', v2: 'studied', th: 'เรียน/ศึกษา', type: 'reg', s: 'They studied English.' },
+  { v1: 'visit', v2: 'visited', th: 'เยี่ยมชม', type: 'reg', s: 'We visited Grandma.' },
+
+  // Irregular
+  { v1: 'go', v2: 'went', th: 'ไป', type: 'irreg', s: 'He went to Bangkok.' },
+  { v1: 'eat', v2: 'ate', th: 'กิน', type: 'irreg', s: 'I ate fried rice this morning.' },
+  { v1: 'see', v2: 'saw', th: 'มองเห็น', type: 'irreg', s: 'We saw a giant elephant.' },
+  { v1: 'have', v2: 'had', th: 'มี/กิน', type: 'irreg', s: 'She had breakfast at seven.' },
+  { v1: 'buy', v2: 'bought', th: 'ซื้อ', type: 'irreg', s: 'Dad bought a new car.' },
+  { v1: 'come', v2: 'came', th: 'มา', type: 'irreg', s: 'My friend came to my house.' },
+  { v1: 'write', v2: 'wrote', th: 'เขียน', type: 'irreg', s: 'He wrote a sweet letter.' },
+  { v1: 'is/am', v2: 'was', th: 'เป็น/อยู่/คือ', type: 'irreg', s: 'I was happy yesterday.' },
+  { v1: 'are', v2: 'were', th: 'เป็น/อยู่/คือ (พหูพจน์)', type: 'irreg', s: 'They were at school.' },
+  { v1: 'drink', v2: 'drank', th: 'ดื่ม', type: 'irreg', s: 'She drank cold milk.' }
+];
+
+const DETECTIVE_ITEMS = [
+  { clue: 'yesterday (เมื่อวานนี้)', prompt: 'He (go) _______ to the hospital yesterday.', ans: 'went', opts: ['went', 'goes', 'going', 'gone'], exp: 'yesterday แสดงอดีต กริยา go ➔ went' },
+  { clue: 'last night (เมื่อคืน)', prompt: 'We (watch) _______ a movie last night.', ans: 'watched', opts: ['watched', 'watches', 'watching', 'watch'], exp: 'last night แสดงอดีต กริยา watch เติม -ed ➔ watched' },
+  { clue: 'this morning (เช้านี้ที่ผ่านมา)', prompt: 'I (eat) _______ an apple this morning.', ans: 'ate', opts: ['ate', 'eats', 'eating', 'eaten'], exp: 'this morning แสดงอดีต กริยา eat ➔ ate' },
+  { clue: '2 days ago (2 วันก่อน)', prompt: 'Dad (buy) _______ a new bicycle 2 days ago.', ans: 'bought', opts: ['bought', 'buys', 'buying', 'buyed'], exp: 'ago แสดงอดีต กริยา buy ➔ bought' },
+  { clue: 'yesterday (เมื่อวานนี้)', prompt: 'She (be) _______ very tired yesterday.', ans: 'was', opts: ['was', 'were', 'is', 'are'], exp: 'ประธาน She เอกพจน์ ในอดีตใช้ was' },
+  { clue: 'last Sunday (วันอาทิตย์ที่แล้ว)', prompt: 'They (play) _______ badminton last Sunday.', ans: 'played', opts: ['played', 'plays', 'playing', 'play'], exp: 'last Sunday แสดงอดีต play ➔ played' }
+];
+
+const QUIZ_QUESTIONS = [
+  { q: 'รูปอดีตกาล (ช่องที่ 2) ของกริยา "go" คือคำใด?', opts: ['went', 'goes', 'going', 'gone'], a: 0, exp: 'go ช่อง 2 คือ went' },
+  { q: 'รูปอดีตกาลของกริยา "eat" คือคำใด?', opts: ['ate', 'eats', 'eating', 'eaten'], a: 0, exp: 'eat ช่อง 2 คือ ate' },
+  { q: 'Yesterday, I _______ my room with my brother.', opts: ['cleaned', 'cleans', 'cleaning', 'clean'], a: 0, exp: 'yesterday แสดงอดีต กริยา clean ➔ cleaned' },
+  { q: 'She _______ to the teacher yesterday.', opts: ['spoke', 'speaks', 'speaking', 'speak'], a: 0, exp: 'speak ช่อง 2 คือ spoke' },
+  { q: 'They _______ at the zoo last Sunday.', opts: ['were', 'was', 'are', 'is'], a: 0, exp: 'ประธาน They พหูพจน์ ในอดีตใช้ were' },
+  { q: 'He _______ a cute puppy in the park 2 days ago.', opts: ['saw', 'sees', 'seeing', 'seen'], a: 0, exp: 'see ช่อง 2 คือ saw' },
+  { q: 'กริยา "study" เมื่อเปลี่ยนเป็นรูปอดีต (-ed) เขียนอย่างไร?', opts: ['studied', 'studyed', 'studys', 'studying'], a: 0, exp: 'ลงท้ายด้วย y หน้า y เป็นพยัญชนะ เปลี่ยน y เป็น i แล้วเติม -ed' },
+  { q: 'กริยา "stop" เมื่อเติม -ed เขียนอย่างไร?', opts: ['stopped', 'stoped', 'stopping', 'stops'], a: 0, exp: 'สระเสียงสั้น 1 ตัว พยัญชนะสะกด 1 ตัว ซ้ำตัวสะกด 1 ตัวก่อนเติม -ed' },
+  { q: 'We _______ breakfast at 7:00 AM this morning.', opts: ['had', 'has', 'having', 'have'], a: 0, exp: 'have ช่อง 2 คือ had' },
+  { q: 'คำใดต่อไปนี้ เป็น "คำบอกเวลาในอดีต"?', opts: ['yesterday', 'tomorrow', 'now', 'always'], a: 0, exp: 'yesterday (เมื่อวานนี้) บอกเวลาในอดีต' },
+  { q: 'Mom _______ delicious pasta last night.', opts: ['cooked', 'cooks', 'cooking', 'cook'], a: 0, exp: 'last night แสดงอดีต cook ➔ cooked' },
+  { q: 'I _______ very happy at the party last week.', opts: ['was', 'were', 'am', 'is'], a: 0, exp: 'ประธาน I ในอดีตใช้ was' },
+  { q: 'Dad _______ a new smartphone yesterday.', opts: ['bought', 'buyed', 'buys', 'buying'], a: 0, exp: 'buy ช่อง 2 คือ bought' },
+  { q: 'The boy _______ his homework before dinner.', opts: ['did', 'does', 'doing', 'done'], a: 0, exp: 'do ช่อง 2 คือ did' },
+  { q: 'She _______ a beautiful letter to her friend.', opts: ['wrote', 'writes', 'writing', 'written'], a: 0, exp: 'write ช่อง 2 คือ wrote' }
+];
+
+const state = {
+  tab: 'timeline',
+  filter: 'all',
+  detIdx: 0,
+  qIdx: 0,
+  score: 0,
+  ttsEnabled: true,
+  voiceAccent: 'en-US'
+};
+
+window.__getState = () => ({
+  tab: state.tab,
+  mode: state.tab,
+  verbCount: VERBS.length,
+  quizIndex: state.qIdx,
+  quizScore: state.score
+});
+
+function speakText(text, lang = state.voiceAccent) {
+  if (!state.ttsEnabled || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang;
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// TABS
+const tabBtns = document.querySelectorAll('.tab-btn');
+const panels = {
+  timeline: document.getElementById('panel-timeline'),
+  matrix: document.getElementById('panel-matrix'),
+  detective: document.getElementById('panel-detective'),
+  quiz: document.getElementById('panel-quiz')
+};
+function switchTab(t) {
+  state.tab = t;
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === t));
+}
+tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// TIMELINE
+document.getElementById('btnSpeakTl').addEventListener('click', () => {
+  speakText('Past Simple Tense is used for completed actions in the past.');
+});
+
+// VERBS MATRIX
+const verbsGrid = document.getElementById('verbsGrid');
+const btnFilterAll = document.getElementById('btnFilterAll');
+const btnFilterReg = document.getElementById('btnFilterReg');
+const btnFilterIrreg = document.getElementById('btnFilterIrreg');
+
+function renderVerbs() {
+  verbsGrid.innerHTML = '';
+  const filtered = VERBS.filter(v => state.filter === 'all' || v.type === state.filter);
+  filtered.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'verb-card';
+    card.innerHTML = `<span class="v1">${v.v1}</span><span class="v2">${v.v2}</span><span class="th">${v.th}</span>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.verb-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      speakText(`${v.v1}, ${v.v2}. ${v.s}`);
+    });
+    verbsGrid.appendChild(card);
+  });
+}
+
+btnFilterAll.addEventListener('click', () => {
+  state.filter = 'all';
+  btnFilterAll.className = 'btn-act primary';
+  btnFilterReg.className = 'btn-act secondary';
+  btnFilterIrreg.className = 'btn-act secondary';
+  renderVerbs();
+});
+btnFilterReg.addEventListener('click', () => {
+  state.filter = 'reg';
+  btnFilterAll.className = 'btn-act secondary';
+  btnFilterReg.className = 'btn-act primary';
+  btnFilterIrreg.className = 'btn-act secondary';
+  renderVerbs();
+});
+btnFilterIrreg.addEventListener('click', () => {
+  state.filter = 'irreg';
+  btnFilterAll.className = 'btn-act secondary';
+  btnFilterReg.className = 'btn-act secondary';
+  btnFilterIrreg.className = 'btn-act primary';
+  renderVerbs();
+});
+renderVerbs();
+
+// TIME DETECTIVE
+const detClue = document.getElementById('detClue');
+const detSentence = document.getElementById('detSentence');
+const detOptions = document.getElementById('detOptions');
+const detFeedback = document.getElementById('detFeedback');
+const btnSpeakDet = document.getElementById('btnSpeakDet');
+const btnNextDet = document.getElementById('btnNextDet');
+
+function renderDetective() {
+  const cur = DETECTIVE_ITEMS[state.detIdx];
+  detClue.textContent = `🔍 คำบอกเวลา: ${cur.clue}`;
+  detSentence.textContent = cur.prompt;
+  detFeedback.className = 'quiz-feedback';
+  btnNextDet.style.display = 'none';
+  detOptions.innerHTML = '';
+
+  cur.opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (opt === cur.ans) {
+        btn.classList.add('correct');
+        detFeedback.className = 'quiz-feedback show correct';
+        detFeedback.textContent = `✅ ถูกต้อง! ${cur.exp}`;
+        speakText(cur.prompt.replace('_______', cur.ans));
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        detFeedback.className = 'quiz-feedback show wrong';
+        detFeedback.textContent = `❌ ยังไม่ถูกต้อง ลองนึกถึงรูปอดีตของกริยานี้`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      btnNextDet.style.display = 'inline-flex';
+    });
+    detOptions.appendChild(btn);
+  });
+}
+btnNextDet.addEventListener('click', () => {
+  state.detIdx = (state.detIdx + 1) % DETECTIVE_ITEMS.length;
+  renderDetective();
+});
+btnSpeakDet.addEventListener('click', () => speakText(DETECTIVE_ITEMS[state.detIdx].prompt.replace('_______', 'blank')));
+renderDetective();
+
+// QUIZ
+const qScore = document.getElementById('qScore');
+const qPrompt = document.getElementById('qPrompt');
+const qOptions = document.getElementById('qOptions');
+const qFeedback = document.getElementById('qFeedback');
+const btnSpeakQ = document.getElementById('btnSpeakQ');
+const btnNextQ = document.getElementById('btnNextQ');
+const qCard = document.getElementById('qCard');
+const qResult = document.getElementById('qResult');
+const qResultScore = document.getElementById('qResultScore');
+const btnRestartQuiz = document.getElementById('btnRestartQuiz');
+
+function renderQuiz() {
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  qPrompt.textContent = `${state.qIdx + 1}. ${q.q}`;
+  qFeedback.className = 'quiz-feedback';
+  btnNextQ.style.display = 'none';
+  qOptions.innerHTML = '';
+
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      const all = qOptions.querySelectorAll('.opt-btn');
+      if (idx === q.a) {
+        btn.classList.add('correct');
+        state.score++;
+        qFeedback.className = 'quiz-feedback show correct';
+        qFeedback.textContent = `✅ ถูกต้อง! ${q.exp}`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        all[q.a].classList.add('correct');
+        qFeedback.className = 'quiz-feedback show wrong';
+        qFeedback.textContent = `❌ ยังไม่ถูก (${q.exp})`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      qScore.textContent = state.score;
+      btnNextQ.style.display = 'inline-flex';
+    });
+    qOptions.appendChild(btn);
+  });
+}
+
+btnNextQ.addEventListener('click', () => {
+  if (state.qIdx < QUIZ_QUESTIONS.length - 1) {
+    state.qIdx++;
+    renderQuiz();
+  } else {
+    qCard.style.display = 'none';
+    qResult.style.display = 'block';
+    qResultScore.textContent = `${state.score} / ${QUIZ_QUESTIONS.length} คะแนน`;
+  }
+});
+btnSpeakQ.addEventListener('click', () => speakText(QUIZ_QUESTIONS[state.qIdx].q));
+btnRestartQuiz.addEventListener('click', () => {
+  state.qIdx = 0;
+  state.score = 0;
+  qCard.style.display = 'flex';
+  qResult.style.display = 'none';
+  renderQuiz();
+});
+renderQuiz();
+
+// CONTROLS
+document.getElementById('selVoiceAccent').addEventListener('change', (e) => state.voiceAccent = e.target.value);
+document.getElementById('btnAudioToggle').addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
+});
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen().catch(() => {});
+});
+
+// SHORTCUTS
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') switchTab('timeline');
+  if (e.key === '2') switchTab('matrix');
+  if (e.key === '3') switchTab('detective');
+  if (e.key === '4') switchTab('quiz');
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (state.tab === 'detective') btnSpeakDet.click();
+    else if (state.tab === 'quiz') btnSpeakQ.click();
+  }
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  }
+});
+</script>
 </body>
 </html>

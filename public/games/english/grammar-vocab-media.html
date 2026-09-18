@@ -1,170 +1,884 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/kampai-sdk.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grammar & Vocab — สื่อฝึกสั้น — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <title>Grammar & Vocab Studio (ป.4–ป.5) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #4338ca; --line: #c7d2fe; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #e0e7ff, #c7d2fe); min-height: 100%; padding: 12px; color: #0f172a; }
-    .shell { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
-    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #3730a3, #4f46e5); color: #fff; }
-    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
-    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
-    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
-    .btn-primary { background: var(--deep); color: #fff; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #eef2ff; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #a5b4fc; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
-    .seg button.on { background: var(--deep); color: #fff; }
-    .hint { font-size: .85rem; font-weight: 600; color: #4338ca; flex: 1; min-width: 120px; }
-    .stage { flex: 1; padding: 16px; }
-    .panel { display: none; flex-direction: column; gap: 12px; max-width: 640px; margin: 0 auto; }
-    .panel.on { display: flex; }
-    .rule { background: #eef2ff; border: 2px dashed #a5b4fc; border-radius: 14px; padding: 14px; font-weight: 600; line-height: 1.55; }
-    .ex { font-weight: 700; line-height: 1.8; }
-    .ex mark { background: #fef08a; padding: 0 4px; border-radius: 4px; }
-    .q { font-weight: 800; font-size: 1.2rem; text-align: center; color: var(--deep); line-height: 1.45; }
-    .opts { display: flex; flex-direction: column; gap: 8px; }
-    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
-    .opt.ok { background: #dcfce7; border-color: #86efac; }
-    .opt.no { background: #fee2e2; border-color: #fca5a5; }
-    .fb { font-weight: 800; text-align: center; min-height: 24px; }
-    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
-    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    :root {
+      --indigo: #4338ca;
+      --indigo-dark: #312e81;
+      --indigo-light: #eef2ff;
+      --mint: #10b981;
+      --gold: #f59e0b;
+      --navy: #0f172a;
+      --border: #e2e8f0;
+      --line: #c7d2fe;
+      --muted: #64748b;
+      --card-bg: #ffffff;
+      --ok: #059669;
+      --bad: #e11d48;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(150deg, #eef2ff 0%, #f0fdf4 50%, #fef9c3 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #312e81 0%, #4338ca 60%, #6366f1 100%);
+      color: #ffffff;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    header h1 { font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #fde047;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-hdr:hover { background: rgba(255, 255, 255, 0.25); }
+
+    nav.nav-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 4px 8px;
+      gap: 6px;
+    }
+    nav.nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 0 auto;
+      min-width: 130px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: rgba(67, 56, 202, 0.08); color: var(--indigo); }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--indigo-dark);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      border-bottom: 3px solid var(--indigo);
+    }
+
+    main.content {
+      padding: 20px 16px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .card-title .tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--line);
+      color: var(--indigo-dark);
+    }
+
+    /* MODULES GRID */
+    .module-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .mod-btn {
+      min-height: 44px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mod-btn:hover { background: var(--indigo-light); border-color: var(--indigo); }
+    .mod-btn.active { background: var(--indigo); color: #ffffff; border-color: var(--indigo-dark); }
+
+    .formula-box {
+      background: var(--indigo-light);
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .formula-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--indigo-dark);
+    }
+    .formula-desc {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--navy);
+    }
+    .example-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .ex-item {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    /* SYNTAX INSPECTOR */
+    .syntax-display {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      min-height: 120px;
+    }
+    .syntax-token {
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .syntax-token:hover { transform: scale(1.05); }
+    .syntax-token.sub { background: #dbeafe; color: #1e40af; border: 2px solid #93c5fd; }
+    .syntax-token.verb { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+    .syntax-token.obj { background: #fef3c7; color: #92400e; border: 2px solid #fde68a; }
+    .token-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+
+    /* ACTION BUTTONS */
+    .btn-act {
+      min-height: 44px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .btn-act.primary {
+      background: var(--indigo);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(67, 56, 202, 0.3);
+    }
+    .btn-act.primary:hover { background: var(--indigo-dark); }
+    .btn-act.secondary { background: #e2e8f0; color: var(--navy); }
+    .btn-act.secondary:hover { background: #cbd5e1; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* QUIZ */
+    .q-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) { .options-grid { grid-template-columns: 1fr 1fr; } }
+    .opt-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+    .opt-btn:hover { background: var(--indigo-light); border-color: var(--indigo); }
+    .opt-btn.correct { background: #dcfce7; border-color: var(--ok); color: var(--ok); }
+    .opt-btn.wrong { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .quiz-feedback { padding: 12px; border-radius: 10px; font-weight: 700; display: none; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct { background: #dcfce7; color: var(--ok); }
+    .quiz-feedback.wrong { background: #ffe4e6; color: var(--bad); }
+
+    footer {
+      margin-top: auto;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--indigo); text-decoration: none; font-weight: 700; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header>
-      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
-      <h1>🇬🇧 Grammar & Vocab — สอนและฝึกสั้น</h1>
-      <span class="badge">ป.4–5 · ภาษาอังกฤษ</span>
-    </header>
-    <div class="toolbar">
-      <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 สอน</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-      </span>
-      <span class="hint" id="hintText">อ่านกฎ → ดูตัวอย่าง → แล้วฝึก MCQ</span>
+
+<div class="shell">
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>🇬🇧 Grammar & Vocab Studio — สอนและฝึกสั้น</h1>
+      <span class="badge-grade">ต 1.1 ป.4–5 · ภาษาอังกฤษ</span>
     </div>
-    <div class="stage">
-      <div class="panel on" id="learn">
-        <div class="rule" id="ruleBox"></div>
-        <div class="ex" id="exBox"></div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px" id="topicBtns"></div>
-      </div>
-      <div class="panel" id="practice">
-        <p class="q" id="pq"></p>
-        <div class="opts" id="popts"></div>
-        <p class="fb" id="pfb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
-      </div>
+    <div class="header-right">
+      <select id="selVoiceAccent" class="btn-hdr" style="color:#0f172a; background:#fff; font-weight:700;">
+        <option value="en-US">🇺🇸 สำเนียง US</option>
+        <option value="en-GB">🇬🇧 สำเนียง UK</option>
+      </select>
+      <button class="btn-hdr" id="btnAudioToggle">
+        <span id="audioIcon">🔊</span> <span id="audioLabel">เปิดเสียง</span>
+      </button>
+      <button class="btn-hdr" id="btnFullscreen"><span>⛶</span> เต็มจอ</button>
+      <a href="/games/english/grammar-vocab-worksheet.html" class="btn-hdr" target="_blank"><span>📄</span> ใบงาน A4</a>
     </div>
-    <footer class="footer">ตัวชี้วัด <strong>ต 2.2 ป.5/1 · ต 3.1 ป.5/1</strong> · คู่ใบงาน <a href="/games/english/grammar-vocab-worksheet.html">grammar-vocab</a> · hub <a href="/games/english/english-grammar-p45-hub/">english-grammar-p45-hub</a></footer>
-  </div>
-  <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('grammar-vocab-media');
-    document.getElementById('btnBack').onclick = () => {
-      if (window.KAMPAI?.goHome) KAMPAI.goHome();
-      else history.back();
-    };
+  </header>
 
-    const TOPICS = {
-      isare: {
-        label: 'is / are / am',
-        rule: '<strong>is</strong> กับ he/she/it · <strong>are</strong> กับ you/we/they · <strong>am</strong> กับ I',
-        ex: ['He <mark>is</mark> happy.', 'They <mark>are</mark> friends.', 'I <mark>am</mark> fine.'],
-        qs: [
-          { q: 'He ___ tall.', opts: ['is', 'are', 'am', 'be'], a: 'is' },
-          { q: 'They ___ students.', opts: ['is', 'are', 'am', 'be'], a: 'are' },
-          { q: 'I ___ fine.', opts: ['is', 'are', 'am', 'be'], a: 'am' },
-        ],
-      },
-      aan: {
-        label: 'a / an',
-        rule: '<strong>a</strong> + พยัญชนะ · <strong>an</strong> + สระ (เสียง)',
-        ex: ['<mark>a</mark> cat', '<mark>an</mark> apple', '<mark>a</mark> book', '<mark>an</mark> egg'],
-        qs: [
-          { q: '___ orange', opts: ['a', 'an', 'the', 'some'], a: 'an' },
-          { q: '___ dog', opts: ['a', 'an', 'the', 'some'], a: 'a' },
-          { q: '___ umbrella', opts: ['a', 'an', 'the', 'some'], a: 'an' },
-        ],
-      },
-      demo: {
-        label: 'this / that / these / those',
-        rule: '<strong>this/these</strong> = ใกล้ · <strong>that/those</strong> = ไกล',
-        ex: ['<mark>This</mark> is my pen.', '<mark>Those</mark> are birds.'],
-        qs: [
-          { q: '___ is my bag. (ใกล้ / หนึ่งชิ้น)', opts: ['This', 'That', 'These', 'Those'], a: 'This' },
-          { q: '___ are birds. (ไกล / หลายตัว)', opts: ['This', 'That', 'These', 'Those'], a: 'Those' },
-          { q: '___ books are mine. (ใกล้ / หลายเล่ม)', opts: ['This', 'That', 'These', 'Those'], a: 'These' },
-        ],
-      },
-    };
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="studio"><span>📖</span> 1. สตูดิโอไวยากรณ์ (Studio)</button>
+    <button class="tab-btn" data-tab="syntax"><span>🧩</span> 2. วิเคราะห์ประโยค (Syntax)</button>
+    <button class="tab-btn" data-tab="fixer"><span>🛠️</span> 3. ซ่อมประโยค (Fixer Lab)</button>
+    <button class="tab-btn" data-tab="quiz"><span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)</button>
+  </nav>
 
-    let topicKey = 'isare';
-    let mode = 'learn';
+  <main class="content">
 
-    function renderLearn() {
-      const t = TOPICS[topicKey];
-      document.getElementById('ruleBox').innerHTML = '<strong>' + t.label + '</strong><br>' + t.rule;
-      document.getElementById('exBox').innerHTML = t.ex.map((e) => '<div>' + e + '</div>').join('');
-      document.getElementById('topicBtns').innerHTML = Object.keys(TOPICS).map((k) =>
-        '<button type="button" class="btn ' + (k === topicKey ? 'btn-primary' : '') + '" data-topic="' + k + '" style="background:' + (k === topicKey ? 'var(--deep)' : '#fff') + ';color:' + (k === topicKey ? '#fff' : 'var(--deep)') + ';border:2px solid var(--line)">' + TOPICS[k].label + '</button>'
-      ).join('');
-    }
+    <!-- MODE 1: STUDIO -->
+    <section class="panel active" id="panel-studio">
+      <div class="card">
+        <div class="card-title">
+          <span>เลือกหมวดไวยากรณ์หลัก 6 หมวด (ป.4–ป.5)</span>
+          <span class="tag">กฎกระชับพร้อมตัวอย่าง</span>
+        </div>
+        <div class="module-nav" id="moduleNav"></div>
+        <div class="formula-box" id="formulaBox"></div>
+      </div>
+    </section>
 
-    function nextPractice() {
-      const pool = TOPICS[topicKey].qs;
-      const item = pool[(Math.random() * pool.length) | 0];
-      document.getElementById('pq').textContent = item.q;
-      document.getElementById('pfb').textContent = '';
-      document.getElementById('pfb').style.color = '';
-      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
-      document.getElementById('popts').innerHTML = opts.map((o) =>
-        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
-      ).join('');
-      document.querySelectorAll('#popts .opt').forEach((btn) => {
-        btn.onclick = () => {
-          const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach((b) => {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ Correct!' : '✗ Answer: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
-          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
-        };
-      });
-    }
+    <!-- MODE 2: SYNTAX -->
+    <section class="panel" id="panel-syntax">
+      <div class="card">
+        <div class="card-title">
+          <span>สแกนเนอร์จำแนกโครงสร้างประโยค (Sentence Syntax)</span>
+          <span class="tag">ประธาน · กริยา · กรรม</span>
+        </div>
+        <div class="syntax-display" id="syntaxDisplay"></div>
+        <p style="text-align:center; font-weight:700; color:var(--muted);" id="syntaxDesc">แตะที่คำเพื่อฟังเสียงและดูหน้าที่ของคำในประโยค</p>
+        <div class="btn-row" style="justify-content:center;">
+          <button class="btn-act secondary" id="btnPrevSyntax">⬅ ประโยคก่อนหน้า</button>
+          <button class="btn-act primary" id="btnSpeakSyntax">🔊 อ่านทั้งประโยค</button>
+          <button class="btn-act secondary" id="btnNextSyntax">ประโยคถัดไป ➔</button>
+        </div>
+      </div>
+    </section>
 
-    document.getElementById('topicBtns').onclick = (e) => {
-      const b = e.target.closest('[data-topic]');
-      if (!b) return;
-      topicKey = b.dataset.topic;
-      renderLearn();
-    };
+    <!-- MODE 3: FIXER LAB -->
+    <section class="panel" id="panel-fixer">
+      <div class="card">
+        <div class="card-title">
+          <span>ห้องปฏิบัติการซ่อมประโยคที่เขียนผิด (Grammar Fixer)</span>
+          <span class="tag">เลือกแก้คำผิด</span>
+        </div>
+        <div class="q-card">
+          <p style="font-size:1.2rem; font-weight:800; color:var(--bad);" id="fixerWrong">"She have a cute dog."</p>
+          <p style="font-size:0.95rem; font-weight:700; color:var(--muted);" id="fixerHint">คำใบ้: ประธานเอกพจน์ He/She/It ต้องใช้กริยาใด?</p>
+          <div class="options-grid" id="fixerOptions"></div>
+          <div class="quiz-feedback" id="fixerFeedback"></div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn-act primary" id="btnNextFixer" style="display:none;">ข้อต่อไป ➔</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    document.getElementById('modeSeg').onclick = (e) => {
-      const b = e.target.closest('button[data-mode]');
-      if (!b) return;
-      mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('on', mode === 'learn');
-      document.getElementById('practice').classList.toggle('on', mode === 'practice');
-      document.getElementById('hintText').textContent =
-        mode === 'learn' ? 'อ่านกฎ → ดูตัวอย่าง → แล้วฝึก MCQ' : 'เลือกคำตอบที่ถูก · กดข้อถัดไปเมื่อพร้อม';
-      if (mode === 'practice') nextPractice();
-    };
+    <!-- MODE 4: QUIZ -->
+    <section class="panel" id="panel-quiz">
+      <div class="card">
+        <div class="card-title">
+          <span>แบบทดสอบไวยากรณ์และคำศัพท์ ป.4–ป.5 (15 ข้อ)</span>
+          <span class="tag">คะแนน: <span id="qScore">0</span> / 15</span>
+        </div>
+        <div class="q-card" id="qCard">
+          <p style="font-size:1.2rem; font-weight:800;" id="qPrompt">คำถาม...</p>
+          <div class="options-grid" id="qOptions"></div>
+          <div class="quiz-feedback" id="qFeedback"></div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn-act secondary" id="btnSpeakQ">🔊 อ่านโจทย์</button>
+            <button class="btn-act primary" id="btnNextQ" style="display:none;">ข้อต่อไป ➔</button>
+          </div>
+        </div>
+        <div class="card" id="qResult" style="display:none; text-align:center; padding:30px;">
+          <h2 style="font-size:1.6rem; font-weight:900;">🎉 ยอดเยี่ยม! ทำแบบทดสอบครบแล้ว</h2>
+          <div style="font-size:3.5rem; margin:10px 0;">🏆</div>
+          <p style="font-size:1.3rem; font-weight:800; color:var(--indigo);" id="qResultScore">15 / 15 คะแนน</p>
+          <button class="btn-act primary" id="btnRestartQuiz" style="margin-top:14px;">เริ่มทำใหม่</button>
+        </div>
+      </div>
+    </section>
 
-    document.getElementById('btnNext').onclick = nextPractice;
-    renderLearn();
-  </script>
+  </main>
+
+  <footer>
+    <div><strong>โรงเรียนบ้านคำไผ่</strong> · กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ</div>
+    <div><a href="/games/english/grammar-vocab-worksheet.html">เปิดใบงานคู่ขนาน A4 (50 ข้อ)</a></div>
+  </footer>
+</div>
+
+<script>
+// 6 GRAMMAR MODULES
+const MODULES = [
+  {
+    id: 'be',
+    name: '1. Verb to Be',
+    title: 'Verb to Be (is / am / are)',
+    desc: 'ใช้บอกสภาพ เป็น อยู่ คือ จับคู่กับประธานให้ถูกต้อง:',
+    rule: '• I ➔ am<br>• He / She / It / ประธานเอกพจน์ ➔ is<br>• You / We / They / ประธานพหูพจน์ ➔ are',
+    examples: [
+      { en: 'I am a happy student.', th: 'ฉันเป็นนักเรียนที่มีความสุข' },
+      { en: 'She is my sister.', th: 'เธอเป็นน้องสาวของฉัน' },
+      { en: 'They are playing outside.', th: 'พวกเขากำลังเล่นอยู่ข้างนอก' }
+    ]
+  },
+  {
+    id: 'articles',
+    name: '2. Articles (a/an/the)',
+    title: 'Articles คำนำหน้านาม (a, an, the)',
+    desc: 'ใช้บอกนามนับได้เอกพจน์:',
+    rule: '• a + นามขึ้นต้นด้วยเสียงพยัญชนะ (a book, a cat, a car)<br>• an + นามขึ้นต้นด้วยเสียงสระ a, e, i, o, u (an apple, an egg, an orange)<br>• the + สิ่งชี้เฉพาะ หรือมีเพียงสิ่งเดียว (the sun, the moon)',
+    examples: [
+      { en: 'I eat an apple every day.', th: 'ฉันกินแอปเปิลวันละ 1 ผล' },
+      { en: 'He has a blue pencil.', th: 'เขามีดินสอสีฟ้า 1 แท่ง' },
+      { en: 'The sun rises in the east.', th: 'ดวงอาทิตย์ขึ้นทางทิศตะวันออก' }
+    ]
+  },
+  {
+    id: 'pronouns',
+    name: '3. Pronouns',
+    title: 'Pronouns สรรพนาม และ Possessive แสดงความเป็นเจ้าของ',
+    desc: 'แทนชื่อคน สัตว์ สิ่งของ เพื่อไม่ต้องเรียกซ้ำ:',
+    rule: '• I ➔ my (ของฉัน)<br>• You ➔ your (ของคุณ)<br>• He ➔ his (ของเขา)<br>• She ➔ her (ของเธอ)<br>• They ➔ their (ของพวกเขา)<br>• We ➔ our (ของพวกเรา)',
+    examples: [
+      { en: 'This is my bag.', th: 'นี่คือกระเป๋าของฉัน' },
+      { en: 'She rides her bicycle.', th: 'เธอปั่นจักรยานของเธอ' },
+      { en: 'They love their teacher.', th: 'พวกเขารักคุณครูของพวกเขา' }
+    ]
+  },
+  {
+    id: 'demo',
+    name: '4. Demonstratives',
+    title: 'This / That / These / Those',
+    desc: 'คำชี้เฉพาะระยะใกล้-ไกล และจำนวนเอกพจน์-พหูพจน์:',
+    rule: '• This (นี่ - ใกล้/เอกพจน์) | That (นั่น - ไกล/เอกพจน์)<br>• These (เหล่านี้ - ใกล้/พหูพจน์) | Those (เหล่านั้น - ไกล/พหูพจน์)',
+    examples: [
+      { en: 'This is my book.', th: 'นี่คือหนังสือของฉัน (ใกล้ตัว)' },
+      { en: 'That is an airplane.', th: 'นั่นคือเครื่องบิน (ไกลตัว)' },
+      { en: 'These are fresh flowers.', th: 'เหล่านี้คือดอกไม้สด (ใกล้ตัว/หลายดอก)' }
+    ]
+  },
+  {
+    id: 'prep',
+    name: '5. Prepositions',
+    title: 'Prepositions of Place (คำบุพบทบอกตำแหน่ง)',
+    desc: 'บอกว่าสิ่งของหรือบุคคลอยู่ที่ไหน:',
+    rule: '• in (ใน) | on (บน) | under (ใต้)<br>• in front of (ข้างหน้า) | behind (ข้างหลัง) | next to (ถัดจาก/ข้างๆ)',
+    examples: [
+      { en: 'The cat is on the chair.', th: 'แมวอยู่บนเก้าอี้' },
+      { en: 'The ball is under the table.', th: 'ลูกบอลอยู่ใต้โต๊ะ' },
+      { en: 'Sit next to me.', th: 'มานั่งข้างๆ ฉัน' }
+    ]
+  },
+  {
+    id: 'helping',
+    name: '6. Do / Does / Can',
+    title: 'Helping Verbs & Questions (Do / Does / Can)',
+    desc: 'กริยาช่วยในประโยคบอกเล่า ปฏิเสธ และคำถาม:',
+    rule: '• Do + I / You / We / They<br>• Does + He / She / It<br>• Can + ประธานทุกตัว (สามารถ/ทำได้)',
+    examples: [
+      { en: 'Do you like ice cream?', th: 'คุณชอบไอศกรีมไหม?' },
+      { en: 'Does she speak English?', th: 'เธอพูดภาษาอังกฤษไหม?' },
+      { en: 'Birds can fly.', th: 'นกสามารถบินได้' }
+    ]
+  }
+];
+
+const SYNTAX_DATA = [
+  {
+    tokens: [
+      { word: 'She', label: 'ประธาน (Subject)', type: 'sub' },
+      { word: 'reads', label: 'กริยา (Verb)', type: 'verb' },
+      { word: 'an English book', label: 'กรรม (Object)', type: 'obj' }
+    ],
+    full: 'She reads an English book.'
+  },
+  {
+    tokens: [
+      { word: 'The children', label: 'ประธาน (Subject)', type: 'sub' },
+      { word: 'play', label: 'กริยา (Verb)', type: 'verb' },
+      { word: 'football in the park', label: 'กรรม/ส่วนขยาย', type: 'obj' }
+    ],
+    full: 'The children play football in the park.'
+  },
+  {
+    tokens: [
+      { word: 'My brother', label: 'ประธาน (Subject)', type: 'sub' },
+      { word: 'is eating', label: 'กริยา (Verb)', type: 'verb' },
+      { word: 'a delicious pizza', label: 'กรรม (Object)', type: 'obj' }
+    ],
+    full: 'My brother is eating a delicious pizza.'
+  }
+];
+
+const FIXER_DATA = [
+  {
+    wrong: 'She have a cute cat.',
+    hint: 'ประธาน She เป็นเอกพจน์ ต้องเปลี่ยน have เป็นคำใด?',
+    opts: ['has', 'having', 'haves', 'had'],
+    ans: 'has',
+    exp: 'She เป็นประธานเอกพจน์บุรุษที่ 3 ต้องใช้ has'
+  },
+  {
+    wrong: 'He is an boy.',
+    hint: 'คำว่า boy ขึ้นต้นด้วยเสียงพยัญชนะ ต้องใช้อาร์ติเคิลใด?',
+    opts: ['a', 'the', 'some', 'two'],
+    ans: 'a',
+    exp: 'boy ออกเสียงพยัญชนะ /b/ ต้องใช้ a boy'
+  },
+  {
+    wrong: 'They is playing outside.',
+    hint: 'ประธาน They (พวกเขา) เป็นพหูพจน์ ต้องใช้ Verb to be ใด?',
+    opts: ['are', 'am', 'was', 'be'],
+    ans: 'are',
+    exp: 'They เป็นพหูพจน์ ต้องใช้ They are'
+  },
+  {
+    wrong: 'I does my homework.',
+    hint: 'ประธาน I ต้องใช้กริยาช่วยใด?',
+    opts: ['do', 'doing', 'done', 'did'],
+    ans: 'do',
+    exp: 'ประธาน I ใช้คู่กับกริยา do'
+  }
+];
+
+const QUIZ_QUESTIONS = [
+  { q: 'She _______ my best friend at school.', opts: ['is', 'am', 'are', 'be'], a: 0, exp: 'ประธาน She เป็นเอกพจน์ใช้ is' },
+  { q: 'I want to eat _______ orange.', opts: ['an', 'a', 'the', 'some'], a: 0, exp: 'orange ขึ้นต้นด้วยเสียงสระ /ɒ/ ต้องใช้ an' },
+  { q: 'They _______ football every afternoon.', opts: ['play', 'plays', 'playing', 'is play'], a: 0, exp: 'ประธาน They พหูพจน์ กริยาไม่ต้องเติม s' },
+  { q: 'This is Tom and that is _______ new bicycle.', opts: ['his', 'her', 'my', 'their'], a: 0, exp: 'Tom เป็นผู้ชาย แสดงความเป็นเจ้าของใช้ his' },
+  { q: 'The cat is sleeping _______ the table.', opts: ['under', 'between', 'into', 'with'], a: 0, exp: 'under แปลว่า ใต้ (ใต้โต๊ะ)' },
+  { q: '_______ you have a pet at home?', opts: ['Do', 'Does', 'Is', 'Are'], a: 0, exp: 'ประธาน you ใช้คู่กับ Do' },
+  { q: '_______ she speak French?', opts: ['Does', 'Do', 'Is', 'Are'], a: 0, exp: 'ประธาน she เอกพจน์ใช้ Does' },
+  { q: 'We _______ very excited for the trip.', opts: ['are', 'is', 'am', 'be'], a: 0, exp: 'ประธาน We พหูพจน์ใช้ are' },
+  { q: 'Look at _______ birds in the sky over there (ไกลตัว).', opts: ['those', 'these', 'this', 'that'], a: 0, exp: 'นกหลายตัวและอยู่ไกลตัวใช้ those' },
+  { q: 'I like _______ red apple in my hand (ใกล้ตัว).', opts: ['this', 'that', 'those', 'these'], a: 0, exp: 'แอปเปิล 1 ผลในมือใช้ this' },
+  { q: 'Sarah brushed _______ teeth before bed.', opts: ['her', 'his', 'my', 'its'], a: 0, exp: 'Sarah เป็นผู้หญิงใช้ her' },
+  { q: 'Birds _______ fly high in the sky.', opts: ['can', 'does', 'is', 'are'], a: 0, exp: 'can แปลว่า สามารถ/ทำได้' },
+  { q: 'The books are _______ the shelf.', opts: ['on', 'under', 'at', 'into'], a: 0, exp: 'on แปลว่า บน (บนชั้นหนังสือ)' },
+  { q: 'He _______ not like bitter medicine.', opts: ['does', 'do', 'is', 'are'], a: 0, exp: 'ประธาน He ใช้ Does not' },
+  { q: '_______ sun gives light to the earth.', opts: ['The', 'A', 'An', 'Some'], a: 0, exp: 'ดวงอาทิตย์มีเพียงสิ่งเดียวใช้ The' }
+];
+
+const state = {
+  tab: 'studio',
+  modIdx: 0,
+  syntaxIdx: 0,
+  fixerIdx: 0,
+  qIdx: 0,
+  score: 0,
+  ttsEnabled: true,
+  voiceAccent: 'en-US'
+};
+
+window.__getState = () => ({
+  tab: state.tab,
+  mode: state.tab,
+  moduleCount: MODULES.length,
+  quizIndex: state.qIdx,
+  quizScore: state.score
+});
+
+function speakText(text, lang = state.voiceAccent) {
+  if (!state.ttsEnabled || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang;
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// TABS
+const tabBtns = document.querySelectorAll('.tab-btn');
+const panels = {
+  studio: document.getElementById('panel-studio'),
+  syntax: document.getElementById('panel-syntax'),
+  fixer: document.getElementById('panel-fixer'),
+  quiz: document.getElementById('panel-quiz')
+};
+function switchTab(t) {
+  state.tab = t;
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === t));
+}
+tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// STUDIO MODULES
+const moduleNav = document.getElementById('moduleNav');
+const formulaBox = document.getElementById('formulaBox');
+
+function renderModuleNav() {
+  moduleNav.innerHTML = '';
+  MODULES.forEach((m, idx) => {
+    const btn = document.createElement('button');
+    btn.className = `mod-btn ${idx === state.modIdx ? 'active' : ''}`;
+    btn.textContent = m.name;
+    btn.addEventListener('click', () => {
+      state.modIdx = idx;
+      renderModuleNav();
+      renderFormula();
+    });
+    moduleNav.appendChild(btn);
+  });
+}
+
+function renderFormula() {
+  const m = MODULES[state.modIdx];
+  formulaBox.innerHTML = `
+    <div class="formula-title">${m.title}</div>
+    <div class="formula-desc">${m.desc}</div>
+    <div style="background:#ffffff; border-radius:10px; padding:12px; font-weight:700; line-height:1.7;">
+      ${m.rule}
+    </div>
+    <div style="font-weight:800; margin-top:8px;">💡 ตัวอย่างประโยคใช้งานจริง:</div>
+    <div class="example-list">
+      ${m.examples.map(ex => `
+        <div class="ex-item">
+          <div>
+            <div style="color:var(--indigo-dark); font-size:1.05rem;">${ex.en}</div>
+            <div style="color:var(--muted); font-size:0.85rem;">${ex.th}</div>
+          </div>
+          <button class="btn-act secondary" style="min-height:36px; padding:6px 12px;" onclick="speakText('${ex.en}')">🔊 ฟัง</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+renderModuleNav();
+renderFormula();
+
+// SYNTAX INSPECTOR
+const syntaxDisplay = document.getElementById('syntaxDisplay');
+const syntaxDesc = document.getElementById('syntaxDesc');
+const btnPrevSyntax = document.getElementById('btnPrevSyntax');
+const btnNextSyntax = document.getElementById('btnNextSyntax');
+const btnSpeakSyntax = document.getElementById('btnSpeakSyntax');
+
+function renderSyntax() {
+  const cur = SYNTAX_DATA[state.syntaxIdx];
+  syntaxDisplay.innerHTML = '';
+  cur.tokens.forEach(tok => {
+    const el = document.createElement('div');
+    el.className = `syntax-token ${tok.type}`;
+    el.innerHTML = `<span>${tok.word}</span><span class="token-label">${tok.label}</span>`;
+    el.addEventListener('click', () => {
+      speakText(tok.word);
+      syntaxDesc.textContent = `"${tok.word}" ทำหน้าที่เป็น ${tok.label}`;
+    });
+    syntaxDisplay.appendChild(el);
+  });
+}
+btnPrevSyntax.addEventListener('click', () => {
+  state.syntaxIdx = (state.syntaxIdx - 1 + SYNTAX_DATA.length) % SYNTAX_DATA.length;
+  renderSyntax();
+});
+btnNextSyntax.addEventListener('click', () => {
+  state.syntaxIdx = (state.syntaxIdx + 1) % SYNTAX_DATA.length;
+  renderSyntax();
+});
+btnSpeakSyntax.addEventListener('click', () => speakText(SYNTAX_DATA[state.syntaxIdx].full));
+renderSyntax();
+
+// FIXER LAB
+const fixerWrong = document.getElementById('fixerWrong');
+const fixerHint = document.getElementById('fixerHint');
+const fixerOptions = document.getElementById('fixerOptions');
+const fixerFeedback = document.getElementById('fixerFeedback');
+const btnNextFixer = document.getElementById('btnNextFixer');
+
+function renderFixer() {
+  const cur = FIXER_DATA[state.fixerIdx];
+  fixerWrong.textContent = `"${cur.wrong}"`;
+  fixerHint.textContent = `คำใบ้: ${cur.hint}`;
+  fixerFeedback.className = 'quiz-feedback';
+  btnNextFixer.style.display = 'none';
+  fixerOptions.innerHTML = '';
+
+  cur.opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `แก้เป็น: ${opt}`;
+    btn.addEventListener('click', () => {
+      if (opt === cur.ans) {
+        btn.classList.add('correct');
+        fixerFeedback.className = 'quiz-feedback show correct';
+        fixerFeedback.textContent = `✅ ถูกต้อง! ${cur.exp}`;
+        speakText(cur.wrong.replace(/have|an|is|does/g, cur.ans));
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        fixerFeedback.className = 'quiz-feedback show wrong';
+        fixerFeedback.textContent = `❌ ยังไม่ถูกต้อง ลองพิจารณาคำใบ้อีกครั้ง`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      btnNextFixer.style.display = 'inline-flex';
+    });
+    fixerOptions.appendChild(btn);
+  });
+}
+btnNextFixer.addEventListener('click', () => {
+  state.fixerIdx = (state.fixerIdx + 1) % FIXER_DATA.length;
+  renderFixer();
+});
+renderFixer();
+
+// QUIZ
+const qScore = document.getElementById('qScore');
+const qPrompt = document.getElementById('qPrompt');
+const qOptions = document.getElementById('qOptions');
+const qFeedback = document.getElementById('qFeedback');
+const btnSpeakQ = document.getElementById('btnSpeakQ');
+const btnNextQ = document.getElementById('btnNextQ');
+const qCard = document.getElementById('qCard');
+const qResult = document.getElementById('qResult');
+const qResultScore = document.getElementById('qResultScore');
+const btnRestartQuiz = document.getElementById('btnRestartQuiz');
+
+function renderQuiz() {
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  qPrompt.textContent = `${state.qIdx + 1}. ${q.q}`;
+  qFeedback.className = 'quiz-feedback';
+  btnNextQ.style.display = 'none';
+  qOptions.innerHTML = '';
+
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      const all = qOptions.querySelectorAll('.opt-btn');
+      if (idx === q.a) {
+        btn.classList.add('correct');
+        state.score++;
+        qFeedback.className = 'quiz-feedback show correct';
+        qFeedback.textContent = `✅ ถูกต้อง! ${q.exp}`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        all[q.a].classList.add('correct');
+        qFeedback.className = 'quiz-feedback show wrong';
+        qFeedback.textContent = `❌ ยังไม่ถูกต้อง (${q.exp})`;
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      qScore.textContent = state.score;
+      btnNextQ.style.display = 'inline-flex';
+    });
+    qOptions.appendChild(btn);
+  });
+}
+
+btnNextQ.addEventListener('click', () => {
+  if (state.qIdx < QUIZ_QUESTIONS.length - 1) {
+    state.qIdx++;
+    renderQuiz();
+  } else {
+    qCard.style.display = 'none';
+    qResult.style.display = 'block';
+    qResultScore.textContent = `${state.score} / ${QUIZ_QUESTIONS.length} คะแนน`;
+  }
+});
+btnSpeakQ.addEventListener('click', () => speakText(QUIZ_QUESTIONS[state.qIdx].q));
+btnRestartQuiz.addEventListener('click', () => {
+  state.qIdx = 0;
+  state.score = 0;
+  qCard.style.display = 'flex';
+  qResult.style.display = 'none';
+  renderQuiz();
+});
+renderQuiz();
+
+// CONTROLS
+document.getElementById('selVoiceAccent').addEventListener('change', (e) => state.voiceAccent = e.target.value);
+document.getElementById('btnAudioToggle').addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
+});
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen().catch(() => {});
+});
+
+// SHORTCUTS
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') switchTab('studio');
+  if (e.key === '2') switchTab('syntax');
+  if (e.key === '3') switchTab('fixer');
+  if (e.key === '4') switchTab('quiz');
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (state.tab === 'syntax') btnSpeakSyntax.click();
+    else if (state.tab === 'quiz') btnSpeakQ.click();
+  }
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  }
+});
+</script>
 </body>
 </html>

@@ -290,6 +290,20 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.87 (ภาษาอังกฤษ — ยกระดับ 4 Interactive Learning Studios หลัก: Sight Words ป.4, Sight Words ป.1–3, Grammar & Vocab, Past Tense Mini พร้อมปก 16:9, เสียงสองสำเนียง US/UK และใบงาน A4)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับ 4 สื่อการสอนภาษาอังกฤษหลักสู่ Interactive Audio-Narrated Learning Studios เต็มรูปแบบ: 1. Sight Words ป.4 (sight-words-media.html) 2. Sight Words ป.1–3 (sight-words-p123-media.html) 3. Grammar & Vocab (grammar-vocab-media.html) 4. Past Tense Mini (past-tense-mini-media.html)',
+            'บูรณาการระบบเสียงพูดสองสำเนียง (Web Speech API Multi-Accent TTS): สลับฟังสำเนียงอเมริกัน 🇺🇸 US และบริติช 🇬🇧 UK ได้ทันที พร้อมระบบแปลความหมายภาษาไทยและสลับเปิด/ปิดเสียง',
+            'รองรับ 4 โหมดการเรียนรู้และคีย์ลัดสมาร์ตบอร์ดในทุกสตูดิโอ: โหมดสำรวจ/กระดานคำศัพท์, แฟลชการ์ดอัจฉริยะ/ตารางเปรียบเทียบ, ห้องปฏิบัติการวิเคราะห์บริบท/นักสืบเวลา/ตัวต่อคำศัพท์ และแบบทดสอบความแม่นยำ 15 ข้อ พร้อมระบบ Streak และเฉลยภาษาไทยทันที',
+            'สร้างภาพปก 16:9 สไตล์จิบิเพื่อการศึกษาความละเอียดสูง (1280x720) ครบทั้ง 4 แพ็กเกจ จัดวางกึ่งกลางใน Safe Zone 60% ปราศจากความรุนแรงและสีสันสดใสสมวัยประถมศึกษา',
+            'อัปเกรดใบงานพิมพ์ A4 คู่สื่อการสอนทั้ง 4 ฉบับ: ขยายสู่สถาปัตยกรรม worksheet-topic.js คลังโจทย์ 50 ข้อครอบคลุมทักษะหลัก พร้อมระบบเฉลยครู Zero-shift และผ่านการตรวจ verify-worksheet 18/18 checks ทุกฉบับ (รวม 145 ใบงาน 2,588 เช็คในระบบ)',
+            'รัน Migration 535 อัปเดต educational_hub_items และลงทะเบียน game_docs ครบ 10 ฟีเจอร์ต่อสตูดิโอบน Supabase สำเร็จ',
+            'ผ่านการทดสอบ E2E อัตโนมัติ 100% ผ่าน Playwright scripts/verify-english-pack-media.mjs ทั้งบนวิวพอร์ตมือถือ 360x800 และเดสก์ท็อป 1280x720 (ไร้ horizontal overflow, ปุ่มสัมผัส >= 44px, และ window.__getState hook ทำงานถูกต้อง)',
+        ],
+    },
+    {
         version: 'v1.229.86 (วิทยาศาสตร์ — ยกระดับ Force & Motion Learning Studio ป.5, ปกใหม่ 16:9 1280x720, แบบจำลองแรงลัพธ์ ∑F, แล็บแรงเสียดทาน 4 พื้นผิว และใบงาน A4 50 ข้อ)',
         date: '17 ก.ย. 2569',
         badge: 'bg-emerald-600',
