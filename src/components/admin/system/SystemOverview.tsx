@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.90 (ภาษาอังกฤษ — ยกเครื่องภาพประกอบ Classroom Action & TPR Commands Studio: ตัวละครเด็กนักเรียนจิบิเอกภาพ 100% ครบ 26 ท่าทาง)',
+        date: '21 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกเครื่องชุดภาพประกอบคำสั่ง TPR ทั้ง 26 ท่าทางใน Classroom Action Studio (public/games/english/tpr-actions/*.webp) ให้เป็นตัวละครเด็กนักเรียนประถมสไตล์จิบิ (Cute Chibi Anime Thai Student) ในชุดนักเรียนเดียวกัน 100%',
+            'ตัดปัญหาภาพไม่ตรงบริบท: ยกเลิกการใช้รูปลูกศรทิศทางเดี่ยวๆ (Sit down, Turn left/right, Put up/down) และรูปอวัยวะเดี่ยวๆ (Squat, Kneel, Close eye, Touch head/ears)',
+            'ทุกภาพสื่อความหมายการเคลื่อนไหวจริงชัดเจน: ลุกยืนจากเก้าอี้, นั่งเก้าอี้, เดิน, กระโดด, ย่อตัว, คุกเข่า, วิ่ง, หมุนตัว, ปิดตาซ้าย/ขวา, แตะศีรษะ/หู, ปรบมือ, หัวเราะ, ร้องไห้, ร้องไชโย, กระซิบ, ตกใจ, หาวนอน',
+            'อัปเดต COMMANDS data ใน public/games/english/classroom-action-media.html เชื่อมโยงชุดภาพใหม่ครบทั้ง 4 โหมดกิจกรรมบน Smartboard',
+            'ผ่านการตรวจสอบ 100% ด้วย Playwright verify-classroom-action-studio.mjs บนวิวพอร์ต 360x800 และ 1280x720 และผ่าน Challenger Stress Test 6 Suites (80 transitions, 120 Simon says rounds, zero overflow)',
+        ],
+    },
+    {
         version: 'v1.229.89 (ภาษาอังกฤษ — พัฒนา Classroom Action & TPR Commands Studio, ใบงานคู่สื่อ A4 48 ข้อ, ปกใหม่ 16:9 1280x720 และลงทะเบียน Supabase Hub)',
         date: '18 ก.ย. 2569',
         badge: 'bg-emerald-600',
