@@ -290,6 +290,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.91 (อัปเกรดภาพปกเกมการศึกษา 10 รายการ สู่ระดับสตูดิโอ 16:9)',
+        date: '21 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับภาพปก 10 เกมการศึกษาบน Educational Hub สู่มาตรฐาน 16:9 ขนาด 1280×720 px แบบ Full-bleed',
+            'ใช้สไตล์ Cute Cartoon Clean Line Art ลายเส้นสะอาดตา สีสันสดใส อบอุ่น สมวัย K-6',
+            'จัดวางองค์ประกอบและชื่อเกมสองภาษา (ไทย-อังกฤษ) กึ่งกลาง Safe Zone 60% อย่างเคร่งครัด',
+            'กำจัดตัวอักษรขยะและฟอนต์เพี้ยน (Mojibake) ออก 100%',
+            'แก้ไขข้อบกพร่องภาพขาดหาย (404 Broken Image) ของเกม animal-feast พร้อมสร้างไดเรกทอรีและภาพปกใหม่',
+            'ซิงค์ข้อมูล thumbnail_url ใน educational_hub_items ผ่าน Migration 538',
+        ],
+    },
+    {
         version: 'v1.229.90 (ภาษาอังกฤษ — ยกเครื่องภาพประกอบ Classroom Action & TPR Commands Studio: ตัวละครเด็กนักเรียนจิบิเอกภาพ 100% ครบ 26 ท่าทาง)',
         date: '21 ก.ย. 2569',
         badge: 'bg-emerald-600',
