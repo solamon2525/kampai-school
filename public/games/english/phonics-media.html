@@ -380,15 +380,114 @@
       text-decoration-thickness: 4px;
       text-underline-offset: 6px;
     }
-    .word-ipa {
-      font-family: 'Atkinson Hyperlegible', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--blue);
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
+    /* Thai Phonetic Mapping Chips */
+    .thai-map-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .thai-map-chip {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
       padding: 4px 10px;
-      border-radius: 8px;
+      border-radius: 10px;
+      border: 2px solid;
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      min-width: 44px;
+      min-height: 44px;
+      text-align: center;
+    }
+    .thai-map-chip .map-en {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+    }
+    .thai-map-chip .map-arrow {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .thai-map-chip .map-th {
+      font-size: 1rem;
+    }
+    .thai-map-chip.consonant {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: var(--navy);
+    }
+    .thai-map-chip.vowel {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+    .thai-map-chip.syllable,
+    .thai-map-chip.cluster {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .thai-map-chip.silent {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .thai-map-legend {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .thai-map-legend span { display: inline-flex; align-items: center; gap: 3px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+    }
+    .legend-dot.c { background: #93c5fd; }
+    .legend-dot.v { background: #fcd34d; }
+    .legend-dot.s, .legend-dot.cl { background: #86efac; }
+    .legend-dot.sil { background: #cbd5e1; }
+
+    /* Word Hide Toggle */
+    .btn-toggle-word {
+      background: var(--white);
+      border: 2px solid var(--navy);
+      color: var(--navy);
+      font-size: 0.88rem;
+      padding: 8px 14px;
+    }
+    .btn-toggle-word:hover { background: #f1f5f9; }
+    .btn-toggle-word.hiding {
+      background: var(--coral);
+      color: var(--white);
+      border-color: #dc2626;
+    }
+    .btn-toggle-word.hiding:hover { background: #ef4444; }
+    .word-hidden-placeholder {
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: var(--muted);
+      background: #f1f5f9;
+      border: 3px dashed var(--line);
+      border-radius: 16px;
+      padding: 12px 24px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.15s;
+      user-select: none;
+    }
+    .word-hidden-placeholder:hover {
+      background: #e2e8f0;
     }
 
     /* Sound Blending Bar */
@@ -962,6 +1061,11 @@
 
       <div class="toolbar-spacer"></div>
 
+      <!-- Toggle Word Visibility (Teacher Tool) -->
+      <button type="button" class="btn btn-toggle-word" id="btnToggleWord" title="สลับซ่อน/แสดงคำอังกฤษ (สำหรับครูทดสอบนักเรียน)">
+        👁️ ซ่อนคำ
+      </button>
+
       <!-- Quick Action: Open Worksheet -->
       <a href="/games/english/phonics-worksheet.html" target="_blank" rel="noopener" class="btn" style="background:#fff;border:2px solid var(--navy);color:var(--navy);font-size:0.88rem;">
         📝 ใบงาน Phonics
@@ -1019,7 +1123,20 @@
           <div class="card-content">
             <div class="word-en-box">
               <h2 class="word-en" id="cardWordEn">cat</h2>
-              <span class="word-ipa" id="cardWordIpa">/kæt/</span>
+            </div>
+
+            <!-- Thai Phonetic Mapping -->
+            <div id="thaiMapSection">
+              <span class="blending-label">ถอดเสียงอังกฤษ → ไทย:</span>
+              <div class="thai-map-row" id="thaiMapRow">
+                <!-- Generated via JS -->
+              </div>
+              <div class="thai-map-legend">
+                <span><span class="legend-dot c"></span> พยัญชนะ</span>
+                <span><span class="legend-dot v"></span> สระ</span>
+                <span><span class="legend-dot s"></span> เสียงควบ/พยางค์</span>
+                <span><span class="legend-dot sil"></span> ไม่ออกเสียง</span>
+              </div>
             </div>
 
             <!-- Blending Breakdown -->
@@ -1162,204 +1279,4678 @@
 
       var ASSET_BASE = '/games/english/vocab-hub-assets/';
 
-      // 6 Phonics Groups, each with >= 11 words (all >= 10) with verified local WebP images
+      // 10 Phonics Groups, each with 17 words (170 words total) with verified local WebP images
       var GROUPS = [
-        {
-          id: 'short-a',
-          title: 'Short A (/æ/)',
-          thaiSound: 'สระแอะ/สระแอ',
-          description: 'เสียงสระเสียงสั้น /æ/ เหมือน "แอะ" ใน cat, apple',
-          words: [
-            { en: 'cat', focus: 'a', ipa: '/kæt/', thReading: 'แคท', thMeaning: 'แมว', phonemes: ['c', 'a', 't'], img: 'animals/cat.webp' },
-            { en: 'apple', focus: 'a', ipa: '/ˈæp.əl/', thReading: 'แอป-เปิล', thMeaning: 'ผลแอปเปิล', phonemes: ['ap', 'ple'], img: 'fruits/apple.webp' },
-            { en: 'ant', focus: 'a', ipa: '/ænt/', thReading: 'แอนท์', thMeaning: 'มด', phonemes: ['a', 'n', 't'], img: 'insects/ant.webp' },
-            { en: 'bag', focus: 'a', ipa: '/bæɡ/', thReading: 'แบก', thMeaning: 'กระเป๋า', phonemes: ['b', 'a', 'g'], img: 'classroom/bag.webp' },
-            { en: 'hat', focus: 'a', ipa: '/hæt/', thReading: 'แฮท', thMeaning: 'หมวกปีก', phonemes: ['h', 'a', 't'], img: 'clothes/hat.webp' },
-            { en: 'rabbit', focus: 'a', ipa: '/ˈræb.ɪt/', thReading: 'แรบ-บิท', thMeaning: 'กระต่าย', phonemes: ['rab', 'bit'], img: 'animals/rabbit.webp' },
-            { en: 'crab', focus: 'a', ipa: '/kræb/', thReading: 'แครบ', thMeaning: 'ปูทะเล', phonemes: ['cr', 'a', 'b'], img: 'sea-animals/crab.webp' },
-            { en: 'carrot', focus: 'a', ipa: '/ˈkær.ət/', thReading: 'แคร์-เริท', thMeaning: 'แครอท', phonemes: ['car', 'rot'], img: 'vegetables/carrot.webp' },
-            { en: 'cabbage', focus: 'a', ipa: '/ˈkæb.ɪdʒ/', thReading: 'แคบ-บิจ', thMeaning: 'กะหล่ำปลี', phonemes: ['cab', 'bage'], img: 'vegetables/cabbage.webp' },
-            { en: 'sandwich', focus: 'a', ipa: '/ˈsæn.wɪdʒ/', thReading: 'แซนด์-วิช', thMeaning: 'แซนด์วิช', phonemes: ['sand', 'wich'], img: 'food/sandwich.webp' },
-            { en: 'hand', focus: 'a', ipa: '/hænd/', thReading: 'แฮนด์', thMeaning: 'มือ', phonemes: ['h', 'a', 'n', 'd'], img: 'body/hand.webp' },
-            { en: 'sad', focus: 'a', ipa: '/sæd/', thReading: 'แซด', thMeaning: 'เศร้า/เสียใจ', phonemes: ['s', 'a', 'd'], img: 'emotions/sad.webp' }
-          ]
-        },
-        {
-          id: 'short-e',
-          title: 'Short E (/e/)',
-          thaiSound: 'สระเอะ',
-          description: 'เสียงสระเสียงสั้น /e/ เหมือน "เอะ" ใน pen, egg',
-          words: [
-            { en: 'egg', focus: 'e', ipa: '/eɡ/', thReading: 'เอ็ก', thMeaning: 'ไข่ไก่', phonemes: ['e', 'gg'], img: 'food/egg.webp' },
-            { en: 'elephant', focus: 'e', ipa: '/ˈel.ɪ.fənt/', thReading: 'เอล-ลิ-เฟินท์', thMeaning: 'ช้าง', phonemes: ['el', 'e', 'phant'], img: 'animals/elephant.webp' },
-            { en: 'pen', focus: 'e', ipa: '/pen/', thReading: 'เพน', thMeaning: 'ปากกา', phonemes: ['p', 'e', 'n'], img: 'classroom/pen.webp' },
-            { en: 'pencil', focus: 'e', ipa: '/ˈpen.səl/', thReading: 'เพน-เซิล', thMeaning: 'ดินสอ', phonemes: ['pen', 'cil'], img: 'classroom/pencil.webp' },
-            { en: 'leg', focus: 'e', ipa: '/leɡ/', thReading: 'เล็ก', thMeaning: 'ขา', phonemes: ['l', 'e', 'g'], img: 'body/leg.webp' },
-            { en: 'bedroom', focus: 'e', ipa: '/ˈbed.ruːm/', thReading: 'เบด-รูม', thMeaning: 'ห้องนอน', phonemes: ['bed', 'room'], img: 'house-rooms/bedroom.webp' },
-            { en: 'dress', focus: 'e', ipa: '/dres/', thReading: 'เดรส', thMeaning: 'ชุดกระโปรง', phonemes: ['dr', 'e', 'ss'], img: 'clothes/dress.webp' },
-            { en: 'eggplant', focus: 'e', ipa: '/ˈeɡ.plɑːnt/', thReading: 'เอ็ก-แพลนท์', thMeaning: 'มะเขือม่วง', phonemes: ['egg', 'plant'], img: 'vegetables/eggplant.webp' },
-            { en: 'tennis', focus: 'e', ipa: '/ˈten.ɪs/', thReading: 'เทน-นิส', thMeaning: 'กีฬาเทนนิส', phonemes: ['ten', 'nis'], img: 'sports/tennis.webp' },
-            { en: 'celery', focus: 'e', ipa: '/ˈsel.ər.i/', thReading: 'เซล-เลอ-รี', thMeaning: 'ขึ้นฉ่ายฝรั่ง', phonemes: ['cel', 'er', 'y'], img: 'vegetables/celery.webp' },
-            { en: 'hen', focus: 'e', ipa: '/hen/', thReading: 'เฮน', thMeaning: 'แม่ไก่', phonemes: ['h', 'e', 'n'], img: 'birds/hen.webp' }
-          ]
-        },
-        {
-          id: 'short-i',
-          title: 'Short I (/ɪ/)',
-          thaiSound: 'สระอิ',
-          description: 'เสียงสระเสียงสั้น /ɪ/ เหมือน "อิ" ใน pig, fish',
-          words: [
-            { en: 'pig', focus: 'i', ipa: '/pɪɡ/', thReading: 'พิก', thMeaning: 'หมู', phonemes: ['p', 'i', 'g'], img: 'animals/pig.webp' },
-            { en: 'fish', focus: 'i', ipa: '/fɪʃ/', thReading: 'ฟิช', thMeaning: 'ปลา', phonemes: ['f', 'i', 'sh'], img: 'animals/fish.webp' },
-            { en: 'ship', focus: 'i', ipa: '/ʃɪp/', thReading: 'ชิพ', thMeaning: 'เรือใหญ่', phonemes: ['sh', 'i', 'p'], img: 'transportation/ship.webp' },
-            { en: 'milk', focus: 'i', ipa: '/mɪlk/', thReading: 'มิลค์', thMeaning: 'นมสด', phonemes: ['m', 'i', 'l', 'k'], img: 'food/milk.webp' },
-            { en: 'swim', focus: 'i', ipa: '/swɪm/', thReading: 'สวิม', thMeaning: 'ว่ายน้ำ', phonemes: ['sw', 'i', 'm'], img: 'verbs/swim.webp' },
-            { en: 'sing', focus: 'i', ipa: '/sɪŋ/', thReading: 'ซิง', thMeaning: 'ร้องเพลง', phonemes: ['s', 'i', 'ng'], img: 'verbs/sing.webp' },
-            { en: 'spring', focus: 'i', ipa: '/sprɪŋ/', thReading: 'สปริง', thMeaning: 'ฤดูใบไม้ผลิ', phonemes: ['spr', 'i', 'ng'], img: 'seasons/spring.webp' },
-            { en: 'winter', focus: 'i', ipa: '/ˈwɪn.tər/', thReading: 'วิน-เทอร์', thMeaning: 'ฤดูหนาว', phonemes: ['win', 'ter'], img: 'seasons/winter.webp' },
-            { en: 'windy', focus: 'i', ipa: '/ˈwɪn.di/', thReading: 'วิน-ดี', thMeaning: 'มีลมแรง', phonemes: ['win', 'dy'], img: 'weather/windy.webp' },
-            { en: 'chicken', focus: 'i', ipa: '/ˈtʃɪk.ɪn/', thReading: 'ชิก-เกน', thMeaning: 'เนื้อไก่/ไก่', phonemes: ['ch', 'ick', 'en'], img: 'food/chicken.webp' },
-            { en: 'cricket', focus: 'i', ipa: '/ˈkrɪk.ɪt/', thReading: 'คริก-เกิต', thMeaning: 'จิ้งหรีด', phonemes: ['cr', 'ick', 'et'], img: 'insects/cricket.webp' }
-          ]
-        },
-        {
-          id: 'short-o',
-          title: 'Short O (/ɒ/)',
-          thaiSound: 'สระเอาะ/ออ',
-          description: 'เสียงสระเสียงสั้น /ɒ/ เหมือน "เอาะ/ออ" ใน dog, fox',
-          words: [
-            { en: 'dog', focus: 'o', ipa: '/dɒɡ/', thReading: 'ด็อก', thMeaning: 'สุนัข', phonemes: ['d', 'o', 'g'], img: 'animals/dog.webp' },
-            { en: 'fox', focus: 'o', ipa: '/fɒks/', thReading: 'ฟ็อกซ์', thMeaning: 'สุนัขจิ้งจอก', phonemes: ['f', 'o', 'x'], img: 'animals/fox.webp' },
-            { en: 'frog', focus: 'o', ipa: '/frɒɡ/', thReading: 'ฟร็อก', thMeaning: 'กบ', phonemes: ['fr', 'o', 'g'], img: 'animals/frog.webp' },
-            { en: 'octopus', focus: 'o', ipa: '/ˈɒk.tə.pəs/', thReading: 'อ็อก-โท-พัส', thMeaning: 'หมึกยักษ์', phonemes: ['oc', 'to', 'pus'], img: 'sea-animals/octopus.webp' },
-            { en: 'orange', focus: 'o', ipa: '/ˈɒr.ɪndʒ/', thReading: 'ออ-เรนจ์', thMeaning: 'ผลส้ม', phonemes: ['or', 'ange'], img: 'fruits/orange.webp' },
-            { en: 'doll', focus: 'o', ipa: '/dɒl/', thReading: 'ดอลล์', thMeaning: 'ตุ๊กตา', phonemes: ['d', 'o', 'll'], img: 'toys/doll.webp' },
-            { en: 'blocks', focus: 'o', ipa: '/blɒks/', thReading: 'บล็อกส์', thMeaning: 'ตัวต่อของเล่น', phonemes: ['bl', 'o', 'cks'], img: 'toys/blocks.webp' },
-            { en: 'boxing', focus: 'o', ipa: '/ˈbɒk.sɪŋ/', thReading: 'บ็อก-ซิง', thMeaning: 'กีฬามวย', phonemes: ['box', 'ing'], img: 'sports/boxing.webp' },
-            { en: 'doctor', focus: 'o', ipa: '/ˈdɒk.tər/', thReading: 'ด็อก-เทอร์', thMeaning: 'คุณหมอ', phonemes: ['doc', 'tor'], img: 'jobs/doctor.webp' },
-            { en: 'hospital', focus: 'o', ipa: '/ˈhɒs.pɪ.təl/', thReading: 'ฮอส-พิ-เทิล', thMeaning: 'โรงพยาบาล', phonemes: ['hos', 'pi', 'tal'], img: 'places/hospital.webp' },
-            { en: 'socks', focus: 'o', ipa: '/sɒks/', thReading: 'ซ็อกส์', thMeaning: 'ถุงเท้า', phonemes: ['s', 'o', 'cks'], img: 'clothes/socks.webp' }
-          ]
-        },
-        {
-          id: 'short-u',
-          title: 'Short U (/ʌ/)',
-          thaiSound: 'สระอะ',
-          description: 'เสียงสระเสียงสั้น /ʌ/ เหมือน "อะ" ใน duck, bus, sun',
-          words: [
-            { en: 'duck', focus: 'u', ipa: '/dʌk/', thReading: 'ดั๊ก', thMeaning: 'เป็ด', phonemes: ['d', 'u', 'ck'], img: 'animals/duck.webp' },
-            { en: 'bus', focus: 'u', ipa: '/bʌs/', thReading: 'บัส', thMeaning: 'รถประจำทาง', phonemes: ['b', 'u', 's'], img: 'transportation/bus.webp' },
-            { en: 'truck', focus: 'u', ipa: '/trʌk/', thReading: 'ทรัค', thMeaning: 'รถบรรทุก', phonemes: ['tr', 'u', 'ck'], img: 'transportation/truck.webp' },
-            { en: 'sun', focus: 'u', ipa: '/sʌn/', thReading: 'ซัน', thMeaning: 'พระอาทิตย์', phonemes: ['s', 'u', 'n'], img: 'weather/sunny.webp' },
-            { en: 'summer', focus: 'u', ipa: '/ˈsʌm.ər/', thReading: 'ซัม-เมอร์', thMeaning: 'ฤดูร้อน', phonemes: ['sum', 'mer'], img: 'seasons/summer.webp' },
-            { en: 'drum', focus: 'u', ipa: '/drʌm/', thReading: 'ดรัม', thMeaning: 'กลอง', phonemes: ['dr', 'u', 'm'], img: 'instruments/drum.webp' },
-            { en: 'jump', focus: 'u', ipa: '/dʒʌmp/', thReading: 'จัมพ์', thMeaning: 'กระโดด', phonemes: ['j', 'u', 'mp'], img: 'verbs/jump.webp' },
-            { en: 'running', focus: 'u', ipa: '/ˈrʌn.ɪŋ/', thReading: 'รัน-นิง', thMeaning: 'การวิ่ง', phonemes: ['run', 'ning'], img: 'sports/running.webp' },
-            { en: 'pumpkin', focus: 'u', ipa: '/ˈpʌmp.kɪn/', thReading: 'พัมพ์-คิน', thMeaning: 'ฟักทอง', phonemes: ['pump', 'kin'], img: 'vegetables/pumpkin.webp' },
-            { en: 'puzzle', focus: 'u', ipa: '/ˈpʌz.əl/', thReading: 'พัซ-เซิล', thMeaning: 'ตัวต่อปริศนา', phonemes: ['puz', 'zle'], img: 'toys/puzzle.webp' },
-            { en: 'butter', focus: 'u', ipa: '/ˈbʌt.ər/', thReading: 'บัต-เทอร์', thMeaning: 'เนยสด', phonemes: ['but', 'ter'], img: 'food/butter.webp' }
-          ]
-        },
-        {
-          id: 'blends-digraphs',
-          title: 'Blends & Digraphs',
-          thaiSound: 'เสียงพยัญชนะผสม',
-          description: 'เสียงผสม เช่น ch, sh, st, tr, br, wh',
-          words: [
-            { en: 'chair', focus: 'ch', ipa: '/tʃeər/', thReading: 'แชร์', thMeaning: 'เก้าอี้', phonemes: ['ch', 'air'], img: 'classroom/chair.webp' },
-            { en: 'cheese', focus: 'ch', ipa: '/tʃiːz/', thReading: 'ชีส', thMeaning: 'เนยแข็ง/ชีส', phonemes: ['ch', 'eese'], img: 'food/cheese.webp' },
-            { en: 'ship', focus: 'sh', ipa: '/ʃɪp/', thReading: 'ชิพ', thMeaning: 'เรือใหญ่', phonemes: ['sh', 'i', 'p'], img: 'transportation/ship.webp' },
-            { en: 'shark', focus: 'sh', ipa: '/ʃɑːk/', thReading: 'ชาร์ค', thMeaning: 'ปลาฉลาม', phonemes: ['sh', 'ark'], img: 'sea-animals/shark.webp' },
-            { en: 'shirt', focus: 'sh', ipa: '/ʃɜːt/', thReading: 'เชิ้ต', thMeaning: 'เสื้อเชิ้ต', phonemes: ['sh', 'irt'], img: 'clothes/shirt.webp' },
-            { en: 'shoes', focus: 'sh', ipa: '/ʃuːz/', thReading: 'ชูส์', thMeaning: 'รองเท้า', phonemes: ['sh', 'oes'], img: 'clothes/shoes.webp' },
-            { en: 'shrimp', focus: 'sh', ipa: '/ʃrɪmp/', thReading: 'ชริมพ์', thMeaning: 'กุ้ง', phonemes: ['sh', 'r', 'i', 'mp'], img: 'sea-animals/shrimp.webp' },
-            { en: 'star', focus: 'st', ipa: '/stɑːr/', thReading: 'สตาร์', thMeaning: 'ดวงดาว', phonemes: ['st', 'ar'], img: 'shapes/star.webp' },
-            { en: 'train', focus: 'tr', ipa: '/treɪn/', thReading: 'เทรน', thMeaning: 'รถไฟ', phonemes: ['tr', 'ain'], img: 'transportation/train.webp' },
-            { en: 'bread', focus: 'br', ipa: '/bred/', thReading: 'เบรด', thMeaning: 'ขนมปัง', phonemes: ['br', 'ead'], img: 'food/bread.webp' },
-            { en: 'whale', focus: 'wh', ipa: '/weɪl/', thReading: 'เวล', thMeaning: 'ปลาวาฬ', phonemes: ['wh', 'ale'], img: 'sea-animals/whale.webp' },
-            { en: 'blocks', focus: 'bl', ipa: '/blɒks/', thReading: 'บล็อกส์', thMeaning: 'ตัวต่อบล็อก', phonemes: ['bl', 'o', 'cks'], img: 'toys/blocks.webp' }
-          ]
-        },
-        {
-          id: 'long-vowels',
-          title: 'Long Vowels (Magic E)',
-          thaiSound: 'สระเสียงยาว & Magic E',
-          description: 'สระเสียงยาวที่มี Magic E (a_e, i_e, o_e, u_e) เช่น cake, kite, nose',
-          words: [
-            { en: 'cake', focus: 'a_e', ipa: '/keɪk/', thReading: 'เค้ก', thMeaning: 'ขนมเค้ก', phonemes: ['c', 'a', 'k', 'e'], img: 'food/cake.webp' },
-            { en: 'snake', focus: 'a_e', ipa: '/sneɪk/', thReading: 'สเนก', thMeaning: 'งู', phonemes: ['sn', 'a', 'k', 'e'], img: 'animals/snake.webp' },
-            { en: 'grape', focus: 'a_e', ipa: '/ɡreɪp/', thReading: 'เกรพ', thMeaning: 'องุ่น', phonemes: ['gr', 'a', 'p', 'e'], img: 'fruits/grape.webp' },
-            { en: 'kite', focus: 'i_e', ipa: '/kaɪt/', thReading: 'ไคท์', thMeaning: 'ว่าว', phonemes: ['k', 'i', 't', 'e'], img: 'toys/kite.webp' },
-            { en: 'bike', focus: 'i_e', ipa: '/baɪk/', thReading: 'ไบค์', thMeaning: 'จักรยาน', phonemes: ['b', 'i', 'k', 'e'], img: 'transportation/bicycle.webp' },
-            { en: 'lime', focus: 'i_e', ipa: '/laɪm/', thReading: 'ไลม์', thMeaning: 'มะนาวเขียว', phonemes: ['l', 'i', 'm', 'e'], img: 'fruits/lime.webp' },
-            { en: 'rice', focus: 'i_e', ipa: '/raɪs/', thReading: 'ไรซ์', thMeaning: 'ข้าวสวย', phonemes: ['r', 'i', 'c', 'e'], img: 'food/rice.webp' },
-            { en: 'nose', focus: 'o_e', ipa: '/noʊz/', thReading: 'โนส', thMeaning: 'จมูก', phonemes: ['n', 'o', 's', 'e'], img: 'body/nose.webp' },
-            { en: 'robot', focus: 'o', ipa: '/ˈroʊ.bɒt/', thReading: 'โร-บอท', thMeaning: 'หุ่นยนต์', phonemes: ['ro', 'bot'], img: 'toys/robot.webp' },
-            { en: 'fruit', focus: 'ui', ipa: '/fruːt/', thReading: 'ฟรุต', thMeaning: 'ผลไม้', phonemes: ['fr', 'ui', 't'], img: 'food/fruit.webp' },
-            { en: 'juice', focus: 'ui', ipa: '/dʒuːs/', thReading: 'จูซ', thMeaning: 'น้ำผลไม้', phonemes: ['j', 'ui', 'ce'], img: 'food/juice.webp' }
-          ]
-        },
-        {
-          id: 'vowel-teams',
-          title: 'Vowel Teams',
-          thaiSound: 'สระคู่เสียงยาว',
-          description: 'สระคู่เสียงยาว ee, ea, ai, oa, ue เช่น bee, tea, train, boat',
-          words: [
-            { en: 'bee', focus: 'ee', ipa: '/biː/', thReading: 'บี', thMeaning: 'ผึ้ง', phonemes: ['b', 'ee'], img: 'insects/bee.webp' },
-            { en: 'tea', focus: 'ea', ipa: '/tiː/', thReading: 'ที', thMeaning: 'น้ำชา', phonemes: ['t', 'ea'], img: 'food/tea.webp' },
-            { en: 'meat', focus: 'ea', ipa: '/miːt/', thReading: 'มีท', thMeaning: 'เนื้อสัตว์', phonemes: ['m', 'ea', 't'], img: 'food/meat.webp' },
-            { en: 'peach', focus: 'ea', ipa: '/piːtʃ/', thReading: 'พีช', thMeaning: 'ลูกพีช', phonemes: ['p', 'ea', 'ch'], img: 'fruits/peach.webp' },
-            { en: 'queen', focus: 'ee', ipa: '/kwiːn/', thReading: 'ควีน', thMeaning: 'พระราชินี', phonemes: ['qu', 'ee', 'n'], img: 'jobs/queen.webp' },
-            { en: 'sheep', focus: 'ee', ipa: '/ʃiːp/', thReading: 'ชีพ', thMeaning: 'แกะ', phonemes: ['sh', 'ee', 'p'], img: 'animals/sheep.webp' },
-            { en: 'train', focus: 'ai', ipa: '/treɪn/', thReading: 'เทรน', thMeaning: 'รถไฟ', phonemes: ['tr', 'ai', 'n'], img: 'transportation/train.webp' },
-            { en: 'boat', focus: 'oa', ipa: '/boʊt/', thReading: 'โบ้ท', thMeaning: 'เรือ', phonemes: ['b', 'oa', 't'], img: 'transportation/boat.webp' },
-            { en: 'goat', focus: 'oa', ipa: '/ɡoʊt/', thReading: 'โกท', thMeaning: 'แพะ', phonemes: ['g', 'oa', 't'], img: 'animals/goat.webp' },
-            { en: 'blue', focus: 'ue', ipa: '/bluː/', thReading: 'บลู', thMeaning: 'สีน้ำเงิน', phonemes: ['bl', 'ue'], img: 'fruits/blueberry.webp' },
-            { en: 'soup', focus: 'ou', ipa: '/suːp/', thReading: 'ซุป', thMeaning: 'น้ำแกง/ซุป', phonemes: ['s', 'ou', 'p'], img: 'food/soup.webp' }
-          ]
-        },
-        {
-          id: 'bossy-r',
-          title: 'Bossy R (R-Controlled)',
-          thaiSound: 'พยัญชนะ R ควบคุมสระ',
-          description: 'สระที่ตามด้วย r (ar, or, er, ir, ur) เช่น star, car, corn, bird, turtle',
-          words: [
-            { en: 'star', focus: 'ar', ipa: '/stɑːr/', thReading: 'สตาร์', thMeaning: 'ดวงดาว', phonemes: ['st', 'ar'], img: 'shapes/star.webp' },
-            { en: 'car', focus: 'ar', ipa: '/kɑːr/', thReading: 'คาร์', thMeaning: 'รถยนต์', phonemes: ['c', 'ar'], img: 'transportation/car.webp' },
-            { en: 'park', focus: 'ar', ipa: '/pɑːk/', thReading: 'พาร์ค', thMeaning: 'สวนสาธารณะ', phonemes: ['p', 'ar', 'k'], img: 'places/park.webp' },
-            { en: 'shark', focus: 'ar', ipa: '/ʃɑːk/', thReading: 'ชาร์ค', thMeaning: 'ปลาฉลาม', phonemes: ['sh', 'ar', 'k'], img: 'sea-animals/shark.webp' },
-            { en: 'scarf', focus: 'ar', ipa: '/skɑːf/', thReading: 'สคาร์ฟ', thMeaning: 'ผ้าพันคอ', phonemes: ['sc', 'ar', 'f'], img: 'clothes/scarf.webp' },
-            { en: 'farmer', focus: 'ar', ipa: '/ˈfɑː.mər/', thReading: 'ฟาร์ม-เมอร์', thMeaning: 'ชาวนา', phonemes: ['farm', 'er'], img: 'jobs/farmer.webp' },
-            { en: 'corn', focus: 'or', ipa: '/kɔːn/', thReading: 'คอร์น', thMeaning: 'ข้าวโพด', phonemes: ['c', 'or', 'n'], img: 'vegetables/corn.webp' },
-            { en: 'horse', focus: 'or', ipa: '/hɔːs/', thReading: 'ฮอร์ส', thMeaning: 'ม้า', phonemes: ['h', 'or', 'se'], img: 'animals/horse.webp' },
-            { en: 'storm', focus: 'or', ipa: '/stɔːm/', thReading: 'สตอร์ม', thMeaning: 'พายุ', phonemes: ['storm', 'y'], img: 'weather/stormy.webp' },
-            { en: 'bird', focus: 'ir', ipa: '/bɜːd/', thReading: 'เบิร์ด', thMeaning: 'นก', phonemes: ['b', 'ir', 'd'], img: 'animals/bird.webp' },
-            { en: 'shirt', focus: 'ir', ipa: '/ʃɜːt/', thReading: 'เชิ้ต', thMeaning: 'เสื้อเชิ้ต', phonemes: ['sh', 'ir', 't'], img: 'clothes/shirt.webp' },
-            { en: 'turtle', focus: 'ur', ipa: '/ˈtɜː.təl/', thReading: 'เทอร์-เทิล', thMeaning: 'เต่าทะเล', phonemes: ['tur', 'tle'], img: 'sea-animals/turtle.webp' },
-            { en: 'nurse', focus: 'ur', ipa: '/nɜːs/', thReading: 'เนิร์ส', thMeaning: 'พยาบาล', phonemes: ['n', 'ur', 'se'], img: 'jobs/nurse.webp' }
-          ]
-        },
-        {
-          id: 'diphthongs-special',
-          title: 'Special Vowels & Diphthongs',
-          thaiSound: 'สระประสมพิเศษ',
-          description: 'สระพิเศษ oo, ow, ou, au เช่น book, boots, cow, mouth, autumn',
-          words: [
-            { en: 'book', focus: 'oo', ipa: '/bʊk/', thReading: 'บุ๊ก', thMeaning: 'หนังสือ', phonemes: ['b', 'oo', 'k'], img: 'classroom/book.webp' },
-            { en: 'cook', focus: 'oo', ipa: '/kʊk/', thReading: 'คุ้ก', thMeaning: 'ทำอาหาร', phonemes: ['c', 'oo', 'k'], img: 'verbs/cook.webp' },
-            { en: 'foot', focus: 'oo', ipa: '/fʊt/', thReading: 'ฟุต', thMeaning: 'เท้า', phonemes: ['f', 'oo', 't'], img: 'body/foot.webp' },
-            { en: 'boots', focus: 'oo', ipa: '/buːts/', thReading: 'บูทส์', thMeaning: 'รองเท้าบูท', phonemes: ['b', 'oo', 'ts'], img: 'clothes/boots.webp' },
-            { en: 'zoo', focus: 'oo', ipa: '/zuː/', thReading: 'ซู', thMeaning: 'สวนสัตว์', phonemes: ['z', 'oo'], img: 'places/zoo.webp' },
-            { en: 'noodles', focus: 'oo', ipa: '/ˈnuː.dəlz/', thReading: 'นู-เดิลส์', thMeaning: 'ก๋วยเตี๋ยว', phonemes: ['noo', 'dles'], img: 'food/noodles.webp' },
-            { en: 'cow', focus: 'ow', ipa: '/kaʊ/', thReading: 'คาว', thMeaning: 'แม่วัว', phonemes: ['c', 'ow'], img: 'animals/cow.webp' },
-            { en: 'owl', focus: 'ow', ipa: '/aʊl/', thReading: 'เอาล์', thMeaning: 'นกฮูก', phonemes: ['ow', 'l'], img: 'animals/owl.webp' },
-            { en: 'mouth', focus: 'ou', ipa: '/maʊθ/', thReading: 'เมาธ์', thMeaning: 'ปาก', phonemes: ['m', 'ou', 'th'], img: 'body/mouth.webp' },
-            { en: 'cloud', focus: 'ou', ipa: '/klaʊd/', thReading: 'คลาวด์', thMeaning: 'ก้อนเมฆ', phonemes: ['cl', 'ou', 'dy'], img: 'weather/cloudy.webp' },
-            { en: 'autumn', focus: 'au', ipa: '/ˈɔː.təm/', thReading: 'ออ-ทัม', thMeaning: 'ฤดูใบไม้ร่วง', phonemes: ['au', 'tumn'], img: 'seasons/autumn.webp' },
-            { en: 'sausage', focus: 'au', ipa: '/ˈsɒs.ɪdʒ/', thReading: 'ซอส-สิจ', thMeaning: 'ไส้กรอก', phonemes: ['sau', 'sage'], img: 'food/sausage.webp' }
-          ]
-        }
-      ];
+  {
+    "id": "short-a",
+    "title": "Short A (เสียงสระ แอะ)",
+    "thaiSound": "สระแอะ/สระแอ",
+    "description": "เสียงสระเสียงสั้นเหมือน \"แอะ\" ใน cat, apple",
+    "words": [
+      {
+        "en": "cat",
+        "focus": "a",
+        "thReading": "แคท",
+        "thMeaning": "แมว",
+        "phonemes": [
+          "c",
+          "a",
+          "t"
+        ],
+        "img": "animals/cat.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "apple",
+        "focus": "a",
+        "thReading": "แอป-เปิล",
+        "thMeaning": "ผลแอปเปิล",
+        "phonemes": [
+          "ap",
+          "ple"
+        ],
+        "img": "fruits/apple.webp",
+        "thaiPhonics": [
+          {
+            "en": "ap",
+            "th": "แอป",
+            "type": "v"
+          },
+          {
+            "en": "ple",
+            "th": "เปิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "ant",
+        "focus": "a",
+        "thReading": "แอนท์",
+        "thMeaning": "มด",
+        "phonemes": [
+          "a",
+          "n",
+          "t"
+        ],
+        "img": "insects/ant.webp",
+        "thaiPhonics": [
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "bag",
+        "focus": "a",
+        "thReading": "แบก",
+        "thMeaning": "กระเป๋า",
+        "phonemes": [
+          "b",
+          "a",
+          "g"
+        ],
+        "img": "classroom/bag.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "hat",
+        "focus": "a",
+        "thReading": "แฮท",
+        "thMeaning": "หมวกปีก",
+        "phonemes": [
+          "h",
+          "a",
+          "t"
+        ],
+        "img": "clothes/hat.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "rabbit",
+        "focus": "a",
+        "thReading": "แรบ-บิท",
+        "thMeaning": "กระต่าย",
+        "phonemes": [
+          "rab",
+          "bit"
+        ],
+        "img": "animals/rabbit.webp",
+        "thaiPhonics": [
+          {
+            "en": "rab",
+            "th": "แรบ",
+            "type": "cl"
+          },
+          {
+            "en": "bit",
+            "th": "บิท",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "crab",
+        "focus": "a",
+        "thReading": "แครบ",
+        "thMeaning": "ปูทะเล",
+        "phonemes": [
+          "cr",
+          "a",
+          "b"
+        ],
+        "img": "sea-animals/crab.webp",
+        "thaiPhonics": [
+          {
+            "en": "cr",
+            "th": "คร",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "carrot",
+        "focus": "a",
+        "thReading": "แคร์-เริท",
+        "thMeaning": "แครอท",
+        "phonemes": [
+          "car",
+          "rot"
+        ],
+        "img": "vegetables/carrot.webp",
+        "thaiPhonics": [
+          {
+            "en": "car",
+            "th": "แคร์",
+            "type": "cl"
+          },
+          {
+            "en": "rot",
+            "th": "เริท",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "cabbage",
+        "focus": "a",
+        "thReading": "แคบ-บิจ",
+        "thMeaning": "กะหล่ำปลี",
+        "phonemes": [
+          "cab",
+          "bage"
+        ],
+        "img": "vegetables/cabbage.webp",
+        "thaiPhonics": [
+          {
+            "en": "cab",
+            "th": "แคบ",
+            "type": "cl"
+          },
+          {
+            "en": "bage",
+            "th": "บิจ",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "sandwich",
+        "focus": "a",
+        "thReading": "แซนด์-วิช",
+        "thMeaning": "แซนด์วิช",
+        "phonemes": [
+          "sand",
+          "wich"
+        ],
+        "img": "food/sandwich.webp",
+        "thaiPhonics": [
+          {
+            "en": "sand",
+            "th": "แซนด์",
+            "type": "cl"
+          },
+          {
+            "en": "wich",
+            "th": "วิช",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "hand",
+        "focus": "a",
+        "thReading": "แฮนด์",
+        "thMeaning": "มือ",
+        "phonemes": [
+          "h",
+          "a",
+          "n",
+          "d"
+        ],
+        "img": "body/hand.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "nd",
+            "th": "นด์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "sad",
+        "focus": "a",
+        "thReading": "แซด",
+        "thMeaning": "เศร้า/เสียใจ",
+        "phonemes": [
+          "s",
+          "a",
+          "d"
+        ],
+        "img": "emotions/sad.webp",
+        "thaiPhonics": [
+          {
+            "en": "s",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "panda",
+        "focus": "a",
+        "thReading": "แพน-ดา",
+        "thMeaning": "หมีแพนด้า",
+        "phonemes": [
+          "pan",
+          "da"
+        ],
+        "img": "animals/panda.webp",
+        "thaiPhonics": [
+          {
+            "en": "pan",
+            "th": "แพน",
+            "type": "cl"
+          },
+          {
+            "en": "da",
+            "th": "ดา",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "back",
+        "focus": "a",
+        "thReading": "แบ็ก",
+        "thMeaning": "แผ่นหลัง",
+        "phonemes": [
+          "b",
+          "a",
+          "ck"
+        ],
+        "img": "body/back.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "ck",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "bank",
+        "focus": "a",
+        "thReading": "แบงก์",
+        "thMeaning": "ธนาคาร",
+        "phonemes": [
+          "b",
+          "a",
+          "nk"
+        ],
+        "img": "places/bank.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "nk",
+            "th": "งก์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "pants",
+        "focus": "a",
+        "thReading": "แพนทส์",
+        "thMeaning": "กางเกงขายาว",
+        "phonemes": [
+          "p",
+          "a",
+          "nts"
+        ],
+        "img": "clothes/pants.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "แอ",
+            "type": "v"
+          },
+          {
+            "en": "nts",
+            "th": "นท์ส",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "happy",
+        "focus": "a",
+        "thReading": "แฮป-พี",
+        "thMeaning": "มีความสุข",
+        "phonemes": [
+          "hap",
+          "py"
+        ],
+        "img": "emotions/happy.webp",
+        "thaiPhonics": [
+          {
+            "en": "hap",
+            "th": "แฮป",
+            "type": "cl"
+          },
+          {
+            "en": "py",
+            "th": "พี",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "short-e",
+    "title": "Short E (เสียงสระ เอะ)",
+    "thaiSound": "สระเอะ",
+    "description": "เสียงสระเสียงสั้นเหมือน \"เอะ\" ใน pen, egg",
+    "words": [
+      {
+        "en": "egg",
+        "focus": "e",
+        "thReading": "เอ็ก",
+        "thMeaning": "ไข่ไก่",
+        "phonemes": [
+          "e",
+          "gg"
+        ],
+        "img": "food/egg.webp",
+        "thaiPhonics": [
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "gg",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "elephant",
+        "focus": "e",
+        "thReading": "เอล-ลิ-เฟินท์",
+        "thMeaning": "ช้าง",
+        "phonemes": [
+          "el",
+          "e",
+          "phant"
+        ],
+        "img": "animals/elephant.webp",
+        "thaiPhonics": [
+          {
+            "en": "el",
+            "th": "เอล",
+            "type": "cl"
+          },
+          {
+            "en": "e",
+            "th": "ลิ",
+            "type": "v"
+          },
+          {
+            "en": "phant",
+            "th": "เฟินท์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "pen",
+        "focus": "e",
+        "thReading": "เพน",
+        "thMeaning": "ปากกา",
+        "phonemes": [
+          "p",
+          "e",
+          "n"
+        ],
+        "img": "classroom/pen.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "pencil",
+        "focus": "e",
+        "thReading": "เพน-เซิล",
+        "thMeaning": "ดินสอ",
+        "phonemes": [
+          "pen",
+          "cil"
+        ],
+        "img": "classroom/pencil.webp",
+        "thaiPhonics": [
+          {
+            "en": "pen",
+            "th": "เพน",
+            "type": "cl"
+          },
+          {
+            "en": "cil",
+            "th": "เซิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "leg",
+        "focus": "e",
+        "thReading": "เล็ก",
+        "thMeaning": "ขา",
+        "phonemes": [
+          "l",
+          "e",
+          "g"
+        ],
+        "img": "body/leg.webp",
+        "thaiPhonics": [
+          {
+            "en": "l",
+            "th": "ล",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "bedroom",
+        "focus": "e",
+        "thReading": "เบด-รูม",
+        "thMeaning": "ห้องนอน",
+        "phonemes": [
+          "bed",
+          "room"
+        ],
+        "img": "house-rooms/bedroom.webp",
+        "thaiPhonics": [
+          {
+            "en": "bed",
+            "th": "เบด",
+            "type": "cl"
+          },
+          {
+            "en": "room",
+            "th": "รูม",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "dress",
+        "focus": "e",
+        "thReading": "เดรส",
+        "thMeaning": "ชุดกระโปรง",
+        "phonemes": [
+          "dr",
+          "e",
+          "ss"
+        ],
+        "img": "clothes/dress.webp",
+        "thaiPhonics": [
+          {
+            "en": "dr",
+            "th": "ดร",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "ss",
+            "th": "ส",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "eggplant",
+        "focus": "e",
+        "thReading": "เอ็ก-แพลนท์",
+        "thMeaning": "มะเขือม่วง",
+        "phonemes": [
+          "egg",
+          "plant"
+        ],
+        "img": "vegetables/eggplant.webp",
+        "thaiPhonics": [
+          {
+            "en": "egg",
+            "th": "เอ็ก",
+            "type": "cl"
+          },
+          {
+            "en": "plant",
+            "th": "แพลนท์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "tennis",
+        "focus": "e",
+        "thReading": "เทน-นิส",
+        "thMeaning": "กีฬาเทนนิส",
+        "phonemes": [
+          "ten",
+          "nis"
+        ],
+        "img": "sports/tennis.webp",
+        "thaiPhonics": [
+          {
+            "en": "ten",
+            "th": "เทน",
+            "type": "cl"
+          },
+          {
+            "en": "nis",
+            "th": "นิส",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "celery",
+        "focus": "e",
+        "thReading": "เซล-เลอ-รี",
+        "thMeaning": "ขึ้นฉ่ายฝรั่ง",
+        "phonemes": [
+          "cel",
+          "er",
+          "y"
+        ],
+        "img": "vegetables/celery.webp",
+        "thaiPhonics": [
+          {
+            "en": "cel",
+            "th": "เซล",
+            "type": "cl"
+          },
+          {
+            "en": "er",
+            "th": "เลอ",
+            "type": "cl"
+          },
+          {
+            "en": "y",
+            "th": "รี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "hen",
+        "focus": "e",
+        "thReading": "เฮน",
+        "thMeaning": "แม่ไก่",
+        "phonemes": [
+          "h",
+          "e",
+          "n"
+        ],
+        "img": "birds/hen.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "left",
+        "focus": "e",
+        "thReading": "เลฟต์",
+        "thMeaning": "ซ้าย",
+        "phonemes": [
+          "l",
+          "e",
+          "ft"
+        ],
+        "img": "directions/left.webp",
+        "thaiPhonics": [
+          {
+            "en": "l",
+            "th": "ล",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "ft",
+            "th": "ฟต์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "dentist",
+        "focus": "e",
+        "thReading": "เดน-ทิสต์",
+        "thMeaning": "ทันตแพทย์/หมอฟัน",
+        "phonemes": [
+          "den",
+          "tist"
+        ],
+        "img": "jobs/dentist.webp",
+        "thaiPhonics": [
+          {
+            "en": "den",
+            "th": "เดน",
+            "type": "cl"
+          },
+          {
+            "en": "tist",
+            "th": "ทิสต์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "chef",
+        "focus": "e",
+        "thReading": "เชฟ",
+        "thMeaning": "พ่อครัว / เชฟ",
+        "phonemes": [
+          "ch",
+          "e",
+          "f"
+        ],
+        "img": "jobs/chef.webp",
+        "thaiPhonics": [
+          {
+            "en": "ch",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "head",
+        "focus": "e",
+        "thReading": "เฮด",
+        "thMeaning": "ศีรษะ/หัว",
+        "phonemes": [
+          "h",
+          "ea",
+          "d"
+        ],
+        "img": "body/head.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "teddy-bear",
+        "focus": "e",
+        "thReading": "เท็ด-ดี-แบร์",
+        "thMeaning": "ตุ๊กตาหมี",
+        "phonemes": [
+          "ted",
+          "dy",
+          "bear"
+        ],
+        "img": "toys/teddy-bear.webp",
+        "thaiPhonics": [
+          {
+            "en": "ted",
+            "th": "เท็ด",
+            "type": "cl"
+          },
+          {
+            "en": "dy",
+            "th": "ดี",
+            "type": "cl"
+          },
+          {
+            "en": "bear",
+            "th": "แบร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "bread",
+        "focus": "e",
+        "thReading": "เบรด",
+        "thMeaning": "ขนมปัง",
+        "phonemes": [
+          "br",
+          "ea",
+          "d"
+        ],
+        "img": "food/bread.webp",
+        "thaiPhonics": [
+          {
+            "en": "br",
+            "th": "บร",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "เอะ",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "short-i",
+    "title": "Short I (เสียงสระ อิ)",
+    "thaiSound": "สระอิ",
+    "description": "เสียงสระเสียงสั้นเหมือน \"อิ\" ใน pig, fish",
+    "words": [
+      {
+        "en": "pig",
+        "focus": "i",
+        "thReading": "พิก",
+        "thMeaning": "หมู",
+        "phonemes": [
+          "p",
+          "i",
+          "g"
+        ],
+        "img": "animals/pig.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "fish",
+        "focus": "i",
+        "thReading": "ฟิช",
+        "thMeaning": "ปลา",
+        "phonemes": [
+          "f",
+          "i",
+          "sh"
+        ],
+        "img": "animals/fish.webp",
+        "thaiPhonics": [
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "ship",
+        "focus": "i",
+        "thReading": "ชิพ",
+        "thMeaning": "เรือใหญ่",
+        "phonemes": [
+          "sh",
+          "i",
+          "p"
+        ],
+        "img": "transportation/ship.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "milk",
+        "focus": "i",
+        "thReading": "มิลค์",
+        "thMeaning": "นมสด",
+        "phonemes": [
+          "m",
+          "i",
+          "lk"
+        ],
+        "img": "food/milk.webp",
+        "thaiPhonics": [
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "lk",
+            "th": "ลค์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "swim",
+        "focus": "i",
+        "thReading": "สวิม",
+        "thMeaning": "ว่ายน้ำ",
+        "phonemes": [
+          "sw",
+          "i",
+          "m"
+        ],
+        "img": "verbs/swim.webp",
+        "thaiPhonics": [
+          {
+            "en": "sw",
+            "th": "สว",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "sing",
+        "focus": "i",
+        "thReading": "ซิง",
+        "thMeaning": "ร้องเพลง",
+        "phonemes": [
+          "s",
+          "i",
+          "ng"
+        ],
+        "img": "verbs/sing.webp",
+        "thaiPhonics": [
+          {
+            "en": "s",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "ng",
+            "th": "ง",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "spring",
+        "focus": "i",
+        "thReading": "สปริง",
+        "thMeaning": "ฤดูใบไม้ผลิ",
+        "phonemes": [
+          "spr",
+          "i",
+          "ng"
+        ],
+        "img": "seasons/spring.webp",
+        "thaiPhonics": [
+          {
+            "en": "spr",
+            "th": "สปร",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "ng",
+            "th": "ง",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "winter",
+        "focus": "i",
+        "thReading": "วิน-เทอร์",
+        "thMeaning": "ฤดูหนาว",
+        "phonemes": [
+          "win",
+          "ter"
+        ],
+        "img": "seasons/winter.webp",
+        "thaiPhonics": [
+          {
+            "en": "win",
+            "th": "วิน",
+            "type": "cl"
+          },
+          {
+            "en": "ter",
+            "th": "เทอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "windy",
+        "focus": "i",
+        "thReading": "วิน-ดี",
+        "thMeaning": "มีลมแรง",
+        "phonemes": [
+          "win",
+          "dy"
+        ],
+        "img": "weather/windy.webp",
+        "thaiPhonics": [
+          {
+            "en": "win",
+            "th": "วิน",
+            "type": "cl"
+          },
+          {
+            "en": "dy",
+            "th": "ดี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "chicken",
+        "focus": "i",
+        "thReading": "ชิก-เกน",
+        "thMeaning": "เนื้อไก่/ไก่",
+        "phonemes": [
+          "chick",
+          "en"
+        ],
+        "img": "food/chicken.webp",
+        "thaiPhonics": [
+          {
+            "en": "chick",
+            "th": "ชิก",
+            "type": "cl"
+          },
+          {
+            "en": "en",
+            "th": "เกน",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "cricket",
+        "focus": "i",
+        "thReading": "คริก-เกิต",
+        "thMeaning": "จิ้งหรีด",
+        "phonemes": [
+          "crick",
+          "et"
+        ],
+        "img": "insects/cricket.webp",
+        "thaiPhonics": [
+          {
+            "en": "crick",
+            "th": "คริก",
+            "type": "cl"
+          },
+          {
+            "en": "et",
+            "th": "เกิต",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "in",
+        "focus": "i",
+        "thReading": "อิน",
+        "thMeaning": "ข้างใน",
+        "phonemes": [
+          "i",
+          "n"
+        ],
+        "img": "directions/in.webp",
+        "thaiPhonics": [
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "drink",
+        "focus": "i",
+        "thReading": "ดริ้งก์",
+        "thMeaning": "ดื่มน้ำ",
+        "phonemes": [
+          "dr",
+          "i",
+          "nk"
+        ],
+        "img": "verbs/drink.webp",
+        "thaiPhonics": [
+          {
+            "en": "dr",
+            "th": "ดร",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "nk",
+            "th": "งก์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "kingfisher",
+        "focus": "i",
+        "thReading": "คิง-ฟิช-เชอร์",
+        "thMeaning": "นกกระเต็น",
+        "phonemes": [
+          "king",
+          "fish",
+          "er"
+        ],
+        "img": "birds/kingfisher.webp",
+        "thaiPhonics": [
+          {
+            "en": "king",
+            "th": "คิง",
+            "type": "cl"
+          },
+          {
+            "en": "fish",
+            "th": "ฟิช",
+            "type": "cl"
+          },
+          {
+            "en": "er",
+            "th": "เชอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "pigeon",
+        "focus": "i",
+        "thReading": "พิ-เจิน",
+        "thMeaning": "นกพิราบ",
+        "phonemes": [
+          "pi",
+          "geon"
+        ],
+        "img": "birds/pigeon.webp",
+        "thaiPhonics": [
+          {
+            "en": "pi",
+            "th": "พิ",
+            "type": "cl"
+          },
+          {
+            "en": "geon",
+            "th": "เจิน",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "singer",
+        "focus": "i",
+        "thReading": "ซิง-เออร์",
+        "thMeaning": "นักร้อง",
+        "phonemes": [
+          "sing",
+          "er"
+        ],
+        "img": "jobs/singer.webp",
+        "thaiPhonics": [
+          {
+            "en": "sing",
+            "th": "ซิง",
+            "type": "cl"
+          },
+          {
+            "en": "er",
+            "th": "เออร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "spinach",
+        "focus": "i",
+        "thReading": "สปิน-นิจ",
+        "thMeaning": "ผักโขม",
+        "phonemes": [
+          "spin",
+          "ach"
+        ],
+        "img": "vegetables/spinach.webp",
+        "thaiPhonics": [
+          {
+            "en": "spin",
+            "th": "สปิน",
+            "type": "cl"
+          },
+          {
+            "en": "ach",
+            "th": "นิจ",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "short-o",
+    "title": "Short O (เสียงสระ เอาะ)",
+    "thaiSound": "สระเอาะ/ออ",
+    "description": "เสียงสระเสียงสั้นเหมือน \"เอาะ หรือ ออ\" ใน dog, fox",
+    "words": [
+      {
+        "en": "dog",
+        "focus": "o",
+        "thReading": "ด็อก",
+        "thMeaning": "สุนัข",
+        "phonemes": [
+          "d",
+          "o",
+          "g"
+        ],
+        "img": "animals/dog.webp",
+        "thaiPhonics": [
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "fox",
+        "focus": "o",
+        "thReading": "ฟ็อกซ์",
+        "thMeaning": "สุนัขจิ้งจอก",
+        "phonemes": [
+          "f",
+          "o",
+          "x"
+        ],
+        "img": "animals/fox.webp",
+        "thaiPhonics": [
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "x",
+            "th": "กซ์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "frog",
+        "focus": "o",
+        "thReading": "ฟร็อก",
+        "thMeaning": "กบ",
+        "phonemes": [
+          "fr",
+          "o",
+          "g"
+        ],
+        "img": "animals/frog.webp",
+        "thaiPhonics": [
+          {
+            "en": "fr",
+            "th": "ฟร",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "octopus",
+        "focus": "o",
+        "thReading": "อ็อก-โท-พัส",
+        "thMeaning": "หมึกยักษ์",
+        "phonemes": [
+          "oc",
+          "to",
+          "pus"
+        ],
+        "img": "sea-animals/octopus.webp",
+        "thaiPhonics": [
+          {
+            "en": "oc",
+            "th": "อ็อก",
+            "type": "cl"
+          },
+          {
+            "en": "to",
+            "th": "โท",
+            "type": "cl"
+          },
+          {
+            "en": "pus",
+            "th": "พัส",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "orange",
+        "focus": "o",
+        "thReading": "ออ-เรนจ์",
+        "thMeaning": "ผลส้ม",
+        "phonemes": [
+          "or",
+          "ange"
+        ],
+        "img": "fruits/orange.webp",
+        "thaiPhonics": [
+          {
+            "en": "or",
+            "th": "ออ",
+            "type": "cl"
+          },
+          {
+            "en": "ange",
+            "th": "เรนจ์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "doll",
+        "focus": "o",
+        "thReading": "ดอลล์",
+        "thMeaning": "ตุ๊กตา",
+        "phonemes": [
+          "d",
+          "o",
+          "ll"
+        ],
+        "img": "toys/doll.webp",
+        "thaiPhonics": [
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "ll",
+            "th": "ล",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "blocks",
+        "focus": "o",
+        "thReading": "บล็อกส์",
+        "thMeaning": "ตัวต่อของเล่น",
+        "phonemes": [
+          "bl",
+          "o",
+          "cks"
+        ],
+        "img": "toys/blocks.webp",
+        "thaiPhonics": [
+          {
+            "en": "bl",
+            "th": "บล",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "cks",
+            "th": "กส์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "boxing",
+        "focus": "o",
+        "thReading": "บ็อก-ซิง",
+        "thMeaning": "กีฬามวย",
+        "phonemes": [
+          "box",
+          "ing"
+        ],
+        "img": "sports/boxing.webp",
+        "thaiPhonics": [
+          {
+            "en": "box",
+            "th": "บ็อก",
+            "type": "cl"
+          },
+          {
+            "en": "ing",
+            "th": "ซิง",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "doctor",
+        "focus": "o",
+        "thReading": "ด็อก-เทอร์",
+        "thMeaning": "คุณหมอ",
+        "phonemes": [
+          "doc",
+          "tor"
+        ],
+        "img": "jobs/doctor.webp",
+        "thaiPhonics": [
+          {
+            "en": "doc",
+            "th": "ด็อก",
+            "type": "cl"
+          },
+          {
+            "en": "tor",
+            "th": "เทอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "hospital",
+        "focus": "o",
+        "thReading": "ฮอส-พิ-เทิล",
+        "thMeaning": "โรงพยาบาล",
+        "phonemes": [
+          "hos",
+          "pi",
+          "tal"
+        ],
+        "img": "places/hospital.webp",
+        "thaiPhonics": [
+          {
+            "en": "hos",
+            "th": "ฮอส",
+            "type": "cl"
+          },
+          {
+            "en": "pi",
+            "th": "พิ",
+            "type": "cl"
+          },
+          {
+            "en": "tal",
+            "th": "เทิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "socks",
+        "focus": "o",
+        "thReading": "ซ็อกส์",
+        "thMeaning": "ถุงเท้า",
+        "phonemes": [
+          "s",
+          "o",
+          "cks"
+        ],
+        "img": "clothes/socks.webp",
+        "thaiPhonics": [
+          {
+            "en": "s",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "cks",
+            "th": "กส์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "hot",
+        "focus": "o",
+        "thReading": "ฮอท",
+        "thMeaning": "ร้อน",
+        "phonemes": [
+          "h",
+          "o",
+          "t"
+        ],
+        "img": "weather/hot.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "on",
+        "focus": "o",
+        "thReading": "ออน",
+        "thMeaning": "บน / ด้านบน",
+        "phonemes": [
+          "o",
+          "n"
+        ],
+        "img": "directions/on.webp",
+        "thaiPhonics": [
+          {
+            "en": "o",
+            "th": "ออ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "foggy",
+        "focus": "o",
+        "thReading": "ฟ็อก-กี",
+        "thMeaning": "มีหมอกหนา",
+        "phonemes": [
+          "fog",
+          "gy"
+        ],
+        "img": "weather/foggy.webp",
+        "thaiPhonics": [
+          {
+            "en": "fog",
+            "th": "ฟ็อก",
+            "type": "cl"
+          },
+          {
+            "en": "gy",
+            "th": "กี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "dolphin",
+        "focus": "o",
+        "thReading": "ดอล-ฟิน",
+        "thMeaning": "โลมา",
+        "phonemes": [
+          "dol",
+          "phin"
+        ],
+        "img": "sea-animals/dolphin.webp",
+        "thaiPhonics": [
+          {
+            "en": "dol",
+            "th": "ดอล",
+            "type": "cl"
+          },
+          {
+            "en": "phin",
+            "th": "ฟิน",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "coffee",
+        "focus": "o",
+        "thReading": "คอฟ-ฟี",
+        "thMeaning": "กาแฟ",
+        "phonemes": [
+          "cof",
+          "fee"
+        ],
+        "img": "food/coffee.webp",
+        "thaiPhonics": [
+          {
+            "en": "cof",
+            "th": "คอฟ",
+            "type": "cl"
+          },
+          {
+            "en": "fee",
+            "th": "ฟี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "broccoli",
+        "focus": "o",
+        "thReading": "บร็อค-โคลี",
+        "thMeaning": "บรอกโคลี",
+        "phonemes": [
+          "broc",
+          "co",
+          "li"
+        ],
+        "img": "vegetables/broccoli.webp",
+        "thaiPhonics": [
+          {
+            "en": "broc",
+            "th": "บร็อค",
+            "type": "cl"
+          },
+          {
+            "en": "co",
+            "th": "โค",
+            "type": "cl"
+          },
+          {
+            "en": "li",
+            "th": "ลี",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "short-u",
+    "title": "Short U (เสียงสระ อะ)",
+    "thaiSound": "สระอะ",
+    "description": "เสียงสระเสียงสั้นเหมือน \"อะ\" ใน duck, bus, sun",
+    "words": [
+      {
+        "en": "duck",
+        "focus": "u",
+        "thReading": "ดั๊ก",
+        "thMeaning": "เป็ด",
+        "phonemes": [
+          "d",
+          "u",
+          "ck"
+        ],
+        "img": "animals/duck.webp",
+        "thaiPhonics": [
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "ck",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "bus",
+        "focus": "u",
+        "thReading": "บัส",
+        "thMeaning": "รถประจำทาง",
+        "phonemes": [
+          "b",
+          "u",
+          "s"
+        ],
+        "img": "transportation/bus.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "s",
+            "th": "ส",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "truck",
+        "focus": "u",
+        "thReading": "ทรัค",
+        "thMeaning": "รถบรรทุก",
+        "phonemes": [
+          "tr",
+          "u",
+          "ck"
+        ],
+        "img": "transportation/truck.webp",
+        "thaiPhonics": [
+          {
+            "en": "tr",
+            "th": "ทร",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "ck",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "sun",
+        "focus": "u",
+        "thReading": "ซัน",
+        "thMeaning": "ดวงอาทิตย์",
+        "phonemes": [
+          "s",
+          "u",
+          "n"
+        ],
+        "img": "weather/sunny.webp",
+        "thaiPhonics": [
+          {
+            "en": "s",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "summer",
+        "focus": "u",
+        "thReading": "ซัม-เมอร์",
+        "thMeaning": "ฤดูร้อน",
+        "phonemes": [
+          "sum",
+          "mer"
+        ],
+        "img": "seasons/summer.webp",
+        "thaiPhonics": [
+          {
+            "en": "sum",
+            "th": "ซัม",
+            "type": "cl"
+          },
+          {
+            "en": "mer",
+            "th": "เมอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "drum",
+        "focus": "u",
+        "thReading": "ดรัม",
+        "thMeaning": "กลอง",
+        "phonemes": [
+          "dr",
+          "u",
+          "m"
+        ],
+        "img": "instruments/drum.webp",
+        "thaiPhonics": [
+          {
+            "en": "dr",
+            "th": "ดร",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "jump",
+        "focus": "u",
+        "thReading": "จัมพ์",
+        "thMeaning": "กระโดด",
+        "phonemes": [
+          "j",
+          "u",
+          "mp"
+        ],
+        "img": "verbs/jump.webp",
+        "thaiPhonics": [
+          {
+            "en": "j",
+            "th": "จ",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "mp",
+            "th": "มพ์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "running",
+        "focus": "u",
+        "thReading": "รัน-นิง",
+        "thMeaning": "การวิ่ง",
+        "phonemes": [
+          "run",
+          "ning"
+        ],
+        "img": "sports/running.webp",
+        "thaiPhonics": [
+          {
+            "en": "run",
+            "th": "รัน",
+            "type": "cl"
+          },
+          {
+            "en": "ning",
+            "th": "นิง",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "pumpkin",
+        "focus": "u",
+        "thReading": "พัมพ์-คิน",
+        "thMeaning": "ฟักทอง",
+        "phonemes": [
+          "pump",
+          "kin"
+        ],
+        "img": "vegetables/pumpkin.webp",
+        "thaiPhonics": [
+          {
+            "en": "pump",
+            "th": "พัมพ์",
+            "type": "cl"
+          },
+          {
+            "en": "kin",
+            "th": "คิน",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "puzzle",
+        "focus": "u",
+        "thReading": "พัซ-เซิล",
+        "thMeaning": "ตัวต่อปริศนา",
+        "phonemes": [
+          "puz",
+          "zle"
+        ],
+        "img": "toys/puzzle.webp",
+        "thaiPhonics": [
+          {
+            "en": "puz",
+            "th": "พัซ",
+            "type": "cl"
+          },
+          {
+            "en": "zle",
+            "th": "เซิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "butter",
+        "focus": "u",
+        "thReading": "บัต-เทอร์",
+        "thMeaning": "เนยสด",
+        "phonemes": [
+          "but",
+          "ter"
+        ],
+        "img": "food/butter.webp",
+        "thaiPhonics": [
+          {
+            "en": "but",
+            "th": "บัต",
+            "type": "cl"
+          },
+          {
+            "en": "ter",
+            "th": "เทอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "up",
+        "focus": "u",
+        "thReading": "อัป",
+        "thMeaning": "ขึ้น / ข้างบน",
+        "phonemes": [
+          "u",
+          "p"
+        ],
+        "img": "directions/up.webp",
+        "thaiPhonics": [
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "under",
+        "focus": "u",
+        "thReading": "อัน-เดอร์",
+        "thMeaning": "ใต้ / ข้างใต้",
+        "phonemes": [
+          "un",
+          "der"
+        ],
+        "img": "directions/under.webp",
+        "thaiPhonics": [
+          {
+            "en": "un",
+            "th": "อัน",
+            "type": "cl"
+          },
+          {
+            "en": "der",
+            "th": "เดอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "run",
+        "focus": "u",
+        "thReading": "รัน",
+        "thMeaning": "วิ่ง",
+        "phonemes": [
+          "r",
+          "u",
+          "n"
+        ],
+        "img": "verbs/run.webp",
+        "thaiPhonics": [
+          {
+            "en": "r",
+            "th": "ร",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "plum",
+        "focus": "u",
+        "thReading": "พลัม",
+        "thMeaning": "ลูกพลัม",
+        "phonemes": [
+          "pl",
+          "u",
+          "m"
+        ],
+        "img": "fruits/plum.webp",
+        "thaiPhonics": [
+          {
+            "en": "pl",
+            "th": "พล",
+            "type": "c"
+          },
+          {
+            "en": "u",
+            "th": "อะ",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "uncle",
+        "focus": "u",
+        "thReading": "อัน-เคิล",
+        "thMeaning": "คุณลุง/น้า/อา",
+        "phonemes": [
+          "un",
+          "cle"
+        ],
+        "img": "family/uncle.webp",
+        "thaiPhonics": [
+          {
+            "en": "un",
+            "th": "อัน",
+            "type": "cl"
+          },
+          {
+            "en": "cle",
+            "th": "เคิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "ladybug",
+        "focus": "u",
+        "thReading": "เล-ดี-บั๊ก",
+        "thMeaning": "เต่าทอง",
+        "phonemes": [
+          "la",
+          "dy",
+          "bug"
+        ],
+        "img": "insects/ladybug.webp",
+        "thaiPhonics": [
+          {
+            "en": "la",
+            "th": "เล",
+            "type": "cl"
+          },
+          {
+            "en": "dy",
+            "th": "ดี",
+            "type": "cl"
+          },
+          {
+            "en": "bug",
+            "th": "บั๊ก",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "blends-digraphs",
+    "title": "Blends & Digraphs",
+    "thaiSound": "เสียงพยัญชนะผสม",
+    "description": "เสียงผสม เช่น ch, sh, st, tr, br, wh, sp, cr, cl",
+    "words": [
+      {
+        "en": "chair",
+        "focus": "ch",
+        "thReading": "แชร์",
+        "thMeaning": "เก้าอี้",
+        "phonemes": [
+          "ch",
+          "air"
+        ],
+        "img": "classroom/chair.webp",
+        "thaiPhonics": [
+          {
+            "en": "ch",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "air",
+            "th": "แอร์",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "cheese",
+        "focus": "ch",
+        "thReading": "ชีส",
+        "thMeaning": "เนยแข็ง/ชีส",
+        "phonemes": [
+          "ch",
+          "eese"
+        ],
+        "img": "food/cheese.webp",
+        "thaiPhonics": [
+          {
+            "en": "ch",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "eese",
+            "th": "อีส",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "ship",
+        "focus": "sh",
+        "thReading": "ชิพ",
+        "thMeaning": "เรือใหญ่",
+        "phonemes": [
+          "sh",
+          "i",
+          "p"
+        ],
+        "img": "transportation/ship.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "shark",
+        "focus": "sh",
+        "thReading": "ชาร์ค",
+        "thMeaning": "ปลาฉลาม",
+        "phonemes": [
+          "sh",
+          "ark"
+        ],
+        "img": "sea-animals/shark.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "ark",
+            "th": "อาร์ค",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "shirt",
+        "focus": "sh",
+        "thReading": "เชิ้ต",
+        "thMeaning": "เสื้อเชิ้ต",
+        "phonemes": [
+          "sh",
+          "irt"
+        ],
+        "img": "clothes/shirt.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "irt",
+            "th": "เอิร์ต",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "shoes",
+        "focus": "sh",
+        "thReading": "ชูส์",
+        "thMeaning": "รองเท้า",
+        "phonemes": [
+          "sh",
+          "oes"
+        ],
+        "img": "clothes/shoes.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "oes",
+            "th": "อูส",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "shrimp",
+        "focus": "sh",
+        "thReading": "ชริมพ์",
+        "thMeaning": "กุ้ง",
+        "phonemes": [
+          "sh",
+          "r",
+          "i",
+          "mp"
+        ],
+        "img": "sea-animals/shrimp.webp",
+        "thaiPhonics": [
+          {
+            "en": "shr",
+            "th": "ชร",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "อิ",
+            "type": "v"
+          },
+          {
+            "en": "mp",
+            "th": "มพ์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "star",
+        "focus": "st",
+        "thReading": "สตาร์",
+        "thMeaning": "ดวงดาว",
+        "phonemes": [
+          "st",
+          "ar"
+        ],
+        "img": "shapes/star.webp",
+        "thaiPhonics": [
+          {
+            "en": "st",
+            "th": "สต",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "train",
+        "focus": "tr",
+        "thReading": "เทรน",
+        "thMeaning": "รถไฟ",
+        "phonemes": [
+          "tr",
+          "ain"
+        ],
+        "img": "transportation/train.webp",
+        "thaiPhonics": [
+          {
+            "en": "tr",
+            "th": "ทร",
+            "type": "c"
+          },
+          {
+            "en": "ain",
+            "th": "เอน",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "bread",
+        "focus": "br",
+        "thReading": "เบรด",
+        "thMeaning": "ขนมปัง",
+        "phonemes": [
+          "br",
+          "ead"
+        ],
+        "img": "food/bread.webp",
+        "thaiPhonics": [
+          {
+            "en": "br",
+            "th": "บร",
+            "type": "c"
+          },
+          {
+            "en": "ead",
+            "th": "เอด",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "whale",
+        "focus": "wh",
+        "thReading": "เวล",
+        "thMeaning": "ปลาวาฬ",
+        "phonemes": [
+          "wh",
+          "ale"
+        ],
+        "img": "sea-animals/whale.webp",
+        "thaiPhonics": [
+          {
+            "en": "wh",
+            "th": "ว",
+            "type": "c"
+          },
+          {
+            "en": "ale",
+            "th": "เอล",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "blocks",
+        "focus": "bl",
+        "thReading": "บล็อกส์",
+        "thMeaning": "ตัวต่อบล็อก",
+        "phonemes": [
+          "bl",
+          "o",
+          "cks"
+        ],
+        "img": "toys/blocks.webp",
+        "thaiPhonics": [
+          {
+            "en": "bl",
+            "th": "บล",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "เอาะ",
+            "type": "v"
+          },
+          {
+            "en": "cks",
+            "th": "กส์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "spider",
+        "focus": "sp",
+        "thReading": "สไป-เดอร์",
+        "thMeaning": "แมงมุม",
+        "phonemes": [
+          "sp",
+          "i",
+          "der"
+        ],
+        "img": "insects/spider.webp",
+        "thaiPhonics": [
+          {
+            "en": "sp",
+            "th": "สป",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "der",
+            "th": "เดอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "trumpet",
+        "focus": "tr",
+        "thReading": "ทรัม-เพท",
+        "thMeaning": "ทรัมเป็ต",
+        "phonemes": [
+          "tr",
+          "um",
+          "pet"
+        ],
+        "img": "instruments/trumpet.webp",
+        "thaiPhonics": [
+          {
+            "en": "tr",
+            "th": "ทร",
+            "type": "c"
+          },
+          {
+            "en": "um",
+            "th": "อัม",
+            "type": "v"
+          },
+          {
+            "en": "pet",
+            "th": "เพท",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "crayon",
+        "focus": "cr",
+        "thReading": "เคร-ยอน",
+        "thMeaning": "สีเทียน",
+        "phonemes": [
+          "cray",
+          "on"
+        ],
+        "img": "classroom/crayon.webp",
+        "thaiPhonics": [
+          {
+            "en": "cr",
+            "th": "คร",
+            "type": "c"
+          },
+          {
+            "en": "ay",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "on",
+            "th": "ยอน",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "cloudy",
+        "focus": "cl",
+        "thReading": "เคลา-ดี",
+        "thMeaning": "มีเมฆมาก",
+        "phonemes": [
+          "cl",
+          "ou",
+          "dy"
+        ],
+        "img": "weather/cloudy.webp",
+        "thaiPhonics": [
+          {
+            "en": "cl",
+            "th": "คล",
+            "type": "c"
+          },
+          {
+            "en": "ou",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "dy",
+            "th": "ดี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "school",
+        "focus": "sch",
+        "thReading": "สกูล",
+        "thMeaning": "โรงเรียน",
+        "phonemes": [
+          "sch",
+          "ool"
+        ],
+        "img": "places/school.webp",
+        "thaiPhonics": [
+          {
+            "en": "sch",
+            "th": "สค",
+            "type": "c"
+          },
+          {
+            "en": "ool",
+            "th": "อูล",
+            "type": "v"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "long-vowels",
+    "title": "Long Vowels (Magic E)",
+    "thaiSound": "สระเสียงยาว & Magic E",
+    "description": "สระเสียงยาวที่มี Magic E (a_e, i_e, o_e, u_e) เช่น cake, kite, nose",
+    "words": [
+      {
+        "en": "cake",
+        "focus": "a_e",
+        "thReading": "เค้ก",
+        "thMeaning": "ขนมเค้ก",
+        "phonemes": [
+          "c",
+          "a",
+          "k",
+          "e"
+        ],
+        "img": "food/cake.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "snake",
+        "focus": "a_e",
+        "thReading": "สเนก",
+        "thMeaning": "งู",
+        "phonemes": [
+          "sn",
+          "a",
+          "k",
+          "e"
+        ],
+        "img": "animals/snake.webp",
+        "thaiPhonics": [
+          {
+            "en": "sn",
+            "th": "สน",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "grape",
+        "focus": "a_e",
+        "thReading": "เกรพ",
+        "thMeaning": "องุ่น",
+        "phonemes": [
+          "gr",
+          "a",
+          "p",
+          "e"
+        ],
+        "img": "fruits/grape.webp",
+        "thaiPhonics": [
+          {
+            "en": "gr",
+            "th": "กร",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "kite",
+        "focus": "i_e",
+        "thReading": "ไคท์",
+        "thMeaning": "ว่าว",
+        "phonemes": [
+          "k",
+          "i",
+          "t",
+          "e"
+        ],
+        "img": "toys/kite.webp",
+        "thaiPhonics": [
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "bike",
+        "focus": "i_e",
+        "thReading": "ไบค์",
+        "thMeaning": "จักรยาน",
+        "phonemes": [
+          "b",
+          "i",
+          "k",
+          "e"
+        ],
+        "img": "transportation/bicycle.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "lime",
+        "focus": "i_e",
+        "thReading": "ไลม์",
+        "thMeaning": "มะนาวเขียว",
+        "phonemes": [
+          "l",
+          "i",
+          "m",
+          "e"
+        ],
+        "img": "fruits/lime.webp",
+        "thaiPhonics": [
+          {
+            "en": "l",
+            "th": "ล",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "rice",
+        "focus": "i_e",
+        "thReading": "ไรซ์",
+        "thMeaning": "ข้าวสวย",
+        "phonemes": [
+          "r",
+          "i",
+          "c",
+          "e"
+        ],
+        "img": "food/rice.webp",
+        "thaiPhonics": [
+          {
+            "en": "r",
+            "th": "ร",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "c",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "nose",
+        "focus": "o_e",
+        "thReading": "โนส",
+        "thMeaning": "จมูก",
+        "phonemes": [
+          "n",
+          "o",
+          "s",
+          "e"
+        ],
+        "img": "body/nose.webp",
+        "thaiPhonics": [
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          },
+          {
+            "en": "o",
+            "th": "โอ",
+            "type": "v"
+          },
+          {
+            "en": "s",
+            "th": "ส",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "robot",
+        "focus": "o",
+        "thReading": "โร-บอท",
+        "thMeaning": "หุ่นยนต์",
+        "phonemes": [
+          "ro",
+          "bot"
+        ],
+        "img": "toys/robot.webp",
+        "thaiPhonics": [
+          {
+            "en": "ro",
+            "th": "โร",
+            "type": "cl"
+          },
+          {
+            "en": "bot",
+            "th": "บอท",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "fruit",
+        "focus": "ui",
+        "thReading": "ฟรุต",
+        "thMeaning": "ผลไม้",
+        "phonemes": [
+          "fr",
+          "ui",
+          "t"
+        ],
+        "img": "food/fruit.webp",
+        "thaiPhonics": [
+          {
+            "en": "fr",
+            "th": "ฟร",
+            "type": "c"
+          },
+          {
+            "en": "ui",
+            "th": "อู",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "juice",
+        "focus": "ui",
+        "thReading": "จูซ",
+        "thMeaning": "น้ำผลไม้",
+        "phonemes": [
+          "j",
+          "ui",
+          "ce"
+        ],
+        "img": "food/juice.webp",
+        "thaiPhonics": [
+          {
+            "en": "j",
+            "th": "จ",
+            "type": "c"
+          },
+          {
+            "en": "ui",
+            "th": "อู",
+            "type": "v"
+          },
+          {
+            "en": "ce",
+            "th": "ซ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "write",
+        "focus": "i_e",
+        "thReading": "ไรท์",
+        "thMeaning": "เขียน",
+        "phonemes": [
+          "wr",
+          "i",
+          "t",
+          "e"
+        ],
+        "img": "verbs/write.webp",
+        "thaiPhonics": [
+          {
+            "en": "wr",
+            "th": "ร",
+            "type": "c"
+          },
+          {
+            "en": "i",
+            "th": "ไอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "plane",
+        "focus": "a_e",
+        "thReading": "เพลน",
+        "thMeaning": "เครื่องบิน",
+        "phonemes": [
+          "pl",
+          "a",
+          "n",
+          "e"
+        ],
+        "img": "transportation/airplane.webp",
+        "thaiPhonics": [
+          {
+            "en": "pl",
+            "th": "พล",
+            "type": "c"
+          },
+          {
+            "en": "a",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          },
+          {
+            "en": "e",
+            "th": "(เงียบ)",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "en": "crocodile",
+        "focus": "i_e",
+        "thReading": "คร็อค-โค-ไดล์",
+        "thMeaning": "จระเข้",
+        "phonemes": [
+          "croc",
+          "o",
+          "dile"
+        ],
+        "img": "animals/crocodile.webp",
+        "thaiPhonics": [
+          {
+            "en": "croc",
+            "th": "คร็อค",
+            "type": "cl"
+          },
+          {
+            "en": "o",
+            "th": "โค",
+            "type": "cl"
+          },
+          {
+            "en": "dile",
+            "th": "ไดล์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "pilot",
+        "focus": "i",
+        "thReading": "ไพ-เลิท",
+        "thMeaning": "นักบิน",
+        "phonemes": [
+          "pi",
+          "lot"
+        ],
+        "img": "jobs/pilot.webp",
+        "thaiPhonics": [
+          {
+            "en": "pi",
+            "th": "ไพ",
+            "type": "cl"
+          },
+          {
+            "en": "lot",
+            "th": "เลิท",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "cucumber",
+        "focus": "u",
+        "thReading": "คิว-คัม-เบอร์",
+        "thMeaning": "แตงกวา",
+        "phonemes": [
+          "cu",
+          "cum",
+          "ber"
+        ],
+        "img": "vegetables/cucumber.webp",
+        "thaiPhonics": [
+          {
+            "en": "cu",
+            "th": "คิว",
+            "type": "cl"
+          },
+          {
+            "en": "cum",
+            "th": "คัม",
+            "type": "cl"
+          },
+          {
+            "en": "ber",
+            "th": "เบอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "ice-cream",
+        "focus": "i_e",
+        "thReading": "ไอซ์-ครีม",
+        "thMeaning": "ไอศกรีม",
+        "phonemes": [
+          "ice",
+          "cream"
+        ],
+        "img": "food/ice-cream.webp",
+        "thaiPhonics": [
+          {
+            "en": "ice",
+            "th": "ไอซ์",
+            "type": "cl"
+          },
+          {
+            "en": "cream",
+            "th": "ครีม",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vowel-teams",
+    "title": "Vowel Teams",
+    "thaiSound": "สระคู่เสียงยาว",
+    "description": "สระคู่เสียงยาว ee, ea, ai, oa, ue เช่น bee, tea, train, boat",
+    "words": [
+      {
+        "en": "bee",
+        "focus": "ee",
+        "thReading": "บี",
+        "thMeaning": "ผึ้ง",
+        "phonemes": [
+          "b",
+          "ee"
+        ],
+        "img": "insects/bee.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "อี",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "tea",
+        "focus": "ea",
+        "thReading": "ที",
+        "thMeaning": "น้ำชา",
+        "phonemes": [
+          "t",
+          "ea"
+        ],
+        "img": "food/tea.webp",
+        "thaiPhonics": [
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "อี",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "meat",
+        "focus": "ea",
+        "thReading": "มีท",
+        "thMeaning": "เนื้อสัตว์",
+        "phonemes": [
+          "m",
+          "ea",
+          "t"
+        ],
+        "img": "food/meat.webp",
+        "thaiPhonics": [
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "peach",
+        "focus": "ea",
+        "thReading": "พีช",
+        "thMeaning": "ลูกพีช",
+        "phonemes": [
+          "p",
+          "ea",
+          "ch"
+        ],
+        "img": "fruits/peach.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "ch",
+            "th": "ช",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "queen",
+        "focus": "ee",
+        "thReading": "ควีน",
+        "thMeaning": "พระราชินี",
+        "phonemes": [
+          "qu",
+          "ee",
+          "n"
+        ],
+        "img": "jobs/queen.webp",
+        "thaiPhonics": [
+          {
+            "en": "qu",
+            "th": "คว",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "sheep",
+        "focus": "ee",
+        "thReading": "ชีพ",
+        "thMeaning": "แกะ",
+        "phonemes": [
+          "sh",
+          "ee",
+          "p"
+        ],
+        "img": "animals/sheep.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "train",
+        "focus": "ai",
+        "thReading": "เทรน",
+        "thMeaning": "รถไฟ",
+        "phonemes": [
+          "tr",
+          "ai",
+          "n"
+        ],
+        "img": "transportation/train.webp",
+        "thaiPhonics": [
+          {
+            "en": "tr",
+            "th": "ทร",
+            "type": "c"
+          },
+          {
+            "en": "ai",
+            "th": "เอน",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "boat",
+        "focus": "oa",
+        "thReading": "โบ้ท",
+        "thMeaning": "เรือ",
+        "phonemes": [
+          "b",
+          "oa",
+          "t"
+        ],
+        "img": "transportation/boat.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "oa",
+            "th": "โอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "goat",
+        "focus": "oa",
+        "thReading": "โกท",
+        "thMeaning": "แพะ",
+        "phonemes": [
+          "g",
+          "oa",
+          "t"
+        ],
+        "img": "animals/goat.webp",
+        "thaiPhonics": [
+          {
+            "en": "g",
+            "th": "ก",
+            "type": "c"
+          },
+          {
+            "en": "oa",
+            "th": "โอ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "blue",
+        "focus": "ue",
+        "thReading": "บลู",
+        "thMeaning": "สีน้ำเงิน",
+        "phonemes": [
+          "bl",
+          "ue"
+        ],
+        "img": "fruits/blueberry.webp",
+        "thaiPhonics": [
+          {
+            "en": "bl",
+            "th": "บล",
+            "type": "c"
+          },
+          {
+            "en": "ue",
+            "th": "อู",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "soup",
+        "focus": "ou",
+        "thReading": "ซุป",
+        "thMeaning": "น้ำแกง/ซุป",
+        "phonemes": [
+          "s",
+          "ou",
+          "p"
+        ],
+        "img": "food/soup.webp",
+        "thaiPhonics": [
+          {
+            "en": "s",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "ou",
+            "th": "อู",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "eat",
+        "focus": "ea",
+        "thReading": "อีท",
+        "thMeaning": "กิน / รับประทาน",
+        "phonemes": [
+          "ea",
+          "t"
+        ],
+        "img": "verbs/eat.webp",
+        "thaiPhonics": [
+          {
+            "en": "ea",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "read",
+        "focus": "ea",
+        "thReading": "รีด",
+        "thMeaning": "อ่านหนังสือ",
+        "phonemes": [
+          "r",
+          "ea",
+          "d"
+        ],
+        "img": "verbs/read.webp",
+        "thaiPhonics": [
+          {
+            "en": "r",
+            "th": "ร",
+            "type": "c"
+          },
+          {
+            "en": "ea",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "sleep",
+        "focus": "ee",
+        "thReading": "สลีป",
+        "thMeaning": "นอนหลับ",
+        "phonemes": [
+          "sl",
+          "ee",
+          "p"
+        ],
+        "img": "verbs/sleep.webp",
+        "thaiPhonics": [
+          {
+            "en": "sl",
+            "th": "สล",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "rainy",
+        "focus": "ai",
+        "thReading": "เรน-นี",
+        "thMeaning": "ฝนตก",
+        "phonemes": [
+          "r",
+          "ai",
+          "ny"
+        ],
+        "img": "weather/rainy.webp",
+        "thaiPhonics": [
+          {
+            "en": "r",
+            "th": "ร",
+            "type": "c"
+          },
+          {
+            "en": "ai",
+            "th": "เอ",
+            "type": "v"
+          },
+          {
+            "en": "ny",
+            "th": "นี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "beef",
+        "focus": "ee",
+        "thReading": "บีฟ",
+        "thMeaning": "เนื้อวัว",
+        "phonemes": [
+          "b",
+          "ee",
+          "f"
+        ],
+        "img": "food/beef.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "อี",
+            "type": "v"
+          },
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "deer",
+        "focus": "ee",
+        "thReading": "เดียร์",
+        "thMeaning": "กวาง",
+        "phonemes": [
+          "d",
+          "ee",
+          "r"
+        ],
+        "img": "animals/deer.webp",
+        "thaiPhonics": [
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          },
+          {
+            "en": "ee",
+            "th": "เอีย",
+            "type": "v"
+          },
+          {
+            "en": "r",
+            "th": "ร์",
+            "type": "c"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bossy-r",
+    "title": "Bossy R (R-Controlled)",
+    "thaiSound": "พยัญชนะ R ควบคุมสระ",
+    "description": "สระที่ตามด้วย r (ar, or, er, ir, ur) เช่น star, car, corn, bird, turtle",
+    "words": [
+      {
+        "en": "star",
+        "focus": "ar",
+        "thReading": "สตาร์",
+        "thMeaning": "ดวงดาว",
+        "phonemes": [
+          "st",
+          "ar"
+        ],
+        "img": "shapes/star.webp",
+        "thaiPhonics": [
+          {
+            "en": "st",
+            "th": "สต",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "car",
+        "focus": "ar",
+        "thReading": "คาร์",
+        "thMeaning": "รถยนต์",
+        "phonemes": [
+          "c",
+          "ar"
+        ],
+        "img": "transportation/car.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "park",
+        "focus": "ar",
+        "thReading": "พาร์ค",
+        "thMeaning": "สวนสาธารณะ",
+        "phonemes": [
+          "p",
+          "ar",
+          "k"
+        ],
+        "img": "places/park.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "shark",
+        "focus": "ar",
+        "thReading": "ชาร์ค",
+        "thMeaning": "ปลาฉลาม",
+        "phonemes": [
+          "sh",
+          "ar",
+          "k"
+        ],
+        "img": "sea-animals/shark.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "scarf",
+        "focus": "ar",
+        "thReading": "สคาร์ฟ",
+        "thMeaning": "ผ้าพันคอ",
+        "phonemes": [
+          "sc",
+          "ar",
+          "f"
+        ],
+        "img": "clothes/scarf.webp",
+        "thaiPhonics": [
+          {
+            "en": "sc",
+            "th": "สค",
+            "type": "c"
+          },
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          },
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "farmer",
+        "focus": "ar",
+        "thReading": "ฟาร์ม-เมอร์",
+        "thMeaning": "ชาวนา",
+        "phonemes": [
+          "farm",
+          "er"
+        ],
+        "img": "jobs/farmer.webp",
+        "thaiPhonics": [
+          {
+            "en": "farm",
+            "th": "ฟาร์ม",
+            "type": "cl"
+          },
+          {
+            "en": "er",
+            "th": "เมอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "corn",
+        "focus": "or",
+        "thReading": "คอร์น",
+        "thMeaning": "ข้าวโพด",
+        "phonemes": [
+          "c",
+          "or",
+          "n"
+        ],
+        "img": "vegetables/corn.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "or",
+            "th": "ออร์",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "horse",
+        "focus": "or",
+        "thReading": "ฮอร์ส",
+        "thMeaning": "ม้า",
+        "phonemes": [
+          "h",
+          "or",
+          "se"
+        ],
+        "img": "animals/horse.webp",
+        "thaiPhonics": [
+          {
+            "en": "h",
+            "th": "ฮ",
+            "type": "c"
+          },
+          {
+            "en": "or",
+            "th": "ออร์",
+            "type": "v"
+          },
+          {
+            "en": "se",
+            "th": "ส",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "storm",
+        "focus": "or",
+        "thReading": "สตอร์ม",
+        "thMeaning": "พายุ",
+        "phonemes": [
+          "st",
+          "or",
+          "m"
+        ],
+        "img": "weather/stormy.webp",
+        "thaiPhonics": [
+          {
+            "en": "st",
+            "th": "สต",
+            "type": "c"
+          },
+          {
+            "en": "or",
+            "th": "ออร์",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "bird",
+        "focus": "ir",
+        "thReading": "เบิร์ด",
+        "thMeaning": "นก",
+        "phonemes": [
+          "b",
+          "ir",
+          "d"
+        ],
+        "img": "animals/bird.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "ir",
+            "th": "เอิร์",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "shirt",
+        "focus": "ir",
+        "thReading": "เชิ้ต",
+        "thMeaning": "เสื้อเชิ้ต",
+        "phonemes": [
+          "sh",
+          "ir",
+          "t"
+        ],
+        "img": "clothes/shirt.webp",
+        "thaiPhonics": [
+          {
+            "en": "sh",
+            "th": "ช",
+            "type": "c"
+          },
+          {
+            "en": "ir",
+            "th": "เอิร์",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "turtle",
+        "focus": "ur",
+        "thReading": "เทอร์-เทิล",
+        "thMeaning": "เต่าทะเล",
+        "phonemes": [
+          "tur",
+          "tle"
+        ],
+        "img": "sea-animals/turtle.webp",
+        "thaiPhonics": [
+          {
+            "en": "tur",
+            "th": "เทอร์",
+            "type": "cl"
+          },
+          {
+            "en": "tle",
+            "th": "เทิล",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "nurse",
+        "focus": "ur",
+        "thReading": "เนิร์ส",
+        "thMeaning": "พยาบาล",
+        "phonemes": [
+          "n",
+          "ur",
+          "se"
+        ],
+        "img": "jobs/nurse.webp",
+        "thaiPhonics": [
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          },
+          {
+            "en": "ur",
+            "th": "เอิร์",
+            "type": "v"
+          },
+          {
+            "en": "se",
+            "th": "ส",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "arm",
+        "focus": "ar",
+        "thReading": "อาร์ม",
+        "thMeaning": "แขน",
+        "phonemes": [
+          "ar",
+          "m"
+        ],
+        "img": "body/arm.webp",
+        "thaiPhonics": [
+          {
+            "en": "ar",
+            "th": "อาร์",
+            "type": "v"
+          },
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "pork",
+        "focus": "or",
+        "thReading": "พอร์ค",
+        "thMeaning": "เนื้อหมู",
+        "phonemes": [
+          "p",
+          "or",
+          "k"
+        ],
+        "img": "food/pork.webp",
+        "thaiPhonics": [
+          {
+            "en": "p",
+            "th": "พ",
+            "type": "c"
+          },
+          {
+            "en": "or",
+            "th": "ออร์",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "tiger",
+        "focus": "er",
+        "thReading": "ไท-เกอร์",
+        "thMeaning": "เสือ",
+        "phonemes": [
+          "ti",
+          "ger"
+        ],
+        "img": "animals/tiger.webp",
+        "thaiPhonics": [
+          {
+            "en": "ti",
+            "th": "ไท",
+            "type": "cl"
+          },
+          {
+            "en": "ger",
+            "th": "เกอร์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "teacher",
+        "focus": "er",
+        "thReading": "ทีช-เชอร์",
+        "thMeaning": "คุณครู",
+        "phonemes": [
+          "teach",
+          "er"
+        ],
+        "img": "jobs/teacher.webp",
+        "thaiPhonics": [
+          {
+            "en": "teach",
+            "th": "ทีช",
+            "type": "cl"
+          },
+          {
+            "en": "er",
+            "th": "เชอร์",
+            "type": "cl"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "diphthongs-special",
+    "title": "Special Vowels & Diphthongs",
+    "thaiSound": "สระประสมพิเศษ",
+    "description": "สระพิเศษ oo, ow, ou, au, al เช่น book, boots, cow, mouth, autumn, ball",
+    "words": [
+      {
+        "en": "book",
+        "focus": "oo",
+        "thReading": "บุ๊ก",
+        "thMeaning": "หนังสือ",
+        "phonemes": [
+          "b",
+          "oo",
+          "k"
+        ],
+        "img": "classroom/book.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "oo",
+            "th": "อุ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "cook",
+        "focus": "oo",
+        "thReading": "คุ้ก",
+        "thMeaning": "ทำอาหาร",
+        "phonemes": [
+          "c",
+          "oo",
+          "k"
+        ],
+        "img": "verbs/cook.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "oo",
+            "th": "อุ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ก",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "foot",
+        "focus": "oo",
+        "thReading": "ฟุต",
+        "thMeaning": "เท้า",
+        "phonemes": [
+          "f",
+          "oo",
+          "t"
+        ],
+        "img": "body/foot.webp",
+        "thaiPhonics": [
+          {
+            "en": "f",
+            "th": "ฟ",
+            "type": "c"
+          },
+          {
+            "en": "oo",
+            "th": "อุ",
+            "type": "v"
+          },
+          {
+            "en": "t",
+            "th": "ท",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "boots",
+        "focus": "oo",
+        "thReading": "บูทส์",
+        "thMeaning": "รองเท้าบูท",
+        "phonemes": [
+          "b",
+          "oo",
+          "ts"
+        ],
+        "img": "clothes/boots.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "oo",
+            "th": "อู",
+            "type": "v"
+          },
+          {
+            "en": "ts",
+            "th": "ทส์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "zoo",
+        "focus": "oo",
+        "thReading": "ซู",
+        "thMeaning": "สวนสัตว์",
+        "phonemes": [
+          "z",
+          "oo"
+        ],
+        "img": "places/zoo.webp",
+        "thaiPhonics": [
+          {
+            "en": "z",
+            "th": "ซ",
+            "type": "c"
+          },
+          {
+            "en": "oo",
+            "th": "อู",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "noodles",
+        "focus": "oo",
+        "thReading": "นู-เดิลส์",
+        "thMeaning": "ก๋วยเตี๋ยว",
+        "phonemes": [
+          "noo",
+          "dles"
+        ],
+        "img": "food/noodles.webp",
+        "thaiPhonics": [
+          {
+            "en": "noo",
+            "th": "นู",
+            "type": "cl"
+          },
+          {
+            "en": "dles",
+            "th": "เดิลส์",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "cow",
+        "focus": "ow",
+        "thReading": "คาว",
+        "thMeaning": "แม่วัว",
+        "phonemes": [
+          "c",
+          "ow"
+        ],
+        "img": "animals/cow.webp",
+        "thaiPhonics": [
+          {
+            "en": "c",
+            "th": "ค",
+            "type": "c"
+          },
+          {
+            "en": "ow",
+            "th": "เอา",
+            "type": "v"
+          }
+        ]
+      },
+      {
+        "en": "owl",
+        "focus": "ow",
+        "thReading": "เอาล์",
+        "thMeaning": "นกฮูก",
+        "phonemes": [
+          "ow",
+          "l"
+        ],
+        "img": "animals/owl.webp",
+        "thaiPhonics": [
+          {
+            "en": "ow",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "l",
+            "th": "ล",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "mouth",
+        "focus": "ou",
+        "thReading": "เมาธ์",
+        "thMeaning": "ปาก",
+        "phonemes": [
+          "m",
+          "ou",
+          "th"
+        ],
+        "img": "body/mouth.webp",
+        "thaiPhonics": [
+          {
+            "en": "m",
+            "th": "ม",
+            "type": "c"
+          },
+          {
+            "en": "ou",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "th",
+            "th": "ธ์",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "cloud",
+        "focus": "ou",
+        "thReading": "คลาวด์",
+        "thMeaning": "ก้อนเมฆ",
+        "phonemes": [
+          "cl",
+          "ou",
+          "d"
+        ],
+        "img": "weather/cloudy.webp",
+        "thaiPhonics": [
+          {
+            "en": "cl",
+            "th": "คล",
+            "type": "c"
+          },
+          {
+            "en": "ou",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "autumn",
+        "focus": "au",
+        "thReading": "ออ-ทัม",
+        "thMeaning": "ฤดูใบไม้ร่วง",
+        "phonemes": [
+          "au",
+          "tumn"
+        ],
+        "img": "seasons/autumn.webp",
+        "thaiPhonics": [
+          {
+            "en": "au",
+            "th": "ออ",
+            "type": "cl"
+          },
+          {
+            "en": "tumn",
+            "th": "ทัม",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "sausage",
+        "focus": "au",
+        "thReading": "ซอส-สิจ",
+        "thMeaning": "ไส้กรอก",
+        "phonemes": [
+          "sau",
+          "sage"
+        ],
+        "img": "food/sausage.webp",
+        "thaiPhonics": [
+          {
+            "en": "sau",
+            "th": "ซอส",
+            "type": "cl"
+          },
+          {
+            "en": "sage",
+            "th": "สิจ",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "down",
+        "focus": "ow",
+        "thReading": "ดาวน์",
+        "thMeaning": "ลง / ข้างล่าง",
+        "phonemes": [
+          "d",
+          "ow",
+          "n"
+        ],
+        "img": "directions/down.webp",
+        "thaiPhonics": [
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          },
+          {
+            "en": "ow",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "n",
+            "th": "น",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "cookie",
+        "focus": "oo",
+        "thReading": "คุก-กี",
+        "thMeaning": "ขนมคุกกี้",
+        "phonemes": [
+          "cook",
+          "ie"
+        ],
+        "img": "food/cookie.webp",
+        "thaiPhonics": [
+          {
+            "en": "cook",
+            "th": "คุก",
+            "type": "cl"
+          },
+          {
+            "en": "ie",
+            "th": "กี",
+            "type": "cl"
+          }
+        ]
+      },
+      {
+        "en": "proud",
+        "focus": "ou",
+        "thReading": "พราวด์",
+        "thMeaning": "ภาคภูมิใจ",
+        "phonemes": [
+          "pr",
+          "ou",
+          "d"
+        ],
+        "img": "emotions/proud.webp",
+        "thaiPhonics": [
+          {
+            "en": "pr",
+            "th": "พร",
+            "type": "c"
+          },
+          {
+            "en": "ou",
+            "th": "เอา",
+            "type": "v"
+          },
+          {
+            "en": "d",
+            "th": "ด",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "ball",
+        "focus": "al",
+        "thReading": "บอล",
+        "thMeaning": "ลูกบอล",
+        "phonemes": [
+          "b",
+          "al",
+          "l"
+        ],
+        "img": "toys/ball.webp",
+        "thaiPhonics": [
+          {
+            "en": "b",
+            "th": "บ",
+            "type": "c"
+          },
+          {
+            "en": "al",
+            "th": "ออ",
+            "type": "v"
+          },
+          {
+            "en": "l",
+            "th": "ล",
+            "type": "c"
+          }
+        ]
+      },
+      {
+        "en": "walk",
+        "focus": "al",
+        "thReading": "วอล์ค",
+        "thMeaning": "เดิน",
+        "phonemes": [
+          "w",
+          "al",
+          "k"
+        ],
+        "img": "verbs/walk.webp",
+        "thaiPhonics": [
+          {
+            "en": "w",
+            "th": "ว",
+            "type": "c"
+          },
+          {
+            "en": "al",
+            "th": "ออ",
+            "type": "v"
+          },
+          {
+            "en": "k",
+            "th": "ค",
+            "type": "c"
+          }
+        ]
+      }
+    ]
+  }
+];
 
       // State Management
       var state = {
@@ -1380,7 +5971,9 @@
         builderAvailable: [],
         builderStreak: 0,
         builderSolved: false,
-        echoTimer: null
+        echoTimer: null,
+        isWordHidden: false,
+        curWordRevealed: false
       };
 
       // DOM Elements
@@ -1392,13 +5985,15 @@
       var elCardImg = document.getElementById('cardImg');
       var elCardCategoryTag = document.getElementById('cardCategoryTag');
       var elCardWordEn = document.getElementById('cardWordEn');
-      var elCardWordIpa = document.getElementById('cardWordIpa');
       var elCardThaiReading = document.getElementById('cardThaiReading');
       var elCardThaiMeaning = document.getElementById('cardThaiMeaning');
       var elBlendingBar = document.getElementById('blendingBar');
       var elStudioIndexText = document.getElementById('studioIndexText');
       var elProgressFill = document.getElementById('progressFill');
       var elStudioGroupTag = document.getElementById('studioGroupTag');
+      var elBtnToggleWord = document.getElementById('btnToggleWord');
+      var elThaiMapRow = document.getElementById('thaiMapRow');
+      var elThaiMapSection = document.getElementById('thaiMapSection');
 
       var elBtnAutoRead = document.getElementById('btnAutoRead');
       var elGalleryTitle = document.getElementById('galleryTitle');
@@ -1541,6 +6136,7 @@
             stopAutoRead();
             state.curGroupIdx = idx;
             state.curWordIdx = 0;
+            if (state.isWordHidden) state.curWordRevealed = false;
             renderUnitTabs();
             updateCurrentView();
           });
@@ -1559,6 +6155,47 @@
         return before + '<span class="phonics-focus">' + match + '</span>' + after;
       }
 
+      // Thai Phonetic Mapping Renderer
+      function renderThaiPhoneticMap(word) {
+        if (!elThaiMapRow) return;
+        elThaiMapRow.innerHTML = '';
+        var mapData = word.thaiPhonics || word.phonetics || word.thaiMap || [];
+        mapData.forEach(function (item) {
+          var chip = document.createElement('div');
+          var t = item.type || 'c';
+          var typeClass = 'consonant';
+          if (t === 'v' || t === 'vowel') {
+            typeClass = 'vowel';
+          } else if (t === 'cl' || t === 'cluster' || t === 'syllable') {
+            typeClass = 'cluster syllable';
+          } else if (t === 's' || t === 'silent') {
+            typeClass = 'silent';
+          }
+          chip.className = 'thai-map-chip ' + typeClass;
+          var enText = item.en || item.letter || '';
+          var thText = item.th || item.thai || '';
+          chip.innerHTML =
+            '<span class="map-en">' + enText + '</span>' +
+            '<span class="map-arrow">↓</span>' +
+            '<span class="map-th">' + thText + '</span>';
+          elThaiMapRow.appendChild(chip);
+        });
+      }
+
+      // Toggle Word Visibility
+      function toggleWordVisibility() {
+        state.isWordHidden = !state.isWordHidden;
+        state.curWordRevealed = false;
+        if (elBtnToggleWord) {
+          elBtnToggleWord.textContent = state.isWordHidden ? '👁️🗨️ แสดงคำ' : '👁️ ซ่อนคำ';
+          elBtnToggleWord.classList.toggle('hiding', state.isWordHidden);
+        }
+        updateCurrentView();
+      }
+      if (elBtnToggleWord) {
+        elBtnToggleWord.addEventListener('click', toggleWordVisibility);
+      }
+
       // Render Studio Focus Card
       function renderStudioCard() {
         var group = GROUPS[state.curGroupIdx];
@@ -1573,12 +6210,31 @@
         elCardImg.alt = word.en + ' — ' + word.thMeaning;
         elCardCategoryTag.textContent = group.title + ' · ' + group.thaiSound;
 
-        elCardWordEn.innerHTML = formatFocusWord(word.en, word.focus);
-        elCardWordIpa.textContent = word.ipa;
-        elCardThaiReading.textContent = word.thReading;
-        elCardThaiMeaning.textContent = word.thMeaning;
+        var elReadingDetails = document.querySelector('.reading-details');
+        var isMasked = state.isWordHidden && !state.curWordRevealed;
 
-        // Render Blending Chips
+        if (isMasked) {
+          elCardWordEn.innerHTML = '<div class="word-hidden-placeholder" id="placeholderReveal" role="button" tabindex="0" title="แตะเพื่อเฉลย">❓ แตะเพื่อเฉลย</div>';
+          var ph = document.getElementById('placeholderReveal');
+          if (ph) {
+            ph.addEventListener('click', function () {
+              state.curWordRevealed = true;
+              renderStudioCard();
+              speak(word.en);
+            });
+          }
+          if (elThaiMapSection) elThaiMapSection.style.display = 'none';
+          if (elReadingDetails) elReadingDetails.style.display = 'none';
+        } else {
+          elCardWordEn.innerHTML = formatFocusWord(word.en, word.focus);
+          if (elThaiMapSection) elThaiMapSection.style.display = 'block';
+          if (elReadingDetails) elReadingDetails.style.display = 'grid';
+          elCardThaiReading.textContent = word.thReading;
+          elCardThaiMeaning.textContent = word.thMeaning;
+          renderThaiPhoneticMap(word);
+        }
+
+        // Render Blending Chips (always visible as learning clues)
         elBlendingBar.innerHTML = '';
         (word.phonemes || [word.en]).forEach(function (p) {
           var chip = document.createElement('button');
@@ -1603,7 +6259,7 @@
         wholeBtn.style.background = 'var(--gold)';
         wholeBtn.style.color = 'var(--navy)';
         wholeBtn.style.borderColor = 'var(--navy)';
-        wholeBtn.textContent = word.en;
+        wholeBtn.textContent = isMasked ? '🔊 ฟังคำ' : word.en;
         wholeBtn.title = 'ฟังคำเต็ม: ' + word.en;
         wholeBtn.addEventListener('click', function () {
           speak(word.en);
@@ -1622,14 +6278,26 @@
           card.className = 'gallery-card';
           card.setAttribute('role', 'button');
           card.setAttribute('tabindex', '0');
-          card.innerHTML =
-            '<div class="gallery-card-img-wrap">' +
-              '<img src="' + ASSET_BASE + word.img + '" alt="' + word.en + '" class="gallery-card-img" loading="lazy" />' +
-            '</div>' +
-            '<div class="gallery-word-en">' + formatFocusWord(word.en, word.focus) + '</div>' +
-            '<div class="gallery-word-th">' + word.thReading + '</div>' +
-            '<div class="gallery-word-meaning">' + word.thMeaning + '</div>' +
-            '<button type="button" class="gallery-listen-btn" aria-label="ฟังเสียง ' + word.en + '">🔊 ฟังคำอ่าน</button>';
+
+          if (state.isWordHidden) {
+            card.innerHTML =
+              '<div class="gallery-card-img-wrap">' +
+                '<img src="' + ASSET_BASE + word.img + '" alt="คำศัพท์" class="gallery-card-img" loading="lazy" />' +
+              '</div>' +
+              '<div class="gallery-word-en" style="color:var(--muted);font-style:italic;">❓ ซ่อนคำ</div>' +
+              '<div class="gallery-word-th" style="display:none;"></div>' +
+              '<div class="gallery-word-meaning" style="display:none;"></div>' +
+              '<button type="button" class="gallery-listen-btn" aria-label="ฟังเสียงคำศัพท์">🔊 ฟังคำอ่าน</button>';
+          } else {
+            card.innerHTML =
+              '<div class="gallery-card-img-wrap">' +
+                '<img src="' + ASSET_BASE + word.img + '" alt="' + word.en + '" class="gallery-card-img" loading="lazy" />' +
+              '</div>' +
+              '<div class="gallery-word-en">' + formatFocusWord(word.en, word.focus) + '</div>' +
+              '<div class="gallery-word-th">' + word.thReading + '</div>' +
+              '<div class="gallery-word-meaning">' + word.thMeaning + '</div>' +
+              '<button type="button" class="gallery-listen-btn" aria-label="ฟังเสียง ' + word.en + '">🔊 ฟังคำอ่าน</button>';
+          }
 
           card.addEventListener('click', function (e) {
             if (e.target.closest('.gallery-listen-btn')) {
@@ -1637,6 +6305,9 @@
               return;
             }
             state.curWordIdx = idx;
+            if (state.isWordHidden) {
+              state.curWordRevealed = false;
+            }
             switchMode('learn');
             speakWord(word);
           });
@@ -2039,6 +6710,7 @@
         stopAutoRead();
         var words = GROUPS[state.curGroupIdx].words;
         state.curWordIdx = (state.curWordIdx - 1 + words.length) % words.length;
+        if (state.isWordHidden) state.curWordRevealed = false;
         renderStudioCard();
         speakWord(words[state.curWordIdx]);
       });
@@ -2047,6 +6719,7 @@
         stopAutoRead();
         var words = GROUPS[state.curGroupIdx].words;
         state.curWordIdx = (state.curWordIdx + 1) % words.length;
+        if (state.isWordHidden) state.curWordRevealed = false;
         renderStudioCard();
         speakWord(words[state.curWordIdx]);
       });
@@ -2055,6 +6728,7 @@
         stopAutoRead();
         var words = GROUPS[state.curGroupIdx].words;
         state.curWordIdx = Math.floor(Math.random() * words.length);
+        if (state.isWordHidden) state.curWordRevealed = false;
         renderStudioCard();
         speakWord(words[state.curWordIdx]);
       });
@@ -2125,6 +6799,9 @@
           if (state.activeMode === 'learn') {
             triggerEchoRepeat();
           }
+        } else if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H') {
+          e.preventDefault();
+          toggleWordVisibility();
         }
       });
 
@@ -2136,7 +6813,9 @@
           totalGroups: GROUPS.length,
           totalWordsInGroup: GROUPS[state.curGroupIdx].words.length,
           curWord: GROUPS[state.curGroupIdx].words[state.curWordIdx].en,
-          mode: state.activeMode
+          mode: state.activeMode,
+          isWordHidden: state.isWordHidden,
+          curWordRevealed: state.curWordRevealed
         };
       };
 

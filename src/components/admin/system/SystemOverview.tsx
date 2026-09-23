@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.92 (ภาษาอังกฤษ — ยกระดับ Phonics Reading Studio v2.1: โหมดซ่อนคำสำหรับฝึกทายคำในห้องเรียน, ถอดเสียงเทียบพยัญชนะ-สระไทย 4 สี, ขยายคลังคำศัพท์ 170 คำพร้อมภาพ WebP แท้ และลบ IPA 100%)',
+        date: '23 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'Word Reveal & Classroom Quiz Mode: เพิ่มปุ่มสลับซ่อนคำ (👁️ ซ่อนคำ / 👁️🗨️ แสดงคำ) บนแถบเครื่องมือ พร้อมคีย์ลัด Smartboard กด H, กล่อง placeholder ❓ แตะเพื่อเฉลย และระบบซ่อนคำในโหมดคลังคำศัพท์ Gallery',
+            'Complete IPA Removal: ลบสัญลักษณ์สัทอักษร IPA (/.../) ออกจากระบบและชุดข้อมูลคำศัพท์ 100% อย่างหมดจด (0 occurrences)',
+            'Thai Phonetic Mapping & Legend: เพิ่มระบบถอดเสียงตัวอักษรภาษาอังกฤษเทียบเคียงพยัญชนะ/สระไทย 4 รหัสสี (🔵 consonant, 🟡 vowel, 🟢 syllable/cluster, ⚪ silent letter) พร้อม 4-dot legend คำอธิบายสัญลักษณ์',
+            'Expanded Vocabulary to 170 Words: ขยายคลังคำศัพท์โฟนิกส์ครอบคลุมทั้ง 10 หมวดรวม 170 คำ พร้อมภาพประกอบแท้ .webp จาก vocab-hub-assets/ ครบทุกคำ',
+            'Classroom-First & Accessibility: ปรับปรุงเป้าหมายสัมผัสขนาด ≥ 44×44 px ตามมาตรฐาน WCAG AAA, ไร้ปัญหาข้อความล้น (Zero Horizontal Overflow) บนวิวพอร์ต 360×800 และ 1280×720',
+        ],
+    },
+    {
         version: 'v1.229.91 (อัปเกรดภาพปกเกมการศึกษา 10 รายการ สู่ระดับสตูดิโอ 16:9)',
         date: '21 ก.ย. 2569',
         badge: 'bg-emerald-600',
