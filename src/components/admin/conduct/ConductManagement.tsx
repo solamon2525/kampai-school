@@ -18,7 +18,7 @@ import {
     PointsConfirmationDialog,
     type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
-import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
+import { getFirstName, speakThai, stopThaiSpeech, thaiNumberToWords } from '@/lib/thaiSpeech';
 import { cn } from '@/lib/utils';
 
 // ===== Constants =====
@@ -320,6 +320,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const speechRequestRef = useRef(0);
     const closePointsConfirmation = useCallback(() => {
         speechRequestRef.current += 1;
+        stopThaiSpeech();
         setPointsConfirmation(null);
     }, []);
 
@@ -345,6 +346,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleSave = async () => {
+        if (isSaving) return;
         if (!selectedStudentId || !reason.trim()) {
             toast({ variant: 'destructive', title: 'กรุณาเลือกนักเรียนและกรอกเหตุผล' });
             return;
@@ -355,66 +357,78 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             return;
         }
         const student = students.find(s => s.id === selectedStudentId);
-        const { data: existingRecords } = await conductService.getByStudentId(selectedStudentId);
-        const accumulatedBefore = (existingRecords || [])
-            .filter(record => record.academic_year === academicYear)
-            .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
 
         setIsSaving(true);
-        const { error } = await conductService.insert({
-            student_id: selectedStudentId,
-            type,
-            score: parsedScore,
-            category: activeCategory,
-            reason: reason.trim(),
-            recorded_by: recorder.name || null,
-            recorded_by_staff_id: recorder.staffId,
-            recorded_by_administrator_id: recorder.administratorId,
-            academic_year: academicYear,
-            semester,
-        });
-        setIsSaving(false);
-        if (error) { toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message }); return; }
+        try {
+            const [existingRes, insertRes] = await Promise.all([
+                conductService.getByStudentId(selectedStudentId),
+                conductService.insert({
+                    student_id: selectedStudentId,
+                    type,
+                    score: parsedScore,
+                    category: activeCategory,
+                    reason: reason.trim(),
+                    recorded_by: recorder.name || null,
+                    recorded_by_staff_id: recorder.staffId,
+                    recorded_by_administrator_id: recorder.administratorId,
+                    academic_year: academicYear,
+                    semester,
+                }),
+            ]);
 
-        toast({
-            title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
-            description: `${student?.name} ${type === 'add' ? '+' : '-'}${parsedScore} คะแนน · ${reason}`,
-        });
-        if (student) {
-            const isAdd = type === 'add';
-            const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
-            setPointsConfirmation({
-                studentName: student.name,
-                photoUrl: student.photo_url,
-                latestPoints: parsedScore,
-                accumulatedPoints,
-                latestSign: isAdd ? '+' : '-',
+            if (insertRes.error) {
+                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: insertRes.error.message });
+                return;
+            }
+
+            const existingRecords = existingRes.data;
+            const accumulatedBefore = (existingRecords || [])
+                .filter(record => record.academic_year === academicYear)
+                .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
+
+            toast({
+                title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
+                description: `${student?.name} ${type === 'add' ? '+' : '-'}${parsedScore} คะแนน · ${reason}`,
             });
-            setSpeechComplete(false);
-            const speechRequest = ++speechRequestRef.current;
-            const safetyTimer = window.setTimeout(() => {
-                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-            }, 3500);
 
-            void speakThai([
-                `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
-                `ชื่อ ${getFirstName(student.name)}`,
-                `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
-                `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
-            ]).then(({ spoken }) => {
-                window.clearTimeout(safetyTimer);
-                if (speechRequest !== speechRequestRef.current) return;
-                if (spoken) setSpeechComplete(true);
-                else window.setTimeout(() => {
+            if (student) {
+                const isAdd = type === 'add';
+                const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
+                setPointsConfirmation({
+                    studentName: student.name,
+                    photoUrl: student.photo_url,
+                    latestPoints: parsedScore,
+                    accumulatedPoints,
+                    latestSign: isAdd ? '+' : '-',
+                });
+                setSpeechComplete(false);
+                const speechRequest = ++speechRequestRef.current;
+                const safetyTimer = window.setTimeout(() => {
                     if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                }, 1000);
-            }).catch(() => {
-                window.clearTimeout(safetyTimer);
-                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-            });
+                }, 3500);
+
+                void speakThai([
+                    `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
+                    `ชื่อ ${getFirstName(student.name)}`,
+                    `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
+                    `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
+                ]).then(({ spoken }) => {
+                    window.clearTimeout(safetyTimer);
+                    if (speechRequest !== speechRequestRef.current) return;
+                    if (spoken) setSpeechComplete(true);
+                    else window.setTimeout(() => {
+                        if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+                    }, 1000);
+                }).catch(() => {
+                    window.clearTimeout(safetyTimer);
+                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+                });
+            }
+            setReason('');
+            setScore('1');
+        } finally {
+            setIsSaving(false);
         }
-        setReason('');
-        setScore('1');
     };
 
     return (
@@ -695,7 +709,11 @@ function LeaderboardTab() {
             if (r.type === 'add') { map[r.student_id].total += r.score; map[r.student_id].added += r.score; }
             else { map[r.student_id].total -= r.score; map[r.student_id].deducted += r.score; }
         });
-        return Object.values(map).sort((a, b) => b.total - a.total);
+        return Object.values(map).sort((a, b) => {
+            if (b.total !== a.total) return b.total - a.total;
+            if (b.added !== a.added) return b.added - a.added;
+            return a.name.localeCompare(b.name, 'th');
+        });
     }, [records, filterClass]);
 
     return (
@@ -948,6 +966,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
     const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleBulkSave = async () => {
+        if (isSaving) return;
         const currentStudentIds = new Set(students.map(s => s.id));
         const validSelectedIds = Array.from(selectedIds).filter(id => currentStudentIds.has(id));
 
@@ -972,20 +991,23 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             semester,
         }));
         setIsSaving(true);
-        const { error } = await conductService.insertBulk(records);
-        setIsSaving(false);
-        if (error) {
-            toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message });
-            return;
+        try {
+            const { error } = await conductService.insertBulk(records);
+            if (error) {
+                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message });
+                return;
+            }
+            toast({
+                title: `${type === 'add' ? '+ บวก' : '− หัก'}คะแนนสำเร็จ`,
+                description: `${validSelectedIds.length} คน · ${parsedScore} คะแนน · ${reason}`,
+            });
+            // reset selection + reason; keep class/type/category for quick re-use
+            setSelectedIds(new Set());
+            setReason('');
+            setScore('1');
+        } finally {
+            setIsSaving(false);
         }
-        toast({
-            title: `${type === 'add' ? '+ บวก' : '− หัก'}คะแนนสำเร็จ`,
-            description: `${validSelectedIds.length} คน · ${parsedScore} คะแนน · ${reason}`,
-        });
-        // reset selection + reason; keep class/type/category for quick re-use
-        setSelectedIds(new Set());
-        setReason('');
-        setScore('1');
     };
 
     const saveLabel = selectedIds.size === 0

@@ -253,4 +253,32 @@ const dialogSource = await readFile('src/components/admin/shared/PointsConfirmat
 assert.ok(dialogSource.includes('ปิดหน้าต่าง'), 'PointsConfirmationDialog must contain explicit dismiss button');
 console.log('✓ 16. PointsConfirmationDialog explicit dismiss button verified');
 
-console.log('\nALL 16 DEEP AUDIT CHECKS PASSED SUCCESSFULLY!');
+// 17. Verify speech cancellation on dialog close
+assert.ok(conductManagementSource.includes('stopThaiSpeech();'), 'closePointsConfirmation must call stopThaiSpeech()');
+console.log('✓ 17. Speech cancellation on modal dismissal verified');
+
+// 18. Verify double-submit prevention and try-finally in both RecordTab and BulkRecordTab
+assert.ok(
+  conductManagementSource.includes('if (isSaving) return;'),
+  'RecordTab and BulkRecordTab must guard against re-entry when isSaving is true'
+);
+const tryFinallyCount = (conductManagementSource.match(/finally\s*\{\s*setIsSaving\(false\);\s*\}/g) || []).length;
+assert.ok(tryFinallyCount >= 2, 'Both RecordTab and BulkRecordTab must wrap saving in try ... finally { setIsSaving(false); }');
+console.log('✓ 18. Double-submit guard and try-finally recovery verified in both tabs');
+
+// 19. Verify stable tie-breaking in LeaderboardTab
+assert.ok(
+  conductManagementSource.includes("a.name.localeCompare(b.name, 'th')"),
+  'LeaderboardTab must have stable tie-breaking sort by name'
+);
+console.log('✓ 19. Stable deterministic tie-breaking in LeaderboardTab verified');
+
+// 20. Verify expanded school conduct aliases in conduct.service.ts
+assert.ok(conductServiceSource.includes("'มาสาย': 'discipline'"), 'conduct.service.ts must map มาสาย to discipline');
+assert.ok(conductServiceSource.includes("'ขาดเรียน': 'discipline'"), 'conduct.service.ts must map ขาดเรียน to discipline');
+assert.ok(conductServiceSource.includes("'การบ้าน': 'responsibility'"), 'conduct.service.ts must map การบ้าน to responsibility');
+assert.ok(conductServiceSource.includes("'ทุจริต': 'honesty'"), 'conduct.service.ts must map ทุจริต to honesty');
+assert.ok(conductServiceSource.includes("'ทะเลาะวิวาท': 'kindness'"), 'conduct.service.ts must map ทะเลาะวิวาท to kindness');
+console.log('✓ 20. School-life conduct category aliases and fallback mapping verified');
+
+console.log('\nALL 20 DEEP AUDIT CHECKS PASSED SUCCESSFULLY!');

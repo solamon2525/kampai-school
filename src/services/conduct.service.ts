@@ -183,14 +183,26 @@ const CATEGORY_ALIAS_MAP: Record<string, string> = {
   'ตรงต่อเวลา': 'discipline',
   'วินัยและตรงต่อเวลา': 'discipline',
   'วินัย/ตรงต่อเวลา': 'discipline',
+  'มาสาย': 'discipline',
+  'ขาดเรียน': 'discipline',
+  'หนีเรียน': 'discipline',
+  'แต่งกาย': 'discipline',
+  'การบ้าน': 'responsibility',
+  'เวร': 'responsibility',
+  'เวรประจำวัน': 'responsibility',
   'ซื่อสัตย์': 'honesty',
   'ซื่อสัตย์สุจริต': 'honesty',
+  'ทุจริต': 'honesty',
+  'โกหก': 'honesty',
+  'ขโมย': 'honesty',
   'น้ำใจ': 'kindness',
   'ความดี': 'kindness',
   'ช่วยเหลือ': 'kindness',
   'น้ำใจ/ช่วยเหลือ': 'kindness',
+  'ทะเลาะวิวาท': 'kindness',
   'มารยาท': 'manners',
   'มารยาทและการพูดจา': 'manners',
+  'กิริยามารยาท': 'manners',
   'ความเป็นผู้นำ': 'leadership',
   'ความเป็นผู้นำและการทำงานเป็นทีม': 'leadership',
   'ความเป็นผู้นำ/ทีม': 'leadership',
@@ -242,7 +254,9 @@ export const mapCategoryToVirtue = (cat: string): CoreVirtue => {
     clean.includes('วิชาการ') ||
     clean.includes('กีฬา') ||
     clean.includes('ผู้นำ') ||
-    clean.includes('ทรัพย์สิน')
+    clean.includes('ทรัพย์สิน') ||
+    clean.includes('การบ้าน') ||
+    clean.includes('เวร')
   ) {
     return 'responsibility';
   }
@@ -251,18 +265,28 @@ export const mapCategoryToVirtue = (cat: string): CoreVirtue => {
     clean.includes('ตรงต่อเวลา') ||
     clean.includes('อุปกรณ์สื่อสาร') ||
     clean.includes('โทรศัพท์') ||
-    clean.includes('การเรียน')
+    clean.includes('การเรียน') ||
+    clean.includes('มาสาย') ||
+    clean.includes('ขาดเรียน') ||
+    clean.includes('หนีเรียน') ||
+    clean.includes('แต่งกาย')
   ) {
     return 'discipline';
   }
-  if (clean.includes('ซื่อสัตย์')) {
+  if (
+    clean.includes('ซื่อสัตย์') ||
+    clean.includes('ทุจริต') ||
+    clean.includes('โกหก') ||
+    clean.includes('ขโมย')
+  ) {
     return 'honesty';
   }
   if (
     clean.includes('น้ำใจ') ||
     clean.includes('ช่วยเหลือ') ||
     clean.includes('มารยาท') ||
-    clean.includes('ความดี')
+    clean.includes('ความดี') ||
+    clean.includes('ทะเลาะ')
   ) {
     return 'kindness';
   }
