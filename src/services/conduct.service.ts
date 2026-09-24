@@ -425,7 +425,10 @@ export const conductService = {
     if (error || !data) return 0;
     const total = data
       .filter(r => !academicYear || r.academic_year === academicYear)
-      .reduce((sum, r) => sum + (r.type === 'add' ? r.score : -r.score), 0);
+      .reduce((sum, r) => {
+        const val = Number(r.score) || 0;
+        return sum + (r.type === 'add' ? val : -val);
+      }, 0);
     return Math.max(0, total);
   },
 
@@ -445,7 +448,8 @@ export const conductService = {
     if (!error && data) {
       data.forEach(r => {
         if (!academicYear || r.academic_year === academicYear) {
-          scoreMap[r.student_id] = (scoreMap[r.student_id] || 0) + (r.type === 'add' ? r.score : -r.score);
+          const val = Number(r.score) || 0;
+          scoreMap[r.student_id] = (scoreMap[r.student_id] || 0) + (r.type === 'add' ? val : -val);
         }
       });
       studentIds.forEach(id => {

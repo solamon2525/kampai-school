@@ -211,7 +211,12 @@ try {
       fnGirlFull: window.__getFirstName('เด็กหญิง สมหญิง จริงใจ'),
       fnMiss: window.__getFirstName('นางสาว ปวีณา เปจะโป๊ะ'),
       fnMr: window.__getFirstName('นาย ธวัชชัย นิโม'),
+      fnMrs: window.__getFirstName('นาง สมปอง ดียิ่ง'),
+      fnMissShort: window.__getFirstName('น.ส.มาลี บุญส่ง'),
       formattedWithPrefix: window.__formatConductRecordSpeech('add', 'ด.ช.พชรพร จรุงพันธ์', 10, 50),
+      safeUndefinedRecord: window.__formatConductRecordSpeech('deduct', 'สมชาย รักดี', undefined, undefined),
+      safeUndefinedBulk: window.__formatConductBulkSpeech('add', undefined, undefined),
+      safeNegativeAccumulated: window.__formatConductRecordSpeech('deduct', 'สมชาย', 2, -10),
     };
   });
 
@@ -243,13 +248,34 @@ try {
   assert.equal(unitResults.fnGirlAttached, 'สมหญิง', 'Should strip attached ด.ญ.');
   assert.equal(unitResults.fnGirlFull, 'สมหญิง', 'Should strip เด็กหญิง');
   assert.equal(unitResults.fnMiss, 'ปวีณา', 'Should strip นางสาว');
+  assert.equal(unitResults.fnMissShort, 'มาลี', 'Should strip น.ส.');
+  assert.equal(unitResults.fnMrs, 'สมปอง', 'Should strip นาง');
   assert.equal(unitResults.fnMr, 'ธวัชชัย', 'Should strip นาย');
   assert.equal(
     unitResults.formattedWithPrefix,
     'เพิ่มคะแนนความดีสำเร็จ ชื่อ พชรพร เพิ่ม สิบ คะแนน คะแนนคงเหลือ ห้าสิบ คะแนน',
     'Speech summary must address student by real first name without honorific prefix'
   );
-  console.log('  ✓ All speech formatting rules and Thai honorific prefix stripping match requirements R2 perfectly');
+
+  // Assert NaN/undefined resilience
+  assert.ok(!unitResults.safeUndefinedRecord.includes('NaN'), 'Speech summary must never contain NaN');
+  assert.ok(!unitResults.safeUndefinedBulk.includes('NaN'), 'Bulk speech summary must never contain NaN');
+  assert.equal(
+    unitResults.safeUndefinedRecord,
+    'หักคะแนนความดีสำเร็จ ชื่อ สมชาย หัก หนึ่ง คะแนน คะแนนคงเหลือ ศูนย์ คะแนน',
+    'Undefined record points must safely default without NaN'
+  );
+  assert.equal(
+    unitResults.safeUndefinedBulk,
+    'บันทึกคะแนนความดีสำเร็จ หนึ่ง คน บวกคนละ หนึ่ง คะแนน',
+    'Undefined bulk points must safely default without NaN'
+  );
+  assert.equal(
+    unitResults.safeNegativeAccumulated,
+    'หักคะแนนความดีสำเร็จ ชื่อ สมชาย หัก สอง คะแนน คะแนนคงเหลือ ศูนย์ คะแนน',
+    'Negative accumulated points must clamp to 0 (ศูนย์)'
+  );
+  console.log('  ✓ All speech formatting rules, Thai honorific prefix stripping, and NaN resilience match requirements R2 perfectly');
 
   // 2. Test RecordTab Sound & Speech
   console.log('\n2. Testing RecordTab Sound & Speech...');
@@ -305,6 +331,40 @@ try {
   const stopSpy = await page.evaluate(() => window.__conductSpy.speechCancels);
   assert.ok(stopSpy >= 1, 'stopThaiSpeech must be called on modal dismiss');
   console.log('  ✓ Modal dismissal cancels active speech immediately');
+
+  // 2.1 Test RecordTab Deduct Mode Sound & Speech
+  console.log('\n2.1 Testing RecordTab Deduct Mode Sound & Speech...');
+  await page.locator('button:has-text("หักคะแนน")').first().click();
+  await page.getByText('วินัย/ตรงต่อเวลา').first().click();
+  await page.getByText('มาสาย').first().click();
+
+  await page.evaluate(() => {
+    window.__conductSpy.oscillatorsCreated = [];
+    window.__conductSpy.speechesSpoken = [];
+    window.__conductSpy.speechCancels = 0;
+  });
+
+  const deductSaveBtn = page.locator('button:has-text("หัก 1 คะแนน")').first();
+  await deductSaveBtn.click();
+
+  const deductSpyResult = await page.evaluate(() => window.__conductSpy);
+  assert.ok(deductSpyResult.oscillatorsCreated.length >= 2, 'Deduct chime must fire immediately');
+  assert.ok(
+    deductSpyResult.oscillatorsCreated.some(o => o.type === 'sine'),
+    'Deduct chime must use gentle sine wave'
+  );
+  assert.equal(deductSpyResult.speechesSpoken.length, 1, 'Deduct speech must fire immediately');
+  assert.ok(
+    deductSpyResult.speechesSpoken[0].text.includes('หักคะแนนความดีสำเร็จ'),
+    'Speech must start with หักคะแนนความดีสำเร็จ'
+  );
+
+  await page.waitForSelector('text=หักคะแนนความดีสำเร็จ', { state: 'visible' });
+  const deductCard = page.locator('.text-destructive');
+  assert.ok(await deductCard.count() >= 1, 'Deduction points card must have text-destructive styling');
+  console.log('  ✓ RecordTab Deduct Mode: Gentle sine chime, Thai deduct speech, and destructive styling verified');
+
+  await page.locator('button:has-text("ปิดหน้าต่าง")').click();
 
   // 3. Test BulkRecordTab Sound & Speech
   console.log('\n3. Testing BulkRecordTab Sound & Speech...');

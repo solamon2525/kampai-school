@@ -373,12 +373,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
     // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเมื่อได้รายชื่อหรือเปลี่ยนปีการศึกษา
     useEffect(() => {
+        setStudentAccumulatedMap({});
         if (students.length === 0) return;
         let active = true;
         const ids = students.map(s => s.id);
         conductService.getAccumulatedScoresForStudents(ids, academicYear).then(scoresMap => {
             if (active) {
-                setStudentAccumulatedMap(scoresMap);
+                setStudentAccumulatedMap(prev => ({ ...scoresMap, ...prev }));
             }
         }).catch(() => {});
 
@@ -434,7 +435,8 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
             // R2: คำนวณคะแนนสะสมล่วงหน้า (Optimistic Calculation) ทันที
             const isAdd = type === 'add';
-            const accumulatedBefore = studentAccumulatedMap[selectedStudentId] ?? 0;
+            const rawBefore = studentAccumulatedMap[selectedStudentId];
+            const accumulatedBefore = Number.isFinite(rawBefore) ? rawBefore : 0;
             const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
 
             // อัปเดตแคชคะแนนสะสมทันที
@@ -503,6 +505,11 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
             setReason('');
             setScore('1');
+
+            // Reconcile กับยอดสะสมจริงจากฐานข้อมูล
+            conductService.getAccumulatedScore(selectedStudentId, academicYear).then(accScore => {
+                setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accScore }));
+            }).catch(() => {});
         } finally {
             setIsSaving(false);
         }
@@ -1071,31 +1078,34 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             return;
         }
 
-        // หยุดเสียงสังเคราะห์หรือเสียงพูดก่อนหน้าทันทีเพื่อให้ตอบสนองใน 0 วินาที
-        stopConductChime();
-        stopThaiSpeech();
-
-        // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
-        playConductChime(type);
-
-        // R2: เริ่มเล่นเสียงสรุปภาษาไทยทันทีเมื่อกดบันทึก
-        const bulkSpeech = formatConductBulkSpeech(type, validSelectedIds.length, parsedScore);
-        void speakThai(bulkSpeech);
-
-        const records = validSelectedIds.map(student_id => ({
-            student_id,
-            type,
-            score: parsedScore,
-            category: activeCategory,
-            reason: reason.trim(),
-            recorded_by: recorder.name || null,
-            recorded_by_staff_id: recorder.staffId,
-            recorded_by_administrator_id: recorder.administratorId,
-            academic_year: academicYear,
-            semester,
-        }));
+        // ล็อกสถานะบันทึกทันทีเพื่อป้องกัน double-submit
         setIsSaving(true);
+
         try {
+            // หยุดเสียงสังเคราะห์หรือเสียงพูดก่อนหน้าทันทีเพื่อให้ตอบสนองใน 0 วินาที
+            stopConductChime();
+            stopThaiSpeech();
+
+            // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
+            playConductChime(type);
+
+            // R2: เริ่มเล่นเสียงสรุปภาษาไทยทันทีเมื่อกดบันทึก
+            const bulkSpeech = formatConductBulkSpeech(type, validSelectedIds.length, parsedScore);
+            void speakThai(bulkSpeech);
+
+            const records = validSelectedIds.map(student_id => ({
+                student_id,
+                type,
+                score: parsedScore,
+                category: activeCategory,
+                reason: reason.trim(),
+                recorded_by: recorder.name || null,
+                recorded_by_staff_id: recorder.staffId,
+                recorded_by_administrator_id: recorder.administratorId,
+                academic_year: academicYear,
+                semester,
+            }));
+
             const { error } = await conductService.insertBulk(records);
             if (error) {
                 stopConductChime();

@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 export interface PointsConfirmation {
   studentName: string;
@@ -42,6 +43,8 @@ export const PointsConfirmationDialog = ({
     return () => window.clearTimeout(timer);
   }, [confirmation, onClose, speechComplete]);
 
+  const isDeduct = confirmation?.latestSign === '-';
+
   return (
     <Dialog open={confirmation !== null} onOpenChange={(open) => !open && confirmation && onClose()}>
       <DialogContent className="max-w-2xl border-border bg-card px-5 py-8 text-center sm:px-10 sm:py-10">
@@ -67,9 +70,21 @@ export const PointsConfirmationDialog = ({
             </DialogHeader>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-primary/30 bg-primary/10 p-5">
+              <div
+                className={cn(
+                  'rounded-2xl border p-5',
+                  isDeduct
+                    ? 'border-destructive/30 bg-destructive/10'
+                    : 'border-primary/30 bg-primary/10'
+                )}
+              >
                 <p className="text-sm font-bold text-foreground sm:text-base">{latestLabel}</p>
-                <p className="mt-2 text-4xl font-black tabular-nums text-primary sm:text-5xl">
+                <p
+                  className={cn(
+                    'mt-2 text-4xl font-black tabular-nums sm:text-5xl',
+                    isDeduct ? 'text-destructive' : 'text-primary'
+                  )}
+                >
                   {confirmation.latestSign ?? '+'}{fmtPoints(confirmation.latestPoints)}
                 </p>
               </div>

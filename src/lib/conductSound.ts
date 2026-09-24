@@ -100,7 +100,11 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.stop(start + duration);
 
         const node: ActiveAudioNode = { osc, gain };
-        const timerId = setTimeout(() => {
+        const cleanup = () => {
+          if (node.timerId) {
+            clearTimeout(node.timerId);
+            node.timerId = undefined;
+          }
           activeNodes = activeNodes.filter(n => n !== node);
           try {
             osc.disconnect();
@@ -108,8 +112,13 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
           } catch {
             // ignore
           }
-        }, (duration + 0.15) * 1000);
-        node.timerId = timerId;
+        };
+
+        osc.onended = cleanup;
+
+        // Safety fallback timer taking start offset into account
+        const timeoutMs = Math.max(200, Math.ceil(((start - now) + duration + 0.3) * 1000));
+        node.timerId = setTimeout(cleanup, timeoutMs);
         activeNodes.push(node);
       });
     } else {
@@ -138,7 +147,11 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.stop(start + duration);
 
         const node: ActiveAudioNode = { osc, gain };
-        const timerId = setTimeout(() => {
+        const cleanup = () => {
+          if (node.timerId) {
+            clearTimeout(node.timerId);
+            node.timerId = undefined;
+          }
           activeNodes = activeNodes.filter(n => n !== node);
           try {
             osc.disconnect();
@@ -146,8 +159,13 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
           } catch {
             // ignore
           }
-        }, (duration + 0.15) * 1000);
-        node.timerId = timerId;
+        };
+
+        osc.onended = cleanup;
+
+        // Safety fallback timer taking start offset into account
+        const timeoutMs = Math.max(200, Math.ceil(((start - now) + duration + 0.3) * 1000));
+        node.timerId = setTimeout(cleanup, timeoutMs);
         activeNodes.push(node);
       });
     }
@@ -169,9 +187,11 @@ export const formatConductRecordSpeech = (
 ): string => {
   const isAdd = type === 'add';
   const actionText = isAdd ? 'เพิ่ม' : 'หัก';
-  const firstName = getFirstName(studentName);
-  const scoreWords = thaiNumberToWords(score);
-  const remainingWords = thaiNumberToWords(Math.max(0, accumulatedScore));
+  const firstName = getFirstName(studentName || '');
+  const safeScore = Number.isFinite(score) ? Math.max(1, Math.trunc(score)) : 1;
+  const safeAccumulated = Number.isFinite(accumulatedScore) ? Math.max(0, Math.trunc(accumulatedScore)) : 0;
+  const scoreWords = thaiNumberToWords(safeScore);
+  const remainingWords = thaiNumberToWords(safeAccumulated);
   return `${actionText}คะแนนความดีสำเร็จ ชื่อ ${firstName} ${actionText} ${scoreWords} คะแนน คะแนนคงเหลือ ${remainingWords} คะแนน`;
 };
 
@@ -185,7 +205,9 @@ export const formatConductBulkSpeech = (
   scorePerStudent: number
 ): string => {
   const isAdd = type === 'add';
-  const countWords = thaiNumberToWords(studentCount);
-  const scoreWords = thaiNumberToWords(scorePerStudent);
+  const safeCount = Number.isFinite(studentCount) ? Math.max(1, Math.trunc(studentCount)) : 1;
+  const safeScore = Number.isFinite(scorePerStudent) ? Math.max(1, Math.trunc(scorePerStudent)) : 1;
+  const countWords = thaiNumberToWords(safeCount);
+  const scoreWords = thaiNumberToWords(safeScore);
   return `บันทึกคะแนนความดีสำเร็จ ${countWords} คน ${isAdd ? 'บวก' : 'หัก'}คนละ ${scoreWords} คะแนน`;
 };
