@@ -353,6 +353,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         };
     }, []);
 
+    // โหลดรายชื่อนักเรียนเมื่อเปลี่ยนห้องเรียน
     useEffect(() => {
         setStudents([]);
         setSelectedStudentId('');
@@ -360,29 +361,33 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         if (!selectedClass) return;
 
         let active = true;
-        studentsService.getByClass(selectedClass).then(async ({ data }) => {
+        studentsService.getByClass(selectedClass).then(({ data }) => {
             if (!active) return;
-            const loadedStudents = (data || []) as Student[];
-            setStudents(loadedStudents);
-
-            if (loadedStudents.length > 0) {
-                try {
-                    const ids = loadedStudents.map(s => s.id);
-                    const scoresMap = await conductService.getAccumulatedScoresForStudents(ids, academicYear);
-                    if (active) {
-                        setStudentAccumulatedMap(scoresMap);
-                    }
-                } catch {
-                    // pre-fetch gracefully falls back to per-student load
-                }
-            }
+            setStudents((data || []) as Student[]);
         });
 
         return () => {
             active = false;
         };
-    }, [selectedClass, academicYear]);
+    }, [selectedClass]);
 
+    // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเมื่อได้รายชื่อหรือเปลี่ยนปีการศึกษา
+    useEffect(() => {
+        if (students.length === 0) return;
+        let active = true;
+        const ids = students.map(s => s.id);
+        conductService.getAccumulatedScoresForStudents(ids, academicYear).then(scoresMap => {
+            if (active) {
+                setStudentAccumulatedMap(scoresMap);
+            }
+        }).catch(() => {});
+
+        return () => {
+            active = false;
+        };
+    }, [students, academicYear]);
+
+    // ดึงคะแนนสะสมเจาะจงรายนักเรียนที่เลือกเพื่อความแม่นยำสูงสุด
     useEffect(() => {
         if (!selectedStudentId) return;
         let active = true;
@@ -416,50 +421,58 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         const student = students.find(s => s.id === selectedStudentId);
         if (!student) return;
 
-        // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
-        playConductChime(type);
-
-        // R2: คำนวณคะแนนสะสมล่วงหน้า (Optimistic Calculation) ทันที
-        const isAdd = type === 'add';
-        const accumulatedBefore = studentAccumulatedMap[selectedStudentId] ?? 0;
-        const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
-
-        // อัปเดตแคชคะแนนสะสมทันที
-        setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedPoints }));
-
-        // เปิดหน้าต่างยืนยันคะแนนทันที
-        setPointsConfirmation({
-            studentName: student.name,
-            photoUrl: student.photo_url,
-            latestPoints: parsedScore,
-            accumulatedPoints,
-            latestSign: isAdd ? '+' : '-',
-        });
-        setSpeechComplete(false);
-
-        // R2: เริ่มเล่นเสียงพูดสรุปภาษาไทยทันทีแบบต่อเนื่องไม่สะดุด
-        const speechRequest = ++speechRequestRef.current;
-        const safetyTimer = window.setTimeout(() => {
-            if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-        }, 3500);
-
-        const speechSummary = formatConductRecordSpeech(type, student.name, parsedScore, accumulatedPoints);
-
-        void speakThai(speechSummary).then(({ spoken }) => {
-            window.clearTimeout(safetyTimer);
-            if (speechRequest !== speechRequestRef.current) return;
-            if (spoken) setSpeechComplete(true);
-            else window.setTimeout(() => {
-                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-            }, 1000);
-        }).catch(() => {
-            window.clearTimeout(safetyTimer);
-            if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-        });
-
-        // ดำเนินการบันทึกลงฐานข้อมูลในเบื้องหลัง
+        // ล็อกสถานะบันทึกทันทีเพื่อป้องกัน double-submit
         setIsSaving(true);
+
         try {
+            // หยุดเสียงสังเคราะห์หรือเสียงพูดก่อนหน้าทันทีเพื่อให้ตอบสนองใน 0 วินาที
+            stopConductChime();
+            stopThaiSpeech();
+
+            // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
+            playConductChime(type);
+
+            // R2: คำนวณคะแนนสะสมล่วงหน้า (Optimistic Calculation) ทันที
+            const isAdd = type === 'add';
+            const accumulatedBefore = studentAccumulatedMap[selectedStudentId] ?? 0;
+            const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
+
+            // อัปเดตแคชคะแนนสะสมทันที
+            setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedPoints }));
+
+            // เปิดหน้าต่างยืนยันคะแนนทันที
+            setPointsConfirmation({
+                studentName: student.name,
+                photoUrl: student.photo_url,
+                latestPoints: parsedScore,
+                accumulatedPoints,
+                latestSign: isAdd ? '+' : '-',
+            });
+            setSpeechComplete(false);
+
+            // R2: เริ่มเล่นเสียงพูดสรุปภาษาไทยทันทีแบบต่อเนื่องไม่สะดุด
+            const speechRequest = ++speechRequestRef.current;
+            const speechSummary = formatConductRecordSpeech(type, student.name, parsedScore, accumulatedPoints);
+
+            // Safety watchdog timer คำนวณตามความยาวประโยค ป้องกันการตัดจบก่อนพูดจบ
+            const safetyDuration = Math.max(7000, Math.ceil(speechSummary.length * 120));
+            const safetyTimer = window.setTimeout(() => {
+                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+            }, safetyDuration);
+
+            void speakThai(speechSummary).then(({ spoken }) => {
+                window.clearTimeout(safetyTimer);
+                if (speechRequest !== speechRequestRef.current) return;
+                if (spoken) setSpeechComplete(true);
+                else window.setTimeout(() => {
+                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+                }, 1000);
+            }).catch(() => {
+                window.clearTimeout(safetyTimer);
+                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+            });
+
+            // ดำเนินการบันทึกลงฐานข้อมูลในเบื้องหลัง
             const insertRes = await conductService.insert({
                 student_id: selectedStudentId,
                 type,
@@ -527,6 +540,14 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {selectedStudentId && studentAccumulatedMap[selectedStudentId] !== undefined && (
+                                <div className="flex items-center justify-between text-xs px-1 text-muted-foreground pt-0.5">
+                                    <span>คะแนนสะสมปี {academicYear}:</span>
+                                    <span className="font-semibold text-foreground">
+                                        {studentAccumulatedMap[selectedStudentId]} คะแนน
+                                    </span>
+                                </div>
+                            )}
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-1">
@@ -1049,6 +1070,10 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
+
+        // หยุดเสียงสังเคราะห์หรือเสียงพูดก่อนหน้าทันทีเพื่อให้ตอบสนองใน 0 วินาที
+        stopConductChime();
+        stopThaiSpeech();
 
         // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
         playConductChime(type);

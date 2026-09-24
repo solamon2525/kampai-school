@@ -1,5 +1,9 @@
-export const getFirstName = (fullName: string) =>
-  fullName.trim().split(/\s+/)[0] || fullName.trim();
+export const getFirstName = (fullName: string): string => {
+  const clean = fullName
+    .trim()
+    .replace(/^(?:เด็กชาย|เด็กหญิง|ด\.ช\.?|ด\.ญ\.?|นางสาว|น\.ส\.?|นาย|นาง)\s*/u, '');
+  return clean.split(/\s+/)[0] || clean || fullName.trim();
+};
 
 const THAI_DIGITS = ['ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
 const THAI_PLACES = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน'];

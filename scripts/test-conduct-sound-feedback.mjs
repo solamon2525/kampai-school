@@ -25,9 +25,11 @@ const html = `<!doctype html>
     import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
     import { ConductManagement } from '/src/components/admin/conduct/ConductManagement.tsx';
     import { formatConductRecordSpeech, formatConductBulkSpeech } from '/src/lib/conductSound.ts';
+    import { getFirstName } from '/src/lib/thaiSpeech.ts';
 
     window.__formatConductRecordSpeech = formatConductRecordSpeech;
     window.__formatConductBulkSpeech = formatConductBulkSpeech;
+    window.__getFirstName = getFirstName;
 
     const qc = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } }
@@ -195,13 +197,21 @@ try {
   await page.waitForSelector('text=ระบบธนาคารความดี');
 
   // 1. Unit Tests for Speech Formatters
-  console.log('1. Testing Speech Formatters...');
+  console.log('1. Testing Speech Formatters and Thai Name Resolution...');
   const unitResults = await page.evaluate(() => {
     return {
       addRecord: window.__formatConductRecordSpeech('add', 'สมชาย รักดี', 5, 15),
       deductRecord: window.__formatConductRecordSpeech('deduct', 'สมหญิง จริงใจ', 2, 8),
       addBulk: window.__formatConductBulkSpeech('add', 5, 2),
       deductBulk: window.__formatConductBulkSpeech('deduct', 3, 1),
+      fnBoyAttached: window.__getFirstName('ด.ช.พชรพร จรุงพันธ์'),
+      fnBoySpaced: window.__getFirstName('ด.ช. สมชาย รักดี'),
+      fnBoyFull: window.__getFirstName('เด็กชายสมชาย รักดี'),
+      fnGirlAttached: window.__getFirstName('ด.ญ.สมหญิง จริงใจ'),
+      fnGirlFull: window.__getFirstName('เด็กหญิง สมหญิง จริงใจ'),
+      fnMiss: window.__getFirstName('นางสาว ปวีณา เปจะโป๊ะ'),
+      fnMr: window.__getFirstName('นาย ธวัชชัย นิโม'),
+      formattedWithPrefix: window.__formatConductRecordSpeech('add', 'ด.ช.พชรพร จรุงพันธ์', 10, 50),
     };
   });
 
@@ -225,7 +235,21 @@ try {
     'บันทึกคะแนนความดีสำเร็จ สาม คน หักคนละ หนึ่ง คะแนน',
     'formatConductBulkSpeech deduct should match exact Thai phrasing'
   );
-  console.log('  ✓ All speech formatting rules match requirements R2 perfectly');
+
+  // Assert Thai prefix stripping
+  assert.equal(unitResults.fnBoyAttached, 'พชรพร', 'Should strip attached ด.ช.');
+  assert.equal(unitResults.fnBoySpaced, 'สมชาย', 'Should strip spaced ด.ช.');
+  assert.equal(unitResults.fnBoyFull, 'สมชาย', 'Should strip เด็กชาย');
+  assert.equal(unitResults.fnGirlAttached, 'สมหญิง', 'Should strip attached ด.ญ.');
+  assert.equal(unitResults.fnGirlFull, 'สมหญิง', 'Should strip เด็กหญิง');
+  assert.equal(unitResults.fnMiss, 'ปวีณา', 'Should strip นางสาว');
+  assert.equal(unitResults.fnMr, 'ธวัชชัย', 'Should strip นาย');
+  assert.equal(
+    unitResults.formattedWithPrefix,
+    'เพิ่มคะแนนความดีสำเร็จ ชื่อ พชรพร เพิ่ม สิบ คะแนน คะแนนคงเหลือ ห้าสิบ คะแนน',
+    'Speech summary must address student by real first name without honorific prefix'
+  );
+  console.log('  ✓ All speech formatting rules and Thai honorific prefix stripping match requirements R2 perfectly');
 
   // 2. Test RecordTab Sound & Speech
   console.log('\n2. Testing RecordTab Sound & Speech...');

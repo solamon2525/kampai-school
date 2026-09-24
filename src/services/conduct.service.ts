@@ -414,13 +414,17 @@ export const conductService = {
 
   /** คำนวณคะแนนสะสมความดีของนักเรียนคนเดียวตามปีการศึกษา (Optimistic / Pre-fetch) */
   getAccumulatedScore: async (studentId: string, academicYear: string): Promise<number> => {
-    const { data, error } = await supabase
+    let q = supabase
       .from('conduct_scores')
       .select('score, type, academic_year')
       .eq('student_id', studentId);
+    if (academicYear) {
+      q = q.eq('academic_year', academicYear);
+    }
+    const { data, error } = await q;
     if (error || !data) return 0;
     const total = data
-      .filter(r => r.academic_year === academicYear)
+      .filter(r => !academicYear || r.academic_year === academicYear)
       .reduce((sum, r) => sum + (r.type === 'add' ? r.score : -r.score), 0);
     return Math.max(0, total);
   },
@@ -428,15 +432,19 @@ export const conductService = {
   /** คำนวณคะแนนสะสมความดีของกลุ่มนักเรียนตามปีการศึกษาล่วงหน้า (Pre-fetch สำหรับชั้นเรียน) */
   getAccumulatedScoresForStudents: async (studentIds: string[], academicYear: string): Promise<Record<string, number>> => {
     if (studentIds.length === 0) return {};
-    const { data, error } = await supabase
+    let q = supabase
       .from('conduct_scores')
       .select('student_id, score, type, academic_year')
       .in('student_id', studentIds);
+    if (academicYear) {
+      q = q.eq('academic_year', academicYear);
+    }
+    const { data, error } = await q;
     const scoreMap: Record<string, number> = {};
     studentIds.forEach(id => { scoreMap[id] = 0; });
     if (!error && data) {
       data.forEach(r => {
-        if (r.academic_year === academicYear) {
+        if (!academicYear || r.academic_year === academicYear) {
           scoreMap[r.student_id] = (scoreMap[r.student_id] || 0) + (r.type === 'add' ? r.score : -r.score);
         }
       });

@@ -11,6 +11,7 @@ export type ConductScoreType = 'add' | 'deduct';
 interface ActiveAudioNode {
   osc: OscillatorNode;
   gain: GainNode;
+  timerId?: ReturnType<typeof setTimeout>;
 }
 
 let activeNodes: ActiveAudioNode[] = [];
@@ -40,7 +41,8 @@ const getAudioContext = (): AudioContext | null => {
  * หยุดเสียงเอฟเฟกต์ (Chime) ที่กำลังเล่นอยู่ทันที
  */
 export const stopConductChime = (): void => {
-  activeNodes.forEach(({ osc, gain }) => {
+  activeNodes.forEach(({ osc, gain, timerId }) => {
+    if (timerId) clearTimeout(timerId);
     try {
       osc.stop();
       osc.disconnect();
@@ -62,7 +64,7 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    if (ctx.state === 'suspended') {
+    if (ctx.state === 'suspended' || (ctx.state as string) === 'interrupted') {
       void ctx.resume().catch(() => {});
     }
 
@@ -85,6 +87,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, start);
 
+        // ป้องกันเสียงคลิก/ป๊อป (Audio click) ด้วยการตั้งค่าเริ่มต้นที่ 0.0001 ตั้งแต่สร้างโหนด
+        gain.gain.setValueAtTime(0.0001, now);
         gain.gain.setValueAtTime(0.0001, start);
         gain.gain.exponentialRampToValueAtTime(vol, start + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
@@ -95,10 +99,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.start(start);
         osc.stop(start + duration);
 
-        const node = { osc, gain };
-        activeNodes.push(node);
-
-        setTimeout(() => {
+        const node: ActiveAudioNode = { osc, gain };
+        const timerId = setTimeout(() => {
           activeNodes = activeNodes.filter(n => n !== node);
           try {
             osc.disconnect();
@@ -107,6 +109,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
             // ignore
           }
         }, (duration + 0.15) * 1000);
+        node.timerId = timerId;
+        activeNodes.push(node);
       });
     } else {
       // โทนเตือนนุ่มนวล: A4 (440.00) -> F4 (349.23) นุ่มนวล ไม่สร้างความตระหนก
@@ -121,6 +125,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, start);
 
+        // ป้องกันเสียงคลิก/ป๊อป (Audio click)
+        gain.gain.setValueAtTime(0.0001, now);
         gain.gain.setValueAtTime(0.0001, start);
         gain.gain.exponentialRampToValueAtTime(vol, start + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
@@ -131,10 +137,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.start(start);
         osc.stop(start + duration);
 
-        const node = { osc, gain };
-        activeNodes.push(node);
-
-        setTimeout(() => {
+        const node: ActiveAudioNode = { osc, gain };
+        const timerId = setTimeout(() => {
           activeNodes = activeNodes.filter(n => n !== node);
           try {
             osc.disconnect();
@@ -143,6 +147,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
             // ignore
           }
         }, (duration + 0.15) * 1000);
+        node.timerId = timerId;
+        activeNodes.push(node);
       });
     }
   } catch (err) {
