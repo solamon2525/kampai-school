@@ -6,7 +6,9 @@
     "emoji": "🖊️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ปากกา"
+    "classifier_for": "ปากกา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เล่ม",
@@ -15,7 +17,9 @@
     "emoji": "📚",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "สมุด"
+    "classifier_for": "สมุด",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เชือก",
@@ -24,7 +28,9 @@
     "emoji": "🐘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "ช้างที่คนนำมาเลี้ยง"
+    "classifier_for": "ช้างที่คนนำมาเลี้ยง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตัว",
@@ -33,7 +39,9 @@
     "emoji": "🦁",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "ช้างป่า"
+    "classifier_for": "ช้างป่า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เลา",
@@ -42,7 +50,9 @@
     "emoji": "🎋",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ขลุ่ย"
+    "classifier_for": "ขลุ่ย",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คัน",
@@ -51,7 +61,10 @@
     "emoji": "🚗",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "ซอ"
+    "classifier_for": "ซอ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"คัน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "กระบอก",
@@ -60,7 +73,9 @@
     "emoji": "🎋",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "ปืน"
+    "classifier_for": "ปืน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หลัง",
@@ -69,7 +84,10 @@
     "emoji": "🏠",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "บ้าน"
+    "classifier_for": "บ้าน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"หลัง\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ปาก",
@@ -78,7 +96,10 @@
     "emoji": "🕸️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "เครื่องมือจับปลาจำพวก"
+    "classifier_for": "เครื่องมือจับปลาจำพวก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ปาก\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "วง",
@@ -87,7 +108,9 @@
     "emoji": "💍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "แหวน"
+    "classifier_for": "แหวน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ผืน",
@@ -96,7 +119,9 @@
     "emoji": "🗺️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ผ้า"
+    "classifier_for": "ผ้า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บาน",
@@ -105,7 +130,10 @@
     "emoji": "🪟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ประตู"
+    "classifier_for": "ประตู",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"บาน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เครื่อง",
@@ -114,7 +142,10 @@
     "emoji": "💻",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "คอมพิวเตอร์"
+    "classifier_for": "คอมพิวเตอร์",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เครื่อง\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "สาย",
@@ -123,7 +154,10 @@
     "emoji": "🛣️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "ถนน"
+    "classifier_for": "ถนน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"สาย\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เส้น",
@@ -132,7 +166,9 @@
     "emoji": "🧵",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ด้าย"
+    "classifier_for": "ด้าย",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รูป",
@@ -141,7 +177,10 @@
     "emoji": "🧎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "พระภิกษุ"
+    "classifier_for": "พระภิกษุ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"รูป\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "องค์",
@@ -150,7 +189,9 @@
     "emoji": "🛕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "พระพุทธรูป"
+    "classifier_for": "พระพุทธรูป",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ใบ",
@@ -159,7 +200,9 @@
     "emoji": "🍃",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "ภาชนะ"
+    "classifier_for": "ภาชนะ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลูก",
@@ -168,7 +211,9 @@
     "emoji": "⚽",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "ผลไม้กลม"
+    "classifier_for": "ผลไม้กลม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดวง",
@@ -177,7 +222,9 @@
     "emoji": "⭐",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "ดวงดาว"
+    "classifier_for": "ดวงดาว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เม็ด",
@@ -186,7 +233,9 @@
     "emoji": "💊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ยา"
+    "classifier_for": "ยา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ก้อน",
@@ -195,7 +244,9 @@
     "emoji": "🪨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "หิน"
+    "classifier_for": "หิน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แท่ง",
@@ -204,7 +255,9 @@
     "emoji": "✏️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "ดินสอ"
+    "classifier_for": "ดินสอ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฟอง",
@@ -213,7 +266,9 @@
     "emoji": "🥚",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "ไข่"
+    "classifier_for": "ไข่",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซี่",
@@ -222,7 +277,9 @@
     "emoji": "🦷",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ฟัน"
+    "classifier_for": "ฟัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กลีบ",
@@ -231,7 +288,9 @@
     "emoji": "🌸",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "กลีบดอกไม้"
+    "classifier_for": "กลีบดอกไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ช่อ",
@@ -240,7 +299,9 @@
     "emoji": "💐",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "ดอกไม้ที่จัดรวมกันเป็นกำ"
+    "classifier_for": "ดอกไม้ที่จัดรวมกันเป็นกำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พวง",
@@ -249,7 +310,9 @@
     "emoji": "🍇",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "พวงองุ่น"
+    "classifier_for": "พวงองุ่น",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หัว",
@@ -258,7 +321,9 @@
     "emoji": "🧅",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "เผือก"
+    "classifier_for": "เผือก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทะลาย",
@@ -267,7 +332,9 @@
     "emoji": "🥥",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "มะพร้าว"
+    "classifier_for": "มะพร้าว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หวี",
@@ -276,7 +343,9 @@
     "emoji": "🍌",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "กล้วยที่ติดกันเป็นแถว"
+    "classifier_for": "กล้วยที่ติดกันเป็นแถว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กอ",
@@ -285,7 +354,9 @@
     "emoji": "🎋",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ไผ่"
+    "classifier_for": "ไผ่",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ต้น",
@@ -294,7 +365,9 @@
     "emoji": "🌳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "ต้นไม้"
+    "classifier_for": "ต้นไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดอก",
@@ -303,7 +376,10 @@
     "emoji": "🔑",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "กุญแจ"
+    "classifier_for": "กุญแจ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ดอก\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "แผ่น",
@@ -312,7 +388,9 @@
     "emoji": "📄",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "กระดาษ"
+    "classifier_for": "กระดาษ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ม้วน",
@@ -321,7 +399,9 @@
     "emoji": "🧻",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "ฟิล์ม"
+    "classifier_for": "ฟิล์ม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คู่",
@@ -330,7 +410,9 @@
     "emoji": "👟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "รองเท้า"
+    "classifier_for": "รองเท้า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชุด",
@@ -339,7 +421,9 @@
     "emoji": "👔",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "เสื้อผ้า"
+    "classifier_for": "เสื้อผ้า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลำ",
@@ -348,7 +432,9 @@
     "emoji": "🚢",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "เรือ"
+    "classifier_for": "เรือ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฝูง",
@@ -357,7 +443,9 @@
     "emoji": "🐦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "สัตว์ที่อยู่รวมกันเป็นกลุ่ม"
+    "classifier_for": "สัตว์ที่อยู่รวมกันเป็นกลุ่ม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัน",
@@ -366,7 +454,9 @@
     "emoji": "📎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "สิ่งของ"
+    "classifier_for": "สิ่งของ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ห้อง",
@@ -375,7 +465,10 @@
     "emoji": "🚪",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ห้องพัก"
+    "classifier_for": "ห้องพัก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ห้อง\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "แห่ง",
@@ -384,7 +477,9 @@
     "emoji": "🏫",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "สถานที่หรือองค์กร"
+    "classifier_for": "สถานที่หรือองค์กร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เรือน",
@@ -393,7 +488,9 @@
     "emoji": "🏡",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "บ้านเรือนหรือครอบครัว"
+    "classifier_for": "บ้านเรือนหรือครอบครัว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชิ้น",
@@ -402,7 +499,9 @@
     "emoji": "🍰",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "อาหารหรือของที่ตัดเป็นชิ้น"
+    "classifier_for": "อาหารหรือของที่ตัดเป็นชิ้น",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ผล",
@@ -411,7 +510,10 @@
     "emoji": "🍊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "ผลไม้กลม"
+    "classifier_for": "ผลไม้กลม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ผล\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ขั้น",
@@ -420,7 +522,9 @@
     "emoji": "🪜",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "บันไดหรือระดับ"
+    "classifier_for": "บันไดหรือระดับ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รอบ",
@@ -429,7 +533,9 @@
     "emoji": "🔄",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "ครั้งหรือรอบการแข่งขัน"
+    "classifier_for": "ครั้งหรือรอบการแข่งขัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ครั้ง",
@@ -438,7 +544,9 @@
     "emoji": "1️⃣",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "จำนวนครั้งที่เกิดขึ้น"
+    "classifier_for": "จำนวนครั้งที่เกิดขึ้น",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วัน",
@@ -447,7 +555,10 @@
     "emoji": "📅",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "จำนวนวัน"
+    "classifier_for": "จำนวนวัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"วัน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เดือน",
@@ -456,7 +567,10 @@
     "emoji": "🗓️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "จำนวนเดือน"
+    "classifier_for": "จำนวนเดือน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เดือน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ปี",
@@ -465,7 +579,10 @@
     "emoji": "📆",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "จำนวนปี"
+    "classifier_for": "จำนวนปี",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ปี\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เที่ยว",
@@ -474,7 +591,10 @@
     "emoji": "✈️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "การเดินทางหรือท่องเที่ยว"
+    "classifier_for": "การเดินทางหรือท่องเที่ยว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เที่ยว\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "กล่อง",
@@ -483,7 +603,9 @@
     "emoji": "📦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "กล่องบรรจุของ"
+    "classifier_for": "กล่องบรรจุของ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ถ้วย",
@@ -492,7 +614,9 @@
     "emoji": "☕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ถ้วยชา"
+    "classifier_for": "ถ้วยชา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จาน",
@@ -501,7 +625,10 @@
     "emoji": "🍽️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "จานใส่อาหาร"
+    "classifier_for": "จานใส่อาหาร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"จาน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ชาม",
@@ -510,7 +637,9 @@
     "emoji": "🥣",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "ชามใส่ข้าวหรือซุป"
+    "classifier_for": "ชามใส่ข้าวหรือซุป",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ขวด",
@@ -519,7 +648,10 @@
     "emoji": "🧴",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "ขวดน้ำ"
+    "classifier_for": "ขวดน้ำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ขวด\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "หลอด",
@@ -528,7 +660,9 @@
     "emoji": "🧪",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "หลอดยา"
+    "classifier_for": "หลอดยา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แก้ว",
@@ -537,7 +671,10 @@
     "emoji": "🥛",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "แก้วน้ำ"
+    "classifier_for": "แก้วน้ำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"แก้ว\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ถุง",
@@ -546,7 +683,9 @@
     "emoji": "🛍️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ถุงพลาสติก"
+    "classifier_for": "ถุงพลาสติก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซอง",
@@ -555,7 +694,9 @@
     "emoji": "✉️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ซองจดหมาย"
+    "classifier_for": "ซองจดหมาย",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ห่อ",
@@ -564,7 +705,9 @@
     "emoji": "🎁",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "ของที่ห่อหุ้ม"
+    "classifier_for": "ของที่ห่อหุ้ม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กลุ่ม",
@@ -573,7 +716,9 @@
     "emoji": "👥",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "กลุ่มคนหรือสิ่งของที่รวมกัน"
+    "classifier_for": "กลุ่มคนหรือสิ่งของที่รวมกัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชั้น",
@@ -582,7 +727,10 @@
     "emoji": "🏢",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ชั้นตึก"
+    "classifier_for": "ชั้นตึก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ชั้น\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "แผง",
@@ -591,7 +739,9 @@
     "emoji": "🏪",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "แผงขายของ"
+    "classifier_for": "แผงขายของ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โต๊ะ",
@@ -600,7 +750,10 @@
     "emoji": "🪑",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "โต๊ะเรียน"
+    "classifier_for": "โต๊ะเรียน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"โต๊ะ\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เก้าอี้",
@@ -609,7 +762,10 @@
     "emoji": "💺",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "เก้าอี้นั่ง"
+    "classifier_for": "เก้าอี้นั่ง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เก้าอี้\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เสา",
@@ -618,7 +774,9 @@
     "emoji": "🏗️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "เสาไฟฟ้า"
+    "classifier_for": "เสาไฟฟ้า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โรง",
@@ -627,7 +785,9 @@
     "emoji": "🏭",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "โรงเรียน"
+    "classifier_for": "โรงเรียน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฉบับ",
@@ -636,7 +796,10 @@
     "emoji": "📄",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "เอกสาร"
+    "classifier_for": "เอกสาร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ฉบับ\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ฉาก",
@@ -645,7 +808,10 @@
     "emoji": "🎬",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ฉากในหนัง"
+    "classifier_for": "ฉากในหนัง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ฉาก\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ตอน",
@@ -654,7 +820,9 @@
     "emoji": "📺",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "ตอนในหนังสือ"
+    "classifier_for": "ตอนในหนังสือ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บท",
@@ -663,7 +831,10 @@
     "emoji": "📖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "บทเรียน"
+    "classifier_for": "บทเรียน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"บท\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ข้อ",
@@ -672,7 +843,9 @@
     "emoji": "📋",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "ข้อความ"
+    "classifier_for": "ข้อความ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ประโยค",
@@ -681,7 +854,10 @@
     "emoji": "💬",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "ประโยคในภาษา"
+    "classifier_for": "ประโยคในภาษา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ประโยค\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "คำ",
@@ -690,7 +866,9 @@
     "emoji": "🔤",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "คำศัพท์หรือคำพูด"
+    "classifier_for": "คำศัพท์หรือคำพูด",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คณะ",
@@ -699,7 +877,9 @@
     "emoji": "👔",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "คณะกรรมการ"
+    "classifier_for": "คณะกรรมการ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กอง",
@@ -708,7 +888,9 @@
     "emoji": "🪖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "กองทัพ"
+    "classifier_for": "กองทัพ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทัพ",
@@ -717,7 +899,9 @@
     "emoji": "⚔️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "กองทัพหรือกำลังทหาร"
+    "classifier_for": "กองทัพหรือกำลังทหาร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แผ่นดิน",
@@ -726,7 +910,9 @@
     "emoji": "🗺️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ดินแดนหรือประเทศ"
+    "classifier_for": "ดินแดนหรือประเทศ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ผื่น",
@@ -735,7 +921,9 @@
     "emoji": "🔴",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "ผื่นคัน"
+    "classifier_for": "ผื่นคัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แผล",
@@ -744,7 +932,9 @@
     "emoji": "🩹",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "แผลฉีกขาดบนร่างกาย"
+    "classifier_for": "แผลฉีกขาดบนร่างกาย",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รอย",
@@ -753,7 +943,10 @@
     "emoji": "✏️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "รอยแผล"
+    "classifier_for": "รอยแผล",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"รอย\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "จุด",
@@ -762,7 +955,9 @@
     "emoji": "📍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "จุดบนภาพ"
+    "classifier_for": "จุดบนภาพ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แต้ม",
@@ -771,7 +966,9 @@
     "emoji": "🎯",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "คะแนน"
+    "classifier_for": "คะแนน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หน่วย",
@@ -780,7 +977,9 @@
     "emoji": "🔢",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "หน่วยงาน"
+    "classifier_for": "หน่วยงาน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หย่อม",
@@ -789,7 +988,9 @@
     "emoji": "🌳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "ต้นไม้ที่ปลูกเป็นกลุ่ม"
+    "classifier_for": "ต้นไม้ที่ปลูกเป็นกลุ่ม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทุ่ง",
@@ -798,7 +999,9 @@
     "emoji": "🌾",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "ทุ่งนา"
+    "classifier_for": "ทุ่งนา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไร่",
@@ -807,7 +1010,9 @@
     "emoji": "🌱",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "พื้นที่เพาะปลูก"
+    "classifier_for": "พื้นที่เพาะปลูก",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตาราง",
@@ -816,7 +1021,9 @@
     "emoji": "📊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "classifier_for": "ช่องในตารางหรือผืนที่เป็นสี่เหลี่ยม"
+    "classifier_for": "ช่องในตารางหรือผืนที่เป็นสี่เหลี่ยม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แปลง",
@@ -825,7 +1032,9 @@
     "emoji": "🥬",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "classifier_for": "แปลงที่ดิน"
+    "classifier_for": "แปลงที่ดิน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หลุม",
@@ -834,7 +1043,9 @@
     "emoji": "🕳️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "classifier_for": "หลุมดิน"
+    "classifier_for": "หลุมดิน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บ่อ",
@@ -843,7 +1054,9 @@
     "emoji": "🐟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "classifier_for": "บ่อน้ำ"
+    "classifier_for": "บ่อน้ำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แอ่ง",
@@ -852,7 +1065,9 @@
     "emoji": "💧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "classifier_for": "แอ่งน้ำ"
+    "classifier_for": "แอ่งน้ำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ที่",
@@ -861,7 +1076,9 @@
     "emoji": "📌",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "classifier_for": "สถานที่"
+    "classifier_for": "สถานที่",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตา",
@@ -870,7 +1087,10 @@
     "emoji": "👁️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "classifier_for": "รูตา"
+    "classifier_for": "รูตา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ตา\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ปึก",
@@ -879,7 +1099,9 @@
     "emoji": "📕",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "classifier_for": "หนังสือเล่มหนา"
+    "classifier_for": "หนังสือเล่มหนา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ห่อน",
@@ -888,7 +1110,9 @@
     "emoji": "🐝",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "classifier_for": "ผึ้งหรือแมลงที่อยู่รวมกัน"
+    "classifier_for": "ผึ้งหรือแมลงที่อยู่รวมกัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พับ",
@@ -897,7 +1121,9 @@
     "emoji": "🌿",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "classifier_for": "หมากพับ"
+    "classifier_for": "หมากพับ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กระจุก",
@@ -907,7 +1133,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ผม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กำ",
@@ -917,7 +1145,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ดอกไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กิ่ง",
@@ -927,7 +1157,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ต้นไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เข่ง",
@@ -937,7 +1169,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "ที่บรรจุในเข่ง"
+    "classifier_for": "ที่บรรจุในเข่ง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คดี",
@@ -947,7 +1181,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "เรื่องฟ้องร้อง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คำสั่ง",
@@ -957,7 +1193,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ประกาศ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "งวด",
@@ -967,7 +1205,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "การจ่าย/ส่งงาน"
+    "classifier_for": "การจ่าย/ส่งงาน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จังหวะ",
@@ -977,7 +1217,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ทำนองเพลง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จุก",
@@ -987,7 +1229,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "จุกขวด",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ซุ้ม",
@@ -997,7 +1241,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ซุ้มประตู",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดุ้น",
@@ -1007,7 +1253,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "เป็นท่อนสั้นๆ"
+    "classifier_for": "เป็นท่อนสั้นๆ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตับ",
@@ -1017,7 +1265,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "พลุ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ตอนกิ่ง",
@@ -1027,7 +1277,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "กิ่งมะนาว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ถาด",
@@ -1037,7 +1289,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "ที่จัดวางบนถาด"
+    "classifier_for": "ที่จัดวางบนถาด",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ท่อน",
@@ -1047,7 +1301,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "ที่ถูกแบ่งเป็นช่วง"
+    "classifier_for": "ที่ถูกแบ่งเป็นช่วง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นัด",
@@ -1057,7 +1313,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "การยิงปืน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แนว",
@@ -1067,7 +1325,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "แถวต้นไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บรรทัด",
@@ -1077,7 +1337,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ข้อความ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"บรรทัด\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ใบงาน",
@@ -1087,7 +1350,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "กิจกรรม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ประเด็น",
@@ -1097,7 +1362,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "หัวข้อ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ประเด็น\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ปิ่นโต",
@@ -1107,7 +1375,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "อาหารกลางวัน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เปลาะ",
@@ -1117,7 +1387,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "อ้อย",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฝัก",
@@ -1127,7 +1399,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ถั่ว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พุ่ม",
@@ -1137,7 +1411,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ดอกไม้",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฟ่อน",
@@ -1147,7 +1423,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ข้าว",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มัด",
@@ -1157,7 +1435,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ฟืน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มื้อ",
@@ -1167,7 +1447,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "อาหาร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เมนู",
@@ -1177,7 +1459,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "รายการอาหาร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ยอด",
@@ -1187,7 +1471,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "พืช"
+    "classifier_for": "พืช",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ยอด\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ระดับ",
@@ -1197,7 +1484,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "คุณภาพ/ความสูง"
+    "classifier_for": "คุณภาพ/ความสูง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ราย",
@@ -1207,7 +1496,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ผู้สมัคร",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฤดู",
@@ -1217,7 +1508,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ช่วงฝน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ฤดู\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ลอน",
@@ -1227,7 +1521,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ผม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ลูกบาศก์",
@@ -1237,7 +1533,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "น้ำตาล",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วาระ",
@@ -1247,7 +1545,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "การประชุม",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วงรอบ",
@@ -1257,7 +1557,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "การทำงาน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ศอก",
@@ -1267,7 +1569,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ผ้า",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สำนวน",
@@ -1277,7 +1581,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ถ้อยคำ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"สำนวน\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เสี้ยว",
@@ -1287,7 +1594,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "สิ่งหนึ่ง"
+    "classifier_for": "สิ่งหนึ่ง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โหล",
@@ -1297,7 +1606,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ไข่",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อก",
@@ -1307,7 +1618,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "เสื้อหรือเครื่องแต่งกายบางชนิด"
+    "classifier_for": "เสื้อหรือเครื่องแต่งกายบางชนิด",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อนุเฉท",
@@ -1317,7 +1630,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ข้อความ",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัตรา",
@@ -1327,7 +1642,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ราคา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อำเภอ",
@@ -1337,7 +1654,10 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "เขตการปกครอง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"อำเภอ\" ซ้ำในหมวด ลักษณนามน่ารู้ เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เอกสาร",
@@ -1347,7 +1667,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "ชุดรายงาน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แถวตอน",
@@ -1357,7 +1679,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "นักเรียน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แหล่ง",
@@ -1367,7 +1691,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": "สิ่งใดสิ่งหนึ่ง"
+    "classifier_for": "สิ่งใดสิ่งหนึ่ง",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โครงการ",
@@ -1377,7 +1703,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "งานพัฒนา",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หัวข้อ",
@@ -1387,7 +1715,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "เรื่องเขียน",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หน",
@@ -1397,7 +1727,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
     "difficulty": 1,
-    "classifier_for": null
+    "classifier_for": "โอกาส",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด ลักษณนามน่ารู้ ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กตัญญู",
@@ -1410,7 +1742,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "เกษตรกร",
@@ -1423,7 +1758,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "มลพิษ",
@@ -1436,7 +1774,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "อุดมสมบูรณ์",
@@ -1449,7 +1790,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "วัฒนธรรม",
@@ -1462,7 +1806,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "อนุรักษ์",
@@ -1475,7 +1822,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "มารยาท",
@@ -1488,7 +1838,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ซื่อสัตย์",
@@ -1501,7 +1854,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ประชาธิปไตย",
@@ -1514,7 +1870,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "เมตตา",
@@ -1527,7 +1886,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สามัคคี",
@@ -1540,7 +1902,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "มัธยัสถ์",
@@ -1553,7 +1918,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "วิกฤต",
@@ -1566,7 +1934,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "กฎเกณฑ์",
@@ -1579,7 +1950,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ขยันหมั่นเพียร",
@@ -1592,7 +1966,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "เสียสละ",
@@ -1605,7 +1982,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "รับผิดชอบ",
@@ -1618,7 +1998,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "กรุณา",
@@ -1631,7 +2014,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ขันติ",
@@ -1644,7 +2030,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "วินัย",
@@ -1657,7 +2046,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ภูมิปัญญา",
@@ -1670,7 +2062,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ทรัพยากร",
@@ -1683,7 +2078,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สิ่งแวดล้อม",
@@ -1696,7 +2094,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ภูมิใจ",
@@ -1709,7 +2110,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "อดทน",
@@ -1722,7 +2126,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "เอื้อเฟื้อ",
@@ -1735,7 +2142,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ประหยัด",
@@ -1748,7 +2158,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ยุติธรรม",
@@ -1761,7 +2174,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "คุณธรรม",
@@ -1774,7 +2190,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "จริยธรรม",
@@ -1787,7 +2206,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สติ",
@@ -1800,7 +2222,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ปัญญา",
@@ -1813,7 +2238,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สมาธิ",
@@ -1826,7 +2254,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "เกียรติยศ",
@@ -1839,7 +2270,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "น้ำใจ",
@@ -1852,7 +2286,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "กำลังใจ",
@@ -1865,7 +2302,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "มิตรภาพ",
@@ -1878,7 +2318,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "พอเพียง",
@@ -1891,7 +2334,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "อิสรภาพ",
@@ -1904,7 +2350,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "รัฐธรรมนูญ",
@@ -1917,7 +2366,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สถาบันหลัก",
@@ -1930,7 +2382,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ความรักชาติ",
@@ -1943,7 +2398,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "ความภาคภูมิใจ",
@@ -1956,7 +2414,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "สิทธิ",
@@ -1969,7 +2430,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "หน้าที่",
@@ -1982,7 +2446,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "พลเมืองดี",
@@ -1995,7 +2462,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "การเลือกตั้ง",
@@ -2008,7 +2478,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "การอนุรักษ์",
@@ -2021,7 +2494,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "การแยกขยะ",
@@ -2034,7 +2510,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   },
   {
     "word": "การรีไซเคิล",
@@ -2047,6 +2526,9 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด ลักษณนามน่ารู้"
   }
 ]

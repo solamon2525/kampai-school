@@ -5,14 +5,14 @@
   <meta name="curriculum-indicators" content="ต 2.1 ป.4/1,ต 1.1 ป.4/1,ต 1.1 ป.4/2">
   <title>ใบงานคลัง English ป.4–5 ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
 </head><body>
 <header class="toolbar"><h1>🇬🇧 ใบงานคลัง English ป.4–5</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
   <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="grammar">Grammar</option><option value="sight">Sight Words</option><option value="instr">Follow Instructions</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="grammar">Grammar (ไวยากรณ์)</option><option value="sight">Sight Words (คำอ่านจำ)</option><option value="instr">Follow Instructions (ทำตามคำสั่ง)</option></select>
   <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
   <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
   <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
@@ -21,9 +21,58 @@
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"grammar","prompt":"Fill in: is / are","text":"She ___ my teacher.","answer":"is"},{"type":"grammar","prompt":"Fill in: a / an","text":"I have ___ egg.","answer":"an"},{"type":"grammar","prompt":"Choose: this / these","text":"___ books are mine. (near)","answer":"These"},{"type":"grammar","prompt":"Rewrite correctly","text":"They is happy.","answer":"They are happy."},{"type":"sight","prompt":"เขียนประโยคใช้คำ sight word","word":"because","answer":"เช่น I like mangoes because they are sweet."},{"type":"sight","prompt":"เขียนประโยคใช้คำ sight word","word":"friend","answer":"เช่น My friend is kind."},{"type":"sight","prompt":"วงคำที่สะกดถูก","word":"school / scool / schol","answer":"school"},{"type":"sight","prompt":"แปลและแต่งประโยค","word":"always","answer":"เสมอ · เช่น I always wash my hands."},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Circle the apple.","answer":"วงผลไม้แอปเปิล"},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Underline the cat.","answer":"ขีดเส้นใต้แมว"},{"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Tick the big book.","answer":"ติ๊กหนังสือเล่มใหญ่"},{"type":"instr","prompt":"เขียนคำสั่งภาษาอังกฤษสั้น ๆ","text":"สั่งให้เพื่อนวงกลมดวงดาว","answer":"Circle the star."},{"type":"grammar","prompt":"เลือก that / those","text":"___ bird is far away.","answer":"That"},{"type":"grammar","prompt":"แต่งประโยค 1 ประโยคใช้ are","text":"two dogs","answer":"There are two dogs. / The dogs are cute."},{"type":"sight","prompt":"เติมคำในช่องว่าง","text":"I ___ to school every day. (go)","answer":"go"},{"type":"instr","prompt":"เรียงคำสั่งให้ถูก","text":"the / Circle / sun","answer":"Circle the sun."},{"type":"grammar","prompt":"อธิบายกฎสั้น ๆ","text":"ใช้ an เมื่อไร","answer":"ก่อนเสียงสระ (a,e,i,o,u)"},{"type":"sight","prompt":"เขียนคำและประโยค","word":"people","answer":"people · เช่น Many people smile."}];
+const ITEMS=[
+  // 14 Grammar questions
+  {"type":"grammar","prompt":"Fill in: is / am / are","text":"She ___ my English teacher.","answer":"is"},
+  {"type":"grammar","prompt":"Fill in: is / am / are","text":"They ___ playing football in the park.","answer":"are"},
+  {"type":"grammar","prompt":"Fill in: is / am / are","text":"I ___ ready to study English today.","answer":"am"},
+  {"type":"grammar","prompt":"Fill in: a / an","text":"I have ___ red apple in my bag.","answer":"a"},
+  {"type":"grammar","prompt":"Fill in: a / an","text":"He eats ___ egg for breakfast.","answer":"an"},
+  {"type":"grammar","prompt":"Fill in: a / an / the","text":"Look at ___ bright sun in the blue sky.","answer":"the"},
+  {"type":"grammar","prompt":"Choose: this / that","text":"___ pencil in my hand is yellow. (near)","answer":"This"},
+  {"type":"grammar","prompt":"Choose: these / those","text":"___ birds in the tall tree are flying. (far)","answer":"Those"},
+  {"type":"grammar","prompt":"Fill in possessive: his / her / their","text":"She loves ___ cute cat very much.","answer":"her"},
+  {"type":"grammar","prompt":"Fill in possessive: my / our / his","text":"He rides ___ bicycle to school every morning.","answer":"his"},
+  {"type":"grammar","prompt":"Fill in preposition: in / on / under","text":"The English book is ___ the wooden chair.","answer":"on"},
+  {"type":"grammar","prompt":"Fill in preposition: in / on / under","text":"The sleepy cat is resting ___ the table.","answer":"under"},
+  {"type":"grammar","prompt":"Choose Wh-word: Who / Where / What","text":"___ is your English teacher? — Ms. Anna.","answer":"Who"},
+  {"type":"grammar","prompt":"Choose Wh-word: Who / Where / What","text":"___ is the library located? — Next to the office.","answer":"Where"},
+
+  // 14 Sight Words questions
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"because","answer":"เพราะว่า · เช่น I study hard because I love English."},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"important","answer":"สำคัญ · เช่น Reading is important for everyone."},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"remember","answer":"จดจำ · เช่น Remember to bring your notebook."},
+  {"type":"sight","prompt":"เติมคำในช่องว่าง","text":"Raise your hand if you have a ___ . (question)","answer":"question"},
+  {"type":"sight","prompt":"เติมคำในช่องว่าง","text":"Write the correct ___ on your paper. (answer)","answer":"answer"},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"family","answer":"ครอบครัว · เช่น I love my happy family."},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"friend","answer":"เพื่อน · เช่น She is my best friend."},
+  {"type":"sight","prompt":"วงคำที่สะกดถูก","word":"beautiful / beatiful / beautifull","answer":"beautiful"},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"together","answer":"ด้วยกัน · เช่น We sing songs together."},
+  {"type":"sight","prompt":"เติมคำในช่องว่าง","text":"It was cold and rainy ___ afternoon. (yesterday)","answer":"yesterday"},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"weather","answer":"สภาพอากาศ · เช่น The sunny weather makes me happy."},
+  {"type":"sight","prompt":"วงคำที่สะกดถูก","word":"always / alway / allways","answer":"always"},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"everyone","answer":"ทุกคน · เช่น Everyone is smiling in class."},
+  {"type":"sight","prompt":"แปลและแต่งประโยค","word":"practice","answer":"ฝึกฝน · เช่น We practice speaking every day."},
+
+  // 14 Follow Instructions questions
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Circle the red apple on the table.","answer":"วงกลมผลแอปเปิลสีแดง"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Underline the cute cat.","answer":"ขีดเส้นใต้แมวน่ารัก"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Tick the yellow school bus.","answer":"ติ๊กเครื่องหมายถูกที่รถโรงเรียนสีเหลือง"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Cross out the cold ice cream.","answer":"กากบาทที่ไอศกรีมเย็น"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Put the book in the school bag.","answer":"วาดหรือใส่หนังสือลงในกระเป๋านักเรียน"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Point to the tall giraffe.","answer":"ชี้หรือทำเครื่องหมายที่เจ้ายีราฟคอยาว"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Choose the happy smiling face.","answer":"เลือกใบหน้าที่ยิ้มอย่างมีความสุข"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Color the bright yellow sun.","answer":"ระบายสีดวงอาทิตย์สีเหลืองสดใส"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Find the boy reading a book.","answer":"หาเด็กผู้ชายที่กำลังอ่านหนังสือ"},
+  {"type":"instr","prompt":"อ่านคำสั่งแล้วทำเครื่องหมาย","text":"Match the green vegetable.","answer":"จับคู่ผักสดเพื่อสุขภาพ"},
+  {"type":"instr","prompt":"เขียนคำสั่งภาษาอังกฤษสั้น ๆ","text":"สั่งให้เพื่อนวงกลมดาวสีเหลือง","answer":"Circle the yellow star."},
+  {"type":"instr","prompt":"เขียนคำสั่งภาษาอังกฤษสั้น ๆ","text":"สั่งให้เพื่อนขีดเส้นใต้คำศัพท์","answer":"Underline the word."},
+  {"type":"instr","prompt":"เรียงคำสั่งให้ถูกต้อง","text":"apple / the / Circle / red","answer":"Circle the red apple."},
+  {"type":"instr","prompt":"แปลคำสั่งเป็นภาษาไทย","text":"Tick the correct answer.","answer":"ทำเครื่องหมายถูกที่คำตอบที่ถูกต้อง"}
+];
+
 window.WORKSHEET_CONFIG={
   icon:'🇬🇧',title:'ใบงานคลัง English ป.4–5',subject:'ภาษาอังกฤษ',gradeLabel:'ป.4–ป.5',
   mediaLabel:'English Grammar Hub',sourceMediaUrl:'/games/english/english-grammar-p45-hub/index.html',
@@ -40,7 +89,7 @@ window.WORKSHEET_CONFIG={
       +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
 function render(){window.KampaiTopicWorksheet.render();}
 document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
@@ -49,5 +98,5 @@ document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4()
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>

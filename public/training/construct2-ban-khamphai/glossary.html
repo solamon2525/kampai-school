@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คลังคำศัพท์ Construct 2 — เสียงอ่าน & เหตุการณ์ใช้งาน | คู่มือบ้านคำไผ่</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="common.css">
+<style>
+/* ======================================================
+   GLOSSARY CUSTOM STYLES
+====================================================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  min-height:100%;font-family:'Sarabun',sans-serif;color:#1e293b;
+  background:#f0f4fa;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+
+.g-hero{
+  background:linear-gradient(135deg,#0f2744 0%,#1e3a5f 55%,#162e4a 100%);
+  color:#fff;padding:36px 40px 32px;position:relative;overflow:hidden;
+  border-bottom:4px solid #fbbf24;
+}
+.g-hero-inner{max-width:1200px;margin:0 auto;position:relative;}
+.g-hero-eyebrow{
+  font-size:13px;font-weight:700;color:#fbbf24;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.g-hero-eyebrow::before{content:'';display:inline-block;width:20px;height:2px;background:#fbbf24;border-radius:2px}
+.g-hero h1{font-size:clamp(24px,3.5vw,36px);font-weight:800;line-height:1.2;margin-bottom:8px}
+.g-hero p{font-size:15px;color:rgba(255,255,255,0.75);margin-bottom:20px}
+
+.g-nav-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.g-nav-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;
+  background:rgba(255,255,255,0.12);color:#fff;font-weight:700;font-size:14px;
+  border:1px solid rgba(255,255,255,0.25);transition:all .15s;text-decoration:none;
+}
+.g-nav-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-1px)}
+
+/* Toolbar & Filters */
+.g-toolbar{
+  background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 40px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+.g-toolbar-inner{max-width:1200px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+.g-search{
+  display:flex;align-items:center;gap:8px;background:#f8fafc;
+  border:2px solid #cbd5e1;border-radius:12px;padding:8px 14px;
+  flex:1;min-width:240px;max-width:360px;transition:border-color .15s;
+}
+.g-search:focus-within{border-color:#2563eb;background:#fff}
+.g-search svg{color:#64748b;flex-shrink:0}
+.g-search input{
+  border:none;background:none;outline:none;font-size:14px;
+  font-family:inherit;color:#1e293b;width:100%;
+}
+
+.g-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.g-tab{
+  padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;
+  border:2px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;
+  transition:all .15s;user-select:none;
+}
+.g-tab:hover{border-color:#94a3b8;color:#1e293b}
+.g-tab.active{background:#1e3a5f;color:#fff;border-color:#1e3a5f}
+
+/* Main Grid */
+.g-content{max-width:1200px;margin:30px auto 60px;padding:0 40px}
+.g-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+  gap:22px;
+}
+
+/* Word Card */
+.g-card{
+  background:#fff;border-radius:18px;border:2px solid #e2e8f0;
+  box-shadow:0 3px 12px rgba(0,0,0,0.04);padding:22px;
+  display:flex;flex-direction:column;gap:14px;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  position:relative;overflow:hidden;
+}
+.g-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.09);border-color:#cbd5e1}
+
+.g-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.g-term{font-size:20px;font-weight:800;color:#0f2744;line-height:1.2}
+.g-badge{
+  font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;
+  white-space:nowrap;
+}
+.g-card[data-cat="ide"] .g-badge{background:#e0f2fe;color:#0369a1}
+.g-card[data-cat="condition"] .g-badge{background:#dbeafe;color:#1d4ed8}
+.g-card[data-cat="action"] .g-badge{background:#dcfce7;color:#15803d}
+.g-card[data-cat="behavior"] .g-badge{background:#fef3c7;color:#b45309}
+.g-card[data-cat="variable"] .g-badge{background:#f3e8ff;color:#6b21a8}
+
+.g-translation{font-size:16px;font-weight:700;color:#2563eb}
+.g-speech-bar{
+  display:flex;gap:8px;background:#f8fafc;padding:8px 12px;border-radius:12px;
+  align-items:center;border:1px solid #e2e8f0;
+}
+.g-speech-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;
+  border:none;background:#2563eb;color:#fff;font-size:12px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:background .15s;
+}
+.g-speech-btn:hover{background:#1d4ed8}
+.g-speech-btn.en{background:#475569}
+.g-speech-btn.en:hover{background:#334155}
+.g-speech-status{font-size:11px;color:#64748b;margin-left:auto;font-weight:600}
+
+.g-usage-box{
+  background:#fffbeb;border-left:4px solid #f59e0b;padding:10px 14px;
+  border-radius:8px;font-size:13px;color:#92400e;line-height:1.45;
+}
+.g-usage-box strong{color:#78350f;display:block;margin-bottom:2px}
+
+/* Code / Example Box */
+.g-code-box{
+  background:#f1f5f9;border-radius:10px;padding:10px 12px;
+  border:1px solid #cbd5e1;font-size:12px;line-height:1.45;
+}
+.g-code-title{font-weight:800;color:#334155;margin-bottom:4px;font-size:11px;text-transform:uppercase}
+.g-code-cond{color:#1e40af;font-weight:700;margin-bottom:2px}
+.g-code-act{color:#15803d;font-weight:700;padding-left:10px}
+
+/* Empty State */
+.g-empty{
+  grid-column:1/-1;text-align:center;padding:60px 20px;color:#64748b;
+}
+.g-empty-icon{font-size:48px;margin-bottom:10px}
+
+@media(max-width:768px){
+  .g-hero{padding:24px 20px}
+  .g-toolbar{padding:10px 16px}
+  .g-content{padding:0 16px;margin-top:20px}
+  .g-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="g-hero">
+  <div class="g-hero-inner">
+    <div class="g-hero-eyebrow">📖 CONSTRUCT 2 GLOSSARY & AUDIO DICTIONARY</div>
+    <h1>คลังคำศัพท์ Construct 2 พร้อมเสียงอ่านภาษาไทย</h1>
+    <p>รวมคำศัพท์ เงื่อนไข (Conditions) การกระทำ (Actions) พฤติกรรม (Behaviors) และตัวแปร พร้อมเสียงอธิบายวิธีใช้งานภาษาไทยสดๆ กดฟังเสียงได้ทันที!</p>
+    
+    <div class="g-nav-btns">
+      <a href="index.html" class="g-nav-btn">← กลับหน้าหลักหลักสูตร</a>
+      <a href="tutorial-basic-ground-platform.html" class="g-nav-btn">🎮 เริ่มเรียนบทแรก (B01)</a>
+    </div>
+  </div>
+</header>
+
+<!-- TOOLBAR & TABS -->
+<div class="g-toolbar">
+  <div class="g-toolbar-inner">
+    <div class="g-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="inpSearchGlossary" placeholder="ค้นหาคำศัพท์ภาษาอังกฤษ หรือคำแปลภาษาไทย...">
+    </div>
+
+    <div class="g-tabs" id="glossaryTabs">
+      <div class="g-tab active" data-cat="all">🌟 ทั้งหมด (<span id="cnt-all">0</span>)</div>
+      <div class="g-tab" data-cat="ide">⚙️ หน้าจอ & โครงสร้าง (<span id="cnt-ide">0</span>)</div>
+      <div class="g-tab" data-cat="condition">⚡ เงื่อนไข (<span id="cnt-condition">0</span>)</div>
+      <div class="g-tab" data-cat="action">🎬 การกระทำ (<span id="cnt-action">0</span>)</div>
+      <div class="g-tab" data-cat="behavior">🧩 พฤติกรรม (<span id="cnt-behavior">0</span>)</div>
+      <div class="g-tab" data-cat="variable">📊 ตัวแปร (<span id="cnt-variable">0</span>)</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT GRID -->
+<main class="g-content">
+  <div class="g-grid" id="glossaryGrid"></div>
+</main>
+
+<script src="c2-speech.js"></script>
+<script src="c2-glossary-data.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var data = window.GLOSSARY_DATA || [];
+  var currentCat = 'all';
+  var currentQuery = '';
+
+  var gridEl = document.getElementById('glossaryGrid');
+  var searchInp = document.getElementById('inpSearchGlossary');
+  var tabsEl = document.getElementById('glossaryTabs');
+
+  function updateCounts() {
+    var counts = { all: data.length, ide: 0, condition: 0, action: 0, behavior: 0, variable: 0 };
+    data.forEach(function(item) {
+      if (counts[item.category] !== undefined) {
+        counts[item.category]++;
+      }
+    });
+    Object.keys(counts).forEach(function(cat) {
+      var el = document.getElementById('cnt-' + cat);
+      if (el) el.textContent = counts[cat];
+    });
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+
+    var filtered = data.filter(function(item) {
+      if (currentCat !== 'all' && item.category !== currentCat) return false;
+      if (currentQuery) {
+        var q = currentQuery.toLowerCase();
+        var matchTerm = item.term.toLowerCase().indexOf(q) !== -1;
+        var matchTrans = item.translation.toLowerCase().indexOf(q) !== -1;
+        var matchSpeech = item.speechTh.toLowerCase().indexOf(q) !== -1;
+        var matchUsage = item.usage.toLowerCase().indexOf(q) !== -1;
+        if (!matchTerm && !matchTrans && !matchSpeech && !matchUsage) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length) {
+      gridEl.innerHTML = '<div class="g-empty"><div class="g-empty-icon">🔍</div><h3>ไม่พบคำศัพท์ที่ตรงกัน</h3><p>ลองพิมพ์คำค้นหาใหม่ หรือเลือกหมวดหมู่อื่น</p></div>';
+      return;
+    }
+
+    filtered.forEach(function(item) {
+      var card = document.createElement('div');
+      card.className = 'g-card';
+      card.setAttribute('data-cat', item.category);
+
+      var exHtml = '';
+      if (item.eventExample) {
+        if (item.eventExample.type === 'es') {
+          exHtml = '<div class="g-code-box">' +
+                     '<div class="g-code-title">💡 ตัวอย่าง Event Sheet</div>' +
+                     '<div class="g-code-cond">Condition: ' + esc(item.eventExample.cond) + '</div>' +
+                     '<div class="g-code-act">➔ Action: ' + esc(item.eventExample.act).replace(/\n/g, '<br>➔ Action: ') + '</div>' +
+                   '</div>';
+        } else if (item.eventExample.type === 'props') {
+          exHtml = '<div class="g-code-box">' +
+                     '<div class="g-code-title">⚙️ ' + esc(item.eventExample.title) + '</div>' +
+                     '<div style="color:#475569;white-space:pre-line;">' + esc(item.eventExample.detail) + '</div>' +
+                   '</div>';
+        } else if (item.eventExample.type === 'concept') {
+          exHtml = '<div class="g-code-box">' +
+                     '<div class="g-code-title">📌 ' + esc(item.eventExample.title) + '</div>' +
+                     '<div style="color:#334155;white-space:pre-line;">' + esc(item.eventExample.detail) + '</div>' +
+                   '</div>';
+        }
+      }
+
+      card.innerHTML = 
+        '<div class="g-card-head">' +
+          '<div class="g-term">' + esc(item.term) + '</div>' +
+          '<span class="g-badge">' + esc(item.type) + '</span>' +
+        '</div>' +
+        '<div class="g-translation">🇹🇭 ' + esc(item.translation) + '</div>' +
+        '<div class="g-speech-bar">' +
+          '<button class="g-speech-btn" data-id="' + item.id + '" data-lang="th">🔊 เสียงอธิบายไทย</button>' +
+          '<button class="g-speech-btn en" data-id="' + item.id + '" data-lang="en">🗣️ เสียงอังกฤษ</button>' +
+          '<span class="g-speech-status" id="status-' + item.id + '"></span>' +
+        '</div>' +
+        '<div class="g-usage-box">' +
+          '<strong>💡 เหตุการณ์ที่ใช้:</strong> ' + esc(item.usage) +
+        '</div>' +
+        exHtml;
+
+      gridEl.appendChild(card);
+    });
+  }
+
+  // Audio Playback
+  gridEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('.g-speech-btn');
+    if (!btn) return;
+
+    var id = btn.dataset.id;
+    var lang = btn.dataset.lang;
+    var item = data.find(function(x) { return x.id === id; });
+    if (!item) return;
+
+    var text = (lang === 'en') ? item.speechEn : item.speechTh;
+    var statusEl = document.getElementById('status-' + id);
+    if (statusEl) statusEl.textContent = '🔊 กำลังอ่าน...';
+
+    window.C2Speech.speak(text, lang, function() {
+      if (statusEl) statusEl.textContent = '';
+    });
+  });
+
+  // Search input
+  searchInp.addEventListener('input', function(e) {
+    currentQuery = e.target.value.trim();
+    render();
+  });
+
+  // Tabs click
+  tabsEl.addEventListener('click', function(e) {
+    var tab = e.target.closest('.g-tab');
+    if (!tab) return;
+    document.querySelectorAll('.g-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    currentCat = tab.dataset.cat;
+    render();
+  });
+
+  updateCounts();
+  render();
+
+})();
+</script>
+</body>
+</html>

@@ -30,6 +30,9 @@ import { Badge } from '@/components/ui/badge';
 import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardClaimDialog } from '@/components/rewards/RewardClaimDialog';
 import { cn } from '@/lib/utils';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { canAffordReward, totalRewardCost } from '@/components/rewards/reward-cost';
 
 function cleanThaiTitle(name: string | null): string | null {
   if (!name) return null;
@@ -88,7 +91,7 @@ export default function RewardsCatalog() {
     } else if (activeTeacherId !== null) {
       list = list.filter((r) => r.owner_staff_id === activeTeacherId || r.owner_administrator_id === activeTeacherId);
     }
-    return list.sort((a, b) => a.points_cost - b.points_cost);
+    return list.sort((a, b) => totalRewardCost(a) - totalRewardCost(b));
   }, [rewards, activeCategory, activeTeacherId]);
 
   const handleClaim = (reward: Reward) => {
@@ -364,7 +367,7 @@ function BalanceCheckDialog({
   const [history, setHistory] = useState<StudentHistoryRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [goal, setGoal] = useState<{ rewardId: string; rewardName: string; pointsCost: number; imageUrl: string | null } | null>(null);
+  const [goal, setGoal] = useState<{ rewardId: string; rewardName: string; wasteCost: number; virtueCost: number; imageUrl: string | null } | null>(null);
   const [showGoalSelector, setShowGoalSelector] = useState(false);
 
   const reset = () => {
@@ -401,7 +404,19 @@ function BalanceCheckDialog({
     // โหลดเป้าหมาย
     const savedGoal = localStorage.getItem(`kampai-goal:${trimmed}`);
     if (savedGoal) {
-      setGoal(JSON.parse(savedGoal));
+      const parsed = JSON.parse(savedGoal) as { rewardId?: string };
+      const rewardGoal = rewards.find((reward) => reward.id === parsed.rewardId);
+      if (rewardGoal) {
+        setGoal({
+          rewardId: rewardGoal.id,
+          rewardName: rewardGoal.name,
+          wasteCost: rewardGoal.waste_points_cost,
+          virtueCost: rewardGoal.virtue_points_cost,
+          imageUrl: rewardGoal.image_url,
+        });
+      } else {
+        setGoal(null);
+      }
     } else {
       setGoal(null);
     }
@@ -455,29 +470,15 @@ function BalanceCheckDialog({
             <div className="space-y-3">
               <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800">
                 <div className="flex items-center gap-3">
-                  {student.photo_url ? (
-                    <img
-                      src={student.photo_url}
-                      alt={student.full_name}
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-400"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-lg">
-                      {student.full_name.slice(0, 1)}
-                    </div>
-                  )}
+                  <PersonAvatar name={student.full_name} photoUrl={student.photo_url} size="lg" className="ring-2 ring-emerald-400" />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold truncate">{student.full_name}</div>
                     <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">แต้มคงเหลือ</span>
-                  <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-                    <Sparkles className="w-5 h-5" />
-                    <span className="text-2xl font-bold">{student.available_points}</span>
-                    <span className="text-sm text-muted-foreground">แต้ม</span>
-                  </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-3 text-center">
+                  <div><div className="text-xs text-muted-foreground">ขยะสะสม / คงเหลือ</div><div className="font-bold text-emerald-800">{student.waste_points_earned} / {student.waste_points_available}</div></div>
+                  <div><div className="text-xs text-muted-foreground">ความดีสะสม / คงเหลือ ({student.virtue_academic_year})</div><div className="font-bold text-amber-800">{student.virtue_points_earned} / {student.virtue_points_available}</div></div>
                 </div>
               </div>
 
@@ -511,8 +512,10 @@ function BalanceCheckDialog({
 
                   {/* Progress bar */}
                   {(() => {
-                    const percent = Math.min(100, Math.round((student.available_points / goal.pointsCost) * 100));
-                    const isGoalMet = student.available_points >= goal.pointsCost;
+                    const rewardGoal = rewards.find((r) => r.id === goal.rewardId);
+                    const isGoalMet = rewardGoal ? canAffordReward(rewardGoal, student) : false;
+                    const ratios = [goal.wasteCost > 0 ? student.waste_points_available / goal.wasteCost : 1, goal.virtueCost > 0 ? student.virtue_points_available / goal.virtueCost : 1];
+                    const percent = Math.min(100, Math.round(Math.min(...ratios) * 100));
                     return (
                       <div className="space-y-1">
                         <div className="w-full bg-muted dark:bg-muted/30 rounded-full h-1.5 overflow-hidden">
@@ -526,10 +529,10 @@ function BalanceCheckDialog({
                         </div>
                         <div className="flex justify-between items-center text-[10px]">
                           <span className="text-muted-foreground tabular-nums">
-                            {student.available_points} / {goal.pointsCost} แต้ม ({percent}%)
+                            <RewardCostDisplay waste={goal.wasteCost} virtue={goal.virtueCost} /> ({percent}%)
                           </span>
                           <span className={cn("font-semibold", isGoalMet ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
-                            {isGoalMet ? '🎉 แต้มถึงแล้ว แลกได้เลย!' : `ขาดอีก ${goal.pointsCost - student.available_points} แต้ม`}
+                            {isGoalMet ? '🎉 คะแนนถึงแล้ว แลกได้เลย!' : 'สะสมต่ออีกนิด'}
                           </span>
                         </div>
                       </div>
@@ -548,7 +551,8 @@ function BalanceCheckDialog({
                             const goalData = {
                               rewardId: selectedReward.id,
                               rewardName: selectedReward.name,
-                              pointsCost: selectedReward.points_cost,
+                              wasteCost: selectedReward.waste_points_cost,
+                              virtueCost: selectedReward.virtue_points_cost,
                               imageUrl: selectedReward.image_url,
                             };
                             localStorage.setItem(`kampai-goal:${code.trim()}`, JSON.stringify(goalData));
@@ -563,7 +567,7 @@ function BalanceCheckDialog({
                         <SelectContent>
                           {rewards.map(r => (
                             <SelectItem key={r.id} value={r.id} className="text-xs">
-                              {r.name} ({r.points_cost} แต้ม)
+                              {r.name} (ขยะ {r.waste_points_cost} · ความดี {r.virtue_points_cost})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -590,10 +594,10 @@ function BalanceCheckDialog({
               .filter(
                 (r) =>
                   r.is_active &&
-                  r.points_cost <= student.available_points &&
+                  canAffordReward(r, student) &&
                   (r.stock === null || r.stock === undefined || r.stock > 0),
               )
-              .sort((a, b) => a.points_cost - b.points_cost);
+              .sort((a, b) => totalRewardCost(a) - totalRewardCost(b));
             return (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -628,9 +632,7 @@ function BalanceCheckDialog({
                           {r.name}
                         </div>
                         <div className="flex items-center justify-between gap-1 mt-1">
-                          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-bold tabular-nums">
-                            {r.points_cost} แต้ม
-                          </span>
+                          <RewardCostDisplay waste={r.waste_points_cost} virtue={r.virtue_points_cost} className="text-[10px]" />
                           <span className="text-[10px] px-1.5 py-0.5 bg-emerald-600 text-white rounded font-semibold">
                             แลกเลย
                           </span>
@@ -670,10 +672,8 @@ function BalanceCheckDialog({
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">{h.reward_name}</div>
                         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                          <span>−{h.points_used} แต้ม</span>
-                          {h.balance_after !== null && (
-                            <span>· เหลือ {h.balance_after}</span>
-                          )}
+                          {h.waste_points_used > 0 ? <span>ขยะ −{h.waste_points_used} · เหลือ {h.waste_balance_after ?? '—'}</span> : null}
+                          {h.virtue_points_used > 0 ? <span>ความดี −{h.virtue_points_used} · เหลือ {h.virtue_balance_after ?? '—'}</span> : null}
                           {h.academic_year && h.semester && (
                             <span>· เทอม {h.semester}/{h.academic_year}</span>
                           )}

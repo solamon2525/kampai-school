@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>วงล้อสีวรรณะอุ่น–เย็น — สื่อการสอน — บ้านคำไผ่</title>
@@ -88,27 +88,27 @@
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="wheel" class="on">🎡 วงล้อสำรวจ</button>
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
         <button type="button" data-mode="tones">🔥 อุ่น vs เย็น</button>
         <button type="button" data-mode="scene">🖼️ จัดฉาก</button>
         <button type="button" data-mode="mix">🧪 ผสมแม่สี</button>
-        <button type="button" data-mode="quiz">❓ ถูก/ผิด</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">แตะสีบนวงล้อเพื่อดูวรรณะและอารมณ์</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
     </div>
     <div class="stage">
-      <div class="panel on" id="p-wheel"></div>
+      <div class="panel on" id="p-learn"></div>
       <div class="panel" id="p-tones"></div>
       <div class="panel" id="p-scene"></div>
       <div class="panel" id="p-mix"></div>
-      <div class="panel" id="p-quiz"></div>
+      <div class="panel" id="p-practice"></div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ศ 1.1 ป.4/2</strong> · <strong>ศ 1.1 ป.4/7</strong> · คู่เกม <a href="/play/color-wheel">วงล้อสี</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'color-wheel-media';
-    if (window.KAMPAI) KAMPAI.setSlug(MEDIA_SLUG);
+    if (window.KAMPAI) KAMPAI.setSlug('color-wheel-media');
 
     /* reuse name/hex/hue/level/tone จาก color-wheel/data.js + เติม emotion + exampleScene */
     const COLORS = [
@@ -174,15 +174,15 @@
       }
     }
 
-    let mode = 'wheel', selColor = 0, toneFilter = 'all', selScene = 'sunset';
+    let mode = 'learn', selColor = 0, toneFilter = 'all', selScene = 'sunset';
     let quizQ = null, quizAnswered = false;
 
     const hints = {
-      wheel: 'แตะสีบนวงล้อ — ดูวรรณะ อารมณ์ และตัวอย่างฉาก',
+      learn: 'แตะสีบนวงล้อ — ดูวรรณะ อารมณ์ และตัวอย่างฉาก',
       tones: 'เปรียบเทียบวรรณะอุ่นและเย็นกับอารมณ์ที่สื่อ',
       scene: 'เลือกฉากแล้วเลือกวรรณะที่เหมาะ · ดูเฉลยคำอธิบาย',
       mix: 'แม่สีผสมกันได้อย่างไร (สาธิต)',
-      quiz: 'ตอบคำถามวรรณะและอารมณ์สี',
+      practice: 'ฝึกสั้น: ตอบคำถามวรรณะและอารมณ์สี',
     };
 
     function setMode(m) {
@@ -191,15 +191,15 @@
       document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
       document.getElementById('p-' + m).classList.add('on');
       document.getElementById('hintText').textContent = hints[m];
-      if (m === 'wheel') renderWheel();
+      if (m === 'learn') renderWheel();
       if (m === 'tones') renderTones();
       if (m === 'scene') renderScene();
       if (m === 'mix') renderMix();
-      if (m === 'quiz') { if (!quizQ) nextQuiz(); else renderQuiz(); }
+      if (m === 'practice') { if (!quizQ) nextQuiz(); else renderQuiz(); }
     }
 
     function renderWheel() {
-      const el = document.getElementById('p-wheel');
+      const el = document.getElementById('p-learn');
       const c = colorById(selColor);
       const slices = COLORS.map((col, i) => {
         const rot = i * 30;
@@ -363,7 +363,7 @@
     }
 
     function renderQuiz() {
-      const el = document.getElementById('p-quiz');
+      const el = document.getElementById('p-practice');
       if (!quizQ) return;
       el.innerHTML =
         '<div class="q-box">' +
@@ -401,7 +401,7 @@
       else document.exitFullscreen?.();
     };
 
-    setMode('wheel');
+    setMode('learn');
   </script>
 </body>
 </html>

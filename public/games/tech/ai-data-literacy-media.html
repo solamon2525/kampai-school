@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>รู้เท่าทัน AI และข้อมูล — บ้านคำไผ่</title>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script>
+    const MEDIA_SLUG = 'ai-data-literacy-media';
+    if (window.KAMPAI) {
+      try {
+        KAMPAI.setSlug(MEDIA_SLUG);
+        if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
+      } catch (_) {}
+    }
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#12355b;--blue:#1f6f8b;--aqua:#d8f3ed;--cream:#fff7df;--paper:#fffdf7;
+      --gold:#f5b700;--coral:#ef6f6c;--ink:#132238;--muted:#536579;--line:#b8d8d8;
+      --white:#fff;--ok:#14804a;--bad:#b42318;
+    }
+    html,body{min-height:100%;background:linear-gradient(145deg,var(--cream),var(--aqua))}
+    body{font-family:'Sarabun',Arial,sans-serif;color:var(--ink);padding:10px}
+    button{font:inherit}
+    button:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+
+    .shell{
+      width:min(1500px,100%);min-height:calc(100vh - 20px);margin:auto;
+      background:var(--paper);border:2px solid var(--navy);border-radius:24px;
+      overflow:hidden;box-shadow:0 20px 60px rgba(18,53,91,.16);
+      display:flex;flex-direction:column;
+    }
+    .topbar{
+      display:flex;align-items:center;gap:12px;padding:12px 18px;
+      background:var(--navy);color:var(--white);
+    }
+    .topbar h1{font-size:clamp(22px,2.4vw,36px);line-height:1;flex:1}
+    .badge{font-weight:800;background:var(--gold);color:var(--navy);padding:7px 13px;border-radius:999px;white-space:nowrap}
+    .btn{
+      min-height:44px;border:2px solid transparent;border-radius:14px;
+      padding:9px 14px;font-weight:800;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      transition:transform .12s,background .12s;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-back{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--white)}
+
+    .toolbar{
+      display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:9px 14px;
+      background:var(--white);border-bottom:2px solid var(--line);
+    }
+    .mode-group{display:flex;border:2px solid var(--navy);border-radius:15px;overflow:hidden}
+    .mode-btn{
+      min-height:44px;border:0;background:var(--white);color:var(--navy);
+      padding:8px 15px;font-weight:800;cursor:pointer;
+    }
+    .mode-btn.on{background:var(--navy);color:var(--white)}
+    .toolbar-spacer{flex:1}
+    .toolbar-hint{font-weight:700;color:var(--muted);font-size:14px}
+    .btn-listen{background:var(--aqua);border-color:var(--blue);color:var(--navy)}
+    .btn-fs{background:var(--blue);color:var(--white)}
+    #kampai-snd{position:static!important;display:flex!important;flex:0 0 auto}
+    #kampai-snd .ksnd{background:var(--navy);box-shadow:none}
+
+    .workspace{display:grid;grid-template-columns:280px minmax(0,1fr);flex:1;min-height:0}
+    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto}
+    .sidebar-title{font-size:14px;color:#bde5e3;margin:4px 4px 9px;font-weight:800}
+    .scene-list{display:grid;gap:8px}
+    .scene-btn{
+      width:100%;min-height:56px;border:2px solid rgba(255,255,255,.18);border-radius:14px;
+      background:rgba(255,255,255,.08);color:var(--white);padding:8px 10px;
+      text-align:left;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:10px;
+    }
+    .scene-btn .scene-icon{font-size:28px}
+    .scene-btn.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+    .lesson-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+    .lesson-btn{
+      min-width:42px;min-height:42px;border:2px solid rgba(255,255,255,.26);border-radius:12px;
+      background:rgba(255,255,255,.08);color:var(--white);font-weight:800;cursor:pointer;
+    }
+    .lesson-btn.on{background:var(--coral);border-color:var(--white)}
+
+    .main{min-width:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#dff6ff,var(--cream))}
+    .lesson-head{
+      display:flex;align-items:center;gap:14px;padding:14px 20px;
+      border-bottom:2px dashed var(--line);background:rgba(255,253,247,.92);
+    }
+    .lesson-emoji{
+      width:62px;height:62px;border-radius:18px;background:var(--gold);
+      display:grid;place-items:center;font-size:36px;flex:0 0 auto;box-shadow:5px 5px 0 var(--navy);
+    }
+    .lesson-copy{min-width:0;flex:1}
+    .lesson-kicker{font-size:14px;font-weight:800;color:var(--blue)}
+    .lesson-copy h2{font-size:clamp(25px,3vw,44px);line-height:1.05;color:var(--navy)}
+    .lesson-goal{font-size:clamp(15px,1.6vw,20px);font-weight:700;color:var(--muted);margin-top:4px}
+
+    /* Stages */
+    .learn-stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:16px;padding:16px;flex:1;min-height:0}
+    .visual-stage{display:none;align-items:center;justify-content:center;flex:1;min-height:0;padding:14px}
+    .practice-stage{display:none;flex:1;padding:18px;overflow:auto}
+    .lab-stage{display:none;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:16px;padding:16px;flex:1;min-height:0;overflow:auto}
+
+    .visual-mode .learn-stage,.visual-mode .practice-stage,.visual-mode .lab-stage{display:none}
+    .visual-mode .visual-stage{display:flex}
+    .practice-mode .learn-stage,.practice-mode .visual-stage,.practice-mode .lab-stage{display:none}
+    .practice-mode .practice-stage{display:block}
+    .lab-mode .learn-stage,.lab-mode .visual-stage,.lab-mode .practice-stage{display:none}
+    .lab-mode .lab-stage{display:grid}
+
+    /* Illustration Frame */
+    .visual-frame{
+      position:relative;width:min(100%,calc((100vh - 260px)*16/9));aspect-ratio:16/9;
+      max-height:calc(100vh - 260px);overflow:hidden;border:4px solid var(--navy);
+      border-radius:24px;background:linear-gradient(145deg,var(--aqua),var(--cream));
+      box-shadow:0 12px 28px rgba(18,53,91,.18);
+    }
+    .visual-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .visual-fallback{
+      position:absolute;inset:0;display:none;place-items:center;padding:24px;
+      text-align:center;font-size:clamp(22px,3vw,42px);font-weight:800;color:var(--navy);
+      background:linear-gradient(145deg,var(--aqua),var(--cream));
+    }
+    .visual-frame.image-error .visual-fallback{display:grid}
+    .visual-frame.image-error .visual-image{display:none}
+    .visual-overlay{
+      position:absolute;left:3%;right:3%;top:3%;bottom:auto;padding:14px 18px;
+      border:3px solid var(--navy);border-radius:18px;background:rgba(255,253,247,.94);
+      box-shadow:0 7px 0 rgba(18,53,91,.2);cursor:pointer;
+    }
+    .visual-overlay h3{font-size:clamp(20px,2.8vw,38px);color:var(--navy)}
+    .visual-overlay p{font-size:clamp(15px,1.5vw,20px);font-weight:700;color:var(--muted);line-height:1.4}
+    .visual-overlay .sound-state{color:var(--blue);font-weight:800;margin-top:6px}
+
+    .illustration-card{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .illustration-card .visual-frame{width:100%;max-height:none}
+    .step-strip{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+    .step-chip{
+      min-height:42px;border:2px solid var(--line);border-radius:999px;background:var(--white);
+      color:var(--navy);padding:7px 12px;font-weight:800;cursor:pointer;
+    }
+    .step-chip.on{background:var(--gold);border-color:var(--navy)}
+
+    .detail-card{
+      display:flex;flex-direction:column;gap:12px;padding:18px;border:3px solid var(--navy);
+      border-radius:20px;background:rgba(255,253,247,.95);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+      min-height:0;
+    }
+    .detail-card .number{
+      align-self:flex-start;background:var(--navy);color:var(--white);
+      border-radius:999px;padding:4px 12px;font-weight:800;
+    }
+    .detail-card h3{font-size:clamp(25px,3vw,40px);line-height:1.05;color:var(--navy)}
+    .detail-card .principle-badge{
+      display:inline-block;padding:4px 10px;background:var(--aqua);border:2px solid var(--blue);
+      border-radius:8px;font-weight:800;color:var(--navy);font-size:15px;align-self:flex-start;
+    }
+    .detail-card .body{font-size:clamp(17px,1.7vw,22px);font-weight:600;line-height:1.55}
+    .tip{padding:11px 13px;border:2px dashed var(--line);border-radius:14px;background:var(--white);font-weight:700;color:var(--muted);line-height:1.45}
+    .checklist-box{
+      display:grid;gap:6px;padding:12px;border:2px solid var(--gold);
+      border-radius:14px;background:var(--cream);
+    }
+    .checklist-box h4{color:var(--navy);font-size:15px;font-weight:800}
+    .checklist-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--navy)}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+    .actions .btn{flex:1;min-width:140px}
+
+    /* Lab Stage (AI Simulator) */
+    .lab-container{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .lab-container h3{font-size:clamp(22px,2.5vw,34px);color:var(--navy)}
+    .scenario-selector{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;
+    }
+    .scenario-btn{
+      min-height:60px;border:2px solid var(--line);border-radius:14px;background:var(--white);
+      padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      cursor:pointer;transition:transform .12s,border-color .12s;
+    }
+    .scenario-btn:hover{border-color:var(--blue)}
+    .scenario-btn.on{border-color:var(--navy);background:var(--cream);box-shadow:0 0 0 3px var(--gold)}
+    .scenario-btn .sc-ico{font-size:22px}
+    .scenario-btn .sc-txt{font-size:13px;font-weight:800;color:var(--navy);margin-top:2px}
+
+    .prompt-box{
+      display:flex;flex-direction:column;gap:6px;padding:12px;border:2px solid var(--line);
+      border-radius:14px;background:var(--white);
+    }
+    .prompt-label{font-size:13px;font-weight:800;color:var(--blue)}
+    .prompt-content{font-size:16px;font-weight:700;color:var(--navy)}
+
+    .ai-response-box{
+      display:flex;flex-direction:column;gap:6px;padding:14px;border:2px solid var(--navy);
+      border-radius:14px;background:#f0f9ff;
+    }
+    .ai-label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:var(--navy)}
+    .ai-text{font-size:16px;line-height:1.5;font-weight:600;color:var(--navy)}
+
+    .lab-side{
+      display:flex;flex-direction:column;gap:14px;padding:16px;border:3px solid var(--navy);
+      border-radius:22px;background:rgba(255,253,247,.96);box-shadow:7px 7px 0 rgba(18,53,91,.12);
+    }
+    .verification-meters{display:grid;gap:10px}
+    .meter-card{
+      padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--white);
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .meter-header{display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:var(--navy)}
+    .meter-bar{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+    .meter-fill{height:100%;border-radius:999px;background:var(--gold);transition:width .3s}
+    .meter-fill.good{background:var(--ok)}
+    .meter-fill.warn{background:var(--coral)}
+
+    .audit-action-box{
+      padding:12px;border:2px dashed var(--blue);border-radius:14px;background:var(--aqua);
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .audit-action-box h4{margin:0;font-size:15px;color:var(--navy)}
+    .audit-action-box p{margin:0;font-size:14px;line-height:1.4;font-weight:700;color:var(--muted)}
+
+    /* Practice Stage */
+    .practice-box{
+      max-width:800px;margin:auto;display:flex;flex-direction:column;gap:16px;
+      padding:20px;border:3px solid var(--navy);border-radius:24px;
+      background:rgba(255,253,247,.98);box-shadow:8px 8px 0 rgba(18,53,91,.12);
+    }
+    .practice-header{display:flex;align-items:center;justify-content:space-between}
+    .practice-progress{font-weight:800;color:var(--blue);font-size:16px}
+    .practice-prompt{
+      font-size:clamp(19px,2.2vw,28px);font-weight:800;color:var(--navy);
+      line-height:1.35;padding:14px;border:2px dashed var(--line);border-radius:16px;background:var(--white);
+    }
+    .practice-options{display:grid;grid-template-columns:1fr;gap:10px}
+    .opt-btn{
+      min-height:54px;border:2px solid var(--navy);border-radius:14px;background:var(--white);
+      font-size:17px;font-weight:800;color:var(--navy);cursor:pointer;padding:10px 14px;
+      text-align:left;transition:all .12s;display:flex;align-items:center;gap:10px;
+    }
+    .opt-btn:hover{background:var(--cream);border-color:var(--blue)}
+    .opt-btn.correct{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .opt-btn.wrong{background:#fee2e2;border-color:var(--bad);color:var(--bad)}
+    .opt-btn:disabled{cursor:default}
+    .practice-fb{
+      min-height:48px;padding:12px;border-radius:14px;font-weight:800;font-size:16px;
+      line-height:1.45;background:var(--white);border:2px solid var(--line);
+    }
+    .practice-fb.good{background:#e4f7ed;border-color:var(--ok);color:var(--ok)}
+    .practice-fb.retry{background:var(--cream);border-color:var(--gold);color:#8a5600}
+
+    .footer{
+      display:flex;justify-content:space-between;gap:8px;padding:9px 16px;
+      border-top:2px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+      .btn,.opt-btn,.scenario-btn{transition:none!important}
+    }
+    @media(max-width:900px){
+      body{padding:0}
+      .shell{min-height:100vh;border-radius:0;border-width:0}
+      .workspace{grid-template-columns:1fr}
+      .sidebar{padding:10px;overflow:visible}
+      .scene-list{display:flex;overflow-x:auto;padding-bottom:3px}
+      .scene-btn{min-width:180px}
+      .lesson-nav{display:none}
+      .learn-stage,.lab-stage{grid-template-columns:1fr;padding:10px}
+      .detail-card,.lab-container,.lab-side{padding:14px}
+      .visual-frame{width:100%;max-height:none}
+      .footer{display:none}
+    }
+    @media(max-width:520px){
+      .topbar{padding:10px 12px}.topbar h1{font-size:21px}.badge{font-size:12px;padding:5px 8px}
+      .toolbar{padding:8px;gap:6px}.mode-group{width:100%;overflow:auto}
+      .mode-btn{flex:1;white-space:nowrap;padding-inline:10px;font-size:14px}
+      .toolbar-hint,.toolbar-spacer{display:none}
+      .lesson-head{padding:10px 12px;gap:10px}
+      .lesson-emoji{width:48px;height:48px;font-size:27px}
+      .lesson-copy h2{font-size:24px}.lesson-goal{font-size:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="topbar">
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🤖 รู้เท่าทัน AI และข้อมูล</h1>
+      <span class="badge">ป.4–6 · เทคโนโลยี</span>
+    </header>
+
+    <div class="toolbar">
+      <div class="mode-group" role="tablist" aria-label="โหมดการเรียนรู้">
+        <button type="button" class="mode-btn on" data-mode="learn" aria-pressed="true">📖 อ่านทีละขั้น</button>
+        <button type="button" class="mode-btn" data-mode="visual" aria-pressed="false">🖼️ ภาพประกอบ</button>
+        <button type="button" class="mode-btn" data-mode="lab" aria-pressed="false">🧪 ห้องทดลองตรวจ AI</button>
+        <button type="button" class="mode-btn" data-mode="practice" aria-pressed="false">✏️ แบบฝึกหัดคิดวิเคราะห์</button>
+      </div>
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-hint" id="toolbarHint">เลือกหัวข้อการเรียนรู้ แล้วกดฟังคำอธิบายได้ทุกเวลา</span>
+      <button type="button" class="btn btn-listen" id="btnListen">🔊 ฟังคำอธิบาย</button>
+      <button type="button" class="btn btn-fs" id="btnFs">⛶ เต็มจอ</button>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-title">4 ขั้นตอนรู้เท่าทัน AI</div>
+        <nav class="scene-list" id="sceneList" aria-label="เลือกขั้นตอนรู้เท่าทัน"></nav>
+        <div class="sidebar-title" style="margin-top:18px">ลำดับการเรียน</div>
+        <div class="lesson-nav" id="lessonNav"></div>
+      </aside>
+
+      <main class="main">
+        <header class="lesson-head">
+          <div class="lesson-emoji" id="lessonEmoji">🔎</div>
+          <div class="lesson-copy">
+            <div class="lesson-kicker" id="lessonKicker">ขั้นตอนที่ 1 จาก 4 · คิดก่อนเชื่อ</div>
+            <h2 id="lessonTitle">เริ่มจากตั้งคำถาม</h2>
+            <p class="lesson-goal" id="lessonGoal">อย่าเพิ่งปักใจเชื่อคำตอบที่ดูสวยหรู ให้เริ่มจากการถามหาหลักฐาน</p>
+          </div>
+        </header>
+
+        <!-- 1. Learn Mode -->
+        <section class="learn-stage" id="learnStage">
+          <div class="illustration-card">
+            <div class="visual-frame" id="learnFrame">
+              <img class="visual-image" id="learnImage" alt="ภาพห้องเรียนรู้เท่าทัน AI" src="/games/tech/ai-data-literacy-media-cover.png" decoding="async">
+              <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฝึกคิดวิเคราะห์ต่อได้</div>
+            </div>
+            <div class="step-strip" id="stepStrip"></div>
+          </div>
+          <article class="detail-card" id="detailCard">
+            <span class="number" id="detailNumber">ขั้นที่ 1</span>
+            <div class="principle-badge" id="detailBadge">หลักการ: Question First</div>
+            <h3 id="detailTitle">เริ่มจากตั้งคำถาม</h3>
+            <p class="body" id="detailBody"></p>
+            <div class="checklist-box" id="checklistBox">
+              <h4>📋 เช็คลิสต์ตรวจสอบขั้นนี้:</h4>
+              <div class="checklist-item"><span>✅</span><span id="check1">ใครเป็นผู้ตอบ? ข้อมูลนี้สร้างขึ้นเพื่ออะไร?</span></div>
+              <div class="checklist-item"><span>✅</span><span id="check2">มีตัวเลขหรือสถิติที่ลอยขึ้นมาโดยไม่มีที่มาหรือไม่?</span></div>
+            </div>
+            <p class="tip" id="detailTip"></p>
+            <div class="actions">
+              <button type="button" class="btn btn-listen" id="btnSpeakScene">🔊 อ่านคำอธิบาย</button>
+              <button type="button" class="btn btn-fs" id="btnNextScene">ขั้นถัดไป →</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- 2. Visual Mode -->
+        <section class="visual-stage" id="visualStage" aria-label="ฉากภาพประกอบ">
+          <div class="visual-frame" id="visualFrame">
+            <img class="visual-image" id="visualImage" alt="ภาพห้องเรียนรู้เท่าทัน AI" src="/games/tech/ai-data-literacy-media-cover.png" decoding="async">
+            <div class="visual-fallback">ภาพประกอบยังโหลดไม่ได้<br>แต่ยังอ่านและฝึกคิดวิเคราะห์ต่อได้</div>
+            <article class="visual-overlay" id="visualOverlay" tabindex="0" aria-label="กดเพื่อฟังคำบรรยายซ้ำ">
+              <h3 id="visualTitle"></h3>
+              <p id="visualBody"></p>
+              <div class="sound-state" id="visualSound">🔊 แตะการ์ดนี้เพื่อฟังคำบรรยายหลักการตรวจสอบ</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 3. Lab Mode (AI Verification Simulator) -->
+        <section class="lab-stage" id="labStage" aria-label="ห้องทดลองตรวจคำตอบ AI">
+          <div class="lab-container">
+            <h3>🧪 เลือกสถานการณ์จำลองเพื่อตรวจคำตอบ AI</h3>
+            <div class="scenario-selector" id="scenarioSelector"></div>
+
+            <div class="prompt-box">
+              <span class="prompt-label">💬 คำถามที่นักเรียนป้อนให้ AI:</span>
+              <p class="prompt-content" id="labPromptText"></p>
+            </div>
+
+            <div class="ai-response-box">
+              <div class="ai-label">🤖 คำตอบจากปัญญาประดิษฐ์ (AI Output):</div>
+              <p class="ai-text" id="labAiResponse"></p>
+            </div>
+          </div>
+
+          <div class="lab-side">
+            <h3>🔍 เครื่องมือวิเคราะห์ข้อมูล (Fact Meter)</h3>
+            <div class="verification-meters">
+              <div class="meter-card">
+                <div class="meter-header">
+                  <span>ความน่าเชื่อถือของแหล่งที่มา</span>
+                  <span id="sourceScore">60%</span>
+                </div>
+                <div class="meter-bar"><div class="meter-fill" id="sourceBar" style="width:60%"></div></div>
+              </div>
+
+              <div class="meter-card">
+                <div class="meter-header">
+                  <span>หลักฐานเชิงประจักษ์ / ข้อมูลอ้างอิง</span>
+                  <span id="evidenceScore">50%</span>
+                </div>
+                <div class="meter-bar"><div class="meter-fill" id="evidenceBar" style="width:50%"></div></div>
+              </div>
+
+              <div class="meter-card">
+                <div class="meter-header">
+                  <span>ความเสี่ยงการเกิดภาพหลอน (AI Hallucination)</span>
+                  <span id="riskScore">ปานกลาง</span>
+                </div>
+                <div class="meter-bar"><div class="meter-fill warn" id="riskBar" style="width:50%"></div></div>
+              </div>
+            </div>
+
+            <div class="audit-action-box" id="auditActionBox">
+              <h4 id="auditVerdict">คำแนะนำ: ควรตรวจเทียบกับแหล่งข้อมูลจริง</h4>
+              <p id="auditExplain">AI อาจผสมผสานข้อเท็จจริงกับข้อความที่แต่งขึ้นเองอย่างแนบเนียน ให้เปิดอ่านจากเว็บไซต์หรือหนังสืออ้างอิงของทางการก่อนนำไปทำงานส่งครู</p>
+            </div>
+
+            <button type="button" class="btn btn-listen" id="btnAuditSpeak" style="margin-top:auto">🔊 ฟังคำแนะนำการวิเคราะห์</button>
+          </div>
+        </section>
+
+        <!-- 4. Practice Mode -->
+        <section class="practice-stage" id="practiceStage" aria-label="แบบฝึกหัดคิดวิเคราะห์">
+          <div class="practice-box">
+            <div class="practice-header">
+              <span class="practice-progress" id="quizProg">คำถามที่ 1 จาก 6</span>
+              <button type="button" class="btn btn-listen" id="btnRestartQuiz" style="min-height:36px;padding:4px 12px">↺ เริ่มใหม่</button>
+            </div>
+            <div class="practice-prompt" id="quizQuestion"></div>
+            <div class="practice-options" id="quizOptions"></div>
+            <div class="practice-fb" id="quizFeedback">เลือกคำตอบแล้วอ่านเหตุผลการวิเคราะห์</div>
+            <button type="button" class="btn btn-fs" id="btnNextQuiz" style="display:none;align-self:flex-end">ข้อถัดไป →</button>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>สื่อการเรียนรู้วิทยาการคำนวณและเทคโนโลยี · ป.4–6 · บ้านคำไผ่</span>
+          <span>มุ่งเน้นทักษะการรู้เท่าทันสารสนเทศและปัญญาประดิษฐ์ (AI & Media Literacy)</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+  (()=>{
+    'use strict';
+
+    const MEDIA_SLUG = 'ai-data-literacy-media';
+    if (window.KAMPAI) {
+      try {
+        KAMPAI.setSlug(MEDIA_SLUG);
+        KAMPAI.sound?.mountToggles?.();
+      } catch (_) {}
+    }
+
+    const SCENES = [
+      {
+        id: 'question',
+        icon: '🔎',
+        label: '1. ตั้งคำถาม',
+        kicker: 'ขั้นตอนที่ 1 จาก 4 · คิดก่อนเชื่อ',
+        title: 'เริ่มจากตั้งคำถาม',
+        badge: 'หลักการ: Question First',
+        goal: 'อย่าเพิ่งปักใจเชื่อคำตอบที่ดูสวยหรู ให้เริ่มจากการถามหาหลักฐาน',
+        body: 'เมื่อเห็นข้อมูลบนอินเทอร์เน็ตหรือคำตอบจาก AI ให้ตั้งสติและถามตนเองก่อนเสมอว่า ใครเป็นคนสร้างข้อมูลนี้? ข้อมูลนี้ต้องการโน้มน้าวใจหรือขายสินค้าหรือไม่? และมีหลักฐานชัดเจนมารองรับหรือเป็นเพียงความคิดเห็นส่วนตัว',
+        check1: 'ใครเป็นผู้ให้ข้อมูล? มีชื่อผู้เขียนหรือองค์กรที่รับผิดชอบหรือไม่?',
+        check2: 'ข้อมูลนี้เป็นข้อเท็จจริง (Fact) ที่พิสูจน์ได้ หรือเป็นเพียงความเห็น (Opinion)?',
+        tip: '💡 เคล็ดลับ: AI สร้างคำตอบจากการทายคำที่มีโอกาสถูกต้องสูง แต่ไม่ได้แปลว่าเข้าใจความจริงเสมอไป',
+        speak: 'ขั้นตอนที่หนึ่ง เริ่มจากตั้งคำถาม เมื่อเห็นข้อมูลหรือคำตอบจาก AI ให้ถามก่อนว่าใครเป็นผู้ให้ข้อมูล และมีหลักฐานอะไรมารองรับ'
+      },
+      {
+        id: 'source',
+        icon: '📚',
+        label: '2. ตรวจที่มา',
+        kicker: 'ขั้นตอนที่ 2 จาก 4 · แหล่งอ้างอิง',
+        title: 'ตรวจแหล่งที่มาและวันที่',
+        badge: 'หลักการ: Verify Source & Date',
+        goal: 'ข้อมูลที่ดีต้องมีตัวตนผู้สร้าง วันที่เผยแพร่ และหลักฐานอ้างอิง',
+        body: 'ตรวจสอบว่าแหล่งที่มาเป็นองค์กรที่มีความเชี่ยวชาญจริงหรือไม่ เช่น กระทรวงสาธารณสุข สถาบันวิจัย หรือหน่วยงานการศึกษา และอย่าลืมดูวันที่เผยแพร่ เพราะข้อมูลวิทยาศาสตร์และเทคโนโลยีเปลี่ยนแปลงได้ตามกาลเวลา ข้อมูลเก่าหลายปีอาจล้าสมัยแล้ว',
+        check1: 'เว็บไซต์หรือแหล่งข้อมูลมีความน่าเชื่อถือและตรวจสอบย้อนหลังได้หรือไม่?',
+        check2: 'วันที่ระบุในข้อมูลเป็นปัจจุบันหรือไม่? หรือเป็นเหตุการณ์เก่าที่นำมาเล่าใหม่?',
+        tip: '💡 เคล็ดลับ: ข้อมูลที่ไม่มีชื่อผู้เขียน ไม่มีวันเวลา และไม่มีลิงก์อ้างอิง ให้ตั้งข้อสงสัยไว้ก่อนว่าเป็นข่าวปลอมหรือข้อมูลคลาดเคลื่อน',
+        speak: 'ขั้นตอนที่สอง ตรวจแหล่งที่มาและวันที่ ข้อมูลที่น่าเชื่อถือต้องบอกชื่อผู้เขียน หน่วยงาน และวันที่เผยแพร่อย่างโปร่งใส'
+      },
+      {
+        id: 'compare',
+        icon: '⚖️',
+        label: '3. เทียบหลายแหล่ง',
+        kicker: 'ขั้นตอนที่ 3 จาก 4 · ตรวจสอบไขว้',
+        title: 'เปรียบเทียบข้อมูลหลายแหล่ง (Cross-Check)',
+        badge: 'หลักการ: Cross-Reference',
+        goal: 'อย่ายึดข้อมูลจากแหล่งเดียว ให้เปรียบเทียบอย่างน้อย 2–3 แหล่ง',
+        body: 'เมื่อได้ข้อมูลสำคัญหรือข้อมูลที่น่าประหลาดใจ ให้ค้นหาเรื่องเดียวกันจากแหล่งอื่นอีกอย่างน้อย 2 แหล่ง หากข้อมูลตรงกันและมีหลักฐานเหมือนกัน จึงจะมีความน่าเชื่อถือสูง แต่ถ้าแต่ละแหล่งพูดไม่ตรงกัน ให้มองหาหลักฐานเชิงประจักษ์ไม่ใช่เลือกตามความชอบ',
+        check1: 'มีสำนักข่าวหรือหน่วยงานอื่นรายงานข้อมูลตรงกันอย่างน้อย 2 แหล่งหรือไม่?',
+        check2: 'ภาพถ่ายหรือวิดีโอประกอบ ถูกตัดต่อหรือสร้างด้วย AI ขึ้นมาเพื่อหลอกลวงหรือไม่?',
+        tip: '💡 เคล็ดลับ: การตรวจสอบไขว้ (Cross-Checking) คือทักษะสำคัญที่สุดของนักสืบดิจิทัลในยุคปัญญาประดิษฐ์',
+        speak: 'ขั้นตอนที่สาม เปรียบเทียบข้อมูลหลายแหล่ง อย่ายึดข้อมูลจากแหล่งเดียว ให้ตรวจเทียบกับแหล่งอื่นอย่างน้อยสองถึงสามแหล่ง'
+      },
+      {
+        id: 'responsible',
+        icon: '✅',
+        label: '4. ใช้อย่างรับผิดชอบ',
+        kicker: 'ขั้นตอนที่ 4 จาก 4 · ซื่อสัตย์และปลอดภัย',
+        title: 'ใช้และแบ่งปันอย่างมีความรับผิดชอบ',
+        badge: 'หลักการ: Responsible & Honest AI Use',
+        goal: 'ให้เครดิต ตรวจทานเสมอ และไม่เผยแพร่สิ่งที่ไม่แน่ใจ',
+        body: 'เมื่อนำ AI มาช่วยทำการบ้านหรือหาไอเดีย ให้ใช้เป็นเพียงผู้ช่วยค้นคว้า ไม่คัดลอกมาส่งเป็นผลงานของตนเองทั้งหมด พร้อมทั้งให้เครดิตและบอกที่มาอย่างซื่อสัตย์ และที่สำคัญที่สุดคือ “คิดก่อนกดแชร์” เพื่อไม่ให้เรากลายเป็นผู้เผยแพร่ข้อมูลเท็จในสังคม',
+        check1: 'ตรวจทานความถูกต้องด้วยตนเองก่อนนำไปใช้ส่งงานหรือสื่อสารเสมอ',
+        check2: 'ไม่ส่งต่อข้อมูลสุขภาพ การเงิน หรือข่าวสารที่ยังไม่ได้รับการยืนยันจากทางการ',
+        tip: '💡 เคล็ดลับ: ความปลอดภัยในโลกไซเบอร์เริ่มที่ตัวเรา แค่หยุดตรวจ 1 นาทีก่อนแชร์ ช่วยป้องกันความเสียหายได้มหาศาล',
+        speak: 'ขั้นตอนที่สี่ ใช้และแบ่งปันอย่างมีความรับผิดชอบ ตรวจทานความถูกต้อง บอกที่มาอย่างซื่อสัตย์ และหยุดตรวจก่อนกดแชร์'
+      }
+    ];
+
+    const SCENARIOS = [
+      {
+        id: 'health',
+        icon: '🍋',
+        title: 'สมุนไพรรักษาโรค',
+        prompt: 'น้ำมะนาวผสมโซดาสามารถรักษามะเร็งหายขาดได้ใน 3 วันจริงหรือไม่?',
+        aiText: 'มีบทความในสื่อสังคมออนไลน์กล่าวว่าน้ำมะนาวผสมโซดามีฤทธิ์เป็นด่าง ช่วยฆ่าเซลล์มะเร็งได้เร็วกว่ายาเคมีบำบัด 10,000 เท่า ดื่มเป็นประจำจะหายขาด',
+        sourceScore: '20%',
+        evidenceScore: '10%',
+        risk: 'สูงมาก (อันตราย)',
+        riskLevel: 'warn',
+        verdict: '❌ ข้อมูลเท็จทางการแพทย์ (อันตรายถึงชีวิต)',
+        explain: 'สถาบันมะเร็งแห่งชาติยืนยันแล้วว่าเป็นข่าวปลอม มะนาวมีวิตามินซีจริงแต่ไม่สามารถรักษามะเร็งให้หายขาดได้ หากผู้ป่วยหลงเชื่อจนหยุดการรักษาจากแพทย์จะเกิดอันตรายถึงชีวิต'
+      },
+      {
+        id: 'history',
+        icon: '📜',
+        title: 'ประวัติศาสตร์ชุมชน',
+        prompt: 'โรงเรียนบ้านคำไผ่และวัดบ้านคำไผ่ ก่อตั้งขึ้นเมื่อปีใด?',
+        aiText: 'โรงเรียนบ้านคำไผ่ ก่อตั้งขึ้นเมื่อประมาณปี พ.ศ. 2480 โดยมีชาวบ้านและผู้นำชุมชนร่วมกันสร้างเพื่อเป็นศูนย์กลางการเรียนรู้ของบุตรหลานในตำบลคำไผ่',
+        sourceScore: '75%',
+        evidenceScore: '70%',
+        risk: 'ต่ำ',
+        riskLevel: 'good',
+        verdict: '✅ ข้อมูลน่าเชื่อถือ แต่ควรตรวจกับทะเบียนประวัติโรงเรียน',
+        explain: 'ข้อมูลสอดคล้องกับบันทึกประวัติการศึกษาท้องถิ่น แนะนำให้นักเรียนสอบถามเพิ่มเติมจากคุณครูหรือผู้อำนวยการ เพื่อดูเอกสารจัดตั้งโรงเรียนฉบับจริง'
+      },
+      {
+        id: 'science',
+        icon: '🪐',
+        title: 'ดาวเคราะห์ในระบบสุริยะ',
+        prompt: 'ดาวเคราะห์ดวงใดในระบบสุริยะที่มีขนาดใหญ่ที่สุด และมีดวงจันทร์บริวารกี่ดวง?',
+        aiText: 'ดาวพฤหัสบดี (Jupiter) เป็นดาวเคราะห์ที่มีขนาดใหญ่ที่สุดในระบบสุริยะ โดยล่าสุดมีการค้นพบดวงจันทร์บริวารรวมแล้วอย่างน้อย 95 ดวง',
+        sourceScore: '95%',
+        evidenceScore: '90%',
+        risk: 'ต่ำมาก',
+        riskLevel: 'good',
+        verdict: '✅ ข้อมูลถูกต้องและอัปเดตตามหลักดาราศาสตร์สากล',
+        explain: 'ข้อมูลตรงกับการยืนยันขององค์การ NASA และสถาบันวิจัยดาราศาสตร์แห่งชาติ (สดร.) มีการบันทึกตำแหน่งและการสำรวจทางวิทยาศาสตร์อย่างเป็นรูปธรรม'
+      },
+      {
+        id: 'deepfake',
+        icon: '🎭',
+        title: 'คลิปเสียงคนดังแจกเงิน',
+        prompt: 'มีคลิปเสียงดาราชื่อดังบอกว่าให้โอนเงิน 100 บาท เพื่อแลกรับเงินรางวัล 10,000 บาท',
+        aiText: 'ในคลิปเสียงมีน้ำเสียงคล้ายดาราคนดังกล่าวมาก กำลังชวนให้ร่วมกิจกรรมโอนเงินผ่านบัญชีส่วนบุคคลเพื่อรับสิทธิ์แจกทุนการศึกษาแบบจำกัดเวลา',
+        sourceScore: '10%',
+        evidenceScore: '5%',
+        risk: 'สูงมาก (มิจฉาชีพ)',
+        riskLevel: 'warn',
+        verdict: '🚨 หลอกลวงทางไซเบอร์ (AI Deepfake Voice Scam)',
+        explain: 'นี่คือกลโกงของมิจฉาชีพที่ใช้เทคโนโลยี AI โคลนเสียงของบุคคลมีชื่อเสียงเพื่อสร้างความน่าเชื่อถือ ห้ามโอนเงินหรือให้ข้อมูลส่วนตัวเด็ดขาด'
+      }
+    ];
+
+    const QUIZZES = [
+      {
+        question: 'เมื่อ AI ให้คำตอบที่เขียนได้สละสลวยและมีตัวเลขสถิติมากมาย สิ่งแรกที่นักเรียนควรทำคืออะไร?',
+        options: [
+          { text: 'คัดลอกไปส่งครูทันทีเพราะคำตอบสมบูรณ์แบบมาก', correct: false, explain: 'ยังไม่ถูกต้อง ภาษาที่สละสลวยไม่ได้เป็นหลักประกันว่าข้อมูลถูกต้องเสมอไป' },
+          { text: 'ตรวจสอบแหล่งที่มา วันที่ และหลักฐานอ้างอิงก่อนนำไปใช้', correct: true, explain: 'ถูกต้อง! AI อาจสร้างตัวเลขสมมติขึ้นมาอย่างแนบเนียน จึงต้องตรวจทานหลักฐานจริงเสมอ' },
+          { text: 'ลบข้อความทิ้งเพราะคำตอบจาก AI เชื่อถือไม่ได้ 100%', correct: false, explain: 'AI ใช้เป็นจุดเริ่มต้นค้นคว้าได้ แต่ต้องมีมนุษย์คอยตรวจสอบความถูกต้อง' }
+        ]
+      },
+      {
+        question: 'ข้อมูลประเภทใดต่อไปนี้ จัดว่าเป็น "ข้อเท็จจริง (Fact)" ไม่ใช่ความคิดเห็น?',
+        options: [
+          { text: 'วิชาคณิตศาสตร์เป็นวิชาที่สนุกและน่าเรียนที่สุดในโลก', correct: false, explain: 'นี่คือความคิดเห็น (ความรู้สึกส่วนตัว) เพราะแต่ละคนชอบวิชาไม่เหมือนกัน' },
+          { text: 'น้ำบริสุทธิ์มีจุดเดือดอยู่ที่ 100 องศาเซลเซียส ณ ความดัน 1 บรรยากาศ', correct: true, explain: 'ถูกต้อง! นี่คือข้อเท็จจริงทางวิทยาศาสตร์ที่สามารถทดลองและพิสูจน์ซ้ำได้' },
+          { text: 'หุ่นยนต์ตัวนี้น่ารักและใจดีกว่าหุ่นยนต์ตัวอื่น', correct: false, explain: 'นี่คือความคิดเห็นส่วนบุคคล' }
+        ]
+      },
+      {
+        question: 'ทำไมการเปรียบเทียบข้อมูลอย่างน้อย 2–3 แหล่ง (Cross-Checking) จึงมีความสำคัญอย่างยิ่ง?',
+        options: [
+          { text: 'ช่วยลดโอกาสการถูกหลอกลวง และยืนยันความถูกต้องของข้อเท็จจริง', correct: true, explain: 'ถูกต้อง! หากข้อมูลมาจากแหล่งอิสระที่น่าเชื่อถือตรงกัน โอกาสผิดพลาดจะลดลงอย่างมาก' },
+          { text: 'เพื่อให้เสียเวลาค้นหาข้อมูลมากขึ้น', correct: false, explain: 'ไม่ใช่ การตรวจสอบไขว้มีไว้เพื่อสร้างความมั่นใจในความถูกต้อง' },
+          { text: 'เพราะกฎหมายบังคับให้เด็กทุกคนต้องเปิดดู 3 เว็บไซต์', correct: false, explain: 'ไม่ได้มีกฎหมายบังคับ แต่เป็นวิธีปฏิบัติที่ดีของพลเมืองดิจิทัล' }
+        ]
+      },
+      {
+        question: 'ปรากฏการณ์ "AI Hallucination" (ภาพหลอนของ AI) หมายถึงข้อใด?',
+        options: [
+          { text: 'หน้าจอคอมพิวเตอร์เกิดแสงกระพริบจนมองไม่เห็น', correct: false, explain: 'นั่นคือปัญหาของจอภาพฮาร์ดแวร์' },
+          { text: 'AI สร้างคำตอบหรือข้อเท็จจริงที่ไม่มีอยู่จริงขึ้นมาอย่างมั่นใจ', correct: true, explain: 'ถูกต้อง! AI อาจแต่งชื่อคน วันที่ หรือเหตุการณ์ที่ไม่มีอยู่จริงขึ้นมาอย่างแนบเนียน' },
+          { text: 'AI สามารถมองเห็นผีหรือสิ่งลี้ลับผ่านกล้องเว็บแคม', correct: false, explain: 'AI เป็นโปรแกรมคอมพิวเตอร์ ไม่มีญาณทิพย์ใดๆ' }
+        ]
+      },
+      {
+        question: 'หากพบข่าวชวนตกใจเรื่อง "เกิดโรคระบาดร้ายแรงในอาหารโรงเรียน" ในกลุ่มแชท ควรทำอย่างไร?',
+        options: [
+          { text: 'รีบแชร์ต่อให้เพื่อนทุกคนรู้ทันทีเพื่อความปลอดภัย', correct: false, explain: 'การรีบแชร์ข่าวลือที่ยังไม่ยืนยันจะสร้างความตื่นตระหนกและอาจมีความผิดตาม พ.ร.บ.คอมพิวเตอร์' },
+          { text: 'หยุดตรวจ แหล่งที่มา ถามคุณครู และรอประกาศจากโรงเรียนก่อน', correct: true, explain: 'ถูกต้อง! หยุด คิด ตรวจสอบ และรอฟังประกาศอย่างเป็นทางการจากผู้รับผิดชอบ' },
+          { text: 'สร้างข่าวปลอมเรื่องอื่นมาตอบโต้', correct: false, explain: 'ไม่ถูกต้องอย่างยิ่ง จะทำให้เกิดความวุ่นวายมากขึ้น' }
+        ]
+      },
+      {
+        question: 'การใช้ AI ในการทำงานส่งครูอย่าง "ซื่อสัตย์และมีจริยธรรม" คือข้อใด?',
+        options: [
+          { text: 'ให้ AI แต่งเรียงความให้ทั้งหมด แล้วใส่ชื่อตนเองส่งครู', correct: false, explain: 'เป็นการคัดลอกผลงาน (Plagiarism) ขาดความซื่อสัตย์ทางวิชาการ' },
+          { text: 'ใช้ AI ช่วยระดมไอเดีย จากนั้นนำมาเรียบเรียงด้วยภาษาของตนเองและบอกที่มา', correct: true, explain: 'ถูกต้อง! ใช้ AI เป็นเครื่องมือช่วยเรียนรู้ พร้อมให้เกียรติและระบุแหล่งที่มาอย่างโปร่งใส' },
+          { text: 'หลอกครูว่าทำเองโดยปิดบังไม่ให้ใครรู้ว่าเปิดดู AI', correct: false, explain: 'ขาดความซื่อสัตย์ต่อตนเองและคุณครู' }
+        ]
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const state = {
+      mode: 'learn',
+      scene: 0,
+      scenarioIdx: 0,
+      quizIdx: 0,
+      quizAnswered: false
+    };
+
+    function stopSpeak() {
+      try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+      try { window.speechSynthesis?.cancel(); } catch (_) {}
+    }
+
+    function speak(text) {
+      stopSpeak();
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          window.KAMPAI.sound.speak(text, 'th-TH', true);
+          return;
+        }
+      } catch (_) {}
+      if ('speechSynthesis' in window) {
+        try {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'th-TH';
+          u.rate = 0.88;
+          window.speechSynthesis.speak(u);
+        } catch (_) {}
+      }
+    }
+
+    function currentScene() { return SCENES[state.scene] || SCENES[0]; }
+
+    function renderNavigation() {
+      $('sceneList').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="scene-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          <span class="scene-icon">${scene.icon}</span>
+          <span>${scene.label}</span>
+        </button>
+      `).join('');
+
+      $('lessonNav').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="lesson-btn ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${idx + 1}
+        </button>
+      `).join('');
+
+      $('stepStrip').innerHTML = SCENES.map((scene, idx) => `
+        <button type="button" class="step-chip ${state.scene === idx ? 'on' : ''}" data-scene="${idx}">
+          ${scene.icon} ${scene.label}
+        </button>
+      `).join('');
+    }
+
+    function renderScene() {
+      const s = currentScene();
+      $('lessonEmoji').textContent = s.icon;
+      $('lessonKicker').textContent = s.kicker;
+      $('lessonTitle').textContent = s.title;
+      $('lessonGoal').textContent = s.goal;
+
+      $('detailNumber').textContent = `ขั้นตอนที่ ${state.scene + 1} จาก ${SCENES.length}`;
+      $('detailBadge').textContent = s.badge;
+      $('detailTitle').textContent = s.title;
+      $('detailBody').textContent = s.body;
+      $('check1').textContent = s.check1;
+      $('check2').textContent = s.check2;
+      $('detailTip').textContent = s.tip;
+
+      $('visualTitle').textContent = s.title;
+      $('visualBody').textContent = s.body;
+      renderNavigation();
+    }
+
+    function setMode(mode) {
+      stopSpeak();
+      state.mode = mode;
+      const shell = $('shell');
+      shell.classList.remove('visual-mode', 'practice-mode', 'lab-mode');
+      if (mode !== 'learn') shell.classList.add(`${mode}-mode`);
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        const active = btn.dataset.mode === mode;
+        btn.classList.toggle('on', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+
+      const hints = {
+        learn: 'เลือกขั้นตอนรู้เท่าทัน แล้วกดฟังคำอธิบายได้ทุกเวลา',
+        visual: 'แตะการ์ดภาพเพื่อฟังคำบรรยายประกอบภาพ',
+        lab: 'เลือกสถานการณ์คำตอบ AI เพื่อทดสอบตรวจจับข้อมูลจริง/เท็จ',
+        practice: 'อ่านคำถามสถานการณ์ แล้วเลือกข้อปฏิบัติที่ถูกต้องและปลอดภัย'
+      };
+      $('toolbarHint').textContent = hints[mode] || '';
+
+      if (mode === 'lab') renderLab();
+      if (mode === 'practice') renderQuiz();
+    }
+
+    // ═══ Lab UI (AI Simulator) ═══
+    function renderLab() {
+      $('scenarioSelector').innerHTML = SCENARIOS.map((sc, idx) => `
+        <button type="button" class="scenario-btn ${state.scenarioIdx === idx ? 'on' : ''}" data-sc="${idx}">
+          <span class="sc-ico">${sc.icon}</span>
+          <span class="sc-txt">${sc.title}</span>
+        </button>
+      `).join('');
+
+      const sc = SCENARIOS[state.scenarioIdx];
+      $('labPromptText').textContent = sc.prompt;
+      $('labAiResponse').textContent = sc.aiText;
+
+      $('sourceScore').textContent = sc.sourceScore;
+      $('sourceBar').style.width = sc.sourceScore;
+
+      $('evidenceScore').textContent = sc.evidenceScore;
+      $('evidenceBar').style.width = sc.evidenceScore;
+
+      $('riskScore').textContent = sc.risk;
+      $('riskBar').className = `meter-fill ${sc.riskLevel === 'good' ? 'good' : 'warn'}`;
+
+      $('auditVerdict').textContent = sc.verdict;
+      $('auditExplain').textContent = sc.explain;
+    }
+
+    function selectScenario(idx) {
+      state.scenarioIdx = idx;
+      renderLab();
+    }
+
+    // ═══ Practice UI ═══
+    function renderQuiz() {
+      const q = QUIZZES[state.quizIdx];
+      $('quizProg').textContent = `คำถามที่ ${state.quizIdx + 1} จาก ${QUIZZES.length}`;
+      $('quizQuestion').textContent = q.question;
+      $('btnNextQuiz').style.display = 'none';
+      state.quizAnswered = false;
+
+      $('quizOptions').innerHTML = q.options.map((opt, i) => `
+        <button type="button" class="opt-btn" data-opt="${i}">
+          <span>${['ก', 'ข', 'ค'][i]}.</span>
+          <span>${opt.text}</span>
+        </button>
+      `).join('');
+
+      $('quizFeedback').textContent = 'เลือกคำตอบแล้วอ่านเหตุผลการวิเคราะห์';
+      $('quizFeedback').className = 'practice-fb';
+    }
+
+    function answerQuiz(idx) {
+      if (state.quizAnswered) return;
+      state.quizAnswered = true;
+
+      const q = QUIZZES[state.quizIdx];
+      const opt = q.options[idx];
+      const isOk = opt.correct;
+
+      const buttons = document.querySelectorAll('.opt-btn');
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (q.options[i].correct) btn.classList.add('correct');
+        else if (i === idx) btn.classList.add('wrong');
+      });
+
+      const fb = $('quizFeedback');
+      fb.textContent = opt.explain;
+      fb.className = `practice-fb ${isOk ? 'good' : 'retry'}`;
+
+      try {
+        window.KAMPAI?.sound?.[isOk ? 'correct' : 'wrong']?.();
+      } catch (_) {}
+
+      speak(opt.explain);
+      $('btnNextQuiz').style.display = 'inline-flex';
+    }
+
+    // ═══ Event Listeners ═══
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.addEventListener('click', () => setMode(b.dataset.mode));
+    });
+
+    $('btnBack').addEventListener('click', () => {
+      stopSpeak();
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    });
+
+    $('btnListen').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnSpeakScene').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('visualOverlay').addEventListener('click', () => {
+      speak(currentScene().speak || currentScene().body);
+    });
+
+    $('btnNextScene').addEventListener('click', () => {
+      stopSpeak();
+      state.scene = (state.scene + 1) % SCENES.length;
+      renderScene();
+    });
+
+    $('scenarioSelector').addEventListener('click', e => {
+      const b = e.target.closest('[data-sc]');
+      if (b) selectScenario(Number(b.dataset.sc));
+    });
+
+    $('btnAuditSpeak').addEventListener('click', () => {
+      const sc = SCENARIOS[state.scenarioIdx];
+      speak(`${sc.verdict}. ${sc.explain}`);
+    });
+
+    $('quizOptions').addEventListener('click', e => {
+      const b = e.target.closest('[data-opt]');
+      if (b) answerQuiz(Number(b.dataset.opt));
+    });
+
+    $('btnNextQuiz').addEventListener('click', () => {
+      state.quizIdx = (state.quizIdx + 1) % QUIZZES.length;
+      renderQuiz();
+    });
+
+    $('btnRestartQuiz').addEventListener('click', () => {
+      state.quizIdx = 0;
+      renderQuiz();
+    });
+
+    $('sceneList').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('lessonNav').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('stepStrip').addEventListener('click', e => {
+      const b = e.target.closest('[data-scene]');
+      if (b) {
+        stopSpeak();
+        state.scene = Number(b.dataset.scene);
+        renderScene();
+      }
+    });
+
+    $('btnFs').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeak();
+    });
+    window.addEventListener('pagehide', stopSpeak);
+
+    // Initial setup
+    renderScene();
+    renderLab();
+
+    // Read-only QA State Inspector
+    window.AiDataLiteracyMedia = Object.freeze({
+      getState: () => Object.freeze({
+        mode: state.mode,
+        scene: state.scene,
+        scenarioIdx: state.scenarioIdx,
+        quizIdx: state.quizIdx,
+        quizAnswered: state.quizAnswered
+      })
+    });
+  })();
+  </script>
+</body>
+</html>

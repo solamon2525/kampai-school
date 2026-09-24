@@ -67,6 +67,196 @@
       steps: ['เขียนตัวตั้งและตัวหาร', 'หารทีละหลัก', 'คูณกลับ', 'ลบแล้วดึงหลักถัดไป', 'ตรวจด้วยผลหาร × ตัวหาร']
     },
     {
+      match: 'short-division-worksheet',
+      skills: ['ตั้งหารสั้น', 'หารทีละหลัก', 'ทดเศษ', 'เขียนผลหาร', 'ตรวจด้วยคูณ'],
+      steps: ['เขียนตัวหาร ) ตัวตั้ง', 'หารทีละหลัก', 'ทดเศษตัวเล็กหน้าหลักถัดไป', 'เขียนผลหารใต้เส้น', 'ตรวจด้วยผลหาร × ตัวหาร']
+    },
+    {
+      match: 'divide-by-2-worksheet',
+      skills: ['แบ่งครึ่ง', 'คิดครึ่งหนึ่ง', 'แยกหลัก', 'ตรวจด้วย ×2', 'สรุปคำตอบ'],
+      steps: ['อ่านตัวตั้งที่เป็นเลขคู่', 'คิด ? + ? = ตัวตั้ง', 'แยกหลักเมื่อเลขใหญ่', 'ตรวจคำตอบ × 2', 'เขียนคำตอบ']
+    },
+    {
+      match: 'math-24-worksheet',
+      skills: ['วางแผนหา 24', 'ใช้เลขครบ 4 ตัว', 'คำนวณทีละขั้น', 'ตรวจผล', 'เลือกกลยุทธ์'],
+      steps: ['ดูเลข 4 ตัวและเป้า 24', 'หาคู่คูณ/บวกใกล้ 24', 'คำนวณทีละขั้น', 'ตรวจใช้ครบ 4 ตัว', 'ยืนยันผลได้ 24']
+    },
+    {
+      match: 'angle-worksheet',
+      skills: ['ดูรูปมุม', 'เทียบกับ 90°', 'จำแนกชนิด', 'อ่านขนาด', 'อธิบายเหตุผล'],
+      steps: ['หาจุดมุมและแขนมุม', 'เทียบกับมุมฉาก 90°', 'เลือกแหลม/ฉาก/ป้าน/ตรง', 'อ่านหรือประมาณองศา', 'เขียนเหตุผลสั้น ๆ']
+    },
+    {
+      match: 'decimal-worksheet',
+      skills: ['อ่านค่าประจำหลัก', 'จัดจุดทศนิยม', 'เปรียบเทียบ', 'บวกลบ', 'ใช้ในชีวิตจริง'],
+      steps: ['เขียนตารางหลัก', 'จัดจุดทศนิยมให้ตรง', 'เทียบหรือคำนวณทีละหลัก', 'ตรวจด้วยประมาณค่า', 'ตอบพร้อมหน่วย']
+    },
+    {
+      match: 'number-line-worksheet',
+      skills: ['ระบุตำแหน่ง', 'เปรียบเทียบซ้าย–ขวา', 'เรียงลำดับ', 'กระโดดบวกลบ', 'ทำเครื่องหมาย'],
+      steps: ['ดูปลายเส้นและขีด', 'หาตำแหน่งของจำนวน', 'เทียบซ้ายน้อยกว่าขวามากกว่า', 'กระโดดทีละช่องถ้าโจทย์บวกลบ', 'ทำเครื่องหมายและสรุป']
+    },
+    {
+      match: 'plant-parts-worksheet',
+      skills: ['ระบุส่วนพืช', 'อธิบายหน้าที่', 'เชื่อมอาหาร', 'เรียงการเติบโต', 'ให้เหตุผล'],
+      steps: ['ดูรูป/โจทย์', 'เลือกส่วน ราก ลำต้น ใบ ดอก', 'อธิบายหน้าที่', 'เชื่อมชีวิตประจำวัน', 'สรุปคำตอบ']
+    },
+    {
+      match: 'food-chain-worksheet',
+      skills: ['เรียงห่วงโซ่', 'ระบุบทบาท', 'อ่านลูกศรพลังงาน', 'วิเคราะห์ผลกระทบ', 'ยกตัวอย่าง'],
+      steps: ['หาผู้ผลิต', 'เรียงผู้บริโภค', 'ระบุผู้ย่อยสลาย', 'ดูทิศทางลูกศร', 'วิเคราะห์ถ้าขาดตัวใด']
+    },
+    {
+      match: 'moon-phases-worksheet',
+      skills: ['เรียงข้างขึ้น', 'เรียกชื่อเฟส', 'ดูรูปร่าง', 'อธิบายเหตุ', 'เชื่อมดวงอาทิตย์'],
+      steps: ['ดูวงจันทร์', 'เรียงลำดับ', 'เรียกชื่อเฟส', 'เชื่อมแสงอาทิตย์', 'สรุป']
+    },
+    {
+      match: 'digestive-worksheet',
+      skills: ['เรียงทางเดินอาหาร', 'หน้าที่อวัยวะ', 'เปรียบเทียบส่วน', 'ดูแลสุขภาพ', 'ให้เหตุผล'],
+      steps: ['เรียงปาก→…→ลำไส้', 'จับคู่หน้าที่', 'เปรียบเทียบส่วน', 'เชื่อมพฤติกรรมสุขภาพ', 'สรุป']
+    },
+    {
+      match: 'food-groups-worksheet',
+      skills: ['จัดหมู่ 5 หมู่', 'อธิบายประโยชน์', 'จัดจานสมดุล', 'เลือกอาหาร', 'วางแผนมื้อ'],
+      steps: ['ดูอาหาร', 'เลือกหมู่', 'อธิบายประโยชน์', 'วางแผนจาน', 'สรุป']
+    },
+    {
+      match: 'handwash-worksheet',
+      skills: ['เรียง 7 ขั้น', 'อธิบายวิธีทำ', 'บอกเหตุผล', 'เลือกเวลาล้าง', 'ไม่ข้ามขั้น'],
+      steps: ['นึก 7 ขั้น', 'เรียงลำดับ', 'อธิบายวิธี', 'บอกทำไม', 'เชื่อมชีวิตประจำวัน']
+    },
+    {
+      match: 'bone-muscle-worksheet',
+      skills: ['ระบุกระดูก/กล้ามเนื้อ/ข้อต่อ', 'อธิบายหน้าที่', 'วิธีดูแล', 'เชื่อมอาหารออกกำลัง', 'ป้องกันบาดเจ็บ'],
+      steps: ['ระบุส่วน', 'อธิบายหน้าที่', 'หาปัญหา', 'เลือกวิธีดูแล', 'สรุปผล']
+    },
+    {
+      match: 'waste-sort-worksheet',
+      skills: ['จำแนกถัง', 'ใช้เกณฑ์แยก', 'อธิบายเหตุผล', 'แนวปฏิบัติโรงเรียน', 'ลดขยะ'],
+      steps: ['สังเกตขยะ', 'ใช้เกณฑ์', 'เลือกถัง', 'อธิบายเหตุผล', 'บอกแนวปฏิบัติ']
+    },
+    {
+      match: 'community-jobs-worksheet',
+      skills: ['ระบุอาชีพ', 'จัดกลุ่มบริการ/ผลิต/ค้า', 'อธิบายหน้าที่', 'ประโยชน์ชุมชน', 'สำรวจตัวเอง'],
+      steps: ['อ่านหน้าที่', 'ระบุอาชีพ', 'จัดกลุ่ม', 'บอกประโยชน์', 'เชื่อมความสนใจ']
+    },
+    {
+      match: 'good-citizen-worksheet',
+      skills: ['อ่านสถานการณ์', 'เลือกการกระทำ', 'เชื่อมคุณธรรม', 'ให้เหตุผล', 'นำไปใช้'],
+      steps: ['อ่านสถานการณ์', 'เลือกพฤติกรรม', 'วงคุณธรรม', 'เขียนเหตุผล', 'นำไปใช้']
+    },
+    {
+      match: 'sufficiency-worksheet',
+      skills: ['จำ 3 ห่วง', 'จำ 2 เงื่อนไข', 'เลือกห่วงตามสถานการณ์', 'วางแผนพอเพียง', 'ให้เหตุผล'],
+      steps: ['ดูแผนภาพ 3 ห่วง', 'ดู 2 เงื่อนไข', 'อ่านสถานการณ์', 'เลือกห่วง/เงื่อนไข', 'เขียนการกระทำ']
+    },
+    {
+      match: 'reading-hub-worksheet',
+      skills: ['อ่านใจความ', 'หาหลักฐาน', 'แยกรายละเอียด', 'อนุมาน', 'สรุป'],
+      steps: ['อ่านข้อความทั้งหมด', 'ขีดหลักฐาน', 'ติ๊ก ใจความ/รายละเอียด/อนุมาน', 'เขียนสรุปสั้น', 'ตรวจว่าตรงหลักฐาน']
+    },
+    {
+      match: 'writing-hub-worksheet',
+      skills: ['วางแผนเรื่อง', 'เขียนเริ่ม–เหตุการณ์–จบ', 'ตรวจภาษา', 'แก้ประโยค', 'เขียนใหม่'],
+      steps: ['ใส่ช่อง เริ่ม|เหตุการณ์|จบ', 'ร่างประโยค', 'หาจุดผิด', 'แก้ในช่องถูก', 'อ่านทวน']
+    },
+    {
+      match: 'grammar-hub-worksheet',
+      skills: ['จำแนกชนิดคำ', 'หาประธาน', 'หากริยา', 'หากรรม', 'จัด S→V→O'],
+      steps: ['อ่านประโยค', 'ติ๊กชนิดคำ', 'ใส่ช่อง S V O', 'ตรวจลำดับ', 'สรุปกฎ']
+    },
+    {
+      match: 'sentence-hub-worksheet',
+      skills: ['จำแนกชนิดประโยค', 'รวมประโยค', 'แยกส่วน', 'ใช้คำเชื่อม', 'ตรวจความหมาย'],
+      steps: ['อ่านประโยค', 'ติ๊กชนิด', 'ใช้ word-bank รวม', 'จัด SVO', 'อ่านทวนความหมาย']
+    },
+    {
+      match: 'grammar-mini-worksheet',
+      skills: ['แยกเอก/พหู', 'เลือก is/are', 'เลือก a/an', 'เลือก this/that', 'เขียนประโยค'],
+      steps: ['หา clue เอก/พหูหรือเสียงต้น', 'เลือกกฎ', 'เขียนประโยค', 'ยก evidence', 'ตรวจ']
+    },
+    {
+      match: 'sight-words-worksheet',
+      skills: ['จำความหมายคำ', 'ใช้ word-bank', 'เติมในประโยค', 'เปรียบเทียบคำ', 'สร้างประโยค'],
+      steps: ['ดูคำใน bank', 'เลือกความหมาย', 'เติมในประโยค', 'เขียนประโยคเอง', 'ตรวจคำสะกด']
+    },
+    {
+      match: 'follow-instructions-worksheet',
+      skills: ['อ่านคำกริยาคำสั่ง', 'หาคำเป้า', 'Circle', 'Underline', 'Tick'],
+      steps: ['อ่านคำสั่งครบ', 'วงคำกริยา', 'หาคำเป้า', 'ทำตามคำสั่ง', 'ตรวจว่าทำครบ']
+    },
+    {
+      match: 'fraction-hub-worksheet',
+      skills: ['อ่านเศษ/ส่วน', 'ดูแถบเศษส่วน', 'เปรียบเทียบ', 'ย่อขยาย', 'บวกลบส่วนเท่า'],
+      steps: ['ดูแถบหรือสัญลักษณ์', 'หาเศษกับส่วน', 'เปรียบเทียบหรือทำส่วนเท่า', 'คำนวณ', 'สรุปคำตอบ']
+    },
+    {
+      match: 'word-problem-hub-worksheet',
+      skills: ['อ่านโจทย์', 'เลือกเครื่องหมาย', 'เขียนสมการ', 'คำนวณ', 'ตรวจคำตอบ'],
+      steps: ['ขีดคำสำคัญ', 'เลือก + − × ÷', 'เขียนสมการ', 'คำนวณ', 'ตรวจด้วยย้อนกลับ']
+    },
+    {
+      match: 'bar-chart-worksheet',
+      skills: ['อ่านตาราง', 'อ่านแท่ง', 'เปรียบเทียบ', 'หาผลรวม', 'กำหนดสเกล'],
+      steps: ['อ่านค่าจากตาราง', 'ดูความสูงแท่ง', 'เปรียบเทียบหรือรวม', 'ตรวจสเกล', 'สรุป']
+    },
+    {
+      match: 'decimal-hub-worksheet',
+      skills: ['อ่านทศนิยม', 'จัดค่าประจำหลัก', 'เปรียบเทียบ', 'บวกลบจัดจุด', 'สรุป'],
+      steps: ['เขียนตารางหลัก', 'จัดจุดให้ตรง', 'เทียบหรือคำนวณ', 'ตรวจ', 'ตอบ']
+    },
+    {
+      match: 'geometry-hub-worksheet',
+      skills: ['จำแนกรูป', 'จำแนกมุม', 'หาเส้นรอบ', 'หาพื้นที่', 'เลือกสูตร'],
+      steps: ['ดูรูป', 'ติ๊กชนิด', 'เลือกสูตร', 'คำนวณ', 'สรุปพร้อมหน่วย']
+    },
+    {
+      match: 'fraction-pieces-worksheet',
+      skills: ['อ่านแถบเศษส่วน', 'เปรียบเทียบ', 'ย่อขยาย', 'บวกส่วนเท่า', 'สรุป'],
+      steps: ['ดูแถบ', 'หาเศษ/ส่วน', 'เทียบหรือคำนวณ', 'ย่อถ้าได้', 'ตอบ']
+    },
+    {
+      match: 'script-hub-worksheet',
+      skills: ['จำแนกพยัญชนะ', 'รู้สระ', 'รู้วรรณยุกต์', 'สะกดคำ', 'แยกพยางค์'],
+      steps: ['ดูตัวอักษร', 'นึกกฎ', 'เลือกชนิด', 'เขียน/สะกด', 'ตรวจ']
+    },
+    {
+      match: 'idiom-hub-worksheet',
+      skills: ['อ่านสำนวน', 'หาความหมาย', 'ใช้ในบริบท', 'ยกตัวอย่าง', 'สรุป'],
+      steps: ['อ่านสำนวน', 'ตีความ', 'เลือกความหมาย', 'ใช้ในประโยค', 'ตรวจ']
+    },
+    {
+      match: 'poetry-hub-worksheet',
+      skills: ['อ่านบทร้อยกรอง', 'หาสัมผัส', 'รู้ฉันทลักษณ์', 'ตีความ', 'สรุป'],
+      steps: ['อ่านบท', 'หาสัมผัส/จังหวะ', 'ใช้กฎ', 'ตีความ', 'สรุป']
+    },
+    {
+      match: 'punctuation-hub-worksheet',
+      skills: ['รู้เครื่องหมาย', 'เลือกใช้', 'ใส่ในประโยค', 'ตรวจความหมาย', 'สรุป'],
+      steps: ['ดูประโยค', 'เลือกเครื่องหมาย', 'ใส่ตำแหน่ง', 'อ่านทวน', 'สรุป']
+    },
+    {
+      match: 'literature-hub-worksheet',
+      skills: ['อ่านเรื่อง', 'วิเคราะห์ตัวละคร', 'หาข้อคิด', 'เชื่อมชีวิต', 'สรุป'],
+      steps: ['อ่านใจความ', 'วิเคราะห์', 'หาข้อคิด', 'เชื่อมตนเอง', 'สรุป']
+    },
+    {
+      match: 'thai-word-types-worksheet',
+      skills: ['จำแนกนาม', 'จำแนกกริยา', 'จำแนกคุณศัพท์', 'วิเคราะห์ในประโยค', 'สรุป'],
+      steps: ['ดูคำ', 'ดูหน้าที่', 'ติ๊กชนิด', 'ตรวจในประโยค', 'สรุป']
+    },
+    {
+      match: 'thailand-hub-worksheet',
+      skills: ['รู้ภูมิภาค', 'วัฒนธรรม', 'ประวัติศาสตร์', 'หน้าที่พลเมือง', 'ให้เหตุผล'],
+      steps: ['จำแนกหัวข้อ', 'หาหลักฐาน', 'เลือกคำตอบ', 'เขียนเหตุผล', 'สรุป']
+    },
+    {
+      match: 'color-wheel-worksheet',
+      skills: ['รู้แม่สี', 'ผสมสี', 'วรรณะอุ่น/เย็น', 'คู่ตัด', 'เลือกตามอารมณ์'],
+      steps: ['ดูวงล้อ', 'ระบุแม่สี/คู่ผสม', 'ได้สีผลลัพธ์', 'จัดวรรณะ', 'สรุป']
+    },
+    {
       match: 'vocab-grammar-worksheet',
       skills: ['อ่านคำ', 'จำแนกหลักภาษา', 'เลือกคำตอบ', 'เขียนสะกด', 'ตรวจความหมาย'],
       steps: ['อ่านคำให้ครบพยางค์', 'สังเกตตัวสะกดหรือหน้าที่คำ', 'นึกถึงกฎที่เกี่ยวข้อง', 'เขียนคำตอบให้ครบ', 'อ่านทวนความหมาย']
@@ -85,6 +275,96 @@
       match: 'coding-social-worksheet',
       skills: ['อ่านคำสั่ง', 'เรียงขั้นตอน', 'แปลสัญลักษณ์', 'เลือกอย่างปลอดภัย', 'อธิบายเหตุผล'],
       steps: ['หาเป้าหมายของภารกิจ', 'แยกเป็นขั้นตอนสั้น ๆ', 'อ่านสัญลักษณ์ทีละตัว', 'ตรวจความปลอดภัยและมารยาท', 'อธิบายเหตุผลของคำตอบ']
+    },
+    {
+      match: 'states-of-matter-worksheet',
+      skills: ['จำแนกสถานะ', 'อธิบายสมบัติ', 'เปลี่ยนสถานะ', 'ยกตัวอย่าง', 'สรุป'],
+      steps: ['ดูตัวอย่าง', 'เลือกสถานะ', 'อธิบายสมบัติ', 'เชื่อมการเปลี่ยนสถานะ', 'สรุป']
+    },
+    {
+      match: 'vertebrate-sort-worksheet',
+      skills: ['จำแนกสัตว์มีกระดูกสันหลัง', 'ใช้เกณฑ์', 'ยกตัวอย่าง', 'เปรียบเทียบ', 'สรุป'],
+      steps: ['ดูลักษณะ', 'ใช้เกณฑ์กลุ่ม', 'จัดกลุ่ม', 'ยกตัวอย่าง', 'สรุป']
+    },
+    {
+      match: 'thailand-map-worksheet',
+      skills: ['อ่านแผนที่', 'ระบุภูมิภาค', 'หาจังหวัด', 'เปรียบเทียบ', 'สรุป'],
+      steps: ['ดูแผนที่', 'หาภูมิภาค', 'ระบุตำแหน่ง', 'เชื่อมความรู้', 'สรุป']
+    },
+    {
+      match: 'sukhothai-timeline-worksheet',
+      skills: ['เรียงเหตุการณ์', 'อ่านเส้นเวลา', 'เชื่อมประวัติ', 'ให้เหตุผล', 'สรุป'],
+      steps: ['ดูเส้นเวลา', 'เรียงเหตุการณ์', 'เชื่อมบุคคล/สถานที่', 'อธิบายความสำคัญ', 'สรุป']
+    },
+    {
+      match: 'dictionary-worksheet',
+      skills: ['หาคำในพจนานุกรม', 'อ่านคำจำกัดความ', 'ใช้ในประโยค', 'เลือกความหมาย', 'สรุป'],
+      steps: ['หาคำ', 'อ่านความหมาย', 'เลือกความหมายที่ตรงบริบท', 'สร้างประโยค', 'ตรวจ']
+    },
+    {
+      match: 'synonym-worksheet',
+      skills: ['หาคำพ้อง', 'เปรียบเทียบความหมาย', 'ใช้แทนกัน', 'เลือกคำเหมาะบริบท', 'สรุป'],
+      steps: ['อ่านคำ', 'นึกคำพ้อง', 'เทียบความหมาย', 'ใช้ในประโยค', 'ตรวจ']
+    },
+    {
+      match: 'implied-meaning-worksheet',
+      skills: ['อ่านนัย', 'หาเจตนา', 'แยกความหมายตรง/อ้อม', 'ให้เหตุผล', 'สรุป'],
+      steps: ['อ่านข้อความ', 'หาคำใบ้', 'ตีความนัย', 'เลือกคำตอบ', 'อธิบาย']
+    },
+    {
+      match: 'narration-style-worksheet',
+      skills: ['จำแนกการเล่า', 'มุมมองผู้เล่า', 'น้ำเสียง', 'เชื่อมตัวอย่าง', 'สรุป'],
+      steps: ['อ่านข้อความ', 'ดูมุมมอง', 'จำแนกสไตล์', 'ยกหลักฐาน', 'สรุป']
+    },
+    {
+      match: 'sentence-structure-worksheet',
+      skills: ['วิเคราะห์โครงสร้าง', 'หาประธานกริยา', 'จัดเรียง', 'ตรวจความหมาย', 'สรุป'],
+      steps: ['อ่านประโยค', 'หาส่วนประกอบ', 'จัดโครงสร้าง', 'ตรวจ', 'สรุป']
+    },
+    {
+      match: 'color-mix-worksheet',
+      skills: ['จำแม่สี', 'ผสมสีทุติยภูมิ', 'แยกวรรณะ', 'เลือกสีตามอารมณ์', 'สรุป'],
+      steps: ['ดูแม่สี', 'ผสมคู่สี', 'ตั้งชื่อสีที่ได้', 'จัดวรรณะ', 'สรุป']
+    },
+    {
+      match: 'clock-worksheet',
+      skills: ['แยกเข็มสั้น/ยาว', 'อ่านชั่วโมง', 'อ่านนาที', 'คิดเวลาผ่านไป', 'เขียนเวลา'],
+      steps: ['ดูเข็มสั้น = ชั่วโมง', 'ดูเข็มยาว = นาที (×5)', 'อ่านเวลารวม', 'บวก/ลบเวลาถ้าโจทย์ถาม', 'เขียนคำตอบพร้อมหน่วย']
+    },
+    {
+      match: 'money-change-worksheet',
+      skills: ['อ่านราคา', 'อ่านเงินที่จ่าย', 'ตั้งลบ', 'หาเงินทอน', 'ตรวจว่าพอจ่าย'],
+      steps: ['วงราคาของและเงินที่จ่าย', 'ตรวจว่าจ่าย ≥ ราคา', 'ตั้งสมการ จ่าย − ราคา', 'คำนวณเงินทอน', 'ตอบพร้อมหน่วยบาท']
+    },
+    {
+      match: 'light-sort-worksheet',
+      skills: ['สังเกตวัสดุ', 'ดูแสงผ่าน', 'จัดทึบแสง', 'จัดโปร่งแสง', 'จัดโปร่งใส'],
+      steps: ['ดูวัสดุในโจทย์', 'ถามว่าแสงผ่านไหม', 'ถามว่าภาพชัดไหม', 'ติ๊ก ทึบ/โปร่งแสง/โปร่งใส', 'เขียนเหตุผลสั้น']
+    },
+    {
+      match: 'first-aid-worksheet',
+      skills: ['อ่านสถานการณ์', 'ใช้ RICE', 'ห้ามเลือด', 'ดูแลแผลไหม้', 'เรียกผู้ใหญ่'],
+      steps: ['ระบุอาการบาดเจ็บ', 'เลือกหลัก RICE หรือห้ามเลือด/ไหม้', 'ลงขั้นตอนช่วยเหลือ', 'บอกสิ่งที่ห้ามทำ', 'สรุปเมื่อไหร่ต้องเรียกผู้ใหญ่']
+    },
+    {
+      match: 'exercise-care-worksheet',
+      skills: ['อบอุ่นร่างกาย', 'พักเป็นช่วง', 'ใช้ RICE', 'ดื่มน้ำ', 'ขอความช่วยเหลือ'],
+      steps: ['ดูสถานการณ์ก่อน/ระหว่าง/หลังออกกำลัง', 'เลือกอบอุ่น พัก หรือ RICE', 'ลงขั้นตอนดูแล', 'เชื่อมความปลอดภัย', 'สรุปการป้องกันบาดเจ็บ']
+    },
+    {
+      match: 'symmetry-worksheet',
+      skills: ['หาแกนสมมาตร', 'พับเทียบรูป', 'จำแนกสมมาตร', 'ตรวจตัวอักษร', 'วาดแกน'],
+      steps: ['ดูรูปหรือตัวอักษร', 'นึกเส้นพับกลาง', 'เทียบสองข้างทับกันไหม', 'ติ๊ก สมมาตร/ไม่สมมาตร', 'วาดหรือสรุปแกน']
+    },
+    {
+      match: 'online-safety-worksheet',
+      skills: ['ตั้งรหัสผ่านดี', 'ปกป้องข้อมูลส่วนตัว', 'ไม่คลิกลิงก์แปลก', 'ขออนุญาตผู้ใหญ่', 'รายงานอันตราย'],
+      steps: ['อ่านสถานการณ์ออนไลน์', 'ติ๊กหัวข้อเสี่ยง', 'เลือกการกระทำที่ปลอดภัย', 'เขียนเหตุผล', 'สรุปเมื่อไหร่ต้องบอกผู้ใหญ่']
+    },
+    {
+      match: 'past-tense-mini-worksheet',
+      skills: ['เลือก was/were', 'ผันกริยา -ed', 'จำ irregular', 'ใช้คำบอกเวลาอดีต', 'เขียนประโยคอดีต'],
+      steps: ['ดูประธานและคำบอกเวลา', 'ติ๊ก was/were / -ed / irregular', 'แปลงรูปฐานเป็นอดีต', 'เติมในประโยค', 'อ่านทวนความหมาย']
     }
   ];
 
@@ -110,7 +390,7 @@
     if (forced) {
       styleSelect.value = 'standard';
       pageCountSelect.value = mode === 'differentiated' ? '3' : '1';
-      if (countSelect) countSelect.value = countSelect.dataset.fixedCount || '10';
+      if (countSelect) countSelect.value = countSelect.dataset.standardCount || countSelect.dataset.fixedCount || '10';
     }
     pageCountSelect.disabled = forced;
     styleSelect.disabled = forced;
@@ -140,9 +420,11 @@
     const questions = sheet.querySelector('.questions');
     if (!questions) return [];
     const items = Array.from(questions.querySelectorAll('.q'));
-    items.slice(5).forEach((item) => item.remove());
-    questions.classList.add('worksheet-mode-five');
-    return items.slice(0, 5);
+    const fixedCount = Number(document.getElementById('selCount')?.dataset.fixedCount);
+    const limit = Number.isInteger(fixedCount) && fixedCount > 0 ? fixedCount : 5;
+    items.slice(limit).forEach((item) => item.remove());
+    questions.classList.toggle('worksheet-mode-five', limit === 5);
+    return items.slice(0, limit);
   }
 
   function addExitReflection(sheet) {
@@ -152,14 +434,77 @@
     sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
   }
 
+  const DIAG_HINT_KEY = 'kampai_ws_diag_hint';
+
+  function worksheetPathKey() {
+    try {
+      return (window.location.pathname || '').split('/').pop() || 'worksheet';
+    } catch (_) {
+      return 'worksheet';
+    }
+  }
+
+  function saveDiagnosticHint(topic) {
+    try {
+      const payload = {
+        path: worksheetPathKey(),
+        topic: topic || '',
+        at: Date.now(),
+      };
+      sessionStorage.setItem(DIAG_HINT_KEY, JSON.stringify(payload));
+    } catch (_) { /* ignore */ }
+  }
+
+  function readDiagnosticHint() {
+    try {
+      const raw = sessionStorage.getItem(DIAG_HINT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || parsed.path !== worksheetPathKey()) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function applyTopicHintIfAny() {
+    const topicSelect = document.getElementById('selTopic');
+    if (!topicSelect) return;
+    const hint = readDiagnosticHint();
+    if (!hint || !hint.topic || hint.topic === 'mixed') return;
+    const opt = Array.from(topicSelect.options).find((o) => o.value === hint.topic);
+    if (opt) topicSelect.value = hint.topic;
+  }
+
+  function openRemedialFromDiagnostic() {
+    const topicSelect = document.getElementById('selTopic');
+    const topic = topicSelect ? topicSelect.value : '';
+    saveDiagnosticHint(topic);
+    modeSelect.value = 'remedial';
+    applyTopicHintIfAny();
+    enhancedRender();
+    try {
+      const box = document.querySelector('.worksheet-mode-sample, .worksheet-mode-guide');
+      if (box && typeof box.scrollIntoView === 'function') {
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   function addDiagnosticSummary(sheet) {
     const guide = getSubjectGuide();
     const box = document.createElement('div');
     box.className = 'worksheet-mode-summary';
     box.innerHTML = '<strong>บันทึกวินิจฉัยสำหรับครู</strong><div class="worksheet-mode-summary-grid">'
       + guide.skills.map((skill, index) => '<div class="worksheet-mode-summary-item">ข้อ ' + (index + 1) + ' · ' + skill + '<br>[ ] ผ่าน &nbsp; [ ] ซ่อม</div>').join('')
+      + '</div>'
+      + '<div class="worksheet-mode-remedial-actions" style="margin-top:8px">'
+      + '<button type="button" class="btn green" id="btnOpenRemedial">🔧 เปิดโหมดซ่อมเสริมชุดนี้</button>'
+      + '<p style="font-size:7.5pt;margin-top:4px;color:var(--ws-muted,#64748b)">คง seed/จำนวนข้อเดิม · สลับเป็นซ่อมเสริม + กล่องตัวอย่าง · จำทักษะจากตัวเลือกด้านบนไว้ใน session</p>'
       + '</div>';
     sheet.querySelector('.questions')?.insertAdjacentElement('afterend', box);
+    const btn = box.querySelector('#btnOpenRemedial');
+    if (btn) btn.onclick = openRemedialFromDiagnostic;
   }
 
   function addRemedialGuide(sheet) {
@@ -171,6 +516,15 @@
       ? '<strong>จำวิธีตั้งหาร:</strong> ' + guide.steps.join(' → ')
       : '<strong>ตัวช่วยทีละขั้น:</strong> ' + guide.steps.map((step, index) => markers[index] + ' ' + step).join(' ');
     sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
+  }
+
+  function addRemedialSample(sheet) {
+    const box = document.createElement('div');
+    box.className = 'worksheet-mode-sample';
+    box.innerHTML = '<strong>ตัวอย่างก่อนทำ (1 ข้อ):</strong> ครูสาธิตข้อแรกบนจอ/กระดาน → นักเรียนพูดตามขั้น → แล้วค่อยทำข้อที่เหลือเอง · อย่ารีบข้ามตัวอย่าง';
+    const guide = sheet.querySelector('.worksheet-mode-guide');
+    if (guide) guide.insertAdjacentElement('afterend', box);
+    else sheet.querySelector('.sheet-head')?.insertAdjacentElement('afterend', box);
   }
 
   function decorateDifferentiated(sheets) {
@@ -216,9 +570,11 @@
       addNote(sheet, '<strong>สำหรับครู:</strong> ใช้ผลแต่ละข้อระบุทักษะที่ผ่านและจุดที่ควรซ่อมเสริม');
       addDiagnosticSummary(sheet);
     } else if (mode === 'remedial') {
+      applyTopicHintIfAny();
       addBadge(sheet, 'ซ่อมเสริมเฉพาะจุด');
       addNote(sheet, '<strong>เป้าหมาย:</strong> เน้นความเข้าใจทีละขั้น ไม่เน้นความเร็ว');
       addRemedialGuide(sheet);
+      addRemedialSample(sheet);
     }
   }
 
@@ -239,6 +595,7 @@
     setForcedControls(mode);
     baseRender();
     applyModeDecorations();
+    syncPrintLabel();
   }
 
   function enhancedRandomize() {
@@ -246,15 +603,64 @@
     setForcedControls(mode);
     if (!triggerRandomize()) baseRender();
     applyModeDecorations();
+    syncPrintLabel();
   }
 
-  modeSelect.onchange = enhancedRender;
+  function syncPrintLabel() {
+    if (!printBtn) return;
+    const titleEl = document.getElementById('kampaiSetTitle');
+    const title = (titleEl && titleEl.value ? titleEl.value : '').trim();
+    printBtn.textContent = title ? ('🖨 พิมพ์: ' + title) : '🖨 พิมพ์ A4';
+    printBtn.title = title ? ('พิมพ์ชุด «' + title + '»') : 'พิมพ์ A4';
+  }
+
+  modeSelect.onchange = () => {
+    if (modeSelect.value === 'remedial') applyTopicHintIfAny();
+    enhancedRender();
+  };
   document.getElementById('btnRandom').onclick = enhancedRandomize;
   document.querySelectorAll('#selStyle, #selPageCount, #selGrade, #selCount, #selTopic, #selTeacher').forEach((control) => {
     control.onchange = enhancedRender;
   });
   const schoolInput = document.getElementById('inpSchool');
   if (schoolInput) schoolInput.oninput = enhancedRender;
+
+  // Present / projector mode (?present=1)
+  const presentBtn = document.createElement('button');
+  presentBtn.type = 'button';
+  presentBtn.className = 'btn';
+  presentBtn.id = 'btnPresent';
+  presentBtn.title = 'โหมดโปรเจคเตอร์ — ตัวอักษรใหญ่ ซ่อนตัวเลือกพิมพ์';
+  presentBtn.textContent = '📽 โปรเจคเตอร์';
+  const printBtn = document.getElementById('btnPrint');
+  if (printBtn) printBtn.insertAdjacentElement('beforebegin', presentBtn);
+  else controls.appendChild(presentBtn);
+
+  function setPresentMode(on) {
+    document.body.classList.toggle('present-mode', on);
+    presentBtn.textContent = on ? '📄 โหมดปกติ' : '📽 โปรเจคเตอร์';
+    presentBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    try {
+      const url = new URL(window.location.href);
+      if (on) url.searchParams.set('present', '1');
+      else url.searchParams.delete('present');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* ignore */ }
+  }
+
+  presentBtn.onclick = () => setPresentMode(!document.body.classList.contains('present-mode'));
+  try {
+    if (new URLSearchParams(window.location.search).get('present') === '1') setPresentMode(true);
+  } catch (_) { /* ignore */ }
+
+  // Set title mounts async via worksheet-sets — listen for later input
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'kampaiSetTitle') syncPrintLabel();
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'kampaiSetTitle') syncPrintLabel();
+  });
+  setTimeout(syncPrintLabel, 800);
 
   enhancedRender();
 })();

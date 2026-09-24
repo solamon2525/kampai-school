@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <script src="/games/kampai-sdk.js"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/9, ค 1.1 ป.5/7, ค 1.1 ป.6/7" />
   <title>สื่อการสอนการหารสั้น — วิธีคิดทีละขั้น</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body {
       font-family: 'Sarabun', sans-serif;
       background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
@@ -125,6 +127,7 @@
       flex-direction: column;
       min-width: 0;
       background: #f8fafc;
+      position: relative;
     }
     
     .content {
@@ -134,6 +137,25 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+    }
+
+    .presentation-bar {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-presentation {
+      width: auto;
+      min-height: 44px;
+      background: #0f766e;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.18);
+    }
+    .btn-presentation:hover { background: #115e59; }
+    .btn:focus-visible,
+    .select-field:focus-visible,
+    .input-field:focus-visible {
+      outline: 3px solid #fbbf24;
+      outline-offset: 3px;
     }
     
     .intro-banner {
@@ -172,12 +194,19 @@
     
     /* Grid System for Short Division */
     .math-grid {
+      --media-cell: 54px;
+      --media-row: 60px;
+      --media-gap: 8px;
+      --media-font: 2.2rem;
+      --media-carry-font: 1.1rem;
+      --media-bracket-font: 2.5rem;
+      --media-remainder-font: 1rem;
       display: grid;
       font-family: 'Courier New', Courier, monospace;
       font-weight: bold;
-      font-size: 2.2rem;
+      font-size: var(--media-font);
       color: #1e293b;
-      row-gap: 8px;
+      row-gap: var(--media-gap);
       user-select: none;
     }
     
@@ -188,8 +217,8 @@
     }
     
     .math-cell {
-      width: 54px;
-      height: 60px;
+      width: var(--media-cell);
+      height: var(--media-row);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -203,7 +232,7 @@
       position: absolute;
       top: 2px;
       left: 4px;
-      font-size: 1.1rem;
+      font-size: var(--media-carry-font);
       color: #dc2626; /* red */
       font-weight: 800;
     }
@@ -225,8 +254,14 @@
     .bracket-cell {
       font-family: 'Sarabun', sans-serif;
       color: #d97706;
-      font-size: 2.5rem;
+      font-size: var(--media-bracket-font);
       font-weight: 300;
+    }
+
+    .remainder-summary {
+      font-family: 'Sarabun', sans-serif;
+      font-size: var(--media-remainder-font);
+      white-space: nowrap;
     }
     
     /* Explain panel */
@@ -270,6 +305,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+    .btn-stage-speak { display: none; }
     
     .btn-step {
       background: #f1f5f9;
@@ -307,6 +343,171 @@
       border-radius: 4px;
       font-weight: 800;
     }
+    .mode-seg{display:flex;gap:8px;margin:4px 0 8px}
+    .mode-seg .btn{width:auto;flex:1}
+    .mode-seg .btn.on{outline:2px solid #fff;outline-offset:1px}
+    .shell.practice-on .intro-banner,
+    .shell.practice-on .workspace{display:none!important}
+    @media (min-width:768px){
+      .shell.practice-on{max-width:calc(100vw - 32px);min-height:calc(100vh - 32px)}
+    }
+    .practice-panel{
+      --practice-question-size:clamp(3rem,6vw,6rem);
+      --practice-answer-size:clamp(3rem,8vw,7rem);
+      --practice-feedback-size:clamp(1.5rem,3vw,3rem);
+      --practice-action-size:clamp(1.5rem,2.5vw,2.5rem);
+      display:none;
+      flex:1;
+      flex-direction:column;
+      justify-content:center;
+      gap:clamp(12px,2vh,20px);
+      padding:clamp(10px,1.5vw,20px);
+      margin:0 auto;
+      width:100%;
+    }
+    .shell.practice-on .practice-panel{display:flex}
+    .practice-panel .pq{font-size:var(--practice-question-size);font-weight:800;line-height:1.15;color:#0f172a;text-align:center}
+    .practice-panel .opts{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.5vh,18px)}
+    .practice-panel .opt{
+      font-family:inherit;
+      font-size:var(--practice-answer-size);
+      line-height:1.1;
+      font-weight:800;
+      min-height:clamp(88px,14vh,150px);
+      padding:clamp(10px,1.5vw,20px);
+      border-radius:clamp(14px,2vw,24px);
+      border:3px solid #cbd5e1;
+      background:#fff;
+      cursor:pointer;
+      overflow-wrap:anywhere;
+    }
+    .practice-panel .opt.has-remainder{font-size:calc(var(--practice-answer-size) * .72)}
+    .practice-panel .opt.ok{border-color:#16a34a;background:#dcfce7}
+    .practice-panel .opt.no{border-color:#dc2626;background:#fee2e2}
+    .practice-panel .pfb{font-size:var(--practice-feedback-size);line-height:1.25;font-weight:800;min-height:1.25em;text-align:center}
+    .practice-panel .pfb:empty{display:none}
+    .practice-panel #btnPracticeNext{font-size:var(--practice-action-size);min-height:clamp(54px,7vh,80px);padding:clamp(12px,1.5vw,20px);align-self:center!important}
+
+    @media (max-width:767px){
+      .practice-panel{
+        --practice-question-size:clamp(1.75rem,8vw,2.5rem);
+        --practice-answer-size:clamp(1.5rem,7vw,2.25rem);
+        --practice-feedback-size:clamp(1.25rem,5vw,1.75rem);
+        --practice-action-size:clamp(1.15rem,5vw,1.5rem);
+        justify-content:flex-start;
+        padding:18px 4px;
+      }
+      .practice-panel .opt{min-height:84px;padding:12px 8px;border-width:2px}
+    }
+
+    body.presentation-mode {
+      --presentation-scale: 1;
+      padding: 0;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    body.presentation-mode .shell {
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+      max-width: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    body.presentation-mode .sidebar,
+    body.presentation-mode .intro-banner,
+    body.presentation-mode .practice-panel,
+    body.presentation-mode .footer {
+      display: none !important;
+    }
+    body.presentation-mode .main,
+    body.presentation-mode .content {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+    body.presentation-mode .content {
+      padding: var(--p-14);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-8);
+    }
+    body.presentation-mode .presentation-bar {
+      position: static;
+      flex: 0 0 auto;
+    }
+    body.presentation-mode .btn-presentation {
+      min-height: clamp(44px, var(--p-44), 72px);
+      padding: clamp(10px, var(--p-10), 16px) clamp(16px, var(--p-16), 28px);
+      font-size: clamp(1rem, var(--p-font-base), 1.5rem);
+    }
+    body.presentation-mode .workspace {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: var(--p-18);
+      align-items: stretch;
+    }
+    body.presentation-mode .board-card,
+    body.presentation-mode .explain-card {
+      min-height: 0;
+      height: 100%;
+      border-radius: var(--p-20);
+      padding: var(--p-20);
+    }
+    body.presentation-mode .explain-card {
+      gap: var(--p-14);
+    }
+    body.presentation-mode .explain-header {
+      padding-bottom: var(--p-10);
+    }
+    body.presentation-mode .explain-title {
+      font-size: var(--p-font-title);
+    }
+    body.presentation-mode .step-counter,
+    body.presentation-mode .step-sub {
+      font-size: var(--p-font-small);
+    }
+    body.presentation-mode .step-detail-box {
+      min-height: var(--p-120);
+      border-radius: var(--p-12);
+      border-left-width: var(--p-4);
+      padding: var(--p-16);
+    }
+    body.presentation-mode .step-desc {
+      font-size: var(--p-font-detail);
+      line-height: 1.55;
+    }
+    body.presentation-mode .ctrl-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--p-10);
+    }
+    body.presentation-mode .btn-stage-speak { display: flex; }
+    body.presentation-mode .ctrl-row .btn,
+    body.presentation-mode .btn-play {
+      min-height: var(--p-48);
+      border-radius: var(--p-12);
+      padding: var(--p-12);
+      font-size: var(--p-font-base);
+    }
+    @media (max-width: 899px) {
+      body.presentation-mode { overflow: auto; }
+      body.presentation-mode .content { overflow: auto; }
+      body.presentation-mode .workspace {
+        height: auto;
+        flex: none;
+        min-height: 100%;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      body.presentation-mode .board-card,
+      body.presentation-mode .explain-card { min-height: 44vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn, .math-cell { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -315,6 +516,10 @@
       <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h2>🧠 สอนวิธีหารสั้น</h2>
       <p class="hint">เลือกโจทย์แนะนำ หรือระบุตัวเลขเอง เพื่อแสดงวิธีหารสั้นทีละขั้นตอนพร้อมตัวทด</p>
+      <div class="mode-seg" id="modeSeg">
+        <button type="button" class="btn btn-ghost on" data-mode="learn">📖 สอน</button>
+        <button type="button" class="btn btn-ghost" data-mode="practice">✏️ ฝึกสั้น</button>
+      </div>
       
       <div>
         <label class="field-label">รูปแบบโจทย์แนะนำ</label>
@@ -322,16 +527,20 @@
           <option value="2x1">สุ่ม 2 หลัก ÷ 1 หลัก</option>
           <option value="3x1" selected>สุ่ม 3 หลัก ÷ 1 หลัก</option>
           <option value="4x1">สุ่ม 4 หลัก ÷ 1 หลัก</option>
+          <option value="5x1">สุ่ม 5 หลัก ÷ 1 หลัก</option>
+          <option value="6x1">สุ่ม 6 หลัก ÷ 1 หลัก</option>
           <option value="3x2">สุ่ม 3 หลัก ÷ 2 หลัก</option>
           <option value="4x2">สุ่ม 4 หลัก ÷ 2 หลัก</option>
+          <option value="5x2">สุ่ม 5 หลัก ÷ 2 หลัก</option>
+          <option value="6x2">สุ่ม 6 หลัก ÷ 2 หลัก</option>
         </select>
       </div>
 
       <button type="button" class="btn btn-random" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
       
       <div>
-        <label class="field-label" for="dividend">ตัวตั้ง (10-9999)</label>
-        <input id="dividend" class="input-field" type="number" min="10" max="9999" value="475" />
+        <label class="field-label" for="dividend">ตัวตั้ง (10-999999)</label>
+        <input id="dividend" class="input-field" type="number" min="10" max="999999" value="475" />
       </div>
       <div>
         <label class="field-label" for="divisor">ตัวหาร (2-99)</label>
@@ -344,8 +553,18 @@
 
     <main class="main">
       <div class="content">
+        <div class="presentation-bar">
+          <button type="button" class="btn btn-presentation" id="btnPresentation" aria-pressed="false" data-kampai-action="presentation-toggle">🖥️ โหมดจอใหญ่</button>
+        </div>
         <div class="intro-banner">
           💡 <strong>เรียนรู้การหารสั้นทีละสเตป:</strong> การหารสั้นเป็นวิธีที่กระชับและรวดเร็ว โดยคำนวณหักลบเศษในใจ แล้วนำเศษที่ได้ไปเขียนเป็นตัวทดขนาดเล็กไว้ด้านบนขวา/ซ้ายของหลักถัดไปโดยตรง
+        </div>
+
+        <div class="practice-panel" id="practicePanel">
+          <p class="pq" id="pq"></p>
+          <div class="opts" id="popts"></div>
+          <p class="pfb" id="pfb"></p>
+          <button type="button" class="btn btn-primary" id="btnPracticeNext" style="width:auto;align-self:flex-start">ข้อถัดไป</button>
         </div>
         
         <div class="workspace">
@@ -370,6 +589,7 @@
             
             <div class="ctrl-row">
               <button type="button" class="btn btn-step" id="btnPrev" disabled>← ย้อนกลับ</button>
+              <button type="button" class="btn btn-step btn-stage-speak" id="btnSpeakStage">🔊 ฟัง</button>
               <button type="button" class="btn btn-step" id="btnNext" disabled>ถัดไป →</button>
             </div>
             <button type="button" class="btn btn-play" id="btnPlay" disabled>▶ เล่นอัตโนมัติ</button>
@@ -378,7 +598,7 @@
       </div>
       
       <footer class="footer">
-        <span>ตัวชี้วัด ป.4: ค 1.1 ป.4/9 · ค 1.1 ป.4/10 · ค 1.1 ป.4/11</span>
+        <span>ตัวชี้วัด: ค 1.1 ป.4/9 · ค 1.1 ป.5/7 · ค 1.1 ป.6/7</span>
         <span>คู่เกมหาร <a href="/games/math/math-han.html">math-han</a></span>
       </footer>
     </main>
@@ -388,7 +608,7 @@
     (function () {
       const GAME_SLUG = 'short-division-thinking-media';
       if (window.KAMPAI) {
-        try { window.KAMPAI.setSlug(GAME_SLUG); } catch (e) {}
+        try { window.KAMPAI.setSlug('short-division-thinking-media'); } catch (e) {}
       }
 
       var inputDividend = document.getElementById('dividend');
@@ -405,10 +625,50 @@
       var btnPrev = document.getElementById('btnPrev');
       var btnNext = document.getElementById('btnNext');
       var btnPlay = document.getElementById('btnPlay');
+      var btnSpeakStage = document.getElementById('btnSpeakStage');
+      var btnPresentation = document.getElementById('btnPresentation');
+      var presentationMode = false;
       
       var traceSteps = [];
       var currentStepIndex = 0;
       var playInterval = null;
+      var practiceActive = false;
+      var practiceCounter = 0;
+      var currentPractice = null;
+
+      function presentationScale() {
+        if (!presentationMode) return 1;
+        return Math.max(1, Math.min(3, window.innerWidth / 1200, window.innerHeight / 650));
+      }
+
+      function refreshPresentationLayout() {
+        var scale = presentationScale();
+        document.body.style.setProperty('--presentation-scale', scale.toFixed(3));
+        [4, 8, 10, 12, 14, 16, 18, 20, 44, 48, 120].forEach(function (size) {
+          document.body.style.setProperty('--p-' + size, (size * scale).toFixed(2) + 'px');
+        });
+        // Slight optical compensation keeps projected Thai text near the requested scale.
+        document.body.style.setProperty('--p-font-small', (15.5 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-base', (17.6 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-detail', (18.5 * scale).toFixed(2) + 'px');
+        document.body.style.setProperty('--p-font-title', (19.4 * scale).toFixed(2) + 'px');
+        if (traceSteps.length) renderStep(currentStepIndex);
+      }
+
+      function setPresentationMode(enabled, requestFullscreen) {
+        presentationMode = Boolean(enabled);
+        document.body.classList.toggle('presentation-mode', presentationMode);
+        btnPresentation.setAttribute('aria-pressed', String(presentationMode));
+        btnPresentation.textContent = presentationMode ? '✕ ออกจากจอใหญ่' : '🖥️ โหมดจอใหญ่';
+
+        if (presentationMode && requestFullscreen && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else if (!presentationMode && document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        }
+
+        requestAnimationFrame(refreshPresentationLayout);
+      }
 
       function getRandomInRange(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -418,22 +678,11 @@
         var preset = presetSelect.value;
         var dividendVal, divisorVal;
         
-        if (preset === '2x1') {
-          dividendVal = getRandomInRange(10, 99);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '3x1') {
-          dividendVal = getRandomInRange(100, 999);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '4x1') {
-          dividendVal = getRandomInRange(1000, 9999);
-          divisorVal = getRandomInRange(2, 9);
-        } else if (preset === '3x2') {
-          dividendVal = getRandomInRange(100, 999);
-          divisorVal = getRandomInRange(10, 99);
-        } else if (preset === '4x2') {
-          dividendVal = getRandomInRange(1000, 9999);
-          divisorVal = getRandomInRange(10, 99);
-        }
+        var parts = preset.split('x');
+        var dividendDigits = Number(parts[0]);
+        var divisorDigits = Number(parts[1]);
+        dividendVal = getRandomInRange(Math.pow(10, dividendDigits - 1), Math.pow(10, dividendDigits) - 1);
+        divisorVal = divisorDigits === 2 ? getRandomInRange(10, 99) : getRandomInRange(2, 9);
         
         inputDividend.value = String(dividendVal);
         inputDivisor.value = String(divisorVal);
@@ -451,8 +700,8 @@
         var dividendVal = parseInt(inputDividend.value, 10);
         var divisorVal = parseInt(inputDivisor.value, 10);
         
-        if (isNaN(dividendVal) || dividendVal < 10 || dividendVal > 9999 || isNaN(divisorVal) || divisorVal < 2 || divisorVal > 99) {
-          alert('กรุณากรอกตัวตั้ง 10–9999 และตัวหาร 2–99');
+        if (isNaN(dividendVal) || dividendVal < 10 || dividendVal > 999999 || isNaN(divisorVal) || divisorVal < 2 || divisorVal > 99) {
+          alert('กรุณากรอกตัวตั้ง 10–999999 และตัวหาร 2–99');
           return;
         }
 
@@ -585,9 +834,15 @@
           tempRem = rem;
         }
 
-        // Add remainder label next to quotient if remainder exists
+        // Keep the final remainder below the quotient so it never steals a digit column.
         if (finalRemainder > 0) {
-          activeCells.push({ r: 1, c: D + 1 + N, val: 'เศษ ' + finalRemainder, class: 'cell-highlight-quotient cell-line-double-below', styleWidth: '150px' });
+          activeCells.push({
+            r: 2,
+            c: Math.max(D + 1, D + N - 2),
+            val: 'เศษ ' + finalRemainder,
+            class: 'remainder-summary cell-highlight-quotient cell-line-double-below',
+            styleWidth: 'summary'
+          });
         }
 
         // Final answer step
@@ -615,10 +870,30 @@
         var divisorStr = String(divisorVal);
         var N = dividendStr.length;
         var D = divisorStr.length;
-        var W = D + 1 + N + (dividendVal % divisorVal > 0 ? 2 : 0);
+        var W = D + 1 + N;
+        var scale = presentationScale();
+        var cardStyle = getComputedStyle(mathGrid.parentElement);
+        var horizontalPadding = parseFloat(cardStyle.paddingLeft) + parseFloat(cardStyle.paddingRight);
+        var verticalPadding = parseFloat(cardStyle.paddingTop) + parseFloat(cardStyle.paddingBottom);
+        var contentWidth = Math.max(180, mathGrid.parentElement.clientWidth - horizontalPadding);
+        var rowCount = Math.max.apply(null, cells.map(function (cell) { return cell.r; })) + 1;
+        var desiredGap = 8 * scale;
+        var contentHeight = Math.max(120, mathGrid.parentElement.clientHeight - verticalPadding - desiredGap * Math.max(0, rowCount - 1));
+        var widthCell = Math.floor(contentWidth / W);
+        var heightCell = Math.floor((contentHeight / rowCount) * 0.9);
+        var cellSize = Math.max(20, Math.min(54 * scale, widthCell, heightCell));
+        var rowSize = Math.max(24, cellSize * (60 / 54));
+        var fontSize = Math.max(17.6, 35.2 * (cellSize / 54));
 
         mathGrid.innerHTML = '';
-        mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', 54px)';
+        mathGrid.style.setProperty('--media-cell', cellSize + 'px');
+        mathGrid.style.setProperty('--media-row', rowSize + 'px');
+        mathGrid.style.setProperty('--media-gap', desiredGap + 'px');
+        mathGrid.style.setProperty('--media-font', fontSize + 'px');
+        mathGrid.style.setProperty('--media-carry-font', Math.max(11.2, cellSize * 0.34) + 'px');
+        mathGrid.style.setProperty('--media-bracket-font', (fontSize * 1.15) + 'px');
+        mathGrid.style.setProperty('--media-remainder-font', Math.max(12.8, cellSize * 0.3) + 'px');
+        mathGrid.style.gridTemplateColumns = 'repeat(' + W + ', ' + cellSize + 'px)';
 
         // Render cells
         cells.forEach(function (c) {
@@ -629,7 +904,7 @@
           cellDiv.textContent = c.val || '';
           
           if (c.styleWidth) {
-            cellDiv.style.width = c.styleWidth;
+            cellDiv.style.width = Math.min(150, cellSize * 3) + 'px';
             cellDiv.style.gridColumnEnd = 'span 3';
           }
           
@@ -656,6 +931,21 @@
         
         window._lastSpeech = step.speech;
       }
+
+      window.addEventListener('resize', function () {
+        refreshPresentationLayout();
+      });
+
+      document.addEventListener('fullscreenchange', function () {
+        if (presentationMode && !document.fullscreenElement) setPresentationMode(false, false);
+        else refreshPresentationLayout();
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && presentationMode && !document.fullscreenElement) {
+          setPresentationMode(false, false);
+        }
+      });
 
       // TTS triggers
       function speak() {
@@ -709,7 +999,10 @@
       
       btnPlay.onclick = togglePlay;
       btnSpeak.onclick = speak;
-      btnRandom.onclick = randomize;
+      btnSpeakStage.onclick = speak;
+      btnPresentation.onclick = function () {
+        setPresentationMode(!presentationMode, true);
+      };
 
       document.getElementById('btnBack').onclick = function () {
         if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
@@ -722,6 +1015,171 @@
       });
       inputDivisor.addEventListener('input', function() {
         if (playInterval) clearInterval(playInterval);
+      });
+
+      window.ShortDivisionMedia = Object.freeze({
+        setPresentationMode: function (enabled) { setPresentationMode(enabled, false); },
+        getPresentationScale: presentationScale,
+        isPresentationMode: function () { return presentationMode; },
+        nextPractice: nextPractice,
+        getPracticeState: function () {
+          return currentPractice ? JSON.parse(JSON.stringify(currentPractice)) : null;
+        }
+      });
+
+      function shuffleArr(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      function createPracticeProblem(withRemainder) {
+        var preset = presetSelect.value.split('x');
+        var dividendDigits = Number(preset[0]);
+        var divisorDigits = Number(preset[1]);
+        var minDividend = Math.pow(10, dividendDigits - 1);
+        var maxDividend = Math.pow(10, dividendDigits) - 1;
+        var attempt = 0;
+
+        while (attempt < 300) {
+          attempt++;
+          var divisorMin = divisorDigits === 2 ? 10 : 2;
+          var divisorMax = divisorDigits === 2 ? 99 : 9;
+          var divisor = getRandomInRange(divisorMin, divisorMax);
+          var remainder = withRemainder ? getRandomInRange(1, divisor - 1) : 0;
+          var quotientMin = Math.max(1, Math.ceil((minDividend - remainder) / divisor));
+          var quotientMax = Math.floor((maxDividend - remainder) / divisor);
+          if (quotientMin > quotientMax) continue;
+          var quotient = getRandomInRange(quotientMin, quotientMax);
+          var dividend = divisor * quotient + remainder;
+          return {
+            type: 'full',
+            preset: presetSelect.value,
+            dividend: dividend,
+            divisor: divisor,
+            quotient: quotient,
+            remainder: remainder,
+            remainderMode: withRemainder ? 'remainder' : 'exact'
+          };
+        }
+        throw new Error('สร้างโจทย์ฝึกหารสั้นไม่สำเร็จ');
+      }
+
+      function formatDivisionAnswer(quotient, remainder) {
+        return remainder > 0 ? quotient + ' เศษ ' + remainder : String(quotient);
+      }
+
+      function uniquePracticeOptions(correct, candidates, fallback) {
+        var seen = {};
+        var options = [];
+        [correct].concat(candidates).forEach(function (value) {
+          var text = String(value);
+          if (!seen[text] && text !== '' && options.length < 4) {
+            seen[text] = true;
+            options.push(text);
+          }
+        });
+        var index = 0;
+        while (options.length < 4 && index < 30) {
+          var fallbackValue = fallback(index++);
+          var extra = String(fallbackValue);
+          if (!seen[extra]) {
+            seen[extra] = true;
+            options.push(extra);
+          }
+        }
+        return shuffleArr(options);
+      }
+
+      function buildPracticeQuestion(problem) {
+        var correct = formatDivisionAnswer(problem.quotient, problem.remainder);
+        var candidates = [
+          formatDivisionAnswer(problem.quotient + 1, problem.remainder),
+          formatDivisionAnswer(Math.max(1, problem.quotient - 1), problem.remainder),
+          formatDivisionAnswer(problem.quotient, problem.remainder ? problem.remainder - 1 : 1),
+          formatDivisionAnswer(problem.quotient, problem.remainder < problem.divisor - 1 ? problem.remainder + 1 : 0)
+        ];
+
+        problem.question = 'หาคำตอบ: ' + problem.dividend + ' ÷ ' + problem.divisor + ' = ?';
+        problem.correct = correct;
+        problem.reason = problem.dividend + ' ÷ ' + problem.divisor + ' = ' + correct;
+        problem.choices = uniquePracticeOptions(correct, candidates, function (index) {
+          return formatDivisionAnswer(problem.quotient + index + 2, problem.remainder);
+        });
+        return problem;
+      }
+
+      function nextPractice() {
+        var withRemainder = practiceCounter % 2 === 1;
+        practiceCounter++;
+        currentPractice = buildPracticeQuestion(createPracticeProblem(withRemainder));
+
+        inputDividend.value = String(currentPractice.dividend);
+        inputDivisor.value = String(currentPractice.divisor);
+        generateTrace();
+
+        var pq = document.getElementById('pq');
+        var popts = document.getElementById('popts');
+        var pfb = document.getElementById('pfb');
+        pq.textContent = currentPractice.question;
+        pfb.textContent = '';
+        pfb.style.color = '';
+        popts.innerHTML = '';
+        currentPractice.choices.forEach(function (choice) {
+          var option = document.createElement('button');
+          option.type = 'button';
+          option.className = 'opt';
+          option.classList.toggle('has-remainder', choice.indexOf(' เศษ ') !== -1);
+          option.dataset.answer = choice;
+          option.textContent = choice;
+          popts.appendChild(option);
+        });
+        popts.querySelectorAll('.opt').forEach(function (btn) {
+          btn.onclick = function () {
+            var ok = btn.dataset.answer === currentPractice.correct;
+            btn.classList.add(ok ? 'ok' : 'no');
+            popts.querySelectorAll('.opt').forEach(function (b) {
+              b.disabled = true;
+              if (b.dataset.answer === currentPractice.correct) b.classList.add('ok');
+            });
+            pfb.textContent = ok
+              ? '✓ ถูกต้อง! ' + currentPractice.reason
+              : '✗ คำตอบคือ ' + currentPractice.correct + ' · ' + currentPractice.reason;
+            pfb.style.color = ok ? '#16a34a' : '#dc2626';
+          };
+        });
+      }
+
+      document.getElementById('btnPracticeNext').onclick = nextPractice;
+      presetSelect.addEventListener('change', function () {
+        if (practiceActive) nextPractice();
+      });
+      btnRandom.onclick = function () {
+        if (practiceActive) nextPractice();
+        else randomize();
+      };
+      document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
+        btn.onclick = function () {
+          var practice = btn.dataset.mode === 'practice';
+          practiceActive = practice;
+          document.getElementById('modeSeg').querySelectorAll('button').forEach(function (b) {
+            b.classList.toggle('on', b === btn);
+          });
+          document.querySelector('.shell').classList.toggle('practice-on', practice);
+          if (practice) {
+            if (playInterval) {
+              clearInterval(playInterval);
+              playInterval = null;
+              btnPlay.textContent = '▶ เล่นอัตโนมัติ';
+              btnPlay.style.background = '#d97706';
+            }
+            nextPractice();
+          } else {
+            generateTrace();
+          }
+        };
       });
 
       // Initial run

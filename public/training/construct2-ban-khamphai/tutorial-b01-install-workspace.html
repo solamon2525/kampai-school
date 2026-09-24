@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — ติดตั้ง Construct 2 และรู้จักหน้าจอ</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body { font-family: "Leelawadee UI","Tahoma",sans-serif; background: #e8f8f5; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #333; color: white; display: flex; justify-content: space-between; padding: 10px 20px; align-items: center; }
+.top-nav a, .top-nav button { color: white; text-decoration: none; background: transparent; border: 1px solid white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-left: 5px; }
+.top-nav a:hover, .top-nav button:hover { background: rgba(255,255,255,0.2); }
+.nav-right { display: flex; gap: 5px; }
+.page { max-width: 1000px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.head { background: linear-gradient(135deg, #0d6e5b, #12a085); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
+.head h1 { margin: 0 0 10px 0; font-size: 2em; }
+.head p { margin: 0; opacity: 0.9; }
+.tag { background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; font-weight: bold; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px; }
+@media (min-width: 800px) { .grid { grid-template-columns: 1fr 1fr; } }
+.card { border: 2px solid #12a085; padding: 20px; border-radius: 8px; position: relative; background: #fff; }
+.card h2 { margin-top: 0; display: inline-block; font-size: 1.2em; color: #0d6e5b; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { background: #fff3cd; border-color: #ffecb5; }
+.card.warn h2 { color: #856404; }
+.n { background: #ffc107; color: #000; width: 28px; height: 28px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; margin-right: 10px; vertical-align: bottom; }
+.small { font-size: 0.85em; color: #666; background: #f1f1f1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; }
+.box { border-left: 4px solid #007bff; background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+.blue { color: #007bff; font-weight: bold; }
+.red { color: #dc3545; font-weight: bold; }
+.test { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin-bottom: 30px; color: #155724; }
+.footer { border-top: 1px solid #eee; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.9em; color: #777; flex-wrap: wrap; gap: 10px; }
+@media print { 
+  .top-nav, button { display: none !important; } 
+  body { background: white; margin: 0; padding: 0; } 
+  .page { box-shadow: none; margin: 0; padding: 0; max-width: 100%; } 
+  .card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="index.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-b02-sprite-animation-layer.html">บทที่ 2 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ B1 • พื้นฐาน Construct 2</div>
+    <h1>ติดตั้ง Construct 2 และรู้จักหน้าจอ</h1>
+    <p>ดาวน์โหลด • ติดตั้ง • หน้าต่างการทำงาน • การสร้างโปรเจกต์ใหม่</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <h2><span class="n">1</span> ดาวน์โหลดและติดตั้ง</h2>
+      <img src="images/steps/tutorial-b01-install-workspace-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-b01-install-workspace">
+
+      <img src="images/steps/tutorial-b01-install-workspace-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ดาวน์โหลดและติดตั้ง">
+
+      <p>1. ไปที่เว็บไซต์ <a href="https://www.scirra.com/" target="_blank">Scirra.com</a> เพื่อดาวน์โหลด Construct 2 r280 (Free Edition)<br>
+      2. เมื่อดาวน์โหลดเสร็จ ดับเบิลคลิกไฟล์ติดตั้ง <code>.exe</code><br>
+      3. คลิกปุ่ม <b>Next</b> ไปเรื่อยๆ จนถึงหน้าเลือกประเภทติดตั้ง เลือก <b>Typical</b><br>
+      4. คลิก <b>Next</b> และ <b>Finish</b> เพื่อเสร็จสิ้น</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Windows → ไฟล์ติดตั้ง .exe</p>
+    </article>
+
+    <article class="card">
+      <h2><span class="n">2</span> หน้าจอหลัก 3 ส่วน</h2>
+      <img src="images/steps/tutorial-b01-install-workspace-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-b01-install-workspace">
+
+      <img src="images/steps/tutorial-b01-install-workspace-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — หน้าจอหลัก 3 ส่วน">
+
+      <p>เมื่อเปิดโปรแกรม จะเจอหน้าต่างหลัก แบ่งเป็น 3 ส่วนสำคัญ:</p>
+      
+      <p>
+        1. <b>ซ้าย: Project bar</b> แถบจัดการไฟล์ในโปรเจกต์ (เช่น object, layout, event sheet)<br>
+        2. <b>กลาง: Layout view</b> พื้นที่ทำงานหลัก (วาดฉาก วางวัตถุ)<br>
+        3. <b>ขวา: Properties</b> แถบปรับค่าต่างๆ ของ object (เช่น ขนาด, ตำแหน่ง, สี)
+      </p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> หลังเปิดโปรแกรม Construct 2 จะเห็นทันที</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">3</span> สร้างโปรเจกต์แรก</h2>
+      <img src="images/steps/tutorial-b01-install-workspace-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-b01-install-workspace">
+
+      <img src="images/steps/tutorial-b01-install-workspace-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — สร้างโปรเจกต์แรก">
+
+      <p>1. คลิกที่เมนู <b>File</b> ด้านบนซ้าย<br>
+      2. เลือก <b>New</b><br>
+      3. เลือก <b>Empty project</b> แล้วคลิก <b>Open</b></p>
+      
+      <p>4. ที่หน้าต่าง Properties ด้านขวา ตั้งชื่อโปรเจกต์ตรงช่อง <b>Name</b><br>
+      5. ตั้งค่า <b>Window size</b> เป็น <code>1280, 720</code> หรือ <code>1500, 960</code></p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Project Properties</th></tr>
+          <tr><td>Name</td><td>MyFirstGame</td></tr>
+          <tr><td>Window Size</td><td>1280, 720</td></tr>
+        </table>
+      </div>
+      <p>6. กด <b>Ctrl + S</b> หรือเลือก <b>File → Save as single file</b> เพื่อบันทึกงานเป็นไฟล์ <code>.capx</code><br>
+      7. เวลาต้องการทดสอบเกม ให้กดปุ่มคีย์บอร์ด <b>F5</b> เพื่อ Preview ในบราวเซอร์</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> เมนู File → New</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">4</span> รู้จัก Layout กับ Event Sheet</h2>
+      <img src="images/steps/tutorial-b01-install-workspace-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-b01-install-workspace">
+
+      <img src="images/steps/tutorial-b01-install-workspace-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — รู้จัก Layout กับ Event Sheet">
+
+      <p>1. <b>Layout</b> คือ ฉากเกม (สำหรับวาดฉาก วางตัวละคร)<br>
+      2. <b>Event Sheet</b> คือ สมองของเกม (สำหรับสั่งงานและใส่เงื่อนไข/โค้ด)</p>
+      
+      <p>ทุก Layout จะมี Event Sheet คู่กันเสมอ เพื่อให้ทำงานสอดคล้องกัน โดยสามารถเช็คได้ที่ Properties ของ Layout ว่าผูกกับ Event Sheet ใดอยู่</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> แถบ Project bar (ซ้าย) → โฟลเดอร์ Layouts / Event sheets</p>
+    </article>
+
+    <article class="card wide warn">
+      <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-b01-install-workspace-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-b01-install-workspace">
+
+      <img src="images/steps/tutorial-b01-install-workspace-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
+      <ul>
+        <li><b>ติดตั้ง C2 ไม่สำเร็จ:</b> ให้ลองคลิกขวาที่ไฟล์ติดตั้งแล้วรันแบบ Run as administrator</li>
+        <li><b>เปิดไฟล์ .capx แล้ว C2 ไม่ขึ้น:</b> ตรวจสอบเวอร์ชันของ Construct 2 ว่าตรงกันหรือไม่</li>
+        <li><b>กด F5 แล้วจอดำ:</b> เพราะยังไม่มี object ใน Layout ลองใส่ Sprite สักตัวก่อน</li>
+        <li><b>ลืม Save as:</b> งานอาจหายเมื่อไฟดับ หมั่นเซฟงานเรื่อยๆ</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> เปิด C2 ได้ • สร้างโปรเจกต์ใหม่ได้ • รู้แถบซ้าย/กลาง/ขวา • กด F5 แล้วขึ้นหน้าต่าง Preview
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • ติดตั้งและหน้าจอ</span>
+    <span>งานถัดไป: สร้าง Sprite และ Animation</span>
+  </footer>
+</main>
+  <script src="c2-lightbox.js"></script>
+</body>
+</html>

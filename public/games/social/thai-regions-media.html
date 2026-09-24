@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6 ภาคของไทย — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#166534;--line:#bbf7d0;--muted:#64748b;--ok:#16a34a;--bad:#dc2626;
+      --r-north:#4ade80;--r-isan:#fbbf24;--r-central:#a3e635;--r-east:#2dd4bf;--r-west:#c4b5fd;--r-south:#7dd3fc}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#dcfce7,#e0f2fe);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:1024px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#166534,#22c55e);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f0fdf4;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #4ade80}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:var(--deep);flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:880px;margin:0 auto}
+    .panel.on{display:flex}
+    .learn-grid{display:grid;gap:14px}@media(min-width:760px){.learn-grid{grid-template-columns:320px 1fr;align-items:start}}
+    .map-box{border:2px solid var(--line);border-radius:14px;background:#f0fdf4;padding:8px}
+    .map-box svg{width:100%;height:auto;display:block}
+    .region-shape{stroke:#fff;stroke-width:3;cursor:pointer;transition:opacity .15s}
+    .region-shape.dim{opacity:.35}
+    .region-label{font-family:'Sarabun',sans-serif;font-size:15px;font-weight:800;fill:#14532d;pointer-events:none}
+    .tabs{display:flex;flex-wrap:wrap;gap:6px}
+    .tab{font-family:inherit;font-weight:800;font-size:.85rem;border:2px solid var(--line);background:#fff;color:var(--deep);border-radius:999px;padding:6px 12px;cursor:pointer}
+    .tab.on{background:var(--deep);border-color:var(--deep);color:#fff}
+    .info-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#f0fdf4}
+    .info-card h3{color:var(--deep);font-weight:800;font-size:1.15rem;margin-bottom:8px}
+    .fact{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:8px;border-radius:10px;background:#fff;border:1px dashed #86efac;margin-bottom:8px;font-size:.92rem;line-height:1.55}
+    .fact b{color:#15803d}
+    .fact p{font-weight:600}
+    .mix-card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#ecfdf5;font-weight:700;line-height:1.6;font-size:.92rem}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🗺️ 6 ภาคของไทย — ภูมิประเทศ ภูมิอากาศ อาชีพ</h1>
+      <span class="badge">ป.4–6 · สังคมศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">แตะภาคบนแผนที่ หรือเลือกปุ่มภาค เพื่อดูลักษณะเด่นของแต่ละภาค</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="tabs" id="regionTabs"></div>
+        <div class="learn-grid">
+          <div class="map-box">
+            <svg viewBox="0 0 360 640" role="img" aria-label="แผนที่ประเทศไทยอย่างง่าย แบ่ง 6 ภาค">
+              <polygon id="rg-north" class="region-shape" fill="var(--r-north)" points="115,18 205,14 232,60 228,118 196,150 138,152 104,110"/>
+              <polygon id="rg-isan" class="region-shape" fill="var(--r-isan)" points="232,86 330,96 345,180 318,252 245,244 222,180 228,118"/>
+              <polygon id="rg-central" class="region-shape" fill="var(--r-central)" points="138,152 196,150 222,180 226,262 206,320 154,322 132,240"/>
+              <polygon id="rg-west" class="region-shape" fill="var(--r-west)" points="104,110 138,152 132,240 154,322 150,382 112,360 92,250 88,170"/>
+              <polygon id="rg-east" class="region-shape" fill="var(--r-east)" points="226,262 318,252 340,296 300,342 238,330"/>
+              <polygon id="rg-south" class="region-shape" fill="var(--r-south)" points="154,322 206,320 238,330 216,392 200,470 222,540 196,616 160,560 172,470 150,382"/>
+              <text class="region-label" x="168" y="88" text-anchor="middle">เหนือ</text>
+              <text class="region-label" x="284" y="176" text-anchor="middle">อีสาน</text>
+              <text class="region-label" x="180" y="242" text-anchor="middle">กลาง</text>
+              <text class="region-label" x="116" y="300" text-anchor="middle" font-size="12">ตะวันตก</text>
+              <text class="region-label" x="284" y="304" text-anchor="middle" font-size="13">ตะวันออก</text>
+              <text class="region-label" x="198" y="486" text-anchor="middle">ใต้</text>
+            </svg>
+          </div>
+          <div>
+            <div class="info-card" id="infoCard"></div>
+            <div class="mix-card" style="margin-top:12px">
+              🧭 <strong>ชวนคิด:</strong> ภูมิประเทศ + ภูมิอากาศของแต่ละภาค ส่งผลต่อ <strong>อาชีพและของดี</strong> ของคนในภาคนั้น
+              เช่น ภาคใต้ฝนชุก → ปลูกยางพาราได้ดี · อีสานแห้งแล้ง → ปลูกข้าวเหนียวทนแล้ง
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ส 5.1 ป.5/1 · ส 5.2 ป.5/2 · ส 5.1 ป.6/1</strong> · คู่ใบงาน <a href="/games/social/thai-regions-worksheet.html">thai-regions</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'thai-regions-media';
+    if (window.KAMPAI) window.KAMPAI.setSlug(MEDIA_SLUG);
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const REGIONS = [
+      { id: 'north', name: 'ภาคเหนือ', emoji: '⛰️',
+        terrain: 'ภูเขาสูงสลับหุบเขา มีที่ราบระหว่างภูเขา เป็นต้นน้ำปิง วัง ยม น่าน',
+        climate: 'ฤดูหนาวอากาศเย็นถึงหนาว มีหมอกตอนเช้า บนดอยหนาวจัด',
+        jobs: 'ปลูกพืชเมืองหนาว ชา กาแฟ ลำไย ลิ้นจี่ · หัตถกรรมร่ม–ผ้าทอ · ท่องเที่ยวดอย' },
+      { id: 'isan', name: 'ภาคตะวันออกเฉียงเหนือ (อีสาน)', emoji: '🌾',
+        terrain: 'ที่ราบสูงโคราช ดินปนทราย มีแม่น้ำโขง ชี มูล ไหลผ่าน',
+        climate: 'ร้อนและแห้งแล้ง ฝนน้อย มักมีฝนทิ้งช่วง',
+        jobs: 'ปลูกข้าวเหนียว ข้าวหอมมะลิ · เลี้ยงโค กระบือ · ทอผ้าไหม' },
+      { id: 'central', name: 'ภาคกลาง', emoji: '🚜',
+        terrain: 'ที่ราบลุ่มแม่น้ำเจ้าพระยา ดินอุดมสมบูรณ์ น้ำท่าอุดม',
+        climate: 'ร้อนชื้น มี 3 ฤดูชัดเจน คือ ร้อน ฝน หนาว',
+        jobs: 'ทำนาข้าวจนได้ชื่อ «อู่ข้าวอู่น้ำ» · สวนผลไม้ · โรงงานอุตสาหกรรม' },
+      { id: 'east', name: 'ภาคตะวันออก', emoji: '🏖️',
+        terrain: 'ที่ราบชายฝั่งทะเลสลับภูเขาเตี้ย มีเกาะจำนวนมาก',
+        climate: 'ฝนตกชุก อากาศชุ่มชื้นเพราะรับลมจากทะเล',
+        jobs: 'สวนผลไม้ ทุเรียน เงาะ มังคุด · ประมง · อัญมณีจันทบุรี · ท่องเที่ยวทะเล' },
+      { id: 'west', name: 'ภาคตะวันตก', emoji: '🏞️',
+        terrain: 'ทิวเขาตะนาวศรี หุบเขาลึก มีแม่น้ำแควใหญ่–แควน้อย และเขื่อนขนาดใหญ่',
+        climate: 'ค่อนข้างแห้ง ฝนน้อย เพราะอยู่ในเขต «เงาฝน» ของทิวเขา',
+        jobs: 'ไร่อ้อย สับปะรด · เลี้ยงสัตว์ · เขื่อนผลิตไฟฟ้า เช่น เขื่อนศรีนครินทร์' },
+      { id: 'south', name: 'ภาคใต้', emoji: '🏝️',
+        terrain: 'คาบสมุทรแคบยาว มีชายฝั่งทะเล 2 ด้าน (อ่าวไทย–อันดามัน) ภูเขาอยู่ตอนกลาง',
+        climate: 'ฝนตกชุกเกือบทั้งปี มีเพียง 2 ฤดู คือ ร้อนกับฝน',
+        jobs: 'สวนยางพารา ปาล์มน้ำมัน · ประมง · ท่องเที่ยวทะเลและเกาะ' },
+    ];
+
+    function showRegion(id) {
+      const r = REGIONS.find((x) => x.id === id) || REGIONS[0];
+      document.querySelectorAll('#regionTabs .tab').forEach((t) => t.classList.toggle('on', t.dataset.region === r.id));
+      document.querySelectorAll('.region-shape').forEach((p) => p.classList.toggle('dim', p.id !== 'rg-' + r.id));
+      document.getElementById('infoCard').innerHTML =
+        '<h3>' + r.emoji + ' ' + r.name + '</h3>' +
+        '<div class="fact"><b>🏔️ ภูมิประเทศ</b><p>' + r.terrain + '</p></div>' +
+        '<div class="fact"><b>🌦️ ภูมิอากาศ</b><p>' + r.climate + '</p></div>' +
+        '<div class="fact"><b>🧑‍🌾 อาชีพ–ของดี</b><p>' + r.jobs + '</p></div>';
+    }
+    document.getElementById('regionTabs').innerHTML = REGIONS.map((r) =>
+      '<button type="button" class="tab" data-region="' + r.id + '">' + r.emoji + ' ' + r.name.replace('ภาคตะวันออกเฉียงเหนือ (อีสาน)', 'อีสาน').replace('ภาค', '') + '</button>'
+    ).join('');
+    document.getElementById('regionTabs').onclick = (e) => {
+      const t = e.target.closest('button[data-region]');
+      if (t) showRegion(t.dataset.region);
+    };
+    document.querySelectorAll('.region-shape').forEach((p) => {
+      p.addEventListener('click', () => showRegion(p.id.replace('rg-', '')));
+    });
+    showRegion('north');
+
+    const QS = [
+      { q: 'ภาคใดมีลักษณะเป็นที่ราบสูง ดินปนทราย และค่อนข้างแห้งแล้ง?', opts: ['ภาคตะวันออกเฉียงเหนือ (อีสาน)', 'ภาคกลาง', 'ภาคใต้', 'ภาคตะวันออก'], a: 'ภาคตะวันออกเฉียงเหนือ (อีสาน)' },
+      { q: 'ที่ราบลุ่มแม่น้ำเจ้าพระยาจนได้ชื่อว่า «อู่ข้าวอู่น้ำ» คือภาคใด?', opts: ['ภาคกลาง', 'ภาคเหนือ', 'ภาคตะวันตก', 'ภาคใต้'], a: 'ภาคกลาง' },
+      { q: 'ภาคใต้มีกี่ฤดู อะไรบ้าง?', opts: ['2 ฤดู คือ ร้อนกับฝน', '3 ฤดู คือ ร้อน ฝน หนาว', '4 ฤดูเหมือนต่างประเทศ', '1 ฤดู คือ ฝนตลอดปี'], a: '2 ฤดู คือ ร้อนกับฝน' },
+      { q: 'ภูมิประเทศของภาคเหนือเป็นแบบใด?', opts: ['ภูเขาสูงสลับหุบเขา', 'ที่ราบสูงดินปนทราย', 'ที่ราบลุ่มแม่น้ำ', 'คาบสมุทรชายฝั่งทะเล'], a: 'ภูเขาสูงสลับหุบเขา' },
+      { q: 'ทุเรียน เงาะ มังคุด และอัญมณีจันทบุรี เป็นของดีของภาคใด?', opts: ['ภาคตะวันออก', 'ภาคเหนือ', 'ภาคอีสาน', 'ภาคตะวันตก'], a: 'ภาคตะวันออก' },
+      { q: 'เพราะเหตุใดภาคตะวันตกจึงมีฝนน้อย?', opts: ['อยู่ในเขตเงาฝนของทิวเขา', 'อยู่ติดทะเลสองด้าน', 'ไม่มีแม่น้ำไหลผ่าน', 'อยู่ใกล้เส้นศูนย์สูตร'], a: 'อยู่ในเขตเงาฝนของทิวเขา' },
+      { q: 'ยางพาราและปาล์มน้ำมันปลูกมากที่สุดในภาคใด?', opts: ['ภาคใต้', 'ภาคเหนือ', 'ภาคกลาง', 'ภาคอีสาน'], a: 'ภาคใต้' },
+      { q: 'แม่น้ำปิง วัง ยม น่าน มีต้นน้ำอยู่ที่ภาคใด?', opts: ['ภาคเหนือ', 'ภาคใต้', 'ภาคตะวันออก', 'ภาคกลาง'], a: 'ภาคเหนือ' },
+      { q: 'ข้าวเหนียวและผ้าไหมเป็นของดีเด่นของภาคใด?', opts: ['ภาคตะวันออกเฉียงเหนือ (อีสาน)', 'ภาคตะวันตก', 'ภาคใต้', 'ภาคตะวันออก'], a: 'ภาคตะวันออกเฉียงเหนือ (อีสาน)' },
+      { q: 'ภาคใดมีชายฝั่งทะเล 2 ด้าน คืออ่าวไทยและอันดามัน?', opts: ['ภาคใต้', 'ภาคตะวันออก', 'ภาคกลาง', 'ภาคตะวันตก'], a: 'ภาคใต้' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'แตะภาคบนแผนที่ หรือเลือกปุ่มภาค เพื่อดูลักษณะเด่นของแต่ละภาค' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

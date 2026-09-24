@@ -1,0 +1,22 @@
+คู่มือ2 — Construct 2 จาก 0 ถึงขั้นสูง (master_v32)
+====================================================
+
+โครงสร้างหลักสูตร
+-----------------
+Beginner  B01–B06   ติดตั้ง C2 → Mini เดินบนพื้น
+Core      01–16     Red Hood Adventure (master_v32) ทั้งเกม
+Advanced  A01–A07   Families → Functions → Array → WebStorage → ดีบัก → Export → บาลานซ์
+
+อ้างอิงเกม
+---------
+  capx    : master_v32.capx
+  extract : _master_v32_extract\
+
+เปิดสารบัญ: index.html
+ลำดับลากได้ เก็บใน localStorage key = redhood-guide2-order-v2
+
+รูปแบบบทเรียน
+-------------
+  เป้าหมาย · ที่ไหนใน C2 · ขั้นตอน · Event น้ำเงิน/แดง · ทดสอบ · พิมพ์ได้
+
+ไม่ใช้ระบบคูณดาว UID ของ master_v4 (ดูโฟลเดอร์ คู่มือ\ แทน)

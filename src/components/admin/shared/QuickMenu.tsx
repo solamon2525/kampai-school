@@ -35,7 +35,7 @@ const FULL_CATALOG_BY_ID = new Map(FULL_CATALOG.map((o) => [o.id, o]));
 
 export const QuickMenu = ({ context }: QuickMenuProps) => {
   const navigate = useNavigate();
-  const { user, allowedMenus = [], isAdmin } = useAuth();
+  const { user, role, allowedMenus = [], isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [editorOpen, setEditorOpen] = useState(false);
   const autoAppendDoneRef = useRef(false);
@@ -86,12 +86,12 @@ export const QuickMenu = ({ context }: QuickMenuProps) => {
         if (!opt) return null;
         // แอดมิน = เข้าได้หมด
         // ครู = เข้าได้ถ้าเป็นเมนูครูพื้นฐาน หรือมีใน allowedMenus
-        const isTeacherCoreItem = TEACHER_QUICK_MENU_CATALOG.some((t) => t.id === id);
+        const isTeacherCoreItem = role === 'teacher' && TEACHER_QUICK_MENU_CATALOG.some((t) => t.id === id);
         const hasAccess = isAdmin || isTeacherCoreItem || allowedMenus.includes(id);
         return { ...opt, hasAccess };
       })
       .filter((x): x is QuickMenuOption & { hasAccess: boolean } => !!x);
-  }, [selectedIds, isAdmin, allowedMenus]);
+  }, [selectedIds, isAdmin, role, allowedMenus]);
 
   return (
     <Card className="mb-6">

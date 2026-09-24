@@ -236,6 +236,7 @@
     }
 
     async function startGame() {
+        KAMPAI.beginRound();
         showScreen('gameScreen');
         setupCanvas();
         KAMPAI.sound.unlock();
@@ -316,6 +317,7 @@
 
     $('startBtn').addEventListener('click', startGame);
     $('restartBtn').addEventListener('click', function () { cleanup(); startGame(); });
+    document.querySelector('[data-kampai-action="finish-test"]').addEventListener('click', endGame);
     $('quitBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     $('homeBtn').addEventListener('click', function () { cleanup(); KAMPAI.goHome(); });
     window.addEventListener('beforeunload', cleanup);

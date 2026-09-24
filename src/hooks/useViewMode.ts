@@ -12,13 +12,13 @@ export type ViewMode = 'compact' | 'grid' | 'spotlight';
 const STORAGE_KEY = 'kampai_edu_hub_view_mode';
 const DEFAULT: ViewMode = 'grid';
 
-const ALL: ViewMode[] = ['compact', 'grid', 'spotlight'];
-
 const readStorage = (): ViewMode => {
     if (typeof window === 'undefined') return DEFAULT;
     try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (raw && (ALL as string[]).includes(raw)) return raw as ViewMode;
+        if (raw === 'grid' || raw === 'spotlight') return raw;
+        // compact was removed; normalize old preferences immediately.
+        if (raw === 'compact') return DEFAULT;
     } catch {
         /* ignore */
     }

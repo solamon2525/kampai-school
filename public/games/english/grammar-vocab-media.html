@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grammar & Vocab Studio (ป.4–ป.5) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --indigo: #4338ca;
+      --indigo-dark: #312e81;
+      --indigo-light: #eef2ff;
+      --mint: #10b981;
+      --mint-light: #ecfdf5;
+      --gold: #f59e0b;
+      --gold-light: #fffbeb;
+      --navy: #0f172a;
+      --border: #cbd5e1;
+      --line: #c7d2fe;
+      --muted: #475569;
+      --card-bg: #ffffff;
+      --ok: #059669;
+      --bad: #e11d48;
+      --sub-color: #2563eb;
+      --verb-color: #ea580c;
+      --obj-color: #059669;
+      --prep-color: #7c3aed;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(150deg, #eef2ff 0%, #f0fdf4 50%, #fef9c3 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #312e81 0%, #4338ca 60%, #6366f1 100%);
+      color: #ffffff;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    header h1 { font-size: 1.15rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #fde047;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-hdr:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* VOICE CONTROLS IN HEADER */
+    .hdr-select {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-height: 44px;
+      outline: none;
+      cursor: pointer;
+    }
+    .hdr-select option {
+      background: #ffffff;
+      color: var(--navy);
+    }
+
+    /* NAVIGATION TABS */
+    nav.nav-tabs {
+      display: flex;
+      background: #f8fafc;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 6px 10px;
+      gap: 6px;
+    }
+    nav.nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 0 auto;
+      min-width: 130px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      background: rgba(67, 56, 202, 0.08);
+      color: var(--indigo);
+    }
+    .tab-btn.active {
+      background: var(--indigo);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(67, 56, 202, 0.25);
+    }
+
+    /* CONTENT SECTIONS */
+    main.content {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* MODULE SELECTOR */
+    .module-selector {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .module-selector::-webkit-scrollbar { display: none; }
+    .btn-mod {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--indigo-light);
+      border: 1px solid var(--line);
+      color: var(--indigo-dark);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-mod.active {
+      background: var(--indigo-dark);
+      color: #ffffff;
+      border-color: var(--indigo-dark);
+    }
+
+    /* FORMULA & RULE CARD */
+    .formula-banner {
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .formula-banner h2 {
+      font-size: 1.25rem;
+      color: var(--indigo-dark);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .formula-desc {
+      color: var(--navy);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .formula-box {
+      background: #ffffff;
+      border-left: 4px solid var(--indigo);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      color: var(--indigo-dark);
+      line-height: 1.6;
+    }
+
+    /* VISUAL EXAMPLE CARDS GRID */
+    .example-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 16px;
+    }
+    .example-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .example-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--line);
+      box-shadow: 0 8px 20px rgba(67, 56, 202, 0.1);
+    }
+    .ex-img-wrapper {
+      width: 100%;
+      height: 190px;
+      background: #f8fafc;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    .ex-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+      transition: transform 0.2s ease;
+    }
+    .example-card:hover .ex-img {
+      transform: scale(1.04);
+    }
+    .ex-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(49, 46, 129, 0.9);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .ex-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .ex-sentence {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--indigo-dark);
+      line-height: 1.4;
+    }
+    .ex-translation {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .ex-rule-note {
+      background: var(--mint-light);
+      border-left: 3px solid var(--mint);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      color: #065f46;
+      line-height: 1.4;
+    }
+    .ex-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .grammar-token {
+      background: #fef08a;
+      color: #854d0e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #facc15;
+      font-weight: 800;
+    }
+
+    /* ACTION BUTTONS */
+    .btn-act {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-act.primary {
+      background: var(--indigo);
+      color: #ffffff;
+    }
+    .btn-act.primary:hover { background: var(--indigo-dark); }
+    .btn-act.secondary {
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      border: 1px solid var(--line);
+    }
+    .btn-act.secondary:hover { background: #e0e7ff; }
+    .btn-act.accent {
+      background: var(--gold);
+      color: #ffffff;
+    }
+    .btn-act.accent:hover { background: #d97706; }
+
+    /* STORYBOARD CONTINUOUS MODE */
+    .story-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+      margin-bottom: 12px;
+    }
+    .story-nav::-webkit-scrollbar { display: none; }
+    .btn-story {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-story.active {
+      background: var(--indigo-dark);
+      color: #ffffff;
+      border-color: var(--indigo-dark);
+    }
+
+    .story-theater {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* STORY PROGRESS BAR / STEPS */
+    .story-steps {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .step-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .step-dot {
+      width: 24px;
+      height: 8px;
+      border-radius: 4px;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .step-dot.active {
+      background: var(--indigo);
+      width: 40px;
+    }
+
+    /* SCENE DISPLAY */
+    .scene-viewport {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .scene-viewport {
+        grid-template-columns: 1fr;
+      }
+    }
+    .scene-art-box {
+      width: 100%;
+      height: 280px;
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .scene-art-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 16px;
+    }
+    .scene-badge-corner {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--gold);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .scene-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .scene-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+    }
+    .scene-sentence-en {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.35;
+    }
+    .scene-sentence-th {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .scene-rule-callout {
+      background: var(--gold-light);
+      border-left: 4px solid var(--gold);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      color: #92400e;
+      line-height: 1.45;
+    }
+
+    /* STORY FILMSTRIP THUMBNAILS */
+    .story-filmstrip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 600px) {
+      .story-filmstrip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .film-card {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      background: #ffffff;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-height: 44px;
+    }
+    .film-card.active {
+      border-color: var(--indigo);
+      background: var(--indigo-light);
+      box-shadow: 0 4px 10px rgba(67, 56, 202, 0.15);
+    }
+    .film-thumb {
+      width: 100%;
+      height: 60px;
+      object-fit: contain;
+    }
+    .film-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* SYNTAX INSPECTOR */
+    .syntax-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .syntax-tokens-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 8px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px dashed var(--line);
+    }
+    .syntax-token {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      min-height: 54px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      color: #ffffff;
+    }
+    .syntax-token:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .syntax-token.sub { background: var(--sub-color); }
+    .syntax-token.verb { background: var(--verb-color); }
+    .syntax-token.obj { background: var(--obj-color); }
+    .syntax-token.prep { background: var(--prep-color); }
+    .syntax-token.art { background: #64748b; }
+    .syntax-token .token-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    /* FIXER LAB */
+    .fixer-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .fixer-wrong-box {
+      background: #fff1f2;
+      border: 2px dashed #fda4af;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .fixer-wrong-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #be123c;
+      text-decoration: line-through;
+    }
+    .fixer-hint {
+      font-size: 0.92rem;
+      color: #9f1239;
+      margin-top: 6px;
+    }
+
+    /* QUIZ MODE */
+    .quiz-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .quiz-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .quiz-score-badge {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+      background: var(--indigo-light);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .opt-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 600px) {
+      .opt-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .opt-btn {
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .opt-btn:hover {
+      border-color: var(--indigo);
+      background: var(--indigo-light);
+    }
+    .opt-btn.correct {
+      border-color: var(--ok);
+      background: #ecfdf5;
+      color: var(--ok);
+    }
+    .opt-btn.wrong {
+      border-color: var(--bad);
+      background: #fff1f2;
+      color: var(--bad);
+    }
+    .quiz-feedback {
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.4;
+      display: none;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+    }
+    .quiz-feedback.wrong {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #9f1239;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: auto;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .footer-links a {
+      color: var(--indigo);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="header-left">
+      <h1>📚 Grammar & Vocab Studio</h1>
+      <span class="badge-grade">ป.4–ป.5 ไวยากรณ์และคำศัพท์</span>
+    </div>
+    <div class="header-right">
+      <select id="selVoiceAccent" class="hdr-select" title="เลือกสำเนียงเสียงอ่าน">
+        <option value="en-US">🇺🇸 US English (สหรัฐฯ)</option>
+        <option value="en-GB">🇬🇧 UK English (อังกฤษ)</option>
+      </select>
+      <button id="btnAudioToggle" class="btn-hdr" title="เปิด/ปิดเสียงบรรยาย">
+        <span id="audioIcon">🔊</span>
+        <span id="audioLabel">เปิดเสียง</span>
+      </button>
+      <button id="btnFullscreen" class="btn-hdr" title="เต็มจอ (Smartboard)">
+        <span>⛶</span>
+      </button>
+      <a href="/games/english/grammar-vocab-worksheet.html" target="_blank" class="btn-hdr" style="background: rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.6); color: #fde047;">
+        📄 ใบงาน A4
+      </a>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="studio">📖 Grammar Studio</button>
+    <button class="tab-btn" data-tab="story">🎬 Sequential Storyboard</button>
+    <button class="tab-btn" data-tab="syntax">🔍 Syntax Inspector</button>
+    <button class="tab-btn" data-tab="fixer">🛠️ Fixer Lab</button>
+    <button class="tab-btn" data-tab="quiz">✏️ Practice Quiz</button>
+  </nav>
+
+  <main class="content">
+    <!-- TAB 1: GRAMMAR STUDIO -->
+    <section id="tab-studio" class="tab-content active">
+      <div class="module-selector" id="moduleNav"></div>
+      <div id="formulaContainer"></div>
+      <div class="example-grid" id="exampleGrid"></div>
+    </section>
+
+    <!-- TAB 2: SEQUENTIAL STORYBOARD -->
+    <section id="tab-story" class="tab-content">
+      <div class="story-nav" id="storyNav"></div>
+      <div class="story-theater">
+        <div class="story-steps">
+          <div class="step-badge" id="storyBadge">ฉากที่ 1 / 4</div>
+          <div class="step-dots" id="storyDots"></div>
+        </div>
+
+        <div class="scene-viewport">
+          <div class="scene-art-box">
+            <span class="scene-badge-corner" id="sceneBadge">Article: an</span>
+            <img id="sceneImg" class="scene-art-img" src="" alt="ภาพประกอบฉาก" />
+          </div>
+          <div class="scene-details">
+            <div class="scene-title" id="sceneTitle">ฉากที่ 1</div>
+            <div class="scene-sentence-en" id="sceneSentenceEn">Sentence</div>
+            <div class="scene-sentence-th" id="sceneSentenceTh">คำแปลภาษาไทย</div>
+            <div class="scene-rule-callout" id="sceneRuleCallout">คำอธิบายไวยากรณ์</div>
+            <div class="ex-actions">
+              <button id="btnSpeakScene" class="btn-act primary">🔊 ฟังประโยค</button>
+              <button id="btnEchoScene" class="btn-act secondary">🎤 ฝึกพูดตาม</button>
+              <button id="btnAutoPlayStory" class="btn-act accent">⏯ เล่นนิทานต่อเนื่อง</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+          <button id="btnPrevScene" class="btn-act secondary">◀ ฉากก่อนหน้า</button>
+          <span id="storyAutoStatus" style="font-size:0.85rem; font-weight:700; color:var(--indigo);"></span>
+          <button id="btnNextScene" class="btn-act primary">ฉากถัดไป ▶</button>
+        </div>
+
+        <div class="story-filmstrip" id="storyFilmstrip"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SYNTAX INSPECTOR -->
+    <section id="tab-syntax" class="tab-content">
+      <div class="syntax-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:800; color:var(--indigo-dark);">🔍 แยกชิ้นส่วนโครงสร้างประโยค (Syntax Inspector)</h2>
+            <p style="font-size:0.9rem; color:var(--muted);">แตะที่แต่ละคำเพื่อฟังเสียงและดูหน้าที่ของคำในประโยค</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="btnPrevSyntax" class="btn-act secondary">◀ ก่อนหน้า</button>
+            <button id="btnNextSyntax" class="btn-act primary">ถัดไป ▶</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 180px 1fr; gap:16px; align-items:center;" id="syntaxMainGrid">
+          <div style="width:100%; height:150px; background:#f8fafc; border:2px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <img id="syntaxImg" style="width:100%; height:100%; object-fit:contain; padding:8px;" src="" alt="ภาพประกอบประโยค" />
+          </div>
+          <div>
+            <div style="font-size:1.15rem; font-weight:800; color:var(--indigo-dark); margin-bottom:4px;" id="syntaxEn"></div>
+            <div style="font-size:0.95rem; color:var(--muted); margin-bottom:12px;" id="syntaxTh"></div>
+            <div class="syntax-tokens-row" id="syntaxDisplay"></div>
+          </div>
+        </div>
+
+        <div id="syntaxDesc" style="background:#eef2ff; border-left:4px solid var(--indigo); padding:12px 16px; border-radius:8px; font-size:0.95rem; font-weight:600; color:var(--indigo-dark); min-height:44px; display:flex; align-items:center;">
+          แตะคำศัพท์ด้านบนเพื่อดูหน้าที่ทางไวยากรณ์
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button id="btnSpeakSyntax" class="btn-act secondary">🔊 ฟังทั้งประโยค</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: FIXER LAB -->
+    <section id="tab-fixer" class="tab-content">
+      <div class="fixer-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#be123c;">🛠️ ห้องซ่อมประโยค (Grammar Fixer Lab)</h2>
+            <p style="font-size:0.9rem; color:var(--muted);">ค้นหาจุดที่ผิดทางไวยากรณ์ แล้วเลือกคำที่ถูกต้องที่สุด</p>
+          </div>
+          <button id="btnNextFixer" class="btn-act primary" style="display:none;">ข้อถัดไป ▶</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 180px 1fr; gap:16px; align-items:center;" id="fixerMainGrid">
+          <div style="width:100%; height:150px; background:#f8fafc; border:2px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <img id="fixerImg" style="width:100%; height:100%; object-fit:contain; padding:8px;" src="" alt="ภาพประกอบโจทย์" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="fixer-wrong-box">
+              <div class="fixer-wrong-text" id="fixerWrong">"ประโยคที่มีจุดผิด"</div>
+              <div class="fixer-hint" id="fixerHint">คำใบ้</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button id="btnSpeakFixerWrong" class="btn-act secondary">🔊 ฟังประโยคนี้</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="opt-grid" id="fixerOptions"></div>
+        <div class="quiz-feedback" id="fixerFeedback"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: PRACTICE QUIZ -->
+    <section id="tab-quiz" class="tab-content">
+      <div class="quiz-card" id="qCard">
+        <div class="quiz-meta">
+          <div>
+            <span style="font-size:1rem; font-weight:800; color:var(--indigo-dark);" id="qCounter">คำถามที่ 1 / 15</span>
+          </div>
+          <div class="quiz-score-badge">คะแนนสะสม: <span id="qScore">0</span></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 140px 1fr; gap:16px; align-items:center;" id="quizPromptGrid">
+          <div style="width:100%; height:130px; background:#f8fafc; border:2px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <img id="qImg" style="width:100%; height:100%; object-fit:contain; padding:8px;" src="" alt="ภาพโจทย์คำถาม" />
+          </div>
+          <div>
+            <h3 style="font-size:1.25rem; font-weight:800; color:var(--navy); line-height:1.4;" id="qPrompt">คำถาม</h3>
+            <button id="btnSpeakQ" class="btn-act secondary" style="margin-top:8px;">🔊 ฟังโจทย์</button>
+          </div>
+        </div>
+
+        <div class="opt-grid" id="qOptions"></div>
+        <div class="quiz-feedback" id="qFeedback"></div>
+
+        <div style="display:flex; justify-content:flex-end;">
+          <button id="btnNextQ" class="btn-act primary" style="display:none;">ข้อถัดไป ▶</button>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="qResult" style="display:none; text-align:center; padding:40px 20px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🏆</div>
+        <h2 style="font-size:1.6rem; font-weight:800; color:var(--indigo-dark); margin-bottom:8px;">การทดสอบเสร็จสิ้น!</h2>
+        <div style="font-size:1.2rem; font-weight:700; color:var(--ok); margin-bottom:20px;" id="qResultScore">คะแนนของคุณ: 15 / 15</div>
+        <button id="btnRestartQuiz" class="btn-act primary" style="margin:0 auto;">🔄 ทำแบบทดสอบอีกครั้ง</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>โรงเรียนบ้านคำไผ่ · สื่อการสอนไวยากรณ์ภาษาอังกฤษ ป.4–ป.5</div>
+    <div class="footer-links">
+      <a href="/games/english/grammar-vocab-worksheet.html" target="_blank">พิมพ์ใบงาน A4 สอดคล้อง</a> · 
+      <a href="/games/english/">คลังเกมภาษาอังกฤษ</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+// DATA INJECTION
+
+const MODULES = [
+  {
+    "id": "be",
+    "name": "1. Verb to Be",
+    "title": "Verb to Be (is / am / are)",
+    "desc": "ใช้บอกสถานะ เป็น อยู่ คือ หรือเชื่อมประธานกับคำคุณศัพท์ จับคู่กับประธานให้ถูกต้อง:",
+    "rule": "• I ➔ am (ฉัน)<br>• He / She / It / คำนามเอกพจน์ ➔ is<br>• You / We / They / คำนามพหูพจน์ ➔ are",
+    "examples": [
+      {
+        "en": "She <span class=\"grammar-token\">is</span> a doctor at the hospital.",
+        "th": "เธอเป็นคุณหมอที่โรงพยาบาล",
+        "img": "/games/english/vocab-hub-assets/jobs/doctor.webp",
+        "focus": "is (เอกพจน์)",
+        "ruleNote": "ประธาน She เป็นเอกพจน์คนเดียว จึงใช้ is เพื่อบอกอาชีพ"
+      },
+      {
+        "en": "I <span class=\"grammar-token\">am</span> happy with my sister.",
+        "th": "ฉันมีความสุขกับน้องสาวของฉัน",
+        "img": "/games/english/vocab-hub-assets/family/sister.webp",
+        "focus": "am (คู่กับ I)",
+        "ruleNote": "ประธาน I ใช้คู่กับ am เสมอเมื่อบอกความรู้สึกหรือสภาพ"
+      },
+      {
+        "en": "They <span class=\"grammar-token\">are</span> playing football outside.",
+        "th": "พวกเขากำลังเล่นฟุตบอลอยู่ข้างนอก",
+        "img": "/games/english/vocab-hub-assets/sports/football.webp",
+        "focus": "are (พหูพจน์)",
+        "ruleNote": "ประธาน They เป็นพหูพจน์หลายคน จึงใช้ are + กริยาเติม -ing"
+      }
+    ]
+  },
+  {
+    "id": "articles",
+    "name": "2. Articles (a/an/the)",
+    "title": "Articles คำนำหน้านาม (a, an, the)",
+    "desc": "ใช้ระบุคำนามนับได้เอกพจน์ และความชี้เฉพาะเจาะจง:",
+    "rule": "• a + คำนามเอกพจน์ที่ขึ้นต้นด้วยเสียงพยัญชนะ (a book, a cat, a pencil)<br>• an + คำนามเอกพจน์ที่ขึ้นต้นด้วยเสียงสระ a, e, i, o, u (an apple, an egg, an orange)<br>• the + สิ่งที่มีหนึ่งเดียว หรือชี้เฉพาะเจาะจงที่ผู้ฟังเข้าใจตรงกัน (the sun, the school)",
+    "examples": [
+      {
+        "en": "I eat <span class=\"grammar-token\">an</span> apple every morning.",
+        "th": "ฉันกินแอปเปิลวันละ 1 ผลทุกเช้า",
+        "img": "/games/english/vocab-hub-assets/fruits/apple.webp",
+        "focus": "an (เสียงสระ /æ/)",
+        "ruleNote": "apple ขึ้นต้นด้วยเสียงสระ /æ/ จึงต้องใช้ an นำหน้า"
+      },
+      {
+        "en": "He writes with <span class=\"grammar-token\">a</span> blue pencil.",
+        "th": "เขาเขียนหนังสือด้วยดินสอสีฟ้า 1 แท่ง",
+        "img": "/games/english/vocab-hub-assets/classroom/pencil.webp",
+        "focus": "a (เสียงพยัญชนะ /p/)",
+        "ruleNote": "pencil ขึ้นต้นด้วยเสียงพยัญชนะ /p/ จึงใช้ a นำหน้า"
+      },
+      {
+        "en": "<span class=\"grammar-token\">The</span> sun shines bright in summer.",
+        "th": "ดวงอาทิตย์ส่องแสงเจิดจ้าในฤดูร้อน",
+        "img": "/games/english/vocab-hub-assets/seasons/summer.webp",
+        "focus": "The (สิ่งเดียวในโลก)",
+        "ruleNote": "ดวงอาทิตย์มีเพียงดวงเดียวในโลก จึงต้องใช้ The นำหน้าเสมอ"
+      }
+    ]
+  },
+  {
+    "id": "pronouns",
+    "name": "3. Pronouns",
+    "title": "Pronouns สรรพนาม และ Possessives แสดงความเป็นเจ้าของ",
+    "desc": "ใช้แทนชื่อคน สัตว์ สิ่งของ เพื่อหลีกเลี่ยงการพูดชื่อซ้ำ และแสดงว่าสิ่งของนั้นเป็นของใคร:",
+    "rule": "• I (ฉัน) ➔ my (ของฉัน) | me (กรรม)<br>• You (คุณ) ➔ your (ของคุณ)<br>• He (เขาผู้ชาย) ➔ his (ของเขา) | him (กรรม)<br>• She (เธอผู้หญิง) ➔ her (ของเธอ)<br>• We (พวกเรา) ➔ our (ของพวกเรา) | us (กรรม)<br>• They (พวกเขา) ➔ their (ของพวกเขา) | them (กรรม)",
+    "examples": [
+      {
+        "en": "Ken carries <span class=\"grammar-token\">his</span> heavy school bag.",
+        "th": "เคนถือกระเป๋านักเรียนอันหนักของเขา",
+        "img": "/games/english/vocab-hub-assets/classroom/bag.webp",
+        "focus": "his (ของเขาผู้ชาย)",
+        "ruleNote": "his แสดงความเป็นเจ้าของกระเป๋าของเคน (ผู้ชายคนเดียว)"
+      },
+      {
+        "en": "Lisa rides <span class=\"grammar-token\">her</span> new bicycle to school.",
+        "th": "ลิซ่าปั่นจักรยานคันใหม่ของเธอไปโรงเรียน",
+        "img": "/games/english/vocab-hub-assets/transportation/bicycle.webp",
+        "focus": "her (ของเธอผู้หญิง)",
+        "ruleNote": "her แสดงความเป็นเจ้าของจักรยานของลิซ่า (ผู้หญิงคนเดียว)"
+      },
+      {
+        "en": "The students love <span class=\"grammar-token\">their</span> kind teacher.",
+        "th": "นักเรียนทุกคนรักคุณครูใจดีของพวกเขา",
+        "img": "/games/english/vocab-hub-assets/jobs/teacher.webp",
+        "focus": "their (ของพวกเขา)",
+        "ruleNote": "their แสดงความเป็นเจ้าของของคุณครูของกลุ่มนักเรียนหลายคน"
+      }
+    ]
+  },
+  {
+    "id": "demo",
+    "name": "4. Demonstratives",
+    "title": "This / That / These / Those (คำชี้เฉพาะ)",
+    "desc": "ใช้ระบุสิ่งของตามระยะทาง (ใกล้ vs ไกล) และจำนวน (เอกพจน์ vs พหูพจน์):",
+    "rule": "• This = สิ่งนี้ / คนนี้ (ใกล้ตัว + เอกพจน์ 1 สิ่ง)<br>• That = สิ่งนั้น / คนนั้น (ไกลตัว + เอกพจน์ 1 สิ่ง)<br>• These = เหล่านี้ (ใกล้ตัว + พหูพจน์ 2 สิ่งขึ้นไป)<br>• Those = เหล่านั้น (ไกลตัว + พหูพจน์ 2 สิ่งขึ้นไป)",
+    "examples": [
+      {
+        "en": "<span class=\"grammar-token\">This</span> is my favorite English book in my hand.",
+        "th": "นี่คือหนังสือภาษาอังกฤษเล่มโปรดในมือฉัน",
+        "img": "/games/english/vocab-hub-assets/classroom/book.webp",
+        "focus": "This (ใกล้ + 1 เล่ม)",
+        "ruleNote": "หนังสือ 1 เล่มถืออยู่ในมือ (ใกล้ตัว) จึงใช้ This"
+      },
+      {
+        "en": "Look at <span class=\"grammar-token\">that</span> white airplane flying high.",
+        "th": "มองดูเครื่องบินสีขาวลำนั้นที่บินอยู่บนฟ้าสิ",
+        "img": "/games/english/vocab-hub-assets/transportation/airplane.webp",
+        "focus": "that (ไกล + 1 ลำ)",
+        "ruleNote": "เครื่องบิน 1 ลำบินอยู่สูงบนท้องฟ้า (ไกลตัว) จึงใช้ That"
+      },
+      {
+        "en": "Are <span class=\"grammar-token\">those</span> colorful birds sitting on the tree?",
+        "th": "นกหลากสีเหล่านั้นกำลังเกาะอยู่บนต้นไม้ใช่ไหม?",
+        "img": "/games/english/vocab-hub-assets/birds/parrot.webp",
+        "focus": "those (ไกล + หลายตัว)",
+        "ruleNote": "นกหลายตัวเกาะอยู่บนต้นไม้ไกลออกไป จึงใช้ Those"
+      }
+    ]
+  },
+  {
+    "id": "prep",
+    "name": "5. Prepositions",
+    "title": "Prepositions of Place (คำบุพบทบอกตำแหน่ง)",
+    "desc": "ใช้ระบุตำแหน่งพิกัดของคน สัตว์ และสิ่งของในพื้นที่:",
+    "rule": "• in = ใน (ข้างในภาชนะ/สถานที่)<br>• on = บน (สัมผัสบนพื้นผิว)<br>• under = ใต้ (อยู่ข้างล่าง)<br>• behind = ข้างหลัง | in front of = ข้างหน้า<br>• between = ระหว่าง (อยู่ตรงกลางสองสิ่ง: between A and B)<br>• next to = ติดกัน / ข้างๆ",
+    "examples": [
+      {
+        "en": "The sleepy cat is resting <span class=\"grammar-token\">under</span> the chair.",
+        "th": "แมวง่วงนอนกำลังพักผ่อนอยู่ใต้เก้าอี้",
+        "img": "/games/english/vocab-hub-assets/classroom/chair.webp",
+        "focus": "under (ข้างใต้)",
+        "ruleNote": "under ใช้บอกว่าตัวแมวอยู่ใต้โครงเก้าอี้"
+      },
+      {
+        "en": "The basketball is <span class=\"grammar-token\">in</span> the big box.",
+        "th": "ลูกบาสเกตบอลอยู่ในกล่องใบใหญ่",
+        "img": "/games/english/vocab-hub-assets/sports/basketball.webp",
+        "focus": "in (ข้างใน)",
+        "ruleNote": "in ใช้บอกว่าลูกบอลอยู่ภายในขอบเขตของกล่อง"
+      },
+      {
+        "en": "The school bus stops <span class=\"grammar-token\">in front of</span> the school gate.",
+        "th": "รถโรงเรียนจอดอยู่ด้านหน้าประตูโรงเรียน",
+        "img": "/games/english/vocab-hub-assets/transportation/bus.webp",
+        "focus": "in front of (ข้างหน้า)",
+        "ruleNote": "in front of บอกตำแหน่งด้านหน้าของประตูโรงเรียน"
+      }
+    ]
+  },
+  {
+    "id": "helping",
+    "name": "6. Do / Does / Can",
+    "title": "Helping Verbs & Questions (กริยาช่วย)",
+    "desc": "ใช้สร้างประโยคคำถาม ประโยคปฏิเสธ และบอกความสามารถ:",
+    "rule": "• Do + I / You / We / They (เช่น Do you like...?)<br>• Does + He / She / It (เช่น Does she eat...?)<br>• Can + ประธานทุกตัว (แปลว่า สามารถ/ทำได้ ตามด้วยกริยารูปเดิม)",
+    "examples": [
+      {
+        "en": "<span class=\"grammar-token\">Do</span> you like sweet ice cream?",
+        "th": "คุณชอบไอศกรีมหวานๆ ไหม?",
+        "img": "/games/english/vocab-hub-assets/food/ice-cream.webp",
+        "focus": "Do you (คำถาม)",
+        "ruleNote": "ประธาน you ในประโยคคำถามปัจจุบันต้องขึ้นต้นด้วย Do"
+      },
+      {
+        "en": "<span class=\"grammar-token\">Does</span> he read stories every night?",
+        "th": "เขาอ่านนิทานทุกๆ คืนใช่ไหม?",
+        "img": "/games/english/vocab-hub-assets/verbs/read.webp",
+        "focus": "Does he (เอกพจน์)",
+        "ruleNote": "ประธาน he เป็นเอกพจน์ จึงใช้กริยาช่วย Does ในคำถาม"
+      },
+      {
+        "en": "Parrots <span class=\"grammar-token\">can</span> speak simple human words.",
+        "th": "นกแก้วสามารถพูดเลียนคำง่ายๆ ของมนุษย์ได้",
+        "img": "/games/english/vocab-hub-assets/birds/parrot.webp",
+        "focus": "can speak (สามารถทำได้)",
+        "ruleNote": "can บอกความสามารถ ตามด้วยกริยาช่อง 1 (speak) ไม่ต้องเติม s"
+      }
+    ]
+  }
+];
+const STORIES = [
+  {
+    "id": "school_day",
+    "title": "🏫 วันเรียนแสนสุขของเคน (A Wonderful School Day)",
+    "desc": "เรื่องราวต่อเนื่อง 4 ฉาก: ตั้งแต่ตื่นนอน มื้อเช้า ขึ้นรถโรงเรียน จนถึงอ่านหนังสือในห้องสมุด",
+    "scenes": [
+      {
+        "step": 1,
+        "title": "ฉากที่ 1: มื้อเช้าก่อนไปเรียน",
+        "en": "Ken eats <span class=\"grammar-token\">an</span> apple in the kitchen.",
+        "th": "เคนกินแอปเปิล 1 ผลในห้องครัว",
+        "img": "/games/english/vocab-hub-assets/fruits/apple.webp",
+        "badge": "Articles: an apple",
+        "rule": "ใช้ an นำหน้าคำนามนับได้เอกพจน์ที่ขึ้นต้นด้วยเสียงสระ (/æ/ apple)"
+      },
+      {
+        "step": 2,
+        "title": "ฉากที่ 2: จัดกระเป๋านักเรียน",
+        "en": "He packs <span class=\"grammar-token\">his</span> blue school bag.",
+        "th": "เขาจัดกระเป๋านักเรียนสีฟ้าของเขา",
+        "img": "/games/english/vocab-hub-assets/classroom/bag.webp",
+        "badge": "Possessives: his",
+        "rule": "ใช้ his แสดงความเป็นเจ้าของของประธานผู้ชาย (ของเขา)"
+      },
+      {
+        "step": 3,
+        "title": "ฉากที่ 3: รถโรงเรียนมาถึง",
+        "en": "<span class=\"grammar-token\">The</span> school bus stops <span class=\"grammar-token\">in front of</span> the school.",
+        "th": "รถโรงเรียนคันนั้นจอดอยู่ข้างหน้าโรงเรียน",
+        "img": "/games/english/vocab-hub-assets/transportation/bus.webp",
+        "badge": "The / in front of",
+        "rule": "ใช้ The ชี้เฉพาะรถโรงเรียน และ in front of บอกตำแหน่งข้างหน้า"
+      },
+      {
+        "step": 4,
+        "title": "ฉากที่ 4: อ่านหนังสือในห้องสมุด",
+        "en": "Ken and his friends <span class=\"grammar-token\">are</span> reading in the library.",
+        "th": "เคนและเพื่อนๆ กำลังอ่านหนังสือในห้องสมุด",
+        "img": "/games/english/vocab-hub-assets/places/library.webp",
+        "badge": "Verb to Be: are reading",
+        "rule": "ประธานพหูพจน์ 2 คนขึ้นไป ใช้ are + กริยาเติม -ing (Present Continuous)"
+      }
+    ]
+  },
+  {
+    "id": "puppy_adventure",
+    "title": "🐶 การผจญภัยของลูกสุนัขแสนซน (The Playful Puppy Adventure)",
+    "desc": "เรื่องราวต่อเนื่อง 4 ฉาก: การเล่นซ่อนแอบของลูกสุนัขตัวใหม่ในบ้านและสวนสาธารณะ",
+    "scenes": [
+      {
+        "step": 1,
+        "title": "ฉากที่ 1: แนะนำลูกสุนัข",
+        "en": "<span class=\"grammar-token\">This</span> is my brown puppy. It <span class=\"grammar-token\">is</span> very happy.",
+        "th": "นี่คือลูกสุนัขสีน้ำตาลของฉัน มันมีความสุขมาก",
+        "img": "/games/english/vocab-hub-assets/animals/dog.webp",
+        "badge": "This / is",
+        "rule": "This ชี้สัตว์ตัวเดียวที่อยู่ใกล้ และสรรพนาม It คู่กับ is เสมอ"
+      },
+      {
+        "step": 2,
+        "title": "ฉากที่ 2: แอบใต้เก้าอี้",
+        "en": "The puppy is sleeping <span class=\"grammar-token\">under</span> the chair.",
+        "th": "ลูกสุนัขกำลังนอนหลับอยู่ใต้เก้าอี้",
+        "img": "/games/english/vocab-hub-assets/classroom/chair.webp",
+        "badge": "Preposition: under",
+        "rule": "under แปลว่า ข้างใต้ ใช้บอกตำแหน่งวัตถุที่อยู่ข้างล่าง"
+      },
+      {
+        "step": 3,
+        "title": "ฉากที่ 3: ถามหาเจ้าตูบ",
+        "en": "Anna asks <span class=\"grammar-token\">her</span> brother: \"<span class=\"grammar-token\">Do</span> you see the puppy?\"",
+        "th": "แอนนาถามพี่ชายของเธอ: \"เธอเห็นลูกสุนัขไหม?\"",
+        "img": "/games/english/vocab-hub-assets/family/brother.webp",
+        "badge": "her / Do you",
+        "rule": "her (ของเธอผู้หญิง) และ Do you เป็นโครงสร้างคำถามประธาน you"
+      },
+      {
+        "step": 4,
+        "title": "ฉากที่ 4: วิ่งเล่นในสวน",
+        "en": "They <span class=\"grammar-token\">can</span> run together in the green park.",
+        "th": "พวกเขาสามารถวิ่งเล่นด้วยกันในสวนสาธารณะสีเขียว",
+        "img": "/games/english/vocab-hub-assets/verbs/run.webp",
+        "badge": "Helping Verb: can run",
+        "rule": "กริยาช่วย can (สามารถทำได้) ตามด้วยกริยาช่อง 1 ไม่ผันรูปเสมอ"
+      }
+    ]
+  },
+  {
+    "id": "zoo_safari",
+    "title": "🦁 ทัศนศึกษาซาฟารีที่สวนสัตว์ (A Fun Safari at the Zoo)",
+    "desc": "เรื่องราวต่อเนื่อง 4 ฉาก: สำรวจสัตว์น่ารัก ยีราฟ ช้าง นกแก้ว และถ่ายรูปร่วมกับคุณครู",
+    "scenes": [
+      {
+        "step": 1,
+        "title": "ฉากที่ 1: ยีราฟคอยาว",
+        "en": "<span class=\"grammar-token\">That</span> tall giraffe is eating green leaves.",
+        "th": "ยีราฟตัวสูงตัวนั้นกำลังกินใบไม้สีเขียว",
+        "img": "/games/english/vocab-hub-assets/animals/giraffe.webp",
+        "badge": "Demonstrative: That",
+        "rule": "That ชี้สัตว์ตัวเดียวที่อยู่ห่างออกไป (ตัวนั้น)"
+      },
+      {
+        "step": 2,
+        "title": "ฉากที่ 2: ช้างแสนรู้",
+        "en": "<span class=\"grammar-token\">An</span> elephant is drinking clean water.",
+        "th": "ช้างหนึ่งเชือกกำลังดื่มน้ำสะอาด",
+        "img": "/games/english/vocab-hub-assets/animals/elephant.webp",
+        "badge": "Articles: An elephant",
+        "rule": "elephant ขึ้นต้นด้วยเสียงสระ /e/ จึงต้องใช้ An นำหน้า"
+      },
+      {
+        "step": 3,
+        "title": "ฉากที่ 3: นกแก้วส่งเสียงร้อง",
+        "en": "<span class=\"grammar-token\">Those</span> colorful birds <span class=\"grammar-token\">can</span> sing sweet songs.",
+        "th": "นกหลากสีเหล่านั้นสามารถร้องเพลงได้ไพเราะ",
+        "img": "/games/english/vocab-hub-assets/birds/parrot.webp",
+        "badge": "Those / can sing",
+        "rule": "Those ชี้สัตว์หลายตัวที่อยู่ไกล และ can ตามด้วยกริยารูปเดิม"
+      },
+      {
+        "step": 4,
+        "title": "ฉากที่ 4: ถ่ายรูปกับคุณครู",
+        "en": "<span class=\"grammar-token\">Our</span> teacher takes photos of <span class=\"grammar-token\">us</span> with her camera.",
+        "th": "คุณครูของพวกเราถ่ายรูปพวกเราด้วยกล้องของเธอ",
+        "img": "/games/english/vocab-hub-assets/jobs/teacher.webp",
+        "badge": "Pronouns: Our / us",
+        "rule": "Our (แสดงความเป็นเจ้าของ) และ us (พวกเราในรูปกรรมหลัง of)"
+      }
+    ]
+  }
+];
+const SYNTAX_DATA = [
+  {
+    "tokens": [
+      {
+        "word": "She",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "reads",
+        "label": "กริยา (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "an English book",
+        "label": "กรรม (Object)",
+        "type": "obj"
+      }
+    ],
+    "full": "She reads an English book.",
+    "th": "เธออ่านหนังสือภาษาอังกฤษเล่มหนึ่ง",
+    "img": "/games/english/vocab-hub-assets/verbs/read.webp"
+  },
+  {
+    "tokens": [
+      {
+        "word": "The doctor",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "helps",
+        "label": "กริยา (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "sick people",
+        "label": "กรรม (Object)",
+        "type": "obj"
+      }
+    ],
+    "full": "The doctor helps sick people.",
+    "th": "คุณหมอรักษาผู้ป่วย",
+    "img": "/games/english/vocab-hub-assets/jobs/doctor.webp"
+  },
+  {
+    "tokens": [
+      {
+        "word": "They",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "play",
+        "label": "กริยา (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "basketball",
+        "label": "กรรม (Object)",
+        "type": "obj"
+      },
+      {
+        "word": "after school",
+        "label": "ส่วนขยายเวลา (Time)",
+        "type": "prep"
+      }
+    ],
+    "full": "They play basketball after school.",
+    "th": "พวกเขาเล่นบาสเกตบอลหลังเลิกเรียน",
+    "img": "/games/english/vocab-hub-assets/sports/basketball.webp"
+  },
+  {
+    "tokens": [
+      {
+        "word": "The cat",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "sleeps",
+        "label": "กริยา (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "under the chair",
+        "label": "บุพบทบอกตำแหน่ง (Prep)",
+        "type": "prep"
+      }
+    ],
+    "full": "The cat sleeps under the chair.",
+    "th": "แมวนอนหลับอยู่ใต้เก้าอี้",
+    "img": "/games/english/vocab-hub-assets/animals/cat.webp"
+  },
+  {
+    "tokens": [
+      {
+        "word": "We",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "eat",
+        "label": "กริยา (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "delicious pizza",
+        "label": "กรรม (Object)",
+        "type": "obj"
+      },
+      {
+        "word": "together",
+        "label": "ส่วนขยาย (Adverb)",
+        "type": "prep"
+      }
+    ],
+    "full": "We eat delicious pizza together.",
+    "th": "พวกเรากินพิซซ่าแสนอร่อยด้วยกัน",
+    "img": "/games/english/vocab-hub-assets/food/pizza.webp"
+  },
+  {
+    "tokens": [
+      {
+        "word": "Birds",
+        "label": "ประธาน (Subject)",
+        "type": "sub"
+      },
+      {
+        "word": "can fly",
+        "label": "กริยาช่วย+กริยาแท้ (Verb)",
+        "type": "verb"
+      },
+      {
+        "word": "high in the sky",
+        "label": "ส่วนขยาย (Adverb Phrase)",
+        "type": "prep"
+      }
+    ],
+    "full": "Birds can fly high in the sky.",
+    "th": "นกสามารถบินได้สูงบนท้องฟ้า",
+    "img": "/games/english/vocab-hub-assets/birds/parrot.webp"
+  }
+];
+const FIXER_DATA = [
+  {
+    "wrong": "She have a cute dog.",
+    "hint": "ประธาน She เป็นเอกพจน์คนเดียว ต้องเปลี่ยน have เป็นคำใด?",
+    "opts": [
+      "has",
+      "having",
+      "haves",
+      "had"
+    ],
+    "ans": "has",
+    "exp": "She เป็นประธานเอกพจน์บุรุษที่ 3 ในปัจจุบันต้องใช้ has",
+    "img": "/games/english/vocab-hub-assets/animals/dog.webp"
+  },
+  {
+    "wrong": "He is an boy.",
+    "hint": "คำว่า boy ขึ้นต้นด้วยเสียงพยัญชนะ /b/ ต้องใช้อาร์ติเคิลใด?",
+    "opts": [
+      "a",
+      "the",
+      "some",
+      "two"
+    ],
+    "ans": "a",
+    "exp": "boy ออกเสียงพยัญชนะ จึงใช้ a boy",
+    "img": "/games/english/vocab-hub-assets/family/brother.webp"
+  },
+  {
+    "wrong": "They is playing football.",
+    "hint": "ประธาน They (พวกเขา) เป็นพหูพจน์ ต้องใช้ Verb to be ใด?",
+    "opts": [
+      "are",
+      "am",
+      "was",
+      "be"
+    ],
+    "ans": "are",
+    "exp": "They เป็นพหูพจน์ ต้องใช้ They are",
+    "img": "/games/english/vocab-hub-assets/sports/football.webp"
+  },
+  {
+    "wrong": "The cat is on under the chair.",
+    "hint": "แมวนอนอยู่ข้างใต้เก้าอี้ ไม่ใช้คำบุพบทซ้อนกัน ควรแก้เป็น?",
+    "opts": [
+      "under",
+      "in",
+      "on",
+      "at"
+    ],
+    "ans": "under",
+    "exp": "อยู่ใต้เก้าอี้ใช้ under the chair อย่างเดียว ไม่ใส่ on ซ้ำ",
+    "img": "/games/english/vocab-hub-assets/classroom/chair.webp"
+  },
+  {
+    "wrong": "I does my homework.",
+    "hint": "ประธาน I ต้องใช้กริยาช่วย do หรือ does?",
+    "opts": [
+      "do",
+      "doing",
+      "done",
+      "did"
+    ],
+    "ans": "do",
+    "exp": "ประธาน I ใช้คู่กับกริยา do (I do my homework)",
+    "img": "/games/english/vocab-hub-assets/classroom/book.webp"
+  },
+  {
+    "wrong": "These is my favorite book.",
+    "hint": "หนังสือมีเพียง 1 เล่ม (is a book) ต้องเปลี่ยน These เป็นคำใด?",
+    "opts": [
+      "This",
+      "That",
+      "Those",
+      "They"
+    ],
+    "ans": "This",
+    "exp": "หนังสือเล่มเดียว (เอกพจน์) ต้องใช้ This is",
+    "img": "/games/english/vocab-hub-assets/classroom/book.webp"
+  }
+];
+const QUIZ_QUESTIONS = [
+  {
+    "q": "She _______ my best friend at school.",
+    "opts": [
+      "is",
+      "am",
+      "are",
+      "be"
+    ],
+    "a": 0,
+    "exp": "ประธาน She เป็นเอกพจน์ใช้ is",
+    "img": "/games/english/vocab-hub-assets/family/sister.webp"
+  },
+  {
+    "q": "I want to eat _______ orange.",
+    "opts": [
+      "an",
+      "a",
+      "the",
+      "some"
+    ],
+    "a": 0,
+    "exp": "orange ขึ้นต้นด้วยเสียงสระ /ɒ/ ต้องใช้ an",
+    "img": "/games/english/vocab-hub-assets/fruits/orange.webp"
+  },
+  {
+    "q": "They _______ football every afternoon.",
+    "opts": [
+      "play",
+      "plays",
+      "playing",
+      "is play"
+    ],
+    "a": 0,
+    "exp": "ประธาน They พหูพจน์ กริยาไม่ต้องเติม s",
+    "img": "/games/english/vocab-hub-assets/sports/football.webp"
+  },
+  {
+    "q": "This is Tom and that is _______ new bicycle.",
+    "opts": [
+      "his",
+      "her",
+      "my",
+      "their"
+    ],
+    "a": 0,
+    "exp": "Tom เป็นผู้ชาย แสดงความเป็นเจ้าของใช้ his",
+    "img": "/games/english/vocab-hub-assets/transportation/bicycle.webp"
+  },
+  {
+    "q": "The cat is sleeping _______ the chair.",
+    "opts": [
+      "under",
+      "between",
+      "into",
+      "with"
+    ],
+    "a": 0,
+    "exp": "under แปลว่า ใต้ (ใต้เก้าอี้)",
+    "img": "/games/english/vocab-hub-assets/animals/cat.webp"
+  },
+  {
+    "q": "_______ you have a pet at home?",
+    "opts": [
+      "Do",
+      "Does",
+      "Is",
+      "Are"
+    ],
+    "a": 0,
+    "exp": "ประธาน you ใช้คู่กับ Do ในประโยคคำถาม",
+    "img": "/games/english/vocab-hub-assets/animals/dog.webp"
+  },
+  {
+    "q": "_______ she speak English?",
+    "opts": [
+      "Does",
+      "Do",
+      "Is",
+      "Are"
+    ],
+    "a": 0,
+    "exp": "ประธาน she เอกพจน์ใช้ Does ในคำถาม",
+    "img": "/games/english/vocab-hub-assets/jobs/teacher.webp"
+  },
+  {
+    "q": "We _______ very excited for the trip.",
+    "opts": [
+      "are",
+      "is",
+      "am",
+      "be"
+    ],
+    "a": 0,
+    "exp": "ประธาน We พหูพจน์ใช้ are",
+    "img": "/games/english/vocab-hub-assets/transportation/bus.webp"
+  },
+  {
+    "q": "Look at _______ birds in the sky over there (ไกลตัว).",
+    "opts": [
+      "those",
+      "these",
+      "this",
+      "that"
+    ],
+    "a": 0,
+    "exp": "นกหลายตัวและอยู่ไกลตัวใช้ those",
+    "img": "/games/english/vocab-hub-assets/birds/parrot.webp"
+  },
+  {
+    "q": "I like _______ red apple in my hand (ใกล้ตัว).",
+    "opts": [
+      "this",
+      "that",
+      "those",
+      "these"
+    ],
+    "a": 0,
+    "exp": "แอปเปิล 1 ผลในมือใช้ this",
+    "img": "/games/english/vocab-hub-assets/fruits/apple.webp"
+  },
+  {
+    "q": "The doctor works in _______ hospital.",
+    "opts": [
+      "the",
+      "an",
+      "some",
+      "two"
+    ],
+    "a": 0,
+    "exp": "ระบุโรงพยาบาลชี้เฉพาะใช้ the",
+    "img": "/games/english/vocab-hub-assets/jobs/doctor.webp"
+  },
+  {
+    "q": "Parrots _______ fly and sing.",
+    "opts": [
+      "can",
+      "does",
+      "is",
+      "are"
+    ],
+    "a": 0,
+    "exp": "can แปลว่า สามารถ/ทำได้",
+    "img": "/games/english/vocab-hub-assets/birds/parrot.webp"
+  },
+  {
+    "q": "The blue book is _______ the desk.",
+    "opts": [
+      "on",
+      "under",
+      "into",
+      "at"
+    ],
+    "a": 0,
+    "exp": "on แปลว่า บน (วางบนโต๊ะ)",
+    "img": "/games/english/vocab-hub-assets/classroom/book.webp"
+  },
+  {
+    "q": "He _______ not like bitter medicine.",
+    "opts": [
+      "does",
+      "do",
+      "is",
+      "are"
+    ],
+    "a": 0,
+    "exp": "ประธาน He เอกพจน์ใช้ does not",
+    "img": "/games/english/vocab-hub-assets/jobs/doctor.webp"
+  },
+  {
+    "q": "_______ sun gives light and warmth to Earth.",
+    "opts": [
+      "The",
+      "A",
+      "An",
+      "Some"
+    ],
+    "a": 0,
+    "exp": "ดวงอาทิตย์มีเพียงสิ่งเดียวในโลกใช้ The",
+    "img": "/games/english/vocab-hub-assets/seasons/summer.webp"
+  }
+];
+
+
+// STATE
+const state = {
+  tab: 'studio',
+  modIdx: 0,
+  storyIdx: 0,
+  sceneIdx: 0,
+  storyAutoTimer: null,
+  isAutoPlaying: false,
+  syntaxIdx: 0,
+  fixerIdx: 0,
+  qIdx: 0,
+  score: 0,
+  voiceAccent: 'en-US',
+  ttsEnabled: true
+};
+
+// STATE INSPECTION HOOK (FOR PLAYWRIGHT TESTING & SYSTEM OBSERVERS)
+window.__getState = () => ({
+  mode: state.tab,
+  tab: state.tab,
+  modIdx: state.modIdx,
+  storyIdx: state.storyIdx,
+  sceneIdx: state.sceneIdx,
+  syntaxIdx: state.syntaxIdx,
+  fixerIdx: state.fixerIdx,
+  qIdx: state.qIdx,
+  score: state.score,
+  voiceAccent: state.voiceAccent
+});
+
+// AUDIO TTS HELPER
+function speakText(text, onEnd) {
+  if (!state.ttsEnabled) {
+    if (onEnd) setTimeout(onEnd, 300);
+    return;
+  }
+  if (!('speechSynthesis' in window)) {
+    if (onEnd) setTimeout(onEnd, 300);
+    return;
+  }
+  window.speechSynthesis.cancel();
+  // Strip HTML tags
+  const clean = text.replace(/<[^>]*>?/gm, '').trim();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = state.voiceAccent;
+  u.rate = 0.9;
+
+  const voices = window.speechSynthesis.getVoices();
+  const matched = voices.find(v => v.lang === state.voiceAccent || v.lang.startsWith(state.voiceAccent.slice(0, 2)));
+  if (matched) u.voice = matched;
+
+  if (onEnd) {
+    u.onend = onEnd;
+    u.onerror = onEnd;
+  }
+  window.speechSynthesis.speak(u);
+}
+
+// ECHO REPEAT-AFTER-ME
+function triggerEcho(text) {
+  speakText(text, () => {
+    let countdown = 3;
+    const desc = document.getElementById('storyAutoStatus');
+    if (desc) desc.textContent = '🎤 พูดตาม: ' + countdown + 's';
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        if (desc) desc.textContent = '🎤 พูดตาม: ' + countdown + 's';
+      } else {
+        clearInterval(interval);
+        if (desc) {
+          desc.textContent = '✨ ยอดเยี่ยมมาก!';
+          setTimeout(() => desc.textContent = '', 2000);
+        }
+      }
+    }, 1000);
+  });
+}
+
+// TAB SWITCHING
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+function switchTab(targetTab) {
+  state.tab = targetTab;
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === targetTab));
+  tabContents.forEach(c => c.classList.toggle('active', c.id === 'tab-' + targetTab));
+  if (targetTab !== 'story' && state.isAutoPlaying) {
+    stopAutoPlayStory();
+  }
+}
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// TAB 1: GRAMMAR STUDIO
+const moduleNav = document.getElementById('moduleNav');
+const formulaContainer = document.getElementById('formulaContainer');
+const exampleGrid = document.getElementById('exampleGrid');
+
+function renderModuleNav() {
+  moduleNav.innerHTML = '';
+  MODULES.forEach((mod, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-mod' + (idx === state.modIdx ? ' active' : '');
+    btn.textContent = mod.name;
+    btn.addEventListener('click', () => {
+      state.modIdx = idx;
+      renderModuleNav();
+      renderFormula();
+    });
+    moduleNav.appendChild(btn);
+  });
+}
+
+function renderFormula() {
+  const mod = MODULES[state.modIdx];
+  formulaContainer.innerHTML = '<div class="formula-banner">' +
+    '<h2>' + mod.title + '</h2>' +
+    '<div class="formula-desc">' + mod.desc + '</div>' +
+    '<div class="formula-box">' + mod.rule + '</div>' +
+    '</div>';
+
+  exampleGrid.innerHTML = mod.examples.map(ex => {
+    const safeEn = ex.en.replace(/'/g, "\\'");
+    return '<div class="example-card">' +
+      '<div class="ex-img-wrapper">' +
+        '<span class="ex-badge">' + ex.focus + '</span>' +
+        '<img class="ex-img" src="' + ex.img + '" alt="' + ex.focus + '" loading="lazy" />' +
+      '</div>' +
+      '<div class="ex-body">' +
+        '<div>' +
+          '<div class="ex-sentence">' + ex.en + '</div>' +
+          '<div class="ex-translation">' + ex.th + '</div>' +
+        '</div>' +
+        '<div class="ex-rule-note">' + ex.ruleNote + '</div>' +
+        '<div class="ex-actions">' +
+          '<button class="btn-act primary" onclick="speakText(\'' + safeEn + '\')">🔊 ฟัง</button>' +
+          '<button class="btn-act secondary" onclick="triggerEcho(\'' + safeEn + '\')">🎤 ฝึกพูดตาม</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+renderModuleNav();
+renderFormula();
+
+// TAB 2: SEQUENTIAL STORYBOARD
+const storyNav = document.getElementById('storyNav');
+const storyBadge = document.getElementById('storyBadge');
+const storyDots = document.getElementById('storyDots');
+const sceneBadge = document.getElementById('sceneBadge');
+const sceneImg = document.getElementById('sceneImg');
+const sceneTitle = document.getElementById('sceneTitle');
+const sceneSentenceEn = document.getElementById('sceneSentenceEn');
+const sceneSentenceTh = document.getElementById('sceneSentenceTh');
+const sceneRuleCallout = document.getElementById('sceneRuleCallout');
+const btnSpeakScene = document.getElementById('btnSpeakScene');
+const btnEchoScene = document.getElementById('btnEchoScene');
+const btnAutoPlayStory = document.getElementById('btnAutoPlayStory');
+const btnPrevScene = document.getElementById('btnPrevScene');
+const btnNextScene = document.getElementById('btnNextScene');
+const storyFilmstrip = document.getElementById('storyFilmstrip');
+const storyAutoStatus = document.getElementById('storyAutoStatus');
+
+function renderStoryNav() {
+  storyNav.innerHTML = '';
+  STORIES.forEach((story, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-story' + (idx === state.storyIdx ? ' active' : '');
+    btn.textContent = story.title;
+    btn.addEventListener('click', () => {
+      state.storyIdx = idx;
+      state.sceneIdx = 0;
+      stopAutoPlayStory();
+      renderStoryNav();
+      renderScene();
+    });
+    storyNav.appendChild(btn);
+  });
+}
+
+function renderScene() {
+  const story = STORIES[state.storyIdx];
+  const scene = story.scenes[state.sceneIdx];
+
+  storyBadge.textContent = 'ฉากที่ ' + (state.sceneIdx + 1) + ' / ' + story.scenes.length;
+  sceneBadge.textContent = scene.badge;
+  sceneImg.src = scene.img;
+  sceneTitle.textContent = scene.title;
+  sceneSentenceEn.innerHTML = scene.en;
+  sceneSentenceTh.textContent = scene.th;
+  sceneRuleCallout.textContent = '💡 กฎไวยากรณ์: ' + scene.rule;
+
+  // Render Dots
+  storyDots.innerHTML = '';
+  story.scenes.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (idx === state.sceneIdx ? ' active' : '');
+    dot.addEventListener('click', () => {
+      state.sceneIdx = idx;
+      renderScene();
+    });
+    storyDots.appendChild(dot);
+  });
+
+  // Render Filmstrip
+  storyFilmstrip.innerHTML = '';
+  story.scenes.forEach((sc, idx) => {
+    const card = document.createElement('div');
+    card.className = 'film-card' + (idx === state.sceneIdx ? ' active' : '');
+    card.innerHTML = '<img class="film-thumb" src="' + sc.img + '" alt="ฉาก ' + (idx + 1) + '" />' +
+      '<div class="film-label">ฉาก ' + (idx + 1) + '</div>';
+    card.addEventListener('click', () => {
+      state.sceneIdx = idx;
+      renderScene();
+    });
+    storyFilmstrip.appendChild(card);
+  });
+}
+
+btnSpeakScene.addEventListener('click', () => {
+  const cur = STORIES[state.storyIdx].scenes[state.sceneIdx];
+  speakText(cur.en);
+});
+
+btnEchoScene.addEventListener('click', () => {
+  const cur = STORIES[state.storyIdx].scenes[state.sceneIdx];
+  triggerEcho(cur.en);
+});
+
+btnPrevScene.addEventListener('click', () => {
+  const story = STORIES[state.storyIdx];
+  state.sceneIdx = (state.sceneIdx - 1 + story.scenes.length) % story.scenes.length;
+  renderScene();
+});
+
+btnNextScene.addEventListener('click', () => {
+  const story = STORIES[state.storyIdx];
+  state.sceneIdx = (state.sceneIdx + 1) % story.scenes.length;
+  renderScene();
+});
+
+function stopAutoPlayStory() {
+  state.isAutoPlaying = false;
+  if (state.storyAutoTimer) clearTimeout(state.storyAutoTimer);
+  btnAutoPlayStory.textContent = '⏯ เล่นนิทานต่อเนื่อง';
+  storyAutoStatus.textContent = '';
+}
+
+function playNextAutoScene() {
+  if (!state.isAutoPlaying) return;
+  const story = STORIES[state.storyIdx];
+  renderScene();
+  const cur = story.scenes[state.sceneIdx];
+  storyAutoStatus.textContent = 'กำลังเล่นฉาก ' + (state.sceneIdx + 1) + ' / ' + story.scenes.length;
+
+  speakText(cur.en, () => {
+    if (!state.isAutoPlaying) return;
+    state.storyAutoTimer = setTimeout(() => {
+      if (state.sceneIdx < story.scenes.length - 1) {
+        state.sceneIdx++;
+        playNextAutoScene();
+      } else {
+        storyAutoStatus.textContent = '🎉 จบนิทานเรื่องนี้แล้ว';
+        stopAutoPlayStory();
+      }
+    }, 2500);
+  });
+}
+
+btnAutoPlayStory.addEventListener('click', () => {
+  if (state.isAutoPlaying) {
+    stopAutoPlayStory();
+  } else {
+    state.isAutoPlaying = true;
+    btnAutoPlayStory.textContent = '⏹ หยุดเล่นนิทาน';
+    state.sceneIdx = 0;
+    playNextAutoScene();
+  }
+});
+
+renderStoryNav();
+renderScene();
+
+// TAB 3: SYNTAX INSPECTOR
+const syntaxImg = document.getElementById('syntaxImg');
+const syntaxEn = document.getElementById('syntaxEn');
+const syntaxTh = document.getElementById('syntaxTh');
+const syntaxDisplay = document.getElementById('syntaxDisplay');
+const syntaxDesc = document.getElementById('syntaxDesc');
+const btnPrevSyntax = document.getElementById('btnPrevSyntax');
+const btnNextSyntax = document.getElementById('btnNextSyntax');
+const btnSpeakSyntax = document.getElementById('btnSpeakSyntax');
+
+function renderSyntax() {
+  const cur = SYNTAX_DATA[state.syntaxIdx];
+  syntaxImg.src = cur.img;
+  syntaxEn.textContent = cur.full;
+  syntaxTh.textContent = cur.th;
+  syntaxDisplay.innerHTML = '';
+  syntaxDesc.textContent = 'แตะที่แต่ละคำเพื่อดูหน้าที่ของคำในประโยค';
+
+  cur.tokens.forEach(tok => {
+    const el = document.createElement('div');
+    el.className = 'syntax-token ' + tok.type;
+    el.innerHTML = '<span>' + tok.word + '</span><span class="token-label">' + tok.label + '</span>';
+    el.addEventListener('click', () => {
+      speakText(tok.word);
+      syntaxDesc.textContent = '📌 คำว่า "' + tok.word + '" ทำหน้าที่เป็น ' + tok.label + ' (' + tok.desc + ')';
+    });
+    syntaxDisplay.appendChild(el);
+  });
+}
+
+btnPrevSyntax.addEventListener('click', () => {
+  state.syntaxIdx = (state.syntaxIdx - 1 + SYNTAX_DATA.length) % SYNTAX_DATA.length;
+  renderSyntax();
+});
+btnNextSyntax.addEventListener('click', () => {
+  state.syntaxIdx = (state.syntaxIdx + 1) % SYNTAX_DATA.length;
+  renderSyntax();
+});
+btnSpeakSyntax.addEventListener('click', () => speakText(SYNTAX_DATA[state.syntaxIdx].full));
+renderSyntax();
+
+// TAB 4: FIXER LAB
+const fixerImg = document.getElementById('fixerImg');
+const fixerWrong = document.getElementById('fixerWrong');
+const fixerHint = document.getElementById('fixerHint');
+const fixerOptions = document.getElementById('fixerOptions');
+const fixerFeedback = document.getElementById('fixerFeedback');
+const btnNextFixer = document.getElementById('btnNextFixer');
+const btnSpeakFixerWrong = document.getElementById('btnSpeakFixerWrong');
+
+function renderFixer() {
+  const cur = FIXER_DATA[state.fixerIdx];
+  fixerImg.src = cur.img;
+  fixerWrong.textContent = '"' + cur.wrong + '"';
+  fixerHint.textContent = '💡 คำใบ้: ' + cur.hint;
+  fixerFeedback.className = 'quiz-feedback';
+  btnNextFixer.style.display = 'none';
+  fixerOptions.innerHTML = '';
+
+  cur.opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = '<strong>' + opt + '</strong>';
+    btn.addEventListener('click', () => {
+      const all = fixerOptions.querySelectorAll('.opt-btn');
+      if (opt === cur.ans) {
+        btn.classList.add('correct');
+        fixerFeedback.className = 'quiz-feedback show correct';
+        fixerFeedback.textContent = '✅ ถูกต้อง! ' + cur.exp;
+        speakText(cur.right);
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        fixerFeedback.className = 'quiz-feedback show wrong';
+        fixerFeedback.textContent = '❌ ยังไม่ถูกต้อง (' + cur.exp + ')';
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      btnNextFixer.style.display = 'inline-flex';
+    });
+    fixerOptions.appendChild(btn);
+  });
+}
+
+btnNextFixer.addEventListener('click', () => {
+  state.fixerIdx = (state.fixerIdx + 1) % FIXER_DATA.length;
+  renderFixer();
+});
+btnSpeakFixerWrong.addEventListener('click', () => speakText(FIXER_DATA[state.fixerIdx].wrong));
+renderFixer();
+
+// TAB 5: PRACTICE QUIZ
+const qCard = document.getElementById('qCard');
+const qResult = document.getElementById('qResult');
+const qCounter = document.getElementById('qCounter');
+const qScore = document.getElementById('qScore');
+const qImg = document.getElementById('qImg');
+const qPrompt = document.getElementById('qPrompt');
+const qOptions = document.getElementById('qOptions');
+const qFeedback = document.getElementById('qFeedback');
+const btnSpeakQ = document.getElementById('btnSpeakQ');
+const btnNextQ = document.getElementById('btnNextQ');
+const qResultScore = document.getElementById('qResultScore');
+const btnRestartQuiz = document.getElementById('btnRestartQuiz');
+
+function renderQuiz() {
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  qCounter.textContent = 'คำถามที่ ' + (state.qIdx + 1) + ' / ' + QUIZ_QUESTIONS.length;
+  qPrompt.textContent = q.q;
+  qImg.src = q.img;
+  qFeedback.className = 'quiz-feedback';
+  btnNextQ.style.display = 'none';
+  qOptions.innerHTML = '';
+
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      const all = qOptions.querySelectorAll('.opt-btn');
+      all.forEach(b => b.disabled = true);
+      if (idx === q.a) {
+        btn.classList.add('correct');
+        state.score++;
+        qFeedback.className = 'quiz-feedback show correct';
+        qFeedback.textContent = '✅ ถูกต้อง! ' + q.exp;
+        speakText(q.q.replace(/_{3,}/g, opt));
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+      } else {
+        btn.classList.add('wrong');
+        all[q.a].classList.add('correct');
+        qFeedback.className = 'quiz-feedback show wrong';
+        qFeedback.textContent = '❌ ยังไม่ถูกต้อง (' + q.exp + ')';
+        if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+      }
+      qScore.textContent = state.score;
+      btnNextQ.style.display = 'inline-flex';
+    });
+    qOptions.appendChild(btn);
+  });
+}
+
+btnNextQ.addEventListener('click', () => {
+  if (state.qIdx < QUIZ_QUESTIONS.length - 1) {
+    state.qIdx++;
+    renderQuiz();
+  } else {
+    qCard.style.display = 'none';
+    qResult.style.display = 'block';
+    qResultScore.textContent = 'คะแนนของคุณ: ' + state.score + ' / ' + QUIZ_QUESTIONS.length + ' คะแนน';
+  }
+});
+
+btnSpeakQ.addEventListener('click', () => speakText(QUIZ_QUESTIONS[state.qIdx].q));
+
+btnRestartQuiz.addEventListener('click', () => {
+  state.qIdx = 0;
+  state.score = 0;
+  qScore.textContent = 0;
+  qCard.style.display = 'flex';
+  qResult.style.display = 'none';
+  renderQuiz();
+});
+renderQuiz();
+
+// CONTROLS & SHORTCUTS
+document.getElementById('selVoiceAccent').addEventListener('change', (e) => state.voiceAccent = e.target.value);
+document.getElementById('btnAudioToggle').addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
+});
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen().catch(() => {});
+});
+
+// SMARTBOARD SHORTCUTS
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') switchTab('studio');
+  if (e.key === '2') switchTab('story');
+  if (e.key === '3') switchTab('syntax');
+  if (e.key === '4') switchTab('fixer');
+  if (e.key === '5') switchTab('quiz');
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (state.tab === 'studio') {
+      const mod = MODULES[state.modIdx];
+      speakText(mod.examples[0].en);
+    } else if (state.tab === 'story') {
+      btnSpeakScene.click();
+    } else if (state.tab === 'syntax') {
+      btnSpeakSyntax.click();
+    } else if (state.tab === 'quiz') {
+      btnSpeakQ.click();
+    }
+  }
+  if (e.key === 'ArrowRight') {
+    if (state.tab === 'story') btnNextScene.click();
+    else if (state.tab === 'syntax') btnNextSyntax.click();
+    else if (state.tab === 'fixer' && btnNextFixer.style.display !== 'none') btnNextFixer.click();
+    else if (state.tab === 'quiz' && btnNextQ.style.display !== 'none') btnNextQ.click();
+  }
+  if (e.key === 'ArrowLeft') {
+    if (state.tab === 'story') btnPrevScene.click();
+    else if (state.tab === 'syntax') btnPrevSyntax.click();
+  }
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  }
+});
+</script>
+</body>
+</html>

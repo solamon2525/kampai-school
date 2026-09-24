@@ -2,69 +2,410 @@
 <html lang="th"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="worksheet-source-media" content="/games/math/math-decimal-hub/index.html">
-  <meta name="curriculum-indicators" content="ค 1.1 ป.4/5,ค 1.1 ป.4/6">
+  <meta name="curriculum-indicators" content="ค 1.1 ป.4/5,ค 1.1 ป.4/6,ค 1.1 ป.5/1">
   <title>ใบงานคลังทศนิยม ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    @media (max-width: 600px) {
+      .toolbar {
+        padding: 6px 8px;
+      }
+      .toolbar-ctrls {
+        gap: 4px;
+        max-width: 100%;
+      }
+      .t-select, .t-input, .btn {
+        max-width: 100%;
+        font-size: 0.76rem;
+        padding: 4px 6px;
+      }
+      .btn {
+        white-space: normal;
+        word-break: break-word;
+      }
+      .t-input {
+        width: 105px;
+      }
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6pt;
+      font-weight: 800;
+      color: var(--ws-accent);
+      border: 1px solid var(--ws-accent);
+      border-radius: 3px;
+      padding: .2mm 1.2mm;
+      margin-bottom: .3mm;
+      line-height: 1.2;
+      background: var(--ws-soft, #eef6f3);
+    }
+    .count-5 .skill-tag {
+      font-size: 7.5pt;
+      padding: .3mm 1.5mm;
+      margin-bottom: .6mm;
+    }
+    .pv-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5mm 0;
+      font-size: 6.8pt;
+      table-layout: fixed;
+    }
+    .count-5 .pv-table {
+      font-size: 8.5pt;
+      margin: 1.2mm 0;
+    }
+    .pv-table th, .pv-table td {
+      border: 1px solid var(--ws-line, #c9d2df);
+      text-align: center;
+      padding: 0.4mm 0.2mm;
+      height: 4.8mm;
+      box-sizing: border-box;
+      line-height: 1.1;
+    }
+    .count-5 .pv-table th, .count-5 .pv-table td {
+      padding: 0.8mm 0.4mm;
+      height: 6.5mm;
+    }
+    .pv-table th {
+      background: var(--ws-soft, #eef6f3);
+      font-weight: 700;
+      color: var(--ws-accent, #086c5c);
+    }
+    /* Zero-Shift Layout Contract */
+    .work-fill,
+    .answer-fill,
+    .pv-fill,
+    .check-fill {
+      color: transparent !important;
+      font-weight: 800;
+      transition: color 0.1s ease-in-out;
+    }
+    .work-fill {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .pv-fill {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+    }
+    .check-fill {
+      display: inline-block;
+      min-width: 1.2em;
+      text-align: center;
+    }
+    .show-answers .work-fill,
+    .show-answers .answer-fill,
+    .show-answers .pv-fill,
+    .show-answers .check-fill,
+    .q.reveal-answer .work-fill,
+    .q.reveal-answer .answer-fill,
+    .q.reveal-answer .pv-fill,
+    .q.reveal-answer .check-fill {
+      color: var(--ws-danger, #b42318) !important;
+      font-size: inherit !important;
+      font-weight: 800 !important;
+    }
+    .answer-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 2mm;
+      align-items: center;
+      min-height: 5.5mm;
+      font-weight: 800;
+      color: var(--ws-accent);
+      white-space: nowrap;
+      min-width: 0;
+      max-width: 100%;
+      font-size: 8.2pt;
+    }
+    .count-5 .answer-line {
+      min-height: 7.5mm;
+      font-size: 10.5pt;
+      gap: 2.5mm;
+    }
+    .answer-fill {
+      border-bottom: 1px dotted var(--ws-muted);
+      min-height: 5mm;
+      text-align: center;
+      padding: 0 2mm;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      display: inline-block;
+      width: 100%;
+    }
+    .count-5 .answer-fill {
+      min-height: 6.8mm;
+    }
+    .q.reveal-current {
+      outline: 2.5px solid var(--ws-accent, #086c5c) !important;
+      outline-offset: 1px;
+      background: #f0fdf4 !important;
+      border-color: var(--ws-accent, #086c5c) !important;
+    }
+    @media print {
+      body {
+        overflow: visible !important;
+      }
+    }
+  </style>
 </head><body>
-<header class="toolbar"><h1>🔢 ใบงานคลังทศนิยม</h1><div class="toolbar-ctrls">
-  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
-  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
-  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="read">อ่านทศนิยม</option><option value="compare">เปรียบเทียบ</option><option value="addsub">บวกลบ</option><option value="money">เงินบาท/สตางค์</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
-  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
-  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
-  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
-  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
-  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
-</div></header>
+<header class="toolbar">
+  <h1>🔢 ใบงานคลังทศนิยม</h1>
+  <div class="toolbar-ctrls">
+    <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+      <option value="standard" selected>มาตรฐาน</option>
+      <option value="progressive">บันไดระดับ ⭐</option>
+      <option value="booklet">รวมเล่มแบบฝึกหัด</option>
+    </select>
+    <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+      <option value="1" selected>1 หน้า</option>
+      <option value="2">2 หน้า</option>
+      <option value="3">3 หน้า</option>
+      <option value="5">5 หน้า</option>
+    </select>
+    <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+      <option value="all">รวม ป.4–ป.5</option>
+      <option value="4" selected>ป.4 (1–2 ตำแหน่ง)</option>
+      <option value="5">ป.5 (1–3 ตำแหน่ง)</option>
+    </select>
+    <select class="t-select" id="selTopic" aria-label="ทักษะ">
+      <option value="mixed" selected>ผสมทุกทักษะ</option>
+      <option value="read">ค่าประจำหลักและการอ่าน</option>
+      <option value="compare">เปรียบเทียบและเรียงลำดับ</option>
+      <option value="addsub">การบวกและการลบทศนิยม</option>
+      <option value="money">เงินบาทและสตางค์</option>
+      <option value="fraction">เศษส่วนเป็นทศนิยม</option>
+    </select>
+    <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+      <option value="10" selected>10 ข้อ / หน้า</option>
+      <option value="5">5 ข้อ / หน้า (โจทย์ใหญ่)</option>
+    </select>
+    <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+    <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+      <option value="">-- เลือกครูผู้สอน --</option>
+    </select>
+    <button class="btn primary" id="btnRandom" type="button">🎲 สุ่มใหม่</button>
+    <button class="btn" id="btnAnswers" type="button">👁 เฉลยครู</button>
+    <button class="btn green" id="btnPrint" type="button">🖨 พิมพ์ A4</button>
+  </div>
+</header>
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
+<script src="/games/kampai-qr.js?v=1.196.0"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"4.56","answer":"สี่จุดห้าหก"},{"type":"read","prompt":"อ่านทศนิยมและเติมตารางค่าประจำหลัก","value":"10.08","answer":"สิบจุดศูนย์แปด"},{"type":"read","prompt":"บอกค่าประจำหลักสิบส่วน","value":"7.29","answer":"2 สิบส่วน = 0.2"},{"type":"read","prompt":"เขียนทศนิยมจากคำอ่าน","value":"สามจุดเจ็ดห้า","answer":"3.75"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"2.45","right":"2.5","answer":"2.45 < 2.5"},{"type":"compare","prompt":"เปรียบเทียบด้วย > < =","left":"6.30","right":"6.3","answer":"6.30 = 6.3"},{"type":"compare","prompt":"เรียงจากน้อยไปมาก","left":"0.9, 0.89, 1.01","right":"","answer":"0.89 < 0.9 < 1.01"},{"type":"compare","prompt":"วงค่าที่มากกว่า","left":"5.08","right":"5.8","answer":"5.8"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"1.25 + 0.47","answer":"1.72"},{"type":"addsub","prompt":"หาผลบวก ตั้งจุดให้ตรงกัน","expr":"3.6 + 0.85","answer":"4.45"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"5.4 − 1.25","answer":"4.15"},{"type":"addsub","prompt":"หาผลลบ ตั้งจุดให้ตรงกัน","expr":"8.03 − 0.7","answer":"7.33"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"12 บาท 50 สตางค์","answer":"12.50 บาท"},{"type":"money","prompt":"เขียนเงินเป็นทศนิยมบาท","value":"3 บาท 5 สตางค์","answer":"3.05 บาท"},{"type":"money","prompt":"บวกราคาสินค้า","expr":"15.75 + 4.50","answer":"20.25 บาท"},{"type":"money","prompt":"ทอนเงินจาก 50 บาท","expr":"50.00 − 32.75","answer":"17.25 บาท"},{"type":"read","prompt":"เติมหลักร้อยส่วนที่หายไป","value":"9.4_","answer":"เช่น 9.40 หรือตามบริบทโจทย์"},{"type":"addsub","prompt":"ตรวจคำตอบด้วยการลบย้อนกลับ","expr":"2.15 + 1.4 = ?","answer":"3.55 · ตรวจ 3.55−1.4=2.15"}];
-window.WORKSHEET_CONFIG={
-  icon:'🔢',title:'ใบงานคลังทศนิยม',subject:'คณิตศาสตร์',gradeLabel:'ป.4–ป.5',
-  mediaLabel:'คลังทศนิยม',sourceMediaUrl:'/games/math/math-decimal-hub/index.html',
-  indicators:["ค 1.1 ป.4/5","ค 1.1 ป.4/6"],
-  directions:"อ่านค่าประจำหลัก เปรียบเทียบ บวกลบ และแก้โจทย์เงินบาท/สตางค์",
-  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
-  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
-    if(item.type==='read'){
-      return '<div class="q-prompt">'+e(item.prompt)+' · '+e(item.value)+'</div>'
-        +'<table class="mini-table place-value-table"><tr><th>หลักสิบ</th><th>หลักหน่วย</th><th>.</th><th>สิบส่วน</th><th>ร้อยส่วน</th></tr>'
-        +'<tr><td>____</td><td>____</td><td>.</td><td>____</td><td>____</td></tr></table>'
-        +'<div>อ่านค่า / อธิบาย</div><div class="work-line"></div><div class="reason-line"></div>'
-        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
+const ITEMS = [
+  // --- Domain 1: ค่าประจำหลักและการอ่าน (12 items: 8 Grade 4, 4 Grade 5) ---
+  { id: 'd-r-01', grade: 4, type: 'read', prompt: 'อ่านทศนิยมและกระจายค่าประจำหลัก', val: '4.56', pv: { tens: '-', ones: '4', tenths: '5', hundredths: '6', thousandths: '-' }, step1: 'คำอ่าน: สี่จุดห้าหก', step2: 'รูปกระจาย: 4 + 0.5 + 0.06', answer: 'สี่จุดห้าหก' },
+  { id: 'd-r-02', grade: 4, type: 'read', prompt: 'อ่านทศนิยมและกระจายค่าประจำหลัก', val: '10.08', pv: { tens: '1', ones: '0', tenths: '0', hundredths: '8', thousandths: '-' }, step1: 'คำอ่าน: สิบจุดศูนย์แปด', step2: 'รูปกระจาย: 10 + 0.08', answer: 'สิบจุดศูนย์แปด' },
+  { id: 'd-r-03', grade: 4, type: 'read', prompt: 'บอกค่าของเลขโดดที่ขีดเส้นใต้: 7.29', val: '7.29 (เลข 2)', pv: { tens: '-', ones: '7', tenths: '2', hundredths: '9', thousandths: '-' }, step1: 'เลข 2 อยู่ในหลักส่วนสิบ', step2: 'มีค่าเท่ากับ 2/10 หรือ 0.2', answer: 'หลักส่วนสิบ มีค่า 0.2' },
+  { id: 'd-r-04', grade: 4, type: 'read', prompt: 'บอกค่าของเลขโดดที่ขีดเส้นใต้: 15.63', val: '15.63 (เลข 3)', pv: { tens: '1', ones: '5', tenths: '6', hundredths: '3', thousandths: '-' }, step1: 'เลข 3 อยู่ในหลักส่วนร้อย', step2: 'มีค่าเท่ากับ 3/100 หรือ 0.03', answer: 'หลักส่วนร้อย มีค่า 0.03' },
+  { id: 'd-r-05', grade: 4, type: 'read', prompt: 'เขียนทศนิยมจากคำอ่าน', val: 'สามจุดเจ็ดห้า', pv: { tens: '-', ones: '3', tenths: '7', hundredths: '5', thousandths: '-' }, step1: 'จำนวนนับ 3 จุด ส่วนสิบ 7 ส่วนร้อย 5', step2: 'เขียนในรูปตัวเลขทศนิยม', answer: '3.75' },
+  { id: 'd-r-06', grade: 4, type: 'read', prompt: 'เขียนทศนิยมจากคำอ่าน', val: 'ยี่สิบเอ็ดจุดศูนย์เก้า', pv: { tens: '2', ones: '1', tenths: '0', hundredths: '9', thousandths: '-' }, step1: 'จำนวนนับ 21 จุด ศูนย์ เก้า', step2: 'เขียนในรูปตัวเลขทศนิยม', answer: '21.09' },
+  { id: 'd-r-07', grade: 4, type: 'read', prompt: 'เขียนในรูปกระจาย: 8.45', val: '8.45', pv: { tens: '-', ones: '8', tenths: '4', hundredths: '5', thousandths: '-' }, step1: 'หลักหน่วย 8 + ส่วนสิบ 0.4 + ส่วนร้อย 0.05', step2: '8 + 0.4 + 0.05', answer: '8 + 0.4 + 0.05' },
+  { id: 'd-r-08', grade: 4, type: 'read', prompt: 'เขียนตัวเลขทศนิยมจากรูปกระจาย', val: '50 + 6 + 0.3 + 0.02', pv: { tens: '5', ones: '6', tenths: '3', hundredths: '2', thousandths: '-' }, step1: 'รวมจำนวนนับ 56 รวมทศนิยม .32', step2: '56 + 0.32', answer: '56.32' },
+  { id: 'd-r-09', grade: 5, type: 'read', prompt: 'อ่านทศนิยม 3 ตำแหน่งและเติมหลัก', val: '0.375', pv: { tens: '-', ones: '0', tenths: '3', hundredths: '7', thousandths: '5' }, step1: 'คำอ่าน: ศูนย์จุดสามเจ็ดห้า', step2: 'รูปกระจาย: 0.3 + 0.07 + 0.005', answer: 'ศูนย์จุดสามเจ็ดห้า' },
+  { id: 'd-r-10', grade: 5, type: 'read', prompt: 'อ่านทศนิยม 3 ตำแหน่งและเติมหลัก', val: '12.408', pv: { tens: '1', ones: '2', tenths: '4', hundredths: '0', thousandths: '8' }, step1: 'คำอ่าน: สิบสองจุดสี่ศูนย์แปด', step2: 'รูปกระจาย: 10 + 2 + 0.4 + 0.008', answer: 'สิบสองจุดสี่ศูนย์แปด' },
+  { id: 'd-r-11', grade: 5, type: 'read', prompt: 'บอกค่าของเลขโดดที่ขีดเส้นใต้: 6.138', val: '6.138 (เลข 8)', pv: { tens: '-', ones: '6', tenths: '1', hundredths: '3', thousandths: '8' }, step1: 'เลข 8 อยู่ในหลักส่วนพัน', step2: 'มีค่าเท่ากับ 8/1000 หรือ 0.008', answer: 'หลักส่วนพัน มีค่า 0.008' },
+  { id: 'd-r-12', grade: 5, type: 'read', prompt: 'เขียนในรูปกระจาย: 25.164', val: '25.164', pv: { tens: '2', ones: '5', tenths: '1', hundredths: '6', thousandths: '4' }, step1: 'หลักสิบ 20 + หลักหน่วย 5 + ส่วนสิบ 0.1 + ส่วนร้อย 0.06 + ส่วนพัน 0.004', step2: '20 + 5 + 0.1 + 0.06 + 0.004', answer: '20 + 5 + 0.1 + 0.06 + 0.004' },
+
+  // --- Domain 2: การเปรียบเทียบและเรียงลำดับ (10 items: 6 Grade 4, 4 Grade 5) ---
+  { id: 'd-c-01', grade: 4, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '2.45 กับ 2.5', checkSymbol: '<', step1: 'จำนวนนับเท่ากัน (2) ➔ เทียบส่วนสิบ: 4 น้อยกว่า 5', step2: '2.45 น้อยกว่า 2.50', answer: '2.45 < 2.5' },
+  { id: 'd-c-02', grade: 4, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '6.30 กับ 6.3', checkSymbol: '=', step1: 'จำนวนนับเท่ากัน (6) ➔ ส่วนสิบเท่ากัน (3) ➔ 0 ท้ายไม่มีผล', step2: '6.30 เท่ากับ 6.3', answer: '6.30 = 6.3' },
+  { id: 'd-c-03', grade: 4, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '5.08 กับ 5.8', checkSymbol: '<', step1: 'จำนวนนับเท่ากัน (5) ➔ เทียบส่วนสิบ: 0 น้อยกว่า 8', step2: '5.08 น้อยกว่า 5.80', answer: '5.08 < 5.8' },
+  { id: 'd-c-04', grade: 4, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '14.7 กับ 14.68', checkSymbol: '>', step1: 'เทียบ 14.70 กับ 14.68 ➔ ส่วนสิบ 7 มากกว่า 6', step2: '14.70 มากกว่า 14.68', answer: '14.7 > 14.68' },
+  { id: 'd-c-05', grade: 4, type: 'compare', prompt: 'เรียงลำดับจากน้อยไปมาก', val: '0.9, 0.89, 1.01, 0.95', step1: 'เทียบจำนวนนับและส่วนสิบ: 0.89 < 0.90 < 0.95 < 1.01', step2: 'เรียงลำดับ 4 จำนวน', answer: '0.89 < 0.9 < 0.95 < 1.01' },
+  { id: 'd-c-06', grade: 4, type: 'compare', prompt: 'เรียงลำดับจากมากไปน้อย', val: '3.45, 3.5, 3.05, 3.54', step1: 'ทำเป็น 2 ตำแหน่งเท่ากัน: 3.54, 3.50, 3.45, 3.05', step2: 'เรียงจากค่ามากที่สุดไปน้อยที่สุด', answer: '3.54 > 3.5 > 3.45 > 3.05' },
+  { id: 'd-c-07', grade: 5, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '0.708 กับ 0.78', checkSymbol: '<', step1: 'ส่วนสิบ 7 เท่ากัน ➔ เทียบส่วนร้อย: 0 น้อยกว่า 8', step2: '0.708 น้อยกว่า 0.780', answer: '0.708 < 0.78' },
+  { id: 'd-c-08', grade: 5, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '8.1 กับ 8.100', checkSymbol: '=', step1: 'เติมศูนย์ต่อท้ายทศนิยมค่าไม่เปลี่ยน', step2: '8.100 เท่ากับ 8.100', answer: '8.1 = 8.100' },
+  { id: 'd-c-09', grade: 5, type: 'compare', prompt: 'เปรียบเทียบด้วยเครื่องหมาย > < =', val: '4.205 กับ 4.025', checkSymbol: '>', step1: 'เทียบส่วนสิบ: 2 มากกว่า 0', step2: '4.205 มากกว่า 4.025', answer: '4.205 > 4.025' },
+  { id: 'd-c-10', grade: 5, type: 'compare', prompt: 'เรียงลำดับจากน้อยไปมาก', val: '1.205, 1.25, 1.025, 1.2', step1: 'ทำเป็น 3 ตำแหน่ง: 1.025 < 1.200 < 1.205 < 1.250', step2: 'เรียงลำดับ 4 จำนวน', answer: '1.025 < 1.2 < 1.205 < 1.25' },
+
+  // --- Domain 3: การบวกและการลบทศนิยม (12 items: 8 Grade 4, 4 Grade 5) ---
+  { id: 'd-a-01', grade: 4, type: 'addsub', prompt: 'หาผลบวก (ตั้งจุดทศนิยมให้ตรงกัน)', expr: '1.25 + 0.43', step1: 'ตั้งจุดตรงกัน: 1.25 + 0.43', step2: 'ส่วนร้อย 5+3=8, ส่วนสิบ 2+4=6, หน่วย 1+0=1', answer: '1.68' },
+  { id: 'd-a-02', grade: 4, type: 'addsub', prompt: 'หาผลบวก (มีการทดข้ามหลัก)', expr: '3.68 + 2.75', step1: 'ตั้งจุดตรงกัน: 3.68 + 2.75 (ทด 1 จากส่วนร้อยและส่วนสิบ)', step2: 'ส่วนร้อย 8+5=13, ส่วนสิบ 6+7+1=14, หน่วย 3+2+1=6', answer: '6.43' },
+  { id: 'd-a-03', grade: 4, type: 'addsub', prompt: 'หาผลบวก (ตำแหน่งทศนิยมไม่เท่ากัน)', expr: '4.5 + 2.38', step1: 'เติมศูนย์ช่วยตั้งหลัก: 4.50 + 2.38', step2: 'ส่วนร้อย 0+8=8, ส่วนสิบ 5+3=8, หน่วย 4+2=6', answer: '6.88' },
+  { id: 'd-a-04', grade: 4, type: 'addsub', prompt: 'หาผลบวก (มีการทดข้ามหลัก)', expr: '12.65 + 8.7', step1: 'เติมศูนย์ช่วยตั้งหลัก: 12.65 + 8.70', step2: 'ส่วนร้อย 5+0=5, ส่วนสิบ 6+7=13 ทด 1, หน่วย 2+8+1=11 ทด 1', answer: '21.35' },
+  { id: 'd-a-05', grade: 4, type: 'addsub', prompt: 'หาผลลบ (ไม่มีการกระจาย)', expr: '5.86 − 2.34', step1: 'ตั้งจุดตรงกัน: 5.86 − 2.34', step2: 'ส่วนร้อย 6−4=2, ส่วนสิบ 8−3=5, หน่วย 5−2=3', answer: '3.52' },
+  { id: 'd-a-06', grade: 4, type: 'addsub', prompt: 'หาผลลบ (มีการกระจายจากหลักส่วนสิบ)', expr: '5.4 − 1.25', step1: 'เติมศูนย์เป็น 5.40 แล้วกระจาย 1 จาก 4 เหลือ 3', step2: 'ส่วนร้อย 10−5=5, ส่วนสิบ 3−2=1, หน่วย 5−1=4', answer: '4.15' },
+  { id: 'd-a-07', grade: 4, type: 'addsub', prompt: 'หาผลลบ (กระจายข้ามศูนย์)', expr: '8.03 − 0.7', step1: 'เติมศูนย์: 8.03 − 0.70 (กระจาย 1 จาก 8 มายังศูนย์)', step2: 'ส่วนร้อย 3−0=3, ส่วนสิบ 10−7=3, หน่วย 7−0=7', answer: '7.33' },
+  { id: 'd-a-08', grade: 4, type: 'addsub', prompt: 'หาผลลบจากจำนวนเต็ม', expr: '10 − 4.65', step1: 'เขียน 10 ในรูปทศนิยม: 10.00 − 4.65', step2: 'กระจายต่อเนื่อง: ส่วนร้อย 10−5=5, ส่วนสิบ 9−6=3, หน่วย 9−4=5', answer: '5.35' },
+  { id: 'd-a-09', grade: 5, type: 'addsub', prompt: 'หาผลบวกทศนิยม 3 ตำแหน่ง', expr: '3.425 + 1.839', step1: 'ตั้งจุดตรงกัน: 3.425 + 1.839', step2: 'ส่วนพัน 5+9=14, ส่วนร้อย 2+3+1=6, ส่วนสิบ 4+8=12, หน่วย 3+1+1=5', answer: '5.264' },
+  { id: 'd-a-10', grade: 5, type: 'addsub', prompt: 'หาผลบวก (1 ตำแหน่ง + 3 ตำแหน่ง)', expr: '6.4 + 2.185', step1: 'เติมศูนย์ให้ครบ 3 ตำแหน่ง: 6.400 + 2.185', step2: 'ส่วนพัน 0+5=5, ส่วนร้อย 0+8=8, ส่วนสิบ 4+1=5, หน่วย 6+2=8', answer: '8.585' },
+  { id: 'd-a-11', grade: 5, type: 'addsub', prompt: 'หาผลลบทศนิยม 3 ตำแหน่ง', expr: '7.520 − 3.245', step1: 'ตั้งจุดตรงกัน: 7.520 − 3.245 (กระจายจากส่วนร้อย 2 เป็น 1)', step2: 'ส่วนพัน 10−5=5, ส่วนร้อย 11−4=7, ส่วนสิบ 4−2=2, หน่วย 7−3=4', answer: '4.275' },
+  { id: 'd-a-12', grade: 5, type: 'addsub', prompt: 'หาผลลบ 2 ขั้นตอน (โจทย์ระคน)', expr: '(15.6 + 4.25) − 8.35', step1: 'ขั้น 1: 15.60 + 4.25 = 19.85', step2: 'ขั้น 2: 19.85 − 8.35 = 11.50', answer: '11.50' },
+
+  // --- Domain 4: เงินบาทและสตางค์ (10 items: 7 Grade 4, 3 Grade 5) ---
+  { id: 'd-m-01', grade: 4, type: 'money', prompt: 'เขียนจำนวนเงินเป็นทศนิยมหน่วยบาท', val: '12 บาท 50 สตางค์', step1: '1 บาท = 100 สตางค์ ➔ 50 สตางค์ = 0.50 บาท', step2: 'รวมจำนวนเงิน 12 + 0.50', answer: '12.50 บาท' },
+  { id: 'd-m-02', grade: 4, type: 'money', prompt: 'เขียนจำนวนเงินเป็นทศนิยมหน่วยบาท (ระวังหลักสิบส่วน)', val: '3 บาท 5 สตางค์', step1: '5 สตางค์ = 5/100 บาท = 0.05 บาท (ไม่ใช่ 0.5)', step2: 'รวมจำนวนเงิน 3 + 0.05', answer: '3.05 บาท' },
+  { id: 'd-m-03', grade: 4, type: 'money', prompt: 'เขียนจำนวนเงินเป็นทศนิยมหน่วยบาท', val: '108 บาท 75 สตางค์', step1: '75 สตางค์ = 75/100 บาท = 0.75 บาท', step2: 'รวมจำนวนเงิน 108 + 0.75', answer: '108.75 บาท' },
+  { id: 'd-m-04', grade: 4, type: 'money', prompt: 'บวกราคาสินค้า 2 ชิ้น', expr: 'สมุด 15.75 บาท + ดินสอ 4.50 บาท', step1: 'ตั้งจุดตรงกัน: 15.75 + 4.50', step2: 'สตางค์ 75+50=125 สต. (ทด 1 บาท เหลือ 25 สต.) ➔ 15+4+1=20', answer: '20.25 บาท' },
+  { id: 'd-m-05', grade: 4, type: 'money', prompt: 'บวกราคาสินค้า 2 ชิ้น', expr: 'กล่องนม 12.25 บาท + แซนวิช 18.50 บาท', step1: 'ตั้งจุดตรงกัน: 12.25 + 18.50', step2: 'สตางค์ 25+50=75 สต. ➔ บาท 12+18=30 บาท', answer: '30.75 บาท' },
+  { id: 'd-m-06', grade: 4, type: 'money', prompt: 'หาเงินทอนจากการซื้อสินค้า', expr: 'จ่ายธนบัตร 50 บาท ซื้อขนม 32.75 บาท', step1: 'ตั้งลบเงิน: 50.00 − 32.75', step2: 'กระจายจาก 50 บาท ➔ 49 บาท 100 สต. − 32 บาท 75 สต.', answer: '17.25 บาท' },
+  { id: 'd-m-07', grade: 4, type: 'money', prompt: 'หาเงินทอนจากการซื้อสินค้า', expr: 'จ่ายธนบัตร 100 บาท ซื้อสมุด 68.50 บาท', step1: 'ตั้งลบเงิน: 100.00 − 68.50', step2: '100.00 − 68.50 = 31.50 บาท', answer: '31.50 บาท' },
+  { id: 'd-m-08', grade: 5, type: 'money', prompt: 'คำนวณเงินคงเหลือ (โจทย์ปัญหา 2 ขั้นตอน)', expr: 'มีเงิน 80 บาท ซื้อปากกา 15.25 บาท และไม้บรรทัด 8.50 บาท', step1: 'ขั้น 1 รวมรายจ่าย: 15.25 + 8.50 = 23.75 บาท', step2: 'ขั้น 2 เงินคงเหลือ: 80.00 − 23.75 = 56.25 บาท', answer: '56.25 บาท' },
+  { id: 'd-m-09', grade: 5, type: 'money', prompt: 'ซื้อสินค้า 3 ชิ้น รวมเป็นเงินกี่บาท', expr: 'ข้าวกล่อง 35.50 บ. + น้ำ 7.00 บ. + ผลไม้ 12.75 บ.', step1: 'รวม 35.50 + 7.00 + 12.75', step2: 'สตางค์ 50+0+75=125 สต. (ทด 1 บาท) ➔ 35+7+12+1=55 บาท', answer: '55.25 บาท' },
+  { id: 'd-m-10', grade: 5, type: 'money', prompt: 'เงินทอนจากธนบัตร 500 บาท', expr: 'ซื้อหนังสือ 2 เล่ม ราคา 145.50 บ. และ 182.25 บ. จ่าย 500 บ.', step1: 'รวมค่าหนังสือ: 145.50 + 182.25 = 327.75 บาท', step2: 'เงินทอน: 500.00 − 327.75 = 172.25 บาท', answer: '172.25 บาท' },
+
+  // --- Domain 5: เศษส่วนกับทศนิยม (6 items: all Grade 5) ---
+  { id: 'd-f-01', grade: 5, type: 'fraction', prompt: 'เขียนเศษส่วนในรูปทศนิยม (ส่วน 10)', val: '3/10', step1: 'ตัวส่วนเป็น 10 คือทศนิยม 1 ตำแหน่ง', step2: '3 ส่วนใน 10 ส่วน ➔ 0.3', answer: '0.3' },
+  { id: 'd-f-02', grade: 5, type: 'fraction', prompt: 'เขียนเศษส่วนในรูปทศนิยม (ส่วน 100)', val: '7/100', step1: 'ตัวส่วนเป็น 100 คือทศนิยม 2 ตำแหน่ง', step2: '7 ส่วนใน 100 ส่วน ➔ 0.07 (ไม่ใช่ 0.7)', answer: '0.07' },
+  { id: 'd-f-03', grade: 5, type: 'fraction', prompt: 'แปลงเศษส่วนเป็นทศนิยม (ทำตัวส่วนเป็น 10)', val: '1/2', step1: 'นำ 5 คูณทั้งเศษและส่วน: (1×5)/(2×5) = 5/10', step2: '5/10 เขียนเป็นทศนิยมได้ 0.5', answer: '0.5' },
+  { id: 'd-f-04', grade: 5, type: 'fraction', prompt: 'แปลงเศษส่วนเป็นทศนิยม (ทำตัวส่วนเป็น 100)', val: '3/4', step1: 'นำ 25 คูณทั้งเศษและส่วน: (3×25)/(4×25) = 75/100', step2: '75/100 เขียนเป็นทศนิยมได้ 0.75', answer: '0.75' },
+  { id: 'd-f-05', grade: 5, type: 'fraction', prompt: 'แปลงเศษส่วนเป็นทศนิยม (ทำตัวส่วนเป็น 100)', val: '1/4', step1: 'นำ 25 คูณทั้งเศษและส่วน: (1×25)/(4×25) = 25/100', step2: '25/100 เขียนเป็นทศนิยมได้ 0.25', answer: '0.25' },
+  { id: 'd-f-06', grade: 5, type: 'fraction', prompt: 'เขียนจำนวนคละในรูปทศนิยม', val: '2 3/10', step1: 'จำนวนนับคือ 2 + เศษส่วน 3/10 คือ 0.3', step2: 'รวมจำนวนนับกับทศนิยม: 2 + 0.3 = 2.3', answer: '2.3' }
+];
+
+function renderDecimalQuestion(item, index, ctx) {
+  const e = window.KampaiTopicWorksheet.escapeHtml;
+  const gradeBadge = 'ป.' + item.grade;
+  const typeMap = {
+    read: 'ค่าประจำหลัก',
+    compare: 'เปรียบเทียบ',
+    addsub: 'บวกลบ',
+    money: 'เงินบาท/สตางค์',
+    fraction: 'เศษส่วน'
+  };
+  const typeBadge = typeMap[item.type] || item.type;
+
+  // Domain 1: Place Value & Reading with PV Grid
+  if (item.type === 'read' && item.pv) {
+    const pv = item.pv;
+    return '<div class="q-stem">'
+      + '<span class="skill-tag">' + e(gradeBadge + ' · ' + typeBadge) + '</span>'
+      + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+      + '<div class="q-context">' + e(item.val) + '</div>'
+      + '</div>'
+      + '<div class="q-work-block">'
+      + '<table class="pv-table"><tr>'
+      + '<th style="width:18%">สิบ</th><th style="width:18%">หน่วย</th><th style="width:6%">.</th><th style="width:19%">ส่วนสิบ</th><th style="width:19%">ส่วนร้อย</th><th style="width:20%">ส่วนพัน</th></tr><tr>'
+      + '<td><span class="pv-fill">' + e(pv.tens || '-') + '</span></td>'
+      + '<td><span class="pv-fill">' + e(pv.ones || '0') + '</span></td>'
+      + '<td><strong>.</strong></td>'
+      + '<td><span class="pv-fill">' + e(pv.tenths || '0') + '</span></td>'
+      + '<td><span class="pv-fill">' + e(pv.hundredths || '0') + '</span></td>'
+      + '<td><span class="pv-fill">' + e(pv.thousandths || '-') + '</span></td>'
+      + '</tr></table>'
+      + '<div class="calc-line"><span class="work-fill">' + e(item.step1) + '</span></div>'
+      + '</div>'
+      + '<div class="q-foot"><div class="answer-line"><span>คำตอบ:</span><span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+  }
+
+  // Domain 2: Comparison & Ordering
+  if (item.type === 'compare') {
+    let workHtml = '';
+    if (item.checkSymbol) {
+      workHtml = '<div class="choice-row" style="margin:1mm 0">'
+        + '<span class="check">[ <span class="check-fill">' + (item.checkSymbol === '>' ? '✓' : '&nbsp;') + '</span> ] &gt; (มากกว่า)</span>'
+        + '<span class="check">[ <span class="check-fill">' + (item.checkSymbol === '<' ? '✓' : '&nbsp;') + '</span> ] &lt; (น้อยกว่า)</span>'
+        + '<span class="check">[ <span class="check-fill">' + (item.checkSymbol === '=' ? '✓' : '&nbsp;') + '</span> ] = (เท่ากับ)</span>'
+        + '</div>'
+        + '<div class="reason-line"><span class="work-fill">' + e(item.step1) + '</span></div>';
+    } else {
+      workHtml = '<div class="calc-line"><span class="work-fill">' + e(item.step1) + '</span></div>'
+        + '<div class="reason-line"><span class="work-fill">' + e(item.step2 || '') + '</span></div>';
     }
-    if(item.type==='compare'){
-      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
-        +'<div class="q-context">'+e(item.left)+(item.right?' กับ '+e(item.right):'')+'</div>'
-        +'<div class="choice-row"><span class="check">[ ] &gt;</span><span class="check">[ ] &lt;</span><span class="check">[ ] =</span></div>'
-        +'<div>วิธีเทียบ</div><div class="calc-line"></div><div class="work-line"></div>'
-        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
-    }
-    if(item.type==='money'){
-      return '<div class="q-prompt">'+e(item.prompt)+'</div>'
-        +'<div class="q-context">'+e(item.value||item.expr)+'</div>'
-        +'<div>ตั้งตามหลักเงิน · จุดทศนิยมตรงกัน</div><div class="calc-line"></div><div class="work-line"></div>'
-        +'<div>คำตอบ ____________ บาท</div>'
-        +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';
-    }
-    return '<div class="q-prompt">'+e(item.prompt)+'</div><div class="q-context">'+e(item.expr)+'</div>'
-      +'<div>ตั้งตามหลัก · จุดทศนิยมตรงกัน</div><div class="calc-line"></div><div class="work-line"></div>'
-      +'<div>คำตอบ ____________</div><span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+    return '<div class="q-stem">'
+      + '<span class="skill-tag">' + e(gradeBadge + ' · ' + typeBadge) + '</span>'
+      + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+      + '<div class="q-context">' + e(item.val) + '</div>'
+      + '</div>'
+      + '<div class="q-work-block">' + workHtml + '</div>'
+      + '<div class="q-foot"><div class="answer-line"><span>ผลลัพธ์:</span><span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+  }
+
+  // Domain 3, 4, 5: Operations, Money, Fractions
+  const context = item.expr || item.val || '';
+  return '<div class="q-stem">'
+    + '<span class="skill-tag">' + e(gradeBadge + ' · ' + typeBadge) + '</span>'
+    + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+    + (context ? '<div class="q-context">' + e(context) + '</div>' : '')
+    + '</div>'
+    + '<div class="q-work-block">'
+    + '<div class="calc-line"><span class="work-fill">' + e(item.step1) + '</span></div>'
+    + '<div class="reason-line"><span class="work-fill">' + e(item.step2) + '</span></div>'
+    + '</div>'
+    + '<div class="q-foot"><div class="answer-line"><span>คำตอบ:</span><span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+}
+
+window.WORKSHEET_CONFIG = {
+  icon: '🔢',
+  title: 'ใบงานคลังทศนิยม',
+  subject: 'คณิตศาสตร์',
+  worksheetKey: 'math-decimal-hub',
+  sourceMediaUrl:'/games/math/math-decimal-hub/index.html',
+  mediaLabel: 'คลังทศนิยม ป.4–ป.5',
+
+  get gradeLabel() {
+    const sel = document.getElementById('selGrade');
+    const val = sel ? sel.value : '4';
+    if (val === '4') return 'ป.4';
+    if (val === '5') return 'ป.5';
+    return 'ป.4–ป.5';
+  },
+
+  get indicators() {
+    const sel = document.getElementById('selGrade');
+    const val = sel ? sel.value : '4';
+    if (val === '4') return ['ค 1.1 ป.4/5', 'ค 1.1 ป.4/6', 'ค 1.1 ป.4/15'];
+    if (val === '5') return ['ค 1.1 ป.5/1', 'ค 1.1 ป.5/8'];
+    return ['ค 1.1 ป.4/5', 'ค 1.1 ป.4/6', 'ค 1.1 ป.5/1'];
+  },
+
+  directions: 'อ่านค่าประจำหลัก เปรียบเทียบ บวกลบ และแก้โจทย์เงินบาท/สตางค์ พร้อมแสดงกระบวนการคิด',
+
+  topicLabels: {
+    mixed: 'ผสมทุกทักษะ',
+    read: 'ค่าประจำหลัก',
+    compare: 'เปรียบเทียบ',
+    addsub: 'บวกลบ',
+    money: 'เงินบาทสตางค์',
+    fraction: 'เศษส่วนทศนิยม'
+  },
+
+  getItems(topic) {
+    const gradeVal = document.getElementById('selGrade')?.value || 'all';
+    let pool = ITEMS;
+    if (gradeVal === '4') pool = ITEMS.filter(item => item.grade === 4);
+    else if (gradeVal === '5') pool = ITEMS.filter(item => item.grade === 5);
+
+    if (!topic || topic === 'mixed') return pool;
+    const filtered = pool.filter(item => item.type === topic);
+    return filtered.length > 0 ? filtered : ITEMS.filter(item => item.type === topic);
+  },
+
+  renderQuestion(item, index, ctx) {
+    return renderDecimalQuestion(item, index, ctx);
+  }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
-function render(){window.KampaiTopicWorksheet.render();}
-document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
-document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+function render() {
+  window.KampaiTopicWorksheet.render();
+}
+window.render = render;
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="gThaiRegions" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14532d"/>
+      <stop offset="55%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#gThaiRegions)"/>
+  <circle cx="170" cy="150" r="90" fill="#ffffff" fill-opacity="0.12"/>
+  <circle cx="1120" cy="580" r="140" fill="#ffffff" fill-opacity="0.10"/>
+  <rect x="80" y="150" width="1120" height="420" rx="32" fill="#ffffff" fill-opacity="0.18"/>
+  <g transform="translate(200,190) scale(0.55)">
+    <polygon points="115,18 205,14 232,60 228,118 196,150 138,152 104,110" fill="#4ade80" stroke="#ffffff" stroke-width="6"/>
+    <polygon points="232,86 330,96 345,180 318,252 245,244 222,180 228,118" fill="#fbbf24" stroke="#ffffff" stroke-width="6"/>
+    <polygon points="138,152 196,150 222,180 226,262 206,320 154,322 132,240" fill="#a3e635" stroke="#ffffff" stroke-width="6"/>
+    <polygon points="104,110 138,152 132,240 154,322 150,382 112,360 92,250 88,170" fill="#c4b5fd" stroke="#ffffff" stroke-width="6"/>
+    <polygon points="226,262 318,252 340,296 300,342 238,330" fill="#2dd4bf" stroke="#ffffff" stroke-width="6"/>
+    <polygon points="154,322 206,320 238,330 216,392 200,470 222,540 196,616 160,560 172,470 150,382" fill="#7dd3fc" stroke="#ffffff" stroke-width="6"/>
+  </g>
+  <text x="740" y="315" text-anchor="middle" font-size="88">&#9968;&#65039;&#127806;&#127965;&#65039;</text>
+  <text x="740" y="425" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="62" font-weight="800" fill="#ffffff">6 &#3616;&#3634;&#3588;&#3586;&#3629;&#3591;&#3652;&#3607;&#3618;</text>
+  <text x="740" y="490" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="600" fill="#ffffff" fill-opacity="0.92">&#3616;&#3641;&#3617;&#3636;&#3611;&#3619;&#3632;&#3648;&#3607;&#3624; &#183; &#3616;&#3641;&#3617;&#3636;&#3629;&#3634;&#3585;&#3634;&#3624; &#183; &#3629;&#3634;&#3594;&#3637;&#3614;&#8211;&#3586;&#3629;&#3591;&#3604;&#3637;</text>
+  <text x="740" y="540" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">&#3626;&#3639;&#3656;&#3629;&#3585;&#3634;&#3619;&#3626;&#3629;&#3609; &#3611;.4&#8211;6 &#183; &#3610;&#3657;&#3634;&#3609;&#3588;&#3635;&#3652;&#3612;&#3656;</text>
+</svg>

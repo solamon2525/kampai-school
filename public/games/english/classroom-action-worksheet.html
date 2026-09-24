@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="worksheet-source-media" content="/games/english/classroom-action-media.html">
+  <meta name="curriculum-indicators" content="ต 1.1 ป.1/1, ต 1.1 ป.2/1, ต 1.1 ป.3/1, ต 1.2 ป.3/1">
+  <title>ใบงานคำสั่งและการเคลื่อนไหวในห้องเรียน (TPR Commands) - โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6.8pt;
+      font-weight: 800;
+      color: var(--ws-accent, #086c5c);
+      border: 1px solid var(--ws-accent, #086c5c);
+      border-radius: 3px;
+      padding: 0.3mm 1.5mm;
+      line-height: 1.2;
+    }
+    .eng-word {
+      font-size: 11pt;
+      font-weight: 900;
+      color: var(--ws-accent, #086c5c);
+      margin: 0.4mm 0;
+      letter-spacing: -0.01em;
+    }
+    .classify-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2mm;
+      margin: 0.6mm 0;
+    }
+    .classify-box {
+      border: 1px dashed var(--ws-line, #c9d2df);
+      border-radius: 3px;
+      padding: 0.8mm 1.5mm;
+      font-size: 6.8pt;
+      font-weight: 700;
+      color: var(--ws-muted, #5b6475);
+      background: var(--ws-soft, #eef6f3);
+    }
+    .step-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      margin-top: 0.8mm;
+    }
+    .step-row {
+      display: grid;
+      grid-template-columns: 22mm 1fr;
+      gap: 1.5mm;
+      align-items: end;
+      min-height: 6.2mm;
+    }
+    .step-tag {
+      font-size: 6.5pt;
+      font-weight: 800;
+      color: var(--ws-paper, #ffffff);
+      background: var(--ws-accent, #086c5c);
+      border-radius: 3px;
+      padding: 0.6mm;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .step-tag.gold {
+      background: var(--ws-accent-2, #d69b18);
+    }
+    .step-body {
+      min-height: 5.8mm;
+      border-bottom: 1px dotted var(--ws-muted, #5b6475);
+      display: flex;
+      align-items: flex-end;
+      font-weight: 700;
+      font-size: 7.8pt;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .work-fill {
+      color: transparent;
+      font-weight: 800;
+    }
+    .show-answers .work-fill,
+    .q.reveal-answer .work-fill {
+      color: var(--ws-danger, #b42318) !important;
+      font-weight: 800 !important;
+    }
+    .count-5 .step-row {
+      min-height: 8.5mm;
+    }
+    .count-5 .step-body {
+      min-height: 8mm;
+      font-size: 9pt;
+    }
+    .count-5 .eng-word {
+      font-size: 13pt;
+    }
+    .count-5 .skill-tag {
+      font-size: 7.8pt;
+    }
+    .count-5 .classify-box {
+      font-size: 7.8pt;
+    }
+  </style>
+</head>
+<body>
+  <!-- TOOLBAR -->
+  <header class="toolbar">
+    <h1>🏃 ใบงานคำสั่งและการเคลื่อนไหว (TPR)</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+        <option value="standard">มาตรฐาน</option>
+        <option value="progressive">บันไดระดับ</option>
+        <option value="booklet">รวมเล่ม</option>
+      </select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+        <option value="1">1 หน้า</option>
+        <option value="2">2 หน้า</option>
+        <option value="3">3 หน้า</option>
+      </select>
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+        <option value="all">ป.1–ป.3</option>
+        <option value="1">ป.1</option>
+        <option value="2">ป.2</option>
+        <option value="3">ป.3</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="หมวดคำสั่ง">
+        <option value="mixed">ผสมทุกหมวด</option>
+        <option value="movement">การเคลื่อนไหวพื้นฐาน</option>
+        <option value="direction">ทิศทางและตำแหน่ง</option>
+        <option value="gesture">ใบหน้าและอวัยวะ</option>
+        <option value="emotion">อารมณ์และการแสดงออก</option>
+      </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+        <option value="10" selected>10 ข้อ / หน้า</option>
+        <option value="5">5 ข้อ / หน้า</option>
+      </select>
+      <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+      <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+        <option value="">-- เลือกครูผู้สอน --</option>
+      </select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+      <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+    </div>
+  </header>
+
+  <!-- PAGES CONTAINER -->
+  <main class="pages" id="pages">
+    <section class="sheet">
+      <div class="questions">
+        <article class="q">กำลังสร้างใบงาน</article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/games/worksheet-runtime.js?v=2.0.0"></script>
+  <script>
+  /* 48 Curated TPR Command Items Across 4 Categories */
+  const TPR_ITEMS = [
+    /* 1. Basic Body Movements (movement) - 12 items */
+    {
+      id: 'm1', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🧍',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Stand up!', command: 'Stand up!',
+      actionHint: 'ลุกขึ้นยืนตรง', typeHint: 'คำสั่งลุกขึ้น', ruleTag: 'Simon says: Obey',
+      step1: 'Stand = ยืน / up = ขึ้น',
+      step2: 'ลุกขึ้นยืนตรงจากเก้าอี้ ไม่เดินเพ่นพ่าน',
+      step3: 'ถ้ามี Simon says ให้ลุกขึ้นทันที',
+      answer: 'ลุกขึ้นยืน (ทำตามคำสั่ง)'
+    },
+    {
+      id: 'm2', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🪑',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Sit down!', command: 'Sit down!',
+      actionHint: 'นั่งลงบนเก้าอี้', typeHint: 'คำสั่งนั่งลง', ruleTag: 'Simon says: Obey',
+      step1: 'Sit = นั่ง / down = ลง',
+      step2: 'นั่งลงบนเก้าอี้ตัวเดิมอย่างเรียบร้อย',
+      step3: 'ถ้าไม่มี Simon says ให้อยู่นิ่งๆ ห้ามนั่ง',
+      answer: 'นั่งลง (ทำตามคำสั่งเมื่อครูสั่ง)'
+    },
+    {
+      id: 'm3', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🚶',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Walk forward!', command: 'Walk forward!',
+      actionHint: 'ก้าวเท้าเดินไปข้างหน้า', typeHint: 'คำสั่งเดิน', ruleTag: 'Simon says: Obey',
+      step1: 'Walk = เดิน / forward = ไปข้างหน้า',
+      step2: 'ก้าวเท้าเดินไปข้างหน้าอย่างระมัดระวัง',
+      step3: 'เดินอย่างเป็นระเบียบ 2-3 ก้าว',
+      answer: 'เดินไปข้างหน้า'
+    },
+    {
+      id: 'm4', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🦘',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Jump high!', command: 'Jump high!',
+      actionHint: 'กระโดดขึ้นในแนวดิ่ง', typeHint: 'คำสั่งกระโดด', ruleTag: 'Simon says: Obey',
+      step1: 'Jump = กระโดด / high = สูง',
+      step2: 'ย่อเข่าแล้วสปริงตัวกระโดดขึ้นสูง',
+      step3: 'ลงพื้นด้วยปลายเท้าทั้งสองข้างอย่างนุ่มนวล',
+      answer: 'กระโดดสูง'
+    },
+    {
+      id: 'm5', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🧘',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Squat down!', command: 'Squat down!',
+      actionHint: 'ย่อเข่าลงต่ำ', typeHint: 'คำสั่งนั่งย่อ', ruleTag: 'Simon says: Obey',
+      step1: 'Squat = ย่อตัว / down = ลง',
+      step2: 'งอเข่าย่อลำตัวลงต่ำ ลำตัวตั้งตรง',
+      step3: 'ค้างไว้ 2 วินาทีแล้วทรงตัวให้มั่นคง',
+      answer: 'นั่งย่อตัวลง'
+    },
+    {
+      id: 'm6', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🧎',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Kneel down!', command: 'Kneel down!',
+      actionHint: 'คุกเข่าลงกับพื้น', typeHint: 'คำสั่งคุกเข่า', ruleTag: 'Simon says: Obey',
+      step1: 'Kneel = คุกเข่า / down = ลง',
+      step2: 'วางหัวเข่าทั้งสองข้างลงบนพื้นเบาๆ',
+      step3: 'ลำตัวตั้งตรง สายตามองตรงไปข้างหน้า',
+      answer: 'คุกเข่าลง'
+    },
+    {
+      id: 'm7', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🏃',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Run in place!', command: 'Run in place!',
+      actionHint: 'วิ่งยกเข่าอยู่กับที่', typeHint: 'คำสั่งวิ่งอยู่กับที่', ruleTag: 'Simon says: Obey',
+      step1: 'Run = วิ่ง / in place = อยู่กับที่',
+      step2: 'สลับยกเข่าซ้าย-ขวาวิ่งโดยไม่เคลื่อนที่ไปไหน',
+      step3: 'แกว่งแขนตามจังหวะการก้าวเท้า',
+      answer: 'วิ่งอยู่กับที่'
+    },
+    {
+      id: 'm8', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🧊',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Freeze!', command: 'Freeze!',
+      actionHint: 'หยุดนิ่งเป็นรูปปั้นหิน', typeHint: 'คำสั่งหยุดนิ่ง', ruleTag: 'Simon says: Obey',
+      step1: 'Freeze = แข็งตัว / นิ่งสนิท',
+      step2: 'หยุดการเคลื่อนไหวทุกส่วนของร่างกายทันที',
+      step3: 'ห้ามขยับ ห้ามกะพริบตา ค้างท่านั้นไว้',
+      answer: 'หยุดนิ่งอยู่กับที่ (Freeze)'
+    },
+    {
+      id: 'm9', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🎖️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: March in line!', command: 'March in line!',
+      actionHint: 'เดินย่ำเท้าจังหวะสวนสนาม', typeHint: 'คำสั่งย่ำเท้า', ruleTag: 'Simon says: Obey',
+      step1: 'March = ย่ำเท้าแถวตรง / in line = เป็นแถว',
+      step2: 'ยกขาซ้าย-ขวา ย่ำเท้าพร้อมเพรียงตามจังหวะ 1-2',
+      step3: 'อกผายไหล่ผึ่งและรักษาระเบียบแถว',
+      answer: 'เดินย่ำเท้าแถวตรง'
+    },
+    {
+      id: 'm10', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🙆',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Stretch your arms!', command: 'Stretch your arms!',
+      actionHint: 'เหยียดแขนทั้งสองข้าง', typeHint: 'คำสั่งยืดเหยียด', ruleTag: 'Simon says: Obey',
+      step1: 'Stretch = เหยียด/ยืด / arms = แขน',
+      step2: 'ยกแขนทั้งสองเหยียดออกไปข้างหน้าหรือเหนือศีรษะ',
+      step3: 'ผ่อนคลายกล้ามเนื้อแขนและหัวไหล่',
+      answer: 'ยืดเหยียดแขนทั้งสองข้าง'
+    },
+    {
+      id: 'm11', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🦩',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Hop on one foot!', command: 'Hop on one foot!',
+      actionHint: 'กระโดดขาเดียว', typeHint: 'คำสั่งกระโดดขาเดียว', ruleTag: 'Simon says: Obey',
+      step1: 'Hop = กระโดดสั้น / one foot = ขาข้างเดียว',
+      step2: 'ยกขาขึ้นข้างหนึ่ง แล้วใช้ขาอีกข้างกระโดดเบาๆ',
+      step3: 'กางแขนช่วยรักษาสมดุลไม่ให้ล้ม',
+      answer: 'กระโดดขาเดียว'
+    },
+    {
+      id: 'm12', type: 'movement', categoryLabel: 'การเคลื่อนไหวพื้นฐาน', emoji: '🩰',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Tip-toe quietly!', command: 'Tip-toe quietly!',
+      actionHint: 'เขย่งปลายเท้าเดินเบาๆ', typeHint: 'คำสั่งเขย่งปลายเท้า', ruleTag: 'Simon says: Obey',
+      step1: 'Tip-toe = ปลายเท้า / quietly = เงียบๆ',
+      step2: 'ยกส้นเท้าขึ้น ใช้ปลายเท้าก้าวเดินช้าๆ',
+      step3: 'ไม่ให้มีเสียงฝีเท้ากระทบพื้นห้อง',
+      answer: 'เดินเขย่งปลายเท้าเงียบๆ'
+    },
+
+    /* 2. Directions & Positions (direction) - 12 items */
+    {
+      id: 'd1', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '⬅️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Turn left!', command: 'Turn left!',
+      actionHint: 'หันหน้าไปทางทิศซ้าย 90 องศา', typeHint: 'คำสั่งหันซ้าย', ruleTag: 'Simon says: Obey',
+      step1: 'Turn = หัน / left = ซ้ายมือ',
+      step2: 'หมุนปลายเท้าและหันลำตัวไปทางซ้ายมือ 90 องศา',
+      step3: 'ระวังไม่สับสนกับทิศขวามือ',
+      answer: 'หันไปทางซ้าย (Turn left)'
+    },
+    {
+      id: 'd2', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '➡️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Turn right!', command: 'Turn right!',
+      actionHint: 'หันหน้าไปทางทิศขวา 90 องศา', typeHint: 'คำสั่งหันขวา', ruleTag: 'Simon says: Obey',
+      step1: 'Turn = หัน / right = ขวามือ',
+      step2: 'หมุนปลายเท้าและหันลำตัวไปทางขวามือ 90 องศา',
+      step3: 'ตรงข้ามกับคำสั่ง Turn left',
+      answer: 'หันไปทางขวา (Turn right)'
+    },
+    {
+      id: 'd3', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '🔄',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Turn around!', command: 'Turn around!',
+      actionHint: 'หมุนตัว 180 หรือ 360 องศา', typeHint: 'คำสั่งหมุนตัว/หันหลัง', ruleTag: 'Simon says: Obey',
+      step1: 'Turn = หมุน / around = รอบตัว',
+      step2: 'หมุนลำตัวกลับหลังหัน หรือหมุนครบ 1 รอบ',
+      step3: 'กลับมายืนในท่าตรงพร้อมฟังคำสั่งถัดไป',
+      answer: 'หมุนรอบตัว / หันหลังกลับ'
+    },
+    {
+      id: 'd4', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '⬆️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Raise it high!', command: 'Raise it high!',
+      actionHint: 'ชูสิ่งของขึ้นสูงเหนือศีรษะ', typeHint: 'คำสั่งชูขึ้นสูง', ruleTag: 'Simon says: Obey',
+      step1: 'Raise = ยก/ชู / high = สูง',
+      step2: 'ชูมือหรือดินสอขึ้นสูงเหนือศีรษะให้เห็นชัด',
+      step3: 'แขนเหยียดตรงขึ้นสู่ด้านบน',
+      answer: 'ชูขึ้นสูง / เอาไว้ข้างบน'
+    },
+    {
+      id: 'd5', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '⬇️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Put it down!', command: 'Put it down!',
+      actionHint: 'วางสิ่งของลงบนโต๊ะหรือพื้น', typeHint: 'คำสั่งวางลง', ruleTag: 'Simon says: Obey',
+      step1: 'Put = วาง / down = ข้างล่าง/ลง',
+      step2: 'ลดมือลงและวางสิ่งของลงบนโต๊ะอย่างแผ่วเบา',
+      step3: 'ตรงข้ามกับ Raise it high',
+      answer: 'วางลง / เอาไว้ข้างล่าง'
+    },
+    {
+      id: 'd6', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '🔼',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Step forward!', command: 'Step forward!',
+      actionHint: 'ก้าวเท้าไปข้างหน้า 1 ก้าว', typeHint: 'คำสั่งก้าวไปข้างหน้า', ruleTag: 'Simon says: Obey',
+      step1: 'Step = ก้าวเท้า / forward = ข้างหน้า',
+      step2: 'ก้าวเท้าข้างใดข้างหนึ่งไปข้างหน้า 1 ก้าว',
+      step3: 'ดึงเท้าอีกข้างตามมาชิดกันอย่างมั่นคง',
+      answer: 'ก้าวไปข้างหน้า'
+    },
+    {
+      id: 'd7', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '🔽',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Step back!', command: 'Step back!',
+      actionHint: 'ก้าวถอยหลัง 1 ก้าว', typeHint: 'คำสั่งถอยหลัง', ruleTag: 'Simon says: Obey',
+      step1: 'Step = ก้าว / back = ถอยหลัง',
+      step2: 'ก้าวเท้าถอยหลังไป 1 ก้าวอย่างระมัดระวัง',
+      step3: 'ไม่ชนเพื่อนหรือสิ่งกีดขวางด้านหลัง',
+      answer: 'ก้าวถอยหลัง'
+    },
+    {
+      id: 'd8', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '☝️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Point up!', command: 'Point up!',
+      actionHint: 'ชี้นิ้วขึ้นเพดาน', typeHint: 'คำสั่งชี้ขึ้นบน', ruleTag: 'Simon says: Obey',
+      step1: 'Point = ชี้นิ้ว / up = ด้านบน',
+      step2: 'ใช้นิ้วชี้ชี้ตรงขึ้นไปยังเพดานห้องเรียน',
+      step3: 'แขนตรง ชี้ไปที่ด้านบน',
+      answer: 'ชี้นิ้วขึ้นข้างบน'
+    },
+    {
+      id: 'd9', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '👇',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Point down!', command: 'Point down!',
+      actionHint: 'ชี้นิ้วลงพื้นห้อง', typeHint: 'คำสั่งชี้ลงล่าง', ruleTag: 'Simon says: Obey',
+      step1: 'Point = ชี้นิ้ว / down = ด้านล่าง',
+      step2: 'ใช้นิ้วชี้ชี้ตรงลงไปยังพื้นห้องเรียน',
+      step3: 'ตรงข้ามกับ Point up',
+      answer: 'ชี้นิ้วลงข้างล่าง'
+    },
+    {
+      id: 'd10', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '🧍‍♂️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Hands on hips!', command: 'Hands on hips!',
+      actionHint: 'วางมือทั้งสองข้างบนสะเอว', typeHint: 'คำสั่งเท้าสะเอว', ruleTag: 'Simon says: Obey',
+      step1: 'Hands = มือ / hips = สะโพก/สะเอว',
+      step2: 'วางฝ่ามือทั้งสองแนบกับสะเอว กางข้อศอกออก',
+      step3: 'ยืนตัวตรง ยืดอกอย่างมั่นใจ',
+      answer: 'เอามือเท้าสะเอว'
+    },
+    {
+      id: 'd11', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '↖️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Bend to the left!', command: 'Bend to the left!',
+      actionHint: 'เอียงลำตัวไปทางซ้าย', typeHint: 'คำสั่งเอียงซ้าย', ruleTag: 'Simon says: Obey',
+      step1: 'Bend = ก้ม/เอียง / left = ด้านซ้าย',
+      step2: 'เอียงลำตัวช่วงบนไปทางซ้ายมือ ยืดสีข้าง',
+      step3: 'เท้าวางติดพื้น ไม่ยกส้นเท้า',
+      answer: 'เอียงลำตัวไปทางซ้าย'
+    },
+    {
+      id: 'd12', type: 'direction', categoryLabel: 'ทิศทางและตำแหน่ง', emoji: '↗️',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Bend to the right!', command: 'Bend to the right!',
+      actionHint: 'เอียงลำตัวไปทางขวา', typeHint: 'คำสั่งเอียงขวา', ruleTag: 'Simon says: Obey',
+      step1: 'Bend = เอียงตัว / right = ด้านขวา',
+      step2: 'เอียงลำตัวช่วงบนไปทางขวามือ ยืดสีข้าง',
+      step3: 'ตรงข้ามกับ Bend to the left',
+      answer: 'เอียงลำตัวไปทางขวา'
+    },
+
+    /* 3. Face, Eyes & Gestures (gesture) - 12 items */
+    {
+      id: 'g1', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👄',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Open your mouth!', command: 'Open your mouth!',
+      actionHint: 'อ้าปากกว้าง', typeHint: 'คำสั่งอวัยวะปาก', ruleTag: 'Simon says: Obey',
+      step1: 'Open = เปิด/อ้า / mouth = ปาก',
+      step2: 'อ้าปากพอดีๆ ไม่ส่งเสียงดังรบกวน',
+      step3: 'ทำตามคำสั่งเฉพาะเมื่อมี Simon says',
+      answer: 'อ้าปาก (Open your mouth)'
+    },
+    {
+      id: 'g2', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '😉',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Close your left eye!', command: 'Close your left eye!',
+      actionHint: 'หลับตาข้างซ้าย 1 ข้าง', typeHint: 'คำสั่งดวงตา', ruleTag: 'Simon says: Obey',
+      step1: 'Close = ปิด/หลับ / left eye = ตาซ้าย',
+      step2: 'หลับตาซ้ายสนิท ส่วนตาขวาเปิดมองตามปกติ',
+      step3: 'ทำท่าขยิบตาซ้าย (Wink left)',
+      answer: 'ปิดตาข้างซ้าย'
+    },
+    {
+      id: 'g3', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '😜',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Close your right eye!', command: 'Close your right eye!',
+      actionHint: 'หลับตาข้างขวา 1 ข้าง', typeHint: 'คำสั่งดวงตา', ruleTag: 'Simon says: Obey',
+      step1: 'Close = ปิด/หลับ / right eye = ตาขวา',
+      step2: 'หลับตาขวาสนิท ส่วนตาซ้ายเปิดมองตามปกติ',
+      step3: 'ทำท่าขยิบตาขวา (Wink right)',
+      answer: 'ปิดตาข้างขวา'
+    },
+    {
+      id: 'g4', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '🙌',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Raise your hands!', command: 'Raise your hands!',
+      actionHint: 'ชูมือทั้งสองข้างขึ้นสูง', typeHint: 'คำสั่งยกมือ', ruleTag: 'Simon says: Obey',
+      step1: 'Raise = ยก / hands = มือทั้งสอง',
+      step2: 'ยกแขนชูมือทั้งสองข้างขึ้นเหนือศีรษะ',
+      step3: 'กางนิ้วมือออกอย่างสดใส',
+      answer: 'ยกมือทั้งสองข้างขึ้น'
+    },
+    {
+      id: 'g5', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '🙆',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Touch your head!', command: 'Touch your head!',
+      actionHint: 'นำมือทั้งสองแตะบนศีรษะ', typeHint: 'คำสั่งแตะศีรษะ', ruleTag: 'Simon says: Obey',
+      step1: 'Touch = แตะ/สัมผัส / head = ศีรษะ',
+      step2: 'ยกมือขึ้นวางทาบเบาๆ บนศีรษะ',
+      step3: 'ระวังไม่กระแทกศีรษะแรง',
+      answer: 'แตะศีรษะ (Touch your head)'
+    },
+    {
+      id: 'g6', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👏',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Clap your hands!', command: 'Clap your hands!',
+      actionHint: 'ปรบมือ 2-3 ครั้งตามจังหวะ', typeHint: 'คำสั่งปรบมือ', ruleTag: 'Simon says: Obey',
+      step1: 'Clap = ปรบ / hands = มือทั้งสอง',
+      step2: 'ประกบฝ่ามือทั้งสองข้างเข้าหากันให้เกิดเสียง',
+      step3: 'ปรบมืออย่างพร้อมเพรียงและสนุกสนาน',
+      answer: 'ปรบมือ (Clap your hands)'
+    },
+    {
+      id: 'g7', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👂',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Touch your ears!', command: 'Touch your ears!',
+      actionHint: 'นำมือแตะใบหูทั้งสองข้าง', typeHint: 'คำสั่งแตะหู', ruleTag: 'Simon says: Obey',
+      step1: 'Touch = แตะ / ears = หูทั้งสองข้าง',
+      step2: 'ยกมือทั้งสองข้างขึ้นแตะใบหูเบาๆ',
+      step3: 'ช่วยฝึกการฟังและสมาธิในห้องเรียน',
+      answer: 'แตะหูทั้งสองข้าง'
+    },
+    {
+      id: 'g8', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👃',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Touch your nose!', command: 'Touch your nose!',
+      actionHint: 'ใช้นิ้วชี้แตะปลายจมูก', typeHint: 'คำสั่งแตะจมูก', ruleTag: 'Simon says: Obey',
+      step1: 'Touch = แตะ / nose = จมูก',
+      step2: 'ยกนิ้วชี้ขึ้นแตะที่ปลายจมูกเบาๆ',
+      step3: 'ทดสอบความแม่นยำในการระบุอวัยวะ',
+      answer: 'แตะจมูก (Touch your nose)'
+    },
+    {
+      id: 'g9', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👀',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Blink your eyes!', command: 'Blink your eyes!',
+      actionHint: 'กะพริบตาทั้งสองข้างพร้อมกัน', typeHint: 'คำสั่งกะพริบตา', ruleTag: 'Simon says: Obey',
+      step1: 'Blink = กะพริบตา / eyes = ดวงตา',
+      step2: 'ปิดและเปิดเปลือกตาทั้งสองข้างอย่างรวดเร็ว',
+      step3: 'ทำซ้ำ 2 ครั้งตามคำสั่ง',
+      answer: 'กะพริบตาทั้งสองข้าง'
+    },
+    {
+      id: 'g10', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '🤝',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Nod your head!', command: 'Nod your head!',
+      actionHint: 'พยักหน้าขึ้นลงแสดงการตอบรับ', typeHint: 'คำสั่งพยักหน้า', ruleTag: 'Simon says: Obey',
+      step1: 'Nod = พยักหน้า / head = ศีรษะ',
+      step2: 'ก้มและเงยศีรษะขึ้นลงเบาๆ แสดงความเห็นด้วย',
+      step3: 'หมายถึง "ใช่" หรือ "ตกลง" (Yes)',
+      answer: 'พยักหน้า (Nod your head)'
+    },
+    {
+      id: 'g11', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '🙅',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Shake your head!', command: 'Shake your head!',
+      actionHint: 'ส่ายหน้าไปมาซ้าย-ขวา', typeHint: 'คำสั่งส่ายหน้า', ruleTag: 'Simon says: Obey',
+      step1: 'Shake = ส่าย/เขย่า / head = ศีรษะ',
+      step2: 'หันศีรษะสลับซ้าย-ขวาไปมาอย่างนุ่มนวล',
+      step3: 'หมายถึง "ไม่ใช่" หรือ "ปฏิเสธ" (No)',
+      answer: 'ส่ายหน้า (Shake your head)'
+    },
+    {
+      id: 'g12', type: 'gesture', categoryLabel: 'ใบหน้าและอวัยวะ', emoji: '👋',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Wave goodbye!', command: 'Wave goodbye!',
+      actionHint: 'โบกมือไปมาลาเพื่อน', typeHint: 'คำสั่งโบกมือลา', ruleTag: 'Simon says: Obey',
+      step1: 'Wave = โบกมือ / goodbye = ลาก่อน',
+      step2: 'ยกมือขึ้นระดับอกแล้วโบกไปมาซ้าย-ขวา',
+      step3: 'ยิ้มแย้มแจ่มใสขณะโบกมือลา',
+      answer: 'โบกมือลา (Wave goodbye)'
+    },
+
+    /* 4. Emotions & Expressions (emotion) - 12 items */
+    {
+      id: 'e1', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😄',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Laugh happily!', command: 'Laugh happily!',
+      actionHint: 'หัวเราะอย่างมีความสุข', typeHint: 'คำสั่งแสดงความสุข', ruleTag: 'Simon says: Obey',
+      step1: 'Laugh = หัวเราะ / happily = อย่างมีความสุข',
+      step2: 'ทำหน้ายิ้มกว้างและหัวเราะ ฮ่าๆๆ อย่างเบิกบาน',
+      step3: 'สร้างบรรยากาศสดใสในห้องเรียน',
+      answer: 'หัวเราะอย่างมีความสุข 😄'
+    },
+    {
+      id: 'e2', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😢',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Look sad and cry!', command: 'Look sad and cry!',
+      actionHint: 'ทำหน้าเศร้าและแกล้งร้องไห้', typeHint: 'คำสั่งแสดงความเศร้า', ruleTag: 'Simon says: Obey',
+      step1: 'Look sad = ทำหน้าเศร้า / cry = ร้องไห้',
+      step2: 'ขมวดคิ้ว ทำปากคว่ำ เอามือปาดน้ำตาเบาๆ',
+      step3: 'แสดงอารมณ์เศร้าตามบทบาทสมมติ',
+      answer: 'ทำหน้าเศร้าและร้องไห้ 😢'
+    },
+    {
+      id: 'e3', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '🎉',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Shout "Hooray!"', command: 'Shout "Hooray!"',
+      actionHint: 'ตะโกนร้องคำว่า ไชโย!', typeHint: 'คำสั่งร้องไชโย', ruleTag: 'Simon says: Obey',
+      step1: 'Shout = ตะโกน / Hooray = ไชโย',
+      step2: 'ชูกำปั้นขึ้นฟ้าแล้วเปล่งเสียง "ไชโย!" ดังชัดเจน',
+      step3: 'แสดงความยินดีในชัยชนะหรือความสำเร็จ',
+      answer: 'ตะโกนร้อง "ไชโย!" 🎉'
+    },
+    {
+      id: 'e4', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '🤫',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Whisper quietly!', command: 'Whisper quietly!',
+      actionHint: 'ยกนิ้วชี้แตะปากกระซิบเบาๆ', typeHint: 'คำสั่งกระซิบ', ruleTag: 'Simon says: Obey',
+      step1: 'Whisper = กระซิบ / quietly = เงียบๆ',
+      step2: 'ยกนิ้วชี้ทาบที่ริมฝีปาก แล้วพูดเสียงกระซิบ ชู่ว์',
+      step3: 'เพื่อเตือนเพื่อนให้รักษาความสงบ',
+      answer: 'กระซิบเบาๆ 🤫'
+    },
+    {
+      id: 'e5', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😲',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Look surprised!', command: 'Look surprised!',
+      actionHint: 'เบิกตากว้างทำหน้าตกใจ', typeHint: 'คำสั่งแสดงความตกใจ', ruleTag: 'Simon says: Obey',
+      step1: 'Look = ทำท่าทาง / surprised = ตกใจประหลาดใจ',
+      step2: 'เบิกตากลมโต อ้าปากค้าง เอามือทาบอก',
+      step3: 'แสดงความประหลาดใจเมื่อเจอเรื่องไม่คาดคิด',
+      answer: 'ทำหน้าตกใจประหลาดใจ 😲'
+    },
+    {
+      id: 'e6', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '🥱',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Yawn sleepily!', command: 'Yawn sleepily!',
+      actionHint: 'อ้าปากหาวเอามือป้องปาก', typeHint: 'คำสั่งหาวนอน', ruleTag: 'Simon says: Obey',
+      step1: 'Yawn = หาวนอน / sleepily = อย่างง่วงงุน',
+      step2: 'อ้าปากหาวแล้วใช้ฝ่ามือป้องปากอย่างสุภาพ',
+      step3: 'แสดงอาการง่วงนอนและต้องการพักผ่อน',
+      answer: 'หาวนอนอย่างง่วงงุน 🥱'
+    },
+    {
+      id: 'e7', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😊',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Smile brightly!', command: 'Smile brightly!',
+      actionHint: 'ส่งยิ้มกว้างอย่างจริงใจ', typeHint: 'คำสั่งส่งยิ้มสดใส', ruleTag: 'Simon says: Obey',
+      step1: 'Smile = ยิ้ม / brightly = สดใสสว่างไสว',
+      step2: 'คลี่ยิ้มกว้างให้เห็นฟัน ดวงตายิ้มเป็นประกาย',
+      step3: 'ทักทายคุณครูและเพื่อนร่วมชั้นด้วยไมตรี',
+      answer: 'ยิ้มสดใสอย่างร่าเริง 😊'
+    },
+    {
+      id: 'e8', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '🥳',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Cheer enthusiastically!', command: 'Cheer enthusiastically!',
+      actionHint: 'ส่งเสียงเชียร์และปรบมือรัว', typeHint: 'คำสั่งส่งเสียงเชียร์', ruleTag: 'Simon says: Obey',
+      step1: 'Cheer = ส่งเสียงเชียร์ / enthusiastically = อย่างกระตือรือร้น',
+      step2: 'กระโดดโลดเต้น ปรบมือรัว ให้กำลังใจเพื่อน',
+      step3: 'เพิ่มพลังใจในการแข่งขันเกมการศึกษา',
+      answer: 'ส่งเสียงเชียร์อย่างกระตือรือร้น 🥳'
+    },
+    {
+      id: 'e9', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😠',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Show an angry face!', command: 'Show an angry face!',
+      actionHint: 'ขมวดคิ้วแน่นทำหน้าโกรธ', typeHint: 'คำสั่งแสดงความโกรธ', ruleTag: 'Simon says: Obey',
+      step1: 'Show = แสดง / angry face = ใบหน้าโกรธ',
+      step2: 'ขมวดคิ้วชนกัน ทำแก้มป่อง จ้องเขม็ง',
+      step3: 'เรียนรู้คำศัพท์อารมณ์โกรธเพื่อการสื่อสาร',
+      answer: 'ทำหน้าโกรธ 😠'
+    },
+    {
+      id: 'e10', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😎',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Look proud!', command: 'Look proud!',
+      actionHint: 'ยืดอกเชิดหน้าอย่างภาคภูมิใจ', typeHint: 'คำสั่งแสดงความภูมิใจ', ruleTag: 'Simon says: Obey',
+      step1: 'Look = ท่าทาง / proud = ภาคภูมิใจ',
+      step2: 'ยืดอกขึ้น ยิ้มมุมปากมั่นใจ ยกนิ้วโป้งเยี่ยม',
+      step3: 'แสดงความภูมิใจเมื่อทำข้อสอบหรือภารกิจสำเร็จ',
+      answer: 'ทำหน้าภาคภูมิใจ 😎'
+    },
+    {
+      id: 'e11', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '😜',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Make a silly face!', command: 'Make a silly face!',
+      actionHint: 'แลบลิ้นทำหน้าตลกทะเล้น', typeHint: 'คำสั่งทำหน้าตลก', ruleTag: 'Simon says: Obey',
+      step1: 'Make = ทำ / silly face = หน้าตลกขบขัน',
+      step2: 'แลบลิ้น กระดิกหู หรือทำตาเหล่สร้างเสียงหัวเราะ',
+      step3: 'ผ่อนคลายความตึงเครียดในชั่วโมงเรียน',
+      answer: 'ทำหน้าตลกทะเล้น 😜'
+    },
+    {
+      id: 'e12', type: 'emotion', categoryLabel: 'อารมณ์และการแสดงออก', emoji: '✨',
+      prompt: 'แปลและปฏิบัติตามคำสั่ง: Look excited!', command: 'Look excited!',
+      actionHint: 'ทำท่าตื่นเต้นตาเป็นประกาย', typeHint: 'คำสั่งแสดงความตื่นเต้น', ruleTag: 'Simon says: Obey',
+      step1: 'Look = ท่าทาง / excited = ตื่นเต้นดีใจ',
+      step2: 'ยิ้มกว้าง ปรบมือเร็วๆ ดวงตาเบิกบานตื่นเต้น',
+      step3: 'เตรียมพร้อมรับกิจกรรมการเรียนรู้ใหม่ๆ',
+      answer: 'ทำท่าตื่นเต้นดีใจ ✨'
+    }
+  ];
+
+  /* WORKSHEET ENGINE CONFIGURATION */
+  window.WORKSHEET_CONFIG = {
+    worksheetKey: 'classroom-action',
+    icon: '🏃',
+    title: 'ใบงานคำสั่งและการเคลื่อนไหวในห้องเรียน (TPR Commands)',
+    subject: 'ภาษาอังกฤษ',
+    gradeLabel: 'ป.1–3',
+    mediaLabel: 'Classroom Action Studio',
+    sourceMediaUrl:'/games/english/classroom-action-media.html',
+    indicators: ['ต 1.1 ป.1/1', 'ต 1.1 ป.2/1', 'ต 1.1 ป.3/1', 'ต 1.2 ป.3/1'],
+    directions: 'ฝึกฟังและอ่านคำสั่งภาษาอังกฤษ (TPR) → วิเคราะห์การเคลื่อนไหวร่างกาย → ปฏิบัติตามคำสั่งให้ถูกต้อง',
+
+    getItems(topic, grade) {
+      if (!topic || topic === 'mixed') {
+        return TPR_ITEMS;
+      }
+      return TPR_ITEMS.filter(item => item.type === topic);
+    },
+
+    renderQuestion(item) {
+      const e = window.KampaiTopicWorksheet.escapeHtml;
+      return '<div class="q-stem">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+        + '<span class="skill-tag">' + e(item.categoryLabel) + '</span>'
+        + '<span style="font-size:7pt; font-weight:800; color:var(--ws-muted);">' + e(item.emoji) + ' ' + e(item.ruleTag) + '</span>'
+        + '</div>'
+        + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+        + '<div class="eng-word">' + e(item.command) + '</div>'
+        + '<div class="classify-grid">'
+        + '<div class="classify-box">ท่าทาง: <strong>' + e(item.actionHint) + '</strong></div>'
+        + '<div class="classify-box">เป้าหมาย: <strong>' + e(item.typeHint) + '</strong></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-work-block step-block">'
+        + '<div class="step-row">'
+        + '<span class="step-tag">1 คำศัพท์</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step1) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag">2 ท่าปฏิบัติ</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step2) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag gold">3 กฎเกม</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step3) + '</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-foot">'
+        + '<div class="answer-line">'
+        + '<span>สรุป/เฉลย:</span>'
+        + '<span class="answer-fill">' + e(item.answer) + '</span>'
+        + '</div>'
+        + '</div>';
+    }
+  };
+  </script>
+
+  <!-- TOPIC ENGINE LOADER -->
+  <script src="/games/worksheet-topic.js?v=2.0.0"></script>
+  <script>
+    function render() {
+      window.KampaiTopicWorksheet.render();
+    }
+    document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+    document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+    document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+    window.KampaiWorksheet.loadTeachers();
+    render();
+  </script>
+  <script src="/games/worksheet-modes.js?v=2.0.0"></script>
+</body>
+</html>

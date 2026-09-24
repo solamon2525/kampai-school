@@ -32,6 +32,7 @@ import {
   Lightbulb,
   Package,
   Gauge,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -77,7 +78,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-staff', label: 'จัดการครู/บุคลากร', group: 'แอดมิน', icon: Briefcase, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/staff' } },
   { id: 'adm-attendance', label: 'เช็คชื่อนักเรียน', group: 'แอดมิน', icon: ClipboardCheck, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/attendance' } },
   { id: 'adm-scores', label: 'คะแนนเก็บ', group: 'แอดมิน', icon: PenLine, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/scores' } },
-  { id: 'adm-conduct', label: 'Kampai Hero (ความประพฤติ)', group: 'แอดมิน', icon: Star, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/conduct' } },
+  { id: 'adm-conduct', label: 'ธนาคารความดี (ความประพฤติ)', group: 'แอดมิน', icon: Star, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/conduct' } },
   { id: 'adm-waste', label: 'ธนาคารขยะ (admin)', group: 'แอดมิน', icon: Recycle, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/waste-bank' } },
   { id: 'adm-savings', label: 'ธนาคารพอเพียง (admin)', group: 'แอดมิน', icon: Wallet, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/savings-bank' } },
   { id: 'adm-scan', label: 'สแกน QR ด่วน', group: 'แอดมิน', icon: QrCode, roles: ['admin', 'teacher'], shortcut: '⌃⇧S', action: { type: 'navigate', path: '/admin/dashboard/scan' } },
@@ -111,6 +112,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 't-schedule', label: 'ตารางสอน', group: 'พอร์ทัลครู', icon: Calendar, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/schedule' } },
   { id: 't-attendance', label: 'เช็คชื่อ (ครู)', group: 'พอร์ทัลครู', icon: ClipboardCheck, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/attendance' } },
   { id: 't-scores', label: 'บันทึกคะแนน', group: 'พอร์ทัลครู', icon: PenLine, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/scores' } },
+  { id: 't-classroom-competitions', label: 'แข่งใบงานสด', group: 'พอร์ทัลครู', icon: Trophy, roles: ['teacher', 'admin'], keywords: ['แข่งขัน', 'ใบงาน', 'ทีม', 'math', 'คณิต'], action: { type: 'navigate', path: '/teacher/classroom-competitions' } },
   { id: 't-rewards', label: 'อนุมัติของรางวัล', group: 'พอร์ทัลครู', icon: Award, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/rewards-approval' } },
   { id: 't-edu-hub', label: 'จัดการคลังสื่อของฉัน', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/edu-hub' } },
   { id: 't-game-research', label: 'วิจัยเกมในชั้นเรียน', group: 'พอร์ทัลครู', icon: FlaskConical, roles: ['teacher', 'admin'], keywords: ['research', 'game', 'วิจัย', 'เกม'], action: { type: 'navigate', path: '/teacher/game-research' } },

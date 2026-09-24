@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — ฉากสรุปผลและเกียรติบัตรในเกม</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#eff6ff}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#1e3a8a}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#1e40af;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#2563eb}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#dbeafe 0 52%,#fef9c3 52%);border-radius:20px;box-shadow:0 8px 30px #1e40af1a}
+.head{background:linear-gradient(125deg,#1e3a8a,#2563eb);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #172554}.tag{color:#bfdbfe;font-size:21px;font-weight:800}.head h1{font-size:46px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#dbeafe}
+.demo{height:225px;margin:24px 0 20px;border:4px solid #2563eb;border-radius:21px;position:relative;overflow:hidden;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;box-shadow:0 8px 0 #bfdbfe}.cert-title{font-size:26px;font-weight:900;color:#1e3a8a}.cert-name{font-size:24px;font-weight:800;color:#d97706;margin:6px 0}.stars-row{font-size:40px}
+.flow{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #93c5fd;border-radius:13px;padding:9px 12px;font-size:18px}.flow i{font-style:normal;font-size:23px;color:#d94650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #bfdbfe;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #dbeafe;min-height:203px}.wide{grid-column:1/3;min-height:176px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd049;color:#172554;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#1e40af;font-size:25px}p{font-size:18.3px;line-height:1.38;margin:8px 0}.event{background:#eff6ff;border-left:8px solid #2563eb;border-radius:9px;padding:9px 13px;font-size:17.2px;line-height:1.46;font-weight:700}.cond{color:#1e3a8a}.act{color:#176b9f}.small{font-size:15.8px;color:#586477}.warn{border-color:#dd9b52;background:#fffaf0}.warn .event{border-color:#dc4653}.tip{margin-top:16px;background:#1e3a8a;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.3px;line-height:1.42}.tip b{font-size:21px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #bfdbfe;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:29px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="tutorial-boss-battle-phases.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-web-export-deploy.html">บทที่ 16 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 15 • สรุปผลการเรียนรู้</div><h1>ฉากสรุปผลและเกียรติบัตรในเกม</h1><p>คำนวณดาวประเมิน (1–3 ดาว) → สรุปคะแนนรวมและชื่อนักเรียน → แสดงเกียรติบัตรจำลองในเกม</p></header>
+<section class="demo">
+  <div class="cert-title">🏆 ประกาศนียบัตรผ่านการทดสอบคณิตศาสตร์ 🏆</div>
+  <div class="cert-name">ขอมอบให้แก่: เด็กชาย / เด็กหญิง [ชื่อผู้เล่น]</div>
+  <div class="stars-row">⭐ ⭐ ⭐</div>
+  <div style="font-size:18px;font-weight:700;color:#475569;margin-top:4px">คะแนนรวมสุทธิ: 4,850 คะแนน</div>
+</section>
+<div class="flow"><b>ผ่านด่านทั้งหมด</b><i>→</i><b>คำนวณดาว</b><i>→</i><b>แสดงเกียรติบัตร</b><i>→</i><b>แสดงชื่อ/คะแนน</b><i>→</i><b>ปุ่มเล่นใหม่</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>ระบบ Top 5 Ranking</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ระบบ Top 5 Ranking">
+
+   
+<p>สร้าง Variables ชื่อ1-5 และ คะแนน1-5</p><div class="event"><span class="act">เตรียมตัวแปรชื่อและคะแนน 5 อันดับสำหรับเก็บกระดานผู้นำ</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> ranking sheet</p></article>
+<article class="card"><span class="n">2</span><h2>เงื่อนไขการแทรกคะแนน</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — เงื่อนไขการแทรกคะแนน">
+
+   
+<p>ตรวจว่าคะแนนใหม่ทำลายสถิติใด</p><div class="event"><span class="cond">คะแนน &gt; คะแนน1</span> → เลื่อนอันดับ 1 ไป 2, 2 ไป 3, ... แทรกที่ 1<br><span class="cond">Else If คะแนน &gt; คะแนน2</span> → แทรกที่ 2<br><span class="cond">... จนถึงอันดับ 5</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "บันทึกอันดับ Top5"</p></article>
+<article class="card"><span class="n">3</span><h2>การ Shift ข้อมูล (เลื่อนอันดับ)</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — การ Shift ข้อมูล (เลื่อนอันดับ)">
+
+   
+<p>ระวังลำดับการเขียน Event!</p><div class="event"><span class="act">Set คะแนน5 = คะแนน4, ชื่อ5 = ชื่อ4</span><br><span class="act">Set คะแนน4 = คะแนน3, ชื่อ4 = ชื่อ3</span><br>... ต้องทำจากล่างขึ้นบน ไม่เช่นนั้นข้อมูลจะถูกทับทั้งหมด!</div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "บันทึกอันดับ Top5"</p></article>
+<article class="card"><span class="n">4</span><h2>รีเซ็ต Flag ก่อนเริ่มด่านใหม่</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — รีเซ็ต Flag ก่อนเริ่มด่านใหม่">
+
+   
+<p>ให้พร้อมบันทึกคะแนนในรอบหน้า</p><div class="event"><span class="cond">System → On start of layout (game)</span><br><span class="act">Set บันทึกอันดับ = 0</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet</p></article>
+<article class="card wide"><span class="n">5</span><h2>แสดงผล Ranking Board</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — แสดงผล Ranking Board">
+
+   
+<p>แสดงชื่อและคะแนน</p><div class="event"><span class="act">rank_line1 → Set text to ชื่อ1 &amp; " - " &amp; คะแนน1</span><br><span class="act">rank_line2 → Set text to ชื่อ2 &amp; " - " &amp; คะแนน2</span></div><p class="small">📍 <b>ที่ไหนใน C2:</b> ranking sheet</p></article>
+<article class="card wide warn"><span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-game-clear-rating-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 6 — tutorial-game-clear-rating">
+
+      <img src="images/steps/tutorial-game-clear-rating-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
+   
+<p>คะแนนถูกบันทึกซ้ำหลายครั้งตอนจบด่าน</p><div class="event"><span class="cond">สาเหตุ:</span> ลืมใช้ Flag ควบคุม หรือรีเซ็ตผิดที่<br><span class="act">วิธีแก้:</span> ใช้ <b>บันทึกอันดับ = 1</b> เป็น Trigger once และรีเซ็ต <b>บันทึกอันดับ = 0</b> ตอนเข้าด่านใหม่เสมอ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> กลุ่ม "บันทึกอันดับ Top5"</p></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> ตัวแปร ชื่อ1-5, คะแนน1-5 พร้อมใช้งาน • คะแนนแทรกถูกอันดับ (Shift 5←4←3←2←1 จากล่างขึ้นบน) • บันทึกอันดับ=0 รีเซ็ตตอนเริ่มด่าน • หน้า ranking แสดงผลอันดับ 1-5 ถูกต้อง</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Game Clear &amp; Rating Certificate</span><span>งานถัดไป: การ Export และเปิดเล่นบนเว็บ</span></footer>
+</main>  <script src="c2-lightbox.js"></script>
+</body></html>

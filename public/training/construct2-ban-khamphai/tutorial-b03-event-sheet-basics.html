@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — Event Sheet เบื้องต้น</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body { font-family: "Leelawadee UI","Tahoma",sans-serif; background: #eefcf5; margin: 0; color: #333; line-height: 1.6; }
+.top-nav { background: #333; color: white; display: flex; justify-content: space-between; padding: 10px 20px; align-items: center; }
+.top-nav a, .top-nav button { color: white; text-decoration: none; background: transparent; border: 1px solid white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-left: 5px; }
+.top-nav a:hover, .top-nav button:hover { background: rgba(255,255,255,0.2); }
+.nav-right { display: flex; gap: 5px; }
+.page { max-width: 1000px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.head { background: linear-gradient(135deg, #1a6b52, #28a178); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }
+.head h1 { margin: 0 0 10px 0; font-size: 2em; }
+.head p { margin: 0; opacity: 0.9; }
+.tag { background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; font-weight: bold; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px; }
+@media (min-width: 800px) { .grid { grid-template-columns: 1fr 1fr; } }
+.card { border: 2px solid #28a178; padding: 20px; border-radius: 8px; position: relative; background: #fff; }
+.card h2 { margin-top: 0; display: inline-block; font-size: 1.2em; color: #1a6b52; }
+.card.wide { grid-column: 1 / -1; }
+.card.warn { background: #fff3cd; border-color: #ffecb5; }
+.card.warn h2 { color: #856404; }
+.n { background: #ffc107; color: #000; width: 28px; height: 28px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; margin-right: 10px; vertical-align: bottom; }
+.small { font-size: 0.85em; color: #666; background: #f1f1f1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; }
+.box { border-left: 4px solid #007bff; background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+.blue { color: #007bff; font-weight: bold; }
+.red { color: #dc3545; font-weight: bold; }
+.test { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin-bottom: 30px; color: #155724; }
+.footer { border-top: 1px solid #eee; padding-top: 20px; display: flex; justify-content: space-between; font-size: 0.9em; color: #777; flex-wrap: wrap; gap: 10px; }
+@media print { 
+  .top-nav, button { display: none !important; } 
+  body { background: white; margin: 0; padding: 0; } 
+  .page { box-shadow: none; margin: 0; padding: 0; max-width: 100%; } 
+  .card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="tutorial-b02-sprite-animation-layer.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-b04-behaviors.html">บทที่ 4 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ B3 • พื้นฐาน Construct 2</div>
+    <h1>Event Sheet เบื้องต้น</h1>
+    <p>เงื่อนไข (Condition) • การกระทำ (Action) • การทำงานของระบบ • การจัดกลุ่ม</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <h2><span class="n">1</span> เปิด Event Sheet</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เปิด Event Sheet">
+
+      <p>คลิกแท็บ Event Sheet ด้านบน หรือดับเบิลคลิกใน Project bar เพื่อเปิดหน้าต่างเขียนโค้ด<br>
+      โครงสร้างของ Event Sheet แบ่งเป็น 2 ฝั่ง:</p>
+      
+      <p>1. <b>ด้านซ้าย = Condition (เงื่อนไข)</b> ว่าจะเกิดอะไรขึ้นเมื่อไหร่ เช่น "เมื่อกดสเปซบาร์"<br>
+      2. <b>ด้านขวา = Action (สิ่งที่ทำ)</b> ผลลัพธ์ที่จะเกิดขึ้น เช่น "ตัวละครกระโดด"</p>
+      <p>ระบบจะประมวลผล Event ทำงานจากบนลงล่าง ทุกเฟรม (60 ครั้งต่อวินาที)</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Project bar → Event sheets หรือแท็บด้านบนถัดจาก Layout</p>
+    </article>
+
+    <article class="card">
+      <h2><span class="n">2</span> ตัวอย่างแรก</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตัวอย่างแรก">
+
+      <p>1. <b>ดับเบิลคลิก</b> ในพื้นที่ว่างของ Event sheet<br>
+      2. หน้าต่าง <b>Add event</b> จะขึ้นมา ให้ดับเบิลคลิกที่ <b>Keyboard</b><br>
+      3. เลือก <b>On key pressed</b> แล้วกดปุ่ม <code>Space</code> ที่คีย์บอร์ด คลิก <b>Done</b><br>
+      4. ฝั่งขวา คลิกปุ่ม <b>Add action</b><br>
+      5. ดับเบิลคลิก <b>System</b> → เลือก <b>Go to layout</b> → พิมพ์ <code>"game"</code></p>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-keyboard.png" alt="kb" style="width:16px;vertical-align:middle;"> Keyboard ➔ On <b>Space</b> pressed
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Go to layout <b>"game"</b>
+          </div>
+        </div>
+      </div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> หน้า Event sheet → ดับเบิลคลิก หรือ คลิกขวา → Add event → เลือก Keyboard</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">3</span> Sub-event และ Else</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Sub-event และ Else">
+
+      <p>1. <b>การเพิ่ม Sub-event:</b> คลิกที่ Event เดิมให้เกิดแถบสีเหลืองรอบกรอบ → <b>คลิกขวา</b> → เลือก <b>Add</b> → <b>Add sub-event</b> (หรือกด <code>S</code>)<br>
+      2. <b>การเพิ่ม Else:</b> คลิกที่ Event เดิมให้เกิดแถบสีเหลือง → <b>คลิกขวา</b> → เลือก <b>Add</b> → <b>Else</b> (หรือกด <code>X</code>)<br>
+      ช่วยในการซ้อนเงื่อนไขเหมือน IF ซ้อน IF</p>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Is <b>score</b> > 100
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Go to layout <b>"win"</b>
+          </div>
+        </div>
+        <div class="c2-es-row" style="margin-left: 20px;">
+          <div class="c2-condition">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Else
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Go to layout <b>"lose"</b>
+          </div>
+        </div>
+      </div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> คลิกขวาที่ Event เดิม → Add → Add sub-event หรือ Add → Else</p>
+    </article>
+
+    <article class="card wide">
+      <h2><span class="n">4</span> Trigger once while true</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — Trigger once while true">
+
+      <p>1. สร้างเงื่อนไขแรก เช่น <b>Player → Is overlapping Enemy</b><br>
+      2. <b>คลิกขวา</b> ที่กรอบเงื่อนไขนั้น → <b>Add</b> → <b>Add another condition</b> (กด <code>C</code>)<br>
+      3. เลือก <b>System</b> → <b>Trigger once while true</b><br>
+      * ใช้ป้องกัน Action ทำงานซ้ำทุกเฟรมต่อเนื่อง เช่น การลดเลือด ควรลดแค่ครั้งเดียวเมื่อโดนชน ไม่ใช่ลด 60 ครั้งต่อวินาที</p>
+      <div class="c2-eventsheet">
+        <div class="c2-es-row">
+          <div class="c2-condition">
+            <img src="images/icon-sprite.png" alt="spr" style="width:16px;vertical-align:middle;"> Player ➔ Is overlapping <b>Enemy</b><br>
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Trigger once while true
+          </div>
+          <div class="c2-action">
+            <img src="images/icon-system.png" alt="sys" style="width:16px;vertical-align:middle;"> System ➔ Subtract 1 from <b>Heart</b>
+          </div>
+        </div>
+      </div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> Add condition → System → Trigger once while true</p>
+    </article>
+
+    <article class="card">
+      <h2><span class="n">5</span> Event Group</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — Event Group">
+
+      <p>1. <b>คลิกขวา</b> ในพื้นที่ว่างของ Event sheet<br>
+      2. เลือก <b>Add group</b><br>
+      3. ตั้งชื่อในช่อง Name เช่น <code>Player_Movement</code> หรือ <code>Health_System</code><br>
+      4. สามารถลาก Event อื่นๆ เข้าไปใส่ใน Group ได้<br>
+      ใช้จัดกลุ่ม Event ให้อ่านโค้ดง่ายขึ้น และสามารถเปิด/ปิดการทำงานทั้ง Group ได้ (Active on start: Yes/No)</p>
+      
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> หน้า Event sheet → คลิกขวา → Add group</p>
+    </article>
+
+    <article class="card wide warn">
+      <h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 6 — tutorial-b03-event-sheet-basics">
+
+      <img src="images/steps/tutorial-b03-event-sheet-basics-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
+      <ul>
+        <li><b>Action ไม่มี Condition:</b> จะทำงานทุกเฟรม (60 ครั้งต่อวิ) ทำให้เกิดปัญหาง่าย เช่น เสียงดังไม่หยุด, คะแนนพุ่งพรวด</li>
+        <li><b>ลืมใส่ Trigger once:</b> ทำให้ระบบหัวใจหรือคะแนนถูกประมวลผลรัวๆ จนหมดหลอดในพริบตา</li>
+        <li><b>เขียน Event ผิดแผ่น (Event Sheet):</b> ตรวจสอบให้ดีว่า Layout ปัจจุบันผูกกับ Event Sheet แผ่นไหน (ดู Tab บนสุด)</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test">
+    <b>✅ รายการทดสอบ:</b> สร้าง Event ได้ • อธิบาย Condition/Action ได้ • ใช้ Group จัดหมวดได้ • รู้ว่า Trigger once ใช้เมื่อไหร่
+  </aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 • Event Sheet เบื้องต้น</span>
+    <span>งานถัดไป: Behaviors พื้นฐาน</span>
+  </footer>
+</main>
+  <script src="c2-lightbox.js"></script>
+</body>
+</html>

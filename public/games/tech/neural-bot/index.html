@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Neural Bot: สมองกลกู้จักรวาล — AI Space Trainer</title>
+<link rel="stylesheet" href="style.css">
+<style>
+button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud-bar">
+    <div id="score-container">⭐ <span id="score-value">0</span></div>
+    <div id="timer-container">⏱️ <span id="timer-value">45</span></div>
+    <div id="life-container">❤️❤️❤️</div>
+    <div id="mission-badge">ภารกิจ 1/3</div>
+    <div id="combo-badge"></div>
+    <div id="player-chip"></div>
+</div>
+<div id="toast"></div>
+
+<!-- Space Mission Canvas -->
+<canvas id="game-canvas"></canvas>
+
+<!-- AI Telemetry & Override Controls (Inference Run Phase) -->
+<div id="ai-telemetry" class="telemetry-panel" style="display:none">
+    <div class="telemetry-card">
+        <div class="telemetry-header">
+            <span class="pulse-dot"></span> 🤖 <strong>ระบบสแกนเนอร์ AI</strong>
+            <span id="target-name" class="target-badge">กำลังตรวจจับ...</span>
+        </div>
+        <div class="telemetry-body">
+            <div class="sensor-readout">
+                <div>⚡ พลังงาน (Energy): <strong id="sensor-energy">0.00</strong></div>
+                <div>🪐 ความหนาแน่น (Density): <strong id="sensor-density">0.00</strong></div>
+            </div>
+            <div class="ai-decision-row">
+                <div class="decision-label">การคาดการณ์ของ AI:</div>
+                <div id="ai-prediction" class="decision-val">คำนวณ...</div>
+                <div class="confidence-bar-wrap">
+                    <div id="ai-confidence-bar" class="confidence-fill" style="width:0%"></div>
+                </div>
+                <div id="ai-confidence-text" class="confidence-text">ความมั่นใจ: 0%</div>
+            </div>
+        </div>
+        <!-- Manual Override Action Controls -->
+        <div class="override-actions">
+            <button id="btn-collect" class="btn-action btn-collect" onclick="handlePlayerAction('crystal')">
+                <span class="action-icon">📥</span> ดูดเก็บแร่ [← / A]
+            </button>
+            <button id="btn-zap" class="btn-action btn-zap" onclick="handlePlayerAction('debris')">
+                <span class="action-icon">⚡</span> ยิงทำลาย [→ / D]
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- AI Training Lab Screen (Between Missions / Training Phase) -->
+<div id="training-lab" class="lab-screen" style="display:none">
+    <div class="lab-modal">
+        <div class="lab-header">
+            <h2>🔬 ห้องวิจัยสมองกล AI (Training Lab)</h2>
+            <div id="lab-mission-title" class="lab-subtitle">ระดับ 1: ปฐมบทคัดแยกแร่</div>
+        </div>
+        <div class="lab-content">
+            <div class="lab-visual">
+                <div class="canvas-label">📊 แผนที่ข้อมูล 2D (Feature Space)</div>
+                <canvas id="graph-canvas" width="280" height="240"></canvas>
+                <div class="graph-legend">
+                    <span><span class="dot dot-crystal"></span> แร่คริสตัล (เป้าหมาย)</span>
+                    <span><span class="dot dot-debris"></span> ขยะอวกาศ (อันตราย)</span>
+                </div>
+            </div>
+            <div class="lab-controls">
+                <div class="ai-status-card">
+                    <div class="stat-row">
+                        <span>🎯 ความแม่นยำ (Accuracy):</span>
+                        <strong id="lab-acc" class="text-highlight">0%</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>📉 ข้อผิดพลาด (Loss):</span>
+                        <strong id="lab-loss">1.00</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>🔄 รอบการเรียนรู้ (Epochs):</span>
+                        <strong id="lab-epochs">0</strong>
+                    </div>
+                </div>
+
+                <div class="concept-box" id="lab-concept">
+                    💡 <strong>หลักการ AI:</strong> ปรับเส้นแบ่งการตัดสินใจ (Decision Boundary) เพื่อแยกข้อมูล 2 กลุ่มให้ถูกต้องที่สุด!
+                </div>
+
+                <div class="slider-group">
+                    <label>ค่าน้ำหนักพลังงาน (Weight 1): <span id="val-w1">1.0</span></label>
+                    <input type="range" id="slider-w1" min="-3" max="3" step="0.1" value="1.0" oninput="updateLabWeights()">
+                </div>
+                <div class="slider-group">
+                    <label>ค่าน้ำหนักความหนาแน่น (Weight 2): <span id="val-w2">-1.0</span></label>
+                    <input type="range" id="slider-w2" min="-3" max="3" step="0.1" value="-1.0" oninput="updateLabWeights()">
+                </div>
+                <div class="slider-group">
+                    <label>ค่าปรับระดับความเอียง (Bias): <span id="val-bias">0.0</span></label>
+                    <input type="range" id="slider-bias" min="-2" max="2" step="0.1" value="0.0" oninput="updateLabWeights()">
+                </div>
+
+                <div class="lab-actions">
+                    <button class="btn btn-blue" onclick="autoTrainStep()">⚡ สอนอัตโนมัติ (Auto-Train)</button>
+                    <button class="btn btn-primary" onclick="deployTrainedAI()">🚀 บันทึกโมเดล & ลุยอวกาศ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start screen -->
+<div id="blocker">
+    <div class="title-glow">🤖 ✨</div>
+    <h1>Neural Bot: สมองกลกู้จักรวาล</h1>
+    <p class="subtitle">ภารกิจฝึกสอนปัญญาประดิษฐ์ (AI Machine Learning) ให้ยานสำรวจอวกาศ<br>คัดแยกแร่พลังงาน 💎 และทำลายขยะอวกาศ 🪨 ด้วยวิทยาการคำนวณจริง</p>
+    <div id="my-stats">
+        <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+        <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นไปแล้ว (ครั้ง)</div></div>
+    </div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 อันดับนักวิจัย AI</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+    </div>
+    <div class="mode-row">
+        <button class="btn btn-primary" data-kampai-action="start" onclick="startGame('adventure')">🚀 เริ่มภารกิจ AI (3 ด่าน)</button>
+        <button class="btn btn-versus" data-kampai-action="versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน (Hot-seat)</button>
+        <button class="btn btn-ghost" id="online-btn" onclick="vs.openMenu()" style="display:none">🌐 แข่งออนไลน์</button>
+    </div>
+</div>
+
+<!-- Game Over screen -->
+<div id="gameover-screen">
+    <h1 id="go-title">จบภารกิจ!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary"></p>
+    <div id="kampai-result"></div>
+    <div class="leaderboard-box">
+        <h3 class="lb-title">🏆 ทำเนียบสุดยอดผู้ฝึกสอน AI</h3>
+        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+        <button class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่อีกครั้ง</button>
+        <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>จบเกมสำหรับทดสอบ</button>
+    </div>
+</div>
+
+<!-- ═══ KAMPAI SDK + Online framework (single source — อย่าแก้) ═══ -->
+<script src="/games/kampai-sdk.js"></script>
+<script>
+/* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+</script>
+<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+/* fallback stub สำหรับโหมดออนไลน์ */
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(o){var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null;return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m){m.finish(s,i);return true;}return false;},leave:function(){}};} };
+</script>
+
+<!-- ═══ เกม (config → data → game · โหลดตามลำดับ แชร์ global scope · ไม่ใช้ import/export) ═══ -->
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

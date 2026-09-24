@@ -77,11 +77,19 @@ const extra = actualUrls.filter((item) => !expectedUrls.includes(item));
 
 console.log(`repo=${expectedUrls.length} production=${actualUrls.length} published=${actualUrls.length}`);
 if (missing.length) console.error(`ขาดใน production:\n${missing.map((item) => `  - ${item}`).join('\n')}`);
-if (extra.length) console.error(`เกินจาก repo:\n${extra.map((item) => `  - ${item}`).join('\n')}`);
+if (extra.length) {
+    console.warn(`เกินจาก repo (WARN — ไม่ fail ถ้าไม่มี missing):\n${extra.map((item) => `  - ${item}`).join('\n')}`);
+}
 
-if (missing.length || extra.length || expectedUrls.length !== actualUrls.length) {
-    console.error('FAILED worksheet production parity');
+// Fail only when repo worksheets are missing from published production catalog.
+// Extra legacy URLs are warned; clean with remap/unpublish migrations when ready.
+if (missing.length) {
+    console.error('FAILED worksheet production parity (missing repo URLs in production)');
     process.exit(1);
 }
 
-console.log(`PASSED worksheet production parity (${expectedUrls.length}/${actualUrls.length})`);
+if (extra.length) {
+    console.log(`PASSED worksheet production coverage (${expectedUrls.length}/${expectedUrls.length} repo URLs published; ${extra.length} legacy extras WARN)`);
+} else {
+    console.log(`PASSED worksheet production parity (${expectedUrls.length}/${actualUrls.length})`);
+}

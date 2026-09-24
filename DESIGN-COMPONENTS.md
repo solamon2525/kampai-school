@@ -1,5 +1,16 @@
 # DESIGN-COMPONENTS.md — Component Specs + Migration
 
+## Vocabulary Hub category gallery — v2.8.0
+
+- Menu only: light navy/gold surfaces, Sarabun, generated 3D WebP covers for 29 categories plus starred words. Covers use `object-fit: contain`; Thai/English names remain live text. This user-approved raster exception is limited to these category covers.
+- Large / standard / compact grids: 1280px = 3/4/5 columns, 1920px = 4/5/6, phone = 1/2/2. Large is default; view preference is local. Starred is always first. Labels wrap, controls are at least 44px, and keyboard focus remains visible.
+- Admin edit mode exposes drag handles and previous/next controls; pointer capture supports touch and edge auto-scroll. Save publishes globally; cancel discards; reset changes the draft until saved. Errors preserve the draft.
+- `vocab_hub_category_order` stores a JSON slug array in `school_settings`. Existing RLS allows public reads and admin-only writes. Service + React Query own data access; the HTML menu only exchanges validated same-origin/source messages with its wrapper. No credentials enter game messages.
+- `/play/vocab-hub` opens the learning menu without student-code entry. Exercises show immediate feedback but do not persist scores or XP; the former dashboard URL redirects back to the menu. Direct production HTML links redirect there with the category hash. Local standalone previews remain supported.
+- Pronunciation buttons in every topic use at least 44 × 44px touch targets. Taps start speech synchronously and repeated taps replay; only the current request can continue the English/Thai sequence. A selected-voice error retries once with the browser's default voice for the same language, then shows a four-second error message. Touch hover never triggers audio. No student score is submitted.
+- Audio regression checks: `node scripts/test-vocab-hub-mobile-speech.mjs` (mocked Web Speech callbacks) and `node scripts/test-vocab-hub-mobile-browser.mjs` (all 29 topics at 360/1280/1920). Physical Android Chrome listening still requires a device check.
+- Verification: `node scripts/test-vocab-hub-order.mjs`, `node scripts/test-vocab-hub-menu.mjs`, game aggregate verifier, app build, and rollback-only SQL role tests. Harness persistence is simulated; database RLS is verified separately.
+
 > Companion to [`DESIGN.md`](./DESIGN.md). อ่านไฟล์นี้เมื่อ:
 > - กำลัง implement component ตาม spec (Hero/Card/Button/AdminSidebar/AdminTable)
 > - ต้องตรวจ replacement mapping (purple → green token)
@@ -11,6 +22,51 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 ---
 
 ## 1. Frontend Components (specs)
+
+### Auth readiness and Page Builder access (v1.229.54)
+
+- Provider order: QueryClientProvider → AuthProvider → application consumers. AuthProvider uses the same query client for role/menu reads and realtime invalidation.
+- `useAuth().loading` covers initial session and both permission reads, including refresh; do not redirect or grant privileged UI while it is true.
+- `authError` is a user-safe Thai message; `retryAuth()` retries the failed session or permission stage. ProtectedRoute and PortalProtectedRoute show AuthLoadError with a keyboard-accessible “ลองใหม่” button, keeping the requested URL on failure.
+- Unknown/missing role or either query error never becomes admin. Missing menu row means no additional menus. Query keys include user ID and identity generation; late responses cannot restore a previous user's role after switch/sign-out. SIGNED_IN, TOKEN_REFRESHED and USER_UPDATED revalidate even for the same user, outside the auth callback.
+- `/admin/page-builder` uses the existing `PortalProtectedRoute allow={['admin']}` API. This is a client UX gate, not a substitute for server RLS. No database policies or other routes are changed.
+- Verification: `node scripts/test-auth-readiness.mjs` uses real provider/service/guards and the App editor route registration over HTTP at 360×800 and 1280×720, with synthetic auth/database responses and no production writes.
+
+### QuickMenu — teacher conduct access (v1.229.53)
+
+- ธนาคารความดี (`conduct` → `/admin/dashboard/conduct`) เป็นเมนูพื้นฐานของ role `teacher`; ไม่ต้องมีใน `allowedMenus` และไม่ต้องเพิ่มสิทธิ์รายบัญชีเมื่อสร้างครูใหม่
+- สิทธิ์เมนูลัด = admin หรือ (role เป็น teacher และเป็นเมนูพื้นฐานครู) หรือได้รับ menu ID ใน `allowedMenus` โดยชัดแจ้ง; parent/viewer/unknown ไม่ได้รับสิทธิ์พื้นฐานครูโดยอัตโนมัติ
+- คงรายการ/ลำดับ shared quick menu ที่ผู้ดูแลจัดไว้ ไม่เพิ่มสิทธิ์ scan หรือระบบอื่น และไม่เปลี่ยน RLS/สิทธิ์แก้ไขหรือลบคะแนน
+- Regression: `node scripts/test-teacher-conduct-access.mjs` ตรวจคอมโพเนนต์จริงผ่าน HTTP/browser ด้วย synthetic roles ทั้งสองขนาดจอ; ไม่ใช่การทดสอบบันทึกคะแนนด้วยบัญชีครูจริง
+
+### Savings Bank Access And Ledger (v1.229.25)
+
+- Public rankings and recent activity use allowlisted RPC payloads. Never include student codes, balances, amounts, notes or recorder identities in those feeds.
+- Rankings load all pages before calculating school totals. Public and parent screens distinguish loading/failure from an empty account and offer retry.
+- Parent requests are keyed by student ID and authorized against `parent_student_links` in SQL. Changing children must not display the previous child's balance.
+- Deposit/withdraw forms reject fractional baht; confirmations and Thai speech use the RPC-confirmed account balance, never a locally predicted balance.
+- Mutation RPCs serialize writes per student, rebuild the dated ledger and roll back operations that create a negative historical balance. Direct client table writes are revoked.
+- Continuous QR resumes after closing the confirmation, not while the confirmation is visible.
+- Verification and rollout limitations: `docs/savings-bank-security-qa.md`. A passing frontend build alone does not verify SQL, RLS, concurrency or production rollout.
+
+### Waste Bank Results (`/waste-bank/results`)
+
+- หน้าสาธารณะเล่าเรื่องตามลำดับ Hero → KPI ภาคเรียนปัจจุบัน → ขั้นตอนดำเนินงาน → กราฟ → Top 10 → เป้าหมาย/ไฮไลต์ → แกลเลอรี่ → QR แชร์หน้า
+- ส่วน “รางวัลสำหรับนักเรียน” ดึงรายการรางวัลที่เปิดใช้งานและภาพจาก `rewardsService.getActive()` โดยตรง เพื่อให้ข้อมูลตรงกับหน้าแลกรางวัลและไม่เก็บภาพซ้ำ
+- Top 10 ต้องใช้ `PersonAvatar` คู่ชื่อเสมอ และ payload สาธารณะห้ามมี student ID หรือข้อมูลธุรกรรมรายบุคคล
+- แกลเลอรี่มีหมวดคงที่ `waste_delivery`, `reward_claim`, `reward_handover`; ผู้ชมเห็นเฉพาะภาพ `is_published` ของภาคเรียนปัจจุบันผ่าน signed URL จาก private bucket
+- หลังบ้านใช้ React Hook Form + Zod, รูปใหม่เริ่มเป็นฉบับร่าง, mutation ทุกชนิด invalidate query key `waste-bank-showcase`
+- QR Code ชี้ canonical URL `https://kampai-school.vercel.app/waste-bank/results` และดาวน์โหลด PNG 1200×1200 ได้
+- Component ห้าม query Supabase โดยตรง ให้ผ่าน `wasteBankShowcaseService` เท่านั้น
+
+### Integrated Plan Topic Card
+
+- รายการหลักสูตรหนึ่งแถวต้องผูกตัวชี้วัดเพียงข้อเดียว และจัดกลุ่มแบบ accordion ตาม “สาระ → มาตรฐาน → ตัวชี้วัด”
+- แสดงข้อความตัวชี้วัดเต็ม รหัสตัวชี้วัดหนึ่ง badge และ badge สถานะ; ข้อความหลักสูตรแก้ไม่ได้ แต่เพิ่มโน้ตส่วนตัวได้
+- ปุ่มวงกลมซ้ายเป็น action หลักสำหรับวนสถานะ; ปุ่มแก้ไข/ลบอยู่ขวาและต้องมี accessible label
+- แถว “สอนแล้ว” ต้องไฮไลต์พื้น กรอบ ไอคอน และ badge ด้วย primary สีเขียวทั้งแถว พร้อมรวมในสรุปแยกวิชาด้านบน
+- หัวข้อที่ครูเพิ่มเองอยู่หมวด “หัวข้อส่วนตัว” ท้ายวิชา แสดง badge “เพิ่มเอง” และลบได้
+- Integration suggestion card ต้องแสดงคู่ข้ามวิชา คำที่สัมพันธ์ และปุ่ม “ยืนยันการบูรณาการ”; ห้ามสร้างความสัมพันธ์อัตโนมัติ
 
 ### Hero
 ```tsx
@@ -349,9 +405,14 @@ import { DailyQuestPanel } from '@/components/games/DailyQuestPanel';
 
 ```tsx
 import { GamificationHub } from '@/components/games/GamificationHub';
-<GamificationHub studentCode={hubStudentCode} />   // ใช้ใน EducationalHubTeacher.tsx
+<GamificationHub
+  studentCode={hubStudentCode}
+  panelTargetId="gamification-hub-panels"
+/>   // การ์ดสรุปอยู่ใน Hero; พาเนลขยายไปยัง target ใต้แถบหมวด
 ```
 
+- หน้า `/h/:identifier` วางการ์ดสรุปใน Hero แบบ responsive split: ข้อมูลครูซ้าย + ข้อมูลนักเรียนขวาบน desktop และเรียงแนวตั้งบนจอเล็ก
+- `panelTargetId` เป็น optional portal target สำหรับพาเนลขยาย; ถ้าไม่ส่ง prop จะ render ต่อท้ายการ์ดตามเดิม เพื่อให้ component ใช้ซ้ำได้โดยไม่บังคับโครงหน้า
 - **แถบสรุป (เห็นเสมอ ~143px เดสก์ท็อป):** `LevelRing size={44}` + ชื่อ/ชั้น (PersonAvatar) + XP bar + chips `🎮 เกม · 🏅 เหรียญ · 🔥 streak · 🎯 ภารกิจ` — match สไตล์ chip เดิม (`rounded-full bg-muted px-2 py-0.5`)
 - **ปุ่มแท็บ 4 อัน collapsed by default** — state `openTab: 'rank'|'medals'|'quest'|'pet'|null`; กดซ้ำ = ปิด, กดอื่น = สลับ. ร้านคู่หูจึงไม่ดันกริดเกมลงใต้ fold
 - พาเนลขยาย **reuse component เดิม** เป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด): `rank → <GameRankings>` · `medals → <HonorWall variant="medals">` · `quest → <DailyQuestPanel variant="full">` · `pet → <StudentPetHub>`
@@ -370,8 +431,10 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 
 - `summary` ใช้เฉพาะหน้ารวมคลัง: แถบ compact แสดงจำนวนชุด + ผู้สร้างด้วย `PersonAvatar` และลิงก์ไป `/h/:identifier?cat=lesson-packs`
 - `grid` ใช้ในคลังเจ้าของ: query ตาม `owner_staff_id`, โหลด 24 รายการแรก และ “แสดงเพิ่ม” ทีละ 24
-- `CategoryChipStrip` รับ `activeKey`/`onSelect` แบบ controlled ในหน้าคลังผู้สร้าง; เมื่อ controlled ห้ามใช้ scroll observer เปลี่ยนหมวด
+- `CategoryChipStrip` เป็นปุ่ม compact แสดงหมวดปัจจุบัน; กดแล้วเปิด dialog เลือกหมวดแบบกริด 1 คอลัมน์บนมือถือ/2 คอลัมน์บนจอใหญ่ โดยรับ `activeKey`/`onSelect` แบบ controlled
+- แอดมินจัดลำดับผ่าน dialog แนวตั้ง (`editable` + `onSaveOrder`) โดยลากขึ้นลงหรือใช้ปุ่มลูกศร แล้วจึงกดบันทึก; ต้องยืนยันจำนวนแถวและลำดับที่อ่านกลับจาก server ก่อนแจ้งสำเร็จ ผู้ใช้ทั่วไปไม่เห็นปุ่มนี้ และ `lesson-packs` เป็นหมวดจริงที่ร่วมจัดลำดับ/บันทึกเหมือนหมวดอื่น แม้เนื้อหาจะมาจาก service เฉพาะ
 - `EduHubItemCard` ไม่สำรองพื้นที่และไม่ query mini leaderboard ต่อการ์ด; ใช้ `GamificationHub` เป็นจุดโหลดอันดับรวม
+- `EduHubItemCard` ใช้ `library_pinned` เป็นระบบเก็บรายการเด่นเพียงระบบเดียว; ห้ามเพิ่มรายการโปรดเฉพาะเครื่องหรือปุ่มดาวซ้ำกับปักหมุด
 - รายการและตัวกรองทั้งหมดต้องมาจาก service แบบ server-filtered/server-ranged ตาม DESIGN.md Rule 14.45
 
 ### StudentPetHub + PetVisual (games — Student companion)
@@ -567,18 +630,51 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 ### `<RewardCard reward={...} onClaim={...} />`
 - Path: `src/components/rewards/RewardCard.tsx`
 - Square aspect image (fallback `<Gift>` icon บน gradient ของ tier)
-- Top-left badge = **tier** (emoji + label) — สีตาม `tierFor(points_cost)`
+- Top-left badge = **tier** (emoji + label) — สีตามผลรวม `waste_points_cost + virtue_points_cost`
 - Top-right badge = **stock** ถ้า `stock !== null` (สีแดงเมื่อหมด)
-- Bottom: ชื่อ + description (line-clamp-2) + แต้ม + ปุ่ม "แลกรางวัล"
+- Bottom: ชื่อ + description (line-clamp-2) + ต้นทุนแยก “ขยะ / ความดี” + ปุ่ม "แลกรางวัล"
 - Hover: `-translate-y-1 hover:shadow-xl`
 
 ### `<RewardClaimDialog reward open onOpenChange />`
 - Path: `src/components/rewards/RewardClaimDialog.tsx`
 - 2-step flow ใน Dialog เดียว:
   1. กรอก `student_code` → ปุ่ม "ตรวจสอบ" → เรียก RPC `lookup_student_balance`
-  2. Preview ชื่อ + แต้มคงเหลือ + การ์ดเตือนถ้าแต้มไม่พอ → ปุ่ม "ยืนยันส่งคำขอ" → เรียก RPC `claim_reward`
-- Error mapping: `STUDENT_NOT_FOUND` / `REWARD_UNAVAILABLE` / `INSUFFICIENT_POINTS` / `OUT_OF_STOCK` → ภาษาไทย
+  2. Preview ชื่อ + ยอดสะสม/คงเหลือ 2 กระเป๋า + การ์ดเตือนถ้ากระเป๋าใดไม่พอ → ปุ่ม "ยืนยันส่งคำขอ" → เรียก RPC `claim_reward`
+- Error mapping: `STUDENT_NOT_FOUND` / `REWARD_UNAVAILABLE` / `INSUFFICIENT_WASTE_POINTS` / `INSUFFICIENT_VIRTUE_POINTS` / `OUT_OF_STOCK` → ภาษาไทย
 - Reset state ทุกครั้งที่เปิดใหม่
+
+### Dual-wallet reward cost
+- รางวัลกำหนดต้นทุนต่อชิ้นเป็นขยะล้วน ความดีล้วน หรือจำนวนตายตัวจากทั้งสองกระเป๋า; ห้ามทดแทนคะแนนข้ามกระเป๋า
+- คะแนนความดีสะสม = `conduct_scores add - deduct` ของปีการศึกษาปัจจุบัน ไม่รวมโบนัสธนาคารความดี และไม่แก้ ledger เดิมเมื่อแลก
+- `pending` และ `approved` กันคะแนนทันที; `rejected` คืน available ของทั้งสองกระเป๋าโดยไม่เพิ่ม/ลบ `conduct_scores`
+- ทุกหน้าที่แสดงราคาใช้ `<RewardCostDisplay>` เพื่อให้ label และสีของสองกระเป๋าตรงกัน
+
+### `<PointsConfirmationDialog confirmation title latestLabel accumulatedLabel speechComplete onClose />`
+- Path: `src/components/admin/shared/PointsConfirmationDialog.tsx`
+- ใช้ในฟอร์มบันทึกแต้มรายคนของธนาคารขยะและธนาคารความดีหลังรายการเพิ่ม/หักสำเร็จเท่านั้น; `latestSign` รองรับ `+` และ `-`
+- ต้องแสดง `<PersonAvatar>` คู่ชื่อ พร้อมคะแนนล่าสุดและยอดสะสมเป็นตัวเลขขนาดใหญ่กลางจอแบบ responsive
+- ปิดอัตโนมัติหลัง `speechComplete` แล้วหน่วง 800ms หรือกดปิดได้; ถ้าไม่มี Web Speech API ใช้ fallback 5 วินาที
+- เสียงยืนยันธุรกรรมทุกระบบใช้ `speakThai()` ส่วนกลางหลัง mutation สำเร็จเท่านั้น โดยส่งข้อความเป็นช่วงสั้นและแปลงจำนวนเต็มผ่าน `thaiNumberToWords()`
+- `speakThai()` ต้องคง utterance จน `onend/onerror`, เข้าคิว FIFO และห้าม `cancel()` รายการก่อนหน้า; ใช้ `stopThaiSpeech()` เฉพาะ logout/teardown
+- ครอบคลุมฝาก/ถอนธนาคารพอเพียง, ฝากขยะ, เพิ่ม/หักความดี, ส่งคำขอแลกรางวัล และอนุมัติมอบรางวัลจากรายการหรือ QR; ห้ามอ่านเมื่อบันทึกล้มเหลวหรือปฏิเสธคำขอ
+
+### `<SectionToolbar />` — การยืนยันคำค้น
+- ช่องค้นหาคลังสื่อแยกข้อความที่กำลังพิมพ์ (`searchInput`) ออกจากคำค้นที่ใช้ query (`filter.search`)
+- ห้าม refetch ระหว่างพิมพ์; เริ่มค้นหาเมื่อกดปุ่ม “ค้นหา” หรือ Enter หลัง IME composition จบเท่านั้น
+- ปุ่มค้นหาปิดเมื่อคำค้นไม่เปลี่ยนหรือกำลัง fetch; ปุ่มล้างต้องล้างทั้งข้อความและผลค้นหาทันที
+- ตัวกรอง วิชา ชั้น แท็ก ประเภท และการเรียงลำดับยังตอบสนองทันทีตามเดิม
+
+### `<SystemOverview />` — metadata และ KPI snapshot
+- เวอร์ชัน, วันตรวจ และตัวเลขฐานข้อมูลต้องอ่านจาก `SYSTEM_OVERVIEW_META` จุดเดียว ทั้ง header, การ์ด, Sprint Plan และไฟล์ export; ห้าม hard-code ซ้ำหลายตำแหน่ง
+- ต้องแยก schema snapshot ของ production ออกจาก KPI ที่โหลดสด และแยก migration ที่ apply บน production ออกจากไฟล์ migration ที่ติดตามใน Git
+- query KPI ทุกตัวต้องแสดง loading/error/retry อย่างชัดเจน; เมื่อ query ล้มเหลวห้ามใช้ `0` แทนผลจริงหรือปล่อยข้อความ “กำลังโหลด…” ค้าง
+- layout ต้องใช้ padding ตาม breakpoint, chip/action ต้อง wrap และข้อความ migration ยาวต้องตัดบรรทัดได้โดยไม่ทำให้มือถือเกิด horizontal overflow
+
+### `<PinGate />` — แผนส่วนตัวครู
+- ปุ่ม “ลืม PIN” ต้องกดได้ทันทีเมื่อบัญชีมี PIN อยู่ ห้ามผูก disabled state กับช่องกรอก PIN สำหรับปลดล็อก
+- การรีเซ็ตต้องเปิด Dialog แยก ใช้ React Hook Form + Zod ตรวจ PIN ตัวเลข 6 หลักและช่องยืนยันให้ตรงกัน
+- ตั้ง PIN ใหม่ผ่านบัญชี authenticated ที่กำลังใช้งานเท่านั้น; หลังสำเร็จ invalidate query สถานะ PIN แล้วจึงปลดล็อกหน้า
+- ห้ามแสดงหรือพยายามกู้ PIN เดิม เพราะระบบเก็บเฉพาะค่า hash
 
 ### Tier auto-bucket (`src/components/rewards/tier.ts`)
 | Key | Emoji | Label | Range | Badge classes |
@@ -588,12 +684,12 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 | `great` | 🌳 | ระดับเยี่ยม | 151–300 | `bg-teal-100 text-teal-700` |
 | `elite` | 🏆 | ระดับเลิศ | 301+ | `bg-amber-100 text-amber-700` |
 
-ใช้ `tierFor(points_cost)` เพื่อ map คะแนน → tier ทั้งใน `RewardCard` (สี+badge) และ `RewardsCatalog` (grouping)
+ใช้ `tierFor(waste_points_cost + virtue_points_cost)` เพื่อ map คะแนน → tier ใน `RewardCard`
 
 ### กฎ Public Claim flow (security)
 - **ห้ามเปิด INSERT policy บน `reward_claims`** ให้ anon ตรงๆ — ใช้ SECURITY DEFINER RPC `claim_reward(p_code, p_reward_id)` แทน
 - Validation ทั้งหมด (student lookup, balance, stock, active) อยู่ใน RPC ฝั่ง DB — ไม่เชื่อ client
-- Migration: `supabase/migrations/031_reward_claim_public_rpc.sql`
+- Migration dual-wallet: `457_reward_virtue_points_wallet.sql`; migration `458_lock_reward_approval_rpc.sql` บังคับ approve/reject เป็น authenticated-only
 
 ---
 
@@ -637,3 +733,21 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 2. INSERT badges ลง `game_achievements_catalog` (game_slug ใหม่)
 3. UPDATE `educational_hub_items SET game_slug='...', tracked_game=true WHERE external_url='...'`
 4. ตรวจ `subject` ให้ตรงเนื้อหาจริง (ไม่ใช่ folder)
+
+---
+
+## 19. KAMPAI Game Quality Gate
+
+- เกมใหม่เริ่มจาก `pnpm create:game` และมี lifecycle hooks `data-kampai-action` สำหรับ start, finish-test และ restart
+- ปุ่มในเกมและปุ่มเสียงจาก `/games/kampai-sdk.js` ต้องมี hit target อย่างน้อย 44×44px ทุก pointer mode
+- restart ต้อง cleanup แล้วเริ่มรอบใน iframe เดิม พร้อม `KAMPAI.beginRound()`; ห้าม `location.reload()`
+- ก่อนเผยแพร่ต้องผ่าน `pnpm verify:game:all -- <path>` ซึ่งรวม static strict, JSON report และ Playwright 3 viewport/2 รอบ
+- AR ใช้ mock camera ใน CI แต่ยังบังคับตรวจกล้องจริง, permission denied และ tap fallback ด้วยคน
+# Savings student statement — v1.229.24
+
+- Admin savings summary: explicit “ดูรายละเอียด” action in table, grid and class views; identify students by ID, never by name. Missing IDs cannot open a statement.
+- Read-only dialog uses TanStack Query through `savingsStatementService`; fetch the complete ledger in stable date/created-at/ID order, including more than 1,000 rows. Errors discard partial data and disable export. Compare count/deposit/withdrawal/balance with a fresh summary; mismatches retry once then show a retry action.
+- Rebuild balances from deposits minus withdrawals (integer satang arithmetic), before applying an inclusive date range. Distinguish opening/period totals/closing balance from the current all-time balance. Stored `balance_after` is not authoritative for this report.
+- Default all history, 50 rows per screen; desktop table and mobile cards. Date filters require explicit submission with RHF/Zod validation. Student and recorder names use PersonAvatar and service selects photo_url.
+- Print preview and UTF-8 CSV include every filtered row, identity, period, opening balance, totals and issue time. Render untrusted print text via textContent; neutralize CSV formulas. Never export cached data while fetching or after errors. No schema, permission or transaction writes.
+- Preflight: existing ledger/summary schema and recorder FKs; existing admin route/permission guard and RLS; reuse summary entrypoints instead of a duplicate route; responsive bounded dialog; no new dependencies required.

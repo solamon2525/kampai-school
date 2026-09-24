@@ -33,6 +33,7 @@ const EXTRA_PAIRS: Record<string, string> = {
   '/games/health/bone-muscle-media.html': '/games/health/bone-muscle-worksheet.html',
   '/games/arts/color-wheel-media.html': '/games/arts/color-wheel-worksheet.html',
   '/games/math/fraction-pieces.html': '/games/math/fraction-pieces-worksheet.html',
+  '/games/math/fraction-pieces-media.html': '/games/math/fraction-pieces-worksheet.html',
   '/games/thai/sentence-structure.html': '/games/thai/sentence-structure-worksheet.html',
   '/games/science/states-of-matter.html': '/games/science/states-of-matter-worksheet.html',
   '/games/social/thailand-map.html': '/games/social/thailand-map-worksheet.html',

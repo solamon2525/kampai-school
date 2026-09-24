@@ -1,10 +1,12 @@
-import { Gift, Sparkles, Package, Globe2 } from 'lucide-react';
+import { Gift, Package, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { tierFor } from './tier';
 import type { Reward } from '@/services/waste-bank.service';
+import { RewardCostDisplay } from './RewardCostDisplay';
+import { totalRewardCost } from './reward-cost';
 
 interface RewardCardProps {
   reward: Reward;
@@ -18,7 +20,7 @@ function cleanThaiTitle(name: string | null): string | null {
 
 export function RewardCard({ reward, onClaim }: RewardCardProps) {
   const { settings } = useSchoolSettings();
-  const tier = tierFor(reward.points_cost);
+  const tier = tierFor(totalRewardCost(reward));
   const outOfStock = reward.stock !== null && reward.stock !== undefined && reward.stock <= 0;
 
   const ownerName = reward.staff?.name || reward.administrators?.name || null;
@@ -127,11 +129,7 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
 
         {/* Points and action button */}
         <div className="flex items-center justify-between gap-1.5 pt-2 mt-auto border-t border-border/40">
-          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 shrink-0">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span className="text-base md:text-lg font-extrabold tabular-nums">{reward.points_cost}</span>
-            <span className="text-[10px] text-muted-foreground">แต้ม</span>
-          </div>
+          <RewardCostDisplay waste={reward.waste_points_cost} virtue={reward.virtue_points_cost} className="shrink-0 text-xs" />
           <Button
             size="sm"
             disabled={outOfStock}

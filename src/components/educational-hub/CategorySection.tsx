@@ -29,14 +29,13 @@ import {
 } from '@/services/educational-hub.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 import type { PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
+import type { TeachingMediaUnit } from '@/services/lesson-packs.service';
 
 interface Props {
-    /** Pass null when rendering items outside a category (e.g. Favorites section) */
+    /** Pass null when rendering items outside a category. */
     category: EduHubCategory | null;
     items: EduHubItem[];
     viewMode?: ViewMode;
-    isFavorite?: (id: string) => boolean;
-    onToggleFavorite?: (id: string) => void;
     /** Skip rendering the section header (parent supplies its own) */
     hideHeader?: boolean;
     /**
@@ -44,8 +43,12 @@ interface Props {
      * DndContext) and enable item drag-drop inside the section.
      */
     editable?: boolean;
+    /** Category order is managed by the dedicated category-order dialog. */
+    categoryDraggable?: boolean;
     /** Media ↔ worksheet pairs resolved from the teacher catalog */
     pairedByItemId?: Map<string, PairedHubLink | null>;
+    /** Lesson-pack resources folded into their primary media card. */
+    teachingUnitsByItemId?: Map<string, TeachingMediaUnit>;
 }
 
 const COLOR_TO_TEXT: Record<string, string> = {
@@ -76,11 +79,11 @@ export const CategorySection = ({
     category,
     items,
     viewMode = 'grid',
-    isFavorite,
-    onToggleFavorite,
     hideHeader = false,
     editable = false,
+    categoryDraggable = false,
     pairedByItemId,
+    teachingUnitsByItemId,
 }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -108,10 +111,10 @@ export const CategorySection = ({
 
     // Sortable for the SECTION itself (controlled by parent DndContext in
     // EducationalHubTeacher when admin). Hook must always run — `disabled`
-    // flag noops it for non-admin or favorites section (category null).
+    // flag noops it for non-admin or a section without a category.
     const sectionSortable = useSortable({
         id: category?.id ?? '__noop__',
-        disabled: !editable || !category,
+        disabled: !categoryDraggable || !category,
     });
 
     const sectionStyle: React.CSSProperties = {
@@ -202,8 +205,6 @@ export const CategorySection = ({
             key={item.id}
             item={item}
             viewMode={viewMode}
-            isFavorite={isFavorite?.(item.id) ?? false}
-            onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(item.id) : undefined}
             editable={dragEditable}
             libraryPinned={!!item.library_pinned}
             showLibraryPinControl={editable}
@@ -212,6 +213,7 @@ export const CategorySection = ({
             linkedIndicators={indicatorMap?.get(item.id)}
             categoryKey={category?.category_key}
             pairedLink={pairedByItemId?.get(item.id) ?? null}
+            teachingUnit={teachingUnitsByItemId?.get(item.id) ?? null}
         />
     );
 
@@ -237,11 +239,12 @@ export const CategorySection = ({
             ref={sectionSortable.setNodeRef}
             style={sectionStyle}
             id={category ? `cat-${category.category_key}` : undefined}
+            data-edu-hub-category-count={items.length}
             className={sectionClasses}
         >
             {!hideHeader && category && (
                 <header className="flex items-center gap-3">
-                    {editable && (
+                {categoryDraggable && (
                         <button
                             type="button"
                             {...sectionSortable.attributes}

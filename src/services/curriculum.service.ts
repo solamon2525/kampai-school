@@ -189,8 +189,10 @@ export const curriculumService = {
     listGameIndicatorIds: async (eduHubItemId: string): Promise<string[]> => {
         const { data, error } = await supabase
             .from('indicator_games' as never)
-            .select('indicator_id')
-            .eq('edu_hub_item_id', eduHubItemId);
+            .select('indicator_id, mapping_role, sort_order')
+            .eq('edu_hub_item_id', eduHubItemId)
+            .order('mapping_role', { ascending: true })
+            .order('sort_order', { ascending: true });
         if (error) throw error;
         return ((data ?? []) as { indicator_id: string }[]).map((r) => r.indicator_id);
     },
@@ -206,9 +208,11 @@ export const curriculumService = {
             .eq('edu_hub_item_id', eduHubItemId);
         if (del.error) return { error: del.error as Error };
         if (indicatorIds.length === 0) return { error: null };
-        const rows = indicatorIds.map((id) => ({
+        const rows = indicatorIds.map((id, index) => ({
             indicator_id: id,
             edu_hub_item_id: eduHubItemId,
+            mapping_role: index === 0 ? 'primary' : 'supporting',
+            sort_order: index,
         }));
         const ins = await supabase.from('indicator_games' as never).insert(rows as never);
         return { error: (ins.error as Error | null) ?? null };

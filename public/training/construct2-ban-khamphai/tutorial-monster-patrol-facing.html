@@ -1,0 +1,77 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — มอนสเตอร์เดินลาดตระเวน</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#f5f2fc}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#19243a}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#383071;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#6655ad}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#f0edff 0 52%,#eaf9f0 52%);border-radius:20px;box-shadow:0 8px 30px #2721511a}
+.head{background:linear-gradient(125deg,#383071,#6655ad);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #272151}.tag{color:#d7d0ff;font-size:21px;font-weight:800}.head h1{font-size:47px;margin:5px 0;line-height:1.12}.head p{font-size:22px;margin:0;color:#f2efff}
+.demo{height:205px;margin:24px 0 20px;border:4px solid #5a4f91;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#9edfff 0 72%,#6fba49 72%)}.ground{position:absolute;bottom:0;left:0;right:0;height:47px;background:#83502e;border-top:10px solid #409638}.limit{position:absolute;bottom:44px;width:5px;height:90px;background:#e34254;border-radius:4px}.a{left:175px}.b{right:175px}.monster{position:absolute;left:505px;bottom:43px;font-size:77px}.ar1,.ar2{position:absolute;bottom:88px;font-size:48px;color:#543f9c;font-weight:900}.ar1{left:280px}.ar2{right:280px}.lab{position:absolute;top:18px;background:#fff;border:2px solid #45397e;border-radius:9px;padding:4px 11px;font-weight:800;color:#45397e}.l1{left:120px}.l2{left:480px}.l3{right:110px}
+.flow{display:flex;justify-content:center;align-items:center;gap:9px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #aaa1d4;border-radius:13px;padding:9px 13px;font-size:18px}.flow i{font-style:normal;font-size:24px;color:#de4556}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:3px solid #bdb5df;border-radius:19px;padding:16px 20px;box-shadow:0 6px 0 #d9d4ed;min-height:205px}.wide{grid-column:1/3;min-height:179px}.n{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffd048;color:#352c69;font-size:24px;font-weight:900;margin-right:7px}h2{display:inline;color:#4a3d88;font-size:25px}p{font-size:18.5px;line-height:1.39;margin:8px 0}.event{background:#f3f1fb;border-left:8px solid #6655ad;border-radius:9px;padding:9px 13px;font-size:17.5px;line-height:1.47;font-weight:700}.cond{color:#544596}.act{color:#bd394b}.small{font-size:16px;color:#586477}.warn{border-color:#eab14e;background:#fffaf0}.warn .event{border-color:#df4c58}.tip{margin-top:17px;background:#236b59;color:#fff;border-radius:18px;padding:14px 22px;font-size:17.5px;line-height:1.43}.tip b{font-size:22px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #bdb5df;position:static;display:flex;justify-content:space-between;color:#46536a;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:30px!important;left:60px!important;right:60px!important;border:none}}
+</style>  <link rel="stylesheet" href="common.css">
+</head><body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="tutorial-damage-knockback-invincible.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-monster-auto-shoot.html">บทที่ 7 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 6 • ระบบมอนสเตอร์</div><h1>เดินลาดตระเวนและหันหน้าตามทิศทาง</h1><p>เดินซ้าย–ขวาในเขตของตัวเอง • ระยะเดินสุ่ม • กลับภาพด้วย Mirrored โดยไม่กลับหัว</p></header>
+<section class="demo"><div class="ground"></div><div class="limit a"></div><div class="limit b"></div><span class="lab l1">ขอบซ้าย</span><span class="lab l2">เขตลาดตระเวน</span><span class="lab l3">ขอบขวา</span><div class="ar1">←</div><div class="monster">👾</div><div class="ar2">→</div></section>
+<div class="flow"><b>จำจุดเริ่ม</b><i>→</i><b>สุ่มระยะ</b><i>→</i><b>เดิน</b><i>→</i><b>ถึงขอบ</b><i>→</i><b>กลับทิศ</b></div>
+<section class="grid">
+<article class="card"><span class="n">1</span><h2>เดินด้วย Sine Behavior</h2>
+      <img src="images/steps/tutorial-monster-patrol-facing-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-monster-patrol-facing">
+
+      <img src="images/steps/tutorial-monster-patrol-facing-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — เดินด้วย Sine Behavior">
+
+   
+<p>เลือก Sprite <b>eminy</b> แล้วเพิ่ม Behavior</p><div class="event"><span class="cond">eminy → Behaviors → Add Sine</span><br><span class="act">Movement: Horizontal</span><br>Wave: Sine<br>Period: 4 (สุ่มค่า 3-6 ได้เพื่อให้เดินไม่พร้อมกัน)<br>Magnitude: 150 (ระยะการเดินซ้ายขวา)</div><p class="small">Sine จะทำให้มอนสเตอร์เดินแกว่งซ้าย-ขวาอัตโนมัติ โดยไม่ต้องเขียนโค้ดคำนวณตำแหน่งเอง</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout → Layer game</p></article>
+<article class="card"><span class="n">2</span><h2>ตัวแปรจำตำแหน่งเดิม</h2>
+      <img src="images/steps/tutorial-monster-patrol-facing-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-monster-patrol-facing">
+
+      <img src="images/steps/tutorial-monster-patrol-facing-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตัวแปรจำตำแหน่งเดิม">
+
+   
+<p>เพิ่ม Instance variable ให้ <b>eminy</b> เพื่อเอาไว้เทียบว่าเดินไปทางไหน</p><div class="event"><span class="cond">eminy → Instance variables</span><br>Name: <span class="act">ตำแหน่งXก่อนหน้า</span><br>Type: Number • Initial: 0</div><p class="small">ตัวแปรนี้จะใช้เก็บตำแหน่งของเฟรมที่แล้ว เพื่อเอามาเทียบกับเฟรมปัจจุบัน</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Properties ของ eminy</p></article>
+<article class="card wide"><span class="n">3</span><h2>หันหน้าตามทิศเดิน (ซ้าย-ขวา)</h2>
+      <img src="images/steps/tutorial-monster-patrol-facing-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-monster-patrol-facing">
+
+      <img src="images/steps/tutorial-monster-patrol-facing-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — หันหน้าตามทิศเดิน (ซ้าย-ขวา)">
+
+   
+<div class="event"><span class="cond">System → Every tick</span><br><span class="cond">eminy → Compare X: &gt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Not mirrored</span><br><span class="cond">eminy → Compare X: &lt; eminy.ตำแหน่งXก่อนหน้า</span> → <span class="act">Set mirrored: Mirrored</span><br><span class="act">eminy → Set ตำแหน่งXก่อนหน้า to eminy.X</span></div><p class="small">อัปเดต ตำแหน่งXก่อนหน้า ไว้ท้ายสุดเสมอ เพื่อใช้เปรียบเทียบในรอบถัดไป</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "มอนสเตอร์หันหน้าตามทิศเดิน"</p></article>
+<article class="card wide"><span class="n">4</span><h2>สุ่มวางในด่าน 2 และ 3</h2>
+      <img src="images/steps/tutorial-monster-patrol-facing-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-monster-patrol-facing">
+
+      <img src="images/steps/tutorial-monster-patrol-facing-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — สุ่มวางในด่าน 2 และ 3">
+
+   
+<p>ใน Layout game2 และ game3 คุณสามารถสุ่มวาง eminy ตามเกาะต่างๆ ได้อย่างอิสระ</p><div class="event"><span class="act">Tip:</span> ปรับค่า Period (ความเร็วการเดิน) และ Magnitude (ระยะเดิน) ในหน้า Properties ของแต่ละตัวให้ไม่เท่ากัน เพื่อให้เกมดูเป็นธรรมชาติ</div><p class="small">📍 <b>ที่ไหนใน C2:</b> Layout game2 และ game3</p></article>
+<article class="card wide warn">
+<h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-monster-patrol-facing-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-monster-patrol-facing">
+
+      <img src="images/steps/tutorial-monster-patrol-facing-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
+   
+
+<div class="event">- ลืมใส่คำสั่งอัปเดตค่า `ตำแหน่งXก่อนหน้า` ไว้บรรทัดสุดท้าย (ต้องอยู่หลังจากการตรวจสอบทิศทางเสมอ)<br>- ตั้ง Magnitude ของ Sine มากเกินไปจนมอนสเตอร์เดินตกขอบเกาะ</div>
+</article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> มอนสเตอร์เดินซ้าย-ขวาอัตโนมัติบนเกาะ • หัวหันไปทางที่เดินเสมอไม่ว่าเดินไปทางไหน • แต่ละตัวบนจอเดินด้วยความเร็วหรือระยะทางที่ต่างกัน (ถ้าสุ่มค่าไว้)</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • Monster Patrol</span><span>งานถัดไป: มอนสเตอร์ตรวจจับและยิงกระสุนหาผู้เล่น</span></footer>
+</main>  <script src="c2-lightbox.js"></script>
+</body></html>

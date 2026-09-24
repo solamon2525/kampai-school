@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kampai Worksheet Builder"
+  short_description: "สร้างใบงาน Kampai พร้อมระบบและการตรวจครบ"
+  default_prompt: "Use $kampai-worksheet-builder to create a new curriculum-aligned printable worksheet and verify it end to end."

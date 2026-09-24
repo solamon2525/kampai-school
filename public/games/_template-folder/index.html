@@ -14,9 +14,9 @@
   1. cp -r public/games/_template-folder  public/games/{subject}/{slug}
   2. แก้ config.js → SLUG = '{slug}' จริง (+ พารามิเตอร์อื่น)
   3. เขียนเกมใน game.js (ส่วน GAME LOGIC) · เนื้อหาใน data.js · สไตล์ใน style.css
-  4. ออนไลน์? ตั้ง ENABLE_ONLINE: true ใน config.js (ใช้ kampai-match)
+  4. แข่ง 2 คน? ตั้ง ENABLE_ONLINE: true ใน config.js (ใช้ KampaiVersus: เดี่ยว/local/online)
   5. migration: NNN_seed_{slug}_game.sql  (external_url = '/games/{subject}/{slug}/index.html')
-  6. pnpm verify:game public/games/{subject}/{slug}/index.html   (ต้องผ่าน 8/8)
+  6. pnpm verify:game:all -- public/games/{subject}/{slug}   (static strict + browser)
 ═══════════════════════════════════════════════════════════════════════════
 -->
 <link rel="stylesheet" href="style.css">
@@ -47,7 +47,7 @@
         <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
     </div>
     <div class="mode-row">
-        <button class="btn btn-primary" onclick="startGame('adventure')">🗺️ ผจญภัย (3 ชีวิต)</button>
+        <button class="btn btn-primary" data-kampai-action="start" onclick="startGame('adventure')">🗺️ ผจญภัย (3 ชีวิต)</button>
         <button class="btn btn-blue" onclick="startGame('time')">⏱️ แข่งเวลา 60 วิ</button>
         <button class="btn btn-ghost" id="online-btn" onclick="openOnline()" style="display:none">🌐 ออนไลน์</button>
     </div>
@@ -65,8 +65,9 @@
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+        <button class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
         <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>จบเกมสำหรับทดสอบ</button>
     </div>
 </div>
 
@@ -74,12 +75,14 @@
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* fallback stub: กันพังถ้าเปิด standalone แล้ว SDK โหลดไม่ได้ */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
 <script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
 <script>
 /* fallback stub สำหรับโหมดออนไลน์ (ลบทั้ง 2 บรรทัด match ได้ถ้าเกมไม่ทำออนไลน์) */
 window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(o){var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null;return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m){m.finish(s,i);return true;}return false;},leave:function(){}};} };
 </script>
 
 <!-- ═══ เกม (config → data → game · โหลดตามลำดับ แชร์ global scope · ไม่ใช้ import/export) ═══ -->

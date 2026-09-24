@@ -166,7 +166,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <RefreshCw className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground text-sm font-medium animate-pulse">กำลังประมวลผลพลังฮีโร่...</p>
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">กำลังประมวลผลคะแนนความดี...</p>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
     return (
       <Card className="border-dashed flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
         <AlertCircle className="w-12 h-12 text-muted-foreground mb-3" />
-        <h3 className="font-semibold text-lg">ไม่พบข้อมูล Kampai Hero</h3>
+        <h3 className="font-semibold text-lg">ไม่พบข้อมูลธนาคารความดี</h3>
         <p className="text-muted-foreground text-sm max-w-xs mt-1">
           นักเรียนคนนี้อาจยังไม่มีคะแนนหรือประวัติความประพฤติบันทึกไว้ในระบบ
         </p>
@@ -236,7 +236,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
             <div className="space-y-0.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-white/15 text-white border border-white/20 shadow-inner uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
-                Kampai Hero Profile
+                โปรไฟล์ธนาคารความดี
               </span>
               <h2 className="text-2xl font-black tracking-tight text-white">{student.name}</h2>
               <p className="text-sm text-white/80">
@@ -253,7 +253,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
               </span>
               <span className="bg-yellow-400/20 backdrop-blur-md text-yellow-300 px-3.5 py-1.5 rounded-2xl text-xs font-bold flex items-center gap-1.5 border border-yellow-400/30">
                 <Trophy className="w-3.5 h-3.5" />
-                {profile.totalXp} Hero XP
+                {profile.totalXp} คะแนนความดี
               </span>
             </div>
           </div>
@@ -304,7 +304,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
               <div className="space-y-1">
                 <CardTitle className="text-lg font-extrabold flex items-center gap-1.5 text-slate-800">
                   <Zap className="w-5 h-5 text-indigo-600" /> 
-                  5 มิติคุณธรรมฮีโร่
+                  คุณธรรม 5 มิติ
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500">
                   คะแนนสะสมเชิงบวกจำแนกตามกลุ่มพฤติกรรมคุณลักษณะ
@@ -462,7 +462,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
               <div>
                 <CardTitle className="text-base font-extrabold text-emerald-800 flex items-center gap-1.5">
                   <Target className="w-4 h-4" />
-                  เป้าหมายฮีโร่ทั้งห้อง 🎉
+                  เป้าหมายความดีทั้งห้อง 🎉
                 </CardTitle>
                 <CardDescription className="text-xs text-emerald-700/70">
                   ห้อง {student.class}{student.room ? `/${student.room}` : ''}
@@ -575,7 +575,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           <CardHeader className="bg-gradient-to-b from-slate-50 to-transparent">
             <CardTitle className="text-base font-extrabold flex items-center gap-1.5 text-slate-800">
               <Smile className="w-4 h-4 text-emerald-600" />
-              บันทึกการเดินทางของฮีโร่ (Timeline)
+              บันทึกการเดินทางความดี (Timeline)
             </CardTitle>
             <CardDescription className="text-xs text-slate-500">
               บันทึกพฤติกรรมและการเติบโตทางจิตวิทยาเชิงบวก

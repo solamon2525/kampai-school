@@ -13,6 +13,13 @@
 
     var ST = { score: 0, round: 0, questions: [], timer: null, sec: 0, roundLocked: true, started: false };
     var ar = null;
+    var vs = window.KampaiVersus ? KampaiVersus.create({
+        duration: CFG.ROUNDS * CFG.ROUND_SEC,
+        title: 'AR Zone Quiz',
+        rankBy: 'score',
+        onPlay: function () { startGame(); },
+        onEnd: function () { cleanup(); }
+    }) : null;
 
     // ── จอเริ่ม: player chip + leaderboard ──
     function renderPlayer() {
@@ -65,6 +72,9 @@
 
     // ── เริ่มเกม / รอบ ──
     async function startGame() {
+        cleanup();
+        ar = null;
+        KAMPAI.beginRound();
         showScreen('gameScreen');
         $('loading').classList.add('on');
         KAMPAI.sound.unlock();
@@ -129,7 +139,8 @@
     function finishGame() {
         if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
         ST.started = false;
-        if (ar) ar.stop();
+        if (ar) { ar.stop(); ar = null; }
+        if (vs && vs.finish(ST.score, { correct: ST.round })) return;
         KAMPAI.sound.bgmStop(); KAMPAI.sound.gameOver();
         var correctCount = 0; // นับจากคะแนน (อย่างคร่าว) — เก็บแยกถ้าต้องการ
         showScreen('resultScreen');
@@ -147,6 +158,7 @@
     // ── ปุ่ม / fallback แตะ / exit ──
     $('startBtn').addEventListener('click', startGame);
     $('restartBtn').addEventListener('click', startGame);
+    document.querySelector('[data-kampai-action="finish-test"]').addEventListener('click', finishGame);
     ['left', 'center', 'right'].forEach(function (z) {
         $(ZONE_EL[z]).addEventListener('click', function () { if (ar && !ST.roundLocked) ar.tap(z); });
     });

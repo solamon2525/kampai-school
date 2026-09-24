@@ -1,0 +1,37 @@
+[
+  {
+    "file": "public/games/arts/color-wheel-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/health/food-groups-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/math/fraction-pieces-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/science/moon-phases-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/science/vertebrate-sort-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/thai/sentence-structure-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  },
+  {
+    "file": "public/games/thai/synonym-media.html",
+    "exit": 1,
+    "status": "FAIL"
+  }
+]

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthProvider';
+import { AuthLoadError } from '@/components/portal/AuthLoadError';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -8,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { session, isAdmin, loading } = useAuth();
+  const { session, isAdmin, loading, authError } = useAuth();
 
   if (loading) {
     return (
@@ -17,6 +18,8 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
       </div>
     );
   }
+
+  if (authError) return <AuthLoadError />;
 
   if (!session) {
     return <Navigate to="/admin" replace />;

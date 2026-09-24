@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ความปลอดภัยรอบตัวและการขอความช่วยเหลือ — สื่อการสอนสุขศึกษา</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Sarabun', sans-serif; }
+    .tab-btn.active {
+      background-color: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <script>
+    const MEDIA_SLUG = 'safety-help-media';
+  </script>
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button onclick="goHome()" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span class="hidden sm:inline">กลับหน้าหลัก</span>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🆘</span>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">ความปลอดภัยรอบตัวและการขอความช่วยเหลือ</h1>
+            <p class="text-xs text-slate-500 hidden sm:block">ห้องเรียนทักษะเอาตัวรอด รับมือเหตุฉุกเฉิน และสายด่วนช่วยชีวิต · ป.1–6</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Switches -->
+      <div class="flex items-center gap-2">
+        <button id="btn-mode-learn" data-mode="learn" onclick="switchMode('learn')" class="tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition">
+          📖 บทเรียน & แล็บ
+        </button>
+        <button id="btn-mode-practice" data-mode="practice" onclick="switchMode('practice')" class="tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          📝 แบบฝึกหัด (6 ข้อ)
+        </button>
+        <button id="btn-sound-toggle" onclick="toggleSound()" title="เปิด/ปิดเสียง" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition border border-slate-200">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- LEARN MODE -->
+    <section id="section-learn" class="space-y-6">
+
+      <!-- Sub Navigation Tabs -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-1.5 overflow-x-auto">
+          <button id="subtab-btn-pillars" onclick="switchSubTab('pillars')" class="px-4 py-2 rounded-xl text-sm font-bold bg-rose-50 text-rose-700 border border-rose-200 transition">
+            🛡️ 4 เสาหลักเอาตัวรอด
+          </button>
+          <button id="subtab-btn-scenarios" onclick="switchSubTab('scenarios')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            🚨 จำลอง 4 สถานการณ์ฉุกเฉิน
+          </button>
+          <button id="subtab-btn-hotlines" onclick="switchSubTab('hotlines')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            📞 แป้นโทรฉุกเฉินจำลอง (1669/191)
+          </button>
+        </div>
+        <div class="text-xs text-slate-500 px-2 flex items-center gap-1">
+          <span>💡 แตะที่การ์ดเพื่อฟังเสียงอธิบาย</span>
+        </div>
+      </div>
+
+      <!-- SUBTAB 1: 4 PILLARS OF EMERGENCY SURVIVAL -->
+      <div id="subtab-pillars" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Pillar 1 -->
+          <div class="bg-white rounded-2xl p-5 border border-rose-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(0)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl">✋</div>
+                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">ขั้นตอนที่ 1</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">หยุดและถอย (Stop & Step Back)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">เมื่อเผชิญอันตราย เช่น เปลวไฟ สัตว์มีพิษ หรือคนแปลกหน้า ให้หยุดนิ่ง ไม่วิ่งเข้าไปมุงดู และค่อย ๆ ถอยหลังออกมาทันที</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-rose-600 font-bold">⚠️</span>
+              <span><strong>หัวใจสำคัญ:</strong> ชีวิตเราปลอดภัยที่สุดเป็นอันดับแรก</span>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="bg-white rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(1)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl">🏃</div>
+                <span class="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">ขั้นตอนที่ 2</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">เข้าสู่พื้นที่ปลอดภัย (Safe Zone)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">เคลื่อนที่ไปยังจุดที่มีแสงสว่าง คนพลุกพล่าน ป้อมยาม ป้อมตำรวจ หรือห้องพักครู หลีกเลี่ยงมุมอับและทางตัน</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-sky-600 font-bold">🏫</span>
+              <span><strong>หัวใจสำคัญ:</strong> อยู่ในที่สว่างและมีผู้ใหญ่ที่พึ่งพาได้</span>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(2)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl">🗣️</div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">ขั้นตอนที่ 3</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">ขอความช่วยเหลือ 3W</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">ตะโกนขอความช่วยเหลือด้วยเสียงดังฟังชัด และใช้สูตร 3W: ใครประสบเหตุ (Who), ที่ไหน (Where), เกิดอะไรขึ้น (What)</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-amber-600 font-bold">📢</span>
+              <span><strong>หัวใจสำคัญ:</strong> พูดสั้น กระชับ ชัดเจน บอกจุดเกิดเหตุ</span>
+            </div>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="bg-white rounded-2xl p-5 border border-emerald-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between" onclick="speakPillar(3)">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">📞</div>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">ขั้นตอนที่ 4</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mb-1">จำสายด่วนฉุกเฉิน (Hotlines)</h3>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">จดจำและโทรแจ้งเหตุฉุกเฉินได้ทันท่วงที: 1669 (เจ็บป่วยฉุกเฉิน), 191 (เหตุด่วนเหตุร้าย), 199 (ดับเพลิงและสัตว์มีพิษ)</p>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2 border border-slate-100">
+              <span class="text-emerald-600 font-bold">🚑</span>
+              <span><strong>หัวใจสำคัญ:</strong> โทรฟรี 24 ชม. ไม่โทรเล่นโดยเด็ดขาด</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safe Living Vision Overview -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-1/2">
+              <div class="relative rounded-xl overflow-hidden shadow-inner border border-slate-100">
+                <img src="/games/health/safety-help-media-cover.png" alt="ความปลอดภัยและการขอความช่วยเหลือ" class="w-full h-auto object-cover">
+                <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-slate-700 shadow-sm">
+                  🆘 สภาพแวดล้อมแห่งความปลอดภัย
+                </div>
+              </div>
+            </div>
+            <div class="w-full md:w-1/2 space-y-3">
+              <div class="inline-block px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-bold">
+                🎯 ทักษะชีวิตเพื่อความอยู่รอด
+              </div>
+              <h2 class="text-xl font-bold text-slate-900 leading-snug">
+                "มีสติ ไม่ตระหนก รู้จักถอย แจ้งผู้ใหญ่ และใช้สายด่วนช่วยชีวิต"
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                อุบัติเหตุและภัยอันตรายอาจเกิดขึ้นได้ทุกที่ทุกเวลา การมีความรู้เรื่องความปลอดภัยรอบตัวและการขอความช่วยเหลือ ไม่เพียงช่วย <strong>ปกป้องชีวิตตัวเราเอง</strong> แต่ยังสามารถ <strong>ช่วยเหลือเพื่อนและคนรอบข้าง</strong> ได้อย่างทันท่วงที
+              </p>
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-rose-600 font-bold">✓</span> จำเบอร์โทร 1669 และ 191
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-rose-600 font-bold">✓</span> จำชื่อและเบอร์โทรผู้ปกครอง
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-rose-600 font-bold">✓</span> ไม่รับของจากคนแปลกหน้า
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
+                  <span class="text-rose-600 font-bold">✓</span> ไม่จับต้องสัตว์มีพิษและของมีคม
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 2: 4 EMERGENCY SCENARIOS -->
+      <div id="subtab-scenarios" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span>🚨</span> ห้องจำลองการตัดสินใจ 4 สถานการณ์ฉุกเฉิน
+              </h2>
+              <p class="text-xs text-slate-500">เลือกสถานการณ์และคลิกดูขั้นตอนการตัดสินใจที่ถูกต้องและปลอดภัย</p>
+            </div>
+            <!-- Scenario Selector Buttons -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="selectScenario(0)" id="scen-btn-0" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-rose-50 text-rose-700 border-rose-300">
+                🔥 1. ไฟไหม้/ควันหนา
+              </button>
+              <button onclick="selectScenario(1)" id="scen-btn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🐍 2. พบสัตว์มีพิษ
+              </button>
+              <button onclick="selectScenario(2)" id="scen-btn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🚶 3. คนแปลกหน้าชวนไป
+              </button>
+              <button onclick="selectScenario(3)" id="scen-btn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+                🩹 4. เพื่อนลื่นล้มบาดเจ็บ
+              </button>
+            </div>
+          </div>
+
+          <!-- Scenario Card Display -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Scenario Situation Box -->
+            <div class="lg:col-span-5 bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between shadow-md">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span id="scen-level-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500 text-white">
+                    ⚠️ ระดับความอันตราย: สูง
+                  </span>
+                  <span class="text-xs text-slate-400">สถานการณ์จริง</span>
+                </div>
+                <div class="text-center py-6">
+                  <div id="scen-icon" class="text-7xl mb-3 transform hover:scale-110 transition duration-300">🔥</div>
+                  <h3 id="scen-title" class="text-xl font-bold tracking-tight mb-2">พบเห็นกลุ่มควันและเปลวไฟหลังอาคาร</h3>
+                  <p id="scen-desc" class="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
+                    มีกลุ่มควันดำพวยพุ่งออกมาจากถังขยะและลุกลามเข้าใกล้พุ่มไม้แห้งหลังอาคารเรียน
+                  </p>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-rose-400 font-bold" id="scen-rule">ห้ามเดินเข้าไปดูใกล้ ๆ โดยเด็ดขาด</span>
+                <button onclick="speakCurrentScenario()" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 rounded-lg text-white font-medium flex items-center gap-1 transition">
+                  🔊 ฟังเสียง
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: 3-Step Action Flow -->
+            <div class="lg:col-span-7 space-y-3">
+              <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                ลำดับขั้นตอนปฏิบัติการเอาตัวรอด 3 จังหวะ:
+              </h4>
+
+              <!-- Step 1 -->
+              <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
+                <div class="w-7 h-7 rounded-xl bg-rose-200 text-rose-800 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
+                <div>
+                  <h5 class="text-xs font-bold text-rose-900 mb-0.5" id="scen-step-1-title">หยุดและก้มตัวต่ำ</h5>
+                  <p class="text-xs text-rose-800 leading-relaxed" id="scen-step-1-desc">
+                    ใช้ผ้าชุบน้ำหรือชายเสื้อปิดจมูก ก้มตัวต่ำใต้ควันไฟ และรีบถอยออกจากบริเวณนั้นทันที
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-start gap-3">
+                <div class="w-7 h-7 rounded-xl bg-sky-200 text-sky-800 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
+                <div>
+                  <h5 class="text-xs font-bold text-sky-900 mb-0.5" id="scen-step-2-title">กดกริ่งเตือนภัย & วิ่งไปจุดรวมพล</h5>
+                  <p class="text-xs text-sky-800 leading-relaxed" id="scen-step-2-desc">
+                    ส่งเสียงตะโกน "ไฟไหม้!" และรีบมุ่งหน้าไปยังสนามฟุตบอลซึ่งเป็นจุดรวมพลที่ปลอดภัย
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+                <div class="w-7 h-7 rounded-xl bg-emerald-200 text-emerald-800 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
+                <div>
+                  <h5 class="text-xs font-bold text-emerald-900 mb-0.5" id="scen-step-3-title">แจ้งครูให้โทรสายด่วน 199</h5>
+                  <p class="text-xs text-emerald-800 leading-relaxed" id="scen-step-3-desc">
+                    แจ้งครูเวรทันทีเพื่อประสานงานเจ้าหน้าที่ดับเพลิงสายด่วน 199 มาควบคุมสถานการณ์
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBTAB 3: EMERGENCY PHONE KEYPAD -->
+      <div id="subtab-hotlines" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="mb-5">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>📞</span> แป้นโทรศัพท์ฉุกเฉินจำลอง (Interactive Emergency Dialer)
+            </h2>
+            <p class="text-xs text-slate-500">ซ้อมกดหมายเลขฉุกเฉินเพื่อฟังการตอบรับจากศูนย์รับแจ้งเหตุฉุกเฉิน (มีเสียงโทน DTMF จำลอง)</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Left: Phone Keypad UI -->
+            <div class="md:col-span-5 bg-slate-900 rounded-3xl p-6 text-white max-w-xs mx-auto w-full shadow-lg border border-slate-800">
+              <!-- Dial Display -->
+              <div class="bg-slate-800/80 rounded-2xl p-4 text-center mb-5 border border-slate-700 min-h-[68px] flex items-center justify-center">
+                <div class="text-3xl font-black tracking-widest text-emerald-400" id="dial-screen">--</div>
+              </div>
+
+              <!-- 3x4 Keypad -->
+              <div class="grid grid-cols-3 gap-2.5 mb-4">
+                <button onclick="pressDigit('1')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">1</button>
+                <button onclick="pressDigit('2')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">2</button>
+                <button onclick="pressDigit('3')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">3</button>
+
+                <button onclick="pressDigit('4')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">4</button>
+                <button onclick="pressDigit('5')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">5</button>
+                <button onclick="pressDigit('6')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">6</button>
+
+                <button onclick="pressDigit('7')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">7</button>
+                <button onclick="pressDigit('8')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">8</button>
+                <button onclick="pressDigit('9')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex flex-col items-center justify-center border border-slate-700">9</button>
+
+                <button onclick="clearDial()" class="h-14 rounded-2xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-xs font-bold transition flex items-center justify-center border border-slate-700">ลบ</button>
+                <button onclick="pressDigit('0')" class="h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xl font-bold transition flex items-center justify-center border border-slate-700">0</button>
+                <button onclick="makeCall()" class="h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xl font-bold transition flex items-center justify-center shadow-md">📞</button>
+              </div>
+            </div>
+
+            <!-- Right: Hotlines Quick Directory & Live Dispatch Output -->
+            <div class="md:col-span-7 flex flex-col justify-between space-y-4">
+              <div class="space-y-2.5">
+                <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  แตะเพื่อกดหมายเลขฉุกเฉินด่วน:
+                </h4>
+
+                <!-- Hotlines Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div onclick="quickDial('1669')" class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl cursor-pointer hover:bg-rose-100 transition flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white font-black text-sm flex items-center justify-center">1669</div>
+                    <div>
+                      <div class="text-xs font-bold text-rose-950">การแพทย์ฉุกเฉิน / รถพยาบาล</div>
+                      <div class="text-[11px] text-rose-700">เจ็บป่วยรุนแรง อุบัติเหตุ หมดสติ</div>
+                    </div>
+                  </div>
+
+                  <div onclick="quickDial('191')" class="p-3.5 bg-sky-50 border border-sky-200 rounded-2xl cursor-pointer hover:bg-sky-100 transition flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-600 text-white font-black text-sm flex items-center justify-center">191</div>
+                    <div>
+                      <div class="text-xs font-bold text-sky-950">เหตุด่วนเหตุร้าย / ตำรวจ</div>
+                      <div class="text-[11px] text-sky-700">โจรขโมย ถูกคุกคาม คนแปลกหน้า</div>
+                    </div>
+                  </div>
+
+                  <div onclick="quickDial('199')" class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl cursor-pointer hover:bg-amber-100 transition flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-600 text-white font-black text-sm flex items-center justify-center">199</div>
+                    <div>
+                      <div class="text-xs font-bold text-amber-950">ดับเพลิงและกู้ภัย</div>
+                      <div class="text-[11px] text-amber-700">ไฟไหม้ แก๊สรั่ว สัตว์มีพิษเข้าบ้าน</div>
+                    </div>
+                  </div>
+
+                  <div onclick="quickDial('1300')" class="p-3.5 bg-violet-50 border border-violet-200 rounded-2xl cursor-pointer hover:bg-violet-100 transition flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-violet-600 text-white font-black text-sm flex items-center justify-center">1300</div>
+                    <div>
+                      <div class="text-xs font-bold text-violet-950">ศูนย์ช่วยเหลือสังคม (พม.)</div>
+                      <div class="text-[11px] text-violet-700">เด็กถูกทอดทิ้ง ปัญหาความรุนแรง</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dispatch Response Banner -->
+              <div id="dispatch-banner" class="bg-slate-100 border border-slate-200 rounded-2xl p-4 transition min-h-[100px] flex items-center gap-3">
+                <div class="text-3xl" id="dispatch-icon">🎧</div>
+                <div>
+                  <h5 class="text-xs font-bold text-slate-800 mb-0.5" id="dispatch-title">ระบบรับแจ้งเหตุฉุกเฉินพร้อมใช้งาน</h5>
+                  <p class="text-xs text-slate-600 leading-relaxed" id="dispatch-msg">
+                    กรุณากดเบอร์ฉุกเฉิน 3-4 หลักบนแป้นโทรศัพท์ หรือคลิกการ์ดเบอร์ด่วน แล้วกดปุ่มโทรสีเขียว 📞
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PRACTICE MODE (6 QUESTIONS QUIZ) -->
+    <section id="section-practice" class="space-y-6 hidden">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm max-w-3xl mx-auto">
+        
+        <!-- Quiz Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">📝</span>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">แบบฝึกหัดคิดวิเคราะห์ความปลอดภัยและการขอความช่วยเหลือ</h2>
+              <p class="text-xs text-slate-500">ตอบคำถาม 6 ข้อ เพื่อประเมินความพร้อมในการรับมือเหตุฉุกเฉิน</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">ข้อที่</span>
+            <div class="text-lg font-black text-rose-600"><span id="quiz-curr-q">1</span> / 6</div>
+          </div>
+        </div>
+
+        <!-- Quiz Body Card -->
+        <div id="quiz-active-box" class="space-y-6">
+          <!-- Question Title -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-start gap-3">
+            <div class="text-2xl mt-0.5">❓</div>
+            <div class="flex-1">
+              <div class="text-xs font-bold text-rose-600 uppercase mb-1" id="quiz-q-topic">การเอาตัวรอดเบื้องต้น</div>
+              <h3 id="quiz-q-title" class="text-base font-bold text-slate-800 leading-snug">
+                เมื่อพบเห็นเหตุการณ์อันตราย เช่น มีกลุ่มควันไฟหรือได้ยินเสียงเอะอะรุนแรง ขั้นตอนแรกสุดควรทำสิ่งใด?
+              </h3>
+            </div>
+            <button onclick="speakQuestion()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition" title="ฟังเสียงโจทย์">
+              🔊
+            </button>
+          </div>
+
+          <!-- Choices -->
+          <div class="space-y-2.5" id="quiz-choices-container">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Explanation / Feedback Banner -->
+          <div id="quiz-feedback-box" class="hidden rounded-2xl p-4 border transition">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl" id="quiz-fb-icon">💡</div>
+              <div>
+                <h4 class="text-sm font-bold" id="quiz-fb-title">คำอธิบายเหตุผล</h4>
+                <p class="text-xs mt-1 leading-relaxed" id="quiz-fb-desc"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end pt-2">
+            <button id="quiz-btn-next" onclick="nextQuestion()" disabled class="px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed">
+              <span>ข้อถัดไป</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Result Screen -->
+        <div id="quiz-result-box" class="hidden py-8 text-center space-y-6">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-rose-100 flex items-center justify-center text-5xl shadow-inner border border-rose-200" id="res-medal-icon">
+            🏆
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-slate-900 mb-1" id="res-grade-title">ยอดเยี่ยมมาก! ผู้พิทักษ์ความปลอดภัย</h3>
+            <p class="text-sm text-slate-600 max-w-md mx-auto" id="res-grade-desc">
+              คุณมีความรู้ความเข้าใจในการเอาตัวรอด การประเมินความปลอดภัย และการโทรขอความช่วยเหลืออย่างมีสติ
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-6 bg-slate-50 px-8 py-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">คะแนนที่ได้</div>
+              <div class="text-3xl font-black text-rose-600"><span id="res-score">6</span> / 6</div>
+            </div>
+            <div class="h-8 w-px bg-slate-200"></div>
+            <div>
+              <div class="text-xs text-slate-400 font-semibold">ระดับความปลอดภัย</div>
+              <div class="text-base font-bold text-emerald-600" id="res-rank">A+ ยอดเยี่ยม</div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex items-center justify-center gap-3">
+            <button onclick="restartQuiz()" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2">
+              <span>🔄</span> ทำแบบฝึกหัดอีกครั้ง
+            </button>
+            <button onclick="switchMode('learn')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition">
+              📖 กลับไปทบทวนบทเรียน
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    โรงเรียนคำไฮวิทยา · สื่อการสอนสุขศึกษาและการเอาตัวรอด Classroom-first · เพื่อความปลอดภัยของทุกคน
+  </footer>
+
+  <!-- Sound & Interactive Logic -->
+  <script>
+    let currentMode = 'learn';
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    // DTMF Frequencies for telephone keypad
+    const DTMF = {
+      '1': [697, 1209], '2': [697, 1336], '3': [697, 1477],
+      '4': [770, 1209], '5': [770, 1336], '6': [770, 1477],
+      '7': [852, 1209], '8': [852, 1336], '9': [852, 1477],
+      '0': [941, 1336]
+    };
+
+    function playDtmfTone(char) {
+      if (!soundEnabled) return;
+      try {
+        const freqs = DTMF[char];
+        if (!freqs) return;
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const now = ctx.currentTime;
+        freqs.forEach(f => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        });
+      } catch (e) {
+        console.warn('DTMF issue', e);
+      }
+    }
+
+    function playSoundEffect(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(180, now + 0.15);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'fanfare') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.type = 'triangle';
+            o.frequency.value = freq;
+            const start = now + idx * 0.12;
+            g.gain.setValueAtTime(0.2, start);
+            g.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+            o.start(start);
+            o.stop(start + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio issue', e);
+      }
+    }
+
+    function speakText(text) {
+      if (!soundEnabled) return;
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'th-TH';
+      u.rate = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btn-sound-toggle');
+      btn.innerText = soundEnabled ? '🔊' : '🔇';
+      if (!soundEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function goHome() {
+      if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+        window.KAMPAI.goHome();
+      } else {
+        window.location.href = '/games/hub.html';
+      }
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      playSoundEffect('click');
+      const learnSec = document.getElementById('section-learn');
+      const practiceSec = document.getElementById('section-practice');
+      const btnLearn = document.getElementById('btn-mode-learn');
+      const btnPractice = document.getElementById('btn-mode-practice');
+
+      if (mode === 'learn') {
+        learnSec.classList.remove('hidden');
+        practiceSec.classList.add('hidden');
+        btnLearn.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnPractice.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+      } else {
+        learnSec.classList.add('hidden');
+        practiceSec.classList.remove('hidden');
+        btnPractice.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnLearn.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        initQuiz();
+      }
+    }
+
+    function switchSubTab(sub) {
+      playSoundEffect('click');
+      const tabs = ['pillars', 'scenarios', 'hotlines'];
+      tabs.forEach(t => {
+        const el = document.getElementById('subtab-' + t);
+        const btn = document.getElementById('subtab-btn-' + t);
+        if (t === sub) {
+          el.classList.remove('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-rose-50 text-rose-700 border border-rose-200 transition';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        }
+      });
+    }
+
+    // Pillars Speech
+    const PILLARS_DATA = [
+      { title: 'หยุดและถอย', body: 'ขั้นตอนที่หนึ่ง หยุดและถอยออกจากอันตราย ไม่เดินเข้าไปมุงดู ถอยไปยังพื้นที่ปลอดภัย ความปลอดภัยของตัวเองต้องมาก่อนเสมอ' },
+      { title: 'เข้าสู่พื้นที่ปลอดภัย', body: 'ขั้นตอนที่สอง เข้าสู่พื้นที่ปลอดภัยที่มีแสงสว่าง มีคนพลุกพล่าน เช่น ป้อมยาม ป้อมตำรวจ หรือห้องพักครู หลีกเลี่ยงมุมอับ' },
+      { title: 'ขอความช่วยเหลือ 3W', body: 'ขั้นตอนที่สาม ตะโกนขอความช่วยเหลือด้วยสูตรสามดับเบิ้ลยู ใครต้องการความช่วย อยู่ที่ไหน และเกิดอะไรขึ้น' },
+      { title: 'จำสายด่วนฉุกเฉิน', body: 'ขั้นตอนที่สี่ จำสายด่วนฉุกเฉินช่วยชีวิต หนึ่งหกหกเก้าการแพทย์ฉุกเฉิน หนึ่งเก้าหนึ่งเหตุด่วนเหตุร้าย หนึ่งเก้าเก้าดับเพลิง' }
+    ];
+
+    function speakPillar(idx) {
+      playSoundEffect('click');
+      speakText(PILLARS_DATA[idx].body);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 2: SCENARIOS LOGIC
+    // ----------------------------------------------------
+    const SCENARIOS_DATA = [
+      {
+        id: 'fire',
+        title: 'พบเห็นกลุ่มควันและเปลวไฟหลังอาคาร',
+        icon: '🔥',
+        rule: 'ห้ามเดินเข้าไปดูใกล้ ๆ โดยเด็ดขาด',
+        desc: 'มีกลุ่มควันดำพวยพุ่งออกมาจากถังขยะและลุกลามเข้าใกล้พุ่มไม้แห้งหลังอาคารเรียน',
+        steps: [
+          { title: 'หยุดและก้มตัวต่ำ', desc: 'ใช้ผ้าชุบน้ำหรือเสื้อปิดจมูก ก้มตัวต่ำใต้ควันไฟ และรีบถอยออกจากบริเวณนั้นทันที' },
+          { title: 'กดกริ่งเตือนภัย & วิ่งไปจุดรวมพล', desc: 'ส่งเสียงตะโกน "ไฟไหม้!" และรีบมุ่งหน้าไปยังสนามฟุตบอลซึ่งเป็นจุดรวมพลที่ปลอดภัย' },
+          { title: 'แจ้งครูให้โทรสายด่วน 199', desc: 'แจ้งครูเวรทันทีเพื่อประสานงานเจ้าหน้าที่ดับเพลิงสายด่วน 199 มาควบคุมสถานการณ์' }
+        ]
+      },
+      {
+        id: 'snake',
+        title: 'พบงูหรือสัตว์มีพิษใต้โต๊ะม้าหินอ่อน',
+        icon: '🐍',
+        rule: 'ห้ามใช้ไม้แหย่หรือปาหินใส่สัตว์เด็ดขาด',
+        desc: 'เห็นงูตัวยาวสีเข้มขดตัวอยู่ใต้โต๊ะม้าหินอ่อนข้างแปลงผักโรงเรียน',
+        steps: [
+          { title: 'ยืนนิ่งแล้วค่อย ๆ ถอยหลังช้า ๆ', desc: 'อยู่นิ่ง ๆ ไม่วิ่งตกใจ ไม่ส่งเสียงดัง และค่อย ๆ ก้าวถอยหลังให้ห่างอย่างน้อย 5 เมตร' },
+          { title: 'เตือนเพื่อนรอบข้างไม่ให้เข้าใกล้', desc: 'บอกเพื่อนทุกคนในบริเวณนั้นให้ถอยออกไป ห้ามนำกิ่งไม้ไปตีหรือจับเล่น' },
+          { title: 'รีบไปแจ้งครูหรือภารโรง', desc: 'แจ้งครูให้ประสานเจ้าหน้าที่กู้ภัย 199 ที่มีความชำนาญและมีอุปกรณ์จับสัตว์เลื้อยคลาน' }
+        ]
+      },
+      {
+        id: 'stranger',
+        title: 'คนแปลกหน้าขับรถมาจอดเรียกและให้ขนม',
+        icon: '🚗',
+        rule: 'ห้ามขึ้นรถหรือรับสิ่งของใด ๆ ทั้งสิ้น',
+        desc: 'มีผู้ใหญ่ไม่คุ้นหน้าเปิดกระจกรถเรียกชื่อ ชักชวนให้ขึ้นรถเพื่อพาไปซื้อไอศกรีม',
+        steps: [
+          { title: 'ปฏิเสธอย่างสุภาพและถอยห่าง', desc: 'พูดเสียงดังฟังชัดว่า "ไม่ไปครับ/ค่ะ" และถอยห่างจากตัวรถอย่างน้อย 3 ก้าว' },
+          { title: 'วิ่งเข้าหาผู้ใหญ่ในโรงเรียนทันที', desc: 'รีบวิ่งไปยังป้อมยามหน้าโรงเรียนหรือห้องพักครูที่มีคนอยู่หนาแน่น' },
+          { title: 'จำลักษณะรถและแจ้งผู้ใหญ่', desc: 'สังเกตสีรถ รุ่น หรือป้ายทะเบียน และแจ้งครูเพื่อให้ตรวจสอบกล้องวงจรปิด' }
+        ]
+      },
+      {
+        id: 'injury',
+        title: 'เพื่อนลื่นล้มหัวเข่ากระแทกเลือดออกมาก',
+        icon: '🩹',
+        rule: 'ห้ามดึงหรือขยับตัวเพื่อนแรง ๆ',
+        desc: 'เพื่อนวิ่งเล่นแล้วสะดุดล้มบนพื้นคอนกรีต ร้องไห้เจ็บปวดและลุกขึ้นยืนไม่ได้',
+        steps: [
+          { title: 'บอกเพื่อนให้นิ่งและอย่าเพิ่งขยับ', desc: 'เข้าไปปลอบใจเพื่อน ไม่จับดึงแขนขาเพื่อนขึ้นมาทันทีเพราะอาจมีกระดูกหัก' },
+          { title: 'ตะโกนขอความช่วยเหลือจากเพื่อนข้างเคียง', desc: 'วานเพื่อนอีกคนให้รีบวิ่งไปตามครูหรือครูพยาบาลมาดูอาการ' },
+          { title: 'หากเจ็บหนัก แจ้งโทร 1669', desc: 'หากเพื่อนหมดสติหรือไม่สามารถขยับได้ ให้ผู้ใหญ่ประเมินและโทรสายด่วน 1669' }
+        ]
+      }
+    ];
+
+    let currentScenarioIdx = 0;
+
+    function selectScenario(idx) {
+      currentScenarioIdx = idx;
+      playSoundEffect('click');
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById('scen-btn-' + i);
+        if (i === idx) {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-rose-50 text-rose-700 border-rose-300';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+        }
+      }
+      renderScenario();
+    }
+
+    function renderScenario() {
+      const s = SCENARIOS_DATA[currentScenarioIdx];
+      document.getElementById('scen-icon').innerText = s.icon;
+      document.getElementById('scen-title').innerText = s.title;
+      document.getElementById('scen-desc').innerText = s.desc;
+      document.getElementById('scen-rule').innerText = s.rule;
+
+      document.getElementById('scen-step-1-title').innerText = s.steps[0].title;
+      document.getElementById('scen-step-1-desc').innerText = s.steps[0].desc;
+      document.getElementById('scen-step-2-title').innerText = s.steps[1].title;
+      document.getElementById('scen-step-2-desc').innerText = s.steps[1].desc;
+      document.getElementById('scen-step-3-title').innerText = s.steps[2].title;
+      document.getElementById('scen-step-3-desc').innerText = s.steps[2].desc;
+    }
+
+    function speakCurrentScenario() {
+      const s = SCENARIOS_DATA[currentScenarioIdx];
+      speakText(s.title + '. ' + s.desc + '. ขั้นตอนรับมือ: ข้อหนึ่ง ' + s.steps[0].title + '. ข้อสอง ' + s.steps[1].title + '. ข้อสาม ' + s.steps[2].title);
+    }
+
+    // ----------------------------------------------------
+    // SUBTAB 3: EMERGENCY PHONE DIALER
+    // ----------------------------------------------------
+    let currentDialed = '';
+
+    function pressDigit(digit) {
+      if (currentDialed.length >= 4) return;
+      playDtmfTone(digit);
+      currentDialed += digit;
+      updateDialDisplay();
+    }
+
+    function clearDial() {
+      playSoundEffect('click');
+      currentDialed = '';
+      updateDialDisplay();
+    }
+
+    function quickDial(num) {
+      currentDialed = num;
+      playSoundEffect('click');
+      updateDialDisplay();
+      makeCall();
+    }
+
+    function updateDialDisplay() {
+      const screen = document.getElementById('dial-screen');
+      screen.innerText = currentDialed || '--';
+    }
+
+    function makeCall() {
+      const banner = document.getElementById('dispatch-banner');
+      const icon = document.getElementById('dispatch-icon');
+      const title = document.getElementById('dispatch-title');
+      const msg = document.getElementById('dispatch-msg');
+
+      if (!currentDialed) {
+        playSoundEffect('wrong');
+        title.innerText = 'ยังไม่ได้กดหมายเลข';
+        msg.innerText = 'กรุณากดเบอร์ฉุกเฉิน เช่น 1669, 191 หรือ 199';
+        return;
+      }
+
+      if (currentDialed === '1669') {
+        playSoundEffect('fanfare');
+        banner.className = 'bg-rose-50 border-2 border-rose-400 rounded-2xl p-4 transition flex items-center gap-3 ring-2 ring-rose-300';
+        icon.innerText = '🚑';
+        title.innerText = 'สายด่วนการแพทย์ฉุกเฉิน 1669 (กำลังรับสาย)';
+        msg.innerText = 'ศูนย์นเรนทร 1669 สวัสดีครับ กรุณาแจ้งสถานที่เกิดเหตุ อาการผู้บาดเจ็บ และเบอร์โทรติดต่อกลับ รถพยาบาลกำลังเตรียมพร้อม!';
+        speakText('ศูนย์การแพทย์ฉุกเฉิน 1669 กำลังรับสาย กรุณาแจ้งสถานที่เกิดเหตุและอาการผู้บาดเจ็บ');
+      } else if (currentDialed === '191') {
+        playSoundEffect('fanfare');
+        banner.className = 'bg-sky-50 border-2 border-sky-400 rounded-2xl p-4 transition flex items-center gap-3 ring-2 ring-sky-300';
+        icon.innerText = '🚓';
+        title.innerText = 'ศูนย์รับแจ้งเหตุด่วนเหตุร้าย 191 (กำลังรับสาย)';
+        msg.innerText = '191 สถานีตำรวจ สวัสดีครับ เกิดเหตุอะไร ที่ไหน มีผู้ได้รับอันตรายหรือไม่ กำลังประสานสายตรวจใกล้ที่สุดไประงับเหตุ!';
+        speakText('ศูนย์รับแจ้งเหตุ 191 ตำรวจกำลังรับสาย กรุณาแจ้งจุดเกิดเหตุและสิ่งที่ต้องการความช่วยเหลือ');
+      } else if (currentDialed === '199') {
+        playSoundEffect('fanfare');
+        banner.className = 'bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 transition flex items-center gap-3 ring-2 ring-amber-300';
+        icon.innerText = '🚒';
+        title.innerText = 'ศูนย์ดับเพลิงและกู้ภัย 199 (กำลังรับสาย)';
+        msg.innerText = '199 ดับเพลิงและกู้ภัย สวัสดีครับ เกิดเหตุเพลิงไหม้หรือสัตว์มีพิษ กรุณาแจ้งพิกัด เจ้าหน้าที่พร้อมรถน้ำกำลังออกปฏิบัติการ!';
+        speakText('ศูนย์ดับเพลิงและกู้ภัย 199 กำลังรับสาย กรุณาแจ้งพิกัดและถอยห่างจากจุดอันตราย');
+      } else if (currentDialed === '1300') {
+        playSoundEffect('fanfare');
+        banner.className = 'bg-violet-50 border-2 border-violet-400 rounded-2xl p-4 transition flex items-center gap-3 ring-2 ring-violet-300';
+        icon.innerText = '🤝';
+        title.innerText = 'ศูนย์ช่วยเหลือสังคม พม. 1300 (กำลังรับสาย)';
+        msg.innerText = 'สายด่วน 1300 ศูนย์ช่วยเหลือสังคม พร้อมให้ความคุ้มครองเด็ก เยาวชน และครอบครัว ตลอด 24 ชั่วโมง';
+        speakText('ศูนย์ช่วยเหลือสังคม 1300 พร้อมให้ความช่วยเหลือและคุ้มครองตลอด 24 ชั่วโมง');
+      } else {
+        playSoundEffect('wrong');
+        banner.className = 'bg-slate-100 border border-slate-300 rounded-2xl p-4 transition flex items-center gap-3';
+        icon.innerText = '❓';
+        title.innerText = 'ไม่พบหมายเลขฉุกเฉิน: ' + currentDialed;
+        msg.innerText = 'หมายเลขฉุกเฉินที่แนะนำ: 1669 (เจ็บป่วยฉุกเฉิน), 191 (เหตุด่วนเหตุร้าย), 199 (ดับเพลิง)';
+      }
+    }
+
+    // ----------------------------------------------------
+    // PRACTICE MODE: 6 QUESTIONS QUIZ
+    // ----------------------------------------------------
+    const QUIZ_QUESTIONS = [
+      {
+        topic: 'ขั้นตอนการเอาตัวรอดแรกสุด',
+        title: 'เมื่อพบเห็นเหตุการณ์อันตราย เช่น มีกลุ่มควันไฟหนาทึบหรือมีสัตว์มีพิษ สิ่งแรกที่ควรทำคืออะไร?',
+        choices: [
+          { text: 'หยุดและค่อย ๆ ถอยหลังไปยังพื้นที่ปลอดภัยทันที โดยไม่เข้าไปมุงดู', correct: true },
+          { text: 'รีบวิ่งเข้าไปดูใกล้ ๆ เพื่อหยิบมือถือมาถ่ายรูปเก็บไว้', correct: false },
+          { text: 'ลองใช้กิ่งไม้แหย่ดูว่ายังมีชีวิตอยู่หรือไม่', correct: false },
+          { text: 'แอบมองอยู่เงียบ ๆ คนเดียวไม่บอกใคร', correct: false }
+        ],
+        explain: 'ความปลอดภัยของตัวเราต้องมาก่อนเป็นอันดับแรก ห้ามวิ่งเข้าไปมุงดูหรือสัมผัส ควรหยุดและถอยห่างออกมาในจุดปลอดภัย'
+      },
+      {
+        topic: 'หมายเลขฉุกเฉินช่วยชีวิต',
+        title: 'หากพบเห็นคนเป็นลมหมดสติ เลือดไหลไม่หยุด หรือประสบอุบัติเหตุรุนแรง ควรโทรแจ้งหมายเลขใด?',
+        choices: [
+          { text: '1669 (สายด่วนการแพทย์ฉุกเฉิน)', correct: true },
+          { text: '1111 (สั่งอาหารส่งด่วน)', correct: false },
+          { text: '1133 (สอบถามเบอร์โทรศัพท์)', correct: false },
+          { text: '1150 (ร้านพิซซ่า)', correct: false }
+        ],
+        explain: 'หมายเลข 1669 คือสายด่วนสถาบันการแพทย์ฉุกเฉินแห่งชาติ (สพฉ.) มีรถพยาบาลและทีมแพทย์พร้อมออกช่วยเหลือตลอด 24 ชั่วโมงฟรี'
+      },
+      {
+        topic: 'การรับมือคนแปลกหน้า',
+        title: 'หากมีคนแปลกหน้าขับรถมาจอดข้างทาง ชวนคุย และยื่นขนมให้พร้อมชวนขึ้นรถ ควรทำอย่างไร?',
+        choices: [
+          { text: 'ปฏิเสธอย่างหนักแน่น ถอยห่างจากตัวรถ แล้วรีบวิ่งไปหาผู้ใหญ่ในที่สว่างทันที', correct: true },
+          { text: 'รับขนมไว้แล้วขึ้นรถไปด้วยเพราะคิดว่าใจดี', correct: false },
+          { text: 'ยืนคุยต่อไปเรื่อย ๆ คนเดียวในซอยเปลี่ยว', correct: false },
+          { text: 'บอกข้อมูลบ้านและชื่อคนในครอบครัวให้เขาทราบจนหมด', correct: false }
+        ],
+        explain: 'ห้ามรับของหรือขึ้นรถกับคนแปลกหน้าเด็ดขาด ให้ปฏิเสธ ถอยห่างอย่างน้อย 3 ก้าว และรีบวิ่งไปหาผู้ใหญ่หรือสถานที่ปลอดภัยทันที'
+      },
+      {
+        topic: 'สูตรการแจ้งเหตุฉุกเฉิน (3W)',
+        title: 'เมื่อต้องโทรแจ้งเหตุฉุกเฉินกับเจ้าหน้าที่ ข้อมูลใดสำคัญที่สุดที่ต้องแจ้งให้ชัดเจน?',
+        choices: [
+          { text: 'ใครประสบเหตุ (Who), อยู่ที่ไหนอย่างละเอียด (Where), และเกิดอะไรขึ้น (What)', correct: true },
+          { text: 'บอกชื่อการ์ตูนเรื่องโปรดที่เพิ่งดูจบ', correct: false },
+          { text: 'บอกคะแนนสอบวิชาคณิตศาสตร์ล่าสุด', correct: false },
+          { text: 'ถามเจ้าหน้าที่ว่าวันนี้อากาศดีไหม', correct: false }
+        ],
+        explain: 'สูตร 3W สำคัญมาก เจ้าหน้าที่จะรู้ว่า "ใครเจ็บ (Who)", "พิกัดอยู่ที่ไหน (Where)" เพื่อส่งรถช่วยเหลือ และ "เกิดอะไรขึ้น (What)" เพื่อเตรียมอุปกรณ์ได้ตรงจุด'
+      },
+      {
+        topic: 'การปฏิบัติตนเมื่อเกิดไฟไหม้',
+        title: 'เมื่อเกิดไฟไหม้ในอาคารและมีควันดำลอยเต็มห้อง วิธีการเคลื่อนที่เพื่อเอาตัวรอดที่ถูกต้องคืออะไร?',
+        choices: [
+          { text: 'ใช้ผ้าชุบน้ำปิดปากจมูก ก้มตัวต่ำหรือคลานใต้ควันไฟไปยังทางออกฉุกเฉิน', correct: true },
+          { text: 'ยืนตัวตรงและวิ่งสูดหายใจลึก ๆ', correct: false },
+          { text: 'กดลิฟต์โดยสารเพื่อลงชั้นล่างให้เร็วที่สุด', correct: false },
+          { text: 'วิ่งเข้าไปซ่อนตัวในตู้เสื้อผ้าหรือใต้เตียง', correct: false }
+        ],
+        explain: 'ควันไฟและก๊าซพิษจะลอยตัวขึ้นสู่ที่สูง การก้มตัวต่ำจะช่วยให้อากาศบริสุทธิ์กว่า และห้ามใช้ลิฟต์ขณะไฟไหม้เด็ดขาดเพราะไฟอาจดับค้าง'
+      },
+      {
+        topic: 'จริยธรรมการใช้หมายเลขฉุกเฉิน',
+        title: 'ข้อใดคือข้อพึงระวังที่สำคัญที่สุดในการใช้บริการหมายเลขโทรศัพท์ฉุกเฉิน (1669, 191, 199)?',
+        choices: [
+          { text: 'ห้ามโทรเล่นหรือล้อเล่นเด็ดขาด เพราะอาจทำให้ผู้ที่กำลังวิกฤตเฉียดตายเสียโอกาสรอดชีวิต', correct: true },
+          { text: 'ควรโทรทดสอบสัญญาณวันละหลาย ๆ ครั้ง', correct: false },
+          { text: 'โทรไปเปิดเพลงให้พี่เจ้าหน้าที่ฟังเพื่อคลายเครียด', correct: false },
+          { text: 'โทรได้เฉพาะวันจันทร์ถึงวันศุกร์เท่านั้น', correct: false }
+        ],
+        explain: 'เบอร์ฉุกเฉินมีไว้สำหรับชีวิตและความปลอดภัย การโทรแกล้งหรือโทรเล่นมีความผิดตามกฎหมายและอาจทำให้คนไข้วิกฤตไม่ได้รับการช่วยเหลือทันเวลา'
+      }
+    ];
+
+    let quizCurrentIdx = 0;
+    let quizScore = 0;
+    let quizAnswered = false;
+
+    function initQuiz() {
+      quizCurrentIdx = 0;
+      quizScore = 0;
+      quizAnswered = false;
+      document.getElementById('quiz-active-box').classList.remove('hidden');
+      document.getElementById('quiz-result-box').classList.add('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      quizAnswered = false;
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      document.getElementById('quiz-curr-q').innerText = (quizCurrentIdx + 1);
+      document.getElementById('quiz-q-topic').innerText = q.topic;
+      document.getElementById('quiz-q-title').innerText = q.title;
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.className = 'hidden rounded-2xl p-4 border transition';
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = true;
+      btnNext.className = 'px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed';
+
+      const container = document.getElementById('quiz-choices-container');
+      container.innerHTML = '';
+      q.choices.forEach((c, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full p-4 text-left rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-rose-300 transition text-sm font-medium text-slate-800 flex items-center justify-between group shadow-sm';
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-rose-100 group-hover:text-rose-700 text-slate-500 font-bold text-xs flex items-center justify-center transition">${String.fromCharCode(65 + idx)}</span>
+            <span>${c.text}</span>
+          </div>
+          <span class="choice-icon text-lg hidden"></span>
+        `;
+        btn.onclick = () => selectQuizChoice(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectQuizChoice(choiceIdx, btnEl) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      const isCorrect = q.choices[choiceIdx].correct;
+      const choicesBtns = document.getElementById('quiz-choices-container').children;
+
+      if (isCorrect) {
+        quizScore++;
+        playSoundEffect('correct');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-sm font-bold text-emerald-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '✅';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+      } else {
+        playSoundEffect('wrong');
+        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-rose-500 bg-rose-50 text-sm font-bold text-rose-900 flex items-center justify-between shadow-sm';
+        btnEl.querySelector('.choice-icon').innerText = '❌';
+        btnEl.querySelector('.choice-icon').classList.remove('hidden');
+
+        q.choices.forEach((c, idx) => {
+          if (c.correct) {
+            choicesBtns[idx].className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-400 bg-emerald-50/70 text-sm font-bold text-emerald-800 flex items-center justify-between shadow-sm';
+            choicesBtns[idx].querySelector('.choice-icon').innerText = '✅';
+            choicesBtns[idx].querySelector('.choice-icon').classList.remove('hidden');
+          }
+        });
+      }
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.classList.remove('hidden');
+      if (isCorrect) {
+        fbBox.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50 text-emerald-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '🎉';
+        document.getElementById('quiz-fb-title').innerText = 'ตอบถูกต้อง!';
+      } else {
+        fbBox.className = 'rounded-2xl p-4 border border-rose-200 bg-rose-50 text-rose-900 transition flex items-start gap-3';
+        document.getElementById('quiz-fb-icon').innerText = '💡';
+        document.getElementById('quiz-fb-title').innerText = 'ข้อคิดความปลอดภัย:';
+      }
+      document.getElementById('quiz-fb-desc').innerText = q.explain;
+
+      const btnNext = document.getElementById('quiz-btn-next');
+      btnNext.disabled = false;
+      btnNext.className = 'px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2 cursor-pointer';
+    }
+
+    function nextQuestion() {
+      if (quizCurrentIdx < QUIZ_QUESTIONS.length - 1) {
+        quizCurrentIdx++;
+        playSoundEffect('click');
+        renderQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      playSoundEffect('fanfare');
+      document.getElementById('quiz-active-box').classList.add('hidden');
+      document.getElementById('quiz-result-box').classList.remove('hidden');
+
+      document.getElementById('res-score').innerText = quizScore;
+      const titleEl = document.getElementById('res-grade-title');
+      const descEl = document.getElementById('res-grade-desc');
+      const medalEl = document.getElementById('res-medal-icon');
+      const rankEl = document.getElementById('res-rank');
+
+      if (quizScore === 6) {
+        medalEl.innerText = '🥇';
+        rankEl.innerText = 'A+ ผู้พิทักษ์ความปลอดภัยยอดเยี่ยม';
+        rankEl.className = 'text-base font-bold text-emerald-600';
+        titleEl.innerText = 'ยอดเยี่ยมระดับมืออาชีพ! 100%';
+        descEl.innerText = 'คุณมีความรู้ความเข้าใจในการเอาตัวรอด การประเมินความปลอดภัย และการโทรขอความช่วยเหลืออย่างมีสติสมบูรณ์แบบ';
+      } else if (quizScore >= 4) {
+        medalEl.innerText = '🥈';
+        rankEl.innerText = 'B+ มีสติและรอบคอบดีมาก';
+        rankEl.className = 'text-base font-bold text-rose-600';
+        titleEl.innerText = 'ผ่านเกณฑ์ความปลอดภัยดีมาก!';
+        descEl.innerText = 'คุณเข้าใจเบอร์โทรฉุกเฉินและสูตร 3W เป็นอย่างดี พร้อมรับมือสถานการณ์ในชีวิตจริง';
+      } else {
+        medalEl.innerText = '🥉';
+        rankEl.innerText = 'C ควรทบทวนการเอาตัวรอด';
+        rankEl.className = 'text-base font-bold text-amber-600';
+        titleEl.innerText = 'ควรทบทวนความปลอดภัยเพิ่มเติม';
+        descEl.innerText = 'ลองกลับไปศึกษา 4 เสาหลักและซ้อมกดแป้นโทรฉุกเฉินอีกครั้ง เพื่อความปลอดภัยสูงสุดของตัวคุณเอง';
+      }
+    }
+
+    function restartQuiz() {
+      initQuiz();
+    }
+
+    function speakQuestion() {
+      const q = QUIZ_QUESTIONS[quizCurrentIdx];
+      speakText(q.topic + '. คำถาม: ' + q.title);
+    }
+
+    // Init on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      selectScenario(0);
+      updateDialDisplay();
+      initQuiz();
+    });
+  </script>
+</body>
+</html>

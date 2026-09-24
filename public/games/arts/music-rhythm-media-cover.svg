@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bgmr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="55%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bgmr)"/>
+  <g stroke="#ffffff" stroke-opacity="0.4" stroke-width="4">
+    <line x1="0" y1="90" x2="1280" y2="90"/>
+    <line x1="0" y1="118" x2="1280" y2="118"/>
+    <line x1="0" y1="146" x2="1280" y2="146"/>
+    <line x1="0" y1="174" x2="1280" y2="174"/>
+    <line x1="0" y1="202" x2="1280" y2="202"/>
+  </g>
+  <g fill="#ffffff" fill-opacity="0.9">
+    <ellipse cx="180" cy="174" rx="22" ry="15" transform="rotate(-20 180 174)"/>
+    <rect x="198" y="70" width="6" height="100"/>
+    <ellipse cx="420" cy="146" rx="22" ry="15" transform="rotate(-20 420 146)"/>
+    <rect x="438" y="42" width="6" height="100"/>
+    <path d="M444 42 C 480 60, 480 90, 450 108" fill="none" stroke="#ffffff" stroke-width="8"/>
+    <ellipse cx="1060" cy="118" rx="24" ry="16" fill="none" stroke="#ffffff" stroke-width="7"/>
+    <rect x="1080" y="16" width="6" height="98"/>
+  </g>
+  <circle cx="120" cy="600" r="46" fill="#ffffff" fill-opacity="0.15"/>
+  <text x="120" y="622" text-anchor="middle" font-size="60">>A</text>
+  <text x="1150" y="640" text-anchor="middle" font-size="64">=O</text>
+  <rect x="200" y="250" width="880" height="300" rx="36" fill="#ffffff" fill-opacity="0.18"/>
+  <text x="640" y="352" text-anchor="middle" font-size="84"><�</text>
+  <text x="640" y="452" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="64" font-weight="800" fill="#ffffff">1+'0A%0@#7H-+!2"#5</text>
+  <text x="640" y="514" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="30" font-weight="600" fill="#ffffff" fill-opacity="0.92">1'BI*1I"2' � 1'+"8 � ##1 5 @*I � .34</text>
+  <text x="640" y="606" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">*7H-2#*-#5 � B#@#5"I23DH</text>
+</svg>

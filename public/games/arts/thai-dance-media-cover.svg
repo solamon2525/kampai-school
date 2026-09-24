@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bgtd" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#881337"/>
+      <stop offset="55%" stop-color="#be123c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bgtd)"/>
+  <circle cx="160" cy="140" r="90" fill="#ffffff" fill-opacity="0.10"/>
+  <circle cx="1130" cy="580" r="130" fill="#facc15" fill-opacity="0.12"/>
+  <g stroke="#fde68a" stroke-width="10" fill="none" stroke-linecap="round">
+    <circle cx="140" cy="520" r="26" stroke-width="8"/>
+    <line x1="140" y1="546" x2="140" y2="620"/>
+    <path d="M140 565 C 95 560, 70 530, 80 495"/>
+    <path d="M140 565 C 185 560, 210 530, 200 495"/>
+    <line x1="140" y1="620" x2="112" y2="686"/>
+    <path d="M140 620 C 172 636, 182 662, 165 680"/>
+  </g>
+  <g stroke="#fda4af" stroke-width="9" fill="none" stroke-linecap="round">
+    <circle cx="1140" cy="130" r="24" stroke-width="7"/>
+    <line x1="1140" y1="154" x2="1140" y2="225"/>
+    <path d="M1140 172 C 1100 168, 1080 140, 1090 110"/>
+    <path d="M1140 172 C 1180 182, 1198 205, 1190 228"/>
+    <line x1="1140" y1="225" x2="1115" y2="285"/>
+    <line x1="1140" y1="225" x2="1168" y2="285"/>
+  </g>
+  <rect x="200" y="220" width="880" height="300" rx="36" fill="#ffffff" fill-opacity="0.16"/>
+  <text x="640" y="322" text-anchor="middle" font-size="84">=�</text>
+  <text x="640" y="424" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="72" font-weight="800" fill="#ffffff">2(4%L7I2</text>
+  <text x="640" y="486" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="30" font-weight="600" fill="#ffffff" fill-opacity="0.92"> 2)2H2 � 2"(1L � @%7H-D+'#0-@% � .35</text>
+  <text x="640" y="580" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">*7H-2#*-2(4%L � B#@#5"I23DH</text>
+</svg>

@@ -1,207 +1,95 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="worksheet-source-media" content="/games/english/english-grammar-p45-hub/index.html" />
-  <meta name="curriculum-indicators" content="ต 2.2 ป.5/1,ต 3.1 ป.5/1" />
-  <title>ระบบใบงานภาษาอังกฤษอัจฉริยะ ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
-  <style>
-    *{box-sizing:border-box} body{margin:0;background:#f0f9ff;color:#0f172a;font-family:Sarabun,sans-serif}
-    .toolbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#0284c7;color:#fff;box-shadow:0 3px 12px rgba(2,132,199,.35)}
-    .toolbar h1{font-size:1rem;flex:1;margin:0;min-width:170px}
-    .toolbar-ctrls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-    .t-select,.t-input{font:700 .85rem Sarabun;padding:6px 10px;border-radius:8px;border:1px solid #bae6fd;background:#fff;color:#0284c7}
-    .t-input{width:130px}
-    .btn{border:0;border-radius:8px;padding:7px 11px;font:700 .88rem Sarabun;cursor:pointer;background:#fff;color:#0284c7;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
-    .btn.primary{background:#fbbf24;color:#78350f}.btn.green{background:#10b981;color:#fff}
-    
-    .pages{padding:14px}.sheet{width:210mm;height:297mm;min-height:297mm;max-height:297mm;overflow:hidden;margin:0 auto 16px;background:#fff;padding:5mm 6mm;box-shadow:0 5px 24px rgba(2,132,199,.15);page-break-after:always;break-after:page;display:flex;flex-direction:column;gap:2mm;position:relative}
-    .sheet:last-child{page-break-after:auto}
-    
-    .sheet-head{border-bottom:2px solid #0284c7;padding-bottom:2mm;padding-right:28mm;position:relative;min-height:26mm}
-    .sheet-title{display:flex;align-items:center;gap:8px}.sheet-title h2{margin:0;flex:1;color:#0284c7;font-size:15pt}.level{border:1.5px solid #bae6fd;border-radius:999px;padding:2px 9px;font-weight:800;color:#0284c7;font-size:8.5pt}
-    .school-name{font-size:9pt;font-weight:700;color:#0369a1;margin-top:0.5mm;display:flex;align-items:center;gap:6px}
-    .school-logo-mini{width:18px;height:18px;object-fit:contain}
-    
-    .student{display:flex;flex-wrap:nowrap;gap:8mm;align-items:center;margin-top:2mm;font-size:10.5pt;font-weight:700;color:#1e293b}
-    .student-name{flex:1;display:flex;align-items:center;gap:6px}
-    .student-no{display:flex;align-items:center;gap:6px;white-space:nowrap}
-    .blank{display:inline-block;border-bottom:1px solid #334155;height:5mm}
-    .blank.long{flex:1;min-width:60mm}
-    .blank.short{width:22mm}
-    
-    .directions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:9pt;font-weight:700;color:#334155;margin-top:2mm}
-    .indicator{color:#0284c7;font-weight:800;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:1px 7px;white-space:nowrap}
-    
-    .qr-box{position:absolute;right:0;top:0;display:flex;flex-direction:column;align-items:center;text-align:center;width:25mm}
-    .qr-img{width:22mm;height:22mm;border:1px solid #0284c7;border-radius:4px;padding:1px;background:#fff}
-    .qr-label{font-size:6.5pt;font-weight:700;color:#0284c7;margin-top:1px;line-height:1.1}
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="worksheet-source-media" content="/games/english/grammar-vocab-media.html"><meta name="curriculum-indicators" content="ต 1.1 ป.4/2, ต 2.2 ป.5/1, ต 3.1 ป.5/1"><title>ใบงาน Grammar & Vocab ป.4–6 — โรงเรียนบ้านคำไผ่</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet"><link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+<style>
+.skill-tag{display:inline-block;font-size:6.5pt;font-weight:800;color:var(--ws-accent);border:1px solid var(--ws-accent);border-radius:3px;padding:.2mm 1.2mm;margin-bottom:.8mm}
+.eng-word{font-size:11.5pt;font-weight:800;color:var(--ws-accent);margin:.5mm 0}
+.tick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1mm;margin:.8mm 0}
+.tick-box{border:1px dashed var(--ws-line);border-radius:3px;padding:.6mm;font-size:6.5pt;font-weight:700;text-align:center;color:var(--ws-muted)}
+.step-block{display:flex;flex-direction:column;gap:1.2mm;margin-top:1mm}
+.step-row{display:grid;grid-template-columns:22mm 1fr;gap:1.5mm;align-items:end;min-height:7mm}
+.step-tag{font-size:6.5pt;font-weight:800;color:var(--ws-paper);background:var(--ws-accent);border-radius:3px;padding:.8mm;text-align:center}
+.step-body{min-height:6mm;border-bottom:1px dotted var(--ws-muted);display:flex;align-items:flex-end;font-weight:700;font-size:8pt}
+.work-fill{color:transparent;font-weight:800}.show-answers .work-fill{color:var(--ws-danger)}
+.count-5 .step-row{min-height:8.5mm}.count-5 .eng-word{font-size:13.5pt}
+</style>
+</head><body>
+<header class="toolbar"><h1>🔤 ใบงาน Grammar & Vocab</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="be">Verb to Be</option><option value="articles">Articles (a/an/the)</option><option value="pronouns">Pronouns & Possessives</option><option value="demonstratives">Demonstratives</option><option value="prepositions">Prepositions of Place</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=1.191.0"></script>
+<script src="/games/kampai-qr.js?v=1.191.0"></script>
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script><script>
+const ITEMS=[
+  {type:'be',prompt:'She ___ a doctor.',focus:'is / am / are',answer:'is',step1:'ประธาน She (เอกพจน์)',step2:'รูปปัจจุบัน',step3:'is'},
+  {type:'be',prompt:'I ___ a student.',focus:'is / am / are',answer:'am',step1:'ประธาน I',step2:'คู่ am เสมอ',step3:'am'},
+  {type:'be',prompt:'They ___ playing football.',focus:'is / am / are',answer:'are',step1:'ประธาน They (พหูพจน์)',step2:'They คู่ are',step3:'are'},
+  {type:'be',prompt:'We ___ hungry now.',focus:'is / am / are',answer:'are',step1:'ประธาน We (พหูพจน์)',step2:'รูปปัจจุบัน',step3:'are'},
+  {type:'be',prompt:'He ___ at home yesterday.',focus:'was / were',answer:'was',step1:'He (เอกพจน์) + yesterday',step2:'อดีตเอกพจน์ → was',step3:'was'},
+  {type:'be',prompt:'You ___ very kind to me.',focus:'is / am / are',answer:'are',step1:'ประธาน You',step2:'You คู่ are',step3:'are'},
+  {type:'be',prompt:'The dog ___ sleeping under the tree.',focus:'is / am / are',answer:'is',step1:'The dog (เอกพจน์)',step2:'เอกพจน์ใช้ is',step3:'is'},
+  {type:'be',prompt:'We ___ in Bangkok last week.',focus:'was / were',answer:'were',step1:'We + last week (อดีต)',step2:'อดีตพหูพจน์ → were',step3:'were'},
+  {type:'be',prompt:'It ___ a sunny day today.',focus:'is / am / are',answer:'is',step1:'ประธาน It (เอกพจน์)',step2:'It คู่ is',step3:'is'},
+  {type:'be',prompt:'The children ___ happy yesterday.',focus:'was / were',answer:'were',step1:'children (หลายคน) + yesterday',step2:'อดีตพหูพจน์ → were',step3:'were'},
 
-    .questions{display:grid;gap:1.5mm;flex:1}
-    .questions.count-10{grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);gap:1.5mm 3mm}
-    .questions.count-10 .q{padding:2mm 2.5mm;min-height:36.5mm}
-    
-    .q{border:1.4px solid #bae6fd;border-radius:2.5mm;padding:2.5mm 2mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:0;position:relative;break-inside:avoid;background:#f8fafc}
-    .q-num{position:absolute;left:2mm;top:1.5mm;width:6.5mm;height:6.5mm;border-radius:50%;display:grid;place-items:center;background:#0284c7;color:#fff;font-weight:800;font-size:9pt}
-    .eng-word{font-size:14.5pt;font-weight:800;color:#0369a1;margin-left:7mm;flex-shrink:0;line-height:1.35}
-    .q-work-block{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:14mm;padding:1.2mm 0;width:100%}
-    .ans{font:700 9.5pt Sarabun,sans-serif;color:#0284c7;margin-top:0;margin-left:7mm;min-height:7mm;display:flex;align-items:flex-end;flex-shrink:0;width:calc(100% - 7mm)}
-    .blank-sm{display:inline-block;min-width:24mm;min-height:6mm;border-bottom:1px solid #334155;height:6mm;flex:1}
-    .work-line{margin-left:7mm;width:calc(100% - 7mm);min-height:7mm;height:7mm;border-bottom:1px dotted #94a3b8;font-size:8.5pt;display:flex;align-items:flex-end;padding-bottom:.6mm}
-    .work-fill{color:transparent;font-weight:800}
-    .show-answers .work-fill{color:#b91c1c}
-    .ta{display:none}
+  {type:'articles',prompt:'I saw ___ elephant at the zoo.',focus:'a / an / the',answer:'an',step1:'elephant เสียงสระ /e/',step2:'เสียงสระนำหน้า → an',step3:'an'},
+  {type:'articles',prompt:'He is ___ honest boy.',focus:'a / an / the',answer:'an',step1:'honest ไม่ออกเสียง h (/ɒ/)',step2:'เสียงสระนำหน้า → an',step3:'an'},
+  {type:'articles',prompt:'She bought ___ new book yesterday.',focus:'a / an / the',answer:'a',step1:'new book เสียงพยัญชนะ /n/',step2:'เอกพจน์ทั่วไป → a',step3:'a'},
+  {type:'articles',prompt:'___ sun rises in the east.',focus:'a / an / the',answer:'The',step1:'sun สิ่งเดียวในโลก',step2:'เฉพาะเจาะจง → The',step3:'The'},
+  {type:'articles',prompt:'Pass me ___ pencil on the desk.',focus:'a / an / the',answer:'the',step1:'ดินสอบนโต๊ะตัวนั้น',step2:'เจาะจงชัดเจน → the',step3:'the'},
+  {type:'articles',prompt:'She wants to be ___ English teacher.',focus:'a / an / the',answer:'an',step1:'English เสียงสระ /ɪ/',step2:'อาชีพเสียงสระ → an',step3:'an'},
+  {type:'articles',prompt:'We go to school by ___ bus.',focus:'a / an / the / ∅',answer:'∅ (ไม่ต้องเติม)',step1:'by + ยานพาหนะ',step2:'ไม่ต้องมี article',step3:'∅'},
+  {type:'articles',prompt:'Look at ___ moon in the sky.',focus:'a / an / the',answer:'the',step1:'moon มีดวงเดียวในโลก',step2:'เฉพาะเจาะจง → the',step3:'the'},
+  {type:'articles',prompt:'That is ___ university in Bangkok.',focus:'a / an / the',answer:'a',step1:'university เสียงพยัญชนะ /juː/',step2:'เสียง ย → ใช้ a',step3:'a'},
+  {type:'articles',prompt:'He ate ___ apple for breakfast.',focus:'a / an / the',answer:'an',step1:'apple เสียงสระ /æ/',step2:'เสียงสระ → an',step3:'an'},
 
-    .parent-slip{border-top:2px dashed #0284c7;margin-top:auto;padding-top:1.5mm;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center;font-size:8pt;color:#334155}
-    .parent-slip .cut-label{font-weight:800;color:#0284c7}
-    .parent-slip .teacher-label{font-weight:700;color:#0284c7;background:#f0f9ff;padding:1px 6px;border-radius:4px;border:1px solid #bae6fd}
+  {type:'pronouns',prompt:'Lisa is kind. Everyone loves ___.',focus:'her / him / she',answer:'her',step1:'Lisa (ผู้หญิง)',step2:'รูปกรรม = her',step3:'her'},
+  {type:'pronouns',prompt:'John lost ___ pencil at school.',focus:'his / him / he',answer:'his',step1:'ของ John (ผู้ชาย)',step2:'แสดงความเป็นเจ้าของ = his',step3:'his'},
+  {type:'pronouns',prompt:'This is my cat. ___ is very cute.',focus:'It / Its / She',answer:'It',step1:'my cat (สัตว์ 1 ตัว)',step2:'สรรพนามประธาน = It',step3:'It'},
+  {type:'pronouns',prompt:'We cleaned ___ classroom today.',focus:'our / us / we',answer:'our',step1:'ห้องเรียนของพวกเรา',step2:'เจ้าของของ We = our',step3:'our'},
+  {type:'pronouns',prompt:'The teacher asked ___ to answer.',focus:'me / I / my',answer:'me',step1:'ตำแหน่งกรรมหลังกริยา asked',step2:'รูปกรรมของ I = me',step3:'me'},
+  {type:'pronouns',prompt:'The birds built ___ nest in the tree.',focus:'their / them / they',answer:'their',step1:'the birds หลายตัว',step2:'ความเป็นเจ้าของ = their',step3:'their'},
+  {type:'pronouns',prompt:'Give ___ that book, please. (เขาผู้ชาย)',focus:'him / his / he',answer:'him',step1:'ตำแหน่งกรรมหลัง Give',step2:'รูปกรรมผู้ชาย = him',step3:'him'},
+  {type:'pronouns',prompt:'That red bag is ___. (ของฉัน)',focus:'mine / my / me',answer:'mine',step1:'สรรพนามเจ้าของท้ายประโยค',step2:'my bag = mine',step3:'mine'},
+  {type:'pronouns',prompt:'The kids did the work by ___.',focus:'themselves / their',answer:'themselves',step1:'เด็กๆ ทำด้วยตนเอง',step2:'reflexive ของ they = themselves',step3:'themselves'},
+  {type:'pronouns',prompt:'Anna and ___ are best friends.',focus:'I / me / my',answer:'I',step1:'ตำแหน่งประธานร่วมกับ Anna',step2:'รูปประธาน = I',step3:'I'},
 
-    .cover-sheet{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:4px double #0284c7;padding:12mm}
-    .cover-logo-img{width:100px;height:100px;object-fit:contain;margin-bottom:4mm}
-    .cover-title{font-size:24pt;font-weight:800;color:#0284c7;margin:0 0 2mm}
-    .cover-sub{font-size:14pt;font-weight:700;color:#0369a1;margin-bottom:8mm}
-    .cover-box{border:2px solid #bae6fd;background:#f0f9ff;border-radius:12px;padding:6mm;width:80%;margin-bottom:8mm}
+  {type:'demonstratives',prompt:'___ is my pencil right here in hand.',focus:'This / That / These / Those',answer:'This',step1:'ดินสอ 1 แท่ง + อยู่ใกล้ในมือ',step2:'ใกล้ + เอกพจน์ → This',step3:'This'},
+  {type:'demonstratives',prompt:'Look at ___ birds flying way up there.',focus:'This / That / These / Those',answer:'those',step1:'birds หลายตัว + บินอยู่ไกล',step2:'ไกล + พหูพจน์ → those',step3:'those'},
+  {type:'demonstratives',prompt:'___ shoes I am wearing are soft.',focus:'This / That / These / Those',answer:'These',step1:'shoes หลายข้าง + สวมอยู่ (ใกล้)',step2:'ใกล้ + พหูพจน์ → These',step3:'These'},
+  {type:'demonstratives',prompt:'Do you see ___ red car over there?',focus:'This / That / These / Those',answer:'that',step1:'รถ 1 คัน + อยู่ตรงโน้น (ไกล)',step2:'ไกล + เอกพจน์ → that',step3:'that'},
+  {type:'demonstratives',prompt:'___ are sweet cookies on my plate.',focus:'This / That / These / Those',answer:'These',step1:'cookies หลายชิ้น + บนจานฉัน',step2:'ใกล้ + พหูพจน์ → These',step3:'These'},
+  {type:'demonstratives',prompt:'Who is ___ boy standing by the gate?',focus:'This / That / These / Those',answer:'that',step1:'boy คนเดียว + ยืนตรงประตู',step2:'ไกล + เอกพจน์ → that',step3:'that'},
+  {type:'demonstratives',prompt:'I like ___ picture in my hand.',focus:'This / That / These / Those',answer:'this',step1:'picture 1 รูป + อยู่ในมือ',step2:'ใกล้ + เอกพจน์ → this',step3:'this'},
+  {type:'demonstratives',prompt:'___ stars in the night sky look bright.',focus:'This / That / These / Those',answer:'Those',step1:'stars หลายดวง + บนฟ้าไกล',step2:'ไกล + พหูพจน์ → Those',step3:'Those'},
+  {type:'demonstratives',prompt:'Are ___ your keys on the table near you?',focus:'this / that / these / those',answer:'these',step1:'keys หลายดอก + วางใกล้',step2:'ใกล้ + พหูพจน์ → these',step3:'these'},
+  {type:'demonstratives',prompt:'What was ___ noise outside last night?',focus:'this / that / these / those',answer:'that',step1:'noise สิ่งเดียว + นอกบ้าน (ไกล)',step2:'ไกล + เอกพจน์ → that',step3:'that'},
 
-    .sheet-foot{display:flex;justify-content:space-between;align-items:center;color:#64748b;font-size:7.5pt;margin-top:0.5mm}
-    .sheet-foot-teacher{font-weight:700;color:#0284c7}
-    
-    @media print{
-      @page{size:A4 portrait;margin:0}
-      body{background:#fff}.toolbar{display:none!important}.pages{padding:0}
-      .sheet{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:297mm;padding:5mm 6mm;overflow:hidden}.q{min-height:0}
-    }
-  </style>
-</head>
-<body>
-  <div class="toolbar">
-    <h1>🔤 ระบบใบงานภาษาอังกฤษอัจฉริยะ (English Quest)</h1>
-    <div class="toolbar-ctrls">
-      <select class="t-select" id="selStyle">
-        <option value="standard">รูปแบบ: ใบงานมาตรฐาน (Grammar & Vocab)</option>
-        <option value="booklet">รูปแบบ: รวมเล่มแบบฝึกหัดภาษาอังกฤษ</option>
-      </select>
-      <select class="t-select" id="selPageCount">
-        <option value="1">สร้าง 1 หน้า</option>
-        <option value="2">สร้าง 2 หน้าพร้อมกัน</option>
-        <option value="3">สร้าง 3 หน้าพร้อมกัน</option>
-      </select>
-      <select class="t-select" id="selTopic">
-        <option value="verb3">หัวข้อ: กริยา 3 ช่อง (Past Tense)</option>
-        <option value="vocab">หัวข้อ: หมวดคำศัพท์อาชีพ & สถานที่</option>
-        <option value="opposite">หัวข้อ: คำตรงข้าม (Opposites)</option>
-      </select>
-      <input class="t-input" type="text" id="inpSchool" value="โรงเรียนบ้านคำไผ่" />
-      <select class="t-select" id="selTeacher"><option value="">-- เลือกครูผู้สอน --</option></select>
-      <button class="btn primary" id="btnRandom">🎲 สุ่มโจทย์ใหม่</button>
-      <button class="btn" id="btnAnswers">👁️ เฉลยครู</button>
-      <button class="btn green" id="btnPrint">🖨️ พิมพ์ A4</button>
-    </div>
-  </div>
-  <main class="pages" id="pages"></main>
-
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
-<script>
-const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-const SCHOOL_LOGO_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co/storage/v1/object/public/school-images/logo/1778157862905_c2swwm.webp';
-const MEDIA_URL = window.location.origin + '/games/english/english-grammar-p45-hub/index.html';
-const QR_API = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(MEDIA_URL);
-
-const ENG_DATA = {
-  verb3: [
-    {q:'go', ans:'went / gone'}, {q:'eat', ans:'ate / eaten'}, {q:'see', ans:'saw / seen'},
-    {q:'write', ans:'wrote / written'}, {q:'take', ans:'took / taken'}, {q:'run', ans:'ran / run'},
-    {q:'make', ans:'made / made'}, {q:'buy', ans:'bought / bought'}, {q:'drink', ans:'drank / drunk'}
-  ],
-  vocab: [
-    {q:'Doctor', ans:'หมอ / แพทย์'}, {q:'Teacher', ans:'ครู'}, {q:'Hospital', ans:'โรงพยาบาล'},
-    {q:'Library', ans:'ห้องสมุด'}, {q:'Engineer', ans:'วิศวกร'}, {q:'Police station', ans:'สถานีตำรวจ'}
-  ],
-  opposite: [
-    {q:'Hot', ans:'Cold'}, {q:'Big', ans:'Small'}, {q:'Fast', ans:'Slow'},
-    {q:'Happy', ans:'Sad'}, {q:'Clean', ans:'Dirty'}, {q:'Strong', ans:'Weak'}
-  ]
-};
-
-function buildEngWork(item, topicKey){
-  if(topicKey==='verb3') return {line1:'V1: '+item.q+' → แปลงเป็น V2 / V3', line2:'→ '+item.ans};
-  if(topicKey==='opposite') return {line1:'หาคำตรงข้ามของ "'+item.q+'"', line2:'→ '+item.ans};
-  return {line1:'แปล/จำคู่: '+item.q, line2:'→ '+item.ans};
-}
-function question(qi, topicItem, topicKey){
-  const work=buildEngWork(topicItem, topicKey);
-  return '<article class="q"><span class="q-num">'+qi+'</span>'
-    +'<div class="eng-word">Word: "'+topicItem.q+'"</div>'
-    +'<div class="q-work-block"><div class="work-line"><span class="work-fill">'+work.line1+'</span></div><div class="work-line"><span class="work-fill">'+work.line2+'</span></div></div>'
-    +'<div class="ans">Answer: <span class="blank-sm"><span class="work-fill">'+topicItem.ans+'</span></span></div></article>';
-}
-
-function renderBookletCover(schoolName, teacherName){
-  return '<section class="sheet cover-sheet">'
-    +'<img class="cover-logo-img" src="'+SCHOOL_LOGO_URL+'" alt="ตราโรงเรียน" />'
-    +'<h1 class="cover-title">'+(schoolName||'โรงเรียนบ้านคำไผ่')+'</h1>'
-    +'<div class="cover-sub">English Grammar & Vocabulary Quest (Grade 4–6)</div>'
-    +'<div class="cover-box"><div style="font-size:12pt;font-weight:800;color:#0284c7">Student Profile</div>'
-    +'<div style="text-align:left;font-size:11pt;font-weight:700;margin-top:3mm;display:grid;gap:2mm">'
-    +'<div>Name: <span class="blank" style="min-width:100mm"></span></div>'
-    +'<div>No: <span class="blank" style="min-width:30mm"></span></div>'
-    +'<div>Teacher: <span class="blank" style="min-width:80mm">'+(teacherName||'....................................')+'</span></div>'
-    +'</div></div>'
-    +'<footer class="sheet-foot" style="position:absolute;bottom:8mm;right:8mm">English Department · Kampai School</footer></section>';
-}
-
-function renderParentSlip(teacherName){
-  return '<div class="parent-slip"><span class="cut-label">✂️ Parent Slip</span>'
-    +(teacherName?`<span class="teacher-label">Teacher: ${teacherName}</span>`:'')
-    +'<span>Result: [  ] Passed   [  ] Needs Improvement</span>'
-    +'<span>Parent Signature: .......................................</span></div>';
-}
-
-function renderSingleSheet(pageIdx, totalPages, style, topicKey, schoolName, teacherName){
-  const list = ENG_DATA[topicKey] || ENG_DATA.verb3;
-  let qs = ''; for(let i=1; i<=10; i++){
-    const item = list[(i-1+pageIdx*2) % list.length];
-    qs += question(i, item, topicKey);
+  {type:'prepositions',prompt:'The cat is sleeping ___ the chair.',focus:'under / in / between',answer:'under',step1:'นอนใต้เก้าอี้',step2:'ใต้ = under',step3:'under'},
+  {type:'prepositions',prompt:'The books are ___ the school bag.',focus:'in / on / behind',answer:'in',step1:'อยู่ในกระเป๋า',step2:'ข้างใน = in',step3:'in'},
+  {type:'prepositions',prompt:'There is an apple ___ the table.',focus:'on / under / next to',answer:'on',step1:'วางบนโต๊ะ',step2:'บนพื้นผิว = on',step3:'on'},
+  {type:'prepositions',prompt:'The shop is ___ the bank and school.',focus:'between / in front of / on',answer:'between',step1:'ระหว่าง 2 สิ่ง (A and B)',step2:'ระหว่าง = between',step3:'between'},
+  {type:'prepositions',prompt:'The boy is hiding ___ the door.',focus:'behind / under / in',answer:'behind',step1:'แอบข้างหลังประตู',step2:'ข้างหลัง = behind',step3:'behind'},
+  {type:'prepositions',prompt:'The car is parked ___ the house.',focus:'in front of / between / under',answer:'in front of',step1:'จอดอยู่หน้าบ้าน',step2:'ข้างหน้า = in front of',step3:'in front of'},
+  {type:'prepositions',prompt:'Sit ___ me so we can read together.',focus:'next to / in / under',answer:'next to',step1:'นั่งข้างๆ ฉัน',step2:'ข้างๆ = next to',step3:'next to'},
+  {type:'prepositions',prompt:'The clock is hanging ___ the wall.',focus:'on / in / under',answer:'on',step1:'แขวนบนผนัง',step2:'แนบผนัง = on',step3:'on'},
+  {type:'prepositions',prompt:'Fish swim ___ the river.',focus:'in / on / at',answer:'in',step1:'ว่ายในแม่น้ำ',step2:'ในน้ำ = in',step3:'in'},
+  {type:'prepositions',prompt:'We have English class ___ Monday.',focus:'on / in / at',answer:'on',step1:'วันในสัปดาห์ (Monday)',step2:'หน้าวัน = on',step3:'on'}
+];
+const SKILL={be:'Verb to Be',articles:'Articles',pronouns:'Pronouns',demonstratives:'Demonstratives',prepositions:'Prepositions'};
+window.WORKSHEET_CONFIG={
+  worksheetKey:'grammar-vocab-p46',
+  icon:'🔤',title:'ใบงาน Grammar & Vocab',subject:'ภาษาอังกฤษ',gradeLabel:'ป.4–6',mediaLabel:'Grammar & Vocab Media',
+  sourceMediaUrl:'/games/english/grammar-vocab-media.html',indicators:['ต 1.1 ป.4/2','ต 2.2 ป.5/1','ต 3.1 ป.5/1'],
+  directions:'วิเคราะห์ประธานและบริบท → เลือกหลักไวยากรณ์ → เขียนคำตอบที่ถูกต้อง',
+  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(i=>i.type===topic);},
+  renderQuestion(item){
+    const e=window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="q-stem"><span class="skill-tag">'+e(SKILL[item.type]||item.type)+'</span><div class="q-prompt">'+e(item.prompt)+'</div>'
+      +'<div class="eng-word">'+e(item.focus)+'</div>'
+      +'<div class="tick-grid"><div class="tick-box">□ หลักการ</div><div class="tick-box">□ รูปประธาน</div><div class="tick-box">□ บริบทเวลา</div></div>'
+      +'</div><div class="q-work-block step-block">'
+      +'<div class="step-row"><span class="step-tag">1 ประธาน/คำ</span><div class="step-body"><span class="work-fill">'+e(item.step1)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">2 กฎไวยากรณ์</span><div class="step-body"><span class="work-fill">'+e(item.step2)+'</span></div></div>'
+      +'<div class="step-row"><span class="step-tag">3 คำตอบ</span><div class="step-body"><span class="work-fill">'+e(item.step3)+'</span></div></div>'
+      +'</div><div class="q-foot"><div class="answer-line">Answer <span class="answer-fill">'+e(item.answer)+'</span></div></div>';
   }
-  return '<section class="sheet"><header class="sheet-head">'
-    +'<div class="qr-box"><img class="qr-img" src="'+QR_API+'" alt="QR" /><span class="qr-label">Scan Media</span></div>'
-    +'<div class="sheet-title"><h2>🔤 English Quest — Grammar & Vocab</h2><span class="level">ต 1.1 ป.4–6</span></div>'
-    +'<div class="school-name"><img src="'+SCHOOL_LOGO_URL+'" class="school-logo-mini" /> '+schoolName+'</div>'
-    +'<div class="student"><div class="student-name"><span class="lbl">Name</span><span class="blank"></span></div><div class="student-no"><span class="lbl">No</span><span class="blank"></span></div></div>'
-    +'<div class="directions"><span>Directions: Fill in the correct English grammar or vocabulary answer.</span><span class="indicator">ต 1.1 ป.4-6</span></div>'
-    +'</header><div class="questions count-10">'+qs+'</div>'+renderParentSlip(teacherName)
-    +'<footer class="sheet-foot"><span>Page '+pageIdx+' / '+totalPages+'</span>'+(teacherName?`<span class="sheet-foot-teacher">Teacher: ${teacherName}</span>`:'')+'</footer></section>';
-}
-
-function render(){
-  const style = document.getElementById('selStyle').value;
-  const pageCount = parseInt(document.getElementById('selPageCount').value, 10);
-  const topicKey = document.getElementById('selTopic').value;
-  const schoolName = document.getElementById('inpSchool').value.trim();
-  const teacherName = document.getElementById('selTeacher').value;
-
-  let html = style==='booklet' ? renderBookletCover(schoolName, teacherName) : '';
-  for(let p=1; p<=pageCount; p++) html += renderSingleSheet(p, pageCount, style, topicKey, schoolName, teacherName);
-  document.getElementById('pages').innerHTML = html;
-}
-
-document.getElementById('btnRandom').onclick = render;
-document.getElementById('selStyle').onchange = render;
-document.getElementById('selPageCount').onchange = render;
-document.getElementById('selTopic').onchange = render;
-document.getElementById('inpSchool').oninput = render;
-document.getElementById('selTeacher').onchange = render;
-document.getElementById('btnAnswers').onclick = function(){
-  document.body.classList.toggle('show-answers');
-  this.textContent = document.body.classList.contains('show-answers') ? '🙈 ซ่อนเฉลยครู' : '👁️ เฉลยครู';
 };
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
-
-window.KampaiWorksheet.loadTeachers();
-render();
-</script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
-</body>
-</html>
+</script><script src="/games/worksheet-topic.js?v=1.199.1"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=1.199.1"></script></body></html>

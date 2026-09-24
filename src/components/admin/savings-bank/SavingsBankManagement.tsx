@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -32,6 +32,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   savingsTransactionsService,
+  savingsErrorMessage,
   savingsSummaryService,
   studentsService,
   termService,
@@ -50,6 +51,15 @@ import {
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -60,6 +70,14 @@ interface StudentOption {
   name: string;
   class: string;
   photo_url: string | null;
+}
+
+interface DepositConfirmation {
+  studentName: string;
+  photoUrl: string | null;
+  amount: number;
+  balanceAfter: number;
+  transactionType: SavingsTransactionType;
 }
 
 type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
@@ -101,6 +119,9 @@ export const SavingsBankManagement = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
+  const [depositConfirmation, setDepositConfirmation] = useState<DepositConfirmation | null>(null);
+  const [speechComplete, setSpeechComplete] = useState(false);
+  const speechRequestRef = useRef(0);
 
   const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
   const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
@@ -140,6 +161,21 @@ export const SavingsBankManagement = () => {
       });
     })();
   }, [form.student_class]);
+
+  useEffect(() => {
+    if (!depositConfirmation || !speechComplete) return;
+    const timer = window.setTimeout(() => {
+      setDepositConfirmation(null);
+      if (quickRepeat) setScannerOpen(true);
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [depositConfirmation, quickRepeat, speechComplete]);
+
+  const closeDepositConfirmation = () => {
+    speechRequestRef.current += 1;
+    setDepositConfirmation(null);
+    if (quickRepeat) setScannerOpen(true);
+  };
 
   const fetchTransactions = async () => {
     const { data, error } = await savingsTransactionsService.getAll();
@@ -196,12 +232,13 @@ export const SavingsBankManagement = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!form.student_id) {
       toast({ title: 'กรุณาเลือกนักเรียน', variant: 'destructive' });
       return;
     }
-    const amount = parseInt(form.amount, 10);
-    if (!Number.isInteger(amount) || amount <= 0) {
+    const amount = Number(form.amount);
+    if (!Number.isInteger(amount) || amount <= 0 || amount >= 100000000) {
       toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
       return;
     }
@@ -225,21 +262,15 @@ export const SavingsBankManagement = () => {
 
     setIsSubmitting(true);
     try {
-      const { data: summaryBefore } = await savingsSummaryService.getForStudent(form.student_id);
-      const before = Number(summaryBefore?.current_balance ?? 0);
-      const balance_after =
-        form.transaction_type === 'deposit' ? before + amount : before - amount;
-
       const term = await termService.getActive();
 
       const studentOpt = studentOptions.find((s) => s.id === form.student_id);
-      const { error } = await savingsTransactionsService.insert({
+      const { data: saved, error } = await savingsTransactionsService.insert({
         student_id: form.student_id,
         student_name: studentOpt?.name ?? form.student_name,
         student_class: form.student_class,
         transaction_type: form.transaction_type,
         amount,
-        balance_after,
         transaction_date: form.transaction_date,
         notes: form.notes || null,
         recorded_by: recorder.name,
@@ -250,10 +281,36 @@ export const SavingsBankManagement = () => {
       });
 
       if (error) throw error;
+      if (!saved?.[0]) throw new Error('ไม่ได้รับการยืนยันจากระบบ กรุณาตรวจสอบประวัติก่อนบันทึกซ้ำ');
+      const balance_after = Number(saved[0].balance_after);
 
       toast({
         title: form.transaction_type === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ',
         description: `${studentOpt?.name} — ${fmtBaht(amount)} (คงเหลือ ${fmtBaht(balance_after)})`,
+      });
+
+      const studentName = studentOpt?.name ?? form.student_name;
+      const transactionType = form.transaction_type;
+      setDepositConfirmation({
+        studentName,
+        photoUrl: studentOpt?.photo_url ?? null,
+        amount,
+        balanceAfter: balance_after,
+        transactionType,
+      });
+      setSpeechComplete(false);
+      const speechRequest = ++speechRequestRef.current;
+      void speakThai([
+        `${transactionType === 'deposit' ? 'ฝาก' : 'ถอน'}เงินสำเร็จ`,
+        `ชื่อ ${getFirstName(studentName)}`,
+        `${transactionType === 'deposit' ? 'ฝาก' : 'ถอน'} ${thaiNumberToWords(amount)} บาท`,
+        `ยอดคงเหลือ ${thaiNumberToWords(balance_after)} บาท`,
+      ]).then(({ spoken }) => {
+        if (speechRequest !== speechRequestRef.current) return;
+        if (spoken) setSpeechComplete(true);
+        else window.setTimeout(() => {
+          if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+        }, 5000);
       });
 
       setForm((p) => ({
@@ -264,11 +321,8 @@ export const SavingsBankManagement = () => {
         notes: '',
       }));
       await Promise.all([fetchTransactions(), fetchSummaries()]);
-      if (quickRepeat) {
-        setScannerOpen(true);
-      }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาด';
+      const msg = savingsErrorMessage(err);
       toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
@@ -279,7 +333,7 @@ export const SavingsBankManagement = () => {
     if (!confirm('ลบรายการนี้? — ยอดเงินคงเหลือจะถูกคำนวณใหม่')) return;
     const { error } = await savingsTransactionsService.delete(id);
     if (error) {
-      toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      toast({ title: 'ลบไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
       return;
     }
     toast({ title: 'ลบรายการแล้ว' });
@@ -612,6 +666,58 @@ export const SavingsBankManagement = () => {
         </div>
       )}
 
+      <Dialog
+        open={depositConfirmation !== null}
+        onOpenChange={(open) => {
+          if (!open && depositConfirmation) closeDepositConfirmation();
+        }}
+      >
+        <DialogContent className="max-w-2xl border-border bg-card px-5 py-8 text-center sm:px-10 sm:py-10">
+          {depositConfirmation && (
+            <>
+              <DialogHeader className="items-center text-center">
+                <div className="mb-2 flex items-center gap-3">
+                  <PersonAvatar
+                    name={depositConfirmation.studentName}
+                    photoUrl={depositConfirmation.photoUrl}
+                    size="lg"
+                    className="ring-4 ring-amber-200"
+                  />
+                  <div className="text-left">
+                    <DialogTitle className="text-xl font-extrabold text-foreground sm:text-2xl">
+                      {depositConfirmation.transactionType === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ'}
+                    </DialogTitle>
+                    <DialogDescription className="mt-1 text-base font-semibold text-foreground/75 sm:text-lg">
+                      {depositConfirmation.studentName}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
+                  <p className="text-sm font-bold text-amber-900 sm:text-base">
+                    {depositConfirmation.transactionType === 'deposit' ? 'ยอดฝากล่าสุด' : 'ยอดถอนล่าสุด'}
+                  </p>
+                  <p className="mt-2 text-4xl font-black tabular-nums text-amber-950 sm:text-5xl">
+                    {fmtBaht(depositConfirmation.amount)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-primary p-5 text-primary-foreground">
+                  <p className="text-sm font-bold sm:text-base">ยอดเงินสะสม</p>
+                  <p className="mt-2 text-4xl font-black tabular-nums sm:text-5xl">
+                    {fmtBaht(depositConfirmation.balanceAfter)}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">
+                {speechComplete ? 'อ่านข้อมูลเรียบร้อยแล้ว' : 'กำลังอ่านข้อมูลยืนยันรายการ...'}
+              </p>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* ─── Tab 2: Summary ────────────────────────────────────────────── */}
       {activeTab === 'summary' && <StudentSummaryTab summaries={summaries} />}
 
@@ -694,7 +800,7 @@ export const SavingsBankManagement = () => {
                     <Th className="text-right">จำนวน</Th>
                     <Th className="text-right">คงเหลือหลัง</Th>
                     <Th className="text-left">ผู้บันทึก</Th>
-                    <Th className="text-center"></Th>
+                    <Th className="text-center">จัดการ</Th>
                   </tr>
                 </thead>
                 <tbody>

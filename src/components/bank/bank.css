@@ -1,0 +1,29 @@
+.bank-surface {
+  --bank-navy: 222 47% 18%; --bank-gold: 39 90% 40%; --bank-green: 155 78% 25%;
+  --bank-blue: 202 85% 34%; --bank-rose: 345 75% 37%; --bank-purple: 265 55% 43%;
+  --bank-cyan: 187 85% 28%; --bank-on-color: 0 0% 100%; --bank-ink: 222 35% 16%;
+  --bank-muted: 215 18% 36%; --bank-line: 215 22% 84%; --bank-paper: 0 0% 100%;
+  --bank-stripe: 215 25% 97%; --bank-soft: 42 90% 95%; --bank-accent: var(--bank-gold);
+  color: hsl(var(--bank-ink)); min-width: 0; font-family: Sarabun, sans-serif;
+}
+.bank-surface[data-bank="waste"] { --bank-accent: var(--bank-green); --bank-soft: 160 50% 95%; }
+.bank-card { background: hsl(var(--bank-paper)); border: 1px solid hsl(var(--bank-line)); border-radius: 16px; padding: 16px; min-width: 0; }
+.bank-kpi { border-top: 3px solid hsl(var(--bank-accent)); }
+.bank-muted { color: hsl(var(--bank-muted)); }
+.bank-positive { color: hsl(var(--bank-green)); }
+.bank-negative { color: hsl(var(--bank-rose)); }
+.bank-badge { display: inline-flex; align-items: center; gap: 4px; border: 1px solid currentColor; border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 700; }
+.bank-table { width: 100%; font-size: 14px; border-collapse: collapse; }
+.bank-table thead { background: hsl(var(--bank-navy)); color: hsl(var(--bank-on-color)); }
+.bank-table th { padding: 12px; font-weight: 700; white-space: nowrap; }
+.bank-table thead th { color: hsl(var(--bank-on-color)); background: hsl(var(--bank-navy)); position: sticky; top: 0; z-index: 1; }
+.bank-table td { padding: 12px; border-bottom: 1px solid hsl(var(--bank-line)); }
+.bank-table tbody tr:nth-child(even) { background: hsl(var(--bank-stripe)); }
+.bank-table tbody tr:hover, .bank-table tbody tr[data-selected="true"] { background: hsl(var(--bank-soft)); }
+.bank-table-wrap { overflow: auto; max-height: 520px; border: 1px solid hsl(var(--bank-line)); border-radius: 12px; }
+.bank-table .bank-numeric { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.bank-surface input, .bank-surface select { color: hsl(var(--bank-ink)); background: hsl(var(--bank-paper)); border-color: hsl(var(--bank-line)); }
+.bank-surface :focus-visible { outline: 2px solid hsl(var(--bank-blue)); outline-offset: 3px; }
+.bank-surface .recharts-cartesian-axis-tick-value { fill: hsl(var(--bank-muted)); }
+.bank-surface .recharts-default-tooltip { color: hsl(var(--bank-ink)); background: hsl(var(--bank-paper)) !important; border-color: hsl(var(--bank-line)) !important; border-radius: 10px; }
+@media (max-width: 639px) { .bank-card { padding: 12px; } }

@@ -72,17 +72,17 @@ Follow these standards strictly when developing, refactoring, or integrating edu
   - Read student profile data from `k.student`.
   - Read previous stats from `k.stats`.
   - Read and render the Top 5 leaderboard from `k.leaderboard`.
-- **Score Submission**: Always invoke `KAMPAI.submitScore(score, { mode, ... })` at the game-over screen to save student progress.
+- **Score Submission**: Follow `GAME.md` scoring ownership: solo submits once at a real round end; practice never submits; KampaiVersus owns competitive completion. Call `KAMPAI.beginRound()` when each round becomes playable.
 - **Audio & Sound API**:
   - Trigger `KAMPAI.sound.unlock()` on the first user interaction.
   - Control background music via `KAMPAI.sound.bgmStart()` / `bgmStop()` and `defaultBgm(preset)`.
   - Use `KAMPAI.sound.correct()`, `wrong()`, `timeUp()`, `gameOver()` for events.
   - For language/verbal games, use text-to-speech: `KAMPAI.sound.speak(text, lang)`.
 
-### C. Online Multiplayer (`kampai-match.js`)
-- Always ask the user if they want a multiplayer/online option (synchronized live play).
-- If yes, include `/games/kampai-match.js` and instantiate it using `KampaiMatch.create({ duration, title, onPlay, onEnd })`.
-- Sync real-time scoring via `match.report(score, { correct })`.
+### C. Three Modes (`kampai-versus.js`)
+- Follow `GAME.md` as the source of truth: every new or modified game retains solo, local hot-seat, and online through KampaiVersus. Do not ask whether to add these standard modes.
+- Use `/games/kampai-versus.js`; KampaiMatch is its internal online layer.
+- Sync real-time scoring via `vs.report(score, { correct })`.
 - Use the provided seeded `rng` inside `onPlay(({ rng }) => { ... })` so all players receive identical questions.
 
 - **Rule**: Never prompt the student for their name or attempt to manage lobbies manually. The SDK and KampaiMatch wrapper handle authentication, student profiles, and lobby synchronization.
@@ -92,12 +92,12 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 - **Rule**: The migration must:
   1. Seed the item in `educational_hub_items` (`game_slug`, `tracked_game = true`, `thumbnail_url = '/games/{subject}/{slug}/cover.png'`).
   2. Insert or update the game profile details in `game_docs` using `INSERT ... ON CONFLICT (item_id) DO UPDATE` with game format, features, build version, and notes.
-- **Programmatic Seeding**: Note that writing an SQL migration file in `supabase/migrations` registers the schema but does not automatically populate/publish the game on the live Supabase production database. To make the game immediately visible in the Game Library (คลังเกมการศึกษา), you **MUST** also create a JavaScript seed script under `scripts/seed-{slug}-game.mjs` and execute it (`node scripts/seed-{slug}-game.mjs`) to programmatically upsert the game metadata into `educational_hub_items` and `game_docs` using the Supabase Service Role key from `.env.local`.
+- **Publishing**: Follow the migration workflow in `GAME.md`. A migration file alone does not apply changes to production. Apply the new migration to the verified target within authorized scope, then verify the catalog and `game_docs`. Do not create a second seed script by default; use one only for a specific import/repair requirement. Never edit an applied migration.
 
 ### E. Local Verification
 - Before finalizing a game, run the verification tool:
   ```bash
-  pnpm verify:game public/games/{subject}/{slug}
+  pnpm verify:game:all -- public/games/{subject}/{slug}
   ```
 - The game **MUST** pass all verification checks (including the 16:9 thumbnail check and browser/JSDOM smoke-test) before staging.
 
@@ -117,8 +117,8 @@ Follow these standards strictly when developing, refactoring, or integrating edu
    - ต้องสอดแทรกสัญลักษณ์การศึกษาและองค์ประกอบของวิชานั้นๆ ลงไปในการออกแบบอย่างกลมกลืน เช่น:
      - **คณิตศาสตร์:** ตัวเลข เครื่องหมายบวก/ลบ/คูณ/หาร รูปทรงเรขาคณิตน่ารักๆ
      - **เทคโนโลยี/วิทยาการคอมพิวเตอร์:** หุ่นยนต์จิ๋ว บล็อกโค้ดสีพาสเทล ลายเส้นวงจรไฟฟ้าเรืองแสงสีฟ้าน่ารักๆ ไอคอนคอมพิวเตอร์หน้ายิ้ม
-     - **วิทยาศาสตร์:** หลอดทดลองมีฟองสบู่ ดวงดาวอวกาศยิ้มแย้ม พืชและสัตว์สไตล์การ์ตูน
-     - **ภาษาอังกฤษ/ภาษาไทย:** ตัวอักษรดุ๊กดิ๊ก คำศัพท์ลอยตัว หรือสมุดโน้ตการ์ตูน
+      - **วิทยาศาสตร์:** หลอดทดลองมีฟองสบู่ ดวงดาวอวกาศยิ้มแย้ม พืชและสัตว์สไตล์การ์ตูน
+      - **ภาษาอังกฤษ/ภาษาไทย:** ตัวอักษรดุ๊กดิ๊ก คำศัพท์ลอยตัว หรือสมุดโน้ตการ์ตูน
 
 4. **รูปแบบข้อความและภาษา (Text & HUD UI):**
    - **แสดงชื่อ 2 ภาษา:** ใส่ชื่อเกมทั้ง **ภาษาอังกฤษ (English Name) และภาษาไทย (Thai Name)** บนหน้าปกควบคู่กัน
@@ -136,6 +136,30 @@ Follow these standards strictly when developing, refactoring, or integrating edu
 6. **ตัวอย่าง Prompt สำเร็จรูปสำหรับสั่ง AI (AI Prompt Template):**
    - *ตัวอย่างมาตรฐาน (จากเกม นินจาตัดคำนาม word-ninja-noun):*
      > Game cover art for "[ชื่อเกมอังกฤษ]" (Thai: [ชื่อเกมไทย]). A cute chibi anime [ตัวละครหลัก] character [ลักษณะท่าทาง/Action เช่น slicing through glowing Thai vocabulary words and bubble letters with colorful bubble slash effects]. Vibrant, playful, and fun gamification theme with star icons and coins. Includes bold centered text reading "[ชื่อเกมอังกฤษ]" and "[ชื่อเกมไทย]" in cute bubble style. Important characters, all text labels, and UI must be centered within the 60% safe zone of the image. The top and bottom 20% areas must only contain background [ฉากหลัง เช่น sky and bamboo forest], no text or heads, to allow 16:9 cropping.
+
+### G. Child Cognitive Pacing & Object Density Rule (กฎจังหวะการรับรู้ ความเร็ว และความหนาแน่นของวัตถุสำหรับเด็ก)
+เมื่อพัฒนาหรือปรับแต่งเกมการศึกษาสำหรับนักเรียนระดับประถมศึกษา (K-6):
+1. **เวลาเคลื่อนที่ข้ามจอ (Screen Traversal Time $\ge$ 5–10 วินาที):**
+   - เด็กมีกระบวนการประมวลผล 4 ขั้นตอน: **มองเห็น (Detect) ➔ อ่านภาษาไทย/สัญลักษณ์ (Read) ➔ วิเคราะห์ตัดสินใจ (Decide) ➔ ขยับมือ/สัมผัส (Act)**
+   - ความเร็วของวัตถุที่ตกลอยผ่านจอต้องไม่เร็วกว่า 5 วินาที (แนะนำช่วง 6–10 วินาที) เพื่อไม่ให้เด็กเกิดความตื่นตระหนกและมีเวลาคิดวิเคราะห์
+2. **ความหนาแน่นของวัตถุบนจอ (On-screen Density $\le$ 1–3 ชิ้น):**
+   - ความหนาแน่นบนจอคำนวณจาก: $\text{จำนวนวัตถุบนจอ} = \frac{\text{เวลาข้ามจอ (วินาที)}}{\text{Spawn Interval (วินาที)}}$
+   - ห้ามตั้ง `SPAWN_INTERVAL_MS` ถี่เกินไป (ต้อง $\ge 1800 - 2500$ ms) เพื่อให้มีวัตถุที่ต้องตัดสินใจบนจอพร้อมกันเพียง **1–2 ชิ้น (สูงสุดไม่เกิน 3 ชิ้น)** ป้องกันภาวะ Cognitive Overload และอาการตาลาย
+3. **ระยะเวลาเล่นต่อด่าน/รอบ (Round Duration $\ge$ 45–60 วินาที):**
+   - การเล่นรอบสั้นเกินไป (เช่น 20–30 วินาที) สร้างบรรยากาศการเร่งรีบ ให้ตั้งเวลาแต่ละฐาน/รอบอย่างน้อย 45 วินาที เพื่อให้มีจังหวะเรียนรู้และฝึกทักษะอย่างเพลิดเพลิน
+
+### H. No-Spoiler In-Game Item Label Rule (กฎห้ามมีป้ายสปอยล์เฉลยบนไอเทมเกม)
+1. **รักษาคุณค่าของการเรียนรู้ (Preserve Educational Challenge):**
+   - ไอเทมหรือวัตถุที่ลอย/ตกมาเป็นโจทย์ ให้แสดงเฉพาะ **ชื่อวัตถุจริง + รูปภาพ/ไอคอน Emoji** เท่านั้น (เช่น "น้ำบริสุทธิ์ 💧", "ก้อนน้ำแข็ง 🧊", "แก๊สออกซิเจน 💨")
+   - **ห้ามใส่ป้ายเฉลยคุณสมบัติ หมวดหมู่ หรือสถานะติดลงมากับตัววัตถุเด็ดขาด** (เช่น ห้ามใส่ป้าย `🧊 ของแข็ง`, `💧 ของเหลว`, `💨 แก๊ส`, หรือใส่คำเฉลยในภาษาอังกฤษ เช่น `Solid Ice`, `Liquid Water`) เพราะจะทำให้เด็กกวาดสายตาดูแค่สีหรือคำเฉลย แทนที่จะใช้สมองวิเคราะห์ความรู้ทางวิทยาศาสตร์ด้วยตนเอง
+
+### I. Forgiving Gameplay & Growth-Mindset Architecture (ระบบคะแนนและชีวิตที่ใจดีต่อเด็ก)
+1. **การลงโทษที่ไม่ตัดโอกาส (Low Penalty Ratio):**
+   - คะแนนเมื่อเลือกผิดควรต่ำกว่าคะแนนที่ได้เมื่อทำถูกอย่างน้อย 2–3 เท่า (เช่น ทำถูก +15 คะแนน, เลือกผิดหักเพียง -5 คะแนน) เพื่อส่งเสริมให้เด็กกล้าลองผิดลองถูกและไม่กลัวความผิดพลาด
+2. **จำนวนชีวิตและพลังงานที่เพียงพอ:**
+   - ควรให้ชีวิตเริ่มต้นอย่างน้อย **6–8 ชีวิต** ป้องกันไม่ให้เกมตัดจบ (Game Over) เร็วเกินไปก่อนที่เด็กจะได้เรียนรู้ครบทุกเนื้อหา
+3. **เกณฑ์เหรียญรางวัลที่เข้าถึงได้:**
+   - ปรับเกณฑ์คะแนนเหรียญทอง/เงิน/ทองแดง ให้เด็กที่ตั้งใจเล่นมีโอกาสได้รับเหรียญรางวัลเพื่อสร้างแรงบันดาลใจและเสริมสร้างความมั่นใจในการเรียน
 
 ---
 

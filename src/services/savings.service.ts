@@ -4,6 +4,18 @@
  * — ฝาก/ถอนเงินจริง (บาท) สำหรับนักเรียนประถม
  */
 import { supabase } from '@/integrations/supabase/client';
+import { buildSavingsStatement } from '@/lib/savings-statement';
+import type { Database } from '@/integrations/supabase/types';
+
+export type PublicSavingsSummary = Database['public']['Functions']['get_public_savings_leaderboard']['Returns'][number];
+
+export const savingsErrorMessage = (error: unknown): string => {
+  const message = error && typeof error === 'object' && 'message' in error ? String(error.message) : '';
+  if (message.includes('INSUFFICIENT_BALANCE')) return 'ยอดเงินไม่พอ หรือรายการนี้ทำให้ยอดย้อนหลังติดลบ กรุณาตรวจสอบประวัติ';
+  if (message.includes('INVALID_AMOUNT')) return 'กรุณากรอกจำนวนเต็มบาทที่มากกว่า 0 และน้อยกว่า 100,000,000';
+  if (message.includes('NOT_AUTHORIZED')) return 'ไม่มีสิทธิ์บันทึกรายการ กรุณาเข้าสู่ระบบด้วยบัญชีครูหรือผู้ดูแล';
+  return message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+};
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type SavingsTransactionType = 'deposit' | 'withdraw';
@@ -82,15 +94,19 @@ export type SavingsHistoryRow = {
   created_at: string;
 };
 
+export type PublicSavingsTransaction = {
+  transaction_id: string;
+  student_name: string;
+  student_class: string | null;
+  photo_url: string | null;
+  transaction_type: SavingsTransactionType;
+  transaction_date: string;
+};
+
 // ─── Transactions ─────────────────────────────────────────────────────────────
 export const savingsTransactionsService = {
   getRecent: (limit = 50) =>
-    supabase
-      .from('savings_transactions')
-      .select('*, students(photo_url)')
-      .order('transaction_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(limit),
+    supabase.rpc('get_public_savings_overview', { p_limit: limit }).returns<PublicSavingsTransaction[]>(),
 
   /**
    * Admin history must not silently stop at the most recent rows. Supabase's
@@ -106,6 +122,7 @@ export const savingsTransactionsService = {
         .select('*, students(photo_url)')
         .order('transaction_date', { ascending: false })
         .order('created_at', { ascending: false })
+        .order('id', { ascending: false })
         .range(from, from + pageSize - 1);
 
       if (error) return { data: null, error };
@@ -135,23 +152,68 @@ export const savingsTransactionsService = {
       .order('transaction_date', { ascending: false }),
 
   insert: (
-    data: Omit<SavingsTransaction, 'id' | 'created_at' | 'students'>,
-  ) => supabase.from('savings_transactions').insert(data as never),
-
-  insertMany: (
-    rows: Array<Omit<SavingsTransaction, 'id' | 'created_at' | 'students'>>,
-  ) => supabase.from('savings_transactions').insert(rows as never),
+    data: Omit<SavingsTransaction, 'id' | 'created_at' | 'students' | 'balance_after'>,
+  ) => supabase.rpc('record_savings_transaction', {
+    p_student_id: data.student_id,
+    p_transaction_type: data.transaction_type,
+    p_amount: data.amount,
+    p_transaction_date: data.transaction_date,
+    p_notes: data.notes,
+    p_recorded_by: data.recorded_by,
+    p_recorded_by_staff_id: data.recorded_by_staff_id,
+    p_recorded_by_administrator_id: data.recorded_by_administrator_id,
+    p_academic_year: data.academic_year,
+    p_semester: data.semester,
+  }),
 
   update: (
     id: string,
     data: Partial<Omit<SavingsTransaction, 'id' | 'created_at' | 'students'>>,
-  ) => supabase.from('savings_transactions').update(data as never).eq('id', id),
+  ) => supabase.rpc('update_savings_transaction', {
+    p_transaction_id: id,
+    p_transaction_type: data.transaction_type,
+    p_amount: data.amount,
+    p_transaction_date: data.transaction_date,
+    p_notes: data.notes,
+  }),
 
   delete: (id: string) =>
-    supabase.from('savings_transactions').delete().eq('id', id),
+    supabase.rpc('delete_savings_transaction', { p_transaction_id: id }),
 };
 
 // ─── Summary VIEW ─────────────────────────────────────────────────────────────
+/** Read-only admin statement. No partial page is returned on failure. */
+export const savingsStatementService = {
+  get: async (studentId: string, signal?: AbortSignal) => {
+    const query = () => supabase.from('savings_transactions')
+      .select('*, recorder_staff:staff!recorded_by_staff_id(photo_url), recorder_admin:administrators!recorded_by_administrator_id(photo_url)')
+      .eq('student_id', studentId)
+      .order('transaction_date').order('created_at', { nullsFirst: true }).order('id');
+    type Row = NonNullable<Awaited<ReturnType<typeof query>>['data']>[number];
+    const rows: Row[] = [];
+    for (let from = 0; ; from += 1000) {
+      const request = query().range(from, from + 999);
+      const { data, error } = await (signal ? request.abortSignal(signal) : request);
+      if (error) throw error;
+      rows.push(...(data ?? []));
+      if ((data?.length ?? 0) < 1000) break;
+    }
+    const request = supabase.from('savings_student_summary').select('*').eq('student_id', studentId);
+    const { data: student, error } = await (signal ? request.abortSignal(signal) : request).single();
+    if (error) throw error;
+    const ledger = buildSavingsStatement(rows);
+    const equalMoney = (a: number, b: number | null) => Math.round(a * 100) === Math.round(Number(b ?? 0) * 100);
+    if (new Set(rows.map(row => row.id)).size !== rows.length ||
+      !equalMoney(ledger.current, student.current_balance) ||
+      !equalMoney(ledger.deposits, student.total_deposits) ||
+      !equalMoney(ledger.withdrawals, student.total_withdrawals) ||
+      rows.length !== Number(student.total_transactions ?? 0)) {
+      throw new Error('ยอดประวัติไม่ตรงกับยอดสรุป อาจมีการบันทึกพร้อมกัน กรุณาโหลดใหม่ก่อนออกรายงาน');
+    }
+    return { student, rows };
+  },
+};
+
 export const savingsSummaryService = {
   getAll: () =>
     supabase
@@ -166,19 +228,31 @@ export const savingsSummaryService = {
       .eq('student_id', studentId)
       .maybeSingle(),
 
+  getForParent: (studentId: string) =>
+    supabase.rpc('get_parent_savings_summary', { p_student_id: studentId })
+      .then((result) => ({ ...result, data: (result.data ?? [])[0] ?? null })),
+
   /**
    * Public leaderboard — sort by deposit_count DESC (จัดอันดับโดยจำนวนครั้งฝาก)
    * ❌ ห้ามแสดงตัวเลขเงินในที่สาธารณะ (privacy)
    */
-  getLeaderboard: (limit?: number) => {
-    const q = supabase
-      .from('savings_student_summary')
-      .select('student_id, full_name, class_name, photo_url, student_code, deposit_count, withdraw_count, total_transactions')
-      .gt('deposit_count', 0)
-      .order('deposit_count', { ascending: false })
-      .order('total_transactions', { ascending: false });
-    return limit ? q.limit(limit) : q;
+  getLeaderboard: async (limit?: number) => {
+    const rows: PublicSavingsSummary[] = [];
+    for (let offset = 0; ; offset += 100) {
+      const size = limit === undefined ? 100 : Math.min(100, limit - offset);
+      if (size <= 0) break;
+      const { data, error } = await supabase.rpc('get_public_savings_leaderboard', { p_limit: size, p_offset: offset });
+      if (error) return { data: null, error };
+      rows.push(...(data ?? []));
+      if ((data?.length ?? 0) < size) break;
+    }
+    return { data: rows, error: null };
   },
+};
+
+export const savingsParentService = {
+  getHistory: (studentId: string, limit = 100) =>
+    supabase.rpc('get_parent_savings_history', { p_student_id: studentId, p_limit: limit }).returns<SavingsHistoryRow[]>(),
 };
 
 // ─── Recorder Summary (per teacher who recorded transactions) ─────────────────

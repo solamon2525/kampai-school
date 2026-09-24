@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { studentsService, conductService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,11 @@ import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import {
+    PointsConfirmationDialog,
+    type PointsConfirmation,
+} from '@/components/admin/shared/PointsConfirmationDialog';
+import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -88,7 +93,7 @@ export const ConductManagement = () => {
         <div className="space-y-4">
             <div className="flex items-center gap-2">
                 <Star className="w-6 h-6 text-yellow-500" />
-                <h2 className="text-xl font-bold">ระบบ Kampai Hero System</h2>
+                <h2 className="text-xl font-bold">ระบบธนาคารความดี</h2>
             </div>
 
             <Tabs defaultValue="record">
@@ -129,6 +134,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [semester, setSemester] = useState('1');
     const [academicYear, setAcademicYear] = useState(currentYear);
     const [isSaving, setIsSaving] = useState(false);
+    const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
+    const [speechComplete, setSpeechComplete] = useState(false);
+    const speechRequestRef = useRef(0);
+    const closePointsConfirmation = useCallback(() => {
+        speechRequestRef.current += 1;
+        setPointsConfirmation(null);
+    }, []);
 
     useEffect(() => {
         setStudents([]);
@@ -159,11 +171,18 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             toast({ variant: 'destructive', title: 'นักเรียนที่เลือกไม่อยู่ในชั้นเรียนปัจจุบัน' });
             return;
         }
+        const parsedScore = parseInt(score) || 1;
+        const student = students.find(s => s.id === selectedStudentId);
+        const { data: existingRecords } = await conductService.getByStudentId(selectedStudentId);
+        const accumulatedBefore = (existingRecords || [])
+            .filter(record => record.academic_year === academicYear)
+            .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
+
         setIsSaving(true);
         const { error } = await conductService.insert({
             student_id: selectedStudentId,
             type,
-            score: parseInt(score) || 1,
+            score: parsedScore,
             category: category || (type === 'add' ? 'publicMind' : 'discipline'),
             reason: reason.trim(),
             recorded_by: recorder.name || null,
@@ -175,11 +194,35 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         setIsSaving(false);
         if (error) { toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message }); return; }
 
-        const student = students.find(s => s.id === selectedStudentId);
         toast({
             title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
             description: `${student?.name} ${type === 'add' ? '+' : '-'}${score} คะแนน · ${reason}`,
         });
+        if (student) {
+            const isAdd = type === 'add';
+            const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
+            setPointsConfirmation({
+                studentName: student.name,
+                photoUrl: student.photo_url,
+                latestPoints: parsedScore,
+                accumulatedPoints,
+                latestSign: isAdd ? '+' : '-',
+            });
+            setSpeechComplete(false);
+            const speechRequest = ++speechRequestRef.current;
+            void speakThai([
+                `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
+                `ชื่อ ${getFirstName(student.name)}`,
+                `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
+                `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
+            ]).then(({ spoken }) => {
+                if (speechRequest !== speechRequestRef.current) return;
+                if (spoken) setSpeechComplete(true);
+                else window.setTimeout(() => {
+                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+                }, 5000);
+            });
+        }
         setReason('');
         setScore('1');
     };
@@ -341,11 +384,19 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                     </CardContent>
                 </Card>
             </div>
+            <PointsConfirmationDialog
+                confirmation={pointsConfirmation}
+                title={`${pointsConfirmation?.latestSign === '-' ? 'หัก' : 'เพิ่ม'}คะแนนความดีสำเร็จ`}
+                latestLabel="คะแนนความดีล่าสุด"
+                accumulatedLabel="คะแนนความดีสะสม"
+                speechComplete={speechComplete}
+                onClose={closePointsConfirmation}
+            />
         </div>
     );
 }
 
-// ===== Tab 2: อันดับ Kampai Hero System =====
+// ===== Tab 2: อันดับธนาคารความดี =====
 function LeaderboardTab() {
     const [filterClass, setFilterClass] = useState('');
     const [filterSemester, setFilterSemester] = useState('1');
@@ -402,14 +453,14 @@ function LeaderboardTab() {
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                         <Trophy className="w-4 h-4 text-yellow-500" />
-                        อันดับ Kampai Hero System ({leaderboard.length} คน)
+                        อันดับธนาคารความดี ({leaderboard.length} คน)
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
                         <TableSkeleton rows={6} cols={4} className="py-4" />
                     ) : leaderboard.length === 0 ? (
-                        <p className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูล Kampai Hero System</p>
+                        <p className="text-center py-8 text-muted-foreground">ยังไม่มีข้อมูลธนาคารความดี</p>
                     ) : (
                         <div className="space-y-2">
                             {leaderboard.map((s, idx) => (

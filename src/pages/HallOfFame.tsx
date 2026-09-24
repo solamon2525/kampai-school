@@ -110,7 +110,7 @@ const HallOfFame = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead title="Kampai Hero System - หอเกียรติยศคนดีคำไผ่" description="เชิดชูนักเรียนที่ทำความดี — Kampai Hero System อันดับ และประวัติ" />
+      <SEOHead title="ธนาคารความดี - หอเกียรติยศคนดีคำไผ่" description="เชิดชูนักเรียนที่ทำความดี — ธนาคารความดี อันดับ และประวัติ" />
       <SiteHeader />
 
       {/* Hero band */}
@@ -121,7 +121,7 @@ const HallOfFame = () => {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2">หอเกียรติยศคนดีคำไผ่</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            เชิดชูนักเรียนที่ทำความดี ด้วยการบันทึกคะแนน Kampai Hero System จากคุณครูทุกท่าน
+            เชิดชูนักเรียนที่ทำความดี ด้วยการบันทึกคะแนนจากธนาคารความดีโดยคุณครูทุกท่าน
           </p>
         </div>
       </section>
@@ -203,7 +203,7 @@ const HallOfFame = () => {
                         </p>
                         <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-400">
                           <Medal className="w-3.5 h-3.5" />
-                          <span className="font-bold">{row.total} Hero XP</span>
+                          <span className="font-bold">{row.total} คะแนนความดี</span>
                           <span className="text-xs text-muted-foreground">({row.count} ครั้ง)</span>
                         </div>
                       </CardContent>
@@ -233,7 +233,7 @@ const HallOfFame = () => {
                               </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-indigo-600 dark:text-indigo-400">{row.total} Hero XP</p>
+                              <p className="font-bold text-indigo-600 dark:text-indigo-400">{row.total} คะแนนความดี</p>
                               <p className="text-xs text-muted-foreground">{row.count} ครั้ง</p>
                             </div>
                           </div>

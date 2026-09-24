@@ -14,7 +14,7 @@
   2. config.js → SLUG + ORIENTATION ('any'|'portrait'|'landscape')
   3. เขียนเกมใน game.js · เนื้อหา data.js · สไตล์ style.css
   4. อ่าน ORIENT-GAME.md ก่อนทำเกม runner / AR / split-screen
-  5. migration + pnpm verify:game public/games/{subject}/{slug}/index.html
+  5. migration + pnpm verify:game:all -- public/games/{subject}/{slug}
 
   ไฟล์กลาง (ปรับปรุงที่เดียว · มีผลทุกเกม):
   · /games/kampai-orient.js  — ตรวจจอ + overlay + iframe parentViewport
@@ -69,7 +69,7 @@
           <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
         </div>
         <div class="btn-row">
-          <button class="btn btn-primary" type="button" onclick="startGame()">▶ เริ่มเกม</button>
+          <button class="btn btn-primary" type="button" data-kampai-action="start" onclick="startGame()">▶ เริ่มเกม</button>
           <button class="btn btn-blue" type="button" onclick="openVersus()">🏁 แข่ง 2 คน</button>
           <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 กลับ</button>
         </div>
@@ -92,8 +92,9 @@
       <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" type="button" onclick="location.reload()">🔄 เล่นใหม่</button>
+      <button class="btn btn-primary" type="button" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
       <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+      <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>จบเกมสำหรับทดสอบ</button>
     </div>
   </div>
 </div>
@@ -103,7 +104,7 @@
 <script src="/games/kampai-match.js"></script>
 <script src="/games/kampai-versus.js"></script>
 <script>
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 window.KampaiOrient = window.KampaiOrient || { init:function(){return this;}, getViewportSize:function(){return{w:innerWidth,h:innerHeight};}, isPortrait:function(){return innerHeight>innerWidth;}, isLandscape:function(){return innerWidth>=innerHeight;}, isBlocked:function(){return false;}, isPaused:function(){return false;}, canStart:function(){return true;}, setPlaying:function(){}, lock:function(){}, notifyGameStart:function(){}, refresh:function(){} };
 window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};} };
 window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null; return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m&&m.finish(s,i))return true;return false;},leave:function(){}};} };

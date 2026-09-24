@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 import QRCode from 'react-qr-code';
 import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles, QrCode } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { cn } from '@/lib/utils';
-import { savingsSummaryService, savingsTransactionsService } from '@/services';
-import type {
-  SavingsStudentSummary,
-  SavingsTransaction,
-} from '@/services/savings.service';
+import { savingsParentService, savingsSummaryService } from '@/services';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
@@ -27,19 +25,24 @@ const fmtBaht = (n: number | null | undefined) => {
 
 export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
   const [tab, setTab] = useState<TabId>('overview');
-  const [summary, setSummary] = useState<SavingsStudentSummary | null>(null);
-  const [transactions, setTransactions] = useState<SavingsTransaction[]>([]);
-
-  useEffect(() => {
-    (async () => {
+  const query = useQuery({
+    queryKey: ['savings-bank', 'parent', studentId],
+    queryFn: async () => {
       const [s, t] = await Promise.all([
-        savingsSummaryService.getForStudent(studentId),
-        savingsTransactionsService.getByStudent(studentId),
+        savingsSummaryService.getForParent(studentId),
+        savingsParentService.getHistory(studentId),
       ]);
-      if (s.data) setSummary(s.data as unknown as SavingsStudentSummary);
-      if (t.data) setTransactions(t.data as unknown as SavingsTransaction[]);
-    })();
-  }, [studentId]);
+      if (s.error) throw s.error;
+      if (t.error) throw t.error;
+      if (!s.data) throw new Error('ไม่พบข้อมูลหรือไม่มีสิทธิ์ดูข้อมูลนักเรียนคนนี้');
+      return { summary: s.data, transactions: t.data ?? [] };
+    },
+    enabled: Boolean(studentId),
+  });
+  const summary = query.data?.summary;
+  const transactions = query.data?.transactions ?? [];
+  if (query.isPending) return <p role="status">กำลังโหลดข้อมูลธนาคารพอเพียง...</p>;
+  if (query.isError) return <div role="alert" className="space-y-2"><p>โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบสิทธิ์และลองใหม่</p><Button onClick={() => void query.refetch()}>ลองใหม่</Button></div>;
 
   const balance = Number(summary?.current_balance ?? 0);
   const deposits = Number(summary?.total_deposits ?? 0);
@@ -217,7 +220,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
                 <tbody>
                   {transactions.map((t, idx) => (
                     <tr
-                      key={t.id}
+                      key={t.txn_id}
                       className={cn('border-t border-slate-100', idx % 2 === 1 && 'bg-slate-50/40')}
                     >
                       <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">

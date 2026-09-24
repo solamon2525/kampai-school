@@ -7,7 +7,7 @@ window.GAME_CONFIG = {
   TITLE: 'Mario Math Run — มาริโอ้ลุยโจทย์คณิต',
   SUBJECT: 'คณิตศาสตร์',
   DURATION: 60,
-  INITIAL_LIVES: 3,
+  INITIAL_LIVES: 5,
   GRAVITY: 0.55,
   JUMP_FORCE: -11.5,
   MOVE_SPEED: 4.5,

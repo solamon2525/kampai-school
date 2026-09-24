@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Wallet,
   Search,
@@ -28,8 +29,6 @@ import {
   getSaverTier,
   type StudentSavingsLookup,
   type SavingsHistoryRow,
-  type SavingsStudentSummary,
-  type SavingsTransaction,
 } from '@/services/savings.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { SaverPodium } from '@/components/savings/SaverPodium';
@@ -106,22 +105,24 @@ export default function SavingsBank() {
   const [history, setHistory] = useState<SavingsHistoryRow[]>([]);
 
   // Public data
-  const [summaries, setSummaries] = useState<SavingsStudentSummary[]>([]);
-  const [recent, setRecent] = useState<SavingsTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [classFilter, setClassFilter] = useState<string>('all');
 
-  useEffect(() => {
-    (async () => {
+  const publicQuery = useQuery({
+    queryKey: ['savings-bank', 'public'],
+    queryFn: async () => {
       const [s, r] = await Promise.all([
-        savingsSummaryService.getAll(),
+        savingsSummaryService.getLeaderboard(),
         savingsTransactionsService.getRecent(10),
       ]);
-      if (s.data) setSummaries(s.data as unknown as SavingsStudentSummary[]);
-      if (r.data) setRecent(r.data as unknown as SavingsTransaction[]);
-      setIsLoading(false);
-    })();
-  }, []);
+      if (s.error) throw s.error;
+      if (r.error) throw r.error;
+      return { summaries: s.data ?? [], recent: r.data ?? [] };
+    },
+    staleTime: 30_000,
+  });
+  const summaries = publicQuery.data?.summaries ?? [];
+  const recent = publicQuery.data?.recent ?? [];
+  const isLoading = publicQuery.isPending;
 
   const handleSearch = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -191,6 +192,7 @@ export default function SavingsBank() {
       <SiteHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full bg-background flex flex-col">
+        {publicQuery.isError && <div role="alert" className="p-4 text-destructive"><p>โหลดข้อมูลธนาคารพอเพียงไม่สำเร็จ</p><Button variant="outline" onClick={() => void publicQuery.refetch()}>ลองใหม่</Button></div>}
         {/* ─── HERO (asymmetric split, dark slate + gold accent) ──────────── */}
         <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
           {/* Subtle pattern overlay */}
@@ -425,7 +427,7 @@ export default function SavingsBank() {
               <div className="max-h-[240px] overflow-y-auto pr-1">
                 <ol className="relative border-l-2 border-slate-200 ml-3 space-y-3.5">
                   {recent.map((t) => (
-                    <li key={t.id} className="ml-6">
+                  <li key={t.transaction_id} className="ml-6">
                       <span
                         className={cn(
                           'absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-full ring-4 ring-white',
@@ -435,7 +437,7 @@ export default function SavingsBank() {
                       <div className="flex items-center gap-3">
                         <StudentAvatar
                           name={t.student_name}
-                          photoUrl={t.students?.photo_url}
+                          photoUrl={t.photo_url}
                           size={32}
                         />
                         <div className="flex-1 min-w-0">

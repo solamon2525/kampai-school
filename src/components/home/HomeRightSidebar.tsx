@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { savingsSummaryService } from '@/services/savings.service';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle, Wallet } from 'lucide-react';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
@@ -147,12 +148,7 @@ const SavingsBankWidget = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from('savings_student_summary')
-      .select('student_id, full_name, class_name, photo_url, deposit_count, total_transactions')
-      .gt('deposit_count', 0)
-      .order('deposit_count', { ascending: false })
-      .order('total_transactions', { ascending: false })
+    savingsSummaryService.getLeaderboard()
       .then(({ data }) => {
         setRows((data as SavingsSummaryRow[]) ?? []);
         setIsLoading(false);

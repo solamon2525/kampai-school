@@ -8,6 +8,7 @@
  * ใช้ queryKey เดียวกับ HonorWall/DailyQuestPanel → react-query แชร์ cache ไม่ยิงซ้ำ
  */
 import { useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,7 +40,13 @@ const TabPill = ({ active, onClick, children }: { active: boolean; onClick: () =
   </button>
 );
 
-export const GamificationHub = ({ studentCode }: { studentCode: string | null }) => {
+export const GamificationHub = ({
+  studentCode,
+  panelTargetId,
+}: {
+  studentCode: string | null;
+  panelTargetId?: string;
+}) => {
   const code = studentCode?.trim() || null;
   const [openTab, setOpenTab] = useState<Tab | null>(null);
 
@@ -65,6 +72,23 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
   const lvl = profile ? globalLevelFromXp(profile.total_xp) : null;
 
   const toggle = (t: Tab) => setOpenTab((cur) => (cur === t ? null : t));
+
+  const expandedPanel = (
+    <>
+      {openTab === 'rank' && <GameRankings studentCode={code} />}
+      {openTab === 'medals' && code && (
+        <Card className="bg-card">
+          <CardContent className="p-3 sm:p-4">
+            <HonorWall studentCode={code} variant="medals" />
+          </CardContent>
+        </Card>
+      )}
+      {openTab === 'quest' && code && <DailyQuestPanel studentCode={code} variant="full" />}
+      {openTab === 'pet' && code && <StudentPetHub studentCode={code} />}
+    </>
+  );
+
+  const panelTarget = panelTargetId ? document.getElementById(panelTargetId) : null;
 
   return (
     <div className="space-y-3">
@@ -140,17 +164,8 @@ export const GamificationHub = ({ studentCode }: { studentCode: string | null })
         </CardContent>
       </Card>
 
-      {/* พาเนลที่ขยาย — แต่ละแท็บเป็นการ์ดของตัวเอง (ไม่ซ้อนการ์ด) */}
-      {openTab === 'rank' && <GameRankings studentCode={code} />}
-      {openTab === 'medals' && code && (
-        <Card className="bg-card">
-          <CardContent className="p-3 sm:p-4">
-            <HonorWall studentCode={code} variant="medals" />
-          </CardContent>
-        </Card>
-      )}
-      {openTab === 'quest' && code && <DailyQuestPanel studentCode={code} variant="full" />}
-      {openTab === 'pet' && code && <StudentPetHub studentCode={code} />}
+      {/* พาเนลที่ขยาย — ย้ายออกจาก Hero ได้โดยระบุ target เพื่อไม่ให้ Hero สูงกระโดด */}
+      {panelTarget ? createPortal(expandedPanel, panelTarget) : expandedPanel}
     </div>
   );
 };

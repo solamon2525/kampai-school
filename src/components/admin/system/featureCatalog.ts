@@ -186,30 +186,30 @@ export const featureCatalog: FeatureDomain[] = [
         features: [
             {
                 name: 'ธนาคารขยะ + แต้ม',
-                purpose: 'ฝากขยะรีไซเคิลได้แต้ม แลกรางวัล และดูสถิติสาธารณะ',
+                purpose: 'ฝากขยะรีไซเคิลได้แต้ม แลกรางวัล และเผยแพร่หน้าผลการดำเนินงานพร้อมภาพกิจกรรมและ QR',
                 canExtend: true,
                 ideas12m: ['แคมเปญรายเดือนระดับชั้น', 'รายงานคาร์บอนแบบง่าย'],
                 status: 'live',
             },
             {
                 name: 'แคตตาล็อกรางวัล + สต็อก',
-                purpose: 'แลกของรางวัล มีสต็อกและอนุมัติโดยครู',
+                purpose: 'แลกของรางวัล มีสต็อก อนุมัติโดยครู และแสดงรางวัลสำหรับนักเรียนบนหน้าผลการดำเนินงาน',
                 canExtend: true,
                 ideas12m: ['แถบ drift สต็อก (มีแล้ว) → แจ้งเตือนไลน์ครูคลัง'],
                 status: 'live',
             },
             {
                 name: 'ธนาคารพอเพียง (ออมทรัพย์)',
-                purpose: 'ฝึกออมเงินนักเรียน มี ledger และสรุปยอด',
+                purpose: 'ฝึกออมเงินนักเรียน มี ledger สรุปยอด และเสียงยืนยันธุรกรรมภาษาไทยจากระบบกลาง',
                 canExtend: true,
                 ideas12m: ['เป้าหมายออมรายภาค', 'ใบเสร็จรายการฝากถอนพิมพ์ได้'],
                 status: 'live',
             },
             {
-                name: 'Kampai Hero / ความประพฤติ',
-                purpose: 'บันทึกพฤติกรรมเชิงบวกและโปรไฟล์ฮีโร่สาธารณะ',
+                name: 'ธนาคารความดี / ความประพฤติ',
+                purpose: 'บันทึกพฤติกรรมเชิงบวกและโปรไฟล์ธนาคารความดีสาธารณะ',
                 canExtend: true,
-                ideas12m: ['บอร์ดฮีโร่ประจำสัปดาห์บนหน้าหลัก'],
+                ideas12m: ['บอร์ดธนาคารความดีประจำสัปดาห์บนหน้าหลัก'],
                 status: 'live',
             },
             {
@@ -237,7 +237,7 @@ export const featureCatalog: FeatureDomain[] = [
         features: [
             {
                 name: 'Educational Hub สาธารณะ + หน้าครู',
-                purpose: 'เปิดดูคลังสื่อของครู และลิงก์สั้น /h/:id',
+                purpose: 'เปิดดูคลังสื่อของครูผ่านลิงก์สั้น /h/:id พร้อมค้นหาเมื่อผู้ใช้กดค้นหรือ Enter',
                 canExtend: true,
                 ideas12m: ['คอลเลกชันตามหน่วยการเรียนรู้', 'แนะนำตาม mastery'],
                 status: 'live',
@@ -340,6 +340,7 @@ export const featureCatalog: FeatureDomain[] = [
                 purpose: 'ซิงค์ปฏิทินกิจกรรมกับ Google',
                 canExtend: false,
                 extendNote: 'ยังไม่วางในผลิตภัณฑ์',
+                ideas12m: [],
                 ideas24m: ['iCal export ก่อน แล้วค่อย OAuth sync'],
                 status: 'deferred',
             },

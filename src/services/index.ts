@@ -11,6 +11,7 @@ export * from './attendance.service';
 export * from './scores.service';
 export * from './conduct.service';
 export * from './waste-bank.service';
+export * from './waste-bank-showcase.service';
 export * from './savings.service';
 export * from './staff.service';
 export * from './news.service';

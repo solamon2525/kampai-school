@@ -9,6 +9,7 @@ import {
 import { useDroppable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { savingsSummaryService } from '@/services/savings.service';
 
 interface HomepagePreviewProps {
     layout: Record<ZoneKey, { blocks: string[]; hidden: string[] }>;
@@ -412,12 +413,7 @@ const WasteBankPreview = () => {
 const SavingsBankPreview = () => {
     const [rows, setRows] = useState<Array<{ name: string; deposits: number }> | null>(null);
     useEffect(() => {
-        supabase
-            .from('savings_student_summary')
-            .select('full_name, deposit_count, total_transactions')
-            .gt('deposit_count', 0)
-            .order('deposit_count', { ascending: false })
-            .limit(5)
+        savingsSummaryService.getLeaderboard(5)
             .then(({ data }) => {
                 setRows(
                     (data ?? []).map((r: { full_name: string | null; deposit_count: number | null }) => ({

@@ -6,7 +6,9 @@
     "emoji": "☀️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-1"
+    "synonym_group": "syn-1",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุริยา",
@@ -15,7 +17,9 @@
     "emoji": "☀️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-1"
+    "synonym_group": "syn-1",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทินกร",
@@ -24,7 +28,9 @@
     "emoji": "🌅",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-2"
+    "synonym_group": "syn-2",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เดือน",
@@ -33,7 +39,10 @@
     "emoji": "🌙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-2"
+    "synonym_group": "syn-2",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"เดือน\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ศศิ",
@@ -42,7 +51,9 @@
     "emoji": "🌙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-3"
+    "synonym_group": "syn-3",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชล",
@@ -51,7 +62,9 @@
     "emoji": "💧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-3"
+    "synonym_group": "syn-3",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วารี",
@@ -60,7 +73,9 @@
     "emoji": "💧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-4"
+    "synonym_group": "syn-4",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สาคร",
@@ -69,7 +84,9 @@
     "emoji": "🌊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-4"
+    "synonym_group": "syn-4",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บรรพต",
@@ -78,7 +95,9 @@
     "emoji": "⛰️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-5"
+    "synonym_group": "syn-5",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คีรี",
@@ -87,7 +106,9 @@
     "emoji": "🏔️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-5"
+    "synonym_group": "syn-5",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สตรี",
@@ -96,7 +117,9 @@
     "emoji": "👩",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-6"
+    "synonym_group": "syn-6",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นารี",
@@ -105,7 +128,10 @@
     "emoji": "👩",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-6"
+    "synonym_group": "syn-6",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"นารี\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "บุรุษ",
@@ -114,7 +140,9 @@
     "emoji": "👨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-7"
+    "synonym_group": "syn-7",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คช",
@@ -123,7 +151,9 @@
     "emoji": "🐘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-7"
+    "synonym_group": "syn-7",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กุญชร",
@@ -132,7 +162,9 @@
     "emoji": "🐘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-8"
+    "synonym_group": "syn-8",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อาชา",
@@ -141,7 +173,9 @@
     "emoji": "🐎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-8"
+    "synonym_group": "syn-8",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สินธพ",
@@ -150,7 +184,9 @@
     "emoji": "🐎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-9"
+    "synonym_group": "syn-9",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุวรรณ",
@@ -159,7 +195,9 @@
     "emoji": "🪙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-9"
+    "synonym_group": "syn-9",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มาศ",
@@ -168,7 +206,9 @@
     "emoji": "🪙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-10"
+    "synonym_group": "syn-10",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บุปผา",
@@ -177,7 +217,9 @@
     "emoji": "🌸",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-10"
+    "synonym_group": "syn-10",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มาลี",
@@ -186,7 +228,9 @@
     "emoji": "🌺",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-11"
+    "synonym_group": "syn-11",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ผกา",
@@ -195,7 +239,9 @@
     "emoji": "🌼",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-11"
+    "synonym_group": "syn-11",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไพร",
@@ -204,7 +250,9 @@
     "emoji": "🌳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-12"
+    "synonym_group": "syn-12",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อรัญ",
@@ -213,7 +261,9 @@
     "emoji": "🌲",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-12"
+    "synonym_group": "syn-12",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นภา",
@@ -222,7 +272,9 @@
     "emoji": "🌌",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-13"
+    "synonym_group": "syn-13",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัมพร",
@@ -231,7 +283,9 @@
     "emoji": "☁️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-13"
+    "synonym_group": "syn-13",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เวหา",
@@ -240,7 +294,9 @@
     "emoji": "🌤️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-14"
+    "synonym_group": "syn-14",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปักษา",
@@ -249,7 +305,9 @@
     "emoji": "🐦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-14"
+    "synonym_group": "syn-14",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิหค",
@@ -258,7 +316,9 @@
     "emoji": "🕊️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-15"
+    "synonym_group": "syn-15",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หทัย",
@@ -267,7 +327,9 @@
     "emoji": "❤️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-15"
+    "synonym_group": "syn-15",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฤทัย",
@@ -276,7 +338,10 @@
     "emoji": "💗",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-16"
+    "synonym_group": "syn-16",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ฤทัย\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "นาค",
@@ -285,7 +350,9 @@
     "emoji": "🐉",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-16"
+    "synonym_group": "syn-16",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พยัคฆ์",
@@ -294,7 +361,9 @@
     "emoji": "🐯",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-17"
+    "synonym_group": "syn-17",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปฐพี",
@@ -303,7 +372,9 @@
     "emoji": "🌍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-17"
+    "synonym_group": "syn-17",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ธรณี",
@@ -312,7 +383,9 @@
     "emoji": "🌎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-18"
+    "synonym_group": "syn-18",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นที",
@@ -321,7 +394,9 @@
     "emoji": "🏞️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-18"
+    "synonym_group": "syn-18",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รัตติ",
@@ -330,7 +405,9 @@
     "emoji": "🌃",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-19"
+    "synonym_group": "syn-19",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ราตรี",
@@ -339,7 +416,9 @@
     "emoji": "🌙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-19"
+    "synonym_group": "syn-19",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทิวา",
@@ -348,7 +427,9 @@
     "emoji": "☀️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-20"
+    "synonym_group": "syn-20",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มีน",
@@ -357,7 +438,9 @@
     "emoji": "🐟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-20"
+    "synonym_group": "syn-20",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุขา",
@@ -366,7 +449,9 @@
     "emoji": "😊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-21"
+    "synonym_group": "syn-21",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มิตร",
@@ -375,7 +460,9 @@
     "emoji": "🤝",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-21"
+    "synonym_group": "syn-21",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สหาย",
@@ -384,7 +471,9 @@
     "emoji": "👫",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-22"
+    "synonym_group": "syn-22",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ครู",
@@ -393,7 +482,10 @@
     "emoji": "👩‍🏫",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-22"
+    "synonym_group": "syn-22",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ครู\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "อาจารย์",
@@ -402,7 +494,10 @@
     "emoji": "📚",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-23"
+    "synonym_group": "syn-23",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"อาจารย์\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "คุรุ",
@@ -411,7 +506,9 @@
     "emoji": "🎓",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-23"
+    "synonym_group": "syn-23",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นักเรียน",
@@ -420,7 +517,10 @@
     "emoji": "🎒",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-24"
+    "synonym_group": "syn-24",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"นักเรียน\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ศิษย์",
@@ -429,7 +529,9 @@
     "emoji": "📖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-24"
+    "synonym_group": "syn-24",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อาหาร",
@@ -438,7 +540,9 @@
     "emoji": "🍽️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-25"
+    "synonym_group": "syn-25",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภัตตาหาร",
@@ -447,7 +551,9 @@
     "emoji": "🍛",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-25"
+    "synonym_group": "syn-25",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กับข้าว",
@@ -456,7 +562,9 @@
     "emoji": "🥘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-26"
+    "synonym_group": "syn-26",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โรงเรียน",
@@ -465,7 +573,9 @@
     "emoji": "🏫",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-26"
+    "synonym_group": "syn-26",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สถานศึกษา",
@@ -474,7 +584,9 @@
     "emoji": "🎓",
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-27"
+    "synonym_group": "syn-27",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิทยา",
@@ -483,7 +595,9 @@
     "emoji": "📘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-27"
+    "synonym_group": "syn-27",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุข",
@@ -492,7 +606,10 @@
     "emoji": "😊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-28"
+    "synonym_group": "syn-28",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"สุข\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เบิกบาน",
@@ -501,7 +618,9 @@
     "emoji": "🌸",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-28"
+    "synonym_group": "syn-28",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อิ่มเอม",
@@ -510,7 +629,9 @@
     "emoji": "😌",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-29"
+    "synonym_group": "syn-29",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โกรธ",
@@ -519,7 +640,10 @@
     "emoji": "😠",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-29"
+    "synonym_group": "syn-29",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"โกรธ\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ขุ่นเคือง",
@@ -528,7 +652,9 @@
     "emoji": "😤",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-30"
+    "synonym_group": "syn-30",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "หงุดหงิด",
@@ -537,7 +663,9 @@
     "emoji": "😣",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-30"
+    "synonym_group": "syn-30",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กลัว",
@@ -546,7 +674,10 @@
     "emoji": "😨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-31"
+    "synonym_group": "syn-31",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"กลัว\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "หวาดกลัว",
@@ -555,7 +686,9 @@
     "emoji": "😱",
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-31"
+    "synonym_group": "syn-31",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิตก",
@@ -564,7 +697,9 @@
     "emoji": "😰",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-32"
+    "synonym_group": "syn-32",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดี",
@@ -573,7 +708,10 @@
     "emoji": "👍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-32"
+    "synonym_group": "syn-32",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ดี\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "ดีงาม",
@@ -582,7 +720,9 @@
     "emoji": "✨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-33"
+    "synonym_group": "syn-33",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ประณีต",
@@ -591,7 +731,10 @@
     "emoji": "🎨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-33"
+    "synonym_group": "syn-33",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ประณีต\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "มัจฉา",
@@ -600,7 +743,10 @@
     "emoji": "🐠",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-34"
+    "synonym_group": "syn-34",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"มัจฉา\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "มัสยา",
@@ -609,7 +755,9 @@
     "emoji": "🐟",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-34"
+    "synonym_group": "syn-34",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จันทรา",
@@ -618,7 +766,9 @@
     "emoji": "🌙",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-35"
+    "synonym_group": "syn-35",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รวี",
@@ -627,7 +777,9 @@
     "emoji": "☀️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-35"
+    "synonym_group": "syn-35",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภาสกร",
@@ -636,7 +788,9 @@
     "emoji": "🌅",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-36"
+    "synonym_group": "syn-36",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สมุทร",
@@ -645,7 +799,9 @@
     "emoji": "🌊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-36"
+    "synonym_group": "syn-36",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สินธุ์",
@@ -654,7 +810,9 @@
     "emoji": "🏞️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-37"
+    "synonym_group": "syn-37",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อุทก",
@@ -663,7 +821,9 @@
     "emoji": "💧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-37"
+    "synonym_group": "syn-37",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชลธาร",
@@ -672,7 +832,9 @@
     "emoji": "🌊",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-38"
+    "synonym_group": "syn-38",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สายชล",
@@ -681,7 +843,9 @@
     "emoji": "💦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-38"
+    "synonym_group": "syn-38",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พสุธา",
@@ -690,7 +854,9 @@
     "emoji": "🌍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-39"
+    "synonym_group": "syn-39",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สิงขร",
@@ -699,7 +865,9 @@
     "emoji": "⛰️",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-39"
+    "synonym_group": "syn-39",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดง",
@@ -708,7 +876,9 @@
     "emoji": "🌲",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-40"
+    "synonym_group": "syn-40",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พง",
@@ -717,7 +887,9 @@
     "emoji": "🌳",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-40"
+    "synonym_group": "syn-40",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กัลยา",
@@ -726,7 +898,9 @@
     "emoji": "👩",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-41"
+    "synonym_group": "syn-41",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุดา",
@@ -735,7 +909,9 @@
     "emoji": "👧",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-41"
+    "synonym_group": "syn-41",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นร",
@@ -744,7 +920,9 @@
     "emoji": "👨",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-42"
+    "synonym_group": "syn-42",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชาย",
@@ -753,7 +931,10 @@
     "emoji": "🧑",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-42"
+    "synonym_group": "syn-42",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"ชาย\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "หัตถี",
@@ -762,7 +943,9 @@
     "emoji": "🐘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-43"
+    "synonym_group": "syn-43",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ไอยรา",
@@ -771,7 +954,9 @@
     "emoji": "🐘",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-43"
+    "synonym_group": "syn-43",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พาชี",
@@ -780,7 +965,9 @@
     "emoji": "🐎",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-44"
+    "synonym_group": "syn-44",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัศว",
@@ -789,7 +976,9 @@
     "emoji": "🐴",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-44"
+    "synonym_group": "syn-44",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กาญจน์",
@@ -798,7 +987,10 @@
     "emoji": "🥇",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-45"
+    "synonym_group": "syn-45",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว",
+    "duplicate_rationale": "อนุญาตให้คำ \"กาญจน์\" ซ้ำในหมวด คำพ้องความหมาย (ไวพจน์) เพราะใช้ฝึกทักษะของหมวดนี้โดยตรง"
   },
   {
     "word": "เหม",
@@ -807,7 +999,9 @@
     "emoji": "💰",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-45"
+    "synonym_group": "syn-45",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บุษบา",
@@ -816,7 +1010,9 @@
     "emoji": "🌺",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/1",
-    "synonym_group": "syn-46"
+    "synonym_group": "syn-46",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โกสุม",
@@ -825,7 +1021,9 @@
     "emoji": "🌼",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/2",
-    "synonym_group": "syn-46"
+    "synonym_group": "syn-46",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สกุณา",
@@ -834,7 +1032,9 @@
     "emoji": "🐦",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/3",
-    "synonym_group": "syn-47"
+    "synonym_group": "syn-47",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ดวงแด",
@@ -843,7 +1043,9 @@
     "emoji": "💖",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.4/4",
-    "synonym_group": "syn-47"
+    "synonym_group": "syn-47",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภุชงค์",
@@ -852,7 +1054,9 @@
     "emoji": "🐍",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/1",
-    "synonym_group": "syn-48"
+    "synonym_group": "syn-48",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อุรค",
@@ -861,7 +1065,9 @@
     "emoji": "🐉",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/2",
-    "synonym_group": "syn-48"
+    "synonym_group": "syn-48",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ศารทูล",
@@ -870,7 +1076,9 @@
     "emoji": "🐯",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.5/3",
-    "synonym_group": "syn-49"
+    "synonym_group": "syn-49",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นิศา",
@@ -879,7 +1087,9 @@
     "emoji": "🌃",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
-    "synonym_group": "syn-49"
+    "synonym_group": "syn-49",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ทิพา",
@@ -888,7 +1098,9 @@
     "emoji": "🌞",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/2",
-    "synonym_group": "syn-50"
+    "synonym_group": "syn-50",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คคนานต์",
@@ -897,7 +1109,9 @@
     "emoji": "🌌",
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/3",
-    "synonym_group": "syn-50"
+    "synonym_group": "syn-50",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อรุณ",
@@ -907,7 +1121,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-51"
+    "synonym_group": "syn-51",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รุ่งอรุณ",
@@ -917,7 +1133,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-51"
+    "synonym_group": "syn-51",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อาทิตย์",
@@ -927,7 +1145,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-52"
+    "synonym_group": "syn-52",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "สุริยัน",
@@ -937,7 +1157,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-52"
+    "synonym_group": "syn-52",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "จันทร",
@@ -947,7 +1169,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-53"
+    "synonym_group": "syn-53",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แข",
@@ -957,7 +1181,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-53"
+    "synonym_group": "syn-53",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ธารา",
@@ -967,7 +1193,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-54"
+    "synonym_group": "syn-54",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชลาลัย",
@@ -977,7 +1205,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-54"
+    "synonym_group": "syn-54",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มหรรณพ",
@@ -987,7 +1217,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-55"
+    "synonym_group": "syn-55",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชโลธร",
@@ -997,7 +1229,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-55"
+    "synonym_group": "syn-55",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เมฆา",
@@ -1007,7 +1241,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-56"
+    "synonym_group": "syn-56",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ฆน",
@@ -1017,7 +1253,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-56"
+    "synonym_group": "syn-56",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วายุ",
@@ -1027,7 +1265,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-57"
+    "synonym_group": "syn-57",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปवन",
@@ -1037,7 +1277,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-57"
+    "synonym_group": "syn-57",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัคนี",
@@ -1047,7 +1289,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-58"
+    "synonym_group": "syn-58",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เพลิง",
@@ -1057,7 +1301,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-58"
+    "synonym_group": "syn-58",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ป่า",
@@ -1067,7 +1313,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-59"
+    "synonym_group": "syn-59",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "พนา",
@@ -1077,7 +1325,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-59"
+    "synonym_group": "syn-59",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภูผา",
@@ -1087,7 +1337,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-60"
+    "synonym_group": "syn-60",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ศิขริน",
@@ -1097,7 +1349,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-60"
+    "synonym_group": "syn-60",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปทุม",
@@ -1107,7 +1361,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-61"
+    "synonym_group": "syn-61",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อุบล",
@@ -1117,7 +1373,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-61"
+    "synonym_group": "syn-61",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "โกมล",
@@ -1127,7 +1385,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-62"
+    "synonym_group": "syn-62",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มาลา",
@@ -1137,7 +1397,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-62"
+    "synonym_group": "syn-62",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กุสุม",
@@ -1147,7 +1409,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-63"
+    "synonym_group": "syn-63",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บุหงา",
@@ -1157,7 +1421,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-63"
+    "synonym_group": "syn-63",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "แมกไม้",
@@ -1167,7 +1433,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-64"
+    "synonym_group": "syn-64",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "รุกข์",
@@ -1177,7 +1445,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-64"
+    "synonym_group": "syn-64",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กุมาร",
@@ -1187,7 +1457,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-65"
+    "synonym_group": "syn-65",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กุมารี",
@@ -1197,7 +1469,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-65"
+    "synonym_group": "syn-65",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เยาวชน",
@@ -1207,7 +1481,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-66"
+    "synonym_group": "syn-66",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชนก",
@@ -1217,7 +1493,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-66"
+    "synonym_group": "syn-66",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ชนนี",
@@ -1227,7 +1505,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-67"
+    "synonym_group": "syn-67",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มาตุ",
@@ -1237,7 +1517,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-67"
+    "synonym_group": "syn-67",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ปิตุ",
@@ -1247,7 +1529,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-68"
+    "synonym_group": "syn-68",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เคหา",
@@ -1257,7 +1541,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-68"
+    "synonym_group": "syn-68",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นิเวศน์",
@@ -1267,7 +1553,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-69"
+    "synonym_group": "syn-69",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "คฤหะ",
@@ -1277,7 +1565,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-69"
+    "synonym_group": "syn-69",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "มรรคา",
@@ -1287,7 +1577,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-70"
+    "synonym_group": "syn-70",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "วิถี",
@@ -1297,7 +1589,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-70"
+    "synonym_group": "syn-70",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภูวดล",
@@ -1307,7 +1601,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-71"
+    "synonym_group": "syn-71",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ราชา",
@@ -1317,7 +1613,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-71"
+    "synonym_group": "syn-71",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นฤบดี",
@@ -1327,7 +1625,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-72"
+    "synonym_group": "syn-72",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "กวี",
@@ -1337,7 +1637,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-72"
+    "synonym_group": "syn-72",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นักปราชญ์",
@@ -1347,7 +1649,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-73"
+    "synonym_group": "syn-73",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "เมธี",
@@ -1357,7 +1661,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-73"
+    "synonym_group": "syn-73",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "บัณฑิต",
@@ -1367,7 +1673,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-74"
+    "synonym_group": "syn-74",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "นรินทร์",
@@ -1377,7 +1685,9 @@
     "grade": "ป.4",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 1,
-    "synonym_group": "syn-74"
+    "synonym_group": "syn-74",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ภูบาล",
@@ -1387,7 +1697,9 @@
     "grade": "ป.5",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 2,
-    "synonym_group": "syn-75"
+    "synonym_group": "syn-75",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "อัมพุ",
@@ -1397,7 +1709,9 @@
     "grade": "ป.6",
     "indicator_code": "ท 4.1 ป.6/1",
     "difficulty": 3,
-    "synonym_group": "syn-75"
+    "synonym_group": "syn-75",
+    "content_status": "approved",
+    "category_evidence": "คำเดิมของหมวด คำพ้องความหมาย (ไวพจน์) ที่ตรวจรูปแบบและความสัมพันธ์เชิงโครงสร้างแล้ว"
   },
   {
     "word": "ขยัน",
@@ -1411,7 +1725,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เกียจคร้าน",
@@ -1425,7 +1742,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "สูง",
@@ -1439,7 +1759,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ต่ำ",
@@ -1453,7 +1776,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ใหญ่",
@@ -1467,7 +1793,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เล็ก",
@@ -1481,7 +1810,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "มืด",
@@ -1495,7 +1827,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "สว่าง",
@@ -1509,7 +1844,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ร้อน",
@@ -1523,7 +1861,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "หนาว",
@@ -1537,7 +1878,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "หนัก",
@@ -1551,7 +1895,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เบา",
@@ -1565,7 +1912,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เร็ว",
@@ -1579,7 +1929,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ช้า",
@@ -1593,7 +1946,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "กว้าง",
@@ -1607,7 +1963,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "แคบ",
@@ -1621,7 +1980,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ชั่ว",
@@ -1635,7 +1997,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "รวย",
@@ -1649,7 +2014,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "จน",
@@ -1663,7 +2031,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "แข็ง",
@@ -1677,7 +2048,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "อ่อน",
@@ -1691,7 +2065,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "สะอาด",
@@ -1705,7 +2082,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "สกปรก",
@@ -1719,7 +2099,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เปิด",
@@ -1733,7 +2116,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ปิด",
@@ -1747,7 +2133,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ขึ้น",
@@ -1761,7 +2150,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ลง",
@@ -1775,7 +2167,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "จริง",
@@ -1789,7 +2184,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เท็จ",
@@ -1803,7 +2201,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "กลางวัน",
@@ -1817,7 +2218,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "กลางคืน",
@@ -1831,7 +2235,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ใกล้",
@@ -1845,7 +2252,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ไกล",
@@ -1859,7 +2269,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "แพง",
@@ -1873,7 +2286,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ถูก",
@@ -1887,7 +2303,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ก่อน",
@@ -1901,7 +2320,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "หลัง",
@@ -1915,7 +2337,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "แห้ง",
@@ -1929,7 +2354,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เปียก",
@@ -1943,7 +2371,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "สด",
@@ -1957,7 +2388,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เน่า",
@@ -1971,7 +2405,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "หนา",
@@ -1985,7 +2422,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "บาง",
@@ -1999,7 +2439,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เต็ม",
@@ -2013,7 +2456,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ว่าง",
@@ -2027,7 +2473,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "เก่า",
@@ -2041,7 +2490,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ใหม่",
@@ -2055,7 +2507,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "อ้วน",
@@ -2069,7 +2524,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "ผอม",
@@ -2083,7 +2541,10 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   },
   {
     "word": "มาก",
@@ -2097,6 +2558,9 @@
     "tags": [
       "ชุดเสริม ป.4"
     ],
-    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4"
+    "note": "คำเสริมสำหรับฝึกวิเคราะห์ในบริบทของหมวดนี้ระดับ ป.4",
+    "content_status": "quarantined",
+    "review_reason": "ชุดขยาย ป.4 เดิมยืมคำจากหมวดอื่นเพื่อให้ครบ 200 คำ; รอคำทดแทนที่ผ่านการตรวจหมวด",
+    "category_evidence": "ยังไม่มีหลักฐานเฉพาะสำหรับหมวด คำพ้องความหมาย (ไวพจน์)"
   }
 ]

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">AH@*'1#L</title>
+  <desc id="desc">Cover for Moon Phases Race  night sky and moon phases</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset="0.5" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fef9c3"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <g fill="#fff" opacity="0.85">
+    <circle cx="120" cy="90" r="3"/><circle cx="220" cy="160" r="2"/><circle cx="340" cy="70" r="2.5"/>
+    <circle cx="980" cy="100" r="3"/><circle cx="1100" cy="180" r="2"/><circle cx="1180" cy="80" r="2.5"/>
+    <circle cx="160" cy="520" r="2"/><circle cx="1050" cy="480" r="3"/>
+  </g>
+  <text x="160" y="380" font-size="92" text-anchor="middle"><</text>
+  <text x="320" y="340" font-size="92" text-anchor="middle"><</text>
+  <text x="480" y="310" font-size="92" text-anchor="middle"><</text>
+  <text x="640" y="290" font-size="110" text-anchor="middle"><</text>
+  <text x="800" y="310" font-size="92" text-anchor="middle"><</text>
+  <text x="960" y="340" font-size="92" text-anchor="middle"><</text>
+  <text x="1120" y="380" font-size="92" text-anchor="middle"><</text>
+  <text x="640" y="120" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="68" font-weight="700" fill="url(#gold)">< AH@*'1#L</text>
+  <text x="640" y="620" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="34" font-weight="600" fill="#c7d2fe">6IA#! 8 @* · 2"
+7H- · 2"@*1D</text>
+</svg>

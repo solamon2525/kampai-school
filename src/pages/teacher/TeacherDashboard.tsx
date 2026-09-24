@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, SlidersHorizontal, QrCode, Video, FlaskConical, Package } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLinkedRecord } from '@/hooks/useLinkedRecord';
@@ -9,19 +9,9 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TeacherPendingTasksCard } from '@/components/teacher/TeacherPendingTasksCard';
-
-const MENU = [
-    { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/teacher' },
-    { id: 'schedule', label: 'ตารางสอน', icon: Calendar, path: '/teacher/schedule' },
-    { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance' },
-    { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores' },
-    { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval' },
-    { id: 'supplies', label: 'เบิกพัสดุ', icon: Package, path: '/teacher/supplies' },
-    { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
-    { id: 'game-research', label: 'วิจัยเกม', icon: FlaskConical, path: '/teacher/game-research' },
-    { id: 'cctv', label: 'กล้องวงจรปิด', icon: Video, path: '/teacher/cctv' },
-    { id: 'scan', label: 'สแกนด่วน', icon: QrCode, path: '/admin/dashboard/scan' },
-];
+import { TEACHER_MENU } from './teacher-menu';
+// Keep existing teacher pages compatible while the menu source lives in a component-free module.
+export { TEACHER_MENU } from './teacher-menu';
 
 export default function TeacherDashboard() {
     const navigate = useNavigate();
@@ -38,7 +28,7 @@ export default function TeacherDashboard() {
     });
 
     return (
-        <RolePortalLayout title="Portal ครู" subtitle="ครู/บุคลากร" menu={MENU} accent="teacher">
+        <RolePortalLayout title="Portal ครู" subtitle="ครู/บุคลากร" menu={TEACHER_MENU} accent="teacher">
             <div className="p-8 space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold">สวัสดี {staff?.name || 'คุณครู'}</h1>

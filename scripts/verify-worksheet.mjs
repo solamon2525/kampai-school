@@ -47,7 +47,8 @@ function readLinkedLocalAsset(source, assetName) {
 function verifyFile(file) {
     const source = fs.readFileSync(file, 'utf8');
     const sharedTopicSource = readLinkedLocalAsset(source, 'worksheet-topic.css') + readLinkedLocalAsset(source, 'worksheet-topic.js');
-    const effectiveSource = source + sharedTopicSource;
+    const sharedColorFillSource = readLinkedLocalAsset(source, 'color-fill-pack.css') + readLinkedLocalAsset(source, 'color-fill-pack.js');
+    const effectiveSource = source + sharedTopicSource + sharedColorFillSource;
     const relative = path.relative(repoRoot, file).replaceAll('\\', '/');
     const failures = [];
     const checks = [];
@@ -88,6 +89,26 @@ function verifyFile(file) {
                 || /printA4\s*\(/.test(readLinkedLocalAsset(source, 'worksheet-runtime.js'))),
         'ต้องมี @media print, @page A4 portrait และปุ่มเรียก window.print() หรือ KampaiWorksheet.printA4()',
     );
+    check('print runtime', !/window\.print\s*\(/.test(source), 'ต้องใช้ KampaiWorksheet.printA4() แทน window.print() โดยตรง');
+    check('work spacing', !/\.q-work-block[^{}]*justify-content\s*:\s*space-evenly/.test(effectiveSource), 'พื้นที่ทำงานต้องใช้ gap คงที่ ไม่ใช้ space-evenly');
+
+    const freshOpenTargets = new Set([
+        'public/games/math/division-worksheet.html',
+        'public/games/math/short-division-worksheet.html',
+        'public/games/math/improper-to-mixed-worksheet.html',
+    ]);
+    if (freshOpenTargets.has(relative)) {
+        check(
+            'fresh-open seed',
+            /freshOpenSeed/.test(source) || /freshOnOpen\s*:\s*true/.test(source),
+            'ใบงานกลุ่มนี้ต้องแยกการเปิดปกติแบบ fresh seed ออกจาก ?seed=/?set=',
+        );
+        check(
+            'fresh-random URL reset',
+            /clearSeed\s*:\s*true/.test(effectiveSource),
+            'ปุ่มสุ่มใหม่ต้องล้าง seed ใน URL ก่อน render เพื่อไม่ล็อกชุดเดิม',
+        );
+    }
 
     const cssVersion = extractVersion(source, 'worksheet-modes.css');
     const jsVersion = extractVersion(source, 'worksheet-modes.js');
@@ -112,6 +133,20 @@ function verifyFile(file) {
                 && fs.existsSync(sourceMediaFile)
                 && /<meta\s+name=["']curriculum-indicators["']\s+content=["'][^"']+["']/i.test(source),
             'ต้องระบุสื่อคู่ที่มีอยู่จริงและตัวชี้วัดใน metadata',
+        );
+        check(
+            'saved sets contract',
+            /worksheet-topic\.js/.test(source)
+                || /upgradeLegacyWorksheet\s*\(/.test(source)
+                || (/loadSetsModule\s*\(/.test(effectiveSource) && /mountToolbar\s*\(/.test(effectiveSource)),
+            'ใบงานทุกไฟล์ต้องบันทึก/โหลด/แชร์ชุดเดิมได้ด้วย worksheet key, seed และ config',
+        );
+        check(
+            'step answer reveal contract',
+            /worksheet-topic\.js/.test(source)
+                || /upgradeLegacyWorksheet\s*\(/.test(source)
+                || (/btnAnswerPrev/.test(effectiveSource) && /btnAnswerNext/.test(effectiveSource) && /reveal/.test(effectiveSource)),
+            'ใบงานทุกไฟล์ต้องซ่อนคำตอบเริ่มต้นและรองรับเฉลยทีละข้อ ย้อนกลับ และเปิดทั้งหมด',
         );
     }
 
@@ -144,7 +179,7 @@ function verifyFile(file) {
             'teacher runtime',
             Boolean(runtimeVersion)
                 && runtimeVersion === jsVersion
-                && /KampaiWorksheet\.loadTeachers\s*\(/.test(source),
+                && /KampaiWorksheet\.loadTeachers\s*\(/.test(effectiveSource),
             'ใบงานที่เลือกครูต้องใช้ worksheet-runtime.js version เดียวกับ shared modes',
         );
         check(
@@ -157,12 +192,12 @@ function verifyFile(file) {
     if (relative.endsWith('/division-worksheet.html')) {
         check(
             'long-division scaffold',
-            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="5"'].every((token) => source.includes(token))
+            ['long-division', 'ld-quotient', 'ld-divisor', 'ld-dividend', 'ld-work', 'ld-calc-row', 'ld-product', 'ld-partial', 'ld-quotient-answer', 'ld-teacher-value', 'ld-answer-fill', 'data-fixed-count="6"', 'function getWorksheetCount()', 'count-6', 'count-8', '--work-rows', 'grid-template-rows:repeat(var(--work-rows)'].every((token) => source.includes(token))
                 && !/class=["'][^"']*div-box/.test(source)
                 && !/<span class=["']ta["']>เฉลย/.test(source)
                 && !source.includes('ld-step')
                 && !source.includes('ld-phase'),
-            'โจทย์หารต้องมี 5 ข้อ ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
+            'โจทย์หารต้องปรับ 6/8 ข้อตามจำนวนหลัก ใช้ตำแหน่งตั้งหารจริง และเฉลยต้องเติมผลหาร/ผลคูณ/ผลลบ/เลขดึงลงในหลักตรงกัน โดยไม่มีป้ายขั้นหรือตอบแยก',
         );
     }
     if (relative.endsWith('/multiplication-worksheet.html')) {

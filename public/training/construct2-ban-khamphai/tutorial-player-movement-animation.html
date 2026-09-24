@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Construct 2 — เดิน กระโดด หันตัว และแอนิเมชัน</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;background:#f3ebfc}
+body{font-family:"Leelawadee UI","Tahoma",sans-serif;color:#17233b}
+.top-nav{max-width:1240px;margin:16px auto 0;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.top-nav a,.top-nav button{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#59357d;color:#fff;text-decoration:none;font-weight:700;font-size:15px;border:none;cursor:pointer}
+.top-nav a:hover,.top-nav button:hover{background:#8151b1}
+.top-nav .nav-right{display:flex;gap:8px}
+.page{max-width:1240px;width:100%;min-height:100vh;height:auto!important;margin:16px auto 30px;padding:40px 50px 50px;position:relative;background:linear-gradient(150deg,#e6f8ff 0 53%,#fff4d9 53%);border-radius:20px;box-shadow:0 8px 30px #321b551a}
+.head{background:linear-gradient(125deg,#4b2879,#8151b1);color:#fff;border-radius:26px;padding:27px 38px;box-shadow:0 9px 0 #321b55}
+.tag{color:#f3c9ff;font-size:21px;font-weight:800}.head h1{font-size:46px;line-height:1.13;margin:5px 0}.head p{font-size:22px;margin:0;color:#f7efff}
+.demo{height:190px;margin:24px 0 20px;border:4px solid #68508a;border-radius:21px;position:relative;overflow:hidden;background:linear-gradient(#9ee1ff 0 70%,#72b84d 70%)}
+.floor{position:absolute;bottom:0;left:0;right:0;height:43px;background:#81502f;border-top:10px solid #3b922f}
+.char{position:absolute;bottom:39px;font-size:65px}.c1{left:90px}.c2{left:355px}.c3{left:650px;bottom:88px}.c4{right:100px;transform:scaleX(-1)}
+.caption{position:absolute;top:18px;background:#fff;border:2px solid #54397b;border-radius:9px;padding:4px 11px;font-weight:800;color:#54397b}.t1{left:72px}.t2{left:330px}.t3{left:630px}.t4{right:65px}
+.flow{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}.flow b{background:#fff;border:3px solid #9b79ba;border-radius:13px;padding:9px 14px;font-size:19px}.flow i{font-style:normal;font-size:25px;color:#df4e61}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.card{background:#fff;border:3px solid #c1a9d6;border-radius:19px;padding:17px 20px;box-shadow:0 6px 0 #d7c5e4;min-height:213px}.wide{grid-column:1/3;min-height:184px}
+.n{display:inline-grid;place-items:center;width:45px;height:45px;border-radius:50%;background:#ffcb42;color:#34234f;font-size:25px;font-weight:900;margin-right:7px}
+h2{display:inline;color:#59357d;font-size:26px}p{font-size:19px;line-height:1.4;margin:8px 0}.event{background:#f4eff8;border-left:8px solid #7549a0;border-radius:9px;padding:9px 13px;font-size:18px;line-height:1.48;font-weight:700}.cond{color:#67408e}.act{color:#bb384d}.small{font-size:16.5px;color:#566277}.warn{border-color:#e5a849;background:#fffaf0}.warn .event{border-color:#de4e59}
+.tip{margin-top:18px;background:#236c5e;color:#fff;border-radius:18px;padding:15px 23px;font-size:18px;line-height:1.45}.tip b{font-size:22px}
+.footer{margin-top:35px;padding-top:20px;border-top:2px dashed #c1a9d6;position:static;display:flex;justify-content:space-between;color:#46536b;font-size:16px;gap:12px;flex-wrap:wrap}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.page{padding:24px 18px}.head h1{font-size:32px}.head p{font-size:18px}}
+@media print{.top-nav{display:none!important}.page{width:1240px;height:1754px!important;margin:0;padding:50px 60px;box-shadow:none;border-radius:0}.footer{position:absolute!important;bottom:32px!important;left:60px!important;right:60px!important;border:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="tutorial-basic-ground-platform.html">← บทก่อนหน้า (B07)</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-health-5-hearts.html">บทที่ 3 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+<header class="head"><div class="tag">บทที่ 2 • ระบบผู้เล่น</div><h1>เดิน กระโดด หันตัว และเล่นแอนิเมชัน</h1><p>ควบคุมลื่นไหล • Double Jump • ตัวละครหันตามทิศ • แอนิเมชันไม่ตีกัน</p></header>
+<section class="demo"><div class="floor"></div><span class="caption t1">Idle</span><span class="caption t2">Run →</span><span class="caption t3">Jump</span><span class="caption t4">← Run</span><div class="char c1">🧍</div><div class="char c2">🏃</div><div class="char c3">🏃</div><div class="char c4">🏃</div></section>
+<div class="flow"><b>Platform</b><i>→</i><b>ปุ่มควบคุม</b><i>→</i><b>หันซ้าย–ขวา</b><i>→</i><b>เลือก Animation</b></div>
+<section class="grid">
+ <article class="card"><span class="n">1</span><h2>ใส่ Platform behavior</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — ใส่ Platform behavior">
+<p>เลือก Sprite <b>player</b> → Properties → Behaviors → Add new behavior</p>
+ <div class="c2-dialog">คลิก <b>+ (Add new)</b> &gt; เลือก <b>Platform</b> &gt; Add</div>
+ <div class="c2-properties">
+   <div class="c2-props-head">Properties: Platform</div>
+   <table class="c2-props-table">
+     <tr><td>Default controls</td><td>Yes</td></tr>
+     <tr><td>Max speed</td><td>330</td></tr>
+     <tr><td>Acceleration</td><td>1500</td></tr>
+     <tr><td>Deceleration</td><td>1500</td></tr>
+   </table>
+ </div>
+ 
+ <p class="small">ใช้ปุ่มลูกศรซ้าย–ขวาและปุ่ม Shift กระโดดได้ทันที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties → Behaviors</p></article>
+ <article class="card"><span class="n">2</span><h2>ตั้งค่าการกระโดด</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — ตั้งค่าการกระโดด">
+<p>ตั้งค่าใน Properties ของ Platform behavior</p>
+ <div class="c2-properties">
+   <div class="c2-props-head">Properties: Platform (กระโดด)</div>
+   <table class="c2-props-table">
+     <tr><td>Jump strength</td><td>650</td></tr>
+     <tr><td>Gravity</td><td>1500</td></tr>
+     <tr><td>Max fall speed</td><td>1000</td></tr>
+     <tr><td>Max jumps</td><td>2</td></tr>
+   </table>
+ </div>
+ <p class="small">Max jumps = 2 คือเพื่อให้กระโดดกลางอากาศ (Double Jump) ได้</p><p class="small">📍 <b>ที่ไหนใน C2:</b> Object player → Properties</p></article>
+ <article class="card"><span class="n">3</span><h2>หันขวาและเดิน</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — หันขวาและเดิน">
+<p>เมื่อกดปุ่มลูกศรขวา ให้กลับหน้าปกติและเล่นแอนิเมชันเดิน</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-group">▼ Group: เดิน+กระโดด</div>
+   <div class="c2-es-row">
+     <div class="c2-es-num">1</div>
+     <div class="c2-es-cond"><span class="obj">Keyboard</span> Right arrow is down</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set mirrored: Not mirrored<br><span class="arrow">➔</span> <span class="obj">player</span> Set animation "walk"</div>
+   </div>
+ </div>
+ 
+ <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card"><span class="n">4</span><h2>หันซ้ายและเดิน</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — หันซ้ายและเดิน">
+<p>เมื่อกดปุ่มลูกศรซ้าย ให้กลับด้านภาพและเล่นแอนิเมชันเดิน</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">2</div>
+     <div class="c2-es-cond"><span class="obj">Keyboard</span> Left arrow is down</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set mirrored: Mirrored<br><span class="arrow">➔</span> <span class="obj">player</span> Set animation "walk"</div>
+   </div>
+ </div>
+ <p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card wide"><span class="n">5</span><h2>ยืนนิ่ง (Stand)</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ยืนนิ่ง (Stand)">
+<p>เมื่อไม่ได้เดินและอยู่บนพื้น ให้เล่นแอนิเมชันยืนนิ่ง</p>
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">3</div>
+     <div class="c2-es-cond"><span class="obj">player</span> Is moving <br><span class="small">(คลิกขวา &gt; Invert เพื่อให้เป็น Not moving)</span><br><span class="obj">player</span> Is on floor</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set animation "Stand"</div>
+   </div>
+ </div>
+ <p class="small">ชื่อ Animation ต้องพิมพ์ Stand ตัว S พิมพ์ใหญ่ให้ตรงเป๊ะ</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card wide"><span class="n">6</span><h2>กระโดดและเล่นเสียง (jump)</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 6 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — กระโดดและเล่นเสียง (jump)">
+
+ <div class="c2-eventsheet">
+   <div class="c2-es-row">
+     <div class="c2-es-num">4</div>
+     <div class="c2-es-cond"><span class="obj">player.Platform</span> Is jumping<br><span class="obj">System</span> Trigger once while true</div>
+     <div class="c2-es-act"><span class="arrow">➔</span> <span class="obj">player</span> Set animation "jump"<br><span class="arrow">➔</span> <span class="obj">Audio</span> Play "jump"</div>
+   </div>
+ </div>
+ <p class="small">ต้องใส่ Trigger once เสมอเวลาเล่นเสียง ไม่งั้นเสียงจะดังรัวๆ หลายร้อยครั้งต่อวินาที</p><p class="small">📍 <b>ที่ไหนใน C2:</b> game sheet → กลุ่ม "เดิน+กระโดด"</p></article>
+ <article class="card wide warn"><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-player-movement-animation-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 7 — tutorial-player-movement-animation">
+
+      <img src="images/steps/tutorial-player-movement-animation-step7.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 7 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+<div class="event">- พิมพ์ชื่อ Animation ผิดพิมพ์ใหญ่เล็ก (เช่น พิมพ์ Stand ในโค้ด แต่ในภาพตั้งชื่อเป็น stand)<br>- ไม่ได้ตั้งค่า Loop: Yes ในภาพ walk ทำให้เวลาเดินภาพไม่ขยับต่อ<br>- ลืมใส่ Trigger once ในคำสั่ง Is jumping ทำให้เสียงกระโดดดังตื๊ดรัวๆ</div></article>
+</section>
+<aside class="tip"><b>รายการทดสอบ:</b> ปล่อยปุ่มแล้วหยุดกลับมายืนนิ่ง (Stand) • เดินซ้าย/ขวาหันถูกทิศและแอนิเมชันเล่นต่อเนื่อง (walk) • กระโดดได้ 2 ครั้งและมีเสียง 1 ครั้งต่อการโดด (jump) • แอนิเมชันไม่ตีกัน</aside>
+<footer class="footer"><span>Construct 2 สำหรับผู้เริ่มต้น • ระบบควบคุมผู้เล่น</span><span>งานถัดไป: Checkpoint และการเกิดใหม่</span></footer>
+</main>  <script src="c2-lightbox.js"></script>
+</body></html>

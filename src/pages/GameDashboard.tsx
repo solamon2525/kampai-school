@@ -7,7 +7,7 @@
  * สถิติของฉัน = หา row ตัวเองจาก leaderboard (game_student_stats/game_sessions อ่านตรงไม่ได้เพราะ RLS)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Gamepad2, Loader2, Trophy, Sparkles } from 'lucide-react';
 
@@ -52,7 +52,7 @@ const GameDashboard = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!gameSlug,
+    enabled: !!gameSlug && gameSlug !== 'vocab-hub',
   });
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
   const gameTitle = gameQuery.data?.title ?? 'เกม';
@@ -82,19 +82,20 @@ const GameDashboard = () => {
 
   // auto-login จาก localStorage (เหมือน /play)
   useEffect(() => {
+    if (gameSlug === 'vocab-hub') return;
     const saved = localStorage.getItem(STUDENT_CODE_KEY);
     if (saved) {
       setCodeInput(saved);
       handleLookup(saved);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameSlug]);
 
   // ─── leaderboard (anon-safe RPC) — ใช้สร้างทั้งอันดับ + สถิติของฉัน ───────
   const leaderboardQuery = useQuery({
     queryKey: ['game-leaderboard', resolvedSlug, 50],
     queryFn: () => gamePlayService.getLeaderboard(resolvedSlug, 50),
-    enabled: !!resolvedSlug,
+    enabled: !!resolvedSlug && resolvedSlug !== 'vocab-hub',
   });
   const leaderboard = useMemo(() => leaderboardQuery.data ?? [], [leaderboardQuery.data]);
 
@@ -104,6 +105,8 @@ const GameDashboard = () => {
   );
   const myRow = myIndex >= 0 ? leaderboard[myIndex] : null;
   const myLevel = levelFromXp(myRow?.total_xp ?? 0).level;
+
+  if (gameSlug === 'vocab-hub') return <Navigate to="/play/vocab-hub" replace />;
 
   // ─── หน้ากรอกรหัส (ยังไม่ระบุตัว) ─────────────────────────────────────────
   if (!student) {

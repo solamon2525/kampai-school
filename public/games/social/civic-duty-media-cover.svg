@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="gCivicDuty" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12"/>
+      <stop offset="55%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#gCivicDuty)"/>
+  <circle cx="170" cy="150" r="90" fill="#ffffff" fill-opacity="0.12"/>
+  <circle cx="1120" cy="580" r="140" fill="#ffffff" fill-opacity="0.10"/>
+  <rect x="80" y="150" width="1120" height="420" rx="32" fill="#ffffff" fill-opacity="0.18"/>
+  
+  <text x="640" y="315" text-anchor="middle" font-size="88">&#127968;&#127979;&#129309;&#128499;&#65039;</text>
+  <text x="640" y="425" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="62" font-weight="800" fill="#ffffff">&#3627;&#3609;&#3657;&#3634;&#3607;&#3637;&#3656;&#3614;&#3621;&#3648;&#3617;&#3639;&#3629;&#3591;&#3609;&#3657;&#3629;&#3618;</text>
+  <text x="640" y="490" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="600" fill="#ffffff" fill-opacity="0.92">&#3585;&#3605;&#3636;&#3585;&#3634;&#3610;&#3657;&#3634;&#3609;&#8211;&#3650;&#3619;&#3591;&#3648;&#3619;&#3637;&#3618;&#3609;&#8211;&#3594;&#3640;&#3617;&#3594;&#3609; &#183; &#3648;&#3588;&#3634;&#3619;&#3614;&#3626;&#3636;&#3607;&#3608;&#3636; &#183; &#3611;&#3619;&#3632;&#3594;&#3634;&#3608;&#3636;&#3611;&#3652;&#3605;&#3618;&#3651;&#3609;&#3627;&#3657;&#3629;&#3591;&#3648;&#3619;&#3637;&#3618;&#3609;</text>
+  <text x="640" y="540" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="26" font-weight="600" fill="#ffffff" fill-opacity="0.85">&#3626;&#3639;&#3656;&#3629;&#3585;&#3634;&#3619;&#3626;&#3629;&#3609; &#3611;.1&#8211;3 &#183; &#3610;&#3657;&#3634;&#3609;&#3588;&#3635;&#3652;&#3612;&#3656;</text>
+</svg>

@@ -1,224 +1,1298 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📐 คลังวรรคตอนไทย ป.4-5 — ชนิดและหน้าที่ของคำ</title>
-<!--
-  KAMPAI-SCHOOL · คลังวรรคตอนไทย ป.4-5 — นาม กริยา คุณศัพท์ บุพบท สันธาน ป.4-5
--->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap"></noscript>
-<link rel="stylesheet" href="style.css">
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>คลังเครื่องหมายวรรคตอนไทย ป.3–ป.5 (Thai Punctuation Studio) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-dark: #020617;
+      --indigo: #2563eb;
+      --indigo-dark: #1d4ed8;
+      --indigo-light: #eff6ff;
+      --gold: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-light: #fef3c7;
+      --emerald: #059669;
+      --emerald-dark: #047857;
+      --emerald-light: #d1fae5;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+      --sky: #0284c7;
+      --sky-light: #e0f2fe;
+      --amber: #d97706;
+      --purple: #7c3aed;
+      --purple-light: #f3e8ff;
+      --line: #cbd5e1;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --font-scale: 1.0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(150deg, #eff6ff 0%, #f0fdf4 50%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 60%, #0284c7 100%);
+      color: #ffffff;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fef08a;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* TOOLBAR BUTTONS */
+    .toolbar-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .toolbar-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .toolbar-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* 4-MODE NAVIGATION TABS */
+    .mode-nav {
+      display: flex;
+      overflow-x: auto;
+      background: #f1f5f9;
+      border-bottom: 2px solid var(--border);
+      padding: 6px 12px;
+      gap: 8px;
+      scrollbar-width: none;
+    }
+    .mode-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .mode-btn {
+      min-height: 44px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: #ffffff;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .mode-btn:hover {
+      color: var(--indigo);
+      border-color: #bfdbfe;
+    }
+    .mode-btn.active {
+      background: var(--indigo);
+      color: #ffffff;
+      border-color: var(--indigo-dark);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #f8fafc;
+    }
+
+    .mode-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .mode-section.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* COMMON CARD */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* BUTTON PRIMITIVES */
+    .btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary { background: var(--indigo); color: #ffffff; }
+    .btn-primary:hover { background: var(--indigo-dark); }
+    .btn-gold { background: var(--gold); color: #ffffff; }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-emerald { background: var(--emerald); color: #ffffff; }
+    .btn-emerald:hover { background: var(--emerald-dark); }
+    .btn-ghost { background: #f1f5f9; color: var(--navy); border-color: var(--border); }
+    .btn-ghost:hover { background: #e2e8f0; }
+
+    /* ==================================================== */
+    /* MODE 1: PUNCTUATION EXPLORER */
+    /* ==================================================== */
+    .punc-tabs-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .punc-tabs-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .punc-pill-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .punc-pill-btn:hover {
+      background: #f8fafc;
+    }
+    .punc-pill-btn.active {
+      background: var(--punc-color, var(--indigo));
+      color: #ffffff;
+      border-color: var(--punc-color, var(--indigo));
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .punc-hero-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid var(--punc-border, var(--border));
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .punc-hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .punc-hero-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .punc-symbol-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: var(--punc-color, var(--indigo));
+      color: #ffffff;
+      font-size: 2rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      flex-shrink: 0;
+    }
+    .punc-hero-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .punc-rule-box {
+      background: var(--punc-bg, #eff6ff);
+      border-left: 4px solid var(--punc-color, var(--indigo));
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+    .punc-reading-box {
+      background: #f8fafc;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .example-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .example-card:hover {
+      border-color: var(--punc-color, var(--indigo));
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+    }
+    .example-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .example-reading {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--emerald-dark);
+    }
+    .example-role {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ==================================================== */
+    /* MODE 2: SENTENCE INSPECTOR */
+    /* ==================================================== */
+    .inspector-sentence-box {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .inspector-display-text {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--navy);
+      text-align: center;
+      line-height: 1.6;
+      background: #f8fafc;
+      padding: 16px 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+    .inspector-detail-card {
+      width: 100%;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      border: 2px solid #bfdbfe;
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ==================================================== */
+    /* MODE 3: PUNCTUATION FIXER LAB */
+    /* ==================================================== */
+    .fixer-prompt-box {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+      margin-bottom: 8px;
+    }
+    .fixer-sentence-display {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy);
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      text-align: center;
+    }
+    .fixer-slot {
+      min-width: 64px;
+      min-height: 48px;
+      padding: 4px 14px;
+      border-radius: 10px;
+      border: 2px dashed #94a3b8;
+      background: #ffffff;
+      color: var(--indigo);
+      font-size: 1.6rem;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .fixer-slot.filled {
+      border-style: solid;
+      border-color: var(--indigo);
+      background: #eff6ff;
+    }
+    .symbol-options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 12px 0;
+    }
+    .symbol-choice-tile {
+      min-height: 52px;
+      min-width: 68px;
+      padding: 8px 18px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1.45rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.15s ease;
+    }
+    .symbol-choice-tile:hover {
+      border-color: var(--indigo);
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+    .symbol-choice-tile.selected {
+      border-color: var(--indigo-dark);
+      background: var(--indigo);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    /* ==================================================== */
+    /* MODE 4: PRACTICE QUIZ CHALLENGE */
+    /* ==================================================== */
+    .quiz-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .quiz-q-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.6;
+    }
+    .quiz-choices {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .choice-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1.02rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+    .choice-btn:hover {
+      border-color: #93c5fd;
+      background: #f8faff;
+    }
+    .choice-btn.correct {
+      background: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 800;
+    }
+    .choice-btn.wrong {
+      background: #ffe4e6 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+      font-weight: 800;
+    }
+    .choice-btn.disabled {
+      pointer-events: none;
+    }
+    .choice-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .quiz-explanation {
+      background: #f8fafc;
+      border-left: 4px solid var(--indigo);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #334155;
+      display: none;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 16px 20px;
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .kbd-chip {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    /* BOILERPLATE COMPATIBILITY */
+    #blocker, #player-chip, #my-stats, #ms-best, #ms-plays {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-<div id="bar-wrap"><div id="bar" style="width:0"></div></div>
+  <!-- Boilerplate Elements (Guardrail) -->
+  <div id="blocker"></div>
+  <div id="player-chip"></div>
+  <div id="my-stats"><span id="ms-best">0</span><span id="ms-plays">0</span></div>
 
-<!-- Player chip (shows student name when embedded) -->
-<div id="player-chip"></div>
+  <div class="shell">
+    <!-- HEADER -->
+    <header>
+      <div class="header-left">
+        <button type="button" class="toolbar-btn" onclick="location.href='/games/thai/index.html'" title="กลับหมวดภาษาไทย">
+          ← หมวดภาษาไทย
+        </button>
+        <h1>✒️ คลังเครื่องหมายวรรคตอนไทย ป.3–ป.5</h1>
+        <span class="badge-grade">ท 4.1 & ท 2.1</span>
+      </div>
+      <div class="header-right">
+        <button type="button" class="toolbar-btn" id="btnTtsToggle" title="เปิด/ปิดเสียงอ่านสังเคราะห์">
+          <span id="ttsIcon">🔊</span> <span id="ttsLabel">เสียงอ่าน: เปิด</span>
+        </button>
+        <button type="button" class="toolbar-btn" id="btnFontDec" title="ลดขนาดอักษร (Aa-)">Aa-</button>
+        <button type="button" class="toolbar-btn" id="btnFontInc" title="เพิ่มขนาดอักษร (Aa+)">Aa+</button>
+        <button type="button" class="toolbar-btn" id="btnFullscreen" title="เต็มจอ (F)">⛶</button>
+      </div>
+    </header>
 
-<!-- Font-size slider (persisted to localStorage) -->
-<div id="tvh-fontsize" class="tvh-fs-pill">
-    <span class="tvh-fs-icon tvh-fs-icon-sm" aria-hidden="true">Aa</span>
-    <input type="range" id="tvh-fontsize-slider" class="tvh-fs-range"
-           min="0.85" max="1.30" step="0.05" value="1" aria-label="ขนาดตัวอักษร">
-    <span class="tvh-fs-icon tvh-fs-icon-lg" aria-hidden="true">Aa</span>
-</div>
+    <!-- 4-MODE NAVIGATION TABS -->
+    <nav class="mode-nav" id="modeNav" aria-label="โหมดการเรียนรู้">
+      <button type="button" class="mode-btn active" data-mode="explorer">
+        <span>📖</span> 1. คลัง 10 เครื่องหมายวรรคตอน (Explorer)
+      </button>
+      <button type="button" class="mode-btn" data-mode="inspector">
+        <span>🔍</span> 2. สแกนเนอร์ในประโยค (Inspector)
+      </button>
+      <button type="button" class="mode-btn" data-mode="fixer">
+        <span>🧩</span> 3. ห้องแล็บซ่อมประโยค (Fixer Lab)
+      </button>
+      <button type="button" class="mode-btn" data-mode="quiz">
+        <span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz Challenge)
+      </button>
+    </nav>
 
-<!-- HUB VIEW (Category select) -->
-<div id="hub-view">
-    <button class="cbtn" style="align-self:flex-start;margin-bottom:8px" onclick="KAMPAI.goHome()">← กลับหน้าหลัก</button>
-    <div id="hub-title">คลังวรรคตอนไทย ป.4-5</div>
-    <div id="hub-sub">จุด · จุลภาค · คำถาม · อัศเจรีย์ · วงเล็บ · คำพูด · ขีด · ลาก</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px">
-        <a class="cbtn hub-dash-link" href="/games/thai/thai-grammar-hub/index.html" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">📐 คลังไวยากรณ์</a>
-        <a class="cbtn hub-dash-link" href="/games/thai/thai-script-hub/index.html" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">🔤 คลังอักษรไทย</a>
-    </div>
-    <div id="missed-banner" class="missed-banner" style="display:none" aria-live="polite"></div>
-    <div id="hub-grid">
-        <!-- populated dynamically -->
-    </div>
-</div>
+    <!-- MAIN CONTENT AREA -->
+    <main>
+      <!-- ==================================================== -->
+      <!-- MODE 1: PUNCTUATION EXPLORER -->
+      <!-- ==================================================== -->
+      <section class="mode-section active" id="secExplorer">
+        <!-- 10 Punctuation Pill Tabs -->
+        <div class="punc-tabs-scroll" id="puncTabsScroll">
+          <!-- Populated dynamically -->
+        </div>
 
-<!-- TOPIC VIEW (Interactive Flashcards and Modes) -->
-<div id="topic-view" style="display:none">
-    <!-- Word Card Section -->
-    <div id="word-area">
-        <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
-        <div id="tcard" onclick="flipCard()">
-            <div class="tface tfront">
-                <div class="front-col">
-                    <span id="wfront-emoji">📝</span>
-                    <span id="wfront-word">อักษร / คำ</span>
-                    <span id="wfront-cat" class="card-cat-label">หมวดหมู่</span>
+        <!-- Punctuation Hero Detail Card -->
+        <div class="punc-hero-card" id="puncHeroCard">
+          <div class="punc-hero-header">
+            <div class="punc-hero-title-wrap">
+              <div class="punc-symbol-badge" id="heroSymbolBadge">ๆ</div>
+              <div>
+                <h2 class="punc-hero-title" id="heroTitle">ไม้ยมก (ๆ)</h2>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                  <span class="badge-grade" id="heroGradeBadge" style="background:#eff6ff; color:#1d4ed8; border-color:#93c5fd;">ป.3</span>
+                  <span style="font-size:0.85rem; color:var(--muted);" id="heroAliasText">(ชื่อสามัญ: ยมก)</span>
                 </div>
+              </div>
             </div>
-            <div class="tface tback">
-                <div class="back-col">
-                    <span id="wback-reading">คำอ่าน: [ — ]</span>
-                    <span id="wback-meaning">ความหมาย...</span>
-                </div>
+            <button type="button" class="btn btn-primary" id="btnSpeakRule">
+              <span>🔊</span> ฟังวิธีอ่านและกฎ
+            </button>
+          </div>
+
+          <div class="punc-rule-box" id="heroRuleText">
+            ใช้เขียนหลังคำ วลี หรือประโยค เพื่อให้อ่านซ้ำคำ วลี หรือประโยคเดิมอีกครั้ง
+          </div>
+
+          <div class="punc-reading-box">
+            <strong style="color:var(--navy);">🗣️ วิธีอ่านออกเสียง:</strong>
+            <span id="heroReadingText">อ่านซ้ำคำเดิม เช่น เด็กๆ อ่านว่า เด็ก-เด็ก</span>
+          </div>
+
+          <div class="punc-reading-box" style="border-color:#fca5a5; background:#fff1f2;">
+            <strong style="color:#b91c1c;">⚠️ ข้อควรระวัง:</strong>
+            <span id="heroCautionText" style="color:#9f1239;">ห้ามใช้ซ้ำคำคนละความหมาย</span>
+          </div>
+
+          <!-- Examples Grid -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <div style="font-weight:800; font-size:1rem; color:var(--navy);">
+              💬 ตัวอย่างการใช้ในประโยค (แตะการ์ดเพื่อฟังเสียง):
             </div>
+          </div>
+          <div class="examples-grid" id="heroExamplesGrid">
+            <!-- Populated dynamically -->
+          </div>
         </div>
-    </div>
+      </section>
 
-    <!-- Flash controls (โหมดสุ่มการ์ด) -->
-    <div id="flash-controls" class="flash-controls" style="display:none">
-        <div id="flash-score" class="flash-score" aria-live="polite">รู้แล้ว 0/0</div>
-        <div class="flash-variant-picker" role="group" aria-label="ทิศการ์ด">
-            <span class="speed-label">การ์ด</span>
-            <button type="button" class="flash-var-btn active" data-v="word2meaning">หน้า→หลัง</button>
-            <button type="button" class="flash-var-btn" data-v="meaning2word">หลัง→หน้า</button>
-            <button type="button" class="flash-var-btn" data-v="audio2word">🔊→คำ</button>
-            <button type="button" class="flash-var-btn" data-v="mixed">🎲</button>
-        </div>
-        <div class="flash-action-btns">
-            <button type="button" class="btn btn-primary" id="btn-flash-reveal">เปิดดูคำตอบ</button>
-            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-know" style="display:none">✅ รู้แล้ว</button>
-            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-review" style="display:none">🔁 ทบทวน</button>
-            <button type="button" class="cbtn" id="btn-flash-reset" title="ล้างความคืบหน้ารู้แล้ว">↺ เริ่มใหม่</button>
-        </div>
-    </div>
-
-    <!-- Autoplay controls (โหมดทบทวนกริด) -->
-    <div id="autoplay-controls" class="autoplay-bar" style="display:none">
-        <button class="btn-nav" onclick="autoplayPrev()" title="คำก่อนหน้า (←)">◀</button>
-        <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ อ่านอัตโนมัติ</button>
-        <button id="btn-autoplay-pause" class="btn-autoplay-pause" onclick="toggleAutoplayPause()" title="หยุดชั่วคราว" style="display:none">⏸</button>
-        <button class="btn-nav" onclick="autoplayNext()" title="คำถัดไป (→)">▶</button>
-        <span id="autoplay-progress" class="autoplay-progress" aria-live="polite">—</span>
-        <div class="autoplay-speed-group">
-            <span class="speed-label">หน่วง</span>
-            <div class="autoplay-spd-btns" role="group" aria-label="หน่วงหลังอ่านจบ">
-                <button type="button" class="autoplay-spd" data-ms="500">0.5s</button>
-                <button type="button" class="autoplay-spd" data-ms="1000">1s</button>
-                <button type="button" class="autoplay-spd active" data-ms="1500">1.5s</button>
-                <button type="button" class="autoplay-spd" data-ms="2000">2s</button>
-                <button type="button" class="autoplay-spd" data-ms="3000">3s</button>
+      <!-- ==================================================== -->
+      <!-- MODE 2: SENTENCE INSPECTOR -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secInspector">
+        <div class="card" style="background:linear-gradient(135deg, #eff6ff 0%, #fef3c7 100%); border-color:#bfdbfe;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn btn-ghost" id="btnPrevScan">◀ ประโยคก่อนหน้า</button>
+              <select class="btn btn-ghost" id="scanDropdown" style="font-weight:700;"></select>
+              <button type="button" class="btn btn-ghost" id="btnNextScan">ประโยคถัดไป ▶</button>
             </div>
+            <button type="button" class="btn btn-gold" id="btnRandomScan">🎲 สุ่มประโยค</button>
+          </div>
         </div>
-        <div class="autoplay-speed-group">
-            <span class="speed-label">อ่าน</span>
-            <select id="autoplay-read-mode" class="speed-select" onchange="setAutoReadMode(this.value)" aria-label="โหมดการอ่าน">
-                <option value="word">คำศัพท์</option>
-                <option value="reading">+ ชนิดคำ</option>
-                <option value="meaning">+ ความหมาย</option>
-                <option value="full" selected>ครบ</option>
-            </select>
-        </div>
-        <button type="button" id="btn-auto-flip" class="autoplay-opt-btn on" onclick="toggleAutoFlip()" title="พลิกการ์ดดูความหมาย">🔄 พลิก</button>
-        <button type="button" id="btn-auto-sound" class="autoplay-opt-btn on" onclick="toggleAutoSound()" title="เปิด/ปิดเสียงอ่าน">🔊</button>
-    </div>
 
-    <!-- Mode views (injected here) -->
-    <div id="play-area">
-        <!-- 1. Grid of words (Topic List mode) -->
-        <div id="words-grid" class="words-grid"></div>
+        <div class="inspector-sentence-box">
+          <div style="font-size:0.95rem; font-weight:700; color:var(--muted);">
+            ประโยคตัวอย่างการใช้เครื่องหมายวรรคตอน:
+          </div>
+          <div class="inspector-display-text" id="inspectorDisplayText">
+            ข้อความประโยค...
+          </div>
 
-        <!-- 2. Dictation (เขียนตามคำบอก) -->
-        <div id="dictation-mode" class="mode-panel" style="display:none">
-            <div class="dictation-card">
-                <button class="voice-btn" onclick="playVoiceOnly()">🔊 ฟังเสียงคำถามอีกครั้ง</button>
-                <p class="dictation-hint">พิมพ์อักษรหรือคำที่ได้ยิน — สะกดให้ถูกต้อง!</p>
-                <div class="input-row">
-                    <input type="text" id="dictation-input" placeholder="พิมพ์สะกดคำศัพท์ที่นี่..." autocomplete="off" onkeydown="handleDictationKey(event)">
-                    <button class="btn btn-primary" onclick="checkDictation()">ส่งคำตอบ</button>
-                </div>
+          <div class="inspector-detail-card" id="inspectorDetailCard">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span id="insTargetText" style="font-size:1.4rem; font-weight:900; color:var(--indigo-dark);">เป้าหมาย</span>
+                <span class="badge-grade" id="insNameBadge" style="background:#ffffff; color:var(--indigo); border-color:#93c5fd;">ชื่อเครื่องหมาย</span>
+              </div>
+              <button type="button" class="btn btn-primary" id="btnSpeakInspector">
+                <span>🔊</span> ฟังเสียงอ่านประโยค
+              </button>
             </div>
-        </div>
-
-        <!-- 3. Choice Quiz (ทายคำ) -->
-        <div id="choice-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
-                <div id="choice-question-text" class="choice-q">ความหมายของคำศัพท์...</div>
-                <div id="choice-options" class="options-grid"></div>
+            <div id="insReadingText" style="font-size:1.05rem; font-weight:700; color:var(--emerald-dark);">
+              วิธีอ่าน...
             </div>
-        </div>
-
-        <!-- 4. Matching (จับคู่) -->
-        <div id="match-mode" class="mode-panel" style="display:none">
-            <div class="match-container">
-                <div id="match-left" class="match-column"></div>
-                <div id="match-right" class="match-column"></div>
+            <div id="insMeaningText" style="font-size:1rem; font-weight:600; color:#1e293b; line-height:1.5;">
+              คำอธิบายหน้าที่ในประโยค...
             </div>
+          </div>
         </div>
+      </section>
 
-        <!-- 5. Listen (ฟังเสียงทายคำ) -->
-        <div id="listen-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
-                <button type="button" class="voice-btn" onclick="replayListenWord()">🔊 ฟังเสียงอีกครั้ง</button>
-                <p class="dictation-hint" id="listen-hint">ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง</p>
-                <div id="listen-options" class="options-grid"></div>
+      <!-- ==================================================== -->
+      <!-- MODE 3: PUNCTUATION FIXER LAB -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secFixer">
+        <div class="card">
+          <div class="card-title">
+            <span>🧩 ห้องแล็บซ่อมประโยคและเติมเครื่องหมายวรรคตอน</span>
+            <button type="button" class="btn btn-gold" id="btnNewFixer">🎲 โจทย์ถัดไป</button>
+          </div>
+
+          <div class="fixer-prompt-box" id="fixerPromptText">
+            คำสั่ง...
+          </div>
+
+          <div class="fixer-sentence-display">
+            <span id="fixerBefore">ส่วนหน้า</span>
+            <div class="fixer-slot" id="fixerSlot">?</div>
+            <span id="fixerAfter">ส่วนหลัง</span>
+          </div>
+
+          <div style="font-size:0.92rem; font-weight:700; color:var(--muted); text-align:center; margin-top:8px;">
+            แตะเลือกเครื่องหมายวรรคตอนที่ถูกต้อง:
+          </div>
+          <div class="symbol-options-row" id="fixerOptionsRow">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:12px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-emerald" id="btnCheckFixer" style="min-width:160px;">
+                <span>✔️</span> ตรวจสอบคำตอบ
+              </button>
+              <button type="button" class="btn btn-ghost" id="btnResetFixer">
+                <span>↺</span> เริ่มใหม่
+              </button>
             </div>
+            <div id="fixerResultBanner" style="font-size:1rem; font-weight:800; display:none;"></div>
+          </div>
         </div>
-    </div>
+      </section>
 
-    <!-- Bottom Toolbar -->
-    <div id="bottom-bar">
-        <div id="controls-row">
-            <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
-            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">📋 ภาพรวม</button>
-            <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
-            <button class="cbtn mbtn" id="m-class" onclick="switchMode('class')">🎯 ทายเครื่องหมาย</button>
-            <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทาย</button>
-            <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามบอก</button>
-            <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">💡 ทายความหมาย</button>
-            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
+      <!-- ==================================================== -->
+      <!-- MODE 4: PRACTICE QUIZ CHALLENGE -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secQuiz">
+        <div class="quiz-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+            <span class="badge-grade" id="quizCounterText" style="background:#dbeafe; color:#1e40af; border-color:#93c5fd;">ข้อที่ 1 / 15</span>
+            <span style="font-weight:700; color:var(--amber);" id="quizStreakText">🔥 ต่อเนื่อง: 0</span>
+            <span style="font-weight:800; color:var(--indigo);" id="quizScoreText">คะแนน: 0</span>
+          </div>
+
+          <div class="quiz-q-text" id="quizQuestionText">
+            คำถาม...
+          </div>
+
+          <div class="quiz-choices" id="quizChoicesGrid">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="quiz-explanation" id="quizExplanationBox">
+            <!-- Detailed Thai explanation -->
+          </div>
+
+          <div style="display:none; justify-content:flex-end;" id="quizNextWrap">
+            <button type="button" class="btn btn-primary" id="btnQuizNext" style="min-width:140px;">
+              ข้อถัดไป ▶
+            </button>
+          </div>
         </div>
-        <div id="dots"></div>
-        <div id="score-display" style="display:none">
-            <span id="life-display">❤️❤️❤️❤️❤️</span>
-            <span class="sd-score">คะแนน <strong id="score-val">0</strong></span>
-        </div>
-    </div>
-</div>
+      </section>
+    </main>
 
-<!-- Game Over screen -->
-<div id="gameover-screen" style="display:none">
-    <h1 id="go-title">🎉 ทบทวนสำเร็จ!</h1>
-    <div id="star-display" style="display:none"></div>
-    <p style="display:none">คะแนนสะสมสูงสุดของคุณ</p>
-    <div id="final-score" style="display:none">0</div>
-    <p id="go-summary"></p>
+    <!-- FOOTER -->
+    <footer>
+      <div>
+        <strong>โรงเรียนบ้านคำไผ่</strong> · คลังเครื่องหมายวรรคตอนไทย ป.3–ป.5 ตามหลักสูตรแกนกลางฯ
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <span>คีย์ลัด:</span>
+        <span class="kbd-chip">1–4</span> เปลี่ยนโหมด
+        <span class="kbd-chip">Space</span> อ่านเสียง
+        <span class="kbd-chip">← / →</span> สลับประโยค
+        <span class="kbd-chip">F</span> เต็มจอ
+      </div>
+    </footer>
+  </div>
 
-    <!-- คำที่ตอบผิด (ไว้ทบทวนซ้ำ) -->
-    <div id="missed-box" class="missed-box" style="display:none">
-        <h3 class="missed-title">📝 คำที่ควรทบทวน</h3>
-        <ul id="missed-list" class="missed-list"></ul>
-    </div>
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      // 1. STATE MANAGEMENT
+      let currentMode = 'explorer';
+      let currentPuncId = 'yamok';
+      let fontScale = 1.0;
+      let isAudioActive = true;
 
-    <div class="leaderboard-box" style="display:none">
-        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
-        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
-    </div>
+      // Mode 2 state
+      let scanIndex = 0;
 
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 ฝึกซ้อมใหม่</button>
-        <button class="btn btn-blue" onclick="returnToHub()">← กลับหน้าสารบัญ</button>
-    </div>
-</div>
+      // Mode 3 state
+      let fixerIndex = 0;
+      let selectedFixerSymbol = null;
 
-<!-- Confetti canvas -->
-<canvas id="confetti-canvas"></canvas>
+      // Mode 4 state
+      let quizIndex = 0;
+      let quizScore = 0;
+      let quizStreak = 0;
+      let quizAnswered = false;
 
-<!-- ═══ Toast feedback ═══ -->
-<div id="toast" class="toast">แจ้งเตือน</div>
+      // 2. INITIALIZATION
+      function init() {
+        if (!window.PUNCTUATION_HUB_DATA) {
+          console.error("PUNCTUATION_HUB_DATA not found!");
+          return;
+        }
 
-<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
-<script src="/games/kampai-sdk.js"></script>
-<script>
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
-</script>
-<script src="/games/kampai-match.js"></script>
-<script>
-window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
-</script>
+        renderPuncTabs();
+        selectPunc(currentPuncId);
 
-<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
-<script src="config.js"></script>
-<script src="data.js"></script>
-<script src="game.js"></script>
+        initScannerDropdown();
+        loadScannerSentence(scanIndex);
+
+        loadFixerChallenge(fixerIndex);
+        renderQuizQuestion();
+
+        bindControls();
+
+        if (window.KAMPAI && typeof window.KAMPAI.onReady === 'function') {
+          window.KAMPAI.onReady((stats) => {
+            const elBest = document.getElementById('ms-best');
+            const elPlays = document.getElementById('ms-plays');
+            if (elBest && stats?.bestScore !== undefined) elBest.innerText = stats.bestScore;
+            if (elPlays && stats?.playCount !== undefined) elPlays.innerText = stats.playCount;
+          });
+        }
+      }
+
+      // =========================================================
+      // 3. MODE 1: EXPLORER
+      // =========================================================
+      function renderPuncTabs() {
+        const container = document.getElementById('puncTabsScroll');
+        container.innerHTML = '';
+
+        window.PUNCTUATION_HUB_DATA.punctuations.forEach((p, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `punc-pill-btn ${p.id === currentPuncId ? 'active' : ''}`;
+          btn.style.setProperty('--punc-color', p.color);
+          btn.innerHTML = `<span style="font-weight:900; font-size:1.15rem;">${p.symbol}</span> <span>${p.name}</span>`;
+          btn.onclick = () => selectPunc(p.id);
+          container.appendChild(btn);
+        });
+      }
+
+      function selectPunc(puncId) {
+        currentPuncId = puncId;
+        const p = window.PUNCTUATION_HUB_DATA.punctuations.find(item => item.id === puncId);
+        if (!p) return;
+
+        document.querySelectorAll('#puncTabsScroll .punc-pill-btn').forEach((btn, idx) => {
+          const item = window.PUNCTUATION_HUB_DATA.punctuations[idx];
+          btn.classList.toggle('active', item && item.id === puncId);
+        });
+
+        const heroCard = document.getElementById('puncHeroCard');
+        heroCard.style.setProperty('--punc-color', p.color);
+        heroCard.style.setProperty('--punc-border', p.borderColor);
+        heroCard.style.setProperty('--punc-bg', p.bgLight);
+
+        document.getElementById('heroSymbolBadge').textContent = p.symbol;
+        document.getElementById('heroSymbolBadge').style.background = p.color;
+        document.getElementById('heroTitle').textContent = `${p.name} (${p.symbol})`;
+        document.getElementById('heroGradeBadge').textContent = p.grade;
+        document.getElementById('heroAliasText').textContent = `(ชื่อสามัญ: ${p.alias})`;
+        document.getElementById('heroRuleText').textContent = p.rule;
+        document.getElementById('heroReadingText').textContent = p.howToRead;
+        document.getElementById('heroCautionText').textContent = p.caution;
+
+        const exGrid = document.getElementById('heroExamplesGrid');
+        exGrid.innerHTML = '';
+        p.examples.forEach(ex => {
+          const card = document.createElement('div');
+          card.className = 'example-card';
+          card.innerHTML = `
+            <div class="example-text">${ex.text}</div>
+            <div class="example-reading">🗣️ ${ex.reading}</div>
+            <div class="example-role">📌 หน้าที่: ${ex.role}</div>
+          `;
+          card.onclick = () => speakThai(`${ex.text}... วิธีอ่าน... ${ex.reading}`);
+          exGrid.appendChild(card);
+        });
+      }
+
+      // =========================================================
+      // 4. MODE 2: SENTENCE INSPECTOR
+      // =========================================================
+      function initScannerDropdown() {
+        const dd = document.getElementById('scanDropdown');
+        dd.innerHTML = '';
+        window.PUNCTUATION_HUB_DATA.scannerSentences.forEach((s, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `ประโยคที่ ${idx + 1}: ${s.pSymbol} (${s.targetText.slice(0, 16)}...)`;
+          dd.appendChild(opt);
+        });
+      }
+
+      function loadScannerSentence(idx) {
+        const sentences = window.PUNCTUATION_HUB_DATA.scannerSentences;
+        if (idx < 0) idx = sentences.length - 1;
+        if (idx >= sentences.length) idx = 0;
+        scanIndex = idx;
+
+        document.getElementById('scanDropdown').value = idx;
+        const cur = sentences[scanIndex];
+
+        document.getElementById('inspectorDisplayText').textContent = cur.text;
+        document.getElementById('insTargetText').textContent = cur.targetText;
+        document.getElementById('insNameBadge').textContent = `เครื่องหมาย: ${cur.pSymbol}`;
+        document.getElementById('insReadingText').textContent = `🗣️ วิธีอ่าน: ${cur.reading}`;
+        document.getElementById('insMeaningText').textContent = `${cur.meaning} (${cur.ruleSummary})`;
+      }
+
+      // =========================================================
+      // 5. MODE 3: PUNCTUATION FIXER LAB
+      // =========================================================
+      function loadFixerChallenge(idx) {
+        const challenges = window.PUNCTUATION_HUB_DATA.fixerChallenges;
+        if (idx < 0) idx = challenges.length - 1;
+        if (idx >= challenges.length) idx = 0;
+        fixerIndex = idx;
+        selectedFixerSymbol = null;
+
+        const cur = challenges[fixerIndex];
+        document.getElementById('fixerPromptText').textContent = `ข้อที่ ${fixerIndex + 1}: ${cur.prompt}`;
+        document.getElementById('fixerBefore').textContent = cur.templateBefore;
+        document.getElementById('fixerAfter').textContent = cur.templateAfter;
+
+        const slot = document.getElementById('fixerSlot');
+        slot.textContent = '?';
+        slot.classList.remove('filled');
+
+        const optRow = document.getElementById('fixerOptionsRow');
+        optRow.innerHTML = '';
+        cur.options.forEach(sym => {
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'symbol-choice-tile';
+          tile.textContent = sym;
+          tile.onclick = () => {
+            selectedFixerSymbol = sym;
+            slot.textContent = sym;
+            slot.classList.add('filled');
+            document.querySelectorAll('#fixerOptionsRow .symbol-choice-tile').forEach(t => {
+              t.classList.toggle('selected', t.textContent === sym);
+            });
+          };
+          optRow.appendChild(tile);
+        });
+
+        const banner = document.getElementById('fixerResultBanner');
+        banner.style.display = 'none';
+      }
+
+      function checkFixer() {
+        const cur = window.PUNCTUATION_HUB_DATA.fixerChallenges[fixerIndex];
+        const banner = document.getElementById('fixerResultBanner');
+        banner.style.display = 'block';
+
+        if (!selectedFixerSymbol) {
+          banner.style.color = '#d97706';
+          banner.textContent = 'กรุณาแตะเลือกเครื่องหมายวรรคตอนก่อนตรวจคำตอบครับ';
+          return;
+        }
+
+        const isCorrect = (selectedFixerSymbol === cur.correctSymbol);
+        if (isCorrect) {
+          banner.style.color = '#047857';
+          banner.innerHTML = `✅ ถูกต้องยอดเยี่ยม! ${cur.explanation}`;
+          if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
+        } else {
+          banner.style.color = '#dc2626';
+          banner.innerHTML = `❌ ยังไม่ถูกต้อง (เลือก '${selectedFixerSymbol}') ลองคิดใหม่อีกครั้งนะ!`;
+          if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
+        }
+      }
+
+      // =========================================================
+      // 6. MODE 4: PRACTICE QUIZ
+      // =========================================================
+      function renderQuizQuestion() {
+        const bank = window.PUNCTUATION_HUB_DATA.quiz;
+        if (quizIndex >= bank.length) quizIndex = 0;
+
+        const q = bank[quizIndex];
+        quizAnswered = false;
+
+        document.getElementById('quizCounterText').textContent = `ข้อที่ ${quizIndex + 1} / ${bank.length}`;
+        document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+        document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+        document.getElementById('quizQuestionText').textContent = q.q;
+
+        const expBox = document.getElementById('quizExplanationBox');
+        expBox.style.display = 'none';
+        document.getElementById('quizNextWrap').style.display = 'none';
+
+        const grid = document.getElementById('quizChoicesGrid');
+        grid.innerHTML = '';
+
+        const letters = ['ก', 'ข', 'ค', 'ง'];
+        q.choices.forEach((choiceText, cIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'choice-btn';
+          btn.innerHTML = `
+            <span class="choice-letter">${letters[cIdx] || cIdx + 1}</span>
+            <span>${choiceText}</span>
+          `;
+          btn.onclick = () => answerQuiz(cIdx);
+          grid.appendChild(btn);
+        });
+      }
+
+      function answerQuiz(choiceIdx) {
+        if (quizAnswered) return;
+        quizAnswered = true;
+
+        const q = window.PUNCTUATION_HUB_DATA.quiz[quizIndex];
+        const isCorrect = (choiceIdx === q.ans);
+
+        if (isCorrect) {
+          quizScore += 10;
+          quizStreak += 1;
+          if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
+        } else {
+          quizStreak = 0;
+          if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
+        }
+
+        document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+        document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+
+        const choiceBtns = document.querySelectorAll('#quizChoicesGrid .choice-btn');
+        choiceBtns.forEach((btn, idx) => {
+          btn.classList.add('disabled');
+          if (idx === q.ans) btn.classList.add('correct');
+          if (idx === choiceIdx && !isCorrect) btn.classList.add('wrong');
+        });
+
+        const expBox = document.getElementById('quizExplanationBox');
+        expBox.style.display = 'block';
+        expBox.innerHTML = `<strong>${isCorrect ? '✅ ถูกต้อง!' : '❌ ยังไม่ถูกต้อง'}</strong> ${q.ex}`;
+
+        document.getElementById('quizNextWrap').style.display = 'flex';
+      }
+
+      // =========================================================
+      // 7. TTS AUDIO NARRATION
+      // =========================================================
+      function speakThai(text) {
+        if (!isAudioActive) return;
+
+        if (window.KAMPAI?.sound?.speak) {
+          window.KAMPAI.sound.speak(text, 'th-TH');
+          return;
+        }
+
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'th-TH';
+          utter.rate = 0.9;
+          window.speechSynthesis.speak(utter);
+        }
+      }
+
+      // =========================================================
+      // 8. BIND CONTROLS
+      // =========================================================
+      function bindControls() {
+        // Mode Tabs
+        document.querySelectorAll('#modeNav .mode-btn').forEach(btn => {
+          btn.onclick = () => switchMode(btn.dataset.mode);
+        });
+
+        // TTS Toggle
+        document.getElementById('btnTtsToggle').onclick = () => {
+          isAudioActive = !isAudioActive;
+          document.getElementById('ttsLabel').textContent = `เสียงอ่าน: ${isAudioActive ? 'เปิด' : 'ปิด'}`;
+          document.getElementById('ttsIcon').textContent = isAudioActive ? '🔊' : '🔇';
+          if (!isAudioActive && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+        };
+
+        // Font Scalers
+        document.getElementById('btnFontDec').onclick = () => {
+          fontScale = Math.max(0.85, Math.round((fontScale - 0.1) * 100) / 100);
+          document.documentElement.style.setProperty('--font-scale', fontScale);
+        };
+        document.getElementById('btnFontInc').onclick = () => {
+          fontScale = Math.min(1.4, Math.round((fontScale + 0.1) * 100) / 100);
+          document.documentElement.style.setProperty('--font-scale', fontScale);
+        };
+
+        // Fullscreen
+        document.getElementById('btnFullscreen').onclick = () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        };
+
+        // Mode 1: Speak Rule
+        document.getElementById('btnSpeakRule').onclick = () => {
+          const p = window.PUNCTUATION_HUB_DATA.punctuations.find(item => item.id === currentPuncId);
+          if (p) speakThai(`${p.name}... ${p.rule}... วิธีอ่าน... ${p.howToRead}`);
+        };
+
+        // Mode 2: Scanner Controls
+        document.getElementById('btnPrevScan').onclick = () => loadScannerSentence(scanIndex - 1);
+        document.getElementById('btnNextScan').onclick = () => loadScannerSentence(scanIndex + 1);
+        document.getElementById('btnRandomScan').onclick = () => {
+          const rand = Math.floor(Math.random() * window.PUNCTUATION_HUB_DATA.scannerSentences.length);
+          loadScannerSentence(rand);
+        };
+        document.getElementById('scanDropdown').onchange = (e) => {
+          loadScannerSentence(parseInt(e.target.value, 10));
+        };
+        document.getElementById('btnSpeakInspector').onclick = () => {
+          const cur = window.PUNCTUATION_HUB_DATA.scannerSentences[scanIndex];
+          if (cur) speakThai(`${cur.text}... ${cur.reading}`);
+        };
+
+        // Mode 3: Fixer Controls
+        document.getElementById('btnNewFixer').onclick = () => loadFixerChallenge(fixerIndex + 1);
+        document.getElementById('btnCheckFixer').onclick = checkFixer;
+        document.getElementById('btnResetFixer').onclick = () => loadFixerChallenge(fixerIndex);
+
+        // Mode 4: Quiz Next
+        document.getElementById('btnQuizNext').onclick = () => {
+          quizIndex++;
+          renderQuizQuestion();
+        };
+
+        // Smartboard Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+          switch (e.key) {
+            case '1': switchMode('explorer'); break;
+            case '2': switchMode('inspector'); break;
+            case '3': switchMode('fixer'); break;
+            case '4': switchMode('quiz'); break;
+            case ' ':
+              e.preventDefault();
+              if (currentMode === 'explorer') {
+                const p = window.PUNCTUATION_HUB_DATA.punctuations.find(item => item.id === currentPuncId);
+                if (p) speakThai(`${p.name}... ${p.rule}`);
+              } else if (currentMode === 'inspector') {
+                const cur = window.PUNCTUATION_HUB_DATA.scannerSentences[scanIndex];
+                if (cur) speakThai(cur.text);
+              }
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              if (currentMode === 'inspector') loadScannerSentence(scanIndex - 1);
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              if (currentMode === 'inspector') loadScannerSentence(scanIndex + 1);
+              break;
+            case 'f':
+            case 'F':
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              } else {
+                document.exitFullscreen().catch(() => {});
+              }
+              break;
+          }
+        });
+      }
+
+      function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('#modeNav .mode-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+
+        document.getElementById('secExplorer').classList.toggle('active', mode === 'explorer');
+        document.getElementById('secInspector').classList.toggle('active', mode === 'inspector');
+        document.getElementById('secFixer').classList.toggle('active', mode === 'fixer');
+        document.getElementById('secQuiz').classList.toggle('active', mode === 'quiz');
+
+        if (mode === 'explorer') selectPunc(currentPuncId);
+        if (mode === 'inspector') loadScannerSentence(scanIndex);
+        if (mode === 'fixer') loadFixerChallenge(fixerIndex);
+        if (mode === 'quiz') renderQuizQuestion();
+      }
+
+      // 9. AUTOMATION STATE HOOK
+      window.__getState = function () {
+        return {
+          mode: currentMode,
+          currentPuncId,
+          fontScale,
+          isAudioActive,
+          scanIndex,
+          fixerIndex,
+          selectedFixerSymbol,
+          quizIndex,
+          quizScore,
+          quizStreak,
+          quizAnswered
+        };
+      };
+
+      // RUN
+      init();
+    })();
+  </script>
 </body>
 </html>

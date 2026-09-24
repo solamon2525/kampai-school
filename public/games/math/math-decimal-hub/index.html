@@ -1,176 +1,2458 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <script src="/games/kampai-sdk.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สื่อทศนิยม ป.4-5 — คณิตศาสตร์</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Sarabun',sans-serif;background:linear-gradient(135deg,#60a5fa,#bfdbfe);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
-        .main-container{width:100%;max-width:1152px;background:#fff;border-radius:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;height:90vh;min-height:600px}
-        @media(min-width:768px){.main-container{flex-direction:row;height:85vh}}
-        .sidebar{background:#1e40af;color:#fff;padding:24px;width:100%;display:flex;flex-direction:column;flex-shrink:0}
-        @media(min-width:768px){.sidebar{width:300px}}
-        .sidebar h2{font-size:1.3rem;font-weight:800;margin-bottom:16px}
-        .field-label{font-size:.85rem;color:#bfdbfe;margin-bottom:6px;display:block;font-weight:600}
-        .field-group{margin-bottom:12px}
-        .select-field,.input-field{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(191,219,254,.4);border-radius:12px;padding:12px;font-family:inherit;font-size:1rem;color:#fff}
-        .select-field option{color:#1e293b}
-        .btn{width:100%;font-family:inherit;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:1.05rem;margin-bottom:8px}
-        .btn-random{background:#f59e0b;color:#fff}
-        .btn-answer{background:#10b981;color:#fff}
-        .btn-back{background:rgba(255,255,255,.15);color:#dbeafe;font-size:.95rem}
-        .display-area{flex:1;padding:20px 24px;overflow:auto}
-        .main-title{font-size:1.2rem;font-weight:800;color:#1e3a8a;margin-bottom:14px}
-        .big-num{font-size:clamp(2.5rem,10vw,4rem);font-weight:800;color:#1e40af;text-align:center;margin:12px 0}
-        .pv-chart{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
-        .pv-col{text-align:center;min-width:56px}
-        .pv-head{font-size:.75rem;color:#64748b;font-weight:700}
-        .pv-digit{font-size:2rem;font-weight:800;background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:8px 12px}
-        .pv-dot{font-size:2rem;font-weight:800;color:#1e40af;align-self:flex-end;padding-bottom:8px}
-        .explain-box{background:#eff6ff;border:2px dashed #93c5fd;border-radius:14px;padding:16px;line-height:1.65;font-weight:600;margin-top:12px}
-        .compare-row{display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
-        .compare-box{background:#eff6ff;border:2px solid #bfdbfe;border-radius:14px;padding:16px 24px;font-size:1.8rem;font-weight:800;color:#1e40af}
-        .compare-sym{font-size:2.2rem;font-weight:800;color:#ea580c}
-        .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:400px;margin:12px auto}
-        .choice{font-family:inherit;font-weight:800;font-size:1.1rem;padding:14px;border:2px solid #bfdbfe;border-radius:14px;background:#fff;cursor:pointer}
-        .choice.ok{background:#dcfce7;border-color:#86efac}
-        .choice.no{background:#fee2e2;border-color:#fca5a5}
-        .practice-q{font-size:1.2rem;font-weight:800;text-align:center;color:#1e3a8a;margin:12px 0}
-        .hidden{display:none!important}
-        .footer{text-align:center;font-size:.8rem;color:#64748b;padding-top:12px;margin-top:auto}
-    </style>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Math Decimal Learning Studio (คลังทศนิยม ป.4–ป.5) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-dark: #020617;
+      --indigo: #2563eb;
+      --indigo-dark: #1d4ed8;
+      --indigo-light: #eff6ff;
+      --gold: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-light: #fef3c7;
+      --emerald: #059669;
+      --emerald-dark: #047857;
+      --emerald-light: #d1fae5;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+      --sky: #0284c7;
+      --sky-light: #e0f2fe;
+      --amber: #d97706;
+      --line: #cbd5e1;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(150deg, #eff6ff 0%, #f0fdf4 50%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fef08a;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      white-space: nowrap;
+    }
+
+    /* BUTTONS & CONTROLS */
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.26);
+    }
+    .btn-primary {
+      background: var(--indigo);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--indigo-dark);
+    }
+    .btn-ghost {
+      background: #ffffff;
+      color: var(--indigo);
+      border: 2px solid var(--indigo-light);
+    }
+    .btn-ghost:hover {
+      background: #eff6ff;
+      border-color: var(--indigo);
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #ffffff;
+      border: 2px solid #fde047;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .btn-gold:hover {
+      background: var(--gold-dark);
+    }
+    .btn-emerald {
+      background: var(--emerald);
+      color: #ffffff;
+    }
+    .btn-emerald:hover {
+      background: var(--emerald-dark);
+    }
+    .btn-rose {
+      background: var(--rose);
+      color: #ffffff;
+    }
+    .btn-subtle {
+      background: #f1f5f9;
+      color: var(--navy);
+      border: 1px solid var(--border);
+    }
+    .btn-subtle:hover {
+      background: #e2e8f0;
+    }
+
+    /* TOOLBAR */
+    .toolbar-container {
+      background: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .seg-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 14px;
+      gap: 3px;
+    }
+    .seg-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 11px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+    .seg-btn:hover {
+      color: var(--navy);
+    }
+    .seg-btn.active {
+      background: #ffffff;
+      color: var(--indigo);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+    }
+
+    .select-control {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      padding: 8px 12px;
+      border-radius: 12px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-x: hidden;
+    }
+
+    .mode-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .mode-section.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* ---------------------------------------------------- */
+    /* MODE 1: PLACE VALUE & READING STUDIO */
+    /* ---------------------------------------------------- */
+    .reading-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border-radius: 18px;
+      border: 2px solid #bfdbfe;
+    }
+    .reading-num-display {
+      font-size: clamp(2.4rem, 8vw, 4rem);
+      font-weight: 800;
+      color: var(--indigo-dark);
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-align: center;
+    }
+    .reading-badge-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .reading-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1.5px solid var(--line);
+      color: var(--navy);
+    }
+    .reading-badge.highlight {
+      background: var(--gold-light);
+      border-color: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .grid-visualizer-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 12px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+    }
+    .grid-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .grid-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    /* 10-GRID AND 100-GRID */
+    .grid-10-wrap {
+      width: 220px;
+      height: 220px;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      border: 3px solid var(--indigo);
+      border-radius: 8px;
+      background: #f8fafc;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+    }
+    .strip-10 {
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      transition: background 0.12s ease;
+    }
+    .strip-10.shaded {
+      background: var(--indigo);
+    }
+    .strip-10:last-child {
+      border-right: none;
+    }
+
+    .grid-100-wrap {
+      width: 220px;
+      height: 220px;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      border: 3px solid var(--indigo);
+      border-radius: 8px;
+      background: #f8fafc;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+    }
+    .cell-100 {
+      border-right: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+      transition: background 0.08s ease;
+    }
+    .cell-100.shaded {
+      background: var(--indigo);
+    }
+
+    .whole-unit-box {
+      width: 70px;
+      height: 220px;
+      border: 3px solid var(--emerald);
+      border-radius: 8px;
+      background: var(--emerald-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--emerald-dark);
+      text-align: center;
+      padding: 6px;
+      font-size: 0.85rem;
+    }
+
+    /* PLACE VALUE TABLE */
+    .pv-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      padding: 10px;
+    }
+    .pv-table {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 6px;
+      min-width: 320px;
+    }
+    .pv-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 48px;
+      text-align: center;
+    }
+    .pv-column-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.2;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pv-column-box {
+      width: 100%;
+      min-height: 52px;
+      background: var(--indigo-light);
+      border: 2px solid #bfdbfe;
+      border-radius: 12px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pv-column-value {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+    .pv-dot-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--indigo-dark);
+      padding-top: 24px;
+    }
+
+    .expanded-box {
+      background: var(--gold-light);
+      border: 2px dashed var(--gold);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    /* CONTROLS ROW */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ---------------------------------------------------- */
+    /* MODE 2: DECIMAL COMPARISON & NUMBER LINE */
+    /* ---------------------------------------------------- */
+    .compare-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .compare-card {
+      flex: 1;
+      min-width: 260px;
+      max-width: 420px;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .compare-card.card-a {
+      border-color: #93c5fd;
+      background: #f8faff;
+    }
+    .compare-card.card-b {
+      border-color: #fcd34d;
+      background: #fffdf5;
+    }
+    .compare-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .compare-val {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .compare-card.card-a .compare-val { color: var(--indigo); }
+    .compare-card.card-b .compare-val { color: var(--amber); }
+
+    .compare-symbol-badge {
+      font-size: 2.8rem;
+      font-weight: 900;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 3px solid var(--gold);
+      color: var(--gold-dark);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .num-line-container {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .num-line-svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .misconception-card {
+      background: #fff7ed;
+      border: 2px solid #fed7aa;
+      border-radius: 14px;
+      padding: 14px;
+      color: #9a3412;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    /* ---------------------------------------------------- */
+    /* MODE 3: OPERATIONS & THAI MONEY LAB */
+    /* ---------------------------------------------------- */
+    .calc-subtabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .vcalc-table {
+      margin: 0 auto;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    .vcalc-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vcalc-col {
+      width: 44px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--navy);
+    }
+    .vcalc-col.vcalc-hdr {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      height: 28px;
+      background: transparent;
+      border: none;
+    }
+    .vcalc-col.vcalc-dot {
+      width: 24px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--rose);
+      background: #ffe4e6;
+      border: 1.5px dashed var(--rose);
+    }
+    .vcalc-col.vcalc-pad {
+      background: #fef9c3;
+      border: 1.5px dashed #ca8a04;
+      color: #854d0e;
+    }
+    .vcalc-op {
+      width: 32px;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--indigo);
+      text-align: center;
+    }
+    .vcalc-divider {
+      height: 2px;
+      background: var(--navy);
+      margin: 4px 0;
+      width: 100%;
+    }
+    .vcalc-ans-row .vcalc-col {
+      background: var(--emerald-light);
+      border-color: var(--emerald);
+      color: var(--emerald-dark);
+    }
+
+    /* THAI MONEY STYLES */
+    .cash-drawer {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+    }
+    .money-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .banknote {
+      border-radius: 8px;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+      border: 2px solid rgba(0,0,0,0.15);
+      min-height: 48px;
+      min-width: 84px;
+    }
+    .banknote:active {
+      transform: scale(0.96);
+    }
+    .note-100 {
+      background: linear-gradient(135deg, #ffe4e6 0%, #f43f5e 100%);
+      color: #881337;
+      border-color: #e11d48;
+    }
+    .note-50 {
+      background: linear-gradient(135deg, #e0f2fe 0%, #3b82f6 100%);
+      color: #1e3a8a;
+      border-color: #2563eb;
+    }
+    .note-20 {
+      background: linear-gradient(135deg, #d1fae5 0%, #10b981 100%);
+      color: #064e3b;
+      border-color: #059669;
+    }
+
+    .coin-btn {
+      border-radius: 50%;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.8);
+      transition: transform 0.15s ease;
+      user-select: none;
+      min-width: 48px;
+      min-height: 48px;
+      padding: 2px;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .coin-btn:active {
+      transform: scale(0.95);
+    }
+    .coin-10 {
+      width: 52px;
+      height: 52px;
+      background: radial-gradient(circle, #f59e0b 55%, #cbd5e1 56%, #94a3b8 100%);
+      color: #78350f;
+      border: 2px solid #94a3b8;
+      font-size: 0.8rem;
+    }
+    .coin-5 {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+      color: #334155;
+      border: 2px dashed #64748b;
+      font-size: 0.8rem;
+    }
+    .coin-2 {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #fef08a 0%, #fbbf24 100%);
+      color: #78350f;
+      border: 2px solid #d97706;
+      font-size: 0.8rem;
+    }
+    .coin-1 {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: #334155;
+      border: 2px solid #94a3b8;
+      font-size: 0.75rem;
+    }
+    .coin-050 {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #fed7aa 0%, #ea580c 100%);
+      color: #431407;
+      border: 2px solid #c2410c;
+      font-size: 0.7rem;
+    }
+    .coin-025 {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #ffedd5 0%, #c2410c 100%);
+      color: #431407;
+      border: 2px solid #9a3412;
+      font-size: 0.65rem;
+    }
+
+    .cash-tray {
+      background: #ffffff;
+      border: 2px dashed var(--gold);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cash-items-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 44px;
+      align-items: center;
+    }
+    .tray-item-pill {
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      color: var(--navy);
+    }
+    .tray-total-display {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gold-dark);
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    /* ---------------------------------------------------- */
+    /* MODE 4: PRACTICE QUIZ & FRACTION-DECIMAL MATCH */
+    /* ---------------------------------------------------- */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 650px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .quiz-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .quiz-question-box {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .quiz-choices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 540px) {
+      .quiz-choices-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .choice-btn {
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      min-height: 48px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--indigo);
+      background: var(--indigo-light);
+    }
+    .choice-btn.correct {
+      background: var(--emerald-light);
+      border-color: var(--emerald);
+      color: var(--emerald-dark);
+      font-weight: 800;
+    }
+    .choice-btn.wrong {
+      background: var(--rose-light);
+      border-color: var(--rose);
+      color: var(--rose);
+      font-weight: 800;
+    }
+    .choice-btn:disabled {
+      cursor: default;
+    }
+    .quiz-explanation {
+      background: var(--sky-light);
+      border: 2px dashed var(--sky);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0369a1;
+      line-height: 1.6;
+      display: none;
+    }
+
+    /* MATCHING GAME */
+    .match-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 580px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+    @media (max-width: 440px) {
+      .tile-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .tile-btn {
+      font-family: inherit;
+      font-weight: 800;
+      min-height: 52px;
+      min-width: 52px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      padding: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      user-select: none;
+    }
+    .tile-btn:active {
+      transform: scale(0.96);
+    }
+    .tile-btn.selected {
+      border-color: var(--indigo);
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    }
+    .tile-btn.matched {
+      border-color: var(--emerald);
+      background: var(--emerald-light);
+      color: var(--emerald-dark);
+      cursor: default;
+      opacity: 0.88;
+    }
+    .tile-btn.mismatch {
+      border-color: var(--rose);
+      background: var(--rose-light);
+      color: var(--rose);
+      animation: shake 0.35s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      border-top: 2px solid var(--border);
+      background: #f8fafc;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .footer-links a {
+      color: var(--indigo);
+      text-decoration: none;
+      font-weight: 700;
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .footer-links a:hover {
+      background: #eff6ff;
+      border-color: var(--indigo);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-<div class="main-container">
-    <div class="sidebar">
-        <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
-        <h2>🔢 ทศนิยม Hub</h2>
-        <div class="field-group">
-            <label class="field-label" for="topic">หัวข้อ</label>
-            <select id="topic" class="select-field">
-                <option value="read">📖 อ่านทศนิยม</option>
-                <option value="compare">⚖️ เปรียบเทียบ</option>
-                <option value="addsub">➕➖ บวกลบ</option>
-                <option value="money">💰 เงินบาท/สตางค์</option>
-            </select>
-        </div>
-        <div id="ctrlRead">
-            <div class="field-group"><label class="field-label">ทศนิยม</label><input type="number" id="decIn" step="0.001" value="3.45" class="input-field"></div>
-        </div>
-        <div id="ctrlCompare" class="hidden">
-            <div class="field-group"><label class="field-label">ตัวที่ 1</label><input type="number" id="cmpA" step="0.01" value="2.5" class="input-field"></div>
-            <div class="field-group"><label class="field-label">ตัวที่ 2</label><input type="number" id="cmpB" step="0.01" value="3.1" class="input-field"></div>
-        </div>
-        <button type="button" class="btn btn-random" onclick="randomAction()">🎲 สุ่ม</button>
-        <button type="button" class="btn btn-answer" onclick="showAnswer()">✅ แสดงเฉลย</button>
+<div class="shell" id="appShell">
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <button type="button" class="btn btn-back" id="btnBack">
+        <span>← กลับคลังสื่อ</span>
+      </button>
+      <h1>
+        <span>🔢 Math Decimal Learning Studio</span>
+      </h1>
+      <span class="badge-grade">ป.4–ป.5</span>
     </div>
-    <div class="display-area">
-        <h1 id="mainTitle" class="main-title">อ่านทศนิยม — หลักสิบ · สิบย่อย · ร้อยย่อย</h1>
-        <div id="viewRead">
-            <div class="big-num" id="bigNum">3.45</div>
-            <div class="pv-chart" id="pvChart"></div>
+    <div class="header-right">
+      <button type="button" class="btn btn-back" id="btnAudioToggle" title="เปิด/ปิดเสียงอ่าน (Space)">
+        <span id="audioIcon">🔊</span> <span id="audioLabel">เปิดเสียง</span>
+      </button>
+      <button type="button" class="btn btn-back" id="btnFullscreen" title="ขยายเต็มจอ (KeyF)">
+        <span>⛶ เต็มจอ</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar-container">
+    <div class="toolbar-row">
+      <div class="seg-group" id="modeSeg">
+        <button type="button" class="seg-btn active" data-mode="read">📖 ค่าประจำหลักและการอ่าน</button>
+        <button type="button" class="seg-btn" data-mode="compare">⚖️ เปรียบเทียบและเส้นจำนวน</button>
+        <button type="button" class="seg-btn" data-mode="calc">➕➖ บวกลบและเงินไทย</button>
+        <button type="button" class="seg-btn" data-mode="quiz">🧩 แบบทดสอบและจับคู่</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <label for="gradeFilter" style="font-size: 0.85rem; font-weight: 700; color: var(--muted);">ระดับชั้น:</label>
+        <select id="gradeFilter" class="select-control">
+          <option value="all">ทั้งหมด (ป.4–ป.5)</option>
+          <option value="p4">ระดับ ป.4 (ทศนิยม 1–2 ตำแหน่ง)</option>
+          <option value="p5">ระดับ ป.5 (ทศนิยม 1–3 ตำแหน่ง)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- ==================================================== -->
+    <!-- MODE 1: PLACE VALUE & READING STUDIO -->
+    <!-- ==================================================== -->
+    <section class="mode-section active" id="secRead">
+      <div class="reading-hero">
+        <div class="reading-num-display" id="bigDecimalDisplay">2.45</div>
+        <div class="reading-badge-wrap">
+          <span class="reading-badge highlight" id="badgePronounce">คำอ่าน: สอง-จุด-สี่-ห้า</span>
+          <span class="reading-badge" id="badgeFraction">เศษส่วน: 2 45/100</span>
+          <button type="button" class="btn btn-primary" id="btnSpeak">
+            <span>🔊 ฟังเสียงอ่าน (Space)</span>
+          </button>
         </div>
-        <div id="viewCompare" class="hidden">
-            <div class="compare-row">
-                <div class="compare-box" id="boxA">2.5</div>
-                <div class="compare-sym" id="sym">?</div>
-                <div class="compare-box" id="boxB">3.1</div>
+      </div>
+
+      <!-- VISUAL GRIDS -->
+      <div class="card">
+        <div class="card-title">
+          <span>แผ่นตารางจำลองพื้นที่ทศนิยม (Area Grid Model)</span>
+          <div class="seg-group" id="gridModelSeg">
+            <button type="button" class="seg-btn" data-grid="10">🔟 แผ่นตาราง 10 ช่อง (ส่วนสิบ)</button>
+            <button type="button" class="seg-btn active" data-grid="100">💯 แผ่นตาราง 100 ช่อง (ส่วนร้อย)</button>
+          </div>
+        </div>
+
+        <div class="grid-visualizer-container" id="gridContainer">
+          <!-- Dynamically populated grids -->
+          <div id="wholeUnitsWrap" style="display: flex; gap: 8px;"></div>
+          <div class="grid-block">
+            <span class="grid-label" id="fractionGridLabel">ส่วนทศนิยม: 45 / 100 (0.45)</span>
+            <div id="activeGridWrap"></div>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--muted); text-align: center;">
+          💡 แตะหรือลากบนแผ่นตารางเพื่อเปลี่ยนพื้นที่แรเงาทศนิยมได้ทันที
+        </p>
+
+        <!-- STEPPERS & PRESETS -->
+        <div class="controls-row" style="justify-content: center;">
+          <button type="button" class="btn btn-subtle" data-step="-1">-1.0</button>
+          <button type="button" class="btn btn-subtle" data-step="-0.1">-0.1</button>
+          <button type="button" class="btn btn-subtle" data-step="-0.01">-0.01</button>
+          <button type="button" class="btn btn-primary" data-step="0.01">+0.01</button>
+          <button type="button" class="btn btn-primary" data-step="0.1">+0.1</button>
+          <button type="button" class="btn btn-primary" data-step="1">+1.0</button>
+          <button type="button" class="btn btn-ghost" id="btnClearReading">ล้างค่า (0)</button>
+          <button type="button" class="btn btn-gold" id="btnRandomReading">🎲 สุ่มตัวเลข</button>
+        </div>
+
+        <!-- QUICK PRESETS -->
+        <div class="controls-row" style="justify-content: center; margin-top: 4px;">
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--muted);">ตัวเลขตัวอย่าง:</span>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="0.3">0.3</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="0.75">0.75</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="1.4">1.4</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="2.45">2.45</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="0.08">0.08</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-v="3.456">3.456 (ป.5)</button>
+        </div>
+      </div>
+
+      <!-- PLACE VALUE TABLE -->
+      <div class="card">
+        <div class="card-title">
+          <span>ตารางวิเคราะห์ค่าประจำหลัก (Place Value Analysis)</span>
+        </div>
+        <div class="pv-table-wrap">
+          <div class="pv-table" id="pvTable">
+            <!-- Dynamically populated table columns -->
+          </div>
+        </div>
+        <div class="expanded-box" id="expandedNotation">
+          <!-- Expanded notation e.g. 2.45 = 2 + 0.4 + 0.05 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- MODE 2: DECIMAL COMPARISON & NUMBER LINE -->
+    <!-- ==================================================== -->
+    <section class="mode-section" id="secCompare">
+      <div class="compare-container">
+        <!-- CARD A -->
+        <div class="compare-card card-a">
+          <span class="compare-card-title">จำนวน A (สีน้ำเงิน)</span>
+          <div class="compare-val" id="cmpValA">0.7</div>
+          <div id="cmpGridWrapA" style="width: 180px; height: 180px;"></div>
+          <div class="controls-row">
+            <button type="button" class="btn btn-subtle cmp-step-btn" data-target="A" data-step="-0.05">-0.05</button>
+            <button type="button" class="btn btn-primary cmp-step-btn" data-target="A" data-step="0.05">+0.05</button>
+          </div>
+        </div>
+
+        <!-- SYMBOL -->
+        <div class="compare-symbol-badge" id="cmpSymbol">&gt;</div>
+
+        <!-- CARD B -->
+        <div class="compare-card card-b">
+          <span class="compare-card-title">จำนวน B (สีส้ม)</span>
+          <div class="compare-val" id="cmpValB">0.65</div>
+          <div id="cmpGridWrapB" style="width: 180px; height: 180px;"></div>
+          <div class="controls-row">
+            <button type="button" class="btn btn-subtle cmp-step-btn" data-target="B" data-step="-0.05">-0.05</button>
+            <button type="button" class="btn btn-gold cmp-step-btn" data-target="B" data-step="0.05">+0.05</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MISCONCEPTION HIGHLIGHT -->
+      <div class="misconception-card" id="cmpMisconceptionText">
+        💡 <strong>ข้อควรระวังสำคัญ:</strong> อย่าหลงกลจำนวนหลัก! <strong>0.7 มี 1 ตำแหน่งแต่มีค่าเท่ากับ 0.70</strong> (แรเงา 70 ช่อง) ซึ่ง<strong>มากกว่า 0.65</strong> (แรเงา 65 ช่อง) อยู่ 5 ช่อง
+      </div>
+
+      <!-- NUMBER LINE -->
+      <div class="num-line-container">
+        <div class="card-title">
+          <span>เส้นจำนวนแสดงตำแหน่งทศนิยม (Zoomable Number Line)</span>
+          <button type="button" class="btn btn-ghost" id="btnZoomToggle">
+            <span id="zoomToggleText">🔍 ซูมดูระดับส่วนร้อย (0.01)</span>
+          </button>
+        </div>
+        <svg id="numLineSvg" viewBox="0 0 800 130" class="num-line-svg">
+          <!-- SVG rendered in JS -->
+        </svg>
+      </div>
+
+      <!-- COMPARISON STEPS -->
+      <div class="card">
+        <div class="card-title">
+          <span>ขั้นตอนการเปรียบเทียบทีละหลัก (Step-by-Step Breakdown)</span>
+          <div class="controls-row">
+            <button type="button" class="btn btn-gold" id="btnRandomCompare">🎲 สุ่มคู่เปรียบเทียบ</button>
+          </div>
+        </div>
+        <div id="cmpStepBreakdown" style="font-size: 1rem; line-height: 1.7; font-weight: 600; color: var(--navy);">
+          <!-- Step by step text -->
+        </div>
+        <div class="controls-row" style="margin-top: 6px;">
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--muted);">โจทย์เปรียบเทียบยอดนิยม:</span>
+          <button type="button" class="btn btn-ghost cmp-preset-btn" data-a="0.7" data-b="0.65">0.7 vs 0.65</button>
+          <button type="button" class="btn btn-ghost cmp-preset-btn" data-a="1.2" data-b="1.18">1.2 vs 1.18</button>
+          <button type="button" class="btn btn-ghost cmp-preset-btn" data-a="0.4" data-b="0.40">0.4 vs 0.40</button>
+          <button type="button" class="btn btn-ghost cmp-preset-btn" data-a="2.35" data-b="2.53">2.35 vs 2.53</button>
+          <button type="button" class="btn btn-ghost cmp-preset-btn" data-a="0.08" data-b="0.8">0.08 vs 0.8</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- MODE 3: OPERATIONS & THAI MONEY LAB -->
+    <!-- ==================================================== -->
+    <section class="mode-section" id="secCalc">
+      <div class="card">
+        <div class="card-title">
+          <div class="calc-subtabs" id="calcSubtabs">
+            <button type="button" class="btn btn-primary calc-tab-btn active" data-sub="vcalc">➕➖ การบวกลบตั้งจุดตรงกัน</button>
+            <button type="button" class="btn btn-ghost calc-tab-btn" data-sub="money">💰 ห้องปฏิบัติการเงินไทย (บาท/สตางค์)</button>
+          </div>
+        </div>
+
+        <!-- SUBVIEW A: VERTICAL ARITHMETIC -->
+        <div id="subviewVcalc" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="controls-row" style="justify-content: center;">
+            <div class="seg-group" id="opSeg">
+              <button type="button" class="seg-btn active" data-op="+">➕ การบวก</button>
+              <button type="button" class="seg-btn" data-op="-">➖ การลบ</button>
             </div>
+            <button type="button" class="btn btn-gold" id="btnRandomVcalc">🎲 สุ่มโจทย์บวกลบ</button>
+          </div>
+
+          <div style="display: flex; justify-content: center; width: 100%; overflow-x: auto; padding: 6px 0;">
+            <div class="vcalc-table" id="vcalcTable">
+              <!-- Dynamically populated vertical table with red dashed line -->
+            </div>
+          </div>
+
+          <div class="misconception-card" style="background: #eff6ff; border-color: #bfdbfe; color: #1e3a8a;">
+            🚨 <strong>กฎทองของการบวกลบทศนิยม:</strong> ต้อง<strong>ตั้งจุดทศนิยมให้ตรงกันเสมอ</strong>ในแนวตั้ง! หากจำนวนตำแหน่งทศนิยมไม่เท่ากัน ให้<strong>เติมเลข 0</strong> ที่หลักด้านหลังสุดเพื่อช่วยไม่ให้บวกหรือลบผิดหลัก
+          </div>
+
+          <div class="controls-row" style="justify-content: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--muted);">ตัวอย่างโจทย์:</span>
+            <button type="button" class="btn btn-ghost vcalc-preset-btn" data-a="25.5" data-b="14.25" data-op="+">25.5 + 14.25</button>
+            <button type="button" class="btn btn-ghost vcalc-preset-btn" data-a="8.75" data-b="6.5" data-op="+">8.75 + 6.5</button>
+            <button type="button" class="btn btn-ghost vcalc-preset-btn" data-a="50.0" data-b="23.45" data-op="-">50.0 - 23.45</button>
+            <button type="button" class="btn btn-ghost vcalc-preset-btn" data-a="12.35" data-b="7.8" data-op="-">12.35 - 7.8</button>
+          </div>
         </div>
-        <div id="viewPractice" class="hidden">
-            <p class="practice-q" id="prQ">—</p>
-            <div class="choices" id="prChoices"></div>
+
+        <!-- SUBVIEW B: THAI MONEY LAB -->
+        <div id="subviewMoney" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="cash-drawer">
+            <span style="font-size: 0.9rem; font-weight: 800; color: var(--navy);">💵 ธนบัตร (แตะเพื่อนำใส่ถาด):</span>
+            <div class="money-row">
+              <button type="button" class="banknote note-100 cash-add-btn" data-val="100">
+                <span>ธนบัตร</span>
+                <span style="font-size: 1.25rem;">฿100</span>
+                <span>๑๐๐</span>
+              </button>
+              <button type="button" class="banknote note-50 cash-add-btn" data-val="50">
+                <span>ธนบัตร</span>
+                <span style="font-size: 1.25rem;">฿50</span>
+                <span>๕๐</span>
+              </button>
+              <button type="button" class="banknote note-20 cash-add-btn" data-val="20">
+                <span>ธนบัตร</span>
+                <span style="font-size: 1.25rem;">฿20</span>
+                <span>๒๐</span>
+              </button>
+            </div>
+
+            <span style="font-size: 0.9rem; font-weight: 800; color: var(--navy);">🪙 เหรียญบาทและสตางค์ (แตะเพื่อนำใส่ถาด):</span>
+            <div class="money-row">
+              <button type="button" class="coin-btn coin-10 cash-add-btn" data-val="10">
+                <span>10</span><span style="font-size: 0.65rem;">บาท</span>
+              </button>
+              <button type="button" class="coin-btn coin-5 cash-add-btn" data-val="5">
+                <span>5</span><span style="font-size: 0.65rem;">บาท</span>
+              </button>
+              <button type="button" class="coin-btn coin-2 cash-add-btn" data-val="2">
+                <span>2</span><span style="font-size: 0.65rem;">บาท</span>
+              </button>
+              <button type="button" class="coin-btn coin-1 cash-add-btn" data-val="1">
+                <span>1</span><span style="font-size: 0.65rem;">บาท</span>
+              </button>
+              <button type="button" class="coin-btn coin-050 cash-add-btn" data-val="0.50">
+                <span>50</span><span style="font-size: 0.6rem;">สต.</span>
+              </button>
+              <button type="button" class="coin-btn coin-025 cash-add-btn" data-val="0.25">
+                <span>25</span><span style="font-size: 0.6rem;">สต.</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TRAY -->
+          <div class="cash-tray">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span style="font-weight: 800; color: var(--navy);">ถาดเงินสะสมปัจจุบัน:</span>
+              <div class="controls-row">
+                <button type="button" class="btn btn-ghost" id="btnClearMoney">🧺 ล้างถาดเงิน</button>
+                <button type="button" class="btn btn-primary" id="btnSpeakMoney">🔊 อ่านยอดเงิน</button>
+              </div>
+            </div>
+
+            <div class="cash-items-wrap" id="trayItemsWrap">
+              <span style="color: var(--muted); font-size: 0.9rem;">(ยังไม่มีเงินในถาด — แตะธนบัตรหรือเหรียญด้านบนเพื่อหยิบใส่)</span>
+            </div>
+
+            <div class="tray-total-display" id="trayTotalText">0.00 บาท</div>
+            <div style="text-align: center; font-weight: 700; color: var(--muted); font-size: 0.95rem;" id="trayTotalThai">ศูนย์บาทถ้วน</div>
+          </div>
+
+          <!-- SHOPPING CHALLENGE -->
+          <div class="card" style="background: #fdf4ff; border-color: #f0abfc;">
+            <div class="card-title">
+              <span style="color: #86198f;">🛒 โจทย์จำลองการซื้อของและทอนเงิน</span>
+              <button type="button" class="btn btn-gold" id="btnRandomShop">🎲 สุ่มโจทย์ซื้อของ</button>
+            </div>
+            <div id="shopPromptText" style="font-size: 1.05rem; font-weight: 700; color: #701a75; line-height: 1.6;">
+              <!-- Shopping story -->
+            </div>
+            <div id="shopSolutionBox" style="font-size: 0.95rem; font-weight: 600; color: #4a044e; line-height: 1.6; margin-top: 6px;">
+              <!-- Solution breakdown -->
+            </div>
+          </div>
         </div>
-        <div id="explain" class="explain-box">กดแสดงเฉลยเพื่อดูคำอธิบาย</div>
-        <div class="footer">ป.4-5 · คู่ <a href="/games/math/decimal-media.html">decimal-media</a> · rounding</div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- MODE 4: PRACTICE QUIZ & FRACTION-DECIMAL MATCH -->
+    <!-- ==================================================== -->
+    <section class="mode-section" id="secQuiz">
+      <div class="card">
+        <div class="card-title">
+          <div class="seg-group" id="practiceModeSeg">
+            <button type="button" class="seg-btn active" data-sub="quiz">✏️ แบบทดสอบทบทวน (MCQ)</button>
+            <button type="button" class="seg-btn" data-sub="match">🃏 เกมจับคู่เศษส่วน-ทศนิยม</button>
+          </div>
+        </div>
+
+        <!-- SUBVIEW A: MCQ QUIZ -->
+        <div id="subviewQuiz" class="quiz-container">
+          <div class="quiz-meta-row">
+            <span class="reading-badge" id="quizCounterText">ข้อที่ 1 / 20</span>
+            <span class="reading-badge highlight" id="quizStreakText">🔥 ต่อเนื่อง: 0</span>
+            <span class="reading-badge" id="quizScoreText">คะแนน: 0</span>
+          </div>
+
+          <div class="quiz-question-box" id="quizQuestionText">
+            คำถามกำลังโหลด...
+          </div>
+
+          <div class="quiz-choices-grid" id="quizChoicesGrid">
+            <!-- 4 choices rendered in JS -->
+          </div>
+
+          <div class="quiz-explanation" id="quizExplanationBox">
+            <!-- Explanation -->
+          </div>
+
+          <div class="controls-row" style="justify-content: flex-end;">
+            <button type="button" class="btn btn-primary" id="btnQuizNext" style="display: none;">ข้อถัดไป ➔</button>
+          </div>
+        </div>
+
+        <!-- SUBVIEW B: TILE MATCH -->
+        <div id="subviewMatch" class="match-container hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span style="font-weight: 800; color: var(--navy);" id="matchProgressText">คู่ที่จับสำเร็จ: 0 / 6</span>
+            <button type="button" class="btn btn-ghost" id="btnResetMatch">🔄 สุ่มชุดการ์ดใหม่</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--muted); text-align: center;">
+            แตะการ์ดเศษส่วน แล้วแตะการ์ดทศนิยมที่มีค่าเท่ากันเพื่อจับคู่
+          </p>
+          <div class="tile-grid" id="tileGrid">
+            <!-- 12 tiles (6 pairs) rendered in JS -->
+          </div>
+          <div id="matchVictoryBanner" style="display: none; background: var(--emerald-light); border: 2px solid var(--emerald); border-radius: 14px; padding: 14px; text-align: center; font-weight: 800; color: var(--emerald-dark); font-size: 1.1rem;">
+            🎉 ยอดเยี่ยมมาก! จับคู่เศษส่วนและทศนิยมถูกต้องครบทุกคู่แล้ว
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>โรงเรียนบ้านคำไผ่ · Math Decimal Learning Studio (คลังทศนิยม ป.4–ป.5)</div>
+    <div class="footer-links">
+      <a href="/games/math/decimal-media.html" target="_blank" rel="noopener">สื่อทศนิยมพื้นฐาน</a>
+      <span>·</span>
+      <a href="/games/math/math-decimal-hub-worksheet.html" target="_blank" rel="noopener">ใบงานประกอบการเรียน</a>
     </div>
+  </footer>
 </div>
+
 <script>
-const GAME_SLUG='math-decimal-hub';
-if(window.KAMPAI)window.KAMPAI.setSlug(GAME_SLUG);
-document.getElementById('btnBack').onclick=()=>{if(KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else location.href='/h/nattapong';};
-const TH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
-const TITLES={read:'อ่านทศนิยม — หลักสิบ · สิบย่อย · ร้อยย่อย',compare:'เปรียบเทียบทศนิยม',addsub:'บวกลบทศนิยม',money:'เงินบาทและสตางค์'};
-let topic='read',prAns=0,state={};
-function fmt(n){return Number(n).toFixed(3).replace(/\.?0+$/,'')||'0'}
-function buildPv(n){
-    const parts=fmt(n).split('.');const int=parts[0];const dec=(parts[1]||'').padEnd(3,'0').slice(0,3);
-    const cols=[];[...int].forEach((d,i,a)=>{const names=a.length===1?['หน่วย']:a.length===2?['สิบ','หน่วย']:['ร้อย','สิบ','หน่วย'];cols.push({d,label:names[i]||'หน่วย'});});
-    if(dec.length){cols.push({dot:true});const dl=['สิบ','ร้อย','พัน'];dec.split('').forEach((d,i)=>cols.push({d,label:'เศษ'+dl[i]}));}
-    return cols;
+// ==========================================
+// 1. CONSTANTS & SYSTEM SETUP
+// ==========================================
+const GAME_SLUG = 'math-decimal-hub';
+if (window.KAMPAI?.setSlug) window.KAMPAI.setSlug(GAME_SLUG);
+
+const TH_DIGITS = ['ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+const TH_POS = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน'];
+
+let currentMode = 'read'; // 'read' | 'compare' | 'calc' | 'quiz'
+let currentGrade = 'all'; // 'all' | 'p4' | 'p5'
+let isAudioActive = true;
+
+// Audio Beep Fallback
+let audioCtx = null;
+function playTone(freq, dur, type = 'sine') {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
 }
-function renderPv(n){
-    document.getElementById('bigNum').textContent=fmt(n);
-    document.getElementById('pvChart').innerHTML=buildPv(n).map(c=>c.dot?'<span class="pv-dot">.</span>':`<div class="pv-col"><div class="pv-head">${c.label}</div><div class="pv-digit">${c.d}</div></div>`).join('');
+
+function playCorrect() {
+  if (window.KAMPAI?.sound?.correct) {
+    window.KAMPAI.sound.correct();
+  } else {
+    playTone(587.33, 0.15, 'sine');
+    setTimeout(() => playTone(880, 0.22, 'sine'), 100);
+  }
 }
-function explainRead(n){
-    const s=fmt(n);const[i,d]=s.split('.');
-    let t=`<strong>${s}</strong> อ่านว่า `;
-    if(!d)t+=`จำนวนเต็ม ${i}`;else{t+=`${i} จุด`+d.split('').map(x=>TH[+x]).join('');t+=`<br>เศษสิบ=${d[0]||0} · เศษร้อย=${d[1]||0}`;}
-    return t;
+
+function playWrong() {
+  if (window.KAMPAI?.sound?.wrong) {
+    window.KAMPAI.sound.wrong();
+  } else {
+    playTone(220, 0.25, 'sawtooth');
+  }
 }
-function genAddSub(){
-    const op=Math.random()>0.5?'+':'-';let a=+(Math.random()*8+1).toFixed(1);let b=+(Math.random()*5+0.1).toFixed(1);
-    if(op==='-'&&b>a)[a,b]=[b,a];prAns=+(op==='+'?a+b:a-b).toFixed(2);
-    state={type:'addsub',text:`${fmt(a)} ${op} ${fmt(b)} = ?`,answer:prAns};
-}
-function genMoney(){
-    const baht=Math.floor(Math.random()*90+10);const satang=Math.floor(Math.random()*99);
-    const total=+(baht+satang/100).toFixed(2);
-    const pay=Math.ceil(total);const change=+(pay-total).toFixed(2);
-    state={type:'money',text:`ซื้อของ ${fmt(total)} บาท จ่าย ${pay} บาท เงินทอนกี่บาท?`,answer:change};
-    prAns=change;
-}
-function genCompare(){
-    const a=+(Math.random()*9+0.1).toFixed(2);const b=+(Math.random()*9+0.1).toFixed(2);
-    state={type:'compare',a,b};
-}
-function randomAction(){
-    topic=document.getElementById('topic').value;
-    if(topic==='read'){const v=(Math.floor(Math.random()*9999)/100).toFixed(2);document.getElementById('decIn').value=v;renderPv(v);state={type:'read',n:v};}
-    else if(topic==='compare'){genCompare();document.getElementById('cmpA').value=state.a;document.getElementById('cmpB').value=state.b;}
-    else if(topic==='addsub')genAddSub();
-    else genMoney();
-    document.getElementById('prQ').textContent=state.text||'';
-    document.getElementById('explain').textContent='กดแสดงเฉลย';
-    document.getElementById('prChoices').innerHTML='';
-}
-function showAnswer(){
-    topic=document.getElementById('topic').value;
-    const ex=document.getElementById('explain');
-    if(topic==='read'){
-        const n=document.getElementById('decIn').value||0;renderPv(n);ex.innerHTML=explainRead(n);
-    }else if(topic==='compare'){
-        const a=parseFloat(document.getElementById('cmpA').value);const b=parseFloat(document.getElementById('cmpB').value);
-        document.getElementById('boxA').textContent=fmt(a);document.getElementById('boxB').textContent=fmt(b);
-        const sym=a>b?'>':a<b?'<':'=';document.getElementById('sym').textContent=sym;
-        ex.innerHTML=sym==='='?'ค่าเท่ากัน':`${fmt(a)} ${sym} ${fmt(b)} — เปรียบทีละหลักจากซ้าย`;
-    }else if(topic==='addsub'||topic==='money'){
-        if(!state.text)randomAction();
-        document.getElementById('prQ').textContent=state.text;
-        ex.innerHTML=`<strong>คำตอบ: ${fmt(state.answer)}</strong> บาท`;
-        const wrong=[state.answer+0.1,state.answer-0.1,state.answer+1].map(x=>+x.toFixed(2)).filter(x=>x>=0&&x!==state.answer);
-        const opts=[state.answer,...wrong.slice(0,3)].sort(()=>Math.random()-0.5);
-        document.getElementById('prChoices').innerHTML=opts.map(o=>`<button type="button" class="choice" data-v="${o}">${fmt(o)}</button>`).join('');
-        document.querySelectorAll('.choice').forEach(btn=>{btn.onclick=()=>{const ok=parseFloat(btn.dataset.v)===state.answer;btn.classList.add(ok?'ok':'no');document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(parseFloat(b.dataset.v)===state.answer)b.classList.add('ok');});};});
+
+// ==========================================
+// 2. THAI PHONETIC NUMBER READING ENGINE
+// ==========================================
+function formatThaiInteger(num) {
+  num = Math.floor(Math.abs(num));
+  if (num === 0) return 'ศูนย์';
+  const str = String(num);
+  const len = str.length;
+  let res = '';
+  for (let i = 0; i < len; i++) {
+    const digit = parseInt(str[i], 10);
+    const pos = len - 1 - i;
+    if (digit !== 0) {
+      if (pos === 0 && digit === 1 && len > 1) {
+        res += 'เอ็ด';
+      } else if (pos === 1 && digit === 2) {
+        res += 'ยี่สิบ';
+      } else if (pos === 1 && digit === 1) {
+        res += 'สิบ';
+      } else {
+        res += TH_DIGITS[digit] + TH_POS[pos];
+      }
     }
+  }
+  return res;
 }
-function onTopicChange(){
-    topic=document.getElementById('topic').value;
-    document.getElementById('mainTitle').textContent=TITLES[topic];
-    document.getElementById('ctrlRead').classList.toggle('hidden',topic!=='read');
-    document.getElementById('ctrlCompare').classList.toggle('hidden',topic!=='compare');
-    document.getElementById('viewRead').classList.toggle('hidden',topic!=='read');
-    document.getElementById('viewCompare').classList.toggle('hidden',topic!=='compare');
-    document.getElementById('viewPractice').classList.toggle('hidden',topic!=='addsub'&&topic!=='money');
-    randomAction();
+
+function formatThaiDecimalSpeech(val) {
+  const parts = Number(val).toFixed(3).replace(/\.?0+$/, '').split('.');
+  const intPart = parseInt(parts[0], 10) || 0;
+  const decPart = parts[1] || '';
+  let speech = formatThaiInteger(intPart);
+  if (decPart.length > 0) {
+    speech += 'จุด';
+    for (let i = 0; i < decPart.length; i++) {
+      const d = parseInt(decPart[i], 10);
+      speech += TH_DIGITS[d];
+    }
+  }
+  return speech;
 }
-document.getElementById('topic').onchange=onTopicChange;
-document.getElementById('decIn').oninput=e=>renderPv(e.target.value||0);
-onTopicChange();
+
+function formatThaiPronounceBadge(val) {
+  const parts = Number(val).toFixed(3).replace(/\.?0+$/, '').split('.');
+  const intPart = parseInt(parts[0], 10) || 0;
+  const decPart = parts[1] || '';
+  let badge = formatThaiInteger(intPart);
+  if (decPart.length > 0) {
+    badge += '-จุด';
+    for (let i = 0; i < decPart.length; i++) {
+      badge += '-' + TH_DIGITS[parseInt(decPart[i], 10)];
+    }
+  }
+  return 'คำอ่าน: ' + badge;
+}
+
+function speakText(text) {
+  if (!isAudioActive) return;
+  if (window.KAMPAI?.sound?.speak) {
+    window.KAMPAI.sound.speak(text, 'th-TH');
+    return;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'th-TH';
+    utter.rate = 0.9;
+    window.speechSynthesis.speak(utter);
+  }
+}
+
+// ==========================================
+// 3. MODE 1: PLACE VALUE & READING
+// ==========================================
+let curReadingVal = 2.45;
+let curGridType = '100'; // '10' | '100'
+
+function renderReadingStudio() {
+  const roundedVal = Math.round(curReadingVal * 1000) / 1000;
+  curReadingVal = roundedVal;
+  
+  // Big Display
+  document.getElementById('bigDecimalDisplay').textContent = roundedVal.toFixed(curGridType === '10' ? 1 : (Math.abs(curReadingVal * 100 - Math.round(curReadingVal * 100)) < 1e-4 ? 2 : 3));
+  document.getElementById('badgePronounce').textContent = formatThaiPronounceBadge(roundedVal);
+  
+  // Fraction Badge
+  const wholePart = Math.floor(roundedVal);
+  const fracPart = Math.round((roundedVal - wholePart) * 1000) / 1000;
+  let fracText = '';
+  if (curGridType === '10') {
+    const tenths = Math.round(fracPart * 10);
+    fracText = wholePart > 0 ? `${wholePart} เศษ ${tenths}/10` : `${tenths}/10`;
+  } else {
+    const hundredths = Math.round(fracPart * 100);
+    fracText = wholePart > 0 ? `${wholePart} เศษ ${hundredths}/100` : `${hundredths}/100`;
+  }
+  document.getElementById('badgeFraction').textContent = 'เศษส่วน: ' + fracText;
+  
+  // Grids Render
+  renderReadingGrids(wholePart, fracPart);
+  
+  // Place Value Table
+  renderPvTable(roundedVal);
+  
+  // Expanded Notation
+  renderExpandedNotation(roundedVal);
+}
+
+function renderReadingGrids(whole, frac) {
+  const wholeWrap = document.getElementById('wholeUnitsWrap');
+  wholeWrap.innerHTML = '';
+  const numWholes = Math.min(whole, 3); // display up to 3 whole units visually
+  for (let w = 0; w < numWholes; w++) {
+    const box = document.createElement('div');
+    box.className = 'whole-unit-box';
+    box.innerHTML = `<span>1 หน่วยเต็ม<br>(1.0)</span>`;
+    wholeWrap.appendChild(box);
+  }
+
+  const activeGrid = document.getElementById('activeGridWrap');
+  activeGrid.innerHTML = '';
+
+  if (curGridType === '10') {
+    document.getElementById('fractionGridLabel').textContent = `ส่วนสิบ: ${Math.round(frac * 10)} / 10 (${(Math.round(frac * 10)/10).toFixed(1)})`;
+    const grid10 = document.createElement('div');
+    grid10.className = 'grid-10-wrap';
+    const shadedCount = Math.round(frac * 10);
+    for (let i = 0; i < 10; i++) {
+      const strip = document.createElement('div');
+      strip.className = 'strip-10' + (i < shadedCount ? ' shaded' : '');
+      strip.dataset.idx = i;
+      grid10.appendChild(strip);
+    }
+    grid10.onclick = (e) => {
+      const s = e.target.closest('.strip-10');
+      if (!s) return;
+      const idx = parseInt(s.dataset.idx, 10) + 1;
+      curReadingVal = Math.floor(curReadingVal) + (idx / 10);
+      renderReadingStudio();
+    };
+    activeGrid.appendChild(grid10);
+  } else {
+    const shaded100 = Math.round(frac * 100);
+    document.getElementById('fractionGridLabel').textContent = `ส่วนร้อย: ${shaded100} / 100 (${(shaded100/100).toFixed(2)})`;
+    const grid100 = document.createElement('div');
+    grid100.className = 'grid-100-wrap';
+    for (let i = 0; i < 100; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell-100' + (i < shaded100 ? ' shaded' : '');
+      cell.dataset.idx = i;
+      grid100.appendChild(cell);
+    }
+    grid100.onclick = (e) => {
+      const c = e.target.closest('.cell-100');
+      if (!c) return;
+      const idx = parseInt(c.dataset.idx, 10) + 1;
+      curReadingVal = Math.floor(curReadingVal) + (idx / 100);
+      renderReadingStudio();
+    };
+    activeGrid.appendChild(grid100);
+  }
+}
+
+function renderPvTable(n) {
+  const parts = Number(n).toFixed(3).split('.');
+  const intStr = parts[0].padStart(2, '0');
+  const tens = intStr[intStr.length - 2];
+  const ones = intStr[intStr.length - 1];
+  const tenths = parts[1][0] || '0';
+  const hundredths = parts[1][1] || '0';
+  const thousandths = parts[1][2] || '0';
+
+  const table = document.getElementById('pvTable');
+  table.innerHTML = `
+    <div class="pv-column">
+      <div class="pv-column-header">หลักสิบ<br>(10)</div>
+      <div class="pv-column-box">${tens}</div>
+      <div class="pv-column-value">${tens * 10}</div>
+    </div>
+    <div class="pv-column">
+      <div class="pv-column-header">หลักหน่วย<br>(1)</div>
+      <div class="pv-column-box">${ones}</div>
+      <div class="pv-column-value">${ones * 1}</div>
+    </div>
+    <div class="pv-dot-column">·</div>
+    <div class="pv-column">
+      <div class="pv-column-header">หลักส่วนสิบ<br>(1/10)</div>
+      <div class="pv-column-box">${tenths}</div>
+      <div class="pv-column-value">${(tenths * 0.1).toFixed(1)}</div>
+    </div>
+    <div class="pv-column">
+      <div class="pv-column-header">หลักส่วนร้อย<br>(1/100)</div>
+      <div class="pv-column-box">${hundredths}</div>
+      <div class="pv-column-value">${(hundredths * 0.01).toFixed(2)}</div>
+    </div>
+    <div class="pv-column">
+      <div class="pv-column-header">หลักส่วนพัน<br>(1/1000)</div>
+      <div class="pv-column-box">${thousandths}</div>
+      <div class="pv-column-value">${(thousandths * 0.001).toFixed(3)}</div>
+    </div>
+  `;
+}
+
+function renderExpandedNotation(n) {
+  const parts = Number(n).toFixed(3).split('.');
+  const intVal = parseInt(parts[0], 10);
+  const t = parseInt(parts[1][0], 10);
+  const h = parseInt(parts[1][1], 10);
+  const th = parseInt(parts[1][2], 10);
+
+  const decSum = [];
+  if (intVal > 0) decSum.push(String(intVal));
+  if (t > 0) decSum.push((t * 0.1).toFixed(1));
+  if (h > 0) decSum.push((h * 0.01).toFixed(2));
+  if (th > 0) decSum.push((th * 0.001).toFixed(3));
+  if (decSum.length === 0) decSum.push('0');
+
+  const fracSum = [];
+  if (intVal > 0) fracSum.push(String(intVal));
+  if (t > 0) fracSum.push(`${t}/10`);
+  if (h > 0) fracSum.push(`${h}/100`);
+  if (th > 0) fracSum.push(`${th}/1000`);
+
+  const expBox = document.getElementById('expandedNotation');
+  expBox.innerHTML = `
+    <div><strong>รูปกระจายทศนิยม:</strong> ${Number(n).toFixed(3).replace(/\.?0+$/, '')} = ${decSum.join(' + ')}</div>
+    <div style="margin-top: 4px; font-size: 0.95rem; color: #92400e;"><strong>รูปกระจายเศษส่วน:</strong> ${Number(n).toFixed(3).replace(/\.?0+$/, '')} = ${fracSum.length ? fracSum.join(' + ') : '0'}</div>
+  `;
+}
+
+// ==========================================
+// 4. MODE 2: COMPARISON & NUMBER LINE
+// ==========================================
+let curCmpA = 0.7;
+let curCmpB = 0.65;
+let isNumberLineZoomed = false;
+
+function renderComparisonStudio() {
+  document.getElementById('cmpValA').textContent = curCmpA.toFixed(Math.abs(curCmpA * 100 - Math.round(curCmpA * 100)) < 1e-4 ? 2 : 3);
+  document.getElementById('cmpValB').textContent = curCmpB.toFixed(Math.abs(curCmpB * 100 - Math.round(curCmpB * 100)) < 1e-4 ? 2 : 3);
+
+  // Mini grids
+  renderMiniGrid('cmpGridWrapA', curCmpA, '#2563eb');
+  renderMiniGrid('cmpGridWrapB', curCmpB, '#d97706');
+
+  // Relation Symbol
+  const symEl = document.getElementById('cmpSymbol');
+  if (curCmpA > curCmpB) {
+    symEl.textContent = '>';
+    symEl.style.color = '#1d4ed8';
+    symEl.style.borderColor = '#93c5fd';
+  } else if (curCmpA < curCmpB) {
+    symEl.textContent = '<';
+    symEl.style.color = '#b45309';
+    symEl.style.borderColor = '#fcd34d';
+  } else {
+    symEl.textContent = '=';
+    symEl.style.color = '#047857';
+    symEl.style.borderColor = '#6ee7b7';
+  }
+
+  // Step by step logic
+  const partsA = curCmpA.toFixed(3).split('.');
+  const partsB = curCmpB.toFixed(3).split('.');
+  const intA = parseInt(partsA[0], 10);
+  const intB = parseInt(partsB[0], 10);
+  const tA = parseInt(partsA[1][0], 10);
+  const tB = parseInt(partsB[1][0], 10);
+  const hA = parseInt(partsA[1][1], 10);
+  const hB = parseInt(partsB[1][1], 10);
+  const thA = parseInt(partsA[1][2], 10);
+  const thB = parseInt(partsB[1][2], 10);
+
+  let steps = '';
+  if (intA !== intB) {
+    steps = `ขั้นที่ 1: เปรียบเทียบจำนวนเต็มหน้าจุด (${intA} กับ ${intB}) ➔ ${intA > intB ? `${intA} > ${intB}` : `${intA} < ${intB}`} จึงสรุปได้ทันทีโดยไม่ต้องดูทศนิยม!`;
+  } else if (tA !== tB) {
+    steps = `ขั้นที่ 1: จำนวนเต็มเท่ากัน (${intA} = ${intB}) ➔ ดูหลักส่วนสิบ<br>
+    ขั้นที่ 2: เปรียบเทียบหลักส่วนสิบ (${tA} กับ ${tB}) ➔ ${tA > tB ? `${tA} > ${tB}` : `${tA} < ${tB}`} สรุปได้ว่า <strong>${curCmpA} ${curCmpA > curCmpB ? '>' : '<'} ${curCmpB}</strong>`;
+  } else if (hA !== hB) {
+    steps = `ขั้นที่ 1: จำนวนเต็มเท่ากัน (${intA} = ${intB})<br>
+    ขั้นที่ 2: หลักส่วนสิบเท่ากัน (${tA} = ${tB}) ➔ ดูหลักส่วนร้อย<br>
+    ขั้นที่ 3: เปรียบเทียบหลักส่วนร้อย (${hA} กับ ${hB}) ➔ ${hA > hB ? `${hA} > ${hB}` : `${hA} < ${hB}`} สรุปได้ว่า <strong>${curCmpA} ${curCmpA > curCmpB ? '>' : '<'} ${curCmpB}</strong>`;
+  } else if (thA !== thB) {
+    steps = `ขั้นที่ 1: จำนวนเต็มเท่ากัน (${intA} = ${intB})<br>
+    ขั้นที่ 2: หลักส่วนสิบเท่ากัน (${tA} = ${tB})<br>
+    ขั้นที่ 3: หลักส่วนร้อยเท่ากัน (${hA} = ${hB}) ➔ ดูหลักส่วนพัน<br>
+    ขั้นที่ 4: เปรียบเทียบหลักส่วนพัน (${thA} กับ ${thB}) ➔ ${thA > thB ? `${thA} > ${thB}` : `${thA} < ${thB}`} สรุปได้ว่า <strong>${curCmpA} ${curCmpA > curCmpB ? '>' : '<'} ${curCmpB}</strong>`;
+  } else {
+    steps = `ทั้งจำนวนเต็ม (${intA}), หลักส่วนสิบ (${tA}), และหลักส่วนร้อย (${hA})${thA > 0 ? `, และหลักส่วนพัน (${thA})` : ''} มีค่าเท่ากันทุกหลัก ➔ <strong>${curCmpA} = ${curCmpB}</strong>`;
+  }
+  document.getElementById('cmpStepBreakdown').innerHTML = steps;
+
+  // Number Line SVG
+  renderNumberLineSvg();
+}
+
+function renderMiniGrid(targetId, val, color) {
+  const el = document.getElementById(targetId);
+  el.innerHTML = '';
+  const frac = val - Math.floor(val);
+  const shaded = Math.round(frac * 100);
+  const grid = document.createElement('div');
+  grid.style.width = '100%';
+  grid.style.height = '100%';
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(10, 1fr)';
+  grid.style.gridTemplateRows = 'repeat(10, 1fr)';
+  grid.style.border = `2px solid ${color}`;
+  grid.style.borderRadius = '6px';
+  grid.style.overflow = 'hidden';
+
+  for (let i = 0; i < 100; i++) {
+    const c = document.createElement('div');
+    c.style.borderRight = '1px solid #f1f5f9';
+    c.style.borderBottom = '1px solid #f1f5f9';
+    c.style.background = i < shaded ? color : '#ffffff';
+    grid.appendChild(c);
+  }
+  el.appendChild(grid);
+}
+
+function renderNumberLineSvg() {
+  const svg = document.getElementById('numLineSvg');
+  const minVal = isNumberLineZoomed ? Math.max(0, Math.min(curCmpA, curCmpB) - 0.05) : 0.0;
+  const maxVal = isNumberLineZoomed ? Math.min(curCmpA, curCmpB) + 0.15 : 1.0;
+  const range = maxVal - minVal;
+
+  const leftMargin = 60;
+  const rightMargin = 740;
+  const yAxis = 70;
+
+  function getX(v) {
+    const clamped = Math.max(minVal, Math.min(maxVal, v));
+    return leftMargin + ((clamped - minVal) / range) * (rightMargin - leftMargin);
+  }
+
+  let ticksHtml = '';
+  const numSteps = isNumberLineZoomed ? 10 : 10;
+  const stepSize = range / numSteps;
+  for (let i = 0; i <= numSteps; i++) {
+    const val = minVal + i * stepSize;
+    const x = getX(val);
+    ticksHtml += `
+      <line x1="${x}" y1="${yAxis - 8}" x2="${x}" y2="${yAxis + 8}" stroke="#64748b" stroke-width="2"/>
+      <text x="${x}" y="${yAxis + 26}" font-size="13" font-weight="700" fill="#475569" text-anchor="middle" font-family="Sarabun">${val.toFixed(isNumberLineZoomed ? 2 : 1)}</text>
+    `;
+  }
+
+  const xA = getX(curCmpA);
+  const xB = getX(curCmpB);
+
+  svg.innerHTML = `
+    <!-- Main Axis -->
+    <line x1="${leftMargin - 20}" y1="${yAxis}" x2="${rightMargin + 20}" y2="${yAxis}" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="${rightMargin + 26},${yAxis} ${rightMargin + 16},${yAxis - 5} ${rightMargin + 16},${yAxis + 5}" fill="#0f172a"/>
+    <polygon points="${leftMargin - 26},${yAxis} ${leftMargin - 16},${yAxis - 5} ${leftMargin - 16},${yAxis + 5}" fill="#0f172a"/>
+
+    ${ticksHtml}
+
+    <!-- Pin A (Blue) -->
+    <g transform="translate(${xA}, ${yAxis})">
+      <circle cx="0" cy="0" r="6" fill="#2563eb"/>
+      <line x1="0" y1="0" x2="0" y2="-24" stroke="#2563eb" stroke-width="2.5"/>
+      <rect x="-30" y="-46" width="60" height="22" rx="6" fill="#2563eb"/>
+      <text x="0" y="-31" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="Sarabun">A: ${curCmpA.toFixed(2)}</text>
+    </g>
+
+    <!-- Pin B (Amber) -->
+    <g transform="translate(${xB}, ${yAxis})">
+      <circle cx="0" cy="0" r="6" fill="#d97706"/>
+      <line x1="0" y1="0" x2="0" y2="-24" stroke="#d97706" stroke-width="2.5"/>
+      <rect x="-30" y="-46" width="60" height="22" rx="6" fill="#d97706"/>
+      <text x="0" y="-31" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle" font-family="Sarabun">B: ${curCmpB.toFixed(2)}</text>
+    </g>
+  `;
+}
+
+// ==========================================
+// 5. MODE 3: OPERATIONS & THAI MONEY LAB
+// ==========================================
+let curOpType = '+';
+let curValA = 25.5;
+let curValB = 14.25;
+let curMoneyTotal = 0;
+let moneyItemsInTray = [];
+
+function renderVerticalArithmetic() {
+  const table = document.getElementById('vcalcTable');
+  const res = curOpType === '+' ? curValA + curValB : curValA - curValB;
+  const resFormatted = Math.round(res * 1000) / 1000;
+
+  const strA = curValA.toFixed(2);
+  const strB = curValB.toFixed(2);
+  const strRes = resFormatted.toFixed(2);
+
+  const [intA, decA] = strA.split('.');
+  const [intB, decB] = strB.split('.');
+  const [intR, decR] = strRes.split('.');
+
+  const tensA = intA.length > 1 ? intA[0] : ' ';
+  const onesA = intA.slice(-1);
+  const tenthsA = decA[0] || '0';
+  const hundredthsA = decA[1] || '0';
+
+  const tensB = intB.length > 1 ? intB[0] : ' ';
+  const onesB = intB.slice(-1);
+  const tenthsB = decB[0] || '0';
+  const hundredthsB = decB[1] || '0';
+
+  const tensR = intR.length > 1 ? intR[0] : ' ';
+  const onesR = intR.slice(-1);
+  const tenthsR = decR[0] || '0';
+  const hundredthsR = decR[1] || '0';
+
+  table.innerHTML = `
+    <div class="vcalc-row">
+      <span class="vcalc-op"> </span>
+      <span class="vcalc-col vcalc-hdr">หลักสิบ</span>
+      <span class="vcalc-col vcalc-hdr">หลักหน่วย</span>
+      <span class="vcalc-col vcalc-hdr" style="width: 24px; color: var(--rose);">จุด</span>
+      <span class="vcalc-col vcalc-hdr">ส่วนสิบ</span>
+      <span class="vcalc-col vcalc-hdr">ส่วนร้อย</span>
+    </div>
+    <div class="vcalc-row">
+      <span class="vcalc-op"> </span>
+      <span class="vcalc-col">${tensA}</span>
+      <span class="vcalc-col">${onesA}</span>
+      <span class="vcalc-col vcalc-dot">·</span>
+      <span class="vcalc-col">${tenthsA}</span>
+      <span class="vcalc-col ${String(curValA).indexOf('.') !== -1 && String(curValA).split('.')[1].length === 1 ? 'vcalc-pad' : ''}">${hundredthsA}</span>
+    </div>
+    <div class="vcalc-row">
+      <span class="vcalc-op">${curOpType}</span>
+      <span class="vcalc-col">${tensB}</span>
+      <span class="vcalc-col">${onesB}</span>
+      <span class="vcalc-col vcalc-dot">·</span>
+      <span class="vcalc-col">${tenthsB}</span>
+      <span class="vcalc-col ${String(curValB).indexOf('.') !== -1 && String(curValB).split('.')[1].length === 1 ? 'vcalc-pad' : ''}">${hundredthsB}</span>
+    </div>
+    <div class="vcalc-divider"></div>
+    <div class="vcalc-row vcalc-ans-row">
+      <span class="vcalc-op">=</span>
+      <span class="vcalc-col">${tensR}</span>
+      <span class="vcalc-col">${onesR}</span>
+      <span class="vcalc-col vcalc-dot">·</span>
+      <span class="vcalc-col">${tenthsR}</span>
+      <span class="vcalc-col">${hundredthsR}</span>
+    </div>
+  `;
+}
+
+function updateMoneyTray() {
+  curMoneyTotal = Math.round(curMoneyTotal * 100) / 100;
+  document.getElementById('trayTotalText').textContent = curMoneyTotal.toFixed(2) + ' บาท';
+
+  const intBaht = Math.floor(curMoneyTotal);
+  const satang = Math.round((curMoneyTotal - intBaht) * 100);
+
+  let thaiWords = '';
+  if (intBaht > 0) thaiWords += formatThaiInteger(intBaht) + 'บาท';
+  if (satang > 0) thaiWords += formatThaiInteger(satang) + 'สตางค์';
+  if (curMoneyTotal === 0) thaiWords = 'ศูนย์บาทถ้วน';
+  else if (satang === 0) thaiWords += 'ถ้วน';
+
+  document.getElementById('trayTotalThai').textContent = thaiWords;
+
+  const wrap = document.getElementById('trayItemsWrap');
+  if (moneyItemsInTray.length === 0) {
+    wrap.innerHTML = `<span style="color: var(--muted); font-size: 0.9rem;">(ยังไม่มีเงินในถาด — แตะธนบัตรหรือเหรียญด้านบนเพื่อหยิบใส่)</span>`;
+  } else {
+    wrap.innerHTML = moneyItemsInTray.map(item => `<span class="tray-item-pill">${item >= 20 ? '💵' : '🪙'} ฿${item.toFixed(item % 1 === 0 ? 0 : 2)}</span>`).join('');
+  }
+}
+
+const SHOPPING_STORIES = [
+  { item1: 'สมุดบันทึก', p1: 25.50, item2: 'ดินสอกด', p2: 14.25, pay: 50 },
+  { item1: 'นมกล่องรสหวาน', p1: 12.75, item2: 'ขนมปังเนยสด', p2: 18.50, pay: 50 },
+  { item1: 'กล่องดินสอ', p1: 45.50, item2: 'ยางลบแท่ง', p2: 8.50, pay: 100 },
+  { item1: 'สมุดวาดภาพ', p1: 32.25, item2: 'สีไม้ 12 สี', p2: 42.50, pay: 100 },
+  { item1: 'กรรไกรตัดกระดาษ', p1: 20.25, item2: 'กาวน้ำ', p2: 15.50, pay: 50 }
+];
+
+function renderShoppingChallenge() {
+  const story = SHOPPING_STORIES[Math.floor(Math.random() * SHOPPING_STORIES.length)];
+  const total = story.p1 + story.p2;
+  const change = story.pay - total;
+
+  document.getElementById('shopPromptText').innerHTML = `
+    ซื้อ<strong>${story.item1}</strong> ราคา <strong>${story.p1.toFixed(2)} บาท</strong> 
+    และ <strong>${story.item2}</strong> ราคา <strong>${story.p2.toFixed(2)} บาท</strong><br>
+    จ่ายด้วยธนบัตร <strong>${story.pay} บาท</strong> จะได้รับเงินทอนกี่บาท?
+  `;
+
+  document.getElementById('shopSolutionBox').innerHTML = `
+    💡 <strong>วิธีคิด:</strong><br>
+    1. รวมราคาสินค้า: ${story.p1.toFixed(2)} + ${story.p2.toFixed(2)} = <strong>${total.toFixed(2)} บาท</strong><br>
+    2. คำนวณเงินทอน: ${story.pay.toFixed(2)} - ${total.toFixed(2)} = <strong>${change.toFixed(2)} บาท</strong><br>
+    🪙 <strong>เหรียญที่สามารถทอนได้:</strong> ${formatChangeCoins(change)}
+  `;
+}
+
+function formatChangeCoins(amount) {
+  let rem = Math.round(amount * 100);
+  const coins = [];
+  if (rem >= 2000) { const c = Math.floor(rem / 2000); coins.push(`ธนบัตร 20 บาท ${c} ใบ`); rem %= 2000; }
+  if (rem >= 1000) { const c = Math.floor(rem / 1000); coins.push(`เหรียญ 10 บาท ${c} เหรียญ`); rem %= 1000; }
+  if (rem >= 500) { const c = Math.floor(rem / 500); coins.push(`เหรียญ 5 บาท ${c} เหรียญ`); rem %= 500; }
+  if (rem >= 200) { const c = Math.floor(rem / 200); coins.push(`เหรียญ 2 บาท ${c} เหรียญ`); rem %= 200; }
+  if (rem >= 100) { const c = Math.floor(rem / 100); coins.push(`เหรียญ 1 บาท ${c} เหรียญ`); rem %= 100; }
+  if (rem >= 50) { const c = Math.floor(rem / 50); coins.push(`เหรียญ 50 สตางค์ ${c} เหรียญ`); rem %= 50; }
+  if (rem >= 25) { const c = Math.floor(rem / 25); coins.push(`เหรียญ 25 สตางค์ ${c} เหรียญ`); rem %= 25; }
+  return coins.join(' + ') || 'ไม่ต้องทอน';
+}
+
+// ==========================================
+// 6. MODE 4: PRACTICE QUIZ & MATCHING
+// ==========================================
+let currentPracticeSubmode = 'quiz'; // 'quiz' | 'match'
+let quizIndex = 0;
+let quizScore = 0;
+let quizStreak = 0;
+let quizAnswered = false;
+
+const QUIZ_BANK = [
+  { q: 'เลข 4 ใน 15.48 อยู่ในหลักใด และมีค่าเท่าใด?', choices: ['หลักส่วนสิบ, มีค่า 0.4', 'หลักสิบ, มีค่า 40', 'หลักส่วนร้อย, มีค่า 0.04', 'หลักหน่วย, มีค่า 4'], a: 0, ex: 'ตัวเลขหลังจุดตัวแรกคือหลักส่วนสิบ เลข 4 จึงมีค่า 4/10 หรือ 0.4' },
+  { q: '0.75 มีค่าเท่ากับเศษส่วนในข้อใด?', choices: ['1/4', '1/2', '3/4', '7/5'], a: 2, ex: '0.75 = 75/100 ทอนเป็นเศษส่วนอย่างต่ำได้ 3/4' },
+  { q: 'ข้อใดเปรียบเทียบทศนิยมได้ถูกต้อง?', choices: ['0.7 > 0.75', '0.8 > 0.79', '0.09 > 0.1', '1.05 > 1.5'], a: 1, ex: '0.8 = 0.80 ซึ่งมากกว่า 0.79' },
+  { q: '4.6 + 2.75 มีผลลัพธ์เท่ากับข้อใด?', choices: ['6.35', '7.35', '7.11', '6.85'], a: 1, ex: 'ตั้งจุดให้ตรงกัน: 4.60 + 2.75 = 7.35' },
+  { q: '10.0 - 3.75 มีผลลัพธ์เท่ากับข้อใด?', choices: ['6.25', '7.25', '6.75', '7.75'], a: 0, ex: 'ตั้งจุดให้ตรงกัน: 10.00 - 3.75 = 6.25' },
+  { q: 'ซื้อสมุด 23.50 บาท จ่ายธนบัตร 50 บาท ได้รับเงินทอนกี่บาท?', choices: ['26.50 บาท', '27.50 บาท', '36.50 บาท', '25.50 บาท'], a: 0, ex: 'เงินทอน = 50.00 - 23.50 = 26.50 บาท' },
+  { q: '1/2 เขียนเป็นทศนิยมได้เท่ากับข้อใด?', choices: ['0.2', '0.5', '0.05', '0.12'], a: 1, ex: '1/2 = 5/10 = 0.5' },
+  { q: '7/10 เขียนเป็นทศนิยมได้เท่ากับข้อใด?', choices: ['0.07', '0.7', '7.0', '0.707'], a: 1, ex: 'ส่วน 10 เป็นทศนิยม 1 ตำแหน่ง คือ 0.7' },
+  { q: 'เลข 9 ใน 2.095 มีค่าเท่าใด?', choices: ['0.9', '0.09', '0.009', '9'], a: 1, ex: 'เลข 9 อยู่ในหลักส่วนร้อย (ตำแหน่งที่สองหลังจุด) มีค่า 0.09' },
+  { q: '0.4 กับ 0.40 ข้อความใดถูกต้อง?', choices: ['0.40 มากกว่า 0.4', '0.4 มากกว่า 0.40', 'มีค่าเท่ากัน', 'เปรียบเทียบกันไม่ได้'], a: 2, ex: '0.4 และ 0.40 ระบาย 40 ช่องในตารางร้อยเท่ากัน จึงมีค่าเท่ากัน' },
+  { q: '50 สตางค์ คิดเป็นกี่บาทในรูปทศนิยม?', choices: ['5.0 บาท', '0.50 บาท', '0.05 บาท', '50.0 บาท'], a: 1, ex: '1 บาท = 100 สตางค์ ดังนั้น 50 สตางค์ = 50/100 = 0.50 บาท' },
+  { q: 'เหรียญ 25 สตางค์ 3 เหรียญ คิดเป็นกี่บาท?', choices: ['0.25 บาท', '0.50 บาท', '0.75 บาท', '1.25 บาท'], a: 2, ex: '25 สตางค์ x 3 = 75 สตางค์ = 0.75 บาท' },
+  { q: 'ข้อใดเรียงลำดับจากน้อยไปมากได้ถูกต้อง?', choices: ['0.09, 0.1, 0.25, 0.3', '0.3, 0.25, 0.1, 0.09', '0.1, 0.09, 0.25, 0.3', '0.25, 0.3, 0.09, 0.1'], a: 0, ex: '0.09 < 0.10 < 0.25 < 0.30' },
+  { q: '8.6 - 4.15 มีผลลัพธ์เท่ากับข้อใด?', choices: ['4.55', '4.45', '4.75', '4.15'], a: 1, ex: '8.60 - 4.15 = 4.45' },
+  { q: '25/100 เขียนเป็นทศนิยมได้อย่างไร?', choices: ['0.025', '0.25', '2.5', '25.0'], a: 1, ex: 'ส่วนร้อยคือทศนิยม 2 ตำแหน่ง จึงได้ 0.25' },
+  { q: '1/5 เขียนเป็นทศนิยมได้เท่าใด?', choices: ['0.15', '0.2', '0.5', '0.05'], a: 1, ex: '1/5 = (1x2)/(5x2) = 2/10 = 0.2' },
+  { q: '3/4 เขียนเป็นทศนิยมได้เท่าใด?', choices: ['0.34', '0.75', '0.43', '0.65'], a: 1, ex: '3/4 = (3x25)/(4x25) = 75/100 = 0.75' },
+  { q: 'ทศนิยม 3.456 เลข 6 อยู่ในหลักใด?', choices: ['หลักส่วนสิบ', 'หลักส่วนร้อย', 'หลักส่วนพัน', 'หลักหน่วย'], a: 2, ex: 'ตำแหน่งที่สามหลังจุดคือหลักส่วนพัน มีค่า 0.006' },
+  { q: 'ซื้อของ 74.50 บาท จ่าย 100 บาท จะได้เงินทอนเท่าใด?', choices: ['25.50 บาท', '26.50 บาท', '35.50 บาท', '25.00 บาท'], a: 0, ex: '100.00 - 74.50 = 25.50 บาท' },
+  { q: '3 ใน 10 ของหนึ่งหน่วย คิดเป็นทศนิยมเท่าใด?', choices: ['0.03', '0.3', '3.0', '0.33'], a: 1, ex: '3 ใน 10 คือ 3/10 = 0.3' }
+];
+
+function renderQuizQuestion() {
+  quizAnswered = false;
+  const q = QUIZ_BANK[quizIndex % QUIZ_BANK.length];
+  document.getElementById('quizCounterText').textContent = `ข้อที่ ${(quizIndex % QUIZ_BANK.length) + 1} / ${QUIZ_BANK.length}`;
+  document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+  document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+  document.getElementById('quizQuestionText').textContent = q.q;
+
+  const choicesGrid = document.getElementById('quizChoicesGrid');
+  choicesGrid.innerHTML = '';
+  q.choices.forEach((c, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'choice-btn';
+    btn.dataset.idx = idx;
+    btn.innerHTML = `<span style="font-weight: 800; color: var(--indigo);">${String.fromCharCode(65 + idx)}.</span> <span>${c}</span>`;
+    btn.onclick = () => handleQuizChoice(idx);
+    choicesGrid.appendChild(btn);
+  });
+
+  document.getElementById('quizExplanationBox').style.display = 'none';
+  document.getElementById('btnQuizNext').style.display = 'none';
+}
+
+function handleQuizChoice(choiceIdx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ_BANK[quizIndex % QUIZ_BANK.length];
+  const isCorrect = choiceIdx === q.a;
+  const buttons = document.querySelectorAll('.choice-btn');
+
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.a) {
+      btn.classList.add('correct');
+    } else if (idx === choiceIdx) {
+      btn.classList.add('wrong');
+    }
+  });
+
+  if (isCorrect) {
+    quizScore += 10;
+    quizStreak += 1;
+    playCorrect();
+  } else {
+    quizStreak = 0;
+    playWrong();
+  }
+
+  document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+  document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+
+  const expBox = document.getElementById('quizExplanationBox');
+  expBox.style.display = 'block';
+  expBox.innerHTML = `<strong>${isCorrect ? '✅ ถูกต้อง!' : '❌ ยังไม่ถูกต้อง'}</strong> ${q.ex}`;
+  document.getElementById('btnQuizNext').style.display = 'inline-flex';
+}
+
+// MATCHING TILE GAME
+const MATCH_PAIRS_ALL = [
+  { frac: '1/2', dec: '0.5' },
+  { frac: '1/4', dec: '0.25' },
+  { frac: '3/4', dec: '0.75' },
+  { frac: '1/10', dec: '0.1' },
+  { frac: '3/10', dec: '0.3' },
+  { frac: '7/10', dec: '0.7' },
+  { frac: '1/5', dec: '0.2' },
+  { frac: '2/5', dec: '0.4' },
+  { frac: '4/5', dec: '0.8' },
+  { frac: '5/100', dec: '0.05' }
+];
+
+let matchTiles = [];
+let selectedTile = null;
+let matchPairsFound = 0;
+let isMatchLocked = false;
+
+function initMatchGame() {
+  selectedTile = null;
+  matchPairsFound = 0;
+  isMatchLocked = false;
+  document.getElementById('matchVictoryBanner').style.display = 'none';
+  document.getElementById('matchProgressText').textContent = `คู่ที่จับสำเร็จ: 0 / 6`;
+
+  // Pick 6 distinct pairs
+  const shuffledPairs = [...MATCH_PAIRS_ALL].sort(() => Math.random() - 0.5).slice(0, 6);
+  matchTiles = [];
+  shuffledPairs.forEach((p, pIdx) => {
+    matchTiles.push({ id: `f-${pIdx}`, pairId: pIdx, text: p.frac, type: 'frac' });
+    matchTiles.push({ id: `d-${pIdx}`, pairId: pIdx, text: p.dec, type: 'dec' });
+  });
+  matchTiles.sort(() => Math.random() - 0.5);
+
+  const grid = document.getElementById('tileGrid');
+  grid.innerHTML = '';
+  matchTiles.forEach((tile) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tile-btn';
+    btn.dataset.id = tile.id;
+    btn.dataset.pairId = tile.pairId;
+    btn.innerHTML = `<span>${tile.text}</span>`;
+    btn.onclick = () => handleTileClick(btn, tile);
+    grid.appendChild(btn);
+  });
+}
+
+function handleTileClick(btn, tile) {
+  if (isMatchLocked || btn.classList.contains('matched') || btn === selectedTile?.btn) return;
+
+  if (!selectedTile) {
+    selectedTile = { btn, tile };
+    btn.classList.add('selected');
+  } else {
+    // Second tile selected
+    const first = selectedTile;
+    selectedTile = null;
+
+    if (first.tile.pairId === tile.pairId && first.tile.type !== tile.type) {
+      // MATCH!
+      first.btn.classList.remove('selected');
+      first.btn.classList.add('matched');
+      btn.classList.add('matched');
+      matchPairsFound += 1;
+      playCorrect();
+      document.getElementById('matchProgressText').textContent = `คู่ที่จับสำเร็จ: ${matchPairsFound} / 6`;
+      if (matchPairsFound === 6) {
+        document.getElementById('matchVictoryBanner').style.display = 'block';
+      }
+    } else {
+      // MISMATCH
+      first.btn.classList.remove('selected');
+      first.btn.classList.add('mismatch');
+      btn.classList.add('mismatch');
+      isMatchLocked = true;
+      playWrong();
+      setTimeout(() => {
+        first.btn.classList.remove('mismatch');
+        btn.classList.remove('mismatch');
+        isMatchLocked = false;
+      }, 500);
+    }
+  }
+}
+
+// ==========================================
+// 7. NAVIGATION & MODE SWITCHING
+// ==========================================
+function switchMode(newMode) {
+  currentMode = newMode;
+  document.querySelectorAll('#modeSeg button').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === newMode);
+  });
+
+  document.getElementById('secRead').classList.toggle('active', newMode === 'read');
+  document.getElementById('secCompare').classList.toggle('active', newMode === 'compare');
+  document.getElementById('secCalc').classList.toggle('active', newMode === 'calc');
+  document.getElementById('secQuiz').classList.toggle('active', newMode === 'quiz');
+
+  if (newMode === 'read') renderReadingStudio();
+  else if (newMode === 'compare') renderComparisonStudio();
+  else if (newMode === 'calc') {
+    renderVerticalArithmetic();
+    updateMoneyTray();
+  } else if (newMode === 'quiz') {
+    if (currentPracticeSubmode === 'quiz') renderQuizQuestion();
+    else initMatchGame();
+  }
+}
+
+// ==========================================
+// 8. EVENT BINDINGS
+// ==========================================
+// Mode Seg
+document.getElementById('modeSeg').onclick = (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if (btn) switchMode(btn.dataset.mode);
+};
+
+// Back & Home
+document.getElementById('btnBack').onclick = () => {
+  if (window.KAMPAI?.goHome) window.KAMPAI.goHome();
+  else location.href = '/h/nattapong';
+};
+
+// Fullscreen
+document.getElementById('btnFullscreen').onclick = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+};
+
+// Audio Toggle
+document.getElementById('btnAudioToggle').onclick = () => {
+  isAudioActive = !isAudioActive;
+  document.getElementById('audioIcon').textContent = isAudioActive ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = isAudioActive ? 'เปิดเสียง' : 'ปิดเสียง';
+};
+
+// Grade Filter
+document.getElementById('gradeFilter').onchange = (e) => {
+  currentGrade = e.target.value;
+  if (currentGrade === 'p4' && curReadingVal > 9.99) {
+    curReadingVal = 2.45;
+    renderReadingStudio();
+  }
+};
+
+// Mode 1: Grid Model Switch
+document.getElementById('gridModelSeg').onclick = (e) => {
+  const btn = e.target.closest('button[data-grid]');
+  if (!btn) return;
+  document.querySelectorAll('#gridModelSeg button').forEach(b => b.classList.toggle('active', b === btn));
+  curGridType = btn.dataset.grid;
+  renderReadingStudio();
+};
+
+// Mode 1: Speak Button
+document.getElementById('btnSpeak').onclick = () => {
+  speakText(formatThaiDecimalSpeech(curReadingVal));
+};
+
+// Mode 1: Clear & Random
+document.getElementById('btnClearReading').onclick = () => {
+  curReadingVal = 0;
+  renderReadingStudio();
+};
+
+document.getElementById('btnRandomReading').onclick = () => {
+  if (currentGrade === 'p4') {
+    curReadingVal = Math.round((Math.random() * 8 + 0.1) * 100) / 100;
+  } else {
+    curReadingVal = Math.round((Math.random() * 8 + 0.05) * 1000) / 1000;
+  }
+  renderReadingStudio();
+};
+
+// Mode 1: Steppers
+document.querySelectorAll('[data-step]').forEach(btn => {
+  btn.onclick = () => {
+    const step = parseFloat(btn.dataset.step);
+    curReadingVal = Math.max(0, Math.round((curReadingVal + step) * 1000) / 1000);
+    renderReadingStudio();
+  };
+});
+
+// Mode 1: Presets
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    curReadingVal = parseFloat(btn.dataset.v);
+    renderReadingStudio();
+  };
+});
+
+// Mode 2: Steppers & Presets
+document.querySelectorAll('.cmp-step-btn').forEach(btn => {
+  btn.onclick = () => {
+    const target = btn.dataset.target;
+    const step = parseFloat(btn.dataset.step);
+    if (target === 'A') curCmpA = Math.max(0.01, Math.min(1.0, Math.round((curCmpA + step) * 100) / 100));
+    else curCmpB = Math.max(0.01, Math.min(1.0, Math.round((curCmpB + step) * 100) / 100));
+    renderComparisonStudio();
+  };
+});
+
+document.getElementById('btnZoomToggle').onclick = () => {
+  isNumberLineZoomed = !isNumberLineZoomed;
+  document.getElementById('zoomToggleText').textContent = isNumberLineZoomed ? '🔎 มุมมองปกติ (0.1)' : '🔍 ซูมดูระดับส่วนร้อย (0.01)';
+  renderComparisonStudio();
+};
+
+document.getElementById('btnRandomCompare').onclick = () => {
+  curCmpA = Math.round((Math.random() * 0.9 + 0.05) * 100) / 100;
+  curCmpB = Math.round((Math.random() * 0.9 + 0.05) * 100) / 100;
+  renderComparisonStudio();
+};
+
+document.querySelectorAll('.cmp-preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    curCmpA = parseFloat(btn.dataset.a);
+    curCmpB = parseFloat(btn.dataset.b);
+    renderComparisonStudio();
+  };
+});
+
+// Mode 3: Calc Subtabs
+document.querySelectorAll('.calc-tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.calc-tab-btn').forEach(b => {
+      b.classList.toggle('active', b === btn);
+      b.classList.toggle('btn-primary', b === btn);
+      b.classList.toggle('btn-ghost', b !== btn);
+    });
+    const sub = btn.dataset.sub;
+    document.getElementById('subviewVcalc').classList.toggle('hidden', sub !== 'vcalc');
+    document.getElementById('subviewMoney').classList.toggle('hidden', sub !== 'money');
+  };
+});
+
+// Mode 3: Op Seg
+document.getElementById('opSeg').onclick = (e) => {
+  const btn = e.target.closest('button[data-op]');
+  if (!btn) return;
+  document.querySelectorAll('#opSeg button').forEach(b => b.classList.toggle('active', b === btn));
+  curOpType = btn.dataset.op;
+  if (curOpType === '-' && curValB > curValA) {
+    const temp = curValA; curValA = curValB; curValB = temp;
+  }
+  renderVerticalArithmetic();
+};
+
+document.getElementById('btnRandomVcalc').onclick = () => {
+  curValA = Math.round((Math.random() * 40 + 5) * 100) / 100;
+  curValB = Math.round((Math.random() * 30 + 2) * 100) / 100;
+  if (curOpType === '-' && curValB > curValA) {
+    const temp = curValA; curValA = curValB; curValB = temp;
+  }
+  renderVerticalArithmetic();
+};
+
+document.querySelectorAll('.vcalc-preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    curValA = parseFloat(btn.dataset.a);
+    curValB = parseFloat(btn.dataset.b);
+    curOpType = btn.dataset.op;
+    document.querySelectorAll('#opSeg button').forEach(b => b.classList.toggle('active', b.dataset.op === curOpType));
+    renderVerticalArithmetic();
+  };
+});
+
+// Mode 3: Money Lab
+document.querySelectorAll('.cash-add-btn').forEach(btn => {
+  btn.onclick = () => {
+    const val = parseFloat(btn.dataset.val);
+    curMoneyTotal += val;
+    moneyItemsInTray.push(val);
+    updateMoneyTray();
+  };
+});
+
+document.getElementById('btnClearMoney').onclick = () => {
+  curMoneyTotal = 0;
+  moneyItemsInTray = [];
+  updateMoneyTray();
+};
+
+document.getElementById('btnSpeakMoney').onclick = () => {
+  speakText(document.getElementById('trayTotalThai').textContent);
+};
+
+document.getElementById('btnRandomShop').onclick = renderShoppingChallenge;
+
+// Mode 4: Practice Mode Switch
+document.getElementById('practiceModeSeg').onclick = (e) => {
+  const btn = e.target.closest('button[data-sub]');
+  if (!btn) return;
+  document.querySelectorAll('#practiceModeSeg button').forEach(b => b.classList.toggle('active', b === btn));
+  currentPracticeSubmode = btn.dataset.sub;
+  document.getElementById('subviewQuiz').classList.toggle('hidden', currentPracticeSubmode !== 'quiz');
+  document.getElementById('subviewMatch').classList.toggle('hidden', currentPracticeSubmode !== 'match');
+  if (currentPracticeSubmode === 'quiz') renderQuizQuestion();
+  else initMatchGame();
+};
+
+document.getElementById('btnQuizNext').onclick = () => {
+  quizIndex += 1;
+  renderQuizQuestion();
+};
+
+document.getElementById('btnResetMatch').onclick = initMatchGame;
+
+// ==========================================
+// 9. SMARTBOARD KEYBOARD SHORTCUTS
+// ==========================================
+window.addEventListener('keydown', (e) => {
+  // Ignore input typing
+  if (['input', 'textarea', 'select'].includes(document.activeElement?.tagName?.toLowerCase())) return;
+
+  if (e.code === 'Space' || e.key === ' ') {
+    e.preventDefault();
+    if (currentMode === 'read') document.getElementById('btnSpeak')?.click();
+    else if (currentMode === 'quiz' && currentPracticeSubmode === 'quiz') {
+      const q = QUIZ_BANK[quizIndex % QUIZ_BANK.length];
+      speakText(q.q);
+    } else if (currentMode === 'calc') {
+      document.getElementById('btnSpeakMoney')?.click();
+    }
+  } else if (e.key === '1') {
+    switchMode('read');
+  } else if (e.key === '2') {
+    switchMode('compare');
+  } else if (e.key === '3') {
+    switchMode('calc');
+  } else if (e.key === '4') {
+    switchMode('quiz');
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (currentMode === 'read') document.getElementById('btnRandomReading')?.click();
+    else if (currentMode === 'compare') document.getElementById('btnRandomCompare')?.click();
+    else if (currentMode === 'calc') document.getElementById('btnRandomVcalc')?.click();
+    else if (currentMode === 'quiz') {
+      if (document.getElementById('btnQuizNext').style.display !== 'none') {
+        document.getElementById('btnQuizNext').click();
+      }
+    }
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (currentMode === 'read') document.getElementById('btnClearReading')?.click();
+    else if (currentMode === 'calc') document.getElementById('btnClearMoney')?.click();
+  } else if (e.code === 'KeyF' || e.key === 'f' || e.key === 'F') {
+    document.getElementById('btnFullscreen')?.click();
+  }
+});
+
+// ==========================================
+// 10. QA & AUTOMATION INSPECTION HOOK
+// ==========================================
+window.__getState = function() {
+  return {
+    slug: GAME_SLUG,
+    mode: currentMode,
+    grade: currentGrade,
+    gridValue: curReadingVal,
+    readingGridType: curGridType,
+    compareA: curCmpA,
+    compareB: curCmpB,
+    compareZoom: isNumberLineZoomed,
+    opType: curOpType,
+    valA: curValA,
+    valB: curValB,
+    moneyTotal: curMoneyTotal,
+    practiceSubmode: currentPracticeSubmode,
+    quizIndex: quizIndex,
+    quizScore: quizScore,
+    quizStreak: quizStreak,
+    matchPairsFound: matchPairsFound,
+    audioActive: isAudioActive
+  };
+};
+
+// Initial Renders
+renderReadingStudio();
+renderComparisonStudio();
+renderVerticalArithmetic();
+updateMoneyTray();
+renderShoppingChallenge();
+renderQuizQuestion();
+initMatchGame();
 </script>
 </body>
 </html>

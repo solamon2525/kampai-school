@@ -12,6 +12,14 @@
     ],
     "rewrites": [
         {
+            "source": "/games/daily-quest",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/games/arena",
+            "destination": "/index.html"
+        },
+        {
             "source": "/((?!api/|games/).*)",
             "destination": "/index.html"
         }

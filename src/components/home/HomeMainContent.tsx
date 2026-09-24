@@ -516,11 +516,11 @@ export const useHomeMainBlocks = () => {
           </div>
           <div>
             <h3 className="text-base font-extrabold text-gray-800 tracking-tight flex items-center gap-1.5 text-left">
-              Kampai Hero Profile Showcase
+              โปรไฟล์ธนาคารความดี
               <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
             </h3>
             <p className="text-[10px] font-medium text-gray-400 text-left">
-              10 อันดับสุดยอดฮีโร่คุณธรรมและความดีสะสมสูงสุดประจำปีการศึกษา
+              10 อันดับนักเรียนที่มีคะแนนความดีสะสมสูงสุดประจำปีการศึกษา
             </p>
           </div>
         </div>
@@ -574,7 +574,7 @@ export const useHomeMainBlocks = () => {
               </p>
               <div className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md">
                 <Star className="w-3.5 h-3.5 fill-current animate-pulse" />
-                สะสม {featuredHeroProfile.totalXp} XP คะแนนความดี
+                สะสม {featuredHeroProfile.totalXp} คะแนนความดี
               </div>
             </div>
           </motion.div>
@@ -595,7 +595,7 @@ export const useHomeMainBlocks = () => {
 
           {/* Interactive CTA to full public profile */}
           <Link
-            to={`/hero/${featuredHeroProfile.studentId}`}
+            to={`/virtue-bank/${featuredHeroProfile.studentId}`}
             className="w-full md:w-auto px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-extrabold rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
             <HeartHandshake className="w-4 h-4" />
@@ -607,7 +607,7 @@ export const useHomeMainBlocks = () => {
         {/* Right Side: Recharts 5-Dimension Radar Chart */}
         <div className="w-full bg-gray-50/50 rounded-2xl border border-gray-100 p-3 flex flex-col items-center">
           <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">
-            ผังพลังคุณธรรม 5 มิติฮีโร่
+            ผังคุณธรรม 5 มิติ
           </h4>
           <div className="h-44 w-full flex items-center justify-center min-h-[176px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -692,7 +692,7 @@ export const useHomeMainBlocks = () => {
   ) : featuredHeroLoading ? (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center space-y-3 h-72">
       <div className="w-8 h-8 rounded-full border-4 border-amber-400 border-t-transparent animate-spin" />
-      <p className="text-xs text-muted-foreground font-semibold">กำลังดึงข้อมูล Kampai Hero Profile...</p>
+      <p className="text-xs text-muted-foreground font-semibold">กำลังดึงข้อมูลโปรไฟล์ธนาคารความดี...</p>
     </div>
   ) : null;
 

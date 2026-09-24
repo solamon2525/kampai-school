@@ -1,20 +1,7 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ExternalLink, IdCard, Star } from 'lucide-react';
-import {
-    DndContext,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    closestCenter,
-    type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    SortableContext,
-    arrayMove,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -38,31 +25,21 @@ import {
     type FilterState,
     type SortMode,
 } from '@/components/educational-hub/SectionToolbar';
-import { LessonPacksSection } from '@/components/educational-hub/LessonPacksSection';
 import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
 import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
-import { useFavorites } from '@/hooks/useFavorites';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthProvider';
+import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const PAGE_SIZE = 24;
-const LESSON_PACKS_CATEGORY: EduHubCategory = {
-    id: 'lesson-packs',
-    category_key: 'lesson-packs',
-    name: 'ชุดเรียนพร้อมสอน',
-    description: 'สื่อ ใบงาน และเกมที่จัดเป็นชุดพร้อมใช้ในชั้นเรียน',
-    icon_name: 'Package',
-    color_class: 'text-primary',
-    sort_order: -1,
-    is_active: true,
-    created_at: '',
-    updated_at: '',
-};
-
+const PAGE_ROWS = 7;
 const EducationalHubTeacher = () => {
+    const navigate = useNavigate();
+    const { session, staffId: signedInStaffId } = useAuth();
+    const secretTapRef = useRef({ count: 0, startedAt: 0 });
     // Page is mounted from 2 routes:
     //   /educational-hub/:staffId  (legacy long URL — UUID)
     //   /h/:identifier             (short URL — username OR UUID for fallback)
@@ -98,6 +75,23 @@ const EducationalHubTeacher = () => {
 
     const resolvedStaffId = teacher?.staff_id ?? null;
 
+    const handleSecretAvatarTap = () => {
+        const now = Date.now();
+        const state = secretTapRef.current;
+        if (now - state.startedAt > 2500) {
+            state.count = 0;
+            state.startedAt = now;
+        }
+        state.count += 1;
+        if (state.count < 5) return;
+        state.count = 0;
+        if (!session) {
+            navigate(`/admin?redirect=${encodeURIComponent('/teacher/integrated-plan')}`);
+            return;
+        }
+        if (signedInStaffId === resolvedStaffId) navigate('/teacher/integrated-plan');
+    };
+
     const { data: categories } = useQuery({
         queryKey: ['edu-hub', 'categories'],
         queryFn: async () => {
@@ -108,76 +102,147 @@ const EducationalHubTeacher = () => {
     });
 
     const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+    const [searchInput, setSearchInput] = useState('');
     const [sort, setSort] = useState<SortMode>('newest');
-    const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE);
-    const deferredSearch = useDeferredValue(filter.search);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsSectionRef = useRef<HTMLDivElement>(null);
+    const pendingPageRef = useRef<{ page: number; categoryKey: string | null } | null>(null);
+    const { mode: viewMode, setMode: setViewMode } = useViewMode();
+    const [viewportWidth, setViewportWidth] = useState(() => (typeof window === 'undefined' ? 1280 : window.innerWidth));
 
-    const { data: packCount = 0, isLoading: loadingPackCount } = useQuery({
-        queryKey: ['lesson-packs', 'published-count', resolvedStaffId],
-        queryFn: () => lessonPacksService.countPublished(resolvedStaffId),
-        enabled: !!resolvedStaffId,
-        staleTime: 5 * 60 * 1000,
-    });
+    useEffect(() => {
+        const onResize = () => setViewportWidth(window.innerWidth);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    const columns = viewMode === 'spotlight' ? (viewportWidth >= 1024 ? 2 : 1) : (viewportWidth >= 1024 ? 3 : viewportWidth >= 640 ? 2 : 1);
+    const pageSize = PAGE_ROWS * columns;
 
     const categoryChoices = useMemo(
-        () => packCount > 0
-            ? [LESSON_PACKS_CATEGORY, ...(categories ?? [])]
-            : (categories ?? []),
-        [categories, packCount],
+        () => (categories ?? []).filter((category) => category.category_key !== 'lesson-packs'),
+        [categories],
     );
+    const requestedCategoryKey = deepLinkCat === 'lesson-packs' ? 'media' : deepLinkCat;
+
+    useEffect(() => {
+        if (deepLinkCat !== 'lesson-packs') return;
+        const next = new URLSearchParams(searchParams);
+        next.set('cat', 'media');
+        setSearchParams(next, { replace: true });
+    }, [deepLinkCat, searchParams, setSearchParams]);
 
     const activeCategoryKey = useMemo(() => {
-        if (deepLinkCat && categoryChoices.some((category) => category.category_key === deepLinkCat)) {
-            return deepLinkCat;
+        if (requestedCategoryKey && categoryChoices.some((category) => category.category_key === requestedCategoryKey)) {
+            return requestedCategoryKey;
         }
-        return categoryChoices.find((category) => {
-            if (category.category_key === 'lesson-packs') return packCount > 0;
-            return (teacher?.counts_by_category?.[category.id] ?? 0) > 0;
-        })?.category_key ?? categoryChoices[0]?.category_key ?? null;
-    }, [categoryChoices, deepLinkCat, packCount, teacher?.counts_by_category]);
+        return categoryChoices.find(
+            (category) => (teacher?.counts_by_category?.[category.id] ?? 0) > 0,
+        )?.category_key ?? categoryChoices[0]?.category_key ?? null;
+    }, [categoryChoices, requestedCategoryKey, teacher?.counts_by_category]);
 
     const activeCategory = useMemo(
         () => (categories ?? []).find((category) => category.category_key === activeCategoryKey) ?? null,
         [activeCategoryKey, categories],
     );
+    const showAllMedia = activeCategoryKey === 'media';
+    const paginationSizeKey = showAllMedia ? 'all' : pageSize;
 
     useEffect(() => {
-        setVisibleLimit(PAGE_SIZE);
+        pendingPageRef.current = null;
+        setCurrentPage(1);
     }, [
         activeCategoryKey,
-        deferredSearch,
+        filter.search,
         filter.subjects,
         filter.grades,
         filter.tags,
         filter.types,
         sort,
+        paginationSizeKey,
     ]);
 
-    const { data: itemPage, isLoading: loadingItems, isFetching: fetchingItems } = useQuery({
-        queryKey: [
-            'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, visibleLimit,
-            deferredSearch, filter.subjects, filter.grades, filter.tags, filter.types, sort,
-        ],
-        enabled: !!resolvedStaffId && !!activeCategory && !loadingPackCount,
+    const {
+        data: itemPage,
+        isLoading: loadingItems,
+        isFetching: fetchingItems,
+        isError: itemLoadFailed,
+        refetch: retryItems,
+    } = useQuery({
+        queryKey: showAllMedia
+            ? [
+                'edu-hub', 'items-all', resolvedStaffId, activeCategory?.id,
+                filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+            ]
+            : [
+                'edu-hub', 'items-page', resolvedStaffId, activeCategory?.id, currentPage, pageSize,
+                filter.search, filter.subjects, filter.grades, filter.tags, filter.types, sort,
+            ],
+        enabled: !!resolvedStaffId && !!activeCategory,
         queryFn: async () => {
-            const result = await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
+            const options = {
                 categoryId: activeCategory!.id,
-                limit: visibleLimit,
-                search: deferredSearch,
+                search: filter.search,
                 subjects: filter.subjects,
                 grades: filter.grades,
                 tags: filter.tags,
                 types: filter.types,
                 sort,
-            });
+            };
+            const result = showAllMedia
+                ? await educationalHubService.listItemsByTeacherAll(resolvedStaffId!, options)
+                : await educationalHubService.listItemsByTeacherPage(resolvedStaffId!, {
+                    ...options,
+                    limit: pageSize,
+                    offset: (currentPage - 1) * pageSize,
+                });
             if (result.error) throw result.error;
             return result;
         },
+        placeholderData: showAllMedia ? undefined : keepPreviousData,
         staleTime: 60 * 1000,
+    });
+
+    const { data: allTeacherItems = [] } = useQuery({
+        queryKey: ['edu-hub', 'filter-options', resolvedStaffId],
+        queryFn: async () => {
+            const { data, error } = await educationalHubService.listItemsByTeacher(resolvedStaffId!);
+            if (error) throw error;
+            return (data ?? []) as EduHubItem[];
+        },
+        enabled: !!resolvedStaffId,
+        staleTime: 5 * 60 * 1000,
     });
 
     const allItems = useMemo(() => itemPage?.data ?? [], [itemPage?.data]);
     const totalItems = itemPage?.count ?? 0;
+    const totalPages = showAllMedia ? 1 : Math.max(1, Math.ceil(totalItems / pageSize));
+
+    const mediaItemIds = useMemo(
+        () => activeCategoryKey === 'media' ? allItems.map((item) => item.id) : [],
+        [activeCategoryKey, allItems],
+    );
+    const { data: teachingUnitsByItemId } = useQuery({
+        queryKey: ['lesson-packs', 'teaching-units', resolvedStaffId, mediaItemIds.join(',')],
+        queryFn: () => lessonPacksService.listTeachingUnitsForMediaIds(mediaItemIds, resolvedStaffId),
+        enabled: !!resolvedStaffId && mediaItemIds.length > 0,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    useEffect(() => {
+        if (showAllMedia) return;
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [currentPage, showAllMedia, totalPages]);
+
+    useEffect(() => {
+        if (showAllMedia) return;
+        const pendingPage = pendingPageRef.current;
+        if (!pendingPage || pendingPage.page !== currentPage || pendingPage.categoryKey !== activeCategoryKey || fetchingItems) return;
+        pendingPageRef.current = null;
+        requestAnimationFrame(() => {
+            itemsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [activeCategoryKey, currentPage, fetchingItems, itemPage?.data, showAllMedia]);
 
     const { data: publishedUrls = [] } = useQuery({
         queryKey: ['edu-hub', 'published-item-urls', resolvedStaffId],
@@ -186,10 +251,7 @@ const EducationalHubTeacher = () => {
         staleTime: 5 * 60 * 1000,
     });
 
-    const categoryCounts = useMemo(
-        () => ({ ...(teacher?.counts_by_category ?? {}), 'lesson-packs': packCount }),
-        [packCount, teacher?.counts_by_category],
-    );
+    const categoryCounts = teacher?.counts_by_category ?? {};
 
     const handleCategorySelect = (categoryKey: string) => {
         const next = new URLSearchParams(searchParams);
@@ -197,47 +259,62 @@ const EducationalHubTeacher = () => {
         setSearchParams(next, { replace: true });
     };
 
-    // ─── Toolbar state: view mode, favorites ────────────────────────────
-    const { mode: viewMode, setMode: setViewMode } = useViewMode();
-    const { favorites, toggle: toggleFav, isFavorite } = useFavorites();
+    const handlePageChange = (page: number) => {
+        if (page === currentPage) return;
+        pendingPageRef.current = { page, categoryKey: activeCategoryKey };
+        setCurrentPage(page);
+    };
 
     // Admin edit mode — adds drag handles on section headers + item cards
-    const { isAdmin, isTeacher } = useUserRole();
+    const { isAdmin } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
-    const dndSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-    const [orderedCategories, setOrderedCategories] = useState<EduHubCategory[]>([]);
+    const displayedCategoryChoices = categoryChoices;
+    const quickFilters = useMemo(() => {
+        const subjects = SUBJECT_OPTIONS.filter((subject) => allTeacherItems.some((item) => item.subject === subject.value));
+        const categoryPresets = displayedCategoryChoices.filter((category) => /สื่อ|ใบงาน/.test(category.name));
+        return categoryPresets.flatMap((category) => subjects
+            .filter((subject) => allTeacherItems.some((item) => item.category_id === category.id && item.subject === subject.value))
+            .map((subject) => ({
+            id: `${category.id}-${subject.value}`,
+            label: `${category.name.replace(/การสอน|ชุด/g, '').trim()}${subject.label.replace('คณิตศาสตร์', 'คณิต')}`,
+            subjects: [subject.value],
+            categoryKey: category.category_key,
+        })));
+    }, [allTeacherItems, displayedCategoryChoices]);
 
-    // Sync local order with server data (categories from useQuery)
-    useEffect(() => {
-        if (categories) setOrderedCategories(categories);
-    }, [categories]);
-
-    const handleCategoryDragEnd = async (e: DragEndEvent) => {
-        const { active, over } = e;
-        if (!over || active.id === over.id) return;
-        const oldIdx = orderedCategories.findIndex((c) => c.id === active.id);
-        const newIdx = orderedCategories.findIndex((c) => c.id === over.id);
-        if (oldIdx < 0 || newIdx < 0) return;
-        const next = arrayMove(orderedCategories, oldIdx, newIdx);
-        setOrderedCategories(next);
+    const saveCategoryOrder = async (next: EduHubCategory[]) => {
         const updates = next.map((c, i) => ({ id: c.id, sort_order: (i + 1) * 10 }));
         const { error } = await educationalHubService.bulkUpdateSortOrderCategories(updates);
         if (error) {
-            setOrderedCategories(categories ?? []);
             toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
-            return;
+            return false;
         }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
+
+        const { data: verifiedCategories, error: verifyError } = await educationalHubService.listCategories();
+        const verifiedIds = (verifiedCategories ?? []).map((category) => category.id);
+        const expectedIds = next.map((category) => category.id);
+        if (verifyError || verifiedIds.join(',') !== expectedIds.join(',')) {
+            toast({
+                title: 'ยังยืนยันลำดับใหม่ไม่ได้',
+                description: verifyError?.message ?? 'ข้อมูลจากเซิร์ฟเวอร์ไม่ตรงกับลำดับที่บันทึก กรุณาลองอีกครั้ง',
+                variant: 'destructive',
+            });
+            await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories'] });
+            return false;
+        }
+
+        queryClient.setQueryData(['edu-hub', 'categories'], verifiedCategories);
         await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'categories', 'admin'] });
         toast({ title: 'บันทึกลำดับใหม่' });
+        return true;
     };
 
     const publishedUrlSet = useMemo(() => new Set(publishedUrls), [publishedUrls]);
 
     const pairedByItemId = useMemo(() => {
         const map = new Map<string, NonNullable<ReturnType<typeof resolvePairedLink>>>();
-        for (const it of allItems) {
+        for (const it of allTeacherItems) {
             const worksheetOrMediaPair = resolvePairedLink(it.external_url, publishedUrlSet);
             const lookBefore = it.tracked_game
                 ? resolveGameMediaHubLink(it.game_slug)
@@ -246,7 +323,7 @@ const EducationalHubTeacher = () => {
             if (pair) map.set(it.id, pair);
         }
         return map;
-    }, [allItems, publishedUrlSet]);
+    }, [allTeacherItems, publishedUrlSet]);
 
     const visibleCategories = useMemo(
         () => activeCategory ? [activeCategory] : [],
@@ -263,21 +340,15 @@ const EducationalHubTeacher = () => {
         return m;
     }, [allItems]);
 
-    // Favorites = subset of ALL items (so user can find favorites even if filtered out)
-    const favoriteItems = useMemo(
-        () => allItems.filter((it) => favorites.has(it.id)),
-        [allItems, favorites],
-    );
-
     // Deep-link: scroll to ?cat=key after items render
     useEffect(() => {
-        if (!deepLinkCat || loadingItems) return;
+        if (!requestedCategoryKey || loadingItems) return;
         const t = setTimeout(() => {
-            const el = document.getElementById(`cat-${deepLinkCat}`);
+            const el = document.getElementById(`cat-${requestedCategoryKey}`);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 150);
         return () => clearTimeout(t);
-    }, [deepLinkCat, loadingItems]);
+    }, [requestedCategoryKey, loadingItems]);
 
     if (loadingCards) {
         return (
@@ -341,7 +412,8 @@ const EducationalHubTeacher = () => {
                                 : 'bg-gradient-to-br from-primary/10 via-accent/5 to-background text-foreground'
                         }
                     >
-                        <div className="px-4 py-3 sm:py-5">
+                        <div className="grid gap-3 px-4 py-3 sm:py-5 lg:grid-cols-[minmax(0,2fr)_minmax(28rem,3fr)] lg:items-center lg:gap-6">
+                          <div className="min-w-0">
                             <Button
                                 asChild
                                 variant={teacher.banner_url ? 'secondary' : 'ghost'}
@@ -355,14 +427,19 @@ const EducationalHubTeacher = () => {
                             </Button>
 
                             <div className="flex flex-row items-center gap-3">
-                                <div className="rounded-full bg-background p-1 shadow-lg shrink-0">
+                                <button
+                                    type="button"
+                                    aria-label="รูปประจำตัวครู"
+                                    onClick={handleSecretAvatarTap}
+                                    className="rounded-full bg-background p-1 shadow-lg shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
                                     <PersonAvatar
                                         name={teacher.name}
                                         photoUrl={teacher.photo_url}
                                         size="lg"
                                         className="!h-12 !w-12 !text-base"
                                     />
-                                </div>
+                                </button>
 
                                 <div className="flex-1 min-w-0 space-y-1">
                                     <div>
@@ -408,34 +485,46 @@ const EducationalHubTeacher = () => {
                                     </div>
                                 </div>
                             </div>
+                          </div>
+
+                          <div className="min-w-0">
+                            <GamificationHub
+                                studentCode={hubStudentCode}
+                                panelTargetId="gamification-hub-panels"
+                            />
+                          </div>
                         </div>
                     </div>
                 </section>
 
                 {/* Sticky category nav */}
                 <CategoryChipStrip
-                    categories={categoryChoices}
+                    categories={displayedCategoryChoices}
                     counts={categoryCounts}
                     activeKey={activeCategoryKey}
                     onSelect={handleCategorySelect}
+                    editable={isAdmin}
+                    onSaveOrder={saveCategoryOrder}
                 />
 
-                {/* 🏆 อันดับ & เหรียญ — gamification กลาง (ย่อเป็นแถบสรุป+แท็บ ให้เห็นปกเกมทันที) */}
-                <section className="px-4 pt-6 max-w-5xl mx-auto">
-                    <GamificationHub studentCode={hubStudentCode} />
-                </section>
+                {/* พาเนลรายละเอียดของการ์ดนักเรียนใน Hero — แสดงตรงนี้เพื่อไม่ดันความสูง Hero */}
+                <section
+                    id="gamification-hub-panels"
+                    className="empty:hidden px-4 pt-5 max-w-5xl mx-auto w-full"
+                />
 
                 {/* Category sections */}
                 <div className="px-4 py-5 space-y-4">
-                    {activeCategoryKey === 'lesson-packs' ? (
-                        <LessonPacksSection
-                            ownerStaffId={resolvedStaffId}
-                            totalCount={packCount}
-                            showAssignLink={isAdmin || isTeacher}
-                            limit={PAGE_SIZE}
-                        />
-                    ) : loadingItems ? (
+                    {loadingItems ? (
                         <div className="text-center text-muted-foreground py-20">กำลังโหลดรายการ...</div>
+                    ) : itemLoadFailed ? (
+                        <div role="alert" className="mx-auto max-w-xl rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-10 text-center">
+                            <p className="font-semibold text-foreground">โหลดรายการสื่อไม่ครบ</p>
+                            <p className="mt-1 text-sm text-muted-foreground">กรุณาตรวจสอบการเชื่อมต่อ แล้วลองโหลดรายการทั้งหมดอีกครั้ง</p>
+                            <Button type="button" className="mt-4" onClick={() => void retryItems()}>
+                                ลองใหม่
+                            </Button>
+                        </div>
                     ) : !categories || categories.length === 0 ? (
                         <div className="text-center text-muted-foreground py-20">
                             ยังไม่มีหมวดหมู่
@@ -446,99 +535,82 @@ const EducationalHubTeacher = () => {
                             <SectionToolbar
                                 filter={filter}
                                 onFilterChange={setFilter}
+                                searchInput={searchInput}
+                                onSearchInputChange={setSearchInput}
+                                onSearch={() => {
+                                    const search = searchInput.trim();
+                                    if (search !== filter.search) setFilter((current) => ({ ...current, search }));
+                                }}
+                                isSearching={fetchingItems}
                                 sort={sort}
                                 onSortChange={setSort}
                                 viewMode={viewMode}
                                 onViewModeChange={setViewMode}
-                                allItems={allItems}
+                                allItems={allTeacherItems}
+                                quickFilters={quickFilters}
+                                onQuickFilter={(preset) => {
+                                    setFilter((current) => ({ ...current, subjects: preset.subjects }));
+                                    if (preset.categoryKey) handleCategorySelect(preset.categoryKey);
+                                }}
                             />
-
-                            {/* ⭐ Favorites pinned above */}
-                            {favoriteItems.length > 0 && (
-                                <section className="space-y-4">
-                                    <header className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                            <Star className="h-5 w-5 text-amber-600 fill-amber-500" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h2 className="text-lg sm:text-xl font-bold text-foreground">รายการโปรด</h2>
-                                            <p className="text-xs text-muted-foreground">เก็บไว้บนเครื่องนี้ — เล่นซ้ำได้ง่ายๆ</p>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground font-medium">{favoriteItems.length} รายการ</span>
-                                    </header>
-                                    <CategorySection
-                                        category={null}
-                                        items={favoriteItems}
-                                        viewMode={viewMode}
-                                        isFavorite={isFavorite}
-                                        onToggleFavorite={toggleFav}
-                                        hideHeader
-                                        pairedByItemId={pairedByItemId}
-                                    />
-                                </section>
-                            )}
 
                             {isAdmin && (
                                 <p className="text-[10px] text-muted-foreground -mb-4 italic">
-                                    💡 โหมด admin: ลาก grip บนหัวหมวดเพื่อจัดลำดับหมวด · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
+                                    💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
                                 </p>
                             )}
-                            <DndContext
-                                sensors={dndSensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleCategoryDragEnd}
+                            <div
+                                ref={itemsSectionRef}
+                                data-edu-hub-items
+                                aria-busy={fetchingItems}
+                                className={`space-y-10 transition-opacity ${fetchingItems ? 'opacity-70' : ''}`}
                             >
-                                <SortableContext
-                                    items={orderedCategories.map((c) => c.id)}
-                                    strategy={verticalListSortingStrategy}
-                                    disabled={!isAdmin}
-                                >
-                                    <div className="space-y-10">
-                                        {visibleCategories.length === 0 && deepLinkCat ? (
-                                            <div className="text-center text-muted-foreground py-16 text-sm">
-                                                ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
-                                            </div>
-                                        ) : null}
-                                        {visibleCategories.map((cat) =>
-                                            cat.category_key === 'games' ? (
-                                                <GamesCategorySection
-                                                    key={cat.id}
-                                                    category={cat}
-                                                    items={itemsByCategory.get(cat.id) ?? []}
-                                                    viewMode={viewMode}
-                                                    isFavorite={isFavorite}
-                                                    onToggleFavorite={toggleFav}
-                                                    editable={isAdmin && allItems.length >= totalItems}
-                                                    pairedByItemId={pairedByItemId}
-                                                />
-                                            ) : (
-                                                <CategorySection
-                                                    key={cat.id}
-                                                    category={cat}
-                                                    items={itemsByCategory.get(cat.id) ?? []}
-                                                    viewMode={viewMode}
-                                                    isFavorite={isFavorite}
-                                                    onToggleFavorite={toggleFav}
-                                                    editable={isAdmin && allItems.length >= totalItems}
-                                                    pairedByItemId={pairedByItemId}
-                                                />
-                                            ),
-                                        )}
+                                {visibleCategories.length === 0 && deepLinkCat ? (
+                                    <div className="text-center text-muted-foreground py-16 text-sm">
+                                        ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
                                     </div>
-                                </SortableContext>
-                            </DndContext>
-                            {allItems.length < totalItems ? (
-                                <div className="flex justify-center pt-2">
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="outline"
-                                        disabled={fetchingItems}
-                                        onClick={() => setVisibleLimit((current) => current + PAGE_SIZE)}
-                                    >
-                                        {fetchingItems ? 'กำลังโหลด…' : `ดูเพิ่มอีก ${Math.min(PAGE_SIZE, totalItems - allItems.length)} รายการ`}
+                                ) : null}
+                                {visibleCategories.map((cat) =>
+                                    cat.category_key === 'games' ? (
+                                        <GamesCategorySection
+                                            key={cat.id}
+                                            category={cat}
+                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            viewMode={viewMode}
+                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            pairedByItemId={pairedByItemId}
+                                        />
+                                    ) : (
+                                        <CategorySection
+                                            key={cat.id}
+                                            category={cat}
+                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            viewMode={viewMode}
+                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            pairedByItemId={pairedByItemId}
+                                            teachingUnitsByItemId={teachingUnitsByItemId}
+                                        />
+                                    ),
+                                )}
+                            </div>
+                            {!showAllMedia && totalPages > 1 ? (
+                                <nav className="flex flex-wrap items-center justify-center gap-1 pt-2" aria-label="หน้ารายการสื่อ">
+                                    <Button type="button" size="icon" variant="outline" disabled={currentPage === 1 || fetchingItems}
+                                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))} aria-label="หน้าก่อนหน้า">
+                                        <ChevronLeft className="h-4 w-4" />
                                     </Button>
-                                </div>
+                                    {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                                        <Button key={page} type="button" size="sm" variant={page === currentPage ? 'default' : 'outline'}
+                                            disabled={fetchingItems} onClick={() => handlePageChange(page)} aria-current={page === currentPage ? 'page' : undefined}>
+                                            {page}
+                                        </Button>
+                                    ))}
+                                    <Button type="button" size="icon" variant="outline" disabled={currentPage === totalPages || fetchingItems}
+                                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} aria-label="หน้าถัดไป">
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                    <span className="ml-2 text-xs text-muted-foreground">หน้า {currentPage} จาก {totalPages}</span>
+                                </nav>
                             ) : null}
                         </>
                     )}

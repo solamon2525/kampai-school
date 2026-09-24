@@ -1,0 +1,92 @@
+[
+  {
+    "file": "public/games/english/phonics-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/english/phonics-worksheet.html\"\r\nPASS public/games/english/phonics-worksheet.html (15 checks)\r\n\r\nPASSED 1 worksheet(s), 15 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/math/rect-area-worksheet.html",
+    "exit": 1,
+    "ok": false,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/math/rect-area-worksheet.html\"\r\nFAIL public/games/math/rect-area-worksheet.html (13 checks)\r\n  - area scaffold: โจทย์พื้นที่ต้องมีสูตรและบรรทัดวิธีทำ 3 แถว (1 ขั้นต่อแถว)\r\n\r\nFAILED 1 worksheet(s), 13 checks, 1 failure(s)\r\n[ELIFECYCLE] Command failed with exit code 1.\r\n"
+  },
+  {
+    "file": "public/games/science/science-explorer-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/science/science-explorer-worksheet.html\"\r\nPASS public/games/science/science-explorer-worksheet.html (11 checks)\r\n\r\nPASSED 1 worksheet(s), 11 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/science/states-of-matter-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/science/states-of-matter-worksheet.html\"\r\nPASS public/games/science/states-of-matter-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/science/vertebrate-sort-worksheet.html",
+    "exit": 134,
+    "ok": false,
+    "tail": "10: 00007FF6C5664BAD \r\n11: 00007FF6C41D1400 \r\n12: 00007FF6C41EBD5E \r\n13: 00007FF6C41F8126 \r\n14: 00007FF6C3DCB207 \r\n15: 000001CA3A9F733A \r\n[ELIFECYCLE] Command failed with exit code 134.\r\n"
+  },
+  {
+    "file": "public/games/science/water-cycle-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/science/water-cycle-worksheet.html\"\r\nPASS public/games/science/water-cycle-worksheet.html (15 checks)\r\n\r\nPASSED 1 worksheet(s), 15 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/social/sukhothai-timeline-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/social/sukhothai-timeline-worksheet.html\"\r\nPASS public/games/social/sukhothai-timeline-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/social/thailand-map-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/social/thailand-map-worksheet.html\"\r\nPASS public/games/social/thailand-map-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/tech/coding-social-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/tech/coding-social-worksheet.html\"\r\nPASS public/games/tech/coding-social-worksheet.html (11 checks)\r\n\r\nPASSED 1 worksheet(s), 11 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/dictionary-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/dictionary-worksheet.html\"\r\nPASS public/games/thai/dictionary-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/fact-opinion-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/fact-opinion-worksheet.html\"\r\nPASS public/games/thai/fact-opinion-worksheet.html (15 checks)\r\n\r\nPASSED 1 worksheet(s), 15 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/implied-meaning-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/implied-meaning-worksheet.html\"\r\nPASS public/games/thai/implied-meaning-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/narration-style-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/narration-style-worksheet.html\"\r\nPASS public/games/thai/narration-style-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/sentence-structure-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/sentence-structure-worksheet.html\"\r\nPASS public/games/thai/sentence-structure-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  },
+  {
+    "file": "public/games/thai/synonym-worksheet.html",
+    "exit": 0,
+    "ok": true,
+    "tail": "$ node scripts/verify-worksheet.mjs \"public/games/thai/synonym-worksheet.html\"\r\nPASS public/games/thai/synonym-worksheet.html (14 checks)\r\n\r\nPASSED 1 worksheet(s), 14 checks, 0 failure(s)\r\n"
+  }
+]

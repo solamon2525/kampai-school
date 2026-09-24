@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สตูดิโอแรงและการเคลื่อนที่ ป.5 (Force & Motion Studio) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-dark: #020617;
+      --indigo: #2563eb;
+      --indigo-dark: #1d4ed8;
+      --indigo-light: #eff6ff;
+      --gold: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-light: #fef3c7;
+      --emerald: #059669;
+      --emerald-dark: #047857;
+      --emerald-light: #d1fae5;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+      --sky: #0284c7;
+      --sky-light: #e0f2fe;
+      --amber: #d97706;
+      --purple: #7c3aed;
+      --purple-light: #f3e8ff;
+      --line: #cbd5e1;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --font-scale: 1.0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(150deg, #eff6ff 0%, #f0fdf4 50%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0284c7 100%);
+      color: #ffffff;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #fde047;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-hdr:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* NAVIGATION TABS */
+    nav.nav-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 8px;
+      gap: 6px;
+    }
+    nav.nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 0 auto;
+      min-width: 140px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--indigo);
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--indigo-dark);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      border-bottom: 3px solid var(--indigo);
+    }
+
+    /* MAIN CONTENT AREA */
+    main.content {
+      padding: 20px 16px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD BOX */
+    .card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .card-title .tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--sky-light);
+      color: var(--sky);
+    }
+
+    /* SUB-TABS (Mode 1) */
+    .sub-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sub-btn {
+      min-height: 44px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--line);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .sub-btn:hover {
+      background: var(--sky-light);
+      border-color: var(--sky);
+    }
+    .sub-btn.active {
+      background: var(--indigo);
+      color: #ffffff;
+      border-color: var(--indigo-dark);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    }
+
+    /* MODE 1: INTERACTIVE EXPLORER */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .interactive-visual {
+      background: #f8fafc;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 250px;
+      position: relative;
+      overflow: hidden;
+    }
+    .spring-scale-canvas {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* MODE 2: NET FORCE SIMULATOR */
+    .sim-stage {
+      width: 100%;
+      min-height: 220px;
+      background: radial-gradient(circle at 50% 30%, #f8fafc 0%, #e2e8f0 100%);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .sim-hud {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      z-index: 10;
+    }
+    .hud-val {
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .hud-val.left { color: var(--rose); }
+    .hud-val.right { color: var(--emerald-dark); }
+    .hud-val.net { color: var(--indigo-dark); font-size: 1.05rem; }
+
+    .track-ground {
+      width: 100%;
+      height: 48px;
+      background: repeating-linear-gradient(90deg, #64748b 0, #64748b 2px, transparent 2px, transparent 40px), #94a3b8;
+      position: relative;
+      border-top: 3px solid #475569;
+    }
+    .track-cart {
+      position: absolute;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 75px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: 3px solid #b45309;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+      transition: left 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 5;
+    }
+    .cart-wheels {
+      position: absolute;
+      bottom: -10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .wheel {
+      width: 22px;
+      height: 22px;
+      background: #1e293b;
+      border: 3px solid #cbd5e1;
+      border-radius: 50%;
+    }
+
+    /* Force Arrows on Cart */
+    .arrow-left-box, .arrow-right-box {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: all 0.3s;
+    }
+    .arrow-left-box {
+      right: 100%;
+      margin-right: 8px;
+      color: var(--rose);
+    }
+    .arrow-right-box {
+      left: 100%;
+      margin-left: 8px;
+      color: var(--emerald-dark);
+    }
+
+    /* Controls Grid */
+    .forces-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .forces-controls {
+        grid-template-columns: 1fr;
+      }
+    }
+    .force-group {
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .force-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      min-height: 44px;
+      accent-color: var(--indigo);
+      cursor: pointer;
+    }
+    .slider-val {
+      min-width: 50px;
+      font-weight: 800;
+      text-align: right;
+      font-size: 0.95rem;
+    }
+
+    /* SIM ACTION BUTTONS */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .btn-act {
+      flex: 1 0 auto;
+      min-height: 48px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .btn-act.primary {
+      background: var(--indigo);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .btn-act.primary:hover {
+      background: var(--indigo-dark);
+    }
+    .btn-act.secondary {
+      background: #e2e8f0;
+      color: var(--navy);
+    }
+    .btn-act.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    /* MODE 3: FRICTION LAB */
+    .surfaces-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .surface-btn {
+      min-height: 48px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .surface-btn .icon { font-size: 1.5rem; }
+    .surface-btn .mu { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+    .surface-btn:hover {
+      border-color: var(--sky);
+      background: var(--sky-light);
+    }
+    .surface-btn.active {
+      border-color: var(--indigo);
+      background: var(--indigo-light);
+      color: var(--indigo-dark);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+    }
+
+    .friction-track {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .friction-surface-layer {
+      width: 100%;
+      height: 40px;
+      border-top: 3px solid #475569;
+      position: relative;
+    }
+    .friction-surface-layer.ice { background: #bae6fd; border-top-color: #0284c7; }
+    .friction-surface-layer.wood { background: #fed7aa; border-top-color: #b45309; }
+    .friction-surface-layer.concrete { background: #cbd5e1; border-top-color: #475569; }
+    .friction-surface-layer.sandpaper { 
+      background: repeating-linear-gradient(45deg, #a1a1aa, #a1a1aa 4px, #71717a 4px, #71717a 8px); 
+      border-top-color: #3f3f46; 
+    }
+
+    .sliding-box {
+      position: absolute;
+      bottom: 40px;
+      left: 30px;
+      width: 70px;
+      height: 70px;
+      background: #3b82f6;
+      border: 3px solid #1d4ed8;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      transition: left 1.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+      z-index: 5;
+    }
+
+    /* MODE 4: QUIZ CHALLENGE */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .quiz-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-weight: 800;
+    }
+    .question-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .q-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--sky);
+      background: var(--sky-light);
+      padding: 4px 10px;
+      border-radius: 999px;
+      align-self: flex-start;
+    }
+    .q-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .options-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .opt-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+    .opt-btn:hover {
+      background: var(--sky-light);
+      border-color: var(--sky);
+    }
+    .opt-btn.correct {
+      background: var(--emerald-light);
+      border-color: var(--emerald);
+      color: var(--emerald-dark);
+    }
+    .opt-btn.wrong {
+      background: var(--rose-light);
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+    .quiz-feedback {
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .quiz-feedback.show {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .quiz-feedback.correct {
+      background: var(--emerald-light);
+      color: var(--emerald-dark);
+      border: 1.5px solid var(--emerald);
+    }
+    .quiz-feedback.wrong {
+      background: var(--rose-light);
+      color: var(--rose);
+      border: 1.5px solid var(--rose);
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: auto;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a {
+      color: var(--indigo);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ACCESSIBILITY & TOUCH TARGETS */
+    button, input, select {
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- TOP HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>🛒 สตูดิโอแรงและการเคลื่อนที่ ป.5</h1>
+      <span class="badge-grade">ว 2.2 ป.5/1–5 · วิทยาศาสตร์</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-hdr" id="btnAudioToggle" title="เปิด/ปิด เสียงบรรยาย">
+        <span id="audioIcon">🔊</span> <span id="audioLabel">เสียงครู</span>
+      </button>
+      <button class="btn-hdr" id="btnFullscreen" title="เต็มจอ (F)">
+        <span>⛶</span> เต็มจอ
+      </button>
+      <a href="/games/science/force-motion-worksheet.html" class="btn-hdr" target="_blank">
+        <span>📄</span> ใบงาน A4
+      </a>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn active" data-tab="explorer" role="tab">
+      <span>📖</span> 1. สำรวจแรง & สปริง
+    </button>
+    <button class="tab-btn" data-tab="netforce" role="tab">
+      <span>⚖️</span> 2. จำลองแรงลัพธ์ (Net Force)
+    </button>
+    <button class="tab-btn" data-tab="friction" role="tab">
+      <span>🛹</span> 3. แล็บแรงเสียดทาน
+    </button>
+    <button class="tab-btn" data-tab="quiz" role="tab">
+      <span>✏️</span> 4. แบบทดสอบท้าทาย (15 ข้อ)
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT PANELS -->
+  <main class="content">
+
+    <!-- ═══════════ MODE 1: FORCE EXPLORER ═══════════ -->
+    <section class="panel active" id="panel-explorer">
+      <div class="card">
+        <div class="card-title">
+          <span>สำรวจความหมาย ชนิด และเครื่องมือวัดแรง</span>
+          <span class="tag">มาตรฐาน ว 2.2 ป.5/1–3</span>
+        </div>
+
+        <div class="sub-tabs">
+          <button class="sub-btn active" data-sub="pushpull">🏹 แรงผลัก vs แรงดึง</button>
+          <button class="sub-btn" data-sub="effects">🔄 4 ผลของการออกแรง</button>
+          <button class="sub-btn" data-sub="spring">🪝 เครื่องชั่งสปริงนิวตัน</button>
+        </div>
+
+        <!-- Sub 1: Push vs Pull -->
+        <div id="subview-pushpull" class="subview">
+          <div class="grid-2col">
+            <div class="interactive-visual" id="pushPullVisual">
+              <svg width="260" height="180" viewBox="0 0 260 180">
+                <line x1="20" y1="150" x2="240" y2="150" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+                <!-- Box -->
+                <rect x="90" y="70" width="80" height="80" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                <text x="130" y="115" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">กล่องวัตถุ</text>
+                <!-- Arrow Dynamic -->
+                <g id="pushPullArrow" transform="translate(130, 45)">
+                  <path d="M0 0 L50 0 M40 -6 L50 0 L40 6" stroke="#0284c7" stroke-width="5" stroke-linecap="round" fill="none"/>
+                  <text x="25" y="-10" font-size="13" font-weight="800" fill="#0284c7" text-anchor="middle" id="pushPullText">แรงผลัก ➔</text>
+                </g>
+              </svg>
+              <div class="btn-row" style="width: 100%;">
+                <button class="btn-act primary" id="btnSetPush">🏹 แสดงแรงผลัก (ออกห่างตัว)</button>
+                <button class="btn-act secondary" id="btnSetPull">🪢 แสดงแรงดึง (เข้าหาตัว)</button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+              <h3 id="pushPullTitle" style="font-size: 1.15rem; font-weight: 800; color: var(--indigo-dark);">แรงผลัก (Push Force)</h3>
+              <p id="pushPullDesc" style="font-size: 1rem; line-height: 1.6; color: var(--navy);">
+                คือการออกแรงกระทำต่อวัตถุในทิศทาง <strong>พุ่งออกจากตัวผู้กระทำ</strong> เช่น การเข็นรถเข็นในตลาด, การผลักบานประตูเพื่อเปิด, การเตะลูกฟุตบอลออกจากตัว
+              </p>
+              <button class="btn-act secondary" id="btnSpeakPushPull" style="align-self: flex-start;">
+                <span>🔊</span> ฟังคำอธิบาย
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub 2: 4 Effects of Force -->
+        <div id="subview-effects" class="subview" style="display: none;">
+          <div class="grid-2col">
+            <div class="card" style="background: #f8fafc; border-left: 4px solid var(--sky);">
+              <h4 style="font-weight: 800; color: var(--navy);">1. วัตถุอยู่นิ่ง ➔ เริ่มเคลื่อนที่</h4>
+              <p style="font-size: 0.95rem; color: var(--muted);">เช่น ลูกฟุตบอลวางนิ่งอยู่กลางสนาม เมื่อถูกเตะจะเริ่มกลิ้งพุ่งไปข้างหน้า</p>
+            </div>
+            <div class="card" style="background: #f8fafc; border-left: 4px solid var(--emerald);">
+              <h4 style="font-weight: 800; color: var(--navy);">2. กำลังเคลื่อนที่ ➔ เร็วขึ้นหรือช้าลง</h4>
+              <p style="font-size: 0.95rem; color: var(--muted);">ออกแรงผลักไปทางเดียวกับการเคลื่อนที่จะเร็วขึ้น แต่ถ้าดึงต้านจะเคลื่อนที่ช้าลง</p>
+            </div>
+            <div class="card" style="background: #f8fafc; border-left: 4px solid var(--rose);">
+              <h4 style="font-weight: 800; color: var(--navy);">3. กำลังเคลื่อนที่ ➔ หยุดนิ่ง</h4>
+              <p style="font-size: 0.95rem; color: var(--muted);">เช่น ผู้รักษาประตูกระโดดรับลูกฟุตบอลไว้ในมือ หรือการเหยียบเบรกรถจนจอดสนิท</p>
+            </div>
+            <div class="card" style="background: #f8fafc; border-left: 4px solid var(--gold);">
+              <h4 style="font-weight: 800; color: var(--navy);">4. เปลี่ยนทิศทาง หรือ เปลี่ยนรูปร่าง</h4>
+              <p style="font-size: 0.95rem; color: var(--muted);">เช่น เตะบอลชนเสาเบี่ยงทิศ, การบีบดินน้ำมัน, ฟองน้ำล้างจาน หรือการดัดลวด</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub 3: Interactive Spring Scale -->
+        <div id="subview-spring" class="subview" style="display: none;">
+          <div class="grid-2col">
+            <div class="spring-scale-canvas">
+              <svg width="240" height="210" viewBox="0 0 240 210">
+                <!-- Top Mount -->
+                <rect x="105" y="10" width="30" height="8" rx="2" fill="#475569"/>
+                <circle cx="120" cy="18" r="6" fill="none" stroke="#64748b" stroke-width="3"/>
+                <!-- Scale Body Tube -->
+                <rect x="100" y="30" width="40" height="100" rx="4" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+                <!-- Scale markings -->
+                <line x1="102" y1="45" x2="112" y2="45" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="102" y1="65" x2="112" y2="65" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="102" y1="85" x2="112" y2="85" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="102" y1="105" x2="112" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="126" y="50" font-size="9" fill="#64748b" font-weight="700">2N</text>
+                <text x="126" y="70" font-size="9" fill="#64748b" font-weight="700">5N</text>
+                <text x="126" y="90" font-size="9" fill="#64748b" font-weight="700">8N</text>
+                <text x="126" y="110" font-size="9" fill="#64748b" font-weight="700">10N</text>
+
+                <!-- Spring Indicator Rod -->
+                <g id="springIndicatorGroup" transform="translate(0, 0)">
+                  <line x1="120" y1="35" x2="120" y2="135" stroke="#ef4444" stroke-width="3"/>
+                  <rect x="104" y="38" width="32" height="4" fill="#ef4444" id="springPointer"/>
+                  <!-- Hook -->
+                  <path d="M120 135 C120 150 110 155 110 148" stroke="#334155" stroke-width="3" fill="none"/>
+                  <!-- Hanging Weight Block -->
+                  <rect x="95" y="152" width="50" height="40" rx="6" fill="#3b82f6" stroke="#1d4ed8" stroke-width="2"/>
+                  <text x="120" y="176" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" id="springWeightText">5 N</text>
+                </g>
+              </svg>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+              <h4 style="font-weight: 800; font-size: 1.1rem; color: var(--navy);">เครื่องชั่งสปริง (Spring Scale)</h4>
+              <p style="font-size: 0.95rem; color: var(--muted); line-height: 1.5;">
+                หน่วยวัดของแรงคือ <strong>นิวตัน (Newton, สัญลักษณ์ N)</strong><br>
+                มวล 1 กิโลกรัม บนโลก จะมีน้ำหนักประมาณ <strong>9.8 นิวตัน (≈ 10 N)</strong>
+              </p>
+              <div>
+                <label style="font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between;">
+                  <span>ปรับขนาดแรงดึง / น้ำหนักที่แขวน:</span>
+                  <span id="lblSpringVal" style="color: var(--indigo); font-weight: 800;">5 นิวตัน</span>
+                </label>
+                <input type="range" id="rngSpring" min="1" max="10" value="5" step="1" style="width: 100%; min-height: 44px; accent-color: var(--indigo);">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════ MODE 2: NET FORCE SIMULATOR ═══════════ -->
+    <section class="panel" id="panel-netforce">
+      <div class="card">
+        <div class="card-title">
+          <span>แบบจำลองการหาแรงลัพธ์ (Net Force Simulation)</span>
+          <span class="tag">มาตรฐาน ว 2.2 ป.5/1–2</span>
+        </div>
+
+        <!-- SIMULATION CANVAS STAGE -->
+        <div class="sim-stage" id="netForceStage">
+          <!-- TOP HUD -->
+          <div class="sim-hud">
+            <span class="hud-val left">⬅️ แรงไปทางซ้าย: <strong id="hudLeftForce">0 N</strong></span>
+            <span class="hud-val net">∑F แรงลัพธ์: <strong id="hudNetForce">0 N</strong></span>
+            <span class="hud-val right">แรงไปทางขวา: <strong id="hudRightForce">0 N</strong> ➡️</span>
+          </div>
+
+          <!-- CART & WHEELS -->
+          <div class="track-cart" id="simCart">
+            <span id="cartLabel">ลังไม้ 10 kg</span>
+            <!-- LEFT FORCE ARROW -->
+            <div class="arrow-left-box" id="arrowLeft" style="display: none;">
+              <span>⬅</span> <span id="arrowLeftVal">30 N</span>
+            </div>
+            <!-- RIGHT FORCE ARROW -->
+            <div class="arrow-right-box" id="arrowRight" style="display: none;">
+              <span id="arrowRightVal">40 N</span> <span>➔</span>
+            </div>
+            <div class="cart-wheels">
+              <div class="wheel"></div>
+              <div class="wheel"></div>
+            </div>
+          </div>
+
+          <!-- GROUND -->
+          <div class="track-ground"></div>
+        </div>
+
+        <!-- FORCES CONTROLLERS -->
+        <div class="forces-controls">
+          <!-- Left Forces Group -->
+          <div class="force-group">
+            <div style="font-weight: 800; color: var(--rose); display: flex; align-items: center; justify-content: space-between;">
+              <span>🔴 แรงดึงไปทางซ้าย (Left Forces)</span>
+              <span id="sumLeftLabel">0 N</span>
+            </div>
+            <div>
+              <div class="slider-row">
+                <span style="font-size: 0.85rem; font-weight: 700; width: 65px;">แรงคนที่ 1:</span>
+                <input type="range" id="rngF1" min="0" max="50" value="0" step="5">
+                <span class="slider-val" id="valF1">0 N</span>
+              </div>
+            </div>
+            <div>
+              <div class="slider-row">
+                <span style="font-size: 0.85rem; font-weight: 700; width: 65px;">แรงคนที่ 2:</span>
+                <input type="range" id="rngF2" min="0" max="50" value="0" step="5">
+                <span class="slider-val" id="valF2">0 N</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Forces Group -->
+          <div class="force-group">
+            <div style="font-weight: 800; color: var(--emerald-dark); display: flex; align-items: center; justify-content: space-between;">
+              <span>🟢 แรงดึงไปทางขวา (Right Forces)</span>
+              <span id="sumRightLabel">0 N</span>
+            </div>
+            <div>
+              <div class="slider-row">
+                <span style="font-size: 0.85rem; font-weight: 700; width: 65px;">แรงคนที่ 3:</span>
+                <input type="range" id="rngF3" min="0" max="50" value="0" step="5">
+                <span class="slider-val" id="valF3">0 N</span>
+              </div>
+            </div>
+            <div>
+              <div class="slider-row">
+                <span style="font-size: 0.85rem; font-weight: 700; width: 65px;">แรงคนที่ 4:</span>
+                <input type="range" id="rngF4" min="0" max="50" value="0" step="5">
+                <span class="slider-val" id="valF4">0 N</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT & ACTIONS -->
+        <div class="card" style="background: #f8fafc; border: 1.5px solid var(--line);">
+          <div id="simStatusDesc" style="font-size: 1rem; font-weight: 700; color: var(--navy); line-height: 1.5;">
+            🎯 ผลลัพธ์: แรงทั้งสองข้างเท่ากัน (∑F = 0 N) วัตถุจะอยู่นิ่งในสภาวะสมดุล
+          </div>
+          <div class="btn-row">
+            <button class="btn-act primary" id="btnRunSim">
+              <span>▶️</span> ปล่อยวัตถุ / ทดสอบการเคลื่อนที่
+            </button>
+            <button class="btn-act secondary" id="btnResetSim">
+              <span>🔄</span> รีเซ็ตตำแหน่งกลาง
+            </button>
+            <button class="btn-act secondary" id="btnRandomSim">
+              <span>🎲</span> สุ่มแรงท้าทาย
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════ MODE 3: FRICTION LAB ═══════════ -->
+    <section class="panel" id="panel-friction">
+      <div class="card">
+        <div class="card-title">
+          <span>ห้องปฏิบัติการแรงเสียดทาน (Friction Laboratory)</span>
+          <span class="tag">มาตรฐาน ว 2.2 ป.5/4–5</span>
+        </div>
+
+        <!-- SELECT SURFACE -->
+        <div>
+          <label style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; display: block;">
+            เลือกลักษณะพื้นผิวสัมผัส:
+          </label>
+          <div class="surfaces-grid">
+            <button class="surface-btn active" data-surface="ice" data-mu="0.05">
+              <span class="icon">🧊</span>
+              <span>ลานน้ำแข็ง</span>
+              <span class="mu">μ = 0.05 (ลื่นมาก)</span>
+            </button>
+            <button class="surface-btn" data-surface="wood" data-mu="0.25">
+              <span class="icon">🪵</span>
+              <span>พื้นไม้ขัดมัน</span>
+              <span class="mu">μ = 0.25 (ปานกลาง)</span>
+            </button>
+            <button class="surface-btn" data-surface="concrete" data-mu="0.55">
+              <span class="icon">🧱</span>
+              <span>พื้นคอนกรีต</span>
+              <span class="mu">μ = 0.55 (หยาบ)</span>
+            </button>
+            <button class="surface-btn" data-surface="sandpaper" data-mu="0.85">
+              <span class="icon">📜</span>
+              <span>กระดาษทราย</span>
+              <span class="mu">μ = 0.85 (ฝืดมาก)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FRICTION TRACK SIMULATION -->
+        <div class="friction-track" id="frictionStage">
+          <div class="sliding-box" id="frictionBox">
+            <span id="fBoxMass">5 kg</span>
+            <span style="font-size: 0.75rem;">📦</span>
+          </div>
+          <div class="friction-surface-layer ice" id="frictionSurfaceLayer"></div>
+        </div>
+
+        <!-- PARAMETERS & FORMULAS -->
+        <div class="grid-2col">
+          <div class="card" style="background: #f8fafc;">
+            <div style="font-weight: 800; color: var(--navy); margin-bottom: 8px;">⚙️ กำหนดตัวแปรการทดลอง:</div>
+            
+            <div>
+              <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem;">
+                <span>มวลกล่อง (น้ำหนักกด):</span>
+                <span id="lblBoxMass" style="color: var(--indigo);">5 กิโลกรัม (N = 50 นิวตัน)</span>
+              </div>
+              <input type="range" id="rngBoxMass" min="1" max="10" value="5" step="1" style="width: 100%; min-height: 44px; accent-color: var(--indigo);">
+            </div>
+
+            <div style="margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem;">
+                <span>แรงผลักที่กระทำ (F_push):</span>
+                <span id="lblPushForce" style="color: var(--gold-dark);">30 นิวตัน</span>
+              </div>
+              <input type="range" id="rngPushForce" min="5" max="100" value="30" step="5" style="width: 100%; min-height: 44px; accent-color: var(--gold);">
+            </div>
+          </div>
+
+          <div class="card" style="background: #f8fafc;">
+            <div style="font-weight: 800; color: var(--navy); margin-bottom: 6px;">📐 การคำนวณตามหลักฟิสิกส์:</div>
+            <div style="font-size: 0.95rem; line-height: 1.6; color: var(--navy);" id="frictionCalcText">
+              • แรงเสียดทานต้านการเคลื่อนที่: <strong>f = μ × N = 0.05 × 50 = 2.5 N</strong><br>
+              • แรงผลัก: <strong>30 N</strong> (> 2.5 N)<br>
+              • สรุป: กล่อง <strong>เคลื่อนที่ไถลไปได้ไกล</strong> เนื่องจากแรงผลักชนะแรงเสียดทาน
+            </div>
+            <div class="btn-row" style="margin-top: 8px;">
+              <button class="btn-act primary" id="btnPushFriction">
+                <span>🚀</span> ออกแรงผลักกล่อง!
+              </button>
+              <button class="btn-act secondary" id="btnResetFriction">
+                <span>🔄</span> วางจุดเริ่มต้น
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRACTICAL APPLICATIONS ACCORDION -->
+        <div class="grid-2col">
+          <div class="card" style="border-left: 4px solid var(--emerald);">
+            <h4 style="font-weight: 800; color: var(--emerald-dark);">➕ การเพิ่มแรงเสียดทาน (เพื่อความปลอดภัย)</h4>
+            <ul style="padding-left: 20px; font-size: 0.95rem; color: var(--navy); line-height: 1.6;">
+              <li><strong>ดอกยางรถยนต์:</strong> ช่วยรีดน้ำและเกาะถนนเวลาฝนตก</li>
+              <li><strong>พื้นรองเท้า / ปุ่มสตั๊ด:</strong> ช่วยยึดเกาะพื้น ไม่ให้ลื่นล้ม</li>
+              <li><strong>ผ้าเบรกรถยนต์/จักรยาน:</strong> ช่วยหยุดล้อรถให้ชะลอความเร็ว</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--sky);">
+            <h4 style="font-weight: 800; color: var(--sky);">➖ การลดแรงเสียดทาน (เพื่อให้เคลื่อนที่คล่อง)</h4>
+            <ul style="padding-left: 20px; font-size: 0.95rem; color: var(--navy); line-height: 1.6;">
+              <li><strong>ตลับลูกปืน (Ball Bearings):</strong> เปลี่ยนการไถลเป็นการกลิ้งในล้อ</li>
+              <li><strong>น้ำมันหล่อลื่น / จาระบี:</strong> ลดการสึกหรอและเสียงดังในเครื่องยนต์</li>
+              <li><strong>การใช้ล้อเลื่อน:</strong> ช่วยให้เข็นของหนักได้ง่ายขึ้น</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════ MODE 4: PRACTICE QUIZ ═══════════ -->
+    <section class="panel" id="panel-quiz">
+      <div class="quiz-container">
+        <!-- QUIZ TOP HUD -->
+        <div class="quiz-hud">
+          <span>ข้อที่ <span id="qIndex">1</span> / 15</span>
+          <span>คะแนน: <span id="qScore" style="color: var(--emerald-dark);">0</span></span>
+          <span>🔥 Streak: <span id="qStreak" style="color: var(--rose);">0</span></span>
+        </div>
+
+        <!-- QUESTION CARD -->
+        <div class="question-card" id="qCard">
+          <span class="q-badge" id="qSkillBadge">หมวด: แรงผลักและแรงดึง</span>
+          <p class="q-text" id="qQuestion">กำลังโหลดคำถาม...</p>
+          <div class="options-grid" id="qOptions"></div>
+          
+          <div class="quiz-feedback" id="qFeedback">
+            <span id="fbTitle"></span>
+            <span id="fbExplain" style="font-weight: 500;"></span>
+          </div>
+
+          <div class="btn-row" style="margin-top: 10px;">
+            <button class="btn-act secondary" id="btnSpeakQ" style="flex: 0 1 auto;">
+              <span>🔊</span> อ่านโจทย์
+            </button>
+            <button class="btn-act primary" id="btnNextQ" style="display: none;">
+              <span>ถัดไป ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RESULT SUMMARY MODAL / CARD -->
+        <div class="card" id="quizSummaryCard" style="display: none; text-align: center; padding: 30px 20px;">
+          <h2 style="font-size: 1.6rem; font-weight: 900; color: var(--navy);" id="resTitle">🎉 สรุปผลการทดสอบ</h2>
+          <div style="font-size: 4rem; margin: 10px 0;" id="resMedal">🥇</div>
+          <p style="font-size: 1.3rem; font-weight: 800; color: var(--indigo);" id="resScoreText">คุณได้ 15 / 15 คะแนน</p>
+          <p style="font-size: 1rem; color: var(--muted); margin-bottom: 16px;" id="resComment">ยอดเยี่ยมมาก! คุณมีความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นเลิศ</p>
+          <button class="btn-act primary" id="btnRestartQuiz" style="max-width: 250px; margin: 0 auto;">
+            <span>🔄</span> ทำแบบทดสอบใหม่อีกครั้ง
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <strong>โรงเรียนบ้านคำไผ่</strong> · กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี
+    </div>
+    <div>
+      <a href="/games/science/force-motion-worksheet.html">เปิดใบงานคู่ขนาน A4 (50 ข้อ)</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   FORCE & MOTION LEARNING STUDIO LOGIC (ว 2.2 ป.5/1–5)
+   ───────────────────────────────────────────────────────────── */
+
+// 1. STATE MANAGEMENT & EXPOSED STATE
+const state = {
+  currentTab: 'explorer',
+  currentSub: 'pushpull',
+  ttsEnabled: true,
+  // Net Force Sim
+  f1: 0,
+  f2: 0,
+  f3: 0,
+  f4: 0,
+  cartPos: 0, // -100% to +100%
+  // Friction Sim
+  surface: 'ice',
+  mu: 0.05,
+  boxMass: 5,
+  pushForce: 30,
+  // Quiz
+  qIdx: 0,
+  score: 0,
+  streak: 0,
+  quizAnswered: false
+};
+
+window.__getState = () => ({
+  tab: state.currentTab,
+  sub: state.currentSub,
+  fLeft: state.f1 + state.f2,
+  fRight: state.f3 + state.f4,
+  netForce: (state.f3 + state.f4) - (state.f1 + state.f2),
+  surface: state.surface,
+  quizIndex: state.qIdx,
+  quizScore: state.score
+});
+
+// 2. TTS AUDIO ENGINE
+function speakThai(text) {
+  if (!state.ttsEnabled) return;
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'th-TH';
+  utter.rate = 0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+// 3. TAB NAVIGATION
+const navBtns = document.querySelectorAll('.tab-btn');
+const panels = {
+  explorer: document.getElementById('panel-explorer'),
+  netforce: document.getElementById('panel-netforce'),
+  friction: document.getElementById('panel-friction'),
+  quiz: document.getElementById('panel-quiz')
+};
+
+function switchTab(tabId) {
+  if (!panels[tabId]) return;
+  state.currentTab = tabId;
+  navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+  Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === tabId));
+}
+
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// 4. SUB-TABS (Mode 1)
+const subBtns = document.querySelectorAll('.sub-btn');
+const subviews = {
+  pushpull: document.getElementById('subview-pushpull'),
+  effects: document.getElementById('subview-effects'),
+  spring: document.getElementById('subview-spring')
+};
+
+function switchSub(subId) {
+  if (!subviews[subId]) return;
+  state.currentSub = subId;
+  subBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === subId));
+  Object.keys(subviews).forEach(k => {
+    subviews[k].style.display = k === subId ? 'block' : 'none';
+  });
+}
+
+subBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchSub(btn.dataset.sub));
+});
+
+// Push vs Pull Interactive
+const btnSetPush = document.getElementById('btnSetPush');
+const btnSetPull = document.getElementById('btnSetPull');
+const pushPullArrow = document.getElementById('pushPullArrow');
+const pushPullText = document.getElementById('pushPullText');
+const pushPullTitle = document.getElementById('pushPullTitle');
+const pushPullDesc = document.getElementById('pushPullDesc');
+const btnSpeakPushPull = document.getElementById('btnSpeakPushPull');
+
+btnSetPush.addEventListener('click', () => {
+  pushPullArrow.setAttribute('transform', 'translate(130, 45)');
+  pushPullArrow.querySelector('path').setAttribute('d', 'M0 0 L50 0 M40 -6 L50 0 L40 6');
+  pushPullArrow.querySelector('path').setAttribute('stroke', '#0284c7');
+  pushPullText.setAttribute('fill', '#0284c7');
+  pushPullText.textContent = 'แรงผลัก ➔';
+  pushPullTitle.textContent = 'แรงผลัก (Push Force)';
+  pushPullDesc.innerHTML = 'คือการออกแรงกระทำต่อวัตถุในทิศทาง <strong>พุ่งออกจากตัวผู้กระทำ</strong> เช่น การเข็นรถเข็นในตลาด, การผลักบานประตูเพื่อเปิด, การเตะลูกฟุตบอลออกจากตัว';
+  speakThai('แรงผลัก คือการออกแรงให้วัตถุเคลื่อนที่ออกจากตัว เช่น การเข็นรถเข็น');
+});
+
+btnSetPull.addEventListener('click', () => {
+  pushPullArrow.setAttribute('transform', 'translate(130, 45)');
+  pushPullArrow.querySelector('path').setAttribute('d', 'M50 0 L0 0 M10 -6 L0 0 L10 6');
+  pushPullArrow.querySelector('path').setAttribute('stroke', '#e11d48');
+  pushPullText.setAttribute('fill', '#e11d48');
+  pushPullText.textContent = '⬅ แรงดึง';
+  pushPullTitle.textContent = 'แรงดึง (Pull Force)';
+  pushPullDesc.innerHTML = 'คือการออกแรงกระทำต่อวัตถุในทิศทาง <strong>เคลื่อนที่เข้าหาตัวผู้กระทำ</strong> เช่น การลากเก้าอี้เข้าหาตัว, การแข่งขันชักเย่อ, การเปิดลิ้นชักโต๊ะ';
+  speakThai('แรงดึง คือการออกแรงให้วัตถุเคลื่อนที่เข้าหาตัว เช่น การลากเก้าอี้ หรือการชักเย่อ');
+});
+
+btnSpeakPushPull.addEventListener('click', () => {
+  speakThai(pushPullTitle.textContent + ' ' + pushPullDesc.textContent);
+});
+
+// Interactive Spring Scale
+const rngSpring = document.getElementById('rngSpring');
+const lblSpringVal = document.getElementById('lblSpringVal');
+const springIndicatorGroup = document.getElementById('springIndicatorGroup');
+const springWeightText = document.getElementById('springWeightText');
+
+rngSpring.addEventListener('input', (e) => {
+  const val = parseInt(e.target.value, 10);
+  lblSpringVal.textContent = `${val} นิวตัน`;
+  springWeightText.textContent = `${val} N`;
+  // Stretch translation proportional to force
+  const stretchY = (val - 1) * 7;
+  springIndicatorGroup.setAttribute('transform', `translate(0, ${stretchY})`);
+});
+
+// 5. MODE 2: NET FORCE SIMULATOR
+const rngF1 = document.getElementById('rngF1');
+const rngF2 = document.getElementById('rngF2');
+const rngF3 = document.getElementById('rngF3');
+const rngF4 = document.getElementById('rngF4');
+
+const valF1 = document.getElementById('valF1');
+const valF2 = document.getElementById('valF2');
+const valF3 = document.getElementById('valF3');
+const valF4 = document.getElementById('valF4');
+
+const hudLeftForce = document.getElementById('hudLeftForce');
+const hudRightForce = document.getElementById('hudRightForce');
+const hudNetForce = document.getElementById('hudNetForce');
+const sumLeftLabel = document.getElementById('sumLeftLabel');
+const sumRightLabel = document.getElementById('sumRightLabel');
+const simStatusDesc = document.getElementById('simStatusDesc');
+
+const simCart = document.getElementById('simCart');
+const arrowLeft = document.getElementById('arrowLeft');
+const arrowLeftVal = document.getElementById('arrowLeftVal');
+const arrowRight = document.getElementById('arrowRight');
+const arrowRightVal = document.getElementById('arrowRightVal');
+
+const btnRunSim = document.getElementById('btnRunSim');
+const btnResetSim = document.getElementById('btnResetSim');
+const btnRandomSim = document.getElementById('btnRandomSim');
+
+function updateNetForceSim() {
+  state.f1 = parseInt(rngF1.value, 10);
+  state.f2 = parseInt(rngF2.value, 10);
+  state.f3 = parseInt(rngF3.value, 10);
+  state.f4 = parseInt(rngF4.value, 10);
+
+  valF1.textContent = `${state.f1} N`;
+  valF2.textContent = `${state.f2} N`;
+  valF3.textContent = `${state.f3} N`;
+  valF4.textContent = `${state.f4} N`;
+
+  const leftSum = state.f1 + state.f2;
+  const rightSum = state.f3 + state.f4;
+  const net = rightSum - leftSum;
+
+  hudLeftForce.textContent = `${leftSum} N`;
+  hudRightForce.textContent = `${rightSum} N`;
+  sumLeftLabel.textContent = `${leftSum} N`;
+  sumRightLabel.textContent = `${rightSum} N`;
+
+  hudNetForce.textContent = `${Math.abs(net)} N (${net > 0 ? 'ไปขวา ➡️' : net < 0 ? '⬅️ ไปซ้าย' : 'สมดุล 0 N'})`;
+
+  // Update Cart Arrow visual
+  if (leftSum > 0) {
+    arrowLeft.style.display = 'flex';
+    arrowLeftVal.textContent = `${leftSum} N`;
+  } else {
+    arrowLeft.style.display = 'none';
+  }
+
+  if (rightSum > 0) {
+    arrowRight.style.display = 'flex';
+    arrowRightVal.textContent = `${rightSum} N`;
+  } else {
+    arrowRight.style.display = 'none';
+  }
+
+  if (net === 0) {
+    simStatusDesc.innerHTML = '🎯 <strong>ผลลัพธ์: แรงทั้งสองข้างเท่ากัน (∑F = 0 N)</strong> วัตถุจะอยู่นิ่งในสภาวะสมดุล ไม่เปลี่ยนสภาพการเคลื่อนที่';
+  } else if (net > 0) {
+    simStatusDesc.innerHTML = `🚀 <strong>ผลลัพธ์: แรงลัพธ์มีค่า ${net} นิวตัน ไปทางขวา</strong> วัตถุจะเคลื่อนที่เร่งไปทางขวาตามทิศทางของแรงลัพธ์`;
+  } else {
+    simStatusDesc.innerHTML = `🚀 <strong>ผลลัพธ์: แรงลัพธ์มีค่า ${Math.abs(net)} นิวตัน ไปทางซ้าย</strong> วัตถุจะเคลื่อนที่เร่งไปทางซ้ายตามทิศทางของแรงลัพธ์`;
+  }
+}
+
+[rngF1, rngF2, rngF3, rngF4].forEach(rng => rng.addEventListener('input', updateNetForceSim));
+
+btnRunSim.addEventListener('click', () => {
+  const leftSum = state.f1 + state.f2;
+  const rightSum = state.f3 + state.f4;
+  const net = rightSum - leftSum;
+
+  if (net === 0) {
+    simCart.style.left = '50%';
+    speakThai('แรงลัพธ์เป็นศูนย์ วัตถุอยู่นิ่ง ไม่เคลื่อนที่');
+  } else if (net > 0) {
+    // Move to right
+    const moveOffset = Math.min(85, 50 + (net / 100) * 35);
+    simCart.style.left = `${moveOffset}%`;
+    speakThai(`แรงลัพธ์ ${net} นิวตัน วัตถุเคลื่อนที่ไปทางขวา`);
+  } else {
+    // Move to left
+    const moveOffset = Math.max(15, 50 - (Math.abs(net) / 100) * 35);
+    simCart.style.left = `${moveOffset}%`;
+    speakThai(`แรงลัพธ์ ${Math.abs(net)} นิวตัน วัตถุเคลื่อนที่ไปทางซ้าย`);
+  }
+});
+
+btnResetSim.addEventListener('click', () => {
+  simCart.style.left = '50%';
+});
+
+btnRandomSim.addEventListener('click', () => {
+  rngF1.value = Math.floor(Math.random() * 6) * 10;
+  rngF2.value = Math.floor(Math.random() * 6) * 10;
+  rngF3.value = Math.floor(Math.random() * 6) * 10;
+  rngF4.value = Math.floor(Math.random() * 6) * 10;
+  simCart.style.left = '50%';
+  updateNetForceSim();
+});
+
+// 6. MODE 3: FRICTION LAB
+const surfaceBtns = document.querySelectorAll('.surface-btn');
+const frictionSurfaceLayer = document.getElementById('frictionSurfaceLayer');
+const frictionBox = document.getElementById('frictionBox');
+const rngBoxMass = document.getElementById('rngBoxMass');
+const rngPushForce = document.getElementById('rngPushForce');
+const lblBoxMass = document.getElementById('lblBoxMass');
+const lblPushForce = document.getElementById('lblPushForce');
+const frictionCalcText = document.getElementById('frictionCalcText');
+const btnPushFriction = document.getElementById('btnPushFriction');
+const btnResetFriction = document.getElementById('btnResetFriction');
+const fBoxMass = document.getElementById('fBoxMass');
+
+function updateFrictionCalc() {
+  state.boxMass = parseInt(rngBoxMass.value, 10);
+  state.pushForce = parseInt(rngPushForce.value, 10);
+  fBoxMass.textContent = `${state.boxMass} kg`;
+
+  const normalForce = state.boxMass * 10; // N = m * g (approx 10)
+  lblBoxMass.textContent = `${state.boxMass} กิโลกรัม (N = ${normalForce} นิวตัน)`;
+  lblPushForce.textContent = `${state.pushForce} นิวตัน`;
+
+  const maxFriction = parseFloat((state.mu * normalForce).toFixed(1));
+  const willMove = state.pushForce > maxFriction;
+
+  frictionCalcText.innerHTML = `
+    • แรงเสียดทานต้านการเคลื่อนที่สูงสุด: <strong>f = μ × N = ${state.mu} × ${normalForce} = ${maxFriction} N</strong><br>
+    • แรงผลักที่ออก: <strong>${state.pushForce} N</strong> (${willMove ? '> ' + maxFriction + ' N' : '≤ ' + maxFriction + ' N'})<br>
+    • ผลการทดลอง: กล่อง <strong>${willMove ? 'เคลื่อนที่ไถลไปได้ (แรงผลักชนะแรงเสียดทาน)' : 'อยู่นิ่ง ไม่ขยับ (แรงผลักไม่พอชนะแรงเสียดทาน)'}</strong>
+  `;
+}
+
+surfaceBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    surfaceBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.surface = btn.dataset.surface;
+    state.mu = parseFloat(btn.dataset.mu);
+    frictionSurfaceLayer.className = `friction-surface-layer ${state.surface}`;
+    frictionBox.style.left = '30px';
+    updateFrictionCalc();
+  });
+});
+
+rngBoxMass.addEventListener('input', updateFrictionCalc);
+rngPushForce.addEventListener('input', updateFrictionCalc);
+
+btnPushFriction.addEventListener('click', () => {
+  const normalForce = state.boxMass * 10;
+  const maxFriction = state.mu * normalForce;
+
+  if (state.pushForce <= maxFriction) {
+    frictionBox.style.left = '30px';
+    speakThai(`แรงผลัก ${state.pushForce} นิวตัน ไม่เพียงพอที่จะชนะแรงเสียดทาน ${maxFriction} นิวตัน กล่องจึงไม่ขยับ`);
+  } else {
+    // Sliding distance inversely proportional to mu
+    const distancePercent = Math.min(85, 30 + ((state.pushForce - maxFriction) / (state.mu * 80)) * 25);
+    frictionBox.style.left = `${distancePercent}%`;
+    speakThai(`แรงผลัก ${state.pushForce} นิวตัน ชนะแรงเสียดทาน กล่องเคลื่อนที่ไถลไปข้างหน้า`);
+  }
+});
+
+btnResetFriction.addEventListener('click', () => {
+  frictionBox.style.left = '30px';
+});
+
+// 7. MODE 4: PRACTICE QUIZ CHALLENGE (15 QUESTIONS)
+const QUIZ_QUESTIONS = [
+  {
+    q: 'การเข็นรถเข็นในห้างสรรพสินค้าออกจากตัว จัดเป็นการออกแรงประเภทใด?',
+    skill: 'ว 2.2 ป.5/1 · แรงผลักและแรงดึง',
+    opts: ['แรงผลัก', 'แรงดึง', 'แรงเสียดทาน', 'แรงโน้มถ่วง'],
+    ans: 0,
+    exp: 'แรงผลักคือการออกแรงกระทำในทิศทางพุ่งออกจากตัวผู้กระทำ'
+  },
+  {
+    q: 'การแข่งขันชักเย่อ หรือการลากเก้าอี้เข้าหาตัว เป็นการออกแรงชนิดใด?',
+    skill: 'ว 2.2 ป.5/1 · แรงผลักและแรงดึง',
+    opts: ['แรงเสียดทาน', 'แรงผลัก', 'แรงดึง', 'แรงพยุง'],
+    ans: 2,
+    exp: 'แรงดึงคือการออกแรงกระทำในทิศทางเคลื่อนที่เข้าหาตัวผู้กระทำ'
+  },
+  {
+    q: 'นักฟุตบอลเตะลูกบอลที่กลิ้งมาตรงๆ ให้เบี่ยงออกไปด้านข้าง เป็นผลของแรงข้อใด?',
+    skill: 'ว 2.2 ป.5/1 · ผลของแรง',
+    opts: ['ทำให้วัตถุเปลี่ยนรูปร่าง', 'ทำให้วัตถุเปลี่ยนทิศทางการเคลื่อนที่', 'ทำให้วัตถุหยุดการเคลื่อนที่', 'ทำให้วัตถุมีมวลลดลง'],
+    ans: 1,
+    exp: 'เมื่อออกแรงกระทำในทิศทางที่ไม่ตรงกับแนวเดิม วัตถุจะเปลี่ยนทิศทางการเคลื่อนที่'
+  },
+  {
+    q: 'การปั้นดินน้ำมันให้เป็นรูปสัตว์ต่างๆ เป็นตัวอย่างผลของแรงในข้อใด?',
+    skill: 'ว 2.2 ป.5/1 · ผลของแรง',
+    opts: ['ทำให้วัตถุเปลี่ยนรูปร่าง', 'ทำให้วัตถุเริ่มเคลื่อนที่', 'ทำให้วัตถุหยุดนิ่ง', 'ทำให้วัตถุเปลี่ยนทิศ'],
+    ans: 0,
+    exp: 'การออกแรงบีบ กด หรือดึง สามารถทำให้รูปทรงของวัตถุเปลี่ยนไปได้'
+  },
+  {
+    q: 'เด็กสองคนช่วยกันผลักโต๊ะไปทางขวา คนแรกออกแรง 20 N คนที่สองออกแรง 30 N แรงลัพธ์มีค่าเท่าใด?',
+    skill: 'ว 2.2 ป.5/1 · การหาแรงลัพธ์',
+    opts: ['10 นิวตัน ไปทางขวา', '50 นิวตัน ไปทางขวา', '50 นิวตัน ไปทางซ้าย', '0 นิวตัน (โต๊ะอยู่นิ่ง)'],
+    ans: 1,
+    exp: 'แรงในทิศทางเดียวกัน ให้นำขนาดของแรงมารวมกัน: 20 + 30 = 50 N ไปทางขวา'
+  },
+  {
+    q: 'ในการเล่นชักเย่อ ฝั่งซ้ายดึงด้วยแรง 80 N ฝั่งขวาดึงด้วยแรง 60 N แรงลัพธ์มีค่าเท่าใดและเชือกเคลื่อนที่ไปทางใด?',
+    skill: 'ว 2.2 ป.5/1 · การหาแรงลัพธ์',
+    opts: ['140 N ไปทางซ้าย', '20 N ไปทางขวา', '20 N ไปทางซ้าย', '0 N ไม่เคลื่อนที่'],
+    ans: 2,
+    exp: 'แรงทิศตรงกันข้ามให้นำมาหักล้างกัน: 80 - 60 = 20 N ไปทางฝั่งซ้ายที่มีแรงมากกว่า'
+  },
+  {
+    q: 'หากมีแรงสองแรงขนาดเท่ากันคือ 40 N กระทำต่อกล่องในทิศตรงกันข้าม กล่องจะมีสภาพอย่างไร?',
+    skill: 'ว 2.2 ป.5/2 · แรงสมดุล',
+    opts: ['เคลื่อนที่ไปข้างหน้าอย่างรวดเร็ว', 'อยู่นิ่งไม่เคลื่อนที่ เพราะแรงลัพธ์เป็น 0', 'หมุนรอบตัวเอง', 'ลอยขึ้นสู่อากาศ'],
+    ans: 1,
+    exp: 'เมื่อแรงสองแรงมีขนาดเท่ากันแต่ทิศตรงข้าม แรงลัพธ์จะเท่ากับ 0 วัตถุจึงอยู่นิ่ง'
+  },
+  {
+    q: 'เครื่องมือมาตรฐานที่ใช้ในการวัดขนาดของแรงในห้องทดลองคืออะไร?',
+    skill: 'ว 2.2 ป.5/2 · เครื่องชั่งสปริง',
+    opts: ['ไม้บรรทัดเหล็ก', 'เครื่องชั่งสปริง', 'เทอร์โมมิเตอร์', 'กระบอกตวง'],
+    ans: 1,
+    exp: 'เครื่องชั่งสปริงใช้หลักการยืดตัวของสปริงเพื่อวัดขนาดของแรงดึงในหน่วยนิวตัน'
+  },
+  {
+    q: 'หน่วยมาตรฐานในการวัดขนาดของแรงในระบบสากล (SI) คือหน่วยใด?',
+    skill: 'ว 2.2 ป.5/2 · หน่วยนิวตัน',
+    opts: ['กิโลกรัม (kg)', 'เมตร (m)', 'นิวตัน (N)', 'จูล (J)'],
+    ans: 2,
+    exp: 'หน่วยวัดแรงคือนิวตัน (Newton, N) เพื่อเป็นเกียรติแก่ เซอร์ ไอแซก นิวตัน'
+  },
+  {
+    q: 'วัตถุที่มีมวล 1 กิโลกรัม บนผิวโลก จะมีน้ำหนักประมาณกี่นิวตัน?',
+    skill: 'ว 2.2 ป.5/3 · น้ำหนักและมวล',
+    opts: ['1 นิวตัน', '9.8 หรือประมาณ 10 นิวตัน', '50 นิวตัน', '100 นิวตัน'],
+    ans: 1,
+    exp: 'น้ำหนัก W = mg บนโลก g ≈ 9.8 m/s² ดังนั้นมวล 1 kg มีน้ำหนักประมาณ 9.8 N (หรือคิดคร่าวๆ 10 N)'
+  },
+  {
+    q: 'แรงเสียดทานมีทิศทางการกระทำอย่างไรเทียบกับทิศทางการเคลื่อนที่ของวัตถุ?',
+    skill: 'ว 2.2 ป.5/4 · แรงเสียดทาน',
+    opts: ['ทิศทางเดียวกับการเคลื่อนที่', 'ทิศทางตรงกันข้ามกับการเคลื่อนที่', 'ทิศทางพุ่งขึ้นด้านบนเสมอ', 'ไม่มีทิศทางแน่นอน'],
+    ans: 1,
+    exp: 'แรงเสียดทานเกิดขึ้นระหว่างผิวสัมผัสเพื่อต้านการเคลื่อนที่ จึงมีทิศทางตรงข้ามเสมอ'
+  },
+  {
+    q: 'การลากกล่องบนพื้นผิวชนิดใดจะมีแรงเสียดทานน้อยที่สุด ทำให้ลากได้ง่ายที่สุด?',
+    skill: 'ว 2.2 ป.5/4 · ปัจจัยพื้นผิว',
+    opts: ['พื้นกระดาษทรายเบอร์หยาบ', 'พื้นคอนกรีตขรุขระ', 'พื้นลานน้ำแข็งเรียบลื่น', 'พื้นพรมขนสัตว์'],
+    ans: 2,
+    exp: 'พื้นผิวที่เรียบและลื่นมากอย่างน้ำแข็ง จะมีค่าสัมประสิทธิ์แรงเสียดทานต่ำที่สุด'
+  },
+  {
+    q: 'ระหว่างกล่องหนัก 2 kg กับกล่องหนัก 20 kg เมื่อวางบนพื้นเดียวกัน กล่องใดมีแรงเสียดทานมากกว่า?',
+    skill: 'ว 2.2 ป.5/4 · ปัจจัยน้ำหนักกดทับ',
+    opts: ['กล่องหนัก 2 kg', 'กล่องหนัก 20 kg', 'เท่ากันทั้งสองกล่อง', 'ไม่มีแรงเสียดทานทั้งคู่'],
+    ans: 1,
+    exp: 'น้ำหนักหรือแรงกดทับลงบนพื้นผิว ยิ่งมาก แรงเสียดทานจะยิ่งมีขนาดมากขึ้น'
+  },
+  {
+    q: 'ข้อใดเป็นการประยุกต์ใช้ประโยชน์เพื่อ "เพิ่มแรงเสียดทาน"?',
+    skill: 'ว 2.2 ป.5/5 · การประยุกต์ใช้แรง',
+    opts: ['การหยอดน้ำมันหล่อลื่นในโซ่จักรยาน', 'การทำร่องและลวดลายดอกยางรถยนต์', 'การใส่ตลับลูกปืนที่เพลาล้อ', 'การใช้สไลเดอร์ในสวนน้ำ'],
+    ans: 1,
+    exp: 'ดอกยางรถยนต์ช่วยเพิ่มแรงเสียดทานในการยึดเกาะถนนและรีดน้ำ ป้องกันการลื่นไถล'
+  },
+  {
+    q: 'อุปกรณ์ใดช่วยในการ "ลดแรงเสียดทาน" ในล้อสเก็ตบอร์ดและรถจักรยาน?',
+    skill: 'ว 2.2 ป.5/5 · การประยุกต์ใช้แรง',
+    opts: ['ตลับลูกปืน (Ball Bearings)', 'ยางเบรกขอบล้อ', 'ปุ่มรองเท้าสตั๊ด', 'กระดาษทราย'],
+    ans: 0,
+    exp: 'ตลับลูกปืนช่วยเปลี่ยนการเสียดทานจากการเลื่อนไถลเป็นการกลิ้ง ทำให้หมุนได้ลื่นไหล'
+  }
+];
+
+const qIndex = document.getElementById('qIndex');
+const qScore = document.getElementById('qScore');
+const qStreak = document.getElementById('qStreak');
+const qSkillBadge = document.getElementById('qSkillBadge');
+const qQuestion = document.getElementById('qQuestion');
+const qOptions = document.getElementById('qOptions');
+const qFeedback = document.getElementById('qFeedback');
+const fbTitle = document.getElementById('fbTitle');
+const fbExplain = document.getElementById('fbExplain');
+const btnSpeakQ = document.getElementById('btnSpeakQ');
+const btnNextQ = document.getElementById('btnNextQ');
+const qCard = document.getElementById('qCard');
+const quizSummaryCard = document.getElementById('quizSummaryCard');
+const resScoreText = document.getElementById('resScoreText');
+const resMedal = document.getElementById('resMedal');
+const resComment = document.getElementById('resComment');
+const btnRestartQuiz = document.getElementById('btnRestartQuiz');
+
+function renderQuizQuestion() {
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  qIndex.textContent = state.qIdx + 1;
+  qScore.textContent = state.score;
+  qStreak.textContent = state.streak;
+  qSkillBadge.textContent = q.skill;
+  qQuestion.textContent = q.q;
+
+  qFeedback.className = 'quiz-feedback';
+  btnNextQ.style.display = 'none';
+  state.quizAnswered = false;
+
+  qOptions.innerHTML = '';
+  q.opts.forEach((optText, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span style="font-weight:900; color:var(--indigo); min-width:24px;">${String.fromCharCode(65 + idx)}.</span> <span>${optText}</span>`;
+    btn.addEventListener('click', () => handleSelectAnswer(idx, btn));
+    qOptions.appendChild(btn);
+  });
+}
+
+function handleSelectAnswer(selectedIdx, btnElement) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  const allBtns = qOptions.querySelectorAll('.opt-btn');
+
+  if (selectedIdx === q.ans) {
+    // Correct
+    btnElement.classList.add('correct');
+    state.score++;
+    state.streak++;
+    qScore.textContent = state.score;
+    qStreak.textContent = state.streak;
+
+    qFeedback.className = 'quiz-feedback show correct';
+    fbTitle.innerHTML = '✅ ถูกต้องยอดเยี่ยม!';
+    fbExplain.textContent = q.exp;
+
+    if (window.KAMPAI && window.KAMPAI.sound) {
+      window.KAMPAI.sound.correct();
+    }
+    speakThai('ถูกต้องครับ! ' + q.exp);
+  } else {
+    // Wrong
+    btnElement.classList.add('wrong');
+    allBtns[q.ans].classList.add('correct');
+    state.streak = 0;
+    qStreak.textContent = 0;
+
+    qFeedback.className = 'quiz-feedback show wrong';
+    fbTitle.innerHTML = `❌ ยังไม่ถูกต้อง (คำตอบที่ถูกคือข้อ ${String.fromCharCode(65 + q.ans)})`;
+    fbExplain.textContent = q.exp;
+
+    if (window.KAMPAI && window.KAMPAI.sound) {
+      window.KAMPAI.sound.wrong();
+    }
+    speakThai(`ยังไม่ถูกครับ คำตอบที่ถูกต้องคือ ${q.opts[q.ans]} เพราะ ${q.exp}`);
+  }
+
+  btnNextQ.style.display = 'inline-flex';
+}
+
+btnNextQ.addEventListener('click', () => {
+  if (state.qIdx < QUIZ_QUESTIONS.length - 1) {
+    state.qIdx++;
+    renderQuizQuestion();
+  } else {
+    showQuizSummary();
+  }
+});
+
+btnSpeakQ.addEventListener('click', () => {
+  const q = QUIZ_QUESTIONS[state.qIdx];
+  speakThai(q.q);
+});
+
+function showQuizSummary() {
+  qCard.style.display = 'none';
+  quizSummaryCard.style.display = 'block';
+  resScoreText.textContent = `คุณได้ ${state.score} จาก ${QUIZ_QUESTIONS.length} คะแนน`;
+
+  if (state.score >= 13) {
+    resMedal.textContent = '🥇';
+    resComment.textContent = 'ยอดเยี่ยมระดับเหรียญทอง! คุณมีความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นเลิศ';
+  } else if (state.score >= 10) {
+    resMedal.textContent = '🥈';
+    resComment.textContent = 'เก่งมากระดับเหรียญเงิน! มีความรู้ความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นอย่างดี';
+  } else if (state.score >= 7) {
+    resMedal.textContent = '🥉';
+    resComment.textContent = 'ผ่านเกณฑ์ระดับเหรียญทองแดง! ทบทวนเรื่องการคำนวณแรงลัพธ์อีกนิดจะเก่งขึ้นมาก';
+  } else {
+    resMedal.textContent = '📚';
+    resComment.textContent = 'พยายามได้ดี! ลองกลับไปศึกษาในโหมดสำรวจแรงและแล็บแรงเสียดทาน แล้วลองทำใหม่อีกครั้งนะ';
+  }
+}
+
+btnRestartQuiz.addEventListener('click', () => {
+  state.qIdx = 0;
+  state.score = 0;
+  state.streak = 0;
+  qCard.style.display = 'flex';
+  quizSummaryCard.style.display = 'none';
+  renderQuizQuestion();
+});
+
+// 8. HEADER CONTROLS (TTS TOGGLE, FULLSCREEN)
+const btnAudioToggle = document.getElementById('btnAudioToggle');
+const audioIcon = document.getElementById('audioIcon');
+const audioLabel = document.getElementById('audioLabel');
+
+btnAudioToggle.addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  audioIcon.textContent = state.ttsEnabled ? '🔊' : '🔇';
+  audioLabel.textContent = state.ttsEnabled ? 'เสียงครู' : 'ปิดเสียง';
+});
+
+const btnFullscreen = document.getElementById('btnFullscreen');
+btnFullscreen.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+});
+
+// 9. SMARTBOARD KEYBOARD SHORTCUTS
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === '1') switchTab('explorer');
+  if (e.key === '2') switchTab('netforce');
+  if (e.key === '3') switchTab('friction');
+  if (e.key === '4') switchTab('quiz');
+  if (e.key === 'f' || e.key === 'F') {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (state.currentTab === 'quiz') {
+      if (state.quizAnswered) {
+        btnNextQ.click();
+      } else {
+        btnSpeakQ.click();
+      }
+    } else if (state.currentTab === 'netforce') {
+      btnRunSim.click();
+    } else if (state.currentTab === 'friction') {
+      btnPushFriction.click();
+    } else if (state.currentTab === 'explorer') {
+      btnSpeakPushPull.click();
+    }
+  }
+});
+
+// INITIALIZE
+renderQuizQuestion();
+updateNetForceSim();
+updateFrictionCalc();
+
+if (window.KAMPAI && typeof window.KAMPAI.onReady === 'function') {
+  window.KAMPAI.onReady(() => {
+    // SDK Ready
+  });
+}
+</script>
+
+</body>
+</html>

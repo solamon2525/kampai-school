@@ -2,7 +2,7 @@
  * HubUsageInsights — top viewed media/games for a teacher (usage insights roadmap).
  */
 import { useQuery } from '@tanstack/react-query';
-import { Eye, BarChart3 } from 'lucide-react';
+import { Eye, BarChart3, Pin, SearchCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { educationalHubService } from '@/services/educational-hub.service';
@@ -12,8 +12,17 @@ export function HubUsageInsights({ staffId }: { staffId: string }) {
     queryKey: ['edu-hub', 'top-viewed', staffId],
     queryFn: () => educationalHubService.listTopViewedItems({ ownerStaffId: staffId, limit: 12 }),
   });
+  const { data: usage60Day = [], isLoading: loadingUsage } = useQuery({
+    queryKey: ['edu-hub', 'usage-60-day', staffId],
+    queryFn: () => educationalHubService.listUsage60Day(staffId),
+  });
 
   const totalViews = items.reduce((s, i) => s + (i.view_count ?? 0), 0);
+  const reviewCandidates = usage60Day.filter((item) => item.review_candidate);
+  const observedItems = usage60Day.filter((item) => {
+    const elapsed = Date.now() - new Date(`${item.observation_started_on}T00:00:00`).getTime();
+    return elapsed >= 59 * 24 * 60 * 60 * 1000;
+  });
 
   return (
     <Card>
@@ -52,6 +61,41 @@ export function HubUsageInsights({ staffId }: { staffId: string }) {
               <Eye className="h-3.5 w-3.5" />
               {(it.view_count ?? 0).toLocaleString('th-TH')}
             </div>
+          </div>
+        ))}
+      </CardContent>
+      <CardContent className="space-y-2 border-t border-border pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <SearchCheck className="h-4 w-4 text-primary" />
+              คิวตรวจรวมหลังเก็บข้อมูล 60 วัน
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ยอดต่ำเป็นเพียงสัญญาณ ต้องตรวจความซ้ำ ตัวชี้วัด และ Classroom QA ก่อนลบ
+            </p>
+          </div>
+          <Badge variant="outline">พร้อมตรวจ {reviewCandidates.length} รายการ</Badge>
+        </div>
+        {loadingUsage ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">กำลังอ่านข้อมูล 60 วัน...</p>
+        ) : observedItems.length === 0 ? (
+          <p className="rounded-lg bg-muted/40 p-3 text-sm text-muted-foreground">
+            กำลังเก็บ baseline ยังไม่มีรายการใดครบ 60 วัน
+          </p>
+        ) : reviewCandidates.length === 0 ? (
+          <p className="rounded-lg bg-muted/40 p-3 text-sm text-muted-foreground">
+            ยังไม่มีรายการที่เข้าเกณฑ์ตรวจรวม
+          </p>
+        ) : reviewCandidates.map((item) => (
+          <div key={item.item_id} className="flex items-center gap-3 rounded-lg border border-border p-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{item.title}</p>
+              <p className="text-xs text-muted-foreground">
+                เจ้าของเปิด {item.owner_open_count} · ผู้ใช้อื่นเปิด {item.public_open_count} · รวม {item.total_open_count}
+              </p>
+            </div>
+            {item.library_pinned && <Pin className="h-4 w-4 text-primary" aria-label="ปักหมุด" />}
           </div>
         ))}
       </CardContent>

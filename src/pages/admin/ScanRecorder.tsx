@@ -24,6 +24,7 @@ import {
     wasteCategoriesService,
     wasteSummaryService,
     savingsTransactionsService,
+    savingsErrorMessage,
     savingsSummaryService,
     termService,
 } from '@/services';
@@ -166,9 +167,9 @@ export default function ScanRecorder() {
     };
 
     const handleSubmitSavings = async (type: 'deposit' | 'withdraw') => {
-        if (!student) return;
-        const amt = parseInt(amount, 10);
-        if (!Number.isInteger(amt) || amt <= 0) {
+        if (!student || saving) return;
+        const amt = Number(amount);
+        if (!Number.isInteger(amt) || amt <= 0 || amt >= 100000000) {
             toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
             return;
         }
@@ -186,15 +187,14 @@ export default function ScanRecorder() {
             return;
         }
         setSaving(true);
-        const balance_after = type === 'deposit' ? currentBalance + amt : currentBalance - amt;
+        try {
         const term = await termService.getActive();
-        const { error } = await savingsTransactionsService.insert({
+        const { data: saved, error } = await savingsTransactionsService.insert({
             student_id: student.id,
             student_name: student.name,
             student_class: student.class,
             transaction_type: type,
             amount: amt,
-            balance_after,
             transaction_date: new Date().toISOString().split('T')[0],
             notes: savingsNotes.trim() || null,
             recorded_by: recorder.name,
@@ -203,17 +203,20 @@ export default function ScanRecorder() {
             academic_year: term?.year ?? null,
             semester: term?.sem ?? null,
         });
-        setSaving(false);
-        if (error) {
-            toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
-            return;
-        }
+        if (error) throw error;
+        if (!saved?.[0]) throw new Error('ไม่ได้รับการยืนยันจากระบบ กรุณาตรวจสอบประวัติก่อนบันทึกซ้ำ');
+        const balance_after = Number(saved[0].balance_after);
         toast({
             title: type === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ',
             description: `${student.name} — ${fmtBaht(amt)} (คงเหลือ ${fmtBaht(balance_after)})`,
         });
         if (quickRepeat) resetAll();
         else { setStudent(null); setMode('done'); }
+        } catch (error) {
+            toast({ title: 'บันทึกไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
+        } finally {
+            setSaving(false);
+        }
     };
 
     const addWasteRow = () => setWasteRows((r) => [...r, { category_id: '', quantity: '' }]);

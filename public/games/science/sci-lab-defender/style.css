@@ -1,41 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&family=Fredoka+One&display=swap');
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-    height: 100%;
-    font-family: 'Kanit', sans-serif;
-    background: #070b1e;
-    color: #ffffff;
-    overflow: hidden;
-    touch-action: none;
-    -webkit-user-select: none;
+/* style.css — Sci-Lab Defender (AR วันวิทย์)
+   สไตล์ไซเบอร์แล็บวิทยาศาสตร์ ลื่นไหล สว่างตา สะอาด ปรับตัวตามขนาดหน้าจอ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
     user-select: none;
+    -webkit-user-select: none;
 }
 
-/* ── กล้อง AR (พื้นหลังเต็มจอ) ── */
+:root {
+    --brand-navy: #0f172a;
+    --brand-blue: #1e293b;
+    --brand-cyan: #06b6d4;
+    --brand-sky: #38bdf8;
+    --brand-gold: #f59e0b;
+    --brand-amber: #facc15;
+    --brand-green: #10b981;
+    --brand-emerald: #059669;
+    --brand-rose: #f43f5e;
+    --brand-purple: #8b5cf6;
+    --card-bg: rgba(15, 23, 42, 0.88);
+    --card-border: rgba(56, 189, 248, 0.35);
+    --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #090d16;
+    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #f8fafc;
+}
+
+/* ── กล้องวิดีโอ & Canvas (AR เต็มจอ) ── */
 #arVideo {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     transform: scaleX(-1);
     z-index: 1;
-    filter: brightness(0.88) contrast(1.05);
+    opacity: 0.85;
+    background: #090d16;
 }
 
 #arCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     z-index: 2;
-    pointer-events: none;
+    pointer-events: auto;
+    touch-action: none;
 }
 
-/* ── จอหลัก (Screen) ── */
+/* ── หน้าจอหลัก (Screens) ── */
 .screen {
     position: absolute;
     inset: 0;
@@ -44,437 +66,507 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 16px;
+    background: rgba(9, 13, 22, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: opacity 0.25s ease;
 }
 
 .screen.active {
     display: flex;
 }
 
-/* ── กล่องการ์ด UI ── */
-#startScreen, #resultScreen {
-    background: radial-gradient(circle at center, rgba(13, 22, 58, 0.88) 0%, rgba(7, 11, 30, 0.95) 100%);
-    backdrop-filter: blur(12px);
-    text-align: center;
-    padding: 20px;
-    overflow-y: auto;
+.screen.transparent-screen {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    pointer-events: none;
 }
 
+/* ── การ์ดกล่องกลางจอ (Glass Card) ── */
 .card {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
-    border-radius: 24px;
-    padding: 24px 20px;
-    max-width: 480px;
-    width: 100%;
-    backdrop-filter: blur(8px);
     position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--glass-shadow);
+    text-align: center;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.logo-badge {
-    font-size: 54px;
-    margin-bottom: 6px;
-    filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.5));
-    animation: floatSlow 3s ease-in-out infinite;
+@keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes floatSlow {
+.logo {
+    font-size: 3.5rem;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.4));
+    animation: floatAnim 3s ease-in-out infinite;
+}
+
+@keyframes floatAnim {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-6px); }
 }
 
 .title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 30px;
-    background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #facc15 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #38bdf8;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
     margin-bottom: 4px;
+    letter-spacing: -0.5px;
 }
 
 .subtitle {
-    font-size: 15px;
-    color: #bae6fd;
-    margin-bottom: 12px;
-    font-weight: 400;
-}
-
-.sci-stages-preview {
-    display: flex;
-    gap: 8px;
-    margin: 12px 0;
-    justify-content: center;
-}
-
-.stage-pill-preview {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 8px 4px;
-    font-size: 11px;
-    color: #e2e8f0;
-}
-.stage-pill-preview b { display: block; font-size: 13px; margin-bottom: 2px; }
-
-.hint-box {
-    background: rgba(56, 189, 248, 0.1);
-    border: 1px dashed rgba(56, 189, 248, 0.4);
-    border-radius: 14px;
-    padding: 10px 14px;
-    font-size: 12.5px;
-    color: #e0f2fe;
-    line-height: 1.5;
-    margin: 12px 0 16px;
-    text-align: left;
-}
-
-/* ── ปุ่ม ── */
-.btn {
-    padding: 12px 28px;
-    font-family: inherit;
-    font-size: 17px;
-    font-weight: 700;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    margin: 5px;
-    transition: transform 0.12s, box-shadow 0.15s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: #ffffff;
-}
-
-.btn:hover { transform: translateY(-2px); }
-.btn:active { transform: scale(0.96); }
-
-.btn-primary {
-    background: linear-gradient(135deg, #0284c7, #38bdf8);
-    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
-}
-
-.btn-accent {
-    background: linear-gradient(135deg, #8b5cf6, #ec4899);
-    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.4);
-}
-
-.btn-ghost, .btn.ghost {
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.mode-row, .row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-bottom: 14px;
 }
 
 /* ── Player Chip ── */
 #player-chip {
-    display: none;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.5);
+    padding: 6px 14px;
+    background: rgba(30, 41, 59, 0.85);
     border: 1px solid rgba(56, 189, 248, 0.3);
-    padding: 4px 14px 4px 6px;
-    border-radius: 999px;
-    font-size: 13px;
-    margin: 6px auto;
-    width: fit-content;
+    border-radius: 9999px;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+    color: #e2e8f0;
 }
 
-#player-chip img, #player-chip .ini {
-    width: 26px;
-    height: 26px;
+#player-chip img {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
+    border: 1.5px solid var(--brand-sky);
 }
 
 #player-chip .ini {
-    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-cyan);
+    color: #042f2e;
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.85rem;
+}
+
+/* ── กล่องสรุปสเตจ 3 ฐาน ── */
+.stages-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0 16px;
+    text-align: left;
+}
+
+.stage-badge-item {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 12px;
+    padding: 8px 6px;
+    text-align: center;
+}
+
+.stage-badge-item .s-icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+
+.stage-badge-item .s-title {
+    font-size: 0.75rem;
     font-weight: 700;
+    color: #f1f5f9;
 }
 
-/* ── Stats ── */
-#my-stats {
-    display: none;
-    gap: 10px;
-    margin: 8px auto;
-    max-width: 420px;
+.stage-badge-item .s-sub {
+    font-size: 0.65rem;
+    color: #94a3b8;
 }
 
-#my-stats .ms-cell {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 14px;
-    padding: 8px 10px;
-}
-
-#my-stats .ms-val {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.4rem;
-    color: #facc15;
-}
-
-#my-stats .ms-label {
-    font-size: 0.72rem;
+/* ── คำแนะนำ ── */
+.hint {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    line-height: 1.45;
     color: #cbd5e1;
+    margin-bottom: 14px;
+    border-left: 3px solid var(--brand-cyan);
+    text-align: left;
 }
 
-/* ── Leaderboard ── */
+/* ── กล่องสถิติและอันดับ ── */
+#my-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.ms-cell {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 8px;
+}
+
+.ms-val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--brand-amber);
+}
+
+.ms-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
 .lb-box {
-    background: rgba(15, 23, 42, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #f8fafc;
-    border-radius: 16px;
-    padding: 12px 16px;
-    margin: 12px auto;
-    max-width: 420px;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 14px;
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
 }
 
 .lb-box h3 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.05rem;
-    margin-bottom: 8px;
-    text-align: left;
-    color: #facc15;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 6px;
 }
 
 .lb-list {
     list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
 }
 
-.lb-list li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 8px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    font-size: 0.86rem;
-}
-
-.lb-list li:last-child { border-bottom: none; }
-.lb-list li.me { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); }
-.lb-rank { font-family: 'Fredoka One', cursive; color: #facc15; min-width: 24px; text-align: center; }
-.lb-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
-.lb-score { font-weight: 700; color: #38bdf8; }
-
-/* ── HUD (จอเล่นเกม) ── */
-.hud {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 12px 16px;
+.lb-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 20;
-    pointer-events: none;
+    padding: 4px 6px;
+    font-size: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.hud > * { pointer-events: auto; }
+.lb-row.me {
+    background: rgba(56, 189, 248, 0.15);
+    border-radius: 6px;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+/* ── ปุ่มกด (Buttons) ── */
+.mode-row, .row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 46px;
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s ease;
+    text-decoration: none;
+    min-width: 120px;
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0369a1, #075985);
+}
+
+.btn-ghost, .btn.ghost {
+    background: rgba(30, 41, 59, 0.8);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-ghost:hover, .btn.ghost:hover {
+    background: rgba(51, 65, 85, 0.9);
+    color: #ffffff;
+}
+
+/* ── HUD ด้านบนจอเล่นเกม ── */
+.hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: auto;
+    gap: 8px;
+}
 
 .back-btn {
-    background: rgba(0, 0, 0, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 13.5px;
-    font-family: inherit;
+    min-height: 42px;
+    padding: 8px 14px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #f1f5f9;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     backdrop-filter: blur(4px);
 }
 
-.hud-center {
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+.hud-group {
     display: flex;
-    flex-direction: column;
+    gap: 6px;
     align-items: center;
-    gap: 4px;
-}
-
-.stage-badge {
-    background: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(139, 92, 246, 0.8));
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 4px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    letter-spacing: 0.5px;
-}
-
-.goal-banner {
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(56, 189, 248, 0.4);
-    padding: 4px 16px;
-    border-radius: 999px;
-    font-size: 14px;
-    color: #facc15;
-    font-weight: 600;
-    max-width: 90vw;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-.hud-right {
-    display: flex;
-    gap: 8px;
 }
 
 .pill {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 9999px;
+    font-size: 0.95rem;
     font-weight: 700;
+    color: #f8fafc;
     backdrop-filter: blur(4px);
 }
 
 .pill.score {
-    color: #facc15;
-    border-color: rgba(250, 204, 21, 0.5);
-    text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: var(--brand-amber);
 }
 
-.pill.timer {
-    color: #38bdf8;
-    border-color: rgba(56, 189, 248, 0.5);
+.pill.lives {
+    border-color: rgba(244, 63, 94, 0.5);
+    color: #fda4af;
 }
 
-.combo-pill {
+/* ── แบนเนอร์ภารกิจกลางจอด้านบน ── */
+.task-banner {
     position: absolute;
     top: 64px;
-    right: 16px;
-    background: linear-gradient(135deg, #ec4899, #f59e0b);
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 15px;
-    color: #fff;
-    box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
-    animation: pulseCombo 0.3s ease-out;
-    display: none;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1.5px solid var(--brand-sky);
+    border-radius: 16px;
+    padding: 8px 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    pointer-events: none;
+    animation: bannerPop 0.3s ease;
+    max-width: 90vw;
 }
 
-@keyframes pulseCombo {
-    0% { transform: scale(1.3); }
-    100% { transform: scale(1); }
+@keyframes bannerPop {
+    0% { transform: translate(-50%, -10px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
 }
 
-/* ── Stage Transition Overlay ── */
-#transitionOverlay {
+.task-stage-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.task-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-top: 2px;
+}
+
+/* ── การ์ดสลับฐาน (Stage Transition Modal) ── */
+#stageModal {
     position: absolute;
     inset: 0;
-    background: rgba(7, 11, 30, 0.85);
-    backdrop-filter: blur(8px);
     z-index: 30;
     display: none;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 20px;
+    background: rgba(9, 13, 22, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 16px;
 }
 
-#transitionOverlay.active {
+#stageModal.active {
     display: flex;
-    animation: fadeIn 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.stage-modal-card {
+    background: var(--card-bg);
+    border: 2px solid var(--brand-sky);
+    border-radius: 24px;
+    padding: 28px;
+    max-width: 460px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);
+    animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.trans-icon { font-size: 58px; margin-bottom: 8px; }
-.trans-title { font-family: 'Fredoka One', cursive; font-size: 28px; color: #38bdf8; margin-bottom: 6px; }
-.trans-desc { font-size: 16px; color: #e2e8f0; max-width: 400px; line-height: 1.5; margin-bottom: 12px; }
-.trans-fact { font-size: 13px; color: #facc15; background: rgba(250, 204, 21, 0.12); border: 1px dashed rgba(250, 204, 21, 0.3); padding: 8px 16px; border-radius: 12px; max-width: 420px; }
+.stage-modal-icon {
+    font-size: 4rem;
+    margin-bottom: 8px;
+}
+
+.stage-modal-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 4px;
+}
+
+.stage-modal-sub {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-amber);
+    margin-bottom: 12px;
+}
+
+.stage-modal-desc {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+}
+
+.stage-countdown-num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--brand-amber);
+    margin-bottom: 10px;
+}
+
+/* ── จอจบเกม (Result) ── */
+#go-stars {
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    color: var(--brand-amber);
+    margin: 8px 0;
+}
+
+#final-score {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: #38bdf8;
+    text-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+#final-detail {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+.stage-score-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.breakdown-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+}
+
+.breakdown-card .b-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--brand-amber);
+}
+
+.breakdown-card .b-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
 
 #status-tag {
     position: absolute;
     bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 12px;
     z-index: 20;
-    background: rgba(0, 0, 0, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 4px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    color: #facc15;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: rgba(15, 23, 42, 0.7);
+    padding: 4px 10px;
+    border-radius: 8px;
     pointer-events: none;
 }
 
-/* ── จอจบเกม ── */
-#go-stars {
-    font-size: 42px;
-    letter-spacing: 6px;
-    margin: 4px 0;
-}
-
-#final-score {
-    color: #facc15;
-    font-size: 46px;
-    font-weight: 700;
-    font-family: 'Fredoka One', cursive;
-    margin: 4px 0 8px;
-    text-shadow: 0 0 16px rgba(250, 204, 21, 0.4);
-}
-
-#final-detail {
-    font-size: 14px;
-    color: #cbd5e1;
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-
-/* ── Particle & Score Popups ── */
-.score-pop {
-    position: fixed;
-    z-index: 40;
-    font-family: 'Fredoka One', cursive;
-    font-weight: 700;
-    pointer-events: none;
-    animation: floatUp 0.8s ease-out forwards;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-}
-
-@keyframes floatUp {
-    from { opacity: 1; transform: translateY(0) scale(0.8); }
-    30% { transform: translateY(-16px) scale(1.2); }
-    to { opacity: 0; transform: translateY(-65px) scale(1); }
-}
-
+/* ── Mobile Responsive (360px) ── */
 @media (max-width: 480px) {
-    .title { font-size: 24px; }
-    .card { padding: 18px 14px; }
-    .btn { padding: 10px 20px; font-size: 15px; }
-    .goal-banner { font-size: 12.5px; }
+    .card {
+        padding: 18px 14px;
+    }
+    .title {
+        font-size: 1.45rem;
+    }
+    .logo {
+        font-size: 2.8rem;
+    }
+    .task-title {
+        font-size: 1rem;
+    }
+    .btn {
+        min-width: 100px;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
 }

@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
+import { useVocabHubLayout } from '@/hooks/use-vocab-hub-layout';
 import { cn } from '@/lib/utils';
 import { resolveGameMediaPair } from '@/lib/edu-hub-game-media-pairs';
 import { guessPairedUrls } from '@/lib/edu-hub-worksheet-pairs';
@@ -132,7 +133,9 @@ const PlayGame = () => {
     }
   }, [gameSlug, navigate]);
 
-  const [phase, setPhase] = useState<Phase>('lookup');
+  const [phase, setPhase] = useState<Phase>(
+    gameSlug === 'vocab-hub' ? 'playing' : 'lookup',
+  );
   const [codeInput, setCodeInput] = useState('');
   const [student, setStudent] = useState<StudentLookup | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -147,6 +150,13 @@ const PlayGame = () => {
     typeof window !== 'undefined' ? getParentLandscape() : false,
   );
   const [gameSessionStarted, setGameSessionStarted] = useState(false);
+
+  useEffect(() => {
+    if (gameSlug !== 'vocab-hub') return;
+    setPhase('playing');
+    setStudent(null);
+    setCodeInput('');
+  }, [gameSlug]);
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const gameContainerRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +195,7 @@ const PlayGame = () => {
   });
 
   const resolvedSlug = gameQuery.data?.game_slug || gameSlug;
+  useVocabHubLayout(resolvedSlug, iframeRef);
 
   const researchRoundsQuery = useQuery({
     queryKey: ['research-rounds', researchStudyId, codeInput],
@@ -536,7 +547,7 @@ const PlayGame = () => {
     statsOverride?: Awaited<ReturnType<typeof gameStatsService.getForStudent>>['data'],
     leaderboardOverride?: Awaited<ReturnType<typeof gamePlayService.getLeaderboard>>,
   ) => {
-    if (!student || !iframeRef.current?.contentWindow) return;
+    if (resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     const s = statsOverride ?? statsQuery.data;
     const lb = leaderboardOverride ?? leaderboardQuery.data ?? [];
     const lvl = levelFromXp(s?.total_xp ?? 0).level;
@@ -638,7 +649,7 @@ const PlayGame = () => {
       setTimeout(postParentViewport, 100);
       setTimeout(postParentViewport, 500);
     }
-    if (!student || !iframeRef.current?.contentWindow) return;
+    if (resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     // เกม (re)load — รวมกรณีกดปุ่ม "🔄 เล่นอีกครั้ง" ในเกม (location.reload) → เริ่มรอบใหม่สะอาด
     setShowReward(false);
     setResult(null);
@@ -647,20 +658,21 @@ const PlayGame = () => {
   }, [student, resolvedSlug, postParentViewport, postInitToIframe]);
 
   useEffect(() => {
-    if (phase !== 'playing' || !student || !iframeRef.current?.contentWindow) return;
+    if (phase !== 'playing' || resolvedSlug === 'vocab-hub' || !student || !iframeRef.current?.contentWindow) return;
     postInitToIframe();
   }, [phase, student, postInitToIframe]);
 
   // ─── auto-login จาก localStorage (ลดเวลากรอกรหัสเมื่อเปลี่ยนเกม) ────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    if (gameSlug === 'vocab-hub') return;
     const saved = localStorage.getItem('kampai_student_code');
     if (saved) {
       setCodeInput(saved);
       handleLookup(saved);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [researchStudyId, autostart]);
+  }, [researchStudyId, autostart, gameSlug]);
 
   // ─── receive `navigate` from iframe (exit / select-another-game buttons) ──
   // Not gated by phase — game can request navigation anytime (pause modal, etc.)
@@ -766,6 +778,8 @@ const PlayGame = () => {
       }
       if (data?.type === 'resultShown') { inlineResultRef.current = true; return; }
       if (data?.type !== 'gameEnd') return;
+      // Vocabulary Hub is teaching media: never persist a student game session.
+      if (resolvedSlug === 'vocab-hub') return;
       if (sessionSubmittedRef.current) return;
       setGameSessionStarted(false);
       sessionSubmittedRef.current = true;
@@ -1077,13 +1091,18 @@ const PlayGame = () => {
   }, [phase, student, resolvedSlug]);
 
   const handlePlayAgain = useCallback(() => {
+    if (resolvedSlug === 'vocab-hub') {
+      setPhase('playing');
+      iframeRef.current?.contentWindow?.location.reload();
+      return;
+    }
     setResult(null);
     setShowReward(false);
     setPrevLevel(levelInfo);
     sessionSubmittedRef.current = false;
     setGameSessionStarted(false);
     setPhase('pre-game');
-  }, [levelInfo]);
+  }, [levelInfo, resolvedSlug]);
 
   const handleSwitchStudent = useCallback(() => {
     setStudent(null);
@@ -1105,8 +1124,9 @@ const PlayGame = () => {
     const extra = ['grade', 'mode', 'practice']
       .map((k) => { const v = searchParams.get(k); return v ? `&${k}=${encodeURIComponent(v)}` : ''; })
       .join('');
-    return `${url}${sep}embed=1${extra}&t=${Date.now()}`;
-  }, [gameQuery.data?.external_url, searchParams]);
+    const categoryHash = gameSlug === 'vocab-hub' ? window.location.hash : '';
+    return `${url}${sep}embed=1${extra}&t=${Date.now()}${categoryHash}`;
+  }, [gameQuery.data?.external_url, searchParams, gameSlug]);
 
   // ─── early returns: 404 / loading ─────────────────────────────────────────
   if (gameQuery.isLoading) {
@@ -1170,7 +1190,7 @@ const PlayGame = () => {
       )}
 
       {/* header — math-runner ซ่อนตอนเล่นเพื่อให้ iframe ได้พื้นที่แนวนอนเต็มที่ */}
-      {!(phase === 'playing' && resolvedSlug === 'math-runner') && (
+      {!(phase === 'playing' && (resolvedSlug === 'math-runner' || resolvedSlug === 'vocab-hub')) && (
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
@@ -1320,10 +1340,13 @@ const PlayGame = () => {
                 </button>
               </div>
             ) : !isMathRunnerMobilePlay ? (
-            <div className="shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 bg-black/60 backdrop-blur-sm border-b border-white/10">
+            <div className={cn('shrink-0 flex items-center justify-end gap-2 px-2 py-1.5 border-b',
+              resolvedSlug === 'vocab-hub' ? 'bg-card border-border' : 'bg-black/60 backdrop-blur-sm border-white/10')}>
               <button
                 onClick={toggleFullscreen}
-                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
+                className={cn('rounded-full transition-colors', resolvedSlug === 'vocab-hub'
+                  ? 'min-h-11 min-w-11 flex items-center justify-center text-foreground hover:bg-muted'
+                  : 'bg-white/10 p-1.5 text-white hover:bg-white/20')}
                 title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
                 aria-label={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
               >
@@ -1331,7 +1354,9 @@ const PlayGame = () => {
               </button>
               <button
                 onClick={() => setShowExitMenu(true)}
-                className="rounded-full bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
+                className={cn('rounded-full transition-colors', resolvedSlug === 'vocab-hub'
+                  ? 'min-h-11 min-w-11 flex items-center justify-center text-foreground hover:bg-muted'
+                  : 'bg-white/10 p-1.5 text-white hover:bg-white/20')}
                 title="เมนู / ออกจากเกม"
                 aria-label="เมนู / ออกจากเกม"
               >
@@ -1349,7 +1374,7 @@ const PlayGame = () => {
               <DialogContent className="sm:max-w-xs">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Menu className="h-4 w-4" /> เมนูเกม
+                    <Menu className="h-4 w-4" /> {resolvedSlug === 'vocab-hub' ? 'เมนูสื่อ' : 'เมนูเกม'}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-2 pt-1">
@@ -1360,7 +1385,7 @@ const PlayGame = () => {
                     onClick={() => { setShowExitMenu(false); handlePlayAgain(); }}
                   >
                     <RotateCcw className="h-4 w-4 shrink-0" />
-                    <span>เล่นซ้ำเกมนี้</span>
+                    <span>{resolvedSlug === 'vocab-hub' ? 'เริ่มบทเรียนใหม่' : 'เล่นซ้ำเกมนี้'}</span>
                   </Button>
 
                   {/* 2. เลือกเกมอื่น — keep session */}
@@ -1371,13 +1396,13 @@ const PlayGame = () => {
                   >
                     <Gamepad2 className="h-4 w-4 shrink-0" />
                     <div className="flex flex-col items-start">
-                      <span>เลือกเกมอื่น</span>
-                      <span className="text-[10px] text-muted-foreground font-normal">ไม่ต้องกรอกรหัสใหม่</span>
+                      <span>{resolvedSlug === 'vocab-hub' ? 'เลือกสื่ออื่น' : 'เลือกเกมอื่น'}</span>
+                      {resolvedSlug !== 'vocab-hub' && <span className="text-[10px] text-muted-foreground font-normal">ไม่ต้องกรอกรหัสใหม่</span>}
                     </div>
                   </Button>
 
-                  {/* 3. เปลี่ยนผู้เล่น — clear session, stay on this game */}
-                  <Button
+                  {/* 3. เปลี่ยนผู้เล่น — เฉพาะเกมที่เก็บคะแนน */}
+                  {resolvedSlug !== 'vocab-hub' && <Button
                     variant="outline"
                     className="justify-start gap-3 h-12"
                     onClick={() => {
@@ -1391,7 +1416,7 @@ const PlayGame = () => {
                       <span>เปลี่ยนผู้เล่น</span>
                       <span className="text-[10px] text-muted-foreground font-normal">กรอกรหัสใหม่ — เกมเดิม</span>
                     </div>
-                  </Button>
+                  </Button>}
 
                   {/* 4. กลับหน้าหลัก — clear session */}
                   <Button

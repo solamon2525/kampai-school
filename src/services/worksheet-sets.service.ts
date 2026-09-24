@@ -90,4 +90,21 @@ export const worksheetSetsService = {
   async remove(id: string) {
     return supabase.from('worksheet_sets' as any).delete().eq('id', id);
   },
+
+  /** Count saved sets by worksheet_key (DB-wide or scoped to owner). */
+  async countByKey(ownerStaffId?: string | null) {
+    let q = supabase
+      .from('worksheet_sets' as any)
+      .select('worksheet_key');
+    if (ownerStaffId) q = q.eq('owner_staff_id', ownerStaffId);
+    const { data, error } = await q;
+    if (error) return { data: null as Record<string, number> | null, error, total: 0 };
+    const counts: Record<string, number> = {};
+    for (const row of (data ?? []) as { worksheet_key: string }[]) {
+      const key = row.worksheet_key || '(unknown)';
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    return { data: counts, error: null, total };
+  },
 };

@@ -242,6 +242,16 @@ Font: **Sarabun** (Google Fonts, wght 100-800) สำหรับทั้งภ
 
 ## 7. Typography Scale (Sarabun)
 
+### Vocabulary Hub category menu exception — 17 September 2026
+
+The English Vocabulary Hub category menu uses a light surface with navy text and gold accents, scoped in `vocab-hub-menu.css` using `--vh-*` custom properties. Gameplay surfaces remain unchanged. Category cards prioritize large images and wrapping Thai/English labels over showing all categories at once; large/standard/compact grids are documented in DESIGN-COMPONENTS.md.
+
+For this user-requested gallery, generated soft 3D raster covers are explicitly permitted instead of the default inline-SVG illustration rule. Store optimized WebP files under `public/games/english/vocab-hub-covers/`; keep titles in HTML, use contain-fit images, and keep source prompts in the accompanying asset manifest. This exception does not extend to other UI illustrations or person avatars.
+
+Vocabulary Hub is teaching media. It opens without student-code lookup, shows only in-session learning feedback, and does not submit game sessions, XP, or leaderboard scores. The shared category order remains an admin-managed setting.
+
+Vocabulary Hub pronunciation starts in the same user gesture as a speaker tap. Every tap, including a repeated word, requests playback. A new request cancels the previous one; delayed callbacks may continue an English–Thai sequence only for the current request. Touch-triggered hover events never start a second reading. Speaker targets are at least 44 × 44 CSS pixels, and synthesis failures show a readable message while a missing selected voice gets one same-language default-voice retry.
+
 | Token | Size | Weight | Line-height | Use |
 |---|---|---|---|---|
 | `h1` | 3rem (48px) | 700 | 1.15 | Page title (hero) |
@@ -902,6 +912,10 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 
 ### Rule 14.40 — Shared Quick Menu (เมนูลัดบน dashboard)
 
+**Auth readiness (v1.229.54):** การตัดสินสิทธิ์ต้องรอ session, role และ menu permissions ครบ รวมระหว่าง refresh; โหลดผิดพลาด/ไม่มี role ให้ปิดสิทธิ์ไว้และแสดง “ลองใหม่” ไม่ fallback เป็น admin ไม่เปลี่ยน URL เป้าหมายเพราะ network error และไม่ใช้ผลของบัญชีเก่าหลังเปลี่ยนผู้ใช้ หน้า Page Builder จำกัด role admin ผ่าน guard กลาง ส่วนความปลอดภัยข้อมูลจริงยังอยู่ที่ RLS
+
+**Teacher access (v1.229.53):** `conduct` (ธนาคารความดี) เป็นเมนูพื้นฐานสำหรับ role `teacher` ทุกบัญชี รวมครูใหม่ ไม่ต้องเพิ่ม `allowedMenus` รายคน เงื่อนไขเมนูพื้นฐานครูต้องตรวจ role จริงเสมอ; parent/viewer/unknown ไม่ได้รับสิทธิ์นี้โดยอัตโนมัติ คงรายการ/ลำดับ shared menu และสิทธิ์ RLS เดิม ไม่ยกระดับบัญชีเป็น admin
+
 **Source of truth:** ตาราง `shared_quick_menu` (singleton, id=1) — **ห้าม** อ่าน/เขียน `user_quick_menu_preferences` ใน QuickMenu อีก (deprecated, คงไว้เพื่อ rollback)
 
 **Data flow:**
@@ -973,6 +987,17 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - **Edge function `send-push`:** ตรวจสิทธิ์ admin ก่อนส่งเสมอ; auto-prune subscription ที่ 404/410
 - **iOS support:** ต้องติดตั้ง PWA ผ่าน "Add to Home Screen" + iOS 16.4+ เท่านั้น — แสดง hint นี้ใน PushPermissionBanner ถ้าตรวจพบ Safari iOS ปกติ
 - **Banner UX:** `PushPermissionBanner` แสดงเฉพาะเมื่อ `session && permission === 'default' && !dismissedRecently(7d)` — ห้าม spam
+
+### Rule 14.40 — แผนการสอนบูรณาการส่วนตัว
+
+- หน้า `/teacher/integrated-plan` เป็นพื้นที่ light-mode สำหรับครูเจ้าของข้อมูล ใช้ `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground` และ `border-border` เท่านั้น
+- Dashboard ต้องแสดงความคืบหน้ารวมก่อน ตามด้วย 8 กลุ่มสาระ ตัวกรอง และรายการหัวข้อ เพื่อให้สถานะงานอ่านได้ในจอเดียว
+- สถานะหัวข้อมี 3 ค่าเท่านั้น: ยังไม่สอน → กำลังสอน → สอนแล้ว; การกดไอคอนสถานะต้องย้อนรอบได้และมี `aria-label`
+- ทางเข้ากดรูป 5 ครั้งเป็นเพียง hidden affordance; route ต้องมี PortalProtectedRoute, PIN gate และ RLS ตาม `owner_staff_id` เป็นความปลอดภัยจริง
+- คำแนะนำบูรณาการต้องแสดงวิชาทั้งสอง เหตุผล/คำสำคัญร่วม และรอครูยืนยันก่อนสร้างหน่วยเสมอ
+- หน่วยติดตามของหลักสูตรคือหนึ่งตัวชี้วัดต่อหนึ่งแถว ห้ามรวมหลายตัวชี้วัดในเนื้อหาก้อนเดียว และต้องจัดลำดับแบบ “สาระ → มาตรฐาน → ตัวชี้วัด” ที่พับ/ขยายได้
+- แถวสถานะ “สอนแล้ว” ใช้พื้นและกรอบ primary สีเขียว พร้อมไอคอน/ป้ายเขียวทั้งแถว และต้องปรากฏในสรุป “สอนแล้ว” แยก 8 วิชาด้านบนทันที
+- ข้อความตัวชี้วัดจากหลักสูตรเป็น read-only; ครูแก้ได้เฉพาะโน้ต และหัวข้อที่เพิ่มเองต้องแยกไว้ท้ายรายวิชา
 
 ---
 

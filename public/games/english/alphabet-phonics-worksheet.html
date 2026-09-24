@@ -5,14 +5,14 @@
   <meta name="curriculum-indicators" content="ต 1.1 ป.1/2,ต 1.1 ป.2/2">
   <title>ใบงาน ABC Phonics ป.1–ป.2 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
 </head><body>
-<header class="toolbar"><h1>🔤 ใบงาน ABC Phonics</h1><div class="toolbar-ctrls">
+<header class="toolbar"><h1>🔤 ใบงาน ABC Phonics A–Z</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
   <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.1–ป.2</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="letter">ตัวอักษร</option><option value="sound">เสียง</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวมทุกทักษะ (Mixed)</option><option value="letter">ตัวอักษรต้นคำ (Initial Letter)</option><option value="sound">เสียงโฟนิกส์ (Phonics Sound)</option><option value="trace">คัดลายมือ (A–Z Trace)</option></select>
   <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
   <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
   <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
@@ -20,28 +20,95 @@
   <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
   <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
 </div></header>
-<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/qrcode-generator.min.js?v=1.195.0"></script>
-<script src="/games/kampai-qr.js?v=1.195.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน ABC Phonics...</article></div></section></main>
+<script src="/games/qrcode-generator.min.js?v=2.0.0"></script>
+<script src="/games/kampai-qr.js?v=2.0.0"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"letter","prompt":"Apple ขึ้นต้นด้วย","answer":"A"},{"type":"letter","prompt":"Ball ขึ้นต้นด้วย","answer":"B"},{"type":"letter","prompt":"Cat ขึ้นต้นด้วย","answer":"C"},{"type":"letter","prompt":"Dog ขึ้นต้นด้วย","answer":"D"},{"type":"letter","prompt":"Sun ขึ้นต้นด้วย","answer":"S"},{"type":"letter","prompt":"Tiger ขึ้นต้นด้วย","answer":"T"},{"type":"sound","prompt":"เขียนตัว a–f","answer":"abcdef"},{"type":"sound","prompt":"วงกลมตัวที่เสียง /b/","answer":"B"},{"type":"letter","prompt":"คัด: A a","answer":"A a"},{"type":"letter","prompt":"คัด: B b","answer":"B b"},{"type":"sound","prompt":"คำที่ขึ้นต้นด้วย S","answer":"Sun / ฯลฯ"},{"type":"letter","prompt":"เรียง A C B ให้ถูก","answer":"A B C"},{"type":"sound","prompt":"เลียนเสียงต้นของ Dog","answer":"/d/"},{"type":"letter","prompt":"วาดรูป Apple แล้วเขียน A","answer":"A"},{"type":"letter","prompt":"จับคู่ C–Cat","answer":"C–Cat"},{"type":"sound","prompt":"สรุปตัวอักษรที่จำได้วันนี้","answer":"ตามนักเรียน"}];
-window.WORKSHEET_CONFIG={
-  icon:'🔤',title:'ใบงาน ABC Phonics',subject:'ภาษาอังกฤษ',gradeLabel:'ป.1–ป.2',
-  mediaLabel:'สื่อ ABC Phonics',sourceMediaUrl:'/games/english/alphabet-phonics-media.html',
-  indicators:["ต 1.1 ป.1/2","ต 1.1 ป.2/2"],
-  directions:"จับคู่ตัวอักษร-เสียง-คำ · เขียนตัวใหญ่",
-  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
-  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.15rem"><div class="prompt"><strong style="font-size:1.2rem">'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2.2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.4em;border-bottom:2px dotted #94a3b8">เขียน/ลากเส้น <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+const ITEMS = [
+  // Initial Letter Identification (A to Z)
+  { type:'letter', prompt:'🍎 Apple (แอปเปิล) ขึ้นต้นด้วยตัวอักษรใด?', answer:'A' },
+  { type:'letter', prompt:'⚽ Ball (ลูกบอล) ขึ้นต้นด้วยตัวอักษรใด?', answer:'B' },
+  { type:'letter', prompt:'🐱 Cat (แมว) ขึ้นต้นด้วยตัวอักษรใด?', answer:'C' },
+  { type:'letter', prompt:'🐶 Dog (สุนัข) ขึ้นต้นด้วยตัวอักษรใด?', answer:'D' },
+  { type:'letter', prompt:'🥚 Egg (ไข่) ขึ้นต้นด้วยตัวอักษรใด?', answer:'E' },
+  { type:'letter', prompt:'🐟 Fish (ปลา) ขึ้นต้นด้วยตัวอักษรใด?', answer:'F' },
+  { type:'letter', prompt:'🎸 Guitar (กีตาร์) ขึ้นต้นด้วยตัวอักษรใด?', answer:'G' },
+  { type:'letter', prompt:'👒 Hat (หมวก) ขึ้นต้นด้วยตัวอักษรใด?', answer:'H' },
+  { type:'letter', prompt:'🍨 Ice Cream (ไอศกรีม) ขึ้นต้นด้วยตัวอักษรใด?', answer:'I' },
+  { type:'letter', prompt:'🧃 Juice (น้ำผลไม้) ขึ้นต้นด้วยตัวอักษรใด?', answer:'J' },
+  { type:'letter', prompt:'🪁 Kite (ว่าว) ขึ้นต้นด้วยตัวอักษรใด?', answer:'K' },
+  { type:'letter', prompt:'🦁 Lion (สิงโต) ขึ้นต้นด้วยตัวอักษรใด?', answer:'L' },
+  { type:'letter', prompt:'🐵 Monkey (ลิง) ขึ้นต้นด้วยตัวอักษรใด?', answer:'M' },
+  { type:'letter', prompt:'👃 Nose (จมูก) ขึ้นต้นด้วยตัวอักษรใด?', answer:'N' },
+  { type:'letter', prompt:'🍊 Orange (ส้ม) ขึ้นต้นด้วยตัวอักษรใด?', answer:'O' },
+  { type:'letter', prompt:'🐷 Pig (หมู) ขึ้นต้นด้วยตัวอักษรใด?', answer:'P' },
+  { type:'letter', prompt:'👑 Queen (พระราชินี) ขึ้นต้นด้วยตัวอักษรใด?', answer:'Q' },
+  { type:'letter', prompt:'🐰 Rabbit (กระต่าย) ขึ้นต้นด้วยตัวอักษรใด?', answer:'R' },
+  { type:'letter', prompt:'☀️ Sun (ดวงอาทิตย์) ขึ้นต้นด้วยตัวอักษรใด?', answer:'S' },
+  { type:'letter', prompt:'🐯 Tiger (เสือ) ขึ้นต้นด้วยตัวอักษรใด?', answer:'T' },
+  { type:'letter', prompt:'🧔 Uncle (คุณลุง) ขึ้นต้นด้วยตัวอักษรใด?', answer:'U' },
+  { type:'letter', prompt:'🎻 Violin (ไวโอลิน) ขึ้นต้นด้วยตัวอักษรใด?', answer:'V' },
+  { type:'letter', prompt:'🐋 Whale (วาฬ) ขึ้นต้นด้วยตัวอักษรใด?', answer:'W' },
+  { type:'letter', prompt:'🦊 Fox (สุนัขจิ้งจอก) ลงท้ายด้วยเสียงตัวอักษรใด?', answer:'X' },
+  { type:'letter', prompt:'🥣 Yogurt (โยเกิร์ต) ขึ้นต้นด้วยตัวอักษรใด?', answer:'Y' },
+  { type:'letter', prompt:'🦓 Zebra (ม้าลาย) ขึ้นต้นด้วยตัวอักษรใด?', answer:'Z' },
+
+  // Phonics Sound Matching
+  { type:'sound', prompt:'เสียงโฟนิกส์ /æ/ (แอะ) ตรงกับตัวอักษรใด?', answer:'A (Apple)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /b/ (เบอะ) ตรงกับตัวอักษรใด?', answer:'B (Ball)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /k/ (เคอะ) ตรงกับตัวอักษรใด?', answer:'C (Cat)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /d/ (เดอะ) ตรงกับตัวอักษรใด?', answer:'D (Dog)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /e/ (เอะ) ตรงกับตัวอักษรใด?', answer:'E (Egg)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /f/ (เฟอะ) ตรงกับตัวอักษรใด?', answer:'F (Fish)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /ɡ/ (เกอะ) ตรงกับตัวอักษรใด?', answer:'G (Guitar)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /h/ (เฮอะ) ตรงกับตัวอักษรใด?', answer:'H (Hat)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /dʒ/ (เจอะ) ตรงกับตัวอักษรใด?', answer:'J (Juice)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /m/ (เมอะ) ตรงกับตัวอักษรใด?', answer:'M (Monkey)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /s/ (เซอะ) ตรงกับตัวอักษรใด?', answer:'S (Sun)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /t/ (เทอะ) ตรงกับตัวอักษรใด?', answer:'T (Tiger)' },
+  { type:'sound', prompt:'เสียงโฟนิกส์ /z/ (เซอะสั่น) ตรงกับตัวอักษรใด?', answer:'Z (Zebra)' },
+
+  // Trace & Handwriting
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: A a', answer:'A a (Apple)' },
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: B b', answer:'B b (Ball)' },
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: C c', answer:'C c (Cat)' },
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: D d', answer:'D d (Dog)' },
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: S s', answer:'S s (Sun)' },
+  { type:'trace', prompt:'ฝึกคัดตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก: T t', answer:'T t (Tiger)' }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '🔤',
+  title: 'ใบงาน ABC Phonics A–Z',
+  subject: 'ภาษาอังกฤษ',
+  gradeLabel: 'ป.1–ป.2',
+  mediaLabel: 'สื่อ ABC Phonics',
+  sourceMediaUrl:'/games/english/alphabet-phonics-media.html',
+  indicators: ['ต 1.1 ป.1/2', 'ต 1.1 ป.2/2'],
+  directions: 'จับคู่ตัวอักษร A–Z เสียงโฟนิกส์ และฝึกเขียนตัวพิมพ์ใหญ่-ตัวพิมพ์เล็ก',
+  getItems(topic) {
+    if (!topic || topic === 'mixed') return ITEMS;
+    return ITEMS.filter(item => item.type === topic);
+  },
+  renderQuestion(item) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    return '<div class="work-line reason-line" style="font-size:1.15rem">' +
+      '<div class="prompt"><strong style="font-size:1.2rem;color:#0f172a;">' + e(item.prompt) + '</strong></div>' +
+      '<div class="answer-line" style="min-height:2.2em;margin-top:4px;">คำตอบ: <span class="blank long" style="border-bottom:2px dashed #94a3b8;min-width:120px;display:inline-block;"></span></div>' +
+      '<div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #cbd5e1;color:#64748b;font-size:0.95rem;">เขียนสะกดคำ / เลียนเสียง: <span class="blank long"></span></div>' +
+      '<div class="answer teacher-answer" style="color:#16a34a;font-weight:800;font-size:1rem;margin-top:4px;">เฉลยคุณครู: ' + e(item.answer) + '</div>' +
+    '</div>';
+  }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
-document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
-document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 window.KampaiTopicWorksheet.render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>

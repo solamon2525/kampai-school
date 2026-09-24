@@ -78,7 +78,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   { id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/admin/dashboard/savings-bank', group: 'ระบบบริการ' },
   { id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance', group: 'ระบบบริการ' },
   { id: 'scores', label: 'คะแนนเก็บ', icon: PenLine, path: '/admin/dashboard/scores', group: 'ระบบบริการ' },
-  { id: 'conduct', label: 'Kampai Hero System', icon: Star, path: '/admin/dashboard/conduct', group: 'ระบบบริการ' },
+  { id: 'conduct', label: 'ธนาคารความดี', icon: Star, path: '/admin/dashboard/conduct', group: 'ระบบบริการ' },
   { id: 'documents', label: 'จัดการเอกสาร', icon: FolderOpen, path: '/admin/dashboard/documents', group: 'ระบบบริการ' },
   { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/admin/dashboard/analytics', group: 'ระบบบริการ' },
   { id: 'page-builder', label: 'Page Builder', icon: LayoutTemplate, path: '/admin/page-builder', group: 'ระบบบริการ' },
@@ -95,6 +95,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 ];
 
 export const TEACHER_QUICK_MENU_CATALOG: QuickMenuOption[] = [
+  { id: 'conduct', label: 'ธนาคารความดี', icon: Star, path: '/admin/dashboard/conduct', group: 'งานครู' },
   { id: 'schedule', label: 'ตารางสอน', icon: Calendar, path: '/teacher/schedule', group: 'งานครู' },
   { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance', group: 'งานครู' },
   { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores', group: 'งานครู' },

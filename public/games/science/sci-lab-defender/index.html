@@ -3,56 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Sci-Lab Defender AR (ผู้พิทักษ์ห้องแล็บอวกาศ)</title>
-<!--
-═══════════════════════════════════════════════════════════════════════════
-  KAMPAI-SCHOOL · SCI-LAB DEFENDER AR (เกม AR กิจกรรมวันวิทยาศาสตร์)
-  ผสาน 3 ฐานการทดลองวิทยาศาสตร์: เคมีสสาร, สะท้อนแสงเลเซอร์, พิทักษ์อวกาศ
-  ───────────────────────────────────────────────────────────────────────
-  ใช้ KampaiHands (kampai-hands.js) — MediaPipe Hands + One Euro Filter
-  • ตรวจจับมือซ้าย-ขวา และ ปลายนิ้วชี้ landmark 8
-  • รองรับการเล่นเดี่ยว / ออนไลน์ / แข่งขัน (Versus)
-  • มี Tap & Mouse Fallback สำหรับอุปกรณ์ที่ไม่มีกล้องเว็บแคม
-═══════════════════════════════════════════════════════════════════════════
--->
+<title>🧪 Sci-Lab Defender (AR วันวิทย์) — ผู้พิทักษ์ห้องแล็บวิทยาศาสตร์</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ── ซ่อน DOM Elements เพื่อความเข้ากันได้กับ Boilerplate Check ── -->
-<div id="blocker" style="display:none;"></div>
-
-<!-- ── วิดีโอกล้อง + Canvas (AR) ── -->
+<!-- ── วิดีโอกล้อง + Canvas สำหรับเรนเดอร์เกม AR ── -->
 <video id="arVideo" autoplay playsinline muted></video>
 <canvas id="arCanvas"></canvas>
 
 <!-- ── จอเริ่มต้น (Start Screen) ── -->
 <div class="screen active" id="startScreen">
     <div class="card">
-        <div class="logo-badge">🧪⚡🪐</div>
-        <h1 class="title">Sci-Lab Defender AR</h1>
-        <div class="subtitle">ผู้พิทักษ์ห้องแล็บอวกาศ (กิจกรรมวันวิทย์ ป.1-6)</div>
+        <div class="logo">🧪</div>
+        <h1 class="title">Sci-Lab Defender</h1>
+        <div class="subtitle">AR วันวิทย์ — ผู้พิทักษ์ห้องแล็บวิทยาศาสตร์</div>
         
         <div id="player-chip"></div>
-
-        <div class="sci-stages-preview">
-            <div class="stage-pill-preview">
-                <b>🧪 1. สสาร</b>
-                <span>รับของแข็ง/เหลว/แก๊ส</span>
+        
+        <div class="stages-preview">
+            <div class="stage-badge-item">
+                <div class="s-icon">🧪</div>
+                <div class="s-title">ฐานที่ 1: สสาร</div>
+                <div class="s-sub">เลื่อนบีกเกอร์รับสสาร</div>
             </div>
-            <div class="stage-pill-preview">
-                <b>⚡ 2. แสงเลเซอร์</b>
-                <span>2 มือสะท้อนแสง</span>
+            <div class="stage-badge-item">
+                <div class="s-icon">⚡</div>
+                <div class="s-title">ฐานที่ 2: แสง</div>
+                <div class="s-sub">มือสะท้อนเลเซอร์</div>
             </div>
-            <div class="stage-pill-preview">
-                <b>🪐 3. อุกกาบาต</b>
-                <span>จิ้มระเบิด Fever!</span>
+            <div class="stage-badge-item">
+                <div class="s-icon">🚀</div>
+                <div class="s-title">ฐานที่ 3: อวกาศ</div>
+                <div class="s-sub">จิ้มระเบิดอุกกาบาต</div>
             </div>
         </div>
 
-        <div class="hint-box">
-            🎥 <b>วิธีเล่นด้วยกล้อง:</b> ใช้สองมือจับบีกเกอร์รับสสาร, วางมือสะท้อนลำแสง, และจิ้มนิ้วระเบิดอุกกาบาต<br>
-            📱 <b>ไม่มีกล้อง?</b> แตะ/คลิกบนหน้าจอเพื่อเล่นได้ทันที!
+        <div class="hint">
+            🎥 <b>เปิดกล้อง:</b> ใช้มือและปลายนิ้วชี้ทำภารกิจวิทย์ 3 ฐานต่อเนื่อง<br>
+            📱 <b>ไม่มีกล้อง?</b> สามารถแตะ/คลิก/ลากบนหน้าจอเพื่อเล่นได้ 100%
         </div>
 
         <div id="my-stats" style="display:none;">
@@ -61,56 +50,79 @@
         </div>
 
         <div class="lb-box" id="lbBox" style="display:none">
-            <h3>🏆 5 อันดับนักวิทย์ยอดเยี่ยม</h3>
+            <h3>🏆 อันดับนักวิทยาศาสตร์ยอดเยี่ยม</h3>
             <ul class="lb-list" id="lbList"></ul>
         </div>
 
         <div class="mode-row">
-            <button class="btn btn-primary" id="startBtn">🚀 เริ่มภารกิจ 3 ฐาน</button>
-            <button class="btn btn-accent" id="versusBtn">⚔️ โหมดดวล (Versus)</button>
+            <button class="btn btn-primary" id="startBtn">▶️ เริ่มภารกิจ (Start)</button>
+            <button class="btn btn-ghost" id="onlineBtn" style="display:none">🌐 ประลองออนไลน์</button>
         </div>
     </div>
 </div>
 
-<!-- ── จอเล่นเกม (Game HUD & Overlay) ── -->
-<div class="screen" id="gameScreen">
+<!-- ── การ์ดแนะนำฐานก่อนเริ่มรอบ (Stage Transition Modal) ── -->
+<div id="stageModal">
+    <div class="stage-modal-card">
+        <div class="stage-modal-icon" id="stageModalIcon">🧪</div>
+        <h2 class="stage-modal-title" id="stageModalTitle">ฐานที่ 1: สสารและเคมี</h2>
+        <div class="stage-modal-sub" id="stageModalSub">Chemistry & States of Matter</div>
+        <div class="stage-modal-desc" id="stageModalDesc">
+            เลื่อนมือถือบีกเกอร์รับสสารให้ถูกต้องตามสถานะที่กำหนด (ของแข็ง/ของเหลว/แก๊ส) และระวังสารพิษ!
+        </div>
+        <div class="stage-countdown-num" id="stageCountdownNum">3</div>
+        <button class="btn btn-primary" id="stageReadyBtn" style="width:100%;">🚀 พร้อมแล้ว! ลุยเลย</button>
+    </div>
+</div>
+
+<!-- ── จอเล่นเกม (Game HUD & Overlays) ── -->
+<div class="screen transparent-screen" id="gameScreen">
     <div class="hud">
         <button class="back-btn" id="quitBtn">🏠 ออก</button>
-        <div class="hud-center">
-            <span class="stage-badge" id="stageBadge">🧪 ฐานที่ 1: เคมีและสสาร</span>
-            <div class="goal-banner" id="goalBanner">ภารกิจ: รับสสารสถานะของเหลว 0/4</div>
-        </div>
-        <div class="hud-right">
-            <span class="pill timer" id="timerPill">⏱ 25</span>
+        <div class="hud-group">
+            <span class="pill" id="timerPill">⏱ 30s</span>
             <span class="pill score" id="scorePill">⭐ 0</span>
+            <span class="pill lives" id="livesPill">🛡️ ❤️❤️❤️❤️❤️</span>
         </div>
     </div>
-    <div class="combo-pill" id="comboPill">🔥 COMBO x3</div>
-    <div id="status-tag">📷 กำลังเปิดกล้อง...</div>
-</div>
 
-<!-- ── จอพักเปลี่ยนสเตจ (Stage Transition) ── -->
-<div id="transitionOverlay">
-    <div class="card" style="max-width: 440px;">
-        <div class="trans-icon" id="transIcon">🎉</div>
-        <div class="trans-title" id="transTitle">ผ่านฐานที่ 1 สำเร็จ!</div>
-        <div class="trans-desc" id="transDesc">เตรียมพร้อมเข้าสู่ฐานที่ 2...</div>
-        <div class="trans-fact" id="transFact">💡 เกร็ดวิทย์: แสงเดินทางเป็นเส้นตรงในตัวกลางโปร่งใส</div>
+    <!-- แบนเนอร์โจทย์ภารกิจ -->
+    <div class="task-banner" id="taskBanner">
+        <div class="task-stage-badge" id="taskStageBadge">🧪 ฐานที่ 1: สสารและเคมี</div>
+        <div class="task-title" id="taskTitle">💧 เก็บเฉพาะ "ของเหลว (Liquid)"!</div>
     </div>
+
+    <div id="status-tag">🤖 ระบบ AR พร้อมใช้งาน</div>
 </div>
 
 <!-- ── จอจบเกม (Result Screen) ── -->
 <div class="screen" id="resultScreen">
     <div class="card">
-        <div class="logo-badge">🏆</div>
-        <h1 class="title">ภารกิจสำเร็จ!</h1>
+        <div class="logo">🏆</div>
+        <h1 class="title">สรุปผลภารกิจวันวิทยาศาสตร์</h1>
         <div id="go-stars">⭐⭐⭐</div>
         <div id="final-score">0</div>
-        <div id="final-detail">ยอดนักวิทยาศาสตร์ตัวจริง! ผ่านครบทั้ง 3 ฐาน</div>
+        <div id="final-detail">ยอดเยี่ยมมาก! คุณผ่านภารกิจผู้พิทักษ์ห้องแล็บวิทยาศาสตร์</div>
+        
+        <div class="stage-score-breakdown" id="stageBreakdown">
+            <div class="breakdown-card">
+                <div class="b-val" id="stage1Score">0</div>
+                <div class="b-lbl">ฐานที่ 1 สสาร</div>
+            </div>
+            <div class="breakdown-card">
+                <div class="b-val" id="stage2Score">0</div>
+                <div class="b-lbl">ฐานที่ 2 แสง</div>
+            </div>
+            <div class="breakdown-card">
+                <div class="b-val" id="stage3Score">0</div>
+                <div class="b-lbl">ฐานที่ 3 อวกาศ</div>
+            </div>
+        </div>
+
         <div id="kampai-result"></div>
 
         <div class="lb-box" id="lbBoxEnd" style="display:none">
-            <h3>🏆 อันดับนักวิทย์วันนี้</h3>
+            <h3>🏆 อันดับคะแนนโรงเรียน</h3>
             <ul class="lb-list" id="lbListEnd"></ul>
         </div>
 
@@ -130,7 +142,7 @@ window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, stu
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <script src="/games/kampai-hands.js"></script>
 <script>
-window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, leftPointer:{x:0,y:0,active:false}, rightPointer:{x:0,y:0,active:false}, isGestureReady:function(){return true;}, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };
+window.KampaiHands = window.KampaiHands || { VERSION:'stub', DEFAULT_HANDS:{}, HAND_CONNECTIONS:[], create:function(){ return { start:function(){return Promise.reject(new Error('stub'));}, stop:function(){}, mode:'tap', leftHand:{x:0.5,y:0.5,active:false}, rightHand:{x:0.5,y:0.5,active:false}, leftLandmarks:null, rightLandmarks:null, collectHitProbes:function(){return[];}, clientToCanvas:function(c,x,y){return{x:x,y:y};}, drawSkeleton:function(){} }; } };
 </script>
 <script src="/games/kampai-match.js"></script>
 <script>
@@ -141,7 +153,7 @@ window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:
 window.KampaiVersus = window.KampaiVersus || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){},leave:function(){}};} };
 </script>
 
-<!-- ═══ เกม (config → data → game โหลดตามลำดับ) ═══ -->
+<!-- ═══ สคริปต์เกม ═══ -->
 <script src="config.js"></script>
 <script src="data.js"></script>
 <script src="game.js"></script>

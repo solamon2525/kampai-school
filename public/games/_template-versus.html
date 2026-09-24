@@ -19,7 +19,7 @@
      + เรียก vs.report(score,{correct}) ตอนได้คะแนน
      + ใน endGame ใส่ guard: if (vs.finish(score,{correct})) return;
   4. migration: supabase/migrations/NNN_seed_{slug}_game.sql (+ game_docs)
-  5. pnpm verify:game public/games/{subject}/{slug}.html   (ต้องผ่าน รวม Check 11)
+  5. pnpm verify:game:all -- public/games/{subject}/{slug}.html   (static strict + browser)
 
   เฟรมเวิร์กรับผิดชอบ: เมนูเลือกโหมด · เลือกคู่แข่ง P2 · นับถอยหลัง · สลับตา (hot-seat) ·
   นาฬิกาตา · จอเทียบผู้ชนะ · บันทึกสถิติแชมป์ห้อง (versusEnd) · online (delegate kampai-match).
@@ -50,6 +50,10 @@ h1 { font-size: 32px; background: linear-gradient(135deg,#FFD700,#FFA500); -webk
 .btn-primary { background: linear-gradient(45deg,#22c55e,#16a34a); }
 .btn-versus { background: linear-gradient(45deg,#f59e0b,#f97316); }
 .btn-blue { background: linear-gradient(45deg,#3b82f6,#2563eb); }
+button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
 </style>
 </head>
 <body>
@@ -62,7 +66,7 @@ h1 { font-size: 32px; background: linear-gradient(135deg,#FFD700,#FFA500); -webk
 <div id="start" class="screen">
     <h1>➕ แข่งบวกเลข (Template)</h1>
     <p style="color:#cbd5e1">ตอบให้ถูกมากที่สุดใน 30 วินาที</p>
-    <button class="btn btn-primary" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
+    <button class="btn btn-primary" data-kampai-action="start" onclick="startSingle()">▶ เริ่มเกม (เดี่ยว)</button>
     <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
 </div>
 
@@ -70,13 +74,14 @@ h1 { font-size: 32px; background: linear-gradient(135deg,#FFD700,#FFA500); -webk
 <div id="over" class="screen off">
     <h1>จบเกม!</h1><p>คะแนนของคุณ</p><div id="final">0</div>
     <div id="kampai-result"></div>
-    <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นใหม่</button>
+    <button class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
     <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+    <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>จบเกมสำหรับทดสอบ</button>
 </div>
 
 <!-- ═══ KAMPAI SDK + เฟรมเวิร์ก (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
-<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+<script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
 <script src="/games/kampai-match.js"></script>
 <script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
 <script src="/games/kampai-versus.js"></script>
@@ -111,12 +116,28 @@ function startSingle() {
 }
 
 function startRound(rng, player) {
+    KAMPAI.beginRound();
     qrand = rng || Math.random; score = 0; correct = 0; locked = false;
     if (player !== null) singleMode = false;      // อยู่ในโหมดแข่ง (P1/P2)
     $('start').classList.add('off'); $('over').classList.add('off');
     $('hud').classList.add('on'); $('play').classList.add('on');
     $('score-v').textContent = 0;
     nextQ();
+}
+
+function cleanupRound() {
+    clearTimeout(singleTimer);
+    singleTimer = 0;
+    locked = true;
+}
+
+function restartGame() {
+    cleanupRound();
+    $('over').classList.add('off');
+    $('start').classList.remove('off');
+    $('hud').classList.remove('on');
+    $('play').classList.remove('on');
+    startSingle();
 }
 
 function nextQ() {

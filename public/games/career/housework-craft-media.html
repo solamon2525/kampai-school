@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>งานบ้านและงานประดิษฐ์ — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--deep:#b45309;--line:#fde68a;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#fef3c7,#ffedd5);min-height:100%;padding:12px;color:#0f172a}
+    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#92400e,#f59e0b);color:#fff}
+    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
+    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
+    .btn-primary{background:var(--deep);color:#fff}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fffbeb;border-bottom:1px solid var(--line);align-items:center}
+    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #fbbf24}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button.on{background:var(--deep);color:#fff}
+    .hint{font-size:.85rem;font-weight:600;color:#92400e;flex:1;min-width:120px}
+    .stage{flex:1;padding:16px}
+    .panel{display:none;flex-direction:column;gap:14px;max-width:760px;margin:0 auto}
+    .panel.on{display:flex}
+    .grid{display:grid;gap:10px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fffbeb}
+    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px;font-size:1.05rem}
+    .card p{font-weight:600;line-height:1.55;font-size:.95rem}
+    .card ul{margin:6px 0 0 18px;font-weight:600;line-height:1.6;font-size:.92rem}
+    .ex{margin-top:8px;font-size:.85rem;font-weight:700;color:#92400e;background:#fff;border-radius:10px;padding:8px;border:1px dashed #fcd34d}
+    .figure{display:flex;justify-content:center;margin:6px 0}
+    .figure svg{max-width:100%;height:auto}
+    .steps{display:grid;gap:8px;grid-template-columns:1fr;border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+    @media(min-width:700px){.steps{grid-template-columns:1fr 1fr 1fr}}
+    .steps div{font-weight:700;padding:8px;border-radius:10px;background:#fef3c7;line-height:1.45;font-size:.92rem}
+    .steps strong{color:var(--deep)}
+    .tip{background:#fef2f2;border:2px dashed #fca5a5;border-radius:12px;padding:12px;font-weight:700;color:#991b1b;line-height:1.5}
+    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
+    .opts{display:flex;flex-direction:column;gap:8px}
+    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left;font-size:1rem}
+    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
+    .fb{font-weight:800;text-align:center;min-height:24px}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>🧹 งานบ้านและงานประดิษฐ์ — สอนและฝึกสั้น</h1>
+      <span class="badge">ป.1–3 · การงานอาชีพ</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 สอน</button>
+        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+      </span>
+      <span class="hint" id="hintText">งานบ้านช่วยได้ · ซัก–ตาก–พับ · อุปกรณ์ประดิษฐ์อย่างปลอดภัย</span>
+    </div>
+    <div class="stage">
+      <div class="panel on" id="learn">
+        <div class="grid">
+          <div class="card">
+            <h3>🏠 งานบ้านที่หนูช่วยได้</h3>
+            <p>เด็ก ๆ ช่วยงานบ้านง่าย ๆ ได้ทุกวัน — ทำแล้วบ้านสะอาด และเป็นการช่วยเหลือตนเองกับครอบครัว</p>
+            <ul>
+              <li>🧹 กวาดพื้น — กวาดจากด้านในออกด้านนอก</li>
+              <li>🧽 เช็ดโต๊ะ — ใช้ผ้าชุบน้ำบิดหมาด</li>
+              <li>🧸 เก็บของเล่นใส่กล่องให้เป็นที่</li>
+              <li>🍽️ ช่วยยกจาน คว่ำจานให้แห้ง</li>
+            </ul>
+            <div class="figure" aria-hidden="true">
+              <svg width="220" height="110" viewBox="0 0 220 110" role="img">
+                <rect x="10" y="90" width="200" height="8" rx="4" fill="#d6d3d1"/>
+                <line x1="60" y1="14" x2="88" y2="70" stroke="#b45309" stroke-width="8" stroke-linecap="round"/>
+                <path d="M78 66 L110 60 L118 92 L70 92 Z" fill="#fbbf24" stroke="#b45309" stroke-width="3"/>
+                <line x1="82" y1="72" x2="80" y2="90" stroke="#b45309" stroke-width="2"/>
+                <line x1="94" y1="70" x2="94" y2="90" stroke="#b45309" stroke-width="2"/>
+                <line x1="106" y1="68" x2="108" y2="90" stroke="#b45309" stroke-width="2"/>
+                <circle cx="150" cy="84" r="5" fill="#a8a29e"/>
+                <circle cx="165" cy="88" r="3.5" fill="#a8a29e"/>
+                <circle cx="140" cy="90" r="3" fill="#a8a29e"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card">
+            <h3>👕 ซักผ้า → ตากผ้า → พับผ้า</h3>
+            <p>งานผ้ามีลำดับขั้นตอน ทำตามลำดับแล้วเสื้อผ้าสะอาดเรียบร้อย</p>
+            <div class="figure" aria-hidden="true">
+              <svg width="260" height="96" viewBox="0 0 260 96" role="img">
+                <circle cx="42" cy="46" r="28" fill="#e0f2fe" stroke="#0284c7" stroke-width="3"/>
+                <path d="M24 46 q9 -8 18 0 t18 0" fill="none" stroke="#0284c7" stroke-width="3"/>
+                <text x="42" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">1 ซัก</text>
+                <path d="M96 42 h30" stroke="#b45309" stroke-width="3" marker-end="none"/>
+                <line x1="112" y1="20" x2="112" y2="24" stroke="#78716c" stroke-width="0"/>
+                <line x1="106" y1="24" x2="158" y2="24" stroke="#78716c" stroke-width="3"/>
+                <path d="M120 24 v10 h24 v-10" fill="none" stroke="#0284c7" stroke-width="3"/>
+                <rect x="118" y="34" width="28" height="30" rx="4" fill="#bae6fd" stroke="#0284c7" stroke-width="3"/>
+                <text x="132" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">2 ตาก</text>
+                <rect x="196" y="30" width="44" height="12" rx="3" fill="#fbbf24" stroke="#b45309" stroke-width="2.5"/>
+                <rect x="196" y="44" width="44" height="12" rx="3" fill="#fcd34d" stroke="#b45309" stroke-width="2.5"/>
+                <rect x="196" y="58" width="44" height="12" rx="3" fill="#fde68a" stroke="#b45309" stroke-width="2.5"/>
+                <text x="218" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">3 พับ</text>
+              </svg>
+            </div>
+            <div class="ex">พับเสื้อง่าย ๆ: วางเสื้อคว่ำ → พับแขนสองข้างเข้า → พับครึ่งตัวเสื้อ → เก็บเข้าตู้เป็นตั้ง</div>
+          </div>
+          <div class="card">
+            <h3>🧰 อุปกรณ์ต้องคู่กับงาน</h3>
+            <p>เลือกอุปกรณ์ให้ตรงกับงาน งานจะเสร็จเร็วและไม่เสียของ</p>
+            <ul>
+              <li>🧹 ไม้กวาด → กวาดพื้น</li>
+              <li>🪣 ถังน้ำ + ผ้าถูพื้น → ถูพื้น</li>
+              <li>🧽 ฟองน้ำ + น้ำยาล้างจาน → ล้างจาน</li>
+              <li>🧺 ตะกร้าผ้า → ใส่ผ้ารอซัก/รอพับ</li>
+            </ul>
+            <div class="ex">ใช้เสร็จแล้ว ล้างหรือเช็ดให้สะอาด แล้วเก็บเข้าที่เดิมทุกครั้ง</div>
+          </div>
+          <div class="card">
+            <h3>✂️ งานประดิษฐ์ + ความปลอดภัย</h3>
+            <p>อุปกรณ์งานประดิษฐ์ที่ใช้บ่อย: กรรไกร ✂️ · กาว 🧴 · กระดาษ 📄 · สีเทียน/สีไม้ 🖍️ · ไม้บรรทัด 📏</p>
+            <div class="figure" aria-hidden="true">
+              <svg width="200" height="86" viewBox="0 0 200 86" role="img">
+                <circle cx="46" cy="30" r="10" fill="none" stroke="#dc2626" stroke-width="5"/>
+                <circle cx="46" cy="58" r="10" fill="none" stroke="#dc2626" stroke-width="5"/>
+                <line x1="54" y1="36" x2="120" y2="52" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                <line x1="54" y1="52" x2="120" y2="36" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+                <rect x="134" y="22" width="52" height="44" rx="4" fill="#fef9c3" stroke="#b45309" stroke-width="3" stroke-dasharray="6 4"/>
+              </svg>
+            </div>
+            <ul>
+              <li>ถือกรรไกร <strong>หันปลายลง</strong> · ส่งให้เพื่อนต้อง <strong>ส่งด้านด้าม</strong></li>
+              <li>ตัดกระดาษบนโต๊ะ ไม่เดินไปตัดไป</li>
+              <li>กาวใช้ทีละนิด ปิดฝาทุกครั้ง ไม่เอาเข้าปาก</li>
+              <li>ทำเสร็จ เก็บอุปกรณ์ + ทิ้งเศษกระดาษลงถังขยะ</li>
+            </ul>
+          </div>
+        </div>
+        <div class="steps">
+          <div><strong>ก่อนทำ</strong><br>เตรียมอุปกรณ์ให้ครบ ตรงกับงาน</div>
+          <div><strong>ขณะทำ</strong><br>ทำทีละขั้นตอน ระวังของมีคม</div>
+          <div><strong>หลังทำ</strong><br>เก็บของเข้าที่ + ล้างมือให้สะอาด</div>
+        </div>
+        <div class="tip">⚠️ ของมีคม (กรรไกร มีด เข็ม) และน้ำยาทำความสะอาด ต้องใช้อย่างระวัง — ไม่แน่ใจให้ถามผู้ใหญ่ก่อนทุกครั้ง</div>
+      </div>
+      <div class="panel" id="practice">
+        <p class="q" id="pq"></p>
+        <div class="opts" id="popts"></div>
+        <p class="fb" id="pfb"></p>
+        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+      </div>
+    </div>
+    <footer class="footer">ตัวชี้วัด <strong>ง 1.1 ป.1/2 · ง 1.1 ป.2/3 · ง 1.1 ป.3/3</strong> · คู่ใบงาน <a href="/games/career/housework-craft-worksheet.html">housework-craft</a></footer>
+  </div>
+  <script>
+    const MEDIA_SLUG = 'housework-craft-media';
+    if (window.KAMPAI) window.KAMPAI.setSlug('housework-craft-media');
+    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+
+    const QS = [
+      { q: 'อุปกรณ์ใดใช้กวาดพื้น?', opts: ['ไม้กวาด', 'กระทะ', 'ดินสอ', 'ช้อน'], a: 'ไม้กวาด' },
+      { q: 'เช็ดโต๊ะให้สะอาด ควรใช้ผ้าแบบใด?', opts: ['ผ้าชุบน้ำบิดหมาด', 'ผ้าเปียกหยดน้ำ', 'ผ้าที่สกปรก', 'กระดาษวาดรูป'], a: 'ผ้าชุบน้ำบิดหมาด' },
+      { q: 'งานผ้าเรียงลำดับข้อใดถูกต้อง?', opts: ['ซัก → ตาก → พับ', 'พับ → ซัก → ตาก', 'ตาก → ซัก → พับ', 'พับ → ตาก → ซัก'], a: 'ซัก → ตาก → พับ' },
+      { q: 'เล่นของเล่นเสร็จแล้วควรทำอย่างไร?', opts: ['เก็บใส่กล่องให้เป็นที่', 'ทิ้งไว้กลางบ้าน', 'ซ่อนใต้เตียง', 'โยนไปให้น้อง'], a: 'เก็บใส่กล่องให้เป็นที่' },
+      { q: 'ส่งกรรไกรให้เพื่อน ควรส่งอย่างไร?', opts: ['หันด้ามให้เพื่อนจับ', 'หันปลายแหลมให้เพื่อน', 'โยนให้เพื่อนรับ', 'ถือวิ่งไปหาเพื่อน'], a: 'หันด้ามให้เพื่อนจับ' },
+      { q: 'อุปกรณ์ใดใช้ติดกระดาษในงานประดิษฐ์?', opts: ['กาว', 'ไม้กวาด', 'ฟองน้ำ', 'ตะกร้าผ้า'], a: 'กาว' },
+      { q: 'ก่อนถูพื้น ต้องเตรียมอุปกรณ์ใด?', opts: ['ถังน้ำและผ้าถูพื้น', 'สีเทียนและกระดาษ', 'จานและช้อน', 'หนังสือนิทาน'], a: 'ถังน้ำและผ้าถูพื้น' },
+      { q: 'ทำงานบ้านเสร็จแล้ว ควรทำอะไรก่อนกินขนม?', opts: ['ล้างมือให้สะอาด', 'นอนหลับทันที', 'ไปเล่นต่อเลย', 'ไม่ต้องทำอะไร'], a: 'ล้างมือให้สะอาด' },
+      { q: 'ใช้กรรไกรเสร็จแล้ว ควรทำอย่างไร?', opts: ['เก็บใส่กล่องอุปกรณ์ให้เป็นที่', 'วางไว้บนพื้น', 'ทิ้งไว้บนเก้าอี้', 'เอาไปเล่นต่อ'], a: 'เก็บใส่กล่องอุปกรณ์ให้เป็นที่' },
+      { q: 'ข้อใดคือการช่วยเหลือตนเองที่บ้าน?', opts: ['พับผ้าห่มหลังตื่นนอน', 'รอให้แม่ทำให้ทุกอย่าง', 'ทิ้งเสื้อผ้าไว้บนพื้น', 'ไม่เก็บที่นอน'], a: 'พับผ้าห่มหลังตื่นนอน' },
+    ];
+
+    function nextPractice() {
+      const item = QS[(Math.random() * QS.length) | 0];
+      document.getElementById('pq').textContent = item.q;
+      document.getElementById('pfb').textContent = '';
+      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
+      document.getElementById('popts').innerHTML = opts.map((o) =>
+        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
+      ).join('');
+      document.querySelectorAll('#popts .opt').forEach((btn) => {
+        btn.onclick = () => {
+          const ok = btn.dataset.a === item.a;
+          btn.classList.add(ok ? 'ok' : 'no');
+          document.querySelectorAll('#popts .opt').forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.a === item.a) b.classList.add('ok');
+          });
+          document.getElementById('pfb').textContent = ok ? '✓ เก่งมาก!' : '✗ คำตอบ: ' + item.a;
+          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
+          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+        };
+      });
+    }
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      const mode = b.dataset.mode;
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent =
+        mode === 'learn' ? 'งานบ้านช่วยได้ · ซัก–ตาก–พับ · อุปกรณ์ประดิษฐ์อย่างปลอดภัย' : 'เลือกคำตอบ 4 ตัวเลือก';
+      if (mode === 'practice') nextPractice();
+    };
+    document.getElementById('btnNext').onclick = nextPractice;
+  </script>
+</body>
+</html>

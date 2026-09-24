@@ -19,12 +19,14 @@
   ```html
   <script src="/games/kampai-sdk.js"></script>
   <script>
-  window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+  window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, beginRound:function(){}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
   </script>
   ```
   (บรรทัด `window.KAMPAI = window.KAMPAI || {...}` คือ fallback ให้เปิดไฟล์ทดสอบเดี่ยว ๆ ได้ไม่พัง)
 
 ## API ที่ต้องใช้ (window.KAMPAI)
+
+ทุกเกมรองรับเดี่ยว, 2 คนเครื่องนี้ และออนไลน์ผ่าน `/games/kampai-versus.js` ตาม GAME.md. ใช้ KampaiVersus จัดการเมนู/รอบ/การบันทึกการแข่งขัน ไม่สร้าง lobby หรือเส้นทางส่งคะแนนซ้ำเอง.
 - `KAMPAI.setSlug('my-game')` — ตั้งครั้งเดียวตอนเริ่ม (ฉันจะบอก slug หรือใช้ค่าชั่วคราวไปก่อน)
 - `KAMPAI.onReady(function(k){ ... })` — เรียกเมื่อข้อมูลนักเรียนพร้อม. ใน callback ใช้:
   - `k.student` = `{ displayName, photoUrl, classLabel }` — เอาไปโชว์ชื่อผู้เล่นในเกม
@@ -33,9 +35,9 @@
   - `k.leaderboard` = array ของ `{ rank, displayName, photoUrl, classLabel, personalBest, isMe }`
     — **เอาไปแสดงตาราง 5 อันดับในหน้าเริ่มเกมและหน้าจบเกม** (ไฮไลต์คนที่ `isMe === true`)
 - `KAMPAI.setSlug('game-slug')` — เรียกครั้งเดียวตอนโหลด ต้องตรง `game_slug` ใน DB
-- `KAMPAI.submitScore(score, { mode:'normal', ...extra })` — **เรียกทุกครั้งที่เกมจบ** (สำคัญที่สุด!
-  ถ้าไม่เรียก คะแนนจะไม่ถูกบันทึก). `score` เป็นจำนวนเต็ม. `extra` ใส่ข้อมูลเสริมได้ (combo, accuracy ฯลฯ)
-- **เริ่มรอบใหม่** (ปุ่ม "เล่นอีกครั้ง"): `KAMPAI._submitted = false` + `postMessage({ type:'gameStart' })` + ซ่อนจอ game-over —
+- `KAMPAI.submitScore(score, { mode:'normal', ...extra })` — **เรียกครั้งเดียวเมื่อจบรอบ solo จริง**.
+  Practice ไม่ส่งคะแนน; การแข่งขันให้ KampaiVersus จัดการ ไม่ส่งซ้ำจากเกม. `score` เป็นจำนวนเต็ม. `extra` ใส่ข้อมูลเสริมได้ (combo, accuracy ฯลฯ)
+- **เริ่มรอบใหม่** (รวมปุ่ม "เล่นอีกครั้ง"): เรียก `KAMPAI.beginRound()` เมื่อเริ่มเล่นได้ + ซ่อนจอ game-over —
   ไม่งั้นรอบ 2+ ใน `/play/` จะไม่บันทึก
 - **โหมดฝึกซ้อม:** ถ้ามี practice mode ห้าม `submitScore` และซ่อนปุ่มใน embed (`html.embed-mode`)
 - `KAMPAI.goHome()` — ใช้กับปุ่ม "กลับหน้าหลัก" / "เลือกเกมใหม่"
@@ -68,7 +70,7 @@
    (ถ้ายังไม่มีข้อมูล เช่นเปิดทดสอบเดี่ยว ๆ → ซ่อนการ์ดสถิติ/อันดับไว้ ไม่ต้องโชว์ค่าว่าง)
 2. **ระหว่างเล่น (HUD)** — คะแนนปัจจุบัน + ชีวิต/เวลา (ถ้ามี) + ป้ายชื่อผู้เล่น (`student.displayName`)
 3. **จอจบเกม (game over)** — คะแนนรอบนี้ + ตารางอันดับ (ชุดเดียวกับจอเริ่ม) +
-   ปุ่ม "เล่นใหม่" + ปุ่มกลับหน้าหลัก (`KAMPAI.goHome()`) · เรียก `KAMPAI.submitScore(...)` ตรงนี้
+   ปุ่ม "เล่นใหม่" + ปุ่มกลับหน้าหลัก (`KAMPAI.goHome()`) · solo เรียก `KAMPAI.submitScore(...)` ครั้งเดียว; practice ไม่ส่ง; การแข่งขันให้ framework จัดการ
 4. **มือถือ** — `KAMPAI.controls.mount({dpad:true, buttons:[...]})` หรือ tap (`pointerdown`) — เล่นได้ทั้ง desktop + มือถือ
 
 ## ห้าม
@@ -85,30 +87,29 @@
   ระหว่างที่เด็กกำลังคิด. ให้เด็ก **คิด/นับเอง** ก่อน แล้วค่อย **เฉลย/ไฮไลต์คำตอบที่ถูกตอน "ตอบผิด"**
   (เรียนรู้จากที่พลาด) — ท้าทายกำลังดีและสอนไปในตัว สำหรับเด็กประถม
 
-## โหมดออนไลน์หลายคน — แข่งกันต่างเครื่อง (แนะนำถ้าเกมเหมาะ)
-**ถ้าเกมเป็นแบบเก็บแต้ม/แข่งเวลา/ถาม-ตอบ → แนะนำให้ทำโหมดออนไลน์ด้วย** (ผู้ใช้มักอยากได้).
-ไม่เหมาะ = เกม AR/กล้อง, อุปกรณ์เดียว/ผลัดกันเล่น, วาดภาพอิสระ → ข้ามได้.
-ใช้เฟรมเวิร์ก `kampai-match.js` (อย่าเขียน lobby/realtime เอง):
-- เพิ่ม 2 บรรทัดใน `<body>`:
+## สามโหมดมาตรฐาน — เดี่ยว / 2 คนเครื่องนี้ / ออนไลน์
+ทุกเกมใช้ KampaiVersus ตาม GAME.md รวมเกม AR ที่ผลัดกันเล่นรอบกล้อง. ไม่ถามผู้ใช้ซ้ำว่าจะเพิ่มโหมดมาตรฐานหรือไม่ และไม่เขียน lobby/realtime เอง.
+- โหลดหลัง KAMPAI SDK:
   ```html
   <script src="/games/kampai-match.js"></script>
-  <script>window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };</script>
+  <script src="/games/kampai-versus.js"></script>
   ```
-- สร้าง match ครั้งเดียว + เพิ่มปุ่ม "ออนไลน์" ที่เรียก `match.openMenu()`:
+- สร้าง framework ครั้งเดียวเมื่อโหลดสำเร็จ + ปุ่ม "แข่ง 2 คน" เรียก `vs.openMenu()` คู่กับปุ่มเริ่มเดี่ยว:
   ```js
-  const match = KampaiMatch.create({
+  const vs = window.KampaiVersus ? KampaiVersus.create({
     duration: 60,                              // แข่งตามเวลา (วินาที)
     onPlay: ({ rng }) => startGame(rng),       // GO! เริ่มเล่น — ใช้ rng สร้างโจทย์ให้ "ตรงกันทุกเครื่อง"
     onEnd:  () => stopGame(),                   // หมดเวลา → หยุดรับ input
-  });
+  }) : null;
   ```
-- ตอนผู้เล่นได้คะแนน เรียก `match.report(score, { correct })` ทุกครั้ง (คู่แข่งจะเห็นคะแนนวิ่งสด + เรียงอันดับ)
-- เฟรมเวิร์กจัดการให้หมด: สร้าง/เข้าห้อง (รหัส 4 หลัก) · lobby · นับถอยหลังพร้อมกัน · นาฬิกา · แถบคะแนนสด · อันดับผู้ชนะ · บันทึกคะแนน
-- **สำคัญ:** โจทย์ในโหมดออนไลน์ต้องสุ่มจาก `rng` ที่ได้จาก `onPlay` เท่านั้น (อย่าใช้ `Math.random` กับตัวโจทย์) ไม่งั้นแต่ละเครื่องได้คนละโจทย์
+- ตอนคะแนนเปลี่ยนเรียก `vs?.report(score, { correct })`; จบรอบตรวจ practice ก่อน (ไม่ส่งคะแนน), แล้ว `if (vs?.finish(score, { correct })) return;` ก่อน solo submit เพื่อไม่บันทึกซ้ำ.
+- เฟรมเวิร์กจัดการเลือกโหมด/คู่แข่ง, local P1/P2, lobby, นับถอยหลัง, เปรียบเทียบผล และการบันทึกการแข่งขัน.
+- ใช้ `rng` จาก `onPlay` สำหรับโจทย์และสิ่งกีดขวางแข่งขัน เพื่อให้ P1/P2 ได้ชุดเดียวกัน.
+- ถ้า framework โหลดไม่ได้ (`vs === null`) ให้แสดงข้อความว่าแข่งขันยังไม่พร้อมและยังเล่นเดี่ยวได้; ห้ามปุ่มเรียกเมธอดของ null. นี่เป็น fallback เมื่อโหลดล้มเหลว ไม่ใช่ข้อยกเว้นให้ละเว้น 3 โหมดในการส่งงาน.
 
 ## สรุปสิ่งที่ต้องส่งกลับ
 ไฟล์ HTML เดียว ที่: ครบ 4 จอตามโครงสร้างมาตรฐาน (จอเริ่มมีการ์ดสถิติฉัน + ตารางอันดับ /
 HUD / จอจบมีอันดับ + ปุ่มกลับหน้าหลัก), เล่นได้ทั้ง desktop+มือถือ, โชว์ชื่อผู้เล่น+สถิติ+
-leaderboard จาก `KAMPAI`, และเรียก `KAMPAI.submitScore(score)` ตอนจบเกม.
+leaderboard จาก `KAMPAI`, และบันทึกคะแนน solo ครั้งเดียวเมื่อจบรอบจริง; practice ไม่ส่ง และการแข่งขันให้ KampaiVersus จัดการ.
 
 **ไอเดียเกมของฉันคือ:** _(พิมพ์ต่อท้ายตรงนี้ — เช่น "เกมจับคู่คำศัพท์ภาษาอังกฤษ ป.4")_

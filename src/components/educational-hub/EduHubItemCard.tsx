@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    FileText, ExternalLink, Play, Type, Download, Eye, Star, PlayCircle, Maximize2,
-    GripVertical, Gamepad2, Pin, Loader2,
+    FileText, ExternalLink, Play, Type, Download, Eye, PlayCircle, Maximize2,
+    GripVertical, Gamepad2, Pin, Loader2, BookOpenCheck,
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -26,13 +26,11 @@ import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import type { GameCardIndicator } from '@/services/curriculum.service';
 import type { ViewMode } from '@/hooks/useViewMode';
 import { isWorksheetItem, type PairedHubLink } from '@/lib/edu-hub-worksheet-pairs';
+import type { LessonPackItem, TeachingMediaUnit } from '@/services/lesson-packs.service';
 
 interface Props {
     item: EduHubItem;
     viewMode?: ViewMode;
-    isFavorite?: boolean;
-    /** If provided, renders a ⭐ button (toggle on click) */
-    onToggleFavorite?: () => void;
     /** Admin-only — shows a drag handle and registers with parent SortableContext */
     editable?: boolean;
     /** ปักหมุดคลังเกม (global) */
@@ -44,13 +42,12 @@ interface Props {
     linkedIndicators?: GameCardIndicator[];
     categoryKey?: string | null;
     pairedLink?: PairedHubLink | null;
+    teachingUnit?: TeachingMediaUnit | null;
 }
 
 export const EduHubItemCard = ({
     item: originalItem,
     viewMode = 'grid',
-    isFavorite = false,
-    onToggleFavorite,
     editable = false,
     libraryPinned = false,
     showLibraryPinControl = false,
@@ -59,6 +56,7 @@ export const EduHubItemCard = ({
     linkedIndicators,
     categoryKey = null,
     pairedLink = null,
+    teachingUnit = null,
 }: Props) => {
     // Redefine item with backward compatibility mapping
     const item = originalItem.game_slug === 'multiply-rally' || originalItem.external_url?.includes('/multiply-rally/')
@@ -117,11 +115,6 @@ export const EduHubItemCard = ({
         }
     };
 
-    const handleFavoriteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onToggleFavorite?.();
-    };
-
     const handleLibraryPinClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onToggleLibraryPin?.();
@@ -133,6 +126,28 @@ export const EduHubItemCard = ({
         setEmbedOpen(true);
     };
 
+    const openUnitResource = (e: React.MouseEvent, resource: LessonPackItem) => {
+        e.stopPropagation();
+        const resourceItem = resource.item;
+        if (!resourceItem) return;
+        void Promise.resolve(educationalHubService.incrementView(resource.edu_hub_item_id)).catch(() => {});
+        if (resourceItem.tracked_game && resourceItem.game_slug) {
+            navigate(`/play/${resourceItem.game_slug}`);
+            return;
+        }
+        const href = resourceItem.file_url || resourceItem.external_url;
+        if (href) window.open(href, '_blank', 'noopener,noreferrer');
+    };
+
+    const hasResourceTarget = (resource: LessonPackItem) => Boolean(
+        resource.item?.file_url
+        || resource.item?.external_url
+        || (resource.item?.tracked_game && resource.item?.game_slug),
+    );
+    const worksheetResources = teachingUnit?.worksheets.filter(hasResourceTarget) ?? [];
+    const gameResources = teachingUnit?.games.filter(hasResourceTarget) ?? [];
+    const fallbackPair = worksheetResources.length === 0 ? pairedLink : null;
+
     // ─── COMPACT view: single-row list item ────────────────────────────
     if (isCompact) {
         return (
@@ -140,6 +155,10 @@ export const EduHubItemCard = ({
                 <Card
                     ref={sortable.setNodeRef}
                     style={sortableStyle}
+                    data-edu-hub-item-id={item.id}
+                    data-edu-hub-item-title={item.title}
+                    data-edu-hub-item-subject={item.subject ?? ''}
+                    data-edu-hub-pinned={libraryPinned ? 'true' : 'false'}
                     onClick={handleClick}
                     className="group cursor-pointer flex items-center gap-3 p-2.5 hover:shadow-sm transition-all hover:bg-accent/30"
                 >
@@ -173,14 +192,19 @@ export const EduHubItemCard = ({
                     </div>
                     <CardActions
                         item={item}
-                        isFavorite={isFavorite}
-                        onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
                         onEmbed={item.item_type === 'link' ? handleEmbedClick : undefined}
                         libraryPinned={libraryPinned}
                         showLibraryPinControl={showLibraryPinControl}
                         onToggleLibraryPin={onToggleLibraryPin ? handleLibraryPinClick : undefined}
                         libraryPinLoading={libraryPinLoading}
                         compact
+                    />
+                    <TeachingUnitActions
+                        worksheets={worksheetResources}
+                        games={gameResources}
+                        fallbackPair={fallbackPair}
+                        compact
+                        onOpenResource={openUnitResource}
                     />
                 </Card>
                 <DetailDialog item={item} open={openDialog} onOpenChange={setOpenDialog} />
@@ -196,6 +220,10 @@ export const EduHubItemCard = ({
             <Card
                 ref={sortable.setNodeRef}
                 style={sortableStyle}
+                data-edu-hub-item-id={item.id}
+                data-edu-hub-item-title={item.title}
+                data-edu-hub-item-subject={item.subject ?? ''}
+                data-edu-hub-pinned={libraryPinned ? 'true' : 'false'}
                 onClick={handleClick}
                 className={cn(
                     'group cursor-pointer overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 relative flex flex-col h-full',
@@ -218,7 +246,7 @@ export const EduHubItemCard = ({
                     </button>
                 )}
 
-                {/* Favorite + Embed action overlay (top-right) */}
+                {/* Embed and library pin actions (top-right) */}
                 <div className="absolute top-2 right-2 z-10 flex gap-1">
                     {item.item_type === 'link' && item.external_url && (
                         <button
@@ -239,7 +267,7 @@ export const EduHubItemCard = ({
                             className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform disabled:opacity-60"
                             aria-label={libraryPinned ? 'ปลดหมุดคลัง' : 'ปักหมุดคลัง'}
                             aria-pressed={libraryPinned}
-                            title={libraryPinned ? 'ปักหมุดคลัง (มีผลทุกเครื่อง)' : 'ปักหมุดคลัง (มีผลทุกเครื่อง)'}
+                            title={libraryPinned ? 'ปลดหมุดคลัง (มีผลทุกเครื่อง)' : 'ปักหมุดคลัง (มีผลทุกเครื่อง)'}
                         >
                             {libraryPinLoading ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
@@ -251,23 +279,6 @@ export const EduHubItemCard = ({
                                     )}
                                 />
                             )}
-                        </button>
-                    )}
-                    {onToggleFavorite && (
-                        <button
-                            type="button"
-                            onClick={handleFavoriteClick}
-                            className="h-7 w-7 rounded-full bg-background/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-background hover:scale-110 transition-transform"
-                            aria-label={isFavorite ? 'ลบจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
-                            aria-pressed={isFavorite}
-                            title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
-                        >
-                            <Star
-                                className={cn(
-                                    'h-3.5 w-3.5 transition-colors',
-                                    isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
-                                )}
-                            />
                         </button>
                     )}
                 </div>
@@ -335,6 +346,12 @@ export const EduHubItemCard = ({
                                     ปักหมุด
                                 </Badge>
                             )}
+                            {teachingUnit && (
+                                <Badge variant="outline" className="gap-1 text-[10px] border-primary/40 text-primary">
+                                    <BookOpenCheck className="h-3 w-3" />
+                                    {worksheetResources.length > 0 ? 'หน่วยพร้อมสอน' : 'กำลังเติมทรัพยากร'}
+                                </Badge>
+                            )}
                             {item.grade_levels?.slice(0, 2).map((g) => (
                                 <Badge key={g} variant="outline" className="text-[10px]">{g}</Badge>
                             ))}
@@ -343,28 +360,32 @@ export const EduHubItemCard = ({
                             ))}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                            {pairedLink && (
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-7 px-2 text-[10px] font-semibold"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(pairedLink.href, '_blank', 'noopener,noreferrer');
-                                    }}
-                                >
-                                    {pairedLink.kind === 'worksheet' ? (
-                                        <FileText className="h-3 w-3 mr-1" />
-                                    ) : (
-                                        <ExternalLink className="h-3 w-3 mr-1" />
-                                    )}
-                                    {pairedLink.label}
-                                </Button>
-                            )}
                             <ActionStat item={item} />
                         </div>
                     </div>
+
+                    {(categoryKey === 'media' || teachingUnit || fallbackPair) && (
+                        <div className="shrink-0 flex flex-wrap gap-2 py-2 border-t border-border/70 mt-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="h-11 text-sm font-semibold"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleClick();
+                                }}
+                            >
+                                <PlayCircle className="h-3.5 w-3.5 mr-1" />
+                                เปิดสื่อ
+                            </Button>
+                            <TeachingUnitActions
+                                worksheets={worksheetResources}
+                                games={gameResources}
+                                fallbackPair={fallbackPair}
+                                onOpenResource={openUnitResource}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {showFooterStrips && (
@@ -450,10 +471,76 @@ const ArBadge = ({ text }: { text: string }) => (
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
+const TeachingUnitActions = ({
+    worksheets,
+    games,
+    fallbackPair,
+    compact = false,
+    onOpenResource,
+}: {
+    worksheets: LessonPackItem[];
+    games: LessonPackItem[];
+    fallbackPair: PairedHubLink | null;
+    compact?: boolean;
+    onOpenResource: (event: React.MouseEvent, resource: LessonPackItem) => void;
+}) => (
+    <>
+        {worksheets.map((resource, index) => (
+            <Button
+                key={resource.id}
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="outline"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={resource.item?.title ?? 'เปิดใบงาน'}
+                aria-label={resource.item?.title ?? 'เปิดใบงาน'}
+                onClick={(event) => onOpenResource(event, resource)}
+            >
+                <FileText className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                {!compact && (worksheets.length > 1 ? `ใบงาน ${index + 1}` : 'เปิดใบงาน')}
+            </Button>
+        ))}
+        {games.map((resource, index) => (
+            <Button
+                key={resource.id}
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="secondary"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={resource.item?.title ?? 'เล่นเกม'}
+                aria-label={resource.item?.title ?? 'เล่นเกม'}
+                onClick={(event) => onOpenResource(event, resource)}
+            >
+                <Gamepad2 className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                {!compact && (games.length > 1 ? `เกม ${index + 1}` : 'เล่นเกม')}
+            </Button>
+        ))}
+        {fallbackPair && (
+            <Button
+                type="button"
+                size={compact ? 'icon' : 'sm'}
+                variant="outline"
+                className={compact ? 'h-11 w-11' : 'h-11 text-sm font-semibold'}
+                title={fallbackPair.label}
+                aria-label={fallbackPair.label}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    window.open(fallbackPair.href, '_blank', 'noopener,noreferrer');
+                }}
+            >
+                {fallbackPair.kind === 'worksheet' ? (
+                    <FileText className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                ) : (
+                    <ExternalLink className={compact ? 'h-4 w-4' : 'h-3.5 w-3.5 mr-1'} />
+                )}
+                {!compact && fallbackPair.label}
+            </Button>
+        )}
+    </>
+);
+
 const CardActions = ({
     item,
-    isFavorite,
-    onToggleFavorite,
     onEmbed,
     libraryPinned = false,
     showLibraryPinControl = false,
@@ -462,8 +549,6 @@ const CardActions = ({
     compact,
 }: {
     item: EduHubItem;
-    isFavorite: boolean;
-    onToggleFavorite?: (e: React.MouseEvent) => void;
     onEmbed?: (e: React.MouseEvent) => void;
     libraryPinned?: boolean;
     showLibraryPinControl?: boolean;
@@ -503,23 +588,6 @@ const CardActions = ({
                         )}
                     />
                 )}
-            </Button>
-        )}
-        {onToggleFavorite && (
-            <Button
-                size="icon"
-                variant="ghost"
-                onClick={onToggleFavorite}
-                className={compact ? 'h-7 w-7' : 'h-8 w-8'}
-                title={isFavorite ? 'รายการโปรด' : 'เพิ่มในรายการโปรด'}
-                aria-pressed={isFavorite}
-            >
-                <Star
-                    className={cn(
-                        'h-4 w-4',
-                        isFavorite ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground',
-                    )}
-                />
             </Button>
         )}
     </div>

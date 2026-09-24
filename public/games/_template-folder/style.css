@@ -74,3 +74,7 @@ body.shake { animation: shake 0.32s; }
 /* ดาวคะแนนจอจบ */
 #go-stars { font-size: 44px; letter-spacing: 6px; margin: 4px 0 6px; }
 #go-summary { font-size: 15px; color: #cbd5e1; margin-bottom: 6px; }
+button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

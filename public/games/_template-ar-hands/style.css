@@ -73,3 +73,7 @@ html, body { height: 100%; font-family: 'Kanit', sans-serif; background: #0b1030
     .card { padding: 20px 16px; }
     .btn { padding: 12px 24px; font-size: 16px; }
 }
+button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

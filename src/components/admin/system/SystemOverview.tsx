@@ -28,8 +28,10 @@ import {
     Search,
     ArrowRight,
     CircleAlert,
+    RefreshCw,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { educationalHubService } from '@/services/educational-hub.service';
@@ -106,7 +108,7 @@ const dbGroups = [
     { label: 'ธนาคาร / รางวัล', tables: ['waste_categories', 'waste_transactions', 'savings_transactions', 'rewards', 'reward_claims', 'daily_quest_config', 'daily_quest_completions'] },
     { label: 'สารบรรณ / Docs Hub', tables: ['incoming_letters', 'outgoing_letters', 'meetings', 'signatures', 'budget_categories', 'budget_transactions', 'supply_items', 'supply_requests', 'digital_workload_baselines', 'digital_paper_logs', 'sar_standards', 'sar_assessments', 'ics_forms', 'action_plan_projects', 'doc_template_definitions'] },
     { label: 'HR', tables: ['leave_requests', 'leave_balances', 'training_records', 'pa_assessments'] },
-    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
+    { label: 'วิชาการ / ตัวชี้วัด', tables: ['class_schedules', 'lesson_plans', 'teaching_materials', 'academic_calendar', 'curriculum_indicators', 'indicator_games', 'indicator_lesson_plans', 'integrated_plan_topics', 'integrated_plan_units', 'student_indicator_assessments', 'student_special_needs', 'counseling_records'] },
     { label: 'คลังสื่อ / packs', tables: ['educational_hub_categories', 'educational_hub_profiles', 'educational_hub_items', 'lesson_packs', 'lesson_pack_items', 'game_docs', 'game_bgm_tracks'] },
     { label: 'เกม / quest', tables: ['game_sessions', 'game_achievements_catalog', 'game_student_achievements', 'online_matches', 'english_quest_worlds', 'english_quest_progress', 'pixel_forest_rpg_profiles'] },
     { label: 'Portal / การบ้าน', tables: ['assignments', 'assignment_submissions', 'conference_slots', 'conference_bookings', 'pickup_persons', 'pickup_log', 'class_photos', 'class_photo_tags'] },
@@ -114,6 +116,22 @@ const dbGroups = [
     { label: 'PDPA / บริจาค', tables: ['pdpa_consents', 'pdpa_erasure_requests', 'data_access_logs', 'donation_campaigns', 'donations'] },
     { label: 'ระบบ', tables: ['school_settings', 'page_views', 'user_roles', 'user_menu_permissions', 'shared_quick_menu', 'user_dashboard_layout', 'ai_assist_log', 'cctv_cameras', 'admissions', 'alumni_profiles'] },
 ];
+
+const SYSTEM_OVERVIEW_META = {
+    version: 'v1.229.25',
+    verifiedDate: '28 ส.ค. 2569',
+    verifiedIsoDate: '2026-08-28',
+    productionUrl: 'https://kampai-school.vercel.app',
+    database: {
+        tables: 165,
+        views: 16,
+        rlsTables: 165,
+        appliedMigrations: 250,
+        trackedMigrationFiles: 506,
+        latestProductionMigration: '20260827162859 · upgrade_mixed_number_conversion_worksheet',
+        latestRepositoryMigration: '476_upgrade_mixed_number_conversion_worksheet.sql',
+    },
+} as const;
 
 /** รายการที่ยังไม่ ship / ยังไม่ครบ — ของที่ขึ้น production แล้วอยู่ featureCatalog */
 const roadmap = [
@@ -130,7 +148,7 @@ const roadmap = [
 
 const sprintPlan = [
     {
-        sprint: '✅ ส่งมอบแล้ว (ถึง v1.204)',
+        sprint: `✅ ส่งมอบแล้ว (ถึง ${SYSTEM_OVERVIEW_META.version})`,
         duration: 'เสร็จ',
         goal: 'แกนโรงเรียนครบ: CMS · วิชาการ/ปพ./DMC · ธนาคาร+เกม · คลังสื่อ/เกม/ใบงาน/packs · Chat/LINE/Push · Portal 3 บทบาท · สารบรรณ/HR · PDPA/บริจาค',
         badge: 'bg-emerald-600',
@@ -272,41 +290,1695 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
-        version: 'v1.215.0 (Animal Feast — ยอดนักป้อนอาหารสัตว์)',
-        date: 'ล่าสุด',
-        badge: 'bg-green-600',
-        items: [
-            'เพิ่มเกมวิทยาศาสตร์ชีวภาพเล่นง่าย "Animal Feast (ยอดนักป้อนอาหารสัตว์)" สำหรับเด็กประถม (ป.1 - ป.4)',
-            'เรียนรู้ประเภทอาหารของสัตว์: สัตว์กินพืช (Herbivore), สัตว์กินเนื้อ (Carnivore), สัตว์กินทั้งสองอย่าง (Omnivore) ผ่านคลังสัตว์น่ารัก 16+ ชนิด',
-            'ระบบป้อนอาหาร 2 ถาดสัมผัสขนาดใหญ่: 🌿 พืช/ผลไม้ vs 🥩 เนื้อสัตว์/ปลา + ระบบคอมโบ Frenzy Time',
-            'Migration 464 + game_docs + ระบบดวล Versus + หน้าปก 16:9 1280×720',
-        ],
-    },
-    {
-        version: 'v1.214.0 (Maglev Rush — รถไฟแม่เหล็กและแรงมหัศจรรย์)',
-        date: '',
+        version: 'v1.229.92 (ภาษาอังกฤษ — ยกระดับ Phonics Reading Studio v2.1: โหมดซ่อนคำสำหรับฝึกทายคำในห้องเรียน, ถอดเสียงเทียบพยัญชนะ-สระไทย 4 สี, ขยายคลังคำศัพท์ 170 คำพร้อมภาพ WebP แท้ และลบ IPA 100%)',
+        date: '23 ก.ย. 2569',
         badge: 'bg-emerald-600',
         items: [
-            'เพิ่มเกมวิทยาศาสตร์กายภาพ "Maglev Rush (รถไฟแม่เหล็กและแรงมหัศจรรย์)" (วิทยาศาสตร์ ป.1 - ป.6)',
-            'ฟิสิกส์ High-Speed Runner 3 เลน: สลับขั้วแม่เหล็ก N/S (ขั้วเหมือนกันเกิดแรงผลักเทอร์โบ / ขั้วต่างกันเกิดแรงดูด)',
-            'จำแนกสารแม่เหล็ก (ตะปู, คลิป, ลูกปืน, เหรียญนิกเกิล, โคบอลต์) vs สิ่งกีดขวางที่ไม่ใช่แม่เหล็ก + ระบบเบรกชานชาลาสถานี',
-            'Migration 463 + game_docs + ระบบดวล Versus + หน้าปก 16:9 1280×720',
+            'Word Reveal & Classroom Quiz Mode: เพิ่มปุ่มสลับซ่อนคำ (👁️ ซ่อนคำ / 👁️🗨️ แสดงคำ) บนแถบเครื่องมือ พร้อมคีย์ลัด Smartboard กด H, กล่อง placeholder ❓ แตะเพื่อเฉลย และระบบซ่อนคำในโหมดคลังคำศัพท์ Gallery',
+            'Complete IPA Removal: ลบสัญลักษณ์สัทอักษร IPA (/.../) ออกจากระบบและชุดข้อมูลคำศัพท์ 100% อย่างหมดจด (0 occurrences)',
+            'Thai Phonetic Mapping & Legend: เพิ่มระบบถอดเสียงตัวอักษรภาษาอังกฤษเทียบเคียงพยัญชนะ/สระไทย 4 รหัสสี (🔵 consonant, 🟡 vowel, 🟢 syllable/cluster, ⚪ silent letter) พร้อม 4-dot legend คำอธิบายสัญลักษณ์',
+            'Expanded Vocabulary to 170 Words: ขยายคลังคำศัพท์โฟนิกส์ครอบคลุมทั้ง 10 หมวดรวม 170 คำ พร้อมภาพประกอบแท้ .webp จาก vocab-hub-assets/ ครบทุกคำ',
+            'Classroom-First & Accessibility: ปรับปรุงเป้าหมายสัมผัสขนาด ≥ 44×44 px ตามมาตรฐาน WCAG AAA, ไร้ปัญหาข้อความล้น (Zero Horizontal Overflow) บนวิวพอร์ต 360×800 และ 1280×720',
         ],
     },
     {
-        version: 'v1.213.0 (Sci-Lab Defender AR — เกม AR วันวิทยาศาสตร์ 3 ฐาน)',
-        date: '',
+        version: 'v1.229.91 (อัปเกรดภาพปกเกมการศึกษา 10 รายการ สู่ระดับสตูดิโอ 16:9)',
+        date: '21 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับภาพปก 10 เกมการศึกษาบน Educational Hub สู่มาตรฐาน 16:9 ขนาด 1280×720 px แบบ Full-bleed',
+            'ใช้สไตล์ Cute Cartoon Clean Line Art ลายเส้นสะอาดตา สีสันสดใส อบอุ่น สมวัย K-6',
+            'จัดวางองค์ประกอบและชื่อเกมสองภาษา (ไทย-อังกฤษ) กึ่งกลาง Safe Zone 60% อย่างเคร่งครัด',
+            'กำจัดตัวอักษรขยะและฟอนต์เพี้ยน (Mojibake) ออก 100%',
+            'แก้ไขข้อบกพร่องภาพขาดหาย (404 Broken Image) ของเกม animal-feast พร้อมสร้างไดเรกทอรีและภาพปกใหม่',
+            'ซิงค์ข้อมูล thumbnail_url ใน educational_hub_items ผ่าน Migration 538',
+        ],
+    },
+    {
+        version: 'v1.229.90 (ภาษาอังกฤษ — ยกเครื่องภาพประกอบ Classroom Action & TPR Commands Studio: ตัวละครเด็กนักเรียนจิบิเอกภาพ 100% ครบ 26 ท่าทาง)',
+        date: '21 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกเครื่องชุดภาพประกอบคำสั่ง TPR ทั้ง 26 ท่าทางใน Classroom Action Studio (public/games/english/tpr-actions/*.webp) ให้เป็นตัวละครเด็กนักเรียนประถมสไตล์จิบิ (Cute Chibi Anime Thai Student) ในชุดนักเรียนเดียวกัน 100%',
+            'ตัดปัญหาภาพไม่ตรงบริบท: ยกเลิกการใช้รูปลูกศรทิศทางเดี่ยวๆ (Sit down, Turn left/right, Put up/down) และรูปอวัยวะเดี่ยวๆ (Squat, Kneel, Close eye, Touch head/ears)',
+            'ทุกภาพสื่อความหมายการเคลื่อนไหวจริงชัดเจน: ลุกยืนจากเก้าอี้, นั่งเก้าอี้, เดิน, กระโดด, ย่อตัว, คุกเข่า, วิ่ง, หมุนตัว, ปิดตาซ้าย/ขวา, แตะศีรษะ/หู, ปรบมือ, หัวเราะ, ร้องไห้, ร้องไชโย, กระซิบ, ตกใจ, หาวนอน',
+            'อัปเดต COMMANDS data ใน public/games/english/classroom-action-media.html เชื่อมโยงชุดภาพใหม่ครบทั้ง 4 โหมดกิจกรรมบน Smartboard',
+            'ผ่านการตรวจสอบ 100% ด้วย Playwright verify-classroom-action-studio.mjs บนวิวพอร์ต 360x800 และ 1280x720 และผ่าน Challenger Stress Test 6 Suites (80 transitions, 120 Simon says rounds, zero overflow)',
+        ],
+    },
+    {
+        version: 'v1.229.89 (ภาษาอังกฤษ — พัฒนา Classroom Action & TPR Commands Studio, ใบงานคู่สื่อ A4 48 ข้อ, ปกใหม่ 16:9 1280x720 และลงทะเบียน Supabase Hub)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'พัฒนาสื่อการสอนอินเทอร์แอ็กทีฟภาษาอังกฤษ TPR Commands Studio (public/games/english/classroom-action-media.html) 4 โหมดกิจกรรมบน Smartboard (Blind Reveal, Simon Says Challenge, Speed Randomizer, Command Builder) ครอบคลุม 24+ ท่าทาง 4 หมวดหมู่',
+            'พัฒนาใบงานคู่สื่อการสอนพิมพ์ A4 (public/games/english/classroom-action-worksheet.html) สถาปัตยกรรม worksheet-topic.js คลังโจทย์ 48 ข้อ 4 หมวดหมู่ พร้อมเฉลยครู Zero-shift ผ่านเกณฑ์ verify-worksheet 18/18 checks',
+            'สร้างภาพปกมาตรฐาน 16:9 สไตล์จิบิเพื่อการศึกษา (public/games/english/classroom-action-media-cover.png 1280x720) ตัวละครเด็กเคลื่อนไหวท่าทาง Stand up, Turn around, Jump ปลอดความรุนแรง จัดวางใน Safe Zone 60%',
+            'รัน Migration 537 บน Supabase ลงทะเบียน educational_hub_items ทั้งสื่อการสอนและใบงานคู่สื่อ พร้อมบันทึก game_docs ครบ 10 ฟีเจอร์เวอร์ชัน v1.229.89',
+            'รองรับระบบเสียงพูดสังเคราะห์สองสำเนียง (Web Speech API US/UK และไทย) พร้อมคีย์ลัด Smartboard ครบครัน (1-4, Space, Enter/R, Arrows, F)',
+        ],
+    },
+    {
+        version: 'v1.229.88 (ภาษาอังกฤษ — ยกระดับ Grammar & Vocab Studio: ภาพประกอบประโยคละเอียด, นิทานภาพต่อเนื่อง 4 ฉาก Sequential Storyboard, เครื่องเล่น Auto-Play และ Syntax Inspector)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอนไวยากรณ์ภาษาอังกฤษ (public/games/english/grammar-vocab-media.html) สู่ระบบ Interactive Learning Studio 5 โหมดเต็มรูปแบบสำหรับนักเรียนชั้น ป.4–ป.5',
+            'บูรณาการภาพประกอบเพื่อการศึกษาคุณภาพสูง (WebP Educational Illustrations): จับคู่ภาพสถานการณ์จริงกับทุกประโยคตัวอย่างของ 6 กฎไวยากรณ์หลัก (Verb to Be, Articles, Pronouns, Demonstratives, Prepositions, Helping Verbs)',
+            'พัฒนาระบบนิทานภาพต่อเนื่อง (Sequential Storyboard): 3 เรื่องราวต่อเนื่อง 4 ฉาก (วันเรียนแสนสุขของเคน, การผจญภัยของลูกสุนัขแสนซน, ทัศนศึกษาซาฟารีที่สวนสัตว์) พร้อมฟิล์มสตริปลำดับเหตุการณ์',
+            'ติดตั้งเครื่องเล่นนิทานอัตโนมัติ (Auto-Play Story Theater): บรรยายเสียงต่อเนื่องฉากต่อฉากสองสำเนียง (US/UK) พร้อมระบบนับถอยหลังฝึกพูดตาม (Classroom Echo 3s pulse)',
+            'โหมดตรวจโครงสร้างประโยค (Syntax Inspector): แยกรหัสสีส่วนประกอบประโยค (S + V + O + Prep) พร้อมคลิกฟังเสียงและดูหน้าที่คำศัพท์',
+            'โหมดซ่อมประโยค (Fixer Lab) และแบบทดสอบความแม่นยำ (Practice Quiz) 15 ข้อ พร้อมภาพประกอบคู่คำถามทุกข้อ',
+            'รัน Migration 536 อัปเดต educational_hub_items และลงทะเบียน game_docs 10 ฟีเจอร์เวอร์ชัน v1.229.88 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-pack-media.mjs ทั้งบนวิวพอร์ต 360x800 และ 1280x720 และผ่าน verify-worksheet 18/18 checks สำหรับใบงานคู่สื่อ',
+        ],
+    },
+    {
+        version: 'v1.229.87 (ภาษาอังกฤษ — ยกระดับ 4 Interactive Learning Studios หลัก: Sight Words ป.4, Sight Words ป.1–3, Grammar & Vocab, Past Tense Mini พร้อมปก 16:9, เสียงสองสำเนียง US/UK และใบงาน A4)',
+        date: '18 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับ 4 สื่อการสอนภาษาอังกฤษหลักสู่ Interactive Audio-Narrated Learning Studios เต็มรูปแบบ: 1. Sight Words ป.4 (sight-words-media.html) 2. Sight Words ป.1–3 (sight-words-p123-media.html) 3. Grammar & Vocab (grammar-vocab-media.html) 4. Past Tense Mini (past-tense-mini-media.html)',
+            'บูรณาการระบบเสียงพูดสองสำเนียง (Web Speech API Multi-Accent TTS): สลับฟังสำเนียงอเมริกัน 🇺🇸 US และบริติช 🇬🇧 UK ได้ทันที พร้อมระบบแปลความหมายภาษาไทยและสลับเปิด/ปิดเสียง',
+            'รองรับ 4 โหมดการเรียนรู้และคีย์ลัดสมาร์ตบอร์ดในทุกสตูดิโอ: โหมดสำรวจ/กระดานคำศัพท์, แฟลชการ์ดอัจฉริยะ/ตารางเปรียบเทียบ, ห้องปฏิบัติการวิเคราะห์บริบท/นักสืบเวลา/ตัวต่อคำศัพท์ และแบบทดสอบความแม่นยำ 15 ข้อ พร้อมระบบ Streak และเฉลยภาษาไทยทันที',
+            'สร้างภาพปก 16:9 สไตล์จิบิเพื่อการศึกษาความละเอียดสูง (1280x720) ครบทั้ง 4 แพ็กเกจ จัดวางกึ่งกลางใน Safe Zone 60% ปราศจากความรุนแรงและสีสันสดใสสมวัยประถมศึกษา',
+            'อัปเกรดใบงานพิมพ์ A4 คู่สื่อการสอนทั้ง 4 ฉบับ: ขยายสู่สถาปัตยกรรม worksheet-topic.js คลังโจทย์ 50 ข้อครอบคลุมทักษะหลัก พร้อมระบบเฉลยครู Zero-shift และผ่านการตรวจ verify-worksheet 18/18 checks ทุกฉบับ (รวม 145 ใบงาน 2,588 เช็คในระบบ)',
+            'รัน Migration 535 อัปเดต educational_hub_items และลงทะเบียน game_docs ครบ 10 ฟีเจอร์ต่อสตูดิโอบน Supabase สำเร็จ',
+            'ผ่านการทดสอบ E2E อัตโนมัติ 100% ผ่าน Playwright scripts/verify-english-pack-media.mjs ทั้งบนวิวพอร์ตมือถือ 360x800 และเดสก์ท็อป 1280x720 (ไร้ horizontal overflow, ปุ่มสัมผัส >= 44px, และ window.__getState hook ทำงานถูกต้อง)',
+        ],
+    },
+    {
+        version: 'v1.229.86 (วิทยาศาสตร์ — ยกระดับ Force & Motion Learning Studio ป.5, ปกใหม่ 16:9 1280x720, แบบจำลองแรงลัพธ์ ∑F, แล็บแรงเสียดทาน 4 พื้นผิว และใบงาน A4 50 ข้อ)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอนวิทยาศาสตร์กายภาพ Force & Motion Studio (public/games/science/force-motion-media.html) จากโครงร่าง 2 บรรทัด สู่สตูดิโอการเรียนรู้ 4 โหมดเต็มรูปแบบสำหรับ ป.5 ตามหลักสูตรแกนกลาง (ว 2.2 ป.5/1–5)',
+            'รองรับ 4 โหมดอินเทอร์แอ็กทีฟ: 1. Force Explorer (สำรวจแรงผลัก-แรงดึง, 4 ผลของแรง, และเครื่องชั่งสปริงนิวตันจำลองยืดหดตามขนาดแรงจริง 1-10 N) 2. Net Force Simulator (แบบจำลองรวมแรง 1 มิติ เพิ่มแรงซ้าย F1, F2 และขวา F3, F4 แบบ Real-time คำนวณ ∑F และจำลองการเคลื่อนที่วัตถุ) 3. Friction Lab (ห้องแล็บทดสอบแรงเสียดทาน 4 พื้นผิว: น้ำแข็ง, ไม้, คอนกรีต, กระดาษทราย คำนวณ f = μ × N และระยะไถล) 4. Practice Quiz Challenge (ควิซท้าทาย 15 ข้อ พร้อมระบบ Streak, เสียงสังเคราะห์ไทย TTS และเหรียญรางวัล)',
+            'สร้างภาพปก 16:9 สไตล์จิบิเพื่อการศึกษา (public/games/science/force-motion-media-cover.png 1280x720) ตัวละครเด็กหญิงออกแรงดึงรถทดลองด้วยเครื่องชั่งสปริงนิวตัน และเด็กชายออกแรงผลักกล่องฟิสิกส์พร้อมลูกศรแรงเสียดทาน จัดวางกึ่งกลางใน Safe Zone 60%',
+            'อัปเกรดใบงานคู่สื่อพิมพ์ A4 (public/games/science/force-motion-worksheet.html) ขยายสู่ระบบ worksheet-topic.js คลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะวิทยาศาสตร์ (แรงผลัก-ดึง, แรงลัพธ์, เครื่องชั่งสปริง, แรงเสียดทาน, การประยุกต์ใช้) พร้อมเฉลยครู Zero-shift ผ่าน verify-worksheet 18/18 checks',
+            'รัน Migration 534 ลงทะเบียนสื่อการสอนและอัปเดตใบงานคู่สื่อใน educational_hub_items เชื่อมโยงภาพปก 16:9 แทนที่ placeholder SVG พร้อมผูกบันทึก game_docs ครบ 10 ฟีเจอร์ และตัวชี้วัด ว 2.2 ป.5/1–5 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-force-motion.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px, คำนวณแรงลัพธ์และแรงเสียดทานถูกต้อง)',
+        ],
+    },
+    {
+        version: 'v1.229.85 (วิทยาศาสตร์ — ยกระดับ Solar System 3D Interactive Lab ป.4–ป.6, ภาพปกใหม่ 16:9 1280x720, ใบงาน A4 50 ข้อ 5 หมวด และ Dual-track Supabase Pairing)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอนดาราศาสตร์ 3 มิติ Solar System 3D (public/games/science/solar-system-3d-media.html) ปรับปรุงการแสดงผลแบบ Responsive เต็มรูปแบบ รองรับวิวพอร์ตมือถือ 360x800 ไร้การเลื่อนล้น และปุ่มสัมผัสมาตรฐาน WCAG AAA (>= 44x44px)',
+            'สร้างภาพปก 16:9 ใหม่ระดับสตูดิโอ (public/games/science/solar-system-3d-media-cover.png 1280x720) องค์ประกอบดวงอาทิตย์เปล่งแสง, 8 ดาวเคราะห์พร้อมวงแหวนดาวเสาร์และจุดแดงใหญ่พฤหัสบดี, ตัวละครเด็กนักบินอวกาศจิบิ และตัวอักษรสองภาษาใน Safe Zone 60%',
+            'อัปเกรดใบงานคู่สื่อพิมพ์ A4 (public/games/science/solar-system-3d-worksheet.html) ขยายคลังโจทย์จาก 17 ข้อเป็น 50 ข้อ ครอบคลุม 5 ทักษะวิทยาศาสตร์ดาราศาสตร์ (ดาวเคราะห์, ข้างขึ้น-ข้างแรม, ความเร็วแสง, โครงสร้างดาว, เทคโนโลยีอวกาศ) พร้อมตัวกรองระดับชั้น ป.4, ป.5, ป.6 และเฉลยครู Zero-shift ผ่าน verify-worksheet 18/18 checks',
+            'รัน Migration 533 ลงทะเบียนสื่อการสอน 3D และอัปเดตใบงานคู่สื่อใน educational_hub_items เชื่อมโยงภาพปก 16:9 แทนที่ placeholder SVG พร้อมผูกบันทึก game_docs ครบ 10 ฟีเจอร์ และตัวชี้วัด ว 3.1 ป.4/1, ป.4/2, ป.5/1, ป.5/2 บน Supabase สำเร็จ',
+            'เพิ่มคีย์ลัด Smartboard สำหรับครู (1: โหมดเรียนรู้, 2: เรียงแถวขนาด, 3: โลกและดวงจันทร์, 4: ความเร็วแสง, 5: ควิซ 3D, Space: เสียงสังเคราะห์ไทย, F: เต็มจอ) และ window.__getState hook สำหรับการตรวจสอบระบบอัตโนมัติ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-solar-system-3d.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px, คีย์ลัด 1-5 ทำงานสมบูรณ์)',
+        ],
+    },
+    {
+        version: 'v1.229.84 (ภาษาไทย — ยกระดับ Thai Punctuation Learning Studio ป.3–ป.5 10 เครื่องหมายวรรคตอนไทย, สแกนเนอร์ในประโยค, แล็บซ่อมประโยค, ปกใหม่ 16:9 และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Thai Punctuation Hub (public/games/thai/thai-punctuation-hub/index.html) สู่สตูดิโอการเรียนรู้เครื่องหมายวรรคตอนไทยเต็มรูปแบบสำหรับระดับ ป.3–ป.5 ตามหลักสูตรแกนกลาง (ท 4.1 ป.3/6, ท 4.1 ป.4/2, ท 2.1 ป.3/1, ท 2.1 ป.4/1, ท 2.1 ป.5/1)',
+            'สร้างภาพปก 16:9 ใหม่คมชัดสูง (1280x720) ตรงตามเนื้อหา 10 เครื่องหมายวรรคตอนไทย (ไม้ยมก, ไปยาลน้อย, ไปยาลใหญ่, อัศเจรีย์, ปรัศนี, อัญประกาศ, นขลิขิต, ยัติภังค์, มหัพภาค, ทับ) ทดแทนภาพปกเดิมที่ซ้ำกับคลังประโยคไทย',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Punctuation Studio & Explorer (คลัง 10 เครื่องหมายวรรคตอนพร้อมวิธีอ่านออกเสียง กฎช่วยจำ และเสียงสังเคราะห์ไทย) 2. Sentence Inspector (สแกนเนอร์ตรวจจับเครื่องหมายในประโยคพร้อมวิธีอ่านคำเต็ม) 3. Punctuation Fixer Lab (ห้องปฏิบัติการซ่อมประโยคและเติมเครื่องหมาย) 4. Practice Quiz Challenge (แบบทดสอบท้าทาย 4 ตัวเลือกและคำอธิบายเฉลยละเอียด)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/thai/thai-punctuation-hub-worksheet.html) ขยายคลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะวรรคตอนหลัก พร้อมเลย์เอาต์ A4 Zero-shift, ตัวกรองระดับชั้น/ทักษะ และเฉลยครู',
+            'รัน Migration 532 อัปเดต educational_hub_items ปรับ thumbnail_url ของใบงานและสื่อให้เชื่อมโยงภาพปก 16:9 (/games/thai/thai-punctuation-hub/cover.png) แทนที่ placeholder SVG พร้อมบันทึก game_docs และผูกตัวชี้วัด ท 4.1 ป.3/6, ป.4/2 และ ท 2.1 ป.3/1, ป.4/1, ป.5/1 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-thai-punctuation-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs 18/18 checks',
+        ],
+    },
+    {
+        version: 'v1.229.83 (ภาษาไทย — ยกระดับ Thai Grammar Learning Studio ป.4–ป.5 4 โหมดชนิดและหน้าที่ของคำ, สแกนเนอร์วิเคราะห์หน้าที่ในประโยค, แล็บตัวต่อประโยค และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Thai Grammar Hub (public/games/thai/thai-grammar-hub/index.html) สู่สตูดิโอการเรียนรู้ไวยากรณ์ไทยเต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ท 4.1 ป.4/2, ท 4.1 ป.5/1)',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Grammar Studio & POS Explorer (คลัง 7 ชนิดคำ: นาม, สรรพนาม, กริยา, วิเศษณ์, บุพบท, สันธาน, อุทาน พร้อมรหัสสีและเสียงสังเคราะห์ไทย) 2. Sentence Syntax Scanner (สแกนเนอร์วิเคราะห์หน้าที่ของคำในประโยคแบบ Interactive: ประธาน, กริยา, กรรม, ส่วนขยาย) 3. Grammar Sentence Builder Lab (ห้องปฏิบัติการต่อประโยคด้วยบล็อกคำศัพท์ตามรหัสสีชนิดคำและระบบตรวจผลทันที) 4. Practice Quiz Challenge (แบบทดสอบท้าทาย 4 ตัวเลือกและคำอธิบายเฉลยละเอียด)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/thai/thai-grammar-hub-worksheet.html) ขยายคลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะไวยากรณ์หลัก พร้อมเลย์เอาต์ A4 Zero-shift, ตัวกรองระดับชั้น/ทักษะ และเฉลยครู',
+            'รัน Migration 531 อัปเดต educational_hub_items ปรับ thumbnail_url ของใบงานและสื่อให้เชื่อมโยงภาพปก 16:9 (/games/thai/thai-grammar-hub/cover.png) แทนที่ placeholder SVG พร้อมบันทึก game_docs และผูกตัวชี้วัด ท 4.1 ป.4/2, ท 4.1 ป.5/1 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-thai-grammar-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs 18/18 checks',
+        ],
+    },
+    {
+        version: 'v1.229.82 (ภาษาไทย — ยกระดับ Thai Reading Comprehension Studio ป.4–ป.5 4 โหมดจับใจความ, ผัง 5W1H, แล็บข้อเท็จจริง/ข้อคิดเห็น, เรียงเหตุการณ์ และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Thai Reading Hub (public/games/thai/thai-reading-hub/index.html) สู่สตูดิโอการเรียนรู้การอ่านจับใจความเต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ท 1.1 ป.4/3, ท 1.1 ป.4/4, ท 1.1 ป.4/6, ท 1.1 ป.5/3, ท 1.1 ป.5/4, ท 1.1 ป.5/5, ท 1.1 ป.5/7)',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Reading Studio & 5W1H Navigator (บทอ่าน 11 เรื่อง 5 หมวด, ผัง 5W1H ใคร ทำอะไร ที่ไหน เมื่อไหร่ ทำไม อย่างไร, ไฮไลต์ใจความสำคัญ และเสียงสังเคราะห์ไทย) 2. Fact vs Opinion Detective Lab (ห้องแล็บแยกแยะข้อเท็จจริง vs ข้อคิดเห็น พร้อมคำกุญแจสังเกต) 3. Story Sequencer Lab (กิจกรรมจัดเรียงลำดับเหตุการณ์) 4. Practice Quiz Challenge (แบบทดสอบ 4 ตัวเลือกพร้อมคำอธิบายละเอียด)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/thai/thai-reading-hub-worksheet.html) ขยายคลังโจทย์ 50 ข้อ ครอบคลุม 5 ทักษะการอ่านจับใจความ พร้อมเลย์เอาต์ A4 Zero-shift และเฉลยครู',
+            'รัน Migration 529 อัปเดต educational_hub_items ปรับ thumbnail_url ของใบงานให้เชื่อมโยงภาพปก 16:9 (/games/thai/thai-reading-hub/cover.png) แทนที่ placeholder SVG สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-thai-reading-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs 18/18 checks',
+        ],
+    },
+    {
+        version: 'v1.229.81 (Vocabulary Hub — เสียงอ่านคำศัพท์บนมือถือ)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แตะลำโพงแล้วเริ่มอ่านทันที กดคำเดิมซ้ำได้ และป้องกันเสียงเก่าแทรกเมื่อเปลี่ยนคำหรือสลับภาษา',
+            'ขยายปุ่มเสียงทุกหมวดเป็นอย่างน้อย 44 × 44px; หากเสียงที่เลือกใช้ไม่ได้จะลองเสียงเริ่มต้นหนึ่งครั้งและแจ้งข้อผิดพลาด',
+            'ยังเป็นสื่อการสอน ไม่ระบุตัวนักเรียนหรือบันทึกคะแนน',
+        ],
+    },
+    {
+        version: 'v1.229.80 (Vocabulary Hub — เปิดเรียนทันทีโดยไม่เก็บคะแนนนักเรียน)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'เปิดสื่อคำศัพท์ได้ทันทีแม้เบราว์เซอร์เคยจำรหัสนักเรียนไว้ โดยไม่แสดงหน้ายืนยันตัวตน',
+            'คงคำศัพท์ เสียง แบบฝึก และผลตอบกลับระหว่างเรียน แต่ไม่ส่งคะแนน เซสชัน XP หรือข้อมูลอันดับนักเรียน',
+            'ถอดทางเข้าการแข่งขันและแดชบอร์ดคะแนนของสื่อนี้ พร้อมอัปเดต game_docs เป็นสื่อการสอน',
+        ],
+    },
+    {
+        version: 'v1.229.79 (คณิตศาสตร์ — ยกระดับ Math Decimal Learning Studio ป.4–ป.5 4 โหมดการเรียนรู้, ตารางค่าประจำหลัก, โมเดลกริด 10/100, เงินบาท/สตางค์, สกิล Cover Creator และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Math Decimal Hub (public/games/math/math-decimal-hub/index.html) สู่สตูดิโอการเรียนรู้คณิตศาสตร์เต็มรูปแบบสำหรับระดับ ป.4–ป.5 ตามหลักสูตรแกนกลาง (ค 1.1 ป.4/5, ค 1.1 ป.4/6, ค 1.1 ป.5/1, ค 1.1 ป.5/8)',
+            'รองรับ 4 โหมดการเรียนรู้เชิงลึก: 1. Place Value & Reading Studio (ค่าประจำหลักและการอ่านทศนิยม พร้อมโมเดลกริด 10/100 และเสียงอ่านไทย) 2. Decimal Comparison & Number Line (เปรียบเทียบค่าและเส้นจำนวนซูมได้) 3. Operations & Thai Money Lab (การบวกลบตั้งจุดตรงกัน และระบบจำลองเงินบาท/สตางค์) 4. Practice Quiz & Fraction-Decimal Match (แบบทดสอบและเกมจับคู่เศษส่วน-ทศนิยม)',
+            'สร้างภาพปกการศึกษา 16:9 (1280x720) มาตรฐานใหม่ธีม Chibi วิทย์-คณิต ปลอดภัยไร้ความรุนแรง พร้อม Safe-Zone 27%-73% ผ่าน scripts/make-cover.mjs',
+            'สร้างสกิลมาตรฐานใหม่ .agents/skills/kampai-cover-creator/SKILL.md กำหนดแนวทางการสร้าง Prompt, การคำนวณ Safe-Zone อัตราส่วน 16:9 และการจัดการภาพปกคู่ระหว่างสื่อและใบงาน',
+            'อัปเกรดใบงานคู่สื่อ (public/games/math/math-decimal-hub-worksheet.html) ขยายคลังโจทย์ 40+ ข้อ ครอบคลุม 4 ทักษะ พร้อมพิมพ์ A4 สแกน QR และเฉลยครูแบบ Zero-shift',
+            'รัน Migration 528 อัปเดต educational_hub_items ปรับ thumbnail_url ของสื่อและใบงานให้ตรงกันที่ /games/math/math-decimal-hub/cover.png (แทนที่ placeholder SVG) พร้อมบันทึก game_docs และผูกตัวชี้วัด ค 1.1 ป.4/5, ป.4/6, ป.5/1, ป.5/8 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-math-decimal-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.78 (ภาษาอังกฤษ — ยกระดับ English Grammar & Sight Words Studio ป.4–ป.5 6 กฎไวยากรณ์, บัตรคำจำ 32 คำ, ห้องแล็บคำสั่ง 10 ภารกิจ, ต่อประโยค, เสียง 3 สำเนียง, Classroom Echo และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด English Grammar Hub (public/games/english/english-grammar-p45-hub/index.html) สู่สตูดิโอการเรียนรู้เต็มรูปแบบสำหรับระดับประถมศึกษาตอนปลาย (ป.4–ป.5) ตามหลักสูตรแกนกลาง (ต 1.1 ป.4/1-2, ต 1.2 ป.4/1, ต 2.1 ป.4/1)',
+            'ครอบคลุม 6 กฎไวยากรณ์หลัก: Verb to Be (is/am/are/was/were), Articles (a/an/the), Demonstratives (this/that/these/those), Pronouns & Possessives (I/my, he/his...), Prepositions of Place (in/on/under/behind...), Wh-Questions & Helping Verbs',
+            'คลังบัตรคำจำ Graded Sight Words 32 คำ 4 หมวดหมู่ (School & Study, People & Feelings, Time & Nature, Daily Actions) พร้อมสัทอักษร IPA, คำแปลภาษาไทย, ตัวอย่างประโยค และภาพ WebP ประกอบการศึกษา',
+            'ห้องปฏิบัติการทำตามคำสั่ง Follow Instructions Lab 10 ภารกิจ (Circle, Underline, Tick, Cross out, Put in, Point to, Choose, Color, Find, Match) พร้อมตัวเลือกภาพ WebP คมชัด ไร้ Emoji',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Grammar Studio เจาะลึกกฎพร้อมตัวอย่างประโยค 2. Sight Words Flashcards บัตรคำจำ 3. Follow Instructions Lab แล็บปฏิบัติตามคำสั่ง 4. Practice Quiz & Sentence Builder แบบทดสอบและต่อบล็อกประโยค',
+            'ระบบสังเคราะห์เสียง Web Speech API 3 สำเนียง (US Female, US Male, UK British) ปรับความเร็ว 0.75x/1.0x พร้อมฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม) นับถอยหลัง 3 วินาทีแอนิเมชัน Pulse',
+            'คีย์ลัดสำหรับครูผู้สอนบน Smartboard (Spacebar = ฟังเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนการ์ด/คำถาม, 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/english-grammar-p45-hub-worksheet.html) เป็น 42 ข้อ ครอบคลุม 3 ทักษะ พร้อมพิมพ์ A4, สแกน QR และเฉลยครูแบบ Zero-shift',
+            'รัน Migration 527 อัปเดต educational_hub_items และ game_docs เวอร์ชัน v1.229.78 บน Supabase สำเร็จ',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-grammar-p45-hub.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.77 (ภาษาอังกฤษ — ยกระดับ English Tenses Learning Studio ป.4–ป.6 4 กาลหลัก, ไทม์ไลน์ภาพประกอบ, โหมดต่อประโยค, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด English Tenses Learning Studio (public/games/english/english-tenses-p6-media.html) จากโครงเดิมสู่สตูดิโอเต็มรูปแบบ ครอบคลุม 3 ระดับชั้น (ป.4, ป.5, ป.6) และ 4 กาลหลัก (Present Simple, Present Continuous, Past Simple, Future Simple)',
+            'หลักสูตร 3 ระดับขั้น (3-tier curriculum progression): ป.4 (กาลปัจจุบัน 2 กาล), ป.5 (อดีตและอนาคต), ป.6 (เปรียบเทียบ 4 กาลขนานและการแปลงประโยคบอกเล่า/ปฏิเสธ/คำถาม)',
+            'ติดตั้ง Visual Time Machine & Interactive Timeline แสดงตำแหน่งของกาลและการกระทำต่อเนื่อง พร้อมภาพประกอบการศึกษา WebP แท้คมชัด 12 กริยาแอ็กชันและบริบทสถานการณ์ ไร้ Emoji',
+            'รองรับ 4 โหมดการเรียนรู้: 1. Tense Studio เจาะลึกโครงสร้าง 2. Comparison Matrix เปรียบเทียบ 4 กาลขนาน 3. Practice Quiz ทายกาลและเติมคำ 4. Tense Sentence Builder ต่อบล็อกประโยค',
+            'ระบบสังเคราะห์เสียง Web Speech API เลือกได้ 3 สำเนียง (US Female, US Male, UK British) ปรับความเร็ว 0.75x/1.0x พร้อมฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม) นับถอยหลัง 3 วินาทีแบบแอนิเมชัน Pulse',
+            'เพิ่มคีย์ลัดสำหรับครูผู้สอนบน Smartboard (Spacebar = เล่นเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนการ์ด, 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/english-tenses-p6-worksheet.html) เพิ่มตัวเลือกชั้น ป.4, ป.5, ป.6 และ รวม ป.4–ป.6 ขยายคลังโจทย์ 48 ข้อ พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครูแบบ Zero-shift',
+            'รัน Migration 526 อัปเดตข้อมูล educational_hub_items และ game_docs ขยายระดับชั้นเป็น ป.4–ป.6 พร้อมเชื่อมโยงตัวชี้วัด ต 1.1, ต 1.2, ต 2.2 บน Supabase',
+            'ผ่านการตรวจสอบ 100% ผ่าน Playwright scripts/verify-english-tenses-p6.mjs (วิวพอร์ต 360x800 และ 1280x720, ไร้ overflow, ปุ่มสัมผัส >= 44x44px) และ scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.76 (Vocabulary Hub — ภาพ 3D ใหญ่ กริด 3 ขนาด และผู้ดูแลจัดลำดับกลาง)',
+        date: '17 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'หน้าเลือกคำศัพท์พื้นสว่างทอง–กรมท่า พร้อมภาพปก 3D จำนวน 30 ภาพสำหรับ 29 หมวดและรายการโปรด',
+            'เลือกกริดภาพใหญ่ มาตรฐาน หรือกะทัดรัด จำวิวเฉพาะเบราว์เซอร์และปรับตามขนาดหน้าจอ',
+            'ผู้ดูแลลากเรียงหมวดหมู่ด้วยเมาส์ สัมผัส หรือปุ่มคีย์บอร์ด พร้อมบันทึก ยกเลิก และคืนลำดับเดิม',
+            'บันทึกลำดับกลางผ่าน service/wrapper ลง school_settings และตรวจสิทธิ์ด้วย RLS; คงระบบฝึกและแข่งขันเดิม',
+        ],
+    },
+    {
+        version: 'v1.229.75 (ภาษาอังกฤษ — ยกระดับ Phonics Reading Studio 10 หมวดเสียง 116 คำ, โหมดต่อบล็อกเสียง Phonics Builder, ฟีเจอร์ Classroom Echo, คีย์บอร์ดครู และใบงาน A4)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด Phonics Reading Studio (public/games/english/phonics-media.html) จาก 6 เป็น 10 หมวดเสียง (+4 หมวดใหม่: Long Vowels & Magic E, Vowel Teams, Bossy R, Special Vowels & Diphthongs) รวมคำศัพท์ 116 คำ (>= 11 คำ/หมวด)',
+            'คำศัพท์ใหม่ทุกคำใช้ภาพประกอบ WebP แท้จากคลัง vocab-hub-assets สอดคล้องตามหลักการเรียนรู้ (ไร้ Emoji, ลายเส้นสะอาด สไตล์การศึกษา)',
+            'เพิ่มโหมดที่ 4 Phonics Sound Builder (🧩 ต่อบล็อกเสียง): แตะบล็อกเสียงโฟนิกส์และตัวกวนเพื่อผสมคำศัพท์ (Synthetic Phonics Blending) พร้อมตัวนับสถิติความถูกต้อง',
+            'เพิ่มฟีเจอร์ Classroom Echo (🎤 ฝึกพูดตาม): นับถอยหลัง 3 วินาทีพร้อมแอนิเมชัน Pulse ให้เด็กฝึกเปล่งเสียงตามต้นแบบสำเนียงเจ้าของภาษา',
+            'เพิ่มคีย์บอร์ดชอร์ตคัตสำหรับครูผู้สอนบน Smartboard (Spacebar = เล่นเสียง, ลูกศรซ้าย-ขวา = เปลี่ยนคำ, ปุ่ม 1-4 = สลับโหมด, M = ฝึกพูดตาม, F = เต็มจอ)',
+            'อัปเกรดใบงานคู่สื่อ (public/games/english/phonics-worksheet.html) ให้รองรับครบทั้ง 10 หมวดเสียง เพิ่ม 40 โจทย์ใหม่ รวมทั้งหมด 101 คำศัพท์ พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครู',
+            'ผ่านการตรวจสอบ 9 ข้อ 100% ผ่าน scripts/verify-phonics-media.mjs ทั้งบน Mobile (360x800) และ Desktop (1280x720) ปุ่มสัมผัส >= 44x44px และไร้การล้นจอ',
+            'ผ่านการตรวจสอบใบงาน 19 ข้อ 100% ผ่าน scripts/verify-worksheet.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.74 (ภาษาอังกฤษ & ระบบสิทธิ์ — ใบงาน Everyday Conversation ป.4 คู่สื่อการสอน และเสริมความแข็งแกร่ง Auth Readiness 100%)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างใบงานคู่สื่อ Everyday Conversation ป.4 (public/games/english/everyday-conversation-p4-worksheet.html) ครอบคลุม 6 สถานการณ์บทสนทนา รวม 38 ข้อ พร้อมเฉลยสำหรับครู และพิมพ์ A4',
+            'เชื่อมโยงปุ่มเปิดใบงาน 📄 ใบงาน บนแถบเครื่องมือของสื่อการสอน everyday-conversation-p4-media.html',
+            'รัน Migration 524 บน Supabase ลงทะเบียนใบงานลง educational_hub_items และอัปเกรดเวอร์ชันสื่อเป็น v1.6.0 พร้อม game_docs และตัวชี้วัด ต 1.1, ต 1.2, ต 4.1',
+            'ผ่านการตรวจสอบใบงาน 18 เช็ค 100% ผ่าน scripts/verify-worksheet.mjs และ verify-everyday-conversation-p4.mjs',
+            'เสริมความแข็งแกร่งระบบความปลอดภัย Auth Readiness & Permissions (AuthProvider, PortalProtectedRoute, AuthLoadError, auth-permissions.service.ts)',
+            'รองรับ Deep links, Fail-closed บนข้อผิดพลาดสิทธิ์, ตัดการเข้าถึงทันทีเมื่อมี Realtime Role Revocation, และจัดการ Invalidation หลัง Sign-out',
+            'ผ่านการทดสอบ Auth Readiness Integration Suite ทั้งหมด 24/24 รายการ 100% ผ่าน scripts/test-auth-readiness.mjs',
+        ],
+    },
+    {
+        version: 'v1.229.73 (วิทยาศาสตร์ & เทคโนโลยี — ยกระดับ Media Lab, จูนสมดุล AR จรวดพลังงาน และสร้างมาตรฐาน AR Calibration Tool)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ผ่านการตรวจสอบชุด Media Lab วิทยาศาสตร์และเทคโนโลยี 10 หัวข้อ (สื่อ 10 ชุด + ใบงานคู่ขนาน 10 ชุด) 100% ผ่าน scripts/verify-media-lab.mjs',
+            'ปรับปรุงโครงสร้าง ai-data-literacy-media.html, electric-circuit-media, states-of-matter-media และ algorithm-unplugged-media ให้สอดคล้องกับมาตรฐาน SDK และรองรับ WebP/SVG',
+            'รัน Migration 522 ลงทะเบียนสื่อจำลองสถานการณ์และใบงานคู่ขนานพร้อมผูกตัวชี้วัด ว 4.2, ว 2.1, ว 2.3 บน Supabase',
+            'ปรับปรุงและจูนสมดุลเกม AR "จรวดพลังงาน" (public/games/science/energy-rocket/): ปรับ CHARGE_K/TAP_K/DRAIN ให้ขยับ 6-10 วินาทีจึงจะเต็ม, แตะ fallback 40 ครั้ง, พร้อมเอฟเฟกต์การสั่น (Shake) และไอพ่นเรืองแสง (Thruster flicker)',
+            'ยกระดับ AR Calibration Tool (public/games/ar-calibration/): ระบบสอบเทียบความนิ่งของมือ OneEuroFilter/EMA พร้อม UI Glassmorphism ปรับแต่งจูนเนอร์แบบเรียลไทม์',
+            'ติดตั้งข้อกำหนด Quality Contract (Check 12) ครบทั้ง 2 เกม: KAMPAI.beginRound(), #kampai-result, start/restart/finish-test hooks, prefers-reduced-motion, และ focus-visible',
+            'ผ่านการทดสอบ verify:game:all 100% ทั้ง energy-rocket และ ar-calibration บนวิวพอร์ตมือถือ แท็บเล็ต และเดสก์ท็อป (360x800, 768x1024, 1280x720)',
+            'รัน Migration 523 อัปเดตข้อมูล game_docs ของ energy-rocket และ ar-calibration บน Supabase',
+        ],
+    },
+    {
+        version: 'v1.229.72 (สื่อการสอนภาษาอังกฤษ — ยกระดับ ABC Phonics Studio A-Z, อัปเกรดใบงานโฟนิกส์คู่สื่อ และแก้ไขบั๊กเสียงอ่านซ้อน)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรดใบงานโฟนิกส์ (public/games/english/phonics-worksheet.html) ให้ซิงค์ 66 คำศัพท์แท้ครบ 6 หมวดเสียงตรงกับ Phonics Reading Studio พร้อมพิมพ์ A4 สแกน QR และเฉลยคุณครู',
+            'แก้ไขปุ่ม "ใบงาน Phonics" ในสื่อ phonics-media.html ให้เชื่อมโยงตรงสู่ phonics-worksheet.html',
+            'ยกระดับสื่อ ABC & Phonics (public/games/english/alphabet-phonics-media.html) ครบ 26 ตัวอักษร A ถึง Z ด้วยภาพวาดประกอบ WebP แท้ 26 ภาพ ไร้ Emoji',
+            'ติดตั้งระบบเสียงเลือกเสียงได้ (US Female, US Male, UK) ปรับสปีด 0.75x/1.0x และ 3 โหมดการเรียนรู้ (บัตรคำ A-Z, ตารางรวม 26 ตัวอักษร, และแบบทดสอบทายเสียงโฟนิกส์)',
+            'อัปเกรดใบงานคู่กัน alphabet-phonics-worksheet.html ครอบคลุมแบบฝึกหัดตัวอักษร A-Z 26 ตัว พร้อมพิมพ์ A4',
+            'แก้ไขบั๊กการอ่านออกเสียงซ้อน (Double-speech) ใน vocab-hub.html: ป้องกันการสะสม Event Listener ในโหมดฟังทาย (#q-play) และปลด Mouseenter Auto-speech บนอุปกรณ์จอสัมผัส/Smartboard พร้อม Safety Cancel Delay',
+            'แก้ไขฟังก์ชัน speak ใน classroom-english-media.html ให้มี Debounce และยกเลิกเสียงเดิมก่อนพูดเสียงใหม่',
+            'ผ่านการทดสอบ Browser จริงบน 360x800 และ 1280x720, ผ่าน verify:media, verify:worksheet, และ verify:game:all 100%',
+        ],
+    },
+    {
+        version: 'v1.229.71 (สื่อการสอนภาษาอังกฤษ — ยกระดับ Phonics Reading Studio ภาพจริงและเสียงอ่านครบวงจร สู่ระดับ Production)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน Phonics (public/games/english/phonics-media.html) เป็น Phonics Reading Studio คุณภาพสูงระดับ Classroom-first',
+            'ยกเลิกการใช้ Emoji ทั้งหมด แทนที่ด้วยภาพวาดประกอบ WebP จริงความละเอียดสูง 66 ภาพ สื่อความหมายตรงตามคำศัพท์ 100% ตามเกณฑ์ MEDIA.md',
+            'บรรจุคำศัพท์พร้อมภาพประกอบอย่างน้อย 11-12 คำต่อหมวด ครอบคลุม 6 หมวดหลัก (Short A, E, I, O, U และ Blends & Digraphs) เกินเกณฑ์มาตรฐาน >= 10 คำ',
+            'ติดตั้งการถอดรหัสเสียงครบถ้วนทุกคำ: ตัวสะกดไฮไลต์เสียงเป้าหมาย, สัทอักษรสากล IPA, คำอ่านภาษาไทย, คำแปลไทย และการแยกเสียงโฟนิกส์ทีละตัว (Sound Blending)',
+            'ติดตั้งระบบเสียงเลือกเสียงได้ (Selectable Voices): เลือกระหว่าง US Female, US Male และ UK Accent พร้อมสลับความเร็ว 0.75x (ช้าสำหรับฝึกสะกด) หรือ 1.0x (ปกติ) และเลือกโหมดอ่าน (สะกดทีละเสียง / อ่านทั้งคำ / อ่านคำพร้อมคำแปลไทย)',
+            'รองรับ 3 โหมดการเรียนรู้: 📖 สตูดิโอฝึกอ่านทีละคำ (Card Studio), 📋 ตารางภาพรวมคำศัพท์ทั้งหมด (Gallery Grid), และ ✏️ แบบทดสอบทายเสียงคำศัพท์ (Listening Practice Challenge)',
+            'ผ่านการตรวจสอบ verify:media และการทดสอบ Browser จริงบนขนาด 360x800 และ 1280x720 ไม่มี horizontal overflow, touch target >= 44px 100%',
+        ],
+    },
+    {
+        version: 'v1.229.70 (สื่อการสอนสุขศึกษา — ยกระดับสื่อความปลอดภัยรอบตัวและการขอความช่วยเหลือ สู่ระดับ Production)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "ความปลอดภัยรอบตัวและการขอความช่วยเหลือ (Safety & Emergency Help)" สู่ระดับ Production คุณภาพสูงระดับ Classroom-first',
+            'ติดตั้ง 4 เสาหลักการเอาตัวรอด: หยุดและถอย (Stop Danger), เข้าสู่พื้นที่ปลอดภัย (Safe Zone), ตะโกนขอความช่วยเหลือสูตร 3W (Who, Where, What), และจำสายด่วนช่วยชีวิต (Emergency Hotlines)',
+            'ติดตั้งห้องจำลองรับมือ 4 สถานการณ์ฉุกเฉินจริง (ไฟไหม้ควันหนา, สัตว์มีพิษ, คนแปลกหน้า, เพื่อนลื่นล้มบาดเจ็บ) พร้อมขั้นตอน 3 จังหวะ',
+            'ติดตั้งแป้นโทรศัพท์ฉุกเฉินจำลอง (Interactive Emergency Keypad) พร้อมเสียงโทน DTMF จำลองสายด่วน 1669, 191, 199, 1300 และเสียงแนะนำ',
+            'เพิ่มแบบฝึกหัดคิดวิเคราะห์ 6 สถานการณ์ฉุกเฉิน และภาพปก 16:9 โล่แห่งความปลอดภัย (Migration 519)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.69 (สื่อการสอนศิลปะ — ยกระดับสื่อการวิจารณ์งานศิลป์เบื้องต้น สู่ระดับ Production)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "การวิจารณ์งานศิลป์เบื้องต้น (Art Critique & Visual Literacy)" สู่ระดับ Production คุณภาพสูงระดับ Classroom-first',
+            'ติดตั้ง 4 ขั้นตอนการวิจารณ์ศิลปะตามมาตรฐานสากล (Feldman Model): สังเกตและระบุ (Describe), วิเคราะห์องค์ประกอบ (Analyze), ตีความหมายและอารมณ์ (Interpret), และประเมินคุณค่า (Evaluate)',
+            'ติดตั้งแกลเลอรีสำรวจผลงาน 3 สไตล์ พร้อมระบบ Visual Inspector วิเคราะห์เส้น จังหวะ จุดเด่น (Focal Point) และวรรณะสี (Warm/Cool Palette)',
+            'ติดตั้งเครื่องมือประกอบประโยควิจารณ์เชิงบวก (Sandwich Method: ชมจุดเด่น + อธิบายองค์ประกอบ + เสนอแนะพัฒนา) พร้อมเสียงพากย์ TTS',
+            'เพิ่มแบบฝึกหัดคิดวิเคราะห์ทัศนศิลป์ 6 ข้อ และภาพปก 16:9 สไตล์สตูดิโอศิลปะ (Migration 518)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.68 (สื่อการสอนการงานอาชีพ — ยกระดับสื่อความปลอดภัยในการทำงานและเครื่องมือ สู่ระดับ Production)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "ความปลอดภัยในการทำงานและเครื่องมือ (Workplace & Tool Safety)" สู่ระดับ Production คุณภาพสูงระดับ Classroom-first',
+            'ติดตั้งห้องจำลองตรวจจับจุดเสี่ยง 4 โซนปฏิบัติงาน (Hazard Hunter Interactive Lab) พร้อมสวิตช์วิเคราะห์ความเสี่ยง ⚠️ เทียบกับการปฏิบัติที่ถูกต้อง ✅ ครบทั้งโต๊ะตัดโมเดล งานช่างไม้ จุดไฟฟ้า และจุดจัดเก็บ 5 ส.',
+            'ติดตั้งระบบจำลองเลือกและสวมใส่อุปกรณ์ PPE ตามภารกิจงานช่าง (PPE Dress-Up & Mission Simulator) พร้อมระบบประเมินความปลอดภัยทันที',
+            'เพิ่มแบบฝึกหัดคิดวิเคราะห์ความปลอดภัย 6 สถานการณ์ พร้อมเสียงอ่าน TTS และภาพปก 16:9 สไตล์อนิเมะจิบิสดใส (Migration 517)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.67 (สื่อการสอนการงานอาชีพ — ยกระดับสื่อวางแผนรายรับรายจ่าย สู่ระดับ Production)',
+        date: '16 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "วางแผนรายรับรายจ่าย (Budget Planning)" สู่ระดับ Production คุณภาพสูงระดับ Classroom-first',
+            'ติดตั้งระบบจำลองบริหารเงิน Zero-Based Budgeting Simulator สไลเดอร์คำนวณเงินคงเหลือแบบ Real-time พร้อมแถบจัดสรรสัดส่วน Needs / Wants / Savings และคำแนะนำทางการเงินอัตโนมัติ',
+            'บรรจุ 4 เสาหลักการเงินเยาวชน: 1. รายรับสุทธิ 2. รายจ่ายจำเป็น 3. รายจ่ายต้องการ 4. เงินออมฉุกเฉินและเป้าหมาย',
+            'เพิ่มแบบฝึกหัดการเงินในชีวิตประจำวัน 6 ข้อ พร้อมเสียงอ่าน TTS และภาพปก 16:9 สไตล์อนิเมะจิบิสดใส (Migration 516)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.66 (สื่อการสอนเทคโนโลยี — ยกระดับสื่อรู้เท่าทัน AI และข้อมูล สู่ระดับ Production)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "รู้เท่าทัน AI และข้อมูล (AI & Data Literacy)" สู่ระดับ Production คุณภาพสูงระดับ Classroom-first',
+            'เพิ่มระบบจำลองห้องทดลองตรวจจับคำตอบ AI (AI Verification Simulator) พร้อม Fact Meter ตรวจสอบคะแนนความน่าเชื่อถือของแหล่งที่มา, หลักฐานเชิงประจักษ์, และประเมินความเสี่ยงภาพหลอน (AI Hallucination / Deepfake)',
+            'บรรจุ 4 ขั้นตอนรู้เท่าทัน: 1. ตั้งคำถาม (Question First) 2. ตรวจที่มาและวันที่ (Verify Source) 3. เทียบหลายแหล่ง (Cross-Check) 4. ใช้อย่างรับผิดชอบและซื่อสัตย์ (Responsible AI)',
+            'เพิ่มแบบฝึกหัดคิดวิเคราะห์ 6 สถานการณ์จริง พร้อมระบบเสียงบรรยาย (TTS) และภาพปก 16:9 สไตล์อนิเมะจิบิสดใส (Migration 515)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.65 (สื่อการสอนศิลปะ — ยกระดับสื่อเครื่องดนตรีไทยและเสียง สู่ระดับ Production)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับสื่อการสอน "เครื่องดนตรีไทยและเสียง (Thai Instruments)" สู่ระดับ Production เทียบเท่าสื่อภาษาอังกฤษ',
+            'ติดตั้งเครื่องยนต์สังเคราะห์เสียง Web Audio Synthesizer จำลองเสียงเครื่องดนตรีไทย 8 ชนิดตามหลัก Acoustic Physics (ระนาดเอก, ขิม, กลองยาว, ซอด้วง, ซออู้, ขลุ่ยเพียงอ้อ, จะเข้, พิณ)',
+            'เพิ่ม 4 โหมดการเรียนรู้เต็มรูปแบบ: 📖 ทำความรู้จัก (4 ประเภทเครื่องดนตรีไทย), 🖼️ ฉากภาพประกอบพร้อมฟังบรรยาย, 🎹 ห้องทดลองเสียงพร้อมคีย์บอร์ด 8 โน้ตและ Wave Visualizer, ✏️ ทายเสียงปริศนาและจำแนกหมวดหมู่ (6 ข้อ)',
+            'อัปเกรดภาพปกสื่อเป็นภาพวาด 16:9 ระดับพรีเมียม (1280×720) ในคลังสื่อการเรียนรู้ (Migration 514)',
+            'ผ่านการตรวจสอบคุณภาพและข้อกำหนดของสื่อการสอน (verify:media) 100%',
+        ],
+    },
+    {
+        version: 'v1.229.64 (Vocab Hub — แก้ไขบั๊กอ่านออกเสียงซ้ำ 2 ครั้งซ้อน & ป้องกัน Timer รั่วไหล)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ไขบั๊กการอ่านออกเสียงซ้ำ 2 ครั้งซ้อน (TTS Double-Speaking) ด้วย Audio Debounce Guard (280ms) ป้องกัน Event collision จากการแตะซ้ำหรือ Double-tap บนหน้าจอสัมผัส/Smartboard',
+            'ตัด Event Listener คลิกซ้อนที่ visual element ของการ์ด ให้การคลิกอ่านออกเสียงมีจุดศูนย์กลางที่แน่นอนจุดเดียว ป้องกัน Race condition',
+            'ปรับปรุงฟังก์ชัน showHub() เพิ่มการเคลียร์ Timer และ Interval ของทุกโหมด (Flash, Timed, True/False, Word Search, Lightbox) อย่างหมดจด ป้องกัน Memory Leak เบื้องหลัง',
+            'ผ่านการตรวจสอบคุณภาพและ Browser Regression Gate ครบทุกขนาดหน้าจอ 100%',
+        ],
+    },
+    {
+        version: 'v1.229.63 (Vocab Hub — ปรับปรุงดีไซน์หน้าแรกสู่ระดับ Production ครบทั้ง Desktop & Mobile)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรดหน้าแรกของ Vocabulary Hub สู่ระดับ Production: พื้นหลัง Rich Gradient พร้อมประกายแสง Radial Glow นุ่มนวล มีมิติ',
+            'การ์ดหมวดหมู่สไตล์ Glassmorphism ขอบเงากึ่งโปร่งแสง พร้อมแท่นวงกลมรองไอคอน (Icon Backdrop Circle) และลูกเล่น Hover Glow ลอยตัว',
+            'ปรับปรุงระบบ Typography และความคมชัดของข้อความทั้งภาษาไทยและอังกฤษ พร้อมแถบความคืบหน้าเรียนรู้สวยงาม',
+            'ปุ่มนำทางด้านบน (กลับหน้ารวมเกม / แดชบอด) ปรับใช้สไตล์ Glass Pill ปุ่มสัมผัสเข้าถึงง่ายตามมาตรฐานความเข้าถึง',
+            'ทดสอบและตรวจสอบผ่านจริงบนหน้าจอทั้ง 1280×720 (Desktop/Smartboard) และ 360×800 (Mobile) ไม่มีการล้นหรือบังคอนเทนต์',
+        ],
+    },
+    {
+        version: 'v1.229.62 (คลังสื่อการเรียนรู้ — โคลนสื่อคำศัพท์ภาษาอังกฤษไปยัง ครูมะลิวัลย์ จรุงพันธ์)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'โคลนสื่อการเรียนรู้ "คำศัพท์ภาษาอังกฤษ (Vocabulary Hub)" ไปยังครูผู้สอน นางสาวมะลิวัลย์ จรุงพันธ์ (หัวหน้ากลุ่มสาระ)',
+            'สร้าง Migration 513 บันทึกสำเนาสื่อใน educational_hub_items พร้อมเชื่อมโยง game_docs ข้อมูลรายละเอียดสื่อครบถ้วน',
+            'เปิดใช้งานสื่อเรียบร้อย (is_published = true) สามารถเข้าถึงและจัดการผ่านพอร์ตัลครูได้ทันที',
+        ],
+    },
+    {
+        version: 'v1.229.61 (Vocab Hub — ภาพประกอบผักชุดใหม่ Lettuce, Spinach, Kale, Celery, Radish, Beetroot)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ในหมวดผัก (Vegetables): Lettuce (ผักกาดหอม), Spinach (ผักโขม), Kale (คะน้าเคล), Celery (ขึ้นฉ่ายฝรั่ง), Radish (หัวไชเท้า), Beetroot (บีตรูต)',
+            'รวมภาพประกอบในหมวดผักมีภาพแล้ว 16/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
+        version: 'v1.229.60 (Vocab Hub — อัปเกรดโหมดไลท์บ็อกซ์ 3x ขยายใหญ่รายคำ + รองรับดับเบิลคลิก)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มฟังก์ชันให้โหมดขยายใหญ่ 3 เท่า (Lightbox / สไลด์โชว์) รองรับการเปิดเจาะจงรายคำเป้าหมายได้ทันที',
+            'เพิ่ม Event ดับเบิลคลิกที่การ์ดคำศัพท์ในหน้ากริดหลัก ให้เปิดซูมไลท์บ็อกซ์ 3 เท่าที่คำนั้นได้สะดวกรวดเร็วบนจอสัมผัส/Smartboard',
+            'ปรับปรุง Layout ของปุ่มควบคุมสไลด์ (ก่อนหน้า / เล่นต่อเนื่อง / ถัดไป / ความเร็ว) บนหน้าจอมือถือ (360×800) ให้เรียงสวยงาม ไม่ล้นจอ',
+        ],
+    },
+    {
+        version: 'v1.229.59 (Vocab Hub — ภาพประกอบหมวดอาหารครบสมบูรณ์ 30/30 คำ)',
+        date: '15 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เจเนอเรตและแปลงภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ครบทั้ง 14 คำสุดท้าย: Salad, Beef, Pork, Fish, Vegetable, Fruit, Butter, Yogurt, Cereal, Cookie, Chocolate, Juice, Tea, Coffee',
+            'ทำให้หมวดอาหาร (Food) มีภาพประกอบครบถ้วน 100% (30/30 คำ ทั้ง 5 สไลด์) พร้อมลงทะเบียนใน EXTENDED_IMAGE_WORDS',
+            'ผ่านการทดสอบ Browser Regression ด้วย Playwright และการตรวจ Verify Game ครบทุกฟังก์ชัน',
+        ],
+    },
+    {
+        version: 'v1.229.58 (Vocab Hub — ภาพประกอบอาหารชุดใหม่ Hamburger, Sandwich, Sausage, Cheese)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ในหมวดอาหาร (Food): Hamburger (แฮมเบอร์เกอร์), Sandwich (แซนด์วิช), Sausage (ไส้กรอก), Cheese (ชีส)',
+            'รวมภาพประกอบในหมวดอาหารมีภาพแล้ว 16/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
+        version: 'v1.229.57 (Vocab Hub — ภาพประกอบหมวดสัตว์ครบสมบูรณ์ 30/30 คำ)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เจเนอเรตภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ ครบทั้ง 9 คำสุดท้าย: Kangaroo, Panda, Koala, Camel, Goat, Sheep, Pig, Owl, Crocodile',
+            'ทำให้หมวดสัตว์ (Animals) มีภาพประกอบครบถ้วน 100% (30/30 คำ) ทั้งในชุดคำพื้นฐาน (12 คำ) และชุดคำทั้งหมด (30 คำ)',
+            'ผ่านการทดสอบ Browser Regression ด้วย Playwright และการตรวจ Verify Game ครบทุกฟังก์ชัน',
+        ],
+    },
+    {
+        version: 'v1.229.56 (Vocab Hub — ภาพประกอบสัตว์ชุดใหม่ Fox, Wolf, Zebra, Giraffe)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-teal-600',
+        items: [
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กเด็ก ไร้มือชี้ อีก 4 คำในหมวดสัตว์: Fox (สุนัขจิ้งจอก), Wolf (หมาป่า), Zebra (ม้าลาย), Giraffe (ยีราฟ)',
+            'รวมภาพประกอบในหมวดสัตว์มีภาพแล้ว 21/30 คำ พร้อมลงทะเบียน EXTENDED_IMAGE_WORDS และผ่าน verify:game',
+        ],
+    },
+    {
+        version: 'v1.229.55 (แก้ไขกริดคำศัพท์ Vocab Hub แสดงผลปกติทุกหมวด และเพิ่มภาพกวาง Deer)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ไขข้อผิดพลาดโครงสร้าง slideEls ใน rebuildTopicSlides ทำให้กริดคำศัพท์และการ์ดภาพกลับมาแสดงผลครบถ้วนทุกหมวดหมู่',
+            'เพิ่มภาพประกอบกวาง (Deer) 512×512 WebP สไตล์สตอรี่บุ๊กในหมวดสัตว์ พร้อมลงทะเบียนใน EXTENDED_IMAGE_WORDS',
+        ],
+    },
+    {
+        version: 'v1.229.54 (รอโหลดสิทธิ์ครบและจำกัด Page Builder)',
+        date: '14 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'รอ session บทบาทและสิทธิ์เมนูก่อนเข้าหลังบ้าน ไม่ให้สิทธิ์ admin เมื่ออ่านข้อมูลผิดพลาด พร้อมปุ่มลองใหม่',
+            'กันผลโหลดของบัญชีเก่าย้อนกลับมาให้สิทธิ์หลังสลับบัญชีหรือออกจากระบบ และคงการอัปเดตสิทธิ์ผ่าน realtime',
+            'จำกัด Page Builder เฉพาะ admin โดยใช้ guard กลาง ไม่แก้ฐานข้อมูล RLS หรือเส้นทางเกม',
+        ],
+    },
+    {
+        version: 'v1.229.53 (คืนเมนูธนาคารความดีให้ครูทุกคน)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ธนาคารความดีเป็นเมนูพื้นฐานครู เข้าได้โดยไม่ต้องเพิ่ม conduct ในสิทธิ์หลังบ้านรายบัญชี',
+            'ตรวจ role teacher ก่อนให้สิทธิ์เมนูพื้นฐาน ป้องกัน parent/viewer ได้สิทธิ์ตามไปด้วย และรักษาลำดับเมนูเดิม',
+            'ไม่เปลี่ยนฐานข้อมูล บทบาทบัญชี หรือสิทธิ์แก้ไข/ลบคะแนน พร้อม browser regression สำหรับบทบาทและขนาดจอ',
+        ],
+    },
+    {
+        version: 'v1.229.52 (Vocab Hub — โหมดไลท์บ็อกซ์ขยายใหญ่ 3 เท่า พร้อมระบบเล่นต่อเนื่องสำหรับห้องเรียน)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มโหมด "ขยายใหญ่ 3x" (Lightbox / Classroom Theater Mode) ขยายภาพและข้อความคำศัพท์ให้อ่านง่ายคมชัดจากระยะไกล เหมาะกับโปรเจกเตอร์และ Smartboard หน้าชั้นเรียน',
+            'รองรับการเล่นต่อเนื่องอัตโนมัติ (Continuous Play) โดยมีปุ่มเริ่ม/หยุดชั่วคราว พร้อมปุ่มควบคุมความเร็ว 2s / 1.5s / 1s / 0.5s',
+            'มีระบบควบคุมครบครัน: ปุ่มก่อนหน้า/ถัดไป, ฟังเสียงอ่านซ้ำ (🔊), บันทึกคำโปรด (⭐), ประโยคตัวอย่าง, Phonics แตะฟังเสียงย่อย และคีย์บอร์ดชอร์ตคัต (ArrowLeft/Right, Space, Escape)',
+        ],
+    },
+    {
+        version: 'v1.229.51 (Vocab Hub — ค่าเริ่มต้นไม่เล่นเอง ครู/แอดมินเป็นคนกดเริ่มเล่นต่อเนื่อง)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-indigo-600',
+        items: [
+            'ปรับปรุงโหมดอัตโนมัติให้หยุดชั่วคราว (Paused) เป็นค่าเริ่มต้นเมื่อเปิดเข้าหัวข้อ เพื่อไม่ให้สไลด์เลื่อนคำเองโดยไม่ตั้งใจ',
+            'เพิ่มปุ่ม "▶ เล่นต่อเนื่อง" ให้ครูหรือผู้ใช้เป็นผู้กดสั่งให้เริ่มเล่นสไลด์อัตโนมัติต่อเนื่องเมื่อพร้อมนำเสนอ',
+            'กดที่ปุ่มอัตโนมัติหรือปุ่มเล่นต่อเนื่องเพื่อสลับระหว่างการหยุดพักและการเล่นต่อเนื่องได้อย่างสะดวก',
+        ],
+    },
+    {
+        version: 'v1.229.50 (Vocab Hub — ภาพประกอบคำต่อยอดสัตว์ และระบบโหลดภาพชุดเสริม)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-teal-600',
+        items: [
+            'เพิ่มโครงสร้าง VOCAB_HUB_EXTENDED_IMAGES รองรับการแสดงผลภาพประกอบชุดคำศัพท์เพิ่มเติมในทุกหมวดหมู่',
+            'เพิ่มภาพประกอบ 512×512 WebP สไตล์สตอรี่บุ๊กไร้มือชี้ในหมวดสัตว์ (Lion, Bear, Duck, Peacock) รวมเป็น 16/30 คำ',
+            'อัปเดตระบบตรวจสอบข้อมูล verify-vocab-hub-data.mjs ให้ตรวจขนาด ความสว่าง และ contrast ของภาพคำต่อยอดอย่างเข้มงวด',
+        ],
+    },
+    {
+        version: 'v1.229.49 (Vocab Hub — แตะภาพและปุ่มลำโพงประจำการ์ดเพื่อฟังเสียงอ่านทันที)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มปุ่มสัญลักษณ์เสียง (🔊) ประจำทุกการ์ดคำศัพท์ในทุกหมวดหมู่ กดเพื่อฟังเสียงอ่านได้ทันที',
+            'รองรับการแตะ/คลิก หรือเลื่อนเมาส์ชี้ที่รูปภาพคำศัพท์เพื่อเล่นเสียงอ่านภาษาอังกฤษทันที (พร้อม debounce นุ่มนวล)',
+            'รองรับการกดบนการ์ดในโหมดอัตโนมัติเพื่อเลือกคำและฟังเสียงอ่านทันที ปรับคำแนะนำบนหัวเรื่องให้ชัดเจน',
+        ],
+    },
+    {
+        version: 'v1.229.48 (Vocab Hub — เพิ่มหมวดหมู่นก 10 คำ พร้อมภาพประกอบและเสียงอ่าน)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มหมวดหมู่ใหม่ "นก (Birds)" ใน English Vocab Hub รวม 10 คำ (Eagle, Pigeon, Crow, Sparrow, Parrot, Peacock, Hen, Duck, Kingfisher, Woodpecker)',
+            'สร้างภาพประกอบ 512×512 WebP คุณภาพสูงครบทั้ง 10 คำ โดยตัดมือชี้และไม้ชี้ออก ให้เป็นภาพนกตัวเดี่ยวคมชัดบนพื้นหลังสะอาด',
+            'รองรับเสียงอ่านภาษาอังกฤษ, คำอ่านและคำแปลภาษาไทย, ประโยคตัวอย่าง, และเล่นได้ครบทั้ง 13 โหมดการเรียนรู้',
+        ],
+    },
+    {
+        version: 'v1.229.47 (ธนาคารความดี — เปลี่ยนชื่อและ URL ให้เป็นระบบเดียวกัน)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เปลี่ยนชื่อระบบที่ผู้ใช้เห็นเป็น “ธนาคารความดี” และเปลี่ยนหน่วยคะแนนเป็น “คะแนนความดี” ในหน้าบ้าน หลังบ้าน parent และระบบรางวัล',
+            'เพิ่ม URL หลัก `/virtue-bank` และ `/virtue-bank/:studentId` พร้อม redirect จาก `/hero` เดิมเพื่อรักษาลิงก์และ QR เก่า',
+            'คง schema `conduct_scores`, RPC และ service ภายในเดิม เพื่อรักษาข้อมูลคะแนนและการแลกรางวัลโดยไม่ต้อง migration',
+        ],
+    },
+    {
+        version: 'v1.229.46 (Educational Hub — all media on one page)',
+        date: '11 ก.ย. 2569',
+        badge: 'bg-emerald-700',
+        items: [
+            'หน้าคลังครูหมวด `media` แสดงสื่อที่ตรงตัวกรองทั้งหมดต่อเนื่องในหน้าเดียว โดยยกเลิกปุ่มแบ่งหน้าและคงหมวดอื่นไว้แบบเดิม',
+            'โหลดข้อมูลอัตโนมัติเป็นชุดละไม่เกิน 120 รายการ รักษาลำดับปักหมุด และปฏิเสธผลลัพธ์ที่โหลดไม่ครบหรือมี ID ซ้ำพร้อมปุ่มลองใหม่',
+            'query หมวดสื่อไม่ผูกกับขนาดจอหรือจำนวนคอลัมน์ พร้อม browser QA ที่ 360×800, 768×1024 และ 1280×720',
+        ],
+    },
+    {
+        version: 'v1.229.45 (Everyday Conversation: independent speaking)',
+        date: '10 ก.ย. 2569',
+        badge: 'bg-cyan-700',
+        items: [
+            'เพิ่มตัวช่วยประโยคเต็ม / คำใบ้ / พูดเองใน 5 บทนำร่อง ใช้ร่วมกันในจับคู่ A/B และฉากพูดได้',
+            'ตัวละครอ่านเฉพาะคู่สนทนาและรอเด็กตอบจนกดไปต่อ ฟังตัวอย่างแล้วกลับมารอที่ประโยคเดิม',
+            'ซ่อนคำอ่าน คำแปล และคำตอบบนปุ่มพร้อมกัน แก้บทอายุให้สอดคล้องกับข้อมูลเด็ก และตรวจตัวชี้วัดรายบทจาก Integrated Plan',
+        ],
+    },
+    {
+        version: 'v1.229.44 (Everyday Conversation — speaker identity)',
+        date: '10 ก.ย. 2569',
+        badge: 'bg-cyan-700',
+        items: [
+            'แก้บท Nan และ Joe/Pim ให้ชื่อ ตัวละคร A/B ภาพ และเสียงชาย–หญิงตรงกันทั้งไดอะล็อกและฉากพูดได้',
+            'รวม metadata ภาพกับเพศผู้พูด ลดความเสี่ยงจากรายการคู่ขนานเรียงผิด และไม่ใช้ลำดับ voice ของ browser เป็นเพศสำรอง',
+            'เพิ่มตัวเลือกเสียงหญิง/ชายสำหรับข้อมูลเด็กแบบ session-only โดยไม่มีเสียงอัตโนมัติและไม่บันทึกข้อมูลส่วนตัว',
+        ],
+    },
+    {
+        version: 'v1.229.43 (Fresh-open worksheet seeds — หารยาว/หารสั้น/แปลงจำนวนคละ)',
+        date: '10 ก.ย. 2569',
+        badge: 'bg-blue-600',
+        items: [
+            'ปรับใบงานหารยาว หารสั้น และแปลงเศษเกิน–จำนวนคละให้เปิด URL ปกติแล้วสร้างชุดใหม่ทุกครั้ง โดยไม่เขียน seed กลับ URL ระหว่าง render',
+            'คงการทำซ้ำได้เมื่อใช้ ?seed= หรือ ?set= และให้ปุ่มสุ่มใหม่ล้างพารามิเตอร์ชุดเดิมก่อนสร้าง seed ใหม่',
+            'เพิ่มกฎ fresh-open seed ใน WORKSHEET.md เพื่อให้การสุ่มสดและการแชร์ชุดเดิมไม่ขัดกัน',
+        ],
+    },
+    {
+        version: 'v1.229.42 (Roadmap wave — อัลกอริทึมและห้องทดลองวิทยาศาสตร์)',
+        date: '10 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับอัลกอริทึมแบบไม่ใช้คอมพิวเตอร์ให้ใช้ media-lab runtime กลาง พร้อมฉากเป้าหมาย ลำดับขั้น เงื่อนไข/ทำซ้ำ และดีบัก',
+            'เพิ่มห้องทดลองสถานะของสสารและวงจรไฟฟ้าแบบ local state ปรับตัวแปรแล้วเห็นเหตุ–ผลทันที พร้อมคำถามทำนายและ feedback แก้ misconception',
+            'อัปเดตคู่สื่อ/ใบงานและ indicator mapping ผ่าน migration แบบ idempotent โดยคง URL เดิม, TTS, reduced-motion และไม่บันทึกคะแนนหรือนักเรียน',
+        ],
+    },
+    {
+        version: 'v1.229.41 (Gap-first media lab — เทคโนโลยี ศิลปะ การงาน และสุขศึกษา)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-violet-600',
+        items: [
+            'เพิ่ม runtime สื่อ standalone รุ่นใหม่ที่มีโหมดอ่าน ภาพประกอบ ฝึกปฏิบัติ และห้องทดลองเฉพาะหัวข้อ พร้อม TTS แบบ user-triggered, image fallback และ reduced-motion',
+            'เพิ่มสื่อ+ใบงาน 7 คู่: รู้เท่าทัน AI, เครื่องดนตรีไทย, วิจารณ์งานศิลป์, รายรับรายจ่าย, ความปลอดภัยในการทำงาน, อารมณ์ และการขอความช่วยเหลือ',
+            'เพิ่ม custom verifier และ catalog migration 509 สำหรับ URL สื่อ ใบงาน และ indicator mapping โดยไม่เพิ่มระบบคะแนนหรือข้อมูลนักเรียน',
+        ],
+    },
+    {
+        version: 'v1.229.40 (สื่อวิทยาศาสตร์ — ห้องทดลองวัฏจักรน้ำ)',
+        date: '9 ก.ย. 2569',
         badge: 'bg-cyan-600',
         items: [
-            'เพิ่มเกม AR การศึกษา "Sci-Lab Defender (ผู้พิทักษ์ห้องแล็บอวกาศ)" สำหรับกิจกรรมวันวิทยาศาสตร์ระดับประถม (ป.1 - ป.6)',
-            'ผสาน 3 ฐานการทดลองใน 1 รอบ 75 วินาที: 1) คัดแยกสสารเคมี, 2) สะท้อนแสงเลเซอร์โซลาร์เซลล์, 3) จิ้มระเบิดอุกกาบาตอวกาศ Fever',
-            'ขับเคลื่อนด้วย KampaiHands Engine (MediaPipe Hands + One Euro Filter) รองรับ 2 มือ พร้อมระบบ Tap/Click Fallback 100%',
-            'Migration 462 + game_docs + ระบบดวล Versus + หน้าปก 16:9 1280×720',
+            'เพิ่มโหมดทดลองจำลองให้เด็กปรับความร้อน ความเย็นของอากาศ และปริมาณไอน้ำ/เมฆ แล้วเห็นการเปลี่ยนสถานะของน้ำแบบเคลื่อนไหว',
+            'เพิ่มคำอธิบายเหตุ–ผลแบบอัปเดตทันที พร้อมคำถามทำนาย 4 จุดและเฉลยที่อธิบาย misconception',
+            'รองรับ reduced-motion, หยุดเสียงเมื่อเปลี่ยนโหมดหรือออกจากหน้า และคงโหมดภาพประกอบ แบบฝึกเรียงลำดับ และ TTS เดิมโดยไม่บันทึกข้อมูลเพิ่ม',
+        ],
+    },
+    {
+        version: 'v1.229.39 (สื่อวิทยาศาสตร์ — วัฏจักรน้ำฉากภาพและเสียงบรรยาย)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-sky-600',
+        items: [
+            'ยกระดับ water-cycle-media เป็นบทเรียน 5 ฉาก พร้อม sidebar, โหมดภาพประกอบ 16:9 และการ์ดคำอธิบายสำหรับ ป.3–5',
+            'เพิ่มภาพวาดการศึกษา local 5 ภาพ พร้อม fallback เมื่อภาพโหลดไม่ได้ และคงแบบฝึกเรียงลำดับเดิม',
+            'เพิ่มเสียงบรรยายภาษาไทยแบบ user-triggered ผ่าน Kampai TTS/fallback speechSynthesis และหยุดเสียงเมื่อเปลี่ยนบริบท',
+        ],
+    },
+    {
+        version: 'v1.229.38 (Everyday Conversation — คาราโอเกะอ่านชัด)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ไล่สีคำอังกฤษตามเสียงพร้อมกันทั้งไดอะล็อกและฉากพูดได้ โดยมี timer สำรองเมื่อ browser ไม่มี speech boundary',
+            'ขยายคำอ่านไทยและคำแปล พร้อมเน้นทั้งบรรทัดของประโยคที่กำลังพูดสำหรับจอห้องเรียน',
+            'ล้างสี เสียง และ timer เมื่อหยุดหรือเปลี่ยนบริบท; คงการเริ่มเสียงจากการกดเท่านั้น; game_docs v1.5.0 ใน migration 508',
+        ],
+    },
+    {
+        version: 'v1.229.37 (Everyday Conversation — จับคู่ตัวละครกับเสียง)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้การจับคู่เสียงตามตัวละครหญิง/ชายของแต่ละฉาก และมี fallback เมื่อ browser ไม่มี voice แยกชนิด',
+            'สลับ A/B แล้วย้ายการ์ดไปฝั่งจริง พร้อมแก้การหยุดเสียงและ timer เมื่อออกจาก fullscreen',
+            'แก้ direct-open file:// ให้โหลด SDK และภาพฉากได้; game_docs v1.4.0 ใน migration 507',
+        ],
+    },
+    {
+        version: 'v1.229.36 (ส่วนของพืชดอก ป.4: การ์ดภาพอ่านชัด)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยายภาพกิจกรรมเป็นกรอบสี่เหลี่ยม 1:1 ใช้ object-fit contain เพื่อไม่ครอปภาพ',
+            'แยกชื่อไทยและ English label คนละบรรทัด พร้อมขยายตัวอักษรให้เหมาะกับจอห้องเรียน',
+            'ปรับกริดเป็น 2 คอลัมน์บนมือถือและ 3 คอลัมน์บนจอใหญ่; game_docs v1.5.0 ใน migration 506',
+        ],
+    },
+    {
+        version: 'v1.229.35 (ส่วนของพืชดอก ป.4: บูรณาการภาษาอังกฤษ)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มคำศัพท์ root, stem, leaf, flower, fruit และ seed พร้อมคำอ่านไทยในจุดสำรวจและกิจกรรม',
+            'แยกปุ่มฟังศัพท์อังกฤษออกจากปุ่มฟังคำอธิบายภาษาไทย โดยทั้งสองแบบเริ่มจากการกดของครูเท่านั้น',
+            'คงโครงสร้างข้อมูลและกิจกรรมเดิม ไม่เพิ่มโหมดซ้ำ และอัปเดต game_docs เป็น v1.4.0 ใน migration 505',
+        ],
+    },
+    {
+        version: 'v1.229.34 (ส่วนของพืชดอก ป.4: ภาพประกอบกิจกรรม)',
+        date: '9 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพจากชุดเดียวกันในจับคู่หน้าที่ กินส่วนไหน เรียงเติบโต และฝึกสั้น พร้อม fallback emoji เมื่อภาพโหลดไม่ได้',
+            'คงกติกากิจกรรมเดิมและการเลือกคำตอบเดิม โดยไม่เพิ่มโหมดหรือเสียงอัตโนมัติ',
+            'แก้ JavaScript error ในการสร้างภาพคำถามฝึกสั้น และตรวจ 4 viewport ครบ',
+            'game_docs v1.3.0 ใน migration 504',
+        ],
+    },
+    {
+        version: 'v1.229.33 (ส่วนของพืชดอก ป.4: สำรวจภาพ)',
+        date: '8 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับโหมดสอนด้วยภาพมะเขือเปราะกึ่งสมจริง 7 ภาพ จุดกดสัมพันธ์กับภาพ และภาพขยายทีละส่วน',
+            'เน้นราก ลำต้น ใบ ดอก ตาม ว 1.2 ป.4/1; ผลและเมล็ดเป็นส่วนเพิ่มเติม พร้อมคำถามชวนคิด',
+            'ตัวอักษรหลักอย่างน้อย 24px ฟังเฉพาะเมื่อกด เน้นประโยคและหยุดเสียงเมื่อเปลี่ยนส่วนหรือโหมด',
+            'คงกิจกรรมเดิมและใบงาน; game_docs v1.2.0 ใน migration 503 พร้อมตัวตรวจข้อมูล ภาพ และ browser 4 viewport',
+        ],
+    },
+    {
+        version: 'v1.229.32 (Everyday Conversation — อ่านตามคำและฝึก A/B)',
+        date: '8 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยายคำอ่านอย่างน้อย 24px และประโยคที่เลือก พร้อมไฮไลต์คำอังกฤษตามเสียงบน browser ที่รองรับ',
+            'แก้ข้อมูลตัวอย่าง/ข้อมูลฉันให้สัมพันธ์ทั้งบท เพิ่มช่องออกเสียงชื่อโรงเรียนและจำเฉพาะค่าครู',
+            'ฝึกเป็น A หรือ B โดยระบบอ่านคู่สนทนาและหยุดรอเด็กตอบ; ยกเลิกเสียงและ callback เก่าเมื่อเปลี่ยนบท',
+            'game_docs v1.3.0 ใน migration 502; ทดสอบ speech mock และ responsive 360/768/1280px',
+        ],
+    },
+    {
+        version: 'v1.229.31 (คลังสื่อ — รวมหน่วยสอนและเก็บ usage 60 วัน)',
+        date: '8 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยุบหมวดชุดเรียนพร้อมสอนออกจากหน้าคลัง และแสดงสื่อ ใบงาน และเกมที่เชื่อมกันบนการ์ดสื่อหลักเพียงใบเดียว',
+            'เพิ่มหน้าจัดหน่วยสอนสำหรับครูด้วย React Hook Form + Zod เลือกปก ชั้น ใบงาน เกม ตัวชี้วัดหลักหนึ่งรายการ และตัวสนับสนุนไม่เกินสองรายการ',
+            'ซ่อมชุดเศษส่วน วัฏจักรน้ำ และระบบย่อยอาหาร พร้อมรวม URL ซ้ำและเส้นทาง Math Word Problem ที่เสียโดยโอน reference ก่อนลบ',
+            'เริ่มเก็บยอดเปิดรายวันแบบ aggregate แยกเจ้าของ/ผู้ใช้อื่นโดยไม่เก็บข้อมูลเด็ก และเข้าคิวตรวจรวมเมื่อครบ 60 วันเท่านั้น',
+        ],
+    },
+    {
+        version: 'v1.229.30 (คลังสื่อ — ใช้ปักหมุดแทนรายการโปรด)',
+        date: '7 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ลบระบบรายการโปรดบนเครื่องออกจากหน้าคลังสื่อครู เพื่อลดปุ่มและสถานะที่ซ้ำกับการปักหมุดคลัง',
+            'คงระบบปักหมุดส่วนกลางที่มีผลทุกเครื่อง พร้อมลากเรียงรายการปักหมุดได้ในโหมดผู้ดูแล',
+            'ผูกปก 16:9 ของ Everyday Conversation ป.4 และปักสื่อไว้ลำดับแรกของหมวดสื่อการสอน',
+            'อัปเดต game_docs เป็น v1.2.1 และข้อมูลปักหมุดใน migration 500',
+        ],
+    },
+    {
+        version: 'v1.229.29 (Everyday Conversation — ฉากพูดได้)',
+        date: '4 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มโหมดฉากพูดได้ด้วยภาพการ์ตูนเด็กไทย 30 บท และภาพเรื่องของฉันอีก 2 ฉาก รวม 32 ภาพ',
+            'ครูกดเริ่มฉากก่อน ระบบจึงผลัดบท A/B พร้อมบอลลูน เสียงอังกฤษ และช่วงพูดตาม 3 วินาที',
+            'รองรับการฟังซ้ำ หยุดทันทีเมื่อเปลี่ยนบทหรือซ่อนแท็บ และทำงานต่อได้เมื่อ TTS ไม่พร้อม',
+            'ภาพไม่ครอปบนมือถือและจอห้องเรียน พร้อมอัปเดต game_docs v1.2.0 ใน migration 498',
+        ],
+    },
+    {
+        version: 'v1.229.28 (Everyday Conversation — เรื่องของฉัน)',
+        date: '4 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มโหมดเรื่องของฉัน ให้เด็กกรอกข้อมูลแล้วฝึกแนะนำตัว 6 ประโยคและถามตอบ A/B 6 คู่',
+            'นำข้อมูลเด็กไปแทนตัวอย่างในบทเดิมเฉพาะบริบทที่ตรงกัน และปิดเพื่อคืนข้อความเดิมได้ทันที',
+            'ข้อมูลส่วนตัวอยู่เฉพาะในแท็บ ปุ่มนักเรียนคนใหม่คงค่าโรงเรียนและจังหวัดของครูไว้',
+            'คงหลักไม่มีเสียงอัตโนมัติและไม่ใช้ไมโครโฟน พร้อมอัปเดต game_docs v1.1.0 ใน migration 497',
+        ],
+    },
+    {
+        version: 'v1.229.27 (เกมสื่อการสอน AI — Neural Bot: สมองกลกู้จักรวาล)',
+        date: '4 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มเกมสื่อการสอนวิชาวิทยาการคำนวณและเทคโนโลยี "Neural Bot: สมองกลกู้จักรวาล" จำลองการฝึกสอน AI & Machine Learning จริง',
+            'ระบบ Interactive Neural Decision Boundary ปรับ Features, Weights และดูผลลัพธ์กราฟ 2D แบบเรียลไทม์',
+            'โหมด Space Inference Run จำแนกวัตถุอวกาศด้วย Confidence Score พร้อมระบบ Manual Override และโหมดแข่งขัน KampaiVersus 3 รูปแบบ',
+            'ผ่านการทดสอบคุณภาพ 100% (Static strict + Playwright browser 3 viewports) พร้อม migration 495 และ game_docs v1.0.0',
+        ],
+    },
+    {
+        version: 'v1.229.26 (สื่ออังกฤษ ป.4 — Everyday Conversation)',
+        date: '4 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มสื่อฝึกพูดถาม-ตอบภาษาอังกฤษ ป.4 จำนวน 30 บท 120 ช่วงพูดใน 6 สถานการณ์ใกล้ตัว',
+            'มีโหมดครูนำและจับคู่ A/B พร้อมสลับบท ฟังทีละประโยคหรือทั้งบท และไม่มีเสียงเริ่มเอง',
+            'คำอ่านไทยและคำแปลเปิดหรือปิดได้แยกกัน รองรับมือถือ จอห้องเรียน และเต็มจอ',
+            'เชื่อมตัวชี้วัด integrated-plan 7 ตัว พร้อมลงทะเบียนคลังสื่อและ game_docs v1.0.0 ใน migration 496',
+        ],
+    },
+    {
+        version: 'v1.229.25 (ธนาคารพอเพียง — ป้องกันข้อมูลและคุม ledger)',
+        date: '3 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'รอตรวจและนำ migration 493 ขึ้นฐานข้อมูลจริงก่อนเผยแพร่ frontend; ไม่ใช่การยืนยัน production',
+            'ย้าย public leaderboard, กิจกรรมล่าสุด, parent view และ hero profile ไปใช้ RPC ที่คืนข้อมูลเท่าที่จำเป็น',
+            'ปิดการอ่านตารางธุรกรรมและ view สรุปโดย anonymous พร้อมคงสิทธิ์อ่านสำหรับครู/ผู้ดูแลระบบ',
+            'ฝากและลบรายการผ่าน RPC ที่ล็อกบัญชี คำนวณ balance_after ใหม่ และป้องกันยอดติดลบจากรายการย้อนหลัง',
+        ],
+    },
+    {
+        version: 'v1.229.24 (ธนาคารพอเพียง — รายละเอียดฝากถอนรายคน)',
+        date: '3 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปิดประวัติรายคนจากสรุปยอดแบบตาราง การ์ด และรายห้อง พร้อมเลือกช่วงวันที่และแบ่งหน้า 50 รายการ',
+            'คำนวณยอดยกมาและยอดสะสมจากประวัติครบทุกหน้า ตรวจเทียบยอดสรุปก่อนแสดงหรือส่งออก',
+            'พิมพ์ / บันทึก PDF และ CSV ครบทุกแถวในช่วงวันที่ รองรับมือถือและไม่เปลี่ยนข้อมูลธุรกรรม',
+        ],
+    },
+    {
+        version: 'v1.229.23 (แผนส่วนตัวครู — รีเซ็ต PIN ได้ทันที)',
+        date: '2 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ปุ่มลืม PIN ที่เดิมถูกปิดจนกว่าจะกรอก PIN ในช่องปลดล็อก ให้กดเปิดขั้นตอนรีเซ็ตได้ทันที',
+            'เพิ่มหน้าต่างตั้ง PIN ใหม่และยืนยัน PIN พร้อมตรวจเลข 6 หลักและข้อความแจ้งเมื่อสองช่องไม่ตรงกัน',
+            'รีเซ็ตผ่านบัญชีครูที่ล็อกอินอยู่และ invalidate สถานะ PIN หลังบันทึกสำเร็จ',
+        ],
+    },
+    {
+        version: 'v1.229.22 (vocab-hub — ภาพคำพื้นฐาน 205 คำ)',
+        date: '2 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพการ์ตูน WebP 512×512 ให้คำพื้นฐาน 205 คำใน 22 หมวด โดยคง Fruits 30 ภาพเดิมและ 5 หมวดข้อความไว้ตามเดิม',
+            'ใช้ภาพก่อน emoji พร้อม fallback เมื่อภาพโหลดไม่ได้ และไม่เพิ่มภาพให้คำต่อยอดเพื่อให้ชุดพื้นฐานเห็นความแตกต่างชัดเจน',
+            'ตรวจภาพครบ 3 รอบด้วย contact sheet รายหมวด พร้อมตัวตรวจจำนวน mapping ขนาดภาพ ไฟล์เสีย และ path ซ้ำ',
+            'อัปเดต game_docs เป็น v2.6.0 โดยไม่เปลี่ยน schema คำศัพท์หรือพฤติกรรมเสียงแบบกดอ่านเอง',
+        ],
+    },
+    {
+        version: 'v1.229.21 (vocab-hub — ปุ่มอ่านเดียวและไม่อ่านอัตโนมัติ)',
+        date: '2 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'รวมการอ่านคำศัพท์ไว้ที่ปุ่มลำโพงข้างคำใหญ่เพียงจุดเดียว และลบปุ่ม mute รายคำ รายหมวด และทั้งหน้า',
+            'เปิดหมวด เลื่อนคำ คลิกการ์ด และเปลี่ยนภาษาเสียงโดยไม่อ่านเอง ส่วน Listen, Spell, phonics และ Math ยังเริ่มจากการกดของผู้ใช้',
+            'เปลี่ยนโหมดแข่งขันเป็น KampaiVersus เพื่อรองรับทั้ง 2 คนบนเครื่องเดียวและออนไลน์ โดยใช้เกมคำศัพท์ชุดเดิม',
+            'เพิ่ม browser lifecycle hooks, reduced-motion fallback และตัวตรวจป้องกัน state เสียงซ้ำซ้อน พร้อมอัปเดต game_docs เป็น v2.5.3',
+        ],
+    },
+    {
+        version: 'v1.229.18 (ใบงานทั้งคลัง — มาตรฐานพิมพ์และระยะพื้นที่ทำงาน)',
+        date: '2 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนใบงาน 16 รายการให้เรียก KampaiWorksheet.printA4() เพื่อคงขนาด A4 และรอฟอนต์ก่อนพิมพ์',
+            'ปรับพื้นที่ทำงานที่ใช้ space-evenly ให้เป็น gap คงที่ ลดการขยับของเส้นเขียนระหว่างจอกับงานพิมพ์',
+            'เพิ่มตัวตรวจกลางสำหรับปุ่มพิมพ์และการกระจายแถวพื้นที่เขียน',
+        ],
+    },
+    {
+        version: 'v1.229.20 (สื่อหารสั้น — ขยายฟอนต์ฝึกสำหรับจอห้องเรียน)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยายคำถามและตัวเลือกโหมดฝึกแบบ responsive สูงสุดประมาณ 5–7 เท่า พร้อมใช้พื้นที่ด้านขวาเต็ม viewport',
+            'ปรับคำตอบที่มีเศษให้เล็กลงเฉพาะเท่าที่จำเป็น และมี mobile override เพื่อคงความอ่านง่ายโดยไม่ล้นแนวนอน',
+        ],
+    },
+    {
+        version: 'v1.229.19 (สื่อหารสั้น — ฝึกคำตอบเต็มแบบเดียว)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ลดโหมดฝึกสั้นให้เหลือคำถาม “หาคำตอบ” แบบเดียว เพื่อลดความสับสนและให้รูปแบบการฝึกสม่ำเสมอ',
+            'คงการสุ่มโจทย์ลงตัว/มีเศษอย่างละครึ่ง preset 2×1 ถึง 6×2 และการเปิดดูวิธีทำของข้อเดิมในโหมดสอน',
+        ],
+    },
+    {
+        version: 'v1.229.18 (สื่อหารสั้น — ฝึกจริง 4 รูปแบบ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนโหมดฝึกสั้นจากโจทย์ตรวจด้วยการคูณเป็นโจทย์หารจริง: หาคำตอบเต็ม หาเศษ หาหลักผลหาร และหาตัวทด',
+            'ใช้ถุงสุ่มครบ 4 แบบก่อนวนรอบใหม่ กระจายโจทย์ลงตัว/มีเศษเท่ากัน และสร้างเลขตาม preset 2×1 ถึง 6×2',
+            'ซิงก์โจทย์ฝึกกับแผงตั้งโจทย์ เพื่อสลับกลับโหมดสอนแล้วดูวิธีทำของข้อเดิมได้ทันที',
+        ],
+    },
+    {
+        version: 'v1.229.17 (ใบงานหารสั้น — ย่อป้ายช่องเศษ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ย่อข้อความช่องวิธีทำจาก “เศษสุดท้าย” เหลือ “เศษ” เพื่อเพิ่มความกว้างเส้นเขียนและป้องกันการล้น',
+        ],
+    },
+    {
+        version: 'v1.229.16 (ใบงานหารสั้น — เพิ่มระยะก่อนช่องเศษ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เลื่อนบรรทัด “เศษสุดท้าย” ลงอีกระดับใต้กระดานวิธีทำ เพื่อใช้พื้นที่เขียนว่างให้คุ้มค่า',
+            'ตรวจคงความพอดีของการ์ดและตำแหน่งส่วนตรวจ/ตอบในทุกโหมด',
+        ],
+    },
+    {
+        version: 'v1.229.15 (ใบงานหารสั้น — วางเศษใต้กระดานวิธีทำ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ย้ายบรรทัด “เศษสุดท้าย” ไปอยู่ใต้การแสดงวิธีทำโดยตรง ก่อนส่วนตรวจและตอบ',
+            'เพิ่มระยะห่างจากกระดานเพื่อให้เขียนและอ่านขั้นตอนต่อเนื่องได้ชัดเจน',
+        ],
+    },
+    {
+        version: 'v1.229.14 (ใบงานหารสั้น — สุ่มและกำหนดหลักแบบชัดเจน)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มตัวเลือกกำหนดจำนวนหลักตัวตั้ง/ตัวหารเอง พร้อมสรุปเงื่อนไขและ seed บนใบงาน',
+            'แยกรูปแบบเศษลงตัว มีเศษ และผสม พร้อมคง deterministic seed, saved set และการสุ่มไม่ซ้ำ',
+        ],
+    },
+    {
+        version: 'v1.229.13 (ใบงานหารสั้น — รองรับตัวหารหลายหลักไม่ล้นกรอบ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'จำกัดความกว้างบรรทัดเศษสุดท้ายให้พอดีกับการ์ด แม้ใช้ตัวหาร 2 หลักและตัวตั้งหลายหลัก',
+            'คงพื้นที่ช่องเขียนและการจัดวางเฉลยในทุกจำนวนข้อ',
+        ],
+    },
+    {
+        version: 'v1.229.12 (ใบงานหารสั้น — ย้ายบรรทัดเศษลงด้านล่าง)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ย้ายช่อง “เศษสุดท้าย” ลงใต้ส่วนตอบ เพื่อใช้พื้นที่ว่างและอ่านขั้นตอนได้เป็นลำดับ',
+            'คงการซ่อนเฉลย ตำแหน่งคำตอบ และขนาดการ์ด A4 เดิม',
+        ],
+    },
+    {
+        version: 'v1.229.11 (ใบงานหารสั้น — จำกัดเส้นเศษในกรอบการ์ด)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับการจัดวางบรรทัดเศษสุดท้ายให้คำนวณจากพื้นที่ภายในกระดาน ไม่ล้นไปชนการ์ดข้างเคียง',
+            'คงช่องเขียนและการแสดงเฉลยเดิมในทุกจำนวนหลักและทุกโหมด',
+        ],
+    },
+    {
+        version: 'v1.229.10 (ใบงานหารสั้น — ขยายพื้นที่สรุปคำตอบ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มระยะห่างระหว่างแถวตรวจและตอบ พร้อมขยายฟอนต์ให้อ่านง่ายขึ้น',
+            'ขยายเส้นใต้คำตอบและช่องเศษให้รองรับผลหารหลายหลักโดยไม่เบียดขอบการ์ด',
+        ],
+    },
+    {
+        version: 'v1.229.9 (ใบงานหารสั้น — จัดแนวเลขข้อและขยายโจทย์)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'จัดเลขข้อให้อยู่แนวเดียวกับบรรทัดโจทย์เพื่ออ่านลำดับได้ชัดเจน',
+            'ขยายฟอนต์โจทย์และปรับ line-height ตามจำนวนข้อ โดยคงพื้นที่วิธีทำและขนาด A4',
+        ],
+    },
+    {
+        version: 'v1.229.8 (ใบงานหารสั้น — แยกพื้นที่ตรวจและตอบ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'จัดส่วนตรวจและตอบของแต่ละข้อให้อยู่คนละบรรทัด ลดการเบียดกันของช่องเขียน',
+            'ขยายฟอนต์และความสูงช่องคำตอบให้เหมาะกับการเขียนมือ โดยคงขนาด A4 และตำแหน่งเฉลย',
+        ],
+    },
+    {
+        version: 'v1.229.7 (ใบงานหารสั้น — ช่องเศษในวิธีทำ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มบรรทัด “เศษสุดท้าย” ใต้กระดานหารสั้นทุกข้อ พร้อมช่องเขียนที่เติมเฉลยได้โดยไม่ขยับเลย์เอาต์',
+            'รองรับทั้งโจทย์หารลงตัวและมีเศษ โดยเฉลยเศษยังซ่อนจนกว่าจะเปิดเฉลย',
+        ],
+    },
+    {
+        version: 'v1.229.6 (สื่อหารสั้น — โหมดจอใหญ่ 300%)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-teal-600',
+        items: [
+            'เพิ่มโหมดนำเสนอเต็มจอสำหรับสื่อหารสั้น ซ่อนแผงตั้งค่าและใช้พื้นที่ทั้งหมดกับกระดานและคำอธิบาย',
+            'ขยายตัวเลข ตัวทด ข้อความ และปุ่มอัตโนมัติได้สูงสุด 3 เท่า พร้อมลดลงให้พอดีจอแบบไม่ตัดเนื้อหา',
+            'รองรับ Full HD, 2K, 4K, resize, Fullscreen API และออกจากโหมดด้วย Esc โดยไม่กระทบใบงาน A4',
+        ],
+    },
+    {
+        version: 'v1.229.5 (ใบงานหารสั้น — กระดานทำจริงทีละหลัก)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนใบงานหารสั้นจากตารางข้อความเป็นกระดานเฉพาะทาง มีช่องผลหาร ตัวทด 1–2 หลัก เศษ และสมการตรวจตรงตำแหน่ง',
+            'เพิ่มระดับ ป.4–ป.6 โหมดลงตัว/มีเศษ/ผสม จำนวน 8/6/5 ข้อตามความยาก พร้อม deterministic seed และเฉลยทีละข้อ',
+            'ขยายสื่อสอนหารสั้นให้รองรับตัวตั้งถึง 6 หลัก และอัปเดต game_docs ใบงาน v2.0.0 / สื่อ v1.1.0',
+        ],
+    },
+    {
+        version: 'v1.229.4 (vocab-hub — ซิงก์คำอ่านส่วนหัวกับสวิตช์)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เมื่อปิดคำอ่านใน Fruits จะซ่อนคำอ่านทั้งบนการ์ดและส่วนหัวทันที โดยส่วนหัวกลับไปแสดงความหมายแทน',
+            'เพิ่ม data verifier ป้องกันสถานะคำอ่านส่วนหัวกับการ์ดไม่ตรงกัน และอัปเดต game_docs เป็น v2.5.2',
+        ],
+    },
+    {
+        version: 'v1.229.3 (vocab-hub — เพิ่ม contrast คำอ่านบนการ์ดที่เลือก)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนคำอ่านภาษาไทยบนการ์ดที่ถูกเลือกเป็นสีกรมท่า เพื่อให้อ่านชัดบนพื้นหลังสีเหลือง',
+            'เพิ่ม data verifier ป้องกันสีคำอ่านของสถานะไฮไลต์กลับไปกลืนกับพื้นหลัง และอัปเดต game_docs เป็น v2.5.1',
+        ],
+    },
+    {
+        version: 'v1.229.2 (vocab-hub — การ์ดภาพใหญ่และภาพ fruits 30 คำ)',
+        date: '1 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนหมวดที่มีภาพเป็นการ์ดจัตุรัส 3×2 บนเดสก์ท็อปและ 2×2 บนมือถือ พร้อมรักษาคำเดิมเมื่อหน้าจอเปลี่ยนขนาด',
+            'เพิ่มภาพวาดการ์ตูน WebP สำหรับ fruits ครบ 30 คำ โดยแสดงเต็มภาพ ไม่ครอป และ fallback เป็น visual เดิมเมื่อโหลดไม่ได้',
+            'แสดงคำอ่านไทยในทุกหมวดที่มีภาพ พร้อมปุ่มเปิด/ปิดที่จำค่ารวมทั้งสื่อ โดยไม่เปลี่ยนโหมดเสียงหรือ phonics',
+            'อัปเดต visual renderer สำหรับ Flash, Choice, Match และ Spell พร้อม data verifier ตรวจไฟล์ WebP 512×512 และ game_docs v2.5.0',
+        ],
+    },
+    {
+        version: 'v1.229.1 (vocab-hub — fruits แสดงคำอ่านภาษาไทย)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แสดงป้าย “คำอ่าน: …” ใต้คำอังกฤษบนการ์ดหลักของหมวด fruits โดยไม่ขึ้นกับโหมดเสียง',
+            'เพิ่มคำอ่านภาษาไทยในการ์ดคำทุกใบในกริด เพื่อให้เด็กเห็นคำอังกฤษ คำอ่าน และภาพพร้อมกัน',
+            'เพิ่ม data verifier ป้องกัน UI คำอ่าน fruits หายในการแก้ไขครั้งถัดไป และอัปเดต game_docs เป็น v2.4.1',
+        ],
+    },
+    {
+        version: 'v1.229.0 (vocab-hub — คลังศัพท์ 839 คำ)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-blue-600',
+        items: [
+            'ขยาย 23 หมวดเป็นหมวดละ 30 คำ เพิ่มคำศัพท์ ป.4–6 จำนวน 467 คำ รวมทั้งระบบ 839 คำ',
+            'เพิ่มตัวกรอง พื้นฐาน / ทั้งหมด จำค่าต่อเครื่อง พร้อมคำนวณจำนวนและ progress จากข้อมูลจริง',
+            'แยกคำต่อยอดไว้ใน vocab-hub-data.js และเพิ่มตัวตรวจ 28 หมวด ฟิลด์บังคับ คำซ้ำ และ phonics ของ fruits',
+            'ปรับโหมดรูปภาพให้ใช้เฉพาะคำที่มี visual โดยไม่ตัดโหมดอื่นเมื่อคลังคำมีรายการที่ไม่มี emoji',
+        ],
+    },
+    {
+        version: 'v1.228.3 (vocab-hub — fruits ฝึกผสมเสียง)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มตัวช่วยฝึก phonics ใน fruits เมื่อเลือกโหมดเสียง ไทย หรือ EN+ไทย โดยแบ่งคำเป็นช่วงเสียง เช่น `ap + ple → apple`',
+            'กดฟังแต่ละช่วงเสียงได้เอง เพื่อให้เด็กค่อย ๆ ผสมเสียงไปหาคำเต็ม โดยไม่เปิดเสียงอัตโนมัติ',
+        ],
+    },
+    {
+        version: 'v1.228.2 (vocab-hub — ป้ายโหมดเสียง fruits)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-cyan-600',
+        items: [
+            'เพิ่มป้ายสถานะโหมดเสียงข้างปุ่มอ่านใน fruits เพื่อให้เห็น EN / ไทย / EN+ไทย ชัดขึ้นทันที',
+            'คงค่าเริ่มต้นแบบไม่อ่านอัตโนมัติ และยังจำโหมดเสียงรายหมวดใน localStorage ต่อ topic ตามเดิม',
+        ],
+    },
+    {
+        version: 'v1.228.1 (vocab-hub — ปิดอ่านอัตโนมัติ + fruits อ่านไทย)',
+        date: '31 ส.ค. 2569',
+        badge: 'bg-sky-600',
+        items: [
+            'vocab-hub: ตัดเสียงอ่านอัตโนมัติจากการเปิดการ์ด/เปลี่ยนคำ ให้เหลือเฉพาะการกดอ่านโดยผู้ใช้หรือโหมดที่ตั้งใจ',
+            'เพิ่มโหมดเสียงแยกตามหมวด โดย `fruits` สลับได้ EN / ไทย / EN+ไทย และจำค่าต่อหมวดใน localStorage',
+            'Thai Vocab Hub: ลดค่าเริ่มต้น autoplay read mode เป็นคำศัพท์ และตั้งค่าเริ่มต้นให้เลือกเองก่อนอ่านยาว',
+        ],
+    },
+    {
+        version: 'v1.228.0 (แข่งขันใบงานสด ป.4 คณิตศาสตร์)',
+        date: '28 ส.ค. 2569',
+        badge: 'bg-amber-600',
+        items: [
+            'เพิ่มห้องแข่งขัน 3 เครื่อง: ครูเป็น Host และเครื่องทีม 2 เครื่อง พร้อมสุ่ม/สลับสมาชิก อนุมัติเครื่อง เวลา และคะแนนสด',
+            'เพิ่ม seeded provider คณิตศาสตร์ 4 ชุดและโหมดผสม พร้อม operation-tree validator ของเกม 24 และสิทธิ์ตอบ 2 ครั้งต่อข้อ',
+            'เพิ่มผล 3/1 ประวัติทีม สถิติรายบุคคล RLS, capability token แบบ SHA-256, Edge Functions และ transactional attempt RPC',
+        ],
+    },
+    {
+        version: 'v1.227.6 (System Overview — production snapshot และสถานะระบบ)',
+        date: '28 ส.ค. 2569',
+        badge: 'bg-indigo-700',
+        items: [
+            'รวม metadata เวอร์ชันและฐานข้อมูลไว้จุดเดียว พร้อม snapshot production 165 ตาราง 16 views และ RLS ครบ 165 ตาราง',
+            'แยกจำนวน migration ที่ใช้จริงบน production ออกจากไฟล์ migration ที่ติดตามใน Git และระบุวันที่ตรวจล่าสุด',
+            'เพิ่ม error/retry state ให้ Phase 16 KPI และปรับหน้า System Overview ไม่ให้ล้นจอบนมือถือ',
+        ],
+    },
+    {
+        version: 'v1.227.5 (คลังสื่อ — ค้นหาเมื่อยืนยัน)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แยกข้อความที่กำลังพิมพ์ออกจากคำค้นที่ใช้ดึงข้อมูล ป้องกันรายการและ network request เปลี่ยนก่อนพิมพ์เสร็จ',
+            'เพิ่มปุ่มค้นหาและรองรับ Enter พร้อมป้องกันการส่งระหว่างพิมพ์ภาษาไทยด้วย IME composition',
+            'ปุ่มล้างคืนรายการทั้งหมดทันที และปิดการค้นหาซ้ำเมื่อคำค้นเดิมหรือกำลังโหลด',
+        ],
+    },
+    {
+        version: 'v1.227.4 (ใบงานจำนวนคละสองทิศทาง — 8 ข้อฟอนต์ใหญ่)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับใบงานแปลงเศษเกินจาก 10 เป็น 8 ข้อต่อหน้าแบบ 2×4 เพื่อเพิ่มขนาดฟอนต์และพื้นที่เขียน พร้อมคงโหมด 5 ข้อที่มีภาพประกอบ',
+            'เพิ่มโหมดจำนวนคละ→เศษเกินและชุดผสมสองทิศทาง โดยซ่อนผลคูณ ผลบวก และตัวส่วนไว้ในช่องเฉลยจนกว่าครูจะเปิด',
+            'บันทึก direction ใน saved set ป้องกันโจทย์ค่าหรือคู่กลับซ้ำข้ามหน้า และรองรับชุดเก่า count=10 ด้วยการปรับเป็น 8 อัตโนมัติ',
+        ],
+    },
+    {
+        version: 'v1.227.3 (ใบงานแปลงเศษเกิน — ซ่อนค่าคำนวณและขยายพื้นที่เขียน)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ซ่อนผลหาร ผลคูณ เศษ ตัวหารที่ใช้ย่อ และเศษส่วนอย่างต่ำในช่องเติม แก้กรณี 70/18 ที่ข้อความตรวจสอบเคยเปิดคำตอบ 18×3=54 ล่วงหน้า',
+            'จัดขั้น ①–③ เป็นแถวความสูงคงที่และเพิ่มระยะห่าง เพื่อให้นักเรียนเขียนมือได้สะดวกโดยตำแหน่งไม่ขยับระหว่างหน้าจอกับ A4',
+            'ย้ายคำตอบจำนวนคละมาอยู่ถัดจากคำว่า “ตอบ” ด้วยระยะคงที่ ไม่ดัน 3 16/18 = 3 8/9 ไปชิดขอบขวา',
+        ],
+    },
+    {
+        version: 'v1.227.2 (ใบงานแปลงเศษเกินเป็นจำนวนคละ ป.4–ป.5 A4 3 หน้า 10 ข้อ)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างใบงานพิมพ์ A4 แปลงเศษเกินเป็นจำนวนคละ (improper-to-mixed-worksheet.html) จัดหน้าพอดี A4 210×297mm ไม่ล้นขอบ',
+            'ค่าเริ่มต้น 3 หน้า หน้าละ 10 ข้อ (2 คอลัมน์ x 5 แถว) รวม 30 ข้อไม่ซ้ำกัน พร้อมโหมด 5 ข้อที่มีภาพแท่งเศษส่วน inline SVG',
+            'ระบบแสดงวิธีทำ 3 ขั้น: ตั้งหารตัวเศษด้วยตัวส่วน, ตรวจสอบเหตุผล, ตอบจำนวนคละรูปอย่างต่ำ พร้อมระบบเฉลยทีละข้อ (◀/▶) และบันทึกชุด ?set=',
+        ],
+    },
+    {
+        version: 'v1.227.1 (ใบงานเศษส่วน — แปลงเศษเกินเป็นจำนวนคละ)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มหัวข้อฝึกแปลงเศษเกินเป็นจำนวนคละ 6 ข้อต่อหน้า พร้อมภาพแท่งเศษส่วนและ scaffold หารตัวเศษด้วยตัวส่วนทีละขั้น',
+            'แยกระดับง่าย มาตรฐาน และท้าทาย โดยทุกโจทย์มีเศษเหลือจริง เฉลยทุกช่อง และย่อส่วนเศษก่อนสรุปจำนวนคละรูปแบบ 1 2/3',
+            'เชื่อม CTA จากสื่อจำนวนคละเข้าหัวข้อใหม่โดยตรง พร้อม validator สมการย้อนกลับ ความเป็นเศษส่วนอย่างต่ำ และความไม่ซ้ำข้ามหน้า',
+        ],
+    },
+    {
+        version: 'v1.227.0 (สื่อจำนวนคละ ป.4–ป.5 — ภาพและวิธีคิดทีละขั้น)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มสื่อ standalone จำนวนคละ 6 บท: ความหมาย ภาพจำนวนเต็มกับส่วนที่เหลือ การแปลงเศษเกิน การเปรียบเทียบ บวก–ลบ และตรวจด้วยเส้นจำนวน',
+            'รองรับ ป.4–ป.5 โหมดสอนเปิดทีละขั้น ฝึกสั้น 5 ข้อ deterministic seed, keyboard, fullscreen และ CTA ไปใบงานคลังเศษส่วน',
+            'ลงทะเบียน catalog พร้อมปก 16:9, ตัวชี้วัด ค 1.1 ป.4/3,/4,/13,/14 และ ป.5/3 รวมถึง game_docs และ validator คณิตศาสตร์เฉพาะสื่อ',
+        ],
+    },
+    {
+        version: 'v1.226.5 (ใบงานเศษส่วน — วิธีทำบวก–ลบแบบทีละขั้น)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่ม scaffold บวก–ลบเศษส่วนแบบลำดับ ①–④ ตั้งแต่รวมตัวเศษ คงตัวส่วน เขียนผลลัพธ์ ย่อด้วยตัวหารร่วม และแปลงเศษเกินเป็นจำนวนคละ',
+            'ทุกค่าระหว่างทำมีช่องเฉลยของตนเอง เช่น 8/6 ÷ ด้วย 2 = 4/3 และ 4 ÷ 3 = 1 เศษ 1 ก่อนสรุปคำตอบ 1 1/3',
+            'เพิ่มตัวตรวจจำนวนช่อง ขั้นย่อ และขั้นแปลงจำนวนคละให้ตรงกับผลลัพธ์จริงของทุกโจทย์ในคลัง',
+        ],
+    },
+    {
+        version: 'v1.226.4 (ใบงานเศษส่วน — จำนวนคละเป็นกลุ่มเดียวและขั้นตอนตรงความหมาย)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'จัดคำตอบจำนวนคละเป็นกลุ่มเดียวแบบ 1 2/3 โดยเว้นระยะคงที่ระหว่างจำนวนเต็มกับเศษส่วนซ้อนเส้น ป้องกันการอ่านสับสนเป็นเศษเกิน',
+            'เปลี่ยนคำอธิบายผลลัพธ์ระหว่างทำตามค่าจริงเป็น “ก่อนแปลงเป็นจำนวนคละ”, “ก่อนแปลงเป็นจำนวนเต็ม”, “ก่อนย่อ” หรือ “รวมได้”',
+            'เพิ่มตัวตรวจโครงสร้างจำนวนคละและข้อความขั้นกลาง เพื่อป้องกันการถอยกลับของรูปแบบเฉลย',
+        ],
+    },
+    {
+        version: 'v1.226.3 (ใบงานเศษส่วน — เฉลยครบและอ่านจำนวนคละชัดเจน)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนการแสดงเศษส่วนเป็นตัวเศษซ้อนเส้นตัวส่วน และแยกจำนวนเต็มออกจากเศษส่วนในจำนวนคละให้อ่านไม่สับสนกับเศษเกิน',
+            'เติมเฉลยให้ทุกช่องระหว่างทำ ได้แก่ ตัวเศษ ตัวส่วน ค่าก่อนย่อ ส่วนจำนวนเต็ม ส่วนเศษ และการทดหรือยืม โดยไม่เปลี่ยนขนาดใบงาน',
+            'ตัดตัวตั้งบวกแบบ d/d ออกจากคลัง เพื่อให้โจทย์เศษส่วนตัวส่วนเท่ากันเป็นธรรมชาติสำหรับนักเรียน ป.4',
+        ],
+    },
+    {
+        version: 'v1.226.2 (ใบงานคลังเศษส่วน ป.4 — ระบายภาพและเติมคำตอบ)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรดใบงานคู่ math-fraction-hub ให้ครบ 8 กิจกรรม: ระบาย อ่านภาพ เปรียบเทียบ บวกลบ จำนวนเต็มกับเศษส่วน และจำนวนคละ',
+            'เพิ่มแท่งเศษส่วน SVG ที่แบ่งช่องเท่ากันจริง พร้อมเฉลยลาย hatch สำหรับงานพิมพ์ขาวดำ และปรับอัตโนมัติเป็น 6 ข้อภาพใหญ่หรือ 8 ข้อคำนวณ',
+            'เพิ่มระดับตัวส่วน 2–5, 2–8 และ 2–12 พร้อม validator ตรวจคำตอบ ภาพ และความไม่ซ้ำข้ามหน้า 300 seed',
+        ],
+    },
+    {
+        version: 'v1.226.1 (ระบบเสียงยืนยันธุรกรรมส่วนกลาง)',
+        date: '27 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'รวมเสียงธนาคารพอเพียง ธนาคารขยะ คะแนนความดี และแลกรางวัลไว้ในคิว FIFO ส่วนกลาง พร้อมเก็บ utterance จนอ่านจบ',
+            'เพิ่มคำอ่านจำนวนเต็มภาษาไทยระดับหลักล้าน และแบ่งข้อความยืนยันเป็นช่วงสั้นเพื่อป้องกัน Chromium ตัดเสียงกลางประโยค',
+            'หน้าต่างยืนยันรอเสียงจบก่อนปิด รองรับรายการเพิ่ม/หัก และแก้ยอดคะแนนความดีคงเหลือจากประวัติจริง',
+        ],
+    },
+    {
+        version: 'v1.226.0 (ชุดใบงานเติมคำและระบายสี 4 วิชา)',
+        date: '24 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มสื่อสรุปความรู้และฝึกสั้น 4 หน่วย: แรงและการเคลื่อนที่, ทิศและแผนที่, Weather and Seasons และคำพ้องเสียง',
+            'เพิ่มใบงาน A4 หน่วยละ 3 หน้า ประกอบด้วยใบสรุปสี ใบเติมคำ/ระบายสี และใบประยุกต์ พร้อมเฉลยทีละข้อและระบบบันทึกชุด',
+            'เพิ่มเอนจิน color-fill กลางสำหรับภาพ SVG ต้นฉบับ การพิมพ์ และพื้นที่เขียนที่ใช้ร่วมกันทุกวิชา',
+        ],
+    },
+    {
+        version: 'v1.225.1 (ธนาคารขยะ — รางวัลสำหรับนักเรียน)',
+        date: '20 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มหัวข้อรางวัลสำหรับนักเรียนในหน้าผลการดำเนินงานธนาคารขยะ พร้อมภาพ จำนวนคงเหลือ และแต้มที่ใช้แลก',
+            'เชื่อมรายการกับคลังรางวัลเดิมผ่าน rewardsService ทำให้แก้ภาพหรือเปิด/ปิดรางวัลจากหลังบ้านแล้วหน้าผลการดำเนินงานอัปเดตตามอัตโนมัติ',
+        ],
+    },
+    {
+        version: 'v1.225.0 (ธนาคารขยะ — หน้าผลการดำเนินงานสาธารณะ)',
+        date: '20 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มหน้า /waste-bank/results สำหรับนำเสนอ KPI กระบวนการ กราฟ นักเรียน Top 10 ภาพกิจกรรมจริง และ QR Code โดยไม่ต้องเข้าสู่ระบบ',
+            'เพิ่มแท็บหลังบ้านให้แอดมินแก้ข้อความ อัปโหลดหลายภาพ แยกหมวด จัดลำดับ และควบคุมสถานะร่าง/เผยแพร่',
+            'เพิ่ม aggregate RPC แบบจำกัดข้อมูล ตารางรายงาน/แกลเลอรี่ private storage และ RLS ที่เปิดเฉพาะข้อมูลภาคเรียนปัจจุบันต่อสาธารณะ',
+        ],
+    },
+    {
+        version: 'v1.224.0 (สื่อและใบงาน — Evidence-backed Preference Learning)',
+        date: '20 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'แยกโปรไฟล์ความชอบสื่อการสอนและใบงาน โดยให้กฎความถูกต้อง หลักสูตร และ repository contract มีอำนาจสูงกว่า preference เสมอ',
+            'เพิ่มหลักฐานแบบ append-only: ครั้งแรกเป็น candidate ครั้งที่สองจากงานอิสระเป็น proposal และต้องได้รับอนุมัติก่อนเลื่อนเป็นกฎถาวร',
+            'เพิ่มคำสั่ง compare:learning-artifact สำหรับภาพก่อน–หลัง visual diff, metrics และ checksum ที่ viewport สื่อ 3 ขนาดหรือ A4 screen/print',
+        ],
+    },
+    {
+        version: 'v1.223.0 (Game Dev Quality Gate — Generator, Playwright และ CI)',
+        date: '19 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ยกระดับทักษะ kampai-game-dev เป็น workflow Discover → Design → Scaffold → Implement → Verify → Document → Ship พร้อม quality contract แยกตามเกมมาตรฐาน, versus, orientation และ AR',
+            'เพิ่ม create:game generator, static verifier แบบ strict/JSON, Playwright browser gate 3 viewport/2 รอบ, regression tooling และ GitHub Actions artifacts สำหรับเกมที่เปลี่ยน',
+            'อัปเดต templates ให้ restart โดยไม่ reload, เรียก beginRound ทุกครั้ง, มี browser hooks, reduced-motion/focus-visible และปรับปุ่มเสียง KAMPAI SDK เป็นขั้นต่ำ 44×44px',
+        ],
+    },
+    {
+        version: 'v1.222.0 (สื่อการสอน — 🪐 ระบบสุริยะ 3 มิติ Solar System 3D Lab & Dual-Track Worksheet)',
+        date: '19 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มสื่อการสอนวิทยาศาสตร์และดาราศาสตร์ 3 มิติ (ว 3.1 ป.4–ป.6) ภายใต้ public/games/science/solar-system-3d-media.html พร้อมปก 16:9 1280×720 และผ่าน verify:media ครบถ้วน',
+            'โหมดสำรวจ 3D: Three.js OrbitControls, ปรับความเร็วกาลเวลา, ผ่าดูโครงสร้างภายในดาวเคราะห์ (Cross-Section Slicer), เรียงแถวเปรียบเทียบขนาด (Scale Alignment), ข้างขึ้น-ข้างแรม 8 เฟส, คำนวณการเดินทางความเร็วแสง (Speed of Light Trip) และสารานุกรมอวกาศ 3 มิติพร้อมเสียงอ่านภาษาไทย (TTS)',
+            'โหมดภารกิจควิซ 3D (Practice Mode): คำถาม 9 ข้อตามตัวชี้วัดหลักสูตรแกนกลาง รองรับการคลิกเลือกดาว 3 มิติในอวกาศและปุ่มตัวเลือก พร้อมเฉลยละเอียดและเสียงเอฟเฟกต์ตอบรับ',
+            'สร้างใบงานพิมพ์คู่สื่อ Dual-track: solar-system-3d-worksheet.html รองรับโหมดฝึก 5/8/10 ข้อ, สุ่มโจทย์ 4 ทักษะ, scaffold แสดงวิธีคิด, เฉลยครู และผ่าน verify:worksheet 16/16 Checks',
+        ],
+    },
+    {
+        version: 'v1.221.0 (วิทยาศาสตร์ — Maglev Rush รถไฟแม่เหล็กความเร็วสูง)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างเกมโฟลเดอร์ 5 ไฟล์ Maglev Rush (วิทยาศาสตร์ ป.1-6 เรื่องแรงและแม่เหล็ก ว 2.2) พร้อมระบบเรนเดอร์ 2.5D Pseudo-3D Canvas 60fps',
+            'ระบบสลับขั้วแม่เหล็ก N/S: ขั้วเหมือนกันผลักกันสร้างแรงผลักเทอร์โบ (180-480 km/h) และระบบฟิสิกส์ดูดเก็บสารแม่เหล็ก (เหล็ก, นิกเกิล, โคบอลต์)',
+            'ระบบเบรกแม่เหล็กไฟฟ้า (Eddy Current Brake) พร้อมควิซชานชาลาสถานี, เชื่อมต่อ KampaiVersus ครบ 3 โหมด (เดี่ยว, 2 คนบนเครื่องเดียวกัน, ออนไลน์), ภาพปก 16:9 1280×720 และผ่าน verify:game 11/11 Checks',
+        ],
+    },
+    {
+        version: 'v1.220.9 (Educational Hub — ชุดเรียนพร้อมสอนเป็นหมวดปกติ)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ย้ายชุดเรียนพร้อมสอนจากหมวดสังเคราะห์ที่ล็อกไว้บนสุดเป็นแถวจริงใน educational_hub_categories ผ่าน migration 464',
+            'แอดมินลากหรือกดลูกศรย้ายชุดเรียนพร้อมสอนไปตำแหน่งใดก็ได้ และบันทึก sort_order ร่วมกับหมวดอื่นแบบเดียวกัน',
+            'คงการโหลดเนื้อหาชุดเรียนจาก lessonPacksService และผูกจำนวนรายการเข้ากับ id ของหมวดจริง โดยไม่ query รายการ Educational Hub ซ้ำ',
+        ],
+    },
+    {
+        version: 'v1.220.9 (ใบงานเกม 24 — สุ่มหลากหลายและหารลงตัว)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยายคลังเกม 24 เป็น 120 ชุด canonical ไม่ซ้ำ แบ่ง 4 หัวข้อหัวข้อละ 30 ข้อ และลดโจทย์ที่มีเลข 1 เหลือไม่เกิน 20% ต่อหน้า',
+            'เพิ่มตัวเลือกโจทย์แบบมีโควตา: การหารลงตัว 1–2 ข้อในหน้า 5 ข้อ หรือ 2–3 ข้อในหน้า 10 ข้อ พร้อมไม่ซ้ำข้ามหน้า',
+            'เพิ่ม solver และ validator ที่บังคับให้ทุกผลลัพธ์ระหว่างทางเป็นจำนวนเต็มบวก ใช้เลขครบ และปฏิเสธ operation เติมเงื่อนไข',
+        ],
+    },
+    {
+        version: 'v1.220.8 (Educational Hub — เมนูหมวดแบบ compact)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนแถบชิปแนวนอนเป็นปุ่มเลือกหมวดแบบ compact และ dialog รายการแบบ responsive จึงไม่ต้องเลื่อนหรือลากเมาส์ยาวไปทางขวา',
+            'แอดมินจัดลำดับใน dialog แนวตั้งด้วยการลากหรือปุ่มขึ้นลง โดยแก้ลำดับร่างก่อนกดบันทึก และล็อกชุดเรียนพร้อมสอนไว้บนสุด',
+            'ตรวจจำนวนแถวที่อัปเดตและอ่านลำดับกลับจากเซิร์ฟเวอร์ก่อนแจ้งสำเร็จ เพื่อป้องกันลำดับดีดกลับเมื่อ RLS หรือการบันทึกไม่สำเร็จ',
+        ],
+    },
+    {
+        version: 'v1.220.7 (ใบงานหารยาว — กระจายแถวเต็มพื้นที่เขียน)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'เปลี่ยนพื้นที่ทำหารยาวเป็น grid ยืดเต็มการ์ด และแบ่งความสูงเท่า ๆ กันตามจำนวนแถวคำนวณจริงของแต่ละโจทย์',
+            'เพิ่มระยะเขียนระหว่างผลคูณ เส้นลบ เศษ และเลขดึงลง โดยยังรักษาระยะขั้นต่ำสำหรับโจทย์ยาว 6 หลักไม่ให้ล้น A4',
+            'คงจำนวน 8 ข้อสำหรับตัวตั้ง 2–3 หลัก และ 6 ข้อสำหรับตัวตั้ง 4–6 หลัก พร้อมตำแหน่งเฉลยเดิม',
+        ],
+    },
+    {
+        version: 'v1.220.6 (ใบงานหารยาว — พื้นที่เขียนตามจำนวนหลัก)',
+        date: '18 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ขยายระยะบรรทัดผลคูณ ผลลบ เศษ และเลขที่ดึงลง ให้เหมาะกับลายมือนักเรียนโดยคำนวณจากจำนวนขั้นหารจริง',
+            'ปรับจำนวนข้ออัตโนมัติ: ตัวตั้ง 2–3 หลักใช้ 8 ข้อ ส่วนตัวตั้ง 4–6 หลักและโหมดผสมใช้ 6 ข้อต่อหน้าแบบ 2 × 3',
+            'คง deterministic seed, saved set, teaching modes และเฉลยทีละข้อ โดยจำนวนข้อใน config และชื่อชุดตรงกับใบงานจริง',
+        ],
+    },
+    {
+        version: 'v1.220.5 (Sci-Lab Defender — AR วันวิทย์)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างและแก้ไขเกม AR วิทยาศาสตร์ "🧪 Sci-Lab Defender (AR วันวิทย์)" ผสาน 3 ฐานกิจกรรมวันวิทยาศาสตร์ (สสารและเคมี, แสงและพลังงาน, อวกาศและดาราศาสตร์ Fever Time)',
+            'รองรับระบบตรวจจับมือ MediaPipe Hands (KampaiHands Engine) + One Euro Filter ปลายนิ้วแม่นยำ พร้อมระบบ Tap/Touch Fallback 100%',
+            'เชื่อมต่อระบบคะแนน KAMPAI SDK, Leaderboard โรงเรียน, โหมด Versus ดวล 2 คน และภาพปก 16:9 1280×720 (migration 463)',
+        ],
+    },
+    {
+        version: 'v1.220.4 (ใบงานเศษส่วนแบบภาพ ป.4–5)',
+        date: '17 ส.ค. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเกรด fraction-pieces-worksheet เป็นเครื่องมือสร้างใบงาน SVG แบบสุ่ม 10 ทักษะ: อ่าน/เขียน โยงคำ ระบายสี วาดรูป เปรียบเทียบ เศษส่วนเท่ากัน เส้นจำนวน จำนวนคละ คำนวณ และนักสืบเหตุผล',
+            'แยกโจทย์ตามตัวชี้วัด ป.4–ป.5 รองรับ 1–10 หน้าและ 6/8 ข้อต่อหน้า พร้อม saved set, deterministic seed, เฉลยทีละข้อ และโหมดการสอนกลาง',
+            'เพิ่ม migration 462 อัปเดต catalog/ตัวชี้วัด และตัวตรวจภาพว่าจำนวนส่วนเท่ากัน จำนวนที่ระบายตรงตัวเศษ และคลังมีอย่างน้อย 80 ข้อต่อหัวข้อ',
+        ],
+    },
+    {
+        version: 'v1.220.3 (แผนบูรณาการ — รายการตัวชี้วัดละเอียด)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'แตกหัวข้อหลักสูตร ป.4 เป็นหนึ่งรายการต่อตัวชี้วัด พร้อมย้ายสถานะ โน้ต และลิงก์หน่วยบูรณาการเดิมไปยังรายการลูก',
+            'จัดรายการแบบ accordion สาระ → มาตรฐาน → ตัวชี้วัด และแยกหัวข้อส่วนตัวไว้ท้ายวิชา',
+            'ไฮไลต์รายการที่สอนแล้วด้วยสีเขียวทั้งแถว และเพิ่มสรุปสอนแล้วแบบขยายดูรายวิชาด้านบน',
+        ],
+    },
+    {
+        version: 'v1.220.2 (แผนบูรณาการ — แก้ตั้งและตรวจ PIN บน Supabase)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'แก้ RPC ตั้ง/ตรวจ PIN ให้เรียก extensions.gen_salt และ extensions.crypt ตาม schema จริงของ hosted Supabase',
+            'คง SECURITY DEFINER search_path แบบจำกัดไว้ที่ public และ qualify ฟังก์ชันเข้ารหัสโดยตรงเพื่อความปลอดภัย',
+        ],
+    },
+    {
+        version: 'v1.220.1 (แผนการสอนบูรณาการ ป.4 ส่วนตัว)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มหน้า /teacher/integrated-plan เป็น Do List ส่วนตัวครบ 8 กลุ่มสาระ สร้างหัวข้อจากมาตรฐานและตัวชี้วัดหลักสูตรแกนกลาง ป.4 ที่มีอยู่จริง',
+            'ติดตามสถานะ ยังไม่สอน/กำลังสอน/สอนแล้ว พร้อมค้นหา กรอง สรุปความคืบหน้า เพิ่มหัวข้อส่วนตัว และสร้างหน่วยบูรณาการข้ามวิชา',
+            'ทางเข้าลับจากการกดรูปเจ้าของคลังครู 5 ครั้ง ใช้บัญชีครู + PIN 6 หลักแบบ hash/lockout และ RLS แยกข้อมูลตาม owner_staff_id',
+        ],
+    },
+    {
+        version: 'v1.220.0 (ใบงานเกม 24 — สมการพื้นฐานและโจทย์ไม่ซ้ำ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับคลังใบงานเกม 24 เป็น 40 ชุดไม่ซ้ำ แบ่ง 4 ทักษะทักษะละ 10 ข้อ และใช้เลขทั้ง 4 ตัวครบในสมการพื้นฐาน',
+            'ตัดโจทย์ที่เติมเลขด้วย ×1, หารเลขตัวเอง หรือ ±0 พร้อมจำกัดขั้นตอนระหว่างทางเป็นจำนวนเต็มบวก',
+            'เพิ่มตัวตรวจอัตโนมัติสำหรับผลลัพธ์ 24 การใช้เลขครบ canonical key ไม่ซ้ำ และจำนวนโจทย์ต่อหัวข้อ พร้อมบันทึกกฎทั่วไปใน kampai-worksheet-builder skill',
+        ],
+    },
+    {
+        version: 'v1.219.9 (ธนาคารขยะและธนาคารความดี — เสียงแจ้งคะแนน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /admin/dashboard/waste-bank อ่านชื่อจริง คะแนนจากการฝากล่าสุด และคะแนนขยะสะสมหลังบันทึก พร้อมการ์ดยืนยันตัวเลขขนาดใหญ่กลางจอ',
+            'หน้า /admin/dashboard/conduct อ่านชื่อจริง คะแนนความดีล่าสุด และคะแนนความดีสุทธิสะสมของปีการศึกษาที่เลือกหลังบวกคะแนนสำเร็จ',
+            'ใช้เสียงไทยจากเบราว์เซอร์แบบ optional ยกเลิกเสียงเก่าก่อนอ่านรายการใหม่ และการ์ดปิดอัตโนมัติใน 5 วินาที; รายการหัก/ลบและบันทึกหลายคนคงพฤติกรรมเดิม',
+        ],
+    },
+    {
+        version: 'v1.219.8 (Rewards — แลกรางวัลด้วยแต้มขยะและคะแนนความดี)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'รางวัลกำหนดราคาได้ 3 แบบ: แต้มธนาคารขยะล้วน คะแนนความดีล้วน หรือจำนวนตายตัวจากทั้งสองกระเป๋า โดยรางวัลเดิมย้ายเป็นแต้มขยะล้วนแบบ backward compatible',
+            'คะแนนความดีคงเหลือคำนวณจาก add ลบ deduct ของปีการศึกษาปัจจุบัน หักเฉพาะคำขอ pending/approved และคืนสิทธิ์อัตโนมัติเมื่อปฏิเสธโดยไม่ลบประวัติความดี',
+            'หน้าตรวจยอด แลก เป้าหมาย ประวัติ QR และอนุมัติ แสดงยอดสะสม/คงเหลือและต้นทุนสองกระเป๋า พร้อม RPC lock นักเรียนและรางวัลเพื่อกันใช้คะแนนเกินยอดพร้อมกัน',
+            'Security hardening: migration 458 revoke anon จาก can_approve/approve/reject RPC โดยคงเฉพาะ lookup/history/claim ที่เปิดสำหรับรหัสนักเรียน',
+        ],
+    },
+    {
+        version: 'v1.219.7 (Thai Vocab Hub — pilot ภาพคำราชาศัพท์)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพประกอบสมจริง 25 คำในหมวดคำราชาศัพท์: ผู้เรียนเห็นคำและคำอ่านก่อน แล้วจึงกดเปิดภาพเพื่อเชื่อมความหมายอย่างเป็นรูปธรรม',
+            'มีทั้งแท็บภาพประกอบและปุ่มดูภาพในบัตรคำ/กริด พร้อมปิดด้วย Esc และ fallback เมื่อภาพโหลดไม่สำเร็จ โดยไม่กระทบระบบคะแนน',
+            'เพิ่ม image_url/image_alt ใน source, seed, export, lazy RPC และ validator รวมถึงรายงาน CSV สำหรับครูตรวจภาพ; migration 20260813052859 อัปเดต game_docs เป็น v2.2.0',
+        ],
+    },
+    {
+        version: 'v1.217.1 (Thai Vocab Hub — กรองคำศัพท์ให้ตรงหมวด)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'กักกันคำจากชุดขยาย ป.4 ที่ยืมข้ามหมวด 800 รายการ ทำให้ผู้เรียนเห็นเฉพาะ 2,400 คำที่ผ่านการตรวจหมวด',
+            'เพิ่มสถานะ approved/quarantined, เหตุผลตรวจทาน, หลักฐานหมวด และเหตุผลคำซ้ำใน JSON, DB และ lazy RPC',
+            'เพิ่ม validator เชิงโครงสร้างและรายงาน CSV สำหรับครูสุ่มตรวจ ก่อนเติมคำทดแทนให้กลับครบ 3,200 คำ',
+            'migration 20260813031018 อัปเดต game_docs เป็น v2.1.0',
+        ],
+    },
+    {
+        version: 'v1.219.6 (ธนาคารพอเพียง — เสียงแจ้งยอดและการ์ดยืนยันฝากเงิน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /admin/dashboard/savings-bank อ่านเสียงภาษาไทยหลังฝากสำเร็จ โดยแจ้งเฉพาะชื่อจริง ยอดฝากล่าสุด และยอดเงินสะสม และไม่กระทบการบันทึกหากอุปกรณ์ไม่มีระบบเสียง',
+            'เพิ่มการ์ดยืนยันกลางจอพร้อมรูปและชื่อนักเรียน แสดงยอดฝากล่าสุดกับยอดสะสมเป็นตัวเลขขนาดใหญ่ ปิดอัตโนมัติใน 5 วินาที และรองรับโหมดสแกนต่อเนื่องโดยไม่เปิดหน้าต่างซ้อนกัน',
+        ],
+    },
+    {
+        version: 'v1.219.5 (Educational Hub — แอดมินจัดลำดับชิปหมวดหมู่)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier เพิ่ม grip บนชิปหมวดหมู่สำหรับแอดมิน ลากซ้าย–ขวาเพื่อกำหนดหมวดที่แสดงก่อน–หลังได้โดยตรงจากแถบหมวด',
+            'บันทึกลำดับใหม่ลง educational_hub_categories.sort_order ผ่าน educationalHubService และ invalidate cache ให้ลำดับใหม่มีผลทุกเครื่อง',
+            'ผู้ใช้ทั่วไปไม่เห็นเครื่องมือจัดลำดับ และหมวดระบบชุดเรียนพร้อมสอนยังปักซ้ายสุดเพราะเป็นหมวดสังเคราะห์นอกตารางหมวดหมู่',
+        ],
+    },
+    {
+        version: 'v1.219.4 (Educational Hub — ย้ายข้อมูลนักเรียนขึ้น Hero)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'หน้า /h/:identifier ปรับ Hero เป็น responsive split layout: ข้อมูลครูอยู่ซ้าย และการ์ดสรุปนักเรียน GamificationHub ใช้พื้นที่ว่างด้านขวาบน desktop',
+            'มือถือและแท็บเล็ตเรียงข้อมูลครูกับการ์ดนักเรียนแนวตั้งอัตโนมัติ โดยยังคง compact spacing และกรอบ max-w-7xl',
+            'พาเนลอันดับ เหรียญ ภารกิจ และคู่หู render ผ่าน optional panelTargetId ไปใต้แถบหมวดหมู่ จึงเปิดรายละเอียดได้โดยไม่ทำให้ Hero สูงกระโดด',
+        ],
+    },
+    {
+        version: 'v1.219.3 (ปรับบรรทัด "ตอบ" ไปจัดวางทางฝั่งซ้าย ใต้ตำแหน่งตัวหาร พอดีเป๊ะ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/math/division-worksheet.html ปรับสไตล์บรรทัด .ans ("ตอบ _____") ให้จัดวางทางฝั่งซ้ายของช่องการ์ด (justify-content: flex-start)',
+            'เข้ากับพื้นที่ว่างใต้ตัวหารฝั่งซ้ายของโครงสร้างตั้งหารยาวพอดี ไม่ทับซ้อนกับขั้นตอนตั้งหารที่เฉียงลงทางฝั่งขวา 100%',
+        ],
+    },
+    {
+        version: 'v1.219.2 (ปรับย้ายบรรทัด "ตอบ" ชิดขวา และปรับระยะบรรทัดหารยาว ป้องกันข้อความซ้อนทับกัน 100%)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/math/division-worksheet.html ปรับสไตล์บรรทัด .ans ("ตอบ _____") ให้ขยับไปจัดวางชิดขวาของช่องการ์ดใบงาน (justify-content: flex-end)',
+            'ปรับคำนวณความสูงบรรทัดคำนวณตั้งหารยาว (rowHeight) ให้กระชับพอดีกับการ์ด ช่วยไม่ให้ตัวเลขลบลดหลั่นมาทับช่องเขียนตอบ 100%',
+        ],
+    },
+    {
+        version: 'v1.219.1 (เพิ่มเส้นขีดใต้ตัวเลขทุกบรรทัดในการตั้งหารยาว และเส้นคู่ใต้เศษสุดท้าย)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/math/division-worksheet.html เพิ่มเส้นขีดใต้ตัวเลขให้ครบถ้วนทุกบรรทัดวิธีคำนวณ (บรรทัดลบ .ld-product มีเส้นเดี่ยว, บรรทัดดึง/เศษย่อย .ld-partial มีเส้นขีดใต้, และบรรทัดเศษสุดท้าย .ld-final-remainder มีเส้นขีดใต้คู่ขนาน 2 เส้น)',
+            'ตรงตามมาตรฐานรูปแบบการเขียนตั้งหารยาว สสวท. ช่วยให้นักเรียนเห็นตำแหน่งคำนวณชัดเจนและเป็นระเบียบสวยงาม',
+        ],
+    },
+    {
+        version: 'v1.219.0 (ยกระดับใบงานการหารยาว ป.6 ให้ตรงตามตัวชี้วัด ค 1.1 ป.6/1 และ ป.6/7 สมบูรณ์แบบ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/math/division-worksheet.html เพิ่มหัวข้อฝึกทักษะ ป.6 ตรงตามตัวชี้วัด สพฐ. 6 รูปแบบ (หารทศนิยมด้วยทศนิยม, หารทศนิยมด้วยจำนวนนับ, หารเศษส่วน/จำนวนคละ, หารยาวไม่เกิน 6 หลัก, โจทย์ปัญหาการหารระคน, และผสมทุกทักษะ ป.6)',
+            'อัปเดตแท็กและป้ายตัวชี้วัดส่วนหัวใบงานเป็น ค 1.1 ป.6/1 และ ค 1.1 ป.6/7 ตรงตามหลักสูตรแกนกลางคณิตศาสตร์',
+            'ปรับระบบสุ่มโจทย์แบบ Deterministic RNG รับประกันความถูกต้องตามโครงสร้างการตั้งหารจริง และไม่ซ้ำข้อในทุกชุดใบงาน',
+        ],
+    },
+    {
+        version: 'v1.218.9 (ปรับปรุงใบงานหาร 2 ในใจ เพิ่มระดับความยาก 1-6 หลัก และแก้บรรทัดตกหล่น)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/math/divide-by-2-worksheet.html เพิ่มตัวเลือกระดับความยาก 5 ระดับ (1 หลัก, 2 หลัก เช่น 48/60, 3 หลัก เช่น 150/160, 4–6 หลัก เช่น 1,200/48,000, และผสมทุกระดับ)',
+            'แก้ปัญหาตัวหนังสือลอยและตกบรรทัด โดยปรับโครงสร้างแสดงผลเป็น 2 บรรทัดวิธีทำ (คิดแบ่งครึ่ง และ ตรวจคำตอบ) + 1 บรรทัดสรุปผล จัดวางตรงเส้นจุดประเป๊ะ 100%',
+            'ขยายคลังโจทย์รวมเป็น 120+ ข้อ และใช้ระบบ selectAllPageItems รับประกันว่าจะไม่มีโจทย์ซ้ำกันเลยในใบงานแต่ละชุด (หน้า 1, 2, 3)',
+        ],
+    },
+    {
+        version: 'v1.218.8 (ปรับเฉลยบรรทัดสรุปเป็นสีแดง และขยายขนาดใหญ่เป็นพิเศษ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css เปลี่ยนสีฟอนต์บรรทัดสรุปผลตอบ .answer-fill เป็นสีแดงเข้ม (#b42318) โทนเดียวกับขั้นวิธีทำ',
+            'ขยายขนาดฟอนต์เฉลยบรรทัดสรุปเป็น 11.5pt (โหมด 10 ข้อ) และ 13.5pt (โหมด 5 ข้อ) ให้ใหญ่และโดดเด่นกว่าบรรทัดวิธีคิดอย่างชัดเจน',
+        ],
+    },
+    {
+        version: 'v1.218.7 (เพิ่มขนาดตัวอักษรเฉลยให้ใหญ่ คมชัด อ่านง่ายยิ่งขึ้น)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css เพิ่มขนาดตัวอักษรเฉลย .work-fill เป็น 10.2pt และ .answer-fill เป็น 10.8pt (โหมด 5 ข้อขยายใหญ่เป็น 12.5pt)',
+            'ปรับ font-weight เป็น 800 (Bold) พร้อมปรับความสูงบรรทัดเป็น 6.2mm ให้ตัวเลขเฉลยโดดเด่น อ่านง่ายชัดเจนจากระยะไกล',
+            'เพิ่มสีพื้นหลังไฮไลต์เขียวอ่อนสดใส (#f0fdf4) ให้กับข้อที่กำลังเปิดเฉลย .q.reveal-current',
+        ],
+    },
+    {
+        version: 'v1.218.6 (แก้ไขปัญหาเฉลยซ้อนทับกันและการจัดวางช่องในใบงานเกม 24)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css ปรับความสูงบรรทัดคำนวณ .calc-line เป็น 5.8mm และคุม overflow ให้กับ .q-work-block ป้องกันการเกยทับช่องสรุปคำตอบ',
+            'อัปเดต renderQuestion ใน public/games/math/math-24-worksheet.html แสดง 2 บรรทัดวิธีทำขั้นที่ 1-2 และ 1 บรรทัดสรุปผลสมการสุดท้าย',
+            'จัดระยะขอบ padding และความสูงบรรทัดใหม่ทั้งหมด ป้องกันตัวหนังสือเบียดหรือทับกันในโหมด 10 ข้อบน A4 คมชัดสวยงาม 100%',
+        ],
+    },
+    {
+        version: 'v1.218.5 (แก้ไขปัญหาการแสดงผลตัวเลขเฉลยเมื่อกดเปิดเฉลย)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.js ให้สลับคลาส show-answers บน document.body และ reveal-answer บนการ์ดคำถามแบบซิงก์กัน 100%',
+            'อัปเดต public/games/worksheet-topic.css เพิ่มความสำคัญ CSS Specificity และ !important ให้กับ .work-fill, .answer-fill, .teacher-answer',
+            'แก้ไขปัญหาตัวเลขเฉลยไม่เปลี่ยนสีเมื่อกดเฉลย ให้แสดงสีแดงเข้ม (#b42318) และสีเขียวเข้ม (#086c5c) คมชัดอ่านง่ายทุกเครื่อง',
+        ],
+    },
+    {
+        version: 'v1.218.4 (ปรับปรุงระบบสุ่มคำถาม ห้ามซ้ำคำถามกันในชุดใบงานเดียวกัน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุงระบบสุ่มเลือกโจทย์ selectAllPageItems ใน public/games/worksheet-topic.js ให้สุ่มจัดคิวคำถามจากคลังรวมแบบไม่ซ้ำ (Unique Sampling Across Pages)',
+            'รับประกันว่าคำถามทุกข้อในใบงาน (หน้า 1, หน้า 2, หน้า 3) จะไม่มีข้อซ้ำกันเลยแม้แต่ข้อเดียว',
+            'ขยายคลังโจทย์ใบงานเกม 24 (MATH24_ITEMS) เป็น 40 ชุดโจทย์จำนวนเต็ม ถัวเฉลี่ย 10 ข้อต่อทักษะ รองรับการพิมพ์ใบงาน 3 หน้าได้อย่างเต็มอิ่มไม่ซ้ำข้อ',
+        ],
+    },
+    {
+        version: 'v1.218.3 (ปรับโจทย์ใบงานเกม 24 เป็นรูปแบบมาตรฐาน หา 24 จาก A, B, C, D พร้อมเฉลยจำนวนเต็ม 100%)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง MATH24_ITEMS ใน public/games/math/math-24-worksheet.html เป็นรูปแบบมาตรฐาน หา 24 จาก [ตัวเลข 4 ตัว] ทุกข้อ',
+            'ตรวจสอบเฉลยคำนวณทีละขั้น (step1, step2, step3) ทั้งหมด 25 ชุดโจทย์ เป็นการคำนวณจำนวนเต็มถ้วน (Integer Arithmetic) 100% ไม่มีทศนิยมหรือเศษส่วน',
+            'รับประกันผลลัพธ์คำนวณได้ 24 และใช้เลขครบทั้ง 4 ตัวทุกข้อ สมบูรณ์สำหรับนักเรียน ป.4–6',
+        ],
+    },
+    {
+        version: 'v1.218.2 (เพิ่มฟีเจอร์เฉลยทีละข้อในใบงานหัวข้อทุกวิชา)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเดต public/games/worksheet-topic.js เพิ่มระบบควบคุมเฉลยทีละข้อ (Step-by-Step Answer Reveal Navigation)',
+            'เพิ่มปุ่ม ◀ ข้อก่อน, ▶ เฉลยข้อถัดไป, ตัวนับสถานะ เฉลยข้อ X / N และปุ่ม 👁 ทั้งหมด บน Toolbar ใบงานหัวข้อทุกวิชา',
+            'รองรับคีย์บอร์ดลัด ปุ่มลูกศรขวา (▶) / N สำหรับเปิดข้อถัดไป และปุ่มลูกศรซ้าย (◀) / B สำหรับซ่อนข้อล่าสุด พร้อมกรอบเน้นสีประจำข้อ .q.reveal-current',
+        ],
+    },
+    {
+        version: 'v1.218.1 (แก้ไขปัญหาใบงานหัวข้อ/เกม 24 แสดงผลล้นขอบขวา)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'ปรับปรุง public/games/worksheet-topic.css แก้ไขระบบ Grid จาก 1fr 1fr เป็น repeat(2, minmax(0, 1fr)) ป้องกันเนื้อหาการ์ดดึงคอลัมน์เกิน 50%',
+            'เพิ่ม min-width: 0, table-layout: fixed และ overflow-wrap ให้กับ .questions, .q, .mini-table, .answer-line ป้องกันการ์ดล้นขอบขวาบน A4',
+            'แก้ปัญหาใบงานเกม 24 (math-24-worksheet.html) และใบงานหัวข้อทุกวิชาแสดงผลเต็มแผ่น A4 สมบูรณ์',
+        ],
+    },
+    {
+        version: 'v1.218.0 (เพิ่มฟีเจอร์สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว ซิงก์ตรงลง Supabase Production DB)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้าง Migration 249 เพิ่มตาราง c2_custom_game_plans บน Supabase Production DB (lkpqssbqxxpasidfqhpb)',
+            'เพิ่มไฟล์ public/training/construct2-ban-khamphai/my-game-steps.html สมุดบันทึกขั้นตอนสร้างเกมส่วนตัว (Custom Step Planner UI)',
+            'รองรับการพิมพ์ข้อความเอง เพิ่มแถว ลบแถว ติ๊กความสำเร็จ ลากสลับลำดับแถว (Drag & Drop) และพิมพ์ออก A4',
+            'ระบบ Auto-Sync สองทาง Realtime กับ Supabase Production DB สลับเครื่องเล่นเปิดมาข้อมูลก็ยังอยู่ครบ',
+            'เพิ่มปุ่มเมนู 📝 บันทึกขั้นตอนสร้างเกม ใน Toolbar หน้าแรก และ Guide Bar ของบทเรียนทุกหน้า',
+        ],
+    },
+    {
+        version: 'v1.217.0 (สร้างฟีเจอร์คลังคำศัพท์ Construct 2 พร้อมเสียงอ่านภาษาไทย & ตัวอย่างเหตุการณ์ใช้งาน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มไฟล์ public/training/construct2-ban-khamphai/glossary.html คลังคำศัพท์ C2 สมบูรณ์แบบ 50+ คำศัพท์',
+            'พัฒนาคลังข้อมูล c2-glossary-data.js แบ่ง 5 หมวดหมู่ (IDE, Conditions, Actions, Behaviors, Variables) พร้อมระบุเหตุการณ์ที่ใช้ชัดเจน',
+            'สร้างระบบเสียงอ่าน c2-speech.js (Speech Synthesis) รองรับปุ่ม 🔊 ฟังเสียงอธิบายภาษาไทย และ 🗣️ เสียงออกเสียงภาษาอังกฤษ',
+            'เพิ่มปุ่มทางเข้า 📖 คลังคำศัพท์ C2 ใน Toolbar หน้าหลัก และ Guide Bar ในบทเรียนทุกหน้า',
+        ],
+    },
+    {
+        version: 'v1.217.0 (ใบงานการหารยาว — เลือกหลักตัวหารและตัวตั้งได้อิสระ)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'อัปเดต public/games/math/division-worksheet.html เพิ่มตัวเลือกกำหนดหลักตัวหาร (1–2 หลัก) และตัวตั้ง (2–6 หลัก รวมถึงผสม 3–6 หลัก) เช่น 20 ÷ 269, 21 ÷ 2456 และ 35 ÷ 654321',
+            'เพิ่มโหมดพรีเซ็ต ป.5–ป.6 (ตัวหารไม่เกิน 2 หลัก ÷ ตัวตั้งไม่เกิน 6 หลัก ผสม) และปรับขนาดกริดอัจฉริยะ (cellWidth & rowHeight) รองรับการตั้งหาร 6 หลักได้เต็มแผ่น A4 ไม่ล้นขอบ',
+            'รองรับการเซฟ/โหลด config และ URL parameters ครบถ้วน พร้อมผ่านการออดิท pnpm verify:worksheet 14/14 checks',
+        ],
+    },
+    {
+        version: 'v1.216.0 (ภาพประกอบขั้นตอนแม่นยำ 100% — 619 ภาพไม่ซ้ำใน 59 บทเรียน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'สร้างภาพประกอบประจำขั้นตอน (Step-specific C2 Screenshots) ใหม่ทั้งหมด 301 ภาพ — แต่ละภาพแสดงหน้าต่าง C2 ที่แม่นยำตรงกับขั้นตอนนั้น (Layout View, Behaviors Dialog, Properties Panel, Event Sheet Group, Add Event Dialog, Sprite Editor, Preview Browser)',
+            'ลบภาพ generic ซ้ำ (c2-behaviors.jpg, c2-event-sheet.jpg, c2-properties.jpg) ออกจากการ์ดทุกใบ — ป้องกันภาพกระจุกในบทเดียวกัน',
+            'ตรวจสอบ 619 แท็ก <img> ใน 60 ไฟล์ HTML — Missing: 0 (100% pass)',
+        ],
+    },
+    {
+        version: 'v1.215.0 (เพิ่มภาพประกอบประจำขั้นตอนครบทุกการ์ด 451 ภาพใน 29 บทเรียน)',
+        date: 'ล่าสุด',
+        badge: 'bg-emerald-600',
+        items: [
+            'เพิ่มภาพประกอบประจำขั้นตอน (Step-by-step C2 UI Screenshots) ในทุกการ์ดของ 29 บทเรียน (451 แท็กภาพ 0 missing link)',
+            'แสดงผลหน้าต่าง C2 IDE UI (Event Sheet Group, Properties Inspector, Dialog Boxes, Layout Viewport) แบบตรงตามโปรเจกต์ master_v32.capx',
+            'ผ่านการออดิทความสมบูรณ์และทดสอบการสร้าง Vite bundle 100%',
+        ],
+    },
+    {
+        version: 'v1.214.2 (แก้ไขภาพไอคอน C2 และตรวจสอบลิงก์ภาพประกอบทุกบทเรียน 100%)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'สร้างภาพไอคอน Construct 2 Objects (Keyboard, System, Sprite, Text, Mouse, Audio) 32px HD PNG และ c2-properties.jpg',
+            'ตรวจสอบลิงก์ <img> ทุกบทเรียนผ่านสคริปต์ออดิท (154 แท็กใน 60 ไฟล์ HTML) ไม่พบรูปเสียหรือขาดหายอีกต่อไป (Missing: 0)',
+            'ปรับปรุง common.css เพิ่มสไตล์และระบบ fallback สำหรับไอคอน Event Sheet',
+        ],
+    },
+    {
+        version: 'v1.214.1 (ภาพประกอบและ Visual UI ของ Construct 2 จริงทุกบทเรียน)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มภาพประกอบหน้าจอซอฟต์แวร์จริงของ Construct 2 (Workspace UI, Event Sheet, Properties Panel, Behaviors Dialog) ทุกบทเรียน 29 บท',
+            'ปรับปรุงระบบแสดงผลการ์ดใน common.css ด้วย UI Component (c2-eventsheet, c2-properties, c2-dialog, c2-window-mockup)',
+            'เพิ่มคำอธิบายขั้นตอนเมาส์คลิก (คลิกซ้าย, ดับเบิลคลิก, คลิกขวา) และการตั้งค่าอย่างละเอียด',
+        ],
+    },
+    {
+        version: 'v1.214.0 (คู่มือ Construct 2 master_v32 — 29 บทเรียน 3 ระดับ)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'ผสานคู่มือ 2 เข้ากับคู่มือบ้านคำไผ่ ขยายเป็น 29 บทเรียน 3 ระดับ (พื้นฐาน B1-B6, ระบบหลัก 01-16, ขั้นสูง A1-A7)',
+            'ปรับปรุง index.html เป็นระบบ 3 แท็บระดับ ค้นหา กรองแท็ก จัดลำดับบทเรียน และ visual learning path',
+            'เพิ่มคำแนะนำ 📍 ที่ไหนใน C2 และ ⚠️ ข้อผิดพลาดที่พบบ่อย ในทุกบทเรียนอ้างอิง master_v32.capx',
+        ],
+    },
+    {
+        version: 'v1.213.0 (คู่มือ Construct 2 บ้านคำไผ่)',
+        date: 'ล่าสุด',
+        badge: 'bg-blue-600',
+        items: [
+            'เพิ่มคู่มือ Construct 2 แบบจับมือทำ 8 บท พร้อมภาพ Event Sheet ภาษาไทย',
+            'เพิ่มเช็กลิสต์สร้างเกมแบบโต้ตอบและหน้า Training ใหม่ของครูณัฐพงศ์ โดยไม่ทับรายการเดิม',
+        ],
+    },
+    {
+        version: 'v1.212.5 (ใบงานทั้งคลัง — บันทึกชุด + เฉลยทีละข้อ)',
+        date: 'ล่าสุด',
+        badge: 'bg-indigo-600',
+        items: [
+            'ยกระดับใบงานอังกฤษ วิทยาศาสตร์ เทคโนโลยี ภาษาไทย และการคูณ ให้บันทึก โหลด และแชร์ชุดเดิมด้วย seed ได้',
+            'เพิ่มเฉลยทีละข้อ ย้อนกลับ เปิดทั้งหมด และคีย์ลัด โดยคำตอบซ่อนเริ่มต้นและไม่เปลี่ยนเลย์เอาต์ A4',
+            'บังคับ contract ฟีเจอร์ใหม่ในตัวตรวจใบงานทุกไฟล์ และแก้กฎหารยาวเป็น 8 ข้อแบบ 2×4',
+            'ขยายตัวเลขเฉลยและระยะบรรทัดวิธีทำของกระดานหารยาว โดยยังคงพอดี A4',
+        ],
+    },
+    {
+        version: 'v1.212.4 (ใบงานหารยาว — ตัวหารชิดเส้น + ช่องวิธีทำอัตโนมัติ)',
+        date: 'ล่าสุด',
+        badge: 'bg-teal-600',
+        items: [
+            'ลดช่องตัวหารให้เลขอยู่ชิดเส้นตั้งหารตามรูปแบบการเขียนจริง',
+            'ขยายแถวแสดงวิธีทำอัตโนมัติตามจำนวนขั้น โดยคง 8 ข้อและไม่ล้น A4',
+        ],
+    },
+    {
+        version: 'v1.212.3 (ใบงานหารยาว — พื้นที่เขียนด้วยมือ)',
+        date: 'ล่าสุด',
+        badge: 'bg-cyan-600',
+        items: [
+            'ขยายช่องค่าประจำหลักเป็น 16 มม. และช่องตอบเป็น 40 มม. สำหรับลายมือนักเรียน',
+            'เพิ่มความสูงแถวคำนวณแบบปรับตามจำนวนหลัก พร้อมตรวจ A4 โจทย์ 4 หลักหลายชุด',
+        ],
+    },
+    {
+        version: 'v1.212.2 (ใบงานหารยาว — บันทึกชุด + เฉลยทีละข้อ)',
+        date: 'ล่าสุด',
+        badge: 'bg-sky-600',
+        items: [
+            'ใบงานหารยาว 8 ข้อแบบ 2×4 บันทึกและโหลดชุดเดิมด้วย seed ได้อีกครั้ง',
+            'เพิ่มเฉลยทีละข้อ ◀/▶, เปิดทั้งหมด และคีย์ลัด โดยคงคำตอบซ่อนเป็นค่าเริ่มต้น',
         ],
     },
     {
         version: 'v1.212.1 (HEART infographic บนหน้าเกี่ยวกับเรา)',
-        date: '',
+        date: 'ล่าสุด',
         badge: 'bg-rose-600',
         items: [
             'แทรกอินโฟกราฟิก HEART Model (`/images/heart-model-infographic.png`) ในหน้า About ใต้หัวข้อนวัตกรรมการบริหาร',
@@ -2635,11 +4307,11 @@ const versionHistory = [
         ],
     },
     {
-        version: 'v1.52.1 (ใบเกียรติบัตรฮีโร่ + กันรูปคนบีบไม่สมส่วนถาวร)',
+        version: 'v1.52.1 (ใบเกียรติบัตรธนาคารความดี + กันรูปคนบีบไม่สมส่วนถาวร)',
         date: '',
         badge: 'bg-emerald-700',
         items: [
-            'ใบเกียรติบัตรฮีโร่ความดี (/hero): รูปนักเรียนเป็นกรอบเต็มตัวไม่ครอป, แก้สังกัดเป็น "สพป.อุดรธานี เขต 2", URL สั้นด้วยรหัสนักเรียน (/hero/<รหัส>) + QR สแกนได้จริงเปิดหน้าประวัติ',
+            'ใบเกียรติบัตรธนาคารความดี (/virtue-bank): รูปนักเรียนเป็นกรอบเต็มตัวไม่ครอป, แก้สังกัดเป็น "สพป.อุดรธานี เขต 2", URL สั้นด้วยรหัสนักเรียน (/virtue-bank/<รหัส>) + QR สแกนได้จริงเปิดหน้าประวัติ',
             'แก้รูป ครู/นักเรียน ถูกบีบยืดไม่สมส่วน: base AvatarImage (shadcn) ใส่ object-cover → รูปไม่จัตุรัส crop กึ่งกลางพอดี ไม่บิด มีผลทุก avatar ทั้งระบบ',
             'Guardrail กันเกิดซ้ำ: ESLint no-restricted-imports ห้าม import @/components/ui/avatar ตรง (ยกเว้น PersonAvatar) → บังคับ avatar คนทุกตัวผ่าน <PersonAvatar> จับตอน build + migrate HallOfFame เข้า PersonAvatar',
         ],
@@ -3568,7 +5240,7 @@ const versionHistory = [
         date: '',
         badge: 'bg-slate-600',
         items: [
-            'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อก สุดยอดฮีโร่ความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
+            'แก้ไขระบบการจัดการโครงร่างหน้าแรก (Homepage Layout Manager) ให้ทำงานครอบคลุมโค้ดการสร้างหน้าจากคีย์ดั้งเดิม (Legacy Keys) เพื่อให้ปุ่มและบล็อกสุดยอดนักเรียนธนาคารความดีประจำสัปดาห์ (featured_hero) ถูกโหลดและแสดงผลได้โดยอัตโนมัติ',
             'สร้าง Migration 070_public_read_active_students_basic.sql เพื่อตั้งค่าสิทธิ์ Row Level Security (RLS) ของตารางนักเรียน (students) ให้ผู้ใช้ทั่วไป (anon) และผู้ใช้ที่ล็อกอินสามารถ SELECT นักเรียนที่มีสถานะ is_active = true และให้ผู้ปกครองสามารถ SELECT ประวัตินักเรียนของตนเองได้',
             'ปรับปรุงระบบการแสดงผลชื่อนักเรียนและรูปภาพโปรไฟล์ (PersonAvatar) บนหน้าแรก (Featured Hero Block) ให้สอดคล้องตามกฎ PDPA และกฎ DESIGN.md Rule 14.13 ในระบบโรงเรียน',
         ],
@@ -4429,11 +6101,11 @@ const versionHistory = [
 const exportData = {
     project: {
         name: 'kampai-school',
-        version: 'v1.209.0',
-        live: 'https://kampai-school.vercel.app',
+        version: SYSTEM_OVERVIEW_META.version,
+        live: SYSTEM_OVERVIEW_META.productionUrl,
         repository: 'github.com/solamon2525/kampai-school',
         hosting: 'Vercel (SPA)',
-        database: 'Supabase (PostgreSQL) — 147 tables · 16 views',
+        database: `Supabase (PostgreSQL) — ${SYSTEM_OVERVIEW_META.database.tables} tables · ${SYSTEM_OVERVIEW_META.database.views} views`,
         primaryLanguage: 'TypeScript + PLpgSQL',
         frontend: 'React 18.3 + Vite 5',
         auth: 'Supabase Auth + RLS',
@@ -4451,15 +6123,19 @@ const exportData = {
     longTermPlan,
     featureCatalogStats,
     database: {
-        totalTables: 147,
-        totalViews: 16,
-        migrations: 451,
-        migrationFiles: 464,
-        latestMigration: '453_supply_returns.sql',
+        totalTables: SYSTEM_OVERVIEW_META.database.tables,
+        totalViews: SYSTEM_OVERVIEW_META.database.views,
+        rlsTables: SYSTEM_OVERVIEW_META.database.rlsTables,
+        appliedMigrations: SYSTEM_OVERVIEW_META.database.appliedMigrations,
+        migrationFiles: SYSTEM_OVERVIEW_META.database.trackedMigrationFiles,
+        latestProductionMigration: SYSTEM_OVERVIEW_META.database.latestProductionMigration,
+        latestRepositoryMigration: SYSTEM_OVERVIEW_META.database.latestRepositoryMigration,
+        verifiedDate: SYSTEM_OVERVIEW_META.verifiedDate,
+        verifiedIsoDate: SYSTEM_OVERVIEW_META.verifiedIsoDate,
         engine: 'PostgreSQL via Supabase',
-        security: 'RLS enabled',
+        security: `RLS enabled ${SYSTEM_OVERVIEW_META.database.rlsTables}/${SYSTEM_OVERVIEW_META.database.tables} tables`,
         groups: dbGroups,
-        note: 'ตัวเลขตาราง/วิวจาก src/integrations/supabase/types.ts — กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
+        note: 'ตัวเลข schema เป็น snapshot จาก production ตามวันที่ตรวจ; KPI Phase 16 โหลดสดเมื่อเปิดหน้า กลุ่มด้านล่างเป็น inventory หลัก ไม่ dump ทุกตาราง',
     },
     roadmap: roadmap.map(r => ({ title: r.title, description: r.desc })),
     sprintPlan: sprintPlan.map(s => ({ sprint: s.sprint, duration: s.duration, goal: s.goal, items: s.items })),
@@ -4520,9 +6196,12 @@ const generateMarkdown = () => {
     lines.push('\n## ฐานข้อมูล');
     lines.push(`- **Tables**: ${exportData.database.totalTables}`);
     lines.push(`- **Views**: ${exportData.database.totalViews}`);
-    lines.push(`- **Migrations (latest #)**: ${exportData.database.migrations}`);
-    lines.push(`- **Migration files**: ${exportData.database.migrationFiles}`);
-    lines.push(`- **Latest**: ${exportData.database.latestMigration}`);
+    lines.push(`- **RLS tables**: ${exportData.database.rlsTables}/${exportData.database.totalTables}`);
+    lines.push(`- **Applied migrations (production)**: ${exportData.database.appliedMigrations}`);
+    lines.push(`- **Tracked migration files (Git)**: ${exportData.database.migrationFiles}`);
+    lines.push(`- **Latest production migration**: ${exportData.database.latestProductionMigration}`);
+    lines.push(`- **Latest repository migration**: ${exportData.database.latestRepositoryMigration}`);
+    lines.push(`- **Verified**: ${exportData.database.verifiedDate}`);
     lines.push(`- **Engine**: PostgreSQL via Supabase`);
     lines.push(`- **Security**: RLS enabled`);
     lines.push(`- **Note**: ${exportData.database.note}`);
@@ -4570,6 +6249,39 @@ const downloadFile = (content: string, filename: string, mime: string) => {
     URL.revokeObjectURL(url);
 };
 
+const OpsQueryState = ({
+    isLoading,
+    isError,
+    error,
+    onRetry,
+    children,
+}: {
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+    onRetry: () => void;
+    children: ReactNode;
+}) => {
+    if (isLoading) {
+        return <p className="text-sm text-muted-foreground">กำลังโหลด…</p>;
+    }
+    if (isError) {
+        return (
+            <div className="space-y-1.5" role="alert">
+                <p className="text-sm font-medium text-destructive">โหลดข้อมูลไม่สำเร็จ</p>
+                {error instanceof Error && (
+                    <p className="text-xs text-muted-foreground break-words">{error.message}</p>
+                )}
+                <Button variant="outline" size="sm" className="h-7 gap-1.5" onClick={onRetry}>
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    ลองใหม่
+                </Button>
+            </div>
+        );
+    }
+    return <>{children}</>;
+};
+
 export const SystemOverview = () => {
     const [copied, setCopied] = useState(false);
     const [featureQuery, setFeatureQuery] = useState('');
@@ -4598,35 +6310,41 @@ export const SystemOverview = () => {
             .filter((d) => d.features.length > 0 || d.label.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q));
     }, [featureQuery]);
 
-    const { data: habit } = useQuery({
+    const habitQuery = useQuery({
         queryKey: ['edu-hub', 'non-admin-habit', 30],
         queryFn: () => educationalHubService.getNonAdminUploadHabit(30),
         staleTime: 60_000,
     });
 
-    const { data: coverage } = useQuery({
+    const coverageQuery = useQuery({
         queryKey: ['curriculum', 'indicator-coverage-summary'],
         queryFn: () => curriculumService.indicatorCoverageSummary(),
         staleTime: 60_000,
     });
 
-    const { data: softGap } = useQuery({
+    const softGapQuery = useQuery({
         queryKey: ['curriculum', 'indicator-soft-gap-summary'],
         queryFn: () => curriculumService.indicatorSoftGapSummary(),
         staleTime: 60_000,
     });
 
-    const { data: packCount } = useQuery({
+    const packCountQuery = useQuery({
         queryKey: ['lesson-packs', 'published-count'],
         queryFn: () => lessonPacksService.countPublished(),
         staleTime: 60_000,
     });
 
-    const { data: homework } = useQuery({
+    const homeworkQuery = useQuery({
         queryKey: ['assignments', 'ops-summary', 30],
         queryFn: () => assignmentsService.opsSummary(30),
         staleTime: 60_000,
     });
+
+    const habit = habitQuery.data;
+    const coverage = coverageQuery.data;
+    const softGap = softGapQuery.data;
+    const packCount = packCountQuery.data;
+    const homework = homeworkQuery.data;
 
     const phase16Checklist = useMemo(() => {
         const teacherOk = (habit?.uploaderCount ?? 0) > 0;
@@ -4638,43 +6356,61 @@ export const SystemOverview = () => {
                 id: 'teacher-upload',
                 label: 'ครู non-admin อัปสื่อจริง (30 วัน)',
                 done: teacherOk,
-                detail: habit
+                detail: habitQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : habit
                     ? `${habit.uploaderCount} คน · ${habit.itemCount} รายการ`
                     : 'กำลังโหลด…',
+                failed: habitQuery.isError,
             },
             {
                 id: 'coverage',
                 label: 'ตัวชี้วัดมีสื่อ/เกมผูก ≥80%',
                 done: coverageOk,
-                detail: coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+                detail: coverageQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : coverage ? `${coverage.pctCovered}% (${coverage.covered}/${coverage.totalIndicators})` : 'กำลังโหลด…',
+                failed: coverageQuery.isError,
             },
             {
                 id: 'packs',
                 label: 'ชุดเรียนเผยแพร่ ≥30',
                 done: packsOk,
-                detail: packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+                detail: packCountQuery.isError ? 'โหลดข้อมูลไม่สำเร็จ' : packCount != null ? `${packCount} ชุด` : 'กำลังโหลด…',
+                failed: packCountQuery.isError,
             },
             {
                 id: 'homework',
                 label: 'ผู้ปกครองส่งงาน (30 วัน)',
                 done: homeworkOk,
-                detail: homework
+                detail: homeworkQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : homework
                     ? `${homework.submissions} ส่ง · ${homework.withAttachment} แนบไฟล์`
                     : 'กำลังโหลด…',
+                failed: homeworkQuery.isError,
             },
             {
                 id: 'soft-gap',
                 label: 'รีวิว soft-gap (ยังไม่มีเกม/สื่อ/ใบงาน)',
                 done: false,
-                detail: softGap
+                detail: softGapQuery.isError
+                    ? 'โหลดข้อมูลไม่สำเร็จ'
+                    : softGap
                     ? `ขาดเกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet} · ยังไม่ map ${softGap.unmapped}`
                     : 'กำลังโหลด…',
                 ongoing: true,
+                failed: softGapQuery.isError,
             },
         ];
-    }, [habit, coverage, packCount, homework, softGap]);
+    }, [habit, coverage, packCount, homework, softGap, habitQuery.isError, coverageQuery.isError, packCountQuery.isError, homeworkQuery.isError, softGapQuery.isError]);
 
     const phase16DoneCount = phase16Checklist.filter((c) => c.done).length;
+    const phase16Queries = [habitQuery, coverageQuery, softGapQuery, packCountQuery, homeworkQuery];
+    const hasPhase16QueryError = phase16Queries.some((query) => query.isError);
+    const retryPhase16Queries = () => {
+        void Promise.all(phase16Queries.map((query) => query.refetch()));
+    };
 
     const handleExportJSON = () => {
         downloadFile(JSON.stringify(exportData, null, 2), 'system-overview.json', 'application/json');
@@ -4698,17 +6434,17 @@ export const SystemOverview = () => {
     };
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 min-w-0">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground mb-2">ภาพรวมระบบ</h1>
                     <p className="text-muted-foreground">
                         ข้อมูลเทคโนโลยี โครงสร้าง และฟีเจอร์ทั้งหมด · เวอร์ชันปัจจุบัน{' '}
-                        <span className="font-medium text-foreground">v1.209.0</span>
+                        <span className="font-medium text-foreground">{SYSTEM_OVERVIEW_META.version}</span>
                         {' · '}live{' '}
                         <a
-                            href="https://kampai-school.vercel.app"
+                            href={SYSTEM_OVERVIEW_META.productionUrl}
                             className="text-primary underline-offset-2 hover:underline"
                             target="_blank"
                             rel="noreferrer"
@@ -4716,8 +6452,11 @@ export const SystemOverview = () => {
                             kampai-school.vercel.app
                         </a>
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        ตรวจ snapshot ระบบล่าสุด {SYSTEM_OVERVIEW_META.verifiedDate} · ตัวเลข schema เป็น snapshot และ KPI Phase 16 โหลดสดเมื่อเปิดหน้า
+                    </p>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex w-full sm:w-auto items-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={handleExportJSON} className="gap-1.5">
                         <FileJson className="w-4 h-4 text-yellow-500" />
                         JSON
@@ -4749,26 +6488,27 @@ export const SystemOverview = () => {
                         ข้อมูลโปรเจค
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { icon: Package, label: 'ชื่อโปรเจค', value: 'kampai-school' },
-                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: 'v1.209.0' },
+                        { icon: Rocket, label: 'เวอร์ชัน (Overview)', value: SYSTEM_OVERVIEW_META.version },
                         { icon: GitBranch, label: 'Repository', value: 'github.com/solamon2525/kampai-school' },
                         { icon: Globe, label: 'Hosting / Live', value: 'Vercel · kampai-school.vercel.app' },
-                        { icon: Database, label: 'Database', value: 'Supabase · 147 tables · 16 views' },
-                        { icon: HardDrive, label: 'Migrations', value: 'ล่าสุด #451 · ไฟล์ 464' },
+                        { icon: Database, label: 'Database', value: `Supabase · ${SYSTEM_OVERVIEW_META.database.tables} tables · ${SYSTEM_OVERVIEW_META.database.views} views` },
+                        { icon: HardDrive, label: 'Migrations', value: `production ${SYSTEM_OVERVIEW_META.database.appliedMigrations} · Git ${SYSTEM_OVERVIEW_META.database.trackedMigrationFiles} ไฟล์` },
                         { icon: Code2, label: 'ภาษาหลัก', value: 'TypeScript + PLpgSQL' },
                         { icon: Layers, label: 'Frontend Framework', value: 'React 18.3 + Vite 5' },
                         { icon: Shield, label: 'Auth & Security', value: 'Supabase Auth + RLS' },
                         { icon: Zap, label: 'Edge Functions', value: 'Deno (Supabase)' },
-                        { icon: CheckCircle2, label: 'Feature catalog', value: '8 โดเมน · 55 ฟีเจอร์ (SoT)' },
+                        { icon: CheckCircle2, label: 'Feature catalog', value: `${featureCatalogStats.domains} โดเมน · ${featureCatalogStats.features} ฟีเจอร์ (SoT)` },
                         { icon: Lightbulb, label: 'โฟกัสปัจจุบัน', value: 'Phase 16 ops + harden ปี 1' },
+                        { icon: Clock, label: 'ตรวจข้อมูลล่าสุด', value: SYSTEM_OVERVIEW_META.verifiedDate },
                     ].map((item) => (
                         <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
                             <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-xs text-muted-foreground">{item.label}</p>
-                                <p className="text-sm font-medium text-foreground">{item.value}</p>
+                                <p className="text-sm font-medium text-foreground break-words">{item.value}</p>
                             </div>
                         </div>
                     ))}
@@ -5008,15 +6748,26 @@ export const SystemOverview = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-3 mb-4">
+                    <div className="flex flex-wrap gap-2 sm:gap-3 mb-4">
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalTables} Tables</div>
                         <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{exportData.database.totalViews} Views</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Migration #{exportData.database.migrations}</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{exportData.database.migrationFiles} ไฟล์</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS {exportData.database.rlsTables}/{exportData.database.totalTables}</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Production {exportData.database.appliedMigrations} migrations</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">Git {exportData.database.migrationFiles} ไฟล์</div>
                         <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">PostgreSQL via Supabase</div>
-                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">RLS enabled</div>
+                        <div className="px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">ตรวจ {exportData.database.verifiedDate}</div>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{exportData.database.note}</p>
+                    <div className="grid gap-2 sm:grid-cols-2 mb-4 text-xs">
+                        <p className="rounded-lg border border-border bg-secondary/30 px-3 py-2 break-all">
+                            <span className="font-semibold text-foreground">Production ล่าสุด:</span>{' '}
+                            <span className="text-muted-foreground">{exportData.database.latestProductionMigration}</span>
+                        </p>
+                        <p className="rounded-lg border border-border bg-secondary/30 px-3 py-2 break-all">
+                            <span className="font-semibold text-foreground">Git ล่าสุด:</span>{' '}
+                            <span className="text-muted-foreground">{exportData.database.latestRepositoryMigration}</span>
+                        </p>
+                    </div>
                     <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         {dbGroups.map((group) => (
                             <div key={group.label}>
@@ -5066,7 +6817,7 @@ export const SystemOverview = () => {
                         แผนพัฒนาต่อ (Sprint Plan)
                     </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
-                        สถานะปัจจุบันถึง v1.205 — ไม่ใช่แผน Sprint เก่าจากยุค v1.5
+                        สถานะปัจจุบันถึง {SYSTEM_OVERVIEW_META.version} · ตรวจล่าสุด {SYSTEM_OVERVIEW_META.verifiedDate}
                     </p>
                 </CardHeader>
                 <CardContent>
@@ -5145,6 +6896,15 @@ export const SystemOverview = () => {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-5">
+                    {hasPhase16QueryError && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2" role="alert">
+                            <p className="text-sm font-medium text-destructive">ข้อมูล KPI บางส่วนโหลดไม่สำเร็จ จึงไม่แสดงค่าศูนย์แทนผลจริง</p>
+                            <Button variant="outline" size="sm" className="gap-1.5" onClick={retryPhase16Queries}>
+                                <RefreshCw className="h-4 w-4" />
+                                ลองใหม่ทั้งหมด
+                            </Button>
+                        </div>
+                    )}
                     <ul className="grid sm:grid-cols-2 gap-2">
                         {phase16Checklist.map((item) => (
                             <li
@@ -5152,10 +6912,13 @@ export const SystemOverview = () => {
                                 className={cn(
                                     'flex items-start gap-2 rounded-lg border border-border px-3 py-2 text-sm',
                                     item.done && 'bg-emerald-500/10',
+                                    item.failed && 'border-destructive/40 bg-destructive/5',
                                     item.ongoing && !item.done && 'bg-secondary/40',
                                 )}
                             >
-                                {item.done ? (
+                                {item.failed ? (
+                                    <CircleAlert className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+                                ) : item.done ? (
                                     <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                                 ) : item.ongoing ? (
                                     <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
@@ -5173,42 +6936,48 @@ export const SystemOverview = () => {
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {habit ? habit.uploaderCount : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    คน · {habit ? habit.itemCount : '…'} รายการ
-                                </span>
-                            </p>
+                            <OpsQueryState isLoading={habitQuery.isLoading} isError={habitQuery.isError} error={habitQuery.error} onRetry={() => { void habitQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {habit?.uploaderCount ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        คน · {habit?.itemCount ?? 0} รายการ
+                                    </span>
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">Coverage ตัวชี้วัด</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {coverage ? `${coverage.pctCovered}%` : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
-                                </span>
-                            </p>
+                            <OpsQueryState isLoading={coverageQuery.isLoading} isError={coverageQuery.isError} error={coverageQuery.error} onRetry={() => { void coverageQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {coverage?.pctCovered ?? 0}%
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {coverage?.covered ?? 0}/{coverage?.totalIndicators ?? 0}
+                                    </span>
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">Soft-gap (ทั้งหลักสูตร)</p>
-                            <p className="text-sm font-medium text-foreground leading-snug">
-                                {softGap
-                                    ? `เกม ${softGap.noGame} · สื่อ ${softGap.noMedia} · ใบงาน ${softGap.noWorksheet}`
-                                    : '…'}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                ยังไม่ map {softGap?.unmapped ?? '…'} ตัวชี้วัด
-                            </p>
+                            <OpsQueryState isLoading={softGapQuery.isLoading} isError={softGapQuery.isError} error={softGapQuery.error} onRetry={() => { void softGapQuery.refetch(); }}>
+                                <p className="text-sm font-medium text-foreground leading-snug">
+                                    เกม {softGap?.noGame ?? 0} · สื่อ {softGap?.noMedia ?? 0} · ใบงาน {softGap?.noWorksheet ?? 0}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    ยังไม่ map {softGap?.unmapped ?? 0} ตัวชี้วัด
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-card p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">การบ้าน 30 วัน</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {homework ? homework.submissions : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                มอบหมาย {homework?.assignments ?? '…'} · แนบไฟล์ {homework?.withAttachment ?? '…'}
-                            </p>
+                            <OpsQueryState isLoading={homeworkQuery.isLoading} isError={homeworkQuery.isError} error={homeworkQuery.error} onRetry={() => { void homeworkQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {homework?.submissions ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">ส่งงาน</span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    มอบหมาย {homework?.assignments ?? 0} · แนบไฟล์ {homework?.withAttachment ?? 0}
+                                </p>
+                            </OpsQueryState>
                         </div>
                     </div>
 
@@ -5245,29 +7014,33 @@ export const SystemOverview = () => {
                     <div className="grid sm:grid-cols-2 gap-3">
                         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ครู non-admin อัป (30 วัน)</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {habit ? habit.uploaderCount : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    คน · {habit ? habit.itemCount : '…'} รายการ
-                                </span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                {habit && habit.uploaderCount > 0
-                                    ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
-                                    : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
-                            </p>
+                            <OpsQueryState isLoading={habitQuery.isLoading} isError={habitQuery.isError} error={habitQuery.error} onRetry={() => { void habitQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {habit?.uploaderCount ?? 0}
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        คน · {habit?.itemCount ?? 0} รายการ
+                                    </span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    {(habit?.uploaderCount ?? 0) > 0
+                                        ? 'มีหลักฐานใช้งานแล้ว — คงกระตุ้นเป็นรายสัปดาห์'
+                                        : 'ยังไม่มีหลักฐาน — ส่งคู่มือ W8 + /teacher/edu-hub ให้ครูทดลองอัป'}
+                                </p>
+                            </OpsQueryState>
                         </div>
                         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground">ตัวชี้วัดที่มีสื่อ/เกมผูก</p>
-                            <p className="text-2xl font-bold text-foreground">
-                                {coverage ? `${coverage.pctCovered}%` : '…'}
-                                <span className="text-sm font-normal text-muted-foreground ml-2">
-                                    {coverage ? `${coverage.covered}/${coverage.totalIndicators}` : ''}
-                                </span>
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                                เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? '…'} ชิ้น · เติมต่อใน IndicatorCoverageDialog
-                            </p>
+                            <OpsQueryState isLoading={coverageQuery.isLoading} isError={coverageQuery.isError} error={coverageQuery.error} onRetry={() => { void coverageQuery.refetch(); }}>
+                                <p className="text-2xl font-bold text-foreground">
+                                    {coverage?.pctCovered ?? 0}%
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {coverage?.covered ?? 0}/{coverage?.totalIndicators ?? 0}
+                                    </span>
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    เป้า ≥80% · รายการที่ถูก map {coverage?.linkedItems ?? 0} ชิ้น · เติมต่อใน IndicatorCoverageDialog
+                                </p>
+                            </OpsQueryState>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">

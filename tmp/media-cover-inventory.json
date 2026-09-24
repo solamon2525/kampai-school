@@ -1,0 +1,1035 @@
+{
+  "total": 51,
+  "thinkingCount": 5,
+  "withCover": 51,
+  "without": [],
+  "withSvg": 24,
+  "withPng": 40,
+  "svgOnly": [
+    {
+      "html": "D:/kampai-school-main/public/games/arts/symmetry-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/arts/symmetry-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/english/grammar-vocab-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/english/grammar-vocab-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/english/past-tense-mini-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/english/past-tense-mini-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/english/phonics-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/english/phonics-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/english/sight-words-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/english/sight-words-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/health/exercise-care-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/health/exercise-care-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/health/first-aid-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/health/first-aid-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/math/clock-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/math/clock-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/math/money-change-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/math/money-change-media-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/science/light-sort-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/science/light-sort-media-cover.svg",
+        "D:/kampai-school-main/public/games/science/light-sort-cover.svg"
+      ]
+    },
+    {
+      "html": "D:/kampai-school-main/public/games/tech/coding-social-media.html",
+      "covers": [
+        "D:/kampai-school-main/public/games/tech/coding-social-media-cover.svg"
+      ]
+    }
+  ],
+  "bothSvgAndPng": 13,
+  "wrongDims": [],
+  "allDims": [
+    {
+      "base": "color-mix-media",
+      "file": "color-mix-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "color-mix-media",
+      "file": "color-mix-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "color-wheel-media",
+      "file": "color-wheel-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "symmetry-media",
+      "file": "symmetry-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "community-jobs-media",
+      "file": "community-jobs-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "waste-sort-media",
+      "file": "waste-sort-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "waste-sort-media",
+      "file": "waste-sort-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "follow-instructions-media",
+      "file": "follow-instructions-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "follow-instructions-media",
+      "file": "follow-instructions-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "grammar-mini-media",
+      "file": "grammar-mini-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "grammar-mini-media",
+      "file": "grammar-mini-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "grammar-vocab-media",
+      "file": "grammar-vocab-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "past-tense-mini-media",
+      "file": "past-tense-mini-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "phonics-media",
+      "file": "phonics-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sight-words-media",
+      "file": "sight-words-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "bone-muscle-media",
+      "file": "bone-muscle-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "exercise-care-media",
+      "file": "exercise-care-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "first-aid-media",
+      "file": "first-aid-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "food-groups-media",
+      "file": "food-groups-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "food-label-media",
+      "file": "food-label-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "handwash-media",
+      "file": "handwash-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "angle-media",
+      "file": "angle-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "bar-chart-media",
+      "file": "bar-chart-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "clock-media",
+      "file": "clock-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "decimal-media",
+      "file": "decimal-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "divide-by-2-thinking-media",
+      "file": "divide-by-2-thinking-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "fraction-pieces-media",
+      "file": "fraction-pieces-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "fraction-pieces-media",
+      "file": "fraction-pieces-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "long-division-thinking-media",
+      "file": "long-division-thinking-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "math-24-thinking-media",
+      "file": "math-24-thinking-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "money-change-media",
+      "file": "money-change-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "multiplication-thinking-media",
+      "file": "multiplication-thinking-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "number-line-media",
+      "file": "number-line-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "number-line-media",
+      "file": "number-line-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "rect-area-media",
+      "file": "rect-area-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "short-division-thinking-media",
+      "file": "short-division-thinking-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "digestive-system-media",
+      "file": "digestive-system-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "food-chain-media",
+      "file": "food-chain-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "food-chain-media",
+      "file": "food-chain-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "light-sort-media",
+      "file": "light-sort-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "light-sort-media",
+      "file": "light-sort-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "moon-phases-media",
+      "file": "moon-phases-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "plant-parts-media",
+      "file": "plant-parts-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "states-of-matter-media",
+      "file": "states-of-matter-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "states-of-matter-media",
+      "file": "states-of-matter-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "vertebrate-sort-media",
+      "file": "vertebrate-sort-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "vertebrate-sort-media",
+      "file": "vertebrate-sort-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "water-cycle-media",
+      "file": "water-cycle-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "water-cycle-media",
+      "file": "water-cycle-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "good-citizen-media",
+      "file": "good-citizen-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "good-citizen-media",
+      "file": "good-citizen-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sufficiency-media",
+      "file": "sufficiency-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sukhothai-timeline-media",
+      "file": "sukhothai-timeline-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sukhothai-timeline-media",
+      "file": "sukhothai-timeline-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thailand-map-media",
+      "file": "thailand-map-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thailand-map-media",
+      "file": "thailand-map-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "coding-social-media",
+      "file": "coding-social-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "online-safety-media",
+      "file": "online-safety-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "online-safety-media",
+      "file": "online-safety-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "dictionary-media",
+      "file": "dictionary-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "fact-opinion-media",
+      "file": "fact-opinion-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "fact-opinion-media",
+      "file": "fact-opinion-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sentence-structure-media",
+      "file": "sentence-structure-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "sentence-structure-media",
+      "file": "sentence-structure-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "synonym-media",
+      "file": "synonym-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thai-implied-meaning-media",
+      "file": "thai-implied-meaning-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thai-narration-style-media",
+      "file": "thai-narration-style-media-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thai-word-types-media",
+      "file": "thai-word-types-media-cover.svg",
+      "w": 1280,
+      "h": 720,
+      "via": "viewBox",
+      "ratio": 1.778,
+      "ok169": true
+    },
+    {
+      "base": "thai-word-types-media",
+      "file": "thai-word-types-cover.png",
+      "w": 1280,
+      "h": 720,
+      "ratio": 1.778,
+      "ok169": true
+    }
+  ],
+  "detail": [
+    {
+      "base": "color-mix-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "color-mix-media-cover.svg",
+        "color-mix-cover.png"
+      ]
+    },
+    {
+      "base": "color-wheel-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "color-wheel-media-cover.png"
+      ]
+    },
+    {
+      "base": "symmetry-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "symmetry-media-cover.svg"
+      ]
+    },
+    {
+      "base": "community-jobs-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "community-jobs-media-cover.png"
+      ]
+    },
+    {
+      "base": "waste-sort-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "waste-sort-media-cover.png",
+        "waste-sort-cover.png"
+      ]
+    },
+    {
+      "base": "follow-instructions-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "follow-instructions-media-cover.svg",
+        "follow-instructions-cover.png"
+      ]
+    },
+    {
+      "base": "grammar-mini-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "grammar-mini-media-cover.svg",
+        "grammar-mini-cover.png"
+      ]
+    },
+    {
+      "base": "grammar-vocab-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "grammar-vocab-media-cover.svg"
+      ]
+    },
+    {
+      "base": "past-tense-mini-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "past-tense-mini-media-cover.svg"
+      ]
+    },
+    {
+      "base": "phonics-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "phonics-media-cover.svg"
+      ]
+    },
+    {
+      "base": "sight-words-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "sight-words-media-cover.svg"
+      ]
+    },
+    {
+      "base": "bone-muscle-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "bone-muscle-media-cover.png"
+      ]
+    },
+    {
+      "base": "exercise-care-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "exercise-care-media-cover.svg"
+      ]
+    },
+    {
+      "base": "first-aid-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "first-aid-media-cover.svg"
+      ]
+    },
+    {
+      "base": "food-groups-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "food-groups-media-cover.png"
+      ]
+    },
+    {
+      "base": "food-label-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "food-label-media-cover.png"
+      ]
+    },
+    {
+      "base": "handwash-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "handwash-media-cover.png"
+      ]
+    },
+    {
+      "base": "angle-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "angle-media-cover.png"
+      ]
+    },
+    {
+      "base": "bar-chart-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "bar-chart-media-cover.png"
+      ]
+    },
+    {
+      "base": "clock-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "clock-media-cover.svg"
+      ]
+    },
+    {
+      "base": "decimal-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "decimal-media-cover.png"
+      ]
+    },
+    {
+      "base": "divide-by-2-thinking-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "divide-by-2-thinking-media-cover.png"
+      ]
+    },
+    {
+      "base": "fraction-pieces-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "fraction-pieces-media-cover.svg",
+        "fraction-pieces-cover.png"
+      ]
+    },
+    {
+      "base": "long-division-thinking-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "long-division-thinking-media-cover.png"
+      ]
+    },
+    {
+      "base": "math-24-thinking-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "math-24-thinking-media-cover.png"
+      ]
+    },
+    {
+      "base": "money-change-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "money-change-media-cover.svg"
+      ]
+    },
+    {
+      "base": "multiplication-thinking-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "multiplication-thinking-media-cover.png"
+      ]
+    },
+    {
+      "base": "number-line-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "number-line-media-cover.png",
+        "number-line-cover.png"
+      ]
+    },
+    {
+      "base": "rect-area-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "rect-area-media-cover.png"
+      ]
+    },
+    {
+      "base": "short-division-thinking-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "short-division-thinking-media-cover.png"
+      ]
+    },
+    {
+      "base": "digestive-system-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "digestive-system-media-cover.png"
+      ]
+    },
+    {
+      "base": "food-chain-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "food-chain-media-cover.png",
+        "food-chain-cover.png"
+      ]
+    },
+    {
+      "base": "light-sort-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "light-sort-media-cover.svg",
+        "light-sort-cover.svg"
+      ]
+    },
+    {
+      "base": "moon-phases-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "moon-phases-media-cover.png"
+      ]
+    },
+    {
+      "base": "plant-parts-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "plant-parts-media-cover.png"
+      ]
+    },
+    {
+      "base": "states-of-matter-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "states-of-matter-media-cover.svg",
+        "states-of-matter-cover.png"
+      ]
+    },
+    {
+      "base": "vertebrate-sort-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "vertebrate-sort-media-cover.svg",
+        "vertebrate-sort-cover.png"
+      ]
+    },
+    {
+      "base": "water-cycle-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "water-cycle-media-cover.svg",
+        "water-cycle-cover.png"
+      ]
+    },
+    {
+      "base": "good-citizen-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "good-citizen-media-cover.png",
+        "good-citizen-cover.png"
+      ]
+    },
+    {
+      "base": "sufficiency-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "sufficiency-media-cover.png"
+      ]
+    },
+    {
+      "base": "sukhothai-timeline-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "sukhothai-timeline-media-cover.svg",
+        "sukhothai-timeline-cover.png"
+      ]
+    },
+    {
+      "base": "thailand-map-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "thailand-map-media-cover.svg",
+        "thailand-map-cover.png"
+      ]
+    },
+    {
+      "base": "coding-social-media",
+      "status": "SVG_ONLY",
+      "covers": [
+        "coding-social-media-cover.svg"
+      ]
+    },
+    {
+      "base": "online-safety-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "online-safety-media-cover.svg",
+        "online-safety-cover.png"
+      ]
+    },
+    {
+      "base": "dictionary-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "dictionary-media-cover.png"
+      ]
+    },
+    {
+      "base": "fact-opinion-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "fact-opinion-media-cover.svg",
+        "fact-opinion-cover.png"
+      ]
+    },
+    {
+      "base": "sentence-structure-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "sentence-structure-media-cover.svg",
+        "sentence-structure-cover.png"
+      ]
+    },
+    {
+      "base": "synonym-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "synonym-media-cover.png"
+      ]
+    },
+    {
+      "base": "thai-implied-meaning-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "thai-implied-meaning-media-cover.png"
+      ]
+    },
+    {
+      "base": "thai-narration-style-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "thai-narration-style-media-cover.png"
+      ]
+    },
+    {
+      "base": "thai-word-types-media",
+      "status": "HAS_PNG",
+      "covers": [
+        "thai-word-types-media-cover.svg",
+        "thai-word-types-cover.png"
+      ]
+    }
+  ]
+}

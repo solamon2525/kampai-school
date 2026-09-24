@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือ Construct 2 — Behaviors พื้นฐาน</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  :root {
+    --bg: #fff5ed;
+    --h-grad1: #a44216;
+    --h-grad2: #d4681d;
+    --tag-bg: #80310c;
+    --card-border: #f0cbb5;
+    --test-bg: #e5f5e5;
+  }
+  body { margin: 0; font-family: "Leelawadee UI", Tahoma, sans-serif; background: var(--bg); color: #333; }
+  .top-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; }
+  .top-nav a { text-decoration: none; color: #0066cc; font-weight: bold; }
+  .nav-right button { margin: 0 10px; cursor: pointer; border: 1px solid #ccc; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; }
+  .page { max-width: 900px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .head { background: linear-gradient(135deg, var(--h-grad1), var(--h-grad2)); color: white; padding: 30px; border-radius: 8px; text-align: center; }
+  .tag { display: inline-block; background: var(--tag-bg); padding: 5px 12px; border-radius: 20px; font-size: 0.9em; margin-bottom: 10px; }
+  h1 { margin: 0 0 10px 0; }
+  .scene { display: none; }
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; font-weight: bold; flex-wrap: wrap; }
+  .flow i { color: #888; font-style: normal; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .card { border: 1px solid var(--card-border); padding: 20px; border-radius: 8px; position: relative; }
+  .card.wide { grid-column: 1 / 3; }
+  .card.warn { background: #fff9e6; border-color: #ffd633; }
+  .n { background: #ffd633; color: #333; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; position: absolute; top: -12px; left: 15px; }
+  .card h2 { margin-top: 0; font-size: 1.2em; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+  .small { font-size: 0.85em; color: #555; }
+  .box { border-left: 4px solid #0066cc; background: #f9f9f9; padding: 10px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; line-height: 1.5; }
+  .blue { color: #0066cc; font-weight: bold; }
+  .red { color: #cc0000; font-weight: bold; }
+  .test { background: var(--test-bg); padding: 15px; border-radius: 8px; border-left: 4px solid #339933; margin: 20px 0; }
+  .footer { display: flex; justify-content: space-between; font-size: 0.9em; color: #777; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  th { background-color: #f2f2f2; }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .card.wide { grid-column: 1; }
+  }
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; padding: 0; }
+    .top-nav, .footer { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html">← หน้าหลักคู่มือ</a>
+  <div class="nav-right">
+    <a href="my-game-steps.html" class="builder-btn" target="_blank">📝 บันทึกสเต็ป</a>
+    <a href="glossary.html" class="glossary-btn" target="_blank">📖 คลังคำศัพท์ C2</a>
+    <a href="tutorial-b03-event-sheet-basics.html">← บทก่อนหน้า</a>
+    <button onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+    <a href="tutorial-b05-variables.html">บทที่ B5 ถัดไป →</a>
+  </div>
+</nav>
+<main class="page">
+  <header class="head">
+    <div class="tag">บทที่ B4 • พื้นฐาน Construct 2</div>
+    <h1>Behaviors พื้นฐาน</h1>
+    <p>Solid • Jump-thru • Platform • Scroll To • Bullet • Sine • Flash</p>
+  </header>
+
+  <div class="flow"><b>Select Object</b><i>→</i><b>Properties</b><i>→</i><b>Behaviors</b><i>→</i><b>Add behavior</b></div>
+
+  <section class="grid">
+    <article class="card">
+      <span class="n">1</span><h2>Solid / Jump-thru</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 1 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step1.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 1 Screenshot — Solid / Jump-thru">
+
+      <p>1. คลิกเลือก Object ที่ต้องการใส่ Behavior (เช่น พื้น หรือกำแพง)<br>
+      2. ไปที่หน้าต่าง <b>Properties</b> ด้านซ้าย คลิกเลือกลิงก์ <b>Behaviors</b><br>
+      3. คลิกไอคอน <b>+ (Add new behavior)</b><br>
+      4. เลือก <b>Solid</b> หรือ <b>Jump-thru</b> แล้วกด Add</p>
+      
+      <p><b>Solid</b> = ชนจากทุกทิศ ไม่ทะลุ (ใช้กับพื้น กำแพง)<br>
+      <b>Jump-thru</b> = ทะลุจากล่าง ยืนบนได้ (ใช้กับเกาะลอย)</p>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> เลือก object → Properties → Behaviors → Add behavior</p>
+    </article>
+    
+    <article class="card">
+      <span class="n">2</span><h2>Platform + Scroll To</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 2 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step2.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 2 Screenshot — Platform + Scroll To">
+
+      <p>1. เลือก <code>player</code> แล้วคลิก <b>Behaviors</b> ใน Properties<br>
+      2. กด Add เลือก <b>Platform</b> (ควบคุมเดิน/กระโดดด้วยลูกศร)<br>
+      3. กด Add อีกครั้ง เลือก <b>Scroll To</b> (กล้องตามตัวละคร)<br>
+      4. ปรับค่าใน Properties ของ Platform:</p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Platform Behavior</th></tr>
+          <tr><td>Max jumps</td><td>2</td></tr>
+          <tr><td>Jump strength</td><td>650</td></tr>
+          <tr><td>Gravity</td><td>1500</td></tr>
+          <tr><td>Default controls</td><td>Yes</td></tr>
+        </table>
+      </div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> player → Behaviors</p>
+    </article>
+    
+    <article class="card">
+      <span class="n">3</span><h2>Bullet</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 3 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step3.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 3 Screenshot — Bullet">
+
+      <p>1. เลือก Object ที่จะเป็นกระสุน (เช่น <code>emon_bullet</code>)<br>
+      2. เข้าเมนู <b>Behaviors</b> → Add <b>Bullet</b><br>
+      3. Add อีก 1 Behavior คือ <b>Destroy outside layout</b> เพื่อลบกระสุนทิ้งเมื่อออกนอกจอ (ช่วยประหยัดหน่วยความจำ)<br>
+      4. สามารถตั้งความเร็วกระสุนได้ที่ Properties หัวข้อ Bullet</p>
+      <div class="c2-properties">
+        <table>
+          <tr><th colspan="2">Bullet Behavior</th></tr>
+          <tr><td>Speed</td><td>400</td></tr>
+          <tr><td>Set angle</td><td>Yes</td></tr>
+        </table>
+      </div>
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> emon_bullet → Behaviors</p>
+    </article>
+    
+    <article class="card wide">
+      <span class="n">4</span><h2>Sine / Flash</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 4 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step4.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 4 Screenshot — Sine / Flash">
+
+      <p><b>Sine:</b> ทำให้ object เคลื่อนที่ซ้ำๆ ไปกลับ (มอนเดินซ้าย-ขวา, เกาะลอยขึ้น-ลง)<br>
+      1. เลือกมอนสเตอร์ → <b>Behaviors</b> → Add <b>Sine</b><br>
+      2. ปรับ Movement เป็น Horizontal (ซ้ายขวา) หรือ Vertical (บนลงล่าง) ใน Properties<br>
+      <br>
+      <b>Flash:</b> กระพริบชั่วคราว (ใช้ตอนอมตะหลังโดนโจมตี)<br>
+      1. เลือก <code>player</code> → <b>Behaviors</b> → Add <b>Flash</b><br>
+      2. เมื่อโดนโจมตี ให้สั่งงานใน Event sheet: <code>player → Flash (0.1, 0.1, 1)</code></p>
+      
+      <p class="small">📍 <b>ที่ไหนใน C2:</b> eminy → Behaviors → Sine, player → Behaviors → Flash</p>
+    </article>
+    
+    <article class="card wide">
+      <span class="n">5</span><h2>ตารางสรุป Behaviors ในโปรเจกต์</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 5 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step5.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 5 Screenshot — ตารางสรุป Behaviors ในโปรเจกต์">
+
+      <table>
+        <tr><th>Object</th><th>Behaviors ที่ใช้</th></tr>
+        <tr><td>player</td><td>Platform, Scroll To, Flash</td></tr>
+        <tr><td>พื้น (Ground)</td><td>Solid</td></tr>
+        <tr><td>เกาะ (Platform)</td><td>Jump-thru</td></tr>
+        <tr><td>มอนสเตอร์ (Enemy)</td><td>Sine</td></tr>
+        <tr><td>กระสุน (Bullet)</td><td>Bullet, Destroy outside layout</td></tr>
+      </table>
+    </article>
+
+    <article class="card wide warn">
+      <span class="n">6</span><h2>⚠️ ข้อผิดพลาดที่พบบ่อย</h2>
+      <img src="images/steps/tutorial-b04-behaviors-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:10px 0; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Step 6 — tutorial-b04-behaviors">
+
+      <img src="images/steps/tutorial-b04-behaviors-step6.jpg" class="c2-step-img" style="width:100%; border-radius:6px; margin:12px 0; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.1);" alt="Construct 2 Step 6 Screenshot — ⚠️ ข้อผิดพลาดที่พบบ่อย">
+
+      <ul>
+        <li>ใส่ Solid ให้เกาะลอย ทำให้เวลาผู้เล่นกระโดดจากข้างล่างจะติด ไม่ทะลุ</li>
+        <li>ลืมใส่ Scroll To ให้ player ทำให้เดินแล้วตกจอ กล้องไม่ตาม</li>
+        <li>ลืมใส่ Destroy outside layout ให้กระสุน ทำให้กระสุนล้นหน่วยความจำ เกมกระตุก</li>
+      </ul>
+    </article>
+  </section>
+
+  <aside class="test"><b>✅ รายการทดสอบ:</b> ใส่ Solid/Platform/Scroll To ได้ • รู้ Bullet/Sine/Flash ใช้ทำอะไร • F5 เดินบนพื้นได้ • กล้องตามตัวละคร</aside>
+
+  <footer class="footer">
+    <span>คู่มือ Construct 2 สำหรับผู้เริ่มต้น • Behaviors</span>
+    <span>งานถัดไป: ตัวแปร</span>
+  </footer>
+</main>
+  <script src="c2-lightbox.js"></script>
+</body>
+</html>

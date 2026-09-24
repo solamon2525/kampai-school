@@ -7,6 +7,8 @@ import { rewardClaimsService, type RewardClaim } from '@/services/waste-bank.ser
 import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { describeCameraError, startRearScanner } from '@/lib/qrCamera';
+import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 interface Props {
   open: boolean;
@@ -45,8 +47,8 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
       osc.start();
       osc.stop(ctx.currentTime + 0.2);
-      setTimeout(() => ctx.close().catch(() => {}), 250);
-    } catch {}
+      setTimeout(() => ctx.close().catch(() => { /* audio cleanup is best effort */ }), 250);
+    } catch { /* scan feedback is optional */ }
   }, []);
 
   const stopCamera = useCallback(async () => {
@@ -55,7 +57,7 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
       try {
         await s.stop();
         await s.clear();
-      } catch {}
+      } catch { /* camera cleanup is best effort */ }
     }
     scannerRef.current = null;
   }, []);
@@ -73,7 +75,7 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
         if (scannerRef.current && scannerRef.current.isScanning) {
           try {
             await scannerRef.current.stop();
-          } catch {}
+          } catch { /* decoded result can continue after camera stop failure */ }
         }
 
         // Parse claim format: kampai-claim:{uuid}
@@ -130,6 +132,11 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: approveErr.message, variant: 'destructive' });
     } else {
       toast({ title: 'อนุมัติสำเร็จ', description: `มอบของรางวัล "${claim.reward_name}" เรียบร้อย` });
+      void speakThai([
+        'อนุมัติมอบรางวัลสำเร็จ',
+        `ชื่อ ${getFirstName(claim.students?.name ?? '')}`,
+        `ได้รับรางวัล ${claim.reward_name}`,
+      ]);
       onAction();
       onClose();
     }
@@ -203,9 +210,7 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-muted-foreground">ของรางวัลที่ต้องการแลก</div>
                   <div className="font-semibold text-foreground truncate">{claim.reward_name}</div>
-                  <div className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-0.5">
-                    ใช้แต้ม: {claim.points_used} แต้ม
-                  </div>
+                  <RewardCostDisplay waste={claim.waste_points_used} virtue={claim.virtue_points_used} className="mt-1 text-xs" />
                 </div>
               </div>
             </div>

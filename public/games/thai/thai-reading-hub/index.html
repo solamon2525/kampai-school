@@ -1,235 +1,1621 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📐 คลังอ่านจับใจความ ป.4-5 — ชนิดและหน้าที่ของคำ</title>
-<!--
-  KAMPAI-SCHOOL · คลังอ่านจับใจความ ป.4-5 — นาม กริยา คุณศัพท์ บุพบท สันธาน ป.4-5
--->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap"></noscript>
-<link rel="stylesheet" href="style.css">
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>คลังอ่านจับใจความ ป.4–ป.5 (Thai Reading Comprehension Studio) — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-dark: #020617;
+      --indigo: #2563eb;
+      --indigo-dark: #1d4ed8;
+      --indigo-light: #eff6ff;
+      --gold: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-light: #fef3c7;
+      --emerald: #059669;
+      --emerald-dark: #047857;
+      --emerald-light: #d1fae5;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+      --sky: #0284c7;
+      --sky-light: #e0f2fe;
+      --amber: #d97706;
+      --purple: #7c3aed;
+      --purple-light: #f3e8ff;
+      --line: #cbd5e1;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --font-scale: 1.0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(150deg, #eff6ff 0%, #f0fdf4 50%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fef08a;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* TOOLBAR & CONTROLS */
+    .toolbar-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .toolbar-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .toolbar-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* MODE NAV BAR */
+    .mode-nav {
+      display: flex;
+      overflow-x: auto;
+      background: #f1f5f9;
+      border-bottom: 2px solid var(--border);
+      padding: 6px 12px;
+      gap: 8px;
+      scrollbar-width: none;
+    }
+    .mode-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .mode-btn {
+      min-height: 44px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: #ffffff;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .mode-btn:hover {
+      color: var(--indigo);
+      border-color: #bfdbfe;
+    }
+    .mode-btn.active {
+      background: var(--indigo);
+      color: #ffffff;
+      border-color: var(--indigo-dark);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    /* CATEGORY & FILTER BAR */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+    .category-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 0;
+    }
+    .category-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .cat-btn {
+      min-height: 44px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cat-btn:hover {
+      background: #f1f5f9;
+      color: var(--navy);
+    }
+    .cat-btn.active {
+      background: #dbeafe;
+      color: var(--indigo-dark);
+      border-color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .grade-seg {
+      display: inline-flex;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #f8fafc;
+    }
+    .grade-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .grade-btn.active {
+      background: var(--navy);
+      color: #ffffff;
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #f8fafc;
+    }
+
+    /* MODE SECTIONS */
+    .mode-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .mode-section.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* COMMON CARDS & CONTAINERS */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* BUTTON PRIMITIVES */
+    .btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--indigo);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--indigo-dark);
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #ffffff;
+    }
+    .btn-gold:hover {
+      background: var(--gold-dark);
+    }
+    .btn-emerald {
+      background: var(--emerald);
+      color: #ffffff;
+    }
+    .btn-emerald:hover {
+      background: var(--emerald-dark);
+    }
+    .btn-rose {
+      background: var(--rose);
+      color: #ffffff;
+    }
+    .btn-rose:hover {
+      background: #be123c;
+    }
+    .btn-ghost {
+      background: #f1f5f9;
+      color: var(--navy);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover {
+      background: #e2e8f0;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* STORY NAVIGATION HEADER */
+    .story-nav-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(135deg, #eff6ff 0%, #fef3c7 100%);
+      border: 1px solid #bfdbfe;
+      padding: 12px 16px;
+      border-radius: 14px;
+    }
+    .story-select {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+      max-width: 320px;
+      cursor: pointer;
+    }
+
+    /* READING PASSAGE DISPLAY */
+    .passage-card {
+      background: #ffffff;
+      border: 2px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+      position: relative;
+    }
+    .passage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .passage-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .passage-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo-dark);
+    }
+    .passage-text {
+      font-size: calc(1.12rem * var(--font-scale));
+      line-height: 1.95;
+      font-weight: 500;
+      color: #1e293b;
+      letter-spacing: 0.2px;
+      text-align: justify;
+    }
+    .topic-highlight {
+      background: #fef08a;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-weight: 700;
+      box-shadow: 0 0 0 2px #fef08a;
+    }
+    .keyword-highlight {
+      color: #1d4ed8;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    /* 5W1H GRID */
+    .w5h1-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .w5h1-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .w5h1-badge {
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--indigo);
+      margin-bottom: 2px;
+    }
+    .w5h1-content {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+
+    /* FACT VS OPINION LAB (MODE 2) */
+    .detective-intro {
+      background: #fdf4ff;
+      border: 1px solid #f0abfc;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: #701a75;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+    .statement-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    .statement-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.6;
+      max-width: 680px;
+    }
+    .detective-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    .detective-btn {
+      flex: 1;
+      min-width: 180px;
+      max-width: 260px;
+      min-height: 52px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border-radius: 12px;
+    }
+    .detective-feedback {
+      width: 100%;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.6;
+      display: none;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .detective-feedback.correct {
+      background: #d1fae5;
+      border: 1px solid #6ee7b7;
+      color: #065f46;
+      display: block;
+    }
+    .detective-feedback.wrong {
+      background: #ffe4e6;
+      border: 1px solid #fda4af;
+      color: #9f1239;
+      display: block;
+    }
+
+    /* STORY SEQUENCER LAB (MODE 3) */
+    .sequencer-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sequence-slot {
+      background: #ffffff;
+      border: 2px dashed #93c5fd;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 60px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sequence-slot:hover {
+      border-color: var(--indigo);
+      background: #f8faff;
+    }
+    .step-num {
+      min-width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eff6ff;
+      color: var(--indigo);
+      border: 2px solid #bfdbfe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .step-text {
+      flex: 1;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+    .step-move-btns {
+      display: flex;
+      gap: 4px;
+    }
+    .btn-step-move {
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--navy);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-step-move:hover {
+      background: #e2e8f0;
+    }
+
+    /* PRACTICE QUIZ CHALLENGE (MODE 4) */
+    .quiz-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .quiz-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-q-text {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.6;
+    }
+    .quiz-choices {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .choice-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+    .choice-btn:hover {
+      border-color: #93c5fd;
+      background: #f8faff;
+    }
+    .choice-btn.correct {
+      background: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 800;
+    }
+    .choice-btn.wrong {
+      background: #ffe4e6 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .quiz-explanation {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #166534;
+      display: none;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: auto;
+      padding: 14px 16px;
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .kbd-chip {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    /* HIDDEN BOILERPLATE FOR KAMPAI COMPATIBILITY */
+    #blocker, #player-chip, #my-stats, #ms-best, #ms-plays {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-<div id="bar-wrap"><div id="bar" style="width:0"></div></div>
+  <!-- Boilerplate Elements (Guardrail: keep present in DOM) -->
+  <div id="blocker"></div>
+  <div id="player-chip"></div>
+  <div id="my-stats"><span id="ms-best">0</span><span id="ms-plays">0</span></div>
 
-<!-- Player chip (shows student name when embedded) -->
-<div id="player-chip"></div>
+  <div class="shell">
+    <!-- HEADER -->
+    <header>
+      <div class="header-left">
+        <button type="button" class="toolbar-btn" onclick="location.href='/games/thai/index.html'" title="กลับหมวดภาษาไทย">
+          ← หมวดภาษาไทย
+        </button>
+        <h1>📖 คลังอ่านจับใจความ ป.4–ป.5</h1>
+        <span class="badge-grade">ท 1.1 ป.4–ป.5</span>
+      </div>
+      <div class="header-right">
+        <button type="button" class="toolbar-btn" id="btnTtsToggle" title="เปิด/ปิดเสียงอ่านสังเคราะห์">
+          <span id="ttsIcon">🔊</span> <span id="ttsLabel">เสียงอ่าน: เปิด</span>
+        </button>
+        <button type="button" class="toolbar-btn" id="btnFontDec" title="ลดขนาดอักษร (Aa-)">Aa-</button>
+        <button type="button" class="toolbar-btn" id="btnFontInc" title="เพิ่มขนาดอักษร (Aa+)">Aa+</button>
+        <button type="button" class="toolbar-btn" id="btnFullscreen" title="เต็มจอ (F)">⛶</button>
+      </div>
+    </header>
 
-<!-- Font-size slider (persisted to localStorage) -->
-<div id="tvh-fontsize" class="tvh-fs-pill">
-    <span class="tvh-fs-icon tvh-fs-icon-sm" aria-hidden="true">Aa</span>
-    <input type="range" id="tvh-fontsize-slider" class="tvh-fs-range"
-           min="0.85" max="1.30" step="0.05" value="1" aria-label="ขนาดตัวอักษร">
-    <span class="tvh-fs-icon tvh-fs-icon-lg" aria-hidden="true">Aa</span>
-</div>
+    <!-- 4-MODE NAVIGATION TABS -->
+    <nav class="mode-nav" id="modeNav" aria-label="โหมดการเรียนรู้">
+      <button type="button" class="mode-btn active" data-mode="read">
+        <span>📖</span> 1. ห้องอ่านและจับใจความ (5W1H)
+      </button>
+      <button type="button" class="mode-btn" data-mode="detective">
+        <span>🔍</span> 2. นักสืบข้อเท็จจริง vs ข้อคิดเห็น
+      </button>
+      <button type="button" class="mode-btn" data-mode="sequencer">
+        <span>🧩</span> 3. จัดลำดับเหตุการณ์ (Sequencer)
+      </button>
+      <button type="button" class="mode-btn" data-mode="quiz">
+        <span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)
+      </button>
+    </nav>
 
-<!-- HUB VIEW (Category select) -->
-<div id="hub-view">
-    <button class="cbtn" style="align-self:flex-start;margin-bottom:8px" onclick="KAMPAI.goHome()">← กลับหน้าหลัก</button>
-    <div id="hub-title">คลังอ่านจับใจความ ป.4-5</div>
-    <div id="hub-sub">เรื่องสั้น · ข่าวเด็ก · วิทย์ง่าย · จับใจความ</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px">
-        <a class="cbtn hub-dash-link" href="/games/thai/thai-grammar-hub/index.html" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">📐 คลังไวยากรณ์</a>
-        <a class="cbtn hub-dash-link" href="/games/thai/thai-script-hub/index.html" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">🔤 คลังอักษรไทย</a>
+    <!-- CATEGORY & GRADE FILTER BAR -->
+    <div class="filter-bar">
+      <div class="category-scroll" id="catScroll">
+        <!-- populated dynamically from data.js categories -->
+      </div>
+      <div class="grade-seg" id="gradeSeg">
+        <button type="button" class="grade-btn active" data-grade="all">ทุกชั้น</button>
+        <button type="button" class="grade-btn" data-grade="ป.4">ป.4</button>
+        <button type="button" class="grade-btn" data-grade="ป.5">ป.5</button>
+      </div>
     </div>
-    <div id="missed-banner" class="missed-banner" style="display:none" aria-live="polite"></div>
-    <div id="hub-grid">
-        <!-- populated dynamically -->
-    </div>
-</div>
 
-<!-- TOPIC VIEW (Interactive Flashcards and Modes) -->
-<div id="topic-view" style="display:none">
-    <!-- Word Card Section -->
-    <div id="word-area">
-        <button id="btn-say" title="ฟังเสียงอ่าน">🔊</button>
-        <div id="tcard" onclick="flipCard()">
-            <div class="tface tfront">
-                <div class="front-col">
-                    <span id="wfront-emoji">📝</span>
-                    <span id="wfront-word">อักษร / คำ</span>
-                    <span id="wfront-cat" class="card-cat-label">หมวดหมู่</span>
+    <!-- MAIN CONTENT AREA -->
+    <main>
+      <!-- ==================================================== -->
+      <!-- MODE 1: READING STUDIO & 5W1H NAVIGATOR -->
+      <!-- ==================================================== -->
+      <section class="mode-section active" id="secRead">
+        <!-- Story Selector Bar -->
+        <div class="story-nav-card">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost" id="btnPrevStory" title="เรื่องก่อนหน้า (←)">◀ เรื่องก่อนหน้า</button>
+            <select class="story-select" id="storyDropdown" aria-label="เลือกบทอ่าน"></select>
+            <button type="button" class="btn btn-ghost" id="btnNextStory" title="เรื่องถัดไป (→)">เรื่องถัดไป ▶</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn btn-gold" id="btnRandomStory">🎲 สุ่มบทอ่าน</button>
+          </div>
+        </div>
+
+        <!-- Main Reading Passage Card -->
+        <div class="passage-card">
+          <div class="passage-header">
+            <div class="passage-title-wrap">
+              <span id="storyEmoji" style="font-size:1.6rem;">📖</span>
+              <div>
+                <h2 class="passage-title" id="storyTitle">ชื่อเรื่อง</h2>
+                <div style="display:flex; gap:6px; align-items:center; margin-top:2px;">
+                  <span class="badge-grade" id="badgeCat" style="background:#dbeafe; color:#1e40af; border-color:#93c5fd;">หมวดหมู่</span>
+                  <span class="badge-grade" id="badgeGrade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">ป.4</span>
+                  <span class="badge-grade" id="badgeCode" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">ท 1.1</span>
                 </div>
+              </div>
             </div>
-            <div class="tface tback">
-                <div class="back-col">
-                    <span id="wback-reading">คำอ่าน: [ — ]</span>
-                    <span id="wback-meaning">ความหมาย...</span>
-                </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="btnPlayPassageAudio">
+                <span>🔊</span> ฟังเสียงอ่าน
+              </button>
+              <button type="button" class="btn btn-ghost" id="btnToggleTopicHighlight">
+                <span>🟡</span> ไฮไลต์ใจความสำคัญ
+              </button>
+              <button type="button" class="btn btn-ghost" id="btnToggleKeywordHighlight">
+                <span>🟢</span> ไฮไลต์คำสำคัญ
+              </button>
             </div>
-        </div>
-    </div>
+          </div>
 
-    <!-- Flash controls (โหมดสุ่มการ์ด) -->
-    <div id="flash-controls" class="flash-controls" style="display:none">
-        <div id="flash-score" class="flash-score" aria-live="polite">รู้แล้ว 0/0</div>
-        <div class="flash-variant-picker" role="group" aria-label="ทิศการ์ด">
-            <span class="speed-label">การ์ด</span>
-            <button type="button" class="flash-var-btn active" data-v="word2meaning">หน้า→หลัง</button>
-            <button type="button" class="flash-var-btn" data-v="meaning2word">หลัง→หน้า</button>
-            <button type="button" class="flash-var-btn" data-v="audio2word">🔊→คำ</button>
-            <button type="button" class="flash-var-btn" data-v="mixed">🎲</button>
-        </div>
-        <div class="flash-action-btns">
-            <button type="button" class="btn btn-primary" id="btn-flash-reveal">เปิดดูคำตอบ</button>
-            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-know" style="display:none">✅ รู้แล้ว</button>
-            <button type="button" class="btn btn-blue flash-quiz-btn" id="btn-flash-review" style="display:none">🔁 ทบทวน</button>
-            <button type="button" class="cbtn" id="btn-flash-reset" title="ล้างความคืบหน้ารู้แล้ว">↺ เริ่มใหม่</button>
-        </div>
-    </div>
+          <!-- Passage Content -->
+          <div class="passage-text" id="passageText">
+            <!-- Populated dynamically -->
+          </div>
 
-    <!-- Autoplay controls (โหมดทบทวนกริด) -->
-    <div id="autoplay-controls" class="autoplay-bar" style="display:none">
-        <button class="btn-nav" onclick="autoplayPrev()" title="คำก่อนหน้า (←)">◀</button>
-        <button id="btn-autoplay-toggle" class="btn-autoplay" onclick="toggleAutoplay()">▶ อ่านอัตโนมัติ</button>
-        <button id="btn-autoplay-pause" class="btn-autoplay-pause" onclick="toggleAutoplayPause()" title="หยุดชั่วคราว" style="display:none">⏸</button>
-        <button class="btn-nav" onclick="autoplayNext()" title="คำถัดไป (→)">▶</button>
-        <span id="autoplay-progress" class="autoplay-progress" aria-live="polite">—</span>
-        <div class="autoplay-speed-group">
-            <span class="speed-label">หน่วง</span>
-            <div class="autoplay-spd-btns" role="group" aria-label="หน่วงหลังอ่านจบ">
-                <button type="button" class="autoplay-spd" data-ms="500">0.5s</button>
-                <button type="button" class="autoplay-spd" data-ms="1000">1s</button>
-                <button type="button" class="autoplay-spd active" data-ms="1500">1.5s</button>
-                <button type="button" class="autoplay-spd" data-ms="2000">2s</button>
-                <button type="button" class="autoplay-spd" data-ms="3000">3s</button>
+          <!-- Main Idea Callout -->
+          <div style="margin-top:16px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:12px 16px;">
+            <div style="font-size:0.85rem; font-weight:800; color:#1e40af; margin-bottom:4px;">
+              💡 สรุปใจความสำคัญ (Main Idea):
             </div>
-        </div>
-        <div class="autoplay-speed-group">
-            <span class="speed-label">อ่าน</span>
-            <select id="autoplay-read-mode" class="speed-select" onchange="setAutoReadMode(this.value)" aria-label="โหมดการอ่าน">
-                <option value="word">คำศัพท์</option>
-                <option value="reading">+ ชนิดคำ</option>
-                <option value="meaning">+ ความหมาย</option>
-                <option value="full" selected>ครบ</option>
-            </select>
-        </div>
-        <button type="button" id="btn-auto-flip" class="autoplay-opt-btn on" onclick="toggleAutoFlip()" title="พลิกการ์ดดูความหมาย">🔄 พลิก</button>
-        <button type="button" id="btn-auto-sound" class="autoplay-opt-btn on" onclick="toggleAutoSound()" title="เปิด/ปิดเสียงอ่าน">🔊</button>
-    </div>
-
-    <!-- Mode views (injected here) -->
-    <div id="play-area">
-        <!-- 1. Grid of words (Topic List mode) -->
-        <div id="words-grid" class="words-grid"></div>
-
-        <!-- 2. Dictation (เขียนตามคำบอก) -->
-        <div id="dictation-mode" class="mode-panel" style="display:none">
-            <div class="dictation-card">
-                <button class="voice-btn" onclick="playVoiceOnly()">🔊 ฟังเสียงคำถามอีกครั้ง</button>
-                <p class="dictation-hint">พิมพ์อักษรหรือคำที่ได้ยิน — สะกดให้ถูกต้อง!</p>
-                <div class="input-row">
-                    <input type="text" id="dictation-input" placeholder="พิมพ์สะกดคำศัพท์ที่นี่..." autocomplete="off" onkeydown="handleDictationKey(event)">
-                    <button class="btn btn-primary" onclick="checkDictation()">ส่งคำตอบ</button>
-                </div>
+            <div style="font-size:1.05rem; font-weight:700; color:#0f172a;" id="mainIdeaSummaryText">
+              -
             </div>
+          </div>
         </div>
 
-        <!-- 3. Choice Quiz (ทายคำ) -->
-        <div id="choice-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
-                <div id="choice-question-text" class="choice-q">ความหมายของคำศัพท์...</div>
-                <div id="choice-options" class="options-grid"></div>
+        <!-- 5W1H Structural Analysis Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>📊 ผังวิเคราะห์โครงสร้างเรื่อง 5W1H</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--muted);">ใคร · ทำอะไร · ที่ไหน · เมื่อไหร่ · ทำไม · อย่างไร</span>
+          </div>
+          <div class="w5h1-grid" id="w5h1Grid">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- MODE 2: FACT VS OPINION DETECTIVE LAB -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secDetective">
+        <div class="detective-intro">
+          <span style="font-size:1.8rem; flex-shrink:0;">🕵️‍♂️</span>
+          <div>
+            <strong>ห้องทดลองนักสืบข้อเท็จจริง vs ข้อคิดเห็น:</strong><br/>
+            • <strong>ข้อเท็จจริง (Fact):</strong> เรื่องจริงที่พิสูจน์ได้ มีหลักฐานอ้างอิงชัดเจนตามธรรมชาติ ประวัติศาสตร์ หรือวิทยาศาสตร์<br/>
+            • <strong>ข้อคิดเห็น (Opinion):</strong> ความรู้สึก การคาดคะเน อารมณ์ หรือทัศนะส่วนบุคคล (มักมีคำว่า <em>น่าจะ, อาจจะ, คิดว่า, สวยที่สุด, ควรจะ</em>)
+          </div>
+        </div>
+
+        <!-- Active Statement Card -->
+        <div class="statement-card">
+          <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+            <span class="badge-grade" id="detCounter" style="background:#eff6ff; color:#1e40af; border-color:#93c5fd;">ข้อที่ 1 / 4</span>
+            <span style="font-weight:700; color:var(--emerald);" id="detScoreText">คะแนนสืบสวน: 0</span>
+          </div>
+
+          <div style="font-size:0.9rem; font-weight:700; color:var(--muted);">
+            วิเคราะห์ประโยคจากเรื่อง: <span id="detStoryTitle">-</span>
+          </div>
+
+          <div class="statement-text" id="detStatementText">
+            "..."
+          </div>
+
+          <div class="detective-actions">
+            <button type="button" class="btn btn-emerald detective-btn" id="btnAnswerFact">
+              <span>✅</span> ข้อเท็จจริง (Fact)
+            </button>
+            <button type="button" class="btn btn-rose detective-btn" id="btnAnswerOpinion">
+              <span>💭</span> ข้อคิดเห็น (Opinion)
+            </button>
+          </div>
+
+          <div class="detective-feedback" id="detFeedback">
+            <!-- Feedback explanation -->
+          </div>
+
+          <div style="display:none; margin-top:8px;" id="detNextWrap">
+            <button type="button" class="btn btn-primary" id="btnDetNext">
+              ข้อถัดไป ▶
+            </button>
+          </div>
+        </div>
+
+        <!-- Clue Words Guide Card -->
+        <div class="card" style="background:#f8fafc;">
+          <div class="card-title" style="font-size:0.95rem;">
+            <span>🔍 คลังคำกุญแจสังเกตข้อคิดเห็น (Clue Words)</span>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.88rem;">
+            <span class="badge-grade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">น่าจะ / อาจจะ</span>
+            <span class="badge-grade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">คิดว่า / เชื่อว่า</span>
+            <span class="badge-grade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">ดีที่สุด / อร่อยที่สุด</span>
+            <span class="badge-grade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">ควรจะ / ต้อง</span>
+            <span class="badge-grade" style="background:#fef3c7; color:#92400e; border-color:#fcd34d;">น่าสงสาร / น่ารัก</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- MODE 3: STORY SEQUENCER LAB -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secSequencer">
+        <div class="card">
+          <div class="card-title">
+            <span>🧩 จัดลำดับเหตุการณ์ในเรื่อง (Story Sequencer)</span>
+            <button type="button" class="btn btn-gold" id="btnShuffleSequence">🔀 สลับลำดับใหม่</button>
+          </div>
+          <div style="font-size:0.92rem; color:var(--muted);">
+            เรื่อง: <strong id="seqStoryTitle" style="color:var(--navy);">-</strong> · แตะปุ่มลูกศรขึ้น/ลง เพื่อจัดเรียงลำดับเหตุการณ์ตั้งแต่ต้นจนจบให้ถูกต้อง
+          </div>
+
+          <div class="sequencer-container" id="sequencerSlots">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:8px;">
+            <button type="button" class="btn btn-emerald" id="btnCheckSequence" style="min-width:180px;">
+              <span>✔️</span> ตรวจสอบลำดับเหตุการณ์
+            </button>
+            <div id="seqResultBanner" style="font-size:1rem; font-weight:800; display:none;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- MODE 4: PRACTICE QUIZ CHALLENGE -->
+      <!-- ==================================================== -->
+      <section class="mode-section" id="secQuiz">
+        <div class="quiz-card">
+          <div class="quiz-meta">
+            <span class="badge-grade" id="quizCounterText" style="background:#dbeafe; color:#1e40af; border-color:#93c5fd;">ข้อที่ 1 / 3</span>
+            <span style="font-weight:700; color:var(--amber);" id="quizStreakText">🔥 ต่อเนื่อง: 0</span>
+            <span style="font-weight:800; color:var(--indigo);" id="quizScoreText">คะแนน: 0</span>
+          </div>
+
+          <div style="font-size:0.9rem; font-weight:700; color:var(--muted);">
+            บทอ่าน: <span id="quizStoryTitle" style="color:var(--navy);">-</span>
+          </div>
+
+          <div class="quiz-q-text" id="quizQuestionText">
+            คำถาม...
+          </div>
+
+          <div class="quiz-choices" id="quizChoicesGrid">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="quiz-explanation" id="quizExplanationBox">
+            <!-- Detailed Thai explanation -->
+          </div>
+
+          <div style="display:none; justify-content:flex-end;" id="quizNextWrap">
+            <button type="button" class="btn btn-primary" id="btnQuizNext" style="min-width:140px;">
+              ข้อถัดไป ▶
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <div>
+        <strong>โรงเรียนบ้านคำไผ่</strong> · คลังอ่านจับใจความ ป.4–ป.5 ตามหลักสูตรแกนกลางฯ
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <span>คีย์ลัด:</span>
+        <span class="kbd-chip">1–4</span> เปลี่ยนโหมด
+        <span class="kbd-chip">Space</span> อ่านเสียง
+        <span class="kbd-chip">← / →</span> เปลี่ยนเรื่อง
+        <span class="kbd-chip">F</span> เต็มจอ
+      </div>
+    </footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    // =========================================================
+    // THAI READING COMPREHENSION STUDIO SCRIPT
+    // =========================================================
+    (function () {
+      // 1. STATE MANAGEMENT
+      let currentMode = 'read'; // 'read' | 'detective' | 'sequencer' | 'quiz'
+      let currentCategory = 'all';
+      let currentGrade = 'all';
+      let stories = [];
+      let curStoryIndex = 0;
+      let curStory = null;
+
+      // Settings
+      let fontScale = 1.0;
+      let isAudioActive = true;
+      let showTopicHighlight = false;
+      let showKeywordHighlight = false;
+
+      // Detective State
+      let detItems = [];
+      let detIndex = 0;
+      let detScore = 0;
+      let detAnswered = false;
+
+      // Sequencer State
+      let userSequence = [];
+
+      // Quiz State
+      let quizIndex = 0;
+      let quizScore = 0;
+      let quizStreak = 0;
+      let quizAnswered = false;
+
+      // Speech Synthesis Utterance Reference
+      let curUtterance = null;
+
+      // 2. INITIALIZATION
+      function init() {
+        if (window.KAMPAI?.init) {
+          window.KAMPAI.init({ gameSlug: 'thai-reading-hub' });
+        }
+
+        // Populate Category Filter Buttons
+        renderCategoryFilter();
+
+        // Filter and Load Stories
+        filterStories();
+
+        // Bind Global Listeners & Controls
+        bindControls();
+
+        // Render Current Story
+        selectStoryByIndex(0);
+      }
+
+      function renderCategoryFilter() {
+        const catWrap = document.getElementById('catScroll');
+        catWrap.innerHTML = '';
+        const cats = window.READING_HUB_DATA.categories;
+        cats.forEach(c => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cat-btn' + (c.id === currentCategory ? ' active' : '');
+          btn.dataset.cat = c.id;
+          btn.innerHTML = `<span>${c.icon}</span> <span>${c.title}</span>`;
+          btn.onclick = () => {
+            currentCategory = c.id;
+            document.querySelectorAll('#catScroll .cat-btn').forEach(b => b.classList.toggle('active', b === btn));
+            filterStories();
+            selectStoryByIndex(0);
+          };
+          catWrap.appendChild(btn);
+        });
+      }
+
+      function filterStories() {
+        const allStories = window.READING_HUB_DATA.stories;
+        stories = allStories.filter(s => {
+          const catMatch = currentCategory === 'all' || s.category === currentCategory;
+          const gradeMatch = currentGrade === 'all' || s.grade === currentGrade;
+          return catMatch && gradeMatch;
+        });
+
+        // If filter produced no stories, fallback to all
+        if (stories.length === 0) {
+          stories = allStories;
+        }
+
+        // Update Dropdown
+        const dropdown = document.getElementById('storyDropdown');
+        dropdown.innerHTML = '';
+        stories.forEach((s, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `${idx + 1}. ${s.emoji} ${s.title} (${s.grade})`;
+          dropdown.appendChild(opt);
+        });
+      }
+
+      function selectStoryByIndex(idx) {
+        if (stories.length === 0) return;
+        curStoryIndex = (idx + stories.length) % stories.length;
+        curStory = stories[curStoryIndex];
+
+        document.getElementById('storyDropdown').value = curStoryIndex;
+
+        // Render in Mode 1
+        renderMode1();
+
+        // Reset & Prepare Mode 2
+        initDetective();
+
+        // Reset & Prepare Mode 3
+        initSequencer();
+
+        // Reset & Prepare Mode 4
+        initQuiz();
+      }
+
+      // =========================================================
+      // 3. MODE 1: READING STUDIO & 5W1H
+      // =========================================================
+      function renderMode1() {
+        if (!curStory) return;
+
+        document.getElementById('storyEmoji').textContent = curStory.emoji;
+        document.getElementById('storyTitle').textContent = curStory.title;
+        document.getElementById('badgeCat').textContent = curStory.categoryTitle;
+        document.getElementById('badgeGrade').textContent = curStory.grade;
+        document.getElementById('badgeCode').textContent = curStory.indicatorCode;
+        document.getElementById('mainIdeaSummaryText').textContent = curStory.mainIdeaSummary;
+
+        // Render Passage with optional highlights
+        renderPassageContent();
+
+        // Render 5W1H
+        render5W1H();
+      }
+
+      function renderPassageContent() {
+        const passageEl = document.getElementById('passageText');
+        let text = curStory.passage;
+
+        if (showTopicHighlight && curStory.topicSentence) {
+          // If the exact topic sentence is within passage, highlight it
+          if (text.includes(curStory.topicSentence)) {
+            text = text.replace(curStory.topicSentence, `<span class="topic-highlight">${curStory.topicSentence}</span>`);
+          } else {
+            // Highlight the first sentence as topic sentence
+            const firstSentenceMatch = text.match(/^[^.!?\n]+(?=[.!?\n]|$)/);
+            if (firstSentenceMatch) {
+              const fs = firstSentenceMatch[0];
+              text = text.replace(fs, `<span class="topic-highlight">${fs}</span>`);
+            }
+          }
+        }
+
+        if (showKeywordHighlight) {
+          // Highlight 5W1H keywords (who, where)
+          const keywords = [curStory.w5h1.who, curStory.w5h1.where].filter(Boolean);
+          keywords.forEach(kw => {
+            const cleanKw = kw.split(' ')[0].replace(/[^ก-๙a-zA-Z0-9]/g, '');
+            if (cleanKw.length > 2 && text.includes(cleanKw)) {
+              const reg = new RegExp(cleanKw, 'g');
+              text = text.replace(reg, `<span class="keyword-highlight">${cleanKw}</span>`);
+            }
+          });
+        }
+
+        passageEl.innerHTML = text;
+        document.documentElement.style.setProperty('--font-scale', fontScale);
+      }
+
+      function render5W1H() {
+        const wWrap = document.getElementById('w5h1Grid');
+        wWrap.innerHTML = '';
+        const items = [
+          { label: '👤 ใคร (Who)', val: curStory.w5h1.who },
+          { label: '🎯 ทำอะไร (What)', val: curStory.w5h1.what },
+          { label: '📍 ที่ไหน (Where)', val: curStory.w5h1.where },
+          { label: '⏰ เมื่อไหร่ (When)', val: curStory.w5h1.when },
+          { label: '❓ ทำไม (Why)', val: curStory.w5h1.why },
+          { label: '💡 อย่างไร (How)', val: curStory.w5h1.how }
+        ];
+
+        items.forEach(it => {
+          const div = document.createElement('div');
+          div.className = 'w5h1-item';
+          div.innerHTML = `
+            <span class="w5h1-badge">${it.label}</span>
+            <span class="w5h1-content">${it.val || '-'}</span>
+          `;
+          wWrap.appendChild(div);
+        });
+      }
+
+      // =========================================================
+      // 4. MODE 2: FACT VS OPINION DETECTIVE
+      // =========================================================
+      function initDetective() {
+        detItems = [];
+        if (curStory.facts) {
+          curStory.facts.forEach(f => detItems.push({ text: f.text, isFact: true, explain: f.explain }));
+        }
+        if (curStory.opinions) {
+          curStory.opinions.forEach(o => detItems.push({ text: o.text, isFact: false, explain: o.explain }));
+        }
+        // Shuffle detective items
+        detItems.sort(() => Math.random() - 0.5);
+        detIndex = 0;
+        detAnswered = false;
+
+        document.getElementById('detStoryTitle').textContent = curStory.title;
+        renderDetectiveItem();
+      }
+
+      function renderDetectiveItem() {
+        detAnswered = false;
+        if (detItems.length === 0) {
+          document.getElementById('detStatementText').textContent = 'ไม่มีโจทย์วิเคราะห์สำหรับบทอ่านนี้';
+          return;
+        }
+
+        const curItem = detItems[detIndex % detItems.length];
+        document.getElementById('detCounter').textContent = `ข้อที่ ${(detIndex % detItems.length) + 1} / ${detItems.length}`;
+        document.getElementById('detScoreText').textContent = `คะแนนสืบสวน: ${detScore}`;
+        document.getElementById('detStatementText').textContent = `"${curItem.text}"`;
+
+        const feedbackEl = document.getElementById('detFeedback');
+        feedbackEl.className = 'detective-feedback';
+        feedbackEl.style.display = 'none';
+        document.getElementById('detNextWrap').style.display = 'none';
+
+        // Enable buttons
+        document.getElementById('btnAnswerFact').disabled = false;
+        document.getElementById('btnAnswerOpinion').disabled = false;
+      }
+
+      function handleDetectiveAnswer(userAnswerIsFact) {
+        if (detAnswered || detItems.length === 0) return;
+        detAnswered = true;
+
+        const curItem = detItems[detIndex % detItems.length];
+        const isCorrect = (userAnswerIsFact === curItem.isFact);
+
+        document.getElementById('btnAnswerFact').disabled = true;
+        document.getElementById('btnAnswerOpinion').disabled = true;
+
+        const feedbackEl = document.getElementById('detFeedback');
+        feedbackEl.className = 'detective-feedback ' + (isCorrect ? 'correct' : 'wrong');
+        feedbackEl.innerHTML = `
+          <strong>${isCorrect ? '✅ ถูกต้องยอดเยี่ยม!' : '❌ ยังไม่ถูกต้อง'}</strong><br/>
+          ประโยคนี้คือ <strong>${curItem.isFact ? 'ข้อเท็จจริง (Fact)' : 'ข้อคิดเห็น (Opinion)'}</strong><br/>
+          <span>${curItem.explain}</span>
+        `;
+        feedbackEl.style.display = 'block';
+
+        if (isCorrect) {
+          detScore += 10;
+          document.getElementById('detScoreText').textContent = `คะแนนสืบสวน: ${detScore}`;
+          if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
+        } else {
+          if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
+        }
+
+        document.getElementById('detNextWrap').style.display = 'flex';
+      }
+
+      // =========================================================
+      // 5. MODE 3: STORY SEQUENCER LAB
+      // =========================================================
+      function initSequencer() {
+        if (!curStory.sequenceSteps || curStory.sequenceSteps.length === 0) return;
+        document.getElementById('seqStoryTitle').textContent = curStory.title;
+        document.getElementById('seqResultBanner').style.display = 'none';
+
+        // Clone and shuffle
+        userSequence = curStory.sequenceSteps.map((txt, originalIdx) => ({
+          text: txt,
+          originalIdx
+        }));
+        shuffle(userSequence);
+        renderSequencer();
+      }
+
+      function renderSequencer() {
+        const wrap = document.getElementById('sequencerSlots');
+        wrap.innerHTML = '';
+
+        userSequence.forEach((item, currentPos) => {
+          const slot = document.createElement('div');
+          slot.className = 'sequence-slot';
+          slot.innerHTML = `
+            <div class="step-num">${currentPos + 1}</div>
+            <div class="step-text">${item.text}</div>
+            <div class="step-move-btns">
+              <button type="button" class="btn-step-move btn-up" data-pos="${currentPos}" title="เลื่อนขึ้น" ${currentPos === 0 ? 'disabled' : ''}>▲</button>
+              <button type="button" class="btn-step-move btn-down" data-pos="${currentPos}" title="เลื่อนลง" ${currentPos === userSequence.length - 1 ? 'disabled' : ''}>▼</button>
             </div>
-        </div>
+          `;
+          wrap.appendChild(slot);
+        });
 
-        <!-- 4. Matching (จับคู่) -->
-        <div id="match-mode" class="mode-panel" style="display:none">
-            <div class="match-container">
-                <div id="match-left" class="match-column"></div>
-                <div id="match-right" class="match-column"></div>
-            </div>
-        </div>
+        // Bind move events
+        wrap.querySelectorAll('.btn-up').forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            const pos = parseInt(btn.dataset.pos, 10);
+            if (pos > 0) {
+              const temp = userSequence[pos];
+              userSequence[pos] = userSequence[pos - 1];
+              userSequence[pos - 1] = temp;
+              renderSequencer();
+            }
+          };
+        });
 
-        
-        <!-- 6. Reading comprehension -->
-        <div id="reading-mode" class="mode-panel" style="display:none">
-            <div class="reading-wrap">
-                <h3 id="reading-title" class="reading-title"></h3>
-                <div id="reading-passage" class="reading-passage"></div>
-                <div id="reading-question-text" class="choice-q"></div>
-                <div id="reading-options" class="options-grid"></div>
-            </div>
-        </div>
+        wrap.querySelectorAll('.btn-down').forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            const pos = parseInt(btn.dataset.pos, 10);
+            if (pos < userSequence.length - 1) {
+              const temp = userSequence[pos];
+              userSequence[pos] = userSequence[pos + 1];
+              userSequence[pos + 1] = temp;
+              renderSequencer();
+            }
+          };
+        });
+      }
 
-        <!-- 5. Listen (ฟังเสียงทายคำ) -->
-        <div id="listen-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
-                <button type="button" class="voice-btn" onclick="replayListenWord()">🔊 ฟังเสียงอีกครั้ง</button>
-                <p class="dictation-hint" id="listen-hint">ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง</p>
-                <div id="listen-options" class="options-grid"></div>
-            </div>
-        </div>
-    </div>
+      function checkSequence() {
+        const isAllCorrect = userSequence.every((item, pos) => item.originalIdx === pos);
+        const banner = document.getElementById('seqResultBanner');
+        banner.style.display = 'inline-block';
 
-    <!-- Bottom Toolbar -->
-    <div id="bottom-bar">
-        <div id="controls-row">
-            <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
-            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">📋 ภาพรวม</button>
-            <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
-            <button class="cbtn mbtn" id="m-reading" onclick="switchMode('reading')">📖 อ่านแล้วตอบ</button>
-            <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทาย</button>
-            <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามบอก</button>
-            <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">💡 ทายความหมาย</button>
-            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
-        </div>
-        <div id="dots"></div>
-        <div id="score-display" style="display:none">
-            <span id="life-display">❤️❤️❤️❤️❤️</span>
-            <span class="sd-score">คะแนน <strong id="score-val">0</strong></span>
-        </div>
-    </div>
-</div>
+        if (isAllCorrect) {
+          banner.style.color = 'var(--emerald-dark)';
+          banner.textContent = '🎉 ยอดเยี่ยมมาก! เรียงลำดับเหตุการณ์ถูกต้องทั้งหมด';
+          if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
+        } else {
+          banner.style.color = 'var(--rose)';
+          banner.textContent = 'ยังไม่ถูกต้อง ลองสังเกตเหตุการณ์ที่เกิดขึ้นเป็นลำดับแรกดูใหม่อีกครั้ง';
+          if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
+        }
+      }
 
-<!-- Game Over screen -->
-<div id="gameover-screen" style="display:none">
-    <h1 id="go-title">🎉 ทบทวนสำเร็จ!</h1>
-    <div id="star-display" style="display:none"></div>
-    <p style="display:none">คะแนนสะสมสูงสุดของคุณ</p>
-    <div id="final-score" style="display:none">0</div>
-    <p id="go-summary"></p>
+      // =========================================================
+      // 6. MODE 4: PRACTICE QUIZ CHALLENGE
+      // =========================================================
+      function initQuiz() {
+        quizIndex = 0;
+        quizScore = 0;
+        quizStreak = 0;
+        quizAnswered = false;
+        document.getElementById('quizStoryTitle').textContent = curStory.title;
+        renderQuizQuestion();
+      }
 
-    <!-- คำที่ตอบผิด (ไว้ทบทวนซ้ำ) -->
-    <div id="missed-box" class="missed-box" style="display:none">
-        <h3 class="missed-title">📝 คำที่ควรทบทวน</h3>
-        <ul id="missed-list" class="missed-list"></ul>
-    </div>
+      function renderQuizQuestion() {
+        quizAnswered = false;
+        if (!curStory.questions || curStory.questions.length === 0) return;
 
-    <div class="leaderboard-box" style="display:none">
-        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
-        <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
-    </div>
+        const q = curStory.questions[quizIndex % curStory.questions.length];
+        document.getElementById('quizCounterText').textContent = `ข้อที่ ${(quizIndex % curStory.questions.length) + 1} / ${curStory.questions.length}`;
+        document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+        document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+        document.getElementById('quizQuestionText').textContent = q.q;
 
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 ฝึกซ้อมใหม่</button>
-        <button class="btn btn-blue" onclick="returnToHub()">← กลับหน้าสารบัญ</button>
-    </div>
-</div>
+        const choicesWrap = document.getElementById('quizChoicesGrid');
+        choicesWrap.innerHTML = '';
 
-<!-- Confetti canvas -->
-<canvas id="confetti-canvas"></canvas>
+        q.choices.forEach((c, cIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'choice-btn';
+          btn.dataset.idx = cIdx;
+          btn.innerHTML = `<span style="font-weight:800; color:var(--indigo); min-width:24px;">${String.fromCharCode(65 + cIdx)}.</span> <span>${c}</span>`;
+          btn.onclick = () => handleQuizChoice(cIdx);
+          choicesWrap.appendChild(btn);
+        });
 
-<!-- ═══ Toast feedback ═══ -->
-<div id="toast" class="toast">แจ้งเตือน</div>
+        document.getElementById('quizExplanationBox').style.display = 'none';
+        document.getElementById('quizNextWrap').style.display = 'none';
+      }
 
-<!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
-<script src="/games/kampai-sdk.js"></script>
-<script>
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
-</script>
-<script src="/games/kampai-match.js"></script>
-<script>
-window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
-</script>
+      function handleQuizChoice(choiceIdx) {
+        if (quizAnswered) return;
+        quizAnswered = true;
 
-<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
-<script src="config.js"></script>
-<script src="data.js"></script>
-<script src="game.js"></script>
+        const q = curStory.questions[quizIndex % curStory.questions.length];
+        const isCorrect = (choiceIdx === q.a);
+        const buttons = document.querySelectorAll('.choice-btn');
+
+        buttons.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === q.a) {
+            btn.classList.add('correct');
+          } else if (idx === choiceIdx) {
+            btn.classList.add('wrong');
+          }
+        });
+
+        if (isCorrect) {
+          quizScore += 10;
+          quizStreak += 1;
+          if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
+        } else {
+          quizStreak = 0;
+          if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
+        }
+
+        document.getElementById('quizStreakText').textContent = `🔥 ต่อเนื่อง: ${quizStreak}`;
+        document.getElementById('quizScoreText').textContent = `คะแนน: ${quizScore}`;
+
+        const expBox = document.getElementById('quizExplanationBox');
+        expBox.style.display = 'block';
+        expBox.innerHTML = `<strong>${isCorrect ? '✅ ถูกต้อง!' : '❌ ยังไม่ถูกต้อง'}</strong> ${q.ex}`;
+
+        document.getElementById('quizNextWrap').style.display = 'flex';
+      }
+
+      // =========================================================
+      // 7. TTS AUDIO NARRATION
+      // =========================================================
+      function speakThaiText(text) {
+        if (!isAudioActive) return;
+
+        if (window.KAMPAI?.sound?.speak) {
+          window.KAMPAI.sound.speak(text, 'th-TH');
+          return;
+        }
+
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'th-TH';
+          utter.rate = 0.9;
+          curUtterance = utter;
+          window.speechSynthesis.speak(utter);
+        }
+      }
+
+      // =========================================================
+      // 8. CONTROLS & EVENT BINDINGS
+      // =========================================================
+      function bindControls() {
+        // Mode Switch
+        const modeButtons = document.querySelectorAll('#modeNav .mode-btn');
+        modeButtons.forEach(btn => {
+          btn.onclick = () => {
+            const targetMode = btn.dataset.mode;
+            switchMode(targetMode);
+          };
+        });
+
+        // Grade Filter
+        const gradeButtons = document.querySelectorAll('#gradeSeg .grade-btn');
+        gradeButtons.forEach(btn => {
+          btn.onclick = () => {
+            currentGrade = btn.dataset.grade;
+            gradeButtons.forEach(b => b.classList.toggle('active', b === btn));
+            filterStories();
+            selectStoryByIndex(0);
+          };
+        });
+
+        // Story Navigation
+        document.getElementById('btnPrevStory').onclick = () => selectStoryByIndex(curStoryIndex - 1);
+        document.getElementById('btnNextStory').onclick = () => selectStoryByIndex(curStoryIndex + 1);
+        document.getElementById('btnRandomStory').onclick = () => {
+          const randIdx = Math.floor(Math.random() * stories.length);
+          selectStoryByIndex(randIdx);
+        };
+        document.getElementById('storyDropdown').onchange = (e) => {
+          selectStoryByIndex(parseInt(e.target.value, 10));
+        };
+
+        // TTS Audio Toggle
+        document.getElementById('btnTtsToggle').onclick = () => {
+          isAudioActive = !isAudioActive;
+          document.getElementById('ttsLabel').textContent = `เสียงอ่าน: ${isAudioActive ? 'เปิด' : 'ปิด'}`;
+          document.getElementById('ttsIcon').textContent = isAudioActive ? '🔊' : '🔇';
+          if (!isAudioActive && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+        };
+
+        // Font Scalers
+        document.getElementById('btnFontDec').onclick = () => {
+          fontScale = Math.max(0.85, Math.round((fontScale - 0.1) * 100) / 100);
+          document.documentElement.style.setProperty('--font-scale', fontScale);
+        };
+        document.getElementById('btnFontInc').onclick = () => {
+          fontScale = Math.min(1.4, Math.round((fontScale + 0.1) * 100) / 100);
+          document.documentElement.style.setProperty('--font-scale', fontScale);
+        };
+
+        // Fullscreen
+        document.getElementById('btnFullscreen').onclick = () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        };
+
+        // Mode 1: Highlights & Audio
+        document.getElementById('btnPlayPassageAudio').onclick = () => {
+          speakThaiText(curStory.passage);
+        };
+        document.getElementById('btnToggleTopicHighlight').onclick = (e) => {
+          showTopicHighlight = !showTopicHighlight;
+          e.currentTarget.classList.toggle('btn-gold', showTopicHighlight);
+          renderPassageContent();
+        };
+        document.getElementById('btnToggleKeywordHighlight').onclick = (e) => {
+          showKeywordHighlight = !showKeywordHighlight;
+          e.currentTarget.classList.toggle('btn-emerald', showKeywordHighlight);
+          renderPassageContent();
+        };
+
+        // Mode 2: Detective Answers & Next
+        document.getElementById('btnAnswerFact').onclick = () => handleDetectiveAnswer(true);
+        document.getElementById('btnAnswerOpinion').onclick = () => handleDetectiveAnswer(false);
+        document.getElementById('btnDetNext').onclick = () => {
+          detIndex++;
+          renderDetectiveItem();
+        };
+
+        // Mode 3: Sequencer Check & Shuffle
+        document.getElementById('btnCheckSequence').onclick = checkSequence;
+        document.getElementById('btnShuffleSequence').onclick = () => {
+          shuffle(userSequence);
+          renderSequencer();
+          document.getElementById('seqResultBanner').style.display = 'none';
+        };
+
+        // Mode 4: Quiz Next
+        document.getElementById('btnQuizNext').onclick = () => {
+          quizIndex++;
+          renderQuizQuestion();
+        };
+
+        // Smartboard Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+          switch (e.key) {
+            case '1':
+              switchMode('read');
+              break;
+            case '2':
+              switchMode('detective');
+              break;
+            case '3':
+              switchMode('sequencer');
+              break;
+            case '4':
+              switchMode('quiz');
+              break;
+            case ' ':
+              e.preventDefault();
+              if (currentMode === 'read') {
+                speakThaiText(curStory.passage);
+              } else if (currentMode === 'detective') {
+                const curItem = detItems[detIndex % detItems.length];
+                if (curItem) speakThaiText(curItem.text);
+              }
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              selectStoryByIndex(curStoryIndex - 1);
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              selectStoryByIndex(curStoryIndex + 1);
+              break;
+            case 'f':
+            case 'F':
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              } else {
+                document.exitFullscreen().catch(() => {});
+              }
+              break;
+          }
+        });
+      }
+
+      function switchMode(targetMode) {
+        currentMode = targetMode;
+        document.querySelectorAll('#modeNav .mode-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.mode === targetMode);
+        });
+
+        document.getElementById('secRead').classList.toggle('active', targetMode === 'read');
+        document.getElementById('secDetective').classList.toggle('active', targetMode === 'detective');
+        document.getElementById('secSequencer').classList.toggle('active', targetMode === 'sequencer');
+        document.getElementById('secQuiz').classList.toggle('active', targetMode === 'quiz');
+
+        if (targetMode === 'read') renderMode1();
+        if (targetMode === 'detective') renderDetectiveItem();
+        if (targetMode === 'sequencer') renderSequencer();
+        if (targetMode === 'quiz') renderQuizQuestion();
+      }
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      // 9. AUTOMATION STATE HOOK
+      window.__getState = function () {
+        return {
+          mode: currentMode,
+          curStoryId: curStory ? curStory.id : null,
+          curStoryTitle: curStory ? curStory.title : null,
+          curStoryIndex,
+          totalStories: stories.length,
+          currentGrade,
+          currentCategory,
+          fontScale,
+          isAudioActive,
+          showTopicHighlight,
+          showKeywordHighlight,
+          detIndex,
+          detScore,
+          quizIndex,
+          quizScore,
+          quizStreak,
+          quizAnswered
+        };
+      };
+
+      // RUN
+      init();
+    })();
+  </script>
 </body>
 </html>

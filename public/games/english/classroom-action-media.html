@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classroom Action & TPR Commands Studio — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #f59e0b;
+      --gold-hover: #d97706;
+      --gold-light: #fef3c7;
+      --navy: #1e3a8a;
+      --navy-dark: #0f172a;
+      --navy-light: #e0e7ff;
+      --slate: #334155;
+      --slate-light: #f8fafc;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --emerald: #059669;
+      --emerald-hover: #047857;
+      --emerald-light: #ecfdf5;
+      --rose: #e11d48;
+      --rose-hover: #be123c;
+      --rose-light: #ffe4e6;
+      --card-bg: #ffffff;
+      --curtain-red: #881337;
+      --curtain-dark: #4c0519;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 40%, #fef3c7 100%);
+      min-height: 100vh;
+      color: var(--navy-dark);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #172554 60%, #0f172a 100%);
+      color: #ffffff;
+      border-bottom: 3px solid var(--gold);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .badge-grade {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.7);
+      color: #fde047;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-hdr:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    .select-hdr {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      min-height: 44px;
+      outline: none;
+    }
+    .select-hdr option {
+      background: var(--navy-dark);
+      color: #ffffff;
+    }
+
+    /* SHORTCUT BAR */
+    .shortcut-bar {
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--border-light);
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      color: var(--slate);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .shortcut-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .kbd-tag {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: var(--navy);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    /* NAVIGATION TABS */
+    nav.nav-tabs {
+      display: flex;
+      background: #f8fafc;
+      border-bottom: 2px solid var(--border-light);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px 12px;
+      gap: 8px;
+      width: 100%;
+    }
+    nav.nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 1 0px;
+      min-width: 150px;
+      min-height: 48px;
+      padding: 10px 14px;
+      border: 2px solid transparent;
+      background: transparent;
+      color: var(--slate);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tab-btn:hover {
+      background: rgba(30, 58, 138, 0.06);
+      color: var(--navy);
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--navy);
+      border-color: var(--navy);
+      box-shadow: 0 3px 10px rgba(30, 58, 138, 0.12);
+    }
+
+    /* MAIN CONTENT & PANELS */
+    main.content {
+      padding: 18px 16px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+    .panel {
+      display: none;
+      animation: panelFadeIn 0.2s ease-out forwards;
+      width: 100%;
+    }
+    .panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    @keyframes panelFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS & CONTAINERS */
+    .card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1.5px solid var(--border-light);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .cat-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--gold-light);
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    /* FILTER PILLS */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-pill {
+      background: #f1f5f9;
+      border: 1.5px solid var(--border);
+      color: var(--slate);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      min-width: 44px;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover {
+      background: #e2e8f0;
+      color: var(--navy-dark);
+    }
+    .filter-pill.active {
+      background: var(--navy);
+      border-color: var(--navy-dark);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
+    }
+
+    /* ACTION BUTTONS */
+    .btn-act {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      min-width: 46px;
+      border: none;
+      transition: all 0.15s ease;
+      user-select: none;
+      text-align: center;
+    }
+    .btn-act:hover {
+      transform: translateY(-1px);
+    }
+    .btn-act:active {
+      transform: translateY(1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+    }
+    .btn-navy {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+    }
+    .btn-navy:hover {
+      box-shadow: 0 6px 16px rgba(30, 58, 138, 0.35);
+    }
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-hover) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+    .btn-emerald:hover {
+      box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+    }
+    .btn-rose {
+      background: linear-gradient(135deg, var(--rose) 0%, var(--rose-hover) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+    }
+    .btn-rose:hover {
+      box-shadow: 0 6px 16px rgba(225, 29, 72, 0.35);
+    }
+    .btn-outline {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      color: var(--navy-dark);
+    }
+    .btn-outline:hover {
+      border-color: var(--navy);
+      background: #f8fafc;
+    }
+
+    /* THEATER STAGE & CURTAIN */
+    .theater-stage {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      min-height: 380px;
+      height: 380px;
+      border-radius: 20px;
+      border: 3px solid #cbd5e1;
+      overflow: hidden;
+      background: #f8fafc;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 480px) {
+      .theater-stage {
+        height: 340px;
+        min-height: 340px;
+      }
+    }
+
+    .stage-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      gap: 12px;
+    }
+    .stage-img-wrap {
+      width: 170px;
+      height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 2px solid #e2e8f0;
+      padding: 10px;
+    }
+    .stage-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .stage-emoji-fallback {
+      font-size: 5rem;
+      line-height: 1;
+      display: none;
+    }
+    .stage-en {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--navy-dark);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    @media (max-width: 480px) {
+      .stage-en { font-size: 1.75rem; }
+    }
+    .stage-ph {
+      font-size: 1.05rem;
+      font-family: 'Courier New', monospace;
+      color: #64748b;
+      font-weight: 700;
+      background: #f1f5f9;
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+    .stage-th {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--emerald-hover);
+    }
+
+    /* THE CURTAIN OVERLAY */
+    #blindCurtain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        #881337 0px,
+        #881337 28px,
+        #9f1239 28px,
+        #9f1239 56px,
+        #be123c 56px,
+        #be123c 84px,
+        #701a75 84px,
+        #701a75 112px
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      color: #ffffff;
+      z-index: 10;
+      border-bottom: 6px solid var(--gold);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    }
+    #blindCurtain.revealed {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .curtain-gold-trim {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 14px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #d97706, #f59e0b);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+    }
+    .curtain-icon {
+      font-size: 4rem;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+    .curtain-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fef08a;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      margin-bottom: 6px;
+    }
+    .curtain-desc {
+      font-size: 1rem;
+      color: #fecdd3;
+      max-width: 420px;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* CONTROL GRIDS */
+    .controls-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* SIMON SAYS MODE */
+    .simon-box {
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+      border-radius: 20px;
+      border: 3px solid var(--border);
+      padding: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+    .simon-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+    .simon-badge.simon-true {
+      background: #dcfce7;
+      color: #166534;
+      border: 2px solid #86efac;
+    }
+    .simon-badge.simon-false {
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #fde68a;
+    }
+    .simon-cmd-text {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--navy-dark);
+      line-height: 1.2;
+    }
+    @media (max-width: 480px) {
+      .simon-cmd-text { font-size: 1.7rem; }
+    }
+    .simon-rule-hint {
+      background: #f8fafc;
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: var(--slate);
+      line-height: 1.4;
+      width: 100%;
+    }
+    .simon-judge-area {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1.5px solid var(--border-light);
+      padding-top: 16px;
+    }
+    .judge-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .judge-feedback {
+      display: none;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.4;
+      animation: feedbackPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .judge-feedback.show {
+      display: block;
+    }
+    .judge-feedback.correct {
+      background: var(--emerald-light);
+      color: var(--emerald-hover);
+      border: 2px solid #a7f3d0;
+    }
+    .judge-feedback.wrong {
+      background: var(--rose-light);
+      color: var(--rose-hover);
+      border: 2px solid #fecdd3;
+    }
+    @keyframes feedbackPop {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* SPEED RANDOMIZER MODE */
+    .speed-box {
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+      border-radius: 20px;
+      border: 3px solid var(--border);
+      padding: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+    .speed-progress-track {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .speed-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f59e0b, #10b981);
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+    .speed-rate-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .speed-rate-btn {
+      min-height: 44px;
+      min-width: 90px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--slate);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .speed-rate-btn:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+    .speed-rate-btn.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
+    }
+
+    /* SENTENCE BUILDER MODE */
+    .builder-box {
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+      border-radius: 20px;
+      border: 3px solid var(--border);
+      padding: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .target-cue-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      padding: 12px 18px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .target-cue-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      object-fit: contain;
+      padding: 4px;
+    }
+    .target-cue-info {
+      flex: 1;
+      min-width: 180px;
+    }
+    .target-cue-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+    }
+    .target-cue-th {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--emerald-hover);
+    }
+
+    .builder-slots-row {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .word-slot {
+      flex: 1;
+      min-width: 160px;
+      min-height: 72px;
+      border: 2.5px dashed var(--border);
+      border-radius: 14px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .word-slot:hover {
+      border-color: var(--navy);
+      background: #f1f5f9;
+    }
+    .word-slot.filled {
+      border-style: solid;
+      border-color: var(--navy);
+      background: #eff6ff;
+    }
+    .word-slot.correct {
+      border-style: solid;
+      border-color: var(--emerald);
+      background: var(--emerald-light);
+      box-shadow: 0 0 15px rgba(5, 150, 105, 0.3);
+    }
+    .word-slot.wrong {
+      border-style: solid;
+      border-color: var(--rose);
+      background: var(--rose-light);
+      animation: shake 0.35s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .slot-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .slot-text {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .word-bank {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-light);
+    }
+    .word-chip {
+      min-height: 48px;
+      min-width: 80px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .word-chip:hover {
+      border-color: var(--navy);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+    }
+    .word-chip:active {
+      transform: translateY(0);
+    }
+    .word-chip.used {
+      opacity: 0.35;
+      pointer-events: none;
+      border-style: dashed;
+      background: #f1f5f9;
+    }
+    .word-chip.verb-type {
+      border-color: #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+    }
+    .word-chip.target-type {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .builder-feedback {
+      display: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      width: 100%;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .builder-feedback.show {
+      display: block;
+    }
+    .builder-feedback.correct {
+      background: var(--emerald-light);
+      color: var(--emerald-hover);
+      border: 2px solid #a7f3d0;
+    }
+    .builder-feedback.wrong {
+      background: var(--rose-light);
+      color: var(--rose-hover);
+      border: 2px solid #fecdd3;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--slate);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+<div class="shell">
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>
+        <span>🏃‍♂️</span>
+        <span>Classroom Action & TPR Studio</span>
+      </h1>
+      <span class="badge-grade">ประถมศึกษา K-6</span>
+    </div>
+    <div class="header-right">
+      <select id="selVoiceAccent" class="select-hdr" aria-label="สำเนียงเสียงภาษาอังกฤษ">
+        <option value="en-US">🇺🇸 US English</option>
+        <option value="en-GB">🇬🇧 UK English</option>
+      </select>
+      <button id="btnAudioToggle" class="btn-hdr" aria-label="เปิดหรือปิดเสียงพูด">
+        <span id="audioIcon">🔊</span>
+        <span id="audioLabel">เปิดเสียง</span>
+      </button>
+      <a href="/games/english/classroom-action-worksheet.html" class="btn-hdr" aria-label="ไปที่ใบงานคู่ขนาน A4">
+        <span>📄</span>
+        <span>ใบงาน A4</span>
+      </a>
+      <button id="btnFullscreen" class="btn-hdr" aria-label="สลับโหมดเต็มหน้าจอ">
+        <span>⛶</span>
+        <span>เต็มจอ (F)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SHORTCUT BAR -->
+  <div class="shortcut-bar">
+    <span>💡 <strong>คำแนะนำ Smartboard:</strong> ใช้หน้าจอสัมผัส หรือแป้นพิมพ์ครูสำหรับควบคุมอย่างรวดเร็ว</span>
+    <div class="shortcut-tags">
+      <span><span class="kbd-tag">1-4</span> สลับโหมด</span>
+      <span><span class="kbd-tag">Space</span> ฟังเสียง</span>
+      <span><span class="kbd-tag">Enter / R</span> เปิด/ปิดม่าน</span>
+      <span><span class="kbd-tag">⬅ / ➔</span> เปลี่ยนคำสั่ง</span>
+      <span><span class="kbd-tag">F</span> เต็มจอ</span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn mode-btn active" data-mode="blind" role="tab" aria-selected="true" id="tab-blind">
+      <span>🙈</span>
+      <span>1. ปิดภาพทายท่าทาง</span>
+    </button>
+    <button class="tab-btn mode-btn" data-mode="simon" role="tab" aria-selected="false" id="tab-simon">
+      <span>📢</span>
+      <span>2. ครูสั่งว่า... (Simon Says)</span>
+    </button>
+    <button class="tab-btn mode-btn" data-mode="speed" role="tab" aria-selected="false" id="tab-speed">
+      <span>⚡</span>
+      <span>3. สุ่มสปีด (Speed Run)</span>
+    </button>
+    <button class="tab-btn mode-btn" data-mode="builder" role="tab" aria-selected="false" id="tab-builder">
+      <span>🧩</span>
+      <span>4. ต่อประโยคคำสั่ง</span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- PANEL 1: BLIND LISTEN & REVEAL -->
+    <section id="panel-blind" class="panel active" role="tabpanel" aria-labelledby="tab-blind">
+      <div class="card">
+        <div class="card-title">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span>🙈 โหมดปิดภาพทายท่าทาง (Blind Listen & Reveal)</span>
+            <span id="blindCounter" class="cat-badge">คำสั่งที่ 1 / 26</span>
+          </div>
+          <span id="blindCategoryBadge" class="cat-badge">ท่าทางพื้นฐาน</span>
+        </div>
+
+        <!-- CATEGORY FILTERS -->
+        <div class="filter-row">
+          <button class="filter-pill active" data-cat="all">ทั้งหมด (26)</button>
+          <button class="filter-pill" data-cat="movements">ท่าทางพื้นฐาน (7)</button>
+          <button class="filter-pill" data-cat="directions">ทิศทางและตำแหน่ง (6)</button>
+          <button class="filter-pill" data-cat="face_gestures">ใบหน้าและอวัยวะ (7)</button>
+          <button class="filter-pill" data-cat="emotions">อารมณ์/การแสดงออก (6)</button>
+        </div>
+
+        <!-- THEATER STAGE WITH CURTAIN -->
+        <div class="theater-stage" id="theaterStage">
+          <!-- UNDER-CURTAIN CONTENT -->
+          <div class="stage-content">
+            <div class="stage-img-wrap">
+              <img id="blindImg" src="" alt="Action illustration" class="stage-img"
+                   onerror="this.style.display='none'; document.getElementById('blindEmojiFallback').style.display='block';" />
+              <div id="blindEmojiFallback" class="stage-emoji-fallback">🧍</div>
+            </div>
+            <div id="blindEn" class="stage-en">Stand up!</div>
+            <div id="blindPh" class="stage-ph">/stænd ʌp/</div>
+            <div id="blindTh" class="stage-th">ลุกขึ้นยืน</div>
+          </div>
+
+          <!-- CURTAIN OVERLAY -->
+          <div id="blindCurtain">
+            <div class="curtain-icon">🎧</div>
+            <div class="curtain-title">ม่านปิดภาพอยู่ — ตั้งใจฟังเสียง!</div>
+            <div class="curtain-desc">
+              ฟังเสียงคำสั่งภาษาอังกฤษจากครู แล้วทำท่าทางให้ถูกต้อง<br>
+              เมื่อนักเรียนทำท่าทางพร้อมแล้ว ให้กดเปิดเฉลยภาพ
+            </div>
+            <div class="curtain-gold-trim"></div>
+          </div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls-grid">
+          <button id="btnBlindCurtain" class="btn-act btn-primary" style="min-width: 170px;">
+            <span id="curtainBtnIcon">👁️</span>
+            <span id="curtainBtnLabel">เปิดเฉลยภาพ (R)</span>
+          </button>
+          <button id="btnBlindSpeak" class="btn-act btn-navy">
+            <span>🔊</span>
+            <span>ฟังเสียงคำสั่ง (Space)</span>
+          </button>
+          <button id="btnBlindSpeakTh" class="btn-act btn-outline">
+            <span>🇹🇭</span>
+            <span>คำแปลภาษาไทย</span>
+          </button>
+          <button id="btnBlindPrev" class="btn-act btn-outline">
+            <span>⬅</span>
+            <span>ก่อนหน้า</span>
+          </button>
+          <button id="btnBlindNext" class="btn-act btn-outline">
+            <span>ถัดไป</span>
+            <span>➔</span>
+          </button>
+          <button id="btnBlindRandom" class="btn-act btn-outline">
+            <span>🎲</span>
+            <span>สุ่มคำสั่ง</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 2: SIMON SAYS CHALLENGE -->
+    <section id="panel-simon" class="panel" role="tabpanel" aria-labelledby="tab-simon">
+      <div class="card">
+        <div class="card-title">
+          <span>📢 โหมดเกม "ครูสั่งว่า..." (Simon Says Challenge)</span>
+          <span id="simonRoundCounter" class="cat-badge">รอบที่ 1</span>
+        </div>
+
+        <div class="simon-box">
+          <div id="simonBadge" class="simon-badge simon-true">
+            <span id="simonBadgeIcon">📢</span>
+            <span id="simonBadgeText">Simon says...</span>
+          </div>
+
+          <div class="stage-img-wrap" style="width:140px; height:140px;">
+            <img id="simonImg" src="" alt="Action" class="stage-img"
+                 onerror="this.style.display='none'; document.getElementById('simonEmojiFallback').style.display='block';" />
+            <div id="simonEmojiFallback" class="stage-emoji-fallback" style="font-size:4rem;">🧍</div>
+          </div>
+
+          <div id="simonCmdText" class="simon-cmd-text">Stand up!</div>
+          <div id="simonThText" style="font-size:1.15rem; font-weight:700; color:var(--slate);">ลุกขึ้นยืน</div>
+
+          <div class="simon-rule-hint">
+            <strong>🎯 กฎของเกม Simon Says:</strong><br>
+            • ถ้ามีคำว่า <strong>"Simon says..."</strong> ➜ นักเรียนในห้อง <strong>ต้องทำตามคำสั่ง!</strong><br>
+            • ถ้า<strong>ไม่มี</strong>คำว่า "Simon says" (คำสั่งเดี่ยว) ➜ นักเรียน <strong>ต้องอยู่นิ่งๆ ห้ามขยับตัว!</strong>
+          </div>
+
+          <!-- TEACHER JUDGE PANEL -->
+          <div class="simon-judge-area">
+            <div class="judge-title">👨‍🏫 แผงตัดสินสำหรับคุณครู (คลิกเพื่อเฉลย):</div>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; width:100%;">
+              <button id="btnJudgeObey" class="btn-act btn-emerald" style="flex:1; min-width:180px;">
+                <span>✅</span>
+                <span>ต้องทำตาม (Obey)</span>
+              </button>
+              <button id="btnJudgeFreeze" class="btn-act btn-rose" style="flex:1; min-width:180px;">
+                <span>🛑</span>
+                <span>ต้องอยู่นิ่งๆ (Freeze)</span>
+              </button>
+            </div>
+            <div id="simonJudgeFeedback" class="judge-feedback"></div>
+          </div>
+
+          <div class="controls-grid" style="margin-top:8px;">
+            <button id="btnSimonSpeak" class="btn-act btn-navy">
+              <span>🔊</span>
+              <span>ออกเสียงคำสั่ง (Space)</span>
+            </button>
+            <button id="btnSimonNew" class="btn-act btn-primary" style="min-width:160px;">
+              <span>🎲</span>
+              <span>สุ่มรอบถัดไป ➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 3: SPEED RANDOMIZER -->
+    <section id="panel-speed" class="panel" role="tabpanel" aria-labelledby="tab-speed">
+      <div class="card">
+        <div class="card-title">
+          <span>⚡ โหมดสุ่มสปีดคำสั่ง (Speed Randomizer Warm-up)</span>
+          <span id="speedStatusBadge" class="cat-badge">พร้อมเริ่ม</span>
+        </div>
+
+        <div class="speed-box">
+          <!-- PROGRESS BAR -->
+          <div class="speed-progress-track">
+            <div id="speedProgressBar" class="speed-progress-bar"></div>
+          </div>
+
+          <!-- SPEED PILLS -->
+          <div class="speed-rate-buttons">
+            <button class="speed-rate-btn" data-speed="3500">🐢 ช้า (3.5 วิ)</button>
+            <button class="speed-rate-btn active" data-speed="2500">🏃 ปานกลาง (2.5 วิ)</button>
+            <button class="speed-rate-btn" data-speed="1500">⚡ เร็ว (1.5 วิ)</button>
+          </div>
+
+          <!-- DISPLAY CARD -->
+          <div class="stage-img-wrap" style="width:160px; height:160px;">
+            <img id="speedImg" src="" alt="Speed action" class="stage-img"
+                 onerror="this.style.display='none'; document.getElementById('speedEmojiFallback').style.display='block';" />
+            <div id="speedEmojiFallback" class="stage-emoji-fallback" style="font-size:4.5rem;">🧍</div>
+          </div>
+
+          <div id="speedEn" class="stage-en">Stand up!</div>
+          <div id="speedPh" class="stage-ph">/stænd ʌp/</div>
+          <div id="speedTh" class="stage-th">ลุกขึ้นยืน</div>
+
+          <!-- CONTROLS -->
+          <div class="controls-grid" style="margin-top:10px;">
+            <button id="btnSpeedToggle" class="btn-act btn-primary" style="min-width:180px;">
+              <span id="speedToggleIcon">▶</span>
+              <span id="speedToggleLabel">เริ่มสุ่มคำสั่ง (Start)</span>
+            </button>
+            <button id="btnSpeedNext" class="btn-act btn-navy">
+              <span>⏭</span>
+              <span>สุ่มทันที</span>
+            </button>
+            <button id="btnSpeedSpeak" class="btn-act btn-outline">
+              <span>🔊</span>
+              <span>ฟังเสียง</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 4: COMMAND SENTENCE BUILDER -->
+    <section id="panel-builder" class="panel" role="tabpanel" aria-labelledby="tab-builder">
+      <div class="card">
+        <div class="card-title">
+          <span>🧩 โหมดตัวต่อประโยคคำสั่ง (Command Sentence Builder)</span>
+          <span id="builderCounter" class="cat-badge">ข้อที่ 1 / 26</span>
+        </div>
+
+        <div class="builder-box">
+          <!-- TARGET CUE -->
+          <div class="target-cue-card">
+            <img id="builderCueImg" src="" alt="Target" class="target-cue-img"
+                 onerror="this.style.display='none'; document.getElementById('builderCueEmoji').style.display='block';" />
+            <div id="builderCueEmoji" class="stage-emoji-fallback" style="font-size:2.8rem; display:none;">🧍</div>
+            <div class="target-cue-info">
+              <div class="target-cue-title">สร้างประโยคคำสั่งให้ตรงกับภาพ:</div>
+              <div id="builderCueTh" class="target-cue-th">"ลุกขึ้นยืน"</div>
+            </div>
+            <button id="btnBuilderSpeakCue" class="btn-act btn-outline" style="min-height:44px; padding:6px 12px;" aria-label="ฟังคำแปล">
+              <span>🔊 ฟังเสียงคำสั่ง</span>
+            </button>
+          </div>
+
+          <!-- WORD SLOTS -->
+          <div class="builder-slots-row">
+            <div id="slotVerb" class="word-slot" data-slot="0" title="แตะเพื่อนำคำออก">
+              <span class="slot-label">ช่องที่ 1: กริยา (Action Verb)</span>
+              <span id="slotVerbText" class="slot-text">[ แตะเลือกคำกริยา ]</span>
+            </div>
+            <div id="slotTarget" class="word-slot" data-slot="1" title="แตะเพื่อนำคำออก">
+              <span class="slot-label">ช่องที่ 2: ทิศทาง/อวัยวะ (Target / Direction)</span>
+              <span id="slotTargetText" class="slot-text">[ แตะเลือกเป้าหมาย ]</span>
+            </div>
+          </div>
+
+          <!-- FEEDBACK -->
+          <div id="builderFeedback" class="builder-feedback"></div>
+
+          <!-- WORD BANK -->
+          <div style="width:100%; text-align:left;">
+            <div style="font-size:0.9rem; font-weight:700; color:var(--slate); margin-bottom:8px;">
+              📦 คลังคำศัพท์ (แตะคำศัพท์เพื่อนำไปใส่ในช่อง):
+            </div>
+            <div id="builderWordBank" class="word-bank"></div>
+          </div>
+
+          <!-- CONTROLS -->
+          <div class="controls-grid" style="width:100%; justify-content:space-between;">
+            <button id="btnBuilderClear" class="btn-act btn-outline">
+              <span>🔄</span>
+              <span>ล้างช่องคำ</span>
+            </button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="btnBuilderPrev" class="btn-act btn-outline">
+                <span>⬅ ข้อก่อนหน้า</span>
+              </button>
+              <button id="btnBuilderNext" class="btn-act btn-emerald" style="min-width:140px;">
+                <span>ข้อถัดไป ➔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>สื่อการสอนอินเทอร์แอ็กทีฟภาษาอังกฤษ TPR Commands & Classroom Action Studio</div>
+    <div style="opacity:0.8;">กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ · โรงเรียนบ้านคำไผ่ · สำนักงานเขตพื้นที่การศึกษาประถมศึกษามุกดาหาร</div>
+  </footer>
+</div>
+
+<script>
+/* 1. DATASET */
+const COMMANDS = [
+  {
+    "id": "stand-up",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Stand up!",
+    "clean": "Stand up",
+    "ph": "/stænd ʌp/",
+    "th": "ลุกขึ้นยืน",
+    "verb": "Stand",
+    "target": "up",
+    "img": "/games/english/tpr-actions/stand-up.webp",
+    "emoji": "🧍"
+  },
+  {
+    "id": "sit-down",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Sit down!",
+    "clean": "Sit down",
+    "ph": "/sɪt daʊn/",
+    "th": "นั่งลง",
+    "verb": "Sit",
+    "target": "down",
+    "img": "/games/english/tpr-actions/sit-down.webp",
+    "emoji": "🪑"
+  },
+  {
+    "id": "walk",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Walk!",
+    "clean": "Walk forward",
+    "ph": "/wɔːk/",
+    "th": "เดิน",
+    "verb": "Walk",
+    "target": "forward",
+    "img": "/games/english/tpr-actions/walk.webp",
+    "emoji": "🚶"
+  },
+  {
+    "id": "jump",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Jump!",
+    "clean": "Jump high",
+    "ph": "/dʒʌmp/",
+    "th": "กระโดด",
+    "verb": "Jump",
+    "target": "high",
+    "img": "/games/english/tpr-actions/jump.webp",
+    "emoji": "🦘"
+  },
+  {
+    "id": "squat-down",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Squat down!",
+    "clean": "Squat down",
+    "ph": "/skwɒt daʊn/",
+    "th": "นั่งย่อตัว",
+    "verb": "Squat",
+    "target": "down",
+    "img": "/games/english/tpr-actions/squat-down.webp",
+    "emoji": "🧘"
+  },
+  {
+    "id": "kneel-down",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Kneel down!",
+    "clean": "Kneel down",
+    "ph": "/niːl daʊn/",
+    "th": "คุกเข่าลง",
+    "verb": "Kneel",
+    "target": "down",
+    "img": "/games/english/tpr-actions/kneel-down.webp",
+    "emoji": "🧎"
+  },
+  {
+    "id": "run-fast",
+    "cat": "movements",
+    "catName": "ท่าทางพื้นฐาน",
+    "en": "Run in place!",
+    "clean": "Run in place",
+    "ph": "/rʌn ɪn pleɪs/",
+    "th": "วิ่งอยู่กับที่",
+    "verb": "Run",
+    "target": "in place",
+    "img": "/games/english/tpr-actions/run-fast.webp",
+    "emoji": "🏃"
+  },
+  {
+    "id": "turn-left",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Turn left!",
+    "clean": "Turn left",
+    "ph": "/tɜːn left/",
+    "th": "หันไปทางซ้าย",
+    "verb": "Turn",
+    "target": "left",
+    "img": "/games/english/tpr-actions/turn-left.webp",
+    "emoji": "⬅️"
+  },
+  {
+    "id": "turn-right",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Turn right!",
+    "clean": "Turn right",
+    "ph": "/tɜːn raɪt/",
+    "th": "หันไปทางขวา",
+    "verb": "Turn",
+    "target": "right",
+    "img": "/games/english/tpr-actions/turn-right.webp",
+    "emoji": "➡️"
+  },
+  {
+    "id": "turn-around",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Turn around!",
+    "clean": "Turn around",
+    "ph": "/tɜːn əˈraʊnd/",
+    "th": "หมุนรอบตัว / หันหลังกลับ",
+    "verb": "Turn",
+    "target": "around",
+    "img": "/games/english/tpr-actions/turn-around.webp",
+    "emoji": "🔄"
+  },
+  {
+    "id": "put-it-up",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Raise it high!",
+    "clean": "Raise it high",
+    "ph": "/reɪz ɪt haɪ/",
+    "th": "ชูขึ้นสูง / เอาไว้ข้างบน",
+    "verb": "Raise",
+    "target": "it high",
+    "img": "/games/english/tpr-actions/put-it-up.webp",
+    "emoji": "⬆️"
+  },
+  {
+    "id": "put-it-down",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Put it down!",
+    "clean": "Put it down",
+    "ph": "/pʊt ɪt daʊn/",
+    "th": "วางลง / เอาไว้ข้างล่าง",
+    "verb": "Put",
+    "target": "it down",
+    "img": "/games/english/tpr-actions/put-it-down.webp",
+    "emoji": "⬇️"
+  },
+  {
+    "id": "step-forward",
+    "cat": "directions",
+    "catName": "ทิศทางและตำแหน่ง",
+    "en": "Step forward!",
+    "clean": "Step forward",
+    "ph": "/step ˈfɔːwəd/",
+    "th": "ก้าวไปข้างหน้า",
+    "verb": "Step",
+    "target": "forward",
+    "img": "/games/english/tpr-actions/step-forward.webp",
+    "emoji": "🔼"
+  },
+  {
+    "id": "open-mouth",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Open your mouth!",
+    "clean": "Open your mouth",
+    "ph": "/ˈəʊpən jɔː maʊθ/",
+    "th": "อ้าปาก",
+    "verb": "Open",
+    "target": "your mouth",
+    "img": "/games/english/tpr-actions/open-mouth.webp",
+    "emoji": "👄"
+  },
+  {
+    "id": "close-left-eye",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Close your left eye!",
+    "clean": "Close your left eye",
+    "ph": "/kləʊz jɔː left aɪ/",
+    "th": "ปิดตาข้างซ้าย",
+    "verb": "Close",
+    "target": "your left eye",
+    "img": "/games/english/tpr-actions/close-left-eye.webp",
+    "emoji": "😉"
+  },
+  {
+    "id": "close-right-eye",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Close your right eye!",
+    "clean": "Close your right eye",
+    "ph": "/kləʊz jɔː raɪt aɪ/",
+    "th": "ปิดตาข้างขวา",
+    "verb": "Close",
+    "target": "your right eye",
+    "img": "/games/english/tpr-actions/close-right-eye.webp",
+    "emoji": "😜"
+  },
+  {
+    "id": "raise-hands",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Raise your hands!",
+    "clean": "Raise your hands",
+    "ph": "/reɪz jɔː hændz/",
+    "th": "ยกมือทั้งสองข้างขึ้น",
+    "verb": "Raise",
+    "target": "your hands",
+    "img": "/games/english/tpr-actions/raise-hands.webp",
+    "emoji": "🙌"
+  },
+  {
+    "id": "touch-head",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Touch your head!",
+    "clean": "Touch your head",
+    "ph": "/tʌtʃ jɔː hed/",
+    "th": "แตะศีรษะ",
+    "verb": "Touch",
+    "target": "your head",
+    "img": "/games/english/tpr-actions/touch-head.webp",
+    "emoji": "🙆"
+  },
+  {
+    "id": "clap-hands",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Clap your hands!",
+    "clean": "Clap your hands",
+    "ph": "/klæp jɔː hændz/",
+    "th": "ปรบมือ",
+    "verb": "Clap",
+    "target": "your hands",
+    "img": "/games/english/tpr-actions/clap-hands.webp",
+    "emoji": "👏"
+  },
+  {
+    "id": "touch-ears",
+    "cat": "face_gestures",
+    "catName": "ใบหน้าและอวัยวะ",
+    "en": "Touch your ears!",
+    "clean": "Touch your ears",
+    "ph": "/tʌtʃ jɔː ɪəz/",
+    "th": "แตะหูทั้งสองข้าง",
+    "verb": "Touch",
+    "target": "your ears",
+    "img": "/games/english/tpr-actions/touch-ears.webp",
+    "emoji": "👂"
+  },
+  {
+    "id": "laugh",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Laugh happily!",
+    "clean": "Laugh happily",
+    "ph": "/lɑːf ˈhæpɪli/",
+    "th": "หัวเราะอย่างมีความสุข 😄",
+    "verb": "Laugh",
+    "target": "happily",
+    "img": "/games/english/tpr-actions/laugh.webp",
+    "emoji": "😄"
+  },
+  {
+    "id": "cry",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Look sad and cry!",
+    "clean": "Look sad",
+    "ph": "/lʊk sæd ænd kraɪ/",
+    "th": "ทำหน้าเศร้าและร้องไห้ 😢",
+    "verb": "Look",
+    "target": "sad",
+    "img": "/games/english/tpr-actions/cry.webp",
+    "emoji": "😢"
+  },
+  {
+    "id": "shout-hooray",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Shout \"Hooray!\"",
+    "clean": "Shout Hooray",
+    "ph": "/ʃaʊt hʊˈreɪ/",
+    "th": "ตะโกนร้อง \"ไชโย!\" 🎉",
+    "verb": "Shout",
+    "target": "Hooray",
+    "img": "/games/english/tpr-actions/shout-hooray.webp",
+    "emoji": "🎉"
+  },
+  {
+    "id": "whisper-quietly",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Whisper quietly!",
+    "clean": "Whisper quietly",
+    "ph": "/ˈwɪspər ˈkwaɪətli/",
+    "th": "กระซิบเบาๆ 🤫",
+    "verb": "Whisper",
+    "target": "quietly",
+    "img": "/games/english/tpr-actions/whisper-quietly.webp",
+    "emoji": "🤫"
+  },
+  {
+    "id": "look-surprised",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Look surprised!",
+    "clean": "Look surprised",
+    "ph": "/lʊk səˈpraɪzd/",
+    "th": "ทำหน้าตกใจประหลาดใจ 😲",
+    "verb": "Look",
+    "target": "surprised",
+    "img": "/games/english/tpr-actions/look-surprised.webp",
+    "emoji": "😲"
+  },
+  {
+    "id": "yawn-sleepy",
+    "cat": "emotions",
+    "catName": "อารมณ์และการแสดงออก",
+    "en": "Yawn sleepily!",
+    "clean": "Yawn sleepily",
+    "ph": "/jɔːn ˈsliːpɪli/",
+    "th": "หาวนอนอย่างง่วงงุน 🥱",
+    "verb": "Yawn",
+    "target": "sleepily",
+    "img": "/games/english/tpr-actions/yawn-sleepy.webp",
+    "emoji": "🥱"
+  }
+];
+
+/* 2. STATE OBJECT */
+const state = {
+  mode: 'blind', // 'blind' | 'simon' | 'speed' | 'builder'
+  currentIndex: 0,
+  blindRevealed: false,
+  isSimonSays: true,
+  speedRunning: false,
+  speedInterval: 2500, // 3500 | 2500 | 1500
+  builderPlaced: [],   // [verb, target]
+  builderComplete: false,
+  voiceAccent: 'en-US',
+  ttsEnabled: true,
+  currentCategory: 'all'
+};
+
+/* 3. STATE INSPECTION HOOK */
+window.__getState = () => ({
+  mode: state.mode,
+  currentIndex: state.currentIndex,
+  totalCommands: COMMANDS.length,
+  blindRevealed: state.blindRevealed,
+  isSimonSays: state.isSimonSays,
+  speedRunning: state.speedRunning,
+  speedInterval: state.speedInterval,
+  builderPlaced: [...state.builderPlaced],
+  builderComplete: state.builderComplete,
+  voiceAccent: state.voiceAccent,
+  ttsEnabled: state.ttsEnabled
+});
+
+/* 4. KAMPAI SDK AUDIO UNLOCK & FALLBACK */
+if (!window.KAMPAI) {
+  window.KAMPAI = {
+    sound: {
+      unlock: () => {},
+      correct: () => {},
+      wrong: () => {},
+      play: () => {}
+    }
+  };
+}
+document.addEventListener('pointerdown', function unlockAudio() {
+  if (window.KAMPAI && window.KAMPAI.sound && window.KAMPAI.sound.unlock) {
+    try { window.KAMPAI.sound.unlock(); } catch (e) {}
+  }
+  document.removeEventListener('pointerdown', unlockAudio);
+}, { once: true });
+
+/* 5. WEB SPEECH API DUAL ACCENT + THAI */
+let availableVoices = [];
+function populateVoices() {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    availableVoices = window.speechSynthesis.getVoices() || [];
+  } catch (e) {
+    availableVoices = [];
+  }
+}
+if ('speechSynthesis' in window) {
+  populateVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+  }
+}
+
+function speakText(text, lang = state.voiceAccent) {
+  if (!state.ttsEnabled || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    u.rate = 0.88; // primary school friendly pace
+
+    if (availableVoices.length > 0) {
+      let matched = null;
+      if (lang === 'th-TH' || lang === 'th') {
+        matched = availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('th'));
+      } else if (lang === 'en-GB') {
+        matched = availableVoices.find(v => v.lang && (v.lang === 'en-GB' || v.lang.replace('_', '-') === 'en-GB')) ||
+                  availableVoices.find(v => v.name && v.name.includes('UK'));
+      } else {
+        matched = availableVoices.find(v => v.lang && (v.lang === 'en-US' || v.lang.replace('_', '-') === 'en-US')) ||
+                  availableVoices.find(v => v.name && v.name.includes('US'));
+      }
+      if (!matched && lang.startsWith('en')) {
+        matched = availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+      }
+      if (matched) u.voice = matched;
+    }
+    window.speechSynthesis.speak(u);
+  } catch (err) {
+    console.warn('TTS speech error:', err);
+  }
+}
+
+/* 6. MODE NAVIGATION */
+const tabButtons = document.querySelectorAll('.tab-btn');
+const panels = {
+  blind: document.getElementById('panel-blind'),
+  simon: document.getElementById('panel-simon'),
+  speed: document.getElementById('panel-speed'),
+  builder: document.getElementById('panel-builder')
+};
+
+function switchMode(newMode) {
+  if (!panels[newMode]) return;
+  state.mode = newMode;
+
+  // If leaving speed mode, pause it
+  if (newMode !== 'speed' && state.speedRunning) {
+    stopSpeedTimer();
+  }
+
+  // Update tabs
+  tabButtons.forEach(btn => {
+    const isAct = btn.dataset.mode === newMode;
+    btn.classList.toggle('active', isAct);
+    btn.setAttribute('aria-selected', isAct ? 'true' : 'false');
+  });
+
+  // Update panels
+  Object.keys(panels).forEach(key => {
+    panels[key].classList.toggle('active', key === newMode);
+  });
+
+  // Trigger mode specific render
+  if (newMode === 'blind') {
+    renderBlindItem();
+  } else if (newMode === 'simon') {
+    renderSimonItem();
+  } else if (newMode === 'speed') {
+    renderSpeedItem();
+  } else if (newMode === 'builder') {
+    setupBuilderPuzzle();
+  }
+}
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+});
+
+/* 7. MODE 1: BLIND LISTEN & REVEAL */
+const elBlindCurtain = document.getElementById('blindCurtain');
+const elBlindImg = document.getElementById('blindImg');
+const elBlindEmojiFallback = document.getElementById('blindEmojiFallback');
+const elBlindEn = document.getElementById('blindEn');
+const elBlindPh = document.getElementById('blindPh');
+const elBlindTh = document.getElementById('blindTh');
+const elBlindCounter = document.getElementById('blindCounter');
+const elBlindCatBadge = document.getElementById('blindCategoryBadge');
+const btnBlindCurtain = document.getElementById('btnBlindCurtain');
+const curtainBtnIcon = document.getElementById('curtainBtnIcon');
+const curtainBtnLabel = document.getElementById('curtainBtnLabel');
+const btnBlindSpeak = document.getElementById('btnBlindSpeak');
+const btnBlindSpeakTh = document.getElementById('btnBlindSpeakTh');
+const btnBlindPrev = document.getElementById('btnBlindPrev');
+const btnBlindNext = document.getElementById('btnBlindNext');
+const btnBlindRandom = document.getElementById('btnBlindRandom');
+
+function getFilteredCommands() {
+  if (state.currentCategory === 'all') return COMMANDS;
+  return COMMANDS.filter(c => c.cat === state.currentCategory);
+}
+
+function renderBlindItem() {
+  const list = getFilteredCommands();
+  if (list.length === 0) return;
+  if (state.currentIndex >= list.length) state.currentIndex = 0;
+  if (state.currentIndex < 0) state.currentIndex = list.length - 1;
+
+  const item = list[state.currentIndex];
+  elBlindCounter.textContent = `คำสั่งที่ ${state.currentIndex + 1} / ${list.length}`;
+  elBlindCatBadge.textContent = item.catName;
+  elBlindEn.textContent = item.en;
+  elBlindPh.textContent = item.ph;
+  elBlindTh.textContent = item.th;
+  elBlindEmojiFallback.textContent = item.emoji;
+  elBlindEmojiFallback.style.display = 'none';
+  elBlindImg.style.display = 'block';
+  elBlindImg.src = item.img;
+
+  setCurtainState(state.blindRevealed);
+}
+
+function setCurtainState(revealed) {
+  state.blindRevealed = revealed;
+  if (revealed) {
+    elBlindCurtain.classList.add('revealed');
+    curtainBtnIcon.textContent = '🔒';
+    curtainBtnLabel.textContent = 'ซ่อนภาพ (R)';
+  } else {
+    elBlindCurtain.classList.remove('revealed');
+    curtainBtnIcon.textContent = '👁️';
+    curtainBtnLabel.textContent = 'เปิดเฉลยภาพ (R)';
+  }
+}
+
+function toggleBlindCurtain() {
+  setCurtainState(!state.blindRevealed);
+  if (state.blindRevealed) {
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+  }
+}
+
+btnBlindCurtain.addEventListener('click', toggleBlindCurtain);
+
+btnBlindSpeak.addEventListener('click', () => {
+  const list = getFilteredCommands();
+  if (list[state.currentIndex]) speakText(list[state.currentIndex].clean);
+});
+
+btnBlindSpeakTh.addEventListener('click', () => {
+  const list = getFilteredCommands();
+  if (list[state.currentIndex]) speakText(list[state.currentIndex].th, 'th-TH');
+});
+
+btnBlindPrev.addEventListener('click', () => {
+  const list = getFilteredCommands();
+  state.currentIndex = (state.currentIndex - 1 + list.length) % list.length;
+  setCurtainState(false);
+  renderBlindItem();
+  speakText(list[state.currentIndex].clean);
+});
+
+btnBlindNext.addEventListener('click', () => {
+  const list = getFilteredCommands();
+  state.currentIndex = (state.currentIndex + 1) % list.length;
+  setCurtainState(false);
+  renderBlindItem();
+  speakText(list[state.currentIndex].clean);
+});
+
+btnBlindRandom.addEventListener('click', () => {
+  const list = getFilteredCommands();
+  if (list.length <= 1) return;
+  let nextIdx;
+  do {
+    nextIdx = Math.floor(Math.random() * list.length);
+  } while (nextIdx === state.currentIndex);
+  state.currentIndex = nextIdx;
+  setCurtainState(false);
+  renderBlindItem();
+  speakText(list[state.currentIndex].clean);
+});
+
+// Filter Pills
+document.querySelectorAll('.filter-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    state.currentCategory = pill.dataset.cat;
+    state.currentIndex = 0;
+    setCurtainState(false);
+    renderBlindItem();
+  });
+});
+
+/* 8. MODE 2: SIMON SAYS CHALLENGE */
+let simonRound = 1;
+let simonCommand = COMMANDS[0];
+const elSimonBadge = document.getElementById('simonBadge');
+const elSimonBadgeIcon = document.getElementById('simonBadgeIcon');
+const elSimonBadgeText = document.getElementById('simonBadgeText');
+const elSimonImg = document.getElementById('simonImg');
+const elSimonEmojiFallback = document.getElementById('simonEmojiFallback');
+const elSimonCmdText = document.getElementById('simonCmdText');
+const elSimonThText = document.getElementById('simonThText');
+const elSimonRoundCounter = document.getElementById('simonRoundCounter');
+const elSimonJudgeFeedback = document.getElementById('simonJudgeFeedback');
+const btnJudgeObey = document.getElementById('btnJudgeObey');
+const btnJudgeFreeze = document.getElementById('btnJudgeFreeze');
+const btnSimonSpeak = document.getElementById('btnSimonSpeak');
+const btnSimonNew = document.getElementById('btnSimonNew');
+
+function renderSimonItem() {
+  elSimonRoundCounter.textContent = `รอบที่ ${simonRound}`;
+  elSimonJudgeFeedback.className = 'judge-feedback';
+  elSimonJudgeFeedback.textContent = '';
+
+  if (state.isSimonSays) {
+    elSimonBadge.className = 'simon-badge simon-true';
+    elSimonBadgeIcon.textContent = '📢';
+    elSimonBadgeText.textContent = 'Simon says...';
+    elSimonCmdText.textContent = `Simon says: "${simonCommand.clean}!"`;
+  } else {
+    elSimonBadge.className = 'simon-badge simon-false';
+    elSimonBadgeIcon.textContent = '⚠️';
+    elSimonBadgeText.textContent = 'คำสั่งโดยตรง (No Simon says):';
+    elSimonCmdText.textContent = `"${simonCommand.clean}!"`;
+  }
+
+  elSimonThText.textContent = simonCommand.th;
+  elSimonEmojiFallback.textContent = simonCommand.emoji;
+  elSimonEmojiFallback.style.display = 'none';
+  elSimonImg.style.display = 'block';
+  elSimonImg.src = simonCommand.img;
+}
+
+function newSimonRound() {
+  simonRound++;
+  // 50% probability of having Simon says prefix
+  state.isSimonSays = Math.random() < 0.5;
+  const randIdx = Math.floor(Math.random() * COMMANDS.length);
+  simonCommand = COMMANDS[randIdx];
+  renderSimonItem();
+
+  const phraseToSpeak = state.isSimonSays ? `Simon says: ${simonCommand.clean}` : simonCommand.clean;
+  speakText(phraseToSpeak);
+}
+
+btnSimonNew.addEventListener('click', newSimonRound);
+
+btnSimonSpeak.addEventListener('click', () => {
+  const phraseToSpeak = state.isSimonSays ? `Simon says: ${simonCommand.clean}` : simonCommand.clean;
+  speakText(phraseToSpeak);
+});
+
+btnJudgeObey.addEventListener('click', () => {
+  if (state.isSimonSays) {
+    elSimonJudgeFeedback.className = 'judge-feedback show correct';
+    elSimonJudgeFeedback.innerHTML = '🎉 <strong>ถูกต้องยอดเยี่ยม!</strong> มีคำว่า <em>"Simon says"</em> นักเรียนทุกคนต้องปฏิบัติตามคำสั่ง!';
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+  } else {
+    elSimonJudgeFeedback.className = 'judge-feedback show wrong';
+    elSimonJudgeFeedback.innerHTML = '❌ <strong>ยังไม่ถูกต้อง!</strong> รอบนี้ไม่มี <em>"Simon says"</em> นักเรียนห้ามทำตามเด็ดขาด ใครขยับตัวจะเสียคะแนน!';
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+  }
+});
+
+btnJudgeFreeze.addEventListener('click', () => {
+  if (!state.isSimonSays) {
+    elSimonJudgeFeedback.className = 'judge-feedback show correct';
+    elSimonJudgeFeedback.innerHTML = '🧊 <strong>ถูกต้องยอดเยี่ยม!</strong> ไม่มีคำว่า <em>"Simon says"</em> ทุกคนต้องอยู่นิ่งๆ แข็งเป็นหิน ใครขยับตัวถือว่าแพ้!';
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+  } else {
+    elSimonJudgeFeedback.className = 'judge-feedback show wrong';
+    elSimonJudgeFeedback.innerHTML = '❌ <strong>ยังไม่ถูกต้อง!</strong> รอบนี้มี <em>"Simon says"</em> นักเรียนต้องทำตามคำสั่งทันที!';
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+  }
+});
+
+/* 9. MODE 3: SPEED RANDOMIZER */
+let speedTimer = null;
+let speedStartTime = 0;
+let speedAnimFrame = null;
+const elSpeedStatusBadge = document.getElementById('speedStatusBadge');
+const elSpeedProgressBar = document.getElementById('speedProgressBar');
+const elSpeedImg = document.getElementById('speedImg');
+const elSpeedEmojiFallback = document.getElementById('speedEmojiFallback');
+const elSpeedEn = document.getElementById('speedEn');
+const elSpeedPh = document.getElementById('speedPh');
+const elSpeedTh = document.getElementById('speedTh');
+const btnSpeedToggle = document.getElementById('btnSpeedToggle');
+const speedToggleIcon = document.getElementById('speedToggleIcon');
+const speedToggleLabel = document.getElementById('speedToggleLabel');
+const btnSpeedNext = document.getElementById('btnSpeedNext');
+const btnSpeedSpeak = document.getElementById('btnSpeedSpeak');
+
+function renderSpeedItem() {
+  const item = COMMANDS[state.currentIndex];
+  elSpeedEn.textContent = item.en;
+  elSpeedPh.textContent = item.ph;
+  elSpeedTh.textContent = item.th;
+  elSpeedEmojiFallback.textContent = item.emoji;
+  elSpeedEmojiFallback.style.display = 'none';
+  elSpeedImg.style.display = 'block';
+  elSpeedImg.src = item.img;
+}
+
+function nextSpeedCommand() {
+  let nextIdx;
+  do {
+    nextIdx = Math.floor(Math.random() * COMMANDS.length);
+  } while (nextIdx === state.currentIndex);
+  state.currentIndex = nextIdx;
+  renderSpeedItem();
+  speakText(COMMANDS[state.currentIndex].clean);
+  speedStartTime = Date.now();
+}
+
+function speedStep() {
+  if (!state.speedRunning) return;
+  const elapsed = Date.now() - speedStartTime;
+  const pct = Math.min(100, (elapsed / state.speedInterval) * 100);
+  elSpeedProgressBar.style.width = pct + '%';
+
+  if (elapsed >= state.speedInterval) {
+    nextSpeedCommand();
+  }
+  speedAnimFrame = requestAnimationFrame(speedStep);
+}
+
+function startSpeedTimer() {
+  state.speedRunning = true;
+  elSpeedStatusBadge.textContent = 'กำลังสุ่มอัตโนมัติ';
+  elSpeedStatusBadge.style.background = '#dcfce7';
+  elSpeedStatusBadge.style.color = '#166534';
+  speedToggleIcon.textContent = '⏸';
+  speedToggleLabel.textContent = 'พักชั่วคราว (Pause)';
+  speedStartTime = Date.now();
+  speedAnimFrame = requestAnimationFrame(speedStep);
+}
+
+function stopSpeedTimer() {
+  state.speedRunning = false;
+  elSpeedStatusBadge.textContent = 'พักชั่วคราว';
+  elSpeedStatusBadge.style.background = '#f1f5f9';
+  elSpeedStatusBadge.style.color = '#64748b';
+  speedToggleIcon.textContent = '▶';
+  speedToggleLabel.textContent = 'เริ่มสุ่มคำสั่ง (Start)';
+  if (speedAnimFrame) cancelAnimationFrame(speedAnimFrame);
+  elSpeedProgressBar.style.width = '0%';
+}
+
+btnSpeedToggle.addEventListener('click', () => {
+  if (state.speedRunning) {
+    stopSpeedTimer();
+  } else {
+    startSpeedTimer();
+  }
+});
+
+btnSpeedNext.addEventListener('click', () => {
+  nextSpeedCommand();
+  if (state.speedRunning) speedStartTime = Date.now();
+});
+
+btnSpeedSpeak.addEventListener('click', () => {
+  speakText(COMMANDS[state.currentIndex].clean);
+});
+
+document.querySelectorAll('.speed-rate-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.speed-rate-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.speedInterval = parseInt(btn.dataset.speed, 10);
+    if (state.speedRunning) speedStartTime = Date.now();
+  });
+});
+
+/* 10. MODE 4: COMMAND SENTENCE BUILDER */
+let builderIndex = 0;
+const elBuilderCounter = document.getElementById('builderCounter');
+const elBuilderCueImg = document.getElementById('builderCueImg');
+const elBuilderCueEmoji = document.getElementById('builderCueEmoji');
+const elBuilderCueTh = document.getElementById('builderCueTh');
+const btnBuilderSpeakCue = document.getElementById('btnBuilderSpeakCue');
+const slotVerb = document.getElementById('slotVerb');
+const slotVerbText = document.getElementById('slotVerbText');
+const slotTarget = document.getElementById('slotTarget');
+const slotTargetText = document.getElementById('slotTargetText');
+const elBuilderFeedback = document.getElementById('builderFeedback');
+const elBuilderWordBank = document.getElementById('builderWordBank');
+const btnBuilderClear = document.getElementById('btnBuilderClear');
+const btnBuilderPrev = document.getElementById('btnBuilderPrev');
+const btnBuilderNext = document.getElementById('btnBuilderNext');
+
+let builderBankWords = [];
+
+function setupBuilderPuzzle() {
+  if (builderIndex >= COMMANDS.length) builderIndex = 0;
+  if (builderIndex < 0) builderIndex = COMMANDS.length - 1;
+
+  const targetCmd = COMMANDS[builderIndex];
+  state.builderPlaced = [];
+  state.builderComplete = false;
+
+  elBuilderCounter.textContent = `ข้อที่ ${builderIndex + 1} / ${COMMANDS.length}`;
+  elBuilderCueTh.textContent = `"${targetCmd.th}"`;
+  elBuilderCueEmoji.textContent = targetCmd.emoji;
+  elBuilderCueEmoji.style.display = 'none';
+  elBuilderCueImg.style.display = 'block';
+  elBuilderCueImg.src = targetCmd.img;
+
+  elBuilderFeedback.className = 'builder-feedback';
+  elBuilderFeedback.textContent = '';
+
+  renderBuilderSlots();
+
+  // Prepare Word Bank: Correct Verb + Correct Target + Distractors
+  const otherCommands = COMMANDS.filter((_, idx) => idx !== builderIndex);
+  const shuffledOthers = [...otherCommands].sort(() => Math.random() - 0.5);
+
+  const distractorVerbs = Array.from(new Set(shuffledOthers.map(c => c.verb).filter(v => v !== targetCmd.verb))).slice(0, 2);
+  const distractorTargets = Array.from(new Set(shuffledOthers.map(c => c.target).filter(t => t !== targetCmd.target))).slice(0, 2);
+
+  builderBankWords = [
+    { text: targetCmd.verb, type: 'verb' },
+    { text: targetCmd.target, type: 'target' },
+    ...distractorVerbs.map(v => ({ text: v, type: 'verb' })),
+    ...distractorTargets.map(t => ({ text: t, type: 'target' }))
+  ].sort(() => Math.random() - 0.5);
+
+  renderBuilderBank();
+}
+
+function renderBuilderSlots() {
+  const vText = state.builderPlaced[0];
+  const tText = state.builderPlaced[1];
+
+  slotVerb.className = 'word-slot' + (vText ? ' filled' : '');
+  slotVerbText.textContent = vText || '[ แตะเลือกคำกริยา ]';
+
+  slotTarget.className = 'word-slot' + (tText ? ' filled' : '');
+  slotTargetText.textContent = tText || '[ แตะเลือกเป้าหมาย ]';
+
+  if (state.builderComplete) {
+    slotVerb.classList.add('correct');
+    slotTarget.classList.add('correct');
+  }
+}
+
+function renderBuilderBank() {
+  elBuilderWordBank.innerHTML = '';
+  builderBankWords.forEach((wordObj, bIdx) => {
+    const chip = document.createElement('button');
+    chip.className = `word-chip ${wordObj.type}-type`;
+    chip.textContent = wordObj.text;
+    chip.dataset.index = bIdx;
+
+    const isUsed = state.builderPlaced.includes(wordObj.text);
+    if (isUsed) chip.classList.add('used');
+
+    chip.addEventListener('click', () => {
+      if (isUsed || state.builderPlaced.length >= 2) return;
+      state.builderPlaced.push(wordObj.text);
+      renderBuilderSlots();
+      renderBuilderBank();
+      checkBuilderValidation();
+    });
+
+    elBuilderWordBank.appendChild(chip);
+  });
+}
+
+function checkBuilderValidation() {
+  if (state.builderPlaced.length < 2) return;
+
+  const targetCmd = COMMANDS[builderIndex];
+  const placedVerb = state.builderPlaced[0];
+  const placedTarget = state.builderPlaced[1];
+
+  if (placedVerb === targetCmd.verb && placedTarget === targetCmd.target) {
+    state.builderComplete = true;
+    renderBuilderSlots();
+    elBuilderFeedback.className = 'builder-feedback show correct';
+    elBuilderFeedback.innerHTML = `🎉 <strong>ยอดเยี่ยมมาก!</strong> ประกอบประโยคสำเร็จ: <em>"${targetCmd.en}"</em> (${targetCmd.th})`;
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.correct();
+    speakText(targetCmd.clean);
+  } else {
+    state.builderComplete = false;
+    slotVerb.classList.add('wrong');
+    slotTarget.classList.add('wrong');
+    elBuilderFeedback.className = 'builder-feedback show wrong';
+    elBuilderFeedback.innerHTML = `⚠️ <strong>ยังไม่ถูกต้อง</strong> ลองแตะที่ช่องคำเพื่อเอาคำออก แล้วจัดเรียงใหม่อีกครั้งนะ!`;
+    if (window.KAMPAI && window.KAMPAI.sound) window.KAMPAI.sound.wrong();
+  }
+}
+
+slotVerb.addEventListener('click', () => {
+  if (state.builderPlaced[0]) {
+    state.builderPlaced.splice(0, 1);
+    state.builderComplete = false;
+    elBuilderFeedback.className = 'builder-feedback';
+    renderBuilderSlots();
+    renderBuilderBank();
+  }
+});
+
+slotTarget.addEventListener('click', () => {
+  if (state.builderPlaced[1]) {
+    state.builderPlaced.splice(1, 1);
+    state.builderComplete = false;
+    elBuilderFeedback.className = 'builder-feedback';
+    renderBuilderSlots();
+    renderBuilderBank();
+  }
+});
+
+btnBuilderClear.addEventListener('click', () => {
+  state.builderPlaced = [];
+  state.builderComplete = false;
+  elBuilderFeedback.className = 'builder-feedback';
+  renderBuilderSlots();
+  renderBuilderBank();
+});
+
+btnBuilderSpeakCue.addEventListener('click', () => {
+  speakText(COMMANDS[builderIndex].clean);
+});
+
+btnBuilderPrev.addEventListener('click', () => {
+  builderIndex = (builderIndex - 1 + COMMANDS.length) % COMMANDS.length;
+  setupBuilderPuzzle();
+});
+
+btnBuilderNext.addEventListener('click', () => {
+  builderIndex = (builderIndex + 1) % COMMANDS.length;
+  setupBuilderPuzzle();
+});
+
+/* 11. HEADER CONTROLS */
+document.getElementById('selVoiceAccent').addEventListener('change', (e) => {
+  state.voiceAccent = e.target.value;
+});
+
+document.getElementById('btnAudioToggle').addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
+});
+
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+});
+
+/* 12. KEYBOARD SHORTCUTS */
+window.addEventListener('keydown', (e) => {
+  // If typing in input or select, skip
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+  if (e.key === '1') switchMode('blind');
+  if (e.key === '2') switchMode('simon');
+  if (e.key === '3') switchMode('speed');
+  if (e.key === '4') switchMode('builder');
+
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (state.mode === 'blind') btnBlindSpeak.click();
+    else if (state.mode === 'simon') btnSimonSpeak.click();
+    else if (state.mode === 'speed') btnSpeedSpeak.click();
+    else if (state.mode === 'builder') btnBuilderSpeakCue.click();
+  }
+
+  if (e.key === 'Enter' || e.key === 'r' || e.key === 'R' || e.code === 'KeyR') {
+    if (state.mode === 'blind') {
+      toggleBlindCurtain();
+    } else if (state.mode === 'simon') {
+      newSimonRound();
+    } else if (state.mode === 'speed') {
+      btnSpeedToggle.click();
+    }
+  }
+
+  if (e.key === 'ArrowRight') {
+    if (state.mode === 'blind') btnBlindNext.click();
+    else if (state.mode === 'simon') btnSimonNew.click();
+    else if (state.mode === 'speed') btnSpeedNext.click();
+    else if (state.mode === 'builder') btnBuilderNext.click();
+  }
+
+  if (e.key === 'ArrowLeft') {
+    if (state.mode === 'blind') btnBlindPrev.click();
+    else if (state.mode === 'builder') btnBuilderPrev.click();
+  }
+
+  if (e.key === 'f' || e.key === 'F' || e.code === 'KeyF') {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+});
+
+/* 13. INITIAL INITIALIZATION */
+renderBlindItem();
+simonCommand = COMMANDS[0];
+renderSimonItem();
+renderSpeedItem();
+setupBuilderPuzzle();
+
+</script>
+</body>
+</html>

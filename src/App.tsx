@@ -5,13 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useParams } from "react-router-dom";
 import { PortalProtectedRoute } from "./components/portal/PortalProtectedRoute";
 import { RuntimeThemeStyles } from "./components/theme/RuntimeThemeStyles";
 import DynamicFavicon from "./components/DynamicFavicon";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { CommandPaletteProvider } from "./hooks/useCommandPalette";
 import { ActiveChildProvider } from "./hooks/useActiveChild";
+import { AuthProvider } from "./contexts/AuthProvider";
 
 // หน้าแรกโหลดทันที (Critical path)
 import Index from "./pages/Index";
@@ -38,6 +39,11 @@ const lazyWithRetry = (componentImport: () => Promise<any>) => {
   });
 };
 
+const LegacyHeroRedirect = () => {
+  const { studentId } = useParams();
+  return <Navigate to={studentId ? `/virtue-bank/${studentId}` : "/virtue-bank"} replace />;
+};
+
 // หน้าอื่นๆ โหลดแบบ lazy เพื่อลดขนาด bundle เริ่มต้น
 const About = lazyWithRetry(() => import("./pages/About"));
 const Administrators = lazyWithRetry(() => import("./pages/Administrators"));
@@ -57,6 +63,7 @@ const PageBuilder = lazyWithRetry(() => import("./pages/admin/PageBuilder"));
 const Documents = lazyWithRetry(() => import("./pages/Documents"));
 const WasteBank = lazyWithRetry(() => import("./pages/WasteBank"));
 const WasteBankStats = lazyWithRetry(() => import("./pages/WasteBankStats"));
+const WasteBankResults = lazyWithRetry(() => import("./pages/WasteBankResults"));
 const RewardsCatalog = lazyWithRetry(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazyWithRetry(() => import("./pages/SavingsBank"));
 const HallOfFame = lazyWithRetry(() => import("./pages/HallOfFame"));
@@ -82,9 +89,13 @@ const TeacherSupplies = lazyWithRetry(() => import("./pages/teacher/TeacherSuppl
 const TeacherCctv = lazyWithRetry(() => import("./pages/teacher/TeacherCctv"));
 const TeacherMultiplyRaceDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherMultiplyRaceDashboard"));
 const TeacherGameResearch = lazyWithRetry(() => import("./pages/teacher/TeacherGameResearch"));
+const TeacherClassroomCompetitions = lazyWithRetry(() => import("./pages/teacher/TeacherClassroomCompetitions"));
+const TeacherClassroomCompetitionHost = lazyWithRetry(() => import("./pages/teacher/TeacherClassroomCompetitionHost"));
+const ClassroomCompetitionJoin = lazyWithRetry(() => import("./pages/ClassroomCompetitionJoin"));
 const ResearchPlay = lazyWithRetry(() => import("./pages/ResearchPlay"));
 const ResearchPlayIndex = lazyWithRetry(() => import("./pages/ResearchPlayIndex"));
 const TeacherMasteryHeatmap = lazyWithRetry(() => import("./pages/teacher/TeacherMasteryHeatmap"));
+const TeacherIntegratedPlan = lazyWithRetry(() => import("./pages/teacher/TeacherIntegratedPlan"));
 const ParentDashboard = lazyWithRetry(() => import("./pages/parent/ParentDashboard"));
 const ParentChildView = lazyWithRetry(() => import("./pages/parent/ParentChildView"));
 const ParentMastery = lazyWithRetry(() => import("./pages/parent/ParentMastery"));
@@ -143,6 +154,7 @@ const PageViewTracker = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <MotionConfig reducedMotion="user">
     <TooltipProvider>
       <RuntimeThemeStyles />
@@ -179,7 +191,7 @@ const App = () => (
             <Route path="/admin" element={<AdminLogin />} />
             {/* Admin dashboard with nested route support */}
             <Route path="/admin/dashboard/*" element={<AdminDashboard />} />
-            <Route path="/admin/page-builder" element={<PageBuilder />} />
+            <Route path="/admin/page-builder" element={<PortalProtectedRoute allow={['admin']}><PageBuilder /></PortalProtectedRoute>} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/events" element={<Events />} />
             <Route path="/calendar" element={<AcademicCalendar />} />
@@ -187,6 +199,7 @@ const App = () => (
             <Route path="/documents" element={<Documents />} />
             <Route path="/waste-bank" element={<WasteBank />} />
             <Route path="/waste-bank/stats" element={<WasteBankStats />} />
+            <Route path="/waste-bank/results" element={<WasteBankResults />} />
             <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
             <Route path="/savings-bank" element={<SavingsBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
@@ -205,13 +218,16 @@ const App = () => (
             {/* Student Self-Dashboard — เข้าด้วย student_code (public) */}
             <Route path="/my" element={<MyLearning />} />
             <Route path="/english-quest" element={<EnglishQuest />} />
-            <Route path="/hero" element={<StudentHeroPublic />} />
-            <Route path="/hero/:studentId" element={<StudentHeroPublic />} />
+            <Route path="/virtue-bank" element={<StudentHeroPublic />} />
+            <Route path="/virtue-bank/:studentId" element={<StudentHeroPublic />} />
+            <Route path="/hero" element={<LegacyHeroRedirect />} />
+            <Route path="/hero/:studentId" element={<LegacyHeroRedirect />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/donate/receipt/:id" element={<DonationReceipt />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/alumni" element={<Alumni />} />
             <Route path="/surveys/:id" element={<SurveyResponse />} />
+            <Route path="/classroom-competition/join" element={<ClassroomCompetitionJoin />} />
 
             {/* Teacher Portal */}
             <Route path="/teacher" element={
@@ -219,6 +235,9 @@ const App = () => (
             } />
             <Route path="/teacher/schedule" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherSchedule /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/integrated-plan" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherIntegratedPlan /></PortalProtectedRoute>
             } />
             <Route path="/teacher/attendance" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherAttendance /></PortalProtectedRoute>
@@ -243,6 +262,12 @@ const App = () => (
             } />
             <Route path="/teacher/game-research" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherGameResearch /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/classroom-competitions" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherClassroomCompetitions /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/classroom-competitions/:id/host" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherClassroomCompetitionHost /></PortalProtectedRoute>
             } />
             <Route path="/teacher/mastery" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherMasteryHeatmap /></PortalProtectedRoute>
@@ -307,6 +332,7 @@ const App = () => (
       </ErrorBoundary>
     </TooltipProvider>
     </MotionConfig>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

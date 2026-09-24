@@ -32,7 +32,7 @@ interface TabDef { key: TabKey; label: string; icon: typeof User }
 const TABS: TabDef[] = [
     { key: 'profile',    label: 'โปรไฟล์',     icon: User },
     { key: 'scores',     label: 'คะแนน',       icon: Trophy },
-    { key: 'conduct',    label: 'Kampai Hero', icon: Star },
+    { key: 'conduct',    label: 'ธนาคารความดี', icon: Star },
     { key: 'attendance', label: 'เช็คชื่อ',     icon: Calendar },
     { key: 'support',    label: 'ดูแลพิเศษ',   icon: Heart },
     { key: 'home_visit', label: 'เยี่ยมบ้าน',  icon: Home },

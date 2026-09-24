@@ -72,7 +72,7 @@ const VIRTUE_METRICS = {
 const LEVELS_INFO = [
   { level: 1, title: 'เมล็ดพันธุ์แห่งความดี 🌱', desc: 'เริ่มต้นก้าวแรกของการสะสมพลังความดีในโรงเรียน' },
   { level: 2, title: 'ผู้ช่วยตัวน้อย 🤝', desc: 'เริ่มช่วยเหลือคุณครูและเพื่อนร่วมห้องด้วยความสมัครใจ' },
-  { level: 3, title: 'ฮีโร่ประจำห้อง ⭐', desc: 'เป็นแบบอย่างที่ดีและได้รับการไว้วางใจจากคุณครูประจำชั้น' },
+  { level: 3, title: 'ต้นแบบประจำห้อง ⭐', desc: 'เป็นแบบอย่างที่ดีและได้รับการไว้วางใจจากคุณครูประจำชั้น' },
   { level: 4, title: 'ผู้พิทักษ์โรงเรียน 🛡️', desc: 'สร้างคุณงามความดีให้กับโรงเรียนในภาพรวมอย่างโดดเด่น' },
   { level: 5, title: 'ต้นแบบแห่งความดี 👑', desc: 'ระดับสูงสุดของการอุทิศตนเพื่อคุณธรรมความดีและแบบอย่างผู้นำ' }
 ];
@@ -148,7 +148,7 @@ function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect:
       <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-2">
         <div className="flex items-center gap-2">
           <Crown className="w-4 h-4 text-yellow-400 animate-pulse" />
-          <span className="text-[11px] font-black text-yellow-400/90 uppercase tracking-widest">Kampai Hero Showcase</span>
+          <span className="text-[11px] font-black text-yellow-400/90 uppercase tracking-widest">ธนาคารความดี</span>
         </div>
         <span className="text-[10px] font-bold text-slate-400">
           {current + 1} / {heroes.length}
@@ -208,7 +208,7 @@ function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect:
           <div className="flex flex-wrap justify-center gap-2">
             <span className="inline-flex items-center gap-1.5 bg-yellow-400/15 border border-yellow-400/30 text-yellow-300 px-3 py-1 rounded-full text-xs font-black">
               <Trophy className="w-3.5 h-3.5" />
-              {hero.total} Hero XP
+              {hero.total} คะแนนความดี
             </span>
             <span className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 text-slate-200 px-3 py-1 rounded-full text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-sky-300" />
@@ -222,7 +222,7 @@ function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect:
             className="w-full max-w-[280px] h-11 rounded-2xl font-black text-sm bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 hover:from-yellow-300 hover:to-amber-400 transition-all active:scale-[0.97] flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
           >
             <Zap className="w-4 h-4" />
-            ดูประวัติฮีโร่ความดี
+            ดูประวัติความดี
           </button>
         </motion.div>
       </AnimatePresence>
@@ -367,9 +367,9 @@ export default function StudentHeroPublic() {
       if (data?.id) {
         toast({
           title: 'ค้นหาสำเร็จ 🎉',
-          description: 'พบประวัติฮีโร่ความดีของนักเรียนแล้ว'
+          description: 'พบประวัติความดีของนักเรียนแล้ว'
         });
-        navigate(`/hero/${searchCode.trim()}`);
+        navigate(`/virtue-bank/${searchCode.trim()}`);
       } else {
         toast({
           variant: 'destructive',
@@ -439,8 +439,8 @@ export default function StudentHeroPublic() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sarabun antialiased">
       <SEOHead 
-        title={student ? `Kampai Hero: ${student.name}` : "Kampai Hero System - ตรวจสอบพลังความดีฮีโร่"} 
-        description="ดึงพลังความดีฮีโร่นักเรียนเดี่ยวแบบ 3 บล็อกโชว์เด่น เพิ่มความภูมิใจและชูหอเกียรติยศคนดีโรงเรียนคำไผ่" 
+        title={student ? `ธนาคารความดี: ${student.name}` : "ธนาคารความดี - ตรวจสอบคะแนนความดี"}
+        description="ดึงประวัติความดีของนักเรียนแบบ 3 บล็อกโชว์เด่น เพิ่มความภูมิใจและชูหอเกียรติยศคนดีโรงเรียนคำไผ่"
       />
       <SiteHeader />
 
@@ -466,13 +466,13 @@ export default function StudentHeroPublic() {
                   <div className="flex items-center justify-center gap-2 text-center">
                     <Trophy className="w-4 h-4 text-yellow-500" />
                     <p className="text-xs font-black text-slate-600 uppercase tracking-widest">
-                      10 อันดับฮีโร่ความดีแห่งปี
+                      10 อันดับความดีแห่งปี
                     </p>
                     <Trophy className="w-4 h-4 text-yellow-500" />
                   </div>
                   <TopHeroCarousel
                     heroes={topHeroes}
-                    onSelect={(id) => navigate(`/hero/${id}`)}
+                    onSelect={(id) => navigate(`/virtue-bank/${id}`)}
                   />
                 </div>
               )}
@@ -485,10 +485,10 @@ export default function StudentHeroPublic() {
                     <Trophy className="w-8 h-8 text-yellow-300" />
                   </div>
                   
-                  <h1 className="text-2xl font-black tracking-tight">Kampai Hero System</h1>
+                  <h1 className="text-2xl font-black tracking-tight">ธนาคารความดี</h1>
                   <p className="text-xs text-primary-foreground/80 mt-1.5 font-medium leading-relaxed">
                     ตรวจสอบประวัติความประพฤติ เกียรติยศความดี <br />
-                    และพลังฮีโร่ 5 มิติ ของนักเรียนคนดีบ้านคำไผ่
+                    และคุณธรรม 5 มิติของนักเรียนคนดีบ้านคำไผ่
                   </p>
                 </div>
                 
@@ -524,7 +524,7 @@ export default function StudentHeroPublic() {
                       ) : (
                         <>
                           <Zap className="w-5 h-5 text-yellow-300 animate-pulse" />
-                          เปิดดูหน้าประวัติฮีโร่
+                          เปิดดูหน้าประวัติความดี
                         </>
                       )}
                     </Button>
@@ -544,7 +544,7 @@ export default function StudentHeroPublic() {
             >
               <RefreshCw className="w-10 h-10 text-primary animate-spin" />
               <p className="text-slate-600 text-sm font-semibold animate-pulse">
-                กำลังดึงประวัติความประพฤติและวิเคราะห์มิติฮีโร่...
+                กำลังดึงประวัติความประพฤติและวิเคราะห์คุณธรรม 5 มิติ...
               </p>
             </motion.div>
           ) : !student || !profile ? (
@@ -560,12 +560,12 @@ export default function StudentHeroPublic() {
                 <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                   <AlertCircle className="w-6 h-6" />
                 </div>
-                <h3 className="font-black text-lg text-slate-800">ไม่พบประวัติฮีโร่ของคุณธรรม</h3>
+                <h3 className="font-black text-lg text-slate-800">ไม่พบประวัติความดีของนักเรียน</h3>
                 <p className="text-slate-500 text-xs leading-relaxed max-w-xs mx-auto">
                   อาจยังไม่พบข้อมูลคะแนนของนักเรียน หรือนักเรียนคนนี้ยังไม่ได้รับการบันทึกคะแนนสะสมพลังความดีในระบบ
                 </p>
                 <Button 
-                  onClick={() => navigate('/hero')} 
+                  onClick={() => navigate('/virtue-bank')}
                   variant="outline" 
                   className="rounded-xl font-bold flex items-center justify-center gap-1.5 mx-auto text-slate-700"
                 >
@@ -589,7 +589,7 @@ export default function StudentHeroPublic() {
               {/* Back to search action bar */}
               <div className="flex items-center justify-between pb-2">
                 <Button 
-                  onClick={() => navigate('/hero')} 
+                    onClick={() => navigate('/virtue-bank')}
                   variant="ghost" 
                   className="rounded-xl font-bold flex items-center gap-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                 >
@@ -762,7 +762,7 @@ export default function StudentHeroPublic() {
                       <div className="text-center space-y-1.5">
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[10px] font-black bg-primary/10 text-primary border border-primary/20 shadow-inner uppercase tracking-widest">
                           <Sparkles className="w-3.5 h-3.5 text-yellow-500 animate-spin" />
-                          Kampai Virtuous Hero
+                          ธนาคารความดี
                         </span>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">{student.name}</h2>
                         <p className="text-sm font-bold text-slate-500">
@@ -778,7 +778,7 @@ export default function StudentHeroPublic() {
                           </span>
                           <span className="bg-primary text-white px-4 py-1.5 rounded-2xl text-xs font-black flex items-center gap-1.5 shadow-md">
                             <Trophy className="w-4 h-4 text-yellow-300" />
-                            {profile.totalXp} XP
+                            {profile.totalXp} คะแนนความดี
                           </span>
                         </div>
                       </div>
@@ -786,7 +786,7 @@ export default function StudentHeroPublic() {
                       {/* 5-Virtues Dimension Radar Chart inside the center */}
                       <div className="w-full bg-slate-50/70 rounded-3xl border border-slate-200/50 p-4">
                         <h3 className="text-xs font-black text-slate-700 text-center uppercase tracking-wider mb-2">
-                          แผนผังพลังคุณธรรม 5 มิติฮีโร่
+                          แผนผังคุณธรรม 5 มิติ
                         </h3>
                         <div className="h-60 w-full flex items-center justify-center">
                           <ResponsiveContainer width="100%" height={240}>
@@ -861,7 +861,7 @@ export default function StudentHeroPublic() {
 
                               <div className="space-y-0.5 pt-2">
                                 <span className="text-[10px] font-black text-emerald-800 tracking-widest uppercase">
-                                  KAMPAI HERO CERTIFICATE
+                                  VIRTUE BANK CERTIFICATE
                                 </span>
                                 <h3 className="text-xl font-black text-slate-800">เกียรติบัตรทำความดี</h3>
                                 <p className="text-[9px] text-slate-500">โรงเรียนบ้านคำไผ่ สพป.อุดรธานี เขต 2</p>
@@ -892,11 +892,11 @@ export default function StudentHeroPublic() {
                                 </span>
                               </div>
 
-                              {/* QR code link — สแกนเปิดหน้าประวัติ /hero/<รหัสนักเรียน> */}
+                              {/* QR code link — สแกนเปิดหน้าประวัติ /virtue-bank/<รหัสนักเรียน> */}
                               <div className="flex flex-col items-center space-y-1 pt-1">
                                 <div className="p-2 bg-card rounded-lg border border-border">
                                   <QRCode
-                                    value={`${window.location.origin}/hero/${student.student_code || student.id}`}
+                                    value={`${window.location.origin}/virtue-bank/${student.student_code || student.id}`}
                                     size={64}
                                     className="h-16 w-16"
                                   />
@@ -915,7 +915,7 @@ export default function StudentHeroPublic() {
                                     description: 'คัดลอกลิงก์ประวัติของนักเรียนไปยังคลิปบอร์ดแล้ว'
                                   });
                                   const slug = student.student_code || student.id;
-                                  navigator.clipboard.writeText(`${window.location.origin}/hero/${slug}`);
+                                  navigator.clipboard.writeText(`${window.location.origin}/virtue-bank/${slug}`);
                                 }}
                                 className="flex-1 rounded-2xl font-bold bg-primary hover:bg-primary-deep text-white"
                               >

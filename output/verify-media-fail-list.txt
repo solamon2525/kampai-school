@@ -1,0 +1,7 @@
+public/games/career/community-jobs-media.html
+public/games/math/divide-by-2-thinking-media.html
+public/games/math/long-division-thinking-media.html
+public/games/math/short-division-thinking-media.html
+public/games/science/plant-parts-media.html
+public/games/social/thailand-map-media.html
+public/games/thai/dictionary-media.html

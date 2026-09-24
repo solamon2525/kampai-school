@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="ภาพประกอบการเรียนรู้">
+  <defs><linearGradient id="sky" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d8f3ed"/><stop offset="1" stop-color="#fff7df"/></linearGradient></defs>
+  <rect width="1280" height="720" rx="42" fill="url(#sky)"/>
+  <circle cx="1050" cy="150" r="84" fill="#f5b700" opacity=".9"/>
+  <path d="M0 525c180-92 316-70 475 0 162 71 294 65 430-5 128-66 244-55 375 7v193H0Z" fill="#74b9cf"/>
+  <path d="M0 594c196-70 330-45 494 22 151 61 278 53 424-13 132-61 239-54 362-2v119H0Z" fill="#3b9ab7" opacity=".85"/>
+  <g fill="#fffdf7" stroke="#12355b" stroke-width="10" stroke-linejoin="round"><path d="M180 250h215c40 0 73 26 81 62 34 1 61 27 61 61 0 36-29 64-65 64H171c-41 0-74-33-74-74 0-39 31-70 70-73 4-23 8-40 13-40Z"/><path d="M670 336h224c39 0 71 25 80 60 33 1 59 27 59 59 0 35-28 62-63 62H660c-39 0-71-32-71-71 0-38 30-68 67-71 3-20 6-31 14-39Z"/></g>
+  <g fill="none" stroke="#1f6f8b" stroke-width="12" stroke-linecap="round"><path d="M264 454c-8 38-8 63 0 98"/><path d="M344 454c-8 38-8 63 0 98"/><path d="M754 550c-8 38-8 63 0 98"/><path d="M834 550c-8 38-8 63 0 98"/></g>
+  <g fill="#ef6f6c" stroke="#12355b" stroke-width="8"><circle cx="560" cy="570" r="46"/><circle cx="650" cy="590" r="34"/><path d="M515 618h194v42H515z"/></g>
+</svg>

@@ -26,7 +26,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-    GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen,
+    GripVertical, Edit, Trash2, Eye, EyeOff, ClipboardList, BookOpen, PackageCheck,
     FileText, ExternalLink as LinkIcon, Youtube, Type, Loader2, Copy,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,9 +69,11 @@ interface Props {
     onDocs?: (item: EduHubItem) => void;
     /** จัดการคำศัพท์ Thai Vocab Hub (optional) */
     onVocabManage?: (item: EduHubItem) => void;
+    /** จัดสื่อ ใบงาน เกม และตัวชี้วัดเป็นหน่วยสอนเดียว */
+    onTeachingUnit?: (item: EduHubItem) => void;
 }
 
-export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDuplicated, onDocs, onVocabManage }: Props) => {
+export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDuplicated, onDocs, onVocabManage, onTeachingUnit }: Props) => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [orderedItems, setOrderedItems] = useState(items);
@@ -183,6 +185,7 @@ export const SortableItemsTable = ({ items, invalidateKeys, onEdit, onDuplicated
                                         onDuplicate={handleDuplicate}
                                         onDocs={onDocs}
                                         onVocabManage={onVocabManage}
+                                        onTeachingUnit={onTeachingUnit}
                                         onDelete={handleDelete}
                                     />
                                 ))}
@@ -204,6 +207,7 @@ const SortableRow = ({
     onDuplicate,
     onDocs,
     onVocabManage,
+    onTeachingUnit,
     onDelete,
 }: {
     item: EduHubItem;
@@ -212,6 +216,7 @@ const SortableRow = ({
     onDuplicate: (item: EduHubItem) => void;
     onDocs?: (item: EduHubItem) => void;
     onVocabManage?: (item: EduHubItem) => void;
+    onTeachingUnit?: (item: EduHubItem) => void;
     onDelete: (item: EduHubItem) => void;
 }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
@@ -303,6 +308,17 @@ const SortableRow = ({
                             onClick={() => onVocabManage(item)}
                         >
                             <BookOpen className="h-4 w-4" />
+                        </Button>
+                    )}
+                    {onTeachingUnit && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-primary"
+                            title="จัดหน่วยสอน"
+                            onClick={() => onTeachingUnit(item)}
+                        >
+                            <PackageCheck className="h-4 w-4" />
                         </Button>
                     )}
                     <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(item)}>

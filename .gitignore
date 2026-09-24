@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+.artifacts/
+.worktrees/
+.superpowers/
 
 # Environment files (IMPORTANT: Never commit these!)
 .env
@@ -26,8 +29,16 @@ dist-ssr
 .claude/settings.local.json
 .claude/skills/
 .claude/worktrees/
-.agents/
+.agents/*
 skills/
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/kampai-worksheet-builder/
+!.agents/skills/kampai-worksheet-builder/**
+!.agents/skills/kampai-game-dev/
+!.agents/skills/kampai-game-dev/**
+!.agents/skills/kampai-cover-creator/
+!.agents/skills/kampai-cover-creator/**
 skills-lock.json
 
 # Editor directories and files

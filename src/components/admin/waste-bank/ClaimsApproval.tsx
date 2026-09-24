@@ -9,6 +9,9 @@ import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { RewardClaim, RewardClaimStatus } from '@/services/waste-bank.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ClaimQRScanner } from './ClaimQRScanner';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 const STATUS_LABEL: Record<RewardClaimStatus, string> = {
   pending: 'รออนุมัติ',
@@ -42,16 +45,21 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     onAction?.();
   };
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (claim: RewardClaim) => {
     if (!user?.id) return;
-    setProcessingId(id);
+    setProcessingId(claim.id);
     // v1.37.4: RPC อ่าน reviewer + approver จาก auth.uid() เอง — ไม่ต้องส่ง params
-    const { error } = await rewardClaimsService.approve(id);
+    const { error } = await rewardClaimsService.approve(claim.id);
     setProcessingId(null);
     if (error) {
       toast({ title: 'อนุมัติไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'อนุมัติสำเร็จ' });
+      void speakThai([
+        'อนุมัติมอบรางวัลสำเร็จ',
+        `ชื่อ ${getFirstName(claim.students?.name ?? '')}`,
+        `ได้รับรางวัล ${claim.reward_name}`,
+      ]);
       handleActionCompleted();
     }
   };
@@ -66,7 +74,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     if (error) {
       toast({ title: 'ปฏิเสธไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'ปฏิเสธคำขอสำเร็จ — คืน stock แล้ว' });
+      toast({ title: 'ปฏิเสธคำขอสำเร็จ', description: 'คืน stock และคะแนนที่กันไว้ทั้งสองกระเป๋าแล้ว' });
       handleActionCompleted();
     }
   };
@@ -128,8 +136,8 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">วันที่</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">นักเรียน</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">รางวัล</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">แต้ม</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">คงเหลือหลังแลก</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">คะแนนที่ใช้</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">คงเหลือหลังแลก</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">สถานะ</th>
                   <th className="px-4 py-3 min-w-[90px]"></th>
                 </tr>
@@ -154,13 +162,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          {c.students?.photo_url ? (
-                            <img src={c.students.photo_url} alt={c.students?.name} className="w-7 h-7 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary">
-                              {(c.students?.name ?? '?').slice(0, 1)}
-                            </div>
-                          )}
+                          <PersonAvatar name={c.students?.name ?? 'ไม่ทราบชื่อ'} photoUrl={c.students?.photo_url} size="sm" />
                           <div>
                             <div className="font-medium">{c.students?.name ?? '—'}</div>
                             <div className="text-xs text-muted-foreground">{c.students?.class}</div>
@@ -178,9 +180,10 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-amber-600 dark:text-amber-400">{c.points_used}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">
-                        {c.balance_after !== null ? c.balance_after : '—'}
+                      <td className="px-4 py-3"><RewardCostDisplay waste={c.waste_points_used} virtue={c.virtue_points_used} /></td>
+                      <td className="px-4 py-3 text-xs tabular-nums">
+                        {c.waste_points_used > 0 ? <div>ขยะ {c.waste_balance_after ?? '—'}</div> : null}
+                        {c.virtue_points_used > 0 ? <div>ความดี {c.virtue_balance_after ?? '—'}</div> : null}
                       </td>
                       <td className="px-4 py-3">{statusBadge(c.status)}</td>
                       <td className="px-4 py-3 min-w-[90px]">
@@ -190,7 +193,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                               size="sm"
                               variant="outline"
                               className="text-emerald-700 border-emerald-300 hover:bg-emerald-50"
-                              onClick={() => handleApprove(c.id)}
+                              onClick={() => handleApprove(c)}
                               disabled={processingId === c.id}
                             >
                               <Check className="w-4 h-4" />

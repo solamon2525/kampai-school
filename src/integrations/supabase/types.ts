@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       academic_calendar: {
@@ -733,6 +758,30 @@ export type Database = {
           },
         ]
       }
+      c2_custom_game_plans: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_name: string
+          steps: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_name?: string
+          steps?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_name?: string
+          steps?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cctv_cameras: {
         Row: {
           created_at: string
@@ -1020,6 +1069,459 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      classroom_competition_attempts: {
+        Row: {
+          attempt_no: number
+          competition_id: string
+          created_at: string
+          device_id: string
+          id: string
+          idempotency_key: string
+          is_correct: boolean
+          question_id: string
+          response: Json
+          response_ms: number
+          team_id: string
+        }
+        Insert: {
+          attempt_no: number
+          competition_id: string
+          created_at?: string
+          device_id: string
+          id?: string
+          idempotency_key: string
+          is_correct: boolean
+          question_id: string
+          response: Json
+          response_ms: number
+          team_id: string
+        }
+        Update: {
+          attempt_no?: number
+          competition_id?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          idempotency_key?: string
+          is_correct?: boolean
+          question_id?: string
+          response?: Json
+          response_ms?: number
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_attempts_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_attempts_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_devices: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          competition_id: string
+          created_at: string
+          display_name: string
+          expires_at: string
+          id: string
+          last_seen_at: string
+          status: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id: string | null
+          token_hash: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          competition_id: string
+          created_at?: string
+          display_name: string
+          expires_at: string
+          id?: string
+          last_seen_at?: string
+          status?: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id?: string | null
+          token_hash: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          competition_id?: string
+          created_at?: string
+          display_name?: string
+          expires_at?: string
+          id?: string
+          last_seen_at?: string
+          status?: Database["public"]["Enums"]["classroom_competition_device_status"]
+          team_id?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_devices_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_devices_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_members: {
+        Row: {
+          competition_id: string
+          created_at: string
+          id: string
+          roster_order: number
+          student_id: string
+          team_id: string
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          id?: string
+          roster_order?: number
+          student_id: string
+          team_id: string
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          id?: string
+          roster_order?: number
+          student_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_members_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_members_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_questions: {
+        Row: {
+          activity_key: string
+          answer_key: Json
+          canonical_key: string
+          competition_id: string
+          created_at: string
+          difficulty: string
+          id: string
+          is_tiebreak: boolean
+          prompt: Json
+          sequence_no: number
+          team_id: string | null
+          validator_version: string
+        }
+        Insert: {
+          activity_key: string
+          answer_key: Json
+          canonical_key: string
+          competition_id: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_tiebreak?: boolean
+          prompt: Json
+          sequence_no: number
+          team_id?: string | null
+          validator_version: string
+        }
+        Update: {
+          activity_key?: string
+          answer_key?: Json
+          canonical_key?: string
+          competition_id?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_tiebreak?: boolean
+          prompt?: Json
+          sequence_no?: number
+          team_id?: string | null
+          validator_version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_questions_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_questions_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_results: {
+        Row: {
+          competition_id: string
+          created_at: string
+          final_score: number
+          id: string
+          league_points: number
+          locked_count: number
+          outcome: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank: number
+          response_ms_total: number
+          team_id: string
+          wrong_count: number
+        }
+        Insert: {
+          competition_id: string
+          created_at?: string
+          final_score: number
+          id?: string
+          league_points: number
+          locked_count: number
+          outcome: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank: number
+          response_ms_total: number
+          team_id: string
+          wrong_count: number
+        }
+        Update: {
+          competition_id?: string
+          created_at?: string
+          final_score?: number
+          id?: string
+          league_points?: number
+          locked_count?: number
+          outcome?: Database["public"]["Enums"]["classroom_competition_outcome"]
+          rank?: number
+          response_ms_total?: number
+          team_id?: string
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_results_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_competition_results_team_id_competition_id_fkey"
+            columns: ["team_id", "competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
+          },
+        ]
+      }
+      classroom_competition_teams: {
+        Row: {
+          color_key: string
+          competition_id: string
+          created_at: string
+          current_question_index: number
+          id: string
+          locked_count: number
+          name: string
+          question_started_at: string | null
+          response_ms_total: number
+          score: number
+          sort_order: number
+          wrong_count: number
+        }
+        Insert: {
+          color_key: string
+          competition_id: string
+          created_at?: string
+          current_question_index?: number
+          id?: string
+          locked_count?: number
+          name: string
+          question_started_at?: string | null
+          response_ms_total?: number
+          score?: number
+          sort_order: number
+          wrong_count?: number
+        }
+        Update: {
+          color_key?: string
+          competition_id?: string
+          created_at?: string
+          current_question_index?: number
+          id?: string
+          locked_count?: number
+          name?: string
+          question_started_at?: string | null
+          response_ms_total?: number
+          score?: number
+          sort_order?: number
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competition_teams_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classroom_competitions: {
+        Row: {
+          activity_key: string
+          attempt_limit: number
+          cancelled_at: string | null
+          class_name: string
+          created_at: string
+          difficulty: string
+          duration_seconds: number
+          ends_at: string | null
+          engine_version: string
+          finished_at: string | null
+          grade_level: string
+          id: string
+          owner_user_id: string
+          paused_at: string | null
+          paused_remaining_seconds: number | null
+          question_count: number
+          question_distribution: string
+          room_code: string
+          seed: number
+          settings: Json
+          started_at: string | null
+          status: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key: string
+          updated_at: string
+          winner_team_id: string | null
+        }
+        Insert: {
+          activity_key: string
+          attempt_limit?: number
+          cancelled_at?: string | null
+          class_name: string
+          created_at?: string
+          difficulty: string
+          duration_seconds: number
+          ends_at?: string | null
+          engine_version: string
+          finished_at?: string | null
+          grade_level?: string
+          id?: string
+          owner_user_id: string
+          paused_at?: string | null
+          paused_remaining_seconds?: number | null
+          question_count: number
+          question_distribution: string
+          room_code: string
+          seed: number
+          settings?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key?: string
+          updated_at?: string
+          winner_team_id?: string | null
+        }
+        Update: {
+          activity_key?: string
+          attempt_limit?: number
+          cancelled_at?: string | null
+          class_name?: string
+          created_at?: string
+          difficulty?: string
+          duration_seconds?: number
+          ends_at?: string | null
+          engine_version?: string
+          finished_at?: string | null
+          grade_level?: string
+          id?: string
+          owner_user_id?: string
+          paused_at?: string | null
+          paused_remaining_seconds?: number | null
+          question_count?: number
+          question_distribution?: string
+          room_code?: string
+          seed?: number
+          settings?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["classroom_competition_status"]
+          subject_key?: string
+          updated_at?: string
+          winner_team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_competitions_winner_team_fk"
+            columns: ["winner_team_id", "id"]
+            isOneToOne: false
+            referencedRelation: "classroom_competition_teams"
+            referencedColumns: ["id", "competition_id"]
           },
         ]
       }
@@ -3643,6 +4145,220 @@ export type Database = {
           },
         ]
       }
+      integrated_plan_pin_settings: {
+        Row: {
+          failed_attempts: number
+          locked_until: string | null
+          owner_staff_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          failed_attempts?: number
+          locked_until?: string | null
+          owner_staff_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          failed_attempts?: number
+          locked_until?: string | null
+          owner_staff_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_pin_settings_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_pin_settings_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: true
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      integrated_plan_topic_indicators: {
+        Row: {
+          indicator_id: string
+          topic_id: string
+        }
+        Insert: {
+          indicator_id: string
+          topic_id: string
+        }
+        Update: {
+          indicator_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_topic_indicators_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topic_indicators_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrated_plan_topics: {
+        Row: {
+          created_at: string
+          essential_concept: string
+          grade: string
+          id: string
+          is_custom: boolean
+          keywords: string[]
+          note: string | null
+          owner_staff_id: string
+          sort_order: number
+          source_indicator_id: string | null
+          status: string
+          subject_key: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          essential_concept?: string
+          grade?: string
+          id?: string
+          is_custom?: boolean
+          keywords?: string[]
+          note?: string | null
+          owner_staff_id: string
+          sort_order?: number
+          source_indicator_id?: string | null
+          status?: string
+          subject_key: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          essential_concept?: string
+          grade?: string
+          id?: string
+          is_custom?: boolean
+          keywords?: string[]
+          note?: string | null
+          owner_staff_id?: string
+          sort_order?: number
+          source_indicator_id?: string | null
+          status?: string
+          subject_key?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_topics_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topics_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_topics_source_indicator_id_fkey"
+            columns: ["source_indicator_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_indicators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrated_plan_unit_topics: {
+        Row: {
+          topic_id: string
+          unit_id: string
+        }
+        Insert: {
+          topic_id: string
+          unit_id: string
+        }
+        Update: {
+          topic_id?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_unit_topics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_unit_topics_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "integrated_plan_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integrated_plan_units: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          owner_staff_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner_staff_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner_staff_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrated_plan_units_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrated_plan_units_owner_staff_id_fkey"
+            columns: ["owner_staff_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       leave_balances: {
         Row: {
           academic_year: string
@@ -5285,6 +6001,10 @@ export type Database = {
           semester: string | null
           status: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
+          virtue_balance_after: number | null
+          virtue_points_used: number
+          waste_balance_after: number | null
+          waste_points_used: number
         }
         Insert: {
           academic_year?: string | null
@@ -5303,6 +6023,10 @@ export type Database = {
           semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id: string
+          virtue_balance_after?: number | null
+          virtue_points_used?: number
+          waste_balance_after?: number | null
+          waste_points_used?: number
         }
         Update: {
           academic_year?: string | null
@@ -5321,6 +6045,10 @@ export type Database = {
           semester?: string | null
           status?: Database["public"]["Enums"]["reward_claim_status"] | null
           student_id?: string
+          virtue_balance_after?: number | null
+          virtue_points_used?: number
+          waste_balance_after?: number | null
+          waste_points_used?: number
         }
         Relationships: [
           {
@@ -5389,6 +6117,8 @@ export type Database = {
           points_cost: number
           stock: number | null
           updated_at: string | null
+          virtue_points_cost: number
+          waste_points_cost: number
         }
         Insert: {
           category?: string | null
@@ -5404,6 +6134,8 @@ export type Database = {
           points_cost: number
           stock?: number | null
           updated_at?: string | null
+          virtue_points_cost?: number
+          waste_points_cost?: number
         }
         Update: {
           category?: string | null
@@ -5419,6 +6151,8 @@ export type Database = {
           points_cost?: number
           stock?: number | null
           updated_at?: string | null
+          virtue_points_cost?: number
+          waste_points_cost?: number
         }
         Relationships: [
           {
@@ -7732,6 +8466,95 @@ export type Database = {
           },
         ]
       }
+      waste_bank_showcase_photos: {
+        Row: {
+          activity_date: string | null
+          caption: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          report_id: string
+          sort_order: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          activity_date?: string | null
+          caption?: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          report_id: string
+          sort_order?: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          activity_date?: string | null
+          caption?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          report_id?: string
+          sort_order?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_bank_showcase_photos_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "waste_bank_showcase_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waste_bank_showcase_reports: {
+        Row: {
+          academic_year: string
+          created_at: string
+          goal_text: string
+          highlight_text: string
+          id: string
+          introduction: string
+          semester: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          academic_year: string
+          created_at?: string
+          goal_text?: string
+          highlight_text?: string
+          id?: string
+          introduction?: string
+          semester: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          goal_text?: string
+          highlight_text?: string
+          id?: string
+          introduction?: string
+          semester?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       waste_categories: {
         Row: {
           color: string | null
@@ -8348,6 +9171,12 @@ export type Database = {
         Args: { p_student_code: string; p_study_id: string }
         Returns: Json
       }
+      delete_savings_transaction: {
+        Args: { p_transaction_id: string }
+        Returns: {
+          transaction_id: string
+        }[]
+      }
       english_quest_complete_lesson: {
         Args: {
           p_correct: number
@@ -8367,6 +9196,10 @@ export type Database = {
       }
       equip_student_pet: {
         Args: { p_pet_code: string; p_student_code: string }
+        Returns: Json
+      }
+      finalize_classroom_competition: {
+        Args: { p_competition_id: string; p_force?: boolean }
         Returns: Json
       }
       get_daily_challenge_leaderboard: {
@@ -8570,11 +9403,75 @@ export type Database = {
           wins: number
         }[]
       }
+      get_parent_savings_history: {
+        Args: { p_limit?: number; p_student_id: string }
+        Returns: {
+          academic_year: string
+          amount: number
+          balance_after: number
+          created_at: string
+          notes: string
+          recorded_by: string
+          semester: string
+          transaction_date: string
+          transaction_type: string
+          txn_id: string
+        }[]
+      }
+      get_parent_savings_summary: {
+        Args: { p_student_id: string }
+        Returns: {
+          class_name: string | null
+          current_balance: number | null
+          deposit_count: number | null
+          full_name: string | null
+          photo_url: string | null
+          student_code: string | null
+          student_id: string | null
+          total_deposits: number | null
+          total_transactions: number | null
+          total_withdrawals: number | null
+          withdraw_count: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "savings_student_summary"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_pixel_forest_rpg_state: {
         Args: { p_student_code: string }
         Returns: Json
       }
+      get_public_savings_leaderboard: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          class_name: string
+          deposit_count: number
+          full_name: string
+          photo_url: string
+          student_id: string
+          total_transactions: number
+          withdraw_count: number
+        }[]
+      }
+      get_public_savings_overview: {
+        Args: { p_limit?: number }
+        Returns: {
+          photo_url: string
+          student_class: string
+          student_name: string
+          transaction_date: string
+          transaction_id: string
+          transaction_type: string
+        }[]
+      }
       get_research_study_public: { Args: { p_study_id: string }; Returns: Json }
+      get_savings_deposit_count: {
+        Args: { p_student_id: string }
+        Returns: number
+      }
       get_savings_history: {
         Args: { p_code: string; p_limit?: number }
         Returns: {
@@ -8611,6 +9508,10 @@ export type Database = {
           reward_name: string
           semester: string
           status: Database["public"]["Enums"]["reward_claim_status"]
+          virtue_balance_after: number
+          virtue_points_used: number
+          waste_balance_after: number
+          waste_points_used: number
         }[]
       }
       get_student_honor_profile: {
@@ -8686,6 +9587,7 @@ export type Database = {
           wins: number
         }[]
       }
+      get_waste_bank_public_results: { Args: never; Returns: Json }
       get_weekly_xp_leaderboard: {
         Args: { p_limit?: number; p_student_code?: string }
         Returns: {
@@ -8706,6 +9608,8 @@ export type Database = {
       increment_news_view: { Args: { news_id: string }; Returns: undefined }
       indicator_coverage_summary: { Args: never; Returns: Json }
       indicator_soft_gap_summary: { Args: never; Returns: Json }
+      initialize_integrated_plan: { Args: never; Returns: number }
+      integrated_plan_pin_status: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_my_student: { Args: { student_uuid: string }; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
@@ -8745,11 +9649,16 @@ export type Database = {
       lookup_student_balance: {
         Args: { p_code: string }
         Returns: {
-          available_points: number
           class_name: string
           full_name: string
           photo_url: string
           student_id: string
+          virtue_academic_year: string
+          virtue_points_available: number
+          virtue_points_earned: number
+          virtue_points_spent: number
+          waste_points_available: number
+          waste_points_earned: number
         }[]
       }
       lookup_student_for_game: {
@@ -8809,6 +9718,18 @@ export type Database = {
         Args: { p_match_id: string }
         Returns: undefined
       }
+      record_classroom_competition_attempt: {
+        Args: {
+          p_competition_id: string
+          p_device_id: string
+          p_idempotency_key: string
+          p_is_correct: boolean
+          p_question_id: string
+          p_response: Json
+          p_team_id: string
+        }
+        Returns: Json
+      }
       record_game_session: {
         Args: {
           p_duration_sec?: number
@@ -8820,6 +9741,24 @@ export type Database = {
           p_student_code: string
         }
         Returns: Json
+      }
+      record_savings_transaction: {
+        Args: {
+          p_academic_year?: string
+          p_amount: number
+          p_notes?: string
+          p_recorded_by?: string
+          p_recorded_by_administrator_id?: string
+          p_recorded_by_staff_id?: string
+          p_semester?: string
+          p_student_id: string
+          p_transaction_date?: string
+          p_transaction_type: string
+        }
+        Returns: {
+          balance_after: number
+          transaction_id: string
+        }[]
       }
       record_vocab_missed_indicators: {
         Args: { p_indicator_codes: Json; p_student_id: string }
@@ -8946,6 +9885,7 @@ export type Database = {
         }
         Returns: Json
       }
+      set_integrated_plan_pin: { Args: { p_pin: string }; Returns: undefined }
       subject_key_from_folder: { Args: { p_subject: string }; Returns: string }
       subject_keys: { Args: { p_subject: string }; Returns: string[] }
       submit_daily_challenge_score: {
@@ -8968,6 +9908,19 @@ export type Database = {
         Args: { p_per_table: Json; p_student_code: string }
         Returns: undefined
       }
+      update_savings_transaction: {
+        Args: {
+          p_amount?: number
+          p_notes?: string
+          p_transaction_date?: string
+          p_transaction_id: string
+          p_transaction_type?: string
+        }
+        Returns: {
+          balance_after: number
+          transaction_id: string
+        }[]
+      }
       upsert_thai_vocab_missed: {
         Args: { p_category_slug: string; p_student_id: string; p_words: Json }
         Returns: number
@@ -8976,8 +9929,23 @@ export type Database = {
         Args: { p_category_slug: string; p_student_code: string; p_words: Json }
         Returns: number
       }
+      verify_integrated_plan_pin: { Args: { p_pin: string }; Returns: Json }
     }
     Enums: {
+      classroom_competition_device_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "revoked"
+      classroom_competition_outcome: "winner" | "loser"
+      classroom_competition_status:
+        | "draft"
+        | "waiting_devices"
+        | "live"
+        | "paused"
+        | "tiebreak"
+        | "finished"
+        | "cancelled"
       edu_hub_item_type: "file" | "link" | "youtube" | "text"
       reward_claim_status: "pending" | "approved" | "rejected"
       user_role: "admin" | "teacher" | "viewer" | "parent"
@@ -8996,12 +9964,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9025,11 +9993,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9050,11 +10018,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9075,11 +10043,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9092,11 +10060,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -9106,8 +10074,27 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
+      classroom_competition_device_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "revoked",
+      ],
+      classroom_competition_outcome: ["winner", "loser"],
+      classroom_competition_status: [
+        "draft",
+        "waiting_devices",
+        "live",
+        "paused",
+        "tiebreak",
+        "finished",
+        "cancelled",
+      ],
       edu_hub_item_type: ["file", "link", "youtube", "text"],
       reward_claim_status: ["pending", "approved", "rejected"],
       user_role: ["admin", "teacher", "viewer", "parent"],

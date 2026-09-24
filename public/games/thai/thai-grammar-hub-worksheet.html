@@ -2,53 +2,619 @@
 <html lang="th"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="worksheet-source-media" content="/games/thai/thai-grammar-hub/index.html">
-  <meta name="curriculum-indicators" content="ท 4.1 ป.4/2,ท 4.1 ป.4/6,ท 4.1 ป.5/2">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.4/2,ท 4.1 ป.5/1">
   <title>ใบงานคลังไวยากรณ์ไทย ป.4–ป.5 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    @media (max-width: 600px) {
+      .toolbar {
+        padding: 6px 8px;
+      }
+      .toolbar-ctrls {
+        gap: 4px;
+        max-width: 100%;
+      }
+      .t-select, .t-input, .btn {
+        max-width: 100%;
+        font-size: 0.76rem;
+        padding: 4px 6px;
+      }
+      .btn {
+        white-space: normal;
+        word-break: break-word;
+      }
+      .t-input {
+        width: 105px;
+      }
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6.2pt;
+      font-weight: 800;
+      color: var(--ws-accent, #1d4ed8);
+      border: 1px solid var(--ws-accent, #1d4ed8);
+      border-radius: 3px;
+      padding: .2mm 1.2mm;
+      margin-bottom: .4mm;
+      line-height: 1.2;
+      background: var(--ws-soft, #eff6ff);
+    }
+    .count-5 .skill-tag {
+      font-size: 7.5pt;
+      padding: .3mm 1.5mm;
+      margin-bottom: .6mm;
+    }
+    .sentence-box {
+      background: #f8fafc;
+      border: 1px solid var(--ws-line, #cbd5e1);
+      border-left: 3px solid var(--ws-accent, #2563eb);
+      border-radius: 4px;
+      padding: 1.2mm 2.2mm;
+      margin: 0.8mm 0;
+      font-size: 8.2pt;
+      line-height: 1.45;
+      color: #1e293b;
+      font-weight: 600;
+    }
+    .count-5 .sentence-box {
+      font-size: 9.5pt;
+      line-height: 1.55;
+      padding: 1.8mm 2.8mm;
+      margin: 1.2mm 0;
+    }
+    .q-prompt-thai {
+      font-size: 7.8pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.8mm;
+    }
+    .count-5 .q-prompt-thai {
+      font-size: 9.2pt;
+      margin-bottom: 1.2mm;
+    }
+    .answer-write-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8mm;
+      margin-top: 0.6mm;
+    }
+    .answer-line-fill {
+      border-bottom: 1px dotted #94a3b8;
+      min-height: 4.8mm;
+      display: flex;
+      align-items: center;
+      font-size: 7.5pt;
+      color: #334155;
+      position: relative;
+    }
+    .count-5 .answer-line-fill {
+      min-height: 6.2mm;
+      font-size: 8.8pt;
+    }
+    .ans-prefix {
+      font-weight: 700;
+      color: #64748b;
+      margin-right: 1.5mm;
+      flex-shrink: 0;
+    }
+    .teacher-ans-text {
+      color: #047857;
+      font-weight: 700;
+      display: none;
+    }
+    body.show-answers .teacher-ans-text {
+      display: inline;
+    }
+    body.show-answers .student-placeholder {
+      display: none;
+    }
+    .student-placeholder {
+      color: #cbd5e1;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline;
+    }
+  </style>
 </head><body>
-<header class="toolbar"><h1>📘 ใบงานคลังไวยากรณ์ไทย</h1><div class="toolbar-ctrls">
-  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
-  <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
-  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4–ป.5</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="noun">นาม</option><option value="verb">กริยา</option><option value="adj">คุณศัพท์</option><option value="adv">วิเศษณ์</option><option value="prep">บุพบท</option><option value="conj">สันธาน</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select>
-  <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
-  <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
-  <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
-  <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
-  <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
-</div></header>
-<main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<header class="toolbar">
+  <h1>📘 ใบงานคลังไวยากรณ์ไทย</h1>
+  <div class="toolbar-ctrls">
+    <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+      <option value="standard">มาตรฐาน</option>
+      <option value="progressive">บันไดระดับ</option>
+      <option value="booklet">รวมเล่ม</option>
+    </select>
+    <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+      <option value="1">1 หน้า</option>
+      <option value="2">2 หน้า</option>
+      <option value="3">3 หน้า</option>
+    </select>
+    <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+      <option value="all">รวม ป.4–ป.5</option>
+      <option value="4">ป.4</option>
+      <option value="5">ป.5</option>
+    </select>
+    <select class="t-select" id="selTopic" aria-label="ทักษะไวยากรณ์">
+      <option value="mixed">ผสมทุกทักษะ</option>
+      <option value="noun_pronoun">1. คำนามและสรรพนาม</option>
+      <option value="verb">2. คำกริยาและการมีกรรม</option>
+      <option value="modifier">3. คำวิเศษณ์ขยายความ</option>
+      <option value="prep_conj">4. คำบุพบทและสันธาน</option>
+      <option value="syntax">5. วิเคราะห์หน้าที่ในประโยค</option>
+    </select>
+    <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+      <option value="10">10 ข้อ</option>
+      <option value="5">5 ข้อ</option>
+    </select>
+    <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+    <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+      <option value="">-- เลือกครูผู้สอน --</option>
+    </select>
+    <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+    <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+    <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+  </div>
+</header>
+
+<main class="pages" id="pages">
+  <section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section>
+</main>
+
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"noun","prompt":"ขีดเส้นใต้นามทุกคำ","text":"แมวนอนบนเสื่อ","answer":"แมว · เสื่อ"},{"type":"verb","prompt":"ขีดเส้นใต้กริยา","text":"เด็ก ๆ วิ่งเล่นในสนาม","answer":"วิ่งเล่น"},{"type":"adj","prompt":"หาคุณศัพท์และบอกคำที่ถูกขยาย","text":"ดอกไม้สีแดงบานสะพรั่ง","answer":"สีแดง ขยายดอกไม้"},{"type":"adv","prompt":"หาวิเศษณ์และบอกหน้าที่","text":"นกบินสูงเหนือต้นไม้","answer":"สูง · บอกอาการของกริยาบิน"},{"type":"prep","prompt":"หาบุพบทและคำที่ตามมา","text":"หนังสืออยู่บนโต๊ะ","answer":"บน + โต๊ะ"},{"type":"conj","prompt":"หาสันธานและความสัมพันธ์","text":"ฝนตกจึงถนนลื่น","answer":"จึง · แสดงผล"},{"type":"mixed","prompt":"จำแนกชนิดคำทีละคำ","text":"น้องสาวอ่านหนังสืออย่างตั้งใจ","answer":"นาม กริยา นาม วิเศษณ์"},{"type":"noun","prompt":"แต่งประโยคที่มีนามอย่างน้อย 2 คำ","text":"ใช้คำ: ครู / นักเรียน","answer":"เช่น ครูชมนักเรียน"},{"type":"verb","prompt":"เติมกริยาให้เหมาะ","text":"ปลา___ในน้ำ","answer":"ว่าย / ว่ายน้ำ"},{"type":"adj","prompt":"เติมคุณศัพท์","text":"ท้องฟ้า___หลังฝนตก","answer":"เช่น สดใส / แจ่มใส"},{"type":"adv","prompt":"เติมวิเศษณ์","text":"นักเรียนอ่านหนังสือ___","answer":"เช่น อย่างตั้งใจ / ช้า ๆ"},{"type":"prep","prompt":"เติมบุพบท","text":"ดินสออยู่ใน___","answer":"เช่น กล่อง / กระเป๋า"},{"type":"conj","prompt":"เชื่อมประโยคด้วยสันธาน","text":"อากาศร้อน / อยากดื่มน้ำ","answer":"เช่น อากาศร้อนจึงอยากดื่มน้ำ"},{"type":"noun","prompt":"หาคำนามเฉพาะ","text":"ครูสมชายสอนวิชาคณิตศาสตร์","answer":"สมชาย"},{"type":"verb","prompt":"เปลี่ยนกริยาให้เป็นอดีตในความหมาย","text":"ฉันกินข้าว","answer":"เช่น ฉันกินข้าวแล้ว"},{"type":"mixed","prompt":"วงนามและขีดกริยา","text":"แม่หุงข้าวในครัว","answer":"นาม: แม่ ข้าว ครัว · กริยา: หุง"},{"type":"adj","prompt":"หาคุณศัพท์ 2 คำ","text":"รถคันสีแดงวิ่งเร็วมาก","answer":"สีแดง · เร็ว"},{"type":"conj","prompt":"เลือกสันธานที่เหมาะ","text":"อยากไปเที่ยว ___ ฝนตกหนัก","answer":"แต่ / แต่เนื่องจาก"}];
-window.WORKSHEET_CONFIG={
-  icon:'📘',title:'ใบงานคลังไวยากรณ์ไทย',subject:'ภาษาไทย',gradeLabel:'ป.4–ป.5',
-  mediaLabel:'คลังไวยากรณ์ไทย',sourceMediaUrl:'/games/thai/thai-grammar-hub/index.html',
-  indicators:["ท 4.1 ป.4/2","ท 4.1 ป.4/6","ท 4.1 ป.5/2"],
-  directions:"จำแนกชนิดของคำ ขีดเส้นใต้ และแต่งประโยคสั้น",
-  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
-  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;
-    return '<div class="q-prompt">'+e(item.prompt)+'</div>'
-      +'<div class="q-context">“'+e(item.text)+'”</div>'
-      +'<div class="classify-grid word-types-grid">'
-      +'<div class="classify-box">[ ] นาม</div><div class="classify-box">[ ] กริยา</div>'
-      +'<div class="classify-box">[ ] คุณศัพท์</div><div class="classify-box">[ ] อื่น ๆ</div></div>'
-      +'<div>ขีดเส้นใต้ / ระบุชนิดคำ</div><div class="work-line"></div>'
-      +'<div>เหตุผลสั้น ๆ</div><div class="reason-line"></div>'
-      +'<span class="teacher-answer">เฉลย: '+e(item.answer)+'</span>';}
+const ITEMS = [
+  // ====================================================
+  // 1. คำนามและคำสรรพนาม (Nouns & Pronouns) - 10 ข้อ
+  // ====================================================
+  {
+    id: 'np-1', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'คุณครูสมศรีใจดีและเอาใจใส่นักเรียนเสมอ',
+    prompt: 'คำว่า "คุณครูสมศรี" เป็นคำนามชนิดใด และทำหน้าที่อะไรในประโยค?',
+    answer: 'วิสามานยนาม (นามชี้เฉพาะ) · ทำหน้าที่เป็นประธานของประโยค',
+    explanation: 'เป็นชื่อเฉพาะเจาะจงของบุคคล ไม่ใช่นามทั่วไป'
+  },
+  {
+    id: 'np-2', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'ช้างโขลงใหญ่กำลังเดินข้ามลำธารในป่าลึก',
+    prompt: 'คำว่า "โขลง" ในประโยคนี้จัดเป็นคำนามชนิดใด?',
+    answer: 'สมุหนาม (คำนามบอกหมวดหมู่)',
+    explanation: 'วางอยู่หน้านาม "ช้าง" เพื่อบอกหมวดหมู่ของช้างที่รวมกลุ่มกัน'
+  },
+  {
+    id: 'np-3', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'คุณพ่อซื้อปากกาหมึกซึมมาสองด้ามให้ลูกสาว',
+    prompt: 'คำว่า "ด้าม" ในประโยคนี้ทำหน้าที่เป็นคำนามชนิดใด?',
+    answer: 'ลักษณนาม',
+    explanation: 'วางอยู่หลังจำนวนนับ "สอง" เพื่อบอกลักษณะรูปร่างของปากกา'
+  },
+  {
+    id: 'np-4', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'ความกตัญญูรู้คุณเป็นเครื่องหมายของคนดี',
+    prompt: 'คำว่า "ความกตัญญู" จัดเป็นคำนามชนิดใด?',
+    answer: 'อาการนาม',
+    explanation: 'มีคำว่า "ความ" นำหน้าคำนามธรรม/คุณธรรม บอกสภาพจิตใจ'
+  },
+  {
+    id: 'np-5', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'การวิ่งออกกำลังกายในตอนเช้าทำให้สดชื่น',
+    prompt: 'คำว่า "การวิ่ง" จัดเป็นคำนามชนิดใด?',
+    answer: 'อาการนาม',
+    explanation: 'มีคำว่า "การ" นำหน้าคำกริยา "วิ่ง" แปลงเป็นคำนาม'
+  },
+  {
+    id: 'np-6', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'พวกเราช่วยกันทำความสะอาดห้องเรียนจนสะอาดตา',
+    prompt: 'คำว่า "พวกเรา" จัดเป็นคำสรรพนามประเภทใด?',
+    answer: 'บุรุษสรรพนามที่ 1 (แทนผู้พูด)',
+    explanation: 'ใช้แทนตัวผู้พูดหลายคนรวมกัน และทำหน้าที่เป็นประธาน'
+  },
+  {
+    id: 'np-7', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'เธอจะไปยืมหนังสือที่ห้องสมุดพร้อมกับฉันไหม',
+    prompt: 'คำว่า "เธอ" และ "ฉัน" ในประโยคนี้เป็นสรรพนามบุรุษใด?',
+    answer: 'เธอ = บุรุษสรรพนามที่ 2 (ผู้ฟัง) · ฉัน = บุรุษสรรพนามที่ 1 (ผู้พูด)',
+    explanation: '"เธอ" แทนผู้ฟังที่กำลังสนทนาด้วย และ "ฉัน" แทนตัวผู้พูด'
+  },
+  {
+    id: 'np-8', grade: 4, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'ท่านผู้อำนวยการกำลังกล่าวให้โอวาทแก่นักเรียนหน้าเสาธง',
+    prompt: 'คำว่า "ท่าน" ในประโยคนี้ทำหน้าที่เป็นคำชนิดใด?',
+    answer: 'บุรุษสรรพนามที่ 3 (สรรพนามยกย่อง)',
+    explanation: 'ใช้กล่าวถึงบุคคลภายนอกที่กำลังพูดถึงด้วยความเคารพยกย่อง'
+  },
+  {
+    id: 'np-9', grade: 5, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'ใคร ๆ ก็ชื่นชอบคนที่มีกิริยามารยาทสุภาพอ่อนหวาน',
+    prompt: 'คำว่า "ใคร ๆ" ในประโยคนี้จัดเป็นคำสรรพนามชนิดใด?',
+    answer: 'อนิยมสรรพนาม (สรรพนามไม่ชี้เฉพาะ)',
+    explanation: 'แทนบุคคลทั่วไปโดยไม่ระบุเจาะจง และไม่ได้ใช้เป็นคำถาม'
+  },
+  {
+    id: 'np-10', grade: 5, type: 'noun_pronoun', skill: 'คำนามและสรรพนาม',
+    sentence: 'เด็ก ๆ ต่างช่วยกันเก็บเศษขยะรอบสนามเด็กเล่น',
+    prompt: 'คำว่า "ต่าง" ในประโยคนี้ทำหน้าที่เป็นคำสรรพนามชนิดใด?',
+    answer: 'วิภาคสรรพนาม (สรรพนามแยกฝ่าย/แบ่งพวก)',
+    explanation: 'ใช้แทนคำนามข้างหน้าเพื่อแสดงการแยกแยะการกระทำของประธาน'
+  },
+
+  // ====================================================
+  // 2. คำกริยาและการมีกรรม (Verbs & Transitivity) - 10 ข้อ
+  // ====================================================
+  {
+    id: 'vb-1', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'นกพิราบฝูงหนึ่งบินร่อนอยู่เหนือยอดไม้',
+    prompt: 'คำว่า "บิน" จัดเป็นคำกริยาชนิดใด?',
+    answer: 'อกรรมกริยา (กริยาที่ไม่ต้องมีกรรม)',
+    explanation: 'กริยามีความหมายสมบูรณ์ชัดเจนในตัวเอง ไม่ต้องมีกรรมมารองรับ'
+  },
+  {
+    id: 'vb-2', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'ชาวประมงเหวี่ยงแหจับปลาตัวใหญ่ได้หลายตัว',
+    prompt: 'คำว่า "จับ" เป็นคำกริยาชนิดใด และคำใดทำหน้าที่เป็นกรรม?',
+    answer: 'สกรรมกริยา (กริยาต้องมีกรรม) · คำว่า "ปลา" เป็นกรรม',
+    explanation: 'การจับต้องมีผู้ถูกกระทำ ซึ่งก็คือ "ปลา" มารองรับ'
+  },
+  {
+    id: 'vb-3', grade: 5, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'คุณลุงของฉันเป็นหมอรักษาโรคทั่วไปที่โรงพยาบาลอำเภอ',
+    prompt: 'คำว่า "เป็น" ในประโยคนี้จัดเป็นคำกริยาชนิดใด?',
+    answer: 'วิกตรรถกริยา (กริยาอาศัยส่วนเติมเต็ม)',
+    explanation: 'ไม่มีเนื้อความสมบูรณ์ในตัวเอง ต้องมีคำนาม "หมอ" มาช่วยเติมเต็ม (หมอไม่ใช่กรรม)'
+  },
+  {
+    id: 'vb-4', grade: 5, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'ดวงตาของน้องคนเล็กเหมือนคุณแม่อย่างยิ่ง',
+    prompt: 'คำว่า "เหมือน" ทำหน้าที่เป็นคำกริยาชนิดใด?',
+    answer: 'วิกตรรถกริยา (กริยาอาศัยส่วนเติมเต็ม)',
+    explanation: 'ทำหน้าที่เปรียบเทียบ โดยมี "คุณแม่" เป็นส่วนเติมเต็ม ไม่ใช่กรรม'
+  },
+  {
+    id: 'vb-5', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'ผู้ชมในหอประชุมหัวเราะเสียงดังด้วยความเพลิดเพลิน',
+    prompt: 'คำว่า "หัวเราะ" เป็นกริยาชนิดใด และ "เสียงดัง" ทำหน้าที่อะไร?',
+    answer: 'อกรรมกริยา · "เสียงดัง" ทำหน้าที่เป็นส่วนขยายกริยา',
+    explanation: '"หัวเราะ" สมบูรณ์ในตัวเอง ส่วน "เสียงดัง" บอกลักษณะกิริยา'
+  },
+  {
+    id: 'vb-6', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'คุณยายร้อยพวงมาลัยดอกมะลิถวายพระในวันพระ',
+    prompt: 'คำว่า "ร้อย" จัดเป็นกริยาชนิดใด และคำใดเป็นกรรม?',
+    answer: 'สกรรมกริยา · คำว่า "พวงมาลัย" ทำหน้าที่เป็นกรรม',
+    explanation: 'คำว่า "พวงมาลัย" เป็นสิ่งที่ถูกร้อย จึงเป็นกรรมตรง'
+  },
+  {
+    id: 'vb-7', grade: 5, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'นักเรียนทุกคนควรตั้งใจฟังคำบรรยายของวิทยากร',
+    prompt: 'คำว่า "ควร" ในประโยคนี้จัดเป็นคำกริยาชนิดใด?',
+    answer: 'กริยานุเคราะห์ (กริยาช่วย)',
+    explanation: 'ช่วยเสริมความหมายของกริยาสำคัญคือ "ตั้งใจฟัง"'
+  },
+  {
+    id: 'vb-8', grade: 5, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'ความรู้คือแสงสว่างที่นำทางชีวิตให้ก้าวหน้า',
+    prompt: 'คำว่า "คือ" ในประโยคนี้ทำหน้าที่เป็นกริยาประเภทใด?',
+    answer: 'วิกตรรถกริยา (กริยาอาศัยส่วนเติมเต็ม)',
+    explanation: 'เชื่อมความหมายระหว่างประธานกับส่วนเติมเต็ม "แสงสว่าง"'
+  },
+  {
+    id: 'vb-9', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'ธารน้ำใสไหลเอื่อย ๆ ผ่านซอกหินกลมเกลี้ยง',
+    prompt: 'คำว่า "ไหล" จัดเป็นคำกริยาประเภทใด?',
+    answer: 'อกรรมกริยา (กริยาไม่ต้องมีกรรม)',
+    explanation: 'ธารน้ำไหลได้ด้วยตัวเอง ไม่ต้องการกรรมมารองรับ'
+  },
+  {
+    id: 'vb-10', grade: 4, type: 'verb', skill: 'คำกริยาและการมีกรรม',
+    sentence: 'นายช่างซ่อมแซมสะพานไม้ข้ามคลองจนมั่นคงแข็งแรง',
+    prompt: 'คำว่า "ซ่อมแซม" เป็นกริยาชนิดใด และคำใดเป็นกรรม?',
+    answer: 'สกรรมกริยา · คำว่า "สะพานไม้" ทำหน้าที่เป็นกรรม',
+    explanation: 'สะพานไม้เป็นวัตถุที่ถูกซ่อมแซม จึงทำหน้าที่เป็นกรรมตรง'
+  },
+
+  // ====================================================
+  // 3. คำวิเศษณ์ขยายความ (Modifiers & Adjectives) - 10 ข้อ
+  // ====================================================
+  {
+    id: 'mod-1', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'ม้าสีนิลตัวนั้นวิ่งเร็วมากในสนามแข่ง',
+    prompt: 'คำว่า "สีนิล" และ "เร็ว" ขยายคำใดในประโยคตามลำดับ?',
+    answer: '"สีนิล" ขยายคำนามม้า · "เร็ว" ขยายคำกริยาวิ่ง',
+    explanation: 'วิเศษณ์วางหลังคำที่ต้องการขยายเพื่อเพิ่มรายละเอียด'
+  },
+  {
+    id: 'mod-2', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'ดอกมะลิซ้อนส่งกลิ่นหอมชื่นใจไปทั่วบ้าน',
+    prompt: 'คำว่า "หอมชื่นใจ" จัดเป็นคำวิเศษณ์ชนิดใด?',
+    answer: 'ลักษณวิเศษณ์ (วิเศษณ์บอกลักษณะ/กลิ่น)',
+    explanation: 'บอกลักษณะกลิ่นของดอกมะลิว่ามีกลิ่นหอม'
+  },
+  {
+    id: 'mod-3', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'บ้านพักครูตั้งอยู่ใกล้สวนป่าเบญจพรรณ',
+    prompt: 'คำว่า "ใกล้" ในประโยคนี้ทำหน้าที่เป็นคำวิเศษณ์ชนิดใด?',
+    answer: 'สถานวิเศษณ์ (วิเศษณ์บอกสถานที่/ระยะ)',
+    explanation: 'บอกระยะทางและตำแหน่งที่ตั้งของบ้านพักครู'
+  },
+  {
+    id: 'mod-4', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'คุณแม่ตื่นแต่เช้าตรู่มาเตรียมอาหารตักบาตร',
+    prompt: 'คำว่า "เช้าตรู่" ในประโยคนี้จัดเป็นคำวิเศษณ์ชนิดใด?',
+    answer: 'กาลวิเศษณ์ (วิเศษณ์บอกเวลา)',
+    explanation: 'ขยายกริยา "ตื่น" เพื่อระบุเวลาที่กระทำกริยานั้น'
+  },
+  {
+    id: 'mod-5', grade: 5, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'นักเรียนทุกคนต่างพร้อมใจกันร้องเพลงชาติ',
+    prompt: 'คำว่า "ทุกคน" จัดเป็นคำวิเศษณ์ชนิดใด?',
+    answer: 'ประมาณวิเศษณ์ (วิเศษณ์บอกจำนวน/ปริมาณ)',
+    explanation: 'ขยายคำนาม "นักเรียน" เพื่อบอกปริมาณที่ไม่จำกัดจำนวน'
+  },
+  {
+    id: 'mod-6', grade: 5, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'สมุดบันทึกเล่มนี้มีภาพวาดลายเส้นสวยงาม',
+    prompt: 'คำว่า "นี้" ในประโยคนี้ทำหน้าที่เป็นคำวิเศษณ์ชนิดใด?',
+    answer: 'นิยมวิเศษณ์ (วิเศษณ์บอกความชี้เฉพาะ)',
+    explanation: 'ขยาย "เล่ม" เพื่อชี้เฉพาะเจาะจงว่าเป็นสมุดเล่มนี้'
+  },
+  {
+    id: 'mod-7', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'กระต่ายป่ากระโดดอย่างว่องไวเข้าสู่พุ่มหนาม',
+    prompt: 'คำว่า "อย่างว่องไว" ทำหน้าที่ใดในโครงสร้างประโยค?',
+    answer: 'ส่วนขยายกริยา (ขยายคำว่า "กระโดด")',
+    explanation: 'บอกกิริยาอาการกระโดดของกระต่ายว่าเกิดขึ้นอย่างรวดเร็วคล่องแคล่ว'
+  },
+  {
+    id: 'mod-8', grade: 5, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'ต้มยำกุ้งหม้อนี้มีรสชาติเผ็ดจัดถูกปากคนไทย',
+    prompt: 'คำว่า "จัด" ในคำว่า "เผ็ดจัด" ทำหน้าที่ขยายคำใด?',
+    answer: 'ขยายคำวิเศษณ์ "เผ็ด" เพื่อบอกระดับความเข้มข้น',
+    explanation: 'วิเศษณ์ขยายวิเศษณ์ด้วยกันเพื่อเน้นย้ำระดับความรู้สึก'
+  },
+  {
+    id: 'mod-9', grade: 5, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'บ้านเรือนไทยโบราณหลังนั้นมีลวดลายแกะสลักประณีต',
+    prompt: 'คำว่า "โบราณ" และ "ประณีต" จัดเป็นคำชนิดใด?',
+    answer: 'คำวิเศษณ์บอกลักษณะ (ลักษณวิเศษณ์) ทั้งคู่',
+    explanation: '"โบราณ" ขยายนามบ้านเรือนไทย · "ประณีต" ขยายการแกะสลัก'
+  },
+  {
+    id: 'mod-10', grade: 4, type: 'modifier', skill: 'คำวิเศษณ์ขยายความ',
+    sentence: 'แสงตะวันสาดส่องเจิดจ้าเหนือท้องทุ่งนาสีทอง',
+    prompt: 'คำว่า "เจิดจ้า" ทำหน้าที่ขยายคำใดในประโยค?',
+    answer: 'ขยายคำกริยา "สาดส่อง"',
+    explanation: 'บอกลักษณะความสว่างของแสงตะวันที่ส่องออกมา'
+  },
+
+  // ====================================================
+  // 4. คำบุพบทและคำสันธาน (Prepositions & Conjunctions) - 10 ข้อ
+  // ====================================================
+  {
+    id: 'pc-1', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'สมุดส่งการบ้านวางเรียบร้อยอยู่บนโต๊ะของคุณครู',
+    prompt: 'คำว่า "บน" ทำหน้าที่เป็นคำชนิดใดและบอกความหมายใด?',
+    answer: 'คำบุพบท (บอกสถานที่/ตำแหน่ง)',
+    explanation: 'เชื่อมความสัมพันธ์ระหว่าง "วางอยู่" กับนาม "โต๊ะ"'
+  },
+  {
+    id: 'pc-2', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'คุณตาเริ่มออกเดินรำมวยจีนตั้งแต่เช้าตรู่ทุกวัน',
+    prompt: 'คำว่า "ตั้งแต่" ในประโยคนี้ทำหน้าที่เป็นคำชนิดใด?',
+    answer: 'คำบุพบท (บอกเวลา)',
+    explanation: 'นำหน้านามบอกเวลา "เช้าตรู่" เพื่อระบุจุดเริ่มต้นของเวลา'
+  },
+  {
+    id: 'pc-3', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'ตัวแทนนร. มอบพวงมาลัยดอกมะลิแด่คุณยายเนื่องในวันแม่',
+    prompt: 'คำว่า "แด่" ทำหน้าที่เป็นคำชนิดใดและใช้กับบุคคลใด?',
+    answer: 'คำบุพบท (บอกผู้รับ) · ใช้กับบุคคลที่มีอาวุโสสูงกว่า',
+    explanation: '"แด่" ใช้แสดงการให้แก่ผู้อาวุโสหรือผู้ควรเคารพ'
+  },
+  {
+    id: 'pc-4', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'ภาพวาดทิวทัศน์ริมคลองนี้เป็นฝีมือของนักเรียน ป.5',
+    prompt: 'คำว่า "ของ" ในประโยคนี้ทำหน้าที่เป็นคำชนิดใด?',
+    answer: 'คำบุพบท (บอกความเป็นเจ้าของ)',
+    explanation: 'เชื่อมระหว่าง "ภาพวาด/ฝีมือ" กับเจ้าของผลงานคือ "นักเรียน ป.5"'
+  },
+  {
+    id: 'pc-5', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'พี่ชายและน้องสาวช่วยกันดูแลรดน้ำแปลงผักสวนครัว',
+    prompt: 'คำว่า "และ" เป็นคำชนิดใดและเชื่อมใจความแบบใด?',
+    answer: 'คำสันธาน (เชื่อมความคล้อยตามกัน)',
+    explanation: 'เชื่อมคำนาม "พี่ชาย" กับ "น้องสาว" ที่ทำกิจกรรมร่วมกัน'
+  },
+  {
+    id: 'pc-6', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'แม้แดดจะร้อนจัดแต่ทุกคนก็ยังช่วยกันเกี่ยวข้าวจนเสร็จ',
+    prompt: 'คำว่า "แต่" ในประโยคนี้เป็นคำชนิดใดและเชื่อมใจความแบบใด?',
+    answer: 'คำสันธาน (เชื่อมใจความขัดแย้งกัน)',
+    explanation: 'เชื่อมระหว่างความร้อนของแดดกับการตั้งใจทำงานจนเสร็จ'
+  },
+  {
+    id: 'pc-7', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'เพราะเขาหมั่นทบทวนบทเรียนเขาจึงสอบได้คะแนนยอดเยี่ยม',
+    prompt: 'คำว่า "เพราะ...จึง" ทำหน้าที่เป็นคำสันธานเชื่อมใจความแบบใด?',
+    answer: 'คำสันธาน (เชื่อมใจความเป็นเหตุเป็นผลกัน)',
+    explanation: '"เพราะ" นำหน้าเหตุผล (ทบทวนบทเรียน) และ "จึง" นำหน้าผลลัพธ์ (คะแนนยอดเยี่ยม)'
+  },
+  {
+    id: 'pc-8', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'ในวันหยุดเธอจะไปฝึกซ้อมดนตรีไทยหรือจะไปฝึกวาดภาพ',
+    prompt: 'คำว่า "หรือ" เป็นคำสันธานที่เชื่อมใจความแบบใด?',
+    answer: 'คำสันธาน (เชื่อมใจความให้เลือกอย่างใดอย่างหนึ่ง)',
+    explanation: 'ให้ผู้ฟังเลือกกิจกรรมใดกิจกรรมหนึ่งระหว่างดนตรีไทยกับการวาดภาพ'
+  },
+  {
+    id: 'pc-9', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'คณะครูเดินทางไปศึกษาดูงานโดยรถไฟความเร็วสูง',
+    prompt: 'คำว่า "โดย" จัดเป็นคำชนิดใดและบอกอะไร?',
+    answer: 'คำบุพบท (บอกพาหนะ/เครื่องมือหรือวิธีการ)',
+    explanation: 'เชื่อมกริยา "เดินทาง" กับยานพาหนะคือ "รถไฟความเร็วสูง"'
+  },
+  {
+    id: 'pc-10', grade: 5, type: 'prep_conj', skill: 'คำบุพบทและสันธาน',
+    sentence: 'ไชโย! ทีมวิ่งผลัดของโรงเรียนเราคว้าเหรียญทองมาได้สำเร็จ',
+    prompt: 'คำว่า "ไชโย!" จัดเป็นคำชนิดใดและแสดงอารมณ์ความรู้สึกใด?',
+    answer: 'คำอุทาน (แสดงความดีใจและฉลองชัยชนะ)',
+    explanation: 'เปล่งเสียงออกมาเพื่อแสดงความตื่นเต้นดีใจ มีเครื่องหมายอัศเจรีย์ (!) กำกับ'
+  },
+
+  // ====================================================
+  // 5. วิเคราะห์หน้าที่ของคำในประโยค (Syntax & Sentence Roles) - 10 ข้อ
+  // ====================================================
+  {
+    id: 'syn-1', grade: 4, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'น้องคนเล็กดื่มนมจืดทุกเช้าก่อนไปโรงเรียน',
+    prompt: 'คำว่า "นมจืด" ทำหน้าที่อะไรในประโยค?',
+    answer: 'กรรมของประโยค (มี "จืด" เป็นส่วนขยายกรรม)',
+    explanation: '"นม" เป็นสิ่งที่ถูกดื่ม จึงเป็นกรรมตรงของกริยาดื่ม'
+  },
+  {
+    id: 'syn-2', grade: 4, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'คุณพ่อขับรถยนต์คันใหม่อย่างระมัดระวังบนถนนลื่น',
+    prompt: 'คำว่า "อย่างระมัดระวัง" ทำหน้าที่ใดในโครงสร้างประโยค?',
+    answer: 'ส่วนขยายกริยา (ขยายคำว่า "ขับ")',
+    explanation: 'บรรยายลักษณะการขับขี่ของคุณพ่อว่าขับด้วยความระมัดระวัง'
+  },
+  {
+    id: 'syn-3', grade: 4, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'แมวลายตัวอ้วนจับหนูตัวใหญ่ได้ในครัวหลังบ้าน',
+    prompt: 'ระบุ ประธาน, กริยา และ กรรม ของประโยคนี้',
+    answer: 'ประธาน: แมว · กริยา: จับ · กรรม: หนู',
+    explanation: 'แมวเป็นผู้กระทำ, จับคือการกระทำ, หนูคือผู้ถูกกระทำ'
+  },
+  {
+    id: 'syn-4', grade: 5, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'ต้นไม้ใหญ่ริมรั้วหน้าบ้านผลิดอกส่งกลิ่นหอมชวนดม',
+    prompt: 'คำว่า "ริมรั้วหน้าบ้าน" ทำหน้าที่ขยายส่วนใดของประโยค?',
+    answer: 'ส่วนขยายประธาน (ขยายคำว่า "ต้นไม้ใหญ่")',
+    explanation: 'ระบุตำแหน่งที่ตั้งของต้นไม้ซึ่งเป็นประธานหลัก'
+  },
+  {
+    id: 'syn-5', grade: 5, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'ศิษย์กตัญญูย่อมเชื่อฟังคำสั่งสอนของคุณครูบาอาจารย์',
+    prompt: 'กลุ่มคำว่า "คำสั่งสอนของคุณครูบาอาจารย์" ทำหน้าที่อะไร?',
+    answer: 'กรรมของประโยค',
+    explanation: 'เป็นสิ่งที่ถูกเชื่อฟังโดยประธาน "ศิษย์กตัญญู"'
+  },
+  {
+    id: 'syn-6', grade: 4, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'นกขุนทองพูดเพราะจับใจในกรงไม้ไผ่',
+    prompt: 'ประโยคนี้เป็นประโยค 2 ส่วน หรือ 3 ส่วน เพราะเหตุใด?',
+    answer: 'ประโยค 2 ส่วน (มีเฉพาะประธานและกริยา)',
+    explanation: 'ประกอบด้วยประธาน (นกขุนทอง) และกริยา (พูด) โดย "เพราะจับใจ" เป็นส่วนขยายกริยา ไม่มีกรรม'
+  },
+  {
+    id: 'syn-7', grade: 5, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'นายแพทย์ผ่าตัดคนไข้อย่างระมัดระวังในห้องปลอดเชื้อ',
+    prompt: 'คำว่า "อย่างระมัดระวัง" และ "ในห้องปลอดเชื้อ" ทำหน้าที่ใด?',
+    answer: 'ส่วนขยายกริยา "ผ่าตัด" ทั้งสองส่วน',
+    explanation: 'บอกอาการ (อย่างระมัดระวัง) และสถานที่ (ในห้องปลอดเชื้อ) ของการผ่าตัด'
+  },
+  {
+    id: 'syn-8', grade: 5, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'ชาวสวนคัดผลไม้สุกส่งขายตลาดผลไม้กลางคืน',
+    prompt: 'คำว่า "สุก" ในประโยคนี้ทำหน้าที่อะไร?',
+    answer: 'ส่วนขยายกรรม (ขยายคำนาม "ผลไม้")',
+    explanation: 'บอกลักษณะของผลไม้ซึ่งเป็นกรรมของกริยา "คัด"'
+  },
+  {
+    id: 'syn-9', grade: 4, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'สายฝนโปรยปรายเย็นชุ่มฉ่ำทั่วผืนป่าเขียวขจี',
+    prompt: 'จำแนก ภาคประธาน และ ภาคแสดง ของประโยคนี้',
+    answer: 'ภาคประธาน: สายฝน · ภาคแสดง: โปรยปรายเย็นชุ่มฉ่ำทั่วผืนป่าเขียวขจี',
+    explanation: 'สายฝนเป็นผู้กระทำ ส่วนที่เหลือเป็นกริยาและส่วนขยายทั้งหมด'
+  },
+  {
+    id: 'syn-10', grade: 5, type: 'syntax', skill: 'วิเคราะห์หน้าที่ในประโยค',
+    sentence: 'นักดนตรีไทยบรรเลงเพลงโหมโรงได้อย่างไพเราะน่าฟัง',
+    prompt: 'คำว่า "เพลงโหมโรง" ทำหน้าที่ใดในประโยคนี้?',
+    answer: 'กรรมของประโยค (รับกริยา "บรรเลง")',
+    explanation: 'เพลงโหมโรงเป็นบทเพลงที่ถูกบรรเลง จึงทำหน้าที่เป็นกรรมตรง'
+  }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '📘',
+  title: 'ใบงานคลังไวยากรณ์ไทย',
+  subject: 'ภาษาไทย',
+  gradeLabel: 'ป.4–ป.5',
+  mediaLabel: 'คลังไวยากรณ์ไทย',
+  sourceMediaUrl:'/games/thai/thai-grammar-hub/index.html',
+  indicators: ["ท 4.1 ป.4/2", "ท 4.1 ป.5/1"],
+  directions: 'อ่านประโยค วิเคราะห์ชนิดและหน้าที่ของคำตามหลักภาษาไทย แล้วตอบคำถามพร้อมระบุเหตุผลให้ถูกต้อง',
+  topicLabels: {
+    noun_pronoun: '1. คำนามและสรรพนาม',
+    verb: '2. คำกริยาและการมีกรรม',
+    modifier: '3. คำวิเศษณ์ขยายความ',
+    prep_conj: '4. คำบุพบทและสันธาน',
+    syntax: '5. วิเคราะห์หน้าที่ในประโยค'
+  },
+
+  getItems(topic) {
+    const gradeVal = document.getElementById('selGrade')?.value || 'all';
+    let pool = ITEMS;
+    if (gradeVal === '4') pool = ITEMS.filter(item => item.grade === 4);
+    else if (gradeVal === '5') pool = ITEMS.filter(item => item.grade === 5);
+
+    if (!topic || topic === 'mixed') return pool;
+    const filtered = pool.filter(item => item.type === topic);
+    return filtered.length > 0 ? filtered : ITEMS.filter(item => item.type === topic);
+  },
+
+  renderQuestion(item, index, ctx) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    
+    return `
+      <div class="q-stem">
+        <div>
+          <span class="skill-tag">${e(item.skill)} (ป.${item.grade})</span>
+        </div>
+        <div class="sentence-box">
+          “${e(item.sentence)}”
+        </div>
+        <div class="q-prompt-thai">
+          <strong>คำถาม:</strong> ${e(item.prompt)}
+        </div>
+      </div>
+      <div class="answer-write-area">
+        <div class="answer-line-fill">
+          <span class="ans-prefix">คำตอบ:</span>
+          <span class="teacher-ans-text">${e(item.answer)}</span>
+          <span class="student-placeholder">...................................................................................................................................................</span>
+        </div>
+        <div class="answer-line-fill">
+          <span class="ans-prefix">เหตุผล/หน้าที่:</span>
+          <span class="teacher-ans-text">${e(item.explanation)}</span>
+          <span class="student-placeholder">...................................................................................................................................................</span>
+        </div>
+      </div>
+    `;
+  }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
-function render(){window.KampaiTopicWorksheet.render();}
-document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
-document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+function render() {
+  window.KampaiTopicWorksheet.render();
+}
+window.render = render;
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>

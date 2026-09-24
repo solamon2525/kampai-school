@@ -19,7 +19,7 @@
   3. เขียนเกมใน game.js (ส่วน GAME LOGIC) · เนื้อหาใน data.js · สไตล์ใน style.css
   4. ออนไลน์? ตั้ง ENABLE_ONLINE: true ใน config.js (ใช้ kampai-versus)
   5. migration: NNN_seed_{slug}_game.sql (external_url = '/games/{subject}/{slug}/index.html')
-  6. pnpm verify:game public/games/{subject}/{slug}   (ต้องผ่านทุก check)
+  6. pnpm verify:game:all -- public/games/{subject}/{slug}   (static strict + browser + manual camera)
   7. ทดสอบ browser จริงมีกล้อง + เครื่องไม่มีกล้อง (โหมดแตะ/คลิก fallback)
 ═══════════════════════════════════════════════════════════════════════════
 -->
@@ -51,7 +51,7 @@
             <ul class="lb-list" id="lbList"></ul>
         </div>
         <div class="mode-row">
-            <button class="btn btn-primary" id="startBtn">▶️ เริ่มเล่น</button>
+            <button class="btn btn-primary" id="startBtn" data-kampai-action="start">▶️ เริ่มเล่น</button>
             <button class="btn btn-ghost" id="onlineBtn" style="display:none">🌐 ออนไลน์</button>
         </div>
     </div>
@@ -84,8 +84,9 @@
             <ul class="lb-list" id="lbListEnd"></ul>
         </div>
         <div class="row">
-            <button class="btn btn-primary" id="restartBtn">🔄 เล่นอีกครั้ง</button>
+            <button class="btn btn-primary" id="restartBtn" data-kampai-action="restart">🔄 เล่นอีกครั้ง</button>
             <button class="btn ghost" id="homeBtn">🏠 หน้าหลัก</button>
+            <button type="button" data-kampai-action="finish-test" hidden>จบเกมสำหรับทดสอบ</button>
         </div>
     </div>
 </div>
@@ -93,7 +94,7 @@
 <!-- ═══ SDK + KampaiHands + Online + Versus ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{ correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{ correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>

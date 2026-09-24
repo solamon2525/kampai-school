@@ -76,3 +76,13 @@ h1.title { font-family: 'Fredoka One', cursive; font-size: 34px; color: #fbbf24;
 /* loading */
 #loading { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(11,16,38,0.9); z-index: 50; font-size: 18px; }
 #loading.on { display: flex; }
+
+:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

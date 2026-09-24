@@ -2,6 +2,8 @@
 (function() {
     'use strict';
 
+    if (window.KAMPAI && KAMPAI.setSlug) KAMPAI.setSlug('ar-calibration');
+
     var ar = null;
     var canvas = null;
     var ctx = null;
@@ -175,6 +177,28 @@
                 elBtnCopyConfig.style.backgroundColor = '';
             }, 1500);
         });
+
+        var elBtnRestart = document.getElementById('btn-restart');
+        if (elBtnRestart) {
+            elBtnRestart.addEventListener('click', function() {
+                restartCamera();
+            });
+        }
+
+        var elBtnFinishTest = document.querySelector('[data-kampai-action="finish-test"]');
+        if (elBtnFinishTest) {
+            elBtnFinishTest.addEventListener('click', function() {
+                stopCamera();
+                var resEl = document.getElementById('kampai-result');
+                if (resEl) {
+                    resEl.innerHTML = '<div class="test-pass">Calibration Complete</div>';
+                    resEl.style.display = 'block';
+                }
+                if (window.KAMPAI && KAMPAI.submitScore) {
+                    KAMPAI.submitScore(100, { mode: 'normal', allowResubmit: true });
+                }
+            });
+        }
     }
 
     // สร้างข้อมูลการตั้งค่าสำหรับคัดลอกลงใน config.js
@@ -213,6 +237,7 @@
     }
 
     async function startCamera() {
+        if (window.KAMPAI && KAMPAI.beginRound) KAMPAI.beginRound();
         showStatus('กำลังตั้งค่ากล้อง...');
         
         var uiTuning = getTuningFromUI();
@@ -277,7 +302,8 @@
 
     function restartCamera() {
         stopCamera();
-        setTimeout(startCamera, 300);
+        if (window.KAMPAI && KAMPAI.beginRound) KAMPAI.beginRound();
+        startCamera();
     }
 
     function clearTrails() {
@@ -461,6 +487,11 @@
         KAMPAI.submitScore(0);
         KampaiVersus.create({});
     }
+
+    window.KAMPAI_GAME = {
+        start: function() { startCamera(); },
+        restart: function() { restartCamera(); }
+    };
 
     // เริ่มทำงานเมื่อโหลดเสร็จ
     window.addEventListener('DOMContentLoaded', init);

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">A*H2DID+!?</title>
+  <desc id="desc">Cover for Light Sort  opaque translucent transparent materials</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#083344"/>
+      <stop offset="0.4" stop-color="#0e7490"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fef9c3"/>
+      <stop offset="1" stop-color="#facc15"/>
+    </linearGradient>
+    <radialGradient id="beam" cx="0.2" cy="0.2" r="0.8">
+      <stop offset="0" stop-color="#fef08a" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#fef08a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="220" cy="160" rx="260" ry="180" fill="url(#beam)"/>
+  <g>
+    <rect x="180" y="300" width="220" height="200" rx="24" fill="#0f172a" stroke="#fde68a" stroke-width="6"/>
+    <text x="290" y="400" text-anchor="middle" font-size="72">>µ</text>
+    <text x="290" y="470" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="700" fill="#fef08a">6A*</text>
+  </g>
+  <g>
+    <rect x="530" y="280" width="220" height="220" rx="24" fill="#94a3b8" fill-opacity="0.55" stroke="#e2e8f0" stroke-width="6"/>
+    <text x="640" y="390" text-anchor="middle" font-size="72">>Ÿ</text>
+    <text x="640" y="460" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="700" fill="#ecfeff">B#HA*</text>
+  </g>
+  <g>
+    <rect x="880" y="300" width="220" height="200" rx="24" fill="#67e8f9" fill-opacity="0.25" stroke="#a5f3fc" stroke-width="6"/>
+    <text x="990" y="400" text-anchor="middle" font-size="72">=§</text>
+    <text x="990" y="470" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="28" font-weight="700" fill="#ecfeff">B#HC*</text>
+  </g>
+  <text x="640" y="120" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="68" font-weight="700" fill="url(#gold)">=¡ A*H2DID+!?</text>
+  <text x="640" y="620" text-anchor="middle" font-family="Kanit, Sarabun, sans-serif" font-size="32" font-weight="600" fill="#ecfeff">1'1*82!2#H2-A* · '4"2(2*#L</text>
+</svg>

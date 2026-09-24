@@ -1,19 +1,153 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="worksheet-source-media" content="/games/english/english-tenses-p6-media.html">
-  <meta name="curriculum-indicators" content="ต 1.2 ป.6/1,ต 1.2 ป.6/4,ต 2.2 ป.6/1">
-  <title>ใบงาน Tenses ป.6 ป.6 — โรงเรียนบ้านคำไผ่</title>
+  <meta name="curriculum-indicators" content="ต 1.1 ป.4–5, ต 1.2 ป.4–6, ต 2.2 ป.6/1">
+  <title>ใบงาน English Tenses ป.4–ป.6 — โรงเรียนบ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet">
-  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6pt;
+      font-weight: 800;
+      color: var(--ws-accent);
+      border: 1px solid var(--ws-accent);
+      border-radius: 3px;
+      padding: .2mm 1.2mm;
+      margin-bottom: .4mm;
+      line-height: 1.2;
+      background: var(--ws-soft, #eef6f3);
+    }
+    .count-5 .skill-tag {
+      font-size: 7.5pt;
+      padding: .3mm 1.5mm;
+      margin-bottom: .8mm;
+    }
+    .q-prompt {
+      font-weight: 800;
+      color: var(--ws-ink);
+      line-height: 1.3;
+    }
+    .step-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+    }
+    .step-row {
+      display: flex;
+      gap: 1.8mm;
+      align-items: center;
+      min-height: 5mm;
+      font-size: 7.2pt;
+    }
+    .count-5 .step-row {
+      min-height: 7mm;
+      font-size: 8.8pt;
+      gap: 2.2mm;
+    }
+    .step-tag {
+      font-size: 6pt;
+      font-weight: 800;
+      color: var(--ws-paper);
+      background: var(--ws-accent);
+      border-radius: 3px;
+      padding: .4mm 1.4mm;
+      text-align: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .count-5 .step-tag {
+      font-size: 7.5pt;
+      padding: .6mm 1.8mm;
+    }
+    .step-body {
+      border-bottom: 1px dotted var(--ws-muted);
+      flex: 1;
+      min-height: 4.8mm;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      color: var(--ws-muted);
+    }
+    .count-5 .step-body {
+      min-height: 6.5mm;
+    }
+    .work-fill {
+      color: transparent;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .show-answers .work-fill,
+    .q.reveal-answer .work-fill {
+      color: var(--ws-danger, #b42318) !important;
+      font-size: inherit !important;
+      font-weight: 800 !important;
+    }
+    .answer-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 2mm;
+      align-items: center;
+      min-height: 5.5mm;
+      font-weight: 800;
+      color: var(--ws-accent);
+      white-space: nowrap;
+      min-width: 0;
+      max-width: 100%;
+      font-size: 8.2pt;
+    }
+    .count-5 .answer-line {
+      min-height: 7.5mm;
+      font-size: 10.5pt;
+      gap: 2.5mm;
+    }
+    .answer-fill {
+      border-bottom: 1px dotted var(--ws-muted);
+      min-height: 5mm;
+      text-align: center;
+      padding: 0 2mm;
+      color: transparent;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      display: inline-block;
+      width: 100%;
+    }
+    .count-5 .answer-fill {
+      min-height: 6.8mm;
+    }
+    .show-answers .answer-fill,
+    .q.reveal-answer .answer-fill {
+      color: var(--ws-danger, #b42318) !important;
+      font-size: inherit !important;
+      font-weight: 800 !important;
+    }
+    @media print {
+      body {
+        overflow: visible !important;
+      }
+    }
+  </style>
 </head><body>
-<header class="toolbar"><h1>⏱️ ใบงาน Tenses ป.6</h1><div class="toolbar-ctrls">
+<header class="toolbar"><h1>⏱️ ใบงาน English Tenses (ป.4–ป.6)</h1><div class="toolbar-ctrls">
   <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
-  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="1">ป.6</option></select>
-  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">รวม</option><option value="form">รูปกาล</option><option value="use">ใช้จริง</option></select>
-  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="8">8 ข้อ</option><option value="5">5 ข้อ</option><option value="10">10 ข้อ</option></select>
+  <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="all">รวม ป.4–ป.6</option><option value="4">ป.4</option><option value="5">ป.5</option><option value="6" selected>ป.6</option></select>
+  <select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed" selected>รวมทุกทักษะ</option><option value="form">รูปกริยา V-Form</option><option value="signal">คำบอกเวลา Clues</option><option value="transform">แปลงประโยค</option><option value="use">ใช้จริงในประโยค</option></select>
+  <select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="5" selected>5 ข้อ / หน้า</option><option value="10">10 ข้อ / หน้า</option></select>
   <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
   <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select>
   <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
@@ -23,25 +157,151 @@
 <main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/qrcode-generator.min.js?v=1.196.0"></script>
 <script src="/games/kampai-qr.js?v=1.196.0"></script>
-<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script src="/games/worksheet-runtime.js?v=2.0.0"></script>
 <script>
-const ITEMS=[{"type":"form","prompt":"She ___ (play) football every day.","answer":"plays"},{"type":"form","prompt":"I ___ (be) reading now.","answer":"am"},{"type":"form","prompt":"Yesterday I ___ (go) to school.","answer":"went"},{"type":"form","prompt":"I ___ help you tomorrow. (will)","answer":"will"},{"type":"use","prompt":"เขียน Present Simple 1 ประโยคเกี่ยวกับนิสัย","answer":"ตามนักเรียน"},{"type":"use","prompt":"เขียน Past Simple 1 ประโยคเกี่ยวกับเมื่อวาน","answer":"ตามนักเรียน"},{"type":"form","prompt":"They ___ playing now. (is/are)","answer":"are"},{"type":"use","prompt":"วงคำบอกเวลา: yesterday / now / every day","answer":"past / continuous / present"},{"type":"form","prompt":"go ในอดีตคือ","answer":"went"},{"type":"use","prompt":"แต่งประโยค will เกี่ยวกับแผนวันหยุด","answer":"ตามนักเรียน"},{"type":"form","prompt":"He ___ (eat) breakfast every morning.","answer":"eats"},{"type":"use","prompt":"อธิบายความต่าง Present vs Past สั้น ๆ","answer":"ปัจจุบันนิสัย vs อดีตจบแล้ว"},{"type":"form","prompt":"Look! It ___ raining. (is)","answer":"is"},{"type":"use","prompt":"แก้ประโยคผิด: She play football.","answer":"She plays football."},{"type":"form","prompt":"We ___ (watch) TV yesterday.","answer":"watched"},{"type":"use","prompt":"เขียน 3 ประโยค คนละกาล","answer":"ตามนักเรียน"}];
-window.WORKSHEET_CONFIG={
-  icon:'⏱️',title:'ใบงาน Tenses ป.6',subject:'ภาษาอังกฤษ',gradeLabel:'ป.6',
-  mediaLabel:'สื่อ Tenses',sourceMediaUrl:'/games/english/english-tenses-p6-media.html',
-  indicators:["ต 1.2 ป.6/1","ต 1.2 ป.6/4","ต 2.2 ป.6/1"],
-  directions:"เลือกกาลให้ถูก · เขียนประโยคสั้นเกี่ยวกับตนเอง",
-  getItems(topic){return topic==='mixed'?ITEMS:ITEMS.filter(item=>item.type===topic);},
-  renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;return '<div class="work-line reason-line" style="font-size:1.05rem"><div class="prompt"><strong>'+e(item.prompt)+'</strong></div><div class="answer-line" style="min-height:2em">คำตอบ <span class="blank long"></span></div><div class="reason-line" style="min-height:2.2em;border-bottom:2px dotted #94a3b8">วิธีทำ/เหตุผล <span class="blank long"></span></div><div class="answer teacher-answer">เฉลย: '+e(item.answer)+'</div></div>';}
+const ITEMS = [
+  // --- Grade 4 (Level 1: Present Simple & Present Continuous) - 16 items ---
+  { grade: 4, type: 'form', prompt: 'Tom ___ (walk) to school every morning.', clue: 'Tom = He ➔ กริยาเติม -s', answer: 'walks' },
+  { grade: 4, type: 'form', prompt: 'They ___ (play) badminton on Sundays.', clue: 'They = พหูพจน์ ➔ กริยารูปเดิม', answer: 'play' },
+  { grade: 4, type: 'form', prompt: 'Listen! The baby ___ (cry).', clue: 'Listen! + The baby ➔ is + V-ing', answer: 'is crying' },
+  { grade: 4, type: 'form', prompt: 'I ___ (read) an English book right now.', clue: 'I + right now ➔ am + V-ing', answer: 'am reading' },
+  { grade: 4, type: 'form', prompt: 'She ___ (wash) her hands before eating.', clue: 'กริยาลงท้าย -sh ➔ เติม -es', answer: 'washes' },
+  { grade: 4, type: 'signal', prompt: 'คำบอกเวลาใดบอกว่าเป็น Present Simple: "now" หรือ "every day"?', clue: 'every day = ทุกวัน (กิจวัตรประจำวัน)', answer: 'every day' },
+  { grade: 4, type: 'signal', prompt: 'หาคำบอกเวลาในประโยค: "We are watching TV now."', clue: 'now = ตอนนี้ (กำลังกระทำอยู่)', answer: 'now' },
+  { grade: 4, type: 'transform', prompt: 'He drinks milk. ➔ ปฏิเสธ: He ___ drink milk.', clue: 'ประธาน He ใช้ doesn\'t + กริยารูปเดิม', answer: 'doesn\'t' },
+  { grade: 4, type: 'transform', prompt: 'They like cats. ➔ ปฏิเสธ: They ___ like cats.', clue: 'ประธาน They ใช้ don\'t + กริยารูปเดิม', answer: 'don\'t' },
+  { grade: 4, type: 'form', prompt: 'Look! The birds ___ (fly) in the sky.', clue: 'The birds (พหูพจน์) ➔ are + flying', answer: 'are flying' },
+  { grade: 4, type: 'form', prompt: 'My brother ___ (have) two cute rabbits.', clue: 'My brother (เอกพจน์) ใช้ has', answer: 'has' },
+  { grade: 4, type: 'signal', prompt: 'คำว่า "Look!" แสดงถึงกาลใด: Present Simple หรือ Present Continuous?', clue: 'Look! สะกิดให้ดูสิ่งที่กำลังเกิดขึ้น', answer: 'Present Continuous' },
+  { grade: 4, type: 'transform', prompt: 'She is cooking. ➔ คำถาม: ___ she cooking?', clue: 'สลับ Is ขึ้นต้นประโยคคำถาม', answer: 'Is' },
+  { grade: 4, type: 'use', prompt: 'แก้ประโยคให้ถูกต้อง: "She like apples."', clue: 'ประธาน She กริยาต้องเติม -s', answer: 'She likes apples.' },
+  { grade: 4, type: 'use', prompt: 'เลือกคำที่ถูก: "Right now, Malee (brushes / is brushing) her teeth."', clue: 'Right now ➔ กิจกรรมที่กำลังทำอยู่', answer: 'is brushing' },
+  { grade: 4, type: 'form', prompt: 'The dog ___ (sleep) under the tree right now.', clue: 'The dog (เอกพจน์) ➔ is sleeping', answer: 'is sleeping' },
+
+  // --- Grade 5 (Level 2: Past Simple & Future Simple) - 16 items ---
+  { grade: 5, type: 'form', prompt: 'We ___ (watch) a good cartoon yesterday.', clue: 'yesterday ➔ watch เติม -ed เป็น watched', answer: 'watched' },
+  { grade: 5, type: 'form', prompt: 'He ___ (go) to Chiang Mai last week.', clue: 'last week ➔ go เปลี่ยนรูปเป็น went', answer: 'went' },
+  { grade: 5, type: 'form', prompt: 'I ___ (help) you with your homework tomorrow.', clue: 'tomorrow ➔ will + กริยารูปเดิม (help)', answer: 'will help' },
+  { grade: 5, type: 'form', prompt: 'They ___ (eat) noodles for lunch yesterday.', clue: 'yesterday ➔ eat เปลี่ยนรูปเป็น ate', answer: 'ate' },
+  { grade: 5, type: 'form', prompt: 'Look at the dark sky! It ___ (rain) soon.', clue: 'soon ➔ will + กริยารูปเดิม (rain)', answer: 'will rain' },
+  { grade: 5, type: 'signal', prompt: 'หาคำบอกเวลาอดีตในประโยค: "She visited her grandma 2 days ago."', clue: '2 days ago = 2 วันที่แล้ว', answer: '2 days ago' },
+  { grade: 5, type: 'signal', prompt: 'คำบอกเวลาใดบอกอนาคต: "yesterday" หรือ "next week"?', clue: 'next week = สัปดาห์หน้า (อนาคต)', answer: 'next week' },
+  { grade: 5, type: 'transform', prompt: 'He watched TV. ➔ ปฏิเสธ: He ___ watch TV.', clue: 'ปฏิเสธอดีตใช้ didn\'t + V.inf', answer: 'didn\'t' },
+  { grade: 5, type: 'transform', prompt: 'I will go shopping. ➔ ปฏิเสธ: I ___ go shopping.', clue: 'will not ย่อรูปเป็น won\'t', answer: 'won\'t' },
+  { grade: 5, type: 'form', prompt: 'She ___ (be) sick at home yesterday.', clue: 'ประธาน She + yesterday ➔ was', answer: 'was' },
+  { grade: 5, type: 'form', prompt: 'My dad ___ (buy) a new bicycle last month.', clue: 'last month ➔ buy เปลี่ยนเป็น bought', answer: 'bought' },
+  { grade: 5, type: 'transform', prompt: 'You saw the doctor. ➔ คำถาม: ___ you see the doctor?', clue: 'ประโยคคำถามอดีตใช้ Did + V.inf', answer: 'Did' },
+  { grade: 5, type: 'signal', prompt: 'ถ้าประโยคมีคำว่า "tomorrow morning" กริยาต้องมี will หรือ did?', clue: 'พรุ่งนี้เช้าเป็นอนาคต ➔ will', answer: 'will' },
+  { grade: 5, type: 'use', prompt: 'กริยารูปอดีต (V.2) ของ "see" คืออะไร?', clue: 'see ➔ saw (ช่อง 2)', answer: 'saw' },
+  { grade: 5, type: 'use', prompt: 'แก้ประโยคให้ถูกต้อง: "Yesterday I go to school."', clue: 'มี yesterday ต้องเปลี่ยน go เป็น went', answer: 'Yesterday I went to school.' },
+  { grade: 5, type: 'form', prompt: 'Jane ___ (drink) milk before bed last night.', clue: 'last night ➔ drink เปลี่ยนเป็น drank', answer: 'drank' },
+
+  // --- Grade 6 (Level 3: 4-Tense Mastery & Sentence Transformations) - 16 items ---
+  { grade: 6, type: 'form', prompt: 'Usually I cook, but yesterday I ___ (cook) soup.', clue: 'yesterday บ่งบอก Past Simple ➔ cooked', answer: 'cooked' },
+  { grade: 6, type: 'form', prompt: 'Look! The train ___ (arrive) at the station.', clue: 'Look! เหตุการณ์กำลังเกิดขึ้น ➔ is arriving', answer: 'is arriving' },
+  { grade: 6, type: 'form', prompt: 'The sun ___ (rise) in the east every day.', clue: 'ความจริงทางธรรมชาติ ➔ rises', answer: 'rises' },
+  { grade: 6, type: 'form', prompt: 'I hope we ___ (meet) again next year.', clue: 'next year (อนาคต) ➔ will meet', answer: 'will meet' },
+  { grade: 6, type: 'signal', prompt: 'ประโยค "He didn\'t come yesterday." เป็นกาลใด?', clue: 'didn\'t + yesterday ➔ Past Simple', answer: 'Past Simple' },
+  { grade: 6, type: 'signal', prompt: '"at the moment" เป็นคำบอกเวลาของกาลใด?', clue: 'at the moment = ณ ตอนนี้ ➔ Present Continuous', answer: 'Present Continuous' },
+  { grade: 6, type: 'transform', prompt: 'She cleans the room. ➔ เปลี่ยนเป็น Future Simple: "She ___ the room tomorrow."', clue: 'โครงสร้าง will + V.inf ➔ will clean', answer: 'will clean' },
+  { grade: 6, type: 'transform', prompt: 'They play football. ➔ เปลี่ยนเป็น Past Simple: "They ___ football yesterday."', clue: 'play เปลี่ยนเป็นรูปอดีต ➔ played', answer: 'played' },
+  { grade: 6, type: 'transform', prompt: 'Did she eat breakfast? ➔ ตอบรับสั้น: "Yes, she ___."', clue: 'ประโยคคำถาม Did ตอบรับด้วย did', answer: 'did' },
+  { grade: 6, type: 'transform', prompt: 'We will win. ➔ ปฏิเสธ: "We ___ the match."', clue: 'will not ย่อรูปเป็น won\'t win', answer: 'won\'t win' },
+  { grade: 6, type: 'signal', prompt: 'จับคู่คำบอกเวลา: "always" = กิจวัตร / "last night" = ___', clue: 'last night = เมื่อคืนนี้ (อดีต)', answer: 'อดีต (Past Simple)' },
+  { grade: 6, type: 'form', prompt: 'write (ปัจจุบัน) ➔ อดีตคือ ___ / อนาคตคือ ___', clue: 'write ➔ wrote (อดีต) / will write (อนาคต)', answer: 'wrote / will write' },
+  { grade: 6, type: 'transform', prompt: 'He goes by bus. ➔ คำถาม (Does): "___ he ___ by bus?"', clue: 'Does + he + go (กริยารูปเดิม)', answer: 'Does / go' },
+  { grade: 6, type: 'use', prompt: 'หาจุดผิดและแก้: "They are study English now."', clue: 'หลัง are ต้องตามด้วย V-ing (studying)', answer: 'They are studying English now.' },
+  { grade: 6, type: 'use', prompt: 'เปรียบเทียบ: "I eat" (ประจำ) vs "I am eating" (___) vs "I ate" (___)', clue: 'am eating = กำลังกิน / ate = กินแล้วในอดีต', answer: 'กำลังกิน / กินแล้ว (อดีต)' },
+  { grade: 6, type: 'transform', prompt: 'He is sleeping. ➔ ปฏิเสธ: "He ___ sleeping."', clue: 'is + not ➔ is not (isn\'t)', answer: 'is not (isn\'t)' }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '⏱️',
+  title: 'ใบงาน English Tenses',
+  subject: 'ภาษาอังกฤษ',
+  get gradeLabel() {
+    const sel = document.getElementById('selGrade');
+    const val = sel ? sel.value : '6';
+    if (val === '4') return 'ป.4';
+    if (val === '5') return 'ป.5';
+    if (val === '6') return 'ป.6';
+    return 'ป.4–ป.6';
+  },
+  mediaLabel: 'สื่อ Tenses ป.4–ป.6',
+  sourceMediaUrl:'/games/english/english-tenses-p6-media.html',
+  get indicators() {
+    const sel = document.getElementById('selGrade');
+    const val = sel ? sel.value : '6';
+    if (val === '4') return ['ต 1.1 ป.4/2', 'ต 1.2 ป.4/1', 'ต 2.2 ป.4/1'];
+    if (val === '5') return ['ต 1.1 ป.5/2', 'ต 1.2 ป.5/1', 'ต 2.2 ป.5/1'];
+    if (val === '6') return ['ต 1.2 ป.6/1', 'ต 1.2 ป.6/4', 'ต 2.2 ป.6/1'];
+    return ['ต 1.1 ป.4–5', 'ต 1.2 ป.4–6', 'ต 2.2 ป.6/1'];
+  },
+  directions: 'วิเคราะห์ประธานและคำบอกเวลา ➔ เลือกโครงสร้างกาล ➔ เขียนคำตอบให้ถูกต้อง',
+  topicLabels: {
+    mixed: 'รวมทุกทักษะ',
+    form: 'รูปกริยา',
+    signal: 'คำบอกเวลา',
+    transform: 'แปลงประโยค',
+    use: 'ใช้จริง'
+  },
+  getItems(topic) {
+    const gradeVal = document.getElementById('selGrade')?.value || '6';
+    let pool = ITEMS;
+    if (gradeVal === '4') pool = ITEMS.filter(item => item.grade === 4);
+    else if (gradeVal === '5') pool = ITEMS.filter(item => item.grade === 5);
+    else if (gradeVal === '6') pool = ITEMS.filter(item => item.grade === 6);
+
+    if (topic === 'mixed' || !topic) return pool;
+    return pool.filter(item => item.type === topic);
+  },
+  renderQuestion(item, index, ctx) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    const isCount5 = ctx && ctx.count === 5;
+    const typeNames = {
+      form: 'รูปกริยา V-Form',
+      signal: 'คำบอกเวลา Clue',
+      transform: 'แปลงประโยค',
+      use: 'ใช้ในประโยค'
+    };
+    const gradeBadge = 'ป.' + item.grade;
+    const typeBadge = typeNames[item.type] || item.type;
+
+    if (isCount5) {
+      return '<div class="q-stem">'
+        + '<span class="skill-tag">' + e(gradeBadge + ' · ' + typeBadge) + '</span>'
+        + '<div class="q-prompt" style="font-size:10.5pt;margin:.5mm 0">' + e(item.prompt) + '</div>'
+        + '</div><div class="q-work-block step-block">'
+        + '<div class="step-row">'
+        + '<span class="step-tag">หลักคิด / ตัวช่วย</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.clue) + '</span></div>'
+        + '</div></div>'
+        + '<div class="q-foot"><div class="answer-line"><span>คำตอบ:</span><span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+    }
+
+    return '<div class="q-stem">'
+      + '<span class="skill-tag">' + e(gradeBadge + ' · ' + typeBadge) + '</span>'
+      + '<div class="q-prompt" style="font-size:8.2pt;line-height:1.25">' + e(item.prompt) + '</div>'
+      + '</div><div class="q-work-block step-block">'
+      + '<div class="step-row">'
+      + '<span class="step-tag">หลักคิด</span>'
+      + '<div class="step-body"><span class="work-fill">' + e(item.clue) + '</span></div>'
+      + '</div></div>'
+      + '<div class="q-foot"><div class="answer-line"><span>คำตอบ:</span><span class="answer-fill">' + e(item.answer) + '</span></div></div>';
+  }
 };
 </script>
-<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script src="/games/worksheet-topic.js?v=2.0.0"></script>
 <script>
-document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;
-document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');
-document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();
+function render() {
+  window.KampaiTopicWorksheet.render();
+}
+window.render = render;
+document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
 window.KampaiWorksheet.loadTeachers();
-window.KampaiTopicWorksheet.render();
+render();
 </script>
-<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+<script src="/games/worksheet-modes.js?v=2.0.0"></script>
 </body></html>

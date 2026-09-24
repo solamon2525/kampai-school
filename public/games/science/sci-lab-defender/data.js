@@ -1,125 +1,111 @@
-/* data.js — คลังข้อมูลวิทยาศาสตร์สำหรับเกม Sci-Lab Defender AR · window.GAME_DATA */
+/* data.js — Sci-Lab Defender (AR วันวิทย์) ข้อมูลบทเรียนและองค์ประกอบวิทยาศาสตร์
+   แชร์ global scope · โหลดหลัง config.js */
 window.GAME_DATA = {
-    // ═══════════════════════════════════════════════════════════════════════
-    // STAGE 1: 🧪 เคมีและสถานะของสาร (Matter & Chemical Lab)
-    // ═══════════════════════════════════════════════════════════════════════
-    stage1: {
-        title: '🧪 ฐานที่ 1: นักคัดแยกสสารในห้องแล็บ',
-        description: 'เลื่อนมือถือบีกเกอร์รับสสารให้ตรงกับสถานะที่กำหนด',
-        goals: [
-            {
-                type: 'liquid',
-                name: 'ของเหลว (Liquid)',
-                icon: '💧',
-                hint: 'ไหลตามภาชนะ ปริมาตรคงที่ เช่น น้ำ นม น้ำผลไม้',
-                targetCount: 4,
-                validItems: ['water', 'milk', 'oil', 'juice', 'honey']
-            },
-            {
-                type: 'solid',
-                name: 'ของแข็ง (Solid)',
-                icon: '🧊',
-                hint: 'รูปร่างและปริมาตรคงที่ อนุภาคเรียงชิดกัน เช่น น้ำแข็ง ก้อนหิน แท่งเหล็ก',
-                targetCount: 4,
-                validItems: ['ice', 'rock', 'iron', 'gold', 'salt']
-            },
-            {
-                type: 'gas',
-                name: 'แก๊ส (Gas)',
-                icon: '💨',
-                hint: 'ฟุ้งกระจายเต็มภาชนะ รูปร่างไม่คงที่ เช่น ไอน้ำ ออกซิเจน ฮีเลียม',
-                targetCount: 4,
-                validItems: ['steam', 'oxygen', 'helium', 'co2', 'wind']
-            }
-        ],
-        items: [
-            // ของแข็ง (Solid)
-            { id: 'ice', name: 'น้ำแข็ง', icon: '🧊', state: 'solid', color: '#60a5fa' },
-            { id: 'rock', name: 'ก้อนหิน', icon: '🪨', state: 'solid', color: '#94a3b8' },
-            { id: 'iron', name: 'แท่งเหล็ก', icon: '🔩', state: 'solid', color: '#cbd5e1' },
-            { id: 'gold', name: 'ทองคำ', icon: '🪙', state: 'solid', color: '#facc15' },
-            { id: 'salt', name: 'เกลือแกง', icon: '🧂', state: 'solid', color: '#f8fafc' },
+    // ── ข้อมูล 3 ฐานกิจกรรมวันวิทยาศาสตร์ ──
+    STAGES: [
+        {
+            id: 1,
+            title: 'ฐานที่ 1: สสารและเคมี',
+            subtitle: 'Chemistry & States of Matter',
+            icon: '🧪',
+            color: '#38bdf8',
+            desc: 'เลื่อนมือถือบีกเกอร์รับสสารให้ถูกต้องตามสถานะที่กำหนด (ของแข็ง/ของเหลว/แก๊ส) และระวังสารพิษ!',
+            speech: 'ฐานที่ 1 สสารและเคมี เลื่อนบีกเกอร์รับสสารตามสถานะที่กำหนด'
+        },
+        {
+            id: 2,
+            title: 'ฐานที่ 2: แสงและพลังงาน',
+            subtitle: 'Optics & Solar Energy',
+            icon: '⚡',
+            color: '#facc15',
+            desc: 'ใช้มือทั้งสองข้างเป็นโล่กระจกสะท้อนลำแสงเลเซอร์เข้าสู่แท่นชาร์จโซลาร์เซลล์ด้านข้าง!',
+            speech: 'ฐานที่ 2 แสงและพลังงาน ใช้มือสะท้อนลำแสงเลเซอร์เข้าสู่แท่นชาร์จโซลาร์เซลล์'
+        },
+        {
+            id: 3,
+            title: 'ฐานที่ 3: อวกาศและดาราศาสตร์',
+            subtitle: 'Space Defense Fever Time',
+            icon: '🚀',
+            color: '#ec4899',
+            desc: 'ใช้นิ้วชี้ทั้งสองข้างจิ้มระเบิดอุกกาบาตและขยะอวกาศที่พุ่งเข้ามาอย่างรวดเร็วในโหมด Fever Time!',
+            speech: 'ฐานที่ 3 อวกาศและดาราศาสตร์ ใช้นิ้วชี้จิ้มทำลายอุกกาบาตและสะเก็ดดาว'
+        }
+    ],
 
-            // ของเหลว (Liquid)
-            { id: 'water', name: 'น้ำบริสุทธิ์', icon: '💧', state: 'liquid', color: '#38bdf8' },
-            { id: 'milk', name: 'นมสด', icon: '🥛', state: 'liquid', color: '#f1f5f9' },
-            { id: 'oil', name: 'น้ำมันพืช', icon: '🛢️', state: 'liquid', color: '#fbbf24' },
-            { id: 'juice', name: 'น้ำส้ม', icon: '🧃', state: 'liquid', color: '#fb923c' },
-            { id: 'honey', name: 'น้ำผึ้ง', icon: '🍯', state: 'liquid', color: '#f59e0b' },
+    // ── ฐานที่ 1: สสารและเคมี — ชุดภารกิจแบ่งตามช่วงเวลา ──
+    STAGE1_WAVES: [
+        {
+            waveId: 1,
+            targetState: 'liquid',
+            targetName: 'ของเหลว (Liquid)',
+            taskPrompt: '💧 เก็บเฉพาะ "ของเหลว (Liquid)"!',
+            speechPrompt: 'ภารกิจที่หนึ่ง เก็บเฉพาะของเหลว',
+            items: [
+                { name: 'น้ำบริสุทธิ์', sub: 'H₂O', state: 'liquid', icon: '💧', color: '#38bdf8' },
+                { name: 'น้ำผลไม้', sub: 'Juice', state: 'liquid', icon: '🧃', color: '#fb923c' },
+                { name: 'นมสด', sub: 'Milk', state: 'liquid', icon: '🥛', color: '#f8fafc' },
+                { name: 'แอลกอฮอล์', sub: 'Ethanol', state: 'liquid', icon: '🧴', color: '#67e8f9' },
+                { name: 'น้ำมันพืช', sub: 'Vegetable Oil', state: 'liquid', icon: '🫒', color: '#facc15' },
+                { name: 'น้ำผึ้ง', sub: 'Honey', state: 'liquid', icon: '🍯', color: '#eab308' },
+                { name: 'ก้อนน้ำแข็ง', sub: 'Ice', state: 'solid', icon: '🧊', color: '#a5f3fc' },
+                { name: 'ก้อนหิน', sub: 'Stone', state: 'solid', icon: '🪨', color: '#94a3b8' },
+                { name: 'แก๊สออกซิเจน', sub: 'Oxygen', state: 'gas', icon: '💨', color: '#a7f3d0' },
+                { name: 'สารเคมีมีพิษ', sub: 'Toxic Waste', state: 'hazard', icon: '☣️', color: '#ef4444', isHazard: true }
+            ]
+        },
+        {
+            waveId: 2,
+            targetState: 'solid',
+            targetName: 'ของแข็ง (Solid)',
+            taskPrompt: '🧊 เก็บเฉพาะ "ของแข็ง (Solid)"!',
+            speechPrompt: 'ภารกิจที่สอง เปลี่ยนเป็นเก็บเฉพาะของแข็ง',
+            items: [
+                { name: 'ก้อนน้ำแข็ง', sub: 'Ice', state: 'solid', icon: '🧊', color: '#67e8f9' },
+                { name: 'หินแร่ควอตซ์', sub: 'Quartz', state: 'solid', icon: '💎', color: '#e0e7ff' },
+                { name: 'เม็ดเกลือ', sub: 'Salt Crystal', state: 'solid', icon: '🧂', color: '#f1f5f9' },
+                { name: 'แท่งเหล็ก', sub: 'Iron Bar', state: 'solid', icon: '🔩', color: '#94a3b8' },
+                { name: 'แร่ทองคำ', sub: 'Gold Mineral', state: 'solid', icon: '🪙', color: '#fbbf24' },
+                { name: 'ถ่านหิน', sub: 'Coal', state: 'solid', icon: '🪨', color: '#64748b' },
+                { name: 'น้ำส้มคั้น', sub: 'Orange Juice', state: 'liquid', icon: '🧃', color: '#fb923c' },
+                { name: 'น้ำมันพืช', sub: 'Cooking Oil', state: 'liquid', icon: '🫒', color: '#facc15' },
+                { name: 'แก๊สฮีเลียม', sub: 'Helium (He)', state: 'gas', icon: '🎈', color: '#f43f5e' },
+                { name: 'กรดเข้มข้นอันตราย', sub: 'Danger Acid', state: 'hazard', icon: '🧪', color: '#dc2626', isHazard: true }
+            ]
+        },
+        {
+            waveId: 3,
+            targetState: 'gas',
+            targetName: 'แก๊ส (Gas)',
+            taskPrompt: '💨 เก็บเฉพาะ "แก๊ส (Gas)"!',
+            speechPrompt: 'ภารกิจที่สาม เปลี่ยนเป็นเก็บเฉพาะแก๊ส',
+            items: [
+                { name: 'แก๊สออกซิเจน', sub: 'Oxygen (O₂)', state: 'gas', icon: '💨', color: '#34d399' },
+                { name: 'คาร์บอนไดออกไซด์', sub: 'CO₂', state: 'gas', icon: '🌫️', color: '#a3e635' },
+                { name: 'ไอน้ำเดือด', sub: 'Water Vapor', state: 'gas', icon: '♨️', color: '#e2e8f0' },
+                { name: 'แก๊สฮีเลียม', sub: 'Helium (He)', state: 'gas', icon: '🎈', color: '#ec4899' },
+                { name: 'แก๊สไนโตรเจน', sub: 'Nitrogen (N₂)', state: 'gas', icon: '🌬️', color: '#60a5fa' },
+                { name: 'ก้อนหินแร่', sub: 'Mineral Rock', state: 'solid', icon: '🪨', color: '#94a3b8' },
+                { name: 'น้ำดื่มบริสุทธิ์', sub: 'Drinking Water', state: 'liquid', icon: '💧', color: '#38bdf8' },
+                { name: 'กากกัมมันตรังสี', sub: 'Radioactive', state: 'hazard', icon: '☣️', color: '#ef4444', isHazard: true }
+            ]
+        }
+    ],
 
-            // แก๊ส (Gas)
-            { id: 'steam', name: 'ไอน้ำ', icon: '💨', state: 'gas', color: '#e2e8f0' },
-            { id: 'oxygen', name: 'ออกซิเจน', icon: '🫧', state: 'gas', color: '#67e8f9' },
-            { id: 'helium', name: 'ฮีเลียม', icon: '🎈', state: 'gas', color: '#f472b6' },
-            { id: 'co2', name: 'คาร์บอนฯ', icon: '🌫️', state: 'gas', color: '#a1a1aa' },
-            { id: 'wind', name: 'ลมร้อน', icon: '🌬️', state: 'gas', color: '#f87171' },
+    // ── ฐานที่ 2: แสงและพลังงาน — ลำแสงเลเซอร์และโฟตอน ──
+    STAGE2_BEAMS: [
+        { name: 'ลำแสงโซลาร์', sub: 'Solar Light Beam', color: '#facc15', glow: '#fef08a', icon: '☀️', power: 20 },
+        { name: 'เลเซอร์โฟตอนเขียว', sub: 'Green Photon', color: '#22c55e', glow: '#86efac', icon: '🟢', power: 25 },
+        { name: 'พลาสมาเลเซอร์ฟ้า', sub: 'Plasma Laser', color: '#06b6d4', glow: '#67e8f9', icon: '⚡', power: 30 },
+        { name: 'รังสีอัลตราไวโอเลต', sub: 'UV Light Beam', color: '#a855f7', glow: '#d8b4fe', icon: '🟣', power: 35 }
+    ],
 
-            // สิ่งกีดขวาง/อันตราย (Hazard)
-            { id: 'poison', name: 'สารพิษ!', icon: '☠️', state: 'hazard', color: '#a855f7', penalty: true },
-            { id: 'rad', name: 'กัมมันตรังสี!', icon: '☢️', state: 'hazard', color: '#22c55e', penalty: true }
-        ]
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // STAGE 2: ⚡ แสงและพลังงานสะอาด (Optics & Energy Lab)
-    // ═══════════════════════════════════════════════════════════════════════
-    stage2: {
-        title: '⚡ ฐานที่ 2: ยอดนักสะท้อนแสงพลังงาน',
-        description: 'ใช้สองมือเป็นกระจกเงาสะท้อนลำแสงเลเซอร์เข้าสู่แท่นชาร์จโซลาร์เซลล์',
-        levels: [
-            {
-                targetColor: '#38bdf8',
-                targetName: 'แท่นชาร์จโซลาร์เซลล์พลังน้ำ (สีฟ้า)',
-                requiredHits: 4,
-                sourcePos: { x: 0.1, y: 0.2 },
-                targetPos: { x: 0.9, y: 0.25 }
-            },
-            {
-                targetColor: '#fbbf24',
-                targetName: 'แผงโซลาร์เซลล์แสงอาทิตย์ (สีทอง)',
-                requiredHits: 4,
-                sourcePos: { x: 0.12, y: 0.75 },
-                targetPos: { x: 0.88, y: 0.22 }
-            },
-            {
-                targetColor: '#4ade80',
-                targetName: 'ปริซึมพลังงานลมชีวภาพ (สีเขียว)',
-                requiredHits: 5,
-                sourcePos: { x: 0.85, y: 0.8 },
-                targetPos: { x: 0.15, y: 0.25 }
-            }
-        ],
-        facts: [
-            '💡 แสงเดินทางเป็นเส้นตรงในตัวกลางโปร่งใสชนิดเดียวกัน',
-            '🪞 มุมตกกระทบเท่ากับมุมสะท้อนเสมอ ตามกฎการสะท้อนของแสง',
-            '🌈 เมื่อแสงขาวผ่านปริซึม จะกระจายออกเป็นสเปกตรัม 7 สี',
-            '☀️ โซลาร์เซลล์เปลี่ยนพลังงานแสงอาทิตย์เป็นพลังงานไฟฟ้าสะอาด'
-        ]
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // STAGE 3: 🪐 อวกาศและดาราศาสตร์ (Space & Meteor Buster)
-    // ═══════════════════════════════════════════════════════════════════════
-    stage3: {
-        title: '🪐 ฐานที่ 3: ผู้พิทักษ์โลกจากอุกกาบาต',
-        description: 'ใช้นิ้วชี้จิ้มระเบิดอุกกาบาตและขยะอวกาศเพื่อสะสมแต้มคอมโบ Fever!',
-        targets: [
-            { id: 'meteor', name: 'อุกกาบาตหิน', icon: '☄️', points: 10, radius: 0.065, speed: 1.0, isThreat: true },
-            { id: 'debris', name: 'ขยะอวกาศ', icon: '🛰️', points: 15, radius: 0.055, speed: 1.2, isThreat: true },
-            { id: 'comet', name: 'เศษดาวหาง', icon: '❄️', points: 20, radius: 0.06, speed: 1.4, isThreat: true },
-            { id: 'alien', name: 'ไวรัสอวกาศ', icon: '👾', points: 25, radius: 0.06, speed: 1.3, isThreat: true },
-            
-            // ดาวเคราะห์โบนัส (แตะได้คะแนนพิเศษ)
-            { id: 'earth', name: 'ดาวโลก', icon: '🌍', points: 50, radius: 0.08, speed: 0.7, isBonus: true },
-            { id: 'saturn', name: 'ดาวเสาร์', icon: '🪐', points: 50, radius: 0.085, speed: 0.6, isBonus: true },
-            { id: 'mars', name: 'ดาวอังคาร', icon: '🔴', points: 40, radius: 0.07, speed: 0.8, isBonus: true },
-            { id: 'star', name: 'ดาวนำโชค', icon: '⭐', points: 30, radius: 0.06, speed: 1.1, isBonus: true }
-        ],
-        knowledge: [
-            '🪐 ระบบสุริยะมีดาวเคราะห์ 8 ดวง โดยมีดวงอาทิตย์เป็นศูนย์กลาง',
-            '🌍 โลกเป็นดาวเคราะห์ดวงเดียวที่พบสิ่งมีชีวิตและน้ำในสถานะของเหลว',
-            '☄️ อุกกาบาตที่เผาไหม้ไม่หมดในชั้นบรรยากาศและตกลงสู่พื้นผิวเรียกว่า ลูกอุกกาบาต',
-            '⭐ ดวงอาทิตย์เป็นดาวฤกษ์เพียงดวงเดียวในระบบสุริยะของเรา'
-        ]
-    }
+    // ── ฐานที่ 3: อวกาศและดาราศาสตร์ — วัตถุอวกาศที่ต้องจิ้มระเบิด ──
+    STAGE3_TARGETS: [
+        { name: 'อุกกาบาตเพลิง', sub: 'Meteorite', type: 'meteor', icon: '☄️', points: 25, radius: 46, color: '#f97316' },
+        { name: 'สะเก็ดดาวหาง', sub: 'Comet Fragment', type: 'comet', icon: '🌠', points: 30, radius: 42, color: '#06b6d4' },
+        { name: 'หินอุกกาบาต', sub: 'Asteroid Rock', type: 'asteroid', icon: '🪨', points: 20, radius: 40, color: '#a8a29e' },
+        { name: 'ขยะอวกาศ', sub: 'Space Debris', type: 'debris', icon: '🛰️', points: 20, radius: 38, color: '#94a3b8' },
+        { name: '⭐ ซูเปอร์โนวาโบนัส', sub: 'Supernova Star', type: 'star', icon: '🌟', points: 60, radius: 52, color: '#fbbf24', isBonus: true },
+        { name: '💎 คริสตัลอวกาศ', sub: 'Cosmic Crystal', type: 'crystal', icon: '💎', points: 45, radius: 44, color: '#c084fc', isBonus: true }
+    ]
 };

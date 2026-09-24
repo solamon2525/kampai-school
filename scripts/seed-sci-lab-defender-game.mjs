@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 
-// Load env.local for database keys
+// Load env
 const envFile = resolve(REPO_ROOT, '.env.local');
 if (existsSync(envFile)) {
   for (const line of readFileSync(envFile, 'utf8').split('\n')) {
@@ -29,7 +29,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 });
 
 async function main() {
-  console.log('Seeding Sci-Lab Defender AR game into database...');
+  console.log('Seeding Sci-Lab Defender (AR วันวิทย์) game into database...');
 
   // 1. Resolve staff_id
   const { data: staffData, error: staffError } = await supabase
@@ -87,6 +87,7 @@ async function main() {
 
   let itemId;
   if (!itemData || itemData.length === 0) {
+    // Insert new item
     const { data: insertData, error: insertError } = await supabase
       .from('educational_hub_items')
       .insert({
@@ -96,7 +97,7 @@ async function main() {
         title: '🧪 Sci-Lab Defender (AR วันวิทย์)',
         external_url: url,
         subject: 'วิทยาศาสตร์',
-        sort_order: 457,
+        sort_order: 463,
         game_slug: 'sci-lab-defender',
         tracked_game: true,
         is_published: true,
@@ -112,17 +113,19 @@ async function main() {
     itemId = insertData[0].id;
     console.log(`✓ Inserted new item with ID: ${itemId}`);
   } else {
+    // Update existing item
     itemId = itemData[0].id;
     const { error: updateError } = await supabase
       .from('educational_hub_items')
       .update({
         title: '🧪 Sci-Lab Defender (AR วันวิทย์)',
-        sort_order: 457,
+        sort_order: 463,
         game_slug: 'sci-lab-defender',
         tracked_game: true,
         is_published: true,
         thumbnail_url: '/games/science/sci-lab-defender/cover.png',
-        bgm_preset: 'cheerful'
+        bgm_preset: 'cheerful',
+        updated_at: new Date().toISOString()
       })
       .eq('id', itemId);
 
