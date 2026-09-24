@@ -412,6 +412,41 @@ export const conductService = {
       .eq('student_id', studentId)
       .order('created_at', { ascending: false }),
 
+  /** คำนวณคะแนนสะสมความดีของนักเรียนคนเดียวตามปีการศึกษา (Optimistic / Pre-fetch) */
+  getAccumulatedScore: async (studentId: string, academicYear: string): Promise<number> => {
+    const { data, error } = await supabase
+      .from('conduct_scores')
+      .select('score, type, academic_year')
+      .eq('student_id', studentId);
+    if (error || !data) return 0;
+    const total = data
+      .filter(r => r.academic_year === academicYear)
+      .reduce((sum, r) => sum + (r.type === 'add' ? r.score : -r.score), 0);
+    return Math.max(0, total);
+  },
+
+  /** คำนวณคะแนนสะสมความดีของกลุ่มนักเรียนตามปีการศึกษาล่วงหน้า (Pre-fetch สำหรับชั้นเรียน) */
+  getAccumulatedScoresForStudents: async (studentIds: string[], academicYear: string): Promise<Record<string, number>> => {
+    if (studentIds.length === 0) return {};
+    const { data, error } = await supabase
+      .from('conduct_scores')
+      .select('student_id, score, type, academic_year')
+      .in('student_id', studentIds);
+    const scoreMap: Record<string, number> = {};
+    studentIds.forEach(id => { scoreMap[id] = 0; });
+    if (!error && data) {
+      data.forEach(r => {
+        if (r.academic_year === academicYear) {
+          scoreMap[r.student_id] = (scoreMap[r.student_id] || 0) + (r.type === 'add' ? r.score : -r.score);
+        }
+      });
+      studentIds.forEach(id => {
+        scoreMap[id] = Math.max(0, scoreMap[id] || 0);
+      });
+    }
+    return scoreMap;
+  },
+
   /** ดึงเฉพาะคะแนน "บวก" สำหรับหน้าสาธารณะ (hall of fame) — รวม photo_url */
   getPublicPositive: (semester?: string, academicYear?: string) => {
     let q = supabase

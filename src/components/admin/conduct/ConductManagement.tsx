@@ -19,6 +19,12 @@ import {
     type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
 import { getFirstName, speakThai, stopThaiSpeech, thaiNumberToWords } from '@/lib/thaiSpeech';
+import {
+    playConductChime,
+    stopConductChime,
+    formatConductRecordSpeech,
+    formatConductBulkSpeech,
+} from '@/lib/conductSound';
 import { cn } from '@/lib/utils';
 
 // ===== Constants =====
@@ -269,6 +275,20 @@ interface ConductRecord {
 // ===== Main Component =====
 export const ConductManagement = () => {
     const { toast } = useToast();
+    const [activeTab, setActiveTab] = useState('record');
+
+    useEffect(() => {
+        return () => {
+            stopConductChime();
+            stopThaiSpeech();
+        };
+    }, []);
+
+    const handleTabChange = (val: string) => {
+        stopConductChime();
+        stopThaiSpeech();
+        setActiveTab(val);
+    };
 
     return (
         <div className="space-y-4">
@@ -277,7 +297,7 @@ export const ConductManagement = () => {
                 <h2 className="text-xl font-bold">ระบบธนาคารความดี</h2>
             </div>
 
-            <Tabs defaultValue="record">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
                 <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="record" className="gap-1 text-xs sm:text-sm px-1">
                         <Plus className="w-3.5 h-3.5 flex-shrink-0" /> ทีละคน
@@ -307,6 +327,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
+    const [studentAccumulatedMap, setStudentAccumulatedMap] = useState<Record<string, number>>({});
     const [type, setType] = useState<'add' | 'deduct'>('add');
     const [category, setCategory] = useState('publicMind');
     const [reason, setReason] = useState('');
@@ -320,25 +341,61 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const speechRequestRef = useRef(0);
     const closePointsConfirmation = useCallback(() => {
         speechRequestRef.current += 1;
+        stopConductChime();
         stopThaiSpeech();
         setPointsConfirmation(null);
     }, []);
 
     useEffect(() => {
+        return () => {
+            stopConductChime();
+            stopThaiSpeech();
+        };
+    }, []);
+
+    useEffect(() => {
         setStudents([]);
         setSelectedStudentId('');
+        setStudentAccumulatedMap({});
         if (!selectedClass) return;
 
         let active = true;
-        studentsService.getByClass(selectedClass).then(({ data }) => {
+        studentsService.getByClass(selectedClass).then(async ({ data }) => {
             if (!active) return;
-            setStudents((data || []) as Student[]);
+            const loadedStudents = (data || []) as Student[];
+            setStudents(loadedStudents);
+
+            if (loadedStudents.length > 0) {
+                try {
+                    const ids = loadedStudents.map(s => s.id);
+                    const scoresMap = await conductService.getAccumulatedScoresForStudents(ids, academicYear);
+                    if (active) {
+                        setStudentAccumulatedMap(scoresMap);
+                    }
+                } catch {
+                    // pre-fetch gracefully falls back to per-student load
+                }
+            }
         });
 
         return () => {
             active = false;
         };
-    }, [selectedClass]);
+    }, [selectedClass, academicYear]);
+
+    useEffect(() => {
+        if (!selectedStudentId) return;
+        let active = true;
+        conductService.getAccumulatedScore(selectedStudentId, academicYear).then(accScore => {
+            if (active) {
+                setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accScore }));
+            }
+        }).catch(() => {});
+
+        return () => {
+            active = false;
+        };
+    }, [selectedStudentId, academicYear]);
 
     const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));
     const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
@@ -357,73 +414,80 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             return;
         }
         const student = students.find(s => s.id === selectedStudentId);
+        if (!student) return;
 
+        // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
+        playConductChime(type);
+
+        // R2: คำนวณคะแนนสะสมล่วงหน้า (Optimistic Calculation) ทันที
+        const isAdd = type === 'add';
+        const accumulatedBefore = studentAccumulatedMap[selectedStudentId] ?? 0;
+        const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
+
+        // อัปเดตแคชคะแนนสะสมทันที
+        setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedPoints }));
+
+        // เปิดหน้าต่างยืนยันคะแนนทันที
+        setPointsConfirmation({
+            studentName: student.name,
+            photoUrl: student.photo_url,
+            latestPoints: parsedScore,
+            accumulatedPoints,
+            latestSign: isAdd ? '+' : '-',
+        });
+        setSpeechComplete(false);
+
+        // R2: เริ่มเล่นเสียงพูดสรุปภาษาไทยทันทีแบบต่อเนื่องไม่สะดุด
+        const speechRequest = ++speechRequestRef.current;
+        const safetyTimer = window.setTimeout(() => {
+            if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+        }, 3500);
+
+        const speechSummary = formatConductRecordSpeech(type, student.name, parsedScore, accumulatedPoints);
+
+        void speakThai(speechSummary).then(({ spoken }) => {
+            window.clearTimeout(safetyTimer);
+            if (speechRequest !== speechRequestRef.current) return;
+            if (spoken) setSpeechComplete(true);
+            else window.setTimeout(() => {
+                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+            }, 1000);
+        }).catch(() => {
+            window.clearTimeout(safetyTimer);
+            if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+        });
+
+        // ดำเนินการบันทึกลงฐานข้อมูลในเบื้องหลัง
         setIsSaving(true);
         try {
-            const [existingRes, insertRes] = await Promise.all([
-                conductService.getByStudentId(selectedStudentId),
-                conductService.insert({
-                    student_id: selectedStudentId,
-                    type,
-                    score: parsedScore,
-                    category: activeCategory,
-                    reason: reason.trim(),
-                    recorded_by: recorder.name || null,
-                    recorded_by_staff_id: recorder.staffId,
-                    recorded_by_administrator_id: recorder.administratorId,
-                    academic_year: academicYear,
-                    semester,
-                }),
-            ]);
+            const insertRes = await conductService.insert({
+                student_id: selectedStudentId,
+                type,
+                score: parsedScore,
+                category: activeCategory,
+                reason: reason.trim(),
+                recorded_by: recorder.name || null,
+                recorded_by_staff_id: recorder.staffId,
+                recorded_by_administrator_id: recorder.administratorId,
+                academic_year: academicYear,
+                semester,
+            });
 
             if (insertRes.error) {
+                // คืนค่าเดิมเมื่อบันทึกไม่สำเร็จ พร้อมหยุดเสียงและปิดหน้าต่าง
+                setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedBefore }));
+                stopConductChime();
+                stopThaiSpeech();
+                setPointsConfirmation(null);
                 toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: insertRes.error.message });
                 return;
             }
 
-            const existingRecords = existingRes.data;
-            const accumulatedBefore = (existingRecords || [])
-                .filter(record => record.academic_year === academicYear)
-                .reduce((total, record) => total + (record.type === 'add' ? record.score : -record.score), 0);
-
             toast({
                 title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
-                description: `${student?.name} ${type === 'add' ? '+' : '-'}${parsedScore} คะแนน · ${reason}`,
+                description: `${student.name} ${type === 'add' ? '+' : '-'}${parsedScore} คะแนน · ${reason}`,
             });
 
-            if (student) {
-                const isAdd = type === 'add';
-                const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
-                setPointsConfirmation({
-                    studentName: student.name,
-                    photoUrl: student.photo_url,
-                    latestPoints: parsedScore,
-                    accumulatedPoints,
-                    latestSign: isAdd ? '+' : '-',
-                });
-                setSpeechComplete(false);
-                const speechRequest = ++speechRequestRef.current;
-                const safetyTimer = window.setTimeout(() => {
-                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                }, 3500);
-
-                void speakThai([
-                    `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
-                    `ชื่อ ${getFirstName(student.name)}`,
-                    `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
-                    `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
-                ]).then(({ spoken }) => {
-                    window.clearTimeout(safetyTimer);
-                    if (speechRequest !== speechRequestRef.current) return;
-                    if (spoken) setSpeechComplete(true);
-                    else window.setTimeout(() => {
-                        if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                    }, 1000);
-                }).catch(() => {
-                    window.clearTimeout(safetyTimer);
-                    if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                });
-            }
             setReason('');
             setScore('1');
         } finally {
@@ -945,6 +1009,13 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         };
     }, [selectedClass]);
 
+    useEffect(() => {
+        return () => {
+            stopConductChime();
+            stopThaiSpeech();
+        };
+    }, []);
+
     const toggleStudent = (id: string) => {
         setSelectedIds(prev => {
             const next = new Set(prev);
@@ -978,6 +1049,14 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
+
+        // R1: ส่งเสียงเอฟเฟกต์ Chime สังเคราะห์ทันทีในเสี้ยววินาที (Zero Latency)
+        playConductChime(type);
+
+        // R2: เริ่มเล่นเสียงสรุปภาษาไทยทันทีเมื่อกดบันทึก
+        const bulkSpeech = formatConductBulkSpeech(type, validSelectedIds.length, parsedScore);
+        void speakThai(bulkSpeech);
+
         const records = validSelectedIds.map(student_id => ({
             student_id,
             type,
@@ -994,6 +1073,8 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         try {
             const { error } = await conductService.insertBulk(records);
             if (error) {
+                stopConductChime();
+                stopThaiSpeech();
                 toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message });
                 return;
             }
