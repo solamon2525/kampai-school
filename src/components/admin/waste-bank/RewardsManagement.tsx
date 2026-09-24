@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { rewardsService } from '@/services/waste-bank.service';
 import type { Reward } from '@/services/waste-bank.service';
 import { cn } from '@/lib/utils';
@@ -51,6 +51,7 @@ const EMPTY_REWARD: RewardFormValues = {
 export const RewardsManagement = () => {
   const { toast } = useToast();
   const { isAdmin, staffId, administratorId } = useAuth();
+  const queryClient = useQueryClient();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Reward | null>(null);
@@ -175,6 +176,8 @@ export const RewardsManagement = () => {
       toast({ title: editing ? 'แก้ไขสำเร็จ' : 'เพิ่มรางวัลสำเร็จ' });
       setShowForm(false);
       fetchAll();
+      void queryClient.invalidateQueries({ queryKey: ['rewards'] });
+      void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
     }
   };
 
@@ -187,6 +190,8 @@ export const RewardsManagement = () => {
     } else {
       toast({ title: 'ลบสำเร็จ' });
       fetchAll();
+      void queryClient.invalidateQueries({ queryKey: ['rewards'] });
+      void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
     }
   };
 
@@ -298,7 +303,12 @@ export const RewardsManagement = () => {
                 <Label>รูปภาพ</Label>
                 <div className="flex items-center gap-3">
                   {imageUrl && (
-                    <img src={imageUrl} alt="ตัวอย่างรางวัล" className="w-20 h-20 object-cover rounded-md border border-border" />
+                    <img
+                      src={imageUrl}
+                      alt="ตัวอย่างรางวัล"
+                      decoding="async"
+                      className="w-20 h-20 aspect-square object-cover rounded-md border border-border shrink-0"
+                    />
                   )}
                   <label className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-md hover:border-primary transition-colors">
@@ -345,12 +355,18 @@ export const RewardsManagement = () => {
             const central = isCentral(r);
             const mine = isMine(r);
             return (
-              <Card key={r.id} className={!r.is_active ? 'opacity-60' : ''}>
-                <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
+              <Card key={r.id} className={cn("group overflow-hidden transition-all duration-200 hover:shadow-md transform-gpu", !r.is_active && 'opacity-60')}>
+                <div className="aspect-video bg-muted rounded-t-lg overflow-hidden relative">
                   {r.image_url ? (
-                    <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
+                    <img
+                      src={r.image_url}
+                      alt={r.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="aspect-video w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu will-change-transform"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <div className="flex w-full h-full items-center justify-center text-muted-foreground">
                       <Gift className="w-12 h-12" />
                     </div>
                   )}
@@ -362,11 +378,11 @@ export const RewardsManagement = () => {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {central ? (
-                      <Badge variant="outline" className="gap-1 text-xs border-sky-300 text-sky-700 dark:text-sky-300">
+                      <Badge variant="outline" className="gap-1 text-xs border-sky-300 text-sky-700">
                         <Globe2 className="w-3 h-3" /> รางวัลกลาง
                       </Badge>
                     ) : mine ? (
-                      <Badge variant="outline" className="gap-1 text-xs border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                      <Badge variant="outline" className="gap-1 text-xs border-emerald-300 text-emerald-700">
                         <User className="w-3 h-3" /> ของฉัน
                       </Badge>
                     ) : ownerName ? (
@@ -381,7 +397,14 @@ export const RewardsManagement = () => {
                   <div className="flex items-center justify-between text-sm">
                     <RewardCostDisplay waste={r.waste_points_cost} virtue={r.virtue_points_cost} />
                     {isAdmin ? (
-                      <StockResetPopover reward={r} onSaved={fetchAll} />
+                      <StockResetPopover
+                        reward={r}
+                        onSaved={() => {
+                          fetchAll();
+                          void queryClient.invalidateQueries({ queryKey: ['rewards'] });
+                          void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
+                        }}
+                      />
                     ) : (
                       <span className="text-xs text-muted-foreground">
                         {r.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${r.stock}`}

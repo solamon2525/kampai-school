@@ -38,15 +38,73 @@ const SIGNED_URL_SECONDS = 60 * 60;
 
 const parseResults = (value: Json): WasteShowcaseResults => value as unknown as WasteShowcaseResults;
 
+interface CachedSignedUrl {
+  signedUrl: string;
+  expiresAt: number;
+}
+
+const signedUrlCache = new Map<string, CachedSignedUrl>();
+const CACHE_BUFFER_MS = 5 * 60 * 1000;
+
+export const clearSignedUrlCache = (storagePath?: string): void => {
+  if (storagePath) {
+    signedUrlCache.delete(storagePath);
+  } else {
+    signedUrlCache.clear();
+  }
+};
+
 async function withSignedUrls(photos: WasteShowcasePhoto[]): Promise<WasteShowcasePhotoWithUrl[]> {
   if (photos.length === 0) return [];
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrls(photos.map((photo) => photo.storage_path), SIGNED_URL_SECONDS);
-  if (error) throw error;
-  return photos.map((photo, index) => ({
+  const now = Date.now();
+  const missingPaths: string[] = [];
+  const pathSet = new Set<string>();
+
+  for (const photo of photos) {
+    if (!photo.storage_path || !photo.storage_path.trim()) continue;
+    const cached = signedUrlCache.get(photo.storage_path);
+    if (cached && cached.expiresAt <= now) {
+      signedUrlCache.delete(photo.storage_path);
+    }
+    if (!cached || cached.expiresAt - now < CACHE_BUFFER_MS) {
+      if (!pathSet.has(photo.storage_path)) {
+        pathSet.add(photo.storage_path);
+        missingPaths.push(photo.storage_path);
+      }
+    }
+  }
+
+  if (missingPaths.length > 0) {
+    const { data, error } = await supabase.storage
+      .from(BUCKET)
+      .createSignedUrls(missingPaths, SIGNED_URL_SECONDS);
+    if (error) throw error;
+
+    if (data) {
+      const expiresAt = now + SIGNED_URL_SECONDS * 1000;
+      data.forEach((item, index) => {
+        const reqPath = missingPaths[index];
+        if (item?.signedUrl) {
+          if (reqPath) {
+            signedUrlCache.set(reqPath, {
+              signedUrl: item.signedUrl,
+              expiresAt,
+            });
+          }
+          if (item.path && item.path !== reqPath) {
+            signedUrlCache.set(item.path, {
+              signedUrl: item.signedUrl,
+              expiresAt,
+            });
+          }
+        }
+      });
+    }
+  }
+
+  return photos.map((photo) => ({
     ...photo,
-    signed_url: data?.[index]?.signedUrl ?? null,
+    signed_url: signedUrlCache.get(photo.storage_path)?.signedUrl ?? null,
   }));
 }
 
@@ -156,6 +214,7 @@ export const wasteBankShowcaseService = {
       .select('id');
     if (rowError) throw rowError;
     if (deleted?.length !== 1) throw new Error('ไม่สามารถลบรูปภาพได้ กรุณาตรวจสอบสิทธิ์แอดมิน');
+    signedUrlCache.delete(photo.storage_path);
     const { error: storageError } = await supabase.storage.from(BUCKET).remove([photo.storage_path]);
     if (storageError) throw storageError;
   },

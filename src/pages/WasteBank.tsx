@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import {
   Search,
   Package,
@@ -70,56 +71,108 @@ const MEDAL_COLORS = [
 ];
 const MEDAL_TEXT = ['text-amber-900', 'text-slate-800', 'text-orange-900'];
 
+const CATEGORY_BG_CLASSES: Record<string, string> = {
+  blue: 'bg-blue-100 text-blue-700',
+  emerald: 'bg-emerald-100 text-emerald-700',
+  violet: 'bg-violet-100 text-violet-700',
+  amber: 'bg-amber-100 text-amber-700',
+  rose: 'bg-rose-100 text-rose-700',
+  cyan: 'bg-cyan-100 text-cyan-700',
+};
+const CATEGORY_DOT_CLASSES: Record<string, string> = {
+  blue: 'bg-blue-500',
+  emerald: 'bg-emerald-500',
+  violet: 'bg-violet-500',
+  amber: 'bg-amber-500',
+  rose: 'bg-rose-500',
+  cyan: 'bg-cyan-500',
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function StudentAvatar({
-  name,
-  size = 48,
-  photoUrl,
-  className,
-}: {
-  name: string;
-  size?: number;
-  photoUrl?: string | null;
-  className?: string;
-}) {
-  const colors = [
-    'from-green-400 to-emerald-600',
-    'from-blue-400 to-cyan-600',
-    'from-emerald-400 to-emerald-600',
-    'from-amber-400 to-orange-600',
-    'from-amber-300 to-amber-500',
-  ];
-  const color = colors[(name.charCodeAt(0) || 0) % colors.length];
-
-  if (photoUrl) {
-    return (
-      <img
-        src={photoUrl}
-        alt={name}
-        loading="lazy"
-        className={cn("rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm bg-muted", className)}
-        style={className ? undefined : { width: size, height: size }}
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).style.display = 'none';
-        }}
-      />
-    );
-  }
-
-  return (
-    <div
-      className={cn(`rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold flex-shrink-0 border-2 border-white shadow-sm`, className)}
-      style={className ? undefined : { width: size, height: size }}
-    >
-      <span style={className ? undefined : { fontSize: size * 0.38 }}>{(name || '?').charAt(0)}</span>
-    </div>
-  );
-}
 
 function formatDate(dateStr: string) {
   return formatThaiDateFull(dateStr);
 }
+
+// ─── Isolated Animated Stats Section (prevents re-rendering page on each tick) ─
+
+const AnimatedStatsSection = memo(function AnimatedStatsSection({
+  summaries,
+  isLoading,
+}: {
+  summaries: WasteStudentSummary[];
+  isLoading: boolean;
+}) {
+  const [displayStats, setDisplayStats] = useState({ students: 0, items: 0, points: 0 });
+
+  useEffect(() => {
+    if (summaries.length === 0) return;
+    const totalStudents = summaries.length;
+    const totalItems = summaries.reduce((a, s) => a + Number(s.total_items ?? 0), 0);
+    const totalPoints = summaries.reduce((a, s) => a + Number(s.total_points_earned ?? 0), 0);
+
+    const duration = 1200;
+    const steps = 40;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      setDisplayStats({
+        students: Math.round(totalStudents * progress),
+        items: Math.round(totalItems * progress),
+        points: Math.round(totalPoints * progress),
+      });
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [summaries]);
+
+  return (
+    <section className="bg-card border-b border-border shadow-sm">
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-green-50 border border-green-100">
+            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+              <Users className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">นักเรียนที่ร่วมโครงการ</p>
+              <p className="text-2xl font-bold text-green-700">
+                {isLoading ? '...' : displayStats.students}
+                <span className="text-sm font-normal ml-1">คน</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <Package className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">ขยะรวม</p>
+              <p className="text-2xl font-bold text-blue-700">
+                {isLoading ? '...' : displayStats.items.toLocaleString()}
+                <span className="text-sm font-normal ml-1">ชิ้น</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50 border border-amber-100">
+            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-6 h-6 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">แต้มสะสมรวม</p>
+              <p className="text-2xl font-bold text-amber-700">
+                {isLoading ? '...' : displayStats.points.toLocaleString()}
+                <span className="text-sm font-normal ml-1">แต้ม</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+});
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -134,9 +187,6 @@ const WasteBank = () => {
   const [searchClass, setSearchClass] = useState('all');
   const [searchResults, setSearchResults] = useState<WasteStudentSummary[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
-
-  // Animated count-up stats
-  const [displayStats, setDisplayStats] = useState({ students: 0, items: 0, points: 0 });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -167,30 +217,6 @@ const WasteBank = () => {
     setIsLoading(false);
   };
 
-  // Count-up animation when summaries load
-  useEffect(() => {
-    if (summaries.length === 0) return;
-    const totalStudents = summaries.length;
-    const totalItems = summaries.reduce((a, s) => a + Number(s.total_items ?? 0), 0);
-    const totalPoints = summaries.reduce((a, s) => a + Number(s.total_points_earned ?? 0), 0);
-
-    const duration = 1200;
-    const steps = 40;
-    const interval = duration / steps;
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      setDisplayStats({
-        students: Math.round(totalStudents * progress),
-        items: Math.round(totalItems * progress),
-        points: Math.round(totalPoints * progress),
-      });
-      if (step >= steps) clearInterval(timer);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [summaries]);
-
   // Sorted rankings
   const byPoints = useMemo(
     () => [...summaries].sort((a, b) => Number(b.total_points_earned ?? 0) - Number(a.total_points_earned ?? 0)),
@@ -220,7 +246,7 @@ const WasteBank = () => {
   );
   useEffect(() => {
     if (classes.length > 0 && !classTab) setClassTab(classes[0]!);
-  }, [classes]);
+  }, [classes, classTab]);
   const classRanked = useMemo(
     () => byPoints.filter((s) => s.class_name === classTab).slice(0, 5),
     [byPoints, classTab],
@@ -309,48 +335,7 @@ const WasteBank = () => {
       </section>
 
       {/* ─── Animated Stats ───────────────────────────────────────────── */}
-      <section className="bg-card border-b border-border shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-green-50 border border-green-100">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">นักเรียนที่ร่วมโครงการ</p>
-                <p className="text-2xl font-bold text-green-700">
-                  {isLoading ? '...' : displayStats.students}
-                  <span className="text-sm font-normal ml-1">คน</span>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <Package className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">ขยะรวม</p>
-                <p className="text-2xl font-bold text-blue-700">
-                  {isLoading ? '...' : displayStats.items.toLocaleString()}
-                  <span className="text-sm font-normal ml-1">ชิ้น</span>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50 border border-amber-100">
-              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-6 h-6 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">แต้มสะสมรวม</p>
-                <p className="text-2xl font-bold text-amber-700">
-                  {isLoading ? '...' : displayStats.points.toLocaleString()}
-                  <span className="text-sm font-normal ml-1">แต้ม</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AnimatedStatsSection summaries={summaries} isLoading={isLoading} />
 
       {/* ─── Leaderboards Grid ────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto w-full px-4 py-6">
@@ -399,7 +384,7 @@ const WasteBank = () => {
                             <div
                               key={pos}
                               className={`
-                                flex flex-col items-center text-center p-1.5 xs:p-2.5 md:p-4 rounded-2xl border-2
+                                flex flex-col items-center text-center p-1.5 xs:p-2.5 md:p-4 rounded-2xl border-2 transform-gpu
                                 ${MEDAL_COLORS[rankIdx]}
                                 ${isFirst ? 'ring-2 ring-amber-300 shadow-md scale-105 pb-2.5 pt-2 md:pb-4 md:pt-3' : 'shadow-sm'}
                                 transition-all
@@ -408,10 +393,13 @@ const WasteBank = () => {
                               <span className={`text-lg xs:text-2xl mb-1 ${isFirst ? 'text-2xl xs:text-3xl' : ''}`}>
                                 {MEDALS[rankIdx]}
                               </span>
-                              <StudentAvatar
+                              <PersonAvatar
                                 name={student.full_name || '?'}
-                                className={isFirst ? "w-12 h-12 xs:w-16 xs:h-16 md:w-20 md:h-20" : "w-9 h-9 xs:w-12 xs:h-12 md:w-14 md:h-14"}
                                 photoUrl={student.student_id ? photoMap.get(student.student_id) : null}
+                                className={cn(
+                                  "aspect-square rounded-full border-2 border-white shadow-sm shrink-0 transform-gpu",
+                                  isFirst ? "w-12 h-12 xs:w-16 xs:h-16 md:w-20 md:h-20" : "w-9 h-9 xs:w-12 xs:h-12 md:w-14 md:h-14"
+                                )}
                               />
                               <p
                                 className={`font-semibold mt-1.5 leading-tight text-foreground truncate max-w-full text-[10px] xs:text-xs md:text-base`}
@@ -448,10 +436,11 @@ const WasteBank = () => {
                               <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground flex-shrink-0">
                                 {i + 4}
                               </span>
-                              <StudentAvatar
+                              <PersonAvatar
                                 name={s.full_name || '?'}
-                                size={28}
+                                size="xs"
                                 photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
+                                className="w-7 h-7 aspect-square rounded-full shrink-0 transform-gpu"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium truncate">{s.full_name || '—'}</p>
@@ -513,10 +502,11 @@ const WasteBank = () => {
                               <span className="text-sm w-5 text-center flex-shrink-0">
                                 {i < 3 ? MEDALS[i] : `${i + 1}`}
                               </span>
-                              <StudentAvatar
+                              <PersonAvatar
                                 name={s.full_name || '?'}
-                                size={28}
+                                size="xs"
                                 photoUrl={s.student_id ? photoMap.get(s.student_id) : null}
+                                className="w-7 h-7 aspect-square rounded-full shrink-0 transform-gpu"
                               />
                               <p className="flex-1 text-xs font-medium truncate">
                                 {s.full_name || '—'}
@@ -569,25 +559,32 @@ const WasteBank = () => {
                         className="flex items-center gap-3 px-3 py-2 hover:bg-muted/30 transition-colors"
                       >
                         {/* Category icon */}
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-base"
-                          style={{ backgroundColor: cat?.color ? `${cat.color}22` : '#d1fae5' }}>
+                        <div
+                          className={cn(
+                            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-base",
+                            cat?.color && CATEGORY_BG_CLASSES[cat.color] ? CATEGORY_BG_CLASSES[cat.color] : "bg-emerald-100 text-emerald-700"
+                          )}
+                        >
                           {cat?.icon ? (
                             <span>{cat.icon}</span>
                           ) : (
                             <span
-                              className="w-2.5 h-2.5 rounded-full"
-                              style={{ backgroundColor: cat?.color || '#16a34a' }}
+                              className={cn(
+                                "w-2.5 h-2.5 rounded-full",
+                                cat?.color && CATEGORY_DOT_CLASSES[cat.color] ? CATEGORY_DOT_CLASSES[cat.color] : "bg-emerald-600"
+                              )}
                             />
                           )}
                         </div>
 
-                        <StudentAvatar
+                        <PersonAvatar
                           name={tx.student_name}
-                          size={28}
+                          size="xs"
                           photoUrl={
                             tx.students?.photo_url ??
                             (tx.student_id ? photoMap.get(tx.student_id) : null)
                           }
+                          className="w-7 h-7 aspect-square rounded-full shrink-0 transform-gpu"
                         />
 
                         <div className="flex-1 min-w-0">
@@ -695,7 +692,17 @@ const WasteBank = () => {
                               key={idx}
                               className="border-b border-border hover:bg-green-50/40 transition-colors"
                             >
-                              <td className="px-3 py-2 font-medium">{s.full_name || '—'}</td>
+                              <td className="px-3 py-2 font-medium">
+                                <div className="flex items-center gap-2">
+                                  <PersonAvatar
+                                    name={s.full_name || '?'}
+                                    size="xs"
+                                    photoUrl={s.student_id ? photoMap.get(s.student_id) : s.photo_url ?? null}
+                                    className="w-6 h-6 aspect-square rounded-full shrink-0 transform-gpu"
+                                  />
+                                  <span>{s.full_name || '—'}</span>
+                                </div>
+                              </td>
                               <td className="px-3 py-2">
                                 <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100 text-[10px] py-0 px-1">
                                   {s.class_name}

@@ -56,6 +56,10 @@ const WasteBankResults = () => {
     enabled: !!report,
     staleTime: 5 * 60 * 1000,
   });
+  const activePhoto = useMemo(() => {
+    if (!selectedPhoto) return null;
+    return photos.find((p) => p.id === selectedPhoto.id) ?? selectedPhoto;
+  }, [photos, selectedPhoto]);
   const { data: rewards = [], isLoading: rewardsLoading } = useQuery({
     queryKey: ['rewards', 'active'],
     queryFn: async () => {
@@ -145,9 +149,19 @@ const WasteBankResults = () => {
               ) : rewards.length > 0 ? (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                   {rewards.map((reward) => (
-                    <article key={reward.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                    <article key={reward.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transform-gpu transition-all duration-200">
                       <div className="aspect-square overflow-hidden bg-muted">
-                        {reward.image_url ? <img src={reward.image_url} alt={reward.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Gift className="h-10 w-10" /></div>}
+                        {reward.image_url ? (
+                          <img
+                            src={reward.image_url}
+                            alt={reward.name}
+                            loading="lazy"
+                            decoding="async"
+                            className="aspect-square h-full w-full object-cover transition-transform duration-300 hover:scale-105 transform-gpu will-change-transform"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-muted-foreground"><Gift className="h-10 w-10" /></div>
+                        )}
                       </div>
                       <div className="space-y-2 p-3">
                         <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-foreground">{reward.name}</h3>
@@ -196,8 +210,20 @@ const WasteBankResults = () => {
             {galleryGroups.length > 0 && <section className="border-y border-border bg-muted/30 py-10"><div className="mx-auto max-w-6xl space-y-8 px-4">
               <div className="text-center"><ImageIcon className="mx-auto mb-2 h-7 w-7 text-primary" /><h2 className="text-xl font-bold text-foreground md:text-2xl">ภาพการดำเนินงานจริง</h2><p className="text-sm text-muted-foreground">บันทึกกิจกรรมจากการรับฝากขยะจนถึงการส่งมอบรางวัล</p></div>
               {galleryGroups.map((group) => <div key={group.key}><h3 className="mb-3 text-base font-bold text-foreground">{group.label}</h3><div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-                {group.photos.map((photo) => <button key={photo.id} type="button" onClick={() => setSelectedPhoto(photo)} className="group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm">
-                  {photo.signed_url ? <img src={photo.signed_url} alt={photo.caption || group.label} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-105" /> : <div className="flex aspect-[4/3] items-center justify-center bg-muted text-muted-foreground"><ImageIcon className="h-7 w-7" /></div>}
+                {group.photos.map((photo) => <button key={photo.id} type="button" onClick={() => setSelectedPhoto(photo)} className="group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transform-gpu transition-all duration-200 hover:-translate-y-0.5">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+                    {photo.signed_url ? (
+                      <img
+                        src={photo.signed_url}
+                        alt={photo.caption || group.label}
+                        loading="lazy"
+                        decoding="async"
+                        className="aspect-[4/3] h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu will-change-transform"
+                      />
+                    ) : (
+                      <div className="flex aspect-[4/3] h-full w-full items-center justify-center bg-muted text-muted-foreground"><ImageIcon className="h-7 w-7" /></div>
+                    )}
+                  </div>
                   {(photo.caption || photo.activity_date) && <div className="p-3"><p className="line-clamp-2 text-sm font-medium text-foreground">{photo.caption || group.label}</p>{photo.activity_date && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><CalendarDays className="h-3 w-3" />{formatThaiDateFull(photo.activity_date)}</p>}</div>}
                 </button>)}
               </div></div>)}
@@ -208,7 +234,22 @@ const WasteBankResults = () => {
         )}
       </main>
       <Footer />
-      <Dialog open={!!selectedPhoto} onOpenChange={(open) => !open && setSelectedPhoto(null)}><DialogContent className="max-w-3xl"><DialogHeader><DialogTitle>{selectedPhoto?.caption || (selectedPhoto ? GALLERY_LABELS[selectedPhoto.category as keyof typeof GALLERY_LABELS] : '')}</DialogTitle><DialogDescription>{selectedPhoto?.activity_date ? formatThaiDateFull(selectedPhoto.activity_date) : 'ภาพการดำเนินงานธนาคารขยะ'}</DialogDescription></DialogHeader>{selectedPhoto?.signed_url && <img src={selectedPhoto.signed_url} alt={selectedPhoto.caption || 'ภาพกิจกรรมธนาคารขยะ'} className="max-h-[70vh] w-full rounded-lg object-contain" />}</DialogContent></Dialog>
+      <Dialog open={!!selectedPhoto} onOpenChange={(open) => !open && setSelectedPhoto(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{activePhoto?.caption || (activePhoto ? GALLERY_LABELS[activePhoto.category as keyof typeof GALLERY_LABELS] : '')}</DialogTitle>
+            <DialogDescription>{activePhoto?.activity_date ? formatThaiDateFull(activePhoto.activity_date) : 'ภาพการดำเนินงานธนาคารขยะ'}</DialogDescription>
+          </DialogHeader>
+          {activePhoto?.signed_url && (
+            <img
+              src={activePhoto.signed_url}
+              alt={activePhoto.caption || 'ภาพกิจกรรมธนาคารขยะ'}
+              decoding="async"
+              className="max-h-[70vh] w-full rounded-lg object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

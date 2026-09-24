@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp, Presentation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
 import { WasteStudentSummaryTab } from './WasteStudentSummaryTab';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useAuth } from '@/contexts/AuthProvider';
 import { TermBanner } from './TermBanner';
 import { QuickStudentPicker } from './QuickStudentPicker';
@@ -71,6 +73,7 @@ type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims' | 's
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { staffId, administratorId, isAdmin } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -179,18 +182,22 @@ export const WasteBankManagement = () => {
 
   // Fetch students when class changes
   useEffect(() => {
+    let cancelled = false;
     if (form.student_class) {
       setLoadingStudents(true);
       (async () => {
         const { data } = await studentsService.getByClass(form.student_class);
-        setStudentOptions((data || []).map(s => ({ id: s.id, name: s.name, class: s.class, photo_url: s.photo_url ?? null })));
-        setLoadingStudents(false);
+        if (!cancelled) {
+          setStudentOptions((data || []).map(s => ({ id: s.id, name: s.name, class: s.class, photo_url: s.photo_url ?? null })));
+          setLoadingStudents(false);
+        }
       })();
     } else {
       setStudentOptions([]);
     }
-    setSelectedStudentId('');
-    setForm(prev => ({ ...prev, student_name: '' }));
+    return () => {
+      cancelled = true;
+    };
   }, [form.student_class]);
 
   const fetchCategories = async () => {
@@ -216,9 +223,19 @@ export const WasteBankManagement = () => {
     if (!error && data) setSummaries(data as WasteStudentSummary[]);
   };
 
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = useCallback((field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
+
+  const handleClassChange = useCallback((v: string) => {
+    setSelectedStudentId('');
+    setForm((prev) => ({ ...prev, student_class: v, student_name: '' }));
+  }, []);
+
+  const handleStudentSelect = useCallback((id: string, name: string) => {
+    setSelectedStudentId(id);
+    setForm((prev) => ({ ...prev, student_name: name }));
+  }, []);
 
   const handleQRScanned = async (studentId: string) => {
     setShowQRScanner(false);
@@ -320,6 +337,7 @@ export const WasteBankManagement = () => {
     setStudentOptions([]);
     fetchTransactions();
     fetchSummaries();
+    void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
   };
 
   const closePointsConfirmation = useCallback(() => {
@@ -337,6 +355,7 @@ export const WasteBankManagement = () => {
       toast({ title: 'ลบรายการสำเร็จ' });
       fetchTransactions();
       fetchSummaries();
+      void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
     }
   };
 
@@ -497,14 +516,11 @@ export const WasteBankManagement = () => {
                     <QuickStudentPicker
                       classes={CLASSES}
                       selectedClass={form.student_class}
-                      onClassChange={(v) => handleFormChange('student_class', v)}
+                      onClassChange={handleClassChange}
                       students={studentOptions}
                       loadingStudents={loadingStudents}
                       selectedStudentId={selectedStudentId}
-                      onStudentSelect={(id, name) => {
-                        setSelectedStudentId(id);
-                        setForm((prev) => ({ ...prev, student_name: name }));
-                      }}
+                      onStudentSelect={handleStudentSelect}
                     />
                   </div>
                 ) : (
@@ -512,7 +528,7 @@ export const WasteBankManagement = () => {
                     {/* Class selector */}
                     <div className="space-y-1">
                       <Label>ชั้น <span className="text-destructive">*</span></Label>
-                      <Select value={form.student_class} onValueChange={(v) => handleFormChange('student_class', v)}>
+                      <Select value={form.student_class} onValueChange={handleClassChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="เลือกชั้น" />
                         </SelectTrigger>
@@ -545,13 +561,12 @@ export const WasteBankManagement = () => {
                             {studentOptions.map((s) => (
                               <SelectItem key={s.id} value={s.id}>
                                 <div className="flex items-center gap-2">
-                                  {s.photo_url ? (
-                                    <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
-                                  ) : (
-                                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                                      {s.name.slice(0, 1)}
-                                    </div>
-                                  )}
+                                  <PersonAvatar
+                                    name={s.name}
+                                    photoUrl={s.photo_url}
+                                    size="xs"
+                                    className="w-6 h-6 aspect-square rounded-full shrink-0 transform-gpu"
+                                  />
                                   <span>{s.name}</span>
                                 </div>
                               </SelectItem>
@@ -729,7 +744,7 @@ export const WasteBankManagement = () => {
                   </div>
                   <div className="flex justify-end items-center gap-2 pt-1 text-sm">
                     <span className="text-muted-foreground">รวมแต้มทั้งหมด:</span>
-                    <span className="text-lg font-bold text-foreground dark:text-foreground tabular-nums">
+                    <span className="text-lg font-bold text-foreground tabular-nums">
                       {rowsTotalPoints} แต้ม
                     </span>
                   </div>
@@ -803,13 +818,12 @@ export const WasteBankManagement = () => {
                           </td>
                           <td className="px-4 py-3 font-medium">
                             <div className="flex items-center gap-2">
-                              {tx.students?.photo_url ? (
-                                <img src={tx.students.photo_url} alt={tx.student_name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
-                              ) : (
-                                <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-[11px] font-bold text-primary flex-shrink-0">
-                                  {tx.student_name.slice(0, 1)}
-                                </div>
-                              )}
+                              <PersonAvatar
+                                name={tx.student_name}
+                                photoUrl={tx.students?.photo_url ?? null}
+                                size="xs"
+                                className="w-7 h-7 aspect-square rounded-full shrink-0 transform-gpu"
+                              />
                               {tx.student_name}
                             </div>
                           </td>

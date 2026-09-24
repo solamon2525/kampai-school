@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { describeCameraError, startRearScanner } from '@/lib/qrCamera';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 interface Props {
@@ -185,13 +186,12 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
             <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50/50 p-4 space-y-3">
               {/* Student info */}
               <div className="flex items-center gap-3 pb-2 border-b border-emerald-100">
-                {claim.students?.photo_url ? (
-                  <img src={claim.students.photo_url} alt={claim.students.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-300" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-sm font-bold text-emerald-800">
-                    {(claim.students?.name ?? '?').slice(0, 1)}
-                  </div>
-                )}
+                <PersonAvatar
+                  name={claim.students?.name ?? '?'}
+                  photoUrl={claim.students?.photo_url}
+                  size="md"
+                  className="w-10 h-10 aspect-square rounded-full shrink-0 ring-2 ring-emerald-300 transform-gpu"
+                />
                 <div>
                   <div className="font-bold text-emerald-950">{claim.students?.name}</div>
                   <div className="text-xs text-emerald-800">ชั้น {claim.students?.class}</div>
@@ -201,7 +201,12 @@ export const ClaimQRScanner = ({ open, onClose, onAction }: Props) => {
               {/* Reward info */}
               <div className="flex items-center gap-3">
                 {claim.rewards?.image_url ? (
-                  <img src={claim.rewards.image_url} alt={claim.reward_name} className="w-12 h-12 rounded object-cover border border-emerald-200 shrink-0" />
+                  <img
+                    src={claim.rewards.image_url}
+                    alt={claim.reward_name}
+                    decoding="async"
+                    className="w-12 h-12 aspect-square rounded object-cover border border-emerald-200 shrink-0 transform-gpu"
+                  />
                 ) : (
                   <div className="w-12 h-12 rounded bg-muted flex items-center justify-center border border-emerald-200 shrink-0">
                     <Gift className="w-6 h-6 text-muted-foreground" />

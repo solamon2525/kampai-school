@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,23 +26,29 @@ interface ClaimsApprovalProps {
 
 export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { user, staffId, administratorId } = useAuth();
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
   const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
 
-  useEffect(() => { fetchAll(); }, [filter]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     const { data, error } = filter === 'pending'
       ? await rewardClaimsService.listPending()
       : await rewardClaimsService.listAll();
     if (!error && data) setClaims(data as RewardClaim[]);
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    void fetchAll();
+  }, [fetchAll]);
 
   const handleActionCompleted = () => {
     fetchAll();
+    void queryClient.invalidateQueries({ queryKey: ['rewards'] });
+    void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
     onAction?.();
   };
 
@@ -80,9 +87,9 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   };
 
   const statusBadge = (s: RewardClaimStatus) => {
-    if (s === 'pending') return <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 gap-1"><Clock className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
-    if (s === 'approved') return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 gap-1"><CheckCircle2 className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
-    return <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-300 hover:bg-rose-500/20 gap-1"><XCircle className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
+    if (s === 'pending') return <Badge className="bg-amber-500/15 text-amber-700 hover:bg-amber-500/20 gap-1"><Clock className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
+    if (s === 'approved') return <Badge className="bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/20 gap-1"><CheckCircle2 className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
+    return <Badge className="bg-rose-500/15 text-rose-700 hover:bg-rose-500/20 gap-1"><XCircle className="w-3 h-3" />{STATUS_LABEL[s]}</Badge>;
   };
 
   const ownerBadge = (c: RewardClaim) => {
@@ -90,14 +97,14 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     const ownerAdmin = c.rewards?.owner_administrator_id ?? null;
     if (!ownerStaff && !ownerAdmin) {
       return (
-        <Badge variant="outline" className="gap-1 text-[10px] border-sky-300 text-sky-700 dark:text-sky-300">
+        <Badge variant="outline" className="gap-1 text-[10px] border-sky-300 text-sky-700">
           <Globe2 className="w-3 h-3" /> กลาง
         </Badge>
       );
     }
     const mine = (staffId && ownerStaff === staffId) || (administratorId && ownerAdmin === administratorId);
     return (
-      <Badge variant="outline" className={`gap-1 text-[10px] ${mine ? 'border-emerald-300 text-emerald-700 dark:text-emerald-300' : ''}`}>
+      <Badge variant="outline" className={`gap-1 text-[10px] ${mine ? 'border-emerald-300 text-emerald-700' : ''}`}>
         <User className="w-3 h-3" /> {mine ? 'ของฉัน' : 'ของครู'}
       </Badge>
     );
@@ -172,7 +179,12 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {c.rewards?.image_url && (
-                            <img src={c.rewards.image_url} alt={c.reward_name} className="w-10 h-10 rounded object-cover" />
+                            <img
+                              src={c.rewards.image_url}
+                              alt={c.reward_name}
+                              decoding="async"
+                              className="w-10 h-10 aspect-square rounded object-cover shrink-0 transform-gpu"
+                            />
                           )}
                           <div className="space-y-1">
                             <div>{c.reward_name}</div>

@@ -1,7 +1,8 @@
+import { memo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
-interface StudentOption {
+export interface StudentOption {
   id: string;
   name: string;
   class: string;
@@ -18,7 +19,42 @@ interface QuickStudentPickerProps {
   onStudentSelect: (id: string, name: string) => void;
 }
 
-export const QuickStudentPicker = ({
+interface StudentCardProps {
+  student: StudentOption;
+  isSelected: boolean;
+  onSelect: (id: string, name: string) => void;
+}
+
+const StudentCard = memo(function StudentCard({ student, isSelected, onSelect }: StudentCardProps) {
+  const handleClick = useCallback(() => {
+    onSelect(student.id, student.name);
+  }, [onSelect, student.id, student.name]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={cn(
+        'flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all transform-gpu will-change-transform',
+        isSelected
+          ? 'border-primary bg-primary/10 ring-2 ring-primary ring-offset-1'
+          : 'border-border bg-card hover:bg-muted hover:border-primary/50'
+      )}
+    >
+      <PersonAvatar
+        name={student.name}
+        photoUrl={student.photo_url}
+        size="lg"
+        className="h-16 w-16 aspect-square rounded-xl shrink-0"
+      />
+      <span className="text-xs text-center leading-tight line-clamp-2 text-foreground w-full">
+        {student.name}
+      </span>
+    </button>
+  );
+});
+
+export const QuickStudentPicker = memo(function QuickStudentPicker({
   classes,
   selectedClass,
   onClassChange,
@@ -26,7 +62,7 @@ export const QuickStudentPicker = ({
   loadingStudents,
   selectedStudentId,
   onStudentSelect,
-}: QuickStudentPickerProps) => {
+}: QuickStudentPickerProps) {
   return (
     <div className="flex flex-col md:flex-row gap-3">
       {/* Class buttons */}
@@ -37,7 +73,7 @@ export const QuickStudentPicker = ({
             type="button"
             onClick={() => onClassChange(cls)}
             className={cn(
-              'px-3 py-2 text-sm font-semibold rounded-lg border transition-colors text-center',
+              'px-3 py-2 text-sm font-semibold rounded-lg border transition-colors text-center transform-gpu',
               selectedClass === cls
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-card border-border hover:bg-muted text-foreground'
@@ -67,35 +103,17 @@ export const QuickStudentPicker = ({
         )}
         {selectedClass && !loadingStudents && students.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
-            {students.map((s) => {
-              const isSelected = selectedStudentId === s.id;
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => onStudentSelect(s.id, s.name)}
-                  className={cn(
-                    'flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all',
-                    isSelected
-                      ? 'border-primary bg-primary/10 ring-2 ring-primary ring-offset-1'
-                      : 'border-border bg-card hover:bg-muted hover:border-primary/50'
-                  )}
-                >
-                  <PersonAvatar
-                    name={s.name}
-                    photoUrl={s.photo_url}
-                    size="lg"
-                    className="h-16 w-16 rounded-xl"
-                  />
-                  <span className="text-xs text-center leading-tight line-clamp-2 text-foreground w-full">
-                    {s.name}
-                  </span>
-                </button>
-              );
-            })}
+            {students.map((s) => (
+              <StudentCard
+                key={s.id}
+                student={s}
+                isSelected={selectedStudentId === s.id}
+                onSelect={onStudentSelect}
+              />
+            ))}
           </div>
         )}
       </div>
     </div>
   );
-};
+});

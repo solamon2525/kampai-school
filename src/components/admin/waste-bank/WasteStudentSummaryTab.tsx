@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useDeferredValue, memo } from 'react';
 import { Download, LayoutGrid, LayoutList, Layers, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
@@ -63,12 +63,140 @@ const applySortFn = (
   }
 };
 
+const SummaryTableRow = memo(function SummaryTableRow({
+  s,
+  idx,
+}: {
+  s: WasteStudentSummary;
+  idx: number;
+}) {
+  return (
+    <tr
+      key={s.student_id ?? s.full_name}
+      className={cn('border-t border-border', idx % 2 === 1 && 'bg-muted/20')}
+    >
+      <td className="p-3 text-xs text-muted-foreground tabular-nums">{idx + 1}</td>
+      <td className="p-3">
+        <div className="flex items-center gap-2">
+          <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="sm" className="aspect-square shrink-0 transform-gpu" />
+          <span className="font-bold text-foreground">{s.full_name}</span>
+        </div>
+      </td>
+      <td className="p-3 text-center">
+        <Badge variant="outline" className="text-xs font-semibold">
+          {s.class_name ?? '—'}
+        </Badge>
+      </td>
+      <td className="p-3 text-right tabular-nums text-muted-foreground">
+        {s.total_transactions ?? 0}
+      </td>
+      <td className="p-3 text-right tabular-nums font-semibold text-foreground">
+        {s.total_items ?? 0}
+      </td>
+      <td className="p-3 text-right tabular-nums font-bold text-amber-700">
+        {s.total_points_earned ?? 0}
+      </td>
+      <td
+        className={cn(
+          'p-3 text-right tabular-nums font-extrabold',
+          Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
+        )}
+      >
+        {s.available_points ?? 0}
+      </td>
+    </tr>
+  );
+});
+
+const SummaryGridCard = memo(function SummaryGridCard({
+  s,
+}: {
+  s: WasteStudentSummary;
+}) {
+  const pts = Number(s.available_points ?? 0);
+  const hasPoints = pts > 0;
+  return (
+    <div
+      key={s.student_id ?? s.full_name}
+      className={cn(
+        'rounded-xl border p-3 flex flex-col items-center gap-2 text-center transition-shadow hover:shadow-md transform-gpu',
+        hasPoints
+          ? 'bg-emerald-50/60 border-emerald-200'
+          : 'bg-muted/30 border-border',
+      )}
+    >
+      <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="md" className="aspect-square shrink-0 transform-gpu" />
+      <div className="w-full">
+        <p className="text-xs font-bold text-foreground truncate">{s.full_name}</p>
+        <Badge
+          variant="outline"
+          className={cn(
+            'text-[10px] font-semibold mt-1',
+            hasPoints ? 'border-emerald-300 text-emerald-700' : 'border-border text-muted-foreground',
+          )}
+        >
+          {s.class_name ?? '—'}
+        </Badge>
+      </div>
+      <p
+        className={cn(
+          'text-lg font-extrabold tabular-nums leading-none',
+          hasPoints ? 'text-emerald-700' : 'text-muted-foreground',
+        )}
+      >
+        {pts} <span className="text-xs font-medium">แต้ม</span>
+      </p>
+      <div className="w-full flex justify-between text-[10px] text-muted-foreground font-medium">
+        <span>{s.total_items ?? 0} ชิ้น</span>
+        <span>{s.total_transactions ?? 0} ครั้ง</span>
+      </div>
+    </div>
+  );
+});
+
+const SummaryByClassRow = memo(function SummaryByClassRow({
+  s,
+  idx,
+}: {
+  s: WasteStudentSummary;
+  idx: number;
+}) {
+  return (
+    <tr
+      key={s.student_id ?? s.full_name}
+      className={cn('border-t border-border', idx % 2 === 1 && 'bg-muted/20')}
+    >
+      <td className="p-2.5 pl-4">
+        <div className="flex items-center gap-2">
+          <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="xs" className="aspect-square shrink-0 transform-gpu" />
+          <span className="font-semibold text-foreground text-xs">{s.full_name}</span>
+        </div>
+      </td>
+      <td className="p-2.5 text-right text-xs tabular-nums text-foreground font-semibold">
+        {s.total_items ?? 0}
+      </td>
+      <td className="p-2.5 text-right text-xs tabular-nums font-bold text-amber-700">
+        {s.total_points_earned ?? 0}
+      </td>
+      <td
+        className={cn(
+          'p-2.5 text-right text-xs tabular-nums font-extrabold pr-4',
+          Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
+        )}
+      >
+        {s.available_points ?? 0}
+      </td>
+    </tr>
+  );
+});
+
 export const WasteStudentSummaryTab = ({ summaries }: Props) => {
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<WasteSummaryViewMode>('table');
   const [sortBy, setSortBy] = useState<WasteSummarySortBy>('points');
   const [classFilter, setClassFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
   const [prefLoading, setPrefLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -81,13 +209,13 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
   }, []);
 
   const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = deferredSearch.trim().toLowerCase();
     return summaries.filter((s) => {
       if (classFilter !== 'all' && s.class_name !== classFilter) return false;
       if (term && !s.full_name?.toLowerCase().includes(term)) return false;
       return true;
     });
-  }, [summaries, classFilter, search]);
+  }, [summaries, classFilter, deferredSearch]);
 
   const sorted = useMemo(
     () => [...filtered].sort((a, b) => applySortFn(a, b, sortBy)),
@@ -271,40 +399,7 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
               </thead>
               <tbody>
                 {sorted.map((s, idx) => (
-                  <tr
-                    key={s.student_id ?? s.full_name}
-                    className={cn('border-t border-border', idx % 2 === 1 && 'bg-muted/20')}
-                  >
-                    <td className="p-3 text-xs text-muted-foreground tabular-nums">{idx + 1}</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="sm" />
-                        <span className="font-bold text-foreground">{s.full_name}</span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-center">
-                      <Badge variant="outline" className="text-xs font-semibold">
-                        {s.class_name ?? '—'}
-                      </Badge>
-                    </td>
-                    <td className="p-3 text-right tabular-nums text-muted-foreground">
-                      {s.total_transactions ?? 0}
-                    </td>
-                    <td className="p-3 text-right tabular-nums font-semibold text-foreground">
-                      {s.total_items ?? 0}
-                    </td>
-                    <td className="p-3 text-right tabular-nums font-bold text-amber-700">
-                      {s.total_points_earned ?? 0}
-                    </td>
-                    <td
-                      className={cn(
-                        'p-3 text-right tabular-nums font-extrabold',
-                        Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
-                      )}
-                    >
-                      {s.available_points ?? 0}
-                    </td>
-                  </tr>
+                  <SummaryTableRow key={s.student_id ?? s.full_name} s={s} idx={idx} />
                 ))}
               </tbody>
             </table>
@@ -314,47 +409,9 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
         {/* ── Grid / Card view ── */}
         {viewMode === 'grid' && sorted.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {sorted.map((s) => {
-              const pts = Number(s.available_points ?? 0);
-              const hasPoints = pts > 0;
-              return (
-                <div
-                  key={s.student_id ?? s.full_name}
-                  className={cn(
-                    'rounded-xl border p-3 flex flex-col items-center gap-2 text-center transition-shadow hover:shadow-md',
-                    hasPoints
-                      ? 'bg-emerald-50/60 border-emerald-200'
-                      : 'bg-muted/30 border-border',
-                  )}
-                >
-                  <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="md" />
-                  <div className="w-full">
-                    <p className="text-xs font-bold text-foreground truncate">{s.full_name}</p>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        'text-[10px] font-semibold mt-1',
-                        hasPoints ? 'border-emerald-300 text-emerald-700' : 'border-border text-muted-foreground',
-                      )}
-                    >
-                      {s.class_name ?? '—'}
-                    </Badge>
-                  </div>
-                  <p
-                    className={cn(
-                      'text-lg font-extrabold tabular-nums leading-none',
-                      hasPoints ? 'text-emerald-700' : 'text-muted-foreground',
-                    )}
-                  >
-                    {pts} <span className="text-xs font-medium">แต้ม</span>
-                  </p>
-                  <div className="w-full flex justify-between text-[10px] text-muted-foreground font-medium">
-                    <span>{s.total_items ?? 0} ชิ้น</span>
-                    <span>{s.total_transactions ?? 0} ครั้ง</span>
-                  </div>
-                </div>
-              );
-            })}
+            {sorted.map((s) => (
+              <SummaryGridCard key={s.student_id ?? s.full_name} s={s} />
+            ))}
           </div>
         )}
 
@@ -391,31 +448,7 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
                     </thead>
                     <tbody>
                       {students.map((s, idx) => (
-                        <tr
-                          key={s.student_id ?? s.full_name}
-                          className={cn('border-t border-border', idx % 2 === 1 && 'bg-muted/20')}
-                        >
-                          <td className="p-2.5 pl-4">
-                            <div className="flex items-center gap-2">
-                              <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="xs" />
-                              <span className="font-semibold text-foreground text-xs">{s.full_name}</span>
-                            </div>
-                          </td>
-                          <td className="p-2.5 text-right text-xs tabular-nums text-foreground font-semibold">
-                            {s.total_items ?? 0}
-                          </td>
-                          <td className="p-2.5 text-right text-xs tabular-nums font-bold text-amber-700">
-                            {s.total_points_earned ?? 0}
-                          </td>
-                          <td
-                            className={cn(
-                              'p-2.5 text-right text-xs tabular-nums font-extrabold pr-4',
-                              Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
-                            )}
-                          >
-                            {s.available_points ?? 0}
-                          </td>
-                        </tr>
+                        <SummaryByClassRow key={s.student_id ?? s.full_name} s={s} idx={idx} />
                       ))}
                     </tbody>
                   </table>

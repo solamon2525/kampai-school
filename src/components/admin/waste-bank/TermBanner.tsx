@@ -78,10 +78,10 @@ export const TermBanner = () => {
 
   return (
     <>
-      <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/20">
+      <Card className="border-amber-200 bg-amber-50/60">
         <CardContent className="py-3 px-4 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <CalendarClock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <CalendarClock className="w-4 h-4 text-amber-600" />
             <span className="text-sm">
               เทอมปัจจุบัน: <strong>เทอม {term.sem}/{term.year}</strong>
               <span className="text-muted-foreground ml-2 text-xs">(แต้ม + คะแนนนับเฉพาะเทอมนี้)</span>
@@ -102,7 +102,7 @@ export const TermBanner = () => {
             <DialogDescription>
               เมื่อยืนยัน — แต้มและคะแนนเริ่มนับใหม่จาก 0 สำหรับนักเรียนทุกคน
               <br />
-              <strong className="text-amber-700 dark:text-amber-400">
+              <strong className="text-amber-700">
                 ข้อมูลเทอมเก่ายังอยู่ในประวัติ ไม่ถูกลบ
               </strong>
             </DialogDescription>

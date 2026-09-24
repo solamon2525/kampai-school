@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,15 +77,57 @@ export function WasteBankShowcaseManagement() {
     queryFn: () => wasteBankShowcaseService.listPhotos(reportQuery.data!.id),
     enabled: !!reportQuery.data,
   });
+  const reportId = reportQuery.data?.id;
   const photos = photosQuery.data ?? [];
+  const reorderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reorderBaselineRef = useRef<WasteShowcasePhotoWithUrl[] | null>(null);
+
+  const flushReorder = async () => {
+    if (reorderTimeoutRef.current) {
+      clearTimeout(reorderTimeoutRef.current);
+      reorderTimeoutRef.current = null;
+    }
+    if (!reportId || !reorderBaselineRef.current) return;
+    const photosQueryKey = ['waste-bank-showcase', 'photos', reportId];
+    const latestPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey);
+    const baseline = reorderBaselineRef.current;
+    reorderBaselineRef.current = null;
+    if (latestPhotos && latestPhotos.length > 0) {
+      try {
+        await wasteBankShowcaseService.reorderPhotos(latestPhotos);
+        if (latestPhotos.some((p) => p.is_published)) {
+          await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+        }
+      } catch (error) {
+        queryClient.setQueryData(photosQueryKey, baseline);
+        toast({
+          title: 'จัดลำดับไม่สำเร็จ',
+          description: error instanceof Error ? error.message : 'เกิดข้อผิดพลาด',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (reorderTimeoutRef.current) {
+        clearTimeout(reorderTimeoutRef.current);
+        reorderTimeoutRef.current = null;
+      }
+      if (reorderBaselineRef.current && reportId) {
+        const photosQueryKey = ['waste-bank-showcase', 'photos', reportId];
+        const latestPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey);
+        if (latestPhotos && latestPhotos.length > 0) {
+          wasteBankShowcaseService.reorderPhotos(latestPhotos).catch(console.error);
+        }
+      }
+    };
+  }, [reportId, queryClient]);
 
   useEffect(() => {
     if (reportQuery.data) reportForm.reset(reportQuery.data);
   }, [reportForm, reportQuery.data]);
-
-  const invalidate = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase'] });
-  };
 
   const saveReport = useMutation({
     mutationFn: async (values: ReportForm) => {
@@ -97,11 +139,20 @@ export function WasteBankShowcaseManagement() {
         updated_by: user?.id ?? null,
       });
     },
-    onSuccess: async () => { await invalidate(); toast({ title: 'บันทึกข้อความนำเสนอแล้ว' }); },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'report', period?.academic_year, period?.semester] }),
+        queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] }),
+      ]);
+      toast({ title: 'บันทึกข้อความนำเสนอแล้ว' });
+    },
     onError: (error: Error) => toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' }),
   });
 
   const uploadPhotos = useMutation({
+    onMutate: async () => {
+      await flushReorder();
+    },
     mutationFn: async (values: PhotoForm) => {
       if (files.length === 0) throw new Error('กรุณาเลือกรูปอย่างน้อย 1 รูป');
       if (files.some((file) => file.size > 10 * 1024 * 1024)) throw new Error('แต่ละรูปต้องมีขนาดไม่เกิน 10 MB');
@@ -122,7 +173,9 @@ export function WasteBankShowcaseManagement() {
     onSuccess: async () => {
       setFiles([]);
       uploadForm.reset({ category: 'waste_delivery', caption: '', activity_date: '' });
-      await invalidate();
+      if (reportId) {
+        await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'photos', reportId] });
+      }
       toast({ title: 'อัปโหลดรูปเป็นฉบับร่างแล้ว', description: 'ตรวจสอบรูปและกดเผยแพร่เมื่อพร้อม' });
     },
     onError: (error: Error) => toast({ title: 'อัปโหลดไม่สำเร็จ', description: error.message, variant: 'destructive' }),
@@ -130,8 +183,35 @@ export function WasteBankShowcaseManagement() {
 
   const updatePhoto = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof wasteBankShowcaseService.updatePhoto>[1] }) => wasteBankShowcaseService.updatePhoto(id, data),
-    onSuccess: async () => { await invalidate(); toast({ title: 'อัปเดตรูปภาพแล้ว' }); },
-    onError: (error: Error) => toast({ title: 'อัปเดตไม่สำเร็จ', description: error.message, variant: 'destructive' }),
+    onMutate: async ({ id, data }) => {
+      await flushReorder();
+      if (!reportId) return;
+      const photosQueryKey = ['waste-bank-showcase', 'photos', reportId];
+      await queryClient.cancelQueries({ queryKey: photosQueryKey });
+      const previousPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey);
+      if (previousPhotos) {
+        queryClient.setQueryData<WasteShowcasePhotoWithUrl[]>(
+          photosQueryKey,
+          previousPhotos.map((p) => (p.id === id ? { ...p, ...data } : p)),
+        );
+      }
+      return { previousPhotos };
+    },
+    onError: (error: Error, _vars, context) => {
+      if (reportId && context?.previousPhotos) {
+        queryClient.setQueryData(['waste-bank-showcase', 'photos', reportId], context.previousPhotos);
+      }
+      toast({ title: 'อัปเดตไม่สำเร็จ', description: error.message, variant: 'destructive' });
+    },
+    onSuccess: async (_data, vars) => {
+      if (reportId) {
+        await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'photos', reportId] });
+      }
+      if (vars.data.is_published !== undefined) {
+        await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+      }
+      toast({ title: 'อัปเดตรูปภาพแล้ว' });
+    },
   });
 
   const openEdit = (photo: WasteShowcasePhotoWithUrl) => {
@@ -139,26 +219,79 @@ export function WasteBankShowcaseManagement() {
     editForm.reset({ category: photo.category as WasteShowcasePhotoCategory, caption: photo.caption, activity_date: photo.activity_date ?? '' });
   };
 
-  const movePhoto = async (index: number, direction: -1 | 1) => {
+  const movePhoto = async (photoId: string, direction: -1 | 1) => {
+    if (!reportId) return;
+    const photosQueryKey = ['waste-bank-showcase', 'photos', reportId];
+    await queryClient.cancelQueries({ queryKey: photosQueryKey });
+
+    const currentPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey) ?? photos;
+    const index = currentPhotos.findIndex((p) => p.id === photoId);
+    if (index === -1) return;
+
     const target = index + direction;
-    if (target < 0 || target >= photos.length) return;
-    const next = [...photos];
-    [next[index], next[target]] = [next[target], next[index]];
-    try {
-      await wasteBankShowcaseService.reorderPhotos(next);
-      await invalidate();
-    } catch (error) {
-      toast({ title: 'จัดลำดับไม่สำเร็จ', description: error instanceof Error ? error.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+    if (target < 0 || target >= currentPhotos.length) return;
+
+    if (!reorderBaselineRef.current) {
+      reorderBaselineRef.current = currentPhotos;
     }
+
+    const next = [...currentPhotos];
+    [next[index], next[target]] = [next[target], next[index]];
+
+    // Optimistic Update immediately 0ms
+    queryClient.setQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey, next);
+
+    if (reorderTimeoutRef.current) {
+      clearTimeout(reorderTimeoutRef.current);
+    }
+
+    reorderTimeoutRef.current = setTimeout(async () => {
+      const latestPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey) ?? next;
+      try {
+        await wasteBankShowcaseService.reorderPhotos(latestPhotos);
+        reorderBaselineRef.current = null;
+        if (latestPhotos.some((p) => p.is_published)) {
+          await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+        }
+      } catch (error) {
+        // Rollback on error
+        const previousPhotos = reorderBaselineRef.current ?? currentPhotos;
+        queryClient.setQueryData(photosQueryKey, previousPhotos);
+        reorderBaselineRef.current = null;
+        toast({ title: 'จัดลำดับไม่สำเร็จ', description: error instanceof Error ? error.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
+      }
+    }, 350);
   };
 
   const deletePhoto = async (photo: WasteShowcasePhotoWithUrl) => {
     if (!window.confirm('ลบรูปนี้ออกจากแกลเลอรี่หรือไม่?')) return;
+    if (!reportId) return;
+
+    const hadPendingReorder = !!reorderBaselineRef.current;
+    if (hadPendingReorder) {
+      await flushReorder();
+    }
+
+    const photosQueryKey = ['waste-bank-showcase', 'photos', reportId];
+    await queryClient.cancelQueries({ queryKey: photosQueryKey });
+    const previousPhotos = queryClient.getQueryData<WasteShowcasePhotoWithUrl[]>(photosQueryKey) ?? photos;
+    const remainingPhotos = previousPhotos.filter((p) => p.id !== photo.id);
+
+    // Optimistically remove from UI
+    queryClient.setQueryData<WasteShowcasePhotoWithUrl[]>(
+      photosQueryKey,
+      remainingPhotos,
+    );
+
     try {
       await wasteBankShowcaseService.deletePhoto(photo);
-      await invalidate();
+      await queryClient.invalidateQueries({ queryKey: photosQueryKey });
+      if (photo.is_published || hadPendingReorder) {
+        await queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+      }
       toast({ title: 'ลบรูปแล้ว' });
     } catch (error) {
+      queryClient.setQueryData(photosQueryKey, previousPhotos);
       toast({ title: 'ลบไม่สำเร็จ', description: error instanceof Error ? error.message : 'เกิดข้อผิดพลาด', variant: 'destructive' });
     }
   };
@@ -203,13 +336,29 @@ export function WasteBankShowcaseManagement() {
 
       <Card><CardHeader><CardTitle className="text-base">จัดการแกลเลอรี่ ({photos.length} รูป)</CardTitle></CardHeader><CardContent>
         {photos.length === 0 ? <div className="rounded-lg border border-dashed border-border py-12 text-center text-sm text-muted-foreground">ยังไม่มีภาพกิจกรรม</div> : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {photos.map((photo, index) => <div key={photo.id} className="overflow-hidden rounded-xl border border-border bg-card">
-            {photo.signed_url ? <img src={photo.signed_url} alt={photo.caption || PHOTO_LABELS[photo.category as WasteShowcasePhotoCategory]} className="aspect-[4/3] w-full object-cover" /> : <div className="flex aspect-[4/3] items-center justify-center bg-muted text-sm text-muted-foreground">โหลดภาพไม่ได้</div>}
+          {photos.map((photo, index) => <div key={photo.id} className="overflow-hidden rounded-xl border border-border bg-card transform-gpu transition-all duration-200">
+            <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+              {photo.signed_url ? (
+                <img
+                  src={photo.signed_url}
+                  alt={photo.caption || PHOTO_LABELS[photo.category as WasteShowcasePhotoCategory]}
+                  loading="lazy"
+                  decoding="async"
+                  className="aspect-[4/3] h-full w-full object-cover transition-transform duration-300 hover:scale-105 transform-gpu will-change-transform"
+                />
+              ) : (
+                <div className="flex aspect-[4/3] h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
+                  โหลดภาพไม่ได้
+                </div>
+              )}
+            </div>
             <div className="space-y-2 p-3"><div className="flex items-center justify-between gap-2"><span className="text-xs font-semibold text-primary">{PHOTO_LABELS[photo.category as WasteShowcasePhotoCategory]}</span><span className={photo.is_published ? 'text-xs text-primary' : 'text-xs text-muted-foreground'}>{photo.is_published ? 'เผยแพร่แล้ว' : 'ฉบับร่าง'}</span></div>
               <p className="line-clamp-2 min-h-10 text-sm text-foreground">{photo.caption || 'ไม่มีคำบรรยาย'}</p>{photo.activity_date && <p className="text-xs text-muted-foreground">{formatThaiDateFull(photo.activity_date)}</p>}
-              <div className="flex flex-wrap gap-1"><Button type="button" size="icon" variant="outline" className="h-8 w-8" disabled={index === 0} onClick={() => void movePhoto(index, -1)} aria-label="เลื่อนรูปขึ้น"><ArrowUp className="h-4 w-4" /></Button><Button type="button" size="icon" variant="outline" className="h-8 w-8" disabled={index === photos.length - 1} onClick={() => void movePhoto(index, 1)} aria-label="เลื่อนรูปลง"><ArrowDown className="h-4 w-4" /></Button>
+              <div className="flex flex-wrap gap-1">
+                <Button type="button" size="icon" variant="outline" className="h-8 w-8" disabled={index === 0} onClick={() => void movePhoto(photo.id, -1)} aria-label="เลื่อนรูปขึ้น"><ArrowUp className="h-4 w-4" /></Button>
+                <Button type="button" size="icon" variant="outline" className="h-8 w-8" disabled={index === photos.length - 1} onClick={() => void movePhoto(photo.id, 1)} aria-label="เลื่อนรูปลง"><ArrowDown className="h-4 w-4" /></Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openEdit(photo)}><Pencil className="mr-1 h-3.5 w-3.5" />แก้ไข</Button>
-                <Button type="button" size="sm" variant={photo.is_published ? 'outline' : 'default'} onClick={() => updatePhoto.mutate({ id: photo.id, data: { is_published: !photo.is_published } })}>{photo.is_published ? <EyeOff className="mr-1 h-3.5 w-3.5" /> : <Eye className="mr-1 h-3.5 w-3.5" />}{photo.is_published ? 'เก็บเป็นร่าง' : 'เผยแพร่'}</Button>
+                <Button type="button" size="sm" variant={photo.is_published ? 'outline' : 'default'} disabled={updatePhoto.isPending} onClick={() => updatePhoto.mutate({ id: photo.id, data: { is_published: !photo.is_published } })}>{photo.is_published ? <EyeOff className="mr-1 h-3.5 w-3.5" /> : <Eye className="mr-1 h-3.5 w-3.5" />}{photo.is_published ? 'เก็บเป็นร่าง' : 'เผยแพร่'}</Button>
                 <Button type="button" size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => void deletePhoto(photo)} aria-label="ลบรูป"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>

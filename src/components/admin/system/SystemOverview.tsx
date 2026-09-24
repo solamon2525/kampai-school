@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.95 (ระบบธนาคารขยะ — ปรับปรุงประสิทธิภาพความลื่นไหลระดับ 60 FPS แก้ไขอาการสะดุด Jank/Stuttering แคช Signed URL ทนทาน ระบบ Optimistic Reordering และแยก Memoize)',
+        date: '24 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'ระบบแคช Signed URL ทนทาน (Durable Storage Cache): เพิ่ม in-memory cache ใน wasteBankShowcaseService.listPhotos พร้อมคำนวณ expiration buffer 5 นาที ช่วยลดการเรียก Supabase Storage ซ้ำซ้อนและป้องกันภาพกระพริบ/โหลดใหม่เมื่อ re-render พร้อมระบบเคลียร์แคชเฉพาะรูปเมื่อลบ',
+            'การจัดเรียงรูปภาพแบบฉับไว (Optimistic Reordering): แสดงผลการสลับตำแหน่งรูปภาพทันที 0ms ใน WasteBankShowcaseManagement พร้อม Rollback คืนสถานะอัตโนมัติหากบันทึกล้มเหลว, เพิ่มตัวประสาน Flush Reorder ก่อนอัปโหลดและก่อนลบรูปภาพ ป้องกันคำสั่งจัดเรียงสูญหายหรือสถานะขัดแย้ง',
+            'การแยกการเรนเดอร์และแอนิเมชัน (Render Isolation & Count-up Memoization): แยกแอนิเมชันนับตัวเลขสรุปในหน้า WasteBank เข้าสู่คอมโพเนนต์ย่อย AnimatedStatsSection ป้องกันการ re-render ซ้ำทั้งหน้า 40 ครั้ง/วินาที พร้อมเปลี่ยนรูปนักเรียนเป็น PersonAvatar ตามมาตรฐาน DESIGN.md Rule 14.13',
+            'คอมโพเนนต์จำเพาะและการค้นหาไม่สะดุด (Component Memoization & Deferred Search): Memoize การ์ดและตัวเลือกนักเรียนใน QuickStudentPicker, ทำงานร่วมกับ useDeferredValue ในแท็บสรุปรายบุคคล WasteStudentSummaryTab ป้องกันอินพุตหน่วง และเพิ่ม decoding="async" / transform-gpu ในทุกจุดแสดงผล',
+            'ความแม่นยำในการระบุตัวตนและการซิงก์ข้อมูล (QR Scanned Preservation & Query Invalidation Sync): ปรับปรุง WasteBankManagement ให้คงข้อมูลนักเรียนจากการสแกน QR Code แม้มีการสลับคลาสอัตโนมัติ พร้อมซิงก์ Invalidation ไปยัง public-results, rewards และ rewards-stock-drift จากการบันทึกรายการฝากขยะ, การปรับสต็อกผ่าน Popover และการอนุมัติ/ปฏิเสธคำขอรางวัล',
+        ],
+    },
+    {
         version: 'v1.229.94 (ระบบธนาคารความดี — ระบบเสียงเอฟเฟกต์ตอบสนองทันที Zero Latency Chime และเสียงพูดสังเคราะห์ภาษาไทยสรุปคะแนนฉับไวโหมดรายคนและหลายคน)',
         date: '24 ก.ย. 2569',
         badge: 'bg-emerald-600',
