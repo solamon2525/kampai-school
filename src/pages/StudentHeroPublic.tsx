@@ -14,7 +14,7 @@ import {
   PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
 } from 'recharts';
 import { conductService, studentsService } from '@/services';
-import { calculateHeroLevel, type ConductRecord } from '@/services/conduct.service';
+import { calculateHeroLevel, type ConductRecord, type TopHeroRpcRow } from '@/services/conduct.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -338,7 +338,7 @@ export default function StudentHeroPublic() {
       if (error) throw error;
       if (!data) return [];
 
-      return (data as any[]).map(r => ({
+      return (data as TopHeroRpcRow[]).map(r => ({
         studentId: r.student_id,
         name: r.name,
         class: r.class,
@@ -1063,15 +1063,15 @@ export default function StudentHeroPublic() {
                       {profile.timeline && profile.timeline.length > 0 ? (
                         <div className="divide-y divide-slate-100">
                           {profile.timeline.slice(0, 3).map((item) => {
-                            const metric = VIRTUE_METRICS[item.category as keyof typeof VIRTUE_METRICS] || VIRTUE_METRICS[conductService.mapCategoryToVirtue(item.category) as keyof typeof VIRTUE_METRICS];
+                            const meta = conductService.getConductCategoryMeta(item.category);
                             return (
                               <div key={item.id} className="p-3 hover:bg-slate-50/50 transition-colors space-y-1">
                                 <div className="flex justify-between items-start gap-2">
                                   <span className={cn(
-                                    "text-[9px] font-black px-2 py-0.5 rounded-md", 
-                                    metric?.badgeBg || "bg-slate-100 text-slate-700"
+                                    "text-[9px] font-black px-2 py-0.5 rounded-md border", 
+                                    meta.color
                                   )}>
-                                    {conductService.getConductCategoryMeta(item.category).label || metric?.label || item.category}
+                                    {meta.label || item.category}
                                   </span>
                                   <span className="text-[9px] text-slate-400 font-bold">
                                     {new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}

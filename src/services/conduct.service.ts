@@ -152,47 +152,117 @@ export const CONDUCT_CATEGORIES: Record<string, ConductCategoryMeta> = {
   },
 };
 
+export interface TopHeroRpcRow {
+  student_id: string;
+  name: string;
+  class: string;
+  photo_url?: string | null;
+  total_xp: number | string;
+  deeds_count: number | string;
+}
+
+const CATEGORY_ALIAS_MAP: Record<string, string> = {
+  publicmind: 'publicMind',
+  responsibility: 'responsibility',
+  discipline: 'discipline',
+  honesty: 'honesty',
+  kindness: 'kindness',
+  manners: 'manners',
+  leadership: 'leadership',
+  hygiene: 'hygiene',
+  property: 'property',
+  device: 'device',
+
+  'จิตสาธารณะ': 'publicMind',
+  'จิตอาสา': 'publicMind',
+  'ความรับผิดชอบ': 'responsibility',
+  'วิชาการ': 'responsibility',
+  'กีฬา': 'responsibility',
+  'วินัย': 'discipline',
+  'ระเบียบวินัย': 'discipline',
+  'ตรงต่อเวลา': 'discipline',
+  'วินัยและตรงต่อเวลา': 'discipline',
+  'วินัย/ตรงต่อเวลา': 'discipline',
+  'ซื่อสัตย์': 'honesty',
+  'ซื่อสัตย์สุจริต': 'honesty',
+  'น้ำใจ': 'kindness',
+  'ความดี': 'kindness',
+  'ช่วยเหลือ': 'kindness',
+  'น้ำใจ/ช่วยเหลือ': 'kindness',
+  'มารยาท': 'manners',
+  'มารยาทและการพูดจา': 'manners',
+  'ความเป็นผู้นำ': 'leadership',
+  'ความเป็นผู้นำและการทำงานเป็นทีม': 'leadership',
+  'ความเป็นผู้นำ/ทีม': 'leadership',
+  'สุขอนามัย': 'hygiene',
+  'สุขอนามัยและความสะอาด': 'hygiene',
+  'สุขอนามัย/ความสะอาด': 'hygiene',
+  'ความสะอาด': 'hygiene',
+  'ทรัพย์สิน': 'property',
+  'การดูแลรักษาทรัพย์สิน': 'property',
+  'การดูแลทรัพย์สิน': 'property',
+  'การใช้อุปกรณ์สื่อสาร': 'device',
+  'อุปกรณ์สื่อสาร': 'device',
+  'โทรศัพท์': 'device',
+};
+
+const cleanCategoryString = (cat: string) =>
+  (cat || '')
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+    .trim();
+
 /** แผนที่แปลงหมวดหมู่ภาษาไทย/ดั้งเดิม/หมวดหมู่ใหม่ เข้ากับ 5 มิติคุณธรรมหลักภาษาอังกฤษ */
 export const mapCategoryToVirtue = (cat: string): CoreVirtue => {
   const norm = (cat || '').trim();
+  const clean = cleanCategoryString(norm);
   const lower = norm.toLowerCase();
+  const cleanLower = clean.toLowerCase();
 
-  // publicMind (จิตสาธารณะ 🌱)
+  const matchedKey =
+    CATEGORY_ALIAS_MAP[norm] ||
+    CATEGORY_ALIAS_MAP[clean] ||
+    CATEGORY_ALIAS_MAP[lower] ||
+    CATEGORY_ALIAS_MAP[cleanLower];
+
+  if (matchedKey && CONDUCT_CATEGORIES[matchedKey]) {
+    return CONDUCT_CATEGORIES[matchedKey].virtue;
+  }
+
+  // Fallbacks for partial matches
   if (
-    ['publicmind', 'จิตสาธารณะ', 'จิตอาสา', 'hygiene', 'สุขอนามัย', 'สุขอนามัยและความสะอาด', 'ความสะอาด'].includes(norm) ||
-    ['publicmind', 'hygiene'].includes(lower)
+    clean.includes('จิตสาธารณะ') ||
+    clean.includes('จิตอาสา') ||
+    clean.includes('สุขอนามัย') ||
+    clean.includes('ความสะอาด')
   ) {
     return 'publicMind';
   }
-
-  // responsibility (ความรับผิดชอบ 📘)
   if (
-    ['responsibility', 'ความรับผิดชอบ', 'วิชาการ', 'กีฬา', 'leadership', 'ความเป็นผู้นำ', 'ความเป็นผู้นำและการทำงานเป็นทีม', 'property', 'ทรัพย์สิน', 'การดูแลรักษาทรัพย์สิน', 'การดูแลทรัพย์สิน'].includes(norm) ||
-    ['responsibility', 'leadership', 'property'].includes(lower)
+    clean.includes('ความรับผิดชอบ') ||
+    clean.includes('วิชาการ') ||
+    clean.includes('กีฬา') ||
+    clean.includes('ผู้นำ') ||
+    clean.includes('ทรัพย์สิน')
   ) {
     return 'responsibility';
   }
-
-  // discipline (วินัย ⏰)
   if (
-    ['discipline', 'วินัย', 'ระเบียบวินัย', 'ตรงต่อเวลา', 'วินัยและตรงต่อเวลา', 'device', 'การใช้อุปกรณ์สื่อสาร', 'โทรศัพท์', 'การเรียน', 'ความประพฤติ'].includes(norm) ||
-    ['discipline', 'device'].includes(lower)
+    clean.includes('วินัย') ||
+    clean.includes('ตรงต่อเวลา') ||
+    clean.includes('อุปกรณ์สื่อสาร') ||
+    clean.includes('โทรศัพท์') ||
+    clean.includes('การเรียน')
   ) {
     return 'discipline';
   }
-
-  // honesty (ซื่อสัตย์ 🤝)
-  if (
-    ['honesty', 'ซื่อสัตย์', 'ซื่อสัตย์สุจริต'].includes(norm) ||
-    ['honesty'].includes(lower)
-  ) {
+  if (clean.includes('ซื่อสัตย์')) {
     return 'honesty';
   }
-
-  // kindness (น้ำใจ ❤️)
   if (
-    ['kindness', 'น้ำใจ', 'ความดี', 'ช่วยเหลือ', 'manners', 'มารยาท', 'มารยาทและการพูดจา', 'การอยู่ร่วมกัน'].includes(norm) ||
-    ['kindness', 'manners'].includes(lower)
+    clean.includes('น้ำใจ') ||
+    clean.includes('ช่วยเหลือ') ||
+    clean.includes('มารยาท') ||
+    clean.includes('ความดี')
   ) {
     return 'kindness';
   }
@@ -203,8 +273,19 @@ export const mapCategoryToVirtue = (cat: string): CoreVirtue => {
 /** ดึงข้อมูล metadata หมวดหมู่พร้อม label และ badge styling */
 export const getConductCategoryMeta = (cat: string): ConductCategoryMeta => {
   const norm = (cat || '').trim();
-  if (CONDUCT_CATEGORIES[norm]) {
-    return CONDUCT_CATEGORIES[norm];
+  const clean = cleanCategoryString(norm);
+  const lower = norm.toLowerCase();
+  const cleanLower = clean.toLowerCase();
+
+  const matchedKey =
+    CATEGORY_ALIAS_MAP[norm] ||
+    CATEGORY_ALIAS_MAP[clean] ||
+    CATEGORY_ALIAS_MAP[lower] ||
+    CATEGORY_ALIAS_MAP[cleanLower] ||
+    norm;
+
+  if (CONDUCT_CATEGORIES[matchedKey]) {
+    return CONDUCT_CATEGORIES[matchedKey];
   }
   const virtue = mapCategoryToVirtue(norm);
   const base = CONDUCT_CATEGORIES[virtue] || CONDUCT_CATEGORIES.kindness;
@@ -236,20 +317,31 @@ export const calculateHeroLevel = (rawXp: number) => {
 
 /** ข้อความสนับสนุนทางจิตวิทยาเชิงบวกตามมิติคุณธรรม */
 export const getEmotionalFeedback = (category: string, reason: string): string => {
-  const norm = (category || '').trim().toLowerCase();
-  if (norm === 'manners' || norm === 'มารยาทและการพูดจา') {
+  const norm = (category || '').trim();
+  const clean = cleanCategoryString(norm);
+  const lower = norm.toLowerCase();
+  const cleanLower = clean.toLowerCase();
+
+  const matchedKey =
+    CATEGORY_ALIAS_MAP[norm] ||
+    CATEGORY_ALIAS_MAP[clean] ||
+    CATEGORY_ALIAS_MAP[lower] ||
+    CATEGORY_ALIAS_MAP[cleanLower] ||
+    cleanLower;
+
+  if (matchedKey === 'manners') {
     return 'การมีกิริยามารยาทและการพูดจาสุภาพไพเราะ เป็นเสน่ห์ที่น่าชื่นชมอย่างยิ่ง 🙏';
   }
-  if (norm === 'leadership' || norm === 'ความเป็นผู้นำ/ทีม') {
+  if (matchedKey === 'leadership') {
     return 'ความเป็นผู้นำและการร่วมมือกับผู้อื่นเป็นพลังสำคัญในการสร้างสรรค์สิ่งดีๆ 👑';
   }
-  if (norm === 'hygiene' || norm === 'สุขอนามัย/ความสะอาด') {
+  if (matchedKey === 'hygiene') {
     return 'การดูแลสุขอนามัยและความสะอาดทำให้ตนเองและส่วนรวมมีสุขภาวะที่ดี 🧼';
   }
-  if (norm === 'property' || norm === 'การดูแลทรัพย์สิน') {
+  if (matchedKey === 'property') {
     return 'การช่วยดูแลรักษาทรัพย์สินส่วนรวมแสดงถึงความรับผิดชอบที่ยอดเยี่ยม 🧱';
   }
-  if (norm === 'device' || norm === 'การใช้อุปกรณ์สื่อสาร') {
+  if (matchedKey === 'device') {
     return 'การมีวินัยในการใช้อุปกรณ์สื่อสารช่วยให้การเรียนรู้มีประสิทธิภาพยิ่งขึ้น 📱';
   }
 
@@ -312,9 +404,17 @@ export const conductService = {
   insert: (record: ConductInsert) =>
     supabase.from('conduct_scores').insert(record as never),
 
-  /** บันทึกคะแนนความดีหลายคนพร้อมกัน (batch insert) */
-  insertBulk: (records: ConductInsert[]) =>
-    supabase.from('conduct_scores').insert(records as never[]),
+  /** บันทึกคะแนนความดีหลายคนพร้อมกัน (batch insert with chunking for network resiliency) */
+  insertBulk: async (records: ConductInsert[]) => {
+    if (records.length === 0) return { data: null, error: null };
+    const CHUNK_SIZE = 50;
+    for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+      const chunk = records.slice(i, i + CHUNK_SIZE);
+      const res = await supabase.from('conduct_scores').insert(chunk as never[]);
+      if (res.error) return res;
+    }
+    return { data: null, error: null };
+  },
 
   /** ลบประวัติคะแนน */
   delete: (id: string) =>
@@ -322,7 +422,10 @@ export const conductService = {
 
   /** ดึงข้อมูล 10 อันดับสุดยอดฮีโร่ความดีผ่าน RPC (High Performance) */
   getTop10Heroes: async (limitVal: number = 10) => {
-    return supabase.rpc('get_top_heroes', { limit_val: limitVal });
+    return supabase.rpc('get_top_heroes', { limit_val: limitVal }) as unknown as Promise<{
+      data: TopHeroRpcRow[] | null;
+      error: { message: string } | null;
+    }>;
   },
 
   /** ดึงคะแนนสะสมห้องเรียนด้วย RPC (High Performance) */

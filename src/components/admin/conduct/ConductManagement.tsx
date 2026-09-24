@@ -31,72 +31,7 @@ const ALL = '__all__';
 
 const QUICK_SCORES = [1, 2, 5, 10];
 
-const VIRTUE_LABELS: Record<string, string> = {
-    publicMind: 'จิตสาธารณะ 🌱',
-    responsibility: 'ความรับผิดชอบ 📘',
-    discipline: 'วินัย/ตรงต่อเวลา ⏰',
-    honesty: 'ซื่อสัตย์สุจริต 🤝',
-    kindness: 'น้ำใจ/ช่วยเหลือ ❤️',
-    manners: 'มารยาทและการพูดจา 🙏',
-    leadership: 'ความเป็นผู้นำ/ทีม 👑',
-    hygiene: 'สุขอนามัย/ความสะอาด 🧼',
-    property: 'การดูแลทรัพย์สิน 🧱',
-    device: 'การใช้อุปกรณ์สื่อสาร 📱',
-    // Thai aliases for 100% backward compatibility
-    'จิตสาธารณะ': 'จิตสาธารณะ 🌱',
-    'จิตอาสา': 'จิตสาธารณะ 🌱',
-    'ความรับผิดชอบ': 'ความรับผิดชอบ 📘',
-    'วิชาการ': 'ความรับผิดชอบ 📘',
-    'กีฬา': 'ความรับผิดชอบ 📘',
-    'วินัย': 'วินัย/ตรงต่อเวลา ⏰',
-    'ระเบียบวินัย': 'วินัย/ตรงต่อเวลา ⏰',
-    'ซื่อสัตย์': 'ซื่อสัตย์สุจริต 🤝',
-    'ซื่อสัตย์สุจริต': 'ซื่อสัตย์สุจริต 🤝',
-    'น้ำใจ': 'น้ำใจ/ช่วยเหลือ ❤️',
-    'ความดี': 'น้ำใจ/ช่วยเหลือ ❤️',
-    'ช่วยเหลือ': 'น้ำใจ/ช่วยเหลือ ❤️',
-};
-
-const VIRTUE_COLORS: Record<string, string> = {
-    publicMind: 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
-    responsibility: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
-    discipline: 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
-    honesty: 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
-    kindness: 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
-    manners: 'border-indigo-500 text-indigo-700 bg-indigo-50 hover:bg-indigo-100',
-    leadership: 'border-cyan-600 text-cyan-800 bg-cyan-50 hover:bg-cyan-100',
-    hygiene: 'border-teal-500 text-teal-700 bg-teal-50 hover:bg-teal-100',
-    property: 'border-orange-500 text-orange-700 bg-orange-50 hover:bg-orange-100',
-    device: 'border-violet-500 text-violet-700 bg-violet-50 hover:bg-violet-100',
-    // Thai aliases for 100% backward compatibility
-    'จิตสาธารณะ': 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
-    'จิตอาสา': 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
-    'ความรับผิดชอบ': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
-    'วิชาการ': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
-    'กีฬา': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
-    'วินัย': 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
-    'ระเบียบวินัย': 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
-    'ซื่อสัตย์': 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
-    'ซื่อสัตย์สุจริต': 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
-    'น้ำใจ': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
-    'ความดี': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
-    'ช่วยเหลือ': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
-};
-
-const getCategoryMeta = (cat: string) => {
-    const raw = (cat || '').trim();
-    if (VIRTUE_LABELS[raw] && VIRTUE_COLORS[raw]) {
-        return {
-            label: VIRTUE_LABELS[raw],
-            color: VIRTUE_COLORS[raw],
-        };
-    }
-    const virtue = conductService.mapCategoryToVirtue(raw);
-    return {
-        label: VIRTUE_LABELS[virtue] || raw || 'ความประพฤติ',
-        color: VIRTUE_COLORS[virtue] || 'border-border text-foreground bg-muted hover:bg-muted/80',
-    };
-};
+const getCategoryMeta = (cat: string) => conductService.getConductCategoryMeta(cat);
 
 const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: string[] }[]> = {
     add: [
@@ -180,6 +115,26 @@ const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: stri
                 'ช่วยดูแลความสะอาดโรงอาหารและพื้นที่ส่วนกลาง 🍽️',
             ],
         },
+        {
+            category: 'property',
+            reasons: [
+                'ช่วยซ่อมแซมหรือจัดเก็บอุปกรณ์ของโรงเรียนเข้าที่ 🧱',
+                'แจ้งคุณครูทันทีเมื่อพบสิ่งของหรืออุปกรณ์ชำรุด 📢',
+                'ช่วยประหยัดพลังงาน ปิดไฟ พัดลม และแอร์เมื่อเลิกใช้ 💡',
+                'ใช้อุปกรณ์ส่วนรวมอย่างทะนุถนอมและถูกวิธี 🔨',
+                'ช่วยดูแลรักษาทรัพย์สินห้องเรียนให้อยู่ในสภาพดี 🪑',
+            ],
+        },
+        {
+            category: 'device',
+            reasons: [
+                'ใช้อุปกรณ์สื่อสารค้นคว้าหาความรู้เชิงสร้างสรรค์ 📱',
+                'ปฏิบัติตามกฎการใช้อุปกรณ์ดิจิทัลในห้องเรียนอย่างเคร่งครัด 🔒',
+                'ช่วยคุณครูดูแลและจัดเก็บแท็บเล็ต/คอมพิวเตอร์เข้าที่ 💻',
+                'ปิดเสียงและเก็บอุปกรณ์สื่อสารอย่างมีวินัยตรงเวลา 🔇',
+                'เป็นแบบอย่างในการใช้สื่อออนไลน์อย่างสร้างสรรค์และปลอดภัย 🌐',
+            ],
+        },
     ],
     deduct: [
         {
@@ -260,6 +215,26 @@ const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: stri
                 'รับประทานอาหารหรือขนมในห้องเรียนโดยไม่ได้รับอนุญาต 🍬',
                 'ทำอาหารหรือน้ำหกเลอะเทอะแล้วไม่ทำความสะอาด 🧽',
                 'ไม่ดูแลสุขอนามัยส่วนบุคคลจนรบกวนผู้อื่น 😷',
+            ],
+        },
+        {
+            category: 'leadership',
+            reasons: [
+                'ใช้อำนาจหน้าที่ในกลุ่มในทางที่ไม่ถูกต้อง 👑',
+                'ไม่รับฟังความคิดเห็นของสมาชิกในกลุ่ม 🗣️',
+                'ไม่ช่วยประสานงานหรือทิ้งงานกลุ่มให้เพื่อนทำ 👥',
+                'ชักชวนเพื่อนทำกิจกรรมที่ไม่เหมาะสมหรือไม่ถูกระเบียบ 🚫',
+                'เอาแต่ใจตนเอง ไม่ประนีประนอมในการทำงานเป็นทีม 🙅',
+            ],
+        },
+        {
+            category: 'publicMind',
+            reasons: [
+                'เพิกเฉย ไม่ช่วยกิจกรรมส่วนรวมของโรงเรียน 🌱',
+                'ทำให้พื้นที่ส่วนรวมหรือโรงอาหารสกปรกเลอะเทอะ 🍽️',
+                'ทำลายหรือเหยียบย่ำแปลงผักหรือต้นไม้ของโรงเรียน 🌿',
+                'ไม่ให้ความร่วมมือในการบำเพ็ญประโยชน์ 🧹',
+                'ทิ้งขยะในพื้นที่สาธารณะของโรงเรียน 🗑️',
             ],
         },
     ],
@@ -417,17 +392,25 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             });
             setSpeechComplete(false);
             const speechRequest = ++speechRequestRef.current;
+            const safetyTimer = window.setTimeout(() => {
+                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+            }, 5000);
+
             void speakThai([
                 `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
                 `ชื่อ ${getFirstName(student.name)}`,
                 `${isAdd ? 'เพิ่ม' : 'หัก'} ${thaiNumberToWords(parsedScore)} คะแนน`,
                 `คะแนนความดีคงเหลือ ${thaiNumberToWords(accumulatedPoints)} คะแนน`,
             ]).then(({ spoken }) => {
+                window.clearTimeout(safetyTimer);
                 if (speechRequest !== speechRequestRef.current) return;
                 if (spoken) setSpeechComplete(true);
                 else window.setTimeout(() => {
                     if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                }, 5000);
+                }, 2000);
+            }).catch(() => {
+                window.clearTimeout(safetyTimer);
+                if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
             });
         }
         setReason('');
@@ -763,16 +746,16 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
     const [isLoading, setIsLoading] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
-    const load = async () => {
+    const load = useCallback(async () => {
         setIsLoading(true);
         let q = conductService.getAll(filterSemester, filterYear);
         if (filterType) q = q.eq('type', filterType);
         const { data } = await q;
         setRecords((data || []) as ConductRecord[]);
         setIsLoading(false);
-    };
+    }, [filterSemester, filterYear, filterType]);
 
-    useEffect(() => { load(); }, [filterType, filterSemester, filterYear]);
+    useEffect(() => { load(); }, [load]);
 
     const filteredRecords = useMemo(() => {
         let result = records;
