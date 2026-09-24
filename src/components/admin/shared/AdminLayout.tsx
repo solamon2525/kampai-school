@@ -143,6 +143,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'faq', label: 'FAQ', icon: HelpCircle, path: '/admin/dashboard/faq', adminOnly: true },
     { type: 'section', label: 'ระบบ' },
     { type: 'item', id: 'system-overview', label: 'ภาพรวมระบบ', icon: Info, path: '/admin/dashboard/system-overview', adminOnly: true },
+    { type: 'item', id: 'second-brain', label: 'Second Brain', icon: BookMarked, path: '/admin/dashboard/second-brain', adminOnly: true },
     { type: 'item', id: 'ai-assist', label: 'AI ผู้ช่วยครู', icon: Sparkles, path: '/admin/dashboard/ai-assist' },
     { type: 'item', id: 'tip-prompt', label: 'Tip Prompt', icon: Lightbulb, path: '/admin/dashboard/tip-prompt', adminOnly: true },
     { type: 'item', id: 'papor', label: 'ปพ.5 / ปพ.6 (PDF)', icon: FileText, path: '/admin/dashboard/papor' },

@@ -49,6 +49,7 @@ const PAManagement = lazy(() => import('@/components/admin/hr/PAManagement'));
 const SelfDevelopmentHub = lazy(() => import('@/components/admin/hr/SelfDevelopmentHub').then(m => ({ default: m.SelfDevelopmentHub })));
 const AcademicManagement = lazy(() => import('@/components/admin/academic/AcademicManagement').then(m => ({ default: m.AcademicManagement })));
 const SystemOverview = lazy(() => import('@/components/admin/system/SystemOverview').then(m => ({ default: m.SystemOverview })));
+const SecondBrainAdmin = lazy(() => import('@/components/admin/second-brain/SecondBrainAdmin').then(m => ({ default: m.SecondBrainAdmin })));
 const DashboardSchoolManagement = lazy(() => import('@/components/admin/dashboard-school/DashboardSchoolManagement').then(m => ({ default: m.DashboardSchoolManagement })));
 const HomepageManager = lazy(() => import('@/components/admin/homepage/HomepageManager').then(m => ({ default: m.HomepageManager })));
 const TestimonialsManagement = lazy(() => import('@/components/admin/homepage/TestimonialsManagement').then(m => ({ default: m.TestimonialsManagement })));
@@ -189,6 +190,7 @@ const AdminDashboard = () => {
             <Route path="faq" element={<PermissionGuard menuId="faq"><FaqManagement /></PermissionGuard>} />
             {/* ระบบ */}
             <Route path="system-overview" element={<PermissionGuard menuId="system-overview"><SystemOverview /></PermissionGuard>} />
+            <Route path="second-brain" element={<SecondBrainAdmin />} />
             <Route path="tip-prompt" element={<PermissionGuard menuId="tip-prompt"><TipPromptManager /></PermissionGuard>} />
             <Route path="ai-assist" element={<AiAssistPanel />} />
             <Route path="line" element={<PermissionGuard menuId="line"><LineFollowersManager /></PermissionGuard>} />
