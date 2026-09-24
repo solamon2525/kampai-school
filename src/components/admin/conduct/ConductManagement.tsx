@@ -475,26 +475,31 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             });
 
             // ดำเนินการบันทึกลงฐานข้อมูลในเบื้องหลัง
-            const insertRes = await conductService.insert({
-                student_id: selectedStudentId,
-                type,
-                score: parsedScore,
-                category: activeCategory,
-                reason: reason.trim(),
-                recorded_by: recorder.name || null,
-                recorded_by_staff_id: recorder.staffId,
-                recorded_by_administrator_id: recorder.administratorId,
-                academic_year: academicYear,
-                semester,
-            });
+            try {
+                const insertRes = await conductService.insert({
+                    student_id: selectedStudentId,
+                    type,
+                    score: parsedScore,
+                    category: activeCategory,
+                    reason: reason.trim(),
+                    recorded_by: recorder.name || null,
+                    recorded_by_staff_id: recorder.staffId,
+                    recorded_by_administrator_id: recorder.administratorId,
+                    academic_year: academicYear,
+                    semester,
+                });
 
-            if (insertRes.error) {
+                if (insertRes.error) {
+                    throw insertRes.error;
+                }
+            } catch (err: unknown) {
                 // คืนค่าเดิมเมื่อบันทึกไม่สำเร็จ พร้อมหยุดเสียงและปิดหน้าต่าง
                 setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedBefore }));
                 stopConductChime();
                 stopThaiSpeech();
                 setPointsConfirmation(null);
-                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: insertRes.error.message });
+                const message = err instanceof Error ? err.message : (err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
+                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: message });
                 return;
             }
 
@@ -1106,11 +1111,14 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                 semester,
             }));
 
-            const { error } = await conductService.insertBulk(records);
-            if (error) {
+            try {
+                const { error } = await conductService.insertBulk(records);
+                if (error) throw error;
+            } catch (err: unknown) {
                 stopConductChime();
                 stopThaiSpeech();
-                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: error.message });
+                const message = err instanceof Error ? err.message : (err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
+                toast({ variant: 'destructive', title: 'บันทึกไม่สำเร็จ', description: message });
                 return;
             }
             toast({

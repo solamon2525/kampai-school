@@ -39,14 +39,34 @@ const getAudioContext = (): AudioContext | null => {
 
 /**
  * หยุดเสียงเอฟเฟกต์ (Chime) ที่กำลังเล่นอยู่ทันที
+ * ป้องกันเสียงคลิก/ป๊อปด้วยการ fade down สั้นๆ ก่อนตัดการเชื่อมต่อ
  */
 export const stopConductChime = (): void => {
+  const currentCtx = audioContextInstance;
+  const now = currentCtx && currentCtx.state !== 'closed' ? currentCtx.currentTime : 0;
+
   activeNodes.forEach(({ osc, gain, timerId }) => {
     if (timerId) clearTimeout(timerId);
+    osc.onended = null;
     try {
-      osc.stop();
-      osc.disconnect();
-      gain.disconnect();
+      if (currentCtx && currentCtx.state === 'running' && now > 0) {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(0.0001, now + 0.015);
+        osc.stop(now + 0.02);
+        setTimeout(() => {
+          try {
+            osc.disconnect();
+            gain.disconnect();
+          } catch {
+            // ignore
+          }
+        }, 25);
+      } else {
+        osc.stop();
+        osc.disconnect();
+        gain.disconnect();
+      }
     } catch {
       // ignore
     }
@@ -116,8 +136,8 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
 
         osc.onended = cleanup;
 
-        // Safety fallback timer taking start offset into account
-        const timeoutMs = Math.max(200, Math.ceil(((start - now) + duration + 0.3) * 1000));
+        // Safety fallback timer taking start offset into account (generous margin so slow audio context never gets cut off)
+        const timeoutMs = Math.max(1500, Math.ceil(((start - now) + duration + 1.2) * 1000));
         node.timerId = setTimeout(cleanup, timeoutMs);
         activeNodes.push(node);
       });
@@ -164,7 +184,7 @@ export const playConductChime = (type: ConductScoreType = 'add'): void => {
         osc.onended = cleanup;
 
         // Safety fallback timer taking start offset into account
-        const timeoutMs = Math.max(200, Math.ceil(((start - now) + duration + 0.3) * 1000));
+        const timeoutMs = Math.max(1500, Math.ceil(((start - now) + duration + 1.2) * 1000));
         node.timerId = setTimeout(cleanup, timeoutMs);
         activeNodes.push(node);
       });
@@ -192,7 +212,8 @@ export const formatConductRecordSpeech = (
   const safeAccumulated = Number.isFinite(accumulatedScore) ? Math.max(0, Math.trunc(accumulatedScore)) : 0;
   const scoreWords = thaiNumberToWords(safeScore);
   const remainingWords = thaiNumberToWords(safeAccumulated);
-  return `${actionText}คะแนนความดีสำเร็จ ชื่อ ${firstName} ${actionText} ${scoreWords} คะแนน คะแนนคงเหลือ ${remainingWords} คะแนน`;
+  const namePart = firstName ? `ชื่อ ${firstName} ` : '';
+  return `${actionText}คะแนนความดีสำเร็จ ${namePart}${actionText} ${scoreWords} คะแนน คะแนนคงเหลือ ${remainingWords} คะแนน`;
 };
 
 /**

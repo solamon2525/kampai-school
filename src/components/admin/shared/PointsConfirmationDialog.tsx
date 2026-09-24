@@ -27,7 +27,7 @@ interface PointsConfirmationDialogProps {
   onClose: () => void;
 }
 
-const fmtPoints = (value: number) => value.toLocaleString('th-TH');
+const fmtPoints = (value: number) => (Number.isFinite(value) ? value : 0).toLocaleString('th-TH');
 
 export const PointsConfirmationDialog = ({
   confirmation,
@@ -53,7 +53,7 @@ export const PointsConfirmationDialog = ({
             <DialogHeader className="items-center text-center">
               <div className="mb-2 flex items-center gap-3">
                 <PersonAvatar
-                  name={confirmation.studentName}
+                  name={confirmation.studentName || 'นักเรียน'}
                   photoUrl={confirmation.photoUrl}
                   size="lg"
                   className="ring-4 ring-primary/20"

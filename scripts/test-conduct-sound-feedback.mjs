@@ -217,6 +217,17 @@ try {
       safeUndefinedRecord: window.__formatConductRecordSpeech('deduct', 'สมชาย รักดี', undefined, undefined),
       safeUndefinedBulk: window.__formatConductBulkSpeech('add', undefined, undefined),
       safeNegativeAccumulated: window.__formatConductRecordSpeech('deduct', 'สมชาย', 2, -10),
+      fnBoyParenAttached: window.__getFirstName('ด.ช.พชรพร(ป.1/1)'),
+      fnNumberedRoster: window.__getFirstName('1. สมชาย รักดี'),
+      fnPaddedRoster: window.__getFirstName('01. ด.ช. สมชาย รักดี'),
+      fnClassNumber: window.__getFirstName('เลขที่ 5 สมชาย รักดี'),
+      fnLeadingEmoji: window.__getFirstName('⭐ สมชาย รักดี'),
+      fnParenthesizedTag: window.__getFirstName('(เด็กใหม่) สมชาย'),
+      fnNullName: window.__getFirstName(null),
+      fnUndefinedName: window.__getFirstName(undefined),
+      emptyNameRecord: window.__formatConductRecordSpeech('add', '', 5, 15),
+      largeNumberRecord: window.__formatConductRecordSpeech('add', 'สมชาย', 1000, 1000000),
+      largeNumberBulk: window.__formatConductBulkSpeech('add', 50, 100),
     };
   });
 
@@ -255,6 +266,35 @@ try {
     unitResults.formattedWithPrefix,
     'เพิ่มคะแนนความดีสำเร็จ ชื่อ พชรพร เพิ่ม สิบ คะแนน คะแนนคงเหลือ ห้าสิบ คะแนน',
     'Speech summary must address student by real first name without honorific prefix'
+  );
+
+  // Assert unusual student names & null safety
+  assert.equal(unitResults.fnBoyParenAttached, 'พชรพร', 'Should strip attached parenthesized class label');
+  assert.equal(unitResults.fnNumberedRoster, 'สมชาย', 'Should strip roster numbering prefix');
+  assert.equal(unitResults.fnPaddedRoster, 'สมชาย', 'Should strip 0-padded roster numbering and title');
+  assert.equal(unitResults.fnClassNumber, 'สมชาย', 'Should strip เลขที่ prefix');
+  assert.equal(unitResults.fnLeadingEmoji, 'สมชาย', 'Should strip leading emoji from name');
+  assert.equal(unitResults.fnParenthesizedTag, 'สมชาย', 'Should strip parenthesized tag prefix');
+  assert.equal(unitResults.fnNullName, '', 'getFirstName(null) must return empty string without error');
+  assert.equal(unitResults.fnUndefinedName, '', 'getFirstName(undefined) must return empty string without error');
+
+  // Assert empty student name formatting
+  assert.equal(
+    unitResults.emptyNameRecord,
+    'เพิ่มคะแนนความดีสำเร็จ เพิ่ม ห้า คะแนน คะแนนคงเหลือ สิบห้า คะแนน',
+    'Empty student name must not produce awkward blank name clause or double space'
+  );
+
+  // Assert large numbers formatting
+  assert.equal(
+    unitResults.largeNumberRecord,
+    'เพิ่มคะแนนความดีสำเร็จ ชื่อ สมชาย เพิ่ม หนึ่งพัน คะแนน คะแนนคงเหลือ หนึ่งล้าน คะแนน',
+    'Large numbers (1,000 and 1,000,000) must translate correctly to Thai number words'
+  );
+  assert.equal(
+    unitResults.largeNumberBulk,
+    'บันทึกคะแนนความดีสำเร็จ ห้าสิบ คน บวกคนละ หนึ่งร้อย คะแนน',
+    'Bulk large numbers must translate correctly to Thai number words'
   );
 
   // Assert NaN/undefined resilience

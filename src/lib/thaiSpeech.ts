@@ -1,8 +1,20 @@
-export const getFirstName = (fullName: string): string => {
-  const clean = fullName
+export const getFirstName = (fullName?: string | null): string => {
+  if (!fullName || typeof fullName !== 'string') return '';
+
+  let clean = fullName
     .trim()
-    .replace(/^(?:เด็กชาย|เด็กหญิง|ด\.ช\.?|ด\.ญ\.?|นางสาว|น\.ส\.?|นาย|นาง)\s*/u, '');
-  return clean.split(/\s+/)[0] || clean || fullName.trim();
+    .replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/gu, '')
+    .replace(/^(?:เลขที่\s*\d+\s*|\d+[\.\-\)]\s*)/u, '')
+    .replace(/^(?:เด็กชาย|เด็กหญิง|ด\.ช\.?|ด\.ญ\.?|นางสาว|น\.ส\.?|นาย|นาง)\s*/u, '')
+    .replace(/^(?:เลขที่\s*\d+\s*|\d+[\.\-\)]\s*)/u, '')
+    .trim();
+
+  clean = clean.replace(/^\([^\)]*\)\s*/u, '').trim();
+
+  let firstWord = clean.split(/\s+/)[0] || clean || '';
+  firstWord = firstWord.replace(/[\(\[\{<].*$/u, '').replace(/[^\p{L}\p{M}]+$/gu, '').trim();
+
+  return firstWord || clean.split(/\s+/)[0] || fullName.trim();
 };
 
 const THAI_DIGITS = ['ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
@@ -93,7 +105,7 @@ const playCurrentSegment = () => {
     utterance.onerror = () => {
       if (jobGeneration !== generation || activeUtterance !== utterance) return;
       activeUtterance = null;
-      activeJob!.hadError = true;
+      if (activeJob) activeJob.hadError = true;
       activeSegment += 1;
       playCurrentSegment();
     };
