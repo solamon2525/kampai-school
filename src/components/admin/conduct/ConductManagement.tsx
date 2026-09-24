@@ -19,6 +19,7 @@ import {
     type PointsConfirmation,
 } from '@/components/admin/shared/PointsConfirmationDialog';
 import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
+import { cn } from '@/lib/utils';
 
 // ===== Constants =====
 const CLASS_OPTIONS = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
@@ -28,34 +29,239 @@ const currentYear = (new Date().getFullYear() + 543).toString();
 // Sentinel สำหรับ <Select> ของ radix v2.2+ ที่ห้าม value=""
 const ALL = '__all__';
 
+const QUICK_SCORES = [1, 2, 5, 10];
+
 const VIRTUE_LABELS: Record<string, string> = {
     publicMind: 'จิตสาธารณะ 🌱',
     responsibility: 'ความรับผิดชอบ 📘',
-    discipline: 'วินัย ⏰',
-    honesty: 'ซื่อสัตย์ 🤝',
-    kindness: 'น้ำใจ ❤️',
+    discipline: 'วินัย/ตรงต่อเวลา ⏰',
+    honesty: 'ซื่อสัตย์สุจริต 🤝',
+    kindness: 'น้ำใจ/ช่วยเหลือ ❤️',
+    manners: 'มารยาทและการพูดจา 🙏',
+    leadership: 'ความเป็นผู้นำ/ทีม 👑',
+    hygiene: 'สุขอนามัย/ความสะอาด 🧼',
+    property: 'การดูแลทรัพย์สิน 🧱',
+    device: 'การใช้อุปกรณ์สื่อสาร 📱',
+    // Thai aliases for 100% backward compatibility
+    'จิตสาธารณะ': 'จิตสาธารณะ 🌱',
+    'จิตอาสา': 'จิตสาธารณะ 🌱',
+    'ความรับผิดชอบ': 'ความรับผิดชอบ 📘',
+    'วิชาการ': 'ความรับผิดชอบ 📘',
+    'กีฬา': 'ความรับผิดชอบ 📘',
+    'วินัย': 'วินัย/ตรงต่อเวลา ⏰',
+    'ระเบียบวินัย': 'วินัย/ตรงต่อเวลา ⏰',
+    'ซื่อสัตย์': 'ซื่อสัตย์สุจริต 🤝',
+    'ซื่อสัตย์สุจริต': 'ซื่อสัตย์สุจริต 🤝',
+    'น้ำใจ': 'น้ำใจ/ช่วยเหลือ ❤️',
+    'ความดี': 'น้ำใจ/ช่วยเหลือ ❤️',
+    'ช่วยเหลือ': 'น้ำใจ/ช่วยเหลือ ❤️',
 };
 
 const VIRTUE_COLORS: Record<string, string> = {
-    publicMind: 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900',
-    responsibility: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900',
-    discipline: 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900',
-    honesty: 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900',
-    kindness: 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-900',
+    publicMind: 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
+    responsibility: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
+    discipline: 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
+    honesty: 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
+    kindness: 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
+    manners: 'border-indigo-500 text-indigo-700 bg-indigo-50 hover:bg-indigo-100',
+    leadership: 'border-cyan-600 text-cyan-800 bg-cyan-50 hover:bg-cyan-100',
+    hygiene: 'border-teal-500 text-teal-700 bg-teal-50 hover:bg-teal-100',
+    property: 'border-orange-500 text-orange-700 bg-orange-50 hover:bg-orange-100',
+    device: 'border-violet-500 text-violet-700 bg-violet-50 hover:bg-violet-100',
+    // Thai aliases for 100% backward compatibility
+    'จิตสาธารณะ': 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
+    'จิตอาสา': 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
+    'ความรับผิดชอบ': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
+    'วิชาการ': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
+    'กีฬา': 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
+    'วินัย': 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
+    'ระเบียบวินัย': 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
+    'ซื่อสัตย์': 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
+    'ซื่อสัตย์สุจริต': 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
+    'น้ำใจ': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
+    'ความดี': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
+    'ช่วยเหลือ': 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
+};
+
+const getCategoryMeta = (cat: string) => {
+    const raw = (cat || '').trim();
+    if (VIRTUE_LABELS[raw] && VIRTUE_COLORS[raw]) {
+        return {
+            label: VIRTUE_LABELS[raw],
+            color: VIRTUE_COLORS[raw],
+        };
+    }
+    const virtue = conductService.mapCategoryToVirtue(raw);
+    return {
+        label: VIRTUE_LABELS[virtue] || raw || 'ความประพฤติ',
+        color: VIRTUE_COLORS[virtue] || 'border-border text-foreground bg-muted hover:bg-muted/80',
+    };
 };
 
 const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: string[] }[]> = {
     add: [
-        { category: 'publicMind', reasons: ['ช่วยเก็บขยะรักษาความสะอาด 🌱', 'อาสาช่วยงานคุณครู 🤝', 'บริจาคสิ่งของช่วยเหลือโรงเรียน 🎒', 'จัดระเบียบจัดแถวชั้นเรียน 🏫'] },
-        { category: 'responsibility', reasons: ['ส่งการบ้านตรงเวลาครบถ้วน 📘', 'ทำหน้าที่เวรประจำวันอย่างดี 🧹', 'ปฏิบัติภารกิจที่ได้รับมอบหมายสำเร็จ 🎯'] },
-        { category: 'discipline', reasons: ['เข้าแถวตอนเช้าตรงเวลา ⏰', 'แต่งกายถูกระเบียบเรียบร้อย 👔', 'ปฏิบัติตามข้อตกลงห้องเรียน 📜'] },
-        { category: 'honesty', reasons: ['ซื่อสัตย์สุจริตไม่โกงการบ้าน 🤝', 'เก็บของมีค่าตกหล่นส่งคืน 🪙', 'ยอมรับความผิดของตนเองอย่างตรงไปตรงมา 👤'] },
-        { category: 'kindness', reasons: ['ช่วยเหลือเพื่อนสอนการบ้าน ❤️', 'มีน้ำใจแบ่งปันของกินของใช้ 🍎', 'ช่วยคุณครูถือของหนัก 🛍️'] },
+        {
+            category: 'publicMind',
+            reasons: [
+                'ช่วยเก็บขยะและดูแลความสะอาดโรงเรียน 🌱',
+                'อาสาช่วยงานคุณครูและกิจกรรมส่วนรวม 🏫',
+                'จัดระเบียบโต๊ะเก้าอี้และแถวชั้นเรียน 🪑',
+                'บำเพ็ญประโยชน์เพื่อโรงเรียนและชุมชน 🤝',
+                'ช่วยดูแลรุ่นน้องหรือเพื่อนร่วมชั้น 🎒',
+            ],
+        },
+        {
+            category: 'responsibility',
+            reasons: [
+                'ส่งการบ้านและภาระงานตรงเวลาครบถ้วน 📘',
+                'ปฏิบัติหน้าที่เวรประจำวันอย่างดีเยี่ยม 🧹',
+                'ตั้งใจเรียนและมีส่วนร่วมในกิจกรรมการเรียน 💡',
+                'ปฏิบัติภารกิจที่ได้รับมอบหมายจนสำเร็จ 🎯',
+                'เตรียมอุปกรณ์การเรียนครบถ้วนพร้อมเรียน ✏️',
+            ],
+        },
+        {
+            category: 'discipline',
+            reasons: [
+                'เข้าแถวเคารพธงชาติตอนเช้าตรงเวลา ⏰',
+                'แต่งกายถูกต้องตามระเบียบเรียบร้อย 👔',
+                'เข้าห้องเรียนตรงเวลาทุกคาบเรียน 🚪',
+                'ปฏิบัติตามกฎระเบียบและข้อตกลงห้องเรียน 📜',
+                'เดินแถวอย่างเป็นระเบียบและสำรวม 🚶',
+            ],
+        },
+        {
+            category: 'honesty',
+            reasons: [
+                'เก็บของมีค่าหรือเงินตกหล่นส่งคืนเจ้าของ 🪙',
+                'ซื่อสัตย์สุจริต ไม่ลอกการบ้านหรือข้อสอบ 📝',
+                'ยอมรับความจริงอย่างตรงไปตรงมาและกล้าหาญ 👤',
+                'มีความจริงใจและรักษาคำพูดต่อผู้อื่น 🌟',
+                'ซื่อตรงต่อหน้าที่แม้ไม่มีใครมอง 👁️',
+            ],
+        },
+        {
+            category: 'kindness',
+            reasons: [
+                'ช่วยเหลือเพื่อนสอนการบ้านและอธิบายบทเรียน 📖',
+                'มีน้ำใจแบ่งปันขนม ของใช้ หรืออุปกรณ์ ❤️',
+                'ช่วยคุณครูถือของและยกสิ่งของหนัก 🛍️',
+                'ดูแลเพื่อนที่ไม่สบายหรือต้องการความช่วยเหลือ 🩹',
+                'ปลอบโยนและให้กำลังใจเพื่อนเสมอ 🫂',
+            ],
+        },
+        {
+            category: 'manners',
+            reasons: [
+                'ไหว้ทักทายคุณครูและผู้ใหญ่ด้วยความนอบน้อม 🙏',
+                'พูดจาสุภาพ ไพเราะ มีหางเสียงเสมอ 🗣️',
+                'กล่าวคำขอบคุณและขอโทษอย่างจริงใจ ✨',
+                'มีสัมมาคารวะและกิริยามารยาทเรียบร้อย 🙇',
+                'รับฟังผู้อื่นอย่างตั้งใจและให้เกียรติผู้พูด 👂',
+            ],
+        },
+        {
+            category: 'leadership',
+            reasons: [
+                'เป็นผู้นำกลุ่มและประสานงานเพื่อนร่วมงานสำเร็จ 👑',
+                'ให้ความร่วมมือในการทำงานกลุ่มอย่างเต็มที่ 🤝',
+                'ช่วยไกล่เกลี่ยและแก้ปัญหาความขัดแย้งในกลุ่ม 🕊️',
+                'กล้าแสดงออกในทางที่ถูกต้องและสร้างสรรค์ 🎤',
+                'เสียสละเพื่อความสำเร็จของทีมและห้องเรียน 🌟',
+            ],
+        },
+        {
+            category: 'hygiene',
+            reasons: [
+                'ล้างมือถูกสุขอนามัยก่อนทานอาหารและหลังเข้าห้องน้ำ 🧼',
+                'รักษาความสะอาดโต๊ะเรียนและพื้นที่ของตนเอง 🧽',
+                'คัดแยกและทิ้งขยะลงถังอย่างถูกต้อง 🗑️',
+                'แต่งกายสะอาด ผม เล็บ มือถูกสุขลักษณะ ✂️',
+                'ช่วยดูแลความสะอาดโรงอาหารและพื้นที่ส่วนกลาง 🍽️',
+            ],
+        },
     ],
     deduct: [
-        { category: 'discipline', reasons: ['มาสาย/ไม่ทันเข้าแถว ⏰', 'แต่งกายผิดระเบียบ 👔', 'ใช้โทรศัพท์ในเวลาเรียน 📱', 'ส่งเสียงดังรบกวนสมาธิห้องเรียน 📣'] },
-        { category: 'honesty', reasons: ['ทะเลาะวิวาทหรือรังแกเพื่อน 🤝', 'พูดจาหยาบคายหรือไม่สุภาพ 🤬', 'ทำลายข้าวของโรงเรียนเสียหาย 🧱'] },
-        { category: 'responsibility', reasons: ['ไม่ทำการบ้าน/ไม่ส่งงาน 📘', 'หลบเลี่ยงไม่ทำหน้าที่เวรประจำวัน 🧹'] },
+        {
+            category: 'discipline',
+            reasons: [
+                'มาสาย / ไม่ทันเข้าแถวเคารพธงชาติ ⏰',
+                'หนีเรียน / ขาดเรียนโดยไม่มีเหตุผลจำเป็น 🚫',
+                'เข้าห้องเรียนช้าหลังหมดเวลาพัก 🏃',
+                'แต่งกายผิดระเบียบ / ทรงผมไม่ถูกระเบียบ 👔',
+                'ออกนอกบริเวณโรงเรียนโดยไม่ได้รับอนุญาต 🚪',
+            ],
+        },
+        {
+            category: 'device',
+            reasons: [
+                'ใช้โทรศัพท์หรือแอบเล่นเกมในเวลาเรียน 📱',
+                'ไม่ฝากโทรศัพท์มือถือตามระเบียบของโรงเรียน 📵',
+                'สวมหูฟังหรือเล่นโซเชียลมีเดียขณะครูกำลังสอน 🎧',
+                'ถ่ายภาพหรือวิดีโอล้อเลียนผู้อื่นในโรงเรียน 📸',
+                'ใช้อุปกรณ์สื่อสารเปิดสื่อที่ไม่เหมาะสม 🚫',
+            ],
+        },
+        {
+            category: 'responsibility',
+            reasons: [
+                'ไม่ทำการบ้าน / ไม่ส่งงานตามกำหนด 📘',
+                'หลบเลี่ยงไม่ทำหน้าที่เวรทำความสะอาดประจำวัน 🧹',
+                'ไม่นำสมุด หนังสือ หรืออุปกรณ์การเรียนมา 🎒',
+                'ละเลยหน้าที่และความรับผิดชอบในงานกลุ่ม 👥',
+                'นอนหลับหรือไม่สนใจบทเรียนในห้องเรียน 💤',
+            ],
+        },
+        {
+            category: 'property',
+            reasons: [
+                'ทำลายข้าวของหรืออุปกรณ์ของโรงเรียนเสียหาย 🧱',
+                'ขีดเขียนโต๊ะ เก้าอี้ ประตู หรือผนังห้องเรียน 🖍️',
+                'เล่นอุปกรณ์กีฬาหรือสิ่งของส่วนรวมอย่างไม่ระวัง ⚽',
+                'เปิดน้ำหรือเปิดไฟทิ้งไว้โดยไม่ปิด 💡',
+                'ทำสิ่งของส่วนรวมชำรุดเสียหายแล้วไม่แจ้ง 🔨',
+            ],
+        },
+        {
+            category: 'manners',
+            reasons: [
+                'พูดจาหยาบคาย ไม่สุภาพ หรือขึ้นเสียง 🤬',
+                'แสดงกิริยาก้าวร้าวหรือไม่เคารพครูและบุคลากร 🙅',
+                'ส่งเสียงดังรบกวนสมาธิผู้อื่นในเวลาเรียน 📣',
+                'พูดแทรกขณะที่ครูหรือเพื่อนกำลังพูด 🗣️',
+                'ล้อเลียนหรือเรียกชื่อบุพการีเพื่อน 🤐',
+            ],
+        },
+        {
+            category: 'honesty',
+            reasons: [
+                'ลอกการบ้าน รายงาน หรือทุจริตการสอบ 📝',
+                'พูดปดหรือโกหกคุณครู 🤥',
+                'ขโมยหรือหยิบสิ่งของผู้อื่นโดยไม่ได้รับอนุญาต 🔒',
+                'ปลอมแปลงลายเซ็นผู้ปกครองหรือครู ✍️',
+                'ปกปิดความผิดของตนเองหรือใส่ร้ายผู้อื่น 👤',
+            ],
+        },
+        {
+            category: 'kindness',
+            reasons: [
+                'ทะเลาะวิวาทหรือใช้กำลังทำร้ายร่างกายเพื่อน 🥊',
+                'กลั่นแกล้ง รังแก หรือข่มขู่เพื่อน (Bullying) 😢',
+                'กีดกันเพื่อน ไม่ยอมให้ร่วมกลุ่ม 🙅‍♂️',
+                'ล้อเลียนปมด้อยหรือรูปร่างหน้าตาผู้อื่น 👥',
+                'แกล้งซ่อนหรือทำลายสิ่งของของเพื่อน 🎒',
+            ],
+        },
+        {
+            category: 'hygiene',
+            reasons: [
+                'ทิ้งขยะเกลื่อนกลาด ไม่ทิ้งลงถัง 🚯',
+                'ไม่รักษาความสะอาดในการใช้ห้องน้ำ 🚽',
+                'รับประทานอาหารหรือขนมในห้องเรียนโดยไม่ได้รับอนุญาต 🍬',
+                'ทำอาหารหรือน้ำหกเลอะเทอะแล้วไม่ทำความสะอาด 🧽',
+                'ไม่ดูแลสุขอนามัยส่วนบุคคลจนรบกวนผู้อื่น 😷',
+            ],
+        },
     ],
 };
 
@@ -127,7 +333,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
     const [type, setType] = useState<'add' | 'deduct'>('add');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('publicMind');
     const [reason, setReason] = useState('');
     const [score, setScore] = useState('1');
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
@@ -158,8 +364,9 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         };
     }, [selectedClass]);
 
+    const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
     const presets = PRESET_REASONS[type];
-    const categoryPreset = presets.find(p => p.category === category);
+    const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleSave = async () => {
         if (!selectedStudentId || !reason.trim()) {
@@ -171,7 +378,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             toast({ variant: 'destructive', title: 'นักเรียนที่เลือกไม่อยู่ในชั้นเรียนปัจจุบัน' });
             return;
         }
-        const parsedScore = parseInt(score) || 1;
+        const parsedScore = Math.max(1, Math.min(100, parseInt(score) || 1));
         const student = students.find(s => s.id === selectedStudentId);
         const { data: existingRecords } = await conductService.getByStudentId(selectedStudentId);
         const accumulatedBefore = (existingRecords || [])
@@ -183,7 +390,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             student_id: selectedStudentId,
             type,
             score: parsedScore,
-            category: category || (type === 'add' ? 'publicMind' : 'discipline'),
+            category: activeCategory,
             reason: reason.trim(),
             recorded_by: recorder.name || null,
             recorded_by_staff_id: recorder.staffId,
@@ -290,7 +497,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 type="button"
                                 variant={type === 'add' ? 'default' : 'outline'}
                                 className={`gap-1 ${type === 'add' ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                                onClick={() => { setType('add'); setCategory(''); setReason(''); }}
+                                onClick={() => { setType('add'); setCategory('publicMind'); setReason(''); }}
                             >
                                 <Plus className="w-4 h-4" /> บวกคะแนน
                             </Button>
@@ -298,7 +505,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 type="button"
                                 variant={type === 'deduct' ? 'default' : 'outline'}
                                 className={`gap-1 ${type === 'deduct' ? 'bg-red-600 hover:bg-red-700' : ''}`}
-                                onClick={() => { setType('deduct'); setCategory(''); setReason(''); }}
+                                onClick={() => { setType('deduct'); setCategory('discipline'); setReason(''); }}
                             >
                                 <Minus className="w-4 h-4" /> หักคะแนน
                             </Button>
@@ -309,19 +516,21 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                             <Label>หมวดหมู่</Label>
                             <div className="flex flex-wrap gap-1">
                                 {presets.map(p => {
-                                    const isSelected = category === p.category;
+                                    const isSelected = activeCategory === p.category;
+                                    const meta = getCategoryMeta(p.category);
                                     return (
                                         <Badge
                                             key={p.category}
                                             variant="outline"
-                                            className={`cursor-pointer transition-colors py-1 px-2.5 ${
+                                            className={cn(
+                                                "cursor-pointer transition-colors py-1 px-2.5",
                                                 isSelected 
-                                                    ? VIRTUE_COLORS[p.category] 
+                                                    ? meta.color 
                                                     : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
-                                            }`}
-                                            onClick={() => { setCategory(p.category); setReason(''); }}
+                                            )}
+                                            onClick={() => setCategory(p.category)}
                                         >
-                                            {VIRTUE_LABELS[p.category] || p.category}
+                                            {meta.label}
                                         </Badge>
                                     );
                                 })}
@@ -331,7 +540,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                         {/* เหตุผลสำเร็จรูป */}
                         {categoryPreset && (
                             <div className="space-y-1">
-                                <Label className="text-xs text-muted-foreground">เหตุผลสำเร็จรูป</Label>
+                                <Label className="text-xs text-muted-foreground">เหตุผลสำเร็จรูป — กดเพื่อเลือก</Label>
                                 <div className="flex flex-wrap gap-1">
                                     {categoryPreset.reasons.map(r => (
                                         <Badge
@@ -359,17 +568,67 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                         </div>
 
                         {/* จำนวนคะแนน */}
-                        <div className="space-y-1">
-                            <Label>จำนวนคะแนน</Label>
-                            <div className="flex items-center gap-2">
-                                <Button type="button" variant="outline" size="icon" onClick={() => setScore(s => String(Math.max(1, parseInt(s) - 1)))}>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label>จำนวนคะแนน</Label>
+                                <span className="text-xs text-muted-foreground">คะแนนด่วน:</span>
+                            </div>
+
+                            {/* Quick score buttons [1, 2, 5, 10] */}
+                            <div className="grid grid-cols-4 gap-1.5">
+                                {QUICK_SCORES.map(q => {
+                                    const isSelected = parseInt(score) === q;
+                                    return (
+                                        <Button
+                                            key={q}
+                                            type="button"
+                                            variant={isSelected ? 'default' : 'outline'}
+                                            size="sm"
+                                            className={cn(
+                                                "h-9 font-bold transition-all text-xs sm:text-sm",
+                                                isSelected
+                                                    ? (type === 'add'
+                                                        ? 'bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-sm'
+                                                        : 'bg-red-600 hover:bg-red-700 text-white border-red-600 shadow-sm')
+                                                    : 'hover:bg-muted text-foreground'
+                                            )}
+                                            onClick={() => setScore(String(q))}
+                                        >
+                                            {type === 'add' ? `+${q}` : `-${q}`}
+                                        </Button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Manual +/- and input */}
+                            <div className="flex items-center gap-2 pt-0.5">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="icon" 
+                                    className="h-10 w-10 flex-shrink-0"
+                                    onClick={() => setScore(s => String(Math.max(1, (parseInt(s) || 1) - 1)))}
+                                >
                                     <Minus className="w-4 h-4" />
                                 </Button>
-                                <Input type="number" min={1} max={100} className="w-20 text-center" value={score} onChange={e => setScore(e.target.value)} />
-                                <Button type="button" variant="outline" size="icon" onClick={() => setScore(s => String(parseInt(s) + 1))}>
+                                <Input 
+                                    type="number" 
+                                    min={1} 
+                                    max={100} 
+                                    className="w-20 text-center font-bold text-base h-10" 
+                                    value={score} 
+                                    onChange={e => setScore(e.target.value)} 
+                                />
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="icon" 
+                                    className="h-10 w-10 flex-shrink-0"
+                                    onClick={() => setScore(s => String(Math.min(100, (parseInt(s) || 0) + 1)))}
+                                >
                                     <Plus className="w-4 h-4" />
                                 </Button>
-                                <span className="text-sm text-muted-foreground">คะแนน</span>
+                                <span className="text-sm text-muted-foreground ml-1">คะแนน (1–100)</span>
                             </div>
                         </div>
 
@@ -586,12 +845,17 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className="font-medium">{r.students?.name ?? '—'}</span>
                                             <Badge variant="outline" className="text-xs">{r.students?.class}</Badge>
-                                            <Badge 
-                                                variant="outline" 
-                                                className={`text-xs ${VIRTUE_COLORS[r.category] || 'bg-secondary text-secondary-foreground border-transparent'}`}
-                                            >
-                                                {VIRTUE_LABELS[r.category] || r.category}
-                                            </Badge>
+                                            {(() => {
+                                                const meta = getCategoryMeta(r.category);
+                                                return (
+                                                    <Badge 
+                                                        variant="outline" 
+                                                        className={cn("text-xs font-medium", meta.color)}
+                                                    >
+                                                        {meta.label}
+                                                    </Badge>
+                                                );
+                                            })()}
                                         </div>
                                         <p className="text-sm mt-0.5">{r.reason}</p>
                                         <p className="text-xs text-muted-foreground mt-1">
@@ -626,7 +890,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
     const [students, setStudents] = useState<Student[]>([]);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [type, setType] = useState<'add' | 'deduct'>('add');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('publicMind');
     const [reason, setReason] = useState('');
     const [score, setScore] = useState('1');
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
@@ -668,8 +932,9 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         setSelectedIds(allSelected ? new Set() : new Set(students.map(s => s.id)));
     };
 
+    const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
     const presets = PRESET_REASONS[type];
-    const categoryPreset = presets.find(p => p.category === category);
+    const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleBulkSave = async () => {
         const currentStudentIds = new Set(students.map(s => s.id));
@@ -683,11 +948,12 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
+        const parsedScore = Math.max(1, Math.min(100, parseInt(score) || 1));
         const records = validSelectedIds.map(student_id => ({
             student_id,
             type,
-            score: parseInt(score) || 1,
-            category: category || (type === 'add' ? 'publicMind' : 'discipline'),
+            score: parsedScore,
+            category: activeCategory,
             reason: reason.trim(),
             recorded_by: recorder.name || null,
             recorded_by_staff_id: recorder.staffId,
@@ -851,9 +1117,9 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                             className={`h-12 gap-2 text-base font-semibold ${
                                 type === 'add'
                                     ? 'bg-green-600 hover:bg-green-700 border-green-600'
-                                    : 'border-green-300 text-green-700 hover:bg-green-50 dark:hover:bg-green-950'
+                                    : 'border-green-300 text-green-700 hover:bg-green-50'
                             }`}
-                            onClick={() => { setType('add'); setCategory(''); setReason(''); }}
+                            onClick={() => { setType('add'); setCategory('publicMind'); setReason(''); }}
                         >
                             <Plus className="w-5 h-5" /> บวกคะแนน
                         </Button>
@@ -863,9 +1129,9 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                             className={`h-12 gap-2 text-base font-semibold ${
                                 type === 'deduct'
                                     ? 'bg-red-600 hover:bg-red-700 border-red-600'
-                                    : 'border-red-300 text-red-700 hover:bg-red-50 dark:hover:bg-red-950'
+                                    : 'border-red-300 text-red-700 hover:bg-red-50'
                             }`}
-                            onClick={() => { setType('deduct'); setCategory(''); setReason(''); }}
+                            onClick={() => { setType('deduct'); setCategory('discipline'); setReason(''); }}
                         >
                             <Minus className="w-5 h-5" /> หักคะแนน
                         </Button>
@@ -876,19 +1142,21 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                         <Label>หมวดหมู่</Label>
                         <div className="flex flex-wrap gap-2">
                             {presets.map(p => {
-                                const isSelected = category === p.category;
+                                const isSelected = activeCategory === p.category;
+                                const meta = getCategoryMeta(p.category);
                                 return (
                                     <Badge
                                         key={p.category}
                                         variant="outline"
-                                        className={`cursor-pointer transition-colors py-1.5 px-3 text-sm ${
+                                        className={cn(
+                                            "cursor-pointer transition-colors py-1.5 px-3 text-sm",
                                             isSelected 
-                                                ? VIRTUE_COLORS[p.category] 
+                                                ? meta.color 
                                                 : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
-                                        }`}
-                                        onClick={() => { setCategory(p.category); setReason(''); }}
+                                        )}
+                                        onClick={() => setCategory(p.category)}
                                     >
-                                        {VIRTUE_LABELS[p.category] || p.category}
+                                        {meta.label}
                                     </Badge>
                                 );
                             })}
@@ -928,29 +1196,59 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
 
                     {/* จำนวนคะแนน — large tap targets */}
                     <div className="space-y-2">
-                        <Label>จำนวนคะแนน</Label>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between">
+                            <Label>จำนวนคะแนน</Label>
+                            <span className="text-xs text-muted-foreground">คะแนนด่วน:</span>
+                        </div>
+
+                        {/* Quick score buttons [1, 2, 5, 10] */}
+                        <div className="grid grid-cols-4 gap-2">
+                            {QUICK_SCORES.map(q => {
+                                const isSelected = parseInt(score) === q;
+                                return (
+                                    <Button
+                                        key={q}
+                                        type="button"
+                                        variant={isSelected ? 'default' : 'outline'}
+                                        className={cn(
+                                            "h-11 font-bold text-base transition-all",
+                                            isSelected
+                                                ? (type === 'add'
+                                                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600 shadow-sm'
+                                                    : 'bg-red-600 hover:bg-red-700 text-white border-red-600 shadow-sm')
+                                                : 'hover:bg-muted text-foreground'
+                                        )}
+                                        onClick={() => setScore(String(q))}
+                                    >
+                                        {type === 'add' ? `+${q}` : `-${q}`}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Manual +/- and input */}
+                        <div className="flex items-center gap-3 pt-1">
                             <Button
                                 type="button" variant="outline" size="icon"
                                 className="h-12 w-12 flex-shrink-0"
-                                onClick={() => setScore(s => String(Math.max(1, parseInt(s) - 1)))}
+                                onClick={() => setScore(s => String(Math.max(1, (parseInt(s) || 1) - 1)))}
                             >
                                 <Minus className="w-5 h-5" />
                             </Button>
                             <Input
                                 type="number" min={1} max={100}
-                                className="h-12 text-center text-xl font-bold w-20"
+                                className="h-12 text-center text-xl font-bold w-24"
                                 value={score}
                                 onChange={e => setScore(e.target.value)}
                             />
                             <Button
                                 type="button" variant="outline" size="icon"
                                 className="h-12 w-12 flex-shrink-0"
-                                onClick={() => setScore(s => String(parseInt(s) + 1))}
+                                onClick={() => setScore(s => String(Math.min(100, (parseInt(s) || 0) + 1)))}
                             >
                                 <Plus className="w-5 h-5" />
                             </Button>
-                            <span className="text-sm text-muted-foreground">คะแนน</span>
+                            <span className="text-sm text-muted-foreground">คะแนน (1–100)</span>
                         </div>
                     </div>
 

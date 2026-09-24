@@ -80,15 +80,138 @@ export type ClassroomGoal = {
   is_active: boolean;
 };
 
-/** แผนที่แปลงหมวดหมู่ภาษาไทย/ดั้งเดิม เข้ากับ 5 มิติคุณธรรมหลักภาษาอังกฤษ */
-export const mapCategoryToVirtue = (cat: string): 'publicMind' | 'responsibility' | 'discipline' | 'honesty' | 'kindness' => {
+export type CoreVirtue = 'publicMind' | 'responsibility' | 'discipline' | 'honesty' | 'kindness';
+
+export type ConductCategoryMeta = {
+  key: string;
+  label: string;
+  virtue: CoreVirtue;
+  color: string;
+};
+
+export const CONDUCT_CATEGORIES: Record<string, ConductCategoryMeta> = {
+  publicMind: {
+    key: 'publicMind',
+    label: 'จิตสาธารณะ 🌱',
+    virtue: 'publicMind',
+    color: 'border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100',
+  },
+  responsibility: {
+    key: 'responsibility',
+    label: 'ความรับผิดชอบ 📘',
+    virtue: 'responsibility',
+    color: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100',
+  },
+  discipline: {
+    key: 'discipline',
+    label: 'วินัย/ตรงต่อเวลา ⏰',
+    virtue: 'discipline',
+    color: 'border-purple-500 text-purple-700 bg-purple-50 hover:bg-purple-100',
+  },
+  honesty: {
+    key: 'honesty',
+    label: 'ซื่อสัตย์สุจริต 🤝',
+    virtue: 'honesty',
+    color: 'border-amber-500 text-amber-700 bg-amber-50 hover:bg-amber-100',
+  },
+  kindness: {
+    key: 'kindness',
+    label: 'น้ำใจ/ช่วยเหลือ ❤️',
+    virtue: 'kindness',
+    color: 'border-pink-500 text-pink-700 bg-pink-50 hover:bg-pink-100',
+  },
+  manners: {
+    key: 'manners',
+    label: 'มารยาทและการพูดจา 🙏',
+    virtue: 'kindness',
+    color: 'border-indigo-500 text-indigo-700 bg-indigo-50 hover:bg-indigo-100',
+  },
+  leadership: {
+    key: 'leadership',
+    label: 'ความเป็นผู้นำ/ทีม 👑',
+    virtue: 'responsibility',
+    color: 'border-cyan-600 text-cyan-800 bg-cyan-50 hover:bg-cyan-100',
+  },
+  hygiene: {
+    key: 'hygiene',
+    label: 'สุขอนามัย/ความสะอาด 🧼',
+    virtue: 'publicMind',
+    color: 'border-teal-500 text-teal-700 bg-teal-50 hover:bg-teal-100',
+  },
+  property: {
+    key: 'property',
+    label: 'การดูแลทรัพย์สิน 🧱',
+    virtue: 'responsibility',
+    color: 'border-orange-500 text-orange-700 bg-orange-50 hover:bg-orange-100',
+  },
+  device: {
+    key: 'device',
+    label: 'การใช้อุปกรณ์สื่อสาร 📱',
+    virtue: 'discipline',
+    color: 'border-violet-500 text-violet-700 bg-violet-50 hover:bg-violet-100',
+  },
+};
+
+/** แผนที่แปลงหมวดหมู่ภาษาไทย/ดั้งเดิม/หมวดหมู่ใหม่ เข้ากับ 5 มิติคุณธรรมหลักภาษาอังกฤษ */
+export const mapCategoryToVirtue = (cat: string): CoreVirtue => {
   const norm = (cat || '').trim();
-  if (['publicMind', 'จิตสาธารณะ', 'จิตอาสา'].includes(norm)) return 'publicMind';
-  if (['responsibility', 'ความรับผิดชอบ', 'วิชาการ', 'กีฬา'].includes(norm)) return 'responsibility';
-  if (['discipline', 'วินัย', 'ระเบียบวินัย'].includes(norm)) return 'discipline';
-  if (['honesty', 'ซื่อสัตย์', 'ซื่อสัตย์สุจริต'].includes(norm)) return 'honesty';
-  if (['kindness', 'น้ำใจ', 'ความดี', 'ช่วยเหลือ'].includes(norm)) return 'kindness';
+  const lower = norm.toLowerCase();
+
+  // publicMind (จิตสาธารณะ 🌱)
+  if (
+    ['publicmind', 'จิตสาธารณะ', 'จิตอาสา', 'hygiene', 'สุขอนามัย', 'สุขอนามัยและความสะอาด', 'ความสะอาด'].includes(norm) ||
+    ['publicmind', 'hygiene'].includes(lower)
+  ) {
+    return 'publicMind';
+  }
+
+  // responsibility (ความรับผิดชอบ 📘)
+  if (
+    ['responsibility', 'ความรับผิดชอบ', 'วิชาการ', 'กีฬา', 'leadership', 'ความเป็นผู้นำ', 'ความเป็นผู้นำและการทำงานเป็นทีม', 'property', 'ทรัพย์สิน', 'การดูแลรักษาทรัพย์สิน', 'การดูแลทรัพย์สิน'].includes(norm) ||
+    ['responsibility', 'leadership', 'property'].includes(lower)
+  ) {
+    return 'responsibility';
+  }
+
+  // discipline (วินัย ⏰)
+  if (
+    ['discipline', 'วินัย', 'ระเบียบวินัย', 'ตรงต่อเวลา', 'วินัยและตรงต่อเวลา', 'device', 'การใช้อุปกรณ์สื่อสาร', 'โทรศัพท์', 'การเรียน', 'ความประพฤติ'].includes(norm) ||
+    ['discipline', 'device'].includes(lower)
+  ) {
+    return 'discipline';
+  }
+
+  // honesty (ซื่อสัตย์ 🤝)
+  if (
+    ['honesty', 'ซื่อสัตย์', 'ซื่อสัตย์สุจริต'].includes(norm) ||
+    ['honesty'].includes(lower)
+  ) {
+    return 'honesty';
+  }
+
+  // kindness (น้ำใจ ❤️)
+  if (
+    ['kindness', 'น้ำใจ', 'ความดี', 'ช่วยเหลือ', 'manners', 'มารยาท', 'มารยาทและการพูดจา', 'การอยู่ร่วมกัน'].includes(norm) ||
+    ['kindness', 'manners'].includes(lower)
+  ) {
+    return 'kindness';
+  }
+
   return 'kindness'; // default fallback
+};
+
+/** ดึงข้อมูล metadata หมวดหมู่พร้อม label และ badge styling */
+export const getConductCategoryMeta = (cat: string): ConductCategoryMeta => {
+  const norm = (cat || '').trim();
+  if (CONDUCT_CATEGORIES[norm]) {
+    return CONDUCT_CATEGORIES[norm];
+  }
+  const virtue = mapCategoryToVirtue(norm);
+  const base = CONDUCT_CATEGORIES[virtue] || CONDUCT_CATEGORIES.kindness;
+  return {
+    ...base,
+    label: norm || base.label,
+  };
 };
 
 /** คำนวณเลเวล และยศฮีโร่ตามค่า XP สะสม */
@@ -113,6 +236,23 @@ export const calculateHeroLevel = (rawXp: number) => {
 
 /** ข้อความสนับสนุนทางจิตวิทยาเชิงบวกตามมิติคุณธรรม */
 export const getEmotionalFeedback = (category: string, reason: string): string => {
+  const norm = (category || '').trim().toLowerCase();
+  if (norm === 'manners' || norm === 'มารยาทและการพูดจา') {
+    return 'การมีกิริยามารยาทและการพูดจาสุภาพไพเราะ เป็นเสน่ห์ที่น่าชื่นชมอย่างยิ่ง 🙏';
+  }
+  if (norm === 'leadership' || norm === 'ความเป็นผู้นำ/ทีม') {
+    return 'ความเป็นผู้นำและการร่วมมือกับผู้อื่นเป็นพลังสำคัญในการสร้างสรรค์สิ่งดีๆ 👑';
+  }
+  if (norm === 'hygiene' || norm === 'สุขอนามัย/ความสะอาด') {
+    return 'การดูแลสุขอนามัยและความสะอาดทำให้ตนเองและส่วนรวมมีสุขภาวะที่ดี 🧼';
+  }
+  if (norm === 'property' || norm === 'การดูแลทรัพย์สิน') {
+    return 'การช่วยดูแลรักษาทรัพย์สินส่วนรวมแสดงถึงความรับผิดชอบที่ยอดเยี่ยม 🧱';
+  }
+  if (norm === 'device' || norm === 'การใช้อุปกรณ์สื่อสาร') {
+    return 'การมีวินัยในการใช้อุปกรณ์สื่อสารช่วยให้การเรียนรู้มีประสิทธิภาพยิ่งขึ้น 📱';
+  }
+
   const virtue = mapCategoryToVirtue(category);
   switch (virtue) {
     case 'publicMind':
@@ -135,6 +275,8 @@ export const getEmotionalFeedback = (category: string, reason: string): string =
 
 export const conductService = {
   mapCategoryToVirtue,
+  getConductCategoryMeta,
+  CONDUCT_CATEGORIES,
   /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อ+รูปนักเรียน) */
   getAll: (semester?: string, academicYear?: string) => {
     let q = supabase
