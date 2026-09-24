@@ -208,7 +208,7 @@ const CATEGORY_ALIAS_MAP: Record<string, string> = {
 
 const cleanCategoryString = (cat: string) =>
   (cat || '')
-    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+    .replace(/\p{Extended_Pictographic}|\uFE0F|\u200D|[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
     .trim();
 
 /** แผนที่แปลงหมวดหมู่ภาษาไทย/ดั้งเดิม/หมวดหมู่ใหม่ เข้ากับ 5 มิติคุณธรรมหลักภาษาอังกฤษ */
@@ -404,14 +404,19 @@ export const conductService = {
   insert: (record: ConductInsert) =>
     supabase.from('conduct_scores').insert(record as never),
 
-  /** บันทึกคะแนนความดีหลายคนพร้อมกัน (batch insert with chunking for network resiliency) */
+  /** บันทึกคะแนนความดีหลายคนพร้อมกัน (batch insert with chunking and transient retry for network resiliency) */
   insertBulk: async (records: ConductInsert[]) => {
     if (records.length === 0) return { data: null, error: null };
     const CHUNK_SIZE = 50;
     for (let i = 0; i < records.length; i += CHUNK_SIZE) {
       const chunk = records.slice(i, i + CHUNK_SIZE);
-      const res = await supabase.from('conduct_scores').insert(chunk as never[]);
-      if (res.error) return res;
+      let res = await supabase.from('conduct_scores').insert(chunk as never[]);
+      if (res.error) {
+        // Retry once after brief pause on transient school Wi-Fi glitch
+        await new Promise(r => setTimeout(r, 600));
+        res = await supabase.from('conduct_scores').insert(chunk as never[]);
+        if (res.error) return res;
+      }
     }
     return { data: null, error: null };
   },

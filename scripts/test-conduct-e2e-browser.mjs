@@ -158,6 +158,23 @@ try {
     }
     console.log(`  ✓ Quick score buttons [1, 2, 5, 10] working correctly in RecordTab`);
 
+    // 1b. Test Free Numeric Typing, onBlur Clamping & Plus/Minus boundaries
+    const scoreInput = page.locator('input[type="number"]').first();
+    await scoreInput.fill('25');
+    assert.equal(await scoreInput.inputValue(), '25', 'Should allow typing free number 25');
+    await page.locator('button:has-text("บวก 25 คะแนน")').waitFor();
+
+    // Out of bound clamping on blur
+    await scoreInput.fill('999');
+    await scoreInput.blur();
+    assert.equal(await scoreInput.inputValue(), '100', 'Should clamp 999 to 100 on blur');
+
+    await scoreInput.fill('0');
+    await scoreInput.blur();
+    assert.equal(await scoreInput.inputValue(), '1', 'Should clamp 0 to 1 on blur');
+
+    console.log(`  ✓ Free numeric typing and boundary clamping (1-100) working correctly`);
+
     // 2. Test Presets in RecordTab
     // Click 'มารยาทและการพูดจา 🙏'
     const mannersBadge = page.getByText('มารยาทและการพูดจา').first();

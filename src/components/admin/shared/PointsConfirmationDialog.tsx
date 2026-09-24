@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -82,6 +83,17 @@ export const PointsConfirmationDialog = ({
             <p className="text-sm font-medium text-muted-foreground">
               {speechComplete ? 'อ่านข้อมูลเรียบร้อยแล้ว' : 'กำลังอ่านข้อมูลยืนยันรายการ...'}
             </p>
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full px-6 font-semibold"
+                onClick={onClose}
+              >
+                ปิดหน้าต่าง
+              </Button>
+            </div>
           </>
         )}
       </DialogContent>

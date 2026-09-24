@@ -339,6 +339,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         };
     }, [selectedClass]);
 
+    const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));
     const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
     const presets = PRESET_REASONS[type];
     const categoryPreset = presets.find(p => p.category === activeCategory);
@@ -353,7 +354,6 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             toast({ variant: 'destructive', title: 'นักเรียนที่เลือกไม่อยู่ในชั้นเรียนปัจจุบัน' });
             return;
         }
-        const parsedScore = Math.max(1, Math.min(100, parseInt(score) || 1));
         const student = students.find(s => s.id === selectedStudentId);
         const { data: existingRecords } = await conductService.getByStudentId(selectedStudentId);
         const accumulatedBefore = (existingRecords || [])
@@ -378,7 +378,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
         toast({
             title: type === 'add' ? '+ บวกคะแนนสำเร็จ' : '- หักคะแนนสำเร็จ',
-            description: `${student?.name} ${type === 'add' ? '+' : '-'}${score} คะแนน · ${reason}`,
+            description: `${student?.name} ${type === 'add' ? '+' : '-'}${parsedScore} คะแนน · ${reason}`,
         });
         if (student) {
             const isAdd = type === 'add';
@@ -394,7 +394,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             const speechRequest = ++speechRequestRef.current;
             const safetyTimer = window.setTimeout(() => {
                 if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-            }, 5000);
+            }, 3500);
 
             void speakThai([
                 `${isAdd ? 'เพิ่ม' : 'หัก'}คะแนนความดีสำเร็จ`,
@@ -407,7 +407,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                 if (spoken) setSpeechComplete(true);
                 else window.setTimeout(() => {
                     if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-                }, 2000);
+                }, 1000);
             }).catch(() => {
                 window.clearTimeout(safetyTimer);
                 if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
@@ -426,14 +426,14 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                     <CardContent className="space-y-3">
                         <div className="space-y-1">
                             <Label>ชั้น/ห้อง</Label>
-                            <Select value={selectedClass || undefined} onValueChange={v => { setSelectedClass(v); setSelectedStudentId(''); }}>
+                            <Select value={selectedClass || undefined} onValueChange={v => { setSelectedClass(v); setSelectedStudentId(''); }} disabled={isSaving}>
                                 <SelectTrigger><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
                                 <SelectContent>{CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-1">
                             <Label>นักเรียน</Label>
-                            <Select value={selectedStudentId || undefined} onValueChange={setSelectedStudentId} disabled={students.length === 0}>
+                            <Select value={selectedStudentId || undefined} onValueChange={setSelectedStudentId} disabled={isSaving || students.length === 0}>
                                 <SelectTrigger><SelectValue placeholder={students.length === 0 ? 'เลือกชั้นก่อน' : 'เลือกนักเรียน'} /></SelectTrigger>
                                 <SelectContent>
                                     {students.map(s => (
@@ -453,7 +453,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-1">
                                 <Label>ภาคเรียน</Label>
-                                <Select value={semester} onValueChange={setSemester}>
+                                <Select value={semester} onValueChange={setSemester} disabled={isSaving}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="1">ภาคเรียน 1</SelectItem>
@@ -463,7 +463,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                             </div>
                             <div className="space-y-1">
                                 <Label>ปีการศึกษา</Label>
-                                <Input value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
+                                <Input value={academicYear} onChange={e => setAcademicYear(e.target.value)} disabled={isSaving} />
                             </div>
                         </div>
                         <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} />
@@ -481,6 +481,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 variant={type === 'add' ? 'default' : 'outline'}
                                 className={`gap-1 ${type === 'add' ? 'bg-green-600 hover:bg-green-700' : ''}`}
                                 onClick={() => { setType('add'); setCategory('publicMind'); setReason(''); }}
+                                disabled={isSaving}
                             >
                                 <Plus className="w-4 h-4" /> บวกคะแนน
                             </Button>
@@ -489,6 +490,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 variant={type === 'deduct' ? 'default' : 'outline'}
                                 className={`gap-1 ${type === 'deduct' ? 'bg-red-600 hover:bg-red-700' : ''}`}
                                 onClick={() => { setType('deduct'); setCategory('discipline'); setReason(''); }}
+                                disabled={isSaving}
                             >
                                 <Minus className="w-4 h-4" /> หักคะแนน
                             </Button>
@@ -509,9 +511,10 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                                 "cursor-pointer transition-colors py-1 px-2.5",
                                                 isSelected 
                                                     ? meta.color 
-                                                    : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
+                                                    : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted',
+                                                isSaving && "opacity-50 pointer-events-none"
                                             )}
-                                            onClick={() => setCategory(p.category)}
+                                            onClick={() => !isSaving && setCategory(p.category)}
                                         >
                                             {meta.label}
                                         </Badge>
@@ -529,8 +532,11 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                         <Badge
                                             key={r}
                                             variant={reason === r ? 'default' : 'secondary'}
-                                            className="cursor-pointer text-xs"
-                                            onClick={() => setReason(r)}
+                                            className={cn(
+                                                "cursor-pointer text-xs",
+                                                isSaving && "opacity-50 pointer-events-none"
+                                            )}
+                                            onClick={() => !isSaving && setReason(r)}
                                         >
                                             {r}
                                         </Badge>
@@ -547,6 +553,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                 rows={2}
                                 value={reason}
                                 onChange={e => setReason(e.target.value)}
+                                disabled={isSaving}
                             />
                         </div>
 
@@ -560,7 +567,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                             {/* Quick score buttons [1, 2, 5, 10] */}
                             <div className="grid grid-cols-4 gap-1.5">
                                 {QUICK_SCORES.map(q => {
-                                    const isSelected = parseInt(score) === q;
+                                    const isSelected = parsedScore === q && score.trim() === String(q);
                                     return (
                                         <Button
                                             key={q}
@@ -576,6 +583,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                                     : 'hover:bg-muted text-foreground'
                                             )}
                                             onClick={() => setScore(String(q))}
+                                            disabled={isSaving}
                                         >
                                             {type === 'add' ? `+${q}` : `-${q}`}
                                         </Button>
@@ -590,7 +598,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                     variant="outline" 
                                     size="icon" 
                                     className="h-10 w-10 flex-shrink-0"
-                                    onClick={() => setScore(s => String(Math.max(1, (parseInt(s) || 1) - 1)))}
+                                    onClick={() => setScore(s => {
+                                        const cur = parseInt(s, 10);
+                                        if (isNaN(cur) || cur <= 1) return '1';
+                                        if (cur > 100) return '100';
+                                        return String(cur - 1);
+                                    })}
+                                    disabled={isSaving}
                                 >
                                     <Minus className="w-4 h-4" />
                                 </Button>
@@ -600,14 +614,27 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                     max={100} 
                                     className="w-20 text-center font-bold text-base h-10" 
                                     value={score} 
-                                    onChange={e => setScore(e.target.value)} 
+                                    onChange={e => setScore(e.target.value)}
+                                    onBlur={() => {
+                                        const val = parseInt(score, 10);
+                                        if (isNaN(val) || val < 1) setScore('1');
+                                        else if (val > 100) setScore('100');
+                                        else setScore(String(val));
+                                    }}
+                                    disabled={isSaving}
                                 />
                                 <Button 
                                     type="button" 
                                     variant="outline" 
                                     size="icon" 
                                     className="h-10 w-10 flex-shrink-0"
-                                    onClick={() => setScore(s => String(Math.min(100, (parseInt(s) || 0) + 1)))}
+                                    onClick={() => setScore(s => {
+                                        const cur = parseInt(s, 10);
+                                        if (isNaN(cur) || cur < 1) return '1';
+                                        if (cur >= 100) return '100';
+                                        return String(cur + 1);
+                                    })}
+                                    disabled={isSaving}
                                 >
                                     <Plus className="w-4 h-4" />
                                 </Button>
@@ -621,7 +648,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                             disabled={isSaving || !selectedStudentId}
                         >
                             {type === 'add' ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
-                            {isSaving ? 'กำลังบันทึก...' : `${type === 'add' ? 'บวก' : 'หัก'} ${score} คะแนน`}
+                            {isSaving ? 'กำลังบันทึก...' : `${type === 'add' ? 'บวก' : 'หัก'} ${parsedScore} คะแนน`}
                         </Button>
                     </CardContent>
                 </Card>
@@ -915,6 +942,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         setSelectedIds(allSelected ? new Set() : new Set(students.map(s => s.id)));
     };
 
+    const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));
     const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
     const presets = PRESET_REASONS[type];
     const categoryPreset = presets.find(p => p.category === activeCategory);
@@ -931,7 +959,6 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
-        const parsedScore = Math.max(1, Math.min(100, parseInt(score) || 1));
         const records = validSelectedIds.map(student_id => ({
             student_id,
             type,
@@ -953,7 +980,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
         }
         toast({
             title: `${type === 'add' ? '+ บวก' : '− หัก'}คะแนนสำเร็จ`,
-            description: `${validSelectedIds.length} คน · ${score} คะแนน · ${reason}`,
+            description: `${validSelectedIds.length} คน · ${parsedScore} คะแนน · ${reason}`,
         });
         // reset selection + reason; keep class/type/category for quick re-use
         setSelectedIds(new Set());
@@ -963,7 +990,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
 
     const saveLabel = selectedIds.size === 0
         ? 'เลือกนักเรียนก่อน'
-        : `${type === 'add' ? 'บวก' : 'หัก'} ${score} คะแนน · ${selectedIds.size} คน`;
+        : `${type === 'add' ? 'บวก' : 'หัก'} ${parsedScore} คะแนน · ${selectedIds.size} คน`;
 
     const saveBtnClass = type === 'add'
         ? 'bg-green-600 hover:bg-green-700 active:bg-green-800'
@@ -988,7 +1015,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
                             <Label>ชั้น/ห้อง *</Label>
-                            <Select value={selectedClass || undefined} onValueChange={setSelectedClass}>
+                            <Select value={selectedClass || undefined} onValueChange={setSelectedClass} disabled={isSaving}>
                                 <SelectTrigger className="h-11">
                                     <SelectValue placeholder="เลือกชั้น" />
                                 </SelectTrigger>
@@ -999,7 +1026,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                         </div>
                         <div className="space-y-1">
                             <Label>ภาคเรียน</Label>
-                            <Select value={semester} onValueChange={setSemester}>
+                            <Select value={semester} onValueChange={setSemester} disabled={isSaving}>
                                 <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="1">ภาคเรียน 1</SelectItem>
@@ -1016,7 +1043,11 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                             <button
                                 type="button"
                                 onClick={toggleAll}
-                                className="w-full flex items-center justify-between bg-muted/60 hover:bg-muted active:bg-muted rounded-xl px-4 py-3 transition-colors"
+                                disabled={isSaving}
+                                className={cn(
+                                    "w-full flex items-center justify-between bg-muted/60 hover:bg-muted active:bg-muted rounded-xl px-4 py-3 transition-colors",
+                                    isSaving && "opacity-60 cursor-not-allowed"
+                                )}
                             >
                                 <div className="flex items-center gap-3">
                                     {/* Custom checkbox */}
@@ -1047,9 +1078,12 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                                 key={s.id}
                                                 type="button"
                                                 onClick={() => toggleStudent(s.id)}
-                                                className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
-                                                    isSelected ? 'bg-primary/10' : 'bg-background hover:bg-muted/40'
-                                                }`}
+                                                disabled={isSaving}
+                                                className={cn(
+                                                    "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors",
+                                                    isSelected ? 'bg-primary/10' : 'bg-background hover:bg-muted/40',
+                                                    isSaving && "opacity-60 cursor-not-allowed"
+                                                )}
                                             >
                                                 {/* Checkbox */}
                                                 <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
@@ -1103,6 +1137,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                     : 'border-green-300 text-green-700 hover:bg-green-50'
                             }`}
                             onClick={() => { setType('add'); setCategory('publicMind'); setReason(''); }}
+                            disabled={isSaving}
                         >
                             <Plus className="w-5 h-5" /> บวกคะแนน
                         </Button>
@@ -1115,6 +1150,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                     : 'border-red-300 text-red-700 hover:bg-red-50'
                             }`}
                             onClick={() => { setType('deduct'); setCategory('discipline'); setReason(''); }}
+                            disabled={isSaving}
                         >
                             <Minus className="w-5 h-5" /> หักคะแนน
                         </Button>
@@ -1135,9 +1171,10 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                             "cursor-pointer transition-colors py-1.5 px-3 text-sm",
                                             isSelected 
                                                 ? meta.color 
-                                                : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
+                                                : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted',
+                                            isSaving && "opacity-50 pointer-events-none"
                                         )}
-                                        onClick={() => setCategory(p.category)}
+                                        onClick={() => !isSaving && setCategory(p.category)}
                                     >
                                         {meta.label}
                                     </Badge>
@@ -1155,8 +1192,11 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                     <Badge
                                         key={r}
                                         variant={reason === r ? 'default' : 'secondary'}
-                                        className="cursor-pointer py-1.5 px-3 text-sm"
-                                        onClick={() => setReason(r)}
+                                        className={cn(
+                                            "cursor-pointer py-1.5 px-3 text-sm",
+                                            isSaving && "opacity-50 pointer-events-none"
+                                        )}
+                                        onClick={() => !isSaving && setReason(r)}
                                     >
                                         {r}
                                     </Badge>
@@ -1174,6 +1214,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                             value={reason}
                             onChange={e => setReason(e.target.value)}
                             className="text-base resize-none"
+                            disabled={isSaving}
                         />
                     </div>
 
@@ -1187,7 +1228,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                         {/* Quick score buttons [1, 2, 5, 10] */}
                         <div className="grid grid-cols-4 gap-2">
                             {QUICK_SCORES.map(q => {
-                                const isSelected = parseInt(score) === q;
+                                const isSelected = parsedScore === q && score.trim() === String(q);
                                 return (
                                     <Button
                                         key={q}
@@ -1202,6 +1243,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                                 : 'hover:bg-muted text-foreground'
                                         )}
                                         onClick={() => setScore(String(q))}
+                                        disabled={isSaving}
                                     >
                                         {type === 'add' ? `+${q}` : `-${q}`}
                                     </Button>
@@ -1214,7 +1256,13 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                             <Button
                                 type="button" variant="outline" size="icon"
                                 className="h-12 w-12 flex-shrink-0"
-                                onClick={() => setScore(s => String(Math.max(1, (parseInt(s) || 1) - 1)))}
+                                onClick={() => setScore(s => {
+                                    const cur = parseInt(s, 10);
+                                    if (isNaN(cur) || cur <= 1) return '1';
+                                    if (cur > 100) return '100';
+                                    return String(cur - 1);
+                                })}
+                                disabled={isSaving}
                             >
                                 <Minus className="w-5 h-5" />
                             </Button>
@@ -1223,11 +1271,24 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                 className="h-12 text-center text-xl font-bold w-24"
                                 value={score}
                                 onChange={e => setScore(e.target.value)}
+                                onBlur={() => {
+                                    const val = parseInt(score, 10);
+                                    if (isNaN(val) || val < 1) setScore('1');
+                                    else if (val > 100) setScore('100');
+                                    else setScore(String(val));
+                                }}
+                                disabled={isSaving}
                             />
                             <Button
                                 type="button" variant="outline" size="icon"
                                 className="h-12 w-12 flex-shrink-0"
-                                onClick={() => setScore(s => String(Math.min(100, (parseInt(s) || 0) + 1)))}
+                                onClick={() => setScore(s => {
+                                    const cur = parseInt(s, 10);
+                                    if (isNaN(cur) || cur < 1) return '1';
+                                    if (cur >= 100) return '100';
+                                    return String(cur + 1);
+                                })}
+                                disabled={isSaving}
                             >
                                 <Plus className="w-5 h-5" />
                             </Button>
@@ -1241,7 +1302,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                     {/* ปีการศึกษา */}
                     <div className="space-y-1">
                         <Label>ปีการศึกษา</Label>
-                        <Input className="max-w-xs" value={academicYear} onChange={e => setAcademicYear(e.target.value)} />
+                        <Input className="max-w-xs" value={academicYear} onChange={e => setAcademicYear(e.target.value)} disabled={isSaving} />
                     </div>
 
                     {/* Desktop: save button inside card */}

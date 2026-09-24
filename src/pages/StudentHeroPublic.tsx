@@ -1078,11 +1078,16 @@ export default function StudentHeroPublic() {
                                   </span>
                                 </div>
                                 <p className="text-[11px] font-bold text-slate-800 line-clamp-2 leading-snug">
-                                  {item.title || 'ทำความดีสนับสนุนโรงเรียน'}
+                                  {item.title || (item.type === 'deduct' ? 'บันทึกพฤติกรรมที่ต้องปรับปรุง' : 'ทำความดีสนับสนุนโรงเรียน')}
                                 </p>
                                 <div className="flex justify-between items-center text-[10px]">
                                   <span className="text-[9px] text-slate-400 font-medium">บันทึกความประพฤติ</span>
-                                  <span className="text-emerald-700 font-black">+{item.xp} XP</span>
+                                  <span className={cn(
+                                    "font-black",
+                                    item.type === 'deduct' ? "text-red-600" : "text-emerald-700"
+                                  )}>
+                                    {item.type === 'deduct' ? `-${item.xp}` : `+${item.xp}`} XP
+                                  </span>
                                 </div>
                               </div>
                             );

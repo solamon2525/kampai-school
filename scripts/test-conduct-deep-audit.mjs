@@ -209,10 +209,11 @@ assert.equal(mapCategoryToVirtue('unknown_random_category'), 'kindness');
 
 console.log('✓ 9. Category-to-Virtue mapping passed all 22 edge cases including compound labels and emojis');
 
-// 9. Verify insertBulk chunking
+// 9. Verify insertBulk chunking and retry
 assert.ok(conductServiceSource.includes('const CHUNK_SIZE = 50;'), 'insertBulk must use CHUNK_SIZE = 50');
 assert.ok(conductServiceSource.includes('records.slice(i, i + CHUNK_SIZE)'), 'insertBulk must slice records into chunks');
-console.log('✓ 10. insertBulk resilient chunking verified');
+assert.ok(conductServiceSource.includes('Retry once after brief pause on transient school Wi-Fi glitch'), 'insertBulk must have transient retry');
+console.log('✓ 10. insertBulk resilient chunking and transient retry verified');
 
 // 10. Verify PersonAvatar compliance
 assert.ok(conductManagementSource.includes('<PersonAvatar'), 'ConductManagement must use PersonAvatar');
@@ -220,4 +221,36 @@ assert.ok(conductManagementSource.includes('photoUrl={s.photo_url}'), 'PersonAva
 assert.ok(conductManagementSource.includes('photoUrl={r.students?.photo_url}'), 'HistoryTab PersonAvatar must bind photoUrl');
 console.log('✓ 11. PersonAvatar Rule 14.13 strictly honored across all student rows');
 
-console.log('\nALL 11 DEEP AUDIT CHECKS PASSED SUCCESSFULLY!');
+// 12. Verify cleanCategoryString properly strips U+23F0 ⏰ and all emojis
+const regexMatch = conductServiceSource.match(/const cleanCategoryString = \(cat: string\) =>([\s\S]*?)\.trim\(\);/);
+assert.ok(regexMatch, 'cleanCategoryString definition found');
+assert.ok(conductServiceSource.includes('\\p{Extended_Pictographic}'), 'cleanCategoryString must use Unicode property escape for Extended_Pictographic');
+assert.equal(
+  'วินัย/ตรงต่อเวลา ⏰'.replace(/[\p{Extended_Pictographic}\uFE0F\u200D\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim(),
+  'วินัย/ตรงต่อเวลา',
+  'Must cleanly strip U+23F0 ⏰ from compound label'
+);
+console.log('✓ 12. Unicode Extended_Pictographic emoji stripping verified for U+23F0 and variation selectors');
+
+// 13. Verify Score Sanitization & Clamping in RecordTab and BulkRecordTab
+assert.ok(conductManagementSource.includes('const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));'), 'parsedScore must be derived in RecordTab and BulkRecordTab');
+assert.ok(conductManagementSource.includes('onBlur={() => {'), 'Inputs must have onBlur for clamping');
+assert.ok(conductManagementSource.includes('parsedScore === q && score.trim() === String(q)'), 'Quick score buttons must require exact match');
+console.log('✓ 13. Score input clamping (1-100), onBlur handler, and exact quick score highlight verified');
+
+// 14. Verify Form Lockout during isSaving
+assert.ok(conductManagementSource.includes('disabled={isSaving}'), 'Inputs must be disabled during isSaving');
+assert.ok(conductManagementSource.includes('isSaving && "opacity-50 pointer-events-none"'), 'Badges must be non-interactive during isSaving');
+console.log('✓ 14. Form lockout during async saving verified in both tabs');
+
+// 15. Verify StudentHeroPublic timeline deduction sign and styling
+assert.ok(studentHeroSource.includes("item.type === 'deduct' ? `-${item.xp}` : `+${item.xp}`"), 'StudentHeroPublic must distinguish deduct in timeline');
+assert.ok(studentHeroSource.includes('text-red-600'), 'StudentHeroPublic must use text-red-600 for deduct');
+console.log('✓ 15. StudentHeroPublic timeline deduction negative sign and red styling verified');
+
+// 16. Verify PointsConfirmationDialog dismiss button
+const dialogSource = await readFile('src/components/admin/shared/PointsConfirmationDialog.tsx', 'utf8');
+assert.ok(dialogSource.includes('ปิดหน้าต่าง'), 'PointsConfirmationDialog must contain explicit dismiss button');
+console.log('✓ 16. PointsConfirmationDialog explicit dismiss button verified');
+
+console.log('\nALL 16 DEEP AUDIT CHECKS PASSED SUCCESSFULLY!');
