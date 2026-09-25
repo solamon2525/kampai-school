@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Save, X, ImagePlus, Gift, Globe2, User, Pencil, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Gift, Globe2, User, Pencil, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -19,6 +26,8 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 
 const rewardSchema = z.object({
   name: z.string().trim().min(1, 'กรุณากรอกชื่อรางวัล'),
@@ -230,120 +239,131 @@ export const RewardsManagement = () => {
         </Card>
       )}
 
-      {showForm && (
-        <Card className="border-primary/40">
-          <CardHeader>
-            <CardTitle className="text-base">{editing ? 'แก้ไขรางวัล' : 'เพิ่มรางวัลใหม่'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField control={form.control} name="name" render={({ field }) => (
-                    <FormItem><FormLabel>ชื่อรางวัล</FormLabel><FormControl><Input placeholder="เช่น สมุดโน้ต, ขนมปัง, ปากกา" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="payment_type" render={({ field }) => (
-                    <FormItem><FormLabel>ประเภทคะแนนที่ใช้</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="waste">แต้มธนาคารขยะล้วน</SelectItem><SelectItem value="virtue">คะแนนความดีล้วน</SelectItem><SelectItem value="mixed">ใช้ทั้งสองส่วนผสมกัน</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                  )} />
-                  {paymentType !== 'virtue' ? (
-                    <FormField control={form.control} name="waste_points_cost" render={({ field }) => (
-                      <FormItem><FormLabel>แต้มธนาคารขยะต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                  ) : null}
-                  {paymentType !== 'waste' ? (
-                    <FormField control={form.control} name="virtue_points_cost" render={({ field }) => (
-                      <FormItem><FormLabel>คะแนนความดีต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                  ) : null}
-                  <FormField control={form.control} name="stock" render={({ field }) => (
-                    <FormItem><FormLabel>จำนวนคงเหลือ (ว่าง = ไม่จำกัด)</FormLabel><FormControl><Input type="number" min="0" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="is_active" render={({ field }) => (
-                    <FormItem><FormLabel>สถานะ</FormLabel><div className="flex h-10 items-center gap-2"><input id="is_active" type="checkbox" checked={field.value} onChange={field.onChange} /><label htmlFor="is_active" className="text-sm">เปิดให้แลก</label></div></FormItem>
-                  )} />
-              {(isAdmin || staffId || administratorId) && (
-                <div className="space-y-1 md:col-span-2">
-                  <Label>เจ้าของรางวัล</Label>
-                  <div className="flex items-center gap-2 h-10">
-                    <input type="checkbox" id="is_central" {...form.register('is_central')} className="w-4 h-4" />
-                    <label htmlFor="is_central" className="text-sm flex items-center gap-1">
-                      <Globe2 className="w-3.5 h-3.5" />
-                      เป็นรางวัลกลาง — ครูทุกคนอนุมัติได้
-                    </label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    ไม่ติ๊ก = เป็นของฉันเท่านั้น นักเรียนต้องแลกและรับอนุมัติจากฉัน
-                  </p>
-                </div>
-              )}
-              <div className="space-y-1 md:col-span-2">
-                <Label>ประเภทรางวัล (สำหรับ chip filter ในหน้าสาธารณะ)</Label>
-                <Input
-                  list="reward-category-suggestions"
-                  placeholder="เช่น เครื่องเขียน, ขนมและเครื่องดื่ม"
-                  {...form.register('category')}
-                />
-                <datalist id="reward-category-suggestions">
-                  <option value="เครื่องเขียน" />
-                  <option value="ขนมและเครื่องดื่ม" />
-                  <option value="อุปกรณ์กีฬา" />
-                  <option value="ของเล่น" />
-                  <option value="อื่นๆ" />
-                </datalist>
-                <p className="text-xs text-muted-foreground">เว้นว่างได้ — รางวัลจะอยู่ใน &quot;ทั้งหมด&quot; แต่ไม่ขึ้น chip</p>
-              </div>
-              <div className="space-y-1 md:col-span-2">
-                <Label>คำอธิบาย</Label>
-                <Textarea
-                  placeholder="รายละเอียดเพิ่มเติม..."
-                  {...form.register('description')}
-                />
-              </div>
-              <div className="space-y-1 md:col-span-2">
-                <Label>รูปภาพ</Label>
-                <div className="flex items-center gap-3">
-                  {imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt="ตัวอย่างรางวัล"
-                      decoding="async"
-                      className="w-20 h-20 aspect-square object-cover rounded-md border border-border shrink-0"
-                    />
-                  )}
-                  <label className="flex-1 cursor-pointer">
-                    <div className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-md hover:border-primary transition-colors">
-                      <ImagePlus className="w-4 h-4" />
-                      <span className="text-sm">{uploading ? 'กำลังอัพโหลด...' : (imageUrl ? 'เปลี่ยนรูป' : 'เลือกรูป')}</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploading}
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleUpload(f);
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-                </div>
-                <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-                <X className="w-4 h-4 mr-1" /> ยกเลิก
-              </Button>
-              <Button type="submit" disabled={saving}>
-                <Save className="w-4 h-4 mr-1" />
-                {saving ? 'กำลังบันทึก...' : 'บันทึก'}
-              </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
+      {/* ── Dialog Modal สำหรับสร้าง/แก้ไขรางวัล (ไม่ขยับ scroll ของหน้าหลัก) ── */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Gift className="w-5 h-5 text-primary" />
+              {editing ? 'แก้ไขรางวัล' : 'เพิ่มรางวัลใหม่'}
+            </DialogTitle>
+            <DialogDescription>
+              {editing ? `แก้ไขข้อมูลของรางวัล "${editing.name}"` : 'กรอกรายละเอียดเพื่อเพิ่มของรางวัลใหม่ในระบบ'}
+            </DialogDescription>
+          </DialogHeader>
 
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4 pt-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem><FormLabel>ชื่อรางวัล</FormLabel><FormControl><Input placeholder="เช่น สมุดโน้ต, ขนมปัง, ปากกา" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="payment_type" render={({ field }) => (
+                  <FormItem><FormLabel>ประเภทคะแนนที่ใช้</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="waste">แต้มธนาคารขยะล้วน</SelectItem><SelectItem value="virtue">คะแนนความดีล้วน</SelectItem><SelectItem value="mixed">ใช้ทั้งสองส่วนผสมกัน</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                )} />
+                {paymentType !== 'virtue' ? (
+                  <FormField control={form.control} name="waste_points_cost" render={({ field }) => (
+                    <FormItem><FormLabel>แต้มธนาคารขยะต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                ) : <div />}
+                {paymentType !== 'waste' ? (
+                  <FormField control={form.control} name="virtue_points_cost" render={({ field }) => (
+                    <FormItem><FormLabel>คะแนนความดีต่อชิ้น</FormLabel><FormControl><Input type="number" min="1" step="1" inputMode="numeric" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                ) : <div />}
+                <FormField control={form.control} name="stock" render={({ field }) => (
+                  <FormItem><FormLabel>จำนวนคงเหลือ (สต็อก)</FormLabel><FormControl><Input type="number" min="0" step="1" inputMode="numeric" placeholder="เว้นว่าง = ไม่จำกัด" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="is_active" render={({ field }) => (
+                  <FormItem><FormLabel>สถานะ</FormLabel><div className="flex h-10 items-center gap-2"><input id="is_active" type="checkbox" checked={field.value} onChange={field.onChange} /><label htmlFor="is_active" className="text-sm">เปิดให้แลก</label></div></FormItem>
+                )} />
+                {(isAdmin || staffId || administratorId) && (
+                  <div className="space-y-1 md:col-span-2">
+                    <Label>เจ้าของรางวัล</Label>
+                    <div className="flex items-center gap-2 h-10">
+                      <input type="checkbox" id="is_central" {...form.register('is_central')} className="w-4 h-4" />
+                      <label htmlFor="is_central" className="text-sm flex items-center gap-1">
+                        <Globe2 className="w-3.5 h-3.5" />
+                        เป็นรางวัลกลาง — ครูทุกคนอนุมัติได้
+                      </label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      ไม่ติ๊ก = เป็นของฉันเท่านั้น นักเรียนต้องแลกและรับอนุมัติจากฉัน
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-1 md:col-span-2">
+                  <Label>ประเภทรางวัล (สำหรับ chip filter ในหน้าสาธารณะ)</Label>
+                  <Input
+                    list="reward-category-suggestions"
+                    placeholder="เช่น เครื่องเขียน, ขนมและเครื่องดื่ม"
+                    {...form.register('category')}
+                  />
+                  <datalist id="reward-category-suggestions">
+                    <option value="เครื่องเขียน" />
+                    <option value="ขนมและเครื่องดื่ม" />
+                    <option value="อุปกรณ์กีฬา" />
+                    <option value="ของเล่น" />
+                    <option value="อื่นๆ" />
+                  </datalist>
+                  <p className="text-xs text-muted-foreground">เว้นว่างได้ — รางวัลจะอยู่ใน &quot;ทั้งหมด&quot; แต่ไม่ขึ้น chip</p>
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <Label>คำอธิบาย</Label>
+                  <Textarea
+                    placeholder="รายละเอียดเพิ่มเติม..."
+                    {...form.register('description')}
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <Label>รูปภาพ</Label>
+                  <div className="flex items-center gap-3">
+                    {imageUrl && (
+                      <img
+                        src={getOptimizedImageUrl(imageUrl, { width: 160, height: 160 })}
+                        alt="ตัวอย่างรางวัล"
+                        decoding="async"
+                        className="w-20 h-20 aspect-square object-cover rounded-md border border-border shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        placeholder="URL รูปภาพ (หรืออัพโหลดด้านล่าง)"
+                        {...form.register('image_url')}
+                      />
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploading}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleUpload(f);
+                          }}
+                          className="text-xs"
+                        />
+                        {uploading && <span className="text-xs text-muted-foreground animate-pulse">กำลังอัพโหลด...</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end pt-3 border-t border-border">
+                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                  <X className="w-4 h-4 mr-1" /> ยกเลิก
+                </Button>
+                <Button type="submit" disabled={saving}>
+                  <Save className="w-4 h-4 mr-1" />
+                  {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Grid รายการรางวัล (ภาพเต็มช่องสี่เหลี่ยมจัตุรัส 1:1 คมชัด โหลดเร็ว) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {rewards.length === 0 ? (
           <div className="col-span-full text-center py-10 text-muted-foreground">
@@ -354,16 +374,22 @@ export const RewardsManagement = () => {
             const ownerName = r.staff?.name ?? r.administrators?.name ?? null;
             const central = isCentral(r);
             const mine = isMine(r);
+            const editable = canEdit(r);
             return (
-              <Card key={r.id} className={cn("group overflow-hidden transition-all duration-200 hover:shadow-md transform-gpu", !r.is_active && 'opacity-60')}>
-                <div className="aspect-video bg-muted rounded-t-lg overflow-hidden relative">
+              <Card key={r.id} className={cn("group overflow-hidden transition-all duration-200 hover:shadow-md transform-gpu flex flex-col", !r.is_active && 'opacity-60')}>
+                {/* ภาพเต็มช่องพอดี 1:1 aspect-square แบบ Full-bleed พร้อม Edge CDN WebP */}
+                <div className="aspect-square bg-muted rounded-t-lg overflow-hidden relative shrink-0">
                   {r.image_url ? (
-                    <img
+                    <OptimizedImage
                       src={r.image_url}
                       alt={r.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-video w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu will-change-transform"
+                      preset="rewardCard"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu will-change-transform"
+                      fallback={
+                        <div className="flex w-full h-full items-center justify-center text-muted-foreground">
+                          <Gift className="w-12 h-12" />
+                        </div>
+                      }
                     />
                   ) : (
                     <div className="flex w-full h-full items-center justify-center text-muted-foreground">
@@ -371,66 +397,71 @@ export const RewardsManagement = () => {
                     </div>
                   )}
                 </div>
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold">{r.name}</h3>
-                    {!r.is_active && <Badge variant="outline">ปิด</Badge>}
+
+                <CardContent className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold line-clamp-1" title={r.name}>{r.name}</h3>
+                      {!r.is_active && <Badge variant="outline" className="text-xs shrink-0">ปิด</Badge>}
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {central ? (
+                        <Badge variant="outline" className="gap-1 text-xs border-sky-300 text-sky-700">
+                          <Globe2 className="w-3 h-3" /> รางวัลกลาง
+                        </Badge>
+                      ) : mine ? (
+                        <Badge variant="outline" className="gap-1 text-xs border-emerald-300 text-emerald-700">
+                          <User className="w-3 h-3" /> ของฉัน
+                        </Badge>
+                      ) : ownerName ? (
+                        <Badge variant="outline" className="gap-1 text-xs">
+                          <User className="w-3 h-3" /> ของ {ownerName}
+                        </Badge>
+                      ) : null}
+                    </div>
+
+                    {r.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {central ? (
-                      <Badge variant="outline" className="gap-1 text-xs border-sky-300 text-sky-700">
-                        <Globe2 className="w-3 h-3" /> รางวัลกลาง
-                      </Badge>
-                    ) : mine ? (
-                      <Badge variant="outline" className="gap-1 text-xs border-emerald-300 text-emerald-700">
-                        <User className="w-3 h-3" /> ของฉัน
-                      </Badge>
-                    ) : ownerName ? (
-                      <Badge variant="outline" className="gap-1 text-xs">
-                        <User className="w-3 h-3" /> ของ {ownerName}
-                      </Badge>
-                    ) : null}
-                  </div>
-                  {r.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>
-                  )}
-                  <div className="flex items-center justify-between text-sm">
-                    <RewardCostDisplay waste={r.waste_points_cost} virtue={r.virtue_points_cost} />
-                    {isAdmin ? (
-                      <StockResetPopover
+
+                  <div className="space-y-2 pt-2 border-t border-border/50">
+                    <div className="flex items-center justify-between text-sm">
+                      <RewardCostDisplay waste={r.waste_points_cost} virtue={r.virtue_points_cost} className="text-xs" />
+                      <StockQuickEditor
                         reward={r}
+                        canEdit={editable}
+                        isAdmin={isAdmin}
                         onSaved={() => {
                           fetchAll();
                           void queryClient.invalidateQueries({ queryKey: ['rewards'] });
                           void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
                         }}
                       />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        {r.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${r.stock}`}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => openEdit(r)}
-                      disabled={!canEdit(r)}
-                      title={canEdit(r) ? undefined : 'รางวัลของครูคนอื่น แก้ไม่ได้'}
-                    >
-                      <Edit2 className="w-3.5 h-3.5 mr-1" /> แก้ไข
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-destructive"
-                      onClick={() => handleDelete(r)}
-                      disabled={!canEdit(r)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => openEdit(r)}
+                        disabled={!editable}
+                        title={editable ? undefined : 'รางวัลของครูคนอื่น แก้ไม่ได้'}
+                      >
+                        <Edit2 className="w-3.5 h-3.5 mr-1" /> แก้ไข
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive"
+                        onClick={() => handleDelete(r)}
+                        disabled={!editable}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -442,19 +473,41 @@ export const RewardsManagement = () => {
   );
 };
 
-// ─── StockResetPopover (admin only) ─────────────────────────────────────────
-// คลิก stock badge → popover ที่กรอกตัวเลขใหม่ → call admin_set_reward_stock RPC
-// ใช้สำหรับ reconcile drift (เช่นกรณี trigger หาย active claims > stock)
-function StockResetPopover({ reward, onSaved }: { reward: Reward; onSaved: () => void }) {
+// ─── StockQuickEditor ────────────────────────────────────────────────────────
+// ปรับปรุงให้ทั้ง Admin และ ครูเจ้าของรางวัล (canEdit) ปรับจำนวนสต็อก +/- ได้ทันที
+// บันทึกตรงจุดนั้นโดยไม่ต้องเลื่อนจอขึ้นไปข้างบน
+interface StockQuickEditorProps {
+  reward: Reward;
+  canEdit: boolean;
+  isAdmin: boolean;
+  onSaved: () => void;
+}
+
+function StockQuickEditor({ reward, canEdit, isAdmin, onSaved }: StockQuickEditorProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string>(reward.stock === null ? '' : String(reward.stock));
   const [saving, setSaving] = useState(false);
 
-  // resync ค่าทุกครั้งที่ popover เปิด (เผื่อ stock ถูก update จากที่อื่น)
+  // resync ค่าทุกครั้งที่ popover เปิด
   useEffect(() => {
     if (open) setValue(reward.stock === null ? '' : String(reward.stock));
   }, [open, reward.stock]);
+
+  if (!canEdit) {
+    return (
+      <span className="text-xs text-muted-foreground">
+        {reward.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${reward.stock}`}
+      </span>
+    );
+  }
+
+  const adjustValue = (delta: number) => {
+    const current = parseInt(value, 10);
+    const base = isNaN(current) ? (reward.stock ?? 0) : current;
+    const next = Math.max(0, base + delta);
+    setValue(String(next));
+  };
 
   const handleSave = async () => {
     const n = parseInt(value, 10);
@@ -463,20 +516,22 @@ function StockResetPopover({ reward, onSaved }: { reward: Reward; onSaved: () =>
       return;
     }
     setSaving(true);
-    const { error } = await rewardsService.setStock(reward.id, n);
+    // แอดมินเรียก RPC setStock หรือ update, ครูเรียก update
+    const { error } = isAdmin
+      ? await rewardsService.setStock(reward.id, n)
+      : await rewardsService.update(reward.id, { stock: n });
     setSaving(false);
     if (error) {
       toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
       return;
     }
-    toast({ title: 'ปรับ stock แล้ว', description: `${reward.name}: ${reward.stock ?? '∞'} → ${n}` });
+    toast({ title: 'ปรับสต็อกสำเร็จ', description: `${reward.name}: ${reward.stock ?? '∞'} → ${n}` });
     setOpen(false);
     onSaved();
   };
 
   const handleSetUnlimited = async () => {
     setSaving(true);
-    // ใช้ update() ตรงๆ เพื่อ set NULL — admin RLS อนุญาตอยู่แล้ว
     const { error } = await rewardsService.update(reward.id, { stock: null });
     setSaving(false);
     if (error) {
@@ -493,30 +548,80 @@ function StockResetPopover({ reward, onSaved }: { reward: Reward; onSaved: () =>
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-muted/60"
-          title="คลิกเพื่อปรับ stock (admin only)"
+          className="text-xs font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted/60 hover:bg-muted border border-border/70"
+          title="คลิกเพื่อปรับจำนวนสต็อกโดยตรง"
         >
-          {reward.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${reward.stock}`}
-          <Pencil className="w-3 h-3 opacity-60" />
+          <span>{reward.stock === null ? 'ไม่จำกัด' : `คงเหลือ ${reward.stock}`}</span>
+          <Pencil className="w-3 h-3 opacity-60 ml-0.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3 space-y-3" align="end">
+      <PopoverContent className="w-72 p-3 space-y-3" align="end">
         <div className="space-y-1">
-          <Label className="text-xs font-semibold">ปรับ stock ของ "{reward.name}"</Label>
+          <Label className="text-xs font-semibold">ปรับสต็อก "{reward.name}"</Label>
           <p className="text-[10px] text-muted-foreground">
-            ตั้งค่าตรงๆ — ใช้สำหรับ reconcile หาก stock ไม่ตรงสต๊อกจริง
+            เพิ่มหรือลดจำนวนคงเหลือ แล้วกดบันทึกได้ทันที
           </p>
         </div>
-        <Input
-          type="number"
-          min={0}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          disabled={saving}
-          placeholder="จำนวนคงเหลือ"
-          autoFocus
-        />
-        <div className="flex gap-2">
+
+        {/* ปุ่ม Stepper เพิ่ม/ลด อย่างรวดเร็ว */}
+        <div className="flex items-center gap-1 justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 text-xs font-bold"
+            onClick={() => adjustValue(-5)}
+            disabled={saving}
+            title="ลด 5"
+          >
+            -5
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-bold"
+            onClick={() => adjustValue(-1)}
+            disabled={saving}
+            title="ลด 1"
+          >
+            -1
+          </Button>
+          <Input
+            type="number"
+            min={0}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={saving}
+            className="h-8 text-center text-sm font-semibold w-20 px-1"
+            placeholder="0"
+            autoFocus
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-bold"
+            onClick={() => adjustValue(1)}
+            disabled={saving}
+            title="เพิ่ม 1"
+          >
+            +1
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 text-xs font-bold"
+            onClick={() => adjustValue(5)}
+            disabled={saving}
+            title="เพิ่ม 5"
+          >
+            +5
+          </Button>
+        </div>
+
+        <div className="flex gap-2 pt-1">
           <Button size="sm" variant="outline" onClick={() => setOpen(false)} disabled={saving} className="flex-1">
             ยกเลิก
           </Button>
@@ -525,6 +630,7 @@ function StockResetPopover({ reward, onSaved }: { reward: Reward; onSaved: () =>
             บันทึก
           </Button>
         </div>
+
         <button
           type="button"
           onClick={handleSetUnlimited}

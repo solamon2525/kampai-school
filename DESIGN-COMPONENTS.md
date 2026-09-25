@@ -23,6 +23,13 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Rewards Management Backend UX (v1.229.97)
+
+- **In-place Dialog Modal:** ฟอร์มสร้าง/แก้ไขของรางวัลถูกย้ายจากการ์ดด้านบนหน้า เข้าสู่ `<Dialog>` กึ่งกลางหน้าจอ ช่วยรักษาตำแหน่ง Scroll ของหน้ารายการของรางวัล 100% ไม่เลื่อนจอขึ้นลงไปมา
+- **In-place Quick Stock Stepper:** ปรับปรุง `StockQuickEditor` บนการ์ดโดยตรง ให้ทั้งแอดมินและครูเจ้าของรางวัล (`canEdit`) ปรับสต็อกได้สะดวกรวดเร็วผ่านปุ่ม `-1`, `+1`, `-5`, `+5` พร้อมช่องกรอกตัวเลขและบันทึก ณ จุดนั้นทันที
+- **1:1 Full-bleed Aspect Ratio & OptimizedImage:** ปรับช่องแสดงรูปภาพการ์ดเป็น `aspect-square` (1:1) เต็มกรอบ `object-cover` สอดคล้องกับหน้าแสดงผลจริงของนักเรียน พร้อมเชื่อมต่อ `OptimizedImage` (`preset="rewardCard"`) ขนาด 400×400 px WebP (~30 KB) โหลดเร็ว คมชัด
+
+
 ### Optimized Image & Edge CDN Delivery (v1.229.96)
 
 - **Supabase Edge Transformation:** แปลง Supabase Storage URL สู่ `/storage/v1/render/image/public/` พร้อมพารามิเตอร์ `width`, `height`, `quality=75-80`, `format=webp`, `resize=cover`
