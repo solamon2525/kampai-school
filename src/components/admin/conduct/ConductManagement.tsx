@@ -327,7 +327,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
-    const [studentAccumulatedMap, setStudentAccumulatedMap] = useState<Record<string, number>>({});
+    const [studentAccumulatedMap, setStudentAccumulatedMap] = useState<Record<string, { total: number; available: number }>>({});
     const [type, setType] = useState<'add' | 'deduct'>('add');
     const [category, setCategory] = useState('publicMind');
     const [reason, setReason] = useState('');
@@ -435,12 +435,16 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 
             // R2: คำนวณคะแนนสะสมล่วงหน้า (Optimistic Calculation) ทันที
             const isAdd = type === 'add';
-            const rawBefore = studentAccumulatedMap[selectedStudentId];
-            const accumulatedBefore = Number.isFinite(rawBefore) ? rawBefore : 0;
-            const accumulatedPoints = Math.max(0, accumulatedBefore + (isAdd ? parsedScore : -parsedScore));
+            const rawBefore = studentAccumulatedMap[selectedStudentId]?.total ?? 0;
+            const availBefore = studentAccumulatedMap[selectedStudentId]?.available ?? 0;
+            const accumulatedPoints = Math.max(0, rawBefore + (isAdd ? parsedScore : -parsedScore));
+            const availablePoints = Math.max(0, availBefore + (isAdd ? parsedScore : -parsedScore));
 
             // อัปเดตแคชคะแนนสะสมทันที
-            setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedPoints }));
+            setStudentAccumulatedMap(prev => ({ 
+                ...prev, 
+                [selectedStudentId]: { total: accumulatedPoints, available: availablePoints } 
+            }));
 
             // เปิดหน้าต่างยืนยันคะแนนทันที
             setPointsConfirmation({
@@ -494,7 +498,10 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                 }
             } catch (err: unknown) {
                 // คืนค่าเดิมเมื่อบันทึกไม่สำเร็จ พร้อมหยุดเสียงและปิดหน้าต่าง
-                setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accumulatedBefore }));
+                setStudentAccumulatedMap(prev => ({ 
+                    ...prev, 
+                    [selectedStudentId]: { total: rawBefore, available: availBefore } 
+                }));
                 stopConductChime();
                 stopThaiSpeech();
                 setPointsConfirmation(null);
@@ -552,11 +559,13 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {selectedStudentId && studentAccumulatedMap[selectedStudentId] !== undefined && (
+                            {selectedStudentId && studentAccumulatedMap[selectedStudentId] && (
                                 <div className="flex items-center justify-between text-xs px-1 text-muted-foreground pt-0.5">
-                                    <span>คะแนนสะสมปี {academicYear}:</span>
-                                    <span className="font-semibold text-foreground">
-                                        {studentAccumulatedMap[selectedStudentId]} คะแนน
+                                    <span>คะแนนปี {academicYear}:</span>
+                                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <span className="text-amber-700 font-bold">🌟 สะสม {studentAccumulatedMap[selectedStudentId].total}</span>
+                                        <span>·</span>
+                                        <span className="text-emerald-700 font-bold">🎁 พร้อมแลก {studentAccumulatedMap[selectedStudentId].available}</span>
                                     </span>
                                 </div>
                             )}
@@ -794,17 +803,47 @@ function LeaderboardTab() {
         load();
     }, [filterSemester, filterYear]);
 
-    // รวมคะแนนรายนักเรียน
+    // รวมคะแนนรายนักเรียน (แยกคะแนนสะสมเกียรติยศ กับคะแนนคงเหลือสำหรับแลก)
     const leaderboard = useMemo(() => {
-        const map: Record<string, { studentId: string; name: string; class: string; photoUrl: string | null; total: number; added: number; deducted: number }> = {};
+        const map: Record<string, { 
+            studentId: string; 
+            name: string; 
+            class: string; 
+            photoUrl: string | null; 
+            total: number; 
+            added: number; 
+            deducted: number;
+            rewardSpent: number;
+            available: number;
+        }> = {};
         records.forEach(r => {
             if (!r.students) return;
             if (filterClass && r.students.class !== filterClass) return;
             if (!map[r.student_id]) {
-                map[r.student_id] = { studentId: r.student_id, name: r.students.name, class: r.students.class, photoUrl: r.students.photo_url ?? null, total: 0, added: 0, deducted: 0 };
+                map[r.student_id] = { 
+                    studentId: r.student_id, 
+                    name: r.students.name, 
+                    class: r.students.class, 
+                    photoUrl: r.students.photo_url ?? null, 
+                    total: 0, 
+                    added: 0, 
+                    deducted: 0,
+                    rewardSpent: 0,
+                    available: 0 
+                };
             }
-            if (r.type === 'add') { map[r.student_id].total += r.score; map[r.student_id].added += r.score; }
-            else { map[r.student_id].total -= r.score; map[r.student_id].deducted += r.score; }
+            if (r.type === 'add') { 
+                map[r.student_id].total += r.score; 
+                map[r.student_id].added += r.score; 
+            } else if (r.reward_claim_id || r.category === 'reward') {
+                map[r.student_id].rewardSpent += r.score;
+            } else { 
+                map[r.student_id].total -= r.score; 
+                map[r.student_id].deducted += r.score; 
+            }
+        });
+        Object.values(map).forEach(m => {
+            m.available = Math.max(0, m.total - m.rewardSpent);
         });
         return Object.values(map).sort((a, b) => {
             if (b.total !== a.total) return b.total - a.total;
@@ -858,14 +897,15 @@ function LeaderboardTab() {
                                         <p className="text-xs text-muted-foreground">{s.class}</p>
                                     </div>
                                     <div className="text-right flex-shrink-0">
-                                        <p className={`text-lg font-bold ${s.total >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {s.total >= 0 ? '+' : ''}{s.total}
+                                        <p className={`text-base font-bold ${s.total >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
+                                            {s.total >= 0 ? '+' : ''}{s.total} สะสม
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            <span className="text-green-600">+{s.added}</span>
-                                            {' / '}
-                                            <span className="text-red-500">-{s.deducted}</span>
-                                        </p>
+                                        <div className="text-xs text-muted-foreground flex items-center justify-end gap-1 flex-wrap">
+                                            <span className="text-emerald-700 font-semibold">พร้อมแลก {s.available}</span>
+                                            {s.rewardSpent > 0 && (
+                                                <span className="text-muted-foreground text-[11px]">(แลกแล้ว -{s.rewardSpent})</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -891,7 +931,13 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
     const load = useCallback(async () => {
         setIsLoading(true);
         let q = conductService.getAll(filterSemester, filterYear);
-        if (filterType) q = q.eq('type', filterType);
+        if (filterType === 'add') {
+            q = q.eq('type', 'add');
+        } else if (filterType === 'deduct') {
+            q = q.eq('type', 'deduct').neq('category', 'reward').is('reward_claim_id', null);
+        } else if (filterType === 'reward') {
+            q = q.or('category.eq.reward,reward_claim_id.not.is.null');
+        }
         const { data } = await q;
         setRecords((data || []) as ConductRecord[]);
         setIsLoading(false);
@@ -931,8 +977,9 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                     <SelectTrigger className="w-32"><SelectValue placeholder="ทุกประเภท" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value={ALL}>ทุกประเภท</SelectItem>
-                        <SelectItem value="add">บวกคะแนน</SelectItem>
-                        <SelectItem value="deduct">หักคะแนน</SelectItem>
+                        <SelectItem value="add">บวกคะแนนความดี</SelectItem>
+                        <SelectItem value="deduct">หักคะแนนพฤติกรรม</SelectItem>
+                        <SelectItem value="reward">แลกของรางวัล 🎁</SelectItem>
                     </SelectContent>
                 </Select>
                 <Select value={filterSemester} onValueChange={setFilterSemester}>
@@ -960,9 +1007,11 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                         <p className="text-center py-8 text-muted-foreground">ไม่มีข้อมูล</p>
                     ) : (
                         <div className="space-y-2">
-                            {filteredRecords.map(r => (
-                                <div key={r.id} className={`flex items-start gap-3 p-3 rounded-lg border ${r.type === 'add' ? 'border-green-100 bg-green-50/50' : 'border-red-100 bg-red-50/50'}`}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {filteredRecords.map(r => {
+                                const isReward = r.category === 'reward' || !!r.reward_claim_id;
+                                return (
+                                <div key={r.id} className={`flex items-start gap-3 p-3 rounded-lg border ${r.type === 'add' ? 'border-green-100 bg-green-50/50' : isReward ? 'border-amber-200/80 bg-amber-50/40' : 'border-red-100 bg-red-50/50'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : isReward ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
                                         {r.type === 'add' ? `+${r.score}` : `-${r.score}`}
                                     </div>
                                     <PersonAvatar name={r.students?.name ?? '—'} photoUrl={r.students?.photo_url} size="sm" className="flex-shrink-0 mt-0.5" />
@@ -992,7 +1041,8 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                         <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
                                     </Button>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </CardContent>

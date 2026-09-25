@@ -125,7 +125,7 @@ export default function RewardsCatalog() {
               แลกของรางวัลด้วยแต้มจากธนาคารขยะ
             </h1>
             <p className="text-xs md:text-sm text-white/85 mt-1.5 max-w-2xl">
-              เก็บขยะ → สะสมแต้ม → แลกได้เอง · กรอกรหัสนักเรียนเพื่อตรวจแต้มและส่งคำขอ
+              เก็บขยะ → สะสมแต้ม → แลกได้เอง · การแลกของรางวัลจะไม่ลดคะแนนความดีสะสมหรืออันดับของคุณในหอเกียรติยศ
             </p>
             <div className="flex flex-wrap gap-2 mt-3">
               <Button
@@ -469,7 +469,7 @@ function BalanceCheckDialog({
 
           {student && (
             <div className="space-y-3">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200">
                 <div className="flex items-center gap-3">
                   <PersonAvatar name={student.full_name} photoUrl={student.photo_url} size="lg" className="ring-2 ring-emerald-400" />
                   <div className="flex-1 min-w-0">
@@ -477,9 +477,21 @@ function BalanceCheckDialog({
                     <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-3 text-center">
-                  <div><div className="text-xs text-muted-foreground">ขยะสะสม / คงเหลือ</div><div className="font-bold text-emerald-800">{student.waste_points_earned} / {student.waste_points_available}</div></div>
-                  <div><div className="text-xs text-muted-foreground">ความดีสะสม / คงเหลือ ({student.virtue_academic_year})</div><div className="font-bold text-amber-800">{student.virtue_points_earned} / {student.virtue_points_available}</div></div>
+                <div className="mt-3 grid grid-cols-2 gap-2 border-t border-emerald-200/60 pt-3">
+                  <div className="bg-white/90 p-2.5 rounded-lg border border-emerald-100 text-center">
+                    <div className="text-[11px] font-semibold text-emerald-900">🌱 แต้มธนาคารขยะ</div>
+                    <div className="mt-1 text-base font-black text-emerald-700">{student.waste_points_available} <span className="text-[10px] font-normal text-muted-foreground">พร้อมแลก</span></div>
+                    <div className="text-[10px] text-muted-foreground">สะสมตลอด {student.waste_points_earned}</div>
+                  </div>
+                  <div className="bg-white/90 p-2.5 rounded-lg border border-amber-100 text-center">
+                    <div className="text-[11px] font-semibold text-amber-900">🌟 คะแนนความดี ({student.virtue_academic_year})</div>
+                    <div className="mt-1 text-base font-black text-amber-700">{student.virtue_points_available} <span className="text-[10px] font-normal text-muted-foreground">พร้อมแลก</span></div>
+                    <div className="text-[10px] text-muted-foreground">สะสมเกียรติยศ {student.virtue_points_earned}</div>
+                  </div>
+                </div>
+                <div className="mt-2.5 p-2 rounded-lg bg-amber-50 border border-amber-200/70 text-[11px] text-amber-900 flex items-start gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                  <span><strong>อุ่นใจได้:</strong> การแลกของรางวัลจะหักเฉพาะคะแนนความดีพร้อมแลกเท่านั้น โดยไม่ลดคะแนนสะสมเกียรติยศ ({student.virtue_points_earned}) หรืออันดับในหอเกียรติยศ</span>
                 </div>
               </div>
 
@@ -684,13 +696,13 @@ function BalanceCheckDialog({
                       <div className="shrink-0 flex items-center gap-1">
                         {h.status === 'pending' && (
                           <>
-                            <Badge variant="outline" className="gap-1 text-[10px] border-amber-300 text-amber-700 dark:text-amber-300 animate-pulse">
+                            <Badge variant="outline" className="gap-1 text-[10px] border-amber-300 text-amber-700 animate-pulse">
                               <Clock className="w-3 h-3" /> รออนุมัติ
                             </Badge>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="w-7 h-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                              className="w-7 h-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-100"
                               onClick={() => onShowClaimQr(`kampai-claim:${h.claim_id}`)}
                               title="แสดง QR Code อนุมัติ"
                             >
@@ -699,12 +711,12 @@ function BalanceCheckDialog({
                           </>
                         )}
                         {h.status === 'approved' && (
-                          <Badge variant="outline" className="gap-1 text-[10px] border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                          <Badge variant="outline" className="gap-1 text-[10px] border-emerald-300 text-emerald-700">
                             <CheckCircle2 className="w-3 h-3" /> สำเร็จ
                           </Badge>
                         )}
                         {h.status === 'rejected' && (
-                          <Badge variant="outline" className="gap-1 text-[10px] border-rose-300 text-rose-700 dark:text-rose-300">
+                          <Badge variant="outline" className="gap-1 text-[10px] border-rose-300 text-rose-700">
                             <XCircle className="w-3 h-3" /> ปฏิเสธ
                           </Badge>
                         )}
@@ -717,7 +729,7 @@ function BalanceCheckDialog({
           )}
 
           {err && (
-            <div className="text-sm text-rose-700 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-300 px-3 py-2 rounded-lg">
+            <div className="text-sm text-rose-700 bg-rose-50 px-3 py-2 rounded-lg">
               {err}
             </div>
           )}

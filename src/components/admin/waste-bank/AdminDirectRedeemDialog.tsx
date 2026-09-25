@@ -248,12 +248,12 @@ export function AdminDirectRedeemDialog({
               <div className="text-right shrink-0 space-y-1">
                 <div>
                   <Badge variant="outline" className="border-emerald-600/30 text-emerald-700 bg-emerald-50 text-[11px] font-bold">
-                    ขยะ {student.waste_points_available} แต้ม
+                    ขยะพร้อมแลก {student.waste_points_available} แต้ม
                   </Badge>
                 </div>
                 <div>
                   <Badge variant="outline" className="border-amber-600/30 text-amber-700 bg-amber-50 text-[11px] font-bold">
-                    ความดี {student.virtue_points_available} คะแนน
+                    ความดีพร้อมแลก {student.virtue_points_available} (สะสม {student.virtue_points_earned})
                   </Badge>
                 </div>
               </div>
@@ -345,6 +345,12 @@ export function AdminDirectRedeemDialog({
                     )}
                   </div>
                 </div>
+                {virtueTotal > 0 && (
+                  <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
+                    <span className="text-amber-600 font-bold">✨</span>
+                    <span>หักเฉพาะคะแนนความดีพร้อมแลก — คะแนนสะสมเกียรติยศและอันดับในหอเกียรติยศจะไม่ถูกลดทอน</span>
+                  </p>
+                )}
               </div>
 
               {/* แจ้งเตือนกรณีคะแนนไม่พอ */}

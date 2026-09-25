@@ -246,9 +246,10 @@ export function RewardClaimDialog({
                   <div className="font-semibold truncate">{student.full_name}</div>
                   <div className="text-sm text-muted-foreground">{student.class_name ?? '—'}</div>
                 </div>
-                <div className="text-right text-xs font-semibold">
-                  <div className="text-emerald-800">ขยะ {student.waste_points_available}</div>
-                  <div className="text-amber-800">ความดี {student.virtue_points_available}</div>
+                <div className="text-right text-xs">
+                  <div className="text-emerald-800 font-semibold">ขยะพร้อมแลก {student.waste_points_available}</div>
+                  <div className="text-amber-800 font-semibold">ความดีพร้อมแลก {student.virtue_points_available}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">(สะสมเกียรติยศ {student.virtue_points_earned})</div>
                 </div>
               </div>
 
@@ -346,6 +347,12 @@ export function RewardClaimDialog({
                     </>
                   )}
                 </div>
+                {virtueTotal > 0 && (
+                  <div className="mt-2.5 pt-2 border-t border-amber-300/40 text-[11px] text-amber-900 flex items-start gap-1.5">
+                    <span className="text-amber-600 font-bold shrink-0">✨</span>
+                    <span>หักเฉพาะคะแนนความดีพร้อมแลก — คะแนนสะสมเกียรติยศ ({student.virtue_points_earned}) และอันดับฮีโร่จะไม่ลดลง</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

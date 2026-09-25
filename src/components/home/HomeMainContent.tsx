@@ -23,6 +23,7 @@ import ResearchPlaySection from '@/components/home/sections/ResearchPlaySection'
 import GameShowcaseSection from '@/components/home/sections/GameShowcaseSection';
 import { GameDemoPreview } from '@/components/educational-hub/GameDemoPreview';
 import { GameCoverThumb } from '@/components/educational-hub/GameCoverThumb';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 // ─── AR game slugs (เกมที่ใช้กล้อง/AR) ─────────────────────────────────────
 const AR_GAME_SLUGS = new Set([
@@ -177,7 +178,7 @@ export const useHomeMainBlocks = () => {
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; link_url: string | null }[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState({ days: '--', hours: '--', minutes: '--', seconds: '--', label: 'เปิดเทอม' });
-  const [topConduct, setTopConduct] = useState<{ id: string; name: string; class: string; photo: string | null; total: number }[]>([]);
+  const [topConduct, setTopConduct] = useState<{ id: string; name: string; class: string; photo: string | null; total: number; available: number }[]>([]);
   const [featuredHeroProfiles, setFeaturedHeroProfiles] = useState<HeroProfile[]>([]);
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
   const [isHeroHovered, setIsHeroHovered] = useState(false);
@@ -307,6 +308,7 @@ export const useHomeMainBlocks = () => {
           class: r.class,
           photo: r.photo_url ?? null,
           total: Number(r.total_xp),
+          available: Number(r.available_points ?? r.total_xp),
         }));
         setTopConduct(top);
 
@@ -569,9 +571,16 @@ export const useHomeMainBlocks = () => {
               <p className="text-xs font-bold text-gray-500">
                 ชั้นเรียน {currentHeroRecord.class}
               </p>
-              <div className="inline-flex items-center gap-1 text-[11px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md">
-                <Star className="w-3.5 h-3.5 fill-current animate-pulse" />
-                สะสม {featuredHeroProfile.totalXp} คะแนนความดี
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100/70 border border-amber-200 px-2 py-0.5 rounded-md">
+                  <Star className="w-3.5 h-3.5 fill-current animate-pulse text-amber-500" />
+                  สะสม {featuredHeroProfile.totalXp} คะแนนความดี
+                </div>
+                {currentHeroRecord.available !== undefined && (
+                  <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    🎁 พร้อมแลก {currentHeroRecord.available}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -1526,10 +1535,10 @@ export const useHomeMainBlocks = () => {
   );
 
   const conductLeaderboardSection = topConduct.length > 0 ? (
-    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 rounded-lg shadow-sm border border-yellow-200/60 dark:border-yellow-900/30 p-4">
+    <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg shadow-sm border border-yellow-200/60 p-4">
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="w-5 h-5 text-yellow-500" />
-        <h3 className="text-base font-bold text-gray-800 dark:text-foreground">คนดีคำไผ่</h3>
+        <h3 className="text-base font-bold text-gray-800">คนดีคำไผ่</h3>
         <span className="text-xs text-muted-foreground ml-2">เทอมปัจจุบัน</span>
         <Link to="/hall-of-fame" className="ml-auto text-xs text-primary hover:underline flex items-center gap-0.5">
           ดูทั้งหมด <ArrowRight className="w-3 h-3" />
@@ -1537,22 +1546,19 @@ export const useHomeMainBlocks = () => {
       </div>
       <div className="space-y-2">
         {topConduct.map((s, idx) => (
-          <Link key={s.id} to="/hall-of-fame" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/60 dark:hover:bg-foreground/5 transition-colors">
+          <Link key={s.id} to="/hall-of-fame" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/60 transition-colors">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${idx === 0 ? 'bg-yellow-400 text-white' : idx === 1 ? 'bg-gray-400 text-white' : idx === 2 ? 'bg-amber-600 text-white' : 'bg-muted text-muted-foreground'}`}>
               {idx + 1}
             </div>
-            {s.photo ? (
-              <img src={s.photo} alt={s.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                {s.name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
-              </div>
-            )}
+            <PersonAvatar name={s.name} photoUrl={s.photo} size="sm" className="w-9 h-9 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800 dark:text-foreground truncate">{s.name}</p>
+              <p className="text-sm font-medium text-gray-800 truncate">{s.name}</p>
               <p className="text-[10px] text-muted-foreground">{s.class}</p>
             </div>
-            <span className="text-sm font-bold text-yellow-700 dark:text-yellow-400 flex-shrink-0">+{s.total}</span>
+            <div className="text-right flex-shrink-0">
+              <span className="block text-sm font-bold text-amber-700">+{s.total}</span>
+              <span className="block text-[10px] text-emerald-700 font-medium">แลกได้ {s.available}</span>
+            </div>
           </Link>
         ))}
       </div>

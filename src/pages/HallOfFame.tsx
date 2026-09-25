@@ -25,11 +25,11 @@ const VIRTUE_LABELS: Record<string, string> = {
 };
 
 const VIRTUE_COLORS: Record<string, string> = {
-  publicMind: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900',
-  responsibility: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900',
-  discipline: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900',
-  honesty: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900',
-  kindness: 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-900',
+  publicMind: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  responsibility: 'bg-blue-50 text-blue-700 border-blue-200',
+  discipline: 'bg-purple-50 text-purple-700 border-purple-200',
+  honesty: 'bg-amber-50 text-amber-700 border-amber-200',
+  kindness: 'bg-pink-50 text-pink-700 border-pink-200',
 };
 
 const CLASS_ORDER = [
@@ -45,6 +45,7 @@ type LeaderRow = {
   photoUrl: string | null;
   total: number;
   count: number;
+  available: number;
 };
 
 const medalColor = (rank: number) => {
@@ -59,7 +60,7 @@ const HallOfFame = () => {
   const [semester, setSemester] = useState<string>('1');
   const [year, setYear] = useState<string>(currentYear);
 
-  // 1. ดึงอันดับฮีโร่ตามคะแนนสุทธิ net score > 0 ผ่าน RPC (สอดคล้องกับหน้าแรกและหลังบ้าน 100%)
+  // 1. ดึงอันดับฮีโร่ตามคะแนนสะสมเกียรติยศผ่าน RPC (การแลกรางวัลไม่ลดอันดับ)
   const { data: topHeroes = [], isLoading: isHeroesLoading } = useQuery({
     queryKey: ['hall-of-fame-heroes', semester, year],
     queryFn: async () => {
@@ -76,6 +77,7 @@ const HallOfFame = () => {
         photoUrl: r.photo_url ?? null,
         total: Number(r.total_xp),
         count: Number(r.deeds_count),
+        available: Number(r.available_points ?? r.total_xp),
       }));
     },
   });
@@ -128,6 +130,10 @@ const HallOfFame = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             เชิดชูนักเรียนที่ทำความดี ด้วยการบันทึกคะแนนจากธนาคารความดีโดยคุณครูทุกท่าน
           </p>
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-900 border border-amber-300/60 text-xs font-medium">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>อันดับคิดจากคะแนนความดีสะสมเกียรติยศ — การแลกของรางวัลธนาคารขยะจะไม่ลดคะแนนสะสมหรืออันดับ</span>
+          </div>
         </div>
       </section>
 
@@ -191,9 +197,9 @@ const HallOfFame = () => {
                       key={row.studentId}
                       className={cn(
                         'border-2',
-                        idx === 0 && 'border-yellow-400 bg-yellow-50/50 dark:bg-yellow-950/10',
-                        idx === 1 && 'border-gray-400 bg-gray-50/50 dark:bg-gray-950/10',
-                        idx === 2 && 'border-amber-600 bg-amber-50/50 dark:bg-amber-950/10',
+                        idx === 0 && 'border-yellow-400 bg-yellow-50/50',
+                        idx === 1 && 'border-gray-400 bg-gray-50/50',
+                        idx === 2 && 'border-amber-600 bg-amber-50/50',
                       )}
                     >
                       <CardContent className="pt-6 text-center">
@@ -203,13 +209,18 @@ const HallOfFame = () => {
                         <PersonAvatar name={row.name} photoUrl={row.photoUrl} size="lg" className="w-20 h-20 mx-auto mb-3 ring-2 ring-offset-2 ring-offset-background ring-primary/20 text-lg" />
                         <p className="font-semibold text-lg leading-tight">{row.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{row.class}</p>
-                        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                        <p className="text-xs font-bold text-indigo-600 mt-1">
                           {calculateHeroLevel(row.total).title}
                         </p>
-                        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-400">
-                          <Medal className="w-3.5 h-3.5" />
-                          <span className="font-bold">{row.total} คะแนนความดี</span>
-                          <span className="text-xs text-muted-foreground">({row.count} ครั้ง)</span>
+                        <div className="mt-3 flex flex-col items-center gap-1.5">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 border border-amber-200/80 font-bold text-sm">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                            <span>{row.total} คะแนนสะสม</span>
+                            <span className="text-xs text-muted-foreground font-normal">({row.count} ครั้ง)</span>
+                          </div>
+                          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 text-xs font-medium">
+                            <span>🎁 พร้อมแลก {row.available}</span>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -232,14 +243,19 @@ const HallOfFame = () => {
                               <p className="font-medium truncate">{row.name}</p>
                               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                 <span className="text-xs text-muted-foreground">{row.class}</span>
-                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-950 bg-indigo-50/50 dark:bg-indigo-950/30">
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-indigo-600 border-indigo-200 bg-indigo-50/50">
                                   {calculateHeroLevel(row.total).title}
                                 </Badge>
                               </div>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-indigo-600 dark:text-indigo-400">{row.total} คะแนนความดี</p>
-                              <p className="text-xs text-muted-foreground">{row.count} ครั้ง</p>
+                              <p className="font-bold text-amber-700 flex items-center justify-end gap-1 text-sm">
+                                <Sparkles className="w-3 h-3 text-amber-500 inline" />
+                                {row.total} คะแนนสะสม
+                              </p>
+                              <p className="text-xs text-emerald-700 font-medium">
+                                พร้อมแลก {row.available} <span className="text-muted-foreground font-normal">({row.count} ครั้ง)</span>
+                              </p>
                             </div>
                           </div>
                         );
@@ -274,7 +290,10 @@ const HallOfFame = () => {
                           </div>
                           <PersonAvatar name={row.name} photoUrl={row.photoUrl} size="sm" className="w-8 h-8 flex-shrink-0" />
                           <p className="flex-1 min-w-0 text-sm font-medium truncate">{row.name}</p>
-                          <span className="text-sm font-bold text-primary flex-shrink-0">+{row.total}</span>
+                          <div className="text-right flex-shrink-0 text-xs">
+                            <span className="font-bold text-amber-700">+{row.total} สะสม</span>
+                            <span className="block text-[10px] text-emerald-700 font-medium">แลกได้ {row.available}</span>
+                          </div>
                         </div>
                       ))}
                     </CardContent>

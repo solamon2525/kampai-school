@@ -23,6 +23,22 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Dual-Metric Virtue Points & Non-Demoting Hero Rankings (v1.229.99)
+
+- **Dual-Metric Virtue Architecture:** แยกประเภทคะแนนความดีอย่างชัดเจนเพื่อไม่ให้การให้รางวัลแก่นักเรียนสร้างผลกระทบเชิงลบต่ออันดับเกียรติยศ:
+  1. **คะแนนความดีสะสมเกียรติยศ (Total Honor Score / All-time Deeds):** คำนวณจาก `คะแนนความดีบวกทั้งหมด - คะแนนพฤติกรรมเสื่อมเสีย (วินัย/ความประพฤติ)` ใช้สำหรับตัดสินอันดับในหอเกียรติยศ (Hall of Fame), Top 10 ฮีโร่หน้าแรก และระดับเลเวลฮีโร่ (LV.1–5) **การนำคะแนนไปแลกของรางวัลในธนาคารขยะจะไม่ลดทอนคะแนนนี้โดยเด็ดขาด** (Zero-Penalized Redemption)
+  2. **คะแนนความดีพร้อมแลก (Net Spendable Balance):** คำนวณจาก `คะแนนความดีสะสมเกียรติยศ - คะแนนความดีที่ใช้แลกของรางวัลไปแล้ว` ใช้สำหรับตรวจสอบสิทธิ์และหักแต้มในการแลกของรางวัลธนาคารขยะ
+- **Database & RPC Migration (Migration 540):**
+  - อัปเดต `category = 'reward'` ให้กับรายการหักคะแนนจากการแลกของรางวัล
+  - อัปเกรด RPC `get_top_heroes` ให้ไม่หักคะแนนที่ `reward_claim_id IS NOT NULL` ใน `total_xp` และส่งคืน `available_points` ควบคู่กัน
+  - ปรับปรุง RPC `lookup_student_balance` คืนค่า `virtue_points_earned`, `virtue_points_spent`, และ `virtue_points_available`
+- **Reassuring Dual-Metric UX:**
+  - **หอเกียรติยศ (`HallOfFame.tsx`):** แสดงป้ายคะแนนสะสม (🌟) พร้อมจำนวนแต้มพร้อมแลก (🎁) และเพิ่มข้อความชี้แจงสร้างความมั่นใจใน Hero Band
+  - **หน้าแรก (`HomeMainContent.tsx`):** โปรไฟล์ฮีโร่เด่นและรายการคนดีคำไผ่แสดงทั้งคะแนนสะสมและคะแนนพร้อมแลก
+  - **หน้าร้านค้าของรางวัล (`RewardsCatalog.tsx`):** ตรวจสอบแต้มแสดงการ์ด 2 คอลัมน์ชัดเจน (แต้มธนาคารขยะ vs คะแนนความดี) พร้อมแบนเนอร์ *"การแลกของรางวัลจะไม่ลดคะแนนความดีสะสมหรืออันดับของคุณในหอเกียรติยศ"*
+  - **หน้าต่างส่งคำขอและอนุมัติ (`RewardClaimDialog.tsx` & `AdminDirectRedeemDialog.tsx`):** แจ้งเตือนยอดพร้อมแลก ยอดสะสม และข้อความย้ำเตือนว่าหักเฉพาะคะแนนพร้อมแลก
+- **Light-Mode Strict Compliance:** ทุกคอมโพเนนต์ใช้ Tailwind CSS vars (`bg-background`, `text-foreground`, `border-border`) ปราศจากคลาส `dark:` ตาม Hard Rules
+
 ### Unified Conduct Ledger & Waste Bank Direct Redemption (v1.229.98)
 
 - **Unified Conduct Ledger Integration:** ผูกความสัมพันธ์การแลกของรางวัลธนาคารขยะเข้ากับสมุดบัญชีคะแนนความดี (`conduct_scores`) โดยตรงผ่านคอลัมน์ `reward_claim_id` พร้อม cascade delete เมื่อถูกปฏิเสธ/ลบ
