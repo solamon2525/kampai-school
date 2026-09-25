@@ -411,6 +411,14 @@ export const rewardClaimsService = {
     supabase
       .rpc('get_student_history' as never, { p_code: code, p_limit: limit } as never)
       .returns<StudentHistoryRow[]>(),
+
+  // Admin/Teacher RPC: claim and approve in one atomic step (deducts stock, waste points & virtue points)
+  adminClaimAndApprove: (code: string, rewardId: string, quantity = 1) =>
+    supabase.rpc('admin_claim_and_approve_reward' as never, {
+      p_code: code,
+      p_reward_id: rewardId,
+      p_quantity: quantity,
+    } as never),
 };
 
 // ─── View Preference (school_settings) ───────────────────────────────────────

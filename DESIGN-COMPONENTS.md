@@ -23,6 +23,14 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Unified Conduct Ledger & Waste Bank Direct Redemption (v1.229.98)
+
+- **Unified Conduct Ledger Integration:** ผูกความสัมพันธ์การแลกของรางวัลธนาคารขยะเข้ากับสมุดบัญชีคะแนนความดี (`conduct_scores`) โดยตรงผ่านคอลัมน์ `reward_claim_id` พร้อม cascade delete เมื่อถูกปฏิเสธ/ลบ
+- **Automatic Score Deduction on Approval:** ฟังก์ชัน `approve_reward_claim` ทำการสร้างเรคคอร์ดหักคะแนนความดี (`type = 'deduct'`) ใน `conduct_scores` อัตโนมัติด้วยเหตุผล `"แลกของรางวัล: {ชื่อรางวัล}"` ป้องกันการลืมหักคะแนนหรือการบันทึกหักคะแนนด้วยมือซ้ำซ้อน
+- **Admin Direct Redeem Dialog:** เพิ่มคอมโพเนนต์ `AdminDirectRedeemDialog` (`src/components/admin/waste-bank/AdminDirectRedeemDialog.tsx`) และปุ่ม "แลกรางวัลให้นักเรียน" ในแท็บการอนุมัติ (`ClaimsApproval`) ให้ครู/แอดมินสามารถค้นหานักเรียน ตรวจสอบยอดคะแนนความดีคงเหลือจริง เลือกลดสต็อกของรางวัล และตัดแต้มอนุมัติมอบของรางวัลได้ทันทีในคลิกเดียว (Single Transaction ผ่าน RPC `admin_claim_and_approve_reward`)
+- **Net Score Ranking Engine:** ปรับปรุง `get_top_heroes` ให้คำนวณคะแนนสุทธิ `(SUM(add) - SUM(deduct))` กรองเฉพาะนักเรียนที่มีคะแนนสุทธิ `> 0` ในปีการศึกษาปัจจุบัน สำหรับแสดงผลบน `HomeMainContent` (Top 10 Hero) และ `HallOfFame` ป้องกันนักเรียนที่มีคะแนนสุทธิติดลบขึ้นสู่หน้าแรก
+- **Clean Invalidation & Balance Calculation:** อัปเดต `lookup_student_balance` ให้นับคะแนนความดีที่ถูกใช้ (`virtue_points_used`) เฉพาะคำขอที่สถานะ `pending` เท่านั้น เพื่อไม่ให้หักซ้ำซ้อนกับเรคคอร์ด `deduct` ใน `conduct_scores` เมื่อคำขอได้รับอนุมัติแล้ว พร้อมเชื่อมโยง `queryClient.invalidateQueries` ทั้งสาย `conduct` และ `waste-bank`
+
 ### Rewards Management Backend UX (v1.229.97)
 
 - **In-place Dialog Modal:** ฟอร์มสร้าง/แก้ไขของรางวัลถูกย้ายจากการ์ดด้านบนหน้า เข้าสู่ `<Dialog>` กึ่งกลางหน้าจอ ช่วยรักษาตำแหน่ง Scroll ของหน้ารายการของรางวัล 100% ไม่เลื่อนจอขึ้นลงไปมา

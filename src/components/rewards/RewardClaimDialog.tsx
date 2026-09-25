@@ -155,7 +155,7 @@ export function RewardClaimDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+            <DialogTitle className="flex items-center gap-2 text-emerald-600 ">
               <CheckCircle2 className="w-5 h-5" />
               ส่งคำขอแลกรางวัลสำเร็จ!
             </DialogTitle>
@@ -302,8 +302,8 @@ export function RewardClaimDialog({
                 className={cn(
                   'p-3 rounded-xl border-2',
                   insufficient
-                    ? 'bg-rose-50 border-rose-200 dark:bg-rose-950/30 dark:border-rose-800'
-                    : 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800',
+                    ? 'bg-rose-50 border-rose-200'
+                    : 'bg-amber-50 border-amber-200',
                 )}
               >
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -316,7 +316,7 @@ export function RewardClaimDialog({
                   <span
                     className={cn(
                       'text-2xl font-extrabold tabular-nums',
-                      insufficient ? 'text-rose-700 dark:text-rose-300' : 'text-amber-700 dark:text-amber-300',
+                      insufficient ? 'text-rose-700' : 'text-amber-700',
                     )}
                   >
                     −{wasteTotal + virtueTotal}
@@ -327,8 +327,14 @@ export function RewardClaimDialog({
                   {insufficient ? (
                     <>
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span className="text-rose-700 dark:text-rose-300">
-                        คะแนนไม่พอ — ตรวจยอดขยะและความดีที่ต้องใช้
+                      <span className="text-rose-700 text-xs font-semibold">
+                        {student.waste_points_available < wasteTotal && student.virtue_points_available < virtueTotal
+                          ? 'แต้มขยะและคะแนนความดีไม่เพียงพอ'
+                          : student.waste_points_available < wasteTotal
+                          ? 'แต้มธนาคารขยะไม่เพียงพอ'
+                          : student.virtue_points_available < virtueTotal
+                          ? `คะแนนความดีไม่พอ (มี ${student.virtue_points_available} / ต้องใช้ ${virtueTotal}) — ตรวจสอบคะแนนสุทธิหลังหักพฤติกรรม`
+                          : 'คะแนนไม่พอ — ตรวจยอดขยะและความดีที่ต้องใช้'}
                       </span>
                     </>
                   ) : (
@@ -345,7 +351,7 @@ export function RewardClaimDialog({
           )}
 
           {errorMsg && (
-            <div className="flex items-center gap-2 text-sm text-rose-700 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-300 px-3 py-2 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-rose-700 bg-rose-50  px-3 py-2 rounded-lg">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               {errorMsg}
             </div>

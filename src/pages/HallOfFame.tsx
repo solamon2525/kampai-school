@@ -59,8 +59,30 @@ const HallOfFame = () => {
   const [semester, setSemester] = useState<string>('1');
   const [year, setYear] = useState<string>(currentYear);
 
-  const { data: records = [], isLoading } = useQuery({
-    queryKey: ['hall-of-fame', semester, year],
+  // 1. ดึงอันดับฮีโร่ตามคะแนนสุทธิ net score > 0 ผ่าน RPC (สอดคล้องกับหน้าแรกและหลังบ้าน 100%)
+  const { data: topHeroes = [], isLoading: isHeroesLoading } = useQuery({
+    queryKey: ['hall-of-fame-heroes', semester, year],
+    queryFn: async () => {
+      const { data, error } = await conductService.getTop10Heroes(
+        100,
+        year,
+        semester === 'all' ? undefined : semester
+      );
+      if (error) throw error;
+      return (data || []).map((r) => ({
+        studentId: r.student_id,
+        name: r.name,
+        class: r.class,
+        photoUrl: r.photo_url ?? null,
+        total: Number(r.total_xp),
+        count: Number(r.deeds_count),
+      }));
+    },
+  });
+
+  // 2. ดึงประวัติทำดีล่าสุดสำหรับแท็บฟีดกิจกรรม
+  const { data: records = [], isLoading: isFeedLoading } = useQuery({
+    queryKey: ['hall-of-fame-feed', semester, year],
     queryFn: async () => {
       const { data, error } = await conductService.getPublicPositive(
         semester === 'all' ? undefined : semester,
@@ -71,25 +93,8 @@ const HallOfFame = () => {
     },
   });
 
-  // Aggregate รวมทุกชั้น
-  const overall = useMemo<LeaderRow[]>(() => {
-    const map = new Map<string, LeaderRow>();
-    for (const r of records) {
-      if (!r.students) continue;
-      const cur = map.get(r.student_id) ?? {
-        studentId: r.student_id,
-        name: r.students.name,
-        class: r.students.class,
-        photoUrl: r.students.photo_url ?? null,
-        total: 0,
-        count: 0,
-      };
-      cur.total += r.score;
-      cur.count += 1;
-      map.set(r.student_id, cur);
-    }
-    return Array.from(map.values()).sort((a, b) => b.total - a.total);
-  }, [records]);
+  const isLoading = isHeroesLoading || isFeedLoading;
+  const overall = topHeroes;
 
   // จัดกลุ่มแยกรายชั้น
   const byClass = useMemo(() => {

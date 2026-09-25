@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User, QrCode } from 'lucide-react';
+import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User, QrCode, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { rewardClaimsService } from '@/services/waste-bank.service';
 import type { RewardClaim, RewardClaimStatus } from '@/services/waste-bank.service';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ClaimQRScanner } from './ClaimQRScanner';
+import { AdminDirectRedeemDialog } from './AdminDirectRedeemDialog';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
 import { getOptimizedImageUrl } from '@/utils/imageOptimization';
@@ -33,6 +34,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [showDirectRedeem, setShowDirectRedeem] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const { data, error } = filter === 'pending'
@@ -50,6 +52,12 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     void queryClient.invalidateQueries({ queryKey: ['rewards'] });
     void queryClient.invalidateQueries({ queryKey: ['rewards-stock-drift'] });
     void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+    void queryClient.invalidateQueries({ queryKey: ['conduct-scores'] });
+    void queryClient.invalidateQueries({ queryKey: ['conduct-records'] });
+    void queryClient.invalidateQueries({ queryKey: ['top-heroes'] });
+    void queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] });
+    void queryClient.invalidateQueries({ queryKey: ['hall-of-fame-heroes'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
     onAction?.();
   };
 
@@ -118,6 +126,13 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
           <ClipboardCheck className="w-4 h-4" /> อนุมัติหรือปฏิเสธคำขอแลกรางวัล
         </div>
         <div className="flex gap-2 items-center">
+          <Button
+            size="sm"
+            onClick={() => setShowDirectRedeem(true)}
+            className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Gift className="w-4 h-4" /> แลกรางวัลให้นักเรียน
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -240,6 +255,12 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
         open={showScanner}
         onClose={() => setShowScanner(false)}
         onAction={handleActionCompleted}
+      />
+
+      <AdminDirectRedeemDialog
+        open={showDirectRedeem}
+        onOpenChange={setShowDirectRedeem}
+        onSuccess={handleActionCompleted}
       />
     </div>
   );

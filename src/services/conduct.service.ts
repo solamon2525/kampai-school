@@ -496,9 +496,13 @@ export const conductService = {
   delete: (id: string) =>
     supabase.from('conduct_scores').delete().eq('id', id),
 
-  /** ดึงข้อมูล 10 อันดับสุดยอดฮีโร่ความดีผ่าน RPC (High Performance) */
-  getTop10Heroes: async (limitVal: number = 10) => {
-    return supabase.rpc('get_top_heroes', { limit_val: limitVal }) as unknown as Promise<{
+  /** ดึงข้อมูลอันดับสุดยอดฮีโร่ความดีผ่าน RPC (High Performance — คิดคะแนนสุทธิ net score > 0) */
+  getTop10Heroes: async (limitVal: number = 10, academicYear?: string, semester?: string) => {
+    return supabase.rpc('get_top_heroes', {
+      limit_val: limitVal,
+      p_academic_year: academicYear ?? null,
+      p_semester: semester ?? null,
+    } as never) as unknown as Promise<{
       data: TopHeroRpcRow[] | null;
       error: { message: string } | null;
     }>;

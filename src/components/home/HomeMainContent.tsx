@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Eye, Calendar, ArrowRight, FileText, Chevron
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { useGamePreviewTiming } from '@/hooks/useGamePreviewTiming';
 import { MapEmbed } from '@/components/MapEmbed';
-import { conductService, type ConductRecord, type HeroProfile } from '@/services/conduct.service';
+import { conductService, type ConductRecord, type HeroProfile, type TopHeroRpcRow } from '@/services/conduct.service';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts';
@@ -291,58 +291,55 @@ export const useHomeMainBlocks = () => {
       });
   }, []);
 
-  // Fetch top conduct students (current semester guess: month >= May → sem 1, else sem 2)
+  // Fetch top 10 conduct heroes (คำนวณแต้มสุทธิ net score > 0 ของปีการศึกษาปัจจุบันผ่าน RPC)
   useEffect(() => {
-    const now = new Date();
-    const sem = now.getMonth() >= 4 && now.getMonth() <= 9 ? '1' : '2';
-    const year = String(now.getFullYear() + 543);
+    let isMounted = true;
+    const fetchTopStudents = async () => {
+      try {
+        const { data, error } = await conductService.getTop10Heroes(10);
+        if (error) throw error;
+        if (!isMounted) return;
 
-    const fetchTopStudents = (targetSem?: string, targetYear?: string) => {
-      conductService.getPublicPositive(targetSem, targetYear).then(({ data }) => {
-        const records = (data || []) as ConductRecord[];
-
-        if (records.length === 0 && targetSem && targetYear) {
-          // If empty for current term, fall back to agnostic (all-time/previous semesters)
-          fetchTopStudents(undefined, undefined);
-          return;
-        }
-
-        const map = new Map<string, { id: string; name: string; class: string; photo: string | null; total: number }>();
-        for (const r of records) {
-          if (!r.students) continue;
-          const cur = map.get(r.student_id) ?? {
-            id: r.student_id, name: r.students.name, class: r.students.class,
-            photo: r.students.photo_url ?? null, total: 0,
-          };
-          cur.total += r.score;
-          map.set(r.student_id, cur);
-        }
-        const top = Array.from(map.values()).sort((a, b) => b.total - a.total).slice(0, 10);
+        const rows = (data || []) as TopHeroRpcRow[];
+        const top = rows.map((r) => ({
+          id: r.student_id,
+          name: r.name,
+          class: r.class,
+          photo: r.photo_url ?? null,
+          total: Number(r.total_xp),
+        }));
         setTopConduct(top);
 
         if (top.length > 0) {
           setFeaturedHeroLoading(true);
-          Promise.all(
-            top.map(student =>
-              conductService.getHeroProfile(student.id)
-                .catch(err => {
-                  console.error("Error fetching featured hero profile:", err);
-                  return null;
-                })
+          const profiles = await Promise.all(
+            top.map((student) =>
+              conductService.getHeroProfile(student.id).catch((err) => {
+                console.error("Error fetching featured hero profile:", err);
+                return null;
+              })
             )
-          ).then((profiles) => {
-            const validProfiles = profiles.filter((p): p is HeroProfile => p !== null);
-            setFeaturedHeroProfiles(validProfiles);
-          }).finally(() => {
-            setFeaturedHeroLoading(false);
-          });
+          );
+          if (!isMounted) return;
+          const validProfiles = profiles.filter((p): p is HeroProfile => p !== null);
+          setFeaturedHeroProfiles(validProfiles);
+          setFeaturedHeroLoading(false);
         } else {
           setFeaturedHeroProfiles([]);
         }
-      });
+      } catch (err) {
+        console.error("Error fetching top heroes:", err);
+        if (isMounted) {
+          setTopConduct([]);
+          setFeaturedHeroProfiles([]);
+        }
+      }
     };
 
-    fetchTopStudents(sem, year);
+    void fetchTopStudents();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Auto-play for Hero Showcase
