@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { WasteBankResultsQr } from '@/components/waste-bank/WasteBankResultsQr';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 import { formatThaiDateFull } from '@/lib/thaiDate';
 import { cn } from '@/lib/utils';
 import { rewardsService, wasteBankShowcaseService, type WasteShowcasePhotoWithUrl } from '@/services';
@@ -153,7 +154,7 @@ const WasteBankResults = () => {
                       <div className="aspect-square overflow-hidden bg-muted">
                         {reward.image_url ? (
                           <img
-                            src={reward.image_url}
+                            src={getOptimizedImageUrl(reward.image_url, { width: 360, height: 360 })}
                             alt={reward.name}
                             loading="lazy"
                             decoding="async"

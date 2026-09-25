@@ -7,10 +7,13 @@ import { tierFor } from './tier';
 import type { Reward } from '@/services/waste-bank.service';
 import { RewardCostDisplay } from './RewardCostDisplay';
 import { totalRewardCost } from './reward-cost';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 
 interface RewardCardProps {
   reward: Reward;
   onClaim: (reward: Reward) => void;
+  priority?: boolean;
 }
 
 function cleanThaiTitle(name: string | null): string | null {
@@ -18,7 +21,7 @@ function cleanThaiTitle(name: string | null): string | null {
   return name.trim().replace(/^(นาย|นางสาว|นาง|ดร\.|ครู|อาจารย์)\s*/, '');
 }
 
-export function RewardCard({ reward, onClaim }: RewardCardProps) {
+export function RewardCard({ reward, onClaim, priority = false }: RewardCardProps) {
   const { settings } = useSchoolSettings();
   const tier = tierFor(totalRewardCost(reward));
   const outOfStock = reward.stock !== null && reward.stock !== undefined && reward.stock <= 0;
@@ -30,18 +33,22 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
   return (
     <div
       className={cn(
-        'group relative bg-card border border-border/80 rounded-2xl overflow-hidden flex flex-col h-full',
+        'group relative bg-card border border-border/80 rounded-2xl overflow-hidden flex flex-col h-full transform-gpu',
         'transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30',
       )}
     >
       {/* ── Image area ── */}
       <div className={cn('relative aspect-square overflow-hidden bg-gradient-to-br shrink-0', tier.gradient)}>
         {reward.image_url ? (
-          <img
+          <OptimizedImage
             src={reward.image_url}
             alt={reward.name}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            preset="rewardCard"
+            priority={priority}
+            className="group-hover:scale-105 transition-transform duration-500"
+            fallback={
+              <Gift className="w-16 h-16 opacity-40 animate-pulse text-muted-foreground" />
+            }
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -74,13 +81,15 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
         )}
 
         {/* Floating Teacher / Central Owner Capsule — bottom-right */}
-        <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1 sm:gap-1.5 bg-white/35 sm:bg-white/95 backdrop-blur-md p-1 pb-1.5 sm:p-1.5 sm:pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[50px] sm:w-[84px]">
+        <div className="absolute bottom-2.5 right-2.5 z-10 flex flex-col items-center gap-1 sm:gap-1.5 bg-white/80 sm:bg-white/95 backdrop-blur-md p-1 pb-1.5 sm:p-1.5 sm:pb-2 rounded-xl border border-border/80 shadow-md transition-all duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg w-[50px] sm:w-[84px]">
           {isCentral ? (
             <>
               {settings.school_logo_url ? (
                 <img
-                  src={settings.school_logo_url}
+                  src={getOptimizedImageUrl(settings.school_logo_url, { width: 96, height: 96 })}
                   alt={settings.school_name || 'โลโก้โรงเรียน'}
+                  decoding="async"
+                  loading="lazy"
                   className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-yellow-400/30"
                 />
               ) : (
@@ -94,8 +103,10 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
             <>
               {ownerPhoto ? (
                 <img
-                  src={ownerPhoto}
+                  src={getOptimizedImageUrl(ownerPhoto, { width: 96, height: 96 })}
                   alt={ownerName || ''}
+                  decoding="async"
+                  loading="lazy"
                   className="w-9 h-9 sm:w-16 sm:h-16 rounded-lg object-cover shadow-sm shrink-0 ring-1 ring-emerald-500/10"
                 />
               ) : (
@@ -148,4 +159,3 @@ export function RewardCard({ reward, onClaim }: RewardCardProps) {
     </div>
   );
 }
-

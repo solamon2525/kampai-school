@@ -32,6 +32,7 @@ import { RewardClaimDialog } from '@/components/rewards/RewardClaimDialog';
 import { cn } from '@/lib/utils';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 import { canAffordReward, totalRewardCost } from '@/components/rewards/reward-cost';
 
 function cleanThaiTitle(name: string | null): string | null {
@@ -219,7 +220,7 @@ export default function RewardsCatalog() {
                 )}
               >
                 {t.photo_url ? (
-                  <img src={t.photo_url} alt={t.name} className="w-4 h-4 rounded-full object-cover" />
+                  <img src={getOptimizedImageUrl(t.photo_url, { width: 48, height: 48 })} alt={t.name} decoding="async" loading="lazy" className="w-4 h-4 rounded-full object-cover" />
                 ) : (
                   <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-[8px] font-bold text-primary">
                     {t.name.slice(0, 1)}
@@ -252,8 +253,8 @@ export default function RewardsCatalog() {
             </Card>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {filtered.map((r) => (
-                <RewardCard key={r.id} reward={r} onClaim={handleClaim} />
+              {filtered.map((r, index) => (
+                <RewardCard key={r.id} reward={r} onClaim={handleClaim} priority={index < 4} />
               ))}
             </div>
           )}
@@ -484,11 +485,11 @@ function BalanceCheckDialog({
 
               {/* Goal Progress Section */}
               {goal ? (
-                <div className="p-3.5 rounded-xl border border-dashed border-amber-300 dark:border-amber-800 bg-amber-500/5 space-y-2">
+                <div className="p-3.5 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 space-y-2">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex gap-2">
                       {goal.imageUrl ? (
-                        <img src={goal.imageUrl} alt={goal.rewardName} className="w-9 h-9 rounded object-cover shrink-0 border border-border" />
+                        <img src={getOptimizedImageUrl(goal.imageUrl, { width: 96, height: 96 })} alt={goal.rewardName} decoding="async" loading="lazy" className="w-9 h-9 rounded object-cover shrink-0 border border-border" />
                       ) : (
                         <div className="w-9 h-9 rounded bg-muted flex items-center justify-center shrink-0">
                           <Gift className="w-4 h-4 text-muted-foreground" />
@@ -518,7 +519,7 @@ function BalanceCheckDialog({
                     const percent = Math.min(100, Math.round(Math.min(...ratios) * 100));
                     return (
                       <div className="space-y-1">
-                        <div className="w-full bg-muted dark:bg-muted/30 rounded-full h-1.5 overflow-hidden">
+                        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                           <div
                             className={cn(
                               "h-full transition-all duration-500",
@@ -531,7 +532,7 @@ function BalanceCheckDialog({
                           <span className="text-muted-foreground tabular-nums">
                             <RewardCostDisplay waste={goal.wasteCost} virtue={goal.virtueCost} /> ({percent}%)
                           </span>
-                          <span className={cn("font-semibold", isGoalMet ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+                          <span className={cn("font-semibold", isGoalMet ? "text-emerald-600" : "text-amber-600")}>
                             {isGoalMet ? '🎉 คะแนนถึงแล้ว แลกได้เลย!' : 'สะสมต่ออีกนิด'}
                           </span>
                         </div>
@@ -614,14 +615,15 @@ function BalanceCheckDialog({
                       <button
                         key={r.id}
                         onClick={() => onPickReward(r, code.trim(), student)}
-                        className="flex flex-col p-2 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:border-emerald-800 transition-colors text-left active:scale-95"
+                        className="flex flex-col p-2 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 transition-colors text-left active:scale-95"
                       >
                         {r.image_url ? (
                           <img
-                            src={r.image_url}
+                            src={getOptimizedImageUrl(r.image_url, { width: 240, height: 240 })}
                             alt={r.name}
                             className="w-full aspect-square rounded object-cover"
                             loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full aspect-square rounded bg-muted flex items-center justify-center">
@@ -663,7 +665,7 @@ function BalanceCheckDialog({
                       className="flex items-center gap-2 p-2 rounded-lg border border-border bg-card"
                     >
                       {h.reward_image ? (
-                        <img src={h.reward_image} alt={h.reward_name} className="w-9 h-9 rounded object-cover shrink-0" />
+                        <img src={getOptimizedImageUrl(h.reward_image, { width: 96, height: 96 })} alt={h.reward_name} className="w-9 h-9 rounded object-cover shrink-0" loading="lazy" decoding="async" />
                       ) : (
                         <div className="w-9 h-9 rounded bg-muted flex items-center justify-center shrink-0">
                           <Gift className="w-4 h-4 text-muted-foreground" />

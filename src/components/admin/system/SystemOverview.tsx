@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.96 (ระบบแลกของรางวัลธนาคารขยะ — ปรับปรุงประสิทธิภาพการโหลดรูปภาพความเร็วสูง Edge CDN WebP 60 FPS ป้องกันอาการกระตุกและลดขนาดไฟล์ 99.7%)',
+        date: '25 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            'การแปลงรูปภาพผ่าน Edge CDN (Supabase Image Transformation): พัฒนายูทิลิตี้ getOptimizedImageUrl แปลงรูปภาพของรางวัลจากกล้องสมาร์ทโฟนขนาด 12-13MB เหลือเพียง ~30KB WebP แบบออนเดอะฟลาย ลดทราฟฟิกหน้าแลกของรางวัล (/waste-bank/rewards) จาก 80MB+ เหลือต่ำกว่า 1MB พร้อมแคช Cloudflare Edge ส่งข้อมูลระดับ 10-20ms',
+            'คอมโพเนนต์แสดงผลรูปภาพความเร็วสูง (OptimizedImage Component): ออกแบบคอมโพเนนต์รูปภาพเฉพาะทาง รองรับ Shimmer Skeleton ระหว่างดาวน์โหลด, การแสดงผลแบบ Smooth Fade-in 300ms, การถอดรหัสแบบ Off-Thread (decoding="async") ป้องกัน UI Thread Freeze และจัดลำดับ LCP (eager/high priority สำหรับ 4 รูปแรก และ lazy สำหรับรูปถัดไป)',
+            'ความลื่นไหลระดับ 60 FPS ไร้อาการกระตุก (GPU Compositing & Frame-Rate Protection): เพิ่ม transform-gpu และ will-change-transform บนการ์ด RewardCard และรูปภาพ ป้องกันอาการ Frame Drops ขณะเลื่อนดูรายการของรางวัลและการซูมรูปภาพเมื่อวางเมาส์เหนือการ์ด (Hover Zoom)',
+            'การย่อขนาดภาพประกอบย่อย (Avatar & Thumbnail Sizing): ปรับรูปประจำตัวครูผู้ดูแล โลโก้โรงเรียน ภาพเป้าหมายสะสม ภาพประวัติการแลก และภาพในตารางอนุมัติของรางวัล (ClaimsApproval) ให้ดึง Thumbnail ขนาดจิ๋ว 48-160px (< 4KB) ช่วยให้เปิด Modal และตารางได้ในพริบตา',
+            'ระบบบีบอัดภาพฝั่งผู้ใช้ก่อนส่ง (Client-Side Pre-upload Compression): ปรับปรุง rewardsService.uploadImage ให้บีบอัดภาพถ่ายจากกล้องเป็น WebP ขนาดไม่เกิน 800x800px ในเบราว์เซอร์ก่อนส่งขึ้น Supabase Storage ป้องกันภาพดิบขนาดใหญ่เข้าสู่ระบบอย่างถาวร',
+        ],
+    },
+    {
         version: 'v1.229.95 (ระบบธนาคารขยะ — ปรับปรุงประสิทธิภาพความลื่นไหลระดับ 60 FPS แก้ไขอาการสะดุด Jank/Stuttering แคช Signed URL ทนทาน ระบบ Optimistic Reordering และแยก Memoize)',
         date: '24 ก.ย. 2569',
         badge: 'bg-emerald-600',

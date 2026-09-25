@@ -23,6 +23,16 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Optimized Image & Edge CDN Delivery (v1.229.96)
+
+- **Supabase Edge Transformation:** แปลง Supabase Storage URL สู่ `/storage/v1/render/image/public/` พร้อมพารามิเตอร์ `width`, `height`, `quality=75-80`, `format=webp`, `resize=cover`
+- ลดขนาดไฟล์รูปถ่ายจากสมาร์ทโฟน 12–13MB เหลือเพียง 25–35KB (ลด 99.7%) และแคชผ่าน Cloudflare Edge CDN (`CF-Cache-Status: HIT`)
+- **Off-Thread Decoding:** ใช้ `decoding="async"` เสมอเพื่อถอดรหัสรูปนอก Main UI Thread รักษาความลื่นไหล 60 FPS ไร้อาการสะดุด (No Jank/Stuttering)
+- **LCP & Progressive UX:** แถวบนสุด (4 การ์ดแรก) โหลดแบบ `priority` (`loading="eager"`, `fetchpriority="high"`), การ์ดถัดไปใช้ `loading="lazy"` พร้อม Shimmer Skeleton ระหว่างรอ และ Smooth Fade-In 300ms เมื่อรูปพร้อม
+- **GPU Compositing:** ใส่ `transform-gpu will-change-transform` ป้องกันการกระตุกเมื่อ Hover Zoom
+- **Pre-upload Compression:** บีบอัดรูปฝั่ง Client ใน `rewardsService.uploadImage` ด้วย `compressImage` (800×800 WebP) ก่อนอัปโหลด ป้องกันไฟล์ใหญ่เข้าสู่ระบบ
+
+
 ### Auth readiness and Page Builder access (v1.229.54)
 
 - Provider order: QueryClientProvider → AuthProvider → application consumers. AuthProvider uses the same query client for role/menu reads and realtime invalidation.

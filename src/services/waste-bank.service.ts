@@ -4,6 +4,7 @@
  * Includes: categories, transactions, summary view, rewards, reward claims
  */
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/utils/imageUtils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type WasteCategory = {
@@ -309,11 +310,23 @@ export const rewardsService = {
   },
 
   uploadImage: async (file: File): Promise<string> => {
-    const ext = file.name.split('.').pop() || 'png';
-    const fileName = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from('rewards').upload(fileName, file, {
+    // Compress to WebP (max 800x800, quality 0.8) on client before upload
+    let uploadPayload: Blob | File = file;
+    let fileName = `${crypto.randomUUID()}.webp`;
+    let contentType = 'image/webp';
+    try {
+      uploadPayload = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.8 });
+    } catch {
+      // Fallback to original file if canvas compression fails
+      const ext = file.name.split('.').pop() || 'png';
+      fileName = `${crypto.randomUUID()}.${ext}`;
+      contentType = file.type || 'image/png';
+    }
+
+    const { error } = await supabase.storage.from('rewards').upload(fileName, uploadPayload, {
       cacheControl: '3600',
       upsert: false,
+      contentType,
     });
     if (error) throw error;
     const { data } = supabase.storage.from('rewards').getPublicUrl(fileName);

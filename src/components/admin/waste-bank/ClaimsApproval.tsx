@@ -12,6 +12,7 @@ import { formatThaiDateFull } from '@/lib/thaiDate';
 import { ClaimQRScanner } from './ClaimQRScanner';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 import { getFirstName, speakThai } from '@/lib/thaiSpeech';
 
 const STATUS_LABEL: Record<RewardClaimStatus, string> = {
@@ -180,7 +181,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                         <div className="flex items-center gap-2">
                           {c.rewards?.image_url && (
                             <img
-                              src={c.rewards.image_url}
+                              src={getOptimizedImageUrl(c.rewards.image_url, { width: 80, height: 80 })}
                               alt={c.reward_name}
                               decoding="async"
                               className="w-10 h-10 aspect-square rounded object-cover shrink-0 transform-gpu"
