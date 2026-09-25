@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { savingsSummaryService } from '@/services/savings.service';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
-import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle, Wallet } from 'lucide-react';
+import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle, Wallet, Trophy, Sparkles } from 'lucide-react';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { conductService } from '@/services/conduct.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { staggerContainerVariants, staggerItemVariants, fadeInVariants } from '@/hooks/useScrollReveal';
 
@@ -228,6 +230,139 @@ const SavingsBankWidget = () => {
   );
 };
 
+// ─── VirtueBank Widget ────────────────────────────────────
+
+interface VirtueHeroRow {
+  student_id: string;
+  name: string;
+  class: string;
+  photo_url: string | null;
+  total_xp: number;
+  deeds_count: number;
+  available_points: number;
+}
+
+const VirtueBankWidget = () => {
+  const [heroes, setHeroes] = useState<VirtueHeroRow[]>([]);
+  const [totalScores, setTotalScores] = useState<number>(0);
+  const [totalDeeds, setTotalDeeds] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadVirtueData = async () => {
+      try {
+        const { data, error } = await conductService.getTop10Heroes(5);
+        if (!isMounted) return;
+        if (!error && data) {
+          setHeroes(
+            data.map((r) => ({
+              student_id: r.student_id,
+              name: r.name,
+              class: r.class,
+              photo_url: r.photo_url ?? null,
+              total_xp: Number(r.total_xp),
+              deeds_count: Number(r.deeds_count),
+              available_points: Number(r.available_points ?? r.total_xp),
+            }))
+          );
+        }
+
+        // สรุปคะแนนสะสมและครั้งความดีรวมของปีการศึกษาปัจจุบัน
+        const stats = await conductService.getSummaryStats();
+        if (!isMounted) return;
+        setTotalScores(stats.totalScores);
+        setTotalDeeds(stats.totalDeeds);
+      } catch (err) {
+        console.error('Error loading virtue widget:', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    void loadVirtueData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return (
+    <div className="bg-card rounded-2xl shadow-sm ring-1 ring-border overflow-hidden">
+      {/* Header — Slate 900 + Gold Accent */}
+      <div className="bg-slate-900 px-4 py-3">
+        <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-yellow-400 mb-0.5">
+          Hall of Fame · Top 5
+        </div>
+        <h3 className="text-white font-extrabold text-sm flex items-center gap-1.5">
+          <Trophy className="w-4 h-4 text-yellow-400" /> ธนาคารความดี
+        </h3>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-amber-50/70 border-b border-amber-200/60">
+        <div className="text-center">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">คะแนนสะสมรวม</p>
+          <p className="font-extrabold text-amber-800 text-sm tabular-nums">
+            {totalScores.toLocaleString('th-TH')} คะแนน
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">บันทึกความดีรวม</p>
+          <p className="font-extrabold text-slate-900 text-sm tabular-nums">
+            {totalDeeds.toLocaleString('th-TH')} ครั้ง
+          </p>
+        </div>
+      </div>
+
+      {/* Top 5 list */}
+      {isLoading ? (
+        <div className="py-6 flex items-center justify-center text-sm text-slate-500 font-medium">กำลังโหลด...</div>
+      ) : heroes.length === 0 ? (
+        <div className="py-6 flex items-center justify-center text-sm text-slate-500 font-medium">ยังไม่มีข้อมูล</div>
+      ) : (
+        <ul className="divide-y divide-slate-100">
+          {heroes.map((s, i) => (
+            <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition">
+              <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
+                {MEDALS[i]}
+              </div>
+              <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" className="w-8 h-8 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-900 truncate">{s.name}</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-[10px] text-slate-600 font-medium">
+                    {s.class} · {s.deeds_count} ครั้ง
+                  </p>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0 tabular-nums">
+                <span className="block text-xs font-extrabold text-amber-800">
+                  +{s.total_xp}
+                  <span className="text-[9px] font-normal text-muted-foreground ml-0.5">คะแนน</span>
+                </span>
+                <span className="block text-[9px] font-medium text-emerald-700">
+                  แลกได้ {s.available_points}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Footer link */}
+      <div className="px-4 py-2.5 border-t border-slate-200 bg-slate-50">
+        <Link to="/hall-of-fame" className="text-xs text-slate-900 hover:text-amber-700 flex items-center justify-between font-extrabold">
+          <span className="flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-yellow-500" /> ดูหอเกียรติยศทั้งหมด
+          </span>
+          <ArrowRight className="w-3 h-3 text-amber-500" />
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+
 const categoryLinks = [
   { label: 'ข่าวประชาสัมพันธ์', href: '/news', color: 'text-blue-700', dot: 'bg-blue-500' },
   { label: 'กิจกรรม', href: '/news', color: 'text-green-700', dot: 'bg-green-500' },
@@ -347,8 +482,8 @@ export const useHomeRightBlocks = () => {
 
   const rawOrder = settings.homepage_right_widgets;
   const widgetOrder: string[] = rawOrder
-    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats','waste_bank','savings_bank']; } })()
-    : ['categories','gallery','services','social','stats','waste_bank','savings_bank'];
+    ? (() => { try { return JSON.parse(rawOrder); } catch { return ['categories','gallery','services','social','stats','waste_bank','savings_bank','virtue_bank']; } })()
+    : ['categories','gallery','services','social','stats','waste_bank','savings_bank','virtue_bank'];
 
   const categoriesWidget = (
     <div key="categories" className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
@@ -506,6 +641,7 @@ export const useHomeRightBlocks = () => {
     documents: documentsWidget,
     waste_bank: <WasteBankWidget key="waste_bank" />,
     savings_bank: <SavingsBankWidget key="savings_bank" />,
+    virtue_bank: <VirtueBankWidget key="virtue_bank" />,
   };
 
   return widgetMap;

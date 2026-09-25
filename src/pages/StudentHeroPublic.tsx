@@ -529,6 +529,19 @@ export default function StudentHeroPublic() {
                       )}
                     </Button>
                   </form>
+
+                  <div className="pt-2 border-t border-slate-100 text-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate('/hall-of-fame')}
+                      className="w-full h-11 rounded-2xl border-amber-200 bg-amber-50/70 hover:bg-amber-100 text-amber-900 font-extrabold flex items-center justify-center gap-2 transition"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      ดูหอเกียรติยศคนดีคำไผ่ทั้งหมด (Hall of Fame)
+                      <ArrowRight className="w-4 h-4 text-amber-600" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

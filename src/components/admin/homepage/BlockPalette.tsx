@@ -68,6 +68,7 @@ export const RIGHT_BLOCKS: BlockDef[] = [
     { id: 'documents', label: 'เอกสารดาวน์โหลด', icon: '📄', description: 'เอกสารล่าสุด', category: 'service' },
     { id: 'waste_bank', label: 'ธนาคารขยะ Top 5', icon: '♻️', description: 'อันดับนักเรียนธนาคารขยะ', category: 'data' },
     { id: 'savings_bank', label: 'ธนาคารพอเพียง Top 5', icon: '🏦', description: 'อันดับนักออม (จำนวนครั้งฝาก ไม่แสดงเงิน)', category: 'data' },
+    { id: 'virtue_bank', label: 'ธนาคารความดี Top 5', icon: '🌟', description: 'อันดับนักเรียนความดีสะสม (Top 5)', category: 'data' },
 ];
 
 export const LEFT_BLOCKS: BlockDef[] = [

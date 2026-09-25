@@ -100,6 +100,15 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 - QR Code ชี้ canonical URL `https://kampai-school.vercel.app/waste-bank/results` และดาวน์โหลด PNG 1200×1200 ได้
 - Component ห้าม query Supabase โดยตรง ให้ผ่าน `wasteBankShowcaseService` เท่านั้น
 
+### Virtue Bank Widget (`VirtueBankWidget` in `src/components/home/HomeRightSidebar.tsx`)
+
+- วิดเจ็ต sidebar หน้าแรกสำหรับแสดง Top 5 นักเรียนที่มีคะแนนความดีสะสมสูงสุดประจำปีการศึกษา
+- สไตล์การ์ด: พื้นหลัง `bg-card ring-1 ring-border rounded-2xl` พร้อม Header สีกรมท่า `bg-slate-900` และตัวหนังสือทอง `text-yellow-400` เข้าคู่กับ `SavingsBankWidget`
+- สรุปตัวเลข 2 มิติ: คะแนนสะสมรวม (`totalScores` สีเหลืองอำพัน `text-amber-800`) และบันทึกความดีรวม (`totalDeeds` สีเข้ม `text-slate-900`)
+- รายการ Top 5: เหรียญรางวัลไล่เฉด 🥇🥈🥉4️⃣5️⃣, รูปนักเรียนใช้ `<PersonAvatar>` คู่ชื่อและชั้นเรียนเสมอ, ตัวเลขคะแนนแสดง `+total_xp` (คะแนนเกียรติยศ) และ `แลกได้ available_points` (คะแนนพร้อมแลก)
+- Footer: ลิงก์ตรงสู่หอเกียรติยศคนดีคำไผ่ (`/hall-of-fame`)
+- Data access: ดึงข้อมูลผ่าน `conductService.getTop10Heroes(5)` และ `conductService.getSummaryStats()` (ห้าม query ตรงใน component)
+
 ### Integrated Plan Topic Card
 
 - รายการหลักสูตรหนึ่งแถวต้องผูกตัวชี้วัดเพียงข้อเดียว และจัดกลุ่มแบบ accordion ตาม “สาระ → มาตรฐาน → ตัวชี้วัด”

@@ -539,6 +539,17 @@ export const conductService = {
     }>;
   },
 
+  /** ดึงสถิติภาพรวมคะแนนความดีและจำนวนครั้งความดี */
+  getSummaryStats: async (): Promise<{ totalScores: number; totalDeeds: number }> => {
+    const { data, error } = await supabase
+      .from('conduct_scores')
+      .select('score, type')
+      .eq('type', 'add');
+    if (error || !data) return { totalScores: 0, totalDeeds: 0 };
+    const sum = data.reduce((acc, curr) => acc + Number(curr.score || 0), 0);
+    return { totalScores: sum, totalDeeds: data.length };
+  },
+
   /** ดึงคะแนนสะสมห้องเรียนด้วย RPC (High Performance) */
   getClassroomXpSumOptimized: async (className: string, roomName: string): Promise<number> => {
     const { data, error } = await supabase.rpc('get_classroom_xp_sum', {
