@@ -23,6 +23,30 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Interactive Simple Equation Media Revamp (v1.229.106)
+
+- **Interactive Balance Scale Simulator (ตาชั่งสมดุลฟิสิกส์จำลอง):**
+  - คานตาชั่งหมุนเอียงแบบ Dynamic Tilt Physics ตามน้ำหนักจริงของจานซ้ายและจานขวา พร้อมจานแขวนที่รักษาระนาบแนวนอนอัตโนมัติ (`transform: rotate(-θ)`)
+  - กล่องของขวัญปริศนา $x$ (Mystery Box) และลูกตุ้มน้ำหนักทองเหลืองจำลอง
+  - ปุ่มการกระทำทั้งสองข้างพร้อมกัน (Same Action on Both Sides): หักออกทั้งสองข้าง, เพิ่มทั้งสองข้าง, หารทั้งสองข้าง พร้อมแอนิเมชันและการอัปเดตสมการแบบ Real-time
+  - ปุ่มแอบดูข้างในกล่อง $x$ (Peek Inside) เพื่อเฉลยและยืนยันน้ำหนักจริง
+- **Singapore Math Bar Model Explorer (บาร์โมเดลเปรียบเทียบ):**
+  - การเรนเดอร์แถบสี่เหลี่ยมเปรียบเทียบสัดส่วน (CPA Approach: Concrete-Pictorial-Abstract)
+  - รองรับทั้งแบบส่วนรวม-ส่วนย่อย (Part-Whole Model สำหรับสมการบวกลบ) และแบบแบ่งเท่ากัน (Equal Parts Model สำหรับสมการคูณหาร) รวมถึงสมการ 2 ขั้นตอน
+- **Real-World Equation Stories (นิทานสถานการณ์ในชีวิตประจำวัน):**
+  - 4 การ์ดสถานการณ์จริงที่เด็กประถมคุ้นเคย: ร้านเครื่องเขียน (การบวก), กระปุกออมสิน (การลบ), ถุงลูกกวาดวันเด็ก (การคูณ), แบ่งพิซซ่า (การหาร)
+  - เชื่อมโยง 3 ลำดับ: เรื่องราว ➔ ภาพจำลอง ➔ ประโยคสัญลักษณ์สมการ พร้อมเสียงบรรยายภาษาไทย (Web Speech / KAMPAI TTS)
+- **Step-by-Step Solver & Practice (ระบบแก้สมการทีละก้าวพร้อมตรวจคำตอบ):**
+  - ระบบถามตอบ Guided Interactivity เลือกการกระทำที่ถูกต้องทั้งสองข้างทีละชั้น พร้อมข้อเสนอแนะทันที (Immediate Feedback)
+  - ขั้นตอนการตรวจคำตอบ (Check Answer Step) โดยการแทนค่าคำตอบกลับเข้าไปในสมการเดิมเพื่อยืนยันว่าซ้ายเท่ากับขวาจริง
+- **Sandbox Playground for Teachers & Classrooms (สนามทดลองอิสระ):**
+  - ครูสามารถปรับแต่งสมการ $ax + b = c$ ได้อย่างอิสระทั้ง 4 การดำเนินการ
+  - ตาชั่ง บาร์โมเดล และวิธีทำทีละขั้นตอนจะปรับเปลี่ยนตามสมการใหม่อัตโนมัติทันที รองรับการฉายขึ้นจอโปรเจกเตอร์หรือทีวีห้องเรียน
+- **Classroom-First & Accessibility:**
+  - รองรับ Viewport 360×800 (มือถือ), 768×1024 (แท็บเล็ต), และ 1280×720 (โปรเจกเตอร์ห้องเรียน) โดยไม่มี Horizontal Scroll Overflow
+  - รองรับ `prefers-reduced-motion` และ Keyboard Focus Visible มาตรฐาน WCAG AA
+  - สอดคล้องตามสัญญา `MEDIA.md`: มี `MEDIA_SLUG`, `KAMPAI.setSlug`, โหมด learn/practice, ปุ่ม `KAMPAI.goHome()`, เชื่อมโยงใบงานคู่ `simple-equation-worksheet.html` และไม่เรียก `submitScore`
+
 ### Exam System Quality, Scoring Integrity & OMR Student Bubbles (v1.229.105)
 
 - **Scoring Equality Bugfix:** แก้ไขปัญหาการตรวจคะแนนใน `ExamOnline.tsx` จาก strict equality (`ans === correctAns`) เป็น `Number(ans) === Number(correctAns)` เพื่อรองรับ choice index 0 (ข้อ ก.) และตัวเลขใน JSONB ที่อาจเก็บเป็น string หรือ number ทำให้ไม่เสียคะแนนโดยไม่ตั้งใจ

@@ -1,82 +1,1952 @@
 <!DOCTYPE html>
-<html lang="th"><head>
-  <script src="/games/kampai-sdk.js"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>สมการอย่างง่าย — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.199.1"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚖️ สมการอย่างง่าย — ห้องแล็บตาชั่งและบาร์โมเดล | โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Chakra+Petch:wght@700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#7c3aed;--line:#ddd6fe;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#ddd6fe,#7c3aed22);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#7c3aed);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.45rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .ex{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px dashed var(--line);font-size:1rem}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1e3a8a;
+      --navy-dark: #0f172a;
+      --blue: #2563eb;
+      --sky: #38bdf8;
+      --gold: #d97706;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --cream: #fffbeb;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --line-accent: #cbd5e1;
+      --muted: #64748b;
+      --ok: #16a34a;
+      --ok-light: #dcfce7;
+      --warn: #dc2626;
+      --warn-light: #fee2e2;
+      --purple: #7c3aed;
+      --purple-light: #f3e8ff;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #f1f5f9 100%);
+      min-height: 100vh;
+      color: #0f172a;
+      padding: 12px;
+    }
+
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 24px);
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      background: linear-gradient(90deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);
+      color: #fff;
+    }
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 0.9rem;
+    }
+    .btn-back:hover { background: rgba(255, 255, 255, 0.28); }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-accent { background: var(--amber); color: #78350f; }
+    .btn-accent:hover { background: #d97706; color: #fff; }
+    .btn-ghost {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid #bfdbfe;
+    }
+    .btn-ghost:hover { background: #eff6ff; }
+    .btn-ok { background: var(--ok); color: #fff; }
+    .btn-ok:hover { background: #15803d; }
+    .btn-warn { background: var(--warn); color: #fff; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 14px;
+      gap: 4px;
+    }
+    .seg-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      background: transparent;
+      color: #475569;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .seg-btn:hover { color: #0f172a; background: rgba(255,255,255,0.6); }
+    .seg-btn.on {
+      background: #ffffff;
+      color: var(--navy);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+      font-weight: 800;
+    }
+    .hint-bar {
+      font-size: 0.9rem;
+      color: #334155;
+      font-weight: 600;
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .actions-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Main Workspace ── */
+    .stage {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .mode-view {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.25s ease;
+    }
+    .mode-view.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Common Card Components ── */
+    .concept-card {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 2px solid #bfdbfe;
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .concept-info h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .concept-info p {
+      font-size: 0.95rem;
+      color: #334155;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    /* ── Equation Live Readout Box ── */
+    .eq-banner {
+      background: #0f172a;
+      color: #fff;
+      border-radius: 16px;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+    }
+    .eq-display {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .eq-display .eq-var {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.15);
+      padding: 2px 10px;
+      border-radius: 8px;
+      border: 1px dashed #fbbf24;
+    }
+    .eq-status-pill {
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eq-status-pill.balanced {
+      background: #14532d;
+      color: #86efac;
+      border: 1px solid #22c55e;
+    }
+    .eq-status-pill.unbalanced {
+      background: #7c2d12;
+      color: #fed7aa;
+      border: 1px solid #f97316;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       MODE 1: BALANCE SCALE SIMULATOR
+    ══════════════════════════════════════════════════════ */
+    .scale-stage-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 900px) {
+      .scale-stage-wrapper {
+        grid-template-columns: 1fr 340px;
+      }
+    }
+
+    .scale-interactive-box {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      position: relative;
+      background: radial-gradient(circle at 50% 20%, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    /* SVG Balance Scale Container */
+    .scale-svg-container {
+      width: 100%;
+      max-width: 680px;
+      height: 380px;
+      display: block;
+      overflow: visible;
+    }
+
+    .pan-item-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      max-width: 140px;
+      min-height: 60px;
+    }
+
+    .weight-box-ui {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #78350f;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      border: 2px solid #b45309;
+      box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .weight-box-ui.mystery-box {
+      background: linear-gradient(135deg, #38bdf8 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: 2px solid #1e40af;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+      padding: 8px 14px;
+      font-size: 1.25rem;
+    }
+
+    /* Scale Control Panel Sidebar */
+    .scale-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .sidebar-section-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 38px;
+    }
+    .chip-btn:hover { background: #dbeafe; border-color: #3b82f6; }
+    .chip-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .operation-card {
+      background: #ffffff;
+      border: 2px dashed #93c5fd;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .operation-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1e40af;
+    }
+    .op-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       MODE 2: BAR MODEL (SINGAPORE MATH)
+    ══════════════════════════════════════════════════════ */
+    .barmodel-container {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .barmodel-visual-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .bar-label {
+      width: 110px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--navy);
+      text-align: right;
+    }
+    .bar-track {
+      flex: 1;
+      height: 64px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      display: flex;
+      overflow: hidden;
+      border: 2px solid #cbd5e1;
+      position: relative;
+    }
+    .bar-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #fff;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .bar-segment.var-part {
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+    }
+    .bar-segment.num-part {
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+    }
+    .bar-segment.total-part {
+      background: linear-gradient(90deg, #059669, #10b981);
+    }
+
+    .barmodel-step-explanation {
+      background: #eff6ff;
+      border-left: 6px solid var(--blue);
+      border-radius: 0 14px 14px 0;
+      padding: 16px 20px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       MODE 3: REAL-WORLD STORIES
+    ══════════════════════════════════════════════════════ */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 800px) {
+      .story-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .story-card {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .story-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+      transform: translateY(-2px);
+    }
+    .story-card.active {
+      border-color: var(--blue);
+      background: #f0f7ff;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+    }
+    .story-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .story-icon {
+      font-size: 2.2rem;
+      background: #f1f5f9;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+    }
+    .story-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .story-subtitle {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .story-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #334155;
+      font-weight: 500;
+    }
+    .story-equation-box {
+      background: #ffffff;
+      border: 2px dashed #93c5fd;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .story-eq-math {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       MODE 4: STEP-BY-STEP SOLVER & PRACTICE
+    ══════════════════════════════════════════════════════ */
+    .solver-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 900px) {
+      .solver-layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .solver-board {
+      background: #0f172a;
+      color: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+    }
+    .solver-board-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #94a3b8;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .solver-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 180px;
+    }
+    .step-item {
+      background: #1e293b;
+      border-left: 4px solid var(--sky);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: fadeIn 0.3s ease;
+    }
+    .step-item.final {
+      border-left-color: var(--ok);
+      background: rgba(34, 197, 94, 0.15);
+    }
+    .step-item-title {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .step-item-math {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .step-item-math.highlight {
+      color: #4ade80;
+    }
+
+    .solver-action-panel {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .action-prompt {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .choice-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 14px 18px;
+      text-align: left;
+      cursor: pointer;
+      color: #1e293b;
+      transition: all 0.15s ease;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .choice-btn:hover {
+      border-color: var(--blue);
+      background: #eff6ff;
+    }
+    .choice-btn.correct {
+      border-color: var(--ok);
+      background: var(--ok-light);
+      color: #14532d;
+    }
+    .choice-btn.wrong {
+      border-color: var(--warn);
+      background: var(--warn-light);
+      color: #7f1d1d;
+    }
+    .feedback-banner {
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 1.5;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .feedback-banner.show { display: flex; }
+    .feedback-banner.ok { background: var(--ok-light); color: #14532d; border: 1px solid #86efac; }
+    .feedback-banner.no { background: var(--warn-light); color: #7f1d1d; border: 1px solid #fca5a5; }
+
+    /* ══════════════════════════════════════════════════════
+       MODE 5: SANDBOX PLAYGROUND
+    ══════════════════════════════════════════════════════ */
+    .sandbox-controls {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .sandbox-controls {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .sandbox-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sandbox-input-group label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .sandbox-input-group select,
+    .sandbox-input-group input {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      text-align: center;
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    footer a { color: var(--blue); font-weight: 700; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Accessibility: Reduced Motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ── Responsive Rules ── */
+    @media (max-width: 640px) {
+      body { padding: 4px; }
+      header { padding: 10px 14px; }
+      .toolbar { padding: 10px 14px; }
+      .stage { padding: 14px; }
+      .eq-display { font-size: 1.7rem; }
+      .btn { padding: 8px 12px; font-size: 0.9rem; }
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
+  <!-- ── Header ── -->
   <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
-    <h1>🧩 สมการอย่างง่าย · แบบรูป ป.6</h1>
-    <span class="badge">ป.6 · คณิตศาสตร์</span>
+    <button type="button" class="btn btn-back" id="btnBack" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">
+      ← กลับคลังสื่อ
+    </button>
+    <h1>
+      <span>⚖️</span> สมการอย่างง่าย — ห้องแล็บตาชั่งและบาร์โมเดล
+    </h1>
+    <span class="badge">ป.4–ป.6 · ตัวชี้วัด ค 1.2 ป.6/1</span>
   </header>
-  <div class="toolbar">
-    <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
-    </span>
-    <p class="hint" id="hintText">สื่อ ป.6 — ไม่เก็บคะแนน</p>
-    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
-    <a class="btn btn-ghost" href="/games/math/simple-equation-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
-  </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.6 · Phase 13 · ไม่เก็บคะแนน</div>
+
+  <!-- ── Toolbar ── -->
+  <nav class="toolbar" aria-label="แถบเครื่องมือ">
+    <div class="seg-group" id="modeSeg">
+      <button type="button" data-mode="learn" class="seg-btn on">⚖️ ตาชั่งสมดุล</button>
+      <button type="button" data-mode="barmodel" class="seg-btn">📊 บาร์โมเดล</button>
+      <button type="button" data-mode="story" class="seg-btn">🏪 นิทานชีวิตจริง</button>
+      <button type="button" data-mode="practice" class="seg-btn">🪜 ฝึกแก้ทีละก้าว</button>
+      <button type="button" data-mode="sandbox" class="seg-btn">🎛️ สนามทดลอง</button>
+    </div>
+
+    <div class="hint-bar" id="hintText">
+      <span>💡 สังเกตความสมดุลของตาชั่งสองข้าง</span>
+    </div>
+
+    <div class="actions-right">
+      <button type="button" class="btn btn-ghost" id="btnSpeak" title="ฟังเสียงบรรยาย">
+        🔊 อ่านออกเสียง
+      </button>
+      <button type="button" class="btn btn-ghost" id="btnFs" title="เต็มจอ">
+        ⛶ เต็มจอ
+      </button>
+      <a class="btn btn-ghost" href="/games/math/simple-equation-worksheet.html" target="_blank" rel="noopener">
+        📝 ใบงาน A4
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Main Workspace ── -->
+  <main class="stage" id="stage">
+
+    <!-- ══════════════════════════════════════════════════════
+         MODE 1: BALANCE SCALE (ตาชั่งสมดุล)
+    ══════════════════════════════════════════════════════ -->
+    <section class="mode-view active" id="view-learn" aria-label="โหมดตาชั่งสมดุล">
+      <!-- Concept Banner -->
+      <div class="concept-card">
+        <div class="concept-info">
+          <h2>⚖️ กฎเหล็กของตาชั่ง: ความหมายของเครื่องหมายเท่ากับ (=)</h2>
+          <p>เครื่องหมายเท่ากับ (=) หมายถึง <strong>"น้ำหนักสองข้างเท่ากันจนคานขนานกับพื้น"</strong> หากต้องการเอาสิ่งใดออกจากข้างหนึ่ง เราต้อง <strong>เอาออกเหมือนกันทั้งสองข้าง</strong> เพื่อรักษาความสมดุลไว้เสมอ!</p>
+        </div>
+        <button type="button" class="btn btn-accent" id="btnPeekBox">
+          👁️ แอบเปิดกล่อง x
+        </button>
+      </div>
+
+      <!-- Live Equation Banner -->
+      <div class="eq-banner">
+        <div class="eq-display" id="scaleEqText">
+          <span class="eq-var">x</span> + 3 = 8
+        </div>
+        <div class="eq-status-pill balanced" id="scaleStatusPill">
+          <span>⚖️</span> สมดุลแล้ว (ซ้าย = ขวา)
+        </div>
+      </div>
+
+      <!-- Scale Stage and Controls -->
+      <div class="scale-stage-wrapper">
+        <!-- Interactive Scale SVG Canvas -->
+        <div class="scale-interactive-box">
+          <svg class="scale-svg-container" id="scaleSvg" viewBox="0 0 700 380" aria-label="ตาชั่งสองแขน">
+            <defs>
+              <!-- Metallic Gradients -->
+              <linearGradient id="beamGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#475569" />
+                <stop offset="50%" stop-color="#94a3b8" />
+                <stop offset="100%" stop-color="#334155" />
+              </linearGradient>
+              <linearGradient id="standGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1e3a8a" />
+                <stop offset="50%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#1e3a8a" />
+              </linearGradient>
+              <linearGradient id="panGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#94a3b8" />
+              </linearGradient>
+            </defs>
+
+            <!-- Base Stand -->
+            <polygon points="350,110 320,350 380,350" fill="url(#standGrad)" stroke="#1e293b" stroke-width="3" />
+            <rect x="260" y="340" width="180" height="24" rx="10" fill="#1e293b" />
+            <circle cx="350" cy="110" r="16" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+
+            <!-- Rotating Lever Beam Assembly -->
+            <g id="scaleBeamAssembly" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 350px 110px;">
+              <!-- Horizontal Beam -->
+              <rect x="70" y="103" width="560" height="14" rx="7" fill="url(#beamGrad)" stroke="#1e293b" stroke-width="2" />
+              <!-- Pivot Center Bolt -->
+              <circle cx="350" cy="110" r="8" fill="#ffffff" />
+
+              <!-- Left Pan String Attachment Point -->
+              <circle cx="120" cy="110" r="6" fill="#1e293b" />
+              <!-- Right Pan String Attachment Point -->
+              <circle cx="580" cy="110" r="6" fill="#1e293b" />
+
+              <!-- Hanging Left Pan (Anti-rotated to stay level) -->
+              <g id="leftHanger" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 120px 110px;">
+                <!-- Chains -->
+                <line x1="120" y1="110" x2="60" y2="240" stroke="#64748b" stroke-width="2.5" />
+                <line x1="120" y1="110" x2="180" y2="240" stroke="#64748b" stroke-width="2.5" />
+                <!-- Pan Dish -->
+                <path d="M 50,240 Q 120,270 190,240 Z" fill="url(#panGrad)" stroke="#475569" stroke-width="2.5" />
+                <!-- Left Content HTML ForeignObject Container -->
+                <foreignObject x="40" y="165" width="160" height="80">
+                  <div class="pan-item-group" id="leftPanContent" xmlns="http://www.w3.org/1999/xhtml"></div>
+                </foreignObject>
+              </g>
+
+              <!-- Hanging Right Pan (Anti-rotated to stay level) -->
+              <g id="rightHanger" style="transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 580px 110px;">
+                <!-- Chains -->
+                <line x1="580" y1="110" x2="520" y2="240" stroke="#64748b" stroke-width="2.5" />
+                <line x1="580" y1="110" x2="640" y2="240" stroke="#64748b" stroke-width="2.5" />
+                <!-- Pan Dish -->
+                <path d="M 510,240 Q 580,270 650,240 Z" fill="url(#panGrad)" stroke="#475569" stroke-width="2.5" />
+                <!-- Right Content HTML ForeignObject Container -->
+                <foreignObject x="500" y="165" width="160" height="80">
+                  <div class="pan-item-group" id="rightPanContent" xmlns="http://www.w3.org/1999/xhtml"></div>
+                </foreignObject>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Scale Action Panel Sidebar -->
+        <aside class="scale-sidebar">
+          <div>
+            <div class="sidebar-section-title">📌 เลือกสมการตัวอย่าง</div>
+            <div class="preset-chips" id="scalePresets">
+              <button type="button" class="chip-btn on" data-preset="add">x + 3 = 8</button>
+              <button type="button" class="chip-btn" data-preset="sub">x − 4 = 5</button>
+              <button type="button" class="chip-btn" data-preset="mult">2x = 8</button>
+              <button type="button" class="chip-btn" data-preset="two_step">2x + 3 = 11</button>
+            </div>
+          </div>
+
+          <!-- Operation Controls -->
+          <div class="operation-card">
+            <div class="operation-title">⚡ การกระทำทั้งสองข้าง (Same Action)</div>
+            <div class="op-btn-grid" id="scaleOpButtons">
+              <button type="button" class="btn btn-ghost" id="btnMinusBoth">➖ หักออก 3 ทั้ง 2 ข้าง</button>
+              <button type="button" class="btn btn-ghost" id="btnDivBoth" style="display:none">➗ หาร 2 ทั้ง 2 ข้าง</button>
+              <button type="button" class="btn btn-ghost" id="btnAddBoth" style="display:none">➕ เพิ่ม 4 ทั้ง 2 ข้าง</button>
+              <button type="button" class="btn btn-ghost" id="btnResetScale">🔄 เริ่มใหม่</button>
+            </div>
+          </div>
+
+          <!-- Educational Explanation Box -->
+          <div class="operation-card" style="background:#fffbeb;border-color:#fde68a">
+            <div class="operation-title" style="color:#b45309">💡 คำอธิบายกระบวนการคิด</div>
+            <p id="scaleExplainText" style="font-size:0.92rem;line-height:1.5;color:#78350f;font-weight:600">
+              ฝั่งซ้ายมีกล่อง x กับลูกตุ้ม 3 กิโลกรัม ฝั่งขวามีลูกตุ้ม 8 กิโลกรัม ตาชั่งสมดุลกันพอดี! ถ้าเราหักลูกตุ้ม 3 กิโลกรัมออกทั้งสองข้างพร้อมกัน ตาชั่งจะยังคงสมดุล และจะเหลือเพียงกล่อง x หนัก 5 กิโลกรัมทันที!
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         MODE 2: BAR MODEL (SINGAPORE MATH)
+    ══════════════════════════════════════════════════════ -->
+    <section class="mode-view" id="view-barmodel" aria-label="โหมดบาร์โมเดล">
+      <div class="concept-card">
+        <div class="concept-info">
+          <h2>📊 บาร์โมเดล: มองเห็นสมการเป็นแท่งสัดส่วน (Part-Whole Model)</h2>
+          <p>บาร์โมเดลช่วยให้เห็นว่าตัวแปร x สัมพันธ์กับจำนวนทั้งหมดอย่างไร เหมาะสำหรับการเชื่อมโยงไปสู่การแก้โจทย์ปัญหา</p>
+        </div>
+      </div>
+
+      <div class="barmodel-container">
+        <!-- Preset selection for bar model -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="chip-btn on" data-barpreset="1">แบบส่วนรวม: x + 7 = 15</button>
+          <button type="button" class="chip-btn" data-barpreset="2">แบบส่วนที่เท่ากัน: 3x = 24</button>
+          <button type="button" class="chip-btn" data-barpreset="3">แบบ 2 ขั้นตอน: 2x + 4 = 16</button>
+        </div>
+
+        <div class="barmodel-visual-box" id="barVisualArea">
+          <!-- Rendered dynamically via JS -->
+        </div>
+
+        <div class="barmodel-step-explanation" id="barExplanation">
+          แถบสีเขียวคือจำนวนทั้งหมด (15) แถบสีส้มคือส่วนที่บวกเพิ่ม (7) ดังนั้นแถบสีฟ้า x คือส่วนที่เหลือ จึงหาได้จากการนำ 15 − 7 = 8
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         MODE 3: REAL-WORLD STORIES
+    ══════════════════════════════════════════════════════ -->
+    <section class="mode-view" id="view-story" aria-label="โหมดนิทานชีวิตจริง">
+      <div class="concept-card">
+        <div class="concept-info">
+          <h2>🏪 สมการในชีวิตประจำวัน (Real-World Stories)</h2>
+          <p>สมการไม่ใช่แค่เรื่องของตัวเลข แต่คือเหตุการณ์จริงที่เราพบเจอในชีวิตประจำวัน เช่น การซื้อของ การเก็บเงินออม หรือการแบ่งขนม</p>
+        </div>
+      </div>
+
+      <div class="story-grid" id="storyGrid">
+        <!-- Story Card 1 -->
+        <article class="story-card active" data-story="1">
+          <div class="story-header">
+            <div class="story-icon">✏️</div>
+            <div>
+              <h3 class="story-title">ร้านเครื่องเขียนของน้องฟ้า</h3>
+              <p class="story-subtitle">สมการการบวก (Addition Equation)</p>
+            </div>
+          </div>
+          <p class="story-text">
+            น้องฟ้าซื้อกล่องดินสอราคา <strong>x บาท</strong> และซื้อยางลบ 1 ก้อนราคา <strong>8 บาท</strong> เมื่อเดินไปจ่ายเงินที่เคาน์เตอร์ คุณครูเก็บเงินทั้งหมด <strong>35 บาท</strong>
+          </p>
+          <div class="story-equation-box">
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);font-weight:700">ประโยคสัญลักษณ์สมการ</div>
+              <div class="story-eq-math">x + 8 = 35</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="showStorySolve(1)">
+              💡 วิธีคิด: x = 27 บาท
+            </button>
+          </div>
+        </article>
+
+        <!-- Story Card 2 -->
+        <article class="story-card" data-story="2">
+          <div class="story-header">
+            <div class="story-icon">🐷</div>
+            <div>
+              <h3 class="story-title">กระปุกออมสินของต้นกล้า</h3>
+              <p class="story-subtitle">สมการการลบ (Subtraction Equation)</p>
+            </div>
+          </div>
+          <p class="story-text">
+            ต้นกล้ามีเงินสะสมในกระปุกออมสิน <strong>x บาท</strong> แคะเงินออกมาซื้อสมุดภาพระบายสี <strong>40 บาท</strong> พบว่ายังเหลือเงินในกระปุกอยู่อีก <strong>60 บาท</strong>
+          </p>
+          <div class="story-equation-box">
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);font-weight:700">ประโยคสัญลักษณ์สมการ</div>
+              <div class="story-eq-math">x − 40 = 60</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="showStorySolve(2)">
+              💡 วิธีคิด: x = 100 บาท
+            </button>
+          </div>
+        </article>
+
+        <!-- Story Card 3 -->
+        <article class="story-card" data-story="3">
+          <div class="story-header">
+            <div class="story-icon">🍬</div>
+            <div>
+              <h3 class="story-title">ถุงลูกกวาดวันเด็ก</h3>
+              <p class="story-subtitle">สมการการคูณ (Multiplication Equation)</p>
+            </div>
+          </div>
+          <p class="story-text">
+            คุณครูนำลูกกวาดมาแจกนักเรียน <strong>3 ถุง</strong> ทุกถุงมีลูกกวาด <strong>x เม็ด</strong> เท่ากันเป๊ะ เมื่อเทลูกกวาดออกมานับรวมกันทั้งหมดได้ <strong>24 เม็ด</strong>
+          </p>
+          <div class="story-equation-box">
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);font-weight:700">ประโยคสัญลักษณ์สมการ</div>
+              <div class="story-eq-math">3 × x = 24</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="showStorySolve(3)">
+              💡 วิธีคิด: x = 8 เม็ด
+            </button>
+          </div>
+        </article>
+
+        <!-- Story Card 4 -->
+        <article class="story-card" data-story="4">
+          <div class="story-header">
+            <div class="story-icon">🍕</div>
+            <div>
+              <h3 class="story-title">แบ่งพิซซ่าฉลองสอบเสร็จ</h3>
+              <p class="story-subtitle">สมการการหาร (Division Equation)</p>
+            </div>
+          </div>
+          <p class="story-text">
+            มีพิซซ่าถาดใหญ่ <strong>x ชิ้น</strong> นำมาแบ่งให้เพื่อน <strong>4 คน</strong> คนละเท่าๆ กัน โดยเพื่อนแต่ละคนได้รับพิซซ่าคนละ <strong>3 ชิ้น</strong> พอดี
+          </p>
+          <div class="story-equation-box">
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);font-weight:700">ประโยคสัญลักษณ์สมการ</div>
+              <div class="story-eq-math">x ÷ 4 = 3</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="showStorySolve(4)">
+              💡 วิธีคิด: x = 12 ชิ้น
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         MODE 4: STEP-BY-STEP SOLVER & PRACTICE
+    ══════════════════════════════════════════════════════ -->
+    <section class="mode-view" id="view-practice" aria-label="โหมดฝึกแก้ทีละก้าว">
+      <div class="concept-card">
+        <div class="concept-info">
+          <h2>🪜 แก้สมการทีละก้าวและตรวจคำตอบ (Step-by-Step Solver)</h2>
+          <p>ฝึกเลือกการกระทำที่ถูกต้องทั้งสองข้าง เมื่อได้คำตอบแล้ว แทนค่ากลับเข้าไปเพื่อตรวจคำตอบเสมอ!</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnNextPractice">
+          🎲 ข้อถัดไป
+        </button>
+      </div>
+
+      <div class="solver-layout">
+        <!-- Interactive Chalkboard / Working Steps -->
+        <div class="solver-board">
+          <div class="solver-board-title">
+            <span>📝 ขั้นตอนการแก้สมการ (Working Steps)</span>
+            <span id="practiceStepCounter" style="color:#38bdf8">ขั้นตอนที่ 1</span>
+          </div>
+
+          <div class="solver-steps-list" id="solverSteps">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Question & Action Panel -->
+        <div class="solver-action-panel">
+          <div class="action-prompt" id="practiceQuestionText">
+            คำถาม: เราต้องการกำจัดส่วนที่บวกอยู่ ควรทำอย่างไรกับทั้งสองข้าง?
+          </div>
+
+          <div class="choice-grid" id="practiceChoices">
+            <!-- Choices rendered by JS -->
+          </div>
+
+          <div class="feedback-banner" id="practiceFeedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         MODE 5: SANDBOX PLAYGROUND
+    ══════════════════════════════════════════════════════ -->
+    <section class="mode-view" id="view-sandbox" aria-label="โหมดสนามทดลอง">
+      <div class="concept-card">
+        <div class="concept-info">
+          <h2>🎛️ สนามทดลองอิสระสำหรับครูและนักเรียน (Sandbox Playground)</h2>
+          <p>กำหนดตัวแปรและตัวเลขในสมการได้อย่างอิสระ เพื่อดูผลลัพธ์บนตาชั่งและบาร์โมเดลแบบ Real-time</p>
+        </div>
+        <button type="button" class="btn btn-accent" id="btnSandboxRandom">
+          🎲 สุ่มโจทย์ใหม่
+        </button>
+      </div>
+
+      <div class="sandbox-controls">
+        <div class="sandbox-input-group">
+          <label for="sbOp">รูปแบบสมการ</label>
+          <select id="sbOp">
+            <option value="add">x + b = c (การบวก)</option>
+            <option value="sub">x − b = c (การลบ)</option>
+            <option value="mult">a × x = c (การคูณ)</option>
+            <option value="two_step">a × x + b = c (2 ขั้นตอน)</option>
+          </select>
+        </div>
+        <div class="sandbox-input-group" id="sbGroupA" style="display:none">
+          <label for="sbValA">สัมประสิทธิ์ a (จำนวนเท่าของ x)</label>
+          <input type="number" id="sbValA" min="1" max="5" value="2" />
+        </div>
+        <div class="sandbox-input-group" id="sbGroupB">
+          <label for="sbValB">ค่าคงที่ b</label>
+          <input type="number" id="sbValB" min="1" max="20" value="5" />
+        </div>
+        <div class="sandbox-input-group">
+          <label for="sbValC">ผลลัพธ์รวม c</label>
+          <input type="number" id="sbValC" min="1" max="50" value="12" />
+        </div>
+      </div>
+
+      <div class="barmodel-container">
+        <div class="eq-banner">
+          <div class="eq-display" id="sandboxEqDisplay">x + 5 = 12</div>
+          <div class="eq-status-pill balanced" id="sandboxAnswerPill">
+            คำตอบ: x = 7
+          </div>
+        </div>
+
+        <div class="barmodel-visual-box" id="sandboxBarVisual">
+          <!-- Sandbox dynamic bar -->
+        </div>
+
+        <div class="barmodel-step-explanation" id="sandboxExplanation">
+          วิธีแก้สมการ: ลบ 5 ออกจากทั้งสองข้าง จะได้ x = 12 − 5 = 7
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div>
+      ตัวชี้วัด <strong>ค 1.2 ป.6/1</strong> (การหาค่าตัวไม่ทราบค่าในสมการและแบบรูป) · โรงเรียนบ้านคำไผ่
+    </div>
+    <div>
+      สื่อการสอนประกอบการเรียนรู้ · <a href="/games/math/simple-equation-worksheet.html">เปิดใบงานคู่สมการ</a>
+    </div>
+  </footer>
 </div>
+
+<!-- ══════════════════════════════════════════════════════
+     INTERACTIVE LOGIC SCRIPT
+══════════════════════════════════════════════════════ -->
 <script>
-const MEDIA_SLUG='simple-equation-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"⬜","name":"หาค่าที่หายไป","body":"กล่อง □ แทนจำนวนที่ไม่ทราบค่า เช่น □ + 7 = 15 → □ = 8","tip":"ทำย้อนกลับ: ลบ/หารฝั่งตรงข้าม","ex":"15 − 7 = 8","q":"□ + 7 = 15 ค่า □ คือ?","a":"8"},{"emoji":"✖️","name":"สมการคูณหาร","body":"3 × □ = 24 → □ = 8 · □ ÷ 4 = 5 → □ = 20","tip":"คูณกับหารเป็นคู่ตรงข้าม","ex":"24 ÷ 3 = 8","q":"3 × □ = 24 ค่า □ คือ?","a":"8"},{"emoji":"🔢","name":"แบบรูปจำนวน","body":"หาความสัมพันธ์ของลำดับ เช่น 2, 5, 8, 11 (+3 ทุกครั้ง)","tip":"เขียนกฎแล้วหาพจน์ถัดไป","ex":"พจน์ถัดไปของ 2,5,8 คือ 11","q":"แบบรูป 2,5,8,11 เพิ่มทีละเท่าใด?","a":"3"},{"emoji":"🧮","name":"แบบรูป 2 ขั้น","body":"บางแบบรูปคูณแล้วบวก เช่น ×2 แล้ว +1","tip":"ทดลองกฎกับ 2–3 พจน์แรก","ex":"1,3,7,15 → ×2+1","q":"ถ้ากฎคือ ×2+1 เริ่มจาก 1 พจน์ที่ 3 คือ?","a":"7"},{"emoji":"📦","name":"สมการ 2 ขั้น","body":"2 × □ + 3 = 11 → 2×□ = 8 → □ = 4","tip":"แก้ทีละชั้นจากนอกเข้าใน","ex":"ถอด +3 ก่อน แล้วหารด้วย 2","q":"2 × □ + 3 = 11 ค่า □ คือ?","a":"4"},{"emoji":"🎯","name":"ตรวจคำตอบ","body":"แทนค่า □ กลับสมการ ถ้าซ้าย=ขวา แสดงถูกต้อง","tip":"อย่าลืมตรวจทุกครั้ง","ex":"□=4 ใน 2×□+3 → 8+3=11 ✓","q":"ทำไมต้องแทนค่ากลับสมการ?","a":"เพื่อตรวจคำตอบ"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · อ่านให้เข้าใจ':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.ex?'<div class="ex">'+cur.ex+'</div>':'');
-}
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+  // ── Media Slug Registration ──
+  const MEDIA_SLUG = 'simple-equation-media';
+  if (window.KAMPAI) {
+    KAMPAI.setSlug(MEDIA_SLUG);
+    if (KAMPAI.sound && KAMPAI.sound.mountToggles) {
+      KAMPAI.sound.mountToggles();
+    }
+  }
+
+  // ── Sound Helper (Safe invocation) ──
+  function playSound(type) {
+    if (!window.KAMPAI || !KAMPAI.sound) return;
+    try {
+      if (type === 'correct' && KAMPAI.sound.correct) KAMPAI.sound.correct();
+      else if (type === 'wrong' && KAMPAI.sound.wrong) KAMPAI.sound.wrong();
+      else if (type === 'click' && KAMPAI.sound.click) KAMPAI.sound.click();
+    } catch (e) {
+      console.warn('Sound error:', e);
+    }
+  }
+
+  // ── Speech Narration Helper ──
+  function speakText(text) {
+    if (!text) return;
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
+      KAMPAI.sound.speak(text, 'th-TH');
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'th-TH';
+      u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  // ── State Management ──
+  const state = {
+    mode: 'learn', // learn, barmodel, story, practice, sandbox
+    scale: {
+      preset: 'add',
+      varX: 5,
+      leftItems: [{ type: 'x', count: 1 }, { type: 'num', val: 3 }],
+      rightItems: [{ type: 'num', val: 8 }],
+      isPeek: false,
+      step: 0
+    },
+    practice: {
+      questionIndex: 0,
+      currentStep: 1,
+      selectedAnswer: null
+    }
+  };
+
+  // Read-only QA Hook
+  window.getState = function() {
+    return JSON.parse(JSON.stringify(state));
+  };
+
+  /* ══════════════════════════════════════════════════════
+     MODE SWITCHING
+  ══════════════════════════════════════════════════════ */
+  const modeButtons = document.querySelectorAll('#modeSeg .seg-btn');
+  const modeViews = {
+    learn: document.getElementById('view-learn'),
+    barmodel: document.getElementById('view-barmodel'),
+    story: document.getElementById('view-story'),
+    practice: document.getElementById('view-practice'),
+    sandbox: document.getElementById('view-sandbox')
+  };
+
+  function setMode(modeKey) {
+    state.mode = modeKey;
+    modeButtons.forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.mode === modeKey);
+    });
+
+    Object.keys(modeViews).forEach(key => {
+      if (modeViews[key]) {
+        modeViews[key].classList.toggle('active', key === modeKey);
+      }
+    });
+
+    const hintText = document.getElementById('hintText');
+    if (modeKey === 'learn') {
+      hintText.innerHTML = '<span>⚖️ สังเกตความสมดุลของตาชั่งสองข้างเมื่อเอาออกเท่ากัน</span>';
+    } else if (modeKey === 'barmodel') {
+      hintText.innerHTML = '<span>📊 เปรียบเทียบความยาวของแถบตัวแปรกับจำนวนรวม</span>';
+      renderBarModel();
+    } else if (modeKey === 'story') {
+      hintText.innerHTML = '<span>🏪 แตะการ์ดนิทานเพื่อดูสมการและวิธีคิด</span>';
+    } else if (modeKey === 'practice') {
+      hintText.innerHTML = '<span>🪜 เลือกการกระทำที่ถูกต้องเพื่อกำจัดทีละชั้น</span>';
+      loadPracticeQuestion(state.practice.questionIndex);
+    } else if (modeKey === 'sandbox') {
+      hintText.innerHTML = '<span>🎛️ ปรับค่าสมการและดูการเปลี่ยนแปลงทันที</span>';
+      updateSandbox();
+    }
+  }
+
+  modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      playSound('click');
+      setMode(btn.dataset.mode);
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════
+     MODE 1: SCALE SIMULATOR ENGINE
+  ══════════════════════════════════════════════════════ */
+  const leftPanEl = document.getElementById('leftPanContent');
+  const rightPanEl = document.getElementById('rightPanContent');
+  const beamAssembly = document.getElementById('scaleBeamAssembly');
+  const leftHanger = document.getElementById('leftHanger');
+  const rightHanger = document.getElementById('rightHanger');
+  const scaleEqText = document.getElementById('scaleEqText');
+  const scaleStatusPill = document.getElementById('scaleStatusPill');
+  const scaleExplainText = document.getElementById('scaleExplainText');
+
+  function calculatePanWeights() {
+    let leftWeight = 0;
+    state.scale.leftItems.forEach(item => {
+      if (item.type === 'x') leftWeight += item.count * state.scale.varX;
+      else if (item.type === 'num') leftWeight += item.val;
+    });
+
+    let rightWeight = 0;
+    state.scale.rightItems.forEach(item => {
+      if (item.type === 'num') rightWeight += item.val;
+    });
+
+    return { left: leftWeight, right: rightWeight };
+  }
+
+  function renderScale() {
+    const { left, right } = calculatePanWeights();
+    const diff = left - right;
+
+    // Angle tilt physics: max 14 degrees
+    let angle = Math.max(-14, Math.min(14, diff * 2.2));
+    // Beam rotation
+    beamAssembly.style.transform = `rotate(${angle}deg)`;
+    // Pan anti-rotation so dishes stay level!
+    leftHanger.style.transform = `rotate(${-angle}deg)`;
+    rightHanger.style.transform = `rotate(${-angle}deg)`;
+
+    // Render Left Pan DOM
+    leftPanEl.innerHTML = '';
+    state.scale.leftItems.forEach(item => {
+      if (item.type === 'x') {
+        for (let i = 0; i < item.count; i++) {
+          const el = document.createElement('div');
+          el.className = 'weight-box-ui mystery-box';
+          el.innerHTML = state.scale.isPeek ? `🎁 x=${state.scale.varX}` : '🎁 x';
+          leftPanEl.appendChild(el);
+        }
+      } else if (item.type === 'num') {
+        const el = document.createElement('div');
+        el.className = 'weight-box-ui';
+        el.textContent = `⚖️ ${item.val}`;
+        leftPanEl.appendChild(el);
+      }
+    });
+
+    // Render Right Pan DOM
+    rightPanEl.innerHTML = '';
+    state.scale.rightItems.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'weight-box-ui';
+      el.textContent = `⚖️ ${item.val}`;
+      rightPanEl.appendChild(el);
+    });
+
+    // Update Status Pill
+    if (diff === 0) {
+      scaleStatusPill.className = 'eq-status-pill balanced';
+      scaleStatusPill.innerHTML = '<span>⚖️</span> สมดุลแล้ว (ซ้าย = ขวา)';
+    } else if (diff > 0) {
+      scaleStatusPill.className = 'eq-status-pill unbalanced';
+      scaleStatusPill.innerHTML = '<span>⬅️</span> ซ้ายหนักกว่า (เอียงซ้าย)';
+    } else {
+      scaleStatusPill.className = 'eq-status-pill unbalanced';
+      scaleStatusPill.innerHTML = '<span>➡️</span> ขวาหนักกว่า (เอียงขวา)';
+    }
+  }
+
+  // Scale Preset Selector
+  document.getElementById('scalePresets').addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip-btn');
+    if (!btn) return;
+    playSound('click');
+    document.querySelectorAll('#scalePresets .chip-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+
+    applyScalePreset(btn.dataset.preset);
+  });
+
+  function applyScalePreset(presetKey) {
+    state.scale.preset = presetKey;
+    state.scale.isPeek = false;
+    state.scale.step = 0;
+
+    const btnMinus = document.getElementById('btnMinusBoth');
+    const btnDiv = document.getElementById('btnDivBoth');
+    const btnAdd = document.getElementById('btnAddBoth');
+
+    btnMinus.style.display = 'none';
+    btnDiv.style.display = 'none';
+    btnAdd.style.display = 'none';
+
+    if (presetKey === 'add') {
+      state.scale.varX = 5;
+      state.scale.leftItems = [{ type: 'x', count: 1 }, { type: 'num', val: 3 }];
+      state.scale.rightItems = [{ type: 'num', val: 8 }];
+      scaleEqText.innerHTML = '<span class="eq-var">x</span> + 3 = 8';
+      scaleExplainText.textContent = 'ฝั่งซ้ายมีกล่อง x กับลูกตุ้ม 3 กก. ฝั่งขวามี 8 กก. เมื่อหักลูกตุ้ม 3 ออกจากทั้ง 2 ข้าง ตาชั่งจะยังสมดุล และเหลือ x = 5';
+      btnMinus.style.display = 'inline-flex';
+      btnMinus.textContent = '➖ หักออก 3 ทั้ง 2 ข้าง';
+    } else if (presetKey === 'sub') {
+      state.scale.varX = 9;
+      state.scale.leftItems = [{ type: 'x', count: 1 }];
+      state.scale.rightItems = [{ type: 'num', val: 5 }, { type: 'num', val: 4 }];
+      scaleEqText.innerHTML = '<span class="eq-var">x</span> − 4 = 5';
+      scaleExplainText.textContent = 'เมื่อกล่อง x ถูกหักออกไป 4 จะเหลือเท่ากับ 5 ถ้าเราเพิ่ม 4 คืนกลับมาทั้งสองข้าง กล่อง x จะหนักเท่ากับ 9';
+      btnAdd.style.display = 'inline-flex';
+      btnAdd.textContent = '➕ เพิ่ม 4 ทั้ง 2 ข้าง';
+    } else if (presetKey === 'mult') {
+      state.scale.varX = 4;
+      state.scale.leftItems = [{ type: 'x', count: 2 }];
+      state.scale.rightItems = [{ type: 'num', val: 8 }];
+      scaleEqText.innerHTML = '2<span class="eq-var">x</span> = 8';
+      scaleExplainText.textContent = 'มีกล่อง x ที่เหมือนกัน 2 กล่อง หนักรวม 8 กก. ถ้าเราแบ่งออกเป็น 2 กองเท่าๆ กัน (หาร 2 ทั้งสองข้าง) จะได้กล่อง x = 4';
+      btnDiv.style.display = 'inline-flex';
+      btnDiv.textContent = '➗ หาร 2 ทั้ง 2 ข้าง';
+    } else if (presetKey === 'two_step') {
+      state.scale.varX = 4;
+      state.scale.leftItems = [{ type: 'x', count: 2 }, { type: 'num', val: 3 }];
+      state.scale.rightItems = [{ type: 'num', val: 11 }];
+      scaleEqText.innerHTML = '2<span class="eq-var">x</span> + 3 = 11';
+      scaleExplainText.textContent = 'สมการ 2 ขั้นตอน: ขั้นแรกให้หักส่วนเกิน +3 ออกจากทั้ง 2 ข้างก่อน จากนั้นจึงหาร 2 เพื่อหากล่อง x ตัวเดียว';
+      btnMinus.style.display = 'inline-flex';
+      btnMinus.textContent = '➖ หักออก 3 ทั้ง 2 ข้าง (ขั้นที่ 1)';
+    }
+
+    renderScale();
+  }
+
+  // Minus Action
+  document.getElementById('btnMinusBoth').addEventListener('click', () => {
+    playSound('correct');
+    if (state.scale.preset === 'add') {
+      state.scale.leftItems = [{ type: 'x', count: 1 }];
+      state.scale.rightItems = [{ type: 'num', val: 5 }];
+      scaleEqText.innerHTML = '<span class="eq-var">x</span> = 5';
+      scaleExplainText.textContent = '🎉 เก่งมาก! หักออก 3 ทั้งสองข้างแล้ว ตาชั่งยังคงขนานพื้น และเราได้คำตอบแล้วว่า x = 5';
+      document.getElementById('btnMinusBoth').style.display = 'none';
+    } else if (state.scale.preset === 'two_step') {
+      state.scale.leftItems = [{ type: 'x', count: 2 }];
+      state.scale.rightItems = [{ type: 'num', val: 8 }];
+      scaleEqText.innerHTML = '2<span class="eq-var">x</span> = 8';
+      scaleExplainText.textContent = 'ขั้นที่ 1 สำเร็จ! หัก 3 ออกทั้งสองข้างแล้วเหลือ 2x = 8 ขั้นถัดไปให้กด "หาร 2 ทั้ง 2 ข้าง"';
+      document.getElementById('btnMinusBoth').style.display = 'none';
+      const btnDiv = document.getElementById('btnDivBoth');
+      btnDiv.style.display = 'inline-flex';
+      btnDiv.textContent = '➗ หาร 2 ทั้ง 2 ข้าง (ขั้นที่ 2)';
+    }
+    renderScale();
+  });
+
+  // Divide Action
+  document.getElementById('btnDivBoth').addEventListener('click', () => {
+    playSound('correct');
+    state.scale.leftItems = [{ type: 'x', count: 1 }];
+    state.scale.rightItems = [{ type: 'num', val: 4 }];
+    scaleEqText.innerHTML = '<span class="eq-var">x</span> = 4';
+    scaleExplainText.textContent = '🎉 ยอดเยี่ยม! แบ่งหาร 2 ทั้งสองข้างแล้ว ตาชั่งยังคงสมดุล ได้คำตอบ x = 4 ชัดเจน!';
+    document.getElementById('btnDivBoth').style.display = 'none';
+    renderScale();
+  });
+
+  // Add Action
+  document.getElementById('btnAddBoth').addEventListener('click', () => {
+    playSound('correct');
+    state.scale.leftItems = [{ type: 'x', count: 1 }];
+    state.scale.rightItems = [{ type: 'num', val: 9 }];
+    scaleEqText.innerHTML = '<span class="eq-var">x</span> = 9';
+    scaleExplainText.textContent = '🎉 เพิ่ม 4 ทั้งสองข้างแล้ว ได้ค่าเต็มของกล่อง x = 9 พอดี!';
+    document.getElementById('btnAddBoth').style.display = 'none';
+    renderScale();
+  });
+
+  // Reset Scale
+  document.getElementById('btnResetScale').addEventListener('click', () => {
+    playSound('click');
+    applyScalePreset(state.scale.preset);
+  });
+
+  // Peek inside box
+  document.getElementById('btnPeekBox').addEventListener('click', () => {
+    playSound('click');
+    state.scale.isPeek = !state.scale.isPeek;
+    document.getElementById('btnPeekBox').textContent = state.scale.isPeek ? '🙈 ปิดฝากล่อง x' : '👁️ แอบเปิดกล่อง x';
+    renderScale();
+  });
+
+  /* ══════════════════════════════════════════════════════
+     MODE 2: BAR MODEL ENGINE
+  ══════════════════════════════════════════════════════ */
+  let currentBarPreset = '1';
+  document.querySelectorAll('[data-barpreset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      playSound('click');
+      document.querySelectorAll('[data-barpreset]').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      currentBarPreset = btn.dataset.barpreset;
+      renderBarModel();
+    });
+  });
+
+  function renderBarModel() {
+    const visual = document.getElementById('barVisualArea');
+    const expl = document.getElementById('barExplanation');
+
+    if (currentBarPreset === '1') {
+      visual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ส่วนรวม (ทั้งหมด):</div>
+          <div class="bar-track">
+            <div class="bar-segment total-part" style="width: 100%">15</div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">ส่วนย่อย (สมการ):</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width: 53.3%">x (8)</div>
+            <div class="bar-segment num-part" style="width: 46.7%">+7</div>
+          </div>
+        </div>
+      `;
+      expl.textContent = 'แถบสีเขียวคือจำนวนทั้งหมด (15) ถูกแบ่งออกเป็น 2 ท่อนคือ x และ 7 ดังนั้นแถบสีฟ้า x จึงหาได้จาก 15 − 7 = 8';
+    } else if (currentBarPreset === '2') {
+      visual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ส่วนรวม (ทั้งหมด):</div>
+          <div class="bar-track">
+            <div class="bar-segment total-part" style="width: 100%">24</div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">แบ่งเท่ากัน 3 ส่วน:</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width: 33.33%">x (8)</div>
+            <div class="bar-segment var-part" style="width: 33.33%;border-left:2px solid #fff">x (8)</div>
+            <div class="bar-segment var-part" style="width: 33.34%;border-left:2px solid #fff">x (8)</div>
+          </div>
+        </div>
+      `;
+      expl.textContent = 'แถบ 24 ถูกแบ่งออกเป็น 3 ท่อนที่ยาว x เท่าๆ กัน (3x = 24) แต่ละท่อนจึงมีค่าเท่ากับ 24 ÷ 3 = 8';
+    } else if (currentBarPreset === '3') {
+      visual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ทั้งหมด:</div>
+          <div class="bar-track">
+            <div class="bar-segment total-part" style="width: 100%">16</div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">2x + 4:</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width: 37.5%">x (6)</div>
+            <div class="bar-segment var-part" style="width: 37.5%;border-left:2px solid #fff">x (6)</div>
+            <div class="bar-segment num-part" style="width: 25%">+4</div>
+          </div>
+        </div>
+      `;
+      expl.textContent = 'ขั้นที่ 1: ตัดส่วนเกิน 4 ออกจาก 16 เหลือ 12 จากนั้นขั้นที่ 2: แบ่ง 12 ออกเป็น 2 ท่อน x เท่าๆ กัน จะได้ x = 12 ÷ 2 = 6';
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     MODE 3: REAL-WORLD STORIES ENGINE
+  ══════════════════════════════════════════════════════ */
+  const storyData = {
+    1: {
+      title: 'ร้านเครื่องเขียนของน้องฟ้า',
+      desc: 'น้องฟ้าซื้อกล่องดินสอราคา x บาท และซื้อยางลบ 1 ก้อนราคา 8 บาท จ่ายเงินไป 35 บาท',
+      solve: 'วิธีคิด: นำเงินทั้งหมด 35 บาท ลบราคายางลบ 8 บาท จะได้ราคากล่องดินสอ x = 35 − 8 = 27 บาท'
+    },
+    2: {
+      title: 'กระปุกออมสินของต้นกล้า',
+      desc: 'ต้นกล้ามีเงินในกระปุก x บาท นำไปซื้อสมุดภาพ 40 บาท เหลือเงิน 60 บาท',
+      solve: 'วิธีคิด: นำเงินที่เหลือ 60 บาท รวมกับเงินที่ซื้อของ 40 บาท จะได้เงินเดิม x = 60 + 40 = 100 บาท'
+    },
+    3: {
+      title: 'ถุงลูกกวาดวันเด็ก',
+      desc: 'คุณครูแจกลูกกวาด 3 ถุง แต่ละถุงมี x เม็ดเท่ากัน รวมทั้งหมด 24 เม็ด',
+      solve: 'วิธีคิด: นำลูกกวาดทั้งหมด 24 เม็ด แบ่งเป็น 3 ถุงเท่าๆ กัน จะได้ถุงละ x = 24 ÷ 3 = 8 เม็ด'
+    },
+    4: {
+      title: 'แบ่งพิซซ่าฉลองสอบเสร็จ',
+      desc: 'มีพิซซ่า x ชิ้น แบ่งให้เพื่อน 4 คน คนละ 3 ชิ้นพอดี',
+      solve: 'วิธีคิด: เพื่อน 4 คน คนละ 3 ชิ้น แสดงว่าพิซซ่าทั้งหมดมี x = 4 × 3 = 12 ชิ้น'
+    }
+  };
+
+  document.querySelectorAll('.story-card').forEach(card => {
+    card.addEventListener('click', () => {
+      playSound('click');
+      document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const id = card.dataset.story;
+      speakText(`${storyData[id].title}. ${storyData[id].desc}`);
+    });
+  });
+
+  window.showStorySolve = function(id) {
+    const s = storyData[id];
+    alert(`💡 ${s.title}\n\n${s.solve}`);
+  };
+
+  /* ══════════════════════════════════════════════════════
+     MODE 4: STEP-BY-STEP SOLVER & PRACTICE
+  ══════════════════════════════════════════════════════ */
+  const practiceProblems = [
+    {
+      title: 'โจทย์ที่ 1: สมการการบวก',
+      eq: 'x + 9 = 20',
+      steps: [
+        {
+          prompt: 'ขั้นที่ 1: เราต้องการกำจัด +9 ออกจากฝั่งซ้าย ควรทำอย่างไรกับทั้งสองข้าง?',
+          choices: [
+            { text: 'ลบ 9 ออกทั้งสองข้าง', correct: true, exp: 'ถูกต้อง! การลบเป็นคู่ตรงข้ามของการบวก' },
+            { text: 'บวก 9 เพิ่มทั้งสองข้าง', correct: false, exp: 'ไม่ถูกต้อง ถ้าบวกเพิ่มจะกลายเป็น +18' },
+            { text: 'หาร 9 ฝั่งซ้าย', correct: false, exp: 'ไม่ถูกต้อง ไม่สามารถหารข้างเดียวได้' }
+          ],
+          resultMath: 'x = 20 − 9 = 11'
+        },
+        {
+          prompt: 'ขั้นที่ 2: ตรวจคำตอบ โดยแทน x = 11 กลับเข้าไปในสมการเดิม',
+          choices: [
+            { text: 'แทน 11 ใน x + 9 ได้ 11 + 9 = 20 (ซ้าย = ขวา) ถูกต้อง!', correct: true, exp: 'ยอดเยี่ยม! การตรวจคำตอบยืนยันว่าคำตอบถูกต้องแน่นอน' },
+            { text: 'ไม่ต้องตรวจคำตอบ', correct: false, exp: 'ควรตรวจคำตอบเสมอเพื่อความแม่นยำ' }
+          ],
+          resultMath: 'ตรวจ: 11 + 9 = 20 ✓ ถูกต้อง'
+        }
+      ]
+    },
+    {
+      title: 'โจทย์ที่ 2: สมการการคูณ',
+      eq: '4x = 28',
+      steps: [
+        {
+          prompt: 'ขั้นที่ 1: เลข 4 คูณอยู่กับ x ควรทำอย่างไรเพื่อให้เหลือ x ตัวเดียว?',
+          choices: [
+            { text: 'หารด้วย 4 ทั้งสองข้าง', correct: true, exp: 'ถูกต้อง! การหารเป็นคู่ตรงข้ามของการคูณ' },
+            { text: 'ลบ 4 ออกทั้งสองข้าง', correct: false, exp: 'ไม่ถูกต้อง 4 คูณอยู่ไม่ใช่บวกอยู่' },
+            { text: 'คูณด้วย 4 ทั้งสองข้าง', correct: false, exp: 'ไม่ถูกต้อง จะทำให้ได้ 16x' }
+          ],
+          resultMath: 'x = 28 ÷ 4 = 7'
+        },
+        {
+          prompt: 'ขั้นที่ 2: ตรวจคำตอบ โดยแทน x = 7 กลับเข้าไปใน 4x',
+          choices: [
+            { text: 'แทน 7 ใน 4x ได้ 4 × 7 = 28 (ซ้าย = ขวา) ถูกต้อง!', correct: true, exp: 'เก่งมาก คำตอบคือ 7 อย่างแน่นอน' }
+          ],
+          resultMath: 'ตรวจ: 4 × 7 = 28 ✓ ถูกต้อง'
+        }
+      ]
+    },
+    {
+      title: 'โจทย์ที่ 3: สมการ 2 ขั้นตอน',
+      eq: '2x + 5 = 17',
+      steps: [
+        {
+          prompt: 'ขั้นที่ 1: ควรกำจัดส่วนที่บวกอยู่ (+5) ก่อน ควรทำอย่างไร?',
+          choices: [
+            { text: 'ลบ 5 ทั้งสองข้าง', correct: true, exp: 'ถูกต้อง! กำจัดตัวบวกก่อนเสมอ' },
+            { text: 'หาร 2 ทั้งสองข้างก่อน', correct: false, exp: 'ทำได้ยากกว่า เพราะจะติดเศษส่วน' }
+          ],
+          resultMath: '2x = 17 − 5 = 12'
+        },
+        {
+          prompt: 'ขั้นที่ 2: ตอนนี้เหลือ 2x = 12 ควรทำอย่างไรเพื่อให้เหลือ x?',
+          choices: [
+            { text: 'หารด้วย 2 ทั้งสองข้าง', correct: true, exp: 'ถูกต้อง! หาร 2 ทั้งสองข้าง' },
+            { text: 'ลบด้วย 2 ทั้งสองข้าง', correct: false, exp: 'ไม่ถูกต้อง 2 คูณอยู่กับ x' }
+          ],
+          resultMath: 'x = 12 ÷ 2 = 6'
+        },
+        {
+          prompt: 'ขั้นที่ 3: ตรวจคำตอบ แทน x = 6 ใน 2x + 5',
+          choices: [
+            { text: '2(6) + 5 = 12 + 5 = 17 (ซ้าย = ขวา) ถูกต้อง!', correct: true, exp: 'สมบูรณ์แบบมาก คำตอบถูกต้อง 100%' }
+          ],
+          resultMath: 'ตรวจ: 2(6) + 5 = 17 ✓ ถูกต้อง'
+        }
+      ]
+    }
+  ];
+
+  let currentProbIndex = 0;
+  let currentStepIndex = 0;
+
+  function loadPracticeQuestion(index) {
+    currentProbIndex = index % practiceProblems.length;
+    currentStepIndex = 0;
+    renderPractice();
+  }
+
+  function renderPractice() {
+    const prob = practiceProblems[currentProbIndex];
+    const step = prob.steps[currentStepIndex];
+
+    document.getElementById('practiceStepCounter').textContent = `ขั้นตอนที่ ${currentStepIndex + 1} จาก ${prob.steps.length}`;
+
+    // Render Steps List
+    const stepsList = document.getElementById('solverSteps');
+    stepsList.innerHTML = `
+      <div class="step-item">
+        <div class="step-item-title">โจทย์เริ่มต้น</div>
+        <div class="step-item-math">${prob.eq}</div>
+      </div>
+    `;
+
+    for (let i = 0; i < currentStepIndex; i++) {
+      const prevStep = prob.steps[i];
+      const isLast = i === prob.steps.length - 1;
+      const stepDiv = document.createElement('div');
+      stepDiv.className = `step-item ${isLast ? 'final' : ''}`;
+      stepDiv.innerHTML = `
+        <div class="step-item-title">ผลลัพธ์ขั้นที่ ${i + 1}</div>
+        <div class="step-item-math ${isLast ? 'highlight' : ''}">${prevStep.resultMath}</div>
+      `;
+      stepsList.appendChild(stepDiv);
+    }
+
+    // Question Prompt
+    document.getElementById('practiceQuestionText').textContent = step.prompt;
+
+    // Choices
+    const choicesBox = document.getElementById('practiceChoices');
+    choicesBox.innerHTML = '';
+    const fb = document.getElementById('practiceFeedback');
+    fb.className = 'feedback-banner';
+    fb.style.display = 'none';
+
+    step.choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span>👉</span> ${ch.text}`;
+      btn.onclick = () => {
+        if (ch.correct) {
+          playSound('correct');
+          btn.classList.add('correct');
+          fb.className = 'feedback-banner ok show';
+          fb.textContent = `✅ ${ch.exp}`;
+
+          setTimeout(() => {
+            if (currentStepIndex + 1 < prob.steps.length) {
+              currentStepIndex++;
+              renderPractice();
+            } else {
+              // Finish problem
+              currentStepIndex++;
+              renderPractice();
+              fb.className = 'feedback-banner ok show';
+              fb.textContent = '🎉 ยอดเยี่ยม! แก้สมการและตรวจคำตอบเสร็จสมบูรณ์แล้ว!';
+            }
+          }, 1000);
+        } else {
+          playSound('wrong');
+          btn.classList.add('wrong');
+          fb.className = 'feedback-banner no show';
+          fb.textContent = `❌ ${ch.exp}`;
+        }
+      };
+      choicesBox.appendChild(btn);
+    });
+  }
+
+  document.getElementById('btnNextPractice').addEventListener('click', () => {
+    playSound('click');
+    loadPracticeQuestion(currentProbIndex + 1);
+  });
+
+  /* ══════════════════════════════════════════════════════
+     MODE 5: SANDBOX PLAYGROUND
+  ══════════════════════════════════════════════════════ */
+  const sbOp = document.getElementById('sbOp');
+  const sbValA = document.getElementById('sbValA');
+  const sbValB = document.getElementById('sbValB');
+  const sbValC = document.getElementById('sbValC');
+  const sbGroupA = document.getElementById('sbGroupA');
+  const sbGroupB = document.getElementById('sbGroupB');
+  const sbEqDisplay = document.getElementById('sandboxEqDisplay');
+  const sbAnswerPill = document.getElementById('sandboxAnswerPill');
+  const sbBarVisual = document.getElementById('sandboxBarVisual');
+  const sbExplanation = document.getElementById('sandboxExplanation');
+
+  sbOp.addEventListener('change', () => {
+    const op = sbOp.value;
+    sbGroupA.style.display = (op === 'mult' || op === 'two_step') ? 'flex' : 'none';
+    sbGroupB.style.display = (op === 'mult') ? 'none' : 'flex';
+    updateSandbox();
+  });
+
+  [sbValA, sbValB, sbValC].forEach(input => {
+    input.addEventListener('input', updateSandbox);
+  });
+
+  function updateSandbox() {
+    const op = sbOp.value;
+    const a = parseInt(sbValA.value, 10) || 1;
+    const b = parseInt(sbValB.value, 10) || 0;
+    const c = parseInt(sbValC.value, 10) || 0;
+
+    let ans = 0;
+    let mathStr = '';
+    let explStr = '';
+
+    if (op === 'add') {
+      ans = c - b;
+      mathStr = `x + ${b} = ${c}`;
+      explStr = `วิธีแก้: ลบ ${b} ทั้งสองข้าง ➔ x = ${c} − ${b} = ${ans}`;
+      sbBarVisual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ทั้งหมด (${c}):</div>
+          <div class="bar-track"><div class="bar-segment total-part" style="width:100%">${c}</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">x + ${b}:</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width:${Math.max(10, (ans/c)*100)}%">x (${ans})</div>
+            <div class="bar-segment num-part" style="width:${Math.max(10, (b/c)*100)}%">+${b}</div>
+          </div>
+        </div>
+      `;
+    } else if (op === 'sub') {
+      ans = c + b;
+      mathStr = `x − ${b} = ${c}`;
+      explStr = `วิธีแก้: บวก ${b} ทั้งสองข้าง ➔ x = ${c} + ${b} = ${ans}`;
+      sbBarVisual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">x ทั้งหมด (${ans}):</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width:100%">x (${ans})</div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">แบ่งส่วน:</div>
+          <div class="bar-track">
+            <div class="bar-segment total-part" style="width:${(c/ans)*100}%">เหลือ ${c}</div>
+            <div class="bar-segment num-part" style="width:${(b/ans)*100}%">หัก ${b}</div>
+          </div>
+        </div>
+      `;
+    } else if (op === 'mult') {
+      ans = (c / a).toFixed(1).replace(/\.0$/, '');
+      mathStr = `${a}x = ${c}`;
+      explStr = `วิธีแก้: หาร ${a} ทั้งสองข้าง ➔ x = ${c} ÷ ${a} = ${ans}`;
+      let bars = '';
+      for (let i = 0; i < a; i++) {
+        bars += `<div class="bar-segment var-part" style="width:${100/a}%;border-left:${i>0?'2px solid #fff':'none'}">x (${ans})</div>`;
+      }
+      sbBarVisual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ทั้งหมด (${c}):</div>
+          <div class="bar-track"><div class="bar-segment total-part" style="width:100%">${c}</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">${a}x แบ่งเท่ากัน:</div>
+          <div class="bar-track">${bars}</div>
+        </div>
+      `;
+    } else if (op === 'two_step') {
+      const rem = c - b;
+      ans = (rem / a).toFixed(1).replace(/\.0$/, '');
+      mathStr = `${a}x + ${b} = ${c}`;
+      explStr = `วิธีแก้: ขั้นที่ 1 ลบ ${b} ทั้งสองข้างเหลือ ${a}x = ${rem} ➔ ขั้นที่ 2 หาร ${a} ทั้งสองข้างได้ x = ${ans}`;
+      sbBarVisual.innerHTML = `
+        <div class="bar-row">
+          <div class="bar-label">ทั้งหมด (${c}):</div>
+          <div class="bar-track"><div class="bar-segment total-part" style="width:100%">${c}</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">${a}x + ${b}:</div>
+          <div class="bar-track">
+            <div class="bar-segment var-part" style="width:${(rem/c)*100}%">${a}x (${rem})</div>
+            <div class="bar-segment num-part" style="width:${(b/c)*100}%">+${b}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    sbEqDisplay.textContent = mathStr;
+    sbAnswerPill.textContent = `คำตอบ: x = ${ans}`;
+    sbExplanation.textContent = explStr;
+  }
+
+  document.getElementById('btnSandboxRandom').addEventListener('click', () => {
+    playSound('click');
+    const ops = ['add', 'sub', 'mult', 'two_step'];
+    sbOp.value = ops[Math.floor(Math.random() * ops.length)];
+    sbOp.dispatchEvent(new Event('change'));
+
+    sbValA.value = Math.floor(Math.random() * 3) + 2; // 2..4
+    sbValB.value = Math.floor(Math.random() * 10) + 2; // 2..11
+    if (sbOp.value === 'mult') {
+      sbValC.value = sbValA.value * (Math.floor(Math.random() * 8) + 3);
+    } else if (sbOp.value === 'two_step') {
+      sbValC.value = (sbValA.value * (Math.floor(Math.random() * 6) + 2)) + parseInt(sbValB.value, 10);
+    } else {
+      sbValC.value = Math.floor(Math.random() * 20) + 15;
+    }
+    updateSandbox();
+  });
+
+  /* ══════════════════════════════════════════════════════
+     TOOLBAR ACTIONS (SPEAK & FULLSCREEN)
+  ══════════════════════════════════════════════════════ */
+  document.getElementById('btnSpeak').addEventListener('click', () => {
+    playSound('click');
+    if (state.mode === 'learn') {
+      speakText('โหมดตาชั่งสมดุล. เครื่องหมายเท่ากับหมายถึงน้ำหนักสองข้างเท่ากันจนคานขนานกับพื้น. เมื่อต้องการเอาสิ่งใดออกจากข้างหนึ่ง เราต้องเอาออกเหมือนกันทั้งสองข้างเพื่อรักษาความสมดุล');
+    } else if (state.mode === 'barmodel') {
+      speakText('โหมดบาร์โมเดล. เปรียบเทียบความยาวของแท่งสัดส่วนเพื่อเชื่อมโยงส่วนรวมและส่วนย่อย');
+    } else if (state.mode === 'story') {
+      speakText('โหมดสมการในชีวิตประจำวัน. แตะเลือกสถานการณ์เพื่อฟังเรื่องราวและวิธีคิด');
+    } else if (state.mode === 'practice') {
+      speakText(practiceProblems[currentProbIndex].steps[currentStepIndex].prompt);
+    } else if (state.mode === 'sandbox') {
+      speakText(`สมการปัจจุบันคือ ${sbEqDisplay.textContent}. ${sbExplanation.textContent}`);
+    }
+  });
+
+  document.getElementById('btnFs').addEventListener('click', () => {
+    playSound('click');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  });
+
+  // ── Initial Boot ──
+  applyScalePreset('add');
+  setMode('learn');
 </script>
-</body></html>
+</body>
+</html>
