@@ -113,11 +113,14 @@ export const omrScannerService = {
     numQuestions: number,
     geminiApiKey?: string
   ): Promise<OMRAnalysisResult> {
-    // API key จาก param หรือ env หรือ default school key
+    // API key จาก param หรือ env
     const apiKey =
       geminiApiKey ||
-      import.meta.env.VITE_GEMINI_API_KEY ||
-      'AIzaSyCsxMZYnRMne29x52Eyg4VCYGZCBRJ8POw';
+      import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error('ไม่พบ Gemini API Key กรุณาตั้งค่า VITE_GEMINI_API_KEY ในไฟล์ .env');
+    }
 
     const base64Data = base64DataUrl.includes(',')
       ? base64DataUrl.split(',')[1]
@@ -126,22 +129,25 @@ export const omrScannerService = {
       ? 'image/png'
       : 'image/jpeg';
 
-    const prompt = `นี่คือภาพถ่ายกระดาษคำตอบข้อสอบของนักเรียน
+    const prompt = `นี่คือภาพถ่ายกระดาษคำตอบข้อสอบ OMR ของนักเรียน
 มีข้อสอบทั้งหมด ${numQuestions} ข้อ (ข้อ 1 ถึงข้อ ${numQuestions})
-แต่ละข้อจะมี 4 ตัวเลือก: ก, ข, ค, ง (หรือ 1, 2, 3, 4 หรือ A, B, C, D)
+แต่ละข้อจะมี 4 ตัวเลือก: ก, ข, ค, ง (หรือ 1, 2, 3, 4)
 
-โปรดวิเคราะห์รอยฝนด้วยดินสอหรือปากกาว่าในแต่ละข้อ นักเรียนเลือกข้อใด:
-- 0 = ก (หรือ A / 1)
-- 1 = ข (หรือ B / 2)
-- 2 = ค (หรือ C / 3)
-- 3 = ง (หรือ D / 4)
-- null = ไม่ได้ฝน, ฝนจางมากจนอ่านไม่ออก, หรือฝนซ้ำมากกว่า 1 ตัวเลือก
+โปรดวิเคราะห์รอยฝนด้วยดินสอหรือปากกา:
+1. "detected_student_no": เลขที่นักเรียน (1-50) โดยสังเกตจากบล็อกฝนรหัสเลขที่ 2 หลัก (หลักสิบ 0-4 และ หลักหน่วย 0-9) หรือจากช่องเขียนเลขที่
+2. "detected_class": ระดับชั้นเรียนที่ระบุ (เช่น "ป.4")
+3. "answers": อาเรย์คำตอบแต่ละข้อ:
+   - 0 = ก
+   - 1 = ข
+   - 2 = ค
+   - 3 = ง
+   - null = ไม่ได้ฝน, ฝนจางมากจนอ่านไม่ออก, หรือฝนซ้ำมากกว่า 1 ตัวเลือก
 
 โปรดตอบเป็น JSON ล้วนๆ ในรูปแบบนี้เท่านั้น:
 {
   "answers": [0, 1, 2, 3, null, ...],
   "detected_student_no": 5,
-  "detected_class": "ป.5"
+  "detected_class": "ป.4"
 }
 
 กฎบังคับ:

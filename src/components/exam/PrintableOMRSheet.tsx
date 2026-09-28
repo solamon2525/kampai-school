@@ -36,6 +36,9 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
     columns.push(colItems);
   }
 
+  const colGridClass =
+    colCount === 1 ? 'grid-cols-1' : colCount === 2 ? 'grid-cols-2' : colCount === 3 ? 'grid-cols-3' : 'grid-cols-4';
+
   return (
     <div className="printable-omr-container relative p-8 max-w-3xl mx-auto bg-background text-foreground font-sans print:p-6 print:max-w-none print:bg-white print:text-black">
       {/* ── 4 Fiducial Corner Alignment Markers (สำหรับการตรวจจับของกล้อง) ── */}
@@ -53,18 +56,60 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
         </div>
       </div>
 
-      {/* ── ข้อมูลผู้เข้าสอบ & คำแนะนำการระบาย ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-muted/30 border border-border rounded-lg text-xs mb-5 print:bg-transparent print:border-gray-400">
+      {/* ── ข้อมูลผู้เข้าสอบ & บล็อกฝนเลขที่ OMR ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-muted/30 border border-border rounded-lg text-xs mb-5 print:bg-transparent print:border-gray-400">
+        {/* ข้อมูลชื่อ-ชั้น */}
         <div className="space-y-2">
           <div className="font-semibold text-xs text-foreground/90">ข้อมูลผู้เข้าสอบ:</div>
-          <div>ชื่อ-นามสกุล: ............................................................................</div>
-          <div className="flex gap-4">
+          <div>ชื่อ-นามสกุล: ........................................................</div>
+          <div className="flex gap-3">
             <span>ชั้น: ....................</span>
-            <span>เลขที่: ............</span>
             <span>ห้อง: ........</span>
+          </div>
+          <div className="text-[11px] text-muted-foreground print:text-gray-600">
+            * กรุณาระบายวงกลมเลขที่ 2 หลักด้านขวา
           </div>
         </div>
 
+        {/* บล็อกฝนรหัสเลขที่นักเรียน (2 หลัก: หลักสิบ / หลักหน่วย) */}
+        <div className="border-t sm:border-t-0 sm:border-l sm:pl-3 border-border print:border-gray-300">
+          <div className="font-semibold text-xs text-foreground/90 mb-1 text-center">
+            เลขที่นักเรียน (2 หลัก)
+          </div>
+          <div className="flex gap-4 items-start justify-center">
+            {/* หลักสิบ (0-4) */}
+            <div className="text-center">
+              <span className="text-[10px] font-bold text-muted-foreground print:text-black">หลักสิบ</span>
+              <div className="grid grid-cols-1 gap-0.5 mt-1">
+                {[0, 1, 2, 3, 4].map((d) => (
+                  <span
+                    key={d}
+                    className="w-4 h-4 rounded-full border border-foreground/80 print:border-black flex items-center justify-center text-[9px] font-bold select-none mx-auto"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* หลักหน่วย (0-9) */}
+            <div className="text-center">
+              <span className="text-[10px] font-bold text-muted-foreground print:text-black">หลักหน่วย</span>
+              <div className="grid grid-cols-2 gap-0.5 mt-1">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                  <span
+                    key={d}
+                    className="w-4 h-4 rounded-full border border-foreground/80 print:border-black flex items-center justify-center text-[9px] font-bold select-none mx-auto"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* คำแนะนำการระบาย */}
         <div className="border-t sm:border-t-0 sm:border-l sm:pl-3 border-border print:border-gray-300 space-y-1">
           <div className="font-semibold text-xs text-foreground/90">คำแนะนำการฝนคำตอบ:</div>
           <div className="text-[11px] leading-tight text-muted-foreground print:text-gray-700">
@@ -86,7 +131,10 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
 
       {/* ── ตารางฝนคำตอบ (OMR Bubble Grid) ── */}
       <div className="border border-border/80 rounded-lg p-4 bg-card print:bg-transparent print:border-gray-400">
-        <div className={`grid grid-cols-${colCount} gap-6 divide-x divide-border/60 print:divide-gray-300`}>
+        <div
+          className={`grid ${colGridClass} gap-6 divide-x divide-border/60 print:divide-gray-300`}
+          style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
+        >
           {columns.map((col, colIdx) => (
             <div key={colIdx} className={colIdx > 0 ? 'pl-6' : ''}>
               <div className="grid grid-cols-[28px_repeat(4,1fr)] items-center text-center font-bold text-xs text-muted-foreground print:text-black mb-2 pb-1 border-b border-border/40">

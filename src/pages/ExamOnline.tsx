@@ -42,7 +42,7 @@ export default function ExamOnline() {
   const [selectedExamSet, setSelectedExamSet] = useState<ExamSetRow | null>(null);
 
   // Student Info
-  const [selectedGrade, setSelectedGrade] = useState('ป.5');
+  const [selectedGrade, setSelectedGrade] = useState('ป.4');
   const [selectedStudent, setSelectedStudent] = useState<StudentMin | null>(null);
 
   // Exam Answers & Timer
@@ -82,7 +82,7 @@ export default function ExamOnline() {
       const found = activeSets.find((s) => s.id === examSetId);
       if (found) {
         setSelectedExamSet(found);
-        setSelectedGrade(found.grade || 'ป.5');
+        setSelectedGrade(found.grade || 'ป.4');
         setScreen('student');
       }
     }
@@ -112,7 +112,7 @@ export default function ExamOnline() {
         return;
       }
       setSelectedExamSet(found);
-      setSelectedGrade(found.grade || 'ป.5');
+      setSelectedGrade(found.grade || 'ป.4');
       setScreen('student');
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'เกิดข้อผิดพลาด';
@@ -143,19 +143,21 @@ export default function ExamOnline() {
     setTimeTotal(totalSec);
     setScreen('exam');
 
-    // Start countdown
+    // Start countdown purely updating state
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          handleAutoSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
   };
+
+  // ── Auto-submit when time reaches 0 ──
+  useEffect(() => {
+    if (screen === 'exam' && timeTotal > 0 && timeRemaining === 0) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      toast({ title: 'หมดเวลาสอบ!', description: 'ระบบกำลังส่งคำตอบอัตโนมัติ', variant: 'destructive' });
+      finishExam();
+    }
+  }, [timeRemaining, screen, timeTotal]);
 
   // ── Timer Cleanup ──
   useEffect(() => {
@@ -163,12 +165,6 @@ export default function ExamOnline() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
-
-  // ── Auto / Manual Submit ──
-  const handleAutoSubmit = () => {
-    toast({ title: 'หมดเวลาสอบ!', description: 'ระบบกำลังส่งคำตอบอัตโนมัติ', variant: 'destructive' });
-    finishExam();
-  };
 
   const handleManualSubmit = () => {
     const total = currentExamQuestions.length;
@@ -190,7 +186,13 @@ export default function ExamOnline() {
     currentExamQuestions.forEach((q, idx) => {
       const ans = userAnswers[idx];
       const correctAns = q.answer;
-      if (ans !== undefined && ans !== null && ans === correctAns) {
+      if (
+        ans !== undefined &&
+        ans !== null &&
+        correctAns !== undefined &&
+        correctAns !== null &&
+        Number(ans) === Number(correctAns)
+      ) {
         correctCount++;
       }
     });

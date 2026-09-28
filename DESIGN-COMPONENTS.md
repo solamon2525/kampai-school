@@ -23,6 +23,16 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Exam System Quality, Scoring Integrity & OMR Student Bubbles (v1.229.105)
+
+- **Scoring Equality Bugfix:** แก้ไขปัญหาการตรวจคะแนนใน `ExamOnline.tsx` จาก strict equality (`ans === correctAns`) เป็น `Number(ans) === Number(correctAns)` เพื่อรองรับ choice index 0 (ข้อ ก.) และตัวเลขใน JSONB ที่อาจเก็บเป็น string หรือ number ทำให้ไม่เสียคะแนนโดยไม่ตั้งใจ
+- **Timer Countdown Side-Effect Fix:** แยกการตรวจนับเวลาหมด (`timeRemaining === 0`) ออกจาก `setTimeRemaining` state updater callback มาเป็น dedicated `useEffect` ป้องกัน React state loop และ render error
+- **Default Grade Alignment:** ปรับระดับชั้นเริ่มต้นในระบบสอบออนไลน์ `ExamOnline.tsx` จาก `'ป.5'` เป็น `'ป.4'` ให้สอดคล้องกับคลังข้อสอบและชุดข้อสอบมาตรฐาน 9 วิชา
+- **OMR Dynamic Grid Compilation Fix:** ปรับแก้ dynamic Tailwind class `grid-cols-${colCount}` ใน `PrintableOMRSheet.tsx` ให้ใช้ static column mapping พร้อม inline styles `gridTemplateColumns` ป้องกัน layout พังหรือหดเหลือ 1 คอลัมน์ตอนพิมพ์กระดาษคำตอบ
+- **OMR 2-Digit Student Number Bubbles:** เพิ่มบล็อกฝนรหัสเลขที่นักเรียน 2 หลัก (หลักสิบ 0–4, หลักหน่วย 0–9) ลงบนกระดาษคำตอบ OMR พร้อมรองรับการตรวจผ่าน Google Gemini AI Vision แบบอัตโนมัติ
+- **2-Column Compact Printable Exam Paper:** เพิ่ม 2-column compact print layout (`print:grid-cols-2 print:gap-x-6 print:gap-y-3`) ใน `PrintableExamPaper.tsx` เพื่อให้ข้อสอบ 20–25 ข้อจัดลงในกระดาษ A4 พิมพ์หน้า-หลัง (2 หน้า) ได้พอดี ประหยัดกระดาษของโรงเรียน
+- **Security & Key Fallback Clean-up:** ลบ hardcoded fallback API key (`AIzaSy...`) ออกจาก `omr-scanner.service.ts` และ `TeacherExamManagement.tsx` พร้อมเพิ่มการแจ้งเตือน toast เมื่อไม่พบ `VITE_GEMINI_API_KEY`
+
 ### Target Question Count, Smart Auto-Fill & Exam Set Editing (v1.229.104)
 
 - **Target Question Count Configuration (กำหนดเป้าหมายจำนวนข้อใน 1 ชุด):**

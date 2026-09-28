@@ -71,8 +71,8 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
         <strong>คำชี้แจง:</strong> ให้นักเรียนเลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว แล้วทำเครื่องหมายลงในกระดาษคำตอบ หรือทำในข้อสอบตามที่ระบุ
       </div>
 
-      {/* Questions list */}
-      <div className="space-y-5 print:space-y-4">
+      {/* Questions list - 2 Columns in Print Mode to save paper */}
+      <div className="grid grid-cols-1 print:grid-cols-2 print:gap-x-6 print:gap-y-3 space-y-4 print:space-y-0">
         {questions.map((q, idx) => {
           const qType = q.question_type || (q.type ? q.type : 'mcq');
           const options = q.options || [];
@@ -80,22 +80,22 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
           return (
             <div
               key={idx}
-              className="question-block border-b border-border/40 pb-4 print:border-gray-200 print:break-inside-avoid"
+              className="question-block border-b border-border/40 pb-3.5 print:pb-2 print:border-gray-200 print:break-inside-avoid"
             >
-              <div className="flex items-start gap-2">
-                <span className="font-bold text-sm min-w-[28px]">{idx + 1}.</span>
-                <div className="flex-1 text-sm font-medium leading-relaxed">
+              <div className="flex items-start gap-1.5">
+                <span className="font-bold text-xs min-w-[24px]">{idx + 1}.</span>
+                <div className="flex-1 text-xs font-medium leading-relaxed">
                   {q.question_text || q.question}
                 </div>
               </div>
 
               {/* Multiple Choice (MCQ) */}
               {qType === 'mcq' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2.5 ml-8 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-2 ml-6 text-[11px] leading-normal">
                   {options.map((opt: string, optIdx: number) => {
                     const label = ['ก', 'ข', 'ค', 'ง'][optIdx] || `${optIdx + 1}`;
                     return (
-                      <div key={optIdx} className="flex items-center gap-1.5">
+                      <div key={optIdx} className="flex items-start gap-1">
                         <span className="font-semibold text-muted-foreground print:text-black">
                           {label}.
                         </span>

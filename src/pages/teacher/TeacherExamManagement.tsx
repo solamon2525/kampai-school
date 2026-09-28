@@ -463,9 +463,18 @@ export default function TeacherExamManagement() {
       return;
     }
 
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      toast({
+        title: 'ไม่พบ Gemini API Key',
+        description: 'กรุณาตั้งค่า VITE_GEMINI_API_KEY ในไฟล์ .env ของระบบ',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setAiGenerating(true);
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCsxMZYnRMne29x52Eyg4VCYGZCBRJ8POw';
       const prompt = `คุณคือผู้เชี่ยวชาญการออกข้อสอบระดับประถมศึกษาไทย
 กรุณาสร้างข้อสอบวิชา ${selectedSubject} ระดับชั้น ${selectedGrade}
 หัวข้อ: ${aiTopic}
