@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
-  Shuffle, Eye, ListFilter, CheckCheck, Clock
+  Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -26,12 +26,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCSV } from '@/lib/export';
-import type { Json, TablesInsert } from '@/integrations/supabase/types';
+import type { Json, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 interface AIParsedQuestion {
   question_text: string;
@@ -73,6 +74,17 @@ export default function TeacherExamManagement() {
   const [newQText, setNewQText] = useState('');
   const [newQOpts, setNewQOpts] = useState(['', '', '', '']);
   const [newQAns, setNewQAns] = useState<number>(0);
+
+  // Target question count states
+  const [targetQuestionCount, setTargetQuestionCount] = useState<number>(20);
+  const [isCustomTarget, setIsCustomTarget] = useState<boolean>(false);
+  const [customTargetInput, setCustomTargetInput] = useState<string>('20');
+
+  // Editing existing set state
+  const [editingExamSetId, setEditingExamSetId] = useState<string | null>(null);
+  const [deleteSetConfirmId, setDeleteSetConfirmId] = useState<string | null>(null);
+  const [showIncompleteConfirm, setShowIncompleteConfirm] = useState<boolean>(false);
+  const [customQuestionsCache, setCustomQuestionsCache] = useState<Record<string, any>>({});
 
   // Selected questions for building set
   const [selectedQIds, setSelectedQIds] = useState<string[]>([]);
@@ -175,7 +187,34 @@ export default function TeacherExamManagement() {
     });
   };
 
+  const handleTargetCountSelect = (count: number) => {
+    setTargetQuestionCount(count);
+    setIsCustomTarget(false);
+    setCustomTargetInput(String(count));
+  };
+
+  const handleCustomTargetApply = () => {
+    const val = parseInt(customTargetInput, 10);
+    if (!isNaN(val) && val > 0 && val <= 100) {
+      setTargetQuestionCount(val);
+      toast({
+        title: `ตั้งเป้าหมาย ${val} ข้อ`,
+        description: `ชุดข้อสอบนี้มีเป้าหมายจำนวน ${val} ข้อ`,
+      });
+    } else {
+      toast({
+        title: 'จำนวนข้อไม่ถูกต้อง',
+        description: 'กรุณาระบุจำนวนข้อระหว่าง 1 ถึง 100 ข้อ',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleRandomSelect = (count: number) => {
+    setTargetQuestionCount(count);
+    setIsCustomTarget(false);
+    setCustomTargetInput(String(count));
+
     const pool = [...displayedQuestions];
     if (pool.length === 0) {
       toast({ title: 'ไม่มีข้อสอบให้สุ่ม', description: 'กรุณาเลือกวิชาหรือระดับชั้นที่มีข้อสอบในคลัง', variant: 'destructive' });
@@ -188,10 +227,116 @@ export default function TeacherExamManagement() {
     const picked = pool.slice(0, Math.min(count, pool.length));
     const pickedIds = picked.map((q) => q.id);
     setSelectedQIds(pickedIds);
+
+    // Cache picked question objects
+    const cacheUpdate: Record<string, any> = {};
+    picked.forEach((q) => { cacheUpdate[q.id] = q; });
+    setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
+
     setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${picked.length} ข้อ)`);
     toast({
       title: `สุ่มเลือก ${picked.length} ข้อสำเร็จ!`,
       description: `ระบบเลือกข้อสอบสุ่มจำนวน ${picked.length} ข้อลงในชุดเรียบร้อยแล้ว`,
+    });
+  };
+
+  // Smart Auto-Fill Remaining to reach targetQuestionCount
+  const handleFillRemaining = () => {
+    const currentCount = selectedQIds.length;
+    const needed = targetQuestionCount - currentCount;
+
+    if (needed <= 0) {
+      toast({
+        title: 'ข้อสอบครบตามเป้าหมายแล้ว',
+        description: `เลือกไว้ ${currentCount} ข้อ (เป้าหมาย ${targetQuestionCount} ข้อ)`,
+      });
+      return;
+    }
+
+    // Try finding unselected from displayedQuestions first
+    let pool = displayedQuestions.filter((q) => !selectedQIds.includes(q.id));
+
+    // If not enough in displayedQuestions (e.g. topic filter is active), fallback to all subject/grade questions
+    if (pool.length < needed) {
+      const morePool = questions.filter((q) => !selectedQIds.includes(q.id) && !pool.some((p) => p.id === q.id));
+      pool = [...pool, ...morePool];
+    }
+
+    if (pool.length === 0) {
+      toast({
+        title: 'ไม่มีข้อสอบอื่นให้สุ่มเติม',
+        description: 'กรุณาปลดตัวกรองหัวข้อหรือเปลี่ยนระดับชั้นเพื่อเลือกข้อสอบเพิ่มเติม',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Shuffle pool
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    const picked = pool.slice(0, needed);
+    const pickedIds = picked.map((q) => q.id);
+    const updatedIds = [...selectedQIds, ...pickedIds];
+    setSelectedQIds(updatedIds);
+
+    // Update custom cache
+    const cacheUpdate: Record<string, any> = {};
+    picked.forEach((q) => { cacheUpdate[q.id] = q; });
+    setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
+
+    if (!newSetTitle || newSetTitle.startsWith('แบบทดสอบ')) {
+      setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${updatedIds.length} ข้อ)`);
+    }
+
+    toast({
+      title: `⚡ สุ่มเติมเพิ่ม ${picked.length} ข้อสำเร็จ!`,
+      description: `ชุดข้อสอบมีทั้งหมด ${updatedIds.length} / ${targetQuestionCount} ข้อตามเป้าหมายแล้ว`,
+    });
+  };
+
+  // Start editing existing exam set
+  const handleStartEditSet = (set: ExamSetRow) => {
+    setEditingExamSetId(set.id);
+    setNewSetTitle(set.title);
+    setNewSetTime(set.time_limit_minutes || 60);
+    setNewSetPin(set.pin_code || '');
+    if (set.subject && SUBJECT_LIST.includes(set.subject)) setSelectedSubject(set.subject);
+    if (set.grade && GRADE_LIST.includes(set.grade)) setSelectedGrade(set.grade);
+
+    const existingQuestions = Array.isArray(set.questions) ? (set.questions as Array<any>) : [];
+    const ids = existingQuestions.map((q) => (typeof q === 'string' ? q : q?.id)).filter(Boolean) as string[];
+
+    // Save existing question objects to cache so they aren't lost across filters
+    const cacheUpdate: Record<string, any> = {};
+    existingQuestions.forEach((q) => {
+      if (q && typeof q === 'object' && q.id) {
+        cacheUpdate[q.id] = q;
+      }
+    });
+    setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
+
+    setSelectedQIds(ids);
+    setTargetQuestionCount(Math.max(ids.length > 0 ? ids.length : 20, 20));
+    setCustomTargetInput(String(Math.max(ids.length > 0 ? ids.length : 20, 20)));
+    setActiveTab('bank');
+
+    toast({
+      title: `✏️ กำลังแก้ไข: ${set.title}`,
+      description: `โหลดข้อสอบเดิม ${ids.length} ข้อเข้าตะกร้าแล้ว สามารถเลือกเพิ่มหรือสุ่มเติมให้ครบได้ทันที`,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingExamSetId(null);
+    setSelectedQIds([]);
+    setNewSetTitle('');
+    setNewSetPin('');
+    toast({
+      title: 'ยกเลิกการแก้ไข',
+      description: 'ออกจากโหมดแก้ไขชุดข้อสอบแล้ว',
     });
   };
 
@@ -263,6 +408,38 @@ export default function TeacherExamManagement() {
     },
     onError: (e: Error) => {
       toast({ title: 'ข้อผิดพลาด', description: e.message, variant: 'destructive' });
+    },
+  });
+
+  const updateSetMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: TablesUpdate<'exam_sets'> }) =>
+      examService.updateExamSet(id, data),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['exam_sets'] });
+      toast({
+        title: 'อัปเดตชุดข้อสอบสำเร็จ!',
+        description: `บันทึกการแก้ไขชุดข้อสอบ "${updated.title}" เรียบร้อยแล้ว`,
+      });
+      setEditingExamSetId(null);
+      setSelectedQIds([]);
+      setNewSetTitle('');
+      setNewSetPin('');
+      setActiveTab('sets');
+    },
+    onError: (e: Error) => {
+      toast({ title: 'ข้อผิดพลาดในการอัปเดต', description: e.message, variant: 'destructive' });
+    },
+  });
+
+  const deleteSetMutation = useMutation({
+    mutationFn: examService.deleteExamSet,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exam_sets'] });
+      toast({ title: 'ลบชุดข้อสอบสำเร็จ', description: 'นำชุดข้อสอบออกจากระบบแล้ว' });
+      setDeleteSetConfirmId(null);
+    },
+    onError: (e: Error) => {
+      toast({ title: 'ข้อผิดพลาดในการลบ', description: e.message, variant: 'destructive' });
     },
   });
 
@@ -443,7 +620,7 @@ export default function TeacherExamManagement() {
   };
 
   // ── Build Exam Set ──
-  const handleBuildSet = () => {
+  const handleBuildSet = (forceSave: boolean = false) => {
     if (!newSetTitle.trim()) {
       toast({ title: 'กรุณาระบุชื่อชุดข้อสอบ', variant: 'destructive' });
       return;
@@ -453,17 +630,43 @@ export default function TeacherExamManagement() {
       return;
     }
 
-    const setQuestions = questions.filter((q) => selectedQIds.includes(q.id));
-    createSetMutation.mutate({
-      title: newSetTitle.trim(),
-      subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
-      grade: selectedGrade !== 'all' ? selectedGrade : 'ป.5',
-      time_limit_minutes: newSetTime,
-      pass_threshold_pct: 50,
-      pin_code: newSetPin.trim() ? newSetPin.trim().toUpperCase() : null,
-      questions: setQuestions as unknown as Json,
-      is_active: true,
-    });
+    if (!forceSave && selectedQIds.length < targetQuestionCount) {
+      setShowIncompleteConfirm(true);
+      return;
+    }
+
+    // Resolve question objects from current questions query or customQuestionsCache
+    const setQuestions = selectedQIds.map((id) => {
+      const fromCurrent = questions.find((q) => q.id === id);
+      if (fromCurrent) return fromCurrent;
+      if (customQuestionsCache[id]) return customQuestionsCache[id];
+      return null;
+    }).filter(Boolean);
+
+    if (editingExamSetId) {
+      updateSetMutation.mutate({
+        id: editingExamSetId,
+        data: {
+          title: newSetTitle.trim(),
+          subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
+          grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
+          time_limit_minutes: newSetTime,
+          pin_code: newSetPin.trim() ? newSetPin.trim().toUpperCase() : null,
+          questions: setQuestions as unknown as Json,
+        },
+      });
+    } else {
+      createSetMutation.mutate({
+        title: newSetTitle.trim(),
+        subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
+        grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
+        time_limit_minutes: newSetTime,
+        pass_threshold_pct: 50,
+        pin_code: newSetPin.trim() ? newSetPin.trim().toUpperCase() : null,
+        questions: setQuestions as unknown as Json,
+        is_active: true,
+      });
+    }
   };
 
   // Export Results
@@ -684,6 +887,29 @@ export default function TeacherExamManagement() {
                   </div>
                 </div>
 
+                {/* Editing Mode Banner */}
+                {editingExamSetId && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/10 border border-amber-300 text-amber-900 text-xs">
+                    <div className="flex items-center gap-2">
+                      <Pencil className="h-4 w-4 text-amber-700 shrink-0" />
+                      <div>
+                        <span className="font-bold">กำลังอยู่ในโหมดแก้ไขชุดข้อสอบ: </span>
+                        <span className="underline decoration-amber-400 font-semibold">{newSetTitle}</span>
+                        <span className="text-amber-800 ml-1.5 font-medium">(มีข้อสอบเดิม {selectedQIds.length} ข้อ)</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCancelEdit}
+                      className="h-6 text-xs text-amber-800 hover:text-amber-950 hover:bg-amber-200/50"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      ยกเลิกการแก้ไข
+                    </Button>
+                  </div>
+                )}
+
                 {/* Smart Selection & Random Picker Toolbar */}
                 <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-muted/40 rounded-xl border border-border/60 text-xs">
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -713,7 +939,7 @@ export default function TeacherExamManagement() {
 
                     <span className="font-semibold text-muted-foreground flex items-center gap-1 mr-1 text-[11px]">
                       <Shuffle className="h-3.5 w-3.5 text-amber-600" />
-                      สุ่มเลือก:
+                      สุ่มสร้าง:
                     </span>
                     <Button
                       variant="outline"
@@ -739,6 +965,19 @@ export default function TeacherExamManagement() {
                     >
                       30 ข้อ
                     </Button>
+
+                    {/* Quick Fill Remaining Button if not yet completed */}
+                    {selectedQIds.length > 0 && selectedQIds.length < targetQuestionCount && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleFillRemaining}
+                        className="h-7 text-[11px] px-2.5 bg-amber-500/10 text-amber-800 border-amber-300 hover:bg-amber-500/20 font-semibold gap-1 shadow-xs ml-1"
+                      >
+                        <Zap className="h-3 w-3 text-amber-600 fill-amber-500" />
+                        สุ่มเติมให้ครบ {targetQuestionCount} ข้อ (ขาดอีก {targetQuestionCount - selectedQIds.length})
+                      </Button>
+                    )}
                   </div>
 
                   <div className="text-[11px] text-muted-foreground ml-auto">
@@ -928,15 +1167,140 @@ export default function TeacherExamManagement() {
                         <Layers className="h-4 w-4 text-primary" />
                         จัดชุดข้อสอบ (Cart)
                       </span>
-                      <Badge variant="secondary" className="text-xs font-bold text-primary">
-                        เลือกแล้ว {selectedQIds.length} ข้อ
+                      <Badge
+                        variant={selectedQIds.length >= targetQuestionCount ? 'default' : 'secondary'}
+                        className={`text-xs font-bold ${
+                          selectedQIds.length >= targetQuestionCount
+                            ? 'bg-emerald-600 hover:bg-emerald-600 text-white'
+                            : 'text-primary'
+                        }`}
+                      >
+                        {selectedQIds.length} / {targetQuestionCount} ข้อ
                       </Badge>
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      เลือกข้อสอบจากรายการ หรือใช้ปุ่มสุ่ม เพื่อสร้างชุดข้อสอบ
+                      {editingExamSetId
+                        ? 'กำลังแก้ไขชุดข้อสอบเดิม — สามารถเพิ่ม/ลดข้อสอบได้ตามต้องการ'
+                        : 'กำหนดจำนวนข้อที่ต้องการ เลือกข้อสอบ หรือกดสุ่มเติมให้ครบ'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3.5">
+                    {/* Editing Banner */}
+                    {editingExamSetId && (
+                      <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-300 text-amber-900 text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Pencil className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+                          <span className="font-semibold">โหมดแก้ไขชุดเดิม</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleCancelEdit}
+                          className="h-6 text-[11px] text-amber-800 hover:text-amber-950 px-1.5 hover:bg-amber-200/50"
+                        >
+                          ยกเลิก
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Target Question Count Controls */}
+                    <div className="space-y-1.5 p-2.5 rounded-lg bg-muted/40 border border-border/60">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-muted-foreground flex items-center gap-1 text-[11px]">
+                          <Layers className="h-3 w-3 text-primary" />
+                          เป้าหมายใน 1 ชุด:
+                        </span>
+                        <span className="font-bold text-primary">{targetQuestionCount} ข้อ</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1">
+                        {[10, 20, 30].map((num) => (
+                          <Button
+                            key={num}
+                            type="button"
+                            variant={targetQuestionCount === num && !isCustomTarget ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => handleTargetCountSelect(num)}
+                            className="h-7 text-[11px] px-1 shadow-xs"
+                          >
+                            {num} ข้อ {num === 20 ? '⭐' : ''}
+                          </Button>
+                        ))}
+                        <Button
+                          type="button"
+                          variant={isCustomTarget ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setIsCustomTarget(!isCustomTarget)}
+                          className="h-7 text-[11px] px-1 shadow-xs"
+                        >
+                          ระบุเอง
+                        </Button>
+                      </div>
+                      {isCustomTarget && (
+                        <div className="flex items-center gap-1.5 pt-1">
+                          <Input
+                            type="number"
+                            min={1}
+                            max={100}
+                            value={customTargetInput}
+                            onChange={(e) => setCustomTargetInput(e.target.value)}
+                            placeholder="จำนวนข้อ (1-100)"
+                            className="h-7 text-xs flex-1"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={handleCustomTargetApply}
+                            className="h-7 text-[11px] px-2.5"
+                          >
+                            ตั้งค่า
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Progress Bar & Auto-Fill Status */}
+                    <div className="space-y-1.5 p-2.5 rounded-lg bg-card border border-border/70 text-xs">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-medium text-muted-foreground">ความคืบหน้าการเลือก:</span>
+                        <span className="font-bold">
+                          {selectedQIds.length} / {targetQuestionCount} ข้อ
+                          {selectedQIds.length >= targetQuestionCount && (
+                            <span className="text-emerald-700 ml-1">✓ ครบแล้ว</span>
+                          )}
+                        </span>
+                      </div>
+                      <Progress
+                        value={Math.min(100, Math.round((selectedQIds.length / targetQuestionCount) * 100))}
+                        className="h-2"
+                      />
+                      {selectedQIds.length < targetQuestionCount ? (
+                        <div className="flex items-center justify-between pt-1 gap-2">
+                          <span className="text-[11px] text-amber-700 font-medium">
+                            ยังขาดอีก {targetQuestionCount - selectedQIds.length} ข้อ
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={handleFillRemaining}
+                            className="h-6 text-[10px] px-2 bg-amber-500/10 text-amber-800 border-amber-300 hover:bg-amber-500/20 font-semibold gap-1"
+                          >
+                            <Zap className="h-2.5 w-2.5 text-amber-600 fill-amber-500" />
+                            สุ่มเติมให้ครบ
+                          </Button>
+                        </div>
+                      ) : selectedQIds.length > targetQuestionCount ? (
+                        <div className="text-[11px] text-blue-700 font-medium pt-0.5">
+                          เลือกเกินเป้าหมาย {selectedQIds.length - targetQuestionCount} ข้อ (ใช้งานได้ปกติ)
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-emerald-700 font-medium pt-0.5 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          เลือกข้อสอบครบตามเป้าหมาย {targetQuestionCount} ข้อพอดี
+                        </div>
+                      )}
+                    </div>
+
                     {/* Difficulty Stats Breakdown */}
                     {selectedQIds.length > 0 && (
                       <div className="grid grid-cols-3 gap-1.5 p-2 rounded-lg bg-muted/30 border border-border/60 text-center">
@@ -1010,12 +1374,23 @@ export default function TeacherExamManagement() {
                     </div>
 
                     <Button
-                      onClick={handleBuildSet}
-                      disabled={createSetMutation.isPending || !selectedQIds.length}
-                      className="w-full text-xs h-9 shadow-xs"
+                      onClick={() => handleBuildSet(false)}
+                      disabled={createSetMutation.isPending || updateSetMutation.isPending || !selectedQIds.length}
+                      className={`w-full text-xs h-9 shadow-xs font-semibold ${
+                        editingExamSetId ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''
+                      }`}
                     >
-                      <CheckSquare className="h-3.5 w-3.5 mr-1.5" />
-                      บันทึกชุดข้อสอบ ({selectedQIds.length} ข้อ)
+                      {editingExamSetId ? (
+                        <>
+                          <CheckSquare className="h-3.5 w-3.5 mr-1.5" />
+                          บันทึกการแก้ไขชุดข้อสอบ ({selectedQIds.length} ข้อ)
+                        </>
+                      ) : (
+                        <>
+                          <CheckSquare className="h-3.5 w-3.5 mr-1.5" />
+                          บันทึกชุดข้อสอบ ({selectedQIds.length} ข้อ)
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>
@@ -1053,7 +1428,7 @@ export default function TeacherExamManagement() {
                         <CardTitle className="text-sm font-bold mt-1 line-clamp-1">{set.title}</CardTitle>
                       </CardHeader>
 
-                      <CardContent className="space-y-3 pt-0">
+                      <CardContent className="space-y-2.5 pt-0">
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <BookOpen className="h-3 w-3" />
@@ -1065,11 +1440,27 @@ export default function TeacherExamManagement() {
                           </span>
                         </div>
 
+                        {qCount < 5 && (
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-500/10 border border-amber-300/60 p-1.5 rounded-md font-medium">
+                            <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                            <span>มีเพียง {qCount} ข้อ — กดแก้ไขเพื่อเลือกข้อสอบเพิ่ม</span>
+                          </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-border/60">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-[11px] gap-1"
+                            className="h-8 text-[11px] gap-1 font-semibold text-primary hover:bg-primary/5 hover:border-primary/50 shadow-xs"
+                            onClick={() => handleStartEditSet(set)}
+                          >
+                            <Pencil className="h-3 w-3" />
+                            แก้ไข / เพิ่มข้อ ({qCount})
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-[11px] gap-1 shadow-xs"
                             onClick={() => {
                               setPreviewExamSet(set);
                               setActiveTab('print');
@@ -1078,17 +1469,29 @@ export default function TeacherExamManagement() {
                             <Printer className="h-3 w-3" />
                             พิมพ์ A4
                           </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-[11px] gap-1 text-emerald-600 hover:text-emerald-700"
+                            className="h-8 text-[11px] gap-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10 hover:border-emerald-300 shadow-xs"
                             onClick={() => {
                               setScannerExamSetId(set.id);
                               setActiveTab('scanner');
                             }}
                           >
-                            <Camera className="h-3 w-3" />
+                            <Camera className="h-3 w-3 text-emerald-600" />
                             สแกนตรวจ
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-[11px] gap-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setDeleteSetConfirmId(set.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            ลบชุดนี้
                           </Button>
                         </div>
                       </CardContent>
@@ -1648,6 +2051,97 @@ export default function TeacherExamManagement() {
               </span>
               <Button size="sm" onClick={() => setShowCartReview(false)} className="text-xs">
                 ปิดหน้าต่างตรวจทาน
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Incomplete Set Confirmation Dialog */}
+        <Dialog open={showIncompleteConfirm} onOpenChange={setShowIncompleteConfirm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-700">
+                <AlertTriangle className="h-5 w-5" />
+                ข้อสอบยังไม่ครบตามเป้าหมาย
+              </DialogTitle>
+              <DialogDescription className="space-y-2 pt-2 text-xs text-foreground">
+                <p>
+                  ชุดข้อสอบนี้มีเพียง <span className="font-bold text-amber-700">{selectedQIds.length} ข้อ</span> จากเป้าหมายที่ตั้งไว้ <span className="font-bold text-primary">{targetQuestionCount} ข้อ</span> (ยังขาดอีก {targetQuestionCount - selectedQIds.length} ข้อ)
+                </p>
+                <p className="text-muted-foreground">
+                  ท่านต้องการให้ระบบสุ่มเติมข้อสอบให้ครบ {targetQuestionCount} ข้อก่อนบันทึก หรือต้องการบันทึกเพียงเท่านี้?
+                </p>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowIncompleteConfirm(false)}
+                className="text-xs"
+              >
+                กลับไปเลือกต่อ
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowIncompleteConfirm(false);
+                  handleBuildSet(true);
+                }}
+                className="text-xs"
+              >
+                บันทึก {selectedQIds.length} ข้อตามนี้
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setShowIncompleteConfirm(false);
+                  handleFillRemaining();
+                  setTimeout(() => handleBuildSet(true), 150);
+                }}
+                className="text-xs bg-amber-600 hover:bg-amber-700 text-white gap-1"
+              >
+                <Zap className="h-3.5 w-3.5 fill-white" />
+                สุ่มเติมให้ครบ {targetQuestionCount} ข้อ แล้วบันทึก
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Set Confirmation Dialog */}
+        <Dialog open={!!deleteSetConfirmId} onOpenChange={(open) => !open && setDeleteSetConfirmId(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <Trash2 className="h-5 w-5" />
+                ยืนยันการลบชุดข้อสอบ
+              </DialogTitle>
+              <DialogDescription className="pt-2 text-xs">
+                ท่านแน่ใจหรือไม่ว่าต้องการลบชุดข้อสอบนี้? ข้อมูลชุดข้อสอบจะถูกนำออกจากระบบและไม่สามารถกู้คืนได้
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-2 pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteSetConfirmId(null)}
+                className="text-xs"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={deleteSetMutation.isPending}
+                onClick={() => {
+                  if (deleteSetConfirmId) {
+                    deleteSetMutation.mutate(deleteSetConfirmId);
+                  }
+                }}
+                className="text-xs"
+              >
+                {deleteSetMutation.isPending ? 'กำลังลบ...' : 'ยืนยันการลบ'}
               </Button>
             </DialogFooter>
           </DialogContent>
