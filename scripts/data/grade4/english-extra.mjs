@@ -1,0 +1,447 @@
+export const englishExtraQuestions = [
+  // Easy (16)
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.1 ป.4/1] Commands",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "เมื่อครูพูดว่า \"Stand up, please.\" นักเรียนควรทำอย่างไร?",
+    options: ["นั่งลง", "ยืนขึ้น", "เปิดหนังสือ", "เงียบเสียง"],
+    answer: 1,
+    explanation: "Stand up แปลว่า ยืนขึ้น ส่วน Sit down แปลว่า นั่งลง"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/1] Greeting",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "หากนักเรียนพบคุณครูในเวลา 09:00 น. ควรกล่าวทักทายอย่างไร?",
+    options: ["Good morning.", "Good afternoon.", "Good evening.", "Good night."],
+    answer: 0,
+    explanation: "09:00 น. เป็นเวลาเช้า ควรกล่าวทักทายว่า Good morning"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Weather)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "คำว่า \"sunny\" มีความหมายตรงกับสภาพอากาศในข้อใด?",
+    options: ["ฝนตก", "ลมแรง", "มีแดดออก", "หิมะตก"],
+    answer: 2,
+    explanation: "sunny แปลว่า มีแดดออก, rainy = ฝนตก, windy = ลมแรง, snowy = หิมะตก"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Family)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "พ่อของแม่ (คุณตา) ภาษาอังกฤษเรียกว่าอย่างไร?",
+    options: ["Uncle", "Grandfather", "Brother", "Cousin"],
+    answer: 1,
+    explanation: "Grandfather แปลว่า ปู่ หรือ ตา ส่วน Uncle = ลุง/น้า/อาชาย, Brother = พี่/น้องชาย"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Articles)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "ข้อใดเติม Article ได้ถูกต้อง: \"I have ___ apple.\"",
+    options: ["a", "an", "the", "some"],
+    answer: 1,
+    explanation: "apple ขึ้นต้นด้วยสระ (a, e, i, o, u) จึงต้องใช้ an"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/1] Introducing self",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "หากต้องการถามชื่อเพื่อนใหม่ ควรพูดว่าอย่างไร?",
+    options: ["How are you?", "What is your name?", "How old are you?", "Where are you from?"],
+    answer: 1,
+    explanation: "What is your name? แปลว่า คุณชื่ออะไร"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Body parts)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "คำว่า \"head\" หมายถึงอวัยวะส่วนใด?",
+    options: ["มือ", "หัว / ศีรษะ", "เท้า", "จมูก"],
+    answer: 1,
+    explanation: "head = ศีรษะ, hand = มือ, foot = เท้า, nose = จมูก"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/5] Expressing feelings",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "หากนักเรียนรู้สึกหิว ควรพูดว่าอย่างไร?",
+    options: ["I am thirsty.", "I am sleepy.", "I am hungry.", "I am angry."],
+    answer: 2,
+    explanation: "hungry = หิวข้าว, thirsty = หิวน้ำ, sleepy = ง่วงนอน, angry = โกรธ"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Animals)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "สัตว์ชนิดใดที่มีคอยาวที่สุด?",
+    options: ["Elephant", "Giraffe", "Monkey", "Tiger"],
+    answer: 1,
+    explanation: "Giraffe คือ ยีราฟ ซึ่งเป็นสัตว์ที่มีคอยาวที่สุด"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Pronouns)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "สรรพนามใดใช้แทนผู้หญิง 1 คน?",
+    options: ["He", "She", "It", "They"],
+    answer: 1,
+    explanation: "She ใช้แทนผู้หญิง 1 คน, He ใช้แทนผู้ชาย 1 คน, It ใช้แทนสัตว์/สิ่งของ 1 ชิ้น"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Time)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "วันอาทิตย์ ในภาษาอังกฤษเขียนอย่างไร?",
+    options: ["Monday", "Friday", "Sunday", "Saturday"],
+    answer: 2,
+    explanation: "Sunday = วันอาทิตย์, Monday = วันจันทร์, Friday = วันศุกร์, Saturday = วันเสาร์"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.1 ป.4/2] Requests",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "คำสุภาพที่มักใช้ลงท้ายประโยคขอร้องในภาษาอังกฤษคือคำใด?",
+    options: ["No", "Yes", "Please", "Sorry"],
+    answer: 2,
+    explanation: "Please เป็นคำที่ใช้เพิ่มความสุภาพในประโยคขอร้องหรือคำสั่ง"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.1 ป.4/1] Polite expressions",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "เมื่อเดินชนเพื่อนโดยไม่ตั้งใจ ควรกล่าวคำใด?",
+    options: ["Thank you.", "I am sorry.", "You are welcome.", "Goodbye."],
+    answer: 1,
+    explanation: "I am sorry. หรือ Sorry. ใช้กล่าวเมื่อต้องการขอโทษ"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Prepositions)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "The cat is ______ the box. (แมวอยู่ 'ใน' กล่อง)",
+    options: ["on", "under", "in", "by"],
+    answer: 2,
+    explanation: "in = ใน, on = บน, under = ใต้, by = ข้างๆ"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (Food)",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "ข้อใดเป็นผลไม้ (Fruit)?",
+    options: ["Carrot", "Cabbage", "Banana", "Chicken"],
+    answer: 2,
+    explanation: "Banana (กล้วย) เป็นผลไม้ ส่วน Carrot และ Cabbage เป็นผัก Chicken เป็นเนื้อสัตว์"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.1 ป.4/4] Asking permission",
+    difficulty: "easy",
+    question_type: "mcq",
+    question_text: "หากต้องการขออนุญาตไปห้องน้ำ ควรพูดว่าอย่างไร?",
+    options: ["May I come in, please?", "May I go out, please?", "May I drink water, please?", "May I sit down, please?"],
+    answer: 1,
+    explanation: "May I go out, please? เป็นการขออนุญาตออกไปข้างนอก (รวมถึงไปห้องน้ำ)"
+  },
+
+  // Medium (18)
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.3 ป.4/1] Short conversations",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "A: Thank you very much.\nB: _______________.",
+    options: ["I am fine.", "You're welcome.", "Me too.", "See you later."],
+    answer: 1,
+    explanation: "เมื่อมีคนกล่าวขอบคุณ (Thank you) ควรตอบรับด้วยความยินดีว่า You're welcome (ด้วยความยินดี)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Subject-verb agreement)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "He ______ a doctor.",
+    options: ["is", "am", "are", "do"],
+    answer: 0,
+    explanation: "ประธาน He (เอกพจน์บุรุษที่ 3) ต้องใช้กับ verb to be คือ is"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Subject-verb agreement)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "They ______ playing football in the field.",
+    options: ["is", "am", "are", "was"],
+    answer: 2,
+    explanation: "ประธาน They (พหูพจน์) ต้องใช้กับ verb to be คือ are"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/4] Daily routines",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "What time do you get up? (คุณตื่นนอนกี่โมง?) ประโยคใดคือคำตอบที่ถูกต้อง",
+    options: ["I go to school by bus.", "I like pizza.", "I get up at 6 o'clock.", "I play tennis."],
+    answer: 2,
+    explanation: "คำถามถามเวลาตื่นนอน (What time... get up?) คำตอบต้องบอกเวลา คือ I get up at 6 o'clock."
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.1 ป.4/3] Giving directions",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "คำว่า \"Turn right\" มีความหมายว่าอย่างไร?",
+    options: ["เลี้ยวซ้าย", "เลี้ยวขวา", "ตรงไป", "หยุด"],
+    answer: 1,
+    explanation: "Turn right = เลี้ยวขวา, Turn left = เลี้ยวซ้าย, Go straight = ตรงไป"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.1 ป.4/2] Festivals",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "เทศกาลใดของชาติตะวันตกที่มีการแต่งกายเป็นผีหรือปีศาจ?",
+    options: ["Christmas", "Thanksgiving", "Valentine's Day", "Halloween"],
+    answer: 3,
+    explanation: "Halloween (ฮาโลวีน) วันที่ 31 ตุลาคม เป็นเทศกาลที่เด็กๆ แต่งตัวแฟนซีหรือเป็นผีไปขอขนม (Trick or Treat)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.1 ป.4/2] Festivals",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "วันคริสต์มาส (Christmas) ตรงกับวันที่เท่าใด?",
+    options: ["14 February", "31 October", "25 December", "1 January"],
+    answer: 2,
+    explanation: "Christmas Day ตรงกับวันที่ 25 ธันวาคม ของทุกปี"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Plural nouns)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "รูปพหูพจน์ (Plural) ของคำว่า \"child\" (เด็ก 1 คน) คือข้อใด?",
+    options: ["childs", "children", "childrens", "childes"],
+    answer: 1,
+    explanation: "child เปลี่ยนรูปเป็นพหูพจน์แบบไม่เติม s แต่เปลี่ยนเป็น children (เด็กหลายคน)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Present Simple)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "She ______ milk every morning.",
+    options: ["drink", "drinks", "drinking", "drank"],
+    answer: 1,
+    explanation: "ในประโยค Present Simple Tense ถ้าประธานเป็นเอกพจน์ (She) กริยาต้องเติม s หรือ es จึงเป็น drinks"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.2 ป.4/1] Using dictionary",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "หากนักเรียนเรียงคำตามพจนานุกรม (A-Z) คำใดจะมาเป็นอันดับแรก?",
+    options: ["Banana", "Apple", "Cat", "Dog"],
+    answer: 1,
+    explanation: "การเรียงตามตัวอักษรภาษาอังกฤษ Apple ขึ้นต้นด้วย A จึงมาก่อน B, C, D"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.2 ป.4/1] Using dictionary",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "คำว่า \"beautiful\" ทำหน้าที่เป็นคำชนิดใดในพจนานุกรม?",
+    options: ["Noun (คำนาม)", "Verb (คำกริยา)", "Adjective (คำคุณศัพท์)", "Adverb (คำกริยาวิเศษณ์)"],
+    answer: 2,
+    explanation: "beautiful (สวยงาม) เป็นคำที่ใช้ขยายนาม จึงเป็น Adjective (คำคุณศัพท์)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.3 ป.4/1] Short conversations",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "A: How much is this shirt?\nB: _______________.",
+    options: ["It is red.", "It is 150 baht.", "It is large.", "It is on the table."],
+    answer: 1,
+    explanation: "How much...? เป็นการถามราคา คำตอบจึงต้องบอกเป็นจำนวนเงิน (150 baht)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 4.1 ป.4/1] คำศัพท์ (School)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "เรายืมหนังสือไปอ่านที่บ้านได้จากสถานที่ใดในโรงเรียน?",
+    options: ["Cafeteria", "Restroom", "Library", "Playground"],
+    answer: 2,
+    explanation: "Library = ห้องสมุด, Cafeteria = โรงอาหาร, Restroom = ห้องน้ำ, Playground = สนามเด็กเล่น"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/1] Greeting",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "A: How do you do?\nB: _______________.",
+    options: ["I am fine.", "How do you do?", "Nice to meet you.", "I do my homework."],
+    answer: 1,
+    explanation: "How do you do? เป็นคำทักทายเมื่อพบกันครั้งแรกอย่างเป็นทางการ มักจะตอบกลับด้วยคำว่า How do you do? เช่นเดียวกัน"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Question words)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "______ is your favorite color? (สีโปรดของคุณคือสีอะไร?)",
+    options: ["Who", "Where", "When", "What"],
+    answer: 3,
+    explanation: "What = อะไร ใช้ถามสิ่งของ, Who = ใคร, Where = ที่ไหน, When = เมื่อไหร่"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.2 ป.4/4] Daily routines",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "I always _______ my teeth before I go to bed.",
+    options: ["wash", "brush", "comb", "take"],
+    answer: 1,
+    explanation: "brush one's teeth = แปรงฟัน, wash = ล้าง, comb = หวี(ผม)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Prepositions of time)",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "My birthday is ______ October.",
+    options: ["in", "on", "at", "to"],
+    answer: 0,
+    explanation: "กับเดือนและปี เราใช้ preposition 'in' เช่น in October"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.1 ป.4/3] Cultural comparison",
+    difficulty: "medium",
+    question_type: "mcq",
+    question_text: "ข้อใดเป็นอาหารประจำชาติของประเทศตะวันตกที่นิยมทานทั่วไป?",
+    options: ["Tom Yum Goong", "Hamburger", "Sushi", "Dim Sum"],
+    answer: 1,
+    explanation: "Hamburger เป็นอาหารตะวันตก ส่วนต้มยำกุ้งเป็นไทย ซูชิเป็นญี่ปุ่น ดิ่มซำเป็นจีน"
+  },
+
+  // Hard (6)
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Present Continuous)",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "Look! The monkey ______ the tree.",
+    options: ["climb", "climbs", "is climbing", "climbed"],
+    answer: 2,
+    explanation: "คำว่า Look! บ่งบอกว่าเหตุการณ์กำลังเกิดขึ้น ณ ขณะนั้น ต้องใช้ Present Continuous Tense (is/am/are + V.ing)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Possessive Adjectives)",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "Tom and Peter are brothers. ______ house is very big.",
+    options: ["His", "Her", "Their", "Our"],
+    answer: 2,
+    explanation: "ประธานคือ Tom and Peter (พวกเขา) สรรพนามแสดงความเป็นเจ้าของที่สอดคล้องคือ Their (ของพวกเขา)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 1.3 ป.4/1] Understanding short conversations",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "A: Would you like some more cake?\nB: ____________, I'm full.",
+    options: ["Yes, please", "No, thanks", "Of course", "Sure"],
+    answer: 1,
+    explanation: "ผู้พูดบอกว่า I'm full (ฉันอิ่มแล้ว) ดังนั้นจึงต้องปฏิเสธอย่างสุภาพด้วยคำว่า No, thanks (ไม่ละ ขอบคุณ)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Comparative Adjectives)",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "An elephant is ______ than a dog.",
+    options: ["big", "bigger", "biggest", "the biggest"],
+    answer: 1,
+    explanation: "มีคำว่า than เป็นการเปรียบเทียบขั้นกว่า (Comparative) จึงต้องใช้ bigger"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 2.2 ป.4/1] Using dictionary",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "หากเรียงตามพจนานุกรม คำใดจะอยู่ลำดับสุดท้าย?",
+    options: ["Train", "Tree", "Tiger", "Truck"],
+    answer: 3,
+    explanation: "เรียงอักษร: T-i-ger, T-r-a-in, T-r-e-e, T-r-u-ck. อักษรตัวที่สาม i, a, e, u ลำดับสุดท้ายคือ u (Truck)"
+  },
+  {
+    subject: "ภาษาอังกฤษ",
+    grade: "ป.4",
+    topic: "[ต 3.1 ป.4/1] ไวยากรณ์ (Prepositions of time)",
+    difficulty: "hard",
+    question_type: "mcq",
+    question_text: "I have English class ______ 9:00 a.m. ______ Monday.",
+    options: ["at / on", "on / in", "in / at", "at / in"],
+    answer: 0,
+    explanation: "กับเวลา (9:00 a.m.) ใช้ 'at' กับวันในสัปดาห์ (Monday) ใช้ 'on'"
+  }
+];

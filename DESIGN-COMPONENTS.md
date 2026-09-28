@@ -23,9 +23,9 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
-### Grade 4 Curriculum Question Bank & Smart Exam Builder (v1.229.102)
+### Grade 4 Curriculum Question Bank & Smart Exam Builder (v1.229.103)
 
-- **Curriculum-Aligned Question Bank (540 Questions):** คลังข้อสอบปรนัย 4 ตัวเลือก ป.4 ครบทั้ง 9 กลุ่มสาระการเรียนรู้ วิชาละ 60 ข้อ อ้างอิงตามมาตรฐานตัวชี้วัด สพฐ. โดยระบุรหัสตัวชี้วัดและคำอธิบายในฟิลด์ `topic` ทุกข้อ (เช่น `[ท 1.1 ป.4/1]`, `[ค 1.1 ป.4/1]`, `[ว 2.1 ป.4/1]`, `[ต 1.1 ป.4/1]`) พร้อมคำอธิบายเฉลย (`explanation`) และระดับความยาก (`difficulty`)
+- **Curriculum-Aligned Question Bank (900 Questions):** คลังข้อสอบปรนัย 4 ตัวเลือก ป.4 ครบทั้ง 9 กลุ่มสาระการเรียนรู้ วิชาละ 100 ข้อ อ้างอิงตามมาตรฐานตัวชี้วัด สพฐ. โดยระบุรหัสตัวชี้วัดและคำอธิบายในฟิลด์ `topic` ทุกข้อ (เช่น `[ท 1.1 ป.4/1]`, `[ค 1.1 ป.4/1]`, `[ว 2.1 ป.4/1]`, `[ต 1.1 ป.4/1]`) พร้อมคำอธิบายเฉลย (`explanation`) และระดับความยาก (`difficulty`) — ขยายจาก 540 เป็น 900 ข้อโดยเพิ่มตัวชี้วัดรอบ 2-3 เน้นปานกลาง/ยากเพิ่มเพื่อความสมดุล (migration 543)
 - **Smart Selection & Random Picker Toolbar:**
   - **Indicator / Topic Filter Dropdown:** ตัวกรองตามตัวชี้วัด สพฐ. เพื่อคัดกรองข้อสอบเฉพาะเรื่องหรือสาระที่ต้องการ
   - **Quick Action Buttons:** ปุ่ม "เลือกทั้งหมดในหน้านี้" (Select All), "ยกเลิกในหน้านี้" (Deselect All)
