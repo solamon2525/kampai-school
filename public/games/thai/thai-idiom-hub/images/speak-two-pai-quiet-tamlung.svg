@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <rect width="800" height="600" fill="#fffbeb"/>
+    <g transform="translate(120, 220)">
+      <circle cx="120" cy="100" r="70" fill="#e2e8f0" stroke="#94a3b8" stroke-width="6"/>
+      <text x="120" y="110" font-family="Sarabun" font-size="28" font-weight="bold" fill="#475569" text-anchor="middle">พูดไปได้ 2 ไพ</text>
+      <text x="120" y="210" font-family="Sarabun" font-size="20" font-weight="bold" fill="#64748b" text-anchor="middle">มีค่าน้อย อาจเกิดโทษ</text>
+    </g>
+    <g transform="translate(480, 200)">
+      <circle cx="120" cy="120" r="95" fill="#fef08a" stroke="#eab308" stroke-width="8"/>
+      <text x="120" y="130" font-family="Sarabun" font-size="28" font-weight="800" fill="#a16207" text-anchor="middle">นิ่งเสียได้ตำลึงทอง ✨</text>
+      <text x="120" y="240" font-family="Sarabun" font-size="20" font-weight="bold" fill="#854d0e" text-anchor="middle">มีค่าสูงกว่ามาก</text>
+    </g>
+    <text x="400" y="90" font-family="Sarabun" font-size="28" font-weight="800" fill="#713f12" text-anchor="middle">บางสถานการณ์ การนิ่งเฉยมีค่ายิ่งกว่าการพูดในสิ่งที่ไม่เกิดประโยชน์</text>
+  </svg>

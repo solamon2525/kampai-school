@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <rect width="800" height="600" fill="#fdf4ff"/>
+    <g transform="translate(180, 200)">
+      <polygon points="40,240 100,240 100,180 160,180 160,120 220,120 220,60 280,60 280,300 40,300" fill="#e879f9" stroke="#a21caf" stroke-width="6"/>
+      <circle cx="340" cy="180" r="30" fill="#ffedd5"/>
+      <text x="240" y="340" font-family="Sarabun" font-size="24" font-weight="bold" fill="#86198f" text-anchor="middle">ตกลงมาจึงจำเป็นต้องกระโดดตามน้ำ</text>
+    </g>
+    <text x="400" y="90" font-family="Sarabun" font-size="28" font-weight="800" fill="#701a75" text-anchor="middle">ตกอยู่ในสถานการณ์ที่จำเป็นต้องยอมทำตามเลยตามเลย</text>
+  </svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <defs>
+      <linearGradient id="river" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="#fef9c3"/>
+    <rect x="0" y="280" width="800" height="320" fill="url(#river)"/>
+    <path d="M0 280 Q 200 250 400 280 T 800 280 L 800 600 L 0 600 Z" fill="#0ea5e9"/>
+    <rect x="80" y="220" width="260" height="120" rx="10" fill="#d97706" stroke="#78350f" stroke-width="6"/>
+    <g transform="translate(200, 160)">
+      <circle cx="50" cy="30" r="32" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/>
+      <path d="M 70 80 L 150 160" stroke="#78350f" stroke-width="8" stroke-linecap="round"/>
+      <ellipse cx="160" cy="180" rx="35" ry="25" fill="#b45309" stroke="#78350f" stroke-width="4"/>
+      <ellipse cx="160" cy="175" rx="30" ry="15" fill="#bae6fd"/>
+    </g>
+    <text x="520" y="220" font-family="Sarabun" font-size="30" font-weight="800" fill="#0369a1">💧 น้ำขึ้นเต็มตลิ่ง</text>
+    <text x="520" y="265" font-family="Sarabun" font-size="22" font-weight="bold" fill="#0284c7">รีบตักเก็บไว้ใช้เมื่อมีโอกาสดี</text>
+  </svg>

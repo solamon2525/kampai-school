@@ -23,6 +23,24 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### คลังสำนวนไทยอัจฉริยะ ป.4–6 (Thai Idiom Interactive Lab) — v1.229.107
+
+- **5 Learning Modes (5 โหมดการเรียนรู้บูรณาการ):**
+  - **Visual Meaning Decoder:** ถอดรหัสภาพสำนวน เทียบความหมายตรง (Literal) vs ความหมายเชิงอุปมา (Figurative) พร้อมคติสอนใจและการนำไปใช้จริง
+  - **Interactive Real-World Scenarios:** แบบฝึกหัดสถานการณ์จำลองในชีวิตจริง (MCQ พร้อม Interactive Immediate Feedback และคำอธิบายเชิงลึก)
+  - **Mystery Grid Reveal & Word Chain Builder:** ปริศนาเปิดแผ่นป้าย 4 เบาะแส + เกมต่อชิ้นส่วนคำสำนวนไทยแบบ Interactive Token Reorder
+  - **Smart Idiom Catalog:** คลังค้นหาและกรองสำนวน 4 หมวดหมู่ (สัตว์, สุภาษิต/คำพังเพย, การใช้ชีวิต/การทำงาน, คุณธรรม/จริยธรรม)
+  - **Worksheet Prep Lab:** ระบบฝึกคิด 3 ขั้นตอน (สังเกต → ถอดรหัส → สรุป) พร้อมปุ่มเปิดใบงานพิมพ์ A4 (`thai-idiom-hub-worksheet.html`) เชื่อมโยง 100%
+- **Content Coverage:** 24 สำนวน ป.4–6 ครอบคลุมตัวชี้วัด ท 4.1 ป.4/1, ท 4.1 ป.5/1, ท 1.1 ป.4/2, ท 1.1 ป.5/2 ครบทุกฟิลด์ (ความหมาย, คติ, เรื่องเล่าบริบท, ตัวอย่าง, เบาะแส, โทเค็นคำ, แบบฝึก)
+- **Visual Assets:** 6 ภาพประกอบการ์ตูนจิบิ AI WebP (800×600) + 18 SVG การศึกษาในโฟลเดอร์ `images/` ครบทุกสำนวน สื่อทั้งภาพฉากความหมายตรงและความหมายแฝง
+- **Classroom Presentation Mode & Accessibility:**
+  - โหมดฉายหน้าห้องเรียนขยายขนาดฟอนต์ด้วย `--font-scale`, รองรับ Smart TV / Projector
+  - คอนโทรลเผยคำตอบ/เปิดป้ายทีละขั้น (Step-by-step reveal) สำหรับครูนำสอน
+  - Keyboard shortcuts ครบครัน: `←` / `→` นำทาง, `Space` อ่านออกเสียง (TTS), `F` โหมดเต็มจอ, `1`–`5` สลับโหมดทันที
+- **Media Contract & Verification:**
+  - `kampai-content-kind="teaching-media"`, `MEDIA_SLUG="thai-idiom-hub"`, ไม่มี `submitScore`, มี `window.getState()` QA hook
+  - ผ่านการตรวจ `verify:media`, `verify:game`, `verify:worksheet` (18/18), `pnpm build`, และ Playwright browser test (360×800, 768×1024, 1280×720) ครบทุกข้อกำหนด
+
 ### Interactive Simple Equation Media Revamp (v1.229.106)
 
 - **Interactive Balance Scale Simulator (ตาชั่งสมดุลฟิสิกส์จำลอง):**

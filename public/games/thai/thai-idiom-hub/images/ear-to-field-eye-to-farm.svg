@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <rect width="800" height="600" fill="#f0fdfa"/>
+    <g transform="translate(260, 200)">
+      <circle cx="140" cy="120" r="60" fill="#ffedd5" stroke="#0d9488" stroke-width="6"/>
+      <path d="M 110 115 Q 120 125 130 115 M 150 115 Q 160 125 170 115" stroke="#0f766e" stroke-width="4" fill="none"/>
+      <text x="140" y="220" font-family="Sarabun" font-size="24" font-weight="bold" fill="#115e59" text-anchor="middle">แกล้งทำเป็นไม่ได้ยิน ไม่เห็น 🌾</text>
+    </g>
+    <text x="400" y="90" font-family="Sarabun" font-size="28" font-weight="800" fill="#134e4a" text-anchor="middle">ทำเป็นไม่รู้ไม่เห็น เพื่อหลีกเลี่ยงความยุ่งยากหรือเรื่องรำคาญใจ</text>
+  </svg>

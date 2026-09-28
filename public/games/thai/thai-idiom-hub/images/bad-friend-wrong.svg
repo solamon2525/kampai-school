@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <rect width="800" height="600" fill="#f8fafc"/>
+    <g transform="translate(120, 220)">
+      <circle cx="100" cy="80" r="40" fill="#cbd5e1"/>
+      <text x="100" y="160" font-family="Sarabun" font-size="24" font-weight="bold" fill="#dc2626" text-anchor="middle">คบคนพาลพาไปหาผิด ❌</text>
+    </g>
+    <g transform="translate(460, 220)">
+      <circle cx="100" cy="80" r="40" fill="#bbf7d0"/>
+      <text x="100" y="160" font-family="Sarabun" font-size="24" font-weight="bold" fill="#16a34a" text-anchor="middle">คบบัณฑิตบัณฑิตพาไปหาผล ✅</text>
+    </g>
+    <text x="400" y="100" font-family="Sarabun" font-size="28" font-weight="800" fill="#1e293b" text-anchor="middle">การเลือกคบเพื่อนส่งผลต่อความเจริญหรือความเสื่อมของตนเอง</text>
+  </svg>

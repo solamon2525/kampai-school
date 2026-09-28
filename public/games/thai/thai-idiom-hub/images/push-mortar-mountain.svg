@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <defs>
+      <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fed7aa"/><stop offset="100%" stop-color="#fef08a"/></linearGradient>
+      <linearGradient id="slope" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#sky2)"/>
+    <polygon points="0,600 800,120 800,600" fill="url(#slope)"/>
+    <g transform="translate(380, 260) rotate(-30)">
+      <ellipse cx="0" cy="0" rx="80" ry="75" fill="#64748b" stroke="#334155" stroke-width="8"/>
+      <ellipse cx="0" cy="-25" rx="65" ry="30" fill="#475569"/>
+      <rect x="-15" y="-75" width="30" height="70" rx="8" fill="#94a3b8" transform="rotate(15)" stroke="#334155" stroke-width="4"/>
+      <text x="0" y="25" font-family="Sarabun" font-size="24" font-weight="bold" fill="#f8fafc" text-anchor="middle">ครกหินหนักมาก</text>
+    </g>
+    <g transform="translate(230, 390)">
+      <circle cx="40" cy="-40" r="36" fill="#ffedd5" stroke="#ea580c" stroke-width="4"/>
+      <path d="M 10 -20 Q 50 15 70 30" stroke="#2563eb" stroke-width="32" stroke-linecap="round"/>
+      <path d="M 45 -25 L 120 -35" stroke="#ffedd5" stroke-width="18" stroke-linecap="round"/>
+      <text x="40" y="90" font-family="Sarabun" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">ออกแรงเข็นขึ้นที่สูง</text>
+    </g>
+  </svg>

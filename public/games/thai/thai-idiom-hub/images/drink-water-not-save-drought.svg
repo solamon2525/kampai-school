@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <rect width="800" height="600" fill="#fff1f2"/>
+    <g transform="translate(150, 220)">
+      <ellipse cx="100" cy="140" rx="70" ry="40" fill="#fda4af"/>
+      <text x="100" y="210" font-family="Sarabun" font-size="22" font-weight="bold" fill="#be123c">กินน้ำจนหมดขัน 🥤</text>
+    </g>
+    <g transform="translate(480, 220)">
+      <rect x="40" y="80" width="140" height="100" rx="8" fill="#e2e8f0"/>
+      <text x="110" y="210" font-family="Sarabun" font-size="22" font-weight="bold" fill="#475569">เมื่อถึงฤดูแล้งกลับไม่มีน้ำเหลือ</text>
+    </g>
+    <text x="400" y="100" font-family="Sarabun" font-size="28" font-weight="800" fill="#9f1239" text-anchor="middle">ใช้จ่ายฟุ่มเฟือยโดยไม่คิดถึงอนาคตหรือยามยากลำบาก</text>
+  </svg>

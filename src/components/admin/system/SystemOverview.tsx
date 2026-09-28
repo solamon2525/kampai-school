@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.107 (ปรับโฉม thai-idiom-hub เป็น "คลังสำนวนไทยอัจฉริยะ ป.4–6" — 5 โหมดการเรียนรู้ + ภาพประกอบจริง + โหมดฉายห้องเรียน)',
+        date: '28 ก.ย. 2569',
+        badge: 'bg-emerald-600',
+        items: [
+            '5 โหมดการเรียนรู้: Visual Decoder (ถอดรหัสความหมายตรง↔เชิงอุปมา), Scenario Quiz (สถานการณ์จริง MCQ + คำอธิบาย), Mystery Grid Reveal + Word Chain Builder, Smart Catalog (ค้นหา+กรอง 4 หมวด), Worksheet Prep Lab (3 ขั้นตอนฝึกคิด → เผยคำตอบ เชื่อมใบงาน A4)',
+            '24 สำนวน ป.4–6 ครบทุก field: ความหมายตรง, ความหมายเชิงอุปมา, คติสอนใจ, เรื่องเล่าบริบท, ประโยคตัวอย่าง, เบาะแส 4 ข้อ, ชิ้นส่วน Word Chain, โจทย์ Scenario Quiz',
+            'ภาพประกอบ: 6 ภาพจิบิ AI-generated WebP (800×600) + 18 SVG การศึกษาสำหรับ 24 สำนวน ในโฟลเดอร์ images/',
+            'โหมดฉายห้องเรียน (Classroom Presentation Mode): ขนาดฟอนต์ขยาย CSS var --font-scale, เผยทีละขั้น, keyboard shortcuts ←→ นำทาง, Space TTS, F fullscreen, 1–5 เปลี่ยนโหมด',
+            'ผ่าน verify:media ✅ · verify:game ทุก check · verify:worksheet 18/18 · pnpm build · Playwright 360/768/1280 ทุก viewport',
+        ],
+    },
+    {
         version: 'v1.229.106 (ยกระดับสื่อการสอนคณิตศาสตร์ "สมการอย่างง่าย" simple-equation-media.html จัดเต็ม 5 โหมดรูปธรรมสู่นามธรรม)',
         date: '28 ก.ย. 2569',
         badge: 'bg-emerald-600',
