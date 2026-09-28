@@ -23,6 +23,19 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Grade 4 Curriculum Question Bank & Smart Exam Builder (v1.229.102)
+
+- **Curriculum-Aligned Question Bank (540 Questions):** คลังข้อสอบปรนัย 4 ตัวเลือก ป.4 ครบทั้ง 9 กลุ่มสาระการเรียนรู้ วิชาละ 60 ข้อ อ้างอิงตามมาตรฐานตัวชี้วัด สพฐ. โดยระบุรหัสตัวชี้วัดและคำอธิบายในฟิลด์ `topic` ทุกข้อ (เช่น `[ท 1.1 ป.4/1]`, `[ค 1.1 ป.4/1]`, `[ว 2.1 ป.4/1]`, `[ต 1.1 ป.4/1]`) พร้อมคำอธิบายเฉลย (`explanation`) และระดับความยาก (`difficulty`)
+- **Smart Selection & Random Picker Toolbar:**
+  - **Indicator / Topic Filter Dropdown:** ตัวกรองตามตัวชี้วัด สพฐ. เพื่อคัดกรองข้อสอบเฉพาะเรื่องหรือสาระที่ต้องการ
+  - **Quick Action Buttons:** ปุ่ม "เลือกทั้งหมดในหน้านี้" (Select All), "ยกเลิกในหน้านี้" (Deselect All)
+  - **Preset Random Picker:** ปุ่มสุ่มเลือกข้อสอบด่วน 10 ข้อ, 20 ข้อ (แนะนำสำหรับแบบทดสอบมาตรฐาน), และ 30 ข้อ พร้อมตั้งชื่อชุดข้อสอบให้อัตโนมัติ
+- **Exam Cart & Difficulty Breakdown:**
+  - แสดงสัดส่วนระดับความยากของข้อสอบที่เลือกในชุด (ง่าย / ปานกลาง / ยาก) แบบ Real-time
+  - **Cart Review Dialog:** หน้าต่างพรีวิวและตรวจทานข้อสอบที่เลือกในชุดก่อนบันทึก สามารถตรวจสอบโจทย์ ตัวเลือก เฉลย และคำอธิบาย รวมถึงลบข้อที่ไม่ต้องการออกทีละข้อได้
+- **Pre-configured Grade 4 Exam Sets:** ติดตั้งชุดข้อสอบมาตรฐาน ป.4 วิชาละ 20 ข้อ รวม 9 วิชา พร้อมรหัส PIN เฉพาะวิชา (`THAI401`, `MATH401`, `SCI401`, `SOC401`, `HIST401`, `ENG401`, `HEA401`, `ART401`, `CAR401`) สำหรับเปิดสอบออนไลน์และพิมพ์ข้อสอบ A4/OMR ทันที
+- **Light-Mode Strict Compliance:** ทุกคอมโพเนนต์ใช้โทนสีและ CSS vars ตามมาตรฐาน (`bg-background`, `bg-card`, `border-border`, `text-primary`) ปราศจากคลาส `dark:`
+
 ### Integrated Exam System & Mobile OMR Scanner (v1.229.101)
 
 - **Native Exam Architecture:** บูรณาการระบบจัดการข้อสอบ คลังข้อสอบ และการตรวจ OMR จากภายนอกเข้าสู่ระบบของโรงเรียนบ้านคำไผ่โดยตรง (Native React + TypeScript + Supabase RLS)

@@ -7,7 +7,8 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
-  Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck
+  Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
+  Shuffle, Eye, ListFilter, CheckCheck, Clock
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -25,6 +26,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { downloadCSV } from '@/lib/export';
 import type { Json, TablesInsert } from '@/integrations/supabase/types';
@@ -53,7 +57,8 @@ export default function TeacherExamManagement() {
 
   // Filter states
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
-  const [selectedGrade, setSelectedGrade] = useState<string>('ป.5');
+  const [selectedGrade, setSelectedGrade] = useState<string>('ป.4');
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // AI Generator state
@@ -71,6 +76,7 @@ export default function TeacherExamManagement() {
 
   // Selected questions for building set
   const [selectedQIds, setSelectedQIds] = useState<string[]>([]);
+  const [showCartReview, setShowCartReview] = useState(false);
   const [newSetTitle, setNewSetTitle] = useState('');
   const [newSetTime, setNewSetTime] = useState(60);
   const [newSetPin, setNewSetPin] = useState('');
@@ -87,7 +93,7 @@ export default function TeacherExamManagement() {
   const [omrSummary, setOmrSummary] = useState<OMRGradingSummary | null>(null);
   const [scannedStudentNo, setScannedStudentNo] = useState<number | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const [omrStudentClass, setOmrStudentClass] = useState<string>('ป.5');
+  const [omrStudentClass, setOmrStudentClass] = useState<string>('ป.4');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
@@ -102,6 +108,92 @@ export default function TeacherExamManagement() {
         search: searchQuery || undefined,
       }),
   });
+
+  // Extract unique topics for filter
+  const availableTopics = useMemo(() => {
+    const set = new Set<string>();
+    questions.forEach((q) => {
+      if (q.topic) set.add(q.topic);
+    });
+    return Array.from(set).sort();
+  }, [questions]);
+
+  // Filter questions by topic
+  const displayedQuestions = useMemo(() => {
+    if (selectedTopic === 'all') return questions;
+    return questions.filter((q) => q.topic === selectedTopic);
+  }, [questions, selectedTopic]);
+
+  // Selected questions details & difficulty breakdown
+  const selectedQuestionsDetails = useMemo(() => {
+    return questions.filter((q) => selectedQIds.includes(q.id));
+  }, [questions, selectedQIds]);
+
+  const difficultyStats = useMemo(() => {
+    const counts = { easy: 0, medium: 0, hard: 0 };
+    selectedQuestionsDetails.forEach((q) => {
+      if (q.difficulty in counts) {
+        counts[q.difficulty as keyof typeof counts]++;
+      } else {
+        counts.medium++;
+      }
+    });
+    return counts;
+  }, [selectedQuestionsDetails]);
+
+  // Filter change handlers that reset topic
+  const handleSubjectChange = (val: string) => {
+    setSelectedSubject(val);
+    setSelectedTopic('all');
+  };
+
+  const handleGradeChange = (val: string) => {
+    setSelectedGrade(val);
+    setSelectedTopic('all');
+  };
+
+  // Bulk selection actions
+  const handleSelectAll = () => {
+    const displayedIds = displayedQuestions.map((q) => q.id);
+    const union = Array.from(new Set([...selectedQIds, ...displayedIds]));
+    setSelectedQIds(union);
+    if (!newSetTitle) {
+      setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${union.length} ข้อ)`);
+    }
+    toast({
+      title: 'เลือกข้อสอบทั้งหมดในหน้านี้',
+      description: `เพิ่มข้อสอบ ${displayedIds.length} ข้อเข้าชุดแล้ว (รวมทั้งหมด ${union.length} ข้อ)`,
+    });
+  };
+
+  const handleDeselectAll = () => {
+    const displayedIds = new Set(displayedQuestions.map((q) => q.id));
+    setSelectedQIds(selectedQIds.filter((id) => !displayedIds.has(id)));
+    toast({
+      title: 'ยกเลิกการเลือก',
+      description: 'นำข้อสอบในหน้านี้ออกจากชุดข้อสอบแล้ว',
+    });
+  };
+
+  const handleRandomSelect = (count: number) => {
+    const pool = [...displayedQuestions];
+    if (pool.length === 0) {
+      toast({ title: 'ไม่มีข้อสอบให้สุ่ม', description: 'กรุณาเลือกวิชาหรือระดับชั้นที่มีข้อสอบในคลัง', variant: 'destructive' });
+      return;
+    }
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const picked = pool.slice(0, Math.min(count, pool.length));
+    const pickedIds = picked.map((q) => q.id);
+    setSelectedQIds(pickedIds);
+    setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${picked.length} ข้อ)`);
+    toast({
+      title: `สุ่มเลือก ${picked.length} ข้อสำเร็จ!`,
+      description: `ระบบเลือกข้อสอบสุ่มจำนวน ${picked.length} ข้อลงในชุดเรียบร้อยแล้ว`,
+    });
+  };
 
   const { data: examSets = [], isLoading: loadingSets } = useQuery({
     queryKey: ['exam_sets', selectedSubject, selectedGrade],
@@ -410,7 +502,7 @@ export default function TeacherExamManagement() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+            <Select value={selectedSubject} onValueChange={handleSubjectChange}>
               <SelectTrigger className="w-[140px] h-9 text-xs">
                 <SelectValue placeholder="ทุกวิชา" />
               </SelectTrigger>
@@ -422,7 +514,7 @@ export default function TeacherExamManagement() {
               </SelectContent>
             </Select>
 
-            <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+            <Select value={selectedGrade} onValueChange={handleGradeChange}>
               <SelectTrigger className="w-[100px] h-9 text-xs">
                 <SelectValue placeholder="ทุกชั้น" />
               </SelectTrigger>
@@ -547,19 +639,38 @@ export default function TeacherExamManagement() {
             {/* Questions List & Cart */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Question Bank Items */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="flex justify-between items-center">
+              <div className="lg:col-span-2 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2">
                     <h2 className="font-bold text-sm">รายการข้อสอบในคลัง</h2>
                     <Badge variant="secondary" className="text-xs">{questions.length} ข้อ</Badge>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Topic Filter */}
+                    <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                      <SelectTrigger className="w-[180px] h-8 text-xs">
+                        <ListFilter className="h-3 w-3 mr-1 text-muted-foreground" />
+                        <SelectValue placeholder="ทุกตัวชี้วัด" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">ทุกตัวชี้วัด ({questions.length})</SelectItem>
+                        {availableTopics.map((top) => {
+                          const count = questions.filter((q) => q.topic === top).length;
+                          return (
+                            <SelectItem key={top} value={top}>
+                              {top} ({count})
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+
                     <Input
                       placeholder="ค้นหาข้อสอบ..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-48 h-8 text-xs"
+                      className="w-36 sm:w-44 h-8 text-xs"
                     />
                     <Button
                       variant="outline"
@@ -570,6 +681,68 @@ export default function TeacherExamManagement() {
                       <Plus className="h-3.5 w-3.5" />
                       เพิ่มเอง
                     </Button>
+                  </div>
+                </div>
+
+                {/* Smart Selection & Random Picker Toolbar */}
+                <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-muted/40 rounded-xl border border-border/60 text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-semibold text-muted-foreground flex items-center gap-1 mr-1 text-[11px]">
+                      <CheckCheck className="h-3.5 w-3.5 text-primary" />
+                      เลือกข้อ:
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSelectAll}
+                      className="h-7 text-[11px] px-2.5 bg-background shadow-xs"
+                    >
+                      เลือกทั้งหมดในหน้านี้ ({displayedQuestions.length})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDeselectAll}
+                      className="h-7 text-[11px] px-2 text-muted-foreground hover:text-foreground bg-background shadow-xs"
+                      disabled={selectedQIds.length === 0}
+                    >
+                      ยกเลิกในหน้านี้
+                    </Button>
+
+                    <div className="h-3.5 w-px bg-border mx-1 hidden sm:block" />
+
+                    <span className="font-semibold text-muted-foreground flex items-center gap-1 mr-1 text-[11px]">
+                      <Shuffle className="h-3.5 w-3.5 text-amber-600" />
+                      สุ่มเลือก:
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRandomSelect(10)}
+                      className="h-7 text-[11px] px-2 bg-background hover:bg-amber-500/10 hover:text-amber-700 hover:border-amber-300 shadow-xs"
+                    >
+                      10 ข้อ
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRandomSelect(20)}
+                      className="h-7 text-[11px] px-2.5 bg-background font-semibold text-primary border-primary/30 hover:bg-primary/10 shadow-xs"
+                    >
+                      20 ข้อ (แนะนำ)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRandomSelect(30)}
+                      className="h-7 text-[11px] px-2 bg-background hover:bg-amber-500/10 hover:text-amber-700 hover:border-amber-300 shadow-xs"
+                    >
+                      30 ข้อ
+                    </Button>
+                  </div>
+
+                  <div className="text-[11px] text-muted-foreground ml-auto">
+                    แสดง {displayedQuestions.length} จาก {questions.length} ข้อ
                   </div>
                 </div>
 
@@ -624,7 +797,7 @@ export default function TeacherExamManagement() {
                           if (!newQText.trim()) return;
                           createQMutation.mutate({
                             subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
-                            grade: selectedGrade !== 'all' ? selectedGrade : 'ป.5',
+                            grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
                             question_type: 'mcq',
                             question_text: newQText.trim(),
                             options: newQOpts,
@@ -642,14 +815,14 @@ export default function TeacherExamManagement() {
                 {/* List items */}
                 {loadingQ ? (
                   <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดข้อสอบ...</div>
-                ) : questions.length === 0 ? (
+                ) : displayedQuestions.length === 0 ? (
                   <div className="text-center py-12 border border-dashed rounded-xl p-8 bg-muted/10">
                     <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีข้อสอบในหมวดนี้</p>
                     <p className="text-xs text-muted-foreground mt-1">ใช้ AI สร้าง หรือกดปุ่ม "เพิ่มเอง" ด้านบนได้เลย</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {questions.map((q, idx) => {
+                    {displayedQuestions.map((q, idx) => {
                       const isSelected = selectedQIds.includes(q.id);
                       const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
 
@@ -657,7 +830,7 @@ export default function TeacherExamManagement() {
                         <div
                           key={q.id}
                           className={`p-4 rounded-xl border transition-colors ${
-                            isSelected ? 'border-primary bg-primary/5' : 'border-border bg-card'
+                            isSelected ? 'border-primary bg-primary/5 shadow-xs' : 'border-border bg-card'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -667,28 +840,64 @@ export default function TeacherExamManagement() {
                                 checked={isSelected}
                                 onChange={(e) => {
                                   if (e.target.checked) {
-                                    setSelectedQIds([...selectedQIds, q.id]);
+                                    const next = [...selectedQIds, q.id];
+                                    setSelectedQIds(next);
+                                    if (!newSetTitle) {
+                                      setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${next.length} ข้อ)`);
+                                    }
                                   } else {
                                     setSelectedQIds(selectedQIds.filter((id) => id !== q.id));
                                   }
                                 }}
-                                className="mt-1 rounded border-border"
+                                className="mt-1 rounded border-border cursor-pointer h-4 w-4 accent-primary"
                               />
-                              <div className="space-y-1 flex-1">
-                                <div className="text-xs font-medium leading-relaxed">
-                                  <span className="font-bold text-muted-foreground mr-1.5">{idx + 1}.</span>
+                              <div className="space-y-1.5 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="font-bold text-muted-foreground text-xs">{idx + 1}.</span>
+                                  {q.topic && (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
+                                      {q.topic}
+                                    </Badge>
+                                  )}
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-[10px] px-1.5 py-0 ${
+                                      q.difficulty === 'easy'
+                                        ? 'text-emerald-700 border-emerald-300 bg-emerald-500/10'
+                                        : q.difficulty === 'hard'
+                                        ? 'text-purple-700 border-purple-300 bg-purple-500/10'
+                                        : 'text-blue-700 border-blue-300 bg-blue-500/10'
+                                    }`}
+                                  >
+                                    {q.difficulty === 'easy' ? 'ง่าย' : q.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
+                                  </Badge>
+                                </div>
+
+                                <div className="text-xs font-medium leading-relaxed text-foreground">
                                   {q.question_text}
                                 </div>
+
                                 {q.question_type === 'mcq' && opts.length > 0 && (
-                                  <div className="grid grid-cols-2 gap-1.5 pt-2 text-[11px] text-muted-foreground">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1.5 text-[11px] text-muted-foreground">
                                     {opts.map((opt, oIdx) => (
                                       <div
                                         key={oIdx}
-                                        className={oIdx === q.answer ? 'font-bold text-green-600' : ''}
+                                        className={`p-1 px-2 rounded ${
+                                          oIdx === q.answer
+                                            ? 'font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-300/60'
+                                            : 'bg-muted/20'
+                                        }`}
                                       >
                                         {['ก', 'ข', 'ค', 'ง'][oIdx]}. {opt}
                                       </div>
                                     ))}
+                                  </div>
+                                )}
+
+                                {q.explanation && (
+                                  <div className="mt-1.5 p-2 rounded bg-muted/30 border border-border/50 text-[11px] text-muted-foreground">
+                                    <span className="font-semibold text-foreground">💡 เฉลย: </span>
+                                    {q.explanation}
                                   </div>
                                 )}
                               </div>
@@ -698,7 +907,7 @@ export default function TeacherExamManagement() {
                               variant="ghost"
                               size="sm"
                               onClick={() => deleteQMutation.mutate(q.id)}
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive shrink-0"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -719,19 +928,60 @@ export default function TeacherExamManagement() {
                         <Layers className="h-4 w-4 text-primary" />
                         จัดชุดข้อสอบ (Cart)
                       </span>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs font-bold text-primary">
                         เลือกแล้ว {selectedQIds.length} ข้อ
                       </Badge>
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      เลือกข้อสอบจากด้านซ้ายเพื่อนำมารวมเป็นชุดข้อสอบใหม่
+                      เลือกข้อสอบจากรายการ หรือใช้ปุ่มสุ่ม เพื่อสร้างชุดข้อสอบ
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3.5">
-                    <div className="space-y-1.5">
+                    {/* Difficulty Stats Breakdown */}
+                    {selectedQIds.length > 0 && (
+                      <div className="grid grid-cols-3 gap-1.5 p-2 rounded-lg bg-muted/30 border border-border/60 text-center">
+                        <div className="p-1 rounded bg-emerald-500/10 border border-emerald-200/50">
+                          <div className="text-[10px] text-emerald-700 font-medium">ง่าย</div>
+                          <div className="text-xs font-bold text-emerald-800">{difficultyStats.easy}</div>
+                        </div>
+                        <div className="p-1 rounded bg-blue-500/10 border border-blue-200/50">
+                          <div className="text-[10px] text-blue-700 font-medium">ปานกลาง</div>
+                          <div className="text-xs font-bold text-blue-800">{difficultyStats.medium}</div>
+                        </div>
+                        <div className="p-1 rounded bg-purple-500/10 border border-purple-200/50">
+                          <div className="text-[10px] text-purple-700 font-medium">ยาก</div>
+                          <div className="text-xs font-bold text-purple-800">{difficultyStats.hard}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quick Review / Clear Buttons */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCartReview(true)}
+                        disabled={selectedQIds.length === 0}
+                        className="flex-1 text-xs h-8 gap-1.5 bg-background shadow-xs"
+                      >
+                        <Eye className="h-3.5 w-3.5 text-primary" />
+                        ตรวจทานข้อที่เลือก ({selectedQIds.length})
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedQIds([])}
+                        disabled={selectedQIds.length === 0}
+                        className="text-xs h-8 text-muted-foreground hover:text-destructive px-2"
+                      >
+                        ล้าง
+                      </Button>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1 border-t border-border/60">
                       <Label className="text-xs">ชื่อชุดข้อสอบ</Label>
                       <Input
-                        placeholder="เช่น ข้อสอบปลายภาค วิทยาศาสตร์ ป.5"
+                        placeholder="เช่น ข้อสอบปลายภาค วิทยาศาสตร์ ป.4"
                         value={newSetTitle}
                         onChange={(e) => setNewSetTitle(e.target.value)}
                         className="h-8 text-xs"
@@ -749,9 +999,9 @@ export default function TeacherExamManagement() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[11px]">รหัส PIN สำหรับเข้าสอบ</Label>
+                        <Label className="text-[11px]">รหัส PIN เข้าสอบ</Label>
                         <Input
-                          placeholder="เช่น SCI501"
+                          placeholder="เช่น SCI401"
                           value={newSetPin}
                           onChange={(e) => setNewSetPin(e.target.value)}
                           className="h-8 text-xs uppercase"
@@ -762,10 +1012,10 @@ export default function TeacherExamManagement() {
                     <Button
                       onClick={handleBuildSet}
                       disabled={createSetMutation.isPending || !selectedQIds.length}
-                      className="w-full text-xs h-9"
+                      className="w-full text-xs h-9 shadow-xs"
                     >
                       <CheckSquare className="h-3.5 w-3.5 mr-1.5" />
-                      บันทึกชุดข้อสอบ
+                      บันทึกชุดข้อสอบ ({selectedQIds.length} ข้อ)
                     </Button>
                   </CardContent>
                 </Card>
@@ -1296,6 +1546,112 @@ export default function TeacherExamManagement() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Cart Review Dialog */}
+        <Dialog open={showCartReview} onOpenChange={setShowCartReview}>
+          <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col p-6">
+            <DialogHeader className="pb-3 border-b border-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <DialogTitle className="text-base font-bold flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-primary" />
+                    ตรวจทานข้อสอบที่เลือกในชุด ({selectedQuestionsDetails.length} ข้อ)
+                  </DialogTitle>
+                  <DialogDescription className="text-xs mt-1">
+                    ตรวจสอบความถูกต้อง ลำดับโจทย์ หรือนำข้อที่ไม่ต้องการออกจากชุดข้อสอบ
+                  </DialogDescription>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <Badge variant="outline" className="text-emerald-700 bg-emerald-500/10 border-emerald-300">ง่าย {difficultyStats.easy}</Badge>
+                  <Badge variant="outline" className="text-blue-700 bg-blue-500/10 border-blue-300">ปานกลาง {difficultyStats.medium}</Badge>
+                  <Badge variant="outline" className="text-purple-700 bg-purple-500/10 border-purple-300">ยาก {difficultyStats.hard}</Badge>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="flex-1 overflow-y-auto space-y-3 py-4 pr-1">
+              {selectedQuestionsDetails.length === 0 ? (
+                <div className="text-center py-12 text-xs text-muted-foreground">
+                  ยังไม่ได้เลือกข้อสอบใดๆ เข้าสู่ชุดข้อสอบ
+                </div>
+              ) : (
+                selectedQuestionsDetails.map((q, idx) => {
+                  const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
+                  return (
+                    <div key={q.id} className="p-3.5 rounded-xl border border-border bg-card/60 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-primary">ข้อที่ {idx + 1}</span>
+                            {q.topic && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
+                                {q.topic}
+                              </Badge>
+                            )}
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] px-1.5 py-0 ${
+                                q.difficulty === 'easy'
+                                  ? 'text-emerald-700 border-emerald-300 bg-emerald-500/10'
+                                  : q.difficulty === 'hard'
+                                  ? 'text-purple-700 border-purple-300 bg-purple-500/10'
+                                  : 'text-blue-700 border-blue-300 bg-blue-500/10'
+                              }`}
+                            >
+                              {q.difficulty === 'easy' ? 'ง่าย' : q.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
+                            </Badge>
+                          </div>
+                          <p className="text-xs font-medium text-foreground">{q.question_text}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedQIds(selectedQIds.filter((id) => id !== q.id))}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive shrink-0"
+                          title="นำข้อนี้ออกจากชุด"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+
+                      {opts.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px]">
+                          {opts.map((opt, oIdx) => (
+                            <div
+                              key={oIdx}
+                              className={`p-1 px-2 rounded ${
+                                oIdx === q.answer
+                                  ? 'bg-emerald-500/15 text-emerald-800 font-semibold border border-emerald-300'
+                                  : 'text-muted-foreground bg-muted/20'
+                              }`}
+                            >
+                              {['ก', 'ข', 'ค', 'ง'][oIdx]}. {opt}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {q.explanation && (
+                        <div className="text-[10px] text-muted-foreground bg-muted/40 p-1.5 rounded border border-border/40">
+                          💡 <span className="font-semibold text-foreground">เฉลย:</span> {q.explanation}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <DialogFooter className="pt-3 border-t border-border flex justify-between sm:justify-between items-center">
+              <span className="text-xs text-muted-foreground">
+                รวมทั้งหมด <strong className="text-foreground">{selectedQuestionsDetails.length}</strong> ข้อ
+              </span>
+              <Button size="sm" onClick={() => setShowCartReview(false)} className="text-xs">
+                ปิดหน้าต่างตรวจทาน
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </RolePortalLayout>
   );
