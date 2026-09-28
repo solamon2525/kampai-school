@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       academic_calendar: {
@@ -1535,6 +1510,7 @@ export type Database = {
           recorded_by: string | null
           recorded_by_administrator_id: string | null
           recorded_by_staff_id: string | null
+          reward_claim_id: string | null
           score: number
           semester: string
           student_id: string
@@ -1549,6 +1525,7 @@ export type Database = {
           recorded_by?: string | null
           recorded_by_administrator_id?: string | null
           recorded_by_staff_id?: string | null
+          reward_claim_id?: string | null
           score?: number
           semester?: string
           student_id: string
@@ -1563,6 +1540,7 @@ export type Database = {
           recorded_by?: string | null
           recorded_by_administrator_id?: string | null
           recorded_by_staff_id?: string | null
+          reward_claim_id?: string | null
           score?: number
           semester?: string
           student_id?: string
@@ -1589,6 +1567,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_educational_hub_teachers"
             referencedColumns: ["staff_id"]
+          },
+          {
+            foreignKeyName: "conduct_scores_reward_claim_id_fkey"
+            columns: ["reward_claim_id"]
+            isOneToOne: false
+            referencedRelation: "reward_claims"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "conduct_scores_student_id_fkey"
@@ -3161,6 +3146,232 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      exam_questions: {
+        Row: {
+          answer: Json
+          bloom_level: string | null
+          created_at: string
+          difficulty: string
+          explanation: string | null
+          grade: string
+          id: string
+          options: Json | null
+          question_text: string
+          question_type: string
+          subject: string
+          teacher_id: string | null
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          answer: Json
+          bloom_level?: string | null
+          created_at?: string
+          difficulty?: string
+          explanation?: string | null
+          grade: string
+          id?: string
+          options?: Json | null
+          question_text: string
+          question_type?: string
+          subject: string
+          teacher_id?: string | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: Json
+          bloom_level?: string | null
+          created_at?: string
+          difficulty?: string
+          explanation?: string | null
+          grade?: string
+          id?: string
+          options?: Json | null
+          question_text?: string
+          question_type?: string
+          subject?: string
+          teacher_id?: string | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_questions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      exam_sets: {
+        Row: {
+          created_at: string
+          grade: string
+          id: string
+          is_active: boolean
+          pass_threshold_pct: number
+          pin_code: string | null
+          questions: Json
+          subject: string
+          teacher_id: string | null
+          time_limit_minutes: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          grade: string
+          id?: string
+          is_active?: boolean
+          pass_threshold_pct?: number
+          pin_code?: string | null
+          questions?: Json
+          subject: string
+          teacher_id?: string | null
+          time_limit_minutes?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: string
+          is_active?: boolean
+          pass_threshold_pct?: number
+          pin_code?: string | null
+          questions?: Json
+          subject?: string
+          teacher_id?: string | null
+          time_limit_minutes?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_sets_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sets_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
+      exam_submissions: {
+        Row: {
+          answers: Json
+          created_at: string
+          exam_set_id: string
+          graded_by: string | null
+          id: string
+          max_score: number
+          omr_scanned_image_url: string | null
+          passed: boolean
+          percentage: number
+          score: number
+          student_class: string
+          student_id: string | null
+          student_name: string
+          student_no: number | null
+          submission_mode: string
+          time_used_seconds: number | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          exam_set_id: string
+          graded_by?: string | null
+          id?: string
+          max_score?: number
+          omr_scanned_image_url?: string | null
+          passed?: boolean
+          percentage?: number
+          score?: number
+          student_class: string
+          student_id?: string | null
+          student_name: string
+          student_no?: number | null
+          submission_mode?: string
+          time_used_seconds?: number | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          exam_set_id?: string
+          graded_by?: string | null
+          id?: string
+          max_score?: number
+          omr_scanned_image_url?: string | null
+          passed?: boolean
+          percentage?: number
+          score?: number
+          student_class?: string
+          student_id?: string | null
+          student_name?: string
+          student_no?: number | null
+          submission_mode?: string
+          time_used_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_submissions_exam_set_id_fkey"
+            columns: ["exam_set_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_submissions_graded_by_fkey"
+            columns: ["graded_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_submissions_graded_by_fkey"
+            columns: ["graded_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+          {
+            foreignKeyName: "exam_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "exam_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
       }
       facebook_feed_config: {
         Row: {
@@ -9126,6 +9337,10 @@ export type Database = {
         Args: { p_entity_id: string; p_entity_type: string; p_note: string }
         Returns: string
       }
+      admin_claim_and_approve_reward: {
+        Args: { p_code: string; p_quantity?: number; p_reward_id: string }
+        Returns: string
+      }
       admin_reset_game_sessions: {
         Args: { p_game_slug: string; p_student_id?: string }
         Returns: Json
@@ -9552,6 +9767,22 @@ export type Database = {
       }
       get_thai_vocab_stats: { Args: never; Returns: Json }
       get_thai_vocab_words: { Args: { p_category_slug: string }; Returns: Json }
+      get_top_heroes: {
+        Args: {
+          limit_val?: number
+          p_academic_year?: string
+          p_semester?: string
+        }
+        Returns: {
+          available_points: number
+          class: string
+          deeds_count: number
+          name: string
+          photo_url: string
+          student_id: string
+          total_xp: number
+        }[]
+      }
       get_training_public_aggregate: { Args: never; Returns: Json }
       get_versus_head_to_head: {
         Args: { p_a: string; p_b: string }
@@ -10074,9 +10305,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       classroom_competition_device_status: [

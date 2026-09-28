@@ -23,6 +23,17 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### Integrated Exam System & Mobile OMR Scanner (v1.229.101)
+
+- **Native Exam Architecture:** บูรณาการระบบจัดการข้อสอบ คลังข้อสอบ และการตรวจ OMR จากภายนอกเข้าสู่ระบบของโรงเรียนบ้านคำไผ่โดยตรง (Native React + TypeScript + Supabase RLS)
+- **Real Student Roster Integration:** เชื่อมต่อกับตาราง `students` ผ่าน `studentsService.getByClass(grade)` แสดงภาพประจำตัวนักเรียน `<PersonAvatar>` ควบคู่ชื่อ-นามสกุลเสมอตาม DESIGN.md Rule 14.13
+- **Dual-Mode Examination:**
+  1. **Online Exam Runner (`/exam`):** รองรับรหัส PIN เข้าสอบ, การจับเวลาถอยหลังแบบ Sticky, ปุ่มตัวเลือกสัมผัสขนาดใหญ่ (ขั้นต่ำ 44×44px) และตรวจความครบถ้วนก่อนส่ง
+  2. **Classroom Paper Exam & OMR (`/teacher/exam`):** จัดพิมพ์ข้อสอบ A4 และกระดาษคำตอบ OMR พร้อม 4 Fiducial Corner Markers สำหรับการตรวจจับมุมของกล้อง
+- **Mobile AI Vision OMR Scanner:** ครูใช้สมาร์ทโฟนเปิดกล้องหลัง (`facingMode: 'environment'`) ถ่ายหรือสแกนกระดาษคำตอบ ระบบส่ง AI Vision (Gemini 2.0 Flash) วิเคราะห์รอยฝน ตรวจคะแนน และบันทึกลงตาราง `exam_submissions` อัตโนมัติ
+- **Educational Hub Integration:** เชื่อมโยงเข้ากับพื้นที่ครูณัฐพงษ์ (`/h/nattapong`), เส้นทางลัด `/nattapong`, และเมนูระบบจัดการข้อสอบใน Teacher Portal
+- **Light-Mode Strict Compliance:** ใช้ CSS vars มาตรฐาน (`bg-background`, `bg-card`, `text-foreground`, `border-border`) ปราศจากคลาส `dark:` และไม่มี hex color hardcoded
+
 ### Dual-Metric Virtue Points & Non-Demoting Hero Rankings (v1.229.99)
 
 - **Dual-Metric Virtue Architecture:** แยกประเภทคะแนนความดีอย่างชัดเจนเพื่อไม่ให้การให้รางวัลแก่นักเรียนสร้างผลกระทบเชิงลบต่ออันดับเกียรติยศ:

@@ -32,3 +32,5 @@ export * from './home-visits.service';
 export * from './sdq.service';
 export * from './student-360.service';
 export * from './meetings.service';
+export * from './exam.service';
+export * from './omr-scanner.service';

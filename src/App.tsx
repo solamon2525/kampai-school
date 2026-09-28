@@ -83,6 +83,8 @@ const TeacherDashboard = lazyWithRetry(() => import("./pages/teacher/TeacherDash
 const TeacherSchedule = lazyWithRetry(() => import("./pages/teacher/TeacherSchedule"));
 const TeacherAttendance = lazyWithRetry(() => import("./pages/teacher/TeacherAttendance"));
 const TeacherScores = lazyWithRetry(() => import("./pages/teacher/TeacherScores"));
+const TeacherExamManagement = lazyWithRetry(() => import("./pages/teacher/TeacherExamManagement"));
+const ExamOnline = lazyWithRetry(() => import("./pages/ExamOnline"));
 const TeacherRewardsApproval = lazyWithRetry(() => import("./pages/teacher/TeacherRewardsApproval"));
 const TeacherEduHubManager = lazyWithRetry(() => import("./pages/teacher/TeacherEduHubManager"));
 const TeacherSupplies = lazyWithRetry(() => import("./pages/teacher/TeacherSupplies"));
@@ -229,6 +231,12 @@ const App = () => (
             <Route path="/surveys/:id" element={<SurveyResponse />} />
             <Route path="/classroom-competition/join" element={<ClassroomCompetitionJoin />} />
 
+            {/* Exam System & Online Testing */}
+            <Route path="/exam" element={<ExamOnline />} />
+            <Route path="/exam/:examSetId" element={<ExamOnline />} />
+            <Route path="/nattapong" element={<Navigate to="/h/nattapong" replace />} />
+            <Route path="/nattapong/exam" element={<Navigate to="/teacher/exam" replace />} />
+
             {/* Teacher Portal */}
             <Route path="/teacher" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherDashboard /></PortalProtectedRoute>
@@ -244,6 +252,9 @@ const App = () => (
             } />
             <Route path="/teacher/scores" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherScores /></PortalProtectedRoute>
+            } />
+            <Route path="/teacher/exam" element={
+              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherExamManagement /></PortalProtectedRoute>
             } />
             <Route path="/teacher/rewards-approval" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherRewardsApproval /></PortalProtectedRoute>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard, CheckSquare, BookOpen } from 'lucide-react';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -472,6 +472,18 @@ const EducationalHubTeacher = () => {
                                             <Link to={`/staff/${teacher.username ?? teacher.staff_id}`}>
                                                 <IdCard className="h-4 w-4 mr-1" />
                                                 ดูข้อมูลครู
+                                            </Link>
+                                        </Button>
+                                        <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'default'} className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
+                                            <Link to="/teacher/exam">
+                                                <CheckSquare className="h-4 w-4 mr-1" />
+                                                ระบบจัดการข้อสอบ
+                                            </Link>
+                                        </Button>
+                                        <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'outline'}>
+                                            <Link to="/exam">
+                                                <BookOpen className="h-4 w-4 mr-1" />
+                                                สอบออนไลน์
                                             </Link>
                                         </Button>
                                         {teacher.external_url && (
