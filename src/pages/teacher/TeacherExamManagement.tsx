@@ -8,7 +8,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
-  Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle
+  Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
+  Lightbulb, Filter
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -42,11 +43,110 @@ interface AIParsedQuestion {
   difficulty?: 'easy' | 'medium' | 'hard';
 }
 
-const SUBJECT_LIST = [
-  'คณิตศาสตร์', 'ภาษาไทย', 'วิทยาศาสตร์', 'สังคมศึกษา',
-  'ภาษาอังกฤษ', 'ประวัติศาสตร์', 'สุขศึกษา', 'ศิลปะ',
-  'การงานอาชีพ', 'ต้านทุจริต'
-];
+export interface SubjectConfigItem {
+  id: string;
+  name: string;
+  icon: string;
+  colorClass: string;
+  badgeClass: string;
+  activeColor: string;
+  suggestedTopics: string[];
+}
+
+export const SUBJECT_MAP: Record<string, SubjectConfigItem> = {
+  'คณิตศาสตร์': {
+    id: 'math',
+    name: 'คณิตศาสตร์',
+    icon: '📐',
+    colorClass: 'border-blue-300 text-blue-700 bg-blue-50/50 hover:bg-blue-100/60',
+    badgeClass: 'bg-blue-500/10 text-blue-700 border-blue-300/60',
+    activeColor: 'bg-blue-600 text-white border-blue-600 shadow-sm',
+    suggestedTopics: ['เศษส่วน', 'ทศนิยม', 'การบวก ลบ คูณ หารระคน', 'เรขาคณิตและมุม', 'สมการอย่างง่าย', 'การหารยาว'],
+  },
+  'ภาษาไทย': {
+    id: 'thai',
+    name: 'ภาษาไทย',
+    icon: '📖',
+    colorClass: 'border-amber-300 text-amber-700 bg-amber-50/50 hover:bg-amber-100/60',
+    badgeClass: 'bg-amber-500/10 text-amber-800 border-amber-300/60',
+    activeColor: 'bg-amber-600 text-white border-amber-600 shadow-sm',
+    suggestedTopics: ['สำนวนและสุภาษิตไทย', 'คำราชาศัพท์', 'มาตราตัวสะกด', 'คำควบกล้ำและอักษรนำ', 'การอ่านจับใจความ'],
+  },
+  'วิทยาศาสตร์': {
+    id: 'science',
+    name: 'วิทยาศาสตร์',
+    icon: '🔬',
+    colorClass: 'border-emerald-300 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/60',
+    badgeClass: 'bg-emerald-500/10 text-emerald-800 border-emerald-300/60',
+    activeColor: 'bg-emerald-600 text-white border-emerald-600 shadow-sm',
+    suggestedTopics: ['ระบบสุริยะและดวงดาว', 'สถานะของสาร', 'วงจรไฟฟ้าอย่างง่าย', 'ห่วงโซ่อาหารและสิ่งแวดล้อม', 'แรงและการเคลื่อนที่'],
+  },
+  'ภาษาอังกฤษ': {
+    id: 'english',
+    name: 'ภาษาอังกฤษ',
+    icon: '🔤',
+    colorClass: 'border-indigo-300 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/60',
+    badgeClass: 'bg-indigo-500/10 text-indigo-800 border-indigo-300/60',
+    activeColor: 'bg-indigo-600 text-white border-indigo-600 shadow-sm',
+    suggestedTopics: ['Present Simple vs Continuous', 'Past Simple Tense', 'Daily Vocabulary', 'Classroom Expressions', 'Reading Comprehension'],
+  },
+  'สังคมศึกษา': {
+    id: 'social',
+    name: 'สังคมศึกษา',
+    icon: '🌏',
+    colorClass: 'border-teal-300 text-teal-700 bg-teal-50/50 hover:bg-teal-100/60',
+    badgeClass: 'bg-teal-500/10 text-teal-800 border-teal-300/60',
+    activeColor: 'bg-teal-600 text-white border-teal-600 shadow-sm',
+    suggestedTopics: ['ศาสนา ศีลธรรม และวันสำคัญ', 'หน้าที่พลเมืองและกฎหมาย', 'เศรษฐศาสตร์ในชีวิตประจำวัน', 'ภูมิศาสตร์และแผนที่'],
+  },
+  'ประวัติศาสตร์': {
+    id: 'history',
+    name: 'ประวัติศาสตร์',
+    icon: '📜',
+    colorClass: 'border-orange-300 text-orange-700 bg-orange-50/50 hover:bg-orange-100/60',
+    badgeClass: 'bg-orange-500/10 text-orange-800 border-orange-300/60',
+    activeColor: 'bg-orange-600 text-white border-orange-600 shadow-sm',
+    suggestedTopics: ['ยุคสมัยทางประวัติศาสตร์ไทย', 'อาณาจักรสุโขทัยและอยุธยา', 'บุคคลสำคัญของชาติ', 'แหล่งอารยธรรมท้องถิ่น'],
+  },
+  'สุขศึกษา': {
+    id: 'health',
+    name: 'สุขศึกษา',
+    icon: '🏃',
+    colorClass: 'border-rose-300 text-rose-700 bg-rose-50/50 hover:bg-rose-100/60',
+    badgeClass: 'bg-rose-500/10 text-rose-800 border-rose-300/60',
+    activeColor: 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    suggestedTopics: ['การเจริญเติบโตของร่างกาย', 'สุขอนามัยส่วนบุคคล', 'อาหารหลัก 5 หมู่และโภชนาการ', 'การปฐมพยาบาลเบื้องต้น'],
+  },
+  'ศิลปะ': {
+    id: 'art',
+    name: 'ศิลปะ',
+    icon: '🎨',
+    colorClass: 'border-pink-300 text-pink-700 bg-pink-50/50 hover:bg-pink-100/60',
+    badgeClass: 'bg-pink-500/10 text-pink-800 border-pink-300/60',
+    activeColor: 'bg-pink-600 text-white border-pink-600 shadow-sm',
+    suggestedTopics: ['ทัศนศิลป์และสีคู่ตรงข้าม', 'เครื่องดนตรีไทยและสากล', 'นาฏศิลป์ไทยและการละเล่น', 'รูปทรงและงานปั้น'],
+  },
+  'การงานอาชีพ': {
+    id: 'career',
+    name: 'การงานอาชีพ',
+    icon: '🛠️',
+    colorClass: 'border-cyan-300 text-cyan-700 bg-cyan-50/50 hover:bg-cyan-100/60',
+    badgeClass: 'bg-cyan-500/10 text-cyan-800 border-cyan-300/60',
+    activeColor: 'bg-cyan-600 text-white border-cyan-600 shadow-sm',
+    suggestedTopics: ['การดูแลรักษาของใช้ส่วนตัว', 'งานเกษตรและการปลูกผักสวนครัว', 'งานประดิษฐ์จากวัสดุเหลือใช้', 'ความปลอดภัยในการทำงานช่าง'],
+  },
+  'ต้านทุจริต': {
+    id: 'anti-corruption',
+    name: 'ต้านทุจริต',
+    icon: '⚖️',
+    colorClass: 'border-slate-300 text-slate-700 bg-slate-50/50 hover:bg-slate-100/60',
+    badgeClass: 'bg-slate-500/10 text-slate-800 border-slate-300/60',
+    activeColor: 'bg-slate-700 text-white border-slate-700 shadow-sm',
+    suggestedTopics: ['ความซื่อสัตย์สุจริต', 'ประโยชน์ส่วนตนและประโยชน์ส่วนรวม', 'จิตพอเพียงต้านทุจริต', 'ความละอายต่อการทุจริต'],
+  },
+};
+
+const SUBJECT_LIST = Object.keys(SUBJECT_MAP);
 
 const GRADE_LIST = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -56,8 +156,9 @@ export default function TeacherExamManagement() {
 
   const [activeTab, setActiveTab] = useState<'bank' | 'sets' | 'print' | 'scanner' | 'results'>('bank');
 
-  // Filter states
-  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  // Filter states: Default to first subject (คณิตศาสตร์) for clean subject separation
+  const [selectedSubject, setSelectedSubject] = useState<string>('คณิตศาสตร์');
+  const [targetSubject, setTargetSubject] = useState<string>('คณิตศาสตร์');
   const [selectedGrade, setSelectedGrade] = useState<string>('ป.4');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -121,6 +222,14 @@ export default function TeacherExamManagement() {
       }),
   });
 
+  // Query live question counts for each subject in current grade
+  const { data: subjectCounts = {} } = useQuery({
+    queryKey: ['exam_subject_counts', selectedGrade],
+    queryFn: () => examService.getQuestionCountsBySubject(selectedGrade),
+  });
+
+  const selectedSubjectConfig = selectedSubject !== 'all' ? SUBJECT_MAP[selectedSubject] : null;
+
   // Extract unique topics for filter
   const availableTopics = useMemo(() => {
     const set = new Set<string>();
@@ -141,6 +250,32 @@ export default function TeacherExamManagement() {
     return questions.filter((q) => selectedQIds.includes(q.id));
   }, [questions, selectedQIds]);
 
+  // Cross-subject detection and breakdown
+  const selectedSubjectsBreakdown = useMemo(() => {
+    const counts: Record<string, number> = {};
+    selectedQuestionsDetails.forEach((q) => {
+      const subj = q.subject || 'ไม่ระบุ';
+      counts[subj] = (counts[subj] || 0) + 1;
+    });
+    return counts;
+  }, [selectedQuestionsDetails]);
+
+  const uniqueSelectedSubjects = useMemo(() => Object.keys(selectedSubjectsBreakdown), [selectedSubjectsBreakdown]);
+  const isCrossSubject = uniqueSelectedSubjects.length > 1;
+
+  const handleKeepOnlySubject = (subjToKeep: string) => {
+    const filteredIds = selectedQuestionsDetails
+      .filter((q) => q.subject === subjToKeep)
+      .map((q) => q.id);
+    setSelectedQIds(filteredIds);
+    setTargetSubject(subjToKeep);
+    setNewSetTitle(`แบบทดสอบวิชา${subjToKeep} ${selectedGrade} (${filteredIds.length} ข้อ)`);
+    toast({
+      title: `กรองเก็บเฉพาะวิชา ${subjToKeep}`,
+      description: `ตัดข้อสอบวิชาอื่นออกแล้ว เหลือข้อสอบวิชา ${subjToKeep} จำนวน ${filteredIds.length} ข้อ`,
+    });
+  };
+
   const difficultyStats = useMemo(() => {
     const counts = { easy: 0, medium: 0, hard: 0 };
     selectedQuestionsDetails.forEach((q) => {
@@ -157,6 +292,9 @@ export default function TeacherExamManagement() {
   const handleSubjectChange = (val: string) => {
     setSelectedSubject(val);
     setSelectedTopic('all');
+    if (val !== 'all') {
+      setTargetSubject(val);
+    }
   };
 
   const handleGradeChange = (val: string) => {
@@ -169,11 +307,13 @@ export default function TeacherExamManagement() {
     const displayedIds = displayedQuestions.map((q) => q.id);
     const union = Array.from(new Set([...selectedQIds, ...displayedIds]));
     setSelectedQIds(union);
+    const activeSubj = selectedSubject !== 'all' ? selectedSubject : targetSubject || 'ทั่วไป';
+    setTargetSubject(activeSubj);
     if (!newSetTitle) {
-      setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${union.length} ข้อ)`);
+      setNewSetTitle(`แบบทดสอบวิชา${activeSubj} ${selectedGrade} (${union.length} ข้อ)`);
     }
     toast({
-      title: 'เลือกข้อสอบทั้งหมดในหน้านี้',
+      title: `เลือกข้อสอบทั้งหมดในวิชา ${activeSubj}`,
       description: `เพิ่มข้อสอบ ${displayedIds.length} ข้อเข้าชุดแล้ว (รวมทั้งหมด ${union.length} ข้อ)`,
     });
   };
@@ -217,7 +357,11 @@ export default function TeacherExamManagement() {
 
     const pool = [...displayedQuestions];
     if (pool.length === 0) {
-      toast({ title: 'ไม่มีข้อสอบให้สุ่ม', description: 'กรุณาเลือกวิชาหรือระดับชั้นที่มีข้อสอบในคลัง', variant: 'destructive' });
+      toast({
+        title: 'ไม่มีข้อสอบให้สุ่ม',
+        description: `ไม่พบข้อสอบในวิชา ${selectedSubject} ระดับชั้น ${selectedGrade}`,
+        variant: 'destructive',
+      });
       return;
     }
     for (let i = pool.length - 1; i > 0; i--) {
@@ -233,10 +377,12 @@ export default function TeacherExamManagement() {
     picked.forEach((q) => { cacheUpdate[q.id] = q; });
     setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
 
-    setNewSetTitle(`แบบทดสอบ${selectedSubject !== 'all' ? selectedSubject : ''} ${selectedGrade} (${picked.length} ข้อ)`);
+    const activeSubj = selectedSubject !== 'all' ? selectedSubject : targetSubject || 'ทั่วไป';
+    setTargetSubject(activeSubj);
+    setNewSetTitle(`แบบทดสอบวิชา${activeSubj} ${selectedGrade} (${picked.length} ข้อ)`);
     toast({
       title: `สุ่มเลือก ${picked.length} ข้อสำเร็จ!`,
-      description: `ระบบเลือกข้อสอบสุ่มจำนวน ${picked.length} ข้อลงในชุดเรียบร้อยแล้ว`,
+      description: `ระบบเลือกข้อสอบวิชา ${activeSubj} สุ่มจำนวน ${picked.length} ข้อลงในชุดเรียบร้อยแล้ว`,
     });
   };
 
@@ -303,7 +449,10 @@ export default function TeacherExamManagement() {
     setNewSetTitle(set.title);
     setNewSetTime(set.time_limit_minutes || 60);
     setNewSetPin(set.pin_code || '');
-    if (set.subject && SUBJECT_LIST.includes(set.subject)) setSelectedSubject(set.subject);
+    if (set.subject) {
+      if (SUBJECT_LIST.includes(set.subject)) setSelectedSubject(set.subject);
+      setTargetSubject(set.subject);
+    }
     if (set.grade && GRADE_LIST.includes(set.grade)) setSelectedGrade(set.grade);
 
     const existingQuestions = Array.isArray(set.questions) ? (set.questions as Array<any>) : [];
@@ -652,12 +801,14 @@ export default function TeacherExamManagement() {
       return null;
     }).filter(Boolean);
 
+    const finalSubject = targetSubject || (selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป');
+
     if (editingExamSetId) {
       updateSetMutation.mutate({
         id: editingExamSetId,
         data: {
           title: newSetTitle.trim(),
-          subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
+          subject: finalSubject,
           grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
           time_limit_minutes: newSetTime,
           pin_code: newSetPin.trim() ? newSetPin.trim().toUpperCase() : null,
@@ -667,7 +818,7 @@ export default function TeacherExamManagement() {
     } else {
       createSetMutation.mutate({
         title: newSetTitle.trim(),
-        subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
+        subject: finalSubject,
         grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
         time_limit_minutes: newSetTime,
         pass_threshold_pct: 50,
@@ -769,6 +920,121 @@ export default function TeacherExamManagement() {
               TAB 1: คลังข้อสอบ & AI Generator
           ════════════════════════════════════════════════════════════════ */}
           <TabsContent value="bank" className="space-y-6 mt-6">
+            {/* ─── Subject Navigation Hub (แถบเลือกกลุ่มสาระการเรียนรู้) ─── */}
+            <div className="space-y-3 p-4 bg-card border border-border rounded-2xl shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <h2 className="text-sm font-bold flex items-center gap-1.5 text-foreground">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    เลือกกลุ่มสาระการเรียนรู้ / รายวิชา
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    แยกคลังข้อสอบตามวิชาอย่างเด็ดขาด คลิกเลือกวิชาเพื่อดูข้อสอบและจัดชุดข้อสอบโดยไม่ปะปนกัน
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs font-semibold text-muted-foreground">ระดับชั้น:</span>
+                  <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/60">
+                    {GRADE_LIST.map((gr) => (
+                      <button
+                        key={gr}
+                        type="button"
+                        onClick={() => handleGradeChange(gr)}
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                          selectedGrade === gr
+                            ? 'bg-primary text-primary-foreground shadow-xs'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                        }`}
+                      >
+                        {gr}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Subject Pills Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
+                {SUBJECT_LIST.map((subj) => {
+                  const cfg = SUBJECT_MAP[subj];
+                  const isSelected = selectedSubject === subj;
+                  const count = subjectCounts[subj] || 0;
+
+                  return (
+                    <button
+                      key={subj}
+                      type="button"
+                      onClick={() => handleSubjectChange(subj)}
+                      className={`flex items-center justify-between p-2.5 px-3 rounded-xl border text-xs font-semibold transition-all text-left ${
+                        isSelected
+                          ? `${cfg.activeColor} ring-2 ring-primary/20 scale-[1.02]`
+                          : `${cfg.colorClass} border-border/80 bg-card`
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <span className="text-base leading-none shrink-0">{cfg.icon}</span>
+                        <span className="truncate">{subj}</span>
+                      </div>
+                      <span
+                        className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                          isSelected
+                            ? 'bg-white/25 text-white'
+                            : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ─── Active Subject Banner ─── */}
+            {selectedSubjectConfig && (
+              <div className="p-4 rounded-2xl border border-border/80 bg-gradient-to-r from-card via-card to-muted/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 text-2xl flex items-center justify-center shrink-0 border border-primary/20 shadow-inner">
+                    {selectedSubjectConfig.icon}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base sm:text-lg font-bold text-foreground">
+                        คลังข้อสอบวิชา{selectedSubject} ({selectedGrade})
+                      </h2>
+                      <Badge className={selectedSubjectConfig.badgeClass}>
+                        {questions.length} ข้อในระบบ
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      แสดงเฉพาะข้อสอบวิชา{selectedSubject} ระดับชั้น {selectedGrade} ไม่ปะปนกับวิชาอื่น
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick actions for this subject */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => handleRandomSelect(targetQuestionCount)}
+                    className="h-8 text-xs gap-1.5 shadow-xs bg-primary hover:bg-primary/90 font-semibold"
+                  >
+                    <Zap className="h-3.5 w-3.5 fill-current" />
+                    สุ่มออกข้อสอบวิชานี้ ({targetQuestionCount} ข้อ)
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddModal(true)}
+                    className="h-8 text-xs gap-1"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    เพิ่มข้อสอบวิชานี้
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* AI Generator Panel */}
             <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-background shadow-sm">
               <CardHeader className="pb-3">
@@ -790,6 +1056,24 @@ export default function TeacherExamManagement() {
                       onChange={(e) => setAiTopic(e.target.value)}
                       className="h-9 text-xs"
                     />
+                    {selectedSubjectConfig?.suggestedTopics && (
+                      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                          <Lightbulb className="h-3 w-3 text-amber-500" />
+                          หัวข้อแนะนำ:
+                        </span>
+                        {selectedSubjectConfig.suggestedTopics.map((top) => (
+                          <button
+                            key={top}
+                            type="button"
+                            onClick={() => setAiTopic(top)}
+                            className="text-[11px] px-2 py-0.5 rounded-full bg-muted/60 hover:bg-primary/10 hover:text-primary transition-colors border border-border/60 text-muted-foreground"
+                          >
+                            {top}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -1102,6 +1386,16 @@ export default function TeacherExamManagement() {
                               <div className="space-y-1.5 flex-1">
                                 <div className="flex flex-wrap items-center gap-1.5">
                                   <span className="font-bold text-muted-foreground text-xs">{idx + 1}.</span>
+                                  {q.subject && (
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-[10px] px-1.5 py-0 font-medium ${
+                                        SUBJECT_MAP[q.subject]?.badgeClass || 'bg-muted text-muted-foreground'
+                                      }`}
+                                    >
+                                      {SUBJECT_MAP[q.subject]?.icon || '📄'} {q.subject}
+                                    </Badge>
+                                  )}
                                   {q.topic && (
                                     <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
                                       {q.topic}
@@ -1351,6 +1645,79 @@ export default function TeacherExamManagement() {
                       </Button>
                     </div>
 
+                    {/* Cross-Subject Validation & Warning */}
+                    {selectedQIds.length > 0 && (
+                      <div className="pt-1">
+                        {isCrossSubject ? (
+                          <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-300 text-amber-900 text-xs space-y-2">
+                            <div className="flex items-start gap-1.5 font-semibold text-[11px]">
+                              <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <div>
+                                <span>ตรวจพบข้อสอบหลายวิชาในชุดนี้:</span>
+                                <div className="flex flex-wrap gap-1 mt-1 font-normal">
+                                  {Object.entries(selectedSubjectsBreakdown).map(([subj, count]) => (
+                                    <Badge key={subj} variant="outline" className="text-[10px] bg-background/80 border-amber-300 text-amber-900">
+                                      {SUBJECT_MAP[subj]?.icon || '📄'} {subj}: {count} ข้อ
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="pt-0.5 flex flex-wrap gap-1.5">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleKeepOnlySubject(targetSubject)}
+                                className="h-6 text-[10px] px-2 bg-amber-600 text-white hover:bg-amber-700 border-transparent font-medium"
+                              >
+                                ⚡ เก็บเฉพาะวิชา {targetSubject} ({selectedSubjectsBreakdown[targetSubject] || 0} ข้อ)
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-300/60 text-emerald-800 text-[11px] font-medium flex items-center gap-1.5">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                            <span>ทุกข้อเป็นวิชา {uniqueSelectedSubjects[0] || targetSubject} ตรงตามวิชา 100%</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Target Subject Selector */}
+                    <div className="space-y-1.5 pt-1 border-t border-border/60">
+                      <Label className="text-xs font-semibold flex items-center justify-between">
+                        <span>วิชาของชุดข้อสอบ:</span>
+                        <span className="text-[11px] font-normal text-muted-foreground">
+                          {SUBJECT_MAP[targetSubject]?.icon} {targetSubject}
+                        </span>
+                      </Label>
+                      <Select
+                        value={targetSubject}
+                        onValueChange={(val) => {
+                          setTargetSubject(val);
+                          if (!editingExamSetId) {
+                            setNewSetTitle(`แบบทดสอบวิชา${val} ${selectedGrade} (${selectedQIds.length} ข้อ)`);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SUBJECT_LIST.map((subj) => (
+                            <SelectItem key={subj} value={subj}>
+                              <span className="flex items-center gap-1.5">
+                                <span>{SUBJECT_MAP[subj]?.icon}</span>
+                                <span>{subj}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="บูรณาการ/ทั่วไป">🌐 บูรณาการ / ทั่วไป</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="space-y-1.5 pt-1 border-t border-border/60">
                       <Label className="text-xs">ชื่อชุดข้อสอบ</Label>
                       <Input
@@ -1411,13 +1778,59 @@ export default function TeacherExamManagement() {
               TAB 2: ชุดข้อสอบ (Exam Sets)
           ════════════════════════════════════════════════════════════════ */}
           <TabsContent value="sets" className="space-y-6 mt-6">
+            {/* Subject Selector Toolbar for Exam Sets */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-card border border-border rounded-2xl shadow-xs">
+              <div>
+                <h2 className="text-sm font-bold flex items-center gap-1.5 text-foreground">
+                  <Layers className="h-4 w-4 text-primary" />
+                  ชุดข้อสอบที่สร้างไว้ (Exam Sets)
+                </h2>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  เลือกดูชุดข้อสอบแยกตามกลุ่มสาระการเรียนรู้ หรือเลือกดูทั้งหมด
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={selectedSubject} onValueChange={handleSubjectChange}>
+                  <SelectTrigger className="w-[160px] h-8 text-xs">
+                    <SelectValue placeholder="ทุกวิชา" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">🌐 แสดงทุกวิชา</SelectItem>
+                    {SUBJECT_LIST.map((subj) => (
+                      <SelectItem key={subj} value={subj}>
+                        <span className="flex items-center gap-1.5">
+                          <span>{SUBJECT_MAP[subj]?.icon}</span>
+                          <span>{subj}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedGrade} onValueChange={handleGradeChange}>
+                  <SelectTrigger className="w-[100px] h-8 text-xs">
+                    <SelectValue placeholder="ทุกชั้น" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">ทุกชั้น</SelectItem>
+                    {GRADE_LIST.map((gr) => (
+                      <SelectItem key={gr} value={gr}>{gr}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {loadingSets ? (
                 <div className="col-span-full text-center py-12 text-xs text-muted-foreground">กำลังโหลดชุดข้อสอบ...</div>
               ) : examSets.length === 0 ? (
                 <div className="col-span-full text-center py-12 border border-dashed rounded-xl p-8 bg-muted/10">
-                  <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีชุดข้อสอบ</p>
-                  <p className="text-xs text-muted-foreground mt-1">ไปที่แท็บ "คลังข้อสอบ" เพื่อเลือกข้อสอบและสร้างชุดข้อสอบ</p>
+                  <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีชุดข้อสอบในหมวดนี้</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {selectedSubject !== 'all' ? `ยังไม่มีชุดข้อสอบวิชา ${selectedSubject}` : 'ไปที่แท็บ "คลังข้อสอบ" เพื่อเลือกข้อสอบและสร้างชุดข้อสอบ'}
+                  </p>
                 </div>
               ) : (
                 examSets.map((set) => {
@@ -1427,7 +1840,14 @@ export default function TeacherExamManagement() {
                     <Card key={set.id} className="border-border hover:border-primary/50 transition-shadow shadow-sm flex flex-col justify-between">
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start gap-2">
-                          <Badge variant="outline" className="text-[10px]">{set.subject} · {set.grade}</Badge>
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] font-semibold ${
+                              SUBJECT_MAP[set.subject]?.badgeClass || 'bg-muted text-muted-foreground'
+                            }`}
+                          >
+                            {SUBJECT_MAP[set.subject]?.icon || '📄'} {set.subject} · {set.grade}
+                          </Badge>
                           {set.pin_code && (
                             <Badge className="bg-amber-500/10 text-amber-700 border-amber-300 text-[10px]">
                               PIN: {set.pin_code}

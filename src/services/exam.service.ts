@@ -73,6 +73,26 @@ export const examService = {
     return (data || []) as ExamQuestionRow[];
   },
 
+  async getQuestionCountsBySubject(grade?: string): Promise<Record<string, number>> {
+    let query = supabase
+      .from('exam_questions')
+      .select('subject');
+
+    if (grade && grade !== 'all') {
+      query = query.eq('grade', grade);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const counts: Record<string, number> = {};
+    (data || []).forEach((row) => {
+      const s = row.subject || 'ทั่วไป';
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    return counts;
+  },
+
   async getQuestion(id: string) {
     const { data, error } = await supabase
       .from('exam_questions')
