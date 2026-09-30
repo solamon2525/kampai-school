@@ -68,28 +68,54 @@ export const examService = {
       query = query.ilike('question_text', `%${filters.search}%`);
     }
 
+    // Support fetching up to 2000 items if no limit specified
+    query = query.range(0, 1999);
+
     const { data, error } = await query;
     if (error) throw error;
     return (data || []) as ExamQuestionRow[];
   },
 
   async getQuestionCountsBySubject(grade?: string): Promise<Record<string, number>> {
-    let query = supabase
-      .from('exam_questions')
-      .select('subject');
+    // 1. Primary: Use RPC get_exam_question_counts for instant server-side aggregation
+    try {
+      const { data, error } = await (supabase.rpc as any)('get_exam_question_counts', {
+        p_grade: grade && grade !== 'all' ? grade : null,
+      });
 
-    if (grade && grade !== 'all') {
-      query = query.eq('grade', grade);
+      if (!error && Array.isArray(data)) {
+        const counts: Record<string, number> = {};
+        data.forEach((row: { subject: string; count: number | string }) => {
+          if (row.subject) {
+            counts[row.subject] = Number(row.count) || 0;
+          }
+        });
+        return counts;
+      }
+    } catch {
+      // Fallback below if RPC is unavailable
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
-
+    // 2. Fallback: Fast head count query without data payload
+    const subjects = [
+      'คณิตศาสตร์', 'ภาษาไทย', 'วิทยาศาสตร์', 'ภาษาอังกฤษ',
+      'สังคมศึกษา', 'ประวัติศาสตร์', 'สุขศึกษา', 'ศิลปะ',
+      'การงานอาชีพ', 'ต้านทุจริต'
+    ];
     const counts: Record<string, number> = {};
-    (data || []).forEach((row) => {
-      const s = row.subject || 'ทั่วไป';
-      counts[s] = (counts[s] || 0) + 1;
-    });
+    await Promise.all(
+      subjects.map(async (subj) => {
+        let q = supabase
+          .from('exam_questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('subject', subj);
+        if (grade && grade !== 'all') {
+          q = q.eq('grade', grade);
+        }
+        const { count } = await q;
+        counts[subj] = count || 0;
+      })
+    );
     return counts;
   },
 

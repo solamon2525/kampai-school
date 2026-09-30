@@ -23,6 +23,29 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### ปรับปรุงระบบนับข้อสอบ (SQL RPC Group Count), ขยายคลังข้อสอบวิชาต้านทุจริตศึกษา ป.4 ครบ 150 ข้อ และ Interactive Empty State — v1.229.112
+
+- **แก้ปัญหาเพดานการนับข้อมูล PostgREST (The 1,000-Row Ceiling Fix):**
+  - **Server-Side Group Count RPC (`supabase/migrations/545_get_exam_question_counts_rpc.sql`):** สร้างฟังก์ชัน `public.get_exam_question_counts(p_grade text)` ประมวลผล `SELECT subject, count(*)::bigint FROM exam_questions GROUP BY subject` ฝั่งฐานข้อมูลโดยตรง ด้วยความเร็ว 1ms และไม่มีทางติดเพดาน 1,000 แถวของ PostgREST
+  - **Client-Side Head-Count Fallback (`src/services/exam.service.ts`):** ปรับปรุง `getQuestionCountsBySubject` ให้เรียก RPC เป็นลำดับแรก และหากเกิดเหตุขัดข้อง มีระบบสำรองใช้ `select('*', { count: 'exact', head: true })` แบบขนานรายวิชา (ส่งเฉพาะ HTTP Header ไร้ payload แถวข้อมูล)
+  - **Extended Question Range (`examService.listQuestions`):** ขยาย `.range(0, 1999)` รองรับการโหลดข้อสอบมากกว่า 1,000 ข้อสำหรับกรณีดึงข้อสอบทั้งระดับชั้น
+
+- **ขยายคลังข้อสอบวิชา "ต้านทุจริตศึกษา" ป.4 (Anti-Corruption Education — `supabase/migrations/546_seed_grade4_anti_corruption_exams.sql`):**
+  - **หลักสูตรทางการ:** อิงหลักสูตรต้านทุจริตศึกษา ชั้น ป.4 ของสำนักงาน ป.ป.ช. ร่วมกับ สพฐ. จำนวน 150 ข้อ ครบทั้ง 4 หน่วยการเรียนรู้:
+    1. หน่วยที่ 1: การคิดแยกแยะระหว่างผลประโยชน์ส่วนตนและส่วนรวม (40 ข้อ)
+    2. หน่วยที่ 2: ความละอายและความไม่ทนต่อการทุจริต (40 ข้อ)
+    3. หน่วยที่ 3: STRONG: จิตพอเพียงต้านทุจริต (35 ข้อ)
+    4. หน่วยที่ 4: พลเมืองและความรับผิดชอบต่อสังคม (35 ข้อ)
+  - **สัดส่วนระดับความยาก:** ง่าย 45 ข้อ (30%), ปานกลาง 75 ข้อ (50%), ยาก/คิดวิเคราะห์ 30 ข้อ (20%)
+  - **คุณภาพทางวิชาการ:** 4 ตัวเลือก ก-ง เฉลยเฉลี่ยสมดุล (ตัวเลือกละ ~37-38 ข้อ), คำอธิบายเชิงคุณธรรมและกฎเกณฑ์ครบทุกข้อ, ไม่มีการซ้ำซ้อนทั้งคำถามและตัวเลือก (Zero Duplication)
+  - **ผลรวมทั้งระบบ:** คลังข้อสอบระดับชั้น ป.4 มีครบทั้ง 10 กลุ่มวิชา วิชาละ 150 ข้อเต็ม รวมทั้งสิ้น **1,500 ข้อ (100% Complete)**
+
+- **ปรับปรุงประสบการณ์ผู้ใช้ Interactive Empty State (`src/pages/teacher/TeacherExamManagement.tsx`):**
+  - แสดงไอคอนวิชาและชื่อวิชาชัดเจนเมื่อเลือกหมวดหรือระดับชั้นที่ยังไม่มีข้อสอบ
+  - เพิ่มปุ่มทางลัด **"⚡ ให้ AI ช่วยสร้างข้อสอบวิชานี้ (10 ข้อ)"** กรอกชื่อวิชาและหัวข้อแนะนำลงใน AI Generator Panel อัตโนมัติ พร้อมเลื่อนหน้าจอไปยังตำแหน่งสร้างข้อสอบทันที
+  - เพิ่มปุ่ม **"➕ เพิ่มข้อสอบด้วยตนเอง"** เปิดโมดอลฟอร์มสร้างข้อสอบได้ในคลิกเดียว
+  - แสดง **ชิปหัวข้อแนะนำ (Suggested Topic Chips)** ให้ครูคลิกเพื่อตั้งค่าหัวข้อออกข้อสอบด้วย AI ได้ทันที
+
 ### ระบบวินิจฉัยสมรรถนะรายบุคคล (Diagnostic Radar), แผนซ่อมเสริมอัจฉริยะ (Smart Remediation) และ Batch OMR Scanner — v1.229.111
 
 - **ระบบวินิจฉัยสมรรถนะการเรียนรู้รายบุคคล (Diagnostic & Competency Engine — `src/lib/exam/diagnostic.ts`):**

@@ -1089,7 +1089,7 @@ export default function TeacherExamManagement() {
             )}
 
             {/* AI Generator Panel */}
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-background shadow-sm">
+            <Card id="ai-generator-panel" className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-background shadow-sm scroll-mt-6">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2 text-primary font-bold">
                   <Sparkles className="h-4 w-4" />
@@ -1401,9 +1401,89 @@ export default function TeacherExamManagement() {
                 {loadingQ ? (
                   <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดข้อสอบ...</div>
                 ) : displayedQuestions.length === 0 ? (
-                  <div className="text-center py-12 border border-dashed rounded-xl p-8 bg-muted/10">
-                    <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีข้อสอบในหมวดนี้</p>
-                    <p className="text-xs text-muted-foreground mt-1">ใช้ AI สร้าง หรือกดปุ่ม "เพิ่มเอง" ด้านบนได้เลย</p>
+                  <div className="text-center py-12 border border-dashed rounded-2xl p-8 bg-muted/10 space-y-4">
+                    <div className="w-16 h-16 rounded-2xl bg-muted/50 text-3xl flex items-center justify-center mx-auto border border-border/80 shadow-xs">
+                      {selectedSubjectConfig?.icon || '📚'}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-base font-bold text-foreground">
+                        {searchQuery.trim()
+                          ? `ไม่พบข้อสอบที่ตรงกับ "${searchQuery}"`
+                          : `ยังไม่มีข้อสอบในคลังสำหรับวิชา${selectedSubject !== 'all' ? selectedSubject : ''} (${selectedGrade})`}
+                      </p>
+                      <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                        {searchQuery.trim()
+                          ? 'ลองปรับคำค้นหา หรือกดปุ่มล้างคำค้นหาเพื่อดูข้อสอบทั้งหมด'
+                          : 'คุณครูสามารถให้ AI ช่วยสร้างข้อสอบปรนัยมาตรฐานพร้อมเฉลยใน 1 คลิก หรือกดเพิ่มข้อสอบด้วยตนเอง'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                      {searchQuery.trim() ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSearchQuery('')}
+                          className="h-8 text-xs gap-1.5"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                          ล้างคำค้นหา
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => {
+                              const firstTopic = selectedSubjectConfig?.suggestedTopics?.[0] || selectedSubject;
+                              setAiTopic(firstTopic);
+                              setAiCount(10);
+                              const el = document.getElementById('ai-generator-panel');
+                              if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="h-8 text-xs gap-1.5 bg-primary text-primary-foreground font-semibold shadow-xs"
+                          >
+                            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+                            ให้ AI ช่วยสร้างข้อสอบวิชานี้ (10 ข้อ)
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowAddModal(true)}
+                            className="h-8 text-xs gap-1.5"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            เพิ่มข้อสอบด้วยตนเอง
+                          </Button>
+                        </>
+                      )}
+                    </div>
+
+                    {!searchQuery.trim() && selectedSubjectConfig?.suggestedTopics && selectedSubjectConfig.suggestedTopics.length > 0 && (
+                      <div className="pt-2 border-t border-border/40 max-w-lg mx-auto">
+                        <span className="text-[11px] text-muted-foreground flex items-center justify-center gap-1 mb-2">
+                          <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                          คลิกหัวข้อแนะนำเพื่อเริ่มสร้างข้อสอบด้วย AI:
+                        </span>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5">
+                          {selectedSubjectConfig.suggestedTopics.map((top) => (
+                            <button
+                              key={top}
+                              type="button"
+                              onClick={() => {
+                                setAiTopic(top);
+                                setAiCount(10);
+                                const el = document.getElementById('ai-generator-panel');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="text-[11px] px-2.5 py-1 rounded-full bg-background hover:bg-primary/10 hover:text-primary transition-colors border border-border/80 text-muted-foreground shadow-xs"
+                            >
+                              + {top}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3">
