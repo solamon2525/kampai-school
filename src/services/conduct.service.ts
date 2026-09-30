@@ -70,7 +70,104 @@ export type HeroProfile = {
     type: 'add' | 'deduct';
     message: string;
   }[];
+  synergy?: {
+    wastePoints: number;
+    wasteBonus: number;
+    depositCount: number;
+    savingsBonus: number;
+    attendancePresentDays: number;
+    attendanceTotalDays: number;
+    attendanceBonus: number;
+  };
 };
+
+export type ClassroomPrivilege = {
+  id: string;
+  class: string;
+  room?: string | null;
+  created_by?: string | null;
+  title: string;
+  description?: string | null;
+  icon: string;
+  virtue_points_cost: number;
+  stock?: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ClassroomPrivilegeInsert = {
+  class: string;
+  room?: string | null;
+  created_by?: string | null;
+  title: string;
+  description?: string | null;
+  icon?: string;
+  virtue_points_cost?: number;
+  stock?: number | null;
+  is_active?: boolean;
+};
+
+export type PrivilegeRedemption = {
+  id: string;
+  privilege_id: string;
+  student_id: string;
+  points_used: number;
+  status: 'active' | 'used' | 'cancelled';
+  conduct_score_id?: string | null;
+  redeemed_at: string;
+  used_at?: string | null;
+  used_by?: string | null;
+  academic_year: string;
+  semester: string;
+  classroom_privileges?: ClassroomPrivilege | null;
+  students?: { name: string; class: string; room?: string | null; photo_url?: string | null; student_code?: string | null } | null;
+};
+
+export const DEFAULT_CLASSROOM_PRIVILEGES: Array<Omit<ClassroomPrivilegeInsert, 'class' | 'room' | 'created_by'>> = [
+  {
+    title: 'เลือกที่นั่งข้างเพื่อน 1 สัปดาห์ 🪑',
+    description: 'สิทธิ์เลือกที่นั่งเรียนหรือนั่งข้างเพื่อนคนโปรดเป็นเวลา 1 สัปดาห์',
+    icon: '🪑',
+    virtue_points_cost: 15,
+    stock: null,
+  },
+  {
+    title: 'ดีเจประจำห้อง: เลือกเปิดเพลงในคาบ/พักเที่ยง 🎵',
+    description: 'เสนอเปิดเพลงสร้างสรรค์หรือเพลงโปรดในห้องเรียนช่วงพักกลางวัน 1 เพลง',
+    icon: '🎵',
+    virtue_points_cost: 10,
+    stock: null,
+  },
+  {
+    title: 'ผู้ช่วยพิเศษของคุณครู 1 วัน 🎒',
+    description: 'เป็นผู้ช่วยคนเก่งของคุณครู ช่วยแจกสมุด ดูแลความเรียบร้อย และนำแถว',
+    icon: '🎒',
+    virtue_points_cost: 5,
+    stock: null,
+  },
+  {
+    title: 'คูปองยืดเวลาส่งการบ้านพิเศษ 1 วัน ⏳',
+    description: 'ยื่นคูปองเพื่อขอส่งงานหรือการบ้านช้ากว่ากำหนดได้ 1 วันโดยไม่หักคะแนน',
+    icon: '⏳',
+    virtue_points_cost: 20,
+    stock: 5,
+  },
+  {
+    title: 'ยืมหนังสือมุมห้องกลับบ้านก่อนใคร 📚',
+    description: 'สิทธิ์เลือกยืมหนังสือนิทานหรือการ์ตูนความรู้เล่มโปรดไปอ่านที่บ้านก่อนใคร',
+    icon: '📚',
+    virtue_points_cost: 10,
+    stock: null,
+  },
+  {
+    title: 'หัวหน้าแถวรับประทานอาหารกลางวัน 🏃',
+    description: 'สิทธิ์เป็นผู้นำแถวพาเพื่อนๆ ไปรับประทานอาหารกลางวันในวันนี้',
+    icon: '🏃',
+    virtue_points_cost: 5,
+    stock: null,
+  },
+];
 
 export type ClassroomGoal = {
   id: string;
@@ -743,7 +840,16 @@ export const conductService = {
       progressPercent: levelInfo.progressPercent,
       virtues,
       badges,
-      timeline
+      timeline,
+      synergy: {
+        wastePoints,
+        wasteBonus,
+        depositCount,
+        savingsBonus,
+        attendancePresentDays: attendanceRecords.filter(r => r.status === 'present').length,
+        attendanceTotalDays: attendanceRecords.length,
+        attendanceBonus,
+      },
     };
   },
 
@@ -838,5 +944,170 @@ export const conductService = {
     });
 
     return Object.values(studentXpMap).reduce((acc, val) => acc + val, 0);
+  },
+
+  // ─── Classroom Privilege Tokens (คูปองสิทธิ์พิเศษในห้องเรียน) ───
+
+  /** ดึงรายการคูปองสิทธิ์พิเศษประจำห้องเรียน */
+  getPrivilegesByClass: async (className: string, roomName?: string): Promise<ClassroomPrivilege[]> => {
+    let query = supabase
+      .from('classroom_privileges')
+      .select('*')
+      .eq('class', className)
+      .order('virtue_points_cost', { ascending: true });
+
+    if (roomName !== undefined && roomName !== null && roomName !== '') {
+      query = query.or(`room.eq.${roomName},room.is.null,room.eq.''`);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching classroom privileges:', error);
+      return [];
+    }
+    return (data || []) as unknown as ClassroomPrivilege[];
+  },
+
+  /** สร้างคูปองสิทธิ์พิเศษใหม่ */
+  createPrivilege: async (privilege: ClassroomPrivilegeInsert) => {
+    return supabase.from('classroom_privileges').insert(privilege).select().single();
+  },
+
+  /** อัปเดตคูปองสิทธิ์พิเศษ */
+  updatePrivilege: async (id: string, updates: Partial<ClassroomPrivilegeInsert>) => {
+    return supabase
+      .from('classroom_privileges')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id);
+  },
+
+  /** ลบคูปองสิทธิ์พิเศษ */
+  deletePrivilege: async (id: string) => {
+    return supabase.from('classroom_privileges').delete().eq('id', id);
+  },
+
+  /** เพิ่มชุดคูปองแนะนำเริ่มต้นสำหรับห้องเรียน */
+  seedDefaultPrivileges: async (className: string, roomName: string = '', staffId?: string) => {
+    const toInsert = DEFAULT_CLASSROOM_PRIVILEGES.map(p => ({
+      ...p,
+      class: className,
+      room: roomName || '',
+      created_by: staffId || null,
+      is_active: true,
+    }));
+    return supabase.from('classroom_privileges').insert(toInsert);
+  },
+
+  /** แลกคูปองสิทธิ์พิเศษ (เรียก RPC Atomic Transaction) */
+  redeemPrivilege: async (
+    privilegeId: string,
+    studentId: string,
+    academicYear?: string,
+    semester?: string
+  ): Promise<{ success: boolean; redemptionId?: string; error?: string }> => {
+    const { data, error } = await (supabase.rpc as any)('redeem_classroom_privilege', {
+      p_privilege_id: privilegeId,
+      p_student_id: studentId,
+      p_academic_year: academicYear,
+      p_semester: semester,
+    });
+
+    if (error) {
+      console.error('Error redeeming privilege:', error);
+      let errorMsg = error.message;
+      if (errorMsg.includes('INSUFFICIENT_VIRTUE_POINTS')) {
+        errorMsg = 'คะแนนความดีสะสมพร้อมแลกไม่เพียงพอ';
+      } else if (errorMsg.includes('PRIVILEGE_OUT_OF_STOCK')) {
+        errorMsg = 'คูปองนี้หมดสต็อกแล้ว';
+      } else if (errorMsg.includes('PRIVILEGE_INACTIVE')) {
+        errorMsg = 'คูปองนี้ปิดใช้งานอยู่';
+      }
+      return { success: false, error: errorMsg };
+    }
+
+    return { success: true, redemptionId: data as string };
+  },
+
+  /** คุณครูกดยืนยันการใช้สิทธิ์คูปอง (Mark Used) */
+  markPrivilegeUsed: async (redemptionId: string, usedByStaffId?: string) => {
+    return supabase
+      .from('privilege_redemptions')
+      .update({
+        status: 'used',
+        used_at: new Date().toISOString(),
+        used_by: usedByStaffId || null,
+      })
+      .eq('id', redemptionId);
+  },
+
+  /** ยกเลิกการใช้สิทธิ์คูปอง */
+  cancelPrivilegeRedemption: async (redemptionId: string) => {
+    return supabase
+      .from('privilege_redemptions')
+      .update({
+        status: 'cancelled',
+      })
+      .eq('id', redemptionId);
+  },
+
+  /** ดึงประวัติการแลกคูปองของห้องเรียน */
+  getRedemptionsByClass: async (
+    className: string,
+    roomName?: string,
+    academicYear?: string
+  ): Promise<PrivilegeRedemption[]> => {
+    let query = supabase
+      .from('privilege_redemptions')
+      .select(`
+        *,
+        classroom_privileges (*),
+        students (name, class, room, photo_url, student_code)
+      `)
+      .order('redeemed_at', { ascending: false });
+
+    if (academicYear) {
+      query = query.eq('academic_year', academicYear);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching redemptions:', error);
+      return [];
+    }
+
+    let list = (data || []) as unknown as PrivilegeRedemption[];
+    if (className) {
+      list = list.filter(r => r.students?.class === className);
+    }
+    if (roomName) {
+      list = list.filter(r => (r.students?.room || '') === roomName);
+    }
+    return list;
+  },
+
+  /** ดึงรายการคูปองของนักเรียนรายบุคคล */
+  getStudentPrivileges: async (
+    studentId: string,
+    academicYear?: string
+  ): Promise<PrivilegeRedemption[]> => {
+    let query = supabase
+      .from('privilege_redemptions')
+      .select(`
+        *,
+        classroom_privileges (*)
+      `)
+      .eq('student_id', studentId)
+      .order('redeemed_at', { ascending: false });
+
+    if (academicYear) {
+      query = query.eq('academic_year', academicYear);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching student privileges:', error);
+      return [];
+    }
+    return (data || []) as unknown as PrivilegeRedemption[];
   }
 };

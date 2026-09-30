@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Trophy, Sparkles, Award, Lock, Shield, 
   Check, ArrowRight, Heart, BookOpen, Clock, 
   UserCheck, Flame, Star, Target, RefreshCw, 
   Smile, AlertCircle, X, Zap, Search, ArrowLeft, Share2, QrCode, Download, HeartHandshake,
-  ChevronLeft, ChevronRight, Crown, Medal
+  ChevronLeft, ChevronRight, Crown, Medal, Ticket, Coins, PackageCheck
 } from 'lucide-react';
 import { 
   Radar, RadarChart, PolarGrid, 
   PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
 } from 'recharts';
 import { conductService, studentsService } from '@/services';
-import { calculateHeroLevel, type ConductRecord, type TopHeroRpcRow } from '@/services/conduct.service';
+import { calculateHeroLevel, type ConductRecord, type TopHeroRpcRow, type ClassroomPrivilege, type PrivilegeRedemption } from '@/services/conduct.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -348,6 +348,73 @@ export default function StudentHeroPublic() {
       }));
     },
   });
+
+  const queryClient = useQueryClient();
+
+  // 6. Fetch Student Accumulated & Available Points
+  const { data: scoreData, refetch: refetchScores } = useQuery({
+    queryKey: ['public-student-accumulated-score', realStudentId],
+    enabled: !!realStudentId,
+    queryFn: async () => {
+      return await conductService.getAccumulatedScore(realStudentId!);
+    },
+  });
+  const availablePoints = scoreData?.available ?? 0;
+
+  // 7. Fetch Classroom Privileges for student's class
+  const { data: classroomPrivileges = [], refetch: refetchClassPrivileges } = useQuery({
+    queryKey: ['public-classroom-privileges', student?.class, student?.room],
+    enabled: !!student?.class,
+    queryFn: async () => {
+      return await conductService.getPrivilegesByClass(student!.class, student?.room || '');
+    },
+  });
+
+  // 8. Fetch Student's own redeemed privileges
+  const { data: studentPrivileges = [], refetch: refetchStudentPrivileges } = useQuery({
+    queryKey: ['public-student-privileges', realStudentId],
+    enabled: !!realStudentId,
+    queryFn: async () => {
+      return await conductService.getStudentPrivileges(realStudentId!);
+    },
+  });
+
+  const [redeemingPrivilege, setRedeemingPrivilege] = useState<ClassroomPrivilege | null>(null);
+  const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
+
+  const handleRedeem = async () => {
+    if (!redeemingPrivilege || !realStudentId || isRedeeming) return;
+    setIsRedeeming(true);
+    try {
+      const res = await conductService.redeemPrivilege(redeemingPrivilege.id, realStudentId);
+      if (!res.success) {
+        toast({
+          variant: 'destructive',
+          title: 'แลกคูปองไม่สำเร็จ',
+          description: res.error || 'กรุณาลองใหม่อีกครั้ง',
+        });
+      } else {
+        toast({
+          title: 'แลกคูปองสำเร็จ 🎉',
+          description: `คุณได้รับคูปอง "${redeemingPrivilege.title}" เรียบร้อยแล้ว แสดงคูปองต่อคุณครูเพื่อใช้สิทธิ์`,
+        });
+        setRedeemingPrivilege(null);
+        refetchScores();
+        refetchClassPrivileges();
+        refetchStudentPrivileges();
+        queryClient.invalidateQueries({ queryKey: ['public-hero-profile', realStudentId] });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast({
+        variant: 'destructive',
+        title: 'เกิดข้อผิดพลาด',
+        description: msg || 'ไม่สามารถแลกคูปองได้',
+      });
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
 
   // Handle Lookup by Student Code
   const handleSearchSubmit = async (e: React.FormEvent) => {
@@ -1061,6 +1128,111 @@ export default function StudentHeroPublic() {
                     </CardContent>
                   </Card>
 
+                  {/* Card 5.5: Classroom Privilege Tokens (Zero-Budget Token Economy) */}
+                  <Card className="border border-amber-200 shadow-sm rounded-2xl overflow-hidden bg-card">
+                    <CardHeader className="pb-3 bg-gradient-to-b from-amber-50/50 to-transparent">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-black text-amber-900 flex items-center gap-1.5">
+                          <Ticket className="w-4 h-4 text-amber-600 animate-pulse" />
+                          คูปองสิทธิ์พิเศษในห้องเรียน
+                        </CardTitle>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                          พร้อมแลก {availablePoints} XP
+                        </span>
+                      </div>
+                      <CardDescription className="text-[11px] text-amber-700/80">
+                        แลกสิทธิ์พิเศษในห้องเรียนโดยใช้คะแนนความดีสะสม
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {/* Active vouchers student already redeemed */}
+                      {studentPrivileges.filter(p => p.status === 'active').length > 0 && (
+                        <div className="p-2.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 space-y-1.5">
+                          <span className="text-[10px] font-black text-emerald-900 flex items-center gap-1">
+                            <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            คูปองของฉันที่พร้อมใช้ ({studentPrivileges.filter(p => p.status === 'active').length} ใบ):
+                          </span>
+                          <div className="space-y-1">
+                            {studentPrivileges.filter(p => p.status === 'active').map(v => (
+                              <div key={v.id} className="flex items-center justify-between bg-white/90 p-2 rounded-lg border border-emerald-200 text-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <span>{v.classroom_privileges?.icon || '🎟️'}</span>
+                                  <span className="font-extrabold text-slate-800 text-[11px]">
+                                    {v.classroom_privileges?.title || 'คูปองห้องเรียน'}
+                                  </span>
+                                </div>
+                                <Badge className="bg-emerald-100 text-emerald-900 border-emerald-300 text-[9px] font-bold">
+                                  แจ้งคุณครูเพื่อใช้สิทธิ์ ✍️
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Available Privileges to Redeem */}
+                      {classroomPrivileges.filter(p => p.is_active).length > 0 ? (
+                        <div className="space-y-2 max-h-[260px] overflow-y-auto pr-0.5">
+                          {classroomPrivileges.filter(p => p.is_active).map(p => {
+                            const canAfford = availablePoints >= p.virtue_points_cost;
+                            const isOutOfStock = p.stock !== null && p.stock <= 0;
+
+                            return (
+                              <div
+                                key={p.id}
+                                className={cn(
+                                  "p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all",
+                                  canAfford && !isOutOfStock
+                                    ? "bg-slate-50/70 border-amber-200/80 hover:bg-amber-50/40"
+                                    : "bg-slate-50/40 border-slate-200 opacity-60"
+                                )}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-xl p-1.5 rounded-lg bg-white border border-slate-200 shadow-2xs flex-shrink-0">
+                                    {p.icon || '🎟️'}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <h4 className="text-xs font-black text-slate-800 truncate">
+                                      {p.title}
+                                    </h4>
+                                    <p className="text-[10px] text-slate-500 line-clamp-1">
+                                      {p.description || 'สิทธิ์พิเศษประจำห้องเรียน'}
+                                    </p>
+                                    <span className="text-[10px] font-extrabold text-amber-700">
+                                      ใช้ {p.virtue_points_cost} คะแนน
+                                      {p.stock !== null && ` · เหลือ ${p.stock} สิทธิ์`}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  size="sm"
+                                  disabled={!canAfford || isOutOfStock}
+                                  onClick={() => setRedeemingPrivilege(p)}
+                                  className={cn(
+                                    "h-7 text-[11px] font-black rounded-lg px-2.5 flex-shrink-0",
+                                    canAfford && !isOutOfStock
+                                      ? "bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+                                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                                  )}
+                                >
+                                  {isOutOfStock ? 'หมด' : !canAfford ? 'คะแนนไม่พอ' : 'แลกสิทธิ์'}
+                                </Button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-4 space-y-1.5">
+                          <span className="text-xl">🎟️</span>
+                          <p className="text-[10px] text-slate-400 font-bold leading-normal">
+                            ยังไม่มีรายการคูปองสิทธิ์พิเศษเปิดให้แลกในขณะนี้
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
                   {/* Card 6: Recent Deeds merit feed */}
                   <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
                     <CardHeader className="pb-3 bg-gradient-to-b from-slate-50 to-transparent">
@@ -1122,6 +1294,57 @@ export default function StudentHeroPublic() {
           
         </AnimatePresence>
       </main>
+
+      {/* 🎟️ PRIVILEGE REDEMPTION CONFIRMATION DIALOG */}
+      <Dialog open={!!redeemingPrivilege} onOpenChange={(open) => { if (!open) setRedeemingPrivilege(null); }}>
+        <DialogContent className="sm:max-w-[420px] rounded-3xl bg-card p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black text-slate-900 text-center">
+              ยืนยันการแลกคูปองสิทธิ์พิเศษ 🎟️
+            </DialogTitle>
+            <DialogDescription className="text-xs text-center text-slate-500">
+              คะแนนสะสมจะถูกหักจากคะแนนพร้อมแลก และจะไม่ลดคะแนนเกียรติยศหรือยศฮีโร่ของคุณ
+            </DialogDescription>
+          </DialogHeader>
+
+          {redeemingPrivilege && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-2 my-2">
+              <span className="text-4xl block">{redeemingPrivilege.icon || '🎟️'}</span>
+              <h3 className="text-sm font-black text-slate-900">{redeemingPrivilege.title}</h3>
+              <p className="text-xs text-slate-600">{redeemingPrivilege.description}</p>
+              <div className="pt-2 flex justify-center items-center gap-2">
+                <Badge className="bg-amber-200 text-amber-900 border-amber-300 font-black text-xs">
+                  ใช้ {redeemingPrivilege.virtue_points_cost} คะแนนความดี
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setRedeemingPrivilege(null)}
+              disabled={isRedeeming}
+              className="flex-1 rounded-xl font-bold"
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleRedeem}
+              disabled={isRedeeming}
+              className="flex-1 rounded-xl font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 hover:from-amber-600 hover:to-yellow-600 shadow-sm"
+            >
+              {isRedeeming ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin mr-1.5" /> กำลังแลกสิทธิ์...
+                </>
+              ) : (
+                'ยืนยันการแลก 🌟'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

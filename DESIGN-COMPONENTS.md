@@ -228,6 +228,30 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 - **Educational Hub Integration:** เชื่อมโยงเข้ากับพื้นที่ครูณัฐพงษ์ (`/h/nattapong`), เส้นทางลัด `/nattapong`, และเมนูระบบจัดการข้อสอบใน Teacher Portal
 - **Light-Mode Strict Compliance:** ใช้ CSS vars มาตรฐาน (`bg-background`, `bg-card`, `text-foreground`, `border-border`) ปราศจากคลาส `dark:` และไม่มี hex color hardcoded
 
+### Virtue Certificates, Digital Passport & Classroom Privilege Tokens (v1.229.114)
+
+- **Printable Virtue Certificate A4 Landscape (`VirtueCertificateModal.tsx`):**
+  - จัดหน้าพิมพ์มาตรฐาน A4 แนวนอน (`297mm × 210mm`) พอดี 1 คน 1 หน้า ด้วย CSS `@page { size: A4 landscape; margin: 0; }` และ `.certificate-sheet { page-break-after: always; }`
+  - ลวดลายกรอบกนกสีทอง-น้ำเงิน (Gold & Navy) พร้อมลายน้ำตราโรงเรียนบ้านคำไผ่
+  - แสดงชื่อ-สกุล, ชั้นห้องเลขที่, ข้อความยกย่องตามยศฮีโร่และระดับเลเวล, วันที่ออกเป็นเลขไทย, ช่องลงนามคู่ (ครูประจำชั้น + ผู้อำนวยการ)
+  - QR Code ตรวจสอบความถูกต้องรายบุคคล ชี้ไปยัง `/virtue-bank/[student_code]`
+  - รองรับตัวกรองการพิมพ์แบบกลุ่ม (Batch Print): พิมพ์รายคน, พิมพ์ทั้งห้อง, กรองเลเวล $\ge 2$, กรองเลเวล $\ge 3$, และ Top 5 / Top 10
+- **Digital Virtue Passport & Portfolio Sheet A4 Portrait (`VirtuePassportModal.tsx`):**
+  - จัดหน้าพิมพ์มาตรฐาน A4 แนวตั้ง (`210mm × 297mm`) สำหรับใส่แฟ้มสะสมงาน (Portfolio)
+  - สรุปผลงานเชิงบวกรายเทอม, รูปถ่ายนักเรียน (`PersonAvatar`), ตารางสรุปคุณธรรม 5 มิติ
+  - แผนผังเรดาร์คุณธรรม 5 มิติแบบ Pure Inline SVG (`SvgRadarChart`) เรนเดอร์คมชัด 100% ไร้ดีเลย์ในการพิมพ์
+  - ไฮไลท์ 5 บันทึกความดีเด่นล่าสุด (Top 5 Good Deeds)
+  - สถิติบูรณาการระบบโรงเรียน (School Synergy Integration): แต้มธนาคารขยะ, จำนวนครั้งการออมธนาคารพอเพียง, และสถิติการมาเรียน
+  - ช่องลงนามและข้อเสนอแนะ 2 ฝ่าย: ความเห็นครูประจำชั้น และ ความเห็นผู้ปกครอง
+- **Classroom Privilege Tokens & Zero-Budget Token Economy (`ClassroomPrivilegeManager.tsx` & Migration 548):**
+  - ตาราง `classroom_privileges` และ `privilege_redemptions` พร้อม RLS แยกสิทธิ์ครูและนักเรียน
+  - ฟังก์ชัน RPC อะตอมิก `redeem_classroom_privilege` ป้องกัน Race Condition และตรวจสอบคะแนนคงเหลือตามสูตร Dual-Metric ไม่ลดคะแนนเกียรติยศสะสม
+  - ปุ่มทางลัด "เพิ่มชุดคูปองแนะนำ (6 รายการ)" สำหรับครูประจำชั้นสร้างคูปองในห้องเรียนได้ทันที
+  - หน้าต่างจัดการคูปองใน Conduct Management (แท็บที่ 5) พร้อมปุ่ม "ยืนยันการใช้สิทธิ์ (Mark Used)"
+- **Student Hero Portal Redemption Integration (`StudentHeroPublic.tsx`):**
+  - เพิ่มการ์ดคูปองสิทธิ์พิเศษประจำห้องเรียน แสดงคะแนนความดีพร้อมแลก, รายการคูปองที่แลกได้พร้อมปุ่มกดแลกสิทธิ์
+  - ชิปแสดงคูปองที่นักเรียนถือครองอยู่พร้อมใช้งาน เพื่อนำไปแสดงต่อคุณครู
+
 ### Virtue Ledger Audit & Multi-Tab Real-Time Coordination (v1.229.113)
 
 - **Audit & Migration 547 (Fix Reward Deductions Category):**

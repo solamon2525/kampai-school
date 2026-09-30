@@ -9,12 +9,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check } from 'lucide-react';
+import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check, Ticket, Award, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { ClassroomPrivilegeManager } from './ClassroomPrivilegeManager';
+import { VirtueCertificateModal } from './VirtueCertificateModal';
+import { VirtuePassportModal } from './VirtuePassportModal';
 import {
     PointsConfirmationDialog,
     type PointsConfirmation,
@@ -318,18 +321,21 @@ export const ConductManagement = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange}>
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="record" className="gap-1 text-xs sm:text-sm px-1">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1">
+                    <TabsTrigger value="record" className="gap-1 text-xs sm:text-sm px-1 py-1.5">
                         <Plus className="w-3.5 h-3.5 flex-shrink-0" /> ทีละคน
                     </TabsTrigger>
-                    <TabsTrigger value="bulk" className="gap-1 text-xs sm:text-sm px-1">
+                    <TabsTrigger value="bulk" className="gap-1 text-xs sm:text-sm px-1 py-1.5">
                         <Users className="w-3.5 h-3.5 flex-shrink-0" /> หลายคน
                     </TabsTrigger>
-                    <TabsTrigger value="leaderboard" className="gap-1 text-xs sm:text-sm px-1">
+                    <TabsTrigger value="leaderboard" className="gap-1 text-xs sm:text-sm px-1 py-1.5">
                         <Trophy className="w-3.5 h-3.5 flex-shrink-0" /> อันดับ
                     </TabsTrigger>
-                    <TabsTrigger value="history" className="gap-1 text-xs sm:text-sm px-1">
+                    <TabsTrigger value="history" className="gap-1 text-xs sm:text-sm px-1 py-1.5">
                         <History className="w-3.5 h-3.5 flex-shrink-0" /> ประวัติ
+                    </TabsTrigger>
+                    <TabsTrigger value="privileges" className="gap-1 text-xs sm:text-sm px-1 py-1.5">
+                        <Ticket className="w-3.5 h-3.5 flex-shrink-0" /> คูปองห้องเรียน
                     </TabsTrigger>
                 </TabsList>
 
@@ -337,6 +343,7 @@ export const ConductManagement = () => {
                 <TabsContent value="bulk"><BulkRecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
                 <TabsContent value="leaderboard"><LeaderboardTab refreshKey={refreshKey} /></TabsContent>
                 <TabsContent value="history"><HistoryTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
+                <TabsContent value="privileges"><ClassroomPrivilegeManager /></TabsContent>
             </Tabs>
         </div>
     );
@@ -819,6 +826,11 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
     const [records, setRecords] = useState<ConductRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Modal state for Certificate & Passport
+    const [certModalOpen, setCertModalOpen] = useState(false);
+    const [passportModalOpen, setPassportModalOpen] = useState(false);
+    const [selectedStudentForModal, setSelectedStudentForModal] = useState<string | null>(null);
+
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
@@ -882,24 +894,65 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
         });
     }, [records, filterClass]);
 
+    const certStudents = useMemo(() => {
+        return leaderboard.map(s => ({
+            id: s.studentId,
+            name: s.name,
+            class: s.class,
+            photo_url: s.photoUrl,
+            totalScore: Math.max(0, s.total),
+        }));
+    }, [leaderboard]);
+
     return (
         <div className="space-y-4 pt-4">
-            <div className="flex flex-wrap gap-3">
-                <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
-                    <SelectTrigger className="w-36"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value={ALL}>ทุกชั้น</SelectItem>
-                        {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-                <Select value={filterSemester} onValueChange={setFilterSemester}>
-                    <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="1">ภาคเรียน 1</SelectItem>
-                        <SelectItem value="2">ภาคเรียน 2</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Input className="w-28" value={filterYear} onChange={e => setFilterYear(e.target.value)} placeholder={currentYear} />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    <Select value={filterClass || ALL} onValueChange={v => setFilterClass(v === ALL ? '' : v)}>
+                        <SelectTrigger className="w-36"><SelectValue placeholder="ทุกชั้น" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={ALL}>ทุกชั้น</SelectItem>
+                            {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    <Select value={filterSemester} onValueChange={setFilterSemester}>
+                        <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="1">ภาคเรียน 1</SelectItem>
+                            <SelectItem value="2">ภาคเรียน 2</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Input className="w-28" value={filterYear} onChange={e => setFilterYear(e.target.value)} placeholder={currentYear} />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            setSelectedStudentForModal(null);
+                            setCertModalOpen(true);
+                        }}
+                        disabled={leaderboard.length === 0}
+                        className="text-xs font-bold border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 gap-1.5"
+                    >
+                        <Award className="w-3.5 h-3.5 text-amber-600" />
+                        พิมพ์เกียรติบัตร 🎓
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            setSelectedStudentForModal(null);
+                            setPassportModalOpen(true);
+                        }}
+                        disabled={leaderboard.length === 0}
+                        className="text-xs font-bold border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 gap-1.5"
+                    >
+                        <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                        พาสปอร์ตความดี 📘
+                    </Button>
+                </div>
             </div>
 
             <Card>
@@ -942,12 +995,58 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Action Buttons for Single Student Print */}
+                                    <div className="flex items-center gap-1 pl-2 border-l border-border">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-amber-600 hover:text-amber-800 hover:bg-amber-100"
+                                            title="พิมพ์เกียรติบัตรเฉพาะคนนี้"
+                                            onClick={() => {
+                                                setSelectedStudentForModal(s.studentId);
+                                                setCertModalOpen(true);
+                                            }}
+                                        >
+                                            <Award className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                                            title="พิมพ์พาสปอร์ตความดีเฉพาะคนนี้"
+                                            onClick={() => {
+                                                setSelectedStudentForModal(s.studentId);
+                                                setPassportModalOpen(true);
+                                            }}
+                                        >
+                                            <BookOpen className="w-4 h-4" />
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     )}
                 </CardContent>
             </Card>
+
+            {/* Modal Dialogs */}
+            <VirtueCertificateModal
+                open={certModalOpen}
+                onOpenChange={setCertModalOpen}
+                students={certStudents}
+                initialStudentId={selectedStudentForModal}
+                currentClass={filterClass}
+            />
+
+            <VirtuePassportModal
+                open={passportModalOpen}
+                onOpenChange={setPassportModalOpen}
+                students={certStudents}
+                initialStudentId={selectedStudentForModal}
+                academicYear={filterYear}
+                semester={filterSemester}
+            />
         </div>
     );
 }

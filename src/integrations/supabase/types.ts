@@ -1500,6 +1500,66 @@ export type Database = {
           },
         ]
       }
+      classroom_privileges: {
+        Row: {
+          class: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          room: string | null
+          stock: number | null
+          title: string
+          updated_at: string | null
+          virtue_points_cost: number
+        }
+        Insert: {
+          class: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          room?: string | null
+          stock?: number | null
+          title: string
+          updated_at?: string | null
+          virtue_points_cost?: number
+        }
+        Update: {
+          class?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          room?: string | null
+          stock?: number | null
+          title?: string
+          updated_at?: string | null
+          virtue_points_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classroom_privileges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classroom_privileges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       conduct_scores: {
         Row: {
           academic_year: string
@@ -6155,6 +6215,98 @@ export type Database = {
           },
         ]
       }
+      privilege_redemptions: {
+        Row: {
+          academic_year: string
+          conduct_score_id: string | null
+          id: string
+          points_used: number
+          privilege_id: string
+          redeemed_at: string | null
+          semester: string
+          status: string
+          student_id: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          academic_year: string
+          conduct_score_id?: string | null
+          id?: string
+          points_used: number
+          privilege_id: string
+          redeemed_at?: string | null
+          semester: string
+          status?: string
+          student_id: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          academic_year?: string
+          conduct_score_id?: string | null
+          id?: string
+          points_used?: number
+          privilege_id?: string
+          redeemed_at?: string | null
+          semester?: string
+          status?: string
+          student_id?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privilege_redemptions_conduct_score_id_fkey"
+            columns: ["conduct_score_id"]
+            isOneToOne: false
+            referencedRelation: "conduct_scores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_privilege_id_fkey"
+            columns: ["privilege_id"]
+            isOneToOne: false
+            referencedRelation: "classroom_privileges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "privilege_redemptions_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth_key: string
@@ -9470,6 +9622,13 @@ export type Database = {
         }[]
       }
       get_db_size: { Args: never; Returns: number }
+      get_exam_question_counts: {
+        Args: { p_grade?: string }
+        Returns: {
+          count: number
+          subject: string
+        }[]
+      }
       get_facebook_feed_meta: {
         Args: never
         Returns: {
@@ -9998,6 +10157,15 @@ export type Database = {
       record_vocab_missed_indicators_by_code: {
         Args: { p_indicator_codes: Json; p_student_code: string }
         Returns: number
+      }
+      redeem_classroom_privilege: {
+        Args: {
+          p_academic_year?: string
+          p_privilege_id: string
+          p_semester?: string
+          p_student_id: string
+        }
+        Returns: string
       }
       refresh_game_score_baseline: {
         Args: { p_game_slug: string }
