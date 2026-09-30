@@ -332,6 +332,38 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
           after: 60,
         })
       );
+    } else if (qType === 'essay') {
+      const fullScore = (q.rubric as any)?.full_score || 5;
+      bodyXml.push(
+        paragraphXml(`    (แสดงวิธีทำหรือเขียนอธิบายเหตุผลอย่างละเอียด · คะแนนเต็ม ${fullScore} คะแนน)`, {
+          align: 'left',
+          size: 12,
+          italic: true,
+          color: '#4B5563',
+          after: 30,
+        })
+      );
+      bodyXml.push(
+        paragraphXml('    ....................................................................................................................................................', {
+          align: 'left',
+          size: 13,
+          after: 30,
+        })
+      );
+      bodyXml.push(
+        paragraphXml('    ....................................................................................................................................................', {
+          align: 'left',
+          size: 13,
+          after: 30,
+        })
+      );
+      bodyXml.push(
+        paragraphXml('    ....................................................................................................................................................', {
+          align: 'left',
+          size: 13,
+          after: 60,
+        })
+      );
     } else if (qType === 'matching' && Array.isArray(q.pairs)) {
       q.pairs.forEach((p, pIdx) => {
         const rLabel = CHOICE_LABELS[pIdx] || `${pIdx + 1}`;
@@ -380,15 +412,34 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
 
     questions.forEach((q, idx) => {
       const qNum = idx + 1;
-      const ansIdx = Number(q.answer);
-      const ansLabel = CHOICE_LABELS[ansIdx] || `${ansIdx + 1}`;
-      const optText = Array.isArray(q.options) && q.options[ansIdx] ? q.options[ansIdx] : '';
+      const qType = q.question_type || q.type || 'mcq';
+
+      let ansDisplay = '';
+      if (qType === 'mcq') {
+        const ansIdx = Number(q.answer);
+        const ansLabel = CHOICE_LABELS[ansIdx] || `${ansIdx + 1}`;
+        const optText = Array.isArray(q.options) && q.options[ansIdx] ? q.options[ansIdx] : '';
+        ansDisplay = `ตอบ ${ansLabel}. ${optText}`;
+      } else if (qType === 'truefalse') {
+        ansDisplay = `ตอบ ${q.answer ? 'ถูก (True)' : 'ผิด (False)'}`;
+      } else if (qType === 'fillin') {
+        const alts = Array.isArray(q.accepted_answers) && q.accepted_answers.length > 0 
+          ? ` (ยอมรับ: ${q.accepted_answers.join(', ')})` 
+          : '';
+        ansDisplay = `ตอบ: ${String(q.answer || '')}${alts}`;
+      } else if (qType === 'essay') {
+        const fullScore = (q.rubric as any)?.full_score || 5;
+        const keySol = (q.rubric as any)?.key_solution || String(q.answer || '-');
+        ansDisplay = `[อัตนัย เต็ม ${fullScore} คะแนน] แนวคำตอบ: ${keySol}`;
+      } else {
+        ansDisplay = `ตอบ: ${String(q.answer || '')}`;
+      }
 
       bodyXml.push(
         paragraphXml(
           [
             { text: `ข้อ ${qNum}: `, bold: true, size: 13 },
-            { text: `ตอบ ${ansLabel}. ${optText}`, bold: true, size: 13, color: '#047857' },
+            { text: ansDisplay, bold: true, size: 13, color: '#047857' },
           ],
           { align: 'left', before: 40, after: 20 }
         )

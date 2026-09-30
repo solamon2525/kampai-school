@@ -9,11 +9,20 @@ import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
-import { examService, type ExamSetRow, type ExamSubmissionRow } from '@/services/exam.service';
+import {
+  examService,
+  type ExamSetRow,
+  type ExamSubmissionRow,
+  type QuestionType,
+  type QuestionDifficulty,
+  type BloomLevel,
+  type EssayRubric
+} from '@/services/exam.service';
+import { curriculumService, type CurriculumIndicator } from '@/services/curriculum.service';
 import { studentsService } from '@/services/students.service';
 import { omrScannerService, type OMRGradingSummary, type QuestionToGrade } from '@/services/omr-scanner.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
@@ -43,11 +52,17 @@ import { downloadCSV } from '@/lib/export';
 import type { Json, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 interface AIParsedQuestion {
+  question_type?: 'mcq' | 'fillin' | 'essay';
   question_text: string;
-  options: string[];
-  answer: number;
+  options?: string[];
+  answer: number | string;
+  accepted_answers?: string[];
+  rubric?: EssayRubric;
   explanation?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
+  bloom_level?: BloomLevel;
+  indicator_code?: string;
+  topic?: string;
 }
 
 export interface SubjectConfigItem {
@@ -170,18 +185,36 @@ export default function TeacherExamManagement() {
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // AI Generator state
+  // Question Type & Indicator Filter state for Bank
+  const [selectedQTypeFilter, setSelectedQTypeFilter] = useState<'all' | 'mcq' | 'fillin' | 'essay'>('all');
+  const [selectedIndicatorFilter, setSelectedIndicatorFilter] = useState<string>('all');
+
+  // AI Generator expanded state
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiCount, setAiCount] = useState<number>(5);
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
-  const [aiBloom] = useState<string>('auto');
+  const [aiBloom, setAiBloom] = useState<string>('auto');
+  const [aiQuestionFormat, setAiQuestionFormat] = useState<'mixed' | 'mcq' | 'fillin' | 'essay'>('mixed');
+  const [aiIndicatorCode, setAiIndicatorCode] = useState<string>('all');
+  const [aiSelectedMediaId, setAiSelectedMediaId] = useState<string>('none');
 
-  // Manual Question state
+  // Manual Question expanded state
   const [showAddModal, setShowAddModal] = useState(false);
+  const [newQType, setNewQType] = useState<QuestionType>('mcq');
+  const [newQDifficulty, setNewQDifficulty] = useState<QuestionDifficulty>('medium');
+  const [newQBloom, setNewQBloom] = useState<BloomLevel>('L2');
+  const [newQIndicatorCode, setNewQIndicatorCode] = useState<string>('');
+  const [newQIndicatorDesc, setNewQIndicatorDesc] = useState<string>('');
   const [newQText, setNewQText] = useState('');
   const [newQOpts, setNewQOpts] = useState(['', '', '', '']);
   const [newQAns, setNewQAns] = useState<number>(0);
+  const [newQFillinAns, setNewQFillinAns] = useState<string>('');
+  const [newQAcceptedAlts, setNewQAcceptedAlts] = useState<string>('');
+  const [newQEssayScore, setNewQEssayScore] = useState<number>(5);
+  const [newQEssayKeySol, setNewQEssayKeySol] = useState<string>('');
+  const [newQEssayKeywords, setNewQEssayKeywords] = useState<string>('');
+  const [newQMediaId, setNewQMediaId] = useState<string>('none');
 
   // Target question count states
   const [targetQuestionCount, setTargetQuestionCount] = useState<number>(20);
@@ -216,6 +249,14 @@ export default function TeacherExamManagement() {
   const [diagnosticExamSet, setDiagnosticExamSet] = useState<ExamSetRow | null>(null);
   const [batchScannerOpen, setBatchScannerOpen] = useState(false);
 
+  // Essay Grading Dialog state
+  const [essayGradingModalOpen, setEssayGradingModalOpen] = useState(false);
+  const [gradingSubmission, setGradingSubmission] = useState<ExamSubmissionRow | null>(null);
+  const [gradingExamSet, setGradingExamSet] = useState<ExamSetRow | null>(null);
+  const [essayScores, setEssayScores] = useState<Record<number, number>>({});
+  const [teacherFeedback, setTeacherFeedback] = useState<string>('');
+  const [isSavingGrading, setIsSavingGrading] = useState(false);
+
   // OMR Scanner state
   const [scannerExamSetId, setScannerExamSetId] = useState<string>('');
   const [cameraActive, setCameraActive] = useState(false);
@@ -248,6 +289,26 @@ export default function TeacherExamManagement() {
 
   const selectedSubjectConfig = selectedSubject !== 'all' ? SUBJECT_MAP[selectedSubject] : null;
 
+  // Query curriculum indicators for current subject and grade
+  const currentSubjectKey = selectedSubjectConfig?.id || '';
+  const { data: curriculumIndicators = [] } = useQuery({
+    queryKey: ['curriculum_indicators', currentSubjectKey, selectedGrade],
+    queryFn: async () => {
+      if (!currentSubjectKey || selectedGrade === 'all') return [];
+      const { data, error } = await curriculumService.listIndicators(currentSubjectKey, selectedGrade);
+      if (error) throw error;
+      return (data || []) as CurriculumIndicator[];
+    },
+    enabled: !!currentSubjectKey && selectedGrade !== 'all',
+  });
+
+  // Query educational hub media items for reference in exams
+  const { data: mediaItems = [] } = useQuery({
+    queryKey: ['exam_media_items', selectedSubject, selectedGrade],
+    queryFn: () => examService.listMediaForExam(selectedSubject, selectedGrade),
+    enabled: selectedSubject !== 'all',
+  });
+
   // Extract unique topics for filter
   const availableTopics = useMemo(() => {
     const set = new Set<string>();
@@ -257,11 +318,31 @@ export default function TeacherExamManagement() {
     return Array.from(set).sort();
   }, [questions]);
 
-  // Filter questions by topic
+  // Extract unique indicators from questions for filter
+  const availableIndicatorsInQuestions = useMemo(() => {
+    const map = new Map<string, string>();
+    questions.forEach((q) => {
+      if (q.indicator_code) {
+        map.set(q.indicator_code, q.indicator_desc || q.indicator_code);
+      }
+    });
+    return Array.from(map.entries()).map(([code, desc]) => ({ code, desc }));
+  }, [questions]);
+
+  // Filter questions by topic, question type, and indicator
   const displayedQuestions = useMemo(() => {
-    if (selectedTopic === 'all') return questions;
-    return questions.filter((q) => q.topic === selectedTopic);
-  }, [questions, selectedTopic]);
+    let result = questions;
+    if (selectedTopic !== 'all') {
+      result = result.filter((q) => q.topic === selectedTopic);
+    }
+    if (selectedQTypeFilter !== 'all') {
+      result = result.filter((q) => (q.question_type || 'mcq') === selectedQTypeFilter);
+    }
+    if (selectedIndicatorFilter !== 'all') {
+      result = result.filter((q) => q.indicator_code === selectedIndicatorFilter);
+    }
+    return result;
+  }, [questions, selectedTopic, selectedQTypeFilter, selectedIndicatorFilter]);
 
   // Selected questions details & difficulty breakdown
   const selectedQuestionsDetails = useMemo(() => {
@@ -550,11 +631,83 @@ export default function TeacherExamManagement() {
       setShowAddModal(false);
       setNewQText('');
       setNewQOpts(['', '', '', '']);
+      setNewQFillinAns('');
+      setNewQAcceptedAlts('');
+      setNewQEssayKeySol('');
+      setNewQEssayKeywords('');
     },
     onError: (e: Error) => {
       toast({ title: 'ข้อผิดพลาด', description: e.message, variant: 'destructive' });
     },
   });
+
+  const handleSaveManualQuestion = () => {
+    if (!newQText.trim()) {
+      toast({ title: 'กรุณากรอกโจทย์คำถาม', variant: 'destructive' });
+      return;
+    }
+
+    const matchedInd = newQIndicatorCode && newQIndicatorCode !== 'none'
+      ? curriculumIndicators.find((i) => i.indicator_code === newQIndicatorCode)
+      : null;
+
+    const matchedMedia = newQMediaId !== 'none'
+      ? mediaItems.find((m) => m.id === newQMediaId)
+      : null;
+
+    let ansPayload: any = 0;
+    let acceptedAltsList: string[] = [];
+    let rubricPayload: any = {};
+
+    if (newQType === 'mcq') {
+      ansPayload = newQAns;
+    } else if (newQType === 'fillin') {
+      if (!newQFillinAns.trim()) {
+        toast({ title: 'กรุณากรอกคำตอบหลัก', variant: 'destructive' });
+        return;
+      }
+      ansPayload = newQFillinAns.trim();
+      acceptedAltsList = newQAcceptedAlts
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (newQType === 'essay') {
+      if (!newQEssayKeySol.trim()) {
+        toast({ title: 'กรุณากรอกแนวคำตอบหรือขั้นตอนวิธีทำ', variant: 'destructive' });
+        return;
+      }
+      ansPayload = newQEssayKeySol.trim();
+      const kwList = newQEssayKeywords
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      rubricPayload = {
+        full_score: newQEssayScore || 5,
+        key_solution: newQEssayKeySol.trim(),
+        keywords: kwList,
+      };
+    }
+
+    createQMutation.mutate({
+      subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
+      grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
+      topic: aiTopic || 'ทั่วไป',
+      question_type: newQType,
+      difficulty: newQDifficulty,
+      bloom_level: newQBloom,
+      question_text: newQText.trim(),
+      options: newQType === 'mcq' ? newQOpts : [],
+      answer: ansPayload,
+      accepted_answers: acceptedAltsList,
+      rubric: rubricPayload,
+      indicator_id: matchedInd?.id || null,
+      indicator_code: matchedInd?.indicator_code || null,
+      indicator_desc: matchedInd?.description || null,
+      media_item_id: matchedMedia?.id || null,
+      media_title: matchedMedia?.title || null,
+      media_image_url: matchedMedia?.thumbnail_url || null,
+    });
+  };
 
   const deleteQMutation = useMutation({
     mutationFn: examService.deleteQuestion,
@@ -642,25 +795,92 @@ export default function TeacherExamManagement() {
 
     setAiGenerating(true);
     try {
-      const prompt = `คุณคือผู้เชี่ยวชาญการออกข้อสอบระดับประถมศึกษาไทย
+      // Find selected indicator details if any
+      const matchedInd = aiIndicatorCode !== 'all'
+        ? curriculumIndicators.find((i) => i.indicator_code === aiIndicatorCode)
+        : null;
+
+      // Find selected media details if any
+      const matchedMedia = aiSelectedMediaId !== 'none'
+        ? mediaItems.find((m) => m.id === aiSelectedMediaId)
+        : null;
+
+      let formatInstruction = '';
+      if (aiQuestionFormat === 'mcq') {
+        formatInstruction = 'รูปแบบคำถาม: ปรนัย 4 ตัวเลือก (ก, ข, ค, ง) ทั้งหมด (question_type: "mcq")';
+      } else if (aiQuestionFormat === 'fillin') {
+        formatInstruction = 'รูปแบบคำถาม: แบบเติมคำตอบสั้น (question_type: "fillin") ทั้งหมด โดยให้ผู้เรียนคิดวิเคราะห์และตอบเป็นคำสั้นๆ หรือตัวเลข มีคำตอบหลัก และคำตอบสำรองที่ยอมรับได้';
+      } else if (aiQuestionFormat === 'essay') {
+        formatInstruction = 'รูปแบบคำถาม: แบบอัตนัย แสดงวิธีทำ หรือเขียนอธิบายเหตุผล (question_type: "essay") ทั้งหมด พร้อมแนวคำตอบ/ขั้นตอนวิธีทำ และเกณฑ์การให้คะแนน (Rubric)';
+      } else {
+        formatInstruction = `รูปแบบคำถาม: แบบผสม (Mixed) 3 รูปแบบ
+- ประมาณ 60% เป็น ปรนัย 4 ตัวเลือก (question_type: "mcq")
+- ประมาณ 20% เป็น เติมคำตอบสั้น (question_type: "fillin")
+- ประมาณ 20% เป็น อัตนัย แสดงวิธีทำหรืออธิบายเหตุผล (question_type: "essay")`;
+      }
+
+      let indicatorInstruction = '';
+      if (matchedInd) {
+        indicatorInstruction = `ตัวชี้วัดหลักสูตรแกนกลางที่ต้องครอบคลุม: ${matchedInd.indicator_code} (${matchedInd.description}) โดยคำถามต้องวัดพฤติกรรมการเรียนรู้ตามมาตรฐานนี้โดยตรง`;
+      }
+
+      let mediaInstruction = '';
+      if (matchedMedia) {
+        mediaInstruction = `สื่อการสอน/เกมอ้างอิงประจำโรงเรียน: "${matchedMedia.title}" (${matchedMedia.description || ''}) โดยให้ดึงบริบท ตัวละคร หรือสถานการณ์จำลองจากสื่อการสอนนี้มาตั้งเป็นโจทย์คำถามเชื่อมโยงกับบทเรียนจริง`;
+      }
+
+      const prompt = `คุณคือผู้เชี่ยวชาญการออกข้อสอบและประเมินผลระดับประถมศึกษาของกระทรวงศึกษาธิการไทย
 กรุณาสร้างข้อสอบวิชา ${selectedSubject} ระดับชั้น ${selectedGrade}
 หัวข้อ: ${aiTopic}
 จำนวน: ${aiCount} ข้อ
 ระดับความยาก: ${aiDifficulty}
 ระดับ Bloom's Taxonomy: ${aiBloom}
+${formatInstruction}
+${indicatorInstruction}
+${mediaInstruction}
 
-รูปแบบคำถาม: ปรนัย 4 ตัวเลือก (ก, ข, ค, ง)
-ตอบเป็น JSON เท่านั้นในรูปแบบอาเรย์ของออบเจกต์:
-[
+ข้อกำหนดโครงสร้าง JSON (ตอบเป็น array ของ object เท่านั้น):
+- สำหรับ "mcq":
   {
-    "question_text": "คำถาม...",
+    "question_type": "mcq",
+    "question_text": "โจทย์คำถาม...",
     "options": ["ตัวเลือก ก", "ตัวเลือก ข", "ตัวเลือก ค", "ตัวเลือก ง"],
-    "answer": 0, // ดัชนีเฉลย 0=ก, 1=ข, 2=ค, 3=ง
+    "answer": 0, // 0=ก, 1=ข, 2=ค, 3=ง
     "explanation": "คำอธิบายเฉลย...",
-    "difficulty": "${aiDifficulty}"
+    "difficulty": "${aiDifficulty}",
+    "bloom_level": "L2",
+    "indicator_code": "${matchedInd?.indicator_code || ''}"
   }
-]
-ห้ามมี markdown block ส่งเฉพาะ JSON string`;
+- สำหรับ "fillin":
+  {
+    "question_type": "fillin",
+    "question_text": "โจทย์เติมคำถาม... (เว้นช่องให้ตอบ)",
+    "options": [],
+    "answer": "คำตอบหลัก",
+    "accepted_answers": ["คำตอบสำรอง1", "คำตอบสำรอง2"],
+    "explanation": "คำอธิบายเฉลย...",
+    "difficulty": "${aiDifficulty}",
+    "bloom_level": "L2",
+    "indicator_code": "${matchedInd?.indicator_code || ''}"
+  }
+- สำหรับ "essay":
+  {
+    "question_type": "essay",
+    "question_text": "โจทย์อัตนัย / ให้แสดงวิธีทำ / อธิบายเหตุผล...",
+    "options": [],
+    "answer": "แนวคำตอบและขั้นตอนวิธีทำอย่างละเอียด...",
+    "rubric": {
+      "full_score": 5,
+      "key_solution": "แนวคำตอบหลักหรือขั้นตอนวิธีทำ...",
+      "keywords": ["คำสำคัญ1", "คำสำคัญ2"]
+    },
+    "explanation": "เกณฑ์และแนวทางให้คะแนน...",
+    "difficulty": "${aiDifficulty}",
+    "bloom_level": "L4",
+    "indicator_code": "${matchedInd?.indicator_code || ''}"
+  }
+
+ห้ามมี markdown codeblock ส่งเฉพาะ raw JSON string`;
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -683,21 +903,39 @@ export default function TeacherExamManagement() {
         throw new Error('AI ส่งผลลัพธ์ไม่ถูกต้อง');
       }
 
-      const rowsToInsert: TablesInsert<'exam_questions'>[] = parsedItems.map((item) => ({
-        subject: selectedSubject,
-        grade: selectedGrade,
-        topic: aiTopic,
-        difficulty: item.difficulty || aiDifficulty,
-        question_type: 'mcq',
-        question_text: item.question_text,
-        options: item.options || [],
-        answer: typeof item.answer === 'number' ? item.answer : 0,
-        explanation: item.explanation || '',
-      }));
+      const rowsToInsert: TablesInsert<'exam_questions'>[] = parsedItems.map((item) => {
+        const qType = (item.question_type as any) || (item.options && item.options.length ? 'mcq' : 'fillin');
+        const qIndCode = item.indicator_code || matchedInd?.indicator_code || null;
+        const qIndDesc = matchedInd?.description || null;
+
+        return {
+          subject: selectedSubject,
+          grade: selectedGrade,
+          topic: aiTopic || item.topic || 'ทั่วไป',
+          difficulty: item.difficulty || aiDifficulty,
+          bloom_level: item.bloom_level || (aiBloom !== 'auto' ? (aiBloom as any) : 'L2'),
+          question_type: qType,
+          question_text: item.question_text,
+          options: Array.isArray(item.options) ? item.options : [],
+          answer: item.answer !== undefined ? (item.answer as any) : 0,
+          accepted_answers: Array.isArray(item.accepted_answers) ? item.accepted_answers : [],
+          rubric: (item.rubric as any) || (qType === 'essay' ? { full_score: 5, key_solution: String(item.answer || '') } : {}),
+          indicator_id: matchedInd?.id || null,
+          indicator_code: qIndCode,
+          indicator_desc: qIndDesc,
+          media_item_id: matchedMedia?.id || null,
+          media_title: matchedMedia?.title || null,
+          media_image_url: matchedMedia?.thumbnail_url || null,
+          explanation: item.explanation || '',
+        };
+      });
 
       await examService.createQuestionsBulk(rowsToInsert);
       queryClient.invalidateQueries({ queryKey: ['exam_questions'] });
-      toast({ title: 'สร้างข้อสอบสำเร็จ!', description: `AI สร้างข้อสอบ ${rowsToInsert.length} ข้อลงในคลังเรียบร้อยแล้ว` });
+      toast({
+        title: 'สร้างข้อสอบสำเร็จ!',
+        description: `AI สร้างข้อสอบ ${rowsToInsert.length} ข้อ (${aiQuestionFormat === 'mixed' ? 'แบบผสม' : aiQuestionFormat}) ลงในคลังเรียบร้อยแล้ว`,
+      });
       setAiTopic('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาด';
@@ -900,6 +1138,110 @@ export default function TeacherExamManagement() {
     queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
   };
 
+  const handleOpenEssayGrading = (sub: ExamSubmissionRow) => {
+    const foundSet = examSets.find((s) => s.id === sub.exam_set_id);
+    if (!foundSet) {
+      toast({ title: 'ไม่พบชุดข้อสอบ', description: 'ไม่พบชุดข้อสอบที่ตรงกับการสอบนี้', variant: 'destructive' });
+      return;
+    }
+    setGradingSubmission(sub);
+    setGradingExamSet(foundSet);
+
+    // Initialize existing scores if any
+    const existingRubric = (sub.rubric_scores as Record<string, number>) || {};
+    const initialScores: Record<number, number> = {};
+    const questionsList = (Array.isArray(foundSet.questions) ? foundSet.questions : []) as any[];
+    questionsList.forEach((q, idx) => {
+      if (q.question_type === 'essay') {
+        initialScores[idx] = existingRubric[idx] !== undefined ? Number(existingRubric[idx]) : 0;
+      }
+    });
+
+    setEssayScores(initialScores);
+    setTeacherFeedback(sub.teacher_feedback || '');
+    setEssayGradingModalOpen(true);
+  };
+
+  const handleSaveEssayGrading = async () => {
+    if (!gradingSubmission || !gradingExamSet) return;
+    setIsSavingGrading(true);
+    try {
+      const questionsList = (Array.isArray(gradingExamSet.questions) ? gradingExamSet.questions : []) as any[];
+      const studentAnswers = (gradingSubmission.answers as Record<string, any>) || {};
+
+      const normalize = (v: unknown) =>
+        String(v ?? '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, ' ');
+
+      let totalEarned = 0;
+      let totalMax = 0;
+
+      questionsList.forEach((q, idx) => {
+        const qType = q.question_type || 'mcq';
+        const points = Number(q.points) > 0 ? Number(q.points) : (qType === 'essay' ? 5 : 1);
+        totalMax += points;
+
+        if (qType === 'essay') {
+          const awarded = Number(essayScores[idx]) || 0;
+          totalEarned += Math.min(points, Math.max(0, awarded));
+        } else if (qType === 'fillin') {
+          const ans = studentAnswers[idx];
+          if (ans !== undefined && ans !== null) {
+            const normUser = normalize(ans);
+            const acceptedList: string[] = [];
+            if (q.answer !== undefined && q.answer !== null) acceptedList.push(normalize(q.answer));
+            if (Array.isArray(q.accepted_answers)) {
+              q.accepted_answers.forEach((a: string) => acceptedList.push(normalize(a)));
+            }
+            if (acceptedList.some((acc) => acc && acc === normUser)) {
+              totalEarned += points;
+            }
+          }
+        } else {
+          // mcq
+          const ans = studentAnswers[idx];
+          if (
+            ans !== undefined &&
+            ans !== null &&
+            q.answer !== undefined &&
+            q.answer !== null &&
+            Number(ans) === Number(q.answer)
+          ) {
+            totalEarned += points;
+          }
+        }
+      });
+
+      const maxScore = totalMax || gradingSubmission.max_score || 1;
+      const percentage = Math.round((totalEarned / maxScore) * 100);
+      const passed = percentage >= (gradingExamSet.pass_threshold_pct || 50);
+
+      await examService.updateSubmission(gradingSubmission.id, {
+        score: totalEarned,
+        max_score: maxScore,
+        percentage,
+        passed,
+        review_status: 'reviewed',
+        rubric_scores: essayScores as unknown as Json,
+        teacher_feedback: teacherFeedback.trim() || null,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
+      toast({
+        title: 'บันทึกการตรวจข้อสอบสำเร็จ',
+        description: `บันทึกคะแนนรวม ${totalEarned}/${maxScore} (${percentage}%) เรียบร้อยแล้ว`,
+      });
+      setEssayGradingModalOpen(false);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'เกิดข้อผิดพลาดในการบันทึก';
+      toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
+    } finally {
+      setIsSavingGrading(false);
+    }
+  };
+
   return (
     <RolePortalLayout title="Portal ครู" subtitle="ครู/บุคลากร" menu={TEACHER_MENU} accent="teacher">
       <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -1093,16 +1435,17 @@ export default function TeacherExamManagement() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2 text-primary font-bold">
                   <Sparkles className="h-4 w-4" />
-                  AI ช่วยสร้างข้อสอบอัตโนมัติ (Google Gemini / Claude)
+                  AI ช่วยสร้างข้อสอบอิงตัวชี้วัด & สื่อการสอน (Google Gemini 2.0)
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  ระบุหัวข้อที่ต้องการ AI จะช่วยสร้างข้อสอบปรนัยพร้อมตัวเลือกและเฉลยให้ทันที
+                  เลือกรูปแบบข้อสอบ (ปรนัย, เติมคำ, อัตนัย หรือแบบผสม), ตัวชี้วัดหลักสูตร และเชื่อมโยงสื่อการสอนจริง
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Row 1: Topic, Question Format & Count */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div className="sm:col-span-2 space-y-1.5">
-                    <Label className="text-xs">หัวข้อ / บทเรียน</Label>
+                    <Label className="text-xs font-semibold">หัวข้อ / บทเรียน</Label>
                     <Input
                       placeholder="เช่น การสังเคราะห์ด้วยแสง, ระบบสุริยะ, เศษส่วน..."
                       value={aiTopic}
@@ -1130,7 +1473,25 @@ export default function TeacherExamManagement() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">จำนวนข้อ</Label>
+                    <Label className="text-xs font-semibold">รูปแบบข้อสอบ</Label>
+                    <Select
+                      value={aiQuestionFormat}
+                      onValueChange={(v) => setAiQuestionFormat(v as 'mixed' | 'mcq' | 'fillin' | 'essay')}
+                    >
+                      <SelectTrigger className="h-9 text-xs font-medium">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mixed">🌟 ผสม (ปรนัย+เติมคำ+อัตนัย)</SelectItem>
+                        <SelectItem value="mcq">📝 ปรนัย 4 ตัวเลือก (MCQ)</SelectItem>
+                        <SelectItem value="fillin">✍️ เติมคำตอบสั้น (Fill-in)</SelectItem>
+                        <SelectItem value="essay">📋 อัตนัย / แสดงวิธีทำ (Essay)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">จำนวนข้อ</Label>
                     <Select value={String(aiCount)} onValueChange={(v) => setAiCount(Number(v))}>
                       <SelectTrigger className="h-9 text-xs">
                         <SelectValue />
@@ -1143,41 +1504,122 @@ export default function TeacherExamManagement() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">ระดับความยาก</Label>
-                    <Select value={aiDifficulty} onValueChange={(v) => setAiDifficulty(v as 'easy' | 'medium' | 'hard')}>
-                      <SelectTrigger className="h-9 text-xs">
-                        <SelectValue />
+                {/* Row 2: Curriculum Indicator, Media Reference, Difficulty & Bloom */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1 border-t border-border/40">
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <Label className="text-xs font-semibold flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5 text-primary" />
+                      ตัวชี้วัดหลักสูตรแกนกลาง (Curriculum Indicator)
+                    </Label>
+                    <Select value={aiIndicatorCode} onValueChange={setAiIndicatorCode}>
+                      <SelectTrigger className="h-9 text-xs truncate">
+                        <SelectValue placeholder="— เลือกตัวชี้วัด —" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="easy">ง่าย (ความจำ)</SelectItem>
-                        <SelectItem value="medium">ปานกลาง (เข้าใจ)</SelectItem>
-                        <SelectItem value="hard">ยาก (วิเคราะห์)</SelectItem>
+                      <SelectContent className="max-h-64 max-w-lg">
+                        <SelectItem value="all">🎯 ครอบคลุมทั่วไปตามมาตรฐานวิชา</SelectItem>
+                        {curriculumIndicators.map((ind) => (
+                          <SelectItem key={ind.id} value={ind.indicator_code}>
+                            <span className="font-semibold text-primary">{ind.indicator_code}</span>: {ind.description}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                      สื่อการสอน / เกมที่ใช้อ้างอิง
+                    </Label>
+                    <Select value={aiSelectedMediaId} onValueChange={setAiSelectedMediaId}>
+                      <SelectTrigger className="h-9 text-xs truncate">
+                        <SelectValue placeholder="— ไม่อ้างอิงสื่อ —" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64 max-w-sm">
+                        <SelectItem value="none">🌐 ไม่อ้างอิงสื่อ (สร้างตามเนื้อหาทั่วไป)</SelectItem>
+                        {mediaItems.map((med) => (
+                          <SelectItem key={med.id} value={med.id}>
+                            🎮 {med.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">ความยาก</Label>
+                      <Select value={aiDifficulty} onValueChange={(v) => setAiDifficulty(v as 'easy' | 'medium' | 'hard')}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="easy">ง่าย</SelectItem>
+                          <SelectItem value="medium">ปานกลาง</SelectItem>
+                          <SelectItem value="hard">ยาก</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Bloom's</Label>
+                      <Select value={aiBloom} onValueChange={setAiBloom}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">Auto</SelectItem>
+                          <SelectItem value="L1">L1 จำ</SelectItem>
+                          <SelectItem value="L2">L2 เข้าใจ</SelectItem>
+                          <SelectItem value="L3">L3 นำไปใช้</SelectItem>
+                          <SelectItem value="L4">L4 วิเคราะห์</SelectItem>
+                          <SelectItem value="L5">L5 ประเมิน</SelectItem>
+                          <SelectItem value="L6">L6 คิดค้น</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-2">
-                  <div className="text-[11px] text-muted-foreground">
-                    สร้างสำหรับ: <span className="font-semibold text-foreground">{selectedSubject}</span> ({selectedGrade})
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/40">
+                  <div className="flex items-center gap-2 flex-wrap text-[11px] text-muted-foreground">
+                    <span>วิชา: <strong className="text-foreground">{selectedSubject}</strong> ({selectedGrade})</span>
+                    <span>•</span>
+                    <span>โหมด: <strong className="text-primary">{aiQuestionFormat === 'mixed' ? 'แบบผสม 3 รูปแบบ' : aiQuestionFormat}</strong></span>
+                    {aiIndicatorCode !== 'all' && (
+                      <>
+                        <span>•</span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/40 text-primary">
+                          {aiIndicatorCode}
+                        </Badge>
+                      </>
+                    )}
+                    {aiSelectedMediaId !== 'none' && (
+                      <>
+                        <span>•</span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-800 bg-amber-50/40">
+                          🎮 อิงสื่อบทเรียน
+                        </Badge>
+                      </>
+                    )}
                   </div>
                   <Button
                     onClick={handleAIGenerate}
                     disabled={aiGenerating}
                     size="sm"
-                    className="gap-2 text-xs"
+                    className="gap-2 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0"
                   >
                     {aiGenerating ? (
                       <>
                         <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                        กำลังสร้างข้อสอบ...
+                        กำลังสร้างข้อสอบ {aiQuestionFormat === 'mixed' ? 'แบบผสม' : ''}...
                       </>
                     ) : (
                       <>
                         <Sparkles className="h-3.5 w-3.5" />
-                        สร้างข้อสอบด้วย AI
+                        สร้างข้อสอบด้วย AI ({aiCount} ข้อ)
                       </>
                     )}
                   </Button>
@@ -1196,14 +1638,80 @@ export default function TeacherExamManagement() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* Question Type Filter Pills */}
+                    <div className="flex items-center gap-0.5 bg-muted/60 p-0.5 rounded-xl border border-border/60">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQTypeFilter('all')}
+                        className={`px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                          selectedQTypeFilter === 'all'
+                            ? 'bg-background text-foreground shadow-xs font-bold'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        ทั้งหมด
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQTypeFilter('mcq')}
+                        className={`px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                          selectedQTypeFilter === 'mcq'
+                            ? 'bg-blue-600 text-white shadow-xs font-bold'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        📝 ปรนัย
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQTypeFilter('fillin')}
+                        className={`px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                          selectedQTypeFilter === 'fillin'
+                            ? 'bg-amber-600 text-white shadow-xs font-bold'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        ✍️ เติมคำ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQTypeFilter('essay')}
+                        className={`px-2 py-1 text-xs font-semibold rounded-lg transition-all ${
+                          selectedQTypeFilter === 'essay'
+                            ? 'bg-violet-600 text-white shadow-xs font-bold'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        📋 อัตนัย
+                      </button>
+                    </div>
+
+                    {/* Indicator Filter */}
+                    {availableIndicatorsInQuestions.length > 0 && (
+                      <Select value={selectedIndicatorFilter} onValueChange={setSelectedIndicatorFilter}>
+                        <SelectTrigger className="w-[150px] sm:w-[170px] h-8 text-xs">
+                          <Target className="h-3 w-3 mr-1 text-primary shrink-0" />
+                          <SelectValue placeholder="ทุกตัวชี้วัด" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60 max-w-sm">
+                          <SelectItem value="all">🎯 ทุกตัวชี้วัด ({questions.length})</SelectItem>
+                          {availableIndicatorsInQuestions.map((ind) => (
+                            <SelectItem key={ind.code} value={ind.code}>
+                              {ind.code} ({questions.filter((q) => q.indicator_code === ind.code).length})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+
                     {/* Topic Filter */}
                     <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                      <SelectTrigger className="w-[180px] h-8 text-xs">
+                      <SelectTrigger className="w-[140px] sm:w-[160px] h-8 text-xs">
                         <ListFilter className="h-3 w-3 mr-1 text-muted-foreground" />
-                        <SelectValue placeholder="ทุกตัวชี้วัด" />
+                        <SelectValue placeholder="ทุกบทเรียน" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">ทุกตัวชี้วัด ({questions.length})</SelectItem>
+                        <SelectItem value="all">ทุกบทเรียน ({questions.length})</SelectItem>
                         {availableTopics.map((top) => {
                           const count = questions.filter((q) => q.topic === top).length;
                           return (
@@ -1219,13 +1727,13 @@ export default function TeacherExamManagement() {
                       placeholder="ค้นหาข้อสอบ..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-36 sm:w-44 h-8 text-xs"
+                      className="w-32 sm:w-40 h-8 text-xs"
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowAddModal(!showAddModal)}
-                      className="h-8 text-xs gap-1"
+                      className="h-8 text-xs gap-1 font-semibold border-primary/30 text-primary hover:bg-primary/10"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       เพิ่มเอง
@@ -1333,65 +1841,273 @@ export default function TeacherExamManagement() {
 
                 {/* Add Manual Form Modal */}
                 {showAddModal && (
-                  <Card className="border-border p-4 bg-muted/20 space-y-3">
-                    <div className="font-semibold text-xs flex justify-between items-center">
-                      <span>เพิ่มข้อสอบด้วยตนเอง</span>
-                      <button onClick={() => setShowAddModal(false)} className="text-xs text-muted-foreground hover:text-foreground">✕</button>
+                  <Card className="border-primary/30 p-4 bg-muted/20 space-y-3.5 shadow-sm rounded-2xl">
+                    <div className="flex justify-between items-center pb-2 border-b border-border/60">
+                      <div className="flex items-center gap-2">
+                        <PlusCircle className="h-4 w-4 text-primary" />
+                        <span className="font-bold text-xs text-foreground">เพิ่มข้อสอบด้วยตนเอง</span>
+                      </div>
+                      {/* Question Type Switcher */}
+                      <div className="flex items-center gap-1 bg-muted p-1 rounded-xl border border-border/60">
+                        <button
+                          type="button"
+                          onClick={() => setNewQType('mcq')}
+                          className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                            newQType === 'mcq'
+                              ? 'bg-blue-600 text-white shadow-xs font-bold'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          📝 ปรนัย 4 ตัวเลือก
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewQType('fillin')}
+                          className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                            newQType === 'fillin'
+                              ? 'bg-amber-600 text-white shadow-xs font-bold'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          ✍️ เติมคำตอบสั้น
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewQType('essay')}
+                          className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                            newQType === 'essay'
+                              ? 'bg-violet-600 text-white shadow-xs font-bold'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          📋 อัตนัย / แสดงวิธีทำ
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => setShowAddModal(false)}
+                        className="text-xs text-muted-foreground hover:text-foreground p-1"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <Textarea
-                      placeholder="พิมพ์โจทย์คำถาม..."
-                      value={newQText}
-                      onChange={(e) => setNewQText(e.target.value)}
-                      className="text-xs min-h-[60px]"
-                    />
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {['ก', 'ข', 'ค', 'ง'].map((l, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <span className="font-bold w-4">{l}.</span>
-                          <Input
-                            placeholder={`ตัวเลือก ${l}`}
-                            value={newQOpts[i]}
-                            onChange={(e) => {
-                              const opts = [...newQOpts];
-                              opts[i] = e.target.value;
-                              setNewQOpts(opts);
-                            }}
-                            className="h-7 text-xs flex-1"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <div className="flex items-center gap-2 text-xs">
-                        <span>เฉลยข้อ:</span>
-                        <Select value={String(newQAns)} onValueChange={(v) => setNewQAns(Number(v))}>
-                          <SelectTrigger className="w-20 h-7 text-xs">
-                            <SelectValue />
+
+                    {/* Metadata: Indicator, Media, Difficulty & Bloom */}
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-medium flex items-center gap-1">
+                          <Target className="h-3 w-3 text-primary" />
+                          ตัวชี้วัดหลักสูตร:
+                        </Label>
+                        <Select value={newQIndicatorCode} onValueChange={setNewQIndicatorCode}>
+                          <SelectTrigger className="h-8 text-xs truncate">
+                            <SelectValue placeholder="— เลือกตัวชี้วัด —" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">ก</SelectItem>
-                            <SelectItem value="1">ข</SelectItem>
-                            <SelectItem value="2">ค</SelectItem>
-                            <SelectItem value="3">ง</SelectItem>
+                          <SelectContent className="max-h-56 max-w-sm">
+                            <SelectItem value="none">ไม่ระบุตัวชี้วัด</SelectItem>
+                            {curriculumIndicators.map((ind) => (
+                              <SelectItem key={ind.id} value={ind.indicator_code}>
+                                <span className="font-semibold text-primary">{ind.indicator_code}</span>: {ind.description}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-medium flex items-center gap-1">
+                          <Sparkles className="h-3 w-3 text-amber-500" />
+                          สื่อการสอนอ้างอิง:
+                        </Label>
+                        <Select value={newQMediaId} onValueChange={setNewQMediaId}>
+                          <SelectTrigger className="h-8 text-xs truncate">
+                            <SelectValue placeholder="— ไม่อ้างอิงสื่อ —" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-56 max-w-sm">
+                            <SelectItem value="none">ไม่อ้างอิงสื่อ</SelectItem>
+                            {mediaItems.map((med) => (
+                              <SelectItem key={med.id} value={med.id}>
+                                🎮 {med.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-medium">ระดับความยาก:</Label>
+                        <Select
+                          value={newQDifficulty}
+                          onValueChange={(v) => setNewQDifficulty(v as 'easy' | 'medium' | 'hard')}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="easy">ง่าย</SelectItem>
+                            <SelectItem value="medium">ปานกลาง</SelectItem>
+                            <SelectItem value="hard">ยาก</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-[11px] font-medium">ระดับ Bloom's:</Label>
+                        <Select
+                          value={newQBloom}
+                          onValueChange={(v) => setNewQBloom(v as BloomLevel)}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="L1">L1 จำ</SelectItem>
+                            <SelectItem value="L2">L2 เข้าใจ</SelectItem>
+                            <SelectItem value="L3">L3 นำไปใช้</SelectItem>
+                            <SelectItem value="L4">L4 วิเคราะห์</SelectItem>
+                            <SelectItem value="L5">L5 ประเมิน</SelectItem>
+                            <SelectItem value="L6">L6 คิดค้น</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Question Text */}
+                    <div className="space-y-1">
+                      <Label className="text-xs font-semibold">โจทย์คำถาม</Label>
+                      <Textarea
+                        placeholder="พิมพ์โจทย์คำถาม เช่น นักเรียนทำการทดลองเรื่องสถานะของสาร..."
+                        value={newQText}
+                        onChange={(e) => setNewQText(e.target.value)}
+                        className="text-xs min-h-[70px]"
+                      />
+                    </div>
+
+                    {/* Sub-form 1: MCQ */}
+                    {newQType === 'mcq' && (
+                      <div className="space-y-3 pt-1 border-t border-border/50">
+                        <div className="text-xs font-semibold text-muted-foreground">ตัวเลือกคำตอบ 4 ตัวเลือก:</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          {['ก', 'ข', 'ค', 'ง'].map((l, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <span className="font-bold w-4">{l}.</span>
+                              <Input
+                                placeholder={`ตัวเลือก ${l}`}
+                                value={newQOpts[i]}
+                                onChange={(e) => {
+                                  const opts = [...newQOpts];
+                                  opts[i] = e.target.value;
+                                  setNewQOpts(opts);
+                                }}
+                                className="h-8 text-xs flex-1"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs pt-1">
+                          <span className="font-semibold">เฉลยข้อที่ถูกต้อง:</span>
+                          <Select value={String(newQAns)} onValueChange={(v) => setNewQAns(Number(v))}>
+                            <SelectTrigger className="w-24 h-8 text-xs font-bold text-primary">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0">ก</SelectItem>
+                              <SelectItem value="1">ข</SelectItem>
+                              <SelectItem value="2">ค</SelectItem>
+                              <SelectItem value="3">ง</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sub-form 2: Fill-in */}
+                    {newQType === 'fillin' && (
+                      <div className="space-y-3 pt-1 border-t border-border/50 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold text-amber-900">คำตอบหลักที่ถูกต้อง (Primary Answer)</Label>
+                            <Input
+                              placeholder="เช่น ดาวพุธ หรือ 48"
+                              value={newQFillinAns}
+                              onChange={(e) => setNewQFillinAns(e.target.value)}
+                              className="h-8 text-xs font-bold border-amber-300"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs font-medium text-muted-foreground">
+                              คำตอบสำรองที่ยอมรับได้ (คั่นด้วยจุลภาค ",")
+                            </Label>
+                            <Input
+                              placeholder="เช่น พุธ, ดาวพุธ., Mercury"
+                              value={newQAcceptedAlts}
+                              onChange={(e) => setNewQAcceptedAlts(e.target.value)}
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          💡 ระบบจะทำการ Normalize คำตอบ เช่น ตัดวรรคตอนหน้าหลัง และเทียบกับทั้งคำตอบหลักและคำตอบสำรองโดยอัตโนมัติ
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Sub-form 3: Essay */}
+                    {newQType === 'essay' && (
+                      <div className="space-y-3 pt-1 border-t border-border/50 text-xs">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-semibold text-violet-950">
+                            แนวคำตอบที่สมบูรณ์ หรือขั้นตอนการแสดงวิธีทำ (Key Solution)
+                          </Label>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] font-semibold text-muted-foreground">คะแนนเต็มข้อนี้:</span>
+                            <Input
+                              type="number"
+                              value={newQEssayScore}
+                              onChange={(e) => setNewQEssayScore(Number(e.target.value))}
+                              className="h-7 w-16 text-xs text-center font-bold text-violet-700"
+                              min={1}
+                              max={100}
+                            />
+                            <span className="text-[11px] font-semibold text-muted-foreground">คะแนน</span>
+                          </div>
+                        </div>
+                        <Textarea
+                          placeholder="พิมพ์ขั้นตอนการแสดงวิธีทำ หรือแนวคำตอบที่นักเรียนควรเขียนตอบ เพื่อให้ครูใช้เป็นเกณฑ์ในการตรวจ..."
+                          value={newQEssayKeySol}
+                          onChange={(e) => setNewQEssayKeySol(e.target.value)}
+                          className="text-xs min-h-[75px] font-normal"
+                        />
+                        <div className="space-y-1">
+                          <Label className="text-[11px] font-medium text-muted-foreground">
+                            คำสำคัญที่ควรมีในคำตอบ (Keywords คั่นด้วยจุลภาค ",")
+                          </Label>
+                          <Input
+                            placeholder="เช่น จุดหลอมเหลว, ความร้อนแฝง, การเปลี่ยนสถานะ"
+                            value={newQEssayKeywords}
+                            onChange={(e) => setNewQEssayKeywords(e.target.value)}
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-border/50">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddModal(false)}
+                        className="h-8 text-xs"
+                      >
+                        ยกเลิก
+                      </Button>
                       <Button
                         size="sm"
-                        onClick={() => {
-                          if (!newQText.trim()) return;
-                          createQMutation.mutate({
-                            subject: selectedSubject !== 'all' ? selectedSubject : 'ทั่วไป',
-                            grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
-                            question_type: 'mcq',
-                            question_text: newQText.trim(),
-                            options: newQOpts,
-                            answer: newQAns,
-                          });
-                        }}
-                        className="h-7 text-xs"
+                        onClick={handleSaveManualQuestion}
+                        disabled={createQMutation.isPending}
+                        className="h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs gap-1.5"
                       >
-                        บันทึกข้อสอบ
+                        <CheckSquare className="h-3.5 w-3.5" />
+                        {createQMutation.isPending ? 'กำลังบันทึก...' : 'บันทึกข้อสอบลงคลัง'}
                       </Button>
                     </div>
                   </Card>
@@ -1519,6 +2235,22 @@ export default function TeacherExamManagement() {
                               <div className="space-y-1.5 flex-1">
                                 <div className="flex flex-wrap items-center gap-1.5">
                                   <span className="font-bold text-muted-foreground text-xs">{idx + 1}.</span>
+
+                                  {/* Question Type Badge */}
+                                  {q.question_type === 'fillin' ? (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-800 bg-amber-50 font-bold">
+                                      ✍️ เติมคำ
+                                    </Badge>
+                                  ) : q.question_type === 'essay' ? (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-violet-400 text-violet-800 bg-violet-50 font-bold">
+                                      📋 อัตนัย
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-blue-400 text-blue-800 bg-blue-50 font-bold">
+                                      📝 ปรนัย
+                                    </Badge>
+                                  )}
+
                                   {q.subject && (
                                     <Badge
                                       variant="outline"
@@ -1534,6 +2266,23 @@ export default function TeacherExamManagement() {
                                       {q.topic}
                                     </Badge>
                                   )}
+                                  {q.indicator_code && (
+                                    <Badge
+                                      variant="outline"
+                                      title={q.indicator_desc || ''}
+                                      className="text-[10px] px-1.5 py-0 border-teal-400 text-teal-800 bg-teal-50 font-medium cursor-help"
+                                    >
+                                      🎯 {q.indicator_code}
+                                    </Badge>
+                                  )}
+                                  {q.media_title && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[10px] px-1.5 py-0 border-rose-300 text-rose-800 bg-rose-50 font-medium"
+                                    >
+                                      🎮 {q.media_title}
+                                    </Badge>
+                                  )}
                                   <Badge
                                     variant="outline"
                                     className={`text-[10px] px-1.5 py-0 ${
@@ -1546,13 +2295,19 @@ export default function TeacherExamManagement() {
                                   >
                                     {q.difficulty === 'easy' ? 'ง่าย' : q.difficulty === 'hard' ? 'ยาก' : 'ปานกลาง'}
                                   </Badge>
+                                  {q.bloom_level && q.bloom_level !== 'auto' && (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-muted text-muted-foreground">
+                                      {q.bloom_level}
+                                    </Badge>
+                                  )}
                                 </div>
 
                                 <div className="text-xs font-medium leading-relaxed text-foreground">
                                   {q.question_text}
                                 </div>
 
-                                {q.question_type === 'mcq' && opts.length > 0 && (
+                                {/* MCQ Choices Display */}
+                                {(!q.question_type || q.question_type === 'mcq') && opts.length > 0 && (
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1.5 text-[11px] text-muted-foreground">
                                     {opts.map((opt, oIdx) => (
                                       <div
@@ -1569,9 +2324,48 @@ export default function TeacherExamManagement() {
                                   </div>
                                 )}
 
+                                {/* Fill-in Answer Display */}
+                                {q.question_type === 'fillin' && (
+                                  <div className="mt-1.5 p-2 rounded-lg bg-amber-500/10 border border-amber-300/60 text-xs text-amber-900 space-y-1">
+                                    <div className="font-semibold flex items-center gap-1.5">
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+                                      <span>เฉลยคำตอบหลัก: <strong className="text-foreground underline decoration-amber-400 font-bold">{String(q.answer)}</strong></span>
+                                    </div>
+                                    {Array.isArray(q.accepted_answers) && q.accepted_answers.length > 0 && (
+                                      <div className="text-[11px] text-muted-foreground">
+                                        คำตอบสำรองที่ยอมรับได้: {q.accepted_answers.join(', ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Essay Solution & Rubric Display */}
+                                {q.question_type === 'essay' && (
+                                  <div className="mt-1.5 p-2.5 rounded-lg bg-violet-500/10 border border-violet-300/60 text-xs text-violet-950 space-y-1.5">
+                                    <div className="flex items-center justify-between font-semibold">
+                                      <span className="flex items-center gap-1.5 text-violet-800">
+                                        <FileText className="h-3.5 w-3.5 text-violet-600 shrink-0" />
+                                        แนวคำตอบ / ขั้นตอนการแสดงวิธีทำ
+                                      </span>
+                                      <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-violet-300 text-violet-800 bg-white font-bold shadow-xs">
+                                        คะแนนเต็ม {(q.rubric as any)?.full_score || 5} คะแนน
+                                      </Badge>
+                                    </div>
+                                    <p className="text-[11px] text-foreground leading-relaxed whitespace-pre-line bg-background/60 p-2 rounded border border-violet-200/50">
+                                      {(q.rubric as any)?.key_solution || String(q.answer || '-')}
+                                    </p>
+                                    {Array.isArray((q.rubric as any)?.keywords) && (q.rubric as any).keywords.length > 0 && (
+                                      <div className="text-[10px] text-muted-foreground pt-1 flex items-center gap-1">
+                                        <span className="font-semibold text-violet-800">คำสำคัญ (Keywords):</span>
+                                        <span>{(q.rubric as any).keywords.join(', ')}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
                                 {q.explanation && (
                                   <div className="mt-1.5 p-2 rounded bg-muted/30 border border-border/50 text-[11px] text-muted-foreground">
-                                    <span className="font-semibold text-foreground">💡 เฉลย: </span>
+                                    <span className="font-semibold text-foreground">💡 คำอธิบายเฉลย: </span>
                                     {q.explanation}
                                   </div>
                                 )}
@@ -2689,63 +3483,101 @@ export default function TeacherExamManagement() {
                               <th className="py-2.5 px-3">คะแนน</th>
                               <th className="py-2.5 px-3">ร้อยละ</th>
                               <th className="py-2.5 px-3">ผลสอบ</th>
+                              <th className="py-2.5 px-3">สถานะตรวจ</th>
                               <th className="py-2.5 px-3">ช่องทาง</th>
                               <th className="py-2.5 px-3">วันที่สอบ</th>
                               <th className="py-2.5 px-3 text-right">การจัดการ</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border/60">
-                            {filteredSubmissions.map((sub, idx) => (
-                              <tr key={sub.id} className="hover:bg-muted/20">
-                                <td className="py-2 px-3 text-muted-foreground">{idx + 1}</td>
-                                <td className="py-2 px-3 font-medium flex items-center gap-2">
-                                  <PersonAvatar name={sub.student_name} photoUrl={null} className="h-6 w-6 text-[10px]" />
-                                  <span>{sub.student_name}</span>
-                                </td>
-                                <td className="py-2 px-3 text-muted-foreground">
-                                  {sub.student_class} (เลขที่ {sub.student_no ?? '-'})
-                                </td>
-                                <td className="py-2 px-3 font-semibold">
-                                  {sub.score}/{sub.max_score}
-                                </td>
-                                <td className="py-2 px-3">{sub.percentage}%</td>
-                                <td className="py-2 px-3">
-                                  {sub.passed ? (
-                                    <Badge className="bg-emerald-600/10 text-emerald-700 border-emerald-300 text-[10px]">ผ่าน</Badge>
-                                  ) : (
-                                    <Badge variant="destructive" className="text-[10px]">ไม่ผ่าน</Badge>
-                                  )}
-                                </td>
-                                <td className="py-2 px-3">
-                                  <Badge variant="outline" className="text-[10px]">
-                                    {sub.submission_mode === 'online' ? 'ออนไลน์' : 'สแกน OMR'}
-                                  </Badge>
-                                </td>
-                                <td className="py-2 px-3 text-muted-foreground text-[11px]">
-                                  {new Date(sub.created_at).toLocaleDateString('th-TH')}
-                                </td>
-                                <td className="py-2 px-3 text-right">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-6 text-[10px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
-                                    onClick={() => {
-                                      const foundSet = examSets.find((s) => s.id === sub.exam_set_id);
-                                      if (foundSet) {
-                                        setDiagnosticSubmission(sub);
-                                        setDiagnosticExamSet(foundSet);
-                                        setDiagnosticModalOpen(true);
-                                      } else {
-                                        toast({ title: 'ไม่พบชุดข้อสอบ', variant: 'destructive' });
-                                      }
-                                    }}
-                                  >
-                                    <Target className="h-2.5 w-2.5" />
-                                    วินิจฉัยสมรรถนะ
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
+                            {filteredSubmissions.map((sub, idx) => {
+                              const foundSet = examSets.find((s) => s.id === sub.exam_set_id);
+                              const setQuestions = (Array.isArray(foundSet?.questions) ? foundSet?.questions : []) as any[];
+                              const hasEssay = setQuestions.some((q) => q.question_type === 'essay');
+
+                              return (
+                                <tr key={sub.id} className="hover:bg-muted/20">
+                                  <td className="py-2 px-3 text-muted-foreground">{idx + 1}</td>
+                                  <td className="py-2 px-3 font-medium flex items-center gap-2">
+                                    <PersonAvatar name={sub.student_name} photoUrl={null} className="h-6 w-6 text-[10px]" />
+                                    <span>{sub.student_name}</span>
+                                  </td>
+                                  <td className="py-2 px-3 text-muted-foreground">
+                                    {sub.student_class} (เลขที่ {sub.student_no ?? '-'})
+                                  </td>
+                                  <td className="py-2 px-3 font-semibold">
+                                    {sub.score}/{sub.max_score}
+                                  </td>
+                                  <td className="py-2 px-3">{sub.percentage}%</td>
+                                  <td className="py-2 px-3">
+                                    {sub.passed ? (
+                                      <Badge className="bg-emerald-600/10 text-emerald-700 border-emerald-300 text-[10px]">ผ่าน</Badge>
+                                    ) : (
+                                      <Badge variant="destructive" className="text-[10px]">ไม่ผ่าน</Badge>
+                                    )}
+                                  </td>
+                                  <td className="py-2 px-3">
+                                    {sub.review_status === 'pending_review' ? (
+                                      <Badge className="bg-amber-500/10 text-amber-800 border-amber-300 text-[10px] gap-1">
+                                        <Clock className="h-2.5 w-2.5" /> รอตรวจอัตนัย
+                                      </Badge>
+                                    ) : sub.review_status === 'reviewed' ? (
+                                      <Badge className="bg-emerald-500/10 text-emerald-800 border-emerald-300 text-[10px] gap-1">
+                                        <CheckCircle2 className="h-2.5 w-2.5" /> ตรวจครบแล้ว
+                                      </Badge>
+                                    ) : hasEssay ? (
+                                      <Badge variant="outline" className="text-[10px]">มีอัตนัย</Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground text-[11px]">-</span>
+                                    )}
+                                  </td>
+                                  <td className="py-2 px-3">
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {sub.submission_mode === 'online' ? 'ออนไลน์' : 'สแกน OMR'}
+                                    </Badge>
+                                  </td>
+                                  <td className="py-2 px-3 text-muted-foreground text-[11px]">
+                                    {new Date(sub.created_at).toLocaleDateString('th-TH')}
+                                  </td>
+                                  <td className="py-2 px-3 text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      {hasEssay && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className={`h-6 text-[10px] gap-1 ${
+                                            sub.review_status === 'pending_review'
+                                              ? 'border-amber-400 bg-amber-50 text-amber-900 font-semibold hover:bg-amber-100'
+                                              : 'border-muted-foreground/30 text-foreground hover:bg-muted/30'
+                                          }`}
+                                          onClick={() => handleOpenEssayGrading(sub)}
+                                        >
+                                          <PenLine className="h-2.5 w-2.5" />
+                                          {sub.review_status === 'pending_review' ? 'ตรวจอัตนัย (รอตรวจ)' : 'ตรวจอัตนัย'}
+                                        </Button>
+                                      )}
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-6 text-[10px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                                        onClick={() => {
+                                          if (foundSet) {
+                                            setDiagnosticSubmission(sub);
+                                            setDiagnosticExamSet(foundSet);
+                                            setDiagnosticModalOpen(true);
+                                          } else {
+                                            toast({ title: 'ไม่พบชุดข้อสอบ', variant: 'destructive' });
+                                          }
+                                        }}
+                                      >
+                                        <Target className="h-2.5 w-2.5" />
+                                        วินิจฉัยสมรรถนะ
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -2975,6 +3807,256 @@ export default function TeacherExamManagement() {
           students={students}
           onSaveBatchSubmissions={handleSaveBatchSubmissions}
         />
+
+        {/* Essay Grading Dialog */}
+        <Dialog open={essayGradingModalOpen} onOpenChange={setEssayGradingModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[88vh] flex flex-col p-6">
+            <DialogHeader className="pb-3 border-b border-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <DialogTitle className="text-base font-bold flex items-center gap-2">
+                    <PenLine className="h-4 w-4 text-primary" />
+                    ตรวจและให้คะแนนข้อสอบอัตนัย (Essay Grading)
+                  </DialogTitle>
+                  <DialogDescription className="text-xs mt-1">
+                    ประเมินคำตอบของนักเรียนตามเกณฑ์รูบริก (Rubric) และแนวคำตอบที่กำหนด พร้อมบันทึกข้อเสนอแนะ
+                  </DialogDescription>
+                </div>
+                {gradingSubmission && (
+                  <Badge variant="outline" className="text-xs font-semibold py-1 px-2.5 self-start sm:self-auto">
+                    คะแนนเดิม: {gradingSubmission.score}/{gradingSubmission.max_score} ({gradingSubmission.percentage}%)
+                  </Badge>
+                )}
+              </div>
+            </DialogHeader>
+
+            {gradingSubmission && gradingExamSet && (
+              <div className="flex-1 overflow-y-auto space-y-5 py-4 pr-1">
+                {/* Student header bar */}
+                <div className="p-3.5 bg-muted/40 border border-border rounded-xl flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <PersonAvatar name={gradingSubmission.student_name} photoUrl={null} className="h-8 w-8 text-xs" />
+                    <div>
+                      <div className="font-bold text-sm text-foreground">{gradingSubmission.student_name}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        ชั้น {gradingSubmission.student_class} · เลขที่ {gradingSubmission.student_no ?? '-'} · ชุดข้อสอบ: {gradingExamSet.title}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className={gradingSubmission.review_status === 'pending_review' ? 'bg-amber-500/10 text-amber-800 border-amber-300' : 'bg-emerald-500/10 text-emerald-800 border-emerald-300'}>
+                    {gradingSubmission.review_status === 'pending_review' ? 'รอตรวจ' : 'ตรวจแล้ว'}
+                  </Badge>
+                </div>
+
+                {/* Essay Questions List */}
+                {(() => {
+                  const questionsList = (Array.isArray(gradingExamSet.questions) ? gradingExamSet.questions : []) as Array<Record<string, unknown>>;
+                  const essayQuestions = questionsList
+                    .map((q, idx) => ({ ...q, originalIndex: idx }))
+                    .filter((q) => q.question_type === 'essay');
+                  const studentAnswers = (gradingSubmission.answers as Record<string, unknown>) || {};
+
+                  if (!essayQuestions.length) {
+                    return (
+                      <div className="text-center py-10 text-muted-foreground text-xs">
+                        ชุดข้อสอบนี้ไม่มีข้อสอบอัตนัย
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-5">
+                      {essayQuestions.map((q, qIndex) => {
+                        const originalIdx = q.originalIndex as number;
+                        const studentAnswer = studentAnswers[originalIdx];
+                        const points = Number(q.points) > 0 ? Number(q.points) : 5;
+                        const currentScore = essayScores[originalIdx] !== undefined ? essayScores[originalIdx] : 0;
+                        const rubricData = q.rubric as EssayRubric | undefined;
+
+                        return (
+                          <Card key={originalIdx} className="border-border shadow-xs overflow-hidden">
+                            <CardHeader className="p-4 bg-muted/20 border-b border-border">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                                      {originalIdx + 1}
+                                    </span>
+                                    <span className="font-bold text-xs text-foreground">
+                                      ข้อสอบอัตนัยข้อที่ {qIndex + 1} (ข้อที่ {originalIdx + 1} ของชุด)
+                                    </span>
+                                    <Badge variant="outline" className="text-[10px] bg-card">
+                                      เต็ม {points} คะแนน
+                                    </Badge>
+                                    {Boolean(q.indicator_code) && (
+                                      <Badge variant="outline" className="text-[10px] text-muted-foreground bg-card">
+                                        🎯 {String(q.indicator_code)}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-foreground leading-relaxed pt-1">
+                                    {String(q.question_text || q.question || '')}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Media Reference Image if available */}
+                              {Boolean(q.media_image_url) && (
+                                <div className="mt-2.5 p-2 bg-card border border-border rounded-lg flex items-center gap-3">
+                                  <img
+                                    src={String(q.media_image_url)}
+                                    alt={String(q.media_title || 'สื่ออ้างอิง')}
+                                    className="h-16 w-24 object-cover rounded border border-border"
+                                  />
+                                  <div className="text-[11px] text-muted-foreground">
+                                    <div className="font-semibold text-foreground">สื่อประกอบ: {String(q.media_title || '')}</div>
+                                    <div>ข้อสอบเชื่อมโยงกับบทเรียนจากสื่อการสอนประจำ</div>
+                                  </div>
+                                </div>
+                              )}
+                            </CardHeader>
+
+                            <CardContent className="p-4 space-y-3.5">
+                              {/* Student's Answer Box */}
+                              <div className="space-y-1">
+                                <Label className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                                  <BookOpen className="h-3.5 w-3.5" />
+                                  คำตอบที่นักเรียนเขียนส่ง:
+                                </Label>
+                                <div className="p-3 bg-muted/30 border border-border rounded-xl text-xs whitespace-pre-wrap leading-relaxed min-h-[50px] font-sans">
+                                  {studentAnswer ? (
+                                    <span className="text-foreground">{String(studentAnswer)}</span>
+                                  ) : (
+                                    <span className="text-muted-foreground italic">(นักเรียนไม่ได้กรอกคำตอบข้อนี้)</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Reference Answer & Rubric Criteria */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                                {/* Left: Reference Answer / Model Answer */}
+                                <div className="p-3 bg-card border border-border rounded-xl space-y-1.5">
+                                  <div className="text-[11px] font-semibold text-muted-foreground">
+                                    💡 แนวคำตอบที่ถูกต้อง / หลักคิดสำคัญ:
+                                  </div>
+                                  <div className="text-xs text-foreground leading-relaxed">
+                                    {String(q.answer || 'ดูเกณฑ์การให้คะแนนตาม Rubric ด้านขวา')}
+                                  </div>
+                                </div>
+
+                                {/* Right: Rubric Criteria */}
+                                <div className="p-3 bg-card border border-border rounded-xl space-y-1.5">
+                                  <div className="text-[11px] font-semibold text-muted-foreground">
+                                    📋 เกณฑ์การตรวจประเมิน (Rubric):
+                                  </div>
+                                  {rubricData?.criteria && Array.isArray(rubricData.criteria) && rubricData.criteria.length > 0 ? (
+                                    <div className="space-y-1 text-xs">
+                                      {rubricData.criteria.map((c, cIdx: number) => (
+                                        <div key={cIdx} className="flex justify-between items-start gap-2 border-b border-border/40 pb-1 last:border-0">
+                                          <span className="text-muted-foreground text-[11px]">{c.name}: {c.description}</span>
+                                          <Badge variant="outline" className="text-[10px] shrink-0 font-mono">
+                                            {c.points} คะแนน
+                                          </Badge>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-[11px] text-muted-foreground">
+                                      ประเมินความถูกต้องของเนื้อหา ความสมบูรณ์ของวิธีคิด และเหตุผลประกอบ (เต็ม {points} คะแนน)
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Score Input Box */}
+                              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-primary/5 p-3 rounded-xl border border-primary/20">
+                                <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                  <CheckSquare className="h-4 w-4 text-primary" />
+                                  คะแนนที่ให้ในข้อนี้ (0 ถึง {points} คะแนน):
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(points + 1)].map((_, pt) => (
+                                      <button
+                                        key={pt}
+                                        type="button"
+                                        onClick={() => setEssayScores((prev) => ({ ...prev, [originalIdx]: pt }))}
+                                        className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
+                                          currentScore === pt
+                                            ? 'bg-primary text-primary-foreground shadow-xs'
+                                            : 'bg-card border border-border hover:bg-muted/40 text-foreground'
+                                        }`}
+                                      >
+                                        {pt}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    max={points}
+                                    value={currentScore}
+                                    onChange={(e) => {
+                                      const val = Math.min(points, Math.max(0, Number(e.target.value) || 0));
+                                      setEssayScores((prev) => ({ ...prev, [originalIdx]: val }));
+                                    }}
+                                    className="w-16 h-8 text-xs font-bold text-center bg-card"
+                                  />
+                                  <span className="text-xs text-muted-foreground font-semibold">/{points}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* Overall Teacher Feedback */}
+                <div className="space-y-1.5 pt-2">
+                  <Label className="text-xs font-semibold flex items-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5 text-amber-600" />
+                    ข้อเสนอแนะและคำแนะนำจากคุณครู (Teacher Feedback):
+                  </Label>
+                  <Textarea
+                    rows={3}
+                    placeholder="พิมพ์คำแนะนำ เช่น แสดงวิธีคิดได้ชัดเจนมาก ควรระวังเรื่องการแปลงหน่วย หรือ คำอธิบายมีเหตุผลสมบูรณ์ดี..."
+                    value={teacherFeedback}
+                    onChange={(e) => setTeacherFeedback(e.target.value)}
+                    className="text-xs bg-card border-border leading-relaxed"
+                  />
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="pt-3 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div className="text-xs text-muted-foreground">
+                ตรวจครบแล้วกดบันทึกเพื่ออัปเดตคะแนนรวมของนักเรียน
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEssayGradingModalOpen(false)}
+                  disabled={isSavingGrading}
+                  className="text-xs h-9"
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveEssayGrading}
+                  disabled={isSavingGrading}
+                  className="text-xs h-9 font-bold bg-primary hover:bg-primary/90 gap-1.5"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {isSavingGrading ? 'กำลังบันทึก...' : 'บันทึกผลการตรวจอัตนัย'}
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </RolePortalLayout>
   );

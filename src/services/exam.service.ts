@@ -10,7 +10,7 @@ export type ExamQuestionRow = Tables<'exam_questions'>;
 export type ExamSetRow = Tables<'exam_sets'>;
 export type ExamSubmissionRow = Tables<'exam_submissions'>;
 
-export type QuestionType = 'mcq' | 'truefalse' | 'fillin' | 'matching';
+export type QuestionType = 'mcq' | 'truefalse' | 'fillin' | 'matching' | 'essay';
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
 export type BloomLevel = 'auto' | 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'mixed';
 
@@ -19,12 +19,31 @@ export interface MatchingPair {
   right: string;
 }
 
+export interface EssayRubricCriterion {
+  level: string;
+  score_range: [number, number];
+  description: string;
+}
+
+export interface EssayRubric {
+  full_score: number;
+  key_solution?: string;
+  criteria?: EssayRubricCriterion[];
+  keywords?: string[];
+}
+
+export interface IndicatorCoverageRow {
+  indicator_code: string;
+  indicator_desc: string;
+  question_count: number;
+}
+
 export interface QuestionData {
   id?: string;
   question_text: string;
   question_type: QuestionType;
   options?: string[]; // for mcq
-  answer: number | boolean | string | number[]; // 0-3 for mcq, boolean for tf, string for fillin, index mapping for matching
+  answer: number | boolean | string | number[] | Record<string, any>; // 0-3 for mcq, boolean for tf, string for fillin, index mapping for matching, key solution for essay
   pairs?: MatchingPair[]; // for matching
   explanation?: string;
   difficulty?: QuestionDifficulty;
@@ -32,12 +51,21 @@ export interface QuestionData {
   subject?: string;
   grade?: string;
   topic?: string;
+  indicator_id?: string | null;
+  indicator_code?: string | null;
+  indicator_desc?: string | null;
+  rubric?: EssayRubric | Record<string, any> | null;
+  accepted_answers?: string[] | null;
+  media_item_id?: string | null;
+  media_title?: string | null;
+  media_image_url?: string | null;
 }
 
 export interface QuestionFilter {
   subject?: string;
   grade?: string;
   question_type?: QuestionType;
+  indicator_code?: string;
   search?: string;
 }
 
@@ -64,6 +92,9 @@ export const examService = {
     if (filters?.question_type) {
       query = query.eq('question_type', filters.question_type);
     }
+    if (filters?.indicator_code) {
+      query = query.eq('indicator_code', filters.indicator_code);
+    }
     if (filters?.search) {
       query = query.ilike('question_text', `%${filters.search}%`);
     }
@@ -74,6 +105,19 @@ export const examService = {
     const { data, error } = await query;
     if (error) throw error;
     return (data || []) as ExamQuestionRow[];
+  },
+
+  async getIndicatorCoverage(subject?: string, grade?: string): Promise<IndicatorCoverageRow[]> {
+    try {
+      const { data, error } = await (supabase.rpc as any)('get_exam_indicator_coverage', {
+        p_subject: subject && subject !== 'all' ? subject : null,
+        p_grade: grade && grade !== 'all' ? grade : null,
+      });
+      if (error) throw error;
+      return (data || []) as IndicatorCoverageRow[];
+    } catch {
+      return [];
+    }
   },
 
   async getQuestionCountsBySubject(grade?: string): Promise<Record<string, number>> {
@@ -286,11 +330,53 @@ export const examService = {
     return data || [];
   },
 
+  async updateSubmission(id: string, data: TablesUpdate<'exam_submissions'>) {
+    const { data: updated, error } = await supabase
+      .from('exam_submissions')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return updated as ExamSubmissionRow;
+  },
+
   async deleteSubmission(id: string) {
     const { error } = await supabase
       .from('exam_submissions')
       .delete()
       .eq('id', id);
     if (error) throw error;
+  },
+
+  // ── Media Bridge ───────────────────────────────────────────────────────
+  async listMediaForExam(subject?: string, grade?: string) {
+    try {
+      let query = supabase
+        .from('educational_hub_items' as never)
+        .select('id, title, description, thumbnail_url, subject, grade_levels, item_type')
+        .eq('is_published', true);
+
+      if (subject && subject !== 'all') {
+        query = query.eq('subject', subject);
+      }
+      if (grade && grade !== 'all') {
+        query = query.contains('grade_levels', [grade]);
+      }
+
+      const { data, error } = await query.order('view_count', { ascending: false }).limit(50);
+      if (error) throw error;
+      return (data || []) as {
+        id: string;
+        title: string;
+        description: string | null;
+        thumbnail_url: string | null;
+        subject: string | null;
+        grade_levels: string[];
+        item_type: string;
+      }[];
+    } catch {
+      return [];
+    }
   },
 };

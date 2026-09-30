@@ -136,8 +136,28 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
 
               {/* Fill-in */}
               {qType === 'fillin' && (
-                <div className="mt-3 ml-8 text-xs">
-                  <span>ตอบ: ....................................................................................................................................................</span>
+                <div className="mt-2.5 ml-6 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-muted-foreground print:text-black">ตอบ:</span>
+                    <span className="flex-1 border-b-2 border-dotted border-foreground/60 print:border-black h-5 inline-block" />
+                  </div>
+                </div>
+              )}
+
+              {/* Essay / Subjective / Show Work */}
+              {qType === 'essay' && (
+                <div className="mt-2.5 ml-6 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground print:text-gray-700">
+                    <span className="italic">แสดงวิธีทำ หรือเขียนอธิบายเหตุผลอย่างละเอียด:</span>
+                    <span className="font-bold text-foreground print:text-black">
+                      (คะแนนเต็ม {(q.rubric as any)?.full_score || 5} คะแนน)
+                    </span>
+                  </div>
+                  <div className="border border-border/80 print:border-gray-500 rounded-md p-3 min-h-[85px] bg-muted/5 print:bg-transparent space-y-4">
+                    <div className="border-b border-dotted border-border/60 print:border-gray-400 h-5" />
+                    <div className="border-b border-dotted border-border/60 print:border-gray-400 h-5" />
+                    <div className="border-b border-dotted border-border/60 print:border-gray-400 h-5" />
+                  </div>
                 </div>
               )}
 
