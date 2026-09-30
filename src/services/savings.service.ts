@@ -5,7 +5,7 @@
  */
 import { supabase } from '@/integrations/supabase/client';
 import { buildSavingsStatement } from '@/lib/savings-statement';
-import type { Database } from '@/integrations/supabase/types';
+import type { Database, Json } from '@/integrations/supabase/types';
 
 export type PublicSavingsSummary = Database['public']['Functions']['get_public_savings_leaderboard']['Returns'][number];
 
@@ -179,6 +179,27 @@ export const savingsTransactionsService = {
 
   delete: (id: string) =>
     supabase.rpc('delete_savings_transaction', { p_transaction_id: id }),
+
+  recordBatch: (params: {
+    deposits: Array<{ student_id: string; amount: number; notes?: string }>;
+    transaction_date?: string;
+    notes?: string;
+    recorded_by?: string | null;
+    recorded_by_staff_id?: string | null;
+    recorded_by_administrator_id?: string | null;
+    academic_year?: string | null;
+    semester?: string | null;
+  }) =>
+    supabase.rpc('record_batch_savings_deposits', {
+      p_deposits: params.deposits as unknown as Json,
+      p_transaction_date: params.transaction_date,
+      p_recorded_by: params.recorded_by,
+      p_recorded_by_staff_id: params.recorded_by_staff_id,
+      p_recorded_by_administrator_id: params.recorded_by_administrator_id,
+      p_academic_year: params.academic_year,
+      p_semester: params.semester,
+      p_notes: params.notes,
+    }),
 };
 
 // ─── Summary VIEW ─────────────────────────────────────────────────────────────
@@ -377,3 +398,71 @@ export const savingsLookupService = {
       .rpc('get_savings_history' as never, { p_code: code, p_limit: limit } as never)
       .returns<SavingsHistoryRow[]>(),
 };
+
+// ─── Savings Goals (กระปุกออมเป้าหมาย) ─────────────────────────────────────────
+export type SavingsGoal = {
+  id: string;
+  student_id: string;
+  title: string;
+  target_amount: number;
+  icon: string;
+  category: string | null;
+  notes: string | null;
+  target_date: string | null;
+  status: 'in_progress' | 'achieved' | 'cancelled';
+  achieved_at: string | null;
+  created_at: string;
+};
+
+export const savingsGoalsService = {
+  getByStudentId: (studentId: string) =>
+    supabase
+      .rpc('get_student_savings_goals', { p_student_id: studentId })
+      .returns<SavingsGoal[]>(),
+
+  getByStudentCode: (code: string) =>
+    supabase
+      .rpc('get_student_savings_goals_by_code', { p_code: code })
+      .returns<SavingsGoal[]>(),
+
+  createByCode: (data: {
+    code: string;
+    title: string;
+    target_amount: number;
+    icon?: string;
+    category?: string;
+    target_date?: string | null;
+  }) =>
+    supabase.rpc('create_savings_goal_by_code', {
+      p_code: data.code,
+      p_title: data.title,
+      p_target_amount: data.target_amount,
+      p_icon: data.icon ?? 'piggy-bank',
+      p_category: data.category ?? 'general',
+      p_target_date: data.target_date ?? undefined,
+    }),
+
+  createByStudentId: (data: {
+    student_id: string;
+    title: string;
+    target_amount: number;
+    icon?: string;
+    category?: string;
+    target_date?: string | null;
+  }) =>
+    supabase.rpc('create_savings_goal', {
+      p_student_id: data.student_id,
+      p_title: data.title,
+      p_target_amount: data.target_amount,
+      p_icon: data.icon ?? 'piggy-bank',
+      p_category: data.category ?? 'general',
+      p_target_date: data.target_date ?? undefined,
+    }),
+
+  updateStatus: (goalId: string, status: 'in_progress' | 'achieved' | 'cancelled') =>
+    supabase.rpc('update_savings_goal_status', { p_goal_id: goalId, p_status: status }),
+
+  delete: (goalId: string) =>
+    supabase.rpc('delete_savings_goal', { p_goal_id: goalId }),
+};
+

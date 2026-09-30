@@ -26,12 +26,16 @@ import {
   savingsLookupService,
   savingsSummaryService,
   savingsTransactionsService,
+  savingsGoalsService,
   getSaverTier,
   type StudentSavingsLookup,
   type SavingsHistoryRow,
+  type SavingsGoal,
 } from '@/services/savings.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { SaverPodium } from '@/components/savings/SaverPodium';
+import { SavingsGoalCard } from '@/components/savings/SavingsGoalCard';
+import { SavingsGoalDialog } from '@/components/savings/SavingsGoalDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -103,6 +107,21 @@ export default function SavingsBank() {
   const [student, setStudent] = useState<StudentSavingsLookup | null>(null);
   const [studentDepositCount, setStudentDepositCount] = useState<number | null>(null);
   const [history, setHistory] = useState<SavingsHistoryRow[]>([]);
+  const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const [goalDialogOpen, setGoalDialogOpen] = useState(false);
+
+  const reloadGoals = async (lookupCode?: string) => {
+    const c = lookupCode ?? code.trim();
+    if (!c) return;
+    const { data } = await savingsGoalsService.getByStudentCode(c);
+    setGoals(data ?? []);
+  };
+
+  const handleGoalStatusChange = async (goalId: string, status: 'in_progress' | 'achieved' | 'cancelled') => {
+    await savingsGoalsService.updateStatus(goalId, status);
+    toast({ title: 'อัปเดตเป้าหมายสำเร็จ! 🏆' });
+    reloadGoals();
+  };
 
   // Public data
   const [classFilter, setClassFilter] = useState<string>('all');
@@ -131,6 +150,7 @@ export default function SavingsBank() {
     setSearching(true);
     setStudent(null);
     setHistory([]);
+    setGoals([]);
     setStudentDepositCount(null);
 
     const { data, error } = await savingsLookupService.lookupStudent(c);
@@ -146,6 +166,7 @@ export default function SavingsBank() {
       return;
     }
     setStudent(row);
+    reloadGoals(c);
 
     const { data: histData } = await savingsLookupService.getStudentHistory(c, 50);
     const histRows = (histData as SavingsHistoryRow[] | null) ?? [];
@@ -529,6 +550,57 @@ export default function SavingsBank() {
                       </div>
                     </div>
 
+                    {/* Goals Section */}
+                    <div className="space-y-2.5 pt-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                            กระปุกออมเป้าหมาย "ฝันที่เป็นจริง"
+                          </h3>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-6 text-[11px] font-bold border-amber-300 text-amber-800 hover:bg-amber-500/10 px-2"
+                          onClick={() => setGoalDialogOpen(true)}
+                        >
+                          + ตั้งเป้าหมาย
+                        </Button>
+                      </div>
+
+                      {goals.length === 0 ? (
+                        <div className="p-3.5 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-1.5">
+                          <PiggyBank className="w-6 h-6 text-amber-500 mx-auto opacity-80" />
+                          <p className="text-xs text-slate-800 font-bold">ยังไม่มีเป้าหมายการออม</p>
+                          <p className="text-[11px] text-slate-500">
+                            ตั้งเป้าหมาย เช่น ซื้อชุดนักเรียนใหม่ หรือของขวัญวันแม่ เพื่อสร้างแรงใจในการออม!
+                          </p>
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="h-7 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 mt-1"
+                            onClick={() => setGoalDialogOpen(true)}
+                          >
+                            เริ่มตั้งเป้าหมายแรก
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-2">
+                          {goals.map((g) => (
+                            <SavingsGoalCard
+                              key={g.id}
+                              goal={g}
+                              currentBalance={Number(student.current_balance ?? 0)}
+                              onStatusChange={handleGoalStatusChange}
+                              readOnly={false}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     {/* History table */}
                     {history.length > 0 && (
                       <div className="space-y-2">
@@ -650,6 +722,13 @@ export default function SavingsBank() {
           </div>
         </section>
       </main>
+
+      <SavingsGoalDialog
+        open={goalDialogOpen}
+        onOpenChange={setGoalDialogOpen}
+        studentCode={code.trim()}
+        onGoalCreated={() => reloadGoals(code.trim())}
+      />
 
       <Footer />
     </div>

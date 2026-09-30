@@ -6,6 +6,7 @@ import {
   Layers,
   Pin,
   Printer,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
@@ -29,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { StudentStatementDialog } from './StudentStatementDialog';
+import { StudentPassbookDialog } from './StudentPassbookDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 const CLASS_ORDER = Object.fromEntries(CLASSES.map((c, i) => [c, i]));
@@ -79,6 +81,7 @@ const applySortFn = (
 
 export const StudentSummaryTab = ({ summaries }: Props) => {
   const [statementStudentId, setStatementStudentId] = useState<string | null>(null);
+  const [passbookStudentId, setPassbookStudentId] = useState<string | null>(null);
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<SavingsSummaryViewMode>('table');
   const [sortBy, setSortBy] = useState<SavingsSummarySortBy>('balance');
@@ -368,7 +371,15 @@ tr:nth-child(even){background:#f8fafc}
                         <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="sm" />
                         <span className="font-bold text-slate-900">{s.full_name}</span>
                       </div>
-                      <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`} className={cn('mt-2')}>ดูรายละเอียด</Button>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`}>
+                          ดู Statement
+                        </Button>
+                        <Button variant="outline" size="sm" className="border-amber-300 text-amber-800 hover:bg-amber-50" disabled={!s.student_id} onClick={() => setPassbookStudentId(s.student_id)} aria-label={`พิมพ์สมุดคู่ฝาก ${s.full_name ?? 'นักเรียน'}`}>
+                          <BookOpen className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                          สมุดคู่ฝาก A4
+                        </Button>
+                      </div>
                     </td>
                     <td className="p-3 text-center">
                       <Badge variant="outline" className="text-xs font-semibold">
@@ -438,7 +449,14 @@ tr:nth-child(even){background:#f8fafc}
                     <span>ฝาก {Number(s.deposit_count ?? 0)} ครั้ง</span>
                     <span>ถอน {Number(s.withdraw_count ?? 0)} ครั้ง</span>
                   </div>
-                  <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`}>ดูรายละเอียด</Button>
+                  <div className="w-full flex items-center gap-1 mt-1">
+                    <Button variant="outline" size="sm" className="flex-1 text-[11px] h-7 px-1" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายงาน Statement ${s.full_name ?? 'นักเรียน'}`}>
+                      Statement
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1 text-[11px] h-7 px-1 border-amber-300 text-amber-800 hover:bg-amber-50" disabled={!s.student_id} onClick={() => setPassbookStudentId(s.student_id)} aria-label={`พิมพ์สมุดคู่ฝาก ${s.full_name ?? 'นักเรียน'}`}>
+                      สมุดคู่ฝาก
+                    </Button>
+                  </div>
                 </div>
               );
             })}
@@ -488,7 +506,15 @@ tr:nth-child(even){background:#f8fafc}
                               <PersonAvatar name={s.full_name ?? '?'} photoUrl={s.photo_url} size="xs" />
                               <span className="font-semibold text-slate-900 text-xs">{s.full_name}</span>
                             </div>
-                            <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`} className={cn('mt-2')}>ดูรายละเอียด</Button>
+                            <div className="flex items-center gap-1.5 mt-2">
+                              <Button variant="outline" size="sm" disabled={!s.student_id} onClick={() => setStatementStudentId(s.student_id)} aria-label={`ดูรายละเอียด ${s.full_name ?? 'นักเรียน'}`}>
+                                ดู Statement
+                              </Button>
+                              <Button variant="outline" size="sm" className="border-amber-300 text-amber-800 hover:bg-amber-50" disabled={!s.student_id} onClick={() => setPassbookStudentId(s.student_id)} aria-label={`พิมพ์สมุดคู่ฝาก ${s.full_name ?? 'นักเรียน'}`}>
+                                <BookOpen className="w-3.5 h-3.5 mr-1 text-amber-600" />
+                                สมุดคู่ฝาก A4
+                              </Button>
+                            </div>
                           </td>
                           <td className="p-2.5 text-right text-xs tabular-nums text-emerald-700 font-semibold">
                             {Number(s.deposit_count ?? 0).toLocaleString('th-TH')}
@@ -513,6 +539,7 @@ tr:nth-child(even){background:#f8fafc}
         )}
       </div>
       {statementStudentId && <StudentStatementDialog key={statementStudentId} studentId={statementStudentId} open onOpenChange={open => { if (!open) setStatementStudentId(null); }} />}
+      {passbookStudentId && <StudentPassbookDialog key={passbookStudentId} studentId={passbookStudentId} open onOpenChange={open => { if (!open) setPassbookStudentId(null); }} />}
     </div>
   );
 };

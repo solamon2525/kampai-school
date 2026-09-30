@@ -13,12 +13,14 @@ import {
   UserCheck,
   LayoutGrid,
   RefreshCw,
+  Coins,
 } from 'lucide-react';
 import { QuickStudentPicker } from '@/components/admin/waste-bank/QuickStudentPicker';
 import { cn } from '@/lib/utils';
 import { BackupsTabContent } from './BackupsTabContent';
 import { TeacherSummaryTab } from './TeacherSummaryTab';
 import { StudentSummaryTab } from './StudentSummaryTab';
+import { ClassroomBatchDepositTab } from './ClassroomBatchDepositTab';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -80,7 +82,7 @@ interface DepositConfirmation {
   transactionType: SavingsTransactionType;
 }
 
-type ActiveTab = 'record' | 'summary' | 'history' | 'backups' | 'teachers';
+type ActiveTab = 'record' | 'batch' | 'summary' | 'history' | 'backups' | 'teachers';
 
 const fmtBaht = (n: number | null | undefined) => {
   if (n == null) return '—';
@@ -420,6 +422,13 @@ export const SavingsBankManagement = () => {
           บันทึกธุรกรรม
         </PillTab>
         <PillTab
+          active={activeTab === 'batch'}
+          onClick={() => setActiveTab('batch')}
+          icon={<Coins className="w-4 h-4" />}
+        >
+          บันทึกประจำชั้น
+        </PillTab>
+        <PillTab
           active={activeTab === 'summary'}
           onClick={() => setActiveTab('summary')}
           icon={<Users className="w-4 h-4" />}
@@ -717,6 +726,9 @@ export const SavingsBankManagement = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ─── Tab Batch: Classroom Batch Deposit ────────────────────────── */}
+      {activeTab === 'batch' && <ClassroomBatchDepositTab onSuccess={refreshAll} />}
 
       {/* ─── Tab 2: Summary ────────────────────────────────────────────── */}
       {activeTab === 'summary' && <StudentSummaryTab summaries={summaries} />}

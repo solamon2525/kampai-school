@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import QRCode from 'react-qr-code';
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles, QrCode } from 'lucide-react';
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles, QrCode, PiggyBank } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { cn } from '@/lib/utils';
-import { savingsParentService, savingsSummaryService } from '@/services';
+import { savingsParentService, savingsSummaryService, savingsGoalsService, type SavingsGoal } from '@/services';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { SavingsGoalCard } from '@/components/savings/SavingsGoalCard';
+import { SavingsGoalDialog } from '@/components/savings/SavingsGoalDialog';
 
 interface Props {
   studentId: string;
@@ -41,6 +43,19 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
   });
   const summary = query.data?.summary;
   const transactions = query.data?.transactions ?? [];
+
+  const [goalDialogOpen, setGoalDialogOpen] = useState(false);
+  const goalsQuery = useQuery({
+    queryKey: ['savings-goals', studentId],
+    queryFn: async () => {
+      const { data, error } = await savingsGoalsService.getByStudentId(studentId);
+      if (error) throw error;
+      return (data ?? []) as SavingsGoal[];
+    },
+    enabled: Boolean(studentId),
+  });
+  const goals = goalsQuery.data ?? [];
+
   if (query.isPending) return <p role="status">กำลังโหลดข้อมูลธนาคารพอเพียง...</p>;
   if (query.isError) return <div role="alert" className="space-y-2"><p>โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบสิทธิ์และลองใหม่</p><Button onClick={() => void query.refetch()}>ลองใหม่</Button></div>;
 
@@ -138,6 +153,54 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* ─── กระปุกออมเป้าหมายของลูก ─────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <PiggyBank className="w-5 h-5 text-amber-500" />
+            <h3 className="font-extrabold text-foreground text-base">
+              กระปุกออมเป้าหมายของลูก "ฝันที่เป็นจริง"
+            </h3>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs font-bold border-amber-300 text-amber-800 hover:bg-amber-500/10"
+            onClick={() => setGoalDialogOpen(true)}
+          >
+            + ตั้งเป้าหมายให้ลูก
+          </Button>
+        </div>
+
+        {goals.length === 0 ? (
+          <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-1">
+            <p className="text-xs font-bold text-foreground">ยังไม่มีเป้าหมายการออม</p>
+            <p className="text-xs text-muted-foreground">
+              ร่วมตั้งเป้าหมายกับลูก เช่น ซื้ออุปกรณ์การเรียน หรือของขวัญวันแม่ เพื่อสร้างแรงบันดาลใจในการออม
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {goals.map((g) => (
+              <SavingsGoalCard
+                key={g.id}
+                goal={g}
+                currentBalance={balance}
+                readOnly={false}
+                onStatusChange={async (goalId, st) => {
+                  await savingsGoalsService.updateStatus(goalId, st);
+                  goalsQuery.refetch();
+                }}
+                onDelete={async (goalId) => {
+                  await savingsGoalsService.delete(goalId);
+                  goalsQuery.refetch();
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ─── Tabs (pill) ────────────────────────────────────────────── */}
@@ -260,6 +323,14 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
           )}
         </div>
       )}
+
+      {/* Dialog for adding new goal */}
+      <SavingsGoalDialog
+        open={goalDialogOpen}
+        onOpenChange={setGoalDialogOpen}
+        studentId={studentId}
+        onGoalCreated={() => void goalsQuery.refetch()}
+      />
     </div>
   );
 };
