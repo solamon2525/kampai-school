@@ -10,12 +10,14 @@ interface PrintableOMRSheetProps {
   examSet: ExamSetRow;
   schoolName?: string;
   totalQuestions?: number;
+  version?: 'A' | 'B';
 }
 
 export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
   examSet,
   schoolName = 'โรงเรียนบ้านคำไผ่',
   totalQuestions,
+  version = 'A',
 }) => {
   const qCount =
     totalQuestions ||
@@ -48,9 +50,19 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
       <div className="absolute bottom-4 right-4 w-6 h-6 bg-black" aria-hidden="true" />
 
       {/* ── Header ── */}
-      <div className="text-center border-b-2 border-foreground/80 pb-3 mb-4">
+      <div className="text-center border-b-2 border-foreground/80 pb-3 mb-4 relative">
+        {/* Form Version Stamp for Camera Detection */}
+        <div className="absolute top-0 right-8 border-2 border-foreground px-2 py-0.5 rounded font-black text-sm print:border-black">
+          ฉบับ {version}
+        </div>
+
         <h1 className="text-lg font-bold tracking-tight">{schoolName}</h1>
-        <h2 className="text-base font-semibold mt-0.5">กระดาษคำตอบ OMR (มาตรฐาน)</h2>
+        <h2 className="text-base font-semibold mt-0.5 flex items-center justify-center gap-2">
+          <span>กระดาษคำตอบ OMR (มาตรฐาน)</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-bold print:border print:border-black print:text-black">
+            ฉบับ {version} (Form {version})
+          </span>
+        </h2>
         <div className="text-xs text-muted-foreground print:text-gray-600 mt-1">
           {examSet.title} · {examSet.subject} ({examSet.grade}) · จำนวน {qCount} ข้อ
         </div>

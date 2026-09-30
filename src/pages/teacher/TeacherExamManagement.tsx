@@ -9,7 +9,7 @@ import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -19,6 +19,10 @@ import { omrScannerService, type OMRGradingSummary, type QuestionToGrade } from 
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { PrintableExamPaper } from '@/components/exam/PrintableExamPaper';
 import { PrintableOMRSheet } from '@/components/exam/PrintableOMRSheet';
+import { ExamAnswerKeyMatrix } from '@/components/exam/ExamAnswerKeyMatrix';
+import { ExamItemAnalysisView } from '@/components/exam/ExamItemAnalysisView';
+import { downloadExamDocx } from '@/lib/docx/examDocxGenerator';
+import { exportExamResultsToExcel } from '@/lib/excel/examExcelGenerator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -197,6 +201,11 @@ export default function TeacherExamManagement() {
   // Print Preview state
   const [previewExamSet, setPreviewExamSet] = useState<ExamSetRow | null>(null);
   const [printMode, setPrintMode] = useState<'paper' | 'omr'>('paper');
+  const [printVersion, setPrintVersion] = useState<'A' | 'B' | 'key'>('A');
+
+  // Results & Item Analysis view state
+  const [resultsViewMode, setResultsViewMode] = useState<'list' | 'analysis'>('list');
+  const [selectedAnalysisSetId, setSelectedAnalysisSetId] = useState<string>('');
 
   // OMR Scanner state
   const [scannerExamSetId, setScannerExamSetId] = useState<string>('');
@@ -845,6 +854,20 @@ export default function TeacherExamManagement() {
       วันที่สอบ: new Date(s.created_at).toLocaleString('th-TH'),
     }));
     downloadCSV(rows, `ผลการสอบ_โรงเรียนบ้านคำไผ่_${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const handleExportPpor5 = () => {
+    const targetSet = examSets.find((s) => s.id === selectedAnalysisSetId) || (examSets.length ? examSets[0] : null);
+    if (!targetSet) {
+      toast({ title: 'ไม่พบชุดข้อสอบ', description: 'กรุณาเลือกหรือสร้างชุดข้อสอบก่อนส่งออก', variant: 'destructive' });
+      return;
+    }
+    const targetSubmissions = selectedAnalysisSetId
+      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
+      : submissions;
+
+    exportExamResultsToExcel(targetSet, targetSubmissions);
+    toast({ title: 'ส่งออกสำเร็จ', description: 'ดาวน์โหลดไฟล์แบบบันทึกคะแนน ปพ.5 (.xlsx) เรียบร้อย' });
   };
 
   return (
@@ -1904,6 +1927,32 @@ export default function TeacherExamManagement() {
                           <Button
                             variant="outline"
                             size="sm"
+                            className="h-8 text-[11px] gap-1 text-blue-700 hover:text-blue-800 hover:bg-blue-500/10 hover:border-blue-300 shadow-xs"
+                            onClick={() => {
+                              setSelectedAnalysisSetId(set.id);
+                              setResultsViewMode('analysis');
+                              setActiveTab('results');
+                            }}
+                          >
+                            <BarChart3 className="h-3 w-3 text-blue-600" />
+                            วิเคราะห์ข้อสอบ
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-[11px] gap-1 text-slate-700 hover:bg-muted/60 shadow-xs"
+                            onClick={() => downloadExamDocx(set, { version: 'A' })}
+                            title="ดาวน์โหลดชุดข้อสอบเป็นไฟล์ Microsoft Word"
+                          >
+                            <FileText className="h-3 w-3 text-blue-600" />
+                            Word (.docx)
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="h-8 text-[11px] gap-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10 hover:border-emerald-300 shadow-xs"
                             onClick={() => {
                               setScannerExamSetId(set.id);
@@ -1949,18 +1998,35 @@ export default function TeacherExamManagement() {
 
                 <div className="flex items-center gap-2">
                   <Button
-                    variant={printMode === 'paper' ? 'default' : 'outline'}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50"
+                    disabled={!previewExamSet}
+                    onClick={() => previewExamSet && downloadExamDocx(previewExamSet, { version: printVersion === 'B' ? 'B' : 'A' })}
+                    title="ดาวน์โหลดเป็นไฟล์ Microsoft Word (.docx) พร้อมหัวกระดาษราชการ"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    ส่งออก Word (.docx)
+                  </Button>
+                  <Button
+                    variant={printMode === 'paper' && printVersion !== 'key' ? 'default' : 'outline'}
                     size="sm"
                     className="h-8 text-xs"
-                    onClick={() => setPrintMode('paper')}
+                    onClick={() => {
+                      setPrintMode('paper');
+                      if (printVersion === 'key') setPrintVersion('A');
+                    }}
                   >
                     ข้อสอบกระดาษ
                   </Button>
                   <Button
-                    variant={printMode === 'omr' ? 'default' : 'outline'}
+                    variant={printMode === 'omr' && printVersion !== 'key' ? 'default' : 'outline'}
                     size="sm"
                     className="h-8 text-xs"
-                    onClick={() => setPrintMode('omr')}
+                    onClick={() => {
+                      setPrintMode('omr');
+                      if (printVersion === 'key') setPrintVersion('A');
+                    }}
                   >
                     กระดาษคำตอบ OMR
                   </Button>
@@ -1976,35 +2042,71 @@ export default function TeacherExamManagement() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Label className="text-xs whitespace-nowrap">เลือกชุดข้อสอบที่จะพิมพ์:</Label>
-                  <Select
-                    value={previewExamSet?.id || ''}
-                    onValueChange={(val) => {
-                      const found = examSets.find((s) => s.id === val);
-                      if (found) setPreviewExamSet(found);
-                    }}
-                  >
-                    <SelectTrigger className="w-72 h-8 text-xs">
-                      <SelectValue placeholder="— เลือกชุดข้อสอบ —" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {examSets.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.title} ({s.subject} · {s.grade})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/30 p-3 rounded-lg border border-border">
+                  <div className="flex items-center gap-2.5">
+                    <Label className="text-xs whitespace-nowrap font-medium">ชุดข้อสอบ:</Label>
+                    <Select
+                      value={previewExamSet?.id || ''}
+                      onValueChange={(val) => {
+                        const found = examSets.find((s) => s.id === val);
+                        if (found) setPreviewExamSet(found);
+                      }}
+                    >
+                      <SelectTrigger className="w-64 sm:w-72 h-8 text-xs">
+                        <SelectValue placeholder="— เลือกชุดข้อสอบ —" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {examSets.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.title} ({s.subject} · {s.grade})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Version & Key Matrix Selector */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-semibold text-muted-foreground mr-1">ฉบับ:</span>
+                    <Button
+                      variant={printVersion === 'A' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs px-2.5"
+                      onClick={() => setPrintVersion('A')}
+                    >
+                      ฉบับ A
+                    </Button>
+                    <Button
+                      variant={printVersion === 'B' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs px-2.5"
+                      onClick={() => setPrintVersion('B')}
+                      title="สลับข้อและสลับตัวเลือก ก ข ค ง อัตโนมัติ ป้องกันการลอก"
+                    >
+                      ฉบับ B (สลับข้อ)
+                    </Button>
+                    <Button
+                      variant={printVersion === 'key' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs px-2.5 gap-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                      onClick={() => setPrintVersion('key')}
+                      title="แสดงตารางเทียบเฉลยคู่ขนาน Form A vs Form B"
+                    >
+                      <Split className="h-3 w-3" />
+                      เทียบเฉลย A/B
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Print Preview Container */}
                 <div className="border border-border/80 rounded-xl p-6 bg-card min-h-[500px] shadow-inner overflow-x-auto">
                   {previewExamSet ? (
-                    printMode === 'paper' ? (
-                      <PrintableExamPaper examSet={previewExamSet} />
+                    printVersion === 'key' ? (
+                      <ExamAnswerKeyMatrix examSet={previewExamSet} />
+                    ) : printMode === 'paper' ? (
+                      <PrintableExamPaper examSet={previewExamSet} version={printVersion} />
                     ) : (
-                      <PrintableOMRSheet examSet={previewExamSet} />
+                      <PrintableOMRSheet examSet={previewExamSet} version={printVersion} />
                     )
                   ) : (
                     <div className="text-center py-24 text-muted-foreground text-xs">
@@ -2293,86 +2395,185 @@ export default function TeacherExamManagement() {
           ════════════════════════════════════════════════════════════════ */}
           <TabsContent value="results" className="space-y-6 mt-6">
             <Card className="border-border">
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <CardTitle className="text-base flex items-center gap-2">
                     <BarChart3 className="h-4 w-4 text-primary" />
-                    ประวัติผลการสอบของนักเรียน
+                    ประวัติผลการสอบและการวิเคราะห์คุณภาพ
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    รวมผลการสอบทั้งจากระบบออนไลน์และจากการตรวจ OMR ด้วยกล้องมือถือ
+                    รวมผลการสอบทั้งจากระบบออนไลน์ ตรวจ OMR และการวิเคราะห์คุณภาพข้อสอบรายข้อ (Item Analysis)
                   </CardDescription>
                 </div>
 
-                <Button
-                  onClick={exportCSV}
-                  disabled={!submissions.length}
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs gap-1.5"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  ส่งออก Excel / CSV
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    onClick={handleExportPpor5}
+                    disabled={!submissions.length}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    title="ส่งออกผลคะแนนเป็นแบบบันทึกคะแนน ปพ.5 (.xlsx) พร้อมวิเคราะห์ข้อสอบ"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+                    ส่งออก ปพ.5 (.xlsx)
+                  </Button>
+                  <Button
+                    onClick={exportCSV}
+                    disabled={!submissions.length}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-1.5"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    ส่งออก CSV
+                  </Button>
+                </div>
               </CardHeader>
 
-              <CardContent>
-                {loadingSubmissions ? (
-                  <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดผลสอบ...</div>
-                ) : submissions.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground text-xs">
-                    ยังไม่มีข้อมูลผลการสอบในระบบ
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-muted/40 border-b border-border text-muted-foreground font-semibold">
-                        <tr>
-                          <th className="py-2.5 px-3">#</th>
-                          <th className="py-2.5 px-3">นักเรียน</th>
-                          <th className="py-2.5 px-3">ชั้น / เลขที่</th>
-                          <th className="py-2.5 px-3">คะแนน</th>
-                          <th className="py-2.5 px-3">ร้อยละ</th>
-                          <th className="py-2.5 px-3">ผลสอบ</th>
-                          <th className="py-2.5 px-3">ช่องทาง</th>
-                          <th className="py-2.5 px-3">วันที่สอบ</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/60">
-                        {submissions.map((sub, idx) => (
-                          <tr key={sub.id} className="hover:bg-muted/20">
-                            <td className="py-2 px-3 text-muted-foreground">{idx + 1}</td>
-                            <td className="py-2 px-3 font-medium flex items-center gap-2">
-                              <PersonAvatar name={sub.student_name} photoUrl={null} className="h-6 w-6 text-[10px]" />
-                              <span>{sub.student_name}</span>
-                            </td>
-                            <td className="py-2 px-3 text-muted-foreground">
-                              {sub.student_class} (เลขที่ {sub.student_no ?? '-'})
-                            </td>
-                            <td className="py-2 px-3 font-semibold">
-                              {sub.score}/{sub.max_score}
-                            </td>
-                            <td className="py-2 px-3">{sub.percentage}%</td>
-                            <td className="py-2 px-3">
-                              {sub.passed ? (
-                                <Badge className="bg-emerald-600/10 text-emerald-700 border-emerald-300 text-[10px]">ผ่าน</Badge>
-                              ) : (
-                                <Badge variant="destructive" className="text-[10px]">ไม่ผ่าน</Badge>
-                              )}
-                            </td>
-                            <td className="py-2 px-3">
-                              <Badge variant="outline" className="text-[10px]">
-                                {sub.submission_mode === 'online' ? 'ออนไลน์' : 'สแกน OMR'}
-                              </Badge>
-                            </td>
-                            <td className="py-2 px-3 text-muted-foreground text-[11px]">
-                              {new Date(sub.created_at).toLocaleDateString('th-TH')}
-                            </td>
-                          </tr>
+              <CardContent className="space-y-4">
+                {/* View Mode & Exam Set Filter Toolbar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/30 p-3 rounded-lg border border-border">
+                  <div className="flex items-center gap-2.5">
+                    <Label className="text-xs whitespace-nowrap font-medium">ชุดข้อสอบ:</Label>
+                    <Select
+                      value={selectedAnalysisSetId || 'all'}
+                      onValueChange={(val) => setSelectedAnalysisSetId(val === 'all' ? '' : val)}
+                    >
+                      <SelectTrigger className="w-64 sm:w-72 h-8 text-xs">
+                        <SelectValue placeholder="— ทุกชุดข้อสอบ —" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">— ทุกชุดข้อสอบ —</SelectItem>
+                        {examSets.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.title} ({s.subject} · {s.grade})
+                          </SelectItem>
                         ))}
-                      </tbody>
-                    </table>
+                      </SelectContent>
+                    </Select>
                   </div>
+
+                  {/* Sub-view switcher: List vs Analysis */}
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant={resultsViewMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-8 text-xs gap-1.5"
+                      onClick={() => setResultsViewMode('list')}
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      ตารางคะแนนนักเรียน
+                    </Button>
+                    <Button
+                      variant={resultsViewMode === 'analysis' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-8 text-xs gap-1.5"
+                      onClick={() => setResultsViewMode('analysis')}
+                    >
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      วิเคราะห์ข้อสอบ (Item Analysis)
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Sub-view Content: Item Analysis Dashboard */}
+                {resultsViewMode === 'analysis' ? (
+                  (() => {
+                    const targetSet =
+                      examSets.find((s) => s.id === selectedAnalysisSetId) ||
+                      (examSets.length > 0 ? examSets[0] : null);
+
+                    if (!targetSet) {
+                      return (
+                        <div className="text-center py-20 text-muted-foreground text-xs">
+                          ยังไม่มีชุดข้อสอบในระบบ กรุณาสร้างชุดข้อสอบก่อนเพื่อดูการวิเคราะห์คุณภาพ
+                        </div>
+                      );
+                    }
+
+                    const targetSubmissions = submissions.filter((s) => s.exam_set_id === targetSet.id);
+
+                    return (
+                      <ExamItemAnalysisView
+                        examSet={targetSet}
+                        submissions={targetSubmissions}
+                        onBack={() => setResultsViewMode('list')}
+                      />
+                    );
+                  })()
+                ) : (
+                  (() => {
+                    const filteredSubmissions = selectedAnalysisSetId
+                      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
+                      : submissions;
+
+                    if (loadingSubmissions) {
+                      return <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดผลสอบ...</div>;
+                    }
+
+                    if (filteredSubmissions.length === 0) {
+                      return (
+                        <div className="text-center py-12 text-muted-foreground text-xs">
+                          {selectedAnalysisSetId
+                            ? 'ยังไม่มีข้อมูลผลการสอบสำหรับชุดข้อสอบนี้'
+                            : 'ยังไม่มีข้อมูลผลการสอบในระบบ'}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-muted/40 border-b border-border text-muted-foreground font-semibold">
+                            <tr>
+                              <th className="py-2.5 px-3">#</th>
+                              <th className="py-2.5 px-3">นักเรียน</th>
+                              <th className="py-2.5 px-3">ชั้น / เลขที่</th>
+                              <th className="py-2.5 px-3">คะแนน</th>
+                              <th className="py-2.5 px-3">ร้อยละ</th>
+                              <th className="py-2.5 px-3">ผลสอบ</th>
+                              <th className="py-2.5 px-3">ช่องทาง</th>
+                              <th className="py-2.5 px-3">วันที่สอบ</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/60">
+                            {filteredSubmissions.map((sub, idx) => (
+                              <tr key={sub.id} className="hover:bg-muted/20">
+                                <td className="py-2 px-3 text-muted-foreground">{idx + 1}</td>
+                                <td className="py-2 px-3 font-medium flex items-center gap-2">
+                                  <PersonAvatar name={sub.student_name} photoUrl={null} className="h-6 w-6 text-[10px]" />
+                                  <span>{sub.student_name}</span>
+                                </td>
+                                <td className="py-2 px-3 text-muted-foreground">
+                                  {sub.student_class} (เลขที่ {sub.student_no ?? '-'})
+                                </td>
+                                <td className="py-2 px-3 font-semibold">
+                                  {sub.score}/{sub.max_score}
+                                </td>
+                                <td className="py-2 px-3">{sub.percentage}%</td>
+                                <td className="py-2 px-3">
+                                  {sub.passed ? (
+                                    <Badge className="bg-emerald-600/10 text-emerald-700 border-emerald-300 text-[10px]">ผ่าน</Badge>
+                                  ) : (
+                                    <Badge variant="destructive" className="text-[10px]">ไม่ผ่าน</Badge>
+                                  )}
+                                </td>
+                                <td className="py-2 px-3">
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {sub.submission_mode === 'online' ? 'ออนไลน์' : 'สแกน OMR'}
+                                  </Badge>
+                                </td>
+                                <td className="py-2 px-3 text-muted-foreground text-[11px]">
+                                  {new Date(sub.created_at).toLocaleDateString('th-TH')}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()
                 )}
               </CardContent>
             </Card>

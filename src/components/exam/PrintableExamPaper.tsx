@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import type { ExamSetRow } from '@/services/exam.service';
+import { generateExamVersion } from '@/lib/exam/multiVersion';
 
 interface MatchingPairItem {
   left: string;
@@ -25,25 +26,38 @@ interface PrintableExamPaperProps {
   examSet: ExamSetRow;
   schoolName?: string;
   termInfo?: string;
+  version?: 'A' | 'B';
 }
 
 export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
   examSet,
   schoolName = 'โรงเรียนบ้านคำไผ่',
   termInfo = 'สำนักงานเขตพื้นที่การศึกษาประถมศึกษายโสธร เขต 1',
+  version = 'A',
 }) => {
-  const questions: ExamPaperQuestion[] = Array.isArray(examSet.questions)
+  const rawQuestions: ExamPaperQuestion[] = Array.isArray(examSet.questions)
     ? (examSet.questions as ExamPaperQuestion[])
     : [];
+
+  const versionResult = generateExamVersion(rawQuestions, version, examSet.id || examSet.title);
+  const questions = versionResult.questions;
 
   return (
     <div className="printable-exam-paper bg-background text-foreground font-sans p-6 max-w-4xl mx-auto print:p-0 print:max-w-none print:bg-white print:text-black">
       {/* Header */}
-      <header className="border-b-2 border-foreground/80 pb-4 mb-5 text-center">
+      <header className="border-b-2 border-foreground/80 pb-4 mb-5 text-center relative">
+        {/* Form Version Stamp in Print */}
+        <div className="absolute top-0 right-0 border-2 border-foreground/80 px-2.5 py-1 rounded text-xs font-bold print:border-black">
+          ฉบับ {version} (Form {version})
+        </div>
+
         <h1 className="text-xl font-bold tracking-tight">{schoolName}</h1>
         <p className="text-xs text-muted-foreground print:text-gray-600">{termInfo}</p>
-        <div className="mt-2 text-base font-semibold">
-          {examSet.title}
+        <div className="mt-2 text-base font-semibold flex items-center justify-center gap-2">
+          <span>{examSet.title}</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-bold print:bg-transparent print:text-black print:border print:border-black">
+            [ฉบับ {version}]
+          </span>
         </div>
         <div className="flex flex-wrap justify-center gap-4 text-xs font-medium mt-1">
           <span><strong>กลุ่มสาระการเรียนรู้:</strong> {examSet.subject}</span>
