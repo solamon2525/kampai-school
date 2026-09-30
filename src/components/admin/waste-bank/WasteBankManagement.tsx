@@ -1,6 +1,26 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Trash2, Plus, Edit2, Save, X, Package, Users, List, Gift, ClipboardCheck, QrCode, LayoutGrid, ChevronDown, ChevronUp, Presentation } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  Edit2,
+  Save,
+  X,
+  Package,
+  Users,
+  List,
+  Gift,
+  ClipboardCheck,
+  QrCode,
+  LayoutGrid,
+  ChevronDown,
+  ChevronUp,
+  Presentation,
+  Trophy,
+  Flame,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,10 +39,16 @@ import {
   wasteCategoriesService,
   wasteTransactionsService,
   wasteSummaryService,
+  wastePromotionsService,
   studentsService,
 } from '@/services';
 import { rewardClaimsService } from '@/services/waste-bank.service';
-import type { WasteCategory, WasteTransaction, WasteStudentSummary } from '@/services/waste-bank.service';
+import type {
+  WasteCategory,
+  WasteTransaction,
+  WasteStudentSummary,
+  WastePromotion,
+} from '@/services/waste-bank.service';
 import { RewardsManagement } from './RewardsManagement';
 import { ClaimsApproval } from './ClaimsApproval';
 import { WasteStudentSummaryTab } from './WasteStudentSummaryTab';
@@ -40,8 +66,12 @@ import {
 } from '@/components/admin/shared/PointsConfirmationDialog';
 import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 import { WasteBankShowcaseManagement } from './WasteBankShowcaseManagement';
+import { WasteClassroomLeague } from './WasteClassroomLeague';
+import { PromotionsManagement } from './PromotionsManagement';
+import { EcoLuckyWheelDialog, type LuckyPrize } from './EcoLuckyWheelDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
+
 
 const ROW_COLORS = [
   { bg: 'bg-blue-50',    border: 'border-blue-300',    text: 'text-blue-700',    badge: 'bg-blue-100 text-blue-700',    dot: 'bg-blue-400'    },
@@ -68,7 +98,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims' | 'showcase';
+type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims' | 'showcase' | 'league' | 'promotions';
 
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -93,6 +123,8 @@ export const WasteBankManagement = () => {
   // ========== Tab 1: บันทึกรายการ ==========
   const [categories, setCategories] = useState<WasteCategory[]>([]);
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
+  const [activePromos, setActivePromos] = useState<WastePromotion[]>([]);
+  const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
@@ -104,6 +136,7 @@ export const WasteBankManagement = () => {
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [loadingStudents, setLoadingStudents] = useState(false);
+
 
   // Expand/collapse rows
   const [expandedRow, setExpandedRow] = useState<number>(0);
@@ -151,14 +184,28 @@ export const WasteBankManagement = () => {
   const updateRow = (i: number, patch: Partial<RecordRow>) =>
     setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
 
+  const activeMultiplier = useMemo(() => {
+    return activePromos.reduce((max, p) => Math.max(max, Number(p.multiplier) || 1), 1);
+  }, [activePromos]);
+
+  const activeBonusPoints = useMemo(() => {
+    return activePromos.reduce((sum, p) => sum + (Number(p.bonus_points) || 0), 0);
+  }, [activePromos]);
+
+  const totalItemsInForm = useMemo(() => {
+    return rows.reduce((sum, r) => sum + (parseInt(r.quantity, 10) || 0), 0);
+  }, [rows]);
+
   const rowsTotalPoints = useMemo(() => {
-    return rows.reduce((sum, r) => {
+    const base = rows.reduce((sum, r) => {
       const c = categories.find((x) => x.id === r.category_id);
       const q = parseInt(r.quantity, 10);
       if (c && q > 0) return sum + q * c.points_per_item;
       return sum;
     }, 0);
-  }, [rows, categories]);
+    if (base <= 0) return 0;
+    return Math.round(base * activeMultiplier) + activeBonusPoints;
+  }, [rows, categories, activeMultiplier, activeBonusPoints]);
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
@@ -174,11 +221,18 @@ export const WasteBankManagement = () => {
   });
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
+  const fetchActivePromos = async () => {
+    const { data } = await wastePromotionsService.getActive();
+    if (data) setActivePromos(data as WastePromotion[]);
+  };
+
   useEffect(() => {
     fetchCategories();
     fetchTransactions();
     fetchSummaries();
+    fetchActivePromos();
   }, []);
+
 
   // Fetch students when class changes
   useEffect(() => {
@@ -271,19 +325,25 @@ export const WasteBankManagement = () => {
       return;
     }
 
-    const payload = valid.map(({ cat, qty }) => ({
+    const promoPrefix = activePromos.length > 0
+      ? `[${activePromos.map((p) => p.badge_text || p.title).join(', ')}] `
+      : '';
+    const finalNotes = form.notes.trim() ? `${promoPrefix}${form.notes.trim()}` : (promoPrefix.trim() || null);
+
+    const payload = valid.map(({ cat, qty }, idx) => ({
       student_name: form.student_name.trim(),
       student_class: form.student_class,
       student_id: selectedStudentId || null,
       category_id: cat.id,
       quantity: qty,
-      points_earned: qty * cat.points_per_item,
+      points_earned: Math.round(qty * cat.points_per_item * activeMultiplier) + (idx === 0 ? activeBonusPoints : 0),
       transaction_date: form.transaction_date,
-      notes: form.notes.trim() || null,
+      notes: finalNotes,
       recorded_by: recorder.name || null,
       recorded_by_staff_id: recorder.staffId,
       recorded_by_administrator_id: recorder.administratorId,
     }));
+
 
     const student = studentOptions.find((option) => option.id === selectedStudentId);
     const { data: summaryBefore } = selectedStudentId
@@ -426,6 +486,8 @@ export const WasteBankManagement = () => {
   const tabList: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'record', label: 'บันทึกรายการ', icon: <Package className="w-4 h-4" /> },
     { id: 'summary', label: 'สรุปยอดสะสม', icon: <Users className="w-4 h-4" /> },
+    { id: 'league', label: 'ศึกลีกห้องเรียน', icon: <Trophy className="w-4 h-4 text-amber-500" /> },
+    { id: 'promotions', label: 'แคมเปญ & โปรโมชั่น', icon: <Flame className="w-4 h-4 text-rose-500" /> },
     { id: 'categories', label: 'ประเภทขยะ', icon: <List className="w-4 h-4" /> },
     { id: 'rewards', label: 'รางวัล', icon: <Gift className="w-4 h-4" /> },
     { id: 'showcase', label: 'ผลการดำเนินงาน', icon: <Presentation className="w-4 h-4" /> },
@@ -444,6 +506,7 @@ export const WasteBankManagement = () => {
       ),
     },
   ];
+
 
   return (
     <div className="p-6">
@@ -477,6 +540,32 @@ export const WasteBankManagement = () => {
       {/* ===== TAB 1: บันทึกรายการ ===== */}
       {activeTab === 'record' && (
         <div className="space-y-6">
+          {/* Active Campaigns Banner */}
+          {activePromos.length > 0 && (
+            <div className="p-3.5 bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-primary/10 border-2 border-amber-400/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <Flame className="w-5 h-5 text-amber-500 animate-bounce flex-shrink-0" />
+                <div>
+                  <div className="font-bold text-sm text-foreground flex flex-wrap items-center gap-2">
+                    <span>แคมเปญพิเศษกำลังเปิดอยู่:</span>
+                    {activePromos.map((p) => (
+                      <Badge key={p.id} className="bg-amber-500 text-white font-bold text-xs border-none">
+                        {p.badge_text || p.title}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {activePromos[0]?.description || 'ระบบจะคำนวณตัวคูณแต้มและโบนัสสะสมให้อัตโนมัติ'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-lg self-start sm:self-auto flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-amber-600" />
+                <span>ตัวคูณปัจจุบัน: x{activeMultiplier} {activeBonusPoints > 0 ? `+${activeBonusPoints} แต้ม` : ''}</span>
+              </div>
+            </div>
+          )}
+
           {/* Form */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
@@ -774,7 +863,20 @@ export const WasteBankManagement = () => {
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  {totalItemsInForm >= 20 && selectedStudentId && (
+                    <Button
+                      type="button"
+                      onClick={() => setShowLuckyWheel(true)}
+                      variant="outline"
+                      className="bg-amber-500/10 border-amber-400 text-amber-900 font-bold hover:bg-amber-500/20 text-xs h-10 flex items-center gap-2 shadow-sm"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-500 animate-bounce" />
+                      <span>🎡 ได้สิทธิ์หมุนวงล้อเสี่ยงโชค! (ส่งครบ {totalItemsInForm} ชิ้น)</span>
+                    </Button>
+                  )}
+                </div>
                 <Button onClick={handleSubmitTransaction} disabled={isSubmitting} className="min-w-[140px]">
                   {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกรายการ'}
                 </Button>
@@ -1022,6 +1124,12 @@ export const WasteBankManagement = () => {
       {activeTab === 'claims' && <ClaimsApproval onAction={fetchPendingCount} />}
       {activeTab === 'showcase' && <WasteBankShowcaseManagement />}
 
+      {/* ===== TAB 6: ศึกลีกห้องเรียน ===== */}
+      {activeTab === 'league' && <WasteClassroomLeague />}
+
+      {/* ===== TAB 7: แคมเปญ & โปรโมชั่น ===== */}
+      {activeTab === 'promotions' && <PromotionsManagement />}
+
       <PointsConfirmationDialog
         confirmation={pointsConfirmation}
         title="ฝากขยะสำเร็จ"
@@ -1037,6 +1145,25 @@ export const WasteBankManagement = () => {
           open={showQRScanner}
           onClose={() => setShowQRScanner(false)}
           onScanned={handleQRScanned}
+        />
+      )}
+
+      {/* Eco Lucky Wheel Dialog */}
+      {showLuckyWheel && selectedStudentId && (
+        <EcoLuckyWheelDialog
+          isOpen={showLuckyWheel}
+          onClose={() => setShowLuckyWheel(false)}
+          student={{
+            id: selectedStudentId,
+            name: form.student_name,
+            class: form.student_class,
+            photo_url: studentOptions.find((s) => s.id === selectedStudentId)?.photo_url ?? null,
+          }}
+          recordedBy={recorder.name || null}
+          onSpinComplete={() => {
+            fetchSummaries();
+            fetchTransactions();
+          }}
         />
       )}
     </div>

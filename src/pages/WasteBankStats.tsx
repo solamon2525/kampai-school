@@ -24,6 +24,8 @@ import {
   type WasteCategory,
   type WasteStudentSummary,
 } from '@/services';
+import { WasteClassroomLeague } from '@/components/admin/waste-bank/WasteClassroomLeague';
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -518,37 +520,8 @@ const WasteBankStats = () => {
             </TabsContent>
 
             {/* ── Tab 2: Classes ────────────────────────────────────── */}
-            <TabsContent value="classes" className="mt-0">
-              {isLoading ? (
-                <SkeletonList />
-              ) : classRanking.length === 0 ? (
-                <EmptyState message="ยังไม่มีข้อมูลห้องเรียน" />
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
-                  {classRanking.map((c, i) => {
-                    const pct = (c.total / maxClassTotal) * 100;
-                    return (
-                      <Card key={c.name} className="p-4 text-center shadow-sm">
-                        <div className="text-2xl mb-1">{RANK_ICONS[i] ?? '🎖️'}</div>
-                        <p className="font-bold text-foreground text-sm mb-1">{c.name}</p>
-                        <p className="text-2xl font-extrabold text-green-700">
-                          {c.total.toLocaleString()}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">ชิ้น</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {c.students} คน · {c.tx} ครั้ง
-                        </p>
-                        <div className="h-1 rounded-full bg-muted overflow-hidden mt-2">
-                          <div
-                            className="h-full bg-green-500 rounded-full transition-all"
-                            style={{ width: `${pct.toFixed(1)}%` }}
-                          />
-                        </div>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
+            <TabsContent value="classes" className="mt-0 max-w-4xl mx-auto">
+              <WasteClassroomLeague />
             </TabsContent>
 
             {/* ── Tab 3: Stats / 7-day Chart ────────────────────────── */}

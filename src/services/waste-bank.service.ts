@@ -17,6 +17,50 @@ export type WasteCategory = {
   order_position: number | null;
 };
 
+export type WastePromotion = {
+  id: string;
+  title: string;
+  description: string | null;
+  banner_type: string;
+  multiplier: number;
+  bonus_points: number;
+  category_ids: string[] | null;
+  days_of_week: number[] | null;
+  start_time: string | null;
+  end_time: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_active: boolean;
+  badge_text: string | null;
+  order_position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WasteLuckySpin = {
+  id: string;
+  student_id: string;
+  student_name: string;
+  student_class: string | null;
+  transaction_id: string | null;
+  spin_result: string;
+  bonus_points_awarded: number;
+  spun_at: string;
+  recorded_by: string | null;
+};
+
+export type WasteClassroomRanking = {
+  class_name: string;
+  student_count: number;
+  participating_students: number;
+  total_items: number;
+  total_points: number;
+  items_per_student: number;
+  points_per_student: number;
+  rank: number;
+};
+
+
 export type WasteTransaction = {
   id: string;
   student_id: string | null;
@@ -484,3 +528,133 @@ export const termService = {
     return { error: err ?? null };
   },
 };
+
+// ─── Waste Promotions & Campaigns ─────────────────────────────────────────────
+export const wastePromotionsService = {
+  getAll: () =>
+    supabase
+      .from('waste_promotions')
+      .select('*')
+      .order('order_position', { ascending: true })
+      .order('created_at', { ascending: false }),
+
+  getActive: () =>
+    supabase
+      .rpc('get_active_waste_promotions')
+      .returns<WastePromotion[]>(),
+
+  insert: (data: Omit<WastePromotion, 'id' | 'created_at' | 'updated_at'>) =>
+    supabase.from('waste_promotions').insert(data as never),
+
+  update: (id: string, data: Partial<Omit<WastePromotion, 'id' | 'created_at' | 'updated_at'>>) =>
+    supabase
+      .from('waste_promotions')
+      .update({ ...data, updated_at: new Date().toISOString() } as never)
+      .eq('id', id),
+
+  delete: (id: string) =>
+    supabase.from('waste_promotions').delete().eq('id', id),
+
+  toggleActive: (id: string, is_active: boolean) =>
+    supabase
+      .from('waste_promotions')
+      .update({ is_active, updated_at: new Date().toISOString() } as never)
+      .eq('id', id),
+
+  seedDefaultCampaigns: async () => {
+    const defaults = [
+      {
+        title: 'วันศุกร์สีเขียว (Green Friday)',
+        description: 'ทุกวันศุกร์ ส่งขยะรีไซเคิลทุกประเภท รับแต้มสะสมเพิ่มเป็น 2 เท่า (x2)',
+        banner_type: 'green_friday',
+        multiplier: 2.00,
+        bonus_points: 0,
+        days_of_week: [5],
+        start_time: null,
+        end_time: null,
+        is_active: true,
+        badge_text: '🔥 แต้ม x2 ทุกวันศุกร์',
+        order_position: 1,
+      },
+      {
+        title: 'แฮปปี้อาวร์ พักเที่ยงรักษ์โลก (Lunch Break)',
+        description: 'ช่วงพักกลางวัน 12:00 - 12:45 น. นำขวดน้ำหรือกล่องนมมาส่ง รับแต้มโบนัสพิเศษทันที +5 แต้ม',
+        banner_type: 'happy_hour',
+        multiplier: 1.00,
+        bonus_points: 5,
+        days_of_week: [1, 2, 3, 4, 5],
+        start_time: '12:00:00',
+        end_time: '12:45:00',
+        is_active: true,
+        badge_text: '⭐ โบนัส +5 แต้มช่วงพักเที่ยง',
+        order_position: 2,
+      },
+      {
+        title: 'สัปดาห์กล่องนมกู้โลก (Milk Carton Week)',
+        description: 'นำกล่องนมโรงเรียนที่ล้างสะอาดและพับแบนมาส่ง รับแต้มสะสมพิเศษ 3 เท่า (x3)',
+        banner_type: 'target_item',
+        multiplier: 3.00,
+        bonus_points: 0,
+        days_of_week: null,
+        start_time: null,
+        end_time: null,
+        is_active: true,
+        badge_text: '🥛 กล่องนมพับแบนแต้ม x3',
+        order_position: 3,
+      },
+      {
+        title: 'ภารกิจคลีนบ้านส่งโรงเรียน (Home-to-School Quest)',
+        description: 'รวบรวมขยะรีไซเคิลจากบ้านใส่ถุงมาส่งทุกเช้าวันจันทร์ ลุ้นรางวัลพิเศษและถ้วยเกียรติยศห้องเรียน',
+        banner_type: 'home_quest',
+        multiplier: 1.50,
+        bonus_points: 10,
+        days_of_week: [1],
+        start_time: '07:30:00',
+        end_time: '08:30:00',
+        is_active: true,
+        badge_text: '🏡 คลีนบ้านรับโบนัส +10 แต้ม',
+        order_position: 4,
+      },
+    ];
+    return supabase.from('waste_promotions').insert(defaults as never);
+  },
+};
+
+// ─── Waste Lucky Spins (หมุนวงล้อเสี่ยงโชค) ──────────────────────────────────
+export const wasteLuckySpinsService = {
+  getRecent: (limit = 30) =>
+    supabase
+      .from('waste_lucky_spins')
+      .select('*')
+      .order('spun_at', { ascending: false })
+      .limit(limit),
+
+  getByStudent: (studentId: string) =>
+    supabase
+      .from('waste_lucky_spins')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('spun_at', { ascending: false }),
+
+  recordSpin: (data: Omit<WasteLuckySpin, 'id' | 'spun_at'>) =>
+    supabase.from('waste_lucky_spins').insert(data as never),
+};
+
+// ─── Classroom Waste League (ศึกลีกห้องเรียนรักษ์โลก) ─────────────────────────
+export const wasteClassroomLeagueService = {
+  getRankings: (params?: {
+    academic_year?: string;
+    semester?: string;
+    month?: number;
+    year?: number;
+  }) =>
+    supabase
+      .rpc('get_classroom_waste_rankings', {
+        p_academic_year: params?.academic_year ?? null,
+        p_semester: params?.semester ?? null,
+        p_month: params?.month ?? null,
+        p_year: params?.year ?? null,
+      })
+      .returns<WasteClassroomRanking[]>(),
+};
+

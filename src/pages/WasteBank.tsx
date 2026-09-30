@@ -16,6 +16,8 @@ import {
   Gift,
   BarChart3,
   Presentation,
+  Flame,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,11 +34,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   wasteSummaryService,
   wasteTransactionsService,
+  wastePromotionsService,
   studentsService,
   type WasteStudentSummary,
   type WasteTransaction,
+  type WastePromotion,
 } from '@/services';
 import { formatThaiDateFull } from '@/lib/thaiDate';
+import { WasteClassroomLeague } from '@/components/admin/waste-bank/WasteClassroomLeague';
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -187,6 +193,7 @@ const WasteBank = () => {
   const [searchClass, setSearchClass] = useState('all');
   const [searchResults, setSearchResults] = useState<WasteStudentSummary[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activePromos, setActivePromos] = useState<WastePromotion[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -194,10 +201,11 @@ const WasteBank = () => {
   }, []);
 
   const loadData = async () => {
-    const [summaryRes, txRes, studentsRes] = await Promise.all([
+    const [summaryRes, txRes, studentsRes, promoRes] = await Promise.all([
       wasteSummaryService.getAll(),
       wasteTransactionsService.getRecent(10),
       studentsService.getActive(),
+      wastePromotionsService.getActive(),
     ]);
     if (summaryRes.data) {
       // Only show students with at least 1 transaction in rankings
@@ -214,8 +222,12 @@ const WasteBank = () => {
       }
       setPhotoMap(m);
     }
+    if (promoRes.data) {
+      setActivePromos(promoRes.data as WastePromotion[]);
+    }
     setIsLoading(false);
   };
+
 
   // Sorted rankings
   const byPoints = useMemo(
@@ -333,6 +345,30 @@ const WasteBank = () => {
           </div>
         </div>
       </section>
+
+      {/* ─── Active Campaign Banner ───────────────────────────────────── */}
+      {activePromos.length > 0 && (
+        <section className="bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-primary/10 border-b border-amber-300/40 py-2.5 px-4">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Flame className="w-4 h-4 text-amber-500 animate-bounce flex-shrink-0" />
+              <span className="font-bold text-foreground">แคมเปญพิเศษวันนี้:</span>
+              {activePromos.map((p) => (
+                <Badge key={p.id} className="bg-amber-500 text-white font-bold text-[11px] px-2 py-0.5 border-none">
+                  {p.badge_text || p.title}
+                </Badge>
+              ))}
+              <span className="text-muted-foreground hidden md:inline">
+                — {activePromos[0]?.description}
+              </span>
+            </div>
+            <div className="text-[11px] text-amber-800 font-semibold bg-amber-100/80 px-2.5 py-0.5 rounded-full flex items-center gap-1 self-start sm:self-auto">
+              <Sparkles className="w-3 h-3 text-amber-600" />
+              <span>ส่งครบ 20 ชิ้นได้หมุนวงล้อเสี่ยงโชค 🎡</span>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── Animated Stats ───────────────────────────────────────────── */}
       <AnimatedStatsSection summaries={summaries} isLoading={isLoading} />
@@ -525,6 +561,11 @@ const WasteBank = () => {
             </div>
           )}
         </div>
+      </section>
+
+      {/* ─── Eco-Classroom League ─────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full px-4 py-6 border-t border-border">
+        <WasteClassroomLeague />
       </section>
 
       {/* ─── Activity & Search Grid ───────────────────────────────────── */}
@@ -736,8 +777,34 @@ const WasteBank = () => {
         </div>
       </section>
 
+      {/* ─── Family & Community Eco Missions ──────────────────────────── */}
+      <section className="max-w-5xl mx-auto w-full px-4 py-6 border-t border-border">
+        <div className="bg-gradient-to-br from-emerald-500/10 via-primary/5 to-card rounded-2xl p-5 border border-emerald-300/60 shadow-sm">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🏡</span>
+                <h3 className="font-bold text-base md:text-lg text-foreground">
+                  ภารกิจสายใยรัก: ขยะรีไซเคิลจากบ้านสู่โรงเรียน (Home-to-School Quest)
+                </h3>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-2xl leading-relaxed">
+                ชวนคุณพ่อคุณแม่และผู้ปกครองร่วมคัดแยกขวดพลาสติก กล่องนม และลังกระดาษที่บ้าน บรรจุถุงมาส่งที่ธนาคารขยะโรงเรียนทุกเช้าวันจันทร์ สะสมแต้มร่วมกับลูกหลานเพื่อแลกของใช้จำเป็นในครัวเรือน และช่วยดันคะแนนห้องเรียนชิงถ้วยหมุนเวียนประจำเดือน 🏆
+              </p>
+            </div>
+            <Link
+              to="/waste-bank/rewards"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold whitespace-nowrap transition shadow-sm"
+            >
+              <Gift className="w-4 h-4" />
+              <span>ดูแคตตาล็อกของรางวัล</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── How It Works ─────────────────────────────────────────────── */}
-      <section className="bg-green-50 border-t border-green-100 py-6 px-4">
+      <section className="bg-muted/40 border-t border-border py-6 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl font-bold text-center text-foreground mb-1">
             วิธีการเข้าร่วมโครงการ
