@@ -221,6 +221,11 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
   const versionData = generateExamVersion(rawQuestions, version, examSet.id || examSet.title);
   const questions = versionData.questions;
 
+  const totalPoints = questions.reduce((sum, q: any) => {
+    const pts = Number(q.points) > 0 ? Number(q.points) : (q.rubric?.full_score || 1);
+    return sum + pts;
+  }, 0) || questions.length;
+
   const bodyXml: string[] = [];
 
   // 1. Header (ตรา / ชื่อโรงเรียน / สำนักงานเขต)
@@ -239,7 +244,7 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
   // Subject and details
   bodyXml.push(
     paragraphXml(
-      `กลุ่มสาระการเรียนรู้: ${examSet.subject}    ระดับชั้น: ${examSet.grade}    เวลาสอบ: ${examSet.time_limit_minutes} นาที    คะแนนเต็ม: ${questions.length} คะแนน`,
+      `กลุ่มสาระการเรียนรู้: ${examSet.subject}    ระดับชั้น: ${examSet.grade}    เวลาสอบ: ${examSet.time_limit_minutes} นาที    คะแนนเต็ม: ${totalPoints} คะแนน`,
       { align: 'center', size: 13, bold: true, after: 140 }
     )
   );
@@ -248,7 +253,7 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
   bodyXml.push(
     paragraphXml(
       'ชื่อ-นามสกุล: ............................................................................ ชั้น: .............. เลขที่: .......... ห้อง: ....... คะแนนที่ได้: [ ....... / ' +
-        questions.length +
+        totalPoints +
         ' ]',
       { align: 'center', size: 13, before: 60, after: 120 }
     )
@@ -272,16 +277,27 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
     const qNum = idx + 1;
     const qType = q.question_type || q.type || 'mcq';
     const text = q.question_text || q.question || '';
+    const pts = Number(q.points) > 0
+      ? Number(q.points)
+      : (qType === 'essay' ? ((q.rubric as any)?.full_score || 5) : (qType === 'fillin' ? 2 : 1));
+
+    const stemRuns: RunSpec[] = [
+      { text: `${qNum}. `, bold: true, size: 14 },
+      { text, size: 14 },
+      { text: ` (${pts} คะแนน)`, italic: true, size: 12, color: '#4B5563' },
+    ];
+
+    if (q.indicator_code) {
+      stemRuns.push({ text: ` [ตัวชี้วัด: ${q.indicator_code}]`, size: 11, color: '#6B7280' });
+    }
+
+    if (q.media_title) {
+      stemRuns.push({ text: ` (สื่อประกอบ: ${q.media_title})`, italic: true, size: 11, color: '#2563EB' });
+    }
 
     // Question Stem
     bodyXml.push(
-      paragraphXml(
-        [
-          { text: `${qNum}. `, bold: true, size: 14 },
-          { text, size: 14 },
-        ],
-        { align: 'left', before: 100, after: 40 }
-      )
+      paragraphXml(stemRuns, { align: 'left', before: 100, after: 40 })
     );
 
     // MCQ Choices
@@ -435,14 +451,16 @@ export function generateExamDocxBlob(examSet: ExamSetRow, options: ExportExamDoc
         ansDisplay = `ตอบ: ${String(q.answer || '')}`;
       }
 
+      const keyRuns: RunSpec[] = [
+        { text: `ข้อ ${qNum}: `, bold: true, size: 13 },
+        { text: ansDisplay, bold: true, size: 13, color: '#047857' },
+      ];
+      if (q.indicator_code) {
+        keyRuns.push({ text: ` [${q.indicator_code}]`, size: 11, color: '#6B7280' });
+      }
+
       bodyXml.push(
-        paragraphXml(
-          [
-            { text: `ข้อ ${qNum}: `, bold: true, size: 13 },
-            { text: ansDisplay, bold: true, size: 13, color: '#047857' },
-          ],
-          { align: 'left', before: 40, after: 20 }
-        )
+        paragraphXml(keyRuns, { align: 'left', before: 40, after: 20 })
       );
 
       if (q.explanation) {

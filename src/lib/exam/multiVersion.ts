@@ -18,6 +18,12 @@ export interface ExamQuestionInput {
   type?: string;
   options?: string[];
   answer?: number | string | boolean | unknown;
+  accepted_answers?: string[];
+  rubric?: any;
+  points?: number;
+  indicator_code?: string;
+  media_title?: string;
+  media_image_url?: string;
   explanation?: string;
   topic?: string;
   difficulty?: string;
@@ -173,6 +179,40 @@ export function generateExamVersion(
 }
 
 /**
+ * จัดรูปแบบข้อความเฉลยสำหรับตารางเปรียบเทียบ Form A / Form B
+ * รองรับปรนัย, เติมคำ, และอัตนัย ไม่แสดง NaN
+ */
+function formatAnswerLabel(q: ExamQuestionInput): string {
+  const qType = q.question_type || q.type || 'mcq';
+
+  if (qType === 'essay') {
+    const pts = (q as any).points || (q as any).rubric?.full_score || 5;
+    return `[อัตนัย ${pts} คะแนน]`;
+  }
+
+  if (qType === 'fillin') {
+    if (q.answer !== undefined && q.answer !== null && String(q.answer).trim() !== '') {
+      return String(q.answer);
+    }
+    if (Array.isArray(q.accepted_answers) && q.accepted_answers.length > 0) {
+      return String(q.accepted_answers[0]);
+    }
+    return '[เติมคำ]';
+  }
+
+  if (qType === 'truefalse') {
+    return q.answer ? 'ถูก' : 'ผิด';
+  }
+
+  // Default MCQ
+  const aIdx = Number(q.answer);
+  if (!isNaN(aIdx) && aIdx >= 0 && aIdx < CHOICE_LABELS.length) {
+    return CHOICE_LABELS[aIdx];
+  }
+  return String(q.answer ?? '-');
+}
+
+/**
  * สร้างตารางเปรียบเทียบเฉลยคู่ขนาน (Form A vs Form B Matrix) สำหรับคุณครูใช้ตรวจข้อสอบ
  */
 export function generateAnswerKeyMatrix(
@@ -186,8 +226,7 @@ export function generateAnswerKeyMatrix(
   const originalToFormBMap = new Map<number, { newQuestionNumber: number; correctChoiceLabel: string }>();
 
   formB.questions.forEach((bQ, bIdx) => {
-    const bAnswerIdx = Number(bQ.answer);
-    const label = CHOICE_LABELS[bAnswerIdx] || `${bAnswerIdx + 1}`;
+    const label = formatAnswerLabel(bQ);
     originalToFormBMap.set(bQ.originalQuestionIndex, {
       newQuestionNumber: bIdx + 1,
       correctChoiceLabel: label,
@@ -195,8 +234,7 @@ export function generateAnswerKeyMatrix(
   });
 
   return formA.questions.map((aQ, aIdx) => {
-    const aAnswerIdx = Number(aQ.answer);
-    const aLabel = CHOICE_LABELS[aAnswerIdx] || `${aAnswerIdx + 1}`;
+    const aLabel = formatAnswerLabel(aQ);
     const bInfo = originalToFormBMap.get(aIdx) || {
       newQuestionNumber: aIdx + 1,
       correctChoiceLabel: aLabel,

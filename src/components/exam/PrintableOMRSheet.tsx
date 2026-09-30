@@ -19,21 +19,49 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
   totalQuestions,
   version = 'A',
 }) => {
-  const qCount =
-    totalQuestions ||
-    (Array.isArray(examSet.questions) ? examSet.questions.length : 20);
+  const rawQuestions = Array.isArray(examSet.questions) ? examSet.questions : [];
+  
+  // Categorize questions into sections
+  const mcqQuestions: any[] = [];
+  const fillinQuestions: any[] = [];
+  const essayQuestions: any[] = [];
+
+  rawQuestions.forEach((q: any, idx: number) => {
+    const qType = q.question_type || q.type || 'mcq';
+    const item = { ...q, questionNumber: idx + 1 };
+    if (qType === 'essay') {
+      essayQuestions.push(item);
+    } else if (qType === 'fillin') {
+      fillinQuestions.push(item);
+    } else {
+      mcqQuestions.push(item);
+    }
+  });
+
+  const totalPoints = rawQuestions.reduce((sum, q: any) => {
+    const pts = Number(q.points) > 0 ? Number(q.points) : (q.rubric?.full_score || 1);
+    return sum + pts;
+  }, 0) || rawQuestions.length || 20;
+
+  const mcqPoints = mcqQuestions.reduce((sum, q) => sum + (Number(q.points) || 1), 0);
+  const fillinPoints = fillinQuestions.reduce((sum, q) => sum + (Number(q.points) || 2), 0);
+  const essayPoints = essayQuestions.reduce((sum, q) => sum + (Number(q.rubric?.full_score) || Number(q.points) || 5), 0);
+
+  const hasNonMcq = fillinQuestions.length > 0 || essayQuestions.length > 0;
+  const mcqCount = mcqQuestions.length > 0 ? mcqQuestions.length : (totalQuestions || 20);
 
   // แบ่งออกเป็นคอลัมน์ คอลัมน์ละ 10 หรือ 15 ข้อ
-  const perCol = qCount <= 20 ? 10 : qCount <= 30 ? 15 : 20;
-  const colCount = Math.ceil(qCount / perCol);
+  const perCol = mcqCount <= 20 ? 10 : mcqCount <= 30 ? 15 : 20;
+  const colCount = Math.max(1, Math.ceil(mcqCount / perCol));
 
-  const columns: number[][] = [];
+  const columns: Array<{ questionNumber: number }>[] = [];
   for (let c = 0; c < colCount; c++) {
     const start = c * perCol;
-    const end = Math.min(start + perCol, qCount);
-    const colItems: number[] = [];
+    const end = Math.min(start + perCol, mcqCount);
+    const colItems: Array<{ questionNumber: number }> = [];
     for (let i = start; i < end; i++) {
-      colItems.push(i + 1);
+      const qNum = mcqQuestions[i] ? mcqQuestions[i].questionNumber : i + 1;
+      colItems.push({ questionNumber: qNum });
     }
     columns.push(colItems);
   }
@@ -64,7 +92,7 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
           </span>
         </h2>
         <div className="text-xs text-muted-foreground print:text-gray-600 mt-1">
-          {examSet.title} · {examSet.subject} ({examSet.grade}) · จำนวน {qCount} ข้อ
+          {examSet.title} · {examSet.subject} ({examSet.grade}) · จำนวน {rawQuestions.length || mcqCount} ข้อ (คะแนนเต็ม {totalPoints} คะแนน)
         </div>
       </div>
 
@@ -141,8 +169,15 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
         </div>
       </div>
 
-      {/* ── ตารางฝนคำตอบ (OMR Bubble Grid) ── */}
-      <div className="border border-border/80 rounded-lg p-4 bg-card print:bg-transparent print:border-gray-400">
+      {/* ── ตอนที่ 1: ตารางฝนคำตอบปรนัย (OMR Bubble Grid) ── */}
+      <div className="border border-border/80 rounded-lg p-4 bg-card print:bg-transparent print:border-gray-400 mb-4">
+        {hasNonMcq && (
+          <div className="text-xs font-bold text-primary mb-3 pb-1 border-b border-border/60 flex justify-between items-center">
+            <span>ตอนที่ 1: แบบเลือกตอบปรนัย (ข้อ {mcqQuestions[0]?.questionNumber || 1} – {mcqQuestions[mcqQuestions.length - 1]?.questionNumber || mcqCount})</span>
+            <span className="text-muted-foreground font-normal">ข้อละ 1 คะแนน · รวม {mcqPoints} คะแนน</span>
+          </div>
+        )}
+
         <div
           className={`grid ${colGridClass} gap-6 divide-x divide-border/60 print:divide-gray-300`}
           style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
@@ -158,13 +193,13 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
               </div>
 
               <div className="space-y-2">
-                {col.map((qNum) => (
+                {col.map((item) => (
                   <div
-                    key={qNum}
+                    key={item.questionNumber}
                     className="grid grid-cols-[28px_repeat(4,1fr)] items-center text-center text-xs"
                   >
                     <span className="font-bold text-muted-foreground print:text-black text-left">
-                      {qNum}.
+                      {item.questionNumber}.
                     </span>
                     {['ก', 'ข', 'ค', 'ง'].map((label, optIdx) => (
                       <div key={optIdx} className="flex justify-center">
@@ -181,11 +216,67 @@ export const PrintableOMRSheet: React.FC<PrintableOMRSheetProps> = ({
         </div>
       </div>
 
+      {/* ── ตอนที่ 2: ข้อสอบแบบเติมคำ (ถ้ามี) ── */}
+      {fillinQuestions.length > 0 && (
+        <div className="border border-border/80 rounded-lg p-3 bg-muted/10 print:bg-transparent print:border-gray-400 mb-4">
+          <div className="text-xs font-bold text-primary mb-2 flex justify-between items-center pb-1 border-b border-border/60">
+            <span>ตอนที่ 2: แบบเติมคำตอบสั้น (Fill-in) จำนวน {fillinQuestions.length} ข้อ</span>
+            <span className="text-muted-foreground font-normal">รวม {fillinPoints} คะแนน</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            {fillinQuestions.map((q) => {
+              const pts = Number(q.points) > 0 ? Number(q.points) : 2;
+              return (
+                <div key={q.questionNumber} className="flex items-center gap-2 p-1.5 border border-dashed border-border rounded">
+                  <span className="font-bold text-muted-foreground min-w-[20px]">{q.questionNumber}.</span>
+                  <div className="flex-1 border-b border-dotted border-foreground/50 h-5" />
+                  <span className="text-[10px] font-semibold text-muted-foreground print:text-black min-w-[50px] text-right">
+                    [ ... / {pts} ]
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── ตอนที่ 3: ข้อสอบอัตนัย / แสดงวิธีทำ (ถ้ามี) ── */}
+      {essayQuestions.length > 0 && (
+        <div className="border border-border/80 rounded-lg p-3 bg-muted/10 print:bg-transparent print:border-gray-400 mb-4">
+          <div className="text-xs font-bold text-primary mb-2 flex justify-between items-center pb-1 border-b border-border/60">
+            <span>ตอนที่ 3: แบบอัตนัย / แสดงวิธีทำ (Essay) จำนวน {essayQuestions.length} ข้อ</span>
+            <span className="text-muted-foreground font-normal">รวม {essayPoints} คะแนน</span>
+          </div>
+          <div className="space-y-2 text-xs">
+            {essayQuestions.map((q) => {
+              const pts = Number(q.rubric?.full_score) || Number(q.points) || 5;
+              return (
+                <div key={q.questionNumber} className="p-2 border border-dashed border-border rounded flex flex-wrap justify-between items-center gap-2">
+                  <div className="font-bold text-muted-foreground">ข้อที่ {q.questionNumber} (เขียนตอบลงในกระดาษคำถาม)</div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span>เกณฑ์รูบริก: คะแนนเต็ม {pts} คะแนน</span>
+                    <span className="border border-foreground/80 px-2 py-0.5 rounded font-bold">
+                      ได้: [ .......... / {pts} ]
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── ช่องตรวจคะแนนสำหรับครู ── */}
-      <div className="mt-5 p-3 border border-dashed border-border rounded-lg flex flex-wrap justify-between items-center text-xs print:border-gray-400">
-        <div className="flex items-center gap-3">
+      <div className="mt-4 p-3 border border-dashed border-border rounded-lg flex flex-wrap justify-between items-center text-xs print:border-gray-400">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="font-bold">ช่องสำหรับครูผู้ตรวจ:</span>
-          <span>คะแนนที่ได้: [ .................... / {qCount} ]</span>
+          {hasNonMcq ? (
+            <span className="font-medium">
+              ตอน 1: [ ... / {mcqPoints} ] + ตอน 2: [ ... / {fillinPoints} ] + ตอน 3: [ ... / {essayPoints} ] = <strong>รวม [ ............ / {totalPoints} ]</strong>
+            </span>
+          ) : (
+            <span>คะแนนที่ได้: [ .................... / {totalPoints} ]</span>
+          )}
         </div>
         <div>
           ลงชื่อครูผู้ตรวจ: ................................................................

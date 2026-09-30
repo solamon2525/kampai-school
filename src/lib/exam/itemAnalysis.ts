@@ -66,10 +66,57 @@ interface SubmissionLike {
   score: number;
   max_score?: number;
   answers: unknown;
+  rubric_scores?: unknown;
   student_name?: string;
 }
 
 const CHOICE_LABELS = ['ก', 'ข', 'ค', 'ง', 'จ', 'ฉ'];
+
+function normalizeText(val: unknown): string {
+  if (val === null || val === undefined) return '';
+  return String(val).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function isItemAnswerCorrect(
+  q: ExamQuestionInput,
+  studentAns: unknown,
+  rubricScore?: number
+): boolean {
+  const qType = q.question_type || q.type || 'mcq';
+
+  if (qType === 'essay') {
+    if (typeof rubricScore === 'number') {
+      const full = (q as any).rubric?.full_score || (q as any).points || 5;
+      return rubricScore >= full * 0.6; // Passing threshold for essay
+    }
+    return false;
+  }
+
+  if (qType === 'fillin' || Array.isArray(q.accepted_answers)) {
+    if (studentAns === undefined || studentAns === null) return false;
+    const normUser = normalizeText(studentAns);
+    if (!normUser) return false;
+    const acceptedList: string[] = [];
+    if (q.answer !== undefined && q.answer !== null) {
+      acceptedList.push(normalizeText(q.answer));
+    }
+    if (Array.isArray(q.accepted_answers)) {
+      q.accepted_answers.forEach((ans) => acceptedList.push(normalizeText(ans)));
+    }
+    return acceptedList.some((acc) => acc && acc === normUser);
+  }
+
+  // Default MCQ / TrueFalse
+  if (studentAns === undefined || studentAns === null || q.answer === undefined || q.answer === null) {
+    return false;
+  }
+  const sNum = Number(studentAns);
+  const cNum = Number(q.answer);
+  if (!isNaN(sNum) && !isNaN(cNum)) {
+    return sNum === cNum;
+  }
+  return normalizeText(studentAns) === normalizeText(q.answer);
+}
 
 /**
  * คำนวณการวิเคราะห์คุณภาพข้อสอบจากชุดข้อสอบและข้อมูลการส่งข้อสอบ
@@ -164,17 +211,20 @@ export function computeItemAnalysis(
     // Scan all submissions
     sortedSubmissions.forEach((sub) => {
       const answersMap = (sub.answers || {}) as Record<string, unknown>;
-      // Check answers by index (as string or number)
       const studentAns = answersMap[idx] !== undefined ? answersMap[idx] : answersMap[String(idx)];
+      const rubricMap = (sub.rubric_scores || {}) as Record<string, number>;
+      const rubricScore = rubricMap[idx] !== undefined ? rubricMap[idx] : rubricMap[String(idx)];
 
-      const isCorrect = Number(studentAns) === Number(correctAns);
+      const isCorrect = isItemAnswerCorrect(q, studentAns, rubricScore);
       if (isCorrect) {
         correctTotal++;
       }
 
-      const optIdx = Number(studentAns);
-      if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
-        choiceTotalCounts[optIdx]++;
+      if (qType === 'mcq') {
+        const optIdx = Number(studentAns);
+        if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
+          choiceTotalCounts[optIdx]++;
+        }
       }
     });
 
@@ -182,12 +232,17 @@ export function computeItemAnalysis(
     upperGroup.forEach((sub) => {
       const answersMap = (sub.answers || {}) as Record<string, unknown>;
       const studentAns = answersMap[idx] !== undefined ? answersMap[idx] : answersMap[String(idx)];
-      if (Number(studentAns) === Number(correctAns)) {
+      const rubricMap = (sub.rubric_scores || {}) as Record<string, number>;
+      const rubricScore = rubricMap[idx] !== undefined ? rubricMap[idx] : rubricMap[String(idx)];
+
+      if (isItemAnswerCorrect(q, studentAns, rubricScore)) {
         correctUpper++;
       }
-      const optIdx = Number(studentAns);
-      if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
-        choiceUpperCounts[optIdx]++;
+      if (qType === 'mcq') {
+        const optIdx = Number(studentAns);
+        if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
+          choiceUpperCounts[optIdx]++;
+        }
       }
     });
 
@@ -195,12 +250,17 @@ export function computeItemAnalysis(
     lowerGroup.forEach((sub) => {
       const answersMap = (sub.answers || {}) as Record<string, unknown>;
       const studentAns = answersMap[idx] !== undefined ? answersMap[idx] : answersMap[String(idx)];
-      if (Number(studentAns) === Number(correctAns)) {
+      const rubricMap = (sub.rubric_scores || {}) as Record<string, number>;
+      const rubricScore = rubricMap[idx] !== undefined ? rubricMap[idx] : rubricMap[String(idx)];
+
+      if (isItemAnswerCorrect(q, studentAns, rubricScore)) {
         correctLower++;
       }
-      const optIdx = Number(studentAns);
-      if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
-        choiceLowerCounts[optIdx]++;
+      if (qType === 'mcq') {
+        const optIdx = Number(studentAns);
+        if (!isNaN(optIdx) && optIdx >= 0 && optIdx < options.length) {
+          choiceLowerCounts[optIdx]++;
+        }
       }
     });
 
@@ -214,34 +274,36 @@ export function computeItemAnalysis(
     sumDifficulty += p;
     sumDiscrimination += r;
 
-    // Distractor analysis stats
-    const distractors: DistractorChoiceStat[] = options.map((optText, oIdx) => {
-      const isChoiceCorrect = oIdx === Number(correctAns);
-      const totalSel = choiceTotalCounts[oIdx] || 0;
-      const upperSel = choiceUpperCounts[oIdx] || 0;
-      const lowerSel = choiceLowerCounts[oIdx] || 0;
+    // Distractor analysis stats (applicable for MCQ only)
+    const distractors: DistractorChoiceStat[] = qType === 'mcq'
+      ? options.map((optText, oIdx) => {
+          const isChoiceCorrect = oIdx === Number(correctAns);
+          const totalSel = choiceTotalCounts[oIdx] || 0;
+          const upperSel = choiceUpperCounts[oIdx] || 0;
+          const lowerSel = choiceLowerCounts[oIdx] || 0;
 
-      const totalPct = Math.round((totalSel / N) * 100);
-      const upperPct = Math.round((upperSel / groupSize) * 100);
-      const lowerPct = Math.round((lowerSel / groupSize) * 100);
+          const totalPct = Math.round((totalSel / N) * 100);
+          const upperPct = Math.round((upperSel / groupSize) * 100);
+          const lowerPct = Math.round((lowerSel / groupSize) * 100);
 
-      // Distractor is effective if it is incorrect and selected by more lower group than upper group (or >= 5% total)
-      const isEffective = !isChoiceCorrect && (lowerSel > upperSel || totalPct >= 5);
+          // Distractor is effective if it is incorrect and selected by more lower group than upper group (or >= 5% total)
+          const isEffective = !isChoiceCorrect && (lowerSel > upperSel || totalPct >= 5);
 
-      return {
-        choiceIndex: oIdx,
-        choiceLabel: CHOICE_LABELS[oIdx] || `${oIdx + 1}`,
-        text: optText,
-        isCorrect: isChoiceCorrect,
-        totalSelected: totalSel,
-        upperSelected: upperSel,
-        lowerSelected: lowerSel,
-        totalPercent: totalPct,
-        upperPercent: upperPct,
-        lowerPercent: lowerPct,
-        isEffective,
-      };
-    });
+          return {
+            choiceIndex: oIdx,
+            choiceLabel: CHOICE_LABELS[oIdx] || `${oIdx + 1}`,
+            text: optText,
+            isCorrect: isChoiceCorrect,
+            totalSelected: totalSel,
+            upperSelected: upperSel,
+            lowerSelected: lowerSel,
+            totalPercent: totalPct,
+            upperPercent: upperPct,
+            lowerPercent: lowerPct,
+            isEffective,
+          };
+        })
+      : [];
 
     // Determine Quality Level & Recommendation
     let qualityLevel: ItemQualityLevel = 'acceptable';

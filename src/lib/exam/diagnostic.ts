@@ -16,9 +16,20 @@ export interface DiagnosticQuestion {
   topic?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   bloom_level?: string;
+  question_type?: 'mcq' | 'fillin' | 'essay';
   answer: number | boolean | string | unknown;
+  accepted_answers?: string[];
+  rubric?: {
+    full_score?: number;
+    key_solution?: string;
+    criteria?: Array<{ name: string; points: number; description: string }>;
+    keywords?: string[];
+  };
   options?: string[];
   explanation?: string;
+  points?: number;
+  indicator_code?: string;
+  media_title?: string;
 }
 
 export interface TopicDiagnostic {
@@ -87,7 +98,7 @@ const BLOOM_LEVEL_NAMES: Record<string, string> = {
 };
 
 /**
- * Normalizes question answers for safe comparison
+ * Normalizes numeric answers for MCQ comparison
  */
 function normalizeAnswer(ans: unknown): number | null {
   if (typeof ans === 'number') return ans;
@@ -96,6 +107,58 @@ function normalizeAnswer(ans: unknown): number | null {
     if (!isNaN(parsed)) return parsed;
   }
   return null;
+}
+
+/**
+ * Normalizes text answers for Fill-in comparison
+ */
+function normalizeTextAnswer(val: unknown): string {
+  if (val === null || val === undefined) return '';
+  return String(val).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/**
+ * Robust question answer checker supporting MCQ, Fill-in, and Essay
+ */
+function checkQuestionCorrect(
+  q: DiagnosticQuestion,
+  studentAnswer: unknown,
+  rubricScore?: number
+): boolean {
+  const qType = q.question_type || 'mcq';
+
+  if (qType === 'essay') {
+    if (typeof rubricScore === 'number') {
+      const full = q.rubric?.full_score || q.points || 5;
+      return rubricScore >= full * 0.6; // Passing threshold for essay competency
+    }
+    return false;
+  }
+
+  if (qType === 'fillin' || Array.isArray(q.accepted_answers)) {
+    if (studentAnswer === undefined || studentAnswer === null) return false;
+    const normUser = normalizeTextAnswer(studentAnswer);
+    if (!normUser) return false;
+    const acceptedList: string[] = [];
+    if (q.answer !== undefined && q.answer !== null) {
+      acceptedList.push(normalizeTextAnswer(q.answer));
+    }
+    if (Array.isArray(q.accepted_answers)) {
+      q.accepted_answers.forEach((ans) => acceptedList.push(normalizeTextAnswer(ans)));
+    }
+    return acceptedList.some((acc) => acc && acc === normUser);
+  }
+
+  // Default MCQ / TrueFalse
+  if (studentAnswer === undefined || studentAnswer === null || q.answer === undefined || q.answer === null) {
+    return false;
+  }
+  const normS = normalizeAnswer(studentAnswer);
+  const normC = normalizeAnswer(q.answer);
+  if (normS !== null && normC !== null) {
+    return normS === normC;
+  }
+  return normalizeTextAnswer(studentAnswer) === normalizeTextAnswer(q.answer);
 }
 
 /**
@@ -110,6 +173,11 @@ export function calculateStudentDiagnostic(
     : typeof submission.answers === 'object' && submission.answers !== null
     ? Object.values(submission.answers)
     : [];
+
+  const rubricScores =
+    typeof submission.rubric_scores === 'object' && submission.rubric_scores !== null
+      ? (submission.rubric_scores as Record<string, number>)
+      : null;
 
   const topicMap: Record<
     string,
@@ -135,11 +203,8 @@ export function calculateStudentDiagnostic(
     }
     bloomMap[bloomKey].total += 1;
 
-    const studentAns = normalizeAnswer(studentAnswers[idx]);
-    const correctAns = normalizeAnswer(q.answer);
-
-    const isCorrect =
-      studentAns !== null && correctAns !== null && studentAns === correctAns;
+    const rubricScore = rubricScores ? rubricScores[String(idx)] ?? rubricScores[idx] : undefined;
+    const isCorrect = checkQuestionCorrect(q, studentAnswers[idx], rubricScore);
 
     if (isCorrect) {
       topicMap[topic].correct += 1;

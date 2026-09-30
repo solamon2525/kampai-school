@@ -20,6 +20,11 @@ interface ExamPaperQuestion {
   options?: string[];
   pairs?: MatchingPairItem[];
   answer?: number | boolean | string | unknown;
+  rubric?: any;
+  points?: number;
+  indicator_code?: string;
+  media_title?: string;
+  media_image_url?: string;
 }
 
 interface PrintableExamPaperProps {
@@ -42,6 +47,11 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
   const versionResult = generateExamVersion(rawQuestions, version, examSet.id || examSet.title);
   const questions = versionResult.questions;
 
+  const totalPoints = questions.reduce((sum, q: any) => {
+    const pts = Number(q.points) > 0 ? Number(q.points) : (q.rubric?.full_score || 1);
+    return sum + pts;
+  }, 0) || questions.length;
+
   return (
     <div className="printable-exam-paper bg-background text-foreground font-sans p-6 max-w-4xl mx-auto print:p-0 print:max-w-none print:bg-white print:text-black">
       {/* Header */}
@@ -63,7 +73,7 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
           <span><strong>กลุ่มสาระการเรียนรู้:</strong> {examSet.subject}</span>
           <span><strong>ระดับชั้น:</strong> {examSet.grade}</span>
           <span><strong>เวลา:</strong> {examSet.time_limit_minutes} นาที</span>
-          <span><strong>คะแนนเต็ม:</strong> {questions.length} คะแนน</span>
+          <span><strong>คะแนนเต็ม:</strong> {totalPoints} คะแนน</span>
         </div>
 
         {/* Student Name Fill-in Box */}
@@ -75,14 +85,14 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
             ชั้น: .................... เลขที่: ....................
           </div>
           <div>
-            คะแนนที่ได้: [ ......... / {questions.length} ]
+            คะแนนที่ได้: [ ......... / {totalPoints} ]
           </div>
         </div>
       </header>
 
       {/* Instructions */}
       <div className="bg-muted/40 p-3 rounded-lg text-xs mb-5 border border-border/60 print:bg-transparent print:border-gray-300">
-        <strong>คำชี้แจง:</strong> ให้นักเรียนเลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว แล้วทำเครื่องหมายลงในกระดาษคำตอบ หรือทำในข้อสอบตามที่ระบุ
+        <strong>คำชี้แจง:</strong> ให้นักเรียนเลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว หรือเขียนคำตอบลงในกระดาษคำถามตามที่ระบุ
       </div>
 
       {/* Questions list - 2 Columns in Print Mode to save paper */}
@@ -90,6 +100,9 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
         {questions.map((q, idx) => {
           const qType = q.question_type || (q.type ? q.type : 'mcq');
           const options = q.options || [];
+          const pts = Number(q.points) > 0
+            ? Number(q.points)
+            : (qType === 'essay' ? ((q.rubric as any)?.full_score || 5) : (qType === 'fillin' ? 2 : 1));
 
           return (
             <div
@@ -99,9 +112,33 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
               <div className="flex items-start gap-1.5">
                 <span className="font-bold text-xs min-w-[24px]">{idx + 1}.</span>
                 <div className="flex-1 text-xs font-medium leading-relaxed">
-                  {q.question_text || q.question}
+                  <span>{q.question_text || q.question}</span>
+                  <span className="ml-1 text-[11px] text-muted-foreground print:text-gray-700 font-semibold">
+                    ({pts} คะแนน)
+                  </span>
+                  {q.indicator_code && (
+                    <span className="ml-2 inline-block text-[10px] px-1.5 py-0.2 rounded bg-muted text-muted-foreground print:border print:border-gray-400 print:text-black">
+                      ตัวชี้วัด: {q.indicator_code}
+                    </span>
+                  )}
                 </div>
               </div>
+
+              {/* Media Image Stimulus */}
+              {q.media_image_url && (
+                <div className="mt-2 ml-6 mb-2">
+                  <img
+                    src={q.media_image_url}
+                    alt={q.media_title || 'สื่อประกอบข้อสอบ'}
+                    className="max-h-36 max-w-full rounded border border-border/80 object-cover print:border-gray-400"
+                  />
+                  {q.media_title && (
+                    <div className="text-[10px] text-muted-foreground print:text-gray-600 mt-0.5">
+                      ภาพประกอบ: {q.media_title}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Multiple Choice (MCQ) */}
               {qType === 'mcq' && (
