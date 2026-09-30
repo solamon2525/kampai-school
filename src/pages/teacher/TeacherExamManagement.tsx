@@ -9,11 +9,11 @@ import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter, FileText, FileSpreadsheet, Split
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
-import { examService, type ExamSetRow } from '@/services/exam.service';
+import { examService, type ExamSetRow, type ExamSubmissionRow } from '@/services/exam.service';
 import { studentsService } from '@/services/students.service';
 import { omrScannerService, type OMRGradingSummary, type QuestionToGrade } from '@/services/omr-scanner.service';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
@@ -21,6 +21,9 @@ import { PrintableExamPaper } from '@/components/exam/PrintableExamPaper';
 import { PrintableOMRSheet } from '@/components/exam/PrintableOMRSheet';
 import { ExamAnswerKeyMatrix } from '@/components/exam/ExamAnswerKeyMatrix';
 import { ExamItemAnalysisView } from '@/components/exam/ExamItemAnalysisView';
+import { ExamStudentDiagnosticModal } from '@/components/exam/ExamStudentDiagnosticModal';
+import { ExamClassCompetencyView } from '@/components/exam/ExamClassCompetencyView';
+import { BatchOMRScannerModal } from '@/components/exam/BatchOMRScannerModal';
 import { downloadExamDocx } from '@/lib/docx/examDocxGenerator';
 import { exportExamResultsToExcel } from '@/lib/excel/examExcelGenerator';
 import { Button } from '@/components/ui/button';
@@ -204,8 +207,14 @@ export default function TeacherExamManagement() {
   const [printVersion, setPrintVersion] = useState<'A' | 'B' | 'key'>('A');
 
   // Results & Item Analysis view state
-  const [resultsViewMode, setResultsViewMode] = useState<'list' | 'analysis'>('list');
+  const [resultsViewMode, setResultsViewMode] = useState<'list' | 'analysis' | 'competency'>('list');
   const [selectedAnalysisSetId, setSelectedAnalysisSetId] = useState<string>('');
+
+  // Diagnostic & Batch Scanner state
+  const [diagnosticModalOpen, setDiagnosticModalOpen] = useState(false);
+  const [diagnosticSubmission, setDiagnosticSubmission] = useState<ExamSubmissionRow | null>(null);
+  const [diagnosticExamSet, setDiagnosticExamSet] = useState<ExamSetRow | null>(null);
+  const [batchScannerOpen, setBatchScannerOpen] = useState(false);
 
   // OMR Scanner state
   const [scannerExamSetId, setScannerExamSetId] = useState<string>('');
@@ -868,6 +877,27 @@ export default function TeacherExamManagement() {
 
     exportExamResultsToExcel(targetSet, targetSubmissions);
     toast({ title: 'ส่งออกสำเร็จ', description: 'ดาวน์โหลดไฟล์แบบบันทึกคะแนน ปพ.5 (.xlsx) เรียบร้อย' });
+  };
+
+  const handleSaveBatchSubmissions = async (
+    submissionsList: {
+      exam_set_id: string;
+      student_id: string | null;
+      student_name: string;
+      student_class: string;
+      student_no: number;
+      submission_mode: 'omr_paper';
+      score: number;
+      max_score: number;
+      percentage: number;
+      passed: boolean;
+      answers: unknown;
+    }[]
+  ) => {
+    for (const sub of submissionsList) {
+      await examService.submitExam(sub as unknown as TablesInsert<'exam_submissions'>);
+    }
+    queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
   };
 
   return (
@@ -2229,10 +2259,21 @@ export default function TeacherExamManagement() {
 
                     <label className="cursor-pointer">
                       <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-muted/50 transition-colors">
-                        📁 เลือกรูปถ่าย
+                        📁 เลือกรูปถ่าย (1 แผ่น)
                       </span>
                       <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
                     </label>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 border-primary/40 text-primary hover:bg-primary/10"
+                      onClick={() => setBatchScannerOpen(true)}
+                    >
+                      <Layers className="h-3.5 w-3.5" />
+                      สแกนหลายแผ่นพร้อมกัน (Batch Scan)
+                    </Button>
 
                     {capturedImage && (
                       <Button
@@ -2454,8 +2495,8 @@ export default function TeacherExamManagement() {
                     </Select>
                   </div>
 
-                  {/* Sub-view switcher: List vs Analysis */}
-                  <div className="flex items-center gap-1.5">
+                  {/* Sub-view switcher: List vs Analysis vs Competency */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <Button
                       variant={resultsViewMode === 'list' ? 'default' : 'outline'}
                       size="sm"
@@ -2464,6 +2505,15 @@ export default function TeacherExamManagement() {
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       ตารางคะแนนนักเรียน
+                    </Button>
+                    <Button
+                      variant={resultsViewMode === 'competency' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-8 text-xs gap-1.5"
+                      onClick={() => setResultsViewMode('competency')}
+                    >
+                      <Brain className="h-3.5 w-3.5" />
+                      สมรรถนะรายสาระ (Competency)
                     </Button>
                     <Button
                       variant={resultsViewMode === 'analysis' ? 'default' : 'outline'}
@@ -2477,8 +2527,34 @@ export default function TeacherExamManagement() {
                   </div>
                 </div>
 
-                {/* Sub-view Content: Item Analysis Dashboard */}
-                {resultsViewMode === 'analysis' ? (
+                {/* Sub-view Content: Competency vs Analysis vs List */}
+                {resultsViewMode === 'competency' ? (
+                  (() => {
+                    const targetSet =
+                      examSets.find((s) => s.id === selectedAnalysisSetId) ||
+                      (examSets.length > 0 ? examSets[0] : null);
+
+                    if (!targetSet) {
+                      return (
+                        <div className="text-center py-20 text-muted-foreground text-xs">
+                          ยังไม่มีชุดข้อสอบในระบบ กรุณาสร้างชุดข้อสอบก่อนเพื่อดูการวิเคราะห์สมรรถนะ
+                        </div>
+                      );
+                    }
+
+                    const targetSubmissions = selectedAnalysisSetId
+                      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
+                      : submissions;
+
+                    return (
+                      <ExamClassCompetencyView
+                        examSet={targetSet}
+                        submissions={targetSubmissions}
+                        onBack={() => setResultsViewMode('list')}
+                      />
+                    );
+                  })()
+                ) : resultsViewMode === 'analysis' ? (
                   (() => {
                     const targetSet =
                       examSets.find((s) => s.id === selectedAnalysisSetId) ||
@@ -2535,6 +2611,7 @@ export default function TeacherExamManagement() {
                               <th className="py-2.5 px-3">ผลสอบ</th>
                               <th className="py-2.5 px-3">ช่องทาง</th>
                               <th className="py-2.5 px-3">วันที่สอบ</th>
+                              <th className="py-2.5 px-3 text-right">การจัดการ</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-border/60">
@@ -2566,6 +2643,26 @@ export default function TeacherExamManagement() {
                                 </td>
                                 <td className="py-2 px-3 text-muted-foreground text-[11px]">
                                   {new Date(sub.created_at).toLocaleDateString('th-TH')}
+                                </td>
+                                <td className="py-2 px-3 text-right">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-6 text-[10px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                                    onClick={() => {
+                                      const foundSet = examSets.find((s) => s.id === sub.exam_set_id);
+                                      if (foundSet) {
+                                        setDiagnosticSubmission(sub);
+                                        setDiagnosticExamSet(foundSet);
+                                        setDiagnosticModalOpen(true);
+                                      } else {
+                                        toast({ title: 'ไม่พบชุดข้อสอบ', variant: 'destructive' });
+                                      }
+                                    }}
+                                  >
+                                    <Target className="h-2.5 w-2.5" />
+                                    วินิจฉัยสมรรถนะ
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -2776,6 +2873,28 @@ export default function TeacherExamManagement() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Student Diagnostic & Remediation Modal */}
+        <ExamStudentDiagnosticModal
+          isOpen={diagnosticModalOpen}
+          onClose={() => {
+            setDiagnosticModalOpen(false);
+            setDiagnosticSubmission(null);
+            setDiagnosticExamSet(null);
+          }}
+          submission={diagnosticSubmission}
+          examSet={diagnosticExamSet}
+        />
+
+        {/* Batch OMR Scanner Modal */}
+        <BatchOMRScannerModal
+          isOpen={batchScannerOpen}
+          onClose={() => setBatchScannerOpen(false)}
+          examSets={examSets}
+          initialExamSetId={scannerExamSetId || (examSets.length > 0 ? examSets[0].id : '')}
+          students={students}
+          onSaveBatchSubmissions={handleSaveBatchSubmissions}
+        />
       </div>
     </RolePortalLayout>
   );

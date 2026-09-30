@@ -23,6 +23,32 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### ระบบวินิจฉัยสมรรถนะรายบุคคล (Diagnostic Radar), แผนซ่อมเสริมอัจฉริยะ (Smart Remediation) และ Batch OMR Scanner — v1.229.111
+
+- **ระบบวินิจฉัยสมรรถนะการเรียนรู้รายบุคคล (Diagnostic & Competency Engine — `src/lib/exam/diagnostic.ts`):**
+  - **Topic & Indicator Breakdown:** จัดกลุ่มคะแนนตามสาระและหัวข้อย่อย (`topic`) คำนวณร้อยละความแม่นยำ (0-100%) และจำแนกระดับความเชี่ยวชาญ (Mastered ≥80%, Proficient 65-79%, Developing 50-64%, Needs Remediation <50%)
+  - **Cognitive Bloom Breakdown:** ติดตามคะแนนแยกตามระดับความคิด 6 ระดับของ Bloom's Taxonomy (L1 ความจำ ถึง L6 การสร้างสรรค์)
+  - **Recharts Competency Radar Chart:** แสดงผลรูปใยแมงมุมเปรียบเทียบสมรรถนะทุกหัวข้อในชุดข้อสอบ รองรับทั้งรายบุคคลและค่าเฉลี่ยระดับชั้นเรียน
+  - **Classroom Diagnostic (`calculateClassDiagnostic`):** สรุปคะแนนเฉลี่ยทั้งห้อง สัดส่วนนักเรียนที่ผ่านเกณฑ์ และคัดกรองหัวข้อวิกฤตที่ต้องสอนซ้ำในห้องเรียน
+
+- **ระบบจับคู่สื่อและเกมซ่อมเสริมอัจฉริยะ (Smart Remediation Engine — `src/lib/exam/remediation.ts`):**
+  - **Knowledge Repository Mapping:** เชื่อมโยงคลังสื่อการสอนและเกมของโรงเรียนบ้านคำไผ่ (คณิตศาสตร์, วิทยาศาสตร์, ภาษาไทย, ภาษาอังกฤษ, สังคมศึกษา)
+  - **Personalized Remediation Quests:** สร้างภารกิจซ่อมเสริมเฉพาะบุคคลสำหรับหัวข้อที่ได้คะแนนต่ำกว่า 60% พร้อมคำแนะนำการจัดการเรียนรู้สำหรับครู และปุ่มเปิดเข้าสู่สื่อ/เกม/ใบงานทบทวนได้ทันที
+
+- **โมดอลวินิจฉัยสมรรถนะรายบุคคล (`src/components/exam/ExamStudentDiagnosticModal.tsx`):**
+  - แสดงข้อมูลนักเรียนพร้อมรูปถ่าย `<PersonAvatar>` ตัวชี้วัดคะแนน แผนภูมิเรดาร์ แถบความเชี่ยวชาญรายหัวข้อ และการ์ดภารกิจซ่อมเสริม
+  - **Printable A4 Report:** รองรับการพิมพ์ใบรายงานผลการวินิจฉัยสมรรถนะรายบุคคลพร้อมช่องลงชื่อครูและผู้ปกครอง สำหรับการประเมินเพื่อการเรียนรู้ (Assessment for Learning)
+
+- **มุมมองสมรรถนะระดับชั้นเรียน (`src/components/exam/ExamClassCompetencyView.tsx`):**
+  - แดชบอร์ดสรุปภาพรวมทั้งห้อง แผนภูมิเรดาร์เฉลี่ย และข้อเสนอแนะกิจกรรมซ่อมเสริมระดับชั้นเรียน (Classroom Action Plan)
+
+- **ระบบตรวจกระดาษคำตอบ OMR แบบชุดหลายแผ่น (`src/components/exam/BatchOMRScannerModal.tsx`):**
+  - **Multi-Image Drag & Drop:** อัปโหลดภาพกระดาษคำตอบทั้งห้อง 20-35 แผ่นพร้อมกัน
+  - **Concurrency Controlled AI Vision:** ส่งวิเคราะห์ผ่าน Gemini API แบบจำกัด concurrency เพื่อป้องกัน rate limit พร้อมแถบแสดงความคืบหน้าสด
+  - **Smart Student Matching:** จับคู่นักเรียนอัตโนมัติจากเลขที่ที่ตรวจพบ (`detectedStudentNo`) กับบัญชีรายชื่อห้องเรียน
+  - **Side-by-Side Inspection:** ระบบตรวจสอบภาพถ่ายคู่กับเฉลยเพื่อตรวจทานหรือแก้ไขเลขที่นักเรียนก่อนบันทึก
+  - **Batch Submission:** บันทึกผลสอบทั้งหมดลงฐานข้อมูล Supabase `exam_submissions` ในคลิกเดียว
+
 ### ระบบจัดการข้อสอบขั้นสูง: ข้อสอบคู่ขนาน Form A/B, วิเคราะห์คุณภาพข้อสอบ (Item Analysis), ส่งออก Word และ Excel ปพ.5 — v1.229.110
 
 - **ระบบข้อสอบคู่ขนาน Form A / Form B (Multi-Version Deterministic Shuffler):**
