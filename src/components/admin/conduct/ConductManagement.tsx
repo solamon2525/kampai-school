@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { studentsService, conductService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -243,6 +244,15 @@ const PRESET_REASONS: Record<'add' | 'deduct', { category: string; reasons: stri
                 'ทิ้งขยะในพื้นที่สาธารณะของโรงเรียน 🗑️',
             ],
         },
+        {
+            category: 'reward',
+            reasons: [
+                'รับรางวัลแล้ว 🎁',
+                'แลกของรางวัลจากธนาคารความดี 🎁',
+                'แลกสิทธิ์/ของรางวัลกิจกรรม 🎪',
+                'แลกอุปกรณ์การเรียน ✏️',
+            ],
+        },
     ],
 };
 
@@ -269,13 +279,23 @@ interface ConductRecord {
     academic_year: string;
     semester: string;
     created_at: string;
+    reward_claim_id?: string | null;
     students?: { name: string; class: string; photo_url?: string | null } | null;
 }
 
 // ===== Main Component =====
 export const ConductManagement = () => {
     const { toast } = useToast();
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('record');
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const triggerRefresh = useCallback(() => {
+        setRefreshKey(k => k + 1);
+        queryClient.invalidateQueries({ queryKey: ['conduct-scores'] });
+        queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] });
+        queryClient.invalidateQueries({ queryKey: ['public-hero-profile'] });
+    }, [queryClient]);
 
     useEffect(() => {
         return () => {
@@ -313,17 +333,21 @@ export const ConductManagement = () => {
                     </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="record"><RecordTab toast={toast} /></TabsContent>
-                <TabsContent value="bulk"><BulkRecordTab toast={toast} /></TabsContent>
-                <TabsContent value="leaderboard"><LeaderboardTab /></TabsContent>
-                <TabsContent value="history"><HistoryTab toast={toast} /></TabsContent>
+                <TabsContent value="record"><RecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
+                <TabsContent value="bulk"><BulkRecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
+                <TabsContent value="leaderboard"><LeaderboardTab refreshKey={refreshKey} /></TabsContent>
+                <TabsContent value="history"><HistoryTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
             </Tabs>
         </div>
     );
 };
 
 // ===== Tab 1: บันทึกคะแนน =====
-function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
+function RecordTab({ toast, triggerRefresh, refreshKey }: { 
+    toast: ReturnType<typeof useToast>['toast'];
+    triggerRefresh: () => void;
+    refreshKey: number;
+}) {
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
@@ -386,7 +410,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         return () => {
             active = false;
         };
-    }, [students, academicYear]);
+    }, [students, academicYear, refreshKey]);
 
     // ดึงคะแนนสะสมเจาะจงรายนักเรียนที่เลือกเพื่อความแม่นยำสูงสุด
     useEffect(() => {
@@ -401,7 +425,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
         return () => {
             active = false;
         };
-    }, [selectedStudentId, academicYear]);
+    }, [selectedStudentId, academicYear, refreshKey]);
 
     const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));
     const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
@@ -522,6 +546,8 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
             conductService.getAccumulatedScore(selectedStudentId, academicYear).then(accScore => {
                 setStudentAccumulatedMap(prev => ({ ...prev, [selectedStudentId]: accScore }));
             }).catch(() => {});
+
+            triggerRefresh();
         } finally {
             setIsSaving(false);
         }
@@ -786,7 +812,7 @@ function RecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
 }
 
 // ===== Tab 2: อันดับธนาคารความดี =====
-function LeaderboardTab() {
+function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
     const [filterClass, setFilterClass] = useState('');
     const [filterSemester, setFilterSemester] = useState('1');
     const [filterYear, setFilterYear] = useState(currentYear);
@@ -801,7 +827,7 @@ function LeaderboardTab() {
             setIsLoading(false);
         };
         load();
-    }, [filterSemester, filterYear]);
+    }, [filterSemester, filterYear, refreshKey]);
 
     // รวมคะแนนรายนักเรียน (แยกคะแนนสะสมเกียรติยศ กับคะแนนคงเหลือสำหรับแลก)
     const leaderboard = useMemo(() => {
@@ -832,10 +858,11 @@ function LeaderboardTab() {
                     available: 0 
                 };
             }
+            const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
             if (r.type === 'add') { 
                 map[r.student_id].total += r.score; 
                 map[r.student_id].added += r.score; 
-            } else if (r.reward_claim_id || r.category === 'reward') {
+            } else if (isReward) {
                 map[r.student_id].rewardSpent += r.score;
             } else { 
                 map[r.student_id].total -= r.score; 
@@ -843,10 +870,13 @@ function LeaderboardTab() {
             }
         });
         Object.values(map).forEach(m => {
-            m.available = Math.max(0, m.total - m.rewardSpent);
+            const netHonor = Math.max(0, m.total);
+            m.available = Math.max(0, netHonor - m.rewardSpent);
         });
         return Object.values(map).sort((a, b) => {
-            if (b.total !== a.total) return b.total - a.total;
+            const aHonor = Math.max(0, a.total);
+            const bHonor = Math.max(0, b.total);
+            if (bHonor !== aHonor) return bHonor - aHonor;
             if (b.added !== a.added) return b.added - a.added;
             return a.name.localeCompare(b.name, 'th');
         });
@@ -897,9 +927,14 @@ function LeaderboardTab() {
                                         <p className="text-xs text-muted-foreground">{s.class}</p>
                                     </div>
                                     <div className="text-right flex-shrink-0">
-                                        <p className={`text-base font-bold ${s.total >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
-                                            {s.total >= 0 ? '+' : ''}{s.total} สะสม
+                                        <p className="text-base font-bold text-amber-700">
+                                            +{Math.max(0, s.total)} สะสม
                                         </p>
+                                        {s.total < 0 && (
+                                            <p className="text-[11px] text-red-600 font-medium">
+                                                (ปรับปรุงพฤติกรรม {s.total})
+                                            </p>
+                                        )}
                                         <div className="text-xs text-muted-foreground flex items-center justify-end gap-1 flex-wrap">
                                             <span className="text-emerald-700 font-semibold">พร้อมแลก {s.available}</span>
                                             {s.rewardSpent > 0 && (
@@ -918,7 +953,11 @@ function LeaderboardTab() {
 }
 
 // ===== Tab 3: ประวัติคะแนน =====
-function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
+function HistoryTab({ toast, triggerRefresh, refreshKey }: { 
+    toast: ReturnType<typeof useToast>['toast'];
+    triggerRefresh: () => void;
+    refreshKey: number;
+}) {
     const [filterClass, setFilterClass] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterSemester, setFilterSemester] = useState('1');
@@ -936,14 +975,14 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
         } else if (filterType === 'deduct') {
             q = q.eq('type', 'deduct').neq('category', 'reward').is('reward_claim_id', null);
         } else if (filterType === 'reward') {
-            q = q.or('category.eq.reward,reward_claim_id.not.is.null');
+            q = q.or('category.eq.reward,reward_claim_id.not.is.null,reason.ilike.%รับรางวัล%,reason.ilike.%แลกรางวัล%');
         }
         const { data } = await q;
         setRecords((data || []) as ConductRecord[]);
         setIsLoading(false);
     }, [filterSemester, filterYear, filterType]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => { load(); }, [load, refreshKey]);
 
     const filteredRecords = useMemo(() => {
         let result = records;
@@ -959,7 +998,11 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
         if (!deleteId) return;
         const { error } = await conductService.delete(deleteId);
         if (error) toast({ variant: 'destructive', title: 'ลบไม่สำเร็จ' });
-        else { toast({ title: 'ลบรายการสำเร็จ' }); load(); }
+        else { 
+            toast({ title: 'ลบรายการสำเร็จ' }); 
+            load(); 
+            triggerRefresh();
+        }
         setDeleteId(null);
     };
 
@@ -1008,7 +1051,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                     ) : (
                         <div className="space-y-2">
                             {filteredRecords.map(r => {
-                                const isReward = r.category === 'reward' || !!r.reward_claim_id;
+                                const isReward = r.category === 'reward' || !!r.reward_claim_id || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
                                 return (
                                 <div key={r.id} className={`flex items-start gap-3 p-3 rounded-lg border ${r.type === 'add' ? 'border-green-100 bg-green-50/50' : isReward ? 'border-amber-200/80 bg-amber-50/40' : 'border-red-100 bg-red-50/50'}`}>
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : isReward ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
@@ -1020,7 +1063,7 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
                                             <span className="font-medium">{r.students?.name ?? '—'}</span>
                                             <Badge variant="outline" className="text-xs">{r.students?.class}</Badge>
                                             {(() => {
-                                                const meta = getCategoryMeta(r.category);
+                                                const meta = isReward ? getCategoryMeta('reward') : getCategoryMeta(r.category);
                                                 return (
                                                     <Badge 
                                                         variant="outline" 
@@ -1060,9 +1103,14 @@ function HistoryTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) 
 }
 
 // ===== Tab Bulk: บันทึกคะแนนหลายคนพร้อมกัน =====
-function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {
+function BulkRecordTab({ toast, triggerRefresh, refreshKey }: { 
+    toast: ReturnType<typeof useToast>['toast'];
+    triggerRefresh: () => void;
+    refreshKey: number;
+}) {
     const [selectedClass, setSelectedClass] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
+    const [studentScoresMap, setStudentScoresMap] = useState<Record<string, { total: number; available: number }>>({});
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [type, setType] = useState<'add' | 'deduct'>('add');
     const [category, setCategory] = useState('publicMind');
@@ -1077,6 +1125,7 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
     useEffect(() => {
         setStudents([]);
         setSelectedIds(new Set());
+        setStudentScoresMap({});
         if (!selectedClass) return;
 
         let active = true;
@@ -1091,6 +1140,23 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             active = false;
         };
     }, [selectedClass]);
+
+    // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเพื่อแสดงในรายการเลือก
+    useEffect(() => {
+        setStudentScoresMap({});
+        if (students.length === 0) return;
+        let active = true;
+        const ids = students.map(s => s.id);
+        conductService.getAccumulatedScoresForStudents(ids, academicYear).then(scoresMap => {
+            if (active) {
+                setStudentScoresMap(scoresMap);
+            }
+        }).catch(() => {});
+
+        return () => {
+            active = false;
+        };
+    }, [students, academicYear, refreshKey]);
 
     useEffect(() => {
         return () => {
@@ -1179,6 +1245,8 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
             setSelectedIds(new Set());
             setReason('');
             setScore('1');
+
+            triggerRefresh();
         } finally {
             setIsSaving(false);
         }
@@ -1289,13 +1357,22 @@ function BulkRecordTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] 
                                                 </div>
                                                 {/* Avatar */}
                                                 <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
-                                                {/* Name + class number */}
+                                                {/* Name + class number + Current points */}
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`text-sm font-medium truncate ${isSelected ? 'text-primary' : ''}`}>
-                                                        {s.name}
-                                                    </p>
-                                                    {s.class_number && (
-                                                        <p className="text-xs text-muted-foreground">เลขที่ {s.class_number}</p>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <p className={`text-sm font-medium truncate ${isSelected ? 'text-primary' : ''}`}>
+                                                            {s.name}
+                                                        </p>
+                                                        {s.class_number && (
+                                                            <span className="text-xs text-muted-foreground">เลขที่ {s.class_number}</span>
+                                                        )}
+                                                    </div>
+                                                    {studentScoresMap[s.id] && (
+                                                        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
+                                                            <span className="font-semibold text-amber-700">สะสม {studentScoresMap[s.id].total}</span>
+                                                            <span>·</span>
+                                                            <span className="font-semibold text-emerald-700">แลกได้ {studentScoresMap[s.id].available}</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                                 {/* Gender dot */}

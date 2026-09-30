@@ -182,6 +182,8 @@ const CATEGORY_ALIAS_MAP: Record<string, string> = {
   device: 'device',
   reward: 'reward',
   'แลกของรางวัล': 'reward',
+  'แลกรางวัล': 'reward',
+  'รับรางวัลแล้ว': 'reward',
 
   'จิตสาธารณะ': 'publicMind',
   'จิตอาสา': 'publicMind',
@@ -378,6 +380,9 @@ export const getEmotionalFeedback = (category: string, reason: string): string =
   if (matchedKey === 'device') {
     return 'การมีวินัยในการใช้อุปกรณ์สื่อสารช่วยให้การเรียนรู้มีประสิทธิภาพยิ่งขึ้น 📱';
   }
+  if (matchedKey === 'reward') {
+    return 'ยินดีด้วยกับการนำความดีมาแลกของรางวัลแห่งความภาคภูมิใจ 🎁';
+  }
 
   const virtue = mapCategoryToVirtue(category);
   switch (virtue) {
@@ -403,12 +408,13 @@ export const conductService = {
   mapCategoryToVirtue,
   getConductCategoryMeta,
   CONDUCT_CATEGORIES,
-  /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อ+รูปนักเรียน) */
+  /** ดึงประวัติคะแนนความดีทั้งหมด (พร้อม join ชื่อ+รูปนักเรียน) — รองรับสูงสุด 2,000 รายการ */
   getAll: (semester?: string, academicYear?: string) => {
     let q = supabase
       .from('conduct_scores')
       .select('*, students(name, class, photo_url)')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(0, 1999);
     if (semester) q = q.eq('semester', semester);
     if (academicYear) q = q.eq('academic_year', academicYear);
     return q;
@@ -426,7 +432,7 @@ export const conductService = {
   getAccumulatedScore: async (studentId: string, academicYear: string): Promise<{ total: number; available: number }> => {
     let q = supabase
       .from('conduct_scores')
-      .select('score, type, category, reward_claim_id, academic_year')
+      .select('score, type, category, reason, reward_claim_id, academic_year')
       .eq('student_id', studentId);
     if (academicYear) {
       q = q.eq('academic_year', academicYear);
@@ -439,9 +445,10 @@ export const conductService = {
       .filter(r => !academicYear || r.academic_year === academicYear)
       .forEach(r => {
         const val = Number(r.score) || 0;
+        const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
         if (r.type === 'add') {
           total += val;
-        } else if (r.reward_claim_id || r.category === 'reward') {
+        } else if (isReward) {
           spent += val;
         } else {
           total -= val;
@@ -457,7 +464,7 @@ export const conductService = {
     if (studentIds.length === 0) return {};
     let q = supabase
       .from('conduct_scores')
-      .select('student_id, score, type, category, reward_claim_id, academic_year')
+      .select('student_id, score, type, category, reason, reward_claim_id, academic_year')
       .in('student_id', studentIds);
     if (academicYear) {
       q = q.eq('academic_year', academicYear);
@@ -470,9 +477,10 @@ export const conductService = {
       data.forEach(r => {
         if (!academicYear || r.academic_year === academicYear) {
           const val = Number(r.score) || 0;
+          const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
           if (r.type === 'add') {
             scoreMap[r.student_id].total += val;
-          } else if (r.reward_claim_id || r.category === 'reward') {
+          } else if (isReward) {
             spentMap[r.student_id] = (spentMap[r.student_id] || 0) + val;
           } else {
             scoreMap[r.student_id].total -= val;
@@ -490,13 +498,14 @@ export const conductService = {
     return scoreMap;
   },
 
-  /** ดึงเฉพาะคะแนน "บวก" สำหรับหน้าสาธารณะ (hall of fame) — รวม photo_url */
+  /** ดึงเฉพาะคะแนน "บวก" สำหรับหน้าสาธารณะ (hall of fame) — รวม photo_url และรองรับสูงสุด 2,000 รายการ */
   getPublicPositive: (semester?: string, academicYear?: string) => {
     let q = supabase
       .from('conduct_scores')
       .select('*, students(name, class, photo_url)')
       .eq('type', 'add')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(0, 1999);
     if (semester) q = q.eq('semester', semester);
     if (academicYear) q = q.eq('academic_year', academicYear);
     return q;
@@ -626,7 +635,8 @@ export const conductService = {
         }
       } else {
         // รายการแลกของรางวัลจะไม่ลดคะแนนเกียรติยศ totalXp หรือ radar chart
-        if (!r.reward_claim_id && r.category !== 'reward') {
+        const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
+        if (!isReward) {
           totalXp = Math.max(0, totalXp - r.score);
           // การหักคะแนนพฤติกรรมส่งผลลดมิติเรดาร์ย่อย
           virtues[v] = Math.max(0, virtues[v] - r.score);

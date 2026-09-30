@@ -228,6 +228,22 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 - **Educational Hub Integration:** เชื่อมโยงเข้ากับพื้นที่ครูณัฐพงษ์ (`/h/nattapong`), เส้นทางลัด `/nattapong`, และเมนูระบบจัดการข้อสอบใน Teacher Portal
 - **Light-Mode Strict Compliance:** ใช้ CSS vars มาตรฐาน (`bg-background`, `bg-card`, `text-foreground`, `border-border`) ปราศจากคลาส `dark:` และไม่มี hex color hardcoded
 
+### Virtue Ledger Audit & Multi-Tab Real-Time Coordination (v1.229.113)
+
+- **Audit & Migration 547 (Fix Reward Deductions Category):**
+  - ตรวจสอบรายการใน `conduct_scores` ทั้งหมด 572 รายการ (ปี 2569) พบรายการหักคะแนน 9 รายการที่มีเหตุผลว่า "รับรางวัลแล้ว" / "แลกรางวัล" บันทึกเป็น `category = 'discipline'`
+  - Migration 547 ปรับปรุงรายการย้อนหลังทั้งหมดให้เป็น `category = 'reward'` และปรับปรุง SQL RPCs (`get_top_heroes`, `claim_reward`, `lookup_student_balance`) ให้ยกเว้น `category = 'reward'` จากการหักคะแนนเกียรติยศสะสม (Honor Score) ไม่ให้อันดับเด็กตกจากการรับรางวัล
+- **Form Category & Preset Reasons Expansion:**
+  - เพิ่มหมวดหมู่ `reward` (แลกของรางวัล 🎁) ใน `PRESET_REASONS.deduct` ของ `ConductManagement.tsx` พร้อมเหตุผลสำเร็จรูป ("รับรางวัลแล้ว 🎁", "แลกของรางวัลจากธนาคารความดี 🎁", "แลกสิทธิ์/ของรางวัลกิจกรรม 🎪", "แลกอุปกรณ์การเรียน ✏️") เพื่อป้องกันครูบันทึกหมวดหมู่วินัยซ้ำซ้อน
+- **Real-Time Cross-Tab Query Coordination:**
+  - ผสาน `useQueryClient` และ `refreshKey` ข้ามทั้ง 4 แท็บ (`RecordTab`, `BulkRecordTab`, `LeaderboardTab`, `HistoryTab`) ให้ซิงค์ข้อมูลเรียลไทม์ทันทีหลังการบวก/หัก/ลบคะแนน โดยไม่ต้องรีเฟรชหน้าจอ
+- **Bulk Record Tab Balance Preview:**
+  - ในรายการเลือกนักเรียนแบบหลายคน (`BulkRecordTab`) เพิ่มชิปแสดงยอดคะแนนปัจจุบัน (`สะสม X · แลกได้ Y`) ท้ายชื่อนักเรียนแต่ละคน เพิ่มความมั่นใจให้คุณครูก่อนตัดสินใจบันทึก
+- **PostgREST 1,000-Row Ceiling Fix:**
+  - เพิ่ม `.range(0, 1999)` ใน `conductService.getAll()` และ `conductService.getPublicPositive()` ป้องกันข้อมูลถูกตัดทิ้งเมื่อตารางมีขนาดเกิน 1,000 แถว
+- **Positive Reinforcement Display for Net Demerits:**
+  - ในแท็บอันดับ หากนักเรียนมีคะแนนสุทธิติดลบ แสดง `0 สะสม` พร้อมป้ายกำกับ `(ปรับปรุงพฤติกรรม -X)` สอดคล้องกับแท็บบันทึกรายคน และเป็นไปตามหลักจิตวิทยาเชิงบวกของเด็ก
+
 ### Dual-Metric Virtue Points & Non-Demoting Hero Rankings (v1.229.99)
 
 - **Dual-Metric Virtue Architecture:** แยกประเภทคะแนนความดีอย่างชัดเจนเพื่อไม่ให้การให้รางวัลแก่นักเรียนสร้างผลกระทบเชิงลบต่ออันดับเกียรติยศ:
