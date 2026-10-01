@@ -130,7 +130,7 @@ export const PrintableExamPaper: React.FC<PrintableExamPaperProps> = ({
                   <img
                     src={q.media_image_url}
                     alt={q.media_title || 'สื่อประกอบข้อสอบ'}
-                    className="max-h-36 max-w-full rounded border border-border/80 object-cover print:border-gray-400"
+                    className="max-h-36 max-w-full rounded border border-border/80 object-contain bg-white print:border-gray-400"
                   />
                   {q.media_title && (
                     <div className="text-[10px] text-muted-foreground print:text-gray-600 mt-0.5">

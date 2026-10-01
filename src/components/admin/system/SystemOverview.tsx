@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.122 (คลังข้อสอบวิชาภาษาอังกฤษแนวตอบคำถามจากภาพ 60 ข้อ อิงคลังสื่อจริง vocab-hub-assets พร้อมชุดข้อสอบมาตรฐาน ENGPIC60 และพรีวิวภาพในระบบครู)',
+        date: '1 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'คลังข้อสอบภาพภาษาอังกฤษ 60 ข้อ (Visual English Vocabulary Bank - Migration 558): บรรจุข้อสอบปรนัยแนวตอบคำถามจากภาพ (Look at the picture...) จำนวน 60 ข้อ ครอบคลุม 6 หมวดคำศัพท์สำคัญ ป.4 (Colors & Shapes, Classroom, Animals, Food & Fruits, Body & Clothes, Actions, Vehicles & Weather) ผูกตัวชี้วัด สพฐ. ต 1.1 ป.4/3 ครบ 100%',
+            'การสร้างสินทรัพย์ภาพสีสันใหม่ (Kid-Friendly Color Assets): สร้างชุดภาพ WebP 512×512 สำหรับ 11 สีพื้นฐาน (Red, Blue, Green, Yellow, Pink ฯลฯ) ใน public/games/english/vocab-hub-assets/colors/ ด้วยสไตล์เวกเตอร์สดใส ปลอดภัยและเหมาะกับเด็กประถม',
+            'ชุดข้อสอบมาตรฐาน ENGPIC60: สร้างชุดข้อสอบ 60 ข้อ พร้อมรหัส PIN "ENGPIC60" ใน exam_sets เปิดให้นักเรียนเข้าสอบออนไลน์ผ่าน ExamOnline ได้ทันที หรือสั่งพิมพ์กระดาษข้อสอบฉบับสมบูรณ์ผ่าน PrintableExamPaper',
+            'การแสดงภาพพรีวิวในแดชบอร์ดครู (Teacher Visual Preview): อัปเกรดตารางคลังข้อสอบใน TeacherExamManagement ให้แสดงรูปภาพตัวอย่าง (Thumbnail) ประกอบข้อสอบทันที เพื่อให้ครูกวาดสายตาคัดเลือกข้อสอบภาพได้อย่างสะดวกรวดเร็ว',
+        ],
+    },
+    {
         version: 'v1.229.121 (ขยายคลังข้อสอบเพิ่มขึ้น 1 เท่าตัว ครบทุกรูปแบบ 3,624 ข้อ — อัตนัย 234 ข้อ, เติมคำ 390 ข้อ, ปรนัย 3,000 ข้อ ไร้ข้อซ้ำ กำกวม พร้อมรูบริกและ accepted_answers ครบ 100%)',
         date: '1 ต.ค. 2569',
         badge: 'bg-primary',

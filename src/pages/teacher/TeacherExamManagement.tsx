@@ -2306,6 +2306,21 @@ ${mediaInstruction}
                                   {q.question_text}
                                 </div>
 
+                                {/* Question Image Stimulus if available */}
+                                {Boolean(q.media_image_url) && (
+                                  <div className="my-2 p-1.5 bg-muted/20 border border-border rounded-lg flex items-center gap-2.5 w-fit">
+                                    <img
+                                      src={String(q.media_image_url)}
+                                      alt={String(q.media_title || 'ภาพประกอบข้อสอบ')}
+                                      className="h-14 w-14 object-contain rounded bg-card border border-border shrink-0"
+                                    />
+                                    <div className="text-[11px] text-muted-foreground pr-2">
+                                      <div className="font-semibold text-foreground">ภาพประกอบข้อสอบ</div>
+                                      <div className="text-[10px] text-muted-foreground">{String(q.media_title || '')}</div>
+                                    </div>
+                                  </div>
+                                )}
+
                                 {/* MCQ Choices Display */}
                                 {(!q.question_type || q.question_type === 'mcq') && opts.length > 0 && (
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1.5 text-[11px] text-muted-foreground">
@@ -3644,6 +3659,16 @@ ${mediaInstruction}
                             </Badge>
                           </div>
                           <p className="text-xs font-medium text-foreground">{q.question_text}</p>
+                          {Boolean(q.media_image_url) && (
+                            <div className="mt-1 flex items-center gap-2 p-1 bg-muted/20 border border-border rounded w-fit">
+                              <img
+                                src={String(q.media_image_url)}
+                                alt="ภาพประกอบ"
+                                className="h-9 w-9 object-contain rounded bg-card border border-border shrink-0"
+                              />
+                              <span className="text-[10px] text-muted-foreground">{String(q.media_title || '')}</span>
+                            </div>
+                          )}
                         </div>
                         <Button
                           variant="ghost"
