@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
-  Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle
+  Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle, Shuffle
 } from 'lucide-react';
 import { examService, type ExamSetRow } from '@/services/exam.service';
 import { studentsService, type StudentMin } from '@/services/students.service';
@@ -37,6 +37,24 @@ interface QuestionItem {
   media_image_url?: string;
 }
 
+interface RandomizedQuestionItem extends QuestionItem {
+  _originalQuestionIndex: number;
+  _optionsMapping?: number[]; // displayed choice index -> original choice index
+}
+
+/**
+ * Fisher-Yates (Knuth) Shuffle อัลกอริทึม
+ * สลับตำแหน่งสมาชิกในอาร์เรย์แบบสุ่มอิสระสำหรับนักเรียนแต่ละคน
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 const GRADE_LIST = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
 export default function ExamOnline() {
@@ -58,7 +76,7 @@ export default function ExamOnline() {
   const [selectedStudent, setSelectedStudent] = useState<StudentMin | null>(null);
 
   // Exam Answers & Timer
-  const [currentExamQuestions, setCurrentExamQuestions] = useState<QuestionItem[]>([]);
+  const [currentExamQuestions, setCurrentExamQuestions] = useState<RandomizedQuestionItem[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<number, number | string | boolean>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [timeTotal, setTimeTotal] = useState<number>(0);
@@ -153,15 +171,54 @@ export default function ExamOnline() {
     }
     if (!selectedExamSet) return;
 
-    const questions: QuestionItem[] = Array.isArray(selectedExamSet.questions)
+    const rawQuestions: QuestionItem[] = Array.isArray(selectedExamSet.questions)
       ? (selectedExamSet.questions as QuestionItem[])
       : [];
-    if (!questions.length) {
+    if (!rawQuestions.length) {
       toast({ title: 'ชุดข้อสอบนี้ยังไม่มีคำถาม', variant: 'destructive' });
       return;
     }
 
-    setCurrentExamQuestions(questions);
+    // 1. สุ่มสลับตัวเลือกของแต่ละข้อสอบ (สำหรับปรนัย MCQ) พร้อมบันทึก mapping กลับไปยังต้นฉบับ
+    const preparedQuestions: RandomizedQuestionItem[] = rawQuestions.map((q, origIdx) => {
+      const qType = q.question_type || 'mcq';
+
+      // ถ้าเป็นปรนัย (MCQ) และมีตัวเลือกมากกว่า 1 ตัวเลือก ให้สลับลำดับตัวเลือก
+      if (qType === 'mcq' && Array.isArray(q.options) && q.options.length > 1) {
+        const origOptions = q.options;
+        const originalAnswerIdx = Number(q.answer);
+
+        // นำตัวเลือกมาจับคู่กับ index เดิม
+        const indexedOptions = origOptions.map((text, oIdx) => ({ text, originalIdx: oIdx }));
+        const shuffledOpts = shuffleArray(indexedOptions);
+
+        // คำนวณตำแหน่งเฉลยที่ถูกต้องในลำดับตัวเลือกใหม่
+        let newAnswerIdx = shuffledOpts.findIndex((opt) => opt.originalIdx === originalAnswerIdx);
+        // กรณีสำรอง: ถ้า q.answer เป็นข้อความตัวอักษรแทนดัชนีตัวเลข
+        if (newAnswerIdx === -1 && typeof q.answer === 'string') {
+          newAnswerIdx = shuffledOpts.findIndex((opt) => opt.text.trim() === String(q.answer).trim());
+        }
+
+        return {
+          ...q,
+          options: shuffledOpts.map((opt) => opt.text),
+          answer: newAnswerIdx !== -1 ? newAnswerIdx : originalAnswerIdx,
+          _originalQuestionIndex: origIdx,
+          _optionsMapping: shuffledOpts.map((opt) => opt.originalIdx),
+        };
+      }
+
+      // สำหรับข้อสอบประเภทอื่น (อัตนัย / เติมคำ / จับคู่)
+      return {
+        ...q,
+        _originalQuestionIndex: origIdx,
+      };
+    });
+
+    // 2. สุ่มสลับลำดับข้อสอบทั้งหมดในชุด สำหรับนักเรียนแต่ละคน (Anti-Cheating Randomization)
+    const randomizedQuestions = shuffleArray(preparedQuestions);
+
+    setCurrentExamQuestions(randomizedQuestions);
     setUserAnswers({});
     const totalSec = (selectedExamSet.time_limit_minutes || 60) * 60;
     setTimeRemaining(totalSec);
@@ -217,6 +274,7 @@ export default function ExamOnline() {
     let totalMaxScore = 0;
     let essayCount = 0;
 
+    // ตรวจคำตอบตามคีย์และตัวเลือกที่สลับของชุดนี้ (Instant Grading)
     currentExamQuestions.forEach((q, idx) => {
       const qType = q.question_type || 'mcq';
       const points = Number(q.points) > 0 ? Number(q.points) : 1;
@@ -275,6 +333,27 @@ export default function ExamOnline() {
       reviewStatus,
     });
 
+    // แปลงคำตอบของนักเรียนกลับสู่ดัชนีข้อสอบและดัชนีตัวเลือกเดิม (Normalized Answers)
+    // เพื่อให้ระบบตรวจข้อสอบอัตนัย, การวิเคราะห์ข้อสอบ (Item Analysis / KR-20), และรายงานผล (Diagnostic) ถูกต้อง 100%
+    const normalizedAnswers: Record<string | number, unknown> = {};
+    currentExamQuestions.forEach((q, dispIdx) => {
+      const origQIdx = q._originalQuestionIndex !== undefined ? q._originalQuestionIndex : dispIdx;
+      const studentAns = userAnswers[dispIdx];
+
+      if (studentAns === undefined || studentAns === null) {
+        return;
+      }
+
+      const qType = q.question_type || 'mcq';
+      if (qType === 'mcq' && Array.isArray(q._optionsMapping) && typeof studentAns === 'number') {
+        // แมปดัชนีตัวเลือกที่แสดงผลบนจอ กลับไปเป็นดัชนีตัวเลือกเดิมในชุดข้อสอบหลัก
+        const origChoiceIdx = q._optionsMapping[studentAns] !== undefined ? q._optionsMapping[studentAns] : studentAns;
+        normalizedAnswers[origQIdx] = origChoiceIdx;
+      } else {
+        normalizedAnswers[origQIdx] = studentAns;
+      }
+    });
+
     submitMutation.mutate({
       exam_set_id: selectedExamSet.id,
       student_id: selectedStudent.id,
@@ -286,7 +365,7 @@ export default function ExamOnline() {
       max_score: maxScore,
       percentage,
       passed,
-      answers: userAnswers as unknown as Json,
+      answers: normalizedAnswers as unknown as Json,
       time_used_seconds: timeUsedSec,
       review_status: reviewStatus,
     });
@@ -425,6 +504,11 @@ export default function ExamOnline() {
                   </div>
                 </div>
 
+                <div className="p-2.5 bg-primary/5 border border-primary/20 rounded-xl text-xs flex items-center gap-2 text-primary">
+                  <Shuffle className="h-4 w-4 shrink-0" />
+                  <span>ระบบจะสลับลำดับข้อสอบและตัวเลือกอัตโนมัติสำหรับนักเรียนแต่ละคน</span>
+                </div>
+
                 <div className="pt-2 flex gap-2">
                   <Button
                     variant="outline"
@@ -454,7 +538,7 @@ export default function ExamOnline() {
         {screen === 'exam' && selectedExamSet && (
           <div className="space-y-6">
             {/* Student Bar */}
-            <div className="p-3 bg-muted/40 border border-border rounded-xl flex items-center justify-between text-xs">
+            <div className="p-3 bg-muted/40 border border-border rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2">
                 <PersonAvatar
                   name={selectedStudent?.name || ''}
@@ -469,8 +553,14 @@ export default function ExamOnline() {
                 </div>
               </div>
 
-              <div className="text-[11px] text-muted-foreground">
-                ตอบแล้ว: <span className="font-bold text-foreground">{Object.keys(userAnswers).length}</span> / {currentExamQuestions.length} ข้อ
+              <div className="flex items-center gap-2.5">
+                <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/20">
+                  <Shuffle className="h-3 w-3" />
+                  สุ่มข้อ & สลับตัวเลือก
+                </Badge>
+                <div className="text-[11px] text-muted-foreground">
+                  ตอบแล้ว: <span className="font-bold text-foreground">{Object.keys(userAnswers).length}</span> / {currentExamQuestions.length} ข้อ
+                </div>
               </div>
             </div>
 
