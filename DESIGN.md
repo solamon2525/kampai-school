@@ -1021,6 +1021,12 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
   - **ภาษาอังกฤษ (60 ข้อ — 6 มิติ):** D1 Vocab Hub (Classroom, Body, Animals, Food, Clothes), D2 Sentence Completion, D3 Classroom TPR Commands (Stand up/Sit down/Open book), D4 Phonics & Missing Letters (Magic E, Vowel Digraphs, CVC), D5 Grammar/Past Tenses/Prepositions (in/on/under, went/saw/ate), D6 Everyday Conversations (Where from / How are you)
   - **Smart Acceptance:** ทุกข้อกำหนด `accepted_answers` รองรับตัวเลขอารบิก/เลขไทย, มี/ไม่มีหน่วย, เว้นวรรค, และตัวพิมพ์เล็ก-ใหญ่ ไม่ตัดคะแนนจากความแตกต่างในการพิมพ์
   - **Dedicated Standard Sets:** มีชุดข้อสอบเติมคำล้วน 60 ข้อต่อวิชา พร้อม PIN สอบออนไลน์: `THAIFILL60`, `MATHFILL60`, และ `ENGFILL60`
+- **คลังข้อสอบอัตนัยระดับง่าย 110 ข้อ ครบ 11 กลุ่มสาระ (Bulk Easy Essay Architecture - Migration 554):**
+  - **ครอบคลุม 11 กลุ่มสาระ:** ภาษาไทย, คณิตศาสตร์, วิทยาศาสตร์, ภาษาอังกฤษ, สังคมศึกษา, ประวัติศาสตร์, สุขศึกษา, ศิลปะ, การงานอาชีพ, เทคโนโลยี, ต้านทุจริต (วิชาละ 10 ข้อ รวมเป็น 117 ข้อทั้งระบบ)
+  - **การออกแบบระดับง่าย (Kid-Friendly):** ระดับความเข้าใจและการประยุกต์ใช้ (Bloom L2/L3) ตอบ 2–4 บรรทัด หรือแสดงวิธีคิด 2–3 ขั้นตอน พร้อมภาพสื่อการสอนประกอบโจทย์ (`media_image_url`) ที่มี `object-cover` กำกับ และผูกตัวชี้วัด สพฐ. 2551 ครบ 100%
+  - **เกณฑ์รูบริก 5 คะแนน (Transparent 5-Point Rubric):** ทุกข้อมีโครงสร้าง `rubric` กำหนดคะแนนเต็ม 5 คะแนน แบ่งคะแนนย่อย 2–3 เกณฑ์อย่างสมดุล พร้อมชุดคำสำคัญ (`keywords`) และแนวคำตอบ (`answer`) รองรับระบบตรวจอัตนัยของครูใน `TeacherExamManagement.tsx`
+  - **Dedicated Standard Sets:** ชุดทดสอบอัตนัยบูรณาการ 11 วิชา `ESSAY11` (11 ข้อ, 55 คะแนน, 45 นาที) และชุดทดสอบอัตนัย 5 วิชาแกน `ESSAYCORE` (10 ข้อ, 50 คะแนน, 40 นาที) พร้อมรหัส PIN และระบบสั่งพิมพ์
+
 
 ---
 
