@@ -103,7 +103,7 @@ export const SUBJECT_MAP: Record<string, SubjectConfigItem> = {
     colorClass: 'border-emerald-300 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/60',
     badgeClass: 'bg-emerald-500/10 text-emerald-800 border-emerald-300/60',
     activeColor: 'bg-emerald-600 text-white border-emerald-600 shadow-sm',
-    suggestedTopics: ['ระบบสุริยะและดวงดาว', 'สถานะของสาร', 'วงจรไฟฟ้าอย่างง่าย', 'ห่วงโซ่อาหารและสิ่งแวดล้อม', 'แรงและการเคลื่อนที่'],
+    suggestedTopics: ['ระบบสุริยะและดวงดาว', 'สถานะของสาร', 'วงจรไฟฟ้าอย่างง่าย', 'ห่วงโซ่อาหารและสิ่งแวดล้อม', 'แรงและการเคลื่อนที่', 'การคิดเชิงคำนวณและผังงาน', 'การเขียนโปรแกรม Scratch'],
   },
   'ภาษาอังกฤษ': {
     id: 'english',
