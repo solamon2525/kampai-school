@@ -3,14 +3,16 @@
  * ระบบบริหารจัดการข้อสอบ คลังข้อสอบ และการตรวจ OMR สำหรับครูและบุคลากร
  * รองรับ: AI ออกข้อสอบ, คลังข้อสอบ, จัดชุดข้อสอบ, พิมพ์ A4/OMR, สแกนด้วยกล้องมือถือ, และรายงานผลสอบ
  */
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine, Image as ImageIcon, XCircle
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine, Image as ImageIcon, XCircle,
+  Users, Award, ShieldCheck, TrendingUp
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
 import {
@@ -611,20 +613,97 @@ export default function TeacherExamManagement() {
   const { data: submissions = [], isLoading: loadingSubmissions } = useQuery({
     queryKey: ['exam_submissions'],
     queryFn: () => examService.listSubmissions(),
+    refetchInterval: activeTab === 'results' ? 4000 : false,
   });
 
   // กรองเฉพาะชุดข้อสอบที่เปิดใช้งาน (is_active === true) เพื่อไม่ให้ชุดที่ลบ/ยกเลิกแสดงในประวัติ
   const activeExamSets = useMemo(() => examSets.filter((s) => s.is_active), [examSets]);
   const activeExamSetIds = useMemo(() => new Set(activeExamSets.map((s) => s.id)), [activeExamSets]);
 
+  // เลือกชุดข้อสอบที่มีผลการสอบให้อัตโนมัติทันที หากยังไม่ได้ระบุ
+  useEffect(() => {
+    if (!selectedAnalysisSetId && activeExamSets.length > 0 && submissions.length > 0) {
+      const setWithSubmissions = activeExamSets.find((set) =>
+        submissions.some((sub) => sub.exam_set_id === set.id)
+      );
+      if (setWithSubmissions) {
+        setSelectedAnalysisSetId(setWithSubmissions.id);
+      }
+    }
+  }, [activeExamSets, submissions, selectedAnalysisSetId]);
+
+  // ระบบ Realtime ดักจับผลสอบใหม่จากนักเรียนและอัปเดตหน้าจอทันที 0ms
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime_teacher_exam_submissions')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'exam_submissions' },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
+          if (payload.eventType === 'INSERT') {
+            const newRecord = payload.new as ExamSubmissionRow;
+            toast({
+              title: '🔔 มีผลสอบใหม่ส่งเข้ามาทันที!',
+              description: `${newRecord.student_name} (${newRecord.student_class}) ทำได้ ${newRecord.score}/${newRecord.max_score} คะแนน`,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient, toast]);
+
   const filteredSubmissions = useMemo(() => {
     return submissions.filter((s) => {
       // ต้องเป็นผลสอบของชุดข้อสอบที่ยังเปิดใช้งานอยู่เท่านั้น
       if (!activeExamSetIds.has(s.exam_set_id)) return false;
-      if (selectedAnalysisSetId && s.exam_set_id !== selectedAnalysisSetId) return false;
+      if (selectedAnalysisSetId && selectedAnalysisSetId !== 'all' && s.exam_set_id !== selectedAnalysisSetId) return false;
       return true;
     });
   }, [submissions, activeExamSetIds, selectedAnalysisSetId]);
+
+  // ชุดข้อสอบที่กำลังดูผลสอบอยู่
+  const currentAnalysisSet = useMemo(() => {
+    if (!selectedAnalysisSetId || selectedAnalysisSetId === 'all') {
+      return null;
+    }
+    return activeExamSets.find((s) => s.id === selectedAnalysisSetId) || null;
+  }, [activeExamSets, selectedAnalysisSetId]);
+
+  // สรุปสถิติภาพรวมของการสอบทันที (KPI Overview)
+  const examStats = useMemo(() => {
+    const list = filteredSubmissions;
+    const count = list.length;
+    if (count === 0) return null;
+
+    const totalEarned = list.reduce((sum, s) => sum + Number(s.score || 0), 0);
+    const totalMax = list.reduce((sum, s) => sum + Number(s.max_score || 0), 0);
+    const avgScore = (totalEarned / count).toFixed(1);
+    const maxScore = list[0]?.max_score || (currentAnalysisSet ? (Array.isArray(currentAnalysisSet.questions) ? currentAnalysisSet.questions.length : 20) : 20);
+    const avgPercentage = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
+    const passedCount = list.filter((s) => s.passed).length;
+    const failedCount = count - passedCount;
+    const passRate = Math.round((passedCount / count) * 100);
+
+    const highestScore = Math.max(...list.map((s) => Number(s.score || 0)));
+    const lowestScore = Math.min(...list.map((s) => Number(s.score || 0)));
+
+    return {
+      count,
+      avgScore,
+      maxScore,
+      avgPercentage,
+      passedCount,
+      failedCount,
+      passRate,
+      highestScore,
+      lowestScore,
+    };
+  }, [filteredSubmissions, currentAnalysisSet]);
 
   // Selected student details
   const matchedStudent = useMemo(() => {
@@ -3615,11 +3694,14 @@ ${mediaInstruction}
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">— ทุกชุดข้อสอบ (เฉพาะที่เปิดสอบ) —</SelectItem>
-                        {activeExamSets.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.title} ({s.subject} · {s.grade})
-                          </SelectItem>
-                        ))}
+                        {activeExamSets.map((s) => {
+                          const subCount = submissions.filter((sub) => sub.exam_set_id === s.id).length;
+                          return (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.title} ({s.subject} · {s.grade}){subCount > 0 ? ` [สอบแล้ว ${subCount} คน]` : ''}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -3655,6 +3737,146 @@ ${mediaInstruction}
                     </Button>
                   </div>
                 </div>
+
+                {/* Instant Exam Overview & KPI Banner */}
+                {currentAnalysisSet ? (
+                  <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-3.5">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="text-[11px] font-semibold bg-background text-primary border-primary/30">
+                            ข้อมูลชุดข้อสอบ
+                          </Badge>
+                          <h3 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-1.5">
+                            <BookOpen className="h-4 w-4 text-primary" />
+                            {currentAnalysisSet.title}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground">
+                          <Badge variant="secondary" className="text-[11px] font-normal">
+                            วิชา: {currentAnalysisSet.subject}
+                          </Badge>
+                          <Badge variant="secondary" className="text-[11px] font-normal">
+                            ระดับชั้น: {currentAnalysisSet.grade}
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px] font-mono font-semibold text-primary border-primary/30 bg-background">
+                            PIN: {currentAnalysisSet.pin_code || '-'}
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px] font-normal bg-background">
+                            จำนวน: {Array.isArray(currentAnalysisSet.questions) ? currentAnalysisSet.questions.length : 0} ข้อ
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px] font-normal bg-background">
+                            เวลาสอบ: {currentAnalysisSet.time_limit_minutes ? `${currentAnalysisSet.time_limit_minutes} นาที` : 'ไม่จำกัด'}
+                          </Badge>
+                          <Badge variant="outline" className="text-[11px] font-normal bg-background">
+                            เกณฑ์ผ่าน: {currentAnalysisSet.passing_score ?? 60}%
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-start md:self-center">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background border border-emerald-300 text-emerald-800 text-[11px] shadow-xs">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          <span className="font-medium">อัปเดตผลสอบทันที (Realtime)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* KPI Summary Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+                      <div className="p-3 rounded-lg bg-background border border-border shadow-xs">
+                        <div className="flex items-center justify-between text-muted-foreground mb-1">
+                          <span className="text-[11px] font-medium">ผู้เข้าสอบทั้งหมด</span>
+                          <Users className="h-3.5 w-3.5 text-blue-600" />
+                        </div>
+                        <div className="text-xl font-bold text-foreground">
+                          {examStats ? examStats.count : 0} <span className="text-xs font-normal text-muted-foreground">คน</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          ส่งข้อสอบเรียบร้อย
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-background border border-border shadow-xs">
+                        <div className="flex items-center justify-between text-muted-foreground mb-1">
+                          <span className="text-[11px] font-medium">คะแนนเฉลี่ย</span>
+                          <TrendingUp className="h-3.5 w-3.5 text-amber-600" />
+                        </div>
+                        <div className="text-xl font-bold text-foreground">
+                          {examStats ? examStats.avgScore : '-'} <span className="text-xs font-normal text-muted-foreground">/ {examStats ? examStats.maxScore : '-'}</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          เฉลี่ยร้อยละ {examStats ? examStats.avgPercentage : 0}%
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-background border border-border shadow-xs">
+                        <div className="flex items-center justify-between text-muted-foreground mb-1">
+                          <span className="text-[11px] font-medium">สูงสุด / ต่ำสุด</span>
+                          <Award className="h-3.5 w-3.5 text-purple-600" />
+                        </div>
+                        <div className="text-xl font-bold text-foreground">
+                          {examStats ? examStats.highestScore : '-'} <span className="text-xs font-normal text-muted-foreground">/ {examStats ? examStats.lowestScore : '-'}</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          จากคะแนนเต็ม {examStats ? examStats.maxScore : '-'} คะแนน
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-background border border-border shadow-xs">
+                        <div className="flex items-center justify-between text-muted-foreground mb-1">
+                          <span className="text-[11px] font-medium">อัตราการสอบผ่าน</span>
+                          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                        </div>
+                        <div className="text-xl font-bold text-foreground">
+                          {examStats ? `${examStats.passRate}%` : '-'}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          ผ่าน {examStats ? examStats.passedCount : 0} · ไม่ผ่าน {examStats ? examStats.failedCount : 0} คน
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : examStats ? (
+                  <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-[11px]">ภาพรวมทั้งระบบ</Badge>
+                        <span className="text-xs font-semibold text-foreground">
+                          รวมผลการสอบทุกชุดข้อสอบที่เปิดใช้งาน ({activeExamSets.length} ชุด)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-emerald-800 text-[11px]">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span className="font-medium">อัปเดตผลสอบทันที (Realtime)</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                      <div className="p-2.5 rounded-lg bg-background border border-border text-center">
+                        <div className="text-[11px] text-muted-foreground">ผลสอบทั้งหมด</div>
+                        <div className="text-lg font-bold text-foreground">{examStats.count} <span className="text-xs font-normal">รายการ</span></div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-background border border-border text-center">
+                        <div className="text-[11px] text-muted-foreground">คะแนนเฉลี่ย</div>
+                        <div className="text-lg font-bold text-foreground">{examStats.avgScore} <span className="text-xs font-normal">คะแนน</span></div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-background border border-border text-center">
+                        <div className="text-[11px] text-muted-foreground">ร้อยละเฉลี่ย</div>
+                        <div className="text-lg font-bold text-foreground">{examStats.avgPercentage}%</div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-background border border-border text-center">
+                        <div className="text-[11px] text-muted-foreground">ผ่านเกณฑ์</div>
+                        <div className="text-lg font-bold text-emerald-700">{examStats.passRate}% <span className="text-xs font-normal text-muted-foreground">({examStats.passedCount}/{examStats.count})</span></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
 
                 {/* Sub-view Content: Competency vs Analysis vs List */}
                 {resultsViewMode === 'competency' ? (
@@ -3731,12 +3953,15 @@ ${mediaInstruction}
                               <th className="py-2.5 px-3">#</th>
                               <th className="py-2.5 px-3">นักเรียน</th>
                               <th className="py-2.5 px-3">ชั้น / เลขที่</th>
+                              {(!selectedAnalysisSetId || selectedAnalysisSetId === 'all') && (
+                                <th className="py-2.5 px-3">ชุดข้อสอบ</th>
+                              )}
                               <th className="py-2.5 px-3">คะแนน</th>
                               <th className="py-2.5 px-3">ร้อยละ</th>
                               <th className="py-2.5 px-3">ผลสอบ</th>
                               <th className="py-2.5 px-3">สถานะตรวจ</th>
                               <th className="py-2.5 px-3">ช่องทาง</th>
-                              <th className="py-2.5 px-3">วันที่สอบ</th>
+                              <th className="py-2.5 px-3">วัน-เวลาสอบ</th>
                               <th className="py-2.5 px-3 text-right">การจัดการ</th>
                             </tr>
                           </thead>
@@ -3756,6 +3981,13 @@ ${mediaInstruction}
                                   <td className="py-2 px-3 text-muted-foreground">
                                     {sub.student_class} (เลขที่ {sub.student_no ?? '-'})
                                   </td>
+                                  {(!selectedAnalysisSetId || selectedAnalysisSetId === 'all') && (
+                                    <td className="py-2 px-3">
+                                      <Badge variant="outline" className="text-[10px] font-normal truncate max-w-[140px] block" title={foundSet?.title || '-'}>
+                                        {foundSet?.title || '-'}
+                                      </Badge>
+                                    </td>
+                                  )}
                                   <td className="py-2 px-3 font-semibold">
                                     {sub.score}/{sub.max_score}
                                   </td>
@@ -3788,7 +4020,14 @@ ${mediaInstruction}
                                     </Badge>
                                   </td>
                                   <td className="py-2 px-3 text-muted-foreground text-[11px]">
-                                    {new Date(sub.created_at).toLocaleDateString('th-TH')}
+                                    <div className="flex flex-col">
+                                      <span className="font-medium text-foreground">
+                                        {new Date(sub.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                      </span>
+                                      <span className="text-[10px] text-muted-foreground">
+                                        {new Date(sub.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+                                      </span>
+                                    </div>
                                   </td>
                                   <td className="py-2 px-3 text-right">
                                     <div className="flex items-center justify-end gap-1.5">
