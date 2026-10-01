@@ -4,7 +4,7 @@
  * รองรับการใส่รหัส PIN, ดึงรายชื่อนักเรียนจากฐานข้อมูลจริงพร้อม Avatar, จับเวลา, และตรวจคะแนนทันที
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle
@@ -43,11 +43,14 @@ export default function ExamOnline() {
   const { examSetId } = useParams<{ examSetId?: string }>();
   const { toast } = useToast();
 
+  const [searchParams] = useSearchParams();
+  const urlPin = searchParams.get('pin') || '';
+
   // Screen flow: 'pin' | 'student' | 'exam' | 'result'
   const [screen, setScreen] = useState<'pin' | 'student' | 'exam' | 'result'>('pin');
 
   // PIN / Set Selection
-  const [pinCode, setPinCode] = useState('');
+  const [pinCode, setPinCode] = useState(urlPin);
   const [selectedExamSet, setSelectedExamSet] = useState<ExamSetRow | null>(null);
 
   // Student Info
@@ -74,11 +77,6 @@ export default function ExamOnline() {
   } | null>(null);
 
   // ── Queries ──
-  const { data: activeSets = [] } = useQuery({
-    queryKey: ['active_exam_sets'],
-    queryFn: () => examService.listExamSets({ is_active: true }),
-  });
-
   const { data: studentsInClass = [] } = useQuery({
     queryKey: ['students_roster', selectedGrade],
     queryFn: async () => {
@@ -88,17 +86,28 @@ export default function ExamOnline() {
     },
   });
 
-  // If examSetId is provided in URL, pre-select it
+  // If examSetId is provided in URL, load it directly if active
   useEffect(() => {
-    if (examSetId && activeSets.length) {
-      const found = activeSets.find((s) => s.id === examSetId);
-      if (found) {
-        setSelectedExamSet(found);
-        setSelectedGrade(found.grade || 'ป.4');
-        setScreen('student');
-      }
+    if (examSetId) {
+      examService.getExamSet(examSetId)
+        .then((set) => {
+          if (set && set.is_active) {
+            setSelectedExamSet(set);
+            setSelectedGrade(set.grade || 'ป.4');
+            setScreen('student');
+          } else {
+            toast({
+              title: 'ไม่พบชุดข้อสอบนี้',
+              description: 'ชุดข้อสอบอาจถูกลบหรือปิดการใช้งานแล้ว กรุณากรอกรหัส PIN',
+              variant: 'destructive',
+            });
+          }
+        })
+        .catch(() => {
+          // If error loading, stay on PIN screen
+        });
     }
-  }, [examSetId, activeSets]);
+  }, [examSetId, toast]);
 
   // Submit Mutation
   const submitMutation = useMutation({
@@ -119,8 +128,12 @@ export default function ExamOnline() {
     }
     try {
       const found = await examService.getExamSetByPin(pinCode);
-      if (!found) {
-        toast({ title: 'รหัสสอบไม่ถูกต้อง', description: 'กรุณาตรวจสอบรหัสสอบจากคุณครูอีกครั้ง', variant: 'destructive' });
+      if (!found || !found.is_active) {
+        toast({
+          title: 'รหัสสอบไม่ถูกต้องหรือชุดข้อสอบปิดการใช้งานแล้ว',
+          description: 'กรุณาตรวจสอบรหัสสอบจากคุณครูอีกครั้ง',
+          variant: 'destructive',
+        });
         return;
       }
       setSelectedExamSet(found);
@@ -323,57 +336,26 @@ export default function ExamOnline() {
                   <ShieldCheck className="h-6 w-6" />
                 </div>
                 <CardTitle className="text-lg font-bold">เข้าสู่ระบบสอบออนไลน์</CardTitle>
-                <p className="text-xs text-muted-foreground">กรอกรหัสสอบ PIN หรือเลือกชุดข้อสอบด้านล่าง</p>
+                <p className="text-xs text-muted-foreground">กรอกรหัสสอบ PIN ที่คุณครูแจ้งเพื่อเริ่มทำข้อสอบ</p>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">รหัสสอบ PIN ที่ครูแจ้ง</Label>
                   <Input
-                    placeholder="เช่น SCI501"
+                    placeholder="เช่น ENG401"
                     value={pinCode}
                     onChange={(e) => setPinCode(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === 'Enter' && handleVerifyPIN()}
                     className="text-center font-mono tracking-widest text-lg font-bold h-12 uppercase"
                     maxLength={10}
+                    autoFocus
                   />
                 </div>
 
                 <Button onClick={handleVerifyPIN} className="w-full text-xs h-10 font-bold">
                   ตรวจสอบรหัสสอบ
                 </Button>
-
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-[10px] uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">หรือเลือกชุดข้อสอบ</span>
-                  </div>
-                </div>
-
-                {/* Public Active Sets */}
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  {activeSets.map((set) => (
-                    <div
-                      key={set.id}
-                      onClick={() => {
-                        setSelectedExamSet(set);
-                        setSelectedGrade(set.grade || 'ป.5');
-                        setScreen('student');
-                      }}
-                      className="p-2.5 rounded-lg border border-border hover:border-primary/60 bg-muted/20 hover:bg-muted/40 cursor-pointer flex items-center justify-between text-xs transition-colors"
-                    >
-                      <div>
-                        <div className="font-semibold">{set.title}</div>
-                        <div className="text-[11px] text-muted-foreground">{set.subject} · {set.grade}</div>
-                      </div>
-                      <Badge variant="outline" className="text-[10px]">
-                        {Array.isArray(set.questions) ? set.questions.length : 0} ข้อ
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           </div>

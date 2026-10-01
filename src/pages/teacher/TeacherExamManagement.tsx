@@ -9,7 +9,7 @@ import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine, Image as ImageIcon
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine, Image as ImageIcon, XCircle
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -613,6 +613,19 @@ export default function TeacherExamManagement() {
     queryFn: () => examService.listSubmissions(),
   });
 
+  // กรองเฉพาะชุดข้อสอบที่เปิดใช้งาน (is_active === true) เพื่อไม่ให้ชุดที่ลบ/ยกเลิกแสดงในประวัติ
+  const activeExamSets = useMemo(() => examSets.filter((s) => s.is_active), [examSets]);
+  const activeExamSetIds = useMemo(() => new Set(activeExamSets.map((s) => s.id)), [activeExamSets]);
+
+  const filteredSubmissions = useMemo(() => {
+    return submissions.filter((s) => {
+      // ต้องเป็นผลสอบของชุดข้อสอบที่ยังเปิดใช้งานอยู่เท่านั้น
+      if (!activeExamSetIds.has(s.exam_set_id)) return false;
+      if (selectedAnalysisSetId && s.exam_set_id !== selectedAnalysisSetId) return false;
+      return true;
+    });
+  }, [submissions, activeExamSetIds, selectedAnalysisSetId]);
+
   // Selected student details
   const matchedStudent = useMemo(() => {
     if (selectedStudentId) {
@@ -755,10 +768,45 @@ export default function TeacherExamManagement() {
     },
   });
 
+  const toggleActiveSetMutation = useMutation({
+    mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
+      examService.updateExamSet(id, { is_active }),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['exam_sets'] });
+      queryClient.invalidateQueries({ queryKey: ['active_exam_sets'] });
+      queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
+      if (!updated.is_active && selectedAnalysisSetId === updated.id) {
+        setSelectedAnalysisSetId('');
+      }
+      toast({
+        title: updated.is_active ? 'เปิดรับการสอบสำเร็จ' : 'ยกเลิก/ปิดรับการสอบแล้ว',
+        description: `ชุดข้อสอบ "${updated.title}" ${
+          updated.is_active
+            ? 'พร้อมให้นักเรียนเข้าสอบผ่าน PIN'
+            : 'ถูกนำออกจากระบบ PIN และประวัติผลการสอบแล้ว'
+        }`,
+      });
+    },
+    onError: (e: Error) => {
+      toast({ title: 'ข้อผิดพลาดในการเปลี่ยนสถานะ', description: e.message, variant: 'destructive' });
+    },
+  });
+
   const deleteSetMutation = useMutation({
     mutationFn: examService.deleteExamSet,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exam_sets'] });
+      queryClient.invalidateQueries({ queryKey: ['active_exam_sets'] });
+      queryClient.invalidateQueries({ queryKey: ['exam_submissions'] });
+      if (deleteSetConfirmId === selectedAnalysisSetId) {
+        setSelectedAnalysisSetId('');
+      }
+      if (deleteSetConfirmId === scannerExamSetId) {
+        setScannerExamSetId('');
+      }
+      if (previewExamSet?.id === deleteSetConfirmId) {
+        setPreviewExamSet(null);
+      }
       toast({ title: 'ลบชุดข้อสอบสำเร็จ', description: 'นำชุดข้อสอบออกจากระบบแล้ว' });
       setDeleteSetConfirmId(null);
     },
@@ -1091,8 +1139,8 @@ ${mediaInstruction}
 
   // Export Results
   const exportCSV = () => {
-    if (!submissions.length) return;
-    const rows = submissions.map((s, idx) => ({
+    if (!filteredSubmissions.length) return;
+    const rows = filteredSubmissions.map((s, idx) => ({
       ลำดับ: idx + 1,
       ชื่อนักเรียน: s.student_name,
       ชั้น: s.student_class,
@@ -1108,14 +1156,14 @@ ${mediaInstruction}
   };
 
   const handleExportPpor5 = () => {
-    const targetSet = examSets.find((s) => s.id === selectedAnalysisSetId) || (examSets.length ? examSets[0] : null);
+    const targetSet = activeExamSets.find((s) => s.id === selectedAnalysisSetId) || (activeExamSets.length ? activeExamSets[0] : null);
     if (!targetSet) {
       toast({ title: 'ไม่พบชุดข้อสอบ', description: 'กรุณาเลือกหรือสร้างชุดข้อสอบก่อนส่งออก', variant: 'destructive' });
       return;
     }
     const targetSubmissions = selectedAnalysisSetId
-      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
-      : submissions;
+      ? filteredSubmissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
+      : filteredSubmissions;
 
     exportExamResultsToExcel(targetSet, targetSubmissions);
     toast({ title: 'ส่งออกสำเร็จ', description: 'ดาวน์โหลดไฟล์แบบบันทึกคะแนน ปพ.5 (.xlsx) เรียบร้อย' });
@@ -2933,7 +2981,7 @@ ${mediaInstruction}
                   return (
                     <Card key={set.id} className="border-border hover:border-primary/50 transition-shadow shadow-sm flex flex-col justify-between">
                       <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start gap-2">
+                        <div className="flex justify-between items-start gap-2 flex-wrap">
                           <Badge
                             variant="outline"
                             className={`text-[10px] font-semibold ${
@@ -2942,11 +2990,22 @@ ${mediaInstruction}
                           >
                             {SUBJECT_MAP[set.subject]?.icon || '📄'} {set.subject} · {set.grade}
                           </Badge>
-                          {set.pin_code && (
-                            <Badge className="bg-amber-500/10 text-amber-700 border-amber-300 text-[10px]">
-                              PIN: {set.pin_code}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {set.is_active ? (
+                              <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-300 text-[10px]">
+                                เปิดสอบ
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-muted text-muted-foreground text-[10px]">
+                                ยกเลิก/ปิดสอบ
+                              </Badge>
+                            )}
+                            {set.pin_code && (
+                              <Badge className="bg-amber-500/10 text-amber-700 border-amber-300 text-[10px]">
+                                PIN: {set.pin_code}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <CardTitle className="text-sm font-bold mt-1 line-clamp-1">{set.title}</CardTitle>
                       </CardHeader>
@@ -3020,11 +3079,11 @@ ${mediaInstruction}
                           </Button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                        <div className="grid grid-cols-3 gap-1 pt-0.5">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-[11px] gap-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10 hover:border-emerald-300 shadow-xs"
+                            className="h-8 text-[11px] px-1 gap-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10 hover:border-emerald-300 shadow-xs"
                             onClick={() => {
                               setScannerExamSetId(set.id);
                               setActiveTab('scanner');
@@ -3034,9 +3093,37 @@ ${mediaInstruction}
                             สแกนตรวจ
                           </Button>
                           <Button
+                            variant="outline"
+                            size="sm"
+                            className={`h-8 text-[11px] px-1 gap-1 shadow-xs ${
+                              set.is_active
+                                ? 'text-amber-700 hover:bg-amber-500/10 hover:border-amber-300'
+                                : 'text-emerald-700 hover:bg-emerald-500/10 hover:border-emerald-300'
+                            }`}
+                            onClick={() =>
+                              toggleActiveSetMutation.mutate({
+                                id: set.id,
+                                is_active: !set.is_active,
+                              })
+                            }
+                            title={set.is_active ? 'ยกเลิก/ปิดรับการสอบชุดนี้' : 'เปิดรับการสอบชุดนี้อีกครั้ง'}
+                          >
+                            {set.is_active ? (
+                              <>
+                                <XCircle className="h-3 w-3 text-amber-600" />
+                                ยกเลิกสอบ
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                เปิดสอบ
+                              </>
+                            )}
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 text-[11px] gap-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            className="h-8 text-[11px] px-1 gap-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             onClick={() => setDeleteSetConfirmId(set.id)}
                           >
                             <Trash2 className="h-3 w-3" />
@@ -3491,7 +3578,7 @@ ${mediaInstruction}
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     onClick={handleExportPpor5}
-                    disabled={!submissions.length}
+                    disabled={!filteredSubmissions.length}
                     variant="outline"
                     size="sm"
                     className="h-8 text-xs gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
@@ -3502,7 +3589,7 @@ ${mediaInstruction}
                   </Button>
                   <Button
                     onClick={exportCSV}
-                    disabled={!submissions.length}
+                    disabled={!filteredSubmissions.length}
                     variant="outline"
                     size="sm"
                     className="h-8 text-xs gap-1.5"
@@ -3523,11 +3610,11 @@ ${mediaInstruction}
                       onValueChange={(val) => setSelectedAnalysisSetId(val === 'all' ? '' : val)}
                     >
                       <SelectTrigger className="w-64 sm:w-72 h-8 text-xs">
-                        <SelectValue placeholder="— ทุกชุดข้อสอบ —" />
+                        <SelectValue placeholder="— ทุกชุดข้อสอบ (เฉพาะที่เปิดสอบ) —" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">— ทุกชุดข้อสอบ —</SelectItem>
-                        {examSets.map((s) => (
+                        <SelectItem value="all">— ทุกชุดข้อสอบ (เฉพาะที่เปิดสอบ) —</SelectItem>
+                        {activeExamSets.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
                             {s.title} ({s.subject} · {s.grade})
                           </SelectItem>
@@ -3572,20 +3659,20 @@ ${mediaInstruction}
                 {resultsViewMode === 'competency' ? (
                   (() => {
                     const targetSet =
-                      examSets.find((s) => s.id === selectedAnalysisSetId) ||
-                      (examSets.length > 0 ? examSets[0] : null);
+                      activeExamSets.find((s) => s.id === selectedAnalysisSetId) ||
+                      (activeExamSets.length > 0 ? activeExamSets[0] : null);
 
                     if (!targetSet) {
                       return (
                         <div className="text-center py-20 text-muted-foreground text-xs">
-                          ยังไม่มีชุดข้อสอบในระบบ กรุณาสร้างชุดข้อสอบก่อนเพื่อดูการวิเคราะห์สมรรถนะ
+                          ยังไม่มีชุดข้อสอบที่เปิดใช้งานในระบบ กรุณาสร้างหรือเปิดใช้งานชุดข้อสอบก่อนเพื่อดูการวิเคราะห์สมรรถนะ
                         </div>
                       );
                     }
 
                     const targetSubmissions = selectedAnalysisSetId
-                      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
-                      : submissions;
+                      ? filteredSubmissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
+                      : filteredSubmissions;
 
                     return (
                       <ExamClassCompetencyView
@@ -3598,18 +3685,18 @@ ${mediaInstruction}
                 ) : resultsViewMode === 'analysis' ? (
                   (() => {
                     const targetSet =
-                      examSets.find((s) => s.id === selectedAnalysisSetId) ||
-                      (examSets.length > 0 ? examSets[0] : null);
+                      activeExamSets.find((s) => s.id === selectedAnalysisSetId) ||
+                      (activeExamSets.length > 0 ? activeExamSets[0] : null);
 
                     if (!targetSet) {
                       return (
                         <div className="text-center py-20 text-muted-foreground text-xs">
-                          ยังไม่มีชุดข้อสอบในระบบ กรุณาสร้างชุดข้อสอบก่อนเพื่อดูการวิเคราะห์คุณภาพ
+                          ยังไม่มีชุดข้อสอบที่เปิดใช้งานในระบบ กรุณาสร้างหรือเปิดใช้งานชุดข้อสอบก่อนเพื่อดูการวิเคราะห์คุณภาพ
                         </div>
                       );
                     }
 
-                    const targetSubmissions = submissions.filter((s) => s.exam_set_id === targetSet.id);
+                    const targetSubmissions = filteredSubmissions.filter((s) => s.exam_set_id === targetSet.id);
 
                     return (
                       <ExamItemAnalysisView
@@ -3621,10 +3708,6 @@ ${mediaInstruction}
                   })()
                 ) : (
                   (() => {
-                    const filteredSubmissions = selectedAnalysisSetId
-                      ? submissions.filter((s) => s.exam_set_id === selectedAnalysisSetId)
-                      : submissions;
-
                     if (loadingSubmissions) {
                       return <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดผลสอบ...</div>;
                     }
@@ -3658,7 +3741,7 @@ ${mediaInstruction}
                           </thead>
                           <tbody className="divide-y divide-border/60">
                             {filteredSubmissions.map((sub, idx) => {
-                              const foundSet = examSets.find((s) => s.id === sub.exam_set_id);
+                              const foundSet = activeExamSets.find((s) => s.id === sub.exam_set_id);
                               const setQuestions = (Array.isArray(foundSet?.questions) ? foundSet?.questions : []) as any[];
                               const hasEssay = setQuestions.some((q) => q.question_type === 'essay');
 

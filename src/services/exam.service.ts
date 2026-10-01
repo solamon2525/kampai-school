@@ -287,6 +287,9 @@ export const examService = {
   },
 
   async deleteExamSet(id: string) {
+    // ลบผลสอบที่ผูกกับชุดข้อสอบนี้ก่อน (เพื่อให้มั่นใจว่าไม่มีข้อมูลค้าง)
+    await supabase.from('exam_submissions').delete().eq('exam_set_id', id);
+
     const { error } = await supabase
       .from('exam_sets')
       .delete()
