@@ -7,7 +7,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
-  Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle, Shuffle
+  Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle, Shuffle,
+  Volume2, VolumeX
 } from 'lucide-react';
 import { examService, type ExamSetRow } from '@/services/exam.service';
 import { studentsService, type StudentMin } from '@/services/students.service';
@@ -21,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
+import { speakThai, stopThaiSpeech, thaiNumberToWords } from '@/lib/thaiSpeech';
 
 interface QuestionItem {
   id?: string;
@@ -55,6 +57,18 @@ function shuffleArray<T>(array: T[]): T[] {
   return result;
 }
 
+/**
+ * ปรับคำนำหน้าชื่อนักเรียนให้ออกเสียงภาษาไทยได้อย่างถูกต้องและเป็นธรรมชาติ
+ */
+function formatStudentNameForSpeech(rawName?: string | null): string {
+  if (!rawName) return '';
+  return rawName
+    .replace(/^ด\.ช\.?\s*/i, 'เด็กชาย ')
+    .replace(/^ด\.ญ\.?\s*/i, 'เด็กหญิง ')
+    .replace(/^น\.ส\.?\s*/i, 'นางสาว ')
+    .trim();
+}
+
 const GRADE_LIST = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
 export default function ExamOnline() {
@@ -81,6 +95,22 @@ export default function ExamOnline() {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [timeTotal, setTimeTotal] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Audio Speech state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const currentSpeechSegmentsRef = useRef<string[]>([]);
+
+  const handleToggleSpeech = () => {
+    if (isSpeaking) {
+      stopThaiSpeech();
+      setIsSpeaking(false);
+    } else if (currentSpeechSegmentsRef.current.length > 0) {
+      setIsSpeaking(true);
+      void speakThai(currentSpeechSegmentsRef.current).then(() => {
+        setIsSpeaking(false);
+      });
+    }
+  };
 
   // Result state
   const [examResult, setExamResult] = useState<{
@@ -241,10 +271,11 @@ export default function ExamOnline() {
     }
   }, [timeRemaining, screen, timeTotal]);
 
-  // ── Timer Cleanup ──
+  // ── Timer & Speech Cleanup ──
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      stopThaiSpeech();
     };
   }, []);
 
@@ -371,6 +402,43 @@ export default function ExamOnline() {
     });
 
     setScreen('result');
+
+    // ── อ่านผลคะแนนเป็นเสียงภาษาไทยอัตโนมัติ (Thai TTS Voice Read-Out) ──
+    const studentSpokenName = formatStudentNameForSpeech(selectedStudent.name);
+    const examTitle = selectedExamSet.title || 'แบบทดสอบ';
+    const scoreWords = thaiNumberToWords(earnedScore);
+    const maxScoreWords = thaiNumberToWords(maxScore);
+
+    let speechSegments: string[] = [];
+
+    if (hasEssay) {
+      speechSegments = [
+        `ชื่อ ${studentSpokenName}`,
+        `ชุดข้อสอบ ${examTitle}`,
+        `ผลการสอบเบื้องต้นได้ ${scoreWords} คะแนน จากคะแนนเต็ม ${maxScoreWords} คะแนน`,
+        `มีข้อสอบอัตนัย ${thaiNumberToWords(essayCount)} ข้อ รอคุณครูตรวจเพิ่มเติมค่ะ`,
+      ];
+    } else if (passed) {
+      speechSegments = [
+        `ชื่อ ${studentSpokenName}`,
+        `ชุดข้อสอบ ${examTitle}`,
+        `ผลการสอบได้ ${scoreWords} คะแนน จากคะแนนเต็ม ${maxScoreWords} คะแนน`,
+        `ผ่านการทดสอบ ยินดีด้วยค่ะ`,
+      ];
+    } else {
+      speechSegments = [
+        `ชื่อ ${studentSpokenName}`,
+        `ชุดข้อสอบ ${examTitle}`,
+        `ผลการสอบได้ ${scoreWords} คะแนน จากคะแนนเต็ม ${maxScoreWords} คะแนน`,
+        `ไม่ผ่านการทดสอบ พยายามฝึกฝนเพิ่มเติมนะคะ`,
+      ];
+    }
+
+    currentSpeechSegmentsRef.current = speechSegments;
+    setIsSpeaking(true);
+    void speakThai(speechSegments).then(() => {
+      setIsSpeaking(false);
+    });
   };
 
   return (
@@ -768,9 +836,32 @@ export default function ExamOnline() {
                   <div className="text-[11px] text-muted-foreground">เวลาที่ใช้: {examResult.timeUsedFormatted}</div>
                 </div>
 
-                <div className="pt-2 flex gap-2">
+                {/* Audio Read-out Controls */}
+                <Button
+                  type="button"
+                  variant={isSpeaking ? 'destructive' : 'outline'}
+                  size="sm"
+                  onClick={handleToggleSpeech}
+                  className="w-full text-xs font-semibold h-10 gap-2 border-primary/30 hover:bg-primary/10 transition-colors"
+                >
+                  {isSpeaking ? (
+                    <>
+                      <VolumeX className="h-4 w-4 animate-pulse text-destructive" />
+                      <span>กำลังอ่านผลคะแนน... (แตะเพื่อหยุด)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="h-4 w-4 text-primary" />
+                      <span>ฟังผลคะแนนเป็นเสียง (อ่านอีกครั้ง)</span>
+                    </>
+                  )}
+                </Button>
+
+                <div className="pt-1 flex gap-2">
                   <Button
                     onClick={() => {
+                      stopThaiSpeech();
+                      setIsSpeaking(false);
                       setScreen('pin');
                       setUserAnswers({});
                     }}
