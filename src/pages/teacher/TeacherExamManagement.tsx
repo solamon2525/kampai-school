@@ -9,7 +9,7 @@ import {
   BookOpen, Plus, Camera, Printer, BarChart3, Trash2, CheckCircle2,
   Sparkles, CheckSquare, RefreshCw, Download, Layers, UserCheck,
   Shuffle, Eye, ListFilter, CheckCheck, Clock, Pencil, Zap, AlertTriangle, AlertCircle, X, PlusCircle,
-  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine
+  Lightbulb, Filter, FileText, FileSpreadsheet, Split, Target, Brain, PenLine, Image as ImageIcon
 } from 'lucide-react';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { TEACHER_MENU } from './teacher-menu';
@@ -215,6 +215,8 @@ export default function TeacherExamManagement() {
   const [newQEssayKeySol, setNewQEssayKeySol] = useState<string>('');
   const [newQEssayKeywords, setNewQEssayKeywords] = useState<string>('');
   const [newQMediaId, setNewQMediaId] = useState<string>('none');
+  const [newQImageUrl, setNewQImageUrl] = useState<string>('');
+  const [newQImageTitle, setNewQImageTitle] = useState<string>('');
 
   // Target question count states
   const [targetQuestionCount, setTargetQuestionCount] = useState<number>(20);
@@ -635,6 +637,8 @@ export default function TeacherExamManagement() {
       setNewQAcceptedAlts('');
       setNewQEssayKeySol('');
       setNewQEssayKeywords('');
+      setNewQImageUrl('');
+      setNewQImageTitle('');
     },
     onError: (e: Error) => {
       toast({ title: 'ข้อผิดพลาด', description: e.message, variant: 'destructive' });
@@ -704,8 +708,8 @@ export default function TeacherExamManagement() {
       indicator_code: matchedInd?.indicator_code || null,
       indicator_desc: matchedInd?.description || null,
       media_item_id: matchedMedia?.id || null,
-      media_title: matchedMedia?.title || null,
-      media_image_url: matchedMedia?.thumbnail_url || null,
+      media_title: newQImageTitle.trim() || (newQImageUrl.trim() ? (matchedMedia?.title || 'ภาพประกอบข้อสอบ') : null),
+      media_image_url: newQImageUrl.trim() || null,
     });
   };
 
@@ -924,8 +928,8 @@ ${mediaInstruction}
           indicator_code: qIndCode,
           indicator_desc: qIndDesc,
           media_item_id: matchedMedia?.id || null,
-          media_title: matchedMedia?.title || null,
-          media_image_url: matchedMedia?.thumbnail_url || null,
+          media_title: null,
+          media_image_url: null,
           explanation: item.explanation || '',
         };
       });
@@ -1980,6 +1984,154 @@ ${mediaInstruction}
                         onChange={(e) => setNewQText(e.target.value)}
                         className="text-xs min-h-[70px]"
                       />
+                    </div>
+
+                    {/* Image Attachment (Optional) */}
+                    <div className="p-3 bg-muted/20 border border-border/70 rounded-xl space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-semibold flex items-center gap-1.5">
+                          <ImageIcon className="h-3.5 w-3.5 text-primary" />
+                          ภาพประกอบข้อสอบ (ถ้ามี)
+                        </Label>
+                        {Boolean(newQImageUrl) && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setNewQImageUrl('');
+                              setNewQImageTitle('');
+                            }}
+                            className="h-6 text-[10px] text-destructive hover:text-destructive px-2"
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            ไม่ใช้ภาพประกอบ
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <Input
+                            placeholder="URL ภาพ เช่น /games/career/illustrations/coconut-broom.webp"
+                            value={newQImageUrl}
+                            onChange={(e) => setNewQImageUrl(e.target.value)}
+                            className="h-8 text-xs font-mono"
+                          />
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="คำอธิบายภาพ เช่น ภาพประกอบ: ไม้กวาดทางมะพร้าวมีด้าม"
+                            value={newQImageTitle}
+                            onChange={(e) => setNewQImageTitle(e.target.value)}
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Quick Preset Selector for Teacher */}
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">เลือกภาพด่วนจากคลัง:</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/coconut-broom.webp');
+                            setNewQImageTitle('ภาพประกอบ: ไม้กวาดทางมะพร้าวมีด้าม');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          🧹 ไม้กวาดทางมะพร้าว
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/grass-broom.webp');
+                            setNewQImageTitle('ภาพประกอบ: ไม้กวาดดอกหญ้า');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          🌾 ไม้กวาดดอกหญ้า
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/mop-bucket.webp');
+                            setNewQImageTitle('ภาพประกอบ: ไม้ถูพื้นและถังน้ำ');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          🪣 ไม้ถูพื้น
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/dishwashing.webp');
+                            setNewQImageTitle('ภาพประกอบ: การล้างจานชาม');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          🍽️ ล้างจาน
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/hoe-digging.webp');
+                            setNewQImageTitle('ภาพประกอบ: จอบขุดดิน');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          ⛏️ จอบ
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/transplanting-trowel.webp');
+                            setNewQImageTitle('ภาพประกอบ: ช้อนปลูก');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          🌱 ช้อนปลูก
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setNewQImageUrl('/games/career/illustrations/waste-sorting-4bins.webp');
+                            setNewQImageTitle('ภาพประกอบ: ถังขยะ 4 สี แยกประเภท');
+                          }}
+                          className="h-6 text-[10px] px-2"
+                        >
+                          ♻️ ถังขยะ 4 สี
+                        </Button>
+                      </div>
+
+                      {/* Image Preview */}
+                      {Boolean(newQImageUrl) && (
+                        <div className="flex items-center gap-3 p-2 bg-card rounded-lg border border-border w-fit">
+                          <img
+                            src={newQImageUrl}
+                            alt="พรีวิวภาพประกอบ"
+                            className="h-16 w-16 object-contain rounded border border-border bg-white"
+                          />
+                          <div className="text-xs">
+                            <div className="font-semibold text-foreground">ตัวอย่างภาพประกอบโจทย์</div>
+                            <div className="text-[11px] text-muted-foreground">{newQImageTitle || 'ไม่มีคำอธิบายภาพ'}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Sub-form 1: MCQ */}
