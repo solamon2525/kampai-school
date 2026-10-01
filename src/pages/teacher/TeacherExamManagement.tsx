@@ -1082,6 +1082,7 @@ ${mediaInstruction}
       percentage: omrSummary.percentage,
       passed: omrSummary.passed,
       answers: omrSummary.details.map((d) => d.studentAnswer) as unknown as Json,
+      review_status: 'completed',
     });
   };
 
@@ -3771,7 +3772,7 @@ ${mediaInstruction}
                                       <Badge className="bg-amber-500/10 text-amber-800 border-amber-300 text-[10px] gap-1">
                                         <Clock className="h-2.5 w-2.5" /> รอตรวจอัตนัย
                                       </Badge>
-                                    ) : sub.review_status === 'reviewed' ? (
+                                    ) : sub.review_status === 'reviewed' || sub.review_status === 'completed' ? (
                                       <Badge className="bg-emerald-500/10 text-emerald-800 border-emerald-300 text-[10px] gap-1">
                                         <CheckCircle2 className="h-2.5 w-2.5" /> ตรวจครบแล้ว
                                       </Badge>

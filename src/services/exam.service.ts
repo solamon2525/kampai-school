@@ -299,13 +299,13 @@ export const examService = {
 
   // ── Submissions ────────────────────────────────────────────────────────
   async submitExam(data: TablesInsert<'exam_submissions'>) {
-    const { data: submission, error } = await supabase
+    const id = data.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : undefined);
+    const payload = id ? { ...data, id } : data;
+    const { error } = await supabase
       .from('exam_submissions')
-      .insert(data)
-      .select()
-      .single();
+      .insert(payload);
     if (error) throw error;
-    return submission as ExamSubmissionRow;
+    return payload as unknown as ExamSubmissionRow;
   },
 
   async listSubmissions(examSetId?: string) {

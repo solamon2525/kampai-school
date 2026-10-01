@@ -73,7 +73,7 @@ export default function ExamOnline() {
     timeUsedFormatted: string;
     hasEssay: boolean;
     essayCount: number;
-    reviewStatus: 'pending_review' | 'reviewed';
+    reviewStatus: 'pending_review' | 'completed' | 'reviewed';
   } | null>(null);
 
   // ── Queries ──
@@ -262,7 +262,7 @@ export default function ExamOnline() {
     const passed = percentage >= (selectedExamSet.pass_threshold_pct || 50);
     const timeUsedSec = timeTotal - timeRemaining;
     const timeUsedFormatted = `${Math.floor(timeUsedSec / 60)} นาที ${timeUsedSec % 60} วินาที`;
-    const reviewStatus: 'pending_review' | 'reviewed' = hasEssay ? 'pending_review' : 'reviewed';
+    const reviewStatus: 'pending_review' | 'completed' | 'reviewed' = hasEssay ? 'pending_review' : 'completed';
 
     setExamResult({
       score: earnedScore,

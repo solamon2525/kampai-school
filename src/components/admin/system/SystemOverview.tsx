@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.125 (แก้ไขระบบบันทึกคะแนนสอบออนไลน์และสแกน OMR — ปลดล็อก Check Constraint และ RLS PostgREST รองรับการบันทึกผลสอบสมบูรณ์ 100%)',
+        date: '1 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'การแก้ไข Check Constraint ในฐานข้อมูล (Migration 560): ปรับปรุงตาราง exam_submissions ให้คอลัมน์ review_status ยอมรับค่า completed, pending_review และ reviewed พร้อมตั้งค่าเริ่มต้นเป็น completed ปลดล็อกปัญหา Database Constraint Error 23514 เมื่อส่งข้อสอบปรนัย',
+            'การแก้ปัญหา RLS PostgREST สำหรับการสอบออนไลน์ (Anonymous Submission Fix): ปรับปรุง examService.submitExam ให้สร้าง UUID id ฝั่ง client-side และส่งคำสั่ง INSERT โดยไม่เรียก .select().single() ป้องกันคำสั่ง RETURNING * ซึ่งขัดกับนโยบาย RLS SELECT policy ที่สงวนสิทธิ์คุ้มครองข้อมูลส่วนบุคคล (PDPA) ของนักเรียนเฉพาะครู/แอดมิน ทำให้นักเรียนส่งข้อสอบได้ฉับไวไร้ข้อผิดพลาด 42501',
+            'การซิงก์สถานะผลสอบข้ามระบบ (Full Exam Status Alignment): ปรับปรุง ExamOnline.tsx และ TeacherExamManagement.tsx ให้กำหนดและตรวจสอบสถานะ completed / reviewed อย่างสม่ำเสมอ ทั้งการทำข้อสอบออนไลน์ การสแกน OMR จากกล้อง และการตรวจชุดตรวจหลายคน (Batch OMR)',
+        ],
+    },
+    {
         version: 'v1.229.124 (ระบบสอบออนไลน์แบบ PIN-Only ล้วน พร้อมระบบจัดการซ่อนชุดข้อสอบที่ถูกลบและยกเลิกออกจากประวัติผลสอบอย่างสมบูรณ์)',
         date: '1 ต.ค. 2569',
         badge: 'bg-primary',

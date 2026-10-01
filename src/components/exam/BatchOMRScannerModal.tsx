@@ -323,6 +323,7 @@ export const BatchOMRScannerModal: React.FC<BatchOMRScannerModalProps> = ({
           percentage: s.summary!.percentage,
           passed: s.summary!.passed,
           answers: s.summary!.details.map((d) => d.studentAnswer),
+          review_status: 'completed' as const,
         };
       });
 
