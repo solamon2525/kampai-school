@@ -50,6 +50,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
 import type { Json, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -174,16 +175,76 @@ const SUBJECT_LIST = Object.keys(SUBJECT_MAP);
 
 const GRADE_LIST = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
+const STORAGE_KEY_FILTERS = 'kampai_exam_filters';
+const STORAGE_KEY_BUILDER_DRAFT = 'kampai_exam_builder_draft';
+
+const getInitialFilters = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FILTERS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        selectedSubject: parsed.selectedSubject || 'all',
+        targetSubject: parsed.targetSubject || 'all',
+        selectedGrade: parsed.selectedGrade || 'ป.4',
+        activeTab: parsed.activeTab || 'sets',
+      };
+    }
+  } catch (e) {
+    console.warn('Error reading exam filters from localStorage', e);
+  }
+  return {
+    selectedSubject: 'all',
+    targetSubject: 'all',
+    selectedGrade: 'ป.4',
+    activeTab: 'sets',
+  };
+};
+
+const getInitialBuilderDraft = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_BUILDER_DRAFT);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        selectedQIds: Array.isArray(parsed.selectedQIds) ? parsed.selectedQIds : [],
+        newSetTitle: typeof parsed.newSetTitle === 'string' ? parsed.newSetTitle : '',
+        newSetTime: typeof parsed.newSetTime === 'number' ? parsed.newSetTime : 60,
+        newSetPin: typeof parsed.newSetPin === 'string' ? parsed.newSetPin : '',
+        targetSubject: typeof parsed.targetSubject === 'string' ? parsed.targetSubject : 'all',
+        editingExamSetId: parsed.editingExamSetId || null,
+        targetQuestionCount: typeof parsed.targetQuestionCount === 'number' ? parsed.targetQuestionCount : 20,
+        cachedQuestions: parsed.cachedQuestions && typeof parsed.cachedQuestions === 'object' ? parsed.cachedQuestions : {},
+      };
+    }
+  } catch (e) {
+    console.warn('Error reading exam builder draft from localStorage', e);
+  }
+  return {
+    selectedQIds: [],
+    newSetTitle: '',
+    newSetTime: 60,
+    newSetPin: '',
+    targetSubject: 'all',
+    editingExamSetId: null,
+    targetQuestionCount: 20,
+    cachedQuestions: {},
+  };
+};
+
 export default function TeacherExamManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState<'bank' | 'sets' | 'print' | 'scanner' | 'results'>('bank');
+  const initialFilters = useMemo(() => getInitialFilters(), []);
+  const initialDraft = useMemo(() => getInitialBuilderDraft(), []);
 
-  // Filter states: Default to first subject (คณิตศาสตร์) for clean subject separation
-  const [selectedSubject, setSelectedSubject] = useState<string>('คณิตศาสตร์');
-  const [targetSubject, setTargetSubject] = useState<string>('คณิตศาสตร์');
-  const [selectedGrade, setSelectedGrade] = useState<string>('ป.4');
+  const [activeTab, setActiveTab] = useState<'bank' | 'sets' | 'print' | 'scanner' | 'results'>(initialFilters.activeTab as any);
+
+  // Filter states: Default to all subjects ('all') and grade 'ป.4'
+  const [selectedSubject, setSelectedSubject] = useState<string>(initialFilters.selectedSubject);
+  const [targetSubject, setTargetSubject] = useState<string>(initialDraft.targetSubject || initialFilters.targetSubject);
+  const [selectedGrade, setSelectedGrade] = useState<string>(initialFilters.selectedGrade);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -221,22 +282,32 @@ export default function TeacherExamManagement() {
   const [newQImageTitle, setNewQImageTitle] = useState<string>('');
 
   // Target question count states
-  const [targetQuestionCount, setTargetQuestionCount] = useState<number>(20);
+  const [targetQuestionCount, setTargetQuestionCount] = useState<number>(initialDraft.targetQuestionCount);
   const [isCustomTarget, setIsCustomTarget] = useState<boolean>(false);
-  const [customTargetInput, setCustomTargetInput] = useState<string>('20');
+  const [customTargetInput, setCustomTargetInput] = useState<string>(String(initialDraft.targetQuestionCount));
 
   // Editing existing set state
-  const [editingExamSetId, setEditingExamSetId] = useState<string | null>(null);
+  const [editingExamSetId, setEditingExamSetId] = useState<string | null>(initialDraft.editingExamSetId);
   const [deleteSetConfirmId, setDeleteSetConfirmId] = useState<string | null>(null);
   const [showIncompleteConfirm, setShowIncompleteConfirm] = useState<boolean>(false);
-  const [customQuestionsCache, setCustomQuestionsCache] = useState<Record<string, any>>({});
+  const [customQuestionsCache, setCustomQuestionsCache] = useState<Record<string, any>>(initialDraft.cachedQuestions);
 
   // Selected questions for building set
-  const [selectedQIds, setSelectedQIds] = useState<string[]>([]);
+  const [selectedQIds, setSelectedQIds] = useState<string[]>(initialDraft.selectedQIds);
   const [showCartReview, setShowCartReview] = useState(false);
-  const [newSetTitle, setNewSetTitle] = useState('');
-  const [newSetTime, setNewSetTime] = useState(60);
-  const [newSetPin, setNewSetPin] = useState('');
+  const [newSetTitle, setNewSetTitle] = useState(initialDraft.newSetTitle);
+  const [newSetTime, setNewSetTime] = useState(initialDraft.newSetTime);
+  const [newSetPin, setNewSetPin] = useState(initialDraft.newSetPin);
+
+  const questionCacheRef = useRef<Map<string, any>>(new Map(Object.entries(initialDraft.cachedQuestions || {})));
+
+  const clearBuilderDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY_BUILDER_DRAFT);
+    } catch (e) {
+      console.warn('Failed to clear exam builder draft:', e);
+    }
+  };
 
   // Print Preview state
   const [previewExamSet, setPreviewExamSet] = useState<ExamSetRow | null>(null);
@@ -283,15 +354,90 @@ export default function TeacherExamManagement() {
         grade: selectedGrade !== 'all' ? selectedGrade : undefined,
         search: searchQuery || undefined,
       }),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 
   // Query live question counts for each subject in current grade
   const { data: subjectCounts = {} } = useQuery({
     queryKey: ['exam_subject_counts', selectedGrade],
     queryFn: () => examService.getQuestionCountsBySubject(selectedGrade),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 
   const selectedSubjectConfig = selectedSubject !== 'all' ? SUBJECT_MAP[selectedSubject] : null;
+
+  const totalAllSubjectQuestionsCount = useMemo(() => {
+    return Object.values(subjectCounts).reduce((acc: number, c) => acc + (c || 0), 0);
+  }, [subjectCounts]);
+
+  // Keep question cache updated with any loaded questions
+  useEffect(() => {
+    if (questions && questions.length > 0) {
+      questions.forEach((q) => {
+        questionCacheRef.current.set(q.id, q);
+      });
+    }
+  }, [questions]);
+
+  useEffect(() => {
+    Object.values(customQuestionsCache).forEach((q: any) => {
+      if (q && q.id) {
+        questionCacheRef.current.set(q.id, q);
+      }
+    });
+  }, [customQuestionsCache]);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY_FILTERS,
+        JSON.stringify({
+          selectedSubject,
+          targetSubject,
+          selectedGrade,
+          activeTab,
+        })
+      );
+    } catch (e) {
+      console.warn('Failed to save exam filters:', e);
+    }
+  }, [selectedSubject, targetSubject, selectedGrade, activeTab]);
+
+  // Save builder draft to localStorage whenever draft changes
+  useEffect(() => {
+    try {
+      if (selectedQIds.length > 0 || newSetTitle.trim() || editingExamSetId) {
+        const cacheMap: Record<string, any> = { ...customQuestionsCache };
+        selectedQIds.forEach((id) => {
+          if (!cacheMap[id]) {
+            const found = questions.find((q) => q.id === id) || questionCacheRef.current.get(id);
+            if (found) cacheMap[id] = found;
+          }
+        });
+
+        localStorage.setItem(
+          STORAGE_KEY_BUILDER_DRAFT,
+          JSON.stringify({
+            selectedQIds,
+            newSetTitle,
+            newSetTime,
+            newSetPin,
+            targetSubject,
+            editingExamSetId,
+            targetQuestionCount,
+            cachedQuestions: cacheMap,
+          })
+        );
+      } else {
+        localStorage.removeItem(STORAGE_KEY_BUILDER_DRAFT);
+      }
+    } catch (e) {
+      console.warn('Failed to save exam builder draft:', e);
+    }
+  }, [selectedQIds, newSetTitle, newSetTime, newSetPin, targetSubject, editingExamSetId, targetQuestionCount, customQuestionsCache, questions]);
 
   // Query curriculum indicators for current subject and grade
   const currentSubjectKey = selectedSubjectConfig?.id || '';
@@ -348,10 +494,18 @@ export default function TeacherExamManagement() {
     return result;
   }, [questions, selectedTopic, selectedQTypeFilter, selectedIndicatorFilter]);
 
-  // Selected questions details & difficulty breakdown
+  // Selected questions details & difficulty breakdown (persisted across subjects/filters)
   const selectedQuestionsDetails = useMemo(() => {
-    return questions.filter((q) => selectedQIds.includes(q.id));
-  }, [questions, selectedQIds]);
+    return selectedQIds
+      .map((id) => {
+        const fromCurrent = questions.find((q) => q.id === id);
+        if (fromCurrent) return fromCurrent;
+        if (customQuestionsCache[id]) return customQuestionsCache[id];
+        if (questionCacheRef.current.has(id)) return questionCacheRef.current.get(id);
+        return null;
+      })
+      .filter(Boolean) as any[];
+  }, [questions, selectedQIds, customQuestionsCache]);
 
   // Cross-subject detection and breakdown
   const selectedSubjectsBreakdown = useMemo(() => {
@@ -410,6 +564,14 @@ export default function TeacherExamManagement() {
     const displayedIds = displayedQuestions.map((q) => q.id);
     const union = Array.from(new Set([...selectedQIds, ...displayedIds]));
     setSelectedQIds(union);
+
+    const cacheUpdate: Record<string, any> = {};
+    displayedQuestions.forEach((q) => {
+      cacheUpdate[q.id] = q;
+      questionCacheRef.current.set(q.id, q);
+    });
+    setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
+
     const activeSubj = selectedSubject !== 'all' ? selectedSubject : targetSubject || 'ทั่วไป';
     setTargetSubject(activeSubj);
     if (!newSetTitle) {
@@ -477,7 +639,10 @@ export default function TeacherExamManagement() {
 
     // Cache picked question objects
     const cacheUpdate: Record<string, any> = {};
-    picked.forEach((q) => { cacheUpdate[q.id] = q; });
+    picked.forEach((q) => {
+      cacheUpdate[q.id] = q;
+      questionCacheRef.current.set(q.id, q);
+    });
     setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
 
     const activeSubj = selectedSubject !== 'all' ? selectedSubject : targetSubject || 'ทั่วไป';
@@ -533,7 +698,10 @@ export default function TeacherExamManagement() {
 
     // Update custom cache
     const cacheUpdate: Record<string, any> = {};
-    picked.forEach((q) => { cacheUpdate[q.id] = q; });
+    picked.forEach((q) => {
+      cacheUpdate[q.id] = q;
+      questionCacheRef.current.set(q.id, q);
+    });
     setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
 
     if (!newSetTitle || newSetTitle.startsWith('แบบทดสอบ')) {
@@ -566,6 +734,7 @@ export default function TeacherExamManagement() {
     existingQuestions.forEach((q) => {
       if (q && typeof q === 'object' && q.id) {
         cacheUpdate[q.id] = q;
+        questionCacheRef.current.set(q.id, q);
       }
     });
     setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
@@ -586,6 +755,7 @@ export default function TeacherExamManagement() {
     setSelectedQIds([]);
     setNewSetTitle('');
     setNewSetPin('');
+    clearBuilderDraft();
     toast({
       title: 'ยกเลิกการแก้ไข',
       description: 'ออกจากโหมดแก้ไขชุดข้อสอบแล้ว',
@@ -599,6 +769,8 @@ export default function TeacherExamManagement() {
         subject: selectedSubject !== 'all' ? selectedSubject : undefined,
         grade: selectedGrade !== 'all' ? selectedGrade : undefined,
       }),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: students = [] } = useQuery({
@@ -820,6 +992,8 @@ export default function TeacherExamManagement() {
       toast({ title: 'สร้างชุดข้อสอบสำเร็จ', description: 'สามารถนำไปพิมพ์หรือให้นักเรียนสอบออนไลน์ได้ทันที' });
       setSelectedQIds([]);
       setNewSetTitle('');
+      setNewSetPin('');
+      clearBuilderDraft();
       setActiveTab('sets');
     },
     onError: (e: Error) => {
@@ -840,6 +1014,7 @@ export default function TeacherExamManagement() {
       setSelectedQIds([]);
       setNewSetTitle('');
       setNewSetPin('');
+      clearBuilderDraft();
       setActiveTab('sets');
     },
     onError: (e: Error) => {
@@ -960,8 +1135,9 @@ export default function TeacherExamManagement() {
         mediaInstruction = `สื่อการสอน/เกมอ้างอิงประจำโรงเรียน: "${matchedMedia.title}" (${matchedMedia.description || ''}) โดยให้ดึงบริบท ตัวละคร หรือสถานการณ์จำลองจากสื่อการสอนนี้มาตั้งเป็นโจทย์คำถามเชื่อมโยงกับบทเรียนจริง`;
       }
 
+      const targetSubjForAI = selectedSubject !== 'all' ? selectedSubject : (targetSubject !== 'all' ? targetSubject : 'วิทยาศาสตร์');
       const prompt = `คุณคือผู้เชี่ยวชาญการออกข้อสอบและประเมินผลระดับประถมศึกษาของกระทรวงศึกษาธิการไทย
-กรุณาสร้างข้อสอบวิชา ${selectedSubject} ระดับชั้น ${selectedGrade}
+กรุณาสร้างข้อสอบวิชา ${targetSubjForAI} ระดับชั้น ${selectedGrade}
 หัวข้อ: ${aiTopic}
 จำนวน: ${aiCount} ข้อ
 ระดับความยาก: ${aiDifficulty}
@@ -1040,8 +1216,8 @@ ${mediaInstruction}
         const qIndDesc = matchedInd?.description || null;
 
         return {
-          subject: selectedSubject,
-          grade: selectedGrade,
+          subject: targetSubjForAI,
+          grade: selectedGrade !== 'all' ? selectedGrade : 'ป.4',
           topic: aiTopic || item.topic || 'ทั่วไป',
           difficulty: item.difficulty || aiDifficulty,
           bloom_level: item.bloom_level || (aiBloom !== 'auto' ? (aiBloom as any) : 'L2'),
@@ -1181,11 +1357,12 @@ ${mediaInstruction}
       return;
     }
 
-    // Resolve question objects from current questions query or customQuestionsCache
+    // Resolve question objects from current questions query, customQuestionsCache, or questionCacheRef
     const setQuestions = selectedQIds.map((id) => {
       const fromCurrent = questions.find((q) => q.id === id);
       if (fromCurrent) return fromCurrent;
       if (customQuestionsCache[id]) return customQuestionsCache[id];
+      if (questionCacheRef.current.has(id)) return questionCacheRef.current.get(id);
       return null;
     }).filter(Boolean);
 
@@ -1446,7 +1623,7 @@ ${mediaInstruction}
           {/* ═══════════════════════════════════════════════════════════════
               TAB 1: คลังข้อสอบ & AI Generator
           ════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="bank" className="space-y-6 mt-6">
+          <TabsContent value="bank" forceMount className={cn("space-y-6 mt-6", activeTab !== 'bank' && "hidden")}>
             {/* ─── Subject Navigation Hub (แถบเลือกกลุ่มสาระการเรียนรู้) ─── */}
             <div className="space-y-3 p-4 bg-card border border-border rounded-2xl shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -1481,7 +1658,34 @@ ${mediaInstruction}
               </div>
 
               {/* Subject Pills Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 pt-1">
+                {/* All Subjects Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleSubjectChange('all')}
+                  className={cn(
+                    "flex items-center justify-between p-2.5 px-3 rounded-xl border text-xs font-semibold transition-all text-left",
+                    selectedSubject === 'all'
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 scale-[1.02]"
+                      : "border-border/80 bg-card hover:bg-muted/60 text-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="text-base leading-none shrink-0">🌐</span>
+                    <span className="truncate">ทุกวิชา</span>
+                  </div>
+                  <span
+                    className={cn(
+                      "text-[11px] font-bold px-1.5 py-0.5 rounded-full shrink-0",
+                      selectedSubject === 'all'
+                        ? "bg-white/25 text-white"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {totalAllSubjectQuestionsCount}
+                  </span>
+                </button>
+
                 {SUBJECT_LIST.map((subj) => {
                   const cfg = SUBJECT_MAP[subj];
                   const isSelected = selectedSubject === subj;
@@ -1518,7 +1722,49 @@ ${mediaInstruction}
             </div>
 
             {/* ─── Active Subject Banner ─── */}
-            {selectedSubjectConfig && (
+            {selectedSubject === 'all' ? (
+              <div className="p-4 rounded-2xl border border-border/80 bg-gradient-to-r from-card via-card to-muted/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 text-2xl flex items-center justify-center shrink-0 border border-primary/20 shadow-inner">
+                    🌐
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base sm:text-lg font-bold text-foreground">
+                        คลังข้อสอบทุกกลุ่มสาระการเรียนรู้ ({selectedGrade})
+                      </h2>
+                      <Badge className="bg-primary/10 text-primary border-primary/30">
+                        {questions.length} ข้อในระบบ
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      แสดงข้อสอบทั้งหมดของระดับชั้น {selectedGrade} จากทุกกลุ่มสาระการเรียนรู้
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick actions for all subjects */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => handleRandomSelect(targetQuestionCount)}
+                    className="h-8 text-xs gap-1.5 shadow-xs bg-primary hover:bg-primary/90 font-semibold"
+                  >
+                    <Zap className="h-3.5 w-3.5 fill-current" />
+                    สุ่มออกข้อสอบ ({targetQuestionCount} ข้อ)
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddModal(true)}
+                    className="h-8 text-xs gap-1"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    เพิ่มข้อสอบใหม่
+                  </Button>
+                </div>
+              </div>
+            ) : selectedSubjectConfig ? (
               <div className="p-4 rounded-2xl border border-border/80 bg-gradient-to-r from-card via-card to-muted/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
                   <div className="w-12 h-12 rounded-2xl bg-primary/10 text-2xl flex items-center justify-center shrink-0 border border-primary/20 shadow-inner">
@@ -1560,7 +1806,7 @@ ${mediaInstruction}
                   </Button>
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* AI Generator Panel */}
             <Card id="ai-generator-panel" className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-background shadow-sm scroll-mt-6">
@@ -2859,7 +3105,10 @@ ${mediaInstruction}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedQIds([])}
+                        onClick={() => {
+                          setSelectedQIds([]);
+                          clearBuilderDraft();
+                        }}
                         disabled={selectedQIds.length === 0}
                         className="text-xs h-8 text-muted-foreground hover:text-destructive px-2"
                       >
@@ -2999,7 +3248,7 @@ ${mediaInstruction}
           {/* ═══════════════════════════════════════════════════════════════
               TAB 2: ชุดข้อสอบ (Exam Sets)
           ════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="sets" className="space-y-6 mt-6">
+          <TabsContent value="sets" forceMount className={cn("space-y-6 mt-6", activeTab !== 'sets' && "hidden")}>
             {/* Subject Selector Toolbar for Exam Sets */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-card border border-border rounded-2xl shadow-xs">
               <div>
@@ -3221,7 +3470,7 @@ ${mediaInstruction}
           {/* ═══════════════════════════════════════════════════════════════
               TAB 3: พิมพ์ข้อสอบ A4 และกระดาษคำตอบ OMR
           ════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="print" className="space-y-6 mt-6">
+          <TabsContent value="print" forceMount className={cn("space-y-6 mt-6", activeTab !== 'print' && "hidden")}>
             <Card className="border-border">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
@@ -3359,7 +3608,7 @@ ${mediaInstruction}
           {/* ═══════════════════════════════════════════════════════════════
               TAB 4: สแกนตรวจกระดาษคำตอบด้วยกล้องมือถือ (Mobile Camera OMR)
           ════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="scanner" className="space-y-6 mt-6">
+          <TabsContent value="scanner" forceMount className={cn("space-y-6 mt-6", activeTab !== 'scanner' && "hidden")}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column: Camera Viewfinder */}
               <Card className="border-border">
@@ -3642,7 +3891,7 @@ ${mediaInstruction}
           {/* ═══════════════════════════════════════════════════════════════
               TAB 5: สถิติและรายงานผลสอบ (Results Dashboard)
           ════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="results" className="space-y-6 mt-6">
+          <TabsContent value="results" forceMount className={cn("space-y-6 mt-6", activeTab !== 'results' && "hidden")}>
             <Card className="border-border">
               <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
