@@ -3,12 +3,12 @@
  * ระบบสอบออนไลน์สำหรับนักเรียน โรงเรียนบ้านคำไผ่
  * รองรับการใส่รหัส PIN, ดึงรายชื่อนักเรียนจากฐานข้อมูลจริงพร้อม Avatar, จับเวลา, และตรวจคะแนนทันที
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Clock, CheckCircle2, ShieldCheck, BookOpen, Send, PenLine, FileText, AlertCircle, Shuffle,
-  Volume2, VolumeX
+  Volume2, VolumeX, Loader2, Search, RefreshCw
 } from 'lucide-react';
 import { examService, type ExamSetRow } from '@/services/exam.service';
 import { studentsService, type StudentMin } from '@/services/students.service';
@@ -88,6 +88,7 @@ export default function ExamOnline() {
   // Student Info
   const [selectedGrade, setSelectedGrade] = useState('ป.4');
   const [selectedStudent, setSelectedStudent] = useState<StudentMin | null>(null);
+  const [searchStudentQuery, setSearchStudentQuery] = useState('');
 
   // Exam Answers & Timer
   const [currentExamQuestions, setCurrentExamQuestions] = useState<RandomizedQuestionItem[]>([]);
@@ -125,7 +126,12 @@ export default function ExamOnline() {
   } | null>(null);
 
   // ── Queries ──
-  const { data: studentsInClass = [] } = useQuery({
+  const {
+    data: studentsInClass = [],
+    isLoading: isStudentsLoading,
+    isError: isStudentsError,
+    refetch: refetchStudents,
+  } = useQuery({
     queryKey: ['students_roster', selectedGrade],
     queryFn: async () => {
       const { data, error } = await studentsService.getByClass(selectedGrade);
@@ -133,6 +139,18 @@ export default function ExamOnline() {
       return (data || []) as StudentMin[];
     },
   });
+
+  // กรองรายชื่อนักเรียนตามคำค้นหา (ชื่อ / เลขที่ / รหัสนักเรียน)
+  const filteredStudents = useMemo(() => {
+    if (!searchStudentQuery.trim()) return studentsInClass;
+    const q = searchStudentQuery.trim().toLowerCase();
+    return studentsInClass.filter(
+      (stu) =>
+        (stu.name && stu.name.toLowerCase().includes(q)) ||
+        (stu.class_number !== null && stu.class_number !== undefined && String(stu.class_number).includes(q)) ||
+        (stu.student_code && stu.student_code.includes(q))
+    );
+  }, [studentsInClass, searchStudentQuery]);
 
   // If examSetId is provided in URL, load it directly if active
   useEffect(() => {
@@ -540,35 +558,96 @@ export default function ExamOnline() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs">เลือกชื่อนักเรียน (จากฐานข้อมูล)</Label>
-                  <div className="space-y-1.5 max-h-56 overflow-y-auto border border-border rounded-xl p-1 bg-muted/10">
-                    {studentsInClass.map((stu) => {
-                      const isSelected = selectedStudent?.id === stu.id;
-                      return (
-                        <div
-                          key={stu.id}
-                          onClick={() => setSelectedStudent(stu)}
-                          className={`p-2 rounded-lg flex items-center gap-3 cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'bg-primary text-primary-foreground font-semibold'
-                              : 'hover:bg-muted/40 text-foreground'
-                          }`}
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">เลือกชื่อนักเรียน (จากฐานข้อมูล)</Label>
+                    {studentsInClass.length > 0 && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {filteredStudents.length} จาก {studentsInClass.length} คน
+                      </span>
+                    )}
+                  </div>
+
+                  {/* ช่องค้นหาชื่อ / เลขที่ เมื่อมีนักเรียนมากกว่า 4 คน */}
+                  {studentsInClass.length > 4 && (
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="พิมพ์ค้นหาชื่อ หรือเลขที่..."
+                        value={searchStudentQuery}
+                        onChange={(e) => setSearchStudentQuery(e.target.value)}
+                        className="h-8 pl-8 text-xs bg-background"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5 max-h-56 min-h-[140px] overflow-y-auto border border-border rounded-xl p-1 bg-muted/10">
+                    {isStudentsLoading ? (
+                      <div className="py-10 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <span>กำลังโหลดรายชื่อนักเรียน ชั้น {selectedGrade}...</span>
+                      </div>
+                    ) : isStudentsError ? (
+                      <div className="py-8 text-center text-xs text-destructive flex flex-col items-center justify-center gap-2 px-3">
+                        <AlertCircle className="h-6 w-6 text-destructive" />
+                        <span className="font-semibold">ไม่สามารถดึงรายชื่อนักเรียนได้</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => void refetchStudents()}
+                          className="h-7 text-xs gap-1 mt-1"
                         >
-                          <PersonAvatar
-                            name={stu.name}
-                            photoUrl={stu.photo_url}
-                            className="h-8 w-8 text-xs"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-xs truncate">{stu.name}</div>
-                            <div className={`text-[10px] ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                              เลขที่ {stu.class_number ?? '-'} · ชั้น {stu.class}
+                          <RefreshCw className="h-3 w-3" />
+                          ลองใหม่อีกครั้ง
+                        </Button>
+                      </div>
+                    ) : studentsInClass.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 px-3">
+                        <AlertCircle className="h-6 w-6 text-amber-500" />
+                        <span className="font-medium text-foreground">ไม่พบข้อมูลนักเรียนในชั้น {selectedGrade}</span>
+                        <span className="text-[10px] text-muted-foreground">กรุณาเลือกระดับชั้นอื่น หรือแจ้งคุณครูผู้คุมสอบ</span>
+                      </div>
+                    ) : filteredStudents.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1">
+                        <span>ไม่พบนักเรียนที่ตรงกับ "{searchStudentQuery}"</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSearchStudentQuery('')}
+                          className="h-6 text-[10px] text-primary"
+                        >
+                          ล้างคำค้นหา
+                        </Button>
+                      </div>
+                    ) : (
+                      filteredStudents.map((stu) => {
+                        const isSelected = selectedStudent?.id === stu.id;
+                        return (
+                          <div
+                            key={stu.id}
+                            onClick={() => setSelectedStudent(stu)}
+                            className={`p-2 rounded-lg flex items-center gap-3 cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                                : 'hover:bg-muted/40 text-foreground'
+                            }`}
+                          >
+                            <PersonAvatar
+                              name={stu.name}
+                              photoUrl={stu.photo_url}
+                              className="h-8 w-8 text-xs shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs truncate">{stu.name}</div>
+                              <div className={`text-[10px] ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                                เลขที่ {stu.class_number ?? '-'} · ชั้น {stu.class}
+                              </div>
                             </div>
+                            {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0" />}
                           </div>
-                          {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0" />}
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 </div>
 

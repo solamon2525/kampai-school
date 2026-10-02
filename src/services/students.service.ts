@@ -70,14 +70,26 @@ export const studentsService = {
       .select('id, student_code, first_name, last_name, class_level, class_room')
       .order('first_name'),
 
-  /** ดึงนักเรียนในชั้นเรียนที่กำหนด (active เท่านั้น) — ใช้ใน checkin / scores / conduct / waste */
-  getByClass: (className: string) =>
-    supabase
+  /** ดึงนักเรียนในชั้นเรียนที่กำหนด (active เท่านั้น) — รองรับทั้ง unauthenticated (exam/games) และ teacher/admin */
+  getByClass: async (className: string) => {
+    try {
+      const { data: rpcData, error: rpcError } = await (supabase.rpc as any)('get_public_student_roster', {
+        p_class: className,
+      });
+      if (!rpcError && Array.isArray(rpcData)) {
+        return { data: rpcData as StudentMin[], error: null };
+      }
+    } catch {
+      // ignore and fallback to direct table query
+    }
+
+    return supabase
       .from('students')
       .select('id, student_code, name, class, room, class_number, gender, photo_url, parent_name, parent_phone, is_active')
       .eq('class', className)
       .eq('is_active', true)
-      .order('class_number'),
+      .order('class_number');
+  },
 
   /** ดึงนักเรียนทีละคน */
   getById: (id: string) =>
