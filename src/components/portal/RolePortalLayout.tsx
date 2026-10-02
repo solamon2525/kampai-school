@@ -47,6 +47,13 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
         navigate('/admin');
     };
 
+    const filteredBaseMenu = useMemo(() => {
+        if (role !== 'admin') {
+            return menu.filter((item) => item.id !== 'exam');
+        }
+        return menu;
+    }, [menu, role]);
+
     const dynamicMenu = useMemo(() => {
         if (role === 'teacher' && allowedMenus && allowedMenus.length > 0) {
             const permittedAdminItems = ADMIN_QUICK_MENU_CATALOG.filter((item) =>
@@ -59,13 +66,13 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
             }));
             
             // ป้องกันเมนูซ้ำซ้อน
-            const menuIds = new Set(menu.map(m => m.id));
+            const menuIds = new Set(filteredBaseMenu.map(m => m.id));
             const uniquePermitted = permittedAdminItems.filter(item => !menuIds.has(item.id));
             
-            return [...menu, ...uniquePermitted];
+            return [...filteredBaseMenu, ...uniquePermitted];
         }
-        return menu;
-    }, [menu, role, allowedMenus]);
+        return filteredBaseMenu;
+    }, [filteredBaseMenu, role, allowedMenus]);
 
     const Sidebar = () => (
         <div className="flex flex-col h-full">

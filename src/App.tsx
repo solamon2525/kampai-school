@@ -254,7 +254,7 @@ const App = () => (
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherScores /></PortalProtectedRoute>
             } />
             <Route path="/teacher/exam" element={
-              <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherExamManagement /></PortalProtectedRoute>
+              <PortalProtectedRoute allow={['admin']}><TeacherExamManagement /></PortalProtectedRoute>
             } />
             <Route path="/teacher/rewards-approval" element={
               <PortalProtectedRoute allow={['teacher', 'admin']}><TeacherRewardsApproval /></PortalProtectedRoute>

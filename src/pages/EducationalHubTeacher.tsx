@@ -474,12 +474,14 @@ const EducationalHubTeacher = () => {
                                                 ดูข้อมูลครู
                                             </Link>
                                         </Button>
-                                        <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'default'} className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
-                                            <Link to="/teacher/exam">
-                                                <CheckSquare className="h-4 w-4 mr-1" />
-                                                ระบบจัดการข้อสอบ
-                                            </Link>
-                                        </Button>
+                                        {isAdmin && (
+                                            <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'default'} className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
+                                                <Link to="/teacher/exam">
+                                                    <CheckSquare className="h-4 w-4 mr-1" />
+                                                    ระบบจัดการข้อสอบ
+                                                </Link>
+                                            </Button>
+                                        )}
                                         <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'outline'}>
                                             <Link to="/exam">
                                                 <BookOpen className="h-4 w-4 mr-1" />

@@ -8,7 +8,7 @@ import {
   Info, Gift,
   // newly added admin routes (educational-hub, docs-hub family, system)
   Sparkles, Folder, DollarSign, FileCheck2, NotebookText, Target, Files, IdCard,
-  Bell, QrCode, FlaskConical, Package, Gauge,
+  Bell, QrCode, FlaskConical, Package, Gauge, CheckSquare,
 } from 'lucide-react';
 
 export type QuickMenuOption = {
@@ -62,6 +62,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 
   // ฝ่ายวิชาการ
   { id: 'academic', label: 'ฝ่ายวิชาการ', icon: BookOpen, path: '/admin/dashboard/academic', group: 'ฝ่ายวิชาการ' },
+  { id: 'exam', label: 'ระบบจัดการข้อสอบ', icon: CheckSquare, path: '/teacher/exam', group: 'ฝ่ายวิชาการ' },
 
   // ข้อมูลโรงเรียน
   { id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard/milestones', group: 'ข้อมูลโรงเรียน' },
