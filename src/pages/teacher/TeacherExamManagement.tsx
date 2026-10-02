@@ -246,7 +246,25 @@ export default function TeacherExamManagement() {
   const [targetSubject, setTargetSubject] = useState<string>(initialDraft.targetSubject || initialFilters.targetSubject);
   const [selectedGrade, setSelectedGrade] = useState<string>(initialFilters.selectedGrade);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  // Pagination states for question bank (60fps performance)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+
+  // Debounce search query to prevent hammering Supabase and laggy typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  // Reset page to 1 whenever any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSubject, selectedTopic, selectedQTypeFilter, selectedIndicatorFilter, debouncedSearchQuery, selectedGrade, pageSize]);
 
   // Question Type & Indicator Filter state for Bank
   const [selectedQTypeFilter, setSelectedQTypeFilter] = useState<'all' | 'mcq' | 'fillin' | 'essay'>('all');
@@ -290,6 +308,7 @@ export default function TeacherExamManagement() {
   const [editingExamSetId, setEditingExamSetId] = useState<string | null>(initialDraft.editingExamSetId);
   const [deleteSetConfirmId, setDeleteSetConfirmId] = useState<string | null>(null);
   const [showIncompleteConfirm, setShowIncompleteConfirm] = useState<boolean>(false);
+  const [showContaminationConfirm, setShowContaminationConfirm] = useState<boolean>(false);
   const [customQuestionsCache, setCustomQuestionsCache] = useState<Record<string, any>>(initialDraft.cachedQuestions);
 
   // Selected questions for building set
@@ -346,16 +365,23 @@ export default function TeacherExamManagement() {
   const cameraStreamRef = useRef<MediaStream | null>(null);
 
   // ── Queries ──
-  const { data: questions = [], isLoading: loadingQ } = useQuery({
-    queryKey: ['exam_questions', selectedSubject, selectedGrade, searchQuery],
+  const {
+    data: questions = [],
+    isLoading: loadingQ,
+    isError: isErrorQ,
+    error: errorQ,
+    refetch: refetchQ,
+  } = useQuery({
+    queryKey: ['exam_questions', selectedSubject, selectedGrade, debouncedSearchQuery],
     queryFn: () =>
       examService.listQuestions({
         subject: selectedSubject !== 'all' ? selectedSubject : undefined,
         grade: selectedGrade !== 'all' ? selectedGrade : undefined,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
       }),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
+    retry: 2,
   });
 
   // Query live question counts for each subject in current grade
@@ -494,6 +520,29 @@ export default function TeacherExamManagement() {
     return result;
   }, [questions, selectedTopic, selectedQTypeFilter, selectedIndicatorFilter]);
 
+  // Pagination computations for 60fps responsiveness
+  const totalPages = useMemo(() => {
+    if (pageSize >= 9999) return 1;
+    return Math.max(1, Math.ceil(displayedQuestions.length / pageSize));
+  }, [displayedQuestions.length, pageSize]);
+
+  const paginatedQuestions = useMemo(() => {
+    if (pageSize >= 9999) return displayedQuestions;
+    const start = (currentPage - 1) * pageSize;
+    return displayedQuestions.slice(start, start + pageSize);
+  }, [displayedQuestions, currentPage, pageSize]);
+
+  const itemStart = useMemo(() => {
+    if (displayedQuestions.length === 0) return 0;
+    return (currentPage - 1) * (pageSize >= 9999 ? displayedQuestions.length : pageSize) + 1;
+  }, [displayedQuestions.length, currentPage, pageSize]);
+
+  const itemEnd = useMemo(() => {
+    if (displayedQuestions.length === 0) return 0;
+    if (pageSize >= 9999) return displayedQuestions.length;
+    return Math.min(displayedQuestions.length, currentPage * pageSize);
+  }, [displayedQuestions.length, currentPage, pageSize]);
+
   // Selected questions details & difficulty breakdown (persisted across subjects/filters)
   const selectedQuestionsDetails = useMemo(() => {
     return selectedQIds
@@ -519,6 +568,18 @@ export default function TeacherExamManagement() {
 
   const uniqueSelectedSubjects = useMemo(() => Object.keys(selectedSubjectsBreakdown), [selectedSubjectsBreakdown]);
   const isCrossSubject = uniqueSelectedSubjects.length > 1;
+
+  const dominantSubject = useMemo(() => {
+    let maxSubj = '';
+    let maxCount = 0;
+    Object.entries(selectedSubjectsBreakdown).forEach(([subj, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        maxSubj = subj;
+      }
+    });
+    return maxSubj;
+  }, [selectedSubjectsBreakdown]);
 
   const handleKeepOnlySubject = (subjToKeep: string) => {
     const filteredIds = selectedQuestionsDetails
@@ -559,7 +620,31 @@ export default function TeacherExamManagement() {
     setSelectedTopic('all');
   };
 
-  // Bulk selection actions
+  // Bulk selection: Select only current page
+  const handleSelectPage = () => {
+    const pageIds = paginatedQuestions.map((q) => q.id);
+    const union = Array.from(new Set([...selectedQIds, ...pageIds]));
+    setSelectedQIds(union);
+
+    const cacheUpdate: Record<string, any> = {};
+    paginatedQuestions.forEach((q) => {
+      cacheUpdate[q.id] = q;
+      questionCacheRef.current.set(q.id, q);
+    });
+    setCustomQuestionsCache((prev) => ({ ...prev, ...cacheUpdate }));
+
+    const activeSubj = selectedSubject !== 'all' ? selectedSubject : targetSubject || 'ทั่วไป';
+    setTargetSubject(activeSubj);
+    if (!newSetTitle) {
+      setNewSetTitle(`แบบทดสอบวิชา${activeSubj} ${selectedGrade} (${union.length} ข้อ)`);
+    }
+    toast({
+      title: `เลือกข้อสอบในหน้านี้`,
+      description: `เพิ่มข้อสอบ ${pageIds.length} ข้อเข้าชุดแล้ว (รวมทั้งหมด ${union.length} ข้อ)`,
+    });
+  };
+
+  // Bulk selection: Select all displayed questions across all pages
   const handleSelectAll = () => {
     const displayedIds = displayedQuestions.map((q) => q.id);
     const union = Array.from(new Set([...selectedQIds, ...displayedIds]));
@@ -578,8 +663,17 @@ export default function TeacherExamManagement() {
       setNewSetTitle(`แบบทดสอบวิชา${activeSubj} ${selectedGrade} (${union.length} ข้อ)`);
     }
     toast({
-      title: `เลือกข้อสอบทั้งหมดในวิชา ${activeSubj}`,
-      description: `เพิ่มข้อสอบ ${displayedIds.length} ข้อเข้าชุดแล้ว (รวมทั้งหมด ${union.length} ข้อ)`,
+      title: `เลือกข้อสอบทั้งหมด (${displayedIds.length} ข้อ)`,
+      description: `เพิ่มข้อสอบทั้งหมดเข้าชุดแล้ว (รวมทั้งหมด ${union.length} ข้อ)`,
+    });
+  };
+
+  const handleDeselectPage = () => {
+    const pageIds = new Set(paginatedQuestions.map((q) => q.id));
+    setSelectedQIds(selectedQIds.filter((id) => !pageIds.has(id)));
+    toast({
+      title: 'ยกเลิกการเลือกในหน้านี้',
+      description: 'นำข้อสอบในหน้านี้ออกจากชุดข้อสอบแล้ว',
     });
   };
 
@@ -587,8 +681,8 @@ export default function TeacherExamManagement() {
     const displayedIds = new Set(displayedQuestions.map((q) => q.id));
     setSelectedQIds(selectedQIds.filter((id) => !displayedIds.has(id)));
     toast({
-      title: 'ยกเลิกการเลือก',
-      description: 'นำข้อสอบในหน้านี้ออกจากชุดข้อสอบแล้ว',
+      title: 'ยกเลิกการเลือกทั้งหมด',
+      description: 'นำข้อสอบทั้งหมดออกจากชุดข้อสอบแล้ว',
     });
   };
 
@@ -762,7 +856,13 @@ export default function TeacherExamManagement() {
     });
   };
 
-  const { data: examSets = [], isLoading: loadingSets } = useQuery({
+  const {
+    data: examSets = [],
+    isLoading: loadingSets,
+    isError: isErrorSets,
+    error: errorSets,
+    refetch: refetchSets,
+  } = useQuery({
     queryKey: ['exam_sets', selectedSubject, selectedGrade],
     queryFn: () =>
       examService.listExamSets({
@@ -771,6 +871,7 @@ export default function TeacherExamManagement() {
       }),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
+    retry: 2,
   });
 
   const { data: students = [] } = useQuery({
@@ -782,10 +883,17 @@ export default function TeacherExamManagement() {
     },
   });
 
-  const { data: submissions = [], isLoading: loadingSubmissions } = useQuery({
+  const {
+    data: submissions = [],
+    isLoading: loadingSubmissions,
+    isError: isErrorSubmissions,
+    error: errorSubmissions,
+    refetch: refetchSubmissions,
+  } = useQuery({
     queryKey: ['exam_submissions'],
     queryFn: () => examService.listSubmissions(),
     refetchInterval: activeTab === 'results' ? 4000 : false,
+    retry: 2,
   });
 
   // กรองเฉพาะชุดข้อสอบที่เปิดใช้งาน (is_active === true) เพื่อไม่ให้ชุดที่ลบ/ยกเลิกแสดงในประวัติ
@@ -1349,6 +1457,11 @@ ${mediaInstruction}
     }
     if (!selectedQIds.length) {
       toast({ title: 'กรุณาเลือกข้อสอบอย่างน้อย 1 ข้อ', variant: 'destructive' });
+      return;
+    }
+
+    if (!forceSave && isCrossSubject) {
+      setShowContaminationConfirm(true);
       return;
     }
 
@@ -2101,12 +2214,24 @@ ${mediaInstruction}
                       </SelectContent>
                     </Select>
 
-                    <Input
-                      placeholder="ค้นหาข้อสอบ..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-32 sm:w-40 h-8 text-xs"
-                    />
+                    <div className="relative">
+                      <Input
+                        placeholder="ค้นหาข้อสอบ..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="w-32 sm:w-44 h-8 text-xs pr-6"
+                      />
+                      {searchInput && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchInput('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
+                          title="ล้างคำค้นหา"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -2152,10 +2277,27 @@ ${mediaInstruction}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleSelectAll}
-                      className="h-7 text-[11px] px-2.5 bg-background shadow-xs"
+                      onClick={handleSelectPage}
+                      className="h-7 text-[11px] px-2.5 bg-background shadow-xs font-medium"
                     >
-                      เลือกทั้งหมดในหน้านี้ ({displayedQuestions.length})
+                      เลือกในหน้านี้ ({paginatedQuestions.length})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSelectAll}
+                      className="h-7 text-[11px] px-2.5 bg-background shadow-xs font-semibold text-primary border-primary/30"
+                    >
+                      เลือกทั้งหมดทุกหน้า ({displayedQuestions.length})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDeselectPage}
+                      className="h-7 text-[11px] px-2 text-muted-foreground hover:text-foreground bg-background shadow-xs"
+                      disabled={selectedQIds.length === 0}
+                    >
+                      ยกเลิกในหน้านี้
                     </Button>
                     <Button
                       variant="outline"
@@ -2164,7 +2306,7 @@ ${mediaInstruction}
                       className="h-7 text-[11px] px-2 text-muted-foreground hover:text-foreground bg-background shadow-xs"
                       disabled={selectedQIds.length === 0}
                     >
-                      ยกเลิกในหน้านี้
+                      ยกเลิกทั้งหมด
                     </Button>
 
                     <div className="h-3.5 w-px bg-border mx-1 hidden sm:block" />
@@ -2212,8 +2354,13 @@ ${mediaInstruction}
                     )}
                   </div>
 
-                  <div className="text-[11px] text-muted-foreground ml-auto">
-                    แสดง {displayedQuestions.length} จาก {questions.length} ข้อ
+                  <div className="text-[11px] text-muted-foreground ml-auto flex items-center gap-2">
+                    <span>แสดง {itemStart}-{itemEnd} จาก {displayedQuestions.length} ข้อ</span>
+                    {totalPages > 1 && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
+                        หน้า {currentPage}/{totalPages}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -2641,7 +2788,37 @@ ${mediaInstruction}
 
                 {/* List items */}
                 {loadingQ ? (
-                  <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดข้อสอบ...</div>
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="p-4 rounded-xl border border-border/60 bg-card/60 animate-pulse space-y-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-muted rounded" />
+                          <div className="h-4 w-20 bg-muted rounded-full" />
+                          <div className="h-4 w-16 bg-muted rounded-full" />
+                          <div className="h-4 w-14 bg-muted rounded-full" />
+                        </div>
+                        <div className="h-4 w-4/5 bg-muted rounded" />
+                        <div className="h-3 w-1/2 bg-muted/60 rounded" />
+                      </div>
+                    ))}
+                  </div>
+                ) : isErrorQ ? (
+                  <div className="p-8 rounded-2xl border border-amber-300 bg-amber-500/10 text-center space-y-3">
+                    <AlertTriangle className="h-8 w-8 text-amber-600 mx-auto" />
+                    <div className="text-sm font-bold text-foreground">ไม่สามารถดึงข้อมูลข้อสอบจากฐานข้อมูลได้</div>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                      {errorQ instanceof Error ? errorQ.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย กรุณาลองใหม่อีกครั้ง'}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => refetchQ()}
+                      className="gap-1.5 text-xs font-semibold border-amber-400 text-amber-900 bg-background hover:bg-amber-100"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      ลองใหม่อีกครั้ง
+                    </Button>
+                  </div>
                 ) : displayedQuestions.length === 0 ? (
                   <div className="text-center py-12 border border-dashed rounded-2xl p-8 bg-muted/10 space-y-4">
                     <div className="w-16 h-16 rounded-2xl bg-muted/50 text-3xl flex items-center justify-center mx-auto border border-border/80 shadow-xs">
@@ -2649,23 +2826,26 @@ ${mediaInstruction}
                     </div>
                     <div className="space-y-1">
                       <p className="text-base font-bold text-foreground">
-                        {searchQuery.trim()
-                          ? `ไม่พบข้อสอบที่ตรงกับ "${searchQuery}"`
+                        {debouncedSearchQuery
+                          ? `ไม่พบข้อสอบที่ตรงกับ "${debouncedSearchQuery}"`
                           : `ยังไม่มีข้อสอบในคลังสำหรับวิชา${selectedSubject !== 'all' ? selectedSubject : ''} (${selectedGrade})`}
                       </p>
                       <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                        {searchQuery.trim()
+                        {debouncedSearchQuery
                           ? 'ลองปรับคำค้นหา หรือกดปุ่มล้างคำค้นหาเพื่อดูข้อสอบทั้งหมด'
                           : 'คุณครูสามารถให้ AI ช่วยสร้างข้อสอบปรนัยมาตรฐานพร้อมเฉลยใน 1 คลิก หรือกดเพิ่มข้อสอบด้วยตนเอง'}
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                      {searchQuery.trim() ? (
+                      {debouncedSearchQuery ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSearchQuery('')}
+                          onClick={() => {
+                            setSearchInput('');
+                            setDebouncedSearchQuery('');
+                          }}
                           className="h-8 text-xs gap-1.5"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -2701,7 +2881,7 @@ ${mediaInstruction}
                       )}
                     </div>
 
-                    {!searchQuery.trim() && selectedSubjectConfig?.suggestedTopics && selectedSubjectConfig.suggestedTopics.length > 0 && (
+                    {!debouncedSearchQuery && selectedSubjectConfig?.suggestedTopics && selectedSubjectConfig.suggestedTopics.length > 0 && (
                       <div className="pt-2 border-t border-border/40 max-w-lg mx-auto">
                         <span className="text-[11px] text-muted-foreground flex items-center justify-center gap-1 mb-2">
                           <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
@@ -2729,9 +2909,10 @@ ${mediaInstruction}
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {displayedQuestions.map((q, idx) => {
+                    {paginatedQuestions.map((q, idx) => {
                       const isSelected = selectedQIds.includes(q.id);
                       const opts = Array.isArray(q.options) ? (q.options as string[]) : [];
+                      const questionIndex = (currentPage - 1) * (pageSize >= 9999 ? displayedQuestions.length : pageSize) + idx + 1;
 
                       return (
                         <div
@@ -2760,7 +2941,7 @@ ${mediaInstruction}
                               />
                               <div className="space-y-1.5 flex-1">
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="font-bold text-muted-foreground text-xs">{idx + 1}.</span>
+                                  <span className="font-bold text-muted-foreground text-xs">{questionIndex}.</span>
 
                                   {/* Question Type Badge */}
                                   {q.question_type === 'fillin' ? (
@@ -2925,6 +3106,99 @@ ${mediaInstruction}
                         </div>
                       );
                     })}
+
+                    {/* Bottom Pagination Bar */}
+                    {totalPages > 1 && (
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/60 text-xs">
+                        <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
+                          <span>
+                            แสดง {itemStart}-{itemEnd} จาก {displayedQuestions.length} ข้อ
+                          </span>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <span>ต่อหน้า:</span>
+                            <Select
+                              value={String(pageSize)}
+                              onValueChange={(v) => {
+                                setPageSize(Number(v));
+                                setCurrentPage(1);
+                              }}
+                            >
+                              <SelectTrigger className="h-7 w-20 text-[11px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="25">25 ข้อ</SelectItem>
+                                <SelectItem value="50">50 ข้อ</SelectItem>
+                                <SelectItem value="100">100 ข้อ</SelectItem>
+                                <SelectItem value="9999">ทั้งหมด</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={currentPage <= 1}
+                            onClick={() => {
+                              setCurrentPage((prev) => Math.max(1, prev - 1));
+                              window.scrollTo({ top: 350, behavior: 'smooth' });
+                            }}
+                            className="h-8 text-xs px-2.5"
+                          >
+                            ‹ ก่อนหน้า
+                          </Button>
+
+                          {/* Quick Page Jump Buttons */}
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                              .reduce<(number | string)[]>((acc, p, i, arr) => {
+                                if (i > 0 && typeof arr[i - 1] === 'number' && (p as number) - (arr[i - 1] as number) > 1) {
+                                  acc.push('...');
+                                }
+                                acc.push(p);
+                                return acc;
+                              }, [])
+                              .map((item, i) =>
+                                typeof item === 'string' ? (
+                                  <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground text-xs">
+                                    ...
+                                  </span>
+                                ) : (
+                                  <Button
+                                    key={item}
+                                    variant={currentPage === item ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => {
+                                      setCurrentPage(item);
+                                      window.scrollTo({ top: 350, behavior: 'smooth' });
+                                    }}
+                                    className={cn('h-8 w-8 p-0 text-xs', currentPage === item && 'font-bold shadow-xs')}
+                                  >
+                                    {item}
+                                  </Button>
+                                )
+                              )}
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={currentPage >= totalPages}
+                            onClick={() => {
+                              setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+                              window.scrollTo({ top: 350, behavior: 'smooth' });
+                            }}
+                            className="h-8 text-xs px-2.5"
+                          >
+                            ถัดไป ›
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -3295,7 +3569,27 @@ ${mediaInstruction}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {loadingSets ? (
-                <div className="col-span-full text-center py-12 text-xs text-muted-foreground">กำลังโหลดชุดข้อสอบ...</div>
+                <div className="col-span-full text-center py-12 text-xs text-muted-foreground">
+                  <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
+                  กำลังโหลดชุดข้อสอบ...
+                </div>
+              ) : isErrorSets ? (
+                <div className="col-span-full p-8 rounded-2xl border border-amber-300 bg-amber-500/10 text-center space-y-3">
+                  <AlertTriangle className="h-8 w-8 text-amber-600 mx-auto" />
+                  <div className="text-sm font-bold text-foreground">ไม่สามารถดึงข้อมูลชุดข้อสอบจากฐานข้อมูลได้</div>
+                  <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                    {errorSets instanceof Error ? errorSets.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย กรุณาลองใหม่อีกครั้ง'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchSets()}
+                    className="gap-1.5 text-xs font-semibold border-amber-400 text-amber-900 bg-background hover:bg-amber-100"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    ลองใหม่อีกครั้ง
+                  </Button>
+                </div>
               ) : examSets.length === 0 ? (
                 <div className="col-span-full text-center py-12 border border-dashed rounded-xl p-8 bg-muted/10">
                   <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีชุดข้อสอบในหมวดนี้</p>
@@ -4181,7 +4475,33 @@ ${mediaInstruction}
                 ) : (
                   (() => {
                     if (loadingSubmissions) {
-                      return <div className="text-center py-12 text-xs text-muted-foreground">กำลังโหลดผลสอบ...</div>;
+                      return (
+                        <div className="text-center py-12 text-xs text-muted-foreground">
+                          <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
+                          กำลังโหลดผลสอบ...
+                        </div>
+                      );
+                    }
+
+                    if (isErrorSubmissions) {
+                      return (
+                        <div className="p-8 rounded-2xl border border-amber-300 bg-amber-500/10 text-center space-y-3">
+                          <AlertTriangle className="h-8 w-8 text-amber-600 mx-auto" />
+                          <div className="text-sm font-bold text-foreground">ไม่สามารถดึงข้อมูลผลการสอบได้</div>
+                          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                            {errorSubmissions instanceof Error ? errorSubmissions.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย'}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => refetchSubmissions()}
+                            className="gap-1.5 text-xs font-semibold border-amber-400 text-amber-900 bg-background hover:bg-amber-100"
+                          >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            ลองใหม่อีกครั้ง
+                          </Button>
+                        </div>
+                      );
                     }
 
                     if (filteredSubmissions.length === 0) {
@@ -4439,6 +4759,80 @@ ${mediaInstruction}
               </span>
               <Button size="sm" onClick={() => setShowCartReview(false)} className="text-xs">
                 ปิดหน้าต่างตรวจทาน
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Cross-Subject Contamination Confirmation Dialog */}
+        <Dialog open={showContaminationConfirm} onOpenChange={setShowContaminationConfirm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-700">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                ตรวจพบข้อสอบปะปนกันหลายวิชา
+              </DialogTitle>
+              <DialogDescription className="space-y-3 pt-2 text-xs text-foreground">
+                <p>
+                  ชุดข้อสอบที่คุณกำลังสร้างมีข้อสอบจาก <span className="font-bold text-amber-700">{uniqueSelectedSubjects.length} วิชา</span> ปะปนกันอยู่ (รวม {selectedQIds.length} ข้อ)
+                </p>
+                <div className="p-3 bg-muted/40 rounded-xl border border-border/60 space-y-1.5">
+                  <div className="text-[11px] font-semibold text-muted-foreground">สัดส่วนข้อสอบที่เลือก:</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {Object.entries(selectedSubjectsBreakdown).map(([subj, count]) => (
+                      <Badge
+                        key={subj}
+                        variant="outline"
+                        className={cn(
+                          "text-xs px-2 py-0.5",
+                          subj === dominantSubject ? "border-primary text-primary font-bold bg-primary/10" : "bg-card text-muted-foreground"
+                        )}
+                      >
+                        {SUBJECT_MAP[subj]?.icon || '📄'} {subj}: {count} ข้อ {subj === dominantSubject && '(วิชาหลัก)'}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-muted-foreground text-[11px]">
+                  ท่านต้องการกรองเก็บเฉพาะข้อสอบวิชาหลัก หรือต้องการยืนยันบันทึกเป็นชุดแบบทดสอบบูรณาการหลายวิชา?
+                </p>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowContaminationConfirm(false)}
+                className="text-xs"
+              >
+                กลับไปแก้ไข
+              </Button>
+              {dominantSubject && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowContaminationConfirm(false);
+                    handleKeepOnlySubject(dominantSubject);
+                  }}
+                  className="text-xs border-primary/40 text-primary hover:bg-primary/10"
+                >
+                  กรองเฉพาะวิชา{dominantSubject} ({selectedSubjectsBreakdown[dominantSubject]} ข้อ)
+                </Button>
+              )}
+              <Button
+                size="sm"
+                onClick={() => {
+                  setShowContaminationConfirm(false);
+                  setTargetSubject('บูรณาการ');
+                  if (!newSetTitle.includes('บูรณาการ')) {
+                    setNewSetTitle(`แบบทดสอบบูรณาการ ${selectedGrade} (${selectedQIds.length} ข้อ)`);
+                  }
+                  setTimeout(() => handleBuildSet(true), 100);
+                }}
+                className="text-xs bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                บันทึกเป็นชุดบูรณาการ
               </Button>
             </DialogFooter>
           </DialogContent>
