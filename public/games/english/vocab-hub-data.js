@@ -335,7 +335,29 @@
       'Hamburger', 'Sausage', 'Cheese', 'Butter', 'Yogurt', 'Cereal',
       'Cookie', 'Chocolate', 'Juice', 'Tea', 'Coffee',
     ],
-    vegetables: ['Lettuce', 'Spinach', 'Kale', 'Celery', 'Radish', 'Beetroot'],
+    vegetables: [
+      'Lettuce', 'Spinach', 'Kale', 'Celery', 'Radish', 'Beetroot',
+      'Turnip', 'Pea', 'Bean', 'Chili', 'Pepper', 'Garlic', 'Ginger',
+      'Mushroom', 'Cauliflower', 'Asparagus', 'Zucchini', 'Sweet Potato', 'Okra', 'Bamboo Shoot',
+    ],
+    classroom: [
+      'Eraser', 'Textbook', 'Dictionary', 'Marker', 'Glue', 'Paper',
+      'Board', 'Desk', 'Stapler', 'Map', 'Globe', 'Sharpener',
+      'Highlighter', 'Folder', 'Worksheet', 'Whiteboard', 'Projector',
+      'Computer', 'Bookshelf', 'Schoolbag',
+    ],
+    clothes: [
+      'Coat', 'Sweater', 'Skirt', 'Shorts', 'Sandals', 'Cap',
+      'Belt', 'Uniform', 'Pajamas', 'Raincoat', 'Swimsuit', 'Pocket',
+      'Tie', 'Blouse', 'Vest', 'Sneakers', 'Slippers', 'Helmet',
+      'Button', 'Sleeve',
+    ],
+    body: [
+      'Shoulder', 'Knee', 'Elbow', 'Finger', 'Toe', 'Neck',
+      'Chest', 'Stomach', 'Waist', 'Hip', 'Wrist', 'Ankle',
+      'Skin', 'Hair', 'Tooth', 'Tongue', 'Brain', 'Heart',
+      'Lung', 'Blood',
+    ],
   });
   window.VOCAB_HUB_EXTENDED_IMAGES = Object.freeze(Object.fromEntries(
     Object.entries(EXTENDED_IMAGE_WORDS).map(([slug, words]) => [

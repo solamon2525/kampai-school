@@ -290,6 +290,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.135 (คลังคำศัพท์ภาษาอังกฤษ Vocab Hub: เสริมภาพประกอบเรื่องราวนิทานครบ 100% กลุ่มที่ 1 รวม 74 คำ สำหรับหมวดผัก อุปกรณ์การเรียน เสื้อผ้า และร่างกาย)',
+        date: '2 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'เติมเต็มภาพประกอบคำศัพท์ภาษาอังกฤษครบ 100% ในกลุ่มที่ 1 (Complete Group 1 Storybook Illustrations): สร้างและบันทึกภาพวาดภาพประกอบสไตล์นิทานเด็ก (Storybook Clean Line-Art) พื้นหลังสีงาช้างอบอุ่น (#FFF8EE) ขนาด 512×512 WebP เพิ่มเติมจำนวน 74 ภาพ ครบทุกคำศัพท์',
+            'หมวดผัก (Vegetables) ครบ 30/30 คำ (+14 ภาพ): turnip, pea, bean, chili, pepper, garlic, ginger, mushroom, cauliflower, asparagus, zucchini, sweet-potato, okra, bamboo-shoot',
+            'หมวดอุปกรณ์การเรียน (Classroom) ครบ 30/30 คำ (+20 ภาพ): eraser, textbook, dictionary, marker, glue, paper, board, desk, stapler, map, globe, sharpener, highlighter, folder, worksheet, whiteboard, projector, computer, bookshelf, schoolbag',
+            'หมวดเสื้อผ้าเครื่องแต่งกาย (Clothes) ครบ 30/30 คำ (+20 ภาพ): coat, sweater, skirt, shorts, sandals, cap, belt, uniform, pajamas, raincoat, swimsuit, pocket, tie, blouse, vest, sneakers, slippers, helmet, button, sleeve',
+            'หมวดร่างกาย (Body) ครบ 30/30 คำ (+20 ภาพ): shoulder, knee, elbow, finger, toe, neck, chest, stomach, waist, hip, wrist, ankle, skin, hair, tooth, tongue, brain, heart, lung, blood',
+            'ลงทะเบียนข้อมูลและผ่านการตรวจสอบอัตโนมัติ (Asset Registration & Strict Verification): ลงทะเบียนใน EXTENDED_IMAGE_WORDS ของ vocab-hub-data.js และผ่านการทดสอบ node scripts/verify-vocab-hub-data.mjs ทุกเกณฑ์ (ขนาด, ฟอร์แมต WebP, ความสว่าง และความคมชัด)',
+        ],
+    },
+    {
         version: 'v1.229.134 (ระบบจัดการข้อสอบ: เพิ่มคลังข้อสอบภาษาอังกฤษ ป.4 เน้นการถาม-ตอบจากรูปภาพสื่อการสอนจริง 78 ข้อ พร้อมชุดข้อสอบภาพมาตรฐาน PIN 6001)',
         date: '2 ต.ค. 2569',
         badge: 'bg-primary',
