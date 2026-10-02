@@ -290,6 +290,14 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.132 (ระบบจัดการข้อสอบ: แก้ไขข้อผิดพลาด TDZ ReferenceError ของตัวกรองข้อสอบ เพื่อความเสถียร 100% บน Production)',
+        date: '2 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไขข้อผิดพลาดการเริ่มต้นตัวแปร (Fix TDZ ReferenceError): จัดระเบียบลำดับการประกาศตัวแปร State (selectedQTypeFilter, selectedIndicatorFilter) ให้อยู่ก่อนหน้า Hooks การทำงานของ Pagination เพื่อขจัดข้อผิดพลาด JavaScript Temporal Dead Zone (Cannot access z before initialization) ส่งผลให้หน้าจอโหลดได้อย่างสมบูรณ์และเสถียร 100% ทุกสภาพแวดล้อม',
+        ],
+    },
+    {
         version: 'v1.229.131 (ระบบจัดการข้อสอบ: ยกระดับประสิทธิภาพการแสดงผลความลื่นไหล 60fps, ระบบป้องกันข้อสอบปะปนหลายวิชา, การฟื้นฟูข้อผิดพลาดของฐานข้อมูล และชุดข้อสอบมาตรฐาน ป.4 ครบ 10 วิชา)',
         date: '2 ต.ค. 2569',
         badge: 'bg-primary',

@@ -246,6 +246,8 @@ export default function TeacherExamManagement() {
   const [targetSubject, setTargetSubject] = useState<string>(initialDraft.targetSubject || initialFilters.targetSubject);
   const [selectedGrade, setSelectedGrade] = useState<string>(initialFilters.selectedGrade);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [selectedQTypeFilter, setSelectedQTypeFilter] = useState<'all' | 'mcq' | 'fillin' | 'essay'>('all');
+  const [selectedIndicatorFilter, setSelectedIndicatorFilter] = useState<string>('all');
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
@@ -265,10 +267,6 @@ export default function TeacherExamManagement() {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedSubject, selectedTopic, selectedQTypeFilter, selectedIndicatorFilter, debouncedSearchQuery, selectedGrade, pageSize]);
-
-  // Question Type & Indicator Filter state for Bank
-  const [selectedQTypeFilter, setSelectedQTypeFilter] = useState<'all' | 'mcq' | 'fillin' | 'essay'>('all');
-  const [selectedIndicatorFilter, setSelectedIndicatorFilter] = useState<string>('all');
 
   // AI Generator expanded state
   const [aiGenerating, setAiGenerating] = useState(false);
