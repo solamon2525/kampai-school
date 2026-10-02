@@ -113,7 +113,18 @@ export const SUBJECT_MAP: Record<string, SubjectConfigItem> = {
     colorClass: 'border-indigo-300 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/60',
     badgeClass: 'bg-indigo-500/10 text-indigo-800 border-indigo-300/60',
     activeColor: 'bg-indigo-600 text-white border-indigo-600 shadow-sm',
-    suggestedTopics: ['Present Simple vs Continuous', 'Past Simple Tense', 'Daily Vocabulary', 'Classroom Expressions', 'Reading Comprehension'],
+    suggestedTopics: [
+      'Present Simple vs Continuous',
+      'Past Simple Tense',
+      'Daily Vocabulary',
+      'Visual Vocabulary: Jobs & Occupations',
+      'Visual Vocabulary: Places Around Town',
+      'Visual Grammar: Prepositions & Actions',
+      'Visual Vocabulary: Feelings & Emotions',
+      'Visual Vocabulary: Sea Animals & Sports',
+      'Classroom Expressions',
+      'Reading Comprehension'
+    ],
   },
   'สังคมศึกษา': {
     id: 'social',
