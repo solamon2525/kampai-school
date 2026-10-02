@@ -138,6 +138,8 @@ export default function ExamOnline() {
       if (error) throw error;
       return (data || []) as StudentMin[];
     },
+    staleTime: 30_000,
+    refetchOnMount: 'always',
   });
 
   // กรองรายชื่อนักเรียนตามคำค้นหา (ชื่อ / เลขที่ / รหัสนักเรียน)
@@ -203,8 +205,10 @@ export default function ExamOnline() {
         return;
       }
       setSelectedExamSet(found);
-      setSelectedGrade(found.grade || 'ป.4');
+      const targetGrade = found.grade || 'ป.4';
+      setSelectedGrade(targetGrade);
       setScreen('student');
+      void refetchStudents();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'เกิดข้อผิดพลาด';
       toast({ title: 'เกิดข้อผิดพลาด', description: msg, variant: 'destructive' });
