@@ -184,6 +184,15 @@ export const WasteBankManagement = () => {
   const updateRow = (i: number, patch: Partial<RecordRow>) =>
     setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
 
+  const getCategoryMultiplier = useCallback((categoryId: string) => {
+    return activePromos.reduce((max, p) => {
+      if (p.category_ids && p.category_ids.length > 0) {
+        if (!p.category_ids.includes(categoryId)) return max;
+      }
+      return Math.max(max, Number(p.multiplier) || 1);
+    }, 1);
+  }, [activePromos]);
+
   const activeMultiplier = useMemo(() => {
     return activePromos.reduce((max, p) => Math.max(max, Number(p.multiplier) || 1), 1);
   }, [activePromos]);
@@ -200,12 +209,15 @@ export const WasteBankManagement = () => {
     const base = rows.reduce((sum, r) => {
       const c = categories.find((x) => x.id === r.category_id);
       const q = parseInt(r.quantity, 10);
-      if (c && q > 0) return sum + q * c.points_per_item;
+      if (c && q > 0) {
+        const mul = getCategoryMultiplier(c.id);
+        return sum + Math.round(q * c.points_per_item * mul);
+      }
       return sum;
     }, 0);
     if (base <= 0) return 0;
-    return Math.round(base * activeMultiplier) + activeBonusPoints;
-  }, [rows, categories, activeMultiplier, activeBonusPoints]);
+    return base + activeBonusPoints;
+  }, [rows, categories, getCategoryMultiplier, activeBonusPoints]);
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
@@ -330,19 +342,22 @@ export const WasteBankManagement = () => {
       : '';
     const finalNotes = form.notes.trim() ? `${promoPrefix}${form.notes.trim()}` : (promoPrefix.trim() || null);
 
-    const payload = valid.map(({ cat, qty }, idx) => ({
-      student_name: form.student_name.trim(),
-      student_class: form.student_class,
-      student_id: selectedStudentId || null,
-      category_id: cat.id,
-      quantity: qty,
-      points_earned: Math.round(qty * cat.points_per_item * activeMultiplier) + (idx === 0 ? activeBonusPoints : 0),
-      transaction_date: form.transaction_date,
-      notes: finalNotes,
-      recorded_by: recorder.name || null,
-      recorded_by_staff_id: recorder.staffId,
-      recorded_by_administrator_id: recorder.administratorId,
-    }));
+    const payload = valid.map(({ cat, qty }, idx) => {
+      const mul = getCategoryMultiplier(cat.id);
+      return {
+        student_name: form.student_name.trim(),
+        student_class: form.student_class,
+        student_id: selectedStudentId || null,
+        category_id: cat.id,
+        quantity: qty,
+        points_earned: Math.round(qty * cat.points_per_item * mul) + (idx === 0 ? activeBonusPoints : 0),
+        transaction_date: form.transaction_date,
+        notes: finalNotes,
+        recorded_by: recorder.name || null,
+        recorded_by_staff_id: recorder.staffId,
+        recorded_by_administrator_id: recorder.administratorId,
+      };
+    });
 
 
     const student = studentOptions.find((option) => option.id === selectedStudentId);

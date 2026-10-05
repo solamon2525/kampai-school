@@ -637,7 +637,15 @@ export const wasteLuckySpinsService = {
       .order('spun_at', { ascending: false }),
 
   recordSpin: (data: Omit<WasteLuckySpin, 'id' | 'spun_at'>) =>
-    supabase.from('waste_lucky_spins').insert(data as never),
+    supabase.rpc('record_waste_lucky_spin', {
+      p_student_id: data.student_id,
+      p_student_name: data.student_name,
+      p_student_class: data.student_class,
+      p_transaction_id: data.transaction_id,
+      p_spin_result: data.spin_result,
+      p_bonus_points: data.bonus_points_awarded,
+      p_recorded_by: data.recorded_by,
+    }),
 };
 
 // ─── Classroom Waste League (ศึกลีกห้องเรียนรักษ์โลก) ─────────────────────────

@@ -67,36 +67,8 @@ const fmtBaht = (n: number | null | undefined) => {
 
 const fmtCount = (n: number | null | undefined) =>
   Number(n ?? 0).toLocaleString('th-TH');
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
-const StudentAvatar = ({
-  name,
-  photoUrl,
-  size = 36,
-}: {
-  name: string;
-  photoUrl?: string | null;
-  size?: number;
-}) => {
-  if (photoUrl) {
-    return (
-      <img
-        src={photoUrl}
-        alt={name}
-        loading="lazy"
-        style={{ width: size, height: size }}
-        className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm bg-slate-100"
-      />
-    );
-  }
-  return (
-    <div
-      style={{ width: size, height: size }}
-      className="rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 font-bold ring-2 ring-white shadow-sm"
-    >
-      {(name || '?').charAt(0)}
-    </div>
-  );
-};
 
 export default function SavingsBank() {
   const { toast } = useToast();
@@ -389,10 +361,10 @@ export default function SavingsBank() {
                           <div className="w-9 h-9 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-sm font-extrabold flex-shrink-0 tabular-nums">
                             {idx + 4}
                           </div>
-                          <StudentAvatar
+                          <PersonAvatar
                             name={s.full_name ?? '?'}
                             photoUrl={s.photo_url}
-                            size={40}
+                            className="w-10 h-10 ring-2 ring-white shadow-sm flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-slate-900 truncate">
@@ -456,10 +428,10 @@ export default function SavingsBank() {
                         )}
                       />
                       <div className="flex items-center gap-3">
-                        <StudentAvatar
+                        <PersonAvatar
                           name={t.student_name}
                           photoUrl={t.photo_url}
-                          size={32}
+                          className="w-8 h-8 ring-2 ring-white shadow-sm flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-slate-900 truncate">
@@ -524,10 +496,10 @@ export default function SavingsBank() {
                   <div className="pt-4 border-t border-slate-200 space-y-4">
                     {/* Student header */}
                     <div className="flex items-center gap-3">
-                      <StudentAvatar
+                      <PersonAvatar
                         name={student.full_name}
                         photoUrl={student.photo_url}
-                        size={48}
+                        className="w-12 h-12 ring-2 ring-white shadow-sm flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="font-extrabold text-slate-900 truncate text-sm md:text-base">

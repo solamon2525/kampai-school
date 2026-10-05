@@ -66,6 +66,7 @@ const WasteBankStats = lazyWithRetry(() => import("./pages/WasteBankStats"));
 const WasteBankResults = lazyWithRetry(() => import("./pages/WasteBankResults"));
 const RewardsCatalog = lazyWithRetry(() => import("./pages/RewardsCatalog"));
 const SavingsBank = lazyWithRetry(() => import("./pages/SavingsBank"));
+const ReadingBank = lazyWithRetry(() => import("./pages/ReadingBank"));
 const HallOfFame = lazyWithRetry(() => import("./pages/HallOfFame"));
 const DailyQuestStats = lazyWithRetry(() => import("./pages/DailyQuestStats"));
 const OnlineArena = lazyWithRetry(() => import("./pages/OnlineArena"));
@@ -204,6 +205,7 @@ const App = () => (
             <Route path="/waste-bank/results" element={<WasteBankResults />} />
             <Route path="/waste-bank/rewards" element={<RewardsCatalog />} />
             <Route path="/savings-bank" element={<SavingsBank />} />
+            <Route path="/reading-bank" element={<ReadingBank />} />
             <Route path="/hall-of-fame" element={<HallOfFame />} />
             <Route path="/games/daily-quest" element={<DailyQuestStats />} />
             <Route path="/games/arena" element={<OnlineArena />} />

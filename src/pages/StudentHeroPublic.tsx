@@ -23,6 +23,8 @@ import { Label } from '@/components/ui/label';
 import QRCode from 'react-qr-code';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { studentCompanionQueryKey, studentPetService } from '@/services/student-pet.service';
+import { PetVisual } from '@/components/games/PetVisual';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SiteHeader from '@/components/SiteHeader';
@@ -376,6 +378,16 @@ export default function StudentHeroPublic() {
     enabled: !!realStudentId,
     queryFn: async () => {
       return await conductService.getStudentPrivileges(realStudentId!);
+    },
+  });
+
+  // 9. Fetch Student's equipped companion pet
+  const { data: companion } = useQuery({
+    queryKey: studentCompanionQueryKey(student?.student_code || student?.id || ''),
+    enabled: !!(student?.student_code || student?.id),
+    staleTime: 60 * 1000,
+    queryFn: async () => {
+      return await studentPetService.getCompanion(student?.student_code || student?.id || '');
     },
   });
 
@@ -861,6 +873,26 @@ export default function StudentHeroPublic() {
                             {profile.totalXp} คะแนนความดี
                           </span>
                         </div>
+
+                        {/* Companion Pet Badge (Cross-System Companion) */}
+                        {companion && (
+                          <div className="inline-flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-1.5 shadow-sm mt-1">
+                            <div className="relative shrink-0">
+                              <PetVisual visualKey={companion.visual_key} label={companion.display_name} className="h-8 w-8 ring-1 ring-primary/30" />
+                              <span className="absolute -bottom-1 -right-1 rounded-full bg-primary px-1 text-[8px] font-black text-primary-foreground">
+                                LV.{companion.friendship?.level ?? 1}
+                              </span>
+                            </div>
+                            <div className="text-left leading-tight">
+                              <p className="text-xs font-black text-foreground">
+                                {companion.nickname ? `"${companion.nickname}"` : companion.name_th}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {companion.friendship?.title ?? 'เพื่อนใหม่ 🌱'} · {companion.bond_xp.toLocaleString('th-TH')} Bond XP
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* 5-Virtues Dimension Radar Chart inside the center */}

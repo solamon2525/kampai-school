@@ -765,7 +765,37 @@ import { GamificationHub } from '@/components/games/GamificationHub';
 - `EduHubItemCard` ใช้ `library_pinned` เป็นระบบเก็บรายการเด่นเพียงระบบเดียว; ห้ามเพิ่มรายการโปรดเฉพาะเครื่องหรือปุ่มดาวซ้ำกับปักหมุด
 - รายการและตัวกรองทั้งหมดต้องมาจาก service แบบ server-filtered/server-ranged ตาม DESIGN.md Rule 14.45
 
-### StudentPetHub + PetVisual (games — Student companion)
+### StudentPetHub + PetVisual (games — Student companion V2 — Migration 570)
+
+- `StudentPetHub.tsx` แสดงคู่หูที่ใช้, ยอดเหรียญดาว และ catalog 6 ตัวใน grid `2/3/6` คอลัมน์ เพื่อคง layout แบบ compact
+- ใช้ TanStack Query ผ่าน `studentPetService` เท่านั้น; ซื้อ/สวมใส่/ตั้งชื่อเล่น/ทำกิจกรรมเป็น mutation และ invalidate `studentPetQueryKey(code)` ทุกครั้ง
+- **ระบบปรับแต่งชื่อเล่น (Nickname Customization):** รองรับการตั้งชื่อเล่นสัตว์เลี้ยง (สูงสุด 24 ตัวอักษร) ผ่าน `set_student_pet_nickname` RPC และ Dialog บนหน้าบ้านคู่หู
+- **กิจกรรมปฏิสัมพันธ์และค่าความผูกพัน (Bond XP & Pet Interactions):**
+  - กิจกรรมให้อาหาร 🍎 (`+15 XP`), ลูบหัว ❤️ (`+5 XP`), ส่งกำลังใจ ✨ (`+8 XP`) ผ่าน `interact_student_pet` RPC
+  - Synergy ข้ามระบบ: นักเรียนที่บันทึกการอ่านหนังสือใน "ธนาคารการอ่าน" จะได้รับ `+15 Bond XP` ให้กับสัตว์เลี้ยงคู่หูโดยอัตโนมัติผ่าน Database Trigger
+  - ระดับมิตรภาพ 5 ขั้น (Friendship Tiers 1–5): เพื่อนใหม่ 🌱 (0 XP) ➔ เพื่อนสนิท 🤝 (100 XP) ➔ คู่หูรู้ใจ ⭐ (300 XP) ➔ ยอดคู่หูผู้พิทักษ์ 🛡️ (600 XP) ➔ สหายตลอดกาล 👑 (1,000 XP) คำนวณผ่านฟังก์ชัน `pet_friendship_level(bond_xp)`
+- **การแสดงผลสัตว์เลี้ยงข้ามระบบ (Cross-System Companion Badge):** แสดงสัตว์เลี้ยงคู่หูในหน้าโปรไฟล์ความดีสาธารณะ (`StudentHeroPublic.tsx` — `/virtue-bank/:studentId`) ผ่าน RPC `get_student_companion` เพื่อสร้างความภาคภูมิใจแก่นักเรียน
+- `PetVisual.tsx` เป็น inline SVG ใช้ `currentColor` + semantic Tailwind classes ไม่มีรูปคน/PNG และไม่มีสี hex hardcode
+- สัตว์เริ่มต้นฟรี 1 ตัว; ตัวอื่นราคาคงที่และเห็นล่วงหน้า ไม่มี loot box; สัตว์ทุกตัว cosmetic-only
+- `PlayGame` แสดงคู่หูบน RewardPopup และส่งข้อมูลเดียวกันเข้า `window.KAMPAI.pet`; เกมเดิมไม่กระทบหากไม่อ่าน field นี้
+
+---
+
+### ReadingBank + ReadingBankManagement (ธนาคารการอ่าน — Migration 569)
+
+- **ฐานข้อมูลและโมดูล:**
+  - ตาราง `reading_logs`: เก็บข้อมูลหนังสือ (`book_title`, `author`, `category`, `pages_read`, `reading_minutes`, `reflection`, `verified_by`)
+  - ทริกเกอร์ `reading_logs_auto_term`: ผูกเทอม/ปีการศึกษาอัตโนมัติ และมอบ `+15 Bond XP` แก่สัตว์เลี้ยงคู่หูที่กำลังใช้งาน
+  - View `reading_student_summary` และ RPCs: `get_public_reading_leaderboard`, `lookup_student_reading`, `get_student_reading_history`, `record_reading_entry`
+- **หน้าระบบสาธารณะ (`src/pages/ReadingBank.tsx` — `/reading-bank`):**
+  - ค้นหาด้วยรหัสนักเรียนหรือเลือกจากชั้นเรียน เพื่อเปิด "พาสปอร์ตนักอ่านดิจิทัล (Digital Reading Passport)"
+  - แสดงจำนวนเล่มสะสม, จำนวนหน้ารวม, เวลาอ่านรวม (นาที/ชั่วโมง), และบันทึกข้อคิดที่ได้รับ
+  - โพเดียม 10 อันดับยอดนักอ่านประจำโรงเรียน (Reading Leaderboard)
+- **หน้าจัดการของครู/แอดมิน (`src/components/admin/reading-bank/ReadingBankManagement.tsx` — `/admin/dashboard/reading-bank`):**
+  - ฟอร์มบันทึกการอ่านหนังสือให้นักเรียน: เลือกระดับชั้น, นักเรียน, หมวดหมู่หนังสือ, จำนวนหน้า, เวลาอ่าน, และข้อคิด
+  - ตารางประวัติการอ่านหนังสือพร้อมระบบตัวกรองและการยืนยัน
+- **การนำทางและคำสั่งด่วน (Command Palette):**
+  - ลงทะเบียนใน `src/lib/commands/registry.ts` ด้วยคำสั่ง `go-reading` (ธนาคารการอ่าน) และ `adm-reading` (จัดการธนาคารการอ่าน)
 
 - `StudentPetHub.tsx` แสดงคู่หูที่ใช้, ยอดเหรียญดาว และ catalog 6 ตัวใน grid `2/3/6` คอลัมน์ เพื่อคง layout แบบ compact
 - ใช้ TanStack Query ผ่าน `studentPetService` เท่านั้น; ซื้อ/สวมใส่เป็น mutation และ invalidate `studentPetQueryKey(code)` ทุกครั้ง

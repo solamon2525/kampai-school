@@ -96,10 +96,10 @@ export const StudentQRScanner = ({ open, onClose, onScanned }: Props) => {
                     } catch {/* ignore */}
                 }
                 const match = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-                const studentId = match ? match[1] : decoded;
+                const identifier = (match ? match[1] : decoded.replace(/^.*:/, '')).trim();
                 playFeedback();
                 setFetching(true);
-                const { data, error: fetchErr } = await studentsService.getById(studentId);
+                const { data, error: fetchErr } = await studentsService.getByCodeOrId(identifier);
                 setFetching(false);
                 if (fetchErr || !data) {
                     setError('ไม่พบนักเรียน — QR ไม่ถูกต้องหรือนักเรียนถูกลบ');

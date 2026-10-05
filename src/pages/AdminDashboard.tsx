@@ -77,6 +77,7 @@ const SurveyManagement = lazy(() => import('@/components/admin/surveys/SurveyMan
 const AlumniManagement = lazy(() => import('@/components/admin/alumni/AlumniManagement').then(m => ({ default: m.AlumniManagement })));
 const ClassPhotosManagement = lazy(() => import('@/components/admin/class-photos/ClassPhotosManagement').then(m => ({ default: m.ClassPhotosManagement })));
 const PaporGenerator = lazy(() => import('@/components/admin/papor/PaporGenerator').then(m => ({ default: m.PaporGenerator })));
+const ReadingBankManagement = lazy(() => import('@/components/admin/reading-bank/ReadingBankManagement').then(m => ({ default: m.ReadingBankManagement })));
 
 // Loading spinner สำหรับ lazy-loaded admin pages — เปลี่ยนเป็น DashboardSkeleton ระดับพรีเมียม
 const AdminPageLoader = () => (
@@ -175,6 +176,7 @@ const AdminDashboard = () => {
             <Route path="scan" element={<ScanRecorder />} />
             <Route path="waste-bank" element={<PermissionGuard menuId="waste-bank"><WasteBankManagement /></PermissionGuard>} />
             <Route path="savings-bank" element={<PermissionGuard menuId="savings-bank"><SavingsBankManagement /></PermissionGuard>} />
+            <Route path="reading-bank" element={<PermissionGuard menuId="reading-bank"><ReadingBankManagement /></PermissionGuard>} />
             <Route path="attendance" element={<AttendanceManagement />} />
             <Route path="scores" element={<ScoresManagement />} />
             <Route path="conduct" element={<ConductManagement />} />

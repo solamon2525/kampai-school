@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.229.141 (4 ระบบธนาคาร & สัตว์เลี้ยงคู่หู V2: พัฒนาธนาคารการอ่านครบวงจร, อัปเกรดสัตว์เลี้ยงพร้อม Bond XP/Nickname/Interactions, ซ่อมแซมแต้มวงล้อธนาคารขยะ และกระชับความปลอดภัยธนาคารพอเพียง)',
+        date: '5 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'พัฒนาธนาคารการอ่านครบวงจร (Reading Bank Full Module - Migration 569): สร้างตาราง reading_logs, view reading_student_summary, และ 4 RPCs พร้อมหน้าระบบสาธารณะ (/reading-bank) พาสปอร์ตนักอ่านดิจิทัล (Digital Reading Passport) สะสมจำนวนเล่ม หน้า และเวลาอ่าน พร้อมอันดับ Top 10 นักอ่านประจำโรงเรียน และหน้าครูผู้ดูแล (/admin/dashboard/reading-bank) สำหรับบันทึกการอ่านอย่างมีประสิทธิภาพ',
+            'อัปเกรดระบบสัตว์เลี้ยงคู่หูเสมือนจริง V2 (Student Companion Pet V2 - Migration 570): รองรับการตั้งชื่อเล่น (Nickname Customization) สูงสุด 24 ตัวอักษร, กิจกรรมเสริมความผูกพัน (ให้อาหาร 🍎 +15 XP, ลูบหัว ❤️ +5 XP, เชียร์ ✨ +8 XP), ระดับมิตรภาพ 5 ขั้น (Friendship Tiers 1–5: เพื่อนใหม่, เพื่อนสนิท, คู่หูรู้ใจ, ยอดคู่หูผู้พิทักษ์, สหายตลอดกาล), และการแสดงผลสัตว์เลี้ยงคู่หูบนหน้าประวัติความดีสาธารณะ (/virtue-bank/:studentId)',
+            'ความเชื่อมโยงพลังข้ามระบบ (Cross-System Synergy): ทริกเกอร์อัตโนมัติ reading_logs_auto_term มอบโบนัส +15 Bond XP แก่สัตว์เลี้ยงคู่หูของนักเรียนทันทีที่มีการบันทึกการอ่านหนังสือ เสริมสร้างแรงจูงใจในการรักการอ่าน',
+            'ซ่อมแซมและเสริมแกร่งธนาคารขยะ (Waste Bank Hardening - Migration 568): เพิ่ม RPC record_waste_lucky_spin เพื่อบันทึกแต้มโบนัสจากวงล้อเสี่ยงโชค Eco Lucky Wheel เข้าสู่ตาราง waste_transactions จริงโดยอัตโนมัติ, แก้ไขการคำนวณตัวคูณโปรโมชั่นให้กรองตาม category_ids รายหมวดแทนการคูณเหมาทั้งบิล, และรีแฟกเตอร์ WasteBankParentView ให้ใช้ TanStack Query ตามมาตรฐานระบบ',
+            'เสริมแกร่งธนาคารพอเพียง (Savings Bank Hardening): อัปเกรด lookup_savings_balance และ get_savings_history ให้ตัดช่องว่าง whitespace (btrim) ป้องกันความผิดพลาดจากการพิมพ์, รองรับการสแกน QR ด้วย student_code สั้น (4-5 หลัก), และปรับปรุง PersonAvatar ตาม DESIGN.md Rule 14.13',
+        ],
+    },
+    {
         version: 'v1.229.140 (เอกสารระบบ: อัปเดตและขยายรายละเอียดภาพรวมฟีเจอร์ทั้ง 9 ระบบงานหลักใน README.md ฉบับสมบูรณ์)',
         date: '2 ต.ค. 2569',
         badge: 'bg-primary',

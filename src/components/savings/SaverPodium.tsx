@@ -50,54 +50,7 @@ const PODIUM_STYLE = [
     showCrown: false,
   },
 ];
-
-function StudentAvatar({
-  name,
-  photoUrl,
-  ringClass,
-  className,
-}: {
-  name: string;
-  photoUrl?: string | null;
-  ringClass: string;
-  className?: string;
-}) {
-  const colors = [
-    'from-amber-400 to-yellow-500',
-    'from-emerald-400 to-emerald-600',
-    'from-sky-400 to-blue-600',
-    'from-orange-400 to-amber-500',
-    'from-rose-400 to-pink-500',
-  ];
-  const color = colors[(name.charCodeAt(0) || 0) % colors.length];
-
-  if (photoUrl) {
-    return (
-      <img
-        src={photoUrl}
-        alt={name}
-        loading="lazy"
-        className={cn(
-          'rounded-full object-cover flex-shrink-0 ring-4 shadow-lg bg-slate-100',
-          ringClass,
-          className,
-        )}
-      />
-    );
-  }
-  return (
-    <div
-      className={cn(
-        'rounded-full flex items-center justify-center flex-shrink-0 ring-4 shadow-lg bg-gradient-to-br text-white font-extrabold text-lg xs:text-xl md:text-2xl',
-        color,
-        ringClass,
-        className,
-      )}
-    >
-      {(name || '?').charAt(0)}
-    </div>
-  );
-}
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 
 export const SaverPodium = ({ entries }: Props) => {
   if (entries.length === 0) return null;
@@ -137,11 +90,10 @@ export const SaverPodium = ({ entries }: Props) => {
 
             {/* Avatar floating top */}
             <div className="absolute -top-8 xs:-top-10 left-1/2 -translate-x-1/2">
-              <StudentAvatar
+              <PersonAvatar
                 name={s.full_name ?? '?'}
                 photoUrl={s.photo_url}
-                className={style.photoClass}
-                ringClass={style.ring}
+                className={cn(style.photoClass, 'ring-4 shadow-lg', style.ring)}
               />
             </div>
 

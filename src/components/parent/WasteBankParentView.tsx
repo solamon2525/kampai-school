@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import QRCode from 'react-qr-code';
 import { Recycle, QrCode, Gift, History, Sparkles, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,54 +34,72 @@ type TabId = 'overview' | 'rewards' | 'history' | 'claims';
 
 export const WasteBankParentView = ({ studentId, studentName }: Props) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<TabId>('overview');
-  const [summary, setSummary] = useState<WasteStudentSummary | null>(null);
-  const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>([]);
-  const [claims, setClaims] = useState<RewardClaim[]>([]);
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  const [categories, setCategories] = useState<WasteCategory[]>([]);
 
-  const fetchAll = async () => {
-    const [s, t, r, c, cats] = await Promise.all([
-      wasteSummaryService.getForStudent(studentId),
-      wasteTransactionsService.getByStudent(studentId),
-      rewardsService.getActive(),
-      rewardClaimsService.listForStudent(studentId),
-      wasteCategoriesService.getActive(),
-    ]);
-    if (s.data) setSummary(s.data as WasteStudentSummary);
-    if (t.data) setTransactions(t.data as WasteTransaction[]);
-    if (r.data) setRewards(r.data as Reward[]);
-    if (c.data) setClaims(c.data as RewardClaim[]);
-    if (cats.data) setCategories(cats.data as WasteCategory[]);
-  };
+  const query = useQuery({
+    queryKey: ['waste-bank', 'parent', studentId],
+    queryFn: async () => {
+      const [s, t, r, c, cats] = await Promise.all([
+        wasteSummaryService.getForStudent(studentId),
+        wasteTransactionsService.getByStudent(studentId),
+        rewardsService.getActive(),
+        rewardClaimsService.listForStudent(studentId),
+        wasteCategoriesService.getActive(),
+      ]);
+      return {
+        summary: (s.data as WasteStudentSummary | null) ?? null,
+        transactions: (t.data as WasteTransaction[]) ?? [],
+        rewards: (r.data as Reward[]) ?? [],
+        claims: (c.data as RewardClaim[]) ?? [],
+        categories: (cats.data as WasteCategory[]) ?? [],
+      };
+    },
+    enabled: Boolean(studentId),
+  });
 
-  useEffect(() => { fetchAll(); }, [studentId]);
+  const summary = query.data?.summary ?? null;
+  const transactions = query.data?.transactions ?? [];
+  const rewards = query.data?.rewards ?? [];
+  const claims = query.data?.claims ?? [];
+  const categories = query.data?.categories ?? [];
+
+  const claimMutation = useMutation({
+    mutationFn: async (r: Reward) => {
+      setClaimingId(r.id);
+      const pointsToUse = r.points_cost || r.waste_points_cost || 0;
+      const { error } = await rewardClaimsService.create({
+        student_id: studentId,
+        reward_id: r.id,
+        reward_name: r.name,
+        points_used: pointsToUse,
+      });
+      setClaimingId(null);
+      if (error) throw error;
+      return r;
+    },
+    onSuccess: (r) => {
+      toast({ title: 'ส่งคำขอแลกแล้ว', description: `ขอแลก "${r.name}" เรียบร้อย รอครูอนุมัติ` });
+      queryClient.invalidateQueries({ queryKey: ['waste-bank', 'parent', studentId] });
+    },
+    onError: (error: Error) => {
+      setClaimingId(null);
+      toast({ title: 'ส่งคำขอไม่สำเร็จ', description: error.message, variant: 'destructive' });
+    },
+  });
 
   const available = summary?.available_points ?? 0;
   const qrValue = `kampai-student:${studentId}`;
 
-  const handleClaim = async (r: Reward) => {
-    if (available < r.points_cost) {
-      toast({ title: 'แต้มไม่พอ', description: `ต้องการ ${r.points_cost} แต้ม มี ${available}`, variant: 'destructive' });
+  const handleClaim = (r: Reward) => {
+    const cost = r.points_cost || r.waste_points_cost || 0;
+    if (available < cost) {
+      toast({ title: 'แต้มไม่พอ', description: `ต้องการ ${cost} แต้ม มี ${available}`, variant: 'destructive' });
       return;
     }
-    if (!confirm(`ยืนยันแลก "${r.name}" ด้วย ${r.points_cost} แต้ม?`)) return;
-    setClaimingId(r.id);
-    const { error } = await rewardClaimsService.create({
-      student_id: studentId,
-      reward_id: r.id,
-      reward_name: r.name,
-      points_used: r.points_cost,
-    });
-    setClaimingId(null);
-    if (error) {
-      toast({ title: 'ส่งคำขอไม่สำเร็จ', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'ส่งคำขอแลกแล้ว', description: 'รอครูอนุมัติ' });
-      fetchAll();
-    }
+    if (!confirm(`ยืนยันแลก "${r.name}" ด้วย ${cost} แต้ม?`)) return;
+    claimMutation.mutate(r);
   };
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [

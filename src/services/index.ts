@@ -34,3 +34,5 @@ export * from './student-360.service';
 export * from './meetings.service';
 export * from './exam.service';
 export * from './omr-scanner.service';
+export * from './reading-bank.service';
+export * from './student-pet.service';
