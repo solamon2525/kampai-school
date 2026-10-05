@@ -2,6 +2,7 @@
  * GameShowcaseSection — โซนหน้าแรก: ลิงก์ไปหน้าสรุปเกมและสื่อสำหรับนำเสนอ
  */
 import { LayoutGrid, ExternalLink, BookOpen, Gamepad2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const SHOWCASE_URL = '/catalog/game-showcase.html';
 
@@ -50,16 +51,25 @@ export default function GameShowcaseSection() {
             </div>
           ))}
         </div>
-        <a
-          href={SHOWCASE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold text-sm py-2.5 transition-colors"
-        >
-          <LayoutGrid className="h-4 w-4" />
-          เปิดหน้าสรุปเกมและสื่อ (สไลด์นำเสนอ)
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link
+            to="/media"
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm py-2.5 transition-colors shadow-sm"
+          >
+            <BookOpen className="h-4 w-4" />
+            สำรวจคลังสื่อการสอน (110+ เรื่อง)
+          </Link>
+          <a
+            href={SHOWCASE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold text-sm py-2.5 px-4 transition-colors"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            สไลด์นำเสนอ
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
     </div>
   );

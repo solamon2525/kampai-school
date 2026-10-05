@@ -23,6 +23,15 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### ศูนย์สำรวจคลังสื่อการสอนออนไลน์ (Interactive Media Explorer) — v1.229.142
+
+- **หน้าศูนย์สำรวจคลังสื่อ (`src/pages/MediaExplorer.tsx` — เส้นทาง `/media` และ `/educational-hub/media`):**
+  - **แท็บ 3 สาระวิชาหลัก (Core Subject Tabs):** จัดวางแท็บกลุ่มสาระวิชาหลัก ภาษาอังกฤษ (English), คณิตศาสตร์ (Math), และภาษาไทย (Thai) ไว้อันดับต้นอย่างโดดเด่นพร้อมป้ายระบุ "หลัก" ควบคู่กับวิทยาศาสตร์ สังคมศึกษา และวิทยาการคำนวณ
+  - **ฟิลเตอร์ช่วงชั้น & ช่องค้นหา (Grade Pills & Instant Search):** กรองสื่อตามระดับชั้น ป.1 ถึง ป.6 และค้นหาตามชื่อเรื่อง/คำสำคัญได้แบบเรียลไทม์
+  - **การ์ดสื่อมาตรฐาน 16:9 (Media Card Specs):** แสดงภาพปกสัดส่วน 16:9 (1280×720), ป้ายสาระวิชา, แท็กช่วงชั้น, ยอดเข้าชม, ปุ่มเปิดสื่อการสอนทันที, และปุ่ม "📄 ใบงาน" พิมพ์ใบงาน A4 คู่ขนาน (ดึงจากระบบ `guessPairedUrls` ใน `src/lib/edu-hub-worksheet-pairs.ts`)
+  - **บริการแคตตาล็อกสื่อ (`src/services/educational-hub.service.ts` — `mediaCatalogService.getCuratedCatalog`):** ดึงข้อมูลผ่าน RPC `get_public_media_catalog` พร้อม fallback query อัตโนมัติ
+  - **การเชื่อมโยงระบบ:** เพิ่มปุ่มสำรวจคลังสื่อบนหน้าแรก (`GameShowcaseSection`), หน้ารวมครู (`EducationalHub`), และ Command Palette `go-media` ใน `src/lib/commands/registry.ts`
+
 ### ระบบแคมเปญโปรโมชั่นธนาคารขยะ, ศึกลีกห้องเรียนรักษ์โลก Per-Capita, วงล้อเสี่ยงโชค Eco Lucky Wheel, และภารกิจบ้านสู่โรงเรียน — v1.229.115
 
 - **ระบบแคมเปญโปรโมชั่นธนาคารขยะ (Waste Bank Promotion Engine — Migration 549):**

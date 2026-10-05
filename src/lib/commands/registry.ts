@@ -67,6 +67,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'go-reading', label: 'ธนาคารการอ่าน', group: 'ไปยังหน้า', icon: BookOpen, keywords: ['reading', 'book', 'การอ่าน'], action: { type: 'navigate', path: '/reading-bank' } },
   { id: 'go-rewards', label: 'ของรางวัล', group: 'ไปยังหน้า', icon: Award, keywords: ['rewards'], action: { type: 'navigate', path: '/waste-bank/rewards' } },
   { id: 'go-edu-hub', label: 'คลังสื่อ/เกม', group: 'ไปยังหน้า', icon: Sparkles, keywords: ['edu', 'hub', 'games'], action: { type: 'navigate', path: '/educational-hub' } },
+  { id: 'go-media', label: 'คลังสื่อการสอน (Interactive)', group: 'ไปยังหน้า', icon: BookOpen, keywords: ['media', 'teaching', 'สื่อ', 'สื่อการสอน', 'ใบงาน'], action: { type: 'navigate', path: '/media' } },
   { id: 'go-enrollment', label: 'สมัครเข้าเรียน', group: 'ไปยังหน้า', icon: GraduationCap, keywords: ['enroll', 'apply'], action: { type: 'navigate', path: '/enrollment' } },
   { id: 'go-donate', label: 'ร่วมบริจาคให้โรงเรียน', group: 'ไปยังหน้า', icon: Award, keywords: ['donate', 'fundraise', 'promptpay', 'บริจาค'], action: { type: 'navigate', path: '/donate' } },
   { id: 'go-alumni', label: 'เครือข่ายศิษย์เก่า', group: 'ไปยังหน้า', icon: GraduationCap, keywords: ['alumni', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/alumni' } },

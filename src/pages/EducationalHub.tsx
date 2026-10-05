@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -107,18 +108,27 @@ const EducationalHub = () => {
                 {/* Hero — compact (title + count only; search moved to toolbar) */}
                 <section className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-b border-border">
                     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
-                                <Sparkles className="h-5 w-5 text-primary" />
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="min-w-0">
+                                    <h1 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
+                                        คลังสื่อและเกมการศึกษา
+                                    </h1>
+                                    <p className="text-[11px] sm:text-xs text-muted-foreground">
+                                        เลือกครูเพื่อเข้าชมคลังสื่อ — ปรับมุมมอง/จัดเรียงได้ที่แถบเครื่องมือด้านล่าง
+                                    </p>
+                                </div>
                             </div>
-                            <div className="min-w-0">
-                                <h1 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
-                                    คลังสื่อและเกมการศึกษา
-                                </h1>
-                                <p className="text-[11px] sm:text-xs text-muted-foreground">
-                                    เลือกครูเพื่อเข้าชมคลังสื่อ — ปรับมุมมอง/จัดเรียงได้ที่แถบเครื่องมือด้านล่าง
-                                </p>
-                            </div>
+                            <Link
+                                to="/media"
+                                className="inline-flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+                            >
+                                <BookOpen className="w-4 h-4" />
+                                <span>สำรวจคลังสื่อการสอน (110+ เรื่อง)</span>
+                            </Link>
                         </div>
                     </div>
                 </section>

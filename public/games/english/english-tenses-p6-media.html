@@ -930,18 +930,20 @@
       <!-- 4 LEARNING MODES -->
       <div class="seg-group" id="modeSeg">
         <button type="button" class="seg-btn active" data-mode="studio">
-          📖 ไทม์ไลน์กาล (Studio)
+          📖 เรียนรู้: ไทม์ไลน์กาล (Studio)
         </button>
         <button type="button" class="seg-btn" data-mode="matrix">
           📊 เปรียบเทียบ 4 กาล (Matrix)
         </button>
-        <button type="button" class="seg-btn" data-mode="quiz">
-          ✏️ แบบทดสอบ (Quiz)
+        <button type="button" class="seg-btn mode-practice" data-mode="quiz">
+          ✏️ ฝึก: แบบทดสอบ (Quiz)
         </button>
-        <button type="button" class="seg-btn" data-mode="builder">
-          🧩 ต่อประโยค (Builder)
+        <button type="button" class="seg-btn mode-practice" data-mode="builder">
+          🧩 ฝึก: ต่อประโยค (Builder)
         </button>
       </div>
+      <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
+      <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
       <!-- 3-TIER GRADE LEVEL FILTER -->
       <div class="seg-group level-seg" id="levelSeg">
@@ -1074,9 +1076,10 @@
 // ==========================================
 // 1. DATA & PEDAGOGICAL CONTENT
 // ==========================================
-const MEDIA_SLUG = 'english-tenses-p6-media';
+const GAME_SLUG = 'english-tenses-p6-media';
+const MEDIA_SLUG = GAME_SLUG;
 if (window.KAMPAI) {
-  KAMPAI.setSlug(MEDIA_SLUG);
+  KAMPAI.setSlug('english-tenses-p6-media');
   if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
 }
 

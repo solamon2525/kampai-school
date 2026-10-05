@@ -1418,3 +1418,44 @@ export const gameDocsService = {
                 onConflict: 'item_id',
             }),
 };
+
+// ─── คลังสื่อการสอน (Public Media Catalog) ──────────────────────────────────
+export interface PublicMediaItem {
+    id: string;
+    title: string;
+    description: string | null;
+    thumbnail_url: string | null;
+    external_url: string | null;
+    subject: string | null;
+    grade_levels: string[];
+    view_count: number;
+    sort_order: number;
+    created_at: string;
+}
+
+export const mediaCatalogService = {
+    getCuratedCatalog: async (subject?: string): Promise<PublicMediaItem[]> => {
+        const { data, error } = await supabase.rpc(
+            'get_public_media_catalog' as never,
+            { p_subject: subject && subject !== 'all' ? subject : null } as never,
+        );
+
+        if (error) {
+            console.error('get_public_media_catalog rpc error, using fallback:', error);
+            let query = supabase
+                .from('educational_hub_items' as never)
+                .select('id, title, description, thumbnail_url, external_url, subject, grade_levels, view_count, sort_order, created_at')
+                .eq('is_published', true)
+                .or('external_url.ilike.%-media.html,external_url.ilike.%media%');
+
+            if (subject && subject !== 'all') {
+                query = query.eq('subject', subject);
+            }
+
+            const { data: fallbackData } = await query;
+            return ((fallbackData || []) as unknown) as PublicMediaItem[];
+        }
+
+        return ((data || []) as unknown) as PublicMediaItem[];
+    },
+};

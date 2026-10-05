@@ -951,22 +951,20 @@
   <!-- NAVIGATION TABS -->
   <nav class="nav-tabs" role="tablist">
     <button class="tab-btn mode-btn active" data-mode="blind" role="tab" aria-selected="true" id="tab-blind">
-      <span>🙈</span>
-      <span>1. ปิดภาพทายท่าทาง</span>
+      <span>🙈 📖 เรียนรู้: 1. ปิดภาพทายท่าทาง</span>
     </button>
-    <button class="tab-btn mode-btn" data-mode="simon" role="tab" aria-selected="false" id="tab-simon">
-      <span>📢</span>
-      <span>2. ครูสั่งว่า... (Simon Says)</span>
+    <button class="tab-btn mode-btn mode-practice" data-mode="simon" role="tab" aria-selected="false" id="tab-simon">
+      <span>📢 ✏️ ฝึก: 2. ครูสั่งว่า... (Simon Says)</span>
     </button>
-    <button class="tab-btn mode-btn" data-mode="speed" role="tab" aria-selected="false" id="tab-speed">
-      <span>⚡</span>
-      <span>3. สุ่มสปีด (Speed Run)</span>
+    <button class="tab-btn mode-btn mode-practice" data-mode="speed" role="tab" aria-selected="false" id="tab-speed">
+      <span>⚡ 3. สุ่มสปีด (Speed Run)</span>
     </button>
-    <button class="tab-btn mode-btn" data-mode="builder" role="tab" aria-selected="false" id="tab-builder">
-      <span>🧩</span>
-      <span>4. ต่อประโยคคำสั่ง</span>
+    <button class="tab-btn mode-btn mode-practice" data-mode="builder" role="tab" aria-selected="false" id="tab-builder">
+      <span>🧩 4. ต่อประโยคคำสั่ง</span>
     </button>
   </nav>
+  <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
+  <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
   <!-- MAIN CONTENT -->
   <main class="content">
@@ -1232,6 +1230,12 @@
 </div>
 
 <script>
+const GAME_SLUG = 'classroom-action-media';
+const MEDIA_SLUG = GAME_SLUG;
+if (window.KAMPAI && window.KAMPAI.setSlug) {
+  try { window.KAMPAI.setSlug('classroom-action-media'); } catch (e) {}
+}
+
 /* 1. DATASET */
 const COMMANDS = [
   {

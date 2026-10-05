@@ -73,6 +73,7 @@ const OnlineArena = lazyWithRetry(() => import("./pages/OnlineArena"));
 const TrainingShowcasePublic = lazyWithRetry(() => import("./pages/TrainingShowcase"));
 const EducationalHub = lazyWithRetry(() => import("./pages/EducationalHub"));
 const EducationalHubTeacher = lazyWithRetry(() => import("./pages/EducationalHubTeacher"));
+const MediaExplorer = lazyWithRetry(() => import("./pages/MediaExplorer"));
 const SecondBrain = lazyWithRetry(() => import("./pages/SecondBrain"));
 const PlayGame = lazyWithRetry(() => import("./pages/PlayGame"));
 const GameDashboard = lazyWithRetry(() => import("./pages/GameDashboard"));
@@ -212,6 +213,8 @@ const App = () => (
             <Route path="/training-showcase" element={<TrainingShowcasePublic />} />
             <Route path="/second-brain" element={<SecondBrain />} />
             <Route path="/educational-hub" element={<EducationalHub />} />
+            <Route path="/educational-hub/media" element={<MediaExplorer />} />
+            <Route path="/media" element={<MediaExplorer />} />
             <Route path="/educational-hub/:staffId" element={<EducationalHubTeacher />} />
             {/* Short URL alias — /h/<username|uuid> */}
             <Route path="/h/:identifier" element={<EducationalHubTeacher />} />

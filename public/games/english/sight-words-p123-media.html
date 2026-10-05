@@ -485,13 +485,14 @@
     <span style="font-weight:700; font-size:0.9rem; color:var(--sky-dark);" id="lblWordCount">กำลังแสดง 60 คำ</span>
   </div>
 
-  <!-- NAVIGATION TABS -->
   <nav class="nav-tabs">
-    <button class="tab-btn active" data-tab="soundboard"><span>🔤</span> 1. คลังเสียงคำศัพท์ (Soundboard)</button>
-    <button class="tab-btn" data-tab="flashcards"><span>🃏</span> 2. บัตรคำภาพสวย (Flashcards)</button>
-    <button class="tab-btn" data-tab="spelling"><span>✍️</span> 3. เรียงตัวอักษร (Spelling)</button>
-    <button class="tab-btn" data-tab="quiz"><span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)</button>
+    <button class="tab-btn active" data-tab="soundboard" data-mode="learn"><span>🔤</span> 📖 เรียนรู้: 1. คลังเสียงคำศัพท์ (Soundboard)</button>
+    <button class="tab-btn" data-tab="flashcards" data-mode="learn"><span>🃏</span> 2. บัตรคำภาพสวย (Flashcards)</button>
+    <button class="tab-btn mode-practice" data-tab="spelling" data-mode="practice"><span>✍️</span> 3. เรียงตัวอักษร (Spelling)</button>
+    <button class="tab-btn mode-practice" data-tab="quiz" data-mode="practice"><span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)</button>
   </nav>
+  <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
+  <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
   <main class="content">
 
@@ -580,6 +581,12 @@
 </div>
 
 <script>
+const GAME_SLUG = 'sight-words-p123-media';
+const MEDIA_SLUG = GAME_SLUG;
+if (window.KAMPAI && window.KAMPAI.setSlug) {
+  try { window.KAMPAI.setSlug('sight-words-p123-media'); } catch (e) {}
+}
+
 // 60 GRADED SIGHT WORDS (P.1 - P.3)
 const WORDS = [
   // Grade 1 (20 words)

@@ -834,13 +834,7 @@
       btnRandom.onclick = randomize;
       btnVersus.onclick = function () { if (vs) vs.openMenu(); };
       btnFinishTest.onclick = function () {
-        if (window.KAMPAI && KAMPAI.submitScore) {
-          try {
-            if (KAMPAI.beginRound) KAMPAI.beginRound();
-            KAMPAI.submitScore(practiceScore, { mode: 'practice', meta: { completed: true } });
-          } catch (e) {}
-        }
-        document.getElementById('kampai-result').textContent = 'ส่งผลการฝึกแล้ว ' + practiceScore + ' คะแนน';
+        document.getElementById('kampai-result').textContent = 'ฝึกเสร็จสิ้น ' + practiceScore + ' คะแนน';
       };
 
       document.getElementById('btnBack').onclick = function () {
@@ -954,9 +948,6 @@
             });
             pfb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + ans;
             pfb.style.color = ok ? '#16a34a' : '#dc2626';
-            if (window.KAMPAI && KAMPAI.submitScore) {
-              try { KAMPAI.submitScore(practiceScore, { mode: 'practice', meta: { correct: ok ? 1 : 0 } }); } catch (e) {}
-            }
             if (vs) {
               try { vs.report(practiceScore, { correct: ok ? 1 : 0 }); } catch (e) {}
               if (type === 3) {

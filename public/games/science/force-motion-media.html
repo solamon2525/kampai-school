@@ -717,8 +717,8 @@
 
   <!-- NAVIGATION TABS -->
   <nav class="nav-tabs" role="tablist">
-    <button class="tab-btn active" data-tab="explorer" role="tab">
-      <span>📖</span> 1. สำรวจแรง & สปริง
+    <button class="tab-btn active" data-tab="explorer" data-mode="learn" role="tab">
+      <span>📖</span> 📖 เรียนรู้: 1. สำรวจแรง & สปริง
     </button>
     <button class="tab-btn" data-tab="netforce" role="tab">
       <span>⚖️</span> 2. จำลองแรงลัพธ์ (Net Force)
@@ -726,10 +726,12 @@
     <button class="tab-btn" data-tab="friction" role="tab">
       <span>🛹</span> 3. แล็บแรงเสียดทาน
     </button>
-    <button class="tab-btn" data-tab="quiz" role="tab">
-      <span>✏️</span> 4. แบบทดสอบท้าทาย (15 ข้อ)
+    <button class="tab-btn mode-practice" data-tab="quiz" data-mode="practice" role="tab">
+      <span>✏️</span> ✏️ ฝึก: 4. แบบทดสอบท้าทาย (15 ข้อ)
     </button>
   </nav>
+  <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
+  <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
   <!-- MAIN CONTENT PANELS -->
   <main class="content">
@@ -1130,6 +1132,12 @@
 </div>
 
 <script>
+const GAME_SLUG = 'force-motion-media';
+const MEDIA_SLUG = GAME_SLUG;
+if (window.KAMPAI && window.KAMPAI.setSlug) {
+  try { window.KAMPAI.setSlug('force-motion-media'); } catch (e) {}
+}
+
 /* ─────────────────────────────────────────────────────────────
    FORCE & MOTION LEARNING STUDIO LOGIC (ว 2.2 ป.5/1–5)
    ───────────────────────────────────────────────────────────── */
