@@ -23,6 +23,26 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### การยกระดับมาตรฐานภาพปกสื่อการสอน 16:9 และแคตตาล็อกฐานข้อมูล (Media Cover Standardization & Catalog Normalization) — v1.229.143
+
+- **Safe-Top Reframing สำหรับภาพปก 28 รายการ (Zero Risk Cut-off):**
+  - ประมวลผลภาพปก 28 รายการที่มีข้อความ/สระภาษาไทยชิดขอบบนผ่าน `scripts/reframe-cover-safe-top.mjs --all-risky` ขยาย Safe-top Padding (`TOP_SAFE_PX = 96px`) และบีบกลับ 1280×720 (16:9) คมชัดสูง
+  - ป้องกันสระภาษาไทยด้านบน (สระอิ สระอี ไม้เอก ไม้โท) ถูกครอบตัดเมื่อแสดงผลบนการ์ดระบบและจอมือถือ (ผ่านการตรวจ `scripts/audit-cover-safe-top.mjs` เหลือ 0 รายการ)
+- **สร้างภาพปก 16:9 PNG คุณภาพสูงสำหรับ 4 สื่อที่ขาด (Missing Covers Resolved):**
+  - สร้างภาพปก 1280×720 PNG ตามมาตรฐาน `kampai-cover-creator`:
+    1. `public/games/english/weather-seasons-media-cover.png` (Weather & Seasons ป.4)
+    2. `public/games/health/emotional-wellbeing-media-cover.png` (Emotional Wellbeing สุขศึกษา)
+    3. `public/games/social/map-directions-media-cover.png` (Map & Directions สังคมศึกษา ป.4)
+    4. `public/games/thai/homophone-context-media-cover.png` (Homophones in Context ภาษาไทย ป.5)
+  - ทุกภาพใช้ตัวละครสไตล์ Chibi อบอุ่น ไร้ความรุนแรง พร้อมชื่อภาษาไทย-อังกฤษ กึ่งกลาง Safe Zone 60%
+- **แคตตาล็อกฐานข้อมูลมาตรฐาน (Database Catalog Normalization — Migration 572):**
+  - **แทนที่ `learning-scene.svg` ทั้ง 24 รายการ:** อัปเดต `thumbnail_url` ของใบงานให้ชี้ไปยังภาพปกของสื่อแม่หรือ Studio ประจำวิชาจริง
+  - **แทนที่ภาพปก `.svg` ด้วย 16:9 PNGs:** แปลงจำนวนคละ, สถานะของสสาร, และคู่มือ Construct 2 เป็นไฟล์ PNG ทั้งหมด (SVG count = 0 ในแคตตาล็อก)
+  - **เติมภาพปก 18 รายการที่เคยเป็น NULL:** ผูกภาพปกที่มีอยู่จริงในระบบสำหรับสื่อผสมสี, ความปลอดภัยออนไลน์, ปฐมพยาบาล, นาฬิกา, ฯลฯ
+- **Harmonize SDK Version & Sibling Pairing:**
+  - สื่อการสอน 42 ไฟล์ได้รับการอัปเดตแท็กโหลด SDK เป็น `/games/kampai-sdk.js?v=1.181.0` ป้องกันแคชค้าง
+  - ปรับปรุง `scripts/audit-media-worksheets.mjs` ให้จับคู่ไฟล์แบบ `*-media-worksheet.html` ได้สมบูรณ์ ผ่านเกณฑ์ 110/110 สื่อ 100% (missingCover=0, sdkNoVersion=0, unpaired=0)
+
 ### ศูนย์สำรวจคลังสื่อการสอนออนไลน์ (Interactive Media Explorer) — v1.229.142
 
 - **หน้าศูนย์สำรวจคลังสื่อ (`src/pages/MediaExplorer.tsx` — เส้นทาง `/media` และ `/educational-hub/media`):**

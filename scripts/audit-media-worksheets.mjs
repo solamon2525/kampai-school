@@ -34,6 +34,7 @@ const WORKSHEET_ALIASES = {
   'digestive-system': 'digestive',
   'thai-narration-style': 'narration-style',
   'thai-implied-meaning': 'implied-meaning',
+  'mixed-number': 'improper-to-mixed',
 };
 
 function walk(dir) {
@@ -107,9 +108,11 @@ function findSiblingWorksheet(mediaAbs, worksheetByStem) {
   const stem = mediaStemToWorksheetStem(base);
   const hit = worksheetByStem.get(stem);
   if (hit) return hit;
-  // same-folder fallback: <stem>-worksheet.html
+  // same-folder fallback: <stem>-worksheet.html or <stem>-media-worksheet.html
   const local = path.join(path.dirname(mediaAbs), `${stem}-worksheet.html`);
   if (fs.existsSync(local)) return local;
+  const localMedia = path.join(path.dirname(mediaAbs), `${stem}-media-worksheet.html`);
+  if (fs.existsSync(localMedia)) return localMedia;
   return null;
 }
 
