@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   FileText,
   Download,
@@ -11,6 +11,9 @@ import {
   Printer,
   Settings2,
   Stethoscope,
+  Users,
+  AlertCircle,
+  Sparkles,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -22,7 +25,12 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { paporService, type Semester, type PaporStudentData } from '@/services/papor.service';
+import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
+import { useAuth } from '@/contexts/AuthProvider';
+import { useLinkedRecord } from '@/hooks/useLinkedRecord';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { cn } from '@/lib/utils';
 import { PaporFive } from '@/lib/pdf/papor/PaporFive';
 import { PaporSix } from '@/lib/pdf/papor/PaporSix';
 import { PaporExcelSync } from './PaporExcelSync';
@@ -33,8 +41,19 @@ import { PaporSixViewer } from './PaporSixViewer';
 import { PaporSubjectManager } from './PaporSubjectManager';
 import { PaporReportsCenter } from './PaporReportsCenter';
 import { PaporDiagnosticCenter } from './PaporDiagnosticCenter';
+import { TeacherClassAssignmentManager } from './TeacherClassAssignmentManager';
 
-type MainSection = 'gradebook' | 'subjects' | 'evaluations' | 'promotions' | 'reports' | 'booklet' | 'excel' | 'diagnostics' | 'pdf';
+type MainSection =
+  | 'gradebook'
+  | 'subjects'
+  | 'evaluations'
+  | 'promotions'
+  | 'reports'
+  | 'booklet'
+  | 'excel'
+  | 'teachers'
+  | 'diagnostics'
+  | 'pdf';
 type Doc = 'papor5' | 'papor6';
 
 const PRIMARY_CLASSES = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -47,21 +66,62 @@ function thaiYearOptions(): string[] {
 
 export const PaporGenerator = () => {
   const { settings } = useSchoolSettings();
+  const { role, staffId: authStaffId, isAdmin } = useAuth();
+  const { data: linkedRecord } = useLinkedRecord();
+  const effectiveStaffId = authStaffId || linkedRecord?.staff_id;
+  const isTeacherRole = role === 'teacher' && !isAdmin;
+
   const [section, setSection] = useState<MainSection>('gradebook');
   const [doc, setDoc] = useState<Doc>('papor5');
   const [academicYear, setAcademicYear] = useState<string>('2568');
   const [semester, setSemester] = useState<Semester>('1');
-  const [className, setClassName] = useState<string>('ป.5');
+  const [className, setClassName] = useState<string>('ป.1');
   const [studentId, setStudentId] = useState<string>('');
   const [bulkBusy, setBulkBusy] = useState(false);
 
-  const { data: classes = PRIMARY_CLASSES } = useQuery({
+  // All classes from DB/Fallback
+  const { data: rawClasses = PRIMARY_CLASSES } = useQuery({
     queryKey: ['papor-classes'],
     queryFn: async () => {
       const apiClasses = await paporService.listClasses();
       const combined = Array.from(new Set([...PRIMARY_CLASSES, ...apiClasses]));
       return combined.sort();
     },
+    staleTime: 60_000,
+  });
+
+  // Query teacher's assigned classes when role is teacher
+  const { data: teacherAssignmentData, isLoading: loadingAssignments } = useQuery({
+    queryKey: ['teacher-assigned-classes', effectiveStaffId, academicYear],
+    enabled: isTeacherRole && !!effectiveStaffId,
+    queryFn: () => teacherClassAssignmentService.getTeacherAssignedClasses(effectiveStaffId!, academicYear),
+    staleTime: 60_000,
+  });
+
+  // Scoped class list: teachers only see their assigned classes
+  const classes = useMemo(() => {
+    if (isTeacherRole) {
+      if (loadingAssignments) return [];
+      return teacherAssignmentData?.classes || [];
+    }
+    return rawClasses;
+  }, [isTeacherRole, loadingAssignments, teacherAssignmentData?.classes, rawClasses]);
+
+  // Synchronize className when teacher classes are loaded
+  useEffect(() => {
+    if (isTeacherRole && classes.length > 0) {
+      if (!classes.includes(className)) {
+        setClassName(classes[0]);
+        setStudentId('');
+      }
+    }
+  }, [isTeacherRole, classes, className]);
+
+  // Query Homeroom Teacher for current class
+  const { data: currentHomeroomTeacher } = useQuery({
+    queryKey: ['class-homeroom-teacher', className, academicYear],
+    enabled: !!className && !!academicYear,
+    queryFn: () => teacherClassAssignmentService.getClassHomeroomTeacher(className, academicYear),
     staleTime: 60_000,
   });
 
@@ -160,6 +220,19 @@ export const PaporGenerator = () => {
 
   return (
     <div className="space-y-6">
+      {/* Teacher No Assignment Banner */}
+      {isTeacherRole && !loadingAssignments && classes.length === 0 && (
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <p className="font-semibold text-sm">ยังไม่พบข้อมูลชั้นเรียนที่คุณได้รับมอบหมายในปีการศึกษา {academicYear}</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              กรุณาติดต่อผู้ดูแลระบบ (Admin) เพื่อมอบหมายชั้นเรียนประจำชั้นในระบบก่อนเริ่มบันทึกเกรด
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Top Header & Global Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
@@ -174,20 +247,50 @@ export const PaporGenerator = () => {
 
         {/* Global Selectors: Class & Academic Year */}
         <div className="flex flex-wrap items-center gap-3 bg-muted/40 p-2 rounded-xl border border-border">
+          {/* Homeroom Teacher Badge */}
+          {currentHomeroomTeacher && (
+            <div className="flex items-center gap-2 bg-card px-2.5 py-1 rounded-lg border border-border text-xs shadow-xs">
+              <PersonAvatar name={currentHomeroomTeacher.name} photoUrl={currentHomeroomTeacher.photo_url} size="xs" />
+              <div className="flex flex-col text-left">
+                <span className="font-semibold text-foreground leading-tight truncate max-w-[130px]">
+                  {currentHomeroomTeacher.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground leading-tight">
+                  ครูประจำชั้น {className} {currentHomeroomTeacher.isMultiGrade ? '(สอนควบ)' : ''}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Multi-Grade Badge */}
+          {isTeacherRole && teacherAssignmentData?.isMultiGrade && classes.length > 0 && (
+            <Badge variant="outline" className="text-[11px] bg-amber-50 text-amber-800 border-amber-300 font-semibold gap-1 hidden sm:inline-flex">
+              <Sparkles className="w-3 h-3 text-amber-600" /> สอนควบ ({classes.join(' + ')})
+            </Badge>
+          )}
+
           <div className="flex items-center gap-1.5">
             <Label className="text-xs text-muted-foreground whitespace-nowrap">ระดับชั้น:</Label>
-            <Select value={className} onValueChange={(v) => { setClassName(v); setStudentId(''); }}>
-              <SelectTrigger className="h-8 w-24 bg-card font-semibold text-xs">
-                <SelectValue placeholder="เลือกชั้น" />
-              </SelectTrigger>
-              <SelectContent>
-                {classes.map((c: string) => (
-                  <SelectItem key={c} value={c} className="text-xs font-medium">
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {classes.length === 0 ? (
+              <Select disabled value="">
+                <SelectTrigger className="h-8 w-28 bg-card font-medium text-xs">
+                  <SelectValue placeholder="ไม่มีชั้นเรียน" />
+                </SelectTrigger>
+              </Select>
+            ) : (
+              <Select value={className} onValueChange={(v) => { setClassName(v); setStudentId(''); }}>
+                <SelectTrigger className="h-8 w-24 bg-card font-semibold text-xs">
+                  <SelectValue placeholder="เลือกชั้น" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map((c: string) => (
+                    <SelectItem key={c} value={c} className="text-xs font-medium">
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -223,7 +326,14 @@ export const PaporGenerator = () => {
 
       {/* Main Mode Navigation Tabs */}
       <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto p-1 bg-muted/60">
+        <TabsList
+          className={cn(
+            'grid w-full h-auto p-1 bg-muted/60',
+            isAdmin
+              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9'
+              : 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-8'
+          )}
+        >
           <TabsTrigger value="gradebook" className="gap-1.5 py-2 text-xs md:text-sm">
             <BookOpen className="w-4 h-4 text-blue-600" /> สมุดคะแนน ปพ.5
           </TabsTrigger>
@@ -245,6 +355,11 @@ export const PaporGenerator = () => {
           <TabsTrigger value="excel" className="gap-1.5 py-2 text-xs md:text-sm">
             <FileSpreadsheet className="w-4 h-4 text-teal-600" /> นำเข้า Excel
           </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="teachers" className="gap-1.5 py-2 text-xs md:text-sm font-semibold text-sky-700">
+              <Users className="w-4 h-4 text-sky-600" /> จัดครูประจำชั้น
+            </TabsTrigger>
+          )}
           <TabsTrigger value="diagnostics" className="gap-1.5 py-2 text-xs md:text-sm text-rose-600 font-semibold">
             <Stethoscope className="w-4 h-4 text-rose-600" /> ดีบัก & ตรวจสอบ
           </TabsTrigger>
@@ -304,7 +419,14 @@ export const PaporGenerator = () => {
           <PaporExcelSync />
         </TabsContent>
 
-        {/* Tab 8: Interactive Diagnostics & Web Debugger */}
+        {/* Tab 8: Teacher Class Assignments (Admin Only) */}
+        {isAdmin && (
+          <TabsContent value="teachers" className="pt-4">
+            <TeacherClassAssignmentManager academicYear={academicYear} />
+          </TabsContent>
+        )}
+
+        {/* Tab 9: Interactive Diagnostics & Web Debugger */}
         <TabsContent value="diagnostics" className="pt-4">
           <PaporDiagnosticCenter
             selectedClass={className}

@@ -1209,10 +1209,11 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 
 | Component | Path | หน้าที่ |
 |---|---|---|
-| `PaporGenerator` | `src/components/admin/papor/PaporGenerator.tsx` | ศูนย์กลาง 7 แท็บ: ปพ.5 สมุดคะแนน, จัดการรายวิชา, ประเมิน 4 มิติ, ตัดสินเลื่อนชั้น, พิมพ์รายงาน A4, เล่ม ปพ.6 ดิจิทัล, และนำเข้า/ส่งออก Excel |
+| `PaporGenerator` | `src/components/admin/papor/PaporGenerator.tsx` | ศูนย์กลาง 8 แท็บ (Admin) / กรองชั้นตามสิทธิ์ (Teacher): ปพ.5 สมุดคะแนน, จัดการรายวิชา, ประเมิน 4 มิติ, ตัดสินเลื่อนชั้น, พิมพ์รายงาน A4, เล่ม ปพ.6 ดิจิทัล, จัดครูประจำชั้น (Admin), และนำเข้า/ส่งออก Excel |
+| `TeacherClassAssignmentManager` | `src/components/admin/papor/TeacherClassAssignmentManager.tsx` | แผงบริหารจัดการมอบหมายครูประจำชั้นและครูสอนควบชั้น (ป.1 - ป.6) แสดงการ์ดประจำชั้น รายชื่อครู สถานะสอนควบ และไดอะล็อกมอบหมายครูประจำชั้น (Admin Only) |
 | `PaporSubjectManager` | `src/components/admin/papor/PaporSubjectManager.tsx` | บริหารจัดการรายวิชาหลักสูตรประจำชั้นเรียน (ป.1 - ป.6) เพิ่ม/แก้ไข/ลบ กำหนดหน่วยกิต ชั่วโมง และสัดส่วน 70:30, 80:20 |
 | `PaporGradebookGrid` | `src/components/admin/papor/PaporGradebookGrid.tsx` | ตารางกรอกและตัดเกรดไดนามิกตามรายวิชาของแต่ละชั้น พร้อมปุ่ม 1-Click Sync นักเรียนจากฐานข้อมูลจริง |
-| `PaporReportsCenter` | `src/components/admin/papor/PaporReportsCenter.tsx` | ศูนย์สั่งพิมพ์รายงานผลการเรียนมาตรฐาน A4 สลับดูรายบุคคลและสรุปทั้งห้อง พร้อมปุ่มสั่งพิมพ์ `window.print()` |
+| `PaporReportsCenter` | `src/components/admin/papor/PaporReportsCenter.tsx` | ศูนย์สั่งพิมพ์รายงานผลการเรียนมาตรฐาน A4 สลับดูรายบุคคลและสรุปทั้งห้อง ดึงชื่อและลายเซ็นครูประจำชั้นจริงอัตโนมัติ |
 | `PrintableStudentReportCard` | `src/components/admin/papor/PrintableStudentReportCard.tsx` | แบบพิมพ์ ปพ.6 รายบุคคล A4 แนวตั้ง: ตราโรงเรียน, รายวิชา, เกรด 8 ระดับ, GPA, 4 มิติ, ผลเลื่อนชั้น และ 3 ลายเซ็น |
 | `PrintableClassSummaryReport` | `src/components/admin/papor/PrintableClassSummaryReport.tsx` | แบบพิมพ์ ปพ.5-ป สรุปทั้งชั้นเรียน A4 แนวนอน: เมทริกซ์คะแนน/เกรด, GPA, ลำดับที่ (Rank) และตารางสถิติการกระจายเกรด |
 | `PaporDiagnosticCenter` | `src/components/admin/papor/PaporDiagnosticCenter.tsx` | ศูนย์ตรวจวินิจฉัยและดีบักระบบออกเกรด: Health Score (0-100%), ตรวจสอบ 5 มิติ, 1-Click Auto-Healing, Raw JSON Inspector, ส่งออกรายงานดีบัก |
@@ -1221,12 +1222,15 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 - `curriculumSubjectsService`: ดึงรายวิชาตามชั้น/ปี, บันทึก/แก้ไข/ลบรายวิชา, และเรียก RPC `enroll_class_students_to_gradebook`
 - `paporGradebookService`: จัดการคะแนนดิบ, คะแนนสรุป, การประเมิน 4 มิติ, ผลเลื่อนชั้น, และ `paporDraftManager` สำหรับ LocalStorage Draft
 - `paporDiagnosticsService`: เครื่องมือตรวจวินิจฉัยความสอดคล้อง 5 มิติ, ระบบ Auto-Healing (ดึงนักเรียนตกหล่น, เติมผลประเมินมาตรฐาน, คำนวณเลื่อนชั้น), และ Export Diagnostic Report
+- `teacherClassAssignmentService`: ดึง/บันทึก/ลบการมอบหมายครูประจำชั้นและครูสอนควบชั้น (`teacher_class_assignments`), กรองชั้นเรียนตามสิทธิ์ครูผู้สอน, และดึงข้อมูลครูประจำชั้นพร้อมรูปภาพ
 - `paporSixService`: บันทึกเกรด, ดึงผลประเมิน 4 มิติ, และบันทึกข้อมูลเลื่อนชั้น
 
 **AI hard rules:**
 - ❌ ห้าม hardcode รายวิชาหรือสัดส่วนคะแนนใน component — ต้องอ่านจาก `obec_grade_subjects` ผ่าน `curriculumSubjectsService` เสมอ
-- ❌ ห้าม query `supabase.from()` ตรงๆ ในคอมโพเนนต์ ปพ. — ต้องผ่าน `paporGradebookService`, `curriculumSubjectsService`, หรือ `paporDiagnosticsService` ร่วมกับ `useQuery`/`useMutation`
+- ❌ ห้าม query `supabase.from()` ตรงๆ ในคอมโพเนนต์ ปพ. — ต้องผ่าน `paporGradebookService`, `curriculumSubjectsService`, `teacherClassAssignmentService` หรือ `paporDiagnosticsService` ร่วมกับ `useQuery`/`useMutation`
 - ❌ ห้ามดึงนักเรียนข้ามชั้นเรียน — ตัวกรอง `selectedClass` ต้องควบคุม query และการแสดงผลทุกแท็บอย่างเคร่งครัด
+- ❌ สิทธิ์ครูผู้สอน (Teacher Scoping): เมื่อ Login ด้วย Role ครู ให้แสดงและอนุญาตให้ตัดเกรดเฉพาะห้องที่ตนเองได้รับมอบหมายใน `teacher_class_assignments` เท่านั้น
+- ❌ การแสดงผลครูประจำชั้นในทุกส่วน (หัวตาราง, หน้าต่างจัดครู, รายการสรุป) ต้องใช้ `<PersonAvatar name=... photoUrl=... />` พร้อมดึง `photo_url` จากตาราง `staff` เสมอ (Rule 14.13)
 - ❌ การสั่งพิมพ์ A4 ต้องมีคลาส `@media print` ควบคุมไม่ให้ element ที่ไม่เกี่ยวข้อง (Sidebar, Navbar, Tabs) ติดไปในหน้าพิมพ์ และต้องไม่ล้น 1 หน้าต่อ 1 แผ่น
 - ❌ แป้นพิมพ์สมุดคะแนน ปพ.5 ต้องรองรับ Keyboard Navigation ระดับ Excel (Arrow keys, Enter, Tab) เพื่อประสิทธิภาพการกรอกคะแนนของคุณครู
 

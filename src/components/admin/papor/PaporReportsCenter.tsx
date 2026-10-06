@@ -43,6 +43,7 @@ import {
   paporGradebookService,
   type GradebookStudent,
 } from '@/services/papor-gradebook.service';
+import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
 import {
   PrintableStudentReportCard,
   type ReportCardStudent,
@@ -109,6 +110,15 @@ export const PaporReportsCenter: React.FC<Props> = ({
     queryFn: () => paporGradebookService.getStudentsInClass(selectedClass),
     staleTime: 60_000,
   });
+
+  // 2.1 Fetch Homeroom Teacher Info
+  const { data: homeroomTeacherInfo } = useQuery({
+    queryKey: ['papor-homeroom-teacher', selectedClass, academicYear],
+    queryFn: () => teacherClassAssignmentService.getClassHomeroomTeacher(selectedClass, academicYear),
+    staleTime: 60_000,
+  });
+
+  const homeroomTeacherName = homeroomTeacherInfo?.name || 'ครูประจำชั้น';
 
   const students: ReportCardStudent[] = useMemo(
     () =>
@@ -449,6 +459,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
                 evaluations={defaultEvaluations}
+                homeroomTeacher={homeroomTeacherName}
                 showSchoolCrest={showSchoolCrest}
                 showStudentPhoto={showStudentPhoto}
                 showSignatures={showSignatures}
@@ -466,6 +477,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 selectedClass={selectedClass}
                 studentScoresMap={studentScoresMap}
                 studentEvaluationsMap={studentEvaluationsMap}
+                homeroomTeacher={homeroomTeacherName}
               />
             </div>
           )}
@@ -478,6 +490,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 academicYear={academicYear}
                 subjects={subjects}
                 studentRows={classSummaryRows}
+                homeroomTeacher={homeroomTeacherName}
               />
             </div>
           )}
@@ -491,6 +504,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
                 evaluations={defaultEvaluations}
+                homeroomTeacher={homeroomTeacherName}
                 showPhoto={showStudentPhoto}
                 showQrVerification={showQrVerification}
               />
