@@ -1,10 +1,10 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, QrCode, Video, FlaskConical, Package, Trophy, CheckSquare } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, QrCode, Video, FlaskConical, Package, Trophy, CheckSquare, FileSpreadsheet } from 'lucide-react';
 
 export const TEACHER_MENU = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/teacher' },
   { id: 'schedule', label: 'ตารางสอน', icon: Calendar, path: '/teacher/schedule' },
   { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance' },
-  { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores' },
+  { id: 'scores', label: 'ตัดเกรด & ปพ.5/ปพ.6', icon: FileSpreadsheet, path: '/teacher/scores' },
   { id: 'exam', label: 'ระบบจัดการข้อสอบ', icon: CheckSquare, path: '/teacher/exam' },
   { id: 'competitions', label: 'แข่งใบงานสด', icon: Trophy, path: '/teacher/classroom-competitions' },
   { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval' },

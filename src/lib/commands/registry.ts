@@ -32,7 +32,7 @@ import {
   Lightbulb,
   Package,
   Gauge,
-  Trophy,
+  Trophy, FileSpreadsheet,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -104,7 +104,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-surveys', label: 'แบบสำรวจ', group: 'แอดมิน', icon: ClipboardList, roles: ['admin'], keywords: ['survey', 'feedback', 'nps', 'แบบสำรวจ'], action: { type: 'navigate', path: '/admin/dashboard/surveys' } },
   { id: 'adm-alumni', label: 'ศิษย์เก่า (จัดการ)', group: 'แอดมิน', icon: GraduationCap, roles: ['admin'], keywords: ['alumni', 'verify', 'reunion', 'ศิษย์เก่า'], action: { type: 'navigate', path: '/admin/dashboard/alumni' } },
   { id: 'adm-class-photos', label: 'รูปห้อง + แท็กหน้า', group: 'แอดมิน', icon: ImageIcon, roles: ['admin', 'teacher'], keywords: ['photo', 'tag', 'class', 'รูป'], action: { type: 'navigate', path: '/admin/dashboard/class-photos' } },
-  { id: 'adm-papor', label: 'สร้างเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileText, roles: ['admin', 'teacher'], keywords: ['papor', 'transcript', 'report', 'card', 'ปพ', 'สมุดพก', 'pdf'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
+  { id: 'adm-papor', label: 'ระบบตัดเกรดและเอกสาร ปพ.5 / ปพ.6', group: 'แอดมิน', icon: FileSpreadsheet, roles: ['admin', 'teacher'], keywords: ['เกรด', 'ตัดเกรด', 'ออกเกรด', 'คะแนน', 'papor', 'transcript', 'report', 'card', 'ปพ', 'ปพ5', 'ปพ6', 'สมุดพก', 'pdf', 'สพฐ', 'ผลการเรียน', 'ประเมิน'], action: { type: 'navigate', path: '/admin/dashboard/papor' } },
   { id: 'adm-edu-hub', label: 'คลังสื่อ/เกม (admin)', group: 'แอดมิน', icon: Sparkles, roles: ['admin'], keywords: ['edu', 'hub', 'games', 'media', 'คลัง'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub' } },
   { id: 'adm-coverage', label: 'Coverage ตัวชี้วัด (soft-gap)', group: 'แอดมิน', icon: BookOpen, roles: ['admin'], keywords: ['coverage', 'indicator', 'soft', 'gap', 'ตัวชี้วัด', 'map'], action: { type: 'navigate', path: '/admin/dashboard/educational-hub?tab=games&coverage=1' } },
   { id: 'adm-supplies', label: 'พัสดุ / วัสดุ', group: 'แอดมิน', icon: Package, roles: ['admin'], keywords: ['supply', 'พัสดุ', 'วัสดุ', 'เบิก'], action: { type: 'navigate', path: '/admin/dashboard/supplies' } },
@@ -114,7 +114,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 't-dashboard', label: 'แดชบอร์ดครู', group: 'พอร์ทัลครู', icon: LayoutDashboard, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher' } },
   { id: 't-schedule', label: 'ตารางสอน', group: 'พอร์ทัลครู', icon: Calendar, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/schedule' } },
   { id: 't-attendance', label: 'เช็คชื่อ (ครู)', group: 'พอร์ทัลครู', icon: ClipboardCheck, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/attendance' } },
-  { id: 't-scores', label: 'บันทึกคะแนน', group: 'พอร์ทัลครู', icon: PenLine, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/scores' } },
+  { id: 't-scores', label: 'ตัดเกรดและบันทึกคะแนน (ปพ.5 / ปพ.6)', group: 'พอร์ทัลครู', icon: FileSpreadsheet, roles: ['teacher', 'admin'], keywords: ['เกรด', 'ตัดเกรด', 'คะแนน', 'ปพ', 'ปพ5', 'ปพ6', 'scores', 'grade', 'สมุดคะแนน'], action: { type: 'navigate', path: '/teacher/scores' } },
   { id: 't-classroom-competitions', label: 'แข่งใบงานสด', group: 'พอร์ทัลครู', icon: Trophy, roles: ['teacher', 'admin'], keywords: ['แข่งขัน', 'ใบงาน', 'ทีม', 'math', 'คณิต'], action: { type: 'navigate', path: '/teacher/classroom-competitions' } },
   { id: 't-rewards', label: 'อนุมัติของรางวัล', group: 'พอร์ทัลครู', icon: Award, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/rewards-approval' } },
   { id: 't-edu-hub', label: 'จัดการคลังสื่อของฉัน', group: 'พอร์ทัลครู', icon: Sparkles, roles: ['teacher', 'admin'], action: { type: 'navigate', path: '/teacher/edu-hub' } },

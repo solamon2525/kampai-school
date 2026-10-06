@@ -8,7 +8,7 @@ import {
   Info, Gift,
   // newly added admin routes (educational-hub, docs-hub family, system)
   Sparkles, Folder, DollarSign, FileCheck2, NotebookText, Target, Files, IdCard,
-  Bell, QrCode, FlaskConical, Package, Gauge, CheckSquare,
+  Bell, QrCode, FlaskConical, Package, Gauge, CheckSquare, FileSpreadsheet,
 } from 'lucide-react';
 
 export type QuickMenuOption = {
@@ -62,6 +62,7 @@ export const ADMIN_QUICK_MENU_CATALOG: QuickMenuOption[] = [
 
   // ฝ่ายวิชาการ
   { id: 'academic', label: 'ฝ่ายวิชาการ', icon: BookOpen, path: '/admin/dashboard/academic', group: 'ฝ่ายวิชาการ' },
+  { id: 'papor', label: 'ระบบตัดเกรด & ปพ.5-6', icon: FileSpreadsheet, path: '/admin/dashboard/papor', group: 'ฝ่ายวิชาการ' },
   { id: 'exam', label: 'ระบบจัดการข้อสอบ', icon: CheckSquare, path: '/teacher/exam', group: 'ฝ่ายวิชาการ' },
 
   // ข้อมูลโรงเรียน
@@ -99,7 +100,7 @@ export const TEACHER_QUICK_MENU_CATALOG: QuickMenuOption[] = [
   { id: 'conduct', label: 'ธนาคารความดี', icon: Star, path: '/admin/dashboard/conduct', group: 'งานครู' },
   { id: 'schedule', label: 'ตารางสอน', icon: Calendar, path: '/teacher/schedule', group: 'งานครู' },
   { id: 'attendance', label: 'เช็คชื่อ', icon: ClipboardCheck, path: '/teacher/attendance', group: 'งานครู' },
-  { id: 'scores', label: 'คะแนน', icon: PenLine, path: '/teacher/scores', group: 'งานครู' },
+  { id: 'scores', label: 'ตัดเกรด & ปพ.5/ปพ.6', icon: FileSpreadsheet, path: '/teacher/scores', group: 'งานครู' },
   { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval', group: 'งานครู' },
 ];
 

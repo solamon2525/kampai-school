@@ -59,6 +59,7 @@ import {
     FlaskConical,
     Package,
     Gauge,
+    FileSpreadsheet,
 } from 'lucide-react';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { NotificationBell } from './NotificationBell';
@@ -113,6 +114,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'pa', label: 'PA Assessment', icon: Award, path: '/admin/dashboard/pa', adminOnly: true },
     { type: 'section', label: 'ฝ่ายวิชาการ' },
     { type: 'item', id: 'academic', label: 'ฝ่ายวิชาการ', icon: BookOpen, path: '/admin/dashboard/academic', adminOnly: true },
+    { type: 'item', id: 'papor', label: 'ระบบตัดเกรด & ปพ.5-6', icon: FileSpreadsheet, path: '/admin/dashboard/papor' },
     { type: 'section', label: 'ข้อมูลโรงเรียน' },
     { type: 'item', id: 'milestones', label: 'ประวัติโรงเรียน', icon: History, path: '/admin/dashboard/milestones', adminOnly: true },
     { type: 'item', id: 'facilities', label: 'สิ่งอำนวยความสะดวก', icon: Building2, path: '/admin/dashboard/facilities', adminOnly: true },
@@ -146,7 +148,6 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'second-brain', label: 'Second Brain', icon: BookMarked, path: '/admin/dashboard/second-brain', adminOnly: true },
     { type: 'item', id: 'ai-assist', label: 'AI ผู้ช่วยครู', icon: Sparkles, path: '/admin/dashboard/ai-assist' },
     { type: 'item', id: 'tip-prompt', label: 'Tip Prompt', icon: Lightbulb, path: '/admin/dashboard/tip-prompt', adminOnly: true },
-    { type: 'item', id: 'papor', label: 'ปพ.5 / ปพ.6 (PDF)', icon: FileText, path: '/admin/dashboard/papor' },
     { type: 'item', id: 'line', label: 'LINE OA', icon: MessageCircle, path: '/admin/dashboard/line', adminOnly: true },
     { type: 'section', label: 'สุขภาพ/Compliance' },
     { type: 'item', id: 'health', label: 'สุขภาพนักเรียน', icon: Award, path: '/admin/dashboard/health' },

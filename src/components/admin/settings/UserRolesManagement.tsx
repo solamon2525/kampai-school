@@ -79,6 +79,7 @@ const MENU_GROUPS: MenuGroup[] = [
             { id: 'training', label: 'บันทึกอบรมสัมมนา' },
             { id: 'pa', label: 'PA Assessment' },
             { id: 'academic', label: 'ฝ่ายวิชาการ' },
+            { id: 'papor', label: 'ระบบตัดเกรด & ปพ.5-6' },
             { id: 'administrators', label: 'จัดการผู้บริหาร' },
         ],
     },

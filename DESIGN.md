@@ -1117,6 +1117,10 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - **การดึงข้อมูลครูประจำชั้นลงเอกสารทางการและรูปภาพบุคคล (Rule 14.13 Compliance):**
   - ทุกรายงานทางการ (ปพ.5-ป, ปพ.6 รายบุคคล, ปพ.6 รวมทั้งห้อง, ปพ.7, และสลิปผู้ปกครอง) จะดึงชื่อและตำแหน่งของครูประจำชั้นที่แท้จริงจาก `teacher_class_assignments` ไปใส่ในช่องลงนามโดยอัตโนมัติ
   - การแสดงผลครูประจำชั้นบนหัวตารางต้องใช้ `<PersonAvatar name=... photoUrl=... size="xs" />` เสมอ โดย service ต้อง SELECT ฟิลด์ `photo_url` ควบคู่เสมอ
+- **การเข้าถึงและจุดเชื่อมโยงในระบบหลังบ้าน (Backoffice Navigation & Entry Points v1.233.1):**
+  - Admin Sidebar: จัดวางเด่นชัดในหมวด **ฝ่ายวิชาการ** ป้ายชื่อ "ระบบตัดเกรด & ปพ.5-6" (Path: `/admin/dashboard/papor`, Icon: `FileSpreadsheet`)
+  - Teacher Portal Menu: เมนูป้ายชื่อ **ตัดเกรด & ปพ.5/ปพ.6** (Path: `/teacher/scores`, Icon: `FileSpreadsheet`)
+  - Quick Menu & Command Palette: บรรจุเข้า Quick Menu Catalog ทั้งฝั่ง Admin และครู พร้อมค้นหาด่วนผ่าน `Cmd+K` / `Ctrl+K` ด้วยคีย์เวิร์ดภาษาไทย (เกรด, ตัดเกรด, ปพ5, ปพ6, สมุดพก, ผลการเรียน)
 
 ---
 
