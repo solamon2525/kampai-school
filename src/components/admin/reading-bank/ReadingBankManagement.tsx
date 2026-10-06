@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
+import { cn } from '@/lib/utils';
 import {
   readingBankService,
   BOOK_CATEGORIES,

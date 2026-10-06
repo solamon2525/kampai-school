@@ -1121,6 +1121,8 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
   - Admin Sidebar: จัดวางเด่นชัดในหมวด **ฝ่ายวิชาการ** ป้ายชื่อ "ระบบตัดเกรด & ปพ.5-6" (Path: `/admin/dashboard/papor`, Icon: `FileSpreadsheet`)
   - Teacher Portal Menu: เมนูป้ายชื่อ **ตัดเกรด & ปพ.5/ปพ.6** (Path: `/teacher/scores`, Icon: `FileSpreadsheet`)
   - Quick Menu & Command Palette: บรรจุเข้า Quick Menu Catalog ทั้งฝั่ง Admin และครู พร้อมค้นหาด่วนผ่าน `Cmd+K` / `Ctrl+K` ด้วยคีย์เวิร์ดภาษาไทย (เกรด, ตัดเกรด, ปพ5, ปพ6, สมุดพก, ผลการเรียน)
+- **ความปลอดภัยและการตรวจสอบการนำเข้าฟังก์ชัน Utility (Import Integrity & Verification v1.233.2):**
+  - ทุกคอมโพเนนต์ที่เรียกใช้ `cn(...)` ต้อง `import { cn } from '@/lib/utils'` เสมอ ห้ามเรียกใช้โดยไม่มีการนำเข้า ตรวจสอบความถูกต้องอัตโนมัติผ่านสคริปต์ `node scripts/verify-cn-imports.mjs` ป้องกันปัญหา `ReferenceError: cn is not defined` บน Production
 
 ---
 

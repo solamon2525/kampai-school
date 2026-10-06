@@ -117,6 +117,13 @@ export const curriculumSubjectsService = {
   },
 
   /**
+   * Alias สำหรับ enrollClassStudents (รองรับการเรียกจาก PaporGradebookGrid และ diagnostics)
+   */
+  async enrollStudentsFromClass(academicYear: string, gradeLevel: string) {
+    return this.enrollClassStudents(academicYear, gradeLevel);
+  },
+
+  /**
    * ดึงรายชื่อนักเรียนทั้งหมดที่อยู่ในชั้นเรียน (จากตาราง students)
    */
   async listStudentsInClass(gradeLevel: string) {

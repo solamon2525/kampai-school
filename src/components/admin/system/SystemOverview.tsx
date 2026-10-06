@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.2 (แก้ไขจุดขัดข้อง Runtime: ReferenceError cn is not defined ในระบบตัดเกรด & ปพ.5-6, เสริม alias เมธอด service และเพิ่มระบบตรวจจับ automated import verifier)',
+        date: '6 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไข ReferenceError cn is not defined ใน TeacherClassAssignmentManager.tsx: เพิ่ม import { cn } from "@/lib/utils" แก้ไขปัญหาหน้าเว็บขาว/Error Boundary ขัดข้องเมื่อเปิดเข้าระบบตัดเกรด ปพ.5 - ปพ.6 หรือคลิกแท็บจัดครูประจำชั้น',
+            'แก้ไข missing cn import ใน ReadingBankManagement.tsx: เพิ่ม import { cn } from "@/lib/utils" ป้องกันข้อผิดพลาดตอนเลือกนักเรียนในระบบบันทึกการอ่าน',
+            'เสริม alias เมธอดใน curriculumSubjectsService: เพิ่ม enrollStudentsFromClass เพื่อให้สอดคล้องกับการเรียกใช้ของ PaporGradebookGrid และ papor-diagnostics.service',
+            'เพิ่มระบบตรวจสอบ Automated Regression Verification (scripts/verify-cn-imports.mjs): สแกนตรวจสอบไฟล์ทั้งหมด 660+ ไฟล์ในโฟลเดอร์ src รับประกันว่าไม่มีฟังก์ชัน cn ใดที่ตกหล่นการ import อีกต่อไป',
+        ],
+    },
+    {
         version: 'v1.233.1 (ยกระดับลิงก์ทางเข้าระบบเกรดในระบบหลังบ้าน: ย้ายขึ้นหมวดฝ่ายวิชาการ Admin Sidebar, ปรับปรุงป้ายเมนู Teacher Portal, บรรจุเข้า Quick Menu Catalog และขยายคีย์เวิร์ด Command Palette)',
         date: '6 ต.ค. 2569',
         badge: 'bg-primary',

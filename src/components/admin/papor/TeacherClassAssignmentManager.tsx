@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { cn } from '@/lib/utils';
 import {
   Users,
   GraduationCap,
