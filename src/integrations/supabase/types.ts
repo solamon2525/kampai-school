@@ -5445,6 +5445,66 @@ export type Database = {
         }
         Relationships: []
       }
+      obec_grade_subjects: {
+        Row: {
+          academic_year: string
+          created_at: string
+          credit_hours: number
+          credit_units: number
+          display_order: number
+          formative_weight: number
+          grade_level: string
+          id: string
+          is_active: boolean
+          passing_score: number
+          subject_code: string
+          subject_group: string
+          subject_name: string
+          subject_type: string
+          summative_weight: number
+          teacher_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          created_at?: string
+          credit_hours?: number
+          credit_units?: number
+          display_order?: number
+          formative_weight?: number
+          grade_level: string
+          id?: string
+          is_active?: boolean
+          passing_score?: number
+          subject_code: string
+          subject_group: string
+          subject_name: string
+          subject_type?: string
+          summative_weight?: number
+          teacher_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          credit_hours?: number
+          credit_units?: number
+          display_order?: number
+          formative_weight?: number
+          grade_level?: string
+          id?: string
+          is_active?: boolean
+          passing_score?: number
+          subject_code?: string
+          subject_group?: string
+          subject_name?: string
+          subject_type?: string
+          summative_weight?: number
+          teacher_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       online_match_participants: {
         Row: {
           correct: number
@@ -10489,6 +10549,10 @@ export type Database = {
       }
       english_quest_set_mascot: {
         Args: { p_name: string; p_student_code: string }
+        Returns: Json
+      }
+      enroll_class_students_to_gradebook: {
+        Args: { p_academic_year: string; p_grade_level: string }
         Returns: Json
       }
       equip_student_pet: {

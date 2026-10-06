@@ -45,6 +45,7 @@ export const PaporSixViewer: React.FC<Props> = ({
 
   useEffect(() => {
     loadStudents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass]);
 
   const loadStudents = async () => {
@@ -52,11 +53,17 @@ export const PaporSixViewer: React.FC<Props> = ({
       .from('students')
       .select('id, name, student_code, class, class_number, photo_url')
       .eq('is_active', true)
-      .order('class_number', { ascending: true });
+      .eq('class', selectedClass)
+      .order('class_number', { ascending: true })
+      .order('student_code', { ascending: true });
 
     if (data && data.length > 0) {
       setStudents(data);
       setSelectedStudentId(data[0].id);
+    } else {
+      setStudents([]);
+      setSelectedStudentId('');
+      setStudentData(null);
     }
   };
 

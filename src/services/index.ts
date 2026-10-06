@@ -38,3 +38,4 @@ export * from './reading-bank.service';
 export * from './student-pet.service';
 export * from './papor.service';
 export * from './papor-evaluation.service';
+export * from './curriculum-subjects.service';

@@ -58,9 +58,11 @@ export const PaporPromotionManager: React.FC<Props> = ({
       // 1. Fetch students
       const { data: stList } = await supabase
         .from('students')
-        .select('id, name, student_code, class_number, photo_url')
+        .select('id, name, student_code, class, class_number, photo_url')
         .eq('is_active', true)
-        .order('class_number', { ascending: true });
+        .eq('class', selectedClass)
+        .order('class_number', { ascending: true })
+        .order('student_code', { ascending: true });
 
       const filtered = stList || [];
       if (filtered.length === 0) {
