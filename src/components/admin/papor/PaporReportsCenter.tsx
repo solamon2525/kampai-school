@@ -1,5 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+/**
+ * PaporReportsCenter.tsx
+ * ศูนย์ออกรายงานและสั่งพิมพ์เอกสารทางการ (สพฐ.) มาตรฐาน A4
+ * - สลับดูใบ ปพ.6 รายบุคคล (A4 แนวตั้ง) และ ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน)
+ * - แถบควบคุมตัวเลือกการพิมพ์ (Print Options Toolbar)
+ * - สไตล์การพิมพ์ @media print คมชัด ไร้ขอบส่วนเกิน ประหยัดหมึก
+ */
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,6 +18,10 @@ import {
   curriculumSubjectsService,
   type ObecGradeSubjectRow,
 } from '@/services/curriculum-subjects.service';
+import {
+  paporGradebookService,
+  type GradebookStudent,
+} from '@/services/papor-gradebook.service';
 import {
   PrintableStudentReportCard,
   type ReportCardStudent,
@@ -44,158 +56,171 @@ export const PaporReportsCenter: React.FC<Props> = ({
   academicYear = '2568',
 }) => {
   const [reportMode, setReportMode] = useState<ReportMode>('individual');
-  const [subjects, setSubjects] = useState<ObecGradeSubjectRow[]>([]);
-  const [students, setStudents] = useState<ReportCardStudent[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const [allScores, setAllScores] = useState<Record<string, Record<string, number>>>({}); // studentId -> subject_code -> score
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Load subjects and students
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClass, academicYear]);
+  // 1. Fetch Subjects via TanStack Query
+  const { data: subjects = [], isLoading: loadingSubjects } = useQuery<ObecGradeSubjectRow[]>({
+    queryKey: ['curriculum-subjects', selectedClass, academicYear],
+    queryFn: () => curriculumSubjectsService.listSubjects(selectedClass, academicYear),
+    staleTime: 60_000,
+  });
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const [subjList, stList] = await Promise.all([
-        curriculumSubjectsService.listSubjects(selectedClass, academicYear),
-        supabase
-          .from('students')
-          .select('id, name, student_code, class, class_number, photo_url')
-          .eq('is_active', true)
-          .eq('class', selectedClass)
-          .order('class_number', { ascending: true })
-          .order('student_code', { ascending: true }),
-      ]);
+  // 2. Fetch Students via paporGradebookService
+  const { data: rawStudents = [], isLoading: loadingStudents } = useQuery<GradebookStudent[]>({
+    queryKey: ['papor-students', selectedClass],
+    queryFn: () => paporGradebookService.getStudentsInClass(selectedClass),
+    staleTime: 60_000,
+  });
 
-      setSubjects(subjList);
-      const studentItems = (stList.data || []) as ReportCardStudent[];
-      setStudents(studentItems);
-
-      if (studentItems.length > 0) {
-        setSelectedStudentId((prev) => {
-          const exists = studentItems.some((s) => s.id === prev);
-          return exists ? prev : studentItems[0].id;
-        });
-
-        // Fetch scores for all students in this class
-        const sIds = studentItems.map((s) => s.id);
-        const { data: scoreRecords } = await supabase
-          .from('score_records')
-          .select('*')
-          .eq('academic_year', academicYear)
-          .in('student_id', sIds);
-
-        // Group scores
-        const map: Record<string, Record<string, number>> = {};
-        scoreRecords?.forEach((sc) => {
-          if (!map[sc.student_id]) map[sc.student_id] = {};
-          // Find subject_code for subject_name
-          const sub = subjList.find((s) => s.subject_name === sc.subject);
-          const key = sub ? sub.subject_code : sc.subject;
-          map[sc.student_id][`${key}_${sc.semester}_${sc.score_type}`] = sc.score;
-        });
-        setAllScores(map);
-      } else {
-        setSelectedStudentId('');
-        setAllScores({});
-      }
-    } catch (e) {
-      console.error('Failed to load report data:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const selectedStudent = useMemo(
-    () => students.find((s) => s.id === selectedStudentId) || students[0],
-    [students, selectedStudentId]
+  const students: ReportCardStudent[] = useMemo(
+    () =>
+      rawStudents.map((st) => ({
+        id: st.id,
+        name: st.name,
+        student_code: st.student_code,
+        class_number: st.class_number,
+        photo_url: st.photo_url,
+      })),
+    [rawStudents]
   );
 
-  // Compute individual scores for selected student
+  const studentIds = useMemo(() => students.map((s) => s.id), [students]);
+
+  // Keep first student selected
+  const activeStudentId = useMemo(() => {
+    if (students.length === 0) return '';
+    const exists = students.some((s) => s.id === selectedStudentId);
+    return exists ? selectedStudentId : students[0].id;
+  }, [students, selectedStudentId]);
+
+  // 3. Fetch Scores for all students in class
+  const { data: scoreRecords = [], isLoading: loadingScores } = useQuery({
+    queryKey: ['papor-class-scores', selectedClass, academicYear],
+    enabled: studentIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('score_records')
+        .select('*')
+        .eq('academic_year', academicYear)
+        .in('student_id', studentIds);
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 30_000,
+  });
+
+  // Map scores by studentId -> key
+  const allScores = useMemo(() => {
+    const map: Record<string, Record<string, number>> = {};
+    scoreRecords.forEach((sc) => {
+      if (!map[sc.student_id]) map[sc.student_id] = {};
+      const sub = subjects.find((s) => s.subject_name === sc.subject);
+      const key = sub ? sub.subject_code : sc.subject;
+      map[sc.student_id][`${key}_${sc.semester}_${sc.score_type}`] = sc.score;
+    });
+    return map;
+  }, [scoreRecords, subjects]);
+
+  const selectedStudent = useMemo(
+    () => students.find((s) => s.id === activeStudentId) || students[0],
+    [students, activeStudentId]
+  );
+
+  // Compute individual subject scores
   const individualSubjectScores: ReportCardSubjectScore[] = useMemo(() => {
-    if (!selectedStudent) return [];
-    const stScoreData = allScores[selectedStudent.id] || {};
+    if (!selectedStudent || subjects.length === 0) return [];
+
+    const stScores = allScores[selectedStudent.id] || {};
 
     return subjects.map((sub) => {
-      const f1 = stScoreData[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
-      const s1 = stScoreData[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
-      const f2 = stScoreData[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
-      const s2 = stScoreData[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
+      const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
+      const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
+      const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
+      const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
 
       const t1 = f1 + s1;
       const t2 = f2 + s2;
-      const total = Math.round((t1 + t2) / 2) || t1 || t2;
-      const grade = scoreToGrade(total);
+      const yearly = Math.round((t1 + t2) / 2);
+      const totalScore = yearly > 0 ? yearly : t1 || t2;
+      const grade = scoreToGrade(totalScore);
 
       return {
-        subject: sub,
+        code: sub.subject_code,
+        name: sub.subject_name,
+        creditUnits: Number(sub.credit_units || 1),
+        creditHours: sub.credit_hours,
+        type: sub.subject_type === 'เพิ่มเติม' ? 'additional' : 'core',
         formativeScore: f1 + f2,
         summativeScore: s1 + s2,
-        totalScore: total,
+        totalScore,
         grade,
-        isPassed: total >= (sub.passing_score || 50),
       };
     });
   }, [selectedStudent, subjects, allScores]);
 
-  // Compute class summary student rows
+  // Compute class summary rows
   const classSummaryRows: ClassSummaryStudentRow[] = useMemo(() => {
-    const rows = students.map((st) => {
-      const stScoreData = allScores[st.id] || {};
+    if (students.length === 0 || subjects.length === 0) return [];
+
+    const rowsWithGpa = students.map((st) => {
+      const stScores = allScores[st.id] || {};
       const subjectGrades: Record<string, string> = {};
-      let totalGradePoints = 0;
+      let totalPts = 0;
       let totalCredits = 0;
+      let totalAnnualScore = 0;
 
       subjects.forEach((sub) => {
-        const f1 = stScoreData[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
-        const s1 = stScoreData[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
-        const f2 = stScoreData[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
-        const s2 = stScoreData[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
+        const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
+        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
+        const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
+        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
 
         const t1 = f1 + s1;
         const t2 = f2 + s2;
-        const total = Math.round((t1 + t2) / 2) || t1 || t2;
+        const yearly = Math.round((t1 + t2) / 2);
+        const total = yearly > 0 ? yearly : t1 || t2;
         const grade = scoreToGrade(total);
-        subjectGrades[sub.subject_code] = grade;
 
-        const w = Number(sub.credit_units) || 0;
-        totalGradePoints += (parseFloat(grade) || 0) * w;
-        totalCredits += w;
+        subjectGrades[sub.subject_code] = grade;
+        totalAnnualScore += total;
+
+        const cr = Number(sub.credit_units || 1);
+        const gNum = parseFloat(grade) || 0;
+        totalPts += gNum * cr;
+        totalCredits += cr;
       });
 
-      const gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0;
+      const gpa = totalCredits > 0 ? Number((totalPts / totalCredits).toFixed(2)) : 0;
 
       return {
-        studentId: st.id,
-        classNumber: st.class_number,
-        studentCode: st.student_code,
-        name: st.name,
+        id: st.id,
+        studentNo: st.class_number || 0,
+        studentCode: st.student_code || '-',
+        studentName: st.name,
+        photoUrl: st.photo_url,
         subjectGrades,
-        totalGradePoints,
-        totalCredits,
+        totalScore: totalAnnualScore,
         gpa,
-        rank: 0,
-        decision: 'อนุมัติเลื่อนชั้น',
+        rank: 1,
+        evaluationsSummary: 'ดีเยี่ยม',
+        promotionDecision: 'ผ่าน (เลื่อนชั้น)',
       };
     });
 
-    // Calculate ranks by GPA descending
-    const sorted = [...rows].sort((a, b) => b.gpa - a.gpa);
-    sorted.forEach((r, idx) => {
-      r.rank = idx + 1;
+    // Compute ranks by GPA
+    const sorted = [...rowsWithGpa].sort((a, b) => b.gpa - a.gpa);
+    sorted.forEach((item, idx) => {
+      item.rank = idx + 1;
     });
 
-    return rows;
+    return rowsWithGpa;
   }, [students, subjects, allScores]);
 
   const defaultEvaluations: ReportCardEvaluations = {
-    characterGrade: 'ดีเยี่ยม',
-    competencyGrade: 'ดีเยี่ยม',
-    readingGrade: 'ดีเยี่ยม',
-    activityGrade: 'ผ่าน',
+    characterScore: 'ดีเยี่ยม (3)',
+    competencyScore: 'ดีเยี่ยม (3)',
+    readingScore: 'ดีเยี่ยม (3)',
+    activitiesScore: 'ผ่าน (ผ)',
     attendanceDays: 200,
     attendanceTotal: 200,
     attendancePct: 100,
@@ -205,10 +230,12 @@ export const PaporReportsCenter: React.FC<Props> = ({
     window.print();
   };
 
+  const isLoading = loadingSubjects || loadingStudents || loadingScores;
+
   return (
     <div className="space-y-6">
       {/* Print Controls Header - Hidden during print */}
-      <Card className="bg-card print:hidden">
+      <Card className="bg-card print:hidden shadow-sm border-border">
         <CardHeader className="pb-3 border-b border-border">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -246,7 +273,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
             {reportMode === 'individual' && students.length > 0 && (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-foreground">เลือกนักเรียน:</span>
-                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <Select value={activeStudentId} onValueChange={setSelectedStudentId}>
                   <SelectTrigger className="w-[260px]">
                     <SelectValue placeholder="เลือกนักเรียน" />
                   </SelectTrigger>

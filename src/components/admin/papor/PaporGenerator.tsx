@@ -10,6 +10,7 @@ import {
   FileBox,
   Printer,
   Settings2,
+  Stethoscope,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -31,8 +32,9 @@ import { PaporPromotionManager } from './PaporPromotionManager';
 import { PaporSixViewer } from './PaporSixViewer';
 import { PaporSubjectManager } from './PaporSubjectManager';
 import { PaporReportsCenter } from './PaporReportsCenter';
+import { PaporDiagnosticCenter } from './PaporDiagnosticCenter';
 
-type MainSection = 'gradebook' | 'subjects' | 'evaluations' | 'promotions' | 'reports' | 'booklet' | 'excel' | 'pdf';
+type MainSection = 'gradebook' | 'subjects' | 'evaluations' | 'promotions' | 'reports' | 'booklet' | 'excel' | 'diagnostics' | 'pdf';
 type Doc = 'papor5' | 'papor6';
 
 const PRIMARY_CLASSES = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -207,12 +209,21 @@ export const PaporGenerator = () => {
           <Badge variant="outline" className="text-[11px] bg-card hidden sm:inline-flex">
             นักเรียน {students.length} คน
           </Badge>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSection('diagnostics')}
+            className="h-8 gap-1.5 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold"
+          >
+            <Stethoscope className="w-3.5 h-3.5" /> ตรวจสอบระบบ
+          </Button>
         </div>
       </div>
 
       {/* Main Mode Navigation Tabs */}
       <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 h-auto p-1 bg-muted/60">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto p-1 bg-muted/60">
           <TabsTrigger value="gradebook" className="gap-1.5 py-2 text-xs md:text-sm">
             <BookOpen className="w-4 h-4 text-blue-600" /> สมุดคะแนน ปพ.5
           </TabsTrigger>
@@ -233,6 +244,9 @@ export const PaporGenerator = () => {
           </TabsTrigger>
           <TabsTrigger value="excel" className="gap-1.5 py-2 text-xs md:text-sm">
             <FileSpreadsheet className="w-4 h-4 text-teal-600" /> นำเข้า Excel
+          </TabsTrigger>
+          <TabsTrigger value="diagnostics" className="gap-1.5 py-2 text-xs md:text-sm text-rose-600 font-semibold">
+            <Stethoscope className="w-4 h-4 text-rose-600" /> ดีบัก & ตรวจสอบ
           </TabsTrigger>
         </TabsList>
 
@@ -288,6 +302,15 @@ export const PaporGenerator = () => {
         {/* Tab 7: Excel Import / Export Sync */}
         <TabsContent value="excel" className="pt-4">
           <PaporExcelSync />
+        </TabsContent>
+
+        {/* Tab 8: Interactive Diagnostics & Web Debugger */}
+        <TabsContent value="diagnostics" className="pt-4">
+          <PaporDiagnosticCenter
+            selectedClass={className}
+            academicYear={academicYear}
+            onNavigateToTab={(t) => setSection(t as MainSection)}
+          />
         </TabsContent>
       </Tabs>
     </div>

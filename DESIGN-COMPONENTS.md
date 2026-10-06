@@ -1194,13 +1194,18 @@ Dialog ดู/แก้ **รายละเอียดเกม** (รูป�
 | `PaporReportsCenter` | `src/components/admin/papor/PaporReportsCenter.tsx` | ศูนย์สั่งพิมพ์รายงานผลการเรียนมาตรฐาน A4 สลับดูรายบุคคลและสรุปทั้งห้อง พร้อมปุ่มสั่งพิมพ์ `window.print()` |
 | `PrintableStudentReportCard` | `src/components/admin/papor/PrintableStudentReportCard.tsx` | แบบพิมพ์ ปพ.6 รายบุคคล A4 แนวตั้ง: ตราโรงเรียน, รายวิชา, เกรด 8 ระดับ, GPA, 4 มิติ, ผลเลื่อนชั้น และ 3 ลายเซ็น |
 | `PrintableClassSummaryReport` | `src/components/admin/papor/PrintableClassSummaryReport.tsx` | แบบพิมพ์ ปพ.5-ป สรุปทั้งชั้นเรียน A4 แนวนอน: เมทริกซ์คะแนน/เกรด, GPA, ลำดับที่ (Rank) และตารางสถิติการกระจายเกรด |
+| `PaporDiagnosticCenter` | `src/components/admin/papor/PaporDiagnosticCenter.tsx` | ศูนย์ตรวจวินิจฉัยและดีบักระบบออกเกรด: Health Score (0-100%), ตรวจสอบ 5 มิติ, 1-Click Auto-Healing, Raw JSON Inspector, ส่งออกรายงานดีบัก |
 
 **Service layer:**
 - `curriculumSubjectsService`: ดึงรายวิชาตามชั้น/ปี, บันทึก/แก้ไข/ลบรายวิชา, และเรียก RPC `enroll_class_students_to_gradebook`
+- `paporGradebookService`: จัดการคะแนนดิบ, คะแนนสรุป, การประเมิน 4 มิติ, ผลเลื่อนชั้น, และ `paporDraftManager` สำหรับ LocalStorage Draft
+- `paporDiagnosticsService`: เครื่องมือตรวจวินิจฉัยความสอดคล้อง 5 มิติ, ระบบ Auto-Healing (ดึงนักเรียนตกหล่น, เติมผลประเมินมาตรฐาน, คำนวณเลื่อนชั้น), และ Export Diagnostic Report
 - `paporSixService`: บันทึกเกรด, ดึงผลประเมิน 4 มิติ, และบันทึกข้อมูลเลื่อนชั้น
 
 **AI hard rules:**
 - ❌ ห้าม hardcode รายวิชาหรือสัดส่วนคะแนนใน component — ต้องอ่านจาก `obec_grade_subjects` ผ่าน `curriculumSubjectsService` เสมอ
+- ❌ ห้าม query `supabase.from()` ตรงๆ ในคอมโพเนนต์ ปพ. — ต้องผ่าน `paporGradebookService`, `curriculumSubjectsService`, หรือ `paporDiagnosticsService` ร่วมกับ `useQuery`/`useMutation`
 - ❌ ห้ามดึงนักเรียนข้ามชั้นเรียน — ตัวกรอง `selectedClass` ต้องควบคุม query และการแสดงผลทุกแท็บอย่างเคร่งครัด
 - ❌ การสั่งพิมพ์ A4 ต้องมีคลาส `@media print` ควบคุมไม่ให้ element ที่ไม่เกี่ยวข้อง (Sidebar, Navbar, Tabs) ติดไปในหน้าพิมพ์ และต้องไม่ล้น 1 หน้าต่อ 1 แผ่น
+- ❌ แป้นพิมพ์สมุดคะแนน ปพ.5 ต้องรองรับ Keyboard Navigation ระดับ Excel (Arrow keys, Enter, Tab) เพื่อประสิทธิภาพการกรอกคะแนนของคุณครู
 

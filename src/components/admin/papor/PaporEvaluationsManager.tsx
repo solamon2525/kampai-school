@@ -1,155 +1,165 @@
+/**
+ * PaporEvaluationsManager.tsx
+ * แผงประเมินผลการเรียนรู้ 4 มิติตามหลักสูตรแกนกลาง สพฐ.
+ * - คุณลักษณะอันพึงประสงค์ 8 ประการ
+ * - สมรรถนะสำคัญของผู้เรียน 5 ด้าน
+ * - การอ่าน คิดวิเคราะห์ และเขียน 5 ตัวชี้วัด
+ * - กิจกรรมพัฒนาผู้เรียน 4 กิจกรรม
+ * สถาปัตยกรรมระดับ Production (paporGradebookService + TanStack Query)
+ */
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
-import { useToast } from '@/hooks/use-toast';
-import { Save, Sparkles, CheckCheck, Award, Heart, BookOpenCheck, Compass } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Save, Sparkles, Award, Heart, BookOpenCheck, Compass, Loader2 } from 'lucide-react';
 import type { TablesInsert } from '@/integrations/supabase/types';
 import { levelToShort } from '@/services/papor-evaluation.service';
-
-interface StudentItem {
-  id: string;
-  name: string;
-  student_code: string | null;
-  class_number: number | null;
-  photo_url: string | null;
-}
+import {
+  paporGradebookService,
+  paporDraftManager,
+  type GradebookStudent,
+} from '@/services/papor-gradebook.service';
 
 interface Props {
   selectedClass?: string;
   academicYear?: string;
 }
 
+const COMPETENCY_LABELS = [
+  '1. การสื่อสาร',
+  '2. การคิด',
+  '3. การแก้ปัญหา',
+  '4. ทักษะชีวิต',
+  '5. การใช้เทคโนโลยี',
+];
+
+const CHARACTER_LABELS = [
+  '1. รักชาติ ศาสน์ กษัตริย์',
+  '2. ซื่อสัตย์สุจริต',
+  '3. มีวินัย',
+  '4. ใฝ่เรียนรู้',
+  '5. อยู่อย่างพอเพียง',
+  '6. มุ่งมั่นในการทำงาน',
+  '7. รักความเป็นไทย',
+  '8. มีจิตสาธารณะ',
+];
+
+const READING_LABELS = [
+  '1. อ่านและจับใจความ',
+  '2. สรุปประเด็นสำคัญ',
+  '3. วิเคราะห์เนื้อหา',
+  '4. ประเมินคุณค่า',
+  '5. ถ่ายทอดและเขียนสื่อความ',
+];
+
 export const PaporEvaluationsManager: React.FC<Props> = ({
   selectedClass = 'ป.5',
   academicYear = '2568',
 }) => {
-  const { toast } = useToast();
-  const [students, setStudents] = useState<StudentItem[]>([]);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'competency' | 'character' | 'reading' | 'activity'>('competency');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   // States for each dimension
-  // studentId -> number[]
   const [compScores, setCompScores] = useState<Record<string, number[]>>({});
   const [charScores, setCharScores] = useState<Record<string, number[]>>({});
   const [readScores, setReadScores] = useState<Record<string, number[]>>({});
   const [actScores, setActScores] = useState<Record<string, { guidance: string; scout: string; club: string; social: string }>>({});
 
+  // 1. Fetch Students
+  const { data: students = [], isLoading: loadingStudents } = useQuery<GradebookStudent[]>({
+    queryKey: ['papor-students', selectedClass],
+    queryFn: () => paporGradebookService.getStudentsInClass(selectedClass),
+    staleTime: 60_000,
+  });
+
+  const studentIds = students.map((s) => s.id);
+
+  // 2. Fetch Existing Evaluations
+  const { data: rawEvals = [], isLoading: loadingEvals } = useQuery({
+    queryKey: ['papor-evaluations', selectedClass, academicYear],
+    enabled: studentIds.length > 0,
+    queryFn: () => paporGradebookService.getEvaluationsForClass(academicYear, studentIds),
+    staleTime: 30_000,
+  });
+
+  // Draft Key
+  const draftKey = `evals_${academicYear}_${selectedClass}_${activeTab}`;
+
+  // Populate data when students or rawEvals change
   useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClass, academicYear]);
+    if (students.length === 0) return;
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      // 1. Fetch students
-      const { data: stList } = await supabase
-        .from('students')
-        .select('id, name, student_code, class, class_number, photo_url')
-        .eq('is_active', true)
-        .eq('class', selectedClass)
-        .order('class_number', { ascending: true })
-        .order('student_code', { ascending: true });
+    const compMap: Record<string, number[]> = {};
+    const charMap: Record<string, number[]> = {};
+    const readMap: Record<string, number[]> = {};
+    const actMap: Record<string, { guidance: string; scout: string; club: string; social: string }> = {};
 
-      const filtered = stList || [];
-      setStudents(filtered);
-      if (filtered.length === 0) {
-        setIsLoading(false);
-        return;
-      }
+    students.forEach((st) => {
+      compMap[st.id] = [3, 3, 3, 3, 3];
+      charMap[st.id] = [3, 3, 3, 3, 3, 3, 3, 3];
+      readMap[st.id] = [3, 3, 3, 3, 3];
+      actMap[st.id] = { guidance: 'ผ', scout: 'ผ', club: 'ผ', social: 'ผ' };
+    });
 
-      // 2. Fetch existing evaluations
-      const sIds = filtered.map(s => s.id);
-      const { data: evals } = await supabase
-        .from('student_obec_evaluations')
-        .select('*')
-        .eq('academic_year', academicYear)
-        .in('student_id', sIds);
+    rawEvals.forEach((ev) => {
+      const sId = ev.student_id;
+      const itemIdx = (Number(ev.item_key) || 1) - 1;
+      const sc = Number(ev.score) || 3;
 
-      const compMap: Record<string, number[]> = {};
-      const charMap: Record<string, number[]> = {};
-      const readMap: Record<string, number[]> = {};
-      const actMap: Record<string, { guidance: string; scout: string; club: string; social: string }> = {};
-
-      filtered.forEach(st => {
-        compMap[st.id] = [3, 3, 3, 3, 3];
-        charMap[st.id] = [3, 3, 3, 3, 3, 3, 3, 3];
-        readMap[st.id] = [3, 3, 3, 3, 3];
-        actMap[st.id] = { guidance: 'ผ', scout: 'ผ', club: 'ผ', social: 'ผ' };
-      });
-
-      evals?.forEach(ev => {
-        const sId = ev.student_id;
-        const itemIdx = (Number(ev.item_key) || 1) - 1;
-        const sc = Number(ev.score) || 3;
-
-        if (ev.evaluation_type === 'competency') {
-          if (compMap[sId] && itemIdx >= 0 && itemIdx < 5) compMap[sId][itemIdx] = sc;
-        } else if (ev.evaluation_type === 'character') {
-          if (charMap[sId] && itemIdx >= 0 && itemIdx < 8) charMap[sId][itemIdx] = sc;
-        } else if (ev.evaluation_type === 'reading_thinking') {
-          if (readMap[sId] && itemIdx >= 0 && itemIdx < 5) readMap[sId][itemIdx] = sc;
-        } else if (ev.evaluation_type === 'activity') {
-          if (actMap[sId]) {
-            const key = ev.category_key as keyof typeof actMap[string];
-            if (actMap[sId][key] !== undefined) actMap[sId][key] = ev.status || 'ผ';
-          }
+      if (ev.evaluation_type === 'competency') {
+        if (compMap[sId] && itemIdx >= 0 && itemIdx < 5) compMap[sId][itemIdx] = sc;
+      } else if (ev.evaluation_type === 'character') {
+        if (charMap[sId] && itemIdx >= 0 && itemIdx < 8) charMap[sId][itemIdx] = sc;
+      } else if (ev.evaluation_type === 'reading_thinking' || ev.evaluation_type === 'reading') {
+        if (readMap[sId] && itemIdx >= 0 && itemIdx < 5) readMap[sId][itemIdx] = sc;
+      } else if (ev.evaluation_type === 'activity') {
+        if (actMap[sId]) {
+          const key = ev.category_key as keyof typeof actMap[string];
+          if (actMap[sId][key] !== undefined) actMap[sId][key] = ev.status || 'ผ';
         }
-      });
+      }
+    });
 
-      setCompScores(compMap);
-      setCharScores(charMap);
-      setReadScores(readMap);
-      setActScores(actMap);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดการประเมิน';
-      toast({
-        variant: 'destructive',
-        title: 'โหลดการประเมินไม่สำเร็จ',
-        description: msg,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setCompScores(compMap);
+    setCharScores(charMap);
+    setReadScores(readMap);
+    setActScores(actMap);
+  }, [students, rawEvals]);
 
-  // Quick fill all with excellent
+  // Quick fill all with uniform score
   const handleQuickFillAll = (dimension: 'competency' | 'character' | 'reading', val: number) => {
     if (dimension === 'competency') {
       const next = { ...compScores };
-      students.forEach(s => { next[s.id] = [val, val, val, val, val]; });
+      students.forEach((s) => { next[s.id] = [val, val, val, val, val]; });
       setCompScores(next);
+      paporDraftManager.saveDraft(draftKey, next);
     } else if (dimension === 'character') {
       const next = { ...charScores };
-      students.forEach(s => { next[s.id] = [val, val, val, val, val, val, val, val]; });
+      students.forEach((s) => { next[s.id] = [val, val, val, val, val, val, val, val]; });
       setCharScores(next);
+      paporDraftManager.saveDraft(draftKey, next);
     } else if (dimension === 'reading') {
       const next = { ...readScores };
-      students.forEach(s => { next[s.id] = [val, val, val, val, val]; });
+      students.forEach((s) => { next[s.id] = [val, val, val, val, val]; });
       setReadScores(next);
+      paporDraftManager.saveDraft(draftKey, next);
     }
-    toast({
-      title: 'ตั้งค่าด่วนสำเร็จ',
-      description: `ปรับคะแนนทุกคนเป็น ${val === 3 ? 'ดีเยี่ยม (3)' : val === 2 ? 'ดี (2)' : 'ผ่าน (1)'} เรียบร้อย`,
-    });
+    toast.success(`ปรับคะแนนทุกคนเป็น ${val === 3 ? 'ดีเยี่ยม (3)' : val === 2 ? 'ดี (2)' : 'ผ่าน (1)'} เรียบร้อย`);
   };
 
-  // Save current dimension
-  const handleSaveDimension = async () => {
-    setIsSaving(true);
-    try {
+  // Save Mutation
+  const saveMutation = useMutation({
+    mutationFn: async () => {
       const rows: TablesInsert<'student_obec_evaluations'>[] = [];
 
       if (activeTab === 'competency') {
         const compKeys = ['communication', 'thinking', 'problem_solving', 'life_skills', 'technology'];
-        students.forEach(s => {
+        students.forEach((s) => {
           const scores = compScores[s.id] || [3, 3, 3, 3, 3];
           scores.forEach((sc, idx) => {
             rows.push({
@@ -166,7 +176,7 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
           });
         });
       } else if (activeTab === 'character') {
-        students.forEach(s => {
+        students.forEach((s) => {
           const scores = charScores[s.id] || [3, 3, 3, 3, 3, 3, 3, 3];
           scores.forEach((sc, idx) => {
             rows.push({
@@ -183,7 +193,7 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
           });
         });
       } else if (activeTab === 'reading') {
-        students.forEach(s => {
+        students.forEach((s) => {
           const scores = readScores[s.id] || [3, 3, 3, 3, 3];
           scores.forEach((sc, idx) => {
             rows.push({
@@ -200,9 +210,9 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
           });
         });
       } else if (activeTab === 'activity') {
-        students.forEach(s => {
+        students.forEach((s) => {
           const acts = actScores[s.id] || { guidance: 'ผ', scout: 'ผ', club: 'ผ', social: 'ผ' };
-          ['guidance', 'scout', 'club', 'social'].forEach(k => {
+          ['guidance', 'scout', 'club', 'social'].forEach((k) => {
             rows.push({
               student_id: s.id,
               academic_year: academicYear,
@@ -218,177 +228,174 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
         });
       }
 
-      await supabase.from('student_obec_evaluations').upsert(rows, {
-        onConflict: 'student_id,academic_year,semester,evaluation_type,category_key,item_key',
-      });
-
-      toast({
-        title: 'บันทึกการประเมินสำเร็จ',
-        description: `บันทึกข้อมูล ${rows.length} รายการ เรียบร้อยแล้ว`,
-      });
-    } catch (err: unknown) {
+      await paporGradebookService.saveEvaluationsBatch(rows);
+    },
+    onSuccess: () => {
+      toast.success('บันทึกผลการประเมินเรียบร้อยแล้ว');
+      paporDraftManager.clearDraft(draftKey);
+      queryClient.invalidateQueries({ queryKey: ['papor-evaluations'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-diagnostics'] });
+    },
+    onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการบันทึก';
-      toast({
-        variant: 'destructive',
-        title: 'บันทึกไม่สำเร็จ',
-        description: msg,
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+      toast.error(msg);
+    },
+  });
 
-  const COMPETENCY_LABELS = [
-    '1. การสื่อสาร',
-    '2. การคิด',
-    '3. การแก้ปัญหา',
-    '4. ทักษะชีวิต',
-    '5. การใช้เทคโนโลยี',
-  ];
-
-  const CHARACTER_LABELS = [
-    '1. รักชาติ ศาสน์ กษัตริย์',
-    '2. ซื่อสัตย์สุจริต',
-    '3. มีวินัย',
-    '4. ใฝ่เรียนรู้',
-    '5. อยู่อย่างพอเพียง',
-    '6. มุ่งมั่นในการทำงาน',
-    '7. รักความเป็นไทย',
-    '8. มีจิตสาธารณะ',
-  ];
-
-  const READING_LABELS = [
-    'ข้อ 1 (การอ่านเข้าใจความ)',
-    'ข้อ 2 (การอ่านจับใจความ)',
-    'ข้อ 3 (การคิดวิเคราะห์ข้อมูล)',
-    'ข้อ 4 (การสรุปความคิดเห็น)',
-    'ข้อ 5 (การเขียนสื่อสาร)',
-  ];
+  const isLoading = loadingStudents || loadingEvals;
 
   return (
-    <Card className="bg-card">
-      <CardHeader className="pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+    <Card className="bg-card shadow-sm border-border">
+      <CardHeader className="pb-4 border-b border-border">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
-              <span>ระบบประเมินผล 4 ด้านมาตรฐาน สพฐ.</span>
-            </CardTitle>
-            <CardDescription>
-              ประเมินสมรรถนะสำคัญ คุณลักษณะอันพึงประสงค์ การอ่านคิดวิเคราะห์ และกิจกรรมพัฒนาผู้เรียน
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-500" />
+              <CardTitle className="text-lg">
+                การประเมิน 4 มิติตามหลักสูตรแกนกลาง — ชั้น {selectedClass}
+              </CardTitle>
+            </div>
+            <CardDescription className="mt-1">
+              ประเมินคุณลักษณะอันพึงประสงค์, สมรรถนะสำคัญ, การอ่านคิดวิเคราะห์ และกิจกรรมพัฒนาผู้เรียน
             </CardDescription>
           </div>
 
-          <Button onClick={handleSaveDimension} disabled={isSaving || students.length === 0}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'กำลังบันทึก...' : 'บันทึกผลการประเมิน'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending || students.length === 0}
+              className="gap-2"
+            >
+              {saveMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              บันทึกการประเมิน
+            </Button>
+          </div>
+        </div>
+
+        {/* Dimension Sub-Tabs */}
+        <div className="pt-4">
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as 'competency' | 'character' | 'reading' | 'activity')}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <TabsList className="bg-muted/60 p-1">
+                <TabsTrigger value="competency" className="text-xs md:text-sm gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-blue-600" /> สมรรถนะสำคัญ (5 ด้าน)
+                </TabsTrigger>
+                <TabsTrigger value="character" className="text-xs md:text-sm gap-1.5">
+                  <Heart className="w-3.5 h-3.5 text-rose-600" /> คุณลักษณะฯ (8 ข้อ)
+                </TabsTrigger>
+                <TabsTrigger value="reading" className="text-xs md:text-sm gap-1.5">
+                  <BookOpenCheck className="w-3.5 h-3.5 text-emerald-600" /> อ่าน คิดวิเคราะห์ (5 ข้อ)
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="text-xs md:text-sm gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-amber-600" /> กิจกรรมพัฒนาฯ (4 ด้าน)
+                </TabsTrigger>
+              </TabsList>
+
+              {activeTab !== 'activity' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">ตั้งค่าด่วน:</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuickFillAll(activeTab, 3)}
+                    className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <Sparkles className="w-3 h-3" /> ผ่านดีเยี่ยม (3) ทุกคน
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuickFillAll(activeTab, 2)}
+                    className="h-7 text-xs"
+                  >
+                    ผ่านเกณฑ์ (2)
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Tabs>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'competency' | 'character' | 'reading' | 'activity')}>
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
-            <TabsTrigger value="competency" className="gap-1.5 text-xs md:text-sm">
-              <Sparkles className="w-4 h-4" /> สมรรถนะ (5 ด้าน)
-            </TabsTrigger>
-            <TabsTrigger value="character" className="gap-1.5 text-xs md:text-sm">
-              <Heart className="w-4 h-4" /> คุณลักษณะฯ (8 ข้อ)
-            </TabsTrigger>
-            <TabsTrigger value="reading" className="gap-1.5 text-xs md:text-sm">
-              <BookOpenCheck className="w-4 h-4" /> อ่านคิดวิเคราะห์
-            </TabsTrigger>
-            <TabsTrigger value="activity" className="gap-1.5 text-xs md:text-sm">
-              <Compass className="w-4 h-4" /> กิจกรรมพัฒนาฯ
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Quick Fill Toolstrip */}
-          {activeTab !== 'activity' && (
-            <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground">
-              <span>ตั้งค่าด่วนทั้งห้อง:</span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handleQuickFillAll(activeTab, 3)}
-              >
-                <CheckCheck className="w-3.5 h-3.5 mr-1 text-emerald-600" /> ดีเยี่ยม (3) ทุกคน
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handleQuickFillAll(activeTab, 2)}
-              >
-                ดี (2) ทุกคน
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handleQuickFillAll(activeTab, 1)}
-              >
-                ผ่าน (1) ทุกคน
-              </Button>
-            </div>
-          )}
-
-          {/* Tab 1: Competencies */}
-          <TabsContent value="competency" className="pt-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+      <CardContent className="p-0">
+        {isLoading ? (
+          <div className="p-12 text-center space-y-3">
+            <Loader2 className="w-7 h-7 animate-spin mx-auto text-primary" />
+            <p className="text-sm text-muted-foreground">กำลังโหลดข้อมูลการประเมิน...</p>
+          </div>
+        ) : students.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">
+            ไม่พบนักเรียนในชั้น {selectedClass} กรุณาซิงค์รายชื่อนักเรียนก่อน
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            {/* Tab 1: Competencies */}
+            {activeTab === 'competency' && (
+              <table className="w-full text-sm text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30 text-muted-foreground text-xs">
-                    <th className="py-2 px-3 text-center w-12">เลขที่</th>
-                    <th className="py-2 px-3 text-left min-w-[180px]">นักเรียน</th>
-                    {COMPETENCY_LABELS.map((lbl, i) => (
-                      <th key={i} className="py-2 px-2 text-center w-28">{lbl}</th>
+                  <tr className="border-b border-border bg-muted/30 text-xs font-semibold text-muted-foreground text-center">
+                    <th className="p-3 w-12 text-center border-r border-border sticky left-0 bg-muted/90 z-20">#</th>
+                    <th className="p-3 min-w-[180px] text-left border-r border-border sticky left-12 bg-muted/90 z-20">นักเรียน</th>
+                    {COMPETENCY_LABELS.map((lbl) => (
+                      <th key={lbl} className="p-2 border-r border-border min-w-[120px]">
+                        {lbl}
+                      </th>
                     ))}
-                    <th className="py-2 px-3 text-center w-24 font-bold">ระดับคุณภาพ</th>
+                    <th className="p-2 w-20 text-center font-bold text-foreground">สรุป</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {students.map((st, idx) => {
+                <tbody className="divide-y divide-border">
+                  {students.map((st, sIdx) => {
                     const scores = compScores[st.id] || [3, 3, 3, 3, 3];
-                    const mode = Math.max(...scores);
-                    const grade = levelToShort(mode);
+                    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    const summary = levelToShort(Math.round(avg));
+
                     return (
-                      <tr key={st.id} className="border-b border-border hover:bg-muted/10 transition-colors">
-                        <td className="py-2 px-3 text-center font-medium">{st.class_number || idx + 1}</td>
-                        <td className="py-2 px-3">
-                          <div className="flex items-center gap-2">
-                            <PersonAvatar name={st.name} photoUrl={st.photo_url} className="w-7 h-7 text-xs" />
-                            <span className="font-medium">{st.name}</span>
+                      <tr key={st.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3 text-center font-mono text-xs text-muted-foreground border-r border-border sticky left-0 bg-card z-10">
+                          {st.class_number || sIdx + 1}
+                        </td>
+                        <td className="p-3 border-r border-border sticky left-12 bg-card z-10">
+                          <div className="flex items-center gap-2.5">
+                            <PersonAvatar name={st.name} photoUrl={st.photo_url} size="sm" />
+                            <span className="font-medium text-foreground text-xs md:text-sm">{st.name}</span>
                           </div>
                         </td>
-                        {scores.map((sc, scIdx) => (
-                          <td key={scIdx} className="py-2 px-2 text-center">
+                        {scores.map((sc, iIdx) => (
+                          <td key={iIdx} className="p-2 text-center border-r border-border">
                             <Select
                               value={String(sc)}
-                              onValueChange={v => {
+                              onValueChange={(v) => {
                                 const next = { ...compScores };
-                                const cur = [...(next[st.id] || [3, 3, 3, 3, 3])];
-                                cur[scIdx] = Number(v);
-                                next[st.id] = cur;
+                                next[st.id] = [...scores];
+                                next[st.id][iIdx] = Number(v);
                                 setCompScores(next);
+                                paporDraftManager.saveDraft(draftKey, next);
                               }}
                             >
-                              <SelectTrigger className="h-8 w-24 mx-auto text-xs">
+                              <SelectTrigger className="h-8 w-20 mx-auto text-xs font-semibold">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="3">3 (ดีเยี่ยม)</SelectItem>
-                                <SelectItem value="2">2 (ดี)</SelectItem>
-                                <SelectItem value="1">1 (ผ่าน)</SelectItem>
-                                <SelectItem value="0">0 (ไม่ผ่าน)</SelectItem>
+                                <SelectItem value="3">3 - ดีเยี่ยม</SelectItem>
+                                <SelectItem value="2">2 - ดี</SelectItem>
+                                <SelectItem value="1">1 - ผ่าน</SelectItem>
+                                <SelectItem value="0">0 - ไม่ผ่าน</SelectItem>
                               </SelectContent>
                             </Select>
                           </td>
                         ))}
-                        <td className="py-2 px-3 text-center">
-                          <Badge variant="default" className="bg-emerald-600 text-white font-bold">
-                            {grade}
+                        <td className="p-2 text-center font-bold">
+                          <Badge variant={summary === 'ดย' ? 'default' : 'secondary'} className="text-xs">
+                            {summary}
                           </Badge>
                         </td>
                       </tr>
@@ -396,58 +403,67 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
                   })}
                 </tbody>
               </table>
-            </div>
-          </TabsContent>
+            )}
 
-          {/* Tab 2: Character */}
-          <TabsContent value="character" className="pt-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            {/* Tab 2: Character */}
+            {activeTab === 'character' && (
+              <table className="w-full text-sm text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30 text-muted-foreground text-xs">
-                    <th className="py-2 px-3 text-center w-12">เลขที่</th>
-                    <th className="py-2 px-3 text-left min-w-[160px]">นักเรียน</th>
-                    {CHARACTER_LABELS.map((lbl, i) => (
-                      <th key={i} className="py-2 px-1 text-center w-24 text-[11px]">{lbl}</th>
+                  <tr className="border-b border-border bg-muted/30 text-xs font-semibold text-muted-foreground text-center">
+                    <th className="p-3 w-12 text-center border-r border-border sticky left-0 bg-muted/90 z-20">#</th>
+                    <th className="p-3 min-w-[180px] text-left border-r border-border sticky left-12 bg-muted/90 z-20">นักเรียน</th>
+                    {CHARACTER_LABELS.map((lbl) => (
+                      <th key={lbl} className="p-2 border-r border-border min-w-[110px]">
+                        {lbl}
+                      </th>
                     ))}
-                    <th className="py-2 px-3 text-center w-20 font-bold">สรุปผล</th>
+                    <th className="p-2 w-20 text-center font-bold text-foreground">สรุป</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {students.map((st, idx) => {
+                <tbody className="divide-y divide-border">
+                  {students.map((st, sIdx) => {
                     const scores = charScores[st.id] || [3, 3, 3, 3, 3, 3, 3, 3];
-                    const grade = levelToShort(Math.max(...scores));
+                    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    const summary = levelToShort(Math.round(avg));
+
                     return (
-                      <tr key={st.id} className="border-b border-border hover:bg-muted/10 transition-colors">
-                        <td className="py-2 px-3 text-center font-medium">{st.class_number || idx + 1}</td>
-                        <td className="py-2 px-3 font-medium">{st.name}</td>
-                        {scores.map((sc, scIdx) => (
-                          <td key={scIdx} className="py-2 px-1 text-center">
+                      <tr key={st.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3 text-center font-mono text-xs text-muted-foreground border-r border-border sticky left-0 bg-card z-10">
+                          {st.class_number || sIdx + 1}
+                        </td>
+                        <td className="p-3 border-r border-border sticky left-12 bg-card z-10">
+                          <div className="flex items-center gap-2.5">
+                            <PersonAvatar name={st.name} photoUrl={st.photo_url} size="sm" />
+                            <span className="font-medium text-foreground text-xs md:text-sm">{st.name}</span>
+                          </div>
+                        </td>
+                        {scores.map((sc, iIdx) => (
+                          <td key={iIdx} className="p-2 text-center border-r border-border">
                             <Select
                               value={String(sc)}
-                              onValueChange={v => {
+                              onValueChange={(v) => {
                                 const next = { ...charScores };
-                                const cur = [...(next[st.id] || [3, 3, 3, 3, 3, 3, 3, 3])];
-                                cur[scIdx] = Number(v);
-                                next[st.id] = cur;
+                                next[st.id] = [...scores];
+                                next[st.id][iIdx] = Number(v);
                                 setCharScores(next);
+                                paporDraftManager.saveDraft(draftKey, next);
                               }}
                             >
-                              <SelectTrigger className="h-7 w-16 mx-auto text-xs px-1">
+                              <SelectTrigger className="h-8 w-20 mx-auto text-xs font-semibold">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="3">3</SelectItem>
-                                <SelectItem value="2">2</SelectItem>
-                                <SelectItem value="1">1</SelectItem>
-                                <SelectItem value="0">0</SelectItem>
+                                <SelectItem value="3">3 - ดีเยี่ยม</SelectItem>
+                                <SelectItem value="2">2 - ดี</SelectItem>
+                                <SelectItem value="1">1 - ผ่าน</SelectItem>
+                                <SelectItem value="0">0 - ไม่ผ่าน</SelectItem>
                               </SelectContent>
                             </Select>
                           </td>
                         ))}
-                        <td className="py-2 px-3 text-center">
-                          <Badge variant="default" className="bg-emerald-600 text-white font-bold">
-                            {grade}
+                        <td className="p-2 text-center font-bold">
+                          <Badge variant={summary === 'ดย' ? 'default' : 'secondary'} className="text-xs">
+                            {summary}
                           </Badge>
                         </td>
                       </tr>
@@ -455,58 +471,67 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
                   })}
                 </tbody>
               </table>
-            </div>
-          </TabsContent>
+            )}
 
-          {/* Tab 3: Reading */}
-          <TabsContent value="reading" className="pt-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            {/* Tab 3: Reading, Thinking & Writing */}
+            {activeTab === 'reading' && (
+              <table className="w-full text-sm text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30 text-muted-foreground text-xs">
-                    <th className="py-2 px-3 text-center w-12">เลขที่</th>
-                    <th className="py-2 px-3 text-left min-w-[180px]">นักเรียน</th>
-                    {READING_LABELS.map((lbl, i) => (
-                      <th key={i} className="py-2 px-2 text-center w-28">{lbl}</th>
+                  <tr className="border-b border-border bg-muted/30 text-xs font-semibold text-muted-foreground text-center">
+                    <th className="p-3 w-12 text-center border-r border-border sticky left-0 bg-muted/90 z-20">#</th>
+                    <th className="p-3 min-w-[180px] text-left border-r border-border sticky left-12 bg-muted/90 z-20">นักเรียน</th>
+                    {READING_LABELS.map((lbl) => (
+                      <th key={lbl} className="p-2 border-r border-border min-w-[120px]">
+                        {lbl}
+                      </th>
                     ))}
-                    <th className="py-2 px-3 text-center w-24 font-bold">ระดับคุณภาพ</th>
+                    <th className="p-2 w-20 text-center font-bold text-foreground">สรุป</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {students.map((st, idx) => {
+                <tbody className="divide-y divide-border">
+                  {students.map((st, sIdx) => {
                     const scores = readScores[st.id] || [3, 3, 3, 3, 3];
-                    const grade = levelToShort(Math.max(...scores));
+                    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    const summary = levelToShort(Math.round(avg));
+
                     return (
-                      <tr key={st.id} className="border-b border-border hover:bg-muted/10 transition-colors">
-                        <td className="py-2 px-3 text-center font-medium">{st.class_number || idx + 1}</td>
-                        <td className="py-2 px-3 font-medium">{st.name}</td>
-                        {scores.map((sc, scIdx) => (
-                          <td key={scIdx} className="py-2 px-2 text-center">
+                      <tr key={st.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3 text-center font-mono text-xs text-muted-foreground border-r border-border sticky left-0 bg-card z-10">
+                          {st.class_number || sIdx + 1}
+                        </td>
+                        <td className="p-3 border-r border-border sticky left-12 bg-card z-10">
+                          <div className="flex items-center gap-2.5">
+                            <PersonAvatar name={st.name} photoUrl={st.photo_url} size="sm" />
+                            <span className="font-medium text-foreground text-xs md:text-sm">{st.name}</span>
+                          </div>
+                        </td>
+                        {scores.map((sc, iIdx) => (
+                          <td key={iIdx} className="p-2 text-center border-r border-border">
                             <Select
                               value={String(sc)}
-                              onValueChange={v => {
+                              onValueChange={(v) => {
                                 const next = { ...readScores };
-                                const cur = [...(next[st.id] || [3, 3, 3, 3, 3])];
-                                cur[scIdx] = Number(v);
-                                next[st.id] = cur;
+                                next[st.id] = [...scores];
+                                next[st.id][iIdx] = Number(v);
                                 setReadScores(next);
+                                paporDraftManager.saveDraft(draftKey, next);
                               }}
                             >
-                              <SelectTrigger className="h-8 w-24 mx-auto text-xs">
+                              <SelectTrigger className="h-8 w-20 mx-auto text-xs font-semibold">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="3">3 (ดีเยี่ยม)</SelectItem>
-                                <SelectItem value="2">2 (ดี)</SelectItem>
-                                <SelectItem value="1">1 (ผ่าน)</SelectItem>
-                                <SelectItem value="0">0 (ไม่ผ่าน)</SelectItem>
+                                <SelectItem value="3">3 - ดีเยี่ยม</SelectItem>
+                                <SelectItem value="2">2 - ดี</SelectItem>
+                                <SelectItem value="1">1 - ผ่าน</SelectItem>
+                                <SelectItem value="0">0 - ไม่ผ่าน</SelectItem>
                               </SelectContent>
                             </Select>
                           </td>
                         ))}
-                        <td className="py-2 px-3 text-center">
-                          <Badge variant="default" className="bg-emerald-600 text-white font-bold">
-                            {grade}
+                        <td className="p-2 text-center font-bold">
+                          <Badge variant={summary === 'ดย' ? 'default' : 'secondary'} className="text-xs">
+                            {summary}
                           </Badge>
                         </td>
                       </tr>
@@ -514,60 +539,62 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
                   })}
                 </tbody>
               </table>
-            </div>
-          </TabsContent>
+            )}
 
-          {/* Tab 4: Activities */}
-          <TabsContent value="activity" className="pt-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            {/* Tab 4: Activities */}
+            {activeTab === 'activity' && (
+              <table className="w-full text-sm text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30 text-muted-foreground text-xs">
-                    <th className="py-2 px-3 text-center w-12">เลขที่</th>
-                    <th className="py-2 px-3 text-left min-w-[180px]">นักเรียน</th>
-                    <th className="py-2 px-3 text-center">กิจกรรมแนะแนว (40 ชม.)</th>
-                    <th className="py-2 px-3 text-center">ลูกเสือ/เนตรนารี (40 ชม.)</th>
-                    <th className="py-2 px-3 text-center">กิจกรรมชุมนุม (40 ชม.)</th>
-                    <th className="py-2 px-3 text-center">กิจกรรมเพื่อสังคม (40 ชม.)</th>
-                    <th className="py-2 px-3 text-center font-bold">สรุปผลประเมิน</th>
+                  <tr className="border-b border-border bg-muted/30 text-xs font-semibold text-muted-foreground text-center">
+                    <th className="p-3 w-12 text-center border-r border-border sticky left-0 bg-muted/90 z-20">#</th>
+                    <th className="p-3 min-w-[180px] text-left border-r border-border sticky left-12 bg-muted/90 z-20">นักเรียน</th>
+                    <th className="p-2 border-r border-border">แนะแนว (40 ชม.)</th>
+                    <th className="p-2 border-r border-border">ลูกเสือ/เนตรนารี (40 ชม.)</th>
+                    <th className="p-2 border-r border-border">ชุมนุม (30 ชม.)</th>
+                    <th className="p-2 border-r border-border">เพื่อสังคม/สาธารณประโยชน์ (10 ชม.)</th>
+                    <th className="p-2 w-20 text-center font-bold text-foreground">สรุป</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {students.map((st, idx) => {
+                <tbody className="divide-y divide-border">
+                  {students.map((st, sIdx) => {
                     const acts = actScores[st.id] || { guidance: 'ผ', scout: 'ผ', club: 'ผ', social: 'ผ' };
-                    const isAllPass = acts.guidance === 'ผ' && acts.scout === 'ผ' && acts.club === 'ผ' && acts.social === 'ผ';
-                    return (
-                      <tr key={st.id} className="border-b border-border hover:bg-muted/10 transition-colors">
-                        <td className="py-2 px-3 text-center font-medium">{st.class_number || idx + 1}</td>
-                        <td className="py-2 px-3 font-medium">{st.name}</td>
+                    const allPass = Object.values(acts).every((v) => v === 'ผ');
 
-                        {(['guidance', 'scout', 'club', 'social'] as const).map(actKey => (
-                          <td key={actKey} className="py-2 px-3 text-center">
+                    return (
+                      <tr key={st.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3 text-center font-mono text-xs text-muted-foreground border-r border-border sticky left-0 bg-card z-10">
+                          {st.class_number || sIdx + 1}
+                        </td>
+                        <td className="p-3 border-r border-border sticky left-12 bg-card z-10">
+                          <div className="flex items-center gap-2.5">
+                            <PersonAvatar name={st.name} photoUrl={st.photo_url} size="sm" />
+                            <span className="font-medium text-foreground text-xs md:text-sm">{st.name}</span>
+                          </div>
+                        </td>
+                        {(['guidance', 'scout', 'club', 'social'] as const).map((k) => (
+                          <td key={k} className="p-2 text-center border-r border-border">
                             <Select
-                              value={acts[actKey]}
-                              onValueChange={v => {
+                              value={acts[k]}
+                              onValueChange={(v) => {
                                 const next = { ...actScores };
-                                next[st.id] = { ...acts, [actKey]: v };
+                                next[st.id] = { ...acts, [k]: v };
                                 setActScores(next);
+                                paporDraftManager.saveDraft(draftKey, next);
                               }}
                             >
-                              <SelectTrigger className="h-8 w-24 mx-auto text-xs">
+                              <SelectTrigger className="h-8 w-20 mx-auto text-xs font-semibold">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="ผ">ผ่าน (ผ)</SelectItem>
-                                <SelectItem value="มผ">ไม่ผ่าน (มผ)</SelectItem>
+                                <SelectItem value="ผ">ผ - ผ่าน</SelectItem>
+                                <SelectItem value="มผ">มผ - ไม่ผ่าน</SelectItem>
                               </SelectContent>
                             </Select>
                           </td>
                         ))}
-
-                        <td className="py-2 px-3 text-center">
-                          <Badge
-                            variant={isAllPass ? 'default' : 'destructive'}
-                            className={isAllPass ? 'bg-emerald-600 text-white font-bold' : ''}
-                          >
-                            {isAllPass ? 'ผ่าน' : 'ไม่ผ่าน'}
+                        <td className="p-2 text-center font-bold">
+                          <Badge variant={allPass ? 'default' : 'destructive'} className="text-xs">
+                            {allPass ? 'ผ' : 'มผ'}
                           </Badge>
                         </td>
                       </tr>
@@ -575,9 +602,9 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
                   })}
                 </tbody>
               </table>
-            </div>
-          </TabsContent>
-        </Tabs>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
