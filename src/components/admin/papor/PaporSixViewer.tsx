@@ -15,7 +15,9 @@ import {
   School,
 } from 'lucide-react';
 import { paporService, type PaporSubjectScore } from '@/services/papor.service';
-import { supabase } from '@/integrations/supabase/client';
+import { paporGradebookService } from '@/services/papor-gradebook.service';
+import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
+import { useQuery } from '@tanstack/react-query';
 
 type PaporYearData = Awaited<ReturnType<typeof paporService.forStudentYear>>;
 
@@ -43,24 +45,30 @@ export const PaporSixViewer: React.FC<Props> = ({
   const [studentData, setStudentData] = useState<PaporYearData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Query Homeroom Teacher for the selected class
+  const { data: homeroomTeacher } = useQuery({
+    queryKey: ['class-homeroom-teacher', selectedClass, academicYear],
+    queryFn: () => teacherClassAssignmentService.getClassHomeroomTeacher(selectedClass, academicYear),
+    staleTime: 60_000,
+  });
+
   useEffect(() => {
     loadStudents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass]);
 
   const loadStudents = async () => {
-    const { data } = await supabase
-      .from('students')
-      .select('id, name, student_code, class, class_number, photo_url')
-      .eq('is_active', true)
-      .eq('class', selectedClass)
-      .order('class_number', { ascending: true })
-      .order('student_code', { ascending: true });
-
-    if (data && data.length > 0) {
-      setStudents(data);
-      setSelectedStudentId(data[0].id);
-    } else {
+    try {
+      const data = await paporGradebookService.getStudentsInClass(selectedClass);
+      if (data && data.length > 0) {
+        setStudents(data);
+        setSelectedStudentId(data[0].id);
+      } else {
+        setStudents([]);
+        setSelectedStudentId('');
+        setStudentData(null);
+      }
+    } catch {
       setStudents([]);
       setSelectedStudentId('');
       setStudentData(null);
@@ -198,9 +206,12 @@ export const PaporSixViewer: React.FC<Props> = ({
                 </div>
 
                 <div className="max-w-sm mx-auto p-6 rounded-lg bg-muted/20 border border-border text-left space-y-3 mt-8">
-                  <div className="flex justify-between border-b border-border/50 pb-2">
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
                     <span className="text-muted-foreground text-sm">ชื่อ-นามสกุล:</span>
-                    <span className="font-semibold text-sm">{currentStudent.name}</span>
+                    <div className="flex items-center gap-2">
+                      <PersonAvatar name={currentStudent.name} photoUrl={currentStudent.photo_url} size="xs" />
+                      <span className="font-semibold text-sm">{currentStudent.name}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-muted-foreground text-sm">เลขประจำตัว:</span>
@@ -208,11 +219,11 @@ export const PaporSixViewer: React.FC<Props> = ({
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-muted-foreground text-sm">ชั้นประถมศึกษาปีที่:</span>
-                    <span className="font-semibold text-sm">5 (ปีการศึกษา {academicYear})</span>
+                    <span className="font-semibold text-sm">{selectedClass.replace('ป.', '')} (ปีการศึกษา {academicYear})</span>
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-muted-foreground text-sm">ครูประจำชั้น:</span>
-                    <span className="font-semibold text-sm">นายณัฐพงศ์ สิงห์ชมภู</span>
+                    <span className="font-semibold text-sm">{homeroomTeacher?.name || 'ครูประจำชั้น'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-sm">ผู้อำนวยการ:</span>
@@ -423,19 +434,21 @@ export const PaporSixViewer: React.FC<Props> = ({
 
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-1">
                   <div className="text-xs text-emerald-800 font-semibold">ผลการตัดสินประจำปีการศึกษา</div>
-                  <div className="text-xl font-bold text-emerald-700">เลื่อนชั้น (ขึ้นชั้นประถมศึกษาปีที่ 6)</div>
+                  <div className="text-xl font-bold text-emerald-700">
+                    {studentData?.promotion?.promoted_to_level || (selectedClass === 'ป.6' ? 'จบหลักสูตรประถมศึกษา (ศึกษาต่อ ม.1)' : `เลื่อนชั้น (ขึ้นชั้นประถมศึกษาปีที่ ${Number(selectedClass.replace('ป.', '')) + 1})`)}
+                  </div>
                 </div>
 
                 {/* Official Signature Lines */}
                 <div className="grid grid-cols-3 gap-6 pt-10 text-center text-xs">
                   <div>
                     <div className="border-b border-border w-32 mx-auto mb-1"></div>
-                    <div>(นายณัฐพงศ์ สิงห์ชมภู)</div>
+                    <div>{homeroomTeacher?.name ? `(${homeroomTeacher.name})` : '(ครูประจำชั้น)'}</div>
                     <div className="text-muted-foreground">ครูประจำชั้น</div>
                   </div>
                   <div>
                     <div className="border-b border-border w-32 mx-auto mb-1"></div>
-                    <div>(นายณัฐพงศ์ สิงห์ชมภู)</div>
+                    <div>(นายทะเบียน)</div>
                     <div className="text-muted-foreground">นายทะเบียน</div>
                   </div>
                   <div>

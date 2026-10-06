@@ -324,8 +324,18 @@ export const PaporGenerator = () => {
         </div>
       </div>
 
-      {/* Main Mode Navigation Tabs */}
-      <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)}>
+      {/* Teacher No Assignment Clean State vs Main Tabs */}
+      {isTeacherRole && !loadingAssignments && classes.length === 0 ? (
+        <Card className="p-12 text-center bg-card border border-dashed border-amber-300 rounded-xl space-y-3">
+          <AlertCircle className="w-12 h-12 text-amber-500 mx-auto" />
+          <h2 className="text-lg font-bold text-foreground">ยังไม่มีชั้นเรียนที่ได้รับมอบหมาย</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            ท่านยังไม่ได้รับการระบุเป็นครูประจำชั้นในปีการศึกษา {academicYear} กรุณาแจ้งผู้ดูแลระบบ (Admin) เพื่อมอบหมายชั้นเรียนในระบบตัดเกรด & ปพ.5-6
+          </p>
+        </Card>
+      ) : (
+        /* Main Mode Navigation Tabs */
+        <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)}>
         <TabsList
           className={cn(
             'grid w-full h-auto p-1 bg-muted/60',
@@ -435,6 +445,7 @@ export const PaporGenerator = () => {
           />
         </TabsContent>
       </Tabs>
+      )}
     </div>
   );
 };

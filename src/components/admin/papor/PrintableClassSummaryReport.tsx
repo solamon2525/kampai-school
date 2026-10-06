@@ -53,7 +53,7 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
   });
 
   return (
-    <div className="printable-class-summary bg-white text-black font-sans p-6 max-w-[297mm] mx-auto print:p-0 print:max-w-none print:m-0 text-[11px] leading-tight">
+    <div className="printable-class-summary bg-card text-foreground font-sans p-6 max-w-[297mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[11px] leading-tight">
       {/* Header */}
       <div className="text-center pb-2 border-b-2 border-black space-y-0.5">
         <div className="font-bold text-base">

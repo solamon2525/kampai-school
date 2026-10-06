@@ -290,6 +290,18 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.3 (ตรวจสอบและปรับปรุงระบบเกรดและหลังบ้านรอบด้าน: แก้ไข schema mismatch ในระบบวินิจฉัย, ขจัด direct query ในสมุดพก, เชื่อมโยงครูประจำชั้นจริงลงเอกสาร, และปรับ CSS tokens เอกสารพิมพ์)',
+        date: '6 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไข Schema Mismatch ใน papor-diagnostics.service.ts: ปรับฟิลด์บันทึกผลการประเมิน 4 มิติจาก grade_level เป็น status ให้ตรงกับตาราง student_obec_evaluations เพื่อให้ปุ่มซ่อมแซมอัตโนมัติทำงานได้ 100%',
+            'ขจัด Direct Query ใน PaporSixViewer.tsx: ย้ายการอ่านข้อมูลนักเรียนจาก supabase.from() ตรงไปใช้ paporGradebookService.getStudentsInClass ตามระเบียบ Hard Rules',
+            'ปรับปรุงสมุดพก 10 หน้าให้เป็นไดนามิกสมบูรณ์: แสดงระดับชั้นจริงและดึงชื่อครูประจำชั้นจริงจาก teacherClassAssignmentService พร้อมแสดง <PersonAvatar> คู่ชื่อนักเรียนตาม DESIGN.md Rule 14.13',
+            'ปรับแต่งธีม CSS Variables ใน Printable Reports: ปรับเปลี่ยนคลาส bg-white และ text-black เป็น bg-card และ text-foreground ใน PrintableStudentReportCard, PrintableClassSummaryReport, PrintableParentGradeSlip, PrintableAcademicCertificate และ PaporReportsCenter ตาม Rule 14.15 & 14.16',
+            'เพิ่ม Empty State สำหรับครูที่ยังไม่ได้รับมอบหมายห้อง: ใน PaporGenerator ซ่อนแท็บ ป.1 หลอก และแสดงกล่องแจ้งเตือนแนะนำติดต่อ Admin สวยงามชัดเจน',
+        ],
+    },
+    {
         version: 'v1.233.2 (แก้ไขจุดขัดข้อง Runtime: ReferenceError cn is not defined ในระบบตัดเกรด & ปพ.5-6, เสริม alias เมธอด service และเพิ่มระบบตรวจจับ automated import verifier)',
         date: '6 ต.ค. 2569',
         badge: 'bg-primary',

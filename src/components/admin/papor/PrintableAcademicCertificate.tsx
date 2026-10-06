@@ -53,7 +53,7 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
   const verificationUrl = `${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&cert=${encodeURIComponent(certificateNumber)}`;
 
   return (
-    <div className="printable-academic-certificate bg-white text-black font-sans p-8 max-w-[210mm] mx-auto print:p-0 print:max-w-none print:m-0 border border-neutral-300 print:border-none text-[13px] leading-relaxed">
+    <div className="printable-academic-certificate bg-card text-foreground font-sans p-8 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 border border-border print:border-none text-[13px] leading-relaxed">
       {/* Top Header: Official Seal / Crest & Doc Number */}
       <div className="flex items-start justify-between pb-3">
         <div className="text-xs space-y-0.5">
@@ -157,13 +157,13 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
         {/* Verification QR Code */}
         {showQrVerification ? (
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white border border-neutral-300 rounded">
+            <div className="p-1 bg-card border border-border rounded">
               <QRCode value={verificationUrl} size={50} />
             </div>
-            <div className="text-[10px] text-neutral-600 leading-tight">
-              <div className="font-bold text-black">เอกสารทางการ สพฐ.</div>
+            <div className="text-[10px] text-muted-foreground leading-tight">
+              <div className="font-bold text-foreground">เอกสารทางการ สพฐ.</div>
               <div>สแกนเพื่อตรวจสอบความถูกต้อง</div>
-              <div className="font-mono text-[9px] text-neutral-500">{certificateNumber}</div>
+              <div className="font-mono text-[9px] text-muted-foreground">{certificateNumber}</div>
             </div>
           </div>
         ) : (

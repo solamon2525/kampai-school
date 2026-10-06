@@ -371,7 +371,7 @@ export const paporDiagnosticsService = {
       category_key: string;
       item_key: string;
       score: number;
-      grade_level: string;
+      status: string;
       evaluated_by: string;
     }> = [];
 
@@ -385,7 +385,7 @@ export const paporDiagnosticsService = {
         category_key: 'overall',
         item_key: 'summary',
         score: scoreNum,
-        grade_level: gradeStr,
+        status: gradeStr,
         evaluated_by: 'ระบบซ่อมแซมอัตโนมัติ (Diagnostics)',
       });
 
@@ -398,7 +398,7 @@ export const paporDiagnosticsService = {
         category_key: 'overall',
         item_key: 'summary',
         score: scoreNum,
-        grade_level: gradeStr,
+        status: gradeStr,
         evaluated_by: 'ระบบซ่อมแซมอัตโนมัติ (Diagnostics)',
       });
 
@@ -411,7 +411,7 @@ export const paporDiagnosticsService = {
         category_key: 'overall',
         item_key: 'summary',
         score: scoreNum,
-        grade_level: gradeStr,
+        status: gradeStr,
         evaluated_by: 'ระบบซ่อมแซมอัตโนมัติ (Diagnostics)',
       });
 
@@ -424,7 +424,7 @@ export const paporDiagnosticsService = {
         category_key: 'overall',
         item_key: 'summary',
         score: 1,
-        grade_level: 'ผ',
+        status: 'ผ',
         evaluated_by: 'ระบบซ่อมแซมอัตโนมัติ (Diagnostics)',
       });
     });

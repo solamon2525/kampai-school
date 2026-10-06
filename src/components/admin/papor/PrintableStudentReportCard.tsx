@@ -93,7 +93,7 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   );
 
   return (
-    <div className="printable-report-card bg-white text-black font-sans p-8 max-w-[210mm] mx-auto print:p-0 print:max-w-none print:m-0 text-[13px] leading-normal">
+    <div className="printable-report-card bg-card text-foreground font-sans p-8 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[13px] leading-normal">
       {/* School Header */}
       <div className="text-center pb-3 border-b-2 border-black space-y-1 relative">
         {showSchoolCrest && (
@@ -298,14 +298,14 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
       <div className="flex items-end justify-between mt-6 pt-3 border-t border-neutral-300">
         {showQrVerification ? (
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white border border-neutral-300 rounded">
+            <div className="p-1 bg-card border border-border rounded">
               <QRCode
                 value={`${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&yr=${academicYear}`}
                 size={44}
               />
             </div>
-            <div className="text-[10px] text-neutral-600 leading-tight">
-              <div className="font-bold text-black">เอกสาร ปพ.6 สพฐ.</div>
+            <div className="text-[10px] text-muted-foreground leading-tight">
+              <div className="font-bold text-foreground">เอกสาร ปพ.6 สพฐ.</div>
               <div>สแกนตรวจสอบผลดิจิทัล</div>
             </div>
           </div>

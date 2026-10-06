@@ -34,7 +34,6 @@ import {
   Image as ImageIcon,
   PenTool,
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import {
   curriculumSubjectsService,
   type ObecGradeSubjectRow,
@@ -452,7 +451,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
         <div className="report-paper-wrapper bg-muted/40 p-2 md:p-6 rounded-xl border border-border flex justify-center print:p-0 print:m-0 print:bg-transparent print:border-none">
           {/* Mode 1: ปพ.6 รายบุคคล */}
           {reportMode === 'individual' && selectedStudent && (
-            <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[210mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm]">
               <PrintableStudentReportCard
                 student={selectedStudent}
                 academicYear={academicYear}
@@ -484,7 +483,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 3: ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน) */}
           {reportMode === 'class_summary' && (
-            <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[297mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[297mm]">
               <PrintableClassSummaryReport
                 selectedClass={selectedClass}
                 academicYear={academicYear}
@@ -513,7 +512,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 5: ใบรับรองผลการศึกษา ปพ.7 */}
           {reportMode === 'certificate' && selectedStudent && (
-            <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[210mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm]">
               <PrintableAcademicCertificate
                 student={selectedStudent}
                 academicYear={academicYear}

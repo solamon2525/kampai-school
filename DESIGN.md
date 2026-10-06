@@ -1123,6 +1123,9 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
   - Quick Menu & Command Palette: บรรจุเข้า Quick Menu Catalog ทั้งฝั่ง Admin และครู พร้อมค้นหาด่วนผ่าน `Cmd+K` / `Ctrl+K` ด้วยคีย์เวิร์ดภาษาไทย (เกรด, ตัดเกรด, ปพ5, ปพ6, สมุดพก, ผลการเรียน)
 - **ความปลอดภัยและการตรวจสอบการนำเข้าฟังก์ชัน Utility (Import Integrity & Verification v1.233.2):**
   - ทุกคอมโพเนนต์ที่เรียกใช้ `cn(...)` ต้อง `import { cn } from '@/lib/utils'` เสมอ ห้ามเรียกใช้โดยไม่มีการนำเข้า ตรวจสอบความถูกต้องอัตโนมัติผ่านสคริปต์ `node scripts/verify-cn-imports.mjs` ป้องกันปัญหา `ReferenceError: cn is not defined` บน Production
+- **มาตรฐานความสมบูรณ์ของเอกสารทางการและข้อมูลเชื่อมโยง (Official Booklet & Printable Token Standard v1.233.3):**
+  - สมุดพก 10 หน้า (`PaporSixViewer.tsx`) และเอกสารพิมพ์ (`Printable*.tsx`) ต้องเชื่อมโยงชื่อและตำแหน่งของครูประจำชั้นที่แท้จริงจาก `teacher_class_assignments` อัตโนมัติ พร้อมแสดง `<PersonAvatar>` คู่ชื่อนักเรียนบนหน้าปก
+  - ทุกองค์ประกอบในเอกสารพิมพ์สำหรับแสดงบนเว็บต้องใช้ CSS variables (`bg-card`, `text-foreground`, `border-border`) เพื่อรองรับระบบธีมและป้องกันปัญหาคอนทราสต์ โดยอนุญาตให้มี `print:bg-white print:text-black` เฉพาะสำหรับขั้นตอนการส่งออกหน้ากระดาษพิมพ์จริง
 
 ---
 

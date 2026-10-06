@@ -50,7 +50,7 @@ export const PrintableParentGradeSlip: React.FC<PrintableParentGradeSlipProps> =
   const verificationUrl = `${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&yr=${academicYear}`;
 
   return (
-    <div className="printable-parent-grade-slip bg-white text-black font-sans p-6 max-w-[210mm] mx-auto print:p-0 print:max-w-none print:m-0 border border-neutral-300 print:border-black rounded-lg print:rounded-none mb-6 text-[12px] leading-snug">
+    <div className="printable-parent-grade-slip bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 border border-border print:border-black rounded-lg print:rounded-none mb-6 text-[12px] leading-snug">
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b-2 border-black">
         <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ export const PrintableParentGradeSlip: React.FC<PrintableParentGradeSlipProps> =
               <PersonAvatar
                 name={student.name}
                 photoUrl={student.photo_url}
-                className="w-12 h-12 rounded-full border border-neutral-300"
+                className="w-12 h-12 rounded-full border border-border"
               />
             </div>
           )}
@@ -67,7 +67,7 @@ export const PrintableParentGradeSlip: React.FC<PrintableParentGradeSlipProps> =
             <div className="font-bold text-sm tracking-wide">
               สลิปแจ้งผลการเรียน (Parent Grade Slip)
             </div>
-            <div className="text-xs font-semibold text-neutral-800">
+            <div className="text-xs font-semibold text-foreground">
               {schoolName} • ชั้น{selectedClass} ปีการศึกษา {academicYear}
             </div>
           </div>
@@ -76,11 +76,11 @@ export const PrintableParentGradeSlip: React.FC<PrintableParentGradeSlipProps> =
         {/* Verification QR Code */}
         {showQrVerification && (
           <div className="flex items-center gap-2 text-right">
-            <div className="text-[10px] leading-tight text-neutral-600 hidden sm:block print:block">
-              <div className="font-semibold text-neutral-800">สแกนตรวจสอบ</div>
+            <div className="text-[10px] leading-tight text-muted-foreground hidden sm:block print:block">
+              <div className="font-semibold text-foreground">สแกนตรวจสอบ</div>
               <div>ผลการเรียนดิจิทัล</div>
             </div>
-            <div className="p-1 bg-white border border-neutral-300 rounded">
+            <div className="p-1 bg-card border border-border rounded">
               <QRCode value={verificationUrl} size={42} />
             </div>
           </div>
