@@ -32,7 +32,7 @@ export const PrintableBatchStudentReportCards: React.FC<PrintableBatchStudentRep
   studentScoresMap,
   studentEvaluationsMap,
   schoolName = 'โรงเรียนบ้านคำไผ่',
-  directorName = 'ผู้อำนวยการโรงเรียนบ้านคำไผ่',
+  directorName = 'นายสมพิศ แรงน้อย',
   homeroomTeacher = 'ครูประจำชั้น',
 }) => {
   return (

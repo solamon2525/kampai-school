@@ -54,12 +54,17 @@ export const PrintableParentGradeSlip: React.FC<PrintableParentGradeSlipProps> =
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b-2 border-black">
         <div className="flex items-center gap-3">
+          <img
+            src="/logos/school-logo.webp"
+            alt="ตราประจำโรงเรียนบ้านคำไผ่"
+            className="w-10 h-10 object-contain"
+          />
           {showPhoto && (
             <div className="print:hidden">
               <PersonAvatar
                 name={student.name}
                 photoUrl={student.photo_url}
-                className="w-12 h-12 rounded-full border border-border"
+                className="w-10 h-10 rounded-full border border-border"
               />
             </div>
           )}

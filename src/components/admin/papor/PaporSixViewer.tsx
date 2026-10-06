@@ -599,16 +599,23 @@ export const PaporSixViewer: React.FC<Props> = ({
       <div className="h-full flex flex-col justify-between py-2 text-center text-black">
         {/* Top Emblem & School Headers */}
         <div className="space-y-3">
-          <img
-            src="/logos/obec.png"
-            alt="ตราสัญลักษณ์โรงเรียนบ้านคำไผ่ สพฐ."
-            className="w-24 h-24 mx-auto object-contain"
-          />
+          <div className="flex items-center justify-center gap-4 mx-auto">
+            <img
+              src="/logos/school-logo.webp"
+              alt="ตราประจำโรงเรียนบ้านคำไผ่"
+              className="w-24 h-24 object-contain"
+            />
+            <img
+              src="/logos/obec.png"
+              alt="ตราสัญลักษณ์ สพฐ."
+              className="w-24 h-24 object-contain"
+            />
+          </div>
           <div className="space-y-1">
             <h1 className="text-xl font-bold tracking-tight">แบบรายงานประจำตัวนักเรียน</h1>
             <h2 className="text-lg font-semibold">โรงเรียนบ้านคำไผ่</h2>
             <p className="text-xs text-neutral-800">
-              สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต 2
+              สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
             </p>
           </div>
         </div>
@@ -694,7 +701,7 @@ export const PaporSixViewer: React.FC<Props> = ({
         {/* Director Signature Block */}
         <div className="pt-6 pb-2 text-center space-y-1">
           <div className="text-xs">ลงชื่อ ................................................................</div>
-          <div className="text-sm font-semibold">( นายมกรธวัช แสนสง่า )</div>
+          <div className="text-sm font-semibold">( นายสมพิศ แรงน้อย )</div>
           <div className="text-xs text-neutral-700">ผู้อำนวยการโรงเรียนบ้านคำไผ่</div>
         </div>
       </div>
@@ -870,13 +877,13 @@ export const PaporSixViewer: React.FC<Props> = ({
                     score.grade || (isTerm1Only ? '' : '-')
                   )}
                 </td>
-                {/* Right Remarks column - clean, no mock texts */}
-                <td className="border border-black p-0.5 text-[10px] text-neutral-700">
+                {/* Right Remarks column - clean, matches photo layout */}
+                <td className="border border-black p-0.5 text-center text-[10px]">
                   {isManualEditMode ? (
                     <input
                       type="text"
                       value={score.note}
-                      placeholder={idx === 0 ? '**สอบได้ลำดับที่...' : ''}
+                      placeholder={idx === 3 ? 'คะแนนที่ได้' : idx === 4 ? `${totalObtainedScore}` : idx === 6 ? 'เกรดเฉลี่ย' : idx === 7 ? (isTerm1Only ? '-' : '0.00') : ''}
                       onChange={(e) => {
                         const val = e.target.value;
                         setCustomSubjectScores((prev) => ({
@@ -887,7 +894,13 @@ export const PaporSixViewer: React.FC<Props> = ({
                       className="w-full text-center border-b border-neutral-400 bg-transparent text-[10px]"
                     />
                   ) : (
-                    score.note
+                    score.note || (
+                      idx === 3 ? <span className="font-medium">คะแนนที่ได้</span> :
+                      idx === 4 ? <span className="font-bold font-mono">{totalObtainedScore}</span> :
+                      idx === 6 ? <span className="font-medium">เกรดเฉลี่ย</span> :
+                      idx === 7 ? <span className="font-bold font-mono">{isTerm1Only ? '-' : (customRemarks.gpa || (totalWeight > 0 ? (totalObtainedScore / totalWeight).toFixed(2) : '0.00'))}</span> :
+                      null
+                    )
                   )}
                 </td>
               </tr>
@@ -913,18 +926,23 @@ export const PaporSixViewer: React.FC<Props> = ({
         {/* Development Activities Table */}
         <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold">
-              <th className="border border-black p-1 text-left w-[62%]">กิจกรรมพัฒนาผู้เรียน</th>
-              <th className="border border-black p-1 w-[19%]">ผ่าน</th>
-              <th className="border border-black p-1 w-[19%]">ไม่ผ่าน</th>
+            <tr className="bg-neutral-100/60 font-semibold h-6">
+              <th className="border border-black p-1 text-center w-[67%]">กิจกรรมพัฒนาผู้เรียน</th>
+              <th colSpan={2} className="border border-black p-0.5 w-[33%]">
+                <div>ผลการประเมิน</div>
+                <div className="grid grid-cols-2 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                  <div>ผ่าน</div>
+                  <div>ไม่ผ่าน</div>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {['ลูกเสือ / เนตรนารี', 'แนะแนว', 'ชุมนุม', 'เพื่อสังคมและสาธารณประโยชน์'].map((act) => (
+            {['ลูกเสือ', 'แนะแนว', 'ชุมนุม', 'เพื่อสังคมและสาธารณประโยชน์'].map((act) => (
               <tr key={act} className="h-5">
                 <td className="border border-black px-1.5 py-0.5 text-left font-medium">{act}</td>
-                <td className="border border-black p-0.5"></td>
-                <td className="border border-black p-0.5"></td>
+                <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
+                <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
               </tr>
             ))}
           </tbody>
@@ -933,42 +951,49 @@ export const PaporSixViewer: React.FC<Props> = ({
         {/* 3 Evaluation Summaries Table */}
         <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold">
-              <th className="border border-black p-1 text-left w-[55%]">ผลการประเมิน</th>
-              <th className="border border-black p-1 w-[15%]">ดีเยี่ยม</th>
-              <th className="border border-black p-1 w-[15%]">ดี</th>
-              <th className="border border-black p-1 w-[15%]">ผ่าน</th>
+            <tr className="bg-neutral-100/60 font-semibold h-6">
+              <th className="border border-black p-1 w-[55%]"></th>
+              <th colSpan={3} className="border border-black p-0.5 w-[45%]">
+                <div>ผลการประเมิน</div>
+                <div className="grid grid-cols-3 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                  <div>ดีเยี่ยม</div>
+                  <div>ดี</div>
+                  <div>ผ่าน</div>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
             {[
               'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
               'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
-              'สรุปการประเมินผล สมรรถนะสำคัญของผู้เรียน',
+              'สรุปการประเมินผล สมรรถนะ',
             ].map((evalName) => (
               <tr key={evalName} className="h-5">
                 <td className="border border-black px-1.5 py-0.5 text-left font-medium">{evalName}</td>
-                <td className="border border-black p-0.5"></td>
-                <td className="border border-black p-0.5"></td>
-                <td className="border border-black p-0.5"></td>
+                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
+                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
+                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* 3 Signatures Row (ครูประจำชั้น, หัวหน้าวิชาการ, ผู้อำนวยการ) */}
-        <div className="grid grid-cols-3 gap-2 pt-3 text-center text-[10px] leading-tight">
-          <div>
-            <div>ลงชื่อ .................................................... ครูประจำชั้น</div>
-            <div className="font-medium pt-0.5">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
+        <div className="pt-2 text-xs leading-normal">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="space-y-1">
+              <div>ลงชื่อ .................................................... ครูประจำชั้น</div>
+              <div className="font-medium text-[11px]">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
+            </div>
+            <div className="space-y-1">
+              <div>ลงชื่อ .................................................... หัวหน้าวิชาการ</div>
+              <div className="font-medium text-[11px]">(นางสาวมะลิวัลย์ จรุงพันธ์)</div>
+            </div>
           </div>
-          <div>
-            <div>ลงชื่อ .................................................... หัวหน้าวิชาการ</div>
-            <div className="text-neutral-500 pt-0.5">(....................................................)</div>
-          </div>
-          <div>
-            <div>ลงชื่อ .................................................... ผู้อำนวยการ</div>
-            <div className="font-medium pt-0.5">( นายมกรธวัช แสนสง่า )</div>
+          <div className="text-center pt-3 space-y-1">
+            <div>ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน</div>
+            <div className="font-medium text-[11px]">(นายสมพิศ แรงน้อย)</div>
           </div>
         </div>
       </div>
@@ -1313,7 +1338,7 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
           <div>
             <div className="border-b border-black w-28 mx-auto mb-1"></div>
-            <div>(นายมกรธวัช แสนสง่า)</div>
+            <div>(นายสมพิศ แรงน้อย)</div>
             <div className="text-neutral-600">ผู้อำนวยการโรงเรียน</div>
           </div>
         </div>

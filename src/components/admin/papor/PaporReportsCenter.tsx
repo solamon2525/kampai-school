@@ -459,6 +459,8 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 scores={individualSubjectScores}
                 evaluations={defaultEvaluations}
                 homeroomTeacher={homeroomTeacherName}
+                directorName="นายสมพิศ แรงน้อย"
+                academicHeadName="นางสาวมะลิวัลย์ จรุงพันธ์"
                 showSchoolCrest={showSchoolCrest}
                 showStudentPhoto={showStudentPhoto}
                 showSignatures={showSignatures}
@@ -477,6 +479,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 studentScoresMap={studentScoresMap}
                 studentEvaluationsMap={studentEvaluationsMap}
                 homeroomTeacher={homeroomTeacherName}
+                directorName="นายสมพิศ แรงน้อย"
               />
             </div>
           )}
@@ -490,6 +493,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 subjects={subjects}
                 studentRows={classSummaryRows}
                 homeroomTeacher={homeroomTeacherName}
+                directorName="นายสมพิศ แรงน้อย"
               />
             </div>
           )}
@@ -519,6 +523,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
                 evaluations={defaultEvaluations}
+                directorName="นายสมพิศ แรงน้อย"
                 showSchoolCrest={showSchoolCrest}
                 showQrVerification={showQrVerification}
               />

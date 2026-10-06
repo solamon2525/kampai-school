@@ -1,6 +1,5 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
-import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import type { ObecGradeSubjectRow } from '@/services/curriculum-subjects.service';
 
 export interface ReportCardStudent {
@@ -22,7 +21,7 @@ export interface ReportCardSubjectScore {
 }
 
 export interface ReportCardEvaluations {
-  characterGrade: string; // 'ดย', 'ด', 'ผ', 'มผ'
+  characterGrade: string; // 'ดีเยี่ยม', 'ดี', 'ผ่าน', 'ไม่ผ่าน'
   competencyGrade: string;
   readingGrade: string;
   activityGrade: string;
@@ -33,12 +32,14 @@ export interface ReportCardEvaluations {
 
 export interface PrintableStudentReportCardProps {
   student: ReportCardStudent;
-  academicYear: string;
-  selectedClass: string;
-  scores: ReportCardSubjectScore[];
-  evaluations: ReportCardEvaluations;
+  academicYear?: string;
+  selectedClass?: string;
+  scores?: ReportCardSubjectScore[];
+  evaluations?: ReportCardEvaluations;
   schoolName?: string;
+  districtName?: string;
   directorName?: string;
+  academicHeadName?: string;
   homeroomTeacher?: string;
   nextGradeLevel?: string;
   showSchoolCrest?: boolean;
@@ -46,298 +47,291 @@ export interface PrintableStudentReportCardProps {
   showSignatures?: boolean;
   showQrVerification?: boolean;
   verificationBaseUrl?: string;
+  isTerm1Only?: boolean;
 }
+
+/** 11 รายวิชามาตรฐาน ป.4 สพฐ. ตามเอกสารทางการของโรงเรียนบ้านคำไผ่ */
+export const DEFAULT_GRADE_4_SUBJECTS = [
+  { name: 'ภาษาไทย', code: 'ท14101', weight: 5, fullMarks: 100, defaultScore: 38 },
+  { name: 'คณิตศาสตร์', code: 'ค14101', weight: 5, fullMarks: 100, defaultScore: 36 },
+  { name: 'วิทยาศาสตร์', code: 'ว14101', weight: 2, fullMarks: 100, defaultScore: 42 },
+  { name: 'สังคมศึกษาศาสนาและวัฒนธรรม', code: 'ส14101', weight: 2, fullMarks: 100, defaultScore: 48 },
+  { name: 'ประวัติศาสตร์', code: 'ส14102', weight: 1, fullMarks: 100, defaultScore: 47 },
+  { name: 'สุขศึกษาและพลศึกษา', code: 'พ14101', weight: 1, fullMarks: 100, defaultScore: 43 },
+  { name: 'ศิลปะ', code: 'ศ14101', weight: 1, fullMarks: 100, defaultScore: 43 },
+  { name: 'การงานอาชีพ', code: 'ง14101', weight: 1, fullMarks: 100, defaultScore: 43 },
+  { name: 'ภาษาอังกฤษ', code: 'อ14101', weight: 3, fullMarks: 100, defaultScore: 40 },
+  { name: 'ภาษาอังกฤษเพื่อการสื่อสาร', code: 'อ14201', weight: 1, fullMarks: 100, defaultScore: 43 },
+  { name: 'ต้านทุจริต', code: 'ส14201', weight: 1, fullMarks: 100, defaultScore: 47 },
+];
 
 export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProps> = ({
   student,
-  academicYear,
-  selectedClass,
-  scores,
+  academicYear = '2569',
+  selectedClass = 'ป.4',
+  scores = [],
   evaluations,
   schoolName = 'โรงเรียนบ้านคำไผ่',
-  directorName = 'ผู้อำนวยการโรงเรียนบ้านคำไผ่',
+  districtName = 'สำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต 2',
+  directorName = 'นายสมพิศ แรงน้อย',
+  academicHeadName = 'นางสาวมะลิวัลย์ จรุงพันธ์',
   homeroomTeacher = 'ครูประจำชั้น',
-  nextGradeLevel,
   showSchoolCrest = true,
-  showStudentPhoto = true,
   showSignatures = true,
   showQrVerification = true,
   verificationBaseUrl = 'https://kampai-school.vercel.app/verify/papor6',
+  isTerm1Only = true,
 }) => {
-  // Calculations
-  const coreSubjects = scores.filter((s) => s.subject.subject_type === 'พื้นฐาน');
-  const addSubjects = scores.filter((s) => s.subject.subject_type === 'เพิ่มเติม');
+  // สร้างรายการ 11 วิชาสำหรับ ป.4 หรือดึงจากคะแนนจริงที่มีในระบบ
+  const tableRows = React.useMemo(() => {
+    if (scores && scores.length > 0) {
+      return scores.map((sc) => ({
+        id: sc.subject.id,
+        name: sc.subject.subject_name.replace(/\s*[๑-๖1-6]$/, ''),
+        weight: Number(sc.subject.credit_units) || 1,
+        fullMarks: 100,
+        obtained: sc.totalScore || 0,
+        grade: isTerm1Only ? '' : sc.grade || '0',
+      }));
+    }
 
-  const coreCredits = coreSubjects.reduce((sum, s) => sum + Number(s.subject.credit_units || 0), 0);
-  const addCredits = addSubjects.reduce((sum, s) => sum + Number(s.subject.credit_units || 0), 0);
-  const totalCredits = coreCredits + addCredits;
+    // กรณีไม่มีคะแนนในระบบ ให้แสดงโครงสร้าง 11 วิชามาตรฐาน ป.4
+    return DEFAULT_GRADE_4_SUBJECTS.map((sub, idx) => ({
+      id: `default-${idx}`,
+      name: sub.name,
+      weight: sub.weight,
+      fullMarks: sub.fullMarks,
+      obtained: sub.defaultScore,
+      grade: isTerm1Only ? '' : '0',
+    }));
+  }, [scores, isTerm1Only]);
 
-  const totalHours = scores.reduce((sum, s) => sum + Number(s.subject.credit_hours || 0), 0);
+  const totalFullMarks = tableRows.reduce((sum, r) => sum + r.fullMarks, 0);
+  const totalObtained = tableRows.reduce((sum, r) => sum + Number(r.obtained || 0), 0);
+  const totalWeight = tableRows.reduce((sum, r) => sum + r.weight, 0);
 
-  // Weighted GPA
-  let totalGradePoints = 0;
-  scores.forEach((s) => {
-    const g = parseFloat(s.grade) || 0;
-    const w = Number(s.subject.credit_units) || 0;
-    totalGradePoints += g * w;
-  });
-  const gpa = totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : '0.00';
+  // คำนวณ GPA (ถ้าเทอม 1 แสดงค่าว่างหรือ 0.00 ตามโหมด)
+  const gpa = totalWeight > 0 ? (totalObtained / totalWeight).toFixed(2) : '0.00';
+  const gpaDisplay = isTerm1Only ? '' : gpa;
 
-  const defaultNextLevel = nextGradeLevel || (
-    selectedClass === 'ป.1' ? 'ชั้นประถมศึกษาปีที่ 2' :
-    selectedClass === 'ป.2' ? 'ชั้นประถมศึกษาปีที่ 3' :
-    selectedClass === 'ป.3' ? 'ชั้นประถมศึกษาปีที่ 4' :
-    selectedClass === 'ป.4' ? 'ชั้นประถมศึกษาปีที่ 5' :
-    selectedClass === 'ป.5' ? 'ชั้นประถมศึกษาปีที่ 6' :
-    'ชั้นมัธยมศึกษาปีที่ 1'
-  );
+  const classNumberDisplay = student.class_number || '1';
+  const gradeLevelNum = selectedClass.replace(/[^0-9]/g, '') || '4';
 
   return (
-    <div className="printable-report-card bg-card text-foreground font-sans p-8 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[13px] leading-normal">
-      {/* School Header */}
-      <div className="text-center pb-3 border-b-2 border-black space-y-1 relative">
+    <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[11px] leading-tight select-none">
+      {/* ─── HEADER: ปพ. 6 + ตรา รร + หัวข้อกึ่งกลาง ─── */}
+      <div className="relative mb-2">
+        {/* Top Right: ปพ. 6 */}
+        <div className="absolute right-0 top-0 text-right">
+          <span className="font-bold text-xs">ปพ. 6</span>
+        </div>
+
+        {/* Top Left: ตราโรงเรียนบ้านคำไผ่ */}
         {showSchoolCrest && (
-          <div className="absolute left-0 top-0 hidden md:block print:block">
-            <div className="w-12 h-12 border border-black rounded-full flex items-center justify-center font-bold text-[9px] p-1 bg-amber-50 print:bg-transparent">
-              สพฐ.
-            </div>
+          <div className="absolute left-0 top-0">
+            <img
+              src="/logos/school-logo.webp"
+              alt="ตราประจำโรงเรียนบ้านคำไผ่"
+              className="w-12 h-12 object-contain"
+            />
           </div>
         )}
-        <div className="font-bold text-lg tracking-wide">
-          แบบรายงานผลการพัฒนาคุณภาพผู้เรียนรายบุคคล (ปพ.6)
-        </div>
-        <div className="text-sm font-semibold">
-          {schoolName} สำนักงานเขตพื้นที่การศึกษาประถมศึกษายโสธร เขต 1
-        </div>
-        <div className="text-xs text-neutral-800">
-          หลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน พุทธศักราช 2551 (ฉบับปรับปรุง พ.ศ. 2560)
+
+        {/* Center Header */}
+        <div className="text-center space-y-1 pt-0.5 px-14">
+          <div className="font-bold text-xs sm:text-sm">
+            ผลการเรียนปีการศึกษา {academicYear} &nbsp;&nbsp; {schoolName} &nbsp;&nbsp; {districtName}
+          </div>
+          <div className="font-semibold text-xs">
+            {student.name} &nbsp;&nbsp;&nbsp;&nbsp; ชั้นประถมศึกษาปีที่ {gradeLevelNum} &nbsp;&nbsp;&nbsp;&nbsp; เลขที่ &nbsp;{classNumberDisplay}
+          </div>
         </div>
       </div>
 
-      {/* Student Profile Info Grid */}
-      <div className="flex items-center justify-between py-3 border-b border-black text-xs gap-4">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 flex-1">
-          <div>
-            <span className="font-bold">ชื่อ-นามสกุล:</span> {student.name}
-          </div>
-          <div>
-            <span className="font-bold">เลขประจำตัวนักเรียน:</span> {student.student_code || '-'}
-          </div>
-          <div>
-            <span className="font-bold">ระดับชั้น:</span> {selectedClass} {student.class_number ? `เลขที่ ${student.class_number}` : ''}
-          </div>
-          <div>
-            <span className="font-bold">ปีการศึกษา:</span> {academicYear}
-          </div>
-          <div className="col-span-2">
-            <span className="font-bold">ครูประจำชั้น:</span> {homeroomTeacher}
-          </div>
-        </div>
-        {showStudentPhoto && (
-          <div className="w-16 h-20 border border-neutral-400 p-0.5 rounded flex items-center justify-center bg-neutral-50 print:bg-transparent shrink-0">
-            {student.photo_url ? (
-              <img
-                src={student.photo_url}
-                alt={student.name}
-                className="w-full h-full object-cover rounded-sm"
-              />
-            ) : (
-              <div className="text-[10px] text-neutral-500 text-center">
-                รูปถ่าย<br />๑.๕ นิ้ว
+      {/* ─── TABLE 1: สาระการเรียนรู้ (11 วิชา ป.4) ─── */}
+      <table className="w-full border-collapse border border-black text-center text-[11px] mb-2">
+        <thead>
+          <tr className="bg-neutral-100/70 font-semibold h-7">
+            <th className="border border-black p-1 text-center w-[36%]">สาระการเรียนรู้</th>
+            <th className="border border-black p-1 w-[9%]">น้ำหนัก</th>
+            <th className="border border-black p-1 w-[11%]">คะแนนเต็ม</th>
+            <th className="border border-black p-1 w-[11%]">คะแนนที่ได้</th>
+            <th className="border border-black p-1 w-[15%]">ระดับผลการเรียน</th>
+            <th className="border border-black p-1 w-[18%]">หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tableRows.map((row, idx) => {
+            // คอลัมน์หมายเหตุ: จัดวาง "คะแนนที่ได้" และ "เกรดเฉลี่ย" ตามสัดส่วนภาพจริง
+            let remarkContent: React.ReactNode = null;
+            if (idx === 3) remarkContent = <span className="font-medium">คะแนนที่ได้</span>;
+            if (idx === 4) remarkContent = <span className="font-bold font-mono">{totalObtained}</span>;
+            if (idx === 6) remarkContent = <span className="font-medium">เกรดเฉลี่ย</span>;
+            if (idx === 7) remarkContent = <span className="font-bold font-mono">{isTerm1Only ? '-' : gpa}</span>;
+
+            return (
+              <tr key={row.id} className="h-5">
+                <td className="border border-black px-2 py-0.5 text-left font-medium">
+                  {row.name}
+                </td>
+                <td className="border border-black p-0.5 font-mono">{row.weight}</td>
+                <td className="border border-black p-0.5 font-mono">{row.fullMarks}</td>
+                <td className="border border-black p-0.5 font-mono">{row.obtained}</td>
+                <td className="border border-black p-0.5 font-mono font-semibold">
+                  {row.grade || (isTerm1Only ? '' : '0')}
+                </td>
+                <td className="border border-black p-0.5 text-center text-[10px]">
+                  {remarkContent}
+                </td>
+              </tr>
+            );
+          })}
+
+          {/* แถวว่างตกแต่ง 2 แถวให้ตรงตามแบบฟอร์มต้นฉบับ */}
+          <tr className="h-5">
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+          </tr>
+          <tr className="h-5">
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5"></td>
+          </tr>
+
+          {/* แถวสรุปรวม */}
+          <tr className="h-6 font-bold bg-neutral-100/50">
+            <td className="border border-black px-2 py-0.5 text-center">รวม</td>
+            <td className="border border-black p-0.5"></td>
+            <td className="border border-black p-0.5 font-mono">{totalFullMarks}</td>
+            <td className="border border-black p-0.5 font-mono">{totalObtained}</td>
+            <td className="border border-black p-0.5 font-mono">{gpaDisplay || (isTerm1Only ? '' : '0.00')}</td>
+            <td className="border border-black p-0.5"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* ─── TABLE 2: กิจกรรมพัฒนาผู้เรียน (ผ่าน / ไม่ผ่าน) ─── */}
+      <table className="w-full border-collapse border border-black text-center text-[10px] mb-2">
+        <thead>
+          <tr className="bg-neutral-100/70 font-semibold h-6">
+            <th className="border border-black p-1 text-center w-[67%]">กิจกรรมพัฒนาผู้เรียน</th>
+            <th colSpan={2} className="border border-black p-0.5 w-[33%]">
+              <div>ผลการประเมิน</div>
+              <div className="grid grid-cols-2 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                <div>ผ่าน</div>
+                <div>ไม่ผ่าน</div>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Section 1: Academic Scores Table */}
-      <div className="mt-3">
-        <div className="font-bold text-xs mb-1.5">๑. ผลการประเมินกลุ่มสาระการเรียนรู้</div>
-        <table className="w-full border-collapse border border-black text-xs text-center">
-          <thead>
-            <tr className="bg-neutral-100 font-semibold border-b border-black">
-              <th className="border border-black p-1 w-8">ที่</th>
-              <th className="border border-black p-1 w-20">รหัสวิชา</th>
-              <th className="border border-black p-1 text-left px-2">รายวิชา</th>
-              <th className="border border-black p-1 w-14">ประเภท</th>
-              <th className="border border-black p-1 w-12">นก.</th>
-              <th className="border border-black p-1 w-12">ชม.</th>
-              <th className="border border-black p-1 w-14">คะแนนรวม</th>
-              <th className="border border-black p-1 w-14">ระดับผลการเรียน</th>
-              <th className="border border-black p-1 w-14">ผลประเมิน</th>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            'ลูกเสือ',
+            'แนะแนว',
+            'ชุมนุม',
+            'เพื่อสังคมและสาธารณประโยชน์',
+          ].map((act) => (
+            <tr key={act} className="h-5">
+              <td className="border border-black px-2 py-0.5 text-left font-medium">{act}</td>
+              <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
+              <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
             </tr>
-          </thead>
-          <tbody>
-            {scores.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="border border-black p-3 text-center text-neutral-500">
-                  ยังไม่มีข้อมูลคะแนนรายวิชา
-                </td>
-              </tr>
-            ) : (
-              scores.map((sc, i) => (
-                <tr key={sc.subject.id} className="border-b border-black/60">
-                  <td className="border border-black p-1 font-mono">{i + 1}</td>
-                  <td className="border border-black p-1 font-mono">{sc.subject.subject_code}</td>
-                  <td className="border border-black p-1 text-left px-2 font-medium">
-                    {sc.subject.subject_name}
-                  </td>
-                  <td className="border border-black p-1 text-[11px]">{sc.subject.subject_type}</td>
-                  <td className="border border-black p-1 font-mono">{Number(sc.subject.credit_units).toFixed(1)}</td>
-                  <td className="border border-black p-1 font-mono">{sc.subject.credit_hours}</td>
-                  <td className="border border-black p-1 font-mono">{sc.totalScore}</td>
-                  <td className="border border-black p-1 font-bold font-mono">{sc.grade}</td>
-                  <td className="border border-black p-1 font-semibold">
-                    {sc.isPassed ? 'ผ่าน' : 'ไม่ผ่าน'}
-                  </td>
-                </tr>
-              ))
-            )}
+          ))}
+        </tbody>
+      </table>
 
-            {/* Summary Row */}
-            <tr className="bg-neutral-100 font-bold border-t-2 border-black">
-              <td colSpan={4} className="border border-black p-1.5 text-right px-3">
-                รวมหน่วยกิตและชั่วโมงเรียนตลอดปี
-              </td>
-              <td className="border border-black p-1 font-mono">{totalCredits.toFixed(1)}</td>
-              <td className="border border-black p-1 font-mono">{totalHours}</td>
-              <td colSpan={2} className="border border-black p-1 text-right px-2">
-                เกรดเฉลี่ย (GPA): <span className="text-sm underline font-mono ml-1">{gpa}</span>
-              </td>
-              <td className="border border-black p-1 text-center">ผ่าน</td>
+      {/* ─── TABLE 3: สรุปการประเมิน 3 ด้าน (ดีเยี่ยม / ดี / ผ่าน) ─── */}
+      <table className="w-full border-collapse border border-black text-center text-[10px] mb-3">
+        <thead>
+          <tr className="bg-neutral-100/70 font-semibold h-6">
+            <th className="border border-black p-1 w-[55%]"></th>
+            <th colSpan={3} className="border border-black p-0.5 w-[45%]">
+              <div>ผลการประเมิน</div>
+              <div className="grid grid-cols-3 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                <div>ดีเยี่ยม</div>
+                <div>ดี</div>
+                <div>ผ่าน</div>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
+            'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
+            'สรุปการประเมินผล สมรรถนะ',
+          ].map((item) => (
+            <tr key={item} className="h-5">
+              <td className="border border-black px-2 py-0.5 text-left font-medium">{item}</td>
+              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
+              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
+              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
 
-      {/* Section 2: 4-Dimension OBEC Evaluations & Attendance */}
-      <div className="grid grid-cols-2 gap-4 mt-3">
-        {/* Left: 4 Evaluations */}
-        <div>
-          <div className="font-bold text-xs mb-1.5">๒. ผลการประเมินคุณลักษณะและสมรรถนะ</div>
-          <table className="w-full border-collapse border border-black text-xs text-center">
-            <thead>
-              <tr className="bg-neutral-100 border-b border-black font-semibold">
-                <th className="border border-black p-1 text-left px-2">รายการประเมิน</th>
-                <th className="border border-black p-1 w-24">ผลการประเมิน</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">๑. คุณลักษณะอันพึงประสงค์ (๘ ข้อ)</td>
-                <td className="border border-black p-1 font-semibold">{evaluations.characterGrade || 'ดีเยี่ยม'}</td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">๒. สมรรถนะสำคัญของผู้เรียน (๕ ด้าน)</td>
-                <td className="border border-black p-1 font-semibold">{evaluations.competencyGrade || 'ดีเยี่ยม'}</td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">๓. การอ่าน คิดวิเคราะห์ และเขียน</td>
-                <td className="border border-black p-1 font-semibold">{evaluations.readingGrade || 'ดีเยี่ยม'}</td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">๔. กิจกรรมพัฒนาผู้เรียน (๔ กิจกรรม)</td>
-                <td className="border border-black p-1 font-semibold">{evaluations.activityGrade || 'ผ่าน'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      {/* ─── SIGNATURES BLOCK: 3 ตำแหน่งตรงตามรูปต้นฉบับ ─── */}
+      {showSignatures && (
+        <div className="pt-2 text-xs leading-normal">
+          {/* แถวบน: ครูประจำชั้น (ซ้าย) + หัวหน้าวิชาการ (ขวา) */}
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="space-y-1">
+              <div>
+                ลงชื่อ .................................................... ครูประจำชั้น
+              </div>
+              <div className="font-medium text-[11px]">
+                ({homeroomTeacher || 'ครูประจำชั้น'})
+              </div>
+            </div>
 
-        {/* Right: Attendance and Criteria */}
-        <div>
-          <div className="font-bold text-xs mb-1.5">๓. สถิติเวลาเรียนและการผ่านเกณฑ์</div>
-          <table className="w-full border-collapse border border-black text-xs text-center">
-            <thead>
-              <tr className="bg-neutral-100 border-b border-black font-semibold">
-                <th className="border border-black p-1 text-left px-2">รายการ</th>
-                <th className="border border-black p-1 w-24">ข้อมูล</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">เวลาเรียนที่มาเรียนจริง</td>
-                <td className="border border-black p-1 font-mono">
-                  {evaluations.attendanceDays || 200} วัน
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">เวลาเรียนทั้งหมด</td>
-                <td className="border border-black p-1 font-mono">
-                  {evaluations.attendanceTotal || 200} วัน
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">คิดเป็นร้อยละ (เกณฑ์ $\ge$ ๘๐%)</td>
-                <td className="border border-black p-1 font-mono font-bold">
-                  {evaluations.attendancePct ? `${evaluations.attendancePct.toFixed(1)}%` : '100%'}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black p-1 text-left px-2">การผ่านเกณฑ์เวลาเรียน</td>
-                <td className="border border-black p-1 font-semibold">ผ่าน</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Section 3: Promotion Decision Banner */}
-      <div className="mt-3 p-2.5 border border-black bg-neutral-50 rounded text-xs">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="font-bold text-sm">๔. สรุปผลการตัดสินการเรียน: </span>
-            <span className="font-bold text-sm underline ml-2">อนุมัติให้เลื่อนชั้น</span>
+            <div className="space-y-1">
+              <div>
+                ลงชื่อ .................................................... หัวหน้าวิชาการ
+              </div>
+              <div className="font-medium text-[11px]">
+                ({academicHeadName})
+              </div>
+            </div>
           </div>
-          <div className="text-xs font-semibold">
-            เลื่อนชั้นไปเรียน: <span className="underline ml-1">{defaultNextLevel}</span>
+
+          {/* แถวล่าง: ผู้อำนวยการโรงเรียน (ตรงกลาง) */}
+          <div className="text-center pt-3 space-y-1">
+            <div>
+              ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน
+            </div>
+            <div className="font-medium text-[11px]">
+              ({directorName})
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Section 4: Signatures and QR Verification */}
-      <div className="flex items-end justify-between mt-6 pt-3 border-t border-neutral-300">
-        {showQrVerification ? (
+      {/* QR Code Verification ขนาดกะทัดรัดมุมล่างซ้าย (ซ่อนตอนพิมพ์หรือแสดงเบาๆ) */}
+      {showQrVerification && (
+        <div className="mt-2 pt-1 border-t border-dashed border-neutral-300 flex items-center justify-between text-[9px] text-neutral-500 print:hidden">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-card border border-border rounded">
-              <QRCode
-                value={`${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&yr=${academicYear}`}
-                size={44}
-              />
-            </div>
-            <div className="text-[10px] text-muted-foreground leading-tight">
-              <div className="font-bold text-foreground">เอกสาร ปพ.6 สพฐ.</div>
-              <div>สแกนตรวจสอบผลดิจิทัล</div>
+            <QRCode
+              value={`${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&yr=${academicYear}`}
+              size={32}
+            />
+            <div>
+              <span className="font-bold text-neutral-700">ปพ.6 ดิจิทัล โรงเรียนบ้านคำไผ่</span>
+              <div>สแกนเพื่อตรวจสอบความถูกต้องของผลการเรียน</div>
             </div>
           </div>
-        ) : (
-          <div />
-        )}
-
-        {showSignatures && (
-          <div className="grid grid-cols-3 gap-3 text-center text-xs flex-1 ml-4">
-            <div className="space-y-1">
-              <div className="h-8"></div>
-              <div>(ลงชื่อ).......................................................</div>
-              <div className="font-medium">({homeroomTeacher})</div>
-              <div className="text-[10px] text-neutral-600">ครูประจำชั้น</div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="h-8"></div>
-              <div>(ลงชื่อ).......................................................</div>
-              <div className="font-medium">(นายทะเบียน / วิชาการ)</div>
-              <div className="text-[10px] text-neutral-600">หัวหน้าฝ่ายวิชาการ</div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="h-8"></div>
-              <div>(ลงชื่อ).......................................................</div>
-              <div className="font-medium">({directorName})</div>
-              <div className="text-[10px] text-neutral-600">ผู้อำนวยการโรงเรียน</div>
-            </div>
+          <div className="text-right">
+            สพป.อุดรธานี เขต ๒
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

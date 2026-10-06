@@ -31,7 +31,7 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
   studentRows,
   schoolName = 'โรงเรียนบ้านคำไผ่',
   homeroomTeacher = 'ครูประจำชั้น',
-  directorName = 'ผู้อำนวยการโรงเรียนบ้านคำไผ่',
+  directorName = 'นายสมพิศ แรงน้อย',
 }) => {
   // Calculate grade distribution statistics per subject
   const gradeLevels = ['4', '3.5', '3', '2.5', '2', '1.5', '1', '0'];
@@ -55,7 +55,14 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
   return (
     <div className="printable-class-summary bg-card text-foreground font-sans p-6 max-w-[297mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[11px] leading-tight">
       {/* Header */}
-      <div className="text-center pb-2 border-b-2 border-black space-y-0.5">
+      <div className="text-center pb-2 border-b-2 border-black space-y-0.5 relative">
+        <div className="absolute left-0 top-0 hidden md:block print:block">
+          <img
+            src="/logos/school-logo.webp"
+            alt="ตราประจำโรงเรียนบ้านคำไผ่"
+            className="w-12 h-12 object-contain"
+          />
+        </div>
         <div className="font-bold text-base">
           แบบรายงานสรุปผลการประเมินการเรียนรู้ประจำชั้นเรียน (ปพ.๕-ป)
         </div>
@@ -63,7 +70,7 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
           {schoolName} ชั้น {selectedClass} ปีการศึกษา {academicYear}
         </div>
         <div className="text-[10px] text-neutral-800">
-          สำนักงานเขตพื้นที่การศึกษาประถมศึกษายโสธร เขต 1 · หลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน พ.ศ. 2551 (ฉบับปรับปรุง 2560)
+          สำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒ · หลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน พ.ศ. 2551 (ฉบับปรับปรุง 2560)
         </div>
       </div>
 

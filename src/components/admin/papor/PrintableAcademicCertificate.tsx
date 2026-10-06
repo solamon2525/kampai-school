@@ -33,7 +33,7 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
   scores,
   evaluations,
   schoolName = 'โรงเรียนบ้านคำไผ่',
-  directorName = 'ผู้อำนวยการโรงเรียนบ้านคำไผ่',
+  directorName = 'นายสมพิศ แรงน้อย',
   certificateNumber = `คภ. ${academicYear}/๐๐๑`,
   issueDate = '๓๑ มีนาคม ๒๕๖๘',
   showSchoolCrest = true,
@@ -60,18 +60,20 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
           <div>ที่ ศธ ๐๔๑๐๔.๒๗ / {certificateNumber}</div>
         </div>
 
-        {/* Center: School Crest / Garuda representation */}
+        {/* Center: School Crest */}
         {showSchoolCrest && (
           <div className="text-center flex flex-col items-center">
-            <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center font-bold text-xs p-1 mb-1 bg-amber-50 print:bg-transparent">
-              <span className="text-[10px] text-center leading-tight">ตราประจำ<br />โรงเรียน</span>
-            </div>
+            <img
+              src="/logos/school-logo.webp"
+              alt="ตราประจำโรงเรียนบ้านคำไผ่"
+              className="w-16 h-16 object-contain mb-1"
+            />
           </div>
         )}
 
         <div className="text-xs text-right space-y-0.5">
           <div>{schoolName}</div>
-          <div>ต.คำไผ่ อ.ไทยเจริญ จ.ยโสธร ๓๕๑๒๐</div>
+          <div>๑๕๙ หมู่ ๗ ต.เวียงคำ อ.กุมภวาปี จ.อุดรธานี ๔๑๑๑๐</div>
           <div>วันที่ {issueDate}</div>
         </div>
       </div>
@@ -82,7 +84,7 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
           ใบรับรองผลการศึกษาและสภาพการเป็นนักเรียน (ปพ.๗)
         </div>
         <div className="text-xs text-neutral-700">
-          สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษายโสธร เขต ๑
+          สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
         </div>
       </div>
 
