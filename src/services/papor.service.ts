@@ -206,4 +206,31 @@ export const paporService = {
       .order('class_number');
     return data ?? [];
   },
+
+  /** Aggregate full yearly data for ปพ.6 (Term 1 + Term 2 + 4 Dimensions + Promotion) */
+  async forStudentYear(studentId: string, academicYear: string) {
+    const [t1, t2, evalsRes, promoRes] = await Promise.all([
+      this.forStudentTerm(studentId, academicYear, '1'),
+      this.forStudentTerm(studentId, academicYear, '2'),
+      supabase
+        .from('student_obec_evaluations')
+        .select('*')
+        .eq('student_id', studentId)
+        .eq('academic_year', academicYear),
+      supabase
+        .from('student_term_promotion_records')
+        .select('*')
+        .eq('student_id', studentId)
+        .eq('academic_year', academicYear)
+        .maybeSingle(),
+    ]);
+
+    return {
+      term1: t1,
+      term2: t2,
+      evaluations: evalsRes.data || [],
+      promotion: promoRes.data || null,
+    };
+  },
 };
+

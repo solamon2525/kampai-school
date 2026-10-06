@@ -36,3 +36,5 @@ export * from './exam.service';
 export * from './omr-scanner.service';
 export * from './reading-bank.service';
 export * from './student-pet.service';
+export * from './papor.service';
+export * from './papor-evaluation.service';

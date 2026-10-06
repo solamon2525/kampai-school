@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       academic_calendar: {
@@ -8136,6 +8111,83 @@ export type Database = {
           },
         ]
       }
+      student_obec_evaluations: {
+        Row: {
+          academic_year: string
+          category_key: string
+          created_at: string | null
+          evaluated_by: string | null
+          evaluation_type: string
+          id: string
+          item_key: string | null
+          notes: string | null
+          score: number | null
+          semester: string
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year: string
+          category_key: string
+          created_at?: string | null
+          evaluated_by?: string | null
+          evaluation_type: string
+          id?: string
+          item_key?: string | null
+          notes?: string | null
+          score?: number | null
+          semester?: string
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year?: string
+          category_key?: string
+          created_at?: string | null
+          evaluated_by?: string | null
+          evaluation_type?: string
+          id?: string
+          item_key?: string | null
+          notes?: string | null
+          score?: number | null
+          semester?: string
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_obec_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "reading_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_obec_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_obec_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_obec_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       student_pet_wallets: {
         Row: {
           balance: number
@@ -8426,6 +8478,110 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      student_term_promotion_records: {
+        Row: {
+          academic_pass: boolean | null
+          academic_year: string
+          activities_status: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          attendance_percent: number | null
+          attendance_status: boolean | null
+          character_grade: string | null
+          competency_grade: string | null
+          created_at: string | null
+          gpa: number | null
+          id: string
+          indicator_status: boolean | null
+          parent_comment: string | null
+          promoted_to_level: string | null
+          promotion_decision: string | null
+          reading_grade: string | null
+          retained_reason: string | null
+          student_id: string
+          teacher_comment_term1: string | null
+          teacher_comment_term2: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_pass?: boolean | null
+          academic_year: string
+          activities_status?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          attendance_percent?: number | null
+          attendance_status?: boolean | null
+          character_grade?: string | null
+          competency_grade?: string | null
+          created_at?: string | null
+          gpa?: number | null
+          id?: string
+          indicator_status?: boolean | null
+          parent_comment?: string | null
+          promoted_to_level?: string | null
+          promotion_decision?: string | null
+          reading_grade?: string | null
+          retained_reason?: string | null
+          student_id: string
+          teacher_comment_term1?: string | null
+          teacher_comment_term2?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_pass?: boolean | null
+          academic_year?: string
+          activities_status?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          attendance_percent?: number | null
+          attendance_status?: boolean | null
+          character_grade?: string | null
+          competency_grade?: string | null
+          created_at?: string | null
+          gpa?: number | null
+          id?: string
+          indicator_status?: boolean | null
+          parent_comment?: string | null
+          promoted_to_level?: string | null
+          promotion_decision?: string | null
+          reading_grade?: string | null
+          retained_reason?: string | null
+          student_id?: string
+          teacher_comment_term1?: string | null
+          teacher_comment_term2?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_term_promotion_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "reading_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_term_promotion_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_term_promotion_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_term_promotion_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
       }
       student_vaccinations: {
         Row: {
@@ -10646,6 +10802,21 @@ export type Database = {
         Args: { p_student_code: string }
         Returns: Json
       }
+      get_public_media_catalog: {
+        Args: { p_subject?: string }
+        Returns: {
+          created_at: string
+          description: string
+          external_url: string
+          grade_levels: string[]
+          id: string
+          sort_order: number
+          subject: string
+          thumbnail_url: string
+          title: string
+          view_count: number
+        }[]
+      }
       get_public_reading_leaderboard: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -11448,9 +11619,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       classroom_competition_device_status: [
