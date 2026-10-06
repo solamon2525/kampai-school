@@ -57,6 +57,7 @@ function assert(condition, message) {
 console.log('\n[1/4] ตรวจสอบไฟล์คอมโพเนนต์และ Migration...');
 const filesToCheck = [
   'supabase/migrations/575_teacher_class_assignments.sql',
+  'supabase/migrations/576_fix_homeroom_assignments.sql',
   'src/services/teacher-class-assignment.service.ts',
   'src/components/admin/papor/TeacherClassAssignmentManager.tsx',
   'src/components/admin/papor/PaporGenerator.tsx',
@@ -162,16 +163,29 @@ async function verifyDatabase() {
       );
     }
 
-    const p5 = assignments.find((a) => a.class_name === 'ป.5');
-    if (p5 && p5.teacher_id) {
-      const singleGradeTeacherId = p5.teacher_id;
+    const p3 = assignments.find((a) => a.class_name === 'ป.3');
+    if (p3 && p3.teacher_id) {
+      const p3TeacherId = p3.teacher_id;
       const teacherAssigned = assignments
-        .filter((a) => a.teacher_id === singleGradeTeacherId)
+        .filter((a) => a.teacher_id === p3TeacherId)
         .map((a) => a.class_name);
 
       assert(
-        teacherAssigned.length === 1 && teacherAssigned[0] === 'ป.5',
-        `ครูประจำชั้นเดี่ยว (${p5.teacher?.name}) ได้รับเฉพาะห้อง: [${teacherAssigned.join(', ')}]`
+        teacherAssigned.length === 2 && teacherAssigned.includes('ป.3') && teacherAssigned.includes('ป.4'),
+        `ครูสอนควบ (${p3.teacher?.name}) ได้รับเฉพาะห้อง: [${teacherAssigned.join(', ')}]`
+      );
+    }
+
+    const p5 = assignments.find((a) => a.class_name === 'ป.5');
+    if (p5 && p5.teacher_id) {
+      const p5TeacherId = p5.teacher_id;
+      const teacherAssigned = assignments
+        .filter((a) => a.teacher_id === p5TeacherId)
+        .map((a) => a.class_name);
+
+      assert(
+        teacherAssigned.length === 2 && teacherAssigned.includes('ป.5') && teacherAssigned.includes('ป.6'),
+        `ครูสอนควบ (${p5.teacher?.name}) ได้รับเฉพาะห้อง: [${teacherAssigned.join(', ')}]`
       );
     }
   } catch (err) {

@@ -1,12 +1,15 @@
 /**
  * TeacherClassAssignmentManager.tsx
- * แผงบริหารจัดการมอบหมายครูประจำชั้นและครูสอนควบ (Admin Homeroom Management)
+ * แผงบริหารจัดการมอบหมายครูประจำชั้นและครูสอนควบ (Admin Homeroom & Multi-Grade Management)
  * - แสดงภาพรวมการจัดครูประจำชั้นระดับประถมศึกษา (ป.1 - ป.6)
- * - รองรับกรณีครู 1 คน สอนควบหลายชั้นเรียน (Multi-Grade Teaching)
+ * - รองรับกรณีครู 1 คน สอนควบหลายชั้นเรียน (Multi-Grade Teaching เช่น ป.1-2, ป.3-4, ป.5-6)
+ * - ป้ายสถานะสอนควบคำนวณและแสดงผลอัตโนมัติ ไม่ขัดแย้งกับแบนเนอร์ (Zero Contradictory State)
+ * - ป้องกันการเกิดแถวซ้ำซ้อนในฐานข้อมูล (Clean Overwrite & Unique Primary Homeroom)
+ * - หน้าต่าง Modal รองรับการเลือกหลายห้องเรียนพร้อมกัน (Multi-Class Selection)
  * - เชื่อมโยงรูปภาพและชื่อครูผ่าน <PersonAvatar> ตาม DESIGN.md Rule 14.13
- * - ปรับเปลี่ยน มอบหมาย และยกเลิกการมอบหมายได้แบบเรียลไทม์
+ * - มีเครื่องมือ 1-Click Auto-Pair Multi-Grade และ 1-Click Clean & Sync
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { cn } from '@/lib/utils';
 import {
@@ -30,6 +32,9 @@ import {
   Loader2,
   Calendar,
   Sparkles,
+  RefreshCw,
+  Info,
+  Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { staffService } from '@/services/staff.service';
@@ -45,6 +50,12 @@ interface Props {
 
 const PRIMARY_CLASSES = ['ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
+const MULTI_GRADE_PRESETS = [
+  { label: 'ป.1 ควบ ป.2', classes: ['ป.1', 'ป.2'] },
+  { label: 'ป.3 ควบ ป.4', classes: ['ป.3', 'ป.4'] },
+  { label: 'ป.5 ควบ ป.6', classes: ['ป.5', 'ป.6'] },
+];
+
 export const TeacherClassAssignmentManager: React.FC<Props> = ({
   academicYear = '2568',
 }) => {
@@ -59,10 +70,9 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
     }
   }, [academicYear]);
 
-  // Form State
-  const [targetClass, setTargetClass] = useState<string>('ป.1');
+  // Form State for Dialog
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
-  const [isMultiGrade, setIsMultiGrade] = useState<boolean>(false);
+  const [selectedClasses, setSelectedClasses] = useState<string[]>(['ป.1']);
   const [notes, setNotes] = useState<string>('');
 
   // 1. Fetch Assignments
@@ -73,38 +83,92 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
   });
 
   // 2. Fetch Teachers
-  const { data: teachers = [], isLoading: loadingTeachers } = useQuery({
+  const { data: teachers = [] } = useQuery({
     queryKey: ['staff-teachers'],
     queryFn: async () => {
       const res = await staffService.getTeachers();
-      return (res.data as any[]) || [];
+      const list = (res.data as any[]) || [];
+      return list.map((t) => ({
+        ...t,
+        name: (t.name || '').trim(),
+      }));
     },
     staleTime: 60_000,
   });
 
-  // Save Mutation
+  // Map assignments by class name (1 class -> 1 assignment)
+  const assignmentByClass = useMemo(() => {
+    const map: Record<string, TeacherClassAssignmentRow> = {};
+    assignments.forEach((a) => {
+      map[a.class_name] = a;
+    });
+    return map;
+  }, [assignments]);
+
+  // Map classes assigned to each teacher: teacher_id -> string[]
+  const classesByTeacherId = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    assignments.forEach((a) => {
+      if (!map[a.teacher_id]) map[a.teacher_id] = [];
+      if (!map[a.teacher_id].includes(a.class_name)) {
+        map[a.teacher_id].push(a.class_name);
+      }
+    });
+    return map;
+  }, [assignments]);
+
+  // Teachers teaching multiple classes (Distinct and accurate)
+  const multiGradeTeachers = useMemo(() => {
+    const map: Record<string, { teacherName: string; photoUrl: string | null; classes: string[] }> = {};
+    assignments.forEach((a) => {
+      const name = a.teacher?.name || 'ไม่ทราบชื่อ';
+      if (!map[a.teacher_id]) {
+        map[a.teacher_id] = {
+          teacherName: name,
+          photoUrl: a.teacher?.photo_url || null,
+          classes: [],
+        };
+      }
+      if (!map[a.teacher_id].classes.includes(a.class_name)) {
+        map[a.teacher_id].classes.push(a.class_name);
+      }
+    });
+
+    return Object.values(map)
+      .filter((t) => t.classes.length > 1)
+      .map((t) => ({
+        ...t,
+        classes: t.classes.sort(),
+      }));
+  }, [assignments]);
+
+  // Helper to invalidate queries after changes
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['teacher-class-assignments'] });
+    queryClient.invalidateQueries({ queryKey: ['papor-homeroom-teacher'] });
+    queryClient.invalidateQueries({ queryKey: ['class-homeroom-teacher'] });
+    queryClient.invalidateQueries({ queryKey: ['teacher-assigned-classes'] });
+  };
+
+  // Save Mutation (Multi-Class Support & Safe Overwrite)
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!targetClass || !selectedTeacherId) {
-        throw new Error('กรุณาเลือกระดับชั้นและครูผู้สอน');
+      if (!selectedTeacherId || selectedClasses.length === 0) {
+        throw new Error('กรุณาเลือกคุณครูและระดับชั้นเรียนอย่างน้อย 1 ห้อง');
       }
-      await teacherClassAssignmentService.assignTeacher({
+
+      await teacherClassAssignmentService.assignMultiGrade({
         academic_year: selectedYear,
-        class_name: targetClass,
         teacher_id: selectedTeacherId,
-        is_primary_homeroom: true,
-        is_multi_grade: isMultiGrade,
+        class_names: selectedClasses,
         notes: notes.trim() || undefined,
       });
     },
     onSuccess: () => {
-      toast.success(`บันทึกครูประจำชั้น ${targetClass} เรียบร้อยแล้ว`);
+      toast.success(`บันทึกการมอบหมายชั้นเรียน (${selectedClasses.join(', ')}) เรียบร้อยแล้ว`);
       setIsDialogOpen(false);
       resetForm();
-      queryClient.invalidateQueries({ queryKey: ['teacher-class-assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['papor-homeroom-teacher'] });
-      queryClient.invalidateQueries({ queryKey: ['class-homeroom-teacher'] });
-      queryClient.invalidateQueries({ queryKey: ['teacher-assigned-classes'] });
+      invalidateAll();
     },
     onError: (err: any) => {
       toast.error(err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
@@ -113,77 +177,116 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
 
   // Delete Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (assignmentId: string) => {
-      await teacherClassAssignmentService.removeAssignment(assignmentId);
+    mutationFn: async ({ id, className }: { id: string; className: string }) => {
+      await teacherClassAssignmentService.removeAssignment(id, selectedYear);
     },
     onSuccess: () => {
       toast.success('ยกเลิกการมอบหมายเรียบร้อยแล้ว');
-      queryClient.invalidateQueries({ queryKey: ['teacher-class-assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['papor-homeroom-teacher'] });
-      queryClient.invalidateQueries({ queryKey: ['class-homeroom-teacher'] });
-      queryClient.invalidateQueries({ queryKey: ['teacher-assigned-classes'] });
+      invalidateAll();
     },
     onError: (err: any) => {
       toast.error(err.message || 'เกิดข้อผิดพลาดในการยกเลิก');
     },
   });
 
+  // 1-Click Standard Preset Mutation
+  const applyStandardMutation = useMutation({
+    mutationFn: async () => {
+      await teacherClassAssignmentService.applyStandardPreset(selectedYear);
+    },
+    onSuccess: () => {
+      toast.success('จัดโครงสร้างครูสอนควบมาตรฐาน 3 คู่ (ป.1-2, ป.3-4, ป.5-6) สำเร็จแล้ว');
+      invalidateAll();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'เกิดข้อผิดพลาดในการจัดโครงสร้างมาตรฐาน');
+    },
+  });
+
+  // 1-Click Auto-Sync Mutation
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      await teacherClassAssignmentService.syncMultiGradeFlags(selectedYear);
+    },
+    onSuccess: () => {
+      toast.success('จัดระเบียบข้อมูลและสถานะสอนควบเรียบร้อยแล้ว');
+      invalidateAll();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'เกิดข้อผิดพลาดในการจัดระเบียบข้อมูล');
+    },
+  });
+
   const resetForm = () => {
     setEditingAssignment(null);
-    setTargetClass('ป.1');
     setSelectedTeacherId('');
-    setIsMultiGrade(false);
+    setSelectedClasses(['ป.1']);
     setNotes('');
   };
 
   const handleOpenAdd = (className?: string) => {
     resetForm();
     if (className) {
-      setTargetClass(className);
+      setSelectedClasses([className]);
     }
     setIsDialogOpen(true);
   };
 
   const handleOpenEdit = (assignment: TeacherClassAssignmentRow) => {
     setEditingAssignment(assignment);
-    setTargetClass(assignment.class_name);
     setSelectedTeacherId(assignment.teacher_id);
-    setIsMultiGrade(assignment.is_multi_grade);
+
+    // If teacher already teaches multiple classes, pre-select all classes of this teacher
+    const teacherClasses = classesByTeacherId[assignment.teacher_id] || [assignment.class_name];
+    setSelectedClasses(teacherClasses);
+
     setNotes(assignment.notes || '');
     setIsDialogOpen(true);
   };
 
-  // Map assignments by class name
-  const assignmentByClass = React.useMemo(() => {
-    const map: Record<string, TeacherClassAssignmentRow> = {};
-    assignments.forEach((a) => {
-      map[a.class_name] = a;
-    });
-    return map;
-  }, [assignments]);
-
-  // Teachers teaching multiple classes
-  const multiGradeTeachers = React.useMemo(() => {
-    const teacherMap: Record<string, { teacherName: string; classes: string[] }> = {};
-    assignments.forEach((a) => {
-      const name = a.teacher?.name || 'ไม่ทราบชื่อ';
-      if (!teacherMap[a.teacher_id]) {
-        teacherMap[a.teacher_id] = { teacherName: name, classes: [] };
+  const toggleClass = (cls: string) => {
+    setSelectedClasses((prev) => {
+      if (prev.includes(cls)) {
+        if (prev.length === 1) return prev; // Keep at least one class
+        return prev.filter((c) => c !== cls);
+      } else {
+        return [...prev, cls].sort();
       }
-      teacherMap[a.teacher_id].classes.push(a.class_name);
     });
+  };
 
-    return Object.values(teacherMap).filter((t) => t.classes.length > 1);
-  }, [assignments]);
+  const applyClassPreset = (presetClasses: string[]) => {
+    setSelectedClasses(presetClasses);
+  };
+
+  // Check if any selected class currently belongs to another teacher
+  const conflictingClasses = useMemo(() => {
+    if (!selectedTeacherId) return [];
+    return selectedClasses
+      .map((cls) => {
+        const existing = assignmentByClass[cls];
+        if (existing && existing.teacher_id !== selectedTeacherId) {
+          return {
+            className: cls,
+            currentTeacherName: existing.teacher?.name || 'ครูท่านอื่น',
+          };
+        }
+        return null;
+      })
+      .filter(Boolean) as Array<{ className: string; currentTeacherName: string }>;
+  }, [selectedClasses, selectedTeacherId, assignmentByClass]);
+
+  // Count assigned classes
+  const assignedCount = Object.keys(assignmentByClass).length;
 
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <Card className="border-border bg-card">
+      <Card className="border-border bg-card shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <GraduationCap className="w-5 h-5 text-primary" />
                 <CardTitle className="text-xl">
                   ระบบจัดครูประจำชั้นและครูสอนควบ (Homeroom Management)
@@ -191,13 +294,24 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
                 <Badge variant="secondary" className="font-mono text-xs">
                   ปีการศึกษา {selectedYear}
                 </Badge>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'text-xs font-medium',
+                    assignedCount === 6
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  )}
+                >
+                  จัดแล้ว {assignedCount}/6 ห้องเรียน
+                </Badge>
               </div>
               <CardDescription className="mt-1">
-                กำหนดครูประจำชั้นสำหรับ ป.1 - ป.6 เพื่อควบคุมสิทธิ์การออกเกรดในพอร์ทัลครู และใส่ชื่อครูในใบ ปพ. อัตโนมัติ
+                กำหนดครูประจำชั้น ป.1 - ป.6 เพื่อควบคุมสิทธิ์การออกเกรดในพอร์ทัลครู และใส่ชื่อครูในใบ ปพ. อัตโนมัติ
               </CardDescription>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-md border border-border">
                 <Calendar className="w-3.5 h-3.5 text-muted-foreground ml-2" />
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -212,7 +326,40 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
                 </Select>
               </div>
 
-              <Button onClick={() => handleOpenAdd()} size="sm" className="gap-2 text-xs font-semibold">
+              {/* Sync Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => syncMutation.mutate()}
+                disabled={syncMutation.isPending}
+                className="gap-1.5 text-xs h-8 border-border hover:bg-muted"
+                title="จัดระเบียบข้อมูลและปรับสถานะสอนควบให้ตรงกับความเป็นจริง"
+              >
+                <RefreshCw className={cn('w-3.5 h-3.5', syncMutation.isPending && 'animate-spin')} />
+                <span className="hidden sm:inline">จัดระเบียบข้อมูล</span>
+              </Button>
+
+              {/* 1-Click Preset Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      'ยืนยันจัดโครงสร้างครูสอนควบมาตรฐาน 3 คู่ (ป.1-2, ป.3-4, ป.5-6)? ข้อมูลเดิมของปีนี้จะถูกจัดสรรตามมาตรฐานโรงเรียนขนาดเล็ก'
+                    )
+                  ) {
+                    applyStandardMutation.mutate();
+                  }
+                }}
+                disabled={applyStandardMutation.isPending}
+                className="gap-1.5 text-xs h-8 border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/60"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <span>จัดมาตรฐาน 3 คู่</span>
+              </Button>
+
+              <Button onClick={() => handleOpenAdd()} size="sm" className="gap-2 text-xs font-semibold h-8">
                 <Plus className="w-4 h-4" /> เพิ่มการมอบหมาย
               </Button>
             </div>
@@ -223,22 +370,24 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
       {/* Multi-Grade Teaching Notice Callout */}
       {multiGradeTeachers.length > 0 && (
         <Card className="border-indigo-200 bg-indigo-50/40">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+          <CardContent className="p-4 flex items-start sm:items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 mt-0.5 sm:mt-0">
               <Layers className="w-5 h-5" />
             </div>
-            <div className="text-xs text-indigo-950 space-y-0.5">
-              <div className="font-bold flex items-center gap-1.5">
+            <div className="text-xs text-indigo-950 space-y-1 flex-1">
+              <div className="font-bold flex items-center gap-2 flex-wrap">
                 <span>ครูผู้สอนควบชั้นเรียน (Multi-Grade Teaching)</span>
                 <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 text-[10px] py-0">
                   {multiGradeTeachers.length} ท่าน
                 </Badge>
               </div>
-              <p className="text-indigo-800/80">
-                {multiGradeTeachers
-                  .map((t) => `${t.teacherName} (สอนควบ ${t.classes.join(' และ ')})`)
-                  .join(' • ')}
-              </p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-indigo-800">
+                {multiGradeTeachers.map((t) => (
+                  <span key={t.teacherName} className="inline-flex items-center gap-1 font-medium">
+                    • <strong>{t.teacherName}</strong> (สอนควบ {t.classes.join(' และ ')})
+                  </span>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -256,189 +405,296 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
             const assignment = assignmentByClass[className];
             const teacher = assignment?.teacher;
 
+            // Compute multi-grade status dynamically based on current assignments
+            const teacherAssignedClasses = assignment
+              ? classesByTeacherId[assignment.teacher_id] || [assignment.class_name]
+              : [];
+            const isMultiGrade = teacherAssignedClasses.length > 1;
+            const siblingClasses = teacherAssignedClasses.filter((c) => c !== className);
+
+            // Intelligent note display
+            const displayNote = assignment?.notes
+              ? assignment.notes
+              : isMultiGrade
+              ? `สอนควบชั้น ${teacherAssignedClasses.sort().join(' และ ')}`
+              : `ครูประจำชั้น ${className}`;
+
             return (
               <Card
                 key={className}
                 className={cn(
-                  'border-border bg-card transition-all hover:shadow-md relative overflow-hidden',
+                  'border-border bg-card transition-all hover:shadow-md relative overflow-hidden flex flex-col justify-between',
                   !assignment && 'border-dashed border-amber-300/80 bg-amber-50/20'
                 )}
               >
-                {/* Accent Top Bar */}
-                <div
-                  className={cn(
-                    'h-1.5 w-full',
-                    assignment?.is_multi_grade
-                      ? 'bg-indigo-500'
-                      : assignment
-                      ? 'bg-primary'
-                      : 'bg-amber-400'
-                  )}
-                />
+                <div>
+                  {/* Accent Top Bar */}
+                  <div
+                    className={cn(
+                      'h-1.5 w-full',
+                      isMultiGrade ? 'bg-indigo-500' : assignment ? 'bg-primary' : 'bg-amber-400'
+                    )}
+                  />
 
-                <CardContent className="p-4 space-y-3">
-                  {/* Class Badge & Status */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-base text-foreground">ชั้น {className}</span>
-                      <span className="text-xs text-muted-foreground font-light">
-                        (ประถมศึกษาปีที่ {className.replace('ป.', '')})
-                      </span>
+                  <CardContent className="p-4 space-y-3">
+                    {/* Class Badge & Status */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-base text-foreground">ชั้น {className}</span>
+                        <span className="text-xs text-muted-foreground font-light">
+                          (ประถมศึกษาปีที่ {className.replace('ป.', '')})
+                        </span>
+                      </div>
+
+                      {assignment ? (
+                        isMultiGrade ? (
+                          <Badge
+                            variant="outline"
+                            className="text-indigo-700 bg-indigo-50 border-indigo-200 gap-1 text-[11px] font-semibold"
+                            title={`สอนควบร่วมกับห้อง ${siblingClasses.join(', ')}`}
+                          >
+                            <Layers className="w-3 h-3 text-indigo-600" /> สอนควบ ({teacherAssignedClasses.sort().join(', ')})
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="text-emerald-700 bg-emerald-50 border-emerald-200 gap-1 text-[11px] font-semibold"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ประจำชั้นหลัก
+                          </Badge>
+                        )
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-amber-700 bg-amber-50 border-amber-300 gap-1 text-[11px] font-semibold"
+                        >
+                          <AlertTriangle className="w-3 h-3 text-amber-600" /> ยังไม่จัดครู
+                        </Badge>
+                      )}
                     </div>
 
-                    {assignment ? (
-                      assignment.is_multi_grade ? (
-                        <Badge variant="outline" className="text-indigo-700 bg-indigo-50 border-indigo-200 gap-1 text-[11px]">
-                          <Layers className="w-3 h-3 text-indigo-600" /> สอนควบชั้น
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 gap-1 text-[11px]">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ประจำชั้นหลัก
-                        </Badge>
-                      )
-                    ) : (
-                      <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 gap-1 text-[11px]">
-                        <AlertTriangle className="w-3 h-3 text-amber-600" /> ยังไม่จัดครู
-                      </Badge>
-                    )}
-                  </div>
+                    {/* Teacher Profile / Empty State */}
+                    {assignment && teacher ? (
+                      <div className="p-3 bg-muted/40 rounded-lg border border-border flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <PersonAvatar
+                            name={teacher.name}
+                            photoUrl={teacher.photo_url}
+                            className="w-11 h-11 rounded-full border border-border shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <div className="font-bold text-sm text-foreground truncate">{teacher.name}</div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {teacher.position || 'ครูผู้สอน'}
+                            </div>
+                          </div>
+                        </div>
 
-                  {/* Teacher Profile / Empty State */}
-                  {assignment && teacher ? (
-                    <div className="p-3 bg-muted/40 rounded-lg border border-border flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <PersonAvatar
-                          name={teacher.name}
-                          photoUrl={teacher.photo_url}
-                          className="w-11 h-11 rounded-full border border-border shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <div className="font-bold text-sm text-foreground truncate">{teacher.name}</div>
-                          <div className="text-xs text-muted-foreground truncate">{teacher.position}</div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenEdit(assignment)}
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            title="แก้ไขการมอบหมาย"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              if (window.confirm(`ยืนยันยกเลิกครูประจำชั้น ${className}?`)) {
+                                deleteMutation.mutate({ id: assignment.id, className });
+                              }
+                            }}
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            title="ยกเลิกการมอบหมาย"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-1 shrink-0">
+                    ) : (
+                      <div className="p-4 border border-dashed border-border rounded-lg text-center space-y-2">
+                        <Users className="w-7 h-7 mx-auto text-muted-foreground/60" />
+                        <p className="text-xs text-muted-foreground">ยังไม่มีการระบุครูประจำชั้นสำหรับห้องนี้</p>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenEdit(assignment)}
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          title="แก้ไขการมอบหมาย"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenAdd(className)}
+                          className="text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10 h-7 font-medium"
                         >
-                          <Edit className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            if (window.confirm(`ยืนยันยกเลิกครูประจำชั้น ${className}?`)) {
-                              deleteMutation.mutate(assignment.id);
-                            }
-                          }}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          title="ยกเลิกการมอบหมาย"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Plus className="w-3 h-3" /> มอบหมายครูประจำชั้น
                         </Button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 border border-dashed border-border rounded-lg text-center space-y-2">
-                      <Users className="w-7 h-7 mx-auto text-muted-foreground/60" />
-                      <p className="text-xs text-muted-foreground">ยังไม่มีการระบุครูประจำชั้นสำหรับห้องนี้</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenAdd(className)}
-                        className="text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10 h-7"
-                      >
-                        <Plus className="w-3 h-3" /> มอบหมายครูประจำชั้น
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </CardContent>
+                </div>
 
-                  {/* Notes / Multi-grade info */}
-                  {assignment?.notes && (
-                    <div className="text-[11px] text-muted-foreground bg-muted/20 px-2.5 py-1.5 rounded border border-border/50">
-                      📝 {assignment.notes}
+                {/* Notes / Multi-grade info Footer */}
+                {assignment && (
+                  <div className="px-4 pb-3">
+                    <div
+                      className={cn(
+                        'text-[11px] px-2.5 py-1.5 rounded border truncate',
+                        isMultiGrade
+                          ? 'bg-indigo-50/50 text-indigo-900 border-indigo-100'
+                          : 'bg-muted/30 text-muted-foreground border-border/50'
+                      )}
+                    >
+                      📝 {displayNote}
                     </div>
-                  )}
-                </CardContent>
+                  </div>
+                )}
               </Card>
             );
           })}
         </div>
       )}
 
-      {/* Assignment Dialog */}
+      {/* Assignment Dialog (Modal) */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <GraduationCap className="w-5 h-5 text-primary" />
-              {editingAssignment ? `แก้ไขครูประจำชั้น ${targetClass}` : 'มอบหมายครูประจำชั้น'}
+              {editingAssignment
+                ? `แก้ไขการมอบหมายชั้นเรียน (${selectedClasses.join(', ')})`
+                : 'มอบหมายครูประจำชั้น / ครูสอนควบ'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-3 text-xs">
-            {/* Class Selector */}
-            <div className="space-y-1.5">
-              <Label className="text-xs">ระดับชั้นเรียน</Label>
-              <Select value={targetClass} onValueChange={setTargetClass}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue placeholder="เลือกระดับชั้น" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRIMARY_CLASSES.map((cls) => (
-                    <SelectItem key={cls} value={cls} className="text-xs">
-                      ชั้นประถมศึกษาปีที่ {cls.replace('ป.', '')} ({cls})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Teacher Selector */}
             <div className="space-y-1.5">
-              <Label className="text-xs">ครูผู้รับผิดชอบ</Label>
+              <Label className="text-xs font-semibold">1. เลือกคุณครูผู้รับผิดชอบ</Label>
               <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
-                <SelectTrigger className="h-9 text-xs">
+                <SelectTrigger className="h-10 text-xs">
                   <SelectValue placeholder="เลือกคุณครูในโรงเรียน" />
                 </SelectTrigger>
-                <SelectContent>
-                  {teachers.map((t) => (
-                    <SelectItem key={t.id} value={t.id} className="text-xs">
-                      {t.name} ({t.position || 'ครูผู้สอน'})
-                    </SelectItem>
-                  ))}
+                <SelectContent className="max-h-60">
+                  {teachers.map((t) => {
+                    const assigned = classesByTeacherId[t.id] || [];
+                    const statusText = assigned.length > 0 ? `(ปัจจุบันสอน: ${assigned.join(', ')})` : '';
+
+                    return (
+                      <SelectItem key={t.id} value={t.id} className="text-xs py-2">
+                        <div className="flex items-center gap-2">
+                          <PersonAvatar name={t.name} photoUrl={t.photo_url} className="w-5 h-5 rounded-full" />
+                          <span>{t.name}</span>
+                          <span className="text-muted-foreground font-light text-[11px]">
+                            {t.position || 'ครูผู้สอน'} {statusText}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Multi-Grade Checkbox */}
-            <div className="flex items-start space-x-2 pt-2">
-              <Checkbox
-                id="multigrade-check"
-                checked={isMultiGrade}
-                onCheckedChange={(checked) => setIsMultiGrade(Boolean(checked))}
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <Label htmlFor="multigrade-check" className="text-xs font-semibold cursor-pointer">
-                  สอนควบชั้นเรียน (Multi-Grade Teaching)
-                </Label>
-                <p className="text-[11px] text-muted-foreground">
-                  ติ๊กตัวเลือกนี้หากคุณครูสอนควบมากกว่า 1 ชั้นเรียน (เช่น สอนควบ ป.1 และ ป.2)
-                </p>
+            {/* Multi-Class Selector */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">2. เลือกระดับชั้นเรียนที่รับผิดชอบ</Label>
+                <span className="text-[11px] text-muted-foreground">
+                  (เลือกได้มากกว่า 1 ห้อง สำหรับกรณีสอนควบ)
+                </span>
+              </div>
+
+              {/* Class Chips */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {PRIMARY_CLASSES.map((cls) => {
+                  const isSelected = selectedClasses.includes(cls);
+                  const existingAssignment = assignmentByClass[cls];
+                  const hasOtherTeacher =
+                    existingAssignment && existingAssignment.teacher_id !== selectedTeacherId;
+
+                  return (
+                    <button
+                      type="button"
+                      key={cls}
+                      onClick={() => toggleClass(cls)}
+                      className={cn(
+                        'flex flex-col items-center justify-center p-2.5 rounded-lg border text-xs font-semibold transition-all relative',
+                        isSelected
+                          ? 'border-indigo-600 bg-indigo-50/80 text-indigo-900 shadow-sm ring-1 ring-indigo-500'
+                          : 'border-border bg-card text-foreground hover:bg-muted/50'
+                      )}
+                    >
+                      <div className="flex items-center gap-1">
+                        {isSelected && <Check className="w-3 h-3 text-indigo-600" />}
+                        <span>{cls}</span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-light mt-0.5">
+                        ป.{cls.replace('ป.', '')}
+                      </span>
+
+                      {hasOtherTeacher && !isSelected && (
+                        <span className="text-[9px] text-amber-600 truncate max-w-full px-1">
+                          มีครูแล้ว
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Quick Multi-Grade Presets */}
+              <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                <span className="text-[11px] text-muted-foreground">ชุดสอนควบแนะนำ:</span>
+                {MULTI_GRADE_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyClassPreset(preset.classes)}
+                    className="h-6 text-[10px] px-2 border-indigo-200 text-indigo-700 bg-indigo-50/40 hover:bg-indigo-100"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
               </div>
             </div>
 
+            {/* Conflict Warnings */}
+            {conflictingClasses.length > 0 && (
+              <div className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/60 text-amber-900 text-xs flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-bold">จะทำการแทนที่ครูประจำชั้นเดิม:</div>
+                  <ul className="list-disc list-inside text-[11px] text-amber-800 space-y-0.5">
+                    {conflictingClasses.map((c) => (
+                      <li key={c.className}>
+                        ห้อง <strong>{c.className}</strong> (เดิมคือ {c.currentTeacherName}) จะถูกเปลี่ยนเป็นครูท่านนี้
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Multi-Grade Status Notice */}
+            {selectedClasses.length > 1 && (
+              <div className="p-2.5 rounded-lg border border-indigo-200 bg-indigo-50/60 text-indigo-900 text-xs flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span>
+                  ✨ มอบหมายแบบ <strong>สอนควบชั้นเรียน ({selectedClasses.join(' และ ')})</strong> ระบบจะอัปเดตสิทธิ์และป้ายให้อัตโนมัติ
+                </span>
+              </div>
+            )}
+
             {/* Notes */}
             <div className="space-y-1.5">
-              <Label className="text-xs">หมายเหตุเพิ่มเติม</Label>
+              <Label className="text-xs">3. หมายเหตุเพิ่มเติม (ระบุหรือไม่ระบุก็ได้)</Label>
               <Input
-                placeholder="เช่น สอนควบชั้น ป.1 และ ป.2 ร่วมกับคุณครูสมศรี"
+                placeholder={
+                  selectedClasses.length > 1
+                    ? `สอนควบชั้น ${selectedClasses.join(' และ ')}`
+                    : `ครูประจำชั้น ${selectedClasses[0] || 'ป.1'}`
+                }
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="h-9 text-xs"
@@ -453,10 +709,14 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
             <Button
               size="sm"
               onClick={() => saveMutation.mutate()}
-              disabled={saveMutation.isPending || !selectedTeacherId}
+              disabled={saveMutation.isPending || !selectedTeacherId || selectedClasses.length === 0}
               className="text-xs gap-1.5 font-semibold"
             >
-              {saveMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+              {saveMutation.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              )}
               บันทึกการมอบหมาย
             </Button>
           </DialogFooter>
