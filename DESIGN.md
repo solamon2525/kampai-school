@@ -1084,6 +1084,25 @@ Logic อยู่ใน `src/main.tsx` (ก่อน `createRoot`) ที่อ
 - **การนำเข้าและส่งออก Excel สองทาง (Two-Way Excel Sync):**
   - อัปโหลดไฟล์ `.xlsx` / `.xlsm` เพื่ออ่านข้อมูล แปลงผล และบันทึกลง Supabase (`student_grades`, `student_obec_evaluations`, `student_term_promotion_records`) ใน 1 คลิก พร้อมส่งออกเป็นไฟล์ Excel มาตรฐานกลับคืนได้
 
+### Rule 14.43 — ระบบรายงานผลการเรียนมาตรฐาน A4 ครบวงจรและ Gradebook UX ระดับโลก (v1.232.0)
+
+- **สมุดบันทึกคะแนน ปพ.5 ยกระดับ UX/UI:**
+  - **Live Analytics Header:** แสดงค่านิยมสถิติสด Mean, Max/Min, Pass Rate (%) และจำนวนที่กรอกแล้วทันทีที่พิมพ์คะแนน
+  - **Grade Distribution Capsule Pills:** แถบแคปซูลแสดงจำนวนนักเรียนที่ได้เกรด 8 ระดับ (0 - 4) พร้อมคลิกเพื่อกรองดูเฉพาะกลุ่มนักเรียนนั้นๆ
+  - **Smart Search & Filter Toolbar:** ค้นหาตามชื่อ/เลขที่ + ตัวกรองด่วน: ทั้งหมด / ยังไม่กรอก / กลุ่มเสี่ยง (<50) / ดีเยี่ยม (≥3.5)
+  - **Distraction-Free Zen / Focus Mode:** ปุ่ม Toggle ขยายตารางเต็มจอ ซ่อนเมนูข้าง เพิ่มพื้นที่แนวตั้งและแนวนอนสูงสุด
+  - **Batch Actions & Quick Fill:** เมนูกรอกคะแนนเก็บเท่ากันทั้งห้องใน 1 คลิก พร้อมปุ่ม Export ตารางคะแนนเป็น Excel (.xlsx) ประจำวิชาทันที
+  - **Safe Score Editing:** ฟังก์ชันแก้ไขคะแนนผูกด้วย Student ID ป้องกัน index mismatch เมื่อมีการกรองหรือค้นหาข้อมูล
+- **ศูนย์ออกรายงานและสั่งพิมพ์ทางการ 6 รูปแบบ (Papor Reports Center):**
+  - **1. ปพ.6 รายบุคคล (`PrintableStudentReportCard.tsx`):** แบบรายงานรายบุคคลมาตรฐาน สพฐ. A4 แนวตั้ง
+  - **2. รวมพิมพ์ ปพ.6 ทั้งห้อง 1-Click (`PrintableBatchStudentReportCards.tsx`):** สั่งพิมพ์ใบ ปพ.6 ของนักเรียนทุกคนในห้องพร้อมกันในคำสั่งเดียว คั่นหน้าระหว่างนักเรียนด้วย `page-break-after: always;` / `break-after: page;` อัตโนมัติ
+  - **3. ปพ.5-ป สรุปทั้งชั้น (`PrintableClassSummaryReport.tsx`):** แบบรายงานสรุปผลการประเมินประจำชั้นเรียน A4 แนวนอน
+  - **4. สลิปแจ้งผลการเรียนสำหรับผู้ปกครอง (`PrintableParentGradeSlip.tsx`):** สลิปผลการเรียนขนาดกะทัดรัด (Half-A4) สำหรับวันประชุมผู้ปกครอง สรุปผลการเรียน เกรดเฉลี่ย ผลประเมิน 4 มิติ ช่องเซ็นชื่อผู้ปกครองรับทราบ และ QR Code ยืนยันผล
+  - **5. ใบรับรองผลการศึกษา ปพ.7 (`PrintableAcademicCertificate.tsx`):** หนังสือรับรองผลการเรียนและสภาพการเป็นนักเรียนทางการ พร้อมตราโรงเรียน หัวหนังสือราชการ และลายมือชื่อผู้อำนวยการ
+  - **6. แดชบอร์ดวิเคราะห์ผลสัมฤทธิ์ทางการเรียน (`PaporAcademicAnalyticsDashboard.tsx`):** แดชบอร์ด Recharts วิเคราะห์ Bar Chart คะแนนเฉลี่ยแต่ละวิชา, Grade Distribution Bar Chart, Radar Chart สมรรถนะ 5 ด้าน และตัวชี้วัด KPI สพฐ.
+  - **Print Customizer Toolbar:** แถบสวิตช์เปิด/ปิด ตราโรงเรียน, รูปถ่ายนักเรียน, ช่องลายมือชื่อ, และ QR Code ตรวจสอบผลดิจิทัลแบบ WYSIWYG
+  - **Digital QR Verification:** แสตมป์ QR Code (ขับเคลื่อนด้วย `react-qr-code`) ตรวจสอบความถูกต้องของเอกสารผ่านสมาร์ตโฟนได้ทันที
+
 ---
 
 ## 15. Spacing & Layout

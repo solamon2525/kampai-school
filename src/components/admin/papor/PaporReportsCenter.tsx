@@ -1,9 +1,15 @@
 /**
  * PaporReportsCenter.tsx
- * ศูนย์ออกรายงานและสั่งพิมพ์เอกสารทางการ (สพฐ.) มาตรฐาน A4
- * - สลับดูใบ ปพ.6 รายบุคคล (A4 แนวตั้ง) และ ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน)
- * - แถบควบคุมตัวเลือกการพิมพ์ (Print Options Toolbar)
- * - สไตล์การพิมพ์ @media print คมชัด ไร้ขอบส่วนเกิน ประหยัดหมึก
+ * ศูนย์ออกรายงานและสั่งพิมพ์เอกสารทางการ (สพฐ.) มาตรฐาน A4 ครบวงจร
+ * - 6 โหมดรายงาน:
+ *   1. ปพ.6 รายบุคคล (A4 แนวตั้ง)
+ *   2. ปพ.6 พิมพ์ทั้งห้องในคลิกเดียว (1-Click Batch Print พร้อม page-break อัตโนมัติ)
+ *   3. ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน)
+ *   4. สลิปแจ้งผลการเรียนสำหรับผู้ปกครอง (Parent Grade Slip)
+ *   5. ใบรับรองผลการศึกษา ปพ.7 (Transcript / Academic Certificate)
+ *   6. แดชบอร์ดวิเคราะห์ผลสัมฤทธิ์ทางการเรียน (Academic Performance Analytics)
+ * - แถบปรับแต่งตัวเลือกการพิมพ์แบบเรียลไทม์ (Print Customizer Toolbar): ตราโรงเรียน, รูปถ่าย, ลายเซ็น, QR Code
+ * - แสตมป์ Digital QR Verification ยืนยันผลการเรียนดิจิทัล
  */
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -12,7 +18,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Printer, FileText, LayoutGrid, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Printer,
+  FileText,
+  LayoutGrid,
+  Loader2,
+  SlidersHorizontal,
+  BarChart3,
+  Award,
+  Layers,
+  Receipt,
+  QrCode,
+  Image as ImageIcon,
+  PenTool,
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   curriculumSubjectsService,
@@ -32,13 +53,23 @@ import {
   PrintableClassSummaryReport,
   type ClassSummaryStudentRow,
 } from './PrintableClassSummaryReport';
+import { PrintableBatchStudentReportCards } from './PrintableBatchStudentReportCards';
+import { PrintableParentGradeSlip } from './PrintableParentGradeSlip';
+import { PrintableAcademicCertificate } from './PrintableAcademicCertificate';
+import { PaporAcademicAnalyticsDashboard } from './PaporAcademicAnalyticsDashboard';
 
 interface Props {
   selectedClass?: string;
   academicYear?: string;
 }
 
-type ReportMode = 'individual' | 'class_summary';
+export type ReportMode =
+  | 'individual'
+  | 'batch_individual'
+  | 'class_summary'
+  | 'parent_slip'
+  | 'certificate'
+  | 'analytics';
 
 function scoreToGrade(score: number): string {
   if (score >= 80) return '4';
@@ -57,6 +88,13 @@ export const PaporReportsCenter: React.FC<Props> = ({
 }) => {
   const [reportMode, setReportMode] = useState<ReportMode>('individual');
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+
+  // Print Customizer Toolbar Options
+  const [showSchoolCrest, setShowSchoolCrest] = useState(true);
+  const [showStudentPhoto, setShowStudentPhoto] = useState(true);
+  const [showSignatures, setShowSignatures] = useState(true);
+  const [showQrVerification, setShowQrVerification] = useState(true);
+  const [showToolbar, setShowToolbar] = useState(false);
 
   // 1. Fetch Subjects via TanStack Query
   const { data: subjects = [], isLoading: loadingSubjects } = useQuery<ObecGradeSubjectRow[]>({
@@ -78,10 +116,11 @@ export const PaporReportsCenter: React.FC<Props> = ({
         id: st.id,
         name: st.name,
         student_code: st.student_code,
+        class: selectedClass,
         class_number: st.class_number,
         photo_url: st.photo_url,
       })),
-    [rawStudents]
+    [rawStudents, selectedClass]
   );
 
   const studentIds = useMemo(() => students.map((s) => s.id), [students]);
@@ -126,37 +165,50 @@ export const PaporReportsCenter: React.FC<Props> = ({
     [students, activeStudentId]
   );
 
-  // Compute individual subject scores
+  // Helper to build ReportCardSubjectScore array for any student
+  const getStudentScores = useMemo(() => {
+    return (studentId: string): ReportCardSubjectScore[] => {
+      if (subjects.length === 0) return [];
+      const stScores = allScores[studentId] || {};
+
+      return subjects.map((sub) => {
+        const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
+        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
+        const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
+        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
+
+        const t1 = f1 + s1;
+        const t2 = f2 + s2;
+        const yearly = Math.round((t1 + t2) / 2);
+        const totalScore = yearly > 0 ? yearly : t1 || t2;
+        const grade = scoreToGrade(totalScore);
+
+        return {
+          subject: sub,
+          formativeScore: f1 + f2,
+          summativeScore: s1 + s2,
+          totalScore,
+          grade,
+          isPassed: parseFloat(grade) >= 1.0,
+        };
+      });
+    };
+  }, [subjects, allScores]);
+
+  // Compute individual subject scores for active student
   const individualSubjectScores: ReportCardSubjectScore[] = useMemo(() => {
-    if (!selectedStudent || subjects.length === 0) return [];
+    if (!selectedStudent) return [];
+    return getStudentScores(selectedStudent.id);
+  }, [selectedStudent, getStudentScores]);
 
-    const stScores = allScores[selectedStudent.id] || {};
-
-    return subjects.map((sub) => {
-      const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
-      const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
-      const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
-      const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
-
-      const t1 = f1 + s1;
-      const t2 = f2 + s2;
-      const yearly = Math.round((t1 + t2) / 2);
-      const totalScore = yearly > 0 ? yearly : t1 || t2;
-      const grade = scoreToGrade(totalScore);
-
-      return {
-        code: sub.subject_code,
-        name: sub.subject_name,
-        creditUnits: Number(sub.credit_units || 1),
-        creditHours: sub.credit_hours,
-        type: sub.subject_type === 'เพิ่มเติม' ? 'additional' : 'core',
-        formativeScore: f1 + f2,
-        summativeScore: s1 + s2,
-        totalScore,
-        grade,
-      };
+  // Map of all student scores for batch print
+  const studentScoresMap = useMemo(() => {
+    const map: Record<string, ReportCardSubjectScore[]> = {};
+    students.forEach((st) => {
+      map[st.id] = getStudentScores(st.id);
     });
-  }, [selectedStudent, subjects, allScores]);
+    return map;
+  }, [students, getStudentScores]);
 
   // Compute class summary rows
   const classSummaryRows: ClassSummaryStudentRow[] = useMemo(() => {
@@ -167,7 +219,6 @@ export const PaporReportsCenter: React.FC<Props> = ({
       const subjectGrades: Record<string, string> = {};
       let totalPts = 0;
       let totalCredits = 0;
-      let totalAnnualScore = 0;
 
       subjects.forEach((sub) => {
         const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
@@ -182,7 +233,6 @@ export const PaporReportsCenter: React.FC<Props> = ({
         const grade = scoreToGrade(total);
 
         subjectGrades[sub.subject_code] = grade;
-        totalAnnualScore += total;
 
         const cr = Number(sub.credit_units || 1);
         const gNum = parseFloat(grade) || 0;
@@ -193,17 +243,16 @@ export const PaporReportsCenter: React.FC<Props> = ({
       const gpa = totalCredits > 0 ? Number((totalPts / totalCredits).toFixed(2)) : 0;
 
       return {
-        id: st.id,
-        studentNo: st.class_number || 0,
-        studentCode: st.student_code || '-',
-        studentName: st.name,
-        photoUrl: st.photo_url,
+        studentId: st.id,
+        classNumber: st.class_number,
+        studentCode: st.student_code,
+        name: st.name,
         subjectGrades,
-        totalScore: totalAnnualScore,
+        totalGradePoints: totalPts,
+        totalCredits,
         gpa,
         rank: 1,
-        evaluationsSummary: 'ดีเยี่ยม',
-        promotionDecision: 'ผ่าน (เลื่อนชั้น)',
+        decision: 'ผ่าน (เลื่อนชั้น)',
       };
     });
 
@@ -217,14 +266,22 @@ export const PaporReportsCenter: React.FC<Props> = ({
   }, [students, subjects, allScores]);
 
   const defaultEvaluations: ReportCardEvaluations = {
-    characterScore: 'ดีเยี่ยม (3)',
-    competencyScore: 'ดีเยี่ยม (3)',
-    readingScore: 'ดีเยี่ยม (3)',
-    activitiesScore: 'ผ่าน (ผ)',
+    characterGrade: 'ดีเยี่ยม',
+    competencyGrade: 'ดีเยี่ยม',
+    readingGrade: 'ดีเยี่ยม',
+    activityGrade: 'ผ่าน',
     attendanceDays: 200,
     attendanceTotal: 200,
     attendancePct: 100,
   };
+
+  const studentEvaluationsMap = useMemo(() => {
+    const map: Record<string, ReportCardEvaluations> = {};
+    students.forEach((st) => {
+      map[st.id] = defaultEvaluations;
+    });
+    return map;
+  }, [students]);
 
   const handlePrint = () => {
     window.print();
@@ -236,7 +293,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
     <div className="space-y-6">
       {/* Print Controls Header - Hidden during print */}
       <Card className="bg-card print:hidden shadow-sm border-border">
-        <CardHeader className="pb-3 border-b border-border">
+        <CardHeader className="pb-4 border-b border-border">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
@@ -244,49 +301,124 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 <CardTitle className="text-lg">
                   ศูนย์ออกรายงานและสั่งพิมพ์เอกสารทางการ (สพฐ.)
                 </CardTitle>
+                <Badge variant="secondary" className="text-xs">
+                  A4 มาตรฐาน
+                </Badge>
               </div>
               <CardDescription className="mt-1">
-                สร้างเอกสารแบบพิมพ์กระดาษ A4 มาตรฐาน พร้อมสั่งพิมพ์หรือบันทึกเป็น PDF ผ่านเบราว์เซอร์ได้ทันที
+                สร้างเอกสาร ปพ.5, ปพ.6, ปพ.7, สลิปผู้ปกครอง และแดชบอร์ดวิเคราะห์ผลสัมฤทธิ์ สั่งพิมพ์หรือเซฟเป็น PDF ได้ในคลิกเดียว
               </CardDescription>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowToolbar(!showToolbar)}
+                className="gap-1.5 text-xs"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {showToolbar ? 'ซ่อนตัวเลือกพิมพ์' : 'ปรับแต่งการพิมพ์'}
+              </Button>
               <Button onClick={handlePrint} className="gap-2 shadow-sm font-semibold">
-                <Printer className="w-4 h-4" /> สั่งพิมพ์ / บันทึก PDF (Print)
+                <Printer className="w-4 h-4" /> สั่งพิมพ์ / บันทึก PDF
               </Button>
             </div>
           </div>
 
-          {/* Sub Navigation Tabs */}
+          {/* Collapsible Print Customizer Toolbar */}
+          {showToolbar && (
+            <div className="mt-4 p-3.5 bg-muted/40 rounded-lg border border-border flex flex-wrap items-center gap-6 text-xs">
+              <span className="font-semibold text-foreground flex items-center gap-1.5">
+                <SlidersHorizontal className="w-4 h-4 text-primary" /> ตัวเลือกพิมพ์:
+              </span>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="crest-toggle"
+                  checked={showSchoolCrest}
+                  onCheckedChange={setShowSchoolCrest}
+                />
+                <Label htmlFor="crest-toggle" className="cursor-pointer">
+                  ตราโรงเรียน
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="photo-toggle"
+                  checked={showStudentPhoto}
+                  onCheckedChange={setShowStudentPhoto}
+                />
+                <Label htmlFor="photo-toggle" className="cursor-pointer flex items-center gap-1">
+                  <ImageIcon className="w-3.5 h-3.5" /> รูปถ่ายนักเรียน
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="sig-toggle"
+                  checked={showSignatures}
+                  onCheckedChange={setShowSignatures}
+                />
+                <Label htmlFor="sig-toggle" className="cursor-pointer flex items-center gap-1">
+                  <PenTool className="w-3.5 h-3.5" /> ช่องลายมือชื่อ
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="qr-toggle"
+                  checked={showQrVerification}
+                  onCheckedChange={setShowQrVerification}
+                />
+                <Label htmlFor="qr-toggle" className="cursor-pointer flex items-center gap-1">
+                  <QrCode className="w-3.5 h-3.5" /> QR Code ตรวจสอบ
+                </Label>
+              </div>
+            </div>
+          )}
+
+          {/* 6 Report Mode Navigation Tabs */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-2">
             <Tabs value={reportMode} onValueChange={(v) => setReportMode(v as ReportMode)}>
-              <TabsList className="bg-muted/60">
-                <TabsTrigger value="individual" className="gap-2 text-xs md:text-sm">
-                  <FileText className="w-4 h-4 text-blue-600" /> ใบรายงานรายบุคคล (ปพ.6)
+              <TabsList className="bg-muted/60 flex-wrap h-auto p-1 gap-1">
+                <TabsTrigger value="individual" className="gap-1.5 text-xs">
+                  <FileText className="w-3.5 h-3.5 text-blue-600" /> ๑. ปพ.6 รายบุคคล
                 </TabsTrigger>
-                <TabsTrigger value="class_summary" className="gap-2 text-xs md:text-sm">
-                  <LayoutGrid className="w-4 h-4 text-emerald-600" /> ใบสรุปผลประจำชั้น (ปพ.5-ป)
+                <TabsTrigger value="batch_individual" className="gap-1.5 text-xs">
+                  <Layers className="w-3.5 h-3.5 text-indigo-600" /> ๒. พิมพ์ทั้งห้อง 1-Click
+                </TabsTrigger>
+                <TabsTrigger value="class_summary" className="gap-1.5 text-xs">
+                  <LayoutGrid className="w-3.5 h-3.5 text-emerald-600" /> ๓. ปพ.5-ป สรุปทั้งชั้น
+                </TabsTrigger>
+                <TabsTrigger value="parent_slip" className="gap-1.5 text-xs">
+                  <Receipt className="w-3.5 h-3.5 text-amber-600" /> ๔. สลิปผู้ปกครอง
+                </TabsTrigger>
+                <TabsTrigger value="certificate" className="gap-1.5 text-xs">
+                  <Award className="w-3.5 h-3.5 text-violet-600" /> ๕. ใบรับรอง ปพ.7
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-1.5 text-xs">
+                  <BarChart3 className="w-3.5 h-3.5 text-pink-600" /> ๖. แดชบอร์ดวิเคราะห์
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
-            {reportMode === 'individual' && students.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">เลือกนักเรียน:</span>
-                <Select value={activeStudentId} onValueChange={setSelectedStudentId}>
-                  <SelectTrigger className="w-[260px]">
-                    <SelectValue placeholder="เลือกนักเรียน" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.class_number ? `เลขที่ ${s.class_number} · ` : ''}{s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            {/* Student Selector for Individual Modes */}
+            {(reportMode === 'individual' || reportMode === 'parent_slip' || reportMode === 'certificate') &&
+              students.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs md:text-sm font-medium text-foreground">นักเรียน:</span>
+                  <Select value={activeStudentId} onValueChange={setSelectedStudentId}>
+                    <SelectTrigger className="w-[230px] h-9 text-xs">
+                      <SelectValue placeholder="เลือกนักเรียน" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {students.map((s) => (
+                        <SelectItem key={s.id} value={s.id} className="text-xs">
+                          {s.class_number ? `เลขที่ ${s.class_number} · ` : ''}{s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
           </div>
         </CardHeader>
       </Card>
@@ -308,6 +440,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
         </div>
       ) : (
         <div className="report-paper-wrapper bg-muted/40 p-2 md:p-6 rounded-xl border border-border flex justify-center print:p-0 print:m-0 print:bg-transparent print:border-none">
+          {/* Mode 1: ปพ.6 รายบุคคล */}
           {reportMode === 'individual' && selectedStudent && (
             <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[210mm]">
               <PrintableStudentReportCard
@@ -316,13 +449,73 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
                 evaluations={defaultEvaluations}
+                showSchoolCrest={showSchoolCrest}
+                showStudentPhoto={showStudentPhoto}
+                showSignatures={showSignatures}
+                showQrVerification={showQrVerification}
               />
             </div>
           )}
 
+          {/* Mode 2: ปพ.6 พิมพ์ทั้งห้อง 1-Click Batch Print */}
+          {reportMode === 'batch_individual' && (
+            <div className="w-full max-w-[210mm]">
+              <PrintableBatchStudentReportCards
+                students={students}
+                academicYear={academicYear}
+                selectedClass={selectedClass}
+                studentScoresMap={studentScoresMap}
+                studentEvaluationsMap={studentEvaluationsMap}
+              />
+            </div>
+          )}
+
+          {/* Mode 3: ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน) */}
           {reportMode === 'class_summary' && (
             <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[297mm]">
               <PrintableClassSummaryReport
+                selectedClass={selectedClass}
+                academicYear={academicYear}
+                subjects={subjects}
+                studentRows={classSummaryRows}
+              />
+            </div>
+          )}
+
+          {/* Mode 4: สลิปแจ้งผลการเรียนสำหรับผู้ปกครอง */}
+          {reportMode === 'parent_slip' && selectedStudent && (
+            <div className="w-full max-w-[210mm]">
+              <PrintableParentGradeSlip
+                student={selectedStudent}
+                academicYear={academicYear}
+                selectedClass={selectedClass}
+                scores={individualSubjectScores}
+                evaluations={defaultEvaluations}
+                showPhoto={showStudentPhoto}
+                showQrVerification={showQrVerification}
+              />
+            </div>
+          )}
+
+          {/* Mode 5: ใบรับรองผลการศึกษา ปพ.7 */}
+          {reportMode === 'certificate' && selectedStudent && (
+            <div className="bg-white rounded shadow-md border border-neutral-200 print:shadow-none print:border-none w-full max-w-[210mm]">
+              <PrintableAcademicCertificate
+                student={selectedStudent}
+                academicYear={academicYear}
+                selectedClass={selectedClass}
+                scores={individualSubjectScores}
+                evaluations={defaultEvaluations}
+                showSchoolCrest={showSchoolCrest}
+                showQrVerification={showQrVerification}
+              />
+            </div>
+          )}
+
+          {/* Mode 6: แดชบอร์ดวิเคราะห์ผลสัมฤทธิ์ทางการเรียน */}
+          {reportMode === 'analytics' && (
+            <div className="w-full">
+              <PaporAcademicAnalyticsDashboard
                 selectedClass={selectedClass}
                 academicYear={academicYear}
                 subjects={subjects}
@@ -337,7 +530,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
       <div className="bg-card border border-border p-4 rounded-xl flex items-center justify-between text-xs text-muted-foreground print:hidden">
         <div>
           <span className="font-semibold text-foreground">💡 คำแนะนำการสั่งพิมพ์: </span>
-          ในหน้าต่างพิมพ์ของเบราว์เซอร์ ให้เลือกขนาดกระดาษ <strong>A4</strong> และตั้งค่า <strong>Margins: Default / None</strong> เพื่อให้เส้นขอบและตัวอักษรคมชัดพอดีหน้ากระดาษ
+          ในหน้าต่างพิมพ์ของเบราว์เซอร์ ให้เลือกขนาดกระดาษ <strong>A4</strong> และตั้งค่า <strong>Margins: Default / None</strong> และติ๊ก <strong>Background graphics</strong> เพื่อให้เอกสารคมชัดสวยงามสมบูรณ์แบบ
         </div>
         <Badge variant="outline" className="font-mono text-[11px]">
           สพฐ. กระดาษ A4

@@ -1,4 +1,6 @@
 import React from 'react';
+import QRCode from 'react-qr-code';
+import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import type { ObecGradeSubjectRow } from '@/services/curriculum-subjects.service';
 
 export interface ReportCardStudent {
@@ -39,6 +41,11 @@ export interface PrintableStudentReportCardProps {
   directorName?: string;
   homeroomTeacher?: string;
   nextGradeLevel?: string;
+  showSchoolCrest?: boolean;
+  showStudentPhoto?: boolean;
+  showSignatures?: boolean;
+  showQrVerification?: boolean;
+  verificationBaseUrl?: string;
 }
 
 export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProps> = ({
@@ -51,6 +58,11 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   directorName = 'ผู้อำนวยการโรงเรียนบ้านคำไผ่',
   homeroomTeacher = 'ครูประจำชั้น',
   nextGradeLevel,
+  showSchoolCrest = true,
+  showStudentPhoto = true,
+  showSignatures = true,
+  showQrVerification = true,
+  verificationBaseUrl = 'https://kampai-school.vercel.app/verify/papor6',
 }) => {
   // Calculations
   const coreSubjects = scores.filter((s) => s.subject.subject_type === 'พื้นฐาน');
@@ -83,7 +95,14 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   return (
     <div className="printable-report-card bg-white text-black font-sans p-8 max-w-[210mm] mx-auto print:p-0 print:max-w-none print:m-0 text-[13px] leading-normal">
       {/* School Header */}
-      <div className="text-center pb-3 border-b-2 border-black space-y-1">
+      <div className="text-center pb-3 border-b-2 border-black space-y-1 relative">
+        {showSchoolCrest && (
+          <div className="absolute left-0 top-0 hidden md:block print:block">
+            <div className="w-12 h-12 border border-black rounded-full flex items-center justify-center font-bold text-[9px] p-1 bg-amber-50 print:bg-transparent">
+              สพฐ.
+            </div>
+          </div>
+        )}
         <div className="font-bold text-lg tracking-wide">
           แบบรายงานผลการพัฒนาคุณภาพผู้เรียนรายบุคคล (ปพ.6)
         </div>
@@ -96,22 +115,39 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
       </div>
 
       {/* Student Profile Info Grid */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 py-3 border-b border-black text-xs">
-        <div>
-          <span className="font-bold">ชื่อ-นามสกุล:</span> {student.name}
+      <div className="flex items-center justify-between py-3 border-b border-black text-xs gap-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 flex-1">
+          <div>
+            <span className="font-bold">ชื่อ-นามสกุล:</span> {student.name}
+          </div>
+          <div>
+            <span className="font-bold">เลขประจำตัวนักเรียน:</span> {student.student_code || '-'}
+          </div>
+          <div>
+            <span className="font-bold">ระดับชั้น:</span> {selectedClass} {student.class_number ? `เลขที่ ${student.class_number}` : ''}
+          </div>
+          <div>
+            <span className="font-bold">ปีการศึกษา:</span> {academicYear}
+          </div>
+          <div className="col-span-2">
+            <span className="font-bold">ครูประจำชั้น:</span> {homeroomTeacher}
+          </div>
         </div>
-        <div>
-          <span className="font-bold">เลขประจำตัวนักเรียน:</span> {student.student_code || '-'}
-        </div>
-        <div>
-          <span className="font-bold">ระดับชั้น:</span> {selectedClass} {student.class_number ? `เลขที่ ${student.class_number}` : ''}
-        </div>
-        <div>
-          <span className="font-bold">ปีการศึกษา:</span> {academicYear}
-        </div>
-        <div className="col-span-2">
-          <span className="font-bold">ครูประจำชั้น:</span> {homeroomTeacher}
-        </div>
+        {showStudentPhoto && (
+          <div className="w-16 h-20 border border-neutral-400 p-0.5 rounded flex items-center justify-center bg-neutral-50 print:bg-transparent shrink-0">
+            {student.photo_url ? (
+              <img
+                src={student.photo_url}
+                alt={student.name}
+                className="w-full h-full object-cover rounded-sm"
+              />
+            ) : (
+              <div className="text-[10px] text-neutral-500 text-center">
+                รูปถ่าย<br />๑.๕ นิ้ว
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Section 1: Academic Scores Table */}
@@ -258,28 +294,49 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
         </div>
       </div>
 
-      {/* Section 4: Three Signatures */}
-      <div className="grid grid-cols-3 gap-3 text-center text-xs mt-6 pt-3">
-        <div className="space-y-1">
-          <div className="h-10"></div>
-          <div>(ลงชื่อ).......................................................</div>
-          <div className="font-medium">({homeroomTeacher})</div>
-          <div className="text-[11px] text-neutral-600">ครูประจำชั้น</div>
-        </div>
+      {/* Section 4: Signatures and QR Verification */}
+      <div className="flex items-end justify-between mt-6 pt-3 border-t border-neutral-300">
+        {showQrVerification ? (
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-white border border-neutral-300 rounded">
+              <QRCode
+                value={`${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&yr=${academicYear}`}
+                size={44}
+              />
+            </div>
+            <div className="text-[10px] text-neutral-600 leading-tight">
+              <div className="font-bold text-black">เอกสาร ปพ.6 สพฐ.</div>
+              <div>สแกนตรวจสอบผลดิจิทัล</div>
+            </div>
+          </div>
+        ) : (
+          <div />
+        )}
 
-        <div className="space-y-1">
-          <div className="h-10"></div>
-          <div>(ลงชื่อ).......................................................</div>
-          <div className="font-medium">(นายทะเบียน / งานวิชาการ)</div>
-          <div className="text-[11px] text-neutral-600">หัวหน้าฝ่ายวิชาการ</div>
-        </div>
+        {showSignatures && (
+          <div className="grid grid-cols-3 gap-3 text-center text-xs flex-1 ml-4">
+            <div className="space-y-1">
+              <div className="h-8"></div>
+              <div>(ลงชื่อ).......................................................</div>
+              <div className="font-medium">({homeroomTeacher})</div>
+              <div className="text-[10px] text-neutral-600">ครูประจำชั้น</div>
+            </div>
 
-        <div className="space-y-1">
-          <div className="h-10"></div>
-          <div>(ลงชื่อ).......................................................</div>
-          <div className="font-medium">({directorName})</div>
-          <div className="text-[11px] text-neutral-600">ผู้อำนวยการโรงเรียนบ้านคำไผ่</div>
-        </div>
+            <div className="space-y-1">
+              <div className="h-8"></div>
+              <div>(ลงชื่อ).......................................................</div>
+              <div className="font-medium">(นายทะเบียน / วิชาการ)</div>
+              <div className="text-[10px] text-neutral-600">หัวหน้าฝ่ายวิชาการ</div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="h-8"></div>
+              <div>(ลงชื่อ).......................................................</div>
+              <div className="font-medium">({directorName})</div>
+              <div className="text-[10px] text-neutral-600">ผู้อำนวยการโรงเรียน</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
