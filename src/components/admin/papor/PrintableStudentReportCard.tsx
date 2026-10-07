@@ -118,13 +118,13 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   const gradeLevelNum = selectedClass.replace(/[^0-9]/g, '') || '4';
 
   return (
-    <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 print:w-full text-[11px] leading-tight select-none">
+    <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 print:w-full text-xs leading-normal select-none">
       {/* ─── SCOPED PRINT CSS: ควบคุมกระดาษ A4 แนวตั้ง และป้องกันการแตกหน้า ─── */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 6mm 8mm 6mm 8mm;
+            margin: 6mm 10mm 6mm 10mm;
           }
           .printable-report-card {
             page-break-inside: avoid !important;
@@ -144,10 +144,10 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
       `}</style>
 
       {/* ─── HEADER: ปพ. 6 + ตรา รร + หัวข้อกึ่งกลาง ─── */}
-      <div className="relative mb-2">
+      <div className="relative mb-3.5">
         {/* Top Right: ปพ. 6 */}
         <div className="absolute right-0 top-0 text-right">
-          <span className="font-bold text-xs">ปพ. 6</span>
+          <span className="font-bold text-sm">ปพ. 6</span>
         </div>
 
         {/* Top Left: ตราโรงเรียนบ้านคำไผ่ */}
@@ -156,26 +156,26 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
             <img
               src="/logos/school-logo.webp"
               alt="ตราประจำโรงเรียนบ้านคำไผ่"
-              className="w-12 h-12 object-contain"
+              className="w-14 h-14 object-contain"
             />
           </div>
         )}
 
         {/* Center Header */}
-        <div className="text-center space-y-0.5 pt-0.5 px-14">
-          <div className="font-bold text-xs sm:text-sm">
+        <div className="text-center space-y-1 pt-0.5 px-16">
+          <div className="font-bold text-sm sm:text-base leading-snug">
             ผลการเรียนปีการศึกษา {academicYear} &nbsp;&nbsp; {schoolName} &nbsp;&nbsp; {districtName}
           </div>
-          <div className="font-semibold text-xs">
+          <div className="font-semibold text-xs sm:text-sm">
             {student.name} &nbsp;&nbsp;&nbsp;&nbsp; ชั้นประถมศึกษาปีที่ {gradeLevelNum} &nbsp;&nbsp;&nbsp;&nbsp; เลขที่ &nbsp;{classNumberDisplay}
           </div>
         </div>
       </div>
 
       {/* ─── TABLE 1: สาระการเรียนรู้ (11 วิชา ป.4) ─── */}
-      <table className="w-full border-collapse border border-black text-center text-[11px] mb-2">
+      <table className="w-full border-collapse border border-black text-center text-xs mb-3.5">
         <thead>
-          <tr className="bg-neutral-100/70 font-semibold h-6">
+          <tr className="bg-neutral-100/70 font-semibold h-8 text-xs">
             <th className="border border-black p-1 text-center w-[36%]">สาระการเรียนรู้</th>
             <th className="border border-black p-1 w-[9%]">น้ำหนัก</th>
             <th className="border border-black p-1 w-[11%]">คะแนนเต็ม</th>
@@ -188,23 +188,23 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
           {tableRows.map((row, idx) => {
             // คอลัมน์หมายเหตุ: จัดวาง "คะแนนที่ได้" และ "เกรดเฉลี่ย" ตามสัดส่วนภาพจริง
             let remarkContent: React.ReactNode = null;
-            if (idx === 3) remarkContent = <span className="font-medium">คะแนนที่ได้</span>;
-            if (idx === 4) remarkContent = <span className="font-bold font-mono">{totalObtained}</span>;
-            if (idx === 6) remarkContent = <span className="font-medium">เกรดเฉลี่ย</span>;
-            if (idx === 7) remarkContent = <span className="font-bold font-mono">{isTerm1Only ? '-' : gpa}</span>;
+            if (idx === 3) remarkContent = <span className="font-medium text-xs">คะแนนที่ได้</span>;
+            if (idx === 4) remarkContent = <span className="font-bold font-mono text-xs">{totalObtained}</span>;
+            if (idx === 6) remarkContent = <span className="font-medium text-xs">เกรดเฉลี่ย</span>;
+            if (idx === 7) remarkContent = <span className="font-bold font-mono text-xs">{isTerm1Only ? '-' : gpa}</span>;
 
             return (
-              <tr key={row.id} className="h-5">
-                <td className="border border-black px-2 py-0.5 text-left font-medium">
+              <tr key={row.id} className="h-7">
+                <td className="border border-black px-2 py-1 text-left font-medium text-[12px]">
                   {row.name}
                 </td>
-                <td className="border border-black p-0.5 font-mono">{row.weight}</td>
-                <td className="border border-black p-0.5 font-mono">{row.fullMarks}</td>
-                <td className="border border-black p-0.5 font-mono">{row.obtained}</td>
-                <td className="border border-black p-0.5 font-mono font-semibold">
+                <td className="border border-black p-1 font-mono text-xs">{row.weight}</td>
+                <td className="border border-black p-1 font-mono text-xs">{row.fullMarks}</td>
+                <td className="border border-black p-1 font-mono text-xs">{row.obtained}</td>
+                <td className="border border-black p-1 font-mono font-semibold text-xs">
                   {row.grade || (isTerm1Only ? '' : '0')}
                 </td>
-                <td className="border border-black p-0.5 text-center text-[10px]">
+                <td className="border border-black p-1 text-center text-[11px]">
                   {remarkContent}
                 </td>
               </tr>
@@ -212,25 +212,25 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
           })}
 
           {/* แถวสรุปรวม */}
-          <tr className="h-6 font-bold bg-neutral-100/50">
-            <td className="border border-black px-2 py-0.5 text-center">รวม</td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5 font-mono">{totalFullMarks}</td>
-            <td className="border border-black p-0.5 font-mono">{totalObtained}</td>
-            <td className="border border-black p-0.5 font-mono">{gpaDisplay || (isTerm1Only ? '' : '0.00')}</td>
-            <td className="border border-black p-0.5"></td>
+          <tr className="h-8 font-bold bg-neutral-100/50 text-xs">
+            <td className="border border-black px-2 py-1 text-center">รวม</td>
+            <td className="border border-black p-1"></td>
+            <td className="border border-black p-1 font-mono">{totalFullMarks}</td>
+            <td className="border border-black p-1 font-mono">{totalObtained}</td>
+            <td className="border border-black p-1 font-mono">{gpaDisplay || (isTerm1Only ? '' : '0.00')}</td>
+            <td className="border border-black p-1"></td>
           </tr>
         </tbody>
       </table>
 
       {/* ─── TABLE 2: กิจกรรมพัฒนาผู้เรียน (ผ่าน / ไม่ผ่าน) ─── */}
-      <table className="w-full border-collapse border border-black text-center text-[10px] mb-2">
+      <table className="w-full border-collapse border border-black text-center text-xs mb-3.5">
         <thead>
-          <tr className="bg-neutral-100/70 font-semibold h-6">
+          <tr className="bg-neutral-100/70 font-semibold h-8 text-[11px]">
             <th className="border border-black p-1 text-center w-[67%]">กิจกรรมพัฒนาผู้เรียน</th>
             <th colSpan={2} className="border border-black p-0.5 w-[33%]">
               <div>ผลการประเมิน</div>
-              <div className="grid grid-cols-2 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+              <div className="grid grid-cols-2 border-t border-black font-medium text-[10px] mt-0.5 pt-0.5">
                 <div>ผ่าน</div>
                 <div>ไม่ผ่าน</div>
               </div>
@@ -244,23 +244,23 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
             'ชุมนุม',
             'เพื่อสังคมและสาธารณประโยชน์',
           ].map((act) => (
-            <tr key={act} className="h-5">
-              <td className="border border-black px-2 py-0.5 text-left font-medium">{act}</td>
-              <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
-              <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
+            <tr key={act} className="h-7">
+              <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{act}</td>
+              <td className="border border-black p-1 w-[16.5%] font-bold"></td>
+              <td className="border border-black p-1 w-[16.5%] font-bold"></td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {/* ─── TABLE 3: สรุปการประเมิน 3 ด้าน (ดีเยี่ยม / ดี / ผ่าน) ─── */}
-      <table className="w-full border-collapse border border-black text-center text-[10px] mb-3">
+      <table className="w-full border-collapse border border-black text-center text-xs mb-4">
         <thead>
-          <tr className="bg-neutral-100/70 font-semibold h-6">
+          <tr className="bg-neutral-100/70 font-semibold h-8 text-[11px]">
             <th className="border border-black p-1 w-[55%]"></th>
             <th colSpan={3} className="border border-black p-0.5 w-[45%]">
               <div>ผลการประเมิน</div>
-              <div className="grid grid-cols-3 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+              <div className="grid grid-cols-3 border-t border-black font-medium text-[10px] mt-0.5 pt-0.5">
                 <div>ดีเยี่ยม</div>
                 <div>ดี</div>
                 <div>ผ่าน</div>
@@ -274,11 +274,11 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
             'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
             'สรุปการประเมินผล สมรรถนะ',
           ].map((item) => (
-            <tr key={item} className="h-5">
-              <td className="border border-black px-2 py-0.5 text-left font-medium">{item}</td>
-              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
-              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
-              <td className="border border-black p-0.5 w-[15%] font-bold"></td>
+            <tr key={item} className="h-7">
+              <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{item}</td>
+              <td className="border border-black p-1 w-[15%] font-bold"></td>
+              <td className="border border-black p-1 w-[15%] font-bold"></td>
+              <td className="border border-black p-1 w-[15%] font-bold"></td>
             </tr>
           ))}
         </tbody>
@@ -286,34 +286,34 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
 
       {/* ─── SIGNATURES BLOCK: 3 ตำแหน่งตรงตามรูปต้นฉบับ ─── */}
       {showSignatures && (
-        <div className="pt-2 text-xs leading-normal">
+        <div className="pt-3 text-xs leading-normal">
           {/* แถวบน: ครูประจำชั้น (ซ้าย) + หัวหน้าวิชาการ (ขวา) */}
           <div className="grid grid-cols-2 gap-4 text-center">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div>
                 ลงชื่อ .................................................... ครูประจำชั้น
               </div>
-              <div className="font-medium text-[11px]">
+              <div className="font-medium text-xs">
                 ({homeroomTeacher || 'ครูประจำชั้น'})
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div>
                 ลงชื่อ .................................................... หัวหน้าวิชาการ
               </div>
-              <div className="font-medium text-[11px]">
+              <div className="font-medium text-xs">
                 ({academicHeadName})
               </div>
             </div>
           </div>
 
           {/* แถวล่าง: ผู้อำนวยการโรงเรียน (ตรงกลาง) */}
-          <div className="text-center pt-3 space-y-1">
+          <div className="text-center pt-5 space-y-1.5">
             <div>
               ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน
             </div>
-            <div className="font-medium text-[11px]">
+            <div className="font-medium text-xs">
               ({directorName})
             </div>
           </div>
