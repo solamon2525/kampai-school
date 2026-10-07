@@ -157,6 +157,14 @@ export const PaporReportsCenter: React.FC<Props> = ({
     staleTime: 30_000,
   });
 
+  // 4. Fetch Promotion & Evaluation Records for all students in class
+  const { data: promotionRecords = [], isLoading: loadingPromotions } = useQuery({
+    queryKey: ['papor-reports-promotions', selectedClass, academicYear],
+    enabled: studentIds.length > 0,
+    queryFn: () => paporGradebookService.getPromotionsForClass(academicYear, studentIds),
+    staleTime: 30_000,
+  });
+
   // Map scores by studentId -> key
   const allScores = useMemo(() => {
     const map: Record<string, Record<string, number>> = {};
@@ -286,17 +294,41 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
   const studentEvaluationsMap = useMemo(() => {
     const map: Record<string, ReportCardEvaluations> = {};
+    const promoMap = new Map(promotionRecords.map((p) => [p.student_id, p]));
+
+    const toFull = (g?: string | null) =>
+      g === 'ดย' ? 'ดีเยี่ยม' : g === 'ด' ? 'ดี' : g === 'ผ' ? 'ผ่าน' : g || 'ดีเยี่ยม';
+
     students.forEach((st) => {
-      map[st.id] = defaultEvaluations;
+      const p = promoMap.get(st.id);
+      if (!p) {
+        map[st.id] = defaultEvaluations;
+        return;
+      }
+
+      map[st.id] = {
+        characterGrade: toFull(p.character_grade),
+        competencyGrade: toFull(p.competency_grade),
+        readingGrade: toFull(p.reading_grade),
+        activityGrade: p.activities_status === false ? 'ไม่ผ่าน' : 'ผ่าน',
+        attendanceDays: Math.round(((p.attendance_percent || 100) / 100) * 200),
+        attendanceTotal: 200,
+        attendancePct: p.attendance_percent || 100,
+      };
     });
     return map;
-  }, [students]);
+  }, [students, promotionRecords]);
+
+  const activeStudentEvaluations = useMemo(() => {
+    if (!selectedStudent) return defaultEvaluations;
+    return studentEvaluationsMap[selectedStudent.id] || defaultEvaluations;
+  }, [selectedStudent, studentEvaluationsMap]);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const isLoading = loadingSubjects || loadingStudents || loadingScores;
+  const isLoading = loadingSubjects || loadingStudents || loadingScores || loadingPromotions;
 
   return (
     <div className="space-y-6 print:space-y-0 print:p-0 print:m-0">
@@ -493,6 +525,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 subjects={subjects}
                 studentRows={classSummaryRows}
                 homeroomTeacher={homeroomTeacherName}
+                academicHead="นางสาวมะลิวัลย์ จรุงพันธ์"
                 directorName="นายสมพิศ แรงน้อย"
               />
             </div>
@@ -506,7 +539,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 academicYear={academicYear}
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
-                evaluations={defaultEvaluations}
+                evaluations={activeStudentEvaluations}
                 homeroomTeacher={homeroomTeacherName}
                 showPhoto={showStudentPhoto}
                 showQrVerification={showQrVerification}
@@ -522,7 +555,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
                 academicYear={academicYear}
                 selectedClass={selectedClass}
                 scores={individualSubjectScores}
-                evaluations={defaultEvaluations}
+                evaluations={activeStudentEvaluations}
                 directorName="นายสมพิศ แรงน้อย"
                 showSchoolCrest={showSchoolCrest}
                 showQrVerification={showQrVerification}

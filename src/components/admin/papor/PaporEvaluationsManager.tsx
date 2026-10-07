@@ -156,11 +156,21 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
   const saveMutation = useMutation({
     mutationFn: async () => {
       const rows: TablesInsert<'student_obec_evaluations'>[] = [];
+      const promoUpdates: Array<{
+        student_id: string;
+        competency_grade?: string;
+        character_grade?: string;
+        reading_grade?: string;
+        activities_status?: boolean;
+      }> = [];
 
       if (activeTab === 'competency') {
         const compKeys = ['communication', 'thinking', 'problem_solving', 'life_skills', 'technology'];
         students.forEach((s) => {
           const scores = compScores[s.id] || [3, 3, 3, 3, 3];
+          const avg = scores.reduce((sum, v) => sum + v, 0) / scores.length;
+          const summaryGrade = levelToShort(Math.round(avg));
+
           scores.forEach((sc, idx) => {
             rows.push({
               student_id: s.id,
@@ -171,13 +181,34 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
               item_key: String(idx + 1),
               score: sc,
               status: levelToShort(sc),
-              notes: levelToShort(Math.max(...scores)),
+              notes: summaryGrade,
             });
+          });
+
+          // Summary row for student_obec_evaluations
+          rows.push({
+            student_id: s.id,
+            academic_year: academicYear,
+            semester: 'all',
+            evaluation_type: 'competency',
+            category_key: 'summary',
+            item_key: null,
+            score: Math.round(avg),
+            status: summaryGrade,
+            notes: summaryGrade,
+          });
+
+          promoUpdates.push({
+            student_id: s.id,
+            competency_grade: summaryGrade,
           });
         });
       } else if (activeTab === 'character') {
         students.forEach((s) => {
           const scores = charScores[s.id] || [3, 3, 3, 3, 3, 3, 3, 3];
+          const avg = scores.reduce((sum, v) => sum + v, 0) / scores.length;
+          const summaryGrade = levelToShort(Math.round(avg));
+
           scores.forEach((sc, idx) => {
             rows.push({
               student_id: s.id,
@@ -188,13 +219,34 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
               item_key: String(idx + 1),
               score: sc,
               status: levelToShort(sc),
-              notes: levelToShort(Math.max(...scores)),
+              notes: summaryGrade,
             });
+          });
+
+          // Summary row for student_obec_evaluations
+          rows.push({
+            student_id: s.id,
+            academic_year: academicYear,
+            semester: 'all',
+            evaluation_type: 'character',
+            category_key: 'summary',
+            item_key: null,
+            score: Math.round(avg),
+            status: summaryGrade,
+            notes: summaryGrade,
+          });
+
+          promoUpdates.push({
+            student_id: s.id,
+            character_grade: summaryGrade,
           });
         });
       } else if (activeTab === 'reading') {
         students.forEach((s) => {
           const scores = readScores[s.id] || [3, 3, 3, 3, 3];
+          const avg = scores.reduce((sum, v) => sum + v, 0) / scores.length;
+          const summaryGrade = levelToShort(Math.round(avg));
+
           scores.forEach((sc, idx) => {
             rows.push({
               student_id: s.id,
@@ -205,13 +257,33 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
               item_key: String(idx + 1),
               score: sc,
               status: levelToShort(sc),
-              notes: levelToShort(Math.max(...scores)),
+              notes: summaryGrade,
             });
+          });
+
+          // Summary row for student_obec_evaluations
+          rows.push({
+            student_id: s.id,
+            academic_year: academicYear,
+            semester: 'all',
+            evaluation_type: 'reading_thinking',
+            category_key: 'summary',
+            item_key: null,
+            score: Math.round(avg),
+            status: summaryGrade,
+            notes: summaryGrade,
+          });
+
+          promoUpdates.push({
+            student_id: s.id,
+            reading_grade: summaryGrade,
           });
         });
       } else if (activeTab === 'activity') {
         students.forEach((s) => {
           const acts = actScores[s.id] || { guidance: 'ผ', scout: 'ผ', club: 'ผ', social: 'ผ' };
+          const allPass = acts.guidance === 'ผ' && acts.scout === 'ผ' && acts.club === 'ผ' && acts.social === 'ผ';
+
           ['guidance', 'scout', 'club', 'social'].forEach((k) => {
             rows.push({
               student_id: s.id,
@@ -225,15 +297,40 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
               notes: 'ผ่าน',
             });
           });
+
+          // Summary row for student_obec_evaluations
+          rows.push({
+            student_id: s.id,
+            academic_year: academicYear,
+            semester: 'all',
+            evaluation_type: 'activity',
+            category_key: 'summary',
+            item_key: null,
+            score: 120,
+            status: allPass ? 'ผ' : 'มผ',
+            notes: allPass ? 'ผ่าน' : 'ไม่ผ่าน',
+          });
+
+          promoUpdates.push({
+            student_id: s.id,
+            activities_status: allPass,
+          });
         });
       }
 
-      await paporGradebookService.saveEvaluationsBatch(rows);
+      await Promise.all([
+        paporGradebookService.saveEvaluationsBatch(rows),
+        paporGradebookService.syncDimensionToPromotions(academicYear, promoUpdates),
+      ]);
     },
     onSuccess: () => {
-      toast.success('บันทึกผลการประเมินเรียบร้อยแล้ว');
+      toast.success('บันทึกผลการประเมินและซิงค์การเลื่อนชั้นเรียบร้อยแล้ว');
       paporDraftManager.clearDraft(draftKey);
       queryClient.invalidateQueries({ queryKey: ['papor-evaluations'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-promotions'] });
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-reports-promotions'] });
       queryClient.invalidateQueries({ queryKey: ['papor-diagnostics'] });
     },
     onError: (err: unknown) => {

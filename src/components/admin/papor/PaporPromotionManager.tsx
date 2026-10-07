@@ -162,6 +162,9 @@ export const PaporPromotionManager: React.FC<Props> = ({
     onSuccess: () => {
       toast.success('บันทึกผลการตัดสินเลื่อนชั้นเรียบร้อยแล้ว');
       queryClient.invalidateQueries({ queryKey: ['papor-promotions'] });
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-reports-promotions'] });
       queryClient.invalidateQueries({ queryKey: ['papor-diagnostics'] });
     },
     onError: (err: unknown) => {

@@ -26,20 +26,25 @@ export interface PrintableAcademicCertificateProps {
   verificationBaseUrl?: string;
 }
 
+const toThaiNumerals = (str: string | number) =>
+  String(str).replace(/[0-9]/g, (d) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(d, 10)]);
+
 export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificateProps> = ({
   student,
-  academicYear,
+  academicYear = '2569',
   selectedClass,
   scores,
   evaluations,
   schoolName = 'โรงเรียนบ้านคำไผ่',
   directorName = 'นายสมพิศ แรงน้อย',
-  certificateNumber = `คภ. ${academicYear}/๐๐๑`,
-  issueDate = '๓๑ มีนาคม ๒๕๖๘',
+  certificateNumber,
+  issueDate,
   showSchoolCrest = true,
   showQrVerification = true,
   verificationBaseUrl = 'https://kampai-school.vercel.app/verify/cert',
 }) => {
+  const displayCertNumber = certificateNumber || `คภ. ${toThaiNumerals(academicYear)}/๐๐๑`;
+  const displayIssueDate = issueDate || `๓๑ มีนาคม ${toThaiNumerals(academicYear)}`;
   // Calculations
   const totalCredits = scores.reduce((sum, s) => sum + Number(s.subject.credit_units || 0), 0);
   let totalGradePoints = 0;
@@ -50,14 +55,14 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
   });
   const gpa = totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : '0.00';
 
-  const verificationUrl = `${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&cert=${encodeURIComponent(certificateNumber)}`;
+  const verificationUrl = `${verificationBaseUrl}?std=${encodeURIComponent(student.student_code || student.id)}&cert=${encodeURIComponent(displayCertNumber)}`;
 
   return (
     <div className="printable-academic-certificate bg-card text-foreground font-sans p-8 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 border border-border print:border-none text-[13px] leading-relaxed">
       {/* Top Header: Official Seal / Crest & Doc Number */}
       <div className="flex items-start justify-between pb-3">
         <div className="text-xs space-y-0.5">
-          <div>ที่ ศธ ๐๔๑๐๔.๒๗ / {certificateNumber}</div>
+          <div>ที่ ศธ ๐๔๑๐๔.๒๗ / {displayCertNumber}</div>
         </div>
 
         {/* Center: School Crest */}
@@ -74,7 +79,7 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
         <div className="text-xs text-right space-y-0.5">
           <div>{schoolName}</div>
           <div>๑๕๙ หมู่ ๗ ต.เวียงคำ อ.กุมภวาปี จ.อุดรธานี ๔๑๑๑๐</div>
-          <div>วันที่ {issueDate}</div>
+          <div>วันที่ {displayIssueDate}</div>
         </div>
       </div>
 
@@ -165,7 +170,7 @@ export const PrintableAcademicCertificate: React.FC<PrintableAcademicCertificate
             <div className="text-[10px] text-muted-foreground leading-tight">
               <div className="font-bold text-foreground">เอกสารทางการ สพฐ.</div>
               <div>สแกนเพื่อตรวจสอบความถูกต้อง</div>
-              <div className="font-mono text-[9px] text-muted-foreground">{certificateNumber}</div>
+              <div className="font-mono text-[9px] text-muted-foreground">{displayCertNumber}</div>
             </div>
           </div>
         ) : (

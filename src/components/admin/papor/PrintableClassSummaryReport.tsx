@@ -21,6 +21,7 @@ export interface PrintableClassSummaryReportProps {
   studentRows: ClassSummaryStudentRow[];
   schoolName?: string;
   homeroomTeacher?: string;
+  academicHead?: string;
   directorName?: string;
 }
 
@@ -31,6 +32,7 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
   studentRows,
   schoolName = 'โรงเรียนบ้านคำไผ่',
   homeroomTeacher = 'ครูประจำชั้น',
+  academicHead = 'นางสาวมะลิวัลย์ จรุงพันธ์',
   directorName = 'นายสมพิศ แรงน้อย',
 }) => {
   // Calculate grade distribution statistics per subject
@@ -162,8 +164,8 @@ export const PrintableClassSummaryReport: React.FC<PrintableClassSummaryReportPr
         <div className="space-y-1">
           <div className="h-8"></div>
           <div>(ลงชื่อ).......................................................</div>
-          <div className="font-medium">(นายทะเบียน / งานวัดผล)</div>
-          <div className="text-[10px] text-neutral-600">หัวหน้าฝ่ายวิชาการ</div>
+          <div className="font-medium">({academicHead})</div>
+          <div className="text-[10px] text-neutral-600">หัวหน้าฝ่ายวิชาการ / งานวัดผล</div>
         </div>
 
         <div className="space-y-1">

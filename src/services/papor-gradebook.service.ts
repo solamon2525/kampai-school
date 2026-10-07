@@ -212,4 +212,53 @@ export const paporGradebookService = {
 
     if (error) throw error;
   },
+
+  /**
+   * ซิงค์ผลการประเมิน 4 มิติไปยังตาราง student_term_promotion_records
+   * โดยผสานกับข้อมูลเดิมที่มีอยู่ เพื่อไม่ให้ข้อมูลส่วนอื่น (GPA, เวลาเรียน, ความเห็น) สูญหาย
+   */
+  async syncDimensionToPromotions(
+    academicYear: string,
+    updates: Array<{
+      student_id: string;
+      competency_grade?: string;
+      character_grade?: string;
+      reading_grade?: string;
+      activities_status?: boolean;
+    }>
+  ): Promise<void> {
+    if (updates.length === 0) return;
+    const studentIds = updates.map((u) => u.student_id);
+
+    // 1. ดึงข้อมูล promotion เดิม
+    const existing = await this.getPromotionsForClass(academicYear, studentIds);
+    const existingMap = new Map(existing.map((e) => [e.student_id, e]));
+
+    // 2. ผสานข้อมูล
+    const promoRows: TablesInsert<'student_term_promotion_records'>[] = updates.map((u) => {
+      const prev = existingMap.get(u.student_id);
+      return {
+        student_id: u.student_id,
+        academic_year: academicYear,
+        attendance_percent: prev?.attendance_percent ?? 94,
+        attendance_status: prev?.attendance_status ?? true,
+        indicator_status: prev?.indicator_status ?? true,
+        academic_pass: prev?.academic_pass ?? true,
+        gpa: prev?.gpa ?? 3.5,
+        competency_grade: u.competency_grade !== undefined ? u.competency_grade : (prev?.competency_grade ?? 'ดย'),
+        character_grade: u.character_grade !== undefined ? u.character_grade : (prev?.character_grade ?? 'ดย'),
+        reading_grade: u.reading_grade !== undefined ? u.reading_grade : (prev?.reading_grade ?? 'ดย'),
+        activities_status: u.activities_status !== undefined ? u.activities_status : (prev?.activities_status ?? true),
+        promotion_decision: prev?.promotion_decision ?? 'promoted',
+        promoted_to_level: prev?.promoted_to_level ?? null,
+        teacher_comment_term1: prev?.teacher_comment_term1 ?? 'ตั้งใจเรียน มีวินัย ปฏิบัติตามกฎระเบียบของโรงเรียนได้ดี',
+        teacher_comment_term2: prev?.teacher_comment_term2 ?? 'มีความพร้อมในการศึกษาต่อในระดับชั้นที่สูงขึ้น',
+        parent_comment: prev?.parent_comment ?? 'รับทราบผลการเรียนของนักเรียนเป็นที่เรียบร้อย',
+        approved_at: prev?.approved_at ?? new Date().toISOString(),
+      };
+    });
+
+    await this.savePromotionsBatch(promoRows);
+  },
 };
+

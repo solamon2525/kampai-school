@@ -243,13 +243,16 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
             'แนะแนว',
             'ชุมนุม',
             'เพื่อสังคมและสาธารณประโยชน์',
-          ].map((act) => (
-            <tr key={act} className="h-7">
-              <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{act}</td>
-              <td className="border border-black p-1 w-[16.5%] font-bold"></td>
-              <td className="border border-black p-1 w-[16.5%] font-bold"></td>
-            </tr>
-          ))}
+          ].map((act) => {
+            const isPass = evaluations?.activityGrade !== 'ไม่ผ่าน';
+            return (
+              <tr key={act} className="h-7">
+                <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{act}</td>
+                <td className="border border-black p-1 w-[16.5%] font-bold">{isPass ? '✓' : ''}</td>
+                <td className="border border-black p-1 w-[16.5%] font-bold">{!isPass ? '✓' : ''}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
@@ -270,17 +273,36 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
         </thead>
         <tbody>
           {[
-            'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
-            'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
-            'สรุปการประเมินผล สมรรถนะ',
-          ].map((item) => (
-            <tr key={item} className="h-7">
-              <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{item}</td>
-              <td className="border border-black p-1 w-[15%] font-bold"></td>
-              <td className="border border-black p-1 w-[15%] font-bold"></td>
-              <td className="border border-black p-1 w-[15%] font-bold"></td>
-            </tr>
-          ))}
+            {
+              id: 'reading',
+              name: 'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
+              grade: evaluations?.readingGrade || 'ดีเยี่ยม',
+            },
+            {
+              id: 'character',
+              name: 'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
+              grade: evaluations?.characterGrade || 'ดีเยี่ยม',
+            },
+            {
+              id: 'competency',
+              name: 'สรุปการประเมินผล สมรรถนะ',
+              grade: evaluations?.competencyGrade || 'ดีเยี่ยม',
+            },
+          ].map((item) => {
+            const g = item.grade;
+            const isExcellent = g === 'ดีเยี่ยม' || g === 'ดย' || g === '3';
+            const isGood = g === 'ดี' || g === 'ด' || g === '2';
+            const isPass = g === 'ผ่าน' || g === 'ผ' || g === '1';
+
+            return (
+              <tr key={item.id} className="h-7">
+                <td className="border border-black px-2 py-1 text-left font-medium text-[11.5px]">{item.name}</td>
+                <td className="border border-black p-1 w-[15%] font-bold">{isExcellent ? '✓' : ''}</td>
+                <td className="border border-black p-1 w-[15%] font-bold">{isGood ? '✓' : ''}</td>
+                <td className="border border-black p-1 w-[15%] font-bold">{isPass ? '✓' : ''}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
