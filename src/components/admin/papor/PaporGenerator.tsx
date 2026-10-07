@@ -71,13 +71,40 @@ export const PaporGenerator = () => {
   const effectiveStaffId = authStaffId || linkedRecord?.staff_id;
   const isTeacherRole = role === 'teacher' && !isAdmin;
 
-  const [section, setSection] = useState<MainSection>('gradebook');
+  const [section, setSection] = useState<MainSection>(() => {
+    try {
+      const saved = sessionStorage.getItem('papor_active_tab');
+      return (saved as MainSection) || 'gradebook';
+    } catch {
+      return 'gradebook';
+    }
+  });
   const [doc, setDoc] = useState<Doc>('papor5');
   const [academicYear, setAcademicYear] = useState<string>(settings?.academic_year || '2569');
   const [semester, setSemester] = useState<Semester>('1');
-  const [className, setClassName] = useState<string>('ป.1');
+  const [className, setClassName] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('papor_active_class') || 'ป.1';
+    } catch {
+      return 'ป.1';
+    }
+  });
   const [studentId, setStudentId] = useState<string>('');
   const [bulkBusy, setBulkBusy] = useState(false);
+
+  const handleSectionChange = (val: string) => {
+    setSection(val as MainSection);
+    try {
+      sessionStorage.setItem('papor_active_tab', val);
+    } catch {}
+  };
+
+  const handleClassChange = (c: string) => {
+    setClassName(c);
+    try {
+      sessionStorage.setItem('papor_active_class', c);
+    } catch {}
+  };
 
   useEffect(() => {
     if (settings?.academic_year) {
@@ -284,7 +311,7 @@ export const PaporGenerator = () => {
                 </SelectTrigger>
               </Select>
             ) : (
-              <Select value={className} onValueChange={(v) => { setClassName(v); setStudentId(''); }}>
+              <Select value={className} onValueChange={(v) => { handleClassChange(v); setStudentId(''); }}>
                 <SelectTrigger className="h-8 w-24 bg-card font-semibold text-xs">
                   <SelectValue placeholder="เลือกชั้น" />
                 </SelectTrigger>
@@ -322,7 +349,7 @@ export const PaporGenerator = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setSection('diagnostics')}
+            onClick={() => handleSectionChange('diagnostics')}
             className="h-8 gap-1.5 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold"
           >
             <Stethoscope className="w-3.5 h-3.5" /> ตรวจสอบระบบ
@@ -341,7 +368,7 @@ export const PaporGenerator = () => {
         </Card>
       ) : (
         /* Main Mode Navigation Tabs */
-        <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)} className="print:m-0 print:p-0">
+        <Tabs value={section} onValueChange={handleSectionChange} className="print:m-0 print:p-0">
         <TabsList
           className={cn(
             'grid w-full h-auto p-1 bg-muted/60 print:hidden',
@@ -386,7 +413,7 @@ export const PaporGenerator = () => {
           <PaporGradebookGrid
             selectedClass={className}
             academicYear={academicYear}
-            onNavigateToSubjects={() => setSection('subjects')}
+            onNavigateToSubjects={() => handleSectionChange('subjects')}
           />
         </TabsContent>
 

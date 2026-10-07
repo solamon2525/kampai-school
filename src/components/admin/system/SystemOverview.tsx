@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.14 (ป้องกันหน้าจอกระพริบและรีเฟรชเองเมื่อสลับแท็บเบราว์เซอร์: ปรับปรุง AuthProvider และ Session Lifecycle ไม่ให้ Unmount และเสริม State Persistence ให้หน้า ปพ.6)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ป้องกันการรีเฟรชเองเมื่อสลับแท็บ (Tab Switch & Background Token Refresh Stability): แก้ไข AuthProvider ไม่ให้เพิ่มค่า identity.generation เมื่อเกิดเหตุการณ์ TOKEN_REFRESHED ของผู้ใช้คนเดิม ทำให้ TanStack Query ไม่ล้าง cache และไม่ทำให้ loading กลายเป็น true ซึ่งเดิมเป็นสาเหตุให้ ProtectedRoute สั่ง Unmount หน้าเว็บทั้งหมดออกจาก DOM ทันทีที่สลับแท็บกลับมา',
+            'คงสภาพสิทธิ์และการแสดงผลหน้าจออย่างราบรื่น (Seamless Session & Role Continuity): คงค่า readyPermissions และบทบาท (isAdmin, isTeacher) ไว้อย่างต่อเนื่องในขณะที่มีการต่ออายุ session เบื้องหลัง ตัดวงจรการกระพริบและแสดง spinner คั่นหน้าจอโดยไม่จำเป็น',
+            'เสริมความคงทนของข้อมูลหน้า ปพ.6 ด้วย sessionStorage (Papor Suite State Persistence): เพิ่มการบันทึกและอ่านค่าหน้าปัจจุบัน (currentPage 1–10), โหมดการดู (viewMode), นักเรียนที่เลือก (selectedStudentId), และแท็บการทำงาน (papor_active_tab) ลงใน sessionStorage เพื่อให้ตำแหน่งงานของผู้ใช้ไม่สูญหายแม้จะมีการกดรีเฟรชเบราว์เซอร์',
+        ],
+    },
+    {
         version: 'v1.233.13 (ขยายช่องความคิดเห็นเพิ่มเติมของครูประจำชั้น และยืดตารางคุณลักษณะ ๑๒ ข้อเต็มหน้า A4: สมุด ปพ.6 หน้า ๘ กระจายสัดส่วนสมดุล ลดช่องว่างท้ายแผ่นเหลือ ๘๘px ปลอดภัยไม่ล้นหน้า ๒)',
         date: '7 ต.ค. 2569',
         badge: 'bg-primary',

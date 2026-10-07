@@ -47,15 +47,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const acceptSession = (next: Session | null, revalidate = false) => {
       if (!active) return;
       setSessionError(false);
-      setIdentity(previous => ({
-        session: next, ready: true,
-        generation: previous.generation + (revalidate || previous.session?.user.id !== next?.user.id ? 1 : 0),
-      }));
+      setIdentity(previous => {
+        const userChanged = previous.session?.user.id !== next?.user.id;
+        // Routine TOKEN_REFRESHED for the same user must NEVER bump generation or wipe permissions
+        const shouldBump = userChanged || revalidate;
+        return {
+          session: next,
+          ready: true,
+          generation: previous.generation + (shouldBump ? 1 : 0),
+        };
+      });
     };
     // No Supabase requests inside the synchronous auth callback (auth lock).
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, next) => {
       receivedEvent = true;
-      acceptSession(next, ['SIGNED_IN', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event));
+      // TOKEN_REFRESHED is silent background JWT renewal — never bump generation for same user
+      acceptSession(next, ['USER_UPDATED'].includes(event));
     });
     const failSession = () => {
       if (active && !receivedEvent) {

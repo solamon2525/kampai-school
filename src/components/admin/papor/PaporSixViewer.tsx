@@ -112,15 +112,57 @@ export const PaporSixViewer: React.FC<Props> = ({
   academicYear = '2569',
 }) => {
   const [students, setStudents] = useState<StudentOption[]>([]);
-  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('papor6_active_student') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [currentPage, setCurrentPage] = useState<number>(() => {
+    try {
+      const saved = sessionStorage.getItem('papor6_active_page');
+      const parsed = saved ? parseInt(saved, 10) : 1;
+      return parsed >= 1 && parsed <= 10 ? parsed : 1;
+    } catch {
+      return 1;
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   // Print Mode & Page Selector Controls
   // ค่าเริ่มต้นเลือก 4 หน้าหลักตามความต้องการ: ปก (1), ผลการเรียน (6), หน้า 8 (8), หน้า 9 (9)
   const [selectedPagesToPrint, setSelectedPagesToPrint] = useState<number[]>([1, 6, 8, 9]);
-  const [viewMode, setViewMode] = useState<'single' | 'selected'>('single');
+  const [viewMode, setViewMode] = useState<'single' | 'selected'>(() => {
+    try {
+      const saved = sessionStorage.getItem('papor6_view_mode');
+      return saved === 'selected' ? 'selected' : 'single';
+    } catch {
+      return 'single';
+    }
+  });
   const [showPrintSettings, setShowPrintSettings] = useState(false);
+
+  const handleSetCurrentPage = (page: number) => {
+    setCurrentPage(page);
+    try {
+      sessionStorage.setItem('papor6_active_page', String(page));
+    } catch {}
+  };
+
+  const handleSetViewMode = (mode: 'single' | 'selected') => {
+    setViewMode(mode);
+    try {
+      sessionStorage.setItem('papor6_view_mode', mode);
+    } catch {}
+  };
+
+  const handleSelectStudent = (id: string) => {
+    setSelectedStudentId(id);
+    try {
+      sessionStorage.setItem('papor6_active_student', id);
+    } catch {}
+  };
 
   // Term 1 Mode Switch (เกรดเทอม 1 ไม่เป็น 0)
   const [isTerm1Only, setIsTerm1Only] = useState<boolean>(true);
@@ -168,7 +210,12 @@ export const PaporSixViewer: React.FC<Props> = ({
       const data = await paporGradebookService.getStudentsInClass(selectedClass);
       if (data && data.length > 0) {
         setStudents(data);
-        setSelectedStudentId(data[0].id);
+        const savedStudent = sessionStorage.getItem('papor6_active_student');
+        if (savedStudent && data.some((s) => s.id === savedStudent)) {
+          setSelectedStudentId(savedStudent);
+        } else {
+          setSelectedStudentId(data[0].id);
+        }
       } else {
         setStudents([]);
         setSelectedStudentId('');
@@ -475,7 +522,7 @@ export const PaporSixViewer: React.FC<Props> = ({
           <div className="flex flex-wrap items-center gap-3">
             {/* Student Picker */}
             <div className="w-72">
-              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+              <Select value={selectedStudentId} onValueChange={handleSelectStudent}>
                 <SelectTrigger className="h-9 text-xs">
                   <SelectValue placeholder="เลือกนักเรียน" />
                 </SelectTrigger>
@@ -495,7 +542,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                 variant={viewMode === 'single' ? 'secondary' : 'ghost'}
                 size="sm"
                 className="h-7 text-xs px-2.5"
-                onClick={() => setViewMode('single')}
+                onClick={() => handleSetViewMode('single')}
               >
                 <Eye className="w-3.5 h-3.5 mr-1" /> ดูทีละหน้า
               </Button>
@@ -503,7 +550,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                 variant={viewMode === 'selected' ? 'secondary' : 'ghost'}
                 size="sm"
                 className="h-7 text-xs px-2.5"
-                onClick={() => setViewMode('selected')}
+                onClick={() => handleSetViewMode('selected')}
               >
                 <FileText className="w-3.5 h-3.5 mr-1" /> ดูเฉพาะหน้าที่เลือกพิมพ์ ({selectedPagesToPrint.length})
               </Button>
@@ -516,7 +563,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => handleSetCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage <= 1}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -528,7 +575,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0"
-                  onClick={() => setCurrentPage((p) => Math.min(10, p + 1))}
+                  onClick={() => handleSetCurrentPage(Math.min(10, currentPage + 1))}
                   disabled={currentPage >= 10}
                 >
                   <ChevronRight className="w-4 h-4" />
