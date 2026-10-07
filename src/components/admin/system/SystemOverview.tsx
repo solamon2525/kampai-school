@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.11 (แก้ไขข้อผิดพลาด ReferenceError: ee is not defined ในหน้าสมุด ปพ.6: ย้ายฟังก์ชันแปลงตัวเลขไทย toThaiNumerals สู่ระดับ Top-level Module Scope ป้องกันการตัดทิ้งของ Minifier)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไข ReferenceError: ee is not defined: ปรับฟังก์ชัน toThaiNumerals ให้เป็น Top-level pure utility function นอกคอมโพเนนต์ PaporSixViewer เพื่อป้องกันปัญหา Temporal Dead Zone (TDZ) และ Dead Code Elimination ของ Vite/Rollup/Terser minifier',
+            'ลบคำประกาศฟังก์ชันหลัง return: ทำความสะอาดโค้ดภายใน PaporSixViewer ไม่ให้มีคำสั่ง const declaration นอกฟังก์ชันหลังคำสั่ง return ซึ่งทำให้เกิดการอ้างอิงตัวแปรที่ไม่ได้ประกาศที่ Runtime',
+            'ตรวจสอบความสมบูรณ์ของ Bundle: ผ่านการคอมไพล์ TypeScript 100%, รัน Print Isolation & Form verifiers 100%, และตรวจสอบ assets ที่ build ออกมาให้ทำงานได้อย่างถูกต้องไร้ข้อผิดพลาด',
+        ],
+    },
+    {
         version: 'v1.233.10 (ย้ายและปรับปีการศึกษาเป็นปี 2569 ทั่วทั้งระบบ: ถ่ายโอน 63 รายวิชามาตรฐานและโครงสร้างครูประจำชั้นในฐานข้อมูล, อัปเดต Service layer, โมดูล ปพ.5-ปพ.6, ระบบงานวิชาการ และหน้าหลัก)',
         date: '7 ต.ค. 2569',
         badge: 'bg-primary',

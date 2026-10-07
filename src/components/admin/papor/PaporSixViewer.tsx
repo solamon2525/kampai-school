@@ -98,6 +98,15 @@ export const PARENT_TRAITS_9 = [
   '๙. นักเรียนมีความตรงต่อเวลา',
 ];
 
+/**
+ * ฟังก์ชันแปลงตัวเลขอารบิกเป็นตัวเลขไทยเฉพาะหน้าปก ปพ.6
+ */
+export function toThaiNumerals(val: string | number | null | undefined): string {
+  if (val === null || val === undefined || val === '') return '';
+  const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+  return String(val).replace(/[0-9]/g, (d) => thaiDigits[parseInt(d, 10)]);
+}
+
 export const PaporSixViewer: React.FC<Props> = ({
   selectedClass = 'ป.4',
   academicYear = '2569',
@@ -590,13 +599,6 @@ export const PaporSixViewer: React.FC<Props> = ({
         return renderCoverPage();
     }
   }
-
-  // ฟังก์ชันแปลงตัวเลขอารบิกเป็นตัวเลขไทยเฉพาะหน้าปก ปพ.6
-  const toThaiNumerals = (val: string | number | null | undefined): string => {
-    if (val === null || val === undefined || val === '') return '';
-    const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
-    return String(val).replace(/[0-9]/g, (d) => thaiDigits[parseInt(d, 10)]);
-  };
 
   // ─── 1. COVER PAGE (หน้าปก - Image 1) ────────────────────────────────
   function renderCoverPage() {
