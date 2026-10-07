@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.24 (แก้ไขบั๊ก ReferenceError: Loader2 is not defined เมื่อกดบันทึกความคิดเห็นใน ปพ.6 และย้ายคำสั่งคิวรีคะแนนเข้า Service Layer ตามมาตรฐาน)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไขข้อผิดพลาด Loader2 is not defined (Fix Missing Loader2 Import in PaporSixViewer): นำเข้าไอคอน Loader2 จาก lucide-react ใน PaporSixViewer.tsx แก้ไขอาการหน้าเว็บเด้งเกิดข้อผิดพลาดสีแดงเมื่อผู้ใช้กดปุ่ม "บันทึกความคิดเห็น" ของครูประจำชั้น (หน้า ๘) หรือผู้ปกครอง (หน้า ๙) ในสถานะกำลังบันทึก (isPending)',
+            'ปรับปรุงการดึงคะแนนผ่าน Service Layer (Standardize Score Fetching in PaporReportsCenter): เพิ่มฟังก์ชัน getScoresForClass ใน paporGradebookService เพื่อดึงคะแนนของนักเรียนทั้งห้อง และปรับปรุง PaporReportsCenter ให้เรียกผ่าน service แทนการยิง Supabase ตรง ปฏิบัติตามกฎ Hard Rules ของระบบอย่างเคร่งครัด',
+            'เพิ่มชุดทดสอบการนำเข้าไอคอนครบถ้วน (Papor Icon Import Automated Verification): เพิ่ม scripts/verify-papor-icon-imports.mjs สแกนตรวจสอบการ import ไอคอนทั้งหมดในคอมโพเนนต์ ปพ. ทั้ง ๑๖ ไฟล์ ป้องกันข้อผิดพลาด ReferenceError จากการตกหล่น import ไอคอนซ้ำในอนาคต',
+        ],
+    },
+    {
         version: 'v1.233.23 (เพิ่มช่องแถวเส้นบรรทัด ๗ แถวสำหรับการเขียนด้วยลายมือในตารางความคิดเห็นครูประจำชั้น ปพ.6 หน้า ๘: อำนวยความสะดวกให้ครูจรดปากกาเขียนข้อเสนอแนะได้อย่างประณีตตามมาตรฐาน สพฐ. พร้อมคงความยืดหยุ่นในการพิมพ์ข้อความ)',
         date: '7 ต.ค. 2569',
         badge: 'bg-primary',

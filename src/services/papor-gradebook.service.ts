@@ -120,6 +120,24 @@ export const paporGradebookService = {
   },
 
   /**
+   * ดึงคะแนนดิบทั้งหมดของนักเรียนทั้งห้องในปีการศึกษาที่กำหนด
+   */
+  async getScoresForClass(
+    academicYear: string,
+    studentIds: string[]
+  ): Promise<Tables<'score_records'>[]> {
+    if (studentIds.length === 0) return [];
+    const { data, error } = await supabase
+      .from('score_records')
+      .select('*')
+      .eq('academic_year', academicYear)
+      .in('student_id', studentIds);
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
    * บันทึกคะแนนดิบและผลการเรียนแบบ Atomic Batch
    */
   async saveScoresBatch(

@@ -145,15 +145,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
   const { data: scoreRecords = [], isLoading: loadingScores } = useQuery({
     queryKey: ['papor-class-scores', selectedClass, academicYear],
     enabled: studentIds.length > 0,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('score_records')
-        .select('*')
-        .eq('academic_year', academicYear)
-        .in('student_id', studentIds);
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: () => paporGradebookService.getScoresForClass(academicYear, studentIds),
     staleTime: 30_000,
   });
 
