@@ -118,7 +118,7 @@ const dbGroups = [
 ];
 
 const SYSTEM_OVERVIEW_META = {
-    version: 'v1.233.19',
+    version: 'v1.233.20',
     verifiedDate: '7 ต.ค. 2569',
     verifiedIsoDate: '2026-10-07',
     productionUrl: 'https://kampai-school.vercel.app',
@@ -289,6 +289,16 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.233.20 (ปรับปรุงตารางกิจกรรมพัฒนาผู้เรียนใน ปพ.6 ให้แก้ไขและติ๊กได้อิสระ 3 สถานะ: ผ่าน, ไม่ผ่าน, และยังไม่ติ๊ก พร้อมบันทึกผลลงฐานข้อมูลจริง student_obec_evaluations และ student_term_promotion_records)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ระบบสลับสถานะ 3 ทางสำหรับกิจกรรมพัฒนาผู้เรียน (3-Way Toggle for Development Activities): ใน PaporSixViewer (หน้า ๖) เพิ่ม interactive toggle สำหรับกิจกรรมทั้ง ๔ ด้าน (ลูกเสือ/เนตรนารี, แนะแนว, ชุมนุม, เพื่อสังคมและสาธารณประโยชน์) ให้สามารถคลิกสลับระหว่าง \'ผ่าน\' (เครื่องหมาย ✓ ในช่องผ่าน), \'ไม่ผ่าน\' (เครื่องหมาย ✓ ในช่องไม่ผ่าน), และคลิกซ้ำเพื่อล้างเป็นช่องว่าง (\'ยังไม่ติ๊ก\') ในโหมดแอดมินกรอกเอง',
+            'บันทึกสถานะกิจกรรมรายกิจกรรมลงฐานข้อมูลจริง (Development Activities Database Persistence): ขยาย saveStudentMutation ให้บันทึกผลการประเมินทั้ง ๔ กิจกรรม (scout, guidance, club, social) พร้อมแถวสรุปผล (summary) ลงตาราง student_obec_evaluations และซิงค์ activities_status ไปยังตาราง student_term_promotion_records ผ่าน paporGradebookService.syncDimensionToPromotions เมื่อกดปุ่ม "💾 บันทึกคะแนน/กิจกรรม (คนปัจจุบัน)"',
+            'เชื่อมโยงการแสดงผลไปยังหน้า ๗ และระบบแยกสถานะรายบุคคล (Page 7 & Multi-Student Isolation): ปรับปรุงหน้า ๗ ให้แสดงผลตามกิจกรรมจริงแต่ละรายการ (ผ่าน (ผ), ไม่ผ่าน (มผ), หรือ -) พร้อมสรุปผลแบบเรียลไทม์ และรีเซ็ต customActivities ทุกครั้งที่มีการสลับนักเรียนหรือกดล้างเป็นช่องว่าง ป้องกันค่าค้างข้ามคน',
+        ],
+    },
     {
         version: 'v1.233.19 (ตรวจพบและแก้ไขบั๊กเชิงระบบ ปพ.5 และ ปพ.6 รอบด้าน: แก้ไขการดึงคะแนนและลำดับที่ในศูนย์รายงาน, ปรับสูตรคำนวณ GPA สพฐ. ถ่วงน้ำหนัก, ป้องกัน State Leak ระหว่างสลับนักเรียน, และขยายการบันทึกความคิดเห็นครู/ผู้ปกครองลงฐานข้อมูล)',
         date: '7 ต.ค. 2569',

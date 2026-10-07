@@ -9,7 +9,7 @@
  * - ปรับระยะขอบและ Typography ไม่ให้มีข้อความล้นตัดขอบ (เช่น โรงเรียน, ร่างกาย, ผู้ปกครอง)
  * - รองรับการพิมพ์ A4 ต่อเนื่องหลายหน้าด้วย break-after: page
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,7 @@ import { curriculumSubjectsService, type ObecGradeSubjectRow } from '@/services/
 import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
 import { healthService } from '@/services/health.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { TablesInsert } from '@/integrations/supabase/types';
 
 interface StudentOption {
   id: string;
@@ -101,6 +102,14 @@ export const PARENT_TRAITS_9 = [
   '๘. ช่วยเหลือผู้ปกครองหารายได้',
   '๙. นักเรียนมีความตรงต่อเวลา',
 ];
+
+// กิจกรรมพัฒนาผู้เรียน ๔ รายการ (หน้า ๖ และหน้า ๗)
+export const ACTIVITIES_LIST = [
+  { id: 'scout', name: 'ลูกเสือ' },
+  { id: 'guidance', name: 'แนะแนว' },
+  { id: 'club', name: 'ชุมนุม' },
+  { id: 'social', name: 'เพื่อสังคมและสาธารณประโยชน์' },
+] as const;
 
 /**
  * ฟังก์ชันแปลงตัวเลขอารบิกเป็นตัวเลขไทยเฉพาะหน้าปก ปพ.6
@@ -246,6 +255,7 @@ export const PaporSixViewer: React.FC<Props> = ({
     height2: string;
   }>({ weight1: '', height1: '', weight2: '', height2: '' });
   const [customEvaluations, setCustomEvaluations] = useState<Record<string, string>>({});
+  const [customActivities, setCustomActivities] = useState<Record<string, 'pass' | 'fail' | ''>>({});
 
   const handleToggleEval = (key: string, grade: string) => {
     setCustomEvaluations((prev) => ({
@@ -307,6 +317,42 @@ export const PaporSixViewer: React.FC<Props> = ({
     staleTime: 30_000,
   });
 
+  // Helper: ดึงสถานะผลการประเมินเริ่มต้นของกิจกรรมพัฒนาผู้เรียนจากฐานข้อมูล
+  const getInitialActivityStatus = useCallback(
+    (actId: string): 'pass' | 'fail' | '' => {
+      // 1. ตรวจสอบจาก student_obec_evaluations
+      const evals = studentYearData?.evaluations || [];
+      const found = evals.find(
+        (e: any) => e.evaluation_type === 'activity' && e.category_key === actId
+      );
+      if (found) {
+        if (found.status === 'ผ' || found.status === 'pass') return 'pass';
+        if (found.status === 'มผ' || found.status === 'fail') return 'fail';
+        return '';
+      }
+
+      // 2. Fallback ตรวจสอบจาก promotion.activities_status
+      const promoStatus = studentYearData?.promotion?.activities_status;
+      if (promoStatus === true) return 'pass';
+      if (promoStatus === false) return 'fail';
+      return 'pass';
+    },
+    [studentYearData]
+  );
+
+  // Toggle กิจกรรมพัฒนาผู้เรียน: ผ่าน -> ยังไม่ติ๊ก, ไม่ผ่าน -> ยังไม่ติ๊ก, หรือสลับระหว่างผ่าน/ไม่ผ่าน
+  const handleToggleActivity = (actId: string, targetStatus: 'pass' | 'fail') => {
+    if (!isManualEditMode) return;
+    setCustomActivities((prev) => {
+      const current = prev[actId] !== undefined ? prev[actId] : getInitialActivityStatus(actId);
+      const nextStatus = current === targetStatus ? '' : targetStatus;
+      return {
+        ...prev,
+        [actId]: nextStatus,
+      };
+    });
+  };
+
   // Reset and rehydrate manual draft states when student changes or new studentYearData arrives
   useEffect(() => {
     setCustomSubjectScores({});
@@ -315,6 +361,7 @@ export const PaporSixViewer: React.FC<Props> = ({
     setCustomRemarks({ rank: '', totalScore: '', gpa: '' });
     setCustomGrowth({ weight1: '', height1: '', weight2: '', height2: '' });
     setCustomEvaluations({});
+    setCustomActivities({});
     setCustomTeacherComments({
       term1: studentYearData?.promotion?.teacher_comment_term1 || '',
       term2: studentYearData?.promotion?.teacher_comment_term2 || '',
@@ -378,7 +425,7 @@ export const PaporSixViewer: React.FC<Props> = ({
 
   const queryClient = useQueryClient();
 
-  // Mutation: บันทึกคะแนนของนักเรียนคนปัจจุบันลงฐานข้อมูล
+  // Mutation: บันทึกคะแนนและกิจกรรมพัฒนาผู้เรียนของนักเรียนคนปัจจุบันลงฐานข้อมูล
   const saveStudentMutation = useMutation({
     mutationFn: async () => {
       if (!selectedStudentId) throw new Error('กรุณาเลือกนักเรียน');
@@ -391,29 +438,75 @@ export const PaporSixViewer: React.FC<Props> = ({
           notes: s.note || undefined,
         }));
 
-      if (validScores.length === 0) {
-        throw new Error('ยังไม่มีคะแนนที่ระบุสำหรับบันทึก');
+      // 1. บันทึกคะแนนสอบ (หากมี)
+      if (validScores.length > 0) {
+        await scoresService.saveMidtermScoresForStudent(
+          selectedStudentId,
+          academicYear,
+          '1',
+          validScores,
+          'ผู้ดูแลระบบ (ระบบ ปพ.6)'
+        );
       }
 
-      await scoresService.saveMidtermScoresForStudent(
-        selectedStudentId,
-        academicYear,
-        '1',
-        validScores,
-        'ผู้ดูแลระบบ (ระบบ ปพ.6)'
-      );
+      // 2. บันทึกผลประเมินกิจกรรมพัฒนาผู้เรียน ๔ รายการลง student_obec_evaluations
+      const actRows: TablesInsert<'student_obec_evaluations'>[] = ACTIVITIES_LIST.map((act) => {
+        const st = customActivities[act.id] !== undefined
+          ? customActivities[act.id]
+          : getInitialActivityStatus(act.id);
+        return {
+          student_id: selectedStudentId,
+          academic_year: academicYear,
+          semester: 'all',
+          evaluation_type: 'activity',
+          category_key: act.id,
+          item_key: 'main',
+          score: 40,
+          status: st === 'pass' ? 'ผ' : st === 'fail' ? 'มผ' : '',
+          notes: st === 'pass' ? 'ผ่าน' : st === 'fail' ? 'ไม่ผ่าน' : 'ยังไม่ประเมิน',
+        };
+      });
+
+      const allPass = ACTIVITIES_LIST.every((act) => {
+        const st = customActivities[act.id] !== undefined ? customActivities[act.id] : getInitialActivityStatus(act.id);
+        return st === 'pass';
+      });
+
+      actRows.push({
+        student_id: selectedStudentId,
+        academic_year: academicYear,
+        semester: 'all',
+        evaluation_type: 'activity',
+        category_key: 'summary',
+        item_key: 'main',
+        score: 120,
+        status: allPass ? 'ผ' : 'มผ',
+        notes: allPass ? 'ผ่าน' : 'ไม่ผ่าน',
+      });
+
+      await paporGradebookService.saveEvaluationsBatch(actRows);
+
+      // 3. ซิงค์สถานะ activities_status ไปยัง student_term_promotion_records
+      await paporGradebookService.syncDimensionToPromotions(academicYear, [
+        {
+          student_id: selectedStudentId,
+          activities_status: allPass,
+        },
+      ]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
       queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-evaluations'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-promotions'] });
       queryClient.invalidateQueries({ queryKey: ['score_records'] });
       queryClient.invalidateQueries({ queryKey: ['papor-scores'] });
       queryClient.invalidateQueries({ queryKey: ['papor-class-scores'] });
       setCustomSubjectScores({});
-      toast.success(`บันทึกคะแนนของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
+      toast.success(`บันทึกคะแนนและกิจกรรมของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
     },
     onError: (err: any) => {
-      toast.error('ไม่สามารถบันทึกคะแนนได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
+      toast.error('ไม่สามารถบันทึกข้อมูลได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
     },
   });
 
@@ -584,6 +677,7 @@ export const PaporSixViewer: React.FC<Props> = ({
     setCustomParentComments('');
     setCustomRemarks({ rank: '', totalScore: '', gpa: '' });
     setCustomSubjectScores({});
+    setCustomActivities({ scout: '', guidance: '', club: '', social: '' });
     toast.success('ล้างข้อมูลตัวอย่างทั้งหมดเป็นค่าว่างเรียบร้อยแล้ว');
   };
 
@@ -1519,7 +1613,7 @@ export const PaporSixViewer: React.FC<Props> = ({
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2 print:hidden shadow-xs">
             <div className="flex items-center gap-2 text-xs text-primary font-medium">
               <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span>โหมดแก้ไขคะแนน: พิมพ์คะแนนในช่อง "คะแนนที่ได้" แล้วบันทึกลงฐานข้อมูล</span>
+              <span>โหมดแก้ไขคะแนน & กิจกรรม: พิมพ์คะแนน หรือคลิกผลประเมินกิจกรรม (ผ่าน / ไม่ผ่าน / ยังไม่ติ๊ก) แล้วบันทึกลงฐานข้อมูล</span>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -1559,7 +1653,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                 ) : (
                   <Save className="w-3.5 h-3.5" />
                 )}
-                <span>💾 บันทึกคะแนน (คนปัจจุบัน)</span>
+                <span>💾 บันทึกคะแนน/กิจกรรม (คนปัจจุบัน)</span>
               </Button>
             </div>
           </div>
@@ -1684,17 +1778,39 @@ export const PaporSixViewer: React.FC<Props> = ({
             </tr>
           </thead>
           <tbody>
-            {['ลูกเสือ', 'แนะแนว', 'ชุมนุม', 'เพื่อสังคมและสาธารณประโยชน์'].map((act) => (
-              <tr key={act} className="h-5">
-                <td className="border border-black px-1.5 py-0.5 text-left font-medium">{act}</td>
-                <td className="border border-black p-0.5 w-[16.5%] font-bold">
-                  {studentYearData?.promotion?.activities_status !== false ? '✓' : ''}
-                </td>
-                <td className="border border-black p-0.5 w-[16.5%] font-bold">
-                  {studentYearData?.promotion?.activities_status === false ? '✓' : ''}
-                </td>
-              </tr>
-            ))}
+            {ACTIVITIES_LIST.map((act) => {
+              const currentStatus = customActivities[act.id] !== undefined
+                ? customActivities[act.id]
+                : getInitialActivityStatus(act.id);
+              const isPass = currentStatus === 'pass';
+              const isFail = currentStatus === 'fail';
+
+              return (
+                <tr key={act.id} className="h-5">
+                  <td className="border border-black px-1.5 py-0.5 text-left font-medium">{act.name}</td>
+                  <td
+                    onClick={() => handleToggleActivity(act.id, 'pass')}
+                    title={isManualEditMode ? 'คลิกเพื่อติ๊ก ผ่าน (คลิกซ้ำเพื่อยกเลิก)' : undefined}
+                    className={cn(
+                      'border border-black p-0.5 w-[16.5%] font-bold',
+                      isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
+                    )}
+                  >
+                    {isPass ? '✓' : ''}
+                  </td>
+                  <td
+                    onClick={() => handleToggleActivity(act.id, 'fail')}
+                    title={isManualEditMode ? 'คลิกเพื่อติ๊ก ไม่ผ่าน (คลิกซ้ำเพื่อยกเลิก)' : undefined}
+                    className={cn(
+                      'border border-black p-0.5 w-[16.5%] font-bold',
+                      isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
+                    )}
+                  >
+                    {isFail ? '✓' : ''}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -1852,28 +1968,46 @@ export const PaporSixViewer: React.FC<Props> = ({
             </thead>
             <tbody>
               {[
-                { name: '๑. กิจกรรมแนะแนว', hours: '๔๐', req: 'ร้อยละ ๘๐', pass: actStatus },
-                { name: '๒. กิจกรรมนักเรียน (ลูกเสือ / เนตรนารี)', hours: '๔๐', req: 'ร้อยละ ๘๐', pass: actStatus },
-                { name: '๓. กิจกรรมนักเรียน (ชุมนุม / ชมรม)', hours: '๓๐', req: 'ร้อยละ ๘๐', pass: actStatus },
-                { name: '๔. กิจกรรมเพื่อสังคมและสาธารณประโยชน์', hours: '๑๐', req: 'ร้อยละ ๘๐', pass: actStatus },
-              ].map((act) => (
-                <tr key={act.name} className="h-6">
-                  <td className="border border-black px-2 py-0.5 text-left font-medium">{act.name}</td>
-                  <td className="border border-black p-0.5">{act.hours}</td>
-                  <td className="border border-black p-0.5 text-[10px]">{act.req}</td>
-                  <td className="border border-black p-0.5 font-bold text-emerald-800">
-                    {act.pass ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)'}
-                  </td>
-                </tr>
-              ))}
-              <tr className="bg-neutral-50 font-bold h-6">
-                <td className="border border-black px-2 py-0.5 text-center">สรุปผลการประเมินกิจกรรมพัฒนาผู้เรียน</td>
-                <td className="border border-black p-0.5">๑๒๐</td>
-                <td className="border border-black p-0.5 text-[10px]">ผ่านเกณฑ์</td>
-                <td className="border border-black p-0.5 text-emerald-900 bg-emerald-50">
-                  {actStatus ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)'}
-                </td>
-              </tr>
+                { id: 'guidance', name: '๑. กิจกรรมแนะแนว', hours: '๔๐', req: 'ร้อยละ ๘๐' },
+                { id: 'scout', name: '๒. กิจกรรมนักเรียน (ลูกเสือ / เนตรนารี)', hours: '๔๐', req: 'ร้อยละ ๘๐' },
+                { id: 'club', name: '๓. กิจกรรมนักเรียน (ชุมนุม / ชมรม)', hours: '๓๐', req: 'ร้อยละ ๘๐' },
+                { id: 'social', name: '๔. กิจกรรมเพื่อสังคมและสาธารณประโยชน์', hours: '๑๐', req: 'ร้อยละ ๘๐' },
+              ].map((act) => {
+                const st = customActivities[act.id] !== undefined
+                  ? customActivities[act.id]
+                  : getInitialActivityStatus(act.id);
+                const display = st === 'pass' ? 'ผ่าน (ผ)' : st === 'fail' ? 'ไม่ผ่าน (มผ)' : '-';
+                return (
+                  <tr key={act.id} className="h-6">
+                    <td className="border border-black px-2 py-0.5 text-left font-medium">{act.name}</td>
+                    <td className="border border-black p-0.5">{act.hours}</td>
+                    <td className="border border-black p-0.5 text-[10px]">{act.req}</td>
+                    <td
+                      className={cn(
+                        'border border-black p-0.5 font-bold',
+                        st === 'pass' ? 'text-emerald-800' : st === 'fail' ? 'text-red-700' : 'text-neutral-500'
+                      )}
+                    >
+                      {display}
+                    </td>
+                  </tr>
+                );
+              })}
+              {(() => {
+                const allPass = ACTIVITIES_LIST.every(
+                  (act) => (customActivities[act.id] !== undefined ? customActivities[act.id] : getInitialActivityStatus(act.id)) === 'pass'
+                );
+                return (
+                  <tr className="bg-neutral-50 font-bold h-6">
+                    <td className="border border-black px-2 py-0.5 text-center">สรุปผลการประเมินกิจกรรมพัฒนาผู้เรียน</td>
+                    <td className="border border-black p-0.5">๑๒๐</td>
+                    <td className="border border-black p-0.5 text-[10px]">ผ่านเกณฑ์</td>
+                    <td className={cn('border border-black p-0.5', allPass ? 'text-emerald-900 bg-emerald-50' : 'text-red-800 bg-red-50')}>
+                      {allPass ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)'}
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>
