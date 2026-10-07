@@ -299,7 +299,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
   const isLoading = loadingSubjects || loadingStudents || loadingScores;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print:space-y-0 print:p-0 print:m-0">
       {/* Print Controls Header - Hidden during print */}
       <Card className="bg-card print:hidden shadow-sm border-border">
         <CardHeader className="pb-4 border-b border-border">
@@ -448,10 +448,10 @@ export const PaporReportsCenter: React.FC<Props> = ({
           </p>
         </div>
       ) : (
-        <div className="report-paper-wrapper bg-muted/40 p-2 md:p-6 rounded-xl border border-border flex justify-center print:p-0 print:m-0 print:bg-transparent print:border-none">
+        <div className="report-paper-wrapper bg-muted/40 p-2 md:p-6 rounded-xl border border-border flex justify-center print:p-0 print:m-0 print:bg-transparent print:border-none print:w-full">
           {/* Mode 1: ปพ.6 รายบุคคล */}
           {reportMode === 'individual' && selectedStudent && (
-            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm] print:max-w-none print:w-full print:m-0 print:p-0">
               <PrintableStudentReportCard
                 student={selectedStudent}
                 academicYear={academicYear}
@@ -471,7 +471,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 2: ปพ.6 พิมพ์ทั้งห้อง 1-Click Batch Print */}
           {reportMode === 'batch_individual' && (
-            <div className="w-full max-w-[210mm]">
+            <div className="w-full max-w-[210mm] print:max-w-none print:w-full print:m-0 print:p-0">
               <PrintableBatchStudentReportCards
                 students={students}
                 academicYear={academicYear}
@@ -486,7 +486,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 3: ปพ.5-ป สรุปทั้งชั้น (A4 แนวนอน) */}
           {reportMode === 'class_summary' && (
-            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[297mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[297mm] print:max-w-none print:w-full print:m-0 print:p-0">
               <PrintableClassSummaryReport
                 selectedClass={selectedClass}
                 academicYear={academicYear}
@@ -500,7 +500,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 4: สลิปแจ้งผลการเรียนสำหรับผู้ปกครอง */}
           {reportMode === 'parent_slip' && selectedStudent && (
-            <div className="w-full max-w-[210mm]">
+            <div className="w-full max-w-[210mm] print:max-w-none print:w-full print:m-0 print:p-0">
               <PrintableParentGradeSlip
                 student={selectedStudent}
                 academicYear={academicYear}
@@ -516,7 +516,7 @@ export const PaporReportsCenter: React.FC<Props> = ({
 
           {/* Mode 5: ใบรับรองผลการศึกษา ปพ.7 */}
           {reportMode === 'certificate' && selectedStudent && (
-            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm]">
+            <div className="bg-card rounded shadow-md border border-border print:shadow-none print:border-none w-full max-w-[210mm] print:max-w-none print:w-full print:m-0 print:p-0">
               <PrintableAcademicCertificate
                 student={selectedStudent}
                 academicYear={academicYear}

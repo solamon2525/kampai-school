@@ -219,10 +219,10 @@ export const PaporGenerator = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print:space-y-0 print:m-0 print:p-0">
       {/* Teacher No Assignment Banner */}
       {isTeacherRole && !loadingAssignments && classes.length === 0 && (
-        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 flex items-center gap-3">
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 flex items-center gap-3 print:hidden">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
           <div>
             <p className="font-semibold text-sm">ยังไม่พบข้อมูลชั้นเรียนที่คุณได้รับมอบหมายในปีการศึกษา {academicYear}</p>
@@ -234,7 +234,7 @@ export const PaporGenerator = () => {
       )}
 
       {/* Top Header & Global Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4 print:hidden">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FileText className="w-7 h-7 text-primary" />
@@ -335,10 +335,10 @@ export const PaporGenerator = () => {
         </Card>
       ) : (
         /* Main Mode Navigation Tabs */
-        <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)}>
+        <Tabs value={section} onValueChange={(v) => setSection(v as MainSection)} className="print:m-0 print:p-0">
         <TabsList
           className={cn(
-            'grid w-full h-auto p-1 bg-muted/60',
+            'grid w-full h-auto p-1 bg-muted/60 print:hidden',
             isAdmin
               ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9'
               : 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-8'
@@ -376,7 +376,7 @@ export const PaporGenerator = () => {
         </TabsList>
 
         {/* Tab 1: Online Gradebook Grid */}
-        <TabsContent value="gradebook" className="pt-4">
+        <TabsContent value="gradebook" className="pt-4 print:pt-0 print:m-0">
           <PaporGradebookGrid
             selectedClass={className}
             academicYear={academicYear}
@@ -385,7 +385,7 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 2: Dynamic Subject Manager */}
-        <TabsContent value="subjects" className="pt-4">
+        <TabsContent value="subjects" className="pt-4 print:pt-0 print:m-0">
           <PaporSubjectManager
             selectedClass={className}
             academicYear={academicYear}
@@ -393,7 +393,7 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 3: 4-Dimension Evaluations */}
-        <TabsContent value="evaluations" className="pt-4">
+        <TabsContent value="evaluations" className="pt-4 print:pt-0 print:m-0">
           <PaporEvaluationsManager
             selectedClass={className}
             academicYear={academicYear}
@@ -401,7 +401,7 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 4: Promotions & Decisions */}
-        <TabsContent value="promotions" className="pt-4">
+        <TabsContent value="promotions" className="pt-4 print:pt-0 print:m-0">
           <PaporPromotionManager
             selectedClass={className}
             academicYear={academicYear}
@@ -409,7 +409,7 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 5: Printable Reports Hub (A4 Portrait & Landscape) */}
-        <TabsContent value="reports" className="pt-4">
+        <TabsContent value="reports" className="pt-4 print:pt-0 print:m-0">
           <PaporReportsCenter
             selectedClass={className}
             academicYear={academicYear}
@@ -417,7 +417,7 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 6: 10-Page Official Booklet */}
-        <TabsContent value="booklet" className="pt-4">
+        <TabsContent value="booklet" className="pt-4 print:pt-0 print:m-0">
           <PaporSixViewer
             selectedClass={className}
             academicYear={academicYear}
@@ -425,19 +425,19 @@ export const PaporGenerator = () => {
         </TabsContent>
 
         {/* Tab 7: Excel Import / Export Sync */}
-        <TabsContent value="excel" className="pt-4">
+        <TabsContent value="excel" className="pt-4 print:pt-0 print:m-0">
           <PaporExcelSync />
         </TabsContent>
 
         {/* Tab 8: Teacher Class Assignments (Admin Only) */}
         {isAdmin && (
-          <TabsContent value="teachers" className="pt-4">
+          <TabsContent value="teachers" className="pt-4 print:pt-0 print:m-0">
             <TeacherClassAssignmentManager academicYear={academicYear} />
           </TabsContent>
         )}
 
         {/* Tab 9: Interactive Diagnostics & Web Debugger */}
-        <TabsContent value="diagnostics" className="pt-4">
+        <TabsContent value="diagnostics" className="pt-4 print:pt-0 print:m-0">
           <PaporDiagnosticCenter
             selectedClass={className}
             academicYear={academicYear}

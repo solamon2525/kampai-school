@@ -141,11 +141,11 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
     );
 
     return (
-        <div className="min-h-screen bg-secondary">
-            <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r shadow-lg z-40 hidden lg:block">
+        <div className="min-h-screen bg-secondary print:bg-white print:min-h-0">
+            <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r shadow-lg z-40 hidden lg:block print:hidden">
                 <Sidebar />
             </aside>
-            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-2 px-4 py-3 bg-card border-b">
+            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-2 px-4 py-3 bg-card border-b print:hidden">
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetTrigger asChild><Button variant="ghost" size="icon"><Menu className="w-5 h-5" /></Button></SheetTrigger>
                     <SheetContent side="left" className="p-0 w-72"><Sidebar /></SheetContent>
@@ -162,7 +162,7 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                 </Button>
                 <LanguageSwitcher className="h-8 px-2 shrink-0" />
             </div>
-            <div className="hidden lg:flex lg:ml-64 sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/95 backdrop-blur border-b border-border">
+            <div className="hidden lg:flex lg:ml-64 sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-card/95 backdrop-blur border-b border-border print:hidden">
                 <button
                     type="button"
                     onClick={() => openPalette(true)}
@@ -175,10 +175,12 @@ export const RolePortalLayout = ({ children, title, subtitle, menu, accent }: Ro
                 </button>
                 <LanguageSwitcher />
             </div>
-            <main className="lg:ml-64 min-h-screen">{children}</main>
+            <main className="lg:ml-64 min-h-screen print:ml-0 print:p-0 print:m-0 print:min-h-0 print:w-full">{children}</main>
             {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}
-            <ScanFAB />
-            {accent === 'teacher' && <TeacherOnboardingTour enabled />}
+            <div className="print:hidden">
+                <ScanFAB />
+                {accent === 'teacher' && <TeacherOnboardingTour enabled />}
+            </div>
         </div>
     );
 };

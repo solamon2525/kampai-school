@@ -118,7 +118,31 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   const gradeLevelNum = selectedClass.replace(/[^0-9]/g, '') || '4';
 
   return (
-    <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 text-[11px] leading-tight select-none">
+    <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 print:w-full text-[11px] leading-tight select-none">
+      {/* ─── SCOPED PRINT CSS: ควบคุมกระดาษ A4 แนวตั้ง และป้องกันการแตกหน้า ─── */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 6mm 8mm 6mm 8mm;
+          }
+          .printable-report-card {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .printable-report-card table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+        }
+      `}</style>
+
       {/* ─── HEADER: ปพ. 6 + ตรา รร + หัวข้อกึ่งกลาง ─── */}
       <div className="relative mb-2">
         {/* Top Right: ปพ. 6 */}
@@ -138,7 +162,7 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
         )}
 
         {/* Center Header */}
-        <div className="text-center space-y-1 pt-0.5 px-14">
+        <div className="text-center space-y-0.5 pt-0.5 px-14">
           <div className="font-bold text-xs sm:text-sm">
             ผลการเรียนปีการศึกษา {academicYear} &nbsp;&nbsp; {schoolName} &nbsp;&nbsp; {districtName}
           </div>
@@ -151,7 +175,7 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
       {/* ─── TABLE 1: สาระการเรียนรู้ (11 วิชา ป.4) ─── */}
       <table className="w-full border-collapse border border-black text-center text-[11px] mb-2">
         <thead>
-          <tr className="bg-neutral-100/70 font-semibold h-7">
+          <tr className="bg-neutral-100/70 font-semibold h-6">
             <th className="border border-black p-1 text-center w-[36%]">สาระการเรียนรู้</th>
             <th className="border border-black p-1 w-[9%]">น้ำหนัก</th>
             <th className="border border-black p-1 w-[11%]">คะแนนเต็ม</th>
@@ -186,24 +210,6 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
               </tr>
             );
           })}
-
-          {/* แถวว่างตกแต่ง 2 แถวให้ตรงตามแบบฟอร์มต้นฉบับ */}
-          <tr className="h-5">
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-          </tr>
-          <tr className="h-5">
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-            <td className="border border-black p-0.5"></td>
-          </tr>
 
           {/* แถวสรุปรวม */}
           <tr className="h-6 font-bold bg-neutral-100/50">

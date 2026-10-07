@@ -336,9 +336,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     }, [navigate]);
 
     return (
-        <div className="min-h-screen bg-admin-bg">
+        <div className="min-h-screen bg-admin-bg print:bg-white print:min-h-0">
             {/* Desktop Sidebar — dark slate (always) */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-admin-sidebar shadow-xl z-40 hidden lg:block">
+            <aside className="fixed left-0 top-0 h-full w-64 bg-admin-sidebar shadow-xl z-40 hidden lg:block print:hidden">
                 <SidebarContent
                     settings={settings}
                     isAdmin={isAdmin}
@@ -350,7 +350,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             </aside>
 
             {/* Mobile Header + Sheet Sidebar */}
-            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-admin-surface border-b border-admin-border">
+            <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-admin-surface border-b border-admin-border print:hidden">
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -374,7 +374,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
             {/* Desktop Top Bar */}
             {(isAdmin || allowedMenus.length > 0) && (
-                <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-admin-surface/95 backdrop-blur border-b border-admin-border">
+                <div className="lg:ml-64 hidden lg:flex sticky top-0 z-30 justify-end items-center gap-2 px-6 py-2 bg-admin-surface/95 backdrop-blur border-b border-admin-border print:hidden">
                     <button
                         onClick={() => openPalette(true)}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-admin-border bg-admin-bg/40 text-xs text-admin-text-muted hover:text-admin-text hover:bg-admin-bg/70 transition-colors min-w-[220px]"
@@ -390,16 +390,20 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             )}
 
             {/* Main Content */}
-            <main className="lg:ml-64 min-h-screen">
+            <main className="lg:ml-64 min-h-screen print:ml-0 print:p-0 print:m-0 print:min-h-0 print:w-full">
                 {children}
             </main>
 
             {/* Floating Action Button — สแกน QR ด่วน (mobile only) */}
-            <ScanFAB />
+            <div className="print:hidden">
+                <ScanFAB />
+            </div>
 
             {/* Camera permission pre-request — ขออนุญาตล่วงหน้าตอน login ครั้งแรก */}
-            <CameraPermissionPrompt />
-            <AdminOnboardingTour enabled={isAdmin || allowedMenus.length > 0} />
+            <div className="print:hidden">
+                <CameraPermissionPrompt />
+                <AdminOnboardingTour enabled={isAdmin || allowedMenus.length > 0} />
+            </div>
         </div>
     );
 };

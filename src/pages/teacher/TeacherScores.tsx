@@ -11,9 +11,9 @@ export default function TeacherScores() {
 
     return (
         <RolePortalLayout title="Portal ครู" subtitle="ครู/บุคลากร" menu={TEACHER_MENU} accent="teacher">
-            <div className="space-y-4">
+            <div className="space-y-4 print:space-y-0 print:p-0 print:m-0">
                 <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-                    <TabsList className="grid w-full grid-cols-2 max-w-md">
+                    <TabsList className="grid w-full grid-cols-2 max-w-md print:hidden">
                         <TabsTrigger value="papor" className="gap-2">
                             <FileText className="w-4 h-4 text-primary" />
                             ระบบ ปพ.5 / ปพ.6 สพฐ.
@@ -24,10 +24,10 @@ export default function TeacherScores() {
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="papor" className="pt-2">
+                    <TabsContent value="papor" className="pt-2 print:pt-0 print:m-0">
                         <PaporGenerator />
                     </TabsContent>
-                    <TabsContent value="daily" className="pt-2">
+                    <TabsContent value="daily" className="pt-2 print:pt-0 print:m-0">
                         <ScoresManagement />
                     </TabsContent>
                 </Tabs>

@@ -282,3 +282,47 @@ html, body {
     animation: spin-slow 12s linear infinite;
   }
 }
+
+/* ── Global Print Styles for Official School Documents (สพฐ. A4) ── */
+@media print {
+  /* ซ่อน Navigation, Sidebar, Headers, Footers และส่วนที่ไม่เกี่ยวข้องกับการพิมพ์ */
+  header,
+  nav,
+  aside,
+  footer,
+  [role="navigation"],
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* ล้างระยะขอบและพื้นหลังเว็บ ให้เป็นกระดาษขาวล้วน */
+  html, body {
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Sarabun', sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ปรับ main content ให้เต็มแผ่นโดยไม่มี margin ซ้ายจาก sidebar */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  /* ป้องกันการแตกหน้าของเอกสารรายงานผล ปพ.6 */
+  .printable-report-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+}
