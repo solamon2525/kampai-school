@@ -33,13 +33,16 @@ import {
   Sparkles,
   RefreshCw,
   FileText,
+  Save,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paporService } from '@/services/papor.service';
 import { paporGradebookService } from '@/services/papor-gradebook.service';
+import { scoresService } from '@/services/scores.service';
 import { curriculumSubjectsService, type ObecGradeSubjectRow } from '@/services/curriculum-subjects.service';
 import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface StudentOption {
   id: string;
@@ -291,6 +294,81 @@ export const PaporSixViewer: React.FC<Props> = ({
   const totalObtainedScore = useMemo(() => {
     return displayScores.reduce((sum, s) => sum + (parseFloat(s.obtained) || 0), 0);
   }, [displayScores]);
+
+  const queryClient = useQueryClient();
+
+  // Mutation: บันทึกคะแนนของนักเรียนคนปัจจุบันลงฐานข้อมูล
+  const saveStudentMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedStudentId) throw new Error('กรุณาเลือกนักเรียน');
+      const validScores = displayScores
+        .filter((s) => s.obtained !== '' && !isNaN(parseFloat(s.obtained)))
+        .map((s) => ({
+          subject: s.subjectName,
+          score: parseFloat(s.obtained),
+          maxScore: 50,
+          notes: s.note || undefined,
+        }));
+
+      if (validScores.length === 0) {
+        throw new Error('ยังไม่มีคะแนนที่ระบุสำหรับบันทึก');
+      }
+
+      await scoresService.saveMidtermScoresForStudent(
+        selectedStudentId,
+        academicYear,
+        '1',
+        validScores,
+        'ผู้ดูแลระบบ (ระบบ ปพ.6)'
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['score_records'] });
+      setCustomSubjectScores({});
+      toast.success(`บันทึกคะแนนของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
+    },
+    onError: (err: any) => {
+      toast.error('ไม่สามารถบันทึกคะแนนได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
+    },
+  });
+
+  // Mutation: เติมคะแนนเฉพาะวิชาที่ว่างให้เพื่อนร่วมชั้นทุกคน (Safe Batch Fill)
+  const batchFillMutation = useMutation({
+    mutationFn: async () => {
+      const templateScores = displayScores
+        .filter((s) => s.obtained !== '' && !isNaN(parseFloat(s.obtained)))
+        .map((s) => ({
+          subject: s.subjectName,
+          score: parseFloat(s.obtained),
+          maxScore: 50,
+        }));
+
+      if (templateScores.length === 0) {
+        throw new Error('กรุณากรอกคะแนนอย่างน้อย 1 วิชาก่อนใช้งานคำสั่งนี้');
+      }
+
+      return await scoresService.batchFillEmptySubjectsForClass(
+        selectedClass,
+        academicYear,
+        '1',
+        templateScores,
+        'ผู้ดูแลระบบ (ระบบ ปพ.6 เติมทั้งห้อง)'
+      );
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['score_records'] });
+      toast.success(
+        `เติมคะแนนวิชาที่ว่างให้เพื่อนร่วมชั้น ${selectedClass} เรียบร้อยแล้ว (เพิ่มใหม่ ${result.insertedCount} รายการ ใน ${result.studentCount} คน)`
+      );
+    },
+    onError: (err: any) => {
+      toast.error('เกิดข้อผิดพลาดในการเติมคะแนนทั้งห้อง: ' + (err.message || 'ข้อผิดพลาดระบบ'));
+    },
+  });
 
   // Page selection helpers
   const togglePageSelect = (pageId: number) => {
@@ -879,6 +957,57 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
           <div className="w-12 text-right font-mono text-[10px] text-neutral-400">ปพ.6</div>
         </div>
+
+        {/* Action Toolbar for Manual Edit Mode: Save to Database & Safe Batch Fill */}
+        {isManualEditMode && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2 print:hidden shadow-xs">
+            <div className="flex items-center gap-2 text-xs text-primary font-medium">
+              <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span>โหมดแก้ไขคะแนน: พิมพ์คะแนนในช่อง "คะแนนที่ได้" แล้วบันทึกลงฐานข้อมูล</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const validCount = displayScores.filter((s) => s.obtained !== '' && !isNaN(parseFloat(s.obtained))).length;
+                  if (validCount === 0) {
+                    toast.warning('กรุณากรอกคะแนนวิชาที่ต้องการเติมให้เพื่อนก่อน');
+                    return;
+                  }
+                  if (window.confirm(`ยืนยันการนำคะแนนวิชาที่กรอกไว้ ไปเติมให้กับเพื่อนร่วมชั้น ${selectedClass} ทุกคนที่ยังไม่มีคะแนนหรือไม่?\n\n(ระบบ Safe Mode จะเติมเฉพาะวิชาที่ว่างอยู่ โดยไม่แตะต้องคะแนนสอบเดิม 8 วิชาของเพื่อน)`)) {
+                    batchFillMutation.mutate();
+                  }
+                }}
+                disabled={batchFillMutation.isPending || saveStudentMutation.isPending}
+                className="h-8 text-xs gap-1.5 border-primary/30 hover:bg-primary/10"
+              >
+                {batchFillMutation.isPending ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Users className="w-3.5 h-3.5" />
+                )}
+                <span>ใช้คะแนนช่องที่ว่างกับเพื่อนทั้งห้อง</span>
+              </Button>
+
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => saveStudentMutation.mutate()}
+                disabled={saveStudentMutation.isPending || batchFillMutation.isPending}
+                className="h-8 text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+              >
+                {saveStudentMutation.isPending ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5" />
+                )}
+                <span>💾 บันทึกคะแนน (คนปัจจุบัน)</span>
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Academic Subjects Table */}
         <table className="w-full border-collapse border border-black text-center text-[11px] leading-tight">

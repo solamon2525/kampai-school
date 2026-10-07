@@ -181,10 +181,10 @@ export const PaporGradebookGrid: React.FC<Props> = ({
 
     const initialRows: GradeRow[] = students.map((st) => {
       const sData = scoreMap[st.id] || {};
-      const f1 = sData['1_ระหว่างเรียน_T1'] ?? 0;
-      const s1 = sData['1_ปลายภาค_T1'] ?? 0;
-      const f2 = sData['2_ระหว่างเรียน_T2'] ?? 0;
-      const s2 = sData['2_ปลายภาค_T2'] ?? 0;
+      const f1 = sData['1_เก็บ'] ?? sData['1_กลางภาค'] ?? sData['1_ระหว่างเรียน_T1'] ?? 0;
+      const s1 = sData['1_ปลายภาค'] ?? sData['1_ปลายภาค_T1'] ?? 0;
+      const f2 = sData['2_เก็บ'] ?? sData['2_กลางภาค'] ?? sData['2_ระหว่างเรียน_T2'] ?? 0;
+      const s2 = sData['2_ปลายภาค'] ?? sData['2_ปลายภาค_T2'] ?? 0;
 
       const t1 = f1 + s1;
       const t2 = f2 + s2;
@@ -228,7 +228,7 @@ export const PaporGradebookGrid: React.FC<Props> = ({
           {
             student_id: r.student.id,
             subject: currentSubject.subject_name,
-            score_type: 'ระหว่างเรียน_T1',
+            score_type: 'เก็บ',
             score: r.formativeT1,
             max_score: currentSubject.formative_weight,
             semester: '1',
@@ -238,7 +238,7 @@ export const PaporGradebookGrid: React.FC<Props> = ({
           {
             student_id: r.student.id,
             subject: currentSubject.subject_name,
-            score_type: 'ปลายภาค_T1',
+            score_type: 'ปลายภาค',
             score: r.summativeT1,
             max_score: currentSubject.summative_weight,
             semester: '1',
@@ -248,7 +248,7 @@ export const PaporGradebookGrid: React.FC<Props> = ({
           {
             student_id: r.student.id,
             subject: currentSubject.subject_name,
-            score_type: 'ระหว่างเรียน_T2',
+            score_type: 'เก็บ',
             score: r.formativeT2,
             max_score: currentSubject.formative_weight,
             semester: '2',
@@ -258,7 +258,7 @@ export const PaporGradebookGrid: React.FC<Props> = ({
           {
             student_id: r.student.id,
             subject: currentSubject.subject_name,
-            score_type: 'ปลายภาค_T2',
+            score_type: 'ปลายภาค',
             score: r.summativeT2,
             max_score: currentSubject.summative_weight,
             semester: '2',
