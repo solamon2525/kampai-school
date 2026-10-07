@@ -244,15 +244,24 @@ export const PaporSixViewer: React.FC<Props> = ({
     const term1Scores = studentYearData?.term1?.scores || [];
 
     return classSubjects.map((sub: ObecGradeSubjectRow) => {
-      const found = term1Scores.find((s: any) => s.subject === sub.subject_name || s.subject === sub.subject_code);
+      const norm = (str: string) => (str || '').trim().toLowerCase().replace(/\s*[๑-๖1-6]$/, '');
+      const found = term1Scores.find(
+        (s: any) =>
+          s.subject === sub.subject_name ||
+          s.subject === sub.subject_code ||
+          norm(s.subject) === norm(sub.subject_name)
+      );
       const custom = customSubjectScores[sub.id] || {};
 
       const fullMarks = 100;
-      const obtained = custom.obtained !== undefined ? custom.obtained : (found ? String(found.score) : '0');
+      const rawObtained = found
+        ? (found.total !== undefined ? String(found.total) : (found.score !== undefined ? String(found.score) : ''))
+        : '';
+      const obtained = custom.obtained !== undefined ? custom.obtained : rawObtained;
       // Term 1 rule: no grade 0! Blank or custom or '-'
       let grade = '';
       if (!isTerm1Only) {
-        grade = custom.grade !== undefined ? custom.grade : (found ? String(found.grade) : '0');
+        grade = custom.grade !== undefined ? custom.grade : (found ? String(found.grade ?? '') : '');
       } else if (custom.grade) {
         grade = custom.grade;
       }
@@ -948,7 +957,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                   ) : (
                     score.note || (
                       idx === 3 ? <span className="font-medium">คะแนนที่ได้</span> :
-                      idx === 4 ? <span className="font-bold font-mono">{totalObtainedScore}</span> :
+                      idx === 4 ? <span className="font-bold font-mono">{totalObtainedScore > 0 ? totalObtainedScore : ''}</span> :
                       idx === 6 ? <span className="font-medium">เกรดเฉลี่ย</span> :
                       idx === 7 ? <span className="font-bold font-mono">{isTerm1Only ? '-' : (customRemarks.gpa || (totalWeight > 0 ? (totalObtainedScore / totalWeight).toFixed(2) : '0.00'))}</span> :
                       null
@@ -963,7 +972,7 @@ export const PaporSixViewer: React.FC<Props> = ({
               <td className="border border-black px-1.5 py-0.5 text-center">รวม</td>
               <td className="border border-black p-0.5">{totalWeight}</td>
               <td className="border border-black p-0.5">{totalFullMarks}</td>
-              <td className="border border-black p-0.5">{totalObtainedScore}</td>
+              <td className="border border-black p-0.5">{totalObtainedScore > 0 ? totalObtainedScore : ''}</td>
               {/* Term 1 Rule: GPA is empty / dash, no 0.00 */}
               <td className="border border-black p-0.5">
                 {isTerm1Only ? (customRemarks.gpa || '') : (customRemarks.gpa || (totalWeight > 0 ? (totalObtainedScore / totalWeight).toFixed(2) : '-'))}
