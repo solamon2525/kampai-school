@@ -154,7 +154,7 @@ const Enrollment = () => {
         .ilike('student_name', `%${searchQuery.trim()}%`)
         .limit(1);
 
-      // If no results by name, try searching by ID number (from admission number like ENR-2568-1234)
+      // If no results by name, try searching by ID number (from admission number like ENR-2569-1234)
       if ((!data || data.length === 0) && searchQuery.includes('-')) {
         const idPart = searchQuery.split('-').pop();
         if (idPart) {

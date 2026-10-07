@@ -34,7 +34,7 @@ export const HeroSection = ({ settings, onChange }: Props) => (
                         id="hero_badge"
                         value={settings.hero_badge || ''}
                         onChange={(e) => onChange('hero_badge', e.target.value)}
-                        placeholder="เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568"
+                        placeholder="เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2569"
                     />
                 </div>
 

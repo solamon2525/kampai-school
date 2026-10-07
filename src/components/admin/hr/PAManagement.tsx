@@ -38,7 +38,7 @@ interface PAAssessment {
 }
 
 const STATUSES = ['กำลังดำเนินการ', 'ส่งแล้ว', 'ผ่าน', 'ไม่ผ่าน'];
-const CURRENT_YEAR = '2568';
+const CURRENT_YEAR = '2569';
 
 const statusVariant = (s: string) => {
   if (s === 'ผ่าน') return 'default';
@@ -254,7 +254,7 @@ export default function PAManagement() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>ปีการศึกษา</Label>
-                <Input value={form.academic_year} onChange={e => setForm(f => ({ ...f, academic_year: e.target.value }))} placeholder="2568" />
+                <Input value={form.academic_year} onChange={e => setForm(f => ({ ...f, academic_year: e.target.value }))} placeholder="2569" />
               </div>
               <div className="space-y-1">
                 <Label>ภาคเรียน</Label>

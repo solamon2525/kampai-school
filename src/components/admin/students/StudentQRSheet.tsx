@@ -42,7 +42,7 @@ export default function StudentQRSheet({ students, open, onClose }: Props) {
     const printRef = useRef<HTMLDivElement>(null);
     const { settings } = useSchoolSettings();
     const schoolName = settings?.school_name || 'โรงเรียน';
-    const academicYear = settings?.academic_year || '2568';
+    const academicYear = settings?.academic_year || '2569';
 
     const classmates = useMemo(() => {
         if (!selectedClass) return [] as Student[];

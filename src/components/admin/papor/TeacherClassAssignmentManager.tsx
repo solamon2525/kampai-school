@@ -57,7 +57,7 @@ const MULTI_GRADE_PRESETS = [
 ];
 
 export const TeacherClassAssignmentManager: React.FC<Props> = ({
-  academicYear = '2568',
+  academicYear = '2569',
 }) => {
   const queryClient = useQueryClient();
   const [selectedYear, setSelectedYear] = useState<string>(academicYear);
@@ -319,8 +319,8 @@ export const TeacherClassAssignmentManager: React.FC<Props> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="2568">2568</SelectItem>
                     <SelectItem value="2569">2569</SelectItem>
+                    <SelectItem value="2568">2568</SelectItem>
                     <SelectItem value="2570">2570</SelectItem>
                   </SelectContent>
                 </Select>

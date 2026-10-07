@@ -49,7 +49,7 @@ export const teacherClassAssignmentService = {
    * ดึงรายการมอบหมายครูประจำชั้นทั้งหมดในปีการศึกษาที่ระบุ
    * สำหรับแสดงผลในแผงควบคุมของ Admin
    */
-  async listAssignments(academicYear: string = '2568'): Promise<TeacherClassAssignmentRow[]> {
+  async listAssignments(academicYear: string = '2569'): Promise<TeacherClassAssignmentRow[]> {
     const { data, error } = await supabase
       .from('teacher_class_assignments' as any)
       .select(`
@@ -95,7 +95,7 @@ export const teacherClassAssignmentService = {
    * ดึงรายการชั้นเรียนที่ครูคนนั้นๆ รับผิดชอบ (เช่น ['ป.1', 'ป.2'])
    * สำหรับใช้กรอง Dropdown ชั้นเรียนใน Teacher Portal
    */
-  async getTeacherAssignedClasses(staffId: string, academicYear: string = '2568'): Promise<{
+  async getTeacherAssignedClasses(staffId: string, academicYear: string = '2569'): Promise<{
     classes: string[];
     isMultiGrade: boolean;
     assignments: TeacherClassAssignmentRow[];
@@ -138,7 +138,7 @@ export const teacherClassAssignmentService = {
    * ดึงข้อมูลครูประจำชั้นของห้องนั้นๆ (สำหรับแสดงผลและเซ็นชื่อในรายงาน ปพ. และสลิป)
    * ใช้ limit(1) เพื่อป้องกันกรณีข้อมูลซ้ำซ้อนในฐานข้อมูล
    */
-  async getClassHomeroomTeacher(className: string, academicYear: string = '2568'): Promise<{
+  async getClassHomeroomTeacher(className: string, academicYear: string = '2569'): Promise<{
     name: string;
     position: string;
     photo_url: string | null;
@@ -274,7 +274,7 @@ export const teacherClassAssignmentService = {
    * - ครูที่มี $\ge 2$ ห้อง $\rightarrow$ is_multi_grade = true
    * - ครูที่มี $1$ ห้อง $\rightarrow$ is_multi_grade = false
    */
-  async syncMultiGradeFlags(academicYear: string = '2568'): Promise<void> {
+  async syncMultiGradeFlags(academicYear: string = '2569'): Promise<void> {
     try {
       const { data, error } = await supabase
         .from('teacher_class_assignments' as any)
@@ -333,7 +333,7 @@ export const teacherClassAssignmentService = {
   /**
    * ลบการมอบหมายครูประจำชั้น (Admin Only)
    */
-  async removeAssignment(assignmentId: string, academicYear: string = '2568'): Promise<void> {
+  async removeAssignment(assignmentId: string, academicYear: string = '2569'): Promise<void> {
     const { error } = await supabase
       .from('teacher_class_assignments' as any)
       .delete()
@@ -350,7 +350,7 @@ export const teacherClassAssignmentService = {
   /**
    * 1-Click Preset: จัดโครงสร้างมาตรฐาน 3 คู่ (ป.1-2, ป.3-4, ป.5-6)
    */
-  async applyStandardPreset(academicYear: string = '2568'): Promise<void> {
+  async applyStandardPreset(academicYear: string = '2569'): Promise<void> {
     // ดึงครูที่เกี่ยวข้อง
     const { data: staffList } = await supabase
       .from('staff')

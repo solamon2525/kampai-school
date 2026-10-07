@@ -56,7 +56,7 @@ interface Props {
 
 export const PaporDiagnosticCenter: React.FC<Props> = ({
   selectedClass = 'ป.5',
-  academicYear = '2568',
+  academicYear = '2569',
   onNavigateToTab,
 }) => {
   const queryClient = useQueryClient();

@@ -122,7 +122,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <option value="2">ภาคเรียนที่ 2</option>
     </select>
     <select class="sel" id="sel-year" onchange="applyFilter()">
-      <option value="2568">2568</option><option value="2567">2567</option>
+      <option value="2569">2569</option><option value="2568">2568</option><option value="2567">2567</option>
     </select>
   </div>
   <div class="subj-tabs" id="subj-tabs"></div>
@@ -155,7 +155,7 @@ const MEDALS=['🥇','🥈','🥉'];
 const MEDAL_COLORS=[{av:'rgba(212,168,67,.25)',bd:'var(--gold2)'},{av:'rgba(139,154,176,.2)',bd:'var(--silver2)'},{av:'rgba(139,90,43,.2)',bd:'var(--bronze2)'}];
 
 let STUDENTS=[],SCORES={},SCORE_TYPES=[],CONFIG={};
-let currentSubj='thai',currentTerm='1',currentYear='2568';
+let currentSubj='thai',currentTerm='1',currentYear='2569';
 
 db.ref('students').on('value',snap=>{
   STUDENTS=[];snap.forEach(c=>STUDENTS.push({...c.val(),_id:c.key}));

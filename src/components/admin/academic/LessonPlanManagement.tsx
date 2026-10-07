@@ -46,7 +46,7 @@ const STATUS_COLOR: Record<string, string> = {
 const emptyForm = {
   staff_id: '', subject: '', grade: 'ป.1', unit_title: '', week_number: '',
   objectives: '', activities: '', materials: '', evaluation: '',
-  duration_hours: '1', semester: '1', academic_year: '2568', status: 'ร่าง', file_url: '',
+  duration_hours: '1', semester: '1', academic_year: '2569', status: 'ร่าง', file_url: '',
   pack_id: '',
 };
 
@@ -55,7 +55,7 @@ export const LessonPlanManagement = () => {
   const [staffList, setStaffList] = useState<StaffOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filterYear, setFilterYear] = useState('2568');
+  const [filterYear, setFilterYear] = useState('2569');
   const [filterSemester, setFilterSemester] = useState('1');
   const [filterGrade, setFilterGrade] = useState('ทั้งหมด');
   const [filterStatus, setFilterStatus] = useState('ทั้งหมด');

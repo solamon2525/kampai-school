@@ -66,7 +66,7 @@ const LEARNING_AREAS = [
 
 export const PaporSubjectManager: React.FC<Props> = ({
   selectedClass = 'ป.5',
-  academicYear = '2568',
+  academicYear = '2569',
 }) => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

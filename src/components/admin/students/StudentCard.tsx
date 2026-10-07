@@ -131,7 +131,7 @@ export default function StudentCard({ student, students, open, onClose, printAll
 
     const schoolName = settings?.school_name || 'โรงเรียน';
     const logoUrl = settings?.school_logo_url || null;
-    const academicYear = settings?.academic_year || '2568';
+    const academicYear = settings?.academic_year || '2569';
 
     const list = printAll && students ? students : student ? [student] : [];
 

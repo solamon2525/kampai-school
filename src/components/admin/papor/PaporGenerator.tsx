@@ -73,11 +73,17 @@ export const PaporGenerator = () => {
 
   const [section, setSection] = useState<MainSection>('gradebook');
   const [doc, setDoc] = useState<Doc>('papor5');
-  const [academicYear, setAcademicYear] = useState<string>('2568');
+  const [academicYear, setAcademicYear] = useState<string>(settings?.academic_year || '2569');
   const [semester, setSemester] = useState<Semester>('1');
   const [className, setClassName] = useState<string>('ป.1');
   const [studentId, setStudentId] = useState<string>('');
   const [bulkBusy, setBulkBusy] = useState(false);
+
+  useEffect(() => {
+    if (settings?.academic_year) {
+      setAcademicYear(settings.academic_year);
+    }
+  }, [settings?.academic_year]);
 
   // All classes from DB/Fallback
   const { data: rawClasses = PRIMARY_CLASSES } = useQuery({

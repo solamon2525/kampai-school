@@ -396,7 +396,7 @@ export const AdmissionsManagement = () => {
                                                 <body>
                                                     <div class="header">
                                                         <h1>ใบสมัครเข้าเรียน</h1>
-                                                        <h2>ปีการศึกษา 2568</h2>
+                                                        <h2>ปีการศึกษา 2569</h2>
                                                     </div>
                                                     <div class="top-row">
                                                         <div>

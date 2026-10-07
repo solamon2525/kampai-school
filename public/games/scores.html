@@ -117,6 +117,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <option value="2">ภาคเรียนที่ 2</option>
     </select>
     <select class="sel" id="sel-year" onchange="onFilter()">
+      <option value="2569">2569</option>
       <option value="2568">2568</option>
       <option value="2567">2567</option>
     </select>
@@ -164,7 +165,7 @@ const SUBJECTS=[
 ];
 
 let STUDENTS=[],SCORES={},SCORE_TYPES=[],CONFIG={};
-let currentSubj='thai',currentTerm='1',currentYear='2568';
+let currentSubj='thai',currentTerm='1',currentYear='2569';
 let filtered=[];
 
 db.ref('students').on('value',snap=>{

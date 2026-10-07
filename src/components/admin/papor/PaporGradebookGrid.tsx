@@ -94,7 +94,7 @@ function scoreToGrade(score: number): string {
 
 export const PaporGradebookGrid: React.FC<Props> = ({
   selectedClass = 'ป.5',
-  academicYear = '2568',
+  academicYear = '2569',
   onNavigateToSubjects,
 }) => {
   const queryClient = useQueryClient();

@@ -84,7 +84,7 @@ function scoreToGrade(score: number): string {
 
 export const PaporReportsCenter: React.FC<Props> = ({
   selectedClass = 'ป.5',
-  academicYear = '2568',
+  academicYear = '2569',
 }) => {
   const [reportMode, setReportMode] = useState<ReportMode>('individual');
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');

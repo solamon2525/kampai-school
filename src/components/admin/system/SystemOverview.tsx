@@ -290,6 +290,17 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.10 (ย้ายและปรับปีการศึกษาเป็นปี 2569 ทั่วทั้งระบบ: ถ่ายโอน 63 รายวิชามาตรฐานและโครงสร้างครูประจำชั้นในฐานข้อมูล, อัปเดต Service layer, โมดูล ปพ.5-ปพ.6, ระบบงานวิชาการ และหน้าหลัก)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ย้ายข้อมูลและโครงสร้างปีการศึกษา 2569 ในฐานข้อมูล Supabase (Migration 577): คัดลอก 63 รายวิชามาตรฐาน ป.1 - ป.6 ครบถ้วน, ถ่ายโอนการมอบหมายครูประจำชั้น 3 คู่ 6 ห้องเรียน, ผลการประเมิน 4 มิติ และสถิติการเลื่อนชั้น พร้อมตั้งค่า academic_year = 2569 ใน school_settings',
+            'อัปเดต Service Layer & Data Access สู่ปี 2569: ปรับค่าปริยาย (Default parameter) ใน teacher-class-assignment.service.ts ทุกเมธอด (listAssignments, getTeacherAssignedClasses, getClassHomeroomTeacher, syncMultiGradeFlags, ฯลฯ) และตัวแยกไฟล์ปพ.ใน papor-evaluation.service.ts เป็น 2569',
+            'ปรับค่าปริยายในคอมโพเนนต์ระบบ ปพ. และการวัดผล (Papor Suite Alignment): ปรับ PaporGenerator, PaporSixViewer, PaporReportsCenter, PaporGradebookGrid, PaporEvaluationsManager, PaporPromotionManager, PaporSubjectManager, และ TeacherClassAssignmentManager ให้ใช้ 2569 เป็นปีเริ่มต้น',
+            'ปรับปรุงระบบงานวิชาการ, บุคลากร, รับสมัครนักเรียน และหน้าหลัก: อัปเดต AcademicCalendarManagement, ClassScheduleManagement, LessonPlanManagement, PAManagement, AdmissionsManagement, OrdersManagement, StudentCard, StudentQRSheet, HomeMainContent, HomeRightSidebar, leaderboard.html, scores.html สู่ปีการศึกษา 2569',
+        ],
+    },
+    {
         version: 'v1.233.9 (ยกระดับหน้าปกสมุด ปพ.6 แบบรายงานประจำตัวนักเรียน: ใช้ตรา รร.บ้านคำไผ่เดี่ยว, ตัวเลขไทย 100% เฉพาะหน้าปก, รวมแถวครูประจำชั้นตัดแถว ๒ ออก, กระจายช่องไฟเต็มหน้า A4 ไม่กระจุกตัว, และขยายฟอนต์ใหญ่คมชัดสมศักดิ์ศรี)',
         date: '7 ต.ค. 2569',
         badge: 'bg-primary',

@@ -66,7 +66,7 @@ export const GeneralSection = ({ settings, onChange, onAutoSave }: Props) => (
                     id="academic_year"
                     value={settings.academic_year || ''}
                     onChange={(e) => onChange('academic_year', e.target.value)}
-                    placeholder="2568"
+                    placeholder="2569"
                 />
             </div>
 

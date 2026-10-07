@@ -185,7 +185,7 @@ export function parsePaporWorkbook(fileBuffer: ArrayBuffer | Uint8Array): PaporW
 
   const schoolName = String(basicData[2]?.[1] || 'โรงเรียนบ้านคำไผ่').trim();
   const district = String(basicData[3]?.[1] || 'สำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต 2').trim();
-  const academicYear = String(basicData[7]?.[1] || '2568').trim();
+  const academicYear = String(basicData[7]?.[1] || '2569').trim();
   const gradeLevel = String(basicData[8]?.[1] || '5').trim();
   const teacherName = String(basicData[9]?.[1] || '').trim();
   const directorName = String(basicData[10]?.[1] || '').trim();

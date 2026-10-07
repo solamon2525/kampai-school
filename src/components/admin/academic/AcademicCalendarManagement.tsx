@@ -35,7 +35,7 @@ const EVENT_COLOR: Record<string, string> = {
 
 const emptyForm = {
   title: '', event_type: 'วิชาการ', start_date: '', end_date: '',
-  semester: '1', academic_year: '2568', description: '', is_all_day: 'true',
+  semester: '1', academic_year: '2569', description: '', is_all_day: 'true',
 };
 
 const formatDate = (d: string) => new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -43,7 +43,7 @@ const formatDate = (d: string) => new Date(d).toLocaleDateString('th-TH', { day:
 export const AcademicCalendarManagement = () => {
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterYear, setFilterYear] = useState('2568');
+  const [filterYear, setFilterYear] = useState('2569');
   const [filterSemester, setFilterSemester] = useState('ทั้งหมด');
   const [filterType, setFilterType] = useState('ทั้งหมด');
   const [dialogOpen, setDialogOpen] = useState(false);

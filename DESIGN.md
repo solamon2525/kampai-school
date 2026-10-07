@@ -580,6 +580,16 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 - การ์ดเกมห้าม query leaderboard แยกรายการตอน render แรก; อันดับรวมอยู่ใน `GamificationHub` หรือโหลดเมื่อผู้ใช้เปิดดูโดยตั้งใจ
 - การเปลี่ยนหมวดต้องควบคุมผ่าน URL `?cat=` เพื่อรองรับ deep link และไม่ใช้ `IntersectionObserver` สลับหมวดเอง
 
+### Rule 14.46 — Academic Year Transition & Active Year Integrity (ปีการศึกษาปัจจุบันและมาตรฐาน 2569)
+
+เมื่อระบบเปลี่ยนผ่านเข้าสู่ปีการศึกษาใหม่ (ปัจจุบันคือ **2569**) ข้อมูลและตรรกะทั่วทั้งระบบต้องรักษาความสอดคล้องกันแบบ Atomic:
+
+- **ฐานข้อมูลและหลักสูตร (Database Integrity):** โครงสร้างรายวิชาพื้นฐาน/เพิ่มเติม 63 วิชา, การมอบหมายครูประจำชั้น 3 คู่ 6 ห้องเรียน, และการประเมินของนักเรียน ต้องมีชุดข้อมูลสำหรับปีการศึกษาปัจจุบันใน Supabase เสมอ (ห้ามปล่อยให้ปีใหม่ว่างเปล่า)
+- **การตั้งค่าระบบกลาง (Single Source of Truth):** ตาราง `school_settings` ต้องเก็บค่า `academic_year = '2569'` และคอมโพเนนต์ต้องอ่านจาก `settings.academic_year` พร้อม fallback สู่ `'2569'` เสมอ ห้าม hardcode ปีเก่า ('2568') ตกค้าง
+- **Service Layer Defaults:** พารามิเตอร์เริ่มต้น `academicYear` ในทุก service (`teacher-class-assignment.service.ts`, `papor-gradebook.service.ts`, `papor-evaluation.service.ts` ฯลฯ) ต้องตั้งค่าเริ่มต้นเป็น `'2569'`
+- **Papor & Grading Modules:** แผงควบคุม ปพ.5 - ปพ.6, การวัดผล, การประเมิน 4 ด้าน, และการเลื่อนชั้น ต้องแสดงผลปีปัจจุบันเป็นตัวเลือกหลัก และอนุญาตให้เลือกดูปีย้อนหลังได้
+- **Public & Gaming Portals:** ป้ายประกาศรับสมัครนักเรียนใหม่, แบนเนอร์หน้าแรก, กระดานผู้นำเกม (Leaderboard) และหน้ารวมคะแนน ต้องเริ่มต้นปีการศึกษาที่ 2569 โดยอัตโนมัติ
+
 ### Rule 14.15 — Color Contrast & Surface-Aware Palette (สีต้องตัดกับพื้นเสมอ)
 
 **บังคับ:** ก่อนเขียน component ใหม่หรือเปลี่ยนสีใดๆ ต้องทำ **Contrast Pre-Check** ทุกครั้ง

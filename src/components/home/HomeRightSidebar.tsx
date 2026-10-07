@@ -33,7 +33,7 @@ const RANK_COLORS = [
 
 const DUMMY_DOCS_RIGHT = [
   { id: 'dummy-rd1', title: 'คู่มือนักเรียนและผู้ปกครอง',  category: 'ทั่วไป',         file_url: '#' },
-  { id: 'dummy-rd2', title: 'ใบสมัครเรียน ปี 2568',         category: 'รับสมัคร',       file_url: '#' },
+  { id: 'dummy-rd2', title: 'ใบสมัครเรียน ปี 2569',         category: 'รับสมัคร',       file_url: '#' },
   { id: 'dummy-rd3', title: 'ปฏิทินวิชาการประจำปี',          category: 'วิชาการ',        file_url: '#' },
   { id: 'dummy-rd4', title: 'แบบฟอร์มใบลากิจ/ลาป่วย',        category: 'เอกสารนักเรียน', file_url: '#' },
   { id: 'dummy-rd5', title: 'ระเบียบการแต่งกายของนักเรียน', category: 'ทั่วไป',         file_url: '#' },

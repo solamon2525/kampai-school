@@ -247,7 +247,7 @@ export default function OrdersManagement() {
               </div>
               <div className="space-y-1">
                 <Label>เลขที่เอกสาร</Label>
-                <Input value={form.doc_number} onChange={e => setForm(f => ({ ...f, doc_number: e.target.value }))} placeholder="เช่น 001/2568" />
+                <Input value={form.doc_number} onChange={e => setForm(f => ({ ...f, doc_number: e.target.value }))} placeholder="เช่น 001/2569" />
               </div>
             </div>
             <div className="space-y-1">

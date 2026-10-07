@@ -34,14 +34,14 @@ const DAY_COLORS = ['bg-red-50 border-red-200','bg-orange-50 border-orange-200',
 const emptyForm = {
   staff_id: '', grade: 'ป.1', room: '', subject: '',
   day_of_week: '1', period: '1', start_time: '', end_time: '',
-  semester: '1', academic_year: '2568',
+  semester: '1', academic_year: '2569',
 };
 
 export const ClassScheduleManagement = () => {
   const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
   const [staffList, setStaffList] = useState<StaffOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterYear, setFilterYear] = useState('2568');
+  const [filterYear, setFilterYear] = useState('2569');
   const [filterSemester, setFilterSemester] = useState('1');
   const [filterGrade, setFilterGrade] = useState('ทั้งหมด');
   const [dialogOpen, setDialogOpen] = useState(false);

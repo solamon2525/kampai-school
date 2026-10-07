@@ -59,7 +59,7 @@ const READING_LABELS = [
 
 export const PaporEvaluationsManager: React.FC<Props> = ({
   selectedClass = 'ป.5',
-  academicYear = '2568',
+  academicYear = '2569',
 }) => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'competency' | 'character' | 'reading' | 'activity'>('competency');

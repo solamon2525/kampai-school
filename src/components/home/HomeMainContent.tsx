@@ -93,7 +93,7 @@ const DUMMY_SLIDES = [
 
 const DUMMY_DOCS = [
   { id: 'dummy-d1', title: 'คู่มือนักเรียนและผู้ปกครอง.pdf', category: 'ทั่วไป', file_url: '#' },
-  { id: 'dummy-d2', title: 'ใบสมัครเรียนปีการศึกษา 2568.pdf', category: 'รับสมัคร', file_url: '#' },
+  { id: 'dummy-d2', title: 'ใบสมัครเรียนปีการศึกษา 2569.pdf', category: 'รับสมัคร', file_url: '#' },
   { id: 'dummy-d3', title: 'ปฏิทินวิชาการประจำปี.pdf', category: 'วิชาการ', file_url: '#' },
   { id: 'dummy-d4', title: 'แบบฟอร์มใบลากิจ/ลาป่วย.pdf', category: 'เอกสารนักเรียน', file_url: '#' },
 ];
@@ -992,7 +992,7 @@ export const useHomeMainBlocks = () => {
     <div key="announcement" className="flex items-center gap-3 px-4 py-3 rounded-lg border border-blue-300 bg-blue-50 shadow-sm overflow-hidden">
       <span className="text-2xl flex-shrink-0">📢</span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-blue-800 break-words leading-tight">{settings.hero_badge || 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568'}</p>
+        <p className="text-sm font-medium text-blue-800 break-words leading-tight">{settings.hero_badge || 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2569'}</p>
         <Link to="/enrollment" className="text-xs text-blue-600 hover:text-blue-800 underline mt-0.5 inline-block">
           ดูรายละเอียด →
         </Link>
@@ -1301,7 +1301,7 @@ export const useHomeMainBlocks = () => {
       className={`relative bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-6 text-center shadow-md overflow-hidden ${isUrgent ? 'ring-2 ring-yellow-300 ring-offset-2 ring-offset-background animate-pulse' : ''}`}
     >
       <h3 className="text-sm font-bold mb-1 opacity-90 truncate">⏳ นับถอยหลังสู่{countdown.label}</h3>
-      <p className="text-xs opacity-70 mb-4 truncate">ปีการศึกษา 2568</p>
+      <p className="text-xs opacity-70 mb-4 truncate">ปีการศึกษา {settings?.academic_year || '2569'}</p>
       <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
         {[
           { value: countdown.days, label: 'วัน' },

@@ -100,7 +100,7 @@ export const PARENT_TRAITS_9 = [
 
 export const PaporSixViewer: React.FC<Props> = ({
   selectedClass = 'ป.4',
-  academicYear = '2568',
+  academicYear = '2569',
 }) => {
   const [students, setStudents] = useState<StudentOption[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');

@@ -142,7 +142,7 @@ const defaultSettings: SchoolSettings = {
     school_values: 'ซื่อสัตย์ วินัย ใฝ่เรียนรู้',
     school_history: 'ก่อตั้งเมื่อปี พ.ศ. 2517',
     hero_image_url: '',
-    hero_badge: 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2568',
+    hero_badge: 'เปิดรับสมัครนักเรียนใหม่ ปีการศึกษา 2569',
     hero_title_1: 'ก้าวสู่อนาคต',
     hero_title_2: 'ด้วยปัญญา',
     stat_students: '2,500+',
@@ -182,7 +182,7 @@ const defaultSettings: SchoolSettings = {
     footer_service_4_name: 'ดาวน์โหลดเอกสาร',
     footer_service_4_url: '#',
     academic_calendar_url: '',
-    academic_year: '2568',
+    academic_year: '2569',
     social_links: [],
 
     // ปรัชญา คำขวัญ อัตลักษณ์ (v1.7.2)
