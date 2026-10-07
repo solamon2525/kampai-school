@@ -35,7 +35,10 @@ export interface PaporStudentData {
   student: {
     id: string;
     name: string;
+    first_name?: string | null;
+    last_name?: string | null;
     student_code: string | null;
+    national_id?: string | null;
     class: string | null;
     room: string | null;
     class_number: number | null;
@@ -45,6 +48,15 @@ export interface PaporStudentData {
     religion: string | null;
     father_name: string | null;
     mother_name: string | null;
+    guardian_name?: string | null;
+    guardian_relation?: string | null;
+    parent_name?: string | null;
+    parent_phone?: string | null;
+    current_house_no?: string | null;
+    current_moo?: string | null;
+    current_tambon?: string | null;
+    current_amphoe?: string | null;
+    current_province?: string | null;
   };
   academicYear: string;
   semester: Semester;
@@ -85,7 +97,7 @@ export const paporService = {
   ): Promise<PaporStudentData | null> {
     const { data: student } = await supabase
       .from('students')
-      .select('id, name, student_code, class, room, class_number, photo_url, birth_date, nationality, religion, father_name, mother_name')
+      .select('id, name, first_name, last_name, student_code, national_id, class, room, class_number, photo_url, birth_date, nationality, religion, father_name, mother_name, guardian_name, guardian_relation, parent_name, parent_phone, current_house_no, current_moo, current_tambon, current_amphoe, current_province')
       .eq('id', studentId)
       .maybeSingle();
     if (!student) return null;
@@ -207,9 +219,9 @@ export const paporService = {
     return data ?? [];
   },
 
-  /** Aggregate full yearly data for ปพ.6 (Term 1 + Term 2 + 4 Dimensions + Promotion) */
+  /** Aggregate full yearly data for ปพ.6 (Term 1 + Term 2 + 4 Dimensions + Promotion + Health) */
   async forStudentYear(studentId: string, academicYear: string) {
-    const [t1, t2, evalsRes, promoRes] = await Promise.all([
+    const [t1, t2, evalsRes, promoRes, growthRes] = await Promise.all([
       this.forStudentTerm(studentId, academicYear, '1'),
       this.forStudentTerm(studentId, academicYear, '2'),
       supabase
@@ -223,6 +235,11 @@ export const paporService = {
         .eq('student_id', studentId)
         .eq('academic_year', academicYear)
         .maybeSingle(),
+      supabase
+        .from('student_growth_measurements' as any)
+        .select('*')
+        .eq('student_id', studentId)
+        .order('measured_at', { ascending: true }),
     ]);
 
     return {
@@ -230,6 +247,7 @@ export const paporService = {
       term2: t2,
       evaluations: evalsRes.data || [],
       promotion: promoRes.data || null,
+      growth: (growthRes.data || []) as Array<{ id: string; weight_kg: number | null; height_cm: number | null; bmi: number | null; measured_at: string; notes?: string | null }>,
     };
   },
 };

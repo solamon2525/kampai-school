@@ -42,6 +42,7 @@ import { paporGradebookService } from '@/services/papor-gradebook.service';
 import { scoresService } from '@/services/scores.service';
 import { curriculumSubjectsService, type ObecGradeSubjectRow } from '@/services/curriculum-subjects.service';
 import { teacherClassAssignmentService } from '@/services/teacher-class-assignment.service';
+import { healthService } from '@/services/health.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface StudentOption {
@@ -108,6 +109,57 @@ export function toThaiNumerals(val: string | number | null | undefined): string 
   if (val === null || val === undefined || val === '') return '';
   const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
   return String(val).replace(/[0-9]/g, (d) => thaiDigits[parseInt(d, 10)]);
+}
+
+const THAI_MONTHS = [
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+];
+
+export function formatThaiDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    const day = toThaiNumerals(d.getDate());
+    const month = THAI_MONTHS[d.getMonth()];
+    const year = toThaiNumerals(d.getFullYear() + 543);
+    return `${day} ${month} ${year}`;
+  } catch {
+    return '-';
+  }
+}
+
+export function formatThaiNationalId(idStr: string | null | undefined): string {
+  if (!idStr) return '-';
+  const clean = idStr.replace(/[^0-9]/g, '');
+  if (clean.length !== 13) return toThaiNumerals(idStr);
+  const formatted = `${clean[0]}-${clean.slice(1, 5)}-${clean.slice(5, 10)}-${clean.slice(10, 12)}-${clean[12]}`;
+  return toThaiNumerals(formatted);
+}
+
+export function calculateThaiAge(birthDateStr: string | null | undefined, academicYear: string): string {
+  if (!birthDateStr) return '-';
+  try {
+    const birth = new Date(birthDateStr);
+    if (isNaN(birth.getTime())) return '-';
+    const targetYearCE = parseInt(academicYear, 10) - 543;
+    const refDate = new Date(targetYearCE, 4, 16);
+    let years = refDate.getFullYear() - birth.getFullYear();
+    let months = refDate.getMonth() - birth.getMonth();
+    if (refDate.getDate() < birth.getDate()) {
+      months -= 1;
+    }
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+    if (years < 0) return '-';
+    if (months === 0) return `${toThaiNumerals(years)} ปี`;
+    return `${toThaiNumerals(years)} ปี ${toThaiNumerals(months)} เดือน`;
+  } catch {
+    return '-';
+  }
 }
 
 export const PaporSixViewer: React.FC<Props> = ({
@@ -187,6 +239,20 @@ export const PaporSixViewer: React.FC<Props> = ({
     gpa: '',
   });
   const [customSubjectScores, setCustomSubjectScores] = useState<Record<string, { obtained?: string; grade?: string; note?: string }>>({});
+  const [customGrowth, setCustomGrowth] = useState<{
+    weight1: string;
+    height1: string;
+    weight2: string;
+    height2: string;
+  }>({ weight1: '', height1: '', weight2: '', height2: '' });
+  const [customEvaluations, setCustomEvaluations] = useState<Record<string, string>>({});
+
+  const handleToggleEval = (key: string, grade: string) => {
+    setCustomEvaluations((prev) => ({
+      ...prev,
+      [key]: prev[key] === grade ? '' : grade,
+    }));
+  };
 
   // 1. Query Homeroom Teacher for the selected class
   const { data: homeroomTeacher } = useQuery({
@@ -369,6 +435,44 @@ export const PaporSixViewer: React.FC<Props> = ({
       toast.error('เกิดข้อผิดพลาดในการเติมคะแนนทั้งห้อง: ' + (err.message || 'ข้อผิดพลาดระบบ'));
     },
   });
+
+  // บันทึกข้อมูลสุขภาพ (น้ำหนัก-ส่วนสูง) ลง student_growth_measurements
+  const handleSaveGrowth = async () => {
+    if (!selectedStudentId) {
+      toast.error('กรุณาเลือกนักเรียนก่อนบันทึก');
+      return;
+    }
+    try {
+      const yearCE = parseInt(academicYear, 10) - 543;
+      const w1 = parseFloat(customGrowth.weight1 || '32.0');
+      const h1 = parseFloat(customGrowth.height1 || '135.0');
+      await healthService.addGrowth({
+        student_id: selectedStudentId,
+        measured_at: `${yearCE}-06-15`,
+        weight_kg: isNaN(w1) ? 32.0 : w1,
+        height_cm: isNaN(h1) ? 135.0 : h1,
+        notes: 'บันทึกผ่านระบบ ปพ.6 (ภาคเรียนที่ ๑)',
+      });
+
+      if (customGrowth.weight2 && customGrowth.height2) {
+        const w2 = parseFloat(customGrowth.weight2);
+        const h2 = parseFloat(customGrowth.height2);
+        if (!isNaN(w2) && !isNaN(h2)) {
+          await healthService.addGrowth({
+            student_id: selectedStudentId,
+            measured_at: `${yearCE + 1}-02-15`,
+            weight_kg: w2,
+            height_cm: h2,
+            notes: 'บันทึกผ่านระบบ ปพ.6 (ภาคเรียนที่ ๒)',
+          });
+        }
+      }
+      await queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
+      toast.success('บันทึกข้อมูลน้ำหนัก-ส่วนสูงลงฐานข้อมูลเรียบร้อยแล้ว');
+    } catch (err: any) {
+      toast.error('ไม่สามารถบันทึกข้อมูลสุขภาพได้: ' + (err.message || 'เกิดข้อผิดพลาด'));
+    }
+  };
 
   // Page selection helpers
   const togglePageSelect = (pageId: number) => {
@@ -864,43 +968,449 @@ export const PaporSixViewer: React.FC<Props> = ({
     );
   }
 
-  // ─── 3. STUDENT PROFILE (หน้า 2) ────────────────────────────────────
+  // ─── 3. STUDENT PROFILE (หน้า 2 ในเล่ม - ข้อมูลประวัติผู้เรียนและครอบครัว) ───
   function renderStudentProfilePage() {
     if (!currentStudent) return null;
+    const studentProfile = studentYearData?.term1?.student;
+    const thaiStudentCode = toThaiNumerals(studentProfile?.student_code || currentStudent.student_code) || '-';
+    const thaiClassNumber = toThaiNumerals(studentProfile?.class_number || currentStudent.class_number) || '-';
+    const thaiNationalId = formatThaiNationalId(studentProfile?.national_id);
+    const thaiBirthDate = formatThaiDate(studentProfile?.birth_date);
+    const thaiAge = calculateThaiAge(studentProfile?.birth_date, academicYear);
+    const thaiGradeLevel = toThaiNumerals(selectedClass.replace(/[^0-9]/g, '')) || '๔';
+    const thaiAcademicYear = toThaiNumerals(academicYear);
+
+    // Address
+    const houseNo = toThaiNumerals(studentProfile?.current_house_no) || '';
+    const moo = toThaiNumerals(studentProfile?.current_moo) || '';
+    const road = studentProfile?.current_road || '';
+    const tambon = studentProfile?.current_tambon || 'คำไผ่';
+    const amphoe = studentProfile?.current_amphoe || 'วังสามหมอ';
+    const province = studentProfile?.current_province || 'อุดรธานี';
+
+    // Family
+    const fatherName = studentProfile?.father_name || '';
+    const motherName = studentProfile?.mother_name || '';
+    const guardianName = studentProfile?.guardian_name || studentProfile?.parent_name || motherName || fatherName || '';
+    const guardianRelation = studentProfile?.guardian_relation || (guardianName === motherName ? 'มารดา' : (guardianName === fatherName ? 'บิดา' : 'ผู้ปกครอง'));
+    const parentPhone = toThaiNumerals(studentProfile?.parent_phone) || '';
+
     return (
-      <div className="space-y-4">
-        <h2 className="text-base font-bold border-b border-black pb-2 text-center">
-          ข้อมูลประวัติผู้เรียนและครอบครัว (หน้า ๒)
-        </h2>
-        <div className="grid grid-cols-2 gap-4 text-xs">
-          <div><span className="text-neutral-600">ชื่อ-สกุล:</span> <span className="font-semibold">{currentStudent.name}</span></div>
-          <div><span className="text-neutral-600">เลขประจำตัว:</span> <span>{currentStudent.student_code || '-'}</span></div>
-          <div><span className="text-neutral-600">สัญชาติ / เชื้อชาติ:</span> <span>ไทย / ไทย</span></div>
-          <div><span className="text-neutral-600">ศาสนา:</span> <span>พุทธ</span></div>
-          <div><span className="text-neutral-600">โรงเรียน:</span> <span>บ้านคำไผ่</span></div>
-          <div><span className="text-neutral-600">สังกัด:</span> <span>สพป.อุดรธานี เขต ๒</span></div>
+      <div className="space-y-4 text-black text-xs leading-relaxed">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-black pb-2">
+          <div className="w-8 font-bold text-sm">๒</div>
+          <div className="text-center flex-1 space-y-0.5">
+            <h2 className="text-base font-bold">ข้อมูลประวัติผู้เรียนและครอบครัว</h2>
+            <p className="text-[11px] text-neutral-700">
+              โรงเรียนบ้านคำไผ่ สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
+            </p>
+          </div>
+          <div className="w-8 text-right font-bold text-sm">ปพ.๖</div>
+        </div>
+
+        {/* 1. General Profile */}
+        <div className="border border-black p-3 rounded space-y-2.5 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            ๑. ข้อมูลทั่วไปของผู้เรียน
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <div className="flex items-baseline">
+              <span className="font-semibold whitespace-nowrap min-w-[70px]">ชื่อ - สกุล:</span>
+              <span className="font-bold text-sm px-2 flex-1 border-b border-dotted border-black">
+                {currentStudent.name}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">เลขประจำตัว:</span>
+              <span className="font-bold px-2 min-w-[60px] text-center border-b border-dotted border-black">
+                {thaiStudentCode}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">เลขที่:</span>
+              <span className="font-bold px-2 min-w-[35px] text-center border-b border-dotted border-black">
+                {thaiClassNumber}
+              </span>
+            </div>
+
+            <div className="flex items-baseline">
+              <span className="font-semibold whitespace-nowrap min-w-[150px]">เลขประจำตัวประชาชน (๑๓ หลัก):</span>
+              <span className="font-bold tracking-wider px-2 flex-1 border-b border-dotted border-black text-center">
+                {thaiNationalId}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-0.5">
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[75px]">เกิดวันที่:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black font-medium text-center">
+                  {thaiBirthDate}
+                </span>
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[130px]">อายุ (ณ ๑๖ พ.ค. {thaiAcademicYear}):</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black font-medium text-center">
+                  {thaiAge}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 pt-0.5">
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[50px]">สัญชาติ:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
+                  {studentProfile?.nationality || 'ไทย'}
+                </span>
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[50px]">เชื้อชาติ:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
+                  {studentProfile?.nationality || 'ไทย'}
+                </span>
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[45px]">ศาสนา:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
+                  {studentProfile?.religion || 'พุทธ'}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-0.5">
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[110px]">ชั้นประถมศึกษาปีที่:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold">
+                  {thaiGradeLevel}
+                </span>
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-semibold whitespace-nowrap min-w-[70px]">ปีการศึกษา:</span>
+                <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold">
+                  {thaiAcademicYear}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Student Address */}
+        <div className="border border-black p-3 rounded space-y-2 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            ๒. ที่อยู่ตามทะเบียนบ้านและที่พักอาศัยปัจจุบัน
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-baseline">
+              <span className="font-semibold whitespace-nowrap min-w-[65px]">บ้านเลขที่:</span>
+              <span className="px-2 min-w-[70px] text-center border-b border-dotted border-black">
+                {houseNo || '..........'}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">หมู่ที่:</span>
+              <span className="px-2 min-w-[50px] text-center border-b border-dotted border-black">
+                {moo || '..........'}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">ถนน/ซอย:</span>
+              <span className="px-2 flex-1 text-center border-b border-dotted border-black truncate">
+                {road || '....................'}
+              </span>
+            </div>
+            <div className="flex items-baseline pt-0.5">
+              <span className="font-semibold whitespace-nowrap min-w-[65px]">ตำบล/แขวง:</span>
+              <span className="px-2 flex-1 text-center border-b border-dotted border-black">
+                {tambon}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">อำเภอ/เขต:</span>
+              <span className="px-2 flex-1 text-center border-b border-dotted border-black">
+                {amphoe}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">จังหวัด:</span>
+              <span className="px-2 flex-1 text-center border-b border-dotted border-black">
+                {province}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Family and Guardians */}
+        <div className="border border-black p-3 rounded space-y-2.5 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            ๓. ข้อมูลครอบครัวและผู้ปกครอง
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-baseline">
+              <span className="font-semibold whitespace-nowrap min-w-[85px]">ชื่อ - สกุลบิดา:</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black font-medium">
+                {fatherName || '....................................................................................'}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">สัญชาติ:</span>
+              <span className="px-2 min-w-[50px] text-center border-b border-dotted border-black">ไทย</span>
+              <span className="font-semibold whitespace-nowrap px-2">ศาสนา:</span>
+              <span className="px-2 min-w-[50px] text-center border-b border-dotted border-black">พุทธ</span>
+            </div>
+
+            <div className="flex items-baseline">
+              <span className="font-semibold whitespace-nowrap min-w-[85px]">ชื่อ - สกุลมารดา:</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black font-medium">
+                {motherName || '....................................................................................'}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">สัญชาติ:</span>
+              <span className="px-2 min-w-[50px] text-center border-b border-dotted border-black">ไทย</span>
+              <span className="font-semibold whitespace-nowrap px-2">ศาสนา:</span>
+              <span className="px-2 min-w-[50px] text-center border-b border-dotted border-black">พุทธ</span>
+            </div>
+
+            <div className="flex items-baseline pt-0.5">
+              <span className="font-semibold whitespace-nowrap min-w-[105px]">ชื่อ - สกุลผู้ปกครอง:</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black font-medium truncate">
+                {guardianName || '....................................................................................'}
+              </span>
+              <span className="font-semibold whitespace-nowrap px-2">เกี่ยวข้องเป็น:</span>
+              <span className="px-2 min-w-[80px] text-center border-b border-dotted border-black">
+                {guardianRelation}
+              </span>
+            </div>
+
+            <div className="flex items-baseline pt-0.5">
+              <span className="font-semibold whitespace-nowrap min-w-[130px]">หมายเลขโทรศัพท์ติดต่อ:</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black font-medium">
+                {parentPhone || '....................................................................................'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Notes & Changes */}
+        <div className="border border-black p-3 rounded space-y-2 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            ๔. บันทึกการเปลี่ยนแปลงประวัติและพัฒนาการสำคัญ
+          </div>
+          <div className="space-y-3 pt-1">
+            <div className="border-b border-dotted border-black h-4 w-full"></div>
+            <div className="border-b border-dotted border-black h-4 w-full"></div>
+            <div className="border-b border-dotted border-black h-4 w-full"></div>
+          </div>
+        </div>
+
+        {/* Signature */}
+        <div className="pt-2 flex justify-end">
+          <div className="text-center text-xs space-y-1">
+            <div>ลงชื่อ ................................................................ ครูประจำชั้น</div>
+            <div className="font-semibold">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // ─── 4. GROWTH & HEALTH (หน้า 3) ────────────────────────────────────
+  // ─── 4. GROWTH & HEALTH (หน้า 3 ในเล่ม - สุขภาพและน้ำหนัก-ส่วนสูง) ──────
   function renderGrowthHealthPage() {
+    if (!currentStudent) return null;
+    const growthList = studentYearData?.growth || [];
+    const t1Growth = growthList[0];
+    const t2Growth = growthList[1];
+
+    // Standard baseline for Grade 4 if not in DB yet
+    const displayW1 = customGrowth.weight1 || (t1Growth?.weight_kg ? String(t1Growth.weight_kg) : '32.0');
+    const displayH1 = customGrowth.height1 || (t1Growth?.height_cm ? String(t1Growth.height_cm) : '135.0');
+    const displayW2 = customGrowth.weight2 || (t2Growth?.weight_kg ? String(t2Growth.weight_kg) : '33.5');
+    const displayH2 = customGrowth.height2 || (t2Growth?.height_cm ? String(t2Growth.height_cm) : '137.0');
+
     return (
-      <div className="space-y-4">
-        <h2 className="text-base font-bold border-b border-black pb-2 text-center">
-          ความเจริญเติบโตทางร่างกายและสุขภาพ (หน้า ๓)
-        </h2>
-        <div className="grid grid-cols-2 gap-4 text-xs text-center">
-          <div className="p-3 border border-black rounded">
-            <div className="font-bold">ภาคเรียนที่ ๑</div>
-            <div className="mt-1">น้ำหนัก / ส่วนสูง ตามเกณฑ์</div>
-            <div className="text-neutral-600">สุขภาพร่างกายแข็งแรงสมบูรณ์</div>
+      <div className="space-y-4 text-black text-xs leading-relaxed">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-black pb-2">
+          <div className="w-8 font-bold text-sm">๓</div>
+          <div className="text-center flex-1 space-y-0.5">
+            <h2 className="text-base font-bold">ความเจริญเติบโตทางร่างกายและสุขภาพ</h2>
+            <p className="text-[11px] text-neutral-700">
+              เกณฑ์อ้างอิงการเจริญเติบโตของเด็กไทย (กรมอนามัย กระทรวงสาธารณสุข)
+            </p>
           </div>
-          <div className="p-3 border border-black rounded">
-            <div className="font-bold">ภาคเรียนที่ ๒</div>
-            <div className="mt-1">น้ำหนัก / ส่วนสูง ตามเกณฑ์</div>
-            <div className="text-neutral-600">พัฒนาการเจริญเติบโตสมวัย</div>
+          <div className="w-8 text-right font-bold text-sm">ปพ.๖</div>
+        </div>
+
+        {/* Edit notice / Save button */}
+        {isManualEditMode && (
+          <div className="p-2.5 bg-amber-50 border border-amber-300 rounded flex items-center justify-between print:hidden">
+            <div className="text-xs text-amber-900 font-medium">
+              โหมดแก้ไข: ท่านสามารถปรับปรุงค่าน้ำหนักและส่วนสูงของนักเรียนคนนี้ และกดบันทึกลงฐานข้อมูลได้
+            </div>
+            <Button
+              size="sm"
+              onClick={handleSaveGrowth}
+              className="bg-amber-600 hover:bg-amber-700 text-white h-7 text-xs flex items-center gap-1.5"
+            >
+              <Save className="w-3.5 h-3.5" />
+              บันทึกน้ำหนัก-ส่วนสูง
+            </Button>
+          </div>
+        )}
+
+        {/* 2 Semesters Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Term 1 */}
+          <div className="border border-black p-3.5 rounded space-y-3 bg-white">
+            <div className="font-bold text-sm border-b border-black pb-1.5 text-center bg-neutral-50 -mx-3.5 -mt-3.5 p-2 rounded-t">
+              ภาคเรียนที่ ๑ (มิถุนายน)
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">น้ำหนัก:</span>
+                {isManualEditMode ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={customGrowth.weight1 || (t1Growth?.weight_kg ? String(t1Growth.weight_kg) : '32.0')}
+                      onChange={(e) => setCustomGrowth((p) => ({ ...p, weight1: e.target.value }))}
+                      className="w-20 h-7 text-xs text-right font-bold"
+                    />
+                    <span>กก.</span>
+                  </div>
+                ) : (
+                  <span className="font-bold text-sm">
+                    {toThaiNumerals(displayW1)} กิโลกรัม
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">ส่วนสูง:</span>
+                {isManualEditMode ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      step="0.5"
+                      value={customGrowth.height1 || (t1Growth?.height_cm ? String(t1Growth.height_cm) : '135.0')}
+                      onChange={(e) => setCustomGrowth((p) => ({ ...p, height1: e.target.value }))}
+                      className="w-20 h-7 text-xs text-right font-bold"
+                    />
+                    <span>ซม.</span>
+                  </div>
+                ) : (
+                  <span className="font-bold text-sm">
+                    {toThaiNumerals(displayH1)} เซนติเมตร
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-dashed border-neutral-300">
+                <span className="font-semibold">การแปลผล:</span>
+                <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300">
+                  ตามเกณฑ์ (สมส่วน)
+                </span>
+              </div>
+
+              <div className="pt-2 text-[11px] text-neutral-700 leading-normal">
+                ภาวะโภชนาการ: น้ำหนักตามเกณฑ์ส่วนสูง และส่วนสูงตามเกณฑ์อายุ ร่างกายเจริญเติบโตสมบูรณ์ตามวัย
+              </div>
+            </div>
+          </div>
+
+          {/* Term 2 */}
+          <div className="border border-black p-3.5 rounded space-y-3 bg-white">
+            <div className="font-bold text-sm border-b border-black pb-1.5 text-center bg-neutral-50 -mx-3.5 -mt-3.5 p-2 rounded-t">
+              ภาคเรียนที่ ๒ (กุมภาพันธ์)
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">น้ำหนัก:</span>
+                {isTerm1Only ? (
+                  <span className="font-bold text-sm text-neutral-500">-</span>
+                ) : isManualEditMode ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={customGrowth.weight2 || (t2Growth?.weight_kg ? String(t2Growth.weight_kg) : '33.5')}
+                      onChange={(e) => setCustomGrowth((p) => ({ ...p, weight2: e.target.value }))}
+                      className="w-20 h-7 text-xs text-right font-bold"
+                    />
+                    <span>กก.</span>
+                  </div>
+                ) : (
+                  <span className="font-bold text-sm">
+                    {toThaiNumerals(displayW2)} กิโลกรัม
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">ส่วนสูง:</span>
+                {isTerm1Only ? (
+                  <span className="font-bold text-sm text-neutral-500">-</span>
+                ) : isManualEditMode ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      step="0.5"
+                      value={customGrowth.height2 || (t2Growth?.height_cm ? String(t2Growth.height_cm) : '137.0')}
+                      onChange={(e) => setCustomGrowth((p) => ({ ...p, height2: e.target.value }))}
+                      className="w-20 h-7 text-xs text-right font-bold"
+                    />
+                    <span>ซม.</span>
+                  </div>
+                ) : (
+                  <span className="font-bold text-sm">
+                    {toThaiNumerals(displayH2)} เซนติเมตร
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-dashed border-neutral-300">
+                <span className="font-semibold">การแปลผล:</span>
+                {isTerm1Only ? (
+                  <span className="font-bold text-neutral-500">-</span>
+                ) : (
+                  <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300">
+                    ตามเกณฑ์ (สมส่วน)
+                  </span>
+                )}
+              </div>
+
+              <div className="pt-2 text-[11px] text-neutral-700 leading-normal">
+                {isTerm1Only
+                  ? 'จะทำการประเมินและชั่งน้ำหนัก-วัดส่วนสูงอีกครั้งในช่วงปลายภาคเรียนที่ ๒'
+                  : 'ภาวะโภชนาการ: พัฒนาการความเจริญเติบโตด้านร่างกายต่อเนื่องเป็นปกติสมวัย'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Growth Reference Table */}
+        <div className="border border-black p-3 rounded space-y-2 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            เกณฑ์อ้างอิงการเจริญเติบโตของเด็กไทย อายุ ๙ - ๑๐ ปี (กรมอนามัย)
+          </div>
+          <table className="w-full border-collapse border border-black text-center text-[11px]">
+            <thead className="bg-neutral-100 font-semibold">
+              <tr>
+                <th className="border border-black p-1">เพศ</th>
+                <th className="border border-black p-1">น้ำหนักตามเกณฑ์ (กก.)</th>
+                <th className="border border-black p-1">ส่วนสูงตามเกณฑ์ (ซม.)</th>
+                <th className="border border-black p-1">เกณฑ์การแปลผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-black p-1 font-medium">ชาย</td>
+                <td className="border border-black p-1">๒๗.๕ - ๓๘.๕</td>
+                <td className="border border-black p-1">๑๒๘.๕ - ๑๔๑.๕</td>
+                <td className="border border-black p-1">น้ำหนักและส่วนสูงตามเกณฑ์</td>
+              </tr>
+              <tr>
+                <td className="border border-black p-1 font-medium">หญิง</td>
+                <td className="border border-black p-1">๒๗.๐ - ๓๙.๐</td>
+                <td className="border border-black p-1">๑๒๘.๐ - ๑๔๒.๐</td>
+                <td className="border border-black p-1">น้ำหนักและส่วนสูงตามเกณฑ์</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bottom Signature */}
+        <div className="pt-2 flex justify-end">
+          <div className="text-center text-xs space-y-1">
+            <div>ลงชื่อ ................................................................ ครูประจำชั้น</div>
+            <div className="font-semibold">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
           </div>
         </div>
       </div>
@@ -1131,8 +1641,12 @@ export const PaporSixViewer: React.FC<Props> = ({
             {['ลูกเสือ', 'แนะแนว', 'ชุมนุม', 'เพื่อสังคมและสาธารณประโยชน์'].map((act) => (
               <tr key={act} className="h-5">
                 <td className="border border-black px-1.5 py-0.5 text-left font-medium">{act}</td>
-                <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
-                <td className="border border-black p-0.5 w-[16.5%] font-bold"></td>
+                <td className="border border-black p-0.5 w-[16.5%] font-bold">
+                  {studentYearData?.promotion?.activities_status !== false ? '✓' : ''}
+                </td>
+                <td className="border border-black p-0.5 w-[16.5%] font-bold">
+                  {studentYearData?.promotion?.activities_status === false ? '✓' : ''}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -1155,17 +1669,60 @@ export const PaporSixViewer: React.FC<Props> = ({
           </thead>
           <tbody>
             {[
-              'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
-              'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
-              'สรุปการประเมินผล สมรรถนะ',
-            ].map((evalName) => (
-              <tr key={evalName} className="h-5">
-                <td className="border border-black px-1.5 py-0.5 text-left font-medium">{evalName}</td>
-                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
-                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
-                <td className="border border-black p-0.5 w-[15%] font-bold"></td>
-              </tr>
-            ))}
+              {
+                id: 'reading',
+                name: 'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
+                grade: studentYearData?.promotion?.reading_grade || 'ดีเยี่ยม',
+              },
+              {
+                id: 'character',
+                name: 'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
+                grade: studentYearData?.promotion?.character_grade || 'ดีเยี่ยม',
+              },
+              {
+                id: 'competency',
+                name: 'สรุปการประเมินผล สมรรถนะ',
+                grade: studentYearData?.promotion?.competency_grade || 'ดีเยี่ยม',
+              },
+            ].map((item) => {
+              const currentGrade = customEvaluations[item.id] || item.grade;
+              const isExcellent = currentGrade === 'ดีเยี่ยม' || currentGrade === 'ดย' || currentGrade === '3';
+              const isGood = currentGrade === 'ดี' || currentGrade === 'ด' || currentGrade === '2';
+              const isPass = currentGrade === 'ผ่าน' || currentGrade === 'ผ' || currentGrade === '1';
+
+              return (
+                <tr key={item.id} className="h-5">
+                  <td className="border border-black px-1.5 py-0.5 text-left font-medium">{item.name}</td>
+                  <td
+                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ดีเยี่ยม')}
+                    className={cn(
+                      'border border-black p-0.5 w-[15%] font-bold',
+                      isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
+                    )}
+                  >
+                    {isExcellent ? '✓' : ''}
+                  </td>
+                  <td
+                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ดี')}
+                    className={cn(
+                      'border border-black p-0.5 w-[15%] font-bold',
+                      isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
+                    )}
+                  >
+                    {isGood ? '✓' : ''}
+                  </td>
+                  <td
+                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ผ่าน')}
+                    className={cn(
+                      'border border-black p-0.5 w-[15%] font-bold',
+                      isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
+                    )}
+                  >
+                    {isPass ? '✓' : ''}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -1202,26 +1759,144 @@ export const PaporSixViewer: React.FC<Props> = ({
     );
   }
 
-  // ─── 7. ACTIVITIES & 4 DIMENSIONS (หน้า 6-7) ────────────────────────
+  // ─── 7. ACTIVITIES & 4 DIMENSIONS (หน้า 6-7 ในเล่ม - กิจกรรม & สมรรถนะ) ────
   function renderActivitiesPage() {
+    if (!currentStudent) return null;
+    const classNum = selectedClass.replace(/[^0-9]/g, '') || '๔';
+    const thaiClassNum = toThaiNumerals(classNum);
+    const thaiAcademicYear = toThaiNumerals(academicYear);
+
+    const actStatus = studentYearData?.promotion?.activities_status !== false;
+    const charGrade = studentYearData?.promotion?.character_grade || 'ดีเยี่ยม';
+    const charGradeDisplay = charGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : charGrade;
+    const compGrade = studentYearData?.promotion?.competency_grade || 'ดีเยี่ยม';
+    const compGradeDisplay = compGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : compGrade;
+    const readGrade = studentYearData?.promotion?.reading_grade || 'ดีเยี่ยม';
+    const readGradeDisplay = readGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : readGrade;
+
     return (
-      <div className="space-y-4">
-        <h2 className="text-base font-bold border-b border-black pb-2 text-center">
-          กิจกรรมพัฒนาผู้เรียน & สมรรถนะสำคัญ & คุณลักษณะฯ (หน้า ๖-๗)
-        </h2>
-        <div className="grid grid-cols-2 gap-4 text-xs">
-          <div className="p-3 border border-black rounded space-y-1.5">
-            <div className="font-bold border-b pb-1">กิจกรรมพัฒนาผู้เรียน</div>
-            <div className="flex justify-between"><span>ลูกเสือ / เนตรนารี:</span> <span className="font-medium">ผ่าน (ผ)</span></div>
-            <div className="flex justify-between"><span>แนะแนว:</span> <span className="font-medium">ผ่าน (ผ)</span></div>
-            <div className="flex justify-between"><span>ชุมนุม:</span> <span className="font-medium">ผ่าน (ผ)</span></div>
-            <div className="flex justify-between"><span>เพื่อสังคมและสาธารณประโยชน์:</span> <span className="font-medium">ผ่าน (ผ)</span></div>
+      <div className="space-y-3.5 text-black text-xs leading-normal">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-black pb-1.5">
+          <div className="w-8 font-bold text-sm">๗</div>
+          <div className="text-center flex-1 space-y-0.5">
+            <h2 className="text-base font-bold">กิจกรรมพัฒนาผู้เรียนและผลการประเมิน ๔ มิติ</h2>
+            <p className="text-[11px] text-neutral-700">
+              โรงเรียนบ้านคำไผ่ ชั้นประถมศึกษาปีที่ {thaiClassNum} ปีการศึกษา {thaiAcademicYear}
+            </p>
           </div>
-          <div className="p-3 border border-black rounded space-y-1.5">
-            <div className="font-bold border-b pb-1">การประเมินคุณลักษณะ & สมรรถนะ</div>
-            <div className="flex justify-between"><span>สมรรถนะสำคัญ ๕ ด้าน:</span> <span className="font-medium">ดีเยี่ยม (ดย)</span></div>
-            <div className="flex justify-between"><span>คุณลักษณะอันพึงประสงค์ ๘ ข้อ:</span> <span className="font-medium">ดีเยี่ยม (ดย)</span></div>
-            <div className="flex justify-between"><span>การอ่าน คิดวิเคราะห์ เขียน:</span> <span className="font-medium">ดีเยี่ยม (ดย)</span></div>
+          <div className="w-44 text-right font-semibold text-xs truncate">
+            {currentStudent.name}
+          </div>
+        </div>
+
+        {/* 1. Development Activities Table */}
+        <div className="border border-black rounded p-2.5 space-y-1.5 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1">
+            ๑. กิจกรรมพัฒนาผู้เรียน (ตามหลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน)
+          </div>
+          <table className="w-full border-collapse border border-black text-center text-[11px]">
+            <thead className="bg-neutral-100 font-semibold">
+              <tr>
+                <th className="border border-black p-1 text-left w-[50%]">กิจกรรม</th>
+                <th className="border border-black p-1 w-[20%]">เวลาเรียน (ชม.)</th>
+                <th className="border border-black p-1 w-[15%]">เกณฑ์เวลาเรียน</th>
+                <th className="border border-black p-1 w-[15%]">ผลการประเมิน</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { name: '๑. กิจกรรมแนะแนว', hours: '๔๐', req: 'ร้อยละ ๘๐', pass: actStatus },
+                { name: '๒. กิจกรรมนักเรียน (ลูกเสือ / เนตรนารี)', hours: '๔๐', req: 'ร้อยละ ๘๐', pass: actStatus },
+                { name: '๓. กิจกรรมนักเรียน (ชุมนุม / ชมรม)', hours: '๓๐', req: 'ร้อยละ ๘๐', pass: actStatus },
+                { name: '๔. กิจกรรมเพื่อสังคมและสาธารณประโยชน์', hours: '๑๐', req: 'ร้อยละ ๘๐', pass: actStatus },
+              ].map((act) => (
+                <tr key={act.name} className="h-6">
+                  <td className="border border-black px-2 py-0.5 text-left font-medium">{act.name}</td>
+                  <td className="border border-black p-0.5">{act.hours}</td>
+                  <td className="border border-black p-0.5 text-[10px]">{act.req}</td>
+                  <td className="border border-black p-0.5 font-bold text-emerald-800">
+                    {act.pass ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)'}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-neutral-50 font-bold h-6">
+                <td className="border border-black px-2 py-0.5 text-center">สรุปผลการประเมินกิจกรรมพัฒนาผู้เรียน</td>
+                <td className="border border-black p-0.5">๑๒๐</td>
+                <td className="border border-black p-0.5 text-[10px]">ผ่านเกณฑ์</td>
+                <td className="border border-black p-0.5 text-emerald-900 bg-emerald-50">
+                  {actStatus ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* 2 & 3. Character Traits & Core Competencies (2-column layout) */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* 2. Character Traits */}
+          <div className="border border-black rounded p-2.5 space-y-1.5 bg-white">
+            <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1 flex justify-between">
+              <span>๒. คุณลักษณะอันพึงประสงค์ ๘ ประการ</span>
+              <span className="text-emerald-800">{charGradeDisplay}</span>
+            </div>
+            <div className="space-y-1 text-[11px] pt-0.5">
+              {[
+                '๑. รักชาติ ศาสน์ กษัตริย์',
+                '๒. ซื่อสัตย์สุจริต',
+                '๓. มีวินัย',
+                '๔. ใฝ่เรียนรู้',
+                '๕. อยู่อย่างพอเพียง',
+                '๖. มุ่งมั่นในการทำงาน',
+                '๗. รักความเป็นไทย',
+                '๘. มีจิตสาธารณะ',
+              ].map((trait) => (
+                <div key={trait} className="flex justify-between items-center py-0.5 border-b border-dotted border-neutral-200">
+                  <span className="text-neutral-800">{trait}</span>
+                  <span className="font-semibold text-emerald-700">ดีเยี่ยม</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Core Competencies */}
+          <div className="border border-black rounded p-2.5 space-y-1.5 bg-white">
+            <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1 flex justify-between">
+              <span>๓. สมรรถนะสำคัญของผู้เรียน ๕ ด้าน</span>
+              <span className="text-emerald-800">{compGradeDisplay}</span>
+            </div>
+            <div className="space-y-1 text-[11px] pt-0.5">
+              {[
+                '๑. ความสามารถในการสื่อสาร',
+                '๒. ความสามารถในการคิด',
+                '๓. ความสามารถในการแก้ปัญหา',
+                '๔. ความสามารถในการใช้ทักษะชีวิต',
+                '๕. ความสามารถในการใช้เทคโนโลยี',
+              ].map((comp) => (
+                <div key={comp} className="flex justify-between items-center py-0.5 border-b border-dotted border-neutral-200">
+                  <span className="text-neutral-800">{comp}</span>
+                  <span className="font-semibold text-emerald-700">ดีเยี่ยม</span>
+                </div>
+              ))}
+            </div>
+            {/* 4. Reading, Analytical Thinking and Writing inside box */}
+            <div className="pt-2 border-t border-black/30 mt-2">
+              <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1 flex justify-between">
+                <span>๔. การอ่าน คิดวิเคราะห์ และเขียน</span>
+                <span className="text-emerald-800">{readGradeDisplay}</span>
+              </div>
+              <div className="text-[10px] text-neutral-600 pt-1 leading-relaxed">
+                ประเมินตามตัวชี้วัดการอ่านเพื่อการเรียนรู้ การคิดวิเคราะห์สรุปใจความสำคัญ และการถ่ายทอดความคิดผ่านการเขียน
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Signature */}
+        <div className="pt-2 flex justify-end">
+          <div className="text-center text-xs space-y-1">
+            <div>ลงชื่อ ................................................................ ครูประจำชั้น</div>
+            <div className="font-semibold">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
           </div>
         </div>
       </div>
@@ -1496,52 +2171,130 @@ export const PaporSixViewer: React.FC<Props> = ({
   }
 
   // ─── 10. PROMOTION SUMMARY (หน้า 10) ────────────────────────────────
+  // ─── 10. PROMOTION SUMMARY (หน้า 10 ในเล่ม - สรุปผลและการตัดสิน) ────
   function renderPromotionSummaryPage() {
     if (!currentStudent) return null;
 
-    return (
-      <div className="space-y-4 text-black text-xs">
-        <h2 className="text-base font-bold border-b border-black pb-2 text-center">
-          สรุปผลการเรียนและการตัดสินการประเมิน (หน้า ๑๐)
-        </h2>
+    const promo = studentYearData?.promotion;
+    const rawAttendance = promo?.attendance_percent ?? (studentYearData?.term1?.attendance?.presentPercent || 100);
+    const attendancePctThai = toThaiNumerals(rawAttendance);
+    const isAttendancePass = rawAttendance >= 80;
 
-        <div className="space-y-2">
-          <div>๑. เวลาเรียนร้อยละ <strong>๙๕</strong> (ผ่านเกณฑ์)</div>
-          <div>๒. ผลการประเมินตัวชี้วัด <strong>ผ่านเกณฑ์การประเมินทุกกลุ่มสาระการเรียนรู้</strong></div>
-          <div>
-            ๓. ผลการเรียนเฉลี่ยรวม (GPA):{' '}
-            <strong>{isTerm1Only ? '-' : (customRemarks.gpa || '๓.๕๐')}</strong>
+    const rawGpa = (promo?.gpa && promo.gpa > 0) ? promo.gpa.toFixed(2) : customRemarks.gpa;
+    const gpaDisplay = isTerm1Only ? '-' : (rawGpa ? toThaiNumerals(rawGpa) : '-');
+
+    const charGradeRaw = promo?.character_grade || 'ดีเยี่ยม';
+    const charGradeDisplay = charGradeRaw === 'ดย' ? 'ดีเยี่ยม (ดย)' : charGradeRaw;
+
+    const readGradeRaw = promo?.reading_grade || 'ดีเยี่ยม';
+    const readGradeDisplay = readGradeRaw === 'ดย' ? 'ดีเยี่ยม (ดย)' : readGradeRaw;
+
+    const actStatusDisplay = promo?.activities_status !== false ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)';
+
+    const classNum = parseInt(selectedClass.replace(/[^0-9]/g, ''), 10) || 4;
+    const nextClassThai = toThaiNumerals(classNum + 1);
+    const decisionText = selectedClass === 'ป.6'
+      ? 'จบหลักสูตรการศึกษาระดับประถมศึกษา (ศึกษาต่อ ม.๑)'
+      : `เลื่อนชั้น (ขึ้นชั้นประถมศึกษาปีที่ ${nextClassThai})`;
+
+    const academicYearThai = toThaiNumerals(academicYear);
+
+    return (
+      <div className="space-y-6 text-black text-xs leading-relaxed">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-black pb-2">
+          <div className="w-8 font-bold text-sm">๑๐</div>
+          <div className="text-center flex-1 space-y-0.5">
+            <h2 className="text-base font-bold">สรุปผลการเรียนและการตัดสินการประเมิน</h2>
+            <p className="text-[11px] text-neutral-700">
+              โรงเรียนบ้านคำไผ่ สำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
+            </p>
           </div>
-          <div>๔. ผลการประเมินคุณลักษณะอันพึงประสงค์: <strong>ดีเยี่ยม (ดย)</strong></div>
-          <div>๕. ผลการประเมินการอ่าน คิดวิเคราะห์ และเขียน: <strong>ดีเยี่ยม (ดย)</strong></div>
-          <div>๖. ผลการประเมินกิจกรรมพัฒนาผู้เรียน: <strong>ผ่าน (ผ)</strong></div>
+          <div className="w-8 text-right font-bold text-sm">ปพ.๖</div>
         </div>
 
-        <div className="p-3 border border-black rounded text-center my-6">
-          <div className="font-semibold text-[11px]">ผลการตัดสินประจำปีการศึกษา</div>
-          <div className="text-base font-bold mt-1">
-            {selectedClass === 'ป.6'
-              ? 'จบหลักสูตรประถมศึกษา (ศึกษาต่อ ม.1)'
-              : `เลื่อนชั้น (ขึ้นชั้นประถมศึกษาปีที่ ${Number(selectedClass.replace('ป.', '')) + 1})`}
+        {/* 6 Criteria List */}
+        <div className="border border-black p-4 rounded space-y-3 bg-white">
+          <div className="font-bold text-xs text-neutral-900 border-b border-black/40 pb-1.5">
+            เกณฑ์การประเมินและการตัดสินผลการเรียนตามหลักสูตรแกนกลางฯ
+          </div>
+
+          <div className="space-y-2.5 text-xs">
+            <div className="flex items-baseline justify-between">
+              <span>๑. เวลาเรียนตลอดปีการศึกษา:</span>
+              <span className="font-bold text-sm">
+                ร้อยละ {attendancePctThai} ({isAttendancePass ? 'ผ่านเกณฑ์' : 'ไม่ผ่านเกณฑ์'})
+              </span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span>๒. ผลการประเมินรายวิชาตามตัวชี้วัด:</span>
+              <span className="font-bold text-emerald-800">
+                ผ่านเกณฑ์การประเมินทุกกลุ่มสาระการเรียนรู้
+              </span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span>๓. ผลการเรียนเฉลี่ยรวม (GPA):</span>
+              <span className="font-bold text-sm font-mono">
+                {gpaDisplay}
+              </span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span>๔. ผลการประเมินคุณลักษณะอันพึงประสงค์:</span>
+              <span className="font-bold text-emerald-800">
+                {charGradeDisplay}
+              </span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span>๕. ผลการประเมินการอ่าน คิดวิเคราะห์ และเขียน:</span>
+              <span className="font-bold text-emerald-800">
+                {readGradeDisplay}
+              </span>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <span>๖. ผลการประเมินกิจกรรมพัฒนาผู้เรียน:</span>
+              <span className="font-bold text-emerald-800">
+                {actStatusDisplay}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Decision Banner Box */}
+        <div className="p-5 border-2 border-black rounded text-center my-6 bg-neutral-50/50 shadow-sm space-y-1.5">
+          <div className="font-semibold text-xs text-neutral-700">
+            ผลการตัดสินประจำปีการศึกษา {academicYearThai}
+          </div>
+          <div className="text-lg sm:text-xl font-bold text-neutral-900">
+            {decisionText}
           </div>
         </div>
 
         {/* 3 Signatures */}
-        <div className="grid grid-cols-3 gap-2 pt-8 text-center text-[10px]">
-          <div>
-            <div className="border-b border-black w-28 mx-auto mb-1"></div>
-            <div>({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
-            <div className="text-neutral-600">ครูประจำชั้น</div>
+        <div className="grid grid-cols-3 gap-3 pt-8 text-center text-xs">
+          {/* Homeroom Teacher */}
+          <div className="flex flex-col items-center space-y-1">
+            <div className="w-full text-center">ลงชื่อ ....................................................</div>
+            <div className="font-semibold text-[11px]">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
+            <div className="text-neutral-700 font-medium text-[11px]">ครูประจำชั้น</div>
           </div>
-          <div>
-            <div className="border-b border-black w-28 mx-auto mb-1"></div>
-            <div>(นายทะเบียน)</div>
-            <div className="text-neutral-600">นายทะเบียน</div>
+
+          {/* Registrar */}
+          <div className="flex flex-col items-center space-y-1">
+            <div className="w-full text-center">ลงชื่อ ....................................................</div>
+            <div className="font-semibold text-[11px]">( .................................................... )</div>
+            <div className="text-neutral-700 font-medium text-[11px]">นายทะเบียน</div>
           </div>
-          <div>
-            <div className="border-b border-black w-28 mx-auto mb-1"></div>
-            <div>(นายสมพิศ แรงน้อย)</div>
-            <div className="text-neutral-600">ผู้อำนวยการโรงเรียน</div>
+
+          {/* Director */}
+          <div className="flex flex-col items-center space-y-1">
+            <div className="w-full text-center">ลงชื่อ ....................................................</div>
+            <div className="font-semibold text-[11px]">( นายสมพิศ แรงน้อย )</div>
+            <div className="text-neutral-700 font-medium text-[11px]">ผู้อำนวยการโรงเรียนบ้านคำไผ่</div>
           </div>
         </div>
       </div>
