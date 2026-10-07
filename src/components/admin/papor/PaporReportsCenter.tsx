@@ -168,11 +168,21 @@ export const PaporReportsCenter: React.FC<Props> = ({
   // Map scores by studentId -> key
   const allScores = useMemo(() => {
     const map: Record<string, Record<string, number>> = {};
+    const norm = (str: string) => (str || '').trim().toLowerCase().replace(/\s*[๑-๖1-6]$/, '');
+
     scoreRecords.forEach((sc) => {
       if (!map[sc.student_id]) map[sc.student_id] = {};
-      const sub = subjects.find((s) => s.subject_name === sc.subject);
+      const sub = subjects.find(
+        (s) =>
+          s.subject_name === sc.subject ||
+          s.subject_code === sc.subject ||
+          norm(s.subject_name) === norm(sc.subject)
+      );
       const key = sub ? sub.subject_code : sc.subject;
       map[sc.student_id][`${key}_${sc.semester}_${sc.score_type}`] = sc.score;
+      if (sub) {
+        map[sc.student_id][`${sub.subject_code}_${sc.semester}_${sc.score_type}`] = sc.score;
+      }
     });
     return map;
   }, [scoreRecords, subjects]);
@@ -189,21 +199,24 @@ export const PaporReportsCenter: React.FC<Props> = ({
       const stScores = allScores[studentId] || {};
 
       return subjects.map((sub) => {
-        const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
-        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
-        const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
-        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
+        // ดึงคะแนนตาม score_type จริงในฐานข้อมูล (เก็บ, กลางภาค, ปลายภาค)
+        const f1 = stScores[`${sub.subject_code}_1_เก็บ`] ?? 0;
+        const m1 = stScores[`${sub.subject_code}_1_กลางภาค`] ?? 0;
+        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค`] ?? 0;
 
-        const t1 = f1 + s1;
-        const t2 = f2 + s2;
-        const yearly = Math.round((t1 + t2) / 2);
-        const totalScore = yearly > 0 ? yearly : t1 || t2;
+        const f2 = stScores[`${sub.subject_code}_2_เก็บ`] ?? 0;
+        const m2 = stScores[`${sub.subject_code}_2_กลางภาค`] ?? 0;
+        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค`] ?? 0;
+
+        const t1 = f1 + m1 + s1;
+        const t2 = f2 + m2 + s2;
+        const totalScore = (t1 > 0 && t2 > 0) ? Math.round((t1 + t2) / 2) : (t1 || t2);
         const grade = scoreToGrade(totalScore);
 
         return {
           subject: sub,
           formativeScore: f1 + f2,
-          summativeScore: s1 + s2,
+          summativeScore: (m1 + s1) + (m2 + s2),
           totalScore,
           grade,
           isPassed: parseFloat(grade) >= 1.0,
@@ -238,15 +251,17 @@ export const PaporReportsCenter: React.FC<Props> = ({
       let totalCredits = 0;
 
       subjects.forEach((sub) => {
-        const f1 = stScores[`${sub.subject_code}_1_ระหว่างเรียน_T1`] ?? 0;
-        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค_T1`] ?? 0;
-        const f2 = stScores[`${sub.subject_code}_2_ระหว่างเรียน_T2`] ?? 0;
-        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค_T2`] ?? 0;
+        const f1 = stScores[`${sub.subject_code}_1_เก็บ`] ?? 0;
+        const m1 = stScores[`${sub.subject_code}_1_กลางภาค`] ?? 0;
+        const s1 = stScores[`${sub.subject_code}_1_ปลายภาค`] ?? 0;
 
-        const t1 = f1 + s1;
-        const t2 = f2 + s2;
-        const yearly = Math.round((t1 + t2) / 2);
-        const total = yearly > 0 ? yearly : t1 || t2;
+        const f2 = stScores[`${sub.subject_code}_2_เก็บ`] ?? 0;
+        const m2 = stScores[`${sub.subject_code}_2_กลางภาค`] ?? 0;
+        const s2 = stScores[`${sub.subject_code}_2_ปลายภาค`] ?? 0;
+
+        const t1 = f1 + m1 + s1;
+        const t2 = f2 + m2 + s2;
+        const total = (t1 > 0 && t2 > 0) ? Math.round((t1 + t2) / 2) : (t1 || t2);
         const grade = scoreToGrade(total);
 
         subjectGrades[sub.subject_code] = grade;
@@ -273,10 +288,14 @@ export const PaporReportsCenter: React.FC<Props> = ({
       };
     });
 
-    // Compute ranks by GPA
+    // Compute ranks by GPA with proper tie-breaking
     const sorted = [...rowsWithGpa].sort((a, b) => b.gpa - a.gpa);
+    let currentRank = 1;
     sorted.forEach((item, idx) => {
-      item.rank = idx + 1;
+      if (idx > 0 && item.gpa < sorted[idx - 1].gpa) {
+        currentRank = idx + 1;
+      }
+      item.rank = currentRank;
     });
 
     return rowsWithGpa;

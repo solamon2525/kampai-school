@@ -110,12 +110,21 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
   const totalObtained = tableRows.reduce((sum, r) => sum + Number(r.obtained || 0), 0);
   const totalWeight = tableRows.reduce((sum, r) => sum + r.weight, 0);
 
-  // คำนวณ GPA (ถ้าเทอม 1 แสดงค่าว่างหรือ 0.00 ตามโหมด)
-  const gpa = totalWeight > 0 ? (totalObtained / totalWeight).toFixed(2) : '0.00';
+  // คำนวณ GPA ตามเกณฑ์ถ่วงน้ำหนักมาตรฐาน สพฐ. (ช่วง 0.00–4.00)
+  let totalGradePoints = 0;
+  tableRows.forEach((r) => {
+    const g = parseFloat(r.grade) || 0;
+    const w = r.weight || 1;
+    totalGradePoints += g * w;
+  });
+  const gpa = totalWeight > 0 ? (totalGradePoints / totalWeight).toFixed(2) : '0.00';
   const gpaDisplay = isTerm1Only ? '' : gpa;
 
-  const classNumberDisplay = student.class_number || '1';
-  const gradeLevelNum = selectedClass.replace(/[^0-9]/g, '') || '4';
+  const toThaiNumerals = (str: string | number) =>
+    String(str).replace(/[0-9]/g, (d) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(d, 10)]);
+
+  const classNumberDisplay = student.class_number ? toThaiNumerals(student.class_number) : '-';
+  const gradeLevelNum = toThaiNumerals(selectedClass.replace(/[^0-9]/g, '') || '4');
 
   return (
     <div className="printable-report-card bg-card text-foreground font-sans p-6 max-w-[210mm] mx-auto print:bg-white print:text-black print:p-0 print:max-w-none print:m-0 print:w-full text-xs leading-normal select-none">
@@ -164,7 +173,7 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
         {/* Center Header */}
         <div className="text-center space-y-1 pt-0.5 px-16">
           <div className="font-bold text-sm sm:text-base leading-snug">
-            ผลการเรียนปีการศึกษา {academicYear} &nbsp;&nbsp; {schoolName} &nbsp;&nbsp; {districtName}
+            ผลการเรียนปีการศึกษา {toThaiNumerals(academicYear)} &nbsp;&nbsp; {schoolName} &nbsp;&nbsp; {districtName}
           </div>
           <div className="font-semibold text-xs sm:text-sm">
             {student.name} &nbsp;&nbsp;&nbsp;&nbsp; ชั้นประถมศึกษาปีที่ {gradeLevelNum} &nbsp;&nbsp;&nbsp;&nbsp; เลขที่ &nbsp;{classNumberDisplay}

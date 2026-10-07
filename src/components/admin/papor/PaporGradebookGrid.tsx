@@ -291,6 +291,10 @@ export const PaporGradebookGrid: React.FC<Props> = ({
       setLastSavedTime(new Date().toLocaleTimeString('th-TH'));
       queryClient.invalidateQueries({ queryKey: ['papor-scores'] });
       queryClient.invalidateQueries({ queryKey: ['papor-diagnostics'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-class-scores'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
+      queryClient.invalidateQueries({ queryKey: ['score_records'] });
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการบันทึกคะแนน';

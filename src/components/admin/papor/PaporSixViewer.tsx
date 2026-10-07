@@ -307,6 +307,21 @@ export const PaporSixViewer: React.FC<Props> = ({
     staleTime: 30_000,
   });
 
+  // Reset and rehydrate manual draft states when student changes or new studentYearData arrives
+  useEffect(() => {
+    setCustomSubjectScores({});
+    setCustomTeacherTraits({});
+    setCustomParentTraits({});
+    setCustomRemarks({ rank: '', totalScore: '', gpa: '' });
+    setCustomGrowth({ weight1: '', height1: '', weight2: '', height2: '' });
+    setCustomEvaluations({});
+    setCustomTeacherComments({
+      term1: studentYearData?.promotion?.teacher_comment_term1 || '',
+      term2: studentYearData?.promotion?.teacher_comment_term2 || '',
+    });
+    setCustomParentComments(studentYearData?.promotion?.parent_comment || '');
+  }, [selectedStudentId, studentYearData]);
+
   // Calculate scores list
   const displayScores = useMemo(() => {
     if (!classSubjects || classSubjects.length === 0) return [];
@@ -392,6 +407,8 @@ export const PaporSixViewer: React.FC<Props> = ({
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
       queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
       queryClient.invalidateQueries({ queryKey: ['score_records'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-scores'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-class-scores'] });
       setCustomSubjectScores({});
       toast.success(`บันทึกคะแนนของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
     },
@@ -427,12 +444,41 @@ export const PaporSixViewer: React.FC<Props> = ({
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data'] });
       queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
       queryClient.invalidateQueries({ queryKey: ['score_records'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-scores'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-class-scores'] });
       toast.success(
         `เติมคะแนนวิชาที่ว่างให้เพื่อนร่วมชั้น ${selectedClass} เรียบร้อยแล้ว (เพิ่มใหม่ ${result.insertedCount} รายการ ใน ${result.studentCount} คน)`
       );
     },
     onError: (err: any) => {
       toast.error('เกิดข้อผิดพลาดในการเติมคะแนนทั้งห้อง: ' + (err.message || 'ข้อผิดพลาดระบบ'));
+    },
+  });
+
+  // Mutation: บันทึกความคิดเห็นครูและผู้ปกครองลง student_term_promotion_records
+  const saveCommentsMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedStudentId) throw new Error('กรุณาเลือกนักเรียน');
+      await paporGradebookService.savePromotionsBatch([
+        {
+          student_id: selectedStudentId,
+          academic_year: academicYear,
+          teacher_comment_term1: customTeacherComments.term1,
+          teacher_comment_term2: customTeacherComments.term2,
+          parent_comment: customParentComments,
+          approved_at: new Date().toISOString(),
+        },
+      ]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
+      queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-promotions'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-reports-promotions'] });
+      toast.success(`บันทึกความคิดเห็นของ ${currentStudent?.name || 'นักเรียน'} เรียบร้อยแล้ว`);
+    },
+    onError: (err: any) => {
+      toast.error('ไม่สามารถบันทึกความคิดเห็นได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
     },
   });
 
@@ -1921,6 +1967,28 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
         </div>
 
+        {/* Edit notice / Save button */}
+        {isManualEditMode && (
+          <div className="p-2.5 bg-amber-50 border border-amber-300 rounded flex items-center justify-between print:hidden">
+            <div className="text-xs text-amber-900 font-medium">
+              โหมดแก้ไข: ท่านสามารถพิมพ์ความคิดเห็นเพิ่มเติมของครูประจำชั้น และกดบันทึกลงฐานข้อมูลได้
+            </div>
+            <Button
+              size="sm"
+              onClick={() => saveCommentsMutation.mutate()}
+              disabled={saveCommentsMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white h-7 text-xs flex items-center gap-1.5"
+            >
+              {saveCommentsMutation.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
+              )}
+              บันทึกความคิดเห็น
+            </Button>
+          </div>
+        )}
+
         {/* 12 Teacher Traits Table - Wide left column to prevent text overflow */}
         <table className="w-full border-collapse border border-black text-center text-xs leading-normal">
           <thead>
@@ -2070,6 +2138,28 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
         </div>
 
+        {/* Edit notice / Save button */}
+        {isManualEditMode && (
+          <div className="p-2.5 bg-amber-50 border border-amber-300 rounded flex items-center justify-between print:hidden">
+            <div className="text-xs text-amber-900 font-medium">
+              โหมดแก้ไข: ท่านสามารถพิมพ์ความคิดเห็นเพิ่มเติมของผู้ปกครอง และกดบันทึกลงฐานข้อมูลได้
+            </div>
+            <Button
+              size="sm"
+              onClick={() => saveCommentsMutation.mutate()}
+              disabled={saveCommentsMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white h-7 text-xs flex items-center gap-1.5"
+            >
+              {saveCommentsMutation.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
+              )}
+              บันทึกความคิดเห็น
+            </Button>
+          </div>
+        )}
+
         {/* 9 Parent Traits Table - Wide left column to prevent text overflow */}
         <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
           <thead>
@@ -2151,6 +2241,10 @@ export const PaporSixViewer: React.FC<Props> = ({
               className="w-full p-2 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50"
               rows={5}
             />
+          ) : customParentComments ? (
+            <div className="text-xs leading-relaxed italic text-neutral-800 p-2 min-h-[90px] whitespace-pre-wrap">
+              {customParentComments}
+            </div>
           ) : (
             <div className="space-y-4 pt-1">
               {[1, 2, 3, 4, 5, 6].map((lineNum) => (

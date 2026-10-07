@@ -118,7 +118,7 @@ const dbGroups = [
 ];
 
 const SYSTEM_OVERVIEW_META = {
-    version: 'v1.233.9',
+    version: 'v1.233.19',
     verifiedDate: '7 ต.ค. 2569',
     verifiedIsoDate: '2026-10-07',
     productionUrl: 'https://kampai-school.vercel.app',
@@ -289,6 +289,18 @@ const mediaRoadmap = {
 };
 
 const versionHistory = [
+    {
+        version: 'v1.233.19 (ตรวจพบและแก้ไขบั๊กเชิงระบบ ปพ.5 และ ปพ.6 รอบด้าน: แก้ไขการดึงคะแนนและลำดับที่ในศูนย์รายงาน, ปรับสูตรคำนวณ GPA สพฐ. ถ่วงน้ำหนัก, ป้องกัน State Leak ระหว่างสลับนักเรียน, และขยายการบันทึกความคิดเห็นครู/ผู้ปกครองลงฐานข้อมูล)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไขการจับคู่ประเภทคะแนนและคำนวณลำดับที่ในศูนย์รายงาน (PaporReportsCenter Score Mapping & Tied Rank Fix): ปรับปรุงการจับคู่ score_type ในตาราง score_records ให้ตรงกับฐานข้อมูลจริง (\'เก็บ\', \'กลางภาค\', \'ปลายภาค\') แทนคำค้นเดิม (\'ระหว่างเรียน_T1\') ทำให้นำคะแนนจริงมาคำนวณเกรดได้ถูกต้อง 100% พร้อมแก้ไขสูตรการจัดลำดับที่ (Rank) ให้รองรับการครองอันดับร่วม (Tied Rank) เมื่อมีนักเรียนได้เกรดเฉลี่ยเท่ากัน',
+            'แก้ไขสูตรคำนวณเกรดเฉลี่ย GPA สพฐ. ถ่วงน้ำหนัก (PrintableStudentReportCard GPA Calculation): แก้ไขบั๊กสูตรคำนวณเกรดเฉลี่ยสะสมจากเดิมที่นำคะแนนรวมหารหน่วยกิต มาเป็นสูตรมาตรฐาน สพฐ. ผลรวมของ (เกรด × น้ำหนักหน่วยกิต) หารด้วยผลรวมน้ำหนักหน่วยกิต ให้ผลลัพธ์อยู่ในช่วง 0.00–4.00 ถูกต้องตามหลักวิชาการ พร้อมจัดฟอร์แมตเลขที่นักเรียนและปีการศึกษาเป็นตัวเลขไทย',
+            'ป้องกัน State Leakage ระหว่างสลับดูนักเรียนใน ปพ.6 (Student State Isolation & Rehydration): เพิ่ม useEffect ตรวจจับการเปลี่ยน selectedStudentId เพื่อล้างค่า draft และรีเซ็ต customSubjectScores, traits, growth, และ remarks ป้องกันคะแนนหรือหมายเหตุของนักเรียนคนก่อนหน้าติดไปแสดงผลหรือบันทึกทับนักเรียนคนใหม่',
+            'ระบบบันทึกและแสดงความคิดเห็นครูและผู้ปกครองลงฐานข้อมูลจริง (Teacher & Parent Comments Persistence): เพิ่ม saveCommentsMutation ใน PaporSixViewer บันทึกข้อความลงตาราง student_term_promotion_records ผ่าน paporGradebookService.savePromotionsBatch พร้อมเพิ่มปุ่มบันทึกความคิดเห็นในหน้า ๘ และหน้า ๙ และแสดงข้อความที่บันทึกแล้วในโหมดดูปกติ',
+            'ขยายการกระจายแคช TanStack Query ครอบคลุมทั้งระบบ: อัปเดต PaporGradebookGrid ให้ Invalidate แคช papor-class-scores, papor-student-year, student-papor-year-data, และ score_records เมื่อมีการบันทึกคะแนน เพื่อให้หน้า ปพ.6 และศูนย์รายงานอัปเดตข้อมูลแบบไร้รอยต่อ',
+        ],
+    },
     {
         version: 'v1.233.18 (ซิงค์ผลการประเมิน ๔ มิติข้ามแท็บแบบ Real-Time และยกระดับเอกสารทางการสำหรับพิมพ์: คำนวณผลสรุปและซิงค์ student_term_promotion_records, เครื่องหมาย ✓ อัตโนมัติใน ปพ.6 แผ่นเดียว, และปรับชื่อหัวหน้าวิชาการ/ปีการศึกษา ๒๕๖๙ ใน ปพ.5-ป และ ปพ.7)',
         date: '7 ต.ค. 2569',
