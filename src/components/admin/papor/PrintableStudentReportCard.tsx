@@ -284,38 +284,44 @@ export const PrintableStudentReportCard: React.FC<PrintableStudentReportCardProp
         </tbody>
       </table>
 
-      {/* ─── SIGNATURES BLOCK: 3 ตำแหน่งตรงตามรูปต้นฉบับ ─── */}
+      {/* ─── SIGNATURES BLOCK: 3 ตำแหน่งตรงตามรูปต้นฉบับ จัดชื่อให้อยู่กึ่งกลางใต้เส้นประพอดี ─── */}
       {showSignatures && (
         <div className="pt-3 text-xs leading-normal">
           {/* แถวบน: ครูประจำชั้น (ซ้าย) + หัวหน้าวิชาการ (ขวา) */}
           <div className="grid grid-cols-2 gap-4 text-center">
-            <div className="space-y-1.5">
-              <div>
-                ลงชื่อ .................................................... ครูประจำชั้น
+            <div className="flex items-start justify-center">
+              <span className="whitespace-nowrap">ลงชื่อ</span>
+              <div className="flex flex-col items-center mx-1">
+                <span>....................................................</span>
+                <span className="font-medium text-xs mt-1">
+                  ({homeroomTeacher || 'ครูประจำชั้น'})
+                </span>
               </div>
-              <div className="font-medium text-xs">
-                ({homeroomTeacher || 'ครูประจำชั้น'})
-              </div>
+              <span className="whitespace-nowrap">ครูประจำชั้น</span>
             </div>
 
-            <div className="space-y-1.5">
-              <div>
-                ลงชื่อ .................................................... หัวหน้าวิชาการ
+            <div className="flex items-start justify-center">
+              <span className="whitespace-nowrap">ลงชื่อ</span>
+              <div className="flex flex-col items-center mx-1">
+                <span>....................................................</span>
+                <span className="font-medium text-xs mt-1">
+                  ({academicHeadName})
+                </span>
               </div>
-              <div className="font-medium text-xs">
-                ({academicHeadName})
-              </div>
+              <span className="whitespace-nowrap">หัวหน้าวิชาการ</span>
             </div>
           </div>
 
           {/* แถวล่าง: ผู้อำนวยการโรงเรียน (ตรงกลาง) */}
-          <div className="text-center pt-5 space-y-1.5">
-            <div>
-              ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน
+          <div className="flex items-start justify-center pt-5">
+            <span className="whitespace-nowrap">ลงชื่อ</span>
+            <div className="flex flex-col items-center mx-1">
+              <span>............................................................................</span>
+              <span className="font-medium text-xs mt-1">
+                ({directorName})
+              </span>
             </div>
-            <div className="font-medium text-xs">
-              ({directorName})
-            </div>
+            <span className="whitespace-nowrap">ผู้อำนวยการโรงเรียน</span>
           </div>
         </div>
       )}

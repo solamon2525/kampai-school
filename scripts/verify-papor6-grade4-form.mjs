@@ -78,9 +78,9 @@ assert(reportCardContent.includes('คะแนนที่ได้') && report
 console.log('\n[5/5] ตรวจสอบกิจกรรมพัฒนาผู้เรียนและสรุปการประเมิน 3 ด้าน...');
 assert(reportCardContent.includes('ผ่าน') && reportCardContent.includes('ไม่ผ่าน'), 'ตารางกิจกรรมพัฒนาผู้เรียนมีคอลัมน์ ผ่าน / ไม่ผ่าน');
 assert(reportCardContent.includes('ดีเยี่ยม') && reportCardContent.includes('ดี') && reportCardContent.includes('ผ่าน'), 'ตารางสรุปการประเมิน 3 ด้านมีคอลัมน์ ดีเยี่ยม / ดี / ผ่าน');
-assert(reportCardContent.includes('ลงชื่อ .................................................... ครูประจำชั้น'), 'มีบล็อกลายเซ็นครูประจำชั้น');
-assert(reportCardContent.includes('ลงชื่อ .................................................... หัวหน้าวิชาการ'), 'มีบล็อกลายเซ็นหัวหน้าวิชาการ');
-assert(reportCardContent.includes('ผู้อำนวยการโรงเรียน'), 'มีบล็อกลายเซ็นผู้อำนวยการโรงเรียน');
+assert(reportCardContent.includes('ครูประจำชั้น') && reportCardContent.includes('....................................................'), 'มีบล็อกลายเซ็นครูประจำชั้น');
+assert(reportCardContent.includes('หัวหน้าวิชาการ') && reportCardContent.includes('....................................................'), 'มีบล็อกลายเซ็นหัวหน้าวิชาการ');
+assert(reportCardContent.includes('ผู้อำนวยการโรงเรียน') && reportCardContent.includes('............................................................................'), 'มีบล็อกลายเซ็นผู้อำนวยการโรงเรียน');
 
 console.log('\n========================================');
 console.log(`ผลการตรวจสอบ: ผ่าน ${passed} รายการ, ล้มเหลว ${failed} รายการ`);

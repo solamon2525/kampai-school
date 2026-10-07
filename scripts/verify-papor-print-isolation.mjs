@@ -72,9 +72,9 @@ assert(reportCard.includes('size: A4 portrait'), 'มีคำสั่ง @page
 assert(reportCard.includes('break-inside: avoid') && reportCard.includes('page-break-inside: avoid'), 'มี CSS ป้องกัน break-inside ในตัวเอกสารและตาราง');
 assert(!reportCard.includes('แถวว่างตกแต่ง 2 แถว'), 'ไม่มีแถวว่างตกแต่งส่วนเกินที่ดันความสูง');
 assert(reportCard.includes('DEFAULT_GRADE_4_SUBJECTS'), 'มีโครงสร้าง 11 วิชา ป.4 สมบูรณ์');
-assert(reportCard.includes('ลงชื่อ .................................................... ครูประจำชั้น'), 'มีบล็อกลายเซ็นครูประจำชั้น');
-assert(reportCard.includes('ลงชื่อ .................................................... หัวหน้าวิชาการ'), 'มีบล็อกลายเซ็นหัวหน้าวิชาการ');
-assert(reportCard.includes('ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน'), 'มีบล็อกลายเซ็นผู้อำนวยการโรงเรียน');
+assert(reportCard.includes('ครูประจำชั้น') && reportCard.includes('....................................................'), 'มีบล็อกลายเซ็นครูประจำชั้น');
+assert(reportCard.includes('หัวหน้าวิชาการ') && reportCard.includes('....................................................'), 'มีบล็อกลายเซ็นหัวหน้าวิชาการ');
+assert(reportCard.includes('ผู้อำนวยการโรงเรียน') && reportCard.includes('............................................................................'), 'มีบล็อกลายเซ็นผู้อำนวยการโรงเรียน');
 
 console.log('\n========================================');
 console.log(`ผลการตรวจสอบ Print Isolation: ผ่าน ${passed} รายการ, ล้มเหลว ${failed} รายการ`);

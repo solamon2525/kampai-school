@@ -984,21 +984,33 @@ export const PaporSixViewer: React.FC<Props> = ({
           </tbody>
         </table>
 
-        {/* 3 Signatures Row (ครูประจำชั้น, หัวหน้าวิชาการ, ผู้อำนวยการ) */}
+        {/* 3 Signatures Row (ครูประจำชั้น, หัวหน้าวิชาการ, ผู้อำนวยการ) จัดชื่อตรงกึ่งกลางใต้เส้นประ */}
         <div className="pt-2 text-xs leading-normal">
           <div className="grid grid-cols-2 gap-4 text-center">
-            <div className="space-y-1">
-              <div>ลงชื่อ .................................................... ครูประจำชั้น</div>
-              <div className="font-medium text-[11px]">({homeroomTeacher?.name || 'ครูประจำชั้น'})</div>
+            <div className="flex items-start justify-center">
+              <span className="whitespace-nowrap">ลงชื่อ</span>
+              <div className="flex flex-col items-center mx-1">
+                <span>....................................................</span>
+                <span className="font-medium text-[11px] mt-1">({homeroomTeacher?.name || 'ครูประจำชั้น'})</span>
+              </div>
+              <span className="whitespace-nowrap">ครูประจำชั้น</span>
             </div>
-            <div className="space-y-1">
-              <div>ลงชื่อ .................................................... หัวหน้าวิชาการ</div>
-              <div className="font-medium text-[11px]">(นางสาวมะลิวัลย์ จรุงพันธ์)</div>
+            <div className="flex items-start justify-center">
+              <span className="whitespace-nowrap">ลงชื่อ</span>
+              <div className="flex flex-col items-center mx-1">
+                <span>....................................................</span>
+                <span className="font-medium text-[11px] mt-1">(นางสาวมะลิวัลย์ จรุงพันธ์)</span>
+              </div>
+              <span className="whitespace-nowrap">หัวหน้าวิชาการ</span>
             </div>
           </div>
-          <div className="text-center pt-3 space-y-1">
-            <div>ลงชื่อ ............................................................................ ผู้อำนวยการโรงเรียน</div>
-            <div className="font-medium text-[11px]">(นายสมพิศ แรงน้อย)</div>
+          <div className="flex items-start justify-center pt-3">
+            <span className="whitespace-nowrap">ลงชื่อ</span>
+            <div className="flex flex-col items-center mx-1">
+              <span>............................................................................</span>
+              <span className="font-medium text-[11px] mt-1">(นายสมพิศ แรงน้อย)</span>
+            </div>
+            <span className="whitespace-nowrap">ผู้อำนวยการโรงเรียน</span>
           </div>
         </div>
       </div>
