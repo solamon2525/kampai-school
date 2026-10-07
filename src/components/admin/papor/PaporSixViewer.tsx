@@ -2311,13 +2311,22 @@ export const PaporSixViewer: React.FC<Props> = ({
                   onChange={(e) =>
                     setCustomTeacherComments((prev) => ({ ...prev, term1: e.target.value }))
                   }
-                  placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
+                  placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น... (หากเว้นว่าง ระบบจะแสดงเส้นบรรทัด ๗ แถวสำหรับเขียนด้วยลายมือ)"
                   className="w-full flex-1 p-2.5 text-sm border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[180px]"
                   rows={6}
                 />
-              ) : (
+              ) : customTeacherComments.term1 ? (
                 <div className="text-sm leading-relaxed italic text-neutral-800 flex-1 whitespace-pre-wrap">
                   {customTeacherComments.term1}
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col justify-between pt-1">
+                  {[1, 2, 3, 4, 5, 6, 7].map((lineNum) => (
+                    <div
+                      key={lineNum}
+                      className="border-b border-dotted border-black/70 h-7 w-full flex items-end"
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -2333,13 +2342,22 @@ export const PaporSixViewer: React.FC<Props> = ({
                   onChange={(e) =>
                     setCustomTeacherComments((prev) => ({ ...prev, term2: e.target.value }))
                   }
-                  placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
+                  placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น... (หากเว้นว่าง ระบบจะแสดงเส้นบรรทัด ๗ แถวสำหรับเขียนด้วยลายมือ)"
                   className="w-full flex-1 p-2.5 text-sm border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[180px]"
                   rows={6}
                 />
-              ) : (
+              ) : customTeacherComments.term2 ? (
                 <div className="text-sm leading-relaxed italic text-neutral-800 flex-1 whitespace-pre-wrap">
                   {customTeacherComments.term2}
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col justify-between pt-1">
+                  {[1, 2, 3, 4, 5, 6, 7].map((lineNum) => (
+                    <div
+                      key={lineNum}
+                      className="border-b border-dotted border-black/70 h-7 w-full flex items-end"
+                    />
+                  ))}
                 </div>
               )}
             </div>
