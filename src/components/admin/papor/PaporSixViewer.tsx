@@ -591,38 +591,49 @@ export const PaporSixViewer: React.FC<Props> = ({
     }
   }
 
+  // ฟังก์ชันแปลงตัวเลขอารบิกเป็นตัวเลขไทยเฉพาะหน้าปก ปพ.6
+  const toThaiNumerals = (val: string | number | null | undefined): string => {
+    if (val === null || val === undefined || val === '') return '';
+    const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+    return String(val).replace(/[0-9]/g, (d) => thaiDigits[parseInt(d, 10)]);
+  };
+
   // ─── 1. COVER PAGE (หน้าปก - Image 1) ────────────────────────────────
   function renderCoverPage() {
     if (!currentStudent) return null;
 
+    const thaiStudentCode = toThaiNumerals(currentStudent.student_code) || '-';
+    const thaiClassNumber = currentStudent.class_number ? toThaiNumerals(currentStudent.class_number) : '-';
+    const thaiAcademicYear = toThaiNumerals(academicYear);
+    const thaiGradeLevel = toThaiNumerals(selectedClass.replace(/[^0-9]/g, '')) || '๔';
+
     return (
-      <div className="h-full flex flex-col justify-between py-2 text-center text-black">
-        {/* Top Emblem & School Headers */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-center gap-4 mx-auto">
+      <div className="min-h-[265mm] flex flex-col justify-between py-6 px-4 text-center text-black box-border">
+        {/* ─── 1. ตราโรงเรียนบ้านคำไผ่ (เดี่ยว) + หัวเรื่องขนาดใหญ่ ─── */}
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center justify-center mx-auto">
             <img
               src="/logos/school-logo.webp"
               alt="ตราประจำโรงเรียนบ้านคำไผ่"
-              className="w-24 h-24 object-contain"
-            />
-            <img
-              src="/logos/obec.png"
-              alt="ตราสัญลักษณ์ สพฐ."
-              className="w-24 h-24 object-contain"
+              className="w-32 h-32 object-contain drop-shadow-sm"
             />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-xl font-bold tracking-tight">แบบรายงานประจำตัวนักเรียน</h1>
-            <h2 className="text-lg font-semibold">โรงเรียนบ้านคำไผ่</h2>
-            <p className="text-xs text-neutral-800">
+          <div className="space-y-1.5">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
+              แบบรายงานประจำตัวนักเรียน
+            </h1>
+            <h2 className="text-xl sm:text-2xl font-bold text-neutral-800">
+              โรงเรียนบ้านคำไผ่
+            </h2>
+            <p className="text-base sm:text-lg font-medium text-neutral-700">
               สังกัดสำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
             </p>
           </div>
         </div>
 
-        {/* Student Photo (3x4 cm ratio) */}
-        <div className="my-4">
-          <div className="w-28 h-36 mx-auto border-2 border-neutral-400 p-0.5 bg-neutral-50 shadow-sm flex items-center justify-center overflow-hidden">
+        {/* ─── 2. รูปถ่ายนักเรียน (ขยายขนาด 3x4 นิ้ว สวยงาม) ─── */}
+        <div className="my-8 sm:my-10">
+          <div className="w-36 h-48 mx-auto border-2 border-neutral-400 p-0.5 bg-neutral-50 shadow-md flex items-center justify-center overflow-hidden">
             {currentStudent.photo_url ? (
               <img
                 src={currentStudent.photo_url}
@@ -633,76 +644,68 @@ export const PaporSixViewer: React.FC<Props> = ({
               <PersonAvatar
                 name={currentStudent.name}
                 photoUrl={null}
-                className="w-20 h-20 rounded-full"
+                className="w-24 h-24 rounded-full"
               />
             )}
           </div>
         </div>
 
-        {/* Dotted Form Information Block - Perfectly balanced, no clipping */}
-        <div className="max-w-md mx-auto w-full space-y-3 text-sm text-left px-4">
+        {/* ─── 3. ช่องกรอกข้อมูลเส้นประ (กระจายช่องไฟ, ฟอนต์ใหญ่, ตัวเลขไทย) ─── */}
+        <div className="max-w-lg mx-auto w-full space-y-6 text-base sm:text-lg text-left px-4">
           {/* ชื่อ */}
           <div className="flex items-end">
-            <span className="font-semibold whitespace-nowrap min-w-[70px]">ชื่อ</span>
-            <span className="font-bold text-base px-2 flex-1 border-b border-dotted border-black text-center truncate">
+            <span className="font-bold whitespace-nowrap min-w-[80px]">ชื่อ</span>
+            <span className="font-bold text-xl px-3 flex-1 border-b border-dotted border-black text-center truncate">
               {currentStudent.name}
             </span>
           </div>
 
-          {/* เลขประจำตัว & เลขที่ */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* เลขประจำตัว & เลขที่ (เลขไทย) */}
+          <div className="grid grid-cols-2 gap-6">
             <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[75px]">เลขประจำตัว</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium truncate">
-                {currentStudent.student_code || '-'}
+              <span className="whitespace-nowrap font-semibold min-w-[100px]">เลขประจำตัว</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold text-lg truncate">
+                {thaiStudentCode}
               </span>
             </div>
             <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[45px]">เลขที่</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
-                {currentStudent.class_number || '-'}
-              </span>
-            </div>
-          </div>
-
-          {/* ปีการศึกษา & ชั้น */}
-          <div className="grid grid-cols-2 gap-4 pt-1">
-            <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[75px]">ปีการศึกษา</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
-                {academicYear}
-              </span>
-            </div>
-            <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[95px]">ชั้นประถมศึกษาปีที่</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium">
-                {selectedClass.replace('ป.', '')}
+              <span className="whitespace-nowrap font-semibold min-w-[55px]">เลขที่</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold text-lg">
+                {thaiClassNumber}
               </span>
             </div>
           </div>
 
-          {/* ครูประจำชั้น */}
-          <div className="space-y-1.5 pt-2">
+          {/* ปีการศึกษา & ชั้น (เลขไทย) */}
+          <div className="grid grid-cols-2 gap-6 pt-1">
             <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[95px]">ครูที่ประจำชั้น ๑</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-medium truncate">
-                {homeroomTeacher?.name || 'นายเอกวิทย์ พละลี'}
+              <span className="whitespace-nowrap font-semibold min-w-[100px]">ปีการศึกษา</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold text-lg">
+                {thaiAcademicYear}
               </span>
             </div>
             <div className="flex items-end">
-              <span className="whitespace-nowrap min-w-[95px] pl-8">๒</span>
-              <span className="px-2 flex-1 border-b border-dotted border-black text-center text-neutral-400">
-                .......................................................
+              <span className="whitespace-nowrap font-semibold min-w-[140px]">ชั้นประถมศึกษาปีที่</span>
+              <span className="px-2 flex-1 border-b border-dotted border-black text-center font-bold text-lg">
+                {thaiGradeLevel}
               </span>
             </div>
+          </div>
+
+          {/* ครูประจำชั้น (บรรทัดเดียว ไม่มีเลข 1 หรือ 2) */}
+          <div className="flex items-end pt-1">
+            <span className="whitespace-nowrap font-semibold min-w-[110px]">ครูประจำชั้น</span>
+            <span className="px-3 flex-1 border-b border-dotted border-black text-center font-bold text-lg truncate">
+              {homeroomTeacher?.name || 'ครูประจำชั้น'}
+            </span>
           </div>
         </div>
 
-        {/* Director Signature Block */}
-        <div className="pt-6 pb-2 text-center space-y-1">
-          <div className="text-xs">ลงชื่อ ................................................................</div>
-          <div className="text-sm font-semibold">( นายสมพิศ แรงน้อย )</div>
-          <div className="text-xs text-neutral-700">ผู้อำนวยการโรงเรียนบ้านคำไผ่</div>
+        {/* ─── 4. บล็อกลายมือชื่อผู้อำนวยการโรงเรียน ─── */}
+        <div className="pt-12 sm:pt-16 pb-6 text-center space-y-2.5">
+          <div className="text-base tracking-wider">ลงชื่อ ................................................................</div>
+          <div className="text-lg sm:text-xl font-bold">( นายสมพิศ แรงน้อย )</div>
+          <div className="text-base font-semibold text-neutral-800">ผู้อำนวยการโรงเรียนบ้านคำไผ่</div>
         </div>
       </div>
     );
