@@ -1048,47 +1048,47 @@ export const PaporSixViewer: React.FC<Props> = ({
     if (!currentStudent) return null;
 
     return (
-      <div className="space-y-3 text-black text-xs">
+      <div className="space-y-4 text-black text-xs">
         {/* Header with Student Name on Top Right */}
-        <div className="flex justify-between items-start">
-          <div className="w-8 font-bold">๘</div>
+        <div className="flex justify-between items-start pb-1">
+          <div className="w-8 font-bold text-sm">๘</div>
           <div className="text-center flex-1">
-            <div className="font-bold text-sm">ความเห็นของครูประจำชั้น</div>
-            <div className="text-[11px] text-neutral-700">ให้ใส่เครื่องหมาย ✓ ลงในช่องว่าง</div>
+            <div className="font-bold text-base">ความเห็นของครูประจำชั้น</div>
+            <div className="text-xs text-neutral-700">ให้ใส่เครื่องหมาย ✓ ลงในช่องว่าง</div>
           </div>
-          <div className="w-36 text-right font-semibold text-xs truncate">
+          <div className="w-44 text-right font-semibold text-xs truncate">
             {currentStudent.name}
           </div>
         </div>
 
         {/* 12 Teacher Traits Table - Wide left column to prevent text overflow */}
-        <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
+        <table className="w-full border-collapse border border-black text-center text-xs leading-normal">
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold">
-              <th rowSpan={2} className="border border-black p-1 text-left w-[48%]">
+            <tr className="bg-neutral-100/70 font-bold">
+              <th rowSpan={2} className="border border-black p-1.5 text-left w-[48%]">
                 คุณลักษณะของนักเรียนขณะอยู่ในโรงเรียน
               </th>
               <th colSpan={4} className="border border-black p-1 w-[26%]">ภาคเรียนที่ ๑</th>
               <th colSpan={4} className="border border-black p-1 w-[26%]">ภาคเรียนที่ ๒</th>
             </tr>
-            <tr className="bg-neutral-100/40 font-medium text-[9px]">
-              <th className="border border-black p-0.5 w-[6.5%]">ดีเยี่ยม</th>
-              <th className="border border-black p-0.5 w-[6.5%]">ดี</th>
-              <th className="border border-black p-0.5 w-[6.5%]">พอใช้</th>
-              <th className="border border-black p-0.5 w-[6.5%]">ปรับปรุง</th>
-              <th className="border border-black p-0.5 w-[6.5%]">ดีเยี่ยม</th>
-              <th className="border border-black p-0.5 w-[6.5%]">ดี</th>
-              <th className="border border-black p-0.5 w-[6.5%]">พอใช้</th>
-              <th className="border border-black p-0.5 w-[6.5%]">ปรับปรุง</th>
+            <tr className="bg-neutral-100/50 font-semibold text-[11px]">
+              <th className="border border-black p-1 w-[6.5%]">ดีเยี่ยม</th>
+              <th className="border border-black p-1 w-[6.5%]">ดี</th>
+              <th className="border border-black p-1 w-[6.5%]">พอใช้</th>
+              <th className="border border-black p-1 w-[6.5%]">ปรับปรุง</th>
+              <th className="border border-black p-1 w-[6.5%]">ดีเยี่ยม</th>
+              <th className="border border-black p-1 w-[6.5%]">ดี</th>
+              <th className="border border-black p-1 w-[6.5%]">พอใช้</th>
+              <th className="border border-black p-1 w-[6.5%]">ปรับปรุง</th>
             </tr>
           </thead>
           <tbody>
             {TEACHER_TRAITS_12.map((trait, idx) => {
               const currentT = customTeacherTraits[idx] || {};
               return (
-                <tr key={trait} className="h-5">
+                <tr key={trait} className="h-[30px]">
                   {/* Left topic column - full words, no cutoffs */}
-                  <td className="border border-black px-1.5 py-0.5 text-left font-medium whitespace-normal">
+                  <td className="border border-black px-2 py-1 text-left font-medium whitespace-normal">
                     {trait}
                   </td>
 
@@ -1124,23 +1124,23 @@ export const PaporSixViewer: React.FC<Props> = ({
             })}
 
             {/* Signature inside table bottom row */}
-            <tr className="h-6 font-semibold">
-              <td className="border border-black px-1.5 py-0.5 text-center">ลงชื่อครูประจำชั้น</td>
-              <td colSpan={4} className="border border-black p-0.5 text-[10px]">
+            <tr className="h-8 font-semibold">
+              <td className="border border-black px-2 py-1 text-center">ลงชื่อครูประจำชั้น</td>
+              <td colSpan={4} className="border border-black p-1 text-xs font-medium">
                 {homeroomTeacher?.name ? `(${homeroomTeacher.name})` : ''}
               </td>
-              <td colSpan={4} className="border border-black p-0.5 text-[10px]"></td>
+              <td colSpan={4} className="border border-black p-1 text-xs font-medium"></td>
             </tr>
           </tbody>
         </table>
 
-        {/* Additional Comments Block - Blank by default, no mock text */}
-        <div className="space-y-1 pt-2">
+        {/* Additional Comments Block - Blank by default, expanded min-h-[320px] */}
+        <div className="space-y-1.5 pt-2">
           <div className="font-bold text-center text-xs">ความคิดเห็นเพิ่มเติมของครูประจำชั้น</div>
-          <div className="grid grid-cols-2 border border-black min-h-[110px]">
+          <div className="grid grid-cols-2 border border-black min-h-[320px]">
             {/* Term 1 Box */}
-            <div className="border-r border-black p-2 flex flex-col justify-between">
-              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-[11px]">
+            <div className="border-r border-black p-3 flex flex-col justify-between">
+              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-xs">
                 ภาคเรียนที่ ๑
               </div>
               {isManualEditMode ? (
@@ -1150,8 +1150,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                     setCustomTeacherComments((prev) => ({ ...prev, term1: e.target.value }))
                   }
                   placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
-                  className="w-full flex-1 p-1 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50"
-                  rows={3}
+                  className="w-full flex-1 p-2 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[240px]"
+                  rows={8}
                 />
               ) : (
                 <div className="text-xs leading-relaxed italic text-neutral-800 flex-1">
@@ -1161,8 +1161,8 @@ export const PaporSixViewer: React.FC<Props> = ({
             </div>
 
             {/* Term 2 Box */}
-            <div className="p-2 flex flex-col justify-between">
-              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-[11px]">
+            <div className="p-3 flex flex-col justify-between">
+              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-xs">
                 ภาคเรียนที่ ๒
               </div>
               {isManualEditMode ? (
@@ -1172,8 +1172,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                     setCustomTeacherComments((prev) => ({ ...prev, term2: e.target.value }))
                   }
                   placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
-                  className="w-full flex-1 p-1 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50"
-                  rows={3}
+                  className="w-full flex-1 p-2 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[240px]"
+                  rows={8}
                 />
               ) : (
                 <div className="text-xs leading-relaxed italic text-neutral-800 flex-1">
@@ -1185,7 +1185,7 @@ export const PaporSixViewer: React.FC<Props> = ({
         </div>
 
         {/* Bottom Signature Line */}
-        <div className="pt-4 text-center text-xs">
+        <div className="pt-8 pb-2 text-center text-xs">
           ลงชื่อ ............................................................................ ครูประจำชั้น
         </div>
       </div>
