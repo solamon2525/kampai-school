@@ -385,12 +385,38 @@ export const PaporSixViewer: React.FC<Props> = ({
   // Reset and rehydrate manual draft states when student changes or new studentYearData arrives
   useEffect(() => {
     setCustomSubjectScores({});
-    setCustomTeacherTraits({});
-    setCustomParentTraits({});
     setCustomRemarks({ rank: '', totalScore: '', gpa: '' });
     setCustomGrowth({ weight1: '', height1: '', weight2: '', height2: '' });
     setCustomEvaluations({});
     setCustomActivities({});
+
+    // Rehydrate teacher traits (Page 8) and parent traits (Page 9) from studentYearData.evaluations
+    const loadedTeacherTraits: Record<number, { term1?: string; term2?: string }> = {};
+    const loadedParentTraits: Record<number, { term1?: string; term2?: string }> = {};
+
+    (studentYearData?.evaluations || []).forEach((ev: any) => {
+      if (ev.evaluation_type === 'teacher_trait') {
+        const m = (ev.category_key || '').match(/^trait_(\d+)$/);
+        if (m) {
+          const idx = parseInt(m[1], 10);
+          if (!loadedTeacherTraits[idx]) loadedTeacherTraits[idx] = {};
+          if (ev.semester === '1') loadedTeacherTraits[idx].term1 = ev.status || undefined;
+          if (ev.semester === '2') loadedTeacherTraits[idx].term2 = ev.status || undefined;
+        }
+      } else if (ev.evaluation_type === 'parent_trait') {
+        const m = (ev.category_key || '').match(/^trait_(\d+)$/);
+        if (m) {
+          const idx = parseInt(m[1], 10);
+          if (!loadedParentTraits[idx]) loadedParentTraits[idx] = {};
+          if (ev.semester === '1') loadedParentTraits[idx].term1 = ev.status || undefined;
+          if (ev.semester === '2') loadedParentTraits[idx].term2 = ev.status || undefined;
+        }
+      }
+    });
+
+    setCustomTeacherTraits(loadedTeacherTraits);
+    setCustomParentTraits(loadedParentTraits);
+
     setCustomTeacherComments({
       term1: studentYearData?.promotion?.teacher_comment_term1 || '',
       term2: studentYearData?.promotion?.teacher_comment_term2 || '',
@@ -453,6 +479,73 @@ export const PaporSixViewer: React.FC<Props> = ({
   }, [displayScores]);
 
   const queryClient = useQueryClient();
+
+  // Helper to compile teacher traits (12 items) and parent traits (9 items) into DB rows
+  const getTraitsRows = (): TablesInsert<'student_obec_evaluations'>[] => {
+    if (!selectedStudentId) return [];
+    const rows: TablesInsert<'student_obec_evaluations'>[] = [];
+    const scoreMap: Record<string, number> = { 'ดีเยี่ยม': 3, 'ดี': 2, 'พอใช้': 1, 'ปรับปรุง': 0 };
+
+    // 12 Teacher traits (Page 8)
+    TEACHER_TRAITS_12.forEach((traitName, idx) => {
+      const t = customTeacherTraits[idx] || {};
+      // Term 1
+      rows.push({
+        student_id: selectedStudentId,
+        academic_year: academicYear,
+        semester: '1',
+        evaluation_type: 'teacher_trait',
+        category_key: `trait_${idx}`,
+        item_key: 'main',
+        status: t.term1 || '',
+        score: t.term1 ? (scoreMap[t.term1] ?? null) : null,
+        notes: traitName,
+      });
+      // Term 2
+      rows.push({
+        student_id: selectedStudentId,
+        academic_year: academicYear,
+        semester: '2',
+        evaluation_type: 'teacher_trait',
+        category_key: `trait_${idx}`,
+        item_key: 'main',
+        status: t.term2 || '',
+        score: t.term2 ? (scoreMap[t.term2] ?? null) : null,
+        notes: traitName,
+      });
+    });
+
+    // 9 Parent traits (Page 9)
+    PARENT_TRAITS_9.forEach((traitName, idx) => {
+      const p = customParentTraits[idx] || {};
+      // Term 1
+      rows.push({
+        student_id: selectedStudentId,
+        academic_year: academicYear,
+        semester: '1',
+        evaluation_type: 'parent_trait',
+        category_key: `trait_${idx}`,
+        item_key: 'main',
+        status: p.term1 || '',
+        score: p.term1 ? (scoreMap[p.term1] ?? null) : null,
+        notes: traitName,
+      });
+      // Term 2
+      rows.push({
+        student_id: selectedStudentId,
+        academic_year: academicYear,
+        semester: '2',
+        evaluation_type: 'parent_trait',
+        category_key: `trait_${idx}`,
+        item_key: 'main',
+        status: p.term2 || '',
+        score: p.term2 ? (scoreMap[p.term2] ?? null) : null,
+        notes: traitName,
+      });
+    });
+
+    return rows;
+  };
 
   // Mutation: บันทึกคะแนนและกิจกรรมพัฒนาผู้เรียนของนักเรียนคนปัจจุบันลงฐานข้อมูล
   const saveStudentMutation = useMutation({
@@ -576,6 +669,12 @@ export const PaporSixViewer: React.FC<Props> = ({
         },
       ];
       await paporGradebookService.saveEvaluationsBatch(evalSummaryRows);
+
+      // 6. บันทึกผลประเมินคุณลักษณะ ๑๒ ข้อ (หน้า ๘) และ ๙ ข้อ (หน้า ๙)
+      const traitRows = getTraitsRows();
+      if (traitRows.length > 0) {
+        await paporGradebookService.saveEvaluationsBatch(traitRows);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
@@ -631,30 +730,42 @@ export const PaporSixViewer: React.FC<Props> = ({
     },
   });
 
-  // Mutation: บันทึกความคิดเห็นครูและผู้ปกครองลง student_term_promotion_records
+  // Mutation: บันทึกความคิดเห็นครู/ผู้ปกครอง และคุณลักษณะ ๑๒ ข้อ/๙ ข้อ ลงฐานข้อมูล
   const saveCommentsMutation = useMutation({
     mutationFn: async () => {
       if (!selectedStudentId) throw new Error('กรุณาเลือกนักเรียน');
+
+      // 1. บันทึกผลการประเมินคุณลักษณะ ๑๒ ข้อ (หน้า ๘) และ ๙ ข้อ (หน้า ๙) ลง student_obec_evaluations
+      const traitRows = getTraitsRows();
+      if (traitRows.length > 0) {
+        await paporGradebookService.saveEvaluationsBatch(traitRows);
+      }
+
+      // 2. บันทึกความคิดเห็นครูและผู้ปกครองลง student_term_promotion_records โดยผสานข้อมูลเดิม
+      const existingPromo = studentYearData?.promotion;
       await paporGradebookService.savePromotionsBatch([
         {
+          ...(existingPromo || {}),
           student_id: selectedStudentId,
           academic_year: academicYear,
           teacher_comment_term1: customTeacherComments.term1,
           teacher_comment_term2: customTeacherComments.term2,
           parent_comment: customParentComments,
           approved_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
       ]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
       queryClient.invalidateQueries({ queryKey: ['papor-student-year'] });
+      queryClient.invalidateQueries({ queryKey: ['papor-evaluations'] });
       queryClient.invalidateQueries({ queryKey: ['papor-promotions'] });
       queryClient.invalidateQueries({ queryKey: ['papor-reports-promotions'] });
-      toast.success(`บันทึกความคิดเห็นของ ${currentStudent?.name || 'นักเรียน'} เรียบร้อยแล้ว`);
+      toast.success(`บันทึกคุณลักษณะและความคิดเห็นของ ${currentStudent?.name || 'นักเรียน'} เรียบร้อยแล้ว`);
     },
     onError: (err: any) => {
-      toast.error('ไม่สามารถบันทึกความคิดเห็นได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
+      toast.error('ไม่สามารถบันทึกข้อมูลได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
     },
   });
 
@@ -2206,7 +2317,7 @@ export const PaporSixViewer: React.FC<Props> = ({
         {isManualEditMode && (
           <div className="p-2.5 bg-amber-50 border border-amber-300 rounded flex items-center justify-between print:hidden">
             <div className="text-xs text-amber-900 font-medium">
-              โหมดแก้ไข: ท่านสามารถพิมพ์ความคิดเห็นเพิ่มเติมของครูประจำชั้น และกดบันทึกลงฐานข้อมูลได้
+              โหมดแก้ไข: ท่านสามารถติ๊กเครื่องหมาย ✓ ในตารางคุณลักษณะ ๑๒ ข้อ หรือพิมพ์ความคิดเห็นเพิ่มเติมของครูประจำชั้น แล้วกดบันทึกลงฐานข้อมูลได้
             </div>
             <Button
               size="sm"
@@ -2219,7 +2330,7 @@ export const PaporSixViewer: React.FC<Props> = ({
               ) : (
                 <Save className="w-3.5 h-3.5" />
               )}
-              บันทึกความคิดเห็น
+              บันทึกคุณลักษณะและความเห็น
             </Button>
           </div>
         )}
@@ -2395,7 +2506,7 @@ export const PaporSixViewer: React.FC<Props> = ({
         {isManualEditMode && (
           <div className="p-2.5 bg-amber-50 border border-amber-300 rounded flex items-center justify-between print:hidden">
             <div className="text-xs text-amber-900 font-medium">
-              โหมดแก้ไข: ท่านสามารถพิมพ์ความคิดเห็นเพิ่มเติมของผู้ปกครอง และกดบันทึกลงฐานข้อมูลได้
+              โหมดแก้ไข: ท่านสามารถติ๊กเครื่องหมาย ✓ ในตารางคุณลักษณะ ๙ ข้อ หรือพิมพ์ความคิดเห็นเพิ่มเติมของผู้ปกครอง แล้วกดบันทึกลงฐานข้อมูลได้
             </div>
             <Button
               size="sm"
@@ -2408,7 +2519,7 @@ export const PaporSixViewer: React.FC<Props> = ({
               ) : (
                 <Save className="w-3.5 h-3.5" />
               )}
-              บันทึกความคิดเห็น
+              บันทึกคุณลักษณะและความเห็น
             </Button>
           </div>
         )}
