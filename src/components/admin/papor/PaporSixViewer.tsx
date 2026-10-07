@@ -2088,15 +2088,15 @@ export const PaporSixViewer: React.FC<Props> = ({
     if (!currentStudent) return null;
 
     return (
-      <div className="space-y-4 text-black text-xs">
+      <div className="space-y-3.5 text-black font-sans text-sm leading-normal">
         {/* Header with Student Name on Top Right */}
         <div className="flex justify-between items-start pb-1">
-          <div className="w-8 font-bold text-sm">๘</div>
+          <div className="w-8 font-bold text-base">๘</div>
           <div className="text-center flex-1">
-            <div className="font-bold text-base">ความเห็นของครูประจำชั้น</div>
-            <div className="text-xs text-neutral-700">ให้ใส่เครื่องหมาย ✓ ลงในช่องว่าง</div>
+            <div className="font-bold text-lg">ความเห็นของครูประจำชั้น</div>
+            <div className="text-sm text-neutral-800">ให้ใส่เครื่องหมาย ✓ ลงในช่องว่าง</div>
           </div>
-          <div className="w-44 text-right font-semibold text-xs truncate">
+          <div className="w-48 text-right font-semibold text-sm">
             {currentStudent.name}
           </div>
         </div>
@@ -2123,25 +2123,25 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
         )}
 
-        {/* 12 Teacher Traits Table - Wide left column to prevent text overflow */}
-        <table className="w-full border-collapse border border-black text-center text-xs leading-normal">
+        {/* 12 Teacher Traits Table - Proportional font and balanced padding */}
+        <table className="w-full border-collapse border border-black text-center text-sm leading-normal">
           <thead>
             <tr className="bg-neutral-100/70 font-bold">
-              <th rowSpan={2} className="border border-black p-1.5 text-left w-[48%]">
+              <th rowSpan={2} className="border border-black p-1.5 text-left w-[46%] text-sm font-bold">
                 คุณลักษณะของนักเรียนขณะอยู่ในโรงเรียน
               </th>
-              <th colSpan={4} className="border border-black p-1 w-[26%]">ภาคเรียนที่ ๑</th>
-              <th colSpan={4} className="border border-black p-1 w-[26%]">ภาคเรียนที่ ๒</th>
+              <th colSpan={4} className="border border-black p-1 w-[27%] text-sm font-bold">ภาคเรียนที่ ๑</th>
+              <th colSpan={4} className="border border-black p-1 w-[27%] text-sm font-bold">ภาคเรียนที่ ๒</th>
             </tr>
-            <tr className="bg-neutral-100/50 font-semibold text-[11px]">
-              <th className="border border-black p-1 w-[6.5%]">ดีเยี่ยม</th>
-              <th className="border border-black p-1 w-[6.5%]">ดี</th>
-              <th className="border border-black p-1 w-[6.5%]">พอใช้</th>
-              <th className="border border-black p-1 w-[6.5%]">ปรับปรุง</th>
-              <th className="border border-black p-1 w-[6.5%]">ดีเยี่ยม</th>
-              <th className="border border-black p-1 w-[6.5%]">ดี</th>
-              <th className="border border-black p-1 w-[6.5%]">พอใช้</th>
-              <th className="border border-black p-1 w-[6.5%]">ปรับปรุง</th>
+            <tr className="bg-neutral-100/50 font-semibold text-xs">
+              <th className="border border-black p-1 w-[6.75%]">ดีเยี่ยม</th>
+              <th className="border border-black p-1 w-[6.75%]">ดี</th>
+              <th className="border border-black p-1 w-[6.75%]">พอใช้</th>
+              <th className="border border-black p-1 w-[6.75%]">ปรับปรุง</th>
+              <th className="border border-black p-1 w-[6.75%]">ดีเยี่ยม</th>
+              <th className="border border-black p-1 w-[6.75%]">ดี</th>
+              <th className="border border-black p-1 w-[6.75%]">พอใช้</th>
+              <th className="border border-black p-1 w-[6.75%]">ปรับปรุง</th>
             </tr>
           </thead>
           <tbody>
@@ -2149,18 +2149,18 @@ export const PaporSixViewer: React.FC<Props> = ({
               const currentT = customTeacherTraits[idx] || {};
               return (
                 <tr key={trait} className="h-[30px]">
-                  {/* Left topic column - full words, no cutoffs */}
-                  <td className="border border-black px-2 py-1 text-left font-medium whitespace-normal">
+                  {/* Left topic column - generous padding, clear text */}
+                  <td className="border border-black px-3 py-0.5 text-left font-medium text-[13.5px] whitespace-normal">
                     {trait}
                   </td>
 
-                  {/* Term 1 Ratings (ดีเยี่ยม, ดี, พอใช้, ปรับปรุง) - Default Blank */}
+                  {/* Term 1 Ratings */}
                   {(['ดีเยี่ยม', 'ดี', 'พอใช้', 'ปรับปรุง'] as const).map((r) => (
                     <td
                       key={`t1-${r}`}
                       onClick={() => toggleTeacherTrait(idx, 'term1', r)}
                       className={cn(
-                        'border border-black p-0.5 font-bold cursor-pointer select-none',
+                        'border border-black p-0.5 font-bold text-sm cursor-pointer select-none',
                         isManualEditMode && 'hover:bg-amber-100'
                       )}
                     >
@@ -2168,13 +2168,13 @@ export const PaporSixViewer: React.FC<Props> = ({
                     </td>
                   ))}
 
-                  {/* Term 2 Ratings (ดีเยี่ยม, ดี, พอใช้, ปรับปรุง) - Default Blank */}
+                  {/* Term 2 Ratings */}
                   {(['ดีเยี่ยม', 'ดี', 'พอใช้', 'ปรับปรุง'] as const).map((r) => (
                     <td
                       key={`t2-${r}`}
                       onClick={() => toggleTeacherTrait(idx, 'term2', r)}
                       className={cn(
-                        'border border-black p-0.5 font-bold cursor-pointer select-none',
+                        'border border-black p-0.5 font-bold text-sm cursor-pointer select-none',
                         isManualEditMode && 'hover:bg-amber-100'
                       )}
                     >
@@ -2186,23 +2186,23 @@ export const PaporSixViewer: React.FC<Props> = ({
             })}
 
             {/* Signature inside table bottom row */}
-            <tr className="h-8 font-semibold">
-              <td className="border border-black px-2 py-1 text-center">ลงชื่อครูประจำชั้น</td>
-              <td colSpan={4} className="border border-black p-1 text-xs font-medium">
+            <tr className="h-[32px] font-semibold">
+              <td className="border border-black px-3 py-1 text-center text-sm font-bold">ลงชื่อครูประจำชั้น</td>
+              <td colSpan={4} className="border border-black p-1 text-[13px] font-medium text-center">
                 {homeroomTeacher?.name ? `(${homeroomTeacher.name})` : ''}
               </td>
-              <td colSpan={4} className="border border-black p-1 text-xs font-medium"></td>
+              <td colSpan={4} className="border border-black p-1 text-[13px] font-medium text-center"></td>
             </tr>
           </tbody>
         </table>
 
-        {/* Additional Comments Block - Blank by default, expanded min-h-[320px] */}
-        <div className="space-y-1.5 pt-2">
-          <div className="font-bold text-center text-xs">ความคิดเห็นเพิ่มเติมของครูประจำชั้น</div>
-          <div className="grid grid-cols-2 border border-black min-h-[320px]">
+        {/* Additional Comments Block - Balanced height ~255px */}
+        <div className="space-y-1 pt-1">
+          <div className="font-bold text-center text-sm">ความคิดเห็นเพิ่มเติมของครูประจำชั้น</div>
+          <div className="grid grid-cols-2 border border-black min-h-[255px]">
             {/* Term 1 Box */}
             <div className="border-r border-black p-3 flex flex-col justify-between">
-              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-xs">
+              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-sm">
                 ภาคเรียนที่ ๑
               </div>
               {isManualEditMode ? (
@@ -2212,11 +2212,11 @@ export const PaporSixViewer: React.FC<Props> = ({
                     setCustomTeacherComments((prev) => ({ ...prev, term1: e.target.value }))
                   }
                   placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
-                  className="w-full flex-1 p-2 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[240px]"
-                  rows={8}
+                  className="w-full flex-1 p-2.5 text-sm border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[180px]"
+                  rows={6}
                 />
               ) : (
-                <div className="text-xs leading-relaxed italic text-neutral-800 flex-1">
+                <div className="text-sm leading-relaxed italic text-neutral-800 flex-1 whitespace-pre-wrap">
                   {customTeacherComments.term1}
                 </div>
               )}
@@ -2224,7 +2224,7 @@ export const PaporSixViewer: React.FC<Props> = ({
 
             {/* Term 2 Box */}
             <div className="p-3 flex flex-col justify-between">
-              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-xs">
+              <div className="font-bold text-center border-b border-black pb-1 mb-2 text-sm">
                 ภาคเรียนที่ ๒
               </div>
               {isManualEditMode ? (
@@ -2234,11 +2234,11 @@ export const PaporSixViewer: React.FC<Props> = ({
                     setCustomTeacherComments((prev) => ({ ...prev, term2: e.target.value }))
                   }
                   placeholder="พิมพ์ความคิดเห็นของครูประจำชั้น..."
-                  className="w-full flex-1 p-2 text-xs border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[240px]"
-                  rows={8}
+                  className="w-full flex-1 p-2.5 text-sm border border-neutral-300 rounded resize-none bg-neutral-50/50 min-h-[180px]"
+                  rows={6}
                 />
               ) : (
-                <div className="text-xs leading-relaxed italic text-neutral-800 flex-1">
+                <div className="text-sm leading-relaxed italic text-neutral-800 flex-1 whitespace-pre-wrap">
                   {customTeacherComments.term2}
                 </div>
               )}
@@ -2246,8 +2246,8 @@ export const PaporSixViewer: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Bottom Signature Line */}
-        <div className="pt-8 pb-2 text-center text-xs">
+        {/* Bottom Signature Line - Clear, dignified, fully visible */}
+        <div className="pt-3 pb-1 text-center text-sm font-medium">
           ลงชื่อ ............................................................................ ครูประจำชั้น
         </div>
       </div>
