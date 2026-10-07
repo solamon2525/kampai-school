@@ -257,13 +257,6 @@ export const PaporSixViewer: React.FC<Props> = ({
   const [customEvaluations, setCustomEvaluations] = useState<Record<string, string>>({});
   const [customActivities, setCustomActivities] = useState<Record<string, 'pass' | 'fail' | ''>>({});
 
-  const handleToggleEval = (key: string, grade: string) => {
-    setCustomEvaluations((prev) => ({
-      ...prev,
-      [key]: prev[key] === grade ? '' : grade,
-    }));
-  };
-
   // 1. Query Homeroom Teacher for the selected class
   const { data: homeroomTeacher } = useQuery({
     queryKey: ['class-homeroom-teacher', selectedClass, academicYear],
@@ -349,6 +342,41 @@ export const PaporSixViewer: React.FC<Props> = ({
       return {
         ...prev,
         [actId]: nextStatus,
+      };
+    });
+  };
+
+  // Helper: ดึงสถานะผลการประเมินเริ่มต้น ๓ มิติ จากฐานข้อมูล
+  const getInitialEvalGrade = useCallback(
+    (evalId: string): string => {
+      const promo = studentYearData?.promotion;
+      if (evalId === 'reading') return promo?.reading_grade ?? '';
+      if (evalId === 'character') return promo?.character_grade ?? '';
+      if (evalId === 'competency') return promo?.competency_grade ?? '';
+
+      const evals = studentYearData?.evaluations || [];
+      const found = evals.find(
+        (e: any) => e.evaluation_type === evalId && (e.category_key === 'summary' || e.item_key === 'main')
+      );
+      if (found && found.status) return found.status;
+      return '';
+    },
+    [studentYearData]
+  );
+
+  // Toggle ผลการประเมิน ๓ ด้าน: คลิกช่องเดิมซ้ำ -> ปลดออกเป็นช่องว่าง (''), คลิกช่องใหม่ -> ย้ายช่อง
+  const handleToggleEval = (key: string, targetGrade: 'ดีเยี่ยม' | 'ดี' | 'ผ่าน') => {
+    if (!isManualEditMode) return;
+    setCustomEvaluations((prev) => {
+      const current = prev[key] !== undefined ? prev[key] : getInitialEvalGrade(key);
+      const isCurrentlyThisGrade =
+        (targetGrade === 'ดีเยี่ยม' && (current === 'ดีเยี่ยม' || current === 'ดย' || current === '3')) ||
+        (targetGrade === 'ดี' && (current === 'ดี' || current === 'ด' || current === '2')) ||
+        (targetGrade === 'ผ่าน' && (current === 'ผ่าน' || current === 'ผ' || current === '1'));
+
+      return {
+        ...prev,
+        [key]: isCurrentlyThisGrade ? '' : targetGrade,
       };
     });
   };
@@ -486,13 +514,67 @@ export const PaporSixViewer: React.FC<Props> = ({
 
       await paporGradebookService.saveEvaluationsBatch(actRows);
 
-      // 3. ซิงค์สถานะ activities_status ไปยัง student_term_promotion_records
+      // 3. บันทึกผลประเมิน ๓ ด้าน (การอ่าน คิดวิเคราะห์ เขียน, คุณลักษณะฯ, สมรรถนะ)
+      const toDbGrade = (g: string) => {
+        if (!g) return '';
+        if (g === 'ดีเยี่ยม' || g === 'ดย' || g === '3') return 'ดย';
+        if (g === 'ดี' || g === 'ด' || g === '2') return 'ด';
+        if (g === 'ผ่าน' || g === 'ผ' || g === '1') return 'ผ';
+        return g;
+      };
+
+      const readingStatus = toDbGrade(customEvaluations['reading'] !== undefined ? customEvaluations['reading'] : getInitialEvalGrade('reading'));
+      const characterStatus = toDbGrade(customEvaluations['character'] !== undefined ? customEvaluations['character'] : getInitialEvalGrade('character'));
+      const competencyStatus = toDbGrade(customEvaluations['competency'] !== undefined ? customEvaluations['competency'] : getInitialEvalGrade('competency'));
+
+      // 4. ซิงค์สถานะ activities_status และผลประเมิน ๓ ด้าน ไปยัง student_term_promotion_records
       await paporGradebookService.syncDimensionToPromotions(academicYear, [
         {
           student_id: selectedStudentId,
           activities_status: allPass,
+          reading_grade: readingStatus,
+          character_grade: characterStatus,
+          competency_grade: competencyStatus,
         },
       ]);
+
+      // 5. บันทึกแถว summary ๓ ด้านลง student_obec_evaluations
+      const evalSummaryRows: TablesInsert<'student_obec_evaluations'>[] = [
+        {
+          student_id: selectedStudentId,
+          academic_year: academicYear,
+          semester: 'all',
+          evaluation_type: 'reading',
+          category_key: 'summary',
+          item_key: 'main',
+          score: readingStatus === 'ดย' ? 3 : readingStatus === 'ด' ? 2 : readingStatus === 'ผ' ? 1 : 0,
+          status: readingStatus,
+          notes: readingStatus === 'ดย' ? 'ดีเยี่ยม' : readingStatus === 'ด' ? 'ดี' : readingStatus === 'ผ' ? 'ผ่าน' : 'ยังไม่ประเมิน',
+        },
+        {
+          student_id: selectedStudentId,
+          academic_year: academicYear,
+          semester: 'all',
+          evaluation_type: 'character',
+          category_key: 'summary',
+          item_key: 'main',
+          score: characterStatus === 'ดย' ? 3 : characterStatus === 'ด' ? 2 : characterStatus === 'ผ' ? 1 : 0,
+          status: characterStatus,
+          notes: characterStatus === 'ดย' ? 'ดีเยี่ยม' : characterStatus === 'ด' ? 'ดี' : characterStatus === 'ผ' ? 'ผ่าน' : 'ยังไม่ประเมิน',
+        },
+        {
+          student_id: selectedStudentId,
+          academic_year: academicYear,
+          semester: 'all',
+          evaluation_type: 'competency',
+          category_key: 'summary',
+          item_key: 'main',
+          score: competencyStatus === 'ดย' ? 3 : competencyStatus === 'ด' ? 2 : competencyStatus === 'ผ' ? 1 : 0,
+          status: competencyStatus,
+          notes: competencyStatus === 'ดย' ? 'ดีเยี่ยม' : competencyStatus === 'ด' ? 'ดี' : competencyStatus === 'ผ' ? 'ผ่าน' : 'ยังไม่ประเมิน',
+        },
+      ];
+      await paporGradebookService.saveEvaluationsBatch(evalSummaryRows);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-papor-year-data', selectedStudentId, academicYear] });
@@ -503,7 +585,7 @@ export const PaporSixViewer: React.FC<Props> = ({
       queryClient.invalidateQueries({ queryKey: ['papor-scores'] });
       queryClient.invalidateQueries({ queryKey: ['papor-class-scores'] });
       setCustomSubjectScores({});
-      toast.success(`บันทึกคะแนนและกิจกรรมของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
+      toast.success(`บันทึกคะแนน กิจกรรม และผลประเมินของ ${currentStudent?.name || 'นักเรียน'} ลงฐานข้อมูลเรียบร้อยแล้ว`);
     },
     onError: (err: any) => {
       toast.error('ไม่สามารถบันทึกข้อมูลได้: ' + (err.message || 'ข้อผิดพลาดระบบ'));
@@ -678,6 +760,7 @@ export const PaporSixViewer: React.FC<Props> = ({
     setCustomRemarks({ rank: '', totalScore: '', gpa: '' });
     setCustomSubjectScores({});
     setCustomActivities({ scout: '', guidance: '', club: '', social: '' });
+    setCustomEvaluations({ reading: '', character: '', competency: '' });
     toast.success('ล้างข้อมูลตัวอย่างทั้งหมดเป็นค่าว่างเรียบร้อยแล้ว');
   };
 
@@ -1613,7 +1696,7 @@ export const PaporSixViewer: React.FC<Props> = ({
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2 print:hidden shadow-xs">
             <div className="flex items-center gap-2 text-xs text-primary font-medium">
               <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span>โหมดแก้ไขคะแนน & กิจกรรม: พิมพ์คะแนน หรือคลิกผลประเมินกิจกรรม (ผ่าน / ไม่ผ่าน / ยังไม่ติ๊ก) แล้วบันทึกลงฐานข้อมูล</span>
+              <span>โหมดแก้ไขคะแนน & กิจกรรม: พิมพ์คะแนน หรือคลิกผลประเมินกิจกรรมและผลประเมิน ๓ ด้าน (คลิกซ้ำเพื่อยกเลิก) แล้วบันทึกลงฐานข้อมูล</span>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -1653,7 +1736,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                 ) : (
                   <Save className="w-3.5 h-3.5" />
                 )}
-                <span>💾 บันทึกคะแนน/กิจกรรม (คนปัจจุบัน)</span>
+                <span>💾 บันทึกคะแนน/กิจกรรม/ผลประเมิน (คนปัจจุบัน)</span>
               </Button>
             </div>
           </div>
@@ -1834,20 +1917,19 @@ export const PaporSixViewer: React.FC<Props> = ({
               {
                 id: 'reading',
                 name: 'สรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน',
-                grade: studentYearData?.promotion?.reading_grade || 'ดีเยี่ยม',
               },
               {
                 id: 'character',
                 name: 'สรุปการประเมินผล คุณลักษณะอันพึงประสงค์',
-                grade: studentYearData?.promotion?.character_grade || 'ดีเยี่ยม',
               },
               {
                 id: 'competency',
                 name: 'สรุปการประเมินผล สมรรถนะ',
-                grade: studentYearData?.promotion?.competency_grade || 'ดีเยี่ยม',
               },
             ].map((item) => {
-              const currentGrade = customEvaluations[item.id] || item.grade;
+              const currentGrade = customEvaluations[item.id] !== undefined
+                ? customEvaluations[item.id]
+                : getInitialEvalGrade(item.id);
               const isExcellent = currentGrade === 'ดีเยี่ยม' || currentGrade === 'ดย' || currentGrade === '3';
               const isGood = currentGrade === 'ดี' || currentGrade === 'ด' || currentGrade === '2';
               const isPass = currentGrade === 'ผ่าน' || currentGrade === 'ผ' || currentGrade === '1';
@@ -1856,7 +1938,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                 <tr key={item.id} className="h-5">
                   <td className="border border-black px-1.5 py-0.5 text-left font-medium">{item.name}</td>
                   <td
-                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ดีเยี่ยม')}
+                    onClick={() => handleToggleEval(item.id, 'ดีเยี่ยม')}
+                    title={isManualEditMode ? 'คลิกเพื่อติ๊ก ดีเยี่ยม (คลิกซ้ำเพื่อยกเลิก)' : undefined}
                     className={cn(
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
@@ -1865,7 +1948,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                     {isExcellent ? '✓' : ''}
                   </td>
                   <td
-                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ดี')}
+                    onClick={() => handleToggleEval(item.id, 'ดี')}
+                    title={isManualEditMode ? 'คลิกเพื่อติ๊ก ดี (คลิกซ้ำเพื่อยกเลิก)' : undefined}
                     className={cn(
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
@@ -1874,7 +1958,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                     {isGood ? '✓' : ''}
                   </td>
                   <td
-                    onClick={() => isManualEditMode && handleToggleEval(item.id, 'ผ่าน')}
+                    onClick={() => handleToggleEval(item.id, 'ผ่าน')}
+                    title={isManualEditMode ? 'คลิกเพื่อติ๊ก ผ่าน (คลิกซ้ำเพื่อยกเลิก)' : undefined}
                     className={cn(
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
@@ -1928,13 +2013,28 @@ export const PaporSixViewer: React.FC<Props> = ({
     const thaiClassNum = toThaiNumerals(classNum);
     const thaiAcademicYear = toThaiNumerals(academicYear);
 
-    const actStatus = studentYearData?.promotion?.activities_status !== false;
-    const charGrade = studentYearData?.promotion?.character_grade || 'ดีเยี่ยม';
-    const charGradeDisplay = charGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : charGrade;
-    const compGrade = studentYearData?.promotion?.competency_grade || 'ดีเยี่ยม';
-    const compGradeDisplay = compGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : compGrade;
-    const readGrade = studentYearData?.promotion?.reading_grade || 'ดีเยี่ยม';
-    const readGradeDisplay = readGrade === 'ดย' ? 'ดีเยี่ยม (ดย)' : readGrade;
+    const formatEvalDisplay = (raw: string | undefined | null) => {
+      if (!raw) return '-';
+      if (raw === 'ดย' || raw === 'ดีเยี่ยม' || raw === '3') return 'ดีเยี่ยม (ดย)';
+      if (raw === 'ด' || raw === 'ดี' || raw === '2') return 'ดี (ด)';
+      if (raw === 'ผ' || raw === 'ผ่าน' || raw === '1') return 'ผ่าน (ผ)';
+      return raw;
+    };
+
+    const charGrade = customEvaluations['character'] !== undefined
+      ? customEvaluations['character']
+      : (studentYearData?.promotion?.character_grade ?? '');
+    const charGradeDisplay = formatEvalDisplay(charGrade);
+
+    const compGrade = customEvaluations['competency'] !== undefined
+      ? customEvaluations['competency']
+      : (studentYearData?.promotion?.competency_grade ?? '');
+    const compGradeDisplay = formatEvalDisplay(compGrade);
+
+    const readGrade = customEvaluations['reading'] !== undefined
+      ? customEvaluations['reading']
+      : (studentYearData?.promotion?.reading_grade ?? '');
+    const readGradeDisplay = formatEvalDisplay(readGrade);
 
     return (
       <div className="space-y-3.5 text-black text-xs leading-normal">
@@ -2411,11 +2511,23 @@ export const PaporSixViewer: React.FC<Props> = ({
     const rawGpa = (promo?.gpa && promo.gpa > 0) ? promo.gpa.toFixed(2) : customRemarks.gpa;
     const gpaDisplay = isTerm1Only ? '-' : (rawGpa ? toThaiNumerals(rawGpa) : '-');
 
-    const charGradeRaw = promo?.character_grade || 'ดีเยี่ยม';
-    const charGradeDisplay = charGradeRaw === 'ดย' ? 'ดีเยี่ยม (ดย)' : charGradeRaw;
+    const formatEvalDisplay = (raw: string | undefined | null) => {
+      if (!raw) return '-';
+      if (raw === 'ดย' || raw === 'ดีเยี่ยม' || raw === '3') return 'ดีเยี่ยม (ดย)';
+      if (raw === 'ด' || raw === 'ดี' || raw === '2') return 'ดี (ด)';
+      if (raw === 'ผ' || raw === 'ผ่าน' || raw === '1') return 'ผ่าน (ผ)';
+      return raw;
+    };
 
-    const readGradeRaw = promo?.reading_grade || 'ดีเยี่ยม';
-    const readGradeDisplay = readGradeRaw === 'ดย' ? 'ดีเยี่ยม (ดย)' : readGradeRaw;
+    const charGradeRaw = customEvaluations['character'] !== undefined
+      ? customEvaluations['character']
+      : (promo?.character_grade ?? '');
+    const charGradeDisplay = formatEvalDisplay(charGradeRaw);
+
+    const readGradeRaw = customEvaluations['reading'] !== undefined
+      ? customEvaluations['reading']
+      : (promo?.reading_grade ?? '');
+    const readGradeDisplay = formatEvalDisplay(readGradeRaw);
 
     const actStatusDisplay = promo?.activities_status !== false ? 'ผ่าน (ผ)' : 'ไม่ผ่าน (มผ)';
 

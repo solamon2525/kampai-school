@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.22 (ปรับปรุงตารางสรุปการประเมิน ๓ ด้านใน ปพ.6 ให้สามารถปลดติ๊กออกเป็นค่าว่างได้: รองรับการคลิกซ้ำเพื่อยกเลิกเครื่องหมาย ✓ สลับเกรดอิสระ และบันทึกผลลงฐานข้อมูลจริง student_term_promotion_records และ student_obec_evaluations)',
+        date: '7 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ระบบปลดเครื่องหมายติ๊กเป็นค่าว่างและสลับเกรดอิสระ (Evaluation Summaries Untick to Blank & Grade Switching): ใน PaporSixViewer (หน้า ๖) ตารางสรุปการประเมินผลการอ่าน คิดวิเคราะห์ และเขียน, คุณลักษณะอันพึงประสงค์, และสมรรถนะ ปรับปรุงระบบ handleToggleEval ให้รองรับการคลิกซ้ำที่ช่องเดิมเพื่อปลดเครื่องหมาย ✓ ออกเป็นค่าว่าง (\'\') หรือคลิกเลือกเกรดอื่นเพื่อย้ายตำแหน่งอย่างแม่นยำ พร้อมป้องกัน fallback ค่าปริยายเป็น \'ดีเยี่ยม\' เมื่อเป็นค่าว่าง',
+            'บันทึกผลการประเมิน ๓ ด้านลงฐานข้อมูลจริง (3-Dimension Evaluations Database Persistence): ขยาย saveStudentMutation ให้แปลงเกรดเป็นรหัสฐานข้อมูล (\'ดย\', \'ด\', \'ผ\', หรือ \'\') พร้อมซิงค์ reading_grade, character_grade, และ competency_grade ไปยังตาราง student_term_promotion_records ผ่าน paporGradebookService.syncDimensionToPromotions และบันทึกแถวสรุปผล (category_key: \'summary\') ลงตาราง student_obec_evaluations',
+            'เชื่อมโยงการแสดงผลไปยังหน้า ๗ และ ๑๐ และปุ่มล้างข้อมูล (Cross-Page Display Synchronization & Clear Handler): หน้า ๗ (ผลการประเมิน ๔ มิติ) และหน้า ๑๐ (สรุปผลการเรียน) เชื่อมต่อ customEvaluations ให้แสดงผลสถานะตรงกันแบบเรียลไทม์ พร้อมปรับปรุงปุ่มล้างข้อมูลตัวอย่าง (handleClearAllToBlank) ให้ล้างผลการประเมินทั้ง ๓ ด้านเป็นค่าว่างได้อย่างสมบูรณ์',
+        ],
+    },
+    {
         version: 'v1.233.21 (ปรับปรุงสัดส่วนตัวอักษรต่อตารางและการจัดหน้า ปพ.6 หน้า ๘ ให้สมดุล อ่านง่าย คมชัดเมื่อพิมพ์: ขยายฟอนต์สารบรรณ text-sm/13.5px, เพิ่มขนาดหัวข้อและสัญลักษณ์ ✓, และปรับความสูงกล่องความคิดเห็นป้องกันการล้นหน้ากระดาษ A4)',
         date: '7 ต.ค. 2569',
         badge: 'bg-primary',
