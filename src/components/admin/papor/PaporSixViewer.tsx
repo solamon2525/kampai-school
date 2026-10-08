@@ -36,6 +36,9 @@ import {
   Save,
   Users,
   Loader2,
+  Type,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paporService } from '@/services/papor.service';
@@ -234,6 +237,26 @@ export const PaporSixViewer: React.FC<Props> = ({
 
   // Admin Manual Edit Mode (แอดมินกรอกเอง)
   const [isManualEditMode, setIsManualEditMode] = useState<boolean>(false);
+
+  // Proportional Font Scale for Page 6 Grade Report (Default 115% - ค่ากลางแนะนำ)
+  const [gradeFontScale, setGradeFontScale] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('papor_grade_font_scale');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 90 && parsed <= 140) return parsed;
+      }
+    } catch {}
+    return 115; // ค่ากลางมาตรฐานแนะนำเริ่มต้น (Locked Default)
+  });
+
+  const handleSetGradeFontScale = (val: number) => {
+    const clamped = Math.max(90, Math.min(140, Math.round(val)));
+    setGradeFontScale(clamped);
+    try {
+      localStorage.setItem('papor_grade_font_scale', String(clamped));
+    } catch {}
+  };
 
   // Manual States: Default is completely empty / blank
   const [customTeacherComments, setCustomTeacherComments] = useState<{ term1: string; term2: string }>({
@@ -1786,21 +1809,140 @@ export const PaporSixViewer: React.FC<Props> = ({
   function renderGradeReportPage() {
     if (!currentStudent) return null;
 
+    // Proportional scaling factor (1.0 = 100%, 1.15 = 115% ค่ากลางแนะนำ, 1.25 = 125%, 1.35 = 135%)
+    const scaleRatio = gradeFontScale / 100;
+
     return (
-      <div className="space-y-3 text-black text-xs">
+      <div
+        className="text-black leading-normal flex flex-col justify-between"
+        style={{
+          fontSize: `${11 * scaleRatio}px`,
+          gap: `${11 * scaleRatio}px`,
+        }}
+      >
         {/* Top Header */}
         <div className="flex justify-between items-start">
           <div className="w-12"></div>
           <div className="text-center space-y-0.5 flex-1">
-            <div className="font-bold text-sm">ปพ. ๖</div>
-            <div className="font-medium text-[11px]">
+            <div className="font-bold" style={{ fontSize: `${14 * scaleRatio}px` }}>ปพ. ๖</div>
+            <div className="font-medium" style={{ fontSize: `${11.5 * scaleRatio}px` }}>
               ผลการเรียนปีการศึกษา {academicYear} โรงเรียนบ้านคำไผ่ สำนักงานเขตพื้นที่การศึกษาประถมศึกษาอุดรธานี เขต ๒
             </div>
-            <div className="font-bold text-xs pt-0.5">
+            <div className="font-bold pt-0.5" style={{ fontSize: `${12.5 * scaleRatio}px` }}>
               {currentStudent.name} ชั้นประถมศึกษาปีที่ {selectedClass.replace('ป.', '')} เลขที่ {currentStudent.class_number || '-'}
             </div>
           </div>
-          <div className="w-12 text-right font-mono text-[10px] text-neutral-400">ปพ.6</div>
+          <div
+            className="w-12 text-right font-mono text-neutral-400"
+            style={{ fontSize: `${10 * scaleRatio}px` }}
+          >
+            ปพ.6
+          </div>
+        </div>
+
+        {/* Font Scale & Layout Control Toolbar (Screen only - print:hidden) */}
+        <div className="bg-neutral-50 border border-neutral-300 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2.5 print:hidden shadow-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
+              <Type className="w-4 h-4 text-primary" />
+              <span>ขนาดตัวอักษร ปพ.6:</span>
+            </span>
+
+            {/* Presets */}
+            <div className="flex items-center gap-1 bg-white p-0.5 rounded-md border border-neutral-300">
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(100)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded transition-all',
+                  gradeFontScale === 100
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100'
+                )}
+              >
+                กะทัดรัด (100%)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(115)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded transition-all flex items-center gap-1',
+                  gradeFontScale === 115
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                    : 'text-neutral-700 hover:bg-neutral-100 font-medium'
+                )}
+              >
+                <span>⭐ มาตรฐาน (115% ค่ากลาง)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(125)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded transition-all',
+                  gradeFontScale === 125
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100'
+                )}
+              >
+                ขยายใหญ่ (125%)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(135)}
+                className={cn(
+                  'px-2.5 py-1 text-xs rounded transition-all',
+                  gradeFontScale === 135
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                    : 'text-neutral-600 hover:bg-neutral-100'
+                )}
+              >
+                ใหญ่พิเศษ (135%)
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Steppers: A- / A+ */}
+            <div className="flex items-center bg-white border border-neutral-300 rounded-md overflow-hidden">
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(gradeFontScale - 5)}
+                disabled={gradeFontScale <= 90}
+                title="ลดขนาดตัวอักษร (-5%)"
+                className="px-2 py-1 text-xs hover:bg-neutral-100 disabled:opacity-40 disabled:hover:bg-transparent font-bold flex items-center gap-0.5"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+                <span className="text-[11px]">A-</span>
+              </button>
+              <span className="px-2 text-xs font-mono font-bold text-neutral-800 min-w-[42px] text-center border-x border-neutral-200">
+                {gradeFontScale}%
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSetGradeFontScale(gradeFontScale + 5)}
+                disabled={gradeFontScale >= 140}
+                title="เพิ่มขนาดตัวอักษร (+5%)"
+                className="px-2 py-1 text-xs hover:bg-neutral-100 disabled:opacity-40 disabled:hover:bg-transparent font-bold flex items-center gap-0.5"
+              >
+                <span className="text-[11px]">A+</span>
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Reset to locked default button */}
+            {gradeFontScale !== 115 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => handleSetGradeFontScale(115)}
+                className="h-7 text-xs px-2 gap-1 border-neutral-300 text-neutral-700 hover:bg-neutral-100"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>คืนค่ากลาง (115%)</span>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Action Toolbar for Manual Edit Mode: Save to Database & Safe Batch Fill */}
@@ -1855,9 +1997,15 @@ export const PaporSixViewer: React.FC<Props> = ({
         )}
 
         {/* Academic Subjects Table */}
-        <table className="w-full border-collapse border border-black text-center text-[11px] leading-tight">
+        <table
+          className="w-full border-collapse border border-black text-center leading-tight"
+          style={{ fontSize: `${11 * scaleRatio}px` }}
+        >
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold">
+            <tr
+              className="bg-neutral-100/60 font-semibold"
+              style={{ height: `${24 * scaleRatio}px` }}
+            >
               <th className="border border-black p-1 text-left w-[34%]">สาระการเรียนรู้</th>
               <th className="border border-black p-1 w-[8%]">น้ำหนัก</th>
               <th className="border border-black p-1 w-[10%]">คะแนนเต็ม</th>
@@ -1868,7 +2016,7 @@ export const PaporSixViewer: React.FC<Props> = ({
           </thead>
           <tbody>
             {displayScores.map((score, idx) => (
-              <tr key={score.id} className="h-6">
+              <tr key={score.id} style={{ height: `${24 * scaleRatio}px` }}>
                 <td className="border border-black px-1.5 py-0.5 text-left font-medium truncate">
                   {score.subjectName}
                 </td>
@@ -1886,7 +2034,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                           [score.id]: { ...prev[score.id], obtained: val },
                         }));
                       }}
-                      className="w-full text-center border-b border-neutral-400 bg-transparent text-[11px]"
+                      className="w-full text-center border-b border-neutral-400 bg-transparent"
+                      style={{ fontSize: `${11 * scaleRatio}px` }}
                     />
                   ) : (
                     score.obtained
@@ -1906,14 +2055,18 @@ export const PaporSixViewer: React.FC<Props> = ({
                           [score.id]: { ...prev[score.id], grade: val },
                         }));
                       }}
-                      className="w-full text-center border-b border-neutral-400 bg-transparent text-[11px]"
+                      className="w-full text-center border-b border-neutral-400 bg-transparent"
+                      style={{ fontSize: `${11 * scaleRatio}px` }}
                     />
                   ) : (
                     score.grade || (isTerm1Only ? '' : '-')
                   )}
                 </td>
                 {/* Right Remarks column - clean, matches photo layout */}
-                <td className="border border-black p-0.5 text-center text-[10px]">
+                <td
+                  className="border border-black p-0.5 text-center"
+                  style={{ fontSize: `${10 * scaleRatio}px` }}
+                >
                   {isManualEditMode ? (
                     <input
                       type="text"
@@ -1926,7 +2079,8 @@ export const PaporSixViewer: React.FC<Props> = ({
                           [score.id]: { ...prev[score.id], note: val },
                         }));
                       }}
-                      className="w-full text-center border-b border-neutral-400 bg-transparent text-[10px]"
+                      className="w-full text-center border-b border-neutral-400 bg-transparent"
+                      style={{ fontSize: `${10 * scaleRatio}px` }}
                     />
                   ) : (
                     score.note || (
@@ -1942,7 +2096,10 @@ export const PaporSixViewer: React.FC<Props> = ({
             ))}
 
             {/* Total Row */}
-            <tr className="font-bold bg-neutral-100/40 h-6">
+            <tr
+              className="font-bold bg-neutral-100/40"
+              style={{ height: `${24 * scaleRatio}px` }}
+            >
               <td className="border border-black px-1.5 py-0.5 text-center">รวม</td>
               <td className="border border-black p-0.5">{totalWeight}</td>
               <td className="border border-black p-0.5">{totalFullMarks}</td>
@@ -1951,7 +2108,10 @@ export const PaporSixViewer: React.FC<Props> = ({
               <td className="border border-black p-0.5">
                 {isTerm1Only ? (customRemarks.gpa || '') : (customRemarks.gpa || (totalWeight > 0 ? (totalObtainedScore / totalWeight).toFixed(2) : '-'))}
               </td>
-              <td className="border border-black p-0.5 text-[10px]">
+              <td
+                className="border border-black p-0.5"
+                style={{ fontSize: `${10 * scaleRatio}px` }}
+              >
                 {customRemarks.rank ? `**สอบได้ลำดับที่ ${customRemarks.rank}` : ''}
               </td>
             </tr>
@@ -1959,13 +2119,22 @@ export const PaporSixViewer: React.FC<Props> = ({
         </table>
 
         {/* Development Activities Table */}
-        <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
+        <table
+          className="w-full border-collapse border border-black text-center leading-tight"
+          style={{ fontSize: `${10.5 * scaleRatio}px` }}
+        >
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold h-6">
+            <tr
+              className="bg-neutral-100/60 font-semibold"
+              style={{ height: `${23 * scaleRatio}px` }}
+            >
               <th className="border border-black p-1 text-center w-[67%]">กิจกรรมพัฒนาผู้เรียน</th>
               <th colSpan={2} className="border border-black p-0.5 w-[33%]">
                 <div>ผลการประเมิน</div>
-                <div className="grid grid-cols-2 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                <div
+                  className="grid grid-cols-2 border-t border-black font-medium mt-0.5 pt-0.5"
+                  style={{ fontSize: `${9.5 * scaleRatio}px` }}
+                >
                   <div>ผ่าน</div>
                   <div>ไม่ผ่าน</div>
                 </div>
@@ -1981,8 +2150,8 @@ export const PaporSixViewer: React.FC<Props> = ({
               const isFail = currentStatus === 'fail';
 
               return (
-                <tr key={act.id} className="h-5">
-                  <td className="border border-black px-1.5 py-0.5 text-left font-medium">{act.name}</td>
+                <tr key={act.id} style={{ height: `${21 * scaleRatio}px` }}>
+                  <td className="border border-black px-2 py-0.5 text-left font-medium">{act.name}</td>
                   <td
                     onClick={() => handleToggleActivity(act.id, 'pass')}
                     title={isManualEditMode ? 'คลิกเพื่อติ๊ก ผ่าน (คลิกซ้ำเพื่อยกเลิก)' : undefined}
@@ -1990,6 +2159,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                       'border border-black p-0.5 w-[16.5%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
                     )}
+                    style={{ fontSize: `${13 * scaleRatio}px` }}
                   >
                     {isPass ? '✓' : ''}
                   </td>
@@ -2000,6 +2170,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                       'border border-black p-0.5 w-[16.5%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
                     )}
+                    style={{ fontSize: `${13 * scaleRatio}px` }}
                   >
                     {isFail ? '✓' : ''}
                   </td>
@@ -2010,13 +2181,22 @@ export const PaporSixViewer: React.FC<Props> = ({
         </table>
 
         {/* 3 Evaluation Summaries Table */}
-        <table className="w-full border-collapse border border-black text-center text-[10px] leading-tight">
+        <table
+          className="w-full border-collapse border border-black text-center leading-tight"
+          style={{ fontSize: `${10.5 * scaleRatio}px` }}
+        >
           <thead>
-            <tr className="bg-neutral-100/60 font-semibold h-6">
+            <tr
+              className="bg-neutral-100/60 font-semibold"
+              style={{ height: `${23 * scaleRatio}px` }}
+            >
               <th className="border border-black p-1 w-[55%]"></th>
               <th colSpan={3} className="border border-black p-0.5 w-[45%]">
                 <div>ผลการประเมิน</div>
-                <div className="grid grid-cols-3 border-t border-black font-medium text-[9px] mt-0.5 pt-0.5">
+                <div
+                  className="grid grid-cols-3 border-t border-black font-medium mt-0.5 pt-0.5"
+                  style={{ fontSize: `${9.5 * scaleRatio}px` }}
+                >
                   <div>ดีเยี่ยม</div>
                   <div>ดี</div>
                   <div>ผ่าน</div>
@@ -2047,8 +2227,8 @@ export const PaporSixViewer: React.FC<Props> = ({
               const isPass = currentGrade === 'ผ่าน' || currentGrade === 'ผ' || currentGrade === '1';
 
               return (
-                <tr key={item.id} className="h-5">
-                  <td className="border border-black px-1.5 py-0.5 text-left font-medium">{item.name}</td>
+                <tr key={item.id} style={{ height: `${21 * scaleRatio}px` }}>
+                  <td className="border border-black px-2 py-0.5 text-left font-medium">{item.name}</td>
                   <td
                     onClick={() => handleToggleEval(item.id, 'ดีเยี่ยม')}
                     title={isManualEditMode ? 'คลิกเพื่อติ๊ก ดีเยี่ยม (คลิกซ้ำเพื่อยกเลิก)' : undefined}
@@ -2056,6 +2236,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
                     )}
+                    style={{ fontSize: `${13 * scaleRatio}px` }}
                   >
                     {isExcellent ? '✓' : ''}
                   </td>
@@ -2066,6 +2247,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
                     )}
+                    style={{ fontSize: `${13 * scaleRatio}px` }}
                   >
                     {isGood ? '✓' : ''}
                   </td>
@@ -2076,6 +2258,7 @@ export const PaporSixViewer: React.FC<Props> = ({
                       'border border-black p-0.5 w-[15%] font-bold',
                       isManualEditMode && 'cursor-pointer hover:bg-amber-100 select-none'
                     )}
+                    style={{ fontSize: `${13 * scaleRatio}px` }}
                   >
                     {isPass ? '✓' : ''}
                   </td>
@@ -2086,13 +2269,24 @@ export const PaporSixViewer: React.FC<Props> = ({
         </table>
 
         {/* 3 Signatures Row (ครูประจำชั้น, หัวหน้าวิชาการ, ผู้อำนวยการ) จัดชื่อตรงกึ่งกลางใต้เส้นประ */}
-        <div className="pt-2 text-xs leading-normal">
+        <div
+          className="leading-normal"
+          style={{
+            fontSize: `${11.5 * scaleRatio}px`,
+            paddingTop: `${6 * scaleRatio}px`,
+          }}
+        >
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="flex items-start justify-center">
               <span className="whitespace-nowrap">ลงชื่อ</span>
               <div className="flex flex-col items-center mx-1">
                 <span>....................................................</span>
-                <span className="font-medium text-[11px] mt-1">({homeroomTeacher?.name || 'ครูประจำชั้น'})</span>
+                <span
+                  className="font-medium mt-1"
+                  style={{ fontSize: `${11 * scaleRatio}px` }}
+                >
+                  ({homeroomTeacher?.name || 'ครูประจำชั้น'})
+                </span>
               </div>
               <span className="whitespace-nowrap">ครูประจำชั้น</span>
             </div>
@@ -2100,16 +2294,29 @@ export const PaporSixViewer: React.FC<Props> = ({
               <span className="whitespace-nowrap">ลงชื่อ</span>
               <div className="flex flex-col items-center mx-1">
                 <span>....................................................</span>
-                <span className="font-medium text-[11px] mt-1">(นางสาวมะลิวัลย์ จรุงพันธ์)</span>
+                <span
+                  className="font-medium mt-1"
+                  style={{ fontSize: `${11 * scaleRatio}px` }}
+                >
+                  (นางสาวมะลิวัลย์ จรุงพันธ์)
+                </span>
               </div>
               <span className="whitespace-nowrap">หัวหน้าวิชาการ</span>
             </div>
           </div>
-          <div className="flex items-start justify-center pt-3">
+          <div
+            className="flex items-start justify-center"
+            style={{ paddingTop: `${10 * scaleRatio}px` }}
+          >
             <span className="whitespace-nowrap">ลงชื่อ</span>
             <div className="flex flex-col items-center mx-1">
               <span>............................................................................</span>
-              <span className="font-medium text-[11px] mt-1">(นายสมพิศ แรงน้อย)</span>
+              <span
+                className="font-medium mt-1"
+                style={{ fontSize: `${11 * scaleRatio}px` }}
+              >
+                (นายสมพิศ แรงน้อย)
+              </span>
             </div>
             <span className="whitespace-nowrap">ผู้อำนวยการโรงเรียน</span>
           </div>
