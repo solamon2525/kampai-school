@@ -77,6 +77,36 @@ export const scoresService = {
   delete: (id: string) =>
     supabase.from('score_records').delete().eq('id', id),
 
+  /** ดึงคะแนนพร้อมข้อมูลนักเรียนสำหรับหน้าจัดการคะแนน */
+  getScoresWithStudents: async (
+    semester: string,
+    academicYear: string,
+    options?: { subject?: string; scoreType?: string }
+  ) => {
+    let q = supabase
+      .from('score_records')
+      .select('*, students(name, class, class_number)')
+      .eq('semester', semester)
+      .eq('academic_year', academicYear)
+      .order('subject')
+      .order('score_type');
+
+    if (options?.subject) q = q.eq('subject', options.subject);
+    if (options?.scoreType) q = q.eq('score_type', options.scoreType);
+
+    return await q;
+  },
+
+  /** ดึงคะแนนทั้งหมดพร้อมรูปโปรไฟล์นักเรียนสำหรับสรุปรายห้อง */
+  getAllScoresWithStudentProfiles: async (semester: string, academicYear: string) => {
+    return await supabase
+      .from('score_records')
+      .select('*, students(id, name, class, class_number, photo_url)')
+      .eq('semester', semester)
+      .eq('academic_year', academicYear)
+      .order('subject');
+  },
+
   /**
    * Completeness helper: students missing a score row for subject/type/term.
    */

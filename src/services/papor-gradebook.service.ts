@@ -252,26 +252,26 @@ export const paporGradebookService = {
     const existing = await this.getPromotionsForClass(academicYear, studentIds);
     const existingMap = new Map(existing.map((e) => [e.student_id, e]));
 
-    // 2. ผสานข้อมูล
+    // 2. ผสานข้อมูล (คงข้อมูลเดิม หรือใช้ค่าว่างตามจริง ไม่ประดิษฐ์เกรดหรือความคิดเห็นเท็จ)
     const promoRows: TablesInsert<'student_term_promotion_records'>[] = updates.map((u) => {
       const prev = existingMap.get(u.student_id);
       return {
         student_id: u.student_id,
         academic_year: academicYear,
-        attendance_percent: prev?.attendance_percent ?? 94,
+        attendance_percent: prev?.attendance_percent ?? 0,
         attendance_status: prev?.attendance_status ?? true,
         indicator_status: prev?.indicator_status ?? true,
         academic_pass: prev?.academic_pass ?? true,
-        gpa: prev?.gpa ?? 3.5,
-        competency_grade: u.competency_grade !== undefined ? u.competency_grade : (prev?.competency_grade ?? 'ดย'),
-        character_grade: u.character_grade !== undefined ? u.character_grade : (prev?.character_grade ?? 'ดย'),
-        reading_grade: u.reading_grade !== undefined ? u.reading_grade : (prev?.reading_grade ?? 'ดย'),
+        gpa: prev?.gpa ?? 0,
+        competency_grade: u.competency_grade !== undefined ? u.competency_grade : (prev?.competency_grade ?? ''),
+        character_grade: u.character_grade !== undefined ? u.character_grade : (prev?.character_grade ?? ''),
+        reading_grade: u.reading_grade !== undefined ? u.reading_grade : (prev?.reading_grade ?? ''),
         activities_status: u.activities_status !== undefined ? u.activities_status : (prev?.activities_status ?? true),
         promotion_decision: prev?.promotion_decision ?? 'promoted',
         promoted_to_level: prev?.promoted_to_level ?? null,
-        teacher_comment_term1: prev?.teacher_comment_term1 ?? 'ตั้งใจเรียน มีวินัย ปฏิบัติตามกฎระเบียบของโรงเรียนได้ดี',
-        teacher_comment_term2: prev?.teacher_comment_term2 ?? 'มีความพร้อมในการศึกษาต่อในระดับชั้นที่สูงขึ้น',
-        parent_comment: prev?.parent_comment ?? 'รับทราบผลการเรียนของนักเรียนเป็นที่เรียบร้อย',
+        teacher_comment_term1: prev?.teacher_comment_term1 ?? '',
+        teacher_comment_term2: prev?.teacher_comment_term2 ?? '',
+        parent_comment: prev?.parent_comment ?? '',
         approved_at: prev?.approved_at ?? new Date().toISOString(),
       };
     });

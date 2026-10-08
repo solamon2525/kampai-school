@@ -290,6 +290,20 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.27 (แก้ไขช่องโหว่ความปลอดภัย RLS, ปรับปรุงตรรกะคำนวณคะแนน ปพ.5 ไม่ให้เกิดเกรด 0, ยกเลิกการสร้างข้อมูลเท็จ 3.5 GPA/94% เวลาเรียน, และปรับปรุงการเรียกผ่าน Service Layer 100%)',
+        date: '8 ต.ค. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ปิดช่องโหว่ความปลอดภัยระดับฐานข้อมูล (Database RLS Policy Security Fix): สร้าง Migration 579 ยกเลิกนโยบาย RLS ที่มี "OR true" และการเปิดให้อ่านแบบสาธารณะ (anon read) บนตาราง student_obec_evaluations และ student_term_promotion_records พร้อมจำกัดสิทธิ์แก้ไขเฉพาะผู้ดูแลระบบและครู (is_admin() OR is_teacher()) อย่างรัดกุม',
+            'แก้ไขสูตรคะแนนและเกรดเฉลี่ยใน ปพ.5 (Fix PaporGradebookGrid Term 1 Score Halving): แก้ไขตรรกะใน PaporGradebookGrid ให้รวมคะแนนเก็บและกลางภาคเป็นคะแนนระหว่างเรียน และไม่นำคะแนนภาคเรียนที่ ๑ ไปหาร ๒ จนคะแนนตกเกณฑ์ได้เกรด 0 เมื่อยังไม่มีคะแนนภาคเรียนที่ ๒ สอดคล้องกับ PaporReportsCenter',
+            'ยกเลิกการสร้างข้อมูลวิชาการเท็จ (Eliminate Fabricated 3.5 GPA and 94% Attendance): ลบการบังคับค่าเริ่มต้นด้วย || 3.5 และ || 94 ใน papor-gradebook.service, papor-diagnostics.service, PaporPromotionManager, และ PaporEvaluationsManager หากยังไม่มีข้อมูลให้แสดงตามจริง (0 หรือค่าว่าง) ป้องกันการออกเอกสารราชการผิดพลาด',
+            'ป้องกันการเขียนทับผลประเมินในระบบซ่อมแซม (Safe Diagnostic Evaluations Repair): ปรับปรุง repairDefaultEvaluations ให้ดึงข้อมูลประเมินเดิมและคัดกรองเฉพาะนักเรียนที่ยังไม่มีข้อมูลเท่านั้น ป้องกันการเขียนทับผลงานจริงที่ครูเคยบันทึกไว้',
+            'ย้ายการคิวรีเข้า Service Layer 100% (Enforce Layered Architecture in ScoresManagement): เพิ่ม getScoresWithStudents และ getAllScoresWithStudentProfiles ใน scores.service.ts และลบการเรียก supabase.from() ตรงใน ScoresManagement.tsx ปฏิบัติตามระเบียบ Hard Rules',
+            'ปรับปรุงการจับคู่ชื่อและการบันทึกน้ำหนักส่วนสูง (Prefix-aware Name Matching & Safe Health Growth): ตัดคำนำหน้าชื่อไทยก่อนจับคู่ชื่อในการนำเข้า Excel และสำรองค่าน้ำหนักส่วนสูงเดิมจากฐานข้อมูลจริงใน ปพ.6 ไม่ให้ทับด้วยค่ามาตรฐาน',
+            'เพิ่มชุดทดสอบอัตโนมัติ (Automated Comprehensive Verification): เพิ่ม scripts/verify-papor-audit-fixes.mjs ตรวจสอบการแก้ไขทั้ง ๖ ด้าน ผ่านครบถ้วน ๑๗ รายการ',
+        ],
+    },
+    {
         version: 'v1.233.26 (เพิ่มระบบปรับขนาดตัวอักษรและตารางตามสัดส่วนในหน้าผลการเรียน ปพ.6 หน้า ๖ พร้อมค่ากลางมาตรฐาน ๑๑๕% ล็อกไว้เป็นค่าเริ่มต้น: อ่านง่าย สมส่วน ไม่ล้นหน้ากระดาษ A4)',
         date: '8 ต.ค. 2569',
         badge: 'bg-primary',

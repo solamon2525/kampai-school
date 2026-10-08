@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { studentsService, scoresService } from '@/services';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -350,18 +349,11 @@ function ViewTab() {
 
     const loadRecords = async () => {
         setIsLoading(true);
-        let q = supabase
-            .from('score_records')
-            .select('*, students(name, class, class_number)')
-            .eq('semester', filterSemester)
-            .eq('academic_year', filterYear)
-            .order('subject')
-            .order('score_type');
+        const { data, error } = await scoresService.getScoresWithStudents(filterSemester, filterYear, {
+            subject: filterSubject || undefined,
+            scoreType: filterType || undefined,
+        });
 
-        if (filterSubject) q = q.eq('subject', filterSubject);
-        if (filterType) q = q.eq('score_type', filterType);
-
-        const { data, error } = await q;
         if (!error) {
             let result = (data || []) as typeof records;
             if (filterClass) result = result.filter(r => r.students?.class === filterClass);
@@ -498,12 +490,7 @@ function SummaryTab() {
 
     const loadAll = async () => {
         setIsLoading(true);
-        const { data } = await supabase
-            .from('score_records')
-            .select('*, students(id, name, class, class_number, photo_url)')
-            .eq('semester', filterSemester)
-            .eq('academic_year', filterYear)
-            .order('subject');
+        const { data } = await scoresService.getAllScoresWithStudentProfiles(filterSemester, filterYear);
         setAllRecords((data || []) as typeof allRecords);
         setIsLoading(false);
     };

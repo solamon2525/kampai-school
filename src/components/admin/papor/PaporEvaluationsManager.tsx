@@ -109,7 +109,7 @@ export const PaporEvaluationsManager: React.FC<Props> = ({
     rawEvals.forEach((ev) => {
       const sId = ev.student_id;
       const itemIdx = (Number(ev.item_key) || 1) - 1;
-      const sc = Number(ev.score) || 3;
+      const sc = ev.score != null ? Number(ev.score) : 3;
 
       if (ev.evaluation_type === 'competency') {
         if (compMap[sId] && itemIdx >= 0 && itemIdx < 5) compMap[sId][itemIdx] = sc;

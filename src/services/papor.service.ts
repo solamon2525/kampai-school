@@ -126,6 +126,10 @@ export const paporService = {
       })(),
     ]);
 
+    if (scoresRes.error) console.warn('[paporService.forStudentTerm] scores error:', scoresRes.error.message);
+    if (conductRes.error) console.warn('[paporService.forStudentTerm] conduct error:', conductRes.error.message);
+    if (attendanceRes.error) console.warn('[paporService.forStudentTerm] attendance error:', attendanceRes.error.message);
+
     // ─── Scores: group by subject (sum across score_types) ─────────────
     const subjectMap = new Map<string, { total: number; max: number }>();
     for (const r of scoresRes.data ?? []) {
@@ -241,6 +245,10 @@ export const paporService = {
         .eq('student_id', studentId)
         .order('measured_at', { ascending: true }),
     ]);
+
+    if (evalsRes.error) console.warn('[paporService.forStudentYear] evaluations error:', evalsRes.error.message);
+    if (promoRes.error) console.warn('[paporService.forStudentYear] promotion error:', promoRes.error.message);
+    if ((growthRes as any).error) console.warn('[paporService.forStudentYear] growth error:', (growthRes as any).error.message);
 
     return {
       term1: t1,

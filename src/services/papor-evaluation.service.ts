@@ -541,8 +541,22 @@ export async function syncPaporWorkbookToDatabase(
   for (const st of parsed.students) {
     let sId = studentMap.get(st.studentCode);
     if (!sId) {
-      // Find by exact name match
-      const matched = dbStudents?.find(d => d.name.trim() === st.fullName.trim() || st.fullName.includes(d.name));
+      // Helper: ตัดคำนำหน้าชื่อไทยเพื่อเปรียบเทียบชื่อ-สกุลจริงอย่างแม่นยำ
+      const cleanName = (name: string) =>
+        (name || '')
+          .replace(/^(เด็กชาย|เด็กหญิง|ด\.ช\.|ด\.ญ\.|นาย|นางสาว|น\.ส\.)\s*/, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+      const stClean = cleanName(st.fullName);
+      const matched = dbStudents?.find((d) => {
+        const dTrim = (d.name || '').trim();
+        const stTrim = (st.fullName || '').trim();
+        if (dTrim === stTrim) return true;
+        const dClean = cleanName(dTrim);
+        return dClean.length > 0 && dClean === stClean;
+      });
+
       if (matched) {
         sId = matched.id;
         studentMap.set(st.studentCode, sId);

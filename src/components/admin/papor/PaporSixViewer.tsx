@@ -445,6 +445,14 @@ export const PaporSixViewer: React.FC<Props> = ({
       term2: studentYearData?.promotion?.teacher_comment_term2 || '',
     });
     setCustomParentComments(studentYearData?.promotion?.parent_comment || '');
+
+    const gList = studentYearData?.growth || [];
+    setCustomGrowth({
+      weight1: gList[0]?.weight_kg ? String(gList[0].weight_kg) : '',
+      height1: gList[0]?.height_cm ? String(gList[0].height_cm) : '',
+      weight2: gList[1]?.weight_kg ? String(gList[1].weight_kg) : '',
+      height2: gList[1]?.height_cm ? String(gList[1].height_cm) : '',
+    });
   }, [selectedStudentId, studentYearData]);
 
   // Calculate scores list
@@ -579,7 +587,7 @@ export const PaporSixViewer: React.FC<Props> = ({
         .map((s) => ({
           subject: s.subjectName,
           score: parseFloat(s.obtained),
-          maxScore: 50,
+          maxScore: s.fullMarks || 100,
           notes: s.note || undefined,
         }));
 
@@ -800,19 +808,29 @@ export const PaporSixViewer: React.FC<Props> = ({
     }
     try {
       const yearCE = parseInt(academicYear, 10) - 543;
-      const w1 = parseFloat(customGrowth.weight1 || '32.0');
-      const h1 = parseFloat(customGrowth.height1 || '135.0');
+      const growthList = studentYearData?.growth || [];
+      const t1Growth = growthList[0];
+      const t2Growth = growthList[1];
+
+      // ใช้ค่าน้ำหนัก-ส่วนสูงที่ครูกรอก หรือใช้ค่าจริงเดิมจากฐานข้อมูล (หากไม่มีในฐานข้อมูลจึงใช้ baseline 32.0/135.0)
+      const w1Val = customGrowth.weight1 || (t1Growth?.weight_kg ? String(t1Growth.weight_kg) : '32.0');
+      const h1Val = customGrowth.height1 || (t1Growth?.height_cm ? String(t1Growth.height_cm) : '135.0');
+      const w1 = parseFloat(w1Val);
+      const h1 = parseFloat(h1Val);
+
       await healthService.addGrowth({
         student_id: selectedStudentId,
         measured_at: `${yearCE}-06-15`,
-        weight_kg: isNaN(w1) ? 32.0 : w1,
-        height_cm: isNaN(h1) ? 135.0 : h1,
+        weight_kg: isNaN(w1) ? (t1Growth?.weight_kg ?? 32.0) : w1,
+        height_cm: isNaN(h1) ? (t1Growth?.height_cm ?? 135.0) : h1,
         notes: 'บันทึกผ่านระบบ ปพ.6 (ภาคเรียนที่ ๑)',
       });
 
-      if (customGrowth.weight2 && customGrowth.height2) {
-        const w2 = parseFloat(customGrowth.weight2);
-        const h2 = parseFloat(customGrowth.height2);
+      const w2Val = customGrowth.weight2 || (t2Growth?.weight_kg ? String(t2Growth.weight_kg) : '');
+      const h2Val = customGrowth.height2 || (t2Growth?.height_cm ? String(t2Growth.height_cm) : '');
+      if (w2Val && h2Val) {
+        const w2 = parseFloat(w2Val);
+        const h2 = parseFloat(h2Val);
         if (!isNaN(w2) && !isNaN(h2)) {
           await healthService.addGrowth({
             student_id: selectedStudentId,

@@ -360,6 +360,16 @@ export const paporDiagnosticsService = {
     const students = await paporGradebookService.getStudentsInClass(className);
     if (students.length === 0) return { success: true, updatedCount: 0 };
 
+    // ป้องกันการเขียนทับ: ดึงผลประเมินเดิมก่อน และเติมเฉพาะนักเรียนที่ยังไม่มีข้อมูลผลประเมิน
+    const studentIds = students.map((s) => s.id);
+    const existingEvals = await paporGradebookService.getEvaluationsForClass(academicYear, studentIds);
+    const evaluatedStudentIds = new Set(existingEvals.map((e) => e.student_id));
+    const missingStudents = students.filter((s) => !evaluatedStudentIds.has(s.id));
+
+    if (missingStudents.length === 0) {
+      return { success: true, updatedCount: 0 };
+    }
+
     const scoreNum = tier === 'excellent' ? 3 : 2;
     const gradeStr = tier === 'excellent' ? 'ดย' : 'ด';
 
@@ -375,7 +385,7 @@ export const paporDiagnosticsService = {
       evaluated_by: string;
     }> = [];
 
-    students.forEach((st) => {
+    missingStudents.forEach((st) => {
       // 1. Competency
       evalsToInsert.push({
         student_id: st.id,
@@ -430,7 +440,7 @@ export const paporDiagnosticsService = {
     });
 
     await paporGradebookService.saveEvaluationsBatch(evalsToInsert);
-    return { success: true, updatedCount: students.length };
+    return { success: true, updatedCount: missingStudents.length };
   },
 
   /**
@@ -467,25 +477,25 @@ export const paporDiagnosticsService = {
 
     students.forEach((st) => {
       const prev = promoMap.get(st.id);
-      const attPct = prev ? Number(prev.attendance_percent || 94) : 94;
-      const attPass = attPct >= 80;
+      const attPct = prev?.attendance_percent != null ? Number(prev.attendance_percent) : 0;
+      const attPass = prev ? prev.attendance_status ?? (attPct >= 80) : false;
 
       updates.push({
         student_id: st.id,
         academic_year: academicYear,
         attendance_percent: attPct,
         attendance_status: attPass,
-        indicator_status: true,
-        academic_pass: true,
-        gpa: prev ? Number(prev.gpa || 3.5) : 3.5,
-        competency_grade: prev?.competency_grade || 'ดย',
-        character_grade: prev?.character_grade || 'ดย',
-        reading_grade: prev?.reading_grade || 'ดย',
-        activities_status: true,
-        promotion_decision: attPass ? 'promoted' : 'retained',
-        teacher_comment_term1: prev?.teacher_comment_term1 || 'มีความประพฤติดี ตั้งใจเรียนและมีความรับผิดชอบ',
-        teacher_comment_term2: prev?.teacher_comment_term2 || 'มีความพร้อมในการศึกษาต่อในระดับชั้นที่สูงขึ้น',
-        parent_comment: prev?.parent_comment || 'รับทราบผลการเรียนของนักเรียนเป็นที่เรียบร้อย',
+        indicator_status: prev?.indicator_status ?? true,
+        academic_pass: prev?.academic_pass ?? true,
+        gpa: prev?.gpa != null ? Number(prev.gpa) : 0,
+        competency_grade: prev?.competency_grade || '',
+        character_grade: prev?.character_grade || '',
+        reading_grade: prev?.reading_grade || '',
+        activities_status: prev?.activities_status ?? true,
+        promotion_decision: prev?.promotion_decision || (attPass ? 'promoted' : 'retained'),
+        teacher_comment_term1: prev?.teacher_comment_term1 || '',
+        teacher_comment_term2: prev?.teacher_comment_term2 || '',
+        parent_comment: prev?.parent_comment || '',
       });
     });
 

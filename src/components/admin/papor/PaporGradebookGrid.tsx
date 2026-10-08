@@ -181,15 +181,15 @@ export const PaporGradebookGrid: React.FC<Props> = ({
 
     const initialRows: GradeRow[] = students.map((st) => {
       const sData = scoreMap[st.id] || {};
-      const f1 = sData['1_เก็บ'] ?? sData['1_กลางภาค'] ?? sData['1_ระหว่างเรียน_T1'] ?? 0;
+      const f1 = (sData['1_เก็บ'] ?? 0) + (sData['1_กลางภาค'] ?? 0) || (sData['1_ระหว่างเรียน_T1'] ?? 0);
       const s1 = sData['1_ปลายภาค'] ?? sData['1_ปลายภาค_T1'] ?? 0;
-      const f2 = sData['2_เก็บ'] ?? sData['2_กลางภาค'] ?? sData['2_ระหว่างเรียน_T2'] ?? 0;
+      const f2 = (sData['2_เก็บ'] ?? 0) + (sData['2_กลางภาค'] ?? 0) || (sData['2_ระหว่างเรียน_T2'] ?? 0);
       const s2 = sData['2_ปลายภาค'] ?? sData['2_ปลายภาค_T2'] ?? 0;
 
       const t1 = f1 + s1;
       const t2 = f2 + s2;
-      const yearly = Math.round((t1 + t2) / 2);
-      const grade = scoreToGrade(yearly > 0 ? yearly : t1 || t2);
+      const yearly = (t1 > 0 && t2 > 0) ? Math.round((t1 + t2) / 2) : (t1 || t2);
+      const grade = scoreToGrade(yearly);
 
       return {
         student: st,
@@ -329,10 +329,10 @@ export const PaporGradebookGrid: React.FC<Props> = ({
         const target = { ...r, [field]: num };
         target.totalT1 = target.formativeT1 + target.summativeT1;
         target.totalT2 = target.formativeT2 + target.summativeT2;
-        target.yearlyTotal = Math.round((target.totalT1 + target.totalT2) / 2);
-        target.grade = scoreToGrade(
-          target.yearlyTotal > 0 ? target.yearlyTotal : target.totalT1 || target.totalT2
-        );
+        target.yearlyTotal = (target.totalT1 > 0 && target.totalT2 > 0)
+          ? Math.round((target.totalT1 + target.totalT2) / 2)
+          : (target.totalT1 || target.totalT2);
+        target.grade = scoreToGrade(target.yearlyTotal);
         return target;
       });
 
@@ -354,10 +354,10 @@ export const PaporGradebookGrid: React.FC<Props> = ({
         };
         target.totalT1 = target.formativeT1 + target.summativeT1;
         target.totalT2 = target.formativeT2 + target.summativeT2;
-        target.yearlyTotal = Math.round((target.totalT1 + target.totalT2) / 2);
-        target.grade = scoreToGrade(
-          target.yearlyTotal > 0 ? target.yearlyTotal : target.totalT1 || target.totalT2
-        );
+        target.yearlyTotal = (target.totalT1 > 0 && target.totalT2 > 0)
+          ? Math.round((target.totalT1 + target.totalT2) / 2)
+          : (target.totalT1 || target.totalT2);
+        target.grade = scoreToGrade(target.yearlyTotal);
         return target;
       });
       paporDraftManager.saveDraft(draftKey, next);
