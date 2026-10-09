@@ -4,7 +4,7 @@
  * Do not duplicate SUPABASE_URL/key inside individual worksheet HTML files.
  */
 (function createWorksheetSets() {
-  const VERSION = '1.175.15';
+  const VERSION = '1.176.0';
   const SUPABASE_URL = 'https://lkpqssbqxxpasidfqhpb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrcHFzc2JxeHhwYXNpZGZxaHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NjUyMjgsImV4cCI6MjA5MTI0MTIyOH0.X7YsSlrgYl9ifLWvgyZI04PtebK572pacadfNlmNO-A';
   const AUTH_STORAGE_KEY = 'sb-lkpqssbqxxpasidfqhpb-auth-token';
@@ -424,11 +424,35 @@
     style.textContent = [
       '.kampai-set-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}',
       '.kampai-set-bar .t-select,.kampai-set-bar .t-input{font:700 .82rem Sarabun,sans-serif;padding:6px 8px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;max-width:11rem}',
-      '.kampai-set-bar .t-input{min-width:14rem;max-width:min(36rem,55vw)}',
-      '.kampai-set-bar .t-input[readonly]{opacity:.95;cursor:default;background:rgba(255,255,255,.12)}',
+      '.kampai-set-bar .t-select option,.kampai-set-bar select option,select.t-select option{background-color:#ffffff!important;color:#0f172a!important;font-family:Sarabun,sans-serif;font-weight:600;padding:4px 8px}',
+      '.kampai-set-bar .t-input{min-width:14rem;max-width:min(36rem,55vw);background:rgba(255,255,255,.14);transition:background .15s,color .15s}',
+      '.kampai-set-bar .t-input:focus{background:#ffffff;color:#0f172a;outline:3px solid #fbbf24;outline-offset:1px}',
+      '.kampai-set-bar .t-input::placeholder{color:inherit;opacity:.7}',
       '.kampai-set-bar .kampai-set-id{font:700 .75rem Sarabun,sans-serif;opacity:.9;max-width:9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '.kampai-set-bar .kampai-set-msg{font:600 .75rem Sarabun,sans-serif;opacity:.95;max-width:28rem}',
       '.kampai-set-bar .kampai-set-msg a{color:#fde68a;font-weight:800;text-decoration:underline}',
+      '.kampai-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(2px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;animation:kampaiFadeIn .15s ease-out}',
+      '.kampai-modal-card{background:#ffffff;color:#0f172a;width:100%;max-width:480px;border-radius:14px;box-shadow:0 20px 25px -5px rgba(0,0,0,.25),0 8px 10px -6px rgba(0,0,0,.15);padding:22px;font-family:Sarabun,sans-serif;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}',
+      '.kampai-modal-head{display:flex;justify-content:space-between;align-items:center}',
+      '.kampai-modal-title{margin:0;font-size:1.15rem;font-weight:800;color:#065f46;display:flex;align-items:center;gap:6px}',
+      '.kampai-modal-close{background:transparent;border:0;font-size:1.5rem;line-height:1;color:#64748b;cursor:pointer;padding:4px 8px;border-radius:6px}',
+      '.kampai-modal-close:hover{background:#f1f5f9;color:#0f172a}',
+      '.kampai-modal-desc{margin:0;font-size:.88rem;color:#475569;line-height:1.45}',
+      '.kampai-set-name-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px}',
+      '.kampai-set-radio-option{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;cursor:pointer;background:#f8fafc;transition:all .15s ease}',
+      '.kampai-set-radio-option:hover{border-color:#94a3b8;background:#f1f5f9}',
+      '.kampai-set-radio-option.active,.kampai-set-radio-option:has(input:checked){border-color:#047857;background:#ecfdf5;box-shadow:0 0 0 1px #047857}',
+      '.kampai-set-radio-option input[type="radio"]{accent-color:#047857;width:16px;height:16px;margin-top:2px;flex-shrink:0}',
+      '.kampai-set-radio-body{display:flex;flex-direction:column;gap:2px}',
+      '.kampai-set-radio-title{font-size:.88rem;font-weight:800;color:#0f172a}',
+      '.kampai-set-radio-hint{font-size:.74rem;color:#64748b;line-height:1.25}',
+      '.kampai-set-input-group{display:flex;flex-direction:column;gap:6px}',
+      '.kampai-set-input-label{font-size:.84rem;font-weight:700;color:#1e293b}',
+      '.kampai-modal-input{font:700 .92rem Sarabun,sans-serif;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;background:#ffffff;color:#0f172a;box-sizing:border-box;width:100%}',
+      '.kampai-modal-input:focus{border-color:#047857;outline:3px solid rgba(4,120,87,.2)}',
+      '.kampai-set-input-note{font-size:.78rem;color:#047857;font-weight:600;min-height:1.1rem}',
+      '.kampai-set-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}',
+      '@keyframes kampaiFadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}',
     ].join('');
     document.head.appendChild(style);
   }
@@ -465,10 +489,9 @@
     const hasSuggest = typeof resolveSuggestTitle === 'function';
     bar.innerHTML = [
       '<input class="t-input" id="kampaiSetTitle" type="text" '
-        + (hasSuggest
-          ? 'readonly placeholder="ชื่อชุดตั้งอัตโนมัติตามประเภท/จำนวนหน้า" title="ตั้งชื่ออัตโนมัติจากประเภทใบงานและจำนวนหน้า — ไม่ต้องพิมพ์"'
-          : 'placeholder="ชื่อชุด เช่น สัปดาห์ที่ 3"')
-        + ' aria-label="ชื่อชุดใบงาน" />',
+        + 'placeholder="ชื่อชุด (ตั้งอัตโนมัติหรือกรอกเอง)" '
+        + 'title="ชื่อชุดใบงาน — แก้ไขได้ หรือเลือกระบบตั้งให้อัตโนมัติเมื่อกดบันทึก" '
+        + 'aria-label="ชื่อชุดใบงาน" />',
       '<button type="button" class="btn primary" id="kampaiBtnSaveSet">💾 บันทึกชุด</button>',
       '<select class="t-select" id="kampaiSelMine" aria-label="ชุดของฉัน"><option value="">— ชุดของฉัน —</option></select>',
       '<button type="button" class="btn" id="kampaiBtnCopyLink">🔗 คัดลอกลิงก์</button>',
@@ -577,18 +600,172 @@
       }
     }
 
+    function openSaveModal(suggestedTitle, initialTitle, initialMode) {
+      return new Promise((resolve) => {
+        const prevModal = document.getElementById('kampaiSaveModal');
+        if (prevModal) prevModal.remove();
+
+        const backdrop = document.createElement('div');
+        backdrop.className = 'kampai-modal-backdrop';
+        backdrop.id = 'kampaiSaveModal';
+        backdrop.setAttribute('role', 'dialog');
+        backdrop.setAttribute('aria-modal', 'true');
+        backdrop.setAttribute('aria-labelledby', 'kampaiSaveModalTitle');
+
+        backdrop.innerHTML = [
+          '<div class="kampai-modal-card">',
+            '<div class="kampai-modal-head">',
+              '<h3 class="kampai-modal-title" id="kampaiSaveModalTitle">💾 บันทึกชุดใบงาน</h3>',
+              '<button type="button" class="kampai-modal-close" id="kampaiModalCloseBtn" aria-label="ปิด">&times;</button>',
+            '</div>',
+            '<p class="kampai-modal-desc">',
+              'บันทึกโจทย์และรูปแบบชุดนี้ลงในระบบคลาวด์ เพื่อเปิดเฉลยหรือพิมพ์ซ้ำได้ทุกเมื่อ',
+            '</p>',
+            '<div class="kampai-set-name-mode">',
+              '<label class="kampai-set-radio-option" id="labelRadioAuto">',
+                '<input type="radio" name="kampaiTitleMode" value="auto" ' + (initialMode === 'auto' ? 'checked' : '') + ' />',
+                '<div class="kampai-set-radio-body">',
+                  '<span class="kampai-set-radio-title">⚡ ตั้งชื่อให้อัตโนมัติ</span>',
+                  '<span class="kampai-set-radio-hint">ตามประเภท ระดับ และจำนวนหน้า</span>',
+                '</div>',
+              '</label>',
+              '<label class="kampai-set-radio-option" id="labelRadioCustom">',
+                '<input type="radio" name="kampaiTitleMode" value="custom" ' + (initialMode === 'custom' ? 'checked' : '') + ' />',
+                '<div class="kampai-set-radio-body">',
+                  '<span class="kampai-set-radio-title">✏️ กรอกชื่อเอง</span>',
+                  '<span class="kampai-set-radio-hint">กำหนดชื่อเฉพาะตามต้องการ</span>',
+                '</div>',
+              '</label>',
+            '</div>',
+            '<div class="kampai-set-input-group">',
+              '<label for="kampaiModalTitleInput" class="kampai-set-input-label">ชื่อชุดใบงานที่บันทึก:</label>',
+              '<input type="text" id="kampaiModalTitleInput" class="kampai-modal-input" maxlength="160" />',
+              '<div class="kampai-set-input-note" id="kampaiModalTitleNote"></div>',
+            '</div>',
+            '<div class="kampai-set-modal-actions">',
+              '<button type="button" class="btn" id="kampaiModalBtnCancel">ยกเลิก</button>',
+              '<button type="button" class="btn primary" id="kampaiModalBtnConfirm">💾 บันทึกชุดนี้</button>',
+            '</div>',
+          '</div>',
+        ].join('');
+
+        document.body.appendChild(backdrop);
+
+        const modalInput = backdrop.querySelector('#kampaiModalTitleInput');
+        const noteEl = backdrop.querySelector('#kampaiModalTitleNote');
+        const radioAuto = backdrop.querySelector('input[value="auto"]');
+        const radioCustom = backdrop.querySelector('input[value="custom"]');
+        const labelAuto = backdrop.querySelector('#labelRadioAuto');
+        const labelCustom = backdrop.querySelector('#labelRadioCustom');
+        const btnConfirm = backdrop.querySelector('#kampaiModalBtnConfirm');
+        const btnCancel = backdrop.querySelector('#kampaiModalBtnCancel');
+        const btnClose = backdrop.querySelector('#kampaiModalCloseBtn');
+
+        let currentMode = initialMode;
+        modalInput.value = initialTitle;
+
+        function updateModeUI(mode) {
+          currentMode = mode;
+          if (mode === 'auto') {
+            radioAuto.checked = true;
+            radioCustom.checked = false;
+            labelAuto.classList.add('active');
+            labelCustom.classList.remove('active');
+            modalInput.value = suggestedTitle;
+            noteEl.textContent = '⚡ ระบบตั้งชื่อให้อัตโนมัติตามการตั้งค่าปัจจุบัน';
+          } else {
+            radioCustom.checked = true;
+            radioAuto.checked = false;
+            labelCustom.classList.add('active');
+            labelAuto.classList.remove('active');
+            noteEl.textContent = '✏️ คุณกำลังกำหนดชื่อชุดด้วยตนเอง';
+          }
+        }
+
+        updateModeUI(initialMode);
+
+        radioAuto.onchange = () => updateModeUI('auto');
+        radioCustom.onchange = () => {
+          updateModeUI('custom');
+          modalInput.focus();
+          modalInput.select();
+        };
+
+        modalInput.oninput = () => {
+          const val = modalInput.value.trim();
+          if (val !== suggestedTitle) {
+            updateModeUI('custom');
+          }
+        };
+
+        function close(result) {
+          document.removeEventListener('keydown', onKeyDown);
+          backdrop.remove();
+          resolve(result);
+        }
+
+        function onKeyDown(e) {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            close(null);
+          } else if (e.key === 'Enter' && e.target === modalInput) {
+            e.preventDefault();
+            onConfirm();
+          }
+        }
+        document.addEventListener('keydown', onKeyDown);
+
+        backdrop.onclick = (e) => {
+          if (e.target === backdrop) close(null);
+        };
+        btnCancel.onclick = () => close(null);
+        btnClose.onclick = () => close(null);
+
+        function onConfirm() {
+          const chosen = (modalInput.value || '').trim() || suggestedTitle || 'ชุดใบงาน';
+          close({ title: chosen, mode: currentMode });
+        }
+        btnConfirm.onclick = onConfirm;
+
+        setTimeout(() => {
+          if (initialMode === 'custom') {
+            modalInput.focus();
+            modalInput.select();
+          } else {
+            btnConfirm.focus();
+          }
+        }, 50);
+      });
+    }
+
     async function handleSave() {
+      // 1. ตรวจสอบการเข้าสู่ระบบพอร์ทัลครูก่อน
+      const session = await getSessionStaff();
+      if (!session?.staffId) {
+        setMessage(authErrorMessage(), true);
+        return;
+      }
+
+      // 2. คำนวณชื่อชุดอัตโนมัติ และตรวจสอบชื่อใน toolbar
+      const suggested = buildSuggestedTitle() || 'ชุดใบงาน';
+      const current = (titleInput?.value || '').trim();
+      const initialMode = (titleTouched && current && current !== suggested) ? 'custom' : 'auto';
+      const initialTitle = initialMode === 'custom' ? current : suggested;
+
+      // 3. เปิด Modal ให้ครูเลือก/กรอกชื่อ
+      const modalResult = await openSaveModal(suggested, initialTitle, initialMode);
+      if (!modalResult) {
+        return;
+      }
+
       setMessage('กำลังบันทึก…');
       try {
         const state = getState() || {};
-        // มี suggest = ชื่อชุดตั้งอัตโนมัติเสมอ (ตามประเภท/จำนวนหน้า) ไม่ต้องพิมพ์เอง
-        let title = hasSuggest
-          ? (applySuggestedTitle(true) || (state.title || '').trim())
-          : ((titleInput.value || '').trim() || applySuggestedTitle(true) || (state.title || '').trim());
+        const titleToSave = modalResult.title || suggested || 'ชุดใบงาน';
         const saved = await save({
           id: currentSetId || undefined,
           worksheetKey,
-          title: title || 'ชุดใบงาน',
+          title: titleToSave,
           seed: state.seed,
           config: state.config || {},
           access: 'link',
@@ -597,7 +774,7 @@
         if (titleInput && saved.title) {
           titleInput.value = saved.title;
           lastSuggested = saved.title;
-          titleTouched = false;
+          titleTouched = (modalResult.mode === 'custom');
         }
         writeUrl({ setId: currentSetId, seed: saved.seed });
         syncIdLabel();

@@ -23,6 +23,19 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### แถบเครื่องมือชุดใบงานและกล่องโต้ตอบบันทึกชุด (Worksheet Sets Toolbar & Save Dialog Modal) — v1.230.1
+
+- **Interactive Save Dialog Modal (`openSaveModal`):**
+  - **เปิดเมื่อคลิก `💾 บันทึกชุด`:** แสดงหน้าต่าง Modal โต้ตอบชัดเจน ไม่บันทึกทันทีโดยไม่ให้ครูตรวจทานชื่อ
+  - **2 ทางเลือกการตั้งชื่อ:**
+    1. ⚡ **ตั้งชื่อให้อัตโนมัติ:** คำนวณตามประเภทใบงาน ระดับชั้น และจำนวนหน้า
+    2. ✏️ **กรอกชื่อเอง:** ช่องพิมพ์ชื่ออิสระ สลับโหมดอัตโนมัติเมื่อพิมพ์แก้ไข
+  - **แป้นพิมพ์ลัด:** รองรับ `Enter` เพื่อยืนยันบันทึก และ `Escape` หรือคลิกฉากหลังเพื่อยกเลิก
+- **Accessible Select Dropdown Styles:**
+  - กำหนดสไตล์ `.kampai-set-bar .t-select option` และ `select.t-select option` ให้มี `color: #0f172a; background-color: #ffffff;` ป้องกันปัญหาเบราว์เซอร์ Chromium บน Windows แสดงผลตัวอักษรสีขาวบนพื้นหลังขาว
+- **Toolbar Input Freedom:**
+  - ปลดล็อก `readonly` บนช่อง `#kampaiSetTitle` ให้ครูคลิกแก้ไขชื่อชุดได้โดยตรงจากแถบเครื่องมือ
+
 ### ระบบประเมินและเอกสารหลักฐานการศึกษา ปพ.5 - ปพ.6 สพฐ. (OBEC Papor 5/6 System) — v1.230.0
 
 - **ระบบเชื่อมโยงและซิงค์ข้อมูลไฟล์ Excel สพฐ. (`PaporExcelSync.tsx`):**
