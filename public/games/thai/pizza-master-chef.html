@@ -2862,6 +2862,7 @@
                         }
 
                         this.player.score += pts;
+                        if (window.vs) window.vs.report(this.player.score, { correct: this.player.totalServed });
                         this.state.timeLeft = Math.min(this.state.timeLeft + modeConfig.bonus, this.state.maxTime + 15);
 
                         // Delivery streak
