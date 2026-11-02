@@ -290,6 +290,14 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.33 (ปรับปรุงระบบกู้คืนแคชอัตโนมัติบน ErrorBoundary เพื่อแก้ปัญหาแคชค้างในเบราว์เซอร์)',
+        date: '2 พ.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ระบบล้างแคชและ Service Worker อัตโนมัติ (ErrorBoundary PWA Auto-Purge): ปรับปรุงหน้าจอแจ้งเตือนข้อผิดพลาดให้มีปุ่ม "ล้างแคชและโหลดใหม่" ที่จะ unregister Service Worker และลบ Cache Storage ทั้งหมดก่อนรีโหลด เพื่อป้องกันไม่ให้ผู้ใช้ติดอยู่ในลูปแคชไฟล์ bundle เก่าในเบราว์เซอร์ (Chrome / PWA Cache)',
+        ],
+    },
+    {
         version: 'v1.233.32 (แก้ไขข้อผิดพลาด ReferenceError: cn is not defined บนหน้าโปรไฟล์ครู /h/nattapong)',
         date: '2 พ.ย. 2569',
         badge: 'bg-primary',
