@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -120,6 +121,22 @@ export const AssignmentManagement = () => {
       qc.invalidateQueries({ queryKey: ['my-assignments-pending-grade'] });
       toast.success('บันทึกคะแนนแล้ว');
     },
+  });
+
+  const recordDirect = useMutation({
+    mutationFn: (payload: { assignment_id: string; student_id: string; score: number; comment?: string }) =>
+      assignmentsService.recordStudentSubmission({
+        ...payload,
+        teacher_comment: payload.comment,
+        body: 'บันทึกโดยครูในชั้นเรียน',
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['assignment-submissions', activeAssignment?.id] });
+      qc.invalidateQueries({ queryKey: ['my-assignments-pending-grade'] });
+      qc.invalidateQueries({ queryKey: ['class-submission-summary'] });
+      toast.success('บันทึกส่งงานและคะแนนแล้ว');
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const submissionMap = new Map(submissions.map((s) => [s.student_id, s]));
@@ -321,6 +338,14 @@ export const AssignmentManagement = () => {
                       graded={graded}
                       maxScore={activeAssignment.max_score ?? 10}
                       onGrade={(score, comment) => grade.mutate({ id: sub!.id, score, comment })}
+                      onRecord={(score, comment) =>
+                        recordDirect.mutate({
+                          assignment_id: activeAssignment.id,
+                          student_id: s.id,
+                          score,
+                          comment,
+                        })
+                      }
                     />
                   );
                 })}
@@ -340,6 +365,7 @@ const SubmissionRow = ({
   graded,
   maxScore,
   onGrade,
+  onRecord,
 }: any) => {
   const [score, setScore] = useState<string>(submission?.score?.toString() ?? '');
   const [comment, setComment] = useState<string>(submission?.teacher_comment ?? '');
@@ -363,13 +389,18 @@ const SubmissionRow = ({
           <Badge variant="secondary" className="text-[10px]"><X className="w-2.5 h-2.5 mr-0.5" />ยังไม่ส่ง</Badge>
         )}
       </button>
-      {expanded && submitted && (
+      {expanded && (
         <div className="p-3 border-t border-border space-y-2 text-sm bg-muted/20">
           {submission?.body && <p className="whitespace-pre-wrap">{submission.body}</p>}
           {submission?.attachment_url && (
             <a href={submission.attachment_url} target="_blank" rel="noreferrer" className="text-xs text-primary underline">
               ดูไฟล์แนบ
             </a>
+          )}
+          {!submitted && (
+            <p className="text-xs text-muted-foreground">
+              บันทึกการส่งงานในชั้นเรียน:
+            </p>
           )}
           <div className="flex items-center gap-2 pt-2 border-t border-border">
             <Input
@@ -386,9 +417,20 @@ const SubmissionRow = ({
               onChange={(e) => setComment(e.target.value)}
               className="flex-1"
             />
-            <Button size="sm" onClick={() => score && onGrade(Number(score), comment)} disabled={!score}>
+            <Button
+              size="sm"
+              onClick={() => {
+                const num = Number(score) || 0;
+                if (submitted) {
+                  onGrade(num, comment);
+                } else {
+                  onRecord(num, comment);
+                }
+              }}
+              disabled={!score}
+            >
               <Check className="w-3.5 h-3.5 mr-1" />
-              {graded ? 'อัปเดต' : 'ให้คะแนน'}
+              {graded ? 'อัปเดต' : submitted ? 'ให้คะแนน' : 'บันทึกส่งงาน'}
             </Button>
           </div>
         </div>

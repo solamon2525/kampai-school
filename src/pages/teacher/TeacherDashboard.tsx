@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TeacherPendingTasksCard } from '@/components/teacher/TeacherPendingTasksCard';
+import { AssignmentMiniWidget } from '@/components/teacher/assignments/AssignmentMiniWidget';
 import { TEACHER_MENU } from './teacher-menu';
 // Keep existing teacher pages compatible while the menu source lives in a component-free module.
 export { TEACHER_MENU } from './teacher-menu';
@@ -46,6 +47,8 @@ export default function TeacherDashboard() {
                 )}
 
                 <TeacherPendingTasksCard staffId={link?.staff_id ?? null} />
+
+                <AssignmentMiniWidget />
 
                 {(role === 'admin' || allowedMenus.length > 0) && (
                     <Card className="border-emerald-200 bg-emerald-50/50">

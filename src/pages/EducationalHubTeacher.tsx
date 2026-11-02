@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard, CheckSquare, BookOpen } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, IdCard, CheckSquare, BookOpen, BookCheck } from 'lucide-react';
+import { AssignmentMiniWidget } from '@/components/teacher/assignments/AssignmentMiniWidget';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PAGE_ROWS = 7;
 const EducationalHubTeacher = () => {
+    const [showAssignmentTracker, setShowAssignmentTracker] = useState(false);
     const navigate = useNavigate();
     const { session, staffId: signedInStaffId } = useAuth();
     const secretTapRef = useRef({ count: 0, startedAt: 0 });
@@ -74,6 +76,7 @@ const EducationalHubTeacher = () => {
     }, [cards, rawId]);
 
     const resolvedStaffId = teacher?.staff_id ?? null;
+    const isProfileOwner = Boolean(session && (isAdmin || (signedInStaffId && signedInStaffId === resolvedStaffId)));
 
     const handleSecretAvatarTap = () => {
         const now = Date.now();
@@ -89,6 +92,7 @@ const EducationalHubTeacher = () => {
             navigate(`/admin?redirect=${encodeURIComponent('/teacher/integrated-plan')}`);
             return;
         }
+        if (signedInStaffId === resolvedStaffId || isAdmin) { setShowAssignmentTracker((v) => !v); return; }
         if (signedInStaffId === resolvedStaffId) navigate('/teacher/integrated-plan');
     };
 
@@ -474,6 +478,21 @@ const EducationalHubTeacher = () => {
                                                 ดูข้อมูลครู
                                             </Link>
                                         </Button>
+                                        {isProfileOwner && (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                onClick={() => setShowAssignmentTracker((v) => !v)}
+                                                variant={showAssignmentTracker ? 'default' : (teacher.banner_url ? 'secondary' : 'outline')}
+                                                className={cn(
+                                                    'font-medium text-xs',
+                                                    showAssignmentTracker && 'bg-primary text-primary-foreground',
+                                                )}
+                                            >
+                                                <BookCheck className="h-4 w-4 mr-1" />
+                                                {showAssignmentTracker ? 'ปิดแผงส่งงาน' : 'บันทึกส่งงาน (ส่วนตัว)'}
+                                            </Button>
+                                        )}
                                         {isAdmin && (
                                             <Button asChild size="sm" variant={teacher.banner_url ? 'secondary' : 'default'} className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium">
                                                 <Link to="/teacher/exam">
@@ -510,6 +529,26 @@ const EducationalHubTeacher = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* Private Assignment Tracker Mini Widget */}
+                {isProfileOwner && showAssignmentTracker && (
+                    <section className="px-4 pt-4 max-w-5xl mx-auto w-full animate-in fade-in-50 duration-200">
+                        <div className="mb-2 flex items-center justify-between">
+                            <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                                <BookCheck className="w-4 h-4" /> แผงบันทึกการส่งงานและงานค้างส่วนตัว (เฉพาะครูผู้สอน)
+                            </span>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowAssignmentTracker(false)}
+                                className="h-7 text-xs text-muted-foreground"
+                            >
+                                ซ่อนแผง
+                            </Button>
+                        </div>
+                        <AssignmentMiniWidget />
+                    </section>
+                )}
 
                 {/* Sticky category nav */}
                 <CategoryChipStrip
