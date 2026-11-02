@@ -30,6 +30,19 @@ button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outli
             ⏱ หยุดนิ่ง พลังจะค่อย ๆ ไหลลง — ขยับต่อเนื่อง!<br>
             📱 ไม่มีกล้อง? <b>แตะปุ่ม "ออกแรง"</b> รัว ๆ
         </div>
+        <div class="summary-card" id="energySummary">
+            <div class="summary-title">⚡ การเปลี่ยนรูปพลังงาน (Energy Transformation)</div>
+            <div class="summary-flow">
+                <span class="step">☀️ แสงอาทิตย์</span>
+                <span class="arr">➔</span>
+                <span class="step">🥗 เคมี (อาหาร)</span>
+                <span class="arr">➔</span>
+                <span class="step">🏃 กล้ามเนื้อ</span>
+                <span class="arr">➔</span>
+                <span class="step">🚀 จลน์ (พุ่งทะยาน)</span>
+            </div>
+            <div class="summary-desc">แสงสังเคราะห์อาหารเป็นพลังงานเคมี ร่างกายเปลี่ยนเป็นแรงกล้ามเนื้อ เติมพลังขับดันจรวดทะยานฟ้า!</div>
+        </div>
         <div class="row">
             <button class="btn" id="startBtn" data-kampai-action="start">▶️ เริ่มเล่น</button>
             <button class="btn ghost" id="vsBtn">🏁 แข่ง 2 คน</button>
@@ -84,6 +97,16 @@ button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outli
         <h1 class="title">จบเกม!</h1>
         <div id="final-score">0</div>
         <div id="final-detail"></div>
+        <div class="summary-card" id="resultEnergySummary">
+            <div class="summary-title">💡 สรุปวิทย์: กฎการอนุรักษ์พลังงาน</div>
+            <div class="summary-flow">
+                <span class="step">☀️ แสง</span> <span class="arr">➔</span>
+                <span class="step">🥗 เคมี</span> <span class="arr">➔</span>
+                <span class="step">🏃 กล้ามเนื้อ</span> <span class="arr">➔</span>
+                <span class="step">🚀 จลน์</span>
+            </div>
+            <div class="summary-desc">พลังงานไม่มีวันสูญหาย แต่เปลี่ยนจากรูปหนึ่งไปสู่อีกรูปหนึ่งได้เสมอ</div>
+        </div>
         <div id="kampai-result"></div>
         <div class="row">
             <button class="btn" id="restartBtn" data-kampai-action="restart">🔄 เล่นอีกครั้ง</button>

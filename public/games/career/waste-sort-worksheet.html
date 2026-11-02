@@ -3,18 +3,28 @@
 <header class="toolbar"><h1>♻️ ใบงานแยกขยะ</h1><div class="toolbar-ctrls"><select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select><select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select><select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option><option value="5">ป.5</option><option value="6">ป.6</option></select><select class="t-select" id="selTopic" aria-label="ทักษะ"><option value="mixed">ผสมทุกทักษะ</option><option value="sort">จำแนกประเภท</option><option value="reason">เหตุผล</option><option value="action">แนวปฏิบัติ</option></select><select class="t-select" id="selCount" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="5">5 ข้อ</option></select><input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน"><select class="t-select" id="selTeacher" aria-label="ครูผู้สอน"><option value="">-- เลือกครูผู้สอน --</option></select><button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button><button class="btn" id="btnAnswers">👁 เฉลยครู</button><button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button></div></header><main class="pages" id="pages"><section class="sheet"><div class="questions"><article class="q">กำลังสร้างใบงาน</article></div></section></main>
 <script src="/games/worksheet-runtime.js?v=2.0.0"></script><script>
 const WASTE_ITEMS=[
- {type:'sort',prompt:'ขวดพลาสติกเปล่าจัดเป็นขยะประเภทใด',item:'ขวดพลาสติก',answer:'ขยะรีไซเคิล'},
- {type:'sort',prompt:'เปลือกผลไม้จัดเป็นขยะประเภทใด',item:'เปลือกผลไม้',answer:'ขยะเปียก/ย่อยสลายได้'},
- {type:'sort',prompt:'ถ่านไฟฉายหมดอายุจัดเป็นขยะประเภทใด',item:'ถ่านไฟฉาย',answer:'ขยะอันตราย'},
- {type:'sort',prompt:'ถุงพลาสติกสกปรกที่ใช้แล้วจัดอย่างไร',item:'ถุงสกปรก',answer:'ขยะทั่วไป (ถ้าสกปรกรีไซเคิลไม่ได้)'},
- {type:'reason',prompt:'ทำไมต้องแยกขยะรีไซเคิล',item:'รีไซเคิล',answer:'เพื่อนำกลับมาใช้ใหม่ ลดขยะและประหยัดทรัพยากร'},
- {type:'reason',prompt:'ทำไมขยะอันตรายต้องแยกต่างหาก',item:'อันตราย',answer:'สารเคมีอาจปนเปื้อนและทำร้ายคน/สิ่งแวดล้อม'},
- {type:'reason',prompt:'ขยะเปียกนำไปทำอะไรได้',item:'ขยะเปียก',answer:'ทำปุ๋ยหมัก'},
- {type:'action',prompt:'ที่โรงเรียนควรทิ้งกระดาษใช้แล้วที่ใด',item:'กระดาษ',answer:'ถังขยะรีไซเคิล/ถังกระดาษ'},
- {type:'action',prompt:'ก่อนทิ้งขวดน้ำควรทำอะไร',item:'ขวดน้ำ',answer:'เทน้ำออก ล้าง/บีบให้เล็กลง'},
- {type:'action',prompt:'ลดขยะพลาสติกได้อย่างไร 1 วิธี',item:'ลดใช้',answer:'ใช้ถุงผ้า/กระติกน้ำส่วนตัว'},
- {type:'action',prompt:'ถ้าเห็นถ่านไฟฉายทิ้งปนขยะทั่วไป ควรทำอย่างไร',item:'ถ่าน',answer:'แยกไปจุดรับขยะอันตราย/แจ้งครู'},
- {type:'sort',prompt:'เศษอาหารกลางวันจัดประเภทใด',item:'เศษอาหาร',answer:'ขยะเปียก'}
+ {type:'sort',prompt:'ขวดพลาสติก PET สะอาด จัดเป็นขยะประเภทใด',item:'ขวดพลาสติก PET',answer:'ขยะรีไซเคิล (ถังเหลือง)'},
+ {type:'sort',prompt:'เปลือกกล้วยและเศษแตงโม จัดเป็นขยะประเภทใด',item:'เปลือกผลไม้',answer:'ขยะเปียก/ย่อยสลายได้ (ถังเขียว)'},
+ {type:'sort',prompt:'ถ่านไฟฉายและแบตเตอรี่ จัดเป็นขยะประเภทใด',item:'ถ่านไฟฉาย',answer:'ขยะอันตราย (ถังแดง)'},
+ {type:'sort',prompt:'ถุงพลาสติกเปื้อนแกงจัดเป็นขยะประเภทใด',item:'ถุงพลาสติกเปื้อน',answer:'ขยะทั่วไป (ถังน้ำเงิน)'},
+ {type:'sort',prompt:'หลอดไฟฟลูออเรสเซนต์ จัดเป็นขยะประเภทใด',item:'หลอดไฟ',answer:'ขยะอันตราย (ถังแดง)'},
+ {type:'sort',prompt:'กล่องกระดาษลูกฟูกแห้ง จัดเป็นขยะประเภทใด',item:'กล่องกระดาษ',answer:'ขยะรีไซเคิล (ถังเหลือง)'},
+ {type:'sort',prompt:'กล่องโฟมเปื้อนอาหาร จัดเป็นขยะประเภทใด',item:'กล่องโฟมเปื้อน',answer:'ขยะทั่วไป (ถังน้ำเงิน)'},
+ {type:'sort',prompt:'ก้างปลาและเศษกระดูกสัตว์ จัดเป็นขยะประเภทใด',item:'ก้างปลา',answer:'ขยะเปียก/ย่อยสลายได้ (ถังเขียว)'},
+ {type:'sort',prompt:'กระป๋องน้ำอัดลมอะลูมิเนียม จัดเป็นขยะประเภทใด',item:'กระป๋องอะลูมิเนียม',answer:'ขยะรีไซเคิล (ถังเหลือง)'},
+ {type:'sort',prompt:'ยาปฏิชีวนะหมดอายุ จัดเป็นขยะประเภทใด',item:'ยาหมดอายุ',answer:'ขยะอันตราย (ถังแดง)'},
+ {type:'sort',prompt:'ซองบะหมี่และซองขนมฟอยล์ จัดเป็นขยะประเภทใด',item:'ซองขนมฟอยล์',answer:'ขยะทั่วไป (ถังน้ำเงิน)'},
+ {type:'sort',prompt:'เศษข้าวสวยและเศษผักครัว จัดเป็นขยะประเภทใด',item:'เศษอาหาร',answer:'ขยะเปียก/ย่อยสลายได้ (ถังเขียว)'},
+ {type:'reason',prompt:'ทำไมต้องแยกขยะรีไซเคิลออกจากขยะอื่น',item:'รีไซเคิล',answer:'เพื่อนำกลับมาหลอมแปรรูปใช้ใหม่ ลดปริมาณขยะและประหยัดทรัพยากรธรรมชาติ'},
+ {type:'reason',prompt:'ทำไมขยะอันตราย เช่น ถ่านไฟฉายและหลอดไฟ ต้องแยกทิ้งต่างหาก',item:'อันตราย',answer:'เพราะมีสารปรอทและโลหะหนักอันตราย อาจรั่วซึมปนเปื้อนแหล่งน้ำและดิน'},
+ {type:'reason',prompt:'ขยะเปียกอินทรีย์ที่คัดแยกแล้ว นำไปใช้ประโยชน์อะไรได้',item:'ขยะเปียก',answer:'นำไปหมักทำปุ๋ยอินทรีย์ น้ำหมักชีวภาพ หรือเป็นอาหารสัตว์'},
+ {type:'reason',prompt:'ทำไมกล่องโฟมเปื้อนอาหารและซองขนมจึงรีไซเคิลไม่ได้',item:'ขยะทั่วไป',answer:'เพราะเป็นพลาสติกหลายชั้นปนเปื้อนคราบมัน ล้างยาก และไม่คุ้มค่าทางเศรษฐกิจ'},
+ {type:'reason',prompt:'ทำไมการแยกเศษอาหารออกจากขยะแห้งจึงช่วยลดกลิ่นเหม็น',item:'การจัดการกลิ่น',answer:'ช่วยไม่ให้ขยะแห้งเกิดการเน่าเสียและความชื้นสะสมซึ่งทำให้เกิดก๊าซมีเทนและกลิ่นเหม็น'},
+ {type:'action',prompt:'ที่โรงเรียนควรทิ้งกระดาษเอกสารและสมุดเก่าที่ใด',item:'กระดาษ',answer:'ทิ้งลงถังขยะรีไซเคิล (ถังเหลือง) เพื่อรวบรวมเข้าธนาคารขยะ'},
+ {type:'action',prompt:'ก่อนทิ้งขวดน้ำพลาสติกหรือกล่องนม UHT ควรทำสิ่งใดก่อน',item:'ขวดน้ำ/กล่องนม',answer:'เทน้ำออกให้หมด ล้างให้สะอาด ตากแห้ง แล้วบีบหรือพับแบน'},
+ {type:'action',prompt:'นักเรียนสามารถช่วยลดขยะพลาสติกในโรงเรียนได้อย่างไร 1 วิธี',item:'ลดขยะพลาสติก',answer:'พกกระบอกน้ำส่วนตัว ช้อนส้อม และใช้ถุงผ้าแทนถุงพลาสติก'},
+ {type:'action',prompt:'ถ้าพบถ่านไฟฉายหรือขวดยาฆ่าแมลงทิ้งปนขยะทั่วไป ควรทำอย่างไร',item:'ขยะอันตราย',answer:'แยกออกมาใส่ถุงขยะสีแดง หรือนำไปส่งที่จุดรวบรวมขยะอันตรายของโรงเรียน/ชุมชน'},
+ {type:'action',prompt:'การนำเศษใบไม้ในสวนโรงเรียนไปทำปุ๋ยหมัก มีผลดีต่อสิ่งแวดล้อมอย่างไร',item:'ปุ๋ยใบไม้',answer:'ลดการเผาขยะที่ก่อให้เกิดควันและฝุ่น PM2.5 พร้อมได้ปุ๋ยอินทรีย์บำรุงพืชผัก'}
 ];
 window.WORKSHEET_CONFIG={icon:'♻️',title:'ใบงานแยกขยะ',subject:'การงานอาชีพ',gradeLabel:'ป.4–6',mediaLabel:'แยกขยะ',sourceMediaUrl:'/games/career/waste-sort-media.html',indicators:['ง 1.1 ป.3/3','ง 1.1 ป.4/4'],directions:'จำแนกประเภทขยะ อธิบายเหตุผล และเสนอแนวปฏิบัติในโรงเรียน',getItems(topic){return topic==='mixed'?WASTE_ITEMS:WASTE_ITEMS.filter(i=>i.type===topic);},buildWasteWork(item){if(item.type==='sort')return{line1:'พิจารณาลักษณะของ '+item.item,line2:'ตอบ: '+item.answer};if(item.type==='reason')return{line1:'เหตุผลด้านสิ่งแวดล้อม/ความปลอดภัย',line2:item.answer};return{line1:'แนวปฏิบัติ: '+item.item,line2:item.answer};},renderQuestion(item){const e=window.KampaiTopicWorksheet.escapeHtml;const w=this.buildWasteWork(item);return '<div class="q-stem"><div class="q-prompt">'+e(item.prompt)+'</div><div class="classify-grid"><div class="classify-box">ทั่วไป</div><div class="classify-box">รีไซเคิล</div><div class="classify-box">เปียก</div><div class="classify-box">อันตราย</div></div><div class="q-context">'+e(item.item)+'</div></div><div class="q-work-block"><div class="reason-line"><span class="work-fill">'+e(w.line1)+'</span></div><div class="reason-line"><span class="work-fill">'+e(w.line2)+'</span></div></div><div class="q-foot"><div class="answer-line">ตอบ <span class="answer-fill">'+e(item.answer)+'</span></div></div>';}};
 </script><script src="/games/worksheet-topic.js?v=2.0.0"></script><script>function render(){window.KampaiTopicWorksheet.render();}document.getElementById('btnRandom').onclick=window.KampaiTopicWorksheet.randomize;document.getElementById('btnAnswers').onclick=()=>document.body.classList.toggle('show-answers');document.getElementById('btnPrint').onclick=()=>window.KampaiWorksheet.printA4();window.KampaiWorksheet.loadTeachers();render();</script><script src="/games/worksheet-modes.js?v=2.0.0"></script></body></html>
