@@ -41,7 +41,7 @@
     .toolbar #kampai-snd{position:static;inset:auto;display:flex;flex:0 0 auto}
     .toolbar #kampai-snd .ksnd{background:var(--navy);box-shadow:none}
     .workspace{display:grid;grid-template-columns:280px minmax(0,1fr);flex:1;min-height:0}
-    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto}
+    .sidebar{background:var(--navy);color:var(--white);padding:14px;overflow:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent}
     .sidebar-title{font-size:14px;color:#bde5e3;margin:4px 4px 9px;font-weight:800}
     .scene-list{display:grid;gap:8px}
     .scene-btn{width:100%;min-height:54px;border:2px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.08);color:var(--white);padding:8px 10px;text-align:left;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:10px}
@@ -135,7 +135,7 @@
     @media (max-width:900px){
       body{padding:0}.shell{min-height:100vh;border:0;border-radius:0}
       .workspace{grid-template-columns:minmax(0,1fr)}.sidebar{min-width:0;padding:8px;overflow:visible}
-      .scene-list{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}.scene-btn{width:auto;min-width:160px;flex:0 0 auto}
+      .scene-list{display:flex;overflow-x:auto;max-width:100%;gap:6px;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}.scene-btn{width:auto;min-width:160px;flex:0 0 auto}
       .lesson-list{max-width:300px}.lesson-head{padding:10px 12px;flex-wrap:wrap}.lesson-emoji{width:52px;height:52px;font-size:30px}
       .role-board{width:100%;max-width:100%;min-width:0;flex:0 1 100%;justify-content:center}.role-board.show{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr)}.dialogue{padding:10px;align-content:start}.line{width:96%;grid-template-columns:50px minmax(0,1fr) 46px;padding:9px 8px}.role{width:44px;height:44px;font-size:23px}.say-btn{width:44px;height:44px}
       .visual-stage{padding:8px}.visual-frame{width:100%;max-height:none}.speech-card{top:2%;min-height:38%;padding:8px 10px;border-width:3px}.speech-card .english{font-size:clamp(18px,3.8vw,30px)}.speech-card .reading,.speech-card .meaning{font-size:clamp(12px,2vw,16px)}
@@ -267,7 +267,7 @@
         <section class="lesson-head">
           <div class="lesson-emoji" id="sceneEmoji" aria-hidden="true">👋</div>
           <div class="lesson-copy">
-            <p class="eyebrow" id="sceneLabel">สถานการณ์ 1 จาก 6</p>
+            <p class="eyebrow" id="sceneLabel">สถานการณ์ 1 จาก 9</p>
             <h2 id="lessonTitle">Meeting a new friend</h2>
             <p class="goal" id="lessonGoal">ฝึกทักทายและแนะนำตัว</p>
           </div>
@@ -360,6 +360,27 @@
         {title:'At lunchtime',lines:[['A','What do you have for lunch?','ว็อท ดู ยู แฮฟ ฟอร์ ลันช์','คุณกินอะไรเป็นอาหารกลางวัน'],['B','I have rice and chicken.','ไอ แฮฟ ไรซ์ แอนด์ ชิกเกิน','ฉันกินข้าวกับไก่'],['A','Would you like some fruit?','วูด ยู ไลก์ ซัม ฟรุต','รับผลไม้ไหม'],['B','Yes, I would like a banana.','เยส ไอ วูด ไลก์ อะ บานานา','รับ ฉันอยากได้กล้วย']]},
         {title:'After-school club',lines:[['A','Which club are you in?','วิช คลับ อาร์ ยู อิน','คุณอยู่ชมรมอะไร'],['B','I am in the music club.','ไอ แอม อิน เดอะ มิวสิก คลับ','ฉันอยู่ชมรมดนตรี'],['A','What instrument do you play?','ว็อท อินสทรูเมินท์ ดู ยู เพลย์','คุณเล่นเครื่องดนตรีอะไร'],['B','I play the guitar.','ไอ เพลย์ เดอะ กีทาร์','ฉันเล่นกีตาร์']]},
         {title:'Sports day',lines:[['A','When is sports day?','เว็น อิส สปอร์ตส์ เดย์','วันกีฬาเมื่อไร'],['B','It is on Friday.','อิท อิส ออน ฟรายเดย์','วันศุกร์'],['A','Which team are you on?','วิช ทีม อาร์ ยู ออน','คุณอยู่ทีมไหน'],['B','I am on the blue team.','ไอ แอม ออน เดอะ บลู ทีม','ฉันอยู่ทีมสีน้ำเงิน']]}
+      ]},
+      {id:'digital',icon:'📱',label:'ชีวิตดิจิทัลและเทคโนโลยี',goal:'สื่อสารการใช้เทคโนโลยีและค้นหาข้อมูลอย่างปลอดภัย',indicator:'ต 1.2 ป.4/4 · ต 4.1 ป.4/1',dialogues:[
+        {title:'Using a tablet in class',lines:[['A','May I use the tablet now?','เมย์ ไอ ยูส เดอะ แท็บเล็ต นาว','ขออนุญาตใช้แท็บเล็ตตอนนี้ได้ไหม'],['B','Yes, please turn it on.','เยส พลีซ เทิร์น อิท ออน','ได้ กรุณาเปิดเครื่องเลย'],['A','Which app should I open?','วิช แอป ชูด ไอ โอเพิน','ฉันควรเปิดแอปไหน'],['B','Open the English learning app.','โอเพิน ดิ อิงลิช เลิร์นนิง แอป','เปิดแอปเรียนภาษาอังกฤษ']]},
+        {title:'Searching for knowledge online',lines:[['A','How do you find this picture?','ฮาว ดู ยู ไฟนด์ ดิส พิกเชอร์','คุณหารูปภาพนี้ได้อย่างไร'],['B','I search for it on the internet.','ไอ เซิร์ช ฟอร์ อิท ออน ดิ อินเทอร์เน็ต','ฉันค้นหาบนอินเทอร์เน็ต'],['A','Can you show me how?','แคน ยู โชว์ มี ฮาว','ช่วยสอนวิธีค้นหาให้ฉันได้ไหม'],['B','Sure. Type the keywords here.','ชัวร์ ไทป์ เดอะ คีย์เวิร์ดส์ เฮียร์','ได้สิ พิมพ์คำค้นหาตรงนี้']]},
+        {title:'Safe passwords',lines:[['A','What makes a strong password?','ว็อท เมกส์ อะ สตรอง พาสเวิร์ด','รหัสผ่านที่ปลอดภัยเป็นอย่างไร'],['B','Use letters and numbers together.','ยูส เล็ตเทอร์ส แอนด์ นัมเบอร์ส ทูเก็ทเธอร์','ใช้ตัวอักษรผสมกับตัวเลข'],['A','Should I share it with friends?','ชูด ไอ แชร์ อิท วิธ เฟรนดส์','ฉันควรบอกรหัสผ่านกับเพื่อนไหม'],['B','No, keep your password secret.','โน คีป ยัวร์ พาสเวิร์ด ซีเคร็ท','ไม่นะ เก็บเป็นความลับเสมอ']]},
+        {title:'Video call with friends',lines:[['A','Can you hear me clearly?','แคน ยู เฮียร์ มี เคลียร์ลี','คุณได้ยินเสียงฉันชัดเจนไหม'],['B','Yes, I can hear you well.','เยส ไอ แคน เฮียร์ ยู เวล','ได้ยิน ฉันได้ยินคุณชัดเจน'],['A','Can you see my screen?','แคน ยู ซี มาย สกรีน','คุณเห็นหน้าจอของฉันไหม'],['B','Yes, your screen is clear.','เยส ยัวร์ สกรีน อิส เคลียร์','เห็น หน้าจอของคุณชัดเจนดี']]},
+        {title:'Sending an email to teacher',lines:[['A','Did you send our homework?','ดิด ยู เซนด์ อาวร์ โฮมเวิร์ก','คุณส่งการบ้านของเราหรือยัง'],['B','Yes, I sent an email to our teacher.','เยส ไอ เซ็นท์ แอน อีเมล ทู อาวร์ ทีเชอร์','ส่งแล้ว ฉันส่งอีเมลถึงคุณครูแล้ว'],['A','Did you attach our file?','ดิด ยู อะแทช อาวร์ ไฟล์','คุณแนบไฟล์งานไปด้วยไหม'],['B','Yes, the file is attached.','เยส เดอะ ไฟล์ อิส อะแทชต์','แนบแล้ว แนบไฟล์เรียบร้อย']]}
+      ]},
+      {id:'health',icon:'🏥',label:'สุขอนามัยและห้องพยาบาล',goal:'บอกอาการเจ็บป่วยและดูแลสุขอนามัย',indicator:'ต 1.2 ป.4/3 · ต 1.3 ป.4/1',dialogues:[
+        {title:'Washing hands before lunch',lines:[['A','Let us wash our hands first.','เล็ท อัส วอช อาวร์ แฮนด์ส เฟิร์สต์','เราไปล้างมือกันก่อนเถอะ'],['B','Good idea. We need soap and water.','กูด ไอเดีย วี นีด โซป แอนด์ วอเทอร์','ความคิดที่ดี เราต้องใช้สบู่และน้ำ'],['A','How long should we wash?','ฮาว ลอง ชูด วี วอช','เราควรล้างมือนานแค่ไหน'],['B','Scrub for twenty seconds.','สครับ ฟอร์ ทเวนตี เซคเคินดส์','ถูมือประมาณยี่สิบวินาที']]},
+        {title:'Wearing a mask when sick',lines:[['A','Why are you wearing a mask?','วาย อาร์ ยู แวริง อะ แมสก์','ทำไมคุณถึงใส่หน้ากากอนามัย'],['B','I have a cold and a cough.','ไอ แฮฟ อะ โคลด์ แอนด์ อะ คอฟ','ฉันเป็นหวัดและมีอาการไอ'],['A','Please drink plenty of warm water.','พลีซ ดริงก์ เพลนตี ออฟ วอร์ม วอเทอร์','ดื่มน้ำอุ่นเยอะๆ นะ'],['B','Thank you. I will rest today.','แธงก์ ยู ไอ วิล เรสต์ ทูเดย์','ขอบคุณนะ วันนี้ฉันจะพักผ่อน']]},
+        {title:'Eating nutritious vegetables',lines:[['A','Do you like eating vegetables?','ดู ยู ไลก์ อีททิง เวจทะเบิลส์','คุณชอบกินผักไหม'],['B','Yes, I like carrots and tomatoes.','เยส ไอ ไลก์ แคร์ร็อทส์ แอนด์ โทะเมโทส์','ชอบ ฉันชอบแครอทและมะเขือเทศ'],['A','Why are they good for us?','วาย อาร์ เดย์ กูด ฟอร์ อัส','ทำไมผักถึงมีประโยชน์ต่อเรา'],['B','They keep our bodies strong.','เดย์ คีป อาวร์ บอดีส์ สตรอง','ผักช่วยให้ร่างกายแข็งแรง']]},
+        {title:'Sports day warm-ups',lines:[['A','Are you ready to exercise?','อาร์ ยู เรดี ทู เอ็กเซอร์ไซส์','คุณพร้อมออกกำลังกายหรือยัง'],['B','Not yet. We must warm up first.','น็อท เย็ท วี มัสต์ วอร์ม อัพ เฟิร์สต์','ยังเลย เราต้องอบอุ่นร่างกายก่อน'],['A','What exercise should we do?','ว็อท เอ็กเซอร์ไซส์ ชูด วี ดู','เราควรทำท่าออกกำลังกายท่าไหน'],['B','Let us stretch our arms and legs.','เล็ท อัส สเตรตช์ อาวร์ อาร์มส์ แอนด์ เลกส์','มายืดเหยียดแขนและขากันเถอะ']]},
+        {title:'Visiting the school infirmary',lines:[['A','What is the matter with you?','ว็อท อิส เดอะ แมทเทอร์ วิธ ยู','คุณเป็นอะไรหรือเปล่า'],['B','I have a stomachache.','ไอ แฮฟ อะ สตัมมักเอค','ฉันรู้สึกปวดท้อง'],['A','Let me take you to the infirmary.','เล็ท มี เทก ยู ทู ดิ อินเฟอร์มะรี','ให้ฉันพาคุณไปห้องพยาบาลนะ'],['B','Thank you for your kindness.','แธงก์ ยู ฟอร์ ยัวร์ ไคนด์เนส','ขอบคุณในความใจดีของคุณนะ']]}
+      ]},
+      {id:'culture',icon:'🌏',label:'วัฒนธรรมและเพื่อนอาเซียน',goal:'แลกเปลี่ยนวัฒนธรรม เทศกาล และสภาพอากาศ',indicator:'ต 2.1 ป.4/1 · ต 2.1 ป.4/3 · ต 2.2 ป.4/1',dialogues:[
+        {title:'Welcoming an exchange student',lines:[['A','Welcome to our school!','เวลคัม ทู อาวร์ สกูล','ยินดีต้อนรับสู่โรงเรียนของเรา'],['B','Thank you! Where is your classroom?','แธงก์ ยู แวร์ อิส ยัวร์ คลาสรูม','ขอบคุณ ห้องเรียนของคุณอยู่ที่ไหน'],['A','Come with me, I will guide you.','คัม วิธ มี ไอ วิล ไกด์ ยู','มากับฉันเลย ฉันจะพาเดินไป'],['B','That is very nice of you.','แดต อิส เวรี ไนซ์ ออฟ ยู','คุณใจดีและน่ารักมากเลย']]},
+        {title:'Thai festivals (Songkran & Loy Krathong)',lines:[['A','What is your favorite Thai festival?','ว็อท อิส ยัวร์ เฟเวอริท ไท เฟสทิเวิล','เทศกาลไทยที่คุณชอบที่สุดคืออะไร'],['B','I love the Songkran festival.','ไอ เลิฟ เดอะ สงกรานต์ เฟสทิเวิล','ฉันชอบเทศกาลสงกรานต์'],['A','What do people do?','ว็อท ดู พีเพิล ดู','ผู้คนทำกิจกรรมอะไรกัน'],['B','We splash water and make merit.','วี สแปลช วอเทอร์ แอนด์ เมก เมริท','พวกเราเล่นสาดน้ำและทำบุญ']]},
+        {title:'Rainy season weather',lines:[['A','What is the weather like today?','ว็อท อิส เดอะ เวธเธอร์ ไลก์ ทูเดย์','วันนี้สภาพอากาศเป็นอย่างไร'],['B','It is cloudy and rainy.','อิท อิส เคลาดี แอนด์ เรนนี','ท้องฟ้ามีเมฆมากและฝนตก'],['A','Do you have an umbrella?','ดู ยู แฮฟ แอน อัมเบรลลา','คุณมีร่มไหม'],['B','Yes, we can share my umbrella.','เยส วี แคน แชร์ มาย อัมเบรลลา','มี เราใช้ร่มคันเดียวกันได้นะ']]},
+        {title:'Favorite Thai fruits',lines:[['A','Which Thai fruit do you like?','วิช ไท ฟรุต ดู ยู ไลก์','คุณชอบผลไม้ไทยชนิดไหน'],['B','I like sweet mangoes.','ไอ ไลก์ สวีต แมงโกส์','ฉันชอบมะม่วงรสหวาน'],['A','Have you tried durian?','แฮฟ ยู ทรายด์ ดูเรียน','คุณเคยลองกินทุเรียนไหม'],['B','Yes, it smells strong but tastes good.','เยส อิท สเมลส์ สตรอง บัท เทสต์ส กูด','เคย กลิ่นแรงแต่รสชาติอร่อยมาก']]},
+        {title:'Asking for directions in the community',lines:[['A','Excuse me, where is the market?','เอ็กซ์คิวซ มี แวร์ อิส เดอะ มาร์เก็ต','ขอโทษนะคะ ตลาดอยู่ที่ไหน'],['B','Go straight and turn left.','โก สเตรต แอนด์ เทิร์น เลฟต์','ตรงไปข้างหน้าแล้วเลี้ยวซ้าย'],['A','Is it far from here?','อิส อิท ฟาร์ ฟรอม เฮียร์','อยู่ไกลจากที่นี่ไหม'],['B','No, it is just two minutes away.','โน อิท อิส จัสต์ ทู มินิทส์ อะเวย์','ไม่ไกล เดินเพียงสองนาทีก็ถึง']]}
       ]}
     ];
 
@@ -417,6 +438,27 @@
         ['school/03-at-lunchtime.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวารับประทานอาหารและแบ่งผลไม้',{A:'female',B:'male'}],
         ['school/04-after-school-club.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องชมรมดนตรีและกีตาร์',{A:'female',B:'male'}],
         ['school/05-sports-day.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาเตรียมแข่งขันกีฬาสีในสนาม',{A:'female',B:'male'}]
+      ],
+      digital:[
+        ['digital/01-using-tablet-in-class.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาเรียนรู้การใช้แท็บเล็ตในห้องเรียน',{A:'female',B:'male'}],
+        ['digital/02-searching-for-knowledge-online.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาค้นหาข้อมูลความรู้บนอินเทอร์เน็ต',{A:'female',B:'male'}],
+        ['digital/03-safe-passwords.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาแลกเปลี่ยนวิธีตั้งรหัสผ่านให้ปลอดภัย',{A:'female',B:'male'}],
+        ['digital/04-video-call-with-friends.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาสนทนาผ่านวิดีโอคอลออนไลน์',{A:'female',B:'male'}],
+        ['digital/05-sending-email-to-teacher.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาปรึกษาเรื่องการส่งอีเมลถึงคุณครู',{A:'female',B:'male'}]
+      ],
+      health:[
+        ['health/01-washing-hands-before-lunch.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาล้างมือด้วยสบู่ก่อนรับประทานอาหารกลางวัน',{A:'female',B:'male'}],
+        ['health/02-wearing-mask-when-sick.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาสวมหน้ากากอนามัยเพื่อป้องกันการแพร่เชื้อ',{A:'female',B:'male'}],
+        ['health/03-eating-nutritious-vegetables.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวารับประทานผักที่มีประโยชน์ในโรงอาหาร',{A:'female',B:'male'}],
+        ['health/04-sports-day-warm-ups.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาอบอุ่นร่างกายก่อนการแข่งขันกีฬา',{A:'female',B:'male'}],
+        ['health/05-visiting-school-infirmary.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาไปตรวจดูอาการที่ห้องพยาบาลของโรงเรียน',{A:'female',B:'male'}]
+      ],
+      culture:[
+        ['culture/01-welcoming-exchange-student.webp','เด็กนักเรียนหญิงทางซ้ายกล่าวต้อนรับเพื่อนนักเรียนแลกเปลี่ยนชาวต่างชาติ',{A:'female',B:'male'}],
+        ['culture/02-thai-festivals.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเกี่ยวกับประเพณีสงกรานต์และลอยกระทง',{A:'female',B:'male'}],
+        ['culture/03-rainy-season-weather.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาพูดคุยเรื่องสภาพอากาศในฤดูฝน',{A:'female',B:'male'}],
+        ['culture/04-favorite-thai-fruits.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาแบ่งปันผลไม้ไทยที่ชื่นชอบ',{A:'female',B:'male'}],
+        ['culture/05-asking-for-directions.webp','เด็กนักเรียนหญิงทางซ้ายและชายทางขวาถามและบอกทางในชุมชน',{A:'female',B:'male'}]
       ]
     };
     const VISUAL_BASE='everyday-conversation-p4-assets/scenes/';
@@ -661,7 +703,14 @@
     }
     function renderVisual(){
       const lesson=currentLesson(),line=displayedLine(state.line),image=$('visualImage'),frame=$('visualFrame');
-      if(image.dataset.src!==lesson.image){frame.classList.remove('image-error');image.dataset.src=lesson.image;image.src=lesson.image;image.alt=lesson.imageAlt||'';}
+      if(image.dataset.src!==lesson.image){
+        frame.classList.remove('image-error');
+        image.dataset.src=lesson.image;
+        image.src=lesson.image;
+        image.alt=lesson.imageAlt||'';
+        const fallbackDesc=lesson.imageAlt||'ภาพฉากไม่พร้อม แต่ยังฟังและอ่านบทสนทนาได้';
+        $('visualFallback').innerHTML='<div style="display:grid;gap:6px;place-items:center;padding:12px;text-align:center;"><span style="font-size:44px;line-height:1;" aria-hidden="true">'+escapeHtml(currentScene().icon)+'</span><span style="font-size:clamp(18px,2vw,28px);color:var(--navy);font-weight:800;">'+escapeHtml(lesson.title)+'</span><p style="font-size:clamp(13px,1.2vw,17px);color:var(--muted);font-weight:600;max-width:580px;margin:0 auto;line-height:1.35;">'+escapeHtml(fallbackDesc)+'</p></div>';
+      }
       $('visualSpeech').classList.toggle('masked',line.masked);$('visualSpeech').dataset.role=line.role;$('visualEnglish').innerHTML=line.enHtml;$('visualReading').innerHTML=line.readingHtml?'คำอ่าน: '+line.readingHtml:'';$('visualMeaning').innerHTML=line.meaningHtml;
       const isIntro=line.role==='I';
       document.querySelectorAll('[data-visual-role]').forEach(zone=>{zone.hidden=isIntro?zone.dataset.visualRole!=='I':zone.dataset.visualRole==='I';zone.classList.toggle('active',zone.dataset.visualRole===line.role)});
