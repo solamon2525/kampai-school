@@ -33,6 +33,217 @@
         -webkit-user-select: none;
     }
 
+    /* --- Accessible Controls & Touch Targets (Min 44x44 / 48x48) --- */
+    button, [role="button"], a, .cyber-btn, .choice-btn, .upgrade-cost-btn, .cmd-btn, .skill-tab {
+        min-width: 44px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible, .cyber-btn:focus-visible, .chapter-card:focus-visible {
+        outline: 3px solid #38bdf8;
+        outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+
+    /* --- Algorithm Stepper & Coding Panel Styles --- */
+    .algo-drawer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(3, 7, 18, 0.94);
+        border-top: 2px solid #0284c7;
+        box-shadow: 0 -10px 25px rgba(2, 132, 199, 0.25);
+        backdrop-filter: blur(8px);
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        padding: 10px 16px 14px;
+        gap: 8px;
+        pointer-events: auto;
+        transition: transform 0.25s ease;
+    }
+    .algo-drawer.collapsed {
+        transform: translateY(calc(100% - 44px));
+    }
+    .algo-drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .algo-efficiency-badge {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fbbf24;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+        background: rgba(245, 158, 11, 0.15);
+        padding: 2px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .algo-queue-wrap {
+        width: 100%;
+        overflow-x: auto;
+        padding: 4px 0;
+    }
+    .algo-queue {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 54px;
+        padding: 6px 10px;
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px dashed rgba(56, 189, 248, 0.3);
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+    .cmd-block-chip {
+        min-width: 52px;
+        min-height: 48px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0284c7, #0369a1);
+        border: 1px solid #38bdf8;
+        color: #ffffff;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        font-weight: 700;
+        gap: 2px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        transition: all 0.18s ease;
+        user-select: none;
+        flex-shrink: 0;
+    }
+    .cmd-block-chip.executing {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        border: 3px solid #fef08a !important;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.9) !important;
+        transform: scale(1.12);
+        animation: pulseStep 0.5s infinite alternate;
+    }
+    @keyframes pulseStep {
+        from { transform: scale(1.1); box-shadow: 0 0 12px #f59e0b; }
+        to { transform: scale(1.18); box-shadow: 0 0 24px #fbbf24; }
+    }
+    .cmd-block-chip .cmd-icon {
+        font-size: 1.15rem;
+    }
+    .algo-ctrl-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .algo-palette-group, .algo-action-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+    }
+    .cmd-btn {
+        min-width: 48px;
+        min-height: 48px;
+        border-radius: 6px;
+        border: 1px solid #0284c7;
+        background: rgba(15, 23, 42, 0.7);
+        color: #e2e8f0;
+        font-family: 'Kanit', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        text-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+    .cmd-btn:hover {
+        background: #0284c7;
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(14, 165, 233, 0.5);
+    }
+    .cmd-btn:active {
+        transform: scale(0.96);
+    }
+    .cmd-btn-shoot {
+        border-color: #ef4444;
+        color: #fca5a5;
+    }
+    .cmd-btn-shoot:hover {
+        background: #ef4444;
+        color: #ffffff;
+    }
+    .cmd-btn-loop {
+        border-color: #a855f7;
+        color: #d8b4fe;
+    }
+    .cmd-btn-loop:hover {
+        background: #a855f7;
+        color: #ffffff;
+    }
+    .cmd-action-run {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-color: #34d399;
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    }
+    .cmd-action-pause {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-color: #fbbf24;
+        color: #ffffff;
+    }
+    .cmd-action-step {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        border-color: #818cf8;
+        color: #ffffff;
+    }
+    .cmd-action-undo, .cmd-action-clear {
+        border-color: rgba(148, 163, 184, 0.4);
+        color: #cbd5e1;
+    }
+
+    /* Projector Mode High-Contrast Rules */
+    body.kampai-projector-mode {
+        font-size: 1.15rem;
+    }
+    body.kampai-projector-mode .cmd-block-chip {
+        min-width: 64px;
+        min-height: 56px;
+        font-size: 0.95rem;
+    }
+    body.kampai-projector-mode .cmd-btn {
+        min-width: 54px;
+        min-height: 54px;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .chapter-grid {
+            padding: 0 16px 24px;
+        }
+        .cyber-header {
+            padding: 24px 14px 14px;
+        }
+    }
+
     /* --- Cyber Neon UI System --- */
     .neon-text-blue {
         color: #38bdf8;
@@ -1051,6 +1262,7 @@
 <body>
 
 <div id="app">
+    <button type="button" data-kampai-action="finish-test" onclick="finishTest()" hidden></button>
     
     <!-- ================= MAIN MENU ================= -->
     <div id="screen-menu" class="screen">
@@ -1063,17 +1275,37 @@
             <div class="banner-art" id="menu-canvas-container">
                 <!-- Retro canvas-drawn art background will render here -->
             </div>
-            <button class="cyber-btn cyber-btn-accent" onclick="switchScreen('screen-modes')" style="width: 260px; height: 50px;">
+            <button class="cyber-btn cyber-btn-accent" data-kampai-action="start" onclick="startQuickMission()" style="width: 280px; height: 50px;">
                 🎮 เริ่มทำภารกิจ
             </button>
-            <button class="cyber-btn" onclick="switchScreen('screen-upgrades')" style="width: 260px; height: 50px;">
-                🔧 อัพเกรด & สกิล
+            <button class="cyber-btn" onclick="startCodingMode()" style="width: 280px; height: 50px;">
+                🤖 โค้ดดิ้งอัลกอริทึม
             </button>
-            <button class="cyber-btn" onclick="switchScreen('screen-achievements')" style="width: 260px; height: 50px;">
-                🏆 เกียรติยศความสำเร็จ
+            <button class="cyber-btn" onclick="if(window.vs) vs.openMenu(); else selectPlayMode('local');" style="width: 280px; height: 50px;">
+                ⚔️ แข่ง 2 คน (Versus)
             </button>
-            <button class="cyber-btn" onclick="switchScreen('screen-settings')" style="width: 260px; height: 50px;">
-                ⚙️ ตั้งค่าความปลอดภัย
+            <button class="cyber-btn" onclick="switchScreen('screen-chapters')" style="width: 280px; height: 50px;">
+                🗺️ เลือกฐานปฏิบัติการ
+            </button>
+            <button class="cyber-btn" onclick="toggleProjectorMode()" style="width: 280px; height: 50px;">
+                📽️ จอโปรเจกเตอร์
+            </button>
+            <button class="cyber-btn" onclick="openA4Worksheet()" style="width: 280px; height: 50px;">
+                📄 พิมพ์ใบงาน A4
+            </button>
+            <div style="display: flex; justify-content: center; margin-top: 4px;">
+                <button type="button" class="cyber-btn" onclick="openA4Worksheet()" style="color: #38bdf8; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 999px; font-size: 0.95rem;">📄 พิมพ์ใบงาน A4 พร้อมเฉลยครู</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button class="cyber-btn" onclick="switchScreen('screen-upgrades')" style="min-width: 135px; height: 46px; font-size: 0.95rem;">
+                    🔧 อัพเกรด
+                </button>
+                <button class="cyber-btn" onclick="switchScreen('screen-achievements')" style="min-width: 135px; height: 46px; font-size: 0.95rem;">
+                    🏆 เกียรติยศ
+                </button>
+            </div>
+            <button class="cyber-btn" onclick="switchScreen('screen-settings')" style="width: 280px; height: 46px; font-size: 0.95rem;">
+                ⚙️ ตั้งค่าระบบ
             </button>
         </div>
     </div>
@@ -1087,6 +1319,9 @@
         <div class="menu-container" style="gap: 20px;">
             <button class="cyber-btn cyber-btn-accent" onclick="selectPlayMode('solo')" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 👤 เล่นคนเดียว (Solo Mission)
+            </button>
+            <button class="cyber-btn" onclick="if(window.vs) vs.openMenu(); else selectPlayMode('local');" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                ⚔️ แข่ง 2 คน (Versus Duel)
             </button>
             <button class="cyber-btn" onclick="selectPlayMode('local')" style="width: 320px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 👥 เล่น 2 คนเครื่องเดียวกัน (Local Co-op)
@@ -1197,9 +1432,17 @@
         <!-- HUD -->
         <div class="game-hud">
             <div class="hud-bar">
-                <button class="cyber-btn cyber-btn-danger" style="padding: 6px 16px; font-size: 0.9rem;" onclick="pauseGame()">
-                    ⏸ เมนูหยุด
-                </button>
+                <div style="display: flex; gap: 8px; align-items: center; pointer-events: auto;">
+                    <button class="cyber-btn cyber-btn-danger" style="min-height: 44px; padding: 6px 14px; font-size: 0.9rem;" onclick="pauseGame()">
+                        ⏸ เมนูหยุด
+                    </button>
+                    <button class="cyber-btn" style="min-height: 44px; padding: 6px 14px; font-size: 0.9rem;" onclick="toggleAlgoPanel()" title="เปิด/ปิด แผงคำสั่งโค้ดดิ้ง">
+                        🤖 โค้ดดิ้ง
+                    </button>
+                    <button class="cyber-btn" style="min-height: 44px; padding: 6px 14px; font-size: 0.9rem;" onclick="toggleProjectorMode()" title="เปิด/ปิด โหมดจอโปรเจกเตอร์">
+                        📽️ โปรเจกเตอร์
+                    </button>
+                </div>
                 <div class="hud-stat-group">
                     <div class="hud-stat neon-text-gold" id="hud-coins">🪙 0</div>
                     <div class="hud-stat neon-text-blue" id="hud-kills">🤖 0/10</div>
@@ -1274,6 +1517,49 @@
                 <div class="virtual-joystick-knob" id="joy-knob"></div>
             </div>
             <div class="virtual-shoot-hint">ลากฝั่งขวาเพื่อหันปืนและยิงอัตโนมัติ</div>
+        </div>
+
+        <!-- ================= ALGORITHM COMMAND STEPPER PANEL ================= -->
+        <div id="algo-panel" class="algo-drawer">
+            <div class="algo-drawer-head">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-weight: 700; color: #38bdf8; font-size: 1.05rem;">🤖 อัลกอริทึมโค้ดดิ้ง</span>
+                    <span class="algo-efficiency-badge" id="algo-efficiency-badge">⭐⭐⭐ ประสิทธิภาพ: 3 ดาว (0/8 คำสั่ง)</span>
+                    <span id="algo-stepper-status" style="font-size: 0.85rem; color: #94a3b8;">พร้อมรับคำสั่ง</span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="cyber-btn" style="min-height: 44px; min-width: 44px; padding: 4px 10px; font-size: 0.85rem;" onclick="toggleAlgoPanel()" title="ย่อ/ขยายแผง">🔽 ย่อ</button>
+                </div>
+            </div>
+            
+            <!-- Command Queue Bar -->
+            <div class="algo-queue-wrap">
+                <div class="algo-queue" id="cmd-queue-list">
+                    <!-- Command chips populated dynamically -->
+                    <span id="cmd-empty-hint" style="color: #64748b; font-size: 0.9rem; align-self: center; margin: auto;">แตะปุ่มด้านล่างเพื่อเพิ่มคำสั่งเข้าคิว (FIFO)...</span>
+                </div>
+            </div>
+
+            <!-- Command Palette & Stepper Controls -->
+            <div class="algo-ctrl-row">
+                <!-- Palette: Add commands -->
+                <div class="algo-palette-group">
+                    <button class="cmd-btn cmd-add-btn" onclick="cmdAdd('forward')" title="ก้าวไปข้างหน้า 1 ช่อง">⬆️ เดินหน้า</button>
+                    <button class="cmd-btn cmd-add-btn" onclick="cmdAdd('left')" title="หันซ้าย 90 องศา">↩️ ซ้าย 90°</button>
+                    <button class="cmd-btn cmd-add-btn" onclick="cmdAdd('right')" title="หันขวา 90 องศา">↪️ ขวา 90°</button>
+                    <button class="cmd-btn cmd-add-btn cmd-btn-shoot" onclick="cmdAdd('shoot')" title="ยิงกระสุนทำลายเป้าหมาย">💥 ยิง</button>
+                    <button class="cmd-btn cmd-add-btn cmd-btn-loop" onclick="cmdAdd('repeat2')" title="ทำซ้ำคำสั่งก่อนหน้า 2 ครั้ง">🔁 ลูป ×2</button>
+                </div>
+                
+                <!-- Stepper Actions: Run, Pause, Step-Trace, Undo, Clear -->
+                <div class="algo-action-group">
+                    <button class="cmd-btn cmd-action-run" id="btn-cmd-run" onclick="cmdRun()" title="สั่งรันโค้ดทั้งหมดตามลำดับ">▶️ รันโค้ด</button>
+                    <button class="cmd-btn cmd-action-pause" id="btn-cmd-pause" onclick="cmdPause()" style="display: none;" title="พักขั้นตอน">⏸️ พัก</button>
+                    <button class="cmd-btn cmd-action-step" onclick="cmdStepTrace()" title="ก้าวทีละขั้น เหมาะสำหรับสอนดีบักในห้องเรียน">⏭️ ก้าวทีละขั้น</button>
+                    <button class="cmd-btn cmd-action-undo" onclick="cmdUndo()" title="ลบคำสั่งล่าสุด">↶ ลบ</button>
+                    <button class="cmd-btn cmd-action-clear" onclick="cmdClear()" title="ล้างคิวทั้งหมด">🗑️ ล้าง</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1482,7 +1768,14 @@
                     <div class="report-stat-val text-cyan-400" id="rep-combo">0</div>
                     <div class="report-stat-lbl">คอมโบตอบถูกสูงสุด</div>
                 </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-val text-yellow-400" id="rep-algo-stars">⭐⭐⭐</div>
+                    <div class="report-stat-lbl">ประสิทธิภาพคำสั่ง (Efficiency)</div>
+                </div>
             </div>
+
+            <!-- Platform result slot for Check 12 -->
+            <div id="kampai-result" style="margin: 15px 0;"></div>
 
             <!-- Analytics charts and recommendations -->
             <div class="report-analytics-section">
@@ -1542,7 +1835,8 @@
         </div>
 
         <div class="screen-footer">
-            <button class="cyber-btn cyber-btn-accent" onclick="retryChapter()">🔄 เล่นอีกครั้ง</button>
+            <button id="btn-restart" class="cyber-btn cyber-btn-accent" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
+            <button class="cyber-btn" onclick="openA4Worksheet()">📄 พิมพ์ใบงาน A4</button>
             <button class="cyber-btn" onclick="switchScreen('screen-chapters')">🗺️ ไปแผนที่ด่าน</button>
             <button class="cyber-btn" onclick="KAMPAI.goHome()">🚪 ออกไปยังคลังวิชา</button>
         </div>
@@ -1550,11 +1844,12 @@
 
 </div>
 
-<!-- ================= KAMPAI SDK ================= -->
+<!-- ================= KAMPAI SDK & ECOSYSTEM MODULES ================= -->
 <script src="/games/kampai-sdk.js"></script>
-<!-- <script src="/games/kampai-versus.js"></script> -->
+<script src="/games/kampai-versus.js"></script>
+<script src="/games/shared-classroom-tools.js"></script>
+<script src="/games/shared-worksheet-tools.js"></script>
 <script>
-    // KampaiVersus.create(
     // Standalone fallback object if loaded outside of KAMPAI wrapper
     window.KAMPAI = window.KAMPAI || {
         isEmbed: false,
@@ -1566,6 +1861,7 @@
         input: { up: false, down: false, left: false, right: false, a: false, b: false },
         onReady: function(cb) { cb(this); },
         setSlug: function() { return this; },
+        beginRound: function() { this._submitted = false; },
         submitScore: function() { return false; },
         goHome: function() { location.href = '/h/nattapong'; },
         exit: function() { location.href = '/h/nattapong'; },
@@ -1586,6 +1882,31 @@
             mountToggles: function() { return this; }
         }
     };
+
+    // KampaiVersus Fallback
+    window.KampaiVersus = window.KampaiVersus || {
+        create: function(o) {
+            return {
+                available: false,
+                openMenu: function() {},
+                report: function() {},
+                finish: function() { return false; },
+                leave: function() {},
+                mode: null
+            };
+        }
+    };
+
+    // Shared Classroom & Worksheet Tools Fallbacks
+    window.KampaiClassroom = window.KampaiClassroom || {
+        toggleProjector: function() { document.body.classList.toggle('kampai-projector-mode'); },
+        isProjectorActive: function() { return document.body.classList.contains('kampai-projector-mode'); }
+    };
+
+    window.KampaiWorksheet = window.KampaiWorksheet || {
+        openPrintModal: function() { window.print(); },
+        printA4: function() { window.print(); }
+    };
 </script>
 
 <!-- ================= GAME CODE ================= -->
@@ -1595,6 +1916,22 @@
     KAMPAI.setSlug(GAME_SLUG);
     KAMPAI.sound.mountToggles();
     KAMPAI.sound.defaultBgm('cheerful');
+
+    // KampaiVersus 2-Player Framework
+    const vs = KampaiVersus.create({
+        duration: 90,
+        title: 'ผู้บังคับการรถถัง โค้ดดิ้ง',
+        rankBy: 'score',
+        onPlay: function(info) {
+            startVersusRound(info ? info.rng : Math.random, info ? info.player : null);
+        },
+        onEnd: function() {
+            if (isGameRunning) {
+                endGame(false);
+            }
+        }
+    });
+    window.vs = vs;
 
     // System States
     let currentScreen = 'screen-menu';
@@ -5525,6 +5862,7 @@
     }
 
     function startGameSession() {
+        KAMPAI.beginRound();
         switchScreen('screen-game');
         
         // Reset states
@@ -6001,6 +6339,10 @@
             KAMPAI.online.send('game_over', { isVictory });
         }
 
+        if (window.vs && window.vs.finish(player.score, { correct: player.totalEnemiesKilled, victory: isVictory })) {
+            return;
+        }
+
         // Calculate and display report analytics
         document.getElementById('report-title').innerText = isVictory ? "MISSION COMPLETED" : "TANK DESTROYED";
         document.getElementById('report-title').className = isVictory ? "cyber-title neon-text-blue" : "cyber-title neon-text-red";
@@ -6346,7 +6688,364 @@
     KAMPAI.onReady(function() {
         initProfileUI();
     });
+
+    // --- ALGORITHM COMMAND STEPPER ENGINE ---
+    let commandQueue = [];
+    let isStepperRunning = false;
+    let stepperCurrentIndex = -1;
+    let stepperPaused = false;
+    let stepperTimer = null;
+    let algorithmOptimalSteps = 8;
+    let algoCommandsUsedThisRound = 0;
+
+    function toggleAlgoPanel(forceState) {
+        const p = document.getElementById('algo-panel');
+        if (!p) return;
+        if (typeof forceState === 'boolean') {
+            p.classList.toggle('collapsed', !forceState);
+        } else {
+            p.classList.toggle('collapsed');
+        }
+    }
+
+    function cmdAdd(type) {
+        if (isStepperRunning && !stepperPaused) return;
+        if (commandQueue.length >= 24) {
+            spawnNotificationFloat("⚠️ คิวคำสั่งเต็มแล้ว (สูงสุด 24 บล็อก)");
+            return;
+        }
+        commandQueue.push({
+            id: Date.now() + Math.random(),
+            type: type
+        });
+        algoCommandsUsedThisRound++;
+        playSynthSFX('click');
+        updateAlgoQueueUI();
+        updateEfficiencyRating();
+    }
+
+    function cmdUndo() {
+        if (isStepperRunning && !stepperPaused) return;
+        if (commandQueue.length === 0) return;
+        commandQueue.pop();
+        playSynthSFX('click');
+        updateAlgoQueueUI();
+        updateEfficiencyRating();
+    }
+
+    function cmdClear() {
+        if (isStepperRunning) cmdPause();
+        commandQueue = [];
+        stepperCurrentIndex = -1;
+        isStepperRunning = false;
+        stepperPaused = false;
+        clearTimeout(stepperTimer);
+        updateAlgoQueueUI();
+        updateEfficiencyRating();
+        const statusEl = document.getElementById('algo-stepper-status');
+        if (statusEl) statusEl.innerText = "ล้างคิวคำสั่งแล้ว";
+    }
+
+    function updateAlgoQueueUI() {
+        const list = document.getElementById('cmd-queue-list');
+        if (!list) return;
+        if (commandQueue.length === 0) {
+            list.innerHTML = `<span id="cmd-empty-hint" style="color: #64748b; font-size: 0.9rem; align-self: center; margin: auto;">แตะปุ่มด้านล่างเพื่อเพิ่มคำสั่งเข้าคิว (FIFO)...</span>`;
+            return;
+        }
+
+        const labels = {
+            forward: { icon: '⬆️', text: 'เดินหน้า' },
+            left: { icon: '↩️', text: 'ซ้าย 90°' },
+            right: { icon: '↪️', text: 'ขวา 90°' },
+            shoot: { icon: '💥', text: 'ยิงปืน' },
+            repeat2: { icon: '🔁', text: 'ลูป ×2' }
+        };
+
+        list.innerHTML = commandQueue.map((cmd, i) => {
+            const info = labels[cmd.type] || { icon: '❓', text: cmd.type };
+            const isCur = (i === stepperCurrentIndex);
+            return `
+                <div class="cmd-block-chip ${isCur ? 'executing' : ''}" id="cmd-chip-${i}" onclick="cmdRemoveAt(${i})" title="ลำดับที่ ${i + 1}: ${info.text} (แตะเพื่อลบ)">
+                    <span class="cmd-icon">${info.icon}</span>
+                    <span style="font-size: 0.75rem;">${info.text}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Auto-scroll to active element
+        if (stepperCurrentIndex >= 0) {
+            const curEl = document.getElementById(`cmd-chip-${stepperCurrentIndex}`);
+            if (curEl) curEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }
+
+    function cmdRemoveAt(idx) {
+        if (isStepperRunning && !stepperPaused) return;
+        if (idx >= 0 && idx < commandQueue.length) {
+            commandQueue.splice(idx, 1);
+            playSynthSFX('click');
+            updateAlgoQueueUI();
+            updateEfficiencyRating();
+        }
+    }
+
+    function updateEfficiencyRating() {
+        const count = commandQueue.length;
+        let stars = 3;
+        let text = "3 ดาว (ยอดเยี่ยม)";
+        if (count > algorithmOptimalSteps + 3) {
+            stars = 1;
+            text = "1 ดาว (ควรลดขั้นตอน)";
+        } else if (count > algorithmOptimalSteps) {
+            stars = 2;
+            text = "2 ดาว (ดีมาก)";
+        }
+        const starStr = '⭐'.repeat(stars);
+        const badge = document.getElementById('algo-efficiency-badge');
+        if (badge) {
+            badge.innerText = `${starStr} ประสิทธิภาพ: ${stars} ดาว (${count}/${algorithmOptimalSteps} คำสั่ง)`;
+        }
+        const repStars = document.getElementById('rep-algo-stars');
+        if (repStars) {
+            repStars.innerText = `${starStr} (${stars}/3 ดาว)`;
+        }
+        return stars;
+    }
+
+    function cmdRun() {
+        if (commandQueue.length === 0) {
+            spawnNotificationFloat("⚠️ กรุณาเพิ่มบล็อกคำสั่งก่อนกดรัน!");
+            return;
+        }
+        if (isStepperRunning && !stepperPaused) return;
+
+        isStepperRunning = true;
+        stepperPaused = false;
+        const btnRun = document.getElementById('btn-cmd-run');
+        const btnPause = document.getElementById('btn-cmd-pause');
+        if (btnRun) btnRun.style.display = 'none';
+        if (btnPause) btnPause.style.display = 'inline-flex';
+
+        const statusEl = document.getElementById('algo-stepper-status');
+        if (statusEl) statusEl.innerText = "กำลังประมวลผลคำสั่ง...";
+
+        if (stepperCurrentIndex < 0 || stepperCurrentIndex >= commandQueue.length) {
+            stepperCurrentIndex = 0;
+        }
+
+        stepLoop();
+    }
+
+    function cmdPause() {
+        stepperPaused = true;
+        isStepperRunning = false;
+        clearTimeout(stepperTimer);
+        const btnRun = document.getElementById('btn-cmd-run');
+        const btnPause = document.getElementById('btn-cmd-pause');
+        if (btnRun) btnRun.style.display = 'inline-flex';
+        if (btnPause) btnPause.style.display = 'none';
+        const statusEl = document.getElementById('algo-stepper-status');
+        if (statusEl) statusEl.innerText = `พักการรันที่ขั้นตอน #${stepperCurrentIndex + 1}`;
+    }
+
+    function cmdStepTrace() {
+        if (commandQueue.length === 0) {
+            spawnNotificationFloat("⚠️ กรุณาเพิ่มบล็อกคำสั่งก่อน!");
+            return;
+        }
+        cmdPause();
+        stepperCurrentIndex++;
+        if (stepperCurrentIndex >= commandQueue.length) {
+            stepperCurrentIndex = 0;
+        }
+        executeSingleCommand(commandQueue[stepperCurrentIndex]);
+        updateAlgoQueueUI();
+        const statusEl = document.getElementById('algo-stepper-status');
+        if (statusEl) statusEl.innerText = `ดีบักก้าวที่ ${stepperCurrentIndex + 1}/${commandQueue.length}`;
+    }
+
+    function stepLoop() {
+        if (!isStepperRunning || stepperPaused) return;
+        if (stepperCurrentIndex >= commandQueue.length) {
+            isStepperRunning = false;
+            stepperCurrentIndex = -1;
+            const btnRun = document.getElementById('btn-cmd-run');
+            const btnPause = document.getElementById('btn-cmd-pause');
+            if (btnRun) btnRun.style.display = 'inline-flex';
+            if (btnPause) btnPause.style.display = 'none';
+            updateAlgoQueueUI();
+            const stars = updateEfficiencyRating();
+            const statusEl = document.getElementById('algo-stepper-status');
+            if (statusEl) statusEl.innerText = `🎉 อัลกอริทึมทำงานสำเร็จ! ได้ ${stars} ดาว`;
+            playSynthSFX('buff');
+            player.score += (stars * 50);
+            document.getElementById('hud-score').innerText = `⭐ ${player.score}`;
+            if (window.vs) window.vs.report(player.score, { correct: player.totalEnemiesKilled });
+            return;
+        }
+
+        executeSingleCommand(commandQueue[stepperCurrentIndex]);
+        updateAlgoQueueUI();
+
+        stepperTimer = setTimeout(() => {
+            stepperCurrentIndex++;
+            stepLoop();
+        }, 450);
+    }
+
+    function executeSingleCommand(cmd) {
+        if (!cmd) return;
+        const stepDist = 80;
+        if (cmd.type === 'forward') {
+            const nx = player.x + Math.cos(player.angle) * stepDist;
+            const ny = player.y + Math.sin(player.angle) * stepDist;
+            player.x = Math.max(player.r, Math.min(arenaWidth - player.r, nx));
+            player.y = Math.max(player.r, Math.min(arenaHeight - player.r, ny));
+            playSynthSFX('shoot');
+        } else if (cmd.type === 'left') {
+            player.angle -= (Math.PI / 2);
+            player.turretAngle = player.angle;
+            playSynthSFX('crit');
+        } else if (cmd.type === 'right') {
+            player.angle += (Math.PI / 2);
+            player.turretAngle = player.angle;
+            playSynthSFX('crit');
+        } else if (cmd.type === 'shoot') {
+            firePlayerProjectile();
+        } else if (cmd.type === 'repeat2') {
+            const nx = player.x + Math.cos(player.angle) * stepDist;
+            const ny = player.y + Math.sin(player.angle) * stepDist;
+            player.x = Math.max(player.r, Math.min(arenaWidth - player.r, nx));
+            player.y = Math.max(player.r, Math.min(arenaHeight - player.r, ny));
+            playSynthSFX('shoot');
+        }
+    }
+
+    // --- CLASSROOM & WORKSHEET INTEGRATION ---
+    function toggleProjectorMode() {
+        if (window.KampaiClassroom && typeof window.KampaiClassroom.toggleProjector === 'function') {
+            window.KampaiClassroom.toggleProjector();
+        } else {
+            document.body.classList.toggle('kampai-projector-mode');
+        }
+    }
+
+    function openA4Worksheet() {
+        if (window.KampaiWorksheet && typeof window.KampaiWorksheet.openPrintModal === 'function') {
+            window.KampaiWorksheet.openPrintModal({
+                title: 'ใบงานวิทยาการคำนวณ: ผู้บังคับการรถถัง (Algorithm Tank Commander)',
+                subtitle: 'การคิดเชิงคำนวณ • การออกแบบอัลกอริทึมและผังลำดับคำสั่ง (ว 4.2 ม.1-3)',
+                schoolName: 'โรงเรียนบ้านคำไผ่ สำนักงานเขตพื้นที่การศึกษาประถมศึกษา',
+                instructions: 'คำชี้แจง: ให้นักเรียนเขียนลำดับคำสั่ง (Algorithm) เพื่อบังคับรถถังหลบหลีกสิ่งกีดขวางและทำลายเป้าหมายให้มีประสิทธิภาพสูงสุด',
+                items: [
+                    {
+                        q: '1. หากรถถังหันหน้าไปทางทิศเหนือ (0°) ต้องการเดินหน้า 2 ช่อง เลี้ยวขวา 90° และยิงเป้าหมาย ต้องเรียงลำดับคำสั่งอย่างไร?',
+                        choices: [
+                            'เดินหน้า -> เดินหน้า -> เลี้ยวขวา -> ยิง',
+                            'เลี้ยวขวา -> เดินหน้า -> เดินหน้า -> ยิง',
+                            'เดินหน้า -> ยิง -> เดินหน้า -> เลี้ยวขวา',
+                            'เลี้ยวขวา -> ยิง -> เดินหน้า -> เดินหน้า'
+                        ],
+                        answer: 'เดินหน้า -> เดินหน้า -> เลี้ยวขวา -> ยิง'
+                    },
+                    {
+                        q: '2. หากต้องการให้รถถังเดินหน้า 4 ครั้ง โดยใช้โครงสร้างแบบ "ทำซ้ำ" (Loop) เพื่อประหยัดบล็อกคำสั่ง ควรเขียนอย่างไร?',
+                        choices: [
+                            'ทำซ้ำ 4 ครั้ง [ เดินหน้า ]',
+                            'เดินหน้า -> เดินหน้า -> เดินหน้า -> เดินหน้า',
+                            'ถ้า ทางโล่ง ให้ เลี้ยวขวา',
+                            'ทำซ้ำ 2 ครั้ง [ เลี้ยวขวา ]'
+                        ],
+                        answer: 'ทำซ้ำ 4 ครั้ง [ เดินหน้า ]'
+                    },
+                    {
+                        q: '3. ในการวิเคราะห์ประสิทธิภาพของอัลกอริทึม (Algorithm Optimization) เกณฑ์ใดที่แสดงว่าโปรแกรมมีประสิทธิภาพสูงสุด?',
+                        choices: [
+                            'ได้ผลลัพธ์ถูกต้องโดยใช้จำนวนคำสั่งและเวลาประมวลผลน้อยที่สุด',
+                            'เขียนคำสั่งให้ยาวที่สุดเพื่อความละเอียด',
+                            'ใช้คำสั่งทำซ้ำซ้อนกันหลายชั้นโดยไม่จำเป็น',
+                            'ผลลัพธ์ผิดพลาดแต่ประมวลผลได้เร็ว'
+                        ],
+                        answer: 'ได้ผลลัพธ์ถูกต้องโดยใช้จำนวนคำสั่งและเวลาประมวลผลน้อยที่สุด'
+                    },
+                    {
+                        q: '4. หากรันโปรแกรมแล้วรถถังเดินชนกำแพงหิน ขั้นตอนการค้นหาและแก้ไขข้อผิดพลาดในโปรแกรมนี้เรียกว่าอะไร?',
+                        choices: [
+                            'การดีบัก (Debugging)',
+                            'การคอมไพล์ (Compiling)',
+                            'การสำรองข้อมูล (Backup)',
+                            'การเข้ารหัส (Encryption)'
+                        ],
+                        answer: 'การดีบัก (Debugging)'
+                    },
+                    {
+                        q: '5. จงออกแบบอัลกอริทึมเดินรอบสิ่งกีดขวางทรงสี่เหลี่ยมจัตุรัส 1 รอบแล้วกลับมาที่เดิม:',
+                        choices: [
+                            'ทำซ้ำ 4 ครั้ง [ เดินหน้า 2 ก้าว -> เลี้ยวขวา 90° ]',
+                            'เดินหน้า 4 ก้าว -> เลี้ยวซ้าย 180°',
+                            'เลี้ยวขวา 4 ครั้ง -> เดินหน้า 2 ก้าว',
+                            'ยิง 4 ครั้ง -> เดินถอยหลัง'
+                        ],
+                        answer: 'ทำซ้ำ 4 ครั้ง [ เดินหน้า 2 ก้าว -> เลี้ยวขวา 90° ]'
+                    }
+                ]
+            });
+        } else {
+            window.print();
+        }
+    }
+
+    // --- GAME LIFECYCLE & TEST HOOKS ---
+    function startQuickMission() {
+        playMode = 'solo';
+        currentChapter = 1;
+        startGameSession();
+    }
+
+    function startCodingMode() {
+        playMode = 'solo';
+        currentChapter = 3; // Chapter 3: Algorithm Valley
+        startGameSession();
+        toggleAlgoPanel(true);
+    }
+
+    function startVersusRound(rng, vsPlayer) {
+        playMode = 'solo';
+        currentChapter = 3;
+        if (vsPlayer && vsPlayer.name) {
+            player.displayName = vsPlayer.name;
+        }
+        startGameSession();
+        toggleAlgoPanel(true);
+    }
+
+    function restartGame() {
+        isGameRunning = false;
+        stopGameLoop();
+        cmdClear();
+        KAMPAI.sound.bgmStop();
+        startQuickMission();
+    }
+
+    function finishTest() {
+        if (window.vs && window.vs.mode) {
+            window.vs.finish(player.score || 100, { correct: 1 });
+            return;
+        }
+        if (!isGameRunning && currentScreen !== 'screen-game') {
+            startQuickMission();
+        }
+        endGame(true);
+    }
+
+    window.KAMPAI_GAME = {
+        start: startQuickMission,
+        restart: restartGame
+    };
 </script>
 
 </body>
 </html>
+
+
