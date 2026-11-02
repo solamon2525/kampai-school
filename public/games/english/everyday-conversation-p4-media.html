@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/kampai-match.js?v=2.0.0"></script>
+  <script src="/games/kampai-versus.js?v=2.0.0"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Everyday Conversation ป.4 - บ้านคำไผ่</title>
@@ -207,6 +209,8 @@
         <button type="button" class="mode-btn" data-mode="visual" aria-pressed="false">ฉากพูดได้</button>
       </div>
       <button type="button" class="btn use-profile" id="btnUseProfile" aria-pressed="false">ข้อมูลฉัน: ไม่ใช้</button>
+      <button type="button" class="btn toggle" id="btnSpeechRate" aria-label="ความเร็วเสียงพูด 1.0x ปกติ">🚶 ปกติ 1.0x</button>
+      <button type="button" class="btn" id="btnVersus" style="background:var(--coral);color:var(--white);border-color:var(--navy);font-weight:800;" title="แข่งบทบาทสมมติ 2 คน">⚔️ แข่งบทบาทสมมติ 2 คน</button>
       <span class="toolbar-spacer"></span>
       <a href="/games/english/everyday-conversation-p4-worksheet.html" target="_blank" rel="noopener" class="btn" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;text-decoration:none;font-weight:700;" title="เปิดใบงาน A4">📄 ใบงาน</a>
       <button type="button" class="btn toggle" id="toggleReading" aria-pressed="true">คำอ่าน: เปิด</button>
@@ -252,7 +256,14 @@
       <main class="main">
         <div class="practice-options"><label>ฉันฝึกเป็น <select id="practiceRole"><option value="">อ่านทั้งสองบท</option><option value="A">A — ระบบอ่าน B</option><option value="B">B — ระบบอ่าน A</option></select></label><div id="guidedTools" class="guided-tools" hidden><label>ตัวช่วย <select id="supportLevel"><option value="full">ประโยคเต็ม</option><option value="hint">คำใบ้</option><option value="independent">พูดเอง</option></select></label><button type="button" class="btn" id="btnHint" hidden>ขอคำใบ้</button><button type="button" class="btn" id="btnExample" hidden>ดูตัวอย่าง</button></div><button type="button" class="btn" id="continueRole" hidden>พูดแล้ว ไปต่อ</button></div>
         <div id="partnerCue" class="partner-cue" hidden></div>
-        <section id="practiceEnd" class="practice-end" hidden aria-live="polite"><strong>จบบทแล้ว ลองพูดด้วยตัวเองอีกครั้ง</strong><p>ครูสังเกตการพูดของเด็ก</p><ul><li>สื่อความหมายได้</li><li>โต้ตอบตรงสถานการณ์</li><li>ใช้ตัวช่วยน้อยลง</li></ul><button class="btn" type="button" id="btnRetryPractice">ลองอีกครั้ง</button><button class="btn" type="button" id="btnSwitchPractice">สลับบท</button></section>
+        <section id="practiceEnd" class="practice-end" hidden aria-live="polite">
+          <strong>จบบทแล้ว ลองพูดด้วยตัวเองอีกครั้ง</strong>
+          <p>ครูสังเกตการพูดของเด็ก</p>
+          <ul><li>สื่อความหมายได้</li><li>โต้ตอบตรงสถานการณ์</li><li>ใช้ตัวช่วยน้อยลง</li></ul>
+          <div id="kampai-result" style="margin:8px 0;"></div>
+          <button class="btn" type="button" id="btnRetryPractice" data-kampai-action="restart">ลองอีกครั้ง</button>
+          <button class="btn" type="button" id="btnSwitchPractice">สลับบท</button>
+        </section>
         <section class="lesson-head">
           <div class="lesson-emoji" id="sceneEmoji" aria-hidden="true">👋</div>
           <div class="lesson-copy">
@@ -291,8 +302,9 @@
         <div class="controls">
           <button type="button" class="btn ctrl-prev" id="btnPrev">← ประโยคก่อน</button>
           <button type="button" class="btn ctrl-listen" id="btnListen">ฟังประโยคนี้</button>
-          <button type="button" class="btn ctrl-play" id="btnPlay">▶ เล่นทั้งบท</button>
+          <button type="button" class="btn ctrl-play" id="btnPlay" data-kampai-action="start">▶ เล่นทั้งบท</button>
           <button type="button" class="btn ctrl-next" id="btnNext">ประโยคถัดไป →</button>
+          <button type="button" data-kampai-action="finish-test" id="btnFinishTest" onclick="finishTest()" hidden>จบการทดสอบ</button>
         </div>
         <footer class="footer">เลือกบทก่อน แล้วกดฟังเมื่อต้องการ ไม่มีเสียงอ่านอัตโนมัติ · ไม่เก็บคะแนน</footer>
       </main>
@@ -447,12 +459,80 @@
       'No, it is near my school.':['No, I live near {{school}}.','โน ไอ ลิฟ เนียร์ {{school}}','ไม่ ฉันอยู่ใกล้ {{school}}']
     };
     const PROFILE_FIELDS=['school','province','name','age','grade','like','family'];
+    const SPEECH_RATES=[
+      {rate:0.75,label:'🐢 ช้า 0.75x',aria:'ความเร็วเสียงพูด 0.75x ช้า'},
+      {rate:1.0,label:'🚶 ปกติ 1.0x',aria:'ความเร็วเสียงพูด 1.0x ปกติ'},
+      {rate:1.25,label:'🏃 คล่อง 1.25x',aria:'ความเร็วเสียงพูด 1.25x คล่อง'}
+    ];
+    const STORAGE_SPEECH_RATE='conversation_p4_speech_rate';
+    const savedSpeechRate=parseFloat(localStorage.getItem(STORAGE_SPEECH_RATE)||'1.0');
+    const initialSpeechRate=[0.75,1.0,1.25].includes(savedSpeechRate)?savedSpeechRate:1.0;
+
+    const SpeechWatchdog={
+      timer:null,
+      start(timeoutMs,onTimeout){
+        this.cancel();
+        this.timer=setTimeout(()=>{
+          this.timer=null;
+          try{window.speechSynthesis?.cancel()}catch(_e){}
+          if(typeof onTimeout==='function')onTimeout();
+        },timeoutMs);
+      },
+      cancel(){
+        if(this.timer){
+          clearTimeout(this.timer);
+          this.timer=null;
+        }
+      }
+    };
+
     const state={scene:0,lesson:0,line:0,mode:'learn',myView:'intro',visualPersonal:false,swapped:false,playing:false,playToken:0,playbackTimer:0,speechGuardTimer:0,karaokeTimer:0,karaokeWordIndex:-1,karaokeSync:'idle',phase:'idle',repeatRemaining:0,useProfile:false,profileVoice:'female',lastVoiceName:'',
-      supportLevel:'full',revealIndex:-1,revealLevel:null,practiceComplete:false,
+      speechRate:initialSpeechRate,supportLevel:'full',revealIndex:-1,revealLevel:null,practiceComplete:false,
       profile:{school:'',province:'',name:'',age:'',grade:'',like:'',family:''},
       showReading:localStorage.getItem(STORAGE_READING)!=='0',showMeaning:localStorage.getItem(STORAGE_MEANING)!=='0'};
     const $=id=>document.getElementById(id);
     const shell=$('shell');
+
+    const vs=window.KampaiVersus?KampaiVersus.create({
+      duration:90,
+      title:'Everyday Conversation บทสนทนา',
+      rankBy:'score',
+      onPlay:({rng,player})=>startVersus(rng,player),
+      onEnd:()=>{
+        stopPlayback();
+        submitSessionScore(100);
+      }
+    }):null;
+
+    function startVersus(_rng,player){
+      stopPlayback();
+      if(window.KAMPAI?.beginRound)KAMPAI.beginRound();
+      setMode('practice');
+      if(player==='P1')$('practiceRole').value='A';
+      else if(player==='P2')$('practiceRole').value='B';
+      startGuided();
+    }
+
+    function submitSessionScore(scoreVal,opts){
+      const finalScore=typeof scoreVal==='number'?scoreVal:100;
+      const options=Object.assign({mode:state.mode||'practice',correct:currentLesson().lines.length},opts||{});
+      if(vs&&vs.finish&&vs.finish(finalScore,options))return;
+      if(window.KAMPAI?.submitScore){
+        KAMPAI.submitScore(finalScore,options);
+      }
+    }
+
+    window.finishTest=function(){
+      stopPlayback();
+      state.practiceComplete=true;
+      submitSessionScore(100,{correct:currentLesson().lines.length});
+      const resultSlot=$('kampai-result');
+      if(resultSlot){
+        resultSlot.innerHTML='<div style="padding:8px 12px;background:var(--white);border-radius:10px;color:var(--navy);font-weight:700;">คะแนนการฝึก: 100 คะแนน · สมบูรณ์แบบ! 🎉</div>';
+      }
+      $('practiceEnd').hidden=false;
+      renderPractice();
+    };
     const exampleProfile={school:'Ban Kham Phai School',province:'Khon Kaen',name:'Mali',age:'10',grade:'4/1',like:'football',family:'4'};
     let readingExamples=false,continueRole=null;
     try{const teacher=JSON.parse(localStorage.getItem('conversation_p4_teacher')||'{}');['school','province'].forEach(key=>{state.profile[key]=String(teacher[key]||'');$('profile'+key[0].toUpperCase()+key.slice(1)).value=state.profile[key]});$('schoolSpeech').value=String(teacher.schoolSpeech||'')}catch(_e){}
@@ -545,7 +625,9 @@
       targets.forEach(el=>el.querySelectorAll('[data-word]').forEach((span,wordIndex)=>span.classList.toggle('spoken-word',wordIndex===index)));
     }
     function stopPlayback(){
-      continueRole=null;$('continueRole').hidden=true;clearKaraoke(true);try{window.speechSynthesis?.cancel()}catch(_e){}
+      continueRole=null;$('continueRole').hidden=true;clearKaraoke(true);
+      SpeechWatchdog.cancel();
+      try{window.speechSynthesis?.cancel()}catch(_e){}
       state.playToken+=1;state.playing=false;state.phase='idle';state.repeatRemaining=0;clearTimeout(state.playbackTimer);clearTimeout(state.speechGuardTimer);state.playbackTimer=0;state.speechGuardTimer=0;$('btnPlay').classList.remove('playing');$('btnPlay').textContent=idlePlayLabel();$('turnCue').classList.remove('show');$('repeatCountdown').classList.remove('show');
       document.querySelectorAll('.speaker-tag').forEach(tag=>tag.classList.remove('talking'));
       try{window.KAMPAI?.sound?.stopSpeak?.();}catch(_e){}
@@ -615,15 +697,26 @@
       selectLine(index);const line=resolvedLine(index);let finished=false;
       if(line.en.includes('________')){const source=currentLesson().lines[index];const template=(!usesPersonalLesson()&&state.useProfile?PERSONALIZED_LINES[source[1]]?.[0]:null)||source[1];const missing=[...template.matchAll(/\{\{(\w+)\}\}/g)].map(m=>m[1]==='spelling'?'name':m[1]).find(key=>PROFILE_FIELDS.includes(key)&&!cleanValue(state.profile[key]));stopPlayback();setMode('myself');if(missing)$('profile'+missing[0].toUpperCase()+missing.slice(1))?.focus();return;}
       const token=state.playToken;
-      const done=()=>{if(finished||token!==state.playToken)return;finished=true;clearTimeout(state.speechGuardTimer);state.speechGuardTimer=0;clearKaraoke(false);speechTargets().forEach(el=>{el.innerHTML=line.enHtml});if(onDone)onDone()};
+      const done=()=>{if(finished||token!==state.playToken)return;finished=true;SpeechWatchdog.cancel();clearTimeout(state.speechGuardTimer);state.speechGuardTimer=0;clearKaraoke(false);speechTargets().forEach(el=>{el.innerHTML=line.enHtml});if(onDone)onDone()};
       if($('kbtn-tts')?.classList.contains('off')){done();return;}
+      const currentRate=state.speechRate||1.0;
+      const watchdogTimeout=Math.max(5000,Math.min(30000,Math.round((line.en.length*160+3500)/currentRate)));
+      SpeechWatchdog.start(watchdogTimeout,()=>{try{window.speechSynthesis?.cancel()}catch(_e){}done()});
       state.speechGuardTimer=setTimeout(()=>{try{speechSynthesis.cancel()}catch(_e){}done()},Math.max(15000,line.en.length*250));
       const targets=speechTargets();
-      targets.forEach(el=>{el.innerHTML=line.en.split(/(\s+)/).map(part=>/^\s+$/.test(part)?escapeHtml(part):'<span data-word>'+escapeHtml(part)+'</span>').join('')});
+      targets.forEach(el=>{
+        let wordCounter=0;
+        el.innerHTML=line.en.split(/(\s+)/).map(part=>{
+          if(/^\s+$/.test(part))return escapeHtml(part);
+          const span='<span data-word="'+wordCounter+'">'+escapeHtml(part)+'</span>';
+          wordCounter+=1;
+          return span;
+        }).join('');
+      });
       if('speechSynthesis' in window){
-        try{speechSynthesis.cancel();let spoken=line.en;const school=cleanValue(state.profile.school),alias=cleanValue($('schoolSpeech').value),lesson=currentLesson(),voiceKind=voiceKindForLine(lesson,line.role);if(state.useProfile&&school&&alias)spoken=spoken.replace(school,alias);const displayWords=wordRanges(line.en),spokenWords=wordRanges(spoken),wordMap=speechWordMap(line.en,spoken,displayWords,spokenWords,school,alias);const utterance=new SpeechSynthesisUtterance(spoken);utterance.lang='en-US';utterance.voice=voiceForKind(voiceKind);state.lastVoiceName=utterance.voice?.name||'';utterance.pitch=voiceKind==='female'?1.08:voiceKind==='male'?0.92:1;utterance.rate=.82;
-          utterance.onstart=()=>{if(token!==state.playToken||finished)return;$('dialogue').querySelector('.line.active')?.classList.add('speaking');$('visualSpeech').classList.add('speaking');let fallbackWord=0;const advanceFallback=()=>{if(token!==state.playToken||finished||state.karaokeSync==='boundary')return;showKaraokeWord(targets,wordMap[fallbackWord]??fallbackWord,'fallback');fallbackWord+=1;if(fallbackWord<spokenWords.length)state.karaokeTimer=setTimeout(advanceFallback,Math.max(320,Math.min(720,Math.round(440/utterance.rate))))};state.karaokeTimer=setTimeout(advanceFallback,180)};
-          utterance.onboundary=event=>{if(token!==state.playToken||finished)return;let spokenWord=spokenWords.findIndex(word=>event.charIndex>=word.index&&event.charIndex<word.index+word[0].length);if(spokenWord<0)spokenWord=spokenWords.reduce((latest,word,wordIndex)=>word.index<=event.charIndex?wordIndex:latest,-1);if(spokenWord<0)return;clearTimeout(state.karaokeTimer);state.karaokeTimer=0;showKaraokeWord(targets,wordMap[spokenWord]??spokenWord,'boundary')};utterance.onend=utterance.onerror=done;speechSynthesis.speak(utterance);return;}catch(_e){}
+        try{speechSynthesis.cancel();let spoken=line.en;const school=cleanValue(state.profile.school),alias=cleanValue($('schoolSpeech').value),lesson=currentLesson(),voiceKind=voiceKindForLine(lesson,line.role);if(state.useProfile&&school&&alias)spoken=spoken.replace(school,alias);const displayWords=wordRanges(line.en),spokenWords=wordRanges(spoken),wordMap=speechWordMap(line.en,spoken,displayWords,spokenWords,school,alias);const utterance=new SpeechSynthesisUtterance(spoken);utterance.lang='en-US';utterance.voice=voiceForKind(voiceKind);state.lastVoiceName=utterance.voice?.name||'';utterance.pitch=voiceKind==='female'?1.08:voiceKind==='male'?0.92:1;utterance.rate=currentRate;
+          utterance.onstart=()=>{if(token!==state.playToken||finished)return;$('dialogue').querySelector('.line.active')?.classList.add('speaking');$('visualSpeech').classList.add('speaking');let fallbackWord=0;const advanceFallback=()=>{if(token!==state.playToken||finished||state.karaokeSync==='boundary')return;showKaraokeWord(targets,wordMap[fallbackWord]??fallbackWord,'fallback');fallbackWord+=1;if(fallbackWord<spokenWords.length)state.karaokeTimer=setTimeout(advanceFallback,Math.max(250,Math.min(800,Math.round(440/utterance.rate))))};state.karaokeTimer=setTimeout(advanceFallback,Math.round(180/utterance.rate))};
+          utterance.onboundary=event=>{if(token!==state.playToken||finished)return;if(event.name&&event.name!=='word')return;let spokenWord=spokenWords.findIndex(word=>event.charIndex>=word.index&&event.charIndex<word.index+word[0].length);if(spokenWord<0)spokenWord=spokenWords.reduce((latest,word,wordIndex)=>word.index<=event.charIndex?wordIndex:latest,-1);if(spokenWord<0)return;clearTimeout(state.karaokeTimer);state.karaokeTimer=0;showKaraokeWord(targets,wordMap[spokenWord]??spokenWord,'boundary')};utterance.onend=()=>{SpeechWatchdog.cancel();done()};utterance.onerror=()=>{SpeechWatchdog.cancel();done()};speechSynthesis.speak(utterance);return;}catch(_e){}
       }
       done();
     }
@@ -635,7 +728,17 @@
     }
     function runGuided(index){
       if(!state.playing)return;
-      if(index>=currentLesson().lines.length){stopPlayback();state.practiceComplete=true;renderPractice();return;}
+      if(index>=currentLesson().lines.length){
+        stopPlayback();
+        state.practiceComplete=true;
+        submitSessionScore(100,{correct:currentLesson().lines.length});
+        const resultSlot=$('kampai-result');
+        if(resultSlot){
+          resultSlot.innerHTML='<div style="padding:8px 12px;background:var(--white);border-radius:10px;color:var(--navy);font-weight:700;">คะแนนการฝึก: 100 คะแนน · สมบูรณ์แบบ! 🎉</div>';
+        }
+        renderPractice();
+        return;
+      }
       state.revealIndex=-1;state.revealLevel=null;
       if(studentLine(index)){waitForStudent(index);return;}
       continueRole=null;state.phase='speaking';const token=state.playToken;selectLine(index);
@@ -643,6 +746,7 @@
       speakLine(index,()=>{if(token===state.playToken&&state.playing)state.playbackTimer=setTimeout(()=>runGuided(index+1),850)});
     }
     function startGuided(){
+      if(window.KAMPAI?.beginRound)KAMPAI.beginRound();
       if(state.playing){stopPlayback();return;}
       stopPlayback();state.playing=true;$('btnPlay').textContent='■ หยุด';$('btnPlay').classList.add('playing');runGuided(0);
     }
@@ -690,13 +794,14 @@
       const next=lines.findIndex((line,index)=>index>state.line&&line[0]===role);return next>=0?next:lines.findIndex(line=>line[0]===role);
     }
     function playAll(){
+      if(window.KAMPAI?.beginRound)KAMPAI.beginRound();
       if(guidedPractice()){startGuided();return;}
       if(state.mode==='visual'){playVisualScene();return;}
       if(state.playing){stopPlayback();return;}
       state.playing=true;state.playToken+=1;const token=state.playToken;$('btnPlay').classList.add('playing');$('btnPlay').textContent='■ หยุดเล่น';
       const run=index=>{
         if(!state.playing||token!==state.playToken)return;
-        if(index>=currentLesson().lines.length){stopPlayback();return;}
+        if(index>=currentLesson().lines.length){stopPlayback();submitSessionScore(100);return;}
         const role=currentLesson().lines[index][0],side=role==='I'?'ผู้พูด':state.swapped?(role==='A'?'ฝั่งขวา':'ฝั่งซ้าย'):(role==='A'?'ฝั่งซ้าย':'ฝั่งขวา');
         if(state.mode==='practice'&&$('practiceRole').value===role){selectLine(index);$('turnCue').textContent='ถึงคิวของฉัน · '+role;$('turnCue').classList.add('show');$('continueRole').hidden=false;continueRole=()=>{if(token===state.playToken&&state.playing){$('continueRole').hidden=true;continueRole=null;run(index+1)}};return;}
         $('turnCue').textContent=role==='I'?'ประโยคที่ '+(index+1)+' · พูดตาม':'ถึงคิว '+side+' · บท '+role;$('turnCue').classList.add('show');
@@ -750,8 +855,31 @@
     $('supportLevel').addEventListener('change',()=>{stopPlayback();state.supportLevel=$('supportLevel').value;renderDialogue()});
     $('btnHint').addEventListener('click',()=>revealStudent('hint'));
     $('btnExample').addEventListener('click',()=>revealStudent('full'));
-    $('btnRetryPractice').addEventListener('click',()=>{stopPlayback();startGuided()});
+    $('btnRetryPractice').addEventListener('click',()=>{
+      stopPlayback();state.practiceComplete=false;$('practiceEnd').hidden=true;
+      if(window.KAMPAI?.beginRound)KAMPAI.beginRound();
+      startGuided();
+    });
     $('btnSwitchPractice').addEventListener('click',()=>{stopPlayback();$('practiceRole').value=$('practiceRole').value==='A'?'B':'A';selectLine(0)});
+    function updateSpeechRateButton(){
+      const current=SPEECH_RATES.find(item=>item.rate===state.speechRate)||SPEECH_RATES[1];
+      const btn=$('btnSpeechRate');
+      if(btn){
+        btn.textContent=current.label;
+        btn.setAttribute('aria-label',current.aria);
+      }
+    }
+    $('btnSpeechRate')?.addEventListener('click',()=>{
+      const currentIdx=SPEECH_RATES.findIndex(item=>item.rate===state.speechRate);
+      const nextIdx=(currentIdx+1)%SPEECH_RATES.length;
+      state.speechRate=SPEECH_RATES[nextIdx].rate;
+      try{localStorage.setItem(STORAGE_SPEECH_RATE,String(state.speechRate));}catch(_e){}
+      updateSpeechRateButton();
+    });
+    $('btnVersus')?.addEventListener('click',()=>{
+      stopPlayback();
+      if(vs)vs.openMenu();
+    });
     $('schoolSpeech').addEventListener('input',()=>{stopPlayback();saveTeacher()});
     $('testSchool').addEventListener('click',()=>{stopPlayback();if($('kbtn-tts')?.classList.contains('off')||!window.speechSynthesis)return;const text=cleanValue($('schoolSpeech').value)||cleanValue(state.profile.school);if(!text)return;const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.voice=speechSynthesis.getVoices().find(v=>/^en[-_]/i.test(v.lang))||null;u.rate=.82;speechSynthesis.speak(u)});
     $('kbtn-tts')?.addEventListener('click',stopPlayback);
@@ -774,10 +902,11 @@
     window.addEventListener('pagehide',stopPlayback);
 
     window.EverydayConversationP4=Object.freeze({
-      getPracticeState:()=>Object.freeze({available:pilotAvailable(),enabled:guidedPractice(),supportLevel:state.supportLevel,studentRole:$('practiceRole').value,phase:state.phase,line:state.line,revealLevel:state.revealLevel,complete:state.practiceComplete,indicator:currentLesson().speakingPractice?.indicator||null,sourceIndicatorId:currentLesson().speakingPractice?.sourceIndicatorId||null}),
-      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,visualPersonal:state.visualPersonal,playing:state.playing,phase:state.phase,repeatRemaining:state.repeatRemaining,karaokeWordIndex:state.karaokeWordIndex,karaokeSync:state.karaokeSync,activeRole:currentLesson().lines[state.line][0],activeVoiceKind:voiceKindForLine(currentLesson(),currentLesson().lines[state.line][0]),lastVoiceName:state.lastVoiceName,profileVoice:state.profileVoice,image:currentLesson().image,imageAlt:currentLesson().imageAlt,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
+      getPracticeState:()=>Object.freeze({available:pilotAvailable(),enabled:guidedPractice(),supportLevel:state.supportLevel,studentRole:$('practiceRole').value,phase:state.phase,line:state.line,revealLevel:state.revealLevel,complete:state.practiceComplete,indicator:currentLesson().speakingPractice?.indicator||null,sourceIndicatorId:currentLesson().speakingPractice?.sourceIndicatorId||null,speechRate:state.speechRate}),
+      getState:()=>Object.freeze({scene:state.scene,lesson:state.lesson,line:state.line,mode:state.mode,myView:state.myView,visualPersonal:state.visualPersonal,playing:state.playing,phase:state.phase,repeatRemaining:state.repeatRemaining,karaokeWordIndex:state.karaokeWordIndex,karaokeSync:state.karaokeSync,speechRate:state.speechRate,versusAvailable:!!vs,activeRole:currentLesson().lines[state.line][0],activeVoiceKind:voiceKindForLine(currentLesson(),currentLesson().lines[state.line][0]),lastVoiceName:state.lastVoiceName,profileVoice:state.profileVoice,image:currentLesson().image,imageAlt:currentLesson().imageAlt,useProfile:state.useProfile,profile:Object.freeze({...profileValues()}),profileComplete:profileComplete(),dialogues:SCENES.reduce((sum,scene)=>sum+scene.dialogues.length,0),personalLines:Object.freeze(personalLesson().lines.map(line=>Object.freeze({...resolveSourceLine(line,false)})))}),
       scenes:Object.freeze(SCENES.map(scene=>Object.freeze({id:scene.id,count:scene.dialogues.length,indicator:scene.indicator})))
     });
+    updateSpeechRateButton();
     render();setMode('learn');
   })();
   </script>

@@ -7,9 +7,114 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
   <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    :root {
+      --comic-bubble-a-bg: #e0f2fe;
+      --comic-bubble-a-border: #0284c7;
+      --comic-bubble-b-bg: #fef3c7;
+      --comic-bubble-b-border: #d97706;
+      --comic-avatar-a-bg: #0369a1;
+      --comic-avatar-b-bg: #b45309;
+      --comic-hint-color: #475569;
+    }
+    .comic-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4mm;
+      width: 100%;
+      padding: 0.5mm 0;
+    }
+    .comic-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 2mm;
+      width: 100%;
+    }
+    .speaker-row-b {
+      justify-content: flex-start;
+    }
+    .comic-speaker {
+      flex: 0 0 auto;
+    }
+    .comic-avatar-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 6.5mm;
+      height: 6mm;
+      padding: 0 1.5mm;
+      border-radius: 999px;
+      color: var(--ws-paper);
+      font-weight: 800;
+      font-size: 7.5pt;
+    }
+    .speaker-a .comic-avatar-badge {
+      background: var(--comic-avatar-a-bg);
+    }
+    .speaker-b .comic-avatar-badge {
+      background: var(--comic-avatar-b-bg);
+    }
+    .comic-bubble {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 1.2mm 2.2mm;
+      border-radius: 2mm;
+      font-size: 8.2pt;
+      line-height: 1.22;
+    }
+    .count-5 .comic-bubble {
+      font-size: 9.8pt;
+      padding: 2.2mm 3.2mm;
+    }
+    .bubble-a {
+      background: var(--comic-bubble-a-bg);
+      border: 1px solid var(--comic-bubble-a-border);
+      color: var(--ws-ink);
+      font-weight: 700;
+    }
+    .bubble-b {
+      background: var(--comic-bubble-b-bg);
+      border: 1px solid var(--comic-bubble-b-border);
+      color: var(--ws-ink);
+    }
+    .comic-text {
+      word-break: break-word;
+    }
+    .comic-hint {
+      font-size: 7.2pt;
+      color: var(--comic-hint-color);
+      font-weight: 600;
+      margin-bottom: 0.8mm;
+    }
+    .count-5 .comic-hint {
+      font-size: 8.5pt;
+    }
+    .comic-blank-line {
+      min-height: 5mm;
+      display: flex;
+      align-items: flex-end;
+    }
+    .comic-blank-line .blank {
+      width: 100%;
+      border-bottom: 1.2px dotted var(--ws-ink);
+    }
+    .teacher-answer {
+      display: none;
+      color: var(--ws-danger, #b42318);
+      font-weight: 800;
+      font-size: 8pt;
+      margin-top: 1mm;
+    }
+    body.show-answers .teacher-answer,
+    .show-answers .teacher-answer,
+    article.q.reveal-answer .teacher-answer {
+      display: block !important;
+    }
+  </style>
 </head><body>
 <header class="toolbar"><h1>🗣️ ใบงาน Everyday Conversation ป.4</h1><div class="toolbar-ctrls">
-  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
+  <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน"><option value="comic">การ์ตูนช่อง (Comic Strip)</option><option value="standard">มาตรฐาน</option><option value="progressive">บันไดระดับ</option><option value="booklet">รวมเล่ม</option></select>
   <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า"><option value="1">1 หน้า</option><option value="2">2 หน้า</option><option value="3">3 หน้า</option></select>
   <select class="t-select" id="selGrade" aria-label="ระดับชั้น"><option value="4">ป.4</option></select>
   <select class="t-select" id="selTopic" aria-label="สถานการณ์">
@@ -103,18 +208,82 @@ window.WORKSHEET_CONFIG = {
     'ต 1.2 ป.4/5',
     'ต 4.1 ป.4/1'
   ],
-  directions: 'เติมบทสนทนาภาษาอังกฤษให้ถูกต้องเหมาะสมกับสถานการณ์ หรือแปลความหมายของประโยค',
+  directions: 'เติมบทสนทนาภาษาอังกฤษในช่องคำพูดการ์ตูนให้ถูกต้องเหมาะสมกับสถานการณ์',
   getItems(topic) {
     if (!topic || topic === 'mixed') return ITEMS;
     return ITEMS.filter(item => item.type === topic);
   },
   renderQuestion(item) {
     const e = window.KampaiTopicWorksheet.escapeHtml;
-    return '<div class="work-line reason-line">' +
-      '<div class="prompt"><strong>' + e(item.prompt).replace(/\n/g, '<br>') + '</strong></div>' +
-      '<div class="answer-line">บทพูดภาษาอังกฤษ / คำตอบ: <span class="blank long"></span></div>' +
-      '<div class="reason-line">คำแปลไทย / บริบทการใช้: <span class="blank long"></span></div>' +
-      '<div class="answer teacher-answer">เฉลยคุณครู: ' + e(item.answer) + '</div>' +
+    const style = document.getElementById('selStyle')?.value || 'comic';
+    const prompt = String(item.prompt || '').trim();
+    const lines = prompt.split('\n').map(l => l.trim()).filter(Boolean);
+
+    if (style === 'standard') {
+      return '<div class="work-line reason-line">' +
+        '<div class="prompt"><strong>' + e(item.prompt).replace(/\n/g, '<br>') + '</strong></div>' +
+        '<div class="answer-line">บทพูดภาษาอังกฤษ / คำตอบ: <span class="blank long"></span></div>' +
+        '<div class="reason-line">คำแปลไทย / บริบทการใช้: <span class="blank long"></span></div>' +
+        '<div class="answer teacher-answer">เฉลยคุณครู: ' + e(item.answer) + '</div>' +
+      '</div>';
+    }
+
+    if (lines.length >= 2) {
+      const m1 = lines[0].match(/^([A-Za-zก-๙0-9]+):\s*(.*)$/);
+      const m2 = lines[1].match(/^([A-Za-zก-๙0-9]+):\s*(.*)$/);
+      const speakerA = m1 ? m1[1] : 'A';
+      const textA = m1 ? m1[2] : lines[0];
+      const speakerB = m2 ? m2[1] : 'B';
+      const textB = m2 ? m2[2] : lines[1];
+      const hintMatch = textB.match(/\(([^)]+)\)/);
+      const hint = hintMatch ? hintMatch[1] : textB.replace(/_{3,}/g, '').trim();
+
+      return '<div class="comic-strip">' +
+        '<div class="comic-row speaker-row-a">' +
+          '<div class="comic-speaker speaker-a"><span class="comic-avatar-badge">' + e(speakerA) + '</span></div>' +
+          '<div class="comic-bubble bubble-a"><span class="comic-text">' + e(textA) + '</span></div>' +
+        '</div>' +
+        '<div class="comic-row speaker-row-b">' +
+          '<div class="comic-speaker speaker-b"><span class="comic-avatar-badge">' + e(speakerB) + '</span></div>' +
+          '<div class="comic-bubble bubble-b">' +
+            (hint ? '<div class="comic-hint">💡 ' + e(hint) + '</div>' : '') +
+            '<div class="comic-blank-line"><span class="blank long"></span></div>' +
+            '<div class="teacher-answer">เฉลย: ' + e(item.answer) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    const sentenceMatch = prompt.match(/^([^.?!\n]+[.?!])\s*(.*)$/);
+    if (sentenceMatch) {
+      return '<div class="comic-strip">' +
+        '<div class="comic-row speaker-row-a">' +
+          '<div class="comic-speaker speaker-a"><span class="comic-avatar-badge">A</span></div>' +
+          '<div class="comic-bubble bubble-a"><span class="comic-text">' + e(sentenceMatch[1]) + '</span></div>' +
+        '</div>' +
+        '<div class="comic-row speaker-row-b">' +
+          '<div class="comic-speaker speaker-b"><span class="comic-avatar-badge">B</span></div>' +
+          '<div class="comic-bubble bubble-b">' +
+            (sentenceMatch[2] ? '<div class="comic-hint">💡 ' + e(sentenceMatch[2]) + '</div>' : '') +
+            '<div class="comic-blank-line"><span class="blank long"></span></div>' +
+            '<div class="teacher-answer">เฉลย: ' + e(item.answer) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    return '<div class="comic-strip">' +
+      '<div class="comic-row speaker-row-a">' +
+        '<div class="comic-speaker speaker-a"><span class="comic-avatar-badge">Q</span></div>' +
+        '<div class="comic-bubble bubble-a"><span class="comic-text">' + e(prompt) + '</span></div>' +
+      '</div>' +
+      '<div class="comic-row speaker-row-b">' +
+        '<div class="comic-speaker speaker-b"><span class="comic-avatar-badge">A</span></div>' +
+        '<div class="comic-bubble bubble-b">' +
+          '<div class="comic-blank-line"><span class="blank long"></span></div>' +
+          '<div class="teacher-answer">เฉลย: ' + e(item.answer) + '</div>' +
+        '</div>' +
+      '</div>' +
     '</div>';
   }
 };
@@ -127,6 +296,10 @@ function render() {
 document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
 document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
 document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+['selStyle', 'selPageCount', 'selTopic', 'selCount', 'selGrade', 'inpSchool', 'selTeacher'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', render);
+});
 window.KampaiWorksheet.loadTeachers();
 render();
 </script>
