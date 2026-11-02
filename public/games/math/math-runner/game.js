@@ -278,25 +278,32 @@ function selectDifficulty(diff) {
   KAMPAI.sound.correct();
 }
 
-/* ── โหมดออนไลน์ (KampaiMatch) ── */
+/* ── โหมดแข่งขัน 2 คน (KampaiVersus: เครื่องนี้ hot-seat + ออนไลน์) ── */
+let vs = null;
 let match = null;
-if (CFG.ENABLE_ONLINE && window.KampaiMatch) {
-  match = KampaiMatch.create({
-    duration: CFG.ONLINE_DURATION,
+if (CFG.ENABLE_ONLINE && window.KampaiVersus) {
+  vs = KampaiVersus.create({
+    duration: CFG.ONLINE_DURATION || 60,
     title: 'แข่งวิ่งสูตรคูณ',
-    onPlay: function (opts) {
-      startGame('online', opts);
+    rankBy: 'score',
+    onPlay: function (info) {
+      startVersusRound(info);
     },
     onEnd: function () {
       isGameOver = true;
       endGame();
     }
   });
-  document.getElementById('online-btn').style.display = 'block';
+}
+
+function openVersusMenu() {
+  if (vs) vs.openMenu();
+  else if (match) match.openMenu();
+  else startLocalTwoPlayer();
 }
 
 function openOnlineMultiplayer() {
-  if (match) match.openMenu();
+  openVersusMenu();
 }
 
 /* ── โครงสร้างและฟิสิกส์เกม ── */
@@ -423,28 +430,15 @@ function generateNewQuestion(playerIndex = 1) {
 
 function spawnBlocksForQuestion(q) {
   const blocks = [];
-  const random = () => {
-    if (onlineRng && typeof onlineRng.next === 'function') {
-      return onlineRng.next();
-    }
-    return Math.random();
-  };
-
-  // สร้างลำดับ X offsets แบบสุ่ม (0, 1, 2, 3) เพื่อให้ลำดับเวลาของกล่องคำตอบที่ลอยมาในแต่ละเลนไม่ซ้ำกัน
-  const xOrder = [0, 1, 2, 3];
-  for (let i = xOrder.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [xOrder[i], xOrder[j]] = [xOrder[j], xOrder[i]];
-  }
-
-  // วางตัวเลือกใน 4 เลน (0, 1, 2, 3) ตามลำดับ X ที่สุ่มได้
+  const startX = cw + 80;
   for (let l = 0; l < 4; l++) {
     blocks.push({
-      x: cw + 50 + xOrder[l] * 220, // สุ่มลำดับ X เพื่อไม่ให้ออกมาเฉลียงมุมเดิมตลอด
+      x: startX,
       lane: l,
       value: q.choices[l],
       isCorrect: q.choices[l] === q.Target,
-      hitResolved: false
+      hitResolved: false,
+      isChosen: false
     });
   }
   return blocks;
@@ -2153,7 +2147,10 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
     return Math.random();
   };
 
-  // 1. สุ่มเกิดมอนสเตอร์ (ต้องเกิดในเลนที่คำตอบผิดเพื่อไม่ให้ดักขวางคำตอบที่ถูก) · ความยากปรับอัตราเกิด (ง่ายมาก=0)
+  // Rule G: Max 1 active decision point on screen at once
+  if (activeMonsters.length > 0 || activeItems.length > 0) return;
+
+  // 1. สุ่มเกิดมอนสเตอร์ (ง่ายมาก = 0)
   if (random() < CFG.MONSTER_SPAWN_CHANCE * curDiff().monsterMul) {
     const wrongLanes = [];
     for (let l = 0; l < 4; l++) {
@@ -2164,8 +2161,6 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
     if (wrongLanes.length > 0) {
       const chosenLane = wrongLanes[Math.floor(random() * wrongLanes.length)];
       const mType = window.GAME_DATA.generateMonsterType(onlineRng);
-      
-      // สุ่มฝั่งที่จะวิ่งออกมา (ซ้าย หรือ ขวา)
       const spawnSide = random() < 0.5 ? 'right' : 'left';
       
       const monsterObj = {
@@ -2173,19 +2168,21 @@ function spawnMonstersAndItemsForQuestion(playerIndex, q) {
         lane: chosenLane,
         type: mType,
         hitResolved: false,
-        warningTicks: 90, // แฟลชไฟเตือน 90 เฟรม (1.5 วินาที) ก่อนที่จะวิ่งออกมา
-        x: spawnSide === 'right' ? cw + 100 : -100 // จอดรอด้านนอก
+        warningTicks: 90,
+        x: spawnSide === 'right' ? cw + 100 : -100
       };
       
       activeMonsters.push(monsterObj);
+      return; // อย่าเกิดไอเทมในรอบเดียวกับมอนสเตอร์
     }
   }
 
+  // 2. สุ่มเกิดไอเทม
   if (random() < CFG.ITEM_SPAWN_CHANCE) {
     const itemLane = Math.floor(random() * 4);
     const iType = window.GAME_DATA.generateItemType(onlineRng);
     const itemObj = {
-      x: cw + 250 + Math.floor(random() * 200),
+      x: cw + 300,
       lane: itemLane,
       type: iType,
       hitResolved: false,
@@ -2224,9 +2221,24 @@ function addFloatingText(x, y, text, color, playerIndex) {
 
 /* ── ลูปการประมวลผลฟิสิกส์ & เรนเดอร์ ── */
 
-function loop() {
+let lastTimestamp = 0;
+
+function loop(timestamp) {
   if (isGameOver) return;
-  if (gamePaused) { animationFrameId = requestAnimationFrame(loop); return; }  // จอแนวตั้ง: หยุดชั่วคราว (คงลูปไว้ ไม่อัปเดต)
+  if (gamePaused) {
+    lastTimestamp = timestamp;
+    animationFrameId = requestAnimationFrame(loop);
+    return;
+  }
+
+  const currentTs = timestamp || performance.now();
+  if (!lastTimestamp) lastTimestamp = currentTs;
+  let dt = (currentTs - lastTimestamp) / 1000;
+  lastTimestamp = currentTs;
+
+  if (dt > 0.1) dt = 0.1;
+  if (dt < 0.001) dt = 0.0166;
+  const timeScale = dt * 60;
 
   pollGamepadInputs();
 
@@ -2260,33 +2272,36 @@ function loop() {
 
   updateWind();
 
+  // Child Cognitive Pacing: Ensure traversal time from spawn to player >= 6.2s
+  const distanceToPlayer = Math.max(300, (cw + 80) - playerX);
+  const pacingSpeedLimit = distanceToPlayer / 372; // >= 6.2s
+
   let blockSpeed = p1BlockSpeed;
   if (mode === 'local_2p') {
     const maxSpeedStep = Math.max(p1SpeedStep, p2SpeedStep);
-    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + maxSpeedStep * 1.2);
-    // เพิ่มความเร็วตามคอมโบสูงสุดในโหมด 2P
-    blockSpeed += Math.min(3.0, Math.max(p1Combo, p2Combo) * 0.4);
+    blockSpeed = Math.min(CFG.BLOCK_MAX_SPEED, CFG.BLOCK_START_SPEED + maxSpeedStep * 0.3);
+    blockSpeed += Math.min(1.0, Math.max(p1Combo, p2Combo) * 0.1);
   } else {
     blockSpeed = (p1SlowTime > 0) ? p1BlockSpeed * 0.65 : p1BlockSpeed;
-    // เพิ่มความเร็วตามคอมโบในโหมด 1P
-    blockSpeed += Math.min(3.0, combo * 0.4);
-    blockSpeed *= curDiff().speedMul;   // ความยาก: ง่ายมาก ×0.8 · ยาก ×1.2
+    blockSpeed += Math.min(1.0, combo * 0.1);
+    blockSpeed *= curDiff().speedMul;
   }
+  blockSpeed = Math.min(blockSpeed, pacingSpeedLimit);
 
-  const p1Speed = blockSpeed;
-  const p2Speed = blockSpeed;
+  const p1Speed = blockSpeed * timeScale;
+  const p2Speed = blockSpeed * timeScale;
 
   const forwardBaseSpeed = 6.5;
   const backwardBaseSpeed = 3.5;
   
-  const p1ForwardSpeed = ((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
-  const p1BackwardSpeed = ((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
+  const p1ForwardSpeed = (((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0)) * timeScale;
+  const p1BackwardSpeed = (((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0)) * timeScale;
   
-  const p2ForwardSpeed = ((p2SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
-  const p2BackwardSpeed = ((p2SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
+  const p2ForwardSpeed = (((p2SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0)) * timeScale;
+  const p2BackwardSpeed = (((p2SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0)) * timeScale;
   
-  const singleForwardSpeed = ((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0);
-  const singleBackwardSpeed = ((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0);
+  const singleForwardSpeed = (((p1SlowTime > 0) ? forwardBaseSpeed * 0.65 : forwardBaseSpeed) + (windForce === 1 ? 2.0 : 0)) * timeScale;
+  const singleBackwardSpeed = (((p1SlowTime > 0) ? backwardBaseSpeed * 0.65 : backwardBaseSpeed) + (windForce === -1 ? 1.5 : 0)) * timeScale;
 
   if (mode === 'local_2p') {
     if (isActionPressed('p1', 'right') || p1TouchMoveDirX === 1) p1X += p1ForwardSpeed;
@@ -2302,7 +2317,7 @@ function loop() {
     playerX = Math.max(20, Math.min(cw - 20, playerX));
   }
 
-  bgOffset += blockSpeed;
+  bgOffset += blockSpeed * timeScale;
   ctx.clearRect(0, 0, cw, ch);
 
   if (mode === 'local_2p') {
@@ -2316,8 +2331,8 @@ function loop() {
     const getLanesY = (lane) => ch * 0.40 + lane * laneHeight;
 
     // คำนวณตำแหน่ง Y ของผู้เล่น 1 และ 2
-    p1Y += (getLanesY(targetP1Lane) - p1Y) * 0.25;
-    p2Y += (getLanesY(targetP2Lane) - p2Y) * 0.25;
+    p1Y += (getLanesY(targetP1Lane) - p1Y) * Math.min(1, 0.25 * timeScale);
+    p2Y += (getLanesY(targetP2Lane) - p2Y) * Math.min(1, 0.25 * timeScale);
 
     // บันทึกรอยเท้าผู้เล่นเพื่อทำเงาตามตัว
     p1Trail.push({ x: p1X, y: p1Y });
@@ -2428,7 +2443,7 @@ function loop() {
       const my = getLanesY(m.lane);
 
       if (m.warningTicks > 0) {
-        m.warningTicks--;
+        m.warningTicks = Math.max(0, m.warningTicks - timeScale);
         m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
         
         if (m.warningTicks % 30 === 0) {
@@ -2443,7 +2458,7 @@ function loop() {
         if (m.spawnSide === 'right') {
           m.x -= (blockSpeed + 4.5); // สปีดวิ่งเร็วสวนเลนมาทางซ้าย
         } else {
-          m.x += 4.5; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
+          m.x += 4.5 * timeScale; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
         }
         
         drawMonster(ctx, m.x, my, m.type, bgOffset);
@@ -2608,7 +2623,7 @@ function loop() {
     // คำนวณตำแหน่ง Y
     const laneHeight = ch / 6.5;
     const getLanesY = (lane) => ch * 0.40 + lane * laneHeight;
-    playerY += (getLanesY(targetPlayerLane) - playerY) * 0.25;
+    playerY += (getLanesY(targetPlayerLane) - playerY) * Math.min(1, 0.25 * timeScale);
 
     // บันทึกรอยเท้าเพื่อทำเงาตามตัว
     playerTrail.push({ x: playerX, y: playerY });
@@ -2675,7 +2690,7 @@ function loop() {
       const my = getLanesY(m.lane);
 
       if (m.warningTicks > 0) {
-        m.warningTicks--;
+        m.warningTicks = Math.max(0, m.warningTicks - timeScale);
         m.x = m.spawnSide === 'right' ? cw + 100 : -100; // ล็อคให้อยู่ด้านนอกระหว่างแจ้งเตือน
         
         if (m.warningTicks % 30 === 0) {
@@ -2688,9 +2703,9 @@ function loop() {
       } else {
         // วิ่งสวนเลนเข้าหาผู้เล่น (ขวาไปซ้าย หรือ ซ้ายไปขวา)
         if (m.spawnSide === 'right') {
-          m.x -= (p1Speed + 4.5); // สปีดวิ่งเร็วสวนเลนมาทางซ้าย
+          m.x -= (p1Speed + 4.5 * timeScale); // สปีดวิ่งเร็วสวนเลนมาทางซ้าย
         } else {
-          m.x += 4.5; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
+          m.x += 4.5 * timeScale; // วิ่งตามหลังมาเพื่อแซงขวากลับไปชน
         }
         
         drawMonster(ctx, m.x, my, m.type, bgOffset);
@@ -2796,7 +2811,7 @@ function loop() {
   for (let i = floatingTexts.length - 1; i >= 0; i--) {
     const f = floatingTexts[i];
     f.y += f.vy;
-    f.alpha -= 0.02;
+    f.alpha -= 0.02 * timeScale;
     if (f.alpha <= 0) floatingTexts.splice(i, 1);
   }
 
@@ -2863,8 +2878,10 @@ function resolveHit(playerIndex, isCorrect, x, y) {
       
       addFloatingText(x, y, `+${gain} ${isInvincible ? '⭐x2' : ''}`, '#FFD700');
       
-      // อัปเดตคะแนนสดโหมดออนไลน์
-      if (mode === 'online' && match) {
+      // อัปเดตคะแนนสดโหมดการแข่งขัน
+      if (vs) {
+        vs.report(score, { correct: correctAnswersCount });
+      } else if (mode === 'online' && match) {
         match.report(score, { correct: correctAnswersCount });
       }
     }
@@ -2976,6 +2993,7 @@ function resolveHit(playerIndex, isCorrect, x, y) {
 function startSinglePlayer(m) {
   notifyParentGameStart();
   if (!requireLandscape()) return;
+  KAMPAI.beginRound();
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
@@ -3158,6 +3176,7 @@ function confirmGuestPlayer() {
 function launchLocalTwoPlayer() {
   notifyParentGameStart();
   if (!requireLandscape()) return;
+  KAMPAI.beginRound();
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
@@ -3256,9 +3275,94 @@ function renderPlayerChips2P() {
   }
 }
 
+function startVersusRound(info) {
+  notifyParentGameStart();
+  if (!requireLandscape()) return;
+  KAMPAI.beginRound();
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
+
+  mode = (info && info.mode === 'online') ? 'online' : 'versus';
+  started = true;
+  isGameOver = false;
+  score = 0;
+  level = 1;
+  combo = 0;
+  correctAnswersCount = 0;
+  floatBlocks = [];
+  activeMonsters = [];
+  activeItems = [];
+  p1InvincibleTime = 0; p1SlowTime = 0; p1ConfusedTime = 0; p1IsGiant = false;
+  p1HasShield = false;
+  p2HasShield = false;
+  playerTrail = [];
+  p1Trail = [];
+  p2Trail = [];
+  lastPlayerLane = 1;
+  lastP1Lane = 1;
+  lastP2Lane = 1;
+  windForce = 0;
+  windTimer = 600;
+  windParticles = [];
+  playerLane = 1;
+  targetPlayerLane = 1;
+  playerX = cw * 0.2;
+  p1SpeedStep = 0;
+  p1BlockSpeed = CFG.BLOCK_START_SPEED;
+  p1CorrectAnswersCount = 0;
+  p2SpeedStep = 0;
+  p2BlockSpeed = CFG.BLOCK_START_SPEED;
+  p2CorrectAnswersCount = 0;
+  bgOffset = 0;
+
+  const chip2 = $('player-chip-p2');
+  if (chip2) chip2.style.display = 'none';
+
+  $('score-container').style.display = 'block';
+  $('score-value').innerText = '0';
+  $('level-badge').innerText = 'ด่าน 1';
+  $('blocker').style.display = 'none';
+  $('hud-container').style.display = 'flex';
+  $('life-container').style.display = 'none';
+  $('timer-container').style.display = 'none';
+
+  KAMPAI.sound.unlock();
+  KAMPAI.sound.bgmStop();
+  KAMPAI.sound.bgmStart();
+
+  if (info && info.rng) {
+    onlineRng = { next: info.rng };
+  } else if (info && info.seed) {
+    const mulberry32 = (a) => {
+      return () => {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    };
+    onlineRng = { next: mulberry32(info.seed) };
+  } else {
+    onlineRng = null;
+  }
+
+  generateNewQuestion(1);
+
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  checkOrientation();
+  syncDpad();
+  lastTimestamp = 0;
+  animationFrameId = requestAnimationFrame(loop);
+}
+
 function startGame(onlineMode, opts) {
   notifyParentGameStart();
   if (!requireLandscape()) return;
+  KAMPAI.beginRound();
   if (window.KAMPAI) {
     window.KAMPAI._submitted = false;
   }
@@ -3345,13 +3449,18 @@ function tickTimer() {
 }
 
 function endGame() {
+  if (isGameOver && !started) return;
   isGameOver = true;
-  syncDpad();   // ซ่อนปุ่ม ▲▼ เมื่อจบเกม
+  syncDpad();
   if (timerIntervalId) {
     clearInterval(timerIntervalId);
     timerIntervalId = null;
   }
   KAMPAI.sound.bgmStop();
+
+  // If playing in KampaiVersus mode (hot-seat or online), let KampaiVersus handle handoff/results
+  if (vs && vs.finish(score, { correct: correctAnswersCount })) return;
+
   KAMPAI.sound.gameOver();
 
   let finalScore = score;
@@ -3415,12 +3524,18 @@ function endGame() {
 
 function restartGame() {
   $('gameover-screen').classList.add('hidden');
+  if (window.KAMPAI) {
+    window.KAMPAI._submitted = false;
+  }
   if (mode === 'local_2p') {
     startLocalTwoPlayer();
+  } else if (mode === 'versus' || mode === 'online') {
+    if (vs) vs.openMenu();
+    else startSinglePlayer('adventure');
   } else if (mode === 'time' || mode === 'adventure') {
     startSinglePlayer(mode);
   } else {
-    location.reload();
+    startSinglePlayer('adventure');
   }
 }
 
@@ -3540,12 +3655,11 @@ function exitGame() {
     animationFrameId = null;
   }
   KAMPAI.sound.bgmStop();
+  if (vs) {
+    try { vs.leave(); } catch (e) { /* */ }
+  }
   if (match) {
-    try {
-      match.leave();
-    } catch (e) {
-      console.error(e);
-    }
+    try { match.leave(); } catch (e) { /* */ }
   }
   KAMPAI.goHome();
 }
@@ -3563,6 +3677,8 @@ window.closeP2Selector = closeP2Selector;
 window.resetToDefaultControls = resetToDefaultControls;
 window.startBinding = startBinding;
 window.restartGame = restartGame;
+window.openVersusMenu = openVersusMenu;
+window.startVersusRound = startVersusRound;
 window.exitGame = exitGame;
 
 // ล้าง Match เมื่อผู้เล่นปิดหน้าต่างหรือนำทางออกไป

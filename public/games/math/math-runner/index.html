@@ -6,6 +6,12 @@
 <title>Math Runner: วิ่งสู้สูตรคูณ</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #ffd700; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+</style>
 </head>
 <body>
 
@@ -116,11 +122,11 @@
 
     <!-- Start Actions -->
     <div class="action-grid">
-      <button class="btn btn-primary" onclick="startSinglePlayer('adventure')">👤 1 คน (ผจญภัย - 3 ชีวิต)</button>
+      <button class="btn btn-primary" data-kampai-action="start" onclick="startSinglePlayer('adventure')">👤 1 คน (ผจญภัย - 6 ชีวิต)</button>
       <button class="btn btn-blue" onclick="startSinglePlayer('time')">⏱️ 1 คน (แข่งเวลา 60 วิ)</button>
-      <button class="btn btn-orange" onclick="startLocalTwoPlayer()">👥 2 คน (เล่นจอเดียวกัน)</button>
+      <button class="btn btn-orange" onclick="openVersusMenu()">🏁 แข่ง 2 คน (เครื่องนี้ / ออนไลน์)</button>
+      <button class="btn btn-purple" onclick="startLocalTwoPlayer()">👥 2 คน (จอเดียวกัน Split-Screen)</button>
       <button class="btn btn-dark" onclick="openMappingModal()">🎮 ตั้งค่าจอยเกม & ปุ่มควบคุม</button>
-      <button class="btn btn-ghost" id="online-btn" onclick="openOnlineMultiplayer()" style="display:none;">🌐 ออนไลน์ (แข่งหลายคน)</button>
     </div>
   </div>
 </div>
@@ -142,7 +148,7 @@
     </div>
     
     <div class="action-row">
-      <button class="btn btn-primary" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
+      <button class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
       <button class="btn btn-blue" onclick="exitGame()">🏠 กลับพอร์ทัล</button>
     </div>
   </div>
@@ -216,16 +222,24 @@
   </div>
 </div>
 
-<!-- ═══ KAMPAI SDK + Online Framework ═══ -->
+<!-- Test Action Hook for Automated Verification -->
+<button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden aria-hidden="true">จบเกมสำหรับทดสอบ</button>
+
+<!-- ═══ KAMPAI SDK + KampaiVersus Framework ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
 /* Fallback stub */
-window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };
 </script>
 <script src="/games/kampai-match.js"></script>
 <script>
 /* Fallback match */
-window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
+</script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+/* Fallback versus */
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };
 </script>
 
 <!-- Game scripts -->
