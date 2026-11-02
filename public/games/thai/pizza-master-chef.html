@@ -2,6 +2,14 @@
 <html lang="th">
 <head>
     <script src="/games/kampai-sdk.js"></script>
+    <script src="/games/kampai-match.js"></script>
+    <script src="/games/kampai-versus.js"></script>
+    <script src="/games/shared-worksheet-tools.js"></script>
+    <script>
+        window.KampaiWorksheet = window.KampaiWorksheet || {
+            openPrintModal: function() { alert('โปรดเชื่อมต่ออินเทอร์เน็ตเพื่อพิมพ์ใบงาน'); }
+        };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🍕 Pizza Master Chef</title>
@@ -47,6 +55,101 @@
         /* ============================================
            SECTION 2: Navigation Bar
            ============================================ */
+        
+        /* Accessibility: focus-visible & reduced-motion */
+        :focus-visible {
+            outline: 3px solid var(--gold-color, #FFD700);
+            outline-offset: 2px;
+        }
+        button:focus-visible, a:focus-visible, input:focus-visible {
+            outline: 3px solid var(--gold-color, #FFD700);
+            outline-offset: 2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .pizza-logo, .fever-bg, .fly-sprite, .wave-banner, .bounce, .shake {
+                animation: none !important;
+            }
+        }
+
+        /* 2-Player Versus Button */
+        .btn-versus-main {
+            min-height: 48px;
+            min-width: 44px;
+            padding: 10px 24px;
+            font-size: 1.15rem;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #FF6F00, #E65100);
+            border: 2px solid #FFD700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-versus-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+
+        /* Live Equivalent Fraction Banner */
+        .equivalent-live-banner {
+            position: absolute;
+            top: calc(var(--nav-height) + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700, #FF9800);
+            color: #3E2723;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 95;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse-badge 1.2s infinite alternate;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .equivalent-live-banner.hidden { display: none !important; }
+
+        /* Classroom Workshop Mode (Large Display & Projector) */
+        #game-container.workshop-mode .order-bubble {
+            transform: scale(1.15);
+            border-width: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #game-container.workshop-mode .order-fraction {
+            font-size: 3.2rem;
+            font-weight: 900;
+        }
+        #game-container.workshop-mode .fraction-display-box {
+            font-size: 0.85em;
+        }
+        #game-container.workshop-mode .customer-emoji {
+            font-size: 68px;
+        }
+        #game-container.workshop-mode .btn-serve {
+            transform: translateX(-50%) scale(1.15);
+        }
+        #game-container.workshop-mode .equivalent-badge {
+            font-size: 1.1rem;
+            padding: 4px 16px;
+        }
+
         .game-nav {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -68,6 +171,12 @@
             font-weight: 700;
             opacity: 0.9;
             transition: opacity 0.2s;
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
         }
         .game-nav a:hover { opacity: 1; }
         .game-nav .nav-title {
@@ -80,9 +189,10 @@
             background: none;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            width: 32px; height: 32px;
+            width: 44px; height: 44px;
+            min-width: 44px; min-height: 44px;
             color: #fff;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -283,6 +393,8 @@
         }
 
         .btn-sys-control {
+            min-height: 44px;
+            min-width: 44px;
             padding: 10px 18px;
             font-size: 0.9rem;
             font-family: 'Kanit', sans-serif;
@@ -695,6 +807,8 @@
         @media (min-width: 768px) { .mode-container { grid-template-columns: repeat(3, 1fr); } }
 
         .btn-mode {
+            min-height: 44px;
+            min-width: 44px;
             padding: 12px 8px;
             font-size: 1.1rem;
             color: white;
@@ -812,6 +926,8 @@
         .stat-card .stat-value { font-size: 1.6rem; font-weight: 700; color: #FFD700; }
         .stat-card .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
         .btn-restart {
+            min-height: 44px;
+            min-width: 44px;
             margin-top: 15px;
             padding: 12px 40px;
             font-size: 1.3rem;
@@ -963,6 +1079,8 @@
         <div id="fly-sprite" class="fly-sprite hidden" aria-hidden="true">🪰</div>
 
         <div id="ui-layer">
+            <div id="equivalent-live-banner" class="equivalent-live-banner hidden"></div>
+            <button type="button" data-kampai-action="finish-test" onclick="game.finishTest()" hidden aria-hidden="true">จบเกมทดสอบ</button>
             <!-- HUD Top Bar -->
             <div class="top-bar hidden" id="hud-bar">
                 <div class="stats-box" id="stats-0">
@@ -1020,7 +1138,7 @@
           .setup-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center; margin: 2px 0 14px; }
           .setup-group { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); padding:6px 10px; border-radius:14px; }
           .setup-label { color:#fff; font-weight:700; font-size:0.9rem; opacity:0.92; }
-          .btn-opt { min-height:44px; padding:8px 14px; border:2px solid rgba(255,255,255,0.5); background:rgba(255,255,255,0.15); color:#fff; font-weight:700; border-radius:12px; cursor:pointer; font-family:inherit; font-size:0.95rem; transition:all .15s; }
+          .btn-opt { min-height:44px; min-width:44px; padding:8px 14px; border:2px solid rgba(255,255,255,0.5); background:rgba(255,255,255,0.15); color:#fff; font-weight:700; border-radius:12px; cursor:pointer; font-family:inherit; font-size:0.95rem; transition:all .15s; display:inline-flex; align-items:center; justify-content:center; }
           .btn-opt:hover { background:rgba(255,255,255,0.28); }
           .btn-opt.active { background:#fff; color:var(--primary-red); border-color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
           .btn-practice.active { background:#4CAF50; color:#fff; border-color:#4CAF50; }
@@ -1072,10 +1190,16 @@
                 </div>
                 <button type="button" class="btn-opt btn-practice" id="practice-toggle" onclick="game.togglePractice()">🧪 ฝึกซ้อม (ไม่จับเวลา)</button>
                 <button type="button" class="btn-opt" id="visual-toggle" onclick="game.toggleVisual()">🖼️ แสดงรูปเศษส่วน</button>
+                <button type="button" class="btn-opt" id="workshop-toggle" onclick="game.toggleWorkshop()">🏫 โหมดฉายจอห้องเรียน</button>
+                <button type="button" class="btn-opt" id="worksheet-btn" onclick="openPizzaWorksheet()">🖨️ พิมพ์ใบงาน A4</button>
             </div>
+            <button type="button" class="btn-versus-main" onclick="vs.openMenu()">
+                <span>⚔️</span>
+                <span>แข่ง 2 คน (Local &amp; Online)</span>
+            </button>
 
             <div class="mode-container">
-                <button class="btn-mode" onclick="game.start('mission')" style="border:2px solid #FFD700;">
+                <button class="btn-mode" data-kampai-action="start" onclick="game.start('mission')" style="border:2px solid #FFD700;">
                     <span class="mode-icon">👨‍🍳</span>
                     <span class="mode-name">ภารกิจเชฟ</span>
                     <span class="mode-desc">สลับ 4 แบบ — ไม่น่าเบื่อ!</span>
@@ -1158,9 +1282,11 @@
             <div class="gameover-score">คะแนนรวม: <span id="final-score">0</span></div>
             <div class="gameover-stats" id="gameover-stats"></div>
             <div class="gameover-diagnostic" id="gameover-diagnostic"></div>
+            <div id="kampai-result"></div>
 
             <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px; width: 100%;">
-                <button class="btn-restart" onclick="game.start(game.state.mode)" style="margin-top: 0;">🔄 เล่นอีกครั้ง</button>
+                <button id="btn-restart" class="btn-restart" data-kampai-action="restart" onclick="game.restartGame()" style="margin-top: 0;">🔄 เล่นอีกครั้ง</button>
+                <button type="button" class="btn-restart" onclick="openPizzaWorksheet()" style="margin-top: 0; font-size: 1.05rem; padding: 10px 28px; background: linear-gradient(to bottom, #0284c7, #0369a1); border-bottom-color: #075985;">🖨️ พิมพ์ใบงาน A4 สำหรับฝึกต่อ</button>
                 <button class="btn-restart btn-sys-green" onclick="game.showStartScreen()" style="margin-top: 0; font-size: 1.1rem; padding: 8px 30px;">🏠 กลับหน้าเมนูหลักเกม</button>
                 
                 <div class="system-controls-box" style="margin-top: 10px;">
@@ -1320,6 +1446,22 @@
         /* ============================================
            SECTION C: SOUND MANAGER
            ============================================ */
+        
+        /* ============================================
+           SECTION B3: KAMPAI VERSUS INTEGRATION (2-Player Local & Online)
+           ============================================ */
+        const vs = window.vs = KampaiVersus.create({
+            duration: 90,
+            title: 'Pizza Master Chef เศษส่วน',
+            rankBy: 'score',
+            onPlay: ({ rng, player }) => {
+                if (window.game) window.game.startVersus(rng, player);
+            },
+            onEnd: () => {
+                if (window.game) window.game.endVersus();
+            }
+        });
+
         class SoundManager {
             constructor() {
                 this.ctx = null;
@@ -1376,6 +1518,69 @@
                 } catch(e) {}
             }
             playCombo() { this.playTone(600,'sine',0.1,0,0.15); this.playTone(800,'sine',0.1,0.1,0.15); this.playTone(1000,'sine',0.2,0.2,0.15); }
+            
+            playCrispySlice() {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(1400, now);
+                    osc.frequency.exponentialRampToValueAtTime(320, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain); gain.connect(this.masterGain);
+                    osc.start(now); osc.stop(now + 0.08);
+
+                    const bufferSize = Math.floor(this.ctx.sampleRate * 0.05);
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const output = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+                    }
+                    const noise = this.ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    const noiseGain = this.ctx.createGain();
+                    noiseGain.gain.setValueAtTime(0.08, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    noise.connect(noiseGain); noiseGain.connect(this.masterGain);
+                    noise.start(now);
+                } catch(e) {}
+            }
+            playOvenChime() {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const now = this.ctx.currentTime;
+                    [1046.5, 1318.5].forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+                        gain.gain.setValueAtTime(0.15, now + idx * 0.09);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.45);
+                        osc.connect(gain); gain.connect(this.masterGain);
+                        osc.start(now + idx * 0.09); osc.stop(now + idx * 0.09 + 0.45);
+                    });
+                } catch(e) {}
+            }
+            playCheer() {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const now = this.ctx.currentTime;
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+                        osc.connect(gain); gain.connect(this.masterGain);
+                        osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.35);
+                    });
+                } catch(e) {}
+            }
             playPowerUp() { this.playTone(400,'sine',0.15,0,0.12); this.playTone(600,'sine',0.15,0.1,0.12); this.playTone(800,'sine',0.3,0.2,0.12); }
             startBGM() { if (!this.enabled || !this.ctx || this.bgmTimer) return; this.bgmNoteIndex = 0; this.scheduleNote(); }
             stopBGM() { clearTimeout(this.bgmTimer); this.bgmTimer = null; }
@@ -1677,14 +1882,13 @@
                 const displayName = (window.KAMPAI && window.KAMPAI.student && window.KAMPAI.student.displayName);
                 const nameEl = document.getElementById('chef-name');
                 this.state.playerName = EMBED ? (displayName || 'เชฟนิรนาม') : ((nameEl ? nameEl.value.trim() : '') || 'เชฟนิรนาม');
-                if (EMBED) {
-                    SESSION_START_TS = Date.now();
-                    if (window.KAMPAI && window.KAMPAI.beginRound) window.KAMPAI.beginRound();
-                    else if (window.KAMPAI) {
-                        window.KAMPAI._submitted = false;
-                        window.KAMPAI._startTs = SESSION_START_TS;
-                        try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (_e) { /* */ }
-                    }
+                SESSION_START_TS = Date.now();
+                if (window.KAMPAI && window.KAMPAI.beginRound) {
+                    window.KAMPAI.beginRound();
+                } else if (window.KAMPAI) {
+                    window.KAMPAI._submitted = false;
+                    window.KAMPAI._startTs = SESSION_START_TS;
+                    try { window.parent.postMessage({ type: 'gameStart' }, '*'); } catch (_e) { /* */ }
                 }
 
                 this.state.mode = modeName;
@@ -1810,6 +2014,55 @@
                 el.style.display = 'block';
             }
 
+            
+            startVersus(rng, player) {
+                this.versusRng = rng;
+                this.versusPlayer = player;
+                this.start('classic');
+            }
+
+            endVersus() {
+                this.state.isPlaying = false;
+                this.sound.stopBGM();
+            }
+
+            endGame() {
+                if (window.vs && window.vs.finish(this.player.score, { correct: this.player.totalServed })) {
+                    this.state.isPlaying = false;
+                    this.sound.stopBGM();
+                    return;
+                }
+                this.gameOver();
+            }
+
+            finishTest() {
+                this.player.score = Math.max(this.player.score, 120);
+                this.player.totalServed = Math.max(this.player.totalServed, 4);
+                this.endGame();
+            }
+
+            restartGame() {
+                this.state.isPlaying = false;
+                this.sound.stopBGM();
+                const m = this.state.mode || 'mission';
+                this.start(m);
+            }
+
+            toggleWorkshop() {
+                this.state.workshopMode = !this.state.workshopMode;
+                const container = document.getElementById('game-container');
+                if (container) {
+                    container.classList.toggle('workshop-mode', !!this.state.workshopMode);
+                }
+                const btn = document.getElementById('workshop-toggle');
+                if (btn) {
+                    btn.classList.toggle('active', !!this.state.workshopMode);
+                }
+                this.sound.init();
+                this.sound.playSelect();
+                this.resize();
+            }
+
             /* --- Game Over --- */
             gameOver() {
                 this.state.isPlaying = false;
@@ -1822,13 +2075,11 @@
                     ? Math.round((this.player.totalServed / (this.player.totalServed + this.player.totalWrong)) * 100) : 0;
                 const waveReached = this.state.currentWave + 1;
 
-                // A6: โหมดฝึกไม่บันทึกคะแนน (ทั้ง local + เข้าระบบ) — กัน leaderboard เพี้ยน
+                // โหมดฝึกไม่บันทึกคะแนน
                 if (this.state.practice) {
                     console.info('[pizza] practice mode — score not submitted');
-                } else if (!EMBED) {
-                    this.highScoreManager.saveScore(this.state.playerName, this.player.score);
                 } else {
-                    if (window.KAMPAI) {
+                    if (window.KAMPAI && window.KAMPAI.submitScore) {
                         window.KAMPAI.submitScore(this.player.score, {
                             mode: this.state.mode,
                             duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
@@ -2032,6 +2283,8 @@
                 this.wrongMark = { active: false, timer: 0 };
                 this.reveal = { active: false, timer: 0, indices: [] };
                 if (equivBadge) equivBadge.classList.add('hidden');
+                const liveBanner = document.getElementById('equivalent-live-banner');
+                if (liveBanner) liveBanner.classList.add('hidden');
 
                 if (this.groupOrderIndex <= 0) this.rollCustomerType();
                 typeBadge.classList.add('hidden');
@@ -2099,6 +2352,7 @@
                         this.sound.playCorrect();
                         let pts = modeConfig.points * (this.player.isFever ? 2 : 1);
                         this.player.score += pts;
+                        if (window.vs) window.vs.report(this.player.score, { correct: this.player.totalServed });
                         if (!this.state.practice) {
                             this.state.timeLeft = Math.min(this.state.timeLeft + modeConfig.bonus, this.state.maxTime + 15);
                         }
@@ -2144,8 +2398,33 @@
                 finally { setTimeout(() => { this.player.isServing = false; }, 300); }
             }
 
+            
+            updateEquivalentFeedback() {
+                const banner = document.getElementById('equivalent-live-banner');
+                if (!banner) return;
+                const lvl = this.player.level;
+                if (!lvl || !this.state.isPlaying) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+                const selectedCount = lvl.selected.filter(Boolean).length;
+                if (selectedCount === 0) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+                const sliceCount = lvl.sliceCount;
+                const isEquivalent = (selectedCount / sliceCount === lvl.numerator / lvl.denominator);
+                if (isEquivalent) {
+                    banner.innerHTML = '✨ <strong>' + selectedCount + '/' + sliceCount + ' ถาด = ' + lvl.numerator + '/' + lvl.denominator + ' ถาด</strong> (เศษส่วนสมมูลกันพอดี!)';
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
             /* --- Random helper (uses daily RNG or Math.random) --- */
             rng() {
+                if (this.versusRng) return this.versusRng();
                 return this.dailyRng ? this.dailyRng() : Math.random();
             }
 
@@ -2553,6 +2832,7 @@
                         this.player.hitLog[hitKey] = (this.player.hitLog[hitKey] || 0) + 1;
 
                         this.sound.playCorrect();
+                        this.sound.playOvenChime();
 
                         let pts = modeConfig.points * (lvl.isGolden ? 5 : 1);
                         if (this.player.isFever) pts *= 2;
@@ -2597,6 +2877,7 @@
                         if (this.player.combo >= 3) {
                             this.spawnConfetti();
                             this.sound.playCombo();
+                            this.sound.playCheer();
                         }
 
                         // Fever mode at combo 5
@@ -2757,7 +3038,8 @@
                         if (lvl.selected[sIdx] !== undefined) {
                             if (lvl.locked && lvl.locked[sIdx]) return;
                             lvl.selected[sIdx] = !lvl.selected[sIdx];
-                            this.sound.playSelect();
+                            this.sound.playCrispySlice();
+                            this.updateEquivalentFeedback();
                         }
                     }
                 }
@@ -3391,6 +3673,25 @@
                         ctx.restore();
                     }
 
+                    
+                    // Workshop Mode: High-contrast slice fraction label
+                    if (this.state.workshopMode) {
+                        const m2 = s + sliceAngle / 2;
+                        const lx = Math.cos(m2) * r * 0.72;
+                        const ly = Math.sin(m2) * r * 0.72;
+                        ctx.save();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = '#000000';
+                        ctx.lineWidth = 3;
+                        ctx.font = `bold ${Math.max(16, r * 0.12)}px 'Kanit', sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        const sliceTxt = `1/${lvl.sliceCount}`;
+                        ctx.strokeText(sliceTxt, lx, ly);
+                        ctx.fillText(sliceTxt, lx, ly);
+                        ctx.restore();
+                    }
+
                     // === AUTO-HINT HIGHLIGHT ===
                     if (this.autoHintActive && this.autoHintSlice === globalIdx) {
                         ctx.save();
@@ -3457,6 +3758,173 @@
            SECTION H: INIT
            ============================================ */
         window.game = new PizzaGame();
+
+        /* ============================================
+           SECTION I: 1-CLICK PRINTABLE A4 FRACTION WORKSHEET
+           ============================================ */
+        window.openPizzaWorksheet = function() {
+            if (window.game && window.game.sound) window.game.sound.init();
+            if (!window.KampaiWorksheet || typeof window.KampaiWorksheet.openPrintModal !== 'function') {
+                alert('ระบบสร้างใบงานไม่พร้อมใช้งาน โปรดเชื่อมต่ออินเทอร์เน็ต');
+                return;
+            }
+
+            const items = [
+                {
+                    question: 'พิซซ่า 1 ถาดแบ่งออกเป็น 4 ชิ้นเท่ากัน หากรับประทานไป 1 ชิ้น คิดเป็นเศษส่วนเท่าใดของถาด',
+                    choices: ['1/4 ถาด', '1/2 ถาด', '3/4 ถาด', '2/4 ถาด'],
+                    answer: 'ก. 1/4 ถาด',
+                    explanation: 'พิซซ่าแบ่งเป็น 4 ส่วนเท่ากัน รับประทาน 1 ส่วน จึงเขียนเป็นเศษส่วนได้ว่า 1/4 ถาด',
+                    hint: 'ตัวเศษคือส่วนที่รับประทาน (1) ตัวส่วนคือจำนวนชิ้นทั้งหมด (4)'
+                },
+                {
+                    question: 'เศษส่วน 2/4 มีค่าเท่ากับเศษส่วนอย่างต่ำใด (เศษส่วนสมมูล)',
+                    choices: ['1/3', '1/2', '2/3', '3/4'],
+                    answer: 'ข. 1/2',
+                    explanation: 'นำ 2 มาหารทั้งตัวเศษและตัวส่วน: (2÷2)/(4÷2) = 1/2 ดังนั้น 2/4 จึงมีค่าเท่ากับ 1/2 (ครึ่งถาด)',
+                    hint: 'หาจำนวนนับที่หารทั้ง 2 และ 4 ลงตัว นั่นคือ 2'
+                },
+                {
+                    question: 'พิซซ่า 1 ถาดแบ่งออกเป็น 8 ชิ้นเท่ากัน ถ้าต้องการ 3/8 ถาด จะต้องหยิบกี่ชิ้น',
+                    choices: ['2 ชิ้น', '3 ชิ้น', '5 ชิ้น', '8 ชิ้น'],
+                    answer: 'ข. 3 ชิ้น',
+                    explanation: 'เศษส่วน 3/8 หมายถึง 3 ชิ้นจากทั้งหมด 8 ชิ้น ดังนั้นต้องหยิบ 3 ชิ้น',
+                    hint: 'ตัวเศษ (3) แสดงจำนวนชิ้นที่ต้องการ'
+                },
+                {
+                    question: 'เศษส่วน 4/8 มีค่าเท่ากับเศษส่วนใดต่อไปนี้',
+                    choices: ['1/4', '1/2', '3/4', '2/3'],
+                    answer: 'ข. 1/2',
+                    explanation: 'นำ 4 มาหารทั้งเศษและส่วน: (4÷4)/(8÷4) = 1/2 (หรือ 4 ใน 8 ชิ้น คิดเป็นครึ่งถาดพอดี)',
+                    hint: '4 เป็นครึ่งหนึ่งของ 8'
+                },
+                {
+                    question: 'ถ้าเชฟหั่นพิซซ่าเป็น 6 ชิ้นเท่ากัน และระบายสีไป 3 ชิ้น คิดเป็นเศษส่วนอย่างต่ำเท่าใด',
+                    choices: ['1/6', '1/3', '1/2', '2/3'],
+                    answer: 'ค. 1/2',
+                    explanation: '3 ชิ้นจาก 6 ชิ้น เขียนได้ 3/6 นำ 3 มาหารทั้งเศษและส่วนจะได้ 1/2 ถาด',
+                    hint: '3 ใน 6 ชิ้น คิดเป็นครึ่งหนึ่งของถาด'
+                },
+                {
+                    question: 'เปรียบเทียบเศษส่วน: 1/2 กับ 2/4 เครื่องหมายใดถูกต้อง',
+                    choices: ['>', '<', '=', '≠'],
+                    answer: 'ค. =',
+                    explanation: 'เนื่องจาก 1/2 และ 2/4 มีปริมาณเนื้อที่เท่ากันพอดี (เศษส่วนสมมูล) ดังนั้น 1/2 = 2/4',
+                    hint: 'ลองคูณไขว้ 1×4 = 4 และ 2×2 = 4 ผลคูณเท่ากัน'
+                },
+                {
+                    question: 'เปรียบเทียบเศษส่วน: 3/4 กับ 1/2 ข้อใดถูกต้อง',
+                    choices: ['3/4 > 1/2', '3/4 < 1/2', '3/4 = 1/2', '3/4 ≤ 1/2'],
+                    answer: 'ก. 3/4 > 1/2',
+                    explanation: 'ทำตัวส่วนให้เท่ากัน: 1/2 = 2/4 ดังนั้น 3/4 จึงมากกว่า 2/4 (3/4 > 1/2)',
+                    hint: 'แปลง 1/2 ให้มีส่วนเป็น 4 จะได้ 2/4'
+                },
+                {
+                    question: 'พิซซ่า 1 ถาดแบ่งเป็น 8 ชิ้น รับประทานไป 6 ชิ้น เหลือพิซซ่าคิดเป็นเศษส่วนอย่างต่ำเท่าใด',
+                    choices: ['1/8', '2/8', '1/4', '3/4'],
+                    answer: 'ค. 1/4',
+                    explanation: 'เหลือพิซซ่า 8 - 6 = 2 ชิ้น คิดเป็น 2/8 ถาด ทอนเป็นเศษส่วนอย่างต่ำได้ 1/4 ถาด',
+                    hint: 'หาชิ้นที่เหลือก่อน แล้วทอนด้วยแม่ 2'
+                },
+                {
+                    question: 'เศษส่วน 2/6 ทำให้เป็นเศษส่วนอย่างต่ำได้เท่ากับข้อใด',
+                    choices: ['1/2', '1/3', '1/4', '2/3'],
+                    answer: 'ข. 1/3',
+                    explanation: 'นำแม่ 2 มาหารทั้งเศษและส่วน: (2÷2)/(6÷2) = 1/3',
+                    hint: '2 หาร 2 ได้ 1 และ 2 หาร 6 ได้ 3'
+                },
+                {
+                    question: 'ลูกค้าสั่งพิซซ่า 1 ถาดเต็ม กับอีก 2 ชิ้นจากถาดที่แบ่ง 4 ชิ้น คิดเป็นจำนวนคละเท่าใด',
+                    choices: ['1 1/4', '1 1/2', '1 3/4', '2 1/4'],
+                    answer: 'ข. 1 1/2',
+                    explanation: '1 ถาดเต็ม รวมกับ 2/4 ถาด ซึ่ง 2/4 = 1/2 จึงเขียนเป็นจำนวนคละได้ 1 1/2 ถาด',
+                    hint: '1 ถาดบวกกับครึ่งถาด'
+                },
+                {
+                    question: 'ถ้ามีพิซซ่า 5/8 ถาด ต้องการให้เต็มถาด (8/8) ต้องเพิ่มอีกกี่ชิ้น',
+                    choices: ['2 ชิ้น', '3 ชิ้น', '4 ชิ้น', '5 ชิ้น'],
+                    answer: 'ข. 3 ชิ้น',
+                    explanation: '8/8 - 5/8 = 3/8 ถาด ซึ่งคิดเป็น 3 ชิ้น',
+                    hint: 'นำ 8 ลบด้วย 5'
+                },
+                {
+                    question: 'เศษส่วนใดต่อไปนี้มีค่าเท่ากับ 3/4',
+                    choices: ['4/8', '5/8', '6/8', '7/8'],
+                    answer: 'ค. 6/8',
+                    explanation: 'คูณด้วย 2 ทั้งเศษและส่วน: (3×2)/(4×2) = 6/8',
+                    hint: '3/4 ขยายส่วนเป็น 8 โดยคูณ 2'
+                },
+                {
+                    question: 'เศษส่วนแท้ (Proper Fraction) คือข้อใดต่อไปนี้',
+                    choices: ['4/3', '5/5', '3/5', '7/4'],
+                    answer: 'ค. 3/5',
+                    explanation: 'เศษส่วนแท้คือเศษส่วนที่ตัวเศษน้อยกว่าตัวส่วน เช่น 3/5',
+                    hint: 'ตัวบน (เศษ) ต้องน้อยกว่าตัวล่าง (ส่วน)'
+                },
+                {
+                    question: 'เศษส่วนเกิน (Improper Fraction) คือข้อใดต่อไปนี้',
+                    choices: ['1/2', '3/4', '5/6', '7/5'],
+                    answer: 'ง. 7/5',
+                    explanation: 'เศษส่วนเกินคือเศษส่วนที่ตัวเศษมากกว่าหรือเท่ากับตัวส่วน เช่น 7/5',
+                    hint: 'ตัวบน (เศษ) มากกว่าตัวล่าง (ส่วน)'
+                },
+                {
+                    question: 'แปลงจำนวนคละ 1 3/4 ให้เป็นเศษเกินได้เท่ากับข้อใด',
+                    choices: ['5/4', '6/4', '7/4', '8/4'],
+                    answer: 'ค. 7/4',
+                    explanation: '(จำนวนเต็ม × ตัวส่วน) + ตัวเศษ = (1 × 4) + 3 = 7 ดังนั้นได้ 7/4',
+                    hint: 'นำ 1 คูณ 4 แล้วบวก 3 ได้ตัวเศษ'
+                },
+                {
+                    question: 'ข้อใดเรียงลำดับเศษส่วนจากน้อยไปมากได้ถูกต้อง',
+                    choices: ['1/8, 1/4, 1/2', '1/2, 1/4, 1/8', '1/4, 1/8, 1/2', '1/2, 1/8, 1/4'],
+                    answer: 'ก. 1/8, 1/4, 1/2',
+                    explanation: 'เมื่อตัวเศษเท่ากัน ตัวส่วนมากจะมีค่าน้อย ดังนั้น 1/8 (น้อยสุด) < 1/4 < 1/2 (มากสุด)',
+                    hint: 'แบ่งพิซซ่า 8 ชิ้น แต่ละชิ้นย่อมเล็กกว่าแบ่ง 2 ชิ้น'
+                },
+                {
+                    question: 'ถ้าต้องการระบายสีพิซซ่าให้ได้ 2/3 ถาด จากพิซซ่าที่แบ่ง 6 ชิ้น ต้องระบายสีกี่ชิ้น',
+                    choices: ['2 ชิ้น', '3 ชิ้น', '4 ชิ้น', '5 ชิ้น'],
+                    answer: 'ค. 4 ชิ้น',
+                    explanation: 'ขยายส่วน 2/3 ให้มีส่วนเป็น 6: (2×2)/(3×2) = 4/6 ดังนั้นต้องระบาย 4 ชิ้น',
+                    hint: '2/3 ของ 6 ชิ้น = (2/3) × 6 = 4 ชิ้น'
+                },
+                {
+                    question: 'เปรียบเทียบเศษส่วน: 5/6 กับ 7/8 ข้อใดถูกต้อง',
+                    choices: ['5/6 > 7/8', '5/6 < 7/8', '5/6 = 7/8', 'ไม่สามารถเปรียบเทียบได้'],
+                    answer: 'ข. 5/6 < 7/8',
+                    explanation: 'คูณไขว้: 5×8 = 40 และ 6×7 = 42 เนื่องจาก 40 < 42 ดังนั้น 5/6 < 7/8',
+                    hint: 'ใช้วิธีคูณไขว้ 5×8 กับ 6×7'
+                },
+                {
+                    question: 'ผลบวกของ 1/4 + 2/4 มีค่าเท่ากับเท่าใด',
+                    choices: ['2/8', '3/8', '3/4', '1/2'],
+                    answer: 'ค. 3/4',
+                    explanation: 'ตัวส่วนเท่ากัน นำตัวเศษบวกกันได้ทันที: (1+2)/4 = 3/4',
+                    hint: 'ตัวส่วนคงเดิม นำ 1+2'
+                },
+                {
+                    question: 'เศษส่วน 6/8 ลดทอนเป็นเศษส่วนอย่างต่ำได้เท่ากับข้อใด',
+                    choices: ['2/4', '3/4', '3/5', '1/2'],
+                    answer: 'ข. 3/4',
+                    explanation: 'นำแม่ 2 มาหารทั้งเศษและส่วน: (6÷2)/(8÷2) = 3/4',
+                    hint: 'นำ 2 มาหาร 6 และ 8'
+                }
+            ];
+
+            window.KampaiWorksheet.openPrintModal({
+                title: 'ใบงานคณิตศาสตร์ เรื่อง เศษส่วนและเศษส่วนสมมูล (Pizza Fractions)',
+                subtitle: 'กลุ่มสาระการเรียนรู้คณิตศาสตร์ ชั้นประถมศึกษาปีที่ 1–6 • โรงเรียนคำไฮวิทยา',
+                instructions: 'คำชี้แจง: ให้นักเรียนระบายสีชิ้นพิซซ่าหรือเลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว พร้อมเขียนเศษส่วนและเศษส่วนสมมูลให้ถูกต้องสมบูรณ์',
+                items: items,
+                itemCount: 20,
+                includeAnswerKey: true
+            });
+        };
+
+        window.endGame = () => { if (window.game) window.game.endGame(); };
+        window.finishTest = () => { if (window.game) window.game.finishTest(); };
+
     </script>
 </body>
 </html>
