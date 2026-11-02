@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.36 (ยกระดับสองสื่อการสอนภาษาหลัก Phase 1: Everyday Conversation v2.0 ขยาย 45 บท + Thai Vocab Hub v2.1 ระบบค้นหาด่วน & ปริศนาอักษรไขว้ A4)',
+        date: '2 พ.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'Everyday Conversation ป.4 v2.0 (English Speaking Suite): เพิ่มสวิตช์ปรับความเร็วเสียงพูด 3 ระดับ (0.75x/1.0x/1.25x), ระบบ SpeechWatchdog ป้องกันเสียงค้าง, คาราโอเกะไฮไลต์คำต่อคำผ่าน utterance.onboundary, ระบบแข่งขันบทบาทสมมติ KampaiVersus 3 โหมด, และขยายคลังบทสนทนาจาก 30 เป็น 45 บท ครอบคลุม 9 หมวด (เพิ่ม Digital Life 📱, Health & Hygiene 🏥, ASEAN Culture 🌏)',
+            'Everyday Conversation Comic Worksheet: เพิ่มรูปแบบใบงานการ์ตูนช่อง (Comic Strip Dialogue Completion) ลงใน everyday-conversation-p4-worksheet.html พร้อมสวิตช์เฉลยสำหรับครู',
+            'Thai Vocab Hub v2.1 (Instant Search & Word Search A4): เพิ่มระบบค้นหาคำศัพท์เรียลไทม์ (Live Search Debounce 200ms) จากคลัง 2,400 คำ, แถบดัชนีพยัญชนะไทย ก-ฮ Quick-Jump, ป้ายสีระบุชนิดของคำ (POS Badges: คำนาม/กริยา/วิเศษณ์/สรรพนาม/บุพบท), กล่องประโยคตัวอย่างพร้อมเสียงอ่าน (Sentence Example Drawer), และเครื่องมือสร้างใบงานปริศนาอักษรไขว้/Word Search ภาษาไทย A4 พร้อมเฉลยแบบแยกพยางค์/สระลอยด้วย Intl.Segmenter',
+        ],
+    },
+    {
         version: 'v1.233.35 (ยกระดับ 10 สื่อการเรียนรู้ยอดนิยมพร้อมกัน: โหมดการสอนโปรเจกเตอร์ + ภาพ/เสียง 16:9 + KampaiVersus 3 โหมด + ใบงาน A4 พร้อมเฉลย)',
         date: '2 พ.ย. 2569',
         badge: 'bg-primary',
