@@ -16,9 +16,27 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Fredoka+One&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+html, body { height: 100%; width: 100%; font-family: 'Kanit', sans-serif; color: #fff; overflow: hidden; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
 body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
-#app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Accessible controls & focus */
+button, [role="button"], a, .btn, .ans, .cchip, .grade-chip, .fc-arrow, .dw-speak {
+  min-width: 44px;
+  min-height: 44px;
+}
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible, .btn:focus-visible, .ans:focus-visible, .cchip:focus-visible, .grade-chip:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* HUD */
 /* padding-top สูง = เว้น "แถบบนของระบบ" (ปุ่มเสียง SDK ซ้ายบน + ปุ่มเต็มจอ/เมนู ของ wrapper ขวาบน) ไม่ให้ทับ HUD */
@@ -206,6 +224,10 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     <div id="timer-wrap"><div id="timer-bar"></div></div>
 
     <div id="play">
+        <div class="speech-ctrl-bar" style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap; justify-content:center;">
+            <button id="btn-speak-prompt" class="btn btn-ghost" style="min-height:44px; padding:6px 14px; font-size:15px;" onclick="speakPromptManual()" title="ฟังเสียงคำศัพท์ (Web Speech API)">🔊 ออกเสียง (TTS)</button>
+            <button id="btn-auto-speak" class="btn btn-ghost" style="min-height:44px; padding:6px 14px; font-size:14px;" onclick="toggleAutoSpeak()">🗣️ พูดอัตโนมัติ: เปิด</button>
+        </div>
         <div id="q-emoji" onclick="replayPrompt()" title="แตะเพื่อฟังอีกครั้ง">🐱</div>
         <div id="q-th">แมว</div>
         <div id="feedback"></div>
@@ -230,9 +252,14 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     </div>
 
     <div class="mode-grid">
-        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-primary" data-kampai-action="start" onclick="startDirectRace()">⚡ แข่งเร็ว</button>
         <button class="btn btn-blue" onclick="openOnline()">🏁 แข่ง 2 คน</button>
         <button class="btn btn-ghost" onclick="chooseMode('practice')">📚 ฝึกหมวด</button>
+        <button class="btn btn-ghost" onclick="if(window.KampaiClassroom) window.KampaiClassroom.toggleProjector();">📽️ จอโปรเจกเตอร์</button>
+        <button class="btn btn-ghost" onclick="window.open('/games/english/vocab-race-worksheet.html', '_blank')">📄 พิมพ์ใบงาน A4</button>
+    </div>
+    <div class="res-links" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:4px 0 10px;">
+        <a href="/games/english/vocab-race-worksheet.html" target="_blank" rel="noopener" style="color:#7dd3fc; text-decoration:none; display:inline-flex; align-items:center; min-height:44px; padding:0 14px; background:rgba(255,255,255,0.08); border-radius:999px; border:1px solid rgba(255,255,255,0.2);">📄 พิมพ์ใบงาน A4 พร้อมเฉลยครู</a>
     </div>
     <button class="btn btn-learn" onclick="openStudyPicker()">📖 ฝึกอ่าน — เรียนคำก่อนเล่น</button>
     <button class="btn btn-review" id="review-btn" style="display:none" onclick="openReview()">📕 ทบทวนคำที่พลาด</button>
@@ -255,15 +282,18 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
     <div id="stars">☆☆☆</div>
     <div id="final-score">0</div>
     <div id="final-detail"></div>
+    <div id="kampai-result"></div>
     <div id="new-badges"></div>
     <div id="missed-summary"></div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px;">
+        <button id="restart-btn" class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
         <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        <button class="btn btn-ghost" onclick="window.open('/games/english/vocab-race-worksheet.html', '_blank')">📄 พิมพ์ใบงาน A4</button>
+        <button type="button" data-kampai-action="finish-test" onclick="finishTest()" hidden>จบเกมสำหรับทดสอบ</button>
     </div>
 </div>
 
@@ -300,6 +330,7 @@ body { background: linear-gradient(180deg, #155e75 0%, #0f172a 100%); }
 <!-- ═══ KAMPAI Match — เฟรมเวิร์กเกมออนไลน์ (single source — อย่าแก้) ═══ -->
 <script src="/games/kampai-match.js"></script>
 <script src="/games/kampai-versus.js"></script>
+<script src="/games/shared-classroom-tools.js"></script>
 <script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
 <script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
 
@@ -372,12 +403,24 @@ const CATS = [
     { key: 'transport', label: '🚗 ยานพาหนะ' },
 ];
 const WORDS = [
+    // Animals (animals)
     { th:'แมว', en:'cat', emoji:'🐱', cat:'animals', g:1, ex:'The cat is small.', exTh:'แมวตัวเล็ก' }, { th:'หมา', en:'dog', emoji:'🐶', cat:'animals', g:1, ex:'The dog can run.', exTh:'หมาวิ่งได้' },
     { th:'นก', en:'bird', emoji:'🐦', cat:'animals', g:1, ex:'A bird can fly.', exTh:'นกบินได้' }, { th:'ปลา', en:'fish', emoji:'🐟', cat:'animals', g:1, ex:'A fish lives in water.', exTh:'ปลาอาศัยอยู่ในน้ำ' },
     { th:'วัว', en:'cow', emoji:'🐄', cat:'animals', g:1, ex:'The cow gives milk.', exTh:'วัวให้นม' }, { th:'หมู', en:'pig', emoji:'🐷', cat:'animals', g:1, ex:'The pig is pink.', exTh:'หมูสีชมพู' },
     { th:'เป็ด', en:'duck', emoji:'🦆', cat:'animals', g:1, ex:'The duck can swim.', exTh:'เป็ดว่ายน้ำได้' }, { th:'ช้าง', en:'elephant', emoji:'🐘', cat:'animals', g:2, ex:'The elephant is big.', exTh:'ช้างตัวใหญ่' },
     { th:'เสือ', en:'tiger', emoji:'🐯', cat:'animals', g:2, ex:'The tiger is strong.', exTh:'เสือแข็งแรง' }, { th:'ลิง', en:'monkey', emoji:'🐵', cat:'animals', g:2, ex:'The monkey likes bananas.', exTh:'ลิงชอบกล้วย' },
     { th:'กระต่าย', en:'rabbit', emoji:'🐰', cat:'animals', g:2, ex:'The rabbit has long ears.', exTh:'กระต่ายมีหูยาว' }, { th:'ม้า', en:'horse', emoji:'🐴', cat:'animals', g:2, ex:'The horse can run fast.', exTh:'ม้าวิ่งเร็วได้' },
+    { th:'สิงโต', en:'lion', emoji:'🦁', cat:'animals', g:1, ex:'The lion is the king of the jungle.', exTh:'สิงโตเป็นเจ้าป่า' },
+    { th:'หมี', en:'bear', emoji:'🐻', cat:'animals', g:1, ex:'The big bear sleeps in winter.', exTh:'หมีตัวใหญ่นอนในฤดูหนาว' },
+    { th:'ยีราฟ', en:'giraffe', emoji:'🦒', cat:'animals', g:2, ex:'The giraffe has a very long neck.', exTh:'ยีราฟมีคอยาวมาก' },
+    { th:'ม้าลาย', en:'zebra', emoji:'🦓', cat:'animals', g:2, ex:'The zebra has black and white stripes.', exTh:'ม้าลายมีลายสีดำและขาว' },
+    { th:'งู', en:'snake', emoji:'🐍', cat:'animals', g:1, ex:'The green snake moves quietly.', exTh:'งูสีเขียวเลื้อยอย่างเงียบๆ' },
+    { th:'กบ', en:'frog', emoji:'🐸', cat:'animals', g:1, ex:'The frog jumps into the water.', exTh:'กบกระโดดลงไปในน้ำ' },
+    { th:'แกะ', en:'sheep', emoji:'🐑', cat:'animals', g:1, ex:'The sheep gives soft wool.', exTh:'แกะให้ขนที่นุ่ม' },
+    { th:'เต่า', en:'turtle', emoji:'🐢', cat:'animals', g:1, ex:'The slow turtle walks slowly.', exTh:'เต่าเดินช้า' },
+    { th:'โลมา', en:'dolphin', emoji:'🐬', cat:'animals', g:2, ex:'The friendly dolphin can jump high.', exTh:'โลมาแสนรู้กระโดดได้สูง' },
+    { th:'ผึ้ง', en:'bee', emoji:'🐝', cat:'animals', g:1, ex:'The little bee makes sweet honey.', exTh:'ผึ้งตัวน้อยทำน้ำผึ้งหวาน' },
+    { th:'ผีเสื้อ', en:'butterfly', emoji:'🦋', cat:'animals', g:2, ex:'The beautiful butterfly flies near flowers.', exTh:'ผีเสื้อแสนสวยบินใกล้ดอกไม้' },
 
     { th:'สีแดง', en:'red', emoji:'🟥', cat:'colors', g:1, ex:'The apple is red.', exTh:'แอปเปิลสีแดง' }, { th:'สีน้ำเงิน', en:'blue', emoji:'🟦', cat:'colors', g:1, ex:'The sky is blue.', exTh:'ท้องฟ้าสีฟ้า' },
     { th:'สีเขียว', en:'green', emoji:'🟩', cat:'colors', g:1, ex:'The leaf is green.', exTh:'ใบไม้สีเขียว' }, { th:'สีเหลือง', en:'yellow', emoji:'🟨', cat:'colors', g:1, ex:'The sun is yellow.', exTh:'ดวงอาทิตย์สีเหลือง' },
@@ -390,10 +433,19 @@ const WORDS = [
     { th:'เด็กทารก', en:'baby', emoji:'👶', cat:'family', g:1, ex:'The baby is cute.', exTh:'เด็กทารกน่ารัก' }, { th:'ปู่/ตา', en:'grandfather', emoji:'👴', cat:'family', g:2, ex:'My grandfather is old.', exTh:'ปู่ของฉันแก่แล้ว' },
     { th:'ย่า/ยาย', en:'grandmother', emoji:'👵', cat:'family', g:2, ex:'My grandmother loves me.', exTh:'ย่าของฉันรักฉัน' }, { th:'ครอบครัว', en:'family', emoji:'👪', cat:'family', g:1, ex:'I love my family.', exTh:'ฉันรักครอบครัวของฉัน' },
 
+    // Food (food)
     { th:'ข้าว', en:'rice', emoji:'🍚', cat:'food', g:1, ex:'I eat rice every day.', exTh:'ฉันกินข้าวทุกวัน' }, { th:'ไข่', en:'egg', emoji:'🥚', cat:'food', g:1, ex:'The egg is white.', exTh:'ไข่สีขาว' },
     { th:'นม', en:'milk', emoji:'🥛', cat:'food', g:1, ex:'I drink milk.', exTh:'ฉันดื่มนม' }, { th:'ขนมปัง', en:'bread', emoji:'🍞', cat:'food', g:1, ex:'I like to eat bread.', exTh:'ฉันชอบกินขนมปัง' },
     { th:'น้ำ', en:'water', emoji:'💧', cat:'food', g:1, ex:'I drink water.', exTh:'ฉันดื่มน้ำ' }, { th:'ไก่', en:'chicken', emoji:'🍗', cat:'food', g:1, ex:'The chicken is hot.', exTh:'ไก่ร้อน' },
     { th:'ก๋วยเตี๋ยว', en:'noodle', emoji:'🍜', cat:'food', g:2, ex:'I eat noodles.', exTh:'ฉันกินก๋วยเตี๋ยว' }, { th:'ซุป', en:'soup', emoji:'🥣', cat:'food', g:1, ex:'The soup is hot.', exTh:'ซุปร้อน' },
+    { th:'พิซซ่า', en:'pizza', emoji:'🍕', cat:'food', g:1, ex:'I love hot cheese pizza.', exTh:'ฉันชอบพิซซ่าชีสร้อนๆ' },
+    { th:'ชีส/เนยแข็ง', en:'cheese', emoji:'🧀', cat:'food', g:1, ex:'Cheese is made from milk.', exTh:'ชีสทำมาจากนม' },
+    { th:'แซนด์วิช', en:'sandwich', emoji:'🥪', cat:'food', g:1, ex:'I eat a ham sandwich for lunch.', exTh:'ฉันกินแซนด์วิชแฮมเป็นอาหารกลางวัน' },
+    { th:'แฮมเบอร์เกอร์', en:'hamburger', emoji:'🍔', cat:'food', g:2, ex:'A hamburger has meat and vegetables.', exTh:'แฮมเบอร์เกอร์มีเนื้อและผัก' },
+    { th:'สลัดผัก', en:'salad', emoji:'🥗', cat:'food', g:2, ex:'Eat fresh salad to stay healthy.', exTh:'กินสลัดสดเพื่อสุขภาพที่ดี' },
+    { th:'เค้ก', en:'cake', emoji:'🍰', cat:'food', g:1, ex:'We have cake on birthday.', exTh:'พวกเรามีเค้กในวันเกิด' },
+    { th:'ไอศกรีม', en:'ice cream', emoji:'🍨', cat:'food', g:1, ex:'Cold ice cream is delicious in summer.', exTh:'ไอศกรีมเย็นอร่อยในหน้าร้อน' },
+    { th:'คุกกี้', en:'cookie', emoji:'🍪', cat:'food', g:1, ex:'Bake sweet chocolate cookies.', exTh:'อบคุกกี้ช็อกโกแลตแสนหวาน' },
 
     { th:'ตา', en:'eye', emoji:'👁️', cat:'body', g:1, ex:'I see with my eyes.', exTh:'ฉันมองด้วยตา' }, { th:'หู', en:'ear', emoji:'👂', cat:'body', g:1, ex:'I hear with my ears.', exTh:'ฉันฟังด้วยหู' },
     { th:'จมูก', en:'nose', emoji:'👃', cat:'body', g:1, ex:'I smell with my nose.', exTh:'ฉันดมด้วยจมูก' }, { th:'ปาก', en:'mouth', emoji:'👄', cat:'body', g:1, ex:'I eat with my mouth.', exTh:'ฉันกินด้วยปาก' },
@@ -406,10 +458,21 @@ const WORDS = [
     { th:'เจ็ด', en:'seven', emoji:'7️⃣', cat:'numbers', g:2, ex:'A week has seven days.', exTh:'หนึ่งสัปดาห์มีเจ็ดวัน' }, { th:'แปด', en:'eight', emoji:'8️⃣', cat:'numbers', g:1, ex:'I see eight stars.', exTh:'ฉันเห็นดาวแปดดวง' },
     { th:'เก้า', en:'nine', emoji:'9️⃣', cat:'numbers', g:2, ex:'She is nine years old.', exTh:'เธออายุเก้าขวบ' }, { th:'สิบ', en:'ten', emoji:'🔟', cat:'numbers', g:1, ex:'I have ten fingers.', exTh:'ฉันมีสิบนิ้ว' },
 
+    // Classroom & School (school)
     { th:'หนังสือ', en:'book', emoji:'📖', cat:'school', g:1, ex:'I read a book.', exTh:'ฉันอ่านหนังสือ' }, { th:'ปากกา', en:'pen', emoji:'🖊️', cat:'school', g:1, ex:'I write with a pen.', exTh:'ฉันเขียนด้วยปากกา' },
     { th:'ดินสอ', en:'pencil', emoji:'✏️', cat:'school', g:1, ex:'This is my pencil.', exTh:'นี่คือดินสอของฉัน' }, { th:'กระเป๋า', en:'bag', emoji:'🎒', cat:'school', g:1, ex:'My bag is big.', exTh:'กระเป๋าของฉันใบใหญ่' },
     { th:'ไม้บรรทัด', en:'ruler', emoji:'📏', cat:'school', g:2, ex:'I use a ruler.', exTh:'ฉันใช้ไม้บรรทัด' }, { th:'กรรไกร', en:'scissors', emoji:'✂️', cat:'school', g:2, ex:'Cut it with scissors.', exTh:'ตัดด้วยกรรไกร' },
     { th:'นาฬิกา', en:'clock', emoji:'🕐', cat:'school', g:2, ex:'The clock is on the wall.', exTh:'นาฬิกาอยู่บนผนัง' }, { th:'สีเทียน', en:'crayon', emoji:'🖍️', cat:'school', g:2, ex:'I color with a crayon.', exTh:'ฉันระบายสีด้วยสีเทียน' },
+    { th:'ยางลบ', en:'eraser', emoji:'🧹', cat:'school', g:1, ex:'Use an eraser to erase mistakes.', exTh:'ใช้ยางลบลบข้อผิดพลาด' },
+    { th:'โต๊ะเรียน', en:'desk', emoji:'🪑', cat:'school', g:1, ex:'Keep your desk clean and tidy.', exTh:'รักษาโต๊ะเรียนให้สะอาดเป็นระเบียบ' },
+    { th:'เก้าอี้', en:'chair', emoji:'🪑', cat:'school', g:1, ex:'Please sit on the chair.', exTh:'กรุณานั่งบนเก้าอี้' },
+    { th:'สมุด', en:'notebook', emoji:'📓', cat:'school', g:1, ex:'I write homework in my notebook.', exTh:'ฉันทำการบ้านในสมุด' },
+    { th:'กระดานไวท์บอร์ด', en:'whiteboard', emoji:'📋', cat:'school', g:2, ex:'Look at the whiteboard carefully.', exTh:'มองที่กระดานไวท์บอร์ดอย่างตั้งใจ' },
+    { th:'คอมพิวเตอร์', en:'computer', emoji:'💻', cat:'school', g:2, ex:'We learn coding on the computer.', exTh:'พวกเราเรียนเขียนโค้ดบนคอมพิวเตอร์' },
+    { th:'กระเป๋าสะพาย', en:'backpack', emoji:'🎒', cat:'school', g:2, ex:'My backpack carries all my school books.', exTh:'กระเป๋าสะพายใส่หนังสือเรียนทั้งหมดของฉัน' },
+    { th:'กาว', en:'glue', emoji:'🧴', cat:'school', g:1, ex:'Stick the paper with glue.', exTh:'ติดกระดาษด้วยกาว' },
+    { th:'กบเหลาดินสอ', en:'sharpener', emoji:'✏️', cat:'school', g:2, ex:'Sharpen your pencil with a sharpener.', exTh:'เหลาดินสอด้วยกบเหลา' },
+    { th:'แผนที่', en:'map', emoji:'🗺️', cat:'school', g:2, ex:'Find our country on the world map.', exTh:'ค้นหาประเทศของเราบนแผนที่โลก' },
 
     { th:'แอปเปิล', en:'apple', emoji:'🍎', cat:'fruits', g:1, ex:'I eat a red apple.', exTh:'ฉันกินแอปเปิลสีแดง' }, { th:'กล้วย', en:'banana', emoji:'🍌', cat:'fruits', g:1, ex:'The banana is yellow.', exTh:'กล้วยสีเหลือง' },
     { th:'ส้ม', en:'orange', emoji:'🍊', cat:'fruits', g:1, ex:'The orange is sweet.', exTh:'ส้มหวาน' }, { th:'มะม่วง', en:'mango', emoji:'🥭', cat:'fruits', g:1, ex:'I like mango.', exTh:'ฉันชอบมะม่วง' },
@@ -417,29 +480,57 @@ const WORDS = [
     { th:'สตรอว์เบอร์รี', en:'strawberry', emoji:'🍓', cat:'fruits', g:2, ex:'The strawberry is red.', exTh:'สตรอว์เบอร์รีสีแดง' }, { th:'สับปะรด', en:'pineapple', emoji:'🍍', cat:'fruits', g:2, ex:'Pineapple is yellow.', exTh:'สับปะรดสีเหลือง' },
     { th:'มะพร้าว', en:'coconut', emoji:'🥥', cat:'fruits', g:2, ex:'The coconut is brown.', exTh:'มะพร้าวสีน้ำตาล' }, { th:'มะนาว', en:'lemon', emoji:'🍋', cat:'fruits', g:2, ex:'The lemon is sour.', exTh:'มะนาวเปรี้ยว' },
 
+    // Action Verbs (verbs)
     { th:'วิ่ง', en:'run', emoji:'🏃', cat:'verbs', g:1, ex:'I can run fast.', exTh:'ฉันวิ่งเร็วได้' }, { th:'กิน', en:'eat', emoji:'🍽️', cat:'verbs', g:1, ex:'I eat breakfast.', exTh:'ฉันกินข้าวเช้า' },
     { th:'ดื่ม', en:'drink', emoji:'🥤', cat:'verbs', g:1, ex:'I drink water.', exTh:'ฉันดื่มน้ำ' }, { th:'นอน', en:'sleep', emoji:'😴', cat:'verbs', g:1, ex:'I sleep at night.', exTh:'ฉันนอนตอนกลางคืน' },
     { th:'อ่าน', en:'read', emoji:'📕', cat:'verbs', g:1, ex:'I read a book.', exTh:'ฉันอ่านหนังสือ' }, { th:'เขียน', en:'write', emoji:'✍️', cat:'verbs', g:2, ex:'I write my name.', exTh:'ฉันเขียนชื่อของฉัน' },
     { th:'เดิน', en:'walk', emoji:'🚶', cat:'verbs', g:1, ex:'I walk to school.', exTh:'ฉันเดินไปโรงเรียน' }, { th:'กระโดด', en:'jump', emoji:'🤸', cat:'verbs', g:1, ex:'I can jump high.', exTh:'ฉันกระโดดสูงได้' },
     { th:'ร้องเพลง', en:'sing', emoji:'🎤', cat:'verbs', g:2, ex:'I sing a song.', exTh:'ฉันร้องเพลง' }, { th:'ว่ายน้ำ', en:'swim', emoji:'🏊', cat:'verbs', g:2, ex:'I can swim.', exTh:'ฉันว่ายน้ำได้' },
     { th:'เล่น', en:'play', emoji:'⚽', cat:'verbs', g:1, ex:'I play football.', exTh:'ฉันเล่นฟุตบอล' }, { th:'เต้น', en:'dance', emoji:'💃', cat:'verbs', g:2, ex:'I like to dance.', exTh:'ฉันชอบเต้น' },
+    { th:'ฟัง', en:'listen', emoji:'👂', cat:'verbs', g:1, ex:'Listen to the teacher carefully.', exTh:'ฟังครูอย่างตั้งใจ' },
+    { th:'พูด', en:'speak', emoji:'🗣️', cat:'verbs', g:2, ex:'We speak English in class.', exTh:'พวกเราพูดภาษาอังกฤษในชั้นเรียน' },
+    { th:'มองดู', en:'look', emoji:'👀', cat:'verbs', g:1, ex:'Look at the board.', exTh:'มองดูที่กระดาน' },
+    { th:'นั่ง', en:'sit', emoji:'🪑', cat:'verbs', g:1, ex:'Please sit down.', exTh:'กรุณานั่งลง' },
+    { th:'ยืน', en:'stand', emoji:'🧍', cat:'verbs', g:1, ex:'Stand up, please.', exTh:'กรุณายืนขึ้น' },
+    { th:'เปิด', en:'open', emoji:'🚪', cat:'verbs', g:1, ex:'Open your book.', exTh:'เปิดหนังสือของคุณ' },
+    { th:'ปิด', en:'close', emoji:'🚪', cat:'verbs', g:1, ex:'Close the door softly.', exTh:'ปิดประตูเบาๆ' },
+    { th:'ล้าง/ทำความสะอาด', en:'wash', emoji:'🧼', cat:'verbs', g:1, ex:'Wash your hands before eating.', exTh:'ล้างมือก่อนรับประทานอาหาร' },
+    { th:'ทำอาหาร', en:'cook', emoji:'🍳', cat:'verbs', g:2, ex:'My father can cook tasty soup.', exTh:'พ่อของฉันทำซุปอร่อย' },
+    { th:'วาดรูป', en:'draw', emoji:'🎨', cat:'verbs', g:1, ex:'Draw a cute cat.', exTh:'วาดรูปแมวน่ารัก' },
+    { th:'บิน', en:'fly', emoji:'🕊️', cat:'verbs', g:1, ex:'Birds can fly high in the sky.', exTh:'นกบินได้สูงบนท้องฟ้า' },
+    { th:'ยิ้ม', en:'smile', emoji:'😊', cat:'verbs', g:1, ex:'Always smile to your friends.', exTh:'ยิ้มให้เพื่อนๆ เสมอ' },
 
+    // Weather (weather)
     { th:'ดวงอาทิตย์', en:'sun', emoji:'☀️', cat:'weather', g:1, ex:'The sun is hot.', exTh:'ดวงอาทิตย์ร้อน' }, { th:'ฝน', en:'rain', emoji:'🌧️', cat:'weather', g:1, ex:'I see the rain.', exTh:'ฉันเห็นฝน' },
     { th:'เมฆ', en:'cloud', emoji:'☁️', cat:'weather', g:1, ex:'The cloud is white.', exTh:'เมฆสีขาว' }, { th:'ลม', en:'wind', emoji:'🌬️', cat:'weather', g:2, ex:'The wind is cold.', exTh:'ลมหนาว' },
     { th:'หิมะ', en:'snow', emoji:'❄️', cat:'weather', g:2, ex:'Snow is white and cold.', exTh:'หิมะสีขาวและเย็น' }, { th:'พายุ', en:'storm', emoji:'⛈️', cat:'weather', g:2, ex:'The storm is loud.', exTh:'พายุเสียงดัง' },
     { th:'รุ้ง', en:'rainbow', emoji:'🌈', cat:'weather', g:2, ex:'The rainbow is beautiful.', exTh:'รุ้งสวยงาม' }, { th:'ร้อน', en:'hot', emoji:'🥵', cat:'weather', g:1, ex:'Today is hot.', exTh:'วันนี้อากาศร้อน' },
     { th:'หนาว', en:'cold', emoji:'🥶', cat:'weather', g:1, ex:'Today is cold.', exTh:'วันนี้อากาศหนาว' },
+    { th:'แดดจ้า', en:'sunny', emoji:'☀️', cat:'weather', g:1, ex:'It is a sunny morning.', exTh:'เป็นเช้าที่แดดจ้า' },
+    { th:'ฝนตก', en:'rainy', emoji:'🌧️', cat:'weather', g:1, ex:'Take an umbrella on rainy days.', exTh:'พกร่มในวันฝนตก' },
+    { th:'มีเมฆมาก', en:'cloudy', emoji:'⛅', cat:'weather', g:2, ex:'The sky is cloudy today.', exTh:'ท้องฟ้ามีเมฆมากวันนี้' },
+    { th:'ลมแรง', en:'windy', emoji:'🌬️', cat:'weather', g:2, ex:'It is too windy to ride a bicycle.', exTh:'ลมแรงเกินกว่าจะขี่จักรยาน' },
+    { th:'อบอุ่น', en:'warm', emoji:'🌤️', cat:'weather', g:1, ex:'Spring weather is warm and pleasant.', exTh:'อากาศฤดูใบไม้ผลิอบอุ่นสบาย' },
+    { th:'เย็นสบาย', en:'cool', emoji:'🍃', cat:'weather', g:2, ex:'In the evening the air is cool.', exTh:'ตอนเย็นอากาศเย็นสบาย' },
 
+    // Jobs & Occupations (jobs)
     { th:'ครู', en:'teacher', emoji:'👩‍🏫', cat:'jobs', g:1, ex:'My teacher is kind.', exTh:'ครูของฉันใจดี' }, { th:'หมอ', en:'doctor', emoji:'👨‍⚕️', cat:'jobs', g:2, ex:'The doctor helps people.', exTh:'หมอช่วยเหลือผู้คน' },
     { th:'พยาบาล', en:'nurse', emoji:'👩‍⚕️', cat:'jobs', g:2, ex:'The nurse is nice.', exTh:'พยาบาลใจดี' }, { th:'ตำรวจ', en:'police', emoji:'👮', cat:'jobs', g:2, ex:'The police is brave.', exTh:'ตำรวจกล้าหาญ' },
     { th:'ชาวนา', en:'farmer', emoji:'🧑‍🌾', cat:'jobs', g:2, ex:'The farmer grows rice.', exTh:'ชาวนาปลูกข้าว' }, { th:'พ่อครัว', en:'cook', emoji:'👨‍🍳', cat:'jobs', g:1, ex:'The cook makes food.', exTh:'พ่อครัวทำอาหาร' },
     { th:'นักบิน', en:'pilot', emoji:'👨‍✈️', cat:'jobs', g:2, ex:'The pilot flies a plane.', exTh:'นักบินขับเครื่องบิน' }, { th:'คนขับรถ', en:'driver', emoji:'🚕', cat:'jobs', g:2, ex:'The driver drives a car.', exTh:'คนขับขับรถ' },
     { th:'นักร้อง', en:'singer', emoji:'🧑‍🎤', cat:'jobs', g:2, ex:'The singer can sing.', exTh:'นักร้องร้องเพลงได้' },
+    { th:'นักดับเพลิง', en:'firefighter', emoji:'👨‍🚒', cat:'jobs', g:2, ex:'The firefighter puts out fires safely.', exTh:'นักดับเพลิงดับไฟอย่างปลอดภัย' },
+    { th:'ทันตแพทย์', en:'dentist', emoji:'🦷', cat:'jobs', g:2, ex:'The dentist checks my teeth twice a year.', exTh:'ทันตแพทย์ตรวจฟันฉันปีละสองครั้ง' },
+    { th:'ทหาร', en:'soldier', emoji:'🪖', cat:'jobs', g:2, ex:'The brave soldier protects our country.', exTh:'ทหารผู้กล้าหาญปกป้องประเทศ' },
+    { th:'นักบินอวกาศ', en:'astronaut', emoji:'👨‍🚀', cat:'jobs', g:2, ex:'The astronaut travels to the moon in a rocket.', exTh:'นักบินอวกาศเดินทางไปดวงจันทร์ด้วยจรวด' },
+    { th:'นักวิทยาศาสตร์', en:'scientist', emoji:'🔬', cat:'jobs', g:2, ex:'The scientist does experiments in the lab.', exTh:'นักวิทยาศาสตร์ทำการทดลองในห้องแล็บ' },
+    { th:'ศิลปิน/จิตรกร', en:'artist', emoji:'🎨', cat:'jobs', g:2, ex:'The artist paints wonderful pictures.', exTh:'ศิลปินวาดภาพที่ยอดเยี่ยม' },
 
     { th:'รถยนต์', en:'car', emoji:'🚗', cat:'transport', g:1, ex:'The car is red.', exTh:'รถยนต์สีแดง' }, { th:'รถบัส', en:'bus', emoji:'🚌', cat:'transport', g:1, ex:'I go by bus.', exTh:'ฉันไปโดยรถบัส' },
     { th:'จักรยาน', en:'bike', emoji:'🚲', cat:'transport', g:1, ex:'I ride a bike.', exTh:'ฉันขี่จักรยาน' }, { th:'รถไฟ', en:'train', emoji:'🚆', cat:'transport', g:2, ex:'The train is fast.', exTh:'รถไฟเร็ว' },
     { th:'เรือ', en:'boat', emoji:'⛵', cat:'transport', g:1, ex:'The boat is on the water.', exTh:'เรืออยู่บนน้ำ' }, { th:'เครื่องบิน', en:'airplane', emoji:'✈️', cat:'transport', g:2, ex:'The airplane can fly.', exTh:'เครื่องบินบินได้' },
     { th:'มอเตอร์ไซค์', en:'motorcycle', emoji:'🏍️', cat:'transport', g:2, ex:'He rides a motorcycle.', exTh:'เขาขี่มอเตอร์ไซค์' }, { th:'รถบรรทุก', en:'truck', emoji:'🚚', cat:'transport', g:2, ex:'The truck is big.', exTh:'รถบรรทุกคันใหญ่' },
+
 ];
 WORDS.forEach((w, i) => { w.id = i; });   // id ไม่ซ้ำ (กัน 'orange' สี/ผลไม้ ชนกัน)
 
@@ -583,6 +674,7 @@ function startGame(cat) {
     if (started) return;
     started = true;
     selectedCat = cat;
+    KAMPAI.beginRound();
     score = 0; lives = 3; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
     $('start').classList.remove('on');
     $('hud').classList.add('on');
@@ -644,15 +736,15 @@ function renderPrompt() {
     if (qKind === 'listen') {
         q.textContent = '🔊'; q.classList.add('tap');
         th.textContent = '👂 ฟังเสียง แล้วเลือกภาพ';
-        KAMPAI.sound.speak(curWord.en, 'en-US', true);
+        if (autoSpeakEnabled) KAMPAI.sound.speak(curWord.en, 'en-US', true);
     } else if (qKind === 'en2th') {
         q.textContent = curWord.emoji; q.classList.remove('tap');
         th.textContent = curWord.en;
-        KAMPAI.sound.speak(curWord.en, 'en-US', true);
+        if (autoSpeakEnabled) KAMPAI.sound.speak(curWord.en, 'en-US', true);
     } else {
         q.textContent = curWord.emoji; q.classList.remove('tap');
         th.textContent = curWord.th;
-        KAMPAI.sound.speak(curWord.th, 'th-TH', true);
+        if (autoSpeakEnabled) KAMPAI.sound.speak(curWord.th, 'th-TH', true);
     }
 }
 function replayPrompt() {   // แตะรูป/ลำโพง = ฟังซ้ำ
@@ -897,6 +989,7 @@ function startOnlineQuiz(rng) {
     mode = 'online'; qrand = rng; onlineEnded = false;
     score = 0; streak = 0; maxStreak = 0; correctCount = 0;
     started = true; locked = false;
+    KAMPAI.beginRound();
     $('start').classList.remove('on');
     $('gameover').classList.remove('on');
     $('hud').classList.add('on');
@@ -923,6 +1016,54 @@ window.addEventListener('keydown', (e) => {
     const btn = document.querySelectorAll('.ans')[idx];
     if (btn) answer(btn);
 });
+
+
+let autoSpeakEnabled = true;
+function toggleAutoSpeak() {
+    autoSpeakEnabled = !autoSpeakEnabled;
+    const b = $('btn-auto-speak');
+    if (b) b.textContent = autoSpeakEnabled ? '🗣️ พูดอัตโนมัติ: เปิด' : '🗣️ พูดอัตโนมัติ: ปิด';
+}
+function speakPromptManual() {
+    if (!curWord) return;
+    audioCtx();
+    if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(curWord.en);
+        u.lang = 'en-US';
+        u.rate = 0.95;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+    } else {
+        KAMPAI.sound.speak(curWord.en, 'en-US', true);
+    }
+}
+function startDirectRace() {
+    audioCtx();
+    mode = 'race';
+    raceAll = true;
+    raceCats.clear();
+    $('cat-picker').classList.remove('on');
+    $('race-picker').classList.remove('on');
+    startGame(null);
+}
+function restartGame() {
+    cancelAnimationFrame(rafId);
+    isGameOver = false;
+    started = false;
+    $('gameover').classList.remove('on');
+    startDirectRace();
+}
+function finishTest() {
+    if (isGameOver) return;
+    if (!started) {
+        startDirectRace();
+    }
+    endGame();
+}
+window.KAMPAI_GAME = {
+    start: function () { startDirectRace(); },
+    restart: function () { restartGame(); }
+};
 
 /* เริ่มต้นหน้าแรก — เรียกหลังนิยามข้อมูล/ฟังก์ชันครบ (กัน TDZ ของ WORDS) */
 renderDaily(); renderReviewBtn(); renderStartBadges();

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="worksheet-source-media" content="/games/thai/spelling.html">
+  <meta name="curriculum-indicators" content="ท 4.1 ป.3/1, ท 4.1 ป.4/1, ท 4.1 ป.4/4">
+  <title>ใบงานเขียนคำบอกและแก้ไขคำผิด ป.3–6 — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6.8pt;
+      font-weight: 800;
+      color: var(--ws-accent, #9333ea);
+      border: 1px solid var(--ws-accent, #9333ea);
+      border-radius: 3px;
+      padding: 0.3mm 1.5mm;
+      line-height: 1.2;
+    }
+    .thai-word {
+      font-size: 14pt;
+      font-weight: 900;
+      color: var(--ws-accent, #9333ea);
+      margin: 0.4mm 0;
+      letter-spacing: 0.02em;
+    }
+    .classify-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2mm;
+      margin: 0.6mm 0;
+    }
+    .classify-box {
+      border: 1px dashed var(--ws-line, #c9d2df);
+      border-radius: 3px;
+      padding: 0.8mm 1.5mm;
+      font-size: 6.8pt;
+      font-weight: 700;
+      color: var(--ws-muted, #5b6475);
+      background: var(--ws-soft, #faf5ff);
+    }
+    .step-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      margin-top: 0.8mm;
+    }
+    .step-row {
+      display: grid;
+      grid-template-columns: 24mm 1fr;
+      gap: 1.5mm;
+      align-items: end;
+      min-height: 6.5mm;
+    }
+    .step-tag {
+      font-size: 6.5pt;
+      font-weight: 800;
+      color: var(--ws-paper, #ffffff);
+      background: var(--ws-accent, #9333ea);
+      border-radius: 3px;
+      padding: 0.8mm;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .step-tag.gold {
+      background: #d97706;
+    }
+    .step-body {
+      min-height: 5.5mm;
+      border-bottom: 1px dotted var(--ws-muted, #78849e);
+      display: flex;
+      align-items: flex-end;
+      font-weight: 700;
+      font-size: 8pt;
+      padding-bottom: 0.5mm;
+    }
+    .work-fill {
+      color: transparent;
+      font-weight: 800;
+    }
+    .show-answers .work-fill {
+      color: var(--ws-danger, #dc2626);
+    }
+    .q-foot .answer-line {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      font-size: 8.5pt;
+      font-weight: 800;
+      color: var(--ws-accent, #9333ea);
+    }
+    .answer-fill {
+      color: transparent;
+      font-weight: 900;
+      border-bottom: 1.5px solid var(--ws-accent, #9333ea);
+      padding: 0 2mm;
+    }
+    .show-answers .answer-fill {
+      color: var(--ws-danger, #dc2626);
+      border-bottom-color: var(--ws-danger, #dc2626);
+    }
+    .count-5 .step-row {
+      min-height: 8.5mm;
+    }
+    .count-5 .thai-word {
+      font-size: 16pt;
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <h1>🎯 ใบงานเขียนคำบอกและแก้ไขคำผิด</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+        <option value="standard">มาตรฐาน</option>
+        <option value="progressive">บันไดระดับ</option>
+        <option value="booklet">รวมเล่ม</option>
+      </select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+        <option value="1">1 หน้า</option>
+        <option value="2">2 หน้า</option>
+        <option value="3">3 หน้า</option>
+      </select>
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+        <option value="3">ป.3</option>
+        <option value="4" selected>ป.4</option>
+        <option value="5">ป.5</option>
+        <option value="6">ป.6</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="หมวดหลักภาษา">
+        <option value="mixed">รวมทุกหมวดคำผิด</option>
+        <option value="pra">กะ/กระ และการประวิสรรชนีย์</option>
+        <option value="spelling">ตัวสะกดไม่ตรงมาตรา (ฎ/ฏ, ณ/น)</option>
+        <option value="garun">ตัวการันต์และคำเฉพาะ</option>
+        <option value="loan">คำยืมและคำทับศัพท์</option>
+      </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+        <option value="5" selected>5 ข้อ / หน้า</option>
+        <option value="10">10 ข้อ / หน้า</option>
+      </select>
+      <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+      <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+        <option value="">-- เลือกครูผู้สอน --</option>
+      </select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+      <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+    </div>
+  </header>
+
+  <main class="pages" id="pages">
+    <section class="sheet">
+      <div class="questions">
+        <article class="q">กำลังสร้างใบงาน...</article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/games/worksheet-runtime.js?v=2.0.0"></script>
+  <script>
+  const THAI_SPELLING_ITEMS = [
+    /* หมวด 1: กะ/กระ และประวิสรรชนีย์ (pra) */
+    {
+      id: 'sp_p1', type: 'pra', categoryLabel: 'การประวิสรรชนีย์ (กะ/กระ)', emoji: '🌿',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ผัดกระเพรา"', wrongForm: 'กระเพรา', correctForm: 'กะเพรา',
+      hintRule: 'ไม่มี ร.เรือ ควบกล้ำที่ตัว ก', hintContext: 'ใบกะเพรา / ผัดกะเพราไข่ดาว',
+      step1: 'จุดที่มักเขียนผิด: เติม ร.เรือ ควบกล้ำกลายเป็น กระเพรา',
+      step2: 'หลักภาษาที่ถูกต้อง: กะเพรา เป็นคำไทยแท้ ใช้ "กะ" ไม่ใช่ "กระ"',
+      step3: 'ตัวอย่างประโยค: คุณแม่ทำผัดกะเพราหมูสับกลิ่นหอมน่ารับประทาน',
+      answer: 'กะเพรา ✅ (ไม่ใช่ กระเพรา ❌)'
+    },
+    {
+      id: 'sp_p2', type: 'pra', categoryLabel: 'การประวิสรรชนีย์ (กะ/กระ)', emoji: '🥥',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "น้ำกระทิ"', wrongForm: 'กระทิ', correctForm: 'กะทิ',
+      hintRule: 'ไม่มี ร.เรือ ควบกล้ำที่ตัว ก', hintContext: 'แกงกะทิ / น้ำกะทิแตงไทย',
+      step1: 'จุดที่มักเขียนผิด: ใส่ ร.เรือ กลายเป็น กระทิ',
+      step2: 'หลักภาษาที่ถูกต้อง: กะทิ ใช้ "กะ" ไม่ประวิสรรชนีย์แบบควบกล้ำ',
+      step3: 'ตัวอย่างประโยค: ลอดช่องน้ำกะทิหวานมันชื่นใจ',
+      answer: 'กะทิ ✅ (ไม่ใช่ กระทิ ❌)'
+    },
+    {
+      id: 'sp_p3', type: 'pra', categoryLabel: 'การประวิสรรชนีย์ (กะ/กระ)', emoji: '🪸',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ประการัง"', wrongForm: 'ประการัง', correctForm: 'ปะการัง',
+      hintRule: 'ขึ้นต้นด้วย "ปะ" ไม่มี ร.เรือ', hintContext: 'แนวปะการังใต้ทะเล',
+      step1: 'จุดที่มักเขียนผิด: เขียนเป็น ประการัง',
+      step2: 'หลักภาษาที่ถูกต้อง: ปะการัง ใช้ตัว ปะ ไม่มี ร.เรือ ควบกล้ำ',
+      step3: 'ตัวอย่างประโยค: นักดำน้ำช่วยกันดูแลและอนุรักษ์แนวปะการัง',
+      answer: 'ปะการัง ✅ (ไม่ใช่ ประการัง ❌)'
+    },
+    {
+      id: 'sp_p4', type: 'pra', categoryLabel: 'การประวิสรรชนีย์ (กะ/กระ)', emoji: '⏰',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "กาละเทศะ"', wrongForm: 'กาละเทศะ', correctForm: 'กาลเทศะ',
+      hintRule: 'กาลเทศะ ไม่ประวิสรรชนีย์ตรงกลาง', hintContext: 'รู้กาลเทศะ / กาลเวลาและสถานที่',
+      step1: 'จุดที่มักเขียนผิด: ใส่สระอะตรงกลางเป็น กาละเทศะ',
+      step2: 'หลักภาษาที่ถูกต้อง: สมาสคำ กาล + เทศะ ออกเสียงอะกึ่งมาตรา ไม่ประวิสรรชนีย์',
+      step3: 'ตัวอย่างประโยค: นักเรียนที่ดีต้องรู้จักกาลเทศะเมื่ออยู่ต่อหน้าผู้ใหญ่',
+      answer: 'กาลเทศะ ✅ (ไม่ใช่ กาละเทศะ ❌)'
+    },
+
+    /* หมวด 2: ตัวสะกดไม่ตรงมาตรา (ฎ/ฏ, ณ/น, ส/ศ) (spelling) */
+    {
+      id: 'sp_s1', type: 'spelling', categoryLabel: 'ตัวสะกดแม่กด (ฎ/ฏ)', emoji: '⚖️',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "กฏหมาย"', wrongForm: 'กฏหมาย', correctForm: 'กฎหมาย',
+      hintRule: 'กฎหมาย ใช้ ฎ.ชฎา (ฐานหยักเดียว)', hintContext: 'ข้อบังคับทางกฎหมาย',
+      step1: 'จุดที่มักเขียนผิด: สับสนระหว่าง ฎ.ชฎา กับ ฏ.ปฏัก',
+      step2: 'หลักภาษา: กฎ กฎเกณฑ์ กฎหมาย ใช้ ฎ.ชฎา (มีหยักเดียวที่ฐาน)',
+      step3: 'ตัวอย่างประโยค: ประชาชนทุกคนต้องเคารพและปฏิบัติตามกฎหมาย',
+      answer: 'กฎหมาย ✅ (ใช้ ฎ.ชฎา ไม่ใช่ ฏ.ปฏัก ❌)'
+    },
+    {
+      id: 'sp_s2', type: 'spelling', categoryLabel: 'ตัวสะกดแม่กด (ฎ/ฏ)', emoji: '🌟',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ปรากฎการณ์"', wrongForm: 'ปรากฎ', correctForm: 'ปรากฏ',
+      hintRule: 'ปรากฏ ใช้ ฏ.ปฏัก (ฐานมีสองหยัก)', hintContext: 'ปรากฏตัว / ปรากฏการณ์ธรรมชาติ',
+      step1: 'จุดที่มักเขียนผิด: เขียน ปรากฎ ใช้ ฎ.ชฎา',
+      step2: 'หลักภาษา: คำว่า ปรากฏ และ กบฏ ใช้ ฏ.ปฏัก (สองหยัก)',
+      step3: 'ตัวอย่างประโยค: รุ้งกินน้ำปรากฏขึ้นบนท้องฟ้าหลังฝนหยุดตก',
+      answer: 'ปรากฏ ✅ (ใช้ ฏ.ปฏัก ไม่ใช่ ฎ.ชฎา ❌)'
+    },
+    {
+      id: 'sp_s3', type: 'spelling', categoryLabel: 'ตัวสะกดแม่กน (ณ/น)', emoji: '🧮',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "คำนวน"', wrongForm: 'คำนวน', correctForm: 'คำนวณ',
+      hintRule: 'คำนวณ ใช้ ณ.เณร สะกด (จำนวน ใช้ น.หนู)', hintContext: 'คิดคำนวณตัวเลขคณิตศาสตร์',
+      step1: 'จุดที่มักเขียนผิด: ใช้ น.หนู สะกด (คำนวน)',
+      step2: 'หลักภาษา: คำนวณ มาจากภาษาเขมร ใช้ ณ.เณร เป็นตัวสะกด',
+      step3: 'ตัวอย่างประโยค: เด็กๆ ตั้งใจคำนวณโจทย์คณิตศาสตร์อย่างถูกต้อง',
+      answer: 'คำนวณ ✅ (ใช้ ณ.เณร ไม่ใช่ น.หนู ❌)'
+    },
+    {
+      id: 'sp_s4', type: 'spelling', categoryLabel: 'ตัวสะกดแม่กด (ศ/ส)', emoji: '🎯',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "โอกาศ"', wrongForm: 'โอกาศ', correctForm: 'โอกาส',
+      hintRule: 'โอกาส ใช้ ส.เสือ สะกด (อากาศ ถึงจะใช้ ศ.ศาลา)', hintContext: 'ให้โอกาส / มีโอกาสทอง',
+      step1: 'จุดที่มักเขียนผิด: ใช้ ศ.ศาลา สะกด สับสนกับคำว่า อากาศ',
+      step2: 'หลักภาษา: โอกาส มาจากภาษาบาลี ใช้ ส.เสือ สะกดในแม่กด',
+      step3: 'ตัวอย่างประโยค: คุณครูให้โอกาสนักเรียนแก้ตัวในการทำแบบทดสอบ',
+      answer: 'โอกาส ✅ (ใช้ ส.เสือ ไม่ใช่ ศ.ศาลา ❌)'
+    },
+
+    /* หมวด 3: ตัวการันต์และคำเฉพาะ (garun) */
+    {
+      id: 'sp_g1', type: 'garun', categoryLabel: 'ตัวการันต์และสระลดรูป', emoji: '📝',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "อนุญาติ"', wrongForm: 'อนุญาติ', correctForm: 'อนุญาต',
+      hintRule: 'อนุญาต ไม่มีสระอิ (ญาติพี่น้อง ถึงมีสระอิ)', hintContext: 'ขออนุญาตคุณครู',
+      step1: 'จุดที่มักเขียนผิด: เติมสระอิบนตัว ต เป็น อนุญาติ',
+      step2: 'หลักภาษา: อนุญาต เป็นคำกริยา ไม่มีสระอิบน ต.เต่า',
+      step3: 'ตัวอย่างประโยค: นักเรียนยกมือขออนุญาตคุณครูออกนอกห้องเรียน',
+      answer: 'อนุญาต ✅ (ไม่มีสระอิบน ต.เต่า ❌)'
+    },
+    {
+      id: 'sp_g2', type: 'garun', categoryLabel: 'ตัวการันต์และสระลดรูป', emoji: '👀',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "สังเกตุ"', wrongForm: 'สังเกตุ', correctForm: 'สังเกต',
+      hintRule: 'สังเกต ไม่มีสระอุ (สาเหตุ ถึงมีสระอุ)', hintContext: 'ตั้งข้อสังเกต / สังเกตการทดลอง',
+      step1: 'จุดที่มักเขียนผิด: เติมสระอุใต้ ต.เต่า เป็น สังเกตุ',
+      step2: 'หลักภาษา: สังเกต มาจากคำบาลี สํเกต ไม่มีสระอุ',
+      step3: 'ตัวอย่างประโยค: นักวิทยาศาสตร์ที่ดีต้องรู้จักสังเกตสิ่งรอบตัวอย่างละเอียด',
+      answer: 'สังเกต ✅ (ไม่มีสระอุใต้ ต.เต่า ❌)'
+    },
+    {
+      id: 'sp_g3', type: 'garun', categoryLabel: 'ตัวการันต์และสระลดรูป', emoji: '🤝',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ผูกพันธ์"', wrongForm: 'ผูกพันธ์', correctForm: 'ผูกพัน',
+      hintRule: 'ผูกพัน ไม่มีตัวการันต์ (สัมพันธ์ ถึงมี ธ์)', hintContext: 'ความผูกพันในครอบครัว',
+      step1: 'จุดที่มักเขียนผิด: เติม ธ.ธง การันต์ (ธ์) ท้ายคำ',
+      step2: 'หลักภาษา: ผูกพัน เป็นคำกริยาไทยแท้ผสมบาลี ไม่ใส่ตัวการันต์',
+      step3: 'ตัวอย่างประโยค: พี่น้องในบ้านมีความรักและความผูกพันกันอย่างแน่นแฟ้น',
+      answer: 'ผูกพัน ✅ (ไม่มี ธ์ การันต์ ❌)'
+    },
+    {
+      id: 'sp_g4', type: 'garun', categoryLabel: 'ตัวการันต์และสระลดรูป', emoji: '🙏',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "บิณฑบาตร"', wrongForm: 'บิณฑบาตร', correctForm: 'บิณฑบาต',
+      hintRule: 'บิณฑบาต ไม่มี ร.เรือ สะกด (บาตรพระ ถึงมี ร.เรือ)', hintContext: 'พระสงฆ์ออกรับบิณฑบาต',
+      step1: 'จุดที่มักเขียนผิด: เติม ร.เรือ สะกดสับสนกับคำว่า บาตรพระ',
+      step2: 'หลักภาษา: บิณฑบาต หมายถึงก้อนข้าวที่ตกลงในบาตร ไม่มี ร สะกด',
+      step3: 'ตัวอย่างประโยค: ชาวบ้านตื่นแต่เช้าเพื่อนำข้าวสารอาหารแห้งไปใส่บาตรพระที่มาบิณฑบาต',
+      answer: 'บิณฑบาต ✅ (ไม่มี ร.เรือ สะกด ❌)'
+    },
+
+    /* หมวด 4: คำยืมและคำทับศัพท์ (loan) */
+    {
+      id: 'sp_l1', type: 'loan', categoryLabel: 'คำทับศัพท์ภาษาอังกฤษ', emoji: '🍦',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ไอศครีม"', wrongForm: 'ไอศครีม', correctForm: 'ไอศกรีม',
+      hintRule: 'ใช้ ก.ไก่ ควบกล้ำ (Ice Cream -> กรีม)', hintContext: 'ไอศกรีมรสวานิลลา',
+      step1: 'จุดที่มักเขียนผิด: ใช้ ค.ควาย ควบกล้ำเป็น ครีม',
+      step2: 'หลักภาษา: ราชบัณฑิตยสภากำหนดให้ใช้ ไอศกรีม ด้วย ก.ไก่',
+      step3: 'ตัวอย่างประโยค: เด็กๆ ชอบกินไอศกรีมกะทิรวมมิตรในวันที่อากาศร้อน',
+      answer: 'ไอศกรีม ✅ (ใช้ ก.ไก่ ควบกล้ำ ไม่ใช่ ค.ควาย ❌)'
+    },
+    {
+      id: 'sp_l2', type: 'loan', categoryLabel: 'คำทับศัพท์ภาษาอังกฤษ', emoji: '🌐',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "อินเตอร์เน็ต"', wrongForm: 'อินเตอร์เน็ต', correctForm: 'อินเทอร์เน็ต',
+      hintRule: 'ใช้ ท.ทหาร (Internet -> เทอร์)', hintContext: 'ค้นหาข้อมูลทางอินเทอร์เน็ต',
+      step1: 'จุดที่มักเขียนผิด: ใช้ ต.เต่า เป็น อินเตอร์เน็ต',
+      step2: 'หลักภาษา: ถอดอักษร t ในคำว่า ter ด้วย ท.ทหาร (อินเทอร์เน็ต)',
+      step3: 'ตัวอย่างประโยค: เราสามารถสืบค้นความรู้บทเรียนได้จากระบบอินเทอร์เน็ต',
+      answer: 'อินเทอร์เน็ต ✅ (ใช้ ท.ทหาร ไม่ใช่ ต.เต่า ❌)'
+    },
+    {
+      id: 'sp_l3', type: 'loan', categoryLabel: 'คำทับศัพท์ภาษาอังกฤษ', emoji: '🔗',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ลิ้งค์"', wrongForm: 'ลิ้งค์', correctForm: 'ลิงก์',
+      hintRule: 'ลิงก์ ใช้ ก.ไก่ การันต์ (ก์) และไม่ใส่วรรณยุกต์โท', hintContext: 'กดเปิดลิงก์แบบฝึกหัด',
+      step1: 'จุดที่มักเขียนผิด: ใส่ไม้โทและใช้ ค์ การันต์ (ลิ้งค์)',
+      step2: 'หลักภาษา: Link ถอดด้วย ง สะกด และ ก์ การันต์ คำทับศัพท์ไม่ใส่วรรณยุกต์',
+      step3: 'ตัวอย่างประโยค: คุณครูส่งลิงก์ใบงานการเรียนรู้ให้นักเรียนผ่านกลุ่มไลน์',
+      answer: 'ลิงก์ ✅ (ใช้ ก์ การันต์ ไม่มีไม้โท ❌)'
+    },
+    {
+      id: 'sp_l4', type: 'loan', categoryLabel: 'คำทับศัพท์ภาษาอังกฤษ', emoji: '✍️',
+      prompt: 'วิเคราะห์และแก้ไขคำที่มักเขียนผิด: "ลายเซ็นต์"', wrongForm: 'ลายเซ็นต์', correctForm: 'ลายเซ็น',
+      hintRule: 'ลายเซ็น มาจาก sign เป็นคำกริยา ไม่มี ต์ การันต์', hintContext: 'ลงลายเซ็นในเอกสาร',
+      step1: 'จุดที่มักเขียนผิด: เติม ต์ การันต์ ท้ายคำว่า เซ็นต์',
+      step2: 'หลักภาษา: ลายเซ็นต์ ที่มี ต์ หมายถึง เซนต์ (หน่วยเงินตรา cent)',
+      step3: 'ตัวอย่างประโยค: ผู้บริหารลงลายเซ็นรับรองเอกสารสำคัญของโรงเรียน',
+      answer: 'ลายเซ็น ✅ (ไม่มี ต์ การันต์ ❌)'
+    }
+  ];
+
+  window.WORKSHEET_CONFIG = {
+    icon: '🎯',
+    title: 'ใบงานเขียนคำบอกและแก้ไขคำผิด',
+    subject: 'ภาษาไทย (หลักภาษาและการสะกด)',
+    gradeLabel: 'ป.3–ป.6',
+    mediaLabel: 'มือปราบคำผิด (Spelling Shooter)',
+    sourceMediaUrl:'/games/thai/spelling.html',
+    indicators: ['ท 4.1 ป.3/1', 'ท 4.1 ป.4/1', 'ท 4.1 ป.4/4'],
+    directions: 'พิจารณาคำที่กำหนด วิเคราะห์สาเหตุที่มักเขียนผิด อธิบายหลักภาษาที่ถูกต้อง แล้วเขียนคำตอบที่ถูกต้องลงในช่องว่าง',
+
+    getItems(topic) {
+      if (!topic || topic === 'mixed') {
+        return THAI_SPELLING_ITEMS;
+      }
+      return THAI_SPELLING_ITEMS.filter(item => item.type === topic);
+    },
+
+    renderQuestion(item) {
+      const e = window.KampaiTopicWorksheet.escapeHtml;
+      return '<div class="q-stem">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+        + '<span class="skill-tag">' + e(item.categoryLabel) + '</span>'
+        + '<span style="font-size:7.5pt; font-weight:800; color:var(--ws-muted);">' + e(item.emoji) + '</span>'
+        + '</div>'
+        + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+        + '<div class="thai-word">' + e(item.correctForm) + ' <span style="font-size:10pt; color:var(--ws-danger); font-weight:700;">(มักผิดเป็น: ' + e(item.wrongForm) + ')</span></div>'
+        + '<div class="classify-grid">'
+        + '<div class="classify-box">เกร็ดช่วยจำ: <strong>' + e(item.hintRule) + '</strong></div>'
+        + '<div class="classify-box">บริบทการใช้: <strong>' + e(item.hintContext) + '</strong></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-work-block step-block">'
+        + '<div class="step-row">'
+        + '<span class="step-tag">1 จุดที่มักผิด</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step1) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag">2 หลักภาษาที่ถูก</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step2) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag gold">3 ตัวอย่างประโยค</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step3) + '</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-foot">'
+        + '<div class="answer-line">'
+        + '<span>เฉลยคำตอบ:</span>'
+        + '<span class="answer-fill">' + e(item.answer) + '</span>'
+        + '</div>'
+        + '</div>';
+    }
+  };
+  </script>
+
+  <script src="/games/worksheet-topic.js?v=2.0.0"></script>
+  <script>
+    function render() {
+      window.KampaiTopicWorksheet.render();
+    }
+    document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+    document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+    document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+    window.KampaiWorksheet.loadTeachers();
+    render();
+  </script>
+  <script src="/games/worksheet-modes.js?v=2.0.0"></script>
+</body>
+</html>

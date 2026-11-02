@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="worksheet-source-media" content="/games/english/vocab-race.html">
+  <meta name="curriculum-indicators" content="ต 1.1 ป.1/2, ต 1.1 ป.2/2, ต 1.1 ป.3/2, ต 1.1 ป.4/2">
+  <title>ใบงานคำศัพท์ภาษาอังกฤษ Vocabulary Race — โรงเรียนบ้านคำไผ่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="/games/worksheet-topic.css?v=2.0.0" rel="stylesheet">
+  <link href="/games/worksheet-modes.css?v=2.0.0" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .toolbar {
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    .skill-tag {
+      display: inline-block;
+      font-size: 6.8pt;
+      font-weight: 800;
+      color: var(--ws-accent, #0284c7);
+      border: 1px solid var(--ws-accent, #0284c7);
+      border-radius: 3px;
+      padding: 0.3mm 1.5mm;
+      line-height: 1.2;
+    }
+    .eng-word {
+      font-size: 13pt;
+      font-weight: 900;
+      color: var(--ws-accent, #0284c7);
+      margin: 0.4mm 0;
+      letter-spacing: 0.02em;
+    }
+    .classify-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2mm;
+      margin: 0.6mm 0;
+    }
+    .classify-box {
+      border: 1px dashed var(--ws-line, #c9d2df);
+      border-radius: 3px;
+      padding: 0.8mm 1.5mm;
+      font-size: 6.8pt;
+      font-weight: 700;
+      color: var(--ws-muted, #5b6475);
+      background: var(--ws-soft, #f0f9ff);
+    }
+    .step-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      margin-top: 0.8mm;
+    }
+    .step-row {
+      display: grid;
+      grid-template-columns: 24mm 1fr;
+      gap: 1.5mm;
+      align-items: end;
+      min-height: 6.5mm;
+    }
+    .step-tag {
+      font-size: 6.5pt;
+      font-weight: 800;
+      color: var(--ws-paper, #ffffff);
+      background: var(--ws-accent, #0284c7);
+      border-radius: 3px;
+      padding: 0.8mm;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .step-tag.gold {
+      background: #d97706;
+    }
+    .step-body {
+      min-height: 5.5mm;
+      border-bottom: 1px dotted var(--ws-muted, #78849e);
+      display: flex;
+      align-items: flex-end;
+      font-weight: 700;
+      font-size: 8pt;
+      padding-bottom: 0.5mm;
+    }
+    .work-fill {
+      color: transparent;
+      font-weight: 800;
+    }
+    .show-answers .work-fill {
+      color: var(--ws-danger, #dc2626);
+    }
+    .q-foot .answer-line {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      font-size: 8.5pt;
+      font-weight: 800;
+      color: var(--ws-accent, #0284c7);
+    }
+    .answer-fill {
+      color: transparent;
+      font-weight: 900;
+      border-bottom: 1.5px solid var(--ws-accent, #0284c7);
+      padding: 0 2mm;
+    }
+    .show-answers .answer-fill {
+      color: var(--ws-danger, #dc2626);
+      border-bottom-color: var(--ws-danger, #dc2626);
+    }
+    .count-5 .step-row {
+      min-height: 8.5mm;
+    }
+    .count-5 .eng-word {
+      font-size: 15pt;
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <h1>🔤 ใบงานคำศัพท์ Vocabulary Race</h1>
+    <div class="toolbar-ctrls">
+      <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+        <option value="standard">มาตรฐาน</option>
+        <option value="progressive">บันไดระดับ</option>
+        <option value="booklet">รวมเล่ม</option>
+      </select>
+      <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+        <option value="1">1 หน้า</option>
+        <option value="2">2 หน้า</option>
+        <option value="3">3 หน้า</option>
+      </select>
+      <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+        <option value="3">ป.1–ป.3</option>
+        <option value="4" selected>ป.4–ป.6</option>
+      </select>
+      <select class="t-select" id="selTopic" aria-label="หมวดคำศัพท์">
+        <option value="mixed">รวมทุกหมวด (Mixed)</option>
+        <option value="animals">🐾 สัตว์ (Animals)</option>
+        <option value="school">🏫 โรงเรียน (School)</option>
+        <option value="food">🍚 อาหาร (Food)</option>
+        <option value="verbs">🏃 คำกริยา (Action Verbs)</option>
+        <option value="weather">🌦️ อากาศ (Weather)</option>
+        <option value="jobs">👩‍🏫 อาชีพ (Jobs)</option>
+      </select>
+      <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+        <option value="5" selected>5 ข้อ / หน้า</option>
+        <option value="10">10 ข้อ / หน้า</option>
+      </select>
+      <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน">
+      <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+        <option value="">-- เลือกครูผู้สอน --</option>
+      </select>
+      <button class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+      <button class="btn" id="btnAnswers">👁 เฉลยครู</button>
+      <button class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+    </div>
+  </header>
+
+  <main class="pages" id="pages">
+    <section class="sheet">
+      <div class="questions">
+        <article class="q">กำลังสร้างใบงาน...</article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/games/worksheet-runtime.js?v=2.0.0"></script>
+  <script>
+  const VOCAB_WORKSHEET_ITEMS = [
+    /* 1. Animals (animals) */
+    {
+      id: 'v_a1', type: 'animals', categoryLabel: 'หมวดสัตว์ (Animals)', emoji: '🐘',
+      prompt: 'เลือกคำแปลและแต่งประโยค: elephant', word: 'elephant',
+      hintMeaning: 'สัตว์บกขนาดใหญ่ มีงวงและงา', hintPhonic: 'ออกเสียง /ˈel.ɪ.fənt/',
+      step1: 'คำแปลภาษาไทย: ช้าง',
+      step2: 'การใช้ในประโยค: The elephant is very big and strong.',
+      step3: 'ชนิดคำ (Part of speech): Noun (คำนามเอกพจน์ นำหน้าด้วย an)',
+      answer: 'ช้าง (elephant) / an elephant'
+    },
+    {
+      id: 'v_a2', type: 'animals', categoryLabel: 'หมวดสัตว์ (Animals)', emoji: '🐰',
+      prompt: 'เลือกคำแปลและแต่งประโยค: rabbit', word: 'rabbit',
+      hintMeaning: 'สัตว์หูยาว กระโดดได้ ชอบกินแครอท', hintPhonic: 'ออกเสียง /ˈræb.ɪt/',
+      step1: 'คำแปลภาษาไทย: กระต่าย',
+      step2: 'การใช้ในประโยค: The rabbit has long ears and can jump fast.',
+      step3: 'ชนิดคำ (Part of speech): Noun (คำนาม นับได้)',
+      answer: 'กระต่าย (rabbit)'
+    },
+    {
+      id: 'v_a3', type: 'animals', categoryLabel: 'หมวดสัตว์ (Animals)', emoji: '🐯',
+      prompt: 'เลือกคำแปลและแต่งประโยค: tiger', word: 'tiger',
+      hintMeaning: 'สัตว์กินเนื้อ มีลายพาดกลอน', hintPhonic: 'ออกเสียง /ˈtaɪ.ɡər/',
+      step1: 'คำแปลภาษาไทย: เสือ',
+      step2: 'การใช้ในประโยค: The tiger lives in the deep jungle.',
+      step3: 'ชนิดคำ (Part of speech): Noun (สัตว์ป่า)',
+      answer: 'เสือ (tiger)'
+    },
+    {
+      id: 'v_a4', type: 'animals', categoryLabel: 'หมวดสัตว์ (Animals)', emoji: '🐬',
+      prompt: 'เลือกคำแปลและแต่งประโยค: dolphin', word: 'dolphin',
+      hintMeaning: 'สัตว์เลี้ยงลูกด้วยนมในทะเล แสนรู้และเป็นมิตร', hintPhonic: 'ออกเสียง /ˈdɒl.fɪn/',
+      step1: 'คำแปลภาษาไทย: โลมา',
+      step2: 'การใช้ในประโยค: A dolphin can swim and jump gracefully.',
+      step3: 'ชนิดคำ (Part of speech): Noun (สัตว์น้ำ)',
+      answer: 'โลมา (dolphin)'
+    },
+    {
+      id: 'v_a5', type: 'animals', categoryLabel: 'หมวดสัตว์ (Animals)', emoji: '🦒',
+      prompt: 'เลือกคำแปลและแต่งประโยค: giraffe', word: 'giraffe',
+      hintMeaning: 'สัตว์คอยาวที่สุดในโลก กินใบไม้ยอดสูง', hintPhonic: 'ออกเสียง /dʒɪˈrɑːf/',
+      step1: 'คำแปลภาษาไทย: ยีราฟ',
+      step2: 'การใช้ในประโยค: The giraffe eats green leaves from tall trees.',
+      step3: 'ชนิดคำ (Part of speech): Noun (สัตว์บก)',
+      answer: 'ยีราฟ (giraffe)'
+    },
+
+    /* 2. School & Classroom (school) */
+    {
+      id: 'v_s1', type: 'school', categoryLabel: 'หมวดโรงเรียนและชั้นเรียน (School)', emoji: '📏',
+      prompt: 'เลือกคำแปลและแต่งประโยค: ruler', word: 'ruler',
+      hintMeaning: 'อุปกรณ์ใช้วัดความยาวและขีดเส้นตรง', hintPhonic: 'ออกเสียง /ˈruː.lər/',
+      step1: 'คำแปลภาษาไทย: ไม้บรรทัด',
+      step2: 'การใช้ในประโยค: I use a ruler to draw straight lines in my book.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อุปกรณ์การเรียน)',
+      answer: 'ไม้บรรทัด (ruler)'
+    },
+    {
+      id: 'v_s2', type: 'school', categoryLabel: 'หมวดโรงเรียนและชั้นเรียน (School)', emoji: '✂️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: scissors', word: 'scissors',
+      hintMeaning: 'อุปกรณ์ใช้ตัดกระดาษ มีสองคมเสมอ', hintPhonic: 'ออกเสียง /ˈsɪz.əz/',
+      step1: 'คำแปลภาษาไทย: กรรไกร',
+      step2: 'การใช้ในประโยค: Cut the paper carefully with scissors.',
+      step3: 'ชนิดคำ (Part of speech): Plural Noun (คำนามรูปพหูพจน์เสมอ: a pair of scissors)',
+      answer: 'กรรไกร (scissors)'
+    },
+    {
+      id: 'v_s3', type: 'school', categoryLabel: 'หมวดโรงเรียนและชั้นเรียน (School)', emoji: '🎒',
+      prompt: 'เลือกคำแปลและแต่งประโยค: backpack', word: 'backpack',
+      hintMeaning: 'กระเป๋าสะพายหลังสำหรับใส่อุปกรณ์การเรียน', hintPhonic: 'ออกเสียง /ˈbæk.pæk/',
+      step1: 'คำแปลภาษาไทย: กระเป๋าสะพายหลัง/กระเป๋านักเรียน',
+      step2: 'การใช้ในประโยค: I put my books and pencils into my backpack.',
+      step3: 'ชนิดคำ (Part of speech): Noun (กระเป๋า)',
+      answer: 'กระเป๋าสะพายหลัง (backpack)'
+    },
+    {
+      id: 'v_s4', type: 'school', categoryLabel: 'หมวดโรงเรียนและชั้นเรียน (School)', emoji: '💻',
+      prompt: 'เลือกคำแปลและแต่งประโยค: computer', word: 'computer',
+      hintMeaning: 'เครื่องคำนวณอิเล็กทรอนิกส์สำหรับค้นคว้าและพิมพ์งาน', hintPhonic: 'ออกเสียง /kəmˈpjuː.tər/',
+      step1: 'คำแปลภาษาไทย: คอมพิวเตอร์',
+      step2: 'การใช้ในประโยค: Students learn coding in the computer lab.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อุปกรณ์เทคโนโลยี)',
+      answer: 'คอมพิวเตอร์ (computer)'
+    },
+    {
+      id: 'v_s5', type: 'school', categoryLabel: 'หมวดโรงเรียนและชั้นเรียน (School)', emoji: '🖍️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: crayon', word: 'crayon',
+      hintMeaning: 'แท่งสีเทียนสำหรับระบายภาพวาด', hintPhonic: 'ออกเสียง /ˈkreɪ.ɒn/',
+      step1: 'คำแปลภาษาไทย: สีเทียน',
+      step2: 'การใช้ในประโยค: I color the rainbow with a colorful crayon.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อุปกรณ์ศิลปะ)',
+      answer: 'สีเทียน (crayon)'
+    },
+
+    /* 3. Food & Drinks (food) */
+    {
+      id: 'v_f1', type: 'food', categoryLabel: 'หมวดอาหาร (Food & Drinks)', emoji: '🍞',
+      prompt: 'เลือกคำแปลและแต่งประโยค: bread', word: 'bread',
+      hintMeaning: 'อาหารทำจากแป้งสาลี อบจนสุกนุ่ม', hintPhonic: 'ออกเสียง /bred/',
+      step1: 'คำแปลภาษาไทย: ขนมปัง',
+      step2: 'การใช้ในประโยค: I like to eat toasted bread with butter for breakfast.',
+      step3: 'ชนิดคำ (Part of speech): Uncountable Noun (คำนามนับไม่ได้: a slice of bread)',
+      answer: 'ขนมปัง (bread)'
+    },
+    {
+      id: 'v_f2', type: 'food', categoryLabel: 'หมวดอาหาร (Food & Drinks)', emoji: '🍜',
+      prompt: 'เลือกคำแปลและแต่งประโยค: noodle', word: 'noodle',
+      hintMeaning: 'เส้นหมี่/ก๋วยเตี๋ยว ทำจากแป้ง', hintPhonic: 'ออกเสียง /ˈnuː.dəl/',
+      step1: 'คำแปลภาษาไทย: ก๋วยเตี๋ยว / บะหมี่',
+      step2: 'การใช้ในประโยค: Hot chicken noodle soup is delicious on a rainy day.',
+      step3: 'ชนิดคำ (Part of speech): Noun (มักใช้รูปพหูพจน์ noodles)',
+      answer: 'ก๋วยเตี๋ยว/บะหมี่ (noodle)'
+    },
+    {
+      id: 'v_f3', type: 'food', categoryLabel: 'หมวดอาหาร (Food & Drinks)', emoji: '🧀',
+      prompt: 'เลือกคำแปลและแต่งประโยค: cheese', word: 'cheese',
+      hintMeaning: 'ผลิตภัณฑ์จากนมวัว สีเหลืองนวล รสมันเค็ม', hintPhonic: 'ออกเสียง /tʃiːz/',
+      step1: 'คำแปลภาษาไทย: ชีส / เนยแข็ง',
+      step2: 'การใช้ในประโยค: The mouse loves yellow cheese very much.',
+      step3: 'ชนิดคำ (Part of speech): Uncountable Noun (เนยแข็ง)',
+      answer: 'เนยแข็ง/ชีส (cheese)'
+    },
+    {
+      id: 'v_f4', type: 'food', categoryLabel: 'หมวดอาหาร (Food & Drinks)', emoji: '🥗',
+      prompt: 'เลือกคำแปลและแต่งประโยค: salad', word: 'salad',
+      hintMeaning: 'อาหารจานผักสดผสมน้ำสลัดเพื่อสุขภาพ', hintPhonic: 'ออกเสียง /ˈsæl.əd/',
+      step1: 'คำแปลภาษาไทย: สลัดผัก',
+      step2: 'การใช้ในประโยค: Fresh green salad is good for your health.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อาหารเพื่อสุขภาพ)',
+      answer: 'สลัดผัก (salad)'
+    },
+
+    /* 4. Action Verbs (verbs) */
+    {
+      id: 'v_v1', type: 'verbs', categoryLabel: 'หมวดคำกริยา (Action Verbs)', emoji: '✍️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: write', word: 'write',
+      hintMeaning: 'ใช้ดินสอหรือปากกาบันทึกตัวหนังสือ', hintPhonic: 'ออกเสียง /raɪt/ (ไม่ออกเสียง w)',
+      step1: 'คำแปลภาษาไทย: เขียน',
+      step2: 'การใช้ในประโยค: Please write your full name clearly on the line.',
+      step3: 'ชนิดคำ (Part of speech): Action Verb (irregular: write - wrote - written)',
+      answer: 'เขียน (write)'
+    },
+    {
+      id: 'v_v2', type: 'verbs', categoryLabel: 'หมวดคำกริยา (Action Verbs)', emoji: '🏊',
+      prompt: 'เลือกคำแปลและแต่งประโยค: swim', word: 'swim',
+      hintMeaning: 'เคลื่อนไหวในน้ำโดยใช้แขนขา', hintPhonic: 'ออกเสียง /swɪm/',
+      step1: 'คำแปลภาษาไทย: ว่ายน้ำ',
+      step2: 'การใช้ในประโยค: Ducks and fish can swim very well in the pond.',
+      step3: 'ชนิดคำ (Part of speech): Action Verb (irregular: swim - swam - swum)',
+      answer: 'ว่ายน้ำ (swim)'
+    },
+    {
+      id: 'v_v3', type: 'verbs', categoryLabel: 'หมวดคำกริยา (Action Verbs)', emoji: '👂',
+      prompt: 'เลือกคำแปลและแต่งประโยค: listen', word: 'listen',
+      hintMeaning: 'ตั้งใจฟังเสียงด้วยหู', hintPhonic: 'ออกเสียง /ˈlɪs.ən/ (ไม่ออกเสียง t)',
+      step1: 'คำแปลภาษาไทย: ฟัง / รับฟัง',
+      step2: 'การใช้ในประโยค: Listen carefully to the teacher during English class.',
+      step3: 'ชนิดคำ (Part of speech): Verb (มักใช้คู่กับ to เช่น listen to)',
+      answer: 'ฟัง (listen)'
+    },
+    {
+      id: 'v_v4', type: 'verbs', categoryLabel: 'หมวดคำกริยา (Action Verbs)', emoji: '🎨',
+      prompt: 'เลือกคำแปลและแต่งประโยค: draw', word: 'draw',
+      hintMeaning: 'วาดภาพลายเส้นลงบนกระดาษ', hintPhonic: 'ออกเสียง /drɔː/',
+      step1: 'คำแปลภาษาไทย: วาด / วาดภาพ',
+      step2: 'การใช้ในประโยค: I draw a beautiful house with trees and flowers.',
+      step3: 'ชนิดคำ (Part of speech): Action Verb (irregular: draw - drew - drawn)',
+      answer: 'วาดภาพ (draw)'
+    },
+
+    /* 5. Weather (weather) */
+    {
+      id: 'v_w1', type: 'weather', categoryLabel: 'หมวดสภาพอากาศ (Weather)', emoji: '🌈',
+      prompt: 'เลือกคำแปลและแต่งประโยค: rainbow', word: 'rainbow',
+      hintMeaning: 'แถบสี 7 สีโค้งบนท้องฟ้าหลังฝนตก', hintPhonic: 'ออกเสียง /ˈreɪn.bəʊ/',
+      step1: 'คำแปลภาษาไทย: รุ้งกินน้ำ',
+      step2: 'การใช้ในประโยค: A colorful rainbow appears in the sky after the rain.',
+      step3: 'ชนิดคำ (Part of speech): Compound Noun (rain + bow)',
+      answer: 'รุ้งกินน้ำ (rainbow)'
+    },
+    {
+      id: 'v_w2', type: 'weather', categoryLabel: 'หมวดสภาพอากาศ (Weather)', emoji: '⛈️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: storm', word: 'storm',
+      hintMeaning: 'พายุฝนฟ้าคะนอง ลมพัดแรง', hintPhonic: 'ออกเสียง /stɔːm/',
+      step1: 'คำแปลภาษาไทย: พายุ',
+      step2: 'การใช้ในประโยค: Stay safely inside the house during a heavy storm.',
+      step3: 'ชนิดคำ (Part of speech): Noun (ปรากฏการณ์ธรรมชาติ)',
+      answer: 'พายุ (storm)'
+    },
+    {
+      id: 'v_w3', type: 'weather', categoryLabel: 'หมวดสภาพอากาศ (Weather)', emoji: '🌬️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: windy', word: 'windy',
+      hintMeaning: 'มีลมพัดแรงตลอดเวลา', hintPhonic: 'ออกเสียง /ˈwɪn.di/',
+      step1: 'คำแปลภาษาไทย: มีลมแรง',
+      step2: 'การใช้ในประโยค: It is a windy day, perfect for flying a kite.',
+      step3: 'ชนิดคำ (Part of speech): Adjective (คำคุณศัพท์บรรยายสภาพอากาศ)',
+      answer: 'มีลมแรง (windy)'
+    },
+
+    /* 6. Jobs & Occupations (jobs) */
+    {
+      id: 'v_j1', type: 'jobs', categoryLabel: 'หมวดอาชีพ (Jobs & Occupations)', emoji: '👨‍🚒',
+      prompt: 'เลือกคำแปลและแต่งประโยค: firefighter', word: 'firefighter',
+      hintMeaning: 'นักดับเพลิง ช่วยดับไฟและกู้ภัย', hintPhonic: 'ออกเสียง /ˈfaɪəˌfaɪ.tər/',
+      step1: 'คำแปลภาษาไทย: นักดับเพลิง',
+      step2: 'การใช้ในประโยค: The brave firefighter drives a red fire truck to put out fires.',
+      step3: 'ชนิดคำ (Part of speech): Compound Noun (fire + fighter)',
+      answer: 'นักดับเพลิง (firefighter)'
+    },
+    {
+      id: 'v_j2', type: 'jobs', categoryLabel: 'หมวดอาชีพ (Jobs & Occupations)', emoji: '🦷',
+      prompt: 'เลือกคำแปลและแต่งประโยค: dentist', word: 'dentist',
+      hintMeaning: 'ทันตแพทย์ ดูแลและรักษาฟัน', hintPhonic: 'ออกเสียง /ˈden.tɪst/',
+      step1: 'คำแปลภาษาไทย: ทันตแพทย์ / หมอฟัน',
+      step2: 'การใช้ในประโยค: I visit the dentist twice a year to check my teeth.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อาชีพการแพทย์)',
+      answer: 'ทันตแพทย์ (dentist)'
+    },
+    {
+      id: 'v_j3', type: 'jobs', categoryLabel: 'หมวดอาชีพ (Jobs & Occupations)', emoji: '👨‍✈️',
+      prompt: 'เลือกคำแปลและแต่งประโยค: pilot', word: 'pilot',
+      hintMeaning: 'นักบิน ขับเครื่องบินพาผู้โดยสารเดินทาง', hintPhonic: 'ออกเสียง /ˈpaɪ.lət/',
+      step1: 'คำแปลภาษาไทย: นักบิน',
+      step2: 'การใช้ในประโยค: The pilot flies a big airplane across countries.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อาชีพการบิน)',
+      answer: 'นักบิน (pilot)'
+    },
+    {
+      id: 'v_j4', type: 'jobs', categoryLabel: 'หมวดอาชีพ (Jobs & Occupations)', emoji: '🧑‍🌾',
+      prompt: 'เลือกคำแปลและแต่งประโยค: farmer', word: 'farmer',
+      hintMeaning: 'ชาวนา/เกษตรกร ปลูกพืชและเลี้ยงสัตว์', hintPhonic: 'ออกเสียง /ˈfɑː.mər/',
+      step1: 'คำแปลภาษาไทย: ชาวนา / เกษตรกร',
+      step2: 'การใช้ในประโยค: The farmer works hard to grow rice and vegetables.',
+      step3: 'ชนิดคำ (Part of speech): Noun (อาชีพเกษตรกรรม)',
+      answer: 'ชาวนา/เกษตรกร (farmer)'
+    }
+  ];
+
+  window.WORKSHEET_CONFIG = {
+    icon: '🔤',
+    title: 'ใบงานคำศัพท์ Vocabulary Race',
+    subject: 'ภาษาอังกฤษ (English)',
+    gradeLabel: 'ป.1–ป.6',
+    mediaLabel: 'แข่งคำศัพท์ (Vocab Race)',
+    sourceMediaUrl:'/games/english/vocab-race.html',
+    indicators: ['ต 1.1 ป.1/2', 'ต 1.1 ป.2/2', 'ต 1.1 ป.3/2', 'ต 1.1 ป.4/2'],
+    directions: 'ศึกษาคำศัพท์ภาษาอังกฤษ คำอ่าน และความหมาย แล้วเติมคำตอบและตัวอย่างประโยคให้สมบูรณ์',
+
+    getItems(topic) {
+      if (!topic || topic === 'mixed') {
+        return VOCAB_WORKSHEET_ITEMS;
+      }
+      return VOCAB_WORKSHEET_ITEMS.filter(item => item.type === topic);
+    },
+
+    renderQuestion(item) {
+      const e = window.KampaiTopicWorksheet.escapeHtml;
+      return '<div class="q-stem">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+        + '<span class="skill-tag">' + e(item.categoryLabel) + '</span>'
+        + '<span style="font-size:7.5pt; font-weight:800; color:var(--ws-muted);">' + e(item.emoji) + '</span>'
+        + '</div>'
+        + '<div class="q-prompt">' + e(item.prompt) + '</div>'
+        + '<div class="eng-word">' + e(item.word) + '</div>'
+        + '<div class="classify-grid">'
+        + '<div class="classify-box">คำใบ้: <strong>' + e(item.hintMeaning) + '</strong></div>'
+        + '<div class="classify-box">การออกเสียง: <strong>' + e(item.hintPhonic) + '</strong></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-work-block step-block">'
+        + '<div class="step-row">'
+        + '<span class="step-tag">1 คำแปลไทย</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step1) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag">2 ตัวอย่างประโยค</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step2) + '</span></div>'
+        + '</div>'
+        + '<div class="step-row">'
+        + '<span class="step-tag gold">3 โครงสร้างคำ</span>'
+        + '<div class="step-body"><span class="work-fill">' + e(item.step3) + '</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="q-foot">'
+        + '<div class="answer-line">'
+        + '<span>เฉลยคำตอบ:</span>'
+        + '<span class="answer-fill">' + e(item.answer) + '</span>'
+        + '</div>'
+        + '</div>';
+    }
+  };
+  </script>
+
+  <script src="/games/worksheet-topic.js?v=2.0.0"></script>
+  <script>
+    function render() {
+      window.KampaiTopicWorksheet.render();
+    }
+    document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+    document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+    document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+    window.KampaiWorksheet.loadTeachers();
+    render();
+  </script>
+  <script src="/games/worksheet-modes.js?v=2.0.0"></script>
+</body>
+</html>
