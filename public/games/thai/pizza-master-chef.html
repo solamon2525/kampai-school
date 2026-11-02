@@ -2019,11 +2019,14 @@
                 this.versusRng = rng;
                 this.versusPlayer = player;
                 this.start('classic');
+                this.state.timeLeft = 90;
+                this.state.maxTime = 90;
             }
 
             endVersus() {
                 this.state.isPlaying = false;
                 this.sound.stopBGM();
+                this.endGame();
             }
 
             endGame() {
@@ -2413,9 +2416,14 @@
                     return;
                 }
                 const sliceCount = lvl.sliceCount;
-                const isEquivalent = (selectedCount / sliceCount === lvl.numerator / lvl.denominator);
-                if (isEquivalent) {
-                    banner.innerHTML = '✨ <strong>' + selectedCount + '/' + sliceCount + ' ถาด = ' + lvl.numerator + '/' + lvl.denominator + ' ถาด</strong> (เศษส่วนสมมูลกันพอดี!)';
+                const df = lvl.displayFrac;
+                if (!df) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+                const isEquivalent = (selectedCount / sliceCount === df.n / df.d);
+                if (isEquivalent && (sliceCount !== df.d || selectedCount !== df.n)) {
+                    banner.innerHTML = '✨ <strong>' + selectedCount + '/' + sliceCount + ' ถาด = ' + df.n + '/' + df.d + ' ถาด</strong> (เศษส่วนสมมูลกันพอดี!)';
                     banner.classList.remove('hidden');
                 } else {
                     banner.classList.add('hidden');
@@ -2753,6 +2761,7 @@
                         this.sound.playCorrect();
                         const pts = modeConfig.points * (this.player.isFever ? 2 : 1);
                         this.player.score += pts;
+                        if (window.vs) window.vs.report(this.player.score, { correct: this.player.totalServed });
                         if (!this.state.practice) this.state.timeLeft = Math.min(this.state.timeLeft + modeConfig.bonus, this.state.maxTime + 15);
                         if (this.player.combo >= 3) { this.spawnConfetti(); this.sound.playCombo(); }
                         if (this.player.combo >= CONFIG.comboThreshold && !this.player.isFever) {
@@ -2861,6 +2870,7 @@
                             if (this.player.deliveryStreak % 3 === 0) {
                                 const bonus = 30;
                                 this.player.score += bonus;
+                                if (window.vs) window.vs.report(this.player.score, { correct: this.player.totalServed });
                                 this.spawnFloatingText(`🚀 +${bonus} ส่งครบ 3!`, '#2196F3');
                             }
                         }
@@ -3190,7 +3200,7 @@
                     this.state.timeLeft -= dt;
                     const curSec = Math.floor(this.state.timeLeft);
                     if (curSec < this.lastSecond) { this.lastSecond = curSec; if (curSec <= 10 && curSec > 0) this.sound.playTick(); }
-                    if (this.state.timeLeft <= 0) { this.state.timeLeft = 0; this.gameOver(); return; }
+                    if (this.state.timeLeft <= 0) { this.state.timeLeft = 0; this.endGame(); return; }
                 }
 
                 // Update circular timer
