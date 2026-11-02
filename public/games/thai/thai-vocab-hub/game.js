@@ -303,6 +303,8 @@ function safeInitHubGrid() {
     CATEGORIES.push(...window.GAME_DATA.categories);
     Object.assign(ALL_WORDS, window.GAME_DATA.words || {});
   }
+  initAlphabetStrip();
+  setupHubSearchInput();
   requestAnimationFrame(initHubGrid);
 }
 
@@ -780,17 +782,378 @@ KAMPAI.onReady((sdk) => {
   }
 });
 
+// ─── Semantic POS Helpers ───
+function getPosClass(pos) {
+  if (!pos) return 'pos-default';
+  const p = String(pos).trim();
+  if (p.includes('นาม') && !p.includes('สรรพ') && !p.includes('ลักษณ')) return 'pos-noun';
+  if (p.includes('กริยา')) return 'pos-verb';
+  if (p.includes('วิเศษณ์')) return 'pos-adj';
+  if (p.includes('สรรพนาม')) return 'pos-pronoun';
+  if (p.includes('บุพบท')) return 'pos-prep';
+  if (p.includes('ลักษณนาม')) return 'pos-classifier';
+  if (p.includes('ราชาศัพท์')) return 'pos-royal';
+  if (p.includes('สำนวน')) return 'pos-idiom';
+  if (p.includes('สันธาน')) return 'pos-conj';
+  if (p.includes('อุทาน')) return 'pos-interj';
+  return 'pos-default';
+}
+
+function applyPosBadge(el, pos) {
+  if (!el) return;
+  el.className = el.className.replace(/\bpos-(?:noun|verb|adj|pronoun|prep|classifier|royal|idiom|conj|interj|default)\b/g, '').trim();
+  if (pos) {
+    const cls = getPosClass(pos);
+    el.classList.add(cls);
+    el.textContent = pos;
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ─── Sentence Example Drawer ───
+let isExampleDrawerOpen = false;
+let currentExampleSentence = '';
+
+function toggleExampleDrawer() {
+  isExampleDrawerOpen = !isExampleDrawerOpen;
+  const content = document.getElementById('example-drawer-content');
+  const arrow = document.getElementById('example-drawer-arrow');
+  const btn = document.getElementById('btn-toggle-example');
+  if (content) content.style.display = isExampleDrawerOpen ? 'block' : 'none';
+  if (arrow) arrow.textContent = isExampleDrawerOpen ? '▲ ย่อเก็บ' : '▼ ขยายดู';
+  if (btn) btn.setAttribute('aria-expanded', isExampleDrawerOpen ? 'true' : 'false');
+}
+
+function updateExampleDrawer(exampleText) {
+  const drawer = document.getElementById('sentence-example-drawer');
+  const textEl = document.getElementById('example-drawer-text');
+  currentExampleSentence = exampleText || '';
+  if (!drawer) return;
+  if (currentExampleSentence && (currentMode === 'auto' || currentMode === 'flash' || currentMode === 'visual')) {
+    if (textEl) textEl.textContent = `“${currentExampleSentence}”`;
+    drawer.style.display = '';
+  } else {
+    drawer.style.display = 'none';
+  }
+}
+
+function speakCurrentExample() {
+  if (currentExampleSentence) {
+    speakThai(currentExampleSentence);
+  }
+}
+
+// ─── Instant Search & Alphabet Quick-Jump ───
+let hubSearchQuery = '';
+let activeAlphabetChar = 'all';
+let selectedSearchCategory = 'all';
+let hubSearchDebounceTimer = null;
+
+const THAI_ALPHABET_CONSONANTS = [
+  'ก', 'ข', 'ค', 'ฆ', 'ง', 'จ', 'ฉ', 'ช', 'ซ', 'ฌ', 'ญ',
+  'ด', 'ต', 'ถ', 'ท', 'ธ', 'น', 'บ', 'ป', 'ผ', 'ฝ', 'พ',
+  'ฟ', 'ภ', 'ม', 'ย', 'ร', 'ล', 'ว', 'ศ', 'ษ', 'ส', 'ห',
+  'อ', 'ฮ'
+];
+
+function getInitialConsonant(word) {
+  if (!word) return '';
+  const clean = String(word).trim();
+  const match = clean.match(/^[เแโใไ]?([ก-ฮ])/);
+  return match ? match[1] : (clean[0] || '');
+}
+
+function initAlphabetStrip() {
+  const strip = document.getElementById('hub-alphabet-strip');
+  if (!strip || strip.children.length > 0) return;
+
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = 'hub-alpha-chip active';
+  allBtn.dataset.char = 'all';
+  allBtn.textContent = 'ทั้งหมด';
+  allBtn.onclick = () => setAlphabetFilter('all');
+  strip.appendChild(allBtn);
+
+  THAI_ALPHABET_CONSONANTS.forEach(char => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hub-alpha-chip';
+    btn.dataset.char = char;
+    btn.textContent = char;
+    btn.onclick = () => setAlphabetFilter(char);
+    strip.appendChild(btn);
+  });
+}
+
+function setAlphabetFilter(char) {
+  if (activeAlphabetChar === char && char !== 'all') {
+    activeAlphabetChar = 'all';
+  } else {
+    activeAlphabetChar = char;
+  }
+
+  document.querySelectorAll('.hub-alpha-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.char === activeAlphabetChar);
+  });
+
+  performHubSearch();
+}
+
+function setupHubSearchInput() {
+  const input = document.getElementById('hub-search-input');
+  const clearBtn = document.getElementById('hub-search-clear');
+  if (!input || input.dataset.bound) return;
+  input.dataset.bound = 'true';
+
+  input.addEventListener('input', (e) => {
+    hubSearchQuery = e.target.value.trim();
+    if (clearBtn) clearBtn.style.display = hubSearchQuery ? 'inline-flex' : 'none';
+
+    clearTimeout(hubSearchDebounceTimer);
+    hubSearchDebounceTimer = setTimeout(() => {
+      performHubSearch();
+    }, 200);
+  });
+}
+
+function clearHubSearch() {
+  hubSearchQuery = '';
+  activeAlphabetChar = 'all';
+  selectedSearchCategory = 'all';
+
+  const input = document.getElementById('hub-search-input');
+  if (input) input.value = '';
+
+  const clearBtn = document.getElementById('hub-search-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+
+  document.querySelectorAll('.hub-alpha-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.char === 'all');
+  });
+
+  const resultsView = document.getElementById('hub-search-results');
+  const hubGrid = document.getElementById('hub-grid');
+  if (resultsView) resultsView.style.display = 'none';
+  if (hubGrid) hubGrid.style.display = '';
+
+  initHubGrid();
+}
+
+function isSearchOrAlphaActive() {
+  return (hubSearchQuery.length > 0) || (activeAlphabetChar !== 'all');
+}
+
+function performHubSearch() {
+  const query = hubSearchQuery.toLowerCase();
+  const resultsView = document.getElementById('hub-search-results');
+  const hubGrid = document.getElementById('hub-grid');
+  const countEl = document.getElementById('hub-search-count');
+  const catTagsEl = document.getElementById('hub-search-cat-tags');
+  const searchGrid = document.getElementById('hub-search-grid');
+
+  if (!isSearchOrAlphaActive()) {
+    if (resultsView) resultsView.style.display = 'none';
+    if (hubGrid) hubGrid.style.display = '';
+    initHubGrid();
+    return;
+  }
+
+  if (resultsView) resultsView.style.display = 'block';
+  if (hubGrid) hubGrid.style.display = 'none';
+
+  const allMatches = [];
+  const categoryMatchMap = new Map();
+
+  CATEGORIES.forEach(cat => {
+    const rawWords = ALL_WORDS[cat.slug] || [];
+    const approved = getApprovedWords(rawWords);
+    approved.forEach(item => {
+      if (currentHubGrade !== 'all' && item.grade && item.grade !== currentHubGrade) {
+        return;
+      }
+
+      if (activeAlphabetChar !== 'all') {
+        const initial = getInitialConsonant(item.word);
+        if (initial !== activeAlphabetChar) return;
+      }
+
+      if (query) {
+        const wMatch = (item.word || '').toLowerCase().includes(query);
+        const rMatch = (item.reading || '').toLowerCase().includes(query);
+        const mMatch = (item.meaning || '').toLowerCase().includes(query);
+        const pMatch = (item.pos || '').toLowerCase().includes(query);
+        if (!wMatch && !rMatch && !mMatch && !pMatch) return;
+      }
+
+      const matchObj = {
+        ...item,
+        categorySlug: cat.slug,
+        categoryTitle: cat.title,
+        categoryIcon: cat.icon
+      };
+
+      allMatches.push(matchObj);
+
+      if (!categoryMatchMap.has(cat.slug)) {
+        categoryMatchMap.set(cat.slug, {
+          slug: cat.slug,
+          title: cat.title,
+          icon: cat.icon,
+          words: []
+        });
+      }
+      categoryMatchMap.get(cat.slug).words.push(matchObj);
+    });
+  });
+
+  const gradeLabel = currentHubGrade === 'all' ? '' : ` [${currentHubGrade}]`;
+  const alphaLabel = activeAlphabetChar === 'all' ? '' : ` [พยัญชนะ ${activeAlphabetChar}]`;
+  const queryLabel = query ? ` คำค้น "${hubSearchQuery}"` : '';
+  if (countEl) {
+    countEl.textContent = `พบ ${allMatches.length} คำศัพท์${queryLabel}${alphaLabel}${gradeLabel} (จาก ๑๖ หมวด)`;
+  }
+
+  if (catTagsEl) {
+    catTagsEl.innerHTML = '';
+
+    const allChip = document.createElement('button');
+    allChip.type = 'button';
+    allChip.className = `hub-search-cat-chip ${selectedSearchCategory === 'all' ? 'active' : ''}`;
+    allChip.textContent = `📚 ทั้งหมด (${allMatches.length})`;
+    allChip.onclick = () => {
+      selectedSearchCategory = 'all';
+      renderSearchWordCards(allMatches, searchGrid);
+      document.querySelectorAll('.hub-search-cat-chip').forEach(c => c.classList.remove('active'));
+      allChip.classList.add('active');
+    };
+    catTagsEl.appendChild(allChip);
+
+    categoryMatchMap.forEach(entry => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `hub-search-cat-chip ${selectedSearchCategory === entry.slug ? 'active' : ''}`;
+      chip.textContent = `${entry.icon} ${entry.title} (${entry.words.length})`;
+      chip.onclick = () => {
+        selectedSearchCategory = entry.slug;
+        renderSearchWordCards(entry.words, searchGrid);
+        document.querySelectorAll('.hub-search-cat-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      };
+      catTagsEl.appendChild(chip);
+    });
+  }
+
+  const displayWords = selectedSearchCategory === 'all'
+    ? allMatches
+    : (categoryMatchMap.get(selectedSearchCategory)?.words || allMatches);
+
+  renderSearchWordCards(displayWords, searchGrid);
+}
+
+function renderSearchWordCards(wordList, container) {
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (wordList.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.gridColumn = '1 / -1';
+    empty.style.textAlign = 'center';
+    empty.style.padding = '32px 16px';
+    empty.style.color = '#94a3b8';
+    empty.style.fontSize = '15px';
+    empty.textContent = 'ไม่พบคำศัพท์ที่ตรงกับเงื่อนไขการค้นหา — ลองเปลี่ยนคำค้นหรือพยัญชนะ';
+    container.appendChild(empty);
+    return;
+  }
+
+  const sliced = wordList.slice(0, 120);
+
+  sliced.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'hub-search-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `${item.word} — คลิกเพื่อเข้าสู่บทเรียน`);
+
+    const posCls = getPosClass(item.pos);
+    const posBadge = item.pos ? `<span class="search-pos-badge ${posCls}">(${item.pos})</span>` : '';
+    const gradeBadge = item.grade ? `<span class="search-grade-badge">${item.grade}</span>` : '';
+    const exampleHtml = item.example ? `<div class="hub-search-example">“${item.example}”</div>` : '';
+
+    card.innerHTML = `
+      <div class="hub-search-card-top">
+        <div class="hub-search-word-wrap">
+          <span class="hub-search-word">
+            <span>${item.emoji || item.categoryIcon || '📝'}</span>
+            <strong>${item.word}</strong>
+          </span>
+          <span class="hub-search-reading">[ ${item.reading} ]</span>
+        </div>
+        <div class="hub-search-badges">
+          ${gradeBadge}
+          ${posBadge}
+        </div>
+      </div>
+      <div class="hub-search-meaning">${item.meaning}</div>
+      ${exampleHtml}
+      <div class="hub-search-footer">
+        <span class="hub-search-cat-label">${item.categoryIcon} ${item.categoryTitle}</span>
+        <button type="button" class="hub-search-jump-btn" aria-label="เรียนรู้คำนี้">เรียนคำนี้ →</button>
+      </div>
+    `;
+
+    card.onclick = () => jumpToWord(item.categorySlug, item.word);
+    card.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        jumpToWord(item.categorySlug, item.word);
+      }
+    };
+
+    container.appendChild(card);
+  });
+
+  if (wordList.length > 120) {
+    const moreNotice = document.createElement('div');
+    moreNotice.style.gridColumn = '1 / -1';
+    moreNotice.style.textAlign = 'center';
+    moreNotice.style.padding = '12px';
+    moreNotice.style.color = '#fbbf24';
+    moreNotice.style.fontSize = '13.5px';
+    moreNotice.textContent = `... แสดง ๑๒๐ คำแรกจากทั้งหมด ${wordList.length} คำ (กรุณาระบุคำค้นหาให้เจาะจงยิ่งขึ้น)`;
+    container.appendChild(moreNotice);
+  }
+}
+
+async function jumpToWord(catSlug, targetWord) {
+  await loadAndSelectCategory(catSlug);
+  const foundIdx = categoryWords.findIndex(w => w.word === targetWord);
+  if (foundIdx !== -1) {
+    flashDeck = [foundIdx, ...categoryWords.map((_, i) => i).filter(i => i !== foundIdx)];
+    flashVariant = 'word2meaning';
+    switchMode('flash');
+    renderFlashCard();
+  }
+}
+
 let currentHubGrade = 'all';
 
 function setHubGradeFilter(grade) {
   currentHubGrade = grade;
-  document.querySelectorAll('#hub-grade-filter-bar .hub-grade-chip').forEach((chip) => {
+  document.querySelectorAll('.hub-grade-chip').forEach((chip) => {
     chip.classList.toggle('active', chip.dataset.grade === grade);
   });
   gridGradeFilter = grade;
   localStorage.setItem(GRID_GRADE_KEY, grade);
   updateGridFilterPickerUI();
-  initHubGrid();
+  if (isSearchOrAlphaActive()) {
+    performHubSearch();
+  } else {
+    initHubGrid();
+  }
 }
 
 function openHubWorksheetModal() {
@@ -914,6 +1277,14 @@ function switchMode(mode) {
   document.getElementById('visual-mode').style.display = 'none';
   const flashControls = document.getElementById('flash-controls');
   if (flashControls) flashControls.style.display = 'none';
+  const exDrawer = document.getElementById('sentence-example-drawer');
+  if (exDrawer) {
+    if (mode === 'auto' || mode === 'flash' || mode === 'visual') {
+      exDrawer.style.display = currentExampleSentence ? '' : 'none';
+    } else {
+      exDrawer.style.display = 'none';
+    }
+  }
 
   // พลิกการ์ดกลับมาหน้าหลัก
   const card = document.getElementById('tcard');
@@ -1035,8 +1406,9 @@ function renderWordsGrid() {
     const gradeBadge = item.grade
       ? `<span class="grid-grade-badge">${item.grade}</span>`
       : '';
+    const posClass = getPosClass(item.pos);
     const posBadge = item.pos
-      ? `<span class="grid-pos-badge">(${item.pos})</span>`
+      ? `<span class="grid-pos-badge ${posClass}">(${item.pos})</span>`
       : '';
     const exampleHtml = item.example
       ? `<div class="grid-example">“${item.example}”</div>`
@@ -1130,12 +1502,7 @@ function loadWord(index) {
 
   const posEl = document.getElementById('wfront-pos');
   if (posEl) {
-    if (wordItem.pos) {
-      posEl.textContent = wordItem.pos;
-      posEl.style.display = '';
-    } else {
-      posEl.style.display = 'none';
-    }
+    applyPosBadge(posEl, wordItem.pos);
   }
 
   const gradeEl = document.getElementById('wfront-grade');
@@ -1162,6 +1529,7 @@ function loadWord(index) {
   }
 
   mountCardVisualButton(wordItem);
+  updateExampleDrawer(wordItem.example);
 
   // พลิกกลับหน้าหลักทุกครั้งที่เปลี่ยนคำ
   document.getElementById('tcard').classList.remove('flipped');
@@ -1627,6 +1995,7 @@ function renderFlashCard() {
     showToast('รู้แล้วครบทุกคำ! 🎉', 'correct');
     initConfetti();
     updateFlashScore();
+    updateExampleDrawer('');
     return;
   }
 
@@ -1670,8 +2039,7 @@ function renderFlashCard() {
   const posEl = document.getElementById('wfront-pos');
   if (posEl) {
     if (item.pos && v !== 'meaning2word') {
-      posEl.textContent = item.pos;
-      posEl.style.display = '';
+      applyPosBadge(posEl, item.pos);
     } else {
       posEl.style.display = 'none';
     }
@@ -1700,6 +2068,7 @@ function renderFlashCard() {
   document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${item.reading} ]`;
   document.getElementById('wback-meaning').textContent = item.meaning;
   updateFlashScore();
+  updateExampleDrawer(item.example);
 }
 
 function revealFlashCard() {
@@ -2498,6 +2867,11 @@ document.addEventListener('keydown', (e) => {
 
 // ═══ GLOBAL EXPORTS ═══
 window.setHubGradeFilter = setHubGradeFilter;
+window.setAlphabetFilter = setAlphabetFilter;
+window.clearHubSearch = clearHubSearch;
+window.jumpToWord = jumpToWord;
+window.toggleExampleDrawer = toggleExampleDrawer;
+window.speakCurrentExample = speakCurrentExample;
 window.openHubWorksheetModal = openHubWorksheetModal;
 window.autoplayNext = autoplayNext;
 window.autoplayPrev = autoplayPrev;

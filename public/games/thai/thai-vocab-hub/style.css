@@ -2458,3 +2458,550 @@ body.projector-mode .card-example-text {
 .leitner-dot-2 { background: #38bdf8; }
 .leitner-dot-3 { background: #34d399; }
 
+
+
+/* ─── Semantic POS Badges ────────────────────────────────────────── */
+.pos-badge, .card-pos-label, .grid-pos-badge, .search-pos-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 999px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+/* คำนาม - Sky Blue */
+.pos-noun, .card-pos-label.pos-noun, .grid-pos-badge.pos-noun, .search-pos-badge.pos-noun {
+  background: rgba(56, 189, 248, 0.22) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.45) !important;
+}
+
+/* คำกริยา - Emerald Green */
+.pos-verb, .card-pos-label.pos-verb, .grid-pos-badge.pos-verb, .search-pos-badge.pos-verb {
+  background: rgba(52, 211, 153, 0.22) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+}
+
+/* คำวิเศษณ์ - Warm Amber / Orange */
+.pos-adj, .card-pos-label.pos-adj, .grid-pos-badge.pos-adj, .search-pos-badge.pos-adj {
+  background: rgba(251, 146, 60, 0.22) !important;
+  color: #fb923c !important;
+  border: 1px solid rgba(251, 146, 60, 0.45) !important;
+}
+
+/* คำสรรพนาม - Purple / Violet */
+.pos-pronoun, .card-pos-label.pos-pronoun, .grid-pos-badge.pos-pronoun, .search-pos-badge.pos-pronoun {
+  background: rgba(192, 132, 252, 0.22) !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(192, 132, 252, 0.45) !important;
+}
+
+/* คำบุพบท - Rose / Pink */
+.pos-prep, .card-pos-label.pos-prep, .grid-pos-badge.pos-prep, .search-pos-badge.pos-prep {
+  background: rgba(251, 113, 133, 0.22) !important;
+  color: #fb7185 !important;
+  border: 1px solid rgba(251, 113, 133, 0.45) !important;
+}
+
+/* ลักษณนาม - Teal */
+.pos-classifier, .card-pos-label.pos-classifier, .grid-pos-badge.pos-classifier, .search-pos-badge.pos-classifier {
+  background: rgba(45, 212, 191, 0.22) !important;
+  color: #2dd4bf !important;
+  border: 1px solid rgba(45, 212, 191, 0.45) !important;
+}
+
+/* ราชาศัพท์ - Gold */
+.pos-royal, .card-pos-label.pos-royal, .grid-pos-badge.pos-royal, .search-pos-badge.pos-royal {
+  background: rgba(251, 191, 36, 0.22) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(251, 191, 36, 0.45) !important;
+}
+
+/* สำนวน - Indigo */
+.pos-idiom, .card-pos-label.pos-idiom, .grid-pos-badge.pos-idiom, .search-pos-badge.pos-idiom {
+  background: rgba(129, 140, 248, 0.22) !important;
+  color: #818cf8 !important;
+  border: 1px solid rgba(129, 140, 248, 0.45) !important;
+}
+
+/* คำสันธาน / อุทาน / อื่นๆ */
+.pos-conj, .card-pos-label.pos-conj, .grid-pos-badge.pos-conj, .search-pos-badge.pos-conj {
+  background: rgba(250, 204, 21, 0.22) !important;
+  color: #facc15 !important;
+  border: 1px solid rgba(250, 204, 21, 0.45) !important;
+}
+
+.pos-interj, .card-pos-label.pos-interj, .grid-pos-badge.pos-interj, .search-pos-badge.pos-interj {
+  background: rgba(248, 113, 113, 0.22) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+}
+
+.pos-default, .card-pos-label.pos-default, .grid-pos-badge.pos-default, .search-pos-badge.pos-default {
+  background: rgba(148, 163, 184, 0.22) !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+}
+
+/* ─── Sentence Example Drawer ────────────────────────────────────── */
+.sentence-example-drawer {
+  width: 90%;
+  max-width: calc(640px * var(--font-scale));
+  margin: 0 auto 12px auto;
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.example-drawer-toggle {
+  width: 100%;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  box-sizing: border-box;
+}
+
+.example-drawer-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.example-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.example-toggle-icon {
+  font-size: 18px;
+}
+
+.example-toggle-title {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.example-drawer-arrow {
+  font-size: 13px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.example-drawer-content {
+  padding: 12px 16px 14px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.5);
+  box-sizing: border-box;
+}
+
+.example-drawer-text {
+  font-size: calc(16px * var(--font-scale));
+  line-height: 1.5;
+  color: #f1f5f9;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.example-drawer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.example-speak-btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.example-speak-btn:hover {
+  background: rgba(56, 189, 248, 0.3);
+}
+
+/* ─── Instant Search & Thai Alphabet Bar ─────────────────────────── */
+.hub-search-section {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 14px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.hub-search-bar-wrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 2px 8px 2px 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.hub-search-bar-wrap:focus-within {
+  border-color: #fbbf24;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+}
+
+.hub-search-icon {
+  font-size: 18px;
+  color: #94a3b8;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.hub-search-input {
+  flex: 1;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 15px;
+  font-family: 'Sarabun', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.hub-search-input::placeholder {
+  color: #94a3b8;
+  opacity: 0.85;
+}
+
+.hub-search-clear {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: color 0.15s, background 0.15s;
+}
+
+.hub-search-clear:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* Alphabet quick-jump bar */
+.hub-alphabet-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 6px 0;
+  box-sizing: border-box;
+}
+
+.hub-alphabet-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+.hub-alpha-chip {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.hub-alpha-chip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.hub-alpha-chip.active {
+  background: #fbbf24;
+  color: #0f172a;
+  border-color: #f59e0b;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+}
+
+/* Search Results UI */
+.hub-search-results {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.hub-search-header {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hub-search-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hub-search-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.hub-search-close-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hub-search-close-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.hub-search-cat-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.hub-search-cat-chip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.hub-search-cat-chip:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.hub-search-cat-chip.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #38bdf8;
+  font-weight: 700;
+}
+
+.hub-search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.hub-search-card {
+  min-height: 44px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hub-search-card:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.25);
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.hub-search-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.hub-search-word-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.hub-search-word {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hub-search-reading {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.hub-search-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.search-pos-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.search-grade-badge {
+  font-size: 11px;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.hub-search-meaning {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.hub-search-example {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.hub-search-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+}
+
+.hub-search-cat-label {
+  font-size: 12px;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.hub-search-jump-btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fbbf24;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+}
+
+.grid-cell-highlight {
+  animation: flashHighlight 1.5s ease-out;
+}
+
+@keyframes flashHighlight {
+  0% { box-shadow: 0 0 0 4px #fbbf24; transform: scale(1.05); }
+  50% { box-shadow: 0 0 0 6px #f59e0b; transform: scale(1.03); }
+  100% { box-shadow: none; transform: scale(1); }
+}

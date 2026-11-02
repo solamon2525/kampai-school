@@ -55,12 +55,43 @@
         <button type="button" class="hub-grade-chip" data-grade="ป.6" onclick="setHubGradeFilter('ป.6')">🌳 ชั้น ป.6</button>
     </div>
 
+    <!-- Search & Alphabet Quick-Index Section -->
+    <div class="hub-search-section">
+        <div class="hub-search-bar-wrap">
+            <span class="hub-search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="hub-search-input" class="hub-search-input"
+                   placeholder="ค้นหาคำศัพท์ คำอ่าน ความหมาย หรือชนิดคำ (เช่น คำนาม, กะเพรา, ยินยอม)..."
+                   aria-label="ค้นหาคำศัพท์ในคลัง ๒,๔๐๐ คำ" autocomplete="off">
+            <button type="button" id="hub-search-clear" class="hub-search-clear" style="display:none" aria-label="ล้างการค้นหา" onclick="clearHubSearch()">✕</button>
+        </div>
+
+        <!-- Thai Alphabet Quick-Index Strip -->
+        <div class="hub-alphabet-wrap">
+            <div id="hub-alphabet-strip" class="hub-alphabet-strip" role="group" aria-label="ดัชนีพยัญชนะไทย ก-ฮ">
+                <!-- populated dynamically -->
+            </div>
+        </div>
+    </div>
+
     <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px">
         <a class="cbtn hub-dash-link" href="/play/thai-vocab-hub/dashboard" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">📊 แดชบอร์ด / อันดับ</a>
         <button type="button" class="cbtn" id="btn-projector-toggle" onclick="window.ThaiVocabClassroom.toggleProjectorMode()">📽️ โหมดฉายจอห้องเรียน</button>
         <button type="button" class="cbtn" onclick="openHubWorksheetModal()">🖨️ พิมพ์ใบงาน A4</button>
     </div>
     <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
+    <!-- Search Results View -->
+    <div id="hub-search-results" class="hub-search-results" style="display:none" aria-live="polite">
+        <div class="hub-search-header">
+            <div class="hub-search-stats">
+                <span id="hub-search-count" class="hub-search-count">พบ 0 คำศัพท์</span>
+                <button type="button" class="hub-search-close-btn" onclick="clearHubSearch()">✕ กลับหน้าสารบัญ</button>
+            </div>
+            <div id="hub-search-cat-tags" class="hub-search-cat-tags" role="group" aria-label="กรองผลตามหมวดหมู่"></div>
+        </div>
+        <div id="hub-search-grid" class="hub-search-grid">
+            <!-- populated dynamically -->
+        </div>
+    </div>
     <div id="hub-grid">
         <!-- populated dynamically -->
     </div>
@@ -90,6 +121,25 @@
                     <span id="wback-example" class="card-example-text" style="display:none"></span>
                     <button type="button" id="btn-card-visual" class="card-visual-btn" style="display:none">ดูภาพประกอบ</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expandable Sentence Example Drawer -->
+    <div id="sentence-example-drawer" class="sentence-example-drawer" style="display:none">
+        <button type="button" id="btn-toggle-example" class="example-drawer-toggle" aria-expanded="false" onclick="toggleExampleDrawer()">
+            <span class="example-toggle-left">
+                <span class="example-toggle-icon" aria-hidden="true">💬</span>
+                <span class="example-toggle-title">ประโยคตัวอย่างในชีวิตจริง</span>
+            </span>
+            <span id="example-drawer-arrow" class="example-drawer-arrow">▼ ขยายดู</span>
+        </button>
+        <div id="example-drawer-content" class="example-drawer-content" style="display:none">
+            <p id="example-drawer-text" class="example-drawer-text"></p>
+            <div class="example-drawer-actions">
+                <button type="button" id="btn-example-speak" class="example-speak-btn" onclick="speakCurrentExample()" title="ฟังเสียงอ่านประโยคตัวอย่าง">
+                    🔊 ฟังเสียงประโยค
+                </button>
             </div>
         </div>
     </div>
