@@ -171,19 +171,31 @@ let migrationPath = null;
 if (detectedSlug && detectedSlug !== 'placeholder-slug' && existsSync(migrationsDir)) {
     const files = readdirSync(migrationsDir);
     const slugNoDash = detectedSlug.replace(/-/g, '_');
-    migrationFound = files.some((f) => {
+    const matchingFiles = files.filter((f) => {
         const lower = f.toLowerCase();
-        const filenameMatch = lower.includes(detectedSlug.toLowerCase()) || lower.includes(slugNoDash.toLowerCase());
-        if (filenameMatch) { migrationPath = join(migrationsDir, f); return true; }
-        if (f.endsWith('075_track_all_legacy_games.sql')) {
+        return lower.includes(detectedSlug.toLowerCase()) || lower.includes(slugNoDash.toLowerCase());
+    });
+    if (matchingFiles.length > 0) {
+        migrationFound = true;
+        const withDocs = matchingFiles.slice().reverse().find((f) => {
             try {
                 const content = readFileSync(join(migrationsDir, f), 'utf8');
-                if (content.includes(detectedSlug)) { migrationPath = join(migrationsDir, f); return true; }
-                return false;
+                return /INSERT\s+INTO\s+public\.game_docs/i.test(content) && /version\s*[,)]/i.test(content);
             } catch { return false; }
+        });
+        migrationPath = join(migrationsDir, withDocs || matchingFiles[matchingFiles.length - 1]);
+    } else {
+        const legacy = files.find((f) => f.endsWith('075_track_all_legacy_games.sql'));
+        if (legacy) {
+            try {
+                const content = readFileSync(join(migrationsDir, legacy), 'utf8');
+                if (content.includes(detectedSlug)) {
+                    migrationFound = true;
+                    migrationPath = join(migrationsDir, legacy);
+                }
+            } catch {}
         }
-        return false;
-    });
+    }
 }
 if (!detectedSlug || detectedSlug === 'placeholder-slug') {
     warnings.push({

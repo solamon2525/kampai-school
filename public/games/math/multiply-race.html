@@ -42,7 +42,7 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 #feedback.good { color: #4ade80; }
 #feedback.bad { color: #f87171; }
 #answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 460px; }
-.ans { font-family: 'Fredoka One', cursive; font-size: clamp(28px, 8vw, 40px); padding: 22px 0; border: none; border-radius: 18px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; transition: transform 0.08s, box-shadow 0.08s; }
+.ans { font-family: 'Fredoka One', cursive; font-size: clamp(28px, 8vw, 40px); padding: 22px 0; border: none; border-radius: 18px; cursor: pointer; color: #1e293b; background: #f8fafc; box-shadow: 0 5px 0 #cbd5e1; transition: transform 0.08s, box-shadow 0.08s; min-height: 52px; min-width: 52px; }
 .ans:active { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; }
 .ans.correct { background: linear-gradient(135deg,#86efac,#22c55e); color: #052e16; box-shadow: 0 5px 0 #15803d; }
 .ans.wrong { background: linear-gradient(135deg,#fca5a5,#ef4444); color: #450a0a; box-shadow: 0 5px 0 #b91c1c; }
@@ -50,13 +50,14 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 .ans .k { display: block; font-family: 'Kanit'; font-size: 12px; color: #94a3b8; margin-bottom: 2px; }
 
 /* ── จอ (เริ่ม / จบ) ── */
-.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; }
+.screen { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; text-align: center; padding: 28px 22px; overflow-y: auto; max-width: 100vw; overflow-x: hidden; }
 .screen.on { display: flex; }
 .screen h1 { font-family: 'Fredoka One', cursive; font-size: 38px; margin-bottom: 6px; background: linear-gradient(135deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .screen p { font-size: 16px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5; }
 #final-score { color: #FFD700; font-family: 'Fredoka One', cursive; font-size: 56px; margin: 4px 0 6px; }
 #final-detail { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
-.btn { padding: 14px 30px; font-family: inherit; font-size: 19px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 6px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #fff; }
+.btn { padding: 14px 28px; font-family: inherit; font-size: 18px; font-weight: 600; border-radius: 999px; border: none; cursor: pointer; margin: 5px; transition: transform 0.1s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #fff; min-height: 48px; min-width: 48px; }
+.btn-versus { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 4px 10px rgba(16,185,129,0.4); }
 .btn:active { transform: scale(0.95); }
 .btn-primary { background: linear-gradient(45deg, #f59e0b, #f97316); box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
 .btn-blue { background: linear-gradient(45deg, #3b82f6, #2563eb); box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
@@ -66,7 +67,36 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 .mode-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
 #table-picker { display: none; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 420px; margin: 4px auto 14px; }
 #table-picker.on { display: flex; }
-.tchip { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; }
+.tchip { width: 46px; height: 46px; min-width: 46px; min-height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; }
+
+/* Accessible focus and reduced motion */
+button:focus-visible, [role="button"]:focus-visible, .ans:focus-visible, .btn:focus-visible, .tchip:focus-visible, .pwr:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Projector Mode High-Contrast / Large Scale */
+body.kampai-projector-mode {
+  background: #020617 !important;
+}
+body.kampai-projector-mode #question {
+  font-size: clamp(64px, 16vw, 110px) !important;
+  color: #fbbf24 !important;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.4), 4px 4px 0 #000 !important;
+}
+body.kampai-projector-mode .ans {
+  font-size: clamp(34px, 8vw, 54px) !important;
+  padding: 26px 0 !important;
+  border: 3px solid #38bdf8 !important;
+}
 .tchip.sel { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #0f172a; border-color: #fbbf24; }
 
 /* leaderboard + stats (reuse template look) */
@@ -98,7 +128,7 @@ body { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
 /* ── Power-ups (HUD แถวล่าง) ── */
 #powerups { display: none; justify-content: center; gap: 10px; padding: 4px 18px 0; }
 #powerups.on { display: flex; }
-.pwr { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 64px; height: 44px; padding: 0 10px; border: 2px solid rgba(255,255,255,0.18); border-radius: 12px; background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-size: 11px; line-height: 1.1; cursor: pointer; transition: transform 0.08s, opacity 0.15s; }
+.pwr { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 64px; min-height: 44px; height: 44px; padding: 0 10px; border: 2px solid rgba(255,255,255,0.18); border-radius: 12px; background: rgba(255,255,255,0.08); color: #fff; font-family: 'Kanit'; font-size: 11px; line-height: 1.1; cursor: pointer; transition: transform 0.08s, opacity 0.15s; }
 .pwr:active { transform: scale(0.94); }
 .pwr .pic { font-size: 18px; }
 .pwr:disabled, .pwr.used { opacity: 0.35; cursor: not-allowed; }
@@ -263,10 +293,11 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
     <div id="player-chip"></div>
     <p>ตอบให้เร็วและถูก! ยิ่งต่อเนื่องยิ่งได้ตัวคูณคะแนน 🔥<br>เลือก 4 ตัวเลือก — แตะ หรือกดเลข 1–4</p>
     <div class="mode-grid">
-        <button class="btn btn-primary" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
-        <button class="btn btn-blue" onclick="openVersus()">👥 2 คน (จอเดียว)</button>
-        <button class="btn btn-blue" onclick="openOnline()">🌐 ออนไลน์</button>
+        <button class="btn btn-primary" data-kampai-action="start" onclick="chooseMode('race')">⚡ แข่งเร็ว</button>
+        <button class="btn btn-versus" onclick="vs.openMenu()">🏁 แข่ง 2 คน</button>
         <button class="btn btn-blue" id="btn-daily" onclick="startDaily()">📅 ชาเลนจ์วันนี้</button>
+        <button class="btn btn-blue" id="btn-projector" onclick="openProjectorMode()">📽️ โปรเจกเตอร์</button>
+        <button class="btn btn-blue" id="btn-worksheet" onclick="openMultiplicationWorksheet()">🖨️ ใบงานสูตรคูณ A4</button>
         <button class="btn btn-blue" id="btn-research-pre" onclick="startResearch('pretest')" style="display:none">🧪 ก่อนเรียน</button>
         <button class="btn btn-blue" id="btn-research-post" onclick="startResearch('posttest')" style="display:none">📈 หลังเรียน</button>
         <button class="btn btn-ghost" onclick="chooseMode('endless')">♾️ ไม่จำกัด</button>
@@ -300,16 +331,18 @@ body.boss { background: linear-gradient(180deg, #7f1d1d 0%, #0f172a 100%); }
         <h3>📝 ที่ควรฝึกซ้ำ</h3>
         <ul id="review-list" class="review-list"></ul>
         <div style="text-align:center; margin-top:8px;">
-            <button class="btn btn-ghost" onclick="practiceWrong()" style="font-size:14px; padding:8px 18px;">🔁 ฝึกข้อที่พลาด</button>
+            <button class="btn btn-ghost" onclick="practiceWrong()" style="font-size:14px; padding:10px 18px; min-height:44px; min-width:44px;">🔁 ฝึกข้อที่พลาด</button>
         </div>
     </div>
     <div class="leaderboard-box">
         <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 เล่นอีกครั้ง</button>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px;">
+        <button id="btn-restart" class="btn btn-primary" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นอีกครั้ง</button>
+        <button class="btn btn-ghost" onclick="returnToMenu()">🏠 เมนูหลัก</button>
         <button class="btn btn-blue" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+        <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden style="display:none">จบเกมสำหรับทดสอบ</button>
     </div>
 </div>
 
@@ -404,6 +437,21 @@ window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, stu
 <script>
 /* fallback stub: เปิด standalone (file://) ที่โหลด match ไม่ได้ → ปุ่มออนไลน์แจ้งเล่นผ่านระบบ */
 window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };
+</script>
+
+<!-- ═══ KAMPAI Versus — เฟรมเวิร์กแข่ง 2 คน (เดี่ยว + local hot-seat + online) ═══ -->
+<script src="/games/kampai-versus.js"></script>
+<script>
+/* fallback stub */
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };
+</script>
+
+<!-- ═══ Shared Classroom Tools & A4 Worksheet Tools ═══ -->
+<script src="/games/shared-classroom-tools.js"></script>
+<script src="/games/shared-worksheet-tools.js"></script>
+<script>
+window.KampaiClassroom = window.KampaiClassroom || { toggleProjector: function(){}, isProjectorActive: function(){ return false; }, openWheel: function(){}, closeWheel: function(){}, openTeamBattle: function(){}, closeTeamBattle: function(){}, confetti: function(){} };
+window.KampaiWorksheet = window.KampaiWorksheet || { generateA4: function(){ return ''; }, openPrintModal: function(){ alert('โปรดเชื่อมต่ออินเทอร์เน็ตเพื่อพิมพ์ใบงาน'); }, closePrintModal: function(){} };
 </script>
 
 <script>
@@ -848,7 +896,7 @@ function answer(v, btn) {
         updateCombo();
         const tag = isBoss ? ' 🔥' : '';
         flash(`+${gained}` + (mult > 1 ? `  (x${mult})` : '') + ' ✓' + tag, true);
-        if (online) { match.report(score, { correct: correctCount }); scheduleNext(340); }
+        if (online || mode === 'versus') { vs.report(score, { correct: correctCount }); scheduleNext(340); }
         else if (mode === 'daily') nextOrEndDaily(480);
         else setTimeout(nextQuestion, mode === 'practice' ? 550 : 480);
     } else {
@@ -863,7 +911,7 @@ function answer(v, btn) {
             setLives(lives - 1);
             if (lives > 0) setTimeout(nextQuestion, 1100);
         } else if (online) {
-            match.report(score, { correct: correctCount }); scheduleNext(680);
+            vs.report(score, { correct: correctCount }); scheduleNext(680);
         } else if (mode === 'daily') {
             nextOrEndDaily(1100);
         } else {
@@ -982,6 +1030,7 @@ function endGame() {
     isGameOver = true;
     cancelAnimationFrame(rafId);
     stopSpeak(); sfxGameOver(); bgmStop();
+    if (vs && vs.finish(score, { correct: correctCount })) return;
     if (mode === 'race') {
         KAMPAI.submitScore(score, { mode: 'normal', correct: correctCount, maxStreak: maxStreak, perTable: buildPerTablePayload() });
     } else if (mode === 'endless') {
@@ -1016,29 +1065,29 @@ function renderWrongReview() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   โหมดออนไลน์ — ใช้เฟรมเวิร์กกลาง KampaiMatch (lobby/นับถอยหลัง/คะแนนสด/อันดับ)
-   เกมเขียนแค่: openMenu + onPlay(เริ่มเล่นด้วย rng) + report(ตอนได้คะแนน) + onEnd(หยุด)
+   โหมดแข่งขัน (KampaiVersus: เดี่ยว + local hot-seat + online)
    ═══════════════════════════════════════════════════════════════════════════ */
-let match = null, onlineEnded = false, isSpectatorMode = false;
-function ensureMatch() {
-    if (match) return match;
-    match = KampaiMatch.create({
-        duration: 60,
-        title: 'แข่งสูตรคูณ',
-        tournament: true,   // เปิดโหมดลีก 2 รอบ (เลือกได้จาก lobby)
-        onPlay: ({ rng, role }) => startOnlineQuiz(rng, { role: role }),
-        onEnd: () => { onlineEnded = true; locked = true; bgmStop(); stopSpeak(); sfxGameOver(); },
-    });
-    return match;
-}
-function openOnline() { audioCtx(); ensureMatch().openMenu(); }
+let onlineEnded = false, isSpectatorMode = false;
+const vs = KampaiVersus.create({
+    duration: 60,
+    title: 'แข่งสูตรคูณ',
+    rankBy: 'score',
+    onPlay: ({ rng, role, player }) => startOnlineQuiz(rng, { role: role, player: player }),
+    onEnd: () => { onlineEnded = true; locked = true; bgmStop(); stopSpeak(); sfxGameOver(); },
+});
+
+function openOnline() { audioCtx(); vs.openMenu(); }
+function openVersus() { audioCtx(); vs.openMenu(); }
 
 function startOnlineQuiz(rng, opts) {
     stopSpeak();
     isSpectatorMode = !!(opts && opts.role === 'spectator');
-    mode = 'online'; qrand = rng; onlineEnded = false;
+    mode = (opts && opts.player) ? 'versus' : 'online';
+    qrand = rng || Math.random;
+    onlineEnded = false;
+    isGameOver = false;
     if (!isSpectatorMode) KAMPAI.beginRound();
-    score = 0; streak = 0; maxStreak = 0; correctCount = 0;
+    score = 0; streak = 0; maxStreak = 0; correctCount = 0; answered = 0;
     started = true; locked = isSpectatorMode;   // ผู้ชม: lock ตอบทันที
     $('start').classList.remove('on');
     $('gameover').classList.remove('on');
@@ -1060,15 +1109,97 @@ function startOnlineQuiz(rng, opts) {
     }
 }
 
-/* ── คีย์บอร์ด 1–4 (desktop) ── */
+/* ── คีย์บอร์ด 1–4 (desktop) + Numpad ── */
 window.addEventListener('keydown', (e) => {
     if (!started || isGameOver || locked) return;
-    const idx = ['1','2','3','4'].indexOf(e.key);
+    const keyMap = { '1': 0, '2': 1, '3': 2, '4': 3, 'Numpad1': 0, 'Numpad2': 1, 'Numpad3': 2, 'Numpad4': 3 };
+    const idx = keyMap[e.key] !== undefined ? keyMap[e.key] : -1;
     if (idx < 0) return;
     const btns = document.querySelectorAll('.ans');
     const btn = btns[idx];
     if (btn) answer(Number(btn.dataset.v), btn);
 });
+
+/* ── Lifecycle & Classroom Functions ── */
+function restartGame() {
+    cancelAnimationFrame(rafId);
+    stopSpeak();
+    bgmStop();
+    isGameOver = false;
+    started = false;
+    $('gameover').classList.remove('on');
+    startGame(null);
+}
+
+function returnToMenu() {
+    cancelAnimationFrame(rafId);
+    stopSpeak();
+    bgmStop();
+    isGameOver = false;
+    started = false;
+    $('gameover').classList.remove('on');
+    $('play').classList.remove('on');
+    $('hud').classList.remove('on');
+    $('timer-wrap').classList.remove('on');
+    $('powerups').classList.remove('on');
+    document.body.classList.remove('boss');
+    $('start').classList.add('on');
+}
+
+/* ── Classroom Projector Mode & 1-Click A4 Worksheet ── */
+function openProjectorMode() {
+    audioCtx();
+    if (window.KampaiClassroom && typeof window.KampaiClassroom.toggleProjector === 'function') {
+        window.KampaiClassroom.toggleProjector();
+        if (!started) chooseMode('practice');
+    }
+}
+window.addEventListener('kampai:projector:next', () => {
+    if (started && !isGameOver) nextQuestion();
+});
+window.addEventListener('kampai:projector:flip', () => {
+    if (started && !isGameOver) revealCorrect();
+});
+
+function generateMultiplicationProblems(count) {
+    count = count || 40;
+    const problems = [];
+    const used = new Set();
+    while (problems.length < count) {
+        const a = TABLES[(Math.random() * TABLES.length) | 0];
+        const b = FACTORS[(Math.random() * FACTORS.length) | 0];
+        const key = a + 'x' + b;
+        if (!used.has(key) || problems.length >= TABLES.length * FACTORS.length) {
+            used.add(key);
+            problems.push({
+                question: a + ' × ' + b + ' = _______',
+                q: a + ' × ' + b + ' = _______',
+                answer: String(a * b),
+                a: String(a * b),
+                hint: 'สูตรคูณแม่ ' + a,
+                explanation: a + ' × ' + b + ' = ' + (a * b)
+            });
+        }
+    }
+    return problems;
+}
+
+function openMultiplicationWorksheet() {
+    audioCtx();
+    const items = generateMultiplicationProblems(40);
+    if (window.KampaiWorksheet && typeof window.KampaiWorksheet.openPrintModal === 'function') {
+        window.KampaiWorksheet.openPrintModal({
+            title: 'แบบฝึกหัดแข่งสูตรคูณ (แม่ 2 - 12)',
+            subtitle: 'กลุ่มสาระการเรียนรู้คณิตศาสตร์ • ฝึกคิดคำนวณเร็ว',
+            instructions: 'คำชี้แจง: ให้นักเรียนหาผลลัพธ์ของการคูณในแต่ละข้อให้ถูกต้องและแม่นยำ',
+            items: items,
+            itemCount: 20,
+            includeAnswerKey: true
+        });
+    } else {
+        alert('ระบบสร้างใบงานไม่พร้อมใช้งาน');
+    }
+}
 
 /* ── สลับแท็บ/ย่อจอ: หยุดนับเวลาตอนซ่อน แล้วชดเชยตอนกลับมา (ไม่นับเป็นหมดเวลา) ── */
 let hiddenAt = 0;
