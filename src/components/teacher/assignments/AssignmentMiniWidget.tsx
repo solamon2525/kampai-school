@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import {
   BookCheck, AlertCircle, CheckCircle2, ChevronRight,
   ExternalLink, Loader2, Sparkles, RefreshCw,
-  Search, Users, ListChecks,
+  Search, Users, ListChecks, Target,
 } from 'lucide-react';
+import { StudentIndividualTasksManager } from './StudentIndividualTasksManager';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ export function AssignmentMiniWidget({
   const qc = useQueryClient();
   const [selectedClass, setSelectedClass] = useState<string>(defaultClass);
   const [selectedRoom, setSelectedRoom] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'overdue' | 'by-assignment' | 'roster'>('overdue');
+  const [activeTab, setActiveTab] = useState<'overdue' | 'by-assignment' | 'roster' | 'individual-tasks'>('overdue');
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>('');
   const [studentSearch, setStudentSearch] = useState<string>('');
   const [inspectStudentId, setInspectStudentId] = useState<string | null>(null);
@@ -310,11 +311,30 @@ export function AssignmentMiniWidget({
           <Users className="w-3.5 h-3.5 text-slate-600" />
           รายชื่อทั้งห้อง ({students.length})
         </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('individual-tasks')}
+          className={cn(
+            'px-2.5 py-1.5 text-xs font-medium rounded-t-md transition-colors relative flex items-center gap-1',
+            activeTab === 'individual-tasks'
+              ? 'bg-card text-foreground border-t border-x border-border font-bold text-primary'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Target className="w-3.5 h-3.5 text-amber-600" />
+          ภารกิจรายบุคคล
+        </button>
       </div>
 
       {/* ─── Content Area ───────────────────────────────────── */}
       <CardContent className="p-3 sm:p-4">
-        {loadingOverview ? (
+        {activeTab === 'individual-tasks' ? (
+          <StudentIndividualTasksManager
+            initialClass={selectedClass}
+            initialStudentId={inspectStudentId}
+          />
+        ) : loadingOverview ? (
           <div className="py-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin text-primary" />
             กำลังโหลดข้อมูลการส่งงาน...

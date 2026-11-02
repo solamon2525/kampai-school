@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { assignmentsService, type StudentSubmissionItem } from '@/services/assignments.service';
+import { studentTasksService, TASK_STATUS_META, TASK_CATEGORIES, type StudentIndividualTask } from '@/services/student-tasks.service';
 import { cn } from '@/lib/utils';
 
 interface StudentAssignmentHistorySheetProps {
@@ -34,6 +35,33 @@ export function StudentAssignmentHistorySheet({
     queryKey: ['student-assignment-history', studentId],
     enabled: !!studentId && open,
     queryFn: () => assignmentsService.getStudentAssignmentHistory(studentId!),
+  });
+
+  const [activeHistoryTab, setActiveHistoryTab] = useState<'assignments' | 'tasks'>('assignments');
+
+  const { data: individualTasks = [], isLoading: loadingTasks } = useQuery({
+    queryKey: ['student-individual-tasks', studentId],
+    enabled: !!studentId && open,
+    queryFn: () => studentTasksService.listByStudent(studentId!),
+  });
+
+  const incrementMissedMutation = useMutation({
+    mutationFn: ({ id, delta }: { id: string; delta: number }) =>
+      studentTasksService.incrementMissedCount(id, delta),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student-individual-tasks', studentId] });
+      qc.invalidateQueries({ queryKey: ['class-tasks-overview'] });
+    },
+  });
+
+  const updateTaskStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: TaskStatus }) =>
+      studentTasksService.updateStatus(id, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student-individual-tasks', studentId] });
+      qc.invalidateQueries({ queryKey: ['class-tasks-overview'] });
+      toast.success('อัปเดตสถานะแล้ว');
+    },
   });
 
   const recordMutation = useMutation({
@@ -117,7 +145,110 @@ export function StudentAssignmentHistorySheet({
           )}
         </SheetHeader>
 
-        {isLoading ? (
+        {/* Tab switch between classroom assignments & individual missions */}
+        <div className="pt-3 pb-1 flex items-center gap-1.5 border-b border-border">
+          <button
+            type="button"
+            onClick={() => setActiveHistoryTab('assignments')}
+            className={cn(
+              'px-2.5 py-1 text-xs font-semibold rounded-md transition-colors',
+              activeHistoryTab === 'assignments'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            )}
+          >
+            การบ้านห้องเรียน ({items.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveHistoryTab('tasks')}
+            className={cn(
+              'px-2.5 py-1 text-xs font-semibold rounded-md transition-colors flex items-center gap-1',
+              activeHistoryTab === 'tasks'
+                ? 'bg-amber-600 text-white'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            )}
+          >
+            🎯 ภารกิจเฉพาะบุคคล ({individualTasks.length})
+          </button>
+        </div>
+
+        {activeHistoryTab === 'tasks' ? (
+          <div className="space-y-2.5 pt-3">
+            {loadingTasks ? (
+              <div className="py-12 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                กำลังโหลดภารกิจเฉพาะบุคคล...
+              </div>
+            ) : individualTasks.length === 0 ? (
+              <div className="py-12 text-center text-xs text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border p-4">
+                ยังไม่มีภารกิจเฉพาะบุคคลสำหรับนักเรียนคนนี้
+              </div>
+            ) : (
+              individualTasks.map((task: StudentIndividualTask) => {
+                const meta = TASK_STATUS_META[task.status as keyof typeof TASK_STATUS_META] || TASK_STATUS_META.doing;
+                const cat = TASK_CATEGORIES.find((c) => c.key === task.category);
+                return (
+                  <div key={task.id} className="p-3 rounded-xl border border-border bg-card space-y-2 text-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span>{cat?.emoji || '📌'}</span>
+                          <span className="font-semibold text-foreground">{task.title}</span>
+                        </div>
+                        {task.notes && <p className="text-muted-foreground mt-0.5">💬 {task.notes}</p>}
+                      </div>
+                      <Badge variant="outline" className={cn('text-[10px] shrink-0', meta.badgeCls)}>
+                        {meta.label}
+                      </Badge>
+                    </div>
+
+                    <div className="pt-1.5 border-t border-border flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        {(['doing', 'pending', 'done', 'missed'] as const).map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() => updateTaskStatusMutation.mutate({ id: task.id, status: st })}
+                            className={cn(
+                              'px-1.5 py-0.5 rounded text-[10px] font-medium border',
+                              task.status === st
+                                ? 'bg-primary text-primary-foreground font-bold'
+                                : 'bg-muted/40 text-muted-foreground hover:bg-muted'
+                            )}
+                          >
+                            {TASK_STATUS_META[st].label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-1 bg-muted/40 px-2 py-0.5 rounded border border-border text-[11px]">
+                        <span className="text-muted-foreground">ขาดไป:</span>
+                        <button
+                          type="button"
+                          onClick={() => incrementMissedMutation.mutate({ id: task.id, delta: -1 })}
+                          disabled={task.missed_count <= 0}
+                          className="w-4 h-4 rounded flex items-center justify-center bg-card border disabled:opacity-30"
+                        >
+                          -
+                        </button>
+                        <span className="font-bold px-1 text-rose-700">{task.missed_count}</span>
+                        <span className="text-muted-foreground">ครั้ง</span>
+                        <button
+                          type="button"
+                          onClick={() => incrementMissedMutation.mutate({ id: task.id, delta: 1 })}
+                          className="w-4 h-4 rounded flex items-center justify-center bg-card border"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        ) : isLoading ? (
           <div className="py-16 text-center text-sm text-muted-foreground flex flex-col items-center justify-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
             กำลังโหลดประวัติการส่งงาน...
