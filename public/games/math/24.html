@@ -1,17 +1,29 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <script src="/games/kampai-sdk.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>คณิตคิดเร็ว 24 — Kampai School</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Kampai SDK, Match, Versus & Classroom Shared Libraries -->
+    <script src="/games/kampai-sdk.js"></script>
+    <script>window.KAMPAI = window.KAMPAI || { isEmbed:false, ready:true, student:null, stats:null, leaderboard:[], classmates:[], onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){window.location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}}, online:{available:false} };</script>
+    <script src="/games/kampai-match.js"></script>
+    <script>window.KampaiMatch = window.KampaiMatch || { create:function(){ return { available:false, openMenu:function(){ alert('โหมดออนไลน์เล่นผ่านระบบ /play เท่านั้น'); }, report:function(){}, finish:function(){}, leave:function(){} }; } };</script>
+    <script src="/games/kampai-versus.js"></script>
+    <script>window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=(window.KampaiMatch&&window.KampaiMatch.create)?window.KampaiMatch.create(o):null; return { available:false, openMenu:function(){ if(m)m.openMenu(); }, report:function(s,i){ if(m)m.report(s,i); }, finish:function(s,i){ if(m){m.finish(s,i);return true;} return false; }, leave:function(){}, mode:null }; } };</script>
+    <script src="/games/kampai-leaderboard.js"></script>
+    <script src="/games/shared-classroom-tools.js"></script>
+    <script src="/games/shared-worksheet-tools.js"></script>
+    <script src="math-24-data.js"></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
-            --glass-bg: rgba(255, 255, 255, 0.07);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
             --accent-yellow: #f59e0b;
             --accent-gold: #fbbf24;
             --accent-blue: #3b82f6;
@@ -28,7 +40,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
@@ -39,37 +51,71 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 20px;
-            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 16px;
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
             z-index: 10;
+            gap: 8px;
         }
         .btn-back {
             text-decoration: none;
             color: var(--text-muted);
             font-size: 14px;
             font-weight: 600;
-            padding: 6px 14px;
+            padding: 8px 14px;
+            min-height: 44px;
+            min-width: 44px;
             border: 1px solid var(--glass-border);
             background: var(--glass-bg);
-            border-radius: 10px;
+            border-radius: 12px;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
         .btn-back:hover {
             color: var(--text-light);
             border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-tool {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            min-height: 44px;
+            min-width: 44px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-tool:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-gold);
         }
         .game-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             background: linear-gradient(to right, var(--accent-gold), #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
+            white-space: nowrap;
         }
 
         /* Game Layout */
@@ -79,11 +125,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 16px;
-            max-width: 600px;
+            padding: 14px 16px;
+            max-width: 620px;
             width: 100%;
             margin: 0 auto;
-            gap: 16px;
+            gap: 14px;
             position: relative;
         }
 
@@ -91,7 +137,7 @@
         .hud-row {
             width: 100%;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: space-between;
         }
         .hud-card {
@@ -99,14 +145,15 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 10px;
+            padding: 8px 10px;
             text-align: center;
             backdrop-filter: blur(8px);
         }
         .hud-val {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             display: block;
+            line-height: 1.2;
         }
         .hud-val.gold { color: var(--accent-gold); }
         .hud-val.blue { color: #60a5fa; }
@@ -120,22 +167,33 @@
 
         /* Instructions */
         .instruction-box {
+            width: 100%;
             text-align: center;
             color: var(--text-muted);
-            font-size: 14px;
-            min-height: 24px;
+            font-size: 15px;
+            line-height: 1.4;
+            min-height: 38px;
+            padding: 6px 12px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
         .instruction-box.highlight {
             color: var(--accent-gold);
             font-weight: 600;
+            background: rgba(251, 191, 36, 0.12);
+            border: 1px solid rgba(251, 191, 36, 0.3);
         }
 
         /* Cards Workspace Area */
         .cards-area {
             width: 100%;
             min-height: 140px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 2px dashed rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.15);
             border-radius: 24px;
             display: flex;
             align-items: center;
@@ -144,33 +202,36 @@
             flex-wrap: wrap;
             padding: 16px;
             position: relative;
+            transition: all 0.25s ease;
         }
         .num-card {
-            width: 80px;
-            height: 96px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
-            border: 2px solid rgba(255, 255, 255, 0.15);
+            width: 82px;
+            height: 98px;
+            min-width: 44px;
+            min-height: 44px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 700;
             color: var(--text-light);
             cursor: pointer;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            touch-action: none;
+            user-select: none;
         }
         .num-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.4);
         }
         .num-card.selected {
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border-color: #60a5fa;
-            box-shadow: 0 0 15px rgba(59,130,246,0.6);
+            border-color: #93c5fd;
+            box-shadow: 0 0 20px rgba(59,130,246,0.7);
             transform: scale(1.08) translateY(-6px);
         }
         .num-card.combined-pop {
@@ -185,8 +246,10 @@
             gap: 10px;
         }
         .op-btn {
-            height: 60px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            height: 56px;
+            min-width: 44px;
+            min-height: 44px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
             font-size: 26px;
@@ -200,13 +263,13 @@
             backdrop-filter: blur(4px);
         }
         .op-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.18);
             border-color: var(--text-muted);
         }
         .op-btn.selected {
             background: linear-gradient(135deg, #ea580c 0%, #ca8a04 100%);
             border-color: var(--accent-gold);
-            box-shadow: 0 0 12px rgba(234, 88, 12, 0.5);
+            box-shadow: 0 0 14px rgba(234, 88, 12, 0.6);
             transform: scale(1.05);
         }
 
@@ -214,42 +277,70 @@
         .actions-panel {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
         .btn-act {
-            padding: 12px;
+            padding: 10px 8px;
+            min-height: 44px;
+            min-width: 44px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: var(--text-light);
             border-radius: 14px;
             font-family: inherit;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
         .btn-act:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.15);
         }
         .btn-act-blue {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
-            border-color: rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.15) 100%);
+            border-color: rgba(59, 130, 246, 0.5);
             color: #93c5fd;
         }
         .btn-act-blue:hover {
-            background: rgba(59, 130, 246, 0.3);
+            background: rgba(59, 130, 246, 0.35);
+        }
+
+        /* Difficulty Selector Chips */
+        .diff-chip {
+            padding: 8px 14px;
+            min-height: 44px;
+            min-width: 44px;
+            border-radius: 999px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .diff-chip.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-color: #60a5fa;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
 
         /* Modal Screens overlay */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
@@ -257,67 +348,82 @@
             justify-content: center;
             z-index: 50;
             text-align: center;
-            padding: 24px;
-            transition: opacity 0.3s;
+            padding: 20px;
+            overflow-y: auto;
         }
         .overlay.hidden { display: none !important; }
 
         .modal-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.85);
             border: 2px solid var(--glass-border);
-            border-radius: 32px;
-            padding: 32px;
-            max-width: 440px;
+            border-radius: 28px;
+            padding: 28px 24px;
+            max-width: 460px;
             width: 100%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            transform: scale(0.95);
+            animation: zoomIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         .modal-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 6px;
             background: linear-gradient(135deg, var(--accent-gold), #f97316);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .modal-sub {
             color: var(--text-muted);
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 24px;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 20px;
         }
 
         .btn-start {
             width: 100%;
-            padding: 16px;
-            border-radius: 20px;
+            padding: 14px 20px;
+            min-height: 52px;
+            min-width: 44px;
+            border-radius: 18px;
             border: none;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             font-family: inherit;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+            box-shadow: 0 6px 18px rgba(16,185,129,0.35);
             transition: all 0.2s;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .btn-start:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(16,185,129,0.4);
+            box-shadow: 0 10px 22px rgba(16,185,129,0.45);
+        }
+        .btn-versus {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+        }
+        .btn-versus:hover {
+            box-shadow: 0 10px 22px rgba(245, 158, 11, 0.45);
         }
 
         .btn-secondary {
             width: 100%;
-            padding: 14px;
-            border-radius: 18px;
+            padding: 12px 18px;
+            min-height: 48px;
+            min-width: 44px;
+            border-radius: 16px;
             border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
             color: var(--text-light);
             font-family: inherit;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -326,20 +432,83 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            margin-bottom: 8px;
         }
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.12);
         }
 
         .score-val-big {
-            font-size: 54px;
-            font-weight: 700;
+            font-size: 52px;
+            font-weight: 800;
             color: var(--accent-gold);
-            margin: 12px 0 20px;
+            margin: 8px 0 14px;
             text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            line-height: 1;
         }
 
-        /* Confetti elements */
+        /* Accessibility: Focus Visible & Reduced Motion */
+        button:focus-visible, [role="button"]:focus-visible, a:focus-visible, .num-card:focus-visible, .op-btn:focus-visible, .btn-act:focus-visible {
+            outline: 3px solid var(--accent-gold);
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Classroom Projector Mode Overrides */
+        body.kampai-projector-mode {
+            background: #090d16 !important;
+        }
+        body.kampai-projector-mode main {
+            max-width: 880px !important;
+            gap: 20px !important;
+            padding: 20px !important;
+        }
+        body.kampai-projector-mode .cards-area {
+            min-height: 220px !important;
+            gap: 24px !important;
+            padding: 24px !important;
+            border: 3px dashed rgba(251, 191, 36, 0.45) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        body.kampai-projector-mode .num-card {
+            width: 140px !important;
+            height: 160px !important;
+            font-size: 80px !important;
+            font-weight: 800 !important;
+            border-width: 3px !important;
+            border-radius: 26px !important;
+            box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important;
+        }
+        body.kampai-projector-mode .operators-row {
+            max-width: 680px !important;
+            gap: 16px !important;
+        }
+        body.kampai-projector-mode .op-btn {
+            height: 72px !important;
+            font-size: 38px !important;
+            border-width: 2px !important;
+            border-radius: 20px !important;
+        }
+        body.kampai-projector-mode .hud-val {
+            font-size: 34px !important;
+        }
+        body.kampai-projector-mode .hud-lbl {
+            font-size: 14px !important;
+        }
+        body.kampai-projector-mode .instruction-box {
+            font-size: 22px !important;
+            min-height: 48px !important;
+            padding: 10px 18px !important;
+        }
+
+        /* Confetti particles */
         .confetti-particle {
             position: absolute;
             width: 10px;
@@ -355,12 +524,9 @@
             50% { transform: scale(1.15); }
             100% { transform: scale(1); opacity: 1; }
         }
-
         @keyframes zoomIn {
             to { transform: scale(1); }
         }
-
-        /* Floating Score Text Indicator */
         .floating-score {
             position: absolute;
             font-size: 24px;
@@ -370,7 +536,6 @@
             animation: fadeUp 0.8s ease-out forwards;
             z-index: 100;
         }
-
         @keyframes fadeUp {
             0% { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-40px); opacity: 0; }
@@ -386,7 +551,10 @@
             กลับพอร์ทัล
         </a>
         <span class="game-title">🎯 เกม 24 แต้มพรีเมียม</span>
-        <div style="width: 80px;"></div>
+        <div class="header-actions">
+            <button class="btn-tool" onclick="toggleProjectorMode()" title="โหมดขยายจอสำหรับโปรเจกเตอร์ห้องเรียน">📽️ ขยายจอ</button>
+            <button class="btn-tool" onclick="open24Worksheet()" title="พิมพ์ใบงานเกม 24 A4 พร้อมเฉลยครู">🖨️ ใบงาน</button>
+        </div>
     </header>
 
     <!-- Main Workspace -->
@@ -403,12 +571,12 @@
             </div>
             <div class="hud-card">
                 <span class="hud-val green" id="level-val">1</span>
-                <span class="hud-lbl">เลเวลข้อ</span>
+                <span class="hud-lbl">ข้อที่ผ่าน</span>
             </div>
         </div>
 
         <!-- Touch hints / state text -->
-        <div class="instruction-box" id="instruct">แตะเลือกตัวเลขตัวแรกเพื่อเริ่มต้นคิดเลข 24</div>
+        <div class="instruction-box" id="instruct">แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ</div>
 
         <!-- Active Cards Area -->
         <div class="cards-area" id="cards-box">
@@ -425,19 +593,36 @@
 
         <!-- Utility Console Actions -->
         <div class="actions-panel">
-            <button class="btn-act" onclick="resetBoard()">🔄 ล้างกระดาน</button>
-            <button class="btn-act btn-act-blue" onclick="showHint()">💡 ดูคำใบ้</button>
-            <button class="btn-act" onclick="skipQuestion()">⏭️ ข้ามข้อนี้</button>
+            <button class="btn-act" onclick="undoMove()" title="ย้อนกลับการคำนวณ 1 ขั้น">↩️ ย้อนกลับ</button>
+            <button class="btn-act" onclick="resetBoard()" title="เริ่มคำนวณข้อนี้ใหม่ตั้งแต่แรก">🔄 ล้างกระดาน</button>
+            <button class="btn-act btn-act-blue" onclick="showHint()" title="ดูเป้าหมายหรือโครงสร้างคำตอบ">💡 ดูคำใบ้</button>
+            <button class="btn-act" onclick="skipQuestion()" title="ข้ามข้อนี้ (หัก 20 คะแนน)">⏭️ ข้ามข้อ</button>
         </div>
     </main>
 
     <!-- Start Overlay Screen -->
     <div class="overlay" id="start-screen">
         <div class="modal-card">
-            <div style="font-size: 72px; margin-bottom: 12px; transform: scale(1);">🧠</div>
+            <div style="font-size: 64px; margin-bottom: 8px;">🧠</div>
             <h1 class="modal-title">คณิตคิดเร็ว 24</h1>
-            <p class="modal-sub">รวมตัวเลข 4 ตัวที่กำหนดให้ได้เท่ากับ 24 โดยใช้เครื่องหมายบวก ลบ คูณ หาร แตะการ์ดและเครื่องหมายเพื่อยุบรวมกัน!<br><small style="color:var(--accent-gold)">* มีเฉลยและสุ่มข้อที่คิดออกได้ 100%</small></p>
-            <button class="btn-start" onclick="startGame()">▶ เริ่มเล่นเกม</button>
+            <p class="modal-sub">รวมตัวเลข 4 ตัวที่กำหนดให้ได้เท่ากับ 24 โดยใช้เครื่องหมาย +, −, ×, ÷ แตะการ์ดและเครื่องหมายเพื่อยุบรวมกัน!<br><small style="color:var(--accent-gold)">* ธนาคารโจทย์ 580+ ข้อการันตีคิดออก 100% พร้อมคำใบ้และแข่ง 2 คน</small></p>
+
+            <!-- Difficulty Mode Filter -->
+            <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap;">
+                <button class="diff-chip active" id="diff-all" onclick="setDifficulty('all', this)">🔀 ทุกลำดับ</button>
+                <button class="diff-chip" id="diff-easy" onclick="setDifficulty('easy', this)">🟢 ง่าย (ป.1–3)</button>
+                <button class="diff-chip" id="diff-medium" onclick="setDifficulty('medium', this)">🟡 กลาง (ป.4–6)</button>
+                <button class="diff-chip" id="diff-master" onclick="setDifficulty('master', this)">🔴 เซียน (มัธยม)</button>
+            </div>
+
+            <button class="btn-start" data-kampai-action="start" onclick="startSingle()">▶ เริ่มเล่นเกม (เดี่ยว)</button>
+            <button class="btn-start btn-versus" onclick="openVersus()">🏁 แข่ง 2 คน (Local &amp; Online)</button>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <button class="btn-secondary" onclick="toggleProjectorMode()">📽️ โหมดห้องเรียน</button>
+                <button class="btn-secondary" onclick="open24Worksheet()">🖨️ ใบงาน 24 A4</button>
+            </div>
+
             <a href="/h/nattapong" target="_top" class="btn-secondary">🚪 ออกจากเกม</a>
             <div data-kampai-lb></div>
         </div>
@@ -446,25 +631,28 @@
     <!-- Game Over Overlay Screen -->
     <div class="overlay hidden" id="gameover-screen">
         <div class="modal-card">
-            <div style="font-size: 72px; margin-bottom: 8px;">🏆</div>
+            <div style="font-size: 64px; margin-bottom: 8px;">🏆</div>
             <h1 class="modal-title">หมดเวลา!</h1>
             <p class="modal-sub">เก่งมาก! เล่นได้อย่างยอดเยี่ยม คะแนนสอบของคุณได้รับการส่งและ persistence ลงในระบบโรงเรียนเรียบร้อยแล้ว</p>
             <div class="score-val-big" id="final-score">0</div>
-            <button class="btn-start" onclick="location.reload()">🔄 เล่นใหม่อีกครั้ง</button>
+            <div id="kampai-result"></div>
+            <button class="btn-start" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่อีกครั้ง</button>
+            <button class="btn-secondary" onclick="openVersus()">🏁 แข่ง 2 คน</button>
             <a href="/h/nattapong" target="_top" class="btn-secondary">🎮 เลือกเกมอื่น</a>
+            <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>จบเกมสำหรับทดสอบ</button>
         </div>
     </div>
 
-    <script src="/games/kampai-leaderboard.js"></script>
     <script>
+        /* ============================================================================
+           SECTION A · CONFIG & INITIALIZATION
+           ============================================================================ */
         const GAME_SLUG = 'math-24';
         if (window.KAMPAI) {
             window.KAMPAI.setSlug(GAME_SLUG);
         }
-        /* ============================================================================
-           SECTION A · KAMPAI INTEGRATION BOILERPLATE
-           ============================================================================ */
-        const EMBED = (window.parent !== window) || (new URLSearchParams(location.search).get('embed') === '1');
+
+        const EMBED = (window.parent !== window) || (new URLSearchParams(window.location.search).get('embed') === '1');
         let STUDENT_CODE = null;
         let SESSION_START_TS = 0;
 
@@ -477,7 +665,6 @@
                 }
             });
 
-            // Click interceptor for target="_top" anchors
             document.addEventListener('click', (e) => {
                 const a = e.target.closest('a[target="_top"]');
                 if (!a) return;
@@ -491,7 +678,7 @@
         }
 
         /* ============================================================================
-           SECTION B · WEB AUDIO API SOUND GENERATOR
+           SECTION B · SOUND FX ENGINE
            ============================================================================ */
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSfx(type) {
@@ -517,13 +704,14 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             } else if (type === 'correct') {
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
-                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+                if (window.KAMPAI?.sound?.correct) window.KAMPAI.sound.correct();
             } else if (type === 'wrong') {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(150, audioCtx.currentTime);
@@ -531,6 +719,7 @@
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+                if (window.KAMPAI?.sound?.wrong) window.KAMPAI.sound.wrong();
             } else if (type === 'hint') {
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(800, audioCtx.currentTime);
@@ -542,149 +731,84 @@
         }
 
         /* ============================================================================
-           SECTION C · MATHEMATICAL 24 SOLVER ENGINE (Permutations check)
+           SECTION C · KAMPAI VERSUS INTEGRATION (Solo, Hotseat, Online)
            ============================================================================ */
-        const operators = {
-            '+': (a, b) => a + b,
-            '-': (a, b) => a - b,
-            '*': (a, b) => a * b,
-            '/': (a, b) => b !== 0 ? a / b : null
-        };
-        const opSyms = ['+', '-', '*', '/'];
-
-        // permute array helper
-        function permute(arr) {
-            let res = [];
-            function dfs(curr, remaining) {
-                if (remaining.length === 0) { res.push(curr); return; }
-                for (let i = 0; i < remaining.length; i++) {
-                    dfs([...curr, remaining[i]], [...remaining.slice(0, i), ...remaining.slice(i + 1)]);
-                }
+        const vs = window.KampaiVersus.create({
+            duration: 90,
+            title: 'เกม 24 แต้ม',
+            rankBy: 'score',
+            onPlay: ({ rng, player }) => startVersusRound(rng, player),
+            onEnd: () => {
+                isGameOver = true;
+                clearInterval(timerInterval);
             }
-            dfs([], arr);
-            return res;
-        }
+        });
 
-        // checks if a value is extremely close to 24 (float rounding proof)
-        const EPS = 0.0001;
-        function isCloseTo24(val) {
-            return val !== null && Math.abs(val - 24) < EPS;
-        }
-
-        function solve24(numbers) {
-            const numPerms = permute(numbers);
-            for (let num of numPerms) {
-                const a = num[0], b = num[1], c = num[2], d = num[3];
-                for (let op1 of opSyms) {
-                    for (let op2 of opSyms) {
-                        for (let op3 of opSyms) {
-                            // Tree 1: ((a op1 b) op2 c) op3 d
-                            try {
-                                let r1 = operators[op1](a, b);
-                                if (r1 !== null) {
-                                    let r2 = operators[op2](r1, c);
-                                    if (r2 !== null) {
-                                        let r3 = operators[op3](r2, d);
-                                        if (isCloseTo24(r3)) return `(((${a} ${op1} ${b}) ${op2} ${c}) ${op3} ${d})`;
-                                    }
-                                }
-                            } catch (e) {}
-
-                            // Tree 2: (a op1 (b op2 c)) op3 d
-                            try {
-                                let r1 = operators[op2](b, c);
-                                if (r1 !== null) {
-                                    let r2 = operators[op1](a, r1);
-                                    if (r2 !== null) {
-                                        let r3 = operators[op3](r2, d);
-                                        if (isCloseTo24(r3)) return `((${a} ${op1} (${b} ${op2} ${c})) ${op3} ${d})`;
-                                    }
-                                }
-                            } catch (e) {}
-
-                            // Tree 3: a op1 ((b op2 c) op3 d)
-                            try {
-                                let r1 = operators[op2](b, c);
-                                if (r1 !== null) {
-                                    let r2 = operators[op3](r1, d);
-                                    if (r2 !== null) {
-                                        let r3 = operators[op1](a, r2);
-                                        if (isCloseTo24(r3)) return `(${a} ${op1} ((${b} ${op2} ${c}) ${op3} ${d}))`;
-                                    }
-                                }
-                            } catch (e) {}
-
-                            // Tree 4: a op1 (b op2 (c op3 d))
-                            try {
-                                let r1 = operators[op3](c, d);
-                                if (r1 !== null) {
-                                    let r2 = operators[op2](b, r1);
-                                    if (r2 !== null) {
-                                        let r3 = operators[op1](a, r2);
-                                        if (isCloseTo24(r3)) return `(${a} ${op1} (${b} ${op2} (${c} ${op3} ${d})))`;
-                                    }
-                                }
-                            } catch (e) {}
-
-                            // Tree 5: (a op1 b) op2 (c op3 d)
-                            try {
-                                let r1 = operators[op1](a, b);
-                                let r2 = operators[op3](c, d);
-                                if (r1 !== null && r2 !== null) {
-                                    let r3 = operators[op2](r1, r2);
-                                    if (isCloseTo24(r3)) return `((${a} ${op1} ${b}) ${op2} (${c} ${op3} ${d}))`;
-                                }
-                            } catch (e) {}
-                        }
-                    }
-                }
-            }
-            return null; // not solvable
-        }
-
-        // generate solvable numbers set
-        function generateSolvableSet() {
-            while (true) {
-                const nums = [
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1,
-                    Math.floor(Math.random() * 9) + 1
-                ];
-                const sol = solve24(nums);
-                if (sol !== null) {
-                    return { nums, sol };
-                }
-            }
+        function openVersus() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            vs.openMenu();
         }
 
         /* ============================================================================
-           SECTION D · GAMESTATE & COLLAPSING MECHANICS
+           SECTION D · GAME STATE & HISTORY STACK
            ============================================================================ */
         let score = 0;
+        let solvedCount = 0;
         let timeLeft = 90;
         let level = 1;
         let timerInterval = null;
         let isGameOver = false;
+        let isVersusMode = false;
+        let activeRng = Math.random;
+        let selectedDifficulty = 'all';
 
-        let activeNumbers = []; // elements like { id, val }
-        let currentSolution = "";
+        let activeNumbers = [];
         let originalSet = [];
+        let currentSolution = "";
+        let currentHint = "";
+        let currentSubTarget = "";
+        let hintTapCount = 0;
 
-        let selectedIndices = []; // selected ids
+        let selectedIndices = [];
         let selectedOperator = null;
+        let historyStack = [];
 
-        function startGame() {
+        function setDifficulty(diff, btn) {
+            playSfx('tap');
+            selectedDifficulty = diff;
+            document.querySelectorAll('.diff-chip').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        function startSingle() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            isVersusMode = false;
+            activeRng = Math.random;
+            startVersusRound(Math.random, null);
+        }
+
+        function startVersusRound(rng, player) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            isVersusMode = (player !== null);
+            activeRng = rng || Math.random;
+
             document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.add('hidden');
+
             score = 0;
-            timeLeft = 90;
+            solvedCount = 0;
             level = 1;
+            timeLeft = 90;
             isGameOver = false;
-            
+            historyStack = [];
+
             document.getElementById('score-val').innerText = score;
             document.getElementById('timer-val').innerText = timeLeft;
             document.getElementById('level-val').innerText = level;
+
+            if (window.KAMPAI?.beginRound) {
+                window.KAMPAI.beginRound();
+            }
 
             loadNewSet();
             startTimer();
@@ -702,18 +826,42 @@
         }
 
         function loadNewSet() {
-            const data = generateSolvableSet();
+            hintTapCount = 0;
+            historyStack = [];
+            let data = null;
+
+            if (window.MATH_24_ENGINE) {
+                const diffArg = (selectedDifficulty === 'all') ? null : selectedDifficulty;
+                data = window.MATH_24_ENGINE.getRandom(diffArg, activeRng);
+            } else {
+                data = fallbackGenerateSet();
+            }
+
             originalSet = [...data.nums];
-            currentSolution = data.sol;
-            
+            currentSolution = data.solution;
+            currentHint = data.hint || `ลองสร้างกลุ่มโครงสร้าง ${data.solution}`;
+            currentSubTarget = data.subTarget || '';
+
             activeNumbers = data.nums.map((n, i) => ({ id: i, val: n }));
             selectedIndices = [];
             selectedOperator = null;
-            document.getElementById('instruct').className = 'instruction-box';
-            document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ';
+
+            const inst = document.getElementById('instruct');
+            inst.className = 'instruction-box';
+            inst.innerText = 'แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ';
 
             renderCards();
             clearOperatorHighlights();
+        }
+
+        function fallbackGenerateSet() {
+            return {
+                nums: [3, 3, 8, 8],
+                solution: '(8 ÷ (3 − (8 ÷ 3))) = 24',
+                hint: 'สร้างเศษส่วน (3 − 8/3 = 1/3) แล้วนำไปหาร 8 (8 ÷ 1/3 = 24)',
+                subTarget: '8 ÷ 1/3',
+                difficulty: 'master'
+            };
         }
 
         function renderCards() {
@@ -722,8 +870,14 @@
             activeNumbers.forEach((n) => {
                 const card = document.createElement('div');
                 card.className = `num-card ${selectedIndices.includes(n.id) ? 'selected' : ''}`;
-                card.innerText = Math.round(n.val * 100) / 100; // print rounded to 2 decimals if fraction
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                
+                // Friendly decimal/fraction display
+                const rounded = Math.round(n.val * 100) / 100;
+                card.innerText = rounded;
                 card.onclick = () => selectCard(n.id);
+                card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectCard(n.id); };
                 box.appendChild(card);
             });
         }
@@ -737,26 +891,22 @@
             const numObj = activeNumbers.find(n => n.id === id);
             if (!numObj) return;
 
-            // Step 1: choosing first card
+            // Choosing first card
             if (selectedIndices.length === 0) {
                 selectedIndices = [id];
-                document.getElementById('instruct').innerText = `เลือกได้เลข ${numObj.val} แล้ว, ต่อไปแตะเลือกเครื่องหมายด้านล่าง (+, -, ×, ÷)`;
+                document.getElementById('instruct').innerText = `เลือกได้เลข ${numObj.val} แล้ว, ต่อไปแตะเลือกเครื่องหมาย (+, −, ×, ÷)`;
                 renderCards();
             } 
-            // Step 2: cancel first card selection
+            // Tap same card again to unselect
             else if (selectedIndices.length === 1 && selectedIndices[0] === id && !selectedOperator) {
                 selectedIndices = [];
                 document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขการ์ดใบแรกที่ต้องการคำนวณ';
                 renderCards();
             } 
-            // Step 3: choosing second card to compute
+            // Choosing second card to compute
             else if (selectedIndices.length === 1 && selectedOperator) {
-                if (selectedIndices[0] === id) {
-                    // Tap same card again -> cancel
-                    return;
-                }
-                
-                // Do the collapse!
+                if (selectedIndices[0] === id) return;
+
                 const card1Val = activeNumbers.find(n => n.id === selectedIndices[0]).val;
                 const card2Val = numObj.val;
                 
@@ -765,7 +915,7 @@
                 else if (selectedOperator === '-') result = card1Val - card2Val;
                 else if (selectedOperator === '*') result = card1Val * card2Val;
                 else if (selectedOperator === '/') {
-                    if (card2Val === 0) {
+                    if (Math.abs(card2Val) < 0.00001) {
                         playSfx('wrong');
                         showNotice('❌ คำนวณขัดข้อง: ห้ามหารด้วยศูนย์!', true);
                         return;
@@ -775,25 +925,27 @@
 
                 if (result !== null) {
                     playSfx('combine');
+
+                    // Save snapshot to history stack for Undo
+                    historyStack.push({
+                        activeNumbers: activeNumbers.map(item => ({ ...item })),
+                        instructText: document.getElementById('instruct').innerText
+                    });
                     
-                    // replace the two cards with one new card
                     activeNumbers = activeNumbers.filter(n => n.id !== selectedIndices[0] && n.id !== id);
-                    const newId = Date.now(); // random unique id
+                    const newId = Date.now() + Math.random();
                     activeNumbers.push({ id: newId, val: result });
                     
                     selectedIndices = [];
                     selectedOperator = null;
                     clearOperatorHighlights();
-                    
                     renderCards();
 
-                    // Animate the pop on the newly combined card
                     setTimeout(() => {
                         const newCardEl = Array.from(document.querySelectorAll('.num-card')).pop();
                         if (newCardEl) newCardEl.classList.add('combined-pop');
                     }, 10);
 
-                    // Check win state
                     checkBoardState();
                 }
             }
@@ -802,13 +954,12 @@
         function selectOperator(op) {
             if (selectedIndices.length !== 1) {
                 playSfx('wrong');
-                showNotice('⚠️ กรุณาเลือกตัวเลขการ์ดตัวแรกก่อน!', true);
+                showNotice('⚠️ กรุณาแตะเลือกการ์ดตัวเลขตัวแรกก่อน!', true);
                 return;
             }
             playSfx('tap');
             selectedOperator = op;
             
-            // highlight the selected operator
             clearOperatorHighlights();
             document.querySelectorAll('.op-btn').forEach(btn => {
                 if (btn.innerText === (op === '*' ? '×' : op === '/' ? '÷' : op === '-' ? '−' : op)) {
@@ -816,62 +967,91 @@
                 }
             });
 
-            const cardVal = activeNumbers.find(n => n.id === selectedIndices[0]).val;
-            document.getElementById('instruct').innerText = `แตะเลือกตัวเลขการ์ดใบที่สองเพื่อนำไป ${op === '*' ? 'คูณ' : op === '/' ? 'หาร' : op === '+' ? 'บวก' : 'ลบ'}`;
+            const opTh = op === '*' ? 'คูณ' : op === '/' ? 'หาร' : op === '+' ? 'บวก' : 'ลบ';
+            document.getElementById('instruct').innerText = `แตะเลือกการ์ดใบที่สองเพื่อนำไป ${opTh}`;
+        }
+
+        function isCloseTo24(val) {
+            return val !== null && Math.abs(val - 24) < 0.001;
         }
 
         function checkBoardState() {
             if (activeNumbers.length === 1) {
                 const finalVal = activeNumbers[0].val;
                 if (isCloseTo24(finalVal)) {
-                    // VICTORY!
                     playSfx('correct');
                     score += 100;
+                    solvedCount++;
                     level++;
                     document.getElementById('score-val').innerText = score;
                     document.getElementById('level-val').innerText = level;
                     
                     showFloatingText('+100');
                     spawnConfetti();
-                    showNotice('🎉 สุดยอดมาก! ได้ 24 แต้มพอดีเป๊ะ!', false);
+                    showNotice('🎉 สุดยอดมาก! คำนวณได้ 24 แต้มพอดีเป๊ะ!', false);
+
+                    if (isVersusMode && vs) {
+                        vs.report(score, { correct: solvedCount });
+                    }
                     
                     setTimeout(() => {
-                        loadNewSet();
-                    }, 1500);
+                        if (!isGameOver) loadNewSet();
+                    }, 1300);
                 } else {
-                    // Failed
                     playSfx('wrong');
-                    showNotice(`😢 ผลลัพธ์สุดท้ายคือ ${Math.round(finalVal * 100) / 100} ซึ่งไม่ใช่ 24 ลองใหม่อีกครั้งนะ!`, true);
-                    setTimeout(() => {
-                        resetBoard();
-                    }, 1800);
+                    const displayVal = Math.round(finalVal * 100) / 100;
+                    showNotice(`😢 ผลลัพธ์คือ ${displayVal} (ยังไม่ใช่ 24) กดล้างกระดานหรือย้อนกลับนะ!`, true);
                 }
             } else {
-                document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขใบต่อไปเพื่อคำนวณขั้นถัดไป';
+                document.getElementById('instruct').innerText = 'แตะเลือกตัวเลขใบต่อไปเพื่อคำนวณต่อ';
+            }
+        }
+
+        function undoMove() {
+            if (historyStack.length > 0) {
+                playSfx('tap');
+                const prevState = historyStack.pop();
+                activeNumbers = prevState.activeNumbers;
+                selectedIndices = [];
+                selectedOperator = null;
+                clearOperatorHighlights();
+                renderCards();
+                document.getElementById('instruct').innerText = 'ย้อนกลับแล้ว แตะเลือกตัวเลขต่อไป';
+                document.getElementById('instruct').className = 'instruction-box';
+            } else {
+                playSfx('tap');
+                showNotice('กระดานอยู่ในสถานะเริ่มต้นของข้อนี้แล้ว', false);
             }
         }
 
         function resetBoard() {
             playSfx('tap');
+            historyStack = [];
             activeNumbers = originalSet.map((n, i) => ({ id: i, val: n }));
             selectedIndices = [];
             selectedOperator = null;
             clearOperatorHighlights();
             renderCards();
-            document.getElementById('instruct').innerText = 'ล้างกระดานเรียบร้อยแล้ว, แตกเริ่มใบแรกใหม่ได้เลย';
+            document.getElementById('instruct').innerText = 'ล้างกระดานเรียบร้อยแล้ว เริ่มแตะการ์ดใบแรกได้เลย';
             document.getElementById('instruct').className = 'instruction-box';
         }
 
         function showHint() {
             playSfx('hint');
+            hintTapCount++;
             const hintBox = document.getElementById('instruct');
             hintBox.className = 'instruction-box highlight';
-            hintBox.innerText = `💡 คำใบ้เฉลย: ลองคิดในแบบโครงสร้าง ${currentSolution}`;
+
+            if (hintTapCount === 1 && currentHint) {
+                hintBox.innerText = `💡 คำใบ้: ${currentHint}`;
+            } else {
+                hintBox.innerText = `🔍 โครงสร้างเฉลย: ${currentSolution}`;
+            }
         }
 
         function skipQuestion() {
             playSfx('tap');
-            score = Math.max(0, score - 20); // skip costs 20 pts
+            score = Math.max(0, score - 20);
             document.getElementById('score-val').innerText = score;
             showNotice('⏭️ ข้ามข้อนี้แล้ว (ถูกหัก 20 คะแนน)', true);
             loadNewSet();
@@ -895,80 +1075,136 @@
             setTimeout(() => el.remove(), 800);
         }
 
-        /* Confetti Fireworks simulation */
         function spawnConfetti() {
-            const count = 60;
+            const count = 45;
             const colors = ['#f59e0b', '#fbbf24', '#3b82f6', '#10b981', '#ef4444', '#ec4899'];
             for (let i = 0; i < count; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-particle';
                 el.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
-                // spawn at viewport middle
                 el.style.left = '50vw';
                 el.style.top = '50vh';
-                
                 document.body.appendChild(el);
                 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 50 + Math.random() * 200;
-                const duration = 0.5 + Math.random() * 1.0;
-                
+                const distance = 50 + Math.random() * 180;
+                const duration = 0.5 + Math.random() * 0.8;
                 el.style.transition = `all ${duration}s cubic-bezier(0.1, 0.8, 0.3, 1)`;
                 
                 setTimeout(() => {
                     el.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`;
                     el.style.opacity = '0';
                 }, 10);
-                
                 setTimeout(() => el.remove(), duration * 1000 + 50);
             }
         }
 
         /* ============================================================================
-           SECTION E · END GAME & SCORE POSTING
+           SECTION E · CLASSROOM PROJECTOR & A4 PRINTABLE WORKSHEET
+           ============================================================================ */
+        function toggleProjectorMode() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (window.KampaiClassroom && typeof window.KampaiClassroom.toggleProjector === 'function') {
+                window.KampaiClassroom.toggleProjector();
+            } else {
+                document.body.classList.toggle('kampai-projector-mode');
+            }
+        }
+
+        window.addEventListener('kampai:projector:next', () => {
+            if (!isGameOver) loadNewSet();
+        });
+        window.addEventListener('kampai:projector:flip', () => {
+            if (!isGameOver) showHint();
+        });
+
+        function open24Worksheet() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!window.KampaiWorksheet || typeof window.KampaiWorksheet.openPrintModal !== 'function') {
+                alert('ระบบสร้างใบงานไม่พร้อมใช้งาน');
+                return;
+            }
+
+            const dataEngine = window.MATH_24_ENGINE;
+            if (!dataEngine) {
+                alert('ไม่พบฐานข้อมูลเกม 24');
+                return;
+            }
+
+            const easyPool = dataEngine.getByDifficulty('easy');
+            const medPool = dataEngine.getByDifficulty('medium');
+            const masterPool = dataEngine.getByDifficulty('master');
+
+            function pickRandom(pool, count) {
+                const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+                return shuffled.slice(0, count);
+            }
+
+            const selected = [
+                ...pickRandom(easyPool, 4),
+                ...pickRandom(medPool, 6),
+                ...pickRandom(masterPool, 2)
+            ];
+
+            const items = selected.map((item, idx) => {
+                const cardDisplay = item.nums.map(n => `[ ${n} ]`).join('   ');
+                return {
+                    question: `ข้อที่ ${idx + 1}:   เลขชุด ${cardDisplay}`,
+                    q: `เลขชุด ${cardDisplay}`,
+                    answer: item.solution,
+                    hint: item.hint,
+                    explanation: `แนวคิด: ${item.hint} ➔ วิธีทำ: ${item.solution}`
+                };
+            });
+
+            window.KampaiWorksheet.openPrintModal({
+                title: 'แบบฝึกหัดคณิตคิดเร็ว 24 (24 Challenge)',
+                subtitle: 'กลุ่มสาระการเรียนรู้คณิตศาสตร์ • ฝึกทักษะการคิดคำนวณและแก้โจทย์ปัญหา',
+                instructions: 'คำชี้แจง: ให้นักเรียนนำตัวเลขทั้ง 4 ตัวที่กำหนดให้ มาดำเนินการด้วยเครื่องหมาย บวก (+) ลบ (−) คูณ (×) หรือหาร (÷) เพื่อให้ได้ผลลัพธ์เท่ากับ 24 โดยใช้ตัวเลขแต่ละตัวได้เพียงครั้งเดียว',
+                items: items,
+                itemCount: 12,
+                includeAnswerKey: true
+            });
+        }
+
+        /* ============================================================================
+           SECTION F · END GAME, RESTART & SCORE PERSISTENCE
            ============================================================================ */
         function endGame() {
             if (isGameOver) return;
             isGameOver = true;
             clearInterval(timerInterval);
 
-            if (window.KAMPAI) {
+            // Versus mode completion guard
+            if (vs && vs.finish(score, { correct: solvedCount })) return;
+
+            if (window.KAMPAI?.sound?.gameOver) {
+                window.KAMPAI.sound.gameOver();
+            }
+
+            if (window.KAMPAI?.submitScore) {
                 window.KAMPAI.submitScore(score, {
-                    solved_levels: level - 1
+                    solved_levels: solvedCount,
+                    difficulty: selectedDifficulty
                 });
             }
 
             document.getElementById('final-score').innerText = score;
             document.getElementById('gameover-screen').classList.remove('hidden');
         }
-    </script>
-    <script>
-    // iframe-safe navigation interceptor (kampai PlayGame wrapper)
-    (function() {
-      const EMBED = (window.parent !== window) ||
-                    (new URLSearchParams(location.search).get('embed') === '1');
-      if (!EMBED) return;
-      function navigateTo(href) {
-        if (href && href.includes('/educational-hub/a5f53911-b9cb-465a-b963-7202bcb907b1')) {
-          href = '/h/nattapong';
+
+        function restartGame() {
+            clearInterval(timerInterval);
+            isGameOver = false;
+            document.getElementById('gameover-screen').classList.add('hidden');
+            startSingle();
         }
-        try { window.parent.postMessage({ type: 'navigate', to: href }, '*'); } catch (_) {}
-      }
-      document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('a[target="_top"], a[href*="educational-hub"], a[href*="/h/"], a.back').forEach(a => {
-          a.addEventListener('click', (e) => { e.preventDefault(); navigateTo(a.getAttribute('href')); });
+
+        window.KAMPAI?.onReady?.(function() {
+            if (window.KAMPAI?.sound?.mountToggles) {
+                window.KAMPAI.sound.mountToggles();
+            }
         });
-        document.querySelectorAll('button[onclick*="location.href"]').forEach(btn => {
-          const onclick = btn.getAttribute('onclick') || '';
-          const m = onclick.match(/location\.href\s*=\s*['"]([^'"]+)['"]/);
-          if (m) {
-            btn.removeAttribute('onclick');
-            btn.addEventListener('click', (e) => { e.preventDefault(); navigateTo(m[1]); });
-          }
-        });
-      });
-    })();
     </script>
 </body>
 </html>
