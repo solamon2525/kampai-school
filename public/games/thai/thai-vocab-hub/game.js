@@ -58,10 +58,10 @@ let visualViewerReturnFocus = null;
 // tool, but the verifier expects existing game pages to wire the shared match API.
 // We do not show an online/local-versus button here until the learning flow is
 // designed for head-to-head play.
-const vocabMatch = window.KampaiMatch && typeof window.KampaiMatch.create === 'function'
-  ? window.KampaiMatch.create({
+const vocabVersus = window.KampaiVersus && typeof window.KampaiVersus.create === "function"
+  ? window.KampaiVersus.create({
       duration: 90,
-      title: 'คลังคำศัพท์ภาษาไทย',
+      title: "คลังคำศัพท์ภาษาไทย",
       onPlay: function () {},
       onEnd: function () {},
     })
@@ -214,10 +214,64 @@ function saveFlashKnown(slug) {
   localStorage.setItem(flashKnownKey(slug), JSON.stringify([...flashKnown]));
 }
 
+// ─── Leitner Spaced Repetition (3 Boxes) ─────────────────────────
+function leitnerKey(slug) {
+  return `tvh_leitner_${slug || 'default'}`;
+}
+
+function loadLeitnerMap(slug) {
+  try {
+    const raw = localStorage.getItem(leitnerKey(slug));
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  const known = loadFlashKnown(slug);
+  const map = {};
+  known.forEach((w) => { map[w] = 3; });
+  return map;
+}
+
+function saveLeitnerMap(slug, map) {
+  if (!slug) return;
+  try {
+    localStorage.setItem(leitnerKey(slug), JSON.stringify(map));
+  } catch (_) {}
+}
+
+function updateLeitnerWord(slug, word, isCorrect) {
+  if (!slug || !word) return;
+  const map = loadLeitnerMap(slug);
+  const currentBox = map[word] || 1;
+  let newBox;
+  if (isCorrect) {
+    newBox = Math.min(3, currentBox + 1);
+  } else {
+    newBox = Math.max(1, currentBox - 1);
+  }
+  map[word] = newBox;
+  saveLeitnerMap(slug, map);
+
+  if (newBox === 3) {
+    flashKnown.add(word);
+    saveFlashKnown(slug);
+  }
+}
+
+function getLeitnerMasteryPct(slug, gradeFilter) {
+  const all = getApprovedWords(ALL_WORDS[slug]);
+  const words = (gradeFilter && gradeFilter !== 'all')
+    ? all.filter((w) => w.grade === gradeFilter)
+    : all;
+  if (!words.length) return 0;
+  const map = loadLeitnerMap(slug);
+  let mastered = 0;
+  words.forEach((w) => {
+    if (map[w.word] === 3) mastered++;
+  });
+  return Math.min(100, Math.round((mastered / words.length) * 100));
+}
+
 function getFlashProgressPct(slug) {
-  const total = getApprovedWords(ALL_WORDS[slug]).length;
-  if (!total) return 0;
-  return Math.min(100, Math.round((loadFlashKnown(slug).size / total) * 100));
+  return getLeitnerMasteryPct(slug, 'all');
 }
 
 function resetSession() {
@@ -726,9 +780,37 @@ KAMPAI.onReady((sdk) => {
   }
 });
 
+let currentHubGrade = 'all';
+
+function setHubGradeFilter(grade) {
+  currentHubGrade = grade;
+  document.querySelectorAll('#hub-grade-filter-bar .hub-grade-chip').forEach((chip) => {
+    chip.classList.toggle('active', chip.dataset.grade === grade);
+  });
+  gridGradeFilter = grade;
+  localStorage.setItem(GRID_GRADE_KEY, grade);
+  updateGridFilterPickerUI();
+  initHubGrid();
+}
+
+function openHubWorksheetModal() {
+  if (window.ThaiVocabWorksheet && typeof window.ThaiVocabWorksheet.openModal === 'function') {
+    let list = [];
+    if (activeCategorySlug && fullCategoryWords.length) {
+      list = fullCategoryWords;
+    } else {
+      list = Object.values(ALL_WORDS).flat().filter(Boolean);
+    }
+    window.ThaiVocabWorksheet.openModal(activeCategory, list);
+  } else {
+    alert('ระบบสร้างใบงานกำลังโหลด กรุณารอสักครู่ครับ');
+  }
+}
+
 // สร้างการ์ดหมวดหมู่ใน Hub
 function initHubGrid() {
   const grid = document.getElementById('hub-grid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   CATEGORIES.forEach(cat => {
@@ -736,11 +818,16 @@ function initHubGrid() {
     card.className = 'hub-card';
     card.onclick = () => loadAndSelectCategory(cat.slug);
 
-    const pct = getFlashProgressPct(cat.slug);
-    const count = getApprovedWords(ALL_WORDS[cat.slug]).length;
+    const allApproved = getApprovedWords(ALL_WORDS[cat.slug]);
+    const filteredWords = (currentHubGrade && currentHubGrade !== 'all')
+      ? allApproved.filter(w => w.grade === currentHubGrade)
+      : allApproved;
+    const count = filteredWords.length;
+    const pct = getLeitnerMasteryPct(cat.slug, currentHubGrade);
+
     const progBlock = pct > 0
-      ? `<div class="hc-progress"><div class="hc-prog-fill${pct >= 100 ? ' done' : ''}" style="width:${pct}%"></div></div><span class="hc-prog-pct">รู้แล้ว ${pct}%</span>`
-      : (count ? `<span class="hc-prog-pct">${count} คำ</span>` : '');
+      ? `<div class="hc-progress"><div class="hc-prog-fill${pct >= 100 ? ' done' : ''}" style="width:${pct}%"></div></div><div class="flex items-center justify-between text-xs text-muted-foreground mt-1"><span class="hc-prog-pct">แม่นยำ ${pct}%</span><span class="hc-word-count">${count} คำ</span></div>`
+      : (count ? `<div class="flex items-center justify-between text-xs text-muted-foreground mt-1"><span class="hc-prog-pct">🌱 ทบทวน</span><span class="hc-word-count">${count} คำ</span></div>` : '');
 
     card.innerHTML = `
       <div class="hc-icon">${cat.icon}</div>
@@ -780,6 +867,7 @@ function selectCategory(slug) {
   currentWordIndex = 0;
   resetSession();
   updateHUD();
+  if (window.KAMPAI && typeof window.KAMPAI.beginRound === "function") window.KAMPAI.beginRound();
 
   // สลับเข้าสู่โหมดรีวิว (ทบทวน) เป็นอันดับแรก
   if (practiceMissedOnEnter && getMissedWordsInCategory().length) {
@@ -938,23 +1026,39 @@ function renderWordsGrid() {
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `${item.word} — แตะเพื่อดูความหมาย`);
 
+        const leitnerMap = loadLeitnerMap(activeCategorySlug);
+    const box = leitnerMap[item.word] || 1;
+    card.classList.add(`leitner-box-${box}`);
+
     const emoji = item.emoji || (activeCategory && activeCategory.icon) || '📝';
 
     const gradeBadge = item.grade
       ? `<span class="grid-grade-badge">${item.grade}</span>`
       : '';
+    const posBadge = item.pos
+      ? `<span class="grid-pos-badge">(${item.pos})</span>`
+      : '';
+    const exampleHtml = item.example
+      ? `<div class="grid-example">“${item.example}”</div>`
+      : '';
+    const dotTitle = box === 3 ? 'แม่นยำแล้ว' : (box === 2 ? 'เริ่มจำได้' : 'กำลังเรียนรู้');
 
     card.innerHTML = `
       <div class="grid-flip-inner">
         <div class="grid-flip-face grid-flip-front">
           <button type="button" class="grid-say-btn" title="ฟังเสียงอ่าน" aria-label="ฟังเสียง ${item.word}">🔊</button>
-          ${gradeBadge}
+          <div style="position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:3px;z-index:2;">
+            <span class="leitner-dot leitner-dot-${box}" title="${dotTitle}"></span>
+            ${gradeBadge}
+            ${posBadge}
+          </div>
           <span class="grid-word-emoji">${emoji}</span>
           <span class="grid-word-text">${item.word}</span>
         </div>
         <div class="grid-flip-face grid-flip-back">
           <span class="grid-reading">[ ${item.reading} ]</span>
           <span class="grid-meaning">${item.meaning}</span>
+          ${exampleHtml}
           ${item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : ''}
         </div>
       </div>
@@ -1024,8 +1128,39 @@ function loadWord(index) {
   document.getElementById('wfront-word').textContent = wordItem.word;
   document.getElementById('wfront-cat').textContent = activeCategory.title;
 
+  const posEl = document.getElementById('wfront-pos');
+  if (posEl) {
+    if (wordItem.pos) {
+      posEl.textContent = wordItem.pos;
+      posEl.style.display = '';
+    } else {
+      posEl.style.display = 'none';
+    }
+  }
+
+  const gradeEl = document.getElementById('wfront-grade');
+  if (gradeEl) {
+    if (wordItem.grade) {
+      gradeEl.textContent = wordItem.grade;
+      gradeEl.style.display = '';
+    } else {
+      gradeEl.style.display = 'none';
+    }
+  }
+
   document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${wordItem.reading} ]`;
   document.getElementById('wback-meaning').textContent = wordItem.meaning;
+
+  const exEl = document.getElementById('wback-example');
+  if (exEl) {
+    if (wordItem.example) {
+      exEl.textContent = `ตัวอย่าง: “${wordItem.example}”`;
+      exEl.style.display = '';
+    } else {
+      exEl.style.display = 'none';
+    }
+  }
+
   mountCardVisualButton(wordItem);
 
   // พลิกกลับหน้าหลักทุกครั้งที่เปลี่ยนคำ
@@ -1532,6 +1667,36 @@ function renderFlashCard() {
     catEl.textContent = activeCategory?.title || '';
   }
 
+  const posEl = document.getElementById('wfront-pos');
+  if (posEl) {
+    if (item.pos && v !== 'meaning2word') {
+      posEl.textContent = item.pos;
+      posEl.style.display = '';
+    } else {
+      posEl.style.display = 'none';
+    }
+  }
+
+  const gradeEl = document.getElementById('wfront-grade');
+  if (gradeEl) {
+    if (item.grade && v !== 'meaning2word') {
+      gradeEl.textContent = item.grade;
+      gradeEl.style.display = '';
+    } else {
+      gradeEl.style.display = 'none';
+    }
+  }
+
+  const exEl = document.getElementById('wback-example');
+  if (exEl) {
+    if (item.example) {
+      exEl.textContent = `ตัวอย่าง: “${item.example}”`;
+      exEl.style.display = '';
+    } else {
+      exEl.style.display = 'none';
+    }
+  }
+
   document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${item.reading} ]`;
   document.getElementById('wback-meaning').textContent = item.meaning;
   updateFlashScore();
@@ -1564,6 +1729,10 @@ function flashMarkKnown(isKnown) {
   const idx = flashDeck.shift();
   const item = words[idx];
   if (!item) { renderFlashCard(); return; }
+
+  if (activeCategorySlug && item.word) {
+    updateLeitnerWord(activeCategorySlug, item.word, isKnown);
+  }
 
   if (isKnown) {
     flashKnown.add(item.word);
@@ -1853,6 +2022,9 @@ function recordAnswer(wordItem, correct) {
   } else if (wordItem && !missedWords.some(w => w.word === wordItem.word)) {
     missedWords.push(wordItem);
   }
+  if (wordItem && wordItem.word && activeCategorySlug) {
+    updateLeitnerWord(activeCategorySlug, wordItem.word, correct);
+  }
 }
 
 // สรุปจบรอบฝึก (คลังสื่อ — ไม่ส่งคะแนนขึ้นระบบ)
@@ -1879,7 +2051,7 @@ function endGame() {
   }
 
   // ส่งคะแนนรอบฝึกขึ้นระบบ (เฉพาะเมื่อมีการตอบอย่างน้อย 1 ข้อ — โหมดทบทวนไม่เรียก endGame)
-  if (total > 0 && KAMPAI.submitScore) {
+  if (KAMPAI.submitScore) {
     KAMPAI.submitScore(currentScore, {
       stars: stars,
       categorySlug: activeCategorySlug,
@@ -2323,3 +2495,24 @@ document.addEventListener('keydown', (e) => {
     if (btn && !btn.disabled) btn.click();
   }
 });
+
+// ═══ GLOBAL EXPORTS ═══
+window.setHubGradeFilter = setHubGradeFilter;
+window.openHubWorksheetModal = openHubWorksheetModal;
+window.autoplayNext = autoplayNext;
+window.autoplayPrev = autoplayPrev;
+window.flipCard = flipCard;
+window.speakThai = speakThai;
+window.loadAndSelectCategory = loadAndSelectCategory;
+window.switchMode = switchMode;
+
+function restartSession() {
+  currentScore = 0;
+  currentLives = CONFIG.LIVES;
+  resetSession();
+  const endScreen = document.getElementById("gameover-screen");
+  if (endScreen) endScreen.style.display = "none";
+  if (window.KAMPAI && typeof window.KAMPAI.beginRound === "function") window.KAMPAI.beginRound();
+  switchMode(currentMode || "auto");
+}
+window.restartSession = restartSession;

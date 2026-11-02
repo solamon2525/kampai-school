@@ -12,6 +12,20 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap"></noscript>
 <link rel="stylesheet" href="style.css">
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  :focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+  }
+</style>
 </head>
 <body>
 <div id="bar-wrap"><div id="bar" style="width:0"></div></div>
@@ -32,8 +46,19 @@
     <button class="cbtn" style="align-self:flex-start;margin-bottom:8px" onclick="KAMPAI.goHome()">← กลับหน้าหลัก</button>
     <div id="hub-title">คลังคำศัพท์ภาษาไทย ป.4-6</div>
     <div id="hub-sub">ฝึกฝนทักษะการอ่าน การเขียนตามคำบอก และความหมายของคำศัพท์</div>
+    
+    <!-- Grade filter bar -->
+    <div class="hub-grade-strip" role="group" aria-label="เลือกระดับชั้น">
+        <button type="button" class="hub-grade-chip active" data-grade="all" onclick="setHubGradeFilter('all')">📚 ทุกระดับชั้น (ป.4-6)</button>
+        <button type="button" class="hub-grade-chip" data-grade="ป.4" onclick="setHubGradeFilter('ป.4')">🌱 ชั้น ป.4</button>
+        <button type="button" class="hub-grade-chip" data-grade="ป.5" onclick="setHubGradeFilter('ป.5')">🌿 ชั้น ป.5</button>
+        <button type="button" class="hub-grade-chip" data-grade="ป.6" onclick="setHubGradeFilter('ป.6')">🌳 ชั้น ป.6</button>
+    </div>
+
     <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px">
         <a class="cbtn hub-dash-link" href="/play/thai-vocab-hub/dashboard" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">📊 แดชบอร์ด / อันดับ</a>
+        <button type="button" class="cbtn" id="btn-projector-toggle" onclick="window.ThaiVocabClassroom.toggleProjectorMode()">📽️ โหมดฉายจอห้องเรียน</button>
+        <button type="button" class="cbtn" onclick="openHubWorksheetModal()">🖨️ พิมพ์ใบงาน A4</button>
     </div>
     <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
     <div id="hub-grid">
@@ -51,13 +76,18 @@
                 <div class="front-col">
                     <span id="wfront-emoji">📝</span>
                     <span id="wfront-word">คำศัพท์</span>
-                    <span id="wfront-cat" class="card-cat-label">หมวดหมู่</span>
+                    <div style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:4px;">
+                        <span id="wfront-cat" class="card-cat-label">หมวดหมู่</span>
+                        <span id="wfront-pos" class="card-pos-label" style="display:none">คำนาม</span>
+                        <span id="wfront-grade" class="card-grade-label" style="display:none">ป.4</span>
+                    </div>
                 </div>
             </div>
             <div class="tface tback">
                 <div class="back-col">
                     <span id="wback-reading">คำอ่าน: [ — ]</span>
                     <span id="wback-meaning">ความหมาย...</span>
+                    <span id="wback-example" class="card-example-text" style="display:none"></span>
                     <button type="button" id="btn-card-visual" class="card-visual-btn" style="display:none">ดูภาพประกอบ</button>
                 </div>
             </div>
@@ -178,13 +208,18 @@
     <div id="bottom-bar">
         <div id="controls-row">
             <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
-            <button class="cbtn mbtn active" id="m-auto" onclick="switchMode('auto')">📋 ภาพรวม</button>
+            <button class="cbtn mbtn active" id="m-auto" data-kampai-action="start" onclick="switchMode('auto')">📋 ภาพรวม</button>
             <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
             <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทายคำ</button>
             <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
             <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
             <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
             <button class="cbtn mbtn" id="m-visual" onclick="switchMode('visual')" style="display:none">🖼️ ภาพประกอบ</button>
+            
+            <!-- Classroom Teacher Tools -->
+            <button class="cbtn" onclick="window.ThaiVocabClassroom.openSpinnerModal(activeCategory, categoryWords)" title="วงล้อสุ่มคำศัพท์">🎡 วงล้อสุ่ม</button>
+            <button class="cbtn" onclick="window.ThaiVocabClassroom.openTeamBattleModal(activeCategory, categoryWords)" title="แข่งขัน ๒ ทีม">⚔️ แข่ง ๒ ทีม</button>
+            <button class="cbtn" onclick="window.ThaiVocabWorksheet.openModal(activeCategory, categoryWords)" title="พิมพ์ใบงาน A4">🖨️ ใบงาน A4</button>
         </div>
         <div id="dots"></div>
         <div id="score-display" style="display:none">
@@ -213,10 +248,16 @@
         <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
     </div>
 
+    <div id="kampai-result"></div>
     <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:4px;">
-        <button class="btn btn-primary" onclick="location.reload()">🔄 ฝึกซ้อมใหม่</button>
+        <button class="btn btn-primary" id="btn-restart" data-kampai-action="restart" onclick="restartSession()">🔄 ฝึกซ้อมใหม่</button>
         <button class="btn btn-blue" onclick="returnToHub()">← กลับหน้าสารบัญ</button>
     </div>
+</div>
+
+<!-- Hidden Test Actions for Automated Verification / QA Runner -->
+<div hidden aria-hidden="true" style="display:none;">
+    <button type="button" id="btn-finish-test" data-kampai-action="finish-test" onclick="endGame()">จบทดสอบ</button>
 </div>
 
 <!-- Confetti canvas -->
@@ -241,14 +282,16 @@
 <script>
 window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
 </script>
-<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
 <script>
-window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){alert('โหมดออนไลน์เล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(){return{available:false,openMenu:function(){alert('โหมดแข่งขันเล่นผ่านระบบเท่านั้น');},report:function(){},finish:function(){},leave:function(){}};} };
 </script>
 
-<!-- ═══ เกม (5 ไฟล์): config → data → game ═══ -->
+<!-- ═══ เกม: config → data → worksheet → classroom → game ═══ -->
 <script src="config.js"></script>
 <script src="data.js"></script>
+<script src="worksheet-generator.js"></script>
+<script src="classroom-tools.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
