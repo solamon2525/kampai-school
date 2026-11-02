@@ -32,6 +32,7 @@ import { useViewMode } from '@/hooks/useViewMode';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
+import { cn } from '@/lib/utils';
 
 // UUID v4 shape (used to disambiguate :identifier between staff_id vs username)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

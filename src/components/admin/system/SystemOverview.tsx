@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.32 (แก้ไขข้อผิดพลาด ReferenceError: cn is not defined บนหน้าโปรไฟล์ครู /h/nattapong)',
+        date: '2 พ.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไข ReferenceError ตัวแปร cn (Fix Missing cn Import in EducationalHubTeacher): เพิ่มการนำเข้าฟังก์ชัน cn จาก @/lib/utils สำหรับปุ่มบันทึกส่งงานส่วนตัวของครูเจ้าของโปรไฟล์ ป้องกันข้อผิดพลาด cn is not defined 100%',
+            'ปรับปรุง Type Import ใน StudentAssignmentHistorySheet: นำเข้า type TaskStatus จาก student-tasks.service อย่างถูกต้องครบถ้วนตามระเบียบ TypeScript',
+        ],
+    },
+    {
         version: 'v1.233.31 (แก้ไขข้อผิดพลาด TDZ ReferenceError บนหน้า /h/nattapong จากการประกาศตัวแปร isAdmin หลังการเรียกใช้)',
         date: '2 พ.ย. 2569',
         badge: 'bg-primary',

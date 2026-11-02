@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { assignmentsService, type StudentSubmissionItem } from '@/services/assignments.service';
-import { studentTasksService, TASK_STATUS_META, TASK_CATEGORIES, type StudentIndividualTask } from '@/services/student-tasks.service';
+import { studentTasksService, TASK_STATUS_META, TASK_CATEGORIES, type TaskStatus, type StudentIndividualTask } from '@/services/student-tasks.service';
 import { cn } from '@/lib/utils';
 
 interface StudentAssignmentHistorySheetProps {
