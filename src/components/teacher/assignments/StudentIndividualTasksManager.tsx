@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -87,7 +88,7 @@ export function StudentIndividualTasksManager({
   });
 
   // Auto-select first student if none selected
-  useMemo(() => {
+  useEffect(() => {
     if (classOverview.length > 0 && !selectedStudentId) {
       setSelectedStudentId(classOverview[0].student_id);
     }

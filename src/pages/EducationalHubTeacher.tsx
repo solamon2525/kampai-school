@@ -29,7 +29,6 @@ import {
 import { resolveGameMediaHubLink } from '@/lib/edu-hub-game-media-pairs';
 import { resolvePairedLink } from '@/lib/edu-hub-worksheet-pairs';
 import { useViewMode } from '@/hooks/useViewMode';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { SUBJECT_OPTIONS } from '@/lib/edu-hub-subjects';
@@ -40,7 +39,7 @@ const PAGE_ROWS = 7;
 const EducationalHubTeacher = () => {
     const [showAssignmentTracker, setShowAssignmentTracker] = useState(false);
     const navigate = useNavigate();
-    const { session, staffId: signedInStaffId } = useAuth();
+    const { session, staffId: signedInStaffId, isAdmin } = useAuth();
     const secretTapRef = useRef({ count: 0, startedAt: 0 });
     // Page is mounted from 2 routes:
     //   /educational-hub/:staffId  (legacy long URL — UUID)
@@ -270,7 +269,6 @@ const EducationalHubTeacher = () => {
     };
 
     // Admin edit mode — adds drag handles on section headers + item cards
-    const { isAdmin } = useUserRole();
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const displayedCategoryChoices = categoryChoices;

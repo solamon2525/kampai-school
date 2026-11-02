@@ -290,6 +290,15 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.31 (แก้ไขข้อผิดพลาด TDZ ReferenceError บนหน้า /h/nattapong จากการประกาศตัวแปร isAdmin หลังการเรียกใช้)',
+        date: '2 พ.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'แก้ไข ReferenceError ตัวแปร isAdmin (Fix TDZ in EducationalHubTeacher): ย้ายการดึงค่า isAdmin จาก useAuth() ขึ้นมาไว้ส่วนหัวคอมโพเนนต์ร่วมกับ session และ staffId ป้องกันข้อผิดพลาด Cannot access "le" before initialization บนหน้าโปรไฟล์ครู (/h/nattapong) 100%',
+            'ปรับปรุง React Hook ในระบบภารกิจรายบุคคล (Optimize Task Hooks): เปลี่ยน useMemo ที่มี side-effect ปรับสถานะนักเรียนเริ่มต้นใน StudentIndividualTasksManager เป็น useEffect ตามระเบียบ React Best Practices',
+        ],
+    },
+    {
         version: 'v1.233.30 (ระบบบันทึกงานและภารกิจรายบุคคล — เลือกนักเรียนจากระบบ, ติดตามสถานะ ทำอยู่/งานค้าง/เสร็จแล้ว, พร้อมตัวนับจำนวนครั้งที่ขาดงาน)',
         date: '2 พ.ย. 2569',
         badge: 'bg-primary',
