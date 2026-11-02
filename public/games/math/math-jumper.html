@@ -4,11 +4,33 @@
     <script src="/games/kampai-sdk.js"></script>
     <script src="/games/kampai-match.js"></script>
     <script src="/games/kampai-versus.js"></script>
+    <script src="/games/shared-classroom-tools.js"></script>
+    <script src="/games/shared-worksheet-tools.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Jumper: ตะลุยฟ้าคว้าสูตรคูณ</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :focus-visible {
+            outline: 3px solid #f39c12;
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            #math-problem, h1, .math-deco {
+                animation: none !important;
+            }
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -17,6 +39,8 @@
             font-family: 'Sarabun', sans-serif;
             touch-action: none;
             user-select: none;
+            width: 100vw;
+            height: 100vh;
         }
 
         #game-container {
@@ -27,11 +51,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         canvas {
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
             background: transparent;
+            max-width: 100%;
+            height: 100%;
         }
 
         #ui-layer {
@@ -47,48 +74,61 @@
         }
 
         #hud {
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             text-shadow: 2px 2px 0px #fff;
             pointer-events: auto;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .hud-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 8px 16px;
             border-radius: 20px;
             border: 3px solid #333;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #333;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #mute-btn {
             cursor: pointer;
             font-size: 1.5rem;
-            min-width: 40px;
+            min-width: 48px;
+            min-height: 48px;
+            padding: 0;
             text-align: center;
+            border: 3px solid #333;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 50%;
         }
 
         #math-problem {
             position: absolute;
-            top: 15%;
+            top: 14%;
             left: 50%;
             transform: translateX(-50%);
             background: #FFD700;
-            padding: 15px 40px;
+            padding: 10px 30px;
             border-radius: 50px;
             border: 4px solid #fff;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.5rem;
+            font-family: 'Fredoka One', 'Sarabun', cursive, sans-serif;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
             color: #d35400;
             box-shadow: 0 8px 0px #e67e22, 0 15px 20px rgba(0,0,0,0.2);
             animation: float 3s ease-in-out infinite;
             z-index: 10;
             white-space: nowrap;
+            max-width: 90vw;
+            text-align: center;
         }
 
         @keyframes float {
@@ -103,8 +143,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* เปลี่ยนพื้นหลังให้โปร่งใสและเบลอ เพื่อโชว์ฉากเกมด้านหลัง */
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             display: flex;
@@ -114,29 +153,30 @@
             pointer-events: auto;
             z-index: 20;
             overflow-y: auto;
+            padding: 20px 10px;
         }
 
-        /* กรอบเมนูใหม่สไตล์ Glassmorphism */
         .menu-panel {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2), inset 0 0 0 2px rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.96);
+            padding: 24px 20px;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25), inset 0 0 0 2px rgba(255,255,255,0.7);
             display: flex;
             flex-direction: column;
             align-items: center;
-            max-width: 90%;
-            width: 350px;
+            max-width: 95%;
+            width: 380px;
             position: relative;
+            margin: auto;
         }
 
         h1 {
             font-family: 'Fredoka One', cursive;
-            font-size: 3rem;
+            font-size: clamp(2.2rem, 6vw, 3rem);
             color: #FFD700;
             text-shadow: 3px 3px 0px #d35400, 0 5px 15px rgba(211,84,0,0.4);
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
             animation: titleBounce 2s infinite;
         }
@@ -147,27 +187,33 @@
         }
 
         p.subtitle {
-            color: #2c3e50; /* สีเข้มขึ้นให้อ่านง่ายบนพื้นขาว */
-            font-size: 1.1rem;
+            color: #2c3e50;
+            font-size: 1rem;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             font-weight: bold;
+            line-height: 1.4;
         }
 
         .btn {
             background: #2ecc71;
             color: white;
-            padding: 15px 30px;
-            font-size: 1.4rem;
+            padding: 12px 20px;
+            font-size: 1.25rem;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            font-family: 'Fredoka One', cursive;
+            font-family: 'Fredoka One', 'Sarabun', cursive, sans-serif;
             box-shadow: 0 6px 0px #27ae60;
             transition: transform 0.1s, box-shadow 0.1s;
-            margin-top: 15px;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-bottom: 6px;
             width: 100%;
+            min-height: 48px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn:active {
@@ -179,39 +225,76 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             width: 100%;
         }
 
         .setting-label {
-            color: #7f8c8d; /* สีเทาเข้ม */
-            margin-bottom: 8px;
-            font-size: 1rem;
+            color: #475569;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
             font-weight: bold;
         }
 
         .button-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
             justify-content: center;
+        }
+
+        .grade-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #cbd5e1;
+            font-family: 'Sarabun', sans-serif;
+            transition: all 0.1s;
+            min-width: 78px;
+            min-height: 44px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grade-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .grade-btn.active {
+            transform: translateY(2px);
+            background: #2563eb;
+            color: white;
+            border-color: #1d4ed8;
+            box-shadow: 0 2px 0 #1e40af;
         }
 
         .diff-btn, .mode-btn {
             background: #ecf0f1;
             color: #7f8c8d;
             border: none;
-            border-radius: 15px;
+            border-radius: 14px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 0 #bdc3c7;
             font-family: 'Sarabun', sans-serif;
             transition: all 0.1s;
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .diff-btn {
-            padding: 8px 15px;
-            font-size: 1rem;
+            padding: 8px 14px;
+            font-size: 0.95rem;
+            min-width: 76px;
         }
 
         .diff-btn.active {
@@ -224,19 +307,15 @@
         .diff-btn[data-level="hard"].active { background: #e74c3c; color: white; box-shadow: 0 2px 0 #c0392b; }
 
         .mode-btn {
-            padding: 10px 10px;
+            padding: 8px;
             font-size: 1.3rem;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 48px;
+            height: 48px;
             font-family: 'Fredoka One', cursive;
         }
 
         .mode-btn.active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #bdc3c7;
             background: #9b59b6;
             color: white;
             box-shadow: 0 2px 0 #8e44ad;
@@ -246,7 +325,7 @@
         .mode-btn[data-mode="sub"].active { background: #e74c3c; box-shadow: 0 2px 0 #c0392b; }
         .mode-btn[data-mode="mul"].active { background: #f1c40f; color: #d35400; box-shadow: 0 2px 0 #f39c12; }
         .mode-btn[data-mode="div"].active { background: #2ecc71; box-shadow: 0 2px 0 #27ae60; }
-        .mode-btn[data-mode="mix"] { font-size: 0.9rem; }
+        .mode-btn[data-mode="mix"] { font-size: 0.95rem; font-family: 'Sarabun', sans-serif; }
         .mode-btn[data-mode="mix"].active { 
             background: linear-gradient(45deg, #e67e22, #2ecc71, #3498db); 
             box-shadow: 0 2px 0 #2c3e50; 
@@ -255,18 +334,19 @@
         .checkbox-container {
             display: flex;
             align-items: center;
-            margin-top: 10px;
-            color: #e74c3c;
+            margin-top: 8px;
+            color: #c0392b;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
             background: #ffeaa7;
-            padding: 8px 15px;
-            border-radius: 10px;
+            padding: 8px 14px;
+            border-radius: 12px;
+            min-height: 44px;
         }
         .checkbox-container input {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             margin-right: 8px;
             cursor: pointer;
         }
@@ -274,9 +354,8 @@
         .leaderboard-box {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 15px;
+            padding: 12px;
             width: 100%;
-            box-sizing: border-box;
             border: 2px solid #ecf0f1;
             margin-top: 10px;
         }
@@ -284,9 +363,9 @@
         .leaderboard-box h3 {
             color: #f39c12;
             text-align: center;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             font-family: 'Fredoka One', cursive;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
 
         .leaderboard-list {
@@ -299,10 +378,10 @@
             display: flex;
             justify-content: space-between;
             color: #2c3e50;
-            padding: 5px 5px;
+            padding: 4px 0;
             border-bottom: 1px solid #ecf0f1;
             font-family: 'Fredoka One', cursive;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
         .leaderboard-list li:last-child {
@@ -310,13 +389,12 @@
         }
 
         .lb-entry { display: flex; align-items: center; gap: 8px; }
-        .lb-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
-        .lb-avatar-init { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; flex-shrink: 0; }
+        .lb-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #f39c12; flex-shrink: 0; }
+        .lb-avatar-init { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; flex-shrink: 0; }
         .lb-entry-info { flex: 1; min-width: 0; }
-        .lb-entry-name { font-family: 'Fredoka One', cursive; font-size: 0.88rem; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-entry-name { font-family: 'Fredoka One', cursive; font-size: 0.85rem; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .lb-entry-sub { font-size: 0.72rem; color: #7f8c8d; }
 
-        /* ของตกแต่งลอยฟ้า */
         .math-deco {
             position: absolute;
             font-family: 'Fredoka One', cursive;
@@ -327,10 +405,10 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.2);
             animation: floatDeco 6s ease-in-out infinite;
         }
-        .deco-1 { top: 15%; left: 10%; color: rgba(231, 76, 60, 0.8); animation-delay: 0s; }
-        .deco-2 { top: 25%; right: 12%; color: rgba(241, 196, 15, 0.8); font-size: 3rem; animation-delay: 1s; }
-        .deco-3 { bottom: 20%; left: 15%; color: rgba(52, 152, 219, 0.8); font-size: 3.5rem; animation-delay: 2s; }
-        .deco-4 { bottom: 30%; right: 15%; color: rgba(46, 204, 113, 0.8); animation-delay: 1.5s; }
+        .deco-1 { top: 15%; left: 8%; color: rgba(231, 76, 60, 0.8); animation-delay: 0s; }
+        .deco-2 { top: 25%; right: 10%; color: rgba(241, 196, 15, 0.8); font-size: 3rem; animation-delay: 1s; }
+        .deco-3 { bottom: 20%; left: 12%; color: rgba(52, 152, 219, 0.8); font-size: 3.5rem; animation-delay: 2s; }
+        .deco-4 { bottom: 30%; right: 12%; color: rgba(46, 204, 113, 0.8); animation-delay: 1.5s; }
 
         @keyframes floatDeco {
             0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
@@ -351,7 +429,6 @@
         .control-zone {
             flex: 1;
         }
-
     </style>
 </head>
 <body>
@@ -362,7 +439,7 @@
     <div id="ui-layer">
         <div id="hud">
             <div class="hud-item">High: <span id="height-display">0</span>m</div>
-            <div class="hud-item" id="mute-btn" onclick="toggleMute()">🔊</div>
+            <button type="button" id="mute-btn" onclick="toggleMute()" aria-label="เปิด/ปิดเสียง">🔊</button>
             <div class="hud-item">Score: <span id="score-display">0</span></div>
         </div>
         <div id="math-problem">Ready?</div>
@@ -377,34 +454,50 @@
 
         <div class="menu-panel">
             <h1>Math Jumper</h1>
-            <p class="subtitle">ช่วยน้องจัมป์กระโดดขึ้นฟ้า! <br><span style="font-size: 0.9rem; color: #7f8c8d;">(กด Spacebar กลางอากาศเพื่อร่อน)</span></p>
+            <p class="subtitle">ช่วยน้องจัมป์กระโดดขึ้นฟ้าด้วยคำตอบที่ถูกต้อง! <br><span style="font-size: 0.88rem; color: #7f8c8d;">(กด Spacebar กลางอากาศเพื่อร่อน)</span></p>
             
             <div class="setting-section">
+                <div class="setting-label">ระดับชั้นเรียน (Grade Level)</div>
+                <div class="button-group" role="group" aria-label="ระดับชั้นเรียน">
+                    <button type="button" class="grade-btn" data-grade="p12" onclick="setGradeLevel('p12')">ป.1-2</button>
+                    <button type="button" class="grade-btn active" data-grade="p34" onclick="setGradeLevel('p34')">ป.3-4</button>
+                    <button type="button" class="grade-btn" data-grade="p56" onclick="setGradeLevel('p56')">ป.5-6</button>
+                </div>
+            </div>
+
+            <div class="setting-section">
                 <div class="setting-label">เลือกโหมดคณิตศาสตร์</div>
-                <div class="button-group">
-                    <button class="mode-btn" data-mode="add" onclick="setMathMode('add')">+</button>
-                    <button class="mode-btn" data-mode="sub" onclick="setMathMode('sub')">-</button>
-                    <button class="mode-btn active" data-mode="mul" onclick="setMathMode('mul')">×</button>
-                    <button class="mode-btn" data-mode="div" onclick="setMathMode('div')">÷</button>
-                    <button class="mode-btn" data-mode="mix" onclick="setMathMode('mix')">Mix</button>
+                <div class="button-group" role="group" aria-label="โหมดคณิตศาสตร์">
+                    <button type="button" class="mode-btn" data-mode="add" onclick="setMathMode('add')" aria-label="การบวก">+</button>
+                    <button type="button" class="mode-btn" data-mode="sub" onclick="setMathMode('sub')" aria-label="การลบ">-</button>
+                    <button type="button" class="mode-btn active" data-mode="mul" onclick="setMathMode('mul')" aria-label="การคูณ">×</button>
+                    <button type="button" class="mode-btn" data-mode="div" onclick="setMathMode('div')" aria-label="การหาร">÷</button>
+                    <button type="button" class="mode-btn" data-mode="mix" onclick="setMathMode('mix')" aria-label="ผสมระคน">Mix</button>
                 </div>
                 <label class="checkbox-container">
                     <input type="checkbox" id="equation-mode" onchange="toggleEquationMode()">
-                    โหมดสมการขั้นสูง (? + 5 = 12)
+                    <span>โหมดสมการขั้นสูง (? + 5 = 12)</span>
                 </label>
             </div>
 
             <div class="setting-section">
-                <div class="setting-label">เลือกระดับความยาก</div>
-                <div class="button-group">
-                    <button class="diff-btn" data-level="very_easy" onclick="setDifficulty('very_easy')">ง่ายมาก</button>
-                    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">ง่าย</button>
-                    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">ยาก</button>
+                <div class="setting-label">เลือกระดับความยาก / ความเร็ว</div>
+                <div class="button-group" role="group" aria-label="ระดับความยาก">
+                    <button type="button" class="diff-btn" data-level="very_easy" onclick="setDifficulty('very_easy')">ง่ายมาก</button>
+                    <button type="button" class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">ง่าย</button>
+                    <button type="button" class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">ยาก</button>
                 </div>
             </div>
 
-            <button class="btn" onclick="startGame()">Start Game (Enter)</button>
-            <button class="btn" onclick="vs.openMenu()" style="background: #f39c12; box-shadow: 0 6px 0px #d35400;">แข่ง 2 คน</button>
+            <button type="button" class="btn" id="btn-start" data-kampai-action="start" onclick="startGame()">Start Game (Enter)</button>
+            <button type="button" class="btn" onclick="vs.openMenu()" style="background: #f39c12; box-shadow: 0 6px 0px #d35400;">⚔️ แข่ง 2 คน (Versus)</button>
+
+            <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+                <button type="button" class="btn" id="btn-projector" onclick="openProjectorMode()" style="flex: 1; background: #3498db; box-shadow: 0 6px 0px #2980b9; font-size: 0.95rem; padding: 10px 8px; margin-top: 0; min-height: 44px;">📽️ โปรเจกเตอร์</button>
+                <button type="button" class="btn" id="btn-worksheet" onclick="openMathJumperWorksheet()" style="flex: 1; background: #9b59b6; box-shadow: 0 6px 0px #8e44ad; font-size: 0.95rem; padding: 10px 8px; margin-top: 0; min-height: 44px;">🖨️ ใบงาน A4</button>
+            </div>
+
+            <button type="button" data-kampai-action="finish-test" onclick="endGame()" hidden>Finish Test</button>
 
             <div class="leaderboard-box">
                 <h3 id="lb-title">🏆 อันดับนักเรียน</h3>
@@ -415,7 +508,7 @@
         </div>
     </div>
 
-    <!-- ฉากจบเกม (ปรับให้อยู่ในกรอบสีขาวเหมือนกัน) -->
+    <!-- ฉากจบเกม -->
     <div id="game-over-screen" style="display:none">
         <div class="menu-panel">
             <h1 style="color: #e74c3c; text-shadow: 3px 3px 0px #c0392b;">Game Over!</h1>
@@ -430,8 +523,8 @@
                 </ul>
             </div>
 
-            <button class="btn" onclick="startGame()" style="margin-bottom: 10px;">เล่นใหม่อีกครั้ง (Enter)</button>
-            <button class="btn" onclick="resetGame()" style="background: #95a5a6; box-shadow: 0 6px 0px #7f8c8d; font-size: 1.1rem; padding: 10px 20px;">กลับเมนูหลัก</button>
+            <button type="button" class="btn" id="btn-restart" data-kampai-action="restart" onclick="startGame()" style="margin-bottom: 10px;">เล่นใหม่อีกครั้ง (Enter)</button>
+            <button type="button" class="btn" onclick="resetGame()" style="background: #95a5a6; box-shadow: 0 6px 0px #7f8c8d; font-size: 1.1rem; padding: 10px 20px;">กลับเมนูหลัก</button>
         </div>
     </div>
 
@@ -460,7 +553,23 @@
             return { openMenu: function () { if (match) match.openMenu(); }, report: function (score, info) { if (match) match.report(score, info); }, finish: function () { return false; }, leave: function () {} };
         }
     };
+    window.KampaiClassroom = window.KampaiClassroom || {
+        toggleProjector: function () {},
+        isProjectorActive: function () { return false; },
+        openWheel: function () {},
+        closeWheel: function () {},
+        openTeamBattle: function () {},
+        closeTeamBattle: function () {},
+        confetti: function () {}
+    };
+    window.KampaiWorksheet = window.KampaiWorksheet || {
+        generateA4: function () { return ''; },
+        openPrintModal: function () { alert('โปรดเชื่อมต่ออินเทอร์เน็ตเพื่อพิมพ์ใบงาน'); },
+        closePrintModal: function () {}
+    };
+
     window.KAMPAI.setSlug(GAME_SLUG);
+
     // --- Audio System ---
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
@@ -474,61 +583,69 @@
         },
         playTone: (freq, type, duration, vol = 0.1) => {
             if (isMuted || !audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
         },
         playJump: () => {
             if (isMuted || !audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {}
         },
         playSpring: () => {
             if (isMuted || !audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle'; 
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle'; 
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } catch (e) {}
         },
         playCorrect: () => {
-            audioSys.playTone(880, 'sine', 0.3, 0.15); 
-            setTimeout(() => audioSys.playTone(1108, 'sine', 0.6, 0.15), 100); 
+            audioSys.playTone(880, 'sine', 0.25, 0.15); 
+            setTimeout(() => audioSys.playTone(1108, 'sine', 0.45, 0.15), 90); 
         },
         playWrong: () => {
             if (isMuted || !audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {}
         },
         playCollect: () => {
             audioSys.playTone(1200, 'sine', 0.2, 0.1);
@@ -536,7 +653,7 @@
         playGameOver: () => {
             const notes = [400, 350, 300, 250];
             notes.forEach((freq, i) => {
-                setTimeout(() => audioSys.playTone(freq, 'triangle', 0.5, 0.2), i * 300);
+                setTimeout(() => audioSys.playTone(freq, 'triangle', 0.4, 0.18), i * 250);
             });
         },
         startBGM: () => {
@@ -545,17 +662,19 @@
             const melody = [261.63, 329.63, 392.00, 440.00, 392.00, 329.63]; 
             bgmInterval = setInterval(() => {
                 if (isMuted || !audioCtx || gameState !== 'PLAYING') return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(melody[noteIndex], audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.03, audioCtx.currentTime); 
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.2);
-                noteIndex = (noteIndex + 1) % melody.length;
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(melody[noteIndex], audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                    noteIndex = (noteIndex + 1) % melody.length;
+                } catch (e) {}
             }, 300); 
         },
         stopBGM: () => {
@@ -602,9 +721,9 @@
     let wrongAnswers = 0;
     let itemsCollected = 0;
     let cameraY = 0;
-    let difficultyTier = 1;
     let keys = { ArrowLeft: false, ArrowRight: false, Space: false };
     let playerName = "Player";
+    let currentGradeLevel = 'p34'; // 'p12', 'p34', 'p56'
     let currentMathMode = 'mul'; // add, sub, mul, div, mix
     let isEquationMode = false;
     let problemStartTime = 0;
@@ -630,12 +749,11 @@
         onPlay: ({ rng, player }) => startGame({ rng, player, versus: true }),
         onEnd: () => {
             if (gameState !== 'PLAYING') return;
-            gameState = 'GAMEOVER';
-            audioSys.stopBGM();
+            gameOver();
         },
     });
 
-    // Assets
+    // Player Object
     const player = {
         x: canvas.width / 2,
         y: canvas.height - 150,
@@ -653,13 +771,14 @@
     };
 
     // Settings
-    let selectedGravity = 0.4; 
-    let selectedDifficulty = 'easy'; // Store difficulty level string
+    let selectedGravity = 0.28; 
+    let selectedDifficulty = 'easy';
     
     function setDifficulty(level) {
         selectedDifficulty = level;
         document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.diff-btn[data-level="${level}"]`).classList.add('active');
+        const activeBtn = document.querySelector(`.diff-btn[data-level="${level}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
 
         const baseJump = -16;
         const baseBoost = -25;
@@ -679,11 +798,27 @@
         }
     }
     
+    function setGradeLevel(grade) {
+        currentGradeLevel = grade;
+        document.querySelectorAll('.grade-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`.grade-btn[data-grade="${grade}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Auto-select recommended default mode for grade
+        if (grade === 'p12') {
+            setMathMode('add');
+        } else if (grade === 'p34') {
+            setMathMode('mul');
+        } else if (grade === 'p56') {
+            setMathMode('mix');
+        }
+    }
+
     function setMathMode(mode) {
         currentMathMode = mode;
-        // Update Buttons
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+        const activeBtn = document.querySelector(`.mode-btn[data-mode="${mode}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
     }
 
     function toggleEquationMode() {
@@ -691,7 +826,7 @@
     }
 
     setDifficulty('easy');
-    setMathMode('mul'); // Default
+    setGradeLevel('p34');
 
     let currentProblem = { A: 2, B: 2, Ans: 4, Op: '×', Target: 4 };
 
@@ -716,7 +851,7 @@
         const list = document.getElementById(listId);
         if (!list) return;
         if (!rows || rows.length === 0) {
-            list.innerHTML = '<li style="justify-content:center;color:#95a5a6;padding:12px 0;font-family:Sarabun,sans-serif">ยังไม่มีผู้เล่น — เป็นคนแรกสิ! 🎮</li>';
+            list.innerHTML = '<li style="justify-content:center;color:#95a5a6;padding:10px 0;font-family:Sarabun,sans-serif">ยังไม่มีผู้เล่น — เป็นคนแรกสิ! 🎮</li>';
             return;
         }
         list.innerHTML = rows.map((r, i) => {
@@ -725,7 +860,7 @@
                 ? `<img class="lb-avatar" src="${r.photo_url}" alt="${r.display_name}" onerror="this.outerHTML='<div class=&quot;lb-avatar-init&quot;>${initial}</div>'">`
                 : `<div class="lb-avatar-init">${initial}</div>`;
             return `<li class="lb-entry">
-                <span style="font-family:'Fredoka One',cursive;color:#f39c12;min-width:26px;text-align:center;font-size:1.1rem">${medals[i] || i + 1}</span>
+                <span style="font-family:'Fredoka One',cursive;color:#f39c12;min-width:24px;text-align:center;font-size:1.05rem">${medals[i] || i + 1}</span>
                 ${av}
                 <div class="lb-entry-info">
                     <div class="lb-entry-name">${r.display_name || 'ไม่ทราบชื่อ'}</div>
@@ -744,28 +879,29 @@
     function saveHighScore(finalScore) {
         if (finalScore <= 0) return;
         const eqSuffix = isEquationMode ? '_eq' : '';
-        const storageKey = `mathJumperScores_${currentMathMode}${eqSuffix}`;
-        let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
-        scores.push({ name: playerName, score: finalScore });
-        scores.sort((a, b) => b.score - a.score);
-        scores = scores.slice(0, 5);
-        localStorage.setItem(storageKey, JSON.stringify(scores));
+        const storageKey = `mathJumperScores_${currentGradeLevel}_${currentMathMode}${eqSuffix}`;
+        try {
+            let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
+            scores.push({ name: playerName, score: finalScore });
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 5);
+            localStorage.setItem(storageKey, JSON.stringify(scores));
+        } catch (e) {}
     }
 
     let platforms = [];
     let items = [];
     let particles = [];
     let floatingTexts = []; 
-    // --- BACKGROUND SYSTEM ---
-    let bgObjects = []; // Clouds/Stars
+    let bgObjects = [];
 
     class BgObject {
         constructor(y, type) {
             this.y = y;
             this.x = Math.random() * canvas.width;
-            this.type = type; // 'cloud', 'star'
-            this.size = Math.random() * 20 + 10; // Base size
-            this.speed = (Math.random() * 0.5) + 0.1; // Horizontal drift
+            this.type = type;
+            this.size = Math.random() * 20 + 10;
+            this.speed = (Math.random() * 0.5) + 0.1;
             if (this.type === 'cloud') {
                 this.width = Math.random() * 60 + 40;
                 this.height = Math.random() * 30 + 20;
@@ -791,47 +927,39 @@
         }
     }
 
-    // สร้างเมฆประดับฉากตอนเริ่มต้น (รันทันทีตอนโหลดสคริปต์)
-    for(let i=0; i<8; i++) {
+    for (let i = 0; i < 8; i++) {
         bgObjects.push(new BgObject(Math.random() * canvas.height, 'cloud'));
     }
 
     function drawBackground() {
-        // 1. Determine Phase Colors
         let topColor, bottomColor;
-        let objectType = 'cloud'; // Default
+        let objectType = 'cloud';
 
         if (heightScore < 1000) {
-            // SKY: 0 - 1000
             topColor = "#87CEEB";
             bottomColor = "#E0F7FA";
             objectType = 'cloud';
         } else if (heightScore < 2000) {
-            // SUNSET: 1000 - 2000
-            topColor = "#fd746c"; // Orange/Pink
-            bottomColor = "#ff9068"; // Peach
+            topColor = "#fd746c";
+            bottomColor = "#ff9068";
             objectType = 'cloud';
         } else {
-            // SPACE: 2000+
-            topColor = "#0f0c29"; // Dark Blue/Black
-            bottomColor = "#302b63"; // Deep Purple
+            topColor = "#0f0c29";
+            bottomColor = "#302b63";
             objectType = 'star';
         }
 
-        // Draw Gradient Background
         let grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grd.addColorStop(0, topColor);
         grd.addColorStop(1, bottomColor);
         ctx.fillStyle = grd;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Manage BG Objects (Parallax)
         if (bgObjects.length < 10) {
             bgObjects.push(new BgObject(-Math.random() * 200, objectType));
         }
 
-        // Draw and Move (Horizontal drift)
-        bgObjects.forEach((obj, index) => {
+        bgObjects.forEach((obj) => {
             if (heightScore > 2000 && obj.type === 'cloud') obj.type = 'star';
             if (heightScore < 2000 && obj.type === 'star') obj.type = 'cloud';
 
@@ -841,7 +969,7 @@
         });
     }
 
-    // --- Math Algorithm ---
+    // --- Math Algorithm by Grade Level & Mode ---
     function generateMathProblem() {
         let A, B, Ans, Op, Target;
         
@@ -851,98 +979,262 @@
         if (heightScore > 3000) tier = 4;
 
         let mode = currentMathMode;
+
+        // Resolve 'mix' mode according to grade level
         if (mode === 'mix') {
-            const modes = ['add', 'sub', 'mul', 'div'];
-            mode = modes[Math.floor(rand() * modes.length)];
+            if (currentGradeLevel === 'p12') {
+                mode = rand() < 0.5 ? 'add' : 'sub';
+            } else if (currentGradeLevel === 'p34') {
+                const modes = ['mul', 'div', 'add', 'sub'];
+                mode = modes[Math.floor(rand() * modes.length)];
+            } else {
+                // p56: 60% chance of 2-step mixed operation
+                if (rand() < 0.6) {
+                    mode = 'mix_step';
+                } else {
+                    const modes = ['mul', 'div', 'add', 'sub'];
+                    mode = modes[Math.floor(rand() * modes.length)];
+                }
+            }
         }
 
-        if (mode === 'mul') {
+        let displayStr = '';
+
+        if (mode === 'mix_step') {
+            // Prathom 5-6: Mixed two-step arithmetic (การบวก ลบ คูณ หารระคน)
+            const stepTypes = ['add_mul', 'sub_mul', 'mul_add', 'div_add'];
+            const step = stepTypes[Math.floor(rand() * stepTypes.length)];
+
+            if (step === 'add_mul') {
+                // (A × B) + C
+                A = Math.floor(rand() * 8) + 2;
+                B = Math.floor(rand() * 8) + 2;
+                let C = Math.floor(rand() * 20) + 1;
+                Ans = (A * B) + C;
+                Target = Ans;
+                displayStr = `(${A} × ${B}) + ${C} = ?`;
+                if (isEquationMode) {
+                    if (rand() < 0.5) {
+                        displayStr = `(? × ${B}) + ${C} = ${Ans}`;
+                        Target = A;
+                    } else {
+                        displayStr = `(${A} × ${B}) + ? = ${Ans}`;
+                        Target = C;
+                    }
+                }
+            } else if (step === 'sub_mul') {
+                // (A × B) - C
+                A = Math.floor(rand() * 7) + 3;
+                B = Math.floor(rand() * 7) + 3;
+                let prod = A * B;
+                let C = Math.floor(rand() * (prod - 5)) + 1;
+                Ans = prod - C;
+                Target = Ans;
+                displayStr = `(${A} × ${B}) - ${C} = ?`;
+                if (isEquationMode) {
+                    displayStr = `(${A} × ?) - ${C} = ${Ans}`;
+                    Target = B;
+                }
+            } else if (step === 'mul_add') {
+                // A + (B × C)
+                A = Math.floor(rand() * 25) + 5;
+                B = Math.floor(rand() * 8) + 2;
+                let C = Math.floor(rand() * 7) + 2;
+                Ans = A + (B * C);
+                Target = Ans;
+                displayStr = `${A} + (${B} × ${C}) = ?`;
+                if (isEquationMode) {
+                    displayStr = `${A} + (? × ${C}) = ${Ans}`;
+                    Target = B;
+                }
+            } else {
+                // (A + B) ÷ C
+                let divisor = Math.floor(rand() * 5) + 2;
+                let quotient = Math.floor(rand() * 8) + 2;
+                let total = divisor * quotient;
+                A = Math.floor(rand() * (total - 2)) + 1;
+                B = total - A;
+                Ans = quotient;
+                Target = Ans;
+                displayStr = `(${A} + ${B}) ÷ ${divisor} = ?`;
+                if (isEquationMode) {
+                    displayStr = `(${A} + ?) ÷ ${divisor} = ${Ans}`;
+                    Target = B;
+                }
+            }
+            Op = 'ระคน';
+        } else if (mode === 'mul') {
             Op = '×';
-            if (tier === 1) { 
+            if (currentGradeLevel === 'p12') {
+                // P1-2: times 2, 5, 10
                 const set = [2, 5, 10];
                 A = set[Math.floor(rand() * set.length)];
-                B = Math.floor(rand() * 9) + 1;
-            } else if (tier === 2) { 
-                const set = [3, 4];
-                A = set[Math.floor(rand() * set.length)];
-                B = Math.floor(rand() * 12) + 1;
-            } else if (tier === 3) { 
-                const set = [6, 7, 8, 9];
-                A = set[Math.floor(rand() * set.length)];
-                B = Math.floor(rand() * 12) + 1;
-            } else { 
-                A = Math.floor(rand() * 11) + 2;
-                B = Math.floor(rand() * 12) + 1;
+                B = Math.floor(rand() * 5) + 1;
+            } else if (currentGradeLevel === 'p34') {
+                if (tier === 1) { 
+                    const set = [2, 3, 5, 10];
+                    A = set[Math.floor(rand() * set.length)];
+                    B = Math.floor(rand() * 9) + 1;
+                } else if (tier === 2) { 
+                    const set = [4, 6, 7, 8, 9];
+                    A = set[Math.floor(rand() * set.length)];
+                    B = Math.floor(rand() * 12) + 1;
+                } else { 
+                    A = Math.floor(rand() * 11) + 2;
+                    B = Math.floor(rand() * 12) + 1;
+                }
+            } else {
+                // P5-6: Higher multiplication
+                if (tier <= 2) {
+                    A = Math.floor(rand() * 14) + 6;
+                    B = Math.floor(rand() * 9) + 2;
+                } else {
+                    A = Math.floor(rand() * 20) + 10;
+                    B = Math.floor(rand() * 8) + 2;
+                }
             }
             Ans = A * B;
-        } 
-        else if (mode === 'add') {
-            Op = '+';
-            if (tier === 1) { 
-                A = Math.floor(rand() * 9) + 1;
-                B = Math.floor(rand() * 9) + 1;
-            } else if (tier === 2) { 
-                A = Math.floor(rand() * 20) + 10;
-                B = Math.floor(rand() * 9) + 1;
-            } else { 
-                A = Math.floor(rand() * 40) + 10;
-                B = Math.floor(rand() * 40) + 10;
+            Target = Ans;
+            displayStr = `${A} ${Op} ${B} = ?`;
+            if (isEquationMode) {
+                if (rand() < 0.5) {
+                    displayStr = `? ${Op} ${B} = ${Ans}`;
+                    Target = A;
+                } else {
+                    displayStr = `${A} ${Op} ? = ${Ans}`;
+                    Target = B;
+                }
             }
-            Ans = A + B;
-        }
-        else if (mode === 'sub') {
-            Op = '-';
-            if (tier === 1) {
-                A = Math.floor(rand() * 10) + 5;
-                B = Math.floor(rand() * (A - 1)) + 1;
-            } else if (tier === 2) {
-                A = Math.floor(rand() * 40) + 20;
-                B = Math.floor(rand() * 20) + 1;
-            } else {
-                A = Math.floor(rand() * 80) + 20;
-                B = Math.floor(rand() * 50) + 10;
-            }
-            if (B >= A) B = A - 1;
-            Ans = A - B;
-        }
-        else if (mode === 'div') {
+        } else if (mode === 'div') {
             Op = '÷';
             let divisor, answer;
-            if (tier === 1) {
-                divisor = Math.floor(rand() * 5) + 2;
+            if (currentGradeLevel === 'p12') {
+                divisor = [2, 5][Math.floor(rand() * 2)];
                 answer = Math.floor(rand() * 5) + 1;
-            } else if (tier === 2) {
-                divisor = Math.floor(rand() * 8) + 2;
-                answer = Math.floor(rand() * 9) + 2;
+            } else if (currentGradeLevel === 'p34') {
+                if (tier === 1) {
+                    divisor = Math.floor(rand() * 5) + 2;
+                    answer = Math.floor(rand() * 6) + 1;
+                } else if (tier === 2) {
+                    divisor = Math.floor(rand() * 8) + 2;
+                    answer = Math.floor(rand() * 9) + 2;
+                } else {
+                    divisor = Math.floor(rand() * 11) + 2;
+                    answer = Math.floor(rand() * 12) + 2;
+                }
             } else {
-                divisor = Math.floor(rand() * 11) + 2;
-                answer = Math.floor(rand() * 12) + 2;
+                // P5-6
+                divisor = Math.floor(rand() * 12) + 3;
+                answer = Math.floor(rand() * 15) + 3;
             }
             B = divisor;
             A = divisor * answer; 
             Ans = answer;
-        }
-
-        Target = Ans;
-        let displayStr = `${A} ${Op} ${B} = ?`;
-
-        if (isEquationMode) {
-            if (rand() < 0.5) {
-                displayStr = `? ${Op} ${B} = ${Ans}`;
-                Target = A;
+            Target = Ans;
+            displayStr = `${A} ${Op} ${B} = ?`;
+            if (isEquationMode) {
+                if (rand() < 0.5) {
+                    displayStr = `? ${Op} ${B} = ${Ans}`;
+                    Target = A;
+                } else {
+                    displayStr = `${A} ${Op} ? = ${Ans}`;
+                    Target = B;
+                }
+            }
+        } else if (mode === 'add') {
+            Op = '+';
+            if (currentGradeLevel === 'p12') {
+                if (tier === 1) {
+                    A = Math.floor(rand() * 9) + 1;
+                    B = Math.floor(rand() * 9) + 1;
+                } else if (tier === 2) {
+                    A = Math.floor(rand() * 25) + 5;
+                    B = Math.floor(rand() * 15) + 1;
+                } else {
+                    A = Math.floor(rand() * 50) + 10;
+                    B = Math.floor(rand() * 30) + 5;
+                }
+            } else if (currentGradeLevel === 'p34') {
+                if (tier === 1) {
+                    A = Math.floor(rand() * 40) + 10;
+                    B = Math.floor(rand() * 40) + 10;
+                } else if (tier === 2) {
+                    A = Math.floor(rand() * 120) + 30;
+                    B = Math.floor(rand() * 80) + 20;
+                } else {
+                    A = Math.floor(rand() * 300) + 100;
+                    B = Math.floor(rand() * 200) + 50;
+                }
             } else {
-                displayStr = `${A} ${Op} ? = ${Ans}`;
-                Target = B;
+                // P5-6
+                A = Math.floor(rand() * 450) + 100;
+                B = Math.floor(rand() * 350) + 50;
+            }
+            Ans = A + B;
+            Target = Ans;
+            displayStr = `${A} ${Op} ${B} = ?`;
+            if (isEquationMode) {
+                if (rand() < 0.5) {
+                    displayStr = `? ${Op} ${B} = ${Ans}`;
+                    Target = A;
+                } else {
+                    displayStr = `${A} ${Op} ? = ${Ans}`;
+                    Target = B;
+                }
+            }
+        } else if (mode === 'sub') {
+            Op = '-';
+            if (currentGradeLevel === 'p12') {
+                if (tier === 1) {
+                    A = Math.floor(rand() * 10) + 5;
+                    B = Math.floor(rand() * (A - 1)) + 1;
+                } else if (tier === 2) {
+                    A = Math.floor(rand() * 35) + 15;
+                    B = Math.floor(rand() * 15) + 1;
+                } else {
+                    A = Math.floor(rand() * 80) + 20;
+                    B = Math.floor(rand() * 40) + 5;
+                }
+            } else if (currentGradeLevel === 'p34') {
+                if (tier === 1) {
+                    A = Math.floor(rand() * 60) + 30;
+                    B = Math.floor(rand() * 30) + 5;
+                } else if (tier === 2) {
+                    A = Math.floor(rand() * 200) + 80;
+                    B = Math.floor(rand() * 70) + 10;
+                } else {
+                    A = Math.floor(rand() * 500) + 150;
+                    B = Math.floor(rand() * 200) + 30;
+                }
+            } else {
+                // P5-6
+                A = Math.floor(rand() * 700) + 200;
+                B = Math.floor(rand() * 300) + 50;
+            }
+            if (B >= A) B = A - 1;
+            Ans = A - B;
+            Target = Ans;
+            displayStr = `${A} ${Op} ${B} = ?`;
+            if (isEquationMode) {
+                if (rand() < 0.5) {
+                    displayStr = `? ${Op} ${B} = ${Ans}`;
+                    Target = A;
+                } else {
+                    displayStr = `${A} ${Op} ? = ${Ans}`;
+                    Target = B;
+                }
             }
         }
 
-        currentProblem = { A: A, B: B, Ans: Ans, Op: Op, Target: Target };
-        
+        currentProblem = { A, B, Ans, Op, Target, displayStr };
         problemStartTime = Date.now();
         showHint = false;
 
-        document.getElementById('math-problem').innerText = displayStr;
-        document.getElementById('math-problem').style.color = '#d35400';
+        const probElem = document.getElementById('math-problem');
+        if (probElem) {
+            probElem.innerText = displayStr;
+            probElem.style.color = '#d35400';
+        }
 
         updateNearbyPlatformsToCorrect(currentProblem.Target);
     }
@@ -961,8 +1253,8 @@
             target.type = 'correct';
             target.value = correctAnswer;
             
-            for(let i=1; i<candidates.length; i++) {
-                if(rand() < 0.3) {
+            for (let i = 1; i < candidates.length; i++) {
+                if (rand() < 0.3) {
                      candidates[i].type = 'correct';
                      candidates[i].value = correctAnswer;
                 }
@@ -971,16 +1263,28 @@
     }
 
     function generateDistractors(correctAnswer) {
-        let distractors = [];
-        let fake1 = correctAnswer + (Math.floor(rand() * 5) + 1);
-        let fake2 = correctAnswer - (Math.floor(rand() * 5) + 1);
-        let fake3 = correctAnswer + 10;
-        let s = correctAnswer.toString();
-        let fake4 = parseInt(s.split('').reverse().join(''));
-        if (fake4 === correctAnswer || isNaN(fake4) || s.length < 2) fake4 = correctAnswer + 2;
+        let distractors = new Set();
+        const offsets = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 10, -10];
+        offsets.sort(() => rand() - 0.5);
 
-        distractors.push(fake1, fake2, fake3, fake4);
-        return distractors.filter(d => d !== correctAnswer && d > 0);
+        for (const off of offsets) {
+            const val = correctAnswer + off;
+            if (val > 0 && val !== correctAnswer) distractors.add(val);
+            if (distractors.size >= 4) break;
+        }
+
+        const s = correctAnswer.toString();
+        if (s.length >= 2) {
+            const rev = parseInt(s.split('').reverse().join(''), 10);
+            if (!isNaN(rev) && rev > 0 && rev !== correctAnswer) distractors.add(rev);
+        }
+
+        let fallback = correctAnswer + 1;
+        while (distractors.size < 4) {
+            if (fallback !== correctAnswer && fallback > 0) distractors.add(fallback);
+            fallback += 2;
+        }
+        return Array.from(distractors).slice(0, 4);
     }
 
     // --- Visual Effects & Platform Logic ---
@@ -1011,13 +1315,13 @@
             this.x = x;
             this.y = y;
             this.width = 100;
-            this.height = 25;
+            this.height = 30;
             this.type = type;
             this.value = value;
             this.broken = false;
             const hue = Math.floor(rand() * 360);
-            this.color = `hsl(${hue}, 70%, 80%)`;
-            this.borderColor = `hsl(${hue}, 70%, 60%)`;
+            this.color = `hsl(${hue}, 75%, 85%)`;
+            this.borderColor = `hsl(${hue}, 70%, 55%)`;
         }
 
         draw() {
@@ -1048,10 +1352,11 @@
             ctx.lineWidth = 2;
 
             if (this.value !== null) {
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 22px Fredoka One';
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 22px Fredoka One, Sarabun, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(this.value, this.x + this.width / 2, this.y + 21);
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.value, this.x + this.width / 2, this.y + this.height / 2 + 1);
             }
 
             if (showHint && this.type === 'correct') {
@@ -1134,7 +1439,7 @@
         let platformCount = 2 + Math.floor(rand() * 2);
         let spacing = canvas.width / platformCount;
         let positions = [];
-        for(let i=0; i<platformCount; i++) {
+        for (let i = 0; i < platformCount; i++) {
             positions.push((spacing * i) + (spacing/2) - 50 + (rand()*20 - 10));
         }
         positions.sort(() => rand() - 0.5);
@@ -1172,6 +1477,7 @@
         
         player.x = canvas.width / 2;
         player.y = canvas.height - 150;
+        player.vx = 0;
         player.vy = 0;
         player.shield = false;
         player.isGliding = false;
@@ -1203,8 +1509,14 @@
         document.getElementById('game-over-screen').style.display = 'none';
         updateLeaderboardUI();
         gameState = 'START';
-        // Reset view for menu background
         heightScore = 0; 
+    }
+
+    function endGame() {
+        if (gameState === 'START') {
+            startGame();
+        }
+        gameOver();
     }
 
     function gameOver() {
@@ -1225,10 +1537,11 @@
         document.getElementById('final-score').innerText = score;
         document.getElementById('game-over-screen').style.display = 'flex';
         updateLeaderboardUI();
-        // ส่งคะแนนไปยัง PlayGame.tsx wrapper หรือ SDK
+
         if (window.KAMPAI) {
             window.KAMPAI.submitScore(score, {
                 mode: currentMathMode + (isEquationMode ? '_eq' : ''),
+                grade: currentGradeLevel,
                 duration: Math.max(1, Math.floor((Date.now() - SESSION_START_TS) / 1000)),
                 height: finalHeight,
                 difficulty: selectedDifficulty,
@@ -1240,7 +1553,7 @@
     }
 
     function createParticles(x, y, color) {
-        for(let i=0; i<10; i++) {
+        for (let i = 0; i < 10; i++) {
             particles.push({
                 x: x, y: y,
                 vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
@@ -1252,26 +1565,18 @@
     // --- MAIN GAME LOOP ---
     function update() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // วาดพื้นหลังเสมอ ไม่ว่าจะอยู่ในสถานะไหน
         drawBackground();
 
         if (gameState === 'START') {
-            // วาดตัวละครกำลังยืนกระโดดดึ๋งๆ รออยู่ตรงกลางจอ
-            let idleY = canvas.height - 180 + Math.sin(Date.now() / 150) * 15; // เด้งขึ้นลง
-            
-            // วาดแท่นยืนพื้นฐานให้ตัวละคร
+            let idleY = canvas.height - 180 + Math.sin(Date.now() / 150) * 15;
             ctx.fillStyle = 'rgba(255,255,255,0.2)';
             ctx.beginPath();
             ctx.ellipse(canvas.width / 2, canvas.height - 110, 60, 15, 0, 0, Math.PI*2);
             ctx.fill();
 
-            // ใช้ค่าคงที่สำหรับการวาดตัวละครในเมนู
-            player.vy = Math.cos(Date.now() / 150) * 2; // เพื่อให้ตาขยับ
+            player.vy = Math.cos(Date.now() / 150) * 2;
             drawPlayer(canvas.width / 2, idleY, player.width, player.height, player.color);
-        }
-        else if (gameState === 'PLAYING') {
-            // --- LOGIC การเล่นจริง ---
+        } else if (gameState === 'PLAYING') {
             if (selectedDifficulty === 'easy' && !showHint) {
                 if (Date.now() - problemStartTime > 4000) showHint = true;
             }
@@ -1285,12 +1590,11 @@
             if (player.x > canvas.width) player.x = -player.width/2;
             player.facingRight = player.vx >= 0;
 
-            // ระบบร่อน (Gliding) ทำงานเฉพาะตอนที่กำลังตกลงมา (vy > 0)
             player.isGliding = keys.Space && player.vy > 0; 
             
             if (player.isGliding) {
-                player.vy += selectedGravity * 0.2; // ลดแรงดึงดูดขณะร่อน
-                if (player.vy > 2.5) player.vy = 2.5; // ล็อกความเร็วไม่ให้ตกเร็วเกินไป
+                player.vy += selectedGravity * 0.2;
+                if (player.vy > 2.5) player.vy = 2.5;
             } else {
                 player.vy += selectedGravity;
             }
@@ -1352,10 +1656,13 @@
                                 p.broken = true; 
                                 generateMathProblem(); 
                                 reportProgress();
-                                document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1.2)";
-                                setTimeout(() => {
-                                     document.getElementById('math-problem').style.transform = "translateX(-50%) scale(1)";
-                                }, 200);
+                                const pElem = document.getElementById('math-problem');
+                                if (pElem) {
+                                    pElem.style.transform = "translateX(-50%) scale(1.2)";
+                                    setTimeout(() => {
+                                         pElem.style.transform = "translateX(-50%) scale(1)";
+                                    }, 200);
+                                }
                             } else {
                                 if (player.shield) {
                                     player.shield = false;
@@ -1412,9 +1719,7 @@
 
             document.getElementById('height-display').innerText = Math.floor(heightScore);
             document.getElementById('score-display').innerText = score;
-        }
-        else if (gameState === 'GAMEOVER') {
-            // โหมดเกมโอเวอร์ วาดแท่นและผู้เล่นที่ค้างอยู่แบบสแตติก
+        } else if (gameState === 'GAMEOVER') {
             platforms.forEach(p => p.draw());
             items.forEach(i => i.draw());
             drawPlayer(player.x, player.y, player.width, player.height, player.color);
@@ -1523,6 +1828,164 @@
         ctx.restore();
     }
 
+    // Classroom Projector & A4 Printable Worksheet Integration
+    function openProjectorMode() {
+        audioSys.init();
+        if (window.KampaiClassroom && typeof window.KampaiClassroom.toggleProjector === 'function') {
+            window.KampaiClassroom.toggleProjector();
+        } else {
+            document.body.classList.toggle('kampai-projector-mode');
+        }
+    }
+
+    window.addEventListener('kampai:projector:next', () => {
+        if (gameState === 'PLAYING') generateMathProblem();
+    });
+
+    window.addEventListener('kampai:projector:flip', () => {
+        if (gameState === 'PLAYING') showHint = true;
+    });
+
+    function createMathQuestionForGrade(grade, mode) {
+        if (grade === 'p12') {
+            const op = mode === 'mix' ? (rand() < 0.5 ? '+' : '-') : (mode === 'sub' ? '-' : '+');
+            if (op === '+') {
+                const a = Math.floor(rand() * 40) + 1;
+                const b = Math.floor(rand() * 40) + 1;
+                return {
+                    question: `${a} + ${b} = _______`,
+                    answer: String(a + b),
+                    hint: 'การบวกจำนวนสองจำนวน',
+                    explanation: `${a} + ${b} = ${a + b}`
+                };
+            } else {
+                const a = Math.floor(rand() * 50) + 15;
+                const b = Math.floor(rand() * (a - 1)) + 1;
+                return {
+                    question: `${a} - ${b} = _______`,
+                    answer: String(a - b),
+                    hint: 'การลบจำนวนสองจำนวน',
+                    explanation: `${a} - ${b} = ${a - b}`
+                };
+            }
+        } else if (grade === 'p56') {
+            const types = ['mul_add', 'sub_mul', 'div_add'];
+            const t = types[Math.floor(rand() * types.length)];
+            if (t === 'mul_add') {
+                const a = Math.floor(rand() * 8) + 2;
+                const b = Math.floor(rand() * 8) + 2;
+                const c = Math.floor(rand() * 25) + 1;
+                return {
+                    question: `(${a} × ${b}) + ${c} = _______`,
+                    answer: String((a * b) + c),
+                    hint: 'คำนวณในวงเล็บก่อน แล้วจึงนำไปบวก',
+                    explanation: `(${a} × ${b}) + ${c} = ${a * b} + ${c} = ${(a * b) + c}`
+                };
+            } else if (t === 'sub_mul') {
+                const a = Math.floor(rand() * 8) + 3;
+                const b = Math.floor(rand() * 8) + 3;
+                const prod = a * b;
+                const c = Math.floor(rand() * (prod - 5)) + 1;
+                return {
+                    question: `(${a} × ${b}) - ${c} = _______`,
+                    answer: String(prod - c),
+                    hint: 'คำนวณในวงเล็บก่อน แล้วจึงนำไปลบ',
+                    explanation: `(${a} × ${b}) - ${c} = ${prod} - ${c} = ${prod - c}`
+                };
+            } else {
+                const div = Math.floor(rand() * 5) + 2;
+                const quot = Math.floor(rand() * 8) + 2;
+                const total = div * quot;
+                const a = Math.floor(rand() * (total - 2)) + 1;
+                const b = total - a;
+                return {
+                    question: `(${a} + ${b}) ÷ ${div} = _______`,
+                    answer: String(quot),
+                    hint: 'คำนวณในวงเล็บก่อน แล้วจึงนำไปหาร',
+                    explanation: `(${a} + ${b}) ÷ ${div} = ${total} ÷ ${div} = ${quot}`
+                };
+            }
+        } else {
+            // p34
+            const op = mode === 'mix' ? ['×', '÷', '+', '-'][Math.floor(rand() * 4)] : (mode === 'div' ? '÷' : (mode === 'sub' ? '-' : (mode === 'add' ? '+' : '×')));
+            if (op === '×') {
+                const a = Math.floor(rand() * 11) + 2;
+                const b = Math.floor(rand() * 11) + 2;
+                return {
+                    question: `${a} × ${b} = _______`,
+                    answer: String(a * b),
+                    hint: `สูตรคูณแม่ ${a}`,
+                    explanation: `${a} × ${b} = ${a * b}`
+                };
+            } else if (op === '÷') {
+                const div = Math.floor(rand() * 10) + 2;
+                const quot = Math.floor(rand() * 10) + 2;
+                const a = div * quot;
+                return {
+                    question: `${a} ÷ ${div} = _______`,
+                    answer: String(quot),
+                    hint: 'การหารลงตัว',
+                    explanation: `${a} ÷ ${div} = ${quot}`
+                };
+            } else if (op === '+') {
+                const a = Math.floor(rand() * 150) + 20;
+                const b = Math.floor(rand() * 150) + 20;
+                return {
+                    question: `${a} + ${b} = _______`,
+                    answer: String(a + b),
+                    hint: 'การบวกจำนวนนับ',
+                    explanation: `${a} + ${b} = ${a + b}`
+                };
+            } else {
+                const a = Math.floor(rand() * 200) + 50;
+                const b = Math.floor(rand() * (a - 10)) + 5;
+                return {
+                    question: `${a} - ${b} = _______`,
+                    answer: String(a - b),
+                    hint: 'การลบจำนวนนับ',
+                    explanation: `${a} - ${b} = ${a - b}`
+                };
+            }
+        }
+    }
+
+    function generateMathJumperProblems(count) {
+        count = count || 20;
+        const problems = [];
+        const used = new Set();
+        let attempts = 0;
+        while (problems.length < count && attempts < 500) {
+            attempts++;
+            const prob = createMathQuestionForGrade(currentGradeLevel, currentMathMode);
+            if (!used.has(prob.question)) {
+                used.add(prob.question);
+                problems.push(prob);
+            }
+        }
+        return problems;
+    }
+
+    function openMathJumperWorksheet() {
+        audioSys.init();
+        const items = generateMathJumperProblems(20);
+        if (window.KampaiWorksheet && typeof window.KampaiWorksheet.openPrintModal === 'function') {
+            let gradeLabel = 'ป.3-4 (การคูณและการหาร)';
+            if (currentGradeLevel === 'p12') gradeLabel = 'ป.1-2 (การบวกและการลบ)';
+            else if (currentGradeLevel === 'p56') gradeLabel = 'ป.5-6 (การบวก ลบ คูณ หารระคน)';
+
+            window.KampaiWorksheet.openPrintModal({
+                title: `แบบฝึกหัด Math Jumper (${gradeLabel})`,
+                subtitle: 'กลุ่มสาระการเรียนรู้คณิตศาสตร์ • โรงเรียนคำไฮวิทยา',
+                instructions: 'คำชี้แจง: ให้นักเรียนหาผลลัพธ์ของแต่ละข้อให้ถูกต้องและแม่นยำ',
+                items: items,
+                itemCount: 20,
+                includeAnswerKey: true
+            });
+        } else {
+            alert('ระบบสร้างใบงานไม่พร้อมใช้งาน');
+        }
+    }
+
     window.addEventListener('keydown', (e) => {
         if (e.code === 'ArrowLeft') keys.ArrowLeft = true;
         if (e.code === 'ArrowRight') keys.ArrowRight = true;
@@ -1538,7 +2001,6 @@
             } else if (gameState === 'GAMEOVER') {
                 e.preventDefault();
                 if (document.getElementById('game-over-screen').style.display === 'flex') {
-                    // กด Enter เพื่อเริ่มเกมใหม่ทันที เฉพาะจอจบเกมเดี่ยว
                     startGame();
                 }
             }
@@ -1553,18 +2015,20 @@
     const zoneLeft = document.getElementById('zone-left');
     const zoneRight = document.getElementById('zone-right');
 
-    const handleTouchStart = (dir) => (e) => { e.preventDefault(); if(dir === 'left') keys.ArrowLeft = true; else keys.ArrowRight = true; };
-    const handleTouchEnd = (dir) => (e) => { e.preventDefault(); if(dir === 'left') keys.ArrowLeft = false; else keys.ArrowRight = false; };
+    const handleTouchStart = (dir) => (e) => { e.preventDefault(); if (dir === 'left') keys.ArrowLeft = true; else keys.ArrowRight = true; };
+    const handleTouchEnd = (dir) => (e) => { e.preventDefault(); if (dir === 'left') keys.ArrowLeft = false; else keys.ArrowRight = false; };
     
-    zoneLeft.addEventListener('touchstart', handleTouchStart('left'));
-    zoneLeft.addEventListener('touchend', handleTouchEnd('left'));
-    zoneRight.addEventListener('touchstart', handleTouchStart('right'));
-    zoneRight.addEventListener('touchend', handleTouchEnd('right'));
+    if (zoneLeft) {
+        zoneLeft.addEventListener('touchstart', handleTouchStart('left'));
+        zoneLeft.addEventListener('touchend', handleTouchEnd('left'));
+    }
+    if (zoneRight) {
+        zoneRight.addEventListener('touchstart', handleTouchStart('right'));
+        zoneRight.addEventListener('touchend', handleTouchEnd('right'));
+    }
 
-    // เริ่มต้น Animation พื้นหลังทันที
     updateLeaderboardUI();
     requestAnimationFrame(update);
-
 </script>
 </body>
 </html>
