@@ -234,7 +234,7 @@ body {
   padding: 22px 16px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -310,6 +310,7 @@ body {
   border-color: #ffedd5;
 }
 
+.tcard-inner,
 #tcard {
   width: 100%;
   max-width: calc(640px * var(--font-scale));
@@ -318,6 +319,10 @@ body {
   position: relative;
   cursor: pointer;
   transform-style: preserve-3d;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
   transition: transform 0.6s;
 }
 
@@ -850,6 +855,7 @@ body {
   cursor: pointer;
   outline: none;
   container-type: size;
+  contain: content;
 }
 
 /* คำยาว — ขยายการ์ดแนวนอนแทนการตัดบรรทัด (ความสูงเท่าการ์ดปกติ) */
@@ -876,6 +882,7 @@ body {
   height: var(--grid-expand-h, auto);
   min-height: var(--grid-expand-h, auto);
   overflow: visible;
+  contain: none;
 }
 
 .grid-flip-card.autoplay-active.grid-flip-card--expand-back {
@@ -912,6 +919,10 @@ body {
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
   transition: transform 0.45s ease;
   border-radius: 14px;
 }
@@ -923,8 +934,10 @@ body {
 .grid-flip-face {
   position: absolute;
   inset: 0;
+  transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: transform;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
@@ -1219,7 +1232,7 @@ body {
   font-size: calc(20px * var(--font-scale));
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
   min-height: 48px;
   display: flex;
   align-items: center;

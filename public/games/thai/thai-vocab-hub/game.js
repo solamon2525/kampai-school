@@ -197,20 +197,32 @@ function getMissedWordsInCategory() {
   return fullCategoryWords.filter((w) => missedSet.has(w.word));
 }
 
+const flashKnownCache = new Map();
+const leitnerMapCache = new Map();
+
 function flashKnownKey(slug) {
   return `tvh_flash_known_${slug || 'default'}`;
 }
 
 function loadFlashKnown(slug) {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(flashKnownKey(slug)) || '[]'));
-  } catch (_) {
-    return new Set();
+  const key = slug || 'default';
+  if (flashKnownCache.has(key)) {
+    return new Set(flashKnownCache.get(key));
   }
+  let result;
+  try {
+    result = new Set(JSON.parse(localStorage.getItem(flashKnownKey(slug)) || '[]'));
+  } catch (_) {
+    result = new Set();
+  }
+  flashKnownCache.set(key, new Set(result));
+  return result;
 }
 
 function saveFlashKnown(slug) {
   if (!slug) return;
+  const key = slug || 'default';
+  flashKnownCache.set(key, new Set(flashKnown));
   localStorage.setItem(flashKnownKey(slug), JSON.stringify([...flashKnown]));
 }
 
@@ -220,18 +232,28 @@ function leitnerKey(slug) {
 }
 
 function loadLeitnerMap(slug) {
+  const key = slug || 'default';
+  if (leitnerMapCache.has(key)) {
+    return Object.assign({}, leitnerMapCache.get(key));
+  }
+  let map = null;
   try {
     const raw = localStorage.getItem(leitnerKey(slug));
-    if (raw) return JSON.parse(raw);
+    if (raw) map = JSON.parse(raw);
   } catch (_) {}
-  const known = loadFlashKnown(slug);
-  const map = {};
-  known.forEach((w) => { map[w] = 3; });
+  if (!map) {
+    const known = loadFlashKnown(slug);
+    map = {};
+    known.forEach((w) => { map[w] = 3; });
+  }
+  leitnerMapCache.set(key, Object.assign({}, map));
   return map;
 }
 
 function saveLeitnerMap(slug, map) {
   if (!slug) return;
+  const key = slug || 'default';
+  leitnerMapCache.set(key, Object.assign({}, map));
   try {
     localStorage.setItem(leitnerKey(slug), JSON.stringify(map));
   } catch (_) {}
@@ -294,6 +316,13 @@ const LOCAL_VISUALS_BY_WORD = new Map(
       image_alt: word.image_alt,
     }]))
 );
+
+const THAI_ALPHABET_CONSONANTS = [
+  'ก', 'ข', 'ค', 'ฆ', 'ง', 'จ', 'ฉ', 'ช', 'ซ', 'ฌ', 'ญ',
+  'ด', 'ต', 'ถ', 'ท', 'ธ', 'น', 'บ', 'ป', 'ผ', 'ฝ', 'พ',
+  'ฟ', 'ภ', 'ม', 'ย', 'ร', 'ล', 'ว', 'ศ', 'ษ', 'ส', 'ห',
+  'อ', 'ฮ'
+];
 
 // แสดงหน้าเลือกหัวข้อทันที — ไม่ผูกกับ SDK callback
 // ใช้ requestAnimationFrame เพื่อมั่นใจว่า DOM render พร้อมจริงก่อนจัด layout
@@ -365,8 +394,13 @@ function scheduleGridSpanFit(force) {
   clearTimeout(gridSpanResizeTimer);
   gridSpanResizeTimer = setTimeout(() => {
     gridSpanResizeTimer = null;
+    const grid = document.getElementById('words-grid');
+    if (grid) {
+      const w = Math.round(grid.clientWidth);
+      if (w === lastGridFitWidth && grid.dataset.spansReady === '1') return;
+    }
     fitGridWordSpans(!!force);
-  }, 200);
+  }, 150);
 }
 
 /** วัดว่าข้อความล้นช่องหรือไม่ — ขยายการ์ดข้าม 2–3 คอลัมน์แทนการตัดบรรทัด */
@@ -395,8 +429,10 @@ function fitGridWordSpans(force) {
 
   gridSpanFitting = true;
   cards.forEach((card) => {
-    card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
-    card.dataset.spanLevel = '1';
+    if (card.dataset.spanLevel && card.dataset.spanLevel !== '1') {
+      card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
+      card.dataset.spanLevel = '1';
+    }
   });
 
   const maxSpan = gridCols === 'auto'
@@ -422,26 +458,39 @@ function fitGridWordSpans(force) {
   }
 
   function runPass() {
-    let changed = false;
+    // Phase 1 (Pure Read): Collect all cards needing span expansion without modifying any DOM properties
+    const toExpand = [];
     cards.forEach((card) => {
       const textEl = card.querySelector('.grid-word-text');
       if (!textEl) return;
       const level = parseInt(card.dataset.spanLevel || '1', 10);
       if (level >= maxSpan) return;
       if (textEl.scrollWidth > textEl.clientWidth + 1) {
-        const next = level + 1;
-        card.dataset.spanLevel = String(next);
-        card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
-        if (next === 2) card.classList.add('grid-flip-card--span2');
-        else if (next === 3) card.classList.add('grid-flip-card--span3');
-        else if (next === 4) card.classList.add('grid-flip-card--span4');
-        changed = true;
+        toExpand.push({ card, next: level + 1 });
       }
     });
+
     pass += 1;
-    if (changed && pass < maxPasses) {
-      requestAnimationFrame(runPass);
-    } else if (pass === 1 && !changed && !fontRetried) {
+    const changed = toExpand.length > 0;
+
+    if (changed) {
+      // Phase 2 (Pure Write): Schedule class updates inside a single requestAnimationFrame callback
+      requestAnimationFrame(() => {
+        toExpand.forEach(({ card, next }) => {
+          card.dataset.spanLevel = String(next);
+          card.classList.remove('grid-flip-card--span2', 'grid-flip-card--span3', 'grid-flip-card--span4');
+          if (next === 2) card.classList.add('grid-flip-card--span2');
+          else if (next === 3) card.classList.add('grid-flip-card--span3');
+          else if (next === 4) card.classList.add('grid-flip-card--span4');
+        });
+
+        if (pass < maxPasses) {
+          requestAnimationFrame(runPass);
+        } else {
+          finishFit();
+        }
+      });
+    } else if (pass === 1 && !fontRetried) {
       /* รอ font-size จาก cqh ปรับเสร็จแล้ววัดซ้ำครั้งเดียว (เช่น สลับเป็น 3×3) */
       fontRetried = true;
       requestAnimationFrame(() => requestAnimationFrame(runPass));
@@ -851,12 +900,6 @@ let activeAlphabetChar = 'all';
 let selectedSearchCategory = 'all';
 let hubSearchDebounceTimer = null;
 
-const THAI_ALPHABET_CONSONANTS = [
-  'ก', 'ข', 'ค', 'ฆ', 'ง', 'จ', 'ฉ', 'ช', 'ซ', 'ฌ', 'ญ',
-  'ด', 'ต', 'ถ', 'ท', 'ธ', 'น', 'บ', 'ป', 'ผ', 'ฝ', 'พ',
-  'ฟ', 'ภ', 'ม', 'ย', 'ร', 'ล', 'ว', 'ศ', 'ษ', 'ส', 'ห',
-  'อ', 'ฮ'
-];
 
 function getInitialConsonant(word) {
   if (!word) return '';
@@ -1389,6 +1432,9 @@ function renderWordsGrid() {
     return;
   }
 
+  // Hoist leitnerMap lookup outside the iteration loop
+  const leitnerMap = loadLeitnerMap(activeCategorySlug);
+
   gridDisplayWords.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'grid-flip-card';
@@ -1397,7 +1443,6 @@ function renderWordsGrid() {
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `${item.word} — แตะเพื่อดูความหมาย`);
 
-        const leitnerMap = loadLeitnerMap(activeCategorySlug);
     const box = leitnerMap[item.word] || 1;
     card.classList.add(`leitner-box-${box}`);
 
