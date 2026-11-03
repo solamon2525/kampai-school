@@ -4,6 +4,7 @@
 
 :root {
   --font-scale: 1;
+  --vocab-text-scale: 1;
 }
 
 html, body {
@@ -990,8 +991,8 @@ body {
 .grid-word-emoji {
   font-size: clamp(
     14px,
-    calc(var(--grid-emoji-ratio, 0.20) * 100cqh * var(--font-scale)),
-    calc(var(--grid-emoji-max, 72px) * var(--font-scale))
+    calc(var(--grid-emoji-ratio, 0.20) * 100cqh * var(--vocab-text-scale, var(--font-scale, 1))),
+    calc(var(--grid-emoji-max, 72px) * var(--vocab-text-scale, var(--font-scale, 1)))
   );
   line-height: 1;
   flex-shrink: 0;
@@ -999,9 +1000,9 @@ body {
 
 .grid-word-text {
   font-size: clamp(
-    calc(var(--grid-word-min, 13px) * var(--font-scale)),
-    calc(var(--grid-word-ratio, 0.24) * 100cqh * var(--font-scale)),
-    calc(var(--grid-word-max, 72px) * var(--font-scale))
+    calc(var(--grid-word-min, 13px) * var(--vocab-text-scale, var(--font-scale, 1))),
+    calc(var(--grid-word-ratio, 0.24) * 100cqh * var(--vocab-text-scale, var(--font-scale, 1))),
+    calc(var(--grid-word-max, 72px) * var(--vocab-text-scale, var(--font-scale, 1)))
   );
   font-weight: 700;
   color: #fbbf24;
@@ -1047,8 +1048,8 @@ body {
 .grid-reading {
   font-size: clamp(
     11px,
-    calc(var(--grid-reading-ratio, 0.16) * 100cqh * var(--font-scale)),
-    calc(var(--grid-reading-max, 48px) * var(--font-scale))
+    calc(var(--grid-reading-ratio, 0.16) * 100cqh * var(--vocab-text-scale, var(--font-scale, 1))),
+    calc(var(--grid-reading-max, 48px) * var(--vocab-text-scale, var(--font-scale, 1)))
   );
   font-weight: 700;
   color: #fff;
@@ -1066,8 +1067,8 @@ body {
 .grid-meaning {
   font-size: clamp(
     10px,
-    calc(var(--grid-meaning-ratio, 0.12) * 100cqh * var(--font-scale)),
-    calc(var(--grid-meaning-max, 34px) * var(--font-scale))
+    calc(var(--grid-meaning-ratio, 0.12) * 100cqh * var(--vocab-text-scale, var(--font-scale, 1))),
+    calc(var(--grid-meaning-max, 34px) * var(--vocab-text-scale, var(--font-scale, 1)))
   );
   color: #ffedd5;
   line-height: 1.4;
@@ -2922,7 +2923,7 @@ body.projector-mode .card-example-text {
 }
 
 .hub-search-word {
-  font-size: 18px;
+  font-size: calc(18px * var(--vocab-text-scale, var(--font-scale, 1)));
   font-weight: 700;
   color: #f8fafc;
   display: flex;
@@ -2931,7 +2932,7 @@ body.projector-mode .card-example-text {
 }
 
 .hub-search-reading {
-  font-size: 13px;
+  font-size: calc(13px * var(--vocab-text-scale, var(--font-scale, 1)));
   color: #94a3b8;
   font-weight: 500;
   margin-top: 1px;
@@ -2962,7 +2963,7 @@ body.projector-mode .card-example-text {
 }
 
 .hub-search-meaning {
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--vocab-text-scale, var(--font-scale, 1)));
   line-height: 1.4;
   color: #cbd5e1;
   margin-bottom: 8px;

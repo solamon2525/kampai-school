@@ -32,6 +32,8 @@ let gridSpanResizeTimer = null;
 let lastGridFitWidth = 0;
 let lastGridObservedWidth = 0;
 let gridSpanFitting = false;
+let renderGenId = 0;
+let pendingRenderChunks = [];
 
 // Flash deck (โหมดสุ่มการ์ด)
 let flashDeck = [];
@@ -115,6 +117,7 @@ function applyVocabFromSdk(sdk) {
     window.GAME_DATA.categories = vocab.categories;
     if (!vocabLazyLoad) window.GAME_DATA.words = vocab.words;
   }
+  initHubData();
 
   const hubVisible = document.getElementById('hub-view')?.style.display !== 'none';
   if (hubVisible) initHubGrid();
@@ -326,6 +329,143 @@ const THAI_ALPHABET_CONSONANTS = [
 
 // แสดงหน้าเลือกหัวข้อทันที — ไม่ผูกกับ SDK callback
 // ใช้ requestAnimationFrame เพื่อมั่นใจว่า DOM render พร้อมจริงก่อนจัด layout
+
+function initHubData() {
+  buildVocabSearchIndex();
+}
+
+function buildVocabSearchIndex() {
+  const items = [];
+  const tokenMap = new Map();
+  const byConsonant = new Map();
+  const byGrade = new Map();
+  const byCategory = new Map();
+
+  let itemId = 0;
+  CATEGORIES.forEach(cat => {
+    const rawWords = ALL_WORDS[cat.slug] || [];
+    const approved = getApprovedWords(rawWords);
+    approved.forEach(item => {
+      const initialConsonant = getInitialConsonant(item.word);
+      const searchStr = `${item.word || ''} ${item.reading || ''} ${item.meaning || ''} ${item.pos || ''}`.toLowerCase();
+
+      const entry = {
+        id: itemId++,
+        word: item.word || '',
+        reading: item.reading || '',
+        meaning: item.meaning || '',
+        pos: item.pos || '',
+        grade: item.grade || '',
+        example: item.example || '',
+        emoji: item.emoji || '',
+        image_url: item.image_url || '',
+        categorySlug: cat.slug,
+        categoryTitle: cat.title,
+        categoryIcon: cat.icon,
+        initialConsonant,
+        searchStr
+      };
+      items.push(entry);
+
+      if (!byCategory.has(cat.slug)) byCategory.set(cat.slug, []);
+      byCategory.get(cat.slug).push(entry);
+
+      if (initialConsonant) {
+        if (!byConsonant.has(initialConsonant)) byConsonant.set(initialConsonant, []);
+        byConsonant.get(initialConsonant).push(entry);
+      }
+
+      if (item.grade) {
+        if (!byGrade.has(item.grade)) byGrade.set(item.grade, []);
+        byGrade.get(item.grade).push(entry);
+      }
+
+      const addToken = (tok) => {
+        if (!tok || typeof tok !== 'string') return;
+        const lower = tok.trim().toLowerCase();
+        if (!lower) return;
+        if (!tokenMap.has(lower)) tokenMap.set(lower, []);
+        tokenMap.get(lower).push(entry);
+      };
+
+      addToken(entry.word);
+      for (let len = 1; len <= Math.min(entry.word.length, 6); len++) {
+        addToken(entry.word.slice(0, len));
+      }
+
+      const readingParts = entry.reading.split(/[\s\-–—/]+/);
+      readingParts.forEach(t => {
+        const clean = t.trim();
+        if (clean) {
+          addToken(clean);
+          for (let len = 1; len <= Math.min(clean.length, 4); len++) {
+            addToken(clean.slice(0, len));
+          }
+        }
+      });
+
+      const meaningParts = entry.meaning.split(/[\s,.;:()"“”'‘’\-–—]+/);
+      meaningParts.forEach(t => {
+        const clean = t.trim();
+        if (clean.length >= 2) addToken(clean);
+      });
+
+      if (entry.pos) addToken(entry.pos);
+      if (entry.grade) addToken(entry.grade);
+    });
+  });
+
+  window._vocabSearchIndex = {
+    items,
+    tokenMap,
+    byCategory,
+    byConsonant,
+    byGrade,
+    search(query, options = {}) {
+      const q = (query || '').trim().toLowerCase();
+      const grade = options.grade || 'all';
+      const consonant = options.consonant || 'all';
+      const catSlug = options.categorySlug || 'all';
+
+      let candidates;
+      if (q && tokenMap.has(q)) {
+        candidates = tokenMap.get(q);
+      } else if (consonant !== 'all' && byConsonant.has(consonant)) {
+        candidates = byConsonant.get(consonant);
+      } else if (catSlug !== 'all' && byCategory.has(catSlug)) {
+        candidates = byCategory.get(catSlug);
+      } else {
+        candidates = items;
+      }
+
+      const results = [];
+      const seen = new Set();
+
+      for (let i = 0; i < candidates.length; i++) {
+        const item = candidates[i];
+        if (seen.has(item.id)) continue;
+
+        if (grade !== 'all' && item.grade && item.grade !== grade) continue;
+        if (consonant !== 'all' && item.initialConsonant !== consonant) continue;
+        if (catSlug !== 'all' && item.categorySlug !== catSlug) continue;
+
+        if (q && !item.searchStr.includes(q)) continue;
+
+        seen.add(item.id);
+        results.push(item);
+      }
+
+      return results;
+    }
+  };
+
+  return window._vocabSearchIndex;
+}
+
+if (CATEGORIES.length > 0) {
+  initHubData();
+}
+
 function safeInitHubGrid() {
   // ถ้ายังไม่มี categories (data.js ยังโหลดไม่เสร็จ) → ลองอีกครั้ง
   if (CATEGORIES.length === 0 && window.GAME_DATA && window.GAME_DATA.categories) {
@@ -333,7 +473,9 @@ function safeInitHubGrid() {
     Object.assign(ALL_WORDS, window.GAME_DATA.words || {});
   }
   initAlphabetStrip();
+  initHubData();
   setupHubSearchInput();
+  mountFontSizeSlider();
   requestAnimationFrame(initHubGrid);
 }
 
@@ -790,11 +932,17 @@ function mountFontSizeSlider() {
   const initial = (!isNaN(saved) && saved >= FS_MIN && saved <= FS_MAX) ? saved : 1;
 
   document.documentElement.style.setProperty('--font-scale', String(initial));
+  document.documentElement.style.setProperty('--vocab-text-scale', String(initial));
+  const wordsGrid = document.getElementById('words-grid');
+  if (wordsGrid) wordsGrid.style.setProperty('--vocab-text-scale', String(initial));
   slider.value = String(initial);
 
   slider.addEventListener('input', () => {
     const v = parseFloat(slider.value);
     document.documentElement.style.setProperty('--font-scale', String(v));
+    document.documentElement.style.setProperty('--vocab-text-scale', String(v));
+    const gridEl = document.getElementById('words-grid');
+    if (gridEl) gridEl.style.setProperty('--vocab-text-scale', String(v));
     localStorage.setItem(FS_KEY, String(v));
     if (currentMode === 'auto') fitGridWordSpans(true);
   });
@@ -1007,50 +1155,28 @@ function performHubSearch() {
   if (resultsView) resultsView.style.display = 'block';
   if (hubGrid) hubGrid.style.display = 'none';
 
-  const allMatches = [];
-  const categoryMatchMap = new Map();
+  if (!window._vocabSearchIndex) {
+    buildVocabSearchIndex();
+  }
 
-  CATEGORIES.forEach(cat => {
-    const rawWords = ALL_WORDS[cat.slug] || [];
-    const approved = getApprovedWords(rawWords);
-    approved.forEach(item => {
-      if (currentHubGrade !== 'all' && item.grade && item.grade !== currentHubGrade) {
-        return;
-      }
-
-      if (activeAlphabetChar !== 'all') {
-        const initial = getInitialConsonant(item.word);
-        if (initial !== activeAlphabetChar) return;
-      }
-
-      if (query) {
-        const wMatch = (item.word || '').toLowerCase().includes(query);
-        const rMatch = (item.reading || '').toLowerCase().includes(query);
-        const mMatch = (item.meaning || '').toLowerCase().includes(query);
-        const pMatch = (item.pos || '').toLowerCase().includes(query);
-        if (!wMatch && !rMatch && !mMatch && !pMatch) return;
-      }
-
-      const matchObj = {
-        ...item,
-        categorySlug: cat.slug,
-        categoryTitle: cat.title,
-        categoryIcon: cat.icon
-      };
-
-      allMatches.push(matchObj);
-
-      if (!categoryMatchMap.has(cat.slug)) {
-        categoryMatchMap.set(cat.slug, {
-          slug: cat.slug,
-          title: cat.title,
-          icon: cat.icon,
-          words: []
-        });
-      }
-      categoryMatchMap.get(cat.slug).words.push(matchObj);
-    });
+  const allMatches = window._vocabSearchIndex.search(query, {
+    grade: currentHubGrade,
+    consonant: activeAlphabetChar
   });
+
+  const categoryMatchMap = new Map();
+  for (let i = 0; i < allMatches.length; i++) {
+    const item = allMatches[i];
+    if (!categoryMatchMap.has(item.categorySlug)) {
+      categoryMatchMap.set(item.categorySlug, {
+        slug: item.categorySlug,
+        title: item.categoryTitle,
+        icon: item.categoryIcon,
+        words: []
+      });
+    }
+    categoryMatchMap.get(item.categorySlug).words.push(item);
+  }
 
   const gradeLabel = currentHubGrade === 'all' ? '' : ` [${currentHubGrade}]`;
   const alphaLabel = activeAlphabetChar === 'all' ? '' : ` [พยัญชนะ ${activeAlphabetChar}]`;
@@ -1096,11 +1222,72 @@ function performHubSearch() {
   renderSearchWordCards(displayWords, searchGrid);
 }
 
+const CHUNK_SIZE = 24;
+
+function createSearchCardElement(item) {
+  const card = document.createElement('div');
+  card.className = 'hub-search-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', `${item.word} — คลิกเพื่อเข้าสู่บทเรียน`);
+
+  const posCls = getPosClass(item.pos);
+  const posBadge = item.pos ? `<span class="search-pos-badge ${posCls}">(${item.pos})</span>` : '';
+  const gradeBadge = item.grade ? `<span class="search-grade-badge">${item.grade}</span>` : '';
+  const exampleHtml = item.example ? `<div class="hub-search-example">“${item.example}”</div>` : '';
+
+  card.innerHTML = `
+    <div class="hub-search-card-top">
+      <div class="hub-search-word-wrap">
+        <span class="hub-search-word">
+          <span>${item.emoji || item.categoryIcon || '📝'}</span>
+          <strong>${item.word}</strong>
+        </span>
+        <span class="hub-search-reading">[ ${item.reading} ]</span>
+      </div>
+      <div class="hub-search-badges">
+        ${gradeBadge}
+        ${posBadge}
+      </div>
+    </div>
+    <div class="hub-search-meaning">${item.meaning}</div>
+    ${exampleHtml}
+    <div class="hub-search-footer">
+      <span class="hub-search-cat-label">${item.categoryIcon} ${item.categoryTitle}</span>
+      <button type="button" class="hub-search-jump-btn" aria-label="เรียนรู้คำนี้">เรียนคำนี้ →</button>
+    </div>
+  `;
+
+  card.onclick = () => jumpToWord(item.categorySlug, item.word);
+  card.onkeydown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      jumpToWord(item.categorySlug, item.word);
+    }
+  };
+
+  return card;
+}
+
+function appendSearchMoreNotice(container, totalCount) {
+  const moreNotice = document.createElement('div');
+  moreNotice.style.gridColumn = '1 / -1';
+  moreNotice.style.textAlign = 'center';
+  moreNotice.style.padding = '12px';
+  moreNotice.style.color = '#fbbf24';
+  moreNotice.style.fontSize = '13.5px';
+  moreNotice.textContent = `... แสดง ๑๒๐ คำแรกจากทั้งหมด ${totalCount} คำ (กรุณาระบุคำค้นหาให้เจาะจงยิ่งขึ้น)`;
+  container.appendChild(moreNotice);
+}
+
 function renderSearchWordCards(wordList, container) {
   if (!container) return;
   container.innerHTML = '';
 
-  if (wordList.length === 0) {
+  const thisGen = ++renderGenId;
+  window._vocabRenderGenId = renderGenId;
+
+  if (!wordList || wordList.length === 0) {
     const empty = document.createElement('div');
     empty.style.gridColumn = '1 / -1';
     empty.style.textAlign = 'center';
@@ -1112,62 +1299,64 @@ function renderSearchWordCards(wordList, container) {
     return;
   }
 
-  const sliced = wordList.slice(0, 120);
+  const MAX_SEARCH_DISPLAY = 120;
+  const totalToRender = Math.min(wordList.length, MAX_SEARCH_DISPLAY);
 
-  sliced.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'hub-search-card';
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', `${item.word} — คลิกเพื่อเข้าสู่บทเรียน`);
+  // If totalToRender <= 30, render all in single DocumentFragment
+  if (totalToRender <= 30) {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < totalToRender; i++) {
+      frag.appendChild(createSearchCardElement(wordList[i]));
+    }
+    container.appendChild(frag);
+    if (wordList.length > MAX_SEARCH_DISPLAY) {
+      appendSearchMoreNotice(container, wordList.length);
+    }
+    return;
+  }
 
-    const posCls = getPosClass(item.pos);
-    const posBadge = item.pos ? `<span class="search-pos-badge ${posCls}">(${item.pos})</span>` : '';
-    const gradeBadge = item.grade ? `<span class="search-grade-badge">${item.grade}</span>` : '';
-    const exampleHtml = item.example ? `<div class="hub-search-example">“${item.example}”</div>` : '';
+  // Progressive rendering: initial 24 cards immediately
+  const initialBatch = Math.min(CHUNK_SIZE, totalToRender);
+  const initialFrag = document.createDocumentFragment();
+  for (let i = 0; i < initialBatch; i++) {
+    initialFrag.appendChild(createSearchCardElement(wordList[i]));
+  }
+  container.appendChild(initialFrag);
 
-    card.innerHTML = `
-      <div class="hub-search-card-top">
-        <div class="hub-search-word-wrap">
-          <span class="hub-search-word">
-            <span>${item.emoji || item.categoryIcon || '📝'}</span>
-            <strong>${item.word}</strong>
-          </span>
-          <span class="hub-search-reading">[ ${item.reading} ]</span>
-        </div>
-        <div class="hub-search-badges">
-          ${gradeBadge}
-          ${posBadge}
-        </div>
-      </div>
-      <div class="hub-search-meaning">${item.meaning}</div>
-      ${exampleHtml}
-      <div class="hub-search-footer">
-        <span class="hub-search-cat-label">${item.categoryIcon} ${item.categoryTitle}</span>
-        <button type="button" class="hub-search-jump-btn" aria-label="เรียนรู้คำนี้">เรียนคำนี้ →</button>
-      </div>
-    `;
+  // Schedule remaining chunks via requestAnimationFrame
+  let nextIndex = initialBatch;
 
-    card.onclick = () => jumpToWord(item.categorySlug, item.word);
-    card.onkeydown = (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        jumpToWord(item.categorySlug, item.word);
+  function scheduleSearchChunk() {
+    const chunkFn = () => {
+      if (thisGen !== renderGenId) return;
+
+      const chunkEnd = Math.min(nextIndex + CHUNK_SIZE, totalToRender);
+      const frag = document.createDocumentFragment();
+      for (let i = nextIndex; i < chunkEnd; i++) {
+        frag.appendChild(createSearchCardElement(wordList[i]));
+      }
+      container.appendChild(frag);
+      nextIndex = chunkEnd;
+
+      if (nextIndex < totalToRender) {
+        scheduleSearchChunk();
+      } else if (wordList.length > MAX_SEARCH_DISPLAY) {
+        appendSearchMoreNotice(container, wordList.length);
       }
     };
 
-    container.appendChild(card);
-  });
+    pendingRenderChunks.push(chunkFn);
+    requestAnimationFrame(() => {
+      const idx = pendingRenderChunks.indexOf(chunkFn);
+      if (idx !== -1) pendingRenderChunks.splice(idx, 1);
+      chunkFn();
+    });
+  }
 
-  if (wordList.length > 120) {
-    const moreNotice = document.createElement('div');
-    moreNotice.style.gridColumn = '1 / -1';
-    moreNotice.style.textAlign = 'center';
-    moreNotice.style.padding = '12px';
-    moreNotice.style.color = '#fbbf24';
-    moreNotice.style.fontSize = '13.5px';
-    moreNotice.textContent = `... แสดง ๑๒๐ คำแรกจากทั้งหมด ${wordList.length} คำ (กรุณาระบุคำค้นหาให้เจาะจงยิ่งขึ้น)`;
-    container.appendChild(moreNotice);
+  if (nextIndex < totalToRender) {
+    scheduleSearchChunk();
+  } else if (wordList.length > MAX_SEARCH_DISPLAY) {
+    appendSearchMoreNotice(container, wordList.length);
   }
 }
 
@@ -1395,13 +1584,90 @@ function switchMode(mode) {
 
 // ═══ MODE 1: AUTO REVIEW (ทบทวนคำศัพท์) ═══
 
+function createGridCardElement(item, idx, leitnerMap) {
+  const card = document.createElement('div');
+  card.className = 'grid-flip-card';
+  card.id = `word-cell-${idx}`;
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', `${item.word} — แตะเพื่อดูความหมาย`);
+
+  const box = (leitnerMap && leitnerMap[item.word]) || 1;
+  card.classList.add(`leitner-box-${box}`);
+
+  const emoji = item.emoji || (activeCategory && activeCategory.icon) || '📝';
+
+  const gradeBadge = item.grade
+    ? `<span class="grid-grade-badge">${item.grade}</span>`
+    : '';
+  const posClass = getPosClass(item.pos);
+  const posBadge = item.pos
+    ? `<span class="grid-pos-badge ${posClass}">(${item.pos})</span>`
+    : '';
+  const exampleHtml = item.example
+    ? `<div class="grid-example">“${item.example}”</div>`
+    : '';
+  const dotTitle = box === 3 ? 'แม่นยำแล้ว' : (box === 2 ? 'เริ่มจำได้' : 'กำลังเรียนรู้');
+
+  card.innerHTML = `
+    <div class="grid-flip-inner">
+      <div class="grid-flip-face grid-flip-front">
+        <button type="button" class="grid-say-btn" title="ฟังเสียงอ่าน" aria-label="ฟังเสียง ${item.word}">🔊</button>
+        <div style="position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:3px;z-index:2;">
+          <span class="leitner-dot leitner-dot-${box}" title="${dotTitle}"></span>
+          ${gradeBadge}
+          ${posBadge}
+        </div>
+        <span class="grid-word-emoji">${emoji}</span>
+        <span class="grid-word-text">${item.word}</span>
+      </div>
+      <div class="grid-flip-face grid-flip-back">
+        <span class="grid-reading">[ ${item.reading} ]</span>
+        <span class="grid-meaning">${item.meaning}</span>
+        ${exampleHtml}
+        ${item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : ''}
+      </div>
+    </div>
+  `;
+
+  const sayBtn = card.querySelector('.grid-say-btn');
+  if (sayBtn) {
+    sayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      speakThai(item.word);
+    });
+  }
+
+  const visualBtn = card.querySelector('.grid-visual-btn');
+  if (visualBtn) {
+    visualBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openVisualViewer(item, visualBtn);
+    });
+  }
+
+  card.addEventListener('click', () => toggleGridCard(card, idx));
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleGridCard(card, idx);
+    }
+  });
+
+  return card;
+}
+
 function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
+  if (!grid) return;
   cancelSpeech();
   lastGridFitWidth = 0;
   lastGridObservedWidth = 0;
   grid.innerHTML = '';
   gridDisplayWords = getGridDisplayWords();
+
+  const thisGen = ++renderGenId;
+  window._vocabRenderGenId = renderGenId;
 
   if (activeCategory) {
     const header = document.createElement('div');
@@ -1434,87 +1700,77 @@ function renderWordsGrid() {
 
   // Hoist leitnerMap lookup outside the iteration loop
   const leitnerMap = loadLeitnerMap(activeCategorySlug);
+  const total = gridDisplayWords.length;
 
-  gridDisplayWords.forEach((item, idx) => {
-    const card = document.createElement('div');
-    card.className = 'grid-flip-card';
-    card.id = `word-cell-${idx}`;
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', `${item.word} — แตะเพื่อดูความหมาย`);
-
-    const box = leitnerMap[item.word] || 1;
-    card.classList.add(`leitner-box-${box}`);
-
-    const emoji = item.emoji || (activeCategory && activeCategory.icon) || '📝';
-
-    const gradeBadge = item.grade
-      ? `<span class="grid-grade-badge">${item.grade}</span>`
-      : '';
-    const posClass = getPosClass(item.pos);
-    const posBadge = item.pos
-      ? `<span class="grid-pos-badge ${posClass}">(${item.pos})</span>`
-      : '';
-    const exampleHtml = item.example
-      ? `<div class="grid-example">“${item.example}”</div>`
-      : '';
-    const dotTitle = box === 3 ? 'แม่นยำแล้ว' : (box === 2 ? 'เริ่มจำได้' : 'กำลังเรียนรู้');
-
-    card.innerHTML = `
-      <div class="grid-flip-inner">
-        <div class="grid-flip-face grid-flip-front">
-          <button type="button" class="grid-say-btn" title="ฟังเสียงอ่าน" aria-label="ฟังเสียง ${item.word}">🔊</button>
-          <div style="position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:3px;z-index:2;">
-            <span class="leitner-dot leitner-dot-${box}" title="${dotTitle}"></span>
-            ${gradeBadge}
-            ${posBadge}
-          </div>
-          <span class="grid-word-emoji">${emoji}</span>
-          <span class="grid-word-text">${item.word}</span>
-        </div>
-        <div class="grid-flip-face grid-flip-back">
-          <span class="grid-reading">[ ${item.reading} ]</span>
-          <span class="grid-meaning">${item.meaning}</span>
-          ${exampleHtml}
-          ${item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : ''}
-        </div>
-      </div>
-    `;
-
-    const sayBtn = card.querySelector('.grid-say-btn');
-    if (sayBtn) {
-      sayBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        speakThai(item.word);
-      });
+  if (total <= 30) {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < total; i++) {
+      frag.appendChild(createGridCardElement(gridDisplayWords[i], i, leitnerMap));
     }
-
-    const visualBtn = card.querySelector('.grid-visual-btn');
-    if (visualBtn) {
-      visualBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openVisualViewer(item, visualBtn);
-      });
+    grid.appendChild(frag);
+    applyGridColsLayout();
+    bindGridSpanResizeObserver();
+    if (isAutoplayActive && !autoplayPaused) highlightAutoplayCard(currentWordIndex);
+    updateAutoplayProgress();
+    if (isAutoplayActive && !autoplayPaused && gridDisplayWords.length) {
+      if (currentWordIndex >= gridDisplayWords.length) currentWordIndex = 0;
+      runAutoplayStep(autoplayGen);
     }
+    return;
+  }
 
-    card.addEventListener('click', () => toggleGridCard(card, idx));
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleGridCard(card, idx);
-      }
-    });
-
-    grid.appendChild(card);
-  });
-
+  // Progressive rendering: initial batch of 24 cards immediately
+  const initialBatch = Math.min(CHUNK_SIZE, total);
+  const initialFrag = document.createDocumentFragment();
+  for (let i = 0; i < initialBatch; i++) {
+    initialFrag.appendChild(createGridCardElement(gridDisplayWords[i], i, leitnerMap));
+  }
+  grid.appendChild(initialFrag);
   applyGridColsLayout();
   bindGridSpanResizeObserver();
   if (isAutoplayActive && !autoplayPaused) highlightAutoplayCard(currentWordIndex);
   updateAutoplayProgress();
-  if (isAutoplayActive && !autoplayPaused && gridDisplayWords.length) {
-    if (currentWordIndex >= gridDisplayWords.length) currentWordIndex = 0;
-    runAutoplayStep(autoplayGen);
+
+  let nextIndex = initialBatch;
+
+  function scheduleGridChunk() {
+    const chunkFn = () => {
+      if (thisGen !== renderGenId) return;
+
+      const chunkEnd = Math.min(nextIndex + CHUNK_SIZE, total);
+      const frag = document.createDocumentFragment();
+      for (let i = nextIndex; i < chunkEnd; i++) {
+        frag.appendChild(createGridCardElement(gridDisplayWords[i], i, leitnerMap));
+      }
+      grid.appendChild(frag);
+      nextIndex = chunkEnd;
+
+      if (nextIndex < total) {
+        scheduleGridChunk();
+      } else {
+        if (currentMode === 'auto') fitGridWordSpans(true);
+        if (isAutoplayActive && !autoplayPaused && gridDisplayWords.length) {
+          if (currentWordIndex >= gridDisplayWords.length) currentWordIndex = 0;
+          runAutoplayStep(autoplayGen);
+        }
+      }
+    };
+
+    pendingRenderChunks.push(chunkFn);
+    requestAnimationFrame(() => {
+      const idx = pendingRenderChunks.indexOf(chunkFn);
+      if (idx !== -1) pendingRenderChunks.splice(idx, 1);
+      chunkFn();
+    });
+  }
+
+  scheduleGridChunk();
+}
+
+function flushRenderChunks() {
+  while (pendingRenderChunks.length > 0) {
+    const fn = pendingRenderChunks.shift();
+    fn();
   }
 }
 
@@ -2924,6 +3180,14 @@ window.flipCard = flipCard;
 window.speakThai = speakThai;
 window.loadAndSelectCategory = loadAndSelectCategory;
 window.switchMode = switchMode;
+window.renderSearchWordCards = renderSearchWordCards;
+window.renderWordsGrid = renderWordsGrid;
+window.performHubSearch = performHubSearch;
+window.buildVocabSearchIndex = buildVocabSearchIndex;
+window.initHubData = initHubData;
+window.flushRenderChunks = flushRenderChunks;
+window.getVocabRenderGenId = () => renderGenId;
+
 
 function restartSession() {
   currentScore = 0;
