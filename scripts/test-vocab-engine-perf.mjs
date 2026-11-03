@@ -170,6 +170,12 @@ win.eval(gameContent);
 const activeSlug = 'misspelled';
 await win.loadAndSelectCategory(activeSlug);
 
+// Flush any pending progressive rendering chunks
+while (rafQueue.length > 0) {
+  const cb = rafQueue.shift();
+  cb();
+}
+
 const totalDisplayWords = win.document.querySelectorAll('.grid-flip-card').length;
 console.log(`Rendered category "${activeSlug}" with ${totalDisplayWords} words.`);
 assert(totalDisplayWords >= 50, `Expected at least 50 cards rendered, got ${totalDisplayWords}`);
