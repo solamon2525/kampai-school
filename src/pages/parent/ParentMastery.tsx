@@ -37,8 +37,8 @@ const STATUS_META: Record<IndicatorMasteryStatus, { label: string; cls: string; 
     mastered: { label: 'เชี่ยวชาญ', cls: 'bg-violet-50 text-violet-700 border border-violet-200', dot: 'bg-violet-500' },
 };
 
-// เพิ่มเมนู "ความก้าวหน้า" ให้ parent menu (PARENT_MENU มาจาก ParentDashboard)
-const MENU_WITH_MASTERY = [
+// เมนู "ความก้าวหน้า" รวมอยู่ใน PARENT_MENU แล้ว
+const MENU_WITH_MASTERY = PARENT_MENU; /* backward compat */ const _UNUSED_ITEMS = [
     ...PARENT_MENU,
     { id: 'mastery', label: 'ความก้าวหน้า', icon: Target, path: '/parent/mastery' },
 ];
@@ -54,7 +54,7 @@ export default function ParentMastery() {
     });
 
     return (
-        <RolePortalLayout title="Portal ผู้ปกครอง" subtitle="ผู้ปกครอง" menu={MENU_WITH_MASTERY} accent="parent">
+        <RolePortalLayout title="Portal ผู้ปกครอง" subtitle="ผู้ปกครอง" menu={PARENT_MENU} accent="parent">
             <div className="p-6 lg:p-8 space-y-6">
                 {/* หัวการ์ด */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

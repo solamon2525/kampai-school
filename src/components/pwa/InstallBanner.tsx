@@ -18,7 +18,7 @@ export function InstallBanner() {
           exit={{ y: 120, opacity: 0 }}
           transition={{ type: "spring", stiffness: 240, damping: 28 }}
           className={cn(
-            "fixed bottom-4 inset-x-4 z-40",
+            "fixed bottom-20 inset-x-4 z-40",
             "bg-card border border-border rounded-2xl shadow-2xl",
             "p-4 md:hidden",
           )}

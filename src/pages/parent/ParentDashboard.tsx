@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet, BookOpen, FileText, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Star, Recycle, Wallet, BookOpen, FileText, ClipboardList, Calendar, MessageSquare, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { RolePortalLayout } from '@/components/portal/RolePortalLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +16,9 @@ const MENU = [
     { id: 'vocab-review', label: 'คำศัพท์ที่พลาด', icon: BookOpen, path: '/parent/vocab-review' },
     { id: 'worksheets', label: 'ใบงานบ้าน', icon: FileText, path: '/parent/worksheets' },
     { id: 'assignments', label: 'การบ้าน', icon: ClipboardList, path: '/parent/assignments' },
+    { id: 'conferences', label: 'จองเวลาพบครู', icon: Calendar, path: '/parent/conferences' },
+    { id: 'chat', label: 'แชทกับคุณครู', icon: MessageSquare, path: '/parent/chat' },
+    { id: 'mastery', label: 'ความก้าวหน้า', icon: Award, path: '/parent/mastery' },
 ];
 
 export default function ParentDashboard() {
@@ -40,7 +43,7 @@ export default function ParentDashboard() {
                 {!kids.length && (
                     <Card>
                         <CardContent className="p-6">
-                            <p className="text-sm text-amber-600">
+                            <p className="text-sm text-destructive font-medium">
                                 บัญชีของคุณยังไม่ได้เชื่อมกับนักเรียน กรุณาติดต่อผู้ดูแลระบบ
                             </p>
                         </CardContent>
@@ -54,7 +57,7 @@ export default function ParentDashboard() {
                         <Link key={item.id} to={item.path}>
                             <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
                                 <CardContent className="p-6 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                         <item.icon className="w-6 h-6" />
                                     </div>
                                     <div>

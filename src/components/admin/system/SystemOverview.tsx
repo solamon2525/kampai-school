@@ -290,6 +290,16 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v1.233.39 (ความปลอดภัยฐานข้อมูลและสถาปัตยกรรม Parent Portal: RLS Hardening + Multi-Child Sync + แก้ไข Mobile UX Overlays)',
+        date: '5 พ.ย. 2569',
+        badge: 'bg-primary',
+        items: [
+            'ความปลอดภัยและสมรรถนะฐานข้อมูล (Supabase Security & Performance Hardening): สร้าง Migration 584 & 585 ยกระดับความปลอดภัยฐานข้อมูลตาม Supabase Advisor 100% — เพิ่ม RLS policy สำหรับ integrated_plan_pin_settings, แปลง View ทั้งหมด 12 รายการเป็น SECURITY INVOKER เพื่อความปลอดภัยของสิทธิ์การเข้าถึง, กำหนด search_path = public ให้ฟังก์ชันระบบ 21 รายการ, เพิกถอนสิทธิ์ anon execute บน RPCs แอดมิน, เพิ่ม Covering Indexes 24 ชุดเพื่อเร่งความเร็ว foreign key lookups, และอัปเกรด RLS auth.uid() subqueries เป็น (SELECT auth.uid()) แก้ไข auth_rls_initplan performance bottleneck',
+            'สถาปัตยกรรมผู้ปกครองหลายคน (Parent Multi-Child Architecture Synchronization): ปรับปรุง ParentChildView ให้ทำงานร่วมกับ useActiveChild และ parent_student_links อย่างสมบูรณ์ รองรับการสลับบุตรหลานผ่าน ChildSwitcher ทันทีโดยไม่ต้องล็อกเอาต์หรือติดแคช single-child student_id เดิม, ปรับปรุงการส่งต่อ active studentId ไปยัง KampaiHeroDashboard, WasteBankParentView, และ SavingsBankParentView พร้อมอัปเดตแคชคีย์ React Query ให้แยกข้อมูลตามนักเรียนแต่ละคนอย่างถูกต้อง',
+            'ปรับปรุงระบบเมนูและมาตรฐาน UX/UI (Portal Menus & Semantic Design Tokens): รวมเมนูของระบบผู้ปกครอง (conferences, chat, mastery) เข้าสู่ PARENT_MENU กลาง, ลบสี Hardcoded rose-100/600 และปรับใช้ Semantic Design Tokens ตาม DESIGN.md (bg-primary/10, text-primary, border-border), แก้ไขปัญหา HTML Semantics ซ้อน main tag ในหน้าแรก, และยกระดับ PWA InstallBanner สู่ bottom-20 ป้องกันการบดบังปุ่ม ScanFAB บนอุปกรณ์พกพา',
+        ],
+    },
+    {
         version: 'v1.233.38 (ปรับปรุงระบบเข้าสู่ระบบแอดมิน: ปุ่มเปิดดูรหัสผ่าน + ตรวจจับ Caps Lock + ตัดช่องว่างอีเมล + กู้คืนรหัสผ่าน)',
         date: '5 พ.ย. 2569',
         badge: 'bg-primary',
