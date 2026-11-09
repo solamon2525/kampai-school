@@ -585,6 +585,22 @@ body::before{content:'';position:fixed;inset:0;
 #math-speak-question{min-height:48px;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 24px;border-radius:14px;background:rgba(255,224,130,0.22);border:2px solid rgba(255,224,130,0.6);color:#FFE082;font-size:clamp(17px,2.4vh,24px);font-weight:800;cursor:pointer;touch-action:manipulation;transition:background .15s ease,transform .1s ease,border-color .15s ease}
 #math-speak-question:hover,#math-speak-question:focus-visible{background:rgba(255,224,130,0.35);border-color:#FFE082;transform:scale(1.02)}
 
+/* Team Battle Badges & Colors */
+.math-cell.team-red{background:#dc2626!important;color:#fff!important;border-color:#fca5a5!important}
+.math-cell.team-red .math-cell-num{color:#fff!important}
+.math-cell.team-blue{background:#2563eb!important;color:#fff!important;border-color:#93c5fd!important}
+.math-cell.team-blue .math-cell-num{color:#fff!important}
+.math-cell.bingo-highlight{animation:bingo-glow 1s infinite alternate!important;box-shadow:0 0 18px #ffd700,inset 0 0 10px #fff!important;border-color:#ffd700!important}
+@keyframes bingo-glow{0%{transform:scale(1.02);filter:brightness(1.1)}100%{transform:scale(1.08);filter:brightness(1.35)}}
+
+.battle-status-bar{display:flex;justify-content:space-between;align-items:center;width:100%;padding:4px 8px;border-radius:10px;background:rgba(15,23,42,.5);font-size:clamp(12px,1.6vh,14px);color:#fff;font-weight:800;gap:6px}
+.badge-turn{padding:3px 8px;border-radius:8px;font-weight:900}
+.badge-turn.turn-red{background:#dc2626;color:#fff}
+.badge-turn.turn-blue{background:#2563eb;color:#fff}
+.badge-score-red{color:#f87171}
+.badge-score-blue{color:#60a5fa}
+.math-story-txt{font-size:clamp(14px,2.2vh,20px);color:#fff;font-weight:700;line-height:1.35;text-align:center;max-width:680px}
+
 /* Math Question 5x5 Grid Board — Compact Full-Screen Fit */
 .math-shell.grid-mode{width:min(920px,96vw);margin:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 8px 12px}
 .math-grid-toolbar{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
@@ -1376,6 +1392,7 @@ body::before{content:'';position:fixed;inset:0;
       <button class="cbtn mbtn" id="m-fliprace">⚡ Flip Race</button>
       <button class="cbtn mbtn" id="m-wordsearch">🧩 หาคำ</button>
       <button class="cbtn mbtn" id="m-math">➕ Math Question</button>
+      <button class="cbtn mbtn" id="m-bingo">🎲 บิงโก 5×5</button>
       <button class="cbtn on" id="btn-voice" title="เลือกภาษาเสียงอ่าน">🎙️ EN</button>
     </div>
     <div id="dotsnav">
@@ -2005,6 +2022,7 @@ const modeBtns  = {
   fliprace:   document.getElementById('m-fliprace'),
   wordsearch: document.getElementById('m-wordsearch'),
   math:       document.getElementById('m-math'),
+  bingo:      document.getElementById('m-bingo'),
   lightbox:   document.getElementById('m-lightbox'),
 };
 const btnPause     = document.getElementById('btn-pause');
@@ -2069,6 +2087,16 @@ let mathVoiceGender = (function(){
 let mathPos = 0, mathTotal = 10, mathCorrect = 0, mathScore = 0, mathStreak = 0;
 let mathLocked = false, mathStartTime = 0;
 let mathGridCells = [], mathGridActiveIndex = null;
+let gridPlayMode = 'solo'; // 'solo' | 'battle'
+let gridTeamTurn = 'red';  // 'red' | 'blue'
+let gridRedCells = new Set(), gridBlueCells = new Set();
+let gridWinningCells = new Set();
+let mathProblemType = 'equation'; // 'equation' | 'story' | 'mixed'
+const gridBingoLines = [
+  [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
+  [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
+  [0,6,12,18,24], [4,8,12,16,20]
+];
 
 // Flash Enhancements state
 let flashHistory = []; // ดัชนีที่กดปุ่ม Next / Know ไปแล้ว เพื่อให้ย้อนดูได้
@@ -2651,6 +2679,7 @@ function showTopic(slug){
   modeBtns.wordsearch.style.display = (slug==='alphabet') ? 'none' : '';
   modeBtns.tf.style.display = (slug==='alphabet') ? 'none' : '';
   modeBtns.math.style.display = (slug==='numbers') ? '' : 'none';
+  if(modeBtns.bingo) modeBtns.bingo.style.display = '';
   if(modeBtns.lightbox) modeBtns.lightbox.style.display = '';
   setMode('auto');
   requestAnimationFrame(syncVisualGridSize);
@@ -2744,10 +2773,11 @@ function setMode(m){
   else if(m==='tf'){ startTF(); }
   else if(m==='wordsearch'){ startWordSearch(); }
   else if(m==='math'){ startMathQuestion(); }
+  else if(m==='bingo'){ startBingoGrid(); }
 }
 
 // =====================================================================
-// MATH QUESTION MODE — What is 9 + 9? / The answer is eighteen.
+// MATH QUESTION & MYSTERY BINGO GRID MODE (Directions 1 + 2 + 4)
 // =====================================================================
 function numberWord(value){
   const n = Number(value);
@@ -2830,12 +2860,35 @@ function toggleMathOp(op){
   if(!allowed.includes(op)) return;
   const on = mathOps.includes(op);
   if(on){
-    if(mathOps.length<=1) return; // ต้องเหลืออย่างน้อย 1 เครื่องหมาย
+    if(mathOps.length<=1) return;
     mathOps = mathOps.filter(o=>o!==op);
   }else{
     mathOps = allowed.filter(o=>mathOps.includes(o) || o===op);
   }
   startMathQuestion();
+}
+function makeMathStoryProblem(q){
+  const names = ['Tom', 'Lisa', 'Ben', 'Emma', 'Alex', 'Anna', 'Sam', 'May'];
+  const items = ['apples', 'pencils', 'candies', 'stickers', 'books', 'balloons'];
+  const name = names[Math.floor(Math.random() * names.length)];
+  const friend = names[(names.indexOf(name) + 1) % names.length];
+  const item = items[Math.floor(Math.random() * items.length)];
+
+  let en = '', th = '';
+  if(q.op === '+'){
+    en = name + ' has ' + numberWord(q.a) + ' ' + item + '. ' + friend + ' gives ' + name + ' ' + numberWord(q.b) + ' more. How many ' + item + ' in total?';
+    th = name + ' มี' + item + ' ' + q.a + ' ชิ้น, ' + friend + ' ให้อีก ' + q.b + ' ชิ้น รวมมีกี่ชิ้น?';
+  } else if(q.op === '-'){
+    en = name + ' has ' + numberWord(q.a) + ' ' + item + '. ' + name + ' gives ' + numberWord(q.b) + ' to ' + friend + '. How many are left?';
+    th = name + ' มี' + item + ' ' + q.a + ' ชิ้น, ให้ ' + friend + ' ไป ' + q.b + ' ชิ้น เหลือกี่ชิ้น?';
+  } else if(q.op === '×'){
+    en = 'There are ' + numberWord(q.a) + ' boxes. Each box has ' + numberWord(q.b) + ' ' + item + '. How many ' + item + ' altogether?';
+    th = 'มี ' + q.a + ' กล่อง แต่ละกล่องมี' + item + ' ' + q.b + ' ชิ้น รวมมีกี่ชิ้น?';
+  } else {
+    en = name + ' shares ' + numberWord(q.a) + ' ' + item + ' equally among ' + numberWord(q.b) + ' friends. How many for each?';
+    th = name + ' แบ่ง' + item + ' ' + q.a + ' ชิ้น ให้เพื่อน ' + q.b + ' คนเท่าๆ กัน ได้คนละกี่ชิ้น?';
+  }
+  return { en, th };
 }
 function makeMathQuestion(){
   const cfg=mathRange(), op=cfg.ops[Math.floor(Math.random()*cfg.ops.length)];
@@ -2874,7 +2927,7 @@ function makeMathQuestion(){
       b = 2 + Math.floor(Math.random() * 9);
       answer = a * b;
     }
-  }else{ // op === '÷'
+  }else{
     if(cfg.max > 100){
       const divisors = [2, 3, 4, 5, 6, 8, 10, 12, 20, 25];
       b = divisors[Math.floor(Math.random() * divisors.length)];
@@ -2888,7 +2941,12 @@ function makeMathQuestion(){
       a = b * answer;
     }
   }
-  return {a,b,op,answer};
+  const q = {a,b,op,answer};
+  const isStory = mathProblemType === 'story' || (mathProblemType === 'mixed' && Math.random() < 0.5);
+  if(isStory){
+    q.story = makeMathStoryProblem(q);
+  }
+  return q;
 }
 function pickEnVoiceByGender(gender){
   const wantMale = gender === 'male';
@@ -2925,6 +2983,9 @@ function mathOpSpeakWord(op){
 }
 function mathQuestionSpeakParts(q){
   if(!q) return [];
+  if(q.story && q.story.en){
+    return [q.story.en];
+  }
   return [
     'What is',
     numberWord(q.a),
@@ -2957,7 +3018,6 @@ function mathSpeakParts(parts){
       const u = new SpeechSynthesisUtterance(chunk);
       u.lang = (voice && voice.lang) || 'en-US';
       if(voice) u.voice = voice;
-      // ช้า + ชัด สำหรับเด็กประถม ฟังตามทัน
       u.rate = 0.74;
       u.pitch = 1.0;
       u.volume = 1;
@@ -2980,10 +3040,6 @@ function mathSpeakQuestion(q){
 function mathSpeakAnswer(q){
   mathSpeakParts(mathAnswerSpeakParts(q));
 }
-function mathSpeak(text){
-  if(!text) return;
-  mathSpeakParts([String(text)]);
-}
 function setMathVoiceGender(gender){
   mathVoiceGender = gender === 'male' ? 'male' : 'female';
   try{ localStorage.setItem('kvh_math_voice', mathVoiceGender); }catch(_){}
@@ -2992,11 +3048,16 @@ function setMathVoiceGender(gender){
     btn.classList.toggle('on', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
-  if(mathFormat === 'grid'){
+  if(mathFormat === 'grid' || mode === 'bingo'){
     if(mathGridActiveIndex !== null && mathGridCells[mathGridActiveIndex]){
       const cell = mathGridCells[mathGridActiveIndex];
-      if(cell.status === 'solved') mathSpeakAnswer(cell.q);
-      else mathSpeakQuestion(cell.q);
+      if(cell.status === 'solved'){
+        if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+        else mathSpeakAnswer(cell.q);
+      } else {
+        if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+        else mathSpeakQuestion(cell.q);
+      }
     }
   } else if(mathQuestion){
     mathSpeakQuestion(mathQuestion);
@@ -3007,43 +3068,98 @@ function startMathQuestion(){
   mathPos=0; mathCorrect=0; mathScore=0; mathStreak=0; mathStartTime=Date.now(); mathLocked=false;
   playEl.classList.add('show');
   if(mathFormat === 'grid'){
-    initMathGrid();
+    initMysteryGrid();
     renderMathGrid();
   } else {
     renderMathQuestion();
   }
 }
-function initMathGrid(){
+function startBingoGrid(){
+  try{KAMPAI.beginRound();}catch(_){}
+  mathFormat = 'grid';
+  playEl.classList.add('show');
+  initMysteryGrid();
+  renderMathGrid();
+}
+function initMysteryGrid(){
   mathGridCells = [];
   mathGridActiveIndex = null;
+  gridRedCells.clear();
+  gridBlueCells.clear();
+  gridWinningCells.clear();
+  gridTeamTurn = 'red';
+
+  const isNumbers = currentSlug === 'numbers';
+  const pool = Array.isArray(allItems) && allItems.length ? allItems : (TOPICS[currentSlug] || []);
+
   for(let i = 0; i < 25; i++){
-    mathGridCells.push({
-      id: i + 1,
-      q: makeMathQuestion(),
-      status: 'closed'
-    });
+    if(isNumbers){
+      mathGridCells.push({
+        id: i + 1,
+        q: makeMathQuestion(),
+        status: 'closed',
+        team: null
+      });
+    } else {
+      const vItem = pool[i % pool.length];
+      mathGridCells.push({
+        id: i + 1,
+        vocabItem: vItem,
+        status: 'closed',
+        team: null
+      });
+    }
   }
 }
-function renderMathSettingsHtml(){
-  return '<div class="math-settings" aria-label="ช่วงตัวเลข">'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='easy'?' on':'') + '" data-math-level="easy">ง่าย 1–20</button>'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='medium'?' on':'') + '" data-math-level="medium">กลาง 1–100</button>'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='hard'?' on':'') + '" data-math-level="hard">ท้าทาย 1–1,000</button>'
+function checkBingoWinner(){
+  for(const line of gridBingoLines){
+    if(line.every(idx => gridRedCells.has(idx))){
+      line.forEach(idx => gridWinningCells.add(idx));
+      return 'red';
+    }
+    if(line.every(idx => gridBlueCells.has(idx))){
+      line.forEach(idx => gridWinningCells.add(idx));
+      return 'blue';
+    }
+  }
+  return null;
+}
+function renderMathGridSettingsHtml(){
+  const isNumbers = currentSlug === 'numbers';
+  return '<div class="math-grid-toolbar">'
+    + '<div class="math-grid-row">'
+    + (isNumbers ? '<div class="math-settings-group" aria-label="รูปแบบคำตอบ">'
+    + '<button type="button" class="math-chip' + (mathFormat==='reveal'?' on':'') + '" data-math-format="reveal">คิดแล้วเฉลย</button>'
+    + '<button type="button" class="math-chip' + (mathFormat==='choice'?' on':'') + '" data-math-format="choice">เลือกตอบ</button>'
+    + '<button type="button" class="math-chip' + (mathFormat==='grid'?' on':'') + '" data-math-format="grid">กระดาน 5×5</button>'
+    + '</div>' : '')
+    + '<div class="math-settings-group" aria-label="โหมดการเล่น">'
+    + '<button type="button" class="math-chip' + (gridPlayMode==='solo'?' on':'') + '" data-grid-mode="solo">👤 เล่นเดี่ยว</button>'
+    + '<button type="button" class="math-chip' + (gridPlayMode==='battle'?' on':'') + '" data-grid-mode="battle">👥 แข่ง 2 ทีม (บิงโก)</button>'
     + '</div>'
-    + '<div class="math-settings math-settings-ops" aria-label="เลือกเครื่องหมาย + ลบ คูณ หาร">'
+    + '</div>'
+    + '<div class="math-grid-row math-grid-row-sub">'
+    + (isNumbers ? '<div class="math-settings-group" aria-label="ประเภทโจทย์">'
+    + '<button type="button" class="math-chip' + (mathProblemType==='equation'?' on':'') + '" data-problem-type="equation">🔢 ตัวเลข</button>'
+    + '<button type="button" class="math-chip' + (mathProblemType==='story'?' on':'') + '" data-problem-type="story">📖 โจทย์ปัญหา</button>'
+    + '<button type="button" class="math-chip' + (mathProblemType==='mixed'?' on':'') + '" data-problem-type="mixed">🔀 ผสม</button>'
+    + '</div>'
+    + '<div class="math-settings-group" aria-label="ช่วงตัวเลข">'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='easy'?' on':'') + '" data-math-level="easy">1–20</button>'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='medium'?' on':'') + '" data-math-level="medium">1–100</button>'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='hard'?' on':'') + '" data-math-level="hard">1–1,000</button>'
+    + '</div>'
+    + '<div class="math-settings-group math-settings-ops" aria-label="เลือกเครื่องหมาย">'
     + '<button type="button" class="math-chip math-op' + (mathOps.includes('+')?' on':'') + '" data-math-op="+" title="บวก" aria-pressed="' + mathOps.includes('+') + '">+</button>'
     + '<button type="button" class="math-chip math-op' + (mathOps.includes('-')?' on':'') + '" data-math-op="-" title="ลบ" aria-pressed="' + mathOps.includes('-') + '">−</button>'
     + '<button type="button" class="math-chip math-op' + (mathOps.includes('×')?' on':'') + '" data-math-op="×" title="คูณ" aria-pressed="' + mathOps.includes('×') + '">×</button>'
     + '<button type="button" class="math-chip math-op' + (mathOps.includes('÷')?' on':'') + '" data-math-op="÷" title="หาร" aria-pressed="' + mathOps.includes('÷') + '">÷</button>'
+    + '</div>' : '')
+    + '<div class="math-settings-group" aria-label="เสียงอ่าน">'
+    + '<button type="button" class="math-chip' + (mathVoiceGender==='female'?' on':'') + '" data-math-voice="female" aria-pressed="' + (mathVoiceGender==='female') + '" title="เสียงหญิง">👩 หญิง</button>'
+    + '<button type="button" class="math-chip' + (mathVoiceGender==='male'?' on':'') + '" data-math-voice="male" aria-pressed="' + (mathVoiceGender==='male') + '" title="เสียงชาย">👨 ชาย</button>'
     + '</div>'
-    + '<div class="math-settings" aria-label="เลือกเสียงอ่าน ผู้ชายหรือผู้หญิง">'
-    + '<button type="button" class="math-chip' + (mathVoiceGender==='female'?' on':'') + '" data-math-voice="female" aria-pressed="' + (mathVoiceGender==='female') + '">👩 หญิง</button>'
-    + '<button type="button" class="math-chip' + (mathVoiceGender==='male'?' on':'') + '" data-math-voice="male" aria-pressed="' + (mathVoiceGender==='male') + '">👨 ชาย</button>'
     + '</div>'
-    + '<div class="math-settings" aria-label="รูปแบบคำตอบ">'
-    + '<button type="button" class="math-chip' + (mathFormat==='reveal'?' on':'') + '" data-math-format="reveal">คิดแล้วเฉลย</button>'
-    + '<button type="button" class="math-chip' + (mathFormat==='choice'?' on':'') + '" data-math-format="choice">เลือกตอบ</button>'
-    + '<button type="button" class="math-chip' + (mathFormat==='grid'?' on':'') + '" data-math-format="grid">กระดาน 5×5</button>'
     + '</div>';
 }
 function bindMathSettingsEvents(){
@@ -3057,54 +3173,52 @@ function bindMathSettingsEvents(){
     mathFormat = btn.dataset.mathFormat;
     startMathQuestion();
   });
-}
-function renderMathGridSettingsHtml(){
-  return '<div class="math-grid-toolbar">'
-    + '<div class="math-grid-row">'
-    + '<div class="math-settings-group" aria-label="รูปแบบคำตอบ">'
-    + '<button type="button" class="math-chip' + (mathFormat==='reveal'?' on':'') + '" data-math-format="reveal">คิดแล้วเฉลย</button>'
-    + '<button type="button" class="math-chip' + (mathFormat==='choice'?' on':'') + '" data-math-format="choice">เลือกตอบ</button>'
-    + '<button type="button" class="math-chip' + (mathFormat==='grid'?' on':'') + '" data-math-format="grid">กระดาน 5×5</button>'
-    + '</div>'
-    + '</div>'
-    + '<div class="math-grid-row math-grid-row-sub">'
-    + '<div class="math-settings-group" aria-label="ช่วงตัวเลข">'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='easy'?' on':'') + '" data-math-level="easy">1–20</button>'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='medium'?' on':'') + '" data-math-level="medium">1–100</button>'
-    + '<button type="button" class="math-chip' + (mathDifficulty==='hard'?' on':'') + '" data-math-level="hard">1–1,000</button>'
-    + '</div>'
-    + '<div class="math-settings-group math-settings-ops" aria-label="เลือกเครื่องหมาย">'
-    + '<button type="button" class="math-chip math-op' + (mathOps.includes('+')?' on':'') + '" data-math-op="+" title="บวก" aria-pressed="' + mathOps.includes('+') + '">+</button>'
-    + '<button type="button" class="math-chip math-op' + (mathOps.includes('-')?' on':'') + '" data-math-op="-" title="ลบ" aria-pressed="' + mathOps.includes('-') + '">−</button>'
-    + '<button type="button" class="math-chip math-op' + (mathOps.includes('×')?' on':'') + '" data-math-op="×" title="คูณ" aria-pressed="' + mathOps.includes('×') + '">×</button>'
-    + '<button type="button" class="math-chip math-op' + (mathOps.includes('÷')?' on':'') + '" data-math-op="÷" title="หาร" aria-pressed="' + mathOps.includes('÷') + '">÷</button>'
-    + '</div>'
-    + '<div class="math-settings-group" aria-label="เสียงอ่าน">'
-    + '<button type="button" class="math-chip' + (mathVoiceGender==='female'?' on':'') + '" data-math-voice="female" aria-pressed="' + (mathVoiceGender==='female') + '" title="เสียงหญิง">👩 หญิง</button>'
-    + '<button type="button" class="math-chip' + (mathVoiceGender==='male'?' on':'') + '" data-math-voice="male" aria-pressed="' + (mathVoiceGender==='male') + '" title="เสียงชาย">👨 ชาย</button>'
-    + '</div>'
-    + '</div>'
-    + '</div>';
+  document.querySelectorAll('[data-grid-mode]').forEach(btn=>btn.onclick=()=>{
+    gridPlayMode = btn.dataset.gridMode;
+    renderMathGrid();
+  });
+  document.querySelectorAll('[data-problem-type]').forEach(btn=>btn.onclick=()=>{
+    mathProblemType = btn.dataset.problemType;
+    initMysteryGrid();
+    renderMathGrid();
+  });
 }
 function renderMathGrid(){
   const openedCount = mathGridCells.filter(c => c.status === 'solved').length;
   const activeCell = mathGridActiveIndex !== null ? mathGridCells[mathGridActiveIndex] : null;
 
+  let statusBarHtml = '';
+  if(gridPlayMode === 'battle'){
+    statusBarHtml = '<div class="battle-status-bar">'
+      + '<span><span class="badge-score-red">🔴 ทีมแดง ' + gridRedCells.size + '</span> · <span class="badge-score-blue">🔵 ทีมน้ำเงิน ' + gridBlueCells.size + '</span></span>'
+      + '<span class="badge-turn ' + (gridTeamTurn === 'red' ? 'turn-red' : 'turn-blue') + '">ตา' + (gridTeamTurn === 'red' ? '🔴 ทีมแดง' : '🔵 ทีมน้ำเงิน') + '</span>'
+      + '</div>';
+  }
+
   const cellsHtml = mathGridCells.map((c, idx) => {
     const isFocus = mathGridActiveIndex === idx;
     let cls = 'math-cell ' + c.status;
+    if(c.team === 'red') cls += ' team-red';
+    if(c.team === 'blue') cls += ' team-blue';
+    if(gridWinningCells.has(idx)) cls += ' bingo-highlight';
     if(isFocus) cls += ' active-focus';
+
     let inner = '';
     if(c.status === 'closed'){
       inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">❓</span>';
     } else if(c.status === 'asking'){
-      // กดครั้งแรก: ไม่มีตัวเลขบอก ให้มีแต่เสียงเท่านั้น!
       inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">🔊</span>';
     } else {
-      // กดอีกครั้ง: เฉลยทันที!
-      inner = '<span class="math-cell-num">#' + c.id + ' ✓</span>'
-        + '<span class="math-cell-ans">' + c.q.answer + '</span>'
-        + '<span class="math-cell-eq">' + c.q.a + c.q.op + c.q.b + '</span>';
+      const badge = c.team === 'red' ? '🔴' : c.team === 'blue' ? '🔵' : '✓';
+      if(c.vocabItem){
+        inner = '<span class="math-cell-num">#' + c.id + ' ' + badge + '</span>'
+          + '<span class="math-cell-ans" style="font-size:clamp(12px,1.9vh,16px)">' + c.vocabItem.en + '</span>'
+          + '<span class="math-cell-eq">' + (c.vocabItem.icon || c.vocabItem.th || '') + '</span>';
+      } else {
+        inner = '<span class="math-cell-num">#' + c.id + ' ' + badge + '</span>'
+          + '<span class="math-cell-ans">' + c.q.answer + '</span>'
+          + '<span class="math-cell-eq">' + c.q.a + c.q.op + c.q.b + '</span>';
+      }
     }
     return '<button type="button" class="' + cls + '" data-grid-cell="' + idx + '" aria-label="ช่องที่ ' + c.id + '">' + inner + '</button>';
   }).join('');
@@ -3112,10 +3226,12 @@ function renderMathGrid(){
   playEl.innerHTML = '<div class="math-shell grid-mode">'
     + renderMathGridSettingsHtml()
     + '<div class="math-grid-container">'
+    + statusBarHtml
     + '<div class="math-grid-meta">'
-    + '<span>เฉลยแล้ว <b>' + openedCount + '/25</b> ช่อง</span>'
+    + '<span>' + (gridPlayMode === 'battle' ? '🏆 บิงโก 5 แถว' : 'เฉลยแล้ว <b>' + openedCount + '/25</b> ช่อง') + '</span>'
     + '<div class="math-grid-actions">'
     + (activeCell && activeCell.status === 'asking' ? '<button type="button" class="math-secondary math-btn-replay" id="math-grid-speak">🔊 ฟังซ้ำ #' + activeCell.id + '</button>' : '')
+    + (gridPlayMode === 'battle' && activeCell && activeCell.status === 'solved' ? '<button type="button" class="math-secondary" id="math-grid-switch-team" style="font-size:11px;padding:3px 8px">🔄 สลับแต้มให้อีกทีม</button>' : '')
     + '<button type="button" class="math-secondary math-btn-reset" id="math-grid-reset">🔄 สุ่มใหม่</button>'
     + '</div>'
     + '</div>'
@@ -3125,7 +3241,7 @@ function renderMathGrid(){
     + '</div>'
     + '</div>';
 
-  setScore('Math Grid · เฉลยแล้ว <b>' + openedCount + '/25</b> ช่อง');
+  setScore('Math Grid · ' + (gridPlayMode==='battle' ? '🔴 ' + gridRedCells.size + ' : 🔵 ' + gridBlueCells.size : openedCount + '/25 ช่อง'));
   bindMathSettingsEvents();
 
   document.querySelectorAll('[data-grid-cell]').forEach(btn => {
@@ -3134,30 +3250,56 @@ function renderMathGrid(){
 
   const btnReset = document.getElementById('math-grid-reset');
   if(btnReset) btnReset.onclick = () => {
-    initMathGrid();
+    initMysteryGrid();
     renderMathGrid();
   };
 
   const btnSpeak = document.getElementById('math-grid-speak');
-  if(btnSpeak && activeCell) btnSpeak.onclick = () => mathSpeakQuestion(activeCell.q);
+  if(btnSpeak && activeCell){
+    btnSpeak.onclick = () => {
+      if(activeCell.vocabItem) mathSpeakParts([activeCell.vocabItem.en]);
+      else mathSpeakQuestion(activeCell.q);
+    };
+  }
+
+  const btnSwitchTeam = document.getElementById('math-grid-switch-team');
+  if(btnSwitchTeam && activeCell && activeCell.status === 'solved'){
+    btnSwitchTeam.onclick = () => {
+      if(activeCell.team === 'red'){
+        activeCell.team = 'blue';
+        gridRedCells.delete(mathGridActiveIndex);
+        gridBlueCells.add(mathGridActiveIndex);
+      } else if(activeCell.team === 'blue'){
+        activeCell.team = 'red';
+        gridBlueCells.delete(mathGridActiveIndex);
+        gridRedCells.add(mathGridActiveIndex);
+      }
+      const winner = checkBingoWinner();
+      if(winner){
+        setTimeout(() => {
+          showWin('🏆', 'BINGO! ทีม' + (winner === 'red' ? 'สีแดง' : 'สีน้ำเงิน') + ' ชนะ!', 'เรียงต่อกันครบแถว ยอดเยี่ยมมาก!', '⭐⭐⭐');
+        }, 500);
+      }
+      renderMathGrid();
+    };
+  }
 }
 function handleMathGridCellClick(idx){
   const cell = mathGridCells[idx];
   if(!cell) return;
   if(cell.status === 'closed'){
-    // กดครั้งแรก: ไม่มีตัวเลขบอก ให้มีแต่เสียง
     cell.status = 'asking';
     mathGridActiveIndex = idx;
     renderMathGrid();
-    mathSpeakQuestion(cell.q);
+    if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+    else mathSpeakQuestion(cell.q);
   } else if(cell.status === 'asking'){
-    // กดอีกครั้ง: เฉลยทันที!
     solveMathGridCell(idx);
   } else {
-    // เฉลยแล้ว: ฟังเสียงเฉลยอีกครั้ง
     mathGridActiveIndex = idx;
     renderMathGrid();
-    mathSpeakAnswer(cell.q);
+    if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+    else mathSpeakAnswer(cell.q);
   }
 }
 function solveMathGridCell(idx){
@@ -3165,10 +3307,36 @@ function solveMathGridCell(idx){
   if(!cell) return;
   cell.status = 'solved';
   mathGridActiveIndex = idx;
+
+  if(gridPlayMode === 'battle'){
+    cell.team = gridTeamTurn;
+    if(gridTeamTurn === 'red'){
+      gridRedCells.add(idx);
+      gridTeamTurn = 'blue';
+    } else {
+      gridBlueCells.add(idx);
+      gridTeamTurn = 'red';
+    }
+  }
+
   try{ KAMPAI.sound.correct(); }catch(_){}
   renderMathGrid();
-  mathSpeakAnswer(cell.q);
-  
+
+  if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+  else mathSpeakAnswer(cell.q);
+
+  if(gridPlayMode === 'battle'){
+    const winner = checkBingoWinner();
+    if(winner){
+      try{ KAMPAI.sound.gameOver(); }catch(_){}
+      renderMathGrid();
+      setTimeout(() => {
+        showWin('🏆', 'BINGO! ทีม' + (winner === 'red' ? 'สีแดง' : 'สีน้ำเงิน') + ' ชนะ!', 'เรียงต่อกันครบ 5 ช่อง ยอดเยี่ยมมาก!', '⭐⭐⭐');
+      }, 1000);
+      return;
+    }
+  }
+
   const allSolved = mathGridCells.every(c => c.status === 'solved');
   if(allSolved){
     setTimeout(() => {
@@ -3176,7 +3344,6 @@ function solveMathGridCell(idx){
     }, 1200);
   }
 }
-
 function renderMathQuestion(){
   mathLocked=false; mathQuestion=makeMathQuestion();
   const q=mathQuestion, answerWord=numberWord(q.answer);
@@ -3200,11 +3367,44 @@ function renderMathQuestion(){
   const opLabel={'+':'บวก','-':'ลบ','×':'คูณ','÷':'หาร'};
   const opHint=mathOps.map(o=>opLabel[o]||o).join(' · ');
   const voiceHint=mathVoiceGender==='male'?'เสียงชาย':'เสียงหญิง';
+
+  let questionHtml = '';
+  if(q.story && q.story.en){
+    questionHtml = '<div class="math-story-txt">' + q.story.en + '</div>'
+      + '<div class="math-question-th" style="font-size:clamp(14px,2vh,20px)">' + q.story.th + '</div>';
+  } else {
+    questionHtml = '<div class="math-question">What is ' + q.a + ' ' + q.op + ' ' + q.b + '?</div>'
+      + '<div class="math-question-th">ว็อต อิส ' + mathThaiReading(numberWord(q.a)) + ' ' + mathThaiOpWord(q.op) + ' ' + mathThaiReading(numberWord(q.b)) + '?</div>';
+  }
+
   playEl.innerHTML='<div class="math-shell">'
-    + renderMathSettingsHtml()
+    + '<div class="math-settings" aria-label="รูปแบบคำตอบ">'
+    + '<button type="button" class="math-chip' + (mathFormat==='reveal'?' on':'') + '" data-math-format="reveal">คิดแล้วเฉลย</button>'
+    + '<button type="button" class="math-chip' + (mathFormat==='choice'?' on':'') + '" data-math-format="choice">เลือกตอบ</button>'
+    + '<button type="button" class="math-chip' + (mathFormat==='grid'?' on':'') + '" data-math-format="grid">กระดาน 5×5</button>'
+    + '</div>'
+    + '<div class="math-settings" aria-label="ประเภทโจทย์">'
+    + '<button type="button" class="math-chip' + (mathProblemType==='equation'?' on':'') + '" data-problem-type="equation">🔢 ตัวเลข</button>'
+    + '<button type="button" class="math-chip' + (mathProblemType==='story'?' on':'') + '" data-problem-type="story">📖 โจทย์ปัญหา</button>'
+    + '<button type="button" class="math-chip' + (mathProblemType==='mixed'?' on':'') + '" data-problem-type="mixed">🔀 ผสม</button>'
+    + '</div>'
+    + '<div class="math-settings" aria-label="ช่วงตัวเลข">'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='easy'?' on':'') + '" data-math-level="easy">ง่าย 1–20</button>'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='medium'?' on':'') + '" data-math-level="medium">กลาง 1–100</button>'
+    + '<button type="button" class="math-chip' + (mathDifficulty==='hard'?' on':'') + '" data-math-level="hard">ท้าทาย 1–1,000</button>'
+    + '</div>'
+    + '<div class="math-settings math-settings-ops" aria-label="เลือกเครื่องหมาย">'
+    + '<button type="button" class="math-chip math-op' + (mathOps.includes('+')?' on':'') + '" data-math-op="+" title="บวก" aria-pressed="' + mathOps.includes('+') + '">+</button>'
+    + '<button type="button" class="math-chip math-op' + (mathOps.includes('-')?' on':'') + '" data-math-op="-" title="ลบ" aria-pressed="' + mathOps.includes('-') + '">−</button>'
+    + '<button type="button" class="math-chip math-op' + (mathOps.includes('×')?' on':'') + '" data-math-op="×" title="คูณ" aria-pressed="' + mathOps.includes('×') + '">×</button>'
+    + '<button type="button" class="math-chip math-op' + (mathOps.includes('÷')?' on':'') + '" data-math-op="÷" title="หาร" aria-pressed="' + mathOps.includes('÷') + '">÷</button>'
+    + '</div>'
+    + '<div class="math-settings" aria-label="เสียงอ่าน">'
+    + '<button type="button" class="math-chip' + (mathVoiceGender==='female'?' on':'') + '" data-math-voice="female" aria-pressed="' + (mathVoiceGender==='female') + '">👩 หญิง</button>'
+    + '<button type="button" class="math-chip' + (mathVoiceGender==='male'?' on':'') + '" data-math-voice="male" aria-pressed="' + (mathVoiceGender==='male') + '">👨 ชาย</button>'
+    + '</div>'
     + '<div class="math-hint">ข้อ ' + (mathPos+1) + '/' + mathTotal + ' · คะแนน ' + mathScore + ' · ตอบต่อเนื่อง ' + mathStreak + ' · ' + opHint + ' · ' + voiceHint + '</div>'
-    + '<div class="math-question">What is ' + q.a + ' ' + q.op + ' ' + q.b + '?</div>'
-    + '<div class="math-question-th">ว็อต อิส ' + mathThaiReading(numberWord(q.a)) + ' ' + mathThaiOpWord(q.op) + ' ' + mathThaiReading(numberWord(q.b)) + '?</div>'
+    + questionHtml
     + '<button type="button" class="math-secondary" id="math-speak-question">🔊 ฟังโจทย์</button>'
     + (mathFormat==='choice' ? '<div class="math-options">' + options.map(n=>'<button type="button" class="math-option" data-math-answer="' + n + '">' + numberWord(n) + '</button>').join('') + '</div>' : '')
     + '<div class="math-answer" id="math-answer"><div class="math-answer-en">The answer is ' + answerWord + '.</div><div class="math-answer-th">ดิ แอนเซอร์ อิส ' + mathThaiReading(answerWord) + ' · คำตอบคือ ' + q.answer + '</div></div>'
