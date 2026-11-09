@@ -36,6 +36,8 @@ import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { SaverPodium } from '@/components/savings/SaverPodium';
 import { SavingsGoalCard } from '@/components/savings/SavingsGoalCard';
 import { SavingsGoalDialog } from '@/components/savings/SavingsGoalDialog';
+import { DigitalPassbook } from '@/components/savings/DigitalPassbook';
+import { KidStudentPicker } from '@/components/savings/KidStudentPicker';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -75,6 +77,7 @@ export default function SavingsBank() {
 
   // Lookup state
   const [code, setCode] = useState('');
+  const [lookupTab, setLookupTab] = useState<'picker' | 'code'>('picker');
   const [searching, setSearching] = useState(false);
   const [student, setStudent] = useState<StudentSavingsLookup | null>(null);
   const [studentDepositCount, setStudentDepositCount] = useState<number | null>(null);
@@ -115,17 +118,16 @@ export default function SavingsBank() {
   const recent = publicQuery.data?.recent ?? [];
   const isLoading = publicQuery.isPending;
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const c = code.trim();
-    if (!c) return;
+  const executeLookup = async (c: string) => {
+    const trimmed = c.trim();
+    if (!trimmed) return;
     setSearching(true);
     setStudent(null);
     setHistory([]);
     setGoals([]);
     setStudentDepositCount(null);
 
-    const { data, error } = await savingsLookupService.lookupStudent(c);
+    const { data, error } = await savingsLookupService.lookupStudent(trimmed);
     if (error) {
       toast({ title: 'ค้นหาไม่สำเร็จ', description: error.message, variant: 'destructive' });
       setSearching(false);
@@ -138,13 +140,23 @@ export default function SavingsBank() {
       return;
     }
     setStudent(row);
-    reloadGoals(c);
+    reloadGoals(trimmed);
 
-    const { data: histData } = await savingsLookupService.getStudentHistory(c, 50);
+    const { data: histData } = await savingsLookupService.getStudentHistory(trimmed, 50);
     const histRows = (histData as SavingsHistoryRow[] | null) ?? [];
     setHistory(histRows);
     setStudentDepositCount(histRows.filter((h) => h.transaction_type === 'deposit').length);
     setSearching(false);
+  };
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    void executeLookup(code);
+  };
+
+  const handleSelectStudentCode = (selectedStudentCode: string) => {
+    setCode(selectedStudentCode);
+    void executeLookup(selectedStudentCode);
   };
 
   // Derived data
@@ -186,14 +198,14 @@ export default function SavingsBank() {
 
       <main className="flex-1 max-w-7xl mx-auto w-full bg-background flex flex-col">
         {publicQuery.isError && <div role="alert" className="p-4 text-destructive"><p>โหลดข้อมูลธนาคารพอเพียงไม่สำเร็จ</p><Button variant="outline" onClick={() => void publicQuery.refetch()}>ลองใหม่</Button></div>}
-        {/* ─── HERO (asymmetric split, dark slate + gold accent) ──────────── */}
-        <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+        {/* ─── HERO (Light mode compliant, Warm Gold & Deep Navy) ──────────── */}
+        <section className="relative bg-gradient-to-br from-amber-500/10 via-card to-background border-b border-border overflow-hidden">
           {/* Subtle pattern overlay */}
           <div
-            className="absolute inset-0 opacity-[0.04]"
+            className="absolute inset-0 opacity-[0.03]"
             style={{
               backgroundImage:
-                'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+                'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
               backgroundSize: '24px 24px',
             }}
           />
@@ -201,23 +213,23 @@ export default function SavingsBank() {
             <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 md:gap-6 items-center">
               {/* LEFT: Copy */}
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 ring-1 ring-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-[0.12em]">
-                  <PiggyBank className="w-3 h-3" />
-                  ธนาคารพอเพียง
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 ring-1 ring-amber-400/40 text-amber-800 text-[10px] font-bold uppercase tracking-[0.12em]">
+                  <PiggyBank className="w-3 h-3 text-amber-600" />
+                  ธนาคารพอเพียง โรงเรียนบ้านคำไผ่
                 </div>
-                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-[1.15]">
-                  ออม <span className="text-amber-400">วันละนิด</span>
+                <h1 className="text-2xl md:text-4xl font-black tracking-tight text-foreground leading-[1.15]">
+                  ออม <span className="text-amber-600">วันละนิด</span>
                   <br />
-                  สร้างวินัย <span className="italic font-bold text-slate-300">ทั้งชีวิต</span>
+                  สร้างวินัย <span className="italic font-bold text-primary">ทั้งชีวิต</span>
                 </h1>
-                <p className="text-xs md:text-sm text-slate-300 max-w-xl leading-relaxed">
+                <p className="text-xs md:text-sm text-muted-foreground max-w-xl leading-relaxed">
                   ระบบฝาก/ถอนเงินสำหรับนักเรียน
                   สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <a
                     href="#leaderboard"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 text-xs font-bold transition shadow-md shadow-amber-500/10"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:translate-y-px text-slate-950 text-xs font-bold transition shadow-md shadow-amber-500/10"
                   >
                     <Trophy className="w-3.5 h-3.5" />
                     ดูอันดับนักออม
@@ -225,9 +237,9 @@ export default function SavingsBank() {
                   </a>
                   <a
                     href="#lookup"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 active:translate-y-px text-white text-xs font-bold transition ring-1 ring-white/20"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card hover:bg-muted active:translate-y-px text-foreground text-xs font-bold transition border border-border shadow-xs"
                   >
-                    <Search className="w-3.5 h-3.5" />
+                    <Search className="w-3.5 h-3.5 text-primary" />
                     ตรวจสอบยอดของฉัน
                   </a>
                 </div>
@@ -235,29 +247,29 @@ export default function SavingsBank() {
 
               {/* RIGHT: Floating amber stat panel */}
               <div className="relative transform-gpu">
-                <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-xl p-4 md:p-5 shadow-xl shadow-amber-500/20 ring-1 ring-amber-300/40">
-                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-950/80 mb-0.5">
+                <div className="bg-card border-2 border-amber-300/80 rounded-2xl p-5 md:p-6 shadow-xl shadow-amber-500/10">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700 mb-0.5">
                     Hall of Savers
                   </div>
-                  <div className="text-xs font-semibold text-amber-950 mb-3">
+                  <div className="text-xs font-semibold text-foreground mb-3">
                     นักเรียนที่ร่วมโครงการ
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl md:text-4xl font-extrabold tabular-nums text-amber-950 leading-none tracking-tight">
+                    <span className="text-3xl md:text-4xl font-black tabular-nums text-foreground leading-none tracking-tight">
                       {isLoading ? '—' : fmtCount(stats.savers)}
                     </span>
-                    <span className="text-xs font-bold text-amber-900">คน</span>
+                    <span className="text-xs font-bold text-muted-foreground">คน</span>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-amber-900/15 flex items-center justify-between text-amber-950">
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-foreground">
                     <div>
-                      <div className="text-[10px] font-semibold uppercase tracking-wider opacity-75">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                         ครั้งฝากรวม
                       </div>
-                      <div className="text-xl font-extrabold tabular-nums">
+                      <div className="text-xl font-black tabular-nums text-amber-600">
                         {isLoading ? '—' : fmtCount(stats.totalDeposits)}
                       </div>
                     </div>
-                    <Sparkles className="w-6 h-6 opacity-30" />
+                    <Sparkles className="w-6 h-6 text-amber-500/40" />
                   </div>
                 </div>
               </div>
@@ -459,75 +471,85 @@ export default function SavingsBank() {
           </div>
         </section>
 
-        {/* ─── LOOKUP (private balance check) ─────────────────────────────── */}
-        <section id="lookup" className="bg-slate-50">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
-            <div className="bg-card rounded-2xl shadow-lg ring-1 ring-border overflow-hidden">
-              <div className="bg-slate-900 px-4 md:px-6 py-4">
-                <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-400 mb-0.5">
-                  Account Lookup
+        {/* ─── LOOKUP (private balance check & Digital Passbook) ──────────── */}
+        <section id="lookup" className="bg-background py-6 border-t border-border">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+            <div className="bg-card rounded-3xl shadow-lg ring-1 ring-border overflow-hidden">
+              <div className="bg-muted/40 border-b border-border px-4 md:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary mb-0.5">
+                    Account Lookup
+                  </div>
+                  <h2 className="text-base md:text-lg font-black text-foreground flex items-center gap-1.5">
+                    <Search className="w-4 h-4 text-primary" /> ตรวจสอบยอดเงินของฉัน
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                    ดูยอดเงินสะสมและสมุดคู่ฝากดิจิทัลได้ทันที
+                  </p>
                 </div>
-                <h2 className="text-base md:text-lg font-bold text-white flex items-center gap-1.5">
-                  <Search className="w-4 h-4" /> ตรวจสอบยอดเงินของฉัน
-                </h2>
-                <p className="text-xs text-slate-400 mt-1 font-medium">
-                  กรอกรหัสนักเรียนเพื่อดูยอดเงินสะสม + ประวัติธุรกรรม
-                </p>
+
+                {/* Tabs for Lookup mode */}
+                <div className="flex items-center gap-1 bg-muted p-1 rounded-xl border border-border">
+                  <Button
+                    type="button"
+                    variant={lookupTab === 'picker' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-7 text-xs font-bold px-2.5"
+                    onClick={() => setLookupTab('picker')}
+                  >
+                    จิ้มรูปตามห้อง 🎒
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={lookupTab === 'code' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-7 text-xs font-bold px-2.5"
+                    onClick={() => setLookupTab('code')}
+                  >
+                    กรอกรหัส 🔍
+                  </Button>
+                </div>
               </div>
 
-              <div className="p-4 md:p-6 space-y-4">
-                <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="เช่น 12345"
-                    className="flex-1 text-base font-medium border-slate-300 focus-visible:ring-amber-500"
+              <div className="p-4 md:p-6 space-y-5">
+                {lookupTab === 'picker' ? (
+                  <KidStudentPicker
+                    onSelectCode={handleSelectStudentCode}
+                    selectedCode={code}
                   />
-                  <Button
-                    type="submit"
-                    disabled={searching || !code.trim()}
-                    className="bg-amber-500 hover:bg-amber-400 active:translate-y-px text-amber-950 font-bold shadow-md"
-                  >
-                    {searching ? 'กำลังค้นหา...' : 'ค้นหา'}
-                  </Button>
-                </form>
+                ) : (
+                  <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="กรอกรหัสนักเรียน เช่น 12345"
+                      className="flex-1 text-base font-medium border-border focus-visible:ring-amber-500"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={searching || !code.trim()}
+                      className="bg-amber-500 hover:bg-amber-400 active:translate-y-px text-slate-950 font-bold shadow-md"
+                    >
+                      {searching ? 'กำลังค้นหา...' : 'ค้นหา'}
+                    </Button>
+                  </form>
+                )}
 
                 {student && (
-                  <div className="pt-4 border-t border-slate-200 space-y-4">
-                    {/* Student header */}
-                    <div className="flex items-center gap-3">
-                      <PersonAvatar
-                        name={student.full_name}
-                        photoUrl={student.photo_url}
-                        className="w-12 h-12 ring-2 ring-white shadow-sm flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-extrabold text-slate-900 truncate text-sm md:text-base">
-                          {student.full_name}
-                        </p>
-                        <p className="text-xs text-slate-600 font-medium">
-                          {student.class_name ?? '—'}
-                        </p>
-                      </div>
-                      <SaverTierBadge depositCount={studentDepositCount} size="sm" />
-                    </div>
-
-                    {/* Balance hero — only place $ shown publicly */}
-                    <div className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-xl p-4 md:p-5 text-center shadow-md shadow-amber-500/10">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-950/80">
-                        ยอดเงินคงเหลือ
-                      </div>
-                      <div className="text-2xl md:text-3xl font-extrabold text-amber-950 tabular-nums tracking-tight mt-1">
-                        {fmtBaht(Number(student.current_balance ?? 0))}
-                      </div>
-                    </div>
+                  <div className="pt-4 border-t border-border space-y-6">
+                    {/* Digital Passbook View */}
+                    <DigitalPassbook
+                      student={student}
+                      history={history}
+                      studentDepositCount={studentDepositCount}
+                    />
 
                     {/* Goals Section */}
-                    <div className="space-y-2.5 pt-1">
+                    <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                          <Sparkles className="w-4 h-4 text-amber-500" />
+                          <h3 className="text-sm font-black text-foreground">
                             กระปุกออมเป้าหมาย "ฝันที่เป็นจริง"
                           </h3>
                         </div>
@@ -535,7 +557,7 @@ export default function SavingsBank() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-6 text-[11px] font-bold border-amber-300 text-amber-800 hover:bg-amber-500/10 px-2"
+                          className="h-7 text-xs font-bold border-amber-300 text-amber-800 hover:bg-amber-500/10 px-2.5"
                           onClick={() => setGoalDialogOpen(true)}
                         >
                           + ตั้งเป้าหมาย
@@ -543,23 +565,23 @@ export default function SavingsBank() {
                       </div>
 
                       {goals.length === 0 ? (
-                        <div className="p-3.5 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-1.5">
-                          <PiggyBank className="w-6 h-6 text-amber-500 mx-auto opacity-80" />
-                          <p className="text-xs text-slate-800 font-bold">ยังไม่มีเป้าหมายการออม</p>
-                          <p className="text-[11px] text-slate-500">
+                        <div className="p-5 rounded-2xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-2">
+                          <PiggyBank className="w-8 h-8 text-amber-500 mx-auto opacity-80" />
+                          <p className="text-sm text-foreground font-bold">ยังไม่มีเป้าหมายการออม</p>
+                          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                             ตั้งเป้าหมาย เช่น ซื้อชุดนักเรียนใหม่ หรือของขวัญวันแม่ เพื่อสร้างแรงใจในการออม!
                           </p>
                           <Button
                             type="button"
                             size="sm"
-                            className="h-7 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 mt-1"
+                            className="h-8 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 mt-1"
                             onClick={() => setGoalDialogOpen(true)}
                           >
                             เริ่มตั้งเป้าหมายแรก
                           </Button>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 gap-2.5">
                           {goals.map((g) => (
                             <SavingsGoalCard
                               key={g.id}
@@ -572,78 +594,6 @@ export default function SavingsBank() {
                         </div>
                       )}
                     </div>
-
-                    {/* History table */}
-                    {history.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5">
-                          <History className="w-3.5 h-3.5 text-slate-700" />
-                          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                            ประวัติธุรกรรม
-                          </h3>
-                        </div>
-                        <div className="overflow-x-auto rounded-lg border border-slate-200 max-h-[220px] overflow-y-auto">
-                          <table className="w-full text-xs">
-                            <thead className="bg-slate-100 sticky top-0 z-10">
-                              <tr>
-                                <th className="text-left px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100">
-                                  วันที่
-                                </th>
-                                <th className="text-center px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100">
-                                  ประเภท
-                                </th>
-                                <th className="text-right px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100">
-                                  จำนวน
-                                </th>
-                                <th className="text-right px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100">
-                                  คงเหลือ
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {history.map((h) => (
-                                <tr
-                                  key={h.txn_id}
-                                  className="border-t border-slate-100 hover:bg-slate-50/50"
-                                >
-                                  <td className="px-3 py-1.5 text-slate-700 font-medium whitespace-nowrap">
-                                    <div>{formatThaiDateMedium(h.transaction_date)}</div>
-                                    <div className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                                      {h.created_at ? new Date(h.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-1.5 text-center">
-                                    {h.transaction_type === 'deposit' ? (
-                                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold">
-                                        <ArrowDownToLine className="w-2.5 h-2.5" /> ฝาก
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
-                                        <ArrowUpFromLine className="w-2.5 h-2.5" /> ถอน
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td
-                                    className={cn(
-                                      'px-3 py-1.5 text-right tabular-nums font-extrabold',
-                                      h.transaction_type === 'deposit'
-                                        ? 'text-amber-700'
-                                        : 'text-rose-700',
-                                    )}
-                                  >
-                                    {h.transaction_type === 'deposit' ? '+' : '−'}
-                                    {fmtBaht(Number(h.amount))}
-                                  </td>
-                                  <td className="px-3 py-1.5 text-right tabular-nums text-slate-700 font-semibold">
-                                    {fmtBaht(Number(h.balance_after))}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

@@ -7,8 +7,9 @@ import {
   Coins,
   Send,
   Trash2,
-  Calendar,
   AlertCircle,
+  Monitor,
+  RotateCcw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { ClassroomProjectorView, type ProjectorStudent } from './ClassroomProjectorView';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 const PRESET_AMOUNTS = [5, 10, 20, 50, 100] as const;
@@ -73,12 +75,16 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [students, setStudents] = useState<StudentRowState[]>([]);
+  const [projectorOpen, setProjectorOpen] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const [lastBatchResult, setLastBatchResult] = useState<{
     count: number;
     total: number;
     className: string;
     date: string;
   } | null>(null);
+
+  const draftKey = `savings_batch_draft_${selectedClass}`;
 
   // Load students and balances when class changes
   useEffect(() => {
@@ -99,8 +105,23 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
           if (s.student_id) summaryMap.set(s.student_id, s);
         }
 
+        // Check if there is an existing draft for this class
+        let draftAmounts: Record<string, string> = {};
+        try {
+          const raw = localStorage.getItem(`savings_batch_draft_${selectedClass}`);
+          if (raw) {
+            draftAmounts = JSON.parse(raw);
+          }
+        } catch {
+          draftAmounts = {};
+        }
+
+        const hasAnyDraft = Object.keys(draftAmounts).length > 0;
+        setHasDraft(hasAnyDraft);
+
         const rows: StudentRowState[] = (studentsRes.data ?? []).map((s) => {
           const sum = summaryMap.get(s.id);
+          const draftedAmount = draftAmounts[s.id] || '';
           return {
             id: s.id,
             name: s.name,
@@ -108,7 +129,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
             class_number: s.class_number,
             photo_url: s.photo_url ?? null,
             current_balance: Number(sum?.current_balance ?? 0),
-            amount: '',
+            amount: draftedAmount,
             notes: '',
           };
         });
@@ -131,6 +152,31 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
       active = false;
     };
   }, [selectedClass, toast]);
+
+  // Persist draft whenever amounts change
+  useEffect(() => {
+    if (students.length === 0) return;
+    const draftMap: Record<string, string> = {};
+    let count = 0;
+    students.forEach((s) => {
+      if (s.amount && parseInt(s.amount, 10) > 0) {
+        draftMap[s.id] = s.amount;
+        count++;
+      }
+    });
+
+    try {
+      if (count > 0) {
+        localStorage.setItem(draftKey, JSON.stringify(draftMap));
+        setHasDraft(true);
+      } else {
+        localStorage.removeItem(draftKey);
+        setHasDraft(false);
+      }
+    } catch {
+      // storage unavailable
+    }
+  }, [students, draftKey]);
 
   const handleAmountChange = (studentId: string, val: string) => {
     const clean = val.replace(/[^0-9]/g, '');
@@ -156,6 +202,25 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
     );
   };
 
+  // Keyboard navigation: Enter / Down Arrow -> next student; Up Arrow -> previous student
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextInput = document.getElementById(`batch-deposit-input-${index + 1}`) as HTMLInputElement | null;
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.select();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevInput = document.getElementById(`batch-deposit-input-${index - 1}`) as HTMLInputElement | null;
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.select();
+      }
+    }
+  };
+
   // Bulk tools for the whole class
   const handleBulkFillAmount = (amount: number) => {
     setStudents((prev) =>
@@ -169,6 +234,10 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
 
   const handleClearAll = () => {
     setStudents((prev) => prev.map((s) => ({ ...s, amount: '', notes: '' })));
+    try {
+      localStorage.removeItem(draftKey);
+      setHasDraft(false);
+    } catch {}
   };
 
   // Calculations
@@ -241,6 +310,12 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
         description: `บันทึกนักเรียน ${count} คน ยอดเงินรวม ${fmtBaht(sum)}`,
       });
 
+      // Clear draft storage
+      try {
+        localStorage.removeItem(draftKey);
+        setHasDraft(false);
+      } catch {}
+
       setLastBatchResult({
         count,
         total: Number(sum),
@@ -276,6 +351,16 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
 
   return (
     <div className="space-y-6">
+      {/* ─── Projector Fullscreen Modal ─────────────────────────────── */}
+      {projectorOpen && (
+        <ClassroomProjectorView
+          className={selectedClass}
+          transactionDate={transactionDate}
+          students={students as ProjectorStudent[]}
+          onClose={() => setProjectorOpen(false)}
+        />
+      )}
+
       {/* ─── Control Bar ────────────────────────────────────────────── */}
       <div className="bg-card border border-border rounded-xl p-4 md:p-6 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
@@ -288,9 +373,20 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
               เร็วและสะดวก
             </Badge>
           </div>
-          <p className="text-xs text-muted-foreground">
-            บันทึกเงินออมเช้าหน้าแถว/โฮมรูมของทั้งห้องในคลิกเดียว
-          </p>
+
+          {/* Projector Trigger */}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 font-bold border-amber-400/60 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 gap-1.5 shadow-xs"
+              onClick={() => setProjectorOpen(true)}
+            >
+              <Monitor className="w-4 h-4 text-amber-600" />
+              ฉายจอห้องเรียน (Smartboard) 🖥️
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -343,7 +439,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
           </div>
         </div>
 
-        {/* Bulk Action Buttons */}
+        {/* Bulk Action Buttons & Draft Status */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/60">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-muted-foreground mr-1">
@@ -371,10 +467,20 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
               <Trash2 className="w-3.5 h-3.5 mr-1" />
               ล้างยอด
             </Button>
+
+            {hasDraft && (
+              <Badge variant="outline" className="text-[11px] bg-primary/10 text-primary border-primary/20 gap-1">
+                <RotateCcw className="w-3 h-3" />
+                จำยอดที่กรอกค้างไว้ในเครื่อง
+              </Badge>
+            )}
           </div>
 
           <div className="text-xs text-muted-foreground">
             นักเรียนในห้องทั้งหมด <span className="font-bold text-foreground">{students.length}</span> คน
+            <span className="text-[11px] text-muted-foreground ml-2 hidden lg:inline">
+              (กด Enter หรือ ↓ เพื่อเลื่อนไปคนถัดไป)
+            </span>
           </div>
         </div>
       </div>
@@ -477,7 +583,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
             รายชื่อนักเรียน ชั้น {selectedClass}
           </span>
           <span className="text-xs text-muted-foreground">
-            ใส่เฉพาะนักเรียนที่นำเงินมาฝาก (เว้นว่าง = ข้าม)
+            ใส่เฉพาะนักเรียนที่นำเงินมาฝาก (กด Enter หรือ ↓ เลื่อนไปคนถัดไป)
           </span>
         </div>
 
@@ -505,7 +611,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {students.map((st) => {
+                {students.map((st, index) => {
                   const hasAmount = Boolean(st.amount && parseInt(st.amount, 10) > 0);
                   return (
                     <tr
@@ -541,14 +647,16 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
                         {fmtBaht(st.current_balance)}
                       </td>
 
-                      {/* Deposit Input + Quick Buttons */}
+                      {/* Deposit Input + Keyboard Nav + Quick Buttons */}
                       <td className="p-3">
                         <div className="flex items-center gap-1.5">
                           <Input
+                            id={`batch-deposit-input-${index}`}
                             type="text"
                             inputMode="numeric"
                             placeholder="0"
                             value={st.amount}
+                            onKeyDown={(e) => handleKeyDown(e, index)}
                             onChange={(e) => handleAmountChange(st.id, e.target.value)}
                             className={cn(
                               'w-24 h-8 text-right font-extrabold tabular-nums text-sm',
@@ -615,18 +723,18 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
         )}
       </div>
 
-      {/* Floating Bottom Bar when scrolled */}
+      {/* Floating Bottom Bar when scrolled (Light mode semantic tokens) */}
       {activeDeposits.length > 0 && (
-        <div className="sticky bottom-4 z-20 bg-slate-900 text-white rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-4 border border-slate-700">
+        <div className="sticky bottom-4 z-20 bg-card text-foreground rounded-2xl p-4 shadow-2xl flex flex-wrap items-center justify-between gap-4 border border-border ring-1 ring-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
               <Coins className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-300">
-                พร้อมบันทึกห้อง <span className="font-bold text-white">{selectedClass}</span>
+              <p className="text-xs text-muted-foreground">
+                พร้อมบันทึกห้อง <span className="font-bold text-foreground">{selectedClass}</span>
               </p>
-              <p className="text-base font-extrabold text-amber-400">
+              <p className="text-base font-extrabold text-amber-600 tabular-nums">
                 {activeDeposits.length} คน · รวม {fmtBaht(totalAmount)}
               </p>
             </div>
@@ -635,14 +743,14 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
             <Button
               variant="outline"
               size="sm"
-              className="text-slate-300 border-slate-700 bg-transparent hover:bg-slate-800"
+              className="border-border hover:bg-muted text-xs"
               onClick={handleClearAll}
             >
               ล้างทั้งหมด
             </Button>
             <Button
               size="sm"
-              className="font-bold bg-amber-500 hover:bg-amber-600 text-slate-950"
+              className="font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs shadow-sm"
               disabled={isSubmitting}
               onClick={handleSubmitBatch}
             >
