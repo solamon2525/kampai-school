@@ -581,6 +581,22 @@ body::before{content:'';position:fixed;inset:0;
 .math-answer.show{display:block}.math-answer-en{font-size:clamp(24px,4.2vh,46px);font-weight:900;color:#FFD54F}.math-answer-th{margin-top:7px;font-size:clamp(16px,2.2vh,23px);color:#fff}
 .math-primary{min-height:48px;padding:10px 24px;border:0;border-radius:14px;background:#FFD54F;color:#172554;font-size:clamp(17px,2.4vh,24px);font-weight:900;cursor:pointer}
 .math-secondary{min-height:48px;padding:10px 20px;border:2px solid rgba(255,255,255,.24);border-radius:14px;background:rgba(255,255,255,.09);color:#fff;font-size:clamp(16px,2.2vh,22px);font-weight:800;cursor:pointer}
+.math-question-th{font-size:clamp(17px,2.6vh,28px);font-weight:700;color:#FFE082;text-align:center;line-height:1.35;margin-top:-0.5vh;text-shadow:0 2px 6px rgba(0,0,0,0.35)}
+#math-speak-question{min-height:48px;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 24px;border-radius:14px;background:rgba(255,224,130,0.22);border:2px solid rgba(255,224,130,0.6);color:#FFE082;font-size:clamp(17px,2.4vh,24px);font-weight:800;cursor:pointer;touch-action:manipulation;transition:background .15s ease,transform .1s ease,border-color .15s ease}
+#math-speak-question:hover,#math-speak-question:focus-visible{background:rgba(255,224,130,0.35);border-color:#FFE082;transform:scale(1.02)}
+#hub-view .hub-btn-math{background:var(--vh-gold-light,#fff4d6);border-color:rgba(183,124,11,0.35);color:#7c4a00;font-weight:700}
+#hub-view .hub-btn-math:hover{background:#ffe8a3;border-color:var(--vh-gold,#b77c0b)}
+#hub-view .hub-btn-worksheet{background:var(--vh-card,#ffffff);border-color:var(--vh-line,#dce2eb);color:var(--vh-ink,#172b4d)}
+#hub-view .hub-btn-worksheet:hover{background:var(--vh-blue,#eaf1fc)}
+#hub-view .hc-math-badge{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;margin:0 10px 6px;padding:3px 10px;border-radius:999px;background:var(--vh-gold-light,#fff4d6);color:var(--vh-gold,#b77c0b);border:1px solid rgba(183,124,11,0.28);font-size:12px;font-weight:700;line-height:1.4;cursor:pointer}
+#hub-view .hc-math-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;margin:8px 10px 4px;padding:9px 16px;border-radius:12px;border:1px solid var(--vh-gold,#b77c0b);background:var(--vh-gold-light,#fff4d6);color:#7c4a00;font-family:inherit;font-size:14px;font-weight:700;line-height:1.4;cursor:pointer;touch-action:manipulation;transition:background .15s ease,transform .1s ease,box-shadow .15s ease}
+#hub-view .hc-math-btn:hover{background:#ffe69c;transform:translateY(-1px);box-shadow:0 4px 12px rgba(183,124,11,.2)}
+#hub-view .hc-math-btn:active{transform:translateY(0)}
+@media (max-width:600px){
+  #hub-view .hub-nav{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+  #hub-view .hub-nav>*{flex:1 1 auto;padding:8px;font-size:13px}
+  #hub-view .hub-nav>#btn-hub-math{flex:1 1 100%;width:100%;min-width:100%}
+}
 @media (max-width:560px){.math-options{grid-template-columns:1fr}.math-shell{padding:1vh}.math-chip{font-size:16px;padding:8px 11px}.math-chip.math-op{min-width:48px;font-size:28px}}
 .qbtn:hover{background:rgba(0,0,0,0.6);transform:scale(1.05)}
 #btn-reveal{border-color:#FFD700;color:#FFE082}
@@ -1222,6 +1238,8 @@ body::before{content:'';position:fixed;inset:0;
   <div id="hub-sub">โลกของคำศัพท์ เริ่มต้นจากสิ่งที่ชอบ</div>
   </div>
   <div class="hub-nav">
+    <a href="#math" class="hub-btn hub-btn-math" id="btn-hub-math" onclick="try{KAMPAI.sound.unlock();}catch(_){}">➕ Math Challenge (ฝึกบวก-ลบเลข)</a>
+    <a href="/games/english/vocab-race-worksheet.html" class="hub-btn hub-btn-worksheet" id="btn-hub-worksheet">📝 ใบงานคำศัพท์</a>
     <button id="btn-back-hub" class="hub-btn" onclick="KAMPAI.goHome()">⬅ กลับคลังสื่อ</button>
   </div>
   </div>
@@ -2335,13 +2353,38 @@ function buildHub(){
       ? `<div class="hc-progress"><div class="hc-prog-fill${cappedPct>=100?' done':''}" style="width:${cappedPct}%"></div></div>`
         +`<div class="hc-prog-pct">${cappedPct}%</div>`
       : '';
+    const isNumbers = meta.slug === 'numbers';
+    const mathBadge = isNumbers ? `<span class="hc-math-badge">➕ Math Challenge</span>` : '';
+    const mathBtn = isNumbers ? `<button type="button" class="hc-math-btn" title="เริ่มโหมดฝึกพูดบวก-ลบเลขทันที">➕ Math Challenge</button>` : '';
     c.innerHTML=
       `<div class="hc-icon">${meta.icon}</div>`+
+      mathBadge+
       `<div class="hc-th">${meta.title}</div>`+
       `<div class="hc-en">${meta.en}</div>`+
       `<div class="hc-count">${allCount>basicCount?`พื้นฐาน ${basicCount} · ทั้งหมด ${allCount}`:`${allCount} คำ`}</div>`+
-      progHtml;
+      progHtml+
+      mathBtn;
     c.addEventListener('click',()=>{ try{KAMPAI.sound.unlock();}catch(_){} location.hash='#'+meta.slug; });
+    if(isNumbers){
+      const mBtn = c.querySelector('.hc-math-btn');
+      if(mBtn){
+        mBtn.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          if(document.getElementById('hub-view')?.dataset.editing === 'true') return;
+          try{KAMPAI.sound.unlock();}catch(_){}
+          location.hash='#math';
+        });
+      }
+      const mBadge = c.querySelector('.hc-math-badge');
+      if(mBadge){
+        mBadge.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          if(document.getElementById('hub-view')?.dataset.editing === 'true') return;
+          try{KAMPAI.sound.unlock();}catch(_){}
+          location.hash='#math';
+        });
+      }
+    }
     hubGrid.appendChild(c);
   });
   window.VocabHubMenu?.enhance();
@@ -2685,6 +2728,13 @@ function mathThaiReading(word){
   const item = TOPICS.numbers.find(it => it.en.toLowerCase() === word.toLowerCase());
   return item ? item.th : word;
 }
+function mathThaiOpWord(op){
+  if(op === '+') return 'พลัส';
+  if(op === '-') return 'ไมนัส';
+  if(op === '×') return 'ไทมส์';
+  if(op === '÷') return 'ดิไวดิด บาย';
+  return op;
+}
 function mathRange(){
   // easy/medium = ช่วงตัวเลข · เครื่องหมายเลือกแยกปุ่ม + − × ÷
   if(mathDifficulty==='hard') mathDifficulty='medium';
@@ -2864,6 +2914,7 @@ function renderMathQuestion(){
     </div>
     <div class="math-hint">ข้อ ${mathPos+1}/${mathTotal} · คะแนน ${mathScore} · ตอบต่อเนื่อง ${mathStreak} · ${opHint} · ${voiceHint}</div>
     <div class="math-question">What is ${q.a} ${q.op} ${q.b}?</div>
+    <div class="math-question-th">ว็อต อิส ${mathThaiReading(numberWord(q.a))} ${mathThaiOpWord(q.op)} ${mathThaiReading(numberWord(q.b))}?</div>
     <button type="button" class="math-secondary" id="math-speak-question">🔊 ฟังโจทย์</button>
     ${mathFormat==='choice'?`<div class="math-options">${options.map(n=>`<button type="button" class="math-option" data-math-answer="${n}">${numberWord(n)}</button>`).join('')}</div>`:''}
     <div class="math-answer" id="math-answer"><div class="math-answer-en">The answer is ${answerWord}.</div><div class="math-answer-th">ดิ แอนเซอร์ อิส ${mathThaiReading(answerWord)} · คำตอบคือ ${q.answer}</div></div>
@@ -4577,9 +4628,19 @@ document.addEventListener('keydown',e=>{
 // HASH ROUTING + INIT
 // =====================================================================
 function route(){
-  const h=(location.hash||'').replace('#','');
-  if(!h||h==='home'){ showHub(); return; }
-  if(TOPICS[h]){ showTopic(h); return; }
+  const raw = (location.hash||'').replace('#','');
+  const [h, submode] = raw.split(':');
+  if(!h || h === 'home'){ showHub(); return; }
+  if(h === 'math'){
+    showTopic('numbers');
+    setMode('math');
+    return;
+  }
+  if(TOPICS[h] || h === 'starred'){
+    showTopic(h);
+    if(submode && modeBtns[submode]) setMode(submode);
+    return;
+  }
   showHub();
 }
 window.addEventListener('hashchange',route);
