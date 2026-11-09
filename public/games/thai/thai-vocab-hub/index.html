@@ -77,6 +77,7 @@
         <a class="cbtn hub-dash-link" href="/play/thai-vocab-hub/dashboard" target="_top" onclick="if(typeof disposeGameSession==='function')disposeGameSession()">📊 แดชบอร์ด / อันดับ</a>
         <button type="button" class="cbtn" id="btn-projector-toggle" onclick="window.ThaiVocabClassroom.toggleProjectorMode()">📽️ โหมดฉายจอห้องเรียน</button>
         <button type="button" class="cbtn" onclick="openHubWorksheetModal()">🖨️ พิมพ์ใบงาน A4</button>
+        <button type="button" class="cbtn" id="btn-morph-theater-toggle" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป (PowerPoint Morph)">✨ สระแปลงร่าง</button>
     </div>
     <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
     <!-- Search Results View -->
@@ -270,6 +271,7 @@
             <button class="cbtn" onclick="window.ThaiVocabClassroom.openSpinnerModal(activeCategory, categoryWords)" title="วงล้อสุ่มคำศัพท์">🎡 วงล้อสุ่ม</button>
             <button class="cbtn" onclick="window.ThaiVocabClassroom.openTeamBattleModal(activeCategory, categoryWords)" title="แข่งขัน ๒ ทีม">⚔️ แข่ง ๒ ทีม</button>
             <button class="cbtn" onclick="window.ThaiVocabWorksheet.openModal(activeCategory, categoryWords)" title="พิมพ์ใบงาน A4">🖨️ ใบงาน A4</button>
+            <button type="button" class="cbtn" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป">✨ สระแปลงร่าง</button>
         </div>
         <div id="dots"></div>
         <div id="score-display" style="display:none">
@@ -342,6 +344,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="data.js"></script>
 <script src="worksheet-generator.js"></script>
 <script src="classroom-tools.js"></script>
+<script src="vowel-morph.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

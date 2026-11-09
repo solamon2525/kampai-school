@@ -1235,6 +1235,10 @@ function createSearchCardElement(item) {
   const posBadge = item.pos ? `<span class="search-pos-badge ${posCls}">(${item.pos})</span>` : '';
   const gradeBadge = item.grade ? `<span class="search-grade-badge">${item.grade}</span>` : '';
   const exampleHtml = item.example ? `<div class="hub-search-example">“${item.example}”</div>` : '';
+  const isMorph = Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
+  const morphBadge = isMorph
+    ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
+    : '';
 
   card.innerHTML = `
     <div class="hub-search-card-top">
@@ -1242,6 +1246,7 @@ function createSearchCardElement(item) {
         <span class="hub-search-word">
           <span>${item.emoji || item.categoryIcon || '📝'}</span>
           <strong>${item.word}</strong>
+          ${morphBadge}
         </span>
         <span class="hub-search-reading">[ ${item.reading} ]</span>
       </div>
@@ -1258,6 +1263,13 @@ function createSearchCardElement(item) {
     </div>
   `;
 
+  const morphBtn = card.querySelector('.badge-morph-trigger');
+  if (morphBtn) {
+    morphBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (window.ThaiVowelMorph) window.ThaiVowelMorph.open(item.word);
+    };
+  }
   card.onclick = () => jumpToWord(item.categorySlug, item.word);
   card.onkeydown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -1608,6 +1620,10 @@ function createGridCardElement(item, idx, leitnerMap) {
     ? `<div class="grid-example">“${item.example}”</div>`
     : '';
   const dotTitle = box === 3 ? 'แม่นยำแล้ว' : (box === 2 ? 'เริ่มจำได้' : 'กำลังเรียนรู้');
+  const isMorph = Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
+  const morphBadge = isMorph
+    ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
+    : '';
 
   card.innerHTML = `
     <div class="grid-flip-inner">
@@ -1620,6 +1636,7 @@ function createGridCardElement(item, idx, leitnerMap) {
         </div>
         <span class="grid-word-emoji">${emoji}</span>
         <span class="grid-word-text">${item.word}</span>
+        ${morphBadge}
       </div>
       <div class="grid-flip-face grid-flip-back">
         <span class="grid-reading">[ ${item.reading} ]</span>
@@ -1629,6 +1646,14 @@ function createGridCardElement(item, idx, leitnerMap) {
       </div>
     </div>
   `;
+
+  const morphBtn = card.querySelector('.badge-morph-trigger');
+  if (morphBtn) {
+    morphBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.ThaiVowelMorph) window.ThaiVowelMorph.open(item.word);
+    });
+  }
 
   const sayBtn = card.querySelector('.grid-say-btn');
   if (sayBtn) {
