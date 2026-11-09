@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       academic_calendar: {
@@ -8106,6 +8131,83 @@ export type Database = {
           },
         ]
       }
+      student_individual_tasks: {
+        Row: {
+          category: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          missed_count: number
+          notes: string | null
+          status: string
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          missed_count?: number
+          notes?: string | null
+          status?: string
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          missed_count?: number
+          notes?: string | null
+          status?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_individual_tasks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "reading_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_individual_tasks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "savings_student_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_individual_tasks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_individual_tasks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "waste_student_summary"
+            referencedColumns: ["student_id"]
+          },
+        ]
+      }
       student_meal_budget: {
         Row: {
           academic_year: number
@@ -9134,6 +9236,57 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      teacher_class_assignments: {
+        Row: {
+          academic_year: string
+          class_name: string
+          created_at: string
+          id: string
+          is_multi_grade: boolean
+          is_primary_homeroom: boolean
+          notes: string | null
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string
+          class_name: string
+          created_at?: string
+          id?: string
+          is_multi_grade?: boolean
+          is_primary_homeroom?: boolean
+          notes?: string | null
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          class_name?: string
+          created_at?: string
+          id?: string
+          is_multi_grade?: boolean
+          is_primary_homeroom?: boolean
+          notes?: string | null
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_class_assignments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_class_assignments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "v_educational_hub_teachers"
+            referencedColumns: ["staff_id"]
+          },
+        ]
       }
       teaching_materials: {
         Row: {
@@ -10501,6 +10654,7 @@ export type Database = {
         Args: { p_code: string; p_quantity?: number; p_reward_id: string }
         Returns: string
       }
+      clean_duplicate_homeroom_assignments: { Args: never; Returns: undefined }
       count_research_rounds_today: {
         Args: { p_student_code: string; p_study_id: string }
         Returns: Json
@@ -11683,6 +11837,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       classroom_competition_device_status: [

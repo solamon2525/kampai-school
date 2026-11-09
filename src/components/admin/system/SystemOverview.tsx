@@ -290,6 +290,19 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.3',
+        date: '6 พ.ย. 2569',
+        title: 'กู้คืนสื่อการสอน English Vocab Hub & Math Challenge พร้อมปรับปรุงแคตตาล็อกสื่อ (Migration 586)',
+        description:
+            'กู้คืนสื่อ English Vocab Hub (ป.4–ป.6) ของครูณัฐพงศ์ สิงห์ชมภู กลับสู่คลังสื่อการสอน (ยอด Badge เพิ่มเป็น 133 รายการ), เพิ่มปุ่มทางลัดเข้าสู่โหมดคำนวณเลข Math Challenge (What is one minus one) พร้อมคำอ่านออกเสียงภาษาไทย, ปรับปรุง RPC แคตตาล็อก get_public_media_catalog ให้ตัด URL ซ้ำซ้อนอัตโนมัติ, และลงทะเบียนสื่อการสอนอินเทอร์แอคทีฟ 8 รายการครบถ้วน',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: ['Educational Hub', 'English Vocab Hub', 'Math Challenge', 'Media Catalog', 'Database'],
+        badge: 'bg-primary',
+        items: [
+            'กู้คืนสื่อ English Vocab Hub (ป.4–ป.6) ของครูณัฐพงศ์ สิงห์ชมภู กลับสู่คลังสื่อการสอน (ยอด Badge เพิ่มเป็น 133 รายการ), เพิ่มปุ่มทางลัดเข้าสู่โหมดคำนวณเลข Math Challenge (What is one minus one) พร้อมคำอ่านออกเสียงภาษาไทย, ปรับปรุง RPC แคตตาล็อก get_public_media_catalog ให้ตัด URL ซ้ำซ้อนอัตโนมัติ, และลงทะเบียนสื่อการสอนอินเทอร์แอคทีฟ 8 รายการครบถ้วน',
+        ],
+    },
+    {
         version: 'v1.233.39 (ความปลอดภัยฐานข้อมูลและสถาปัตยกรรม Parent Portal: RLS Hardening + Multi-Child Sync + แก้ไข Mobile UX Overlays)',
         date: '5 พ.ย. 2569',
         badge: 'bg-primary',
@@ -8155,7 +8168,10 @@ export const SystemOverview = () => {
                                     </div>
 
                                     <div className="flex items-center gap-2 mb-1">
-                                        <h4 className="text-sm font-semibold text-foreground">{v.version}</h4>
+                                        <h4 className="text-sm font-semibold text-foreground">
+                                            {v.version}
+                                            {'title' in v && v.title ? ` — ${v.title}` : ''}
+                                        </h4>
                                         {v.date && (
                                             <Badge variant="outline" className="text-xs px-1.5 py-0">{v.date}</Badge>
                                         )}

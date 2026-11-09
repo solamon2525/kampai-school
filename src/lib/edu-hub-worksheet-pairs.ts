@@ -69,6 +69,11 @@ const EXTRA_PAIRS: Record<string, string> = {
   '/games/english/english-grammar-p45-hub/index.html': '/games/english/english-grammar-p45-hub-worksheet.html',
   '/games/science/science-p45-hub/index.html': '/games/science/science-p45-hub-worksheet.html',
   '/games/thai/thai-vocab-hub/index.html': '/games/thai/thai-vocab-hub-worksheet.html',
+  // Media catalog restore & career/english pairs
+  '/games/english/weather-seasons-media.html': '/games/english/weather-seasons-worksheet.html',
+  '/games/career/agriculture-basics-media.html': '/games/career/agriculture-basics-worksheet.html',
+  '/games/career/cooking-basics-media.html': '/games/career/cooking-basics-worksheet.html',
+  '/games/career/housework-craft-media.html': '/games/career/housework-craft-worksheet.html',
 };
 
 function conventionPair(url: string): string | null {
