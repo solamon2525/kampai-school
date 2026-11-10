@@ -4,7 +4,7 @@
  * Usage: node scripts/build-vocab-data.mjs [--check]
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,13 +16,27 @@ const WORDS_DIR = join(DATA_DIR, 'words');
 const OUT_FILE = join(HUB, 'data.js');
 const TARGET_PER_CATEGORY = 200;
 
-const checkOnly = process.argv.includes('--check');
-
 function loadJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function build() {
+export function sanitizeWordItem(item) {
+  const { content_status, review_reason, category_evidence, duplicate_rationale, ...clean } = item;
+  return clean;
+}
+
+export function buildApprovedWords(words) {
+  return Object.fromEntries(
+    Object.entries(words).map(([slug, items]) => [
+      slug,
+      items
+        .filter((item) => item.content_status !== 'quarantined')
+        .map(sanitizeWordItem),
+    ]),
+  );
+}
+
+export function build({ checkOnly = process.argv.includes('--check') } = {}) {
   if (!existsSync(CATEGORIES_FILE)) {
     console.error('❌ Missing', CATEGORIES_FILE);
     process.exit(1);
@@ -64,14 +78,7 @@ function build() {
 `;
 
   // static fallback uses the same approved-only catalog as the lazy DB RPC.
-  const approvedWords = Object.fromEntries(
-    Object.entries(words).map(([slug, items]) => [
-      slug,
-      items
-        .filter((item) => item.content_status !== 'quarantined')
-        .map(({ content_status, review_reason, category_evidence, duplicate_rationale, ...item }) => item),
-    ]),
-  );
+  const approvedWords = buildApprovedWords(words);
   const body = `window.GAME_DATA = ${JSON.stringify({ categories, words: approvedWords }, null, 2)};\n`;
   const out = header + body;
 
@@ -96,4 +103,7 @@ function build() {
   }
 }
 
-build();
+const isMain = process.argv[1] && resolve(process.argv[1]).toLowerCase() === resolve(fileURLToPath(import.meta.url)).toLowerCase();
+if (isMain) {
+  build();
+}
