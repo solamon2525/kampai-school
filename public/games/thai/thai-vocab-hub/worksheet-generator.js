@@ -119,6 +119,7 @@
                 <option value="dictation-20" selected>✍️ ใบงานเขียนตามคำบอก (20 ข้อ)</option>
                 <option value="matching-10">🔗 ใบงานโยงเส้นจับคู่ความหมาย (10 ข้อ)</option>
                 <option value="crossword-grid">🧩 ใบงานตารางค้นหาคำศัพท์ / ปริศนาอักษร (Word Search & Crossword)</option>
+                <option value="storyboard-idioms">🎬 ใบงานเรื่องเล่าสำนวนไทย (จากภาพเรื่องราว)</option>
               </select>
             </div>
 
@@ -167,16 +168,26 @@
     const grade = document.getElementById('ws-grade').value;
     const includeAnswerKey = document.getElementById('ws-answer-key').checked;
 
-    const allCatWords = (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words[slug]) || [];
+    let allCatWords = (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words[slug]) || [];
+    if (type === 'storyboard-idioms' && !allCatWords.some(w => w && w.images && w.images.length > 0)) {
+      if (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words.idioms) {
+        allCatWords = window.GAME_DATA.words.idioms;
+      }
+    }
     let pool = allCatWords.filter(w => w && w.content_status !== 'quarantined');
+    if (type === 'storyboard-idioms') {
+      pool = pool.filter(w => w && w.images && w.images.length > 0);
+    }
     if (grade !== 'all') {
-      const minRequired = (type === 'crossword-grid') ? 6 : 10;
+      const minRequired = (type === 'crossword-grid') ? 6 : (type === 'storyboard-idioms' ? 1 : 10);
       const filtered = pool.filter(w => w.grade === grade);
       if (filtered.length >= minRequired) pool = filtered;
     }
 
     if (!pool.length) {
-      alert('ไม่พบคำศัพท์ในระดับชั้นที่เลือก กรุณาเลือกตัวเลือกอื่น');
+      alert(type === 'storyboard-idioms'
+        ? 'ไม่พบสำนวนไทยที่มีภาพเรื่องราวในระดับชั้นนี้ กรุณาเลือกทุกระดับชั้นหรือหมวดสำนวนไทย'
+        : 'ไม่พบคำศัพท์ในระดับชั้นที่เลือก กรุณาเลือกตัวเลือกอื่น');
       return;
     }
 
@@ -184,7 +195,7 @@
     generateAndPrint({
       type,
       grade,
-      catTitle,
+      catTitle: type === 'storyboard-idioms' ? 'สำนวนไทยมีคติ' : catTitle,
       words: pool,
       includeAnswerKey,
     });
@@ -192,6 +203,23 @@
 
   function generateAndPrint(options) {
     const { type, grade, catTitle, words, includeAnswerKey } = options;
+    if (type === 'storyboard-idioms') {
+      const printHtml = generateStoryboardWorksheet(words, {
+        grade,
+        catTitle,
+        includeAnswerKey,
+        count: 2,
+      });
+      const printWin = window.open('', '_blank');
+      if (printWin) {
+        printWin.document.open();
+        printWin.document.write(printHtml);
+        printWin.document.close();
+      } else {
+        alert('เบราว์เซอร์บล็อกหน้าต่างป็อปอัป กรุณาอนุญาตป็อปอัปเพื่อให้ระบบเปิดหน้าพิมพ์ใบงานได้ครับ');
+      }
+      return;
+    }
     const isDictation20 = type === 'dictation-20';
     const isMatching = type === 'matching-10';
     const isCrossword = type === 'crossword-grid';
@@ -671,10 +699,328 @@
     }
   }
 
+  function generateStoryboardWorksheet(words, options = {}) {
+    const {
+      grade = 'all',
+      catTitle = 'สำนวนไทยมีคติ',
+      includeAnswerKey = true,
+      count = 2,
+    } = options;
+
+    const thaiNumbers = ['๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '๑๐', '๑๑', '๑๒'];
+    const gradeLabel = grade === 'all' ? 'ประถมศึกษาปีที่ ๔ - ๖' : `ประถมศึกษาปีที่ ${String(grade).replace('ป.', '')}`;
+
+    const pool = (words || []).filter((w) => w && Array.isArray(w.images) && w.images.length > 0);
+    const selectedWords = pool.slice(0, Math.min(count, pool.length));
+
+    let printHtml = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ใบงานเรื่องเล่าสำนวนไทย — ${sanitize(catTitle)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 12mm 15mm 12mm 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    line-height: 1.45;
+    font-size: 13pt;
+  }
+  .sheet {
+    width: 100%;
+    min-height: 265mm;
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .sheet:last-child {
+    page-break-after: avoid;
+  }
+  .header {
+    text-align: center;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 17pt;
+    font-weight: 700;
+  }
+  .header h2 {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5pt;
+    margin-bottom: 10px;
+    padding: 2px 0;
+  }
+  .score-box {
+    border: 2px solid #0f172a;
+    padding: 4px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12pt;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .instructions {
+    background: #f1f5f9;
+    border-left: 4px solid #0284c7;
+    padding: 6px 12px;
+    font-size: 11.5pt;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .storyboard-item {
+    border: 1.5px solid #94a3b8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #ffffff;
+  }
+  .storyboard-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 13pt;
+    color: #0369a1;
+  }
+  .storyboard-panels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .storyboard-panels.panels-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .storyboard-panel {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+  }
+  .storyboard-panel-img-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .storyboard-panel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .storyboard-panel-tag {
+    padding: 2px 4px;
+    font-size: 9.5pt;
+    font-weight: 600;
+    text-align: center;
+    background: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+    color: #475569;
+  }
+  .storyboard-prompts {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12pt;
+  }
+  .prompt-row {
+    display: flex;
+    align-items: flex-end;
+    line-height: 1.4;
+  }
+  .prompt-label {
+    font-weight: 600;
+    white-space: nowrap;
+    margin-right: 6px;
+    color: #0f172a;
+  }
+  .prompt-line {
+    flex: 1;
+    border-bottom: 1.5px dotted #64748b;
+    min-height: 20px;
+  }
+  .footer-sig {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 8px;
+    font-size: 11.5pt;
+    border-top: 1px solid #cbd5e1;
+  }
+  .teacher-sign {
+    text-align: center;
+  }
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div>
+      <div class="header">
+        <h1>โรงเรียนบ้านคำไผ่ สพป.ขอนแก่น เขต ๕</h1>
+        <h2>แบบฝึกหัดกลุ่มสาระการเรียนรู้ภาษาไทย (${sanitize(gradeLabel)})</h2>
+        <div style="font-size: 12.5pt; margin-top: 2px;">หน่วยการเรียนรู้: <strong>${sanitize(catTitle)} (ใบงานเรื่องเล่าภาพเรื่องราว)</strong></div>
+      </div>
+
+      <div class="info-bar">
+        <div>
+          ชื่อ - สกุล: .................................................................... ชั้น: .......... เลขที่: .......... วันที่: ..........
+        </div>
+        <div class="score-box">
+          คะแนนเต็ม ${selectedWords.length * 2}<br>
+          ได้ ......... คะแนน
+        </div>
+      </div>
+
+      <div class="instructions">
+        <strong>คำชี้แจง:</strong> ให้นักเรียนสังเกตภาพเรื่องราวลำดับเหตุการณ์ แล้วระบุว่าตรงกับสำนวนไทยใด พร้อมทั้งอธิบายคติสอนใจหรือความหมายเปรียบเทียบของสำนวนนั้นให้ถูกต้อง
+      </div>
+`;
+
+    selectedWords.forEach((item, idx) => {
+      const panelCount = (item.images && item.images.length) || 0;
+      const panelsClass = panelCount === 2 ? 'storyboard-panels panels-2' : 'storyboard-panels';
+      printHtml += `
+      <div class="storyboard-item">
+        <div class="storyboard-item-header">
+          <span>ข้อที่ ${thaiNumbers[idx] || (idx + 1)}. เหตุการณ์ภาพเรื่องราว (${panelCount} ตอน)</span>
+          <span style="font-size: 10.5pt; font-weight: normal; color: #64748b;">( ๒ คะแนน )</span>
+        </div>
+        <div class="${panelsClass}">
+      `;
+
+      (item.images || []).forEach((img, i) => {
+        const phaseName = img.phase || `ตอนที่ ${i + 1}`;
+        printHtml += `
+          <div class="storyboard-panel">
+            <div class="storyboard-panel-img-wrap">
+              <img src="${sanitize(img.url)}" alt="${sanitize(img.alt || img.caption || '')}" class="storyboard-panel-img" loading="lazy" />
+            </div>
+            <div class="storyboard-panel-tag">ตอนที่ ${thaiNumbers[i] || (i + 1)}: ${sanitize(phaseName)}</div>
+          </div>
+        `;
+      });
+
+      printHtml += `
+        </div>
+        <div class="storyboard-prompts">
+          <div class="prompt-row">
+            <span class="prompt-label">สำนวนไทยจากภาพนี้คือ:</span>
+            <span class="prompt-line">........................................................................................</span>
+          </div>
+          <div class="prompt-row">
+            <span class="prompt-label">คติสอนใจ / ความหมายเปรียบเทียบ:</span>
+            <span class="prompt-line">........................................................................................</span>
+          </div>
+        </div>
+      </div>
+      `;
+    });
+
+    printHtml += `
+    </div>
+
+    <div class="footer-sig">
+      <div>วันที่ประเมิน: ...... / ................ / ๒๕......</div>
+      <div class="teacher-sign">
+        ลงชื่อ ........................................................... ครูผู้สอน<br>
+        ( นายณัฐพงศ์ สิงห์ชมภู )
+      </div>
+    </div>
+  </div>
+`;
+
+    if (includeAnswerKey) {
+      printHtml += `
+  <div class="sheet">
+    <div>
+      <div class="header">
+        <h1>[ แผ่นเฉลยสำหรับครูผู้สอน ]</h1>
+        <h2>เฉลยใบงานเรื่องเล่าสำนวนไทย (จากภาพเรื่องราว): ${sanitize(catTitle)} (${sanitize(gradeLabel)})</h2>
+      </div>
+
+      <div class="instructions" style="background:#fef3c7; border-left-color:#d97706;">
+        <strong>แนวการตรวจและเกณฑ์การให้คะแนน:</strong> พิจารณาการระบุชื่อสำนวนไทยถูกต้อง (๑ คะแนน) และการอธิบายคติสอนใจหรือความหมายเปรียบเทียบที่สอดคล้องกับภาพเรื่องราว (๑ คะแนน) รวมข้อละ ๒ คะแนน
+      </div>
+`;
+
+      selectedWords.forEach((item, idx) => {
+        printHtml += `
+      <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; background: #ffffff;">
+        <div style="font-size: 13pt; font-weight: 700; color: #0369a1; margin-bottom: 4px;">
+          ${thaiNumbers[idx] || (idx + 1)}. สำนวน: <strong>${sanitize(item.word)}</strong>
+          ${item.reading ? `<span style="font-size: 11pt; font-weight: normal; color: #475569;">[ ${sanitize(item.reading)} ]</span>` : ''}
+          ${item.emoji ? `<span>${sanitize(item.emoji)}</span>` : ''}
+        </div>
+        <div style="font-size: 11.5pt; margin-bottom: 4px;">
+          <strong>คติสอนใจ / ความหมาย:</strong> ${sanitize(item.meaning || '-')}
+        </div>
+        ${item.example ? `<div style="font-size: 10.5pt; color: #475569; margin-bottom: 4px;"><em>ตัวอย่าง: “${sanitize(item.example)}”</em></div>` : ''}
+        <div style="font-size: 10.5pt; color: #334155; background: #f8fafc; padding: 6px 8px; border-radius: 4px;">
+          <strong>ลำดับเหตุการณ์ในภาพ:</strong>
+          ${(item.images || []).map((img, i) => `
+            <div style="margin-top: 2px;">
+              • <strong>ตอนที่ ${thaiNumbers[i] || (i + 1)} (${sanitize(img.phase || `ตอนที่ ${i+1}`)}):</strong> ${sanitize(img.caption || img.alt || '')}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+        `;
+      });
+
+      printHtml += `
+    </div>
+
+    <div class="footer-sig">
+      <div>โรงเรียนบ้านคำไผ่ สพป.ขอนแก่น เขต ๕</div>
+      <div class="teacher-sign">ครูผู้ตรวจ: นายณัฐพงศ์ สิงห์ชมภู</div>
+    </div>
+  </div>
+`;
+    }
+
+    printHtml += `
+<script>
+  window.onload = function() {
+    window.print();
+  };
+</script>
+</body>
+</html>`;
+
+    return printHtml;
+  }
+
   window.ThaiVocabWorksheet = {
     openModal: openWorksheetModal,
     closeModal,
     confirmPrint,
     generateAndPrint,
+    generateStoryboardWorksheet,
   };
 })();

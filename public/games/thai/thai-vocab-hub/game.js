@@ -772,6 +772,7 @@ const GRID_VIEW_OPTIONS = [
   { value: 'all', label: 'ทั้งหมด' },
   { value: 'sample', label: 'สุ่ม 20' },
   { value: 'missed', label: 'คำที่พลาด' },
+  { value: 'storyboard', label: '🎬 ภาพเรื่องราว' },
 ];
 let gridGradeFilter = 'all';
 let gridViewMode = 'all';
@@ -812,6 +813,8 @@ function getGridDisplayWords() {
     words = getMissedWordsInCategory().filter((w) =>
       gridGradeFilter === 'all' || w.grade === gridGradeFilter
     );
+  } else if (gridViewMode === 'storyboard') {
+    words = words.filter((w) => w.images && w.images.length > 0);
   } else if (gridViewMode === 'sample' && words.length > RANDOM_SAMPLE) {
     words = shuffle([...words]).slice(0, RANDOM_SAMPLE);
   }
@@ -871,6 +874,13 @@ function updateGridFilterPickerUI() {
   document.querySelectorAll('.grid-view-btn[data-view="missed"]').forEach((btn) => {
     btn.style.display = serverMissedWords.length ? '' : 'none';
   });
+  const sbCount = fullCategoryWords.filter((w) => w.images && w.images.length > 0).length;
+  document.querySelectorAll('.grid-view-btn[data-view="storyboard"]').forEach((btn) => {
+    btn.style.display = sbCount > 0 ? '' : 'none';
+    if (sbCount > 0) {
+      btn.textContent = `🎬 ภาพเรื่องราว (${sbCount})`;
+    }
+  });
 }
 
 function buildGridFilterPickers(header) {
@@ -903,7 +913,12 @@ function buildGridFilterPickers(header) {
     btn.type = 'button';
     btn.className = 'grid-size-btn grid-view-btn';
     btn.dataset.view = opt.value;
-    btn.textContent = opt.label;
+    let label = opt.label;
+    if (opt.value === 'storyboard') {
+      const count = fullCategoryWords.filter((w) => w.images && w.images.length > 0).length;
+      label = count > 0 ? `🎬 ภาพเรื่องราว (${count})` : opt.label;
+    }
+    btn.textContent = label;
     btn.addEventListener('click', () => setGridViewMode(opt.value));
     viewBtns.appendChild(btn);
   });
@@ -1720,6 +1735,13 @@ function createGridCardElement(item, idx, leitnerMap) {
       e.stopPropagation();
       openIdiomStoryboard(item, sbBtn);
     });
+    sbBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        openIdiomStoryboard(item, sbBtn);
+      }
+    });
   }
 
   card.addEventListener('click', () => toggleGridCard(card, idx));
@@ -1767,7 +1789,9 @@ function renderWordsGrid() {
     empty.className = 'grid-empty-msg';
     empty.textContent = gridViewMode === 'missed'
       ? 'ไม่มีคำที่เคยพลาดในหมวดนี้'
-      : 'ไม่มีคำในชั้นที่เลือก — ลองเปลี่ยนตัวกรอง';
+      : gridViewMode === 'storyboard'
+        ? 'ไม่มีคำที่มีภาพเรื่องราวในตัวกรองนี้'
+        : 'ไม่มีคำในชั้นที่เลือก — ลองเปลี่ยนตัวกรอง';
     grid.appendChild(empty);
     applyGridColsLayout();
     stopAutoplay();
@@ -3499,3 +3523,9 @@ function restartSession() {
   switchMode(currentMode || "auto");
 }
 window.restartSession = restartSession;
+
+window.GRID_VIEW_OPTIONS = GRID_VIEW_OPTIONS;
+window.getGridDisplayWords = getGridDisplayWords;
+window.setGridViewMode = setGridViewMode;
+window.setGridGradeFilter = setGridGradeFilter;
+window.selectCategory = selectCategory;
