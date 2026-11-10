@@ -23,6 +23,31 @@ DESIGN.md ครอบคลุม: theme, palette, contrast, typography, UX rul
 
 ## 1. Frontend Components (specs)
 
+### กล่องโต้ตอบภาพเรื่องราวสำนวนไทย (IdiomStoryboardModal) — v2.8.9
+
+คอมโพเนนต์หน้าต่างโต้ตอบ (Interactive Dialog Modal) สำหรับจัดแสดงภาพเรื่องราวต่อเนื่อง (Multi-Image Storyboard) ของสำนวน สุภาษิต และคำพังเพยไทย ในสื่อการสอนภาษาไทย (Thai Vocab Hub):
+
+- **จุดประสงค์และการใช้งาน (Purpose & Usage):**
+  - จัดแสดงชุดภาพ 16:9 จำนวน 2–3 ตอนเพื่อถ่ายทอดความหมายเชิงเปรียบเทียบของสำนวนไทย
+  - เข้าถึงผ่านปุ่ม `🎬 ดูภาพเรื่องราว (N ตอน)` บนการ์ดคำศัพท์ (`.grid-storyboard-btn`) หรือคลิกป้ายกำกับบนหน้าการ์ด (`.badge-storyboard-trigger`)
+  - เปิดได้จากหมวด "สำนวนไทยมีคติ" (`idioms`) พร้อมปุ่มตัวกรองด่วน `🎬 มีภาพเรื่องราว` ในแถบตัวกรอง
+- **โหมดการแสดงผลคู่ (Dual Viewing Modes):**
+  - **1. โหมดสไลด์ (Slide View — `#storyboard-slide-view`):**
+    - ฉายภาพเดี่ยวขนาดใหญ่แบบ 16:9 ในกรอบ `.storyboard-stage` พร้อมปุ่มเปลี่ยนสไลด์ `◀` (`#btn-storyboard-prev`) และ `▶` (`#btn-storyboard-next`)
+    - แถบชิปลำดับตอน (`#storyboard-step-chips`) ระบุหมายเลขและชื่อช่วง (เช่น `1. จุดเริ่มต้น`, `2. พอกพูน`, `3. คติสอนใจ`)
+    - กล่องคำบรรยายประจำตอน (`#storyboard-caption-box`) พร้อมปุ่มสังเคราะห์เสียงอ่านคำบรรยาย (`#btn-storyboard-speak-caption`)
+  - **2. โหมดกระดานเรื่องราว/การ์ตูนช่อง (Comic Strip View — `#storyboard-strip-view`):**
+    - แสดงภาพทุกตอนพร้อมกันในรูปแบบการ์ตูนช่อง 2–3 คอลัมน์ (Desktop) หรือ 1 คอลัมน์ (Mobile)
+    - แต่ละช่องแสดงการ์ดภาพ 16:9 พร้อมป้ายกำกับชื่อช่วง และข้อความบรรยายใต้ภาพ
+- **กฎการโต้ตอบและการเข้าถึง (Interaction & Accessibility Rules):**
+  - **Touch Targets $\ge$ 48px:** ปุ่มควบคุมทั้งหมด (`#btn-storyboard-close`, `#btn-storyboard-prev`, `#btn-storyboard-next`, `#btn-storyboard-speak-word`, `#btn-storyboard-speak-caption`, `#btn-mode-slide`, `#btn-mode-strip`) มีขนาดพื้นที่สัมผัสขั้นต่ำ $48\times 48\text{px}$ ตามมาตรฐาน WCAG Touch Target สำหรับจอสัมผัสในชั้นเรียน
+  - **TTS Synthesis:** สังเคราะห์เสียงอ่านภาษาไทย (th-TH) ผ่าน Web Speech API ทั้งเสียงอ่านชื่อสำนวน ความหมาย และคำบรรยายแต่ละตอน พร้อมยกเลิกเสียงอ่านทันทีเมื่อปิด Modal หรือสลับตอน (`speechSynthesis.cancel()`)
+  - **Focus Restoration:** เมื่อเปิด Modal ให้จับโฟกัสไปที่กล่องโต้ตอบ และเมื่อปิด Modal (ด้วยการคลิกปุ่มปิด `#btn-storyboard-close`, กด `Escape`, หรือคลิกฉากหลัง Backdrop) ให้คืนโฟกัสกลับไปยังปุ่มทริกเกอร์เดิมบนการ์ดคำศัพท์อย่างแม่นยำ
+  - **Keyboard Shortcuts:** รองรับการกดแป้นพิมพ์ `ArrowLeft` / `ArrowRight` เพื่อเลื่อนสไลด์ และ `Escape` เพื่อปิดหน้าต่าง
+- **Replacement Mapping & Styling:**
+  - สอดคล้องกับ Light Mode Only: พื้นหลัง Modal ใช้สีครีมสว่าง/ขาวนวล (`#ffffff`), ขอบการ์ดใช้สีทองอ่อน (`border-amber-200/60`), ป้ายลำดับตอนใช้เฉดสีอำพัน/ส้มอิฐ (`bg-amber-100 text-amber-900`), และปุ่มแอ็กชันใช้ธีมหลักสีน้ำเงินคราม/ทอง (`bg-slate-900 text-amber-300`)
+  - ไม่ใช้สีม่วง (Purple) ต้องแมปเป็น Primary Gold/Navy หรือ Amber เสมอ
+
 ### แถบเครื่องมือชุดใบงานและกล่องโต้ตอบบันทึกชุด (Worksheet Sets Toolbar & Save Dialog Modal) — v1.230.1
 
 - **Interactive Save Dialog Modal (`openSaveModal`):**
