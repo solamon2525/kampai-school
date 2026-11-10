@@ -329,6 +329,59 @@
     </figure>
 </div>
 
+<!-- ═══ Idiom Multi-Image Storyboard Modal ═══ -->
+<div id="idiom-storyboard-modal" class="idiom-storyboard-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="storyboard-title">
+  <div class="storyboard-modal-dialog">
+    <header class="storyboard-header">
+      <div class="storyboard-title-group">
+        <h2 id="storyboard-title" class="storyboard-title"></h2>
+        <span id="storyboard-reading" class="storyboard-reading"></span>
+        <button type="button" id="btn-storyboard-speak-word" class="storyboard-speak-btn" title="ฟังชื่อสำนวน" aria-label="ฟังชื่อสำนวน">🔊</button>
+      </div>
+      <div class="storyboard-mode-toggle">
+        <button type="button" id="btn-mode-slide" class="active">🖼️ สไลด์</button>
+        <button type="button" id="btn-mode-strip">🎬 กระดานเรื่องราว</button>
+      </div>
+      <button type="button" id="btn-storyboard-close" class="storyboard-close" aria-label="ปิด">×</button>
+    </header>
+
+    <div class="storyboard-scrollable-body">
+      <!-- 1. Slide Mode View -->
+      <section id="storyboard-slide-view" class="storyboard-slide-view">
+        <div id="storyboard-step-chips" class="storyboard-step-chips" role="tablist" aria-label="ลำดับตอน"></div>
+        <div class="storyboard-stage">
+          <button type="button" id="btn-storyboard-prev" class="storyboard-nav-btn prev" aria-label="ตอนก่อนหน้า">◀</button>
+          <div class="storyboard-image-wrap">
+            <img id="storyboard-slide-img" src="" alt="" />
+          </div>
+          <button type="button" id="btn-storyboard-next" class="storyboard-nav-btn next" aria-label="ตอนถัดไป">▶</button>
+        </div>
+        <div class="storyboard-caption-box">
+          <p id="storyboard-caption-text" class="storyboard-caption-text"></p>
+          <button type="button" id="btn-storyboard-speak-caption" class="storyboard-speak-btn caption-speak" title="ฟังคำบรรยาย" aria-label="ฟังคำบรรยาย">🔊 ฟังคำบรรยาย</button>
+        </div>
+      </section>
+
+      <!-- 2. Strip Mode View -->
+      <section id="storyboard-strip-view" class="storyboard-strip-view" style="display:none">
+        <div id="storyboard-strip-container" class="storyboard-strip-container"></div>
+      </section>
+
+      <!-- Footer Info -->
+      <footer class="storyboard-footer">
+        <div class="storyboard-info-card meaning">
+          <span class="info-label">💡 ความหมาย / คติสอนใจ:</span>
+          <span id="storyboard-meaning" class="info-text"></span>
+        </div>
+        <div class="storyboard-info-card example">
+          <span class="info-label">💬 ตัวอย่างการใช้:</span>
+          <span id="storyboard-example" class="info-text"></span>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>

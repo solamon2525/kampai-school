@@ -480,10 +480,11 @@ function safeInitHubGrid() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { safeInitHubGrid(); mountMissedBannerClick(); });
+  document.addEventListener('DOMContentLoaded', () => { safeInitHubGrid(); mountMissedBannerClick(); initStoryboardModalListeners(); });
 } else {
   safeInitHubGrid();
   mountMissedBannerClick();
+  initStoryboardModalListeners();
 }
 
 // ตัวขยาย/ย่อขนาดตัวอักษร — จำค่าไว้ใน localStorage (เฉพาะเกมนี้ ไม่เกี่ยวกับ SDK)
@@ -1239,6 +1240,10 @@ function createSearchCardElement(item) {
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
+  const hasStoryboard = Boolean(item.images && item.images.length > 0);
+  const storyboardBadge = hasStoryboard
+    ? `<button type="button" class="badge-storyboard-trigger" title="มีภาพเรื่องราว ${item.images.length} ตอน" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ${item.images.length} ตอน</button>`
+    : '';
 
   card.innerHTML = `
     <div class="hub-search-card-top">
@@ -1247,6 +1252,7 @@ function createSearchCardElement(item) {
           <span>${item.emoji || item.categoryIcon || '📝'}</span>
           <strong>${item.word}</strong>
           ${morphBadge}
+          ${storyboardBadge}
         </span>
         <span class="hub-search-reading">[ ${item.reading} ]</span>
       </div>
@@ -1268,6 +1274,21 @@ function createSearchCardElement(item) {
     morphBtn.onclick = (e) => {
       e.stopPropagation();
       if (window.ThaiVowelMorph) window.ThaiVowelMorph.open(item.word);
+    };
+  }
+
+  const sbBadge = card.querySelector('.badge-storyboard-trigger');
+  if (sbBadge) {
+    sbBadge.onclick = (e) => {
+      e.stopPropagation();
+      openIdiomStoryboard(item, sbBadge);
+    };
+    sbBadge.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        openIdiomStoryboard(item, sbBadge);
+      }
     };
   }
   card.onclick = () => jumpToWord(item.categorySlug, item.word);
@@ -1624,6 +1645,10 @@ function createGridCardElement(item, idx, leitnerMap) {
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
+  const hasStoryboard = Boolean(item.images && item.images.length > 0);
+  const storyboardBadge = hasStoryboard
+    ? `<button type="button" class="badge-storyboard-trigger" title="มีภาพเรื่องราว ${item.images.length} ตอน" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ${item.images.length} ตอน</button>`
+    : '';
 
   card.innerHTML = `
     <div class="grid-flip-inner">
@@ -1637,12 +1662,15 @@ function createGridCardElement(item, idx, leitnerMap) {
         <span class="grid-word-emoji">${emoji}</span>
         <span class="grid-word-text">${item.word}</span>
         ${morphBadge}
+        ${storyboardBadge}
       </div>
       <div class="grid-flip-face grid-flip-back">
         <span class="grid-reading">[ ${item.reading} ]</span>
         <span class="grid-meaning">${item.meaning}</span>
         ${exampleHtml}
-        ${item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : ''}
+        ${hasStoryboard
+          ? `<button type="button" class="grid-storyboard-btn" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ดูภาพเรื่องราว (${item.images.length} ตอน)</button>`
+          : (item.image_url ? '<button type="button" class="grid-visual-btn">ดูภาพ</button>' : '')}
       </div>
     </div>
   `;
@@ -1652,6 +1680,21 @@ function createGridCardElement(item, idx, leitnerMap) {
     morphBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (window.ThaiVowelMorph) window.ThaiVowelMorph.open(item.word);
+    });
+  }
+
+  const sbBadge = card.querySelector('.badge-storyboard-trigger');
+  if (sbBadge) {
+    sbBadge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openIdiomStoryboard(item, sbBadge);
+    });
+    sbBadge.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        openIdiomStoryboard(item, sbBadge);
+      }
     });
   }
 
@@ -1668,6 +1711,14 @@ function createGridCardElement(item, idx, leitnerMap) {
     visualBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       openVisualViewer(item, visualBtn);
+    });
+  }
+
+  const sbBtn = card.querySelector('.grid-storyboard-btn');
+  if (sbBtn) {
+    sbBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openIdiomStoryboard(item, sbBtn);
     });
   }
 
@@ -1890,11 +1941,22 @@ function flipCard() {
 function mountCardVisualButton(wordItem) {
   const button = document.getElementById('btn-card-visual');
   if (!button) return;
-  button.style.display = wordItem?.image_url ? '' : 'none';
-  button.onclick = (event) => {
-    event.stopPropagation();
-    if (wordItem?.image_url) openVisualViewer(wordItem, button);
-  };
+  const hasStoryboard = Boolean(wordItem?.images && wordItem.images.length > 0);
+  const hasVisual = hasStoryboard || !!wordItem?.image_url;
+  button.style.display = hasVisual ? '' : 'none';
+  if (hasStoryboard) {
+    button.textContent = `🎬 ดูเรื่องราว (${wordItem.images.length} ตอน)`;
+    button.onclick = (event) => {
+      event.stopPropagation();
+      openIdiomStoryboard(wordItem, button);
+    };
+  } else {
+    button.textContent = '🖼️ ดูภาพประกอบ';
+    button.onclick = (event) => {
+      event.stopPropagation();
+      if (wordItem?.image_url) openVisualViewer(wordItem, button);
+    };
+  }
 }
 
 function renderVisualStudy() {
@@ -1944,6 +2006,191 @@ function closeVisualViewer() {
   document.getElementById('visual-viewer-image').removeAttribute('src');
   if (visualViewerReturnFocus?.focus) visualViewerReturnFocus.focus();
   visualViewerReturnFocus = null;
+}
+
+// ═══ IDIOM MULTI-IMAGE STORYBOARD (สไลด์ & การ์ตูนช่องสำนวนไทย) ═══
+let activeStoryboardItem = null;
+let storyboardCurrentStep = 0;
+let storyboardViewMode = 'slide'; // 'slide' | 'strip'
+let storyboardReturnFocus = null;
+let storyboardListenersInitialized = false;
+
+function openIdiomStoryboard(item, returnFocusEl) {
+  if (!item || !item.images || !item.images.length) return;
+  if (typeof pauseAutoplay === 'function') pauseAutoplay(true);
+  cancelSpeech();
+
+  initStoryboardModalListeners();
+
+  storyboardReturnFocus = returnFocusEl || document.activeElement;
+  activeStoryboardItem = item;
+  storyboardCurrentStep = 0;
+
+  const modal = document.getElementById('idiom-storyboard-modal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('storyboard-title');
+  if (titleEl) titleEl.textContent = item.word || '';
+
+  const readingEl = document.getElementById('storyboard-reading');
+  if (readingEl) readingEl.textContent = item.reading ? `[ ${item.reading} ]` : '';
+
+  const meaningEl = document.getElementById('storyboard-meaning');
+  if (meaningEl) meaningEl.textContent = item.meaning || '';
+
+  const exampleEl = document.getElementById('storyboard-example');
+  if (exampleEl) exampleEl.textContent = item.example || '';
+
+  // Render step chips
+  const chipsContainer = document.getElementById('storyboard-step-chips');
+  if (chipsContainer) {
+    chipsContainer.innerHTML = '';
+    item.images.forEach((img, idx) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `storyboard-step-chip ${idx === 0 ? 'active' : ''}`;
+      chip.textContent = `ตอนที่ ${img.step || (idx + 1)}${img.phase ? ': ' + img.phase : ''}`;
+      chip.setAttribute('aria-label', `ตอนที่ ${img.step || (idx + 1)} ${img.phase || ''}`);
+      chip.onclick = () => goToStoryboardStep(idx);
+      chipsContainer.appendChild(chip);
+    });
+  }
+
+  // Render comic strip view panels
+  const stripContainer = document.getElementById('storyboard-strip-container');
+  if (stripContainer) {
+    stripContainer.innerHTML = '';
+    item.images.forEach((img, idx) => {
+      const panel = document.createElement('div');
+      panel.className = 'storyboard-strip-panel';
+      panel.innerHTML = `
+        <div class="storyboard-strip-phase">ตอนที่ ${img.step || (idx + 1)}${img.phase ? ': ' + img.phase : ''}</div>
+        <div class="storyboard-strip-img-wrap">
+          <img src="${img.url}" alt="${img.alt || img.caption || ''}" loading="lazy" />
+        </div>
+        <p class="storyboard-strip-caption">${img.caption || ''}</p>
+        <button type="button" class="btn-strip-speak storyboard-speak-btn" aria-label="ฟังคำบรรยายตอนที่ ${img.step || (idx + 1)}">🔊 ฟังคำบรรยาย</button>
+      `;
+      const btnSpeak = panel.querySelector('.btn-strip-speak');
+      if (btnSpeak) {
+        btnSpeak.onclick = () => speakStoryboardCaption(idx);
+      }
+      stripContainer.appendChild(panel);
+    });
+  }
+
+  // Default to slide mode
+  setStoryboardViewMode('slide');
+  goToStoryboardStep(0);
+
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-open');
+  const closeBtn = document.getElementById('btn-storyboard-close');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeIdiomStoryboard() {
+  const modal = document.getElementById('idiom-storyboard-modal');
+  if (!modal || modal.style.display === 'none') return;
+  cancelSpeech();
+  modal.style.display = 'none';
+  document.body.classList.remove('modal-open');
+  if (storyboardReturnFocus && typeof storyboardReturnFocus.focus === 'function') {
+    storyboardReturnFocus.focus();
+  }
+  storyboardReturnFocus = null;
+  activeStoryboardItem = null;
+}
+
+function setStoryboardViewMode(mode) {
+  storyboardViewMode = mode;
+  cancelSpeech();
+  const slideView = document.getElementById('storyboard-slide-view');
+  const stripView = document.getElementById('storyboard-strip-view');
+  const btnSlide = document.getElementById('btn-mode-slide');
+  const btnStrip = document.getElementById('btn-mode-strip');
+
+  if (mode === 'strip') {
+    if (slideView) slideView.style.display = 'none';
+    if (stripView) stripView.style.display = 'block';
+    if (btnSlide) btnSlide.classList.remove('active');
+    if (btnStrip) btnStrip.classList.add('active');
+  } else {
+    if (slideView) slideView.style.display = 'block';
+    if (stripView) stripView.style.display = 'none';
+    if (btnSlide) btnSlide.classList.add('active');
+    if (btnStrip) btnStrip.classList.remove('active');
+    if (activeStoryboardItem) goToStoryboardStep(storyboardCurrentStep);
+  }
+}
+
+function goToStoryboardStep(stepIndex) {
+  if (!activeStoryboardItem || !activeStoryboardItem.images || !activeStoryboardItem.images.length) return;
+  const maxStep = activeStoryboardItem.images.length - 1;
+  storyboardCurrentStep = Math.max(0, Math.min(stepIndex, maxStep));
+
+  const currentImg = activeStoryboardItem.images[storyboardCurrentStep];
+  if (!currentImg) return;
+
+  const slideImg = document.getElementById('storyboard-slide-img');
+  if (slideImg) {
+    slideImg.src = currentImg.url;
+    slideImg.alt = currentImg.alt || currentImg.caption || '';
+  }
+
+  const captionEl = document.getElementById('storyboard-caption-text');
+  if (captionEl) {
+    captionEl.textContent = currentImg.caption || '';
+  }
+
+  // Update chip active classes
+  const chips = document.querySelectorAll('#storyboard-step-chips .storyboard-step-chip');
+  chips.forEach((chip, idx) => {
+    if (idx === storyboardCurrentStep) chip.classList.add('active');
+    else chip.classList.remove('active');
+  });
+
+  // Update prev / next disabled states
+  const prevBtn = document.getElementById('btn-storyboard-prev');
+  if (prevBtn) prevBtn.disabled = (storyboardCurrentStep === 0);
+  const nextBtn = document.getElementById('btn-storyboard-next');
+  if (nextBtn) nextBtn.disabled = (storyboardCurrentStep === maxStep);
+}
+
+function speakStoryboardCaption(stepIndex) {
+  if (!activeStoryboardItem || !activeStoryboardItem.images) return;
+  const idx = typeof stepIndex === 'number' ? stepIndex : storyboardCurrentStep;
+  const img = activeStoryboardItem.images[idx];
+  if (img && img.caption) {
+    speakThai(img.caption);
+  }
+}
+
+function initStoryboardModalListeners() {
+  if (storyboardListenersInitialized) return;
+  const modal = document.getElementById('idiom-storyboard-modal');
+  if (!modal) return;
+  storyboardListenersInitialized = true;
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeIdiomStoryboard();
+  });
+
+  document.getElementById('btn-storyboard-close')?.addEventListener('click', closeIdiomStoryboard);
+
+  document.getElementById('btn-storyboard-speak-word')?.addEventListener('click', () => {
+    if (activeStoryboardItem?.word) speakThai(activeStoryboardItem.word);
+  });
+
+  document.getElementById('btn-storyboard-speak-caption')?.addEventListener('click', () => {
+    speakStoryboardCaption(storyboardCurrentStep);
+  });
+
+  document.getElementById('btn-mode-slide')?.addEventListener('click', () => setStoryboardViewMode('slide'));
+  document.getElementById('btn-mode-strip')?.addEventListener('click', () => setStoryboardViewMode('strip'));
+
+  document.getElementById('btn-storyboard-prev')?.addEventListener('click', () => goToStoryboardStep(storyboardCurrentStep - 1));
+  document.getElementById('btn-storyboard-next')?.addEventListener('click', () => goToStoryboardStep(storyboardCurrentStep + 1));
 }
 
 // เลื่อนคำถัดไป/ก่อนหน้าในโหมดทบทวน (ปุ่ม ◀ ▶ และลูกศรคีย์บอร์ด) วนรอบ
@@ -2415,6 +2662,26 @@ document.getElementById('visual-viewer')?.addEventListener('click', (event) => {
   if (event.target.id === 'visual-viewer') closeVisualViewer();
 });
 document.addEventListener('keydown', (event) => {
+  const sbModal = document.getElementById('idiom-storyboard-modal');
+  if (sbModal && sbModal.style.display !== 'none') {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeIdiomStoryboard();
+      return;
+    }
+    if (storyboardViewMode === 'slide') {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToStoryboardStep(storyboardCurrentStep - 1);
+        return;
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToStoryboardStep(storyboardCurrentStep + 1);
+        return;
+      }
+    }
+  }
   if (event.key === 'Escape') closeVisualViewer();
 });
 
@@ -3165,6 +3432,8 @@ patchKampaiExit();
 // ทบทวน: ← → เปลี่ยนคำ, Space พลิกการ์ด · ทายความหมาย: 1-4 เลือกตัวเลือก
 // (เขียนตามคำบอก: Enter จัดการที่ handleDictationKey ในช่อง input อยู่แล้ว)
 document.addEventListener('keydown', (e) => {
+  const sbModal = document.getElementById('idiom-storyboard-modal');
+  if (sbModal && sbModal.style.display !== 'none') return;
   const topicView = document.getElementById('topic-view');
   if (!topicView || topicView.style.display === 'none') return;
 
@@ -3212,6 +3481,12 @@ window.buildVocabSearchIndex = buildVocabSearchIndex;
 window.initHubData = initHubData;
 window.flushRenderChunks = flushRenderChunks;
 window.getVocabRenderGenId = () => renderGenId;
+window.createGridCardElement = createGridCardElement;
+window.openIdiomStoryboard = openIdiomStoryboard;
+window.closeIdiomStoryboard = closeIdiomStoryboard;
+window.setStoryboardViewMode = setStoryboardViewMode;
+window.goToStoryboardStep = goToStoryboardStep;
+window.speakStoryboardCaption = speakStoryboardCaption;
 
 
 function restartSession() {
