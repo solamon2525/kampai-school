@@ -169,7 +169,8 @@ assert.match(generatedHtml, /เลขที่:/, 'Must contain student number 
 assert.match(generatedHtml, /คะแนน/, 'Must contain score box');
 
 // Check panel images
-for (const img of sampleIdiom.images) {
+const matchedIdiom = filteredWords.find((w) => generatedHtml.includes(w.word)) || sampleIdiom;
+for (const img of matchedIdiom.images) {
   assert.ok(generatedHtml.includes(img.url), `Worksheet must include panel image url ${img.url}`);
 }
 
@@ -180,7 +181,7 @@ assert.match(generatedHtml, /\.{5,}|dotted/, 'Must contain dotted lines for stud
 
 // Check teacher answer key
 assert.match(generatedHtml, /แผ่นเฉลยสำหรับครู/, 'Must contain teacher answer key sheet');
-assert.ok(generatedHtml.includes(sampleIdiom.word), 'Teacher answer key must include idiom word');
-assert.ok(generatedHtml.includes(sampleIdiom.meaning), 'Teacher answer key must include idiom meaning');
+assert.ok(generatedHtml.includes(matchedIdiom.word), 'Teacher answer key must include idiom word');
+assert.ok(generatedHtml.includes(matchedIdiom.meaning), 'Teacher answer key must include idiom meaning');
 
 console.log('\n✅ All Thai Vocab Hub idiom worksheet & filter tests passed successfully!');

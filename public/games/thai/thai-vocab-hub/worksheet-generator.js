@@ -711,7 +711,7 @@
     const gradeLabel = grade === 'all' ? 'ประถมศึกษาปีที่ ๔ - ๖' : `ประถมศึกษาปีที่ ${String(grade).replace('ป.', '')}`;
 
     const pool = (words || []).filter((w) => w && Array.isArray(w.images) && w.images.length > 0);
-    const selectedWords = pool.slice(0, Math.min(count, pool.length));
+    const selectedWords = (typeof shuffle === 'function' ? shuffle([...pool]) : pool.slice().sort(() => Math.random() - 0.5)).slice(0, Math.min(count, pool.length));
 
     let printHtml = `<!DOCTYPE html>
 <html lang="th">

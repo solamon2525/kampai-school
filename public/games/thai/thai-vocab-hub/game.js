@@ -2093,7 +2093,7 @@ function openIdiomStoryboard(item, returnFocusEl) {
       panel.innerHTML = `
         <div class="storyboard-strip-phase">ตอนที่ ${img.step || (idx + 1)}${img.phase ? ': ' + img.phase : ''}</div>
         <div class="storyboard-strip-img-wrap">
-          <img src="${img.url}" alt="${img.alt || img.caption || ''}" loading="lazy" />
+          <img src="${img.url}" alt="${img.alt || img.caption || ''}" loading="lazy" onerror="this.alt='ไม่สามารถแสดงภาพประกอบได้'; if(typeof showToast==='function') showToast('ไม่สามารถโหลดภาพประกอบได้', 'wrong');" />
         </div>
         <p class="storyboard-strip-caption">${img.caption || ''}</p>
         <button type="button" class="btn-strip-speak storyboard-speak-btn" aria-label="ฟังคำบรรยายตอนที่ ${img.step || (idx + 1)}">🔊 ฟังคำบรรยาย</button>
@@ -2152,6 +2152,7 @@ function setStoryboardViewMode(mode) {
 }
 
 function goToStoryboardStep(stepIndex) {
+  cancelSpeech();
   if (!activeStoryboardItem || !activeStoryboardItem.images || !activeStoryboardItem.images.length) return;
   const maxStep = activeStoryboardItem.images.length - 1;
   storyboardCurrentStep = Math.max(0, Math.min(stepIndex, maxStep));
@@ -2161,6 +2162,10 @@ function goToStoryboardStep(stepIndex) {
 
   const slideImg = document.getElementById('storyboard-slide-img');
   if (slideImg) {
+    slideImg.onerror = () => {
+      slideImg.alt = 'ไม่สามารถแสดงภาพประกอบได้';
+      if (typeof showToast === 'function') showToast('ไม่สามารถโหลดภาพประกอบได้', 'wrong');
+    };
     slideImg.src = currentImg.url;
     slideImg.alt = currentImg.alt || currentImg.caption || '';
   }
