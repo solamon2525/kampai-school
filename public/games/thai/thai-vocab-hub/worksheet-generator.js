@@ -919,7 +919,7 @@
         printHtml += `
           <div class="storyboard-panel">
             <div class="storyboard-panel-img-wrap">
-              <img src="${sanitize(img.url)}" alt="${sanitize(img.alt || img.caption || '')}" class="storyboard-panel-img" loading="lazy" />
+              <img src="${sanitize(img.url)}" alt="${sanitize(img.alt || img.caption || '')}" class="storyboard-panel-img" loading="eager" />
             </div>
             <div class="storyboard-panel-tag">ตอนที่ ${thaiNumbers[i] || (i + 1)}: ${sanitize(phaseName)}</div>
           </div>

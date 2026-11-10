@@ -1517,6 +1517,9 @@ function selectCategory(slug) {
     practiceMissedOnEnter = false;
     gridViewMode = 'missed';
     localStorage.setItem(GRID_VIEW_KEY, 'missed');
+  } else if (gridViewMode === 'storyboard' && !fullCategoryWords.some(w => w.images && w.images.length > 0)) {
+    gridViewMode = 'all';
+    localStorage.setItem(GRID_VIEW_KEY, 'all');
   }
   switchMode('auto');
 }
