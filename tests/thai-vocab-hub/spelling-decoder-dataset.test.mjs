@@ -56,6 +56,19 @@ data.words.forEach((w, idx) => {
   assert.strictEqual(pd.finalSound, soundConsonants[w.targetSection], `Word "${w.word}" phonicsDecomposition.finalSound must match section sound`);
   assert.ok(pd.phonicsSpelling && typeof pd.phonicsSpelling === 'string', `Word "${w.word}" phonicsDecomposition.phonicsSpelling must exist`);
 
+  // Phonics spelling trailing reading verification
+  if (pd.phonicsSpelling.includes('➔')) {
+    const trailingPart = pd.phonicsSpelling.split('➔')[1];
+    const normalize = str => str.split('(')[0].replace(/[\u0e3a\u033a]/g, '').replace(/\s+/g, '').trim();
+    const normTrailing = normalize(trailingPart);
+    const normReading = normalize(w.reading);
+    assert.strictEqual(
+      normTrailing,
+      normReading,
+      `Word "${w.word}" trailing phonicsSpelling "${normTrailing}" must match reading "${normReading}"`
+    );
+  }
+
   sections[w.targetSection]++;
 });
 

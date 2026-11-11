@@ -944,7 +944,7 @@
     },
     {
       "word": "ปรารภ",
-      "reading": "ปราบ",
+      "reading": "ปรา-รบ",
       "targetSection": "kob",
       "sectionName": "แม่กบ",
       "surfaceConsonant": "ภ",
@@ -2111,8 +2111,8 @@
       "phonicsDecomposition": {
         "initial": "บ, ก",
         "initialName": "บอ, กอ",
-        "vowel": "อือ, อา",
-        "vowelName": "สระอือ, สระอา",
+        "vowel": "อึ, อา",
+        "vowelName": "สระอึ, สระอา",
         "finalSurface": "ฬ",
         "finalSound": "น",
         "phonicsSpelling": "บอ - อึ - งอ = บึง, กอ - อา - นอ = กาน ➔ บึง-กาน"
@@ -2856,7 +2856,7 @@
         "vowelName": "สระอะ, สระอะ, สระอะ",
         "finalSurface": "ส",
         "finalSound": "ด",
-        "phonicsSpelling": "วอ - อะ - นอ = วัน, หอ - อะ - ดอ = หัด ➔ วัน-พะ-รึ-หัด"
+        "phonicsSpelling": "วอ - อะ - นอ = วัน, พอ - อะ = พะ, รอ - อึ = รึ, หอ - อะ - ดอ = หัด ➔ วัน-พะ-รึ-หัด"
       },
       "meaning": "วันที่ห้าของสัปดาห์ตามปฏิทินสุริยคติ",
       "emoji": "📅"
@@ -3775,7 +3775,7 @@
     },
     {
       "word": "พฤศจิกายน",
-      "reading": "พฺรึด-สะ-จิ-กา-ยน",
+      "reading": "พรึด-สะ-จิ-กา-ยน",
       "targetSection": "kod",
       "sectionName": "แม่กด",
       "surfaceConsonant": "ศ",
