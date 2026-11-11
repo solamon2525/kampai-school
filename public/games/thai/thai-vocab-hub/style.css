@@ -3204,6 +3204,10 @@ body.projector-mode .card-example-text {
   color: #0f172a; /* พยัญชนะต้น สีดำเข้ม */
 }
 
+.char-initial-leading {
+  margin-right: -4px;
+}
+
 .char-vowel {
   color: #ef4444; /* สระ สีแดงสด */
 }

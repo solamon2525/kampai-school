@@ -1826,8 +1826,11 @@
     const initial = example.initial;
     const finalC = example.final;
     const targetWord = example.word;
-    const isTall = ['ป', 'ผ', 'ฝ', 'ฟ'].some(c => initial.includes(c));
+    const leadingInitials = initial.length > 1 ? initial.slice(0, -1) : '';
+    const targetInitial = initial.slice(-1);
+    const isTall = ['ป', 'ผ', 'ฝ', 'ฟ'].includes(targetInitial);
     const slotClass = `char-initial-slot${isTall ? ' tall-consonant' : ''}`;
+    const leadHtml = leadingInitials ? `<span class="char-initial char-initial-leading">${leadingInitials}</span>` : '';
 
     // Update rule info
     if (ruleType) ruleType.textContent = preset.ruleType;
@@ -1856,9 +1859,10 @@
       stage.innerHTML = `
         <div class="morph-char-group step-1">
           ${preset.baseForm.prefix ? `<span class="char-vowel char-prefix">${preset.baseForm.prefix}</span>` : ''}
+          ${leadHtml}
           <div class="${slotClass}">
             ${preset.baseForm.upper ? `<span class="char-vowel char-upper-base mark-rule-han">${preset.baseForm.upper}</span>` : ''}
-            <span class="char-initial">${initial}</span>
+            <span class="char-initial">${targetInitial}</span>
           </div>
           ${preset.baseForm.suffix ? `<span class="char-vowel char-suffix-base" id="morph-suffix">${preset.baseForm.suffix}</span>` : ''}
         </div>
@@ -1871,9 +1875,10 @@
       stage.innerHTML = `
         <div class="morph-char-group step-2">
           ${preset.baseForm.prefix ? `<span class="char-vowel char-prefix">${preset.baseForm.prefix}</span>` : ''}
+          ${leadHtml}
           <div class="${slotClass}">
             ${preset.baseForm.upper ? `<span class="char-vowel char-upper-base mark-rule-han">${preset.baseForm.upper}</span>` : ''}
-            <span class="char-initial">${initial}</span>
+            <span class="char-initial">${targetInitial}</span>
           </div>
           ${preset.baseForm.suffix ? `<span class="char-vowel char-suffix-base" id="morph-suffix">${preset.baseForm.suffix}</span>` : ''}
           <span class="char-final char-incoming animate-slide-in">${finalC}</span>
@@ -1891,9 +1896,10 @@
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
             <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
+            ${leadHtml}
             <div class="${slotClass}">
               <span class="char-vowel char-morphed-top mark-rule-i mark-morphing-in">ิ</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">อ</span>
             </div>
             <span class="char-final">${finalC}</span>
@@ -1904,8 +1910,9 @@
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
             <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
+            ${leadHtml}
             <div class="${slotClass}">
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">อ</span>
             </div>
             <span class="char-final animate-pop-in">${finalC}</span>
@@ -1915,9 +1922,10 @@
         // -ะ -> -ั (ลอยขึ้นเป็น ไม้หันอากาศ อย่างนุ่มนวล)
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
+            ${leadHtml}
             <div class="${slotClass}">
               <span class="char-vowel char-morphed-top mark-rule-han mark-morphing-in">ั</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
@@ -1928,9 +1936,10 @@
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
             <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
+            ${leadHtml}
             <div class="${slotClass}">
               <span class="char-vowel char-morphed-top mark-rule-taikhu mark-morphing-in">็</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
@@ -1941,9 +1950,10 @@
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
             <span class="char-vowel char-prefix animate-pulse-soft">แ</span>
+            ${leadHtml}
             <div class="${slotClass}">
               <span class="char-vowel char-morphed-top mark-rule-taikhu mark-morphing-in">็</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
@@ -1953,9 +1963,10 @@
         // โ-ะ ลดรูปหมด (โ และ ะ ระเหยหายไป)
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
+            <span class="char-vowel char-prefix-ghost suffix-evaporating" aria-hidden="true">โ</span>
+            ${leadHtml}
             <div class="${slotClass}">
-              <span class="char-vowel char-prefix-ghost suffix-evaporating" aria-hidden="true">โ</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
@@ -1965,9 +1976,10 @@
         // -ัว ลดรูป (ไม้หันอากาศบนหัวระเหยหายไป)
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
+            ${leadHtml}
             <div class="${slotClass}">
               <span class="char-vowel char-upper-base mark-rule-han suffix-evaporating" aria-hidden="true">ั</span>
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
             </div>
             <span class="char-vowel char-suffix-base">ว</span>
             <span class="char-final">${finalC}</span>
@@ -1977,8 +1989,9 @@
         // -อ + ร -> อ ระเหยหายไป
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
+            ${leadHtml}
             <div class="${slotClass}">
-              <span class="char-initial">${initial}</span>
+              <span class="char-initial">${targetInitial}</span>
               <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">อ</span>
             </div>
             <span class="char-final">${finalC}</span>
