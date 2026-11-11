@@ -1,4 +1,4 @@
-/* game.js — คลังบทร้อยกรรมไทย ป.4-5 */
+/* game.js — คลังบทร้อยกรองและร้อยแก้ว ป.4-5 */
 
 let currentScore = 0;
 let currentLives = 5;
