@@ -727,6 +727,12 @@
 
     getCuratedFamilies() {
       return CURATED_TWIN_FAMILIES;
+    },
+
+    startCastleGame() {
+      this.open();
+      this.switchMode('castles');
+      this.resetChallenge();
     }
   };
 
