@@ -79,6 +79,7 @@
         <button type="button" class="cbtn" onclick="openHubWorksheetModal()">🖨️ พิมพ์ใบงาน A4</button>
         <button type="button" class="cbtn" id="btn-morph-theater-toggle" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป (PowerPoint Morph)">✨ สระแปลงร่าง</button>
         <button type="button" class="cbtn" id="btn-decoder-theater-toggle" onclick="window.ThaiSpellingDecoder && window.ThaiSpellingDecoder.open()" title="โรงละครถอดหน้ากากตัวสะกด (Consonant Mask-Off Studio)">🎭 ถอดหน้ากากตัวสะกด</button>
+        <button type="button" class="cbtn" id="btn-sound-twins-toggle" onclick="window.ThaiSoundTwins && window.ThaiSoundTwins.open()" title="วงล้อคำพ้องเสียงต่างรูปสะกด และลานประลองปราสาท 4 ตระกูลเสียง">🔔 คำพ้องเสียงแฝด</button>
     </div>
     <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
     <!-- Search Results View -->
@@ -469,6 +470,123 @@
   </div>
 </div>
 
+<!-- ═══ Sound Twins Matrix & 4 Castles Modal ═══ -->
+<div id="modal-sound-twins" class="tvh-modal-backdrop sound-twins-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="sound-twins-title">
+  <div class="tvh-modal-card sound-twins-card" role="document">
+    <!-- Header -->
+    <div class="sound-twins-header">
+      <div class="sound-twins-header-left">
+        <span class="sound-twins-pill-badge">นวัตกรรมภาษาไทย</span>
+        <h2 id="sound-twins-title" class="sound-twins-title">🔔 วงล้อคำพ้องเสียงต่างรูปสะกด & ปราสาท 4 ตระกูล</h2>
+      </div>
+      <div class="sound-twins-header-right">
+        <button type="button" class="tvh-modal-close touch-target" aria-label="ปิดหน้าต่าง" onclick="window.ThaiSoundTwins.close()">×</button>
+      </div>
+    </div>
+
+    <!-- Mode Navigation Tabs -->
+    <div class="sound-twins-tabs-bar" role="tablist" aria-label="เลือกโหมดการเรียนรู้">
+      <button type="button" class="sound-twins-tab touch-target active" id="tab-mode-matrix" onclick="window.ThaiSoundTwins.switchMode('matrix')">
+        🎡 วงล้อเสียงแฝดรูปต่าง (Matrix)
+      </button>
+      <button type="button" class="sound-twins-tab touch-target" id="tab-mode-castles" onclick="window.ThaiSoundTwins.switchMode('castles')">
+        🏰 ลานประลองปราสาท 4 ตระกูล (Challenge)
+      </button>
+    </div>
+
+    <!-- Mode 1: Sound Twins Matrix View -->
+    <div id="sound-twins-matrix-view" class="sound-twins-view-panel">
+      <!-- Family Chips Strip -->
+      <div class="sound-twins-family-strip" role="group" aria-label="เลือกตระกูลคำพ้องเสียง" id="sound-twins-family-chips"></div>
+
+      <!-- Family Sound Header & Rule -->
+      <div class="sound-twins-family-banner">
+        <div class="sound-twins-sound-badge" id="sound-twins-header-badge">[กาน] แม่กน</div>
+        <p class="sound-twins-sound-desc" id="sound-twins-header-desc">
+          ทุกคำออกเสียง "กาน" เหมือนกัน แต่ใช้ตัวสะกดต่างรูปและมีความหมายแตกต่างกัน
+        </p>
+      </div>
+
+      <!-- Side-by-Side Twins Grid -->
+      <div class="sound-twins-cards-scroll">
+        <div class="sound-twins-cards-grid" id="sound-twins-cards-grid"></div>
+      </div>
+    </div>
+
+    <!-- Mode 2: 4 Castles Challenge View -->
+    <div id="sound-twins-castles-view" class="sound-twins-view-panel" style="display:none">
+      <!-- Stats Bar -->
+      <div class="castle-stats-bar">
+        <div class="castle-stat-item">
+          <span class="castle-stat-label">คะแนน:</span>
+          <strong class="castle-stat-val score" id="castle-score-val">0</strong>
+        </div>
+        <div class="castle-stat-item">
+          <span class="castle-stat-label">คอมโบต่อเนื่อง:</span>
+          <strong class="castle-stat-val streak" id="castle-streak-val">🔥 0</strong>
+        </div>
+        <button type="button" class="cbtn touch-target castle-reset-btn" onclick="window.ThaiSoundTwins.resetChallenge()" title="เริ่มนับคะแนนใหม่">
+          ↺ เริ่มใหม่
+        </button>
+      </div>
+
+      <!-- Prompt Card Stage -->
+      <div class="castle-stage-card">
+        <div class="castle-stage-topline">
+          <span class="castle-stage-hint">ส่งคำศัพท์นี้เข้าปราสาทตระกูลเสียงที่ถูกต้อง:</span>
+          <button type="button" class="touch-target castle-speak-prompt-btn" id="btn-castle-speak-prompt" onclick="window.ThaiSoundTwins.speakCurrentPrompt()" title="ฟังเสียงอ่านคำศัพท์">
+            🔊 ฟังเสียง
+          </button>
+        </div>
+
+        <div class="castle-stage-prompt-box">
+          <div class="castle-prompt-emoji" id="castle-prompt-emoji">👮</div>
+          <div class="castle-prompt-word" id="castle-prompt-word">ตำรวจ</div>
+          <div class="castle-prompt-meaning" id="castle-prompt-meaning">เจ้าหน้าที่ดูแลความสงบเรียบร้อย</div>
+        </div>
+
+        <!-- Feedback Banner -->
+        <div class="castle-feedback-banner" id="castle-feedback-banner">
+          เลือกปราสาทแม่ตัวสะกดด้านล่างเพื่อสะสมคะแนน!
+        </div>
+      </div>
+
+      <!-- 4 Castles Selection Grid -->
+      <div class="castle-buttons-grid" role="group" aria-label="ปราสาท 4 ตระกูลเสียง">
+        <button type="button" class="btn-castle castle-kod touch-target" data-castle="kod" onclick="window.ThaiSoundTwins.answerCastle('kod')">
+          <span class="castle-icon" aria-hidden="true">🏰</span>
+          <span class="castle-name">แม่กด</span>
+          <span class="castle-sound-badge">เสียง ด สะกด</span>
+        </button>
+
+        <button type="button" class="btn-castle castle-kon touch-target" data-castle="kon" onclick="window.ThaiSoundTwins.answerCastle('kon')">
+          <span class="castle-icon" aria-hidden="true">🏰</span>
+          <span class="castle-name">แม่กน</span>
+          <span class="castle-sound-badge">เสียง น สะกด</span>
+        </button>
+
+        <button type="button" class="btn-castle castle-kob touch-target" data-castle="kob" onclick="window.ThaiSoundTwins.answerCastle('kob')">
+          <span class="castle-icon" aria-hidden="true">🏰</span>
+          <span class="castle-name">แม่กบ</span>
+          <span class="castle-sound-badge">เสียง บ สะกด</span>
+        </button>
+
+        <button type="button" class="btn-castle castle-kok touch-target" data-castle="kok" onclick="window.ThaiSoundTwins.answerCastle('kok')">
+          <span class="castle-icon" aria-hidden="true">🏰</span>
+          <span class="castle-name">แม่กก</span>
+          <span class="castle-sound-badge">เสียง ก สะกด</span>
+        </button>
+      </div>
+
+      <div class="castle-next-row">
+        <button type="button" class="btn btn-primary touch-target btn-castle-next" id="btn-castle-next" onclick="window.ThaiSoundTwins.nextCastlePrompt()">
+          คำถัดไป ▶
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
@@ -486,6 +604,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="classroom-tools.js"></script>
 <script src="vowel-morph.js"></script>
 <script src="spelling-decoder.js"></script>
+<script src="sound-twins.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
