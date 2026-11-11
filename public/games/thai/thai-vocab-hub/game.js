@@ -70,14 +70,10 @@ const vocabVersus = window.KampaiVersus && typeof window.KampaiVersus.create ===
     })
   : null;
 
-// คำที่ยังรอตรวจหมวดต้องไม่ปรากฏในเส้นทางการเรียน แม้ DB/RPC เก่ายังไม่มี content_status.
-// ชุดข้อมูลก่อน migration มี 150 คำเดิมที่ผ่านหมวดตามด้วย 50 คำยืมข้ามหมวด จึงตัดที่ 150 ชั่วคราว.
+// คำที่ยังรอตรวจหมวดต้องไม่ปรากฏในเส้นทางการเรียน (กรองเฉพาะคำที่ไม่ได้ถูก quarantined)
 function getApprovedWords(words) {
   const list = Array.isArray(words) ? words : [];
-  const hasReviewStatus = list.some((word) => typeof word?.content_status === 'string');
-  return hasReviewStatus
-    ? list.filter((word) => word.content_status !== 'quarantined')
-    : list.slice(0, 150);
+  return list.filter((word) => !word || word.content_status !== 'quarantined');
 }
 
 function mergeLocalVisuals(slug, words) {
