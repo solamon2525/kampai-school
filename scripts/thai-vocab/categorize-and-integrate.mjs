@@ -88,29 +88,36 @@ export function categorizeWord(word, meta = {}) {
     return 'classifiers';
   }
 
-  // 9. Science & Nature (p5-focus)
+  // 9. Science, Technology & Environment (p5-focus)
   const scienceKeywords = [
     'สิ่งแวดล้อม', 'ธรรมชาติ', 'ระบบนิเวศ', 'พลังงาน', 'อุณหภูมิ', 'แรงโน้มถ่วง',
     'โมเลกุล', 'อะตอม', 'เซลล์', 'แร่ธาตุ', 'ปฏิกิริยา', 'สังเคราะห์', 'ดาวเคราะห์',
-    'บรรยากาศ', 'มลพิษ', 'นิเวศ', 'ธารลึก', 'หุบผา', 'ชะง่อนผา', 'ลมมรสุม'
+    'บรรยากาศ', 'มลพิษ', 'นิเวศ', 'ธารลึก', 'หุบผา', 'ชะง่อนผา', 'ลมมรสุม',
+    'สุริยะ', 'ไฟฟ้า', 'เคมี', 'ฟิสิกส์', 'วงจร', 'อนุภาค', 'สสาร', 'ของแข็ง', 'ของเหลว', 'แก๊ส',
+    'การระเหย', 'การควบแน่น', 'การกลั่น', 'การกรอง', 'การตกผลึก'
   ];
   if (scienceKeywords.some(sk => word.includes(sk))) {
     return 'p5-focus';
   }
 
-  // 10. Difficult / Academic
-  if (word.length >= 8 || ['กบิลพัสดุ์', 'เนรมิต', 'มโนทัศน์', 'กัมมันตภาพรังสี', 'กัลปาวสาน'].includes(word)) {
+  // 10. Difficult / Academic / Classical
+  const difficultKeywords = [
+    'กบิลพัสดุ์', 'เนรมิต', 'มโนทัศน์', 'กัมมันตภาพรังสี', 'กัลปาวสาน',
+    'ปรัชญา', 'ตรรกะ', 'อภิธรรม', 'สัททศาสตร์', 'ฉันทลักษณ์', 'อรรถกถา',
+    'อักขรานุกรม', 'นิรุกติศาสตร์', 'ปฏิทรรศน์', 'วาทกรรม', 'อุปมานิทัศน์'
+  ];
+  if (difficultKeywords.some(dk => word.includes(dk)) || word.length >= 14) {
     return 'difficult';
   }
 
-  // Default: Elementary core lesson vocabulary
+  // Default: Elementary core lesson vocabulary (คำศัพท์พื้นฐาน ป.1-6)
   return 'lesson';
 }
 
 /**
  * Main integration execution function
  */
-export function integrateNewWords({ maxPerCategory = 50 } = {}) {
+export function integrateNewWords({ maxPerCategory = 2500 } = {}) {
   const existingMap = loadExistingCatalog();
   const rawItems = extractAllRawWords();
   const { skippedWords, correctedWords, newCandidates } = dedupAndAuditWords(rawItems, existingMap);
