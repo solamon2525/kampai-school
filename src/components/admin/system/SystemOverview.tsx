@@ -290,6 +290,23 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.15',
+        date: '11 พ.ย. 2569',
+        title: 'โรงละครถอดหน้ากากตัวสะกด (Consonant Mask-Off Studio UI & Theater Animation)',
+        description:
+            'พัฒนานวัตกรรมสื่อการสอนโรงละครถอดหน้ากากตัวสะกด (Thai Consonant Mask-Off Studio) ใน Thai Vocab Hub เพื่อฝึกฝนและถอดรหัสคำศัพท์ที่มีตัวสะกดไม่ตรงมาตรา 4 แม่หลัก (แม่กด, แม่กน, แม่กบ, แม่กก) รวม 200 คำ ผ่านแอนิเมชัน 3 ขั้นตอน: (1) Step 1: คำรูปจริงพร้อมตัวสะกดสวมหน้ากากปริศนา (Masked Surface Consonant), (2) Step 2: แว่นสแกนเสียง X-Ray ตรวจจับคลื่นเสียงแม่ตรง (X-Ray Scanner Beam & Sound Hint), และ (3) Step 3: ถอดหน้ากากแปลงร่างเป็นเสียงแม่ตรงสีทองเปล่งประกาย พร้อมแสดงคำอ่านในวงเล็บและเสียงอ่านแจกลูกคำด้วย Web Speech API',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: ['Thai Vocab Hub', 'Spelling Decoder', 'Consonant Mask-Off', 'Interactive Theater', 'Web Audio', 'Web Speech Phonics', 'Classroom-first'],
+        badge: 'bg-primary',
+        items: [
+            'โรงละครถอดหน้ากาก 3 ขั้นตอน (3-Step Mask-Off Studio): Step 1 รูปเขียนจริงพร้อมหน้ากากปริศนา ➔ Step 2 ลำแสงแว่นสแกนเสียง X-Ray ➔ Step 3 ถอดหน้ากากแปลงร่างเป็นเสียงแม่ตรงสีทอง พร้อมคำอ่านในวงเล็บ',
+            'สถาปัตยกรรม Classroom-First 220px: ตัวอักษรเวทีขนาด clamp(100px, 18vw, 220px) คมชัดมองเห็นชัดเจนจากระยะ 5–8 เมตร พร้อมควบคุมผ่านปุ่ม Spacebar และคีย์บอร์ด',
+            'ระบบเสียง Web Audio API และ Web Speech API: สังเคราะห์เสียง Whoosh ระหว่างเปลี่ยนสเต็ป, ลำแสงสแกน X-Ray และระฆังเวทมนตร์ (Magic Sparkle Chime) พร้อมอ่านสะกดแจกลูกคำภาษาไทยชัดถ้อยชัดคำด้วย Web Speech API',
+            'รองรับ 4 มาตราตัวสะกดและคำตัวอย่าง 200 คำ: แถบเลือกมาตรา แม่กด (80 คำ), แม่กน (50 คำ), แม่กบ (40 คำ), แม่กก (30 คำ) พร้อมชิปเลือกคำศัพท์และเลื่อนตำแหน่งอัตโนมัติ',
+            'ผ่านการทดสอบ Playwright และ Zero Horizontal Overflow: ยืนยันผ่านการทดสอบเบราว์เซอร์อัตโนมัติ ทั้งบนหน้าจอมือถือ 360x800 และจอโปรเจกเตอร์ 1280x720 พร้อม touch targets ขนาด ≥ 44x44px',
+        ],
+    },
+    {
         version: 'v2.8.14',
         date: '11 พ.ย. 2569',
         title: 'คัดกรองคำยืมและคำทับศัพท์ 100% ในคลังคำภาษาต่างประเทศ (Thai Vocab Hub 100% Genuine Loanwords Curation)',

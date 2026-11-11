@@ -78,6 +78,7 @@
         <button type="button" class="cbtn" id="btn-projector-toggle" onclick="window.ThaiVocabClassroom.toggleProjectorMode()">📽️ โหมดฉายจอห้องเรียน</button>
         <button type="button" class="cbtn" onclick="openHubWorksheetModal()">🖨️ พิมพ์ใบงาน A4</button>
         <button type="button" class="cbtn" id="btn-morph-theater-toggle" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป (PowerPoint Morph)">✨ สระแปลงร่าง</button>
+        <button type="button" class="cbtn" id="btn-decoder-theater-toggle" onclick="window.ThaiSpellingDecoder && window.ThaiSpellingDecoder.open()" title="โรงละครถอดหน้ากากตัวสะกด (Consonant Mask-Off Studio)">🎭 ถอดหน้ากากตัวสะกด</button>
     </div>
     <div id="missed-banner" class="missed-banner missed-banner-click" style="display:none" aria-live="polite" role="button" tabindex="0" title="คลิกเพื่อฝึกคำที่เคยพลาด"></div>
     <!-- Search Results View -->
@@ -396,6 +397,78 @@
   </div>
 </div>
 
+<!-- ═══ Consonant Mask-Off Theater Studio Modal ═══ -->
+<div id="modal-spelling-decoder" class="tvh-modal-backdrop decoder-theater-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="decoder-theater-title">
+  <div class="tvh-modal-card decoder-theater-card" role="document">
+    <!-- Header -->
+    <div class="decoder-theater-header">
+      <div class="decoder-header-left">
+        <span class="decoder-pill-badge">นวัตกรรมสื่อการสอน</span>
+        <h2 id="decoder-theater-title" class="decoder-title">🎭 โรงละครถอดหน้ากากตัวสะกด</h2>
+      </div>
+      <div class="decoder-header-right">
+        <button type="button" class="btn-decoder-tool touch-target" id="btn-decoder-audio-toggle" title="เปิด/ปิดเสียง">🔊 เสียง</button>
+        <button type="button" class="tvh-modal-close touch-target" aria-label="ปิดโรงละคร" onclick="window.ThaiSpellingDecoder.close()">×</button>
+      </div>
+    </div>
+
+    <!-- Section Tabs -->
+    <div class="decoder-preset-bar" role="tablist" aria-label="เลือกมาตราตัวสะกด">
+      <button type="button" class="decoder-preset-tab touch-target active" data-section="kod" onclick="window.ThaiSpellingDecoder.selectSection('kod')">แม่กด (เสียง ด)</button>
+      <button type="button" class="decoder-preset-tab touch-target" data-section="kon" onclick="window.ThaiSpellingDecoder.selectSection('kon')">แม่กน (เสียง น)</button>
+      <button type="button" class="decoder-preset-tab touch-target" data-section="kob" onclick="window.ThaiSpellingDecoder.selectSection('kob')">แม่กบ (เสียง บ)</button>
+      <button type="button" class="decoder-preset-tab touch-target" data-section="kok" onclick="window.ThaiSpellingDecoder.selectSection('kok')">แม่กก (เสียง ก)</button>
+    </div>
+
+    <!-- Section Rule Banner -->
+    <div class="decoder-rule-banner">
+      <div class="decoder-rule-badge" id="decoder-rule-badge">แม่กด (เสียง ด)</div>
+      <div class="decoder-rule-desc" id="decoder-rule-desc">
+        ตัวสะกดไม่ตรงมาตรา เช่น จ, ช, ซ, ฎ, ฏ, ฐ, ฑ, ฒ, ด, ต, ถ, ท, ธ, ศ, ษ, ส ออกเสียงเหมือน ด สะกด
+      </div>
+    </div>
+
+    <!-- Theater Stage Screen -->
+    <div class="decoder-stage-wrapper">
+      <div class="decoder-stage-screen" id="decoder-stage-screen">
+        <!-- Dynamic Animated Content Injected Here -->
+      </div>
+
+      <!-- Phonics Equation Subtitle -->
+      <div class="decoder-equation-box" id="decoder-equation-box">
+        <span id="decoder-eq-spelling" class="eq-spelling">ตอ - อำ = ตำ, รอ - อัว - ดอ = รวด ➔ ตำ-รวด</span>
+        <button type="button" class="btn-voice-pill touch-target" id="btn-decoder-speak" onclick="window.ThaiSpellingDecoder.speakPhonics()">
+          🔊 ฟังเสียงแจกลูก
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Example Chips -->
+    <div class="decoder-examples-row">
+      <span class="decoder-ex-label" id="decoder-ex-label">คำตัวอย่าง:</span>
+      <div id="decoder-examples-chips" class="decoder-examples-chips"></div>
+    </div>
+
+    <!-- Controls Footer -->
+    <div class="decoder-theater-footer">
+      <div class="decoder-step-indicator" id="decoder-step-indicator">
+        <span class="step-dot active" data-step="1">1. คำรูปจริง (สวมหน้ากาก)</span>
+        <span class="step-arrow">➔</span>
+        <span class="step-dot" data-step="2">2. สแกนเสียง (แว่น X-Ray)</span>
+        <span class="step-arrow">➔</span>
+        <span class="step-dot" data-step="3">3. ถอดหน้ากาก! ✨</span>
+      </div>
+
+      <div class="decoder-footer-actions">
+        <button type="button" class="cbtn touch-target btn-decoder-reset" onclick="window.ThaiSpellingDecoder.reset()">↺ ตั้งต้นใหม่</button>
+        <button type="button" class="btn btn-primary btn-decoder-next touch-target" id="btn-decoder-next" onclick="window.ThaiSpellingDecoder.nextStep()">
+          ก้าวต่อไป ▶ (Spacebar)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ KAMPAI SDK + Online framework (single source) ═══ -->
 <script src="/games/kampai-sdk.js"></script>
 <script>
@@ -412,6 +485,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="worksheet-generator.js"></script>
 <script src="classroom-tools.js"></script>
 <script src="vowel-morph.js"></script>
+<script src="spelling-decoder.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
