@@ -1883,80 +1883,88 @@
     else if (currentStep === 3) {
       morphSound.playMagicSparkle();
 
-      // Render based on animation rule
+      // Render based on animation rule with buttery-smooth phased transitions
       if (preset.animationType === 'er_to_i') {
-        // เ-อ + ตัวสะกด -> เ-ิ (อ ลอยขึ้นเป็น สระอิ)
+        // เ-อ + ตัวสะกด -> เ-ิ (อ ลอยขึ้นเป็น สระอิ อย่างนุ่มนวล)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
             <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
             <div class="char-initial-slot">
-              <span class="char-vowel char-morphed-top animate-fly-up-i">ิ</span>
+              <span class="char-vowel char-morphed-top mark-morphing-in">ิ</span>
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">อ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'er_to_y') {
-        // เ-อ + ย -> เ-ย (อ หดหายไป)
+        // เ-อ + ย -> เ-ย (อ ระเหยหายไป)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
-            <span class="char-vowel char-prefix">เ</span>
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
+            <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
             <div class="char-initial-slot">
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">อ</span>
             </div>
             <span class="char-final animate-pop-in">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'a_to_han') {
-        // -ะ -> -ั (ลอยขึ้นเป็น ไม้หันอากาศ)
+        // -ะ -> -ั (ลอยขึ้นเป็น ไม้หันอากาศ อย่างนุ่มนวล)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
             <div class="char-initial-slot">
-              <span class="char-vowel char-morphed-top animate-fly-up-han">ั</span>
+              <span class="char-vowel char-morphed-top mark-morphing-in">ั</span>
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'e_to_taikhu') {
-        // เ-ะ -> เ-็ (ะ ลอยขึ้นเป็น ไม้ไต่คู้)
+        // เ-ะ -> เ-็ (ะ ลอยขึ้นเป็น ไม้ไต่คู้ อย่างนุ่มนวล)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
-            <span class="char-vowel char-prefix">เ</span>
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
+            <span class="char-vowel char-prefix animate-pulse-soft">เ</span>
             <div class="char-initial-slot">
-              <span class="char-vowel char-morphed-top animate-fly-up-taikhu">็</span>
+              <span class="char-vowel char-morphed-top mark-morphing-in">็</span>
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'ae_to_taikhu') {
-        // แ-ะ -> แ-็
+        // แ-ะ -> แ-็ (ะ ลอยขึ้นเป็น ไม้ไต่คู้ อย่างนุ่มนวล)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
-            <span class="char-vowel char-prefix">แ</span>
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
+            <span class="char-vowel char-prefix animate-pulse-soft">แ</span>
             <div class="char-initial-slot">
-              <span class="char-vowel char-morphed-top animate-fly-up-taikhu">็</span>
+              <span class="char-vowel char-morphed-top mark-morphing-in">็</span>
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-morphing-out" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'o_reduce') {
-        // โ-ะ ลดรูปหมด
+        // โ-ะ ลดรูปหมด (โ และ ะ ระเหยหายไป)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
             <div class="char-initial-slot">
+              <span class="char-vowel char-prefix-ghost suffix-evaporating" aria-hidden="true">โ</span>
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">ะ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
         `;
       } else if (preset.animationType === 'ua_reduce') {
-        // -ัว ลดรูป (ไม้หันอากาศหาย)
+        // -ัว ลดรูป (ไม้หันอากาศบนหัวระเหยหายไป)
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
             <div class="char-initial-slot">
+              <span class="char-vowel char-upper-base suffix-evaporating" aria-hidden="true">ั</span>
               <span class="char-initial">${initial}</span>
             </div>
             <span class="char-vowel char-suffix-base">ว</span>
@@ -1964,11 +1972,12 @@
           </div>
         `;
       } else if (preset.animationType === 'or_reduce') {
-        // -อ + ร -> อ หาย
+        // -อ + ร -> อ ระเหยหายไป
         stage.innerHTML = `
-          <div class="morph-char-group step-3 morphing">
+          <div class="morph-char-group step-3 morphing word-elastic-settle">
             <div class="char-initial-slot">
               <span class="char-initial">${initial}</span>
+              <span class="char-vowel char-suffix-ghost suffix-evaporating" aria-hidden="true">อ</span>
             </div>
             <span class="char-final">${finalC}</span>
           </div>
