@@ -1,0 +1,3815 @@
+{
+  "version": "1.0.0",
+  "description": "Curated dataset of 200 irregular spelling words for Thai primary education (แม่กด, แม่กน, แม่กบ, แม่กก)",
+  "metadata": {
+    "totalWords": 200,
+    "sections": {
+      "kod": 80,
+      "kon": 50,
+      "kob": 40,
+      "kok": 30
+    }
+  },
+  "words": [
+    {
+      "word": "ตัวเลข",
+      "reading": "ตัว-เลก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ต, ล",
+        "initialName": "ตอ, ลอ",
+        "vowel": "อัว, เอ",
+        "vowelName": "สระอัว, สระเอ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "ตอ - อัว = ตัว, ลอ - เอ - กอ = เลก ➔ ตัว-เลก"
+      },
+      "meaning": "สัญลักษณ์ที่ใช้แทนจำนวนในการนับและคำนวณ",
+      "emoji": "🔢"
+    },
+    {
+      "word": "สุนัข",
+      "reading": "สุ-นัก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ส, น",
+        "initialName": "สอ, นอ",
+        "vowel": "อุ, อะ",
+        "vowelName": "สระอุ, สระอะ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "สอ - อุ = สุ, นอ - อะ - กอ = นัก ➔ สุ-นัก"
+      },
+      "meaning": "สัตว์เลี้ยงสี่ขาที่ซื่อสัตย์ มีประสาทดมกลิ่นยอดเยี่ยม",
+      "emoji": "🐕"
+    },
+    {
+      "word": "ความสุข",
+      "reading": "ความ-สุก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "คว, ส",
+        "initialName": "คอ-วอ, สอ",
+        "vowel": "อา, อุ",
+        "vowelName": "สระอา, สระอุ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "คอ - วอ - อา - มอ = ความ, สอ - อุ - กอ = สุก ➔ ความ-สุก"
+      },
+      "meaning": "ความสบายกายสบายใจ จิตใจสดชื่นเบิกบาน",
+      "emoji": "😊"
+    },
+    {
+      "word": "ประมุข",
+      "reading": "ประ-มุก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ปร, ม",
+        "initialName": "ปอ-รอ, มอ",
+        "vowel": "อะ, อุ",
+        "vowelName": "สระอะ, สระอุ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, มอ - อุ - กอ = มุก ➔ ประ-มุก"
+      },
+      "meaning": "ผู้เป็นหัวหน้าหรือผู้นำสูงสุดขององค์กรหรือประเทศ",
+      "emoji": "👑"
+    },
+    {
+      "word": "วิหค",
+      "reading": "วิ-หก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ว, ห",
+        "initialName": "วอ, หอ",
+        "vowel": "อิ, โอะ",
+        "vowelName": "สระอิ, สระโอะ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "วอ - อิ = วิ, หอ - โอะ - กอ = หก ➔ วิ-หก"
+      },
+      "meaning": "นกที่บินอยู่บนท้องฟ้า มีปีกและขนสวยงาม",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ก้อนเมฆ",
+      "reading": "ก้อน-เมก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ฆ",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ก, ม",
+        "initialName": "กอ, มอ",
+        "vowel": "ออ, เอ",
+        "vowelName": "สระออ, สระเอ",
+        "finalSurface": "ฆ",
+        "finalSound": "ก",
+        "phonicsSpelling": "กอ - ออ - นอ - ไม้โท = ก้อน, มอ - เอ - กอ = เมก ➔ ก้อน-เมก"
+      },
+      "meaning": "ละอองน้ำที่รวมตัวกันเป็นกลุ่มก้อนลอยอยู่บนฟ้า",
+      "emoji": "☁️"
+    },
+    {
+      "word": "โชคดี",
+      "reading": "โชก-ดี",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ช, ด",
+        "initialName": "ชอ, ดอ",
+        "vowel": "โอ, อี",
+        "vowelName": "สระโอ, สระอี",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ชอ - โอ - กอ = โชก, ดอ - อี = ดี ➔ โชก-ดี"
+      },
+      "meaning": "มีสิ่งดี ๆ เกิดขึ้นโดยบังเอิญ เคราะห์ดี",
+      "emoji": "🍀"
+    },
+    {
+      "word": "บุคคล",
+      "reading": "บุก-คน",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "บ, ค",
+        "initialName": "บอ, คอ",
+        "vowel": "อุ, โอะ",
+        "vowelName": "สระอุ, สระโอะ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "บอ - อุ - กอ = บุก, คอ - โอะ - นอ = คน ➔ บุก-คน"
+      },
+      "meaning": "มนุษย์แต่ละคน คนธรรมดาทั่วไป",
+      "emoji": "👤"
+    },
+    {
+      "word": "พรรคพวก",
+      "reading": "พัก-พวก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "พ, พ",
+        "initialName": "พอ, พอ",
+        "vowel": "อะ, อัว",
+        "vowelName": "สระอะ, สระอัว",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "พอ - อะ - กอ = พัก, พอ - อัว - กอ = พวก ➔ พัก-พวก"
+      },
+      "meaning": "กลุ่มเพื่อนหรือคนที่มีความเห็นร่วมกัน",
+      "emoji": "👥"
+    },
+    {
+      "word": "สมัคร",
+      "reading": "สะ-หมัก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "คร",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ส, ม",
+        "initialName": "สอ, มอ",
+        "vowel": "อะ, อะ",
+        "vowelName": "สระอะ, สระอะ",
+        "finalSurface": "คร",
+        "finalSound": "ก",
+        "phonicsSpelling": "สอ - อะ = สะ, หอ - มอ - อะ - กอ = หมัก ➔ สะ-หมัก"
+      },
+      "meaning": "ยื่นความจำนงเข้าร่วมเป็นสมาชิกหรือทำงาน",
+      "emoji": "📝"
+    },
+    {
+      "word": "ภาคเรียน",
+      "reading": "พาก-เรียน",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ภ, ร",
+        "initialName": "พอ, รอ",
+        "vowel": "อา, เอีย",
+        "vowelName": "สระอา, สระเอีย",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "พอ - อา - กอ = พาก, รอ - เอีย - นอ = เรียน ➔ พาก-เรียน"
+      },
+      "meaning": "ช่วงเวลาหนึ่งของการจัดการเรียนการสอนในรอบปี",
+      "emoji": "🏫"
+    },
+    {
+      "word": "พญานาค",
+      "reading": "พะ-ยา-นาก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "พ, ญ, น",
+        "initialName": "พอ, ยอ, นอ",
+        "vowel": "อะ, อา, อา",
+        "vowelName": "สระอะ, สระอา, สระอา",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "พอ - อะ = พะ, ยอ - อา = ยา, นอ - อา - กอ = นาก ➔ พะ-ยา-นาก"
+      },
+      "meaning": "งูใหญ่มีหงอนตามความเชื่อโบราณ มีอิทธิฤทธิ์",
+      "emoji": "🐉"
+    },
+    {
+      "word": "อัคคี",
+      "reading": "อัก-คี",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "อ, ค",
+        "initialName": "ออ, คอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ออ - อะ - กอ = อัก, คอ - อี = คี ➔ อัก-คี"
+      },
+      "meaning": "ไฟ เปลวไฟ หรือความร้อนจากไฟ",
+      "emoji": "🔥"
+    },
+    {
+      "word": "โรคภัย",
+      "reading": "โรก-พัย",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ร, ภ",
+        "initialName": "รอ, พอ",
+        "vowel": "โอ, ไอ",
+        "vowelName": "สระโอ, สระไอไม้มลาย",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "รอ - โอ - กอ = โรก, พอ - ไอ = พัย ➔ โรก-พัย"
+      },
+      "meaning": "ความเจ็บป่วยหรืออันตรายจากเชื้อโรค",
+      "emoji": "🩺"
+    },
+    {
+      "word": "บริจาค",
+      "reading": "บอ-ริ-จาก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "บ, ร, จ",
+        "initialName": "บอ, รอ, จอ",
+        "vowel": "ออ, อิ, อา",
+        "vowelName": "สระออ, สระอิ, สระอา",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "บอ - ออ = บอ, รอ - อิ = ริ, จอ - อา - กอ = จาก ➔ บอ-ริ-จาก"
+      },
+      "meaning": "สละสิ่งของ เงินทอง ช่วยเหลือผู้อื่นด้วยจิตกุศล",
+      "emoji": "🎁"
+    },
+    {
+      "word": "ยุคสมัย",
+      "reading": "ยุก-สะ-หมัย",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ย, ส, ม",
+        "initialName": "ยอ, สอ, มอ",
+        "vowel": "อุ, อะ, ไอ",
+        "vowelName": "สระอุ, สระอะ, สระไอไม้มลาย",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ยอ - อุ - กอ = ยุก, สอ - อะ = สะ, หอ - มอ - ไอ = หมัย ➔ ยุก-สะ-หมัย"
+      },
+      "meaning": "ช่วงเวลาหรือกาลเวลาในแต่ละยุค",
+      "emoji": "⏳"
+    },
+    {
+      "word": "ทุกข์",
+      "reading": "ทุก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ท",
+        "initialName": "ทอ",
+        "vowel": "อุ",
+        "vowelName": "สระอุ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "ทอ - อุ - กอ = ทุก (มี ข สะกด ฆ การันต์)"
+      },
+      "meaning": "ความยากลำบาก ความไม่สบายกายไม่สบายใจ",
+      "emoji": "😢"
+    },
+    {
+      "word": "จักร",
+      "reading": "จัก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "กร",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "จ",
+        "initialName": "จอ",
+        "vowel": "อะ",
+        "vowelName": "สระอะ",
+        "finalSurface": "กร",
+        "finalSound": "ก",
+        "phonicsSpelling": "จอ - อะ - กอ = จัก (เขียนด้วย กร สะกด)"
+      },
+      "meaning": "วงล้อ หรือเครื่องจักรกลที่หมุนเคลื่อนที่ได้",
+      "emoji": "⚙️"
+    },
+    {
+      "word": "เทคนิค",
+      "reading": "เทก-นิก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ท, น",
+        "initialName": "ทอ, นอ",
+        "vowel": "เอ, อิ",
+        "vowelName": "สระเอ, สระอิ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ทอ - เอ - กอ = เทก, นอ - อิ - กอ = นิก ➔ เทก-นิก"
+      },
+      "meaning": "วิธีหรือทักษะเฉพาะด้านในการสร้างสรรค์งาน",
+      "emoji": "💡"
+    },
+    {
+      "word": "ประโยค",
+      "reading": "ประ-โยก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ปร, ย",
+        "initialName": "ปอ-รอ, ยอ",
+        "vowel": "อะ, โอ",
+        "vowelName": "สระอะ, สระโอ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, ยอ - โอ - กอ = โยก ➔ ประ-โยก"
+      },
+      "meaning": "ถ้อยคำที่มีภาคประธานและภาคแสดงสมบูรณ์",
+      "emoji": "💬"
+    },
+    {
+      "word": "ภาคภูมิ",
+      "reading": "พาก-พูม",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ภ, ภ",
+        "initialName": "พอ, พอ",
+        "vowel": "อา, อู",
+        "vowelName": "สระอา, สระอู",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "พอ - อา - กอ = พาก, พอ - อู - มอ = พูม ➔ พาก-พูม"
+      },
+      "meaning": "รู้สึกอิ่มใจและภูมิใจในเกียรติยศหรือความดี",
+      "emoji": "🎖️"
+    },
+    {
+      "word": "สุขสันต์",
+      "reading": "สุก-สัน",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ข",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ส, ส",
+        "initialName": "สอ, สอ",
+        "vowel": "อุ, อะ",
+        "vowelName": "สระอุ, สระอะ",
+        "finalSurface": "ข",
+        "finalSound": "ก",
+        "phonicsSpelling": "สอ - อุ - กอ = สุก, สอ - อะ - นอ = สัน ➔ สุก-สัน"
+      },
+      "meaning": "มีความสุข รื่นเริง แจ่มใสในโอกาสพิเศษ",
+      "emoji": "🎉"
+    },
+    {
+      "word": "เมฆหมอก",
+      "reading": "เมก-หมอก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ฆ",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ม, หม",
+        "initialName": "มอ, หอ-มอ",
+        "vowel": "เอ, ออ",
+        "vowelName": "สระเอ, สระออ",
+        "finalSurface": "ฆ",
+        "finalSound": "ก",
+        "phonicsSpelling": "มอ - เอ - กอ = เมก, หอ - มอ - ออ - กอ = หมอก ➔ เมก-หมอก"
+      },
+      "meaning": "ไอละอองน้ำในอากาศหนาทึบจนมองเห็นไม่ชัด",
+      "emoji": "🌫️"
+    },
+    {
+      "word": "สามัคคี",
+      "reading": "สา-มัก-คี",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ส, ม, ค",
+        "initialName": "สอ, มอ, คอ",
+        "vowel": "อา, อะ, อี",
+        "vowelName": "สระอา, สระอะ, สระอี",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "สอ - อา = สา, มอ - อะ - กอ = มัก, คอ - อี = คี ➔ สา-มัก-คี"
+      },
+      "meaning": "ความพร้อมเพรียง ร่วมแรงร่วมใจกันทำงาน",
+      "emoji": "🤝"
+    },
+    {
+      "word": "วัคซีน",
+      "reading": "วัก-ซีน",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ว, ซ",
+        "initialName": "วอ, ซอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "วอ - อะ - กอ = วัก, ซอ - อี - นอ = ซีน ➔ วัก-ซีน"
+      },
+      "meaning": "ยาที่ฉีดเข้าสู่ร่างกายเพื่อสร้างภูมิคุ้มกันโรค",
+      "emoji": "💉"
+    },
+    {
+      "word": "อุปโภค",
+      "reading": "อุบ-ปะ-โภก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "อ, ป, ภ",
+        "initialName": "ออ, ปอ, พอ",
+        "vowel": "อุ, อะ, โอ",
+        "vowelName": "สระอุ, สระอะ, สระโอ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "ออ - อุ - บอ = อุบ, ปอ - อะ = ปะ, พอ - โอ - กอ = โภก ➔ อุบ-ปะ-โภก"
+      },
+      "meaning": "การนำสิ่งของเครื่องใช้มาใช้สอยให้เกิดประโยชน์",
+      "emoji": "📦"
+    },
+    {
+      "word": "บริโภค",
+      "reading": "บอ-ริ-โภก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "ค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "บ, ร, ภ",
+        "initialName": "บอ, รอ, พอ",
+        "vowel": "ออ, อิ, โอ",
+        "vowelName": "สระออ, สระอิ, สระโอ",
+        "finalSurface": "ค",
+        "finalSound": "ก",
+        "phonicsSpelling": "บอ - ออ = บอ, รอ - อิ = ริ, พอ - โอ - กอ = โภก ➔ บอ-ริ-โภก"
+      },
+      "meaning": "กิน ดื่ม หรือใช้สินค้าและบริการต่าง ๆ",
+      "emoji": "🍽️"
+    },
+    {
+      "word": "มรรคผล",
+      "reading": "มัก-ผน",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "รค",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ม, ผ",
+        "initialName": "มอ, ผอ",
+        "vowel": "อะ, โอะ",
+        "vowelName": "สระอะ, สระโอะ",
+        "finalSurface": "รค",
+        "finalSound": "ก",
+        "phonicsSpelling": "มอ - อะ - กอ = มัก, ผอ - โอะ - นอ = ผน ➔ มัก-ผน"
+      },
+      "meaning": "หนทางและผลลัพธ์แห่งการปฏิบัติธรรม",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ฤกษ์ดี",
+      "reading": "เริก-ดี",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "กษ",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "ฤ, ด",
+        "initialName": "รึ, ดอ",
+        "vowel": "เออ, อี",
+        "vowelName": "สระเออ, สระอี",
+        "finalSurface": "กษ",
+        "finalSound": "ก",
+        "phonicsSpelling": "รอ - เออ - กอ = เริก, ดอ - อี = ดี ➔ เริก-ดี"
+      },
+      "meaning": "คราวหรือเวลาที่กำหนดไว้เป็นมงคล เหมาะแก่การเริ่มต้น",
+      "emoji": "✨"
+    },
+    {
+      "word": "พระพักตร์",
+      "reading": "พระ-พัก",
+      "targetSection": "kok",
+      "sectionName": "แม่กก",
+      "surfaceConsonant": "กตร",
+      "soundConsonant": "ก",
+      "phonicsDecomposition": {
+        "initial": "พร, พ",
+        "initialName": "พอ-รอ, พอ",
+        "vowel": "อะ, อะ",
+        "vowelName": "สระอะ, สระอะ",
+        "finalSurface": "กตร",
+        "finalSound": "ก",
+        "phonicsSpelling": "พอ - รอ - อะ = พระ, พอ - อะ - กอ = พัก ➔ พระ-พัก"
+      },
+      "meaning": "ใบหน้า หรือหน้า (คำราชาศัพท์)",
+      "emoji": "🧏"
+    },
+    {
+      "word": "บาป",
+      "reading": "บาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "บ",
+        "initialName": "บอ",
+        "vowel": "อา",
+        "vowelName": "สระอา",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "บอ - อา - บอ = บาบ (เขียนด้วย ป สะกด)"
+      },
+      "meaning": "การกระทำที่ไม่ดี ผิดศีลธรรมและคุณธรรม",
+      "emoji": "🖤"
+    },
+    {
+      "word": "คำสาป",
+      "reading": "คำ-สาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ค, ส",
+        "initialName": "คอ, สอ",
+        "vowel": "อำ, อา",
+        "vowelName": "สระอำ, สระอา",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "คอ - อำ = คำ, สอ - อา - บอ = สาบ ➔ คำ-สาบ"
+      },
+      "meaning": "ถ้อยคำแช่งให้เกิดความหายนะหรือสิ่งไม่ดี",
+      "emoji": "🧙"
+    },
+    {
+      "word": "รูปภาพ",
+      "reading": "รูบ-พาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ร, พ",
+        "initialName": "รอ, พอ",
+        "vowel": "อู, อา",
+        "vowelName": "สระอู, สระอา",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "รอ - อู - บอ = รูบ, พอ - อา - บอ = พาบ ➔ รูบ-พาบ"
+      },
+      "meaning": "ภาพวาดหรือภาพถ่ายที่บันทึกไว้",
+      "emoji": "🖼️"
+    },
+    {
+      "word": "เคารพ",
+      "reading": "เคา-รบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ค, ร",
+        "initialName": "คอ, รอ",
+        "vowel": "เอา, โอะ",
+        "vowelName": "สระเอา, สระโอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "คอ - เอา = เคา, รอ - โอะ - บอ = รบ ➔ เคา-รบ"
+      },
+      "meaning": "แสดงความนับถือ อ่อนน้อมถ่อมตนต่อผู้ใหญ่",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ยีราฟ",
+      "reading": "ยี-ราบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ย, ร",
+        "initialName": "ยอ, รอ",
+        "vowel": "อี, อา",
+        "vowelName": "สระอี, สระอา",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ยอ - อี = ยี, รอ - อา - บอ = ราบ ➔ ยี-ราบ"
+      },
+      "meaning": "สัตว์คอยาวที่สุดในโลก ตัวมีลายสีน้ำตาล",
+      "emoji": "🦒"
+    },
+    {
+      "word": "ลาภลอย",
+      "reading": "ลาบ-ลอย",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ภ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ล, ล",
+        "initialName": "ลอ, ลอ",
+        "vowel": "อา, ออ",
+        "vowelName": "สระอา, สระออ",
+        "finalSurface": "ภ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ลอ - อา - บอ = ลาบ, ลอ - ออ - ยอ = ลอย ➔ ลาบ-ลอย"
+      },
+      "meaning": "สิ่งของหรือประโยชน์ที่ได้มาโดยไม่คาดฝัน",
+      "emoji": "💰"
+    },
+    {
+      "word": "ความโลภ",
+      "reading": "ความ-โลบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ภ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "คว, ล",
+        "initialName": "คอ-วอ, ลอ",
+        "vowel": "อา, โอ",
+        "vowelName": "สระอา, สระโอ",
+        "finalSurface": "ภ",
+        "finalSound": "บ",
+        "phonicsSpelling": "คอ - วอ - อา - มอ = ความ, ลอ - โอ - บอ = โลบ ➔ ความ-โลบ"
+      },
+      "meaning": "ความอยากได้ของผู้อื่นมาเป็นของตนเอง",
+      "emoji": "🤑"
+    },
+    {
+      "word": "กองทัพ",
+      "reading": "กอง-ทับ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ก, ท",
+        "initialName": "กอ, ทอ",
+        "vowel": "ออ, อะ",
+        "vowelName": "สระออ, สระอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "กอ - ออ - งอ = กอง, ทอ - อะ - บอ = ทับ ➔ กอง-ทับ"
+      },
+      "meaning": "กลุ่มทหารที่จัดตั้งขึ้นเพื่อปกป้องประเทศชาติ",
+      "emoji": "🪖"
+    },
+    {
+      "word": "ศพ",
+      "reading": "สบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ศ",
+        "initialName": "สอ",
+        "vowel": "โอะ",
+        "vowelName": "สระโอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - โอะ - บอ = สบ (เขียนด้วย ศ และ พ สะกด)"
+      },
+      "meaning": "ร่างของคนที่เสียชีวิตแล้ว",
+      "emoji": "⚰️"
+    },
+    {
+      "word": "ทวีป",
+      "reading": "ทะ-วีบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ท, ว",
+        "initialName": "ทอ, วอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "ทอ - อะ = ทะ, วอ - อี - บอ = วีบ ➔ ทะ-วีบ"
+      },
+      "meaning": "แผ่นดินขนาดใหญ่มากบนผิวโลก เช่น ทวีปเอเชีย",
+      "emoji": "🌍"
+    },
+    {
+      "word": "ภาพยนตร์",
+      "reading": "พาบ-พะ-ยน",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ภ, ย",
+        "initialName": "พอ, ยอ",
+        "vowel": "อา, โอะ",
+        "vowelName": "สระอา, สระโอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "พอ - อา - บอ = พาบ, ยอ - โอะ - นอ = ยน ➔ พาบ-พะ-ยน"
+      },
+      "meaning": "หนังหรือภาพเคลื่อนไหวที่ฉายบนจอให้ชม",
+      "emoji": "🎬"
+    },
+    {
+      "word": "คำศัพท์",
+      "reading": "คำ-สับ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ค, ศ",
+        "initialName": "คอ, สอ",
+        "vowel": "อำ, อะ",
+        "vowelName": "สระอำ, สระอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "คอ - อำ = คำ, สอ - อะ - บอ = สับ ➔ คำ-สับ"
+      },
+      "meaning": "คำยากหรือถ้อยคำที่มีความหมายเฉพาะ",
+      "emoji": "📚"
+    },
+    {
+      "word": "ไมโครเวฟ",
+      "reading": "ไม-โคร-เวบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ม, คร, ว",
+        "initialName": "มอ, คอ-รอ, วอ",
+        "vowel": "ไอ, โอ, เอ",
+        "vowelName": "สระไอไม้มลาย, สระโอ, สระเอ",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "มอ - ไอ = ไม, คอ - รอ - โอ = โคร, วอ - เอ - บอ = เวบ ➔ ไม-โคร-เวบ"
+      },
+      "meaning": "เตาอบไฟฟ้าที่ใช้อุ่นอาหารด้วยคลื่นแม่เหล็กไฟฟ้า",
+      "emoji": "📻"
+    },
+    {
+      "word": "ลิฟต์",
+      "reading": "ลิบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ล",
+        "initialName": "ลอ",
+        "vowel": "อิ",
+        "vowelName": "สระอิ",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ลอ - อิ - บอ = ลิบ (เขียนด้วย ฟ และ ต์ การันต์)"
+      },
+      "meaning": "ห้องโดยสารเคลื่อนที่ขึ้นลงระหว่างชั้นของอาคาร",
+      "emoji": "🛗"
+    },
+    {
+      "word": "กราฟ",
+      "reading": "กราบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "กร",
+        "initialName": "กอ-รอ",
+        "vowel": "อา",
+        "vowelName": "สระอา",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "กอ - รอ - อา - บอ = กราบ (เขียนด้วย ฟ สะกด)"
+      },
+      "meaning": "แผนภูมิเส้นหรือรูปภาพแสดงข้อมูลเปรียบเทียบ",
+      "emoji": "📊"
+    },
+    {
+      "word": "เสิร์ฟ",
+      "reading": "เสิบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส",
+        "initialName": "สอ",
+        "vowel": "เออ",
+        "vowelName": "สระเออ",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - เออ - บอ = เสิบ (มี ร์ และ ฟ สะกด)"
+      },
+      "meaning": "ยกอาหารหรือเครื่องดื่มมาบริการส่งให้",
+      "emoji": "🍽️"
+    },
+    {
+      "word": "ทัพพี",
+      "reading": "ทับ-พี",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ท, พ",
+        "initialName": "ทอ, พอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ทอ - อะ - บอ = ทับ, พอ - อี = พี ➔ ทับ-พี"
+      },
+      "meaning": "ช้อนขนาดใหญ่มีด้ามยาวสำหรับตักข้าวหรือแกง",
+      "emoji": "🥄"
+    },
+    {
+      "word": "โทรศัพท์",
+      "reading": "โท-ระ-สับ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ท, ร, ศ",
+        "initialName": "ทอ, รอ, สอ",
+        "vowel": "โอ, อะ, อะ",
+        "vowelName": "สระโอ, สระอะ, สระอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ทอ - โอ = โท, รอ - อะ = ระ, สอ - อะ - บอ = สับ ➔ โท-ระ-สับ"
+      },
+      "meaning": "เครื่องมือสื่อสารพูดคุยติดต่อกันทางไกล",
+      "emoji": "📱"
+    },
+    {
+      "word": "สัปดาห์",
+      "reading": "สับ-ดา",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, ด",
+        "initialName": "สอ, ดอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อะ - บอ = สับ, ดอ - อา = ดา ➔ สับ-ดา"
+      },
+      "meaning": "รอบระยะเวลา 7 วันตั้งแต่จันทร์ถึงอาทิตย์",
+      "emoji": "📅"
+    },
+    {
+      "word": "ปรารภ",
+      "reading": "ปราบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ภ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ปร, ร",
+        "initialName": "ปอ-รอ, รอ",
+        "vowel": "อา, โอะ",
+        "vowelName": "สระอา, สระโอะ",
+        "finalSurface": "ภ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ปอ - รอ - อา = ปรา, รอ - โอะ - บอ = รบ ➔ ปรา-รบ"
+      },
+      "meaning": "กล่าวถึง ยกเรื่องขึ้นมาพูดเพื่อปรึกษาหารือ",
+      "emoji": "🗣️"
+    },
+    {
+      "word": "อาชีพ",
+      "reading": "อา-ชีบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "อ, ช",
+        "initialName": "ออ, ชอ",
+        "vowel": "อา, อี",
+        "vowelName": "สระอา, สระอี",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ออ - อา = อา, ชอ - อี - บอ = ชีบ ➔ อา-ชีบ"
+      },
+      "meaning": "การทำงานหาเลี้ยงชีพที่สุจริต",
+      "emoji": "💼"
+    },
+    {
+      "word": "ทิพย์",
+      "reading": "ทิบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ท",
+        "initialName": "ทอ",
+        "vowel": "อิ",
+        "vowelName": "สระอิ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ทอ - อิ - บอ = ทิบ (เขียนด้วย พ และ ย์ การันต์)"
+      },
+      "meaning": "เป็นของเทวดา ยอดเยี่ยม วิเศษ เหนือธรรมดา",
+      "emoji": "✨"
+    },
+    {
+      "word": "บุพการี",
+      "reading": "บุบ-พะ-กา-รี",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "บ, ก, ร",
+        "initialName": "บอ, กอ, รอ",
+        "vowel": "อุ, อา, อี",
+        "vowelName": "สระอุ, สระอา, สระอี",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "บอ - อุ - บอ = บุบ, กอ - อา = กา, รอ - อี = รี ➔ บุบ-พะ-กา-รี"
+      },
+      "meaning": "บิดามารดา ผู้มีพระคุณที่เลี้ยงดูเรามาก่อน",
+      "emoji": "👨‍👩‍👧"
+    },
+    {
+      "word": "สภาพ",
+      "reading": "สะ-พาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, พ",
+        "initialName": "สอ, พอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อะ = สะ, พอ - อา - บอ = พาบ ➔ สะ-พาบ"
+      },
+      "meaning": "ความเป็นอยู่ ลักษณะอาการที่ปรากฏอยู่",
+      "emoji": "🔍"
+    },
+    {
+      "word": "อพยพ",
+      "reading": "อบ-พะ-ยบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "อ, พ, ย",
+        "initialName": "ออ, พอ, ยอ",
+        "vowel": "อะ, อะ, โอะ",
+        "vowelName": "สระอะ, สระอะ, สระโอะ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ออ - อะ - บอ = อบ, พอ - อะ = พะ, ยอ - โอะ - บอ = ยบ ➔ อบ-พะ-ยบ"
+      },
+      "meaning": "ย้ายถิ่นฐานที่อยู่อาศัยจากที่หนึ่งไปยังอีกที่หนึ่ง",
+      "emoji": "🚚"
+    },
+    {
+      "word": "สรุป",
+      "reading": "สะ-หรุบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, ร",
+        "initialName": "สอ, รอ",
+        "vowel": "อะ, อุ",
+        "vowelName": "สระอะ, สระอุ",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อะ = สะ, หอ - รอ - อุ - บอ = หรุบ ➔ สะ-หรุบ"
+      },
+      "meaning": "รวบรวมใจความสำคัญอย่างสั้นกระชับ",
+      "emoji": "📌"
+    },
+    {
+      "word": "ลิปสติก",
+      "reading": "ลิบ-สะ-ติก",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ล, ส, ต",
+        "initialName": "ลอ, สอ, ตอ",
+        "vowel": "อิ, อะ, อิ",
+        "vowelName": "สระอิ, สระอะ, สระอิ",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "ลอ - อิ - บอ = ลิบ, สอ - อะ = สะ, ตอ - อิ - กอ = ติก ➔ ลิบ-สะ-ติก"
+      },
+      "meaning": "เครื่องสำอางแท่งใช้ทาริมฝีปากให้มีสีสันสวยงาม",
+      "emoji": "💄"
+    },
+    {
+      "word": "นพคุณ",
+      "reading": "นบ-พะ-คุน",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "น, ค",
+        "initialName": "นอ, คอ",
+        "vowel": "โอะ, อุ",
+        "vowelName": "สระโอะ, สระอุ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "นอ - โอะ - บอ = นบ, คอ - อุ - นอ = คุน ➔ นบ-พะ-คุน"
+      },
+      "meaning": "ทองคำเนื้อบริสุทธิ์ เนื้อเก้าตามตำราโบราณ",
+      "emoji": "🪙"
+    },
+    {
+      "word": "สัปเหร่อ",
+      "reading": "สับ-ปะ-เหร่อ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, ร",
+        "initialName": "สอ, รอ",
+        "vowel": "อะ, เออ",
+        "vowelName": "สระอะ, สระเออ",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อะ - บอ = สับ, หอ - รอ - เออ - ไม้เอก = เหร่อ ➔ สับ-ปะ-เหร่อ"
+      },
+      "meaning": "ผู้ทำหน้าที่ดูแลจัดการเกี่ยวกับพิธีศพ",
+      "emoji": "🕯️"
+    },
+    {
+      "word": "กอล์ฟ",
+      "reading": "กอบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ก",
+        "initialName": "กอ",
+        "vowel": "ออ",
+        "vowelName": "สระออ",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "กอ - ออ - บอ = กอบ (เขียนด้วย ล์ และ ฟ สะกด)"
+      },
+      "meaning": "กีฬาที่ใช้ไม้ตีกอล์ฟตีลูกสีขาวลงหลุม",
+      "emoji": "⛳"
+    },
+    {
+      "word": "บุปผา",
+      "reading": "บุบ-ผา",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "บ, ผ",
+        "initialName": "บอ, ผอ",
+        "vowel": "อุ, อา",
+        "vowelName": "สระอุ, สระอา",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "บอ - อุ - บอ = บุบ, ผอ - อา = ผา ➔ บุบ-ผา"
+      },
+      "meaning": "ดอกไม้ที่มีสีสันสดใสและกลิ่นหอม",
+      "emoji": "🌸"
+    },
+    {
+      "word": "พิภพ",
+      "reading": "พิ-พบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ภ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "พ, ภ",
+        "initialName": "พอ, พอ",
+        "vowel": "อิ, โอะ",
+        "vowelName": "สระอิ, สระโอะ",
+        "finalSurface": "ภ",
+        "finalSound": "บ",
+        "phonicsSpelling": "พอ - อิ = พิ, พอ - โอะ - บอ = พบ ➔ พิ-พบ"
+      },
+      "meaning": "โลก แผ่นดินใหญ่ หรือแดนที่อยู่ของมนุษย์",
+      "emoji": "🌐"
+    },
+    {
+      "word": "บรรพบุรุษ",
+      "reading": "บัน-พะ-บุ-หรุด",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "บ, บ, ร",
+        "initialName": "บอ, บอ, รอ",
+        "vowel": "อะ, อุ, อุ",
+        "vowelName": "สระอะ, สระอุ, สระอุ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "บอ - อะ - นอ = บัน, บอ - อุ = บุ, หอ - รอ - อุ - ดอ = หรุด ➔ บัน-พะ-บุ-หรุด"
+      },
+      "meaning": "ผู้เป็นต้นตระกูลที่สืบเชื้อสายต่อ ๆ กันมา",
+      "emoji": "🌳"
+    },
+    {
+      "word": "สุขภาพ",
+      "reading": "สุก-ขะ-พาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, พ",
+        "initialName": "สอ, พอ",
+        "vowel": "อุ, อา",
+        "vowelName": "สระอุ, สระอา",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อุ - กอ = สุก, พอ - อา - บอ = พาบ ➔ สุก-ขะ-พาบ"
+      },
+      "meaning": "ภาวะที่แข็งแรงสมบูรณ์ของร่างกายและจิตใจ",
+      "emoji": "💪"
+    },
+    {
+      "word": "สุภาพ",
+      "reading": "สุ-พาบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ส, พ",
+        "initialName": "สอ, พอ",
+        "vowel": "อุ, อา",
+        "vowelName": "สระอุ, สระอา",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "สอ - อุ = สุ, พอ - อา - บอ = พาบ ➔ สุ-พาบ"
+      },
+      "meaning": "เรียบร้อย อ่อนโยน มีกิริยามารยาทงดงาม",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "กรุงเทพ",
+      "reading": "กรุง-เทบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "กร, ท",
+        "initialName": "กอ-รอ, ทอ",
+        "vowel": "อุ, เอ",
+        "vowelName": "สระอุ, สระเอ",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "กอ - รอ - อุ - งอ = กรุง, ทอ - เอ - บอ = เทบ ➔ กรุง-เทบ"
+      },
+      "meaning": "เมืองหลวงและศูนย์กลางการปกครองของประเทศไทย",
+      "emoji": "🏙️"
+    },
+    {
+      "word": "เทพเจ้า",
+      "reading": "เทบ-พะ-เจ้า",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "พ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ท, จ",
+        "initialName": "ทอ, จอ",
+        "vowel": "เอ, เอา",
+        "vowelName": "สระเอ, สระเอา",
+        "finalSurface": "พ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ทอ - เอ - บอ = เทบ, จอ - เอา - ไม้โท = เจ้า ➔ เทบ-พะ-เจ้า"
+      },
+      "meaning": "สิ่งศักดิ์สิทธิ์ผู้มีอำนาจยิ่งใหญ่เหนือธรรมชาติ",
+      "emoji": "👼"
+    },
+    {
+      "word": "จุดธูป",
+      "reading": "จุด-ทูบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "จ, ท",
+        "initialName": "จอ, ทอ",
+        "vowel": "อุ, อู",
+        "vowelName": "สระอุ, สระอู",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "จอ - อุ - ดอ = จุด, ทอ - อู - บอ = ทูบ ➔ จุด-ทูบ"
+      },
+      "meaning": "จุดเครื่องหอมเพื่อแสดงความเคารพบูชาสิ่งศักดิ์สิทธิ์",
+      "emoji": "🕯️"
+    },
+    {
+      "word": "ประทีป",
+      "reading": "ประ-ทีบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ป",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ปร, ท",
+        "initialName": "ปอ-รอ, ทอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "ป",
+        "finalSound": "บ",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, ทอ - อี - บอ = ทีบ ➔ ประ-ทีบ"
+      },
+      "meaning": "โคมไฟหรือดวงไฟที่ส่องแสงสว่างในความมืด",
+      "emoji": "🪔"
+    },
+    {
+      "word": "เชฟ",
+      "reading": "เชบ",
+      "targetSection": "kob",
+      "sectionName": "แม่กบ",
+      "surfaceConsonant": "ฟ",
+      "soundConsonant": "บ",
+      "phonicsDecomposition": {
+        "initial": "ช",
+        "initialName": "ชอ",
+        "vowel": "เอ",
+        "vowelName": "สระเอ",
+        "finalSurface": "ฟ",
+        "finalSound": "บ",
+        "phonicsSpelling": "ชอ - เอ - บอ = เชบ (เขียนด้วย ฟ สะกด)"
+      },
+      "meaning": "หัวหน้าพ่อครัวผู้เชี่ยวชาญการปรุงอาหาร",
+      "emoji": "👨‍🍳"
+    },
+    {
+      "word": "กุญแจ",
+      "reading": "กุน-แจ",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, จ",
+        "initialName": "กอ, จอ",
+        "vowel": "อุ, แอ",
+        "vowelName": "สระอุ, สระแอ",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อุ - นอ = กุน, จอ - แอ = แจ ➔ กุน-แจ"
+      },
+      "meaning": "เครื่องมือโลหะใช้สำหรับไขเปิดปิดแม่กุญแจ",
+      "emoji": "🔑"
+    },
+    {
+      "word": "บำเพ็ญ",
+      "reading": "บำ-เพ็น",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "บ, พ",
+        "initialName": "บอ, พอ",
+        "vowel": "อำ, เอะ",
+        "vowelName": "สระอำ, สระเอะ",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "บอ - อำ = บำ, พอ - เอะ - นอ = เพ็น ➔ บำ-เพ็น"
+      },
+      "meaning": "ประพฤติปฏิบัติสร้างคุณงามความดีอย่างตั้งใจ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "เหรียญ",
+      "reading": "เหรียน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "หร",
+        "initialName": "หอ-รอ",
+        "vowel": "เอีย",
+        "vowelName": "สระเอีย",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "หอ - รอ - เอีย - นอ = เหรียน (เขียนด้วย ญ สะกด)"
+      },
+      "meaning": "เงินตราโลหะทรงกลมหรือเหรียญรางวัลเกียรติยศ",
+      "emoji": "🪙"
+    },
+    {
+      "word": "สัญญาณ",
+      "reading": "สัน-ยาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, ย",
+        "initialName": "สอ, ยอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อะ - นอ = สัน, ยอ - อา - นอ = ยาน ➔ สัน-ยาน"
+      },
+      "meaning": "เครื่องหมายหรือสิ่งบอกให้รู้ล่วงหน้า",
+      "emoji": "📶"
+    },
+    {
+      "word": "สัญญา",
+      "reading": "สัน-ยา",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, ย",
+        "initialName": "สอ, ยอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อะ - นอ = สัน, ยอ - อา = ยา ➔ สัน-ยา"
+      },
+      "meaning": "ข้อตกลงร่วมกันที่จะปฏิบัติตามคำมั่น",
+      "emoji": "🤝"
+    },
+    {
+      "word": "ทำบุญ",
+      "reading": "ทำ-บุน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ท, บ",
+        "initialName": "ทอ, บอ",
+        "vowel": "อำ, อุ",
+        "vowelName": "สระอำ, สระอุ",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "ทอ - อำ = ทำ, บอ - อุ - นอ = บุน ➔ ทำ-บุน"
+      },
+      "meaning": "การให้ทานหรือทำความดีเพื่อความสบายใจ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ของขวัญ",
+      "reading": "ของ-ขวัน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ข, ขว",
+        "initialName": "ขอ, ขอ-วอ",
+        "vowel": "ออ, อะ",
+        "vowelName": "สระออ, สระอะ",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "ขอ - ออ - งอ = ของ, ขอ - วอ - อะ - นอ = ขวัน ➔ ของ-ขวัน"
+      },
+      "meaning": "สิ่งของที่มอบให้แก่กันเพื่อแสดงความยินดี",
+      "emoji": "🎁"
+    },
+    {
+      "word": "สัญจร",
+      "reading": "สัน-จอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, จ",
+        "initialName": "สอ, จอ",
+        "vowel": "อะ, ออ",
+        "vowelName": "สระอะ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อะ - นอ = สัน, จอ - ออ - นอ = จอน ➔ สัน-จอน"
+      },
+      "meaning": "การเดินทางไปมาบนเส้นทางหรือถนนหนทาง",
+      "emoji": "🚗"
+    },
+    {
+      "word": "เชิญชวน",
+      "reading": "เชิน-ชวน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ช, ช",
+        "initialName": "ชอ, ชอ",
+        "vowel": "เออ, อัว",
+        "vowelName": "สระเออ, สระอัว",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "ชอ - เออ - นอ = เชิน, ชอ - อัว - นอ = ชวน ➔ เชิน-ชวน"
+      },
+      "meaning": "ชักชวนด้วยความสุภาพให้มาร่วมกิจกรรม",
+      "emoji": "👋"
+    },
+    {
+      "word": "ปัญญา",
+      "reading": "ปัน-ยา",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ป, ย",
+        "initialName": "ปอ, ยอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "ปอ - อะ - นอ = ปัน, ยอ - อา = ยา ➔ ปัน-ยา"
+      },
+      "meaning": "ความรอบรู้ ความฉลาดเฉลียวและเข้าใจสิ่งต่าง ๆ",
+      "emoji": "🧠"
+    },
+    {
+      "word": "โบราณ",
+      "reading": "โบ-ราน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "บ, ร",
+        "initialName": "บอ, รอ",
+        "vowel": "โอ, อา",
+        "vowelName": "สระโอ, สระอา",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "บอ - โอ = โบ, รอ - อา - นอ = ราน ➔ โบ-ราน"
+      },
+      "meaning": "เก่าแก่ มีมานานตั้งแต่ครั้งอดีต",
+      "emoji": "🏺"
+    },
+    {
+      "word": "บริเวณ",
+      "reading": "บอ-ริ-เวน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "บ, ร, ว",
+        "initialName": "บอ, รอ, วอ",
+        "vowel": "ออ, อิ, เอ",
+        "vowelName": "สระออ, สระอิ, สระเอ",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "บอ - ออ = บอ, รอ - อิ = ริ, วอ - เอ - นอ = เวน ➔ บอ-ริ-เวน"
+      },
+      "meaning": "พื้นที่รอบ ๆ หรือเขตที่กำหนดไว้",
+      "emoji": "📍"
+    },
+    {
+      "word": "พยากรณ์",
+      "reading": "พะ-ยา-กอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "พ, ย, ก",
+        "initialName": "พอ, ยอ, กอ",
+        "vowel": "อะ, อา, ออ",
+        "vowelName": "สระอะ, สระอา, สระออ",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "พอ - อะ = พะ, ยอ - อา = ยา, กอ - ออ - นอ = กอน ➔ พะ-ยา-กอน"
+      },
+      "meaning": "การคาดคะเนหรือทำนายเหตุการณ์ล่วงหน้า",
+      "emoji": "🔮"
+    },
+    {
+      "word": "ทารุณ",
+      "reading": "ทา-รุน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ท, ร",
+        "initialName": "ทอ, รอ",
+        "vowel": "อา, อุ",
+        "vowelName": "สระอา, สระอุ",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "ทอ - อา = ทา, รอ - อุ - นอ = รุน ➔ ทา-รุน"
+      },
+      "meaning": "โหดร้าย ไร้ความเมตตากรุณาต่อผู้อื่น",
+      "emoji": "⛓️"
+    },
+    {
+      "word": "คุณครู",
+      "reading": "คุน-ครู",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ณ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ค, คร",
+        "initialName": "คอ, คอ-รอ",
+        "vowel": "อุ, อู",
+        "vowelName": "สระอุ, สระอู",
+        "finalSurface": "ณ",
+        "finalSound": "น",
+        "phonicsSpelling": "คอ - อุ - นอ = คุน, คอ - รอ - อู = ครู ➔ คุน-ครู"
+      },
+      "meaning": "ผู้สั่งสอนและถ่ายทอดวิชาความรู้แก่นักเรียน",
+      "emoji": "👩‍🏫"
+    },
+    {
+      "word": "ทหาร",
+      "reading": "ทะ-หาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ท, ห",
+        "initialName": "ทอ, หอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ทอ - อะ = ทะ, หอ - อา - นอ = หาน ➔ ทะ-หาน"
+      },
+      "meaning": "ผู้มีหน้าที่ป้องกันและรักษาความสงบของประเทศชาติ",
+      "emoji": "💂"
+    },
+    {
+      "word": "ละคร",
+      "reading": "ละ-คอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ล, ค",
+        "initialName": "ลอ, คอ",
+        "vowel": "อะ, ออ",
+        "vowelName": "สระอะ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ลอ - อะ = ละ, คอ - ออ - นอ = คอน ➔ ละ-คอน"
+      },
+      "meaning": "การแสดงเรื่องราวบนเวทีหรือหน้าจอโทรทัศน์",
+      "emoji": "🎭"
+    },
+    {
+      "word": "เกสร",
+      "reading": "เก-สอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, ส",
+        "initialName": "กอ, สอ",
+        "vowel": "เอ, ออ",
+        "vowelName": "สระเอ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - เอ = เก, สอ - ออ - นอ = สอน ➔ เก-สอน"
+      },
+      "meaning": "ส่วนสืบพันธุ์ของดอกไม้ที่มีละอองสีเหลือง",
+      "emoji": "🌼"
+    },
+    {
+      "word": "วานร",
+      "reading": "วา-นอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ว, น",
+        "initialName": "วอ, นอ",
+        "vowel": "อา, ออ",
+        "vowelName": "สระอา, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "วอ - อา = วา, นอ - ออ - นอ = นอน ➔ วา-นอน"
+      },
+      "meaning": "ลิง สัตว์เลี้ยงลูกด้วยนมที่ซุกซนและว่องไว",
+      "emoji": "🐒"
+    },
+    {
+      "word": "นคร",
+      "reading": "นะ-คอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "น, ค",
+        "initialName": "นอ, คอ",
+        "vowel": "อะ, ออ",
+        "vowelName": "สระอะ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "นอ - อะ = นะ, คอ - ออ - นอ = คอน ➔ นะ-คอน"
+      },
+      "meaning": "เมืองใหญ่ หรือเมืองหลวงที่มีผู้คนอาศัยอยู่มาก",
+      "emoji": "🏰"
+    },
+    {
+      "word": "อวยพร",
+      "reading": "อวย-พอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "อ, พ",
+        "initialName": "ออ, พอ",
+        "vowel": "อัว, ออ",
+        "vowelName": "สระอัว, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ออ - อัว - ยอ = อวย, พอ - ออ - นอ = พอน ➔ อวย-พอน"
+      },
+      "meaning": "การกล่าวถ้อยคำแสดงความปรารถนาดีต่อผู้อื่น",
+      "emoji": "💌"
+    },
+    {
+      "word": "จราจร",
+      "reading": "จะ-รา-จอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "จ, ร, จ",
+        "initialName": "จอ, รอ, จอ",
+        "vowel": "อะ, อา, ออ",
+        "vowelName": "สระอะ, สระอา, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "จอ - อะ = จะ, รอ - อา = รา, จอ - ออ - นอ = จอน ➔ จะ-รา-จอน"
+      },
+      "meaning": "การเคลื่อนที่ไปมาของยวดยานพาหนะบนถนน",
+      "emoji": "🚦"
+    },
+    {
+      "word": "อาหาร",
+      "reading": "อา-หาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "อ, ห",
+        "initialName": "ออ, หอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ออ - อา = อา, หอ - อา - นอ = หาน ➔ อา-หาน"
+      },
+      "meaning": "ของกินที่รับประทานแล้วให้พลังงานและสารอาหาร",
+      "emoji": "🍲"
+    },
+    {
+      "word": "น้ำตาล",
+      "reading": "น้ำ-ตาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "น, ต",
+        "initialName": "นอ, ตอ",
+        "vowel": "อำ, อา",
+        "vowelName": "สระอำ, สระอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "นอ - อำ - ไม้โท = น้ำ, ตอ - อา - นอ = ตาน ➔ น้ำ-ตาน"
+      },
+      "meaning": "สารให้ความหวานที่ได้จากอ้อยหรือต้นมะพร้าว",
+      "emoji": "🍯"
+    },
+    {
+      "word": "ปลาวาฬ",
+      "reading": "ปลา-วาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ฬ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ปล, ว",
+        "initialName": "ปอ-ลอ, วอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "ฬ",
+        "finalSound": "น",
+        "phonicsSpelling": "ปอ - ลอ - อา = ปลา, วอ - อา - นอ = วาน ➔ ปลา-วาน"
+      },
+      "meaning": "สัตว์เลี้ยงลูกด้วยนมขนาดใหญ่ที่สุดในมหาสมุทร",
+      "emoji": "🐋"
+    },
+    {
+      "word": "กาลเวลา",
+      "reading": "กาน-เว-ลา",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, ว, ล",
+        "initialName": "กอ, วอ, ลอ",
+        "vowel": "อา, เอ, อา",
+        "vowelName": "สระอา, สระเอ, สระอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อา - นอ = กาน, วอ - เอ = เว, ลอ - อา = ลา ➔ กาน-เว-ลา"
+      },
+      "meaning": "ช่วงวันเวลาที่ผ่านเลยไปเรื่อย ๆ",
+      "emoji": "⌛"
+    },
+    {
+      "word": "ผลไม้",
+      "reading": "ผน-ละ-ไม้",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ผ, ม",
+        "initialName": "ผอ, มอ",
+        "vowel": "โอะ, ไอ",
+        "vowelName": "สระโอะ, สระไอไม้มลาย",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "ผอ - โอะ - นอ = ผน, มอ - ไอ - ไม้โท = ไม้ ➔ ผน-ละ-ไม้"
+      },
+      "meaning": "ผลของต้นไม้ที่รับประทานได้ มีรสหวานหรือเปรี้ยว",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ดลบันดาล",
+      "reading": "ดน-บัน-ดาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ด, บ, ด",
+        "initialName": "ดอ, บอ, ดอ",
+        "vowel": "โอะ, อะ, อา",
+        "vowelName": "สระโอะ, สระอะ, สระอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "ดอ - โอะ - นอ = ดน, บอ - อะ - นอ = บัน, ดอ - อา - นอ = ดาน ➔ ดน-บัน-ดาน"
+      },
+      "meaning": "ทำให้เกิดขึ้นด้วยอำนาจวิเศษหรือความศักดิ์สิทธิ์",
+      "emoji": "✨"
+    },
+    {
+      "word": "อุบล",
+      "reading": "อุ-บน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "อ, บ",
+        "initialName": "ออ, บอ",
+        "vowel": "อุ, โอะ",
+        "vowelName": "สระอุ, สระโอะ",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "ออ - อุ = อุ, บอ - โอะ - นอ = บน ➔ อุ-บน"
+      },
+      "meaning": "ดอกบัว ดอกไม้น้ำอันเป็นมงคล",
+      "emoji": "🪷"
+    },
+    {
+      "word": "ทมิฬ",
+      "reading": "ทะ-มิน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ฬ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ท, ม",
+        "initialName": "ทอ, มอ",
+        "vowel": "อะ, อิ",
+        "vowelName": "สระอะ, สระอิ",
+        "finalSurface": "ฬ",
+        "finalSound": "น",
+        "phonicsSpelling": "ทอ - อะ = ทะ, มอ - อิ - นอ = มิน ➔ ทะ-มิน"
+      },
+      "meaning": "ดุร้าย โหดเหี้ยม ไม่มีความปรานี",
+      "emoji": "⚔️"
+    },
+    {
+      "word": "อัญชัน",
+      "reading": "อัน-ชัน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "อ, ช",
+        "initialName": "ออ, ชอ",
+        "vowel": "อะ, อะ",
+        "vowelName": "สระอะ, สระอะ",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "ออ - อะ - นอ = อัน, ชอ - อะ - นอ = ชัน ➔ อัน-ชัน"
+      },
+      "meaning": "ไม้เลื้อยดอกสีม่วงอมน้ำเงิน ใช้คั้นสีทำขนมและน้ำดื่ม",
+      "emoji": "🫐"
+    },
+    {
+      "word": "กำจร",
+      "reading": "กำ-จอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, จ",
+        "initialName": "กอ, จอ",
+        "vowel": "อำ, ออ",
+        "vowelName": "สระอำ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อำ = กำ, จอ - ออ - นอ = จอน ➔ กำ-จอน"
+      },
+      "meaning": "กลิ่นหอมฟุ้งกระจายไปไกลในสายลม",
+      "emoji": "🌸"
+    },
+    {
+      "word": "มหัศจรรย์",
+      "reading": "มะ-หัด-สะ-จัน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "รร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ม, ห, จ",
+        "initialName": "มอ, หอ, จอ",
+        "vowel": "อะ, อะ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอะ",
+        "finalSurface": "รร",
+        "finalSound": "น",
+        "phonicsSpelling": "มอ - อะ = มะ, หอ - อะ - ดอ = หัด, จอ - อะ - นอ = จัน ➔ มะ-หัด-สะ-จัน"
+      },
+      "meaning": "แปลกประหลาดน่าทึ่ง เหนือความคาดหมาย",
+      "emoji": "🪄"
+    },
+    {
+      "word": "อัมพร",
+      "reading": "อำ-พอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "อ, พ",
+        "initialName": "ออ, พอ",
+        "vowel": "อำ, ออ",
+        "vowelName": "สระอำ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ออ - อำ = อำ, พอ - ออ - นอ = พอน ➔ อำ-พอน"
+      },
+      "meaning": "ท้องฟ้า แดนอากาศกว้างใหญ่",
+      "emoji": "🌌"
+    },
+    {
+      "word": "สำราญ",
+      "reading": "สำ-ราน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, ร",
+        "initialName": "สอ, รอ",
+        "vowel": "อำ, อา",
+        "vowelName": "สระอำ, สระอา",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อำ = สำ, รอ - อา - นอ = ราน ➔ สำ-ราน"
+      },
+      "meaning": "มีความสุข เบิกบานใจ รื่นเริงแจ่มใส",
+      "emoji": "😃"
+    },
+    {
+      "word": "ขจร",
+      "reading": "ขะ-จอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ข, จ",
+        "initialName": "ขอ, จอ",
+        "vowel": "อะ, ออ",
+        "vowelName": "สระอะ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ขอ - อะ = ขะ, จอ - ออ - นอ = จอน ➔ ขะ-จอน"
+      },
+      "meaning": "ฟุ้งกระจายไปทั่ว เลื่องลือไปไกล",
+      "emoji": "📢"
+    },
+    {
+      "word": "การงาน",
+      "reading": "กาน-งาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, ง",
+        "initialName": "กอ, งอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อา - นอ = กาน, งอ - อา - นอ = งาน ➔ กาน-งาน"
+      },
+      "meaning": "กิจการ ภาระหน้าที่ที่ต้องทำให้สำเร็จ",
+      "emoji": "💼"
+    },
+    {
+      "word": "พากเพียร",
+      "reading": "พาก-เพียน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "พ, พ",
+        "initialName": "พอ, พอ",
+        "vowel": "อา, เอีย",
+        "vowelName": "สระอา, สระเอีย",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "พอ - อา - กอ = พาก, พอ - เอีย - นอ = เพียน ➔ พาก-เพียน"
+      },
+      "meaning": "ความบากบั่น พยายามทำสิ่งยากให้สำเร็จโดยไม่ย่อท้อ",
+      "emoji": "🏃"
+    },
+    {
+      "word": "กตัญญู",
+      "reading": "กะ-ตัน-ยู",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก, ต, ย",
+        "initialName": "กอ, ตอ, ยอ",
+        "vowel": "อะ, อะ, อู",
+        "vowelName": "สระอะ, สระอะ, สระอู",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อะ = กะ, ตอ - อะ - นอ = ตัน, ยอ - อู = ยู ➔ กะ-ตัน-ยู"
+      },
+      "meaning": "การรู้คุณและตอบแทนบุญคุณผู้มีพระคุณ",
+      "emoji": "💖"
+    },
+    {
+      "word": "จำรูญ",
+      "reading": "จำ-รูน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "จ, ร",
+        "initialName": "จอ, รอ",
+        "vowel": "อำ, อู",
+        "vowelName": "สระอำ, สระอู",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "จอ - อำ = จำ, รอ - อู - นอ = รูน ➔ จำ-รูน"
+      },
+      "meaning": "รุ่งเรือง สว่างไสว งดงามตระการตา",
+      "emoji": "🌟"
+    },
+    {
+      "word": "บึงกาฬ",
+      "reading": "บึง-กาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ฬ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "บ, ก",
+        "initialName": "บอ, กอ",
+        "vowel": "อือ, อา",
+        "vowelName": "สระอือ, สระอา",
+        "finalSurface": "ฬ",
+        "finalSound": "น",
+        "phonicsSpelling": "บอ - อึ - งอ = บึง, กอ - อา - นอ = กาน ➔ บึง-กาน"
+      },
+      "meaning": "จังหวัดหนึ่งในภาคอีสาน หรือแหล่งน้ำสีเข้มดำ",
+      "emoji": "🏞️"
+    },
+    {
+      "word": "มหาศาล",
+      "reading": "มะ-หา-สาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ม, ห, ส",
+        "initialName": "มอ, หอ, สอ",
+        "vowel": "อะ, อา, อา",
+        "vowelName": "สระอะ, สระอา, สระอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "มอ - อะ = มะ, หอ - อา = หา, สอ - อา - นอ = สาน ➔ มะ-หา-สาน"
+      },
+      "meaning": "มีจำนวนมากมาย ยิ่งใหญ่เหลือล้น",
+      "emoji": "⛰️"
+    },
+    {
+      "word": "พยาบาล",
+      "reading": "พะ-ยา-บาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "พ, ย, บ",
+        "initialName": "พอ, ยอ, บอ",
+        "vowel": "อะ, อา, อา",
+        "vowelName": "สระอะ, สระอา, สระอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "พอ - อะ = พะ, ยอ - อา = ยา, บอ - อา - นอ = บาน ➔ พะ-ยา-บาน"
+      },
+      "meaning": "ผู้ดูแลปรนนิบัติรักษาคนเจ็บไข้ได้ป่วย",
+      "emoji": "👩‍⚕️"
+    },
+    {
+      "word": "ลำธาร",
+      "reading": "ลำ-ทาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ล, ท",
+        "initialName": "ลอ, ทอ",
+        "vowel": "อำ, อา",
+        "vowelName": "สระอำ, สระอา",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "ลอ - อำ = ลำ, ทอ - อา - นอ = ทาน ➔ ลำ-ทาน"
+      },
+      "meaning": "ทางน้ำสายเล็ก ๆ ไหลจากภูเขาหรือป่าไม้",
+      "emoji": "🏞️"
+    },
+    {
+      "word": "วิจารณ์",
+      "reading": "วิ-จาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ว, จ",
+        "initialName": "วอ, จอ",
+        "vowel": "อิ, อา",
+        "vowelName": "สระอิ, สระอา",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "วอ - อิ = วิ, จอ - อา - นอ = จาน ➔ วิ-จาน (มี ณ การันต์)"
+      },
+      "meaning": "การให้ข้อคิดเห็น ติชมเพื่อการปรับปรุงพัฒนา",
+      "emoji": "💬"
+    },
+    {
+      "word": "สหกรณ์",
+      "reading": "สะ-หะ-กอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, ห, ก",
+        "initialName": "สอ, หอ, กอ",
+        "vowel": "อะ, อะ, ออ",
+        "vowelName": "สระอะ, สระอะ, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อะ = สะ, หอ - อะ = หะ, กอ - ออ - นอ = กอน ➔ สะ-หะ-กอน"
+      },
+      "meaning": "การรวมกลุ่มกันเพื่อทำธุรกิจช่วยเหลือสมาชิก",
+      "emoji": "🏪"
+    },
+    {
+      "word": "ศาลเจ้า",
+      "reading": "สาน-เจ้า",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ศ, จ",
+        "initialName": "สอ, จอ",
+        "vowel": "อา, เอา",
+        "vowelName": "สระอา, สระเอา",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อา - นอ = สาน, จอ - เอา - ไม้โท = เจ้า ➔ สาน-เจ้า"
+      },
+      "meaning": "สถานที่เคารพบูชาเทพเจ้าหรือสิ่งศักดิ์สิทธิ์",
+      "emoji": "⛩️"
+    },
+    {
+      "word": "พิกุล",
+      "reading": "พิ-กุน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ล",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "พ, ก",
+        "initialName": "พอ, กอ",
+        "vowel": "อิ, อุ",
+        "vowelName": "สระอิ, สระอุ",
+        "finalSurface": "ล",
+        "finalSound": "น",
+        "phonicsSpelling": "พอ - อิ = พิ, กอ - อุ - นอ = กุน ➔ พิ-กุน"
+      },
+      "meaning": "ต้นไม้ดอกหอม ดอกสีขาวนวลเมื่อแห้งเป็นสีน้ำตาล",
+      "emoji": "🌼"
+    },
+    {
+      "word": "กาญจน์",
+      "reading": "กาน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ญ",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ก",
+        "initialName": "กอ",
+        "vowel": "อา",
+        "vowelName": "สระอา",
+        "finalSurface": "ญ",
+        "finalSound": "น",
+        "phonicsSpelling": "กอ - อา - นอ = กาน (เขียนด้วย ญ และ จน์ การันต์)"
+      },
+      "meaning": "ทองคำ แร่ทองคำสีเหลืองอร่ามมีค่า",
+      "emoji": "🥇"
+    },
+    {
+      "word": "สาคร",
+      "reading": "สา-คอน",
+      "targetSection": "kon",
+      "sectionName": "แม่กน",
+      "surfaceConsonant": "ร",
+      "soundConsonant": "น",
+      "phonicsDecomposition": {
+        "initial": "ส, ค",
+        "initialName": "สอ, คอ",
+        "vowel": "อา, ออ",
+        "vowelName": "สระอา, สระออ",
+        "finalSurface": "ร",
+        "finalSound": "น",
+        "phonicsSpelling": "สอ - อา = สา, คอ - ออ - นอ = คอน ➔ สา-คอน"
+      },
+      "meaning": "แม่น้ำ สายน้ำ ทะเล หรือห้วงน้ำกว้างใหญ่",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ตำรวจ",
+      "reading": "ตำ-รวด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "จ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ต, ร",
+        "initialName": "ตอ, รอ",
+        "vowel": "อำ, อัว",
+        "vowelName": "สระอำ, สระอัว",
+        "finalSurface": "จ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ตอ - อำ = ตำ, รอ - อัว - ดอ = รวด ➔ ตำ-รวด"
+      },
+      "meaning": "เจ้าหน้าที่ของรัฐที่มีหน้าที่ตรวจตรารักษาความสงบ",
+      "emoji": "👮"
+    },
+    {
+      "word": "พืชผัก",
+      "reading": "พืด-ผัก",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ช",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พ, ผ",
+        "initialName": "พอ, ผอ",
+        "vowel": "อือ, อะ",
+        "vowelName": "สระอือ, สระอะ",
+        "finalSurface": "ช",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - อือ - ดอ = พืด, ผอ - อะ - กอ = ผัก ➔ พืด-ผัก"
+      },
+      "meaning": "ผักสวนครัวและพรรณไม้ที่ปลูกไว้รับประทาน",
+      "emoji": "🥬"
+    },
+    {
+      "word": "ก๊าซ",
+      "reading": "ก๊าด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ซ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ก",
+        "initialName": "กอ",
+        "vowel": "อา",
+        "vowelName": "สระอา",
+        "finalSurface": "ซ",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - อา - ดอ - ไม้ตรี = ก๊าด (เขียนด้วย ซ สะกด)"
+      },
+      "meaning": "สารที่มีสถานะเป็นไอแก๊สฟุ้งกระจายในอากาศ",
+      "emoji": "💨"
+    },
+    {
+      "word": "กฎหมาย",
+      "reading": "กด-หมาย",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฎ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ก, หม",
+        "initialName": "กอ, หอ-มอ",
+        "vowel": "โอะ, อา",
+        "vowelName": "สระโอะ, สระอา",
+        "finalSurface": "ฎ",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - โอะ - ดอ = กด, หอ - มอ - อา - ยอ = หมาย ➔ กด-หมาย"
+      },
+      "meaning": "ข้อบังคับของประเทศที่ประชาชนทุกคนต้องปฏิบัติตาม",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ปรากฏ",
+      "reading": "ปรา-กด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฏ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ก",
+        "initialName": "ปอ-รอ, กอ",
+        "vowel": "อา, โอะ",
+        "vowelName": "สระอา, สระโอะ",
+        "finalSurface": "ฏ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อา = ปรา, กอ - โอะ - ดอ = กด ➔ ปรา-กด"
+      },
+      "meaning": "แสดงออกมาให้เห็นเด่นชัด สำแดงให้เห็น",
+      "emoji": "👀"
+    },
+    {
+      "word": "รัฐบาล",
+      "reading": "รัด-ถะ-บาน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฐ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ร, ถ, บ",
+        "initialName": "รอ, ถอ, บอ",
+        "vowel": "อะ, อะ, อา",
+        "vowelName": "สระอะ, สระอะ, สระอา",
+        "finalSurface": "ฐ",
+        "finalSound": "ด",
+        "phonicsSpelling": "รอ - อะ - ดอ = รัด, บอ - อา - นอ = บาน ➔ รัด-ถะ-บาน"
+      },
+      "meaning": "คณะบุคคลผู้มีอำนาจบริหารกิจการของบ้านเมือง",
+      "emoji": "🏛️"
+    },
+    {
+      "word": "พญาครุฑ",
+      "reading": "พะ-ยา-ครุด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฑ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พ, ญ, คร",
+        "initialName": "พอ, ยอ, คอ-รอ",
+        "vowel": "อะ, อา, อุ",
+        "vowelName": "สระอะ, สระอา, สระอุ",
+        "finalSurface": "ฑ",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - อะ = พะ, ยอ - อา = ยา, คอ - รอ - อุ - ดอ = ครุด ➔ พะ-ยา-ครุด"
+      },
+      "meaning": "พญานกในวรรณคดี มีอำนาจและฤทธิ์เดชมาก",
+      "emoji": "🦅"
+    },
+    {
+      "word": "วัฒนา",
+      "reading": "วัด-ทะ-นา",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฒ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, ท, น",
+        "initialName": "วอ, ทอ, นอ",
+        "vowel": "อะ, อะ, อา",
+        "vowelName": "สระอะ, สระอะ, สระอา",
+        "finalSurface": "ฒ",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อะ - ดอ = วัด, ทอ - อะ = ทะ, นอ - อา = นา ➔ วัด-ทะ-นา"
+      },
+      "meaning": "ความเจริญก้าวหน้า รุ่งเรืองงอกงาม",
+      "emoji": "📈"
+    },
+    {
+      "word": "รถยนต์",
+      "reading": "รด-ยน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ถ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ร, ย",
+        "initialName": "รอ, ยอ",
+        "vowel": "โอะ, โอะ",
+        "vowelName": "สระโอะ, สระโอะ",
+        "finalSurface": "ถ",
+        "finalSound": "ด",
+        "phonicsSpelling": "รอ - โอะ - ดอ = รด, ยอ - โอะ - นอ = ยน ➔ รด-ยน"
+      },
+      "meaning": "ยานพาหนะขับเคลื่อนด้วยพลังงานเครื่องยนต์บนถนน",
+      "emoji": "🚗"
+    },
+    {
+      "word": "บทเรียน",
+      "reading": "บด-เรียน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, ร",
+        "initialName": "บอ, รอ",
+        "vowel": "โอะ, เอีย",
+        "vowelName": "สระโอะ, สระเอีย",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - โอะ - ดอ = บด, รอ - เอีย - นอ = เรียน ➔ บด-เรียน"
+      },
+      "meaning": "เนื้อหาวิชาความรู้ที่นักเรียนต้องศึกษาเล่าเรียน",
+      "emoji": "📖"
+    },
+    {
+      "word": "โกรธ",
+      "reading": "โกรด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ธ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "กร",
+        "initialName": "กอ-รอ",
+        "vowel": "โอ",
+        "vowelName": "สระโอ",
+        "finalSurface": "ธ",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - รอ - โอ - ดอ = โกรด (เขียนด้วย ธ สะกด)"
+      },
+      "meaning": "อารมณ์ฉุนเฉียว ไม่พอใจอย่างรุนแรง",
+      "emoji": "😡"
+    },
+    {
+      "word": "อากาศ",
+      "reading": "อา-กาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ก",
+        "initialName": "ออ, กอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อา = อา, กอ - อา - ดอ = กาด ➔ อา-กาด"
+      },
+      "meaning": "แก๊สที่อยู่รอบตัวเรา ใช้สำหรับหายใจดำรงชีวิต",
+      "emoji": "🌤️"
+    },
+    {
+      "word": "กระดาษ",
+      "reading": "กระ-ดาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "กร, ด",
+        "initialName": "กอ-รอ, ดอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ษ",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - รอ - อะ = กระ, ดอ - อา - ดอ = ดาด ➔ กระ-ดาด"
+      },
+      "meaning": "แผ่นเยื่อไม้บาง ๆ ใช้สำหรับเขียนหรือพิมพ์หนังสือ",
+      "emoji": "📄"
+    },
+    {
+      "word": "โอกาส",
+      "reading": "โอ-กาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ส",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ก",
+        "initialName": "ออ, กอ",
+        "vowel": "โอ, อา",
+        "vowelName": "สระโอ, สระอา",
+        "finalSurface": "ส",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - โอ = โอ, กอ - อา - ดอ = กาด ➔ โอ-กาด"
+      },
+      "meaning": "จังหวะหรือช่วงเวลาที่เหมาะสมที่จะทำสิ่งใดสิ่งหนึ่ง",
+      "emoji": "🎯"
+    },
+    {
+      "word": "วิเศษ",
+      "reading": "วิ-เสด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, ส",
+        "initialName": "วอ, สอ",
+        "vowel": "อิ, เอ",
+        "vowelName": "สระอิ, สระเอ",
+        "finalSurface": "ษ",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อิ = วิ, สอ - เอ - ดอ = เสด ➔ วิ-เสด"
+      },
+      "meaning": "ยอดเยี่ยม เลิศลอย เหนือกว่าธรรมดาทั่วไป",
+      "emoji": "✨"
+    },
+    {
+      "word": "สามารถ",
+      "reading": "สา-มาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "รถ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, ม",
+        "initialName": "สอ, มอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "รถ",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อา = สา, มอ - อา - ดอ = มาด ➔ สา-มาด"
+      },
+      "meaning": "มีความรู้ความเชี่ยวชาญที่จะทำสิ่งต่าง ๆ ให้สำเร็จ",
+      "emoji": "💪"
+    },
+    {
+      "word": "สัตว์ป่า",
+      "reading": "สัด-ป่า",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, ป",
+        "initialName": "สอ, ปอ",
+        "vowel": "อะ, อา",
+        "vowelName": "สระอะ, สระอา",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อะ - ดอ = สัด, ปอ - อา - ไม้เอก = ป่า ➔ สัด-ป่า"
+      },
+      "meaning": "สิ่งมีชีวิตที่หากินและอาศัยอยู่ในป่าธรรมชาติ",
+      "emoji": "🦁"
+    },
+    {
+      "word": "อาทิตย์",
+      "reading": "อา-ทิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ท",
+        "initialName": "ออ, ทอ",
+        "vowel": "อา, อิ",
+        "vowelName": "สระอา, สระอิ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อา = อา, ทอ - อิ - ดอ = ทิด ➔ อา-ทิด (มี ย์ การันต์)"
+      },
+      "meaning": "ดวงอาทิตย์ที่ให้แสงสว่าง หรือวันแรกของสัปดาห์",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ประเทศ",
+      "reading": "ประ-เทด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ท",
+        "initialName": "ปอ-รอ, ทอ",
+        "vowel": "อะ, เอ",
+        "vowelName": "สระอะ, สระเอ",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, ทอ - เอ - ดอ = เทด ➔ ประ-เทด"
+      },
+      "meaning": "ดินแดนที่มีอาณาเขตและประชาชนอยู่ใต้รัฐบาลเดียวกัน",
+      "emoji": "🗺️"
+    },
+    {
+      "word": "เขตแดน",
+      "reading": "เขด-แดน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ข, ด",
+        "initialName": "ขอ, ดอ",
+        "vowel": "เอ, แอ",
+        "vowelName": "สระเอ, สระแอ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "ขอ - เอ - ดอ = เขด, ดอ - แอ - นอ = แดน ➔ เขด-แดน"
+      },
+      "meaning": "แนวเส้นแบ่งอาณาเขตของพื้นที่หรือประเทศ",
+      "emoji": "🚩"
+    },
+    {
+      "word": "ปราสาท",
+      "reading": "ปรา-สาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ส",
+        "initialName": "ปอ-รอ, สอ",
+        "vowel": "อา, อา",
+        "vowelName": "สระอา, สระอา",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อา = ปรา, สอ - อา - ดอ = สาด ➔ ปรา-สาด"
+      },
+      "meaning": "ที่ประทับของพระมหากษัตริย์หรือสิ่งก่อสร้างใหญ่โต",
+      "emoji": "🏰"
+    },
+    {
+      "word": "เมตตา",
+      "reading": "เมด-ตา",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, ต",
+        "initialName": "มอ, ตอ",
+        "vowel": "เอ, อา",
+        "vowelName": "สระเอ, สระอา",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - เอ - ดอ = เมด, ตอ - อา = ตา ➔ เมด-ตา"
+      },
+      "meaning": "ความรักใคร่ปรารถนาจะให้ผู้อื่นมีความสุข",
+      "emoji": "💖"
+    },
+    {
+      "word": "ลงโทษ",
+      "reading": "ลง-โทด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ล, ท",
+        "initialName": "ลอ, ทอ",
+        "vowel": "โอะ, โอ",
+        "vowelName": "สระโอะ, สระโอ",
+        "finalSurface": "ษ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ลอ - โอะ - งอ = ลง, ทอ - โอ - ดอ = โทด ➔ ลง-โทด"
+      },
+      "meaning": "การสั่งลงทัณฑ์ผู้ที่ทำผิดกฎระเบียบหรือกฎหมาย",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ยาพิษ",
+      "reading": "ยา-พิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ย, พ",
+        "initialName": "ยอ, พอ",
+        "vowel": "อา, อิ",
+        "vowelName": "สระอา, สระอิ",
+        "finalSurface": "ษ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ยอ - อา = ยา, พอ - อิ - ดอ = พิด ➔ ยา-พิด"
+      },
+      "meaning": "สารอันตรายที่ทำให้เกิดความเจ็บป่วยหรือเสียชีวิต",
+      "emoji": "☠️"
+    },
+    {
+      "word": "มิตรภาพ",
+      "reading": "มิด-ตระ-พาบ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, ต, พ",
+        "initialName": "มอ, ตอ, พอ",
+        "vowel": "อิ, อะ, อา",
+        "vowelName": "สระอิ, สระอะ, สระอา",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - อิ - ดอ = มิด, ตอ - อะ = ตระ, พอ - อา - บอ = พาบ ➔ มิด-ตระ-พาบ"
+      },
+      "meaning": "ความเป็นเพื่อน ความจริงใจและผูกพันต่อกัน",
+      "emoji": "🤝"
+    },
+    {
+      "word": "บาตรพระ",
+      "reading": "บาด-พระ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, พร",
+        "initialName": "บอ, พอ-รอ",
+        "vowel": "อา, อะ",
+        "vowelName": "สระอา, สระอะ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - อา - ดอ = บาด, พอ - รอ - อะ = พระ ➔ บาด-พระ"
+      },
+      "meaning": "ภาชนะสำหรับพระภิกษุใช้รับอาหารบิณฑบาต",
+      "emoji": "🥣"
+    },
+    {
+      "word": "บาทเงิน",
+      "reading": "บาด-เงิน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, ง",
+        "initialName": "บอ, งอ",
+        "vowel": "อา, เออ",
+        "vowelName": "สระอา, สระเออ",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - อา - ดอ = บาด, งอ - เออ - นอ = เงิน ➔ บาด-เงิน"
+      },
+      "meaning": "หน่วยเงินตราประจำชาติของประเทศไทย",
+      "emoji": "🪙"
+    },
+    {
+      "word": "ภารกิจ",
+      "reading": "พา-ระ-กิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "จ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ภ, ร, ก",
+        "initialName": "พอ, รอ, กอ",
+        "vowel": "อา, อะ, อิ",
+        "vowelName": "สระอา, สระอะ, สระอิ",
+        "finalSurface": "จ",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - อา = พา, รอ - อะ = ระ, กอ - อิ - ดอ = กิด ➔ พา-ระ-กิด"
+      },
+      "meaning": "หน้าที่สำคัญที่ต้องทำให้สำเร็จลุล่วง",
+      "emoji": "📋"
+    },
+    {
+      "word": "ฉัตรแก้ว",
+      "reading": "ฉัด-แก้ว",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ฉ, ก",
+        "initialName": "ฉอ, กอ",
+        "vowel": "อะ, แอ",
+        "vowelName": "สระอะ, สระแอ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "ฉอ - อะ - ดอ = ฉัด, กอ - แอ - วอ - ไม้โท = แก้ว ➔ ฉัด-แก้ว"
+      },
+      "meaning": "ร่มซ้อนชั้นเครื่องหมายแห่งเกียรติยศและบารมี",
+      "emoji": "🌂"
+    },
+    {
+      "word": "วันพฤหัส",
+      "reading": "วัน-พะ-รึ-หัด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ส",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, พ, ห",
+        "initialName": "วอ, พอ, หอ",
+        "vowel": "อะ, อะ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอะ",
+        "finalSurface": "ส",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อะ - นอ = วัน, หอ - อะ - ดอ = หัด ➔ วัน-พะ-รึ-หัด"
+      },
+      "meaning": "วันที่ห้าของสัปดาห์ตามปฏิทินสุริยคติ",
+      "emoji": "📅"
+    },
+    {
+      "word": "เกษตรกร",
+      "reading": "กะ-เสด-ตระ-กอน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ก, ส, ก",
+        "initialName": "กอ, สอ, กอ",
+        "vowel": "อะ, เอ, ออ",
+        "vowelName": "สระอะ, สระเอ, สระออ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - อะ = กะ, สอ - เอ - ดอ = เสด, กอ - ออ - นอ = กอน ➔ กะ-เสด-ตระ-กอน"
+      },
+      "meaning": "ผู้ประกอบอาชีพเพาะปลูกพืชและเลี้ยงสัตว์",
+      "emoji": "👨‍🌾"
+    },
+    {
+      "word": "ประเสริฐ",
+      "reading": "ประ-เสิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฐ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ส",
+        "initialName": "ปอ-รอ, สอ",
+        "vowel": "อะ, เออ",
+        "vowelName": "สระอะ, สระเออ",
+        "finalSurface": "ฐ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, สอ - เออ - ดอ = เสิด ➔ ประ-เสิด"
+      },
+      "meaning": "ยอดเยี่ยม ดีเลิศ สูงส่งด้วยคุณงามความดี",
+      "emoji": "👑"
+    },
+    {
+      "word": "วิทยุ",
+      "reading": "วิด-ทะ-ยุ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, ย",
+        "initialName": "วอ, ยอ",
+        "vowel": "อิ, อุ",
+        "vowelName": "สระอิ, สระอุ",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อิ - ดอ = วิด, ยอ - อุ = ยุ ➔ วิด-ทะ-ยุ"
+      },
+      "meaning": "เครื่องรับส่งสัญญาณเสียงผ่านคลื่นแม่เหล็กไฟฟ้า",
+      "emoji": "📻"
+    },
+    {
+      "word": "ปฏิเสธ",
+      "reading": "ปะ-ติ-เสด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ธ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ป, ต, ส",
+        "initialName": "ปอ, ตอ, สอ",
+        "vowel": "อะ, อิ, เอ",
+        "vowelName": "สระอะ, สระอิ, สระเอ",
+        "finalSurface": "ธ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - อะ = ปะ, ตอ - อิ = ติ, สอ - เอ - ดอ = เสด ➔ ปะ-ติ-เสด"
+      },
+      "meaning": "ไม่ยอมรับ ไม่ตกลง ไม่เห็นชอบด้วย",
+      "emoji": "🙅"
+    },
+    {
+      "word": "กฎระเบียบ",
+      "reading": "กด-ระ-เบียบ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฎ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ก, ร, บ",
+        "initialName": "กอ, รอ, บอ",
+        "vowel": "โอะ, อะ, เอีย",
+        "vowelName": "สระโอะ, สระอะ, สระเอีย",
+        "finalSurface": "ฎ",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - โอะ - ดอ = กด, รอ - อะ = ระ, บอ - เอีย - บอ = เบียบ ➔ กด-ระ-เบียบ"
+      },
+      "meaning": "ข้อตกลงและแบบแผนที่ตั้งขึ้นเพื่อความเป็นระเบียบ",
+      "emoji": "📋"
+    },
+    {
+      "word": "บรรยากาศ",
+      "reading": "บัน-ยา-กาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, ย, ก",
+        "initialName": "บอ, ยอ, กอ",
+        "vowel": "อะ, อา, อา",
+        "vowelName": "สระอะ, สระอา, สระอา",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - อะ - นอ = บัน, ยอ - อา = ยา, กอ - อา - ดอ = กาด ➔ บัน-ยา-กาด"
+      },
+      "meaning": "ชั้นแก๊สรอบโลกหรือความรู้สึกโดยรอบสถานที่",
+      "emoji": "🌄"
+    },
+    {
+      "word": "สุภาษิต",
+      "reading": "สุ-พา-สิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, พ, ส",
+        "initialName": "สอ, พอ, สอ",
+        "vowel": "อุ, อา, อิ",
+        "vowelName": "สระอุ, สระอา, สระอิ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อุ = สุ, พอ - อา = พา, สอ - อิ - ดอ = สิด ➔ สุ-พา-สิด"
+      },
+      "meaning": "ถ้อยคำสั่งสอนหรือคติเตือนใจที่ดีงาม",
+      "emoji": "📜"
+    },
+    {
+      "word": "สมบัติ",
+      "reading": "สม-บัด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ติ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, บ",
+        "initialName": "สอ, บอ",
+        "vowel": "โอะ, อะ",
+        "vowelName": "สระโอะ, สระอะ",
+        "finalSurface": "ติ",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - โอะ - มอ = สม, บอ - อะ - ดอ = บัด ➔ สม-บัด"
+      },
+      "meaning": "ทรัพย์สินเงินทองหรือของมีค่าที่ครอบครองอยู่",
+      "emoji": "💎"
+    },
+    {
+      "word": "อดีต",
+      "reading": "อะ-ดีด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ด",
+        "initialName": "ออ, ดอ",
+        "vowel": "อะ, อี",
+        "vowelName": "สระอะ, สระอี",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อะ = อะ, ดอ - อี - ดอ = ดีด ➔ อะ-ดีด"
+      },
+      "meaning": "ช่วงเวลาที่ล่วงเลยผ่านมาแล้วในกาลก่อน",
+      "emoji": "🕰️"
+    },
+    {
+      "word": "ชีวิต",
+      "reading": "ชี-วิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ช, ว",
+        "initialName": "ชอ, วอ",
+        "vowel": "อี, อิ",
+        "vowelName": "สระอี, สระอิ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "ชอ - อี = ชี, วอ - อิ - ดอ = วิด ➔ ชี-วิด"
+      },
+      "meaning": "การดำรงอยู่ของร่างกาย จิตใจ และการมีลมหายใจ",
+      "emoji": "🌱"
+    },
+    {
+      "word": "ธนบัตร",
+      "reading": "ทะ-นะ-บัด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ธ, น, บ",
+        "initialName": "ทอ, นอ, บอ",
+        "vowel": "อะ, อะ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอะ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "ทอ - อะ = ทะ, นอ - อะ = นะ, บอ - อะ - ดอ = บัด ➔ ทะ-นะ-บัด"
+      },
+      "meaning": "เงินกระดาษที่รัฐบาลพิมพ์ขึ้นใช้ชำระหนี้ตามกฎหมาย",
+      "emoji": "💵"
+    },
+    {
+      "word": "ปิศาจ",
+      "reading": "ปิ-สาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "จ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ป, ส",
+        "initialName": "ปอ, สอ",
+        "vowel": "อิ, อา",
+        "vowelName": "สระอิ, สระอา",
+        "finalSurface": "จ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - อิ = ปิ, สอ - อา - ดอ = สาด ➔ ปิ-สาด"
+      },
+      "meaning": "ภูตผี อสุรกาย หรือสิ่งชั่วร้ายตามความเชื่อ",
+      "emoji": "👻"
+    },
+    {
+      "word": "สมเพช",
+      "reading": "สม-เพด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ช",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, พ",
+        "initialName": "สอ, พอ",
+        "vowel": "โอะ, เอ",
+        "vowelName": "สระโอะ, สระเอ",
+        "finalSurface": "ช",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - โอะ - มอ = สม, พอ - เอ - ดอ = เพด ➔ สม-เพด"
+      },
+      "meaning": "ความรู้สึกสงสารเห็นใจในความทุกข์ยากของผู้อื่น",
+      "emoji": "🥺"
+    },
+    {
+      "word": "มลพิษ",
+      "reading": "มน-ละ-พิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, พ",
+        "initialName": "มอ, พอ",
+        "vowel": "โอะ, อิ",
+        "vowelName": "สระโอะ, สระอิ",
+        "finalSurface": "ษ",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - โอะ - นอ = มน, พอ - อิ - ดอ = พิด ➔ มน-ละ-พิด"
+      },
+      "meaning": "สิ่งสกปรกเจือปนที่ทำให้อากาศหรือน้ำเป็นอันตราย",
+      "emoji": "🏭"
+    },
+    {
+      "word": "เพชร",
+      "reading": "เพ็ด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ชร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พ",
+        "initialName": "พอ",
+        "vowel": "เอะ",
+        "vowelName": "สระเอะ",
+        "finalSurface": "ชร",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - เอะ - ดอ = เพ็ด (เขียนด้วย ชร สะกด)"
+      },
+      "meaning": "อัญมณีล้ำค่าที่มีความแข็งแกร่งที่สุดในธรรมชาติ",
+      "emoji": "💎"
+    },
+    {
+      "word": "บริสุทธิ์",
+      "reading": "บอ-ริ-สุด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ทธ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, ร, ส",
+        "initialName": "บอ, รอ, สอ",
+        "vowel": "ออ, อิ, อุ",
+        "vowelName": "สระออ, สระอิ, สระอุ",
+        "finalSurface": "ทธ",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - ออ = บอ, รอ - อิ = ริ, สอ - อุ - ดอ = สุด ➔ บอ-ริ-สุด"
+      },
+      "meaning": "แท้ สะอาด ผุดผ่อง ไม่มีสิ่งมัวหมองเจือปน",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "ยุทธวิธี",
+      "reading": "ยุด-ทะ-วิ-ที",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ย, ว, ท",
+        "initialName": "ยอ, วอ, ทอ",
+        "vowel": "อุ, อิ, อี",
+        "vowelName": "สระอุ, สระอิ, สระอี",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "ยอ - อุ - ดอ = ยุด, วอ - อิ = วิ, ทอ - อี = ที ➔ ยุด-ทะ-วิ-ที"
+      },
+      "meaning": "กลยุทธ์ แผนการแยบยลในการต่อสู้หรือแก้ปัญหา",
+      "emoji": "♟️"
+    },
+    {
+      "word": "อุบัติเหตุ",
+      "reading": "อุ-บัด-ติ-เหด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ติ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, บ, ห",
+        "initialName": "ออ, บอ, หอ",
+        "vowel": "อุ, อะ, เอ",
+        "vowelName": "สระอุ, สระอะ, สระเอ",
+        "finalSurface": "ติ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อุ = อุ, บอ - อะ - ดอ = บัด, หอ - เอ - ดอ = เหด ➔ อุ-บัด-ติ-เหด"
+      },
+      "meaning": "เหตุการณ์ไม่คาดคิดที่เกิดขึ้นทำให้เสียหายหรือบาดเจ็บ",
+      "emoji": "🚨"
+    },
+    {
+      "word": "ทัศนะ",
+      "reading": "ทัด-สะ-นะ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ท, ส, น",
+        "initialName": "ทอ, สอ, นอ",
+        "vowel": "อะ, อะ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอะ",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ทอ - อะ - ดอ = ทัด, สอ - อะ = สะ, นอ - อะ = นะ ➔ ทัด-สะ-นะ"
+      },
+      "meaning": "มุมมอง ความคิดเห็น หรือการมองเห็นสรรพสิ่ง",
+      "emoji": "👓"
+    },
+    {
+      "word": "ตรวจตรา",
+      "reading": "ตรวด-ตรา",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "จ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ตร, ตร",
+        "initialName": "ตอ-รอ, ตอ-รอ",
+        "vowel": "อัว, อา",
+        "vowelName": "สระอัว, สระอา",
+        "finalSurface": "จ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ตอ - รอ - อัว - ดอ = ตรวด, ตอ - รอ - อา = ตรา ➔ ตรวด-ตรา"
+      },
+      "meaning": "พิจารณาดูอย่างละเอียดรอบคอบเพื่อความเรียบร้อย",
+      "emoji": "🔍"
+    },
+    {
+      "word": "สิทธิ์",
+      "reading": "สิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ทธิ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส",
+        "initialName": "สอ",
+        "vowel": "อิ",
+        "vowelName": "สระอิ",
+        "finalSurface": "ทธิ",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อิ - ดอ = สิด (มี ธิ และ ์ การันต์)"
+      },
+      "meaning": "อำนาจหรือประโยชน์อันพึงได้ตามกฎหมาย",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ชาติไทย",
+      "reading": "ชาด-ทัย",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ติ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ช, ท",
+        "initialName": "ชอ, ทอ",
+        "vowel": "อา, ไอ",
+        "vowelName": "สระอา, สระไอไม้มลาย",
+        "finalSurface": "ติ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ชอ - อา - ดอ = ชาด, ทอ - ไอ = ทัย ➔ ชาด-ทัย"
+      },
+      "meaning": "กลุ่มคนไทยที่รวมกันเป็นเอกราชและมีวัฒนธรรมร่วมกัน",
+      "emoji": "🇹🇭"
+    },
+    {
+      "word": "รสชาติ",
+      "reading": "รด-ชาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ส",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ร, ช",
+        "initialName": "รอ, ชอ",
+        "vowel": "โอะ, อา",
+        "vowelName": "สระโอะ, สระอา",
+        "finalSurface": "ส",
+        "finalSound": "ด",
+        "phonicsSpelling": "รอ - โอะ - ดอ = รด, ชอ - อา - ดอ = ชาด ➔ รด-ชาด"
+      },
+      "meaning": "ความรู้สึกทางลิ้น เช่น เปรี้ยว หวาน เค็ม เผ็ด",
+      "emoji": "👅"
+    },
+    {
+      "word": "โอสถ",
+      "reading": "โอ-สด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ถ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ส",
+        "initialName": "ออ, สอ",
+        "vowel": "โอ, โอะ",
+        "vowelName": "สระโอะ, สระโอะ",
+        "finalSurface": "ถ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - โอ = โอ, สอ - โอะ - ดอ = สด ➔ โอ-สด"
+      },
+      "meaning": "ยารักษาโรค ยาบำรุงสุขภาพร่างกาย",
+      "emoji": "💊"
+    },
+    {
+      "word": "สาหัส",
+      "reading": "สา-หัด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ส",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, ห",
+        "initialName": "สอ, หอ",
+        "vowel": "อา, อะ",
+        "vowelName": "สระอา, สระอะ",
+        "finalSurface": "ส",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อา = สา, หอ - อะ - ดอ = หัด ➔ สา-หัด"
+      },
+      "meaning": "รุนแรง หนักหน่วง เกินระดับธรรมดา",
+      "emoji": "🩹"
+    },
+    {
+      "word": "อุโบสถ",
+      "reading": "อุ-โบ-สด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ถ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, บ, ส",
+        "initialName": "ออ, บอ, สอ",
+        "vowel": "อุ, โอ, โอะ",
+        "vowelName": "สระอุ, สระโอ, สระโอะ",
+        "finalSurface": "ถ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อุ = อุ, บอ - โอ = โบ, สอ - โอะ - ดอ = สด ➔ อุ-โบ-สด"
+      },
+      "meaning": "โบสถ์ อาคารที่พระภิกษุใช้ทำพิธีกรรมทางศาสนา",
+      "emoji": "🛕"
+    },
+    {
+      "word": "นิราศ",
+      "reading": "นิ-ราด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "น, ร",
+        "initialName": "นอ, รอ",
+        "vowel": "อิ, อา",
+        "vowelName": "สระอิ, สระอา",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "นอ - อิ = นิ, รอ - อา - ดอ = ราด ➔ นิ-ราด"
+      },
+      "meaning": "วรรณคดีที่แต่งขึ้นระหว่างการเดินทางพลัดพรากจากคนรัก",
+      "emoji": "📜"
+    },
+    {
+      "word": "นิเทศ",
+      "reading": "นิ-เทด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "น, ท",
+        "initialName": "นอ, ทอ",
+        "vowel": "อิ, เอ",
+        "vowelName": "สระอิ, สระเอ",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "นอ - อิ = นิ, ทอ - เอ - ดอ = เทด ➔ นิ-เทด"
+      },
+      "meaning": "การชี้แจง แนะนำ หรือให้ความรู้เพื่อพัฒนาการทำงาน",
+      "emoji": "👨‍🏫"
+    },
+    {
+      "word": "บรรพต",
+      "reading": "บัน-พด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, พ",
+        "initialName": "บอ, พอ",
+        "vowel": "อะ, โอะ",
+        "vowelName": "สระอะ, สระโอะ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - อะ - นอ = บัน, พอ - โอะ - ดอ = พด ➔ บัน-พด"
+      },
+      "meaning": "ภูเขาสูงใหญ่ตระหง่าน",
+      "emoji": "⛰️"
+    },
+    {
+      "word": "วิกฤต",
+      "reading": "วิ-กริด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, กร",
+        "initialName": "วอ, กอ-รอ",
+        "vowel": "อิ, อิ",
+        "vowelName": "สระอิ, สระอิ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อิ = วิ, กอ - รอ - อิ - ดอ = กริด ➔ วิ-กริด"
+      },
+      "meaning": "ช่วงเวลาคับขันที่มีความเสี่ยงสูง ต้องระมัดระวัง",
+      "emoji": "⚠️"
+    },
+    {
+      "word": "รัตนะ",
+      "reading": "รัด-ตะ-นะ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ร, ต, น",
+        "initialName": "รอ, ตอ, นอ",
+        "vowel": "อะ, อะ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอะ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "รอ - อะ - ดอ = รัด, ตอ - อะ = ตะ, นอ - อะ = นะ ➔ รัด-ตะ-นะ"
+      },
+      "meaning": "แก้วมณี ของประเสริฐมีค่ายิ่ง",
+      "emoji": "💎"
+    },
+    {
+      "word": "นภากาศ",
+      "reading": "นะ-พา-กาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "น, พ, ก",
+        "initialName": "นอ, พอ, กอ",
+        "vowel": "อะ, อา, อา",
+        "vowelName": "สระอะ, สระอา, สระอา",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "นอ - อะ = นะ, พอ - อา = พา, กอ - อา - ดอ = กาด ➔ นะ-พา-กาด"
+      },
+      "meaning": "ท้องฟ้า แดนอากาศเบื้องบนกว้างใหญ่",
+      "emoji": "☁️"
+    },
+    {
+      "word": "พาณิชย์",
+      "reading": "พา-นิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ช",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พ, น",
+        "initialName": "พอ, นอ",
+        "vowel": "อา, อิ",
+        "vowelName": "สระอา, สระอิ",
+        "finalSurface": "ช",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - อา = พา, นอ - อิ - ดอ = นิด ➔ พา-นิด (มี ย์ การันต์)"
+      },
+      "meaning": "การค้าขาย แลกเปลี่ยนสินค้าและบริการ",
+      "emoji": "🏪"
+    },
+    {
+      "word": "ศาสนา",
+      "reading": "สาด-สะ-หนา",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ศ, ส, น",
+        "initialName": "สอ, สอ, นอ",
+        "vowel": "อา, อะ, อา",
+        "vowelName": "สระอา, สระอะ, สระอา",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อา - ดอ = สาด, สอ - อะ = สะ, หอ - นอ - อา = หนา ➔ สาด-สะ-หนา"
+      },
+      "meaning": "ลัทธิความเชื่อและหลักธรรมคำสั่งสอน",
+      "emoji": "🛕"
+    },
+    {
+      "word": "มารยาท",
+      "reading": "มา-ระ-ยาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, ร, ย",
+        "initialName": "มอ, รอ, ยอ",
+        "vowel": "อา, อะ, อา",
+        "vowelName": "สระอา, สระอะ, สระอา",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - อา = มา, รอ - อะ = ระ, ยอ - อา - ดอ = ยาด ➔ มา-ระ-ยาด"
+      },
+      "meaning": "กิริยาวาจาที่เรียบร้อย สุภาพตามธรรมเนียม",
+      "emoji": "🙇"
+    },
+    {
+      "word": "วิจิตร",
+      "reading": "วิ-จิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, จ",
+        "initialName": "วอ, จอ",
+        "vowel": "อิ, อิ",
+        "vowelName": "สระอิ, สระอิ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อิ = วิ, จอ - อิ - ดอ = จิด ➔ วิ-จิด (เขียนด้วย ตร สะกด)"
+      },
+      "meaning": "งดงามประณีต ลวดลายละเอียดอ่อนช้อย",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ปราโมทย์",
+      "reading": "ปรา-โมด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ม",
+        "initialName": "ปอ-รอ, มอ",
+        "vowel": "อา, โอ",
+        "vowelName": "สระอา, สระโอ",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อา = ปรา, มอ - โอ - ดอ = โมด ➔ ปรา-โมด (มี ย์ การันต์)"
+      },
+      "meaning": "ความชื่นชมยินดี ความบันเทิงใจและอิ่มเอม",
+      "emoji": "🎉"
+    },
+    {
+      "word": "สังเกต",
+      "reading": "สัง-เกด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, ก",
+        "initialName": "สอ, กอ",
+        "vowel": "อะ, เอ",
+        "vowelName": "สระอะ, สระเอ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อะ - งอ = สัง, กอ - เอ - ดอ = เกด ➔ สัง-เกด"
+      },
+      "meaning": "เฝ้าดู มองหาจุดสำคัญหรือความเปลี่ยนแปลง",
+      "emoji": "🔎"
+    },
+    {
+      "word": "มงกุฎ",
+      "reading": "มง-กุด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ฎ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, ก",
+        "initialName": "มอ, กอ",
+        "vowel": "โอะ, อุ",
+        "vowelName": "สระโอะ, สระอุ",
+        "finalSurface": "ฎ",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - โอะ - งอ = มง, กอ - อุ - ดอ = กุด ➔ มง-กุด"
+      },
+      "meaning": "เครื่องสวมพระเศียรแสดงเกียรติยศพระมหากษัตริย์",
+      "emoji": "👑"
+    },
+    {
+      "word": "ประสูติ",
+      "reading": "ประ-สูด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ติ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ส",
+        "initialName": "ปอ-รอ, สอ",
+        "vowel": "อะ, อู",
+        "vowelName": "สระอะ, สระอู",
+        "finalSurface": "ติ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, สอ - อู - ดอ = สูด ➔ ประ-สูด"
+      },
+      "meaning": "เกิด หรือกำเนิดขึ้น (คำราชาศัพท์)",
+      "emoji": "👶"
+    },
+    {
+      "word": "มรกต",
+      "reading": "มอ-ระ-กด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ม, ร, ก",
+        "initialName": "มอ, รอ, กอ",
+        "vowel": "ออ, อะ, โอะ",
+        "vowelName": "สระออ, สระอะ, สระโอะ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "มอ - ออ = มอ, รอ - อะ = ระ, กอ - โอะ - ดอ = กด ➔ มอ-ระ-กด"
+      },
+      "meaning": "แก้วรัตนชาติสีเขียวสดใส มีค่าสูง",
+      "emoji": "🟢"
+    },
+    {
+      "word": "สุจริต",
+      "reading": "สุ-จะ-ริด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ต",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ส, จ, ร",
+        "initialName": "สอ, จอ, รอ",
+        "vowel": "อุ, อะ, อิ",
+        "vowelName": "สระอุ, สระอะ, สระอิ",
+        "finalSurface": "ต",
+        "finalSound": "ด",
+        "phonicsSpelling": "สอ - อุ = สุ, จอ - อะ = จะ, รอ - อิ - ดอ = ริด ➔ สุ-จะ-ริด"
+      },
+      "meaning": "ประพฤติดี ซื่อตรง โปร่งใส ไม่คดโกง",
+      "emoji": "🛡️"
+    },
+    {
+      "word": "กษัตริย์",
+      "reading": "กะ-สัด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ตร",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ก, ส",
+        "initialName": "กอ, สอ",
+        "vowel": "อะ, อะ",
+        "vowelName": "สระอะ, สระอะ",
+        "finalSurface": "ตร",
+        "finalSound": "ด",
+        "phonicsSpelling": "กอ - อะ = กะ, สอ - อะ - ดอ = สัด ➔ กะ-สัด (มี ย์ การันต์)"
+      },
+      "meaning": "พระเจ้าแผ่นดิน ผู้ครองแผ่นดินและปกครองราษฎร",
+      "emoji": "👑"
+    },
+    {
+      "word": "อัจฉริยะ",
+      "reading": "อัด-ฉะ-ริ-ยะ",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "จ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "อ, ฉ, ร, ย",
+        "initialName": "ออ, ฉอ, รอ, ยอ",
+        "vowel": "อะ, อะ, อิ, อะ",
+        "vowelName": "สระอะ, สระอะ, สระอิ, สระอะ",
+        "finalSurface": "จ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ออ - อะ - ดอ = อัด, ฉอ - อะ = ฉะ, รอ - อิ = ริ, ยอ - อะ = ยะ ➔ อัด-ฉะ-ริ-ยะ"
+      },
+      "meaning": "บุคคลผู้มีปัญญาเฉียบแหลมยอดเยี่ยมเกินคนทั่วไป",
+      "emoji": "🧠"
+    },
+    {
+      "word": "พุทธรักษา",
+      "reading": "พุด-ทะ-รัก-สา",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ทธ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พ, ร, ส",
+        "initialName": "พอ, รอ, สอ",
+        "vowel": "อุ, อะ, อา",
+        "vowelName": "สระอุ, สระอะ, สระอา",
+        "finalSurface": "ทธ",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - อุ - ดอ = พุด, รอ - อะ - กอ = รัก, สอ - อา = สา ➔ พุด-ทะ-รัก-สา"
+      },
+      "meaning": "พรรณไม้ดอกสีเหลืองสัญลักษณ์ประจำวันพ่อแห่งชาติ",
+      "emoji": "🌼"
+    },
+    {
+      "word": "วันพุธ",
+      "reading": "วัน-พุด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ธ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, พ",
+        "initialName": "วอ, พอ",
+        "vowel": "อะ, อุ",
+        "vowelName": "สระอะ, สระอุ",
+        "finalSurface": "ธ",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อะ - นอ = วัน, พอ - อุ - ดอ = พุด ➔ วัน-พุด"
+      },
+      "meaning": "วันที่สี่ของสัปดาห์ตามปฏิทินสุริยคติ",
+      "emoji": "📅"
+    },
+    {
+      "word": "วิทยาศาสตร์",
+      "reading": "วิด-ทะ-ยา-สาด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ท",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ว, ย, ศ",
+        "initialName": "วอ, ยอ, สอ",
+        "vowel": "อิ, อา, อา",
+        "vowelName": "สระอิ, สระอา, สระอา",
+        "finalSurface": "ท",
+        "finalSound": "ด",
+        "phonicsSpelling": "วอ - อิ - ดอ = วิด, ยอ - อา = ยา, สอ - อา - ดอ = สาด ➔ วิด-ทะ-ยา-สาด"
+      },
+      "meaning": "วิชาความรู้เกี่ยวกับธรรมชาติและสิ่งแวดล้อมที่พิสูจน์ได้",
+      "emoji": "🔬"
+    },
+    {
+      "word": "ประดิษฐ์",
+      "reading": "ประ-ดิด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ษฐ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "ปร, ด",
+        "initialName": "ปอ-รอ, ดอ",
+        "vowel": "อะ, อิ",
+        "vowelName": "สระอะ, สระอิ",
+        "finalSurface": "ษฐ",
+        "finalSound": "ด",
+        "phonicsSpelling": "ปอ - รอ - อะ = ประ, ดอ - อิ - ดอ = ดิด ➔ ประ-ดิด"
+      },
+      "meaning": "สร้างสรรค์ คิดค้นประดิษฐ์สิ่งใหม่ขึ้นมา",
+      "emoji": "💡"
+    },
+    {
+      "word": "พฤศจิกายน",
+      "reading": "พฺรึด-สะ-จิ-กา-ยน",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ศ",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "พฤ, จ, ก, ย",
+        "initialName": "พอ-รึ, จอ, กอ, ยอ",
+        "vowel": "อึ, อิ, อา, โอะ",
+        "vowelName": "สระอึ, สระอิ, สระอา, สระโอะ",
+        "finalSurface": "ศ",
+        "finalSound": "ด",
+        "phonicsSpelling": "พอ - รึ - ดอ = พรึด, จอ - อิ = จิ, กอ - อา = กา, ยอ - โอะ - นอ = ยน ➔ พรึด-สะ-จิ-กา-ยน"
+      },
+      "meaning": "เดือนที่สิบเอ็ดของปีตามปฏิทินสุริยคติ มี 30 วัน",
+      "emoji": "🍂"
+    },
+    {
+      "word": "บงกช",
+      "reading": "บง-กด",
+      "targetSection": "kod",
+      "sectionName": "แม่กด",
+      "surfaceConsonant": "ช",
+      "soundConsonant": "ด",
+      "phonicsDecomposition": {
+        "initial": "บ, ก",
+        "initialName": "บอ, กอ",
+        "vowel": "โอะ, โอะ",
+        "vowelName": "สระโอะ, สระโอะ",
+        "finalSurface": "ช",
+        "finalSound": "ด",
+        "phonicsSpelling": "บอ - โอะ - งอ = บง, กอ - โอะ - ดอ = กด ➔ บง-กด"
+      },
+      "meaning": "ดอกบัว ดอกไม้น้ำที่เกิดจากโคลนตมแต่งดงามบริสุทธิ์",
+      "emoji": "🪷"
+    }
+  ]
+}
