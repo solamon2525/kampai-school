@@ -241,7 +241,7 @@ class Item {
             ctx.fillStyle = '#f59e0b'; 
             ctx.fillRect(-18, -18, 36, 36);
             ctx.fillStyle = '#000'; 
-            ctx.font = 'bold 22px "Press Start 2P", monospace';
+            ctx.font = 'bold 22px "Sarabun", "Press Start 2P", sans-serif';
             ctx.textAlign = 'center'; 
             ctx.textBaseline = 'middle'; 
             ctx.fillText(this.letterInfo.char, 0, 3);
@@ -797,6 +797,9 @@ function getRandomItemType() {
 
 function initLevel() {
     if (!window.GAME_DATA) return;
+    if (window.KAMPAI && typeof window.KAMPAI.beginRound === 'function') {
+        window.KAMPAI.beginRound();
+    }
     
     const wordIndex = (currentStage - 1) % window.GAME_DATA.words.length;
     const wordObj = window.GAME_DATA.words[wordIndex];
@@ -1020,11 +1023,11 @@ function endGame(win) {
     const winText = document.getElementById('winner-text');
     if (winText) winText.innerText = winnerText;
 
-    if (window.vs && typeof window.vs.finish === 'function') {
-        window.vs.finish(finalScore, {});
-    } else if (window.KAMPAI) {
+    if (playerCount === 2 && window.vs && typeof window.vs.finish === 'function') {
+        window.vs.finish(finalScore, { correct: win ? 1 : 0 });
+    } else if (window.KAMPAI && typeof window.KAMPAI.submitScore === 'function') {
         window.KAMPAI.submitScore(finalScore, {
-            mode: 'normal'
+            mode: 'solo'
         });
     }
 
@@ -1032,13 +1035,27 @@ function endGame(win) {
         let localData = [];
         const local = localStorage.getItem('battle_city_leaderboard');
         if (local) localData = JSON.parse(local);
-        const name = (window.KAMPAI && window.KAMPAI.student) ? window.KAMPAI.student.name : (playerCount === 2 ? 'Co-op Teams' : 'Commander');
+        const name = (window.KAMPAI && window.KAMPAI.student) ? (window.KAMPAI.student.displayName || window.KAMPAI.student.name) : (playerCount === 2 ? 'Co-op Teams' : 'Commander');
         localData.push({ name: name, score: finalScore });
         localData.sort((a, b) => b.score - a.score);
         localStorage.setItem('battle_city_leaderboard', JSON.stringify(localData.slice(0, 10)));
     } catch (e) {
         console.error(e);
     }
+}
+
+function restartGame() {
+    const goScreen = document.getElementById('game-over-screen');
+    if (goScreen) goScreen.classList.add('hidden');
+    handleStart(playerCount || 1);
+}
+
+function finishTest() {
+    if (gameState !== 'PLAYING') {
+        handleStart(1);
+    }
+    if (p1) p1.score = Math.max(p1.score, 100);
+    endGame(true);
 }
 
 function showLeaderboard() {
@@ -1178,14 +1195,50 @@ function loop() {
     requestAnimationFrame(loop); 
 }
 
+// Initialize Versus framework for Battle City
+let vs = null;
+if (typeof window !== 'undefined' && window.KampaiVersus && typeof window.KampaiVersus.create === 'function') {
+    vs = window.vs = KampaiVersus.create({
+        duration: 60,
+        title: 'รถถังหาศัพท์ Battle City',
+        rankBy: 'score',
+        onPlay: ({ rng, player }) => {
+            window.currentVersusPlayer = player;
+            handleStart(2);
+        },
+        onEnd: () => {
+            endGame(false);
+        }
+    });
+}
+
 // Connect HUD elements on setup
 if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
         const btn1p = document.getElementById('btn-1p');
         if (btn1p) btn1p.onclick = () => handleStart(1);
         const btn2p = document.getElementById('btn-2p');
-        if (btn2p) btn2p.onclick = () => handleStart(2);
+        if (btn2p) {
+            btn2p.onclick = () => {
+                if (vs && typeof vs.openMenu === 'function') {
+                    vs.openMenu();
+                } else {
+                    handleStart(2);
+                }
+            };
+        }
         
+        const btnBack = document.getElementById('btn-back');
+        if (btnBack) {
+            btnBack.onclick = () => {
+                if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+                    window.KAMPAI.goHome();
+                } else {
+                    window.location.href = '/h/nattapong';
+                }
+            };
+        }
+
         const btnLeaderboard = document.getElementById('btn-leaderboard');
         if (btnLeaderboard) btnLeaderboard.onclick = () => showLeaderboard();
         
@@ -1200,13 +1253,22 @@ if (typeof window !== 'undefined') {
         const btnExit = document.getElementById('btn-exit');
         if (btnExit) {
             btnExit.onclick = () => {
-                if (window.KAMPAI) window.KAMPAI.goHome();
+                if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+                    window.KAMPAI.goHome();
+                } else {
+                    window.location.href = '/h/nattapong';
+                }
             };
         }
         
         const restartBtn = document.getElementById('restart-btn');
         if (restartBtn) {
-            restartBtn.onclick = () => {
+            restartBtn.onclick = () => restartGame();
+        }
+
+        const btnMenu = document.getElementById('btn-menu');
+        if (btnMenu) {
+            btnMenu.onclick = () => {
                 document.getElementById('game-over-screen').classList.add('hidden');
                 document.getElementById('start-screen').classList.remove('hidden');
             };
@@ -1215,17 +1277,17 @@ if (typeof window !== 'undefined') {
 }
 
 // Bind SDK Ready
-if (window.KAMPAI) {
+if (window.KAMPAI && typeof window.KAMPAI.onReady === 'function') {
     window.KAMPAI.onReady((k) => {
         if (k.student) {
             const pc = document.getElementById('player-chip');
-            if (pc) pc.innerText = `👤 ${k.student.name}`;
+            if (pc) pc.innerText = `👤 ${k.student.displayName || k.student.name || 'ผู้เล่น'}`;
         }
         if (k.stats) {
             const best = document.getElementById('ms-best');
-            if (best) best.innerText = k.stats.bestScore || 0;
+            if (best) best.innerText = (k.stats.bestScore ?? k.stats.personalBest ?? 0);
             const plays = document.getElementById('ms-plays');
-            if (plays) plays.innerText = k.stats.plays || 0;
+            if (plays) plays.innerText = (k.stats.plays ?? k.stats.playsCount ?? 0);
         }
     });
 }

@@ -1,14 +1,17 @@
 window.GAME_DATA = {
     words: [
-        { word: "WIN", translation: "ชนะ" },
-        { word: "PLAY", translation: "เล่น" },
-        { word: "STAR", translation: "ดาว" },
-        { word: "GAME", translation: "เกม" },
-        { word: "TANK", translation: "รถถัง" },
-        { word: "CITY", translation: "เมือง" },
-        { word: "BATTLE", translation: "ต่อสู้" },
-        { word: "KAMPAI", translation: "ชนแก้ว" },
-        { word: "VICTORY", translation: "ชัยชนะ" }
+        { word: "กนก", translation: "ทองคำ", meaning: "อักษรนำแท้ แปลว่าทองคำ" },
+        { word: "มงคล", translation: "สิ่งดีงาม", meaning: "ความสุขความเจริญ" },
+        { word: "อดทน", translation: "ไม่ย่อท้อ", meaning: "ความบากบั่นพยายาม" },
+        { word: "กมล", translation: "หัวใจ", meaning: "จิตใจหรือดอกบัว" },
+        { word: "นคร", translation: "เมืองใหญ่", meaning: "เมืองหรือธานี" },
+        { word: "ขจร", translation: "ฟุ้งกระจาย", meaning: "แพร่กระจายไปไกล" },
+        { word: "มรกต", translation: "แก้วสีเขียว", meaning: "อัญมณีสีเขียว" },
+        { word: "ชนก", translation: "บิดา", meaning: "ผู้ให้กำเนิด (พ่อ)" },
+        { word: "สมพร", translation: "สมปรารถนา", meaning: "ได้รับพรดั่งใจ" },
+        { word: "ศตวรรษ", translation: "รอบร้อยปี", meaning: "ระยะเวลา ๑๐๐ ปี" },
+        { word: "บรรพต", translation: "ภูเขา", meaning: "ภูเขาหินสูงใหญ่" },
+        { word: "ทศวรรษ", translation: "รอบสิบปี", meaning: "ระยะเวลา ๑๐ ปี" }
     ],
     layouts: [
         [
@@ -32,7 +35,7 @@ window.GAME_DATA = {
             [0,2,0,1,0,0,2,0,0,1,0,2,0],
             [0,0,0,1,0,0,0,0,0,1,0,0,0], 
             [1,1,0,1,2,2,0,2,2,1,0,1,1], 
-            [0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0], 
             [1,1,0,2,0,1,1,1,0,2,0,1,1], 
             [0,0,0,2,0,0,1,0,0,2,0,0,0], 
             [0,1,1,1,0,0,1,0,0,1,1,1,0],
