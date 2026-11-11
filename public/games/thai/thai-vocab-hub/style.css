@@ -4767,3 +4767,128 @@ body.modal-open {
   }
 }
 
+/* ── Phonetic X-Ray Scanner & Consonant Mask-Off Mode ────────────────── */
+#btn-xray-toggle {
+  font-family: inherit;
+  font-size: calc(13px * var(--font-scale, 1));
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
+  background: var(--card, rgba(255, 255, 255, 0.08));
+  color: var(--foreground, #cbd5e1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#btn-xray-toggle:hover {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+#btn-xray-toggle.active,
+#btn-xray-toggle[aria-pressed="true"] {
+  background: #f59e0b;
+  border-color: #fbbf24;
+  color: #1e1b4b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
+  font-weight: 800;
+}
+
+/* Subtle, clear gold badge [ด] on surface consonant */
+.card-xray-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(10px, 9cqmin, 13px);
+  font-weight: 800;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+/* Phonetic reading bracket [ตำ-รวด] */
+.card-xray-reading {
+  font-size: clamp(9px, 8cqmin, 11px);
+  font-weight: 700;
+  color: #fdba74;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  margin-top: 1px;
+}
+
+/* Kid-friendly pill button [✨ ถอดหน้ากาก] with touch target >= 44x44px */
+.btn-card-unmask {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-family: inherit;
+  font-size: clamp(9px, 8cqmin, 11px);
+  font-weight: 700;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+  border-radius: 9999px;
+  padding: 3px 8px;
+  min-height: 26px;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: all 0.15s ease;
+  z-index: 3;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.btn-card-unmask::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
+}
+
+.btn-card-unmask:hover,
+.btn-card-unmask:focus-visible {
+  background: #fde68a;
+  color: #78350f;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  outline: none;
+}
+
+/* Ensure no layout break on dense grids (cols 8-10) */
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .card-xray-badge {
+  font-size: 8px;
+  padding: 0 2px;
+  margin-left: 2px;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .btn-card-unmask {
+  font-size: 8px;
+  padding: 1px 4px;
+  min-height: 20px;
+}
+
+.words-grid:is([data-grid-cols="8"], [data-grid-cols="9"], [data-grid-cols="10"]) .card-xray-reading {
+  display: none;
+}
+
+

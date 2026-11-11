@@ -34,6 +34,7 @@ let lastGridObservedWidth = 0;
 let gridSpanFitting = false;
 let renderGenId = 0;
 let pendingRenderChunks = [];
+let xrayScannerActive = false;
 
 // Flash deck (โหมดสุ่มการ์ด)
 let flashDeck = [];
@@ -856,6 +857,57 @@ function pickMeaningDecoys(wordItem, pool, count) {
   return shuffle(pool.filter((w) => w.word !== wordItem.word).map((w) => w.meaning)).slice(0, count);
 }
 
+const IRREGULAR_SOUND_MAP = { 'กด': 'ด', 'กน': 'น', 'กบ': 'บ', 'กก': 'ก' };
+
+function getWordIrregularSpelling(item) {
+  if (!item || !item.word) return null;
+  const word = item.word.trim();
+
+  // 1. Direct lookup from ThaiSpellingDecoder if loaded
+  if (window.ThaiSpellingDecoder && typeof window.ThaiSpellingDecoder.getWordData === 'function') {
+    const data = window.ThaiSpellingDecoder.getWordData(word);
+    if (data) return data;
+  }
+
+  // 2. Metadata extraction from meaning / category_evidence
+  const text = `${item.meaning || ''} ${item.category_evidence || ''}`;
+  const m = text.match(/แม่(กด|กน|กบ|กก)\s*[-—–]?\s*(?:สะกดด้วย|ไม่ตรงตามมาตราด้วยตัว)?\s*([ก-ฮ])/);
+  if (m) {
+    const sectionName = 'แม่' + m[1];
+    const surface = m[2];
+    const sound = IRREGULAR_SOUND_MAP[m[1]];
+    if (sound && surface !== sound) {
+      return {
+        word,
+        reading: item.reading || word,
+        surfaceConsonant: surface,
+        soundConsonant: sound,
+        sectionName,
+        targetSection: m[1] === 'กด' ? 'kod' : (m[1] === 'กน' ? 'kon' : (m[1] === 'กบ' ? 'kob' : 'kok'))
+      };
+    }
+  }
+
+  return null;
+}
+
+function hasIrregularSpellingWords(words) {
+  if (!Array.isArray(words)) return false;
+  return words.some((w) => Boolean(getWordIrregularSpelling(w)));
+}
+
+function toggleXrayScanner() {
+  xrayScannerActive = !xrayScannerActive;
+  const grid = document.getElementById('words-grid');
+  if (grid) {
+    grid.classList.toggle('xray-mode-active', xrayScannerActive);
+  }
+  updateGridFilterPickerUI();
+  if (currentMode === 'auto') {
+    renderWordsGrid();
+  }
+}
+
 function updateGridFilterPickerUI() {
   document.querySelectorAll('.grid-grade-btn').forEach((btn) => {
     const active = btn.dataset.grade === gridGradeFilter;
@@ -881,6 +933,11 @@ function updateGridFilterPickerUI() {
       btn.textContent = `🎬 ภาพเรื่องราว (${sbCount})`;
     }
   });
+  const xrayBtn = document.getElementById('btn-xray-toggle');
+  if (xrayBtn) {
+    xrayBtn.classList.toggle('active', xrayScannerActive);
+    xrayBtn.setAttribute('aria-pressed', xrayScannerActive ? 'true' : 'false');
+  }
 }
 
 function buildGridFilterPickers(header) {
@@ -933,6 +990,27 @@ function buildGridFilterPickers(header) {
 
   wrap.appendChild(gradeBlock);
   wrap.appendChild(viewBlock);
+
+  if (activeCategorySlug === 'spelling' || hasIrregularSpellingWords(fullCategoryWords)) {
+    const xrayBlock = document.createElement('div');
+    xrayBlock.className = 'grid-filter-group grid-xray-group';
+    xrayBlock.innerHTML = '<span class="grid-size-label">ตัวช่วย</span>';
+    const xrayBtns = document.createElement('div');
+    xrayBtns.className = 'grid-size-btns';
+
+    const xrayBtn = document.createElement('button');
+    xrayBtn.type = 'button';
+    xrayBtn.id = 'btn-xray-toggle';
+    xrayBtn.className = `grid-size-btn btn-xray-toggle${xrayScannerActive ? ' active' : ''}`;
+    xrayBtn.setAttribute('aria-pressed', xrayScannerActive ? 'true' : 'false');
+    xrayBtn.setAttribute('title', 'เปิด/ปิดแว่นสแกนเสียงอ่านตัวสะกดไม่ตรงมาตรา (X-Ray Scanner)');
+    xrayBtn.textContent = '🔍 แว่นสแกนเสียงอ่าน (X-Ray)';
+    xrayBtn.addEventListener('click', toggleXrayScanner);
+    xrayBtns.appendChild(xrayBtn);
+    xrayBlock.appendChild(xrayBtns);
+    wrap.appendChild(xrayBlock);
+  }
+
   header.appendChild(wrap);
   updateGridFilterPickerUI();
 }
@@ -1495,9 +1573,14 @@ async function loadAndSelectCategory(slug) {
 
 function selectCategory(slug) {
   activeCategorySlug = slug;
+  if (slug !== 'spelling') {
+    xrayScannerActive = false;
+  }
   activeCategory = CATEGORIES.find(c => c.slug === slug);
   fullCategoryWords = getApprovedWords(mergeLocalVisuals(slug, ALL_WORDS[slug]));
   categoryWords = fullCategoryWords;
+  window.fullCategoryWords = fullCategoryWords;
+  window.categoryWords = categoryWords;
 
   if (categoryWords.length === 0) return;
 
@@ -1674,6 +1757,20 @@ function createGridCardElement(item, idx, leitnerMap) {
   const storyboardBadge = hasStoryboard
     ? `<button type="button" class="badge-storyboard-trigger" title="มีภาพเรื่องราว ${item.images.length} ตอน" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ${item.images.length} ตอน</button>`
     : '';
+  const irregularInfo = xrayScannerActive ? getWordIrregularSpelling(item) : null;
+  const isXrayActive = Boolean(irregularInfo);
+  if (isXrayActive) {
+    card.classList.add('has-xray-card');
+  }
+  const xrayBadge = isXrayActive
+    ? `<span class="card-xray-badge" title="เสียงตัวสะกด [${irregularInfo.soundConsonant}] — อ่านว่า [${irregularInfo.reading || item.reading}]">[${irregularInfo.soundConsonant}]</span>`
+    : '';
+  const xrayReading = isXrayActive
+    ? `<span class="card-xray-reading">[${irregularInfo.reading || item.reading}]</span>`
+    : '';
+  const xrayUnmaskBtn = isXrayActive
+    ? `<button type="button" class="btn-card-unmask touch-target" title="ถอดหน้ากากตัวสะกดคำว่า ${item.word}" aria-label="ถอดหน้ากากตัวสะกดคำว่า ${item.word}" onclick="event.stopPropagation(); window.ThaiSpellingDecoder && window.ThaiSpellingDecoder.open('${item.word}')">✨ ถอดหน้ากาก</button>`
+    : '';
 
   card.innerHTML = `
     <div class="grid-flip-inner">
@@ -1685,9 +1782,11 @@ function createGridCardElement(item, idx, leitnerMap) {
           ${posBadge}
         </div>
         <span class="grid-word-emoji">${emoji}</span>
-        <span class="grid-word-text">${item.word}</span>
+        <span class="grid-word-text">${item.word} ${xrayBadge}</span>
+        ${xrayReading}
         ${morphBadge}
         ${storyboardBadge}
+        ${xrayUnmaskBtn}
       </div>
       <div class="grid-flip-face grid-flip-back">
         <span class="grid-reading">[ ${item.reading} ]</span>
@@ -1719,6 +1818,25 @@ function createGridCardElement(item, idx, leitnerMap) {
         e.stopPropagation();
         e.preventDefault();
         openIdiomStoryboard(item, sbBadge);
+      }
+    });
+  }
+
+  const unmaskBtn = card.querySelector('.btn-card-unmask');
+  if (unmaskBtn) {
+    unmaskBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.ThaiSpellingDecoder) {
+        window.ThaiSpellingDecoder.open(item.word);
+      }
+    });
+    unmaskBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (window.ThaiSpellingDecoder) {
+          window.ThaiSpellingDecoder.open(item.word);
+        }
       }
     });
   }
@@ -1768,6 +1886,7 @@ function createGridCardElement(item, idx, leitnerMap) {
 function renderWordsGrid() {
   const grid = document.getElementById('words-grid');
   if (!grid) return;
+  grid.classList.toggle('xray-mode-active', Boolean(xrayScannerActive));
   cancelSpeech();
   lastGridFitWidth = 0;
   lastGridObservedWidth = 0;
@@ -3546,3 +3665,14 @@ window.getGridDisplayWords = getGridDisplayWords;
 window.setGridViewMode = setGridViewMode;
 window.setGridGradeFilter = setGridGradeFilter;
 window.selectCategory = selectCategory;
+window.getWordIrregularSpelling = getWordIrregularSpelling;
+window.hasIrregularSpellingWords = hasIrregularSpellingWords;
+window.toggleXrayScanner = toggleXrayScanner;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('spelling-decoder-loaded', () => {
+    if (activeCategorySlug === 'spelling' && currentMode === 'auto') {
+      renderWordsGrid();
+    }
+  });
+}

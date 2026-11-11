@@ -144,14 +144,23 @@
   let dataReadyPromise = null;
   let eventsBound = false;
 
+  let wordsMap = new Map();
+
   function setDataset(words) {
     wordsData = Array.isArray(words) ? words : [];
+    wordsMap = new Map();
     sectionMap = { kod: [], kon: [], kob: [], kok: [] };
     wordsData.forEach(w => {
+      if (w && w.word) {
+        wordsMap.set(w.word.trim(), w);
+      }
       if (sectionMap[w.targetSection]) {
         sectionMap[w.targetSection].push(w);
       }
     });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('spelling-decoder-loaded', { detail: { count: wordsData.length } }));
+    }
   }
 
   function loadData() {
@@ -471,6 +480,22 @@
       return sectionId ? (sectionMap[sectionId] || []) : wordsData;
     },
 
+    getWordData(word) {
+      if (!word) return null;
+      const clean = typeof word === 'string' ? word.trim() : word;
+      return wordsMap.get(clean) || wordsData.find(w => w.word === clean) || null;
+    },
+
+    isDecoderWord(word) {
+      if (!word) return false;
+      const clean = typeof word === 'string' ? word.trim() : word;
+      return wordsMap.has(clean) || wordsData.some(w => w.word === clean);
+    },
+
+    loadData() {
+      return loadData();
+    },
+
     async open(wordOrIndex) {
       ensureModal();
       const modal = document.getElementById('modal-spelling-decoder');
@@ -482,7 +507,52 @@
 
       if (typeof wordOrIndex === 'string') {
         const clean = wordOrIndex.trim();
-        const found = wordsData.find(w => w.word === clean);
+        let found = wordsMap.get(clean) || wordsData.find(w => w.word === clean);
+        if (!found && typeof window !== 'undefined') {
+          let fullItem = null;
+          if (Array.isArray(window.fullCategoryWords)) {
+            fullItem = window.fullCategoryWords.find(w => w && w.word === clean);
+          }
+          if (!fullItem && Array.isArray(window.categoryWords)) {
+            fullItem = window.categoryWords.find(w => w && w.word === clean);
+          }
+          if (!fullItem && window.ALL_WORDS) {
+            for (const slug in window.ALL_WORDS) {
+              const match = (window.ALL_WORDS[slug] || []).find(w => w && w.word === clean);
+              if (match) { fullItem = match; break; }
+            }
+          }
+
+          if (fullItem && typeof window.getWordIrregularSpelling === 'function') {
+            const info = window.getWordIrregularSpelling(fullItem);
+            if (info) {
+              found = {
+                word: clean,
+                reading: fullItem.reading || info.reading || clean,
+                targetSection: info.targetSection || 'kod',
+                sectionName: info.sectionName || 'แม่กด',
+                surfaceConsonant: info.surfaceConsonant || '',
+                soundConsonant: info.soundConsonant || 'ด',
+                phonicsDecomposition: {
+                  initial: '',
+                  initialName: '',
+                  vowel: '',
+                  vowelName: '',
+                  finalSurface: info.surfaceConsonant || '',
+                  finalSound: info.soundConsonant || 'ด',
+                  phonicsSpelling: `${clean} อ่านว่า ${fullItem.reading || info.reading || clean}`
+                },
+                meaning: fullItem.meaning || '',
+                emoji: fullItem.emoji || '📝'
+              };
+              wordsData.push(found);
+              wordsMap.set(clean, found);
+              if (sectionMap[found.targetSection]) {
+                sectionMap[found.targetSection].push(found);
+              }
+            }
+          }
+        }
         if (found) {
           currentSectionId = found.targetSection;
           const secWords = sectionMap[currentSectionId] || [];
