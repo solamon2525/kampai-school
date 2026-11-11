@@ -1251,7 +1251,8 @@ function createSearchCardElement(item) {
   const posBadge = item.pos ? `<span class="search-pos-badge ${posCls}">(${item.pos})</span>` : '';
   const gradeBadge = item.grade ? `<span class="search-grade-badge">${item.grade}</span>` : '';
   const exampleHtml = item.example ? `<div class="hub-search-example">“${item.example}”</div>` : '';
-  const isMorph = Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
+  const isMorph = Boolean(activeCategorySlug === 'vowel-morph' || selectedSearchCategory === 'vowel-morph' || item.categorySlug === 'vowel-morph') &&
+    Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
@@ -1459,6 +1460,7 @@ function initHubGrid() {
   CATEGORIES.forEach(cat => {
     const card = document.createElement('div');
     card.className = 'hub-card';
+    card.dataset.slug = cat.slug;
     card.onclick = () => loadAndSelectCategory(cat.slug);
 
     const allApproved = getApprovedWords(ALL_WORDS[cat.slug]);
@@ -1502,6 +1504,10 @@ function selectCategory(slug) {
   // เปลี่ยนหน้าการแสดงผล (ชื่อหมวดแสดงบนการ์ดอยู่แล้ว — ไม่มีแถบ HUD บนสุด)
   document.getElementById('hub-view').style.display = 'none';
   document.getElementById('topic-view').style.display = 'flex';
+  const vmBanner = document.getElementById('vowel-morph-hero-banner');
+  if (vmBanner) {
+    vmBanner.style.display = (slug === 'vowel-morph') ? 'flex' : 'none';
+  }
   updateVisualModeAvailability();
 
   // รีเซ็ตค่าด่าน
@@ -1659,7 +1665,8 @@ function createGridCardElement(item, idx, leitnerMap) {
     ? `<div class="grid-example">“${item.example}”</div>`
     : '';
   const dotTitle = box === 3 ? 'แม่นยำแล้ว' : (box === 2 ? 'เริ่มจำได้' : 'กำลังเรียนรู้');
-  const isMorph = Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
+  const isMorph = Boolean(activeCategorySlug === 'vowel-morph') &&
+    Boolean(window.ThaiVowelMorph && window.ThaiVowelMorph.isMorphWord(item.word));
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
@@ -2989,6 +2996,8 @@ function speakThai(text) {
 
 function returnToHub() {
   disposeGameSession();
+  const vmBanner = document.getElementById("vowel-morph-hero-banner");
+  if (vmBanner) vmBanner.style.display = "none";
   document.getElementById('hub-view').style.display = 'flex';
   document.getElementById('topic-view').style.display = 'none';
   document.getElementById('gameover-screen').style.display = 'none';
