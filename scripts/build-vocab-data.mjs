@@ -102,7 +102,7 @@ export function build({ checkOnly = process.argv.includes('--check') } = {}) {
   console.log(`✅ Wrote ${OUT_FILE}`);
   console.log(`   ${categories.length} หมวด · ${total} คำ`);
   for (const { title, count } of counts) {
-    const mark = count === TARGET_PER_CATEGORY ? '✓' : '⚠';
+    const mark = count >= TARGET_PER_CATEGORY ? '✓' : '⚠';
     console.log(`   ${mark} ${title}: ${count}`);
   }
 }
