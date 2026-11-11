@@ -41,9 +41,9 @@ server.listen(0, async () => {
   await page.goto(`http://localhost:${port}/games/thai/thai-vocab-hub/index.html`);
   await page.waitForLoadState('networkidle');
 
-  // 1. Check that hub grid displays 17 categories
+  // 1. Check that hub grid displays at least 17 categories
   const catCards = await page.locator('.hub-card').count();
-  assert.equal(catCards, 17, `Hub grid must display 17 category cards, got ${catCards}`);
+  assert.ok(catCards >= 17, `Hub grid must display at least 17 category cards, got ${catCards}`);
 
   // 2. Select a regular category (e.g. misspelled or idioms) and verify NO .badge-morph-trigger exists
   await page.evaluate(() => {

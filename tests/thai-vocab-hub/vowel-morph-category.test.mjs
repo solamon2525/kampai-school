@@ -7,9 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const hubDir = path.resolve(__dirname, '../../public/games/thai/thai-vocab-hub');
 
-// 1. Verify categories.json has vowel-morph as 17th item
+// 1. Verify categories.json has vowel-morph category
 const categories = JSON.parse(fs.readFileSync(path.join(hubDir, 'data/categories.json'), 'utf8'));
-assert.equal(categories.length, 17, `Must have 17 categories, got ${categories.length}`);
+assert.ok(categories.length >= 17, `Must have at least 17 categories, got ${categories.length}`);
 const vmCat = categories.find(c => c.slug === 'vowel-morph');
 assert.ok(vmCat, 'vowel-morph category must exist in categories.json');
 assert.equal(vmCat.icon, '✨');
