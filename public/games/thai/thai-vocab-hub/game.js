@@ -1563,7 +1563,10 @@ function initHubGrid() {
       : (count ? `<div class="flex items-center justify-between text-xs text-muted-foreground mt-1"><span class="hc-prog-pct">🌱 ทบทวน</span><span class="hc-word-count">${count} คำ</span></div>` : '');
 
     card.innerHTML = `
-      <div class="hc-icon">${cat.icon}</div>
+      <div class="hc-header-row">
+        <div class="hc-icon">${cat.icon}</div>
+        <div class="hc-count-badge">${count} คำ</div>
+      </div>
       <div class="hc-th">${cat.title}</div>
       <div class="hc-desc">${cat.desc}</div>
       ${progBlock}
