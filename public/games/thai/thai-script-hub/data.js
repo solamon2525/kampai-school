@@ -24,7 +24,7 @@ window.GAME_DATA = {
       "slug": "consonant-low",
       "title": "พยัญชนะต่ำ",
       "icon": "🔵",
-      "desc": "ค ง ช น ม ย ร ล ว ฯลฯ — 24 ตัว",
+      "desc": "ค ง ช น ม ย ร ล ว ฯลฯ — 25 ตัว",
       "grades": [
         "ป.1"
       ]
@@ -1580,18 +1580,18 @@ window.GAME_DATA = {
     "spelling-mattra": [
       {
         "word": "แม่ ก กา",
-        "reading": "ลงท้าย ก",
-        "meaning": "ตัวอย่าง: กา, จา, ดา",
+        "reading": "ไม่มีตัวสะกด",
+        "meaning": "คำหรือพยางค์ที่ไม่มีพยัญชนะสะกด · ตัวอย่าง: กา, ปลา, เสือ, มือ, เรือ",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
         "item_type": "mattra",
-        "mattra_final": "ก"
+        "mattra_final": null
       },
       {
         "word": "แม่กก",
         "reading": "ลงท้าย ก",
-        "meaning": "ตัวอย่าง: จักร, บัก, รัก",
+        "meaning": "ตัวอย่าง: รัก, สุนัข, วิหค, เมฆ",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1601,7 +1601,7 @@ window.GAME_DATA = {
       {
         "word": "แม่กด",
         "reading": "ลงท้าย ด",
-        "meaning": "ตัวอย่าง: จัด, รัด, สาด",
+        "meaning": "ตัวอย่าง: จัด, รัด, สาด, รถ, โกรธ",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1611,7 +1611,7 @@ window.GAME_DATA = {
       {
         "word": "แม่กบ",
         "reading": "ลงท้าย บ",
-        "meaning": "ตัวอย่าง: จับ, รับ, ทับ",
+        "meaning": "ตัวอย่าง: จับ, รับ, ทับ, ลาภ, รูป",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1621,7 +1621,7 @@ window.GAME_DATA = {
       {
         "word": "แม่กง",
         "reading": "ลงท้าย ง",
-        "meaning": "ตัวอย่าง: ดัง, ยาวน์, แกง",
+        "meaning": "ตัวอย่าง: ดัง, ทอง, แกง, กว้าง, ช้าง",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1631,7 +1631,7 @@ window.GAME_DATA = {
       {
         "word": "แม่กน",
         "reading": "ลงท้าย น",
-        "meaning": "ตัวอย่าง: จันทร์, มาน, สน",
+        "meaning": "ตัวอย่าง: บ้าน, วานร, บอล, การ, วาฬ",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1641,7 +1641,7 @@ window.GAME_DATA = {
       {
         "word": "แม่กม",
         "reading": "ลงท้าย ม",
-        "meaning": "ตัวอย่าง: จำ, รำ, ทำ",
+        "meaning": "ตัวอย่าง: ลม, ชิม, ร่ม, กลม, ยิ้ม",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1651,7 +1651,7 @@ window.GAME_DATA = {
       {
         "word": "แม่เกย",
         "reading": "ลงท้าย ย",
-        "meaning": "ตัวอย่าง: แก้ว, เกย, เกย์",
+        "meaning": "ตัวอย่าง: เคย, กาย, ลาย, ช่วย, ปลาย",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1661,7 +1661,7 @@ window.GAME_DATA = {
       {
         "word": "แม่เกอว",
         "reading": "ลงท้าย ว",
-        "meaning": "ตัวอย่าง: เขย, เกวียน, ขโย",
+        "meaning": "ตัวอย่าง: ข้าว, ขาว, แมว, เลี้ยว, นิ้ว",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
@@ -1823,26 +1823,6 @@ window.GAME_DATA = {
     ],
     "mixed-drill": [
       {
-        "word": "กรรม",
-        "reading": "ก(กลาง)+รร",
-        "meaning": "[ทบทวน] กลาง+คำควบ · ก(กลาง)+รร",
-        "emoji": "⚖️",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "leading",
-        "rule": "กลาง+คำควบ"
-      },
-      {
-        "word": "แม่กน",
-        "reading": "ลงท้าย น",
-        "meaning": "[ทบทวน] ตัวอย่าง: จันทร์, มาน, สน",
-        "emoji": "🔤",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "mattra",
-        "mattra_final": "น"
-      },
-      {
         "word": "โรง",
         "reading": "โ+ร+ง",
         "meaning": "[ทบทวน] อาคาร · ส่วนประกอบ: โ+ร+ง",
@@ -1853,170 +1833,44 @@ window.GAME_DATA = {
         "parts": "โ+ร+ง"
       },
       {
-        "word": "ข",
-        "reading": "ขอ ไข่",
-        "meaning": "[ทบทวน] พยัญชนะสูง · ข ไข่ · ตัวอย่าง: ขา, ขัน, ข้าว",
-        "emoji": "🥚",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "high",
-        "item_type": "consonant",
-        "name": "ข ไข่",
-        "examples": [
-          "ขา",
-          "ขัน",
-          "ข้าว"
-        ]
+        "word": "ผ+า",
+        "reading": "สูง+อา",
+        "meaning": "[ทบทวน] ได้เสียง: ผ่า (เอก)",
+        "emoji": "🔴",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "tone-rule",
+        "tone_result": "ผ่า (เอก)"
       },
       {
-        "word": "ร",
-        "reading": "รอ เรือ",
-        "meaning": "[ทบทวน] พยัญชนะต่ำ · ร เรือ · ตัวอย่าง: เรือ, รถ",
-        "emoji": "🚢",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "low",
-        "item_type": "consonant",
-        "name": "ร เรือ",
-        "examples": [
-          "เรือ",
-          "รถ"
-        ]
+        "word": "กลาง",
+        "reading": "กลาง",
+        "meaning": "[ทบทวน] คำควบ กล · แยกพยางค์: กลาง",
+        "emoji": "🎯",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "triyang-advanced",
+        "syllables": "กลาง"
       },
       {
-        "word": "–ิ",
-        "reading": "สระ อิ",
-        "meaning": "[ทบทวน] สระ · อิ · ตัวอย่าง: กิน, ดิน",
-        "emoji": "🌱",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ อิ"
-      },
-      {
-        "word": "–์",
-        "reading": "ไม้ยมก",
-        "meaning": "[ทบทวน] ไม้ยมก · ตัวอย่าง: ความ, คุณ",
-        "emoji": "🔇",
-        "grade": "ป.2",
+        "word": "สัตว์",
+        "reading": "ส+ั+ต+์+ว",
+        "meaning": "[ทบทวน] สิ่งมีชีวิต · ส่วนประกอบ: ส+ั+ต+์+ว",
+        "emoji": "🐾",
+        "grade": "ป.3",
         "indicator_code": "ท 4.1 ป.2/1",
-        "item_type": "vowel-compound",
-        "name": "ไม้ยมก"
+        "item_type": "triyang",
+        "parts": "ส+ั+ต+์+ว"
       },
       {
-        "word": "–า",
-        "reading": "สระ อา",
-        "meaning": "[ทบทวน] สระ · อา · ตัวอย่าง: กา, มา",
-        "emoji": "🌙",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ อา"
-      },
-      {
-        "word": "๊",
-        "reading": "ไม้ตรี",
-        "meaning": "[ทบทวน] เสียงตรี · ตัวอย่าง: น้ำ → น้๊า",
-        "emoji": "🎼",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "tone",
-        "name": "ไม้ตรี"
-      },
-      {
-        "word": "เ–ะ",
-        "reading": "สระ เอะ",
-        "meaning": "[ทบทวน] สระ · เอะ · ตัวอย่าง: เกะ, เตะ",
-        "emoji": "✨",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ เอะ"
-      },
-      {
-        "word": "แม่กก",
-        "reading": "ลงท้าย ก",
-        "meaning": "[ทบทวน] ตัวอย่าง: จักร, บัก, รัก",
+        "word": "แม่ ก กา",
+        "reading": "ไม่มีตัวสะกด",
+        "meaning": "[ทบทวน] คำหรือพยางค์ที่ไม่มีพยัญชนะสะกด · ตัวอย่าง: กา, ปลา, เสือ, มือ, เรือ",
         "emoji": "🔤",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
         "item_type": "mattra",
-        "mattra_final": "ก"
-      },
-      {
-        "word": "ครู",
-        "reading": "ค(ต่ำ)+รู",
-        "meaning": "[ทบทวน] ต่ำนำต่ำ · ค(ต่ำ)+รู",
-        "emoji": "👩‍🏫",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "leading",
-        "rule": "ต่ำนำต่ำ"
-      },
-      {
-        "word": "โ–ะ",
-        "reading": "สระ โอะ",
-        "meaning": "[ทบทวน] สระ · โอะ · ตัวอย่าง: โตะ",
-        "emoji": "🎯",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ โอะ"
-      },
-      {
-        "word": "ส",
-        "reading": "สอ เสือ",
-        "meaning": "[ทบทวน] พยัญชนะสูง · ส เสือ · ตัวอย่าง: สวน, เสือ",
-        "emoji": "🐯",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "high",
-        "item_type": "consonant",
-        "name": "ส เสือ",
-        "examples": [
-          "สวน",
-          "เสือ"
-        ]
-      },
-      {
-        "word": "–ั",
-        "reading": "สระ อั",
-        "meaning": "[ทบทวน] สระ อั · ตัวอย่าง: นัก, มัด",
-        "emoji": "📝",
-        "grade": "ป.2",
-        "indicator_code": "ท 4.1 ป.2/1",
-        "item_type": "vowel-compound",
-        "name": "สระ อั"
-      },
-      {
-        "word": "–็",
-        "reading": "ไม้ยักก์",
-        "meaning": "[ทบทวน] ไม้ยักก์ · ตัวอย่าง: เด็ก, แก็ต",
-        "emoji": "✏️",
-        "grade": "ป.2",
-        "indicator_code": "ท 4.1 ป.2/1",
-        "item_type": "vowel-compound",
-        "name": "ไม้ยักก์"
-      },
-      {
-        "word": "แ–",
-        "reading": "สระ แอ",
-        "meaning": "[ทบทวน] สระ · แอ · ตัวอย่าง: แก, แม่",
-        "emoji": "🌺",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ แอ"
-      },
-      {
-        "word": "เ–า",
-        "reading": "สระ เอา",
-        "meaning": "[ทบทวน] สระ เอา · ตัวอย่าง: เรา, เจ้า",
-        "emoji": "🤝",
-        "grade": "ป.2",
-        "indicator_code": "ท 4.1 ป.2/1",
-        "item_type": "vowel-compound",
-        "name": "สระ เอา"
+        "mattra_final": null
       },
       {
         "word": "ป+า",
@@ -2029,103 +1883,77 @@ window.GAME_DATA = {
         "tone_result": "ปา (สามัญ)"
       },
       {
-        "word": "เ–ีย",
-        "reading": "สระ เอีย",
-        "meaning": "[ทบทวน] สระ เอีย · ตัวอย่าง: เกียว, เสียง",
-        "emoji": "🦋",
-        "grade": "ป.2",
-        "indicator_code": "ท 4.1 ป.2/1",
-        "item_type": "vowel-compound",
-        "name": "สระ เอีย"
+        "word": "ส+า",
+        "reading": "สูง+อา",
+        "meaning": "[ทบทวน] ได้เสียง: ส่า (เอก)",
+        "emoji": "🔴",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "tone-rule",
+        "tone_result": "ส่า (เอก)"
       },
       {
-        "word": "ฝ",
-        "reading": "ฝอ ฝา",
-        "meaning": "[ทบทวน] พยัญชนะสูง · ฝ ฝา · ตัวอย่าง: ฝน, ฝา",
-        "emoji": "🌧️",
+        "word": "จัด",
+        "reading": "จ(กลาง)+ัด",
+        "meaning": "[ทบทวน] กลาง+มาตรากด · จ(กลาง)+ัด",
+        "emoji": "📦",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "leading",
+        "rule": "กลาง+มาตรากด"
+      },
+      {
+        "word": "ฏ",
+        "reading": "ตอ ปฏัก",
+        "meaning": "[ทบทวน] พยัญชนะกลาง · ฏ ปฏัก · ตัวอย่าง: ปฏัก",
+        "emoji": "🔱",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "mid",
+        "item_type": "consonant",
+        "name": "ฏ ปฏัก",
+        "examples": [
+          "ปฏัก"
+        ]
+      },
+      {
+        "word": "ห",
+        "reading": "หอ หีบ",
+        "meaning": "[ทบทวน] พยัญชนะสูง · ห หีบ · ตัวอย่าง: หมา, หีบ",
+        "emoji": "📦",
         "grade": "ป.1",
         "indicator_code": "ท 4.1 ป.1/1",
         "char_class": "high",
         "item_type": "consonant",
-        "name": "ฝ ฝา",
+        "name": "ห หีบ",
         "examples": [
-          "ฝน",
-          "ฝา"
+          "หมา",
+          "หีบ"
         ]
       },
       {
-        "word": "–ะ",
-        "reading": "สระ อะ",
-        "meaning": "[ทบทวน] สระ · อะ · ตัวอย่าง: กะ, จะ",
-        "emoji": "🅰️",
+        "word": "ฎ",
+        "reading": "ดอ ชฎา",
+        "meaning": "[ทบทวน] พยัญชนะกลาง · ฎ ชฎา · ตัวอย่าง: ชฎา",
+        "emoji": "👑",
         "grade": "ป.1",
         "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ อะ"
-      },
-      {
-        "word": "ย",
-        "reading": "ยอ ยักษ์",
-        "meaning": "[ทบทวน] พยัญชนะต่ำ · ย ยักษ์ · ตัวอย่าง: ยักษ์",
-        "emoji": "👹",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "low",
+        "char_class": "mid",
         "item_type": "consonant",
-        "name": "ย ยักษ์",
+        "name": "ฎ ชฎา",
         "examples": [
-          "ยักษ์"
+          "ชฎา"
         ]
       },
       {
-        "word": "ก+า",
-        "reading": "กลาง+อา",
-        "meaning": "[ทบทวน] ได้เสียง: อ่า (สามัญ)",
-        "emoji": "🟡",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "tone-rule",
-        "tone_result": "อ่า (สามัญ)"
-      },
-      {
-        "word": "นักเรียน",
-        "reading": "นัก-เรียน",
-        "meaning": "[ทบทวน] ผู้มาเรียน · แยกพยางค์: นัก-เรียน",
-        "emoji": "🎒",
+        "word": "ประ",
+        "reading": "ประ",
+        "meaning": "[ทบทวน] คำควบ ปร · แยกพยางค์: ประ",
+        "emoji": "📌",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
         "item_type": "triyang-advanced",
-        "syllables": "นัก-เรียน"
-      },
-      {
-        "word": "กระดาน",
-        "reading": "ก(กลาง)+ร(ต่ำ)",
-        "meaning": "[ทบทวน] กลางนำต่ำ · ก(กลาง)+ร(ต่ำ)",
-        "emoji": "📋",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "leading",
-        "rule": "กลางนำต่ำ"
-      },
-      {
-        "word": "แม่กด",
-        "reading": "ลงท้าย ด",
-        "meaning": "[ทบทวน] ตัวอย่าง: จัด, รัด, สาด",
-        "emoji": "🔤",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "mattra",
-        "mattra_final": "ด"
-      },
-      {
-        "word": "กระดาษ",
-        "reading": "กระ-ดาษ",
-        "meaning": "[ทบทวน] ของเขียน · แยกพยางค์: กระ-ดาษ",
-        "emoji": "📄",
-        "grade": "ป.4",
-        "indicator_code": "ท 4.1 ป.4/1",
-        "item_type": "triyang-advanced",
-        "syllables": "กระ-ดาษ"
+        "syllables": "ประ"
       },
       {
         "word": "ช",
@@ -2143,128 +1971,320 @@ window.GAME_DATA = {
         ]
       },
       {
-        "word": "–ู",
-        "reading": "สระ อู",
-        "meaning": "[ทบทวน] สระ · อู · ตัวอย่าง: มูล, ปู",
-        "emoji": "🌊",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ อู"
+        "word": "กรุง",
+        "reading": "กรุง",
+        "meaning": "[ทบทวน] คำควบ กร · แยกพยางค์: กรุง",
+        "emoji": "👑",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "triyang-advanced",
+        "syllables": "กรุง"
       },
       {
-        "word": "สัตว์",
-        "reading": "ส+ั+ต+์+ว",
-        "meaning": "[ทบทวน] สิ่งมีชีวิต · ส่วนประกอบ: ส+ั+ต+์+ว",
-        "emoji": "🐾",
-        "grade": "ป.3",
+        "word": "เรา",
+        "reading": "ร+เ+า",
+        "meaning": "[ทบทวน] ตัวเรา · ส่วนประกอบ: ร+เ+า",
+        "emoji": "🙋",
+        "grade": "ป.2",
         "indicator_code": "ท 4.1 ป.2/1",
         "item_type": "triyang",
-        "parts": "ส+ั+ต+์+ว"
+        "parts": "ร+เ+า"
       },
       {
-        "word": "ม้า",
-        "reading": "ม+า+้",
-        "meaning": "[ทบทวน] สัตว์ขี่ได้ · ส่วนประกอบ: ม+า+้",
-        "emoji": "🐴",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "triyang",
-        "parts": "ม+า+้"
-      },
-      {
-        "word": "–",
-        "reading": "สระเอง",
-        "meaning": "[ทบทวน] ไม่มีวรรณยุกต์ · ตัวอย่าง: กา, มา",
-        "emoji": "➖",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "tone",
-        "name": "สระเอง"
-      },
-      {
-        "word": "๋",
-        "reading": "ไม้จัตวา",
-        "meaning": "[ทบทวน] เสียงจัตวา · ตัวอย่าง: เมื่อ → เมื่อ๋",
-        "emoji": "🎹",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "tone",
-        "name": "ไม้จัตวา"
-      },
-      {
-        "word": "ฌ",
-        "reading": "ชอ เฌอ",
-        "meaning": "[ทบทวน] พยัญชนะต่ำ · ฌ เฌอ · ตัวอย่าง: เฌอ",
-        "emoji": "🌳",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "low",
-        "item_type": "consonant",
-        "name": "ฌ เฌอ",
-        "examples": [
-          "เฌอ"
-        ]
-      },
-      {
-        "word": "แ–ะ",
-        "reading": "สระ แอะ",
-        "meaning": "[ทบทวน] สระ · แอะ · ตัวอย่าง: แกะ",
-        "emoji": "🌸",
+        "word": "–อ",
+        "reading": "สระ ออ",
+        "meaning": "[ทบทวน] สระ · ออ · ตัวอย่าง: กอ, รอ",
+        "emoji": "🌀",
         "grade": "ป.1",
         "indicator_code": "ท 4.1 ป.1/1",
         "item_type": "vowel",
-        "name": "สระ แอะ"
+        "name": "สระ ออ"
       },
       {
-        "word": "–ี",
-        "reading": "สระ อี",
-        "meaning": "[ทบทวน] สระ · อี · ตัวอย่าง: มี, ดี",
-        "emoji": "🌿",
+        "word": "่",
+        "reading": "ไม้เอก",
+        "meaning": "[ทบทวน] เสียงเอก (สามัญ) · ตัวอย่าง: ม้า → ม่า",
+        "emoji": "🎵",
         "grade": "ป.1",
         "indicator_code": "ท 4.1 ป.1/1",
-        "item_type": "vowel",
-        "name": "สระ อี"
+        "item_type": "tone",
+        "name": "ไม้เอก"
       },
       {
-        "word": "ด",
-        "reading": "ดอ เด็ก",
-        "meaning": "[ทบทวน] พยัญชนะกลาง · ด เด็ก · ตัวอย่าง: เด็ก, ดิน",
-        "emoji": "👶",
-        "grade": "ป.1",
-        "indicator_code": "ท 4.1 ป.1/1",
-        "char_class": "mid",
-        "item_type": "consonant",
-        "name": "ด เด็ก",
-        "examples": [
-          "เด็ก",
-          "ดิน"
-        ]
-      },
-      {
-        "word": "ฐ",
-        "reading": "ฐอ ฐาน",
-        "meaning": "[ทบทวน] พยัญชนะสูง · ฐ ฐาน · ตัวอย่าง: ฐาน, ฐานะ",
-        "emoji": "🏛️",
+        "word": "ส",
+        "reading": "สอ เสือ",
+        "meaning": "[ทบทวน] พยัญชนะสูง · ส เสือ · ตัวอย่าง: สวน, เสือ",
+        "emoji": "🐯",
         "grade": "ป.1",
         "indicator_code": "ท 4.1 ป.1/1",
         "char_class": "high",
         "item_type": "consonant",
-        "name": "ฐ ฐาน",
+        "name": "ส เสือ",
         "examples": [
-          "ฐาน",
-          "ฐานะ"
+          "สวน",
+          "เสือ"
         ]
       },
       {
-        "word": "ด+า",
-        "reading": "กลาง+อา",
-        "meaning": "[ทบทวน] ได้เสียง: ดา (สามัญ)",
-        "emoji": "🟡",
+        "word": "็",
+        "reading": "ไม้ยักก์",
+        "meaning": "[ทบทวน] ตัดสระสั้น · ตัวอย่าง: เด็ก, แก็ต",
+        "emoji": "✂️",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "item_type": "tone",
+        "name": "ไม้ยักก์"
+      },
+      {
+        "word": "ร+า",
+        "reading": "ต่ำ+อา",
+        "meaning": "[ทบทวน] ได้เสียง: รา (สามัญ)",
+        "emoji": "🔵",
         "grade": "ป.4",
         "indicator_code": "ท 4.1 ป.4/1",
         "item_type": "tone-rule",
-        "tone_result": "ดา (สามัญ)"
+        "tone_result": "รา (สามัญ)"
+      },
+      {
+        "word": "ท",
+        "reading": "ทอ ทหาร",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ท ทหาร · ตัวอย่าง: ทหาร, ทาง",
+        "emoji": "🪖",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ท ทหาร",
+        "examples": [
+          "ทหาร",
+          "ทาง"
+        ]
+      },
+      {
+        "word": "ว",
+        "reading": "วอ แหวน",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ว แหวน · ตัวอย่าง: แหวน, วัน",
+        "emoji": "💍",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ว แหวน",
+        "examples": [
+          "แหวน",
+          "วัน"
+        ]
+      },
+      {
+        "word": "นักเรียน",
+        "reading": "นัก-เรียน",
+        "meaning": "[ทบทวน] ผู้มาเรียน · แยกพยางค์: นัก-เรียน",
+        "emoji": "🎒",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "triyang-advanced",
+        "syllables": "นัก-เรียน"
+      },
+      {
+        "word": "แม่กง",
+        "reading": "ลงท้าย ง",
+        "meaning": "[ทบทวน] ตัวอย่าง: ดัง, ทอง, แกง, กว้าง, ช้าง",
+        "emoji": "🔤",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "mattra",
+        "mattra_final": "ง"
+      },
+      {
+        "word": "๊",
+        "reading": "ไม้ตรี",
+        "meaning": "[ทบทวน] เสียงตรี · ตัวอย่าง: น้ำ → น้๊า",
+        "emoji": "🎼",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "item_type": "tone",
+        "name": "ไม้ตรี"
+      },
+      {
+        "word": "กรรม",
+        "reading": "ก(กลาง)+รร",
+        "meaning": "[ทบทวน] กลาง+คำควบ · ก(กลาง)+รร",
+        "emoji": "⚖️",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "leading",
+        "rule": "กลาง+คำควบ"
+      },
+      {
+        "word": "ครู",
+        "reading": "ค+ร+ู",
+        "meaning": "[ทบทวน] ผู้สอน · ส่วนประกอบ: ค+ร+ู",
+        "emoji": "👩‍🏫",
+        "grade": "ป.3",
+        "indicator_code": "ท 4.1 ป.2/1",
+        "item_type": "triyang",
+        "parts": "ค+ร+ู"
+      },
+      {
+        "word": "ย",
+        "reading": "ยอ ยักษ์",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ย ยักษ์ · ตัวอย่าง: ยักษ์",
+        "emoji": "👹",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ย ยักษ์",
+        "examples": [
+          "ยักษ์"
+        ]
+      },
+      {
+        "word": "ฒ",
+        "reading": "ทอ ผู้เฒ่า",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ฒ ผู้เฒ่า · ตัวอย่าง: ผู้เฒ่า",
+        "emoji": "👴",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ฒ ผู้เฒ่า",
+        "examples": [
+          "ผู้เฒ่า"
+        ]
+      },
+      {
+        "word": "ฟ",
+        "reading": "ฟอ ฟัน",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ฟ ฟัน · ตัวอย่าง: ฟัน",
+        "emoji": "🦷",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ฟ ฟัน",
+        "examples": [
+          "ฟัน"
+        ]
+      },
+      {
+        "word": "ฝ",
+        "reading": "ฝอ ฝา",
+        "meaning": "[ทบทวน] พยัญชนะสูง · ฝ ฝา · ตัวอย่าง: ฝน, ฝา",
+        "emoji": "🌧️",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "high",
+        "item_type": "consonant",
+        "name": "ฝ ฝา",
+        "examples": [
+          "ฝน",
+          "ฝา"
+        ]
+      },
+      {
+        "word": "กบ",
+        "reading": "ก(กลาง)+บ(ต่ำ)",
+        "meaning": "[ทบทวน] กลางนำต่ำ · ก(กลาง)+บ(ต่ำ)",
+        "emoji": "🐸",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "leading",
+        "rule": "กลางนำต่ำ"
+      },
+      {
+        "word": "น",
+        "reading": "นอ หนู",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · น หนู · ตัวอย่าง: หนู, นก",
+        "emoji": "🐭",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "น หนู",
+        "examples": [
+          "หนู",
+          "นก"
+        ]
+      },
+      {
+        "word": "ฅ",
+        "reading": "คอ คน",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · ฅ คน · ตัวอย่าง: คน",
+        "emoji": "👤",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "ฅ คน",
+        "examples": [
+          "คน"
+        ]
+      },
+      {
+        "word": "วิทยาศาสตร์",
+        "reading": "วิทยา-ศาสตร์",
+        "meaning": "[ทบทวน] วิชาวิทย์ · แยกพยางค์: วิทยา-ศาสตร์",
+        "emoji": "🔬",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "triyang-advanced",
+        "syllables": "วิทยา-ศาสตร์"
+      },
+      {
+        "word": "ช้าง",
+        "reading": "ช+า+้",
+        "meaning": "[ทบทวน] สัตว์ใหญ่ · ส่วนประกอบ: ช+า+้",
+        "emoji": "🐘",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "item_type": "triyang",
+        "parts": "ช+า+้"
+      },
+      {
+        "word": "ไก่",
+        "reading": "ไ+ก+่",
+        "meaning": "[ทบทวน] สัตว์เลี้ยง · ส่วนประกอบ: ไ+ก+่",
+        "emoji": "🐔",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "item_type": "triyang",
+        "parts": "ไ+ก+่"
+      },
+      {
+        "word": "สังคม",
+        "reading": "ส(สูง)+งคม",
+        "meaning": "[ทบทวน] สูงนำต่ำ · ส(สูง)+งคม",
+        "emoji": "👥",
+        "grade": "ป.4",
+        "indicator_code": "ท 4.1 ป.4/1",
+        "item_type": "leading",
+        "rule": "สูงนำต่ำ"
+      },
+      {
+        "word": "นก",
+        "reading": "น+ก",
+        "meaning": "[ทบทวน] สัตว์ปีก · ส่วนประกอบ: น+ก",
+        "emoji": "🐦",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "item_type": "triyang",
+        "parts": "น+ก"
+      },
+      {
+        "word": "พ",
+        "reading": "พอ พาน",
+        "meaning": "[ทบทวน] พยัญชนะต่ำ · พ พาน · ตัวอย่าง: พาน, พ่อ",
+        "emoji": "🏺",
+        "grade": "ป.1",
+        "indicator_code": "ท 4.1 ป.1/1",
+        "char_class": "low",
+        "item_type": "consonant",
+        "name": "พ พาน",
+        "examples": [
+          "พาน",
+          "พ่อ"
+        ]
       }
     ]
   }
