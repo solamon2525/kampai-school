@@ -290,6 +290,23 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.10',
+        date: '11 พ.ย. 2569',
+        title: 'ปรับปรุงระบบแสดงผลคลังคำศัพท์ภาษาไทย (Thai Vocab Hub Layout & Typography Optimization): แก้ไขแถบหมวดหมู่ตัวกรองค้นหาบีบอัดซ้อนทับกันด้วย Multi-row Responsive Wrap และปรับระดับสระบนในโรงละครสระแปลงร่างตามหลักอักขรวิธีไทย',
+        description:
+            'แก้ไขปัญหาการแสดงผลทางสายตาในคลังสื่อภาษาไทย (Thai Vocab Hub) 2 จุดสำคัญ: (1) ปรับปรุงแถบปุ่มตัวกรองหมวดหมู่ผลการค้นหา (.hub-search-cat-tags) ด้วย flex-wrap: wrap และ flex-shrink: 0 ป้องกันปัญหา Flexbox บีบปุ่มแคบเหลือ 44px จนข้อความซ้อนทับกัน จัดเรียง 2–3 แถวเรียบร้อย พร้อมเพิ่ม touch target ≥ 40px, (2) ปรับระดับตำแหน่งสระและวรรณยุกต์บน (.char-upper-base, .char-morphed-top เช่น ไม้ไต่คู้, ไม้หันอากาศ, สระอิ) ในโรงละครสระแปลงร่าง จากเดิมที่ลอยเกินเพดานเวที 39px ให้ลงมาอยู่ในระดับสายตาและช่องไฟที่ถูกต้องตามหลักอักขรวิธีไทย (top: 0.12em) พร้อมปรับโค้งแอนิเมชันให้พอดีกับกรอบเวที รองรับทั้งพยัญชนะปกติและพยัญชนะหางยาว (ป, ผ)',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: ['Thai Vocab Hub', 'UI Layout Fix', 'Vowel Morph Typography', 'Flexbox Responsive', 'Classroom-first'],
+        badge: 'bg-primary',
+        items: [
+            'ปรับแถบหมวดหมู่ผลค้นหา (Search Category Wrap): เปลี่ยน .hub-search-cat-tags เป็น flex-wrap: wrap พร้อม gap: 8px และ flex-shrink: 0 บน .hub-search-cat-chip แสดงครบ 17 หมวดหมู่ใน 2–3 แถว ข้อความไม่บีบอัดหรือซ้อนทับกันบนทุกขนาดหน้าจอ',
+            'จัดตำแหน่งสระบนตามอักขรวิธีไทย (Vowel Morph Typography Baseline): ปรับ .char-upper-base และ .char-morphed-top ให้ใช้ top: 0.12em แก้ปัญหาสระบนลอยหลุดทะลุขอบบนเวทีสีขาวขึ้นไปทับป้ายหัวเรื่อง มีช่องไฟห่างจากพยัญชนะต้น 12–18px สวยงาม',
+            'รองรับพยัญชนะหางยาว (Tall Consonant Clearance): ทดสอบวัดพิกเซลจริงบน ป (เป็ด, เปิด) และ ผ (ผัก) ยืนยันสระบนวางตัวเหนือหัวพยัญชนะต้นโดยไม่ซ้อนทับหรือชนหางยาว',
+            'ปรับสมดุลแอนิเมชันแปลงร่าง (Morph Flight Arc Tuning): ปรับลดจุดโค้งแอนิเมชันที่ 50% ของ @keyframes morphFlyUpI, morphFlyUpHan, morphFlyUpTaikhu ให้อยู่ในกรอบเวทีตลอดการเคลื่อนไหว',
+            'ป้องกันปุ่มชิปอื่นถูกบีบ (Global Chip Guardrails): ใส่ flex-shrink: 0 ให้กับ .morph-preset-tab และ .morph-chip ป้องกันปัญหาการบีบอัดตัวหนังสือในโหมดแถบเลื่อนแนวนอน',
+        ],
+    },
+    {
         version: 'v2.8.9',
         date: '10 พ.ย. 2569',
         title: 'นวัตกรรมสื่อการสอนสำนวนไทยมีคติภาพเรื่องราว (Thai Idiom Multi-Image Storyboard & Comic Panels): ถ่ายทอดที่มา-การกระทำ-คติสอนใจแบบต่อเนื่อง พร้อมโหมด Slide View, Comic Strip View สำหรับจอโปรเจกเตอร์ และใบงาน A4',

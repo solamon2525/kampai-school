@@ -2842,15 +2842,17 @@ body.projector-mode .card-example-text {
 
 .hub-search-cat-tags {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px;
+  gap: 8px;
+  padding: 4px 0 6px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .hub-search-cat-chip {
-  min-height: 44px;
+  flex-shrink: 0;
+  min-height: 40px;
   min-width: 44px;
   padding: 6px 14px;
   display: inline-flex;
@@ -2865,6 +2867,7 @@ body.projector-mode .card-example-text {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
@@ -3108,6 +3111,7 @@ body.projector-mode .card-example-text {
 }
 
 .morph-preset-tab {
+  flex-shrink: 0;
   padding: 6px 14px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -3117,6 +3121,7 @@ body.projector-mode .card-example-text {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
@@ -3217,14 +3222,14 @@ body.projector-mode .card-example-text {
 
 .char-upper-base {
   position: absolute;
-  top: -0.38em;
+  top: 0.12em;
   font-size: 0.68em;
   line-height: 1;
 }
 
 .char-morphed-top {
   position: absolute;
-  top: -0.38em;
+  top: 0.12em;
   font-size: 0.68em;
   line-height: 1;
 }
@@ -3256,7 +3261,7 @@ body.projector-mode .card-example-text {
     opacity: 0;
   }
   50% {
-    transform: translate(12px, -45px) scale(1.2);
+    transform: translate(10px, -20px) scale(1.15);
     opacity: 0.95;
     filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.6));
   }
@@ -3278,7 +3283,7 @@ body.projector-mode .card-example-text {
     opacity: 0;
   }
   50% {
-    transform: translate(10px, -40px) scale(1.2);
+    transform: translate(10px, -18px) scale(1.15);
     opacity: 0.95;
     filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.6));
   }
@@ -3299,7 +3304,7 @@ body.projector-mode .card-example-text {
     opacity: 0;
   }
   50% {
-    transform: translate(10px, -40px) scale(1.2);
+    transform: translate(10px, -18px) scale(1.15);
     opacity: 0.95;
     filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.6));
   }
@@ -3400,6 +3405,7 @@ body.projector-mode .card-example-text {
 }
 
 .morph-chip {
+  flex-shrink: 0;
   min-height: 36px;
   padding: 4px 14px;
   border-radius: 14px;
@@ -3410,6 +3416,7 @@ body.projector-mode .card-example-text {
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  user-select: none;
   transition: all 0.15s;
   font-family: inherit;
 }
