@@ -87,8 +87,12 @@ export function build({ checkOnly = process.argv.includes('--check') } = {}) {
     for (const { slug, title, count } of counts) {
       const raw = (words[slug] || []).length;
       const suffix = raw === count ? '' : ` (${raw} raw; quarantined excluded)`;
-      if (count !== TARGET_PER_CATEGORY) console.warn(`⚠️  ${title} (${slug}): ${count}/${TARGET_PER_CATEGORY} approved${suffix}`);
-      else console.log(`✅ ${title}: ${count} approved${suffix}`);
+      if (count < TARGET_PER_CATEGORY) {
+        console.warn(`⚠️  ${title} (${slug}): ${count}/${TARGET_PER_CATEGORY} approved${suffix}`);
+        ok = false;
+      } else {
+        console.log(`✅ ${title}: ${count} approved (target floor: ${TARGET_PER_CATEGORY})${suffix}`);
+      }
     }
     console.log(`\nรวม ${total} คำที่อนุมัติ / ${categories.length} หมวด`);
     process.exit(ok ? 0 : 1);
