@@ -1334,6 +1334,11 @@ function createSearchCardElement(item) {
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
+  const isReading = Boolean(activeCategorySlug === 'reading-studio' || selectedSearchCategory === 'reading-studio' || item.categorySlug === 'reading-studio') ||
+    Boolean(window.ThaiReadingTrainer && window.ThaiReadingTrainer.isReadingWord(item.word));
+  const readingBadge = isReading
+    ? `<button type="button" class="badge-reading-trigger" title="คลิกเพื่อฝึกอ่านคำยากและราชาศัพท์" aria-label="ฝึกอ่านคำว่า ${item.word}">📖 ฝึกอ่าน</button>`
+    : '';
   const hasStoryboard = Boolean(item.images && item.images.length > 0);
   const storyboardBadge = hasStoryboard
     ? `<button type="button" class="badge-storyboard-trigger" title="มีภาพเรื่องราว ${item.images.length} ตอน" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ${item.images.length} ตอน</button>`
@@ -1346,6 +1351,7 @@ function createSearchCardElement(item) {
           <span>${item.emoji || item.categoryIcon || '📝'}</span>
           <strong>${item.word}</strong>
           ${morphBadge}
+          ${readingBadge}
           ${storyboardBadge}
         </span>
         <span class="hub-search-reading">[ ${item.reading} ]</span>
@@ -1362,6 +1368,14 @@ function createSearchCardElement(item) {
       <button type="button" class="hub-search-jump-btn" aria-label="เรียนรู้คำนี้">เรียนคำนี้ →</button>
     </div>
   `;
+
+  const readBtn = card.querySelector('.badge-reading-trigger');
+  if (readBtn) {
+    readBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (window.ThaiReadingTrainer) window.ThaiReadingTrainer.open(item.word);
+    };
+  }
 
   const morphBtn = card.querySelector('.badge-morph-trigger');
   if (morphBtn) {
@@ -1753,6 +1767,11 @@ function createGridCardElement(item, idx, leitnerMap) {
   const morphBadge = isMorph
     ? `<button type="button" class="badge-morph-trigger" title="คลิกเพื่อดูสระแปลงร่าง" aria-label="ดูสระแปลงร่างคำว่า ${item.word}">✨ แปลงร่าง</button>`
     : '';
+  const isReading = Boolean(activeCategorySlug === 'reading-studio' || activeCategorySlug === 'difficult' || activeCategorySlug === 'royal') &&
+    Boolean(window.ThaiReadingTrainer && window.ThaiReadingTrainer.isReadingWord(item.word));
+  const readingBadge = isReading
+    ? `<button type="button" class="badge-reading-trigger" title="คลิกเพื่อฝึกอ่านคำยากและราชาศัพท์" aria-label="ฝึกอ่านคำว่า ${item.word}">📖 ฝึกอ่าน</button>`
+    : '';
   const hasStoryboard = Boolean(item.images && item.images.length > 0);
   const storyboardBadge = hasStoryboard
     ? `<button type="button" class="badge-storyboard-trigger" title="มีภาพเรื่องราว ${item.images.length} ตอน" aria-label="ดูภาพเรื่องราว ${item.word}">🎬 ${item.images.length} ตอน</button>`
@@ -1785,6 +1804,7 @@ function createGridCardElement(item, idx, leitnerMap) {
         <span class="grid-word-text">${item.word} ${xrayBadge}</span>
         ${xrayReading}
         ${morphBadge}
+        ${readingBadge}
         ${storyboardBadge}
         ${xrayUnmaskBtn}
       </div>
@@ -1798,6 +1818,14 @@ function createGridCardElement(item, idx, leitnerMap) {
       </div>
     </div>
   `;
+
+  const readBtn = card.querySelector('.badge-reading-trigger');
+  if (readBtn) {
+    readBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.ThaiReadingTrainer) window.ThaiReadingTrainer.open(item.word);
+    });
+  }
 
   const morphBtn = card.querySelector('.badge-morph-trigger');
   if (morphBtn) {

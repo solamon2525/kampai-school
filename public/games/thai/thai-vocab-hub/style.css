@@ -5529,3 +5529,576 @@ body.modal-open {
 
 
 
+
+
+/* ═══════════════════════════════════════════════════════════════
+   โรงละครฝึกอ่านคำยากและคำราชาศัพท์ (Thai Reading Studio Theater)
+   สไตล์ PowerPoint Syllable Breakdown 60 FPS คมชัดสำหรับจอโปรเจกเตอร์
+   ═══════════════════════════════════════════════════════════════ */
+.reading-theater-card {
+  max-width: 880px;
+  width: 95vw;
+  max-height: 94vh;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e293b;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+}
+
+.reading-theater-header {
+  padding: 14px 20px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reading-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reading-pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #a855f7;
+  color: #ffffff;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
+.reading-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reading-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-reading-tool {
+  min-height: 36px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.btn-reading-tool:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.reading-filter-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 16px;
+  background: #182234;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+}
+
+.reading-filter-tab {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.reading-filter-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.reading-filter-tab.active {
+  background: #a855f7;
+  color: #ffffff;
+  border-color: #a855f7;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(168, 85, 247, 0.45);
+}
+
+.reading-rule-banner {
+  background: #0f172a;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+}
+
+.reading-rule-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.badge-royal {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-diff {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.reading-rule-desc {
+  color: #cbd5e1;
+  font-size: 13.5px;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* ── จอแสดงผลโรงละคร (Reading Stage Screen) ── */
+.reading-stage-wrapper {
+  background: #ffffff;
+  min-height: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 24px 20px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.reading-stage-screen {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  position: relative;
+}
+
+.reading-fullword-wrap {
+  text-align: center;
+  user-select: none;
+}
+
+.reading-word-emoji {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.reading-word-full {
+  font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(68px, 14vw, 130px);
+  line-height: 1.15;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.reading-hint-step {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.reading-syllables-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.reading-word-header-sub {
+  font-size: clamp(20px, 3.5vw, 28px);
+  font-weight: 800;
+  color: #64748b;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.syllable-chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.syllable-chip {
+  min-height: 60px;
+  min-width: 84px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 2.5px solid;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+}
+
+.syllable-chip:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.chip-syllable-num {
+  font-size: 11px;
+  font-weight: 800;
+  opacity: 0.75;
+  margin-bottom: 2px;
+}
+
+.chip-syllable-text {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.chip-voice-icon {
+  font-size: 11px;
+  margin-top: 3px;
+  opacity: 0.8;
+}
+
+@keyframes syllablePop {
+  0% { transform: scale(0.4) translateY(20px); opacity: 0; }
+  70% { transform: scale(1.08) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.animate-syllable-pop {
+  animation: syllablePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── การ์ดสรุปความหมายและบริบท (Step 3) ── */
+.reading-resolution-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  max-width: 760px;
+  width: 100%;
+  background: #f8fafc;
+  padding: 18px 22px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 640px) {
+  .reading-resolution-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 14px;
+    gap: 12px;
+  }
+}
+
+.reading-media-col {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reading-img-thumb {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reading-big-emoji {
+  font-size: 72px;
+}
+
+.reading-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reading-res-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.res-word {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.res-reading {
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 700;
+  color: #7e22ce;
+}
+
+.res-pos {
+  font-size: 13.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.res-meaning-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-meaning-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.res-meaning-text {
+  font-size: clamp(15px, 2vw, 17.5px);
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.res-example-box {
+  background: #ede9fe;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border-left: 4px solid #a855f7;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.res-example-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b21a8;
+}
+
+.res-example-text {
+  font-size: 13.5px;
+  color: #4c1d95;
+  font-weight: 500;
+}
+
+/* ── กล่องสมการคำอ่าน (Phonics Box) ── */
+.reading-equation-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 8px 18px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.reading-eq-text {
+  font-size: clamp(15px, 2.2vw, 20px);
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+}
+
+.reading-eq-text span {
+  color: #7e22ce;
+}
+
+.btn-reading-voice-pill {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-reading-voice-pill:hover {
+  background: #e9d5ff;
+  transform: translateY(-1px);
+}
+
+/* ── แถบคำตัวอย่าง ── */
+.reading-examples-row {
+  background: #0f172a;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.reading-ex-label {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.reading-examples-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.reading-chip {
+  min-height: 36px;
+  padding: 4px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.reading-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.reading-chip.active {
+  background: #a855f7;
+  color: #ffffff;
+  border-color: #a855f7;
+  font-weight: 800;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+}
+
+/* ── แถบควบคุมด้านล่าง (Footer) ── */
+.reading-theater-footer {
+  background: #1e293b;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.reading-step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.reading-step-indicator .step-dot {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
+}
+
+.reading-step-indicator .step-dot.active {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.reading-step-indicator .step-arrow {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.reading-footer-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-reading-next {
+  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 14.5px !important;
+  padding: 8px 18px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35) !important;
+  transition: transform 0.12s ease !important;
+}
+
+.btn-reading-next:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* ── ป้ายกำกับบนการ์ดคำศัพท์ (Badge Trigger) ── */
+.badge-reading-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+  border-radius: 9999px;
+  padding: 2px 7px;
+  cursor: pointer;
+  margin-left: 6px;
+  vertical-align: middle;
+  transition: all 0.15s ease;
+}
+
+.badge-reading-trigger:hover {
+  background: #e9d5ff;
+  color: #6b21a8;
+  transform: scale(1.05);
+}
