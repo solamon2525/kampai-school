@@ -90,6 +90,9 @@ export type WasteStudentSummary = {
   total_points_spent: number | null;
   available_points: number | null;
   total_transactions: number | null;
+  carried_over_points?: number | null;
+  current_term_points_earned?: number | null;
+  current_term_points_spent?: number | null;
 };
 
 export type Reward = {

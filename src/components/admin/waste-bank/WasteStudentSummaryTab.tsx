@@ -102,7 +102,12 @@ const SummaryTableRow = memo(function SummaryTableRow({
           Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
         )}
       >
-        {s.available_points ?? 0}
+        <div>{s.available_points ?? 0}</div>
+        {Number(s.carried_over_points ?? 0) > 0 && (
+          <div className="text-[10px] font-normal text-muted-foreground">
+            (ยกยอด {s.carried_over_points})
+          </div>
+        )}
       </td>
     </tr>
   );
@@ -146,6 +151,11 @@ const SummaryGridCard = memo(function SummaryGridCard({
       >
         {pts} <span className="text-xs font-medium">แต้ม</span>
       </p>
+      {Number(s.carried_over_points ?? 0) > 0 && (
+        <span className="text-[10px] text-muted-foreground font-normal">
+          ยกยอด {s.carried_over_points} แต้ม
+        </span>
+      )}
       <div className="w-full flex justify-between text-[10px] text-muted-foreground font-medium">
         <span>{s.total_items ?? 0} ชิ้น</span>
         <span>{s.total_transactions ?? 0} ครั้ง</span>
@@ -184,7 +194,12 @@ const SummaryByClassRow = memo(function SummaryByClassRow({
           Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
         )}
       >
-        {s.available_points ?? 0}
+        <div>{s.available_points ?? 0}</div>
+        {Number(s.carried_over_points ?? 0) > 0 && (
+          <div className="text-[10px] font-normal text-muted-foreground">
+            (ยกยอด {s.carried_over_points})
+          </div>
+        )}
       </td>
     </tr>
   );
@@ -253,7 +268,7 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
   const handleExportCSV = () => {
     downloadCSV(
       'waste-summary.csv',
-      ['ชื่อ', 'ชั้น', 'รหัส', 'ครั้งส่ง', 'ชิ้นรวม', 'แต้มรวม', 'แต้มคงเหลือ'],
+      ['ชื่อ', 'ชั้น', 'รหัส', 'ครั้งส่ง', 'ชิ้นรวม', 'แต้มรวม', 'แต้มยกยอด', 'แต้มเทอมนี้', 'แต้มคงเหลือ'],
       sorted.map((s) => [
         s.full_name ?? '',
         s.class_name ?? '',
@@ -261,6 +276,8 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
         String(s.total_transactions ?? 0),
         String(s.total_items ?? 0),
         String(s.total_points_earned ?? 0),
+        String(s.carried_over_points ?? 0),
+        String(s.current_term_points_earned ?? 0),
         String(s.available_points ?? 0),
       ]),
     );
