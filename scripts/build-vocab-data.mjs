@@ -21,6 +21,7 @@ function loadJson(path) {
 }
 
 export function sanitizeWordItem(item) {
+  // Strips internal review metadata while retaining public curriculum fields (including tts_reading, warning_hint, emoji)
   const { content_status, review_reason, category_evidence, duplicate_rationale, ...clean } = item;
   return clean;
 }
