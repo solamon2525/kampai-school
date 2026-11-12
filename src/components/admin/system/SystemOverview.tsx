@@ -290,6 +290,31 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.24',
+        date: '12 พ.ย. 2569',
+        title: 'Thai Vocab Hub: แก้ไขเสียงอ่าน TTS และตรวจสอบอักขรวิธี 520 คำใน Reading Studio',
+        description:
+            'แก้ไขปัญหาเสียงอ่าน SpeechSynthesis ในรอบที่ 2 (เช่น ฉะเชิงเทรา อ่านว่า ฉะ-เชิง-เซาะ แก้ไขให้เป็น ฉะเชิงเซา) ด้วยระบบ continuous phonetic binding (buildTtsReading) และ syllable homophone mapping (cleanSyllableForSpeech) ป้องกันการย่นเสียงสระเอาโดดเป็นสระเอาะ พร้อมทั้งตรวจสอบและชำระอักขรวิธีคำศัพท์และคำอ่าน 520 คำ ลบสัญลักษณ์พินทุและการันต์ออกจากคำอ่านให้เป็นคำอ่านภาษาไทยมาตรฐาน สะกดตรงมาตรา และปรับปรุงหมวดคำราชาศัพท์ 100 คำให้ถูกต้องตามหลักสูตรประถมศึกษา ผ่านการทดสอบคุณภาพครบ 100%',
+        type: 'fix',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Thai Vocab Hub',
+            'Reading Studio',
+            'SpeechSynthesis TTS',
+            'Phonetics Fix',
+            'Spelling Audit',
+            'Royal Vocabulary',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'แก้ไขปัญหาเสียงอ่าน SpeechSynthesis ในรอบที่ 2 (เช่น ฉะเชิงเทรา อ่านว่า ฉะ-เชิง-เซาะ แก้ไขให้เป็น ฉะเชิงเซา) ด้วยระบบ continuous phonetic binding buildTtsReading และ syllable homophone mapping (cleanSyllableForSpeech) ป้องกันการย่นเสียงสระเอาโดดเป็นสระเอาะ',
+            'ตรวจสอบคำศัพท์และคำอ่าน 520 คำ: ลบสัญลักษณ์พินทุ \\u0e3a และตัวการันต์ \\u0e4c ออกจากคำอ่านให้เป็นคำอ่านภาษาไทยมาตรฐาน',
+            'แก้ไขตัวสะกดตรงมาตรา (ก, ด, บ, น, ม, ย, ว, ง) ในคำอ่านทั้งหมด',
+            'ปรับปรุงหมวดคำราชาศัพท์ 100 คำ แทนที่คำที่ไม่ถูกต้องด้วยคำราชาศัพท์แท้ตามหลักสูตรประถมศึกษา (เช่น ทรงงาน, พระราชดำรัส, กราบทูล, พระอังสา, พระขนง, พระปฤษฎางค์, พระเพลา, พระเขนย)',
+            'ผ่านการทดสอบ Unit Tests ทั้งหมด 34/34 ชุด, Phonetics Tests 5/5, E2E Playwright, และ pnpm verify:game:all 12/12',
+        ],
+    },
+    {
         version: 'v2.8.23',
         date: '12 พ.ย. 2569',
         title: 'ธนาคารขยะ: ระบบยกยอดแต้มสะสมข้ามภาคเรียน (Rollover & Cumulative Balance)',
