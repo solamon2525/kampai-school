@@ -190,7 +190,7 @@
       modal.className = 'tvh-modal-backdrop reading-theater-backdrop';
       modal.innerHTML = `
         <div class="tvh-modal-card reading-theater-card" role="dialog" aria-modal="true" aria-labelledby="reading-theater-title">
-          {/* Header */}
+          <!-- Header -->
           <div class="reading-theater-header">
             <div class="reading-header-left">
               <span class="reading-pill-badge">นวัตกรรมสื่อการสอน</span>
@@ -202,7 +202,7 @@
             </div>
           </div>
 
-          {/* Filter Bar Tabs & Live Search */}
+          <!-- Filter Bar Tabs & Live Search -->
           <div class="reading-filter-bar" role="tablist" aria-label="กรองประเภทคำศัพท์">
             ${buildFilterTabsHtml()}
             <div class="reading-search-wrap" style="flex-shrink: 0; margin-left: auto; display: flex; align-items: center;">
@@ -210,7 +210,7 @@
             </div>
           </div>
 
-          {/* Category Banner */}
+          <!-- Category Banner -->
           <div class="reading-rule-banner">
             <div class="reading-rule-badge badge-diff" id="reading-rule-badge">✍️ คำยากชวนฝึก</div>
             <div class="reading-rule-desc" id="reading-rule-desc">
@@ -218,13 +218,13 @@
             </div>
           </div>
 
-          {/* ═══ THEATER STAGE (จอใหญ่ 120px+) ═══ */}
+          <!-- ═══ THEATER STAGE (จอใหญ่ 120px+) ═══ -->
           <div class="reading-stage-wrapper">
             <div class="reading-stage-screen" id="reading-stage-screen">
-              {/* Animated Content Injected Here */}
+              <!-- Animated Content Injected Here -->
             </div>
 
-            {/* Syllable Reading Equation Subtitle */}
+            <!-- Syllable Reading Equation Subtitle -->
             <div class="reading-equation-box" id="reading-equation-box">
               <span id="reading-eq-text" class="reading-eq-text">คำอ่าน: อะ - ทิด - ถาน</span>
               <button type="button" class="btn-reading-voice-pill" onclick="window.ThaiReadingTrainer.speakCurrent()">
@@ -233,13 +233,13 @@
             </div>
           </div>
 
-          {/* Quick Word Jumper Chips */}
+          <!-- Quick Word Jumper Chips -->
           <div class="reading-examples-row">
             <span class="reading-ex-label">เลือกคำฝึก:</span>
             <div id="reading-words-chips" class="reading-examples-chips"></div>
           </div>
 
-          {/* Controls Footer */}
+          <!-- Controls Footer -->
           <div class="reading-theater-footer">
             <div class="reading-step-indicator" id="reading-step-indicator">
               <span class="step-dot active">1. คำเต็ม</span>
@@ -317,9 +317,9 @@
 
     if (playlist.length === 0) {
       stage.innerHTML = `
-        <div class="reading-empty-state" style="padding: 48px 24px; text-align: center; color: #94a3b8;">
+        <div class="reading-empty-state" style="padding: 48px 24px; text-align: center; color: #64748b;">
           <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
-          <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #f1f5f9;">ไม่พบคำศัพท์ที่ตรงกับการค้นหา</div>
+          <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #0f172a;">ไม่พบคำศัพท์ที่ตรงกับการค้นหา</div>
           <div style="font-size: 14px;">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นจากแถบด้านบน</div>
         </div>
       `;
@@ -584,6 +584,7 @@
     },
 
     nextStep() {
+      if (playlist.length === 0) return;
       if (currentStep < 3) {
         currentStep++;
         renderStage();
@@ -598,6 +599,7 @@
     },
 
     prevStep() {
+      if (playlist.length === 0) return;
       if (currentStep > 1) {
         currentStep--;
         renderStage();

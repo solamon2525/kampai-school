@@ -124,6 +124,18 @@ test('reading-trainer.js functional: Thai numerals, 6-category filtering, and in
   assert.equal(readingChips.length, 1);
   assert.equal(readingChips[0].textContent.trim(), 'มลพิษ');
 
+  // Search non-matching query triggers empty state
+  trainer.searchWord('คำที่ไม่มีในระบบxyz');
+  const emptyChips = chipsWrapper.querySelectorAll('.reading-chip');
+  assert.equal(emptyChips.length, 0, 'No chips should match non-existent query');
+  const emptyStateEl = window.document.querySelector('.reading-empty-state');
+  assert.ok(emptyStateEl, 'Empty state element should be rendered');
+  assert.ok(emptyStateEl.textContent.includes('ไม่พบคำศัพท์ที่ตรงกับการค้นหา'), 'Empty state text rendered');
+
+  // Verify nextStep/prevStep on empty search do not throw
+  assert.doesNotThrow(() => trainer.nextStep(), 'nextStep should be a no-op on empty playlist');
+  assert.doesNotThrow(() => trainer.prevStep(), 'prevStep should be a no-op on empty playlist');
+
   // Clear search restores all
   trainer.searchWord('');
   const allChips = chipsWrapper.querySelectorAll('.reading-chip');
