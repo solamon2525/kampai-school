@@ -340,6 +340,12 @@
     const catKey = item.sub_category || 'difficult';
     const catMeta = CATEGORY_CONFIG[catKey] || CATEGORY_CONFIG.difficult;
     const badgeClass = BADGE_CLASS_MAP[catKey] || 'badge-diff';
+    const warningHtml = item.warning_hint ? `
+      <div class="reading-warning-box animate-pop-in">
+        <span class="warning-icon">⚠️</span>
+        <span class="warning-text">${item.warning_hint}</span>
+      </div>
+    ` : '';
 
     // Update banner info
     if (badgeEl) {
@@ -376,6 +382,7 @@
         <div class="reading-fullword-wrap animate-pop-in">
           <span class="reading-word-emoji">${item.emoji || catMeta.icon || '📝'}</span>
           <h1 class="reading-word-full">${item.word}</h1>
+          ${warningHtml}
           <div class="reading-hint-step">แตะ Spacebar เพื่อแยกพยางค์คำอ่าน</div>
         </div>
       `;
@@ -403,6 +410,7 @@
               `;
             }).join('')}
           </div>
+          ${warningHtml}
           <div class="reading-hint-step">แตะแต่ละก้อนพยางค์เพื่อฟังเสียงอ่านซ้ำได้</div>
         </div>
       `;
