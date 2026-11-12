@@ -4,11 +4,20 @@
 (function () {
   'use strict';
 
+  const AUDIO_PREF_KEY = 'tvh_reading_sound';
+
   // ─── 1. Web Audio API Magic Sounds ──────────────────────────────
   class ReadingAudio {
     constructor() {
       this.ctx = null;
-      this.enabled = true;
+      let initial = true;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const saved = window.localStorage.getItem(AUDIO_PREF_KEY);
+          if (saved === '0') initial = false;
+        }
+      } catch (_) {}
+      this.enabled = initial;
     }
 
     init() {
@@ -68,8 +77,15 @@
 
   const audio = new ReadingAudio();
 
+  function cancelSpeech() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
   // ─── 2. Speech Synthesis สำหรับอ่านออกเสียงภาษาไทย ─────────────────
   function speakThai(text, rate = 0.85) {
+    if (!audio.enabled) return;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
@@ -263,9 +279,23 @@
       // Sound toggle listener
       const audioBtn = document.getElementById('btn-reading-audio-toggle');
       if (audioBtn) {
+        const syncAudioUI = () => {
+          audioBtn.textContent = audio.enabled ? '🔊 เสียง' : '🔇 ปิดเสียง';
+          audioBtn.classList.toggle('muted', !audio.enabled);
+        };
+        syncAudioUI();
+
         audioBtn.addEventListener('click', () => {
           audio.enabled = !audio.enabled;
-          audioBtn.textContent = audio.enabled ? '🔊 เสียง' : '🔇 ปิดเสียง';
+          if (!audio.enabled) {
+            cancelSpeech();
+          }
+          try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+              window.localStorage.setItem(AUDIO_PREF_KEY, audio.enabled ? '1' : '0');
+            }
+          } catch (_) {}
+          syncAudioUI();
         });
       }
 
@@ -411,11 +441,9 @@
             }).join('')}
           </div>
           ${warningHtml}
-          <div class="reading-hint-step">แตะแต่ละก้อนพยางค์เพื่อฟังเสียงอ่านซ้ำได้</div>
+          <div class="reading-hint-step">แตะแต่ละก้อนพยางค์ หรือปุ่ม "🔊 ฟังเสียงอ่าน" ด้านล่างเพื่อฟังเสียง</div>
         </div>
       `;
-      // Speak the whole word upon entering step 2
-      speakThai(item.word);
     }
 
     // ═══ STEP 3: ความหมาย บริบทประโยค และภาพประกอบ ═══
@@ -441,7 +469,12 @@
               <span class="res-pos">(${item.pos || 'คำศัพท์'})</span>
             </div>
             <div class="res-meaning-box">
-              <div class="res-meaning-label">ความหมาย:</div>
+              <div class="res-meaning-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div class="res-meaning-label">ความหมาย:</div>
+                <button type="button" class="btn-reading-mini-voice" onclick="window.ThaiReadingTrainer.speakMeaning()" title="ฟังเสียงอ่านความหมาย">
+                  🔊 ฟังความหมาย
+                </button>
+              </div>
               <div class="res-meaning-text">${item.meaning}</div>
             </div>
             ${item.example ? `
@@ -453,8 +486,6 @@
           </div>
         </div>
       `;
-      // Speak the whole word with meaning
-      speakThai(`${item.word} อ่านว่า ${syllables.join(' ')} หมายถึง ${item.meaning}`);
     }
   }
 
@@ -522,12 +553,11 @@
     close() {
       const modal = document.getElementById('tvh-reading-modal');
       if (modal) modal.style.display = 'none';
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      cancelSpeech();
     },
 
     setFilter(filterName) {
+      cancelSpeech();
       currentFilter = filterName || 'all';
       currentSearchQuery = '';
       const searchInput = document.getElementById('reading-theater-search');
@@ -539,6 +569,7 @@
     },
 
     searchWord(query) {
+      cancelSpeech();
       loadDataset();
       currentSearchQuery = (query || '').trim();
       const lower = currentSearchQuery.toLowerCase();
@@ -568,6 +599,7 @@
     },
 
     selectWord(idx) {
+      cancelSpeech();
       if (idx >= 0 && idx < playlist.length) {
         currentIndex = idx;
         renderWordChips();
@@ -593,6 +625,7 @@
 
     nextStep() {
       if (playlist.length === 0) return;
+      cancelSpeech();
       if (currentStep < 3) {
         currentStep++;
         renderStage();
@@ -608,6 +641,7 @@
 
     prevStep() {
       if (playlist.length === 0) return;
+      cancelSpeech();
       if (currentStep > 1) {
         currentStep--;
         renderStage();
@@ -619,6 +653,7 @@
     },
 
     resetStep() {
+      cancelSpeech();
       currentStep = 1;
       renderStage();
     },
@@ -632,6 +667,12 @@
 
     speakSyllable(syl) {
       speakThai(syl, 0.8);
+    },
+
+    speakMeaning() {
+      if (playlist.length === 0) return;
+      const item = playlist[currentIndex];
+      speakThai(`หมายถึง ${item.meaning}`);
     },
 
     isReadingWord(wordStr) {
