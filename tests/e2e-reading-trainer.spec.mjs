@@ -3,7 +3,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
+import { chromium, test } from 'playwright/test';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,32 +25,23 @@ const mime = {
   '.ttf': 'font/ttf',
 };
 
-const server = http.createServer((req, res) => {
-  let reqPath = decodeURI(req.url.split('?')[0]);
-  if (reqPath === '/') reqPath = '/index.html';
-  const filePath = path.join(publicDir, reqPath);
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-    const ext = path.extname(filePath);
-    res.writeHead(200, { 'Content-Type': mime[ext] || 'application/octet-stream' });
-    fs.createReadStream(filePath).pipe(res);
-  } else {
-    res.writeHead(404);
-    res.end('Not found');
-  }
-});
-
-await new Promise((resolve) => server.listen(0, resolve));
-const port = server.address().port;
-console.log(`🧪 Test static server running at http://localhost:${port}`);
-
-const browser = await chromium.launch({ headless: true });
-
-try {
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
+function createStaticServer() {
+  return http.createServer((req, res) => {
+    let reqPath = decodeURI(req.url.split('?')[0]);
+    if (reqPath === '/') reqPath = '/index.html';
+    const filePath = path.join(publicDir, reqPath);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const ext = path.extname(filePath);
+      res.writeHead(200, { 'Content-Type': mime[ext] || 'application/octet-stream' });
+      fs.createReadStream(filePath).pipe(res);
+    } else {
+      res.writeHead(404);
+      res.end('Not found');
+    }
   });
-  const page = await context.newPage();
+}
 
+async function runE2ETest(page, port) {
   const pageErrors = [];
   page.on('pageerror', (err) => {
     console.error('Page error:', err.message);
@@ -260,7 +251,48 @@ try {
   console.log('================================================================');
   console.log('🎉 E2E Reading Trainer Suite PASSED with 0 DOM overflow errors!');
   console.log('================================================================');
-} finally {
-  await browser.close();
-  server.close();
+}
+
+const isPlaywrightRunner = process.argv.some(
+  (arg) => arg.includes('playwright') || arg.includes('workerProcessEntry')
+);
+
+if (isPlaywrightRunner) {
+  let server;
+  let port;
+
+  test.beforeAll(async () => {
+    server = createStaticServer();
+    await new Promise((resolve) => server.listen(0, resolve));
+    port = server.address().port;
+    console.log(`🧪 Test static server running at http://localhost:${port}`);
+  });
+
+  test.afterAll(async () => {
+    if (server) {
+      server.close();
+    }
+  });
+
+  test('E2E Reading Trainer Suite', async ({ page }) => {
+    await runE2ETest(page, port);
+  });
+} else {
+  // Standalone node execution
+  const server = createStaticServer();
+  await new Promise((resolve) => server.listen(0, resolve));
+  const port = server.address().port;
+  console.log(`🧪 Test static server running at http://localhost:${port}`);
+
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 720 },
+    });
+    const page = await context.newPage();
+    await runE2ETest(page, port);
+  } finally {
+    await browser.close();
+    server.close();
+  }
 }
