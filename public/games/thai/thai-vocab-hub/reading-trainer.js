@@ -184,6 +184,34 @@
     return [clean];
   }
 
+  // Map syllables that browser Thai TTS engines mispronounce in isolation
+  const SYLLABLE_SPEECH_MAP = {
+    'เซา': 'ซาว', // ป้องกัน TTS ย่นเสียง เ-า เดี่ยวๆ เป็น สระเอาะ (เซาะ)
+    'เคา': 'คาว', // ป้องกัน TTS เคา ตกเป็น เคาะ
+  };
+
+  function cleanSyllableForSpeech(syl, isolated = true) {
+    if (!syl) return '';
+    const clean = syl.replace(/[\u0e3a\u0e4c]/g, '').trim();
+    if (isolated) {
+      return SYLLABLE_SPEECH_MAP[clean] || clean;
+    }
+    return clean;
+  }
+
+  function buildTtsReading(item) {
+    if (!item) return '';
+    if (item.tts_reading) return item.tts_reading.replace(/[\u0e3a\u0e4c]/g, '').trim();
+    if (!item.reading) return item.word ? item.word.replace(/[\u0e3a\u0e4c]/g, '').trim() : '';
+    const syls = parseSyllables(item.reading);
+    // รวมพยางค์เข้าด้วยกันแบบธรรมชาติเพื่อให้ G2P คำนวณเสียงสระและวรรณยุกต์ถูกต้อง
+    // เช่น ฉะ-เชิง-เซา → ฉะเชิงเซา (ไม่ใช้ space เดี่ยวๆ ที่ทำให้ เซา กลายเป็น เซาะ)
+    if (syls.length === 1) {
+      return cleanSyllableForSpeech(syls[0], true);
+    }
+    return syls.map(s => cleanSyllableForSpeech(s, false)).join('');
+  }
+
   function buildFilterTabsHtml() {
     return Object.keys(CATEGORY_CONFIG).map(catKey => {
       const cat = CATEGORY_CONFIG[catKey];
@@ -515,6 +543,8 @@
   window.ThaiReadingTrainer = {
     CATEGORY_CONFIG,
     toThaiNumeral,
+    buildTtsReading,
+    cleanSyllableForSpeech,
 
     open(targetWord, targetFilter) {
       loadDataset();
@@ -661,12 +691,13 @@
     speakCurrent() {
       if (playlist.length === 0) return;
       const item = playlist[currentIndex];
-      const syllables = parseSyllables(item.reading);
-      speakThai(`${item.word} อ่านว่า ${syllables.join(' ')}`);
+      const ttsReading = buildTtsReading(item);
+      speakThai(`${item.word} อ่านว่า ${ttsReading}`);
     },
 
     speakSyllable(syl) {
-      speakThai(syl, 0.8);
+      const speechText = cleanSyllableForSpeech(syl);
+      speakThai(speechText, 0.8);
     },
 
     speakMeaning() {
