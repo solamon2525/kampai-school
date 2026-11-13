@@ -290,6 +290,31 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.25',
+        date: '13 พ.ย. 2569',
+        title: 'ผู้ช่วยตั้งค่าพิมพ์โมเดล 3D (Standalone Tool): Slicer Preset Generator & Troubleshooting',
+        description:
+            'สร้างเว็บแอป Standalone สำหรับช่วยคำนวณและแนะนำพารามิเตอร์การพิมพ์ 3 มิติ (Bambu Studio, Anycubic Slicer, Creality Print) รองรับ Bambu Lab A1, A1 mini, P1S/X1C, Anycubic Kobra X, Creality SPARKX i7 พร้อมคู่มือแก้ปัญหา 10 หัวข้อ และระบบสร้าง Prompt วิเคราะห์ภาพ AI',
+        type: 'feat',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            '3D Printing',
+            'Bambu Lab A1',
+            'Slicer Presets',
+            'Maker Lab',
+            'Standalone Tool',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'สร้างหน้าเว็บแอป Standalone ที่ /tools/3d-print-assistant/index.html เข้าถึงได้ทันทีโดยตรงไม่ต้องพึ่งพา Vite build',
+            'เพิ่มโปรไฟล์เครื่องพิมพ์ Bambu Lab A1 (256x256), A1 mini, P1S/X1C, Anycubic Kobra X และ Creality SPARKX i7',
+            'คำนวณพารามิเตอร์อัตโนมัติ: Layer height, Wall loops, Infill, Speed, Tree Organic Support, Brim, Filament temp & cooling',
+            'รองรับส่งออกและคัดลอกไฟล์ JSON Preset สำหรับนำเข้า Bambu Studio / OrcaSlicer (Process presets)',
+            'รวมคู่มือแก้ปัญหาการพิมพ์ 3D ที่พบบ่อย 10 หัวข้อ พร้อมคำแนะนำแก้ไขทีละขั้นตอน',
+            'ระบบวิเคราะห์ภาพร่าง Prompt วิเคราะห์ปัญหาการพิมพ์สำหรับปรึกษา AI พร้อมบริบททางเทคนิคครบถ้วน',
+        ],
+    },
+    {
         version: 'v2.8.24',
         date: '12 พ.ย. 2569',
         title: 'Thai Vocab Hub: แก้ไขเสียงอ่าน TTS และตรวจสอบอักขรวิธี 520 คำใน Reading Studio',
