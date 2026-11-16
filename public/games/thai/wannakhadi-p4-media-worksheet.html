@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="worksheet-source-media" content="/games/thai/wannakhadi-p4-media.html" />
+  <meta name="curriculum-indicators" content="ท 1.1 ป.4/1, ท 1.1 ป.4/2, ท 5.1 ป.4/1, ท 5.1 ป.4/3" />
+  <title>ใบงานแปลกลอนและถอดความวรรณคดีลำนำ ป.4 — โรงเรียนบ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="/games/worksheet-topic.css?v=1.199.1" rel="stylesheet" />
+  <link href="/games/worksheet-modes.css?v=1.199.1" rel="stylesheet" />
+  <style>
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+    }
+    .verse-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+<header class="toolbar">
+  <h1>📝 ใบงานวรรณคดีลำนำ ป.4</h1>
+  <div class="toolbar-ctrls">
+    <select class="t-select" id="selStyle" aria-label="รูปแบบใบงาน">
+      <option value="standard">มาตรฐาน</option>
+      <option value="progressive">บันไดระดับ</option>
+      <option value="booklet">รวมเล่ม</option>
+    </select>
+    <select class="t-select" id="selPageCount" aria-label="จำนวนหน้า">
+      <option value="1">1 หน้า</option>
+      <option value="2">2 หน้า</option>
+    </select>
+    <select class="t-select" id="selGrade" aria-label="ระดับชั้น">
+      <option value="4" selected>ป.4</option>
+    </select>
+    <select class="t-select" id="selTopic" aria-label="บทเรียน">
+      <option value="mixed">รวมทุกบทเรียน (๗ บท)</option>
+      <option value="ch1">บทที่ ๑ สุดสาคร</option>
+      <option value="ch2">บทที่ ๒ น้ำผึ้งหยดเดียว</option>
+      <option value="ch3">บทที่ ๓ ระบำสายฟ้า</option>
+      <option value="ch4">บทที่ ๔ เรื่องเล่าจากพัทลุง</option>
+      <option value="ch5">บทที่ ๕ ดวงจันทร์ของลำเจียก</option>
+      <option value="ch6">บทที่ ๖ คมความคิด</option>
+      <option value="ch7">บทที่ ๗ เที่ยวเมืองพระร่วง</option>
+    </select>
+    <select class="t-select" id="selCount" aria-label="จำนวนข้อ">
+      <option value="6">6 ข้อ</option>
+      <option value="8" selected>8 ข้อ</option>
+      <option value="10">10 ข้อ</option>
+    </select>
+    <input class="t-input" id="inpSchool" value="โรงเรียนบ้านคำไผ่" aria-label="ชื่อโรงเรียน" />
+    <select class="t-select" id="selTeacher" aria-label="ครูผู้สอน">
+      <option value="">-- เลือกครูผู้สอน --</option>
+    </select>
+    <button type="button" class="btn primary" id="btnRandom">🎲 สุ่มใหม่</button>
+    <button type="button" class="btn" id="btnAnswers">👁 เฉลยครู</button>
+    <button type="button" class="btn green" id="btnPrint">🖨 พิมพ์ A4</button>
+  </div>
+</header>
+
+<main class="pages" id="pages">
+  <section class="sheet">
+    <div class="questions">
+      <article class="q">กำลังสร้างใบงาน...</article>
+    </div>
+  </section>
+</main>
+
+<script src="/games/worksheet-runtime.js?v=1.199.1"></script>
+<script>
+const WANNAKHADI_ITEMS = [
+  // บทที่ 1: สุดสาคร
+  {
+    topic: 'ch1',
+    prompt: 'ถอดความคำประพันธ์: "แล้วสอนว่าอย่าไว้ใจมนุษย์ มันแสนสุดลึกล้ำเหลือกำหนด"',
+    verse: 'แล้วสอนว่าอย่าไว้ใจมนุษย์ มันแสนสุดลึกล้ำเหลือกำหนด',
+    source: 'พระอภัยมณี (สุนทรภู่)',
+    questionType: 'ถอดความกลอน',
+    answer: 'พระฤๅษีสั่งสอนว่าอย่าเพิ่งหลงเชื่อใจใครง่ายๆ เพราะจิตใจของมนุษย์ซับซ้อนยากแท้หยั่งถึง'
+  },
+  {
+    topic: 'ch1',
+    prompt: 'แปลความหมายคำศัพท์: "โยคี" และ "บรรพต"',
+    verse: 'เห็นโยคีขี่รุ้งพุ่งออกมา ประคองพาขึ้นไปจนบนบรรพต',
+    source: 'พระอภัยมณี (สุนทรภู่)',
+    questionType: 'แปลคำศัพท์',
+    answer: 'โยคี หมายถึง พระฤๅษี (นักบวชผู้ทรงศีล), บรรพต หมายถึง ภูเขา'
+  },
+  {
+    topic: 'ch1',
+    prompt: 'วิเคราะห์ข้อคิด: "รู้สิ่งไรไม่สู้รู้วิชา รู้รักษาตัวรอดเป็นยอดดี"',
+    verse: 'รู้สิ่งไรไม่สู้รู้วิชา รู้รักษาตัวรอดเป็นยอดดี',
+    source: 'พระอภัยมณี (สุนทรภู่)',
+    questionType: 'วิเคราะห์ข้อคิด',
+    answer: 'การมีความรู้ในวิชาการต่างๆ ยังไม่ประเสริฐเท่ากับการนำวิชาความรู้นั้นมาเอาตัวรอดจากภัยอันตรายได้อย่างปลอดภัย'
+  },
+  // บทที่ 2: น้ำผึ้งหยดเดียว
+  {
+    topic: 'ch2',
+    prompt: 'วิเคราะห์สุภาษิต: "น้ำผึ้งหยดเดียวก่อเหตุ"',
+    verse: 'เรื่องเล็กน้อยลุกลามเป็นเรื่องใหญ่ เกิดเพลิงไหม้พินาศสิ้นทั้งพารา',
+    source: 'นิทานเทียบสุภาษิต',
+    questionType: 'วิเคราะห์สุภาษิต',
+    answer: 'เรื่องบาดหมางเล็กน้อยที่ไม่สำคัญ หากขาดสติระงับอารมณ์ อาจลุกลามเป็นศึกใหญ่สร้างความเสียหายได้'
+  },
+  {
+    topic: 'ch2',
+    prompt: 'แปลความหมายคำศัพท์: "วิวาท" และ "โทสะ"',
+    verse: 'หมากัดพร้อมคนวิวาทขาดปัญญา ระงับโทสะพาพบสุขเอย',
+    source: 'นิทานเทียบสุภาษิต',
+    questionType: 'แปลคำศัพท์',
+    answer: 'วิวาท หมายถึง การทะเลาะทุ่มเถียงกัน, โทสะ หมายถึง ความโกรธ'
+  },
+  // บทที่ 3: ระบำสายฟ้า
+  {
+    topic: 'ch3',
+    prompt: 'ถอดความคำประพันธ์: แสงฟ้าแลบและฟ้าร้องฟ้าผ่าตามจินตนาการกวี',
+    verse: 'เมขลากล้าหาญล่อแก้วแววไว ... ควงขวานเพชรเหวี่ยงไปสายฟ้าฟาด',
+    source: 'บทเห่กล่อมจับระบำ (สุนทรภู่)',
+    questionType: 'ถอดความกลอน',
+    answer: 'แสงฟ้าแลบเกิดจากดวงแก้ววิเศษของนางมณีเมขลา ส่วนฟ้าร้องฟ้าผ่าเกิดจากขวานเพชรของรามสูรที่ขว้างฟาดแหวกอากาศ'
+  },
+  {
+    topic: 'ch3',
+    prompt: 'แปลความหมายคำศัพท์: "นภา" และ "โอปาต"',
+    verse: 'เหาะเวียนรื่นเริงไปในนภา ... แสงโอปาตเปรี้ยงปรั่งสะท้านขาม',
+    source: 'บทเห่กล่อมจับระบำ (สุนทรภู่)',
+    questionType: 'แปลคำศัพท์',
+    answer: 'นภา หมายถึง ท้องฟ้า, โอปาต หมายถึง ประกายแสงสว่างวาบขึ้นทันใด (แสงฟ้าแลบ)'
+  },
+  // บทที่ 4: เรื่องเล่าจากพัทลุง (เงาะป่า)
+  {
+    topic: 'ch4',
+    prompt: 'แปลความหมายคำศัพท์ชาวเงาะป่า: "ซุมเปาะ" และ "ทับ"',
+    verse: 'ออกจากทับรโหฐานสำราญรื่น ถือซุมเปาะลูกดอกเดินชมดื่น',
+    source: 'บทละครเรื่องเงาะป่า (ร.๕)',
+    questionType: 'แปลคำศัพท์',
+    answer: 'ซุมเปาะ หมายถึง กระบอกไม้ไผ่ยาวใช้เป่าลูกดอก, ทับ หมายถึง กระท่อมที่พักอาศัย'
+  },
+  {
+    topic: 'ch4',
+    prompt: 'ถอดความคำประพันธ์: คนังและไม้ไผ่ออกเที่ยวป่า',
+    verse: 'เมื่อนั้นคนังไม้ไผ่ใจกล้าหาญ ออกจากทับรโหฐานสำราญรื่น',
+    source: 'บทละครเรื่องเงาะป่า (ร.๕)',
+    questionType: 'ถอดความกลอน',
+    answer: 'เด็กเงาะป่าสองคนคือคนังและไม้ไผ่ ชวนกันออกจากที่พักไปเที่ยวป่าอย่างรื่นเริงเบิกบานใจและรักใคร่กลมเกลียว'
+  },
+  // บทที่ 5: ดวงจันทร์ของลำเจียก
+  {
+    topic: 'ch5',
+    prompt: 'แปลความหมายคำศัพท์: "แขไข" และ "จันทรุปราคา"',
+    verse: 'ยามราหูบดบังดวงแขไข จันทรุปราคาไซร้ในสวรรค์',
+    source: 'นิราศเดือน (นายมี)',
+    questionType: 'แปลคำศัพท์',
+    answer: 'แขไข หมายถึง ดวงจันทร์, จันทรุปราคา หมายถึง ปรากฏการณ์ที่โลกโคจรมาบังแสงอาทิตย์ทำให้เกิดเงาทอดบนดวงจันทร์'
+  },
+  // บทที่ 6: คมความคิด (พฤษภกาสร & ปากเป็นเอก)
+  {
+    topic: 'ch6',
+    prompt: 'ถอดความโคลงพฤษภกาสร: "นรชาติวางวาย มลายสิ้นทั้งอินทรีย์ สถิตทั่วแต่ชั่วดี ประดับไว้ในโลกา"',
+    verse: 'นรชาติวางวาย มลายสิ้นทั้งอินทรีย์ สถิตทั่วแต่ชั่วดี ประดับไว้ในโลกา',
+    source: 'โคลงพฤษภกาสร (กรมพระปรมานุชิตชิโนรส)',
+    questionType: 'ถอดความโคลง',
+    answer: 'มนุษย์เมื่อตายไปร่างกายสังขารก็ดับสูญเน่าเปื่อยหมดสิ้น คงเหลือไว้แต่คุณงามความดีและความชั่วให้โลกจดจำ'
+  },
+  {
+    topic: 'ch6',
+    prompt: 'แปลความหมายคำศัพท์: "กาสร", "กุญชร" และ "พฤษภ"',
+    verse: 'พฤษภกาสร อีกกุญชรอันปลดปลง โททนต์เสน่งคง สำคัญหมายในกายมี',
+    source: 'โคลงพฤษภกาสร',
+    questionType: 'แปลคำศัพท์',
+    answer: 'พฤษภ หมายถึง วัว, กาสร หมายถึง ควาย, กุญชร หมายถึง ช้าง'
+  },
+  {
+    topic: 'ch6',
+    prompt: 'วิเคราะห์คุณค่า: "ปากเป็นเอก เลขเป็นโท หนังสือเป็นตรี ชั่วดีเป็นตรา"',
+    verse: 'ปากเป็นเอกเสกมนตร์คนเชื่อฟัง เลขเป็นโทจริงจังเร่งคำนวณ',
+    source: 'กลอนสุภาพ (ท่านผู้หญิงสมโรจน์)',
+    questionType: 'วิเคราะห์ข้อคิด',
+    answer: 'สอนให้เห็นความสำคัญของการพูดจาดีเป็นเอก ทักษะคิดคำนวณเป็นโท วิชาความรู้หนังสือเป็นตรี และความดีเป็นตราประทับชี้วัดคุณค่าชีวิต'
+  },
+  // บทที่ 7: เที่ยวเมืองพระร่วง (สยามานุสสติ)
+  {
+    topic: 'ch7',
+    prompt: 'ถอดความโคลงสยามานุสสติ: "ใครรานใครรุกด้าว แดนไทย ไทยรบจนสุดใจ ขาดดิ้น"',
+    verse: 'ใครรานใครรุกด้าว แดนไทย ไทยรบจนสุดใจ ขาดดิ้น',
+    source: 'สยามานุสสติ (พระราชนิพนธ์ ร.๖)',
+    questionType: 'ถอดความโคลง',
+    answer: 'หากใครมารุกรานแผ่นดินไทย คนไทยพร้อมจะรวมใจกันต่อสู้อย่างถวายชีวิตจนถึงที่สุดเพื่อปกป้องบ้านเมือง'
+  },
+  {
+    topic: 'ch7',
+    prompt: 'แปลความหมายคำศัพท์: "ด้าว" และ "ไป่"',
+    verse: 'ใครรานใครรุกด้าว แดนไทย ... เสียชีพไป่เสียสิ้น ชื่อก้องเกียรติงาม',
+    source: 'สยามานุสสติ (พระราชนิพนธ์ ร.๖)',
+    questionType: 'แปลคำศัพท์',
+    answer: 'ด้าว หมายถึง แผ่นดิน/อาณาเขต, ไป่ หมายถึง ไม่ (ยอมสละชีวิตแต่ไม่ยอมให้เกียรติยศสูญสิ้น)'
+  }
+];
+
+window.WORKSHEET_CONFIG = {
+  icon: '📖',
+  title: 'ใบงานวรรณคดีลำนำ ป.4',
+  subject: 'ภาษาไทย',
+  gradeLabel: 'ป.4',
+  mediaLabel: 'สื่อแปลกลอนสุภาพ วรรณคดีลำนำ ป.4',
+  sourceMediaUrl: '/games/thai/wannakhadi-p4-media.html',
+  indicators: ['ท 1.1 ป.4/1', 'ท 1.1 ป.4/2', 'ท 5.1 ป.4/1', 'ท 5.1 ป.4/3'],
+  directions: 'อ่านบทกลอนและคำถามที่กำหนดให้ แล้วเขียนถอดความหรือแปลความหมายคำศัพท์ลงในช่องว่างให้ถูกต้อง',
+  getItems(topic) {
+    if (topic === 'mixed') return WANNAKHADI_ITEMS;
+    return WANNAKHADI_ITEMS.filter(i => i.topic === topic);
+  },
+  renderQuestion(item, idx) {
+    const e = window.KampaiTopicWorksheet.escapeHtml;
+    return `
+      <div class="q-stem">
+        <div class="q-prompt">
+          <span style="background:#1e3a8a; color:#fff; padding:2px 7px; border-radius:6px; font-size:0.8rem; margin-right:6px;">${e(item.questionType)}</span>
+          ${e(item.prompt)}
+        </div>
+        <div class="verse-box">📜 "${e(item.verse)}" <span style="font-size:0.8rem; color:#64748b; font-weight:normal;">(${e(item.source)})</span></div>
+      </div>
+      <div class="q-work-block">
+        <div class="calc-line">
+          <span class="work-fill" style="min-height:36px; border-bottom:1px dotted #94a3b8; display:block; width:100%;">
+            เขียนคำตอบ / ถอดความ: ........................................................................................................................
+          </span>
+        </div>
+      </div>
+      <div class="q-foot">
+        <div class="answer-line">เฉลย: <span class="answer-fill" style="font-weight:700; color:#16a34a;">${e(item.answer)}</span></div>
+      </div>
+    `;
+  }
+};
+</script>
+<script src="/games/worksheet-topic.js?v=1.199.1"></script>
+<script>
+  function render() {
+    window.KampaiTopicWorksheet.render();
+  }
+  document.getElementById('btnRandom').onclick = window.KampaiTopicWorksheet.randomize;
+  document.getElementById('btnAnswers').onclick = () => document.body.classList.toggle('show-answers');
+  document.getElementById('btnPrint').onclick = () => window.KampaiWorksheet.printA4();
+  window.KampaiWorksheet.loadTeachers();
+  render();
+</script>
+<script src="/games/worksheet-modes.js?v=1.199.1"></script>
+</body>
+</html>
