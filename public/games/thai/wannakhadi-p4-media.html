@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="kampai-content-kind" content="teaching-media" />
+  <title>สื่อแปลกลอนสุภาพ วรรณคดีลำนำ ป.4 — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1e3a8a;
+      --navy-light: #2563eb;
+      --gold: #f59e0b;
+      --gold-deep: #b45309;
+      --gold-bg: #fef3c7;
+      --paper: #fffdf7;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --line-accent: #cbd5e1;
+      --ink: #0f172a;
+      --muted: #475569;
+      --ok: #16a34a;
+      --ok-bg: #dcfce7;
+      --bad: #dc2626;
+      --bad-bg: #fee2e2;
+      --purple: #7c3aed;
+      --purple-bg: #f3e8ff;
+      --rhyme: #0284c7;
+      --rhyme-bg: #e0f2fe;
+    }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #fef3c7 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 10px;
+    }
+    .shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 2px solid var(--navy);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(30, 58, 138, 0.12);
+      overflow: hidden;
+      min-height: calc(100vh - 20px);
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      background: linear-gradient(90deg, var(--navy) 0%, #1e40af 60%, #1d4ed8 100%);
+      color: #fff;
+    }
+    header h1 {
+      font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+      font-weight: 800;
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .badge-gold {
+      background: var(--gold);
+      color: #78350f;
+      border-color: #fde68a;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-height: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: transform 0.1s, background 0.15s, border-color 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+    .btn-back:hover { background: rgba(255, 255, 255, 0.22); }
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: #ffffff;
+      border-bottom: 2px solid var(--line);
+    }
+    .mode-seg {
+      display: inline-flex;
+      border: 2px solid var(--navy);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .mode-btn {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #fff;
+      color: var(--navy);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-btn.on {
+      background: var(--navy);
+      color: #fff;
+    }
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .btn-toggle {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid var(--line-accent);
+      font-size: 0.88rem;
+    }
+    .btn-toggle.on {
+      background: var(--gold-bg);
+      border-color: var(--gold);
+      color: var(--gold-deep);
+    }
+    .btn-ghost {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid var(--line-accent);
+      font-size: 0.88rem;
+    }
+    .btn-ghost:hover { border-color: var(--navy); }
+    /* Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      flex: 1;
+      min-height: 0;
+    }
+    /* Sidebar */
+    .sidebar {
+      background: #f8fafc;
+      border-right: 2px solid var(--line);
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chapter-nav-btn {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .chapter-nav-btn:hover {
+      border-color: var(--navy-light);
+      background: #f1f5f9;
+    }
+    .chapter-nav-btn.on {
+      border-color: var(--gold);
+      background: #fffbeb;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+    .chap-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .chapter-nav-btn.on .chap-badge {
+      color: var(--gold-deep);
+    }
+    .chap-title {
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+    /* Main Content */
+    .main-stage {
+      padding: 20px;
+      overflow-y: auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(248, 250, 252, 0.9) 100%);
+    }
+    /* Chapter Hero */
+    .chap-hero {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 22px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-left: 6px solid var(--gold);
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-title {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+    .hero-source {
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .hero-summary {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-tts {
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.88rem;
+    }
+    .btn-tts:hover { background: #1e40af; }
+    /* Stanza Cards */
+    .stanza-card {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+      transition: border-color 0.15s;
+    }
+    .stanza-card:hover {
+      border-color: #cbd5e1;
+    }
+    .stanza-header {
+      background: #f8fafc;
+      border-bottom: 2px solid var(--line);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .stanza-badge {
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--navy);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stanza-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 0;
+    }
+    .stanza-body.hide-trans {
+      grid-template-columns: 1fr;
+    }
+    .poem-panel {
+      padding: 20px 22px;
+      border-right: 2px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      background: #fffdfc;
+    }
+    .stanza-body.hide-trans .poem-panel {
+      border-right: none;
+    }
+    .poem-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .verse-line {
+      font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--navy);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+    }
+    .verse-role {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-right: 6px;
+      min-width: 32px;
+      text-align: center;
+    }
+    .verse-segment {
+      padding: 2px 4px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .show-rhythm .verse-segment {
+      background: var(--rhyme-bg);
+      border: 1px dashed var(--rhyme);
+      color: #0369a1;
+      margin-right: 4px;
+    }
+    .clickable-vocab {
+      color: #b45309;
+      font-weight: 800;
+      border-bottom: 2px dashed #f59e0b;
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 0 2px;
+      transition: background 0.12s;
+    }
+    .clickable-vocab:hover {
+      background: var(--gold-bg);
+    }
+    /* Translation Panel */
+    .trans-panel {
+      padding: 20px 22px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+    }
+    .stanza-body.hide-trans .trans-panel {
+      display: none;
+    }
+    .trans-header {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--gold-deep);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .trans-text {
+      font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+      line-height: 1.65;
+      color: #1e293b;
+      font-weight: 600;
+    }
+    .trans-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+    /* Vocabulary Popover Modal */
+    .vocab-popover-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(2px);
+    }
+    .vocab-popover-backdrop.open {
+      display: flex;
+    }
+    .vocab-popover-card {
+      background: #ffffff;
+      border: 2px solid var(--navy);
+      border-radius: 20px;
+      max-width: 440px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      animation: popIn 0.15s ease-out;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .vocab-word-large {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .vocab-read-pill {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #92400e;
+      background: var(--gold-bg);
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .vocab-pos-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .vocab-desc {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #1e293b;
+      background: #f8fafc;
+      border-left: 4px solid var(--gold);
+      padding: 10px 14px;
+      border-radius: 0 10px 10px 0;
+    }
+    .vocab-example {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .btn-close-popover {
+      align-self: flex-end;
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+    /* Vocab Explorer Mode */
+    .vocab-explorer {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .vocab-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+    .vocab-search-input {
+      flex: 1;
+      min-width: 220px;
+      min-height: 44px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font: 600 1rem 'Sarabun', sans-serif;
+    }
+    .vocab-search-input:focus {
+      outline: 3px solid var(--gold);
+      border-color: var(--navy);
+    }
+    .vocab-filter-select {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font: 700 0.95rem 'Sarabun', sans-serif;
+      background: #fff;
+      color: var(--navy);
+    }
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .vocab-card {
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .vocab-card:hover {
+      border-color: var(--gold);
+    }
+    .vocab-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .vocab-card-word {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    /* Practice Mode */
+    .practice-container {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 820px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .quiz-card {
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .quiz-question {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.4;
+    }
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+    }
+    .quiz-option-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: left;
+      padding: 14px 16px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .quiz-option-btn:hover {
+      border-color: var(--navy-light);
+      background: #f8fafc;
+    }
+    .quiz-option-btn.correct {
+      background: var(--ok-bg);
+      border-color: var(--ok);
+      color: #14532d;
+    }
+    .quiz-option-btn.wrong {
+      background: var(--bad-bg);
+      border-color: var(--bad);
+      color: #7f1d1d;
+    }
+    .quiz-feedback {
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: 700;
+      display: none;
+      line-height: 1.5;
+    }
+    .quiz-feedback.show-ok {
+      display: block;
+      background: var(--ok-bg);
+      border: 2px solid var(--ok);
+      color: #14532d;
+    }
+    .quiz-feedback.show-retry {
+      display: block;
+      background: var(--gold-bg);
+      border: 2px solid var(--gold);
+      color: #78350f;
+    }
+    /* Mode switching visibility */
+    .shell[data-active-mode="learn"] .learn-view { display: flex; }
+    .shell[data-active-mode="learn"] .vocab-explorer { display: none; }
+    .shell[data-active-mode="learn"] .practice-container { display: none; }
+
+    .shell[data-active-mode="vocab"] .learn-view { display: none; }
+    .shell[data-active-mode="vocab"] .vocab-explorer { display: flex; }
+    .shell[data-active-mode="vocab"] .practice-container { display: none; }
+
+    .shell[data-active-mode="practice"] .learn-view { display: none; }
+    .shell[data-active-mode="practice"] .vocab-explorer { display: none; }
+    .shell[data-active-mode="practice"] .practice-container { display: flex; }
+
+    /* Footer */
+    footer {
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-top: 2px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 600;
+    }
+    /* Responsive */
+    @media (max-width: 960px) {
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar {
+        border-right: none;
+        border-bottom: 2px solid var(--line);
+        max-height: 180px;
+      }
+      .stanza-body { grid-template-columns: 1fr; }
+      .poem-panel { border-right: none; border-bottom: 2px solid var(--line); }
+    }
+    @media (max-width: 600px) {
+      body { padding: 4px; }
+      .shell { border-radius: 12px; }
+      .main-stage { padding: 12px; }
+      .toolbar { gap: 6px; padding: 8px 12px; }
+      .mode-btn { padding: 6px 10px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell" id="appShell" data-active-mode="learn">
+  <!-- Top Navigation Header -->
+  <header>
+    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">
+      ← กลับคลังสื่อ
+    </button>
+    <h1>
+      <span>📖</span>
+      <span>สื่อแปลกลอนสุภาพ วรรณคดีลำนำ ป.4</span>
+    </h1>
+    <span class="badge badge-gold">ภาษาไทย ป.4</span>
+    <span class="badge">๗ บทเรียน</span>
+  </header>
+
+  <!-- Control & Mode Toolbar -->
+  <div class="toolbar">
+    <div class="mode-seg">
+      <button type="button" class="mode-btn on" data-mode="learn" onclick="switchMode('learn')">
+        📖 เรียนรู้ &amp; แปลกลอน
+      </button>
+      <button type="button" class="mode-btn" data-mode="vocab" onclick="switchMode('vocab')">
+        🔍 คลังคำศัพท์
+      </button>
+      <button type="button" class="mode-btn" data-mode="practice" onclick="switchMode('practice')">
+        ✏️ ฝึกถอดความ
+      </button>
+    </div>
+
+    <div class="toolbar-actions">
+      <button type="button" class="btn btn-toggle on" id="toggleTransBtn" onclick="toggleTranslation()">
+        👁️ แสดงคำแปล
+      </button>
+      <button type="button" class="btn btn-toggle" id="toggleRhythmBtn" onclick="toggleRhythm()">
+        🎵 เน้นจังหวะ ๓-๒-๓
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="toggleFullscreen()">
+        ⛶ เต็มจอ
+      </button>
+      <a class="btn btn-ghost" href="/games/thai/wannakhadi-p4-media-worksheet.html" target="_blank" rel="noopener">
+        📝 เปิดใบงาน (A4)
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Workspace Area -->
+  <div class="workspace">
+    <!-- Left Chapter Sidebar Navigation -->
+    <nav class="sidebar" id="sidebarNav" aria-label="สารบัญบทเรียน"></nav>
+
+    <!-- Content Stage -->
+    <main class="main-stage" id="mainStage">
+      <!-- Mode 1: Learn & Poetry Translation View -->
+      <div class="learn-view" id="learnView" style="display:flex; flex-direction:column; gap:16px;"></div>
+
+      <!-- Mode 2: Vocabulary Explorer View -->
+      <div class="vocab-explorer" id="vocabExplorer">
+        <div class="vocab-toolbar">
+          <input type="text" class="vocab-search-input" id="vocabSearch" placeholder="พิมพ์ค้นหาคำศัพท์หรือความหมาย..." oninput="filterVocabGrid()" />
+          <select class="vocab-filter-select" id="vocabChapterFilter" onchange="filterVocabGrid()">
+            <option value="all">ทุกบทเรียน (๗ บท)</option>
+            <option value="1">บทที่ ๑ สุดสาคร</option>
+            <option value="2">บทที่ ๒ น้ำผึ้งหยดเดียว</option>
+            <option value="3">บทที่ ๓ ระบำสายฟ้า</option>
+            <option value="4">บทที่ ๔ เรื่องเล่าจากพัทลุง</option>
+            <option value="5">บทที่ ๕ ดวงจันทร์ของลำเจียก</option>
+            <option value="6">บทที่ ๖ คมความคิด</option>
+            <option value="7">บทที่ ๗ เที่ยวเมืองพระร่วง</option>
+          </select>
+        </div>
+        <div class="vocab-grid" id="vocabGrid"></div>
+      </div>
+
+      <!-- Mode 3: Practice & Meaning Challenge -->
+      <div class="practice-container" id="practiceContainer">
+        <div class="quiz-card" id="quizCard">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge" style="background:var(--navy); color:#fff;" id="quizChapterBadge">บทที่ ๑</span>
+            <span style="font-weight:700; color:var(--muted); font-size:0.9rem;" id="quizProgressText">ข้อที่ 1 / 3</span>
+          </div>
+          <h2 class="quiz-question" id="quizQuestionText">คำถาม</h2>
+          <div class="quiz-options" id="quizOptionsContainer"></div>
+          <div class="quiz-feedback" id="quizFeedbackBox"></div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+            <button type="button" class="btn btn-tts" id="btnNextQuiz" onclick="nextQuizQuestion()" style="display:none;">
+              ข้อถัดไป ➔
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Accessible Modal Popover for Vocabulary Detail -->
+  <div class="vocab-popover-backdrop" id="vocabModal" onclick="if(event.target===this)closeVocabModal();">
+    <div class="vocab-popover-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="vocab-pos-badge" id="modalPos">ชนิดคำ</span>
+        <span class="vocab-read-pill" id="modalReading">คำอ่าน</span>
+      </div>
+      <div class="vocab-word-large" id="modalWord">คำศัพท์</div>
+      <div class="vocab-desc" id="modalMeaning">ความหมาย</div>
+      <div class="vocab-example" id="modalExample">ตัวอย่างในบทกลอน</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <button type="button" class="btn btn-ghost" id="modalSpeakBtn" onclick="speakModalWord()">
+          🔊 ฟังคำอ่าน
+        </button>
+        <button type="button" class="btn btn-close-popover" onclick="closeVocabModal()">
+          ตกลง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standard Footer -->
+  <footer>
+    โรงเรียนบ้านคำไผ่ · สื่อการสอนกลุ่มสาระการเรียนรู้ภาษาไทย ชั้นประถมศึกษาปีที่ ๔ (วรรณคดีลำนำ ๗ บท) · สื่อการเรียนรู้ไม่เก็บคะแนนแข่งขัน
+  </footer>
+</div>
+
+<!-- Load Literature Dataset -->
+<script src="/games/thai/assets/wannakhadi-p4/wannakhadi-data.js"></script>
+
+<script>
+  const MEDIA_SLUG = 'wannakhadi-p4-media';
+  const GAME_SLUG = 'wannakhadi-p4-media';
+  if (window.KAMPAI) {
+    KAMPAI.setSlug(MEDIA_SLUG);
+    if (KAMPAI.sound && KAMPAI.sound.mountToggles) {
+      KAMPAI.sound.mountToggles();
+    }
+  }
+
+  // State
+  let currentChapterIndex = 0;
+  let showTranslation = true;
+  let showRhythm = false;
+  let activeMode = 'learn';
+  let currentQuizIndex = 0;
+  let activeModalItem = null;
+
+  const dataset = window.WANNAKHADI_P4_DATA || [];
+
+  // Speech Helper (TTS with safe cancel on switch)
+  function stopAllSpeech() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function speakText(text, rate = 0.85) {
+    stopAllSpeech();
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
+      KAMPAI.sound.speak(text, 'th');
+    } else if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'th-TH';
+      u.rate = rate;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  function speakModalWord() {
+    if (activeModalItem) {
+      speakText(activeModalItem.word);
+    }
+  }
+
+  // Switching Modes
+  function switchMode(mode) {
+    stopAllSpeech();
+    activeMode = mode;
+    document.getElementById('appShell').setAttribute('data-active-mode', mode);
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.classList.toggle('on', btn.getAttribute('data-mode') === mode);
+    });
+
+    if (mode === 'vocab') {
+      renderVocabExplorer();
+    } else if (mode === 'practice') {
+      currentQuizIndex = 0;
+      renderPracticeQuiz();
+    }
+  }
+
+  // Toggle Translation Display
+  function toggleTranslation() {
+    showTranslation = !showTranslation;
+    const btn = document.getElementById('toggleTransBtn');
+    btn.classList.toggle('on', showTranslation);
+    btn.innerHTML = showTranslation ? '👁️ แสดงคำแปล' : '🙈 ซ่อนคำแปล';
+    document.querySelectorAll('.stanza-body').forEach(el => {
+      el.classList.toggle('hide-trans', !showTranslation);
+    });
+  }
+
+  // Toggle Rhythm Display
+  function toggleRhythm() {
+    showRhythm = !showRhythm;
+    const btn = document.getElementById('toggleRhythmBtn');
+    btn.classList.toggle('on', showRhythm);
+    document.getElementById('learnView').classList.toggle('show-rhythm', showRhythm);
+  }
+
+  // Fullscreen Toggle
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  // Navigation rendering
+  function renderSidebar() {
+    const nav = document.getElementById('sidebarNav');
+    nav.innerHTML = '<div class="sidebar-title"><span>สารบัญ ๗ บทเรียน</span><span>ป.๔</span></div>';
+
+    dataset.forEach((ch, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chapter-nav-btn' + (idx === currentChapterIndex ? ' on' : '');
+      btn.innerHTML = `
+        <span class="chap-badge">บทที่ ${ch.chapterNum} · ${ch.category}</span>
+        <span class="chap-title">${ch.title.replace(/^บทที่\s+[๑-๗]\s+/, '')}</span>
+      `;
+      btn.onclick = () => selectChapter(idx);
+      nav.appendChild(btn);
+    });
+  }
+
+  function selectChapter(idx) {
+    stopAllSpeech();
+    currentChapterIndex = idx;
+    document.querySelectorAll('.chapter-nav-btn').forEach((btn, i) => {
+      btn.classList.toggle('on', i === idx);
+    });
+    renderChapter();
+    if (activeMode === 'practice') {
+      currentQuizIndex = 0;
+      renderPracticeQuiz();
+    }
+  }
+
+  // Render Learn View for Current Chapter
+  function renderChapter() {
+    const ch = dataset[currentChapterIndex];
+    if (!ch) return;
+
+    const learnView = document.getElementById('learnView');
+    learnView.classList.toggle('show-rhythm', showRhythm);
+
+    let html = `
+      <section class="chap-hero">
+        <div class="hero-meta">
+          <span class="badge badge-gold">บทที่ ${ch.chapterNum}</span>
+          <span class="badge" style="background:var(--navy);">${ch.category}</span>
+          <span class="hero-source">จาก: ${ch.sourceWork} (ผู้แต่ง: ${ch.author})</span>
+        </div>
+        <h2 class="hero-title">${ch.title}</h2>
+        <div class="hero-summary">
+          <strong>สรุปเนื้อหา:</strong> ${ch.summary}
+          <div style="margin-top:6px; color:var(--gold-deep); font-weight:700;">
+            💡 <strong>คติสอนใจ:</strong> ${ch.moralLesson}
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button type="button" class="btn btn-tts" onclick="speakText('${ch.title} ${ch.summary}')">
+            🔊 ฟังเรื่องย่อ
+          </button>
+        </div>
+      </section>
+    `;
+
+    // Render Stanzas
+    ch.stanzas.forEach(st => {
+      const allLinesText = st.lines.map(l => l.text).join(' ');
+
+      html += `
+        <article class="stanza-card">
+          <div class="stanza-header">
+            <span class="stanza-badge">
+              <span>📜</span> บทที่ ${st.stanzaIndex} · ฉันทลักษณ์: ${st.meter}
+            </span>
+            <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 10px; font-size:0.8rem;" onclick="speakText('${allLinesText}')">
+              🔊 ฟังทั้งบท
+            </button>
+          </div>
+          <div class="stanza-body ${showTranslation ? '' : 'hide-trans'}">
+            <div class="poem-panel">
+              <div class="poem-lines">
+      `;
+
+      st.lines.forEach(l => {
+        let lineMarkup = '';
+        l.segments.forEach(seg => {
+          let segText = seg;
+          ch.vocabularies.forEach(v => {
+            if (segText.includes(v.word)) {
+              segText = segText.split(v.word).join(`<span class="clickable-vocab" onclick="openVocabModal('${v.word}')" title="แตะดูความหมาย">${v.word}</span>`);
+            }
+          });
+          lineMarkup += `<span class="verse-segment">${segText}</span>`;
+        });
+
+        html += `
+          <div class="verse-line">
+            <span class="verse-role">${l.role}</span>
+            ${lineMarkup}
+          </div>
+        `;
+      });
+
+      html += `
+              </div>
+            </div>
+            <div class="trans-panel">
+              <div class="trans-header">
+                <span>✨</span> ถอดความภาษาง่าย (ความหมาย)
+              </div>
+              <p class="trans-text">${st.translation}</p>
+              <div class="trans-actions">
+                <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 10px; font-size:0.85rem;" onclick="speakText('${st.translation}')">
+                  🎧 ฟังคำแปล
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    });
+
+    learnView.innerHTML = html;
+  }
+
+  // Vocab Modal Controller
+  function openVocabModal(word) {
+    let item = null;
+    for (const ch of dataset) {
+      item = ch.vocabularies.find(v => v.word === word);
+      if (item) break;
+    }
+    if (!item) return;
+
+    activeModalItem = item;
+    document.getElementById('modalWord').textContent = item.word;
+    document.getElementById('modalReading').textContent = item.reading;
+    document.getElementById('modalPos').textContent = item.pos;
+    document.getElementById('modalMeaning').textContent = item.meaning;
+    document.getElementById('modalExample').textContent = 'ตัวอย่าง: ' + item.example;
+    document.getElementById('vocabModal').classList.add('open');
+
+    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.unlock) {
+      KAMPAI.sound.unlock();
+    }
+  }
+
+  function closeVocabModal() {
+    document.getElementById('vocabModal').classList.remove('open');
+    activeModalItem = null;
+  }
+
+  // Mode 2: Vocabulary Explorer
+  function renderVocabExplorer() {
+    filterVocabGrid();
+  }
+
+  function filterVocabGrid() {
+    const search = document.getElementById('vocabSearch').value.trim().toLowerCase();
+    const chapFilter = document.getElementById('vocabChapterFilter').value;
+    const grid = document.getElementById('vocabGrid');
+
+    let allWords = [];
+    dataset.forEach(ch => {
+      if (chapFilter === 'all' || ch.chapterNum === parseInt(chapFilter, 10)) {
+        ch.vocabularies.forEach(v => {
+          allWords.push({ ...v, chapterNum: ch.chapterNum, chapterTitle: ch.title });
+        });
+      }
+    });
+
+    if (search) {
+      allWords = allWords.filter(w =>
+        w.word.toLowerCase().includes(search) ||
+        w.reading.toLowerCase().includes(search) ||
+        w.meaning.toLowerCase().includes(search)
+      );
+    }
+
+    if (allWords.length === 0) {
+      grid.innerHTML = '<p style="grid-column:1/-1; padding:20px; text-align:center; color:var(--muted); font-weight:700;">ไม่พบคำศัพท์ที่ตรงกับการค้นหา</p>';
+      return;
+    }
+
+    grid.innerHTML = allWords.map(w => `
+      <div class="vocab-card">
+        <div class="vocab-card-head">
+          <span class="vocab-card-word">${w.word}</span>
+          <span class="vocab-read-pill">${w.reading}</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span class="vocab-pos-badge">${w.pos}</span>
+          <span style="font-size:0.75rem; color:var(--muted); font-weight:700;">บทที่ ${w.chapterNum}</span>
+        </div>
+        <p style="font-size:0.95rem; line-height:1.5; color:#334155;">${w.meaning}</p>
+        <p class="vocab-example">${w.example}</p>
+        <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 8px; font-size:0.8rem; margin-top:auto;" onclick="speakText('${w.word}')">
+          🔊 ฟังคำอ่าน
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // Mode 3: Practice Quiz
+  function renderPracticeQuiz() {
+    const ch = dataset[currentChapterIndex];
+    if (!ch || !ch.practiceQuizzes) return;
+
+    const quiz = ch.practiceQuizzes[currentQuizIndex];
+    document.getElementById('quizChapterBadge').textContent = `บทที่ ${ch.chapterNum} · ${ch.title.replace(/^บทที่\s+[๑-๗]\s+/, '')}`;
+    document.getElementById('quizProgressText').textContent = `ข้อที่ ${currentQuizIndex + 1} / ${ch.practiceQuizzes.length}`;
+    document.getElementById('quizQuestionText').textContent = quiz.question;
+
+    const fb = document.getElementById('quizFeedbackBox');
+    fb.className = 'quiz-feedback';
+    fb.textContent = '';
+    document.getElementById('btnNextQuiz').style.display = 'none';
+
+    const optsContainer = document.getElementById('quizOptionsContainer');
+    optsContainer.innerHTML = '';
+
+    quiz.options.forEach((opt, oIdx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-option-btn';
+      btn.innerHTML = `<span style="width:28px; height:28px; border-radius:50%; background:var(--line); display:grid; place-items:center; font-size:0.85rem; font-weight:800;">${String.fromCharCode(65 + oIdx)}</span> <span>${opt}</span>`;
+      btn.onclick = () => handleQuizAnswer(oIdx, quiz.answerIndex, quiz.explanation, btn);
+      optsContainer.appendChild(btn);
+    });
+  }
+
+  function handleQuizAnswer(selectedIdx, correctIdx, explanation, btnEl) {
+    const fb = document.getElementById('quizFeedbackBox');
+    const isCorrect = selectedIdx === correctIdx;
+
+    document.querySelectorAll('.quiz-option-btn').forEach(b => {
+      b.classList.remove('correct', 'wrong');
+    });
+
+    if (isCorrect) {
+      btnEl.classList.add('correct');
+      fb.className = 'quiz-feedback show-ok';
+      fb.innerHTML = `🎉 <strong>ยอดเยี่ยมมาก! ถูกต้อง:</strong> ${explanation}`;
+      document.getElementById('btnNextQuiz').style.display = 'inline-flex';
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.correct) {
+        KAMPAI.sound.correct();
+      }
+    } else {
+      btnEl.classList.add('wrong');
+      fb.className = 'quiz-feedback show-retry';
+      fb.innerHTML = `💡 <strong>ยังไม่ถูกต้องนะจ๊ะ:</strong> ลองพิจารณาคำตอบอีกครั้ง หรืออ่านคำกลอนทบทวนดูนะ!`;
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.wrong) {
+        KAMPAI.sound.wrong();
+      }
+    }
+  }
+
+  function nextQuizQuestion() {
+    const ch = dataset[currentChapterIndex];
+    if (currentQuizIndex + 1 < ch.practiceQuizzes.length) {
+      currentQuizIndex++;
+      renderPracticeQuiz();
+    } else {
+      // Loop or go to next chapter
+      currentQuizIndex = 0;
+      if (currentChapterIndex + 1 < dataset.length) {
+        selectChapter(currentChapterIndex + 1);
+      } else {
+        selectChapter(0);
+      }
+    }
+  }
+
+  // Initial Boot
+  window.addEventListener('DOMContentLoaded', () => {
+    renderSidebar();
+    renderChapter();
+  });
+</script>
+</body>
+</html>
