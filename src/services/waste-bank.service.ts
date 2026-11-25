@@ -254,6 +254,15 @@ export const wasteSummaryService = {
   getAll: () => supabase.from('waste_student_summary').select('*'),
   getForStudent: (studentId: string) =>
     supabase.from('waste_student_summary').select('*').eq('student_id', studentId).maybeSingle(),
+  getTopPublic: (limit = 5) =>
+    supabase
+      .from('waste_student_summary')
+      .select(
+        'student_id, full_name, class_name, photo_url, available_points, total_points_earned, total_items, total_transactions',
+      )
+      .gt('total_transactions', 0)
+      .order('total_points_earned', { ascending: false })
+      .limit(limit),
 };
 
 // ─── Rewards ──────────────────────────────────────────────────────────────────
@@ -565,6 +574,15 @@ export const wastePromotionsService = {
       .eq('id', id),
 
   seedDefaultCampaigns: async () => {
+    const { data: milkCat } = await supabase
+      .from('waste_categories')
+      .select('id')
+      .eq('name', 'กล่องนม (พับแบน)')
+      .limit(1)
+      .maybeSingle();
+
+    const milkCategoryIds = milkCat?.id ? [milkCat.id] : null;
+
     const defaults = [
       {
         title: 'วันศุกร์สีเขียว (Green Friday)',
@@ -572,6 +590,7 @@ export const wastePromotionsService = {
         banner_type: 'green_friday',
         multiplier: 2.00,
         bonus_points: 0,
+        category_ids: null,
         days_of_week: [5],
         start_time: null,
         end_time: null,
@@ -585,6 +604,7 @@ export const wastePromotionsService = {
         banner_type: 'happy_hour',
         multiplier: 1.00,
         bonus_points: 5,
+        category_ids: null,
         days_of_week: [1, 2, 3, 4, 5],
         start_time: '12:00:00',
         end_time: '12:45:00',
@@ -598,10 +618,11 @@ export const wastePromotionsService = {
         banner_type: 'target_item',
         multiplier: 3.00,
         bonus_points: 0,
+        category_ids: milkCategoryIds,
         days_of_week: null,
         start_time: null,
         end_time: null,
-        is_active: true,
+        is_active: false,
         badge_text: '🥛 กล่องนมพับแบนแต้ม x3',
         order_position: 3,
       },
@@ -611,6 +632,7 @@ export const wastePromotionsService = {
         banner_type: 'home_quest',
         multiplier: 1.50,
         bonus_points: 10,
+        category_ids: null,
         days_of_week: [1],
         start_time: '07:30:00',
         end_time: '08:30:00',
