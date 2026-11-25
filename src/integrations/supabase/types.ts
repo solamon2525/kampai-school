@@ -1560,6 +1560,39 @@ export type Database = {
           },
         ]
       }
+      classroom_goals: {
+        Row: {
+          class: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          reward: string
+          room: string
+          target_xp: number
+          updated_at: string | null
+        }
+        Insert: {
+          class: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward?: string
+          room?: string
+          target_xp?: number
+          updated_at?: string | null
+        }
+        Update: {
+          class?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward?: string
+          room?: string
+          target_xp?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       classroom_privileges: {
         Row: {
           class: string
@@ -1647,7 +1680,7 @@ export type Database = {
           recorded_by_staff_id?: string | null
           reward_claim_id?: string | null
           score?: number
-          semester?: string
+          semester: string
           student_id: string
           type: string
         }
@@ -10584,7 +10617,10 @@ export type Database = {
       waste_student_summary: {
         Row: {
           available_points: number | null
+          carried_over_points: number | null
           class_name: string | null
+          current_term_points_earned: number | null
+          current_term_points_spent: number | null
           full_name: string | null
           photo_url: string | null
           student_code: string | null
@@ -10762,6 +10798,15 @@ export type Database = {
           total_items: number
           total_points: number
         }[]
+      }
+      get_classroom_xp_sum: {
+        Args: {
+          class_name: string
+          room_name?: string
+          sem?: string
+          year?: string
+        }
+        Returns: number
       }
       get_daily_challenge_leaderboard: {
         Args: { p_game_slug: string; p_limit?: number; p_student_code?: string }
@@ -11519,6 +11564,7 @@ export type Database = {
           p_academic_year?: string
           p_privilege_id: string
           p_semester?: string
+          p_student_code?: string
           p_student_id: string
         }
         Returns: string
