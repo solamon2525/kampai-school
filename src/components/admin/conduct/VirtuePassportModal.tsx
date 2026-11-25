@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import QRCode from 'react-qr-code';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
-import { conductService, type HeroProfile } from '@/services/conduct.service';
+import { conductService, termService, type HeroProfile } from '@/services';
 import { Printer, BookOpen, Filter, Loader2, Sparkles } from 'lucide-react';
 import { CertificateStudent } from './VirtueCertificateModal';
 
@@ -40,9 +41,25 @@ export const VirtuePassportModal: React.FC<VirtuePassportModalProps> = ({
   onOpenChange,
   students,
   initialStudentId,
-  academicYear = (new Date().getFullYear() + 543).toString(),
-  semester = '1',
+  academicYear,
+  semester,
 }) => {
+  const currentYear = (new Date().getFullYear() + 543).toString();
+  const { data: activeTerm } = useQuery({
+    queryKey: ['active-term'],
+    queryFn: async () => {
+      try {
+        return await termService.getActive();
+      } catch {
+        return null;
+      }
+    },
+    enabled: open && (!semester || !academicYear),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const resolvedAcademicYear = academicYear || activeTerm?.year || currentYear;
+  const resolvedSemester = semester || activeTerm?.sem || '2';
   const [filterMode, setFilterMode] = useState<string>(
     initialStudentId ? `single:${initialStudentId}` : 'all'
   );
@@ -249,8 +266,8 @@ export const VirtuePassportModal: React.FC<VirtuePassportModalProps> = ({
                 <PassportSheet
                   student={targetStudents[0]}
                   profile={profiles[targetStudents[0].id]}
-                  academicYear={academicYear}
-                  semester={semester}
+                  academicYear={resolvedAcademicYear}
+                  semester={resolvedSemester}
                   originUrl={originUrl}
                 />
               </div>
@@ -274,8 +291,8 @@ export const VirtuePassportModal: React.FC<VirtuePassportModalProps> = ({
               <PassportSheet
                 student={student}
                 profile={prof}
-                academicYear={academicYear}
-                semester={semester}
+                academicYear={resolvedAcademicYear}
+                semester={resolvedSemester}
                 originUrl={originUrl}
               />
             </div>
@@ -320,7 +337,7 @@ const PassportSheet: React.FC<PassportSheetProps> = ({
 
   return (
     <div
-      className="relative bg-white text-slate-900 border-[4px] border-emerald-700 rounded-xl shadow-lg flex flex-col justify-between"
+      className="relative bg-card text-slate-900 border-[4px] border-emerald-700 rounded-xl shadow-lg flex flex-col justify-between"
       style={{
         width: '194mm',
         height: '280mm',
@@ -360,17 +377,12 @@ const PassportSheet: React.FC<PassportSheetProps> = ({
       {/* ── Section 2: Student Profile Strip ── */}
       <div className="my-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full border-2 border-emerald-500 overflow-hidden shadow-sm flex-shrink-0">
-            {student.photo_url ? (
-              <img
-                src={student.photo_url}
-                alt={student.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <PersonAvatar name={student.name} photoUrl={null} size="lg" className="w-full h-full rounded-none" />
-            )}
-          </div>
+          <PersonAvatar
+            name={student.name}
+            photoUrl={student.photo_url}
+            size="lg"
+            className="w-14 h-14 border-2 border-emerald-500 shadow-sm flex-shrink-0"
+          />
           <div>
             <h2 className="text-base font-black text-slate-900 leading-snug">
               {student.name}
@@ -557,7 +569,7 @@ const PassportSheet: React.FC<PassportSheetProps> = ({
         </div>
 
         {/* QR Verification Stamp */}
-        <div className="col-span-2 flex flex-col items-center justify-center p-1.5 rounded-xl border border-slate-200 bg-white">
+        <div className="col-span-2 flex flex-col items-center justify-center p-1.5 rounded-xl border border-slate-200 bg-card">
           <QRCode value={verifyUrl} size={46} />
           <span className="text-[7px] text-slate-500 font-bold mt-1 text-center leading-tight">
             สแกนตรวจสอบ

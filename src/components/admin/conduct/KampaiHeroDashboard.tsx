@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { useToast } from '@/hooks/use-toast';
 import type { HeroProfile, ClassroomGoal } from '@/services/conduct.service';
+import type { Tables } from '@/integrations/supabase/types';
 import { cn } from '@/lib/utils';
 
 // ─── Virtue style map (Light-mode only — NO dark: prefixes) ───
@@ -66,7 +67,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [student, setStudent] = useState<any>(null);
+  const [student, setStudent] = useState<Tables<'students'> | null>(null);
   const [profile, setProfile] = useState<HeroProfile | null>(null);
   const [classGoal, setClassGoal] = useState<ClassroomGoal | null>(null);
   const [classXp, setClassXp] = useState<number>(0);
@@ -106,12 +107,12 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
         setClassXp(xpSum);
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast({
         variant: 'destructive',
         title: 'โหลดข้อมูลล้มเหลว',
-        description: err.message || 'กรุณาลองใหม่อีกครั้ง'
+        description: err instanceof Error ? err.message : 'กรุณาลองใหม่อีกครั้ง'
       });
     } finally {
       setIsLoading(false);
@@ -151,11 +152,11 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
       const goal = await conductService.getClassroomGoal(student.class, roomName);
       setClassGoal(goal);
       setIsEditingGoal(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         variant: 'destructive',
         title: 'เกิดข้อผิดพลาดในการบันทึกเป้าหมาย',
-        description: err.message
+        description: err instanceof Error ? err.message : 'กรุณาลองใหม่อีกครั้ง'
       });
     } finally {
       setIsSavingGoal(false);
@@ -220,7 +221,7 @@ export const KampaiHeroDashboard: React.FC<KampaiHeroDashboardProps> = ({
           <div className="relative group">
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-violet-600 to-pink-600 opacity-75 blur animate-pulse" />
             <div className="relative bg-slate-950 p-1.5 rounded-full">
-              <PersonAvatar name={student.name} photoUrl={student.photo_url} size="xl" className="h-24 w-24 border-2 border-white/20" />
+              <PersonAvatar name={student.name} photoUrl={student.photo_url} size="lg" className="h-24 w-24 border-2 border-white/20" />
             </div>
             <motion.div 
               initial={{ scale: 0.8 }}

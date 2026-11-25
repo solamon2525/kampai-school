@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -13,7 +13,7 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { conductService, type ConductRecord, calculateHeroLevel } from '@/services/conduct.service';
+import { conductService, termService, type ConductRecord, calculateHeroLevel } from '@/services';
 import { cn } from '@/lib/utils';
 
 const VIRTUE_LABELS: Record<string, string> = {
@@ -57,12 +57,39 @@ const medalColor = (rank: number) => {
 
 const HallOfFame = () => {
   const currentYear = String(new Date().getFullYear() + 543);
-  const [semester, setSemester] = useState<string>('1');
-  const [year, setYear] = useState<string>(currentYear);
+  const { data: activeTerm, isPending: isTermPending } = useQuery({
+    queryKey: ['active-term'],
+    queryFn: async () => {
+      try {
+        return await termService.getActive();
+      } catch {
+        return null;
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const [semester, setSemester] = useState<string>(() => (!isTermPending ? (activeTerm?.sem || '2') : ''));
+  const [year, setYear] = useState<string>(() => (!isTermPending ? (activeTerm?.year || currentYear) : currentYear));
+  const hasEditedSemesterRef = useRef(false);
+  const hasEditedYearRef = useRef(false);
+
+  useEffect(() => {
+    if (isTermPending) return;
+    if (!hasEditedSemesterRef.current) {
+      setSemester(activeTerm?.sem || '2');
+    }
+    if (!hasEditedYearRef.current) {
+      setYear(activeTerm?.year || currentYear);
+    }
+  }, [activeTerm, isTermPending, currentYear]);
+
+  const isTermReady = !isTermPending && Boolean(semester);
 
   // 1. ดึงอันดับฮีโร่ตามคะแนนสะสมเกียรติยศผ่าน RPC (การแลกรางวัลไม่ลดอันดับ)
   const { data: topHeroes = [], isLoading: isHeroesLoading } = useQuery({
     queryKey: ['hall-of-fame-heroes', semester, year],
+    enabled: isTermReady,
     queryFn: async () => {
       const { data, error } = await conductService.getTop10Heroes(
         100,
@@ -85,6 +112,7 @@ const HallOfFame = () => {
   // 2. ดึงประวัติทำดีล่าสุดสำหรับแท็บฟีดกิจกรรม
   const { data: records = [], isLoading: isFeedLoading } = useQuery({
     queryKey: ['hall-of-fame-feed', semester, year],
+    enabled: isTermReady,
     queryFn: async () => {
       const { data, error } = await conductService.getPublicPositive(
         semester === 'all' ? undefined : semester,
@@ -95,7 +123,7 @@ const HallOfFame = () => {
     },
   });
 
-  const isLoading = isHeroesLoading || isFeedLoading;
+  const isLoading = !isTermReady || isHeroesLoading || isFeedLoading;
   const overall = topHeroes;
 
   // จัดกลุ่มแยกรายชั้น
@@ -146,10 +174,16 @@ const HallOfFame = () => {
                 <Label className="text-xs flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" /> ภาคเรียน
                 </Label>
-                <Select value={semester} onValueChange={setSemester}>
-                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                <Select
+                  value={semester || undefined}
+                  onValueChange={(value) => {
+                    hasEditedSemesterRef.current = true;
+                    setSemester(value);
+                  }}
+                >
+                  <SelectTrigger className="w-44"><SelectValue placeholder="ภาคเรียน" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">ทั้งปี</SelectItem>
+                    <SelectItem value="all">ทุกภาคเรียนในปีนี้</SelectItem>
                     <SelectItem value="1">ภาคเรียน 1</SelectItem>
                     <SelectItem value="2">ภาคเรียน 2</SelectItem>
                   </SelectContent>
@@ -160,7 +194,10 @@ const HallOfFame = () => {
                 <Input
                   className="w-28"
                   value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  onChange={(e) => {
+                    hasEditedYearRef.current = true;
+                    setYear(e.target.value);
+                  }}
                   placeholder={currentYear}
                 />
               </div>

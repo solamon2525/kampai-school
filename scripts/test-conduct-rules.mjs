@@ -51,3 +51,38 @@ test('conduct.service.ts contains zero Thai substring reward heuristics and cond
   assert.equal(helpersSource.includes("'@/"), false, 'conductHelpers.ts must have zero @/ imports');
   assert.equal(helpersSource.includes('"@/'), false, 'conductHelpers.ts must have zero @/ imports');
 });
+
+test('Conduct UI components do not hardcode semester 1, Thai reward heuristics, or invalid PersonAvatar size', async () => {
+  const [conductMgmt, hallOfFame, passportModal, heroDashboard] = await Promise.all([
+    readFile(new URL('../src/components/admin/conduct/ConductManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/HallOfFame.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/conduct/VirtuePassportModal.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/conduct/KampaiHeroDashboard.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  assert.equal(
+    /\[(?:filter)?[sS]emester[^\]]*\]\s*=\s*useState(?:<[^>]+>)?\(\s*['"]1['"]\s*\)/.test(conductMgmt),
+    false,
+    'ConductManagement.tsx must not hardcode semester useState(\'1\')',
+  );
+  assert.equal(conductMgmt.includes(".includes('รับรางวัล')"), false, 'ConductManagement.tsx must not use .includes(\'รับรางวัล\')');
+  assert.equal(conductMgmt.includes(".includes('แลกรางวัล')"), false, 'ConductManagement.tsx must not use .includes(\'แลกรางวัล\')');
+  assert.equal(conductMgmt.includes('ilike.%รับรางวัล%'), false, 'ConductManagement.tsx must not filter rewards via reason.ilike.%รับรางวัล%');
+  assert.equal(conductMgmt.includes('ilike.%แลกรางวัล%'), false, 'ConductManagement.tsx must not filter rewards via reason.ilike.%แลกรางวัล%');
+
+  assert.equal(
+    /useState(?:<string>)?\(\s*['"]1['"]\s*\)/.test(hallOfFame),
+    false,
+    'HallOfFame.tsx must not hardcode useState(\'1\') or useState<string>(\'1\')',
+  );
+  assert.equal(
+    /semester\s*=\s*['"]1['"]/.test(passportModal),
+    false,
+    'VirtuePassportModal.tsx must not hardcode semester = \'1\'',
+  );
+  assert.equal(
+    /<PersonAvatar[^>]*\bsize=["']xl["']/.test(heroDashboard),
+    false,
+    'KampaiHeroDashboard.tsx must not pass invalid size="xl" to <PersonAvatar>',
+  );
+});

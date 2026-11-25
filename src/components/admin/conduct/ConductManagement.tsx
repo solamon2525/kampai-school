@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { studentsService, conductService } from '@/services';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { studentsService, conductService, termService, type ActiveTerm } from '@/services';
+import { isRewardDeductionRecord } from '@/lib/conductHelpers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -310,12 +311,57 @@ interface ConductRecord {
     students?: { name: string; class: string; photo_url?: string | null } | null;
 }
 
+interface TermTabProps {
+    activeTerm: ActiveTerm | null | undefined;
+    isTermPending: boolean;
+}
+
+function useTermFilterState(activeTerm: ActiveTerm | null | undefined, isTermPending: boolean) {
+    const [semester, setSemesterState] = useState<string>(() => (!isTermPending ? (activeTerm?.sem || '2') : ''));
+    const [academicYear, setAcademicYearState] = useState<string>(() => (!isTermPending ? (activeTerm?.year || currentYear) : currentYear));
+    const hasEditedSemesterRef = useRef(false);
+    const hasEditedYearRef = useRef(false);
+
+    useEffect(() => {
+        if (isTermPending) return;
+        if (!hasEditedSemesterRef.current) {
+            setSemesterState(activeTerm?.sem || '2');
+        }
+        if (!hasEditedYearRef.current) {
+            setAcademicYearState(activeTerm?.year || currentYear);
+        }
+    }, [activeTerm, isTermPending]);
+
+    const setSemester = useCallback((value: string) => {
+        hasEditedSemesterRef.current = true;
+        setSemesterState(value);
+    }, []);
+
+    const setAcademicYear = useCallback((value: string) => {
+        hasEditedYearRef.current = true;
+        setAcademicYearState(value);
+    }, []);
+
+    return { semester, setSemester, academicYear, setAcademicYear };
+}
+
 // ===== Main Component =====
 export const ConductManagement = () => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('record');
     const [refreshKey, setRefreshKey] = useState(0);
+    const { data: activeTerm, isPending: isTermPending } = useQuery({
+        queryKey: ['active-term'],
+        queryFn: async () => {
+            try {
+                return await termService.getActive();
+            } catch {
+                return null;
+            }
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const triggerRefresh = useCallback(() => {
         setRefreshKey(k => k + 1);
@@ -363,10 +409,10 @@ export const ConductManagement = () => {
                     </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="record"><RecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
-                <TabsContent value="bulk"><BulkRecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
-                <TabsContent value="leaderboard"><LeaderboardTab refreshKey={refreshKey} /></TabsContent>
-                <TabsContent value="history"><HistoryTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} /></TabsContent>
+                <TabsContent value="record"><RecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} activeTerm={activeTerm} isTermPending={isTermPending} /></TabsContent>
+                <TabsContent value="bulk"><BulkRecordTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} activeTerm={activeTerm} isTermPending={isTermPending} /></TabsContent>
+                <TabsContent value="leaderboard"><LeaderboardTab refreshKey={refreshKey} activeTerm={activeTerm} isTermPending={isTermPending} /></TabsContent>
+                <TabsContent value="history"><HistoryTab toast={toast} triggerRefresh={triggerRefresh} refreshKey={refreshKey} activeTerm={activeTerm} isTermPending={isTermPending} /></TabsContent>
                 <TabsContent value="privileges"><ClassroomPrivilegeManager /></TabsContent>
             </Tabs>
         </div>
@@ -374,11 +420,11 @@ export const ConductManagement = () => {
 };
 
 // ===== Tab 1: บันทึกคะแนน =====
-function RecordTab({ toast, triggerRefresh, refreshKey }: { 
+function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPending }: { 
     toast: ReturnType<typeof useToast>['toast'];
     triggerRefresh: () => void;
     refreshKey: number;
-}) {
+} & TermTabProps) {
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
@@ -388,8 +434,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
     const [reason, setReason] = useState('');
     const [score, setScore] = useState('1');
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
-    const [semester, setSemester] = useState('1');
-    const [academicYear, setAcademicYear] = useState(currentYear);
+    const { semester, setSemester, academicYear, setAcademicYear } = useTermFilterState(activeTerm, isTermPending);
     const [isSaving, setIsSaving] = useState(false);
     const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
     const [speechComplete, setSpeechComplete] = useState(false);
@@ -429,7 +474,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
     // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเมื่อได้รายชื่อหรือเปลี่ยนปีการศึกษา
     useEffect(() => {
         setStudentAccumulatedMap({});
-        if (students.length === 0) return;
+        if (isTermPending || students.length === 0) return;
         let active = true;
         const ids = students.map(s => s.id);
         conductService.getAccumulatedScoresForStudents(ids, academicYear).then(scoresMap => {
@@ -441,11 +486,11 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
         return () => {
             active = false;
         };
-    }, [students, academicYear, refreshKey]);
+    }, [students, academicYear, refreshKey, isTermPending]);
 
     // ดึงคะแนนสะสมเจาะจงรายนักเรียนที่เลือกเพื่อความแม่นยำสูงสุด
     useEffect(() => {
-        if (!selectedStudentId) return;
+        if (isTermPending || !selectedStudentId) return;
         let active = true;
         conductService.getAccumulatedScore(selectedStudentId, academicYear).then(accScore => {
             if (active) {
@@ -456,7 +501,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
         return () => {
             active = false;
         };
-    }, [selectedStudentId, academicYear, refreshKey]);
+    }, [selectedStudentId, academicYear, refreshKey, isTermPending]);
 
     const parsedScore = Math.max(1, Math.min(100, parseInt(score, 10) || 1));
     const activeCategory = category || (type === 'add' ? 'publicMind' : 'discipline');
@@ -545,7 +590,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
                     recorded_by_staff_id: recorder.staffId,
                     recorded_by_administrator_id: recorder.administratorId,
                     academic_year: academicYear,
-                    semester,
+                    semester: semester || activeTerm?.sem || '2',
                 });
 
                 if (insertRes.error) {
@@ -630,8 +675,8 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-1">
                                 <Label>ภาคเรียน</Label>
-                                <Select value={semester} onValueChange={setSemester} disabled={isSaving}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                <Select value={semester || undefined} onValueChange={setSemester} disabled={isSaving || isTermPending}>
+                                    <SelectTrigger><SelectValue placeholder="ภาคเรียน" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="1">ภาคเรียน 1</SelectItem>
                                         <SelectItem value="2">ภาคเรียน 2</SelectItem>
@@ -843,12 +888,16 @@ function RecordTab({ toast, triggerRefresh, refreshKey }: {
 }
 
 // ===== Tab 2: อันดับธนาคารความดี =====
-function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
+function LeaderboardTab({ refreshKey, activeTerm, isTermPending }: { refreshKey: number } & TermTabProps) {
     const [filterClass, setFilterClass] = useState('');
-    const [filterSemester, setFilterSemester] = useState('1');
-    const [filterYear, setFilterYear] = useState(currentYear);
+    const {
+        semester: filterSemester,
+        setSemester: setFilterSemester,
+        academicYear: filterYear,
+        setAcademicYear: setFilterYear,
+    } = useTermFilterState(activeTerm, isTermPending);
     const [records, setRecords] = useState<ConductRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Modal state for Certificate & Passport
     const [certModalOpen, setCertModalOpen] = useState(false);
@@ -856,14 +905,20 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
     const [selectedStudentForModal, setSelectedStudentForModal] = useState<string | null>(null);
 
     useEffect(() => {
+        if (isTermPending || !filterSemester) return;
+        let active = true;
         const load = async () => {
             setIsLoading(true);
             const { data } = await conductService.getAll(filterSemester, filterYear);
+            if (!active) return;
             setRecords((data || []) as ConductRecord[]);
             setIsLoading(false);
         };
         load();
-    }, [filterSemester, filterYear, refreshKey]);
+        return () => {
+            active = false;
+        };
+    }, [filterSemester, filterYear, refreshKey, isTermPending]);
 
     // รวมคะแนนรายนักเรียน (แยกคะแนนสะสมเกียรติยศ กับคะแนนคงเหลือสำหรับแลก)
     const leaderboard = useMemo(() => {
@@ -894,7 +949,7 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
                     available: 0 
                 };
             }
-            const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
+            const isReward = isRewardDeductionRecord(r);
             if (r.type === 'add') { 
                 map[r.student_id].total += r.score; 
                 map[r.student_id].added += r.score; 
@@ -939,8 +994,8 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
                             {CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Select value={filterSemester} onValueChange={setFilterSemester}>
-                        <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                    <Select value={filterSemester || undefined} onValueChange={setFilterSemester} disabled={isTermPending}>
+                        <SelectTrigger className="w-36"><SelectValue placeholder="ภาคเรียน" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="1">ภาคเรียน 1</SelectItem>
                             <SelectItem value="2">ภาคเรียน 2</SelectItem>
@@ -1069,28 +1124,33 @@ function LeaderboardTab({ refreshKey }: { refreshKey: number }) {
                 students={certStudents}
                 initialStudentId={selectedStudentForModal}
                 academicYear={filterYear}
-                semester={filterSemester}
+                semester={filterSemester || undefined}
             />
         </div>
     );
 }
 
 // ===== Tab 3: ประวัติคะแนน =====
-function HistoryTab({ toast, triggerRefresh, refreshKey }: { 
+function HistoryTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPending }: { 
     toast: ReturnType<typeof useToast>['toast'];
     triggerRefresh: () => void;
     refreshKey: number;
-}) {
+} & TermTabProps) {
     const [filterClass, setFilterClass] = useState('');
     const [filterType, setFilterType] = useState('');
-    const [filterSemester, setFilterSemester] = useState('1');
-    const [filterYear, setFilterYear] = useState(currentYear);
+    const {
+        semester: filterSemester,
+        setSemester: setFilterSemester,
+        academicYear: filterYear,
+        setAcademicYear: setFilterYear,
+    } = useTermFilterState(activeTerm, isTermPending);
     const [searchName, setSearchName] = useState('');
     const [records, setRecords] = useState<ConductRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
     const load = useCallback(async () => {
+        if (isTermPending || !filterSemester) return;
         setIsLoading(true);
         let q = conductService.getAll(filterSemester, filterYear);
         if (filterType === 'add') {
@@ -1098,12 +1158,12 @@ function HistoryTab({ toast, triggerRefresh, refreshKey }: {
         } else if (filterType === 'deduct') {
             q = q.eq('type', 'deduct').neq('category', 'reward').is('reward_claim_id', null);
         } else if (filterType === 'reward') {
-            q = q.or('category.eq.reward,reward_claim_id.not.is.null,reason.ilike.%รับรางวัล%,reason.ilike.%แลกรางวัล%');
+            q = q.or('category.eq.reward,reward_claim_id.not.is.null');
         }
         const { data } = await q;
         setRecords((data || []) as ConductRecord[]);
         setIsLoading(false);
-    }, [filterSemester, filterYear, filterType]);
+    }, [filterSemester, filterYear, filterType, isTermPending]);
 
     useEffect(() => { load(); }, [load, refreshKey]);
 
@@ -1148,8 +1208,8 @@ function HistoryTab({ toast, triggerRefresh, refreshKey }: {
                         <SelectItem value="reward">แลกของรางวัล 🎁</SelectItem>
                     </SelectContent>
                 </Select>
-                <Select value={filterSemester} onValueChange={setFilterSemester}>
-                    <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                <Select value={filterSemester || undefined} onValueChange={setFilterSemester} disabled={isTermPending}>
+                    <SelectTrigger className="w-32"><SelectValue placeholder="ภาคเรียน" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="1">ภาคเรียน 1</SelectItem>
                         <SelectItem value="2">ภาคเรียน 2</SelectItem>
@@ -1174,7 +1234,7 @@ function HistoryTab({ toast, triggerRefresh, refreshKey }: {
                     ) : (
                         <div className="space-y-2">
                             {filteredRecords.map(r => {
-                                const isReward = r.category === 'reward' || !!r.reward_claim_id || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
+                                const isReward = isRewardDeductionRecord(r);
                                 return (
                                 <div key={r.id} className={`flex items-start gap-3 p-3 rounded-lg border ${r.type === 'add' ? 'border-green-100 bg-green-50/50' : isReward ? 'border-amber-200/80 bg-amber-50/40' : 'border-red-100 bg-red-50/50'}`}>
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${r.type === 'add' ? 'bg-green-100 text-green-700' : isReward ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
@@ -1226,11 +1286,11 @@ function HistoryTab({ toast, triggerRefresh, refreshKey }: {
 }
 
 // ===== Tab Bulk: บันทึกคะแนนหลายคนพร้อมกัน =====
-function BulkRecordTab({ toast, triggerRefresh, refreshKey }: { 
+function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPending }: { 
     toast: ReturnType<typeof useToast>['toast'];
     triggerRefresh: () => void;
     refreshKey: number;
-}) {
+} & TermTabProps) {
     const [selectedClass, setSelectedClass] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
     const [studentScoresMap, setStudentScoresMap] = useState<Record<string, { total: number; available: number }>>({});
@@ -1240,8 +1300,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey }: {
     const [reason, setReason] = useState('');
     const [score, setScore] = useState('1');
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
-    const [semester, setSemester] = useState('1');
-    const [academicYear, setAcademicYear] = useState(currentYear);
+    const { semester, setSemester, academicYear, setAcademicYear } = useTermFilterState(activeTerm, isTermPending);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
 
@@ -1267,7 +1326,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey }: {
     // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเพื่อแสดงในรายการเลือก
     useEffect(() => {
         setStudentScoresMap({});
-        if (students.length === 0) return;
+        if (isTermPending || students.length === 0) return;
         let active = true;
         const ids = students.map(s => s.id);
         conductService.getAccumulatedScoresForStudents(ids, academicYear).then(scoresMap => {
@@ -1279,7 +1338,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey }: {
         return () => {
             active = false;
         };
-    }, [students, academicYear, refreshKey]);
+    }, [students, academicYear, refreshKey, isTermPending]);
 
     useEffect(() => {
         return () => {
@@ -1347,7 +1406,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey }: {
                 recorded_by_staff_id: recorder.staffId,
                 recorded_by_administrator_id: recorder.administratorId,
                 academic_year: academicYear,
-                semester,
+                semester: semester || activeTerm?.sem || '2',
             }));
 
             try {
@@ -1413,8 +1472,8 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey }: {
                         </div>
                         <div className="space-y-1">
                             <Label>ภาคเรียน</Label>
-                            <Select value={semester} onValueChange={setSemester} disabled={isSaving}>
-                                <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                            <Select value={semester || undefined} onValueChange={setSemester} disabled={isSaving || isTermPending}>
+                                <SelectTrigger className="h-11"><SelectValue placeholder="ภาคเรียน" /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="1">ภาคเรียน 1</SelectItem>
                                     <SelectItem value="2">ภาคเรียน 2</SelectItem>
