@@ -126,6 +126,7 @@ export const WasteBankManagement = () => {
 
   // ========== Tab 1: บันทึกรายการ ==========
   const [categories, setCategories] = useState<WasteCategory[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [transactions, setTransactions] = useState<WasteTransaction[]>([]);
   const [activePromos, setActivePromos] = useState<WastePromotion[]>([]);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
@@ -272,15 +273,20 @@ export const WasteBankManagement = () => {
   }, [form.student_class]);
 
   const fetchCategories = async () => {
-    const { data, error } = await wasteCategoriesService.getActive();
-    if (!error && data) {
-      setCategories(data as WasteCategory[]);
-      const defaultCat = (data as WasteCategory[]).find(
-        (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
-      );
-      if (defaultCat) {
-        setRows([{ category_id: defaultCat.id, quantity: '1' }]);
+    setLoadingCategories(true);
+    try {
+      const { data, error } = await wasteCategoriesService.getActive();
+      if (!error && data) {
+        setCategories(data as WasteCategory[]);
+        const defaultCat = (data as WasteCategory[]).find(
+          (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
+        );
+        if (defaultCat) {
+          setRows([{ category_id: defaultCat.id, quantity: '1' }]);
+        }
       }
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
@@ -425,6 +431,10 @@ export const WasteBankManagement = () => {
     setStudentOptions([]);
     fetchTransactions();
     fetchSummaries();
+    void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
     void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
   };
 
@@ -450,6 +460,7 @@ export const WasteBankManagement = () => {
       fetchTransactions();
       fetchSummaries();
       void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
@@ -1025,6 +1036,7 @@ export const WasteBankManagement = () => {
       {activeTab === 'batch' && (
         <ClassroomWasteBatchTab
           categories={categories}
+          categoriesLoading={loadingCategories}
           activePromos={activePromos}
           onSuccess={() => {
             fetchTransactions();
@@ -1232,6 +1244,11 @@ export const WasteBankManagement = () => {
           onSpinComplete={() => {
             fetchSummaries();
             fetchTransactions();
+            void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+            void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
+            void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
+            void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
+            void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
           }}
         />
       )}

@@ -325,3 +325,30 @@ test('Task 5 component contracts: ClassroomWasteBatchTab, WasteStatementDialog, 
   const promoCalls = mgmtSrc.match(/fetchActivePromos\(\)/g) ?? [];
   assert.equal(promoCalls.length, 1, 'fetchActivePromos() should only be triggered from the activeTab effect');
 });
+
+test('Task 5 Fix Round 1 contracts: batch mobile layout, multi-page print, sort tiebreaker, zero guard & cache invalidation', async () => {
+  const [batchSrc, statementSrc, mgmtSrc] = await Promise.all([
+    readFile(new URL('../src/components/admin/waste-bank/ClassroomWasteBatchTab.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteStatementDialog.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteBankManagement.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  // 1. ClassroomWasteBatchTab responsive submit cell + categoriesLoading + statement invalidation
+  assert.equal(batchSrc.includes('col-span-2 lg:col-span-1'), true);
+  assert.equal(batchSrc.includes('whitespace-normal'), true);
+  assert.equal(batchSrc.includes('categoriesLoading'), true);
+  assert.equal(batchSrc.includes("['waste-student-statement']"), true);
+
+  // 2. WasteStatementDialog multi-page print + chronological dateIso/created_at tiebreaker + -0 guard
+  assert.equal(statementSrc.includes('print:block'), true);
+  assert.equal(statementSrc.includes('print:overflow-visible'), true);
+  assert.equal(statementSrc.includes('wasteUsed === 0 ? 0 : -wasteUsed'), true);
+  assert.equal(statementSrc.includes('sortDateKey'), true);
+
+  // 3. WasteBankManagement cache sync + categoriesLoading prop
+  assert.equal(mgmtSrc.includes('categoriesLoading={loadingCategories}'), true);
+  const summariesInvalCount = (mgmtSrc.match(/\['waste-student-summaries'\]/g) ?? []).length;
+  const statementInvalCount = (mgmtSrc.match(/\['waste-student-statement'\]/g) ?? []).length;
+  assert.ok(summariesInvalCount >= 2, 'WasteBankManagement should invalidate waste-student-summaries on submit and delete');
+  assert.ok(statementInvalCount >= 2, 'WasteBankManagement should invalidate waste-student-statement on submit and delete');
+});

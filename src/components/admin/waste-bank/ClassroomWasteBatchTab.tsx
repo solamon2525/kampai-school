@@ -65,12 +65,14 @@ type BatchInsertRow = Parameters<typeof wasteTransactionsService.insertMany>[0][
 
 interface Props {
   categories?: WasteCategory[];
+  categoriesLoading?: boolean;
   activePromos?: WastePromotion[];
   onSuccess?: () => void;
 }
 
 export const ClassroomWasteBatchTab = ({
   categories: propCategories,
+  categoriesLoading = false,
   activePromos: propPromos,
   onSuccess,
 }: Props) => {
@@ -293,6 +295,7 @@ export const ClassroomWasteBatchTab = ({
       setQuantities({});
 
       void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
@@ -382,7 +385,9 @@ export const ClassroomWasteBatchTab = ({
 
   const isLoadingData =
     studentsQuery.isLoading ||
-    (propCategories === undefined && categoriesQuery.isLoading);
+    (propCategories === undefined
+      ? categoriesQuery.isLoading
+      : Boolean(categoriesLoading && activeCategories.length === 0));
 
   return (
     <div className="space-y-5">
@@ -561,11 +566,11 @@ export const ClassroomWasteBatchTab = ({
           </CardContent>
         </Card>
 
-        <div className="flex items-stretch">
+        <div className="col-span-2 lg:col-span-1 flex items-stretch">
           <Button
             type="button"
             size="lg"
-            className="w-full h-full min-h-12 font-bold shadow-sm"
+            className="w-full h-full min-h-12 px-4 whitespace-normal text-center font-bold shadow-sm"
             disabled={submitMutation.isPending || batchSummary.totalItems === 0}
             onClick={handleSubmitBatch}
           >

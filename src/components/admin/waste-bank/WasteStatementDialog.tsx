@@ -42,6 +42,7 @@ type WasteClaimRow = RewardClaim & {
 interface StatementTimelineItem {
   id: string;
   kind: 'earn' | 'redeem';
+  sortDateKey: string;
   sortTime: number;
   dateIso: string;
   timeText: string;
@@ -112,9 +113,9 @@ export const WasteStatementDialog = ({
     const claims = statementQuery.data?.claims ?? [];
 
     const txItems: StatementTimelineItem[] = txs.map((tx) => {
-      const dateIso = tx.transaction_date || tx.created_at || '';
-      const sortSource = tx.created_at || tx.transaction_date || '';
-      const sortTime = new Date(sortSource).getTime() || 0;
+      const dateIso = tx.transaction_date || (tx.created_at ? tx.created_at.slice(0, 10) : '');
+      const sortDateKey = dateIso.slice(0, 10);
+      const sortTime = new Date(tx.created_at || tx.transaction_date || 0).getTime() || 0;
       const catIcon = tx.waste_categories?.icon || '♻️';
       const catName = tx.waste_categories?.name || 'รับฝากขยะ';
       const qtyPart = tx.quantity > 0 ? `${tx.quantity.toLocaleString('th-TH')} ชิ้น` : 'โบนัสพิเศษ';
@@ -125,6 +126,7 @@ export const WasteStatementDialog = ({
       return {
         id: `tx-${tx.id}`,
         kind: 'earn',
+        sortDateKey,
         sortTime,
         dateIso,
         timeText: formatBangkokTime(tx.created_at),
@@ -140,7 +142,8 @@ export const WasteStatementDialog = ({
 
     const claimItems: StatementTimelineItem[] = claims.map((claim) => {
       const dateIso = claim.claimed_at || '';
-      const sortTime = new Date(dateIso).getTime() || 0;
+      const sortDateKey = dateIso.slice(0, 10);
+      const sortTime = new Date(claim.claimed_at || 0).getTime() || 0;
       const qty = Number(claim.quantity ?? 1);
       const qtySuffix = qty > 1 ? ` ×${qty}` : '';
       const wasteUsed = Number(claim.waste_points_used ?? claim.points_used ?? 0);
@@ -156,12 +159,13 @@ export const WasteStatementDialog = ({
       return {
         id: `claim-${claim.id}`,
         kind: 'redeem',
+        sortDateKey,
         sortTime,
         dateIso,
         timeText: formatBangkokTime(claim.claimed_at),
         title: `🎁 แลก${claim.reward_name}${qtySuffix}`,
         detail: detailParts.join(' · ') || 'คำขอแลกของรางวัล',
-        pointsDelta: claim.status === 'rejected' ? 0 : -wasteUsed,
+        pointsDelta: claim.status === 'rejected' || wasteUsed === 0 ? 0 : -wasteUsed,
         virtuePointsUsed: virtueUsed,
         status: claim.status,
         actor: claim.reviewed_by || (claim.status === 'pending' ? 'รออนุมัติ' : '—'),
@@ -170,7 +174,10 @@ export const WasteStatementDialog = ({
     });
 
     return [...txItems, ...claimItems].sort(
-      (a, b) => b.sortTime - a.sortTime || b.dateIso.localeCompare(a.dateIso),
+      (a, b) =>
+        b.sortDateKey.localeCompare(a.sortDateKey) ||
+        b.sortTime - a.sortTime ||
+        b.dateIso.localeCompare(a.dateIso),
     );
   }, [statementQuery.data]);
 
@@ -211,6 +218,7 @@ export const WasteStatementDialog = ({
             #root { display: none !important; }
             [data-radix-portal] > div:first-child { display: none !important; }
             [data-radix-portal] [role="dialog"] {
+              display: block !important;
               position: static !important;
               inset: auto !important;
               transform: none !important;
@@ -230,7 +238,7 @@ export const WasteStatementDialog = ({
       )}
       <DialogContent
         className={cn(
-          'flex max-h-[92dvh] w-[calc(100%-1rem)] max-w-4xl flex-col overflow-hidden p-3 sm:p-6 print:static print:max-h-none print:max-w-none print:w-full print:overflow-visible print:border-0 print:shadow-none print:p-0',
+          'flex max-h-[92dvh] w-[calc(100%-1rem)] max-w-4xl flex-col overflow-hidden p-3 sm:p-6 print:block print:static print:max-h-none print:max-w-none print:w-full print:overflow-visible print:border-0 print:shadow-none print:p-0',
         )}
       >
         <DialogHeader className={cn('pr-7 text-left print:hidden')}>
@@ -452,7 +460,7 @@ export const WasteStatementDialog = ({
                   </div>
 
                   {/* Desktop & Print Table */}
-                  <div className="hidden md:block print:block overflow-x-auto rounded-xl border border-border print:rounded-none">
+                  <div className="hidden md:block print:block overflow-x-auto print:overflow-visible rounded-xl border border-border print:rounded-none">
                     <table className="w-full text-xs border-collapse">
                       <thead className="bg-muted/40 border-b border-border">
                         <tr>
