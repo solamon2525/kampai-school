@@ -25,7 +25,9 @@ import { termService, type ActiveTerm } from '@/services/waste-bank.service';
 
 /**
  * แสดงเทอมปัจจุบัน + ปุ่ม "ขึ้นเทอมใหม่" (admin เท่านั้น)
- * หลังกด: แต้ม/คะแนน เริ่มนับใหม่ (filter ตาม active term) ข้อมูลเก่ายังอยู่ในประวัติ
+ * หลังกด: อัปเดตเทอมหลักที่ใช้บันทึกและตัวกรองแดชบอร์ด
+ * (ธนาคารขยะและธนาคารพอเพียงยกยอดสะสมต่อเนื่องข้ามภาคเรียน ไม่ล้างเป็น 0;
+ * ธนาคารความดี/เกียรติยศแยกนับตามปีการศึกษาและเทอม)
  */
 export const TermBanner = () => {
   const { toast } = useToast();
@@ -46,14 +48,16 @@ export const TermBanner = () => {
   const openDialog = () => {
     if (!term) return;
     // default: ถ้าเทอมปัจจุบัน 1 → ถัดไป 2 (ปีเดิม); ถ้า 2 → 1 (ปีถัดไป)
-    if (term.sem === '1') {
-      setNextYear(term.year);
-      setNextSem('2');
-    } else {
-      const next = String(Number(term.year) + 1);
-      setNextYear(next);
-      setNextSem('1');
-    }
+    const defaultNextSem: '1' | '2' = term.sem === '1' ? '2' : '1';
+    const parsedYear = Number(term.year);
+    const defaultNextYear =
+      defaultNextSem === '2'
+        ? term.year
+        : Number.isFinite(parsedYear)
+          ? String(parsedYear + 1)
+          : term.year;
+    setNextSem(defaultNextSem);
+    setNextYear(defaultNextYear);
     setOpen(true);
   };
 
@@ -68,7 +72,7 @@ export const TermBanner = () => {
     }
     toast({
       title: 'ขึ้นเทอมใหม่สำเร็จ',
-      description: `เทอม ${nextSem}/${nextYear} — แต้มและคะแนนเริ่มนับใหม่`,
+      description: `เทอม ${nextSem}/${nextYear.trim()} — อัปเดตเทอมหลักตอนบันทึกและตัวกรองแดชบอร์ดแล้ว (แต้มขยะและเงินออมยกยอดสะสมต่อเนื่อง)`,
     });
     setOpen(false);
     load();
@@ -81,10 +85,12 @@ export const TermBanner = () => {
       <Card className="border-amber-200 bg-amber-50/60">
         <CardContent className="py-3 px-4 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <CalendarClock className="w-4 h-4 text-amber-600" />
-            <span className="text-sm">
+            <CalendarClock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="text-sm text-foreground">
               เทอมปัจจุบัน: <strong>เทอม {term.sem}/{term.year}</strong>
-              <span className="text-muted-foreground ml-2 text-xs">(แต้ม + คะแนนนับเฉพาะเทอมนี้)</span>
+              <span className="text-muted-foreground ml-2 text-xs">
+                (เทอมหลักตอนบันทึก &amp; ตัวกรอง · ธนาคารขยะ/เงินออมยกยอดต่อเนื่องข้ามภาคเรียน · ความดีนับแยกตามปีการศึกษา/เทอม)
+              </span>
             </span>
           </div>
           {isAdmin && (
@@ -99,11 +105,18 @@ export const TermBanner = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>ขึ้นเทอมใหม่</DialogTitle>
-            <DialogDescription>
-              เมื่อยืนยัน — แต้มและคะแนนเริ่มนับใหม่จาก 0 สำหรับนักเรียนทุกคน
-              <br />
-              <strong className="text-amber-700">
-                ข้อมูลเทอมเก่ายังอยู่ในประวัติ ไม่ถูกลบ
+            <DialogDescription className="space-y-1.5 text-sm leading-relaxed">
+              <span className="block">
+                เมื่อยืนยัน ระบบจะเปลี่ยนเทอมหลักที่ใช้ในการบันทึกข้อมูลและตัวกรองแดชบอร์ดเป็นเทอมใหม่:
+              </span>
+              <span className="block text-foreground">
+                • <strong>ธนาคารขยะและธนาคารพอเพียง:</strong> ยกยอดแต้ม/เงินออมสะสมต่อเนื่องข้ามภาคเรียน (ไม่ล้างเป็น 0)
+              </span>
+              <span className="block text-foreground">
+                • <strong>ธนาคารความดี / เกียรติยศ:</strong> แยกนับสถิติตามปีการศึกษาและเทอม
+              </span>
+              <strong className="block text-amber-700">
+                ข้อมูลประวัติการทำรายการของเทอมเก่ายังอยู่ครบถ้วน ไม่ถูกลบ
               </strong>
             </DialogDescription>
           </DialogHeader>

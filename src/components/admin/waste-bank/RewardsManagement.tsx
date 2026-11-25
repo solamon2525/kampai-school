@@ -26,6 +26,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RewardCostDisplay } from '@/components/rewards/RewardCostDisplay';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 
@@ -66,6 +67,7 @@ export const RewardsManagement = () => {
   const [editing, setEditing] = useState<Reward | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Reward | null>(null);
 
   const form = useForm<RewardFormValues>({
     resolver: zodResolver(rewardSchema),
@@ -190,10 +192,11 @@ export const RewardsManagement = () => {
     }
   };
 
-  const handleDelete = async (r: Reward) => {
-    if (!canEdit(r)) return;
-    if (!confirm(`ต้องการลบรางวัล "${r.name}"?`)) return;
-    const { error } = await rewardsService.delete(r.id);
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget || !canEdit(deleteTarget)) return;
+    const target = deleteTarget;
+    setDeleteTarget(null);
+    const { error } = await rewardsService.delete(target.id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
@@ -456,7 +459,10 @@ export const RewardsManagement = () => {
                         size="sm"
                         variant="outline"
                         className="text-destructive"
-                        onClick={() => handleDelete(r)}
+                        onClick={() => {
+                          if (!editable) return;
+                          setDeleteTarget(r);
+                        }}
                         disabled={!editable}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -469,6 +475,22 @@ export const RewardsManagement = () => {
           })
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        onConfirm={() => void handleConfirmDelete()}
+        title="ยืนยันการลบรางวัล"
+        description={
+          deleteTarget
+            ? `ต้องการลบรางวัล "${deleteTarget.name}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`
+            : undefined
+        }
+        confirmText="ลบรางวัล"
+        variant="destructive"
+      />
     </div>
   );
 };

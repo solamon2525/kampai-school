@@ -1,26 +1,19 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { savingsSummaryService } from '@/services/savings.service';
+import { savingsSummaryService, type PublicSavingsSummary } from '@/services/savings.service';
+import { wasteSummaryService } from '@/services/waste-bank.service';
 import { useSchoolSettings } from '@/hooks/useSchoolSettings';
 import { Facebook, Youtube, Instagram, MessageCircle, Link as LinkIcon, Image, Users, Monitor, FileText, ArrowRight, Recycle, Wallet, Trophy, Sparkles } from 'lucide-react';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { conductService } from '@/services/conduct.service';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
-import { staggerContainerVariants, staggerItemVariants, fadeInVariants } from '@/hooks/useScrollReveal';
+import { staggerContainerVariants, fadeInVariants } from '@/hooks/useScrollReveal';
+import { cn } from '@/lib/utils';
 
 // ─── WasteBank Widget ─────────────────────────────────────
-
-interface WasteSummary {
-  student_id: string | null;
-  full_name: string | null;
-  class_name: string | null;
-  photo_url: string | null;
-  total_points_earned: number | null;
-  total_items: number | null;
-  total_transactions: number | null;
-}
 
 const MEDALS = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
 const RANK_COLORS = [
@@ -47,27 +40,21 @@ const DUMMY_SOCIAL = [
 ];
 
 const WasteBankWidget = () => {
-  const [summaries, setSummaries] = useState<WasteSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    supabase
-      .from('waste_student_summary')
-      .select('student_id, full_name, class_name, photo_url, total_points_earned, total_items, total_transactions')
-      .gt('total_transactions', 0)
-      .order('total_points_earned', { ascending: false })
-      .then(({ data }) => {
-        setSummaries((data as WasteSummary[]) ?? []);
-        setIsLoading(false);
-      });
-  }, []);
+  const { data: summaries = [], isLoading } = useQuery({
+    queryKey: ['public-waste-top5'],
+    queryFn: async () => {
+      const { data } = await wasteSummaryService.getTopPublic(5);
+      return data ?? [];
+    },
+    staleTime: 60_000,
+  });
 
   const top5 = useMemo(
     () => [...summaries].sort((a, b) => Number(b.total_points_earned ?? 0) - Number(a.total_points_earned ?? 0)).slice(0, 5),
     [summaries],
   );
-  const totalPoints = summaries.reduce((acc, s) => acc + Number(s.total_points_earned ?? 0), 0);
-  const totalItems  = summaries.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
+  const totalPoints = top5.reduce((acc, s) => acc + Number(s.total_points_earned ?? 0), 0);
+  const totalItems  = top5.reduce((acc, s) => acc + Number(s.total_items ?? 0), 0);
 
   return (
     <div className="bg-card rounded-2xl border border-green-100 shadow-sm overflow-hidden">
@@ -80,11 +67,11 @@ const WasteBankWidget = () => {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-2 px-4 py-3 bg-green-50 border-b border-green-100">
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">คะแนนรวม</p>
+          <p className="text-xs text-muted-foreground">คะแนนรวม (Top 5)</p>
           <p className="font-bold text-green-700 text-sm">{totalPoints.toLocaleString()} คะแนน</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">จำนวนชิ้นรวม</p>
+          <p className="text-xs text-muted-foreground">จำนวนชิ้น (Top 5)</p>
           <p className="font-bold text-blue-700 text-sm">{totalItems.toLocaleString()} ชิ้น</p>
         </div>
       </div>
@@ -99,17 +86,16 @@ const WasteBankWidget = () => {
           {top5.map((s, i) => (
             <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2">
               {/* Rank badge */}
-              <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
+              <div className={cn('w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm', RANK_COLORS[i])}>
                 {MEDALS[i]}
               </div>
               {/* Photo */}
-              {s.photo_url ? (
-                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover border border-green-200 flex-shrink-0" />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-600 text-xs font-bold border border-green-200">
-                  {(s.full_name ?? '?').charAt(0)}
-                </div>
-              )}
+              <PersonAvatar
+                name={s.full_name ?? '-'}
+                photoUrl={s.photo_url}
+                size="sm"
+                className="border border-green-200 flex-shrink-0"
+              />
               {/* Name & stats */}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-gray-800 truncate">{s.full_name ?? '-'}</p>
@@ -136,23 +122,14 @@ const WasteBankWidget = () => {
 // ⚠️ Privacy: หน้านี้สาธารณะ — ห้ามแสดงตัวเลขเงิน
 // จัดอันดับ + แสดงเฉพาะ "จำนวนครั้งฝาก" + tier (รางวัลวินัย ไม่ใช่ความรวย)
 
-interface SavingsSummaryRow {
-  student_id: string | null;
-  full_name: string | null;
-  class_name: string | null;
-  photo_url: string | null;
-  deposit_count: number | null;
-  total_transactions: number | null;
-}
-
 const SavingsBankWidget = () => {
-  const [rows, setRows] = useState<SavingsSummaryRow[]>([]);
+  const [rows, setRows] = useState<PublicSavingsSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     savingsSummaryService.getLeaderboard()
       .then(({ data }) => {
-        setRows((data as SavingsSummaryRow[]) ?? []);
+        setRows(data ?? []);
         setIsLoading(false);
       });
   }, []);
@@ -194,16 +171,15 @@ const SavingsBankWidget = () => {
         <ul className="divide-y divide-slate-100">
           {top5.map((s, i) => (
             <li key={s.student_id ?? i} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition">
-              <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${RANK_COLORS[i]} flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm`}>
+              <div className={cn('w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-sm', RANK_COLORS[i])}>
                 {MEDALS[i]}
               </div>
-              {s.photo_url ? (
-                <img src={s.photo_url} alt={s.full_name ?? ''} className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm flex-shrink-0" />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 text-slate-700 text-xs font-bold ring-2 ring-white shadow-sm">
-                  {(s.full_name ?? '?').charAt(0)}
-                </div>
-              )}
+              <PersonAvatar
+                name={s.full_name ?? '-'}
+                photoUrl={s.photo_url}
+                size="sm"
+                className="ring-2 ring-border shadow-sm flex-shrink-0"
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-slate-900 truncate">{s.full_name ?? '-'}</p>
                 <div className="flex items-center gap-1">
@@ -424,16 +400,16 @@ export const useHomeRightBlocks = () => {
     // Fetch real school photos: gallery_albums first → news cover_image fallback → empty (placeholder UI)
     (async () => {
       const { data: galleryData } = await supabase
-        .from('gallery_albums' as any)
+        .from('gallery_albums')
         .select('cover_image_url')
         .eq('is_published', true)
         .not('cover_image_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(6);
 
-      const galleryUrls = galleryData
-        ? (galleryData as any[]).map((g) => g.cover_image_url).filter(Boolean)
-        : [];
+      const galleryUrls = (galleryData ?? [])
+        .map((g) => g.cover_image_url)
+        .filter((url): url is string => Boolean(url));
 
       if (galleryUrls.length > 0) {
         setGalleryImages(galleryUrls);
@@ -443,14 +419,14 @@ export const useHomeRightBlocks = () => {
       const { data: newsData } = await supabase
         .from('news')
         .select('cover_image_url')
-        .eq('is_published', true)
+        .eq('published', true)
         .not('cover_image_url', 'is', null)
         .order('created_at', { ascending: false })
         .limit(6);
 
-      const newsUrls = newsData
-        ? (newsData as any[]).map((n) => n.cover_image_url).filter(Boolean)
-        : [];
+      const newsUrls = (newsData ?? [])
+        .map((n) => n.cover_image_url)
+        .filter((url): url is string => Boolean(url));
 
       setGalleryImages(newsUrls);
     })();

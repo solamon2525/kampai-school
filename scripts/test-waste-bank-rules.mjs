@@ -215,3 +215,41 @@ test('Task 3 parent view contracts: dual-wallet RPC, helper, RewardCostDisplay, 
   assert.equal(parentSrc.includes("['rewards']"), true);
   assert.equal(parentSrc.includes("['top-heroes']"), true);
 });
+
+test('Task 4 component contracts: TermBanner copy, dialog replacements, HomeRightSidebar service & PersonAvatar, light-only', async () => {
+  const [termBannerSrc, rewardsSrc, claimsSrc, sidebarSrc] = await Promise.all([
+    readFile(new URL('../src/components/admin/waste-bank/TermBanner.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/RewardsManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/ClaimsApproval.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/home/HomeRightSidebar.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  // TermBanner carry-over copy
+  assert.equal(termBannerSrc.includes('เริ่มนับใหม่จาก 0'), false);
+  assert.equal(termBannerSrc.includes('แต้ม + คะแนนนับเฉพาะเทอมนี้'), false);
+  assert.equal(termBannerSrc.includes('แต้มและคะแนนเริ่มนับใหม่'), false);
+  assert.equal(termBannerSrc.includes('ยกยอด'), true);
+  assert.equal(/\bdark:/.test(termBannerSrc), false);
+
+  // RewardsManagement & ClaimsApproval native dialogs removed
+  assert.equal(/\b(?:confirm|prompt)\s*\(/.test(rewardsSrc), false);
+  assert.equal(rewardsSrc.includes('ConfirmDialog'), true);
+  assert.equal(rewardsSrc.includes('deleteTarget'), true);
+  assert.equal(/\bdark:/.test(rewardsSrc), false);
+
+  assert.equal(/\b(?:confirm|prompt)\s*\(/.test(claimsSrc), false);
+  assert.equal(claimsSrc.includes('rejectTarget'), true);
+  assert.equal(claimsSrc.includes('rejectReason'), true);
+  assert.equal(/\bdark:/.test(claimsSrc), false);
+
+  // HomeRightSidebar service + PersonAvatar
+  assert.equal(sidebarSrc.includes(".from('waste_student_summary')"), false);
+  assert.equal(sidebarSrc.includes('wasteSummaryService.getTopPublic(5)'), true);
+  assert.equal(sidebarSrc.includes('<PersonAvatar'), true);
+  assert.equal(/<img\b[^>]*photo_url/.test(sidebarSrc), false);
+  const wasteWidgetMatch = sidebarSrc.match(/const WasteBankWidget[\s\S]*?(?=\n\/\/ ─── SavingsBank Widget)/);
+  const savingsWidgetMatch = sidebarSrc.match(/const SavingsBankWidget[\s\S]*?(?=\n\/\/ ─── VirtueBank Widget)/);
+  assert.ok(wasteWidgetMatch && !/<img\b/.test(wasteWidgetMatch[0]), 'WasteBankWidget must not contain raw <img>');
+  assert.ok(savingsWidgetMatch && !/<img\b/.test(savingsWidgetMatch[0]), 'SavingsBankWidget must not contain raw <img>');
+  assert.equal(/\bdark:/.test(sidebarSrc), false);
+});

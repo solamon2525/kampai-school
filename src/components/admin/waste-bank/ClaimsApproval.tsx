@@ -1,9 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Check, X, ClipboardCheck, Clock, CheckCircle2, XCircle, Globe2, User, QrCode, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthProvider';
 import { rewardClaimsService } from '@/services/waste-bank.service';
@@ -35,6 +45,8 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [showDirectRedeem, setShowDirectRedeem] = useState(false);
+  const [rejectTarget, setRejectTarget] = useState<RewardClaim | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const fetchAll = useCallback(async () => {
     const { data, error } = filter === 'pending'
@@ -80,16 +92,26 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const openRejectDialog = (claim: RewardClaim) => {
     if (!user?.id) return;
-    const reason = prompt('เหตุผลที่ปฏิเสธ (ไม่บังคับ):') ?? undefined;
-    setProcessingId(id);
+    setRejectTarget(claim);
+    setRejectReason('');
+  };
+
+  const handleConfirmReject = async (e?: FormEvent) => {
+    e?.preventDefault();
+    if (!user?.id || !rejectTarget) return;
+    const claimId = rejectTarget.id;
+    const reason = rejectReason.trim() || undefined;
+    setProcessingId(claimId);
     // v1.37.4: RPC อ่าน reviewer จาก auth.uid() + คืน stock อัตโนมัติ (idempotent)
-    const { error } = await rewardClaimsService.reject(id, reason);
+    const { error } = await rewardClaimsService.reject(claimId, reason);
     setProcessingId(null);
     if (error) {
       toast({ title: 'ปฏิเสธไม่สำเร็จ', description: error.message, variant: 'destructive' });
     } else {
+      setRejectTarget(null);
+      setRejectReason('');
       toast({ title: 'ปฏิเสธคำขอสำเร็จ', description: 'คืน stock และคะแนนที่กันไว้ทั้งสองกระเป๋าแล้ว' });
       handleActionCompleted();
     }
@@ -230,8 +252,9 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
                               size="sm"
                               variant="outline"
                               className="text-destructive border-destructive/30"
-                              onClick={() => handleReject(c.id)}
+                              onClick={() => openRejectDialog(c)}
                               disabled={processingId === c.id}
+                              aria-label="ปฏิเสธคำขอ"
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -262,6 +285,60 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
         onOpenChange={setShowDirectRedeem}
         onSuccess={handleActionCompleted}
       />
+
+      <Dialog
+        open={!!rejectTarget}
+        onOpenChange={(open) => {
+          if (!open && processingId !== rejectTarget?.id) {
+            setRejectTarget(null);
+            setRejectReason('');
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>ปฏิเสธคำขอแลกรางวัล</DialogTitle>
+            <DialogDescription>
+              {rejectTarget
+                ? `ปฏิเสธคำขอแลก "${rejectTarget.reward_name}" ของ ${rejectTarget.students?.name ?? 'นักเรียน'} และคืนสต็อก/คะแนนที่กันไว้ทั้งสองกระเป๋า`
+                : 'ระบุเหตุผลที่ปฏิเสธคำขอ (ไม่บังคับ)'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleConfirmReject} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="claim-reject-reason">เหตุผลที่ปฏิเสธ (ไม่บังคับ)</Label>
+              <Input
+                id="claim-reject-reason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="เช่น ของรางวัลหมดชั่วคราว หรือรายการไม่ถูกต้อง"
+                disabled={!!rejectTarget && processingId === rejectTarget.id}
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setRejectTarget(null);
+                  setRejectReason('');
+                }}
+                disabled={!!rejectTarget && processingId === rejectTarget.id}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={!rejectTarget || processingId === rejectTarget.id}
+              >
+                {rejectTarget && processingId === rejectTarget.id ? 'กำลังบันทึก...' : 'ยืนยันปฏิเสธ'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
