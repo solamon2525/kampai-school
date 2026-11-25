@@ -1,25 +1,25 @@
 import { useMemo } from 'react';
 import {
-  Wallet,
   PiggyBank,
   CheckCircle2,
   Calendar,
   Sparkles,
   ArrowDownToLine,
   ArrowUpFromLine,
-  Award,
 } from 'lucide-react';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { SaverTierBadge } from './SaverTierBadge';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { PASSBOOK_SCHOOL_TITLE, getPassbookTransactionMeta } from '@/lib/passbookDisplay';
 import type { StudentSavingsLookup, SavingsHistoryRow } from '@/services/savings.service';
 
 interface Props {
-  student: StudentSavingsLookup;
+  student: StudentSavingsLookup & { student_code?: string | null };
   history: SavingsHistoryRow[];
   studentDepositCount: number | null;
+  studentCode?: string | null;
 }
 
 const fmtBaht = (n: number | null | undefined) => {
@@ -27,7 +27,7 @@ const fmtBaht = (n: number | null | undefined) => {
   return `${Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
 };
 
-export const DigitalPassbook = ({ student, history, studentDepositCount }: Props) => {
+export const DigitalPassbook = ({ student, history, studentDepositCount, studentCode }: Props) => {
   const currentBalance = Number(student.current_balance ?? 0);
 
   // Take recent 6 transactions for passbook page
@@ -53,7 +53,7 @@ export const DigitalPassbook = ({ student, history, studentDepositCount }: Props
               </span>
             </div>
             <h3 className="text-lg md:text-xl font-black text-foreground tracking-tight">
-              โรงเรียนบ้านคำไผ่ สพป.ยโสธร เขต 2
+              {PASSBOOK_SCHOOL_TITLE}
             </h3>
           </div>
         </div>
@@ -64,7 +64,7 @@ export const DigitalPassbook = ({ student, history, studentDepositCount }: Props
             เลขที่บัญชีเงินฝาก
           </span>
           <span className="text-base font-black text-foreground tracking-widest font-mono">
-            {student.student_code || 'KP-0000'}
+            {studentCode || student.student_code || 'KP-0000'}
           </span>
         </div>
       </div>
@@ -134,9 +134,10 @@ export const DigitalPassbook = ({ student, history, studentDepositCount }: Props
               </thead>
               <tbody className="divide-y divide-border/60 font-mono text-xs">
                 {displayHistory.map((h, i) => {
-                  const isDeposit = h.transaction_type === 'deposit';
+                  const meta = getPassbookTransactionMeta(h.transaction_type);
+                  const isDeposit = !meta.isWithdrawal;
                   return (
-                    <tr key={i} className="hover:bg-muted/15 transition-colors">
+                    <tr key={h.txn_id || i} className="hover:bg-muted/15 transition-colors">
                       <td className="px-3.5 py-2.5 text-foreground font-medium font-sans">
                         {formatThaiDateMedium(h.transaction_date)}
                       </td>
@@ -155,15 +156,26 @@ export const DigitalPassbook = ({ student, history, studentDepositCount }: Props
                         "px-3.5 py-2.5 text-right font-bold tabular-nums",
                         isDeposit ? "text-amber-700" : "text-destructive"
                       )}>
-                        {isDeposit ? `+${fmtBaht(h.amount)}` : `-${fmtBaht(h.amount)}`}
+                        {`${meta.amountPrefix}${fmtBaht(h.amount)}`}
                       </td>
                       <td className="px-3.5 py-2.5 text-right font-bold text-foreground tabular-nums">
                         {fmtBaht(h.balance_after)}
                       </td>
                       <td className="px-3.5 py-2 text-center">
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-[10px] font-sans font-bold shadow-2xs">
-                          <CheckCircle2 className="w-3 h-3 text-primary" />
-                          <span>รับฝากแล้ว</span>
+                        <div
+                          className={cn(
+                            'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-sans font-bold shadow-2xs',
+                            meta.isWithdrawal
+                              ? 'border-destructive/30 bg-destructive/5 text-destructive'
+                              : 'border-primary/30 bg-primary/5 text-primary',
+                          )}
+                        >
+                          {meta.isWithdrawal ? (
+                            <ArrowUpFromLine className="w-3 h-3 text-destructive" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3 text-primary" />
+                          )}
+                          <span>{meta.stampLabel}</span>
                         </div>
                       </td>
                     </tr>
