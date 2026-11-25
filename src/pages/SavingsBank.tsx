@@ -77,6 +77,7 @@ export default function SavingsBank() {
 
   // Lookup state
   const [code, setCode] = useState('');
+  const [verifiedCode, setVerifiedCode] = useState('');
   const [lookupTab, setLookupTab] = useState<'picker' | 'code'>('picker');
   const [searching, setSearching] = useState(false);
   const [student, setStudent] = useState<StudentSavingsLookup | null>(null);
@@ -86,16 +87,25 @@ export default function SavingsBank() {
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
 
   const reloadGoals = async (lookupCode?: string) => {
-    const c = lookupCode ?? code.trim();
+    const c = lookupCode ?? (verifiedCode || code.trim());
     if (!c) return;
     const { data } = await savingsGoalsService.getByStudentCode(c);
     setGoals(data ?? []);
   };
 
   const handleGoalStatusChange = async (goalId: string, status: 'in_progress' | 'achieved' | 'cancelled') => {
-    await savingsGoalsService.updateStatus(goalId, status);
+    const activeCode = verifiedCode || code.trim() || undefined;
+    const { error } = await savingsGoalsService.updateStatus(goalId, status, activeCode);
+    if (error) {
+      toast({
+        title: 'อัปเดตเป้าหมายไม่สำเร็จ',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
     toast({ title: 'อัปเดตเป้าหมายสำเร็จ! 🏆' });
-    reloadGoals();
+    reloadGoals(activeCode);
   };
 
   // Public data
@@ -114,7 +124,10 @@ export default function SavingsBank() {
     },
     staleTime: 30_000,
   });
-  const summaries = publicQuery.data?.summaries ?? [];
+  const summaries = useMemo(
+    () => publicQuery.data?.summaries ?? [],
+    [publicQuery.data?.summaries],
+  );
   const recent = publicQuery.data?.recent ?? [];
   const isLoading = publicQuery.isPending;
 
@@ -123,6 +136,7 @@ export default function SavingsBank() {
     if (!trimmed) return;
     setSearching(true);
     setStudent(null);
+    setVerifiedCode('');
     setHistory([]);
     setGoals([]);
     setStudentDepositCount(null);
@@ -140,6 +154,7 @@ export default function SavingsBank() {
       return;
     }
     setStudent(row);
+    setVerifiedCode(trimmed);
     reloadGoals(trimmed);
 
     const { data: histData } = await savingsLookupService.getStudentHistory(trimmed, 50);
@@ -648,8 +663,8 @@ export default function SavingsBank() {
       <SavingsGoalDialog
         open={goalDialogOpen}
         onOpenChange={setGoalDialogOpen}
-        studentCode={code.trim()}
-        onGoalCreated={() => reloadGoals(code.trim())}
+        studentCode={verifiedCode || code.trim()}
+        onGoalCreated={() => reloadGoals(verifiedCode || code.trim())}
       />
 
       <Footer />

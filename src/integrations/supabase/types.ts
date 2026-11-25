@@ -10699,6 +10699,7 @@ export type Database = {
         Args: {
           p_category?: string
           p_icon?: string
+          p_student_code?: string
           p_student_id: string
           p_target_amount: number
           p_target_date?: string
@@ -11714,7 +11715,7 @@ export type Database = {
         Returns: undefined
       }
       update_savings_goal_status: {
-        Args: { p_goal_id: string; p_status: string }
+        Args: { p_goal_id: string; p_status: string; p_student_code?: string }
         Returns: boolean
       }
       update_savings_transaction: {

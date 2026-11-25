@@ -449,6 +449,7 @@ export const savingsGoalsService = {
     icon?: string;
     category?: string;
     target_date?: string | null;
+    student_code?: string | null;
   }) =>
     supabase.rpc('create_savings_goal', {
       p_student_id: data.student_id,
@@ -457,10 +458,19 @@ export const savingsGoalsService = {
       p_icon: data.icon ?? 'piggy-bank',
       p_category: data.category ?? 'general',
       p_target_date: data.target_date ?? undefined,
+      p_student_code: data.student_code ?? undefined,
     }),
 
-  updateStatus: (goalId: string, status: 'in_progress' | 'achieved' | 'cancelled') =>
-    supabase.rpc('update_savings_goal_status', { p_goal_id: goalId, p_status: status }),
+  updateStatus: (
+    goalId: string,
+    status: 'in_progress' | 'achieved' | 'cancelled',
+    studentCode?: string,
+  ) =>
+    supabase.rpc('update_savings_goal_status', {
+      p_goal_id: goalId,
+      p_status: status,
+      p_student_code: studentCode ?? undefined,
+    }),
 
   delete: (goalId: string) =>
     supabase.rpc('delete_savings_goal', { p_goal_id: goalId }),

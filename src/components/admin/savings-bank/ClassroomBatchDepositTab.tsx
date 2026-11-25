@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Users,
   CheckCircle2,
@@ -66,6 +67,7 @@ const fmtBaht = (n: number | null | undefined) => {
 
 export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
 
   const [selectedClass, setSelectedClass] = useState<string>('ป.1');
@@ -237,7 +239,9 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
     try {
       localStorage.removeItem(draftKey);
       setHasDraft(false);
-    } catch {}
+    } catch {
+      // storage unavailable
+    }
   };
 
   // Calculations
@@ -284,9 +288,9 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
 
     setIsSubmitting(true);
     try {
-      const currentTerm = await termService.getCurrentTerm();
-      const academicYear = currentTerm?.academic_year ?? null;
-      const semester = currentTerm?.semester ?? null;
+      const currentTerm = await termService.getActive();
+      const academicYear = currentTerm?.year ?? null;
+      const semester = currentTerm?.sem ?? null;
 
       const { data, error } = await savingsTransactionsService.recordBatch({
         deposits: activeDeposits,
@@ -314,7 +318,9 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
       try {
         localStorage.removeItem(draftKey);
         setHasDraft(false);
-      } catch {}
+      } catch {
+        // storage unavailable
+      }
 
       setLastBatchResult({
         count,
@@ -337,6 +343,13 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
         }),
       );
 
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['savings-student-summaries'] }),
+        queryClient.invalidateQueries({ queryKey: ['savings-transactions'] }),
+        queryClient.invalidateQueries({ queryKey: ['savings-stats'] }),
+        queryClient.invalidateQueries({ queryKey: ['savings-bank'] }),
+        queryClient.invalidateQueries({ queryKey: ['savings-statement'] }),
+      ]);
       onSuccess();
     } catch (err) {
       toast({
