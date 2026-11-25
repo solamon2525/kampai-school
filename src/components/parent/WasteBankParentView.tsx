@@ -73,7 +73,7 @@ function mapClaimError(message: string | undefined): string {
 export const WasteBankParentView = ({ studentId, studentName }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { activeChild } = useActiveChild();
+  const { activeChild, loading: childLoading } = useActiveChild();
   const [tab, setTab] = useState<TabId>('overview');
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [claimTarget, setClaimTarget] = useState<Reward | null>(null);
@@ -166,7 +166,7 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
     { id: 'claims', label: 'ประวัติแลกรางวัล', icon: <Clock className="w-4 h-4" /> },
   ];
 
-  const missingCodeNotice = !query.isLoading && !hasStudentCode ? (
+  const missingCodeNotice = !query.isLoading && !childLoading && !hasStudentCode ? (
     <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900">
       <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700 mt-0.5" />
       <span>
@@ -221,7 +221,11 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                     <span className="truncate">สรุปสำหรับ {displayName}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {hasStudentCode ? `รหัสนักเรียน ${studentCode}` : 'ยังไม่มีรหัสนักเรียน'}
+                    {hasStudentCode
+                      ? `รหัสนักเรียน ${studentCode}`
+                      : query.isLoading || childLoading
+                        ? 'กำลังตรวจสอบรหัสนักเรียน...'
+                        : 'ยังไม่มีรหัสนักเรียน'}
                   </div>
                 </div>
               </div>
@@ -363,9 +367,9 @@ export const WasteBankParentView = ({ studentId, studentName }: Props) => {
                   claimMutation.isPending;
 
                 let buttonLabel = 'แลกเลย';
-                if (!hasStudentCode && !query.isLoading) {
+                if (!hasStudentCode && !query.isLoading && !childLoading) {
                   buttonLabel = 'ต้องมีรหัสนักเรียน';
-                } else if (balanceQuery.isLoading) {
+                } else if (balanceQuery.isLoading || (!hasStudentCode && (query.isLoading || childLoading))) {
                   buttonLabel = 'กำลังตรวจสอบแต้ม...';
                 } else if (!hasDualBalance) {
                   buttonLabel = 'ไม่สามารถตรวจแต้มได้';

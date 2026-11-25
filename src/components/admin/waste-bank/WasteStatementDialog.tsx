@@ -142,8 +142,12 @@ export const WasteStatementDialog = ({
 
     const claimItems: StatementTimelineItem[] = claims.map((claim) => {
       const dateIso = claim.claimed_at || '';
-      const sortDateKey = dateIso.slice(0, 10);
-      const sortTime = new Date(claim.claimed_at || 0).getTime() || 0;
+      const claimDate = claim.claimed_at ? new Date(claim.claimed_at) : null;
+      const sortDateKey =
+        claimDate && !Number.isNaN(claimDate.getTime())
+          ? new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(claimDate)
+          : '';
+      const sortTime = claimDate && !Number.isNaN(claimDate.getTime()) ? claimDate.getTime() : 0;
       const qty = Number(claim.quantity ?? 1);
       const qtySuffix = qty > 1 ? ` ×${qty}` : '';
       const wasteUsed = Number(claim.waste_points_used ?? claim.points_used ?? 0);
@@ -215,6 +219,7 @@ export const WasteStatementDialog = ({
         <style>{`
           @media print {
             @page { size: A4 portrait; margin: 12mm; }
+            html, body { overflow: visible !important; height: auto !important; }
             #root { display: none !important; }
             [data-radix-portal] > div:first-child { display: none !important; }
             [data-radix-portal] [role="dialog"] {
@@ -436,11 +441,13 @@ export const WasteStatementDialog = ({
                           <span
                             className={cn(
                               'text-sm font-extrabold tabular-nums shrink-0',
-                              item.kind === 'earn'
-                                ? 'text-emerald-700'
-                                : item.status === 'rejected'
-                                  ? 'text-muted-foreground line-through'
-                                  : 'text-rose-700',
+                              item.status === 'rejected'
+                                ? 'text-muted-foreground line-through'
+                                : item.pointsDelta === 0
+                                  ? 'text-muted-foreground'
+                                  : item.kind === 'earn'
+                                    ? 'text-emerald-700'
+                                    : 'text-rose-700',
                             )}
                           >
                             {item.pointsDelta > 0 ? `+${item.pointsDelta}` : item.pointsDelta}
@@ -494,11 +501,13 @@ export const WasteStatementDialog = ({
                             <td
                               className={cn(
                                 'p-2.5 text-right font-extrabold tabular-nums whitespace-nowrap align-top',
-                                item.kind === 'earn'
-                                  ? 'text-emerald-700'
-                                  : item.status === 'rejected'
-                                    ? 'text-muted-foreground line-through'
-                                    : 'text-rose-700',
+                                item.status === 'rejected'
+                                  ? 'text-muted-foreground line-through'
+                                  : item.pointsDelta === 0
+                                    ? 'text-muted-foreground'
+                                    : item.kind === 'earn'
+                                      ? 'text-emerald-700'
+                                      : 'text-rose-700',
                               )}
                             >
                               {item.pointsDelta > 0 ? `+${item.pointsDelta}` : item.pointsDelta}

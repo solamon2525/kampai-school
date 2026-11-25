@@ -445,10 +445,10 @@ export const PromotionsManagement: React.FC = () => {
                       <div className="flex flex-wrap items-center gap-1.5">
                         <Badge
                           className={cn(
-                            'text-xs px-2 py-0.5 font-bold border-none',
+                            'text-xs px-2 py-0.5 font-bold',
                             promo.multiplier > 1
-                              ? 'bg-amber-600 text-primary-foreground'
-                              : 'bg-primary text-primary-foreground',
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                              : 'bg-primary text-primary-foreground border-none',
                           )}
                         >
                           {promo.badge_text ||
@@ -599,7 +599,7 @@ export const PromotionsManagement: React.FC = () => {
                     <div className="flex items-center gap-3 min-w-0">
                       <PersonAvatar
                         name={spin.student_name}
-                        photoUrl={null}
+                        photoUrl={spin.students?.photo_url ?? null}
                         size="sm"
                         className="shrink-0"
                       />
@@ -788,6 +788,9 @@ export const PromotionsManagement: React.FC = () => {
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription className="text-[11px]">
+                        หากกำหนดเฉพาะวัน/เวลาโดยไม่เลือกประเภทขยะ โบนัสจะบวกให้ทุกแถวประเภทขยะที่เข้าเงื่อนไข
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

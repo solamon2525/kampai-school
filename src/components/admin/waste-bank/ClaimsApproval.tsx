@@ -70,6 +70,7 @@ export const ClaimsApproval = ({ onAction }: ClaimsApprovalProps) => {
     void queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] });
     void queryClient.invalidateQueries({ queryKey: ['hall-of-fame-heroes'] });
     void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+    void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
     onAction?.();
   };
 

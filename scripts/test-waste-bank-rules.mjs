@@ -136,7 +136,41 @@ test('hasPromotionTargetScope rejects boosted promo with zero constraints', () =
   assert.equal(hasPromotionTargetScope(milkPromo), true);
   assert.equal(hasPromotionTargetScope({ ...milkPromo, category_ids: null, days_of_week: [5] }), true);
   assert.equal(hasPromotionTargetScope({ ...milkPromo, category_ids: null, start_date: '2026-11-01' }), true);
+  assert.equal(
+    hasPromotionTargetScope({
+      category_ids: null,
+      days_of_week: null,
+      start_date: null,
+      end_date: '2026-12-31',
+      start_time: null,
+    }),
+    true,
+  );
   assert.equal(hasPromotionTargetScope({ ...milkPromo, category_ids: null, start_time: '12:00' }), true);
+});
+
+test('computeRowPromotionPoints returns zero points and no promos when quantity <= 0', () => {
+  const now = new Date('2026-11-23T08:00:00+07:00');
+  assert.deepEqual(
+    computeRowPromotionPoints({
+      quantity: 0,
+      pointsPerItem: 5,
+      categoryId: milkCat,
+      promotions: [milkPromo],
+      now,
+    }),
+    { basePoints: 0, finalPoints: 0, appliedPromotions: [] },
+  );
+  assert.deepEqual(
+    computeRowPromotionPoints({
+      quantity: -1,
+      pointsPerItem: 5,
+      categoryId: milkCat,
+      promotions: [milkPromo],
+      now,
+    }),
+    { basePoints: 0, finalPoints: 0, appliedPromotions: [] },
+  );
 });
 
 test('canAffordDualWalletReward checks both wallets and stock', () => {
@@ -171,6 +205,32 @@ test('canAffordDualWalletReward checks both wallets and stock', () => {
   assert.equal(
     canAffordDualWalletReward({ wasteAvailable: 100, virtueAvailable: 50 }, { ...reward, is_active: false }, 1).reason,
     'inactive',
+  );
+});
+
+test('canAffordDualWalletReward handles unlimited stock, quantity > 1, and legacy points_cost fallback', () => {
+  const legacyUnlimitedReward = { points_cost: 15, stock: null, is_active: true };
+  assert.deepEqual(
+    canAffordDualWalletReward({ wasteAvailable: 30, virtueAvailable: 0 }, legacyUnlimitedReward, 2),
+    {
+      eligible: true,
+      reason: 'ok',
+      wasteCost: 30,
+      virtueCost: 0,
+      missingWaste: 0,
+      missingVirtue: 0,
+    },
+  );
+  assert.deepEqual(
+    canAffordDualWalletReward({ wasteAvailable: 20, virtueAvailable: 0 }, legacyUnlimitedReward, 2),
+    {
+      eligible: false,
+      reason: 'insufficient_waste',
+      wasteCost: 30,
+      virtueCost: 0,
+      missingWaste: 10,
+      missingVirtue: 0,
+    },
   );
 });
 
@@ -351,4 +411,59 @@ test('Task 5 Fix Round 1 contracts: batch mobile layout, multi-page print, sort 
   const statementInvalCount = (mgmtSrc.match(/\['waste-student-statement'\]/g) ?? []).length;
   assert.ok(summariesInvalCount >= 2, 'WasteBankManagement should invalidate waste-student-summaries on submit and delete');
   assert.ok(statementInvalCount >= 2, 'WasteBankManagement should invalidate waste-student-statement on submit and delete');
+});
+
+test('Final-review fix wave contracts: Bangkok claim sortDateKey, print scroll-lock override, zero-point neutral style, high-contrast badges, childLoading gate, lucky spins photo, claims sync', async () => {
+  const [
+    statementSrc,
+    batchSrc,
+    promosSrc,
+    mgmtSrc,
+    parentSrc,
+    claimsSrc,
+    serviceSrc,
+  ] = await Promise.all([
+    readFile(new URL('../src/components/admin/waste-bank/WasteStatementDialog.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/ClassroomWasteBatchTab.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/PromotionsManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteBankManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/parent/WasteBankParentView.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/ClaimsApproval.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/services/waste-bank.service.ts', import.meta.url), 'utf8'),
+  ]);
+
+  // 1. WasteStatementDialog Bangkok calendar date + print overflow + zero-point neutral style
+  assert.equal(statementSrc.includes("new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' })"), true);
+  assert.equal(statementSrc.includes('overflow: visible !important'), true);
+  assert.equal(statementSrc.includes('height: auto !important'), true);
+  assert.equal(statementSrc.includes('item.pointsDelta === 0'), true);
+
+  // 2. High-contrast amber promo badges across Batch, Promotions, Management
+  for (const [label, src] of [
+    ['ClassroomWasteBatchTab', batchSrc],
+    ['PromotionsManagement', promosSrc],
+    ['WasteBankManagement', mgmtSrc],
+  ]) {
+    assert.equal(
+      src.includes('bg-amber-500 text-primary-foreground'),
+      false,
+      `${label} must not use low-contrast bg-amber-500 text-primary-foreground`,
+    );
+    assert.equal(
+      src.includes('bg-amber-600 text-primary-foreground'),
+      false,
+      `${label} must not use low-contrast bg-amber-600 text-primary-foreground`,
+    );
+  }
+
+  // 3. WasteBankParentView childLoading gate
+  assert.equal(parentSrc.includes('childLoading'), true);
+
+  // 4. wasteLuckySpinsService + PromotionsManagement avatar photoUrl
+  assert.equal(serviceSrc.includes("select('*, students(photo_url)')"), true);
+  assert.equal(promosSrc.includes('spin.students?.photo_url'), true);
+
+  // 5. ClaimsApproval statement invalidation + WasteBankManagement onAction refresh
+  assert.equal(claimsSrc.includes("['waste-student-statement']"), true);
+  assert.equal(mgmtSrc.includes('fetchPendingCount(); fetchSummaries();'), true);
 });

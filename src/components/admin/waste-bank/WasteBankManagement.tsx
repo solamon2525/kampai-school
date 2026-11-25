@@ -604,7 +604,7 @@ export const WasteBankManagement = () => {
                   <div className="font-bold text-sm text-foreground flex flex-wrap items-center gap-2">
                     <span>แคมเปญพิเศษกำลังเปิดอยู่:</span>
                     {activePromos.map((p) => (
-                      <Badge key={p.id} className="bg-amber-500 text-primary-foreground font-bold text-xs border-none">
+                      <Badge key={p.id} className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">
                         {p.badge_text || p.title}
                         {p.category_ids && p.category_ids.length > 0 ? ' (เฉพาะประเภท)' : ''}
                       </Badge>
@@ -1202,7 +1202,7 @@ export const WasteBankManagement = () => {
       {activeTab === 'rewards' && <RewardsManagement />}
 
       {/* ===== TAB 5: คำขอแลกรางวัล ===== */}
-      {activeTab === 'claims' && <ClaimsApproval onAction={fetchPendingCount} />}
+      {activeTab === 'claims' && <ClaimsApproval onAction={() => { fetchPendingCount(); fetchSummaries(); }} />}
       {activeTab === 'showcase' && <WasteBankShowcaseManagement />}
 
       {/* ===== TAB 6: ศึกลีกห้องเรียน ===== */}

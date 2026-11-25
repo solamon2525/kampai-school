@@ -47,6 +47,7 @@ export type WasteLuckySpin = {
   bonus_points_awarded: number;
   spun_at: string;
   recorded_by: string | null;
+  students?: { photo_url: string | null } | null;
 };
 
 export type WasteClassroomRanking = {
@@ -650,14 +651,14 @@ export const wasteLuckySpinsService = {
   getRecent: (limit = 30) =>
     supabase
       .from('waste_lucky_spins')
-      .select('*')
+      .select('*, students(photo_url)')
       .order('spun_at', { ascending: false })
       .limit(limit),
 
   getByStudent: (studentId: string) =>
     supabase
       .from('waste_lucky_spins')
-      .select('*')
+      .select('*, students(photo_url)')
       .eq('student_id', studentId)
       .order('spun_at', { ascending: false }),
 

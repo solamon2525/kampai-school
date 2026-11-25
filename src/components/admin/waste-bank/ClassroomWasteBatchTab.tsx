@@ -400,7 +400,7 @@ export const ClassroomWasteBatchTab = ({
               <div className="font-bold text-sm text-foreground flex flex-wrap items-center gap-1.5">
                 <span>โปรโมชั่นที่กำลังเปิดใช้:</span>
                 {activePromos.map((p) => (
-                  <Badge key={p.id} className="bg-amber-500 text-primary-foreground font-bold text-xs border-none">
+                  <Badge key={p.id} className="bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">
                     {p.badge_text || p.title}
                     {p.category_ids && p.category_ids.length > 0 ? ' (เฉพาะประเภท)' : ''}
                   </Badge>
