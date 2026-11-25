@@ -69,6 +69,7 @@ import { WasteBankShowcaseManagement } from './WasteBankShowcaseManagement';
 import { WasteClassroomLeague } from './WasteClassroomLeague';
 import { PromotionsManagement } from './PromotionsManagement';
 import { EcoLuckyWheelDialog, type LuckyPrize } from './EcoLuckyWheelDialog';
+import { computeRowPromotionPoints } from '@/lib/wasteBankHelpers';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 
@@ -184,40 +185,34 @@ export const WasteBankManagement = () => {
   const updateRow = (i: number, patch: Partial<RecordRow>) =>
     setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
 
-  const getCategoryMultiplier = useCallback((categoryId: string) => {
-    return activePromos.reduce((max, p) => {
-      if (p.category_ids && p.category_ids.length > 0) {
-        if (!p.category_ids.includes(categoryId)) return max;
-      }
-      return Math.max(max, Number(p.multiplier) || 1);
-    }, 1);
-  }, [activePromos]);
-
-  const activeMultiplier = useMemo(() => {
-    return activePromos.reduce((max, p) => Math.max(max, Number(p.multiplier) || 1), 1);
-  }, [activePromos]);
-
-  const activeBonusPoints = useMemo(() => {
-    return activePromos.reduce((sum, p) => sum + (Number(p.bonus_points) || 0), 0);
-  }, [activePromos]);
+  const rowResults = useMemo(() => {
+    const now = new Date();
+    return rows.map((r) => {
+      const cat = categories.find((x) => x.id === r.category_id);
+      const qty = parseInt(r.quantity, 10);
+      if (!cat || isNaN(qty) || qty <= 0) return null;
+      return computeRowPromotionPoints({
+        quantity: qty,
+        pointsPerItem: cat.points_per_item,
+        categoryId: cat.id,
+        promotions: activePromos,
+        now,
+      });
+    });
+  }, [rows, categories, activePromos]);
 
   const totalItemsInForm = useMemo(() => {
     return rows.reduce((sum, r) => sum + (parseInt(r.quantity, 10) || 0), 0);
   }, [rows]);
 
   const rowsTotalPoints = useMemo(() => {
-    const base = rows.reduce((sum, r) => {
-      const c = categories.find((x) => x.id === r.category_id);
-      const q = parseInt(r.quantity, 10);
-      if (c && q > 0) {
-        const mul = getCategoryMultiplier(c.id);
-        return sum + Math.round(q * c.points_per_item * mul);
-      }
-      return sum;
-    }, 0);
-    if (base <= 0) return 0;
-    return base + activeBonusPoints;
-  }, [rows, categories, getCategoryMultiplier, activeBonusPoints]);
+    return rowResults.reduce((sum, res) => sum + (res?.finalPoints ?? 0), 0);
+  }, [rowResults]);
+
+  const appliedRowPromosCount = useMemo(
+    () => rowResults.filter((res) => res && res.appliedPromotions.length > 0).length,
+    [rowResults],
+  );
 
   // ========== Tab 2: สรุปยอดสะสม ==========
   const [summaries, setSummaries] = useState<WasteStudentSummary[]>([]);
@@ -244,6 +239,12 @@ export const WasteBankManagement = () => {
     fetchSummaries();
     fetchActivePromos();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'record') {
+      fetchActivePromos();
+    }
+  }, [activeTab]);
 
 
   // Fetch students when class changes
@@ -337,22 +338,30 @@ export const WasteBankManagement = () => {
       return;
     }
 
-    const promoPrefix = activePromos.length > 0
-      ? `[${activePromos.map((p) => p.badge_text || p.title).join(', ')}] `
-      : '';
-    const finalNotes = form.notes.trim() ? `${promoPrefix}${form.notes.trim()}` : (promoPrefix.trim() || null);
+    const now = new Date();
+    const userNotes = form.notes.trim();
 
-    const payload = valid.map(({ cat, qty }, idx) => {
-      const mul = getCategoryMultiplier(cat.id);
+    const payload = valid.map(({ cat, qty }) => {
+      const { finalPoints, appliedPromotions } = computeRowPromotionPoints({
+        quantity: qty,
+        pointsPerItem: cat.points_per_item,
+        categoryId: cat.id,
+        promotions: activePromos,
+        now,
+      });
+      const promoPrefix = appliedPromotions.length > 0
+        ? `[${appliedPromotions.map((p) => p.badge_text || p.title).join(', ')}] `
+        : '';
+      const rowNotes = userNotes ? `${promoPrefix}${userNotes}` : (promoPrefix.trim() || null);
       return {
         student_name: form.student_name.trim(),
         student_class: form.student_class,
         student_id: selectedStudentId || null,
         category_id: cat.id,
         quantity: qty,
-        points_earned: Math.round(qty * cat.points_per_item * mul) + (idx === 0 ? activeBonusPoints : 0),
+        points_earned: finalPoints,
         transaction_date: form.transaction_date,
-        notes: finalNotes,
+        notes: rowNotes,
         recorded_by: recorder.name || null,
         recorded_by_staff_id: recorder.staffId,
         recorded_by_administrator_id: recorder.administratorId,
@@ -564,8 +573,9 @@ export const WasteBankManagement = () => {
                   <div className="font-bold text-sm text-foreground flex flex-wrap items-center gap-2">
                     <span>แคมเปญพิเศษกำลังเปิดอยู่:</span>
                     {activePromos.map((p) => (
-                      <Badge key={p.id} className="bg-amber-500 text-white font-bold text-xs border-none">
+                      <Badge key={p.id} className="bg-amber-500 text-primary-foreground font-bold text-xs border-none">
                         {p.badge_text || p.title}
+                        {p.category_ids && p.category_ids.length > 0 ? ' (เฉพาะประเภท)' : ''}
                       </Badge>
                     ))}
                   </div>
@@ -575,8 +585,14 @@ export const WasteBankManagement = () => {
                 </div>
               </div>
               <div className="text-xs font-semibold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-lg self-start sm:self-auto flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-600" />
-                <span>ตัวคูณปัจจุบัน: x{activeMultiplier} {activeBonusPoints > 0 ? `+${activeBonusPoints} แต้ม` : ''}</span>
+                <Zap className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>
+                  {appliedRowPromosCount > 0
+                    ? `ใช้โปรโมชั่นกับ ${appliedRowPromosCount} แถวที่ร่วมรายการ`
+                    : activePromos.some((p) => p.category_ids && p.category_ids.length > 0)
+                      ? 'คำนวณแยกเฉพาะประเภทขยะที่ร่วมรายการ'
+                      : 'คำนวณตัวคูณและโบนัสอัตโนมัติตามเงื่อนไข'}
+                </span>
               </div>
             </div>
           )}
@@ -700,8 +716,9 @@ export const WasteBankManagement = () => {
                   <div className="space-y-2">
                     {rows.map((row, i) => {
                       const cat = categories.find((c) => c.id === row.category_id);
-                      const qty = parseInt(row.quantity, 10);
-                      const rowPoints = cat && qty > 0 ? qty * cat.points_per_item : null;
+                      const rowResult = rowResults[i];
+                      const rowPoints = rowResult ? rowResult.finalPoints : null;
+                      const rowAppliedPromos = rowResult?.appliedPromotions ?? [];
                       const color = getRowColor(cat, i);
                       const isExpanded = expandedRow === i;
 
@@ -734,7 +751,7 @@ export const WasteBankManagement = () => {
                             </div>
                             {rowPoints !== null && (
                               <span className={cn('text-xs font-bold px-2 py-1 rounded-lg shrink-0 tabular-nums', color.badge)}>
-                                +{rowPoints}
+                                +{rowPoints}{rowAppliedPromos.length > 0 ? ' ✨' : ''}
                               </span>
                             )}
                             <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -832,12 +849,17 @@ export const WasteBankManagement = () => {
                               <div className="flex-1 space-y-1">
                                 <Label className="text-xs text-muted-foreground font-semibold">แต้มที่ได้รับ</Label>
                                 <div className={cn(
-                                  'h-10 flex items-center justify-end px-3 rounded-md border-2 text-sm font-bold tabular-nums',
+                                  'min-h-10 flex items-center justify-between gap-2 px-3 py-1.5 rounded-md border-2 text-sm font-bold tabular-nums',
                                   rowPoints !== null
                                     ? cn(color.bg, color.border, color.text)
                                     : 'bg-muted border-border text-muted-foreground',
                                 )}>
-                                  {rowPoints !== null ? `+${rowPoints} แต้ม` : '—'}
+                                  <span className="text-xs font-medium truncate">
+                                    {rowAppliedPromos.length > 0
+                                      ? rowAppliedPromos.map((p) => p.badge_text || p.title).join(', ')
+                                      : ''}
+                                  </span>
+                                  <span className="shrink-0">{rowPoints !== null ? `+${rowPoints} แต้ม` : '—'}</span>
                                 </div>
                               </div>
                             </div>
