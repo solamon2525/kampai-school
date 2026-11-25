@@ -131,3 +131,84 @@ test('StudentHeroPublic.tsx has zero direct supabase.from calls, zero raw <img> 
     'StudentHeroPublic.tsx must use conductService.resolvePublicStudentByCode()',
   );
 });
+
+test('ConductManagement.tsx RecordTab integrates StudentQRScanner cleanly without wiping scanned studentId', async () => {
+  const conductMgmt = await readFile(
+    new URL('../src/components/admin/conduct/ConductManagement.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(
+    conductMgmt.includes('StudentQRScanner'),
+    true,
+    'ConductManagement.tsx must import and render StudentQRScanner',
+  );
+  assert.match(conductMgmt, /<StudentQRScanner\b/);
+  assert.match(conductMgmt, /pendingScannedStudentIdRef/);
+  assert.equal(
+    /supabase\.from\s*\(/.test(conductMgmt),
+    false,
+    'ConductManagement.tsx must not call supabase.from directly',
+  );
+  assert.equal(
+    /\bdark:/.test(conductMgmt),
+    false,
+    'ConductManagement.tsx must have zero dark: classes',
+  );
+});
+
+test('ScanRecorder.tsx supports form-conduct mode using termService.getActive and light-mode tokens', async () => {
+  const scanRecorder = await readFile(
+    new URL('../src/pages/admin/ScanRecorder.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(scanRecorder, /'form-conduct'/);
+  assert.equal(
+    scanRecorder.includes('ความดี / ความประพฤติ'),
+    true,
+    'ScanRecorder.tsx picking mode must include ความดี / ความประพฤติ tile',
+  );
+  assert.equal(
+    scanRecorder.includes('termService.getActive()'),
+    true,
+    'ScanRecorder.tsx must fetch active term via termService.getActive()',
+  );
+  assert.equal(
+    scanRecorder.includes('conductService.insert('),
+    true,
+    'ScanRecorder.tsx must submit conduct records via conductService.insert()',
+  );
+  assert.equal(
+    scanRecorder.includes('conductService.getAccumulatedScore('),
+    true,
+    'ScanRecorder.tsx must load virtue points via conductService.getAccumulatedScore()',
+  );
+  for (const key of ["'conduct-scores'", "'public-top-heroes'", "'hall-of-fame-heroes'", "'top-heroes'"]) {
+    assert.equal(
+      scanRecorder.includes(key),
+      true,
+      `ScanRecorder.tsx must invalidate query key [${key}]`,
+    );
+  }
+  assert.equal(
+    /\bdark:/.test(scanRecorder),
+    false,
+    'ScanRecorder.tsx must have zero dark: classes',
+  );
+  assert.equal(
+    /supabase\.from\s*\(/.test(scanRecorder),
+    false,
+    'ScanRecorder.tsx must not call supabase.from directly',
+  );
+});
+
+test('SystemOverview.tsx includes v2.8.27 release entry', async () => {
+  const systemOverview = await readFile(
+    new URL('../src/components/admin/system/SystemOverview.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(systemOverview, /version:\s*['"]v2\.8\.27['"]/);
+  assert.match(systemOverview, /date:\s*['"]25 พ\.ย\. 2569['"]/);
+});

@@ -10,12 +10,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check, Ticket, Award, BookOpen } from 'lucide-react';
+import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check, Ticket, Award, BookOpen, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { ClassroomPrivilegeManager } from './ClassroomPrivilegeManager';
 import { VirtueCertificateModal } from './VirtueCertificateModal';
 import { VirtuePassportModal } from './VirtuePassportModal';
@@ -436,9 +437,11 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
     const { semester, setSemester, academicYear, setAcademicYear } = useTermFilterState(activeTerm, isTermPending);
     const [isSaving, setIsSaving] = useState(false);
+    const [scannerOpen, setScannerOpen] = useState(false);
     const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
     const [speechComplete, setSpeechComplete] = useState(false);
     const speechRequestRef = useRef(0);
+    const pendingScannedStudentIdRef = useRef<string | null>(null);
     const closePointsConfirmation = useCallback(() => {
         speechRequestRef.current += 1;
         stopConductChime();
@@ -453,23 +456,72 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
         };
     }, []);
 
-    // โหลดรายชื่อนักเรียนเมื่อเปลี่ยนห้องเรียน
+    // โหลดรายชื่อนักเรียนเมื่อเปลี่ยนห้องเรียน (รักษา selectedStudentId ถ้ามาจากการสแกน QR)
     useEffect(() => {
+        const hasPendingScan = Boolean(pendingScannedStudentIdRef.current);
         setStudents([]);
-        setSelectedStudentId('');
+        if (!hasPendingScan) {
+            setSelectedStudentId('');
+        }
         setStudentAccumulatedMap({});
-        if (!selectedClass) return;
+        if (!selectedClass) {
+            pendingScannedStudentIdRef.current = null;
+            return;
+        }
 
         let active = true;
         studentsService.getByClass(selectedClass).then(({ data }) => {
             if (!active) return;
-            setStudents((data || []) as Student[]);
+            const loaded = (data || []) as Student[];
+            setStudents(loaded);
+            if (pendingScannedStudentIdRef.current) {
+                const targetId = pendingScannedStudentIdRef.current;
+                pendingScannedStudentIdRef.current = null;
+                setSelectedStudentId(loaded.some(s => s.id === targetId) ? targetId : '');
+            }
         });
 
         return () => {
             active = false;
         };
     }, [selectedClass]);
+
+    const handleQRScanned = useCallback(async (studentId: string) => {
+        setScannerOpen(false);
+        const { data, error } = await studentsService.getById(studentId);
+        if (error || !data) {
+            toast({
+                variant: 'destructive',
+                title: 'ไม่พบนักเรียน',
+                description: 'QR ไม่ถูกต้องหรือนักเรียนถูกลบ',
+            });
+            return;
+        }
+
+        if (data.class === selectedClass) {
+            if (students.some(s => s.id === data.id)) {
+                pendingScannedStudentIdRef.current = null;
+                setSelectedStudentId(data.id);
+            } else {
+                pendingScannedStudentIdRef.current = data.id;
+                const { data: classmates } = await studentsService.getByClass(data.class);
+                const loaded = (classmates || []) as Student[];
+                setStudents(loaded);
+                pendingScannedStudentIdRef.current = null;
+                if (loaded.some(s => s.id === data.id)) {
+                    setSelectedStudentId(data.id);
+                }
+            }
+        } else {
+            pendingScannedStudentIdRef.current = data.id;
+            setSelectedStudentId(data.id);
+            setSelectedClass(data.class);
+        }
+
+        toast({
+            title: `เลือก: ${data.name} (${data.class})`,
+        });
+    }, [selectedClass, students, toast]);
 
     // Pre-fetch คะแนนสะสมล่วงหน้าสำหรับนักเรียนทุกคนในห้องเมื่อได้รายชื่อหรือเปลี่ยนปีการศึกษา
     useEffect(() => {
@@ -634,11 +686,24 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
             <div className="grid md:grid-cols-2 gap-4">
                 {/* เลือกนักเรียน */}
                 <Card>
-                    <CardHeader><CardTitle className="text-base">เลือกนักเรียน</CardTitle></CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3">
+                        <CardTitle className="text-base">เลือกนักเรียน</CardTitle>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setScannerOpen(true)}
+                            disabled={isSaving}
+                            className={cn('gap-1.5 shrink-0')}
+                        >
+                            <QrCode className="w-4 h-4" />
+                            สแกน QR
+                        </Button>
+                    </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="space-y-1">
                             <Label>ชั้น/ห้อง</Label>
-                            <Select value={selectedClass || undefined} onValueChange={v => { setSelectedClass(v); setSelectedStudentId(''); }} disabled={isSaving}>
+                            <Select value={selectedClass || undefined} onValueChange={v => { pendingScannedStudentIdRef.current = null; setSelectedClass(v); setSelectedStudentId(''); }} disabled={isSaving}>
                                 <SelectTrigger><SelectValue placeholder="เลือกชั้น" /></SelectTrigger>
                                 <SelectContent>{CLASS_OPTIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                             </Select>
@@ -882,6 +947,11 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
                 accumulatedLabel="คะแนนความดีสะสม"
                 speechComplete={speechComplete}
                 onClose={closePointsConfirmation}
+            />
+            <StudentQRScanner
+                open={scannerOpen}
+                onClose={() => setScannerOpen(false)}
+                onScanned={handleQRScanned}
             />
         </div>
     );

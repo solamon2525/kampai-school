@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import {
     QrCode, Recycle, ArrowDownToLine, ArrowUpFromLine,
-    Wallet, Plus, Trash2, Check, RotateCcw, ArrowLeft,
+    Wallet, Plus, Minus, Trash2, Check, RotateCcw, ArrowLeft, Star,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,8 @@ import {
     savingsTransactionsService,
     savingsErrorMessage,
     savingsSummaryService,
+    conductService,
+    CONDUCT_CATEGORIES,
     termService,
 } from '@/services';
 import type {
@@ -35,8 +38,47 @@ import type {
 import type { SavingsStudentSummary } from '@/services/savings.service';
 
 const QUICK_AMOUNTS = [5, 10, 20, 50, 100] as const;
+const CONDUCT_QUICK_SCORES = [1, 2, 3, 5, 10] as const;
+const CONDUCT_CATEGORY_OPTIONS = Object.values(CONDUCT_CATEGORIES).filter((c) => c.key !== 'reward');
+const CONDUCT_PRESETS = [
+    {
+        label: 'จิตอาสา +2',
+        type: 'add' as const,
+        category: 'publicMind',
+        score: 2,
+        reason: 'ช่วยงานจิตอาสา / บำเพ็ญประโยชน์',
+    },
+    {
+        label: 'เวรประจำวัน +2',
+        type: 'add' as const,
+        category: 'responsibility',
+        score: 2,
+        reason: 'ปฏิบัติหน้าที่เวรประจำวันเรียบร้อย',
+    },
+    {
+        label: 'ช่วยเหลือเพื่อน/ครู +2',
+        type: 'add' as const,
+        category: 'kindness',
+        score: 2,
+        reason: 'มีน้ำใจช่วยเหลือคุณครูและเพื่อน',
+    },
+    {
+        label: 'เข้าแถวสาย -1',
+        type: 'deduct' as const,
+        category: 'discipline',
+        score: 1,
+        reason: 'มาสาย / เข้าแถวเคารพธงชาติสาย',
+    },
+    {
+        label: 'ไม่ส่งงาน -2',
+        type: 'deduct' as const,
+        category: 'responsibility',
+        score: 2,
+        reason: 'ไม่ส่งงานตามกำหนด',
+    },
+] as const;
 
-type Mode = 'scanning' | 'picking' | 'form-waste' | 'form-deposit' | 'form-withdraw' | 'done';
+type Mode = 'scanning' | 'picking' | 'form-waste' | 'form-deposit' | 'form-withdraw' | 'form-conduct' | 'done';
 
 interface ScannedStudent {
     id: string;
@@ -54,10 +96,12 @@ const fmtBaht = (n: number | null | undefined) => {
 
 export default function ScanRecorder() {
     const { toast } = useToast();
+    const queryClient = useQueryClient();
     const [mode, setMode] = useState<Mode>('scanning');
     const [student, setStudent] = useState<ScannedStudent | null>(null);
     const [wasteSummary, setWasteSummary] = useState<WasteStudentSummary | null>(null);
     const [savingsSummary, setSavingsSummary] = useState<SavingsStudentSummary | null>(null);
+    const [conductSummary, setConductSummary] = useState<{ total: number; available: number } | null>(null);
     const [categories, setCategories] = useState<WasteCategory[]>([]);
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
     const [quickRepeat, setQuickRepeat] = useState(true);
@@ -73,6 +117,12 @@ export default function ScanRecorder() {
     const [amount, setAmount] = useState('');
     const [savingsNotes, setSavingsNotes] = useState('');
 
+    // Conduct form state
+    const [conductType, setConductType] = useState<'add' | 'deduct'>('add');
+    const [conductCategory, setConductCategory] = useState('publicMind');
+    const [conductScore, setConductScore] = useState('2');
+    const [conductReason, setConductReason] = useState('');
+
     // โหลด categories ครั้งเดียว
     useEffect(() => {
         (async () => {
@@ -85,12 +135,14 @@ export default function ScanRecorder() {
     useEffect(() => {
         if (!student) return;
         (async () => {
-            const [w, s] = await Promise.all([
+            const [w, s, c] = await Promise.all([
                 wasteSummaryService.getForStudent(student.id),
                 savingsSummaryService.getForStudent(student.id),
+                conductService.getAccumulatedScore(student.id).catch(() => null),
             ]);
             if (w.data) setWasteSummary(w.data as unknown as WasteStudentSummary);
             if (s.data) setSavingsSummary(s.data as unknown as SavingsStudentSummary);
+            if (c) setConductSummary(c);
         })();
     }, [student]);
 
@@ -119,6 +171,11 @@ export default function ScanRecorder() {
         setWasteNotes('');
         setAmount('');
         setSavingsNotes('');
+        setConductSummary(null);
+        setConductType('add');
+        setConductCategory('publicMind');
+        setConductScore('2');
+        setConductReason('');
         setMode('scanning');
     };
 
@@ -219,6 +276,58 @@ export default function ScanRecorder() {
         }
     };
 
+    const handleSubmitConduct = async () => {
+        if (!student || saving) return;
+        const pts = Number(conductScore);
+        if (!Number.isInteger(pts) || pts <= 0 || pts > 100) {
+            toast({ title: 'กรอกคะแนนเป็นจำนวนเต็ม 1–100', variant: 'destructive' });
+            return;
+        }
+        if (!conductReason.trim()) {
+            toast({ title: 'กรุณาระบุเหตุผล', variant: 'destructive' });
+            return;
+        }
+        if (!recorder.staffId && !recorder.administratorId) {
+            toast({ title: 'เลือกผู้บันทึก', variant: 'destructive' });
+            return;
+        }
+        setSaving(true);
+        try {
+            const term = await termService.getActive();
+            const fallbackYear = String(new Date().getFullYear() + 543);
+            const { error } = await conductService.insert({
+                student_id: student.id,
+                type: conductType,
+                score: pts,
+                category: conductCategory,
+                reason: conductReason.trim(),
+                recorded_by: recorder.name || null,
+                recorded_by_staff_id: recorder.staffId,
+                recorded_by_administrator_id: recorder.administratorId,
+                academic_year: term?.year ?? fallbackYear,
+                semester: term?.sem ?? '2',
+            });
+            if (error) throw error;
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['conduct-scores'] }),
+                queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] }),
+                queryClient.invalidateQueries({ queryKey: ['hall-of-fame-heroes'] }),
+                queryClient.invalidateQueries({ queryKey: ['top-heroes'] }),
+            ]);
+            toast({
+                title: conductType === 'add' ? 'บันทึกคะแนนความดีสำเร็จ' : 'บันทึกหักคะแนนความประพฤติสำเร็จ',
+                description: `${student.name} (${conductType === 'add' ? '+' : '-'}${pts} คะแนน) — ${conductReason.trim()}`,
+            });
+            if (quickRepeat) resetAll();
+            else { setStudent(null); setMode('done'); }
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : (err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : 'เกิดข้อผิดพลาด');
+            toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const addWasteRow = () => setWasteRows((r) => [...r, { category_id: '', quantity: '' }]);
     const updateWasteRow = (i: number, key: 'category_id' | 'quantity', value: string) =>
         setWasteRows((r) => r.map((row, idx) => (idx === i ? { ...row, [key]: value } : row)));
@@ -268,6 +377,11 @@ export default function ScanRecorder() {
                                 {student.class_number ? ` · เลขที่ ${student.class_number}` : ''}
                             </div>
                             <div className="flex flex-wrap gap-1 mt-1">
+                                {conductSummary && (
+                                    <Badge variant="outline" className={cn('text-[10px] border-sky-300 bg-card text-sky-900')}>
+                                        ความดี {conductSummary.total} (แลกได้ {conductSummary.available})
+                                    </Badge>
+                                )}
                                 {wasteSummary && (
                                     <Badge variant="outline" className="text-[10px] border-emerald-300 bg-white">
                                         ขยะ {wasteSummary.available_points ?? 0} แต้ม
@@ -333,6 +447,25 @@ export default function ScanRecorder() {
                         <div className="flex-1">
                             <div className="font-bold text-rose-900">ถอนเงิน</div>
                             <div className="text-xs text-rose-800/80">คงเหลือ {fmtBaht(savingsSummary?.current_balance)}</div>
+                        </div>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setMode('form-conduct')}
+                        className={cn(
+                            'rounded-xl border-2 border-sky-300 bg-sky-50 hover:bg-sky-100 p-4 flex items-center gap-3 text-left active:scale-[0.98] transition',
+                        )}
+                    >
+                        <div className={cn('w-12 h-12 rounded-full bg-sky-600 text-primary-foreground flex items-center justify-center flex-shrink-0')}>
+                            <Star className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className={cn('font-bold text-sky-900')}>ความดี / ความประพฤติ</div>
+                            <div className={cn('text-xs text-sky-800/80')}>
+                                {conductSummary
+                                    ? `สะสม ${conductSummary.total} คะแนน · พร้อมแลก ${conductSummary.available} คะแนน`
+                                    : 'บันทึกเพิ่ม/หักคะแนนความประพฤติ'}
+                            </div>
                         </div>
                     </button>
                 </div>
@@ -465,6 +598,238 @@ export default function ScanRecorder() {
                         >
                             <Check className="w-4 h-4" />
                             {saving ? 'กำลังบันทึก...' : mode === 'form-deposit' ? 'บันทึกฝากเงิน' : 'บันทึกถอนเงิน'}
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Mode: form-conduct */}
+            {mode === 'form-conduct' && (
+                <Card>
+                    <CardContent className="p-4 space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                            <h2 className={cn('font-bold flex items-center gap-2 text-sky-900')}>
+                                <Star className="w-5 h-5 text-sky-600" />
+                                ความดี / ความประพฤติ
+                            </h2>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setMode('picking')}
+                                className={cn('gap-1')}
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5" /> เปลี่ยน
+                            </Button>
+                        </div>
+
+                        {conductSummary && (
+                            <div className={cn('flex items-center justify-between bg-sky-50 border border-sky-200 rounded-md px-3 py-2 text-xs')}>
+                                <span className={cn('font-medium text-sky-900')}>คะแนนความดีปัจจุบัน</span>
+                                <span className={cn('font-bold text-sky-900 tabular-nums')}>
+                                    สะสม {conductSummary.total} · พร้อมแลก {conductSummary.available}
+                                </span>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button
+                                type="button"
+                                variant={conductType === 'add' ? 'default' : 'outline'}
+                                onClick={() => {
+                                    setConductType('add');
+                                    setConductCategory('publicMind');
+                                }}
+                                disabled={saving}
+                                className={cn(
+                                    'gap-1.5 font-bold',
+                                    conductType === 'add'
+                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-primary-foreground'
+                                        : 'border-border text-foreground',
+                                )}
+                            >
+                                <Plus className="w-4 h-4" /> บวกความดี
+                            </Button>
+                            <Button
+                                type="button"
+                                variant={conductType === 'deduct' ? 'default' : 'outline'}
+                                onClick={() => {
+                                    setConductType('deduct');
+                                    setConductCategory('discipline');
+                                }}
+                                disabled={saving}
+                                className={cn(
+                                    'gap-1.5 font-bold',
+                                    conductType === 'deduct'
+                                        ? 'bg-rose-600 hover:bg-rose-700 text-primary-foreground'
+                                        : 'border-border text-foreground',
+                                )}
+                            >
+                                <Minus className="w-4 h-4" /> หักคะแนน
+                            </Button>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">ทางลัดด่วน (แตะเพื่อกรอกอัตโนมัติ)</Label>
+                            <div className="flex flex-wrap gap-1.5">
+                                {CONDUCT_PRESETS.map((preset) => {
+                                    const activePreset =
+                                        conductType === preset.type &&
+                                        conductCategory === preset.category &&
+                                        conductScore === String(preset.score) &&
+                                        conductReason === preset.reason;
+                                    return (
+                                        <button
+                                            key={preset.label}
+                                            type="button"
+                                            disabled={saving}
+                                            onClick={() => {
+                                                setConductType(preset.type);
+                                                setConductCategory(preset.category);
+                                                setConductScore(String(preset.score));
+                                                setConductReason(preset.reason);
+                                            }}
+                                            className={cn(
+                                                'px-2.5 py-1 rounded-full border text-xs font-semibold transition-colors',
+                                                activePreset
+                                                    ? preset.type === 'add'
+                                                        ? 'bg-emerald-600 text-primary-foreground border-emerald-600'
+                                                        : 'bg-rose-600 text-primary-foreground border-rose-600'
+                                                    : preset.type === 'add'
+                                                        ? 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
+                                                        : 'bg-rose-50 text-rose-900 border-rose-200 hover:bg-rose-100',
+                                            )}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs">หมวดหมู่</Label>
+                            <Select value={conductCategory} onValueChange={setConductCategory} disabled={saving}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="เลือกหมวดหมู่" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {CONDUCT_CATEGORY_OPTIONS.map((c) => (
+                                        <SelectItem key={c.key} value={c.key}>
+                                            {c.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs">เหตุผล *</Label>
+                            <Input
+                                value={conductReason}
+                                onChange={(e) => setConductReason(e.target.value)}
+                                placeholder="ระบุเหตุผลความดีหรือพฤติกรรม..."
+                                disabled={saving}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-xs">จำนวนคะแนน</Label>
+                            <div className="flex flex-wrap gap-1.5">
+                                {CONDUCT_QUICK_SCORES.map((v) => {
+                                    const activeScore = conductScore === String(v);
+                                    return (
+                                        <button
+                                            key={v}
+                                            type="button"
+                                            disabled={saving}
+                                            onClick={() => setConductScore(String(v))}
+                                            className={cn(
+                                                'px-3 py-1.5 rounded-md border text-sm font-bold tabular-nums transition-colors',
+                                                activeScore
+                                                    ? conductType === 'add'
+                                                        ? 'border-emerald-600 bg-emerald-100 text-emerald-900'
+                                                        : 'border-rose-600 bg-rose-100 text-rose-900'
+                                                    : 'border-border bg-card text-foreground hover:bg-muted',
+                                            )}
+                                        >
+                                            {conductType === 'add' ? `+${v}` : `-${v}`}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    disabled={saving}
+                                    onClick={() =>
+                                        setConductScore((prev) => {
+                                            const cur = parseInt(prev, 10);
+                                            if (isNaN(cur) || cur <= 1) return '1';
+                                            if (cur > 100) return '100';
+                                            return String(cur - 1);
+                                        })
+                                    }
+                                >
+                                    <Minus className="w-4 h-4" />
+                                </Button>
+                                <Input
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={1}
+                                    max={100}
+                                    step={1}
+                                    value={conductScore}
+                                    onChange={(e) => setConductScore(e.target.value)}
+                                    onBlur={() => {
+                                        const val = parseInt(conductScore, 10);
+                                        if (isNaN(val) || val < 1) setConductScore('1');
+                                        else if (val > 100) setConductScore('100');
+                                        else setConductScore(String(val));
+                                    }}
+                                    onWheel={(e) => e.currentTarget.blur()}
+                                    disabled={saving}
+                                    className={cn('w-20 text-center text-lg font-bold tabular-nums')}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    disabled={saving}
+                                    onClick={() =>
+                                        setConductScore((prev) => {
+                                            const cur = parseInt(prev, 10);
+                                            if (isNaN(cur) || cur < 1) return '1';
+                                            if (cur >= 100) return '100';
+                                            return String(cur + 1);
+                                        })
+                                    }
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </Button>
+                                <span className={cn('text-xs text-muted-foreground')}>คะแนน (1–100)</span>
+                            </div>
+                        </div>
+
+                        <Button
+                            type="button"
+                            onClick={handleSubmitConduct}
+                            disabled={saving || !conductReason.trim()}
+                            className={cn(
+                                'w-full gap-2 font-bold',
+                                conductType === 'add'
+                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-primary-foreground'
+                                    : 'bg-rose-600 hover:bg-rose-700 text-primary-foreground',
+                            )}
+                        >
+                            <Check className="w-4 h-4" />
+                            {saving
+                                ? 'กำลังบันทึก...'
+                                : conductType === 'add'
+                                    ? `บันทึกความดี (+${Math.max(1, Math.min(100, parseInt(conductScore, 10) || 1))})`
+                                    : `บันทึกหักคะแนน (-${Math.max(1, Math.min(100, parseInt(conductScore, 10) || 1))})`}
                         </Button>
                     </CardContent>
                 </Card>

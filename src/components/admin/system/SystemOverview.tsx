@@ -290,6 +290,30 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.27',
+        date: '25 พ.ย. 2569',
+        title: 'ธนาคารความดี: แก้ไขข้อมูลเทอม 2, ยกระดับความปลอดภัยคูปอง/RPC และเพิ่มระบบสแกน QR บันทึกความดี',
+        description:
+            'ปรับปรุงข้อมูลคะแนนความดีภาคเรียนที่ 2/2569 (Migration 590) พร้อมทริกเกอร์อัตโนมัติป้องกันการบันทึกผิดเทอม ปรับความสอดคล้องคะแนนพร้อมแลกกับคำขอแลกรางวัลที่รออนุมัติ ติดตั้งตารางเป้าหมายห้องเรียน (classroom_goals) และเพิ่มความปลอดภัยการแลกคูปองสิทธิ์พิเศษบนพอร์ทัลสาธารณะ รวมถึงเพิ่มปุ่มสแกน QR ในหน้าจัดการธนาคารความดี และโหมดบันทึกความดี/ความประพฤติในหน้าสแกนรับเข้าระบบ (ScanRecorder)',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'ธนาคารความดี',
+            'คะแนนความดี',
+            'Migration 590',
+            'Term 2 Sync',
+            'QR Scanner',
+            'ScanRecorder',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Migration 590 & Active-Term Trigger: ปรับแก้ข้อมูลคะแนนความดีเดือนพฤศจิกายน 2569 ที่บันทึกเป็นเทอม 1 ให้เป็นเทอม 2 และเพิ่ม trigger conduct_scores_set_active_term เติมปีการศึกษา/ภาคเรียนปัจจุบันอัตโนมัติ รวมถึงปรับ get_top_heroes ให้หักยอดคำขอแลกรางวัลที่รออนุมัติตรงกับระบบธนาคารขยะ',
+            'Classroom Goals & Privilege Security: ติดตั้งตาราง classroom_goals พร้อมฟังก์ชัน get_classroom_xp_sum ในฐานข้อมูลจริง ปิดช่องโหว่ RLS ของ privilege_redemptions และเพิ่มการยืนยันรหัสนักเรียนใน redeem_classroom_privilege และหน้าสาธารณะ /virtue-bank',
+            'Conduct Helpers & UI Term Resolution: แยกฟังก์ชันคำนวณคะแนนความดีและตรวจรายการแลกรางวัล (isRewardDeductionRecord, computeVirtueSummary) เข้าสู่ conductHelpers.ts พร้อมดึงภาคเรียนปัจจุบันผ่าน termService.getActive() ใน ConductManagement, HallOfFame และ VirtuePassportModal',
+            'QR Scanner & ScanRecorder Conduct Mode: เพิ่มปุ่มสแกน QR (<StudentQRScanner>) ใน ConductManagement RecordTab เพื่อเลือกชั้น/นักเรียนทันที และเพิ่มโหมด "ความดี / ความประพฤติ" ใน ScanRecorder พร้อมปุ่มเลือกด่วนและอัปเดต query cache อัตโนมัติ',
+        ],
+    },
+    {
         version: 'v2.8.26',
         date: '25 พ.ย. 2569',
         title: 'ธนาคารขยะ: แก้ไขความถูกต้องโปรโมชั่น/สิทธิแลกรางวัล, ความปลอดภัย และเพิ่มระบบบันทึกทั้งห้อง + ใบสรุป A4',
