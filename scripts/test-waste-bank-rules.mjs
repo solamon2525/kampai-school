@@ -253,3 +253,75 @@ test('Task 4 component contracts: TermBanner copy, dialog replacements, HomeRigh
   assert.ok(savingsWidgetMatch && !/<img\b/.test(savingsWidgetMatch[0]), 'SavingsBankWidget must not contain raw <img>');
   assert.equal(/\bdark:/.test(sidebarSrc), false);
 });
+
+test('Task 5 component contracts: ClassroomWasteBatchTab, WasteStatementDialog, WasteStudentSummaryTab, WasteBankManagement', async () => {
+  const [batchSrc, statementSrc, summaryTabSrc, mgmtSrc] = await Promise.all([
+    readFile(new URL('../src/components/admin/waste-bank/ClassroomWasteBatchTab.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteStatementDialog.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteStudentSummaryTab.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/WasteBankManagement.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  for (const [label, src] of [
+    ['ClassroomWasteBatchTab', batchSrc],
+    ['WasteStatementDialog', statementSrc],
+    ['WasteStudentSummaryTab', summaryTabSrc],
+    ['WasteBankManagement', mgmtSrc],
+  ]) {
+    assert.equal(/\bdark:/.test(src), false, `${label} must not contain dark:`);
+    assert.equal(/\bbg-white\b/.test(src), false, `${label} must not contain bg-white`);
+    assert.equal(/\btext-black\b/.test(src), false, `${label} must not contain text-black`);
+    assert.equal(
+      /#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/.test(src),
+      false,
+      `${label} must not contain hardcoded hex colors`,
+    );
+    assert.equal(/\b(?:confirm|prompt)\s*\(/.test(src), false, `${label} must not call confirm()/prompt()`);
+    assert.equal(src.includes('supabase.from('), false, `${label} must not call supabase.from()`);
+    assert.equal(/<img\b[^>]*photo_url/.test(src), false, `${label} must not use raw <img> on photo_url`);
+  }
+
+  // ClassroomWasteBatchTab contracts
+  assert.equal(batchSrc.includes('studentsService.getByClass'), true);
+  assert.equal(batchSrc.includes('wasteTransactionsService.insertMany'), true);
+  assert.equal(batchSrc.includes('computeRowPromotionPoints'), true);
+  assert.equal(batchSrc.includes('<PersonAvatar'), true);
+  assert.equal(batchSrc.includes('<RecorderSelect'), true);
+  assert.equal(batchSrc.includes('<ThaiDatePicker'), true);
+  assert.equal(batchSrc.includes('speakThai'), true);
+  assert.equal(batchSrc.includes("['waste-student-summaries']"), true);
+  assert.equal(batchSrc.includes("['waste-transactions']"), true);
+  assert.equal(batchSrc.includes("['waste-classroom-league']"), true);
+  assert.equal(batchSrc.includes('md:hidden'), true);
+  assert.equal(batchSrc.includes('hidden md:block'), true);
+
+  // WasteStatementDialog contracts
+  assert.equal(statementSrc.includes('wasteTransactionsService.getByStudent'), true);
+  assert.equal(statementSrc.includes('rewardClaimsService.listForStudent'), true);
+  assert.equal(statementSrc.includes("['waste-student-statement'"), true);
+  assert.equal(statementSrc.includes('carried_over_points'), true);
+  assert.equal(statementSrc.includes('current_term_points_earned'), true);
+  assert.equal(statementSrc.includes('current_term_points_spent'), true);
+  assert.equal(statementSrc.includes('available_points'), true);
+  assert.equal(statementSrc.includes('โรงเรียนบ้านคำไผ่ สพป.อุดรธานี เขต 2'), true);
+  assert.equal(statementSrc.includes('ยกยอดจากเทอมก่อน'), true);
+  assert.equal(statementSrc.includes('ได้เทอมนี้'), true);
+  assert.equal(statementSrc.includes('ใช้แลกแล้ว'), true);
+  assert.equal(statementSrc.includes('คงเหลือพร้อมแลก'), true);
+  assert.equal(statementSrc.includes('print:p-0'), true);
+  assert.equal(statementSrc.includes('print:hidden'), true);
+  assert.equal(statementSrc.includes('<PersonAvatar'), true);
+  assert.equal(statementSrc.includes('photoUrl={student.photo_url}'), true);
+
+  // WasteStudentSummaryTab contracts
+  assert.equal(summaryTabSrc.includes('WasteStatementDialog'), true);
+  assert.equal(summaryTabSrc.includes('พิมพ์สรุป'), true);
+
+  // WasteBankManagement contracts
+  assert.equal(mgmtSrc.includes("id: 'batch'"), true);
+  assert.equal(mgmtSrc.includes('บันทึกทั้งห้อง'), true);
+  assert.equal(mgmtSrc.includes('ClassroomWasteBatchTab'), true);
+  assert.equal(mgmtSrc.includes('ConfirmDialog'), true);
+  const promoCalls = mgmtSrc.match(/fetchActivePromos\(\)/g) ?? [];
+  assert.equal(promoCalls.length, 1, 'fetchActivePromos() should only be triggered from the activeTab effect');
+});

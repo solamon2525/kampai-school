@@ -290,6 +290,31 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.26',
+        date: '25 พ.ย. 2569',
+        title: 'ธนาคารขยะ: แก้ไขความถูกต้องโปรโมชั่น/สิทธิแลกรางวัล, ความปลอดภัย และเพิ่มระบบบันทึกทั้งห้อง + ใบสรุป A4',
+        description:
+            'แก้ไขโปรโมชั่นกล่องนมพับแบน x3 ให้จับคู่เฉพาะประเภทที่กำหนดพร้อมปรับสมดุลแต้มย้อนหลังในภาคเรียนที่ 2 รวมข้อมูลรางวัลซ้ำซ้อนโดยรักษาประวัติการแลก ปิดช่องโหว่สิทธิ์วงล้อเสี่ยงโชค เชื่อมต่อระบบสองกระเป๋า (แต้มขยะ + คะแนนความดี) บนพอร์ทัลผู้ปกครอง รวมถึงเพิ่มแท็บ "บันทึกทั้งห้อง" และใบสรุปรายงานธนาคารขยะรายบุคคลแบบพิมพ์ A4',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Waste Bank',
+            'Promotions Scope',
+            'Dual-Wallet RPC',
+            'Classroom Batch Entry',
+            'A4 Statement',
+            'Migration 589',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Migration 589 & Promotion Rules: กำหนดขอบเขตโปรโมชั่นรายประเภท/วัน/เวลา (computeRowPromotionPoints) ป้องกันการคูณแต้มผิดประเภท พร้อม Check Constraint และปรับแก้แต้มย้อนหลังเฉพาะเทอม 2 อย่างปลอดภัย',
+            'Reward Catalog & Lucky Spin Security: รวมรายการรางวัลซ้ำซ้อน 4 กลุ่มโดยย้าย FK คำขอแลกเดิมครบถ้วน และจำกัดสิทธิ์ record_waste_lucky_spin + RLS เฉพาะครู/ผู้ดูแลระบบ',
+            'Parent Dual-Wallet & Light-Mode Compliance: เปลี่ยน WasteBankParentView ไปใช้ lookupStudent + claimByCode (ตรวจสอบทั้งแต้มขยะ คะแนนความดี และสต็อก), ปรับข้อความ TermBanner ยกยอดข้ามเทอม, แทนที่ confirm()/prompt() ด้วย Dialog/ConfirmDialog และย้าย HomeRightSidebar ไปใช้ wasteSummaryService + PersonAvatar',
+            'Classroom Batch Entry (บันทึกทั้งห้อง): เพิ่มแท็บ ClassroomWasteBatchTab เลือกชั้น อ.1–ป.6 กรอกจำนวนรายประเภทแบบเรียลไทม์พร้อมคำนวณโปรโมชั่นรายช่อง ส่งข้อมูลทั้งห้องและอ่านสรุปเสียงภาษาไทย',
+            'Printable Student Statement (พิมพ์สรุป A4): เพิ่ม WasteStatementDialog แสดงยอดยกมา แต้มเทอมนี้ ใช้แลกแล้ว คงเหลือพร้อมแลก และไทม์ไลน์รายการ+แลกรางวัลรายบุคคลพร้อมปุ่ม "พิมพ์สรุป" ในทุกมุมมองของ WasteStudentSummaryTab',
+        ],
+    },
+    {
         version: 'v2.8.25',
         date: '16 พ.ย. 2569',
         title: 'สื่อแปลกลอนสุภาพ วรรณคดีลำนำ ป.4 (๗ บทเรียน)',

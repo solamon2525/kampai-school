@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useDeferredValue, memo } from 'react';
-import { Download, LayoutGrid, LayoutList, Layers, Pin } from 'lucide-react';
+import { Download, LayoutGrid, LayoutList, Layers, Pin, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/export';
 import {
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { WasteStatementDialog } from './WasteStatementDialog';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
 const CLASS_ORDER = Object.fromEntries(CLASSES.map((c, i) => [c, i]));
@@ -66,9 +67,11 @@ const applySortFn = (
 const SummaryTableRow = memo(function SummaryTableRow({
   s,
   idx,
+  onPrintStatement,
 }: {
   s: WasteStudentSummary;
   idx: number;
+  onPrintStatement: (student: WasteStudentSummary) => void;
 }) {
   return (
     <tr
@@ -109,14 +112,29 @@ const SummaryTableRow = memo(function SummaryTableRow({
           </div>
         )}
       </td>
+      <td className="p-3 text-right">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!s.student_id}
+          onClick={() => onPrintStatement(s)}
+          className="h-7 px-2.5 text-xs gap-1 font-semibold"
+        >
+          <Printer className="w-3.5 h-3.5" />
+          พิมพ์สรุป
+        </Button>
+      </td>
     </tr>
   );
 });
 
 const SummaryGridCard = memo(function SummaryGridCard({
   s,
+  onPrintStatement,
 }: {
   s: WasteStudentSummary;
+  onPrintStatement: (student: WasteStudentSummary) => void;
 }) {
   const pts = Number(s.available_points ?? 0);
   const hasPoints = pts > 0;
@@ -160,6 +178,17 @@ const SummaryGridCard = memo(function SummaryGridCard({
         <span>{s.total_items ?? 0} ชิ้น</span>
         <span>{s.total_transactions ?? 0} ครั้ง</span>
       </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={!s.student_id}
+        onClick={() => onPrintStatement(s)}
+        className="w-full h-7 text-xs gap-1 font-semibold mt-0.5"
+      >
+        <Printer className="w-3.5 h-3.5" />
+        พิมพ์สรุป
+      </Button>
     </div>
   );
 });
@@ -167,9 +196,11 @@ const SummaryGridCard = memo(function SummaryGridCard({
 const SummaryByClassRow = memo(function SummaryByClassRow({
   s,
   idx,
+  onPrintStatement,
 }: {
   s: WasteStudentSummary;
   idx: number;
+  onPrintStatement: (student: WasteStudentSummary) => void;
 }) {
   return (
     <tr
@@ -190,7 +221,7 @@ const SummaryByClassRow = memo(function SummaryByClassRow({
       </td>
       <td
         className={cn(
-          'p-2.5 text-right text-xs tabular-nums font-extrabold pr-4',
+          'p-2.5 text-right text-xs tabular-nums font-extrabold',
           Number(s.available_points ?? 0) > 0 ? 'text-emerald-700' : 'text-muted-foreground',
         )}
       >
@@ -200,6 +231,19 @@ const SummaryByClassRow = memo(function SummaryByClassRow({
             (ยกยอด {s.carried_over_points})
           </div>
         )}
+      </td>
+      <td className="p-2.5 pr-4 text-right">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!s.student_id}
+          onClick={() => onPrintStatement(s)}
+          className="h-7 px-2 text-xs gap-1 font-semibold"
+        >
+          <Printer className="w-3.5 h-3.5" />
+          พิมพ์สรุป
+        </Button>
       </td>
     </tr>
   );
@@ -214,6 +258,7 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
   const deferredSearch = useDeferredValue(search);
   const [prefLoading, setPrefLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [statementStudent, setStatementStudent] = useState<WasteStudentSummary | null>(null);
 
   useEffect(() => {
     wasteViewPreferenceService.load().then((pref) => {
@@ -412,11 +457,17 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
                   <th className="p-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">ชิ้นรวม</th>
                   <th className="p-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">แต้มได้</th>
                   <th className="p-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">แต้มคงเหลือ</th>
+                  <th className="p-3 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">ใบสรุป</th>
                 </tr>
               </thead>
               <tbody>
                 {sorted.map((s, idx) => (
-                  <SummaryTableRow key={s.student_id ?? s.full_name} s={s} idx={idx} />
+                  <SummaryTableRow
+                    key={s.student_id ?? s.full_name}
+                    s={s}
+                    idx={idx}
+                    onPrintStatement={setStatementStudent}
+                  />
                 ))}
               </tbody>
             </table>
@@ -427,7 +478,11 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
         {viewMode === 'grid' && sorted.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {sorted.map((s) => (
-              <SummaryGridCard key={s.student_id ?? s.full_name} s={s} />
+              <SummaryGridCard
+                key={s.student_id ?? s.full_name}
+                s={s}
+                onPrintStatement={setStatementStudent}
+              />
             ))}
           </div>
         )}
@@ -454,27 +509,43 @@ export const WasteStudentSummaryTab = ({ summaries }: Props) => {
                     </div>
                   </div>
                   {/* Students table */}
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted/50">
-                      <tr>
-                        <th className="p-2.5 text-left text-xs font-bold text-muted-foreground pl-4">นักเรียน</th>
-                        <th className="p-2.5 text-right text-xs font-bold text-muted-foreground">ชิ้น</th>
-                        <th className="p-2.5 text-right text-xs font-bold text-muted-foreground">แต้มได้</th>
-                        <th className="p-2.5 text-right text-xs font-bold text-muted-foreground pr-4">คงเหลือ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {students.map((s, idx) => (
-                        <SummaryByClassRow key={s.student_id ?? s.full_name} s={s} idx={idx} />
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50">
+                        <tr>
+                          <th className="p-2.5 text-left text-xs font-bold text-muted-foreground pl-4">นักเรียน</th>
+                          <th className="p-2.5 text-right text-xs font-bold text-muted-foreground">ชิ้น</th>
+                          <th className="p-2.5 text-right text-xs font-bold text-muted-foreground">แต้มได้</th>
+                          <th className="p-2.5 text-right text-xs font-bold text-muted-foreground">คงเหลือ</th>
+                          <th className="p-2.5 text-right text-xs font-bold text-muted-foreground pr-4">ใบสรุป</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.map((s, idx) => (
+                          <SummaryByClassRow
+                            key={s.student_id ?? s.full_name}
+                            s={s}
+                            idx={idx}
+                            onPrintStatement={setStatementStudent}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+      <WasteStatementDialog
+        student={statementStudent}
+        open={statementStudent !== null}
+        onOpenChange={(open) => {
+          if (!open) setStatementStudent(null);
+        }}
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import {
   List,
   Gift,
   ClipboardCheck,
+  ClipboardList,
   QrCode,
   LayoutGrid,
   ChevronDown,
@@ -69,6 +70,8 @@ import { WasteBankShowcaseManagement } from './WasteBankShowcaseManagement';
 import { WasteClassroomLeague } from './WasteClassroomLeague';
 import { PromotionsManagement } from './PromotionsManagement';
 import { EcoLuckyWheelDialog, type LuckyPrize } from './EcoLuckyWheelDialog';
+import { ClassroomWasteBatchTab } from './ClassroomWasteBatchTab';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { computeRowPromotionPoints } from '@/lib/wasteBankHelpers';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'];
@@ -99,7 +102,7 @@ interface StudentOption {
   photo_url: string | null;
 }
 
-type ActiveTab = 'record' | 'summary' | 'categories' | 'rewards' | 'claims' | 'showcase' | 'league' | 'promotions';
+type ActiveTab = 'record' | 'batch' | 'summary' | 'categories' | 'rewards' | 'claims' | 'showcase' | 'league' | 'promotions';
 
 export const WasteBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
@@ -227,6 +230,8 @@ export const WasteBankManagement = () => {
     color: '',
   });
   const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [deleteTransactionId, setDeleteTransactionId] = useState<string | null>(null);
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
 
   const fetchActivePromos = async () => {
     const { data } = await wastePromotionsService.getActive();
@@ -237,12 +242,11 @@ export const WasteBankManagement = () => {
     fetchCategories();
     fetchTransactions();
     fetchSummaries();
-    fetchActivePromos();
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'record') {
-      fetchActivePromos();
+    if (activeTab === 'record' || activeTab === 'batch') {
+      void fetchActivePromos();
     }
   }, [activeTab]);
 
@@ -430,8 +434,14 @@ export const WasteBankManagement = () => {
     if (quickRepeat) setShowQRScanner(true);
   }, [quickRepeat]);
 
-  const handleDeleteTransaction = async (id: string) => {
-    if (!confirm('ต้องการลบรายการนี้?')) return;
+  const handleDeleteTransaction = (id: string) => {
+    setDeleteTransactionId(id);
+  };
+
+  const confirmDeleteTransaction = async () => {
+    if (!deleteTransactionId) return;
+    const id = deleteTransactionId;
+    setDeleteTransactionId(null);
     const { error } = await wasteTransactionsService.delete(id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
@@ -439,6 +449,9 @@ export const WasteBankManagement = () => {
       toast({ title: 'ลบรายการสำเร็จ' });
       fetchTransactions();
       fetchSummaries();
+      void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
     }
   };
@@ -496,8 +509,14 @@ export const WasteBankManagement = () => {
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!confirm('ต้องการลบประเภทขยะนี้?')) return;
+  const handleDeleteCategory = (id: string) => {
+    setDeleteCategoryId(id);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!deleteCategoryId) return;
+    const id = deleteCategoryId;
+    setDeleteCategoryId(null);
     const { error } = await wasteCategoriesService.deactivate(id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: error.message, variant: 'destructive' });
@@ -509,6 +528,7 @@ export const WasteBankManagement = () => {
 
   const tabList: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'record', label: 'บันทึกรายการ', icon: <Package className="w-4 h-4" /> },
+    { id: 'batch', label: 'บันทึกทั้งห้อง', icon: <ClipboardList className="w-4 h-4" /> },
     { id: 'summary', label: 'สรุปยอดสะสม', icon: <Users className="w-4 h-4" /> },
     { id: 'league', label: 'ศึกลีกห้องเรียน', icon: <Trophy className="w-4 h-4 text-amber-500" /> },
     { id: 'promotions', label: 'แคมเปญ & โปรโมชั่น', icon: <Flame className="w-4 h-4 text-rose-500" /> },
@@ -1001,6 +1021,18 @@ export const WasteBankManagement = () => {
         </div>
       )}
 
+      {/* ===== TAB 1B: บันทึกทั้งห้อง ===== */}
+      {activeTab === 'batch' && (
+        <ClassroomWasteBatchTab
+          categories={categories}
+          activePromos={activePromos}
+          onSuccess={() => {
+            fetchTransactions();
+            fetchSummaries();
+          }}
+        />
+      )}
+
       {/* ===== TAB 2: สรุปยอดสะสม ===== */}
       {activeTab === 'summary' && (
         <WasteStudentSummaryTab summaries={summaries} />
@@ -1203,6 +1235,28 @@ export const WasteBankManagement = () => {
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteTransactionId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTransactionId(null);
+        }}
+        onConfirm={confirmDeleteTransaction}
+        title="ยืนยันลบรายการรับขยะ"
+        description="ต้องการลบรายการนี้ใช่หรือไม่? คะแนนจากรายการนี้จะถูกหักออกจากยอดสะสมของนักเรียน"
+        confirmText="ลบรายการ"
+      />
+
+      <ConfirmDialog
+        open={deleteCategoryId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteCategoryId(null);
+        }}
+        onConfirm={confirmDeleteCategory}
+        title="ยืนยันปิดใช้งานประเภทขยะ"
+        description="ต้องการปิดใช้งานประเภทขยะนี้ใช่หรือไม่? ข้อมูลประวัติเดิมจะยังคงอยู่"
+        confirmText="ปิดใช้งาน"
+      />
     </div>
   );
 };
